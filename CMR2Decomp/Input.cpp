@@ -1004,3 +1004,186 @@ char *CInput::FormatString(LPCSTR format, ...)
     wvsprintfA(m_formatBuffer, format, args);
     return m_formatBuffer;
 }
+
+// FUNCTION: CMR2 0x0049f360
+void CInput::ReadMouse(DeviceInfo *pDevice)
+{
+    DIMOUSESTATE2 mouseState;
+    HRESULT hr;
+    int retries;
+    int i;
+
+    retries = 0;
+    pDevice->field_0x4 = 0;
+    ((LPDIRECTINPUTDEVICE7A)m_pDirectInputMouse)->Poll();
+    hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
+    while (hr == DIERR_INPUTLOST) {
+        if (retries > 5)
+            return;
+        m_pDirectInputMouse->Acquire();
+        retries++;
+        ((LPDIRECTINPUTDEVICE7A)m_pDirectInputMouse)->Poll();
+        hr = m_pDirectInputMouse->GetDeviceState(sizeof(mouseState), &mouseState);
+    }
+
+    pDevice->joystick.bindings[0].field_0xc += mouseState.lX * 150;
+    if (pDevice->joystick.bindings[0].field_0xc > 0x10000)
+        pDevice->joystick.bindings[0].field_0xc = 0x10000;
+    if (pDevice->joystick.bindings[0].field_0xc < -0x10000)
+        pDevice->joystick.bindings[0].field_0xc = -0x10000;
+    pDevice->joystick.bindings[1].field_0xc += mouseState.lY * 150;
+    pDevice->joystick.bindings[2].field_0xc += mouseState.lZ * 150;
+
+    for (i = 0; i < 8; i++) {
+        if (i < 24 && (mouseState.rgbButtons[i] & 0x80))
+            pDevice->field_0x4 |= m_buttonMasks[i];
+    }
+}
+
+// FUNCTION: CMR2 0x0049f480
+void CInput::ReadKeyboardDevice(DeviceInfo *pDevice)
+{
+    pDevice->field_0x4 = 0;
+    if (CGameInfo::m_unk0x0059f8d0 != 0) {
+        if (m_keyboardState[DIK_LEFT] & 0x80)
+            pDevice->field_0x4 = 1;
+        if (m_keyboardState[DIK_RIGHT] & 0x80)
+            pDevice->field_0x4 |= 0x2;
+        if (m_keyboardState[DIK_UP] & 0x80)
+            pDevice->field_0x4 |= 0x4;
+        if (m_keyboardState[DIK_DOWN] & 0x80)
+            pDevice->field_0x4 |= 0x8;
+        if (m_keyboardState[DIK_RETURN] & 0x80)
+            pDevice->field_0x4 |= 0x10;
+        if (m_keyboardState[DIK_ESCAPE] & 0x80)
+            pDevice->field_0x4 |= 0x20;
+        if (m_keyboardState[DIK_F1] & 0x80)
+            pDevice->field_0x4 |= 0x1000;
+        if (m_keyboardState[DIK_F2] & 0x80)
+            pDevice->field_0x4 |= 0x2000;
+    } else {
+        if (m_keyboardState[pDevice->keyboard.field_0x468] & 0x80)
+            pDevice->field_0x4 = 1;
+        if (m_keyboardState[pDevice->keyboard.field_0x469] & 0x80)
+            pDevice->field_0x4 |= 0x2;
+        if (m_keyboardState[pDevice->keyboard.field_0x46a] & 0x80)
+            pDevice->field_0x4 |= 0x4;
+        if (m_keyboardState[pDevice->keyboard.field_0x46b] & 0x80)
+            pDevice->field_0x4 |= 0x8;
+        if (m_keyboardState[pDevice->keyboard.field_0x46c] & 0x80)
+            pDevice->field_0x4 |= 0x10;
+        if (m_keyboardState[pDevice->keyboard.field_0x46d] & 0x80)
+            pDevice->field_0x4 |= 0x20;
+        if (m_keyboardState[pDevice->keyboard.field_0x46e] & 0x80)
+            pDevice->field_0x4 |= 0x40;
+        if (m_keyboardState[pDevice->keyboard.field_0x46f] & 0x80)
+            pDevice->field_0x4 |= 0x80;
+        if (m_keyboardState[pDevice->keyboard.field_0x470] & 0x80)
+            pDevice->field_0x4 |= 0x100;
+        if (m_keyboardState[pDevice->keyboard.field_0x471] & 0x80)
+            pDevice->field_0x4 |= 0x200;
+        if (m_keyboardState[pDevice->keyboard.field_0x472] & 0x80)
+            pDevice->field_0x4 |= 0x400;
+        if (m_keyboardState[pDevice->keyboard.field_0x473] & 0x80)
+            pDevice->field_0x4 |= 0x800;
+        if (m_keyboardState[pDevice->keyboard.field_0x474] & 0x80)
+            pDevice->field_0x4 |= 0x1000;
+        if (m_keyboardState[pDevice->keyboard.field_0x475] & 0x80)
+            pDevice->field_0x4 |= 0x2000;
+        if (m_keyboardState[pDevice->keyboard.field_0x476] & 0x80)
+            pDevice->field_0x4 |= 0x4000;
+        if (m_keyboardState[pDevice->keyboard.field_0x477] & 0x80)
+            pDevice->field_0x4 |= 0x8000;
+    }
+}
+
+// FUNCTION: CMR2 0x0049fb70
+void CInput::ReadJoystick(DeviceInfo *pDevice)
+{
+    DIJOYSTATE2 joyState;
+    LPDIRECTINPUTDEVICE7A pJoystick;
+    HRESULT hr;
+    int retries;
+    int i;
+
+    retries = 0;
+    pJoystick = (LPDIRECTINPUTDEVICE7A)m_unk0x0059f6b0[pDevice->field_0x18];
+    pDevice->field_0x4 = 0;
+    pJoystick->Poll();
+    hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
+    while (hr == DIERR_INPUTLOST) {
+        if (retries > 5)
+            return;
+        pJoystick->Acquire();
+        retries++;
+        pJoystick->Poll();
+        hr = pJoystick->GetDeviceState(sizeof(joyState), &joyState);
+    }
+
+    pDevice->joystick.bindings[0].field_0xc = joyState.lX;
+    pDevice->joystick.bindings[1].field_0xc = joyState.lY;
+    pDevice->joystick.bindings[2].field_0xc = joyState.lZ;
+    pDevice->joystick.bindings[3].field_0xc = joyState.lRx;
+    pDevice->joystick.bindings[4].field_0xc = joyState.lRy;
+    pDevice->joystick.bindings[5].field_0xc = joyState.lRz;
+    pDevice->joystick.bindings[6].field_0xc = joyState.rglSlider[0];
+    pDevice->joystick.bindings[7].field_0xc = joyState.rglSlider[1];
+
+    if (joyState.lX < -39321)
+        pDevice->field_0x4 |= 0x1;
+    else if (joyState.lX > 39321)
+        pDevice->field_0x4 |= 0x2;
+    if (joyState.lY < -39321)
+        pDevice->field_0x4 |= 0x4;
+    else if (joyState.lY > 39321)
+        pDevice->field_0x4 |= 0x8;
+
+    if (LOWORD(joyState.rgdwPOV[0]) != 0xffff) {
+        if (joyState.rgdwPOV[0] >= 4500 && joyState.rgdwPOV[0] <= 13500)
+            pDevice->field_0x4 |= 0x2;
+        if (joyState.rgdwPOV[0] >= 13500 && joyState.rgdwPOV[0] <= 22500)
+            pDevice->field_0x4 |= 0x8;
+        if (joyState.rgdwPOV[0] >= 22500 && joyState.rgdwPOV[0] <= 31500)
+            pDevice->field_0x4 |= 0x1;
+        if (joyState.rgdwPOV[0] >= 31500 || joyState.rgdwPOV[0] <= 4500)
+            pDevice->field_0x4 |= 0x4;
+    }
+
+    for (i = 0; i < pDevice->field_0x14; i++) {
+        if (i < 24 && (joyState.rgbButtons[i] & 0x80))
+            pDevice->field_0x4 |= m_buttonMasks[i];
+    }
+}
+
+// FUNCTION: CMR2 0x0040c130
+void CInput::FUN_0040c130(unsigned short *values, int index, unsigned short value)
+{
+    switch (index) {
+    case 0: values[0] = value; break;
+    case 1: values[1] = value; break;
+    case 2: values[2] = value; break;
+    case 3: values[3] = value; break;
+    case 4: values[4] = value; break;
+    case 5: values[5] = value; break;
+    case 6: values[6] = value; break;
+    case 7: values[7] = value; break;
+    case 8: values[8] = value; break;
+    case 9: values[9] = value; break;
+    }
+}
+
+// FUNCTION: CMR2 0x0040c550
+void CInput::FUN_0040c550(BYTE *values, int index, BYTE value)
+{
+    switch (index) {
+    case 0: values[0] = value; break;
+    case 1: values[1] = value; break;
+    case 2: values[2] = value; break;
+    case 3: values[3] = value; break;
+    case 4: values[4] = value; break;
+    case 5: values[5] = value; break;
+    case 6: values[6] = value; break;
+    case 7: values[7] = value; break;
+    case 8: values[8] = value; break;
+    }
+}

@@ -7,7 +7,7 @@ struct JoystickBinding {
     DWORD range;
     DWORD deadzone;
     DWORD saturation;
-    DWORD field_0xc;
+    int field_0xc;
     BOOL field_0x10;
 };
 
@@ -58,7 +58,7 @@ struct DeviceInfo {
         KeyboardInfo keyboard;
         JoystickInfo joystick;
     };
-    BYTE pad6[16];
+    BYTE pad6[16]; // bindings[7].range/deadzone/saturation/field_0xc overlap this (struct is 0x50c bytes)
 };
 
 struct Unk0x0059f8cc {
@@ -240,6 +240,11 @@ public:
     static void FUN_004aaf50(DWORD param1, int index);
     static void StartForceFeedbackEffect(int effectIndex, int deviceIndex);
     static char *FormatString(LPCSTR format, ...);
+    static void ReadMouse(DeviceInfo *pDevice);
+    static void ReadKeyboardDevice(DeviceInfo *pDevice);
+    static void ReadJoystick(DeviceInfo *pDevice);
+    static void FUN_0040c130(unsigned short *values, int index, unsigned short value);
+    static void FUN_0040c550(BYTE *values, int index, BYTE value);
 };
 
 #endif
