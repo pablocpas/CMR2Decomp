@@ -1071,6 +1071,15 @@ public:
     static DWORD GetDisplayCount(void);
     static void GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *pColourDepth);
     static DWORD FUN_004a96d0(int param1);
+    static void FUN_004a6010(BYTE param1);
+    static void FUN_004a6080(BYTE param1);
+    static TGAImageInfo *ParseTGAHeader(BYTE *pHeader);
+    static void RestoreSurfaces(void);
+    static void SetMipMapCount(DDSURFACEDESC2 *pDesc);
+    static void GetMipMapSurfaces(Texture *pTexture);
+    static int GetMipMapDataSize(Texture *pTexture);
+    static int GetMipMapPixelCount(Texture *pTexture);
+    static void BltMipMaps(Texture *pTexture);
 
 private:
     // GLOBAL: CMR2 0x0051615c
@@ -1106,6 +1115,20 @@ private:
     static int m_unk0x0065fa44;
     // GLOBAL: CMR2 0x0065fa48
     static int m_unk0x0065fa48;
+    // GLOBAL: CMR2 0x00511338
+    static float m_oneOver128;
+    // GLOBAL: CMR2 0x00520b34
+    static float m_unk0x00520b34;
+    // GLOBAL: CMR2 0x00520b38
+    static float m_unk0x00520b38;
+    // GLOBAL: CMR2 0x0065ad08
+    static TGAImageInfo m_tgaImageInfo;
+    // GLOBAL: CMR2 0x00816a80
+    static int m_unk0x00816a80;
+    // GLOBAL: CMR2 0x00816a84
+    static int m_unk0x00816a84;
+    // GLOBAL: CMR2 0x00816ba8
+    static IDirectDrawSurface7 *m_mipMapSurfaces[2];
 
     // GLOBAL: CMR2 0x0065fa28
     static unsigned int m_unk0x0065fa28;

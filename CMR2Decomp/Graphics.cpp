@@ -31,6 +31,13 @@ unsigned int CGraphics::m_unk0x00520b2c = 0xff;
 unsigned int CGraphics::m_unk0x00520b30 = 0xff;
 int CGraphics::m_unk0x0065fa44;
 int CGraphics::m_unk0x0065fa48;
+float CGraphics::m_oneOver128 = 1.0f / 128.0f;
+float CGraphics::m_unk0x00520b34 = 1.0f;
+float CGraphics::m_unk0x00520b38 = 1.0f;
+TGAImageInfo CGraphics::m_tgaImageInfo;
+int CGraphics::m_unk0x00816a80;
+int CGraphics::m_unk0x00816a84;
+IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 unsigned int CGraphics::m_unk0x0065fa28;
 int CGraphics::m_unk0x006dd890;
 int CGraphics::m_unk0x00663b1c;
@@ -969,4 +976,195 @@ void CGraphics::GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *
 DWORD CGraphics::FUN_004a96d0(int param1)
 {
     return m_unk0x0065fd08.entries[param1].capFlag200;
+}
+
+// FUNCTION: CMR2 0x004a6010
+void CGraphics::FUN_004a6010(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x00520b34 = (float)param1 * m_oneOver128;
+}
+
+// FUNCTION: CMR2 0x004a6080
+void CGraphics::FUN_004a6080(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x00520b38 = (float)param1 * m_oneOver128;
+}
+
+// FUNCTION: CMR2 0x004a6670
+TGAImageInfo *CGraphics::ParseTGAHeader(BYTE *pHeader)
+{
+    if (pHeader == NULL || pHeader[1] != 0 || *(short *)(pHeader + 8) != 0 || *(short *)(pHeader + 10) != 0 ||
+        (pHeader[17] & 0x70) != 0 || pHeader[2] == 3 || pHeader[2] != 2)
+        return NULL;
+
+    if (pHeader[16] == 24) {
+        m_tgaImageInfo.bytesPerPixel = 3;
+    } else {
+        if (pHeader[16] != 32)
+            return NULL;
+        if ((pHeader[17] & 0xf) != 8)
+            return NULL;
+        m_tgaImageInfo.bytesPerPixel = 4;
+    }
+    m_tgaImageInfo.width = *(unsigned short *)(pHeader + 12);
+    m_tgaImageInfo.height = *(unsigned short *)(pHeader + 14);
+    m_tgaImageInfo.pixels = pHeader + pHeader[0] + 18;
+    return &m_tgaImageInfo;
+}
+
+#define RENDER_TEXTURE(i) ((RenderTexture *)m_pTextureManager->textureBuffer2[i])
+
+// FUNCTION: CMR2 0x004a82c0
+void CGraphics::RestoreSurfaces(void)
+{
+    unsigned int i;
+    int face;
+
+    if (g_pGraphics != NULL) {
+        if (g_pGraphics->pPrimarySurface != NULL && g_pGraphics->pPrimarySurface->IsLost() != 0)
+            g_pGraphics->pPrimarySurface->Restore();
+        if (g_pGraphics->pBackBufferSurface != NULL && g_pGraphics->pBackBufferSurface->IsLost() != 0)
+            g_pGraphics->pBackBufferSurface->Restore();
+        if (g_pGraphics->pSurface3 != NULL && g_pGraphics->pSurface3->IsLost() != 0)
+            g_pGraphics->pSurface3->Restore();
+
+        for (i = 0; i < m_textureCount; i++) {
+            if (m_pTextureManager->textureBuffer[i]->pSurface != NULL && m_pTextureManager->textureBuffer[i]->pSurface->IsLost() != 0)
+                m_pTextureManager->textureBuffer[i]->pSurface->Restore();
+        }
+
+        for (i = 0; i < m_unk0x0065fa28; i++) {
+            for (face = 0; face < 6; face++) {
+                if (RENDER_TEXTURE(i)->faces[face].pSurface != NULL) {
+                    if (RENDER_TEXTURE(i)->faces[face].pSurface->IsLost() != 0)
+                        RENDER_TEXTURE(i)->faces[face].pSurface->Restore();
+                    if (RENDER_TEXTURE(i)->pZBuffers[face]->IsLost() != 0)
+                        RENDER_TEXTURE(i)->pZBuffers[face]->Restore();
+                }
+            }
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x004bd970
+void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
+{
+    unsigned int dim;
+    int count;
+
+    dim = pDesc->dwHeight;
+    pDesc->dwFlags |= DDSD_MIPMAPCOUNT;
+    if (pDesc->dwWidth > dim) {
+        dim = pDesc->dwWidth;
+        for (count = 0; count < 32; count++) {
+            if (dim & 1)
+                break;
+            dim >>= 1;
+        }
+    } else {
+        for (count = 0; count < 32; count++) {
+            if (dim & 1)
+                break;
+            dim >>= 1;
+        }
+    }
+    pDesc->dwMipMapCount = count & 0xff;
+    if (pDesc->dwMipMapCount > 3)
+        pDesc->dwMipMapCount = 3;
+    pDesc->ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
+}
+
+// FUNCTION: CMR2 0x004bd9d0
+void CGraphics::GetMipMapSurfaces(Texture *pTexture)
+{
+    IDirectDrawSurface7 *pSurface;
+    DDSCAPS2 caps = { 0 };
+    int i;
+
+    pSurface = pTexture->pSurface;
+    m_mipMapSurfaces[0] = NULL;
+    m_mipMapSurfaces[1] = NULL;
+    caps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
+    if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+        caps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+    else
+        caps.dwCaps2 = 0;
+    caps.dwCaps3 = 0;
+    caps.dwCaps4 = 0;
+
+    for (i = 0; i < 2; i++) {
+        if (FAILED(pSurface->GetAttachedSurface(&caps, &m_mipMapSurfaces[i])))
+            return;
+        pSurface = m_mipMapSurfaces[i];
+    }
+}
+
+// FUNCTION: CMR2 0x004bda60
+int CGraphics::GetMipMapDataSize(Texture *pTexture)
+{
+    int width;
+    int height;
+    int levels;
+    int total;
+    int i;
+    int size;
+
+    width = m_unk0x00816a80;
+    height = m_unk0x00816a84;
+    total = 0;
+    levels = 0;
+    for (i = 0; i < 2; i++) {
+        if (m_mipMapSurfaces[i] == NULL)
+            break;
+        levels++;
+    }
+    for (i = levels; i > 0; i--) {
+        width /= 2;
+        height /= 2;
+        total += height * width;
+    }
+
+    size = total * 2;
+    if (pTexture->bitsPerPixel != 16)
+        size = total * 4;
+    return size;
+}
+
+// FUNCTION: CMR2 0x004bdad0
+int CGraphics::GetMipMapPixelCount(Texture *pTexture)
+{
+    int width;
+    int height;
+    int levels;
+    int total;
+    int i;
+
+    width = m_unk0x00816a80;
+    height = m_unk0x00816a84;
+    total = 0;
+    levels = 0;
+    for (i = 0; i < 2; i++) {
+        if (m_mipMapSurfaces[i] == NULL)
+            break;
+        levels++;
+    }
+    for (i = levels; i > 0; i--) {
+        width /= 2;
+        height /= 2;
+        total += height * width;
+    }
+    return total;
+}
+
+// FUNCTION: CMR2 0x004bdb20
+void CGraphics::BltMipMaps(Texture *pTexture)
+{
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        if (m_mipMapSurfaces[i] != NULL)
+            m_mipMapSurfaces[i]->Blt(NULL, pTexture->pSurface, NULL, DDBLT_WAIT, NULL);
+    }
 }

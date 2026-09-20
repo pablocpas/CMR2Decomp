@@ -12,8 +12,33 @@ struct Texture {
     BYTE                    field_0x118[8];
     short                   width;
     short                   height;
-    BYTE                    field_0x124[600];
+    short                   bitsPerPixel;
+    BYTE                    field_0x126[598];
     void*                   buffer;
+};
+
+// Layout used by the entries of D3DTextureManager::textureBuffer2 (cube maps):
+// six face surfaces 0x130 apart starting at 0x114, and six z-buffers at 0x720.
+struct RenderTextureFace {
+    IDirectDrawSurface7 *pSurface;
+    BYTE field_0x4[0x12c];
+};
+
+struct RenderTexture {
+    BYTE field_0x0[0x114];
+    RenderTextureFace faces[5];
+    IDirectDrawSurface7 *pFace5Surface;
+    BYTE field_0x708[0x18];
+    IDirectDrawSurface7 *pZBuffers[6];
+};
+
+// Parsed TGA header, see CGraphics::ParseTGAHeader
+struct TGAImageInfo {
+    unsigned short bytesPerPixel;
+    unsigned short field_0x2;
+    unsigned int width;
+    unsigned int height;
+    BYTE *pixels;
 };
 
 struct LockedTexture {
