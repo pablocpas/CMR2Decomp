@@ -1117,6 +1117,7 @@ public:
     static void FUN_0049df90(BOOL param1, int param2);
 
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
+    static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
 
     // GLOBAL: CMR2 0x00511310
     static double m_oneOver65536;
