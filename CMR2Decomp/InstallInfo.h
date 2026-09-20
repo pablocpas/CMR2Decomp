@@ -9,6 +9,7 @@ public:
     static char *GetFrontendDir();
     static char *GetCountrySpecificDir();
     static BOOL ShowNoCDErrorMessage(void);
+    static int WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size);
     static int FUN_0040e8d0(void);
     static void SetGameHDPath(char *filePath);
     static void SetGameCDPath(char *filePath);

@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 // GLOBAL: CMR2 0x00511758
 // IID_IDirectInput7A
@@ -77,6 +78,7 @@ DWORD CInput::m_unk0x0059f900;
 DWORD CInput::m_unk0x0059f90c;
 DWORD CInput::m_unk0x0059f910;
 
+unsigned short CInput::m_controllerCount = 1;
 char CInput::m_strControllerInfoDir[32] = "%s\\Configuration\\Controller.rcf";
 BOOL CInput::m_hasLoadedControllerInfo;
 ControllerData CInput::m_controllerInfo[6];
@@ -1334,4 +1336,214 @@ int CInput::CreateSpringEffect(DWORD duration, LONG coefficient, LONG offset, in
 int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex)
 {
     return CreateForceFeedbackEffect(0xd, duration, coefficient, offset, triggerButton, deviceIndex);
+}
+
+// FUNCTION: CMR2 0x0040c2a0
+short CInput::GetButtonMapping(unsigned short controller, int button)
+{
+    unsigned short index;
+    ControllerData *pController;
+    short mapping;
+
+    mapping = 0;
+    index = m_unk0x005168f4[controller];
+    pController = &m_controllerInfo[index];
+    switch (button) {
+    case 0: mapping = pController->field_0x128; break;
+    case 1: mapping = pController->field_0x12a; break;
+    case 2: mapping = pController->field_0x12c; break;
+    case 3: mapping = pController->field_0x12e; break;
+    case 4: mapping = pController->field_0x130; break;
+    case 5: mapping = pController->field_0x132; break;
+    case 6: mapping = pController->field_0x134; break;
+    case 7: mapping = pController->field_0x136; break;
+    case 8: mapping = pController->field_0x138; break;
+    case 9: mapping = pController->field_0x13a; break;
+    default: goto defaults;
+    }
+
+    if (mapping == 0) {
+defaults:
+        if (controller == 0 || controller == 1)
+            goto fixed;
+    }
+
+    if (!FUN_0040c270(button, pController))
+        return mapping;
+
+fixed:
+    switch (button) {
+    case 0: mapping = 1; break;
+    case 1: mapping = 2; break;
+    case 2: mapping = 4; break;
+    case 3: mapping = 8; break;
+    case 4: mapping = 0x10; break;
+    case 5: mapping = 0x20; break;
+    case 6: mapping = 0x40; break;
+    case 7: mapping = 0x80; break;
+    case 8: mapping = 0x100; break;
+    case 9: mapping = 0x200; break;
+    }
+    return mapping;
+}
+
+// FUNCTION: CMR2 0x004ab030
+HRESULT CInput::SetEffectGain(int effectIndex, DWORD gain, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    LPDIRECTINPUTEFFECT pEffect;
+    DWORD flags;
+
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    flags = DIEP_GAIN;
+    if (m_unk0x00666ec8[deviceIndex] == 0)
+        flags = DIEP_GAIN | DIEP_NODOWNLOAD;
+
+    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
+        DIEFFECT effect = { sizeof(DIEFFECT) };
+        effect.dwGain = gain;
+        return pEffect->SetParameters(&effect, flags);
+    }
+    return E_INVALIDARG;
+}
+
+// FUNCTION: CMR2 0x004ab0b0
+HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG direction, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    LPDIRECTINPUTEFFECT pEffect;
+    DWORD flags;
+
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    flags = DIEP_GAIN | DIEP_DIRECTION;
+    if (m_unk0x00666ec8[deviceIndex] == 0)
+        flags = DIEP_GAIN | DIEP_DIRECTION | DIEP_NODOWNLOAD;
+
+    if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
+        DIEFFECT effect = { sizeof(DIEFFECT) };
+        LONG lDirection[2];
+        effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
+        effect.cAxes = 2;
+        effect.rgdwAxes = NULL;
+        effect.dwGain = gain;
+        effect.rglDirection = lDirection;
+        lDirection[0] = direction;
+        return pEffect->SetParameters(&effect, flags);
+    }
+    return E_INVALIDARG;
+}
+
+// FUNCTION: CMR2 0x004ab150
+int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    int i;
+    DIENVELOPE envelope;
+    LONG lDirection[2];
+    DWORD dwAxes[2];
+    DICONSTANTFORCE constantForce;
+
+    i = 0;
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    if (pDevice->field_0x0 == 0)
+        return -1;
+
+    while (pDevice->effects[i] != NULL) {
+        if (i == 10)
+            return -1;
+        i++;
+    }
+
+    constantForce.lMagnitude = magnitude;
+    memset(&envelope, 0, sizeof(envelope));
+    envelope.dwAttackTime = attackTime;
+    envelope.dwFadeTime = fadeTime;
+    envelope.dwAttackLevel = attackLevel;
+    envelope.dwFadeLevel = fadeLevel;
+    lDirection[0] = direction;
+    DIEFFECT effect = { sizeof(DIEFFECT) };
+    effect.dwSamplePeriod = 10000;
+    effect.dwGain = 10000;
+    envelope.dwSize = sizeof(DIENVELOPE);
+    dwAxes[0] = DIJOFS_X;
+    dwAxes[1] = DIJOFS_Y;
+    lDirection[1] = 0;
+    effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
+    effect.dwDuration = duration;
+    if (triggerButton == -1)
+        effect.dwTriggerButton = triggerButton;
+    else
+        effect.dwTriggerButton = DIJOFS_BUTTON(triggerButton);
+    effect.rgdwAxes = dwAxes;
+    effect.rglDirection = lDirection;
+    effect.lpEnvelope = &envelope;
+    effect.lpvTypeSpecificParams = &constantForce;
+    effect.dwTriggerRepeatInterval = 0;
+    effect.cAxes = 2;
+    effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
+
+    FUN_004ab5f0(pDevice->device->CreateEffect(GUID_ConstantForce, &effect, &pDevice->effects[i], NULL));
+    return i;
+}
+
+// FUNCTION: CMR2 0x004ab2b0
+HRESULT CInput::SetConditionCoefficient(int effectIndex, LONG coefficient, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    DWORD flags;
+    int slot;
+
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    flags = DIEP_TYPESPECIFICPARAMS;
+    if (m_unk0x00666ec8[deviceIndex] == 0)
+        flags = DIEP_TYPESPECIFICPARAMS | DIEP_NODOWNLOAD;
+
+    if (pDevice->field_0x0 != 0 && pDevice->effects[effectIndex] != NULL) {
+        slot = deviceIndex * 10 + effectIndex;
+        m_forceFeedbackConditions[slot].lOffset = 0;
+        m_forceFeedbackConditions[slot].lPositiveCoefficient = coefficient;
+        m_forceFeedbackConditions[slot].lNegativeCoefficient = coefficient;
+        m_forceFeedbackConditions[slot].dwPositiveSaturation = 10000;
+        m_forceFeedbackConditions[slot].dwNegativeSaturation = 10000;
+        m_forceFeedbackConditions[slot].lDeadBand = 0;
+        m_forceFeedbackEffects[slot].cbTypeSpecificParams = sizeof(DICONDITION);
+        m_forceFeedbackEffects[slot].lpvTypeSpecificParams = &m_forceFeedbackConditions[slot];
+        return pDevice->effects[effectIndex]->SetParameters(&m_forceFeedbackEffects[slot], flags);
+    }
+    return E_INVALIDARG;
+}
+
+// FUNCTION: CMR2 0x0040bff0
+void CInput::SaveControllerInfo(void)
+{
+    unsigned int *buffer;
+
+    buffer = (unsigned int *)CFileBuffer::AllocateLockedBuffer(0x11a4);
+    memcpy(buffer, m_controllerInfo, sizeof(m_controllerInfo));
+    buffer[0x468] = *(unsigned int *)m_unk0x005168f4;
+    sprintf(CFrontend::m_stringDest, m_strControllerInfoDir, CInstallInfo::GetGameHDPath());
+    CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 2, buffer, 0x11a4);
+    CFileBuffer::FreeGenericFileBuffer(buffer);
+}
+
+// STUB: CMR2 0x0040c610
+void CInput::FUN_0040c610(DeviceInfo *pDevice, int index)
+{
+}
+
+// FUNCTION: CMR2 0x0040c050
+void CInput::FUN_0040c050(void)
+{
+    DeviceInfo *pDevice;
+    int i;
+
+    m_controllerCount = FUN_0049ef90();
+    for (i = 0; i < m_controllerCount; i++) {
+        pDevice = UpdateDevice(i);
+        if (m_hasLoadedControllerInfo == 0 || strcmp(m_controllerInfo[i].name, pDevice->deviceInstanceName) != 0)
+            FUN_0040c610(pDevice, i);
+    }
+    if (m_controllerCount < 6)
+        memset(&m_controllerInfo[m_controllerCount], 0, (6 - m_controllerCount) * sizeof(ControllerData));
+    m_hasLoadedControllerInfo = TRUE;
 }

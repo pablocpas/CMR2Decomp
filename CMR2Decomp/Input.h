@@ -85,9 +85,8 @@ struct ControllerDataUnk0x210 {
 struct ControllerData {
     unsigned int field_0x0;
     unsigned int field_0x4;
-    BYTE field_0x8;
-    BYTE field_0x9;
-    BYTE field_0xa_padding[266];
+    char name[MAX_PATH];
+    BYTE field_0x10c_padding[8];
     DWORD field_0x114;
     BYTE field_0x118_padding[8];
     DWORD field_0x120;
@@ -125,6 +124,9 @@ struct ControllerInfo {
     BYTE field_0x146;
     BYTE pad[4185];
 };
+
+// GLOBAL: CMR2 0x00511908
+// GUID_ConstantForce
 
 // GLOBAL: CMR2 0x00511978
 // GUID_Spring
@@ -262,6 +264,17 @@ public:
     static int CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
     static int CreateSpringEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
     static int CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
+    static short GetButtonMapping(unsigned short controller, int button);
+    static HRESULT SetEffectGain(int effectIndex, DWORD gain, int deviceIndex);
+    static HRESULT SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG direction, int deviceIndex);
+    static int CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex);
+    static HRESULT SetConditionCoefficient(int effectIndex, LONG coefficient, int deviceIndex);
+    static void SaveControllerInfo(void);
+    static void FUN_0040c050(void);
+    static void FUN_0040c610(DeviceInfo *pDevice, int index);
+
+    // GLOBAL: CMR2 0x00516904
+    static unsigned short m_controllerCount;
 
     // GLOBAL: CMR2 0x00520868
     static unsigned int m_directionButtonMask;

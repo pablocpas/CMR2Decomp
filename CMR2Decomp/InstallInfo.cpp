@@ -1,4 +1,5 @@
 #include "InstallInfo.h"
+#include <string.h>
 #include "main.h"
 #include "Logger.h"
 #include "RegKey.h"
@@ -248,4 +249,33 @@ char* CInstallInfo::GetGameHDPath(void) {
 // FUNCTION: CMR2 0x004aa710
 char* CInstallInfo::GetGameCDPath(void) {
     return m_isCDInstall ? m_cdPath : NULL;
+}
+
+// FUNCTION: CMR2 0x004aa5a0
+int CInstallInfo::WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size)
+{
+    char path[MAX_PATH];
+    DWORD bytesWritten;
+    HANDLE hFile;
+    BOOL result;
+
+    if (mode == 1) {
+        strcpy(path, m_hdPath);
+        strcat(path, name);
+    } else {
+        strcpy(path, name);
+    }
+
+    hFile = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        if (GetFileAttributesA(path) != 0xffffffff)
+            return 2;
+        return 0;
+    }
+
+    result = WriteFile(hFile, data, size, &bytesWritten, NULL);
+    CloseHandle(hFile);
+    if (result && bytesWritten == size)
+        return 1;
+    return 0;
 }

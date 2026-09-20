@@ -1,6 +1,3 @@
-// The original translation unit did not see dllimport declarations for the CRT
-// (malloc/free are called through import thunks), so disable _CRTIMP here.
-#define _CRTIMP
 #include "Sound.h"
 #include "main.h"
 #include "InstallInfo.h"
