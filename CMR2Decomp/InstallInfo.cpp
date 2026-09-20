@@ -79,10 +79,11 @@ char *CInstallInfo::GetCountrySpecificDir(void)
 }
 
 // FUNCTION: CMR2 0x004aa480
-BOOL CInstallInfo::ShowNoCDErrorMessage(int param1)
+BOOL CInstallInfo::ShowNoCDErrorMessage(void)
 {
     char *gameLanguage;
     int languageID;
+    int unknownLanguageID; // never initialised in the original
 
     gameLanguage = CRegKey::GetValueFromKey(CRegKey::m_regKeyLanguage);
     languageID = _stricmp(gameLanguage, CRegKey::m_regKeyValueEnglish);
@@ -111,7 +112,7 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(int param1)
                             if (_stricmp(gameLanguage, CRegKey::m_regKeyValueAmerican) == 0)
                                 languageID = 6;
                             else
-                                languageID = param1;
+                                languageID = unknownLanguageID;
                         }
                     }
                 }

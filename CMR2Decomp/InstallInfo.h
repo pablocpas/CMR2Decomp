@@ -8,7 +8,7 @@ class CInstallInfo
 public:
     static char *GetFrontendDir();
     static char *GetCountrySpecificDir();
-    static BOOL ShowNoCDErrorMessage(int param1);
+    static BOOL ShowNoCDErrorMessage(void);
     static int FUN_0040e8d0(void);
     static void SetGameHDPath(char *filePath);
     static void SetGameCDPath(char *filePath);

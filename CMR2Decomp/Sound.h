@@ -6,11 +6,38 @@
 #include <MMSYSTEM.H>
 #include <MSACM.H>
 #include <DSOUND.H>
+#include <stdlib.h>
+#include <string.h>
 
+// Wave file reader, modelled on wave.c / CWaveFile from the DirectX SDK samples
 struct MMIOData {
-    void* pBuffer;    // Offset 0x0
-    HMMIO hmmio;      // Offset 0x4
+    WAVEFORMATEX *pBuffer;  // Offset 0x0
+    HMMIO hmmio;            // Offset 0x4
+    MMCKINFO ck;            // Offset 0x8
+    MMCKINFO ckRiff;        // Offset 0x1c
+    DWORD dwSize;           // Offset 0x30
+
+    MMIOData();
+    void Open(LPSTR strFileName);
+    void StartDataRead(void);
+    void Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead);
 };
+
+// Data passed through the ACM enumeration callbacks
+struct AcmFindData {
+    HACMDRIVERID hadid;
+    WORD wFormatTag;
+};
+
+HRESULT ReadMMIO(HMMIO hmmioIn, MMCKINFO *pckInRIFF, WAVEFORMATEX **ppwfxInfo);
+HRESULT WaveOpenFile(LPSTR strFileName, HMMIO *phmmioIn, WAVEFORMATEX **ppwfxInfo, MMCKINFO *pckInRIFF);
+HRESULT WaveStartDataRead(HMMIO *phmmioIn, MMCKINFO *pckIn, MMCKINFO *pckInRIFF, DWORD *pdwSize);
+HRESULT WaveReadFile(HMMIO hmmioIn, UINT cbRead, BYTE *pbDest, MMCKINFO *pckIn, UINT *cbActualRead);
+
+BOOL CALLBACK AcmFormatEnumCallback(HACMDRIVERID hadid, LPACMFORMATDETAILS pafd, DWORD dwInstance, DWORD fdwSupport);
+BOOL CALLBACK AcmDriverEnumCallback(HACMDRIVERID hadid, DWORD dwInstance, DWORD fdwSupport);
+HACMDRIVERID AcmFindDriver(WORD wFormatTag);
+WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
 
 
 class CSound {

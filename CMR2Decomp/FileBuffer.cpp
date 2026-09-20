@@ -81,7 +81,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
 
                     do
                     {
-                        if (CInstallInfo::ShowNoCDErrorMessage(0))
+                        if (CInstallInfo::ShowNoCDErrorMessage())
                             unk0x004bdee0 = FUN_004bdee0(_fileName, m_unk0x00520f1c);
                     } while (!unk0x004bdee0);
 
