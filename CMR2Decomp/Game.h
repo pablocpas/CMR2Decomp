@@ -93,6 +93,8 @@ public:
     static bool FUN_004aaa40(void);
     static void FUN_0040bab0(BOOL param1);
     static void FUN_004e2e50(void);
+    static void FUN_004057c0(void);
+    static void FUN_004057e0(int param1);
     
     // GLOBAL: CMR2 0x00663db8
     static BOOL m_shouldExit;
@@ -104,6 +106,8 @@ public:
     static int m_unk0x00523c5c;
     // GLOBAL: CMR2 0x0052ea4c
     static int m_unk0x0052ea4c;
+    // GLOBAL: CMR2 0x0052ea51
+    static BYTE m_unk0x0052ea51;
     // GLOBAL: CMR2 0x00817eb0
     static bool m_unk0x00817eb0;
     // GLOBAL: CMR2 0x00817da0

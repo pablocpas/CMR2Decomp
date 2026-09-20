@@ -19,6 +19,7 @@ int CGame::m_unk0x00523c58 = -1;
 int CGame::m_unk0x00523c5c = -1;
 Unk0049c2c0 CGame::m_unk0x00817da0;
 int CGame::m_unk0x0052ea4c;
+BYTE CGame::m_unk0x0052ea51;
 bool CGame::m_unk0x00817eb0 = false;
 Unk00817d98 CGame::m_unk0x00817d98;
 BYTE CGame::m_unk0x00523c18 = 0;
@@ -112,6 +113,18 @@ BOOL CGame::FUN_004d0780(void)
 int CGame::FUN_004057d0(void)
 {
     return m_unk0x0052ea4c;
+}
+
+// FUNCTION: CMR2 0x004057c0
+void CGame::FUN_004057c0(void)
+{
+    m_unk0x0052ea51 = 1;
+}
+
+// FUNCTION: CMR2 0x004057e0
+void CGame::FUN_004057e0(int param1)
+{
+    m_unk0x0052ea4c = param1;
 }
 
 // FUNCTION: CMR2 0x004d15e0

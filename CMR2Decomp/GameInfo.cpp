@@ -8,8 +8,10 @@
 #include "main.h"
 #include "Game.h"
 #include "Sound.h"
+#include "RallyData.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // GLOBAL: CMR2 0x00516134
 char gameRegionPoland[9] = "\\Poland\\";
@@ -21,6 +23,18 @@ char gameRegionUSA[6] = "\\Usa\\";
 char gameRegionEurope[9] = "\\Europe\\";
 
 GameInfo CGameInfo::m_gameInfo;
+BYTE CGameInfo::m_unk0x0052ea52;
+unsigned int CGameInfo::m_unk0x0052af80;
+unsigned int CGameInfo::m_unk0x0052af84;
+unsigned int CGameInfo::m_unk0x0052af88;
+unsigned int CGameInfo::m_unk0x0052af8c;
+unsigned int CGameInfo::m_unk0x0052af94;
+unsigned int CGameInfo::m_unk0x0052af98;
+unsigned int CGameInfo::m_unk0x0052af9c;
+unsigned int CGameInfo::m_unk0x0052e93c;
+unsigned int CGameInfo::m_unk0x0052e940;
+unsigned int CGameInfo::m_unk0x0052ea44;
+unsigned int CGameInfo::m_unk0x0052ea48;
 unsigned int CGameInfo::m_gameRegion;
 char *CGameInfo::m_gameRegionStrings[4] = {
     gameRegionEurope, gameRegionUSA, gameRegionJapan, gameRegionPoland};
@@ -387,6 +401,133 @@ unsigned int CGameInfo::FUN_00405d10(void)
 void CGameInfo::FUN_00405d40(unsigned int param1)
 {
     m_gameInfo.field_0x34 = m_gameInfo.field_0x34 ^ (m_gameInfo.field_0x34 ^ param1) & 3;
+}
+
+// FUNCTION: CMR2 0x00406310
+unsigned int CGameInfo::FUN_00406310(void)
+{
+    return m_gameInfo.field_0x18 >> 30 & 1;
+}
+
+// FUNCTION: CMR2 0x00406320
+BYTE CGameInfo::FUN_00406320(void)
+{
+    return m_unk0x0052ea52;
+}
+
+// FUNCTION: CMR2 0x00406330
+void CGameInfo::FUN_00406330(BYTE param1)
+{
+    m_unk0x0052ea52 = param1;
+}
+
+// FUNCTION: CMR2 0x00406340
+void CGameInfo::FUN_00406340(BYTE param1)
+{
+    m_gameInfo.field_0x14 = ((param1 & 1) << 18) | (m_gameInfo.field_0x14 & 0xfffbffffU);
+}
+
+// FUNCTION: CMR2 0x00406360
+unsigned int CGameInfo::FUN_00406360(int param1)
+{
+    return (BYTE)(1 << param1) & m_gameInfo.field_0x20;
+}
+
+// FUNCTION: CMR2 0x00406380
+void CGameInfo::FUN_00406380(int param1, int param2)
+{
+    BYTE mask;
+
+    mask = (BYTE)(1 << param1);
+    if (param2 != 0) {
+        m_gameInfo.field_0x20 |= mask;
+        return;
+    }
+    m_gameInfo.field_0x20 &= (BYTE)~mask | 0xffffff00;
+}
+
+// FUNCTION: CMR2 0x004063d0
+bool CGameInfo::FUN_004063d0(int param1)
+{
+    return ((BYTE)(m_gameInfo.field_0x20 >> 8) & (BYTE)(1 << param1)) != 0;
+}
+
+// FUNCTION: CMR2 0x004063f0
+bool CGameInfo::FUN_004063f0(int param1)
+{
+    return ((BYTE)(m_gameInfo.field_0x20 >> 16) & (BYTE)(1 << param1)) != 0;
+}
+
+// FUNCTION: CMR2 0x00406430
+unsigned int CGameInfo::FUN_00406430(void)
+{
+    return ((BYTE *)&m_gameInfo.field_0x20)[2];
+}
+
+// FUNCTION: CMR2 0x00406440
+unsigned int CGameInfo::FUN_00406440(void)
+{
+    return m_gameInfo.field_0x1c >> 11 & 1;
+}
+
+// FUNCTION: CMR2 0x00406450
+unsigned int CGameInfo::FUN_00406450(unsigned int **param1)
+{
+    if (param1 != NULL)
+        *param1 = &m_gameInfo.field_0x38f4;
+    return m_gameInfo.field_0x38f4;
+}
+
+// FUNCTION: CMR2 0x00406470
+void CGameInfo::FUN_00406470(void)
+{
+    m_unk0x0052af94 = FUN_00405d80();
+    m_unk0x0052ea44 = FUN_00405d70();
+    m_unk0x0052af9c = FUN_00405d90();
+    m_unk0x0052af80 = RallyData_FUN_004069a0();
+    m_unk0x0052af84 = (BYTE)RallyData_FUN_00406940();
+    m_unk0x0052af8c = (BYTE)RallyData_FUN_00406950();
+    m_unk0x0052e93c = (BYTE)RallyData_FUN_00406990();
+    m_unk0x0052ea48 = (BYTE)RallyDataStageIndex();
+    m_unk0x0052e940 = (BYTE)RallyDataCountryIndex();
+    m_unk0x0052af98 = m_gameInfo.field_0x14 >> 23 & 0xf;
+    m_unk0x0052af88 = m_gameInfo.field_0x14 >> 27 & 0xf;
+}
+
+// FUNCTION: CMR2 0x00406520
+BYTE CGameInfo::FUN_00406520(int param1, int param2)
+{
+    return m_gameInfo.field_0x38f8[param1 * 11 + param2];
+}
+
+// FUNCTION: CMR2 0x00406540
+void CGameInfo::FUN_00406540(int param1, int param2, BYTE param3)
+{
+    m_gameInfo.field_0x38f8[param1 * 11 + param2] = param3;
+}
+
+// FUNCTION: CMR2 0x00406690
+char *CGameInfo::FUN_00406690(void)
+{
+    return m_gameInfo.field_0x3950;
+}
+
+// FUNCTION: CMR2 0x004066a0
+void CGameInfo::FUN_004066a0(char *name)
+{
+    strcpy(m_gameInfo.field_0x3950, name);
+}
+
+// FUNCTION: CMR2 0x004066d0
+char *CGameInfo::FUN_004066d0(void)
+{
+    return m_gameInfo.field_0x3965;
+}
+
+// FUNCTION: CMR2 0x004066e0
+void CGameInfo::FUN_004066e0(char *name)
+{
+    strcpy(m_gameInfo.field_0x3965, name);
 }
 
 // FUNCTION: CMR2 0x00510410

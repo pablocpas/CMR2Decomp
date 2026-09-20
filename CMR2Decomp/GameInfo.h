@@ -34,7 +34,7 @@ struct GameInfo
     unsigned int field_0x14; /* first byte of this contains language */
     unsigned int field_0x18;
     unsigned int field_0x1c;
-    BYTE field_0x20_padding[4];
+    unsigned int field_0x20;
     int screenWidth;
     int screenHeight;
     int screenColourDepth;
@@ -152,9 +152,54 @@ public:
     static void FUN_004a0c60(void);
     static unsigned int FUN_00405bd0(void);
     static unsigned int FUN_00405c00(void);
+    static unsigned int FUN_00406310(void);
+    static BYTE FUN_00406320(void);
+    static void FUN_00406330(BYTE param1);
+    static void FUN_00406340(BYTE param1);
+    static unsigned int FUN_00406360(int param1);
+    static void FUN_00406380(int param1, int param2);
+    static bool FUN_004063d0(int param1);
+    static bool FUN_004063f0(int param1);
+    static unsigned int FUN_00406430(void);
+    static unsigned int FUN_00406440(void);
+    static unsigned int FUN_00406450(unsigned int **param1);
+    static void FUN_00406470(void);
+    static BYTE FUN_00406520(int param1, int param2);
+    static void FUN_00406540(int param1, int param2, BYTE param3);
+    static char *FUN_00406690(void);
+    static void FUN_004066a0(char *name);
+    static char *FUN_004066d0(void);
+    static void FUN_004066e0(char *name);
 
     // GLOBAL: CMR2 0x0052afa0
     static GameInfo m_gameInfo;
+
+    // GLOBAL: CMR2 0x0052ea52
+    static BYTE m_unk0x0052ea52;
+
+    // cached copies of bitfield values, refreshed by FUN_00406470
+    // GLOBAL: CMR2 0x0052af80
+    static unsigned int m_unk0x0052af80;
+    // GLOBAL: CMR2 0x0052af84
+    static unsigned int m_unk0x0052af84;
+    // GLOBAL: CMR2 0x0052af88
+    static unsigned int m_unk0x0052af88;
+    // GLOBAL: CMR2 0x0052af8c
+    static unsigned int m_unk0x0052af8c;
+    // GLOBAL: CMR2 0x0052af94
+    static unsigned int m_unk0x0052af94;
+    // GLOBAL: CMR2 0x0052af98
+    static unsigned int m_unk0x0052af98;
+    // GLOBAL: CMR2 0x0052af9c
+    static unsigned int m_unk0x0052af9c;
+    // GLOBAL: CMR2 0x0052e93c
+    static unsigned int m_unk0x0052e93c;
+    // GLOBAL: CMR2 0x0052e940
+    static unsigned int m_unk0x0052e940;
+    // GLOBAL: CMR2 0x0052ea44
+    static unsigned int m_unk0x0052ea44;
+    // GLOBAL: CMR2 0x0052ea48
+    static unsigned int m_unk0x0052ea48;
 
     // GLOBAL: CMR2 0x0052ea54
     static unsigned int m_gameRegion;
