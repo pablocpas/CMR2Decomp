@@ -37,10 +37,11 @@ struct KeyboardInfo {
 };
 
 struct DeviceInfo {
-    DWORD field_0x0;
-    BOOL field_0x4;
-    DWORD field_0x8;
-    BYTE pad[6];
+    DWORD field_0x0;        // device type: 0/3 joystick, 1 keyboard, 2 mouse
+    unsigned int field_0x4; // buttons held
+    unsigned int field_0x8; // buttons pressed this frame
+    unsigned int field_0xc; // direction buttons auto-repeated this frame
+    int field_0x10;         // next auto-repeat time
     int field_0x14;
     int field_0x18;
     int field_0x1c;
@@ -124,6 +125,18 @@ struct ControllerInfo {
     BYTE field_0x146;
     BYTE pad[4185];
 };
+
+// GLOBAL: CMR2 0x00511978
+// GUID_Spring
+
+// GLOBAL: CMR2 0x00511988
+// GUID_Damper
+
+// GLOBAL: CMR2 0x00511998
+// GUID_Inertia
+
+// GLOBAL: CMR2 0x005119a8
+// GUID_Friction
 
 // GLOBAL: CMR2 0x00511898
 // GUID_SysMouse
@@ -245,6 +258,19 @@ public:
     static void ReadJoystick(DeviceInfo *pDevice);
     static void FUN_0040c130(unsigned short *values, int index, unsigned short value);
     static void FUN_0040c550(BYTE *values, int index, BYTE value);
+    static DeviceInfo *UpdateDevice(int index);
+    static int CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
+    static int CreateSpringEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
+    static int CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex);
+
+    // GLOBAL: CMR2 0x00520868
+    static unsigned int m_directionButtonMask;
+    // GLOBAL: CMR2 0x0052086c
+    static BOOL m_unk0x0052086c;
+    // GLOBAL: CMR2 0x00665328
+    static DIEFFECT m_forceFeedbackEffects[80];
+    // GLOBAL: CMR2 0x006664a8
+    static DICONDITION m_forceFeedbackConditions[80];
 };
 
 #endif

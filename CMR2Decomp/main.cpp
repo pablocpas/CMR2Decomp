@@ -5,6 +5,7 @@
 #include "Input.h"
 
 HINSTANCE CMain::m_hInstance;
+int CMain::m_frameTime;
 HWND CMain::m_hWndList[1];
 int CMain::m_hWndIx = 0;
 
@@ -196,4 +197,10 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 // STUB: CMR2 0x0049c130
 void CMain::FUN_0049c130(void)
 {
+}
+
+// FUNCTION: CMR2 0x004a9b60
+int CMain::GetFrameTime(void)
+{
+    return m_frameTime;
 }

@@ -10,6 +10,10 @@ public:
     static BOOL CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC param_4);
     static LRESULT MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static void FUN_0049c130(void);
+    static int GetFrameTime(void);
+
+    // GLOBAL: CMR2 0x00663ee0
+    static int m_frameTime;
 
     // GLOBAL: CMR2 0x00663db0
     static HINSTANCE m_hInstance;    

@@ -66,6 +66,10 @@ DWORD CInput::m_buttonMasks[24] = {
     0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000, 0x8000,
     0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000, 0x400000, 0x800000, 0x1, 0x2, 0x4, 0x8
 };
+unsigned int CInput::m_directionButtonMask = 0xf;
+BOOL CInput::m_unk0x0052086c = TRUE;
+DIEFFECT CInput::m_forceFeedbackEffects[80];
+DICONDITION CInput::m_forceFeedbackConditions[80];
 DWORD CInput::m_unk0x0059f8f0;
 DWORD CInput::m_unk0x0059f8f4;
 DWORD CInput::m_unk0x0059f8f8;
@@ -1186,4 +1190,148 @@ void CInput::FUN_0040c550(BYTE *values, int index, BYTE value)
     case 7: values[7] = value; break;
     case 8: values[8] = value; break;
     }
+}
+
+// FUNCTION: CMR2 0x0049e960
+DeviceInfo *CInput::UpdateDevice(int index)
+{
+    DeviceInfo *pDevice;
+    unsigned int oldButtons;
+    unsigned int buttons;
+    unsigned int dirButtons;
+    int now;
+
+    if (index < 0 || index >= 8)
+        return NULL;
+
+    pDevice = &m_availableDevices[index];
+    oldButtons = pDevice->field_0x4;
+    if (index > 1) {
+        if (pDevice->field_0x18 < 0 || pDevice->field_0x18 > 3)
+            return NULL;
+    }
+
+    switch (pDevice->field_0x0) {
+    case 1:
+        if (index == 0)
+            ReadKeyboardState();
+        ReadKeyboardDevice(pDevice);
+        break;
+    case 0:
+    case 3:
+        ReadJoystick(pDevice);
+        break;
+    case 2:
+        ReadMouse(pDevice);
+        break;
+    }
+
+    buttons = pDevice->field_0x4;
+    pDevice->field_0x8 = (buttons ^ oldButtons) & buttons;
+    if (buttons & 0xfffffff0)
+        pDevice->field_0x4 = buttons | 0x10000;
+
+    now = CMain::GetFrameTime();
+    dirButtons = pDevice->field_0x4 & m_directionButtonMask;
+    if (dirButtons != 0) {
+        if (dirButtons != (m_directionButtonMask & oldButtons)) {
+            pDevice->field_0xc = ~oldButtons & pDevice->field_0x4 & m_directionButtonMask;
+            pDevice->field_0x10 = (int)m_keyboardDelay + now;
+        } else if (pDevice->field_0x10 - now <= 0) {
+            pDevice->field_0xc = dirButtons;
+            pDevice->field_0x10 = (int)m_keyboardSpeed + now;
+        } else {
+            pDevice->field_0xc = 0;
+        }
+    } else {
+        pDevice->field_0xc = 0;
+        pDevice->field_0x10 = 0;
+    }
+
+    if (m_unk0x0052086c != 0)
+        pDevice->field_0x8 |= pDevice->field_0xc;
+
+    return pDevice;
+}
+
+// FUNCTION: CMR2 0x004ab380
+int CInput::CreateForceFeedbackEffect(int effectType, DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    GUID guid;
+    DWORD dwAxes[2];
+    LONG lDirection[2];
+    int slot;
+    int i;
+
+    i = 0;
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    if (pDevice->field_0x0 == 0)
+        return -1;
+
+    while (pDevice->effects[i] != NULL) {
+        if (i == 10)
+            return -1;
+        i++;
+    }
+
+    switch (effectType) {
+    case 0xb:
+        guid = GUID_Spring;
+        break;
+    case 0xc:
+        guid = GUID_Inertia;
+        break;
+    case 0xd:
+        guid = GUID_Damper;
+        break;
+    case 0xe:
+        guid = GUID_Friction;
+        break;
+    }
+
+    slot = deviceIndex * 10 + i;
+    dwAxes[0] = DIJOFS_X;
+    lDirection[0] = 0;
+    lDirection[1] = 0;
+
+    m_forceFeedbackConditions[slot].lOffset = offset;
+    m_forceFeedbackConditions[slot].lPositiveCoefficient = coefficient;
+    m_forceFeedbackConditions[slot].lNegativeCoefficient = coefficient;
+    m_forceFeedbackConditions[slot].dwPositiveSaturation = 10000;
+    m_forceFeedbackConditions[slot].dwNegativeSaturation = 10000;
+    m_forceFeedbackConditions[slot].lDeadBand = 0;
+
+    m_forceFeedbackEffects[slot].dwSize = sizeof(DIEFFECT);
+    m_forceFeedbackEffects[slot].dwFlags = DIEFF_CARTESIAN | DIEFF_OBJECTOFFSETS;
+    m_forceFeedbackEffects[slot].dwDuration = duration;
+    m_forceFeedbackEffects[slot].dwSamplePeriod = 10000;
+    m_forceFeedbackEffects[slot].dwGain = 10000;
+    if (triggerButton == -1)
+        triggerButton = DIEB_NOTRIGGER;
+    else
+        triggerButton = DIJOFS_BUTTON(triggerButton);
+    m_forceFeedbackEffects[slot].dwTriggerButton = triggerButton;
+    m_forceFeedbackEffects[slot].dwTriggerRepeatInterval = 0;
+    m_forceFeedbackEffects[slot].cAxes = 1;
+    m_forceFeedbackEffects[slot].rgdwAxes = dwAxes;
+    m_forceFeedbackEffects[slot].rglDirection = lDirection;
+    m_forceFeedbackEffects[slot].lpEnvelope = NULL;
+    m_forceFeedbackEffects[slot].cbTypeSpecificParams = sizeof(DICONDITION);
+    m_forceFeedbackEffects[slot].lpvTypeSpecificParams = &m_forceFeedbackConditions[slot];
+
+    pDevice->device->CreateEffect(guid, &m_forceFeedbackEffects[slot], &pDevice->effects[i], NULL);
+    return i;
+}
+
+// FUNCTION: CMR2 0x004ab590
+int CInput::CreateSpringEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex)
+{
+    return CreateForceFeedbackEffect(0xb, duration, coefficient, offset, triggerButton, deviceIndex);
+}
+
+// FUNCTION: CMR2 0x004ab5c0
+int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, int triggerButton, int deviceIndex)
+{
+    return CreateForceFeedbackEffect(0xd, duration, coefficient, offset, triggerButton, deviceIndex);
 }
