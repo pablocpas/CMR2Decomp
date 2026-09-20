@@ -98,3 +98,17 @@ void __fastcall CSound::CloseAndCleanupMMIO(MMIOData* pMMIOData) {
         pMMIOData->pBuffer = NULL;
     }
 }
+
+// FUNCTION: CMR2 0x004a31f0
+void CSound::FUN_004a31f0(int volume)
+{
+    LONG vol;
+
+    if (m_unk0x005a2730 != 0) {
+        if (volume == 0)
+            vol = DSBVOLUME_MIN;
+        else
+            vol = (volume - 100) * 100 / 4;
+        m_pDirectSoundBuffer->SetVolume(vol);
+    }
+}

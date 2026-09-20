@@ -431,3 +431,6 @@ FodyWeavers.xsd
 #reccmp
 reccmp-user.yml
 reccmp-build.yml
+
+# original binary for local reccmp
+cmr2bin/

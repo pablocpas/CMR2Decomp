@@ -7,6 +7,7 @@
 #include "GenericFileLoader.h"
 #include "main.h"
 #include "Game.h"
+#include "Sound.h"
 
 #include <stdio.h>
 
@@ -73,9 +74,22 @@ unsigned char CGameInfo::FUN_00405d80(void)
     return m_gameInfo.field_0x14 >> 3 & 0x7f;
 }
 
+// FUNCTION: CMR2 0x00405d90
 unsigned char CGameInfo::FUN_00405d90(void)
 {
     return m_gameInfo.field_0x14 >> 10 & 7;
+}
+
+// FUNCTION: CMR2 0x00405d70
+unsigned char CGameInfo::FUN_00405d70(void)
+{
+    return m_gameInfo.field_0x14 >> 13 & 0xf;
+}
+
+// FUNCTION: CMR2 0x00405da0
+unsigned char CGameInfo::FUN_00405da0(void)
+{
+    return m_gameInfo.field_0x14 >> 17 & 1;
 }
 
 // FUNCTION: CMR2 0x00405c10
@@ -135,6 +149,244 @@ void CGameInfo::FUN_004f4b40(void)
 void CGameInfo::FUN_00405de0(BYTE param1)
 {
     m_gameInfo.field_0x14 = ((param1 & 1) << 0x13) | (m_gameInfo.field_0x14 & 0xfff7ffffU);
+}
+
+// FUNCTION: CMR2 0x00405dc0
+unsigned char CGameInfo::FUN_00405dc0(void)
+{
+    return m_gameInfo.field_0x14 >> 18 & 1;
+}
+
+// FUNCTION: CMR2 0x00405dd0
+unsigned char CGameInfo::FUN_00405dd0(void)
+{
+    return m_gameInfo.field_0x14 >> 20 & 7;
+}
+
+// FUNCTION: CMR2 0x00405e00
+unsigned char CGameInfo::FUN_00405e00(void)
+{
+    return m_gameInfo.field_0x14 >> 19 & 1;
+}
+
+// FUNCTION: CMR2 0x00405e10
+void CGameInfo::FUN_00405e10(unsigned int param1)
+{
+    m_gameInfo.field_0x18 = m_gameInfo.field_0x18 ^ (m_gameInfo.field_0x18 ^ param1) & 0x7f;
+    CSound::FUN_004a31f0(m_gameInfo.field_0x18 & 0x7f);
+}
+
+// FUNCTION: CMR2 0x00405e40
+unsigned int CGameInfo::FUN_00405e40(void)
+{
+    return m_gameInfo.field_0x18 & 0x7f;
+}
+
+// FUNCTION: CMR2 0x00405e50
+void CGameInfo::FUN_00405e50(unsigned int param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 0x7f) << 7) | (m_gameInfo.field_0x18 & 0xffffc07fU);
+}
+
+// FUNCTION: CMR2 0x00405e70
+unsigned int CGameInfo::FUN_00405e70(void)
+{
+    return m_gameInfo.field_0x18 >> 7 & 0x7f;
+}
+
+// FUNCTION: CMR2 0x00405e80
+void CGameInfo::FUN_00405e80(unsigned int param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 0x7f) << 14) | (m_gameInfo.field_0x18 & 0xffe03fffU);
+}
+
+// FUNCTION: CMR2 0x00405ea0
+unsigned int CGameInfo::FUN_00405ea0(void)
+{
+    return m_gameInfo.field_0x18 >> 14 & 0x7f;
+}
+
+// FUNCTION: CMR2 0x00405eb0
+unsigned int CGameInfo::FUN_00405eb0(void)
+{
+    return m_gameInfo.field_0x18 >> 31;
+}
+
+// FUNCTION: CMR2 0x00405ec0
+void CGameInfo::FUN_00405ec0(BYTE param1)
+{
+    m_gameInfo.field_0x18 = (param1 << 31) | (m_gameInfo.field_0x18 & 0x7fffffffU);
+}
+
+// FUNCTION: CMR2 0x00405ef0
+unsigned int CGameInfo::FUN_00405ef0(void)
+{
+    return m_gameInfo.field_0x1c >> 1 & 3;
+}
+
+// FUNCTION: CMR2 0x00405f00
+void CGameInfo::FUN_00405f00(unsigned int param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 3) << 24) | (m_gameInfo.field_0x18 & 0xfcffffffU);
+}
+
+// FUNCTION: CMR2 0x00405f20
+void CGameInfo::FUN_00405f20(BYTE param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 1) << 27) | (m_gameInfo.field_0x18 & 0xf7ffffffU);
+}
+
+// FUNCTION: CMR2 0x00405f40
+void CGameInfo::FUN_00405f40(BYTE param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 1) << 26) | (m_gameInfo.field_0x18 & 0xfbffffffU);
+}
+
+// FUNCTION: CMR2 0x00405f60
+void CGameInfo::FUN_00405f60(BYTE param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 1) << 28) | (m_gameInfo.field_0x18 & 0xefffffffU);
+}
+
+// FUNCTION: CMR2 0x00405f80
+void CGameInfo::FUN_00405f80(BYTE param1)
+{
+    m_gameInfo.field_0x18 = ((param1 & 1) << 29) | (m_gameInfo.field_0x18 & 0xdfffffffU);
+}
+
+// FUNCTION: CMR2 0x00405fa0
+void CGameInfo::FUN_00405fa0(DWORD *param1, WORD param2, DWORD param3)
+{
+    m_gameInfo.field_0x88 = param1[1];
+    m_gameInfo.field_0x8c = param1[2];
+    m_gameInfo.field_0x94 = param2;
+    m_gameInfo.field_0x90 = param3;
+}
+
+// FUNCTION: CMR2 0x00405fd0
+void CGameInfo::FUN_00405fd0(unsigned int param1)
+{
+    *(unsigned int *)&m_gameInfo.field_0x98 = param1;
+}
+
+// FUNCTION: CMR2 0x00405db0
+unsigned int *CGameInfo::FUN_00405db0(void)
+{
+    return &m_gameInfo.field_0x9c;
+}
+
+// FUNCTION: CMR2 0x00405fe0
+GameInfo0xa4 *CGameInfo::FUN_00405fe0(void)
+{
+    return &m_gameInfo.field_0xa4;
+}
+
+// FUNCTION: CMR2 0x00405ff0
+GameInfo0xa4 *CGameInfo::FUN_00405ff0(int param1)
+{
+    return param1 != 0 ? &m_gameInfo.field_0x1368 : &m_gameInfo.field_0x262c;
+}
+
+// FUNCTION: CMR2 0x00405b30
+void CGameInfo::SetFullscreen(BYTE fullscreen)
+{
+    m_gameInfo.unknownGraphicsOptions = (fullscreen & 1) | (m_gameInfo.unknownGraphicsOptions & 0xfffffffeU);
+}
+
+// FUNCTION: CMR2 0x00405b50
+unsigned int CGameInfo::FUN_00405b50(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 1 & 3;
+}
+
+// FUNCTION: CMR2 0x00405b60
+void CGameInfo::FUN_00405b60(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 1) | (m_gameInfo.unknownGraphicsOptions & 0xfffffff9U);
+}
+
+// FUNCTION: CMR2 0x00405b80
+void CGameInfo::FUN_00405b80(BYTE param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 1) << 3) | (m_gameInfo.unknownGraphicsOptions & 0xfffffff7U);
+}
+
+// FUNCTION: CMR2 0x00405ba0
+unsigned int CGameInfo::FUN_00405ba0(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 4 & 1;
+}
+
+// FUNCTION: CMR2 0x00405bb0
+void CGameInfo::FUN_00405bb0(BYTE param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 1) << 4) | (m_gameInfo.unknownGraphicsOptions & 0xffffffefU);
+}
+
+// FUNCTION: CMR2 0x00405be0
+void CGameInfo::FUN_00405be0(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 0xf) << 5) | (m_gameInfo.unknownGraphicsOptions & 0xfffffe1fU);
+}
+
+// FUNCTION: CMR2 0x00405c70
+unsigned int CGameInfo::FUN_00405c70(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 18 & 3;
+}
+
+// FUNCTION: CMR2 0x00405c80
+void CGameInfo::FUN_00405c80(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 18) | (m_gameInfo.unknownGraphicsOptions & 0xfff3ffffU);
+}
+
+// FUNCTION: CMR2 0x00405cb0
+void CGameInfo::FUN_00405cb0(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 0xf) << 21) | (m_gameInfo.unknownGraphicsOptions & 0xfe1fffffU);
+}
+
+// FUNCTION: CMR2 0x00405cd0
+unsigned int CGameInfo::FUN_00405cd0(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 25 & 3;
+}
+
+// FUNCTION: CMR2 0x00405ce0
+void CGameInfo::FUN_00405ce0(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 25) | (m_gameInfo.unknownGraphicsOptions & 0xf9ffffffU);
+}
+
+// FUNCTION: CMR2 0x00405d00
+unsigned int CGameInfo::FUN_00405d00(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 27 & 3;
+}
+
+// FUNCTION: CMR2 0x00405d20
+void CGameInfo::FUN_00405d20(unsigned int param1)
+{
+    m_gameInfo.unknownGraphicsOptions = ((param1 & 3) << 27) | (m_gameInfo.unknownGraphicsOptions & 0xe7ffffffU);
+}
+
+// FUNCTION: CMR2 0x00405d60
+unsigned int CGameInfo::FUN_00405d60(void)
+{
+    return m_gameInfo.unknownGraphicsOptions >> 29 & 1;
+}
+
+// FUNCTION: CMR2 0x00405d10
+unsigned int CGameInfo::FUN_00405d10(void)
+{
+    return m_gameInfo.field_0x34 & 3;
+}
+
+// FUNCTION: CMR2 0x00405d40
+void CGameInfo::FUN_00405d40(unsigned int param1)
+{
+    m_gameInfo.field_0x34 = m_gameInfo.field_0x34 ^ (m_gameInfo.field_0x34 ^ param1) & 3;
 }
 
 // FUNCTION: CMR2 0x00510410

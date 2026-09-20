@@ -22,6 +22,7 @@ public:
     static bool FUN_004a3250(HRESULT param1);
     static MMRESULT __fastcall CloseMMIO(MMIOData* hhmio);
     static void __fastcall CloseAndCleanupMMIO(MMIOData* pMMIO);
+    static void FUN_004a31f0(int volume);
     
 
     // GLOBAL: CMR2 0x005a23e8
