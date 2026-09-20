@@ -958,7 +958,9 @@ struct D3DTextureManager {
     DDPIXELFORMAT ddpfZBuffer;           // 0x364
     Texture* textureBuffer[2048];        // 0x384
     Texture* textureBuffer2[20];            // 0x2384
-    BYTE field_0x23d4[0x94];             // 0x23d4 - 0x2467 (padding)
+    BYTE field_0x23d4[0x10];             // 0x23d4
+    int fixedProjection[16];             // 0x23e4 16.16 copy of the projection matrix
+    BYTE field_0x2424[0x44];             // 0x2424 - 0x2467 (padding)
 };
 
 struct DDEnumDeviceBufferEntry
@@ -1114,6 +1116,32 @@ public:
     static void FUN_004b7210(void);
     static void FUN_0049df90(BOOL param1, int param2);
 
+    static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
+
+    // GLOBAL: CMR2 0x00511310
+    static double m_oneOver65536;
+    // GLOBAL: CMR2 0x005112e0
+    static double m_65536;
+    // GLOBAL: CMR2 0x00520b80
+    static float m_projectionScale;
+    // GLOBAL: CMR2 0x00520b84
+    static float m_nearPlane;
+    // GLOBAL: CMR2 0x00520b88
+    static float m_farPlane;
+    // GLOBAL: CMR2 0x00520b8c
+    static float m_fovX;
+    // GLOBAL: CMR2 0x00520b90
+    static float m_fovY;
+    // GLOBAL: CMR2 0x005207b0
+    static int m_farPlaneFixed;
+    // GLOBAL: CMR2 0x0065fb68
+    static float m_projection11;
+    // GLOBAL: CMR2 0x0065fa50
+    static float m_projection22;
+    // GLOBAL: CMR2 0x00660c00
+    static float m_projection33;
+    // GLOBAL: CMR2 0x0065fb64
+    static float m_projection43;
     // GLOBAL: CMR2 0x00520b9c
     static char m_strSetDesktopTo16Bit[48];
     // GLOBAL: CMR2 0x0072d56c

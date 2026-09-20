@@ -39,6 +39,18 @@ int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 DWORD CGraphics::m_cubeMapSize = 64;
+double CGraphics::m_oneOver65536 = 1.0 / 65536.0;
+double CGraphics::m_65536 = 65536.0;
+float CGraphics::m_projectionScale = 0.5f;
+float CGraphics::m_nearPlane = 1.0f;
+float CGraphics::m_farPlane = 250.0f;
+float CGraphics::m_fovX = 2.337f;
+float CGraphics::m_fovY = 4.197f;
+int CGraphics::m_farPlaneFixed = 65536000;
+float CGraphics::m_projection11;
+float CGraphics::m_projection22;
+float CGraphics::m_projection33;
+float CGraphics::m_projection43;
 char CGraphics::m_strSetDesktopTo16Bit[48] = "Set windows desktop to 16 bit for this 3D card";
 int CGraphics::m_unk0x0072d56c;
 BOOL CGraphics::m_unk0x00660bfc;
@@ -1722,4 +1734,64 @@ BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
     FUN_004b1980();
     m_unk0x00520b7c = FALSE;
     return TRUE;
+}
+
+// FUNCTION: CMR2 0x004a8890
+void CGraphics::SetProjection(int fovX, int fovY, int farPlane, int nearPlane)
+{
+    float scale;
+    float range;
+    D3DMATRIX matrix;
+    D3DMATRIX tmp;
+
+    scale = m_projectionScale;
+    if (fovX != 0)
+        m_fovX = (float)fovX * m_oneOver65536;
+    if (fovY != 0)
+        m_fovY = (float)fovY * m_oneOver65536;
+    if (farPlane != 0)
+        m_farPlane = (float)farPlane * m_oneOver65536;
+    if (nearPlane != 0)
+        m_nearPlane = (float)nearPlane * m_oneOver65536;
+
+    matrix._12 = 0.0f;
+    matrix._13 = 0.0f;
+    range = m_farPlane - m_nearPlane;
+    m_projection33 = m_farPlane / range;
+    matrix._14 = 0.0f;
+    matrix._21 = 0.0f;
+    matrix._23 = 0.0f;
+    matrix._24 = 0.0f;
+    matrix._31 = 0.0f;
+    matrix._32 = 0.0f;
+    matrix._34 = 1.0f;
+    matrix._41 = 0.0f;
+    matrix._42 = 0.0f;
+    matrix._44 = 0.0f;
+    m_projection43 = -(m_nearPlane * m_farPlane) / range;
+    matrix._33 = m_projection33;
+    m_projection11 = m_fovX * scale;
+    matrix._11 = m_projection11;
+    matrix._22 = m_projection22 = scale * m_fovY;
+    matrix._43 = m_projection43;
+    m_pTextureManager->fixedProjection[0] = (int)(__int64)(m_projection11 * m_65536);
+    m_pTextureManager->fixedProjection[1] = 0;
+    m_pTextureManager->fixedProjection[2] = 0;
+    m_pTextureManager->fixedProjection[3] = 0;
+    m_pTextureManager->fixedProjection[4] = 0;
+    m_pTextureManager->fixedProjection[5] = (int)(__int64)(matrix._22 * m_65536);
+    m_pTextureManager->fixedProjection[6] = 0;
+    m_pTextureManager->fixedProjection[7] = 0;
+    m_pTextureManager->fixedProjection[8] = 0;
+    m_pTextureManager->fixedProjection[8] = 0;
+    m_pTextureManager->fixedProjection[10] = (int)(__int64)(matrix._33 * m_65536);
+    m_pTextureManager->fixedProjection[11] = 0x10000;
+    m_pTextureManager->fixedProjection[12] = 0;
+    m_pTextureManager->fixedProjection[12] = 0;
+    m_pTextureManager->fixedProjection[14] = (int)(__int64)(matrix._43 * m_65536);
+    m_pTextureManager->fixedProjection[15] = 0;
+
+    tmp = matrix;
+    m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &tmp);
+    m_farPlaneFixed = farPlane;
 }
