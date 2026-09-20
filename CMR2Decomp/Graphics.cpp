@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "Frontend.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
 #include "RegKey.h"
@@ -1922,4 +1923,74 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
 
     pSrc->pSurface->Unlock(NULL);
     pDst->pSurface->Unlock(NULL);
+}
+
+// FUNCTION: CMR2 0x004a7410
+void CGraphics::CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags)
+{
+    DDSURFACEDESC2 desc;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(DDSURFACEDESC2);
+    desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    desc.dwWidth = width;
+    desc.dwHeight = height;
+
+    if (flags & 0x2) {
+        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+            desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+        else
+            desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+    } else {
+        desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+        else
+            desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+    }
+
+    if (desc.ddsCaps.dwCaps & DDSCAPS_TEXTURE) {
+        if (flags & 0x8)
+            desc.ddsCaps.dwCaps2 |= DDSCAPS2_HINTDYNAMIC;
+        else
+            desc.ddsCaps.dwCaps2 |= DDSCAPS2_OPAQUE;
+    }
+    if (flags & 0x4)
+        desc.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE;
+    if (flags & 0x200) {
+        desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_3DDEVICE | DDSCAPS_COMPLEX | DDSCAPS_BACKBUFFER;
+        desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_ALLFACES;
+        desc.ddsCaps.dwCaps3 = 0;
+        desc.ddsCaps.dwCaps4 = 0;
+    }
+    if ((flags & 0x10) && (g_pGraphics->field913_0x3bc & 3))
+        SetMipMapCount(&desc);
+
+    if ((flags & 0x2000) && m_pTextureManager->textureInfo4 != NULL) {
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo4->desc.ddpfPixelFormat;
+    } else if ((flags & 0x4000) && m_pTextureManager->textureInfo3 != NULL) {
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo3->desc.ddpfPixelFormat;
+    } else if ((flags & 0x1) && m_pTextureManager->textureInfo2 != NULL) {
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo2->desc.ddpfPixelFormat;
+    } else if ((flags & 0x20) && m_hasTexFormatBump16 && m_hasTexFormatBump32) {
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo5->desc.ddpfPixelFormat;
+        desc.dwFlags |= 0x40000;
+    } else {
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
+    }
+    desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+
+    if (width != 2 && width != 4 && width != 8 && width != 16 && width != 32 && width != 64 &&
+        width != 128 && width != 256 && width != 512 && width != 1024 && width != 2048)
+        _splitpath(pTexture->name, NULL, NULL, CFrontend::m_stringDest, NULL);
+    if (height != 2 && height != 4 && height != 8 && height != 16 && height != 32 && height != 64 &&
+        height != 128 && height != 256 && height != 512 && height != 1024 && height != 2048)
+        _splitpath(pTexture->name, NULL, NULL, CFrontend::m_stringDest, NULL);
+
+    g_pGraphics->pDD7->CreateSurface(&desc, &pTexture->pSurface, NULL);
+    pTexture->field_0x11c = 0;
+    pTexture->field_0x11e = 0;
+    pTexture->width = (short)width;
+    pTexture->height = (short)height;
+    pTexture->bitsPerPixel = (short)g_pGraphics->depth;
 }

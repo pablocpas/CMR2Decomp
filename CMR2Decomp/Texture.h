@@ -6,10 +6,13 @@
 
 struct Texture {
     USHORT                  textureId;
-    BYTE                    field_0x2[134];
+    BYTE                    field_0x2[12];
+    char                    name[122];
     BYTE                    field_0x134[140];
     IDirectDrawSurface7*    pSurface;
-    BYTE                    field_0x118[8];
+    BYTE                    field_0x118[4];
+    short                   field_0x11c;
+    short                   field_0x11e;
     short                   width;
     short                   height;
     short                   bitsPerPixel;

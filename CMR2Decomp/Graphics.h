@@ -1118,6 +1118,7 @@ public:
 
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
+    static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
 
     // GLOBAL: CMR2 0x00511310
     static double m_oneOver65536;
