@@ -39,6 +39,26 @@ int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 DWORD CGraphics::m_cubeMapSize = 64;
+TextureFormat CGraphics::m_texFormat16;
+TextureFormat CGraphics::m_texFormat16Alpha;
+TextureFormat CGraphics::m_texFormatDXT1_16;
+TextureFormat CGraphics::m_texFormatDXT5_16;
+TextureFormat CGraphics::m_texFormatBump16;
+TextureFormat CGraphics::m_texFormat24;
+TextureFormat CGraphics::m_texFormat32;
+TextureFormat CGraphics::m_texFormatDXT1_32;
+TextureFormat CGraphics::m_texFormatDXT5_32;
+TextureFormat CGraphics::m_texFormatBump32;
+BOOL CGraphics::m_hasTexFormat16;
+BOOL CGraphics::m_hasTexFormatDXT1_16;
+BOOL CGraphics::m_hasTexFormat16Alpha;
+BOOL CGraphics::m_hasTexFormatDXT5_16;
+BOOL CGraphics::m_hasTexFormat24;
+BOOL CGraphics::m_hasTexFormatDXT1_32;
+BOOL CGraphics::m_hasTexFormat32;
+BOOL CGraphics::m_hasTexFormatDXT5_32;
+BOOL CGraphics::m_hasTexFormatBump16;
+BOOL CGraphics::m_hasTexFormatBump32;
 unsigned int CGraphics::m_unk0x0065fa28;
 int CGraphics::m_unk0x006dd890;
 int CGraphics::m_unk0x00663b1c;
@@ -1274,7 +1294,7 @@ RenderTexture *CGraphics::CreateCubeMapSurfaces(RenderTexture *pTexture)
     desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_ALLFACES;
     desc.ddsCaps.dwCaps3 = 0;
     desc.ddsCaps.dwCaps4 = 0;
-    desc.ddpfPixelFormat = ((DDSURFACEDESC2 *)m_pTextureManager->textureInfo1)->ddpfPixelFormat;
+    desc.ddpfPixelFormat = m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
     desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
     g_pGraphics->pDD7->CreateSurface(&desc, &pTexture->faces[0].pSurface, NULL);
 
@@ -1304,4 +1324,301 @@ RenderTexture *CGraphics::CreateCubeMapSurfaces(RenderTexture *pTexture)
         pTexture->faces[i].pSurface->AddAttachedSurface(pTexture->pZBuffers[i]);
     }
     return pTexture;
+}
+
+// FUNCTION: CMR2 0x004a91b0
+HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext)
+{
+    int i;
+    int count;
+    unsigned int bits;
+    unsigned int alphaMask;
+    unsigned int rBits;
+    unsigned int gBits;
+    unsigned int bBits;
+    unsigned int aBits;
+    int rShift;
+    int gShift;
+    int bShift;
+    int aShift;
+    TextureFormat *pFormat;
+    HRESULT result;
+
+    result = D3DENUMRET_OK;
+    if (pddpf->dwFlags & DDPF_PALETTEINDEXED8)
+        return result;
+
+    if (pddpf->dwFlags & DDPF_RGB) {
+        alphaMask = ~(pddpf->dwRBitMask | pddpf->dwGBitMask | pddpf->dwBBitMask) & pddpf->dwRGBAlphaBitMask;
+        bits = pddpf->dwRBitMask;
+        count = 0;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        rBits = (BYTE)count;
+    rBits = rBits;
+        bits = pddpf->dwGBitMask;
+        count = 0;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        gBits = (BYTE)count;
+    gBits = gBits;
+        bits = pddpf->dwBBitMask;
+        count = 0;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        bBits = (BYTE)count;
+    bBits = bBits;
+        bits = alphaMask;
+        count = 0;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        aBits = (BYTE)count;
+    aBits = aBits;
+
+        if (rBits < 1 || gBits < 1 || bBits < 1)
+            return result;
+
+        bits = pddpf->dwRBitMask;
+        for (rShift = 0; rShift < 32; rShift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        bits = pddpf->dwGBitMask;
+        for (gShift = 0; gShift < 32; gShift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        bits = pddpf->dwBBitMask;
+        for (bShift = 0; bShift < 32; bShift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        bits = alphaMask;
+        for (aShift = 0; aShift < 32; aShift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+
+        if (bBits + aBits + gBits + rBits <= 16) {
+            if (aBits == 0) {
+                if (rBits == 5 && (gBits == 5 || gBits == 6) && bBits == 5 && m_texFormat16.bits[2] != 6) {
+                    m_texFormat16.desc.ddpfPixelFormat = *pddpf;
+                    m_texFormat16.bits[2] = (BYTE)gBits;
+                    m_texFormat16.bits[1] = (BYTE)bBits;
+                    m_texFormat16.shifts[2] = (BYTE)gShift;
+                    m_texFormat16.shifts[1] = (BYTE)bShift;
+                    m_texFormat16.bits[0] = 5;
+                    m_texFormat16.bits[3] = 0;
+                    m_texFormat16.shifts[0] = (BYTE)rShift;
+                    m_texFormat16.shifts[3] = (BYTE)aShift;
+                    m_hasTexFormat16 = TRUE;
+                    return result;
+                }
+            } else {
+                if (rBits == 5) {
+                    if (gBits != 5)
+                        return result;
+                    if (bBits != 5)
+                        return result;
+                    if (aBits != 1)
+                        return result;
+                } else {
+                    if (rBits != 4)
+                        return result;
+                    if (gBits != 4)
+                        return result;
+                    if (bBits != 4)
+                        return result;
+                    if (aBits != 4)
+                        return result;
+                }
+                if (m_texFormat16Alpha.bits[0] != 4) {
+                m_texFormat16Alpha.desc.ddpfPixelFormat = *pddpf;
+            m_texFormat16Alpha.bits[2] = (BYTE)gBits;
+            m_texFormat16Alpha.bits[0] = (BYTE)rBits;
+            m_texFormat16Alpha.bits[1] = (BYTE)bBits;
+            m_texFormat16Alpha.bits[3] = (BYTE)aBits;
+            m_texFormat16Alpha.shifts[0] = (BYTE)rShift;
+            m_texFormat16Alpha.shifts[1] = (BYTE)bShift;
+            m_texFormat16Alpha.shifts[2] = (BYTE)gShift;
+            m_texFormat16Alpha.shifts[3] = (BYTE)aShift;
+                m_hasTexFormat16Alpha = TRUE;
+                    return result;
+                }
+            }
+        } else {
+            if (bBits + aBits + gBits + rBits == 24) {
+            m_texFormat24.desc.ddpfPixelFormat = *pddpf;
+            m_texFormat24.bits[2] = (BYTE)gBits;
+            m_texFormat24.bits[0] = (BYTE)rBits;
+            m_texFormat24.bits[1] = (BYTE)bBits;
+            m_texFormat24.bits[3] = (BYTE)aBits;
+            m_texFormat24.shifts[0] = (BYTE)rShift;
+            m_texFormat24.shifts[1] = (BYTE)bShift;
+            m_texFormat24.shifts[2] = (BYTE)gShift;
+            m_texFormat24.shifts[3] = (BYTE)aShift;
+                m_hasTexFormat24 = TRUE;
+                return result;
+            }
+            if (bBits + aBits + gBits + rBits == 32) {
+            m_texFormat32.desc.ddpfPixelFormat = *pddpf;
+            m_texFormat32.bits[2] = (BYTE)gBits;
+            m_texFormat32.bits[0] = (BYTE)rBits;
+            m_texFormat32.bits[1] = (BYTE)bBits;
+            m_texFormat32.bits[3] = (BYTE)aBits;
+            m_texFormat32.shifts[0] = (BYTE)rShift;
+            m_texFormat32.shifts[1] = (BYTE)bShift;
+            m_texFormat32.shifts[2] = (BYTE)gShift;
+            m_texFormat32.shifts[3] = (BYTE)aShift;
+                m_hasTexFormat32 = TRUE;
+                return result;
+            }
+        }
+    } else {
+        if (pddpf->dwFlags & DDPF_BUMPLUMINANCE) {
+            pFormat = NULL;
+            if (pddpf->dwBumpBitCount == 16) {
+                pFormat = &m_texFormatBump16;
+                m_hasTexFormatBump16 = TRUE;
+            } else if (pddpf->dwBumpBitCount == 24 || pddpf->dwBumpBitCount == 32) {
+                pFormat = &m_texFormatBump32;
+                m_hasTexFormatBump32 = TRUE;
+            }
+            pFormat->desc.ddpfPixelFormat = *pddpf;
+            bits = pddpf->dwBumpDuBitMask;
+            rBits = 0;
+            for (i = 32; i != 0; i--) {
+                if (bits & 1)
+                    rBits++;
+                bits >>= 1;
+            }
+        pFormat->bits[0] = (BYTE)rBits;
+            bits = pddpf->dwBumpDvBitMask;
+            rBits = 0;
+            for (i = 32; i != 0; i--) {
+                if (bits & 1)
+                    rBits++;
+                bits >>= 1;
+            }
+        pFormat->bits[1] = (BYTE)rBits;
+            bits = pddpf->dwBumpLuminanceBitMask;
+            rBits = 0;
+            for (i = 32; i != 0; i--) {
+                if (bits & 1)
+                    rBits++;
+                bits >>= 1;
+            }
+        pFormat->bits[2] = (BYTE)rBits;
+            bits = pddpf->dwBumpDuBitMask;
+            for (rShift = 0; rShift < 32; rShift++) {
+                if (bits & 1)
+                    break;
+                bits >>= 1;
+            }
+        pFormat->shifts[0] = (BYTE)rShift;
+            bits = pddpf->dwBumpDvBitMask;
+            for (rShift = 0; rShift < 32; rShift++) {
+                if (bits & 1)
+                    break;
+                bits >>= 1;
+            }
+        pFormat->shifts[1] = (BYTE)rShift;
+            bits = pddpf->dwBumpLuminanceBitMask;
+            for (rShift = 0; rShift < 32; rShift++) {
+                if (bits & 1)
+                    break;
+                bits >>= 1;
+            }
+        pFormat->shifts[2] = (BYTE)rShift;
+
+            return result;
+        }
+
+        if (pddpf->dwFlags & DDPF_FOURCC) {
+            if (pddpf->dwFourCC == MAKEFOURCC('D', 'X', 'T', '1')) {
+                m_texFormatDXT1_16.desc.ddpfPixelFormat = *pddpf;
+                m_hasTexFormatDXT1_16 = TRUE;
+                m_texFormatDXT1_32.desc.ddpfPixelFormat = *pddpf;
+                m_hasTexFormatDXT1_32 = TRUE;
+            } else if (pddpf->dwFourCC == MAKEFOURCC('D', 'X', 'T', '5')) {
+                m_texFormatDXT5_16.desc.ddpfPixelFormat = *pddpf;
+                m_hasTexFormatDXT5_16 = TRUE;
+                m_texFormatDXT5_32.desc.ddpfPixelFormat = *pddpf;
+                m_hasTexFormatDXT5_32 = TRUE;
+                return result;
+            }
+        }
+    }
+    return result;
+}
+
+// FUNCTION: CMR2 0x004a8fb0
+void CGraphics::SelectTextureFormats(void)
+{
+    memset(&m_texFormat16, 0, sizeof(TextureFormat));
+    memset(&m_texFormatDXT1_16, 0, sizeof(TextureFormat));
+    memset(&m_texFormat16Alpha, 0, sizeof(TextureFormat));
+    memset(&m_texFormatDXT5_16, 0, sizeof(TextureFormat));
+    memset(&m_texFormat24, 0, sizeof(TextureFormat));
+    memset(&m_texFormatDXT1_32, 0, sizeof(TextureFormat));
+    memset(&m_texFormat32, 0, sizeof(TextureFormat));
+    memset(&m_texFormatDXT5_32, 0, sizeof(TextureFormat));
+    memset(&m_texFormatBump16, 0, sizeof(TextureFormat));
+    memset(&m_texFormatBump32, 0, sizeof(TextureFormat));
+    m_hasTexFormat16 = FALSE;
+    m_hasTexFormatDXT1_16 = FALSE;
+    m_hasTexFormat16Alpha = FALSE;
+    m_hasTexFormatDXT5_16 = FALSE;
+    m_hasTexFormat24 = FALSE;
+    m_hasTexFormatDXT1_32 = FALSE;
+    m_hasTexFormat32 = FALSE;
+    m_hasTexFormatDXT5_32 = FALSE;
+    m_hasTexFormatBump16 = FALSE;
+    m_hasTexFormatBump32 = FALSE;
+
+    m_pTextureManager->pD3D->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+
+    if (m_texFormat24.bits[0] != 8) {
+        m_hasTexFormat24 = TRUE;
+        m_texFormat24 = m_texFormat32;
+    }
+    if (m_hasTexFormatBump16 && !m_hasTexFormatBump32) {
+        m_hasTexFormatBump32 = TRUE;
+        m_texFormatBump32 = m_texFormatBump16;
+        m_texFormatBump32.desc.ddpfPixelFormat = m_texFormatBump16.desc.ddpfPixelFormat;
+    }
+
+    if (g_pGraphics->depth != 16) {
+        if (g_pGraphics->depth == 32) {
+            m_pTextureManager->textureInfo1 = &m_texFormat24;
+            m_pTextureManager->textureInfo2 = &m_texFormat32;
+            m_pTextureManager->textureInfo3 = &m_texFormatDXT1_32;
+            m_pTextureManager->textureInfo4 = &m_texFormatDXT5_32;
+            if (m_hasTexFormatBump32)
+                m_pTextureManager->textureInfo5 = &m_texFormatBump32;
+        }
+    } else {
+        m_pTextureManager->textureInfo1 = &m_texFormat16;
+        m_pTextureManager->textureInfo2 = &m_texFormat16Alpha;
+        m_pTextureManager->textureInfo3 = &m_texFormatDXT1_16;
+        m_pTextureManager->textureInfo4 = &m_texFormatDXT5_16;
+        if (m_hasTexFormatBump16)
+            m_pTextureManager->textureInfo5 = &m_texFormatBump16;
+    }
 }

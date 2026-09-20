@@ -934,6 +934,13 @@ struct Graphics
     unsigned char field928_0x3cb;
 };
 
+// Texture format description filled in by CGraphics::EnumTextureFormatsCallback
+struct TextureFormat {
+    DDSURFACEDESC2 desc;
+    BYTE bits[4];   // bits per channel: R, B, G, A (bump: dU, dV, L)
+    BYTE shifts[4]; // shift of each channel mask
+};
+
 struct D3DTextureManager {
     IDirect3D7* pDD;                              // 0x0
     IDirect3DDevice7* pD3D;                       // 0x4
@@ -943,11 +950,11 @@ struct D3DTextureManager {
     IDirect3DVertexBuffer7* pVertexBuffer2;        // 0x33c
     IDirect3DVertexBuffer7* pVertexBuffer3;        // 0x340
     BYTE field_0x344[0xc];                          // 0x344 - 0x34f
-    void* textureInfo1;                  // 0x350 (TextureInfo*)
-    void* textureInfo2;                  // 0x354 (TextureInfo*)
-    void* textureInfo3;                  // 0x358 (TextureInfo*)
-    void* textureInfo4;                  // 0x35c (TextureInfo*)
-    void* textureInfo5;                  // 0x360 (TextureInfo*)
+    TextureFormat* textureInfo1;         // 0x350 opaque RGB format
+    TextureFormat* textureInfo2;         // 0x354 RGB format with alpha
+    TextureFormat* textureInfo3;         // 0x358 DXT1
+    TextureFormat* textureInfo4;         // 0x35c DXT5
+    TextureFormat* textureInfo5;         // 0x360 bump map format
     DDPIXELFORMAT ddpfZBuffer;           // 0x364
     Texture* textureBuffer[2048];        // 0x384
     Texture* textureBuffer2[20];            // 0x2384
@@ -1085,6 +1092,51 @@ public:
 
     // GLOBAL: CMR2 0x005210b4
     static DWORD m_cubeMapSize;
+
+public:
+    static HRESULT CALLBACK EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext);
+    static void SelectTextureFormats(void);
+
+    // GLOBAL: CMR2 0x00660698
+    static TextureFormat m_texFormat16;
+    // GLOBAL: CMR2 0x0065fae0
+    static TextureFormat m_texFormat16Alpha;
+    // GLOBAL: CMR2 0x0065fc80
+    static TextureFormat m_texFormatDXT1_16;
+    // GLOBAL: CMR2 0x0065fbf8
+    static TextureFormat m_texFormatDXT5_16;
+    // GLOBAL: CMR2 0x0065fb70
+    static TextureFormat m_texFormatBump16;
+    // GLOBAL: CMR2 0x00660720
+    static TextureFormat m_texFormat24;
+    // GLOBAL: CMR2 0x0065fa58
+    static TextureFormat m_texFormat32;
+    // GLOBAL: CMR2 0x006607a8
+    static TextureFormat m_texFormatDXT1_32;
+    // GLOBAL: CMR2 0x00663450
+    static TextureFormat m_texFormatDXT5_32;
+    // GLOBAL: CMR2 0x00660c08
+    static TextureFormat m_texFormatBump32;
+    // GLOBAL: CMR2 0x00663b34
+    static BOOL m_hasTexFormat16;
+    // GLOBAL: CMR2 0x00663b38
+    static BOOL m_hasTexFormatDXT1_16;
+    // GLOBAL: CMR2 0x00663b3c
+    static BOOL m_hasTexFormat16Alpha;
+    // GLOBAL: CMR2 0x00663b40
+    static BOOL m_hasTexFormatDXT5_16;
+    // GLOBAL: CMR2 0x00663b44
+    static BOOL m_hasTexFormat24;
+    // GLOBAL: CMR2 0x00663b48
+    static BOOL m_hasTexFormatDXT1_32;
+    // GLOBAL: CMR2 0x00663b4c
+    static BOOL m_hasTexFormat32;
+    // GLOBAL: CMR2 0x00663b50
+    static BOOL m_hasTexFormatDXT5_32;
+    // GLOBAL: CMR2 0x00663b54
+    static BOOL m_hasTexFormatBump16;
+    // GLOBAL: CMR2 0x00663b58
+    static BOOL m_hasTexFormatBump32;
 
 private:
     // GLOBAL: CMR2 0x0051615c

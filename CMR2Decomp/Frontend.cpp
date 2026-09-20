@@ -97,8 +97,6 @@ unsigned int CFrontend::m_unk0x006e0c5c;
 unsigned int CFrontend::m_unk0x006e0c64;
 unsigned int CFrontend::m_unk0x006e0c60;
 unsigned int CFrontend::m_unk0x006e0c68;
-unsigned int CFrontend::m_unk0x00663b38;
-unsigned int CFrontend::m_unk0x00663b48;
 
 Texture* CFrontend::m_unk0x00818530[3];
 char* CFrontend::m_unk0x0081853c;
@@ -205,7 +203,7 @@ BOOL CFrontend::FUN_004b7590(unsigned int param_1)
 // FUNCTION: CMR2 0x004a9700
 BOOL CFrontend::FUN_004a9700(void)
 {
-    if (!m_unk0x00663b38 && !m_unk0x00663b48)
+    if (!CGraphics::m_hasTexFormatDXT1_16 && !CGraphics::m_hasTexFormatDXT1_32)
         return FALSE;
 
     return TRUE;
