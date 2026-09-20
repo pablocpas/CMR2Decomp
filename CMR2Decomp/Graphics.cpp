@@ -39,6 +39,9 @@ int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 DWORD CGraphics::m_cubeMapSize = 64;
+char CGraphics::m_strSetDesktopTo16Bit[48] = "Set windows desktop to 16 bit for this 3D card";
+int CGraphics::m_unk0x0072d56c;
+BOOL CGraphics::m_unk0x00660bfc;
 TextureFormat CGraphics::m_texFormat16;
 TextureFormat CGraphics::m_texFormat16Alpha;
 TextureFormat CGraphics::m_texFormatDXT1_16;
@@ -942,16 +945,18 @@ void CGraphics::FUN_004a60b0(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x004a87c0
-BOOL CGraphics::CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, DDPIXELFORMAT *pDst)
+HRESULT CALLBACK CGraphics::CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, LPVOID lpContext)
 {
+    DDPIXELFORMAT *pDst = (DDPIXELFORMAT *)lpContext;
+
     if (pSrc != NULL && pDst != NULL) {
         if (pDst->dwZBufferBitDepth != pSrc->dwZBufferBitDepth || (pSrc->dwFlags & DDPF_ZBUFFER) == 0) {
             pDst->dwZBufferBitDepth = 0;
-            return TRUE;
+            return D3DENUMRET_OK;
         }
         memcpy(pDst, pSrc, sizeof(DDPIXELFORMAT));
     }
-    return FALSE;
+    return D3DENUMRET_CANCEL;
 }
 
 // FUNCTION: CMR2 0x004a8be0
@@ -1621,4 +1626,100 @@ void CGraphics::SelectTextureFormats(void)
         if (m_hasTexFormatBump16)
             m_pTextureManager->textureInfo5 = &m_texFormatBump16;
     }
+}
+
+// STUB: CMR2 0x004b74b0
+BOOL CGraphics::FUN_004b74b0(void)
+{
+    return FALSE;
+}
+
+// STUB: CMR2 0x004b1980
+void CGraphics::FUN_004b1980(void)
+{
+}
+
+// STUB: CMR2 0x004b7210
+void CGraphics::FUN_004b7210(void)
+{
+}
+
+// STUB: CMR2 0x0049df90
+void CGraphics::FUN_0049df90(BOOL param1, int param2)
+{
+}
+
+// FUNCTION: CMR2 0x004a8450
+BOOL CGraphics::CreateDirect3DDevice(int param1, int param2, int param3)
+{
+    DDSURFACEDESC2 zBufferDesc;
+    DDSURFACEDESC2 displayMode;
+
+    if (m_unk0x00520b7c != 0) {
+        m_unk0x0072d56c = 0;
+        CGame::RegisterCallback(ReleaseDirect3D, NULL);
+        CGame::RegisterCallback(FreeTextureBuffers, NULL);
+        CGame::RegisterCallback(FUN_004a5be0, NULL);
+    }
+    m_unk0x00660bfc = TRUE;
+
+    memset(&m_pTextureManager->ddpfZBuffer, 0, sizeof(DDPIXELFORMAT));
+    if (g_pGraphics->depth == 32) {
+        m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth = 32;
+        m_pTextureManager->pDD->EnumZBufferFormats(m_pTextureManager->deviceGUID, CopyZBufferPixelFormat, &m_pTextureManager->ddpfZBuffer);
+        if (m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth != 32) {
+            m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth = 24;
+            m_pTextureManager->pDD->EnumZBufferFormats(m_pTextureManager->deviceGUID, CopyZBufferPixelFormat, &m_pTextureManager->ddpfZBuffer);
+            if (m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth != 24) {
+                m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth = 16;
+                m_pTextureManager->pDD->EnumZBufferFormats(m_pTextureManager->deviceGUID, CopyZBufferPixelFormat, &m_pTextureManager->ddpfZBuffer);
+            }
+        }
+    }
+    if (g_pGraphics->depth == 16) {
+        m_pTextureManager->ddpfZBuffer.dwZBufferBitDepth = 16;
+        m_pTextureManager->pDD->EnumZBufferFormats(m_pTextureManager->deviceGUID, CopyZBufferPixelFormat, &m_pTextureManager->ddpfZBuffer);
+    }
+
+    if (!FUN_004b74b0()) {
+        memset(&zBufferDesc, 0, sizeof(zBufferDesc));
+        zBufferDesc.dwSize = sizeof(DDSURFACEDESC2);
+        zBufferDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+        zBufferDesc.ddsCaps.dwCaps = DDSCAPS_ZBUFFER;
+        if (g_pGraphics->field913_0x3bc & 0x20)
+            zBufferDesc.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+        zBufferDesc.dwHeight = g_pGraphics->resY;
+        zBufferDesc.dwWidth = g_pGraphics->resX;
+        zBufferDesc.ddpfPixelFormat = m_pTextureManager->ddpfZBuffer;
+        if (FUN_004a8d60() == 1 || FUN_004a8d60() == 2)
+            zBufferDesc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+        else
+            zBufferDesc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+        g_pGraphics->pDD7->CreateSurface(&zBufferDesc, &g_pGraphics->pSurface3, NULL);
+        if (g_pGraphics->pBackBufferSurface->AddAttachedSurface(g_pGraphics->pSurface3) != DD_OK)
+            return FALSE;
+    }
+
+    displayMode.dwSize = sizeof(DDSURFACEDESC2);
+    g_pGraphics->pDD7->GetDisplayMode(&displayMode);
+    if (g_pGraphics->isFullscreen == 0 && displayMode.ddpfPixelFormat.dwRGBBitCount == 32) {
+        if (DeviceCanRender16Bit(FUN_004a8bc0()) == 0)
+            MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_strSetDesktopTo16Bit, CMain::m_logFileBlankLine, MB_TASKMODAL | MB_TOPMOST);
+    }
+
+    if (FUN_004a8d60() == 0)
+        m_pTextureManager->pDD->CreateDevice(IID_IDirect3DRGBDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
+    if (FUN_004a8d60() == 1)
+        m_pTextureManager->pDD->CreateDevice(IID_IDirect3DHALDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
+    if (FUN_004a8d60() == 2)
+        m_pTextureManager->pDD->CreateDevice(IID_IDirect3DTnLHalDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
+    if (FUN_004a8d60() == 3)
+        m_pTextureManager->pDD->CreateDevice(IID_IDirect3DRefDevice, g_pGraphics->pBackBufferSurface, &m_pTextureManager->pD3D);
+
+    FUN_004b7210();
+    SelectTextureFormats();
+    FUN_0049df90(m_unk0x00520b7c, 1);
+    FUN_004b1980();
+    m_unk0x00520b7c = FALSE;
+    return TRUE;
 }

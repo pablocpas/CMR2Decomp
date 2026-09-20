@@ -1025,6 +1025,18 @@ struct Unk0x00660040 {
 
 extern Graphics *g_pGraphics;
 
+// GLOBAL: CMR2 0x00511598
+// IID_IDirect3DRGBDevice
+
+// GLOBAL: CMR2 0x005115a8
+// IID_IDirect3DHALDevice
+
+// GLOBAL: CMR2 0x005115c8
+// IID_IDirect3DRefDevice
+
+// GLOBAL: CMR2 0x005115e8
+// IID_IDirect3DTnLHalDevice
+
 // GLOBAL: CMR2 0x005114a8
 // IID_IDirectDraw7
 
@@ -1070,7 +1082,7 @@ public:
     static void FUN_004a6040(BYTE param1);
     static void FUN_004a6060(BYTE param1);
     static void FUN_004a60b0(BYTE param1);
-    static BOOL CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, DDPIXELFORMAT *pDst);
+    static HRESULT CALLBACK CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, LPVOID lpContext);
     static int FUN_004a8be0(void);
     static void GetDisplayDeviceNames(int index, LPSTR description, LPSTR name);
     static int FUN_004a8d80(void);
@@ -1096,6 +1108,18 @@ public:
 public:
     static HRESULT CALLBACK EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext);
     static void SelectTextureFormats(void);
+    static BOOL CreateDirect3DDevice(int param1, int param2, int param3);
+    static BOOL FUN_004b74b0(void);
+    static void FUN_004b1980(void);
+    static void FUN_004b7210(void);
+    static void FUN_0049df90(BOOL param1, int param2);
+
+    // GLOBAL: CMR2 0x00520b9c
+    static char m_strSetDesktopTo16Bit[48];
+    // GLOBAL: CMR2 0x0072d56c
+    static int m_unk0x0072d56c;
+    // GLOBAL: CMR2 0x00660bfc
+    static BOOL m_unk0x00660bfc;
 
     // GLOBAL: CMR2 0x00660698
     static TextureFormat m_texFormat16;
