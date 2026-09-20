@@ -38,6 +38,7 @@ TGAImageInfo CGraphics::m_tgaImageInfo;
 int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
+DWORD CGraphics::m_cubeMapSize = 64;
 unsigned int CGraphics::m_unk0x0065fa28;
 int CGraphics::m_unk0x006dd890;
 int CGraphics::m_unk0x00663b1c;
@@ -1167,4 +1168,140 @@ void CGraphics::BltMipMaps(Texture *pTexture)
         if (m_mipMapSurfaces[i] != NULL)
             m_mipMapSurfaces[i]->Blt(NULL, pTexture->pSurface, NULL, DDBLT_WAIT, NULL);
     }
+}
+
+// FUNCTION: CMR2 0x004a50f0
+void CGraphics::LockTexture(Texture *pTexture, RECT *pRect)
+{
+    unsigned int index;
+    unsigned int i;
+    unsigned int bits;
+    int count;
+
+    index = m_lockedTextureCount;
+    if (pTexture == NULL || pTexture->pSurface == NULL)
+        return;
+
+    for (i = 0; i < m_lockedTextureCount; i++) {
+        if (pTexture == m_lockedTextures[i].pTexture)
+            return;
+    }
+
+    m_lockedTextures[m_lockedTextureCount].pTexture = pTexture;
+    memset(&m_lockedTextures[m_lockedTextureCount].desc, 0, sizeof(DDSURFACEDESC2));
+    m_lockedTextures[m_lockedTextureCount].desc.dwSize = sizeof(DDSURFACEDESC2);
+    m_lockedTextures[index].pTexture->pSurface->Lock(pRect, &m_lockedTextures[m_lockedTextureCount].desc, DDLOCK_WAIT, NULL);
+
+    if (m_lockedTextures[m_lockedTextureCount].desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+        m_lockedTextures[m_lockedTextureCount].masks[0] = m_lockedTextures[m_lockedTextureCount].desc.ddpfPixelFormat.dwRBitMask;
+        m_lockedTextures[m_lockedTextureCount].masks[1] = m_lockedTextures[m_lockedTextureCount].desc.ddpfPixelFormat.dwGBitMask;
+        m_lockedTextures[m_lockedTextureCount].masks[2] = m_lockedTextures[m_lockedTextureCount].desc.ddpfPixelFormat.dwBBitMask;
+        m_lockedTextures[m_lockedTextureCount].masks[3] = m_lockedTextures[m_lockedTextureCount].desc.ddpfPixelFormat.dwRGBAlphaBitMask;
+
+        bits = m_lockedTextures[m_lockedTextureCount].masks[0];
+        for (count = 0; count < 32; count++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].shifts[0] = (BYTE)count;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[1];
+        for (count = 0; count < 32; count++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].shifts[1] = (BYTE)count;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[2];
+        for (count = 0; count < 32; count++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].shifts[2] = (BYTE)count;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[3];
+        for (count = 0; count < 32; count++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].shifts[3] = (BYTE)count;
+
+        bits = m_lockedTextures[m_lockedTextureCount].masks[0];
+        for (count = 0; count < 32; count++) {
+            if (bits == 0)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].depths[0] = (BYTE)count - 8;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[1];
+        for (count = 0; count < 32; count++) {
+            if (bits == 0)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].depths[1] = (BYTE)count - 8;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[2];
+        for (count = 0; count < 32; count++) {
+            if (bits == 0)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].depths[2] = (BYTE)count - 8;
+        bits = m_lockedTextures[m_lockedTextureCount].masks[3];
+        for (count = 0; count < 32; count++) {
+            if (bits == 0)
+                break;
+            bits >>= 1;
+        }
+        m_lockedTextures[m_lockedTextureCount].depths[3] = (BYTE)count - 8;
+    }
+    m_lockedTextureCount++;
+}
+
+// FUNCTION: CMR2 0x004a76d0
+RenderTexture *CGraphics::CreateCubeMapSurfaces(RenderTexture *pTexture)
+{
+    DDSURFACEDESC2 desc;
+    int i;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwHeight = m_cubeMapSize;
+    desc.dwWidth = m_cubeMapSize;
+    desc.dwSize = sizeof(DDSURFACEDESC2);
+    desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_3DDEVICE | DDSCAPS_COMPLEX;
+    desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_ALLFACES;
+    desc.ddsCaps.dwCaps3 = 0;
+    desc.ddsCaps.dwCaps4 = 0;
+    desc.ddpfPixelFormat = ((DDSURFACEDESC2 *)m_pTextureManager->textureInfo1)->ddpfPixelFormat;
+    desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+    g_pGraphics->pDD7->CreateSurface(&desc, &pTexture->faces[0].pSurface, NULL);
+
+    for (i = 1; i < 6; i++) {
+        if (i == 1)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEX;
+        else if (i == 2)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEY;
+        else if (i == 3)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEY;
+        else if (i == 4)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEZ;
+        else if (i == 5)
+            desc.ddsCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ;
+        pTexture->faces[0].pSurface->GetAttachedSurface(&desc.ddsCaps, &pTexture->faces[i].pSurface);
+    }
+
+    for (i = 0; i < 6; i++) {
+        desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+        desc.ddsCaps.dwCaps = DDSCAPS_ZBUFFER;
+        desc.ddsCaps.dwCaps2 = 0;
+        desc.ddsCaps.dwCaps3 = 0;
+        desc.ddsCaps.dwCaps4 = 0;
+        desc.ddpfPixelFormat = m_pTextureManager->ddpfZBuffer;
+        desc.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+        g_pGraphics->pDD7->CreateSurface(&desc, &pTexture->pZBuffers[i], NULL);
+        pTexture->faces[i].pSurface->AddAttachedSurface(pTexture->pZBuffers[i]);
+    }
+    return pTexture;
 }

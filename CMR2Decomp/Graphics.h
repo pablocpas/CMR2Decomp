@@ -1080,6 +1080,11 @@ public:
     static int GetMipMapDataSize(Texture *pTexture);
     static int GetMipMapPixelCount(Texture *pTexture);
     static void BltMipMaps(Texture *pTexture);
+    static void LockTexture(Texture *pTexture, RECT *pRect);
+    static RenderTexture *CreateCubeMapSurfaces(RenderTexture *pTexture);
+
+    // GLOBAL: CMR2 0x005210b4
+    static DWORD m_cubeMapSize;
 
 private:
     // GLOBAL: CMR2 0x0051615c

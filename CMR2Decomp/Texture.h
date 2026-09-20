@@ -44,7 +44,9 @@ struct TGAImageInfo {
 struct LockedTexture {
     Texture *pTexture;
     DDSURFACEDESC2 desc;
-    BYTE field_0x80[0x20];
+    DWORD masks[4];     // R, G, B, A bit masks (16 bpp only)
+    WORD shifts[4];     // position of the lowest set bit of each mask
+    WORD depths[4];     // bits in each mask minus 8
 };
 
 struct Unk0x0065aee8 {
