@@ -8,6 +8,7 @@
 #include "Game.h"
 
 #include <stdio.h>
+#include <stdarg.h>
 
 // GLOBAL: CMR2 0x00511758
 // IID_IDirectInput7A
@@ -58,6 +59,19 @@ ForceFeedbackDevice CInput::m_forceFeedbackDevices[8];
 
 // GLOBAL: CMR2 0x00666ee8
 BOOL CInput::m_unk0x00666ee8 = FALSE;
+DWORD CInput::m_unk0x00666ec8[8];
+char CInput::m_formatBuffer[512];
+BYTE CInput::m_keyboardState[256];
+DWORD CInput::m_buttonMasks[24] = {
+    0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000, 0x8000,
+    0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000, 0x400000, 0x800000, 0x1, 0x2, 0x4, 0x8
+};
+DWORD CInput::m_unk0x0059f8f0;
+DWORD CInput::m_unk0x0059f8f4;
+DWORD CInput::m_unk0x0059f8f8;
+DWORD CInput::m_unk0x0059f900;
+DWORD CInput::m_unk0x0059f90c;
+DWORD CInput::m_unk0x0059f910;
 
 char CInput::m_strControllerInfoDir[32] = "%s\\Configuration\\Controller.rcf";
 BOOL CInput::m_hasLoadedControllerInfo;
@@ -687,15 +701,15 @@ void CInput::FUN_0040be90(unsigned int param1) {
         FUN_0040c440(param1, pController);
     }
 
-    FUN_0049eb90(uVar2, 1, pController->field_0xa_padding[0x134]);
-    FUN_0049eb90(uVar2, 2, pController->field_0xa_padding[0x135]);
-    FUN_0049eb90(uVar2, 4, pController->field_0xa_padding[0x136]);
-    FUN_0049eb90(uVar2, 8, pController->field_0xa_padding[0x137]);
-    FUN_0049eb90(uVar2, 0x10, pController->field_0xa_padding[0x138]);
-    FUN_0049eb90(uVar2, 0x20, pController->field_0xa_padding[0x139]);
-    FUN_0049eb90(uVar2, 0x40, pController->field_0xa_padding[0x13a]);
-    FUN_0049eb90(uVar2, 0x80, pController->field_0xa_padding[0x13b]);
-    FUN_0049eb90(uVar2, 0x100, pController->field_0xa_padding[0x13c]);
+    FUN_0049eb90(uVar2, 1, pController->field_0x13e[0]);
+    FUN_0049eb90(uVar2, 2, pController->field_0x13e[1]);
+    FUN_0049eb90(uVar2, 4, pController->field_0x13e[2]);
+    FUN_0049eb90(uVar2, 8, pController->field_0x13e[3]);
+    FUN_0049eb90(uVar2, 0x10, pController->field_0x13e[4]);
+    FUN_0049eb90(uVar2, 0x20, pController->field_0x13e[5]);
+    FUN_0049eb90(uVar2, 0x40, pController->field_0x13e[6]);
+    FUN_0049eb90(uVar2, 0x80, pController->field_0x13e[7]);
+    FUN_0049eb90(uVar2, 0x100, pController->field_0x13e[8]);
 }
 
 // FUNCTION: CMR2 0x0040c440
@@ -817,4 +831,176 @@ BYTE CInput::FUN_0040c530(unsigned int param1) {
     }
 
     return iVar1;
+}
+
+// FUNCTION: CMR2 0x0049eb50
+void CInput::FUN_0049eb50(void)
+{
+    int i;
+
+    DInputReleaseDevices();
+    m_unk0x0059f8cc.field_0x1 = 2;
+    m_unk0x0059f8cc.field_0x0 = 0;
+    m_unk0x0059f8cc.field_0x2 = 0;
+    for (i = 0; i < 8; i++) {
+        m_availableDevices[i].field_0x0 = -1;
+        m_availableDevices[i].field_0x18 = -1;
+    }
+    SetupKeyboard();
+    SetupMouse();
+    GetAttachedJoysticks();
+}
+
+// FUNCTION: CMR2 0x0049edd0
+int CInput::GetFirstPressedKey(void)
+{
+    int key;
+    int result;
+
+    result = -1;
+    for (key = 0; key < 0xdd; key++) {
+        if (m_keyboardState[key] & 0x80) {
+            result = key;
+            break;
+        }
+    }
+    return result;
+}
+
+// FUNCTION: CMR2 0x0049edf0
+BOOL CInput::IsShiftPressed(void)
+{
+    if ((m_keyboardState[DIK_LSHIFT] & 0x80) == 0 && (m_keyboardState[DIK_RSHIFT] & 0x80) == 0)
+        return FALSE;
+    return TRUE;
+}
+
+// FUNCTION: CMR2 0x0049efc0
+void CInput::FUN_0049efc0(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (m_availableDevices[i].field_0x0 == 2) {
+            m_availableDevices[i].joystick.bindings[0].range = 0;
+            m_availableDevices[i].joystick.field_0x4 = 0;
+            m_availableDevices[i].joystick.controlCount = 0;
+            return;
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x0049f300
+void CInput::ReadKeyboardState(void)
+{
+    HRESULT hr;
+    short retries;
+
+    retries = 0;
+    hr = m_pDirectInputKeyboard->GetDeviceState(sizeof(m_keyboardState), m_keyboardState);
+    while (hr == DIERR_INPUTLOST && retries <= 20 && SUCCEEDED(m_pDirectInputKeyboard->Acquire())) {
+        retries++;
+        hr = m_pDirectInputKeyboard->GetDeviceState(sizeof(m_keyboardState), m_keyboardState);
+    }
+}
+
+// FUNCTION: CMR2 0x0049fd00
+int CInput::GetButtonIndexFromMask(unsigned int mask)
+{
+    int i;
+
+    for (i = 0; i < 24; i++) {
+        if (m_buttonMasks[i] & mask)
+            break;
+    }
+    if (i == 24)
+        i = -1;
+    return i;
+}
+
+// FUNCTION: CMR2 0x0049ff80
+void CInput::FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5)
+{
+    m_unk0x0059f8f8 = p1;
+    m_unk0x0059f910 = p2;
+    m_unk0x0059f8f4 = p3;
+    m_unk0x0059f8f0 = p4;
+    m_unk0x0059f90c = p5;
+}
+
+// FUNCTION: CMR2 0x0049ffc0
+void CInput::FUN_0049ffc0(DWORD param1)
+{
+    m_unk0x0059f900 = param1;
+}
+
+// FUNCTION: CMR2 0x0040be00
+DWORD CInput::FUN_0040be00(unsigned int param1)
+{
+    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x114;
+}
+
+// FUNCTION: CMR2 0x0040be30
+DWORD CInput::FUN_0040be30(unsigned int param1)
+{
+    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x120;
+}
+
+// FUNCTION: CMR2 0x0040be60
+DWORD CInput::FUN_0040be60(unsigned int param1)
+{
+    return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x124;
+}
+
+// FUNCTION: CMR2 0x0040c210
+unsigned int CInput::FUN_0040c210(unsigned int param1, int param2)
+{
+    unsigned int controller;
+
+    controller = m_unk0x005168f4[(unsigned short)param1];
+    if (m_controllerInfo[controller].field_0x210[param2].field_0x0 != 0)
+        return m_controllerInfo[controller].field_0x2d8[param2];
+    return -1;
+}
+
+// FUNCTION: CMR2 0x0040c270
+BOOL CInput::FUN_0040c270(int param1, ControllerData *param2)
+{
+    if ((&param2->field_0x128)[param1] != 0 && param2->field_0x13e[param1] != 0)
+        return TRUE;
+    return FALSE;
+}
+
+// FUNCTION: CMR2 0x004aaf50
+void CInput::FUN_004aaf50(DWORD param1, int index)
+{
+    m_unk0x00666ec8[index] = param1;
+}
+
+// FUNCTION: CMR2 0x004aaf70
+void CInput::StartForceFeedbackEffect(int effectIndex, int deviceIndex)
+{
+    ForceFeedbackDevice *pDevice;
+    LPDIRECTINPUTEFFECT pEffect;
+    DWORD status;
+
+    pDevice = &m_forceFeedbackDevices[deviceIndex];
+    if (pDevice->field_0x0 != 0) {
+        pEffect = pDevice->effects[effectIndex];
+        if (pEffect != NULL) {
+            FUN_004ab5f0(pEffect->GetEffectStatus(&status));
+            if ((status & DIEGES_PLAYING) == 0)
+                pDevice->effects[effectIndex]->Start(1, 0);
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x004ab600
+char *CInput::FormatString(LPCSTR format, ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    wvsprintfA(m_formatBuffer, format, args);
+    return m_formatBuffer;
 }

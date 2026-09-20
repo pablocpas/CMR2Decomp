@@ -76,12 +76,21 @@ struct ForceFeedbackDevice {
     LPDIRECTINPUTEFFECT effects[10];       // +0xC (10 effect pointers)
 };
 
+struct ControllerDataUnk0x210 {
+    DWORD field_0x0;
+    BYTE field_0x4[16];
+};
+
 struct ControllerData {
     unsigned int field_0x0;
     unsigned int field_0x4;
     BYTE field_0x8;
     BYTE field_0x9;
-    BYTE field_0xa_padding[286];
+    BYTE field_0xa_padding[266];
+    DWORD field_0x114;
+    BYTE field_0x118_padding[8];
+    DWORD field_0x120;
+    DWORD field_0x124;
     unsigned short field_0x128; // are you actually a struct?
     unsigned short field_0x12a;
     unsigned short field_0x12c;
@@ -93,7 +102,9 @@ struct ControllerData {
     unsigned short field_0x138;
     unsigned short field_0x13a;
     unsigned short field_0x13c;
-    BYTE field_0x13e[434];
+    BYTE field_0x13e[210];
+    ControllerDataUnk0x210 field_0x210[10];
+    unsigned short field_0x2d8[12];
 };
 
 struct ControllerInfo {
@@ -155,6 +166,26 @@ public:
     static CHAR m_strL[4];
     static ForceFeedbackDevice m_forceFeedbackDevices[8];
     static BOOL m_unk0x00666ee8;
+    // GLOBAL: CMR2 0x00666ec8
+    static DWORD m_unk0x00666ec8[8];
+    // GLOBAL: CMR2 0x00667000
+    static char m_formatBuffer[512];
+    // GLOBAL: CMR2 0x0059f7c8
+    static BYTE m_keyboardState[256];
+    // GLOBAL: CMR2 0x00520808
+    static DWORD m_buttonMasks[24];
+    // GLOBAL: CMR2 0x0059f8f0
+    static DWORD m_unk0x0059f8f0;
+    // GLOBAL: CMR2 0x0059f8f4
+    static DWORD m_unk0x0059f8f4;
+    // GLOBAL: CMR2 0x0059f8f8
+    static DWORD m_unk0x0059f8f8;
+    // GLOBAL: CMR2 0x0059f900
+    static DWORD m_unk0x0059f900;
+    // GLOBAL: CMR2 0x0059f90c
+    static DWORD m_unk0x0059f90c;
+    // GLOBAL: CMR2 0x0059f910
+    static DWORD m_unk0x0059f910;
 
     // GLOBAL: CMR2 0x00516908
     static char m_strControllerInfoDir[32];
@@ -193,6 +224,22 @@ public:
     static void FUN_0040c440(unsigned int param1, ControllerData * param2);
     static void FUN_0049eb90(int param1, unsigned int param2, unsigned int param3);
     static BYTE FUN_0040c530(unsigned int param1);
+    static void FUN_0049eb50(void);
+    static int GetFirstPressedKey(void);
+    static BOOL IsShiftPressed(void);
+    static void FUN_0049efc0(void);
+    static void ReadKeyboardState(void);
+    static int GetButtonIndexFromMask(unsigned int mask);
+    static void FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5);
+    static void FUN_0049ffc0(DWORD param1);
+    static DWORD FUN_0040be00(unsigned int param1);
+    static DWORD FUN_0040be30(unsigned int param1);
+    static DWORD FUN_0040be60(unsigned int param1);
+    static unsigned int FUN_0040c210(unsigned int param1, int param2);
+    static BOOL FUN_0040c270(int param1, ControllerData *param2);
+    static void FUN_004aaf50(DWORD param1, int index);
+    static void StartForceFeedbackEffect(int effectIndex, int deviceIndex);
+    static char *FormatString(LPCSTR format, ...);
 };
 
 #endif
