@@ -9,8 +9,23 @@ struct Texture {
     BYTE                    field_0x2[134];
     BYTE                    field_0x134[140];
     IDirectDrawSurface7*    pSurface;
-    BYTE                    field_288[612];
+    BYTE                    field_0x118[8];
+    short                   width;
+    short                   height;
+    BYTE                    field_0x124[600];
     void*                   buffer;
+};
+
+struct LockedTexture {
+    Texture *pTexture;
+    DDSURFACEDESC2 desc;
+    BYTE field_0x80[0x20];
+};
+
+struct Unk0x0065aee8 {
+    BYTE field_0x0[0x4c];
+    IDirectDrawSurface7 *pSurface;
+    BYTE field_0x50[0xe0];
 };
 
 class CTexture {

@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "FileBuffer.h"
 #include "GameInfo.h"
 #include "RegKey.h"
 #include "main.h"
@@ -21,8 +22,16 @@ D3DTextureManager *CGraphics::m_pTextureManager;
 char CGraphics::m_strSettingConfigurationToDefault[36] = "Setting configuration to defaults";
 
 BOOL CGraphics::m_unk0x00520b7c = TRUE;
-void* CGraphics::m_unk0x0065fa2c;
-int CGraphics::m_unk0x0065fa28;
+unsigned int CGraphics::m_unk0x0065fa2c;
+unsigned int CGraphics::m_textureCount;
+unsigned int CGraphics::m_lockedTextureCount;
+LockedTexture CGraphics::m_lockedTextures[7];
+Unk0x0065aee8 CGraphics::m_unk0x0065aee8[40];
+unsigned int CGraphics::m_unk0x00520b2c = 0xff;
+unsigned int CGraphics::m_unk0x00520b30 = 0xff;
+int CGraphics::m_unk0x0065fa44;
+int CGraphics::m_unk0x0065fa48;
+unsigned int CGraphics::m_unk0x0065fa28;
 int CGraphics::m_unk0x006dd890;
 int CGraphics::m_unk0x00663b1c;
 Unk0x0065ff90 CGraphics::m_unk0x0065ff90[10];
@@ -138,7 +147,7 @@ BOOL CGraphics::FUN_004a5be0(void) {
     int index, textureID, iVar4, iVar7;
 
     m_pTextureManager->pDD->EvictManagedTextures();
-    m_unk0x0065fa2c = NULL;
+    m_unk0x0065fa2c = 0;
 
     index = 0;
     textureID = 0;
@@ -743,4 +752,221 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
     m_unk0x00663b20 = 1;
 
     return TRUE;
+}
+
+// FUNCTION: CMR2 0x004a5080
+void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
+{
+    RECT rect;
+
+    rect.left = 0;
+    rect.right = pTexture->width;
+    rect.top = 0;
+    rect.bottom = pTexture->height;
+    if (pTexture->pSurface != NULL && m_unk0x0065aee8[surfaceIndex].pSurface != NULL)
+        pTexture->pSurface->Blt(&rect, m_unk0x0065aee8[surfaceIndex].pSurface, NULL, DDBLT_WAIT, NULL);
+}
+
+// FUNCTION: CMR2 0x004a56c0
+void CGraphics::UnlockTexture(Texture *pTexture)
+{
+    unsigned int i;
+
+    for (i = 0; i < m_lockedTextureCount; i++) {
+        if (pTexture == m_lockedTextures[i].pTexture)
+            break;
+    }
+    if (i != m_lockedTextureCount) {
+        m_lockedTextures[i].pTexture->pSurface->Unlock(NULL);
+        m_lockedTextures[i].pTexture = NULL;
+        m_lockedTextureCount--;
+    }
+}
+
+// FUNCTION: CMR2 0x004a5730
+unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
+{
+    WORD *pPixel;
+    int pad;
+    unsigned int mask;
+    unsigned int bits;
+    int shift;
+    int count;
+    int i;
+
+    pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
+    if (pDesc->ddpfPixelFormat.dwRGBBitCount == 16) {
+        pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
+        mask = pDesc->ddpfPixelFormat.dwRBitMask;
+        bits = mask;
+        for (shift = 0; shift < 32; shift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+
+        count = 0;
+        bits = mask;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
+    } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
+        return (((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] & 0xff0000) >> 16;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004a57e0
+unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
+{
+    WORD *pPixel;
+    int pad;
+    unsigned int mask;
+    unsigned int bits;
+    int shift;
+    int count;
+    int i;
+
+    pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
+    if (pDesc->ddpfPixelFormat.dwRGBBitCount == 16) {
+        pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
+        mask = pDesc->ddpfPixelFormat.dwRGBAlphaBitMask;
+        bits = mask;
+        for (shift = 0; shift < 32; shift++) {
+            if (bits & 1)
+                break;
+            bits >>= 1;
+        }
+
+        count = 0;
+        bits = mask;
+        for (i = 32; i != 0; i--) {
+            if (bits & 1)
+                count++;
+            bits >>= 1;
+        }
+        return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
+    } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
+        return ((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] >> 24;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004a5d10
+BOOL CGraphics::FreeTextureBuffers(void)
+{
+    int i;
+
+    for (i = 0; i < 2048; i++) {
+        if (m_pTextureManager->textureBuffer[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_pTextureManager->textureBuffer[i]);
+            m_pTextureManager->textureBuffer[i] = NULL;
+            if (m_textureCount > 0)
+                m_textureCount--;
+        }
+    }
+    for (i = 0; i < 20; i++) {
+        if (m_pTextureManager->textureBuffer2[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_pTextureManager->textureBuffer2[i]);
+            m_pTextureManager->textureBuffer2[i] = NULL;
+            if (m_unk0x0065fa28 > 0)
+                m_unk0x0065fa28--;
+        }
+    }
+    return TRUE;
+}
+
+// FUNCTION: CMR2 0x004a5fe0
+unsigned int CGraphics::FUN_004a5fe0(void)
+{
+    return m_unk0x0065fa2c >> 10;
+}
+
+// FUNCTION: CMR2 0x004a5ff0
+void CGraphics::FUN_004a5ff0(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x00520b2c = param1;
+}
+
+// FUNCTION: CMR2 0x004a6040
+void CGraphics::FUN_004a6040(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x0065fa44 = param1 - 0x80;
+}
+
+// FUNCTION: CMR2 0x004a6060
+void CGraphics::FUN_004a6060(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x00520b30 = param1;
+}
+
+// FUNCTION: CMR2 0x004a60b0
+void CGraphics::FUN_004a60b0(BYTE param1)
+{
+    if (param1 <= 0xff)
+        m_unk0x0065fa48 = param1 - 0x80;
+}
+
+// FUNCTION: CMR2 0x004a87c0
+BOOL CGraphics::CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, DDPIXELFORMAT *pDst)
+{
+    if (pSrc != NULL && pDst != NULL) {
+        if (pDst->dwZBufferBitDepth != pSrc->dwZBufferBitDepth || (pSrc->dwFlags & DDPF_ZBUFFER) == 0) {
+            pDst->dwZBufferBitDepth = 0;
+            return TRUE;
+        }
+        memcpy(pDst, pSrc, sizeof(DDPIXELFORMAT));
+    }
+    return FALSE;
+}
+
+// FUNCTION: CMR2 0x004a8be0
+int CGraphics::FUN_004a8be0(void)
+{
+    return m_unk0x00663b18;
+}
+
+// FUNCTION: CMR2 0x004a8bf0
+void CGraphics::GetDisplayDeviceNames(int index, LPSTR description, LPSTR name)
+{
+    wsprintfA(description, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].unk_0x00);
+    wsprintfA(name, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].name);
+}
+
+// FUNCTION: CMR2 0x004a8d80
+int CGraphics::FUN_004a8d80(void)
+{
+    return m_unk0x00663b24;
+}
+
+// FUNCTION: CMR2 0x004a8eb0
+int CGraphics::GetSelectedDisplayDeviceIx(void)
+{
+    return m_selectedDisplayDeviceIx;
+}
+
+// FUNCTION: CMR2 0x004a8f10
+DWORD CGraphics::GetDisplayCount(void)
+{
+    return m_displayCount;
+}
+
+// FUNCTION: CMR2 0x004a8f20
+void CGraphics::GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *pColourDepth)
+{
+    *pWidth = m_displays[index].width;
+    *pHeight = m_displays[index].height;
+    *pColourDepth = m_displays[index].colourDepth;
+}
+
+// FUNCTION: CMR2 0x004a96d0
+DWORD CGraphics::FUN_004a96d0(int param1)
+{
+    return m_unk0x0065fd08.entries[param1].capFlag200;
 }

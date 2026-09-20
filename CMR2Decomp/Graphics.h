@@ -1053,6 +1053,24 @@ public:
     static void FUN_004a8ec0(int width, int height, int colourDepth);
     static DWORD FUN_004a8d60(void);
     static HRESULT FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg);
+    static void BltTexture(Texture *pTexture, int surfaceIndex);
+    static void UnlockTexture(Texture *pTexture);
+    static unsigned int GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y);
+    static unsigned int GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y);
+    static BOOL FreeTextureBuffers(void);
+    static unsigned int FUN_004a5fe0(void);
+    static void FUN_004a5ff0(BYTE param1);
+    static void FUN_004a6040(BYTE param1);
+    static void FUN_004a6060(BYTE param1);
+    static void FUN_004a60b0(BYTE param1);
+    static BOOL CopyZBufferPixelFormat(DDPIXELFORMAT *pSrc, DDPIXELFORMAT *pDst);
+    static int FUN_004a8be0(void);
+    static void GetDisplayDeviceNames(int index, LPSTR description, LPSTR name);
+    static int FUN_004a8d80(void);
+    static int GetSelectedDisplayDeviceIx(void);
+    static DWORD GetDisplayCount(void);
+    static void GetDisplayMode(int index, DWORD *pWidth, DWORD *pHeight, DWORD *pColourDepth);
+    static DWORD FUN_004a96d0(int param1);
 
 private:
     // GLOBAL: CMR2 0x0051615c
@@ -1071,10 +1089,26 @@ private:
     static char m_direct3DTLHAL[18]; // "Direct3D T&L HAL"    
 
     // GLOBAL: CMR2 0x0065fa2c
-    static void* m_unk0x0065fa2c;
+    static unsigned int m_unk0x0065fa2c;
+    // GLOBAL: CMR2 0x0065fa20
+    static unsigned int m_textureCount;
+    // GLOBAL: CMR2 0x0065fa3c
+    static unsigned int m_lockedTextureCount;
+    // GLOBAL: CMR2 0x0065aa88
+    static LockedTexture m_lockedTextures[7];
+    // GLOBAL: CMR2 0x0065aee8
+    static Unk0x0065aee8 m_unk0x0065aee8[40];
+    // GLOBAL: CMR2 0x00520b2c
+    static unsigned int m_unk0x00520b2c;
+    // GLOBAL: CMR2 0x00520b30
+    static unsigned int m_unk0x00520b30;
+    // GLOBAL: CMR2 0x0065fa44
+    static int m_unk0x0065fa44;
+    // GLOBAL: CMR2 0x0065fa48
+    static int m_unk0x0065fa48;
 
     // GLOBAL: CMR2 0x0065fa28
-    static int m_unk0x0065fa28;
+    static unsigned int m_unk0x0065fa28;
 
     // GLOBAL: CMR2 0x006dd890
     static int m_unk0x006dd890;
