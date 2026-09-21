@@ -1169,6 +1169,27 @@ public:
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
     static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
+    static void SetClearColour(int unused, BYTE r, BYTE g, BYTE b);
+    static void ClearTarget(void);
+    static BOOL ClearZBuffer(void);
+    static void SetCullMode(int mode);
+    static void SetZEnable(int enable);
+    static void SetTextureAddressClamp(int clamp);
+    static void SetZWriteEnable(int enable);
+    static void SetTexCoordIndex(int stage, int index);
+
+    // GLOBAL: CMR2 0x0059ce24
+    static DWORD m_clearColour;
+    // GLOBAL: CMR2 0x00597cb8
+    static int m_cullMode;
+    // GLOBAL: CMR2 0x0059ce34
+    static int m_zEnable;
+    // GLOBAL: CMR2 0x0059ce38
+    static int m_textureAddressClamp;
+    // GLOBAL: CMR2 0x0059ce3c
+    static int m_zWriteEnable;
+    // GLOBAL: CMR2 0x0059bd04
+    static int m_texCoordIndex[8];
 
     // GLOBAL: CMR2 0x00511310
     static double m_oneOver65536;

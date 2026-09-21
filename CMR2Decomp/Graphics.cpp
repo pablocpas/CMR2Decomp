@@ -41,6 +41,12 @@ int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 DWORD CGraphics::m_cubeMapSize = 64;
+DWORD CGraphics::m_clearColour;
+int CGraphics::m_cullMode;
+int CGraphics::m_zEnable;
+int CGraphics::m_textureAddressClamp;
+int CGraphics::m_zWriteEnable;
+int CGraphics::m_texCoordIndex[8];
 Unk0x006e0bb0 CGraphics::m_d3dDeviceDesc7;
 double CGraphics::m_oneOver65536 = 1.0 / 65536.0;
 double CGraphics::m_65536 = 65536.0;
@@ -2173,4 +2179,91 @@ void CGraphics::FUN_004b7210(void) {
     m_d3dDeviceDesc7.minTextureHeight = d3ddesc.dwMinTextureHeight;
     m_d3dDeviceDesc7.maxTextureWidth = d3ddesc.dwMaxTextureWidth;
     m_d3dDeviceDesc7.maxTextureHeight = d3ddesc.dwMaxTextureHeight;
+}
+
+// FUNCTION: CMR2 0x0049d940
+void CGraphics::SetClearColour(int unused, BYTE r, BYTE g, BYTE b)
+{
+    ((BYTE *)&m_clearColour)[0] = r;
+    ((BYTE *)&m_clearColour)[1] = g;
+    ((BYTE *)&m_clearColour)[2] = b;
+}
+
+// FUNCTION: CMR2 0x0049d960
+void CGraphics::ClearTarget(void)
+{
+    D3DRECT rect;
+
+    rect.x1 = 0;
+    rect.y1 = 0;
+    rect.x2 = g_pGraphics->resX;
+    rect.y2 = g_pGraphics->resY;
+    m_pTextureManager->pD3D->Clear(1, &rect, D3DCLEAR_TARGET,
+        RGBA_MAKE(((BYTE *)&m_clearColour)[0], ((BYTE *)&m_clearColour)[1], ((BYTE *)&m_clearColour)[2], 0xff), 1.0f, 0);
+}
+
+// FUNCTION: CMR2 0x0049d9d0
+BOOL CGraphics::ClearZBuffer(void)
+{
+    D3DRECT rect;
+    DWORD flags;
+
+    rect.x1 = 0;
+    rect.y1 = 0;
+    rect.x2 = g_pGraphics->resX;
+    rect.y2 = g_pGraphics->resY;
+    if (!FUN_004b74b0()) {
+        flags = D3DCLEAR_ZBUFFER;
+        if (g_pGraphics->field913_0x3bc & 0x20)
+            flags = D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL;
+        m_pTextureManager->pD3D->Clear(1, &rect, flags, 0xff000000, 1.0f, 0);
+    }
+    return TRUE;
+}
+
+// FUNCTION: CMR2 0x0049dc70
+void CGraphics::SetCullMode(int mode)
+{
+    if (mode != m_cullMode) {
+        m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CULLMODE, mode);
+        m_cullMode = mode;
+    }
+}
+
+// FUNCTION: CMR2 0x0049dd40
+void CGraphics::SetZEnable(int enable)
+{
+    if (enable != m_zEnable) {
+        m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_ZENABLE, enable);
+        m_zEnable = enable;
+    }
+}
+
+// FUNCTION: CMR2 0x0049dd70
+void CGraphics::SetTextureAddressClamp(int clamp)
+{
+    if (clamp != m_textureAddressClamp) {
+        if (clamp != 0)
+            m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_ADDRESS, D3DTADDRESS_CLAMP);
+        else
+            m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_ADDRESS, D3DTADDRESS_WRAP);
+        m_textureAddressClamp = clamp;
+    }
+}
+
+// FUNCTION: CMR2 0x0049ddc0
+void CGraphics::SetZWriteEnable(int enable)
+{
+    if (enable != m_zWriteEnable) {
+        m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, enable);
+        m_zWriteEnable = enable;
+    }
+}
+
+// FUNCTION: CMR2 0x0049ddf0
+void CGraphics::SetTexCoordIndex(int stage, int index)
+{
+    m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX, index);
+    m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
+    m_texCoordIndex[stage] = index;
 }

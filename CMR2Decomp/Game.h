@@ -58,6 +58,34 @@ class CGame
 {
 public:
     static BOOL IsActive(void);
+    static int GetCallbackCount(void);
+    static void UnwindCallbacks(int count);
+    static void FUN_0049c140(void);
+    static int FUN_0049c400(void);
+    static int FUN_0049c410(void);
+    static void FUN_0049c420(int param1);
+    static int FUN_0049c430(void);
+    static void FUN_0049cb50(void *param1);
+    static void FUN_0049cb70(void *param1);
+    static void FUN_0049dca0(int param1);
+    static int FUN_0049dcb0(void);
+
+    // GLOBAL: CMR2 0x0059ce14
+    static int m_unk0x0059ce14;
+    // GLOBAL: CMR2 0x0059ce18
+    static int m_unk0x0059ce18;
+    // GLOBAL: CMR2 0x0059ce20
+    static int m_unk0x0059ce20;
+    // GLOBAL: CMR2 0x0059ce28
+    static int m_unk0x0059ce28;
+    // GLOBAL: CMR2 0x0059ce2c
+    static int m_unk0x0059ce2c;
+    // GLOBAL: CMR2 0x00593cb0
+    static void *m_unk0x00593cb0[4117];
+    // GLOBAL: CMR2 0x00597d04
+    static void *m_unk0x00597d04[4096];
+    // GLOBAL: CMR2 0x005207f8
+    static int m_unk0x005207f8;
     static void FUN_004a9b10(int param1);
     static int FUN_004a9b20(void);
     static bool CreateDirectPlay(void);
@@ -159,8 +187,9 @@ public:
     // GLOBAL: CMR2 0x0052ea59
     static BYTE m_unk0x0052ea59;
 
-    static void* m_unk0x005939a0;
-    static int m_unk0x00593ba0;    
+    // GLOBAL: CMR2 0x005939a0
+    static void *m_callbacks[64];
+    static int m_unk0x00593ba0;
 
     // GLOBAL: CMR2 0x005a1818
     static BYTE m_unk0x005a1818;

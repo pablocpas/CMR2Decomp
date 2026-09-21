@@ -17,6 +17,14 @@
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
+int CGame::m_unk0x0059ce14;
+int CGame::m_unk0x0059ce18;
+int CGame::m_unk0x0059ce20;
+int CGame::m_unk0x0059ce28;
+int CGame::m_unk0x0059ce2c;
+void *CGame::m_unk0x00593cb0[4117];
+void *CGame::m_unk0x00597d04[4096];
+int CGame::m_unk0x005207f8;
 int CGame::m_unk0x00663dc4;
 DPlayConnection CGame::m_connections[10];
 BYTE CGame::m_maxConnections = 10;
@@ -45,7 +53,7 @@ BYTE CGame::m_unk0x0052ea59;
 int CGame::m_unk0x00593ba0;
 
 // GLOBAL: CMR2 0x005939a0
-void* CGame::m_unk0x005939a0;
+void *CGame::m_callbacks[64];
 
 BYTE CGame::m_unk0x005a1818;
 BYTE CGame::m_unk0x005a1819;
@@ -352,7 +360,7 @@ int CGame::RegisterCallback(void *param1, void *param2) {
 
     iVar2 = 0;
     if (m_unk0x00593ba0 > 0) {
-        piVar3 = &m_unk0x005939a0;
+        piVar3 = m_callbacks;
         while (1) {
             if (param1 == *piVar3)
                 return iVar2;
@@ -367,7 +375,7 @@ int CGame::RegisterCallback(void *param1, void *param2) {
     if (m_unk0x00593ba0 >= 0x40)
         return -1;
 
-    (&m_unk0x005939a0)[m_unk0x00593ba0] = param1;
+    m_callbacks[m_unk0x00593ba0] = param1;
     return m_unk0x00593ba0++;
 }
 
@@ -675,4 +683,74 @@ DPlayConnection *CGame::GetConnection(BYTE index)
 bool CGame::FUN_004aad30(void)
 {
     return false;
+}
+
+// FUNCTION: CMR2 0x0049c090
+int CGame::GetCallbackCount(void)
+{
+    return m_unk0x00593ba0;
+}
+
+// FUNCTION: CMR2 0x0049c0f0
+void CGame::UnwindCallbacks(int count)
+{
+    while (m_unk0x00593ba0-- > count)
+        ((void (*)(void))m_callbacks[m_unk0x00593ba0])();
+    m_unk0x00593ba0 = count;
+}
+
+// FUNCTION: CMR2 0x0049c140
+void CGame::FUN_0049c140(void)
+{
+    m_unk0x00593cac = 1;
+}
+
+// FUNCTION: CMR2 0x0049c400
+int CGame::FUN_0049c400(void)
+{
+    return m_unk0x0059ce18;
+}
+
+// FUNCTION: CMR2 0x0049c410
+int CGame::FUN_0049c410(void)
+{
+    return m_unk0x0059ce20;
+}
+
+// FUNCTION: CMR2 0x0049c420
+void CGame::FUN_0049c420(int param1)
+{
+    m_unk0x0059ce14 = param1;
+}
+
+// FUNCTION: CMR2 0x0049c430
+int CGame::FUN_0049c430(void)
+{
+    return m_unk0x0059ce14;
+}
+
+// FUNCTION: CMR2 0x0049cb50
+void CGame::FUN_0049cb50(void *param1)
+{
+    m_unk0x00593cb0[m_unk0x0059ce28] = param1;
+    m_unk0x0059ce28++;
+}
+
+// FUNCTION: CMR2 0x0049cb70
+void CGame::FUN_0049cb70(void *param1)
+{
+    m_unk0x00597d04[m_unk0x0059ce2c] = param1;
+    m_unk0x0059ce2c++;
+}
+
+// FUNCTION: CMR2 0x0049dca0
+void CGame::FUN_0049dca0(int param1)
+{
+    m_unk0x005207f8 = param1;
+}
+
+// FUNCTION: CMR2 0x0049dcb0
+int CGame::FUN_0049dcb0(void)
+{
+    return m_unk0x005207f8;
 }
