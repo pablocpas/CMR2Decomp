@@ -1,4 +1,5 @@
 #include "TimingUtils.h"
+#include "RallyTiming.h"
 
 #include <stdio.h>
 
@@ -14,9 +15,30 @@ void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime)
 // FUNCTION: CMR2 0x0040d480
 int ConvertRawTimeToCentiseconds(int iTime)
 {
-	// TODO: actually make this correct because its way off. GHIDRA uses a CONCAT44 which i dont understand
-	int iConvertedTime;
-	iConvertedTime = iTime + 0x147;
+	// raw times are 16.16 fixed point seconds; 0x28f5c28 = 0.01 * 2^32.
+	// The original used inline assembly for the 64-bit intermediate.
+	__asm {
+		mov eax, iTime
+		add eax, 0x147
+		mov iTime, eax
+		mov eax, iTime
+		mov ecx, 0x28f5c28
+		cdq
+		shld edx, eax, 16
+		shl eax, 16
+		idiv ecx
+	}
+}
 
-	return ((((iConvertedTime >> 0x1f) << 0x10) | (iConvertedTime >> 0x10)) | (iConvertedTime * 0x10000)) / 0x28f5c28;
+// FUNCTION: CMR2 0x0040d3f0
+void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds)
+{
+	__asm {
+		mov eax, iCentiseconds
+		mov edx, 0x28f5c28
+		imul edx
+		shrd eax, edx, 16
+		mov ecx, iDriver
+		mov dword ptr [ecx*4 + g_rallyOverallTimesRaw], eax
+	}
 }

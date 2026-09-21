@@ -8,6 +8,12 @@ BYTE g_unk0x0052f2a9;
 // GLOBAL: CMR2 0x0052f2ac
 unsigned int g_selectedRallyData = 0;
 
+// GLOBAL: CMR2 0x0052f2b0
+unsigned int g_unk0x0052f2b0;
+
+// GLOBAL: CMR2 0x0052f2b4
+unsigned int g_unk0x0052f2b4;
+
 // FUNCTION: CMR2 0x00406910
 unsigned int RallyDataCountryIndex(void)
 {
@@ -99,4 +105,48 @@ void RallyData_UpdateFlags(void)
 	g_selectedRallyData &= ~0x800000;
 	if (g_selectedRallyData & 0x31000000)
 		g_selectedRallyData |= 0x800000;
+}
+
+// FUNCTION: CMR2 0x0040d5c0
+void RallyData_ResetSelection(void)
+{
+	g_selectedRallyData = (g_selectedRallyData & 0xfff3c000) | 0x30000;
+	g_unk0x0052f2b4 = (g_unk0x0052f2b4 & 0xfff802cc) | 0x802cc;
+	g_unk0x0052f2b0 &= 0xfffffff8;
+}
+
+// FUNCTION: CMR2 0x0040d600
+void RallyData_FUN_0040d600(BYTE param1)
+{
+	g_selectedRallyData = ((param1 & 3) << 10) | (g_selectedRallyData & 0xfffff3ffU);
+}
+
+// FUNCTION: CMR2 0x0040d620
+void RallyData_FUN_0040d620(BYTE param1)
+{
+	g_selectedRallyData = ((param1 & 0xf) << 16) | (g_selectedRallyData & 0xfff0ffffU);
+}
+
+// FUNCTION: CMR2 0x0040d640
+void RallyData_FUN_0040d640(BYTE param1)
+{
+	g_unk0x0052f2a9 = g_unk0x0052f2a9 ^ (g_unk0x0052f2a9 ^ param1) & 0xf;
+}
+
+// FUNCTION: CMR2 0x0040d660
+void RallyData_FUN_0040d660(BYTE param1)
+{
+	g_unk0x0052f2b4 = (param1 & 7) | (g_unk0x0052f2b4 & 0xfffffff8U);
+}
+
+// FUNCTION: CMR2 0x0040d680
+void RallyData_FUN_0040d680(BYTE param1)
+{
+	g_unk0x0052f2b4 = ((param1 & 7) << 6) | (g_unk0x0052f2b4 & 0xfffffe3fU);
+}
+
+// FUNCTION: CMR2 0x0040d6a0
+void RallyData_FUN_0040d6a0(BYTE param1)
+{
+	g_unk0x0052f2b4 = ((param1 & 0xf) << 16) | (g_unk0x0052f2b4 & 0xfff0ffffU);
 }
