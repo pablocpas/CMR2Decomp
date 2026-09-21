@@ -9,6 +9,7 @@ class CFrontend
 {
 public:
     static void FUN_004d21e0(void);
+    static char *GetTextString(int index);
     static BOOL FUN_004b7560(unsigned int param_1);
     static BOOL FUN_004b7590(unsigned int param_1);
     static BOOL FUN_004a9700(void);
@@ -16,6 +17,15 @@ public:
     static bool LoadSplashScreens(bool param1);
     static void LoadLanguageFiles(void);
     static bool ReleaseLanguageFiles(void);
+
+    // GLOBAL: CMR2 0x0065aa6c
+    static char **m_textStrings;
+    // GLOBAL: CMR2 0x0065aa74
+    static int m_textFirstId;
+    // GLOBAL: CMR2 0x0065aa78
+    static int m_textCount;
+    // GLOBAL: CMR2 0x00520b00
+    static char m_strInvalidTextString[20];
 
     // GLOBAL: CMR2 0x00818200
     static GenericFile m_languageFiles[5];

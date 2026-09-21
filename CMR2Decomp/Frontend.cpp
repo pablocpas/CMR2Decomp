@@ -386,3 +386,18 @@ void CFrontend::LoadLanguageFiles(void)
     }
     CGame::RegisterCallback(ReleaseLanguageFiles, NULL);
 }
+
+char **CFrontend::m_textStrings;
+int CFrontend::m_textFirstId;
+int CFrontend::m_textCount;
+char CFrontend::m_strInvalidTextString[20] = "INVALID TEXT STRING";
+
+// Looks up one of the loaded text strings; out-of-range ids fall back to the
+// "INVALID TEXT STRING" placeholder.
+// FUNCTION: CMR2 0x004a3c60
+char *CFrontend::GetTextString(int index)
+{
+    if (index >= m_textCount || index < 0)
+        return m_strInvalidTextString;
+    return m_textStrings[m_textFirstId + index];
+}
