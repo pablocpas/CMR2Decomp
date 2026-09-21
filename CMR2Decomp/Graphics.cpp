@@ -2525,3 +2525,46 @@ int FUN_004a4bd0(void *pSource, int param2)
     }
     return -1;
 }
+
+// GLOBAL: CMR2 0x006a2a98
+void *g_unk0x006a2a98;
+// GLOBAL: CMR2 0x006a2bcc
+int g_unk0x006a2bcc;
+// GLOBAL: CMR2 0x006a2a20
+int g_unk0x006a2a20;
+// GLOBAL: CMR2 0x006a2a24
+int g_unk0x006a2a24;
+// GLOBAL: CMR2 0x006a2a38
+int g_unk0x006a2a38;
+// GLOBAL: CMR2 0x006a2a3c
+int g_unk0x006a2a3c;
+// GLOBAL: CMR2 0x006a2a50
+int g_unk0x006a2a50;
+// GLOBAL: CMR2 0x006a2a54
+int g_unk0x006a2a54;
+// GLOBAL: CMR2 0x006a2a68
+int g_unk0x006a2a68;
+// GLOBAL: CMR2 0x006a2a6c
+int g_unk0x006a2a6c;
+// GLOBAL: CMR2 0x004ae200
+BYTE g_unk0x004ae200[1];
+
+// TODO: CMR2 0x004ae170 (implemented, match 73%)
+void FUN_004ae170(int param1)
+{
+    if (g_unk0x006a2a98 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
+        g_unk0x006a2a98 = NULL;
+    }
+    g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * 92);
+    g_unk0x006a2bcc = param1 & 0xff;
+    g_unk0x006a2a20 = 0;
+    g_unk0x006a2a24 = 0;
+    g_unk0x006a2a38 = 0xfff9;
+    g_unk0x006a2a3c = 0;
+    g_unk0x006a2a50 = 0xfff9;
+    g_unk0x006a2a54 = 0xfff9;
+    g_unk0x006a2a68 = 0;
+    g_unk0x006a2a6c = 0xfff9;
+    CGame::RegisterCallback(g_unk0x004ae200, NULL);
+}
