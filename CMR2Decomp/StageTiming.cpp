@@ -632,3 +632,69 @@ void FUN_00424120(void)
     for (i = 0; i < 3; i++)
         CInput::StartForceFeedbackEffect(i, g_unk0x00539278->field_0x2c);
 }
+
+// GLOBAL: CMR2 0x00591af0
+int g_unk0x00591af0;
+// GLOBAL: CMR2 0x00591af8
+int g_unk0x00591af8;
+// GLOBAL: CMR2 0x00591afc
+int g_unk0x00591afc;
+// GLOBAL: CMR2 0x00591b00
+int g_unk0x00591b00[5];
+// GLOBAL: CMR2 0x00591b14
+int g_unk0x00591b14;
+// GLOBAL: CMR2 0x00591b18
+int g_unk0x00591b18;
+// GLOBAL: CMR2 0x00591b1c
+int g_unk0x00591b1c;
+// GLOBAL: CMR2 0x00591b20
+int g_unk0x00591b20;
+// GLOBAL: CMR2 0x00591b24
+int g_unk0x00591b24;
+// GLOBAL: CMR2 0x00591b30
+int g_unk0x00591b30;
+// GLOBAL: CMR2 0x00591b34
+int g_unk0x00591b34;
+// GLOBAL: CMR2 0x00591b38
+int g_unk0x00591b38[5];
+// GLOBAL: CMR2 0x004918c0
+BYTE g_unk0x004918c0[1];
+
+// Walks the serialised stage block, recording a pointer to every sub-table.
+// FUNCTION: CMR2 0x00490d50
+void FUN_00490d50(BYTE *pData)
+{
+    BYTE *p;
+    int i;
+
+    g_unk0x00591b30 = (int)pData;
+    g_unk0x00591af8 = (int)pData;
+    p = pData + 8;
+    for (i = 0; i < 5; i++) {
+        g_unk0x00591b38[i] = *(short *)p;
+        p += 2;
+    }
+    p += 2;
+    for (i = 0; i < 5; i++) {
+        g_unk0x00591b00[i] = (int)p;
+        p += g_unk0x00591b38[i] * 8;
+    }
+    g_unk0x00591b24 = (int)p;
+    p += 4;
+    g_unk0x00591b14 = (int)p;
+    i = *(unsigned short *)g_unk0x00591b24;
+    g_unk0x00591afc = (int)(p + i * 12);
+    p += 4;
+    g_unk0x00591af0 = (int)p;
+    i = *(unsigned short *)g_unk0x00591afc;
+    p = (BYTE *)g_unk0x00591af0 + i * 8;
+    g_unk0x00591b34 = (int)p;
+    p += 4;
+    g_unk0x00591b18 = (int)p;
+    i = *(int *)g_unk0x00591b34;
+    p = (BYTE *)g_unk0x00591b18 + i * 2;
+    g_unk0x00591b20 = (int)p;
+    p += 2;
+    g_unk0x00591b1c = (int)p;
+    CGame::RegisterCallback(g_unk0x004918c0, NULL);
+}
