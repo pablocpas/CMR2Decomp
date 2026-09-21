@@ -12,6 +12,17 @@ inline int FixMul(int a, int b)
     __asm shrd eax, edx, 16
 }
 
+// (a * b) >> 32, mirroring the original's "imul edx / shrd eax, edx, 16 /
+// sar eax, 16" sequence.
+inline int FixMulShift32(int a, int b)
+{
+    __asm mov eax, a
+    __asm mov edx, b
+    __asm imul edx
+    __asm shrd eax, edx, 16
+    __asm sar eax, 16
+}
+
 inline int FixDiv(int a, int b)
 {
     __asm mov eax, a
@@ -33,6 +44,25 @@ struct FixVector {
     int y;
     int z;
 };
+
+// 4x4 16.16 matrix, row vectors: right / up / forward / position (w unused).
+struct FixMatrix {
+    FixVector right;    int rw;
+    FixVector up;       int uw;
+    FixVector forward;  int fw;
+    FixVector position; int pw;
+};
+
+// Rotation angles: 12-bit (0x400 = 90 degrees), about right / up / forward.
+struct FixAngles {
+    unsigned short x;
+    unsigned short y;
+    unsigned short z;
+    unsigned short pad;
+};
+
+void FixMatrix_Identity(FixMatrix *pOut);
+void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 
 // Angles are 12-bit (0x1000 = 360 degrees)
 #define FixSin(a) g_sinTable[(unsigned short)(a) & 0xfff]

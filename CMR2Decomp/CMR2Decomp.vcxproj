@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="AIHelper.cpp" />
     <ClCompile Include="FileBuffer.cpp" />
+    <ClCompile Include="FixedPoint.cpp" />
     <ClCompile Include="Frontend.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SceneNode.cpp" />
