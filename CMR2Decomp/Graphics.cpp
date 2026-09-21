@@ -2599,3 +2599,35 @@ int FUN_00423f30(void)
     base = (float)((double)*(int *)((char *)g_pGraphics + 0x3c4) * CGraphics::m_oneOver65536);
     return (int)((base + base * table[CGameInfo::FUN_00405ca0()]) * CGraphics::m_65536);
 }
+
+// Finds a free entry of the 0x2384 table and initialises its six 0x130-byte
+// records, or notifies the failure through FUN_004a76d0(NULL).
+// TODO: CMR2 0x004a4b10 (implemented, match 38%)
+void FUN_004a4b10(void)
+{
+    BYTE *p;
+    int i;
+    int j;
+
+    for (i = 0; i < 0x14; i++) {
+        if (CGraphics::m_pTextureManager->field_0x2384[i] == NULL) {
+            p = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x738);
+            CGraphics::m_pTextureManager->field_0x2384[i] = p;
+            for (j = 0; j < 6; j++) {
+                BYTE *q = p + j * 0x130;
+
+                *(unsigned short *)q = (unsigned short)i;
+                *(unsigned short *)(q + 0x11c) = 0;
+                *(unsigned short *)(q + 0x11e) = 0;
+                *(unsigned short *)(q + 0x120) = CGraphics::m_cubeMapSize;
+                *(unsigned short *)(q + 0x122) = CGraphics::m_cubeMapSize;
+            }
+            if (p != NULL) {
+                CGraphics::m_unk0x0065fa28++;
+                CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
+            }
+            return;
+        }
+    }
+    CGraphics::CreateCubeMapSurfaces(NULL);
+}
