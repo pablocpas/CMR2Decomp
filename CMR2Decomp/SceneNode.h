@@ -66,5 +66,7 @@ void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAng
 // Type-specific object release, one registry per SceneNode::type
 void FUN_004b3480(void *pObject);
 void FUN_004adf60(void *pObject);
+int SceneType2_ReleaseAll(void);
+SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneNode *pNode, SceneNode *pParent);
 
 #endif

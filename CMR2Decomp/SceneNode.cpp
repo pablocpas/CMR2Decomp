@@ -2,6 +2,7 @@
 #include "SceneNode.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
+#include "Game.h"
 #include "Sector.h"
 #include "Mesh.h"
 
@@ -496,7 +497,7 @@ void FUN_004adf60(void *pObject)
             count++;
         }
         pSlot++;
-    } while ((int)pSlot < 0x683788); //     } while (pSlot < &g_sceneType2Objects[256]);g_sceneType2Objects[256]
+    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
     if (count > 0) {
         CFileBuffer::FreeGenericFileBuffer(pObject);
         g_sceneType2Count--;
@@ -511,4 +512,67 @@ SceneNode *SceneNode_CreateRoot(void)
     CGraphics::m_pTextureManager->pRootNode->flags =
         (CGraphics::m_pTextureManager->pRootNode->flags & 0xfffffffd) | 0xfd;
     return CGraphics::m_pTextureManager->pRootNode;
+}
+
+// GLOBAL: CMR2 0x006838c8
+int g_sceneType2CallbackRegistered;
+
+// Exit callback: releases every type 2 object still registered.
+// FUNCTION: CMR2 0x004ae070
+int SceneType2_ReleaseAll(void)
+{
+    void **pSlot;
+
+    pSlot = g_sceneType2Objects;
+    do {
+        if (*pSlot != NULL)
+            FUN_004adf60(*pSlot);
+        pSlot++;
+    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
+    g_sceneType2CallbackRegistered = 0;
+    return 1;
+}
+
+// Allocates a type 2 object (0x104 bytes) and attaches it to pNode, creating
+// the node under pParent (with the given transform) when none is passed.
+// FUNCTION: CMR2 0x004adfa0
+SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneNode *pNode, SceneNode *pParent)
+{
+    SceneNode *p;
+    void **pSlot;
+    void *pObject;
+    int i;
+    unsigned int flags;
+
+    if (g_sceneType2CallbackRegistered == 0) {
+        CGame::RegisterCallback(SceneType2_ReleaseAll, NULL);
+        g_sceneType2CallbackRegistered = 1;
+    }
+    if (pNode == NULL)
+        p = SceneNode_Create(pParent);
+    else
+        p = pNode;
+    i = 0;
+    *(BYTE *)&p->flags = 0xff;
+    pSlot = g_sceneType2Objects;
+    do {
+        if (*pSlot == NULL) {
+            pObject = CFileBuffer::AllocateLockedBuffer(0x104);
+            g_sceneType2Objects[i] = pObject;
+            SceneNode_SetObject(p, SCENE_NODE_TYPE2, pObject);
+            if (pNode == NULL) {
+                p->translation.x = pTranslation->x;
+                p->translation.y = pTranslation->y;
+                p->translation.z = pTranslation->z;
+                p->angles.x = pAngles->x;
+                p->angles.y = pAngles->y;
+                p->angles.z = pAngles->z;
+                SceneNode_SetTransform(p, pTranslation, pAngles);
+            }
+            g_sceneType2Count++;
+            return p;        }
+        pSlot++;
+        i++;
+    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
+    return NULL;
 }

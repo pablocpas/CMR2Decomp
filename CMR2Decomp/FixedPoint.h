@@ -63,6 +63,16 @@ struct FixAngles {
 
 void FixMatrix_Identity(FixMatrix *pOut);
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
+int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_GetUp(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_GetForward(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_SetPosition(FixVector *pV, FixMatrix *pM);
+void FixMatrix_SetRight(FixVector *pV, FixMatrix *pM);
+void FixMatrix_SetUp(FixVector *pV, FixMatrix *pM);
+void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM);
 
 // Angles are 12-bit (0x1000 = 360 degrees)
 #define FixSin(a) g_sinTable[(unsigned short)(a) & 0xfff]
