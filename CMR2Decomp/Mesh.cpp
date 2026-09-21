@@ -1,6 +1,8 @@
 #include <windows.h>
+#include <string.h>
 #include "Mesh.h"
 #include "FileBuffer.h"
+#include "Graphics.h"
 
 Mesh *g_meshes[4096];
 int g_meshCount;
@@ -85,7 +87,35 @@ void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha)
     Mesh_Rebuild(pMesh);
 }
 
-// STUB: CMR2 0x004b1ea0
+// Shuffles the RGBA bytes stored for one triangle vertex into the D3D ARGB
+// layout expected by the vertex buffer.
+#define MESH_SET_VERTEX_COLOUR(v)                                                   \
+    do {                                                                            \
+        colour = *(DWORD *)pMesh->pTriangles[i].colour[v];                          \
+        *(DWORD *)((char *)pMesh->pVertexData +                                     \
+                   pMesh->pTriangles[i].vertexIndex[v] * 0x30 + 0x18) =             \
+            RGBA_MAKE(((BYTE *)&colour)[0], ((BYTE *)&colour)[1],                   \
+                      ((BYTE *)&colour)[2], ((BYTE *)&colour)[3]);                  \
+    } while (0)
+
+// Re-writes the vertex colours of the locked copy of the vertex array (shuffling
+// the stored RGBA bytes into the D3D ARGB layout) and uploads the whole array
+// into the mesh's shared vertex buffer.
+// FUNCTION: CMR2 0x004b1ea0
 void Mesh_Rebuild(Mesh *pMesh)
 {
+    int i;
+    DWORD colour;
+    void *pVertices;
+
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        MESH_SET_VERTEX_COLOUR(0);
+        MESH_SET_VERTEX_COLOUR(1);
+        MESH_SET_VERTEX_COLOUR(2);
+    }
+
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    memcpy((char *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData,
+           pMesh->field_0x10 * 0x30);
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
 }

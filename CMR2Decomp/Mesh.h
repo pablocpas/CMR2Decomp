@@ -4,8 +4,9 @@
 // Triangle of a Mesh (0x4c bytes); per-vertex colour bytes at 0x34/0x38/0x3c.
 struct MeshTriangle {
     BYTE field_0x0[0x34];
-    BYTE colour[3][4];          // 0x34  r,g,b,a per vertex
-    BYTE field_0x40[0xc];
+    BYTE colour[3][4];              // 0x34  r,g,b,a per vertex
+    unsigned short vertexIndex[3];  // 0x40  index into the mesh vertex array
+    BYTE field_0x46[0x6];
 };
 
 struct MeshPart {
@@ -15,9 +16,12 @@ struct MeshPart {
 
 // Renderable mesh (0x120 bytes); only the fields used so far are named.
 struct Mesh {
-    BYTE field_0x0[0x10];
-    int field_0x10;
-    BYTE field_0x14[0x10];
+    BYTE field_0x0[0xc];
+    DWORD *pVertexData;         // 0xc  source copy of the vertex array
+    int field_0x10;             // 0x10 vertex count
+    int vertexBufferIndex;      // 0x14 index into D3DTextureManager::pVertexBuffers
+    int vertexOffset;           // 0x18 first vertex used inside that buffer
+    BYTE field_0x1c[0x8];
     MeshTriangle *pTriangles;   // 0x24
     int triangleCount;          // 0x28
     BYTE field_0x2c[0xc];

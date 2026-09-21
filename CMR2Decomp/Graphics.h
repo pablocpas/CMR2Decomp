@@ -6,6 +6,7 @@
 #include "../third_party/dx7sdk-7001/include/d3d.h"
 
 #include "Texture.h"
+#include "Mesh.h"
 
 struct Graphics
 {
@@ -1284,6 +1285,9 @@ public:
 private:
     // GLOBAL: CMR2 0x0051615c
     static char m_strSettingConfigurationToDefault[36];
+
+    // Mesh_Rebuild locks/unlocks a shared vertex buffer.
+    friend void Mesh_Rebuild(Mesh *pMesh);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;
