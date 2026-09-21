@@ -361,8 +361,8 @@ int SceneNode_Destroy(SceneNode *pNode)
         if (p == pNode) {
             pParent->pFirstChild = pNode->pNext;
         } else {
-            for (pNext = p->pNext; pNext != pNode; pNext = pNext->pNext)
-                p = pNext;
+            while (p->pNext != pNode)
+                p = p->pNext;
             p->pNext = pNode->pNext;
         }
     }
