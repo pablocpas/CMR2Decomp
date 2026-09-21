@@ -1369,3 +1369,30 @@ bool FUN_004f4e80(void)
     g_unk0x0081b154 = 0;
     return true;
 }
+
+// GLOBAL: CMR2 0x00818ac8
+int g_unk0x00818ac8;
+
+// FUNCTION: CMR2 0x004ea480
+void FUN_004ea480(int param1)
+{
+    if (param1 == 1) {
+        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4)
+            g_unk0x00818ac8 = 1;
+        else
+            g_unk0x00818ac8 = 0;
+    } else if (param1 == 2) {
+        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4)
+            g_unk0x00818ac8 = 2;
+        else
+            g_unk0x00818ac8 = 0;
+    } else if (param1 == 3) {
+        if (CGameInfo::FUN_00405da0()) {
+            g_unk0x00818ac8 = 0;
+        } else {
+            g_unk0x00818ac8 = 3;
+            if (CGameInfo::FUN_00405d80() == 4)
+                g_unk0x00818ac8 = 0;
+        }
+    }
+}
