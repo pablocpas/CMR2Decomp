@@ -800,3 +800,57 @@ void FUN_0045e9a0(SceneNode *pNode)
             *(int *)((char *)pNode + 0x64) = 0x10000;
     }
 }
+
+// Reinicia las tablas de escena 0x58d2xx/0x58d3xx/0x58d4xx y registra el
+// callback 0x4779e0.
+// TODO: CMR2 0x00475f80 (implemented, match 40%)
+void FUN_00475f80(void)
+{
+    int i;
+    int *p;
+
+    *(int *)0x58d6a8 = 0;
+    memset((void *)0x58d47c, 0, 0x20);
+    memset((void *)0x58d340, 0, 0x20);
+    memset((void *)0x58d49c, 0, 0x20);
+    *(int *)0x58d6ac = 0;
+    memset((void *)0x58d6b0, 0xff, 0x1c);
+    memset((void *)0x58d2a0, 0xff, 0x30);
+    for (p = (int *)0x58d36c; p < (int *)0x58d3b8; p += 3) {
+        p[-1] = -1;
+        p[0] = -1;
+        p[1] = -1;
+    }
+    for (p = (int *)0x58d3bc; p < (int *)0x58d47c; p += 3) {
+        p[-1] = 0;
+        p[0] = 0;
+        p[1] = 0;
+    }
+    CGame::RegisterCallback((void *)0x4779e0, NULL);
+}
+
+// Deja el byte 0x1f del registro mas bajo de la lista 0x53f008/0x53e6a0.
+// TODO: CMR2 0x00449ba0 (implemented, match 26%)
+void FUN_00449ba0(int param1, int param2)
+{
+    int best;
+    int i;
+    int k;
+    int v;
+
+    best = 0x10;
+    if (param1 == 0x53f008 || param1 == 0x53e6a0) {
+        i = 0;
+        while (i < (CGameInfo::FUN_00405d70() & 0xff)) {
+            for (k = 0xf; k >= 0; k--) {
+                v = RallyTiming_GetOverallPositionOfDriver(k);
+                if (v < best)
+                    best = v;
+            }
+            i++;
+        }
+        param2 = best;
+    }
+    if (*(unsigned char *)(param2 + 0x1f) > 0xa)
+        *(unsigned char *)(param2 + 0x1f) = 0xa;
+}

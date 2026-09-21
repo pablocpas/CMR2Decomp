@@ -105,6 +105,7 @@ public:
     static void FUN_00501ac0(void);
     static void FUN_004a13b0(void);
     static void FUN_004a12d0(int param1);
+    static void FUN_00505a60(int param1);
     static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);
     static unsigned char FUN_00405dc0(void);

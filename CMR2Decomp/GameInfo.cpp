@@ -1560,3 +1560,28 @@ void FUN_00503aa0(int *p)
         p[0xf] = (int)CMain::GetFrameDelta();
     }
 }
+
+// Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
+// reinicia el temporizador.
+// TODO: CMR2 0x00505a60 (implemented, match 51%)
+void CGameInfo::FUN_00505a60(int param1)
+{
+    int current;
+    int *pNew;
+    int *pOld;
+    int tmp;
+
+    current = (signed char)g_unk0x0082ca1c;
+    if (current == param1)
+        return;
+    if (g_unk0x0082ca1c != 0xff && param1 != -1) {
+        pOld = (int *)((char *)g_unk0x0082c6c8 + current * 0x50);
+        pNew = (int *)((char *)g_unk0x0082c6c8 + param1 * 0x50);
+        tmp = *(int *)((char *)pNew + 0x3c);
+        *(int *)((char *)pNew + 0x3c) = *(int *)((char *)pOld + 0x3c);
+        *(int *)((char *)pOld + 0x3c) = tmp;
+    }
+    g_unk0x0082c6c0 = (int)CMain::GetFrameDelta();
+    g_unk0x0082cb44 = 0;
+    g_unk0x0082ca1c = (BYTE)param1;
+}
