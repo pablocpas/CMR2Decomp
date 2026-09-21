@@ -26,17 +26,22 @@ int Sector_IsVisible(int iSector)
 // FUNCTION: CMR2 0x004b85f0
 int Sector_FromPosition(FixVector *pPos)
 {
-    int dz;
-    int dx;
+    int offset;
+    int row;
+    int col;
     int iSector;
 
-    dz = pPos->z - g_sectorHalfSize - g_sectorOriginZ;
-    if (dz < 0)
-        dz = g_sectorHalfSize - pPos->z + g_sectorOriginZ;
-    dx = pPos->x - g_sectorOriginX + g_sectorHalfSize;
-    if (dx < 0)
-        dx = g_sectorOriginX - pPos->x - g_sectorHalfSize;
-    iSector = g_sectorsPerRow * FixMulShift32(dz, g_sectorScale) + FixMulShift32(dx, g_sectorScale);
+    offset = pPos->z - g_sectorHalfSize - g_sectorOriginZ;
+    if (offset < 0)
+        offset = g_sectorHalfSize - pPos->z + g_sectorOriginZ;
+    row = FixMulShift32(offset, g_sectorScale);
+
+    offset = pPos->x - g_sectorOriginX + g_sectorHalfSize;
+    if (offset < 0)
+        offset = g_sectorOriginX - pPos->x - g_sectorHalfSize;
+    col = FixMulShift32(offset, g_sectorScale);
+
+    iSector = g_sectorsPerRow * row + col;
     if ((short)iSector < 0 || (short)iSector >= (short)g_sectorCount)
         iSector = 0;
     return iSector;
