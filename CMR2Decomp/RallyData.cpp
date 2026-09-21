@@ -187,3 +187,39 @@ char *RallyData_FUN_00494a40(void)
         ((unsigned char)RallyData_FUN_00406940() * 3 +
          (unsigned char)RallyData_FUN_00406950()) * 7;
 }
+
+// GLOBAL: CMR2 0x0052ea68
+BYTE g_unk0x0052ea68[11];
+
+// FUNCTION: CMR2 0x00408300
+BOOL RallyData_FUN_00408300(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < 0xb; i++) {
+        if ((g_unk0x0052ea68[i] & 1) == 0)
+            continue;
+        if ((g_unk0x0052ea68[i] & 2) != 0 && !CGameInfo::FUN_00406410(0xd))
+            continue;
+        if ((g_unk0x0052ea68[i] & 4) == 0)
+            break;
+    }
+    return ((g_selectedRallyData >> 5) & 0x1f) == i;
+}
+
+// FUNCTION: CMR2 0x00408390
+void RallyData_FUN_00408390(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < 0xb; i++) {
+        if ((g_unk0x0052ea68[i] & 1) == 0)
+            continue;
+        if ((g_unk0x0052ea68[i] & 2) != 0 && !CGameInfo::FUN_00406410(0xd))
+            continue;
+        if ((g_unk0x0052ea68[i] & 4) == 0) {
+            RallyData_FUN_004068e0((BYTE)i);
+            return;
+        }
+    }
+}

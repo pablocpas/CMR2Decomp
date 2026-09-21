@@ -826,3 +826,15 @@ void FUN_00476500(void *param1)
     if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
         CGame::FUN_0049c420(1);
 }
+
+struct Unk004238e0 {
+    int field_0x0;
+    int field_0x4;
+};
+
+// FUNCTION: CMR2 0x004238e0
+void FUN_004238e0(Unk004238e0 *param1, int param2)
+{
+    if (param1->field_0x4 == 3)
+        FUN_004764c0(param1);
+}

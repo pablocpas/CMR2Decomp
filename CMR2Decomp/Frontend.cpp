@@ -457,3 +457,23 @@ unsigned int CFrontend::FUN_004cfe50(void)
     index = g_unk0x00817404 * 3 + g_unk0x008173fc;
     return (*(unsigned int *)((char *)pInfo + index * 8 + 0x1214) >> 7) & 0xffff;
 }
+
+// FUNCTION: CMR2 0x0040ede0
+char *CFrontend::FUN_0040ede0(int offset)
+{
+    if (CGame::FUN_004057d0() == 0)
+        return GetTextString(offset + 0x98);
+    if (CGame::FUN_004057d0() == 3)
+        return GetTextString(offset + 0xc2);
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x0040ee20
+char *CFrontend::FUN_0040ee20(int offset)
+{
+    if (CGame::FUN_004057d0() == 0)
+        return GetTextString(offset + 0xae);
+    if (CGame::FUN_004057d0() == 3)
+        return GetTextString(offset + 0xd8);
+    return NULL;
+}
