@@ -251,7 +251,7 @@ BYTE g_unk0x0052f3e8[0x2000];
 // GLOBAL: CMR2 0x00531350
 BYTE g_unk0x00531350[0x1000];
 
-// TODO: CMR2 0x004086b0 (implemented, match below 90%)
+// FUNCTION: CMR2 0x004086b0
 int RallyData_FUN_004086b0(unsigned int index)
 {
     if (CGameInfo::FUN_00405d80() == 4)
@@ -259,7 +259,7 @@ int RallyData_FUN_004086b0(unsigned int index)
     return *(int *)((char *)g_unk0x00531350 + (index & 0xff) * 48) & 0x3f;
 }
 
-// TODO: CMR2 0x004074a0 (implemented, match below 90%)
+// FUNCTION: CMR2 0x004074a0
 bool RallyData_FUN_004074a0(void)
 {
     unsigned int v;
