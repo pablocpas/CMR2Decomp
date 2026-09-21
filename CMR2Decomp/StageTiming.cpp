@@ -614,3 +614,21 @@ void FUN_004667c0(int count)
     }
     CGame::RegisterCallback(g_unk0x00466680, NULL);
 }
+
+// Sets up the whole force-feedback effect set (spring, damper, constant force)
+// for the currently selected device and starts every effect.
+// FUNCTION: CMR2 0x00424120
+void FUN_00424120(void)
+{
+    int i;
+
+    CInput::CreateSpringEffect(-1, 0x2710, 0, -1, g_unk0x00539278->field_0x2c);
+    CInput::SetConditionCoefficient(0, 0, g_unk0x00539278->field_0x2c);
+    CInput::CreateDamperEffect(-1, 0, 0, -1, g_unk0x00539278->field_0x2c);
+    CInput::SetConditionCoefficient(1, 0, g_unk0x00539278->field_0x2c);
+    CInput::CreateConstantForceEffect(-1, 0, 0x2710, 0, 0, 0, 0, -1,
+                                      g_unk0x00539278->field_0x2c);
+    CInput::SetEffectGain(2, 0, g_unk0x00539278->field_0x2c);
+    for (i = 0; i < 3; i++)
+        CInput::StartForceFeedbackEffect(i, g_unk0x00539278->field_0x2c);
+}
