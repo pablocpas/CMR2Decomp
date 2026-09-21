@@ -11,12 +11,13 @@ struct Car {
     int field_0x1d8;                  // 0x1d8
     BYTE field_0x1dc[0x28];
     FixVector halfExtents;            // 0x204
-    BYTE field_0x210[0x60];
+    FixVector wheelPos[4];            // 0x210  wheel positions in body space
+    BYTE field_0x240[0x30];
     FixVector corners[8];             // 0x270  world-space box corners
     FixVector position;               // 0x2d0
     BYTE field_0x2dc[0x84];
-    FixVector up;                     // 0x360  body axes
-    FixVector right;                  // 0x36c
+    FixVector right;                  // 0x360  body axes (rows of the body matrix)
+    FixVector up;                     // 0x36c
     FixVector forward;                // 0x378
     BYTE field_0x384[0x84];
     FixVector velocity;               // 0x408
@@ -40,7 +41,8 @@ struct Car {
     SceneNode *pViewNodeNear;         // 0x748  child node placed towards the view
     SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view
     FixMatrix *pWorld;                // 0x750
-    BYTE field_0x754[0x10];
+    FixMatrix *pBodyMatrix;           // 0x754
+    BYTE field_0x758[0xc];
     int scale0x764;                   // 0x764
     int scale0x768;                   // 0x768
     int scale0x76c;                   // 0x76c
@@ -48,9 +50,15 @@ struct Car {
     int steer;                        // 0x778
     BYTE field_0x77c[0xa0];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0x1a4];
+    BYTE field_0x820[0x168];
+    int wheel0x988[4];                // 0x988
+    BYTE field_0x998[0x10];
+    int wheel0x9a8[4];                // 0x9a8
+    BYTE field_0x9b8[0xc];
     int field_0x9c4;                  // 0x9c4
-    BYTE field_0x9c8[0x148];
+    BYTE field_0x9c8[0x10];
+    int wheel0x9d8[4];                // 0x9d8
+    BYTE field_0x9e8[0x128];
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x16];
     BYTE field_0xb28;                 // 0xb28
@@ -99,5 +107,7 @@ void Car_ApplyViewTransforms(int viewIndex);
 void Car_UpdateViewNodes(int viewIndex);
 void Car_UpdateBodyAxes(void);
 void Car_UpdateBodyAxesNoDamping(void);
+void Car_StoreBodyMatrix(void);
+void Car_UpdateBodyMatrix(void);
 
 #endif

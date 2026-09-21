@@ -453,7 +453,7 @@ bool CGameInfo::FUN_004063d0(int param1)
 }
 
 // FUNCTION: CMR2 0x004063f0
-bool CGameInfo::FUN_004063f0(int param1)
+int CGameInfo::FUN_004063f0(int param1)
 {
     return ((BYTE)(m_gameInfo.field_0x20 >> 16) & (BYTE)(1 << param1)) != 0;
 }

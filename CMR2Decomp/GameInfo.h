@@ -199,7 +199,7 @@ public:
     static unsigned int FUN_00406360(int param1);
     static void FUN_00406380(int param1, int param2);
     static bool FUN_004063d0(int param1);
-    static bool FUN_004063f0(int param1);
+    static int FUN_004063f0(int param1);
     static unsigned int FUN_00406430(void);
     static unsigned int FUN_00406440(void);
     static unsigned int FUN_00406450(unsigned int **param1);
