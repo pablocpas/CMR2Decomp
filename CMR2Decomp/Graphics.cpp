@@ -41,6 +41,13 @@ int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
 IDirectDrawSurface7 *CGraphics::m_mipMapSurfaces[2];
 DWORD CGraphics::m_cubeMapSize = 64;
+int CGraphics::m_unk0x00520b14 = 1;
+char CGraphics::m_strSuffixBU[4] = "BU";
+char CGraphics::m_strSuffixRU[4] = "RU";
+char CGraphics::m_strSuffixBR[4] = "BR";
+char CGraphics::m_strSuffixBODF[8] = "BODF";
+char CGraphics::m_strSuffixDIGIT[8] = "DIGIT";
+char CGraphics::m_strSuffixREVCT[8] = "REVCT";
 DWORD CGraphics::m_clearColour;
 int CGraphics::m_cullMode;
 int CGraphics::m_zEnable;
@@ -2266,4 +2273,109 @@ void CGraphics::SetTexCoordIndex(int stage, int index)
     m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX, index);
     m_pTextureManager->pD3D->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
     m_texCoordIndex[stage] = index;
+}
+
+// FUNCTION: CMR2 0x004a6e30
+Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
+{
+    DDSURFACEDESC2 desc;
+    IDirectDrawSurface7 *pTemp;
+    Texture tmpTexture;
+    BYTE *pSrc;
+    BYTE *pDst;
+    unsigned int rowBytes;
+    unsigned int y;
+    int width;
+    int height;
+
+    width = pDDS->desc.dwWidth;
+    height = pDDS->desc.dwHeight;
+    if (width != 2 && width != 4 && width != 8 && width != 16 && width != 32 && width != 64 &&
+        width != 128 && width != 256 && width != 512 && width != 1024 && width != 2048)
+        _splitpath(pTexture->name, NULL, NULL, CFrontend::m_stringDest, NULL);
+    if (height != 2 && height != 4 && height != 8 && height != 16 && height != 32 && height != 64 &&
+        height != 128 && height != 256 && height != 512 && height != 1024 && height != 2048)
+        _splitpath(pTexture->name, NULL, NULL, CFrontend::m_stringDest, NULL);
+
+    desc = pDDS->desc;
+    if (desc.ddpfPixelFormat.dwFourCC == MAKEFOURCC('D', 'X', 'T', '1'))
+        pTexture->flags |= 0x4000;
+    else if (desc.ddpfPixelFormat.dwFourCC == MAKEFOURCC('D', 'X', 'T', '5'))
+        pTexture->flags |= 0x2000;
+    desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+    g_pGraphics->pDD7->CreateSurface(&desc, &pTemp, NULL);
+    pTemp->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
+    pSrc = pDDS->data;
+    if (!(desc.dwFlags & DDSD_LINEARSIZE)) {
+        rowBytes = desc.ddpfPixelFormat.dwRGBBitCount * desc.dwWidth >> 3;
+        pDst = (BYTE *)desc.lpSurface;
+        for (y = 0; y < desc.dwHeight; y++) {
+            memcpy(pDst, pSrc, rowBytes);
+            pDst += desc.lPitch;
+            pSrc += desc.dwHeight;
+        }
+    } else {
+        memcpy(desc.lpSurface, pSrc, desc.dwLinearSize);
+    }
+    pTemp->Unlock(NULL);
+
+    if (desc.ddpfPixelFormat.dwFourCC == MAKEFOURCC('D', 'X', 'T', '1')) {
+        if (!m_hasTexFormatDXT1_16 || !m_hasTexFormatDXT1_32)
+            pTexture->flags &= ~0x4000;
+        else
+            pTexture->flags |= 0x4000;
+    } else if (desc.ddpfPixelFormat.dwFourCC == MAKEFOURCC('D', 'X', 'T', '5')) {
+        if (!m_hasTexFormatDXT5_16 || !m_hasTexFormatDXT5_32)
+            pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+        else
+            pTexture->flags |= 0x2000;
+    }
+
+    if (strncmp(pTexture->name + strlen(pTexture->name) - 6, m_strSuffixBR, 2) == 0)
+        pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+    if (strncmp(pTexture->name + strlen(pTexture->name) - 6, m_strSuffixRU, 2) == 0)
+        pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+    if (m_unk0x00520b14 == 0) {
+        if (strncmp(pTexture->name + strlen(pTexture->name) - 8, m_strSuffixBODF, 4) == 0)
+            pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+    }
+    if (strncmp(pTexture->name + strlen(pTexture->name) - 9, m_strSuffixDIGIT, 5) == 0)
+        pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+    if (strncmp(pTexture->name + strlen(pTexture->name) - 9, m_strSuffixREVCT, 5) == 0)
+        pTexture->flags = (pTexture->flags & ~0x6000) | 0x1;
+    if (g_pGraphics->field913_0x3bc & 0x10) {
+        if (strncmp(pTexture->name + strlen(pTexture->name) - 6, m_strSuffixBU, 2) == 0)
+            pTexture->flags = (pTexture->flags & ~0x6001) | 0x20;
+    }
+
+    if (!(pTexture->flags & 0x20) || !(g_pGraphics->field913_0x3bc & 0x10)) {
+        CreateTextureSurface(pTexture, pDDS->desc.dwWidth, pDDS->desc.dwHeight, pTexture->flags);
+        pTexture->pSurface->Blt(NULL, pTemp, NULL, DDBLT_WAIT, NULL);
+        if (pTemp != NULL && pTemp->Release() == 0)
+            pTemp = NULL;
+    } else {
+        memset(&desc, 0, sizeof(desc));
+        desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
+        desc.ddpfPixelFormat = m_pTextureManager->textureInfo2->desc.ddpfPixelFormat;
+        desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+        g_pGraphics->pDD7->CreateSurface(&desc, &tmpTexture.pSurface, NULL);
+        tmpTexture.pSurface->Blt(NULL, pTemp, NULL, DDBLT_WAIT, NULL);
+        CreateTextureSurface(pTexture, pDDS->desc.dwWidth, pDDS->desc.dwHeight, pTexture->flags);
+        GenerateBumpMap(&tmpTexture, pTexture);
+        if (tmpTexture.pSurface != NULL && tmpTexture.pSurface->Release() == 0)
+            tmpTexture.pSurface = NULL;
+        if (pTemp != NULL && pTemp->Release() == 0)
+            pTemp = NULL;
+    }
+
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        GetMipMapSurfaces(pTexture);
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        m_unk0x0065fa2c += GetMipMapPixelCount(pTexture);
+    m_unk0x0065fa2c += pDDS->desc.dwHeight * pDDS->desc.dwWidth;
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        BltMipMaps(pTexture);
+    if (!(pTexture->flags & 0x1000))
+        CFileBuffer::FreeGenericFileBuffer(pDDS);
+    return pTexture;
 }

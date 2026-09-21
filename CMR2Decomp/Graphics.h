@@ -1169,6 +1169,22 @@ public:
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
     static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
+    static Texture *LoadDDSTexture(DDSFile *pDDS, Texture *pTexture);
+
+    // GLOBAL: CMR2 0x00520b14
+    static int m_unk0x00520b14;
+    // GLOBAL: CMR2 0x00520b68
+    static char m_strSuffixBU[4];
+    // GLOBAL: CMR2 0x00520b6c
+    static char m_strSuffixRU[4];
+    // GLOBAL: CMR2 0x00520b70
+    static char m_strSuffixBR[4];
+    // GLOBAL: CMR2 0x0051c680
+    static char m_strSuffixBODF[8];
+    // GLOBAL: CMR2 0x0051c9e4
+    static char m_strSuffixDIGIT[8];
+    // GLOBAL: CMR2 0x0051c9ec
+    static char m_strSuffixREVCT[8];
     static void SetClearColour(int unused, BYTE r, BYTE g, BYTE b);
     static void ClearTarget(void);
     static BOOL ClearZBuffer(void);

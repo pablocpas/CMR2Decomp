@@ -16,7 +16,9 @@ struct Texture {
     short                   width;
     short                   height;
     short                   bitsPerPixel;
-    BYTE                    field_0x126[598];
+    BYTE                    field_0x126[2];
+    unsigned int            flags;
+    BYTE                    field_0x12c[592];
     void*                   buffer;
 };
 
@@ -33,6 +35,12 @@ struct RenderTexture {
     IDirectDrawSurface7 *pFace5Surface;
     BYTE field_0x708[0x18];
     IDirectDrawSurface7 *pZBuffers[6];
+};
+
+struct DDSFile {
+    DWORD magic;            // 'DDS '
+    DDSURFACEDESC2 desc;
+    BYTE data[1];
 };
 
 // Parsed TGA header, see CGraphics::ParseTGAHeader
