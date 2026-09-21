@@ -554,9 +554,8 @@ SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneN
         p = pNode;
     i = 0;
     *(BYTE *)&p->flags = 0xff;
-    pSlot = g_sceneType2Objects;
-    do {
-        if (*pSlot == NULL) {
+    for (i = 0; i < 256; i++) {
+        if (g_sceneType2Objects[i] == NULL) {
             pObject = CFileBuffer::AllocateLockedBuffer(0x104);
             g_sceneType2Objects[i] = pObject;
             SceneNode_SetObject(p, SCENE_NODE_TYPE2, pObject);
@@ -570,9 +569,8 @@ SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneN
                 SceneNode_SetTransform(p, pTranslation, pAngles);
             }
             g_sceneType2Count++;
-            return p;        }
-        pSlot++;
-        i++;
-    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
+            return p;
+        }
+    }
     return NULL;
 }

@@ -143,6 +143,7 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InstallInfo.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RallyData.cpp" />
