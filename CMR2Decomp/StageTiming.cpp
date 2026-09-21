@@ -1,6 +1,8 @@
 #include "StageTiming.h"
 #include "Stage.h"
 #include "TimingUtils.h"
+#include "RallyTiming.h"
+#include "GameInfo.h"
 #include "FileBuffer.h"
 #include <string.h>
 
@@ -226,6 +228,69 @@ void StageTiming_Reset(void)
             g_stageSplitPositions[iSplit][i] = i;
             g_stageSplitTimesRawDriverIx[iSplit][i] = i;
             g_stageSplitTimesRaw[iSplit][i] = 0;
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x00455d10
+void StageTiming_AddToOverall(void)
+{
+    int iSplit;
+
+    iSplit = GetStageSplitCount();
+    RallyTiming_AddStageTimes(g_stageSplitDriverIndices[iSplit], g_stageSplitTimesRawDriverIx[iSplit], g_stageSplitTimesRaw[iSplit]);
+}
+
+// FUNCTION: CMR2 0x00455df0
+void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2)
+{
+    int iSplit;
+    int iSlot1;
+    int iSlot2;
+
+    iSplit = GetStageSplitCount();
+    iSlot1 = iPosition1 - CGameInfo::FUN_00405d70();
+    iSlot2 = iPosition2 - CGameInfo::FUN_00405d70();
+    *piTime1 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot1], iSplit);
+    *piTime2 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot2], iSplit);
+}
+
+// FUNCTION: CMR2 0x00456250
+void StageTiming_RebuildSplitPositions(void)
+{
+    int aiDriverForSlot[16];
+    char *pIndices;
+    int iSplit;
+    int s;
+    int i;
+    int d;
+
+    iSplit = GetStageSplitCount();
+    for (i = 0; i < g_unk0x00541f98; i++)
+    {
+        pIndices = g_stageSplitDriverIndices[iSplit];
+        d = pIndices[i];
+        aiDriverForSlot[g_stageSplitTimesRawDriverIx[iSplit][i]] = d;
+        g_stageSplitPositions[iSplit][d] = i;
+    }
+    for (i = g_unk0x00541f98; i < 16; i++)
+    {
+        g_stageSplitDriverIndices[iSplit][i] = i;
+        g_stageSplitPositions[iSplit][i] = i;
+    }
+    for (s = 1; s < iSplit; s++)
+    {
+        pIndices = g_stageSplitDriverIndices[s];
+        for (i = 0; i < g_unk0x00541f98; i++)
+        {
+            d = aiDriverForSlot[g_stageSplitTimesRawDriverIx[s][i]];
+            pIndices[i] = d;
+            g_stageSplitPositions[s][d] = i;
+        }
+        for (i = g_unk0x00541f98; i < 16; i++)
+        {
+            pIndices[i] = i;
+            g_stageSplitPositions[s][i] = i;
         }
     }
 }

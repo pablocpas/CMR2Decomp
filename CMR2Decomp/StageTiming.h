@@ -35,5 +35,8 @@ int StageTiming_GetSplitTimeForPosition(int iPosition, int iSplit);
 int StageTiming_GetCurrentSplitTimeForDriver(int iDriver);
 int StageTiming_GetDriverSlot(int iDriver);
 void StageTiming_Reset(void);
+void StageTiming_AddToOverall(void);
+void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2);
+void StageTiming_RebuildSplitPositions(void);
 
 #endif

@@ -212,3 +212,20 @@ void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCou
 		}
 	}
 }
+
+// FUNCTION: CMR2 0x0040d120
+void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piTimesRaw)
+{
+	int i;
+	char d;
+	char t;
+
+	for (i = 0; i < 16; i++)
+	{
+		t = pcTimeDriverIx[i];
+		d = pcDriverIDs[i];
+		g_rallyOverallTimesRaw[d] += piTimesRaw[t];
+	}
+	RallyTiming_SortOrder(g_rallyOverallTimesRaw, g_rallyOverallOrderDriverID, 1, 16, 0);
+	RallyTiming_SortOverallOrder();
+}
