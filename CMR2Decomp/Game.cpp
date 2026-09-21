@@ -1040,9 +1040,6 @@ bool FUN_004779e0(void)
     return true;
 }
 
-// GLOBAL: CMR2 0x00664750
-int g_unk0x00664750[256];
-
 // Adds the player slot to the DirectPlay session.
 // TODO: CMR2 0x004aac40 (implemented, match 63%)
 bool FUN_004aac40(int param1)
@@ -1062,7 +1059,7 @@ bool FUN_004aac40(int param1)
     } else {
         pDP = g_unk0x0066521c;
         hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
-            (void *)g_unk0x00664750[(param1 & 0xff) * 69], 0);
+            CGame::m_connections[param1 & 0xff].pConnection, 0);
     }
     if (hr <= (HRESULT)0x88770078) {
         if (hr == (HRESULT)0x88770078 || hr == (HRESULT)0x80070057 ||
