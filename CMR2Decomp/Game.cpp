@@ -1039,3 +1039,39 @@ bool FUN_004779e0(void)
     }
     return true;
 }
+
+// GLOBAL: CMR2 0x00664750
+int g_unk0x00664750[256];
+
+// Adds the player slot to the DirectPlay session.
+// TODO: CMR2 0x004aac40 (implemented, match 63%)
+bool FUN_004aac40(int param1)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+    int local1;
+    int local2;
+
+    if ((BYTE)param1 >= CGame::m_connectionCount)
+        return false;
+    local1 = 0;
+    local2 = 0;
+    if (CGame::FUN_004aad30(param1, (int)&local2, (int)&local1)) {
+        pDP = g_unk0x0066521c;
+        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)(int)local1, 0);
+    } else {
+        pDP = g_unk0x0066521c;
+        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
+            (void *)g_unk0x00664750[(param1 & 0xff) * 69], 0);
+    }
+    if (hr <= (HRESULT)0x88770078) {
+        if (hr == (HRESULT)0x88770078 || hr == (HRESULT)0x80070057 ||
+            hr != (HRESULT)0x88770005)
+            return false;
+    } else {
+        if (hr == (HRESULT)0x887700fa || hr != 0)
+            return false;
+    }
+    CGame::m_maxConnections = (BYTE)param1;
+    return true;
+}

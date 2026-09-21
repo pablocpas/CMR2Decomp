@@ -504,3 +504,25 @@ int RallyData_FUN_00421470(BYTE *p)
         return 0x10000;
     return result;
 }
+
+// GLOBAL: CMR2 0x0052ea5c
+char g_unk0x0052ea5c[32];
+// GLOBAL: CMR2 0x0052f3e0
+BYTE g_unk0x0052f3e0[8 * 196];
+
+// Returns the 4-bit category of the record, or -1 when it is not usable.
+// TODO: CMR2 0x00408500 (implemented, match 48%)
+int RallyData_FUN_00408500(int param1)
+{
+    int index;
+
+    index = param1 & 0xff;
+    if (CGameInfo::FUN_00405d80() == 4) {
+        if (strcmp((char *)(g_unk0x0052f3e0 + index * 196), g_unk0x0052ea5c) != 0 &&
+            index < 8)
+            return -1;
+    } else if ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) & 0x2000) != 0) {
+        return -1;
+    }
+    return (int)((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0xe) & 0xf);
+}
