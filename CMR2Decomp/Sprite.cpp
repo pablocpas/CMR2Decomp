@@ -178,3 +178,60 @@ void Sprite_Queue(SpriteRect *pSrc, SpriteRect *pDst, Texture *pTexture, int lay
         return;
     }
 }
+
+// GLOBAL: CMR2 0x005112e8
+double g_minus65536 = -65536.0;
+
+// Fills a screen rectangle (x, y, w, h in pixels) with two 2D triangles,
+// clipping it to the screen first.
+// FUNCTION: CMR2 0x004a5e40
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
+{
+    short x;
+    short y;
+    short w;
+    short h;
+    int c[2];
+    int a[2];
+    int b[2];
+    int x0;
+    int y0;
+    int x1;
+    int y1;
+
+    w = pRect[2];
+    x = pRect[0];
+    y = pRect[1];
+    h = pRect[3];
+    if (w > 0 && h > 0 && (x >= 0 || w + x >= 0) && (y >= 0 || h + y >= 0)) {
+        if (x < (int)g_pGraphics->resX && y < (int)g_pGraphics->resY) {
+            if (x < 0) {
+                w += x;
+                x = 0;
+            }
+            x0 = x;
+            if (w + x0 > (int)g_pGraphics->resX)
+                w = (short)g_pGraphics->resX - x - 1;
+            if (y < 0) {
+                h += y;
+                y = 0;
+            }
+            y0 = y;
+            if (h + y0 > (int)g_pGraphics->resY)
+                h = (short)g_pGraphics->resX - y - 1;
+            a[0] = (int)(__int64)((double)x0 * CGraphics::m_65536);
+            c[0] = a[0];
+            a[1] = (int)(__int64)((double)y0 * CGraphics::m_65536);
+            x1 = 0x8000 - (int)(__int64)((double)(w - 1 + x0) * g_minus65536);
+            b[0] = x1;
+            b[1] = a[1];
+            y1 = 0x8000 - (int)(__int64)((double)(h - 1 + y0) * g_minus65536);
+            c[1] = y1;
+            Tri2D_Queue(a, b, c, pColour, layer);
+            a[0] = x1;
+            a[1] = y1;
+            Tri2D_Queue(b, a, c, pColour, layer);
+        }
+    }
+    return 1;
+}

@@ -76,6 +76,7 @@ void Sprite_Init(void);
 int Sprite_Shutdown(void);
 void Tri2D_Init(void);
 int Tri2D_Shutdown(void);
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
 void Sprite_Queue(SpriteRect *pSrc, SpriteRect *pDst, Texture *pTexture, int layer, short angleDeg, int *pCentre, SpriteRect *pUv2, BYTE *pColour, int param);
 
 #endif
