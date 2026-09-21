@@ -223,3 +223,23 @@ void RallyData_FUN_00408390(void)
         }
     }
 }
+
+// FUNCTION: CMR2 0x00408340
+BOOL RallyData_FUN_00408340(void)
+{
+    unsigned int i;
+    BYTE *p;
+
+    i = ((g_selectedRallyData >> 5) & 0x1f) + 1;
+    if (i >= 0xb)
+        return TRUE;
+    p = &g_unk0x0052ea68[i];
+    do {
+        if ((*p & 1) != 0 &&
+            ((*p & 2) == 0 || CGameInfo::FUN_00406410(0xd)) &&
+            (*p & 4) == 0)
+            return FALSE;
+        p++;
+    } while (p < &g_unk0x0052ea68[0xb]);
+    return TRUE;
+}
