@@ -578,3 +578,39 @@ void FUN_00424560(void)
                                               g_unk0x00539278->field_0x2c);
     }
 }
+
+// GLOBAL: CMR2 0x00588a90
+int g_unk0x00588a90;
+// GLOBAL: CMR2 0x00588b94
+BYTE *g_unk0x00588b94;
+// GLOBAL: CMR2 0x00588b98
+BYTE *g_unk0x00588b98;
+// GLOBAL: CMR2 0x00588b9c
+int *g_unk0x00588b9c;
+// GLOBAL: CMR2 0x00588ba0
+int *g_unk0x00588ba0;
+// GLOBAL: CMR2 0x00588990
+int *g_unk0x00588990[128];
+// GLOBAL: CMR2 0x00466680
+BYTE g_unk0x00466680[1];
+
+// FUNCTION: CMR2 0x004667c0
+void FUN_004667c0(int count)
+{
+    int i;
+    int offset;
+
+    g_unk0x00588b94 = (BYTE *)CFileBuffer::AllocateLockedBuffer(count * 1232);
+    g_unk0x00588b98 = (BYTE *)CFileBuffer::AllocateLockedBuffer(count * 656);
+    g_unk0x00588b9c = (int *)CFileBuffer::AllocateLockedBuffer(count * 4);
+    g_unk0x00588ba0 = (int *)CFileBuffer::AllocateLockedBuffer(count * 4);
+    g_unk0x00588a90 = count;
+    offset = 0;
+    for (i = 0; i < g_unk0x00588a90; i++) {
+        g_unk0x00588ba0[i] = 0;
+        g_unk0x00588b9c[i] = 0;
+        g_unk0x00588990[i] = (int *)(g_unk0x00588b94 + offset);
+        offset += 0x4d0;
+    }
+    CGame::RegisterCallback(g_unk0x00466680, NULL);
+}
