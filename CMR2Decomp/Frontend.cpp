@@ -104,10 +104,6 @@ char CFrontend::m_strSpanishTextBfl[20] = "%s%sSpanishText.bfl";
 char CFrontend::m_strItalianTextBfl[20] = "%s%sItalianText.bfl";
 char CFrontend::m_strPolishTextBfl[19] = "%s%sPolishText.bfl";
 char CFrontend::m_strEngUSATextBfl[19] = "%s%sEngUSAText.bfl";
-unsigned int CFrontend::m_unk0x006e0c5c;
-unsigned int CFrontend::m_unk0x006e0c64;
-unsigned int CFrontend::m_unk0x006e0c60;
-unsigned int CFrontend::m_unk0x006e0c68;
 
 Texture* CFrontend::m_unk0x00818530[3];
 char* CFrontend::m_unk0x0081853c;
@@ -196,7 +192,7 @@ void CFrontend::FUN_004d21e0(void)
 // FUNCTION: CMR2 0x004b7560
 BOOL CFrontend::FUN_004b7560(unsigned int param_1)
 {
-    if (m_unk0x006e0c5c <= param_1 && param_1 <= m_unk0x006e0c64)
+    if (CGraphics::m_d3dDeviceDesc7.minTextureWidth <= param_1 && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureWidth)
         return TRUE;
 
     return FALSE;
@@ -205,7 +201,7 @@ BOOL CFrontend::FUN_004b7560(unsigned int param_1)
 // FUNCTION: CMR2 0x004b7590
 BOOL CFrontend::FUN_004b7590(unsigned int param_1)
 {
-    if (m_unk0x006e0c60 <= param_1 && param_1 <= m_unk0x006e0c68)
+    if (CGraphics::m_d3dDeviceDesc7.minTextureHeight <= param_1 && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureHeight)
         return TRUE;
 
     return FALSE;

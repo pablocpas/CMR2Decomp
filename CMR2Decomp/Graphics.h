@@ -949,7 +949,6 @@ struct Unk0x006e0bb0 {
     DWORD flag200;
     DWORD flag100;
     DWORD flag1000;
-    DWORD field0x18;
     DWORD field0x1c;
     DWORD field0x20;
     DWORD field0x24;
@@ -986,9 +985,10 @@ struct Unk0x006e0bb0 {
     DWORD field0xa0;
     DWORD field0xa4;
     DWORD field0xa8;
-    DWORD field0xac;
-    DWORD field0xb0;
-    DWORD field0xb4;
+    DWORD minTextureWidth;   // 0xac
+    DWORD minTextureHeight;  // 0xb0
+    DWORD maxTextureWidth;   // 0xb4
+    DWORD maxTextureHeight;  // 0xb8
 };
 
 struct D3DTextureManager {

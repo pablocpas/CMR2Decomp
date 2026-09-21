@@ -1988,15 +1988,16 @@ void CGraphics::CreateTextureSurface(Texture *pTexture, int width, int height, u
 // Ported from upstream branch add/FUN_004a8450 (Matt Hadden)
 // FUNCTION: CMR2 0x004b74b0
 BOOL CGraphics::FUN_004b74b0(void) {
-  return m_d3dDeviceDesc7.field0x80;
+  return m_d3dDeviceDesc7.field0x84;
 }
 
 // FUNCTION: CMR2 0x004b7210
 void CGraphics::FUN_004b7210(void) {
     D3DDEVICEDESC7 d3ddesc;
-    
+    HRESULT hr;
+
     memset(&m_d3dDeviceDesc7, 0, sizeof(Unk0x006e0bb0));
-    m_pTextureManager->pD3D->GetCaps(&d3ddesc);
+    hr = m_pTextureManager->pD3D->GetCaps(&d3ddesc);
 
     if ((d3ddesc.dwDevCaps & 0x100) != 0) {
         m_d3dDeviceDesc7.flag100 = 1;
@@ -2010,166 +2011,166 @@ void CGraphics::FUN_004b7210(void) {
         m_d3dDeviceDesc7.flag1000 = 1;
     }
 
-    m_d3dDeviceDesc7.field0x7c = d3ddesc.dpcTriCaps.dwStippleHeight;
-    if ((d3ddesc.dpcTriCaps.dwSize & 0x8000) != 0) {
-        m_d3dDeviceDesc7.field0x80 = 1;
-    }
-
-    if (((BYTE)d3ddesc.dpcTriCaps.dwMiscCaps & 0x80) != 0) {
+    m_d3dDeviceDesc7.field0x80 = d3ddesc.dwDeviceZBufferBitDepth;
+    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 0x8000) != 0) {
         m_d3dDeviceDesc7.field0x84 = 1;
     }
 
-    if (((WORD)d3ddesc.dwFVFCaps > 1) && (d3ddesc.dwStencilCaps & 8) != 0) {
+    if (((BYTE)d3ddesc.dpcTriCaps.dwZCmpCaps & 0x80) != 0) {
         m_d3dDeviceDesc7.field0x88 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwTextureFilterCaps & 4) != 0) {
-        m_d3dDeviceDesc7.field0x18 = 1;
+    if ((d3ddesc.wMaxSimultaneousTextures > 1) && (d3ddesc.dwTextureOpCaps & 8) != 0) {
+        m_d3dDeviceDesc7.field0x8c = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 1) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwTextureAddressCaps & 4) != 0) {
         m_d3dDeviceDesc7.field0x1c = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 2) != 0) {
-        m_d3dDeviceDesc7.field0x28 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 0x20) != 0) {
-        m_d3dDeviceDesc7.field0x2c = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 1) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwTextureFilterCaps & 1) != 0) {
         m_d3dDeviceDesc7.field0x20 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 0x20) != 0) {
-        m_d3dDeviceDesc7.field0x24 = 1;
+    if ((d3ddesc.dpcTriCaps.dwTextureFilterCaps & 2) != 0) {
+        m_d3dDeviceDesc7.field0x2c = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 8) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwTextureFilterCaps & 0x20) != 0) {
         m_d3dDeviceDesc7.field0x30 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 0x80) != 0) {
-        m_d3dDeviceDesc7.field0x44 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 0x40) != 0) {
-        m_d3dDeviceDesc7.field0x48 = 1;
-    }
-
     if ((d3ddesc.dpcTriCaps.dwTextureCaps & 1) != 0) {
-        m_d3dDeviceDesc7.field0x4c = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 4) != 0) {
-        m_d3dDeviceDesc7.field0x50 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 2) != 0) {
-        m_d3dDeviceDesc7.field0x54 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 8) != 0) {
-        m_d3dDeviceDesc7.field0x58 = 1;
+        m_d3dDeviceDesc7.field0x24 = 1;
     }
 
     if ((d3ddesc.dpcTriCaps.dwTextureCaps & 0x20) != 0) {
-        m_d3dDeviceDesc7.field0x5c = 1;
+        m_d3dDeviceDesc7.field0x28 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwSrcBlendCaps & 0x40) != 0) {
-        m_d3dDeviceDesc7.field0x60 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 4) != 0) {
-        m_d3dDeviceDesc7.field0x64 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwSize & 0x200) != 0) {
-        m_d3dDeviceDesc7.field0x68 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwDestBlendCaps & 0x1000) != 0) {
-        m_d3dDeviceDesc7.field0x6c = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwDestBlendCaps & 0x2000) != 0) {
-        m_d3dDeviceDesc7.field0x70 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwDestBlendCaps & 0x4000) != 0) {
-        m_d3dDeviceDesc7.field0x74 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwDestBlendCaps & 0x8000) != 0) {
-        m_d3dDeviceDesc7.field0x78 = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 0x10) != 0 &&
-        (d3ddesc.dpcTriCaps.dwZCmpCaps & 0x20) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 8) != 0) {
         m_d3dDeviceDesc7.field0x34 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 2) != 0 &&
-        (d3ddesc.dpcTriCaps.dwZCmpCaps & 2) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 0x80) != 0) {
+        m_d3dDeviceDesc7.field0x48 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 0x40) != 0) {
+        m_d3dDeviceDesc7.field0x4c = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 1) != 0) {
+        m_d3dDeviceDesc7.field0x50 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 4) != 0) {
+        m_d3dDeviceDesc7.field0x54 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 2) != 0) {
+        m_d3dDeviceDesc7.field0x58 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 8) != 0) {
+        m_d3dDeviceDesc7.field0x5c = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureBlendCaps & 0x20) != 0) {
+        m_d3dDeviceDesc7.field0x60 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 0x40) != 0) {
+        m_d3dDeviceDesc7.field0x64 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 4) != 0) {
+        m_d3dDeviceDesc7.field0x68 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 0x200) != 0) {
+        m_d3dDeviceDesc7.field0x6c = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 0x1000) != 0) {
+        m_d3dDeviceDesc7.field0x70 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 0x2000) != 0) {
+        m_d3dDeviceDesc7.field0x74 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 0x4000) != 0) {
+        m_d3dDeviceDesc7.field0x78 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwShadeCaps & 0x8000) != 0) {
+        m_d3dDeviceDesc7.field0x7c = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwSrcBlendCaps & 0x10) != 0 &&
+        (d3ddesc.dpcTriCaps.dwDestBlendCaps & 0x20) != 0) {
         m_d3dDeviceDesc7.field0x38 = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 4) != 0 &&
-        (d3ddesc.dpcTriCaps.dwZCmpCaps & 2) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwSrcBlendCaps & 2) != 0 &&
+        (d3ddesc.dpcTriCaps.dwDestBlendCaps & 2) != 0) {
         m_d3dDeviceDesc7.field0x3c = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 2) != 0 &&
-        (d3ddesc.dpcTriCaps.dwZCmpCaps & 8) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwSrcBlendCaps & 4) != 0 &&
+        (d3ddesc.dpcTriCaps.dwDestBlendCaps & 2) != 0) {
         m_d3dDeviceDesc7.field0x40 = 1;
     }
 
-    if ((d3ddesc.dpcLineCaps.dwStippleHeight & 0x40) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwSrcBlendCaps & 2) != 0 &&
+        (d3ddesc.dpcTriCaps.dwDestBlendCaps & 8) != 0) {
+        m_d3dDeviceDesc7.field0x44 = 1;
+    }
+
+    if ((d3ddesc.dpcTriCaps.dwMiscCaps & 0x40) != 0) {
         m_d3dDeviceDesc7.field0xc = 1;
     }
 
-    if ((d3ddesc.dpcLineCaps.dwStippleHeight & 0x20) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwMiscCaps & 0x20) != 0) {
         m_d3dDeviceDesc7.field0x8 = 1;
     }
 
-    if ((d3ddesc.dpcLineCaps.dwStippleHeight & 0x10) != 0) {
+    if ((d3ddesc.dpcTriCaps.dwMiscCaps & 0x10) != 0) {
         m_d3dDeviceDesc7.field0x4 = 1;
     }
 
     if ((d3ddesc.dpcTriCaps.dwMiscCaps & 0x80) != 0) {
-        m_d3dDeviceDesc7.field0x8c = 1;
-    }
-
-    if ((d3ddesc.dpcTriCaps.dwMiscCaps & 0x100) != 0) {
         m_d3dDeviceDesc7.field0x90 = 1;
     }
 
-    if ((WORD)d3ddesc.dwFVFCaps < 2) {
+    if ((d3ddesc.dpcTriCaps.dwRasterCaps & 0x100) != 0) {
         m_d3dDeviceDesc7.field0x94 = 1;
     }
 
-    m_d3dDeviceDesc7.field0xa4 = 1;
-
-    if ((d3ddesc.dwStencilCaps & 0x400000) != 0) {
+    if (d3ddesc.wMaxTextureBlendStages >= 2) {
         m_d3dDeviceDesc7.field0x98 = 1;
     }
 
-    if (((*(DWORD*)&d3ddesc.dvGuardBandBottom & 0x40) != 0) &&
-        ((*(DWORD*)&d3ddesc.dvGuardBandBottom & 0x80) != 0) &&
-        ((*(DWORD*)&d3ddesc.dvGuardBandBottom & 1) != 0) &&
-        ((*(DWORD*)&d3ddesc.dvGuardBandBottom & 4) != 0)) {
+    m_d3dDeviceDesc7.field0xa8 = 1;
+
+    if ((d3ddesc.dwTextureOpCaps & 0x400000) != 0) {
         m_d3dDeviceDesc7.field0x9c = 1;
     }
 
-    if ((d3ddesc.dpcTriCaps.dwAlphaCmpCaps & 0x800) != 0) {
+    if (((d3ddesc.dwStencilCaps & 0x40) != 0) &&
+        ((d3ddesc.dwStencilCaps & 0x80) != 0) &&
+        ((d3ddesc.dwStencilCaps & 1) != 0) &&
+        ((d3ddesc.dwStencilCaps & 4) != 0)) {
         m_d3dDeviceDesc7.field0xa0 = 1;
     }
 
-    m_d3dDeviceDesc7.field0xa8 = d3ddesc.dwDeviceRenderBitDepth;
-    m_d3dDeviceDesc7.field0xac = d3ddesc.dwDeviceZBufferBitDepth;
-    m_d3dDeviceDesc7.field0xb0 = d3ddesc.dwMinTextureWidth;
-    m_d3dDeviceDesc7.field0xb4 = d3ddesc.dwMinTextureHeight;
+    if ((d3ddesc.dpcTriCaps.dwTextureCaps & 0x800) != 0) {
+        m_d3dDeviceDesc7.field0xa4 = 1;
+    }
+
+    m_d3dDeviceDesc7.minTextureWidth = d3ddesc.dwMinTextureWidth;
+    m_d3dDeviceDesc7.minTextureHeight = d3ddesc.dwMinTextureHeight;
+    m_d3dDeviceDesc7.maxTextureWidth = d3ddesc.dwMaxTextureWidth;
+    m_d3dDeviceDesc7.maxTextureHeight = d3ddesc.dwMaxTextureHeight;
 }

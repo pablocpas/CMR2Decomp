@@ -61,14 +61,6 @@ public:
     // unknowns
     // GLOBAL: CMR2 0x00818260;
     static GenericFile m_unk0x00818260;
-    // GLOBAL: CMR2 0x006e0c5c
-    static unsigned int m_unk0x006e0c5c;
-    // GLOBAL: CMR2 0x006e0c64
-    static unsigned int m_unk0x006e0c64;
-    // GLOBAL: CMR2 0x006e0c60
-    static unsigned int m_unk0x006e0c60;
-    // GLOBAL: CMR2 0x006e0c68
-    static unsigned int m_unk0x006e0c68;
 
     // GLOBAL: CMR2 0x00525034
     static char m_strFrontendTexturesAr640ATGA[36];
