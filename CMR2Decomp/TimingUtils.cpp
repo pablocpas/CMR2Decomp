@@ -1,5 +1,6 @@
 #include "TimingUtils.h"
 #include "RallyTiming.h"
+#include "FixedPoint.h"
 
 #include <stdio.h>
 
@@ -33,12 +34,5 @@ int ConvertRawTimeToCentiseconds(int iTime)
 // FUNCTION: CMR2 0x0040d3f0
 void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds)
 {
-	__asm {
-		mov eax, iCentiseconds
-		mov edx, 0x28f5c28
-		imul edx
-		shrd eax, edx, 16
-		mov ecx, iDriver
-		mov dword ptr [ecx*4 + g_rallyOverallTimesRaw], eax
-	}
+	g_rallyOverallTimesRaw[iDriver] = FixMul(iCentiseconds, 0x28f5c28);
 }
