@@ -940,3 +940,40 @@ int FUN_004a1c50(int param1, int param2, int param3, int param4)
         return 0;
     return 1;
 }
+
+typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6);
+
+// GLOBAL: CMR2 0x005a1fa8
+int g_unk0x005a1fa8;
+// GLOBAL: CMR2 0x005a1fac
+int g_unk0x005a1fac;
+// GLOBAL: CMR2 0x005a1fb0
+int g_unk0x005a1fb0;
+// GLOBAL: CMR2 0x005a1fb4
+int g_unk0x005a1fb4;
+// GLOBAL: CMR2 0x005a1fc0
+BYTE g_unk0x005a1fc0;
+
+// TODO: CMR2 0x004a1a10 (implemented, match 48%)
+int FUN_004a1a10(int param1, int param2, int param3, int param4)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    g_unk0x005a1fa8 = 0;
+    g_unk0x005a1fa8 = 0x10;
+    g_unk0x005a1fac = 0;
+    g_unk0x005a1fb0 = 0;
+    g_unk0x005a1fb0 = param1;
+    g_unk0x005a1fb4 = 0;
+    g_unk0x005a1fb4 = param2;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod6)(*(void ***)pDP)[0x18 / 4])(pDP, g_unk0x005a1ea0, (DWORD)&g_unk0x005a1fa8,
+                                                0, param3, param4, 0);
+    if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
+        return 0;
+    g_unk0x005a1fc0 = 1;
+    return 1;
+}
