@@ -2610,9 +2610,9 @@ void FUN_004a4b10(void)
     int j;
 
     for (i = 0; i < 0x14; i++) {
-        if (CGraphics::m_pTextureManager->field_0x2384[i] == NULL) {
+        if (CGraphics::m_pTextureManager->textureBuffer2[i] == NULL) {
             p = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x738);
-            CGraphics::m_pTextureManager->field_0x2384[i] = p;
+            CGraphics::m_pTextureManager->textureBuffer2[i] = (Texture *)p;
             for (j = 0; j < 6; j++) {
                 BYTE *q = p + j * 0x130;
 

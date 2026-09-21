@@ -1010,7 +1010,6 @@ struct D3DTextureManager {
     TextureFormat* textureInfo5;         // 0x360 bump map format
     DDPIXELFORMAT ddpfZBuffer;           // 0x364
     Texture* textureBuffer[2048];        // 0x384
-    void *field_0x2384[0x14];            // 0x2384
     Texture* textureBuffer2[20];            // 0x2384
     BYTE field_0x23d4[0x10];             // 0x23d4
     int fixedProjection[16];             // 0x23e4 16.16 copy of the projection matrix
