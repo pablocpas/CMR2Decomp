@@ -137,7 +137,6 @@ public:
     static IDirectPlay4A *GetDirectPlay(void);
     static bool FUN_004d0a50(bool param1);
     static bool FUN_004aaa40(void);
-    static void FUN_0040bab0(BOOL param1);
     static void FUN_004e2e50(void);
     static void FUN_004057c0(void);
     static void FUN_004057e0(int param1);
@@ -227,8 +226,6 @@ public:
 
     
     
-    // GLOBAL: CMR2 0x00532138
-    static BOOL m_unk0x00532138;
 };
 
 #endif

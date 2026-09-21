@@ -10,6 +10,7 @@
 #include "Frontend.h"
 #include "Texture.h"
 #include "Sound.h"
+#include "Font.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +70,6 @@ IDirectPlayLobby3A *CGame::m_pDirectPlayLobby3A;
 BOOL CGame::m_unk0x005a1fbc;
 void *CGame::m_unk0x005a1fb8;
 
-BOOL CGame::m_unk0x00532138 = FALSE;
 
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
@@ -531,18 +531,13 @@ bool CGame::FUN_004d0a50(bool param1) {
 
     didLoadSplashScreens = CFrontend::LoadSplashScreens(param1);
     if (didLoadSplashScreens != FALSE) {
-        FUN_0040bab0(TRUE);
+        Font_SetBlendMode(TRUE);
         FUN_004e2e50();
         
         return true;
     }
 
     return false;
-}
-
-// FUNCTION: CMR2 0x0040bab0
-void CGame::FUN_0040bab0(BOOL param1) {
-    m_unk0x00532138 = param1;
 }
 
 // FUNCTION: CMR2 0x004e2e50

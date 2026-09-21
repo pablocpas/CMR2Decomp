@@ -141,26 +141,26 @@ char *CGenericFileLoader::StrLowerPolish(char *str)
     return str;
 }
 
-// Resolves a path inside the current archive; reports the result in *pFlag
-// (1 = found) and *pId, and returns the found entry.
-// TODO: CMR2 0x004a9df0 (implemented, match 53%)
-int FUN_004a9df0(BYTE *pFlag, char *pPath, int param3, DWORD *pId, BYTE param5)
+// Looks a path up inside the archive held by pFile; *pFound is set to 1
+// when it was found there. bSkipArchive forces a miss.
+// FUNCTION: CMR2 0x004a9df0
+void *CGenericFileLoader::FindFile(GenericFile *pFile, char *pPath, BYTE *pFound, DWORD *pId, BYTE bSkipArchive)
 {
-    BYTE local[0x40];
     void *pResult;
+    char name[64];
 
-    if (pFlag != NULL)
-        *pFlag = 0;
-    if (pFlag != NULL && *(int *)(pFlag + 8) != 0 && param5 == 0) {
-        CGenericFileLoader::GetFileNameFromPath(pPath, (char *)local);
-        pResult = CGenericFileLoader::FindFileInArchive((GenericFile *)pFlag, (char *)local, pId);
+    if (pFound != NULL)
+        *pFound = 0;
+    if (pFile != NULL && pFile->didFileLoad != 0 && bSkipArchive == 0) {
+        GetFileNameFromPath(pPath, name);
+        pResult = FindFileInArchive(pFile, name, pId);
         if (pResult != NULL) {
-            if (pFlag != NULL)
-                *pFlag = 1;
-            return (int)pResult;
+            if (pFound != NULL)
+                *pFound = 1;
+            return pResult;
         }
     }
     if (pId != NULL)
         *pId = 0;
-    return 0;
+    return NULL;
 }

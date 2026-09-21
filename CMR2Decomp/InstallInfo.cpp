@@ -67,6 +67,12 @@ char CInstallInfo::m_texturesSubDir[11] = ".\\Textures";
 char CInstallInfo::m_fontsSubDir[8] = ".\\Fonts";
 char CInstallInfo::m_surprisedSubDir[3] = "O:";
 
+// FUNCTION: CMR2 0x0040ed60
+char *CInstallInfo::GetFontsDir(void)
+{
+    return m_fontsDir;
+}
+
 // FUNCTION: CMR2 0x0040ed90
 char *CInstallInfo::GetFrontendDir(void)
 {

@@ -6,6 +6,7 @@
 class CInstallInfo
 {
 public:
+    static char *GetFontsDir();
     static char *GetFrontendDir();
     static char *GetCountrySpecificDir();
     static BOOL ShowNoCDErrorMessage(void);

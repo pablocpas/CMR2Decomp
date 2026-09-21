@@ -24,6 +24,7 @@ public:
     static int GetGenericFileSize(void);
     static GenericFile* GetGenericFile(void);
     static void *FindFileInArchive(GenericFile *pFile, char *name, DWORD *pId);
+    static void *FindFile(GenericFile *pFile, char *pPath, BYTE *pFound, DWORD *pId, BYTE bSkipArchive);
     static void GetFileNameFromPath(char *path, char *out);
     static BYTE *StrUpperPolish(BYTE *str);
     static char *StrLowerPolish(char *str);
