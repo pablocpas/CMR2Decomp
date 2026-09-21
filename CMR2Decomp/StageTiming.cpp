@@ -1,5 +1,6 @@
 #include "StageTiming.h"
 #include "Stage.h"
+#include "RallyData.h"
 #include "TimingUtils.h"
 #include "RallyTiming.h"
 #include "GameInfo.h"
@@ -697,4 +698,37 @@ void FUN_00490d50(BYTE *pData)
     p += 2;
     g_unk0x00591b1c = (int)p;
     CGame::RegisterCallback(g_unk0x004918c0, NULL);
+}
+
+// GLOBAL: CMR2 0x0053ce38
+int g_unk0x0053ce38[16];
+// GLOBAL: CMR2 0x0053ce44
+int g_unk0x0053ce44[16];
+// GLOBAL: CMR2 0x0053ce54
+int g_unk0x0053ce54[16];
+// GLOBAL: CMR2 0x0053ce60
+int g_unk0x0053ce60[16];
+// GLOBAL: CMR2 0x0053ce68
+int g_unk0x0053ce68[16];
+// GLOBAL: CMR2 0x0053cfa0
+int g_unk0x0053cfa0[16];
+
+// Blends two 16.16 tables with (ratio, 0x10000 - ratio).
+// TODO: CMR2 0x00445df0 (implemented, match 14%)
+void FUN_00445df0(int ratio)
+{
+    unsigned int i;
+    int inv;
+
+    inv = 0x10000 - ratio;
+    if ((RallyDataState() & 0xff) != 0) {
+        i = 0;
+        do {
+            g_unk0x0053ce38[i] = (int)(((__int64)g_unk0x0053ce44[i] * ratio) >> 16) +
+                                 (int)(((__int64)g_unk0x0053ce68[i] * inv) >> 16);
+            g_unk0x0053ce54[i] = (int)(((__int64)g_unk0x0053cfa0[i] * ratio) >> 16) +
+                                 (int)(((__int64)g_unk0x0053ce60[i] * inv) >> 16);
+            i++;
+        } while (i < (RallyDataState() & 0xff));
+    }
 }
