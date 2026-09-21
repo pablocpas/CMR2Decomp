@@ -4,6 +4,7 @@
 #include "RallyTiming.h"
 #include "GameInfo.h"
 #include "Game.h"
+#include "Input.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
 #include "Mesh.h"
@@ -542,4 +543,38 @@ void FUN_00480900(int count)
         g_unk0x00590c6c[i] = CFileBuffer::AllocateLockedBuffer(0xb4);
     g_unk0x00590c64 = count;
     CGame::RegisterCallback(g_unk0x00480870, NULL);
+}
+
+struct Unk0x00539278 {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+    int field_0xc;
+    int field_0x10;
+    int field_0x14;
+    BYTE field_0x18[0x14];
+    signed char field_0x2c;
+};
+
+// GLOBAL: CMR2 0x00539278
+Unk0x00539278 *g_unk0x00539278;
+
+// Re-applies the stored force-feedback values to the selected device.
+// FUNCTION: CMR2 0x00424560
+void FUN_00424560(void)
+{
+    if (g_unk0x00539278->field_0x10 != g_unk0x00539278->field_0x4)
+        CInput::SetConditionCoefficient(1, g_unk0x00539278->field_0x10,
+                                        g_unk0x00539278->field_0x2c);
+    if (g_unk0x00539278->field_0xc != g_unk0x00539278->field_0x0)
+        CInput::SetConditionCoefficient(0, g_unk0x00539278->field_0xc,
+                                        g_unk0x00539278->field_0x2c);
+    if (g_unk0x00539278->field_0x14 != g_unk0x00539278->field_0x8) {
+        if (g_unk0x00539278->field_0x14 < 0)
+            CInput::SetEffectGainAndDirection(2, -g_unk0x00539278->field_0x14, 0x2328,
+                                              g_unk0x00539278->field_0x2c);
+        else
+            CInput::SetEffectGainAndDirection(2, g_unk0x00539278->field_0x14, 0x6978,
+                                              g_unk0x00539278->field_0x2c);
+    }
 }
