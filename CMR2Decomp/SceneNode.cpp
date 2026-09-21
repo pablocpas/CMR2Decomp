@@ -2,6 +2,8 @@
 #include "SceneNode.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
+#include "Sector.h"
+#include "Mesh.h"
 
 SceneNode *g_sceneNodes[4096];
 int g_sceneNodeCount;
@@ -454,80 +456,30 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
     return 1;
 }
 
-// Object registries released by SceneNode_Free: one per SceneNode::type.
-// GLOBAL: CMR2 0x0067b124
-void *g_meshList[4096];
-// GLOBAL: CMR2 0x0067f224
-int g_meshListCount;
-// GLOBAL: CMR2 0x0067f230
-int g_meshTotalCount;
-
+// Type 1 / type 2 scene objects: fixed pointer tables, released by lookup.
 // GLOBAL: CMR2 0x006dffa4
-void *g_unk0x006dffa4[60];
+void *g_sceneType1Objects[60];
 // GLOBAL: CMR2 0x006e0b48
-int g_unk0x006e0b48;
-
+int g_sceneType1Count;
 // GLOBAL: CMR2 0x00683388
-void *g_unk0x00683388[256];
+void *g_sceneType2Objects[256];
 // GLOBAL: CMR2 0x006838cc
-int g_unk0x006838cc;
-
-// Releases a mesh object: frees the vertex/index buffers hanging off each of
-// its sub-objects, then clears its slot in the mesh registry.
-// FUNCTION: CMR2 0x004ab7e0
-void Mesh_Free(void *pMesh)
-{
-    void **pSlot;
-    void *pSub;
-    int i;
-    int j;
-    int offset;
-
-    i = 0;
-    pSlot = g_meshList;
-    while (*pSlot == NULL || *pSlot != pMesh) {
-        pSlot++;
-        i++;
-        if ((int)pSlot > 0x67f124)
-            return;
-    }
-    g_meshTotalCount -= *(unsigned char *)((char *)pMesh + 0x110);
-    j = 0;
-    if (*(int *)((char *)g_meshList[i] + 0x100) > 0) {
-        offset = 0x38;
-        do {
-            pSub = *(void **)((char *)g_meshList[i] + offset);
-            CFileBuffer::FreeGenericFileBuffer(*(void **)((char *)pSub + 0x14));
-            *(void **)((char *)pSub + 0x14) = NULL;
-            CFileBuffer::FreeGenericFileBuffer(*(void **)((char *)g_meshList[i] + offset));
-            j++;
-            *(void **)((char *)g_meshList[i] + offset) = NULL;
-            offset += 4;
-        } while (j < *(int *)((char *)g_meshList[i] + 0x100));
-    }
-    g_meshList[i] = NULL;
-    g_meshListCount--;
-}
+int g_sceneType2Count;
 
 // FUNCTION: CMR2 0x004b3480
 void FUN_004b3480(void *pObject)
 {
-    void **pSlot;
     int i;
 
-    i = 0;
-    pSlot = g_unk0x006dffa4;
-    while (*pSlot == NULL || *pSlot != pObject) {
-        pSlot++;
-        i++;
-        if ((int)pSlot >= 0x6e0094) {
-            g_unk0x006e0b48--;
+    for (i = 0; i < 60; i++) {
+        if (g_sceneType1Objects[i] != NULL && g_sceneType1Objects[i] == pObject) {
+            g_sceneType1Objects[i] = NULL;
+            CFileBuffer::FreeGenericFileBuffer(pObject);
+            g_sceneType1Count--;
             return;
         }
     }
-    g_unk0x006dffa4[i] = NULL;
-    CFileBuffer::FreeGenericFileBuffer(pObject);
-    g_unk0x006e0b48--;
+    g_sceneType1Count--;
 }
 
 // FUNCTION: CMR2 0x004adf60
@@ -537,157 +489,16 @@ void FUN_004adf60(void *pObject)
     int count;
 
     count = 0;
-    pSlot = g_unk0x00683388;
+    pSlot = g_sceneType2Objects;
     do {
         if (*pSlot != NULL && *pSlot == pObject) {
             *pSlot = NULL;
             count++;
         }
         pSlot++;
-    } while ((int)pSlot < 0x683788);
+    } while ((int)pSlot < 0x683788); //     } while (pSlot < &g_sceneType2Objects[256]);g_sceneType2Objects[256]
     if (count > 0) {
         CFileBuffer::FreeGenericFileBuffer(pObject);
-        g_unk0x006838cc--;
+        g_sceneType2Count--;
     }
-}
-
-TrackSector *g_trackSectors[256];
-int g_trackSectorRowStride;
-int g_trackSectorHalfSize;
-int g_trackSectorCount;
-int g_unk0x0072d55c;
-int g_unk0x0072d570;
-int g_unk0x0072d578;
-int g_unk0x0072d258[64];
-int g_unk0x006ef5f0;
-int g_unk0x006ef5f4;
-
-// Can the nodes sitting in iSector be drawn?
-// FUNCTION: CMR2 0x004b7da0
-int Sector_IsVisible(int iSector)
-{
-    if (g_unk0x0072d578 == 0
-        && (g_unk0x0072d258[iSector >> 5] & (1 << (iSector & 0x1f))) == 0
-        && g_unk0x0072d570 != 0)
-        return 0;
-    return 1;
-}
-
-// Maps a world position to the index of the sector containing it.
-// FUNCTION: CMR2 0x004b85f0
-int FUN_004b85f0(FixVector *pPosition)
-{
-    int row;
-    int col;
-    int index;
-    int offset;
-
-    offset = (pPosition->z - g_trackSectorHalfSize) - g_unk0x006ef5f4;
-    if (offset < 0)
-        offset = (g_trackSectorHalfSize - pPosition->z) + g_unk0x006ef5f4;
-    row = FixMulShift32(offset, g_unk0x0072d55c);
-
-    offset = (pPosition->x - g_unk0x006ef5f0) + g_trackSectorHalfSize;
-    if (offset < 0)
-        offset = (g_unk0x006ef5f0 - pPosition->x) - g_trackSectorHalfSize;
-    col = FixMulShift32(offset, g_unk0x0072d55c);
-
-    index = g_trackSectorRowStride * row + col;
-    if ((short)index < 0 || (short)g_trackSectorCount <= (short)index)
-        index = 0;
-    return index;
-}
-
-// Moves pNode into the list of the sector its world position falls in, and
-// records up to three neighbouring sectors in the direction it is heading.
-// FUNCTION: CMR2 0x004b8690
-void SceneNode_UpdateSector(SceneNode *pNode)
-{
-    TrackSector *pSector;
-    SceneNode *p;
-    SceneNode *pPrev;
-    FixVector position;
-    int x;
-    int neighbours;
-    int lowerEdge;
-    int upperEdge;
-    short sector;
-
-    neighbours = 0;
-    sector = pNode->sector;
-    x = pNode->world.position.x;
-    lowerEdge = 0;
-    upperEdge = 0;
-    pSector = g_trackSectors[sector];
-    pNode->neighbourSectors[0] = -1;
-    pNode->neighbourSectors[1] = -1;
-    pNode->neighbourSectors[2] = -1;
-
-    if (x < pSector->x - g_trackSectorHalfSize
-        || x > pSector->x + g_trackSectorHalfSize
-        || pNode->world.position.z < pSector->z - g_trackSectorHalfSize
-        || pNode->world.position.z > pSector->z + g_trackSectorHalfSize) {
-        position = pNode->world.position;
-        sector = (short)FUN_004b85f0(&position);
-    }
-
-    pSector = g_trackSectors[sector];
-    if (x - 0x48000 < pSector->x - g_trackSectorHalfSize) {
-        lowerEdge = 1;
-        pNode->neighbourSectors[0] = sector - 1;
-        neighbours = 1;
-    } else if (pSector->x + g_trackSectorHalfSize < x + 0x48000) {
-        upperEdge = 1;
-        pNode->neighbourSectors[0] = sector + 1;
-        neighbours = 1;
-    }
-
-    if (pSector->z + g_trackSectorHalfSize < pNode->world.position.z + 0x48000) {
-        pNode->neighbourSectors[neighbours] = sector - g_trackSectorRowStride;
-        if (lowerEdge)
-            pNode->neighbourSectors[neighbours + 1] = (sector - g_trackSectorRowStride) - 1;
-        else if (upperEdge)
-            pNode->neighbourSectors[neighbours + 1] = (sector - g_trackSectorRowStride) + 1;
-    } else if (pSector->z - g_trackSectorHalfSize > pNode->world.position.z - 0x48000) {
-        pNode->neighbourSectors[neighbours] = g_trackSectorRowStride + sector;
-        if (lowerEdge)
-            pNode->neighbourSectors[neighbours + 1] = g_trackSectorRowStride - 1 + sector;
-        else if (upperEdge)
-            pNode->neighbourSectors[neighbours + 1] = g_trackSectorRowStride + 1 + sector;
-    }
-
-    if (sector == pNode->sector || sector < 0 || sector >= g_trackSectorCount)
-        return;
-
-    pSector = g_trackSectors[pNode->sector];
-    p = pSector->pNodeList;
-    if (p == NULL)
-        return;
-    pPrev = NULL;
-    while (p != pNode) {
-        if (p == NULL)
-            break;
-        pPrev = p;
-        p = p->pNextInSector;
-    }
-    if (p != NULL) {
-        if (pPrev == NULL)
-            pSector->pNodeList = p->pNextInSector;
-        else
-            pPrev->pNextInSector = p->pNextInSector;
-        p->pNextInSector = NULL;
-        g_trackSectors[pNode->sector]->nodeCount--;
-    }
-
-    pSector = g_trackSectors[sector];
-    if (pSector->pNodeList == NULL) {
-        pSector->pNodeList = pNode;
-    } else {
-        p = pSector->pNodeList;
-        while (p->pNextInSector != NULL)
-            p = p->pNextInSector;
-        p->pNextInSector = pNode;
-    }
-    pSector->nodeCount++;
-    pNode->sector = sector;
 }

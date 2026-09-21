@@ -59,44 +59,10 @@ SceneNode *SceneNode_Create(SceneNode *pParent);
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent);
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles);
 
-// Track sector; nodes are linked through SceneNode::pNextInSector.
-struct TrackSector {
-    int x;                  // 0x00 sector centre x (16.16)
-    int field_0x4;
-    int z;                  // 0x08 sector centre z (16.16)
-    BYTE field_0xc[0x10];
-    SceneNode *pNodeList;   // 0x1c nodes whose position falls in this sector
-    int nodeCount;          // 0x20
-};
-
-// GLOBAL: CMR2 0x0071f608
-extern TrackSector *g_trackSectors[256];
-// GLOBAL: CMR2 0x0071f600
-extern int g_trackSectorRowStride;
-// GLOBAL: CMR2 0x0072d248
-extern int g_trackSectorHalfSize;
-// GLOBAL: CMR2 0x0072d568
-extern int g_trackSectorCount;
-// GLOBAL: CMR2 0x0072d55c
-extern int g_unk0x0072d55c;
-// GLOBAL: CMR2 0x0072d570
-extern int g_unk0x0072d570;
-// GLOBAL: CMR2 0x0072d578
-extern int g_unk0x0072d578;
-// GLOBAL: CMR2 0x0072d258
-extern int g_unk0x0072d258[64];
-// GLOBAL: CMR2 0x006ef5f0
-extern int g_unk0x006ef5f0;
-// GLOBAL: CMR2 0x006ef5f4
-extern int g_unk0x006ef5f4;
-
-// Track sectors (0x4b7da0..0x4b8690)
-int Sector_IsVisible(int iSector);
-int FUN_004b85f0(FixVector *pPosition);
-void SceneNode_UpdateSector(SceneNode *pNode);
+#include "Sector.h"
+#include "Mesh.h"
 
 // Type-specific object release, one registry per SceneNode::type
-void Mesh_Free(void *pMesh);
 void FUN_004b3480(void *pObject);
 void FUN_004adf60(void *pObject);
 

@@ -1,0 +1,47 @@
+#ifndef _MESH_H
+#define _MESH_H
+
+// Triangle of a Mesh (0x4c bytes); per-vertex colour bytes at 0x34/0x38/0x3c.
+struct MeshTriangle {
+    BYTE field_0x0[0x34];
+    BYTE colour[3][4];          // 0x34  r,g,b,a per vertex
+    BYTE field_0x40[0xc];
+};
+
+struct MeshPart {
+    BYTE field_0x0[0x14];
+    void *pData;                // 0x14
+};
+
+// Renderable mesh (0x120 bytes); only the fields used so far are named.
+struct Mesh {
+    BYTE field_0x0[0x10];
+    int field_0x10;
+    BYTE field_0x14[0x10];
+    MeshTriangle *pTriangles;   // 0x24
+    int triangleCount;          // 0x28
+    BYTE field_0x2c[0xc];
+    MeshPart *pParts[50];       // 0x38
+    int partCount;              // 0x100
+    BYTE field_0x104[0xc];
+    BYTE sizeUnits;             // 0x110
+    BYTE field_0x111[7];
+    int field_0x118;
+    int field_0x11c;
+};
+
+// GLOBAL: CMR2 0x0067b124
+extern Mesh *g_meshes[4096];
+// GLOBAL: CMR2 0x0067f224
+extern int g_meshCount;
+// GLOBAL: CMR2 0x0067f230
+extern int g_meshTotalSize;
+
+Mesh *Mesh_Alloc(void);
+void Mesh_Free(void *pMesh);
+void Mesh_SetVertexColours(Mesh *pMesh, BYTE *pRGB);
+void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha);
+void Mesh_Rebuild(Mesh *pMesh);
+int Mesh_GetField0x10(Mesh *pMesh);
+
+#endif
