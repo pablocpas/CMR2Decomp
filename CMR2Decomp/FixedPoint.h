@@ -89,6 +89,7 @@ void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *p
 void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
 unsigned int FixVec_Length(FixVector *pV);
 void FixVec_Normalize(FixVector *pOut, FixVector *pIn);
+void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode);
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
@@ -180,6 +181,72 @@ inline int FixVecLength(FixVector *v)
         neg cl
         shr eax, cl
     done:
+    }
+}
+
+// out = src * t
+inline void FixVecScale(FixVector *out, FixVector *src, int t)
+{
+    __asm {
+        mov esi, src
+        mov ebx, t
+        mov ecx, out
+        mov eax, [esi]
+        imul ebx
+        shld edx, eax, 16
+        mov [ecx], edx
+        mov eax, [esi + 4]
+        imul ebx
+        shld edx, eax, 16
+        mov [ecx + 4], edx
+        mov eax, [esi + 8]
+        imul ebx
+        shld edx, eax, 16
+        mov [ecx + 8], edx
+    }
+}
+
+// out = a x b
+inline void FixVecCross(FixVector *out, FixVector *a, FixVector *b)
+{
+    __asm {
+        mov edx, a
+        mov ecx, out
+        mov edi, b
+        mov eax, [edx + 4]
+        mov esi, edx
+        mov edx, [edi + 8]
+        imul edx
+        shld edx, eax, 16
+        mov ebx, edx
+        mov eax, [esi + 8]
+        mov edx, [edi + 4]
+        imul edx
+        shld edx, eax, 16
+        sub ebx, edx
+        mov [ecx], ebx
+        mov eax, [esi + 8]
+        mov edx, [edi]
+        imul edx
+        shld edx, eax, 16
+        mov ebx, edx
+        mov eax, [esi]
+        mov edx, [edi + 8]
+        imul edx
+        shld edx, eax, 16
+        sub ebx, edx
+        mov [ecx + 4], ebx
+        mov eax, [esi]
+        mov edx, [edi + 4]
+        imul edx
+        shld edx, eax, 16
+        mov ebx, edx
+        mov eax, [esi + 4]
+        mov edx, [edi]
+        imul edx
+        shld edx, eax, 16
+        sub ebx, edx
+        mov [ecx + 8], ebx
     }
 }
 

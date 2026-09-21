@@ -373,3 +373,73 @@ void FixVec_Normalize(FixVector *pOut, FixVector *pIn)
     }
     FixVecScaleRecip(pOut, &scaled, len);
 }
+
+// Scratch vectors of FixMatrix_Interpolate
+// GLOBAL: CMR2 0x005391d8
+FixVector g_interpA;
+// GLOBAL: CMR2 0x005391b8
+FixVector g_interpB;
+// GLOBAL: CMR2 0x005391e8
+FixVector g_interpRight;
+// GLOBAL: CMR2 0x00538e20
+FixVector g_interpUp;
+// GLOBAL: CMR2 0x00539008
+FixVector g_interpForward;
+// GLOBAL: CMR2 0x00538e10
+FixVector g_interpPos;
+
+#define FIX_LERP(out, a, b, t)                                                      \
+    out.x = b.x - a.x;                                                              \
+    out.y = b.y - a.y;                                                              \
+    out.z = b.z - a.z;                                                              \
+    FixVecScale(&out, &out, t);                                                     \
+    out.x += a.x;                                                                   \
+    out.y += a.y;                                                                   \
+    out.z += a.z;
+
+#define FIX_NORMALIZE(v)                                                            \
+    {                                                                               \
+        int len = FixVecLength(&v);                                                 \
+        if (len == 0) {                                                             \
+            v.x = 0;                                                                \
+            v.y = 0;                                                                \
+            v.z = 0;                                                                \
+        } else {                                                                    \
+            FixVecScaleRecip(&v, &v, len);                                          \
+        }                                                                           \
+    }
+
+// Interpolates between two matrices: the right vector and either the up
+// (mode 0) or forward vector are lerped and renormalised, the third axis
+// comes from cross products; the position is lerped with tPos.
+// FUNCTION: CMR2 0x004224e0
+void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode)
+{
+    FixMatrix_GetRight(&g_interpA, pA);
+    FixMatrix_GetRight(&g_interpB, pB);
+    FIX_LERP(g_interpRight, g_interpA, g_interpB, tRight)
+    if (mode != 0) {
+        FixMatrix_GetForward(&g_interpA, pA);
+        FixMatrix_GetForward(&g_interpB, pB);
+        FIX_LERP(g_interpForward, g_interpA, g_interpB, tAxis)
+        FIX_NORMALIZE(g_interpForward)
+        FixVecCross(&g_interpUp, &g_interpForward, &g_interpRight);
+        FIX_NORMALIZE(g_interpUp)
+    } else {
+        FixMatrix_GetUp(&g_interpA, pA);
+        FixMatrix_GetUp(&g_interpB, pB);
+        FIX_LERP(g_interpUp, g_interpA, g_interpB, tAxis)
+        FIX_NORMALIZE(g_interpUp)
+        FixVecCross(&g_interpForward, &g_interpRight, &g_interpUp);
+        FIX_NORMALIZE(g_interpForward)
+    }
+    FixVecCross(&g_interpRight, &g_interpUp, &g_interpForward);
+    FixMatrix_GetPosition(&g_interpA, pA);
+    FixMatrix_GetPosition(&g_interpB, pB);
+    FIX_LERP(g_interpPos, g_interpA, g_interpB, tPos)
+    FixMatrix_Identity(pOut);
+    FixMatrix_SetRight(&g_interpRight, pOut);
+    FixMatrix_SetUp(&g_interpUp, pOut);
+    FixMatrix_SetForward(&g_interpForward, pOut);
+    FixMatrix_SetPosition(&g_interpPos, pOut);
+}
