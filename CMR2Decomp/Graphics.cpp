@@ -2473,3 +2473,36 @@ void FUN_004bca70(short *param1)
         g_unk0x008164c8 = 1;
     }
 }
+
+// GLOBAL: CMR2 0x006db200
+unsigned short g_unk0x006db200[800 * 6];
+// GLOBAL: CMR2 0x006dd784
+int g_unk0x006dd784;
+// GLOBAL: CMR2 0x006dd788
+int g_unk0x006dd788;
+// GLOBAL: CMR2 0x004b1500
+BYTE g_unk0x004b1500[1];
+
+// Builds the 800-entry triangle-strip index table.
+// TODO: CMR2 0x004b1150 (implemented, match 45%)
+void FUN_004b1150(void)
+{
+    unsigned short *pIndex;
+    int i;
+
+    g_unk0x006dd784 = 0;
+    g_unk0x006dd788 = 0;
+    pIndex = g_unk0x006db200;
+    for (i = 0; i < 800; i++) {
+        int v = i * 4 + 3;
+
+        pIndex[0] = v - 3;
+        pIndex[1] = v;
+        pIndex[2] = v - 1;
+        pIndex[3] = v - 3;
+        pIndex[4] = v - 2;
+        pIndex[5] = v;
+        pIndex += 6;
+    }
+    CGame::RegisterCallback(g_unk0x004b1500, NULL);
+}

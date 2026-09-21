@@ -1313,3 +1313,20 @@ void *FUN_004f8290(BYTE param1)
         return (void *)0x8221d8;
     return (void *)0x81d6d8;
 }
+
+// GLOBAL: CMR2 0x00819128
+int g_unk0x00819128;
+
+// FUNCTION: CMR2 0x004f2360
+void FUN_004f2360(BYTE *p, int param2)
+{
+    g_unk0x00819128 = CGraphics::GetSelectedDisplayDeviceIx();
+    if (g_unk0x00819128 + 10 > (int)CGraphics::GetDisplayCount()) {
+        g_unk0x00819128 = (int)CGraphics::GetDisplayCount() - 10;
+        if (g_unk0x00819128 < 0)
+            g_unk0x00819128 = 0;
+    }
+    p[0x1e] = (BYTE)CGraphics::GetDisplayCount();
+    p[0x1f] = (BYTE)CGraphics::GetSelectedDisplayDeviceIx();
+    CGame::FUN_004a9b10(0);
+}
