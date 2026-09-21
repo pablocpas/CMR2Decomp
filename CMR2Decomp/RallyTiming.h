@@ -11,6 +11,7 @@ extern int g_rallyOverallTimesRaw[16];
 int RallyTiming_GetStageOrderDriverID(int iPosition);
 int RallyTiming_GetStagePositionOfDriver(int iDriver);
 int RallyTiming_GetStageTimeSeconds(int iDriver);
+int RallyTiming_FUN_0040d3d0(int index);
 int RallyTiming_GetOverallPositionOfDriver(int iDriver);
 int RallyTiming_GetStagePenalty(int iDriver, int iUnused);
 void RallyTiming_SortOverallOrder(void);

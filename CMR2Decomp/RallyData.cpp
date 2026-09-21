@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "RallyData.h"
 #include "GameInfo.h"
+#include "RallyTiming.h"
 #include "Frontend.h"
 #include "AIHelper.h"
 
@@ -438,5 +439,34 @@ void FUN_00503e00(void)
         g_unk0x0082c6a4 = 3;
         g_unk0x0082c6a8 = 4;
         g_unk0x0082c6ac = 5;
+    }
+}
+
+// Copies the per-driver stage times into the 0x30-byte records, first for the
+// used drivers (in reverse) and then for the unused ones.
+// TODO: CMR2 0x00408d80 (implemented, match 56%)
+void RallyData_FUN_00408d80(void)
+{
+    unsigned int *pRec;
+    int count;
+    int limit;
+    int i;
+
+    count = CGameInfo::FUN_00405d70() & 0xff;
+    for (i = 0; i < count; i++) {
+        pRec = (unsigned int *)(g_unk0x00531350 + i * 0x30);
+        *pRec = (*pRec & 0xffffe03f) |
+                ((RallyTiming_GetStageTimeSeconds(0xf - i) & 0x7f) << 6);
+        *(int *)(g_unk0x00531350 + i * 0x30 + 4) = RallyTiming_FUN_0040d3d0(0xf - i);
+    }
+    limit = 0x10 - (CGameInfo::FUN_00405d70() & 0xff);
+    for (i = 0; i < limit; i++) {
+        pRec = (unsigned int *)(g_unk0x00531350 +
+                                ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30);
+        *pRec = (*pRec & 0xffffe03f) |
+                ((RallyTiming_GetStageTimeSeconds(i) & 0x7f) << 6);
+        *(int *)(g_unk0x00531350 +
+                 ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30 + 4) =
+            RallyTiming_FUN_0040d3d0(i);
     }
 }
