@@ -98,5 +98,6 @@ void Car_ApplyCornerOffsets(void);
 void Car_ApplyViewTransforms(int viewIndex);
 void Car_UpdateViewNodes(int viewIndex);
 void Car_UpdateBodyAxes(void);
+void Car_UpdateBodyAxesNoDamping(void);
 
 #endif

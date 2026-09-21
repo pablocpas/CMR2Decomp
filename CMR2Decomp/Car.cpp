@@ -474,3 +474,103 @@ void Car_UpdateBodyAxes(void)
         }
     }
 }
+
+// Same as Car_UpdateBodyAxes without the final velocity damping.
+// FUNCTION: CMR2 0x0043fcc0
+void Car_UpdateBodyAxesNoDamping(void)
+{
+    int step;
+    int damping;
+    int maxStep;
+    FixVector localUp;
+    FixVector world;
+    FixVector diff;
+
+    if (g_pCurrentCar->field_0xb28 > 0 && g_pCurrentCar->field_0xb74 != 0) {
+        damping = FixMul(0x624, g_physicsTimeStep);
+        maxStep = FixMul(0x312, g_physicsTimeStep);
+        step = FixMul(g_pCurrentCar->field_0x424, 0x3e80000);
+        step = step - FixMul(step, damping);
+        g_pCurrentCar->field_0x424 = FixMul(step, 0x41);
+
+        if (FIX_ABS(g_pCurrentCar->steer) < 0x28f) {
+            localUp.x = 0;
+            localUp.y = 0;
+            localUp.z = 0;
+        } else {
+            localUp.y = 0;
+            localUp.x = g_sinTable[(unsigned short)(g_pCurrentCar->heading + 0x400) & 0xfff];
+            localUp.z = -g_sinTable[g_pCurrentCar->heading & 0xfff];
+        }
+        FixMatrix_RotateVector(&world, &localUp, g_pCurrentCar->pWorld);
+        if (FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->up) >= 0)
+            FixVecScale(&world, &world, FixMul(g_pCurrentCar->steer, 0x2604));
+        else
+            FixVecScale(&world, &world, -FixMul(g_pCurrentCar->steer, 0x2604));
+
+        localUp.x = g_pCurrentCar->up.x + world.x;
+        localUp.y = g_pCurrentCar->up.y + world.y;
+        localUp.z = g_pCurrentCar->up.z + world.z;
+        FIX_NORMALIZE_INTO(localUp, localUp)
+        diff.x = localUp.x - g_pCurrentCar->up.x;
+        diff.y = localUp.y - g_pCurrentCar->up.y;
+        diff.z = localUp.z - g_pCurrentCar->up.z;
+        {
+            FixVector *pUp;
+            step = FixVecLength(&diff);
+            if (step < maxStep) {
+                pUp = &g_pCurrentCar->up;
+                pUp->x = localUp.x;
+                pUp->y = localUp.y;
+                pUp->z = localUp.z;
+            } else {
+                FixVecScaleRecip(&localUp, &diff, step);
+                FixVecScale(&localUp, &localUp, maxStep);
+                pUp = &g_pCurrentCar->up;
+                localUp.x = localUp.x + pUp->x;
+                localUp.y = localUp.y + pUp->y;
+                localUp.z = localUp.z + pUp->z;
+                FIX_NORMALIZE_INTO((*pUp), localUp)
+            }
+        }
+
+        {
+            FixVector *pForward;
+            int d = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->forward);
+            FixVecScale(&localUp, &g_pCurrentCar->up, d);
+            pForward = &g_pCurrentCar->forward;
+            localUp.x = pForward->x - localUp.x;
+            localUp.y = pForward->y - localUp.y;
+            localUp.z = pForward->z - localUp.z;
+            FIX_NORMALIZE_INTO((*pForward), localUp)
+        }
+
+        {
+            FixVector *pRight;
+            FixVecCross(&localUp, &g_pCurrentCar->forward, &g_pCurrentCar->up);
+            pRight = &g_pCurrentCar->right;
+            FIX_NORMALIZE_INTO((*pRight), localUp)
+        }
+
+        {
+            int d = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->velocity);
+            FixVecScale(&localUp, &g_pCurrentCar->right, d);
+            localUp.x = g_pCurrentCar->velocity.x - localUp.x;
+            localUp.y = g_pCurrentCar->velocity.y - localUp.y;
+            localUp.z = g_pCurrentCar->velocity.z - localUp.z;
+        }
+        if (FixVecLength(&localUp) > 0) {
+            int s = FixMul(FixMul(g_pCurrentCar->steer, 0x1e0000), g_pCurrentCar->field_0x81c);
+            if (g_pCurrentCar->field_0x1d8 != 0)
+                s += FixMul(s, 0x20000);
+            FixVecScale(&localUp, &g_pCurrentCar->forward, s);
+            g_pCurrentCar->force0x648.x += localUp.x;
+            g_pCurrentCar->force0x648.y += localUp.y;
+            g_pCurrentCar->force0x648.z += localUp.z;
+            g_pCurrentCar->force0x654.x += localUp.x;
+            g_pCurrentCar->force0x654.y += localUp.y;
+            g_pCurrentCar->force0x654.z += localUp.z;
+        }
+
+    }
+}
