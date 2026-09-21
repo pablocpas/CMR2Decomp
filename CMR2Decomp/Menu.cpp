@@ -9,13 +9,19 @@ char g_unk0x0059f8fc;
 int g_menuNextAction;
 // GLOBAL: CMR2 0x0059fa14
 char g_unk0x0059fa14;
+// GLOBAL: CMR2 0x0059f904
+char g_menuActionPending;
+// GLOBAL: CMR2 0x0059fa15
+char g_unk0x0059fa15;
 // GLOBAL: CMR2 0x0059fa16
 char g_unk0x0059fa16;
+// GLOBAL: CMR2 0x0059fa18
+unsigned int g_menuLastInput;
 // GLOBAL: CMR2 0x0059fa17
 char g_unk0x0059fa17;
 
 // FUNCTION: CMR2 0x0049ffd0
-void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, int param6, BYTE flag4, BYTE defaultCursor, BYTE param9)
+void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout)
 {
     pMenu->stringId = stringId;
     pMenu->field_0x4 = param3;
@@ -33,10 +39,10 @@ void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParen
     pMenu->flag3 = 1;
     pMenu->flag5 = 1;
     pMenu->flag4 = flag4;
-    pMenu->field_0xd = param9;
+    pMenu->layout = layout;
     pMenu->defaultCursor = -1;
-    pMenu->field_0x10 &= 0x80;
-    pMenu->field_0x1dc = param6;
+    pMenu->value &= 0x80;
+    pMenu->pItemCallbacks = pItemCallbacks;
 }
 
 // FUNCTION: CMR2 0x004a0060
@@ -267,4 +273,233 @@ void Menu_SetNextAction(int action)
         Menu_PlaySound(CInput::m_unk0x0059f910);
     g_unk0x0059fa16 = 0;
     g_menuNextAction = action;
+}
+
+#define ITEM_AT(pMenu, i) (&(pMenu)->items[(i)])
+#define MENU_FLAGS(pMenu) (*((BYTE *)(pMenu) + 0xe))
+
+// Applies one frame of input to the menu: moves the cursor, changes the
+// value of type 3/6 items, fires the item callbacks and returns the action
+// queued by the selected item (0 = none). Input bits: 0-3 directions (the
+// pairs swap with layout), 4 select, 5 back.
+// FUNCTION: CMR2 0x004a0570
+int Menu_Update(Menu *pMenu, unsigned int input)
+{
+    BYTE bNext;
+    BYTE bLeft;
+    BYTE bRight;
+    BYTE bBack;
+    BYTE bSelect;
+    BYTE bPrev;
+    char count;
+    char cursor;
+    int i;
+    int moved;
+    int wrapped;
+    MenuItem *pItem;
+    int action;
+    BYTE flags;
+    BYTE v;
+
+    if (g_unk0x0059fa15 == 0 && (input & 0xc) != 0 && (input & 3) != 0)
+        input = 0;
+    g_menuLastInput = input;
+    g_unk0x0059f8fc = 0;
+    if (pMenu == NULL)
+        return 0;
+    if (g_menuActionPending != 0) {
+        Menu_CallCallback0(pMenu);
+        g_menuActionPending = 0;
+        g_unk0x0059fa17 = 0;
+    }
+    if (g_menuNextAction == 0) {
+        flags = MENU_FLAGS(pMenu);
+        if (flags & 4)
+            bSelect = (input >> 4) & 1;
+        else
+            bSelect = 0;
+        if (flags & 8)
+            bBack = (input >> 5) & 1;
+        else
+            bBack = 0;
+        if (flags & 2) {
+            if (pMenu->layout == 1) {
+                bLeft = input & 1;
+                bRight = (input >> 1) & 1;
+            } else {
+                bLeft = (input >> 2) & 1;
+                bRight = (input >> 3) & 1;
+            }
+            if (bLeft && bRight)
+                bLeft = 0;
+        } else {
+            bLeft = 0;
+            bRight = 0;
+        }
+        if ((flags & 1) && !bLeft && !bRight) {
+            if (pMenu->layout == 1) {
+                bPrev = (input >> 2) & 1;
+                bNext = (input >> 3) & 1;
+            } else {
+                bPrev = input & 1;
+                bNext = (input >> 1) & 1;
+            }
+            if (bPrev && bNext)
+                bPrev = 0;
+        } else {
+            bPrev = 0;
+            bNext = 0;
+        }
+
+        count = pMenu->itemCount;
+        i = count;
+        while (i > 0 && !ITEM_AT(pMenu, pMenu->cursor)->enabled) {
+            cursor = pMenu->cursor + 1;
+            i--;
+            pMenu->cursor = cursor;
+            if (cursor >= count)
+                pMenu->cursor = 0;
+        }
+
+        if (bPrev) {
+            cursor = pMenu->cursor;
+            moved = 1;
+            wrapped = 1;
+            if (cursor > 0 || pMenu->flag4) {
+                i = 0;
+                do {
+                    cursor--;
+                    pMenu->cursor = cursor;
+                    if (cursor < 0)
+                        pMenu->cursor = cursor + count;
+                    i++;
+                    if (i >= count)
+                        wrapped = 0;
+                    cursor = pMenu->cursor;
+                } while (!ITEM_AT(pMenu, cursor)->enabled || !ITEM_AT(pMenu, cursor)->visible);
+                pMenu->moveFlags |= 1;
+                if (wrapped && g_unk0x0059fa14 != 0)
+                    Menu_PlaySound(CInput::m_unk0x0059f8f8);
+            } else {
+                moved = 0;
+            }
+            if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnMove != NULL)
+                pMenu->pItemCallbacks->pfnMove(pMenu, ITEM_AT(pMenu, pMenu->cursor), moved);
+        } else if (bNext) {
+            cursor = pMenu->cursor;
+            moved = 1;
+            wrapped = 1;
+            if (cursor < count - 1 || (pMenu->flag4 && count != 0)) {
+                i = 0;
+                do {
+                    cursor++;
+                    pMenu->cursor = cursor;
+                    if (cursor >= count)
+                        pMenu->cursor = 0;
+                    i++;
+                    if (i >= count)
+                        wrapped = 0;
+                    cursor = pMenu->cursor;
+                } while (!ITEM_AT(pMenu, cursor)->enabled || !ITEM_AT(pMenu, cursor)->visible);
+                pMenu->moveFlags &= 0xfe;
+                if (wrapped && g_unk0x0059fa14 != 0)
+                    Menu_PlaySound(CInput::m_unk0x0059f8f8);
+            } else {
+                moved = 0;
+            }
+            if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnMove != NULL)
+                pMenu->pItemCallbacks->pfnMove(pMenu, ITEM_AT(pMenu, pMenu->cursor), moved);
+        }
+
+        pItem = ITEM_AT(pMenu, pMenu->cursor);
+        if (bSelect && pItem->enabled)
+            bSelect = 1;
+        else
+            bSelect = 0;
+        if ((bPrev || bNext) && pItem->type == 6) {
+            if ((pMenu->value & 0x7f) >= pItem->min)
+                pMenu->value = ((pItem->min - 1) ^ pMenu->value) & 0x7f ^ pMenu->value;
+            pItem->max = pMenu->value & 0x7f;
+        }
+        if (pItem->type == 3 || pItem->type == 6) {
+            if (bLeft) {
+                moved = 1;
+                if (pItem->max > 0 || pItem->flag2) {
+                    pItem->max--;
+                    if (pItem->max == 0xff)
+                        pItem->max = pItem->min - 1;
+                    if (g_unk0x0059fa14 != 0)
+                        Menu_PlaySound(CInput::m_unk0x0059f90c);
+                    pMenu->moveFlags &= 0xfd;
+                } else {
+                    moved = 0;
+                }
+                if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnChange != NULL)
+                    pMenu->pItemCallbacks->pfnChange(pMenu, ITEM_AT(pMenu, pMenu->cursor), moved);
+            } else if (bRight || (bSelect && pItem->flag3)) {
+                moved = 1;
+                if (pItem->max < pItem->min - 1 || pItem->flag2 || (bSelect && pItem->flag3)) {
+                    if (!bSelect || pItem->param == 0) {
+                        pItem->max++;
+                        if (pItem->max >= pItem->min)
+                            pItem->max = 0;
+                    }
+                    if (g_unk0x0059fa14 != 0)
+                        Menu_PlaySound(CInput::m_unk0x0059f90c);
+                    pMenu->moveFlags |= 2;
+                } else {
+                    moved = 0;
+                }
+                if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnChange != NULL)
+                    pMenu->pItemCallbacks->pfnChange(pMenu, ITEM_AT(pMenu, pMenu->cursor), moved);
+            }
+            pMenu->value = (pItem->max ^ pMenu->value) & 0x7f ^ pMenu->value;
+        }
+
+        if (bSelect == 0) {
+            if (bBack) {
+back:
+                g_menuNextAction = (int)pMenu->pParent;
+                g_unk0x0059f8fc = 1;
+                if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnBack != NULL)
+                    pMenu->pItemCallbacks->pfnBack(pMenu, ITEM_AT(pMenu, pMenu->cursor), 1);
+                if (g_unk0x0059fa14 != 0)
+                    Menu_PlaySound(CInput::m_unk0x0059f8f4);
+            }
+        } else {
+            if (pItem->param != 0)
+                ((void (*)(Menu *, MenuItem *))pItem->param)(pMenu, pItem);
+            if (bBack || pItem->type == 1)
+                goto back;
+            if (pItem->type == 2) {
+                g_menuNextAction = (int)pItem->pSubMenu;
+                if (pMenu->pItemCallbacks != NULL && pMenu->pItemCallbacks->pfnSelect != NULL)
+                    pMenu->pItemCallbacks->pfnSelect(pMenu, ITEM_AT(pMenu, pMenu->cursor), 1);
+                if (g_unk0x0059fa14 != 0)
+                    Menu_PlaySound(CInput::m_unk0x0059f910);
+            }
+        }
+        if (pMenu->pfnCallback1 != NULL)
+            ((void (*)(Menu *))pMenu->pfnCallback1)(pMenu);
+        if (g_menuNextAction == 0)
+            goto done;
+        if (bBack) {
+            v = 1;
+            goto notify;
+        }
+    }
+    if (ITEM_AT(pMenu, pMenu->cursor)->type == 1)
+        v = 1;
+    else
+        v = 0;
+notify:
+    g_unk0x0059fa16 = v;
+    if (pMenu->pfnCallback3 != NULL)
+        pMenu->pfnCallback3(pMenu, v);
+    if (g_menuNextAction != 0)
+        g_menuActionPending = 1;
+done:
+    action = g_menuNextAction;
+    g_menuNextAction = 0;
+    return action;
 }
