@@ -2588,3 +2588,14 @@ void FUN_004ae0a0(void)
         &desc, (LPDIRECT3DVERTEXBUFFER7 *)0x6a2a08, 0);
     CGame::RegisterCallback(g_unk0x004ae120, NULL);
 }
+
+// Scales the 0x3c4 value by a table entry and by 1/65536.
+// TODO: CMR2 0x00423f30 (implemented, match 26%)
+int FUN_00423f30(void)
+{
+    float table[10] = {-0.5f, 0.0f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f};
+    float base;
+
+    base = (float)((double)*(int *)((char *)g_pGraphics + 0x3c4) * CGraphics::m_oneOver65536);
+    return (int)((base + base * table[CGameInfo::FUN_00405ca0()]) * CGraphics::m_65536);
+}

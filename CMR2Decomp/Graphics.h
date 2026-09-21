@@ -1292,6 +1292,7 @@ private:
     friend void Mesh_Rebuild(Mesh *pMesh);
     friend int FUN_004a4bd0(void *pSource, int param2);
     friend void FUN_004ae0a0(void);
+    friend int FUN_00423f30(void);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
 

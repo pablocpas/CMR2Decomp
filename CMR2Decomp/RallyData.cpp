@@ -470,3 +470,37 @@ void RallyData_FUN_00408d80(void)
             RallyTiming_FUN_0040d3d0(i);
     }
 }
+
+// GLOBAL: CMR2 0x00538a84
+int g_unk0x00538a84;
+// GLOBAL: CMR2 0x00538a94
+int g_unk0x00538a94;
+// GLOBAL: CMR2 0x00538ab0
+int g_unk0x00538ab0[16 * 6];
+// GLOBAL: CMR2 0x00538c94
+int g_unk0x00538c94;
+
+// Scales the per-record value at p[0xb1a] to a 0..0x10000 ratio.
+// TODO: CMR2 0x00421470 (implemented, match 63%)
+int RallyData_FUN_00421470(BYTE *p)
+{
+    int value;
+    int result;
+
+    if (g_unk0x00538a84 == 0)
+        return 0;
+    value = g_unk0x00538ab0[(signed char)p[0xb1a] * 6];
+    if (g_unk0x00538a94 != 0) {
+        if (value >= (RallyData_FUN_00406990() & 0xff) * g_unk0x00538a84)
+            return 0x10000;
+    } else {
+        if (value >= g_unk0x00538a84)
+            return 0x10000;
+    }
+    result = (value << 16) / (g_unk0x00538c94 >> 16);
+    if (result < 0)
+        return 0;
+    if (result > 0x10000)
+        return 0x10000;
+    return result;
+}
