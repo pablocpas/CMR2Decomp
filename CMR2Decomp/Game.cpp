@@ -845,8 +845,6 @@ typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3
 
 // GLOBAL: CMR2 0x005a0068
 BYTE g_unk0x005a0068[0x10];
-// GLOBAL: CMR2 0x0066521c
-IDirectPlay4A *g_unk0x0066521c;
 
 // Closes the DirectPlay session object.
 // FUNCTION: CMR2 0x004a1280
@@ -902,7 +900,7 @@ bool FUN_004aac00(void)
     HRESULT hr;
 
     CGame::ClearConnections();
-    hr = ((DPMethod4)(*(void ***)g_unk0x0066521c)[0x8c / 4])(g_unk0x0066521c, 0, (DWORD)0x4aabd0, 0, 0);
+    hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)0x4aabd0, 0, 0);
     if (hr != (HRESULT)0x80070057 && hr != (HRESULT)0x88770078)
         return !hr;
     return false;
@@ -1054,10 +1052,10 @@ bool FUN_004aac40(int param1)
     local1 = 0;
     local2 = 0;
     if (CGame::FUN_004aad30(param1, (int)&local2, (int)&local1)) {
-        pDP = g_unk0x0066521c;
+        pDP = CGame::m_pDirectPlay4A;
         hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)(int)local1, 0);
     } else {
-        pDP = g_unk0x0066521c;
+        pDP = CGame::m_pDirectPlay4A;
         hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
             CGame::m_connections[param1 & 0xff].pConnection, 0);
     }
