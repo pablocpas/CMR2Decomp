@@ -46,11 +46,13 @@ struct SoundSlot {
     unsigned short id;                  // 0x00 index into CSound::m_soundSlots
     BYTE field_0x2[0x8];
     unsigned short field_0xa;           // 0x0a volume, clamped to [100, 100000]
-    BYTE field_0xc[0x10];
+    BYTE field_0xc[0x8];
+    int field_0x14;                     // 0x14 released when the slot is reset
+    int field_0x18;
     IDirectSoundBuffer *pBuffer;        // 0x1c
-    BYTE field_0x20[0x4];
+    IDirectSoundBuffer *field_0x20;     // 0x20
     IDirectSoundBuffer *pLoopBuffer;    // 0x24 restarted while field_0x30 is set
-    BYTE field_0x28[0x4];
+    IDirectSoundBuffer *field_0x28;     // 0x28
     int field_0x2c;                     // 0x2c release pBuffer when set
     int field_0x30;                     // 0x30 looping
 };

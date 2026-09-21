@@ -647,3 +647,38 @@ int FUN_004a2a20(void)
     return !CSound::FUN_004a3250(
         g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, 0));
 }
+
+// Stops the slot's buffers and releases the looping ones.
+// FUNCTION: CMR2 0x004a26f0
+void FUN_004a26f0(SoundSlot *pSlot)
+{
+    DWORD status;
+
+    if (pSlot->pBuffer == NULL)
+        return;
+    if (pSlot->field_0x30 != 0) {
+        CSound::FUN_004a3250(pSlot->pLoopBuffer->Stop());
+        status = 0;
+        pSlot->pLoopBuffer->GetStatus(&status);
+        if ((status & 1) == 0 && pSlot->pLoopBuffer != NULL) {
+            if (pSlot->pLoopBuffer->Release() == 0)
+                pSlot->pLoopBuffer = NULL;
+        }
+    }
+    CSound::FUN_004a3250(pSlot->pBuffer->Stop());
+    pSlot->pBuffer->SetCurrentPosition(0);
+    if (pSlot->field_0x2c != 0 && pSlot->pBuffer != NULL) {
+        if (pSlot->pBuffer->Release() == 0)
+            pSlot->pBuffer = NULL;
+    }
+    if (pSlot->field_0x14 != 0) {
+        if (pSlot->field_0x2c != 0 && pSlot->field_0x20 != NULL) {
+            if (pSlot->field_0x20->Release() == 0)
+                pSlot->field_0x20 = NULL;
+        }
+        if (pSlot->field_0x28 != NULL) {
+            if (pSlot->field_0x28->Release() == 0)
+                pSlot->field_0x28 = NULL;
+        }
+    }
+}
