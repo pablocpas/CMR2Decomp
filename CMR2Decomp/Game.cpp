@@ -809,3 +809,20 @@ void CGame::FUN_004aad50(void)
     RegisterCallback((void *)0x4aae10, NULL);
     g_unk0x00665324 = 1;
 }
+
+// GLOBAL: CMR2 0x0058d49c
+void *g_unk0x0058d49c[8];
+
+// FUNCTION: CMR2 0x004764c0
+void FUN_004764c0(void *param1)
+{
+    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+        CGame::FUN_0049c420(0);
+}
+
+// FUNCTION: CMR2 0x00476500
+void FUN_00476500(void *param1)
+{
+    if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
+        CGame::FUN_0049c420(1);
+}

@@ -189,3 +189,24 @@ void FUN_004eb4b0(char *param1, int param2)
 {
     CFileBuffer::GetGenericFileBuffer(param1, 1);
 }
+
+// 12-byte block read from the file buffer (at offset 0x10).
+struct Unk0x10Block {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+};
+
+// Reads the file and copies the 12 bytes at offset 0x10 into *pOut.
+// FUNCTION: CMR2 0x004ebee0
+BOOL FUN_004ebee0(Unk0x10Block *pOut, char *param2)
+{
+    void *pBuffer;
+
+    pBuffer = CFileBuffer::GetGenericFileBuffer(param2, 1);
+    if (pBuffer == NULL)
+        return FALSE;
+    *pOut = *(Unk0x10Block *)((char *)pBuffer + 0x10);
+    CFileBuffer::FreeGenericFileBuffer(pBuffer);
+    return TRUE;
+}
