@@ -265,3 +265,79 @@ void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle)
     pOut->position.z = 0;
     pOut->pw = 0x10000;
 }
+
+// Rotation about the Z axis by a 12-bit angle.
+// FUNCTION: CMR2 0x004ba320
+void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle)
+{
+    int m[16] = { g_sinTable[(angle + 0x400) & 0xfff], FixSin(angle), 0, 0,
+                  -FixSin(angle), g_sinTable[(angle + 0x400) & 0xfff], 0, 0,
+                  0, 0, 0x10000, 0,
+                  0, 0, 0, 0x10000 };
+
+    *pOut = *(FixMatrix *)m;
+}
+
+// out = in * M (rotation plus translation).
+// FUNCTION: CMR2 0x004baa40
+void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM)
+{
+    pOut->x = FixMul(pM->right.x, pIn->x) + FixMul(pM->up.x, pIn->y) + FixMul(pM->forward.x, pIn->z) + pM->position.x;
+    pOut->y = FixMul(pM->right.y, pIn->x) + FixMul(pM->up.y, pIn->y) + FixMul(pM->forward.y, pIn->z) + pM->position.y;
+    pOut->z = FixMul(pM->right.z, pIn->x) + FixMul(pM->up.z, pIn->y) + FixMul(pM->forward.z, pIn->z) + pM->position.z;
+}
+
+// Applies pM to pIn about the pivot (x, y): translate(-pivot), pM,
+// translate(+pivot). pIn is updated with each intermediate result.
+// FUNCTION: CMR2 0x004ba3b0
+void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM)
+{
+    FixMatrix t;
+
+    FixMatrix_Identity(&t);
+    t.position.x = -pPivot->x;
+    t.position.y = -pPivot->y;
+    FixMatrix_TransformPoint(pOut, pIn, &t);
+    pIn->x = pOut->x;
+    pIn->y = pOut->y;
+    pIn->z = pOut->z;
+    FixMatrix_TransformPoint(pOut, pIn, pM);
+    pIn->x = pOut->x;
+    pIn->y = pOut->y;
+    pIn->z = pOut->z;
+    t.position.x = pPivot->x;
+    t.position.y = pPivot->y;
+    FixMatrix_TransformPoint(pOut, pIn, &t);
+}
+
+// FUNCTION: CMR2 0x004babe0
+void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc)
+{
+    pDst->right.x = pSrc->right.x;
+    pDst->right.y = pSrc->right.y;
+    pDst->right.z = pSrc->right.z;
+    pDst->up.x = pSrc->up.x;
+    pDst->up.y = pSrc->up.y;
+    pDst->up.z = pSrc->up.z;
+    pDst->forward.x = pSrc->forward.x;
+    pDst->forward.y = pSrc->forward.y;
+    pDst->forward.z = pSrc->forward.z;
+    pDst->position.x = pSrc->position.x;
+    pDst->position.y = pSrc->position.y;
+    pDst->position.z = pSrc->position.z;
+}
+
+// Length of a vector; components beyond +-100.0 are scaled down by 512
+// first so the squares do not overflow.
+// FUNCTION: CMR2 0x004bb0a0
+unsigned int FixVec_Length(FixVector *pV)
+{
+    FixVector scaled;
+
+    if (pV->x <= 0x640000 && pV->x >= -0x640000 && pV->y <= 0x640000 && pV->y >= -0x640000 && pV->z <= 0x640000 && pV->z >= -0x640000)
+        return FixVecLength(pV);
+    scaled.x = pV->x / 512;
+    scaled.y = pV->y / 512;
+    scaled.z = pV->z / 512;
+    return FixVecLength(&scaled) << 9;
+}
