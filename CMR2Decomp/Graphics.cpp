@@ -2506,3 +2506,22 @@ void FUN_004b1150(void)
     }
     CGame::RegisterCallback(g_unk0x004b1500, NULL);
 }
+
+// Takes a free texture slot, copies the 0x130-byte texture into it and
+// returns the slot index (or -1 when the table is full).
+// FUNCTION: CMR2 0x004a4bd0
+int FUN_004a4bd0(void *pSource, int param2)
+{
+    int i;
+
+    for (i = 0; i < 0x800; i++) {
+        if (CGraphics::m_pTextureManager->textureBuffer[i] == NULL) {
+            CGraphics::m_pTextureManager->textureBuffer[i] =
+                (Texture *)CFileBuffer::AllocateLockedBuffer(0x130);
+            memcpy(CGraphics::m_pTextureManager->textureBuffer[i], pSource, 0x130);
+            CGraphics::m_textureCount++;
+            return i;
+        }
+    }
+    return -1;
+}

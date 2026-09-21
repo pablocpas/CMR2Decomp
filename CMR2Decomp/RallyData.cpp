@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "RallyData.h"
 #include "GameInfo.h"
+#include "Frontend.h"
 #include "AIHelper.h"
 
 // GLOBAL: CMR2 0x0052f2a9
@@ -297,4 +298,21 @@ int *RallyData_FUN_00407f20(int index)
             i = 0;
     }
     return &g_unk0x005167e0[i];
+}
+
+// FUNCTION: CMR2 0x0040fe50
+char *RallyData_FUN_0040fe50(void)
+{
+    int table[8];
+
+    table[0] = 6;
+    table[1] = 3;
+    table[2] = 1;
+    table[3] = 4;
+    table[4] = 0;
+    table[5] = 2;
+    table[6] = 5;
+    table[7] = 7;
+    return CFrontend::GetTextString(table[(RallyData_FUN_00406940() & 0xff) * 3 +
+                                          (RallyData_FUN_00406950() & 0xff)]);
 }

@@ -1290,6 +1290,7 @@ private:
 
     // Mesh_Rebuild locks/unlocks a shared vertex buffer.
     friend void Mesh_Rebuild(Mesh *pMesh);
+    friend int FUN_004a4bd0(void *pSource, int param2);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
 
