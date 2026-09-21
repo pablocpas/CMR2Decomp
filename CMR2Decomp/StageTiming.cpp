@@ -499,3 +499,24 @@ void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
     if (checkFlag != 0)
         Mesh_SetVertexColours(pMesh, rgb);
 }
+
+// TODO: CMR2 0x00456960 (implemented, match below 90%)
+void FUN_00456960(int *pDeltas)
+{
+    int *pRaw;
+    int count;
+    int i, j;
+
+    pRaw = (int *)g_stageSplitTimesRaw;
+    count = GetStageSplitCount();
+    if (count >= 0) {
+        for (i = 0; i < (count + 1) * 16; i++)
+            pRaw[i] = 0;
+    }
+    if (count >= 1) {
+        for (i = 0; i < count; i++) {
+            for (j = 0; j < 16; j++)
+                pRaw[i * 16 + j + 16] = pRaw[i * 16 + j] + pDeltas[i * 16 + j];
+        }
+    }
+}

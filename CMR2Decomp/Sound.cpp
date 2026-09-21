@@ -562,3 +562,29 @@ void FUN_004bb280(void)
         g_unk0x00730fcc = 1;
     }
 }
+
+// GLOBAL: CMR2 0x005a2710
+int g_unk0x005a2710;
+// GLOBAL: CMR2 0x005a2714
+int g_unk0x005a2714;
+// GLOBAL: CMR2 0x005a2718
+int g_unk0x005a2718;
+
+typedef HRESULT (__stdcall *DPSoundMethod2)(void *pThis, void *a1, void *a2);
+
+// TODO: CMR2 0x004a2d30 (implemented, match 84%)
+void FUN_004a2d30(void)
+{
+    int lo, hi;
+    unsigned int v;
+
+    CSound::FUN_004a3250(((DPSoundMethod2)(*(void ***)CSound::m_pDirectSoundBuffer)[0x10 / 4])(
+        CSound::m_pDirectSoundBuffer, &lo, &hi));
+    v = (unsigned int)lo / 1000u;
+    g_unk0x005a2710 = (int)v;
+    v -= g_unk0x005a2714;
+    if ((int)v > 0)
+        g_unk0x005a2718 = (int)v - 1;
+    else
+        g_unk0x005a2718 = (int)v + 7;
+}
