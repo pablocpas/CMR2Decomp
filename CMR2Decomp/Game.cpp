@@ -838,3 +838,91 @@ void FUN_004238e0(Unk004238e0 *param1, int param2)
     if (param1->field_0x4 == 3)
         FUN_004764c0(param1);
 }
+
+typedef HRESULT (__stdcall *DPMethod0)(void *pThis);
+typedef HRESULT (__stdcall *DPMethod2)(void *pThis, void *p1, DWORD p2);
+typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4);
+
+// GLOBAL: CMR2 0x005a0068
+BYTE g_unk0x005a0068[0x10];
+// GLOBAL: CMR2 0x0066521c
+IDirectPlay4A *g_unk0x0066521c;
+
+// Closes the DirectPlay session object.
+// FUNCTION: CMR2 0x004a1280
+int FUN_004a1280(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod0)(*(void ***)pDP)[0x10 / 4])(pDP);
+    if (hr <= (HRESULT)0x887700dc || hr != 0)
+        return 0;
+    CGameInfo::m_unk0x005a1814 = hr;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004a14e0
+bool FUN_004a14e0(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return FALSE;
+    hr = ((DPMethod2)(*(void ***)pDP)[0x7c / 4])(pDP, g_unk0x005a0068, 0);
+    if (hr <= (HRESULT)0x887700dc || hr == (HRESULT)0x88770168 || hr != 0)
+        return false;
+    return true;
+}
+
+// FUNCTION: CMR2 0x004a1af0
+int FUN_004a1af0(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    CGame::FUN_004a17f0(0);
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod4)(*(void ***)pDP)[0x30 / 4])(pDP, 0, (DWORD)0x4a1ad0, 0, 0);
+    if (hr <= (HRESULT)0x887700fa || hr != 0)
+        return 0;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004aac00
+bool FUN_004aac00(void)
+{
+    HRESULT hr;
+
+    CGame::ClearConnections();
+    hr = ((DPMethod4)(*(void ***)g_unk0x0066521c)[0x8c / 4])(g_unk0x0066521c, 0, (DWORD)0x4aabd0, 0, 0);
+    if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
+        return false;
+    return !hr;
+}
+
+// GLOBAL: CMR2 0x005a1ea0
+DWORD g_unk0x005a1ea0;
+
+// FUNCTION: CMR2 0x004a1cb0
+int FUN_004a1cb0(int param2, int param3)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, g_unk0x005a1ea0, param3, param2, 2);
+    if (hr <= (HRESULT)0x88770082 || hr == (HRESULT)0x88770096 ||
+        hr == (HRESULT)0x88770168 || hr != 0)
+        return 0;
+    return 1;
+}

@@ -1608,3 +1608,18 @@ void CInput::FUN_0049eab0(void)
     for (i = 0; i < 8; i++)
         UpdateDevice(i);
 }
+
+// GLOBAL: CMR2 0x005168f4
+unsigned short g_unk0x005168f4[0x100];
+// GLOBAL: CMR2 0x00532250
+BYTE g_unk0x00532250[8 * 0x2f0];
+
+// FUNCTION: CMR2 0x0040bc90
+void CInput::FUN_0040bc90(int param1, DWORD param2)
+{
+    int index;
+
+    index = g_unk0x005168f4[param1 & 0xffff];
+    *(DWORD *)((char *)g_unk0x00532250 + index * 0x2f0 + 0x11c) = param2;
+    FUN_004aaf50(param2, index);
+}

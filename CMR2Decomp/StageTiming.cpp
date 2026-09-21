@@ -336,3 +336,53 @@ BOOL FUN_0046c500(void)
     g_unk0x00588d14 = 0;
     return TRUE;
 }
+
+// 12-byte entry of the table released by FUN_00456b70.
+struct Unk0x542ae8 {
+    void *pBuffer;
+    void *field_0x4;
+    void *field_0x8;
+};
+
+// GLOBAL: CMR2 0x00542ae8
+Unk0x542ae8 g_unk0x00542ae8[32];
+
+// FUNCTION: CMR2 0x00456b70
+bool FUN_00456b70(void)
+{
+    int i;
+
+    for (i = 0; i < 32; i++) {
+        if (g_unk0x00542ae8[i].pBuffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00542ae8[i].pBuffer);
+            g_unk0x00542ae8[i].pBuffer = NULL;
+        }
+        g_unk0x00542ae8[i].pBuffer = NULL;
+        g_unk0x00542ae8[i].field_0x4 = NULL;
+        g_unk0x00542ae8[i].field_0x8 = NULL;
+    }
+    return true;
+}
+
+// GLOBAL: CMR2 0x0053d1da
+BYTE g_unk0x0053d1da[0x100];
+// GLOBAL: CMR2 0x0053d1b0
+int g_unk0x0053d1b0;
+// GLOBAL: CMR2 0x0053e190
+int g_unk0x0053e190[0x400];
+// GLOBAL: CMR2 0x0053d1b8
+int g_unk0x0053d1b8[0x100];
+// GLOBAL: CMR2 0x0053e18c
+BYTE g_unk0x0053e18c;
+
+// FUNCTION: CMR2 0x00448630
+void FUN_00448630(int index)
+{
+    int value;
+
+    g_unk0x0053d1da[index] = 1;
+    value = g_unk0x0053d1b0;
+    g_unk0x0053e190[GetStageSplitCount() + index * 9] = value;
+    g_unk0x0053d1b8[index] = value + 0x4650;
+    g_unk0x0053e18c++;
+}
