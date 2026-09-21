@@ -9,6 +9,7 @@
 #include "FileBuffer.h"
 #include "Frontend.h"
 #include "Texture.h"
+#include "Sound.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,9 +83,19 @@ void CGame::SetShouldExit(void)
     m_shouldExit = TRUE;
 }
 
-// STUB: CMR2 0x004b7a40
-void CGame::FUN_004b7a40(void) {
+// FUNCTION: CMR2 0x004b7a40
+void CGame::FUN_004b7a40(void)
+{
+    SoundSlot **ppSlot;
 
+    if (CSound::m_unk0x006e0eec != 0) {
+        ppSlot = CSound::m_soundSlots;
+        do {
+            if (*ppSlot != NULL)
+                CSound::FUN_004a27c0(*ppSlot);
+            ppSlot++;
+        } while ((int)ppSlot < (int)&CSound::m_soundSlotsEnd);
+    }
 }
 
 // FUNCTION: CMR2 0x004d0780

@@ -1,6 +1,11 @@
 #include "Sound.h"
 #include "main.h"
 #include "InstallInfo.h"
+#include "FileBuffer.h"
+
+SoundSlot *CSound::m_soundSlots[32];
+BOOL CSound::m_unk0x006e0eec;
+SoundSlot *CSound::m_soundSlotsEnd;
 
 BOOL CSound::m_unk0x005a2728;
 BOOL CSound::m_unk0x005a272c;
@@ -392,4 +397,50 @@ void MMIOData::StartDataRead(void)
 void MMIOData::Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead)
 {
     WaveReadFile(hmmio, cbRead, pbDest, &ck, pcbRead);
+}
+
+// Releases the sound data held by one slot and clears the slot.
+// FUNCTION: CMR2 0x004b7620
+void CSound::FUN_004b7620(int index)
+{
+    CFileBuffer::FreeGenericFileBuffer(m_soundSlots[index]);
+    m_soundSlots[index] = NULL;
+}
+
+// Polls the buffer status and (re)starts it with the given play flags.
+// FUNCTION: CMR2 0x004a23f0
+void CSound::FUN_004a23f0(IDirectSoundBuffer *pBuffer, int flags)
+{
+    DWORD status;
+
+    status = 0;
+    FUN_004a3250(pBuffer->GetStatus(&status));
+    FUN_004a3250(pBuffer->Play(0, 0, flags));
+}
+
+// Drops a finished sound slot: restarts looping sounds, otherwise releases the
+// buffer once the slot stops asking for it.
+// FUNCTION: CMR2 0x004a27c0
+void CSound::FUN_004a27c0(SoundSlot *pSlot)
+{
+    DWORD status;
+    IDirectSoundBuffer *pBuffer;
+
+    status = 0;
+    pBuffer = pSlot->pBuffer;
+    if (pBuffer != NULL) {
+        FUN_004a3250(pBuffer->GetStatus(&status));
+        if (status & 1)
+            return;
+        if (pSlot->field_0x30 != 0) {
+            FUN_004a23f0(pSlot->pLoopBuffer, 1);
+            return;
+        }
+        if (pSlot->field_0x2c != 0) {
+            pBuffer = pSlot->pBuffer;
+            if (pBuffer != NULL && pBuffer->Release() == 0)
+                pSlot->pBuffer = NULL;
+        }
+        FUN_004b7620(pSlot->id);
+    }
 }

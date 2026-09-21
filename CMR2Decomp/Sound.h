@@ -40,8 +40,25 @@ HACMDRIVERID AcmFindDriver(WORD wFormatTag);
 WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
 
 
+// One sound slot; CSound::FUN_004a27c0 stops/releases it when its buffer has
+// finished playing.
+struct SoundSlot {
+    unsigned short id;                  // 0x00 index into CSound::m_soundSlots
+    BYTE field_0x2[0x1a];
+    IDirectSoundBuffer *pBuffer;        // 0x1c
+    BYTE field_0x20[0x4];
+    IDirectSoundBuffer *pLoopBuffer;    // 0x24 restarted while field_0x30 is set
+    BYTE field_0x28[0x4];
+    int field_0x2c;                     // 0x2c release pBuffer when set
+    int field_0x30;                     // 0x30 looping
+};
+
 class CSound {
 public:
+    static void FUN_004a23f0(IDirectSoundBuffer *pBuffer, int flags);
+    static void FUN_004a27c0(SoundSlot *pSlot);
+    static void FUN_004b7620(int index);
+
     static BOOL __fastcall FUN_004a2ac0(void);
     static void FUN_004a2b50(BOOL param1);
     static bool FUN_004bd230(void);
@@ -78,6 +95,15 @@ public:
 
     // GLOBAL: CMR2 0x00816a7c
     static HACMSTREAM m_unk0x00816a7c;
+
+    // GLOBAL: CMR2 0x006e0d6c
+    static SoundSlot *m_soundSlots[32];
+
+    // GLOBAL: CMR2 0x006e0eec
+    static BOOL m_unk0x006e0eec;
+
+    // GLOBAL: CMR2 0x006e0dec
+    static SoundSlot *m_soundSlotsEnd;
 };
 
 #endif
