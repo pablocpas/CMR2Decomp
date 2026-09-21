@@ -1330,3 +1330,16 @@ void FUN_004f2360(BYTE *p, int param2)
     p[0x1f] = (BYTE)CGraphics::GetSelectedDisplayDeviceIx();
     CGame::FUN_004a9b10(0);
 }
+
+// TODO: CMR2 0x004f2b00 (implemented, match 73%)
+void FUN_004f2b00(BYTE *p)
+{
+    unsigned int v;
+
+    CGameInfo::FUN_00405e10(p[0x1f] * 10);
+    CGameInfo::FUN_00405e50(p[0x33] * 10);
+    CGameInfo::FUN_00405e80(p[0x47] * 10);
+    v = (CGameInfo::FUN_00405e70() * 65536) / 100;
+    CInput::FUN_0049ffc0(v / 4);
+    CSound::FUN_004a28c0();
+}

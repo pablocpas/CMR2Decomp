@@ -1649,3 +1649,25 @@ void CInput::FUN_0040b2f0(int index)
     }
     g_unk0x0053223c[index & 0xff].field_0x4 = NULL;
 }
+
+// GLOBAL: CMR2 0x00532240
+int g_unk0x00532240;
+// GLOBAL: CMR2 0x0040b290
+BYTE g_unk0x0040b290[1];
+
+// TODO: CMR2 0x0040b220 (implemented, match 60%)
+int CInput::FUN_0040b220(int param1)
+{
+    void *p;
+    int count;
+
+    count = param1 & 0xff;
+    CGame::m_unk0x00532138 = 1;
+    p = CFileBuffer::AllocateLockedBuffer(count * 0x18);
+    g_unk0x0053223c = (Unk0x0053223c *)p;
+    if (p == NULL)
+        return -1;
+    memset(p, 0, count * 0x18);
+    g_unk0x00532240 = count;
+    CGame::RegisterCallback(g_unk0x0040b290, NULL);
+}
