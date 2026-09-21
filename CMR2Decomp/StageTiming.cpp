@@ -413,3 +413,47 @@ void FUN_004287c0(int size)
     }
     CGame::RegisterCallback(g_unk0x00428790, NULL);
 }
+
+// Registers the mesh-backed node in the per-slot tables.
+// FUNCTION: CMR2 0x00466e90
+void FUN_00466e90(SceneNode *pNode, int *pSlot)
+{
+    int index;
+    void *pObject;
+    int count;
+
+    index = (pNode->flags & 0xff) - 5;
+    pObject = pNode->pObject;
+    if (pObject == NULL)
+        return;
+    if (pNode->type != 0)
+        return;
+    pSlot[index + 0xf] = (int)pNode;
+    pSlot[index] = (int)pObject;
+    count = Mesh_GetField0x10((Mesh *)pObject);
+    pSlot[index + 0x108] = count;
+    if (pSlot[index] == 0)
+        return;
+    if (count <= 0)
+        return;
+    pSlot[0x117]++;
+}
+
+// GLOBAL: CMR2 0x00592734
+void *g_unk0x00592734;
+// GLOBAL: CMR2 0x00592738
+int g_unk0x00592738;
+// GLOBAL: CMR2 0x00494b10
+BYTE g_unk0x00494b10[1];
+
+// FUNCTION: CMR2 0x00494b50
+void FUN_00494b50(int count)
+{
+    BYTE *pBuffer;
+
+    pBuffer = (BYTE *)CFileBuffer::AllocateLockedBuffer(count * 0x2a4);
+    g_unk0x00592734 = pBuffer;
+    memset(pBuffer, 0, count * 0x2a4);
+    g_unk0x00592738 = count;
+    CGame::RegisterCallback(g_unk0x00494b10, NULL);
+}
