@@ -977,3 +977,65 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
     g_unk0x005a1fc0 = 1;
     return 1;
 }
+
+// GLOBAL: CMR2 0x0058d3b8
+BYTE g_unk0x0058d3b8[0xc0];
+// GLOBAL: CMR2 0x0058d4c4
+int g_unk0x0058d4c4[4];
+// GLOBAL: CMR2 0x0058d530
+BYTE g_unk0x0058d530[0x1c * 2];
+// GLOBAL: CMR2 0x0058d6a0
+void *g_unk0x0058d6a0[2];
+
+// Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks.
+// TODO: CMR2 0x004779e0 (implemented, match 74%)
+bool FUN_004779e0(void)
+{
+    void **pA;
+    BYTE *pB;
+    void **pC;
+    int *pD;
+
+    pA = g_unk0x0058d49c;
+    pB = g_unk0x0058d530;
+    while (pA < &g_unk0x0058d49c[2]) {
+        if (*pA != NULL) {
+            if (*(int *)pB != 0)
+                SceneNode_Destroy((SceneNode *)*(int *)pB);
+            SceneNode_Destroy((SceneNode *)*pA);
+            *(int *)(pB + 0x0) = 0;
+            *(int *)(pB + 0x4) = 0;
+            *(int *)(pB + 0x8) = 0;
+            *(int *)(pB + 0xc) = 0;
+            *(int *)(pB + 0x10) = 0;
+        }
+        pA++;
+        pB += 0x1c;
+    }
+    pC = g_unk0x0058d6a0;
+    while (pC < &g_unk0x0058d6a0[2]) {
+        if (*pC != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*pC);
+            *pC = NULL;
+        }
+        pC++;
+    }
+    pD = g_unk0x0058d4c4;
+    do {
+        pD[-1] = 0;
+        pD[0] = 0;
+        pD += 2;
+    } while (pD < &g_unk0x0058d4c4[4]);
+    pB = g_unk0x0058d3b8;
+    while (pB < &g_unk0x0058d3b8[0xc0]) {
+        if (*(void **)pB != NULL) {
+            SceneNode_Destroy((SceneNode *)*(void **)pB);
+            *(void **)pB = NULL;
+        }
+        *(int *)(pB + 0x0) = 0;
+        *(int *)(pB + 0x4) = 0;
+        *(int *)(pB + 0x8) = 0;
+        pB += 0xc;
+    }
+    return true;
+}
