@@ -1243,3 +1243,34 @@ int CGameInfo::FUN_00501230(void)
         return 1;
     return 2;
 }
+
+// 0x50-byte entry of the table at 0x82c6c8.
+struct Unk0x0082c6c8 {
+    BYTE field_0x0[0x1c];
+    int field_0x1c;
+    BYTE field_0x20[0x2c];
+    int field_0x4c;
+};
+
+// GLOBAL: CMR2 0x0082c6c8
+Unk0x0082c6c8 g_unk0x0082c6c8[16];
+// GLOBAL: CMR2 0x0082ca1c
+BYTE g_unk0x0082ca1c;
+// GLOBAL: CMR2 0x0082c6c0
+int g_unk0x0082c6c0;
+// GLOBAL: CMR2 0x0082cb44
+int g_unk0x0082cb44;
+
+// FUNCTION: CMR2 0x00505e10
+int CGameInfo::FUN_00505e10(BYTE param1)
+{
+    if (g_unk0x0082ca1c != 0xff) {
+        if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x4c != 0 ||
+            g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x1c != 0)
+            return 0;
+    }
+    g_unk0x0082ca1c = param1;
+    g_unk0x0082c6c0 = CMain::GetFrameDelta();
+    g_unk0x0082cb44 = 0;
+    return 1;
+}

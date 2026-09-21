@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
+#include "RallyData.h"
 #include "InstallInfo.h"
 #include "main.h"
 #include "Graphics.h"
@@ -476,4 +477,29 @@ char *CFrontend::FUN_0040ee20(int offset)
     if (CGame::FUN_004057d0() == 3)
         return GetTextString(offset + 0xd8);
     return NULL;
+}
+
+// GLOBAL: CMR2 0x008173f0
+int g_unk0x008173f0;
+// GLOBAL: CMR2 0x00817420
+BYTE g_unk0x00817420[0x100 * 0xa];
+// GLOBAL: CMR2 0x00817410
+BYTE g_unk0x00817410;
+
+// FUNCTION: CMR2 0x004cf0f0
+void CFrontend::FUN_004cf0f0(void)
+{
+    int i;
+    BYTE index;
+
+    for (i = 0; i < g_unk0x008173f0; i++) {
+        index = RallyDataStageIndex();
+        g_unk0x00817420[i * 0xa] = 0;
+        if (index == 0)
+            g_unk0x00817420[i * 0xa] = index;
+    }
+    index = RallyDataStageIndex();
+    g_unk0x00817410 = 0;
+    if (index == 0)
+        g_unk0x00817410 = index;
 }
