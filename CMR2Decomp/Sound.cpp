@@ -1,5 +1,6 @@
 #include "Sound.h"
 #include "main.h"
+#include "Game.h"
 #include "InstallInfo.h"
 #include "FileBuffer.h"
 
@@ -492,4 +493,32 @@ void CSound::FUN_004a3160(void)
         m_unk0x005a2724 = 1;
         FUN_004a31a0();
     }
+}
+
+// GLOBAL: CMR2 0x00816168
+int g_unk0x00816168;
+// GLOBAL: CMR2 0x0081617c
+int g_unk0x0081617c;
+// GLOBAL: CMR2 0x00816180
+int g_unk0x00816180;
+// GLOBAL: CMR2 0x00816184
+int g_unk0x00816184;
+// GLOBAL: CMR2 0x00816188
+int g_unk0x00816188;
+// GLOBAL: CMR2 0x0081616c
+int g_unk0x0081616c;
+// GLOBAL: CMR2 0x00816170
+int g_unk0x00816170;
+
+// FUNCTION: CMR2 0x004bb610
+void FUN_004bb610(void)
+{
+    g_unk0x00816168 = 1;
+    g_unk0x0081617c = 0;
+    g_unk0x00816180 = 0;
+    g_unk0x00816184 = 0;
+    g_unk0x00816188 = 0;
+    g_unk0x0081616c = 0;
+    g_unk0x00816170 = 0;
+    CGame::RegisterCallback((void *)0x4bc090, NULL);
 }

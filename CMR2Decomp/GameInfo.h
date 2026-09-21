@@ -75,6 +75,15 @@ struct Unk0x0059fa20 {
     BYTE field_0x10;
 };
 
+// 0x14-byte entry of the table at 0x82b2c0.
+struct Unk0x0082b2c0 {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+    int field_0xc;
+    int field_0x10;
+};
+
 class CGameInfo
 {
 public:
@@ -89,6 +98,7 @@ public:
     static int FUN_005011b0(void);
     static void FUN_00500500(void);
     static int FUN_005012c0(void);
+    static void FUN_00501cc0(int index, int param2, int param3);
     static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);
     static unsigned char FUN_00405dc0(void);

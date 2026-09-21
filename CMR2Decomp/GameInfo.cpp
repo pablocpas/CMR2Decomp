@@ -1155,6 +1155,8 @@ int g_unk0x0082ac58;
 int g_unk0x0082ac5c;
 // GLOBAL: CMR2 0x0082b0a0
 int g_unk0x0082b0a0;
+// GLOBAL: CMR2 0x0082b2c0
+Unk0x0082b2c0 g_unk0x0082b2c0[8];
 // GLOBAL: CMR2 0x00531c94
 int g_unk0x00531c94[16];
 // GLOBAL: CMR2 0x00531c98
@@ -1202,4 +1204,17 @@ int CGameInfo::FUN_0040a420(int index)
     if (FUN_00405d80() == 0xc)
         return g_unk0x00531c98;
     return g_unk0x00531c94[index];
+}
+
+// FUNCTION: CMR2 0x00501cc0
+void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
+{
+    Unk0x0082b2c0 *pEntry;
+
+    pEntry = &g_unk0x0082b2c0[index];
+    pEntry->field_0x8 = CMain::GetFrameDelta();
+    pEntry->field_0x4 = param2;
+    pEntry->field_0x0 = 0;
+    pEntry->field_0xc = 1;
+    pEntry->field_0x10 = param3;
 }
