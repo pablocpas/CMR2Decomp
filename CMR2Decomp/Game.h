@@ -54,6 +54,8 @@ struct DPlayConnection {
     GUID guidSP;
 };
 
+extern BYTE g_unk0x005a0068[0x10];
+
 class CGame
 {
 public:

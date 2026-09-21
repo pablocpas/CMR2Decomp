@@ -1451,3 +1451,45 @@ void CGameInfo::FUN_00501ac0(void)
     g_unk0x0082b1b9 = (BYTE)value;
     g_unk0x0082b1b8 = (BYTE)value;
 }
+
+// GLOBAL: CMR2 0x00511cd8
+int g_unk0x00511cd8[4];
+
+typedef HRESULT (__stdcall *DPMethod5GI)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
+
+// Prepara el descriptor de sesion 0x5a0068 y crea la sesion de DirectPlay.
+// TODO: CMR2 0x004a13b0 (implemented, match 58%)
+void CGameInfo::FUN_004a13b0(void)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    if (m_unk0x005a1814 != 0)
+        return;
+    FUN_004a0c60();
+    memset(g_unk0x005a0068, 0, 0x50);
+    *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
+    *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[2];
+    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[1];
+    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
+    m_unk0x005a0098 = (LPVOID *)&m_unk0x005a00b8;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return;
+    hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
+                                                (DWORD)0x4a12b0, 0, 0x20);
+    if (hr > (HRESULT)0x887700aa) {
+        if (hr == (HRESULT)0x8877015e)
+            return;
+        if (hr == (HRESULT)0x887700cb)
+            return;
+        if (hr != 0)
+            return;
+        m_unk0x005a1814 = 1;
+        return;
+    }
+    if (hr == (HRESULT)0x887700aa || hr <= (HRESULT)0x8877005a ||
+        hr == (HRESULT)0x88770082)
+        return;
+}
