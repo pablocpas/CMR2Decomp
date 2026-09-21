@@ -337,8 +337,6 @@ BOOL CInput::GetAttachedJoysticks(void) {
     return SUCCEEDED(hr);
 }
 
-// this is only a 53.83% match but im pretty sure im doing it all right
-// just the subtype block is getting optimized out or something weird
 // FUNCTION: CMR2 0x0049f6d0
 BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     HRESULT hr;
@@ -355,9 +353,7 @@ BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     uVar2 = m_unk0x0059f8cc.field_0x0;
     pDeviceInfo = &m_availableDevices[m_unk0x0059f8cc.field_0x0];
     if (GET_DIDEVICE_TYPE(lpddi->dwDevType) == DIDEVTYPE_JOYSTICK) {
-        // for some reason this block is getting skipped over...
-        if (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) == DIDEVTYPE_MOUSE) pDeviceInfo->field_0x0 = 0;
-        else pDeviceInfo->field_0x0 = 3;
+        if (GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) != DIDEVTYPE_MOUSE) pDeviceInfo->field_0x0 = 3;
     
         pDevice = DInputCreateDevice(lpddi->guidInstance, &c_dfDIJoystick2);
         m_unk0x0059f6b0[m_unk0x0059f8cc.field_0x2] = pDevice;
