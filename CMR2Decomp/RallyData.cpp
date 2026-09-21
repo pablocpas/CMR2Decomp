@@ -353,3 +353,26 @@ void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
         pDest[1] += 0x3e80000;
     }
 }
+
+// GLOBAL: CMR2 0x0052fa5c
+BYTE g_unk0x0052fa5c[0x10 * 0x650];
+
+// Bumps the 0x7f80-masked field of the entry selected by each 0x30-byte record.
+// TODO: CMR2 0x004ec1a0 (implemented, match 62%)
+void RallyData_FUN_004ec1a0(void)
+{
+    unsigned int *pEntry;
+    unsigned int i;
+
+    i = 0;
+    if (CGameInfo::FUN_00405d70() == 0)
+        return;
+    do {
+        pEntry = (unsigned int *)(g_unk0x0052fa5c +
+                 (((*(unsigned int *)(g_unk0x00531350 + i * 0x30) >> 0x12) & 0xf) * 0x650));
+        if ((*pEntry & 0x7f80) != 0x7f80)
+            *pEntry = (*pEntry & 0xffffff80) |
+                      (((*pEntry & 0x7f80) + 0x80) & 0x7f80);
+        i++;
+    } while (i < CGameInfo::FUN_00405d70());
+}
