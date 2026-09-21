@@ -6,6 +6,7 @@
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
 #include "main.h"
+#include "FixedPoint.h"
 #include "Game.h"
 #include "Sound.h"
 #include "RallyData.h"
@@ -1411,4 +1412,42 @@ void FUN_004eabc0(void)
         CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
                           ((CGameInfo::m_gameInfo.field_0x20 & 0xff00) << 8);
     }
+}
+
+// GLOBAL: CMR2 0x00511300
+double g_unk0x00511300;
+// GLOBAL: CMR2 0x0082b1b8
+BYTE g_unk0x0082b1b8;
+// GLOBAL: CMR2 0x0082b1b9
+BYTE g_unk0x0082b1b9;
+// GLOBAL: CMR2 0x0082b1ba
+BYTE g_unk0x0082b1ba;
+// GLOBAL: CMR2 0x0082b1bb
+BYTE g_unk0x0082b1bb;
+
+// Converts the frame delta into the 16.16 sine-index value stored in the
+// 0x82b1b8..0x82b1bb bytes.
+// TODO: CMR2 0x00501ac0 (implemented, match 24%)
+void CGameInfo::FUN_00501ac0(void)
+{
+    int value;
+    int index;
+
+    value = (int)((CMain::GetFrameDelta() % 60) << 16);
+    value = (value << 16) / 0x3c0000;
+    value = (int)(((__int64)value * 0x1680000) >> 16);
+    index = (int)((double)value * g_unk0x00511300);
+    value = g_sinTable[index & 0xfff] + 0x10000;
+    value = (int)(((__int64)value * 0x8000) >> 16);
+    if (value < 0)
+        value = 0;
+    else if (value > 0x10000)
+        value = 0x10000;
+    value = (int)(((__int64)value * 0x7f0000) >> 16);
+    value += 0x800000;
+    g_unk0x0082b1bb = 0xff;
+    value >>= 16;
+    g_unk0x0082b1ba = (BYTE)value;
+    g_unk0x0082b1b9 = (BYTE)value;
+    g_unk0x0082b1b8 = (BYTE)value;
 }
