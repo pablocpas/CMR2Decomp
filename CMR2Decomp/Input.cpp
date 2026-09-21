@@ -1614,7 +1614,7 @@ unsigned short g_unk0x005168f4[0x100];
 // GLOBAL: CMR2 0x00532250
 BYTE g_unk0x00532250[8 * 0x2f0];
 
-// FUNCTION: CMR2 0x0040bc90
+// TODO: CMR2 0x0040bc90 (implemented, match below 90%)
 void CInput::FUN_0040bc90(int param1, DWORD param2)
 {
     int index;

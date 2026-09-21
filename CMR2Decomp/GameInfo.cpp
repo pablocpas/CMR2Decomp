@@ -1261,12 +1261,14 @@ int g_unk0x0082c6c0;
 // GLOBAL: CMR2 0x0082cb44
 int g_unk0x0082cb44;
 
-// FUNCTION: CMR2 0x00505e10
+// TODO: CMR2 0x00505e10 (implemented, match below 90%)
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
+    Unk0x0082c6c8 *pEntry;
+
     if (g_unk0x0082ca1c != 0xff) {
-        if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x4c != 0 ||
-            g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x1c != 0)
+        pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+        if (pEntry->field_0x4c != 0 || pEntry->field_0x1c != 0)
             return 0;
     }
     g_unk0x0082ca1c = param1;

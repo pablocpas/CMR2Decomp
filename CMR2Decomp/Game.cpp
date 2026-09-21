@@ -896,7 +896,7 @@ int FUN_004a1af0(void)
     return 1;
 }
 
-// FUNCTION: CMR2 0x004aac00
+// TODO: CMR2 0x004aac00 (implemented, match below 90%)
 bool FUN_004aac00(void)
 {
     HRESULT hr;
@@ -911,7 +911,7 @@ bool FUN_004aac00(void)
 // GLOBAL: CMR2 0x005a1ea0
 DWORD g_unk0x005a1ea0;
 
-// FUNCTION: CMR2 0x004a1cb0
+// TODO: CMR2 0x004a1cb0 (implemented, match below 90%)
 int FUN_004a1cb0(int param2, int param3)
 {
     IDirectPlay4A *pDP;
@@ -927,18 +927,15 @@ int FUN_004a1cb0(int param2, int param3)
     return 0;
 }
 
-// FUNCTION: CMR2 0x004a1c50
+// TODO: CMR2 0x004a1c50 (implemented, match below 90%)
 int FUN_004a1c50(int param1, int param2, int param3, int param4)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
-    int flag;
-
-    flag = (param2 == 1);
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x68 / 4])(pDP, g_unk0x005a1ea0, param2, flag, param4);
+    hr = ((DPMethod4)(*(void ***)pDP)[0x68 / 4])(pDP, g_unk0x005a1ea0, param2, (param2 == 1), param4);
     if (hr <= (HRESULT)0x8877010e || hr == (HRESULT)0x88770816 || hr != 0)
         return 0;
     return 1;

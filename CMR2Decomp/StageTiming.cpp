@@ -347,7 +347,7 @@ struct Unk0x542ae8 {
 // GLOBAL: CMR2 0x00542ae8
 Unk0x542ae8 g_unk0x00542ae8[32];
 
-// FUNCTION: CMR2 0x00456b70
+// TODO: CMR2 0x00456b70 (implemented, match below 90%)
 bool FUN_00456b70(void)
 {
     int i;
@@ -375,7 +375,7 @@ int g_unk0x0053d1b8[0x100];
 // GLOBAL: CMR2 0x0053e18c
 BYTE g_unk0x0053e18c;
 
-// FUNCTION: CMR2 0x00448630
+// TODO: CMR2 0x00448630 (implemented, match below 90%)
 void FUN_00448630(int index)
 {
     int value;
