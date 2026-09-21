@@ -1,6 +1,7 @@
 #ifndef _SPRITE_H
 #define _SPRITE_H
 
+#include "../third_party/dx7sdk-7001/include/d3d.h"
 #include "Texture.h"
 
 struct SpriteRect {
@@ -43,6 +44,38 @@ extern unsigned int g_spriteCount3;
 // GLOBAL: CMR2 0x0065a968
 extern unsigned int g_spriteCount4;
 
+// Queued 2D triangle (three transformed vertices); four layers of 0x400.
+struct Tri2D {
+    D3DTLVERTEX v[3];
+};
+
+#define TRI2D_LAYER_MAX 0x400
+
+// GLOBAL: CMR2 0x007ad068
+extern Tri2D g_tri2DLayer1[TRI2D_LAYER_MAX];
+// GLOBAL: CMR2 0x0077cfd0
+extern Tri2D g_tri2DLayer2[TRI2D_LAYER_MAX];
+// GLOBAL: CMR2 0x007c5068
+extern Tri2D g_tri2DLayer3[TRI2D_LAYER_MAX];
+// GLOBAL: CMR2 0x00794fd0
+extern Tri2D g_tri2DLayer4[TRI2D_LAYER_MAX];
+// GLOBAL: CMR2 0x00816168
+extern int g_tri2DEnabled;
+// GLOBAL: CMR2 0x0081617c
+extern unsigned int g_tri2DCount1;
+// GLOBAL: CMR2 0x00816180
+extern unsigned int g_tri2DCount2;
+// GLOBAL: CMR2 0x00816184
+extern unsigned int g_tri2DCount3;
+// GLOBAL: CMR2 0x00816188
+extern unsigned int g_tri2DCount4;
+
+void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour);
+void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer);
+void Sprite_Init(void);
+int Sprite_Shutdown(void);
+void Tri2D_Init(void);
+int Tri2D_Shutdown(void);
 void Sprite_Queue(SpriteRect *pSrc, SpriteRect *pDst, Texture *pTexture, int layer, short angleDeg, int *pCentre, SpriteRect *pUv2, BYTE *pColour, int param);
 
 #endif

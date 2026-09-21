@@ -798,10 +798,17 @@ void CGame::FUN_0041f260(void)
     g_unk0x00537f5c = GetCallbackCount();
 }
 
+// FUNCTION: CMR2 0x004aae10
+int FUN_004aae10(void)
+{
+    g_unk0x00665324 = 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004aad50
 void CGame::FUN_004aad50(void)
 {
-    RegisterCallback((void *)0x4aae10, NULL);
+    RegisterCallback(FUN_004aae10, NULL);
     g_unk0x00665324 = 1;
 }
 
@@ -873,6 +880,19 @@ bool FUN_004a14e0(void)
     return true;
 }
 
+// STUB: CMR2 0x004a1850
+void FUN_004a1850(char *shortName, char *longName, DPID dpId)
+{
+}
+
+// IDirectPlay4::EnumPlayers callback of FUN_004a1af0.
+// FUNCTION: CMR2 0x004a1ad0
+BOOL FAR PASCAL FUN_004a1ad0(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName)
+{
+    FUN_004a1850(lpName->lpszShortNameA, lpName->lpszLongNameA, dpId);
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004a1af0
 int FUN_004a1af0(void)
 {
@@ -883,7 +903,7 @@ int FUN_004a1af0(void)
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x30 / 4])(pDP, 0, (DWORD)0x4a1ad0, 0, 0);
+    hr = ((DPMethod4)(*(void ***)pDP)[0x30 / 4])(pDP, 0, (DWORD)FUN_004a1ad0, 0, 0);
     if (hr <= (HRESULT)0x887700fa || hr != 0)
         return 0;
     return 1;

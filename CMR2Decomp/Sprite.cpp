@@ -1,5 +1,7 @@
 #include <windows.h>
 #include "Sprite.h"
+#include "Game.h"
+#include "Graphics.h"
 
 Sprite g_spriteLayer1[SPRITE_LAYER_MAX];
 Sprite g_spriteLayer2[SPRITE_LAYER_MAX];
@@ -9,6 +11,115 @@ unsigned int g_spriteCount1;
 unsigned int g_spriteCount2;
 unsigned int g_spriteCount3;
 unsigned int g_spriteCount4;
+// GLOBAL: CMR2 0x0065a958
+int g_spriteEnabled;
+
+Tri2D g_tri2DLayer1[TRI2D_LAYER_MAX];
+Tri2D g_tri2DLayer2[TRI2D_LAYER_MAX];
+Tri2D g_tri2DLayer3[TRI2D_LAYER_MAX];
+Tri2D g_tri2DLayer4[TRI2D_LAYER_MAX];
+int g_tri2DEnabled;
+unsigned int g_tri2DCount1;
+unsigned int g_tri2DCount2;
+unsigned int g_tri2DCount3;
+unsigned int g_tri2DCount4;
+// GLOBAL: CMR2 0x0081616c
+int g_unk0x0081616c;
+// GLOBAL: CMR2 0x00816170
+int g_unk0x00816170;
+
+// Exit callback of Sprite_Init.
+// FUNCTION: CMR2 0x004a3640
+int Sprite_Shutdown(void)
+{
+    g_spriteEnabled = 0;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004a3260
+void Sprite_Init(void)
+{
+    g_spriteEnabled = 1;
+    g_spriteCount1 = 0;
+    g_spriteCount2 = 0;
+    g_spriteCount3 = 0;
+    g_spriteCount4 = 0;
+    CGame::RegisterCallback(Sprite_Shutdown, NULL);
+}
+
+// Exit callback of Tri2D_Init.
+// FUNCTION: CMR2 0x004bc090
+int Tri2D_Shutdown(void)
+{
+    g_tri2DCount1 = 0;
+    g_tri2DCount2 = 0;
+    g_tri2DCount4 = 0;
+    g_unk0x00816170 = 0;
+    g_unk0x0081616c = 0;
+    g_tri2DEnabled = 0;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004bb610
+void Tri2D_Init(void)
+{
+    g_tri2DEnabled = 1;
+    g_tri2DCount1 = 0;
+    g_tri2DCount2 = 0;
+    g_tri2DCount3 = 0;
+    g_tri2DCount4 = 0;
+    g_unk0x0081616c = 0;
+    g_unk0x00816170 = 0;
+    CGame::RegisterCallback(Tri2D_Shutdown, NULL);
+}
+
+// pPos is a 16.16 screen position; the colour bytes are r, g, b, a.
+// FUNCTION: CMR2 0x004bb800
+void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour)
+{
+    pVertex->sx = (float)(pPos[0] * CGraphics::m_oneOver65536);
+    pVertex->sy = (float)(pPos[1] * CGraphics::m_oneOver65536);
+    pVertex->color = RGBA_MAKE(pColour[0], pColour[1], pColour[2], pColour[3]);
+}
+
+// FUNCTION: CMR2 0x004bb650
+void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer)
+{
+    unsigned int n;
+
+    if (g_tri2DEnabled != 0 && g_tri2DCount4 < TRI2D_LAYER_MAX && g_tri2DCount2 < TRI2D_LAYER_MAX && g_tri2DCount1 < TRI2D_LAYER_MAX) {
+        switch (layer) {
+        case 2:
+            n = g_tri2DCount2;
+            Tri2D_SetVertex(&g_tri2DLayer2[n].v[0], pA, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer2[n].v[1], pB, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer2[n].v[2], pC, pColour);
+            g_tri2DCount2++;
+            break;
+        case 3:
+            n = g_tri2DCount3;
+            Tri2D_SetVertex(&g_tri2DLayer3[n].v[0], pA, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer3[n].v[1], pB, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer3[n].v[2], pC, pColour);
+            g_tri2DCount3++;
+            break;
+        case 4:
+            n = g_tri2DCount4;
+            Tri2D_SetVertex(&g_tri2DLayer4[n].v[0], pA, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer4[n].v[1], pB, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer4[n].v[2], pC, pColour);
+            g_tri2DCount4++;
+            break;
+        default:
+            n = g_tri2DCount1;
+            Tri2D_SetVertex(&g_tri2DLayer1[n].v[0], pA, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer1[n].v[1], pB, pColour);
+            Tri2D_SetVertex(&g_tri2DLayer1[n].v[2], pC, pColour);
+            g_tri2DCount1++;
+            break;
+        }
+    }
+}
 
 // The original repeats the same block for each of the four layers.
 #define QUEUE_SPRITE(arr, count, n)                                             \

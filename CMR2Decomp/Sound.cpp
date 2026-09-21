@@ -1,6 +1,7 @@
+#include "Sprite.h"
+#include "Game.h"
 #include "Sound.h"
 #include "main.h"
-#include "Game.h"
 #include "InstallInfo.h"
 #include "FileBuffer.h"
 
@@ -495,56 +496,6 @@ void CSound::FUN_004a3160(void)
     }
 }
 
-// GLOBAL: CMR2 0x00816168
-int g_unk0x00816168;
-// GLOBAL: CMR2 0x0081617c
-int g_unk0x0081617c;
-// GLOBAL: CMR2 0x00816180
-int g_unk0x00816180;
-// GLOBAL: CMR2 0x00816184
-int g_unk0x00816184;
-// GLOBAL: CMR2 0x00816188
-int g_unk0x00816188;
-// GLOBAL: CMR2 0x0081616c
-int g_unk0x0081616c;
-// GLOBAL: CMR2 0x00816170
-int g_unk0x00816170;
-
-// FUNCTION: CMR2 0x004bb610
-void FUN_004bb610(void)
-{
-    g_unk0x00816168 = 1;
-    g_unk0x0081617c = 0;
-    g_unk0x00816180 = 0;
-    g_unk0x00816184 = 0;
-    g_unk0x00816188 = 0;
-    g_unk0x0081616c = 0;
-    g_unk0x00816170 = 0;
-    CGame::RegisterCallback((void *)0x4bc090, NULL);
-}
-
-// GLOBAL: CMR2 0x0065a958
-int g_unk0x0065a958;
-// GLOBAL: CMR2 0x0065a95c
-int g_unk0x0065a95c;
-// GLOBAL: CMR2 0x0065a960
-int g_unk0x0065a960;
-// GLOBAL: CMR2 0x0065a964
-int g_unk0x0065a964;
-// GLOBAL: CMR2 0x0065a968
-int g_unk0x0065a968;
-
-// FUNCTION: CMR2 0x004a3260
-void FUN_004a3260(void)
-{
-    g_unk0x0065a958 = 1;
-    g_unk0x0065a95c = 0;
-    g_unk0x0065a960 = 0;
-    g_unk0x0065a964 = 0;
-    g_unk0x0065a968 = 0;
-    CGame::RegisterCallback((void *)0x4a3640, NULL);
-}
-
 // GLOBAL: CMR2 0x00730fcc
 int g_unk0x00730fcc;
 // GLOBAL: CMR2 0x00730fc8
@@ -552,13 +503,23 @@ int g_unk0x00730fc8;
 // GLOBAL: CMR2 0x0072f2a0
 int g_unk0x0072f2a0;
 
+// FUNCTION: CMR2 0x004bb5f0
+int FUN_004bb5f0(void)
+{
+    if (g_unk0x00730fcc == 0)
+        return 0;
+    g_unk0x00730fc8 = 0;
+    g_unk0x00730fcc = 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004bb280
 void FUN_004bb280(void)
 {
     if (g_unk0x00730fcc == 0) {
         g_unk0x00730fc8 = 0;
         g_unk0x0072f2a0 = 0;
-        CGame::RegisterCallback((void *)0x4bb5f0, NULL);
+        CGame::RegisterCallback(FUN_004bb5f0, NULL);
         g_unk0x00730fcc = 1;
     }
 }
