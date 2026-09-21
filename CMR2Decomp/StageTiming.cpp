@@ -3,6 +3,7 @@
 #include "TimingUtils.h"
 #include "RallyTiming.h"
 #include "GameInfo.h"
+#include "Game.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
 #include "Mesh.h"
@@ -385,4 +386,30 @@ void FUN_00448630(int index)
     g_unk0x0053e190[GetStageSplitCount() + index * 9] = value;
     g_unk0x0053d1b8[index] = value + 0x4650;
     g_unk0x0053e18c++;
+}
+
+// GLOBAL: CMR2 0x0053aba8
+void *g_unk0x0053aba8[64];
+// GLOBAL: CMR2 0x00428790
+BYTE g_unk0x00428790[1];
+// GLOBAL: CMR2 0x0053c9a4
+void *g_unk0x0053c9a4;
+// GLOBAL: CMR2 0x0053bd68
+int g_unk0x0053bd68;
+
+// Allocates one 0xc24-byte block per slot and registers the 0x428790 callback.
+// FUNCTION: CMR2 0x004287c0
+void FUN_004287c0(int size)
+{
+    BYTE *pBuffer;
+    int i;
+
+    pBuffer = (BYTE *)CFileBuffer::AllocateLockedBuffer(size * 0xc24);
+    g_unk0x0053c9a4 = pBuffer;
+    g_unk0x0053bd68 = size;
+    for (i = 0; i < size; i++) {
+        g_unk0x0053aba8[i] = pBuffer;
+        pBuffer += 0xc24;
+    }
+    CGame::RegisterCallback(g_unk0x00428790, NULL);
 }

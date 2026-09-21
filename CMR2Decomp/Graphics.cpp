@@ -2456,3 +2456,20 @@ Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
         CFileBuffer::FreeGenericFileBuffer(pDDS);
     return pTexture;
 }
+
+// GLOBAL: CMR2 0x008164c8
+int g_unk0x008164c8;
+// GLOBAL: CMR2 0x00816298
+BYTE g_unk0x00816298[0x230];
+
+// FUNCTION: CMR2 0x004bca70
+void FUN_004bca70(short *param1)
+{
+    if (g_unk0x008164c8 != 0)
+        return;
+    CGame::RegisterCallback((void *)0x4bcac0, NULL);
+    if (param1[2] != 0 && param1[3] != 0) {
+        CGraphics::CreateTextureSurface((Texture *)g_unk0x00816298, param1[2], param1[3], 8);
+        g_unk0x008164c8 = 1;
+    }
+}
