@@ -1276,3 +1276,32 @@ int CGameInfo::FUN_00505e10(BYTE param1)
     g_unk0x0082cb44 = 0;
     return 1;
 }
+
+// GLOBAL: CMR2 0x0081a728
+void *g_unk0x0081a728;
+// GLOBAL: CMR2 0x0081a72c
+void *g_unk0x0081a72c;
+// GLOBAL: CMR2 0x0081a730
+void *g_unk0x0081a730;
+// GLOBAL: CMR2 0x0081a734
+void *g_unk0x0081a734;
+
+// FUNCTION: CMR2 0x004f48b0
+bool FUN_004f48b0(void)
+{
+    if (g_unk0x0081a730 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a730);
+        g_unk0x0081a730 = NULL;
+    }
+    if (g_unk0x0081a734 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a734);
+        g_unk0x0081a734 = NULL;
+    }
+    if (g_unk0x0081a72c != NULL)
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081a72c);
+    g_unk0x0081a730 = NULL;
+    g_unk0x0081a734 = NULL;
+    g_unk0x0081a72c = NULL;
+    g_unk0x0081a728 = NULL;
+    return true;
+}
