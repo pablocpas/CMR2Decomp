@@ -17,6 +17,67 @@ unsigned int g_unk0x0052f2b0;
 
 // GLOBAL: CMR2 0x0052f2b4
 unsigned int g_unk0x0052f2b4;
+// GLOBAL: CMR2 0x0052f2b8
+unsigned int g_unk0x0052f2b8;
+// GLOBAL: CMR2 0x0052f2c4
+unsigned int g_unk0x0052f2c4[6];
+// GLOBAL: CMR2 0x0052f2dc
+unsigned int g_unk0x0052f2dc[12];
+// GLOBAL: CMR2 0x0052f30c
+unsigned int g_unk0x0052f30c[48];
+
+// FUNCTION: CMR2 0x00407820
+unsigned int *RallyData_GetChampionshipState(void)
+{
+    return &g_unk0x0052f2b4;
+}
+
+// Decodes the two 5-bit driver indices of the current round; which table
+// they come from depends on the championship stage (bits 3-5).
+// FUNCTION: CMR2 0x00407830
+void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond)
+{
+    switch ((g_unk0x0052f2b4 >> 3) & 7) {
+    case 1:
+        *pFirst = g_unk0x0052f30c[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
+        *pSecond = (g_unk0x0052f30c[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        break;
+    case 2:
+        *pFirst = g_unk0x0052f2dc[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
+        *pSecond = (g_unk0x0052f2dc[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        break;
+    case 3:
+        *pFirst = g_unk0x0052f2c4[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
+        *pSecond = (g_unk0x0052f2c4[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        break;
+    case 4:
+        *pFirst = g_unk0x0052f2b8 & 0x1f;
+        *pSecond = (g_unk0x0052f2b8 >> 5) & 0x1f;
+        break;
+    }
+}
+
+// FUNCTION: CMR2 0x004070f0
+int RallyData_FUN_004070f0(void)
+{
+    unsigned int drivers[2];
+
+    if (CGameInfo::FUN_00405d80() == 4) {
+        RallyData_GetChampionshipState();
+        RallyData_GetRoundDrivers(&drivers[0], &drivers[1]);
+        if (drivers[0] != drivers[1] && RallyData_FUN_00408500(drivers[0]) == -1 && RallyData_FUN_00408500(drivers[1]) == -1)
+            return 1;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x00411880
+int RallyData_FUN_00411880(void)
+{
+    if (((BYTE)RallyDataState() > 1 && CGameInfo::FUN_00405da0() == 0 && CGameInfo::FUN_00405d80() != 4) || RallyData_FUN_004070f0() != 0)
+        return 1;
+    return 0;
+}
 
 // FUNCTION: CMR2 0x00406910
 unsigned int RallyDataCountryIndex(void)
@@ -504,20 +565,40 @@ int RallyData_FUN_00421470(BYTE *p)
 
 // GLOBAL: CMR2 0x0052f3e0
 BYTE g_unk0x0052f3e0[8 * 196];
+// Per-category records of 0x650 bytes (runs up to the 0x531350 table).
+// GLOBAL: CMR2 0x0052fa18
+BYTE g_unk0x0052fa18[0x1938];
+
+// Record of the selected entry: the 196-byte entry in championship mode
+// (mode 4), otherwise the 0x650-byte category record (NULL when the
+// category nibble is 15).
+// FUNCTION: CMR2 0x00408400
+void *RallyData_GetRecord(unsigned int index)
+{
+    unsigned int category;
+
+    if (CGameInfo::FUN_00405d80() == 4)
+        return g_unk0x0052f3e0 + (index & 0xff) * 196;
+    RallyData_ValidateIndex(index & 0xff);
+    category = (*(unsigned int *)(g_unk0x00531350 + (index & 0xff) * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return g_unk0x0052fa18 + category * 0x650;
+    return NULL;
+}
 
 // Returns the 4-bit category of the record, or -1 when it is not usable.
-// TODO: CMR2 0x00408500 (implemented, match 48%)
-int RallyData_FUN_00408500(int param1)
+// FUNCTION: CMR2 0x00408500
+char RallyData_FUN_00408500(unsigned int param1)
 {
-    int index;
+    unsigned int index;
 
-    index = param1 & 0xff;
     if (CGameInfo::FUN_00405d80() == 4) {
-        if (strcmp((char *)(g_unk0x0052f3e0 + index * 196), CMain::m_logFileBlankLine) != 0 &&
-            index < 8)
+        index = param1 & 0xff;
+        if (strcmp((char *)(g_unk0x0052f3e0 + index * 196), CMain::m_logFileBlankLine) != 0 && (BYTE)param1 < 8)
             return -1;
-    } else if ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) & 0x2000) != 0) {
-        return -1;
+        return (char)((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0xe) & 0xf);
     }
-    return (int)((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0xe) & 0xf);
+    if ((*(unsigned int *)(g_unk0x00531350 + (param1 & 0xff) * 0x30) & 0x2000) != 0)
+        return -1;
+    return (char)((*(unsigned int *)(g_unk0x00531350 + (param1 & 0xff) * 0x30) >> 0xe) & 0xf);
 }

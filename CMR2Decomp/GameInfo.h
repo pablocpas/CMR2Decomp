@@ -100,6 +100,7 @@ struct FixInterp {
 
 void FixInterp_StartToOne(FixInterp *p);
 void FixInterp_StartToZero(FixInterp *p);
+BYTE *FUN_00502500(void);
 
 class CGameInfo
 {

@@ -1558,3 +1558,12 @@ void FixInterp_StartToZero(FixInterp *p)
         p->startTime = CMain::GetFrameDelta();
     }
 }
+
+// GLOBAL: CMR2 0x0082b668
+BYTE g_unk0x0082b668[0x40];
+
+// FUNCTION: CMR2 0x00502500
+BYTE *FUN_00502500(void)
+{
+    return g_unk0x0082b668;
+}
