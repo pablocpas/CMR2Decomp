@@ -457,3 +457,45 @@ void FUN_00494b50(int count)
     g_unk0x00592738 = count;
     CGame::RegisterCallback(g_unk0x00494b10, NULL);
 }
+
+// GLOBAL: CMR2 0x00547ac8
+void *g_unk0x00547ac8;
+// GLOBAL: CMR2 0x00543ecc
+void *g_unk0x00543ecc;
+// GLOBAL: CMR2 0x00543eb8
+void *g_unk0x00543eb8;
+// GLOBAL: CMR2 0x00547acc
+BYTE g_unk0x00547acc;
+// GLOBAL: CMR2 0x0045e560
+BYTE g_unk0x0045e560[1];
+
+// FUNCTION: CMR2 0x0045e5b0
+void FUN_0045e5b0(int count)
+{
+    g_unk0x00547ac8 = CFileBuffer::AllocateLockedBuffer(count * 376);
+    g_unk0x00543ecc = CFileBuffer::AllocateLockedBuffer(count * 12);
+    g_unk0x00543eb8 = CFileBuffer::AllocateLockedBuffer(count * 44);
+    g_unk0x00547acc = (BYTE)count;
+    CGame::RegisterCallback(g_unk0x0045e560, NULL);
+}
+
+// FUNCTION: CMR2 0x00465ec0
+void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
+{
+    BYTE rgb[4];
+    Mesh *pMesh;
+
+    rgb[0] = 0x80;
+    rgb[1] = 0x80;
+    rgb[2] = 0x80;
+    rgb[3] = 0;
+    if (pNode->type != 0)
+        return;
+    pMesh = (Mesh *)pNode->pObject;
+    if (pMesh == NULL)
+        return;
+    *(int *)((char *)pMesh + 0x30) |= 0x40008;
+    Mesh_SetVertexAlpha(pMesh, (BYTE)alpha);
+    if (checkFlag != 0)
+        Mesh_SetVertexColours(pMesh, rgb);
+}
