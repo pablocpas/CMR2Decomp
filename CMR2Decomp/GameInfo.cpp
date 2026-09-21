@@ -1343,3 +1343,29 @@ void FUN_004f2b00(BYTE *p)
     CInput::FUN_0049ffc0(v / 4);
     CSound::FUN_004a28c0();
 }
+
+// GLOBAL: CMR2 0x0081b14c
+void *g_unk0x0081b14c;
+// GLOBAL: CMR2 0x0081b150
+void **g_unk0x0081b150;
+// GLOBAL: CMR2 0x0081b154
+int g_unk0x0081b154;
+
+// TODO: CMR2 0x004f4e80 (implemented, match 50%)
+bool FUN_004f4e80(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x0081b154; i++) {
+        if (g_unk0x0081b150[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0081b150[i]);
+            g_unk0x0081b150[i] = NULL;
+        }
+    }
+    if (g_unk0x0081b14c != NULL)
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081b14c);
+    g_unk0x0081b14c = NULL;
+    g_unk0x0081b150 = NULL;
+    g_unk0x0081b154 = 0;
+    return true;
+}

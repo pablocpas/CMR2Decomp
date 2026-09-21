@@ -520,3 +520,26 @@ void FUN_00456960(int *pDeltas)
         }
     }
 }
+
+// GLOBAL: CMR2 0x00590d7c
+void *g_unk0x00590d7c[4];
+// GLOBAL: CMR2 0x00590c64
+int g_unk0x00590c64;
+// GLOBAL: CMR2 0x00590c6c
+void **g_unk0x00590c6c;
+// GLOBAL: CMR2 0x00480870
+BYTE g_unk0x00480870[1];
+
+// FUNCTION: CMR2 0x00480900
+void FUN_00480900(int count)
+{
+    int i;
+
+    for (i = 0; i < 4; i++)
+        g_unk0x00590d7c[i] = CFileBuffer::AllocateLockedBuffer(count * 416);
+    g_unk0x00590c6c = (void **)CFileBuffer::AllocateLockedBuffer(count * 4);
+    for (i = 0; i < count; i++)
+        g_unk0x00590c6c[i] = CFileBuffer::AllocateLockedBuffer(0xb4);
+    g_unk0x00590c64 = count;
+    CGame::RegisterCallback(g_unk0x00480870, NULL);
+}
