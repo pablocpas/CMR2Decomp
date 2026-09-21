@@ -732,3 +732,71 @@ void FUN_00445df0(int ratio)
         } while (i < (RallyDataState() & 0xff));
     }
 }
+
+// GLOBAL: CMR2 0x00542420
+int g_unk0x00542420[2];
+// GLOBAL: CMR2 0x00542528
+BYTE g_unk0x00542528[0x100];
+// GLOBAL: CMR2 0x005113b0
+double g_unk0x005113b0;
+// GLOBAL: CMR2 0x005113a8
+double g_unk0x005113a8;
+
+// Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
+// TODO: CMR2 0x00456a40 (implemented, match 47%)
+void FUN_00456a40(int param1, int param2)
+{
+    int *pRec;
+    int time;
+    int i;
+    int value;
+
+    time = StageTiming_GetCurrentSplitTimeForDriver(param2);
+    pRec = (int *)(g_unk0x00542528 + param1 * 24);
+    for (i = 0; i < 2; i++) {
+        pRec = (int *)(g_unk0x00542528 + param1 * 24 + i * 12);
+        value = time - g_unk0x00542420[i];
+        if (value < 0)
+            value = 0;
+        value = value / 4;
+        pRec[1] = value;
+        if (value != 0) {
+            pRec[0] = (g_unk0x00542420[i] / 4) / value;
+            if (pRec[0] < 10)
+                pRec[0] = 10;
+        }
+        *(float *)((char *)pRec + 8) =
+            (float)(g_unk0x005113a8 /
+                    ((double)time / (double)g_unk0x00542420[i] * g_unk0x005113b0));
+    }
+}
+
+// GLOBAL: CMR2 0x0051bd3c
+int g_unk0x0051bd3c;
+
+// Marca el nodo como "sucio" en las etapas especiales y ajusta su 0x64.
+// TODO: CMR2 0x0045e9a0 (implemented, match 59%)
+void FUN_0045e9a0(SceneNode *pNode)
+{
+    int delta;
+
+    *(int *)((char *)pNode + 0x174) = 0;
+    if (RallyDataCountryIndex() == 6 && RallyDataStageIndex() == 0 &&
+        *(int *)((char *)pNode + 0x6c) > 0x66 &&
+        *(int *)((char *)pNode + 0x6c) < 0x6d)
+        *(int *)((char *)pNode + 0x174) = 1;
+    if (RallyDataCountryIndex() == 7 && RallyDataStageIndex() == 2 &&
+        *(int *)((char *)pNode + 0x6c) > 0x1d5 &&
+        *(int *)((char *)pNode + 0x6c) < 0x1d8)
+        *(int *)((char *)pNode + 0x174) = 1;
+    delta = (int)(((__int64)0x3333 * g_unk0x0051bd3c) >> 16);
+    if (*(int *)((char *)pNode + 0x174) != 0) {
+        *(int *)((char *)pNode + 0x64) -= delta;
+        if (*(int *)((char *)pNode + 0x64) < 0)
+            *(int *)((char *)pNode + 0x64) = 0;
+    } else {
+        *(int *)((char *)pNode + 0x64) += delta;
+        if (*(int *)((char *)pNode + 0x64) > 0x10000)
+            *(int *)((char *)pNode + 0x64) = 0x10000;
+    }
+}
