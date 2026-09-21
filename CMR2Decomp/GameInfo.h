@@ -249,8 +249,6 @@ public:
     // GLOBAL: CMR2 0x0059fa20
     static BOOL m_unk0x0059fa20[400];
 
-    // GLOBAL: CMR2 0x00664650
-    static char m_unk0x00664650[256];
 };
 
 #endif

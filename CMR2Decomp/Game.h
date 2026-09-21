@@ -36,18 +36,6 @@ struct Unk0x005a1820 {
     unsigned int field_0xcc;
 };
 
-struct Unk0x00664750 {
-	void* field_0x0;
-	void* field_0x4;
-	unsigned short field_0x8;
-	unsigned short field_0xa;
-	void* field_0xc;
-    void* field_0x10;
-	char field_0x14;
-	BYTE field_0x15;
-	BYTE field_0x16[254];
-};
-
 // GLOBAL: CMR2 0x00511a28
 // CLSID_DirectPlay
 
@@ -60,9 +48,35 @@ struct Unk0x00664750 {
 // GLOBAL: CMR2 0x00511ad8
 // IID_IDirectPlayLobby3A
 
+struct DPlayConnection {
+    char name[256];
+    void *pConnection;
+    GUID guidSP;
+};
+
 class CGame
 {
 public:
+    static BOOL IsActive(void);
+    static void FUN_004a9b10(int param1);
+    static int FUN_004a9b20(void);
+    static bool CreateDirectPlay(void);
+    static bool CreateDirectPlayLobby(void);
+    static void ClearConnections(void);
+    static void AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP);
+    static int __cdecl CompareConnections(const void *a, const void *b);
+    static unsigned int GetConnectionCount(void);
+    static DPlayConnection *GetConnection(BYTE index);
+    static bool FUN_004aad30(void);
+
+    // GLOBAL: CMR2 0x00663dc4
+    static int m_unk0x00663dc4;
+    // GLOBAL: CMR2 0x00664650
+    static DPlayConnection m_connections[10];
+    // GLOBAL: CMR2 0x00665118
+    static BYTE m_maxConnections;
+    // GLOBAL: CMR2 0x00665119
+    static BYTE m_connectionCount;
     static void SetShouldExit(void);
     static BOOL FUN_004d0780(void);
     static int FUN_004057d0(void);
@@ -104,7 +118,10 @@ public:
     static int m_unk0x00523c58;
     // GLOBAL: CMR2 0x00523c5c
     static int m_unk0x00523c5c;
-    // GLOBAL: CMR2 0x0052ea4c
+    // GLOBAL: CMR2 0x00511a38
+// DPSPGUID_TCPIP
+
+// GLOBAL: CMR2 0x0052ea4c
     static int m_unk0x0052ea4c;
     // GLOBAL: CMR2 0x0052ea51
     static BYTE m_unk0x0052ea51;
@@ -175,11 +192,7 @@ public:
     // GLOBAL: CMR2 0x005a1fbc
     static BOOL m_unk0x005a1fbc;
 
-    // GLOBAL: CMR2 0x00664750
-    static Unk0x00664750 m_unk0x00664750[10];
     
-    // GLOBAL: CMR2 0x00665218
-    static int m_unk0x00665218;
     
     // GLOBAL: CMR2 0x00532138
     static BOOL m_unk0x00532138;

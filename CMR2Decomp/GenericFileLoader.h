@@ -23,6 +23,10 @@ public:
     static bool FUN_004a9c30(char *fileName, GenericFile *param_2);
     static int GetGenericFileSize(void);
     static GenericFile* GetGenericFile(void);
+    static void *FindFileInArchive(GenericFile *pFile, char *name, DWORD *pId);
+    static void GetFileNameFromPath(char *path, char *out);
+    static BYTE *StrUpperPolish(BYTE *str);
+    static char *StrLowerPolish(char *str);
 };
 
 #endif

@@ -11,6 +11,20 @@ public:
     static LRESULT MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     static void FUN_0049c130(void);
     static int GetFrameTime(void);
+    static void UpdateFrameTime(void);
+    static unsigned int GetFrameDelta(void);
+    static bool ResetFrameDelta(void);
+
+    // GLOBAL: CMR2 0x00663ecc
+    static BOOL m_frameDeltaInitialised;
+    // GLOBAL: CMR2 0x00663ed0
+    static unsigned int m_frameDeltaStart;
+    // GLOBAL: CMR2 0x00663ed4
+    static unsigned int m_frameDeltaLast;
+    // GLOBAL: CMR2 0x00663ed8
+    static unsigned int m_frameDelta;
+    // GLOBAL: CMR2 0x00663edc
+    static unsigned int m_frameDeltaMax;
 
     // GLOBAL: CMR2 0x00663ee0
     static int m_frameTime;

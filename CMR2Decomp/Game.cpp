@@ -11,10 +11,16 @@
 #include "Texture.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
+int CGame::m_unk0x00663dc4;
+DPlayConnection CGame::m_connections[10];
+BYTE CGame::m_maxConnections = 10;
+BYTE CGame::m_connectionCount;
 int CGame::m_unk0x00523c58 = -1;
 int CGame::m_unk0x00523c5c = -1;
 Unk0049c2c0 CGame::m_unk0x00817da0;
@@ -54,8 +60,6 @@ IDirectPlayLobby3A *CGame::m_pDirectPlayLobby3A;
 BOOL CGame::m_unk0x005a1fbc;
 void *CGame::m_unk0x005a1fb8;
 
-Unk0x00664750 CGame::m_unk0x00664750[10];
-int CGame::m_unk0x00665218;
 BOOL CGame::m_unk0x00532138 = FALSE;
 
 
@@ -411,15 +415,14 @@ BOOL CGame::FUN_004a1a90(void) {
 
 // FUNCTION: CMR2 0x004aaa10
 void CGame::FUN_004aaa10(void) {
-    Unk0x00664750* puVar1;
-    puVar1 = m_unk0x00664750;
-    do {
-        if (puVar1->field_0x0 != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(puVar1->field_0x0);
-            puVar1->field_0x0 = NULL;
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        if (m_connections[i].pConnection != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_connections[i].pConnection);
+            m_connections[i].pConnection = NULL;
         }
-        puVar1++;
-    } while ((int)puVar1 < (int)&m_unk0x00665218);
+    }
 }
 
 // FUNCTION: CMR2 0x004aaac0
@@ -457,7 +460,7 @@ IDirectPlay4A* CGame::GetDirectPlay(void) {
 
 // FUNCTION: CMR2 0x004aaa40
 bool CGame::FUN_004aaa40(void) {
-    Unk0x00664750 *puVar1;
+    int i;
 
     m_pDirectPlay4A = NULL;
     m_pDirectPlayLobby3A = NULL;
@@ -466,14 +469,12 @@ bool CGame::FUN_004aaa40(void) {
     FUN_004a17f0(true);
     FUN_004a17b0();
     
-    puVar1 = m_unk0x00664750;
-    do {
-        sprintf((char*)&puVar1[-1].field_0x14, CMain::m_logFileBlankLine);
-        puVar1->field_0x0 = NULL;
-        puVar1++;
-    } while ((int)puVar1 < (int)&m_unk0x00665218);
+    for (i = 0; i < 10; i++) {
+        sprintf(m_connections[i].name, CMain::m_logFileBlankLine);
+        m_connections[i].pConnection = NULL;
+    }
 
-    m_unk0x00664750[9].field_0x15 = '\0';
+    m_connectionCount = 0;
     CoInitialize(NULL);
 
     RegisterCallback(Cleanup, NULL);
@@ -560,3 +561,118 @@ void CGame::FUN_004e2e50(void) {
     CFrontend::FUN_004d2590();
 }
 
+// FUNCTION: CMR2 0x004a9b00
+BOOL CGame::IsActive(void)
+{
+    return m_isActive;
+}
+
+// FUNCTION: CMR2 0x004a9b10
+void CGame::FUN_004a9b10(int param1)
+{
+    m_unk0x00663dc4 = param1;
+}
+
+// FUNCTION: CMR2 0x004a9b20
+int CGame::FUN_004a9b20(void)
+{
+    return m_unk0x00663dc4;
+}
+
+// FUNCTION: CMR2 0x004aaaf0
+bool CGame::CreateDirectPlay(void)
+{
+    HRESULT hr;
+    LPVOID pInterface;
+
+    pInterface = NULL;
+    hr = CoCreateInstance(CLSID_DirectPlay, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlay4A, &pInterface);
+    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
+        m_pDirectPlay4A = (IDirectPlay4A *)pInterface;
+        return true;
+    }
+    return false;
+}
+
+// FUNCTION: CMR2 0x004aab60
+bool CGame::CreateDirectPlayLobby(void)
+{
+    HRESULT hr;
+    LPVOID pInterface;
+
+    pInterface = NULL;
+    hr = CoCreateInstance(CLSID_DirectPlayLobby, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlayLobby3A, &pInterface);
+    if (hr != CLASS_E_NOAGGREGATION && hr != REGDB_E_CLASSNOTREG && hr == S_OK) {
+        m_pDirectPlayLobby3A = (IDirectPlayLobby3A *)pInterface;
+        return true;
+    }
+    return false;
+}
+
+// FUNCTION: CMR2 0x004aa8e0
+int __cdecl CGame::CompareConnections(const void *a, const void *b)
+{
+    if (((DPlayConnection *)a)->guidSP == DPSPGUID_TCPIP)
+        return -1;
+    return ((DPlayConnection *)b)->guidSP == DPSPGUID_TCPIP;
+}
+
+// FUNCTION: CMR2 0x004aa880
+void CGame::ClearConnections(void)
+{
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        sprintf(m_connections[i].name, CMain::m_logFileBlankLine);
+        if (m_connections[i].pConnection != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_connections[i].pConnection);
+            m_connections[i].pConnection = NULL;
+        }
+        m_connections[i].pConnection = NULL;
+        m_connections[i].guidSP.Data1 = 0;
+        m_connections[i].guidSP.Data2 = 0;
+        m_connections[i].guidSP.Data3 = 0;
+        *(DWORD *)&m_connections[i].guidSP.Data4[0] = 0;
+        *(DWORD *)&m_connections[i].guidSP.Data4[4] = 0;
+    }
+    m_connectionCount = 0;
+    m_maxConnections = 10;
+}
+
+// FUNCTION: CMR2 0x004aa930
+void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP)
+{
+    void *pCopy;
+
+    if (m_connectionCount < 10) {
+        strcpy(m_connections[m_connectionCount].name, name);
+        m_connections[m_connectionCount].guidSP = *pGuidSP;
+        pCopy = CFileBuffer::AllocateLockedBuffer(size);
+        m_connections[m_connectionCount].pConnection = pCopy;
+        if (pCopy != NULL) {
+            memcpy(pCopy, pConnection, size);
+            m_connectionCount++;
+        }
+    }
+    qsort(m_connections, m_connectionCount, sizeof(DPlayConnection), CompareConnections);
+}
+
+// FUNCTION: CMR2 0x004aacf0
+unsigned int CGame::GetConnectionCount(void)
+{
+    return m_connectionCount;
+}
+
+// FUNCTION: CMR2 0x004aad00
+DPlayConnection *CGame::GetConnection(BYTE index)
+{
+    if (index < m_connectionCount)
+        return &m_connections[index];
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004aad30
+bool CGame::FUN_004aad30(void)
+{
+    return false;
+}

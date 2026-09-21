@@ -56,7 +56,6 @@ BOOL CGameInfo::m_unk0x005a0060;
 HRESULT CGameInfo::m_unk0x005a1814;
 BYTE CGameInfo::m_unk0x005a01bc;
 BOOL CGameInfo::m_unk0x0059fa20[400];
-char CGameInfo::m_unk0x00664650[256];
 
 // FUNCTION: CMR2 0x004057f0
 unsigned char CGameInfo::GetGameLanguage(void)
