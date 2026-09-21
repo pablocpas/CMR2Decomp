@@ -19,7 +19,10 @@ struct Car {
     FixVector right;                  // 0x360  body axes (rows of the body matrix)
     FixVector up;                     // 0x36c
     FixVector forward;                // 0x378
-    BYTE field_0x384[0x84];
+    BYTE field_0x384[0xc];
+    FixVector targetUp;               // 0x390  up/forward the body relaxes towards
+    FixVector targetForward;          // 0x39c
+    BYTE field_0x3a8[0x60];
     FixVector velocity;               // 0x408
     BYTE field_0x414[0x10];
     int field_0x424;                  // 0x424
@@ -50,7 +53,11 @@ struct Car {
     int steer;                        // 0x778
     BYTE field_0x77c[0xa0];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0x168];
+    BYTE field_0x820[0xfc];
+    int field_0x91c;                  // 0x91c
+    int field_0x920;                  // 0x920
+    int field_0x924;                  // 0x924
+    BYTE field_0x928[0x60];
     int wheel0x988[4];                // 0x988
     BYTE field_0x998[0x10];
     int wheel0x9a8[4];                // 0x9a8
@@ -109,5 +116,6 @@ void Car_UpdateBodyAxes(void);
 void Car_UpdateBodyAxesNoDamping(void);
 void Car_StoreBodyMatrix(void);
 void Car_UpdateBodyMatrix(void);
+void Car_RelaxBodyAxes(int bFast);
 
 #endif

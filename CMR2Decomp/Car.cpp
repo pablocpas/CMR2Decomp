@@ -697,3 +697,96 @@ void Car_UpdateBodyMatrix(void)
     FixMatrix_SetForward(&forward, g_pCurrentCar->pBodyMatrix);
     FixMatrix_SetPosition(&a, g_pCurrentCar->pBodyMatrix);
 }
+
+// Normalises a body axis of g_pCurrentCar in place through a pointer.
+#define CAR_NORMALIZE_AXIS(field)                                                   \
+    {                                                                               \
+        FixVector *pAxis = &g_pCurrentCar->field;                                   \
+        FixVector *pSrc = pAxis;                                                    \
+        int len = FixVecLength(pSrc);                                               \
+        if (len == 0) {                                                             \
+            pAxis->x = 0;                                                           \
+            pAxis->y = 0;                                                           \
+            pAxis->z = 0;                                                           \
+        } else {                                                                    \
+            FixVecScaleRecip(pAxis, pSrc, len);                                     \
+        }                                                                           \
+    }
+
+// Relaxes the body up and forward vectors of g_pCurrentCar towards their
+// targets (0x390/0x39c) with a rate that grows with the distance, then
+// re-orthogonalises the basis and writes it to the world matrix.
+// bFast selects the faster blend rates.
+// FUNCTION: CMR2 0x00431220
+void Car_RelaxBodyAxes(int bFast)
+{
+    int rateMin;
+    int rateRange;
+    int gain;
+    FixVector diff;
+    FixVector proj;
+    int len;
+    int t;
+    int d;
+
+    if (bFast != 0) {
+        rateMin = 0x8000;
+        rateRange = 0x8000;
+    } else {
+        rateMin = 0x1999;
+        rateRange = 0x4ccc;
+    }
+    gain = FixMul(0xc0000, g_physicsTimeStep);
+
+    if (FIX_ABS(g_pCurrentCar->field_0x920) > 0xfae1) {
+        diff.x = g_pCurrentCar->up.x - g_pCurrentCar->targetUp.x;
+        diff.y = g_pCurrentCar->up.y - g_pCurrentCar->targetUp.y;
+        diff.z = g_pCurrentCar->up.z - g_pCurrentCar->targetUp.z;
+        len = FixVecLength(&diff);
+        if (len > 0) {
+            t = FixMul(len, gain);
+            if (t > 0x10000)
+                t = 0x10000;
+            FixVecScale(&diff, &diff, FixMul(t, rateRange) + rateMin);
+            g_pCurrentCar->up.x = g_pCurrentCar->targetUp.x + diff.x;
+            g_pCurrentCar->up.y = g_pCurrentCar->targetUp.y + diff.y;
+            g_pCurrentCar->up.z = g_pCurrentCar->targetUp.z + diff.z;
+            CAR_NORMALIZE_AXIS(up)
+        }
+    }
+
+    if (FIX_ABS(g_pCurrentCar->field_0x924) > 0x3333 && FIX_ABS(g_pCurrentCar->field_0x91c) < 0x1999) {
+        diff.x = g_pCurrentCar->forward.x - g_pCurrentCar->targetForward.x;
+        diff.y = g_pCurrentCar->forward.y - g_pCurrentCar->targetForward.y;
+        diff.z = g_pCurrentCar->forward.z - g_pCurrentCar->targetForward.z;
+        d = FixVecDot(&diff, &g_pCurrentCar->up);
+        FixVecScale(&proj, &g_pCurrentCar->up, d);
+        diff.x = diff.x - proj.x;
+        diff.y = diff.y - proj.y;
+        diff.z = diff.z - proj.z;
+        len = FixVecLength(&diff);
+        if (len > 0) {
+            t = FixMul(len, gain);
+            if (t > 0x10000)
+                t = 0x10000;
+            FixVecScale(&diff, &diff, (FixMul(t, rateRange) - 0x10000) + rateMin);
+            g_pCurrentCar->forward.x = g_pCurrentCar->forward.x + diff.x;
+            g_pCurrentCar->forward.y = g_pCurrentCar->forward.y + diff.y;
+            g_pCurrentCar->forward.z = g_pCurrentCar->forward.z + diff.z;
+            CAR_NORMALIZE_AXIS(forward)
+        }
+    }
+
+    d = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->forward);
+    FixVecScale(&diff, &g_pCurrentCar->up, d);
+    g_pCurrentCar->forward.x = g_pCurrentCar->forward.x - diff.x;
+    g_pCurrentCar->forward.y = g_pCurrentCar->forward.y - diff.y;
+    g_pCurrentCar->forward.z = g_pCurrentCar->forward.z - diff.z;
+    CAR_NORMALIZE_AXIS(forward)
+    FixVecCross(&g_pCurrentCar->right, &g_pCurrentCar->up, &g_pCurrentCar->forward);
+    CAR_NORMALIZE_AXIS(right)
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+}
