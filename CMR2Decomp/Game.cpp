@@ -79,7 +79,7 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
 // FUNCTION: CMR2 0x004a9a40
 void CGame::SetShouldExit(void)
 {
-    // m_shouldExit = TRUE;
+    m_shouldExit = TRUE;
 }
 
 // STUB: CMR2 0x004b7a40
@@ -303,7 +303,7 @@ void CGame::FUN_0049c150(Unk00817d98 *param1, int param2, int param3)
 {
     param1->field0x2 = 0;
     param1->field0x1 =
-        (param1->field0x1 >> 8 & 0xfc0000) << 8 | param2 & 0xffU | (param3 & 0xffU) << 8;
+        (param1->field0x1 & 0xfc000000) | (param2 & 0xffU) | ((param3 & 0xffU) << 8);
 }
 
 // FUNCTION: CMR2 0x0049c190
@@ -314,8 +314,31 @@ void CGame::FUN_0049c190(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTabl
     p1->funcLookupTable = funcLookupTable;
     p1->unk2 = unk2;
 }
-// STUB: CMR2 0x004ff450
-BOOL CGame::FUN_004ff450() { return FALSE; }
+// GLOBAL: CMR2 0x0082a7f0
+Unk0049c2c0 g_unk0x0082a7f0;
+// GLOBAL: CMR2 0x0082a800
+Unk00817d98 g_unk0x0082a800;
+// GLOBAL: CMR2 0x0082a908
+BYTE g_unk0x0082a908;
+// GLOBAL: CMR2 0x00526ee0
+FuncTableGroup g_unk0x00526ee0[7];
+// GLOBAL: CMR2 0x00526f18
+void *g_unk0x00526f18;
+
+// FUNCTION: CMR2 0x004ff450
+BOOL CGame::FUN_004ff450()
+{
+    if (g_unk0x0082a908 != 0) {
+        FUN_0049c2c0(&g_unk0x0082a7f0);
+        FUN_0049c310(&g_unk0x0082a7f0);
+        FUN_0049c370(&g_unk0x0082a7f0);
+        return FALSE;
+    }
+    FUN_0049c150(&g_unk0x0082a800, 0, 0xFF);
+    FUN_0049c190(&g_unk0x0082a7f0, 1, &g_unk0x0082a800, g_unk0x00526ee0, &g_unk0x00526f18);
+    g_unk0x0082a908 = 1;
+    return FALSE;
+}
 // STUB: CMR2 0x0041b060
 BOOL CGame::FUN_0041b060() { return FALSE; }
 
@@ -668,7 +691,10 @@ void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID
 // FUNCTION: CMR2 0x004aacf0
 unsigned int CGame::GetConnectionCount(void)
 {
-    return m_connectionCount;
+    unsigned int count = 0;
+
+    count = m_connectionCount;
+    return count;
 }
 
 // FUNCTION: CMR2 0x004aad00
@@ -680,7 +706,7 @@ DPlayConnection *CGame::GetConnection(BYTE index)
 }
 
 // FUNCTION: CMR2 0x004aad30
-bool CGame::FUN_004aad30(void)
+bool CGame::FUN_004aad30(int param1, int param2, int param3)
 {
     return false;
 }

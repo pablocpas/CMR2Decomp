@@ -81,7 +81,7 @@ HRESULT CSound::StopDirectSoundBuffer(void) {
 
 // FUNCTION: CMR2 0x004a3250
 bool CSound::FUN_004a3250(HRESULT param_1) {
-    return -1 < param_1;
+    return param_1 >= 0;
 }
 
 // FUNCTION: CMR2 0x004bd960

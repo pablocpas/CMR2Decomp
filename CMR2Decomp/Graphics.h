@@ -1306,7 +1306,7 @@ private:
     // GLOBAL: CMR2 0x0065aa88
     static LockedTexture m_lockedTextures[7];
     // GLOBAL: CMR2 0x0065aee8
-    static Unk0x0065aee8 m_unk0x0065aee8[40];
+    static Unk0x0065aee8 m_unk0x0065aee8[64];
     // GLOBAL: CMR2 0x00520b2c
     static unsigned int m_unk0x00520b2c;
     // GLOBAL: CMR2 0x00520b30

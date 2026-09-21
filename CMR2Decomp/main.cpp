@@ -200,9 +200,10 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
-// STUB: CMR2 0x0049c130
+// FUNCTION: CMR2 0x0049c130
 void CMain::FUN_0049c130(void)
 {
+	CGame::UnwindCallbacks(0);
 }
 
 // FUNCTION: CMR2 0x004a9b60

@@ -28,7 +28,7 @@ unsigned int CGraphics::m_unk0x0065fa2c;
 unsigned int CGraphics::m_textureCount;
 unsigned int CGraphics::m_lockedTextureCount;
 LockedTexture CGraphics::m_lockedTextures[7];
-Unk0x0065aee8 CGraphics::m_unk0x0065aee8[40];
+Unk0x0065aee8 CGraphics::m_unk0x0065aee8[64];
 unsigned int CGraphics::m_unk0x00520b2c = 0xff;
 unsigned int CGraphics::m_unk0x00520b30 = 0xff;
 int CGraphics::m_unk0x0065fa44;
@@ -265,9 +265,22 @@ BOOL CGraphics::ReleaseDirect3D(void)
     return TRUE;
 }
 
-// STUB: CMR2 0x004a5ba0
-void CGraphics::FUN_004a5ba0(void) {
+// GLOBAL: CMR2 0x0065fa30
+unsigned int g_unk0x0065fa30;
 
+// Releases the 64 cached surfaces held by m_unk0x0065aee8.
+// FUNCTION: CMR2 0x004a5ba0
+void CGraphics::FUN_004a5ba0(void)
+{
+    int i;
+
+    for (i = 0; i < 64; i++) {
+        if (m_unk0x0065aee8[i].pSurface != NULL) {
+            if (m_unk0x0065aee8[i].pSurface->Release() == 0)
+                m_unk0x0065aee8[i].pSurface = NULL;
+        }
+    }
+    g_unk0x0065fa30 = 0;
 }
 
 // FUNCTION: CMR2 0x004b1de0
@@ -1656,14 +1669,78 @@ void CGraphics::SelectTextureFormats(void)
     }
 }
 
-// STUB: CMR2 0x004b1980
+// Allocates the shared vertex buffers: 100 small ones plus three larger
+// ones, bumping the vertex memory counter after each allocation.
+// FUNCTION: CMR2 0x004b1980
 void CGraphics::FUN_004b1980(void)
 {
+    D3DVERTEXBUFFERDESC desc;
+    int i;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = 0x10;
+    desc.dwCaps = 0x10000;
+    desc.dwFVF = 0x2d2;
+    if (FUN_004a8d60() != 2)
+        desc.dwCaps |= 0x800;
+    desc.dwNumVertices = 2000;
+
+    for (i = 0; i < 100; i++) {
+        m_pTextureManager->pDD->CreateVertexBuffer(&desc, &m_pTextureManager->pVertexBuffers[i], 0);
+        m_pTextureManager->pVertexBuffers[i + 100] = NULL;
+        m_unk0x006dd890 += 0x17700;
+    }
+
+    desc.dwNumVertices = 0x1800;
+    m_pTextureManager->pDD->CreateVertexBuffer(&desc, &m_pTextureManager->pVertexBuffer1, 0);
+    m_unk0x006dd890 += 0x48000;
+
+    desc.dwNumVertices = 0x7080;
+    m_pTextureManager->pDD->CreateVertexBuffer(&desc, &m_pTextureManager->pVertexBuffer2, 0);
+    m_unk0x006dd890 += 0x151800;
+
+    desc.dwNumVertices = 1;
+    m_pTextureManager->pDD->CreateVertexBuffer(&desc, &m_pTextureManager->pVertexBuffer3, 0);
+    m_unk0x006dd890 += 0x30;
 }
 
-// STUB: CMR2 0x0049df90
+// FUNCTION: CMR2 0x0049df90
 void CGraphics::FUN_0049df90(BOOL param1, int param2)
 {
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x8, 3);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x9, 2);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x17, 4);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0xf, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x19, 7);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1b, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1a, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1d, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x2, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x4, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x21, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x29, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x8d, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x91, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x92, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x93, 0);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x94, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x88, 1);
+	m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x8a, 0);
+
+	SetZEnable(1);
+	SetZWriteEnable(1);
+	SetCullMode(CGame::FUN_0049dcb0());
+
+	m_pTextureManager->pD3D->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)0xc, 3);
+	m_pTextureManager->pD3D->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)0xc, 3);
+	m_pTextureManager->pD3D->SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)0xc, 3);
+	m_pTextureManager->pD3D->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)0x10, 2);
+	m_pTextureManager->pD3D->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)0x10, 2);
+	m_pTextureManager->pD3D->SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)0x10, 2);
+
+	SetTextureAddressClamp(1);
 }
 
 // FUNCTION: CMR2 0x004a8450
