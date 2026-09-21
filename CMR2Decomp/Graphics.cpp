@@ -2568,3 +2568,23 @@ void FUN_004ae170(int param1)
     g_unk0x006a2a6c = 0xfff9;
     CGame::RegisterCallback(g_unk0x004ae200, NULL);
 }
+
+// GLOBAL: CMR2 0x004ae120
+BYTE g_unk0x004ae120[1];
+
+// Creates the 0x1000-vertex write-only buffer once and registers its callback.
+// FUNCTION: CMR2 0x004ae0a0
+void FUN_004ae0a0(void)
+{
+    D3DVERTEXBUFFERDESC desc = {0};
+
+    desc.dwSize = 0x10;
+    desc.dwCaps = 0x10000;
+    desc.dwFVF = 0x2d2;
+    if (CGraphics::FUN_004a8d60() != 2)
+        desc.dwCaps |= 0x800;
+    desc.dwNumVertices = 0x1000;
+    CGraphics::m_pTextureManager->pDD->CreateVertexBuffer(
+        &desc, (LPDIRECT3DVERTEXBUFFER7 *)0x6a2a08, 0);
+    CGame::RegisterCallback(g_unk0x004ae120, NULL);
+}
