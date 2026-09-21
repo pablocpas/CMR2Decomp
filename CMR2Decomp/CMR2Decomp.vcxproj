@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AIHelper.cpp" />
+    <ClCompile Include="Car.cpp" />
     <ClCompile Include="FileBuffer.cpp" />
     <ClCompile Include="FixedPoint.cpp" />
     <ClCompile Include="Font.cpp" />

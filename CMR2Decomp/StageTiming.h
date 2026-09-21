@@ -39,7 +39,6 @@ void StageTiming_AddToOverall(void);
 void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2);
 void StageTiming_RebuildSplitPositions(void);
 
-void *FUN_0042b5f0(int index);
 int *FUN_00469680(int index);
 BYTE *FUN_00456be0(int index);
 
