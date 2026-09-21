@@ -2,6 +2,7 @@
 #include "RallyData.h"
 #include "GameInfo.h"
 #include "RallyTiming.h"
+#include "main.h"
 #include "Frontend.h"
 #include "AIHelper.h"
 
@@ -505,8 +506,6 @@ int RallyData_FUN_00421470(BYTE *p)
     return result;
 }
 
-// GLOBAL: CMR2 0x0052ea5c
-char g_unk0x0052ea5c[32];
 // GLOBAL: CMR2 0x0052f3e0
 BYTE g_unk0x0052f3e0[8 * 196];
 
@@ -518,7 +517,7 @@ int RallyData_FUN_00408500(int param1)
 
     index = param1 & 0xff;
     if (CGameInfo::FUN_00405d80() == 4) {
-        if (strcmp((char *)(g_unk0x0052f3e0 + index * 196), g_unk0x0052ea5c) != 0 &&
+        if (strcmp((char *)(g_unk0x0052f3e0 + index * 196), CMain::m_logFileBlankLine) != 0 &&
             index < 8)
             return -1;
     } else if ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) & 0x2000) != 0) {

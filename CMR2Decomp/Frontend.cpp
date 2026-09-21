@@ -414,8 +414,6 @@ void CFrontend::FUN_004d20c0(void)
     g_unk0x00817fe8 = CGame::GetCallbackCount();
 }
 
-// GLOBAL: CMR2 0x0081853c
-char *g_unk0x0081853c;
 // GLOBAL: CMR2 0x00818540
 char *g_unk0x00818540;
 // GLOBAL: CMR2 0x00818544
@@ -424,7 +422,7 @@ char *g_unk0x00818544;
 // FUNCTION: CMR2 0x004d2790
 void CFrontend::FUN_004d2790(void)
 {
-    g_unk0x0081853c = GetTextString(0xd0);
+    CFrontend::m_unk0x0081853c = GetTextString(0xd0);
     g_unk0x00818540 = GetTextString(0xd1);
     g_unk0x00818544 = GetTextString(0xd2);
 }

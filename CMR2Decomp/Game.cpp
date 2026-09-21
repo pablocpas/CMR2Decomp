@@ -906,9 +906,6 @@ bool FUN_004aac00(void)
     return false;
 }
 
-// GLOBAL: CMR2 0x005a1ea0
-DWORD g_unk0x005a1ea0;
-
 // TODO: CMR2 0x004a1cb0 (implemented, match below 90%)
 int FUN_004a1cb0(int param2, int param3)
 {
@@ -917,7 +914,7 @@ int FUN_004a1cb0(int param2, int param3)
 
     pDP = CGame::GetDirectPlay();
     if (pDP != NULL) {
-        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, g_unk0x005a1ea0, param3, param2, 2);
+        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_unk0x005a1ea0, param3, param2, 2);
         if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
             hr != (HRESULT)0x88770168 && hr == 0)
             return 1;
@@ -933,7 +930,7 @@ int FUN_004a1c50(int param1, int param2, int param3, int param4)
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x68 / 4])(pDP, g_unk0x005a1ea0, param2, (param2 == 1), param4);
+    hr = ((DPMethod4)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, param2, (param2 == 1), param4);
     if (hr <= (HRESULT)0x8877010e || hr == (HRESULT)0x88770816 || hr != 0)
         return 0;
     return 1;
@@ -949,9 +946,6 @@ int g_unk0x005a1fac;
 int g_unk0x005a1fb0;
 // GLOBAL: CMR2 0x005a1fb4
 int g_unk0x005a1fb4;
-// GLOBAL: CMR2 0x005a1fc0
-BYTE g_unk0x005a1fc0;
-
 // TODO: CMR2 0x004a1a10 (implemented, match 48%)
 int FUN_004a1a10(int param1, int param2, int param3, int param4)
 {
@@ -968,11 +962,11 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod6)(*(void ***)pDP)[0x18 / 4])(pDP, g_unk0x005a1ea0, (DWORD)&g_unk0x005a1fa8,
+    hr = ((DPMethod6)(*(void ***)pDP)[0x18 / 4])(pDP, CGame::m_unk0x005a1ea0, (DWORD)&g_unk0x005a1fa8,
                                                 0, param3, param4, 0);
     if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
         return 0;
-    g_unk0x005a1fc0 = 1;
+    CGame::m_unk0x005a1fc0 = 1;
     return 1;
 }
 
