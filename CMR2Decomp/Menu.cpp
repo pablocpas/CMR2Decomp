@@ -1,19 +1,27 @@
 #include <windows.h>
 #include "Menu.h"
+#include "Input.h"
+#include "Sound.h"
 
+// GLOBAL: CMR2 0x0059f8fc
+char g_unk0x0059f8fc;
+// GLOBAL: CMR2 0x0059f908
+int g_menuNextAction;
+// GLOBAL: CMR2 0x0059fa14
+char g_unk0x0059fa14;
 // GLOBAL: CMR2 0x0059fa16
 char g_unk0x0059fa16;
 // GLOBAL: CMR2 0x0059fa17
 char g_unk0x0059fa17;
 
 // FUNCTION: CMR2 0x0049ffd0
-void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, int userData, int param6, BYTE flag4, BYTE defaultCursor, BYTE param9)
+void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, int param6, BYTE flag4, BYTE defaultCursor, BYTE param9)
 {
     pMenu->stringId = stringId;
     pMenu->field_0x4 = param3;
     pMenu->cursor = defaultCursor;
-    pMenu->userData = userData == -1 ? 0 : userData;
-    pMenu->flag6 = userData == -1;
+    pMenu->pParent = pParent == (Menu *)-1 ? NULL : pParent;
+    pMenu->flag6 = pParent == (Menu *)-1;
     pMenu->itemCount = 0;
     pMenu->pfnCallback0 = NULL;
     pMenu->pfnCallback1 = NULL;
@@ -43,7 +51,7 @@ void Menu_ClearNextItem(Menu *pMenu)
     pItem->param = 0;
     pItem->min = 0;
     pItem->max = 0;
-    pItem->pValue = NULL;
+    pItem->pSubMenu = NULL;
     pItem->id = -1;
     pItem->enabled = 1;
     pItem->visible = 1;
@@ -106,13 +114,13 @@ void Menu_AddItemType1(Menu *pMenu, int stringId, short id, int param, short val
 }
 
 // FUNCTION: CMR2 0x004a02e0
-void Menu_AddItemType2(Menu *pMenu, int stringId, short id, int *pValue, int param, short value)
+void Menu_AddItemType2(Menu *pMenu, int stringId, short id, Menu *pSubMenu, int param, short value)
 {
     Menu_ClearNextItem(pMenu);
     pMenu->items[pMenu->itemCount].stringId = stringId;
     pMenu->items[pMenu->itemCount].id = id;
     pMenu->items[pMenu->itemCount].type = 2;
-    pMenu->items[pMenu->itemCount].pValue = pValue;
+    pMenu->items[pMenu->itemCount].pSubMenu = pSubMenu;
     pMenu->items[pMenu->itemCount].value = value;
     pMenu->items[pMenu->itemCount].param = param;
     pMenu->itemCount++;
@@ -125,9 +133,9 @@ void Menu_SetCursor(Menu *pMenu, BYTE cursor)
 }
 
 // FUNCTION: CMR2 0x004a0370
-void Menu_SetUserData(Menu *pMenu, int userData)
+void Menu_SetParent(Menu *pMenu, Menu *pParent)
 {
-    pMenu->userData = userData;
+    pMenu->pParent = pParent;
 }
 
 // FUNCTION: CMR2 0x004a0380
@@ -156,13 +164,13 @@ MenuItem *Menu_GetItem(Menu *pMenu, int id)
 }
 
 // FUNCTION: CMR2 0x004a03e0
-void Menu_SetItemValuePtr(Menu *pMenu, int id, int *pValue)
+void Menu_SetItemSubMenu(Menu *pMenu, int id, Menu *pSubMenu)
 {
     MenuItem *pItem;
 
     pItem = Menu_GetItem(pMenu, id);
     if (pItem != NULL && pItem->type == 2)
-        pItem->pValue = pValue;
+        pItem->pSubMenu = pSubMenu;
 }
 
 // FUNCTION: CMR2 0x004a0410
@@ -241,4 +249,22 @@ void Menu_CallCallback2(Menu *pMenu)
 {
     if (pMenu != NULL && pMenu->pfnCallback2 != NULL)
         ((void (*)(Menu *))pMenu->pfnCallback2)(pMenu);
+}
+
+// Queues the action of the selected item; stops the current joystick
+// effect first unless a menu transition is already pending.
+// FUNCTION: CMR2 0x0049ff50
+void Menu_PlaySound(int id)
+{
+    if (id >= 0)
+        FUN_004b7790(id, CInput::m_unk0x0059f900, 0x57e4, 0, 0, 0);
+}
+
+// FUNCTION: CMR2 0x004a0ad0
+void Menu_SetNextAction(int action)
+{
+    if (g_unk0x0059f8fc == 0 && g_unk0x0059fa14 != 0)
+        Menu_PlaySound(CInput::m_unk0x0059f910);
+    g_unk0x0059fa16 = 0;
+    g_menuNextAction = action;
 }

@@ -138,6 +138,7 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Frontend.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameMenus.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="GameInfo.cpp" />
     <ClCompile Include="GenericFileLoader.cpp" />
