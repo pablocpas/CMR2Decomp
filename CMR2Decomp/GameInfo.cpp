@@ -1397,21 +1397,18 @@ void FUN_004ea480(int param1)
     }
 }
 
-// GLOBAL: CMR2 0x0052afc0
-unsigned int g_unk0x0052afc0;
-
 // FUNCTION: CMR2 0x004eabc0
 void FUN_004eabc0(void)
 {
     if (CGameInfo::FUN_00406320() || CGameInfo::FUN_00405d80() == 0 ||
         CGameInfo::FUN_00405d80() == 4) {
-        g_unk0x0052afc0 = (g_unk0x0052afc0 & 0xff00ffff) |
-                          ((g_unk0x0052afc0 & 0x400) << 8);
+        CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
+                          ((CGameInfo::m_gameInfo.field_0x20 & 0x400) << 8);
     } else if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6) {
-        g_unk0x0052afc0 = (g_unk0x0052afc0 & 0xff00ffff) |
-                          ((g_unk0x0052afc0 & 0xd00) << 8);
+        CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
+                          ((CGameInfo::m_gameInfo.field_0x20 & 0xd00) << 8);
     } else {
-        g_unk0x0052afc0 = (g_unk0x0052afc0 & 0xff00ffff) |
-                          ((g_unk0x0052afc0 & 0xff00) << 8);
+        CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 & 0xff00ffff) |
+                          ((CGameInfo::m_gameInfo.field_0x20 & 0xff00) << 8);
     }
 }
