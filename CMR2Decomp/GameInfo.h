@@ -100,6 +100,7 @@ public:
     static int FUN_005012c0(void);
     static void FUN_00501cc0(int index, int param2, int param3);
     static int FUN_005004c0(void);
+    static int FUN_00501230(void);
     static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);
     static unsigned char FUN_00405dc0(void);

@@ -502,3 +502,13 @@ void FUN_004adf60(void *pObject)
         g_sceneType2Count--;
     }
 }
+
+// Creates the root node of the scene graph and marks it as the root.
+// FUNCTION: CMR2 0x004ac760
+SceneNode *SceneNode_CreateRoot(void)
+{
+    CGraphics::m_pTextureManager->pRootNode = SceneNode_Create(NULL);
+    CGraphics::m_pTextureManager->pRootNode->flags =
+        (CGraphics::m_pTextureManager->pRootNode->flags & 0xfffffffd) | 0xfd;
+    return CGraphics::m_pTextureManager->pRootNode;
+}

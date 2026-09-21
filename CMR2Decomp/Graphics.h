@@ -7,6 +7,7 @@
 
 #include "Texture.h"
 #include "Mesh.h"
+#include "SceneNode.h"
 
 struct Graphics
 {
@@ -1000,7 +1001,8 @@ struct D3DTextureManager {
     IDirect3DVertexBuffer7* pVertexBuffer1;        // 0x338
     IDirect3DVertexBuffer7* pVertexBuffer2;        // 0x33c
     IDirect3DVertexBuffer7* pVertexBuffer3;        // 0x340
-    BYTE field_0x344[0xc];                          // 0x344 - 0x34f
+    BYTE field_0x344[0x8];                          // 0x344 - 0x34b
+    SceneNode *pRootNode;                           // 0x34c root of the scene graph
     TextureFormat* textureInfo1;         // 0x350 opaque RGB format
     TextureFormat* textureInfo2;         // 0x354 RGB format with alpha
     TextureFormat* textureInfo3;         // 0x358 DXT1
@@ -1288,6 +1290,8 @@ private:
 
     // Mesh_Rebuild locks/unlocks a shared vertex buffer.
     friend void Mesh_Rebuild(Mesh *pMesh);
+    // SceneNode_CreateRoot stores the root node in the texture manager.
+    friend SceneNode *SceneNode_CreateRoot(void);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;

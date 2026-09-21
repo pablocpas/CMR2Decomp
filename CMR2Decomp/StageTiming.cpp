@@ -310,3 +310,29 @@ void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour)
     if (pNode->type == 0 && pNode->pObject != 0)
         Mesh_SetVertexColours((Mesh *)pNode->pObject, rgb);
 }
+
+// GLOBAL: CMR2 0x00588e80
+void *g_unk0x00588e80[8];
+// GLOBAL: CMR2 0x00588d3c
+int g_unk0x00588d3c;
+// GLOBAL: CMR2 0x00588d14
+int g_unk0x00588d14;
+
+// Releases the eight stage buffers.
+// FUNCTION: CMR2 0x0046c500
+BOOL FUN_0046c500(void)
+{
+    void **p;
+
+    p = g_unk0x00588e80;
+    do {
+        if (*p != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*p);
+            *p = NULL;
+        }
+        p++;
+    } while ((int)p < 0x588ea0);
+    g_unk0x00588d3c = 0;
+    g_unk0x00588d14 = 0;
+    return TRUE;
+}

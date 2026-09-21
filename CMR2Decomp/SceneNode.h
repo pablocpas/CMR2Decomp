@@ -56,6 +56,7 @@ void SceneNode_SetRotation(SceneNode *pNode, FixAngles *pAngles);
 int SceneNode_Destroy(SceneNode *pNode);
 void SceneNode_Free(SceneNode *pNode);
 SceneNode *SceneNode_Create(SceneNode *pParent);
+SceneNode *SceneNode_CreateRoot(void);
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent);
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles);
 

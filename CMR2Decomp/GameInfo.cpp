@@ -1230,3 +1230,16 @@ int CGameInfo::FUN_005004c0(void)
     }
     return 0;
 }
+
+// FUNCTION: CMR2 0x00501230
+int CGameInfo::FUN_00501230(void)
+{
+    if (RallyDataStageIndex() == 0xa ||
+        FUN_00405d80() == 2 ||
+        FUN_00405d80() == 3 ||
+        FUN_00405d80() == 8 ||
+        FUN_00405d80() == 9 ||
+        FUN_00405d80() == 0xa)
+        return 1;
+    return 2;
+}
