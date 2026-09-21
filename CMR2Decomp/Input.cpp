@@ -1623,3 +1623,29 @@ void CInput::FUN_0040bc90(int param1, DWORD param2)
     *(DWORD *)((char *)g_unk0x00532250 + index * 0x2f0 + 0x11c) = param2;
     FUN_004aaf50(param2, index);
 }
+
+// 0x18-byte entry of the table cleaned up by FUN_0040b2f0.
+struct Unk0x0053223c {
+    BYTE field_0x0[0x4];
+    void *field_0x4;
+    BYTE field_0x8[0x8];
+    void *field_0x10;
+    BYTE field_0x14;
+    BYTE field_0x15;
+    BYTE field_0x16[0x2];
+};
+
+// GLOBAL: CMR2 0x0053223c
+Unk0x0053223c *g_unk0x0053223c;
+
+// FUNCTION: CMR2 0x0040b2f0
+void CInput::FUN_0040b2f0(int index)
+{
+    if (g_unk0x0053223c[index & 0xff].field_0x15 != 0) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0053223c[index & 0xff].field_0x10);
+        g_unk0x0053223c[index & 0xff].field_0x10 = NULL;
+        g_unk0x0053223c[index & 0xff].field_0x4 = NULL;
+        return;
+    }
+    g_unk0x0053223c[index & 0xff].field_0x4 = NULL;
+}

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "RallyData.h"
 #include "GameInfo.h"
+#include "AIHelper.h"
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -273,4 +274,27 @@ bool RallyData_FUN_004074a0(void)
         return true;
     }
     return false;
+}
+
+// GLOBAL: CMR2 0x005167e0
+int g_unk0x005167e0[16];
+
+// FUNCTION: CMR2 0x00407f20
+int *RallyData_FUN_00407f20(int index)
+{
+    int i;
+
+    if (CGameInfo::FUN_00405d80() == 5 ||
+        CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7) {
+        i = index;
+        if (i < 0 || i > 5)
+            i = 0;
+        i = CAIHelper::FUN_00407f80(i);
+    } else {
+        i = index;
+        if (i < 0 || i > 0xf)
+            i = 0;
+    }
+    return &g_unk0x005167e0[i];
 }
