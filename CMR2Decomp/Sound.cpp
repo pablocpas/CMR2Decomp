@@ -618,3 +618,32 @@ void FUN_004a2690(SoundSlot *pSlot)
     if (pSlot->pLoopBuffer != NULL)
         CSound::FUN_004a3250(pSlot->pLoopBuffer->SetFrequency(pSlot->field_0xa));
 }
+
+// GLOBAL: CMR2 0x005a271c
+int g_unk0x005a271c;
+// GLOBAL: CMR2 0x005a2844
+IDirectSound *g_unk0x005a2844;
+
+// Creates the main 44.1 kHz stereo 16-bit DirectSound buffer.
+// TODO: CMR2 0x004a2a20 (implemented, match 24%)
+int FUN_004a2a20(void)
+{
+    WAVEFORMATEX format;
+    DSBUFFERDESC desc;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = 0x24;
+    desc.dwFlags = 0x10080;
+    desc.dwBufferBytes = 0x7f400;
+    desc.lpwfxFormat = &format;
+    memset(&format, 0, sizeof(format));
+    format.wFormatTag = 1;
+    format.nChannels = 2;
+    format.nSamplesPerSec = 44100;
+    format.nAvgBytesPerSec = 176400;
+    format.nBlockAlign = 4;
+    format.wBitsPerSample = 16;
+    g_unk0x005a271c = 0x7f400;
+    return !CSound::FUN_004a3250(
+        g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, 0));
+}
