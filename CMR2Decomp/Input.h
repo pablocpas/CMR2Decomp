@@ -245,6 +245,8 @@ public:
     static void FUN_0049efc0(void);
     static void FUN_004b7ca0(int param1);
     static void FUN_004b7d10(unsigned int param1);
+    static void FUN_0040af20(void);
+    static void FUN_0049eab0(void);
     static void ReadKeyboardState(void);
     static int GetButtonIndexFromMask(unsigned int mask);
     static void FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5);

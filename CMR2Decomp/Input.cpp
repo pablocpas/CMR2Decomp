@@ -1590,3 +1590,21 @@ void CInput::FUN_004b7d10(unsigned int param1)
         g_unk0x006ed46c[i] = param1;
     }
 }
+
+// GLOBAL: CMR2 0x005320a4
+int g_unk0x005320a4;
+
+// FUNCTION: CMR2 0x0040af20
+void CInput::FUN_0040af20(void)
+{
+    g_unk0x005320a4 = CMain::GetFrameDelta();
+}
+
+// FUNCTION: CMR2 0x0049eab0
+void CInput::FUN_0049eab0(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++)
+        UpdateDevice(i);
+}

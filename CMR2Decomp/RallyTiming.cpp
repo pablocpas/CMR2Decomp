@@ -229,3 +229,18 @@ void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piT
 	RallyTiming_SortOrder(g_rallyOverallTimesRaw, g_rallyOverallOrderDriverID, 1, 16, 0);
 	RallyTiming_SortOverallOrder();
 }
+
+// FUNCTION: CMR2 0x0040d3d0
+int RallyTiming_FUN_0040d3d0(int index)
+{
+    return ConvertRawTimeToCentiseconds(g_rallyOverallTimesRaw[index]);
+}
+
+// FUNCTION: CMR2 0x0040d0c0
+void RallyTiming_FUN_0040d0c0(void)
+{
+    RallyTiming_SortOrder(g_stageTimesRaw, g_stageOrderDriverID, 0, 16, 1);
+    RallyTiming_SortStageOrder();
+    RallyTiming_SortOrder(g_rallyOverallTimesRaw, g_rallyOverallOrderDriverID, 1, 16, 1);
+    RallyTiming_SortOverallOrder();
+}

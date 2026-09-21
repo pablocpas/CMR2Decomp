@@ -59,6 +59,7 @@ public:
     static void FUN_004a28c0(void);
     static void FUN_004a31a0(void);
     static void FUN_004b7b10(void);
+    static void FUN_004a3160(void);
     static void FUN_004a27c0(SoundSlot *pSlot);
     static void FUN_004b7620(int index);
 
@@ -77,6 +78,8 @@ public:
 
     // GLOBAL: CMR2 0x005a2720
     static BOOL m_unk0x005a2720;
+    // GLOBAL: CMR2 0x005a2724
+    static BOOL m_unk0x005a2724;
 
     // GLOBAL: CMR2 0x005a2728
     static BOOL m_unk0x005a2728;

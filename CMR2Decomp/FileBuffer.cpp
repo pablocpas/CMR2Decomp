@@ -183,3 +183,9 @@ void CFileBuffer::FreeGenericFileBuffer(void *param1)
     handle = GlobalHandle(param1);
     GlobalFree(handle);
 }
+
+// FUNCTION: CMR2 0x004eb4b0
+void FUN_004eb4b0(char *param1, int param2)
+{
+    CFileBuffer::GetGenericFileBuffer(param1, 1);
+}

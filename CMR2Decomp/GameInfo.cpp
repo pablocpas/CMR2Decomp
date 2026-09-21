@@ -1144,3 +1144,62 @@ unsigned int CGameInfo::FUN_00405bd0(void) {
 unsigned int CGameInfo::FUN_00405c00(void) {
   return m_gameInfo.unknownGraphicsOptions >> 9 & 0xf;
 }
+
+// GLOBAL: CMR2 0x0082af88
+int g_unk0x0082af88;
+// GLOBAL: CMR2 0x0082b0a8
+int g_unk0x0082b0a8;
+// GLOBAL: CMR2 0x0082ac58
+int g_unk0x0082ac58;
+// GLOBAL: CMR2 0x0082ac5c
+int g_unk0x0082ac5c;
+// GLOBAL: CMR2 0x0082b0a0
+int g_unk0x0082b0a0;
+// GLOBAL: CMR2 0x00531c94
+int g_unk0x00531c94[16];
+// GLOBAL: CMR2 0x00531c98
+int g_unk0x00531c98;
+
+// FUNCTION: CMR2 0x005011a0
+void CGameInfo::FUN_005011a0(void)
+{
+    g_unk0x0082af88 = CGame::GetCallbackCount();
+}
+
+// FUNCTION: CMR2 0x004f8a70
+void CGameInfo::FUN_004f8a70(int index)
+{
+    CFrontend::GetTextString(index + 0x1f1);
+}
+
+// FUNCTION: CMR2 0x005011b0
+int CGameInfo::FUN_005011b0(void)
+{
+    return FUN_00405d70() - g_unk0x0082b0a8;
+}
+
+// FUNCTION: CMR2 0x00500500
+void CGameInfo::FUN_00500500(void)
+{
+    g_unk0x0082ac58 = 1;
+    g_unk0x0082ac5c = CMain::GetFrameDelta();
+}
+
+// FUNCTION: CMR2 0x005012c0
+int CGameInfo::FUN_005012c0(void)
+{
+    int result;
+
+    result = g_unk0x0082b0a0 - CMain::GetFrameDelta() + 0x17d5;
+    if (result < 0)
+        result = 0;
+    return result;
+}
+
+// FUNCTION: CMR2 0x0040a420
+int CGameInfo::FUN_0040a420(int index)
+{
+    if (FUN_00405d80() == 0xc)
+        return g_unk0x00531c98;
+    return g_unk0x00531c94[index];
+}

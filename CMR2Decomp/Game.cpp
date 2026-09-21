@@ -791,3 +791,21 @@ int CGame::FUN_0049dcb0(void)
 {
     return m_unk0x005207f8;
 }
+
+// GLOBAL: CMR2 0x00537f5c
+int g_unk0x00537f5c;
+// GLOBAL: CMR2 0x00665324
+int g_unk0x00665324;
+
+// FUNCTION: CMR2 0x0041f260
+void CGame::FUN_0041f260(void)
+{
+    g_unk0x00537f5c = GetCallbackCount();
+}
+
+// FUNCTION: CMR2 0x004aad50
+void CGame::FUN_004aad50(void)
+{
+    RegisterCallback((void *)0x4aae10, NULL);
+    g_unk0x00665324 = 1;
+}

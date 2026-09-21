@@ -123,6 +123,8 @@ public:
     static bool FUN_004067e0(void);
     static int RegisterCallback(void *param1, void *param2);
     static void FUN_004b7a40(void);
+    static void FUN_0041f260(void);
+    static void FUN_004aad50(void);
     static void FUN_004a17b0(void);
     static void FUN_004a17f0(bool param1);
     static BOOL FUN_004a1a90(void);

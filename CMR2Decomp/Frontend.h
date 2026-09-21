@@ -10,6 +10,9 @@ class CFrontend
 public:
     static void FUN_004d21e0(void);
     static char *GetTextString(int index);
+    static void FUN_004d20c0(void);
+    static void FUN_004d2790(void);
+    static void FUN_004a3d80(void);
     static BOOL FUN_004b7560(unsigned int param_1);
     static BOOL FUN_004b7590(unsigned int param_1);
     static BOOL FUN_004a9700(void);
@@ -26,6 +29,10 @@ public:
     static int m_textCount;
     // GLOBAL: CMR2 0x00520b00
     static char m_strInvalidTextString[20];
+    // GLOBAL: CMR2 0x0065aa70
+    static BYTE m_unk0x0065aa70;
+    // GLOBAL: CMR2 0x0065aa71
+    static BYTE m_unk0x0065aa71;
 
     // GLOBAL: CMR2 0x00818200
     static GenericFile m_languageFiles[5];

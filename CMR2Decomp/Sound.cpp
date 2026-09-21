@@ -14,6 +14,7 @@ MMIOData *CSound::m_pMMIO;
 IDirectSoundBuffer* CSound::m_pDirectSoundBuffer;
 HACMSTREAM CSound::m_unk0x00816a7c;
 BOOL CSound::m_unk0x005a2720;
+BOOL CSound::m_unk0x005a2724;
 BOOL CSound::m_unk0x005a2734 = FALSE;
 char CSound::m_unk0x005a2738[256];
 
@@ -468,5 +469,27 @@ void CSound::FUN_004a31a0(void)
             FUN_004a3250(m_pDirectSoundBuffer->Stop());
             m_unk0x005a2720 = 1;
         }
+    }
+}
+
+// GLOBAL: CMR2 0x00816978
+HACMDRIVERID g_unk0x00816978;
+
+// FUNCTION: CMR2 0x004bd100
+BOOL FUN_004bd100(void)
+{
+    HACMDRIVERID id;
+
+    id = AcmFindDriver(2);
+    g_unk0x00816978 = id;
+    return id != NULL;
+}
+
+// FUNCTION: CMR2 0x004a3160
+void CSound::FUN_004a3160(void)
+{
+    if (m_unk0x005a2730 != 0) {
+        m_unk0x005a2724 = 1;
+        FUN_004a31a0();
     }
 }

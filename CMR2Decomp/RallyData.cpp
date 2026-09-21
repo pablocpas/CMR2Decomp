@@ -150,3 +150,22 @@ void RallyData_FUN_0040d6a0(BYTE param1)
 {
 	g_unk0x0052f2b4 = ((param1 & 0xf) << 16) | (g_unk0x0052f2b4 & 0xfff0ffffU);
 }
+
+// GLOBAL: CMR2 0x0051682c
+BYTE g_unk0x0051682c[140];
+
+// FUNCTION: CMR2 0x00406890
+char *RallyData_FUN_00406890(void)
+{
+    unsigned char country;
+
+    country = (unsigned char)RallyDataCountryIndex();
+    return (char *)g_unk0x0051682c + country * 7;
+}
+
+// FUNCTION: CMR2 0x00406960
+void RallyData_FUN_00406960(BYTE param1)
+{
+    g_selectedRallyData = (g_selectedRallyData & 0xffffcfffU) | ((param1 & 3) << 12);
+    RallyData_UpdateFlags();
+}

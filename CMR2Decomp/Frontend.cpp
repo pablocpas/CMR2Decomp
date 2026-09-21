@@ -391,6 +391,8 @@ char **CFrontend::m_textStrings;
 int CFrontend::m_textFirstId;
 int CFrontend::m_textCount;
 char CFrontend::m_strInvalidTextString[20] = "INVALID TEXT STRING";
+BYTE CFrontend::m_unk0x0065aa70;
+BYTE CFrontend::m_unk0x0065aa71;
 
 // Looks up one of the loaded text strings; out-of-range ids fall back to the
 // "INVALID TEXT STRING" placeholder.
@@ -400,4 +402,42 @@ char *CFrontend::GetTextString(int index)
     if (index >= m_textCount || index < 0)
         return m_strInvalidTextString;
     return m_textStrings[m_textFirstId + index];
+}
+
+// GLOBAL: CMR2 0x00817fe8
+int g_unk0x00817fe8;
+
+// FUNCTION: CMR2 0x004d20c0
+void CFrontend::FUN_004d20c0(void)
+{
+    g_unk0x00817fe8 = CGame::GetCallbackCount();
+}
+
+// GLOBAL: CMR2 0x0081853c
+char *g_unk0x0081853c;
+// GLOBAL: CMR2 0x00818540
+char *g_unk0x00818540;
+// GLOBAL: CMR2 0x00818544
+char *g_unk0x00818544;
+
+// FUNCTION: CMR2 0x004d2790
+void CFrontend::FUN_004d2790(void)
+{
+    g_unk0x0081853c = GetTextString(0xd0);
+    g_unk0x00818540 = GetTextString(0xd1);
+    g_unk0x00818544 = GetTextString(0xd2);
+}
+
+// Releases the text string table.
+// FUNCTION: CMR2 0x004a3d80
+void CFrontend::FUN_004a3d80(void)
+{
+    if (m_textStrings != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(m_textStrings);
+        m_textStrings = NULL;
+        m_unk0x0065aa70 = 0;
+        m_textFirstId = 0;
+        m_unk0x0065aa71 = 0;
+        m_textCount = 0;
+    }
 }

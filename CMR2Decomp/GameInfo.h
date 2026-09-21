@@ -84,6 +84,12 @@ public:
     static unsigned char FUN_00405d80(void);
     static unsigned char FUN_00405d90(void);
     static unsigned char FUN_00405d70(void);
+    static void FUN_004f8a70(int index);
+    static void FUN_005011a0(void);
+    static int FUN_005011b0(void);
+    static void FUN_00500500(void);
+    static int FUN_005012c0(void);
+    static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);
     static unsigned char FUN_00405dc0(void);
     static unsigned char FUN_00405dd0(void);
