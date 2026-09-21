@@ -341,3 +341,35 @@ unsigned int FixVec_Length(FixVector *pV)
     scaled.z = pV->z / 512;
     return FixVecLength(&scaled) << 9;
 }
+
+// Normalises a vector; components beyond +-100.0 are scaled down by 512
+// first so the squares do not overflow.
+// FUNCTION: CMR2 0x004bae10
+void FixVec_Normalize(FixVector *pOut, FixVector *pIn)
+{
+    FixVector scaled;
+    int len;
+
+    if (pIn->x <= 0x640000 && pIn->x >= -0x640000 && pIn->y <= 0x640000 && pIn->y >= -0x640000 && pIn->z <= 0x640000 && pIn->z >= -0x640000) {
+        len = FixVecLength(pIn);
+        if (len == 0) {
+            pOut->x = 0;
+            pOut->y = 0;
+            pOut->z = 0;
+            return;
+        }
+        FixVecScaleRecip(pOut, pIn, len);
+        return;
+    }
+    scaled.x = pIn->x / 512;
+    scaled.y = pIn->y / 512;
+    scaled.z = pIn->z / 512;
+    len = FixVecLength(&scaled);
+    if (len == 0) {
+        pOut->x = 0;
+        pOut->y = 0;
+        pOut->z = 0;
+        return;
+    }
+    FixVecScaleRecip(pOut, &scaled, len);
+}

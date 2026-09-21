@@ -88,6 +88,7 @@ void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM);
 void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM);
 void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
 unsigned int FixVec_Length(FixVector *pV);
+void FixVec_Normalize(FixVector *pOut, FixVector *pIn);
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);

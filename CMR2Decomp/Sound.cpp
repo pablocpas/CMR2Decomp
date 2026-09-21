@@ -496,34 +496,6 @@ void CSound::FUN_004a3160(void)
     }
 }
 
-// GLOBAL: CMR2 0x00730fcc
-int g_unk0x00730fcc;
-// GLOBAL: CMR2 0x00730fc8
-int g_unk0x00730fc8;
-// GLOBAL: CMR2 0x0072f2a0
-int g_unk0x0072f2a0;
-
-// FUNCTION: CMR2 0x004bb5f0
-int FUN_004bb5f0(void)
-{
-    if (g_unk0x00730fcc == 0)
-        return 0;
-    g_unk0x00730fc8 = 0;
-    g_unk0x00730fcc = 0;
-    return 1;
-}
-
-// FUNCTION: CMR2 0x004bb280
-void FUN_004bb280(void)
-{
-    if (g_unk0x00730fcc == 0) {
-        g_unk0x00730fc8 = 0;
-        g_unk0x0072f2a0 = 0;
-        CGame::RegisterCallback(FUN_004bb5f0, NULL);
-        g_unk0x00730fcc = 1;
-    }
-}
-
 // GLOBAL: CMR2 0x005a2710
 int g_unk0x005a2710;
 // GLOBAL: CMR2 0x005a2714

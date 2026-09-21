@@ -72,6 +72,9 @@ extern unsigned int g_tri2DCount4;
 
 void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour);
 void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer);
+void Line2D_Init(void);
+int Line2D_Shutdown(void);
+void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB);
 void Sprite_Init(void);
 int Sprite_Shutdown(void);
 void Tri2D_Init(void);

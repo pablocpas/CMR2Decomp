@@ -235,3 +235,68 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
     }
     return 1;
 }
+
+// 2D lines (up to 200): two 16.16 endpoints and two RGBA colours.
+struct Line2D {
+    int a[3];               // 0x0
+    int b[3];               // 0xc
+    BYTE colourA[4];        // 0x18
+    BYTE colourB[4];        // 0x1c
+    BYTE pad[4];
+};
+
+// GLOBAL: CMR2 0x0072d680
+Line2D g_line2D[200];
+// GLOBAL: CMR2 0x00730fc8
+unsigned int g_line2DCount;
+// GLOBAL: CMR2 0x00730fcc
+int g_line2DInitialised;
+// GLOBAL: CMR2 0x0072f2a0
+int g_unk0x0072f2a0;
+
+// Exit callback of Line2D_Init.
+// FUNCTION: CMR2 0x004bb5f0
+int Line2D_Shutdown(void)
+{
+    if (g_line2DInitialised == 0)
+        return 0;
+    g_line2DCount = 0;
+    g_line2DInitialised = 0;
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004bb280
+void Line2D_Init(void)
+{
+    if (g_line2DInitialised == 0) {
+        g_line2DCount = 0;
+        g_unk0x0072f2a0 = 0;
+        CGame::RegisterCallback(Line2D_Shutdown, NULL);
+        g_line2DInitialised = 1;
+    }
+}
+
+// FUNCTION: CMR2 0x004bb430
+void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB)
+{
+    Line2D *p;
+
+    if (g_line2DCount < 200) {
+        p = &g_line2D[g_line2DCount];
+        p->a[0] = pA[0];
+        p->a[1] = pA[1];
+        p->a[2] = pA[2];
+        p->b[0] = pB[0];
+        p->b[1] = pB[1];
+        p->b[2] = pB[2];
+        p->colourA[0] = pColourA[0];
+        p->colourA[1] = pColourA[1];
+        p->colourA[2] = pColourA[2];
+        p->colourA[3] = pColourA[3];
+        p->colourB[0] = pColourB[0];
+        p->colourB[1] = pColourB[1];
+        p->colourB[2] = pColourB[2];
+        p->colourB[3] = pColourB[3];
+        g_line2DCount++;
+    }
+}
