@@ -2685,3 +2685,49 @@ int FUN_004bc110(int param1)
         return 1;
     return 0;
 }
+
+// Prepara las tablas de color de los vertices de la interfaz.
+// TODO: CMR2 0x00457c50 (implemented, match 46%)
+void FUN_00457c50(void)
+{
+    if (!CGameInfo::FUN_00406410(0x10))
+        return;
+    if (CFrontend::FUN_004b7560(0x400) == 0)
+        return;
+    if (CFrontend::FUN_004b7590(0x400) == 0)
+        return;
+    *(unsigned char *)0x51a3d0 = 0x41;
+    *(unsigned char *)0x51a3d1 = 0x41;
+    *(unsigned char *)0x51a3d2 = 0x41;
+    *(unsigned char *)0x51a3d3 = 0x41;
+    *(unsigned char *)0x51a3d4 = 0x43;
+    *(unsigned char *)0x51a3db = 0x46;
+    *(unsigned char *)0x51a3e3 = 0x46;
+    *(unsigned char *)0x5429c4 = 0x41;
+    *(unsigned char *)0x5429c5 = 0x43;
+    *(unsigned char *)0x51a3dc = 0x43;
+}
+
+// Recorre la lista de 0x6e0124 y actualiza el contador de 0x6e0b94.
+// TODO: CMR2 0x004b5380 (implemented, match 0%)
+void FUN_004b5380(void)
+{
+    BYTE *p;
+    int i;
+
+    for (p = *(BYTE **)0x6e0124; p != NULL; p = *(BYTE **)p) {
+        if (*(int *)(p + 4) == 0)
+            continue;
+        if (*(unsigned char *)(p + 8) > 0) {
+            for (i = 0; i < *(unsigned char *)(p + 8); i++) {
+                BYTE *q = *(BYTE **)(*(int *)0x6e0124 + 4);
+
+                if (*(int *)(q + 0x38 + i) != 0)
+                    ;
+            }
+        }
+    }
+    *(unsigned char *)0x6e0b99 = 0;
+    *(int *)0x6e0b94 = 0;
+    *(unsigned char *)0x6e0b98 = 0;
+}
