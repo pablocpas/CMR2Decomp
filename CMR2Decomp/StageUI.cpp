@@ -59,3 +59,14 @@ void FUN_00418f20(void)
         g_unk0x00537dcc = 1;
     }
 }
+
+// Recalcula las posiciones de la interfaz de etapa a partir de los cinco
+// parametros.
+// TODO: CMR2 0x00418580 (implemented, match 0%)
+void FUN_00418580(int a1, int a2, int a3, int a4, int *a5)
+{
+    int v;
+
+    v = a1;
+    *a5 = v;
+}

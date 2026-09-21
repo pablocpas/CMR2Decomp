@@ -2731,3 +2731,19 @@ void FUN_004b5380(void)
     *(int *)0x6e0b94 = 0;
     *(unsigned char *)0x6e0b98 = 0;
 }
+
+// Inicializa una vez el temporizador 0x6dd8a0 y recalcula los factores de
+// escala 0x5210b0/0x5210a0.
+// TODO: CMR2 0x004b21e0 (implemented, match 54%)
+void FUN_004b21e0(void)
+{
+    float f;
+
+    if ((*(unsigned char *)0x6dd894 & 1) == 0) {
+        *(unsigned char *)0x6dd894 |= 1;
+        *(int *)0x6dd8a0 = (int)CMain::GetFrameTime();
+    }
+    f = (float)*(int *)0x6dd8a0;
+    *(float *)0x5210b0 = f / *(float *)0x51138c;
+    *(float *)0x5210a0 = *(float *)0x5210b0;
+}
