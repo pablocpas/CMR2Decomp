@@ -4,6 +4,8 @@
 #include "RallyTiming.h"
 #include "GameInfo.h"
 #include "FileBuffer.h"
+#include "SceneNode.h"
+#include "Mesh.h"
 #include <string.h>
 
 // GLOBAL: CMR2 0x00541f08
@@ -293,4 +295,18 @@ void StageTiming_RebuildSplitPositions(void)
             g_stageSplitPositions[s][i] = i;
         }
     }
+}
+
+// Sets every vertex of a mesh-backed scene node to a shade of grey.
+// FUNCTION: CMR2 0x00456d20
+void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour)
+{
+    BYTE rgb[4];
+
+    rgb[0] = colour;
+    rgb[1] = colour;
+    rgb[2] = colour;
+    rgb[3] = 0;
+    if (pNode->type == 0 && pNode->pObject != 0)
+        Mesh_SetVertexColours((Mesh *)pNode->pObject, rgb);
 }

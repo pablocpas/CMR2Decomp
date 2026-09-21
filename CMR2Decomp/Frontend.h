@@ -13,6 +13,7 @@ public:
     static void FUN_004d20c0(void);
     static void FUN_004d2790(void);
     static void FUN_004a3d80(void);
+    static unsigned int FUN_004cfe50(void);
     static BOOL FUN_004b7560(unsigned int param_1);
     static BOOL FUN_004b7590(unsigned int param_1);
     static BOOL FUN_004a9700(void);

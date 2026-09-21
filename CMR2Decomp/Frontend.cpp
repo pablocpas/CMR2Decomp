@@ -441,3 +441,19 @@ void CFrontend::FUN_004a3d80(void)
         m_textCount = 0;
     }
 }
+
+// GLOBAL: CMR2 0x00817404
+int g_unk0x00817404;
+// GLOBAL: CMR2 0x008173fc
+int g_unk0x008173fc;
+
+// FUNCTION: CMR2 0x004cfe50
+unsigned int CFrontend::FUN_004cfe50(void)
+{
+    GameInfo0xa4 *pInfo;
+    int index;
+
+    pInfo = CGameInfo::FUN_00405fe0();
+    index = g_unk0x00817404 * 3 + g_unk0x008173fc;
+    return (*(unsigned int *)((char *)pInfo + index * 8 + 0x1214) >> 7) & 0xffff;
+}

@@ -169,3 +169,21 @@ void RallyData_FUN_00406960(BYTE param1)
     g_selectedRallyData = (g_selectedRallyData & 0xffffcfffU) | ((param1 & 3) << 12);
     RallyData_UpdateFlags();
 }
+
+// FUNCTION: CMR2 0x004068e0
+void RallyData_FUN_004068e0(BYTE param1)
+{
+    g_selectedRallyData = (g_selectedRallyData & 0xfffffc1fU) | ((param1 & 0x1f) << 5);
+    RallyData_UpdateFlags();
+}
+
+// GLOBAL: CMR2 0x005200e8
+BYTE g_unk0x005200e8[256];
+
+// FUNCTION: CMR2 0x00494a40
+char *RallyData_FUN_00494a40(void)
+{
+    return (char *)g_unk0x005200e8 +
+        ((unsigned char)RallyData_FUN_00406940() * 3 +
+         (unsigned char)RallyData_FUN_00406950()) * 7;
+}

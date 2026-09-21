@@ -1218,3 +1218,15 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0xc = 1;
     pEntry->field_0x10 = param3;
 }
+
+// FUNCTION: CMR2 0x005004c0
+int CGameInfo::FUN_005004c0(void)
+{
+    unsigned int delta;
+
+    if (g_unk0x0082ac58 != 0) {
+        delta = CMain::GetFrameDelta() - g_unk0x0082ac5c;
+        return (unsigned char)~(delta / 10) & 1;
+    }
+    return 0;
+}
