@@ -137,3 +137,31 @@ void SceneNode_UpdateSector(SceneNode *pNode)
         }
     }
 }
+
+// Appends the node to the sector its world position falls in.
+// FUNCTION: CMR2 0x004b8b10
+void FUN_004b8b10(SceneNode *pNode)
+{
+    FixVector pos;
+    int index;
+    Sector *pSector;
+    SceneNode *pLast;
+
+    if (pNode == NULL)
+        return;
+    pos.x = pNode->world.position.x;
+    pos.y = pNode->world.position.y;
+    pos.z = pNode->world.position.z;
+    index = (short)Sector_FromPosition(&pos);
+    pSector = g_sectors[index];
+    if (pSector->pFirstNode == NULL) {
+        pSector->pFirstNode = pNode;
+    } else {
+        pLast = pSector->pFirstNode;
+        while (pLast->pNextInSector != NULL)
+            pLast = pLast->pNextInSector;
+        pLast->pNextInSector = pNode;
+    }
+    g_sectors[index]->nodeCount++;
+    pNode->sector = (WORD)index;
+}
