@@ -44,7 +44,9 @@ WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
 // finished playing.
 struct SoundSlot {
     unsigned short id;                  // 0x00 index into CSound::m_soundSlots
-    BYTE field_0x2[0x1a];
+    BYTE field_0x2[0x8];
+    unsigned short field_0xa;           // 0x0a volume, clamped to [100, 100000]
+    BYTE field_0xc[0x10];
     IDirectSoundBuffer *pBuffer;        // 0x1c
     BYTE field_0x20[0x4];
     IDirectSoundBuffer *pLoopBuffer;    // 0x24 restarted while field_0x30 is set

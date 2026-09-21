@@ -588,3 +588,33 @@ void FUN_004a2d30(void)
     else
         g_unk0x005a2718 = (int)v + 7;
 }
+
+// FUNCTION: CMR2 0x004a2430
+int FUN_004a2430(SoundSlot *pSlot)
+{
+    DWORD status1 = 0;
+    DWORD status2 = 0;
+    int result;
+
+    CSound::FUN_004a3250(pSlot->pBuffer->GetStatus(&status1));
+    if (pSlot->pLoopBuffer != NULL)
+        CSound::FUN_004a3250(pSlot->pLoopBuffer->GetStatus(&status2));
+    result = 1;
+    if ((status1 & 1) == 0) {
+        if (pSlot->field_0x30 == 0)
+            result = 0;
+    }
+    return result;
+}
+
+// FUNCTION: CMR2 0x004a2690
+void FUN_004a2690(SoundSlot *pSlot)
+{
+    if (pSlot->field_0xa < 100)
+        pSlot->field_0xa = 100;
+    if (pSlot->field_0xa > 100000)
+        pSlot->field_0xa = 34464;
+    CSound::FUN_004a3250(pSlot->pBuffer->SetFrequency(pSlot->field_0xa));
+    if (pSlot->pLoopBuffer != NULL)
+        CSound::FUN_004a3250(pSlot->pLoopBuffer->SetFrequency(pSlot->field_0xa));
+}
