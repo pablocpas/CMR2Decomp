@@ -60,13 +60,75 @@ void FUN_00418f20(void)
     }
 }
 
-// Recalcula las posiciones de la interfaz de etapa a partir de los cinco
-// parametros.
-// TODO: CMR2 0x00418580 (implemented, match 0%)
-void FUN_00418580(int a1, int a2, int a3, int a4, int *a5)
-{
-    int v;
 
-    v = a1;
-    *a5 = v;
+// Frame/tick counters shared by the in-game UI (0x537df0..0x537efc).
+// GLOBAL: CMR2 0x00537dd0
+BYTE g_unk0x00537dd0[0x20];
+// GLOBAL: CMR2 0x00537df0
+int g_unk0x00537df0;
+// GLOBAL: CMR2 0x00537ef4
+BYTE g_unk0x00537ef4;
+// GLOBAL: CMR2 0x00537ef5
+BYTE g_unk0x00537ef5;
+// GLOBAL: CMR2 0x00537ef6
+BYTE g_unk0x00537ef6;
+// GLOBAL: CMR2 0x00537ef8
+int g_unk0x00537ef8;
+// GLOBAL: CMR2 0x00537efc
+int g_unk0x00537efc;
+
+// FUNCTION: CMR2 0x0041b300
+void FUN_0041b300(void)
+{
+    g_unk0x00537ef4 = 0;
+}
+
+// FUNCTION: CMR2 0x0041b310
+void FUN_0041b310(void)
+{
+    g_unk0x00537ef8 = 1;
+}
+
+// FUNCTION: CMR2 0x0041b320
+int FUN_0041b320(void)
+{
+    return g_unk0x00537efc;
+}
+
+// FUNCTION: CMR2 0x0041b330
+void FUN_0041b330(void)
+{
+    g_unk0x00537efc = 0;
+}
+
+// FUNCTION: CMR2 0x0041b340
+void FUN_0041b340(char bFlag)
+{
+    if (bFlag != 0)
+        g_unk0x00537ef5 = 1;
+    g_unk0x00537ef6++;
+}
+
+// FUNCTION: CMR2 0x0041b360
+void FUN_0041b360(void)
+{
+    g_unk0x00537ef6 = 0;
+}
+
+// FUNCTION: CMR2 0x0041b370
+BYTE FUN_0041b370(void)
+{
+    return g_unk0x00537ef6;
+}
+
+// FUNCTION: CMR2 0x0041b380
+int FUN_0041b380(void)
+{
+    return g_unk0x00537df0;
+}
+
+// FUNCTION: CMR2 0x0041b390
+BYTE *FUN_0041b390(void)
+{
+    return g_unk0x00537dd0;
 }

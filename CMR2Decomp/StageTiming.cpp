@@ -909,3 +909,24 @@ void FUN_004b8450(void)
     for (q = (BYTE *)0x71f608; q != NULL; q = (BYTE *)*(int *)q)
         ;
 }
+
+// FUNCTION: CMR2 0x0042b5f0
+void *FUN_0042b5f0(int index)
+{
+    return g_unk0x0053aba8[index];
+}
+
+// FUNCTION: CMR2 0x00469680
+int *FUN_00469680(int index)
+{
+    return g_unk0x00588990[index];
+}
+
+// GLOBAL: CMR2 0x00542630
+BYTE g_unk0x00542630[0x24 * 32];
+
+// FUNCTION: CMR2 0x00456be0
+BYTE *FUN_00456be0(int index)
+{
+    return g_unk0x00542630 + index * 0x24;
+}

@@ -17,4 +17,8 @@ void RallyData_FUN_0040d660(BYTE param1);
 void RallyData_FUN_0040d680(BYTE param1);
 void RallyData_FUN_0040d6a0(BYTE param1);
 
+unsigned int RallyData_GetFlag24(void);
+unsigned int RallyData_GetFlag25(void);
+void RallyData_ValidateIndex(int index);
+
 #endif

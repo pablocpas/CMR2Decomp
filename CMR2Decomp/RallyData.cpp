@@ -36,6 +36,25 @@ unsigned int RallyDataState(void)
 	return g_selectedRallyData >> 0xe & 3;
 }
 
+// FUNCTION: CMR2 0x00407e50
+unsigned int RallyData_GetFlag24(void)
+{
+	return g_selectedRallyData >> 0x18 & 1;
+}
+
+// FUNCTION: CMR2 0x00407e60
+unsigned int RallyData_GetFlag25(void)
+{
+	return g_selectedRallyData >> 0x19 & 1;
+}
+
+// Index check compiled out of the release build; kept because every
+// RallyData accessor still calls it.
+// FUNCTION: CMR2 0x004083f0
+void RallyData_ValidateIndex(int index)
+{
+}
+
 // FUNCTION: CMR2 0x00406940
 unsigned int RallyData_FUN_00406940(void)
 {
