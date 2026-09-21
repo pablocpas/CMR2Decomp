@@ -1103,3 +1103,39 @@ int FUN_004a1b90(int param1, void **param2)
     CGame::m_unk0x005a1fbc = local2;
     return 0;
 }
+
+// GLOBAL: CMR2 0x006838c8
+int g_unk0x006838c8;
+// GLOBAL: CMR2 0x00683388
+void *g_unk0x00683388[0x100];
+// GLOBAL: CMR2 0x004ae070
+BYTE g_unk0x004ae070[1];
+
+// Registra un nodo en la primera entrada libre de la tabla 0x683388.
+// TODO: CMR2 0x004adfa0 (implemented, match 57%)
+int FUN_004adfa0(int param1, int param2, int param3, int param4)
+{
+    BYTE *pNode;
+    BYTE *q;
+    int i;
+
+    if (g_unk0x006838c8 == 0) {
+        CGame::RegisterCallback(g_unk0x004ae070, NULL);
+        g_unk0x006838c8 = 1;
+    }
+    if (param1 == 0) {
+        pNode = (BYTE *)SceneNode_Create((SceneNode *)param4);
+    } else {
+        pNode = (BYTE *)param1;
+    }
+    *(int *)(pNode + 0x30) |= 0xff;
+    for (i = 0; i < 0x100; i++) {
+        if (g_unk0x00683388[i] == NULL) {
+            q = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x104);
+            g_unk0x00683388[i] = q;
+            SceneNode_SetObject((SceneNode *)pNode, 2, q);
+            return i;
+        }
+    }
+    return 0;
+}

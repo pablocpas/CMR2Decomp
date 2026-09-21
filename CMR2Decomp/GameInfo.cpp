@@ -1530,3 +1530,33 @@ void CGameInfo::FUN_004a12d0(int param1)
         hr == (HRESULT)0x88770082)
         return;
 }
+
+// Inicia la interpolacion hacia 0x10000.
+// TODO: CMR2 0x005039d0 (implemented, match 9%)
+void FUN_005039d0(int *p)
+{
+    if (p[7] == 0x10000)
+        return;
+    p[5] = p[7];
+    p[6] = 0x10000;
+    p[0x13] = 1;
+    if (p[6] * 50 - p[5] * 50 < 0) {
+        p[8] = p[5] * 50 - p[6] * 50;
+        p[0xf] = (int)CMain::GetFrameDelta();
+    }
+}
+
+// Inicia la interpolacion hacia 0.
+// TODO: CMR2 0x00503aa0 (implemented, match 9%)
+void FUN_00503aa0(int *p)
+{
+    if (p[7] == 0)
+        return;
+    p[5] = p[7];
+    p[6] = 0;
+    p[0x13] = 1;
+    if (p[6] * 50 - p[5] * 50 < 0) {
+        p[8] = p[5] * 50 - p[6] * 50;
+        p[0xf] = (int)CMain::GetFrameDelta();
+    }
+}
