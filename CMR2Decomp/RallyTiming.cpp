@@ -245,18 +245,3 @@ void RallyTiming_FUN_0040d0c0(void)
     RallyTiming_SortOverallOrder();
 }
 
-// Calcula los valores derivados del angulo param1 y los guarda en el
-// registro 0x53cc18 (0x9b8, 0x9bc, ...).
-// TODO: CMR2 0x0043dff0 (implemented, match 10%)
-void FUN_0043dff0(int param1)
-{
-    BYTE *p;
-
-    if (CGameInfo::FUN_004063f0(6) != 0)
-        param1 = 0xffff999a;
-    p = *(BYTE **)0x53cc18;
-    *(int *)(p + 0x9b8) = (int)(((__int64)param1 * 0x6666) >> 16) + 0x9999;
-    *(int *)(p + 0x9bc) = (int)(((__int64)param1 * 0x3333) >> 16) + 0x6666;
-    *(int *)(p + 0x9c0) = (int)(((__int64)param1 * 0xfffe5556) >> 16) + 0x50000;
-    *(int *)(p + 0x9c4) = (int)(((__int64)param1 * 0xffffe667) >> 16) + 0x50000;
-}

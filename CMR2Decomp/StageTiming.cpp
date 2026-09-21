@@ -713,25 +713,6 @@ int g_unk0x0053ce68[16];
 // GLOBAL: CMR2 0x0053cfa0
 int g_unk0x0053cfa0[16];
 
-// Blends two 16.16 tables with (ratio, 0x10000 - ratio).
-// TODO: CMR2 0x00445df0 (implemented, match 14%)
-void FUN_00445df0(int ratio)
-{
-    unsigned int i;
-    int inv;
-
-    inv = 0x10000 - ratio;
-    if ((RallyDataState() & 0xff) != 0) {
-        i = 0;
-        do {
-            g_unk0x0053ce38[i] = (int)(((__int64)g_unk0x0053ce44[i] * ratio) >> 16) +
-                                 (int)(((__int64)g_unk0x0053ce68[i] * inv) >> 16);
-            g_unk0x0053ce54[i] = (int)(((__int64)g_unk0x0053cfa0[i] * ratio) >> 16) +
-                                 (int)(((__int64)g_unk0x0053ce60[i] * inv) >> 16);
-            i++;
-        } while (i < (RallyDataState() & 0xff));
-    }
-}
 
 // GLOBAL: CMR2 0x00542420
 int g_unk0x00542420[2];
@@ -829,86 +810,8 @@ void FUN_00475f80(void)
     CGame::RegisterCallback((void *)0x4779e0, NULL);
 }
 
-// Deja el byte 0x1f del registro mas bajo de la lista 0x53f008/0x53e6a0.
-// TODO: CMR2 0x00449ba0 (implemented, match 26%)
-void FUN_00449ba0(int param1, int param2)
-{
-    int best;
-    int i;
-    int k;
-    int v;
 
-    best = 0x10;
-    if (param1 == 0x53f008 || param1 == 0x53e6a0) {
-        i = 0;
-        while (i < (CGameInfo::FUN_00405d70() & 0xff)) {
-            for (k = 0xf; k >= 0; k--) {
-                v = RallyTiming_GetOverallPositionOfDriver(k);
-                if (v < best)
-                    best = v;
-            }
-            i++;
-        }
-        param2 = best;
-    }
-    if (*(unsigned char *)(param2 + 0x1f) > 0xa)
-        *(unsigned char *)(param2 + 0x1f) = 0xa;
-}
 
-// Libera los buffers de cada entrada de la lista 0x677124.
-// TODO: CMR2 0x004ab9d0 (implemented, match 27%)
-void FUN_004ab9d0(void)
-{
-    BYTE *p;
-    void **pp;
-
-    if (*(int *)0x67f22c <= 0)
-        return;
-    for (pp = (void **)0x677124; pp < (void **)0x667364 + 0x4000; pp++) {
-        p = (BYTE *)*pp;
-        if (p == NULL)
-            continue;
-        if (*(void **)(p + 0xc) != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*(void **)(p + 0xc));
-            *(int *)(p + 0xc) = 0;
-        }
-        if (*(void **)(p + 0x24) != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*(void **)(p + 0x24));
-            *(int *)(p + 0x24) = 0;
-        }
-        if (*(void **)(p + 0x20) != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*(void **)(p + 0x20));
-            *(int *)(p + 0x20) = 0;
-        }
-        *pp = NULL;
-    }
-}
-
-// Reinicia los punteros de sector de cada nodo.
-// TODO: CMR2 0x004b8450 (implemented, match 7%)
-void FUN_004b8450(void)
-{
-    BYTE *q;
-    int i;
-    int count;
-    int *p;
-
-    count = *(int *)0x683370;
-    for (i = 0; i < count; i++) {
-        q = *(BYTE **)(0x67f36c + i * 4);
-        if (q != NULL)
-            *(int *)(q + 0x170) = 0;
-    }
-    for (p = (int *)0x71f608; p < (int *)0x71f608 + 0x4000; p++) {
-        q = (BYTE *)*p;
-        if (q != NULL) {
-            *(int *)(q + 0x1c) = 0;
-            *(int *)(q + 0x20) = 0;
-        }
-    }
-    for (q = (BYTE *)0x71f608; q != NULL; q = (BYTE *)*(int *)q)
-        ;
-}
 
 // FUNCTION: CMR2 0x0042b5f0
 void *FUN_0042b5f0(int index)

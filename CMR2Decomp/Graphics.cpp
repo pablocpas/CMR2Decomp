@@ -2596,16 +2596,6 @@ void FUN_004ae0a0(void)
     CGame::RegisterCallback(g_unk0x004ae120, NULL);
 }
 
-// Scales the 0x3c4 value by a table entry and by 1/65536.
-// TODO: CMR2 0x00423f30 (implemented, match 26%)
-int FUN_00423f30(void)
-{
-    float table[10] = {-0.5f, 0.0f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f};
-    float base;
-
-    base = (float)((double)*(int *)((char *)g_pGraphics + 0x3c4) * CGraphics::m_oneOver65536);
-    return (int)((base + base * table[CGameInfo::FUN_00405ca0()]) * CGraphics::m_65536);
-}
 
 // Finds a free entry of the 0x2384 table and initialises its six 0x130-byte
 // records, or notifies the failure through FUN_004a76d0(NULL).
@@ -2642,56 +2632,7 @@ void FUN_004a4b10(void)
 // GLOBAL: CMR2 0x0067f228
 int g_unk0x0067f228;
 
-// Libera la lista de nodos de 0x669364 y limpia los buffers del gestor.
-// TODO: CMR2 0x004ab720 (implemented, match 28%)
-void FUN_004ab720(void)
-{
-    BYTE *pNode;
-    void **pp;
-    int i;
-    int count;
 
-    for (pp = (void **)0x669364; pp < (void **)0x66f124; pp++) {
-        pNode = (BYTE *)*pp;
-        if (pNode != NULL && *(void **)(pNode + 0xc) != NULL) {
-            g_meshTotalSize -= *(unsigned char *)(*(int *)(pNode + 0xc) + 0x110);
-            count = *(int *)(*(int *)(pNode + 0xc) + 0x100);
-            if (count > 0) {
-                for (i = 0; i < count; i++) {
-                    BYTE *p = *(BYTE **)(*(int *)(pNode + 0xc) + 0x38 + i * 4);
-
-                    CFileBuffer::FreeGenericFileBuffer(*(void **)(p + 0x14));
-                    *(int *)(p + 0x14) = 0;
-                    CFileBuffer::FreeGenericFileBuffer(p);
-                    *(int *)(*(int *)(pNode + 0xc) + 0x38 + i * 4) = 0;
-                }
-            }
-        }
-        *pp = NULL;
-        g_unk0x0067f228--;
-    }
-    for (i = 0x1a8; i < 0x338; i += 4)
-        *(int *)((char *)CGraphics::m_pTextureManager + i - 4) = 0;
-    *(int *)((char *)CGraphics::m_pTextureManager + 0x348) = 0;
-}
-
-// Consulta el estado del registro de 0x521138 correspondiente al indice.
-// TODO: CMR2 0x004bc110 (implemented, match 11%)
-int FUN_004bc110(int param1)
-{
-    BYTE *p;
-    int a;
-    int b;
-
-    p = (BYTE *)(0x521138 + (param1 & 0xff) * 48);
-    a = *(int *)(p + 0x28);
-    b = *(int *)(p + 0x4);
-    if ((unsigned int)a < (unsigned int)b)
-        return 0;
-    if (*(int *)(p + 0x2c) != 0)
-        return 1;
-    return 0;
-}
 
 // Prepara las tablas de color de los vertices de la interfaz.
 // TODO: CMR2 0x00457c50 (implemented, match 46%)
@@ -2715,29 +2656,6 @@ void FUN_00457c50(void)
     *(unsigned char *)0x51a3dc = 0x43;
 }
 
-// Recorre la lista de 0x6e0124 y actualiza el contador de 0x6e0b94.
-// TODO: CMR2 0x004b5380 (implemented, match 0%)
-void FUN_004b5380(void)
-{
-    BYTE *p;
-    int i;
-
-    for (p = *(BYTE **)0x6e0124; p != NULL; p = *(BYTE **)p) {
-        if (*(int *)(p + 4) == 0)
-            continue;
-        if (*(unsigned char *)(p + 8) > 0) {
-            for (i = 0; i < *(unsigned char *)(p + 8); i++) {
-                BYTE *q = *(BYTE **)(*(int *)0x6e0124 + 4);
-
-                if (*(int *)(q + 0x38 + i) != 0)
-                    ;
-            }
-        }
-    }
-    *(unsigned char *)0x6e0b99 = 0;
-    *(int *)0x6e0b94 = 0;
-    *(unsigned char *)0x6e0b98 = 0;
-}
 
 // Inicializa una vez el temporizador 0x6dd8a0 y recalcula los factores de
 // escala 0x5210b0/0x5210a0.

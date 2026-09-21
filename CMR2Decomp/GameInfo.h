@@ -1,6 +1,7 @@
 #ifndef _GAME_INFO_H
 #define _GAME_INFO_H
 
+#include "FixedPoint.h"
 #include <windows.h>
 
 struct GameInfo0xa4SubStruct8 {
@@ -84,6 +85,22 @@ struct Unk0x0082b2c0 {
     int field_0x10;
 };
 
+// 16.16 value animated between start and end at 50 units/s.
+struct FixInterp {
+    BYTE field_0x0[0x14];
+    int start;              // 0x14
+    int end;                // 0x18
+    int current;            // 0x1c
+    int distance;           // 0x20 |end - start| * 50
+    BYTE field_0x24[0x18];
+    unsigned int startTime; // 0x3c
+    BYTE field_0x40[0xc];
+    int active;             // 0x4c
+};
+
+void FixInterp_StartToOne(FixInterp *p);
+void FixInterp_StartToZero(FixInterp *p);
+
 class CGameInfo
 {
 public:
@@ -102,11 +119,9 @@ public:
     static int FUN_005004c0(void);
     static int FUN_00501230(void);
     static int FUN_00505e10(BYTE param1);
-    static void FUN_00501ac0(void);
     static void FUN_004a13b0(void);
     static void FUN_004a12d0(int param1);
     static void FUN_00505a60(int param1);
-    static void FUN_004a0ec0(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
     static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);
     static unsigned char FUN_00405dc0(void);

@@ -1425,32 +1425,6 @@ BYTE g_unk0x0082b1ba;
 // GLOBAL: CMR2 0x0082b1bb
 BYTE g_unk0x0082b1bb;
 
-// Converts the frame delta into the 16.16 sine-index value stored in the
-// 0x82b1b8..0x82b1bb bytes.
-// TODO: CMR2 0x00501ac0 (implemented, match 24%)
-void CGameInfo::FUN_00501ac0(void)
-{
-    int value;
-    int index;
-
-    value = (int)((CMain::GetFrameDelta() % 60) << 16);
-    value = (value << 16) / 0x3c0000;
-    value = (int)(((__int64)value * 0x1680000) >> 16);
-    index = (int)((double)value * g_unk0x00511300);
-    value = g_sinTable[index & 0xfff] + 0x10000;
-    value = (int)(((__int64)value * 0x8000) >> 16);
-    if (value < 0)
-        value = 0;
-    else if (value > 0x10000)
-        value = 0x10000;
-    value = (int)(((__int64)value * 0x7f0000) >> 16);
-    value += 0x800000;
-    g_unk0x0082b1bb = 0xff;
-    value >>= 16;
-    g_unk0x0082b1ba = (BYTE)value;
-    g_unk0x0082b1b9 = (BYTE)value;
-    g_unk0x0082b1b8 = (BYTE)value;
-}
 
 // GLOBAL: CMR2 0x00511cd8
 int g_unk0x00511cd8[4];
@@ -1531,35 +1505,7 @@ void CGameInfo::FUN_004a12d0(int param1)
         return;
 }
 
-// Inicia la interpolacion hacia 0x10000.
-// TODO: CMR2 0x005039d0 (implemented, match 9%)
-void FUN_005039d0(int *p)
-{
-    if (p[7] == 0x10000)
-        return;
-    p[5] = p[7];
-    p[6] = 0x10000;
-    p[0x13] = 1;
-    if (p[6] * 50 - p[5] * 50 < 0) {
-        p[8] = p[5] * 50 - p[6] * 50;
-        p[0xf] = (int)CMain::GetFrameDelta();
-    }
-}
 
-// Inicia la interpolacion hacia 0.
-// TODO: CMR2 0x00503aa0 (implemented, match 9%)
-void FUN_00503aa0(int *p)
-{
-    if (p[7] == 0)
-        return;
-    p[5] = p[7];
-    p[6] = 0;
-    p[0x13] = 1;
-    if (p[6] * 50 - p[5] * 50 < 0) {
-        p[8] = p[5] * 50 - p[6] * 50;
-        p[0xf] = (int)CMain::GetFrameDelta();
-    }
-}
 
 // Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
 // reinicia el temporizador.
@@ -1586,28 +1532,29 @@ void CGameInfo::FUN_00505a60(int param1)
     g_unk0x0082ca1c = (BYTE)param1;
 }
 
-// Variante de la creacion de sesion con siete argumentos.
-// TODO: CMR2 0x004a0ec0 (implemented, match 19%)
-void CGameInfo::FUN_004a0ec0(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
-{
-    IDirectPlay4A *pDP;
-    HRESULT hr;
 
-    FUN_004a0c60();
-    memset(g_unk0x005a0068, 0, 0x50);
-    *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[2];
-    *(int *)(g_unk0x005a0068) = 0x50;
-    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[1];
-    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
-    *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
-    pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
-        return;
-    hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, (DWORD)a1,
-                                                  (DWORD)a2, (DWORD)a3, (DWORD)a4);
-    if (hr != 0)
-        return;
-    *(int *)0x5a0060 = 1;
-    m_unk0x005a1814 = 1;
+#define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
+
+// FUNCTION: CMR2 0x005039d0
+void FixInterp_StartToOne(FixInterp *p)
+{
+    if (p->current != 0x10000) {
+        p->start = p->current;
+        p->end = 0x10000;
+        p->active = 1;
+        p->distance = FIX_ABS(FixMul(p->end, 0x320000) - FixMul(p->start, 0x320000));
+        p->startTime = CMain::GetFrameDelta();
+    }
+}
+
+// FUNCTION: CMR2 0x00503aa0
+void FixInterp_StartToZero(FixInterp *p)
+{
+    if (p->current != 0) {
+        p->start = p->current;
+        p->end = 0;
+        p->active = 1;
+        p->distance = FIX_ABS(FixMul(p->end, 0x320000) - FixMul(p->start, 0x320000));
+        p->startTime = CMain::GetFrameDelta();
+    }
 }

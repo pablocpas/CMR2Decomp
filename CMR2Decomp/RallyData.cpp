@@ -401,29 +401,6 @@ void RallyData_FUN_004ec1a0(void)
 // GLOBAL: CMR2 0x00520128
 BYTE g_unk0x00520128[0x100];
 
-// TODO: CMR2 0x00494a70 (implemented, match 26%)
-BYTE *FUN_00494a70(void)
-{
-    switch ((RallyDataCountryIndex() & 0xff) - 1) {
-    case 0:
-        return g_unk0x00520128 + 1 * 7;
-    case 1:
-        return g_unk0x00520128 + 2 * 7;
-    case 2:
-        return g_unk0x00520128 + 3 * 7;
-    case 3:
-        return g_unk0x00520128 + 4 * 7;
-    case 4:
-        return g_unk0x00520128 + 5 * 7;
-    case 5:
-        return g_unk0x00520128 + 6 * 7;
-    case 6:
-        return g_unk0x00520128 + 7 * 7;
-    case 7:
-        return g_unk0x00520128 + 8 * 7;
-    }
-    return g_unk0x00520128;
-}
 
 // GLOBAL: CMR2 0x0082c698
 int g_unk0x0082c698;
