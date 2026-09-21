@@ -2631,3 +2631,41 @@ void FUN_004a4b10(void)
     }
     CGraphics::CreateCubeMapSurfaces(NULL);
 }
+
+// GLOBAL: CMR2 0x0067f228
+int g_unk0x0067f228;
+// GLOBAL: CMR2 0x0067f230
+int g_unk0x0067f230;
+
+// Libera la lista de nodos de 0x669364 y limpia los buffers del gestor.
+// TODO: CMR2 0x004ab720 (implemented, match 28%)
+void FUN_004ab720(void)
+{
+    BYTE *pNode;
+    void **pp;
+    int i;
+    int count;
+
+    for (pp = (void **)0x669364; pp < (void **)0x66f124; pp++) {
+        pNode = (BYTE *)*pp;
+        if (pNode != NULL && *(void **)(pNode + 0xc) != NULL) {
+            g_unk0x0067f230 -= *(unsigned char *)(*(int *)(pNode + 0xc) + 0x110);
+            count = *(int *)(*(int *)(pNode + 0xc) + 0x100);
+            if (count > 0) {
+                for (i = 0; i < count; i++) {
+                    BYTE *p = *(BYTE **)(*(int *)(pNode + 0xc) + 0x38 + i * 4);
+
+                    CFileBuffer::FreeGenericFileBuffer(*(void **)(p + 0x14));
+                    *(int *)(p + 0x14) = 0;
+                    CFileBuffer::FreeGenericFileBuffer(p);
+                    *(int *)(*(int *)(pNode + 0xc) + 0x38 + i * 4) = 0;
+                }
+            }
+        }
+        *pp = NULL;
+        g_unk0x0067f228--;
+    }
+    for (i = 0x1a8; i < 0x338; i += 4)
+        *(int *)((char *)CGraphics::m_pTextureManager + i - 4) = 0;
+    *(int *)((char *)CGraphics::m_pTextureManager + 0x348) = 0;
+}

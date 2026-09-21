@@ -1294,6 +1294,7 @@ private:
     friend void FUN_004ae0a0(void);
     friend int FUN_00423f30(void);
     friend void FUN_004a4b10(void);
+    friend void FUN_004ab720(void);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
 
