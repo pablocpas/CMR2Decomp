@@ -61,10 +61,19 @@ struct FixAngles {
     unsigned short pad;
 };
 
+// Orthonormal basis without padding (right / up / forward).
+struct FixBasis {
+    FixVector right;
+    FixVector up;
+    FixVector forward;
+};
+
+void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles);
 void FixMatrix_Identity(FixMatrix *pOut);
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+void FixMatrix_CopyRotation(FixMatrix *pSrc, FixMatrix *pDst);
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
 void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
 void FixMatrix_GetUp(FixVector *pOut, FixMatrix *pM);

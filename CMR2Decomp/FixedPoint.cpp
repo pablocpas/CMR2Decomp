@@ -69,6 +69,24 @@ int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM)
     return 1;
 }
 
+// Copies the rotation part (right/up/forward) of a matrix.
+// FUNCTION: CMR2 0x004bab80
+void FixMatrix_CopyRotation(FixMatrix *pSrc, FixMatrix *pDst)
+{
+    pDst->right.x = pSrc->right.x;
+    pDst->right.y = pSrc->right.y;
+    pDst->right.z = pSrc->right.z;
+    pDst->up.x = pSrc->up.x;
+    pDst->up.y = pSrc->up.y;
+    pDst->up.z = pSrc->up.z;
+    pDst->forward.x = pSrc->forward.x;
+    pDst->forward.y = pSrc->forward.y;
+    pDst->forward.z = pSrc->forward.z;
+    pDst->position.x = pSrc->position.x;
+    pDst->position.y = pSrc->position.y;
+    pDst->position.z = pSrc->position.z;
+}
+
 // FUNCTION: CMR2 0x004bac40
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM)
 {
@@ -139,4 +157,75 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
 
     p = &pM->forward;
     *p = *pV;
+}
+
+// Rodrigues rotation of vectors a and b about the unit axis k, in place,
+// with the scratch values in locals (see ROTATE_ABOUT_AXIS in SceneNode.cpp
+// for the version using globals).
+#define ROTATE_BASIS(k, a, b, angle)                                                  \
+    {                                                                                 \
+        int s, c, omc, kxx, kyy, kzz, kxs, kys, kzs, kxy, kxz, kyz;                  \
+        int r00, r01, r02, r10, r11, r12, r20, r21, r22;                              \
+        FixVector v;                                                                  \
+        int len;                                                                      \
+                                                                                      \
+        s = FixSin(-(angle));                                                         \
+        c = FixCos(angle);                                                            \
+        omc = 0x10000 - c;                                                            \
+        kxx = FixMul(k.x, k.x);                                                       \
+        kyy = FixMul(k.y, k.y);                                                       \
+        kzz = FixMul(k.z, k.z);                                                       \
+        kxs = FixMul(k.x, s);                                                         \
+        kys = FixMul(k.y, s);                                                         \
+        kzs = FixMul(k.z, s);                                                         \
+        kxy = FixMul(FixMul(k.x, k.y), omc);                                          \
+        kxz = FixMul(FixMul(k.x, k.z), omc);                                          \
+        kyz = FixMul(FixMul(k.z, k.y), omc);                                          \
+                                                                                      \
+        r00 = FixMul(c, 0x10000 - kxx) + kxx;                                         \
+        r01 = kxy - kzs;                                                              \
+        r02 = kys + kxz;                                                              \
+        r10 = kzs + kxy;                                                              \
+        r11 = FixMul(c, 0x10000 - kyy) + kyy;                                         \
+        r21 = kxs + kyz;                                                              \
+        r12 = kyz - kxs;                                                              \
+        r20 = kxz - kys;                                                              \
+        r22 = FixMul(c, 0x10000 - kzz) + kzz;                                         \
+                                                                                      \
+        v.x = FixMul(r00, a.x) + FixMul(r10, a.y) + FixMul(r20, a.z);                 \
+        v.y = FixMul(r01, a.x) + FixMul(r11, a.y) + FixMul(r21, a.z);                 \
+        v.z = FixMul(r02, a.x) + FixMul(r12, a.y) + FixMul(r22, a.z);                 \
+        len = FixVecLength(&v);                                                       \
+        if (len == 0) {                                                               \
+            a.x = 0;                                                                  \
+            a.y = 0;                                                                  \
+            a.z = 0;                                                                  \
+        } else {                                                                      \
+            FixVecScaleRecip(&a, &v, len);                                            \
+        }                                                                             \
+                                                                                      \
+        v.x = FixMul(r00, b.x) + FixMul(r10, b.y) + FixMul(r20, b.z);                 \
+        v.y = FixMul(r01, b.x) + FixMul(r11, b.y) + FixMul(r21, b.z);                 \
+        v.z = FixMul(r02, b.x) + FixMul(r12, b.y) + FixMul(r22, b.z);                 \
+        len = FixVecLength(&v);                                                       \
+        if (len == 0) {                                                               \
+            b.x = 0;                                                                  \
+            b.y = 0;                                                                  \
+            b.z = 0;                                                                  \
+        } else {                                                                      \
+            FixVecScaleRecip(&b, &v, len);                                            \
+        }                                                                             \
+    }
+
+// Rotates a basis in place by the three 12-bit angles (about up, then
+// forward, then right).
+// FUNCTION: CMR2 0x00429f20
+void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles)
+{
+    if (pAngles[1] != 0)
+        ROTATE_BASIS(pBasis->up, pBasis->right, pBasis->forward, pAngles[1])
+    if (pAngles[2] != 0)
+        ROTATE_BASIS(pBasis->forward, pBasis->right, pBasis->up, pAngles[2])
+    if (pAngles[0] != 0)
+        ROTATE_BASIS(pBasis->right, pBasis->up, pBasis->forward, pAngles[0])
 }
