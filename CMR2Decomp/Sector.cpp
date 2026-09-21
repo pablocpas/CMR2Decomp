@@ -165,3 +165,31 @@ void FUN_004b8b10(SceneNode *pNode)
     g_sectors[index]->nodeCount++;
     pNode->sector = (WORD)index;
 }
+
+// Recorre los sectores activos y actualiza la visibilidad de sus nodos.
+// TODO: CMR2 0x0049d290 (implemented, match 7%)
+void FUN_0049d290(int param1)
+{
+    unsigned short *pIndex;
+    BYTE *pSector;
+    BYTE *pNode;
+    int i;
+    int count;
+
+    count = *(int *)0x72d570;
+    if (count <= 0)
+        return;
+    pIndex = (unsigned short *)0x6ed5f0;
+    for (i = 0; i < count; i++) {
+        pSector = *(BYTE **)(0x71f608 + (unsigned int)*pIndex * 4);
+        pNode = *(BYTE **)(pSector + 0x1c);
+        if (pNode != NULL && *(int *)(pNode + 0x180) != 0) {
+            BYTE *pRef = *(BYTE **)0x59be6c;
+
+            *(int *)(pNode + 0x108) = *(int *)(pRef + 0x108);
+            *(int *)(pNode + 0x10c) = *(int *)(pRef + 0x10c);
+            *(int *)(pNode + 0x110) = *(int *)(pRef + 0x110);
+        }
+        pIndex++;
+    }
+}

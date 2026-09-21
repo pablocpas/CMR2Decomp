@@ -1585,3 +1585,29 @@ void CGameInfo::FUN_00505a60(int param1)
     g_unk0x0082cb44 = 0;
     g_unk0x0082ca1c = (BYTE)param1;
 }
+
+// Variante de la creacion de sesion con siete argumentos.
+// TODO: CMR2 0x004a0ec0 (implemented, match 19%)
+void CGameInfo::FUN_004a0ec0(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    FUN_004a0c60();
+    memset(g_unk0x005a0068, 0, 0x50);
+    *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[2];
+    *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[0];
+    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[1];
+    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
+    *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return;
+    hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, (DWORD)a1,
+                                                  (DWORD)a2, (DWORD)a3, (DWORD)a4);
+    if (hr != 0)
+        return;
+    *(int *)0x5a0060 = 1;
+    m_unk0x005a1814 = 1;
+}
