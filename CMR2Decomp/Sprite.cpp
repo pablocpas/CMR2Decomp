@@ -24,9 +24,9 @@ unsigned int g_tri2DCount2;
 unsigned int g_tri2DCount3;
 unsigned int g_tri2DCount4;
 // GLOBAL: CMR2 0x0081616c
-int g_unk0x0081616c;
+unsigned int g_unk0x0081616c;
 // GLOBAL: CMR2 0x00816170
-int g_unk0x00816170;
+unsigned int g_unk0x00816170;
 
 // Exit callback of Sprite_Init.
 // FUNCTION: CMR2 0x004a3640
@@ -299,4 +299,77 @@ void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB)
         p->colourB[3] = pColourB[3];
         g_line2DCount++;
     }
+}
+
+// Textured 2D quad: four 0x24-byte vertices plus texture and flags.
+struct Quad2DVertices {
+    int v[36];
+};
+
+struct Quad2D {
+    Quad2DVertices verts;   // 0x0
+    Texture *pTexture;      // 0x90
+    unsigned int flags;     // 0x94
+};
+
+// GLOBAL: CMR2 0x007dd168
+Quad2D g_quad2DLayerA[0x400];
+// GLOBAL: CMR2 0x00803168
+Quad2D g_quad2DLayerB[0x200];
+// GLOBAL: CMR2 0x00730fd0
+Quad2D g_quad2DLayerC[0x800];
+// GLOBAL: CMR2 0x007acfd0
+Quad2D g_quad2DLayerD[1];
+// GLOBAL: CMR2 0x00816174
+unsigned int g_quad2DCountC;
+// GLOBAL: CMR2 0x00816178
+unsigned int g_quad2DCountD;
+// GLOBAL: CMR2 0x0081618d
+BYTE g_quad2DOverflow;
+
+// Queues a quad into the layer selected by the low bits of pDest (8, 0x10,
+// 0x20, 0x40); with none of those bits set pDest is the destination itself.
+// FUNCTION: CMR2 0x004bbc60
+void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
+{
+    Quad2D *p;
+
+    if ((unsigned int)pDest & 8) {
+        if (g_unk0x0081616c >= 0x400) {
+            if (g_quad2DOverflow == 0)
+                g_quad2DOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerA[g_unk0x0081616c];
+        g_unk0x0081616c++;
+    } else if ((unsigned int)pDest & 0x10) {
+        if (g_unk0x00816170 >= 0x200) {
+            if (g_quad2DOverflow == 0)
+                g_quad2DOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerB[g_unk0x00816170];
+        g_unk0x00816170++;
+    } else if ((unsigned int)pDest & 0x20) {
+        if (g_quad2DCountC >= 0x800) {
+            if (g_quad2DOverflow == 0)
+                g_quad2DOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerC[g_quad2DCountC];
+        g_quad2DCountC++;
+    } else if ((unsigned int)pDest & 0x40) {
+        if (g_quad2DCountD >= 1) {
+            if (g_quad2DOverflow == 0)
+                g_quad2DOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerD[g_quad2DCountD];
+        g_quad2DCountD++;
+    } else {
+        p = (Quad2D *)((unsigned int)pDest);
+    }
+    p->flags = (unsigned int)pDest;
+    p->pTexture = pTexture;
+    p->verts = *pVerts;
 }
