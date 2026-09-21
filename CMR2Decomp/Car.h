@@ -21,8 +21,8 @@ struct Car {
     SceneNode *pNode0x720;          // 0x720
     BYTE field_0x724[0x14];
     SceneNode *pWheelNodes[4];      // 0x738
-    int field_0x748;
-    int field_0x74c;
+    SceneNode *pViewNodeNear;       // 0x748  child node placed towards the view
+    SceneNode *pViewNodeFar;        // 0x74c  child node placed away from the view
     FixMatrix *pWorld;              // 0x750
     BYTE field_0x754[0x10];
     int scale0x764;                 // 0x764
@@ -68,5 +68,6 @@ Car *Car_Get(int index);
 void Car_UpdateCorners(Car *pCar);
 void Car_ApplyCornerOffsets(void);
 void Car_ApplyViewTransforms(int viewIndex);
+void Car_UpdateViewNodes(int viewIndex);
 
 #endif

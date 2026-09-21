@@ -40,6 +40,8 @@ Car *Car_Get(int index)
     return g_cars[index];
 }
 
+#define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
+
 #define ADD_POSITION(p, pos)    \
     (p)->x += (pos).x;          \
     (p)->y += (pos).y;          \
@@ -244,6 +246,91 @@ void Car_ApplyViewTransforms(int viewIndex)
             }
             pOrder--;
             g_carViewScale[carIndex][viewIndex] = scale;
+            n--;
+        } while (n != 0);
+    }
+}
+
+#define SCALE_NODE_AXES(pNode, s)                                            \
+    (pNode)->current.right.x = FixMul((pNode)->local.right.x, s);            \
+    (pNode)->current.right.y = FixMul((pNode)->local.right.y, s);            \
+    (pNode)->current.right.z = FixMul((pNode)->local.right.z, s);            \
+    (pNode)->current.up.x = FixMul((pNode)->local.up.x, s);                  \
+    (pNode)->current.up.y = FixMul((pNode)->local.up.y, s);                  \
+    (pNode)->current.up.z = FixMul((pNode)->local.up.z, s);                  \
+    (pNode)->current.forward.x = FixMul((pNode)->local.forward.x, s);        \
+    (pNode)->current.forward.y = FixMul((pNode)->local.forward.y, s);        \
+    (pNode)->current.forward.z = FixMul((pNode)->local.forward.z, s);        \
+    (pNode)->useParentWorld = 0;                                             \
+    for (p = (pNode); p != NULL; p = p->pParent)                             \
+        p->dirty = 1;
+
+// Places the two view-dependent child nodes of every car (0x748 in front of
+// the body towards the view, 0x74c behind it) along the car -> view
+// direction, scaled with the distance.
+// FUNCTION: CMR2 0x00429810
+void Car_UpdateViewNodes(int viewIndex)
+{
+    int len;
+    short *pOrder;
+    int nearDist;
+    int n;
+    int s;
+    int i;
+    int farDist;
+    FixVector local;
+    FixVector viewPos;
+    FixVector pos;
+    FixVector carPos;
+    FixVector delta;
+    Car *pCar;
+    SceneNode *p;
+
+    nearDist = 0x1999;
+    farDist = 0x8000;
+    FixMatrix_GetPosition(&viewPos, &g_viewNodes[viewIndex]->current);
+    i = g_carOrderCount - 1;
+    if (i >= 0) {
+        pOrder = &g_carOrder[i];
+        n = i + 1;
+        do {
+            pCar = Car_Get(*pOrder);
+            if (pCar->pViewNodeNear != NULL || pCar->pViewNodeFar != NULL) {
+                FixMatrix_GetPosition(&carPos, &pCar->pNode0x720->current);
+                delta.x = carPos.x - viewPos.x;
+                delta.y = carPos.y - viewPos.y;
+                delta.z = carPos.z - viewPos.z;
+                if (FIX_ABS(delta.x) <= 0x800000 && FIX_ABS(delta.y) <= 0x800000 && FIX_ABS(delta.z) <= 0x800000) {
+                    len = FixVecLength(&delta);
+                    if (len == 0)
+                        goto next;
+                    FixVecScaleRecip(&delta, &delta, len);
+                } else {
+                    delta.x /= 128;
+                    delta.y /= 128;
+                    delta.z /= 128;
+                    len = FixVecLength(&delta);
+                    FixVecScaleRecip(&delta, &delta, len);
+                    len <<= 7;
+                }
+                if (len != 0) {
+                    FixMatrix_InverseRotateVector(&local, &delta, &pCar->pNode0x720->current);
+                    if (pCar->pViewNodeNear != NULL) {
+                        FixVecScale(&pos, &local, nearDist);
+                        FixMatrix_SetPosition(&pos, &(pCar->pViewNodeNear)->current);
+                        s = FixDiv(nearDist, len) + 0x10000;
+                        SCALE_NODE_AXES(pCar->pViewNodeNear, s)
+                    }
+                    if (pCar->pViewNodeFar != NULL) {
+                        FixVecScale(&pos, &local, -farDist);
+                        FixMatrix_SetPosition(&pos, &(pCar->pViewNodeFar)->current);
+                        s = 0x10000 - FixDiv(farDist, len);
+                        SCALE_NODE_AXES(pCar->pViewNodeFar, s)
+                    }
+                }
+            }
+next:
+            pOrder--;
             n--;
         } while (n != 0);
     }
