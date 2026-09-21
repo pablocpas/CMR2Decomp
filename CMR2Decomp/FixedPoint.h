@@ -206,6 +206,30 @@ inline void FixVecScale(FixVector *out, FixVector *src, int t)
     }
 }
 
+// a . b
+inline int FixVecDot(FixVector *a, FixVector *b)
+{
+    __asm {
+        mov ecx, a
+        mov esi, b
+        mov eax, [esi]
+        mov edx, [ecx]
+        imul edx
+        shrd eax, edx, 16
+        mov ebx, eax
+        mov eax, [esi + 4]
+        mov edx, [ecx + 4]
+        imul edx
+        shrd eax, edx, 16
+        add ebx, eax
+        mov eax, [esi + 8]
+        mov edx, [ecx + 8]
+        imul edx
+        shrd eax, edx, 16
+        add eax, ebx
+    }
+}
+
 // out = a x b
 inline void FixVecCross(FixVector *out, FixVector *a, FixVector *b)
 {

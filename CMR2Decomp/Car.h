@@ -7,30 +7,58 @@
 // Car instance (0xc24 bytes, one per slot in g_carBuffer). Only the fields
 // used by the decompiled code are named; offsets are in the comments.
 struct Car {
-    BYTE field_0x0[0x204];
-    FixVector halfExtents;          // 0x204
+    BYTE field_0x0[0x1d8];
+    int field_0x1d8;                  // 0x1d8
+    BYTE field_0x1dc[0x28];
+    FixVector halfExtents;            // 0x204
     BYTE field_0x210[0x60];
-    FixVector corners[8];           // 0x270  world-space box corners
-    FixVector position;             // 0x2d0
+    FixVector corners[8];             // 0x270  world-space box corners
+    FixVector position;               // 0x2d0
     BYTE field_0x2dc[0x84];
-    FixVector vec0x360;             // 0x360
-    BYTE field_0x36c[0xc];
-    FixVector vec0x378;             // 0x378
-    BYTE field_0x384[0x398];
-    SceneNode *pNode0x71c;          // 0x71c
-    SceneNode *pNode0x720;          // 0x720
+    FixVector up;                     // 0x360  body axes
+    FixVector right;                  // 0x36c
+    FixVector forward;                // 0x378
+    BYTE field_0x384[0x84];
+    FixVector velocity;               // 0x408
+    BYTE field_0x414[0x10];
+    int field_0x424;                  // 0x424
+    BYTE field_0x428[0x64];
+    int field_0x48c;                  // 0x48c
+    BYTE field_0x490[0x4];
+    int field_0x494;                  // 0x494
+    int field_0x498;                  // 0x498
+    BYTE field_0x49c[0x4];
+    int field_0x4a0;                  // 0x4a0
+    BYTE field_0x4a4[0x1a4];
+    FixVector force0x648;             // 0x648
+    FixVector force0x654;             // 0x654
+    BYTE field_0x660[0xbc];
+    SceneNode *pNode0x71c;            // 0x71c
+    SceneNode *pNode0x720;            // 0x720
     BYTE field_0x724[0x14];
-    SceneNode *pWheelNodes[4];      // 0x738
-    SceneNode *pViewNodeNear;       // 0x748  child node placed towards the view
-    SceneNode *pViewNodeFar;        // 0x74c  child node placed away from the view
-    FixMatrix *pWorld;              // 0x750
+    SceneNode *pWheelNodes[4];        // 0x738
+    SceneNode *pViewNodeNear;         // 0x748  child node placed towards the view
+    SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view
+    FixMatrix *pWorld;                // 0x750
     BYTE field_0x754[0x10];
-    int scale0x764;                 // 0x764
-    int scale0x768;                 // 0x768
-    int scale0x76c;                 // 0x76c
-    BYTE field_0x770[0x3f4];
-    int field_0xb64;                // 0xb64
-    BYTE field_0xb68[0xbc];
+    int scale0x764;                   // 0x764
+    int scale0x768;                   // 0x768
+    int scale0x76c;                   // 0x76c
+    BYTE field_0x770[0x8];
+    int steer;                        // 0x778
+    BYTE field_0x77c[0xa0];
+    int field_0x81c;                  // 0x81c
+    BYTE field_0x820[0x1a4];
+    int field_0x9c4;                  // 0x9c4
+    BYTE field_0x9c8[0x148];
+    unsigned short heading;           // 0xb10  12-bit angle
+    BYTE field_0xb12[0x16];
+    BYTE field_0xb28;                 // 0xb28
+    BYTE field_0xb29[0x3b];
+    int field_0xb64;                  // 0xb64
+    BYTE field_0xb68[0xc];
+    int field_0xb74;                  // 0xb74
+    BYTE field_0xb78[0xac];
 };
 
 // Stored transforms of a car, written by the physics and applied to the
@@ -69,5 +97,6 @@ void Car_UpdateCorners(Car *pCar);
 void Car_ApplyCornerOffsets(void);
 void Car_ApplyViewTransforms(int viewIndex);
 void Car_UpdateViewNodes(int viewIndex);
+void Car_UpdateBodyAxes(void);
 
 #endif
