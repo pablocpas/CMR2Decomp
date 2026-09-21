@@ -2667,3 +2667,21 @@ void FUN_004ab720(void)
         *(int *)((char *)CGraphics::m_pTextureManager + i - 4) = 0;
     *(int *)((char *)CGraphics::m_pTextureManager + 0x348) = 0;
 }
+
+// Consulta el estado del registro de 0x521138 correspondiente al indice.
+// TODO: CMR2 0x004bc110 (implemented, match 11%)
+int FUN_004bc110(int param1)
+{
+    BYTE *p;
+    int a;
+    int b;
+
+    p = (BYTE *)(0x521138 + (param1 & 0xff) * 48);
+    a = *(int *)(p + 0x28);
+    b = *(int *)(p + 0x4);
+    if ((unsigned int)a < (unsigned int)b)
+        return 0;
+    if (*(int *)(p + 0x2c) != 0)
+        return 1;
+    return 0;
+}
