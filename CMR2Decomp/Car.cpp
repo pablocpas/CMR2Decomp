@@ -7,6 +7,12 @@ Car *g_cars[64];
 int g_carCount;
 Car *g_carBuffer;
 Car *g_pCurrentCar;
+CarTransforms g_carTransforms[16];
+FixMatrix g_carWheelTransforms[16][4];
+short g_carOrderCount;
+short g_carOrder[48];
+int g_carViewScale[15][2];
+SceneNode *g_viewNodes[8];
 
 // GLOBAL: CMR2 0x00428790
 BYTE g_unk0x00428790[1];
@@ -147,4 +153,98 @@ void Car_ApplyCornerOffsets(void)
     g_pCurrentCar->corners[7].x += b.x;
     g_pCurrentCar->corners[7].y += b.y;
     g_pCurrentCar->corners[7].z += b.z;
+}
+
+// Scene node stored at byte offset `off + field` inside the car table.
+#define CAR_NODE(off, field) (*(SceneNode **)((int)g_carBuffer + (off) + (field)))
+
+// Applies the stored transforms of every car to its scene nodes for the
+// given view. Cars closer than 2.0 to the view get the transforms as they
+// are; farther cars are pulled 1.5 units towards the view and their axes
+// scaled by (1 - 1.5 / distance), which is stored in g_carViewScale.
+// FUNCTION: CMR2 0x004292c0
+void Car_ApplyViewTransforms(int viewIndex)
+{
+    FixVector viewPos;
+    FixVector delta;
+    FixVector bodyPos;
+    FixVector axis;
+    int pull;
+    int n;
+    int i;
+    short *pOrder;
+    int carIndex;
+    int wheel;
+    int offset;
+    int wheelOffset;
+    int scale;
+    int len;
+    CarTransforms *pT;
+    FixMatrix *pWheel;
+
+    pull = 0x18000;
+    FixMatrix_GetPosition(&viewPos, &g_viewNodes[viewIndex]->current);
+    i = g_carOrderCount - 1;
+    if (i >= 0) {
+        pOrder = &g_carOrder[i];
+        n = i + 1;
+        do {
+            scale = 0x10000;
+            carIndex = *pOrder;
+            pT = &g_carTransforms[carIndex];
+            i = carIndex;
+            FixMatrix_GetPosition(&bodyPos, &pT->body);
+            wheel = 4;
+            offset = carIndex * sizeof(Car);
+            pWheel = g_carWheelTransforms[carIndex];
+            wheelOffset = offset + 0x738;
+            do {
+                FixMatrix_CopyRotation(pWheel, &CAR_NODE(wheelOffset, 0)->current);
+                wheelOffset += 4;
+                pWheel++;
+                wheel--;
+            } while (wheel != 0);
+            delta.x = viewPos.x - bodyPos.x;
+            delta.y = viewPos.y - bodyPos.y;
+            delta.z = viewPos.z - bodyPos.z;
+            len = FixVecLength(&delta);
+            if (len > 0x20000) {
+                if (len != 0) {
+                    scale = 0x10000 - FixDiv(pull, len);
+                    FixVecScaleRecip(&delta, &delta, len);
+                    FixVecScale(&delta, &delta, pull);
+                    bodyPos.x += delta.x;
+                    bodyPos.y += delta.y;
+                    bodyPos.z += delta.z;
+                    FixMatrix_SetPosition(&bodyPos, &CAR_NODE(offset, 0x71c)->current);
+                    FixMatrix_GetRight(&axis, &pT->body);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetRight(&axis, &CAR_NODE(offset, 0x71c)->current);
+                    FixMatrix_GetUp(&axis, &pT->body);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetUp(&axis, &CAR_NODE(offset, 0x71c)->current);
+                    FixMatrix_GetForward(&axis, &pT->body);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetForward(&axis, &CAR_NODE(offset, 0x71c)->current);
+                    FixMatrix_SetPosition(&bodyPos, &CAR_NODE(offset, 0x720)->current);
+                    FixMatrix_GetRight(&axis, &pT->body2);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetRight(&axis, &CAR_NODE(offset, 0x720)->current);
+                    FixMatrix_GetUp(&axis, &pT->body2);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetUp(&axis, &CAR_NODE(offset, 0x720)->current);
+                    FixMatrix_GetForward(&axis, &pT->body2);
+                    FixVecScale(&axis, &axis, scale);
+                    FixMatrix_SetForward(&axis, &CAR_NODE(offset, 0x720)->current);
+                    carIndex = i;
+                }
+            } else {
+                FixMatrix_CopyRotation(&pT->body, &CAR_NODE(offset, 0x71c)->current);
+                FixMatrix_CopyRotation(&pT->body2, &CAR_NODE(offset, 0x720)->current);
+            }
+            pOrder--;
+            g_carViewScale[carIndex][viewIndex] = scale;
+            n--;
+        } while (n != 0);
+    }
 }

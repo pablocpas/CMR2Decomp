@@ -33,6 +33,27 @@ struct Car {
     BYTE field_0xb68[0xbc];
 };
 
+// Stored transforms of a car, written by the physics and applied to the
+// scene nodes each frame.
+struct CarTransforms {
+    FixMatrix body;                 // 0x0   applied to Car::pNode0x71c
+    FixMatrix body2;                // 0x40  applied to Car::pNode0x720
+    BYTE field_0x80[0x7c];
+};
+
+// GLOBAL: CMR2 0x0053b560
+extern CarTransforms g_carTransforms[16];
+// GLOBAL: CMR2 0x0053bda0
+extern FixMatrix g_carWheelTransforms[16][4];
+// GLOBAL: CMR2 0x0053a3a0
+extern short g_carOrderCount;
+// GLOBAL: CMR2 0x0053b500
+extern short g_carOrder[48];
+// GLOBAL: CMR2 0x0053a324
+extern int g_carViewScale[15][2];
+// GLOBAL: CMR2 0x00538e2c
+extern SceneNode *g_viewNodes[8];
+
 // GLOBAL: CMR2 0x0053aba8
 extern Car *g_cars[64];
 // GLOBAL: CMR2 0x0053bd68
@@ -46,5 +67,6 @@ void Car_AllocateTable(int count);
 Car *Car_Get(int index);
 void Car_UpdateCorners(Car *pCar);
 void Car_ApplyCornerOffsets(void);
+void Car_ApplyViewTransforms(int viewIndex);
 
 #endif
