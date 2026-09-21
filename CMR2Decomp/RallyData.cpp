@@ -316,3 +316,40 @@ char *RallyData_FUN_0040fe50(void)
     return CFrontend::GetTextString(table[(RallyData_FUN_00406940() & 0xff) * 3 +
                                           (RallyData_FUN_00406950() & 0xff)]);
 }
+
+// GLOBAL: CMR2 0x0058c938
+BYTE *g_unk0x0058c938;
+// GLOBAL: CMR2 0x0058c94c
+BYTE *g_unk0x0058c94c;
+// GLOBAL: CMR2 0x0058c958
+int *g_unk0x0058c958;
+// GLOBAL: CMR2 0x0058ca6c
+unsigned int g_unk0x0058ca6c;
+
+// Copies the 12-byte vector and, when the entry is not already flagged,
+// raises the destination's Y component by 0x3e80000.
+// TODO: CMR2 0x00471cc0 (implemented, match 49%)
+void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
+{
+    int *pSrc;
+    int **pp;
+    unsigned int index;
+
+    pp = (int **)*pParam1;
+    pSrc = *pp;
+    pDest[0] = pSrc[0];
+    pDest[1] = pSrc[1];
+    pDest[2] = pSrc[2];
+    index = (unsigned int)((BYTE *)pParam1[0] - g_unk0x0058c94c) / 8;
+    if (index >= g_unk0x0058ca6c)
+        return;
+    if (RallyDataState() > 1) {
+        if (g_unk0x0058c958[index] != 0)
+            return;
+        pDest[1] = pDest[1] + 0x3e80000;
+    } else {
+        if ((g_unk0x0058c938[index] & 1) != 0)
+            return;
+        pDest[1] += 0x3e80000;
+    }
+}
