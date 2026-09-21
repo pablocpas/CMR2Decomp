@@ -262,14 +262,15 @@ bool RallyData_FUN_004074a0(void)
 {
     unsigned int v;
 
-    if (CGameInfo::FUN_00405d80() != 5)
-        return false;
-    v = g_selectedRallyData;
-    v ^= (((v & 0xfffff000) + 0x1000) ^ v) & 0x3000;
-    g_selectedRallyData = v;
-    if ((v & 0x3000) >= 0x3000)
-        return false;
-    if ((v & 0xc00) == 0x800)
-        return false;
-    return true;
+    if (CGameInfo::FUN_00405d80() == 5) {
+        v = g_selectedRallyData;
+        v ^= (((v & 0xfffff000) + 0x1000) ^ v) & 0x3000;
+        g_selectedRallyData = v;
+        if ((v & 0x3000) >= 0x3000)
+            return false;
+        if ((v & 0xc00) == 0x800)
+            return false;
+        return true;
+    }
+    return false;
 }

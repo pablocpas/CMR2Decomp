@@ -903,9 +903,9 @@ bool FUN_004aac00(void)
 
     CGame::ClearConnections();
     hr = ((DPMethod4)(*(void ***)g_unk0x0066521c)[0x8c / 4])(g_unk0x0066521c, 0, (DWORD)0x4aabd0, 0, 0);
-    if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
-        return false;
-    return !hr;
+    if (hr != (HRESULT)0x80070057 && hr != (HRESULT)0x88770078)
+        return !hr;
+    return false;
 }
 
 // GLOBAL: CMR2 0x005a1ea0
@@ -918,11 +918,11 @@ int FUN_004a1cb0(int param2, int param3)
     HRESULT hr;
 
     pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
-        return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, g_unk0x005a1ea0, param3, param2, 2);
-    if (hr <= (HRESULT)0x88770082 || hr == (HRESULT)0x88770096 ||
-        hr == (HRESULT)0x88770168 || hr != 0)
-        return 0;
-    return 1;
+    if (pDP != NULL) {
+        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, g_unk0x005a1ea0, param3, param2, 2);
+        if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
+            hr != (HRESULT)0x88770168 && hr == 0)
+            return 1;
+    }
+    return 0;
 }
