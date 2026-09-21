@@ -444,3 +444,29 @@ void CSound::FUN_004a27c0(SoundSlot *pSlot)
         FUN_004b7620(pSlot->id);
     }
 }
+
+// FUNCTION: CMR2 0x004a28c0
+void CSound::FUN_004a28c0(void)
+{
+}
+
+// FUNCTION: CMR2 0x004b7b10
+void CSound::FUN_004b7b10(void)
+{
+    FUN_004a28c0();
+}
+
+// Stops the shared DirectSound buffer when it is still playing.
+// FUNCTION: CMR2 0x004a31a0
+void CSound::FUN_004a31a0(void)
+{
+    DWORD status;
+
+    if (m_unk0x005a2728 != 0 && m_pDirectSoundBuffer != NULL) {
+        m_pDirectSoundBuffer->GetStatus(&status);
+        if (status & 1) {
+            FUN_004a3250(m_pDirectSoundBuffer->Stop());
+            m_unk0x005a2720 = 1;
+        }
+    }
+}

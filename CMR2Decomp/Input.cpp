@@ -1543,3 +1543,50 @@ void CInput::FUN_0040c050(void)
         memset(&m_controllerInfo[m_controllerCount], 0, (6 - m_controllerCount) * sizeof(ControllerData));
     m_hasLoadedControllerInfo = TRUE;
 }
+
+// GLOBAL: CMR2 0x006ed3f4
+int g_unk0x006ed3f4[30];
+// GLOBAL: CMR2 0x006ed46c
+int g_unk0x006ed46c[30];
+
+// Queues one character for the input ring buffer.
+// FUNCTION: CMR2 0x004b7ca0
+void CInput::FUN_004b7ca0(int param1)
+{
+    int *p;
+    int i;
+
+    i = 0;
+    p = g_unk0x006ed3f4;
+    while (1) {
+        if (*p == 0)
+            break;
+        p++;
+        i++;
+        if ((int)p >= (int)g_unk0x006ed46c)
+            return;
+    }
+    g_unk0x006ed3f4[i] = param1;
+}
+
+// Queues one key press (only when the scan code carries a virtual key).
+// FUNCTION: CMR2 0x004b7d10
+void CInput::FUN_004b7d10(unsigned int param1)
+{
+    int *p;
+    int i;
+
+    if ((param1 & 0xff0000) != 0) {
+        i = 0;
+        p = g_unk0x006ed46c;
+        while (1) {
+            if (*p == 0)
+                break;
+            p++;
+            i++;
+            if ((int)p >= (int)(g_unk0x006ed46c + 30))
+                return;
+        }
+        g_unk0x006ed46c[i] = param1;
+    }
+}

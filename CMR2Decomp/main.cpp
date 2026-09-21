@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Game.h"
 #include "Input.h"
+#include "Sound.h"
 
 HINSTANCE CMain::m_hInstance;
 int CMain::m_frameTime;
@@ -14,6 +15,11 @@ unsigned int CMain::m_frameDelta;
 unsigned int CMain::m_frameDeltaMax;
 HWND CMain::m_hWndList[1];
 int CMain::m_hWndIx = 0;
+int CMain::m_unk0x00663dbc;
+int CMain::m_unk0x00663dc0;
+
+// GLOBAL: CMR2 0x005210ac
+int g_unk0x005210ac;
 
 char CMain::m_logFileLocation[14] = "c:\\error.txt";
 char CMain::m_gameName[20] = "Colin McRae Rally 2";
@@ -172,32 +178,111 @@ BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowNam
 // FUNCTION: CMR2 0x004a98b0
 LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	int *pDD7;
+
 	switch (msg)
 	{
-	default:
+	case WM_DESTROY:
+		PostQuitMessage(0);
 		break;
 
-	case WM_SIZE:
-		break;
-
-	case WM_SETFOCUS:
+	case WM_ACTIVATE:
+		if (wParam == 4 || wParam == 1)
+			FUN_004a9a50(1);
+		else
+			FUN_004a9a50(0);
 		break;
 
 	case WM_KILLFOCUS:
+		CSound::FUN_004a28c0();
 		break;
 
-	case WM_PAINT:
+	case WM_ENABLE:
+		CSound::FUN_004a31a0();
 		break;
 
-	case WM_CLOSE:
-		break;
+	case WM_QUIT:
+		if (g_pGraphics->isFullscreen != 0)
+			return 0;
 
-	case WM_DESTROY:
+		msg = WM_KEYDOWN;
+		wParam = VK_ESCAPE;
 		PostQuitMessage(0);
+		break;
+
+	case WM_ACTIVATEAPP:
+		FUN_004a9a50(wParam == 0);
+		if (wParam != 0) {
+			CGraphics::RestoreSurfaces();
+			pDD7 = (int *)g_pGraphics->pDD7;
+			if (pDD7 != NULL)
+				((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x64))(pDD7);
+		}
+		break;
+
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		CInput::FUN_004b7d10(lParam);
+		break;
+
+	case WM_CHAR:
+		CInput::FUN_004b7ca0(wParam);
+		break;
+
+	case WM_SYSCOMMAND:
+		if (wParam == 0xf140 || wParam == 0xf170)
+			return 1;
+		break;
+
+	case WM_SYSKEYUP:
+	case 0x218:
+		return 0;
+
+	default:
+		if (msg != 0 && msg == RegisterWindowMessageA("QueryCancelAutoPlay"))
+			return 1;
 		break;
 	}
 
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
+}
+
+// Switches the game between active and inactive: input/mouse cooperative
+// level, the sound "hooked" flag and the menu bar, plus the inactive time.
+// FUNCTION: CMR2 0x004a9a50
+void CMain::FUN_004a9a50(int param1)
+{
+	int *pDD7;
+	int frameTime;
+
+	if (param1 != 0) {
+		CInput::SetMouseCoopLevel(0);
+		CSound::FUN_004b7b10();
+		m_unk0x00663dbc = GetFrameTime();
+		CGame::m_isActive = 1;
+
+		pDD7 = (int *)g_pGraphics->pDD7;
+		if (pDD7 != NULL)
+			((void (__stdcall *)(int *))*(int *)(*pDD7 + 0x28))(pDD7);
+
+		DrawMenuBar(m_hWndList[m_hWndIx]);
+		RedrawWindow(m_hWndList[m_hWndIx], NULL, NULL, 0x400);
+		return;
+	}
+
+	CInput::SetMouseCoopLevel(1);
+	CSound::FUN_004b7b10();
+	CInput::FUN_0049efc0();
+	FUN_004b2390();
+	frameTime = GetFrameTime();
+	CGame::m_isActive = 0;
+	m_unk0x00663dc0 = frameTime - m_unk0x00663dbc;
+}
+
+// FUNCTION: CMR2 0x004b2390
+void CMain::FUN_004b2390(void)
+{
+	g_unk0x005210ac = 1;
 }
 
 // FUNCTION: CMR2 0x0049c130

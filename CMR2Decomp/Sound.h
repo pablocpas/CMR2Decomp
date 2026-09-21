@@ -56,6 +56,9 @@ struct SoundSlot {
 class CSound {
 public:
     static void FUN_004a23f0(IDirectSoundBuffer *pBuffer, int flags);
+    static void FUN_004a28c0(void);
+    static void FUN_004a31a0(void);
+    static void FUN_004b7b10(void);
     static void FUN_004a27c0(SoundSlot *pSlot);
     static void FUN_004b7620(int index);
 
