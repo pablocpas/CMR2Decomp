@@ -229,3 +229,39 @@ void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles)
     if (pAngles[0] != 0)
         ROTATE_BASIS(pBasis->right, pBasis->up, pBasis->forward, pAngles[0])
 }
+
+// Builds the rotation matrix for a rotation of angle (12-bit) about the
+// unit axis (Rodrigues), with the scratch products left in the globals.
+// FUNCTION: CMR2 0x004adb10
+void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle)
+{
+    int neg;
+
+    neg = -angle;
+    g_rotSin = g_sinTable[neg & 0xfff];
+    g_rotCos = g_sinTable[(neg + 0x400) & 0xfff];
+    g_rotOneMinusCos = 0x10000 - g_rotCos;
+    g_rotAxisXX = FixMul(pAxis->x, pAxis->x);
+    g_rotAxisYY = FixMul(pAxis->y, pAxis->y);
+    g_rotAxisZZ = FixMul(pAxis->z, pAxis->z);
+    g_rotAxisXY = FixMul(FixMul(pAxis->x, pAxis->y), g_rotOneMinusCos);
+    g_rotAxisXZ = FixMul(FixMul(pAxis->x, pAxis->z), g_rotOneMinusCos);
+    g_rotAxisYZ = FixMul(FixMul(pAxis->z, pAxis->y), g_rotOneMinusCos);
+
+    pOut->right.x = FixMul(g_rotCos, 0x10000 - g_rotAxisXX) + g_rotAxisXX;
+    pOut->right.y = g_rotAxisXY - FixMul(pAxis->z, g_rotSin);
+    pOut->right.z = FixMul(pAxis->y, g_rotSin) + g_rotAxisXZ;
+    pOut->rw = 0;
+    pOut->up.x = FixMul(pAxis->z, g_rotSin) + g_rotAxisXY;
+    pOut->up.y = FixMul(g_rotCos, 0x10000 - g_rotAxisYY) + g_rotAxisYY;
+    pOut->up.z = g_rotAxisYZ - FixMul(pAxis->x, g_rotSin);
+    pOut->uw = 0;
+    pOut->forward.x = g_rotAxisXZ - FixMul(pAxis->y, g_rotSin);
+    pOut->forward.y = FixMul(pAxis->x, g_rotSin) + g_rotAxisYZ;
+    pOut->forward.z = FixMul(g_rotCos, 0x10000 - g_rotAxisZZ) + g_rotAxisZZ;
+    pOut->fw = 0;
+    pOut->position.x = 0;
+    pOut->position.y = 0;
+    pOut->position.z = 0;
+    pOut->pw = 0x10000;
+}

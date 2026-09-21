@@ -69,6 +69,19 @@ struct FixBasis {
 };
 
 void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles);
+
+// Rodrigues rotation scratch values (defined in SceneNode.cpp)
+extern int g_rotSin;
+extern int g_rotCos;
+extern int g_rotOneMinusCos;
+extern int g_rotAxisXX;
+extern int g_rotAxisYY;
+extern int g_rotAxisZZ;
+extern int g_rotAxisXY;
+extern int g_rotAxisXZ;
+extern int g_rotAxisYZ;
+
+void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle);
 void FixMatrix_Identity(FixMatrix *pOut);
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
