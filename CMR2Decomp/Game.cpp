@@ -936,6 +936,7 @@ int FUN_004a1c50(int param1, int param2, int param3, int param4)
     return 1;
 }
 
+typedef HRESULT (__stdcall *DPMethod5)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
 typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6);
 
 // GLOBAL: CMR2 0x005a1fa8
@@ -1063,4 +1064,42 @@ bool FUN_004aac40(int param1)
     }
     CGame::m_maxConnections = (BYTE)param1;
     return true;
+}
+
+// Enumera las sesiones o vuelca el buffer recibido en *param2.
+// TODO: CMR2 0x004a1b90 (implemented, match 44%)
+int FUN_004a1b90(int param1, void **param2)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+    BOOL local1;
+    int local2;
+    void *pBuffer;
+
+    local1 = CGame::m_unk0x005a1fbc;
+    local2 = 0;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod5)(*(void ***)pDP)[0x64 / 4])(pDP, (DWORD)CGame::m_unk0x005a1fb8, 1,
+                                                (DWORD)&local2, (DWORD)param1, (DWORD)&local1);
+    if (hr > (HRESULT)0x88770082) {
+        if (hr == (HRESULT)0x88770096 || hr == (HRESULT)0x887700be || hr != 0)
+            return 0;
+        *param2 = CGame::m_unk0x005a1fb8;
+        return 1;
+    }
+    if (hr == (HRESULT)0x88770082 || hr == (HRESULT)0x80004005 ||
+        hr == (HRESULT)0x80070057 || hr != (HRESULT)0x8877001e)
+        return 0;
+    if (CGame::m_unk0x005a1fb8 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(CGame::m_unk0x005a1fb8);
+        CGame::m_unk0x005a1fb8 = NULL;
+    }
+    pBuffer = CFileBuffer::AllocateLockedBuffer(local2);
+    CGame::m_unk0x005a1fb8 = pBuffer;
+    if (pBuffer == NULL)
+        return 0;
+    CGame::m_unk0x005a1fbc = local2;
+    return 0;
 }
