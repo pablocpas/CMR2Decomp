@@ -1493,3 +1493,40 @@ void CGameInfo::FUN_004a13b0(void)
         hr == (HRESULT)0x88770082)
         return;
 }
+
+// Variante de FUN_004a13b0 que ademas guarda el parametro en 0x5a009c y usa
+// 0x51 como tamano inicial.
+// TODO: CMR2 0x004a12d0 (implemented, match 65%)
+void CGameInfo::FUN_004a12d0(int param1)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    if (m_unk0x005a1814 != 0)
+        return;
+    FUN_004a0c60();
+    memset(g_unk0x005a0068, 0, 0x50);
+    *(int *)(g_unk0x005a0068 + 0x34) = param1;
+    *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
+    *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
+    *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
+    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
+    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return;
+    hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
+                                                  (DWORD)0x4a12b0, 0, 0x51);
+    if (hr > (HRESULT)0x887700aa) {
+        if (hr == (HRESULT)0x8877015e)
+            return;
+        if (hr != 0)
+            return;
+        m_unk0x005a1814 = 1;
+        return;
+    }
+    if (hr == (HRESULT)0x887700aa || hr <= (HRESULT)0x8877005a ||
+        hr == (HRESULT)0x88770082)
+        return;
+}
