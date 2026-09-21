@@ -1,4 +1,5 @@
 #include "Frontend.h"
+#include "Game.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
 #include "InstallInfo.h"
@@ -93,6 +94,16 @@ char CFrontend::m_strFrontendTexturesCarsB01[36] = "%s\\frontend\\Textures\\cars
 char CFrontend::m_strFrontendTexturesCarsF01[36] = "%s\\frontend\\Textures\\cars\\%sF01.tga";
 
 GenericFile CFrontend::m_unk0x00818260;
+GenericFile CFrontend::m_languageFiles[5];
+GenericFile CFrontend::m_commonFile;
+char CFrontend::m_strCommonBfl[14] = "%s\\Common.bfl";
+char CFrontend::m_strEnglishTextBfl[20] = "%s%sEnglishText.bfl";
+char CFrontend::m_strFrenchTextBfl[19] = "%s%sFrenchText.bfl";
+char CFrontend::m_strGermanTextBfl[19] = "%s%sGermanText.bfl";
+char CFrontend::m_strSpanishTextBfl[20] = "%s%sSpanishText.bfl";
+char CFrontend::m_strItalianTextBfl[20] = "%s%sItalianText.bfl";
+char CFrontend::m_strPolishTextBfl[19] = "%s%sPolishText.bfl";
+char CFrontend::m_strEngUSATextBfl[19] = "%s%sEngUSAText.bfl";
 unsigned int CFrontend::m_unk0x006e0c5c;
 unsigned int CFrontend::m_unk0x006e0c64;
 unsigned int CFrontend::m_unk0x006e0c60;
@@ -300,4 +311,82 @@ bool CFrontend::LoadSplashScreens(bool param1) {
     }
     
     return true;
+}
+
+// FUNCTION: CMR2 0x004d2100
+bool CFrontend::ReleaseLanguageFiles(void)
+{
+    int i;
+
+    if (m_commonFile.buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(m_commonFile.buffer);
+        m_commonFile.buffer = NULL;
+    }
+    m_commonFile.didFileLoad = FALSE;
+    m_commonFile.fileSize = 0;
+    if (CGenericFileLoader::m_genericFile.buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(CGenericFileLoader::m_genericFile.buffer);
+        CGenericFileLoader::m_genericFile.buffer = NULL;
+    }
+    CGenericFileLoader::m_genericFile.didFileLoad = FALSE;
+    CGenericFileLoader::m_genericFile.fileSize = 0;
+    if (m_unk0x00818260.buffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(m_unk0x00818260.buffer);
+        m_unk0x00818260.buffer = NULL;
+    }
+    m_unk0x00818260.didFileLoad = FALSE;
+    m_unk0x00818260.fileSize = 0;
+    for (i = 0; i < 5; i++) {
+        if (m_languageFiles[i].buffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(m_languageFiles[i].buffer);
+            m_languageFiles[i].buffer = NULL;
+        }
+        m_languageFiles[i].didFileLoad = FALSE;
+        m_languageFiles[i].fileSize = 0;
+    }
+    return true;
+}
+
+// FUNCTION: CMR2 0x004d2380
+void CFrontend::LoadLanguageFiles(void)
+{
+    char *format;
+
+    sprintf(m_stringDest, m_strCommonBfl, CInstallInfo::GetFrontendDir());
+    CGenericFileLoader::FUN_004a9d70(&m_commonFile, m_stringDest);
+    FUN_004d21e0();
+
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        sprintf(m_stringDest, m_strEnglishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        sprintf(m_stringDest, m_strFrenchTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[1], m_stringDest);
+        sprintf(m_stringDest, m_strGermanTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[4], m_stringDest);
+        sprintf(m_stringDest, m_strSpanishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[2], m_stringDest);
+        sprintf(m_stringDest, m_strItalianTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[3], m_stringDest);
+        break;
+    case 1:
+        sprintf(m_stringDest, m_strEngUSATextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        sprintf(m_stringDest, m_strFrenchTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[1], m_stringDest);
+        sprintf(m_stringDest, m_strSpanishTextBfl, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[2], m_stringDest);
+        break;
+    case 2:
+        format = m_strEnglishTextBfl;
+        sprintf(m_stringDest, format, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        break;
+    default:
+        format = m_strPolishTextBfl;
+        sprintf(m_stringDest, format, CInstallInfo::GetCountrySpecificDir(), CGameInfo::GetGameRegionDirectory());
+        CGenericFileLoader::FUN_004a9d70(&m_languageFiles[0], m_stringDest);
+        break;
+    }
+    CGame::RegisterCallback(ReleaseLanguageFiles, NULL);
 }

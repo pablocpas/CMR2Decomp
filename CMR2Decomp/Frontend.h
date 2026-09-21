@@ -14,6 +14,29 @@ public:
     static BOOL FUN_004a9700(void);
     static void FUN_004d2590(void);
     static bool LoadSplashScreens(bool param1);
+    static void LoadLanguageFiles(void);
+    static bool ReleaseLanguageFiles(void);
+
+    // GLOBAL: CMR2 0x00818200
+    static GenericFile m_languageFiles[5];
+    // GLOBAL: CMR2 0x00818240
+    static GenericFile m_commonFile;
+    // GLOBAL: CMR2 0x0051a0f0
+    static char m_strCommonBfl[14];
+    // GLOBAL: CMR2 0x00523ec8
+    static char m_strEnglishTextBfl[20];
+    // GLOBAL: CMR2 0x00523ea0
+    static char m_strFrenchTextBfl[19];
+    // GLOBAL: CMR2 0x00523e78
+    static char m_strGermanTextBfl[19];
+    // GLOBAL: CMR2 0x00523e8c
+    static char m_strSpanishTextBfl[20];
+    // GLOBAL: CMR2 0x00523e64
+    static char m_strItalianTextBfl[20];
+    // GLOBAL: CMR2 0x00523edc
+    static char m_strPolishTextBfl[19];
+    // GLOBAL: CMR2 0x00523eb4
+    static char m_strEngUSATextBfl[19];
 
     // GLOBAL: CMR2 0x00663b60
     static char m_stringDest[MAX_PATH];
