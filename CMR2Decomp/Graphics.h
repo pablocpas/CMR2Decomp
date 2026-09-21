@@ -941,6 +941,56 @@ struct TextureFormat {
     BYTE shifts[4]; // shift of each channel mask
 };
 
+struct Unk0x006e0bb0 {
+    DWORD field0x0;
+    DWORD field0x4;
+    DWORD field0x8;
+    DWORD field0xc;
+    DWORD flag200;
+    DWORD flag100;
+    DWORD flag1000;
+    DWORD field0x18;
+    DWORD field0x1c;
+    DWORD field0x20;
+    DWORD field0x24;
+    DWORD field0x28;
+    DWORD field0x2c;
+    DWORD field0x30;
+    DWORD field0x34;
+    DWORD field0x38;
+    DWORD field0x3c;
+    DWORD field0x40;
+    DWORD field0x44;
+    DWORD field0x48;
+    DWORD field0x4c;
+    DWORD field0x50;
+    DWORD field0x54;
+    DWORD field0x58;
+    DWORD field0x5c;
+    DWORD field0x60;
+    DWORD field0x64;
+    DWORD field0x68;
+    DWORD field0x6c;
+    DWORD field0x70;
+    DWORD field0x74;
+    DWORD field0x78;
+    DWORD field0x7c;
+    DWORD field0x80;
+    DWORD field0x84;
+    DWORD field0x88;
+    DWORD field0x8c;
+    DWORD field0x90;
+    DWORD field0x94;
+    DWORD field0x98;
+    DWORD field0x9c;
+    DWORD field0xa0;
+    DWORD field0xa4;
+    DWORD field0xa8;
+    DWORD field0xac;
+    DWORD field0xb0;
+    DWORD field0xb4;
+};
+
 struct D3DTextureManager {
     IDirect3D7* pDD;                              // 0x0
     IDirect3DDevice7* pD3D;                       // 0x4
@@ -1144,6 +1194,8 @@ public:
     static float m_projection33;
     // GLOBAL: CMR2 0x0065fb64
     static float m_projection43;
+    // GLOBAL: CMR2 0x006e0bb0
+    static Unk0x006e0bb0 m_d3dDeviceDesc7;
     // GLOBAL: CMR2 0x00520b9c
     static char m_strSetDesktopTo16Bit[48];
     // GLOBAL: CMR2 0x0072d56c
