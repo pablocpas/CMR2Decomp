@@ -81,24 +81,24 @@ void Car_UpdateCorners(Car *pCar)
     hz = pCar->halfExtents.z;
     g_pCurrentCar = pCar;
 
-    ax = FixMul(pM->up.x, hx);
-    ay = FixMul(pM->right.x, hy);
+    ax = FixMul(pM->right.x, hx);
+    ay = FixMul(pM->up.x, hy);
     az = FixMul(pM->forward.x, hz);
     pCar->corners[4].x = az + ay + ax;
     pCar->corners[5].x = (ay - az) + ax;
     pCar->corners[7].x = (ay - az) - ax;
     pCar->corners[6].x = (az - ax) + ay;
 
-    ax = FixMul(pM->up.y, hx);
-    ay = FixMul(pM->right.y, hy);
+    ax = FixMul(pM->right.y, hx);
+    ay = FixMul(pM->up.y, hy);
     az = FixMul(pM->forward.y, hz);
     pCar->corners[4].y = az + ay + ax;
     pCar->corners[5].y = (ay - az) + ax;
     pCar->corners[7].y = (ay - az) - ax;
     pCar->corners[6].y = (az - ax) + ay;
 
-    ax = FixMul(pM->up.z, hx);
-    ay = FixMul(pM->right.z, hy);
+    ax = FixMul(pM->right.z, hx);
+    ay = FixMul(pM->up.z, hy);
     az = FixMul(pM->forward.z, hz);
     pCar->corners[4].z = az + ay + ax;
     pCar->corners[5].z = (ay - az) + ax;
