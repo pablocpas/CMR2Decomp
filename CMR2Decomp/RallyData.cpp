@@ -403,3 +403,40 @@ BYTE *FUN_00494a70(void)
     }
     return g_unk0x00520128;
 }
+
+// GLOBAL: CMR2 0x0082c698
+int g_unk0x0082c698;
+// GLOBAL: CMR2 0x0082c69c
+int g_unk0x0082c69c;
+// GLOBAL: CMR2 0x0082c6a0
+int g_unk0x0082c6a0;
+// GLOBAL: CMR2 0x0082c6a4
+int g_unk0x0082c6a4;
+// GLOBAL: CMR2 0x0082c6a8
+int g_unk0x0082c6a8;
+// GLOBAL: CMR2 0x0082c6ac
+int g_unk0x0082c6ac;
+// GLOBAL: CMR2 0x0082c6bc
+int g_unk0x0082c6bc;
+
+// FUNCTION: CMR2 0x00503e00
+void FUN_00503e00(void)
+{
+    if ((unsigned char)RallyDataCountryIndex() == 3) {
+        g_unk0x0082c698 = 0;
+        g_unk0x0082c6bc = 6;
+        g_unk0x0082c69c = 1;
+        g_unk0x0082c6a0 = 2;
+        g_unk0x0082c6a4 = 6;
+        g_unk0x0082c6a8 = 7;
+        g_unk0x0082c6ac = 8;
+    } else {
+        g_unk0x0082c6bc = 6;
+        g_unk0x0082c698 = 0;
+        g_unk0x0082c69c = 1;
+        g_unk0x0082c6a0 = 2;
+        g_unk0x0082c6a4 = 3;
+        g_unk0x0082c6a8 = 4;
+        g_unk0x0082c6ac = 5;
+    }
+}
