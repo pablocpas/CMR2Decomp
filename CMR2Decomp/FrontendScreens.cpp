@@ -1,712 +1,169 @@
-#include <windows.h>
+#include "Frontend.h"
+#include "Game.h"
+#include "GameInfo.h"
+#include "RallyData.h"
+#include "Graphics.h"
 #include "FrontendMenus.h"
 
-// Menu callbacks of the frontend screens, not decompiled yet.
+// Callbacks of the frontend screens, hooked to the menus built in
+// FrontendMenus.cpp.
 
-void FUN_004d43e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d4c40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d4cf0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d50a0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d6290(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d63e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d6a60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d6f10(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d7380(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d7750(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d7db0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d8480(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d8950(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d8ed0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d9450(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d9ad0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004d9c40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004da630(Menu *pMenu, int param)
-{
-}
-
-void FUN_004db850(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dc710(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dc7b0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dc930(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dce00(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dd4b0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004de1d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dec30(Menu *pMenu, int param)
-{
-}
-
-void FUN_004df410(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dfe20(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e0770(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e1890(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e1d70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e1fb0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2040(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e20e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2610(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2ab0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2b40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e3230(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e4130(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e48b0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e4fc0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e5c90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e63d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e6a80(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e7120(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e77c0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e7ed0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e8500(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e8b60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e90f0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e9820(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e9990(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ec9a0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eca60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecaf0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecd60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecea0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecf80(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecfa0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ecfd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed100(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed340(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed500(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed530(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed610(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed840(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edb30(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edb60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edb70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edca0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edd50(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ede10(Menu *pMenu, int param)
-{
-}
-
-void FUN_004edef0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee090(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee170(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee460(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee600(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee6e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee850(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee9b0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eeab0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eec30(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eec40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eed50(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eed80(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eee60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eef30(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eefb0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004eefe0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef000(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef030(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef4c0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef4e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef590(Menu *pMenu, int param)
-{
-}
+// GLOBAL: CMR2 0x00818f10
+char g_unk0x00818f10;
+// GLOBAL: CMR2 0x00819878
+BYTE g_unk0x00819878;
 
-void FUN_004ef5e0(Menu *pMenu, int param)
+// FUNCTION: CMR2 0x004ecfa0
+void FUN_004ecfa0(Menu *pMenu, char param)
 {
+    if (param != 0 && g_unk0x00818f10 != 0) {
+        CGame::DestroyDirectPlayLobby();
+        CGame::DestroyDirectPlay();
+        g_unk0x00818f10 = 0;
+    }
 }
 
+// FUNCTION: CMR2 0x004ef5f0
 void FUN_004ef5f0(Menu *pMenu, int param)
 {
+    RallyData_FUN_0040d620(1);
 }
 
-void FUN_004ef600(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004ef8f0
 void FUN_004ef8f0(Menu *pMenu, int param)
 {
+    if ((*CGameInfo::FUN_00405db0() & 1) || CGameInfo::FUN_00406410(0xd))
+        pMenu->items[2].enabled = 1;
+    else
+        pMenu->items[2].enabled = 0;
+    pMenu->cursor = CGameInfo::FUN_00405d90();
 }
 
-void FUN_004ef930(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004ef950
 void FUN_004ef950(Menu *pMenu, int param)
 {
+    pMenu->cursor = CGameInfo::FUN_00405dd0();
 }
 
-void FUN_004ef960(Menu *pMenu, int param)
+// Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
+// FUNCTION: CMR2 0x004f1640
+void FUN_004f1640(Menu *pMenu)
 {
+    int days;
+    int day = pMenu->items[2].max + 1;
+    int year = pMenu->items[0].max + 1850;
+
+    switch (pMenu->items[1].max) {
+    case 3:
+    case 5:
+    case 8:
+    case 10:
+        pMenu->items[2].min = days = 30;
+        break;
+    case 1:
+        if (year % 4 == 0)
+            pMenu->items[2].min = days = 29;
+        else
+            pMenu->items[2].min = days = 28;
+        break;
+    case 0:
+    case 2:
+    case 4:
+    case 6:
+    case 7:
+    case 9:
+    case 11:
+        pMenu->items[2].min = days = 31;
+        break;
+    }
+    if (day > days)
+        pMenu->items[2].max = days - 1;
 }
 
-void FUN_004efb50(Menu *pMenu, int param)
-{
-}
-
-void FUN_004efb70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004efdc0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004efdd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004efde0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0050(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0580(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0600(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0620(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0820(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0d30(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0da0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0e60(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0e80(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1040(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1160(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f11d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f13c0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f15d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1640(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f16f0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f17d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1960(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f19d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1a10(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1a40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1b30(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004f1b90
 void FUN_004f1b90(Menu *pMenu, int param)
 {
+    FUN_004ea480(0);
 }
 
-void FUN_004f1bd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1c00(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004f1d00
 void FUN_004f1d00(Menu *pMenu, int param)
 {
+    Menu_GetItem(pMenu, 8)->max = CGameInfo::FUN_00405cd0();
+    if (CGameInfo::FUN_00405d00() != 0)
+        Menu_GetItem(pMenu, 9)->max = 1;
+    else
+        Menu_GetItem(pMenu, 9)->max = 0;
+    if (CGameInfo::FUN_00405d10() != 0) {
+        Menu_GetItem(pMenu, 10)->max = 1;
+        return;
+    }
+    Menu_GetItem(pMenu, 10)->max = 0;
 }
 
-void FUN_004f1d60(Menu *pMenu, int param)
+// FUNCTION: CMR2 0x004f1d60
+void FUN_004f1d60(Menu *pMenu)
 {
+    if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+        return;
+    if (pMenu->items[pMenu->cursor].value == 10) {
+        Menu_SetFlags(pMenu, 1, 0, 1, 1);
+        return;
+    }
+    Menu_SetFlags(pMenu, 1, 1, 1, 1);
 }
 
-void FUN_004f1db0(Menu *pMenu, int param)
+// FUNCTION: CMR2 0x004f23d0
+void FUN_004f23d0(Menu *pMenu)
 {
+    unsigned int count = CGraphics::GetDisplayCount();
+    if (count > 10)
+        count = 10;
+    if (pMenu->items[0].max < g_unk0x00819128)
+        g_unk0x00819128--;
+    if (pMenu->items[0].max >= (int)(count + g_unk0x00819128))
+        g_unk0x00819128++;
+    if (CGame::FUN_004a9b20() != 0)
+        FUN_004f2360((BYTE *)pMenu, 0);
 }
 
-void FUN_004f1e40(Menu *pMenu, int param)
+// FUNCTION: CMR2 0x004f3ac0
+void FUN_004f3ac0(Menu *pMenu, char param)
 {
+    if (param == 0)
+        pMenu->cursor = 0;
 }
 
-void FUN_004f1f70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f1fa0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2050(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f23d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2430(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2840(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2b70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2c40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2d20(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2d90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2e70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f2f40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3010(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3120(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f36e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3970(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3980(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3990(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f39d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3a00(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3a70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3a90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3ac0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f3ae0(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004f3b00
 void FUN_004f3b00(Menu *pMenu, int param)
 {
+    g_unk0x00819878 = 0;
+    pMenu->cursor = 1;
 }
 
+// FUNCTION: CMR2 0x004f3b20
 void FUN_004f3b20(Menu *pMenu, int param)
 {
+    g_unk0x00819878 = 1;
 }
 
-void FUN_004f3b30(Menu *pMenu, int param)
-{
-}
-
+// FUNCTION: CMR2 0x004faa00
 void FUN_004faa00(Menu *pMenu, int param)
 {
+    char cursor;
+
+    if ((*CGameInfo::FUN_00405db0() & 2) || CGameInfo::FUN_00406410(0xd))
+        pMenu->items[2].enabled = 1;
+    else
+        pMenu->items[2].enabled = 0;
+    cursor = CGameInfo::FUN_00405d90();
+    pMenu->cursor = cursor;
+    if (cursor >= pMenu->itemCount)
+        pMenu->cursor = pMenu->itemCount - 1;
 }
 
-void FUN_004faa50(Menu *pMenu, int param)
+// FUNCTION: CMR2 0x004fafd0
+void FUN_004fafd0(Menu *pMenu)
 {
-}
-
-void FUN_004fac70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004facd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fad40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fad90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fadd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fae70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004faea0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004faef0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fafd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fafe0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fb010(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fb360(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fb370(Menu *pMenu, int param)
-{
+    RallyData_FUN_0040d600(pMenu->cursor);
 }

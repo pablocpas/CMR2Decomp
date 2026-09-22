@@ -140,6 +140,7 @@
     <ClCompile Include="Frontend.cpp" />
     <ClCompile Include="FrontendMenus.cpp" />
     <ClCompile Include="FrontendScreens.cpp" />
+    <ClCompile Include="FrontendStubs.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMenus.cpp" />
     <ClCompile Include="SceneNode.cpp" />
