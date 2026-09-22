@@ -835,3 +835,19 @@ void FUN_00481560(unsigned short *pAngles)
     FixMatrix_SetUp(&basis.up, g_unk0x00590c20->field_0x4);
     FixMatrix_SetForward(&basis.forward, g_unk0x00590c20->field_0x4);
 }
+
+// Records of the 0x542e7c table (stride 0x1c); count derived from the next
+// known global (0x543eb8).
+struct Unk0x00542e7c {
+    short field_0x0;
+    BYTE field_0x2[0x1a];
+};
+
+// GLOBAL: CMR2 0x00542e7c
+Unk0x00542e7c g_unk0x00542e7c[0x94];
+
+// FUNCTION: CMR2 0x00458330
+int FUN_00458330(int index)
+{
+    return g_unk0x00542e7c[index].field_0x0;
+}
