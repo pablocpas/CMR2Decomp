@@ -238,6 +238,7 @@ public:
     static void FUN_0040be90(unsigned int param1);
     static void FUN_0040c440(unsigned int param1, ControllerData * param2);
     static void FUN_0049eb90(int param1, unsigned int param2, unsigned int param3);
+    static DeviceInfo *FUN_0049ead0(int index);
     static BYTE FUN_0040c530(unsigned int param1);
     static void FUN_0049eb50(void);
     static int GetFirstPressedKey(void);
