@@ -379,7 +379,9 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x005404d8, 0);
 }
 
+#include <cstdio>
 #include "Sprite.h"
+#include "GenericFileLoader.h"
 #include "Graphics.h"
 
 // GLOBAL: CMR2 0x00541cc0
@@ -435,4 +437,35 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
                     (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+}
+
+// Draws a row of strings at (x, y), separated by a thin vertical bar.
+// FUNCTION: CMR2 0x00454df0
+void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
+{
+    int width;
+
+    g_menuRect[2] = 2;
+    g_menuRect[1] = (short)y - (short)((int)(g_pGraphics->resY * 0x1e) / 0x1e0);
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);
+    if (pText != NULL) {
+        char **ppNext = &pText;
+        char *pCur = pText;
+
+        for (;;) {
+            CGenericFileLoader::StrLowerPolish(pCur);
+            Font_DrawText(2, pCur, x, y, (int *)g_menuFrameColour, 0x11);
+            sprintf(CFrontend::m_stringDest, pCur);
+            pCur = ppNext[1];
+            ppNext++;
+            if (pCur == NULL) {
+                break;
+            }
+            width = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+            width = (int)(g_pGraphics->resX * 8) / 0x280 + x + width;
+            g_menuRect[0] = (short)width;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+            x = width + 2 + (int)(g_pGraphics->resX * 8) / 0x280;
+        }
+    }
 }
