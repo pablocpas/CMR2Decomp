@@ -14,6 +14,12 @@
 
 // GLOBAL: CMR2 0x00818f10
 char g_unk0x00818f10;
+// GLOBAL: CMR2 0x00525398
+int g_unk0x00525398 = -1;
+// GLOBAL: CMR2 0x0052539c
+int g_unk0x0052539c = -1;
+// GLOBAL: CMR2 0x0081912c
+int g_unk0x0081912c;
 // GLOBAL: CMR2 0x00819130
 char g_unk0x00819130[12];
 // GLOBAL: CMR2 0x00819140
@@ -209,6 +215,12 @@ void FUN_004ef950(Menu *pMenu, int param)
 void FUN_004ef960(Menu *pMenu, int param)
 {
     FUN_004ea970(pMenu->cursor);
+}
+
+// FUNCTION: CMR2 0x004efdc0
+void FUN_004efdc0(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f2570());
 }
 
 // FUNCTION: CMR2 0x004f0600
@@ -645,6 +657,86 @@ void FUN_004f36e0(Menu *pMenu, int param)
     }
 }
 
+// Slides the scroller towards the menu cursor, the short way round, in 250 ms
+// FUNCTION: CMR2 0x004f37c0
+void FUN_004f37c0(MenuScroller *p)
+{
+    Menu *pMenu = p->pMenu;
+    int target;
+    int cur;
+    int fwd;
+    int back;
+    int idx;
+    int i;
+
+    if (pMenu->cursor != p->current) {
+        if (p->current != -1) {
+            if (pMenu == FUN_004f8410()) {
+                g_unk0x0081912c = CFrontend::FUN_004d20e0();
+                g_unk0x00525398 = g_unk0x0052539c;
+                g_unk0x0052539c = pMenu->cursor;
+            }
+            target = pMenu->cursor;
+            cur = p->current;
+            if (target > cur) {
+                back = pMenu->itemCount - target + cur;
+                fwd = target - cur;
+            } else {
+                fwd = pMenu->itemCount - cur + target;
+                back = cur - target;
+            }
+            if (back < fwd) {
+                while (back-- > 0) {
+                    cur--;
+                    idx = cur;
+                    if (idx < 0)
+                        idx = p->count + cur;
+                    p->offset -= p->widths[idx] + p->spacing;
+                }
+            } else if (back > fwd) {
+                while (fwd-- > 0) {
+                    idx = cur;
+                    if (idx >= p->count)
+                        idx = cur - p->count;
+                    p->offset += p->widths[idx] + p->spacing;
+                    cur++;
+                }
+            } else if (pMenu->moveFlags & 1) {
+                cur--;
+                if (cur < 0)
+                    cur += p->count;
+                p->offset -= p->widths[cur] + p->spacing;
+            } else {
+                if (cur >= p->count)
+                    cur -= p->count;
+                p->offset += p->widths[cur] + p->spacing;
+            }
+            p->startOffset = p->offset;
+        }
+        p->startTime = CFrontend::FUN_004d20e0();
+        p->previous = p->current;
+        p->current = pMenu->cursor;
+    }
+    if (p->current != -1) {
+        if ((unsigned int)(CFrontend::FUN_004d20e0() - p->startTime) > 250) {
+            p->offset = 0;
+            p->startOffset = 0;
+            return;
+        }
+        if (p->startOffset > 0) {
+            p->offset = p->startOffset - (unsigned int)((CFrontend::FUN_004d20e0() - p->startTime) * p->startOffset) / 250;
+            return;
+        }
+        p->offset = (unsigned int)-((CFrontend::FUN_004d20e0() - p->startTime) * p->startOffset) / 250 + p->startOffset;
+    }
+}
+
+// FUNCTION: CMR2 0x004f3970
+void FUN_004f3970(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f2540());
+}
+
 // FUNCTION: CMR2 0x004f3a90
 void FUN_004f3a90(Menu *pMenu, int param)
 {
@@ -659,6 +751,12 @@ void FUN_004f3ac0(Menu *pMenu, char param)
 {
     if (param == 0)
         pMenu->cursor = 0;
+}
+
+// FUNCTION: CMR2 0x004f3ae0
+void FUN_004f3ae0(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f24f0());
 }
 
 // FUNCTION: CMR2 0x004f3b00
@@ -746,4 +844,10 @@ void FUN_004fafe0(Menu *pMenu, int param)
     RallyData_FUN_00406960(0);
     RallyData_FUN_0040d620(3);
     Menu_SetNextAction((int)FUN_004f8330());
+}
+
+// FUNCTION: CMR2 0x004fb360
+void FUN_004fb360(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f2590());
 }
