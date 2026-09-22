@@ -1,5 +1,13 @@
 #include "Game.h"
 #include "StageUI.h"
+#include <cstdio>
+#include <cstring>
+#include "Frontend.h"
+#include "GenericFileLoader.h"
+#include "Font.h"
+#include "Sprite.h"
+#include "Graphics.h"
+#include "RallyData.h"
 
 // GLOBAL: CMR2 0x00517e14
 char g_positiveSymbol[2] = "+";
@@ -7,9 +15,48 @@ char g_positiveSymbol[2] = "+";
 // GLOBAL: CMR2 0x00517e18
 char g_negativeSymbol[2] = "-";
 
-// STUB: CMR2 0x00415bd0
-void FormatGapToLeader(int iLeaderGap, unsigned int param_2, unsigned char param_3, int param_4, int param_5, void *param_6, unsigned int param_7, char *pcNegPosSymbol, int param_9)
+// GLOBAL: CMR2 0x00537084
+char g_emptyString[4];
+// GLOBAL: CMR2 0x00517df4
+char g_strGapUnknown[12] = "%s--:--.--";
+// GLOBAL: CMR2 0x00517e00
+char g_strGapTime[20] = "%s%02d:%02d.%02d";
+// GLOBAL: CMR2 0x005170f4
+BYTE g_gapTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
+
+// Formats a time gap as "+mm:ss.hh" and draws it, boxed when param_9 is set.
+// FUNCTION: CMR2 0x00415bd0
+void FormatGapToLeader(int iLeaderGap, unsigned int fontIndex, unsigned char param_3, int x, int y, void *pColour, unsigned int flags, char *pcNegPosSymbol, int drawBox)
 {
+    char text[16];
+    short rect[4];
+    int px;
+
+    if (pcNegPosSymbol != NULL) {
+        sprintf((char *)&pcNegPosSymbol, pcNegPosSymbol);
+    } else {
+        sprintf((char *)&pcNegPosSymbol, g_emptyString);
+    }
+    px = (int)g_pGraphics->resX * x >> 0x10;
+    if (iLeaderGap != -1) {
+        sprintf(text, g_strGapTime, &pcNegPosSymbol, (iLeaderGap / 6000) % 100,
+                (iLeaderGap % 6000) / 100, (iLeaderGap % 6000) % 100);
+    } else {
+        sprintf(text, g_strGapUnknown, &pcNegPosSymbol);
+    }
+    if (drawBox != 0) {
+        rect[0] = (short)((int)g_pGraphics->resX * x >> 0x10) -
+                  (short)((int)g_pGraphics->resX / 0xa0) - 2;
+        rect[2] = (short)((int)g_pGraphics->resX / 0x50) +
+                  (short)Font_GetTextWidth(fontIndex, (BYTE *)text) + 4;
+        rect[1] = (short)((int)g_pGraphics->resY * y >> 0x10) -
+                  (short)((int)g_pGraphics->resY / 0xf0) - 2;
+        rect[3] = (short)((int)g_pGraphics->resY / 0x140) +
+                  (short)Font_GetTextHeight(fontIndex, text) + 4;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)pColour, 2);
+    }
+    Font_DrawText(fontIndex, text, px, (int)g_pGraphics->resY * y >> 0x10,
+                  (int *)g_gapTextColour, flags);
 }
 
 // FUNCTION: CMR2 0x00415db0
@@ -133,14 +180,6 @@ BYTE *FUN_0041b390(void)
     return g_unk0x00537dd0;
 }
 
-#include <cstdio>
-#include <cstring>
-#include "Frontend.h"
-#include "GenericFileLoader.h"
-#include "Font.h"
-#include "Sprite.h"
-#include "Graphics.h"
-#include "RallyData.h"
 
 // GLOBAL: CMR2 0x0051c988
 BYTE g_barBackColour[4] = { 0, 0, 0, 0 };
