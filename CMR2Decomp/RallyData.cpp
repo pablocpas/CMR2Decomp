@@ -623,3 +623,25 @@ BYTE *RallyData_FUN_00408cb0(int index)
         return g_unk0x0052fa5c + ((value >> 0x12) & 0xf) * 0x650 + 0x30;
     return NULL;
 }
+
+// FUNCTION: CMR2 0x00407e90
+unsigned int RallyData_FUN_00407e90(void)
+{
+    return (g_selectedRallyData >> 27) & 1;
+}
+
+// FUNCTION: CMR2 0x00407ea0
+unsigned int RallyData_FUN_00407ea0(void)
+{
+    return (g_selectedRallyData >> 28) & 1;
+}
+
+// Neutral type for now: nothing implemented reads it yet.
+// GLOBAL: CMR2 0x00536be0
+int g_unk0x00536be0;
+
+// FUNCTION: CMR2 0x00411060
+int RallyData_FUN_00411060(void)
+{
+    return g_unk0x00536be0;
+}
