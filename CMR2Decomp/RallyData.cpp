@@ -5,6 +5,9 @@
 #include "main.h"
 #include "Frontend.h"
 #include "AIHelper.h"
+#include "Font.h"
+#include "Sprite.h"
+#include "Graphics.h"
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -671,4 +674,35 @@ Unk0x0052ebc0 g_unk0x0052ebc0[5];
 Unk0x0052ebc0 *RallyData_FUN_00407610(int index)
 {
     return &g_unk0x0052ebc0[index];
+}
+
+// GLOBAL: CMR2 0x00516cd0
+BYTE g_itemColour[4] = { 0, 0, 0, 0 };
+// GLOBAL: CMR2 0x00536bd8
+short g_itemRect[4];
+
+// Draws one item of a horizontal list and, unless it is the last one, the thin
+// separator after it; returns the x the next item starts at.
+// FUNCTION: CMR2 0x0040fd30
+int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
+{
+    BYTE colour[4];
+    int width;
+
+    colour[0] = g_itemColour[0];
+    colour[1] = g_itemColour[1];
+    colour[2] = g_itemColour[2];
+    colour[3] = alpha;
+    Font_DrawText(2, pText, x, y, (int *)colour, 0x11);
+    if (last == 0) {
+        width = Font_GetTextWidth(2, (BYTE *)pText);
+        width = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+        g_itemRect[0] = (short)width;
+        g_itemRect[2] = 2;
+        g_itemRect[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+        g_itemRect[3] = (short)((int)(g_pGraphics->resY * 0x3c) / 0x1e0);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect, colour, 1);
+        return width + (int)(g_pGraphics->resX * 10) / 0x280;
+    }
+    return x;
 }
