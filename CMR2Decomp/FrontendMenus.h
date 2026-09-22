@@ -338,11 +338,38 @@ Menu *FUN_004f8990(void);
 Menu *FUN_004fa330(void);
 void FUN_004ea8e0(BYTE param1);
 void FUN_004ea970(BYTE param1);
-void FUN_004ea990(unsigned int *pOut1, unsigned int *pOut2);
+void FUN_004ea990(int *pOut1, int *pOut2);
 int FUN_004f4db0(void);
 BOOL FUN_004a15a0(void);
 int FUN_004a1280(void);
 void RallyData_FUN_00406960(BYTE param1);
 unsigned int RallyData_FUN_00406940(void);
+
+// Horizontal menu whose items slide sideways when the cursor moves
+struct MenuScroller {
+    int offset;         // 0x0  current scroll position in pixels
+    int startOffset;    // 0x4  position when the slide started
+    int count;          // 0x8  number of items
+    int widths[22];     // 0xc  text width of each item
+    int spacing;        // 0x64 gap between items, 24 pixels at 640 wide
+    int current;        // 0x68 cursor the scroller is sliding to, -1 = none
+    int previous;       // 0x6c
+    int startTime;      // 0x70
+    Menu *pMenu;        // 0x74
+};
+
+extern MenuScroller g_menuScroller0x00819140;
+MenuScroller *FUN_004f24f0(void);
+MenuScroller *FUN_004f2500(void);
+MenuScroller *FUN_004f2510(void);
+MenuScroller *FUN_004f2520(void);
+MenuScroller *FUN_004f2530(void);
+MenuScroller *FUN_004f2540(void);
+MenuScroller *FUN_004f2550(void);
+MenuScroller *FUN_004f2560(void);
+MenuScroller *FUN_004f2570(void);
+MenuScroller *FUN_004f2580(void);
+MenuScroller *FUN_004f2590(void);
+int FUN_004f25a0(void);
 
 #endif

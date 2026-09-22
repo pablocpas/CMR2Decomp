@@ -1413,7 +1413,7 @@ void FUN_004ea970(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x004ea990
-void FUN_004ea990(unsigned int *pOut1, unsigned int *pOut2)
+void FUN_004ea990(int *pOut1, int *pOut2)
 {
     *pOut1 = CGameInfo::m_gameInfo.field_0x14 >> 23 & 0xf;
     *pOut2 = CGameInfo::m_gameInfo.field_0x14 >> 27 & 0xf;

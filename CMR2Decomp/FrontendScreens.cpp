@@ -4,6 +4,9 @@
 #include "RallyData.h"
 #include "Graphics.h"
 #include "Input.h"
+#include "Font.h"
+#include "GenericFileLoader.h"
+#include <string.h>
 #include "FrontendMenus.h"
 
 // Callbacks of the frontend screens, hooked to the menus built in
@@ -11,6 +14,32 @@
 
 // GLOBAL: CMR2 0x00818f10
 char g_unk0x00818f10;
+// GLOBAL: CMR2 0x00819130
+char g_unk0x00819130[12];
+// GLOBAL: CMR2 0x00819140
+MenuScroller g_menuScroller0x00819140;
+// GLOBAL: CMR2 0x008191b8
+MenuScroller g_menuScroller0x008191b8;
+// GLOBAL: CMR2 0x00819230
+MenuScroller g_menuScroller0x00819230;
+// GLOBAL: CMR2 0x008192a8
+MenuScroller g_menuScroller0x008192a8;
+// GLOBAL: CMR2 0x00819320
+MenuScroller g_menuScroller0x00819320;
+// GLOBAL: CMR2 0x00819398
+MenuScroller g_menuScroller0x00819398;
+// GLOBAL: CMR2 0x00819410
+MenuScroller g_menuScroller0x00819410;
+// GLOBAL: CMR2 0x00819488
+MenuScroller g_menuScroller0x00819488;
+// GLOBAL: CMR2 0x00819500
+MenuScroller g_menuScroller0x00819500;
+// GLOBAL: CMR2 0x00819578
+MenuScroller g_menuScroller0x00819578;
+// GLOBAL: CMR2 0x008195f0
+MenuScroller g_menuScroller0x008195f0;
+// GLOBAL: CMR2 0x00819668
+MenuScroller g_menuScroller0x00819668;
 // GLOBAL: CMR2 0x008196e0
 unsigned int g_unk0x008196e0;
 // GLOBAL: CMR2 0x008196e4
@@ -64,6 +93,35 @@ void FUN_004edb30(Menu *pMenu, char param)
         CGame::FUN_004a1a90();
         FUN_004a1280();
     }
+}
+
+// FUNCTION: CMR2 0x004edb70
+void FUN_004edb70(Menu *pMenu, int param)
+{
+    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    int values[2];
+    int i;
+
+    FUN_004ea990(&values[0], &values[1]);
+    if (CGameInfo::FUN_00406410(0xd))
+        Menu_GetItem(pMenu, 1)->min = 8;
+    else
+        Menu_GetItem(pMenu, 1)->min = *pFlags >> 8 & 0xf;
+    Menu_GetItem(pMenu, 1)->max = values[0];
+    if (Menu_GetItem(pMenu, 1)->max > Menu_GetItem(pMenu, 1)->min)
+        Menu_GetItem(pMenu, 1)->max = 0;
+    if (CGameInfo::FUN_00406410(0xd)) {
+        Menu_GetItem(pMenu, 0)->min = values[0] % 2 + 10;
+        return;
+    }
+    for (i = 0; i < 11; i++) {
+        if (CGameInfo::FUN_00406520(values[0], i) & 2) {
+            Menu_GetItem(pMenu, 0)->min = i;
+            break;
+        }
+    }
+    if (values[0] % 2 != 0 && (i == 4 || i == 8) && !(CGameInfo::FUN_00406520(values[0], 10) & 2))
+        Menu_GetItem(pMenu, 0)->min++;
 }
 
 // FUNCTION: CMR2 0x004edca0
@@ -292,6 +350,39 @@ void FUN_004f1db0(Menu *pMenu, int param)
     }
 }
 
+// FUNCTION: CMR2 0x004f1e40
+void FUN_004f1e40(Menu *pMenu, int param)
+{
+    if (CFrontend::FUN_004b7520()) {
+        if (Menu_GetItem(pMenu, 1)->max == 0) {
+            CGameInfo::FUN_00405bb0(1);
+            g_pGraphics->field913_0x3bc |= 0x40;
+        } else {
+            CGameInfo::FUN_00405bb0(0);
+            g_pGraphics->field913_0x3bc &= ~0x40;
+        }
+    }
+    switch (Menu_GetItem(pMenu, 4)->max) {
+    case 0:
+        CGameInfo::FUN_00405c80(2);
+        g_pGraphics->field913_0x3bc &= ~1;
+        g_pGraphics->field913_0x3bc |= 2;
+        break;
+    case 1:
+        CGameInfo::FUN_00405c80(1);
+        g_pGraphics->field913_0x3bc |= 1;
+        g_pGraphics->field913_0x3bc &= ~2;
+        break;
+    case 2:
+        CGameInfo::FUN_00405c80(0);
+        g_pGraphics->field913_0x3bc &= ~1;
+        g_pGraphics->field913_0x3bc &= ~2;
+        break;
+    }
+    CGameInfo::FUN_00405cb0(Menu_GetItem(pMenu, 5)->max);
+    g_pGraphics->field917_0x3c0 = Menu_GetItem(pMenu, 5)->max;
+}
+
 // FUNCTION: CMR2 0x004f23d0
 void FUN_004f23d0(Menu *pMenu)
 {
@@ -304,6 +395,78 @@ void FUN_004f23d0(Menu *pMenu)
         g_unk0x00819128++;
     if (CGame::FUN_004a9b20() != 0)
         FUN_004f2360((BYTE *)pMenu, 0);
+}
+
+// FUNCTION: CMR2 0x004f24f0
+MenuScroller *FUN_004f24f0(void)
+{
+    return &g_menuScroller0x00819140;
+}
+
+// FUNCTION: CMR2 0x004f2500
+MenuScroller *FUN_004f2500(void)
+{
+    return &g_menuScroller0x00819230;
+}
+
+// FUNCTION: CMR2 0x004f2510
+MenuScroller *FUN_004f2510(void)
+{
+    return &g_menuScroller0x008192a8;
+}
+
+// FUNCTION: CMR2 0x004f2520
+MenuScroller *FUN_004f2520(void)
+{
+    return &g_menuScroller0x00819320;
+}
+
+// FUNCTION: CMR2 0x004f2530
+MenuScroller *FUN_004f2530(void)
+{
+    return &g_menuScroller0x00819398;
+}
+
+// FUNCTION: CMR2 0x004f2540
+MenuScroller *FUN_004f2540(void)
+{
+    return &g_menuScroller0x00819410;
+}
+
+// FUNCTION: CMR2 0x004f2550
+MenuScroller *FUN_004f2550(void)
+{
+    return &g_menuScroller0x00819488;
+}
+
+// FUNCTION: CMR2 0x004f2560
+MenuScroller *FUN_004f2560(void)
+{
+    return &g_menuScroller0x00819500;
+}
+
+// FUNCTION: CMR2 0x004f2570
+MenuScroller *FUN_004f2570(void)
+{
+    return &g_menuScroller0x00819578;
+}
+
+// FUNCTION: CMR2 0x004f2580
+MenuScroller *FUN_004f2580(void)
+{
+    return &g_menuScroller0x00819668;
+}
+
+// FUNCTION: CMR2 0x004f2590
+MenuScroller *FUN_004f2590(void)
+{
+    return &g_menuScroller0x008195f0;
+}
+
+// FUNCTION: CMR2 0x004f25a0
+int FUN_004f25a0(void)
+{
+    return g_unk0x0081987c;
 }
 
 // FUNCTION: CMR2 0x004f2840
@@ -339,6 +502,146 @@ void FUN_004f2c40(Menu *pMenu, char param)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
         if (CGameInfo::FUN_00405ef0() == 2)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
+    }
+}
+
+// FUNCTION: CMR2 0x004f2d90
+void FUN_004f2d90(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    p = FUN_004f2540();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p = FUN_004f2540();
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
+// FUNCTION: CMR2 0x004f2e70
+void FUN_004f2e70(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    p = FUN_004f2550();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
+// FUNCTION: CMR2 0x004f2f40
+void FUN_004f2f40(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    p = FUN_004f2560();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
+// FUNCTION: CMR2 0x004f3010
+void FUN_004f3010(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    for (i = 0; i < 12; i++) {
+        if (g_unk0x00819130[i] == 1)
+            pMenu->items[i].enabled = 1;
+        else
+            pMenu->items[i].enabled = 0;
+    }
+    p = FUN_004f2570();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->count = pMenu->itemCount;
+    p->pMenu = pMenu;
+    p->offset = 0;
+    p->startOffset = 0;
+    p->current = pMenu->cursor;
+    p->previous = pMenu->cursor;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
+// FUNCTION: CMR2 0x004f3120
+void FUN_004f3120(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    for (i = 0; i < pMenu->itemCount; i++)
+        pMenu->items[i].enabled = 1;
+    p = FUN_004f2580();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->count = pMenu->itemCount;
+    p->pMenu = pMenu;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
+// FUNCTION: CMR2 0x004f36e0
+void FUN_004f36e0(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int i;
+
+    p = FUN_004f2530();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    p->current = pMenu->cursor;
+    p->previous = pMenu->cursor;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(i + 0x27));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     }
 }
 
