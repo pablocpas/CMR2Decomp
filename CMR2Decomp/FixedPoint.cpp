@@ -443,3 +443,21 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
     FixMatrix_SetForward(&g_interpForward, pOut);
     FixMatrix_SetPosition(&g_interpPos, pOut);
 }
+
+// Rotates a basis by the angular velocity pW: each row gains pW x row.
+// FUNCTION: CMR2 0x00441430
+void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
+{
+    FixVector delta;
+    int i = 3;
+
+    do {
+        FixVector *pRow = pRows;
+        FixVecCross(&delta, pW, pRow);
+        pRow->x = pRow->x + delta.x;
+        pRow->y = pRow->y + delta.y;
+        pRow->z = pRow->z + delta.z;
+        pRows++;
+        i--;
+    } while (i != 0);
+}

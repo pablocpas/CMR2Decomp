@@ -136,4 +136,8 @@ void Car_UpdateCornerVelocities(void);
 void Car_UpdateGroundNormal(void);
 void Car_UpdateBodyLean(void);
 
+// Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
+// perturbs the code MSVC6 generates for every translation unit that includes it.
+void FixBasis_Integrate(FixVector *pRows, FixVector *pW);
+
 #endif
