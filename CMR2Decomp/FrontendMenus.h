@@ -377,5 +377,17 @@ void RallyData_FUN_004068b0(BYTE param1);
 void RallyData_FUN_0040df60(int param1, int param2);
 int FUN_004f3a60(void);
 void FUN_004f1e40(Menu *pMenu, int param);
+Menu *FUN_004f83a0(void);
+Menu *FUN_004f8450(void);
+Menu *FUN_004f8470(void);
+BYTE FUN_004f1ba0(void);
+int FUN_004f2be0(void);
+void FUN_004b7c80(void);
+bool FUN_004b7cd0(int *pOut);
+void FUN_004d05f0(void);
+int FUN_00406710(void);
+void FUN_00406780(int param1);
+int FUN_004eb440(void);
+BYTE FUN_004d27d0(void);
 
 #endif

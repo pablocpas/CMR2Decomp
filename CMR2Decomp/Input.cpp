@@ -1549,6 +1549,15 @@ int g_unk0x006ed3f4[30];
 // GLOBAL: CMR2 0x006ed46c
 int g_unk0x006ed46c[30];
 
+// FUNCTION: CMR2 0x004b7c80
+void FUN_004b7c80(void)
+{
+    int i;
+
+    for (i = 0; i < 30; i++)
+        g_unk0x006ed3f4[i] = 0;
+}
+
 // Queues one character for the input ring buffer.
 // FUNCTION: CMR2 0x004b7ca0
 void CInput::FUN_004b7ca0(int param1)
@@ -1567,6 +1576,25 @@ void CInput::FUN_004b7ca0(int param1)
             return;
     }
     g_unk0x006ed3f4[i] = param1;
+}
+
+// Pops the oldest character of the input ring buffer.
+// FUNCTION: CMR2 0x004b7cd0
+bool FUN_004b7cd0(int *pOut)
+{
+    int *p;
+
+    if (g_unk0x006ed3f4[0] != 0) {
+        *pOut = g_unk0x006ed3f4[0];
+        p = g_unk0x006ed3f4;
+        do {
+            p[0] = p[1];
+            p++;
+        } while ((int)p < 0x6ed468);
+        g_unk0x006ed3f4[29] = 0;
+        return true;
+    }
+    return false;
 }
 
 // Queues one key press (only when the scan code carries a virtual key).

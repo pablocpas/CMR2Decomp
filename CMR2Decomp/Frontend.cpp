@@ -433,6 +433,15 @@ char *g_unk0x00818540;
 // GLOBAL: CMR2 0x00818544
 char *g_unk0x00818544;
 
+// GLOBAL: CMR2 0x00818848
+BYTE g_unk0x00818848;
+
+// FUNCTION: CMR2 0x004d27d0
+BYTE FUN_004d27d0(void)
+{
+    return g_unk0x00818848;
+}
+
 // FUNCTION: CMR2 0x004d2790
 void CFrontend::FUN_004d2790(void)
 {

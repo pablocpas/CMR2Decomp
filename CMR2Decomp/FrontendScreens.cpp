@@ -21,6 +21,8 @@ int g_unk0x00525398 = -1;
 int g_unk0x0052539c = -1;
 // GLOBAL: CMR2 0x0081912c
 int g_unk0x0081912c;
+// GLOBAL: CMR2 0x00819048
+BYTE g_unk0x00819048;
 // GLOBAL: CMR2 0x00819130
 char g_unk0x00819130[12];
 // GLOBAL: CMR2 0x00819140
@@ -53,6 +55,8 @@ unsigned int g_unk0x008196e0;
 int g_unk0x008196e4;
 // GLOBAL: CMR2 0x00819864
 BYTE g_unk0x00819864;
+// GLOBAL: CMR2 0x00819880
+int g_unk0x00819880;
 // GLOBAL: CMR2 0x0081987c
 int g_unk0x0081987c;
 // GLOBAL: CMR2 0x0082a924
@@ -302,6 +306,12 @@ void FUN_004f1640(Menu *pMenu)
 void FUN_004f1b90(Menu *pMenu, int param)
 {
     FUN_004ea480(0);
+}
+
+// FUNCTION: CMR2 0x004f1ba0
+BYTE FUN_004f1ba0(void)
+{
+    return g_unk0x00819048;
 }
 
 // FUNCTION: CMR2 0x004f1bd0
@@ -569,6 +579,12 @@ void FUN_004f2b70(Menu *pMenu, char param)
         return;
     }
     FUN_004f2b00((BYTE *)pMenu);
+}
+
+// FUNCTION: CMR2 0x004f2be0
+int FUN_004f2be0(void)
+{
+    return g_unk0x00819880;
 }
 
 // FUNCTION: CMR2 0x004f2c40

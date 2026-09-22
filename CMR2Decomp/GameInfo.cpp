@@ -1092,6 +1092,40 @@ bool CGameInfo::FUN_004eac50(int param1) {
     return !response;
 }
 
+// GLOBAL: CMR2 0x00817780
+int g_unk0x00817780;
+// GLOBAL: CMR2 0x00817784
+char g_unk0x00817784[5][256];
+// GLOBAL: CMR2 0x00817c84
+char *g_unk0x00817c84[5];
+
+// FUNCTION: CMR2 0x004d05f0
+void FUN_004d05f0(void)
+{
+    char **pp = g_unk0x00817c84;
+    char *p = g_unk0x00817784[0];
+
+    do {
+        *p = 0;
+        *pp = p;
+        p += 256;
+        pp++;
+    } while ((int)p < (int)g_unk0x00817c84);
+    g_unk0x00817780 = -1;
+}
+
+// FUNCTION: CMR2 0x00406710
+int FUN_00406710(void)
+{
+    return CGameInfo::m_gameInfo.field_0x397c;
+}
+
+// FUNCTION: CMR2 0x00406780
+void FUN_00406780(int param1)
+{
+    CGameInfo::m_gameInfo.field_0x398c = param1;
+}
+
 // FUNCTION: CMR2 0x004d0590
 void CGameInfo::FUN_004d0590(BYTE param1) {
     m_unk0x00817574 = param1;

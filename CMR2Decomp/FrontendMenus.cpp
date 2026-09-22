@@ -1000,3 +1000,21 @@ Menu *FUN_004f8410(void)
 {
     return &g_menu0x0081d6d8;
 }
+
+// FUNCTION: CMR2 0x004f83a0
+Menu *FUN_004f83a0(void)
+{
+    return &g_menu0x008241b8;
+}
+
+// FUNCTION: CMR2 0x004f8450
+Menu *FUN_004f8450(void)
+{
+    return &g_menu0x00824c18;
+}
+
+// FUNCTION: CMR2 0x004f8470
+Menu *FUN_004f8470(void)
+{
+    return &g_menu0x0081e218;
+}

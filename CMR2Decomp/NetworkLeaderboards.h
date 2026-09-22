@@ -26,6 +26,8 @@ class CNetworkLeaderboards {
 public:
     static void Reset(void);
     static bool LoadLeaderboards(void);
+    static void SetLeaderboardId(int id);
+    static int GetTotalLeaderboards(void);
 
 private:
     // GLOBAL: CMR2 0x00516a0c
