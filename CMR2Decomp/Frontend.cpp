@@ -512,3 +512,15 @@ void *CFrontend::FUN_0040ee90(int index)
 {
     return g_unk0x00516b40[index];
 }
+
+struct Unk0x004a3e20 {
+    BYTE field_0x0[0x118];
+    int field_0x118;
+};
+
+// FUNCTION: CMR2 0x004a3e20
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value)
+{
+    if (pObject != NULL)
+        pObject->field_0x118 = value;
+}
