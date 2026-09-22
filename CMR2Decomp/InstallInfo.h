@@ -106,6 +106,10 @@ private:
     static char m_bigFilesSubDir[17];
     // GLOBAL: CMR2 0x005363b0
     static char m_texturesDir[MAX_PATH];
+
+public:
+    static char *FUN_0040ed50(void);
+private:
     // GLOBAL: CMR2 0x00516a50
     static char m_texturesSubDir[11];
     // GLOBAL: CMR2 0x00535c94
