@@ -378,3 +378,13 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x005404d8, (MenuCallback)FUN_0044a090, NULL, (MenuCallback)FUN_00453c50, NULL);
     Menu_ValidateCursor(&g_menu0x005404d8, 0);
 }
+
+// Size taken from the next known global (0x538a84); nothing reads past it yet.
+// GLOBAL: CMR2 0x00538130
+BYTE g_unk0x00538130[0x40];
+
+// FUNCTION: CMR2 0x0041f900
+BYTE *FUN_0041f900(void)
+{
+    return g_unk0x00538130;
+}
