@@ -51,7 +51,9 @@ struct Car {
     int steer;                        // 0x778
     BYTE field_0x77c[0xa0];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0xbc];
+    BYTE field_0x820[0x40];
+    int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
+    BYTE field_0x870[0x6c];
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
     BYTE field_0x8fc[0x20];
     int field_0x91c;                  // 0x91c
@@ -135,6 +137,7 @@ void Car_RelaxBodyAxes(int bFast);
 void Car_UpdateCornerVelocities(void);
 void Car_UpdateGroundNormal(void);
 void Car_UpdateBodyLean(void);
+void Car_BalanceWheelPairs(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.

@@ -1142,3 +1142,29 @@ void Car_UpdateBodyLean(void)
     g_pCurrentCar->pBodyMatrix->up = g_leanBasis.up;
     g_pCurrentCar->pBodyMatrix->forward = g_leanBasis.forward;
 }
+
+// Evens out the two wheels of an axle once they drift too far apart.
+// FUNCTION: CMR2 0x0043af70
+void Car_BalanceWheelPairs(void)
+{
+    int diff = g_pCurrentCar->wheelLoad[0] - g_pCurrentCar->wheelLoad[1];
+    if (diff < 0) {
+        diff = -diff;
+    }
+    if (diff > 0x1999) {
+        int sum = g_pCurrentCar->wheelLoad[1] + g_pCurrentCar->wheelLoad[0];
+        int avg = FixMul(sum, 0x8000);
+        g_pCurrentCar->wheelLoad[1] = avg;
+        g_pCurrentCar->wheelLoad[0] = avg;
+    }
+    diff = g_pCurrentCar->wheelLoad[2] - g_pCurrentCar->wheelLoad[3];
+    if (diff < 0) {
+        diff = -diff;
+    }
+    if (diff > 0x1999) {
+        int sum = g_pCurrentCar->wheelLoad[3] + g_pCurrentCar->wheelLoad[2];
+        int avg = FixMul(sum, 0x8000);
+        g_pCurrentCar->wheelLoad[3] = avg;
+        g_pCurrentCar->wheelLoad[2] = avg;
+    }
+}
