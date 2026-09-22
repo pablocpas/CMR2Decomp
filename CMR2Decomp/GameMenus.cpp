@@ -469,3 +469,80 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
         }
     }
 }
+
+// GLOBAL: CMR2 0x00519ed4
+DWORD g_menuHighlightColour;
+
+// Fills the row the cursor is on with the highlight colour.
+// FUNCTION: CMR2 0x0044f680
+void GameMenus_DrawRowHighlight(short row)
+{
+    DWORD colour;
+
+    colour = g_menuHighlightColour;
+    *((BYTE *)&colour + 3) = 0xff;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) +
+                    (short)((int)(g_pGraphics->resY * 0x34) / 0x1e0) * row -
+                    (short)g_unk0x00540c60 - 1;
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
+                    (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) + 1;
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+    g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
+                    (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, (BYTE *)&colour, 2);
+}
+
+// Draws the thin separator under one menu row.
+// FUNCTION: CMR2 0x0044f7b0
+void GameMenus_DrawRowSeparator(short row)
+{
+    int resY;
+
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+    resY = (int)g_pGraphics->resY;
+    g_menuRect[1] = (short)((resY * 0x2f) / 0x1e0) +
+                    (short)((resY * 0x82) / 0x1e0) +
+                    (short)((resY * 0x34) / 0x1e0) * row -
+                    (short)g_unk0x00540c60;
+    g_menuRect[3] = 1;
+    g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x240) / 0x280);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+}
+
+// GLOBAL: CMR2 0x00519f98
+char g_strInvalid[8] = "INVALID";
+
+// Formats the name of one of the eight game modes into the shared string.
+// FUNCTION: CMR2 0x00451ce0
+void GameMenus_FormatModeName(int unused, int mode)
+{
+    switch (mode) {
+    case 0:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(6));
+        return;
+    case 1:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(3));
+        return;
+    case 2:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(1));
+        return;
+    case 3:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(4));
+        return;
+    case 4:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0));
+        return;
+    case 5:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(2));
+        return;
+    case 6:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(5));
+        return;
+    case 7:
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(7));
+        return;
+    default:
+        sprintf(CFrontend::m_stringDest, g_strInvalid);
+        return;
+    }
+}
