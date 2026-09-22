@@ -2940,3 +2940,69 @@ particleFound:
             pType->callback(pParticle, pType, callbackParam);
     }
 }
+
+// GLOBAL: CMR2 0x006dfe10
+int *g_triangleVertexHeights;
+
+// Interpolates the height of a point on a triangle whose vertex heights are stored separately.
+// FUNCTION: CMR2 0x004b6340
+int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVertices, FixVector *pPosition)
+{
+    if (g_triangleVertexHeights != 0) {
+        FixVector vertices[3];
+        FixVector edge1;
+        FixVector edge2;
+        FixVector normal;
+
+        vertices[0] = pVertices[0];
+        vertices[1] = pVertices[1];
+        vertices[2] = pVertices[2];
+        vertices[0].y = g_triangleVertexHeights[pHeightIndices[0]];
+        vertices[1].y = g_triangleVertexHeights[pHeightIndices[1]];
+        vertices[2].y = g_triangleVertexHeights[pHeightIndices[2]];
+
+        edge1.x = vertices[1].x - vertices[0].x;
+        edge1.y = vertices[1].y - vertices[0].y;
+        edge1.z = vertices[1].z - vertices[0].z;
+        edge2.x = vertices[2].x - vertices[0].x;
+        edge2.y = vertices[2].y - vertices[0].y;
+        edge2.z = vertices[2].z - vertices[0].z;
+
+        int length = FixVecLength(&edge1);
+        if (length == 0) {
+            edge1.x = 0;
+            edge1.y = 0;
+            edge1.z = 0;
+        } else {
+            FixVecScaleRecip(&edge1, &edge1, length);
+        }
+
+        length = FixVecLength(&edge2);
+        if (length == 0) {
+            edge2.x = 0;
+            edge2.y = 0;
+            edge2.z = 0;
+        } else {
+            FixVecScaleRecip(&edge2, &edge2, length);
+        }
+
+        FixVecCross(&normal, &edge1, &edge2);
+        length = FixVecLength(&normal);
+        if (length == 0) {
+            normal.x = 0;
+            normal.y = 0;
+            normal.z = 0;
+        } else {
+            FixVecScaleRecip(&normal, &normal, length);
+        }
+
+        int planeDistance = FixVecDot(&vertices[0], &normal);
+        if (normal.y != 0) {
+            return FixDiv(planeDistance - FixMul(pPosition->x, normal.x) -
+                              FixMul(pPosition->z, normal.z),
+                          normal.y);
+        }
+    }
+
+    return -65470464;
+}
