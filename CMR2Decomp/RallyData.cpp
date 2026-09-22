@@ -602,3 +602,10 @@ char RallyData_FUN_00408500(unsigned int param1)
         return -1;
     return (char)((*(unsigned int *)(g_unk0x00531350 + (param1 & 0xff) * 0x30) >> 0xe) & 0xf);
 }
+
+// Returns bit 26 of the selected rally data (a per-rally flag).
+// FUNCTION: CMR2 0x00407e70
+unsigned int RallyData_FUN_00407e70(void)
+{
+    return (g_selectedRallyData >> 26) & 1;
+}
