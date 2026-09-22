@@ -238,3 +238,68 @@ void StageUI_DrawChampionshipBar(void)
                       (int)(g_pGraphics->resY * 0x39) / 0x1e0, (int *)g_barTextColour, 0x11);
     }
 }
+
+// GLOBAL: CMR2 0x0051c9f4
+BYTE g_gridBackColour[4] = { 0, 0, 0, 0 };
+// GLOBAL: CMR2 0x0051c9f8
+BYTE g_gridColour2[4] = { 0, 0, 0, 0 };
+// GLOBAL: CMR2 0x0051c9fc
+BYTE g_gridColour1[4] = { 0, 0, 0, 0 };
+// GLOBAL: CMR2 0x0051ca00
+char g_stageGrid[3][0x294];
+
+// Draws the little stage grid: a background panel and one cell per set entry.
+// FUNCTION: CMR2 0x00477f70
+void StageUI_DrawStageGrid(int unused, int set)
+{
+    short rect[4];
+    int n;
+    int i;
+    int cell;
+    int resX;
+    short top;
+    short cellW;
+    short cellH;
+    short left;
+
+    resX = (int)(g_pGraphics->resX * 6) / 0x280;
+    cell = (int)(g_pGraphics->resY * 6) / 0x1e0;
+    left = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
+    if (RallyData_FUN_00411880() != 0) {
+        top = (short)(((int)g_pGraphics->resY + cell * -0x14) / 2) + 4;
+    } else {
+        top = (short)((int)(g_pGraphics->resY << 0xc) >> 0x10);
+    }
+    cellW = (short)resX;
+    rect[2] = cellW * 0x14;
+    cellH = (short)cell;
+    rect[3] = cellH * 0x15 - 1;
+    rect[0] = left + cellW * -9;
+    rect[1] = top;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_gridBackColour, 3);
+
+    rect[2] = (short)((int)(g_pGraphics->resX * 4) / 0x280);
+    i = 8;
+    rect[3] = (short)((int)(g_pGraphics->resY * 4) / 0x1e0);
+    do {
+        char *pCell = &g_stageGrid[0][0] + set * 0x294 + i;
+        int n = 0x14;
+
+        rect[0] = ((short)i - 0x10) * cellW + left;
+        rect[1] = top;
+        do {
+            if (*pCell != 0) {
+                BYTE *pColour = g_gridColour2;
+
+                if (*pCell != 2) {
+                    pColour = g_gridColour1;
+                }
+                Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 3);
+            }
+            rect[1] = rect[1] + cellH;
+            pCell = pCell + 0x21;
+            n--;
+        } while (n != 0);
+        i++;
+    } while (i < 0x1a);
+}
