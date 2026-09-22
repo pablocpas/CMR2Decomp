@@ -389,5 +389,7 @@ int FUN_00406710(void);
 void FUN_00406780(int param1);
 int FUN_004eb440(void);
 BYTE FUN_004d27d0(void);
+int FUN_004ea500(void);
+void FUN_004ef480(int *pOut1, int *pOut2);
 
 #endif

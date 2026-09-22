@@ -152,6 +152,13 @@ void FUN_004edca0(Menu *pMenu, int param)
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
 }
 
+// FUNCTION: CMR2 0x004ef480
+void FUN_004ef480(int *pOut1, int *pOut2)
+{
+    *pOut1 = g_unk0x00525398;
+    *pOut2 = g_unk0x0081912c;
+}
+
 // FUNCTION: CMR2 0x004ef4c0
 void FUN_004ef4c0(Menu *pMenu, int param)
 {

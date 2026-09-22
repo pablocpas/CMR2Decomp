@@ -415,11 +415,19 @@ char *CFrontend::GetTextString(int index)
 int g_unk0x00817fe4;
 // GLOBAL: CMR2 0x00817fe8
 int g_unk0x00817fe8;
+// GLOBAL: CMR2 0x00817ff4
+unsigned int g_unk0x00817ff4;
 
 // FUNCTION: CMR2 0x004d20c0
 void CFrontend::FUN_004d20c0(void)
 {
     g_unk0x00817fe8 = CGame::GetCallbackCount();
+}
+
+// FUNCTION: CMR2 0x004d20d0
+unsigned int CFrontend::FUN_004d20d0(void)
+{
+    return g_unk0x00817ff4;
 }
 
 // FUNCTION: CMR2 0x004d20e0

@@ -1432,6 +1432,12 @@ void FUN_004ea480(int param1)
     }
 }
 
+// FUNCTION: CMR2 0x004ea500
+int FUN_004ea500(void)
+{
+    return g_unk0x00818ac8;
+}
+
 // FUNCTION: CMR2 0x004ea8e0
 void FUN_004ea8e0(BYTE param1)
 {

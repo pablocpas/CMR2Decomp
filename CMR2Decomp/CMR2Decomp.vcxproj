@@ -138,6 +138,7 @@
     <ClCompile Include="FixedPoint.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Frontend.cpp" />
+    <ClCompile Include="FrontendDraw.cpp" />
     <ClCompile Include="FrontendMenus.cpp" />
     <ClCompile Include="FrontendScreens.cpp" />
     <ClCompile Include="FrontendStubs.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="BFL.h" />
     <ClInclude Include="FileBuffer.h" />
     <ClInclude Include="Frontend.h" />
+    <ClInclude Include="FrontendDraw.h" />
     <ClInclude Include="FrontendMenus.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameInfo.h" />
