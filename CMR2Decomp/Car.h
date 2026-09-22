@@ -24,7 +24,9 @@ struct Car {
     BYTE field_0x384[0xc];
     FixVector targetUp;               // 0x390  up/forward the body relaxes towards
     FixVector targetForward;          // 0x39c
-    BYTE field_0x3a8[0x54];
+    BYTE field_0x3a8[0x18];
+    FixVector wheelEmitter[4];        // 0x3c0  wheel dust/smoke emitter in body space
+    BYTE field_0x3f0[0xc];
     FixVector inertia;                // 0x3fc  used to turn the summed torque into angular acceleration
     FixVector velocity;               // 0x408
     FixVector velocityNext;           // 0x414  velocityNext - velocity is the acceleration of the last step
@@ -84,7 +86,11 @@ struct Car {
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
-    BYTE field_0x9e8[0x128];
+    BYTE field_0x9e8[0x88];
+    int field_0xa70;                  // 0xa70
+    BYTE field_0xa74[0x3a];
+    short wheelSurface[4];            // 0xaae
+    BYTE field_0xab6[0x5a];
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x8];
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
