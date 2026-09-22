@@ -461,7 +461,7 @@ void Car_UpdateBodyAxes(void)
             if (len > 0) {
                 int d;
                 FixVecScaleRecip(&localUp, &localUp, len);
-                d = FixVecDot((FixVector *)&g_pCurrentCar->field_0x498, &localUp) - FixVecDot((FixVector *)&g_pCurrentCar->field_0x48c, &localUp);
+                d = FixVecDot(&g_pCurrentCar->normal0x498, &localUp) - FixVecDot(&g_pCurrentCar->groundNormal, &localUp);
                 if (d > 0x41) {
                     int s = FixMul(d, g_pCurrentCar->field_0x9c4);
                     if (s > 0x10000)
@@ -903,4 +903,125 @@ void Car_UpdateCornerVelocities(void)
     pCv[7].y = pCv[7].y + pVel->y;
     pCv[7].z = pCv[7].z + pVel->z;
 
+}
+
+// Corner i of the box with its y replaced by the ground height under it.
+#define GROUND_CORNER(v, i)                                                         \
+    v.x = g_pCurrentCar->corners[i].x;                                              \
+    v.y = g_pCurrentCar->cornerHeight[i];                                           \
+    v.z = g_pCurrentCar->corners[i].z;
+
+// Picks the box face closest to horizontal and rebuilds the ground normal
+// from the two triangles formed by its four corners projected onto the ground.
+// FUNCTION: CMR2 0x0042de20
+void Car_UpdateGroundNormal(void)
+{
+    int absRight = FIX_ABS(g_pCurrentCar->right.y);
+    int absUp = FIX_ABS(g_pCurrentCar->up.y);
+    int absForward = FIX_ABS(g_pCurrentCar->forward.y);
+    FixVector a;
+    FixVector b;
+    FixVector c;
+    FixVector d;
+    FixVector ab;
+    FixVector cb;
+    FixVector cd;
+    FixVector ad;
+    FixVector n;
+
+    if (absUp >= absRight && absUp >= absForward) {
+        b.x = g_pCurrentCar->corners[0].x;
+        a.x = g_pCurrentCar->corners[1].x;
+        c.x = g_pCurrentCar->corners[2].x;
+        d.x = g_pCurrentCar->corners[3].x;
+        b.y = g_pCurrentCar->cornerHeight[0];
+        a.y = g_pCurrentCar->cornerHeight[1];
+        c.y = g_pCurrentCar->cornerHeight[2];
+        d.y = g_pCurrentCar->cornerHeight[3];
+        b.z = g_pCurrentCar->corners[0].z;
+        a.z = g_pCurrentCar->corners[1].z;
+        c.z = g_pCurrentCar->corners[2].z;
+        d.z = g_pCurrentCar->corners[3].z;
+    } else if (absRight >= absUp && absRight >= absForward) {
+        b.x = g_pCurrentCar->corners[0].x;
+        a.x = g_pCurrentCar->corners[1].x;
+        c.x = g_pCurrentCar->corners[4].x;
+        d.x = g_pCurrentCar->corners[5].x;
+        b.y = g_pCurrentCar->cornerHeight[0];
+        a.y = g_pCurrentCar->cornerHeight[1];
+        c.y = g_pCurrentCar->cornerHeight[4];
+        d.y = g_pCurrentCar->cornerHeight[5];
+        b.z = g_pCurrentCar->corners[0].z;
+        a.z = g_pCurrentCar->corners[1].z;
+        c.z = g_pCurrentCar->corners[4].z;
+        d.z = g_pCurrentCar->corners[5].z;
+    } else {
+        b.x = g_pCurrentCar->corners[0].x;
+        a.x = g_pCurrentCar->corners[2].x;
+        c.x = g_pCurrentCar->corners[4].x;
+        d.x = g_pCurrentCar->corners[6].x;
+        b.y = g_pCurrentCar->cornerHeight[0];
+        a.y = g_pCurrentCar->cornerHeight[2];
+        c.y = g_pCurrentCar->cornerHeight[4];
+        d.y = g_pCurrentCar->cornerHeight[6];
+        b.z = g_pCurrentCar->corners[0].z;
+        a.z = g_pCurrentCar->corners[2].z;
+        c.z = g_pCurrentCar->corners[4].z;
+        d.z = g_pCurrentCar->corners[6].z;
+    }
+
+    ab.x = a.x - b.x;
+    ab.y = a.y - b.y;
+    ab.z = a.z - b.z;
+    cb.x = c.x - b.x;
+    cb.y = c.y - b.y;
+    cb.z = c.z - b.z;
+    FixVecCross(&n, &cb, &ab);
+    if (n.y < 0) {
+        n.x = -n.x;
+        n.y = -n.y;
+        n.z = -n.z;
+    }
+    {
+        FixVector *pOut = &g_pCurrentCar->groundNormal;
+        int len = FixVecLength(&n);
+        if (len == 0) {
+            pOut->x = 0;
+            pOut->y = 0;
+            pOut->z = 0;
+        } else {
+            FixVecScaleRecip(pOut, &n, len);
+        }
+    }
+
+    ad.x = a.x - d.x;
+    ad.y = a.y - d.y;
+    ad.z = a.z - d.z;
+    cd.x = c.x - d.x;
+    cd.y = c.y - d.y;
+    cd.z = c.z - d.z;
+    FixVecCross(&n, &cd, &ad);
+    if (n.y < 0) {
+        n.x = -n.x;
+        n.y = -n.y;
+        n.z = -n.z;
+    }
+    FIX_NORMALIZE_INTO(n, n);
+
+    {
+        FixVector *pOut = &g_pCurrentCar->groundNormal;
+        n.x += pOut->x;
+        n.y += pOut->y;
+        n.z += pOut->z;
+        {
+            int len = FixVecLength(&n);
+            if (len == 0) {
+                pOut->x = 0;
+                pOut->y = 0;
+                pOut->z = 0;
+            } else {
+                FixVecScaleRecip(pOut, &n, len);
+            }
+        }
+    }
 }

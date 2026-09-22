@@ -27,12 +27,8 @@ struct Car {
     BYTE field_0x414[0xc];
     FixVector angularVelocity;        // 0x420  body space
     FixVector cornerVelocity[8];      // 0x42c  world-space velocity of each box corner
-    int field_0x48c;                  // 0x48c
-    BYTE field_0x490[0x4];
-    int field_0x494;                  // 0x494
-    int field_0x498;                  // 0x498
-    BYTE field_0x49c[0x4];
-    int field_0x4a0;                  // 0x4a0
+    FixVector groundNormal;           // 0x48c  normal of the box face the car rests on (Car_UpdateGroundNormal)
+    FixVector normal0x498;            // 0x498
     BYTE field_0x4a4[0x1a4];
     FixVector force0x648;             // 0x648
     FixVector force0x654;             // 0x654
@@ -53,7 +49,9 @@ struct Car {
     int steer;                        // 0x778
     BYTE field_0x77c[0xa0];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0xfc];
+    BYTE field_0x820[0xbc];
+    int cornerHeight[8];              // 0x8dc  ground height under each box corner
+    BYTE field_0x8fc[0x20];
     int field_0x91c;                  // 0x91c
     int field_0x920;                  // 0x920
     int field_0x924;                  // 0x924
@@ -118,5 +116,6 @@ void Car_StoreBodyMatrix(void);
 void Car_UpdateBodyMatrix(void);
 void Car_RelaxBodyAxes(int bFast);
 void Car_UpdateCornerVelocities(void);
+void Car_UpdateGroundNormal(void);
 
 #endif
