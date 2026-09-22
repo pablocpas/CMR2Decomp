@@ -210,6 +210,7 @@ public:
     static void FUN_004066a0(char *name);
     static char *FUN_004066d0(void);
     static void FUN_004066e0(char *name);
+    static unsigned char FUN_00404f20(void);
 
     // GLOBAL: CMR2 0x0052afa0
     static GameInfo m_gameInfo;
@@ -218,6 +219,8 @@ public:
     static BYTE m_unk0x0052ea52;
 
     // cached copies of bitfield values, refreshed by FUN_00406470
+    // GLOBAL: CMR2 0x0052af40
+    static unsigned char m_unk0x0052af40;   // byte flag, siblings are the cached bitfields below
     // GLOBAL: CMR2 0x0052af80
     static unsigned int m_unk0x0052af80;
     // GLOBAL: CMR2 0x0052af84

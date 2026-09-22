@@ -26,6 +26,7 @@ char gameRegionEurope[9] = "\\Europe\\";
 GameInfo CGameInfo::m_gameInfo;
 BYTE CGameInfo::m_unk0x0052ea52;
 unsigned int CGameInfo::m_unk0x0052af80;
+unsigned char CGameInfo::m_unk0x0052af40;
 unsigned int CGameInfo::m_unk0x0052af84;
 unsigned int CGameInfo::m_unk0x0052af88;
 unsigned int CGameInfo::m_unk0x0052af8c;
@@ -1575,4 +1576,10 @@ BYTE g_unk0x0082b848[0x40];
 BYTE *FUN_00502510(void)
 {
     return g_unk0x0082b848;
+}
+
+// FUNCTION: CMR2 0x00404f20
+unsigned char CGameInfo::FUN_00404f20(void)
+{
+    return m_unk0x0052af40;
 }
