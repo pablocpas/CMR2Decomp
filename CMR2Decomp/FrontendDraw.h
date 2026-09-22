@@ -13,5 +13,6 @@ void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count);
 void FrontendDraw_MenuTitle(Menu *pMenu);
 int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char **ppNames, int nameCount);
 void FrontendDraw_PlayTime(void);
+void FrontendDraw_HelpText(char *text, int reset);
 
 #endif

@@ -15,6 +15,13 @@ BYTE g_colourWhite0x00524968[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x0052496c
 BYTE g_colourText0x0052496c[4] = { 0xd7, 0xeb, 0xda, 0xff };
 
+// GLOBAL: CMR2 0x00524b88
+BYTE g_helpColour0x00524b88[4] = { 0xff, 0xff, 0xff, 0xff };
+// GLOBAL: CMR2 0x00524b8c
+char g_helpPulseUp0x00524b8c = 1;
+// GLOBAL: CMR2 0x00818270
+char g_helpPulse0x00818270;
+
 // GLOBAL: CMR2 0x00818430
 char g_unk0x00818430[256];
 // GLOBAL: CMR2 0x008189a8
@@ -119,5 +126,44 @@ void FrontendDraw_PlayTime(void)
     if (CGameInfo::FUN_00406410(0x11))
         Font_DrawText(1, "Automode", (int)(g_pGraphics->resX * 635) / 640, (int)(g_pGraphics->resY * 5) / 480,
                       (int *)g_colourText0x0052496c, 0xc);
+}
+
+// Help line at the bottom of the screen, its brightness pulsing up and down.
+// FUNCTION: CMR2 0x004d4460
+void FrontendDraw_HelpText(char *text, int reset)
+{
+    if (text != NULL) {
+        if (reset == 0) {
+            if (g_helpPulseUp0x00524b8c != 0) {
+                g_helpPulse0x00818270++;
+                if (g_helpPulse0x00818270 > 32) {
+                    g_helpPulse0x00818270--;
+                    g_helpPulseUp0x00524b8c = 0;
+                }
+            } else {
+                g_helpPulse0x00818270--;
+                if (g_helpPulse0x00818270 < -32) {
+                    g_helpPulse0x00818270++;
+                    g_helpPulseUp0x00524b8c = 1;
+                }
+            }
+            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[0] = g_colourText0x0052496c[0] + g_helpPulse0x00818270;
+            g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
+            g_helpColour0x00524b88[2] = g_colourText0x0052496c[2] + g_helpPulse0x00818270;
+        } else {
+            g_helpPulse0x00818270 = 0;
+            g_helpColour0x00524b88[0] = g_colourText0x0052496c[0];
+            g_helpColour0x00524b88[1] = g_colourText0x0052496c[1];
+            g_helpPulseUp0x00524b8c = 1;
+            g_helpColour0x00524b88[2] = g_colourText0x0052496c[2];
+            g_helpColour0x00524b88[3] = g_colourText0x0052496c[3];
+        }
+        sprintf(CFrontend::m_stringDest, text);
+        Font_Unused((int)CFrontend::m_stringDest, FUN_004ea500());
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 102) / 640,
+                      (int)(g_pGraphics->resY * 64) / 480 + (int)(g_pGraphics->resY * 384) / 480,
+                      (int *)g_helpColour0x00524b88, 0x11);
+    }
 }
 
