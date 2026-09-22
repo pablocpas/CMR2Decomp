@@ -1567,3 +1567,12 @@ BYTE *FUN_00502500(void)
 {
     return g_unk0x0082b668;
 }
+
+// GLOBAL: CMR2 0x0082b848
+BYTE g_unk0x0082b848[0x40];
+
+// FUNCTION: CMR2 0x00502510
+BYTE *FUN_00502510(void)
+{
+    return g_unk0x0082b848;
+}
