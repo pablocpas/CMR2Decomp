@@ -243,7 +243,7 @@ void FUN_004eefe0(Menu *pMenu, int param);
 void FUN_004ef000(Menu *pMenu, int param);
 void FUN_004ef030(Menu *pMenu, int param);
 void FUN_004ef4c0(Menu *pMenu, int param);
-void FUN_004ef4e0(Menu *pMenu, int param);
+void FUN_004ef4e0(Menu *pMenu);
 void FUN_004ef590(Menu *pMenu, int param);
 void FUN_004ef5e0(Menu *pMenu, int param);
 void FUN_004ef5f0(Menu *pMenu, int param);
@@ -295,7 +295,7 @@ void FUN_004f2430(Menu *pMenu, int param);
 void FUN_004f2840(Menu *pMenu, int param);
 void FUN_004f2b00(BYTE *p);
 void FUN_004f2b70(Menu *pMenu, int param);
-void FUN_004f2c40(Menu *pMenu, int param);
+void FUN_004f2c40(Menu *pMenu, char param);
 void FUN_004f2d20(Menu *pMenu, int param);
 void FUN_004f2d90(Menu *pMenu, int param);
 void FUN_004f2e70(Menu *pMenu, int param);
@@ -343,5 +343,6 @@ int FUN_004f4db0(void);
 BOOL FUN_004a15a0(void);
 int FUN_004a1280(void);
 void RallyData_FUN_00406960(BYTE param1);
+unsigned int RallyData_FUN_00406940(void);
 
 #endif

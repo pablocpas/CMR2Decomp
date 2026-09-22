@@ -3,6 +3,7 @@
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "Graphics.h"
+#include "Input.h"
 #include "FrontendMenus.h"
 
 // Callbacks of the frontend screens, hooked to the menus built in
@@ -89,6 +90,39 @@ void FUN_004ef4c0(Menu *pMenu, int param)
     g_unk0x0082a924 = 0;
     g_unk0x0082aa3c = 0;
     g_unk0x0082ac48 = 0;
+}
+
+// Scroll of a 13-row list: g_unk0x0082a924 is the selected row,
+// g_unk0x0082aa3c the first visible one.
+// FUNCTION: CMR2 0x004ef4e0
+void FUN_004ef4e0(Menu *pMenu)
+{
+    DeviceInfo *pDevice;
+
+    g_unk0x0082aa40 = FUN_004f4db0();
+    Menu_SetFlags(pMenu, 0, 0, 1, 1);
+    pDevice = CInput::FUN_0049ead0(0);
+    if (g_unk0x0082aa40 > 0) {
+        if (g_unk0x0082a924 == -1)
+            g_unk0x0082a924 = 0;
+        else if ((pDevice->field_0x8 & 4) && g_unk0x0082a924 > 0)
+            g_unk0x0082a924--;
+        else if ((pDevice->field_0x8 & 8) && g_unk0x0082a924 < g_unk0x0082aa40 - 1)
+            g_unk0x0082a924++;
+    } else {
+        g_unk0x0082a924 = -1;
+        g_unk0x0082aa3c = 0;
+    }
+    if (g_unk0x0082a924 < g_unk0x0082aa3c) {
+        g_unk0x0082aa3c--;
+        if (g_unk0x0082aa3c < 0)
+            g_unk0x0082aa3c = 0;
+    }
+    if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
+        g_unk0x0082aa3c++;
+    g_unk0x0082ac48 = 13;
+    if (g_unk0x0082aa40 <= 13)
+        g_unk0x0082ac48 = g_unk0x0082aa40;
 }
 
 // FUNCTION: CMR2 0x004ef5f0
@@ -182,6 +216,30 @@ void FUN_004f1bd0(Menu *pMenu, int param)
     g_unk0x008196e4 = CFrontend::FUN_004d20e0();
 }
 
+// FUNCTION: CMR2 0x004f1c00
+void FUN_004f1c00(Menu *pMenu, int param)
+{
+    if (CFrontend::FUN_004b7520()) {
+        if ((BYTE)CGameInfo::FUN_00405ba0() && (g_pGraphics->field913_0x3bc & 0x40))
+            Menu_GetItem(pMenu, 1)->max = 0;
+        else
+            Menu_GetItem(pMenu, 1)->max = 1;
+        Menu_GetItem(pMenu, 1)->enabled = 1;
+    } else {
+        Menu_GetItem(pMenu, 1)->enabled = 0;
+    }
+    if (CGameInfo::FUN_00405c70() == 1 && (g_pGraphics->field913_0x3bc & 1))
+        Menu_GetItem(pMenu, 4)->max = 1;
+    else if (CGameInfo::FUN_00405c70() == 2 && (g_pGraphics->field913_0x3bc & 2))
+        Menu_GetItem(pMenu, 4)->max = 0;
+    else
+        Menu_GetItem(pMenu, 4)->max = 2;
+    CGameInfo::FUN_00405ca0();
+    if ((unsigned int)CGameInfo::FUN_00405ca0() > 9)
+        CGameInfo::FUN_00405cb0(9);
+    Menu_GetItem(pMenu, 5)->max = CGameInfo::FUN_00405ca0();
+}
+
 // FUNCTION: CMR2 0x004f1d00
 void FUN_004f1d00(Menu *pMenu, int param)
 {
@@ -259,6 +317,31 @@ void FUN_004f2840(Menu *pMenu, int param)
     pMenu->items[2].max = (int)CGameInfo::FUN_00405ea0() / 10;
 }
 
+// FUNCTION: CMR2 0x004f2c40
+void FUN_004f2c40(Menu *pMenu, char param)
+{
+    if (param == 0) {
+        if (CGameInfo::FUN_00405dc0())
+            pMenu->items[Menu_FindItem(pMenu, 0)].max = 1;
+        else
+            pMenu->items[Menu_FindItem(pMenu, 0)].max = 0;
+        if ((BYTE)CGameInfo::FUN_00406310())
+            pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
+        else
+            pMenu->items[Menu_FindItem(pMenu, 2)].max = 1;
+        if ((BYTE)CGameInfo::FUN_00405eb0())
+            pMenu->items[Menu_FindItem(pMenu, 3)].max = 1;
+        else
+            pMenu->items[Menu_FindItem(pMenu, 3)].max = 0;
+        if (CGameInfo::FUN_00405ef0() == 0)
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 0;
+        if (CGameInfo::FUN_00405ef0() == 1)
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
+        if (CGameInfo::FUN_00405ef0() == 2)
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
+    }
+}
+
 // FUNCTION: CMR2 0x004f3a90
 void FUN_004f3a90(Menu *pMenu, int param)
 {
@@ -308,6 +391,43 @@ void FUN_004faa00(Menu *pMenu, int param)
     pMenu->cursor = cursor;
     if (cursor >= pMenu->itemCount)
         pMenu->cursor = pMenu->itemCount - 1;
+}
+
+// FUNCTION: CMR2 0x004faef0
+void FUN_004faef0(Menu *pMenu, int param)
+{
+    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    unsigned int count;
+    unsigned int i;
+    char cursor;
+
+    switch (CGameInfo::FUN_00405d90()) {
+    case 2:
+        if (CGameInfo::FUN_00406410(0xd))
+            count = 2;
+        else
+            count = *pFlags >> 6 & 3;
+        break;
+    case 1:
+        if (CGameInfo::FUN_00406410(0xd))
+            count = 2;
+        else
+            count = *pFlags >> 4 & 3;
+        break;
+    case 0:
+        count = *pFlags >> 2 & 3;
+        break;
+    }
+    for (i = 0; i < 2; i++) {
+        if (i < count)
+            FUN_004fa330()->items[i].enabled = 1;
+        else
+            FUN_004fa330()->items[i].enabled = 0;
+    }
+    cursor = RallyData_FUN_00406940();
+    FUN_004fa330()->cursor = cursor;
+    if (FUN_004fa330()->cursor >= FUN_004fa330()->itemCount)
+        FUN_004fa330()->cursor = FUN_004fa330()->itemCount - 1;
 }
 
 // FUNCTION: CMR2 0x004fafd0
