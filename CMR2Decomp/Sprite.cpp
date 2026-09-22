@@ -301,9 +301,30 @@ void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB)
     }
 }
 
-// Textured 2D quad: four 0x24-byte vertices plus texture and flags.
+struct Quad2DRenderVertex {
+    float x;
+    float y;
+    float z;
+    BYTE pad0x0c[0xc];
+    DWORD colour;
+    DWORD specular;
+    float u;
+    float v;
+    BYTE pad0x28[8];
+};
+
+// Three 0x30-byte render vertices plus texture and flags.
 struct Quad2DVertices {
-    int v[36];
+    Quad2DRenderVertex v[3];
+};
+
+struct Quad2DInputVertex {
+    int x;
+    int y;
+    int z;
+    BYTE colour[4];
+    int u;
+    int v;
 };
 
 struct Quad2D {
@@ -324,6 +345,8 @@ Quad2D g_quad2DLayerD[1];
 unsigned int g_quad2DCountC;
 // GLOBAL: CMR2 0x00816178
 unsigned int g_quad2DCountD;
+// GLOBAL: CMR2 0x0081618c
+BYTE g_quad2DConvertOverflow;
 // GLOBAL: CMR2 0x0081618d
 BYTE g_quad2DOverflow;
 
@@ -372,4 +395,80 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
     p->flags = (unsigned int)pDest;
     p->pTexture = pTexture;
     p->verts = *pVerts;
+}
+
+// Converts three fixed-point vertices and queues them in the selected layer.
+// FUNCTION: CMR2 0x004bba00
+void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
+                               Quad2DInputVertex *pB,
+                               Quad2DInputVertex *pC, Texture *pTexture,
+                               Quad2D *pDest)
+{
+    Quad2D *p;
+
+    if ((unsigned int)pDest & 8) {
+        if (g_unk0x0081616c >= 0x400) {
+            if (g_quad2DConvertOverflow == 0)
+                g_quad2DConvertOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerA[g_unk0x0081616c];
+        g_unk0x0081616c++;
+    } else if ((unsigned int)pDest & 0x10) {
+        if (g_unk0x00816170 >= 0x200) {
+            if (g_quad2DConvertOverflow == 0)
+                g_quad2DConvertOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerB[g_unk0x00816170];
+        g_unk0x00816170++;
+    } else if ((unsigned int)pDest & 0x20) {
+        if (g_quad2DCountC >= 0x800) {
+            if (g_quad2DConvertOverflow == 0)
+                g_quad2DConvertOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerC[g_quad2DCountC];
+        g_quad2DCountC++;
+    } else if ((unsigned int)pDest & 0x40) {
+        if (g_quad2DCountD >= 1) {
+            if (g_quad2DConvertOverflow == 0)
+                g_quad2DConvertOverflow = 1;
+            return;
+        }
+        p = &g_quad2DLayerD[g_quad2DCountD];
+        g_quad2DCountD++;
+    } else {
+        p = (Quad2D *)((unsigned int)pDest);
+    }
+
+    p->pTexture = pTexture;
+    p->flags = (unsigned int)pDest;
+
+    p->verts.v[0].x = (float)(pA->x * CGraphics::m_oneOver65536);
+    p->verts.v[0].y = (float)(pA->y * CGraphics::m_oneOver65536);
+    p->verts.v[0].z = (float)(pA->z * CGraphics::m_oneOver65536);
+    p->verts.v[0].u = (float)(pA->u * CGraphics::m_oneOver65536);
+    p->verts.v[0].v = (float)(pA->v * CGraphics::m_oneOver65536);
+    p->verts.v[0].colour = RGBA_MAKE(pA->colour[0], pA->colour[1],
+                                      pA->colour[2], pA->colour[3]);
+    p->verts.v[0].specular = 0xff000000;
+
+    p->verts.v[1].x = (float)(pB->x * CGraphics::m_oneOver65536);
+    p->verts.v[1].y = (float)(pB->y * CGraphics::m_oneOver65536);
+    p->verts.v[1].z = (float)(pB->z * CGraphics::m_oneOver65536);
+    p->verts.v[1].u = (float)(pB->u * CGraphics::m_oneOver65536);
+    p->verts.v[1].v = (float)(pB->v * CGraphics::m_oneOver65536);
+    p->verts.v[1].colour = RGBA_MAKE(pB->colour[0], pB->colour[1],
+                                      pB->colour[2], pB->colour[3]);
+    p->verts.v[1].specular = 0xff000000;
+
+    p->verts.v[2].x = (float)(pC->x * CGraphics::m_oneOver65536);
+    p->verts.v[2].y = (float)(pC->y * CGraphics::m_oneOver65536);
+    p->verts.v[2].z = (float)(pC->z * CGraphics::m_oneOver65536);
+    p->verts.v[2].u = (float)(pC->u * CGraphics::m_oneOver65536);
+    p->verts.v[2].v = (float)(pC->v * CGraphics::m_oneOver65536);
+    p->verts.v[2].colour = RGBA_MAKE(pC->colour[0], pC->colour[1],
+                                      pC->colour[2], pC->colour[3]);
+    p->verts.v[2].specular = 0xff000000;
 }
