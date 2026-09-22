@@ -2672,3 +2672,337 @@ void FUN_004b21e0(void)
     *(float *)0x5210b0 = f / *(float *)0x51138c;
     *(float *)0x5210a0 = *(float *)0x5210b0;
 }
+
+// Definition of one particle kind (0x70 bytes).
+struct ParticleType {
+    int lifetime;
+    FixVector spread;
+    BYTE pad0x10[0x10];
+    int size;
+    int sizeVariation;
+    BYTE pad0x28[6];
+    BYTE type;
+    BYTE pad0x2f[2];
+    BYTE colour[3];
+    BYTE pad0x34;
+    BYTE flags;
+    BYTE directionFlags;
+    BYTE pad0x37;
+    int field0x38;
+    BYTE pad0x3c[0x2c];
+    void (*callback)(void *, ParticleType *, int);
+    int field0x6c;
+};
+
+// Runtime particle record (0x68 bytes).
+struct Particle {
+    ParticleType *pType;
+    FixVector position;
+    FixVector vector0x10;
+    FixVector vector0x1c;
+    FixVector vector0x28;
+    FixVector sourceVector;
+    int field0x40;
+    int age;
+    int field0x48;
+    int size;
+    short field0x50;
+    BYTE type0x52;
+    BYTE type0x53;
+    BYTE field0x54;
+    BYTE field0x55;
+    BYTE type0x56;
+    BYTE active;
+    BYTE field0x58;
+    BYTE colour[3];
+    BYTE pad0x5c[4];
+    int field0x60;
+    int field0x64;
+};
+
+extern double g_minus65536;
+
+// GLOBAL: CMR2 0x005112f0
+float g_oneOverRandMax = 1.0f / RAND_MAX;
+// GLOBAL: CMR2 0x006a2cd0
+int g_particleTypeCount;
+// GLOBAL: CMR2 0x006a2cd4
+volatile int g_particleCount;
+// GLOBAL: CMR2 0x006a2cd8
+ParticleType *g_particleTypes;
+// GLOBAL: CMR2 0x006a2cdc
+Particle *g_particles;
+// GLOBAL: CMR2 0x006a2ce4
+int g_nextParticle;
+
+// Allocates and initialises a particle, optionally orienting its random spread
+// around the supplied position vector.
+// FUNCTION: CMR2 0x004b07a0
+void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
+                    int field0x48, int field0x40, BYTE *pColour,
+                    BYTE field0x54, int callbackParam, BYTE field0x55)
+{
+    ParticleType *pType = NULL;
+    bool hasBasis;
+    FixVector right;
+    FixVector direction;
+    FixVector up;
+    int length;
+    int dot;
+    int i;
+    int best;
+    int selected;
+    Particle *pParticle;
+    int randomX;
+    int randomY;
+    int randomZ;
+    BYTE directionMask = 1;
+
+    if (typeIndex >= 0 && typeIndex < g_particleTypeCount)
+        pType = &g_particleTypes[typeIndex];
+    if ((pType->flags & directionMask) == 0)
+        return;
+    hasBasis = false;
+
+    if ((pType->directionFlags & directionMask) != 0) {
+        int x = pPosition->x;
+        if (x < 0)
+            x = -x;
+        if (x > 0xa0) {
+            int z = pPosition->z;
+            if (z < 0)
+                z = -z;
+            if (z > 0xa0) {
+                length = FixVecLength(pPosition);
+                if (length == 0) {
+                    direction.x = 0;
+                    direction.y = 0;
+                    direction.z = 0;
+                } else {
+                    FixVecScaleRecip(&direction, pPosition, length);
+                }
+
+                if (direction.y > 0x8000) {
+                    up.x = direction.x;
+                    up.y = 0;
+                    up.z = direction.z;
+                    length = FixVecLength(&up);
+                    if (length == 0) {
+                        up.x = 0;
+                        up.y = 0;
+                        up.z = 0;
+                    } else {
+                        FixVecScaleRecip(&up, &up, length);
+                    }
+                } else {
+                    up.x = 0;
+                    up.y = 0x10000;
+                    up.z = 0;
+                }
+
+                dot = FixVecDot(&direction, &up);
+                up.x -= FixMul(direction.x, dot);
+                up.y -= FixMul(direction.y, dot);
+                up.z -= FixMul(direction.z, dot);
+                length = FixVecLength(&up);
+                if (length == 0) {
+                    up.x = 0;
+                    up.y = 0;
+                    up.z = 0;
+                } else {
+                    FixVecScaleRecip(&up, &up, length);
+                }
+
+                FixVecCross(&right, &direction, &up);
+                length = FixVecLength(&right);
+                if (length == 0) {
+                    right.x = 0;
+                    right.y = 0;
+                    right.z = 0;
+                } else {
+                    FixVecScaleRecip(&right, &right, length);
+                }
+                hasBasis = true;
+            }
+        }
+    }
+
+    best = 0;
+    selected = g_nextParticle;
+    pParticle = &g_particles[g_nextParticle];
+    i = 0;
+    if (g_particleCount > 0) {
+        do {
+            if (g_nextParticle >= g_particleCount) {
+                g_nextParticle = 0;
+                pParticle = g_particles;
+            }
+            if (pParticle->active == 0) {
+                if (pParticle != NULL)
+                    goto particleFound;
+                break;
+            }
+            if (best < pParticle->pType->lifetime - pParticle->age) {
+                best = pParticle->pType->lifetime - pParticle->age;
+                selected = g_nextParticle;
+            }
+            i++;
+            pParticle++;
+            g_nextParticle++;
+        } while (i < g_particleCount);
+    }
+    pParticle = &g_particles[selected];
+
+particleFound:
+
+    randomX = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
+    randomY = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
+    randomZ = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
+
+    pParticle->position.x = pPosition->x;
+    pParticle->position.y = pPosition->y;
+    pParticle->position.z = pPosition->z;
+    {
+        FixVector *pVector = &pParticle->sourceVector;
+        *pVector = *pSource;
+        pParticle->vector0x10 = *pVector;
+        pParticle->vector0x1c = *pVector;
+        pParticle->vector0x28 = *pVector;
+    }
+    pParticle->field0x48 = field0x48;
+    pParticle->field0x40 = field0x40;
+
+    if ((pType->directionFlags & 1) != 0) {
+        if (hasBasis) {
+            if (pType->spread.x != 0) {
+                FixVecScale(&right, &right, FixMul(randomX, pType->spread.x));
+                pParticle->position.x += right.x;
+                pParticle->position.y += right.y;
+                pParticle->position.z += right.z;
+            }
+            if (pType->spread.y != 0) {
+                FixVecScale(&up, &up, FixMul(randomY, pType->spread.y));
+                pParticle->position.x += up.x;
+                pParticle->position.y += up.y;
+                pParticle->position.z += up.z;
+            }
+            if (pType->spread.z != 0) {
+                FixVecScale(&direction, &direction, FixMul(randomZ, pType->spread.z));
+                pParticle->position.x += direction.x;
+                pParticle->position.y += direction.y;
+                pParticle->position.z += direction.z;
+            }
+        } else {
+            pParticle->position.x += FixMul(randomX, pType->spread.x);
+            pParticle->position.y += FixMul(randomZ, pType->spread.z);
+            pParticle->position.z += FixMul(randomZ, pType->spread.y);
+        }
+    } else {
+        pParticle->position.x += FixMul(randomX, pType->spread.x);
+        pParticle->position.y += FixMul(randomY, pType->spread.y);
+        pParticle->position.z += FixMul(randomZ, pType->spread.z);
+    }
+
+    pParticle->pType = pType;
+    pParticle->age = pType->lifetime;
+    {
+        BYTE type = pType->type;
+        pParticle->type0x56 = type;
+        pParticle->type0x53 = type;
+        pParticle->type0x52 = type;
+    }
+    if ((pType->flags & 0x10) != 0) {
+        int sizeVariation = pType->sizeVariation;
+        int variation = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        pParticle->size = pType->size + FixMul(sizeVariation, variation);
+    } else {
+        pParticle->size = pType->size;
+    }
+    {
+        int zero = 0;
+        if (pColour != (BYTE *)zero) {
+            pParticle->colour[0] = pColour[0];
+            pParticle->colour[1] = pColour[1];
+            pParticle->colour[2] = pColour[2];
+        } else {
+            pParticle->colour[0] = pType->colour[0];
+            pParticle->colour[1] = pType->colour[1];
+            pParticle->colour[2] = pType->colour[2];
+        }
+        if ((pType->directionFlags & 2) != 0)
+            pParticle->field0x54 = field0x54;
+        pParticle->field0x60 = pType->field0x38;
+        pParticle->field0x55 = field0x55;
+        pParticle->active = 1;
+        pParticle->field0x58 = (BYTE)zero;
+        pParticle->field0x50 = (short)zero;
+        if (pType->callback != (void (*)(void *, ParticleType *, int))zero)
+            pType->callback(pParticle, pType, callbackParam);
+    }
+}
+
+// GLOBAL: CMR2 0x006dfe10
+int *g_triangleVertexHeights;
+
+// Interpolates the height of a point on a triangle whose vertex heights are stored separately.
+// FUNCTION: CMR2 0x004b6340
+int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVertices, FixVector *pPosition)
+{
+    if (g_triangleVertexHeights != 0) {
+        FixVector vertices[3];
+        FixVector edge1;
+        FixVector edge2;
+        FixVector normal;
+
+        vertices[0] = pVertices[0];
+        vertices[1] = pVertices[1];
+        vertices[2] = pVertices[2];
+        vertices[0].y = g_triangleVertexHeights[pHeightIndices[0]];
+        vertices[1].y = g_triangleVertexHeights[pHeightIndices[1]];
+        vertices[2].y = g_triangleVertexHeights[pHeightIndices[2]];
+
+        edge1.x = vertices[1].x - vertices[0].x;
+        edge1.y = vertices[1].y - vertices[0].y;
+        edge1.z = vertices[1].z - vertices[0].z;
+        edge2.x = vertices[2].x - vertices[0].x;
+        edge2.y = vertices[2].y - vertices[0].y;
+        edge2.z = vertices[2].z - vertices[0].z;
+
+        int length = FixVecLength(&edge1);
+        if (length == 0) {
+            edge1.x = 0;
+            edge1.y = 0;
+            edge1.z = 0;
+        } else {
+            FixVecScaleRecip(&edge1, &edge1, length);
+        }
+
+        length = FixVecLength(&edge2);
+        if (length == 0) {
+            edge2.x = 0;
+            edge2.y = 0;
+            edge2.z = 0;
+        } else {
+            FixVecScaleRecip(&edge2, &edge2, length);
+        }
+
+        FixVecCross(&normal, &edge1, &edge2);
+        length = FixVecLength(&normal);
+        if (length == 0) {
+            normal.x = 0;
+            normal.y = 0;
+            normal.z = 0;
+        } else {
+            FixVecScaleRecip(&normal, &normal, length);
+        }
+
+        int planeDistance = FixVecDot(&vertices[0], &normal);
+        if (normal.y != 0) {
+            return FixDiv(planeDistance - FixMul(pPosition->x, normal.x) -
+                              FixMul(pPosition->z, normal.z),
+                          normal.y);
+        }
+    }
+
+    return -65470464;
+}
