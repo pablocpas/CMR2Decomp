@@ -12,6 +12,12 @@
 char g_unk0x00818f10;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
+// GLOBAL: CMR2 0x0081903c
+unsigned int g_unk0x0081903c;
+// GLOBAL: CMR2 0x00819754
+unsigned int g_unk0x00819754;
+// GLOBAL: CMR2 0x00819860
+unsigned int g_unk0x00819860;
 
 // FUNCTION: CMR2 0x004ecfa0
 void FUN_004ecfa0(Menu *pMenu, char param)
@@ -21,6 +27,23 @@ void FUN_004ecfa0(Menu *pMenu, char param)
         CGame::DestroyDirectPlay();
         g_unk0x00818f10 = 0;
     }
+}
+
+// FUNCTION: CMR2 0x004edca0
+void FUN_004edca0(Menu *pMenu, int param)
+{
+    int value = Menu_GetItem(pMenu, 0)->max;
+    BYTE flags;
+
+    if ((Menu_GetItem(pMenu, 0)->min == 5 && Menu_GetItem(pMenu, 0)->max == 4) ||
+        (Menu_GetItem(pMenu, 0)->min == 9 && Menu_GetItem(pMenu, 0)->max == 8))
+        value = 10;
+    flags = CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, value);
+    if (flags & 1) {
+        CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags & ~1);
+        return;
+    }
+    CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
 }
 
 // FUNCTION: CMR2 0x004ef5f0
@@ -113,6 +136,31 @@ void FUN_004f1d60(Menu *pMenu)
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
 }
 
+// FUNCTION: CMR2 0x004f1db0
+void FUN_004f1db0(Menu *pMenu, int param)
+{
+    CGameInfo::FUN_00405ce0(Menu_GetItem(pMenu, 8)->max);
+    switch (Menu_GetItem(pMenu, 9)->max) {
+    case 1:
+        CGameInfo::FUN_00405d20(1);
+        break;
+    case 0:
+        CGameInfo::FUN_00405d20(0);
+        break;
+    }
+    switch (Menu_GetItem(pMenu, 10)->max) {
+    case 1:
+        CGameInfo::FUN_00405d40(2);
+        break;
+    case 0:
+        if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+            CGameInfo::FUN_00405d40(0);
+        else
+            CGameInfo::FUN_00405d40(2);
+        break;
+    }
+}
+
 // FUNCTION: CMR2 0x004f23d0
 void FUN_004f23d0(Menu *pMenu)
 {
@@ -125,6 +173,17 @@ void FUN_004f23d0(Menu *pMenu)
         g_unk0x00819128++;
     if (CGame::FUN_004a9b20() != 0)
         FUN_004f2360((BYTE *)pMenu, 0);
+}
+
+// FUNCTION: CMR2 0x004f2840
+void FUN_004f2840(Menu *pMenu, int param)
+{
+    g_unk0x0081903c = CGameInfo::FUN_00405e40();
+    g_unk0x00819860 = CGameInfo::FUN_00405e70();
+    g_unk0x00819754 = CGameInfo::FUN_00405ea0();
+    pMenu->items[0].max = (int)CGameInfo::FUN_00405e40() / 10;
+    pMenu->items[1].max = (int)CGameInfo::FUN_00405e70() / 10;
+    pMenu->items[2].max = (int)CGameInfo::FUN_00405ea0() / 10;
 }
 
 // FUNCTION: CMR2 0x004f3ac0
