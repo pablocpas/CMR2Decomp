@@ -501,3 +501,14 @@ void CFrontend::FUN_004cf0f0(void)
     if (index == 0)
         g_unk0x00817410 = index;
 }
+
+// Table of pointers indexed by id; size derived from the 0x516c78 boundary
+// (next known global), so it may cover further undeclared values.
+// GLOBAL: CMR2 0x00516b40
+void *g_unk0x00516b40[0x4e];
+
+// FUNCTION: CMR2 0x0040ee90
+void *CFrontend::FUN_0040ee90(int index)
+{
+    return g_unk0x00516b40[index];
+}
