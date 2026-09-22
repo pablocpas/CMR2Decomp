@@ -24,9 +24,9 @@ struct Car {
     FixVector targetForward;          // 0x39c
     BYTE field_0x3a8[0x60];
     FixVector velocity;               // 0x408
-    BYTE field_0x414[0x10];
-    int field_0x424;                  // 0x424
-    BYTE field_0x428[0x64];
+    BYTE field_0x414[0xc];
+    FixVector angularVelocity;        // 0x420  body space
+    FixVector cornerVelocity[8];      // 0x42c  world-space velocity of each box corner
     int field_0x48c;                  // 0x48c
     BYTE field_0x490[0x4];
     int field_0x494;                  // 0x494
@@ -117,5 +117,6 @@ void Car_UpdateBodyAxesNoDamping(void);
 void Car_StoreBodyMatrix(void);
 void Car_UpdateBodyMatrix(void);
 void Car_RelaxBodyAxes(int bFast);
+void Car_UpdateCornerVelocities(void);
 
 #endif

@@ -369,9 +369,9 @@ void Car_UpdateBodyAxes(void)
     if (g_pCurrentCar->field_0xb28 > 0 && g_pCurrentCar->field_0xb74 != 0) {
         damping = FixMul(0x624, g_physicsTimeStep);
         maxStep = FixMul(0x312, g_physicsTimeStep);
-        step = FixMul(g_pCurrentCar->field_0x424, 0x3e80000);
+        step = FixMul(g_pCurrentCar->angularVelocity.y, 0x3e80000);
         step = step - FixMul(step, damping);
-        g_pCurrentCar->field_0x424 = FixMul(step, 0x41);
+        g_pCurrentCar->angularVelocity.y = FixMul(step, 0x41);
 
         if (FIX_ABS(g_pCurrentCar->steer) < 0x28f) {
             localUp.x = 0;
@@ -490,9 +490,9 @@ void Car_UpdateBodyAxesNoDamping(void)
     if (g_pCurrentCar->field_0xb28 > 0 && g_pCurrentCar->field_0xb74 != 0) {
         damping = FixMul(0x624, g_physicsTimeStep);
         maxStep = FixMul(0x312, g_physicsTimeStep);
-        step = FixMul(g_pCurrentCar->field_0x424, 0x3e80000);
+        step = FixMul(g_pCurrentCar->angularVelocity.y, 0x3e80000);
         step = step - FixMul(step, damping);
-        g_pCurrentCar->field_0x424 = FixMul(step, 0x41);
+        g_pCurrentCar->angularVelocity.y = FixMul(step, 0x41);
 
         if (FIX_ABS(g_pCurrentCar->steer) < 0x28f) {
             localUp.x = 0;
@@ -789,4 +789,118 @@ void Car_RelaxBodyAxes(int bFast)
     g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
     g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+}
+
+// Velocity of each box corner of g_pCurrentCar: v + w x r, with the
+// angular velocity in body space and the corners as +-half extents.
+// FUNCTION: CMR2 0x00434f50
+void Car_UpdateCornerVelocities(void)
+{
+    FixVector *pCv;
+    FixMatrix *pM;
+    FixVector *pVel;
+    FixVector *pW;
+    int wyhz;
+    int wzhy;
+    int wzhx;
+    int wxhz;
+    int wxhy;
+    int wyhx;
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+    int f;
+    int c0;
+    int c1;
+    int c2;
+    int c3;
+
+    pM = g_pCurrentCar->pWorld;
+    pW = &g_pCurrentCar->angularVelocity;
+    pVel = &g_pCurrentCar->velocity;
+    pCv = g_pCurrentCar->cornerVelocity;
+    wyhz = FixMul(pW->y, g_pCurrentCar->halfExtents.z);
+    wzhy = FixMul(pW->z, g_pCurrentCar->halfExtents.y);
+    wzhx = FixMul(pW->z, g_pCurrentCar->halfExtents.x);
+    wxhz = FixMul(pW->x, g_pCurrentCar->halfExtents.z);
+    wxhy = FixMul(pW->x, g_pCurrentCar->halfExtents.y);
+    wyhx = FixMul(pW->y, g_pCurrentCar->halfExtents.x);
+
+    a = FixMul(pM->right.x, wyhz);
+    b = FixMul(pM->right.x, wzhy);
+    c = FixMul(pM->up.x, wzhx);
+    d = FixMul(pM->up.x, wxhz);
+    e = FixMul(pM->forward.x, wxhy);
+    f = FixMul(pM->forward.x, wyhx);
+    pCv[0].x = (((c - f) - e) - d) + b + a;
+    pCv[1].x = (((d - f) - e) - a) + c + b;
+    pCv[2].x = (((f - e) - d) - c) + b + a;
+    pCv[3].x = (((f - e) - c) - a) + d + b;
+
+    a = FixMul(pM->right.y, wyhz);
+    b = FixMul(pM->right.y, wzhy);
+    c = FixMul(pM->up.y, wzhx);
+    d = FixMul(pM->up.y, wxhz);
+    e = FixMul(pM->forward.y, wxhy);
+    f = FixMul(pM->forward.y, wyhx);
+    pCv[0].y = (((c - f) - e) - d) + b + a;
+    pCv[1].y = (((d - f) - e) - a) + c + b;
+    pCv[2].y = (((f - e) - d) - c) + b + a;
+    pCv[3].y = (((f - e) - c) - a) + d + b;
+
+    a = FixMul(pM->right.z, wyhz);
+    b = FixMul(pM->right.z, wzhy);
+    c = FixMul(pM->up.z, wzhx);
+    d = FixMul(pM->up.z, wxhz);
+    e = FixMul(pM->forward.z, wxhy);
+    f = FixMul(pM->forward.z, wyhx);
+    c0 = (((c - f) - e) - d) + b + a;
+    c1 = (((d - f) - e) - a) + c + b;
+    pCv[1].z = c1;
+    pCv[0].z = c0;
+    c2 = (((f - e) - d) - c) + b + a;
+    c3 = (((f - e) - c) - a) + d + b;
+    pCv[3].z = c3;
+    pCv[2].z = c2;
+
+    pCv[4].x = -pCv[3].x;
+    pCv[4].y = -pCv[3].y;
+    pCv[4].z = -c3;
+    pCv[5].x = -pCv[2].x;
+    pCv[5].y = -pCv[2].y;
+    pCv[5].z = -c2;
+    pCv[6].x = -pCv[1].x;
+    pCv[6].y = -pCv[1].y;
+    pCv[6].z = -c1;
+    pCv[7].x = -pCv[0].x;
+    pCv[7].y = -pCv[0].y;
+    pCv[7].z = -c0;
+
+    pCv[0].x = pCv[0].x + pVel->x;
+    pCv[0].y = pCv[0].y + pVel->y;
+    pCv[0].z = pCv[0].z + pVel->z;
+    pCv[1].x = pCv[1].x + pVel->x;
+    pCv[1].y = pCv[1].y + pVel->y;
+    pCv[1].z = pCv[1].z + pVel->z;
+    pCv[2].x = pCv[2].x + pVel->x;
+    pCv[2].y = pCv[2].y + pVel->y;
+    pCv[2].z = pCv[2].z + pVel->z;
+    pCv[3].x = pCv[3].x + pVel->x;
+    pCv[3].y = pCv[3].y + pVel->y;
+    pCv[3].z = pCv[3].z + pVel->z;
+    pCv[4].x = pCv[4].x + pVel->x;
+    pCv[4].y = pCv[4].y + pVel->y;
+    pCv[4].z = pCv[4].z + pVel->z;
+    pCv[5].x = pCv[5].x + pVel->x;
+    pCv[5].y = pCv[5].y + pVel->y;
+    pCv[5].z = pCv[5].z + pVel->z;
+    pCv[6].x = pCv[6].x + pVel->x;
+    pCv[6].y = pCv[6].y + pVel->y;
+    pCv[6].z = pCv[6].z + pVel->z;
+    pCv[7].x = pCv[7].x + pVel->x;
+    pCv[7].y = pCv[7].y + pVel->y;
+    pCv[7].z = pCv[7].z + pVel->z;
+
 }
