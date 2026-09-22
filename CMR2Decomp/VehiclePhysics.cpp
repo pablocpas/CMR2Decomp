@@ -13,8 +13,104 @@ FixVector g_collisionDirection;
 // GLOBAL: CMR2 0x00591ae0
 FixVector g_collisionTarget;
 
+struct CollisionFaceVertices {
+    BYTE pad0x00[0x2c];
+    int hasSecondaryVertices;
+    FixVector primaryVertices[4];
+    FixVector secondaryVertices[4];
+};
+
+// GLOBAL: CMR2 0x0059192c
+int g_collisionSelectBackSide;
+// GLOBAL: CMR2 0x00591934
+BYTE g_collisionNegativeVertexCount;
+// GLOBAL: CMR2 0x00591935
+BYTE g_collisionPositiveVertexCount;
+// GLOBAL: CMR2 0x00591944
+BYTE g_collisionNegativeCandidateCount;
+// GLOBAL: CMR2 0x00591945
+BYTE g_collisionPositiveCandidateCount;
+// GLOBAL: CMR2 0x00591984
+CollisionFaceVertices *g_collisionFace;
+// GLOBAL: CMR2 0x00591988
+BYTE g_collisionNegativeCandidates[4];
+// GLOBAL: CMR2 0x0059198c
+BYTE g_collisionPositiveCandidates[4];
+// GLOBAL: CMR2 0x005919a4
+int g_collisionVertexDistances[4];
+// GLOBAL: CMR2 0x005919b4
+int g_collisionBestVertex;
+// GLOBAL: CMR2 0x00591ac0
+FixVector g_collisionLineStart;
+// GLOBAL: CMR2 0x00591adc
+int g_collisionDirectionDirty;
+
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
 #define COLLISION_INT(offset) (*(int *)((BYTE *)g_collisionCar + (offset)))
+
+inline int Collision_FixSqrt(int value)
+{
+    __asm {
+        mov eax, value
+        or eax, eax
+        mov ebx, eax
+        jnz sqrt_nonzero
+        mov eax, 0
+        jmp sqrt_done
+    sqrt_nonzero:
+        xor ecx, ecx
+        cmp eax, 0x10000
+        jb sqrt_l1
+        shr eax, 16
+        add cl, 16
+    sqrt_l1:
+        cmp eax, 0x100
+        jb sqrt_l2
+        shr eax, 8
+        add cl, 8
+    sqrt_l2:
+        cmp eax, 0x10
+        jb sqrt_l3
+        shr eax, 4
+        add cl, 4
+    sqrt_l3:
+        cmp eax, 4
+        jb sqrt_l4
+        shr eax, 2
+        add cl, 2
+    sqrt_l4:
+        cmp eax, 2
+        jb sqrt_l5
+        inc ecx
+    sqrt_l5:
+        mov eax, ebx
+        sub cl, 15
+        test cl, 1
+        jz sqrt_l6
+        inc cl
+    sqrt_l6:
+        mov bl, cl
+        add cl, 4
+        jns sqrt_l7
+        neg cl
+        shl eax, cl
+        jmp sqrt_l8
+    sqrt_l7:
+        shr eax, cl
+    sqrt_l8:
+        sar bl, 1
+        mov ax, word ptr [eax * 2 + g_sqrtTable]
+        or bl, bl
+        mov cl, bl
+        js sqrt_l9
+        shl eax, cl
+        jmp sqrt_done
+    sqrt_l9:
+        neg cl
+        shr eax, cl
+    sqrt_done:
+    }
+}
 
 // Applies a world-space impulse and its resulting torque to the active car.
 // FUNCTION: CMR2 0x0048f470
@@ -144,4 +240,118 @@ apply_torque:
     COLLISION_INT(0x5d0) += torque.x;
     COLLISION_INT(0x5d4) += torque.y;
     COLLISION_INT(0x5d8) += torque.z;
+}
+
+// Classifies face vertices by signed distance from the active collision plane.
+// FUNCTION: CMR2 0x00490720
+void Collision_ClassifyFaceVertices(void)
+{
+    FixVector newDirection;
+    FixVector sideDirection;
+    FixVector targetDelta;
+    FixVector startDelta;
+    FixVector secondaryDelta;
+    int length;
+    int sideAtTarget;
+    int sideAtStart;
+    int secondaryDistance;
+    int vertexOffset;
+    int vertexIndex;
+    int *pDistance;
+
+    if (g_collisionDirectionDirty != 0) {
+        g_collisionDirectionDirty = 0;
+        newDirection.x = g_collisionLineStart.z - g_collisionTarget.z;
+        newDirection.y = 0;
+        newDirection.z = g_collisionTarget.x - g_collisionLineStart.x;
+
+        length = Collision_FixSqrt(FixMul(newDirection.x, newDirection.x) +
+                                   FixMul(newDirection.z, newDirection.z));
+        if (FixVecDot(&newDirection, &g_collisionDirection) <= 0) {
+            length = -length;
+            FixVecScaleRecip(&newDirection, &newDirection, length);
+        } else {
+            FixVecScaleRecip(&newDirection, &newDirection, length);
+        }
+        g_collisionDirection = newDirection;
+    }
+
+    sideDirection.x = -g_collisionDirection.z;
+    sideDirection.y = 0;
+    sideDirection.z = g_collisionDirection.x;
+
+    g_collisionNegativeCandidateCount = 0;
+    g_collisionPositiveCandidateCount = 0;
+    g_collisionNegativeVertexCount = 0;
+    g_collisionPositiveVertexCount = 0;
+    vertexIndex = 0;
+    vertexOffset = 0;
+    pDistance = g_collisionVertexDistances;
+
+    do {
+        FixVector *pPrimary = (FixVector *)(vertexOffset + (int)g_collisionFace + 0x30);
+        targetDelta.x = g_collisionTarget.x - pPrimary->x;
+        targetDelta.y = g_collisionTarget.y - pPrimary->y;
+        targetDelta.z = g_collisionTarget.z - pPrimary->z;
+        startDelta.x = g_collisionLineStart.x - pPrimary->x;
+        startDelta.y = g_collisionLineStart.y - pPrimary->y;
+        startDelta.z = g_collisionLineStart.z - pPrimary->z;
+
+        sideAtTarget = FixVecDot(&targetDelta, &sideDirection);
+        sideAtStart = FixVecDot(&startDelta, &sideDirection);
+        *pDistance = FixVecDot(&targetDelta, &g_collisionDirection);
+        if (*pDistance >= 0)
+            g_collisionPositiveVertexCount++;
+        else
+            g_collisionNegativeVertexCount++;
+
+        if ((sideAtTarget != 0) && (sideAtStart != 0) &&
+            ((sideAtTarget <= 0) || (sideAtStart >= 0)) &&
+            ((sideAtTarget >= 0) || (sideAtStart <= 0)))
+            goto nextVertex;
+
+        if (*pDistance >= 0) {
+            if (g_collisionSelectBackSide == 0)
+                goto checkSecondary;
+            goto addVertex;
+        } else {
+            if (g_collisionSelectBackSide == 0)
+                goto addVertex;
+checkSecondary:
+            if (g_collisionFace->hasSecondaryVertices == 0)
+                goto addVertex;
+
+            {
+                FixVector *pSecondary = (FixVector *)(vertexOffset + (int)g_collisionFace + 0x60);
+                secondaryDelta.x = g_collisionTarget.x - pSecondary->x;
+                secondaryDelta.y = g_collisionTarget.y - pSecondary->y;
+                secondaryDelta.z = g_collisionTarget.z - pSecondary->z;
+            }
+            secondaryDistance = FixVecDot(&secondaryDelta, &g_collisionDirection);
+            if (*pDistance > 0) {
+                if (secondaryDistance <= *pDistance)
+                    goto addVertex;
+            } else if ((*pDistance >= 0) || (secondaryDistance >= *pDistance))
+                goto addVertex;
+            goto nextVertex;
+        }
+
+addVertex:
+        if (*pDistance >= 0) {
+            __asm mov cl, byte ptr [g_collisionPositiveCandidateCount]
+            __asm mov bl, byte ptr [vertexIndex]
+            __asm xor edx, edx
+            __asm mov dl, cl
+            __asm inc cl
+            __asm mov byte ptr [g_collisionPositiveCandidateCount], cl
+            __asm mov byte ptr [edx + g_collisionPositiveCandidates], bl
+        } else {
+            g_collisionNegativeCandidates[g_collisionNegativeCandidateCount++] = (BYTE)vertexIndex;
+        }
+
+nextVertex:
+        vertexOffset += sizeof(FixVector);
+        vertexIndex++;
+        pDistance++;
+    } while ((int)pDistance < (int)&g_collisionBestVertex);
 }
