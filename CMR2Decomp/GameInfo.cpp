@@ -6,6 +6,7 @@
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
 #include "main.h"
+#include "Font.h"
 #include "FixedPoint.h"
 #include "Game.h"
 #include "Sound.h"
@@ -26,6 +27,7 @@ char gameRegionEurope[9] = "\\Europe\\";
 GameInfo CGameInfo::m_gameInfo;
 BYTE CGameInfo::m_unk0x0052ea52;
 unsigned int CGameInfo::m_unk0x0052af80;
+unsigned char CGameInfo::m_unk0x0052af40;
 unsigned int CGameInfo::m_unk0x0052af84;
 unsigned int CGameInfo::m_unk0x0052af88;
 unsigned int CGameInfo::m_unk0x0052af8c;
@@ -1566,4 +1568,56 @@ BYTE g_unk0x0082b668[0x40];
 BYTE *FUN_00502500(void)
 {
     return g_unk0x0082b668;
+}
+
+// GLOBAL: CMR2 0x0082b848
+BYTE g_unk0x0082b848[0x40];
+
+// FUNCTION: CMR2 0x00502510
+BYTE *FUN_00502510(void)
+{
+    return g_unk0x0082b848;
+}
+
+// FUNCTION: CMR2 0x00404f20
+unsigned char CGameInfo::FUN_00404f20(void)
+{
+    return m_unk0x0052af40;
+}
+
+// Text buffer for the truncated draw below (256 bytes up to the next global).
+// GLOBAL: CMR2 0x0082b1c0
+char g_unk0x0082b1c0[0x100];
+
+// Draws the record's text; in mode 1 it truncates the string at the 16.16
+// fraction of its length and draws the remainder separately.
+// FUNCTION: CMR2 0x00501f80
+void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y,
+                  int *pColour1, int *pColour2, unsigned int flags)
+{
+    Unk0x0082b2c0 *pRec;
+    int len;
+    int count;
+    int width;
+    int i;
+
+    pRec = &g_unk0x0082b2c0[index];
+    if (pRec->field_0xc == 2) {
+        Font_DrawText(font1, text, x, y, pColour1, flags);
+        return;
+    }
+    if (pRec->field_0xc == 1) {
+        len = (int)strlen(text);
+        count = FixMulShift32(pRec->field_0x0, len << 16);
+        for (i = 0; i < count; i++)
+            g_unk0x0082b1c0[i] = text[i];
+        g_unk0x0082b1c0[count] = 0;
+        Font_DrawText(font1, g_unk0x0082b1c0, x, y, pColour1, flags);
+        if ((flags == 9 || flags == 0x11 || flags == 0x21) && count < len) {
+            width = Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
+            g_unk0x0082b1c0[0] = text[count];
+            g_unk0x0082b1c0[1] = 0;
+            Font_DrawText(font2, g_unk0x0082b1c0, width + x, y, pColour2, flags);
+        }
+    }
 }

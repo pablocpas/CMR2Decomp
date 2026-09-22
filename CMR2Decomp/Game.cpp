@@ -1119,3 +1119,9 @@ int FUN_004a1b90(int param1, void **param2)
     return 0;
 }
 
+
+// FUNCTION: CMR2 0x004a1a00
+DPID FUN_004a1a00(void)
+{
+    return CGame::m_unk0x005a1ea0;
+}

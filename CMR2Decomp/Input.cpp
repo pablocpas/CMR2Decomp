@@ -1619,3 +1619,9 @@ void CInput::FUN_0040bc90(int param1, DWORD param2)
     FUN_004aaf50(param2, index);
 }
 
+
+// FUNCTION: CMR2 0x0049ead0
+DeviceInfo *CInput::FUN_0049ead0(int index)
+{
+    return &m_availableDevices[index];
+}

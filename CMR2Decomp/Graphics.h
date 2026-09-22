@@ -1293,6 +1293,21 @@ private:
     friend int FUN_004a4bd0(void *pSource, int param2);
     friend void FUN_004ae0a0(void);
     friend void FUN_004a4b10(void);
+
+    // GLOBAL: CMR2 0x00520b1c
+    static int m_unk0x00520b1c;
+    // GLOBAL: CMR2 0x00520b20
+    static int m_unk0x00520b20;
+    // GLOBAL: CMR2 0x00520b28
+    static int m_unk0x00520b28;
+    // GLOBAL: CMR2 0x0065fa24
+    static unsigned int m_unk0x0065fa24;
+    // GLOBAL: CMR2 0x0065fa38
+    static int m_unk0x0065fa38;
+
+    static void FUN_004a3e40(int param1, int param2);
+    static void FUN_004a3e90(int param1, int param2);
+    static void FUN_004a4850(int param1, int param2);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
 

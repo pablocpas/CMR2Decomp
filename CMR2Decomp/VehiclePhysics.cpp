@@ -3,8 +3,7 @@
 #include "FixedPoint.h"
 #include "GameInfo.h"
 
-// GLOBAL: CMR2 0x00519c90
-int g_collisionAngularScale = 0x10000;
+// Defined as g_physicsScale in Car.cpp (0x00519c90).
 
 // GLOBAL: CMR2 0x005918dc
 Car *g_collisionCar;
@@ -63,9 +62,10 @@ FixVector g_collisionLineStart;
 // GLOBAL: CMR2 0x00591adc
 int g_collisionDirectionDirty;
 
-// GLOBAL: CMR2 0x00590c20
+// TODO: the same object as g_unk0x00590c20 in StageTiming.cpp; the annotation
+// lives there until both views of the struct are merged into one type.
 VehicleMotionState *g_vehicleMotionState;
-// GLOBAL: CMR2 0x00590d74
+// TODO: the same object as g_unk0x00590d74 in StageTiming.cpp.
 VehicleMotionContext *g_vehicleMotionContext;
 
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
@@ -258,7 +258,7 @@ apply_torque:
     if ((torque.z < 0 ? -torque.z : torque.z) > 0x80000)
         torque.z = torque.z > 0 ? 0x80000 : -0x80000;
 
-    usePoint = g_collisionAngularScale;
+    usePoint = g_physicsScale;
     FixVecScale(&torque, &torque, usePoint);
     COLLISION_INT(0x5d0) += torque.x;
     COLLISION_INT(0x5d4) += torque.y;

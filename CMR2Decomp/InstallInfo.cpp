@@ -285,3 +285,9 @@ int CInstallInfo::WriteFileToDisk(char *name, int mode, LPCVOID data, DWORD size
         return 1;
     return 0;
 }
+
+// FUNCTION: CMR2 0x0040ed50
+char *CInstallInfo::FUN_0040ed50(void)
+{
+    return m_texturesDir;
+}

@@ -351,7 +351,6 @@ next:
 }
 
 // Physics time scale (16.16, 1.0 in the shipped data).
-// GLOBAL: CMR2 0x00519c8c
 int g_physicsTimeStep = 0x10000;
 
 // Updates the body axes of g_pCurrentCar: the up vector is pulled towards
@@ -1027,18 +1026,12 @@ void Car_UpdateGroundNormal(void)
     }
 }
 
-// GLOBAL: CMR2 0x0053c9f8
 FixVector g_leanDamping;
-// GLOBAL: CMR2 0x0053ca18
 FixVector g_leanAccel;
-// GLOBAL: CMR2 0x0053ca30
 FixVector g_leanDelta;
-// GLOBAL: CMR2 0x0053ca78
 FixVector g_carAccel;
-// GLOBAL: CMR2 0x0053caa8
 FixBasis g_leanBasis;
 
-// GLOBAL: CMR2 0x00519c90
 int g_physicsScale = 0x10000;
 
 // Integrates the body lean (the chassis pitching/rolling against its own

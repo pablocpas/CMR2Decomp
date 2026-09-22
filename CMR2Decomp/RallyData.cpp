@@ -602,3 +602,73 @@ char RallyData_FUN_00408500(unsigned int param1)
         return -1;
     return (char)((*(unsigned int *)(g_unk0x00531350 + (param1 & 0xff) * 0x30) >> 0xe) & 0xf);
 }
+
+// Returns bit 26 of the selected rally data (a per-rally flag).
+// FUNCTION: CMR2 0x00407e70
+unsigned int RallyData_FUN_00407e70(void)
+{
+    return (g_selectedRallyData >> 26) & 1;
+}
+
+// Returns the 0x650-byte record of the id, or NULL when its 0x3c0000 field is
+// already full. The record base is 0x30 bytes into the 0x52fa5c table.
+// FUNCTION: CMR2 0x00408cb0
+BYTE *RallyData_FUN_00408cb0(int index)
+{
+    unsigned int value;
+
+    RallyData_ValidateIndex(index);
+    value = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    if ((value & 0x3c0000) != 0x3c0000)
+        return g_unk0x0052fa5c + ((value >> 0x12) & 0xf) * 0x650 + 0x30;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x00407e90
+unsigned int RallyData_FUN_00407e90(void)
+{
+    return (g_selectedRallyData >> 27) & 1;
+}
+
+// FUNCTION: CMR2 0x00407ea0
+unsigned int RallyData_FUN_00407ea0(void)
+{
+    return (g_selectedRallyData >> 28) & 1;
+}
+
+// Neutral type for now: nothing implemented reads it yet.
+// GLOBAL: CMR2 0x00536be0
+int g_unk0x00536be0;
+
+// FUNCTION: CMR2 0x00411060
+int RallyData_FUN_00411060(void)
+{
+    return g_unk0x00536be0;
+}
+
+// FUNCTION: CMR2 0x004082e0
+unsigned int RallyData_FUN_004082e0(void)
+{
+    return (g_unk0x0052f2b0 >> 0xb) & 1;
+}
+
+// FUNCTION: CMR2 0x004082b0
+unsigned int RallyData_FUN_004082b0(void)
+{
+    return g_unk0x0052f2b0 & 7;
+}
+
+// Table of 0x148-byte records; count derived from the next known global
+// (0x52f2a9), so it may cover further undeclared values.
+struct Unk0x0052ebc0 {
+    BYTE field_0x0[0x148];
+};
+
+// GLOBAL: CMR2 0x0052ebc0
+Unk0x0052ebc0 g_unk0x0052ebc0[5];
+
+// FUNCTION: CMR2 0x00407610
+Unk0x0052ebc0 *RallyData_FUN_00407610(int index)
+{
+    return &g_unk0x0052ebc0[index];
+}

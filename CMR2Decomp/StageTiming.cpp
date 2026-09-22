@@ -810,3 +810,56 @@ BYTE *FUN_00456be0(int index)
 {
     return g_unk0x00542630 + index * 0x24;
 }
+
+struct Unk0x00590c20 {
+    int field_0x0;
+    FixMatrix *field_0x4;      // pointer to the world matrix
+    BYTE field_0x8[0x118];
+    FixVector field_0x120;     // body offset, accumulated below
+    BYTE field_0x12c[0xc];
+    FixVector field_0x138;     // body axes source
+    FixVector field_0x144;     // accumulated translation
+    BYTE field_0x150[0x2c];
+    FixBasis field_0x17c;
+};
+
+struct Unk0x00590d74 {
+    BYTE field_0x0[0x778];
+    int field_0x778;
+};
+
+// GLOBAL: CMR2 0x00590c20
+Unk0x00590c20 *g_unk0x00590c20;
+// GLOBAL: CMR2 0x00590d74
+Unk0x00590d74 *g_unk0x00590d74;
+
+// Rotates the basis kept at 0x17c with the given angles and writes the three
+// axes into the object's matrix.
+// FUNCTION: CMR2 0x00481560
+void FUN_00481560(unsigned short *pAngles)
+{
+    FixBasis basis;
+
+    memcpy(&basis, &g_unk0x00590c20->field_0x17c, sizeof(basis));
+    if (g_unk0x00590d74->field_0x778 > 0x7ae)
+        FixBasis_Rotate(&basis, pAngles);
+    FixMatrix_SetRight(&basis.right, g_unk0x00590c20->field_0x4);
+    FixMatrix_SetUp(&basis.up, g_unk0x00590c20->field_0x4);
+    FixMatrix_SetForward(&basis.forward, g_unk0x00590c20->field_0x4);
+}
+
+// Records of the 0x542e7c table (stride 0x1c); count derived from the next
+// known global (0x543eb8).
+struct Unk0x00542e7c {
+    short field_0x0;
+    BYTE field_0x2[0x1a];
+};
+
+// GLOBAL: CMR2 0x00542e7c
+Unk0x00542e7c g_unk0x00542e7c[0x94];
+
+// FUNCTION: CMR2 0x00458330
+int FUN_00458330(int index)
+{
+    return g_unk0x00542e7c[index].field_0x0;
+}

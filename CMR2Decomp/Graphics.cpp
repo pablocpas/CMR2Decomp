@@ -3006,3 +3006,49 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
 
     return -65470464;
 }
+
+int CGraphics::m_unk0x00520b1c;
+int CGraphics::m_unk0x00520b20;
+int CGraphics::m_unk0x00520b28;
+unsigned int CGraphics::m_unk0x0065fa24;
+int CGraphics::m_unk0x0065fa38;
+
+// Sets render states 0x13/0x14 when the pair changes.
+// FUNCTION: CMR2 0x004a3e40
+void CGraphics::FUN_004a3e40(int param1, int param2)
+{
+    if (m_unk0x00520b1c == param1 && m_unk0x00520b20 == param2)
+        return;
+    m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x13, param1);
+    m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x14, param2);
+    m_unk0x00520b1c = param1;
+    m_unk0x00520b20 = param2;
+}
+
+// STUB: CMR2 0x004a3e90
+// 2435 bytes of ~88 repeated SetRenderState-style calls; honest stub so its
+// caller FUN_004a4850 can be implemented and measured.
+void CGraphics::FUN_004a3e90(int param1, int param2)
+{
+    (void)param1;
+    (void)param2;
+}
+
+// Applies a texture stage change and forwards it to the render states.
+// FUNCTION: CMR2 0x004a4850
+void CGraphics::FUN_004a4850(int param1, int param2)
+{
+    if (m_unk0x0065fa38 == param2 && m_unk0x00520b28 == param1)
+        return;
+    m_unk0x0065fa38 = param2;
+    m_unk0x00520b28 = param1;
+    if (param2 != 0) {
+        m_pTextureManager->pD3D->SetTexture((DWORD)param1,
+            (IDirectDrawSurface7 *)*(int *)(param2 + 0x114));
+        FUN_004a3e90(param1, param2);
+    } else {
+        m_pTextureManager->pD3D->SetTexture((DWORD)param1, NULL);
+        FUN_004a3e90(param1, 0);
+    }
+    m_unk0x0065fa24++;
+}

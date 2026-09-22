@@ -167,6 +167,11 @@ extern Car *g_carBuffer;
 // GLOBAL: CMR2 0x0053cc18
 extern Car *g_pCurrentCar;
 
+// GLOBAL: CMR2 0x00519c8c
+extern int g_physicsTimeStep;
+// GLOBAL: CMR2 0x00519c90
+extern int g_physicsScale;
+
 // Scratch globals of the body lean solver (Car_UpdateBodyLean)
 // GLOBAL: CMR2 0x0053c9f8
 extern FixVector g_leanDamping;

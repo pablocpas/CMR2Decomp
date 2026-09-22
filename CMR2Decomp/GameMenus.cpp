@@ -546,3 +546,13 @@ void GameMenus_FormatModeName(int unused, int mode)
         return;
     }
 }
+
+// Size taken from the next known global (0x538a84); nothing reads past it yet.
+// GLOBAL: CMR2 0x00538130
+BYTE g_unk0x00538130[0x40];
+
+// FUNCTION: CMR2 0x0041f900
+BYTE *FUN_0041f900(void)
+{
+    return g_unk0x00538130;
+}
