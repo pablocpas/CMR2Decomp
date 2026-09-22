@@ -378,3 +378,61 @@ void GameMenus_Build(void)
     Menu_SetCallbacks(&g_menu0x005404d8, (MenuCallback)FUN_0044a090, NULL, (MenuCallback)FUN_00453c50, NULL);
     Menu_ValidateCursor(&g_menu0x005404d8, 0);
 }
+
+#include "Sprite.h"
+#include "Graphics.h"
+
+// GLOBAL: CMR2 0x00541cc0
+short g_menuRect[4];
+// GLOBAL: CMR2 0x00519ecc
+BYTE g_menuFrameColour[4] = { 0, 0, 0, 0 };
+// GLOBAL: CMR2 0x00540c60
+int g_unk0x00540c60;
+// GLOBAL: CMR2 0x0053e698
+int g_unk0x0053e698;
+
+// Draws the four edges of the box around one menu row.
+// FUNCTION: CMR2 0x0044ec30
+void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
+{
+    int height;
+
+    if (compact != 0) {
+        height = g_pGraphics->resY * 0x2d;
+    } else {
+        height = g_pGraphics->resY * 0x34;
+    }
+    row = row * (short)(height / 0x1e0);
+
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280) + 2;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
+                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
+                    (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
+    g_menuRect[3] = 2;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280) + 2;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) - (short)g_unk0x00540c60 +
+                    row + (short)g_unk0x0053e698 - 2 + yOffset;
+    g_menuRect[3] = 2;
+    g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) -
+                    (short)((int)(g_pGraphics->resX * 0x20) / 0x280) - 4;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280) - 2;
+    g_menuRect[2] = 2;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
+                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
+                    (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+
+    g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+    g_menuRect[2] = 2;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0) - (short)g_unk0x00540c60 +
+                    row + (short)g_unk0x0053e698 + yOffset;
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 0x1e0) -
+                    (short)((int)(g_pGraphics->resY * 0x82) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+}
