@@ -250,6 +250,12 @@ char *RallyData_FUN_00406890(void)
     return (char *)g_unk0x0051682c + country * 7;
 }
 
+// FUNCTION: CMR2 0x004068b0
+void RallyData_FUN_004068b0(BYTE param1)
+{
+    g_selectedRallyData = (param1 & 0x1f) | (g_selectedRallyData & 0xffffffe0U);
+}
+
 // FUNCTION: CMR2 0x00406960
 void RallyData_FUN_00406960(BYTE param1)
 {
@@ -705,4 +711,16 @@ int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
         return width + (int)(g_pGraphics->resX * 10) / 0x280;
     }
     return x;
+}
+
+// GLOBAL: CMR2 0x0052f0fc
+int g_unk0x0052f0fc;
+// GLOBAL: CMR2 0x0052f290
+int g_unk0x0052f290;
+
+// FUNCTION: CMR2 0x0040df60
+void RallyData_FUN_0040df60(int param1, int param2)
+{
+    g_unk0x0052f290 = param1;
+    g_unk0x0052f0fc = param2;
 }
