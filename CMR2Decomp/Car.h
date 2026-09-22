@@ -24,9 +24,10 @@ struct Car {
     BYTE field_0x384[0xc];
     FixVector targetUp;               // 0x390  up/forward the body relaxes towards
     FixVector targetForward;          // 0x39c
-    BYTE field_0x3a8[0x18];
+    FixVector wheelAxisRear;          // 0x3a8  lateral axis used by the rear wheels
+    FixVector wheelDirRear;           // 0x3b4  rolling direction of the rear wheels
     FixVector wheelEmitter[4];        // 0x3c0  wheel dust/smoke emitter in body space
-    BYTE field_0x3f0[0xc];
+    FixVector wheelDirFront;          // 0x3f0  rolling direction of the front wheels
     FixVector inertia;                // 0x3fc  used to turn the summed torque into angular acceleration
     FixVector velocity;               // 0x408
     FixVector velocityNext;           // 0x414  velocityNext - velocity is the acceleration of the last step
@@ -61,13 +62,31 @@ struct Car {
     int scale0x76c;                   // 0x76c
     BYTE field_0x770[0x8];
     int speed;                        // 0x778  length of the velocity vector
-    BYTE field_0x77c[0x8c];
+    BYTE field_0x77c[0x18];
+    int field_0x794;                  // 0x794
+    BYTE field_0x798[0x1c];
+    int field_0x7b4;                  // 0x7b4
+    BYTE field_0x7b8[0x4];
+    int field_0x7bc[4];               // 0x7bc
+    BYTE field_0x7cc[0x10];
+    int field_0x7dc[4];               // 0x7dc
+    BYTE field_0x7ec[0x1c];
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0x40];
+    BYTE field_0x820[0x10];
+    int field_0x830;                  // 0x830
+    BYTE field_0x834[0x4];
+    int field_0x838;                  // 0x838
+    BYTE field_0x83c[0xc];
+    int field_0x848;                  // 0x848
+    BYTE field_0x84c[0x4];
+    int wheelTorque[4];               // 0x850  drive/brake torque per wheel
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
-    BYTE field_0x870[0x48];
+    int field_0x870[4];               // 0x870
+    int field_0x880[4];               // 0x880
+    BYTE field_0x890[0x24];
+    int field_0x8b4;                  // 0x8b4
     int field_0x8b8[4];               // 0x8b8  per-wheel torque rebuilt every step
     BYTE field_0x8c8[0x10];
     int field_0x8d8;                  // 0x8d8
@@ -86,7 +105,10 @@ struct Car {
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
-    BYTE field_0x9e8[0x88];
+    BYTE field_0x9e8[0x64];
+    int field_0xa4c[4];               // 0xa4c
+    int field_0xa5c[4];               // 0xa5c
+    BYTE field_0xa6c[0x4];
     int field_0xa70;                  // 0xa70
     BYTE field_0xa74[0x3a];
     short wheelSurface[4];            // 0xaae
@@ -94,7 +116,9 @@ struct Car {
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x8];
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
-    BYTE field_0xb1b[0xd];
+    BYTE field_0xb1b[0x3];
+    char field_0xb1e;                 // 0xb1e
+    BYTE field_0xb1f[0x9];
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29[0x3];
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
@@ -104,7 +128,9 @@ struct Car {
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];
     int field_0xb74;                  // 0xb74
-    BYTE field_0xb78[0x34];
+    BYTE field_0xb78[0xc];
+    int field_0xb84;                  // 0xb84
+    BYTE field_0xb88[0x24];
     int field_0xbac[8];               // 0xbac
     BYTE field_0xbcc[0x34];
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
@@ -171,6 +197,7 @@ void Car_BalanceWheelPairs(void);
 void Car_ApplyCornerFriction(int grip);
 void Car_UpdateWheelTorques(void);
 void Car_Integrate(void);
+void Car_UpdateWheelForces(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
