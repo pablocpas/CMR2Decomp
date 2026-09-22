@@ -609,3 +609,17 @@ unsigned int RallyData_FUN_00407e70(void)
 {
     return (g_selectedRallyData >> 26) & 1;
 }
+
+// Returns the 0x650-byte record of the id, or NULL when its 0x3c0000 field is
+// already full. The record base is 0x30 bytes into the 0x52fa5c table.
+// FUNCTION: CMR2 0x00408cb0
+BYTE *RallyData_FUN_00408cb0(int index)
+{
+    unsigned int value;
+
+    RallyData_ValidateIndex(index);
+    value = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    if ((value & 0x3c0000) != 0x3c0000)
+        return g_unk0x0052fa5c + ((value >> 0x12) & 0xf) * 0x650 + 0x30;
+    return NULL;
+}
