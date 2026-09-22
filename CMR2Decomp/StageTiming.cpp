@@ -807,7 +807,12 @@ BYTE *FUN_00456be0(int index)
 struct Unk0x00590c20 {
     int field_0x0;
     FixMatrix *field_0x4;      // pointer to the world matrix
-    BYTE field_0x8[0x174];
+    BYTE field_0x8[0x118];
+    FixVector field_0x120;     // body offset, accumulated below
+    BYTE field_0x12c[0xc];
+    FixVector field_0x138;     // body axes source
+    FixVector field_0x144;     // accumulated translation
+    BYTE field_0x150[0x2c];
     FixBasis field_0x17c;
 };
 
