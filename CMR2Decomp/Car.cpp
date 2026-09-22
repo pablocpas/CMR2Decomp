@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "Graphics.h"
 #include "Car.h"
 #include "FileBuffer.h"
 #include "Game.h"
@@ -444,12 +445,12 @@ void Car_UpdateBodyAxes(void)
             if (g_pCurrentCar->field_0x1d8 != 0)
                 s += FixMul(s, 0x20000);
             FixVecScale(&localUp, &g_pCurrentCar->forward, s);
-            g_pCurrentCar->force0x648.x += localUp.x;
-            g_pCurrentCar->force0x648.y += localUp.y;
-            g_pCurrentCar->force0x648.z += localUp.z;
-            g_pCurrentCar->force0x654.x += localUp.x;
-            g_pCurrentCar->force0x654.y += localUp.y;
-            g_pCurrentCar->force0x654.z += localUp.z;
+            g_pCurrentCar->cornerForce[0].x += localUp.x;
+            g_pCurrentCar->cornerForce[0].y += localUp.y;
+            g_pCurrentCar->cornerForce[0].z += localUp.z;
+            g_pCurrentCar->cornerForce[1].x += localUp.x;
+            g_pCurrentCar->cornerForce[1].y += localUp.y;
+            g_pCurrentCar->cornerForce[1].z += localUp.z;
         }
 
         localUp.x = g_pCurrentCar->velocity.x;
@@ -565,12 +566,12 @@ void Car_UpdateBodyAxesNoDamping(void)
             if (g_pCurrentCar->field_0x1d8 != 0)
                 s += FixMul(s, 0x20000);
             FixVecScale(&localUp, &g_pCurrentCar->forward, s);
-            g_pCurrentCar->force0x648.x += localUp.x;
-            g_pCurrentCar->force0x648.y += localUp.y;
-            g_pCurrentCar->force0x648.z += localUp.z;
-            g_pCurrentCar->force0x654.x += localUp.x;
-            g_pCurrentCar->force0x654.y += localUp.y;
-            g_pCurrentCar->force0x654.z += localUp.z;
+            g_pCurrentCar->cornerForce[0].x += localUp.x;
+            g_pCurrentCar->cornerForce[0].y += localUp.y;
+            g_pCurrentCar->cornerForce[0].z += localUp.z;
+            g_pCurrentCar->cornerForce[1].x += localUp.x;
+            g_pCurrentCar->cornerForce[1].y += localUp.y;
+            g_pCurrentCar->cornerForce[1].z += localUp.z;
         }
 
     }
@@ -1166,5 +1167,126 @@ void Car_BalanceWheelPairs(void)
         int avg = FixMul(sum, 0x8000);
         g_pCurrentCar->wheelLoad[3] = avg;
         g_pCurrentCar->wheelLoad[2] = avg;
+    }
+}
+
+// arccos as a 12-bit angle: 4096 entries for a dot product in [-1, 1]
+// GLOBAL: CMR2 0x006e6ef4
+short g_acosTable[4096];
+
+inline short FixAcos(int x)
+{
+    int neg = 0;
+    double t;
+
+    if (x < 0) {
+        x = -x;
+        neg = 1;
+    }
+    if (x > 0x10000) {
+        return g_acosTable[4095];
+    }
+    t = (double)x * CGraphics::m_oneOver65536 * -4095.0;
+    if (neg) {
+        return -g_acosTable[-(__int64)t];
+    }
+    return g_acosTable[-(__int64)t];
+}
+
+// Builds the sideways (friction) force at every corner that is sliding against
+// its contact normal, sharing the given grip between the sliding corners.
+// FUNCTION: CMR2 0x0043a920
+void Car_ApplyCornerFriction(int grip)
+{
+    int sliding[8];
+    int strength[8];
+    FixVector dir;
+    int count = 0;
+    int cornerCount;
+    int i;
+
+    if (g_pCurrentCar->field_0xc00 == 0) {
+        cornerCount = 4;
+    } else {
+        cornerCount = 8;
+        if (g_pCurrentCar->field_0xb34 > 0) {
+            grip = FixDiv(g_pCurrentCar->field_0x75c, 0x80000);
+        }
+    }
+
+    i = 0;
+    if (cornerCount > 0) {
+        do {
+            sliding[i] = 0;
+            if ((g_pCurrentCar->field_0xc00 == 0 && g_pCurrentCar->field_0xbac[i] != 0) ||
+                (g_pCurrentCar->field_0xc00 != 0 && g_pCurrentCar->cornerFlags[i] == 0)) {
+                int d = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
+                if (d >= 0x10000) {
+                    strength[i] = 0;
+                } else {
+                    strength[i] = (0x400 - FixAcos(d)) * 0x1680;
+                }
+                if (strength[i] > 0xa0000 &&
+                    g_pCurrentCar->cornerAxis[i].y < g_pCurrentCar->cornerNormal[i].y) {
+                    int along = FixVecDot(&g_pCurrentCar->cornerNormal[i], &g_pCurrentCar->cornerVelocity[i]);
+                    FixVecScale(&dir, &g_pCurrentCar->cornerNormal[i], along);
+                    dir.x = g_pCurrentCar->cornerVelocity[i].x - dir.x;
+                    dir.y = g_pCurrentCar->cornerVelocity[i].y - dir.y;
+                    dir.z = g_pCurrentCar->cornerVelocity[i].z - dir.z;
+                    if (FixVecDot(&dir, &g_pCurrentCar->cornerAxis[i]) < 0) {
+                        sliding[i] = 1;
+                        count++;
+                    }
+                }
+            }
+            i++;
+        } while (i < cornerCount);
+
+        if (count > 0) {
+            int share = FixDiv(0x140000, count << 16);
+            i = 0;
+            do {
+                if (sliding[i] != 0) {
+                    int along;
+                    int len;
+                    int s;
+
+                    along = FixVecDot(&g_pCurrentCar->cornerAxis[i], &g_pCurrentCar->cornerNormal[i]);
+                    FixVecScale(&dir, &g_pCurrentCar->cornerNormal[i], along);
+                    dir.x = g_pCurrentCar->cornerAxis[i].x - dir.x;
+                    dir.y = g_pCurrentCar->cornerAxis[i].y - dir.y;
+                    dir.z = g_pCurrentCar->cornerAxis[i].z - dir.z;
+                    len = FixVecLength(&dir);
+                    if (len == 0) {
+                        dir.x = 0;
+                        dir.y = 0;
+                        dir.z = 0;
+                    } else {
+                        FixVecScaleRecip(&dir, &dir, len);
+                    }
+                    along = FixVecDot(&dir, &g_pCurrentCar->cornerVelocity[i]);
+                    if (FIX_ABS(along) > 0x10000) {
+                        if (along < 0) {
+                            dir.x = -dir.x;
+                            dir.y = -dir.y;
+                            dir.z = -dir.z;
+                        }
+                    } else {
+                        FixVecScale(&dir, &dir, along);
+                    }
+                    strength[i] = strength[i] - 0xa0000;
+                    s = FixMul(strength[i], 0x51e);
+                    if (s > 0x10000) {
+                        s = 0x10000;
+                    }
+                    s = -FixMul(s, FixMul(grip, share));
+                    FixVecScale(&dir, &dir, s);
+                    g_pCurrentCar->cornerForce[i].x += dir.x;
+                    g_pCurrentCar->cornerForce[i].y += dir.y;
+                    g_pCurrentCar->cornerForce[i].z += dir.z;
+                }
+                i++;
+            } while (i < cornerCount);
+        }
     }
 }

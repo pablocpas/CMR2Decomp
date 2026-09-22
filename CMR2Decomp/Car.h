@@ -29,10 +29,11 @@ struct Car {
     FixVector cornerVelocity[8];      // 0x42c  world-space velocity of each box corner
     FixVector groundNormal;           // 0x48c  normal of the box face the car rests on (Car_UpdateGroundNormal)
     FixVector normal0x498;            // 0x498
-    BYTE field_0x4a4[0x1a4];
-    FixVector force0x648;             // 0x648
-    FixVector force0x654;             // 0x654
-    BYTE field_0x660[0x90];
+    FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
+    FixVector cornerNormal[8];        // 0x504  per-corner contact normal
+    BYTE field_0x564[0xe4];
+    FixVector cornerForce[8];         // 0x648  force accumulated at each corner
+    BYTE field_0x6a8[0x48];
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
     BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
@@ -43,7 +44,9 @@ struct Car {
     SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view
     FixMatrix *pWorld;                // 0x750
     FixMatrix *pBodyMatrix;           // 0x754
-    BYTE field_0x758[0xc];
+    BYTE field_0x758[0x4];
+    int field_0x75c;                  // 0x75c
+    BYTE field_0x760[0x4];
     int scale0x764;                   // 0x764
     int scale0x768;                   // 0x768
     int scale0x76c;                   // 0x76c
@@ -73,12 +76,19 @@ struct Car {
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x16];
     BYTE field_0xb28;                 // 0xb28
-    BYTE field_0xb29[0x37];
+    BYTE field_0xb29[0x3];
+    char cornerFlags[8];              // 0xb2c  set while a corner is disabled
+    char field_0xb34;                 // 0xb34
+    BYTE field_0xb35[0x2b];
     int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];
     int field_0xb74;                  // 0xb74
-    BYTE field_0xb78[0xac];
+    BYTE field_0xb78[0x34];
+    int field_0xbac[8];               // 0xbac
+    BYTE field_0xbcc[0x34];
+    int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
+    BYTE field_0xc04[0x20];
 };
 
 // Stored transforms of a car, written by the physics and applied to the
@@ -138,6 +148,7 @@ void Car_UpdateCornerVelocities(void);
 void Car_UpdateGroundNormal(void);
 void Car_UpdateBodyLean(void);
 void Car_BalanceWheelPairs(void);
+void Car_ApplyCornerFriction(int grip);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
