@@ -374,7 +374,7 @@ void Car_UpdateBodyAxes(void)
         step = step - FixMul(step, damping);
         g_pCurrentCar->angularVelocity.y = FixMul(step, 0x41);
 
-        if (FIX_ABS(g_pCurrentCar->steer) < 0x28f) {
+        if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
             localUp.x = 0;
             localUp.y = 0;
             localUp.z = 0;
@@ -385,9 +385,9 @@ void Car_UpdateBodyAxes(void)
         }
         FixMatrix_RotateVector(&world, &localUp, g_pCurrentCar->pWorld);
         if (FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->right) >= 0)
-            FixVecScale(&world, &world, FixMul(g_pCurrentCar->steer, 0x2604));
+            FixVecScale(&world, &world, FixMul(g_pCurrentCar->speed, 0x2604));
         else
-            FixVecScale(&world, &world, -FixMul(g_pCurrentCar->steer, 0x2604));
+            FixVecScale(&world, &world, -FixMul(g_pCurrentCar->speed, 0x2604));
 
         localUp.x = g_pCurrentCar->right.x + world.x;
         localUp.y = g_pCurrentCar->right.y + world.y;
@@ -441,7 +441,7 @@ void Car_UpdateBodyAxes(void)
             localUp.z = g_pCurrentCar->velocity.z - localUp.z;
         }
         if (FixVecLength(&localUp) > 0) {
-            int s = FixMul(FixMul(g_pCurrentCar->steer, 0x1e0000), g_pCurrentCar->field_0x81c);
+            int s = FixMul(FixMul(g_pCurrentCar->speed, 0x1e0000), g_pCurrentCar->field_0x81c);
             if (g_pCurrentCar->field_0x1d8 != 0)
                 s += FixMul(s, 0x20000);
             FixVecScale(&localUp, &g_pCurrentCar->forward, s);
@@ -495,7 +495,7 @@ void Car_UpdateBodyAxesNoDamping(void)
         step = step - FixMul(step, damping);
         g_pCurrentCar->angularVelocity.y = FixMul(step, 0x41);
 
-        if (FIX_ABS(g_pCurrentCar->steer) < 0x28f) {
+        if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
             localUp.x = 0;
             localUp.y = 0;
             localUp.z = 0;
@@ -506,9 +506,9 @@ void Car_UpdateBodyAxesNoDamping(void)
         }
         FixMatrix_RotateVector(&world, &localUp, g_pCurrentCar->pWorld);
         if (FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->right) >= 0)
-            FixVecScale(&world, &world, FixMul(g_pCurrentCar->steer, 0x2604));
+            FixVecScale(&world, &world, FixMul(g_pCurrentCar->speed, 0x2604));
         else
-            FixVecScale(&world, &world, -FixMul(g_pCurrentCar->steer, 0x2604));
+            FixVecScale(&world, &world, -FixMul(g_pCurrentCar->speed, 0x2604));
 
         localUp.x = g_pCurrentCar->right.x + world.x;
         localUp.y = g_pCurrentCar->right.y + world.y;
@@ -562,7 +562,7 @@ void Car_UpdateBodyAxesNoDamping(void)
             localUp.z = g_pCurrentCar->velocity.z - localUp.z;
         }
         if (FixVecLength(&localUp) > 0) {
-            int s = FixMul(FixMul(g_pCurrentCar->steer, 0x1e0000), g_pCurrentCar->field_0x81c);
+            int s = FixMul(FixMul(g_pCurrentCar->speed, 0x1e0000), g_pCurrentCar->field_0x81c);
             if (g_pCurrentCar->field_0x1d8 != 0)
                 s += FixMul(s, 0x20000);
             FixVecScale(&localUp, &g_pCurrentCar->forward, s);
@@ -1325,7 +1325,7 @@ void Car_UpdateWheelTorques(void)
     }
 
     if (FUN_00469bc0(g_pCurrentCar, 3) != 0) {
-        int rate = FixMul(g_pCurrentCar->steer, 0x2000);
+        int rate = FixMul(g_pCurrentCar->speed, 0x2000);
         int half;
 
         if (rate > 0x10000) {
@@ -1337,4 +1337,191 @@ void Car_UpdateWheelTorques(void)
             g_pCurrentCar->field_0x8b8[i] += FixMul(rate, target - g_pCurrentCar->field_0x8b8[i]);
         }
     }
+}
+
+// GLOBAL: CMR2 0x0053cc1c
+BYTE *g_pCarSetup;
+// GLOBAL: CMR2 0x00519c88
+int g_dragBase = 0x10000;
+
+// One physics step of the rigid body: sums the corner forces into a force and
+// a torque, integrates linear and angular velocity, moves the body and rebuilds
+// its world matrix.
+// FUNCTION: CMR2 0x00440840
+void Car_Integrate(void)
+{
+    FixVector force;
+    FixVector tmp;
+    FixVector angStep;
+    FixVector torque;
+    FixVector posStep;
+    FixVector cross;
+    FixVector r;
+    FixVector accel;
+    int locked = 0;
+    int off;
+    int halfStep;
+    int drag;
+
+    if (g_pCurrentCar->angularVelocity.x == 0 && g_pCurrentCar->angularVelocity.z == 0) {
+        locked = 1;
+    }
+    force = g_pCurrentCar->baseForce;
+    torque.x = 0;
+    torque.y = 0;
+    torque.z = 0;
+
+    if (locked != 0) {
+        off = 0x66c;
+        do {
+            FixVector *pForce = (FixVector *)((BYTE *)g_pCurrentCar + off);
+            tmp = *pForce;
+            force.x = force.x + tmp.x;
+            force.y = force.y + tmp.y;
+            force.z = force.z + tmp.z;
+            force.x = force.x + tmp.x;
+            force.y = force.y + tmp.y;
+            force.z = force.z + tmp.z;
+            torque.y = torque.y +
+                       FixMul(FixVecDot(pForce, &g_pCurrentCar->forward),
+                              *(int *)((BYTE *)g_pCurrentCar + off - 0x438)) * 2;
+            off -= 0x18;
+        } while (off >= 0x648);
+    } else {
+        off = 0x24;
+        do {
+            FixVector *pForce = (FixVector *)((BYTE *)g_pCurrentCar + off + 0x648);
+            tmp = *pForce;
+            force.x = force.x + tmp.x;
+            force.y = force.y + tmp.y;
+            force.z = force.z + tmp.z;
+            r.x = *(int *)((BYTE *)g_pCurrentCar + off + 0x270) - g_pCurrentCar->position.x;
+            r.y = *(int *)((BYTE *)g_pCurrentCar + off + 0x274) - g_pCurrentCar->position.y;
+            r.z = *(int *)((BYTE *)g_pCurrentCar + off + 0x278) - g_pCurrentCar->position.z;
+            FixVecCross(&cross, &tmp, &r);
+            torque.x = torque.x + cross.x;
+            torque.y = torque.y + cross.y;
+            torque.z = torque.z + cross.z;
+            off -= 0xc;
+        } while (off >= 0);
+        FixMatrix_InverseRotateVector(&tmp, &torque, g_pCurrentCar->pWorld);
+        torque = tmp;
+    }
+
+    torque.y = FixMul(torque.y, 0xb333);
+    FixVecScale(&force, &force, 0xd999);
+    drag = FixMul(FIX_ABS(g_pCurrentCar->speed), *(int *)(g_pCarSetup + 0x408) + g_dragBase);
+    FixVecScale(&tmp, &g_pCurrentCar->velocity, drag);
+    force.x = force.x - tmp.x;
+    force.y = force.y - tmp.y;
+    force.z = force.z - tmp.z;
+
+    FixVecScale(&accel, &force, g_pCurrentCar->field_0x760);
+    accel.x = accel.x + g_pCurrentCar->field_0x5c4.x;
+    accel.y = accel.y + g_pCurrentCar->field_0x5c4.y;
+    accel.z = accel.z + g_pCurrentCar->field_0x5c4.z;
+    FixVecScale(&accel, &accel, 0x3333);
+    g_pCurrentCar->velocityNext = g_pCurrentCar->velocity;
+    FixVecScale(&accel, &accel, g_physicsTimeStep);
+    g_pCurrentCar->velocity.x = g_pCurrentCar->velocity.x + accel.x;
+    g_pCurrentCar->velocity.y = g_pCurrentCar->velocity.y + accel.y;
+    g_pCurrentCar->velocity.z = g_pCurrentCar->velocity.z + accel.z;
+    g_pCurrentCar->speed = FixVecLength(&g_pCurrentCar->velocity);
+
+    FixVecScale(&posStep, &g_pCurrentCar->velocity, g_physicsTimeStep);
+    halfStep = g_physicsTimeStep / 2;
+    FixVecScale(&accel, &accel, halfStep);
+    posStep.x = posStep.x - accel.x;
+    posStep.y = posStep.y - accel.y;
+    posStep.z = posStep.z - accel.z;
+
+    if (locked != 0) {
+        int angAccelY = -FixMul(torque.y, g_pCurrentCar->inertia.y);
+
+        angAccelY = angAccelY - FixMul(g_pCurrentCar->field_0x5d0.y,
+                                       FixMul(g_pCurrentCar->inertia.y, g_pCurrentCar->field_0x75c));
+        angAccelY = FixMul(angAccelY, g_physicsTimeStep);
+        g_pCurrentCar->angularVelocity.y = g_pCurrentCar->angularVelocity.y + angAccelY;
+        angStep.y = FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep);
+        halfStep = g_physicsTimeStep / 2;
+        angAccelY = FixMul(angAccelY, halfStep);
+        angStep.y = angStep.y - angAccelY;
+    } else {
+        FixVector angAccel;
+
+        angAccel.x = -FixMul(torque.x, g_pCurrentCar->inertia.x);
+        angAccel.y = -FixMul(torque.y, g_pCurrentCar->inertia.y);
+        angAccel.z = -FixMul(torque.z, g_pCurrentCar->inertia.z);
+        angAccel.x = angAccel.x - FixMul(g_pCurrentCar->field_0x5d0.x,
+                                         FixMul(g_pCurrentCar->inertia.x, g_pCurrentCar->field_0x75c));
+        angAccel.y = angAccel.y - FixMul(g_pCurrentCar->field_0x5d0.y,
+                                         FixMul(g_pCurrentCar->inertia.y, g_pCurrentCar->field_0x75c));
+        angAccel.z = angAccel.z - FixMul(g_pCurrentCar->field_0x5d0.z,
+                                         FixMul(g_pCurrentCar->inertia.z, g_pCurrentCar->field_0x75c));
+        FixVecScale(&angAccel, &angAccel, g_physicsTimeStep);
+        g_pCurrentCar->angularVelocity.x = g_pCurrentCar->angularVelocity.x + angAccel.x;
+        g_pCurrentCar->angularVelocity.y = g_pCurrentCar->angularVelocity.y + angAccel.y;
+        g_pCurrentCar->angularVelocity.z = g_pCurrentCar->angularVelocity.z + angAccel.z;
+        FixVecScale(&angStep, &g_pCurrentCar->angularVelocity, g_physicsTimeStep);
+        halfStep = g_physicsTimeStep / 2;
+        FixVecScale(&angAccel, &angAccel, halfStep);
+        angStep.x = angStep.x - angAccel.x;
+        angStep.y = angStep.y - angAccel.y;
+        angStep.z = angStep.z - angAccel.z;
+    }
+
+    if (g_pCurrentCar->field_0xb34 > 0) {
+        int upDot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+        if (FIX_ABS(angStep.x) < 6 && FIX_ABS(upDot) > 0xcccc) {
+            angStep.x = 0;
+        }
+        if ((g_pCurrentCar->flag0x1d0[0] == 0 && g_pCurrentCar->flag0x1d0[1] == 0) ||
+            FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
+            if (FIX_ABS(angStep.y) < 6) {
+                angStep.y = 0;
+            }
+        }
+        if (FIX_ABS(angStep.z) < 6) {
+            angStep.z = 0;
+        }
+        if (g_pCurrentCar->speed < 0xccc) {
+            posStep.x = 0;
+            posStep.y = 0;
+            posStep.z = 0;
+        }
+    }
+
+    if (locked != 0) {
+        angStep.x = 0;
+        angStep.z = 0;
+    }
+    g_pCurrentCar->position.x = g_pCurrentCar->position.x + posStep.x;
+    g_pCurrentCar->position.y = g_pCurrentCar->position.y + posStep.y;
+    g_pCurrentCar->position.z = g_pCurrentCar->position.z + posStep.z;
+    g_pCurrentCar->field_0xb60 = 0;
+    if (angStep.x == 0 && angStep.y == 0 && angStep.z == 0) {
+        if (g_pCurrentCar->speed < 0x51e) {
+            g_pCurrentCar->field_0xb60 = 1;
+        }
+    } else if (locked == 0) {
+        FixBasis_Integrate(&g_pCurrentCar->right, &angStep);
+    } else {
+        off = 0;
+        do {
+            FixVector *pAxis = (FixVector *)((BYTE *)g_pCurrentCar + off + 0x360);
+            tmp.x = FixMul(angStep.y, pAxis->z);
+            tmp.y = 0;
+            tmp.z = -FixMul(angStep.y, pAxis->x);
+            pAxis->x = pAxis->x + tmp.x;
+            pAxis->y = pAxis->y + tmp.y;
+            pAxis->z = pAxis->z + tmp.z;
+            off += 0x18;
+        } while (off < 0x24);
+    }
+
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+    Car_UpdateCorners(g_pCurrentCar);
 }

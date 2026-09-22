@@ -7,7 +7,9 @@
 // Car instance (0xc24 bytes, one per slot in g_carBuffer). Only the fields
 // used by the decompiled code are named; offsets are in the comments.
 struct Car {
-    BYTE field_0x0[0x1d8];
+    BYTE field_0x0[0x1d0];
+    char flag0x1d0[4];                // 0x1d0
+    BYTE field_0x1d4[0x4];
     int field_0x1d8;                  // 0x1d8
     BYTE field_0x1dc[0x28];
     FixVector halfExtents;            // 0x204
@@ -22,7 +24,8 @@ struct Car {
     BYTE field_0x384[0xc];
     FixVector targetUp;               // 0x390  up/forward the body relaxes towards
     FixVector targetForward;          // 0x39c
-    BYTE field_0x3a8[0x60];
+    BYTE field_0x3a8[0x54];
+    FixVector inertia;                // 0x3fc  used to turn the summed torque into angular acceleration
     FixVector velocity;               // 0x408
     FixVector velocityNext;           // 0x414  velocityNext - velocity is the acceleration of the last step
     FixVector angularVelocity;        // 0x420  body space
@@ -31,9 +34,13 @@ struct Car {
     FixVector normal0x498;            // 0x498
     FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
     FixVector cornerNormal[8];        // 0x504  per-corner contact normal
-    BYTE field_0x564[0xe4];
+    BYTE field_0x564[0x60];
+    FixVector field_0x5c4;            // 0x5c4
+    FixVector field_0x5d0;            // 0x5d0
+    BYTE field_0x5dc[0x6c];
     FixVector cornerForce[8];         // 0x648  force accumulated at each corner
-    BYTE field_0x6a8[0x48];
+    FixVector baseForce;              // 0x6a8  constant force applied every step
+    BYTE field_0x6b4[0x3c];
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
     BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
@@ -46,12 +53,12 @@ struct Car {
     FixMatrix *pBodyMatrix;           // 0x754
     BYTE field_0x758[0x4];
     int field_0x75c;                  // 0x75c
-    BYTE field_0x760[0x4];
+    int field_0x760;                  // 0x760
     int scale0x764;                   // 0x764
     int scale0x768;                   // 0x768
     int scale0x76c;                   // 0x76c
     BYTE field_0x770[0x8];
-    int steer;                        // 0x778
+    int speed;                        // 0x778  length of the velocity vector
     BYTE field_0x77c[0x8c];
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
@@ -157,6 +164,7 @@ void Car_UpdateBodyLean(void);
 void Car_BalanceWheelPairs(void);
 void Car_ApplyCornerFriction(int grip);
 void Car_UpdateWheelTorques(void);
+void Car_Integrate(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
