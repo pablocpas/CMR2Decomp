@@ -1025,3 +1025,120 @@ void Car_UpdateGroundNormal(void)
         }
     }
 }
+
+// GLOBAL: CMR2 0x0053c9f8
+FixVector g_leanDamping;
+// GLOBAL: CMR2 0x0053ca18
+FixVector g_leanAccel;
+// GLOBAL: CMR2 0x0053ca30
+FixVector g_leanDelta;
+// GLOBAL: CMR2 0x0053ca78
+FixVector g_carAccel;
+// GLOBAL: CMR2 0x0053caa8
+FixBasis g_leanBasis;
+
+// GLOBAL: CMR2 0x00519c90
+int g_physicsScale = 0x10000;
+
+// Integrates the body lean (the chassis pitching/rolling against its own
+// acceleration) and rebuilds the body matrix from the two lean angles.
+// FUNCTION: CMR2 0x00443250
+void Car_UpdateBodyLean(void)
+{
+    int len;
+    int maxStep;
+    int angleZ;
+    int angleX;
+    int sinZ;
+    int cosZ;
+    int sinX;
+    int cosX;
+    int z;
+
+    g_carAccel.x = g_pCurrentCar->velocityNext.x - g_pCurrentCar->velocity.x;
+    g_carAccel.y = g_pCurrentCar->velocityNext.y - g_pCurrentCar->velocity.y;
+    g_carAccel.z = g_pCurrentCar->velocityNext.z - g_pCurrentCar->velocity.z;
+    FixMatrix_InverseRotateVector(&g_leanAccel, &g_carAccel, g_pCurrentCar->pWorld);
+    if (FixVecLength(&g_leanAccel) == 0 || g_pCurrentCar->field_0xb60 != 0) {
+        g_leanAccel.x = 0;
+        g_leanAccel.y = 0;
+        g_leanAccel.z = 0;
+    }
+    FixVecScale(&g_leanAccel, &g_leanAccel, g_physicsScale);
+    g_leanAccel.z = g_leanAccel.z * 2;
+
+    len = FixVecLength(&g_pCurrentCar->lean);
+    if (len > 0) {
+        int damping = -FixMul(len, g_pCurrentCar->field_0x9bc);
+        FixVecScaleRecip(&g_leanDamping, &g_pCurrentCar->lean, len);
+        FixVecScale(&g_leanDamping, &g_leanDamping, damping);
+    } else {
+        g_leanDamping.x = 0;
+        g_leanDamping.y = 0;
+        g_leanDamping.z = 0;
+    }
+
+    g_leanDelta.x = g_leanDamping.x + g_leanAccel.x;
+    g_leanDelta.y = g_leanDamping.y + g_leanAccel.y;
+    g_leanDelta.z = g_leanDamping.z + g_leanAccel.z;
+    FixVecScale(&g_leanDelta, &g_leanDelta, FixMul(g_physicsTimeStep, 0x13333));
+    g_leanDelta.y = 0;
+    len = FixVecLength(&g_leanDelta);
+    maxStep = FixMul(0x312, g_physicsTimeStep);
+    if (len > maxStep) {
+        FixVecScaleRecip(&g_leanDelta, &g_leanDelta, len);
+        FixVecScale(&g_leanDelta, &g_leanDelta, FixMul(0x312, g_physicsTimeStep));
+    }
+
+    g_pCurrentCar->lean.x += g_leanDelta.x;
+    g_pCurrentCar->lean.y += g_leanDelta.y;
+    g_pCurrentCar->lean.z += g_leanDelta.z;
+    {
+        FixVector *pLean = &g_pCurrentCar->lean;
+        g_leanAccel = *pLean;
+    }
+
+    if (FIX_ABS(g_leanAccel.x) > 0x170a) {
+        g_leanAccel.x = g_leanAccel.x > 0 ? 0x170a : -0x170a;
+    }
+    z = g_leanAccel.z;
+    if (FIX_ABS(z) > 0x170a) {
+        if (z > 0) {
+            z = 0x170a;
+        } else {
+            z = -0x170a;
+        }
+        g_leanAccel.z = z;
+    }
+    if (z < 0) {
+        z = -z;
+    }
+
+    angleZ = FixAtan2(z, FixMul(0x10000, 0x10000));
+    if (g_leanAccel.z < 0) {
+        angleZ = -angleZ;
+    }
+    cosZ = g_sinTable[(angleZ + 0x400) & 0xfff];
+    sinZ = g_sinTable[angleZ & 0xfff];
+
+    angleX = FixAtan2(FIX_ABS(g_leanAccel.x), FixMul(0x10000, 0x10000));
+    if (g_leanAccel.x < 0) {
+        angleX = -angleX;
+    }
+    sinX = g_sinTable[angleX & 0xfff];
+    cosX = g_sinTable[(angleX + 0x400) & 0xfff];
+
+    g_leanBasis.right.z = 0;
+    g_leanBasis.right.x = cosX;
+    g_leanBasis.right.y = -sinX;
+    g_leanBasis.up.x = FixMul(cosZ, sinX);
+    g_leanBasis.up.y = FixMul(cosZ, cosX);
+    g_leanBasis.up.z = sinZ;
+    g_leanBasis.forward.x = FixMul(-sinZ, sinX);
+    g_leanBasis.forward.y = FixMul(-sinZ, cosX);
+    g_leanBasis.forward.z = cosZ;
+
+    g_pCurrentCar->pBodyMatrix->right = g_leanBasis.right;
+    g_pCurrentCar->pBodyMatrix->up = g_leanBasis.up;
+    g_pCurrentCar->pBodyMatrix->forward = g_leanBasis.forward;
+}

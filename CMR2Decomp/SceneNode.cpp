@@ -21,6 +21,7 @@ int g_sceneStatHidden;
 
 unsigned short g_sqrtTable[4096];
 int g_sinTable[4096];
+unsigned short g_atanTable[512];
 
 // Rodrigues rotation scratch values (shared globals in the original)
 // GLOBAL: CMR2 0x0067f250

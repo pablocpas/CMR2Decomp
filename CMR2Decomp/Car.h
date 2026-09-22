@@ -24,7 +24,7 @@ struct Car {
     FixVector targetForward;          // 0x39c
     BYTE field_0x3a8[0x60];
     FixVector velocity;               // 0x408
-    BYTE field_0x414[0xc];
+    FixVector velocityNext;           // 0x414  velocityNext - velocity is the acceleration of the last step
     FixVector angularVelocity;        // 0x420  body space
     FixVector cornerVelocity[8];      // 0x42c  world-space velocity of each box corner
     FixVector groundNormal;           // 0x48c  normal of the box face the car rests on (Car_UpdateGroundNormal)
@@ -32,7 +32,9 @@ struct Car {
     BYTE field_0x4a4[0x1a4];
     FixVector force0x648;             // 0x648
     FixVector force0x654;             // 0x654
-    BYTE field_0x660[0xbc];
+    BYTE field_0x660[0x90];
+    FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
+    BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
     BYTE field_0x724[0x14];
@@ -59,7 +61,9 @@ struct Car {
     int wheel0x988[4];                // 0x988
     BYTE field_0x998[0x10];
     int wheel0x9a8[4];                // 0x9a8
-    BYTE field_0x9b8[0xc];
+    BYTE field_0x9b8[0x4];
+    int field_0x9bc;                  // 0x9bc
+    BYTE field_0x9c0[0x4];
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
@@ -67,7 +71,8 @@ struct Car {
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x16];
     BYTE field_0xb28;                 // 0xb28
-    BYTE field_0xb29[0x3b];
+    BYTE field_0xb29[0x37];
+    int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];
     int field_0xb74;                  // 0xb74
@@ -104,6 +109,18 @@ extern Car *g_carBuffer;
 // GLOBAL: CMR2 0x0053cc18
 extern Car *g_pCurrentCar;
 
+// Scratch globals of the body lean solver (Car_UpdateBodyLean)
+// GLOBAL: CMR2 0x0053c9f8
+extern FixVector g_leanDamping;
+// GLOBAL: CMR2 0x0053ca18
+extern FixVector g_leanAccel;
+// GLOBAL: CMR2 0x0053ca30
+extern FixVector g_leanDelta;
+// GLOBAL: CMR2 0x0053ca78
+extern FixVector g_carAccel;
+// GLOBAL: CMR2 0x0053caa8
+extern FixBasis g_leanBasis;
+
 void Car_AllocateTable(int count);
 Car *Car_Get(int index);
 void Car_UpdateCorners(Car *pCar);
@@ -117,5 +134,6 @@ void Car_UpdateBodyMatrix(void);
 void Car_RelaxBodyAxes(int bFast);
 void Car_UpdateCornerVelocities(void);
 void Car_UpdateGroundNormal(void);
+void Car_UpdateBodyLean(void);
 
 #endif

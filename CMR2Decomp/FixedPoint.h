@@ -38,6 +38,9 @@ inline int FixDiv(int a, int b)
 extern unsigned short g_sqrtTable[4096];
 // GLOBAL: CMR2 0x006e2ef4
 extern int g_sinTable[4096];
+// arctan(i / 512) as a 12-bit angle, 512 entries
+// GLOBAL: CMR2 0x006e8ff4
+extern unsigned short g_atanTable[512];
 
 struct FixVector {
     int x;
@@ -271,6 +274,64 @@ inline void FixVecCross(FixVector *out, FixVector *a, FixVector *b)
         shld edx, eax, 16
         sub ebx, edx
         mov [ecx + 8], ebx
+    }
+}
+
+// Angle of the vector (x, y) as a 12-bit angle (0x400 = 90 degrees).
+inline short FixAtan2(int y, int x)
+{
+    __asm {
+        mov ecx, x
+        mov edx, y
+        cmp edx, 0
+        jnz nonzero
+        xor eax, eax
+        jmp done
+    nonzero:
+        cmp ecx, 0
+        jnz quadrant
+        mov eax, 0x400
+        jmp done
+    quadrant:
+        xor ebx, ebx
+        test edx, 0x80000000
+        jz ypos
+        neg edx
+        xor ebx, 1
+    ypos:
+        test ecx, 0x80000000
+        jz xpos
+        neg ecx
+        xor ebx, 1
+    xpos:
+        cmp edx, ecx
+        jg steep
+        mov eax, edx
+        jmp divide
+    steep:
+        mov eax, ecx
+        mov ecx, edx
+        or ebx, 2
+    divide:
+        cdq
+        shld edx, eax, 16
+        shl eax, 16
+        idiv ecx
+        mov edx, offset g_atanTable
+        shr eax, 7
+        add edx, eax
+        add edx, eax
+        mov ax, word ptr [edx]
+        test ebx, 2
+        jz notsteep
+        mov dx, ax
+        mov ax, 0x400
+        sub ax, dx
+    notsteep:
+        test ebx, 1
+        jz done
+        neg ax
+    done:
     }
 }
 
