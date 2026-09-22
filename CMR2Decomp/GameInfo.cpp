@@ -1309,14 +1309,6 @@ bool FUN_004f48b0(void)
     return true;
 }
 
-// FUNCTION: CMR2 0x004f8290
-void *FUN_004f8290(BYTE param1)
-{
-    if (param1 != 0 && CGameInfo::GetGameRegion() != 3 && CGameInfo::GetGameRegion() != 2)
-        return (void *)0x8221d8;
-    return (void *)0x81d6d8;
-}
-
 // GLOBAL: CMR2 0x00819128
 int g_unk0x00819128;
 
