@@ -1290,3 +1290,51 @@ void Car_ApplyCornerFriction(int grip)
         }
     }
 }
+
+int FUN_00469bc0(void *pCar, int index);
+
+// Normalises the per-wheel slip, turns it into wheel torque and, on the cars
+// that use it, feeds the torque back towards half the drive torque.
+// FUNCTION: CMR2 0x0043c640
+void Car_UpdateWheelTorques(void)
+{
+    int quarter = g_pCurrentCar->field_0x75c / 4;
+    int maxSlip = 0;
+    int *pSlip = g_pCurrentCar->field_0x998;
+    int i = 4;
+
+    do {
+        int v = *pSlip;
+        if (FIX_ABS(v) > maxSlip) {
+            maxSlip = FIX_ABS(v);
+        }
+        pSlip++;
+        i--;
+    } while (i != 0);
+
+    if (maxSlip > 0x4000) {
+        int scale = FixDiv(0x4000, maxSlip);
+        for (i = 0; i < 4; i++) {
+            g_pCurrentCar->field_0x998[i] = FixMul(g_pCurrentCar->field_0x998[i], scale);
+        }
+    }
+
+    for (i = 0; i < 4; i++) {
+        int load = g_pCurrentCar->field_0x808[i] + FixMul(g_pCurrentCar->field_0x998[i], 0x40000);
+        g_pCurrentCar->field_0x8b8[i] = quarter - FixMul(g_pCurrentCar->field_0x8d8, load);
+    }
+
+    if (FUN_00469bc0(g_pCurrentCar, 3) != 0) {
+        int rate = FixMul(g_pCurrentCar->steer, 0x2000);
+        int half;
+
+        if (rate > 0x10000) {
+            rate = 0x10000;
+        }
+        half = g_pCurrentCar->field_0x75c / 2;
+        for (i = 0; i < 4; i++) {
+            int target = i < 2 ? half : 0;
+            g_pCurrentCar->field_0x8b8[i] += FixMul(rate, target - g_pCurrentCar->field_0x8b8[i]);
+        }
+    }
+}

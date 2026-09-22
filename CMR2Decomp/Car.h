@@ -52,11 +52,16 @@ struct Car {
     int scale0x76c;                   // 0x76c
     BYTE field_0x770[0x8];
     int steer;                        // 0x778
-    BYTE field_0x77c[0xa0];
+    BYTE field_0x77c[0x8c];
+    int field_0x808[4];               // 0x808
+    BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c
     BYTE field_0x820[0x40];
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
-    BYTE field_0x870[0x6c];
+    BYTE field_0x870[0x48];
+    int field_0x8b8[4];               // 0x8b8  per-wheel torque rebuilt every step
+    BYTE field_0x8c8[0x10];
+    int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
     BYTE field_0x8fc[0x20];
     int field_0x91c;                  // 0x91c
@@ -64,7 +69,7 @@ struct Car {
     int field_0x924;                  // 0x924
     BYTE field_0x928[0x60];
     int wheel0x988[4];                // 0x988
-    BYTE field_0x998[0x10];
+    int field_0x998[4];               // 0x998
     int wheel0x9a8[4];                // 0x9a8
     BYTE field_0x9b8[0x4];
     int field_0x9bc;                  // 0x9bc
@@ -74,7 +79,9 @@ struct Car {
     int wheel0x9d8[4];                // 0x9d8
     BYTE field_0x9e8[0x128];
     unsigned short heading;           // 0xb10  12-bit angle
-    BYTE field_0xb12[0x16];
+    BYTE field_0xb12[0x8];
+    char field_0xb1a;                 // 0xb1a  index of this car in the timing records
+    BYTE field_0xb1b[0xd];
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29[0x3];
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
@@ -149,6 +156,7 @@ void Car_UpdateGroundNormal(void);
 void Car_UpdateBodyLean(void);
 void Car_BalanceWheelPairs(void);
 void Car_ApplyCornerFriction(int grip);
+void Car_UpdateWheelTorques(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.

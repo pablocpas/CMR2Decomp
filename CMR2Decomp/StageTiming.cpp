@@ -570,6 +570,13 @@ int *g_unk0x00588990[128];
 // GLOBAL: CMR2 0x00466680
 BYTE g_unk0x00466680[1];
 
+// Reads entry `index` of the 0x4b0-byte tail of a car's 0x4d0-byte record.
+// FUNCTION: CMR2 0x00469bc0
+int FUN_00469bc0(void *pCar, int index)
+{
+    return *(int *)(g_unk0x00588b94 + (index + *(char *)((BYTE *)pCar + 0xb1a) * 0x134) * 4 + 0x4b0);
+}
+
 // FUNCTION: CMR2 0x004667c0
 void FUN_004667c0(int count)
 {
