@@ -213,11 +213,11 @@ void FUN_004ecfa0(Menu *pMenu, char param);
 void FUN_004ecfd0(Menu *pMenu, int param);
 void FUN_004ed100(Menu *pMenu, int param);
 void FUN_004ed340(Menu *pMenu, int param);
-void FUN_004ed500(Menu *pMenu, int param);
+void FUN_004ed500(Menu *pMenu, char param);
 void FUN_004ed530(Menu *pMenu, int param);
 void FUN_004ed610(Menu *pMenu, int param);
 void FUN_004ed840(Menu *pMenu, int param);
-void FUN_004edb30(Menu *pMenu, int param);
+void FUN_004edb30(Menu *pMenu, char param);
 void FUN_004edb60(Menu *pMenu, int param);
 void FUN_004edb70(Menu *pMenu, int param);
 void FUN_004edca0(Menu *pMenu, int param);
@@ -314,7 +314,7 @@ void FUN_004f3ac0(Menu *pMenu, char param);
 void FUN_004f3ae0(Menu *pMenu, int param);
 void FUN_004f3b00(Menu *pMenu, int param);
 void FUN_004f3b20(Menu *pMenu, int param);
-void FUN_004f3b30(Menu *pMenu, int param);
+void FUN_004f3b30(Menu *pMenu, char param);
 void FUN_004faa00(Menu *pMenu, int param);
 void FUN_004faa50(Menu *pMenu, int param);
 void FUN_004fac70(Menu *pMenu, int param);
@@ -333,5 +333,15 @@ void FUN_004fb370(Menu *pMenu, int param);
 
 extern int g_unk0x00819128;
 void FUN_004ea480(int param1);
+Menu *FUN_004f8330(void);
+Menu *FUN_004f8990(void);
+Menu *FUN_004fa330(void);
+void FUN_004ea8e0(BYTE param1);
+void FUN_004ea970(BYTE param1);
+void FUN_004ea990(unsigned int *pOut1, unsigned int *pOut2);
+int FUN_004f4db0(void);
+BOOL FUN_004a15a0(void);
+int FUN_004a1280(void);
+void RallyData_FUN_00406960(BYTE param1);
 
 #endif

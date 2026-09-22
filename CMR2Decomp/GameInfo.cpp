@@ -1346,6 +1346,12 @@ void **g_unk0x0081b150;
 // GLOBAL: CMR2 0x0081b154
 int g_unk0x0081b154;
 
+// FUNCTION: CMR2 0x004f4db0
+int FUN_004f4db0(void)
+{
+    return g_unk0x0081b154;
+}
+
 // TODO: CMR2 0x004f4e80 (implemented, match 50%)
 bool FUN_004f4e80(void)
 {
@@ -1390,6 +1396,27 @@ void FUN_004ea480(int param1)
                 g_unk0x00818ac8 = 0;
         }
     }
+}
+
+// FUNCTION: CMR2 0x004ea8e0
+void FUN_004ea8e0(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 0x7f) << 3) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffffc07);
+    if (param1 >= 8)
+        CGameInfo::m_gameInfo.field_0x3980 = CGameInfo::m_gameInfo.field_0x14 >> 3 & 0x7f;
+}
+
+// FUNCTION: CMR2 0x004ea970
+void FUN_004ea970(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7) << 20) | (CGameInfo::m_gameInfo.field_0x14 & 0xff8fffff);
+}
+
+// FUNCTION: CMR2 0x004ea990
+void FUN_004ea990(unsigned int *pOut1, unsigned int *pOut2)
+{
+    *pOut1 = CGameInfo::m_gameInfo.field_0x14 >> 23 & 0xf;
+    *pOut2 = CGameInfo::m_gameInfo.field_0x14 >> 27 & 0xf;
 }
 
 // FUNCTION: CMR2 0x004eabc0

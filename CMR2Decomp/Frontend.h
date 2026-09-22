@@ -18,6 +18,8 @@ public:
     static char *FUN_0040ee20(int offset);
     static void *FUN_0040ee90(int index);
     static void FUN_004cf0f0(void);
+    static DWORD FUN_004b7520(void);
+    static int FUN_004d20e0(void);
     static BOOL FUN_004b7560(unsigned int param_1);
     static BOOL FUN_004b7590(unsigned int param_1);
     static BOOL FUN_004a9700(void);

@@ -77,6 +77,12 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
      FUN_00501680},
 };
 
+// FUNCTION: CMR2 0x004a15a0
+BOOL FUN_004a15a0(void)
+{
+    return CGameInfo::m_unk0x005a0060;
+}
+
 // FUNCTION: CMR2 0x004a9a40
 void CGame::SetShouldExit(void)
 {

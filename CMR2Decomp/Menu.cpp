@@ -503,3 +503,38 @@ done:
     g_menuNextAction = 0;
     return action;
 }
+
+// FUNCTION: CMR2 0x004a0bc0
+void Menu_PlaySoundId(int id)
+{
+    switch (id) {
+    case 0:
+        id = CInput::m_unk0x0059f8f8;
+        break;
+    case 1:
+        id = CInput::m_unk0x0059f910;
+        break;
+    case 2:
+        id = CInput::m_unk0x0059f8f4;
+        break;
+    case 3:
+        id = CInput::m_unk0x0059f8f0;
+        break;
+    case 4:
+        id = CInput::m_unk0x0059f90c;
+        break;
+    }
+    Menu_PlaySound(id);
+}
+
+// FUNCTION: CMR2 0x004a0c40
+void FUN_004a0c40(char param1)
+{
+    g_unk0x0059fa14 = param1;
+}
+
+// FUNCTION: CMR2 0x004a0c50
+void FUN_004a0c50(char param1)
+{
+    g_unk0x0059fa15 = param1;
+}

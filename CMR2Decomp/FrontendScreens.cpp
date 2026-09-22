@@ -10,6 +10,22 @@
 
 // GLOBAL: CMR2 0x00818f10
 char g_unk0x00818f10;
+// GLOBAL: CMR2 0x008196e0
+unsigned int g_unk0x008196e0;
+// GLOBAL: CMR2 0x008196e4
+int g_unk0x008196e4;
+// GLOBAL: CMR2 0x00819864
+BYTE g_unk0x00819864;
+// GLOBAL: CMR2 0x0081987c
+int g_unk0x0081987c;
+// GLOBAL: CMR2 0x0082a924
+int g_unk0x0082a924;
+// GLOBAL: CMR2 0x0082aa3c
+int g_unk0x0082aa3c;
+// GLOBAL: CMR2 0x0082aa40
+int g_unk0x0082aa40;
+// GLOBAL: CMR2 0x0082ac48
+int g_unk0x0082ac48;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
 // GLOBAL: CMR2 0x0081903c
@@ -29,6 +45,26 @@ void FUN_004ecfa0(Menu *pMenu, char param)
     }
 }
 
+// FUNCTION: CMR2 0x004ed500
+void FUN_004ed500(Menu *pMenu, char param)
+{
+    if (param != 0) {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+    } else {
+        FUN_004ea8e0(Menu_GetItem(pMenu, 1)->max + 8);
+    }
+}
+
+// FUNCTION: CMR2 0x004edb30
+void FUN_004edb30(Menu *pMenu, char param)
+{
+    if (param != 0 && !FUN_004a15a0()) {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+    }
+}
+
 // FUNCTION: CMR2 0x004edca0
 void FUN_004edca0(Menu *pMenu, int param)
 {
@@ -44,6 +80,15 @@ void FUN_004edca0(Menu *pMenu, int param)
         return;
     }
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
+}
+
+// FUNCTION: CMR2 0x004ef4c0
+void FUN_004ef4c0(Menu *pMenu, int param)
+{
+    g_unk0x0082aa40 = FUN_004f4db0();
+    g_unk0x0082a924 = 0;
+    g_unk0x0082aa3c = 0;
+    g_unk0x0082ac48 = 0;
 }
 
 // FUNCTION: CMR2 0x004ef5f0
@@ -66,6 +111,26 @@ void FUN_004ef8f0(Menu *pMenu, int param)
 void FUN_004ef950(Menu *pMenu, int param)
 {
     pMenu->cursor = CGameInfo::FUN_00405dd0();
+}
+
+// FUNCTION: CMR2 0x004ef960
+void FUN_004ef960(Menu *pMenu, int param)
+{
+    FUN_004ea970(pMenu->cursor);
+}
+
+// FUNCTION: CMR2 0x004f0600
+void FUN_004f0600(Menu *pMenu, int param)
+{
+    FUN_004ea480(0);
+    FUN_004a0c40(1);
+}
+
+// FUNCTION: CMR2 0x004f0e60
+void FUN_004f0e60(Menu *pMenu, int param)
+{
+    FUN_004ea480(0);
+    FUN_004a0c50(0);
 }
 
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
@@ -107,6 +172,14 @@ void FUN_004f1640(Menu *pMenu)
 void FUN_004f1b90(Menu *pMenu, int param)
 {
     FUN_004ea480(0);
+}
+
+// FUNCTION: CMR2 0x004f1bd0
+void FUN_004f1bd0(Menu *pMenu, int param)
+{
+    g_unk0x00819864 = 1;
+    g_unk0x0081987c = 0;
+    g_unk0x008196e4 = CFrontend::FUN_004d20e0();
 }
 
 // FUNCTION: CMR2 0x004f1d00
@@ -186,6 +259,15 @@ void FUN_004f2840(Menu *pMenu, int param)
     pMenu->items[2].max = (int)CGameInfo::FUN_00405ea0() / 10;
 }
 
+// FUNCTION: CMR2 0x004f3a90
+void FUN_004f3a90(Menu *pMenu, int param)
+{
+    g_unk0x008196e0++;
+    if (g_unk0x008196e0 > 2)
+        g_unk0x008196e0 = 0;
+    Menu_PlaySoundId(4);
+}
+
 // FUNCTION: CMR2 0x004f3ac0
 void FUN_004f3ac0(Menu *pMenu, char param)
 {
@@ -204,6 +286,13 @@ void FUN_004f3b00(Menu *pMenu, int param)
 void FUN_004f3b20(Menu *pMenu, int param)
 {
     g_unk0x00819878 = 1;
+}
+
+// FUNCTION: CMR2 0x004f3b30
+void FUN_004f3b30(Menu *pMenu, char param)
+{
+    if (g_unk0x00819878 == 0 && param == 0)
+        Menu_SetNextAction((int)FUN_004f8990());
 }
 
 // FUNCTION: CMR2 0x004faa00
@@ -225,4 +314,13 @@ void FUN_004faa00(Menu *pMenu, int param)
 void FUN_004fafd0(Menu *pMenu)
 {
     RallyData_FUN_0040d600(pMenu->cursor);
+}
+
+// FUNCTION: CMR2 0x004fafe0
+void FUN_004fafe0(Menu *pMenu, int param)
+{
+    RallyData_FUN_0040d600(pMenu->cursor);
+    RallyData_FUN_00406960(0);
+    RallyData_FUN_0040d620(3);
+    Menu_SetNextAction((int)FUN_004f8330());
 }

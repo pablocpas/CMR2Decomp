@@ -285,7 +285,7 @@ void FUN_004f5c90(void)
     Menu_AddItemType2(&g_menu0x00821c38, 0, -1, &g_menu0x0081bab8, 0, 5);
     Menu_AddItemType4(&g_menu0x00821c38, 0, 0x67, (int)FUN_004ed340, 6);
     Menu_AddItemType1(&g_menu0x00821c38, 0, 0x1b, 0, 7);
-    Menu_SetCallbacks(&g_menu0x00821c38, FUN_004ecfd0, FUN_004ed100, FUN_004dce00, FUN_004ed500);
+    Menu_SetCallbacks(&g_menu0x00821c38, FUN_004ecfd0, FUN_004ed100, FUN_004dce00, (MenuCallback)FUN_004ed500);
     Menu_ValidateCursor(&g_menu0x00821c38, 0);
 }
 
@@ -298,7 +298,7 @@ void FUN_004f5d90(void)
     Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 2, 0, 1, 0, 0, 2);
     Menu_AddItemType3(&g_menu0x0081e218, 0, -1, 2, 0, 1, 0, (int)FUN_004ed610, 3);
     Menu_AddItemType1(&g_menu0x0081e218, 0, 0x1b, 0, 4);
-    Menu_SetCallbacks(&g_menu0x0081e218, FUN_004ed530, FUN_004ed840, FUN_004dd4b0, FUN_004edb30);
+    Menu_SetCallbacks(&g_menu0x0081e218, FUN_004ed530, FUN_004ed840, FUN_004dd4b0, (MenuCallback)FUN_004edb30);
     Menu_ValidateCursor(&g_menu0x0081e218, 0);
 }
 
@@ -513,7 +513,7 @@ void FUN_004f6dd0(void)
     Menu_Init(&g_menu0x00823df8, 0, 3, 0, &g_menu0x0081d6d8, NULL, 1, 1, 1);
     Menu_AddItemType2(&g_menu0x00823df8, 0, 5, &g_menu0x00820798, 0, 0);
     Menu_AddItemType1(&g_menu0x00823df8, 0, 4, (int)FUN_004f3b20, 0);
-    Menu_SetCallbacks(&g_menu0x00823df8, FUN_004f3b00, FUN_004f3ae0, FUN_004e2ab0, FUN_004f3b30);
+    Menu_SetCallbacks(&g_menu0x00823df8, FUN_004f3b00, FUN_004f3ae0, FUN_004e2ab0, (MenuCallback)FUN_004f3b30);
     Menu_ValidateCursor(&g_menu0x00823df8, 0);
 }
 
@@ -975,4 +975,22 @@ Menu *FUN_004f8290(BYTE param1)
     if (param1 != 0 && CGameInfo::GetGameRegion() != 3 && CGameInfo::GetGameRegion() != 2)
         return &g_menu0x008221d8;
     return &g_menu0x0081d6d8;
+}
+
+// FUNCTION: CMR2 0x004f8330
+Menu *FUN_004f8330(void)
+{
+    return &g_menu0x008214b8;
+}
+
+// FUNCTION: CMR2 0x004f8990
+Menu *FUN_004f8990(void)
+{
+    return &g_menu0x00820798;
+}
+
+// FUNCTION: CMR2 0x004fa330
+Menu *FUN_004fa330(void)
+{
+    return &g_menu0x00826ba0;
 }

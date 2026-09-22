@@ -83,5 +83,8 @@ void Menu_CallCallback3(Menu *pMenu);
 void Menu_CallCallback2(Menu *pMenu);
 void Menu_SetNextAction(int action);
 void Menu_PlaySound(int id);
+void Menu_PlaySoundId(int id);
+void FUN_004a0c40(char param1);
+void FUN_004a0c50(char param1);
 
 #endif

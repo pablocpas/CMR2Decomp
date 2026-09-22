@@ -111,6 +111,12 @@ char* CFrontend::m_unk0x0081853c;
 Texture* CFrontend::m_unk0x008182cc[22];
 Texture* CFrontend::m_unk0x0081884c[22];
 
+// FUNCTION: CMR2 0x004b7520
+DWORD CFrontend::FUN_004b7520(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0xa8;
+}
+
 // FUNCTION: CMR2 0x004d21e0
 void CFrontend::FUN_004d21e0(void)
 {
@@ -405,6 +411,8 @@ char *CFrontend::GetTextString(int index)
     return m_textStrings[m_textFirstId + index];
 }
 
+// GLOBAL: CMR2 0x00817fe4
+int g_unk0x00817fe4;
 // GLOBAL: CMR2 0x00817fe8
 int g_unk0x00817fe8;
 
@@ -412,6 +420,12 @@ int g_unk0x00817fe8;
 void CFrontend::FUN_004d20c0(void)
 {
     g_unk0x00817fe8 = CGame::GetCallbackCount();
+}
+
+// FUNCTION: CMR2 0x004d20e0
+int CFrontend::FUN_004d20e0(void)
+{
+    return g_unk0x00817fe4;
 }
 
 // GLOBAL: CMR2 0x00818540
