@@ -20,6 +20,24 @@ struct CollisionFaceVertices {
     FixVector secondaryVertices[4];
 };
 
+struct VehicleMotionState {
+    BYTE pad0x000[4];
+    FixMatrix *pMatrix;
+    BYTE pad0x008[0x118];
+    FixVector position;
+    FixVector previousPosition;
+    FixVector velocity;
+    FixVector correction;
+    BYTE flags;
+    BYTE pad0x151[7];
+    unsigned short directionAngle;
+};
+
+struct VehicleMotionContext {
+    BYTE pad0x000[0x750];
+    FixMatrix *pMatrix;
+};
+
 // GLOBAL: CMR2 0x0059192c
 int g_collisionSelectBackSide;
 // GLOBAL: CMR2 0x00591934
@@ -44,6 +62,11 @@ int g_collisionBestVertex;
 FixVector g_collisionLineStart;
 // GLOBAL: CMR2 0x00591adc
 int g_collisionDirectionDirty;
+
+// GLOBAL: CMR2 0x00590c20
+VehicleMotionState *g_vehicleMotionState;
+// GLOBAL: CMR2 0x00590d74
+VehicleMotionContext *g_vehicleMotionContext;
 
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
 #define COLLISION_INT(offset) (*(int *)((BYTE *)g_collisionCar + (offset)))
@@ -354,4 +377,64 @@ nextVertex:
         vertexIndex++;
         pDistance++;
     } while ((int)pDistance < (int)&g_collisionBestVertex);
+}
+
+// Updates the vehicle-local motion vector and the resulting positional correction.
+// FUNCTION: CMR2 0x00482ac0
+void Vehicle_UpdateMotion(FixVector *pInput)
+{
+    FixVector localInput;
+    FixVector delta;
+    FixVector rotatedDelta;
+    FixVector direction;
+    int projection;
+    int length;
+
+    FixMatrix_InverseRotateVector(&localInput, pInput, g_vehicleMotionContext->pMatrix);
+    FixVecScale(&g_vehicleMotionState->velocity, &localInput, 0x1999);
+
+    if ((g_vehicleMotionState->flags & 0xf0) == 0) {
+        if (g_vehicleMotionState->velocity.y < 0)
+            g_vehicleMotionState->velocity.y = 0;
+
+        direction.x = FixSin(g_vehicleMotionState->directionAngle);
+        direction.y = FixSin(g_vehicleMotionState->directionAngle + 0x400);
+        direction.z = 0;
+        projection = FixVecDot(&g_vehicleMotionState->velocity, &direction);
+        if (projection < 0) {
+            length = FixVecLength(&g_vehicleMotionState->velocity);
+            FixVecScale(&direction, &direction, projection);
+            g_vehicleMotionState->velocity.x -= direction.x;
+            g_vehicleMotionState->velocity.y -= direction.y;
+            g_vehicleMotionState->velocity.z -= direction.z;
+
+            FixVector *pVelocity = &g_vehicleMotionState->velocity;
+            int normalizedLength = FixVecLength(pVelocity);
+            if (normalizedLength == 0) {
+                pVelocity->x = 0;
+                pVelocity->y = 0;
+                pVelocity->z = 0;
+            } else {
+                FixVecScaleRecip(pVelocity, pVelocity, normalizedLength);
+            }
+
+            length = FixMul(length, 0x50000);
+            FixVecScale(&g_vehicleMotionState->velocity,
+                        &g_vehicleMotionState->velocity, length);
+        }
+    }
+
+    delta.x = g_vehicleMotionState->position.x - g_vehicleMotionState->previousPosition.x;
+    delta.y = g_vehicleMotionState->position.y - g_vehicleMotionState->previousPosition.y;
+    delta.z = g_vehicleMotionState->position.z - g_vehicleMotionState->previousPosition.z;
+    FixMatrix_RotateVector(&rotatedDelta, &delta, g_vehicleMotionState->pMatrix);
+    rotatedDelta.x += g_vehicleMotionState->previousPosition.x;
+    rotatedDelta.y += g_vehicleMotionState->previousPosition.y;
+    rotatedDelta.z += g_vehicleMotionState->previousPosition.z;
+    g_vehicleMotionState->correction.x = g_vehicleMotionState->position.x - rotatedDelta.x;
+    g_vehicleMotionState->correction.y = g_vehicleMotionState->position.y - rotatedDelta.y;
+    g_vehicleMotionState->correction.z = g_vehicleMotionState->position.z - rotatedDelta.z;
+    g_vehicleMotionState->position = g_vehicleMotionState->previousPosition;
+    g_vehicleMotionState->flags |= 4;
+    g_vehicleMotionState->flags &= (BYTE)~2;
 }
