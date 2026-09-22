@@ -8,6 +8,7 @@
 #include "GenericFileLoader.h"
 #include <string.h>
 #include "FrontendMenus.h"
+#include "Sound.h"
 
 // Callbacks of the frontend screens, hooked to the menus built in
 // FrontendMenus.cpp.
@@ -427,6 +428,38 @@ void FUN_004f1f70(Menu *pMenu, char param)
         FUN_004f1e40(pMenu, (int)&pMenu->items[pMenu->cursor]);
 }
 
+// FUNCTION: CMR2 0x004f2050
+void FUN_004f2050(Menu *pMenu, int param)
+{
+    switch (pMenu->cursor) {
+    case 0:
+        CGameInfo::FUN_00405b60(0);
+        g_pGraphics->field913_0x3bc &= ~8;
+        g_pGraphics->field913_0x3bc &= ~0x10;
+        g_pGraphics->field913_0x3bc &= ~0x80;
+        break;
+    case 1:
+        CGameInfo::FUN_00405b60(1);
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= ~0x10;
+        g_pGraphics->field913_0x3bc &= ~0x80;
+        break;
+    case 2:
+        CGameInfo::FUN_00405b60(2);
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc |= 0x10;
+        g_pGraphics->field913_0x3bc &= ~0x80;
+        break;
+    case 3:
+        CGameInfo::FUN_00405b60(3);
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= ~0x10;
+        g_pGraphics->field913_0x3bc |= 0x80;
+        break;
+    }
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
 // FUNCTION: CMR2 0x004f23d0
 void FUN_004f23d0(Menu *pMenu)
 {
@@ -522,6 +555,20 @@ void FUN_004f2840(Menu *pMenu, int param)
     pMenu->items[0].max = (int)CGameInfo::FUN_00405e40() / 10;
     pMenu->items[1].max = (int)CGameInfo::FUN_00405e70() / 10;
     pMenu->items[2].max = (int)CGameInfo::FUN_00405ea0() / 10;
+}
+
+// FUNCTION: CMR2 0x004f2b70
+void FUN_004f2b70(Menu *pMenu, char param)
+{
+    if (param != 0) {
+        CGameInfo::FUN_00405e10(g_unk0x0081903c);
+        CGameInfo::FUN_00405e50(g_unk0x00819860);
+        CGameInfo::FUN_00405e80(g_unk0x00819754);
+        CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
+        CSound::FUN_004a28c0();
+        return;
+    }
+    FUN_004f2b00((BYTE *)pMenu);
 }
 
 // FUNCTION: CMR2 0x004f2c40

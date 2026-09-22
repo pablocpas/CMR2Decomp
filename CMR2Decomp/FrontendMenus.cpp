@@ -382,7 +382,7 @@ void FUN_004f6490(void)
     Menu_AddItemType3(&g_menu0x0081fa78, 0, 0x5f, 0xb, 0xa, 0, 0, 0, 1);
     Menu_AddItemType3(&g_menu0x0081fa78, 0, 0x60, 0xb, 0xa, 0, 0, 0, 2);
     Menu_AddItemType2(&g_menu0x0081fa78, 0, 0x67, g_menu0x0081fa78.pParent, 0, 4);
-    Menu_SetCallbacks(&g_menu0x0081fa78, FUN_004f2840, (MenuCallback)FUN_004f2b00, FUN_004e2610, FUN_004f2b70);
+    Menu_SetCallbacks(&g_menu0x0081fa78, FUN_004f2840, (MenuCallback)FUN_004f2b00, FUN_004e2610, (MenuCallback)FUN_004f2b70);
     Menu_ValidateCursor(&g_menu0x0081fa78, 0);
 }
 
