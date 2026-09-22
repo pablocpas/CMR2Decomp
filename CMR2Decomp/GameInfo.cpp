@@ -1621,3 +1621,34 @@ void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y,
         }
     }
 }
+
+#include "Sprite.h"
+#include "Graphics.h"
+
+// Draws the four one pixel edges of a rectangle given as x, y, w, h.
+// FUNCTION: CMR2 0x00403ef0
+void DrawRectOutline(short *pRect, BYTE *pColour)
+{
+    short edge[4];
+
+    edge[0] = pRect[0];
+    edge[1] = pRect[1];
+    edge[2] = pRect[2];
+    edge[3] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    edge[0] = pRect[2] + pRect[0];
+    edge[1] = pRect[1];
+    edge[3] = pRect[3] + 1;
+    edge[2] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    edge[0] = pRect[0];
+    edge[1] = pRect[3] + pRect[1];
+    edge[2] = pRect[2];
+    edge[3] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+    edge[0] = pRect[0];
+    edge[1] = pRect[1];
+    edge[3] = pRect[3];
+    edge[2] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
+}
