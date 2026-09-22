@@ -645,3 +645,30 @@ int RallyData_FUN_00411060(void)
 {
     return g_unk0x00536be0;
 }
+
+// FUNCTION: CMR2 0x004082e0
+unsigned int RallyData_FUN_004082e0(void)
+{
+    return (g_unk0x0052f2b0 >> 0xb) & 1;
+}
+
+// FUNCTION: CMR2 0x004082b0
+unsigned int RallyData_FUN_004082b0(void)
+{
+    return g_unk0x0052f2b0 & 7;
+}
+
+// Table of 0x148-byte records; count derived from the next known global
+// (0x52f2a9), so it may cover further undeclared values.
+struct Unk0x0052ebc0 {
+    BYTE field_0x0[0x148];
+};
+
+// GLOBAL: CMR2 0x0052ebc0
+Unk0x0052ebc0 g_unk0x0052ebc0[5];
+
+// FUNCTION: CMR2 0x00407610
+Unk0x0052ebc0 *RallyData_FUN_00407610(int index)
+{
+    return &g_unk0x0052ebc0[index];
+}
