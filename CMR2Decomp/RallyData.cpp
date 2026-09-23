@@ -10,6 +10,9 @@
 #include "Font.h"
 #include "Sprite.h"
 #include "Graphics.h"
+#include "StageSplitData.h"
+#include "StageTiming.h"
+#include "StageUI.h"
 
 int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
@@ -737,6 +740,168 @@ void FUN_004118b0(int car)
         }
         break;
     }
+}
+
+BYTE FUN_00458250(int index);
+BYTE FUN_00458270(int index);
+int FUN_00458330(int index);
+int FUN_00458350(int index);
+int FUN_00458370(int index);
+int FUN_004481f0(int car, int index);
+void FUN_004279d0(int index, int value);
+int FUN_0040a3c0(void);
+unsigned int FUN_0040a440(void);
+
+// GLOBAL: CMR2 0x00536bfc
+int g_unk0x00536bfc;
+// GLOBAL: CMR2 0x00536c0c
+int g_unk0x00536c0c[2];
+// GLOBAL: CMR2 0x00536c14
+int g_unk0x00536c14;
+// GLOBAL: CMR2 0x00536c20
+BYTE g_unk0x00536c20[4];
+// GLOBAL: CMR2 0x00536c40
+int g_unk0x00536c40;
+// Split time colours, 0x28 entries per car.
+// GLOBAL: CMR2 0x00536d14
+int g_unk0x00536d14[0x3a];
+// Reference split times, g_unk0x00536e90[0] doubles as a "no reference" flag.
+// GLOBAL: CMR2 0x00536e90
+int g_unk0x00536e90[11];
+// GLOBAL: CMR2 0x00537064
+int g_unk0x00537064;
+// GLOBAL: CMR2 0x00537068
+int g_unk0x00537068;
+// GLOBAL: CMR2 0x0051709c
+unsigned int g_unk0x0051709c = 0xffa4fa2e;
+// GLOBAL: CMR2 0x005170a0
+unsigned int g_unk0x005170a0 = 0xff00008a;
+// GLOBAL: CMR2 0x005170e0
+unsigned int g_unk0x005170e0[2] = {0x00ffffff, 0x00ffffff};
+
+// Records the time of the split the car just passed, colours it against the
+// reference time and updates the car's position at that split.
+// TODO: CMR2 0x00413330 (implemented, match 85%)
+void FUN_00413330(int car)
+{
+    int split;
+    int time;
+    int delta;
+    int reference;
+
+    g_unk0x00536c0c[car] = 0;
+    if (!FUN_00458250(car))
+        return;
+    if ((BYTE)RallyData_GetFlag25())
+        split = FUN_00458370(car);
+    else
+        split = FUN_00458350(car);
+    if (FUN_00458290(car)) {
+        split = 1;
+        g_stageSplitData[car].times[split + 1] = FUN_004481f0(car, FUN_00458330(car));
+        g_stageSplitData[car].targetTime = g_unk0x00536c40;
+        g_stageSplitData[car].lastSplitTime = FUN_004481f0(car, FUN_00458330(car));
+        g_unk0x00536bfc = 0;
+    } else if (split != 0) {
+        g_stageSplitData[car].times[split + 1] = g_stageSplitData[car].times[0];
+        g_stageSplitData[car].targetTime = g_unk0x00536e90[split + 1];
+        g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
+    }
+    if (FUN_00458270(car))
+        g_unk0x00536bfc = 0;
+    if (g_unk0x00536c40 != g_unk0x00537068) {
+        time = g_stageSplitData[car].times[split + 1];
+        if (time - g_stageSplitData[car].times[split] < g_unk0x00536e90[split + 1] - g_unk0x00536e90[split])
+            g_unk0x00536d14[car * 0x28 + split] = g_unk0x0051709c;
+        else
+            g_unk0x00536d14[car * 0x28 + split] = g_unk0x005170a0;
+        if (split != 0) {
+            if (time < g_stageSplitData[car].targetTime)
+                FUN_00411ab0(car, 1);
+            else
+                FUN_00411ab0(car, 0);
+        }
+    }
+    g_stageSplitData[car].split = split;
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 && split != 0) {
+        ((BYTE *)&g_unk0x005170e0[car])[3] = 0xff;
+        g_unk0x00536c20[car] = 0x4b;
+    }
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 4) {
+        if (StageTiming_FUN_00455ae0()) {
+            g_stageSplitData[car].position =
+                StageTiming_GetSplitPositionOfDriver(FUN_0041b370() + car, g_stageSplitData[car].split);
+            return;
+        }
+        g_stageSplitData[car].position = 0xf;
+    }
+}
+
+// Same as FUN_00413330 for the stage start and the time-trial ghost.
+// TODO: CMR2 0x00413610 (implemented, match 57%)
+void FUN_00413610(int car)
+{
+    int time;
+
+    g_unk0x00536e90[0] = 0;
+    if (FUN_00458290(car)) {
+        g_unk0x00537064 = FUN_00458330(car);
+        if (CGameInfo::FUN_00405d80() == 0xc) {
+            time = FUN_004481f0(0, 0);
+            g_stageSplitData[car].times[0] = time;
+            g_stageSplitData[car].times[g_unk0x00537064 + 1] = time;
+            g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
+            g_stageSplitData[car].split = g_unk0x00537064;
+            FUN_004279d0(g_unk0x00537064, g_stageSplitData[car].times[0]);
+            g_unk0x00536c14 = 1;
+        } else {
+            if (g_unk0x00537064 > 0 && g_unk0x00537064 < 10) {
+                g_stageSplitData[car].times[g_unk0x00537064 + 1] = g_stageSplitData[car].times[0];
+                g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
+                g_stageSplitData[car].split = g_unk0x00537064;
+                FUN_004279d0(g_unk0x00537064, g_stageSplitData[car].times[0]);
+            }
+            g_unk0x00536c14 = 1;
+        }
+    } else if (g_unk0x00536c14 == 0) {
+        return;
+    }
+    if (CGameInfo::FUN_00405d80() == 0xc) {
+        CGameInfo::FUN_0040a420(g_unk0x00537064);
+        if (FUN_0040a3c0())
+            time = FUN_0040a440();
+        else
+            time = CGameInfo::FUN_0040a420(g_unk0x00537064);
+        g_stageSplitData[car].targetTime = time;
+        if (g_stageSplitData[car].lastSplitTime < time) {
+            FUN_00411ab0(car, 1);
+            g_unk0x00536c14 = 0;
+        } else if (time == 0) {
+            g_unk0x00536e90[0] = 1;
+        } else {
+            FUN_00411ab0(car, 0);
+            g_unk0x00536c14 = 0;
+        }
+        if (g_unk0x00537064 == 0 && CGameInfo::FUN_00405d80() != 0xc)
+            return;
+    } else {
+        time = CGameInfo::FUN_0040a420(g_unk0x00537064);
+        g_stageSplitData[car].targetTime = time;
+        if (g_stageSplitData[car].lastSplitTime < time) {
+            FUN_00411ab0(car, 1);
+            g_unk0x00536c14 = 0;
+        } else if (time == 0) {
+            g_unk0x00536e90[0] = 1;
+        } else {
+            FUN_00411ab0(car, 0);
+            g_unk0x00536c14 = 0;
+        }
+        if (g_unk0x00537064 == 0 && CGameInfo::FUN_00405d80() != 0xc)
+            return;
+    }
+    ((BYTE *)&g_unk0x005170e0[car])[3] = 0xff;
+    g_unk0x00536c20[car] = 0x4b;
 }
 
 // FUNCTION: CMR2 0x004074a0
