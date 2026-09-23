@@ -1175,6 +1175,8 @@ public:
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
     static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
     static Texture *LoadDDSTexture(DDSFile *pDDS, Texture *pTexture);
+    static Texture *FUN_004a48c0(char *name, void *pData, unsigned int flags);
+    static Texture *FUN_004a49c0(char *name, unsigned int flags);
 
     // GLOBAL: CMR2 0x00520b14
     static int m_unk0x00520b14;
@@ -1349,6 +1351,10 @@ private:
     static float m_unk0x00520b34;
     // GLOBAL: CMR2 0x00520b38
     static float m_unk0x00520b38;
+    // GLOBAL: CMR2 0x00520b3c
+    static char m_ddsExtension[8];
+    // GLOBAL: CMR2 0x00520b44
+    static char m_tgaExtension[8];
     // GLOBAL: CMR2 0x0065ad08
     static TGAImageInfo m_tgaImageInfo;
     // GLOBAL: CMR2 0x00816a80

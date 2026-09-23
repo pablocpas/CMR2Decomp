@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "Graphics.h"
 #include "Frontend.h"
 #include "FileBuffer.h"
@@ -36,6 +37,8 @@ int CGraphics::m_unk0x0065fa48;
 float CGraphics::m_oneOver128 = 1.0f / 128.0f;
 float CGraphics::m_unk0x00520b34 = 1.0f;
 float CGraphics::m_unk0x00520b38 = 1.0f;
+char CGraphics::m_ddsExtension[8] = ".DDS";
+char CGraphics::m_tgaExtension[8] = ".TGA";
 TGAImageInfo CGraphics::m_tgaImageInfo;
 int CGraphics::m_unk0x00816a80;
 int CGraphics::m_unk0x00816a84;
@@ -3444,6 +3447,99 @@ void CGraphics::FUN_004a3e40(int param1, int param2)
     m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x14, param2);
     m_unk0x00520b1c = param1;
     m_unk0x00520b20 = param2;
+}
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+Texture *FUN_004a6710(void *pTGA, Texture *pTexture);
+Texture *FUN_004a6370(void *pData, Texture *pTexture);
+
+// Creates a texture from file data already in memory (DDS or TGA).
+// TODO: CMR2 0x004a48c0 (implemented, match 82%)
+Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
+{
+    Texture *pTexture;
+    BOOL isDDS;
+    int i;
+
+    pTexture = NULL;
+    isDDS = FALSE;
+    if (*(DWORD *)pData == 0x20534444)
+        isDDS = TRUE;
+    for (i = 0; i < 0x800; i++) {
+        if (m_pTextureManager->textureBuffer[i] == NULL) {
+            m_pTextureManager->textureBuffer[i] = (Texture *)CFileBuffer::AllocateLockedBuffer(0x130);
+            pTexture = m_pTextureManager->textureBuffer[i];
+            pTexture->textureId = i;
+            FUN_004a3e20((Unk0x004a3e20 *)pTexture, 0);
+            if (pTexture == NULL)
+                return NULL;
+            m_textureCount++;
+            break;
+        }
+    }
+    if (isDDS)
+        strncpy(name + strlen(name) - 4, m_ddsExtension, 4);
+    sprintf(pTexture->name, name);
+    pTexture->flags |= flags | 0x1000;
+    if (isDDS)
+        return LoadDDSTexture((DDSFile *)pData, pTexture);
+    return FUN_004a6710(pData, pTexture);
+}
+
+// Loads a texture by file name, trying the .DDS file first and the .TGA
+// file next.
+// TODO: CMR2 0x004a49c0 (implemented, match 46%)
+Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
+{
+    Texture *pTexture;
+    void *pData;
+    BOOL isDDS;
+    char *pExtension;
+    int i;
+
+    pTexture = NULL;
+    isDDS = FALSE;
+    pExtension = name + strlen(name) - 4;
+    strncpy(pExtension, m_ddsExtension, 4);
+    pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
+    if (pData != NULL) {
+        isDDS = TRUE;
+    } else {
+        strncpy(pExtension, m_tgaExtension, 4);
+        pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
+    }
+    for (i = 0; i < 0x800; i++) {
+        if (m_pTextureManager->textureBuffer[i] == NULL) {
+            m_pTextureManager->textureBuffer[i] = (Texture *)CFileBuffer::AllocateLockedBuffer(0x130);
+            pTexture = m_pTextureManager->textureBuffer[i];
+            pTexture->textureId = i;
+            *(void **)&pTexture->field_0x12c = NULL;
+            FUN_004a3e20((Unk0x004a3e20 *)pTexture, 0);
+            if (pTexture == NULL)
+                return NULL;
+            m_textureCount++;
+            break;
+        }
+    }
+    sprintf(pTexture->name, name);
+    pTexture->flags |= flags;
+    if ((pTexture->flags & 0x20) && (g_pGraphics->field913_0x3bc & 0x10))
+        return FUN_004a6370(pData, pTexture);
+    if (isDDS)
+        return LoadDDSTexture((DDSFile *)pData, pTexture);
+    return FUN_004a6710(pData, pTexture);
+}
+
+// Not decompiled yet: TGA texture loading (0x4a6710) and 0x4a6370.
+Texture *FUN_004a6710(void *pTGA, Texture *pTexture)
+{
+    return NULL;
+}
+
+Texture *FUN_004a6370(void *pData, Texture *pTexture)
+{
+    return NULL;
 }
 
 // STUB: CMR2 0x004a3e90
