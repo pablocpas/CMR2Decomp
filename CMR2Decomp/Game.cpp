@@ -333,6 +333,12 @@ void CGame::FUN_0049c190(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTabl
 }
 // GLOBAL: CMR2 0x0082a7f0
 Unk0049c2c0 g_unk0x0082a7f0;
+
+// FUNCTION: CMR2 0x004ff440
+Unk0049c2c0 *FUN_004ff440(void)
+{
+    return &g_unk0x0082a7f0;
+}
 // GLOBAL: CMR2 0x0082a800
 Unk00817d98 g_unk0x0082a800;
 // GLOBAL: CMR2 0x0082a908
@@ -1287,4 +1293,3 @@ Unk0x005a1820 *FUN_004a1b30(BYTE index)
         return &CGame::m_unk0x005a1820[index];
     return NULL;
 }
-

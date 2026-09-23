@@ -2,6 +2,88 @@
 #include "FrontendMenus.h"
 #include "GameInfo.h"
 
+// GLOBAL: CMR2 0x00825398
+BYTE g_unk0x00825398[0x4c];
+// GLOBAL: CMR2 0x008253e4
+BYTE g_unk0x008253e4[0x98];
+// GLOBAL: CMR2 0x0082547c
+BYTE g_unk0x0082547c[0x898];
+// GLOBAL: CMR2 0x00825d14
+BYTE g_unk0x00825d14[0x258];
+// GLOBAL: CMR2 0x00825f6c
+BYTE g_unk0x00825f6c[0x1d4];
+
+// FUNCTION: CMR2 0x004f9240
+BYTE *FUN_004f9240(int row, int column)
+{
+    return g_unk0x0082547c + (column + row * 11) * 25;
+}
+
+// FUNCTION: CMR2 0x004f9260
+BYTE *FUN_004f9260(int row, int column)
+{
+    return g_unk0x00825d14 + (column + row * 3) * 25;
+}
+
+// FUNCTION: CMR2 0x004f9280
+BYTE *FUN_004f9280(int index)
+{
+    return g_unk0x00825398 + index * 25;
+}
+
+// FUNCTION: CMR2 0x004f92a0
+BYTE *FUN_004f92a0(int row, int column)
+{
+    return g_unk0x008253e4 + (column + row * 3) * 25;
+}
+
+// FUNCTION: CMR2 0x004f92c0
+BYTE *FUN_004f92c0(int index)
+{
+    return g_unk0x00825f6c + index * 25;
+}
+
+// GLOBAL: CMR2 0x00829450
+BYTE g_unk0x00829450[6][0x2f0];
+// GLOBAL: CMR2 0x0082a7c8
+unsigned short g_unk0x0082a7c8[14];
+// GLOBAL: CMR2 0x0082a7e4
+int g_unk0x0082a7e4;
+// GLOBAL: CMR2 0x0082a7e8
+int g_unk0x0082a7e8;
+// GLOBAL: CMR2 0x0082a7ec
+int g_unk0x0082a7ec;
+
+// FUNCTION: CMR2 0x004fba80
+short FUN_004fba80(void)
+{
+    return (short)g_unk0x0082a7ec;
+}
+
+// FUNCTION: CMR2 0x004fbab0
+BYTE *FUN_004fbab0(void)
+{
+    return g_unk0x00829450[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]];
+}
+
+// FUNCTION: CMR2 0x004fc060
+int FUN_004fc060(void)
+{
+    return g_unk0x0082a7e4;
+}
+
+// FUNCTION: CMR2 0x004fc610
+int FUN_004fc610(void)
+{
+    return g_unk0x0082a7e8;
+}
+
+// FUNCTION: CMR2 0x004ff420
+int FUN_004ff420(int a, int b)
+{
+    return (a * b) / 10000;
+}
+
 // GLOBAL: CMR2 0x0081b158
 Menu g_menu0x0081b158;
 // GLOBAL: CMR2 0x0081b338
