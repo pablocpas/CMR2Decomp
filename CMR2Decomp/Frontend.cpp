@@ -564,10 +564,34 @@ void CFrontend::FUN_004cf0f0(void)
 // GLOBAL: CMR2 0x00516b40
 void *g_unk0x00516b40[0x4e];
 
+// FUNCTION: CMR2 0x0040ee60
+void *CFrontend::FUN_0040ee60(int index)
+{
+    return g_unk0x00516b40[index + 0x1c];
+}
+
+// FUNCTION: CMR2 0x0040ee70
+void *CFrontend::FUN_0040ee70(int index)
+{
+    return g_unk0x00516b40[index + 0x32];
+}
+
+// FUNCTION: CMR2 0x0040ee80
+void *CFrontend::FUN_0040ee80(int index)
+{
+    return g_unk0x00516b40[index + 0x40];
+}
+
 // FUNCTION: CMR2 0x0040ee90
 void *CFrontend::FUN_0040ee90(int index)
 {
     return g_unk0x00516b40[index];
+}
+
+// FUNCTION: CMR2 0x0040eea0
+void *CFrontend::FUN_0040eea0(int index)
+{
+    return g_unk0x00516b40[index + 0x16];
 }
 
 struct Unk0x004a3e20 {

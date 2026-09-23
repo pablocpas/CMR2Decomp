@@ -16,7 +16,11 @@ public:
     static unsigned int FUN_004cfe50(void);
     static char *FUN_0040ede0(int offset);
     static char *FUN_0040ee20(int offset);
+    static void *FUN_0040ee60(int index);
+    static void *FUN_0040ee70(int index);
+    static void *FUN_0040ee80(int index);
     static void *FUN_0040ee90(int index);
+    static void *FUN_0040eea0(int index);
     static void FUN_004cf0f0(void);
     static DWORD FUN_004b7520(void);
     static unsigned int FUN_004d20d0(void);

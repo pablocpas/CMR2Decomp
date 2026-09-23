@@ -16,6 +16,63 @@ BYTE g_unk0x0052f2a9;
 
 // GLOBAL: CMR2 0x0052f2a8
 BYTE g_unk0x0052f2a8;
+// Original 9 x 30 rally lookup table; the next data begins at 0x5166b4.
+// GLOBAL: CMR2 0x0051627c
+unsigned int g_unk0x0051627c[9][30] = {
+    {
+        0, 0, 0, 1, 1, 1, 1, 2, 2, 3,
+        0, 0, 0, 1, 1, 1, 1, 2, 2, 3,
+        0, 0, 1, 1, 1, 1, 2, 2, 2, 3
+    },
+    {
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1
+    },
+    {
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 1, 1, 1, 1, 2, 3,
+        0, 0, 0, 0, 1, 1, 1, 1, 2, 4
+    },
+    {
+        0, 0, 1, 1, 2, 2, 6, 6, 7, 7,
+        0, 1, 1, 2, 2, 2, 6, 7, 7, 8,
+        1, 2, 2, 6, 7, 7, 7, 7, 8, 8
+    },
+    {
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 2,
+        0, 0, 0, 0, 0, 1, 1, 1, 2, 3,
+        0, 0, 0, 0, 0, 1, 1, 1, 2, 4
+    },
+    {
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 1, 1, 1, 1, 2, 4,
+        0, 0, 0, 0, 0, 1, 1, 2, 2, 4
+    },
+    {
+        0, 0, 1, 1, 1, 1, 1, 2, 2, 3,
+        1, 0, 1, 1, 1, 2, 2, 2, 3, 4,
+        1, 0, 1, 1, 2, 2, 2, 3, 4, 5
+    },
+    {
+        1, 1, 1, 2, 2, 2, 3, 3, 4, 4,
+        1, 2, 2, 2, 2, 3, 3, 4, 4, 5,
+        2, 2, 2, 2, 3, 3, 4, 4, 4, 5
+    },
+    {
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    }
+};
+// GLOBAL: CMR2 0x0052f1a0
+int g_unk0x0052f1a0[20];
+// GLOBAL: CMR2 0x0052f1f0
+int g_unk0x0052f1f0[20];
+// GLOBAL: CMR2 0x0052f240
+int g_unk0x0052f240[20];
+// GLOBAL: CMR2 0x0052f294
+BYTE g_unk0x0052f294[0x14];
 // GLOBAL: CMR2 0x0052f2ac
 unsigned int g_selectedRallyData = 0;
 
@@ -369,6 +426,92 @@ BOOL RallyData_FUN_00408340(void)
 BYTE g_unk0x0052f3e8[0x2000];
 // GLOBAL: CMR2 0x00531350
 BYTE g_unk0x00531350[0x1000];
+extern BYTE g_unk0x0052fa5c[];
+
+// FUNCTION: CMR2 0x004075b0
+int *RallyData_FUN_004075b0(int index)
+{
+    return &g_unk0x0052f1f0[index];
+}
+
+// FUNCTION: CMR2 0x004075c0
+int *RallyData_FUN_004075c0(int index)
+{
+    return &g_unk0x0052f240[index];
+}
+
+// FUNCTION: CMR2 0x004075d0
+BYTE *RallyData_FUN_004075d0(int index)
+{
+    return &g_unk0x0052f294[index];
+}
+
+// FUNCTION: CMR2 0x004075e0
+int *RallyData_FUN_004075e0(int index)
+{
+    return &g_unk0x0052f1a0[index];
+}
+
+// FUNCTION: CMR2 0x004075f0
+unsigned int *RallyData_FUN_004075f0(void)
+{
+    return g_unk0x0051627c[g_selectedRallyData & 0x1f];
+}
+
+// GLOBAL: CMR2 0x0052f0e0
+BYTE g_unk0x0052f0e0[4][7];
+
+// FUNCTION: CMR2 0x00407630
+BYTE *RallyData_FUN_00407630(int index)
+{
+    return g_unk0x0052f0e0[index];
+}
+
+// FUNCTION: CMR2 0x00408860
+BYTE *RallyData_FUN_00408860(int index)
+{
+    unsigned int category;
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return g_unk0x0052f3e8 + category * 0x650 + 0x620;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x00408c70
+BYTE *RallyData_FUN_00408c70(int index)
+{
+    unsigned int category;
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return g_unk0x0052fa5c + category * 0x650 + 0xc;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x00408d60
+BYTE *RallyData_FUN_00408d60(int index)
+{
+    return g_unk0x00531350 + index * 0x30;
+}
+
+// FUNCTION: CMR2 0x0040df30
+void RallyData_FUN_0040df30(void)
+{
+    BYTE zero = 0;
+    int i = 0;
+    do {
+        BYTE *p = RallyData_FUN_00407630(i);
+        i++;
+        p[4] = zero;
+        p[5] = zero;
+        p[1] = zero;
+        p[3] = zero;
+        p[2] = zero;
+        p[0] = zero;
+        p[6] = zero;
+    } while (i < 4);
+}
 
 // FUNCTION: CMR2 0x004086b0
 int RallyData_FUN_004086b0(unsigned int index)
@@ -791,6 +934,14 @@ unsigned int RallyData_FUN_00407ea0(void)
 // Neutral type for now: nothing implemented reads it yet.
 // GLOBAL: CMR2 0x00536be0
 int g_unk0x00536be0;
+// GLOBAL: CMR2 0x00536be4
+int g_unk0x00536be4;
+
+// FUNCTION: CMR2 0x0040eeb0
+int RallyData_FUN_0040eeb0(void)
+{
+    return g_unk0x00536be4;
+}
 
 // FUNCTION: CMR2 0x00411060
 int RallyData_FUN_00411060(void)
@@ -1014,4 +1165,3 @@ int RallyData_FUN_00408280(void)
 {
     return g_unk0x0052eab8;
 }
-
