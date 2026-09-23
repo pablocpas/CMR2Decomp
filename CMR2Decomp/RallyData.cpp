@@ -88,21 +88,31 @@ unsigned int g_selectedRallyData = 0;
 // GLOBAL: CMR2 0x0052f2b0
 unsigned int g_unk0x0052f2b0;
 
+// Arcade knockout table: state bits 0-2 mode, 3-5 round (1 = first round ..
+// 4 = final), 6-8, 12-15 current match, 16-19. Each match holds the two
+// driver indices (bits 0-4 and 5-9), the winner (bit 11 second, bit 12 first)
+// and the two times.
+struct KnockoutMatch {
+    unsigned int flags;
+    unsigned int time1;
+    unsigned int time2;
+};
+
+struct KnockoutTable {
+    unsigned int state;         // 0x52f2b4
+    KnockoutMatch final;        // 0x52f2b8
+    KnockoutMatch semis[2];     // 0x52f2c4
+    KnockoutMatch quarters[4];  // 0x52f2dc
+    KnockoutMatch round1[16];   // 0x52f30c
+};
+
 // GLOBAL: CMR2 0x0052f2b4
-unsigned int g_unk0x0052f2b4;
-// GLOBAL: CMR2 0x0052f2b8
-unsigned int g_unk0x0052f2b8;
-// GLOBAL: CMR2 0x0052f2c4
-unsigned int g_unk0x0052f2c4[6];
-// GLOBAL: CMR2 0x0052f2dc
-unsigned int g_unk0x0052f2dc[12];
-// GLOBAL: CMR2 0x0052f30c
-unsigned int g_unk0x0052f30c[48];
+KnockoutTable g_knockout;
 
 // FUNCTION: CMR2 0x00407820
 unsigned int *RallyData_GetChampionshipState(void)
 {
-    return &g_unk0x0052f2b4;
+    return &g_knockout.state;
 }
 
 // Decodes the two 5-bit driver indices of the current round; which table
@@ -110,22 +120,69 @@ unsigned int *RallyData_GetChampionshipState(void)
 // FUNCTION: CMR2 0x00407830
 void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond)
 {
-    switch ((g_unk0x0052f2b4 >> 3) & 7) {
+    switch ((g_knockout.state >> 3) & 7) {
     case 1:
-        *pFirst = g_unk0x0052f30c[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
-        *pSecond = (g_unk0x0052f30c[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        *pFirst = g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags & 0x1f;
+        *pSecond = (g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags >> 5) & 0x1f;
         break;
     case 2:
-        *pFirst = g_unk0x0052f2dc[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
-        *pSecond = (g_unk0x0052f2dc[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        *pFirst = g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags & 0x1f;
+        *pSecond = (g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags >> 5) & 0x1f;
         break;
     case 3:
-        *pFirst = g_unk0x0052f2c4[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] & 0x1f;
-        *pSecond = (g_unk0x0052f2c4[((g_unk0x0052f2b4 >> 0xc) & 0xf) * 3] >> 5) & 0x1f;
+        *pFirst = g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags & 0x1f;
+        *pSecond = (g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags >> 5) & 0x1f;
         break;
     case 4:
-        *pFirst = g_unk0x0052f2b8 & 0x1f;
-        *pSecond = (g_unk0x0052f2b8 >> 5) & 0x1f;
+        *pFirst = g_knockout.final.flags & 0x1f;
+        *pSecond = (g_knockout.final.flags >> 5) & 0x1f;
+        break;
+    }
+}
+
+// Stores the two times of the current round of the knockout table and marks
+// the winner (bit 11: second driver faster, bit 12: first driver faster).
+// FUNCTION: CMR2 0x00407940
+void FUN_00407940(unsigned int first, unsigned int second)
+{
+    switch ((g_knockout.state >> 3) & 7) {
+    case 1:
+        g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].time1 = first;
+        g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].time2 = second;
+        if (second > first)
+            g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags & 0xffffefff) | 0x800;
+        else
+            g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.round1[(g_knockout.state >> 0xc) & 0xf].flags & 0xfffff7ff) | 0x1000;
+        break;
+    case 2:
+        g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].time1 = first;
+        g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].time2 = second;
+        if (second > first)
+            g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags & 0xffffefff) | 0x800;
+        else
+            g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.quarters[(g_knockout.state >> 0xc) & 0xf].flags & 0xfffff7ff) | 0x1000;
+        break;
+    case 3:
+        g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].time1 = first;
+        g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].time2 = second;
+        if (second > first)
+            g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags & 0xffffefff) | 0x800;
+        else
+            g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags =
+                (g_knockout.semis[(g_knockout.state >> 0xc) & 0xf].flags & 0xfffff7ff) | 0x1000;
+        break;
+    case 4:
+        g_knockout.final.time1 = first;
+        g_knockout.final.time2 = second;
+        if (second > first)
+            g_knockout.final.flags = (g_knockout.final.flags & 0xffffefff) | 0x800;
+        else
+            g_knockout.final.flags = (g_knockout.final.flags & 0xfffff7ff) | 0x1000;
         break;
     }
 }
@@ -223,7 +280,7 @@ unsigned int RallyData_FUN_00406990(void)
 // FUNCTION: CMR2 0x004069b0
 unsigned int RallyData_FUN_004069b0(void)
 {
-    return g_unk0x0052f2b4 & 7;
+    return g_knockout.state & 7;
 }
 
 // FUNCTION: CMR2 0x004069a0
@@ -287,7 +344,7 @@ void RallyData_UpdateFlags(void)
 void RallyData_ResetSelection(void)
 {
 	g_selectedRallyData = (g_selectedRallyData & 0xfff3c000) | 0x30000;
-	g_unk0x0052f2b4 = (g_unk0x0052f2b4 & 0xfff802cc) | 0x802cc;
+	g_knockout.state = (g_knockout.state & 0xfff802cc) | 0x802cc;
 	g_unk0x0052f2b0 &= 0xfffffff8;
 }
 
@@ -312,19 +369,19 @@ void RallyData_FUN_0040d640(BYTE param1)
 // FUNCTION: CMR2 0x0040d660
 void RallyData_FUN_0040d660(BYTE param1)
 {
-	g_unk0x0052f2b4 = (param1 & 7) | (g_unk0x0052f2b4 & 0xfffffff8U);
+	g_knockout.state = (param1 & 7) | (g_knockout.state & 0xfffffff8U);
 }
 
 // FUNCTION: CMR2 0x0040d680
 void RallyData_FUN_0040d680(BYTE param1)
 {
-	g_unk0x0052f2b4 = ((param1 & 7) << 6) | (g_unk0x0052f2b4 & 0xfffffe3fU);
+	g_knockout.state = ((param1 & 7) << 6) | (g_knockout.state & 0xfffffe3fU);
 }
 
 // FUNCTION: CMR2 0x0040d6a0
 void RallyData_FUN_0040d6a0(BYTE param1)
 {
-	g_unk0x0052f2b4 = ((param1 & 0xf) << 16) | (g_unk0x0052f2b4 & 0xfff0ffffU);
+	g_knockout.state = ((param1 & 0xf) << 16) | (g_knockout.state & 0xfff0ffffU);
 }
 
 // GLOBAL: CMR2 0x0051682c
@@ -1555,7 +1612,7 @@ void RallyData_FUN_004070c0(void)
 // FUNCTION: CMR2 0x004070e0
 unsigned int RallyData_FUN_004070e0(void)
 {
-    return g_unk0x0052f2b4 >> 16 & 0xf;
+    return g_knockout.state >> 16 & 0xf;
 }
 
 // FUNCTION: CMR2 0x00407500
