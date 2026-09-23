@@ -40,6 +40,8 @@ extern int g_unk0x00540c60;
 extern int g_unk0x0053e698;
 extern char g_classRowHeaderFormat[];
 BYTE FUN_00407fc0(int param1);
+int FUN_004483c0(int index);
+void FUN_00451890(Menu *pMenu);
 
 // GLOBAL: CMR2 0x0053e2d8
 Menu g_menu0x0053e2d8;
@@ -468,9 +470,296 @@ void FUN_0044bc30(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
-// STUB: CMR2 0x0044bcd0
+unsigned int FUN_00448680(int index, int split);
+int GetStageSplitCount(void);
+extern char g_minSecMSECFormatString[];
+
+// Split times of the two drivers of the current arcade knockout match, side
+// by side: name, split times, total.
+// TODO: CMR2 0x0044cdb0 (implemented, match 89%)
+void FUN_0044cdb0(void)
+{
+    char names[2][20];
+    char *pName;
+    int car;
+    int x;
+    int split;
+    int time;
+
+    if (RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f) == -1 &&
+        RallyData_FUN_00408500((g_pKnockoutMatch->flags >> 5) & 0x1f) == -1) {
+        sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
+        pName = (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f));
+    } else if (RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f) == -1) {
+        sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
+        pName = CAIHelper::GetNameForID(RallyData_FUN_00408500((g_pKnockoutMatch->flags >> 5) & 0x1f));
+    } else {
+        sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f)));
+        pName = CAIHelper::GetNameForID(RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f));
+    }
+    sprintf(names[1], pName);
+    for (car = 0; car < 2; car++) {
+        x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+        Font_DrawText(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x9b), names[car]);
+        Font_DrawText(1, CFrontend::m_stringDest, x,
+                      (int)(g_pGraphics->resY * 0xe6) / 480 - (int)(g_pGraphics->resY * 0x1e) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
+                      (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
+                          (int)(GetStageSplitCount() * g_pGraphics->resY * 0x1e) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        x = (int)(g_pGraphics->resX * 0xb1) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+        for (split = 0; split < GetStageSplitCount(); split++) {
+            FormatCentisecondsAsMinSecMSec(FUN_00448680(car, split + 1) - FUN_00448680(car, split),
+                                           CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 0xe6) / 480 + ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                          (int *)g_menuFrameColour, 0x11);
+        }
+        time = FUN_004483c0(car);
+        sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, FUN_004483c0(car) / 6000,
+                (FUN_004483c0(car) / 100) % 60, time % 100);
+        Font_DrawText(1, CFrontend::m_stringDest, x,
+                      (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
+                          ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                      (int *)g_menuFrameColour, 0x11);
+    }
+}
+
+int FUN_00405610(void);
+int FUN_00427660(void);
+int FUN_00427670(void);
+int FUN_004481f0(int car, int index);
+unsigned int RallyData_FUN_00406950(void);
+unsigned int RallyData_FUN_00406990(void);
+extern BYTE g_menuTextColour[4];
+extern char g_noTimeText[];
+
+// GLOBAL: CMR2 0x00519f48
+char g_recordNameFormat[] = "%s, ";
+// GLOBAL: CMR2 0x00519f50
+char g_recordHeaderFormat[] = "%s,  ";
+
+// Name of the ghost car (arcade record holder) shown in the time trial table.
+// GLOBAL: CMR2 0x00519ee0
+char g_ghostName[4] = "cps";
+// Split times of the ghost car.
+// GLOBAL: CMR2 0x00541ab8
+int g_ghostSplits[11];
+
+// Draw callback of the split times screen: the country flag in the corner,
+// then per car the name, the time of every split and the total; in arcade
+// mode the record holder and record time head the list, in the knockout mode
+// FUN_0044cdb0 draws the two drivers of the match.
+// TODO: CMR2 0x0044bcd0 (implemented, match 68%)
 void FUN_0044bcd0(Menu *pMenu)
 {
+    short rect[4];
+    Texture *pFlag;
+    GameInfo0xa4 *pInfo;
+    BYTE *pColour;
+    BOOL isGhost;
+    char *pName;
+    int yAdjust;
+    int header;
+    int count;
+    int car;
+    int x;
+    int width;
+    int yOffset;
+    int split;
+    int total;
+    int base;
+
+    yAdjust = 0;
+    header = 0;
+    FUN_0044b760();
+    if (FUN_00405610()) {
+        rect[2] = ((Texture *)FUN_00405610())->width;
+        rect[3] = ((Texture *)FUN_00405610())->height;
+        rect[0] = (short)((int)(g_pGraphics->resX * 0x234) / 640 - rect[2] / 2);
+        rect[1] = (short)((int)(g_pGraphics->resY * 0x30) / 480 - rect[3] / 2);
+        pFlag = (Texture *)FUN_00405610();
+        Sprite_Queue((SpriteRect *)((BYTE *)FUN_00405610() + 0x11c), (SpriteRect *)rect, pFlag, 2, 0, NULL, NULL,
+                     g_menuFrameColour, 8);
+    }
+    if (CGameInfo::FUN_00405d80() == 4) {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(0x48), 0);
+        FUN_0044cdb0();
+        Font_SetBlendMode(2);
+        return;
+    }
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 7 ||
+        CGameInfo::FUN_00405d80() == 11) {
+        FUN_00451890(pMenu);
+        x = (int)(g_pGraphics->resX * 30) / 640;
+        sprintf(CFrontend::m_stringDest, g_recordHeaderFormat, CFrontend::GetTextString(0x6d));
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, x,
+                      (int)(g_pGraphics->resY * 0x91) / 480 - (int)(g_pGraphics->resY * 0x32) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        pInfo = CGameInfo::FUN_00405fe0();
+        sprintf(CFrontend::m_stringDest, g_recordNameFormat,
+                pInfo->arcadeRecordTimes[(RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)].ident);
+        Font_DrawText(0, CFrontend::m_stringDest, x,
+                      (int)(g_pGraphics->resY * 0x91) / 480 - (int)(g_pGraphics->resY * 0x32) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        pInfo = CGameInfo::FUN_00405fe0();
+        FormatCentisecondsAsMinSecMSec(
+            (pInfo->arcadeRecordTimes[(RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)].value >>
+             7) & 0xffff,
+            CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, x + width,
+                      (int)(g_pGraphics->resY * 0x91) / 480 - (int)(g_pGraphics->resY * 0x32) / 480,
+                      (int *)g_menuFrameColour, 0x11);
+        yOffset = (10 - (RallyData_FUN_00406990() & 0xff)) * ((int)(g_pGraphics->resY * 10) / 480) -
+                  (int)(g_pGraphics->resY * 0x12) / 480;
+        if ((BYTE)RallyData_FUN_00406990() == 10)
+            yOffset += (int)(g_pGraphics->resY * -10) / 480;
+        for (car = 0; car < (int)(RallyDataState() & 0xff); car++) {
+            x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+            if ((BYTE)RallyData_FUN_00406990() != 10)
+                Font_DrawText(1, CFrontend::GetTextString(0xac), x, (int)(g_pGraphics->resY * 0x91) / 480 + yOffset,
+                              (int *)g_menuFrameColour, 0x11);
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x9b),
+                    (char *)RallyData_GetRecord(FUN_0041b370() + car));
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 0x1e) / 480 + yOffset + (int)(g_pGraphics->resY * 0x91) / 480,
+                          (int *)g_menuFrameColour, 0x11);
+            Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
+                          (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                              ((RallyData_FUN_00406990() & 0xff) + 1) * ((int)(g_pGraphics->resY * 0x1e) / 480),
+                          (int *)g_menuFrameColour, 0x11);
+            total = 0;
+            x = (int)(g_pGraphics->resX * 0xb1) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+            if (!CGameInfo::FUN_00405e00()) {
+                for (split = 1; split < (int)(RallyData_FUN_00406990() & 0xff) + 1; split++) {
+                    FormatCentisecondsAsMinSecMSec(FUN_004481f0(car, split), CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::m_stringDest, x,
+                                  (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                  (int *)g_menuFrameColour, 0x11);
+                    total += FUN_004481f0(car, split);
+                }
+            } else {
+                for (split = 1; split <= FUN_00427670(); split++) {
+                    FormatCentisecondsAsMinSecMSec(FUN_004481f0(0, split), CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::m_stringDest, x,
+                                  (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                  (int *)g_menuFrameColour, 0x11);
+                }
+                for (split = FUN_00427670() + 1; split < (int)(RallyData_FUN_00406990() & 0xff) + 1; split++) {
+                    if (split > 0) {
+                        sprintf(CFrontend::m_stringDest, g_noTimeText);
+                        Font_DrawText(1, CFrontend::m_stringDest, x,
+                                      (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                                          ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                      (int *)g_menuFrameColour, 0x11);
+                    }
+                }
+                total = FUN_004483c0(0);
+            }
+            FormatCentisecondsAsMinSecMSec(total, CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                              ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                          (int *)g_menuFrameColour, 0x11);
+        }
+    } else {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(0x48), 0);
+        count = 2;
+        if (CGameInfo::FUN_00405e00())
+            count = 1;
+        for (car = 0; car < count; car++) {
+            if ((BYTE)RallyDataState() == 1 && car == 1) {
+                pColour = g_menuTextColour;
+                isGhost = TRUE;
+            } else {
+                pColour = g_menuFrameColour;
+                isGhost = FALSE;
+            }
+            x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+            if (GetStageSplitCount() == 2) {
+                yAdjust = (int)(g_pGraphics->resY * -0x1e) / 480;
+                header = (int)(g_pGraphics->resY * 0xe6) / 480 - (int)(g_pGraphics->resY * 0x91) / 480;
+            }
+            if (isGhost) {
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x6d));
+                CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+                base = CGameInfo::FUN_00405d80() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
+                Font_DrawText(1, CFrontend::m_stringDest, x, base / 480 + header + yAdjust, (int *)pColour, 0x11);
+                pName = g_ghostName;
+            } else {
+                base = CGameInfo::FUN_00405d80() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
+                Font_DrawText(1, CFrontend::GetTextString(0x89), x, base / 480 + header + yAdjust, (int *)pColour, 0x11);
+                pName = (char *)RallyData_GetRecord(FUN_0041b370() + car);
+            }
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x9b), pName);
+            base = CGameInfo::FUN_00405d80() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 0x1e) / 480 + base / 480 + header + yAdjust, (int *)pColour, 0x11);
+            base = CGameInfo::FUN_00405d80() == 4 ? g_pGraphics->resY * 0xe6 : g_pGraphics->resY * 0x91;
+            Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
+                          (int)(g_pGraphics->resY * 0x19) / 480 + base / 480 +
+                              (int)(GetStageSplitCount() * g_pGraphics->resY * 0x1e) / 480 + header,
+                          (int *)pColour, 0x11);
+            x = (int)(g_pGraphics->resX * 0xb1) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
+            if (!CGameInfo::FUN_00405e00() || isGhost) {
+                for (split = 0; split < GetStageSplitCount(); split++) {
+                    if (isGhost)
+                        total = g_ghostSplits[split + 1] - g_ghostSplits[split];
+                    else
+                        total = FUN_00448680(car, split + 1) - FUN_00448680(car, split);
+                    FormatCentisecondsAsMinSecMSec(total, CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::m_stringDest, x,
+                                  (int)(g_pGraphics->resY * 0x91) / 480 + header +
+                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                  (int *)pColour, 0x11);
+                }
+                if (isGhost) {
+                    sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString,
+                            g_ghostSplits[GetStageSplitCount()] / 6000,
+                            (g_ghostSplits[GetStageSplitCount()] / 100) % 60, g_ghostSplits[GetStageSplitCount()] % 100);
+                    goto draw_total;
+                }
+            } else {
+                for (split = 0; split < FUN_00427660(); split++) {
+                    FormatCentisecondsAsMinSecMSec(FUN_00448680(car, split + 1) - FUN_00448680(car, split),
+                                                   CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::m_stringDest, x,
+                                  (int)(g_pGraphics->resY * 0x91) / 480 + header +
+                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                  (int *)pColour, 0x11);
+                }
+                for (split = FUN_00427660(); split < GetStageSplitCount(); split++) {
+                    if (split > -1) {
+                        sprintf(CFrontend::m_stringDest, g_noTimeText);
+                        Font_DrawText(1, CFrontend::m_stringDest, x,
+                                      (int)(g_pGraphics->resY * 0x91) / 480 + header +
+                                          ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                      (int *)pColour, 0x11);
+                    }
+                }
+            }
+            sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, FUN_004483c0(car) / 6000,
+                    (FUN_004483c0(car) / 100) % 60, FUN_004483c0(car) % 100);
+        draw_total:
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0x91) / 480 + header +
+                              ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                          (int *)pColour, 0x11);
+        }
+    }
+    Font_SetBlendMode(2);
 }
 
 char FUN_00420190(void);
@@ -736,6 +1025,8 @@ void FUN_0044e130(Menu *pMenu)
 
 void GameMenus_DrawRowHighlight(short row);
 BYTE FUN_00407fc0(int param1);
+int FUN_004483c0(int index);
+void FUN_00451890(Menu *pMenu);
 void GameMenus_DrawRowSeparator(short row);
 extern int g_unk0x00540c60;
 extern int g_unk0x0053e698;
@@ -1266,8 +1557,11 @@ extern char g_stageNumberFormat[];
 extern char g_stageResultSameTime[];
 int FUN_0040ce40(int position);
 int FUN_004483c0(int index);
+void FUN_00451890(Menu *pMenu);
 int FUN_00448c60(int index);
 BYTE FUN_00407fc0(int param1);
+int FUN_004483c0(int index);
+void FUN_00451890(Menu *pMenu);
 void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime);
 void GameMenus_DrawRowFrame(short row, short yOffset, char compact);
 void FUN_00451890(Menu *pMenu);
