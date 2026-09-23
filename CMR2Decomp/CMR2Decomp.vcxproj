@@ -132,6 +132,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ZlibAdler32.cpp" />
+    <ClCompile Include="ZlibCrc32.cpp" />
+    <ClCompile Include="ZlibDeflate.cpp" />
+    <ClCompile Include="ZlibGzio.cpp" />
+    <ClCompile Include="ZlibInfblock.cpp" />
+    <ClCompile Include="ZlibInfcodes.cpp" />
+    <ClCompile Include="ZlibInffast.cpp" />
+    <ClCompile Include="ZlibInflate.cpp" />
+    <ClCompile Include="ZlibInftrees.cpp" />
+    <ClCompile Include="ZlibInfutil.cpp" />
+    <ClCompile Include="ZlibTrees.cpp" />
+    <ClCompile Include="ZlibZutil.cpp" />
     <ClCompile Include="AIHelper.cpp" />
     <ClCompile Include="Car.cpp" />
     <ClCompile Include="FileBuffer.cpp" />
@@ -168,6 +180,17 @@
     <ClCompile Include="TimingUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="zlib\zlib.h" />
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zutil.h" />
+    <ClInclude Include="zlib\deflate.h" />
+    <ClInclude Include="zlib\infblock.h" />
+    <ClInclude Include="zlib\infcodes.h" />
+    <ClInclude Include="zlib\inffast.h" />
+    <ClInclude Include="zlib\inftrees.h" />
+    <ClInclude Include="zlib\infutil.h" />
+    <ClInclude Include="zlib\inffixed.h" />
+    <ClInclude Include="zlib\trees.h" />
     <ClInclude Include="AIHelper.h" />
     <ClInclude Include="BFL.h" />
     <ClInclude Include="FileBuffer.h" />

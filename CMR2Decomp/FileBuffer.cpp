@@ -6,15 +6,11 @@
 #include "BFL.h"
 
 #include <stdio.h>
+#include "zlib/zlib.h"
 
-char CFileBuffer::m_unk0x00520f1c[4]; // seems to be an fopen param? "rb"
+char CFileBuffer::m_unk0x00520f1c[4] = "rb"; // gzopen mode
 int CFileBuffer::m_unk0x0066461c;
 int CFileBuffer::m_unk0x00664620;
-
-unsigned int FUN_004bec70(void *param1)
-{
-    return -2;
-}
 
 // FUNCTION: CMR2 0x004aad70
 void *CFileBuffer::AllocateLockedBuffer(size_t iSize)
@@ -64,7 +60,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
     bIsBFL = FALSE;
     sprintf(_fileName, fileName);
 
-    unk0x004bdee0 = FUN_004bdee0(_fileName, m_unk0x00520f1c);
+    unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
     if (!unk0x004bdee0)
     {
         if (!isLocalFile)
@@ -82,7 +78,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
                     do
                     {
                         if (CInstallInfo::ShowNoCDErrorMessage())
-                            unk0x004bdee0 = FUN_004bdee0(_fileName, m_unk0x00520f1c);
+                            unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
                     } while (!unk0x004bdee0);
 
                     ShowCursor(FALSE);
@@ -108,7 +104,7 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
         return GetGenericFileBuffer(fileName, isLocalFile);
 
     // check if its a BFL
-    iHeaderSize = FUN_004be660(unk0x004bdee0, &pFileHeaderOut, 8);
+    iHeaderSize = gzread(unk0x004bdee0, &pFileHeaderOut, 8);
     if (iHeaderSize == 8U && pFileHeaderOut.ident[0] == 0x43 && pFileHeaderOut.ident[1] == 0x4d && pFileHeaderOut.ident[2] == 0x50 && pFileHeaderOut.ident[3] == 0x52)
     {
         if (pFileHeaderOut.archiveSize == INVALID_FILE_SIZE)
@@ -116,11 +112,11 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
 
         lpBuffer = AllocateLockedBuffer(pFileHeaderOut.archiveSize);
         CGenericFileLoader::m_fileSize = pFileHeaderOut.archiveSize;
-        FUN_004be660(unk0x004bdee0, lpBuffer, pFileHeaderOut.archiveSize);
+        gzread(unk0x004bdee0, lpBuffer, pFileHeaderOut.archiveSize);
         bIsBFL = true;
     }
 
-    FUN_004bec70(unk0x004bdee0);
+    gzclose(unk0x004bdee0);
 
     if (!bIsBFL)
     {
@@ -158,19 +154,6 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
     }
 
     return lpBuffer;
-}
-
-// STUB: CMR2 0x004bdee0
-void *CFileBuffer::FUN_004bdee0(char *fileName, char *param_2)
-{
-    // todo: implement
-    return 0;
-}
-
-// STUB: CMR2 0x004be660
-size_t CFileBuffer::FUN_004be660(void *param_1, void *param_2, size_t param_3)
-{
-    return NULL;
 }
 
 // FUNCTION: CMR2 0x004aade0

@@ -12,15 +12,11 @@ public:
     static void *GetGenericFileBuffer(char *fileName, BOOL param2);
     static void FreeGenericFileBuffer(void *buffer);
 
-    // unknowns
-    static void *FUN_004bdee0(char *fileName, char *param_2);
-    static size_t FUN_004be660(void *param_1, void *param_2, size_t param_3);
-
-    // CMR2: GLOBAL 0x00520f1c
+    // GLOBAL: CMR2 0x00520f1c
     static char m_unk0x00520f1c[4];
-    // CMR2: GLOBAL 0x0066461c
+    // GLOBAL: CMR2 0x0066461c
     static int m_unk0x0066461c;
-    // CMR2: GLOBAL 0x00664620
+    // GLOBAL: CMR2 0x00664620
     static int m_unk0x00664620;
 };
 
