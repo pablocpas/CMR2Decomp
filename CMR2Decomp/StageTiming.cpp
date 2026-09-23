@@ -368,25 +368,214 @@ bool FUN_00456b70(void)
     return true;
 }
 
-// GLOBAL: CMR2 0x0053d1da
-BYTE g_unk0x0053d1da[0x100];
+// Stage timing of one car, 0x88 bytes
+struct CarStageTiming {
+    int startTime;          // 0x00
+    int field_0x4[9];       // 0x04
+    int splits[9];          // 0x28
+    int splitTimes[12];     // 0x4c
+    int lastTime;           // 0x7c
+    char field_0x80;        // 0x80
+    char field_0x81;        // 0x81
+    char field_0x82;        // 0x82
+    BYTE field_0x83;        // 0x83
+    BYTE field_0x84;        // 0x84
+    BYTE pad_0x85[3];
+};
+
+// GLOBAL: CMR2 0x0053d1a0
+short g_unk0x0053d1a0;
+// GLOBAL: CMR2 0x0053d1a2
+short g_unk0x0053d1a2;
+// GLOBAL: CMR2 0x0053d1a4
+char g_unk0x0053d1a4[2];
+// GLOBAL: CMR2 0x0053d1a6
+BYTE g_unk0x0053d1a6;
+// GLOBAL: CMR2 0x0053d1a7
+BYTE g_unk0x0053d1a7;
+// GLOBAL: CMR2 0x0053d1a8
+char g_unk0x0053d1a8;
 // GLOBAL: CMR2 0x0053d1b0
 int g_unk0x0053d1b0;
-// GLOBAL: CMR2 0x0053e190
-int g_unk0x0053e190[0x400];
+// GLOBAL: CMR2 0x0053d1b4
+int g_unk0x0053d1b4;
 // GLOBAL: CMR2 0x0053d1b8
-int g_unk0x0053d1b8[0x100];
+int g_unk0x0053d1b8[8];
+// GLOBAL: CMR2 0x0053d1d8
+BYTE g_unk0x0053d1d8;
+// GLOBAL: CMR2 0x0053d1da
+BYTE g_unk0x0053d1da[8];
+// GLOBAL: CMR2 0x0053d968
+CarStageTiming g_carStageTiming[8];
+// GLOBAL: CMR2 0x0053dda8
+char g_unk0x0053dda8[8];
+// GLOBAL: CMR2 0x0053e17c
+char g_unk0x0053e17c[8];
+// GLOBAL: CMR2 0x0053e184
+char g_unk0x0053e184[8];
 // GLOBAL: CMR2 0x0053e18c
 BYTE g_unk0x0053e18c;
+// GLOBAL: CMR2 0x0053e18d
+BYTE g_unk0x0053e18d[2];
+// GLOBAL: CMR2 0x0053e18f
+BYTE g_unk0x0053e18f;
+// GLOBAL: CMR2 0x0053e190
+int g_unk0x0053e190[0x400];
 
-// TODO: CMR2 0x00448630 (implemented, match below 90%)
+// FUNCTION: CMR2 0x00448100
+void FUN_00448100(void)
+{
+    g_unk0x0053d1b4 = 0;
+    g_unk0x0053d1b0 = 0;
+}
+
+// FUNCTION: CMR2 0x00448110
+int FUN_00448110(void)
+{
+    return g_unk0x0053d1b0;
+}
+
+// FUNCTION: CMR2 0x004481b0
+BYTE FUN_004481b0(void)
+{
+    return g_unk0x0053d1d8;
+}
+
+// FUNCTION: CMR2 0x004481c0
+int FUN_004481c0(int car)
+{
+    return g_carStageTiming[car].field_0x81;
+}
+
+// FUNCTION: CMR2 0x004481e0
+int FUN_004481e0(int index)
+{
+    return g_unk0x0053dda8[index];
+}
+
+// FUNCTION: CMR2 0x004481f0
+int FUN_004481f0(int car, int index)
+{
+    return g_carStageTiming[car].splitTimes[index];
+}
+
+// FUNCTION: CMR2 0x00448210
+int FUN_00448210(int car)
+{
+    int time = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
+    if (time >= 360000)
+        time = 359999;
+    return time;
+}
+
+// FUNCTION: CMR2 0x00448240
+int FUN_00448240(int car, int index)
+{
+    return g_carStageTiming[car].splits[index];
+}
+
+// FUNCTION: CMR2 0x00448330
+int FUN_00448330(int car)
+{
+    return g_carStageTiming[car].field_0x82;
+}
+
+// FUNCTION: CMR2 0x00448350
+int FUN_00448350(int car)
+{
+    return g_carStageTiming[car].field_0x80;
+}
+
+// FUNCTION: CMR2 0x00448370
+BYTE FUN_00448370(int car)
+{
+    return g_carStageTiming[car].field_0x83;
+}
+
+// FUNCTION: CMR2 0x00448390
+int FUN_00448390(int index)
+{
+    if (index >= 0 && index < 8)
+        return g_unk0x0053e17c[index];
+    return -1;
+}
+
+// FUNCTION: CMR2 0x004483b0
+int FUN_004483b0(int index)
+{
+    return g_unk0x0053e184[index];
+}
+
+// FUNCTION: CMR2 0x00448670
+int FUN_00448670(void)
+{
+    return (char)g_unk0x0053e18c;
+}
+
+// FUNCTION: CMR2 0x00448780
+void FUN_00448780(int car)
+{
+    g_carStageTiming[car].startTime = g_unk0x0053d1b0;
+}
+
+// FUNCTION: CMR2 0x00448c60
+int FUN_00448c60(int index)
+{
+    return g_unk0x0053d1a4[index];
+}
+
+// FUNCTION: CMR2 0x00448c70
+int FUN_00448c70(void)
+{
+    return g_unk0x0053d1a2;
+}
+
+// FUNCTION: CMR2 0x00448c80
+int FUN_00448c80(void)
+{
+    return g_unk0x0053d1a8;
+}
+
+// FUNCTION: CMR2 0x00448c90
+BYTE FUN_00448c90(void)
+{
+    return g_unk0x0053d1a6;
+}
+
+// FUNCTION: CMR2 0x00448ca0
+BYTE FUN_00448ca0(void)
+{
+    return g_unk0x0053d1a7;
+}
+
+// FUNCTION: CMR2 0x00448cb0
+BYTE FUN_00448cb0(int index)
+{
+    return g_unk0x0053e18d[index];
+}
+
+// FUNCTION: CMR2 0x00448cc0
+BYTE FUN_00448cc0(void)
+{
+    return g_unk0x0053e18f;
+}
+
+// FUNCTION: CMR2 0x00448cd0
+BYTE FUN_00448cd0(int car)
+{
+    return g_carStageTiming[car].field_0x84;
+}
+
+// TODO: CMR2 0x00448630 (implemented, match 50%)
 void FUN_00448630(int index)
 {
     int value;
+    int split;
 
     g_unk0x0053d1da[index] = 1;
+    split = GetStageSplitCount();
     value = g_unk0x0053d1b0;
-    g_unk0x0053e190[GetStageSplitCount() + index * 9] = value;
+    g_unk0x0053e190[split + index * 9] = value;
     g_unk0x0053d1b8[index] = value + 0x4650;
     g_unk0x0053e18c++;
 }
