@@ -371,6 +371,33 @@ void CGame::FUN_004083e0(BYTE param1)
     m_unk0x00531768 = param1;
 }
 
+// GLOBAL: CMR2 0x0052ea50
+BYTE g_unk0x0052ea50;
+
+// FUNCTION: CMR2 0x004067b0
+BYTE FUN_004067b0(void)
+{
+    return g_unk0x0052ea50;
+}
+
+// FUNCTION: CMR2 0x004067c0
+void FUN_004067c0(BYTE param1)
+{
+    g_unk0x0052ea50 = param1;
+}
+
+// FUNCTION: CMR2 0x004067d0
+void FUN_004067d0(void)
+{
+    CGame::m_unk0x0052ea58 = 1;
+}
+
+// FUNCTION: CMR2 0x00406800
+BYTE FUN_00406800(void)
+{
+    return CGame::m_unk0x0052ea59;
+}
+
 // FUNCTION: CMR2 0x00406810
 void CGame::FUN_00406810(BYTE param1)
 
@@ -379,7 +406,7 @@ void CGame::FUN_00406810(BYTE param1)
     return;
 }
 
-// FUNCTION CMR2 0x004067e0
+// FUNCTION: CMR2 0x004067e0
 bool CGame::FUN_004067e0(void)
 {
     if (m_unk0x0052ea58 != 0)

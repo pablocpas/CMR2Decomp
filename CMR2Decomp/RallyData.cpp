@@ -12,6 +12,8 @@
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
 
+// GLOBAL: CMR2 0x0052f2a8
+BYTE g_unk0x0052f2a8;
 // GLOBAL: CMR2 0x0052f2ac
 unsigned int g_selectedRallyData = 0;
 
@@ -88,6 +90,12 @@ unsigned int RallyDataCountryIndex(void)
 	return g_selectedRallyData & 0x1f;
 }
 
+// FUNCTION: CMR2 0x00406920
+BYTE RallyData_FUN_00406920(void)
+{
+    return g_unk0x0052f2a8;
+}
+
 // FUNCTION: CMR2 0x00406930
 unsigned char RallyDataStageIndex(void)
 {
@@ -135,6 +143,12 @@ unsigned int RallyData_FUN_00406950(void)
 unsigned int RallyData_FUN_00406990(void)
 {
 	return g_selectedRallyData >> 16 & 0xf;
+}
+
+// FUNCTION: CMR2 0x004069b0
+unsigned int RallyData_FUN_004069b0(void)
+{
+    return g_unk0x0052f2b4 & 7;
 }
 
 // FUNCTION: CMR2 0x004069a0
@@ -261,6 +275,12 @@ void RallyData_FUN_00406960(BYTE param1)
 {
     g_selectedRallyData = (g_selectedRallyData & 0xffffcfffU) | ((param1 & 3) << 12);
     RallyData_UpdateFlags();
+}
+
+// FUNCTION: CMR2 0x004068d0
+void RallyData_FUN_004068d0(BYTE param1)
+{
+    g_unk0x0052f2a8 = param1;
 }
 
 // FUNCTION: CMR2 0x004068e0

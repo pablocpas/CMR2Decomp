@@ -1127,6 +1127,48 @@ int FUN_00406730(void)
     return CGameInfo::m_gameInfo.field_0x3984;
 }
 
+// FUNCTION: CMR2 0x00406720
+void FUN_00406720(int param1)
+{
+    CGameInfo::m_gameInfo.field_0x397c = param1;
+}
+
+// FUNCTION: CMR2 0x00406740
+void FUN_00406740(int param1)
+{
+    CGameInfo::m_gameInfo.field_0x3984 = param1;
+}
+
+// FUNCTION: CMR2 0x00406750
+int FUN_00406750(void)
+{
+    return CGameInfo::m_gameInfo.field_0x3988;
+}
+
+// FUNCTION: CMR2 0x00406760
+void FUN_00406760(int param1)
+{
+    CGameInfo::m_gameInfo.field_0x3988 = param1;
+}
+
+// FUNCTION: CMR2 0x00406770
+int FUN_00406770(void)
+{
+    return CGameInfo::m_gameInfo.field_0x398c;
+}
+
+// FUNCTION: CMR2 0x00406790
+int FUN_00406790(void)
+{
+    return CGameInfo::m_gameInfo.field_0x3990;
+}
+
+// FUNCTION: CMR2 0x004067a0
+void FUN_004067a0(int param1)
+{
+    CGameInfo::m_gameInfo.field_0x3990 = param1;
+}
+
 // FUNCTION: CMR2 0x00406780
 void FUN_00406780(int param1)
 {
