@@ -1,6 +1,9 @@
 #include <windows.h>
 #include <string.h>
 #include "NetPlayers.h"
+#include "GameInfo.h"
+#include "RallyData.h"
+#include "FixedPoint.h"
 
 // Network messages sent during a race (0x427620-0x428760)
 
@@ -207,3 +210,27 @@ int FUN_00428760(BYTE index)
         return 1;
     return 0;
 }
+
+void FUN_0047aa60(int value);
+void FUN_0041b040(int value);
+void FUN_00418560(int value);
+void FUN_00418d20(int value);
+
+// Race start: decides g_unk0x00539ed8 from the game mode and applies the
+// volume settings (percentages scaled to 16.16).
+// FUNCTION: CMR2 0x00427c10
+void FUN_00427c10(void)
+{
+    if (CGameInfo::FUN_00405d80() != 4 && CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        (CGameInfo::FUN_00405d70() != 2 || CGameInfo::FUN_00405da0()) &&
+        ((BYTE)RallyDataState() != 1 || !(BYTE)RallyData_GetFlag25() || CGameInfo::FUN_00405e00() ||
+         CGameInfo::FUN_00405d80() == 3))
+        g_unk0x00539ed8 = 0;
+    else
+        g_unk0x00539ed8 = 1;
+    FUN_0047aa60(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0x5555));
+    FUN_0041b040(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0x5555));
+    FUN_00418560(FixMul((int)(CGameInfo::FUN_00405ea0() << 16) / 100, 0x10000));
+    FUN_00418d20(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0xaaaa));
+}
+
