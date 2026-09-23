@@ -719,6 +719,21 @@ BYTE FUN_00407150(BYTE param1, char param2)
     return (bool)(param1 % 2) + 10;
 }
 
+// Whether the championship has just finished its last rally (rally 8, stage 11).
+// FUNCTION: CMR2 0x00407270
+int FUN_00407270(void)
+{
+    BYTE mode;
+    BYTE rallyClass;
+
+    mode = CGameInfo::FUN_00405d80();
+    rallyClass = CGameInfo::FUN_00405d90();
+    FUN_00407150(g_selectedRallyData & 0x1f, rallyClass);
+    if (mode == 0 && (g_selectedRallyData & 0x1f) == 8 && (g_selectedRallyData & 0x3e0) == 0x160)
+        return 1;
+    return 0;
+}
+
 void RallyData_UpdateFlags(void);
 
 // Advances g_selectedRallyData to the next stage (bits 5-9) and, at the end of

@@ -112,6 +112,7 @@ unsigned int RallyData_FUN_00407ea0(void);
 extern int g_unk0x00537f0c[6];
 extern BYTE *g_unk0x00537f3c[8];
 extern BYTE g_menuFrameColour[4];
+extern Menu *g_pHeaderMenu;
 
 // Fade value of the stage end menus.
 // GLOBAL: CMR2 0x00519ec8
@@ -391,9 +392,68 @@ void FUN_0044bcd0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x0044d790
-void FUN_0044d790(void)
+char FUN_00420190(void);
+int FUN_00448390(int index);
+int FUN_00407270(void);
+void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
+void FUN_0044b760(void);
+extern char g_standingsRowFormat[];
+
+// GLOBAL: CMR2 0x00519edc
+char g_unk0x00519edc[4] = "jml";
+// GLOBAL: CMR2 0x00519f68
+char g_winnerFormat[] = "%s, %s";
+
+// Position of the car in the stage order, or -1.
+// FUNCTION: CMR2 0x00451850
+int FUN_00451850(int car)
 {
+    int i;
+
+    for (i = 0; i < (BYTE)FUN_00420190(); i++) {
+        if (FUN_00448390(i) == car)
+            return i;
+    }
+    return -1;
+}
+
+// Draw callback of the stage winner screen.
+// TODO: CMR2 0x0044d790 (implemented, match 89%)
+void FUN_0044d790(Menu *pMenu)
+{
+    int best;
+    int winner;
+    int i;
+    char *pName;
+    char *pText;
+    int resY;
+
+    best = 0x10;
+    winner = -1;
+    FUN_0044b760();
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6) {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
+                              CFrontend::GetTextString(0x49), CFrontend::GetTextString(0x46), 0);
+        pText = CFrontend::GetTextString(0x4a);
+        pName = g_unk0x00519edc;
+    } else {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
+                              CFrontend::GetTextString(0x49), 0);
+        for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+            if (FUN_00451850(i) < best) {
+                best = FUN_00451850(i);
+                winner = i;
+            }
+        }
+        pText = CFrontend::GetTextString(0x4a);
+        pName = (char *)RallyData_GetRecord(winner);
+    }
+    sprintf(CFrontend::m_stringDest, g_winnerFormat, pName, pText);
+    CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+    resY = g_pGraphics->resY;
+    Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                  (resY * 10) / 480 + (resY * 242) / 480 + Font_GetLineHeight(0), (int *)g_menuFrameColour, 0x11);
+    Font_SetBlendMode(2);
 }
 
 // STUB: CMR2 0x0044d960
@@ -441,9 +501,48 @@ void FUN_00450ef0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x00451690
-void FUN_00451690(void)
+// Draw callback of the final championship standings (header menu) screen.
+// TODO: CMR2 0x00451690 (implemented, match 78%)
+void FUN_00451690(Menu *pMenu)
 {
+    char position[100];
+    char *pPosition;
+    int i;
+    int place;
+    int resY;
+
+    if (g_pHeaderMenu != &g_menu0x0053f790) {
+        if (!FUN_00407270())
+            FUN_0044b760();
+        return;
+    }
+    FUN_0044b760();
+    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
+                          CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
+    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+        place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
+        switch (place) {
+        case 0:
+            pPosition = CFrontend::GetTextString(0x51);
+            break;
+        case 1:
+            pPosition = CFrontend::GetTextString(0x52);
+            break;
+        case 2:
+            pPosition = CFrontend::GetTextString(0x53);
+            break;
+        default:
+            sprintf(position, CFrontend::GetTextString(0x54), place + 1);
+            pPosition = position;
+            break;
+        }
+        sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        resY = g_pGraphics->resY;
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                      (resY * 242) / 480 + ((resY * 10) / 480 + Font_GetLineHeight(0)) * (i + 1),
+                      (int *)g_menuFrameColour, 0x11);
+    }
 }
 
 // STUB: CMR2 0x00451df0
