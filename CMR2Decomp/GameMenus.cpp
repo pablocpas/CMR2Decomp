@@ -18,6 +18,7 @@
 #include "Game.h"
 #include "StageUI.h"
 #include "AIHelper.h"
+#include "RegKey.h"
 
 int FUN_0040ab10(void);
 int FUN_0040ab20(int index, int total);
@@ -535,9 +536,99 @@ void FUN_0044d960(void)
 {
 }
 
-// STUB: CMR2 0x0044e130
-void FUN_0044e130(void)
+extern char g_classRowHeaderFormat[];
+
+// Draw callback of the stage times table (table 0), with the rally / stage
+// header (in championship mode 8 also the leg number).
+// TODO: CMR2 0x0044e130 (implemented, match 99%, one push scheduled differently)
+void FUN_0044e130(Menu *pMenu)
 {
+    char stage[80];
+    int i;
+
+    FUN_0044b760();
+    if (CGameInfo::FUN_00405d80() == 8) {
+        if (RallyDataStageIndex() == 10)
+            sprintf(stage, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(0xba));
+        else
+            sprintf(stage, g_classRowHeaderFormat, CFrontend::GetTextString(0x40), RallyDataStageIndex() + 1);
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                              CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x44),
+                                                   (RallyDataStageIndex() >> 2) + 1),
+                              stage, 0);
+    } else {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                              RallyDataStageIndex() == 10
+                                  ? CFrontend::GetTextString(0xba)
+                                  : CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
+                                                         RallyDataStageIndex() + 1),
+                              0);
+    }
+    i = 0;
+    if (FUN_0040ab10() > 0) {
+        do {
+            Font_DrawText(1, FUN_0040abb0(i, 0), (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          (int)(g_pGraphics->resY * 3) / 0x1e0 +
+                              (((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                                ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                               (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                              (int)(g_pGraphics->resY * 8) / 0x1e0,
+                          (int *)g_menuFrameColour, 9);
+            FormatCentisecondsAsMinSecMSec(FUN_0040ab80(i, 0), CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 0x280,
+                          (((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                            ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                           (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                              (int)(g_pGraphics->resY * 8) / 0x1e0,
+                          (int *)g_menuFrameColour, 9);
+            if (FUN_0040ab50(i, 0) == -2) {
+                strcpy(CFrontend::m_stringDest,
+                       (char *)CFrontend::FUN_0040ede0(FUN_0040abe0(i, 0)));
+                CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+                g_menuRect[1] = (short)((((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                                          ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                                         (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                                        1);
+                g_menuRect[3] = (short)(((int)(g_pGraphics->resY * 0xa3) / 0x1e0 -
+                                          (int)(g_pGraphics->resY * 0x82) / 0x1e0) +
+                                        1);
+                g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+                g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
+                                        (int)(g_pGraphics->resX * 0x20) / 0x280);
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            } else {
+                strcpy(CFrontend::m_stringDest,
+                       (char *)CFrontend::FUN_0040ede0(FUN_0040abe0(i, 0)));
+                CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+                GameMenus_DrawRowFrame(i, (-(int)g_pGraphics->resY * 0x14) / 0x1e0, 1);
+            }
+            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          ((int)(g_pGraphics->resY * 0xa3) / 0x1e0 +
+                           ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                              (int)(g_pGraphics->resY * 0x14) / 0x1e0,
+                          (int *)g_menuFrameColour, 0x21);
+            if (i == 0 || (i > 0 && FUN_0040ab20(i, 0) != FUN_0040ab20(i - 1, 0))) {
+                sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_0040ab20(i, 0));
+            } else {
+                sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
+            }
+            Font_DrawText(1, CFrontend::m_stringDest,
+                          ((int)(g_pGraphics->resX * 0x41) / 0x280 -
+                           (int)(g_pGraphics->resX * 0x20) / 0x280) / 2 +
+                              (int)(g_pGraphics->resX * 0x20) / 0x280,
+                          (int)(g_pGraphics->resY * 8) / 0x1e0 +
+                              (int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                              ((((int)(g_pGraphics->resY * 0xa3) / 0x1e0 -
+                                 (int)(g_pGraphics->resY * 0x82) / 0x1e0) / 2 +
+                                ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                               (int)(g_pGraphics->resY * 0x14) / 0x1e0),
+                          (int *)g_menuFrameColour, 0x12);
+            i++;
+        } while (i < FUN_0040ab10());
+    }
+    Font_SetBlendMode(2);
 }
 
 void GameMenus_DrawRowHighlight(short row);
