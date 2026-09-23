@@ -1162,6 +1162,7 @@ public:
 
 public:
     static void FUN_004a3de0(void);
+    static int FUN_004b1970(void);
     static HRESULT CALLBACK EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPVOID lpContext);
     static void SelectTextureFormats(void);
     static BOOL CreateDirect3DDevice(int param1, int param2, int param3);

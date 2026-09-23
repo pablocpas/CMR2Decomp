@@ -2591,6 +2591,63 @@ int FUN_004a4bd0(void *pSource, int param2)
 void *g_unk0x006a2a98;
 // GLOBAL: CMR2 0x006a2bcc
 int g_unk0x006a2bcc;
+// GLOBAL: CMR2 0x006a2bc8
+int g_unk0x006a2bc8;
+// GLOBAL: CMR2 0x00520f94
+BYTE g_unk0x00520f94[4];
+
+// FUNCTION: CMR2 0x004ae140
+void FUN_004ae140(BYTE *pColour)
+{
+    g_unk0x00520f94[0] = pColour[0];
+    g_unk0x00520f94[1] = pColour[1];
+    g_unk0x00520f94[2] = pColour[2];
+    g_unk0x00520f94[3] = pColour[3];
+}
+
+// FUNCTION: CMR2 0x004ae230
+void FUN_004ae230(int *p, int x, int y)
+{
+    p[3] = -x;
+    p[4] = y;
+    p[5] = x;
+    p[6] = -y;
+}
+
+// FUNCTION: CMR2 0x004ae260
+void FUN_004ae260(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x006a2bcc; i++)
+        *(int *)((BYTE *)g_unk0x006a2a98 + i * 0x5c) = 0;
+    g_unk0x006a2bc8 = 0;
+}
+
+// FUNCTION: CMR2 0x004ae3d0
+void FUN_004ae3d0(BYTE *p, BYTE value)
+{
+    if (p != NULL)
+        p[0x50] = value;
+}
+
+// FUNCTION: CMR2 0x004ae3f0
+void FUN_004ae3f0(BYTE *p, int value)
+{
+    if (p != NULL)
+        *(int *)(p + 0x3c) = value;
+}
+
+// FUNCTION: CMR2 0x004ae410
+void FUN_004ae410(int a, int b, int c, int d)
+{
+}
+
+// FUNCTION: CMR2 0x004b1970
+int CGraphics::FUN_004b1970(void)
+{
+    return (unsigned int)m_unk0x006dd890 >> 10;
+}
 // GLOBAL: CMR2 0x006a2a20
 int g_unk0x006a2a20;
 // GLOBAL: CMR2 0x006a2a24
@@ -2734,7 +2791,8 @@ struct ParticleType {
     BYTE pad0x10[0x10];
     int size;
     int sizeVariation;
-    BYTE pad0x28[6];
+    BYTE pad0x28[4];
+    short field0x2c;
     BYTE type;
     BYTE pad0x2f[2];
     BYTE colour[3];
@@ -2786,8 +2844,86 @@ volatile int g_particleCount;
 ParticleType *g_particleTypes;
 // GLOBAL: CMR2 0x006a2cdc
 Particle *g_particles;
+// GLOBAL: CMR2 0x006a2ce0
+ParticleType *g_pEditParticleType;
 // GLOBAL: CMR2 0x006a2ce4
 int g_nextParticle;
+
+// FUNCTION: CMR2 0x004afe80
+void FUN_004afe80(short param1)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->field0x2c = param1;
+        g_pEditParticleType->flags = ((param1 != 0) & 1) << 5 | g_pEditParticleType->flags & 0xdf;
+    }
+}
+
+// FUNCTION: CMR2 0x004aff60
+void FUN_004aff60(void)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->flags |= 1;
+        g_pEditParticleType = NULL;
+    }
+}
+
+// FUNCTION: CMR2 0x004b0100
+void Particle_Kill(Particle *p)
+{
+    p->active = 0;
+}
+
+// FUNCTION: CMR2 0x004aff80
+void Particle_KillAll(void)
+{
+    int i;
+    Particle *p = g_particles;
+
+    for (i = 0; i < g_particleCount; i++, p++) {
+        if (p->active)
+            Particle_Kill(p);
+    }
+}
+
+// FUNCTION: CMR2 0x004affb0
+void FUN_004affb0(void)
+{
+    int i;
+    BYTE *p;
+
+    i = 0;
+    if (g_particleCount > 0) {
+        p = &g_particles->active;
+        do {
+            *p = 0;
+            i++;
+            p += sizeof(Particle);
+        } while (i < g_particleCount);
+    }
+}
+
+// FUNCTION: CMR2 0x004affe0
+void FUN_004affe0(void)
+{
+    int i;
+    BYTE *p;
+
+    i = 0;
+    if (g_particleTypeCount > 0) {
+        p = &g_particleTypes->flags;
+        do {
+            i++;
+            *p &= ~1;
+            p += sizeof(ParticleType);
+        } while (i < g_particleTypeCount);
+    }
+}
+
+// FUNCTION: CMR2 0x004b1140
+void FUN_004b1140(int count)
+{
+    g_particleCount = count;
+}
 
 // Allocates and initialises a particle, optionally orienting its random spread
 // around the supplied position vector.
