@@ -1,0 +1,208 @@
+#include <windows.h>
+#include "RallyData.h"
+#include "GameInfo.h"
+#include "StageUI.h"
+
+// Race session state (0x41e210-0x420190)
+
+unsigned int RallyDataState(void);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00407e90(void);
+
+// GLOBAL: CMR2 0x005191a0
+BYTE g_unk0x005191a0 = 0xff;
+// GLOBAL: CMR2 0x00537f08
+BYTE g_unk0x00537f08;
+// GLOBAL: CMR2 0x00537f3c
+BYTE *g_unk0x00537f3c[8];
+// GLOBAL: CMR2 0x00537f60
+int g_unk0x00537f60;
+// GLOBAL: CMR2 0x00537f94
+int g_unk0x00537f94;
+// GLOBAL: CMR2 0x00537ffa
+BYTE g_unk0x00537ffa;
+// GLOBAL: CMR2 0x00538108
+int g_unk0x00538108;
+// GLOBAL: CMR2 0x0053810c
+BYTE g_unk0x0053810c;
+// GLOBAL: CMR2 0x0053810d
+BYTE g_unk0x0053810d;
+// GLOBAL: CMR2 0x00538114
+int g_unk0x00538114;
+// GLOBAL: CMR2 0x00538118
+int g_unk0x00538118;
+// GLOBAL: CMR2 0x0053823c
+char g_unk0x0053823c[MAX_PATH];
+// GLOBAL: CMR2 0x00538340
+char g_unk0x00538340[MAX_PATH];
+// GLOBAL: CMR2 0x00538444
+char g_unk0x00538444[MAX_PATH];
+// GLOBAL: CMR2 0x0053874c
+char g_unk0x0053874c[MAX_PATH];
+// GLOBAL: CMR2 0x00538858
+BYTE g_unk0x00538858[8];
+// GLOBAL: CMR2 0x00538860
+int g_unk0x00538860;
+// GLOBAL: CMR2 0x00538970
+int g_unk0x00538970;
+
+// FUNCTION: CMR2 0x0041e210
+void FUN_0041e210(void)
+{
+    g_unk0x00537f08 = 1;
+}
+
+// FUNCTION: CMR2 0x0041f250
+void FUN_0041f250(void)
+{
+    g_unk0x005191a0 = 0xff;
+}
+
+// FUNCTION: CMR2 0x0041f270
+int FUN_0041f270(void)
+{
+    return g_unk0x00537f60;
+}
+
+// FUNCTION: CMR2 0x0041f280
+void FUN_0041f280(void)
+{
+    g_unk0x0053810c = 1;
+}
+
+// FUNCTION: CMR2 0x0041f290
+void FUN_0041f290(void)
+{
+    g_unk0x00537ffa = 1;
+}
+
+// FUNCTION: CMR2 0x0041f2a0
+void FUN_0041f2a0(void)
+{
+    g_unk0x0053810d = 1;
+}
+
+// FUNCTION: CMR2 0x0041f350
+BYTE *FUN_0041f350(int index)
+{
+    return g_unk0x00537f3c[index];
+}
+
+// FUNCTION: CMR2 0x0041f360
+int FUN_0041f360(void)
+{
+    if (g_unk0x00538114 != 0) {
+        g_unk0x00538114 = 0;
+        return 1;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0041f380
+BYTE FUN_0041f380(void)
+{
+    return g_unk0x005191a0;
+}
+
+// FUNCTION: CMR2 0x0041f390
+void FUN_0041f390(void)
+{
+    g_unk0x00538118 = 0;
+}
+
+// FUNCTION: CMR2 0x0041f3a0
+int FUN_0041f3a0(void)
+{
+    int result = 0;
+
+    if ((BYTE)RallyDataState() > 1 && **(char **)(FUN_0041b390() + 4) == 10)
+        result = 1;
+    return result;
+}
+
+// FUNCTION: CMR2 0x0041f3d0
+int FUN_0041f3d0(BYTE index)
+{
+    if (g_unk0x00537f3c[index] != NULL)
+        return *(int *)(g_unk0x00537f3c[index] + 4);
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0041f3f0
+int FUN_0041f3f0(BYTE index)
+{
+    if (g_unk0x00537f3c[index] != NULL)
+        return *(int *)(g_unk0x00537f3c[index] + 0xc);
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0041f410
+int FUN_0041f410(void)
+{
+    return 1;
+}
+
+// FUNCTION: CMR2 0x0041f4b0
+int FUN_0041f4b0(void)
+{
+    return g_unk0x00538108;
+}
+
+// FUNCTION: CMR2 0x0041f4c0
+void FUN_0041f4c0(void)
+{
+    g_unk0x00538108 = 1;
+}
+
+// FUNCTION: CMR2 0x0041f4d0
+void FUN_0041f4d0(void)
+{
+    g_unk0x00537f94 = 1;
+}
+
+// FUNCTION: CMR2 0x0041f500
+BYTE *FUN_0041f500(void)
+{
+    return g_unk0x00538860 ? g_unk0x00538858 : NULL;
+}
+
+// FUNCTION: CMR2 0x0041f8e0
+char *FUN_0041f8e0(void)
+{
+    return g_unk0x0053823c;
+}
+
+// FUNCTION: CMR2 0x0041f8f0
+char *FUN_0041f8f0(void)
+{
+    return g_unk0x00538340;
+}
+
+// FUNCTION: CMR2 0x0041f910
+char *FUN_0041f910(void)
+{
+    return g_unk0x0053874c;
+}
+
+// FUNCTION: CMR2 0x0041f920
+char *FUN_0041f920(void)
+{
+    return g_unk0x00538444;
+}
+
+// FUNCTION: CMR2 0x00420120
+int FUN_00420120(void)
+{
+    return g_unk0x00538970;
+}
+
+// Number of stages of the current event.
+// FUNCTION: CMR2 0x00420190
+char FUN_00420190(void)
+{
+    if ((char)RallyData_FUN_00407e70() && !CGameInfo::FUN_00405e00())
+        return (char)RallyDataState() + (char)RallyData_FUN_004069a0();
+    if ((char)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00())
+        return 2;
+    return (char)RallyDataState();
+}

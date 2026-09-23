@@ -21,6 +21,9 @@
     <ClCompile Include="Stage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Race.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="RallyData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

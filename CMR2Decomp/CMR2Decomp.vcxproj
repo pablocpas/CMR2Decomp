@@ -154,6 +154,7 @@
     <ClCompile Include="NetPlayers.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Race.cpp" />
     <ClCompile Include="RallyData.cpp" />
     <ClCompile Include="RallyTiming.cpp" />
     <ClCompile Include="RegKey.cpp" />

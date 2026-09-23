@@ -574,6 +574,12 @@ int g_unk0x00538ab0[16 * 6];
 // GLOBAL: CMR2 0x00538c94
 int g_unk0x00538c94;
 
+// FUNCTION: CMR2 0x004209d0
+int RallyData_FUN_004209d0(BYTE *p)
+{
+    return g_unk0x00538ab0[(signed char)p[0xb1a] * 6 + 2];
+}
+
 // Scales the per-record value at p[0xb1a] to a 0..0x10000 ratio.
 // TODO: CMR2 0x00421470 (implemented, match 63%)
 int RallyData_FUN_00421470(BYTE *p)
