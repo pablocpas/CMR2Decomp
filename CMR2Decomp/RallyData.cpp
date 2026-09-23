@@ -239,7 +239,7 @@ void RallyData_FUN_0040d6a0(BYTE param1)
 }
 
 // GLOBAL: CMR2 0x0051682c
-BYTE g_unk0x0051682c[140];
+BYTE g_unk0x0051682c[132];
 
 // FUNCTION: CMR2 0x00406890
 char *RallyData_FUN_00406890(void)

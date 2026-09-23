@@ -1,11 +1,19 @@
 #include <windows.h>
 #include <string.h>
+#include <stdlib.h>
 #include "NetPlayers.h"
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "main.h"
 #include "Game.h"
 
+// GLOBAL: CMR2 0x005168b0
+BYTE g_netColours[8][4] = {
+    { 0x1a, 0x3b, 0xa4, 0xff }, { 0xb2, 0x0f, 0x0f, 0xff }, { 0x2c, 0x6f, 0x15, 0xff }, { 0x6c, 0x23, 0x86, 0xff },
+    { 0xb4, 0x04, 0x79, 0xff }, { 0xbd, 0x57, 0x03, 0xff }, { 0xff, 0xea, 0x00, 0xff }, { 0xff, 0x8d, 0x00, 0xff }
+};
+// GLOBAL: CMR2 0x005168d0
+BYTE g_netRandomColour[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x00531770
 int g_netIdCount;
 // GLOBAL: CMR2 0x00531778
@@ -42,6 +50,8 @@ NetStanding g_netStandings2[8];
 int g_netClassCount;
 // GLOBAL: CMR2 0x00531f84
 unsigned int g_netSplitBest[8];
+// GLOBAL: CMR2 0x00539cc8
+BYTE g_unk0x00539cc8;
 // GLOBAL: CMR2 0x005320a8
 unsigned int g_netLapBest;
 // GLOBAL: CMR2 0x005320b0
@@ -56,6 +66,7 @@ int FUN_004a19c0(DPID *pId, char *pIndex);
 char *FUN_004a1b60(BYTE index);
 DPID FUN_004a1a00(void);
 int FUN_004a1cb0(int param2, int param3);
+int FUN_004a1c50(int param1, int param2, int param3, int param4);
 
 // FUNCTION: CMR2 0x00409a30
 void FUN_00409a30(void)
@@ -199,6 +210,24 @@ unsigned int FUN_00409d30(int index)
     return g_netPlayers[index].flags >> 5 & 1;
 }
 
+// FUNCTION: CMR2 0x00409d50
+void FUN_00409d50(DPID *pId, NetStats *pStats)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (g_netPlayers[i].id == *pId)
+            g_netPlayers[i].field_0xc++;
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId && !(g_netPlayers[i].flags & 0x400000)) {
+            if (g_unk0x00539cc8 != 0 && g_netPlayers[i].stats.seq < pStats->seq) {
+                g_netPlayers[i].stats = *pStats;
+                g_netPlayers[i].statsNew = 1;
+            }
+            return;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x00409dd0
 void FUN_00409dd0(void)
 {
@@ -226,6 +255,25 @@ NetStats *FUN_00409e20(int index)
     return &g_netPlayers[index].stats;
 }
 
+// FUNCTION: CMR2 0x00409e30
+void FUN_00409e30(char resetTotal, char resetTimes)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (g_netPlayers[i].flags & 0x80) {
+            g_netPlayers[i].flags &= ~0x300;
+            g_netPlayers[i].stats.field_0x18 &= 0xfc00;
+            if (resetTimes != 0)
+                g_netPlayers[i].bestTime = -1;
+        }
+    }
+    if (resetTotal != 0)
+        g_netTotal = 0;
+    if (resetTimes != 0)
+        g_netBestTime = -1;
+}
+
 // FUNCTION: CMR2 0x00409e90
 void FUN_00409e90(DPID *pId)
 {
@@ -243,6 +291,36 @@ void FUN_00409e90(DPID *pId)
 unsigned int FUN_00409ee0(int index)
 {
     return g_netPlayers[index].flags >> 8 & 1;
+}
+
+// FUNCTION: CMR2 0x00409f00
+void FUN_00409f00(DPID *pId, unsigned int time, int value)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+            g_netPlayers[i].flags |= 0x200;
+            g_netPlayers[i].time = time;
+            g_netPlayers[i].field_0x7c = value;
+            if (g_netPlayers[i].time < g_netPlayers[i].bestTime || g_netPlayers[i].bestTime == -1)
+                g_netPlayers[i].bestTime = g_netPlayers[i].time;
+            return;
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x00409f80
+void FUN_00409f80(DPID *pId)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+            g_netPlayers[i].flags |= 0x200;
+            return;
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x0040a3c0
@@ -294,6 +372,47 @@ unsigned int FUN_0040a470(int index)
     return g_netPlayers[index].flags >> 6 & 1;
 }
 
+// qsort comparator for g_netResults
+// FUNCTION: CMR2 0x0040a490
+int __cdecl FUN_0040a490(const void *a, const void *b)
+{
+    NetResult *p1 = (NetResult *)a;
+    NetResult *p2 = (NetResult *)b;
+
+    if (p1->index != -1 && p2->index == -1)
+        return -1;
+    if (p1->index == -1) {
+        if (p2->index != -1)
+            return 1;
+        if (p2->index == -1)
+            return 0;
+    }
+    if (p1->field_0x14 != 0 && p2->field_0x14 == 0)
+        return -1;
+    if (p1->field_0x14 == 0 && p2->field_0x14 != 0)
+        return 1;
+    if (p1->field_0x14 != 0 && p2->field_0x14 != 0) {
+        if ((unsigned int)p1->field_0x18 < (unsigned int)p2->field_0x18)
+            return -1;
+        if ((unsigned int)p1->field_0x18 > (unsigned int)p2->field_0x18)
+            return 1;
+    } else {
+        if (p1->field_0xc > p2->field_0xc)
+            return -1;
+        if (p1->field_0xc < p2->field_0xc)
+            return 1;
+        if (p1->field_0x4 > p2->field_0x4)
+            return -1;
+        if (p1->field_0x4 < p2->field_0x4)
+            return 1;
+        if (p1->field_0x8 > p2->field_0x8)
+            return -1;
+        if (p1->field_0x8 < p2->field_0x8)
+            return 1;
+    }
+    return (unsigned int)p1->id > (unsigned int)p2->id ? -1 : 1;
+}
+
 // FUNCTION: CMR2 0x0040a700
 int FUN_0040a700(int index)
 {
@@ -334,6 +453,24 @@ int FUN_0040a7a0(int id)
             return i;
     }
     return -1;
+}
+
+// qsort comparator for the standings
+// FUNCTION: CMR2 0x0040a7d0
+int __cdecl FUN_0040a7d0(const void *a, const void *b)
+{
+    NetStanding *p1 = (NetStanding *)a;
+    NetStanding *p2 = (NetStanding *)b;
+
+    if (p1->index == -1 || p1->time == -1)
+        return 1;
+    if (p2->index == -1 || p2->time == -1)
+        return -1;
+    if (p1->time > p2->time)
+        return 1;
+    if (p1->time < p2->time)
+        return -1;
+    return (unsigned int)p1->id > (unsigned int)p2->id ? 1 : -1;
 }
 
 // FUNCTION: CMR2 0x0040ab10
@@ -394,6 +531,51 @@ int FUN_0040ac30(void)
     return g_netTotal;
 }
 
+// FUNCTION: CMR2 0x0040ac40
+void FUN_0040ac40(BYTE carClass)
+{
+    BYTE msg[2];
+
+    msg[0] = 6;
+    msg[1] = carClass;
+    FUN_004a1c50(0, 1, (int)msg, 2);
+}
+
+// FUNCTION: CMR2 0x0040ac70
+void FUN_0040ac70(DPID *pId, unsigned int carClass)
+{
+    DPID id;
+    int i;
+
+    id = *pId;
+    if (FUN_004a1a00() == id)
+        return;
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == id) {
+            g_netPlayers[i].flags = (carClass & 0xf) << 18 | g_netPlayers[i].flags & 0xffc3ffff;
+            return;
+        }
+    }
+}
+
+// qsort comparator for g_netClassification
+// FUNCTION: CMR2 0x0040acd0
+int __cdecl FUN_0040acd0(const void *a, const void *b)
+{
+    NetClassification *p1 = (NetClassification *)a;
+    NetClassification *p2 = (NetClassification *)b;
+
+    if (p1->time == -1 && p2->time != -1)
+        return 1;
+    if (p2->time == -1 && p1->time != -1)
+        return -1;
+    if (p1->time > p2->time)
+        return 1;
+    if (p1->time < p2->time)
+        return -1;
+    return (unsigned int)p2->id < (unsigned int)p1->id ? 1 : -1;
+}
+
 // FUNCTION: CMR2 0x0040ae90
 int FUN_0040ae90(void)
 {
@@ -418,6 +600,18 @@ unsigned int FUN_0040aec0(int index)
     return g_netClassification[index].time;
 }
 
+// FUNCTION: CMR2 0x0040aed0
+int FUN_0040aed0(void)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (g_netClassification[i].id == FUN_004a1a00())
+            return i;
+    }
+    return 0;
+}
+
 // FUNCTION: CMR2 0x0040af00
 void FUN_0040af00(unsigned int time)
 {
@@ -429,6 +623,45 @@ void FUN_0040af00(unsigned int time)
 int FUN_0040af30(void)
 {
     return g_unk0x005320a4;
+}
+
+// FUNCTION: CMR2 0x0040af40
+void FUN_0040af40(void)
+{
+    BYTE msg;
+
+    msg = 0x10;
+    FUN_004a1c50(0, 1, (int)&msg, 1);
+}
+
+// FUNCTION: CMR2 0x0040af60
+void FUN_0040af60(void)
+{
+    struct {
+        BYTE type;
+        BYTE valid;
+        BYTE pad[2];
+        BYTE data[0x104];
+    } msg;
+    BYTE *p;
+
+    msg.type = 0x11;
+    p = FUN_0040e8c0();
+    if (p != NULL) {
+        memcpy(msg.data, p, sizeof(msg.data));
+        msg.valid = 1;
+    } else {
+        msg.valid = 0;
+    }
+    FUN_004a1c50(0, 1, (int)&msg, sizeof(msg));
+}
+
+// FUNCTION: CMR2 0x0040afb0
+void FUN_0040afb0(char valid, BYTE *p)
+{
+    FUN_0040e890();
+    if (valid != 0)
+        FUN_0040e8a0(p);
 }
 
 // FUNCTION: CMR2 0x0040afd0
@@ -450,6 +683,70 @@ void FUN_0040aff0(int index, int value)
 int FUN_0040b010(int index)
 {
     return g_netPlayers[index].field_0x8;
+}
+
+// FUNCTION: CMR2 0x0040b020
+int FUN_0040b020(int value)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].field_0x8 == value)
+            return i;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0040b050
+bool FUN_0040b050(int value)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].field_0x8 == value)
+            return true;
+    }
+    return false;
+}
+
+// qsort comparator for g_netIds
+// FUNCTION: CMR2 0x0040b080
+int __cdecl FUN_0040b080(const void *a, const void *b)
+{
+    return *(unsigned int *)a > *(unsigned int *)b ? 1 : -1;
+}
+
+// Colour of a player's name, a random one for unknown ids.
+// FUNCTION: CMR2 0x0040b0a0
+BYTE *FUN_0040b0a0(int id)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (id == g_netIds[i])
+            return g_netColours[i];
+    }
+    g_netRandomColour[0] = rand() % 256;
+    g_netRandomColour[1] = rand() % 256;
+    g_netRandomColour[2] = rand() % 256;
+    return g_netRandomColour;
+}
+
+// FUNCTION: CMR2 0x0040b120
+void FUN_0040b120(void)
+{
+    int i;
+
+    g_netIdCount = 0;
+    g_netIds[g_netIdCount] = g_netIdsUnsorted[g_netIdCount] = FUN_004a1a00();
+    g_netIdCount++;
+    for (i = 0; i < 7; i++) {
+        if (FUN_00409cb0(i)) {
+            g_netIds[g_netIdCount] = g_netIdsUnsorted[g_netIdCount] = FUN_00409d20(i);
+            g_netIdCount++;
+        }
+    }
+    qsort(g_netIds, g_netIdCount, sizeof(int), FUN_0040b080);
 }
 
 // FUNCTION: CMR2 0x0040b1a0
