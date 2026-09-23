@@ -20,6 +20,19 @@
 #include "AIHelper.h"
 
 int FUN_0040ab10(void);
+int FUN_0040ab20(int index, int total);
+int FUN_0040ab50(int index, int total);
+unsigned int FUN_0040ab80(int index, int total);
+char *FUN_0040abb0(int index, int total);
+unsigned int FUN_0040abe0(int index, int total);
+void GameMenus_DrawRowFrame(short row, short yOffset, char compact);
+void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
+void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime);
+extern BYTE g_menuRowFillColour[4];
+extern char g_stageNumberFormat[];
+extern char g_stageResultSameTime[];
+extern BYTE g_unk0x00540898;
+extern BYTE g_unk0x00541210;
 
 // GLOBAL: CMR2 0x0053e2d8
 Menu g_menu0x0053e2d8;
@@ -537,9 +550,86 @@ void FUN_0044fea0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x004505b0
-void FUN_004505b0(void)
+// Draw callback of the championship table (table 1 of the network/overall
+// standings), with the rally name header.
+// FUNCTION: CMR2 0x004505b0
+void FUN_004505b0(Menu *pMenu)
 {
+    int x;
+    int i;
+
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    FUN_0044b760();
+    if (!g_unk0x00541210 || !g_unk0x00540898)
+        GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41), 0);
+    else
+        GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
+                              CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
+                              CFrontend::GetTextString(0xef), 0);
+    i = 0;
+    if (FUN_0040ab10() > 0) {
+        do {
+            Font_DrawText(1, FUN_0040abb0(i, 1), (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          (int)(g_pGraphics->resY * 3) / 0x1e0 +
+                              (((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                                ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                               (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                              (int)(g_pGraphics->resY * 8) / 0x1e0,
+                          (int *)g_menuFrameColour, 9);
+            FormatCentisecondsAsMinSecMSec(FUN_0040ab80(i, 1), CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 0x280,
+                          (((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                            ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                           (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                              (int)(g_pGraphics->resY * 8) / 0x1e0,
+                          (int *)g_menuFrameColour, 9);
+            if (FUN_0040ab50(i, 1) == -2) {
+                strcpy(CFrontend::m_stringDest,
+                       (char *)CFrontend::FUN_0040ede0(FUN_0040abe0(i, 1)));
+                CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+                g_menuRect[1] = (short)((((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                                          ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                                         (int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+                                        1);
+                g_menuRect[3] = (short)(((int)(g_pGraphics->resY * 0xa3) / 0x1e0 -
+                                          (int)(g_pGraphics->resY * 0x82) / 0x1e0) +
+                                        1);
+                g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 0x280);
+                g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 0x280 -
+                                        (int)(g_pGraphics->resX * 0x20) / 0x280);
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+            } else {
+                strcpy(CFrontend::m_stringDest,
+                       (char *)CFrontend::FUN_0040ede0(FUN_0040abe0(i, 1)));
+                CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+                GameMenus_DrawRowFrame(i, (-(int)g_pGraphics->resY * 0x14) / 0x1e0, 1);
+            }
+            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          ((int)(g_pGraphics->resY * 0xa3) / 0x1e0 +
+                           ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                              (int)(g_pGraphics->resY * 0x14) / 0x1e0,
+                          (int *)g_menuFrameColour, 0x21);
+            if (i == 0 || (i > 0 && FUN_0040ab20(i, 1) != FUN_0040ab20(i - 1, 1))) {
+                sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_0040ab20(i, 1));
+            } else {
+                sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
+            }
+            Font_DrawText(1, CFrontend::m_stringDest,
+                          ((int)(g_pGraphics->resX * 0x41) / 0x280 -
+                           (int)(g_pGraphics->resX * 0x20) / 0x280) / 2 +
+                              (int)(g_pGraphics->resX * 0x20) / 0x280,
+                          (int)(g_pGraphics->resY * 8) / 0x1e0 +
+                              (int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                              ((((int)(g_pGraphics->resY * 0xa3) / 0x1e0 -
+                                 (int)(g_pGraphics->resY * 0x82) / 0x1e0) / 2 +
+                                ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                               (int)(g_pGraphics->resY * 0x14) / 0x1e0),
+                          (int *)g_menuFrameColour, 0x12);
+            i++;
+        } while (i < FUN_0040ab10());
+    }
+    Font_SetBlendMode(2);
 }
 
 // Draw callback of the championship standings screen: the best driver's
