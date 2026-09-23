@@ -974,6 +974,93 @@ DWORD g_menuHighlightColour;
 void *FUN_00408470(unsigned int param1);
 BYTE FUN_004bc0c0(BYTE *p);
 
+void FUN_004b7c80(void);
+BOOL FUN_004a15a0(void);
+
+// GLOBAL: CMR2 0x00519ee4
+int g_unk0x00519ee4 = -1;
+// GLOBAL: CMR2 0x00540898
+BYTE g_unk0x00540898;
+// GLOBAL: CMR2 0x00541210
+BYTE g_unk0x00541210;
+
+// FUNCTION: CMR2 0x00449cd0
+void FUN_00449cd0(Menu *pMenu, int param)
+{
+    FUN_004b7c80();
+}
+
+// Not decompiled yet (0x449ce0 and 0x4541c0 are callbacks of g_menu0x005416e0).
+void FUN_00449ce0(Menu *pMenu)
+{
+}
+
+void FUN_004541c0(Menu *pMenu)
+{
+}
+
+// Builds the stage results menu: continue (or next stage), the replay and
+// save entries, then quit.
+// FUNCTION: CMR2 0x0044af70
+void FUN_0044af70(char param1, Menu *pParent)
+{
+    Menu_Init(&g_menu0x00541400, 0, 0, 0, pParent, NULL, 1, 0, 1);
+    if (param1 != 0) {
+        if (CGameInfo::FUN_00405da0() &&
+            FUN_0041b370() != (unsigned int)(CGameInfo::FUN_00405d70() - 1)) {
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x21, (int)FUN_0044a000, 0x3ea);
+        } else if (g_unk0x00541210 && g_unk0x00540898 && CGameInfo::FUN_00405d80() == 0) {
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x80, (int)FUN_0044a000, -1);
+        } else if (CGameInfo::FUN_00405d80() != 5) {
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x1f, (int)FUN_0044a000, -1);
+        } else {
+            Menu_AddItemType4(&g_menu0x00541400, 0, 0x95, (int)FUN_0044a000, -1);
+        }
+        Menu_AddItemType2(&g_menu0x00541400, 0, -1, &g_menu0x005402f8, 0, 1000);
+        Menu_AddItemType2(&g_menu0x00541400, 0, 0x2d, &g_menu0x005418d8, 0, -1);
+    } else {
+        Menu_AddItemType2(&g_menu0x00541400, 0, -1, NULL, (int)FUN_00449f30, 1000);
+        if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 3)
+            Menu_AddItemType2(&g_menu0x00541400, 0, 0x8b, NULL, (int)FUN_0044a0a0, 0x3e9);
+        Menu_AddItemType2(&g_menu0x00541400, 0, 0xa8, NULL, (int)FUN_00449b00, -1);
+    }
+    Menu_SetCallbacks(&g_menu0x00541400, NULL, NULL, (MenuCallback)FUN_00453c50, NULL);
+    Menu_ValidateCursor(&g_menu0x00541400, 0);
+}
+
+// Same for the time trial / network results menu.
+// FUNCTION: CMR2 0x0044b0d0
+void FUN_0044b0d0(char param1, Menu *pParent)
+{
+    g_unk0x00519ee4 = -1;
+    Menu_Init(&g_menu0x005416e0, 0, 0, 0, pParent, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_menu0x005416e0, 0, -1, 0, 0x3eb);
+    if (param1 != 0) {
+        if (FUN_004a15a0()) {
+            Menu_AddItemType4(&g_menu0x005416e0, 0, 0x1f, (int)FUN_0044a000, -1);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, -1, &g_menu0x005402f8, 0, 1000);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, 0xf6, &g_menu0x005408a0, 0, -1);
+        }
+        Menu_AddItemType2(&g_menu0x005416e0, 0, 0x2d, &g_menu0x005418d8, 0, -1);
+    } else {
+        if (FUN_004a15a0()) {
+            if (CGameInfo::FUN_00405d80() != 0xc)
+                Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (int)FUN_00449f30, 1000);
+            if (CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 10)
+                Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (int)FUN_0044a0a0, 0x3e9);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, 0xf6, NULL, (int)FUN_00449b60, -1);
+        } else if (CGameInfo::FUN_00405d80() == 10) {
+            Menu_AddItemType2(&g_menu0x005416e0, 0, -1, NULL, (int)FUN_00449f30, 1000);
+            Menu_AddItemType2(&g_menu0x005416e0, 0, 0x8b, NULL, (int)FUN_0044a0a0, 0x3e9);
+        }
+        Menu_AddItemType2(&g_menu0x005416e0, 0, 0xa8, NULL, (int)FUN_00449b00, -1);
+    }
+    Menu_SetCallbacks(&g_menu0x005416e0, (MenuCallback)FUN_00449cd0, (MenuCallback)FUN_00449ce0,
+                      (MenuCallback)FUN_004541c0, NULL);
+    Menu_ValidateCursor(&g_menu0x005416e0, 0);
+}
+
+
 // Blink timer of the stage end banner.
 // GLOBAL: CMR2 0x0053e880
 BYTE g_unk0x0053e880[8];
