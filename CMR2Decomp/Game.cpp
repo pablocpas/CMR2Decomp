@@ -903,6 +903,51 @@ BYTE g_unk0x005a0068[0x50];
 #define SESSION (*(DPSESSIONDESC2 *)g_unk0x005a0068)
 #define SESSIONS ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)
 
+// Reads the description of the joined session into SESSION (the session
+// name is copied to m_unk0x005a00b8).
+// TODO: CMR2 0x004a0d60 (implemented, match 81%)
+BOOL FUN_004a0d60(void)
+{
+    IDirectPlay4A *pDP;
+    DPSESSIONDESC2 *pDesc;
+    DWORD size;
+
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return FALSE;
+    if (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, NULL, (DWORD)&size) != DPERR_BUFFERTOOSMALL)
+        return FALSE;
+    pDesc = (DPSESSIONDESC2 *)CFileBuffer::AllocateLockedBuffer(size);
+    if (pDesc == NULL)
+        return FALSE;
+    switch (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size)) {
+    case DPERR_INVALIDOBJECT:
+        free(pDesc);
+        return FALSE;
+    case DPERR_NOCONNECTION:
+        CFileBuffer::FreeGenericFileBuffer(pDesc);
+        return FALSE;
+    case DP_OK:
+        SESSION.dwSize = pDesc->dwSize;
+        SESSION.dwFlags = pDesc->dwFlags;
+        SESSION.guidInstance = pDesc->guidInstance;
+        SESSION.guidApplication = pDesc->guidApplication;
+        SESSION.dwMaxPlayers = pDesc->dwMaxPlayers;
+        SESSION.dwCurrentPlayers = pDesc->dwCurrentPlayers;
+        strcpy((char *)&CGameInfo::m_unk0x005a00b8, pDesc->lpszSessionNameA);
+        SESSION.dwReserved1 = pDesc->dwReserved1;
+        SESSION.dwReserved2 = pDesc->dwReserved2;
+        SESSION.dwUser1 = pDesc->dwUser1;
+        SESSION.dwUser2 = pDesc->dwUser2;
+        SESSION.dwUser3 = pDesc->dwUser3;
+        SESSION.dwUser4 = pDesc->dwUser4;
+        CFileBuffer::FreeGenericFileBuffer(pDesc);
+        return TRUE;
+    }
+    CFileBuffer::FreeGenericFileBuffer(pDesc);
+    return FALSE;
+}
+
 // Closes the DirectPlay session object.
 // FUNCTION: CMR2 0x004a1280
 int FUN_004a1280(void)
