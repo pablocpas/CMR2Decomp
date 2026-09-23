@@ -461,6 +461,11 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
 // Type 1 / type 2 scene objects: fixed pointer tables, released by lookup.
 // GLOBAL: CMR2 0x006dffa4
 void *g_sceneType1Objects[60];
+// Colour and strength of the car shadows.
+// GLOBAL: CMR2 0x006e0098
+DWORD g_shadowColour;
+// GLOBAL: CMR2 0x006e0b38
+int g_shadowLevel;
 // GLOBAL: CMR2 0x006e0b48
 int g_sceneType1Count;
 // GLOBAL: CMR2 0x00683388
@@ -574,4 +579,11 @@ SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneN
         }
     }
     return NULL;
+}
+
+// FUNCTION: CMR2 0x004b4a80
+void Scene_GetShadowColour(DWORD *pColour, int *pLevel)
+{
+    *pColour = g_shadowColour;
+    *pLevel = g_shadowLevel;
 }

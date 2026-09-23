@@ -152,8 +152,7 @@ struct CarTransforms {
     FixMatrix body2;                // 0x40  applied to Car::pNode0x720
     BYTE field_0x80[0x60];
     FixVector groundNormal;         // 0xe0  normal of the ground under the car
-    int groundHeight;               // 0xec
-    BYTE field_0xf0[0xc];
+    int cornerHeight[4];            // 0xec  ground height under the body corners
 };
 
 // GLOBAL: CMR2 0x0053b560

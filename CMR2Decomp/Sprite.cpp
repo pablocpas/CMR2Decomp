@@ -318,15 +318,6 @@ struct Quad2DVertices {
     Quad2DRenderVertex v[3];
 };
 
-struct Quad2DInputVertex {
-    int x;
-    int y;
-    int z;
-    BYTE colour[4];
-    int u;
-    int v;
-};
-
 struct Quad2D {
     Quad2DVertices verts;   // 0x0
     Texture *pTexture;      // 0x90

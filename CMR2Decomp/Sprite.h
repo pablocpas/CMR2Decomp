@@ -44,6 +44,20 @@ extern unsigned int g_spriteCount3;
 // GLOBAL: CMR2 0x0065a968
 extern unsigned int g_spriteCount4;
 
+// Fixed-point vertex handed to Quad2D_QueueFixedTriangle.
+struct Quad2DInputVertex {
+    int x;
+    int y;
+    int z;
+    BYTE colour[4];
+    int u;
+    int v;
+};
+
+struct Quad2D;
+void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA, Quad2DInputVertex *pB, Quad2DInputVertex *pC,
+                               Texture *pTexture, Quad2D *pDest);
+
 // Queued 2D triangle (three transformed vertices); four layers of 0x400.
 struct Tri2D {
     D3DTLVERTEX v[3];
