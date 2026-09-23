@@ -3,6 +3,7 @@
 
 #include "FixedPoint.h"
 #include "SceneNode.h"
+#include "Graphics.h"
 
 // Car instance (0xc24 bytes, one per slot in g_carBuffer). Only the fields
 // used by the decompiled code are named; offsets are in the comments.
@@ -167,6 +168,29 @@ extern short g_carOrder[48];
 extern int g_carViewScale[15][2];
 // GLOBAL: CMR2 0x00538e2c
 extern SceneNode *g_viewNodes[8];
+
+// arccos as a 12-bit angle: 4096 entries for a dot product in [-1, 1]
+// GLOBAL: CMR2 0x006e6ef4
+extern short g_acosTable[4096];
+
+inline short FixAcos(int x)
+{
+    int neg = 0;
+    double t;
+
+    if (x < 0) {
+        x = -x;
+        neg = 1;
+    }
+    if (x > 0x10000) {
+        return g_acosTable[4095];
+    }
+    t = (double)x * CGraphics::m_oneOver65536 * -4095.0;
+    if (neg) {
+        return -g_acosTable[-(__int64)t];
+    }
+    return g_acosTable[-(__int64)t];
+}
 
 // GLOBAL: CMR2 0x0053aba8
 extern Car *g_cars[64];

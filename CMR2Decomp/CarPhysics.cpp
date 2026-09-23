@@ -22,6 +22,12 @@ int RallyData_FUN_00411060(void);
 int FUN_0042cae0(Car *pCar, int param2);
 void Scene_GetShadowColour(DWORD *pColour, int *pLevel);
 void FUN_00495f50(int view, CarContact *pContact);
+CarTransforms *FUN_0042ca70(int index);
+FixMatrix *FUN_0042cab0(int index);
+BYTE *FUN_0042cac0(int index);
+void FUN_00497db0(Car *pCar);
+void FUN_004962c0(Car *pCar, CarContact *pContact);
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
 
 #define CAR_CONTACT(i) ((CarContact *)g_unk0x00592734 + (i))
 
@@ -75,6 +81,11 @@ int g_physPatchScaleB[14] = {0x10000, 0x10a3d, 0x10000, 0x10624, 0x10000, 0x108b
 // Pairs of opposite body patch corners.
 // GLOBAL: CMR2 0x005201c0
 BYTE g_physPatchEdges[4][2] = {{1, 2}, {0, 3}, {1, 0}, {2, 3}};
+// Reference axis of the skid trail and its length scale.
+// GLOBAL: CMR2 0x005201c8
+FixVector g_physTrailAxis = {0x10000, 0, 0};
+// GLOBAL: CMR2 0x005201d4
+int g_physTrailScale = 0x10000;
 
 // Resets the contact records for a new stage and caches the pointers into
 // every car's handling data. In the time trial modes only the first car
@@ -299,23 +310,23 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
             }
             FixVecScale(&fwd, &g_physPatchDir, g_physPatchLength);
             FixVecScale(&side, &g_physPatchSide, g_physPatchWidth);
-            pContact->bodyCorners[1].x = side.x + fwd.x;
-            pContact->bodyCorners[0].x = fwd.x - side.x;
-            pContact->bodyCorners[1].y = side.y + fwd.y;
-            pContact->bodyCorners[0].y = fwd.y - side.y;
-            pContact->bodyCorners[1].z = side.z + fwd.z;
-            pContact->bodyCorners[0].z = fwd.z - side.z;
+            pContact->points[1].x = side.x + fwd.x;
+            pContact->points[0].x = fwd.x - side.x;
+            pContact->points[1].y = side.y + fwd.y;
+            pContact->points[0].y = fwd.y - side.y;
+            pContact->points[1].z = side.z + fwd.z;
+            pContact->points[0].z = fwd.z - side.z;
             FixVecScale(&fwd, &fwd, -0x10000);
-            pContact->bodyCorners[2].x = side.x + fwd.x;
-            pContact->bodyCorners[3].x = fwd.x - side.x;
-            pContact->bodyCorners[2].y = side.y + fwd.y;
-            pContact->bodyCorners[3].y = fwd.y - side.y;
-            pContact->bodyCorners[2].z = side.z + fwd.z;
-            pContact->bodyCorners[3].z = fwd.z - side.z;
+            pContact->points[2].x = side.x + fwd.x;
+            pContact->points[3].x = fwd.x - side.x;
+            pContact->points[2].y = side.y + fwd.y;
+            pContact->points[3].y = fwd.y - side.y;
+            pContact->points[2].z = side.z + fwd.z;
+            pContact->points[3].z = fwd.z - side.z;
             for (i = 0; i < 4; i++) {
-                pContact->bodyCorners[i].x += g_physGroundPos.x;
-                pContact->bodyCorners[i].y += g_physGroundPos.y;
-                pContact->bodyCorners[i].z += g_physGroundPos.z;
+                pContact->points[i].x += g_physGroundPos.x;
+                pContact->points[i].y += g_physGroundPos.y;
+                pContact->points[i].z += g_physGroundPos.z;
             }
             return;
         }
@@ -328,30 +339,30 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
         rel.z = g_physGroundPos.z - pCar->position.z;
         FixVecScale(&d, &pCar->up, pCar->halfExtents.y);
         for (i = 0; i < 4; i++) {
-            pContact->bodyCorners[i].x = pCar->corners[i].x + rel.x + d.x;
-            pContact->bodyCorners[i].y = rel.y + d.y + pCar->corners[i].y;
-            pContact->bodyCorners[i].z = pCar->corners[i].z + rel.z + d.z;
+            pContact->points[i].x = pCar->corners[i].x + rel.x + d.x;
+            pContact->points[i].y = rel.y + d.y + pCar->corners[i].y;
+            pContact->points[i].z = pCar->corners[i].z + rel.z + d.z;
         }
-        d = pContact->bodyCorners[2];
-        pContact->bodyCorners[2] = pContact->bodyCorners[3];
-        pContact->bodyCorners[3] = d;
+        d = pContact->points[2];
+        pContact->points[2] = pContact->points[3];
+        pContact->points[3] = d;
         return;
     }
-    pContact->bodyCorners[1] = g_physGroundPoint[0];
-    pContact->bodyCorners[0] = g_physGroundPoint[1];
-    pContact->bodyCorners[3] = g_physGroundPoint[3];
-    pContact->bodyCorners[2] = g_physGroundPoint[2];
+    pContact->points[1] = g_physGroundPoint[0];
+    pContact->points[0] = g_physGroundPoint[1];
+    pContact->points[3] = g_physGroundPoint[3];
+    pContact->points[2] = g_physGroundPoint[2];
     if (pCar->field_0xb64 == 0) {
-        pContact->bodyCorners[1].y = g_physBody->cornerHeight[0];
-        pContact->bodyCorners[0].y = g_physBody->cornerHeight[1];
-        pContact->bodyCorners[3].y = g_physBody->cornerHeight[3];
-        pContact->bodyCorners[2].y = g_physBody->cornerHeight[2];
+        pContact->points[1].y = g_physBody->cornerHeight[0];
+        pContact->points[0].y = g_physBody->cornerHeight[1];
+        pContact->points[3].y = g_physBody->cornerHeight[3];
+        pContact->points[2].y = g_physBody->cornerHeight[2];
     }
     if (stage == (char)pCar->field_0xb1b[0])
         return;
     for (pEdge = g_physPatchEdges[0]; pEdge < g_physPatchEdges[4]; pEdge += 2) {
-        pA = &pContact->bodyCorners[pEdge[0]];
-        pB = &pContact->bodyCorners[pEdge[1]];
+        pA = &pContact->points[pEdge[0]];
+        pB = &pContact->points[pEdge[1]];
         d.x = pA->x - pB->x;
         d.y = pA->y - pB->y;
         d.z = pA->z - pB->z;
@@ -496,22 +507,22 @@ void FUN_00494db0(Car *pCar, int view)
         }
     }
 
-    FIX_MIDPOINT(centre, g_physContactView.bodyCorners[0], g_physContactView.bodyCorners[2]);
+    FIX_MIDPOINT(centre, g_physContactView.points[0], g_physContactView.points[2]);
 
     // Skid trail: the trailing edge of the body followed by the skid points.
     if (!(g_pGraphics->field913_0x3bc & 0x20) && g_physContactView.field_0x294 == 0) {
         k = g_physContactView.trailEdge;
-        outline[0] = g_physContactView.bodyCorners[k];
-        outline[1] = g_physContactView.bodyCorners[(k + 1) % 4];
+        outline[0] = g_physContactView.points[k];
+        outline[1] = g_physContactView.points[(k + 1) % 4];
         n = 2;
         for (i = 0; i < *g_physSkidCount[pCar->field_0xb1a] + 1; i++) {
             if (all || !FUN_00494d40(pCar, &g_physContactView, i)) {
-                outline[n] = g_physContactView.skidPoints[i];
+                outline[n] = g_physContactView.points[4 + i];
                 n++;
             }
         }
-        outline[count + 3] = g_physContactView.bodyCorners[(k + 3) % 4];
-        outline[count + 4] = g_physContactView.bodyCorners[(k + 2) % 4];
+        outline[count + 3] = g_physContactView.points[(k + 3) % 4];
+        outline[count + 4] = g_physContactView.points[(k + 2) % 4];
         t = 0xfd70 - FixMul(0x10000 - g_physContactView.field_0x250, 0x23d7);
         total = (short)(count + 4);
         for (i = 0; i < total + 1; i++) {
@@ -534,7 +545,7 @@ void FUN_00494db0(Car *pCar, int view)
 
     // Body: fades out as the car leaves the ground.
     if (g_physContactView.field_0x294 == 0) {
-        SHADOW_OCTAGON(g_physContactView.bodyCorners, ring, outline, centre);
+        SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
         t = pCar->corners[0].y - pCar->cornerHeight[0];
         for (i = 1; i < 8; i++) {
             if (pCar->corners[i].y - pCar->cornerHeight[i] < t)
@@ -550,7 +561,7 @@ void FUN_00494db0(Car *pCar, int view)
         }
         colour[3] = FixMulShift32(t, 0xff0000);
     } else {
-        SHADOW_OCTAGON(g_physContactView.bodyCorners, ring, outline, centre);
+        SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
         colour[3] = 0xff;
     }
     for (i = 1; i <= 8; i++) {
@@ -574,7 +585,7 @@ void FUN_00495f50(int view, CarContact *pContact)
 
     FixMatrix_GetPosition(&cam, &g_viewNodes[view]->current);
     for (i = 0; i < pContact->pointCount; i++) {
-        p = &pContact->bodyCorners[i];
+        p = &pContact->points[i];
         d.x = cam.x - p->x;
         d.y = cam.y - p->y;
         d.z = cam.z - p->z;
@@ -603,5 +614,234 @@ void FUN_00495f50(int view, CarContact *pContact)
             }
             p++;
         }
+    }
+}
+
+// Loads the car into the g_phys* globals, drops it onto the ground and
+// updates its contact record: the wheel and body patches and, for a driven
+// car, the skid trail laid out behind the body patch along the car's skid
+// profile, bent round when the car is sliding sideways. Every point is then
+// eased towards the ground height under it.
+// TODO: CMR2 0x00496e00 (implemented, match 58%)
+void FUN_00496e00(Car *pCar)
+{
+    CarContact *pContact;
+    int *pProfile;
+    FixVector flat;
+    FixVector p;
+    FixVector v;
+    FixVector w;
+    FixVector *pNormal;
+    int h;
+    int scale;
+    int cosA;
+    int fwd;
+    int side;
+    int grip;
+    int bend;
+    int base;
+    int lateral;
+    int along;
+    int firstAlong;
+    int firstLat;
+    int acc;
+    int limit;
+    int len;
+    int a;
+    int c;
+    int k;
+    int first;
+    int extra;
+    short angle;
+    int skip;
+
+    pContact = CAR_CONTACT(pCar->field_0xb1a);
+    firstAlong = 0;
+    firstLat = 0;
+    acc = 0;
+    side = 0;
+    first = 0;
+    pProfile = g_physSkidWidth[pCar->field_0xb1a];
+    g_physBody = FUN_0042ca70(pCar->field_0xb1a);
+    g_physWheels = FUN_0042cab0(pCar->field_0xb1a);
+    FixMatrix_GetRight(&g_physRight, &g_physBody->body);
+    FixMatrix_GetUp(&g_physUp, &g_physBody->body);
+    FixMatrix_GetForward(&g_physForward, &g_physBody->body);
+    FixMatrix_GetPosition(&g_physPos, &g_physBody->body);
+    g_physGroundPoint = (FixVector *)FUN_0042cac0(pCar->field_0xb1a);
+    if (pCar->field_0xb64 != 0) {
+        h = FixMul(g_physBody->cornerHeight[0] - g_physPos.y, g_physBody->groundNormal.y);
+    } else {
+        g_physGroundPos = *g_physGroundPoint;
+        g_physGroundPos.x -= g_physPos.x;
+        g_physGroundPos.y = g_physBody->cornerHeight[0] - g_physPos.y;
+        g_physGroundPos.z -= g_physPos.z;
+        pNormal = &g_physBody->groundNormal;
+        h = FixVecDot(pNormal, &g_physGroundPos);
+    }
+    FixVecScale(&g_physGroundPos, &g_physBody->groundNormal, h);
+    g_physGroundPos.x += g_physPos.x;
+    g_physGroundPos.y += g_physPos.y;
+    g_physGroundPos.z += g_physPos.z;
+    if (pContact->field_0x298 != 0)
+        FUN_00497db0(pCar);
+    FUN_004962c0(pCar, pContact);
+    if (pContact->field_0x294 != 0 || (g_pGraphics->field913_0x3bc & 0x20)) {
+        pContact->pointCount = 4;
+    } else {
+        // Trail direction relative to the car, flattened onto the ground.
+        scale = FixDiv(g_physPatchLength, *pProfile);
+        flat = g_physPatchDir;
+        flat.y = 0;
+        FIX_NORMALIZE_INTO(flat, flat);
+        flat.y = 0;
+        cosA = FixMul(flat.z, g_physTrailAxis.z) + FixMul(flat.x, g_physTrailAxis.x);
+        grip = FixVecDot(&g_physUp, &g_physBody->groundNormal) - 0xcccc;
+        if (grip < 0) {
+            grip = 0;
+        } else {
+            grip = FixMul(grip, 0x4ffec);
+            if (grip > 0x10000)
+                grip = 0x10000;
+        }
+        fwd = FixMul(cosA, g_physTrailScale);
+        side = FixMul(FixMul(flat.x, g_physTrailAxis.z) + FixMul(-flat.z, g_physTrailAxis.x), g_physTrailScale);
+        bend = FixMul(side, grip);
+        if (fwd < 0)
+            a = pProfile[*g_physSkidCount[pCar->field_0xb1a] * 2 - 1];
+        else
+            a = pProfile[1];
+        base = FixMul(a + *g_physSkidOffset[pCar->field_0xb1a], fwd);
+        lateral = g_physPatchWidth;
+        if (side < 0)
+            lateral = -g_physPatchWidth;
+        lateral += FixMul(*g_physSkidOffset[pCar->field_0xb1a], side);
+        if (fwd < 0) {
+            if (side < 0) {
+                pContact->trailEdge = 1;
+                skip = 1;
+            } else {
+                pContact->trailEdge = 0;
+                skip = 0;
+            }
+        } else if (side < 0) {
+            pContact->trailEdge = 2;
+            skip = 0;
+        } else {
+            pContact->trailEdge = 3;
+            skip = 1;
+        }
+        pContact->field_0x29c = skip;
+        if (side < 0)
+            pContact->field_0x2a0 = 0;
+        else
+            pContact->field_0x2a0 = 1;
+        for (c = 0; c < *g_physSkidCount[pCar->field_0xb1a]; c++) {
+            a = pProfile[c * 2];
+            h = FixMul(pProfile[c * 2 + 1], bend) + lateral;
+            if (c != 0 && c != *g_physSkidCount[pCar->field_0xb1a] - 1) {
+                if (fwd < 0)
+                    grip = pProfile[c * 2 + 2] - a;
+                else
+                    grip = pProfile[c * 2 - 2] - a;
+                a += FixMul(grip, FIX_ABS(cosA));
+            }
+            along = FixMul(a + base, scale);
+            if (fwd < 0 ? c == *g_physSkidCount[pCar->field_0xb1a] - 1 : c == 0) {
+                firstAlong = along;
+                firstLat = h;
+            }
+            FixVecScale(&p, &g_physPatchDir, along);
+            FixVecScale(&v, &g_physPatchSide, h);
+            p.y += v.y;
+            p.x += v.x;
+            p.z += v.z;
+            if (side < 0)
+                k = *g_physSkidCount[pCar->field_0xb1a] - c + 3;
+            else
+                k = c + 4;
+            if (skip)
+                k++;
+            if ((c == 0 && side >= 0) || (c == *g_physSkidCount[pCar->field_0xb1a] - 1 && side < 0))
+                first = k;
+            pContact->points[k].x = p.x + g_physGroundPos.x;
+            pContact->points[k].y = p.y + g_physGroundPos.y;
+            pContact->points[k].z = p.z + g_physGroundPos.z;
+        }
+        // Closing point, just outside the body patch.
+        if (side < 0)
+            extra = FixMul(g_physPatchWidth, 0x20000);
+        else
+            extra = -FixMul(g_physPatchWidth, 0x20000);
+        firstLat += extra;
+        FixVecScale(&v, &g_physPatchSide, firstLat);
+        p.y = FixMul(g_physPatchDir.y, firstAlong) + v.y;
+        p.x = FixMul(g_physPatchDir.x, firstAlong) + v.x;
+        p.z = FixMul(g_physPatchDir.z, firstAlong) + v.z;
+        if (skip == 0) {
+            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].x = p.x + g_physGroundPos.x;
+            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].y = g_physGroundPos.y + p.y;
+            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].z = g_physGroundPos.z + p.z;
+        } else {
+            pContact->points[4].x = p.x + g_physGroundPos.x;
+            pContact->points[4].y = p.y + g_physGroundPos.y;
+            pContact->points[4].z = p.z + g_physGroundPos.z;
+        }
+        pContact->pointCount = *g_physSkidCount[pCar->field_0xb1a] + 5;
+    }
+    if (pContact->field_0x294 != 0)
+        return;
+    if (!(g_pGraphics->field913_0x3bc & 0x20)) {
+        // Bend the trail: no point may turn away from the trail direction
+        // faster than 1.5 degrees per point.
+        if (side < 0)
+            c = *g_physSkidCount[pCar->field_0xb1a] - 1;
+        else
+            c = 0;
+        while (c < *g_physSkidCount[pCar->field_0xb1a] && c >= 0) {
+            k = (c + (short)first) % pContact->pointCount;
+            v.x = pContact->points[k].x - g_physGroundPos.x;
+            v.y = pContact->points[k].y - g_physGroundPos.y;
+            v.z = pContact->points[k].z - g_physGroundPos.z;
+            len = FixVecLength(&v);
+            if (len > 0)
+                FixVecScaleRecip(&v, &v, len);
+            angle = FixAcos(FixVecDot(&g_physPatchDir, &v));
+            limit = (0x400 - angle) * 0x1680;
+            if (side < 0 ? c != *g_physSkidCount[pCar->field_0xb1a] - 1 : c != 0) {
+                acc += 0x18000;
+                if (limit < acc) {
+                    if (side < 0)
+                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)-acc * (1.0 / 5760.0))));
+                    else
+                        FixVecScale(&w, &g_physPatchSide, FixSin((__int64)((double)acc * (1.0 / 5760.0))));
+                    a = FixCos((__int64)((double)acc * -(1.0 / 5760.0)));
+                    p.x = FixMul(g_physPatchDir.x, a) + w.x;
+                    p.y = FixMul(g_physPatchDir.y, a) + w.y;
+                    p.z = FixMul(g_physPatchDir.z, a) + w.z;
+                    FIX_NORMALIZE_INTO(v, p);
+                    FixVecScale(&v, &v, len);
+                    k = ((short)first + c) % pContact->pointCount;
+                    pContact->points[k].x = g_physGroundPos.x + v.x;
+                    pContact->points[k].y = g_physGroundPos.y + v.y;
+                    pContact->points[k].z = g_physGroundPos.z + v.z;
+                    limit = acc;
+                }
+            }
+            if (side < 0)
+                c--;
+            else
+                c++;
+            acc = limit;
+        }
+    }
+    for (c = 0; c < pContact->pointCount; c++) {
+        h = Track_GetGroundHeight(&pContact->points[c], &v, &pContact->pointTriangle[c], (unsigned short *)&first,
+                                  pContact->pointGroundY[c]);
+        pContact->pointGroundY[c] = h;
+        h -= pContact->points[c].y;
+        if (FIX_ABS(h) > 0x8000)
+            h = h < 1 ? -0x8000 : 0x8000;
+        pContact->points[c].y += h;
     }
 }

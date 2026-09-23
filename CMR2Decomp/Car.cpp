@@ -1208,25 +1208,6 @@ void Car_BalanceWheelPairs(void)
 // GLOBAL: CMR2 0x006e6ef4
 short g_acosTable[4096];
 
-inline short FixAcos(int x)
-{
-    int neg = 0;
-    double t;
-
-    if (x < 0) {
-        x = -x;
-        neg = 1;
-    }
-    if (x > 0x10000) {
-        return g_acosTable[4095];
-    }
-    t = (double)x * CGraphics::m_oneOver65536 * -4095.0;
-    if (neg) {
-        return -g_acosTable[-(__int64)t];
-    }
-    return g_acosTable[-(__int64)t];
-}
-
 // Builds the sideways (friction) force at every corner that is sliding against
 // its contact normal, sharing the given grip between the sliding corners.
 // FUNCTION: CMR2 0x0043a920
