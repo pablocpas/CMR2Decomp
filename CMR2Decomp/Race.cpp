@@ -2,6 +2,7 @@
 #include "RallyData.h"
 #include "GameInfo.h"
 #include "StageUI.h"
+#include "FixedPoint.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -13,14 +14,32 @@ unsigned int RallyData_FUN_00407e90(void);
 BYTE g_unk0x005191a0 = 0xff;
 // GLOBAL: CMR2 0x00537f08
 BYTE g_unk0x00537f08;
+// GLOBAL: CMR2 0x00537190
+int g_unk0x00537190;
+// GLOBAL: CMR2 0x00537194
+int g_unk0x00537194;
+// GLOBAL: CMR2 0x00537394
+int g_unk0x00537394;
+// GLOBAL: CMR2 0x00537664
+int g_unk0x00537664;
+// GLOBAL: CMR2 0x00537f0c
+int g_unk0x00537f0c[6];
+// GLOBAL: CMR2 0x00537f24
+int g_unk0x00537f24;
 // GLOBAL: CMR2 0x00537f3c
 BYTE *g_unk0x00537f3c[8];
 // GLOBAL: CMR2 0x00537f60
 int g_unk0x00537f60;
+// GLOBAL: CMR2 0x00537f68
+int g_unk0x00537f68[4];
+// GLOBAL: CMR2 0x00537f78
+int g_unk0x00537f78[7];
 // GLOBAL: CMR2 0x00537f94
 int g_unk0x00537f94;
 // GLOBAL: CMR2 0x00537ffa
 BYTE g_unk0x00537ffa;
+// GLOBAL: CMR2 0x00537fc0
+unsigned int g_unk0x00537fc0;
 // GLOBAL: CMR2 0x00538108
 int g_unk0x00538108;
 // GLOBAL: CMR2 0x0053810c
@@ -31,6 +50,8 @@ BYTE g_unk0x0053810d;
 int g_unk0x00538114;
 // GLOBAL: CMR2 0x00538118
 int g_unk0x00538118;
+// GLOBAL: CMR2 0x0053811c
+BYTE g_unk0x0053811c;
 // GLOBAL: CMR2 0x0053823c
 char g_unk0x0053823c[MAX_PATH];
 // GLOBAL: CMR2 0x00538340
@@ -206,3 +227,93 @@ char FUN_00420190(void)
         return 2;
     return (char)RallyDataState();
 }
+
+// FUNCTION: CMR2 0x00414700
+int FUN_00414700(void)
+{
+    if (RallyData_FUN_00411880() && !CGameInfo::FUN_00405dc0())
+        return 1;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004174d0
+bool FUN_004174d0(void)
+{
+    return (char)RallyData_GetFlag24() == 0;
+}
+
+// FUNCTION: CMR2 0x00417e60
+void FUN_00417e60(void)
+{
+    g_unk0x00537190 = 0;
+}
+
+// FUNCTION: CMR2 0x00418560
+void FUN_00418560(int value)
+{
+    g_unk0x00537194 = value;
+}
+
+// FUNCTION: CMR2 0x00418570
+int FUN_00418570(void)
+{
+    return g_unk0x00537194;
+}
+
+// FUNCTION: CMR2 0x00418d20
+void FUN_00418d20(int value)
+{
+    g_unk0x00537394 = value;
+}
+
+// FUNCTION: CMR2 0x0041b040
+void FUN_0041b040(int value)
+{
+    g_unk0x00537664 = FixMul(value, 0x10000);
+}
+
+// FUNCTION: CMR2 0x0041bf50
+int FUN_0041bf50(int index)
+{
+    return g_unk0x00537f68[index];
+}
+
+// FUNCTION: CMR2 0x0041bf60
+int FUN_0041bf60(int index)
+{
+    return g_unk0x00537f78[index];
+}
+
+// FUNCTION: CMR2 0x0041bf70
+int FUN_0041bf70(int index)
+{
+    return g_unk0x00537f0c[index];
+}
+
+// FUNCTION: CMR2 0x0041d290
+int FUN_0041d290(void)
+{
+    return g_unk0x00537f24 << 2;
+}
+
+// FUNCTION: CMR2 0x0041d2a0
+int FUN_0041d2a0(void)
+{
+    return g_unk0x00537f24;
+}
+
+// FUNCTION: CMR2 0x0041d780
+unsigned int FUN_0041d780(void)
+{
+    unsigned int value = g_unk0x00537fc0;
+    if (value > 499)
+        value = 499;
+    return value;
+}
+
+// FUNCTION: CMR2 0x0041db00
+BYTE FUN_0041db00(void)
+{
+    return g_unk0x0053811c;
+}
+
