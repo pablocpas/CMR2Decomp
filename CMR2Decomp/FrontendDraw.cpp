@@ -7,6 +7,7 @@
 #include "Font.h"
 #include "Sprite.h"
 #include "RallyData.h"
+#include "GenericFileLoader.h"
 #include "GameInfo.h"
 #include "FrontendMenus.h"
 #include <stdio.h>
@@ -409,6 +410,133 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
                           (int *)g_colourTitle0x00524984, 0x11);
             g_unk0x008189a8[3] = 1;
             g_unk0x008189a8[1] = ROW_H() + top;
+        }
+    }
+}
+
+#define SCROLLER_TEXT(i) \
+    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id)); \
+    CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest)
+
+// Same as FrontendDraw_Carousel for a menu driven by a MenuScroller, with
+// the item names in lower case.
+// FUNCTION: CMR2 0x004d2cd0
+void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
+{
+    Menu *pMenu;
+    DWORD now;
+    int x0;
+    int x;
+    int i;
+    int next;
+    BYTE *pColour;
+    BYTE *pSep;
+    BYTE *pShadow;
+
+    pMenu = p->pMenu;
+    g_unk0x008189a8[2] = 1;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 384) / 480;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 45) / 480;
+    now = timeGetTime();
+    if (p->previous != -1 && now - p->startTime <= 250) {
+        CFrontend::GetTextString(pMenu->items[pMenu->cursor].id);
+        x0 = (int)(g_pGraphics->resX * 102) / 640 + p->offset;
+    } else {
+        CFrontend::GetTextString(pMenu->items[pMenu->cursor].id);
+        x0 = (int)(g_pGraphics->resX * 102) / 640 + p->offset;
+    }
+    SCROLLER_TEXT(pMenu->cursor);
+    if (p->offset == 0 && active != 0)
+        Font_DrawText(2, CFrontend::m_stringDest, x0, CAROUSEL_Y(), (int *)g_colourWhite0x00524968, 0x11);
+    else
+        Font_DrawText(2, CFrontend::m_stringDest, x0, CAROUSEL_Y(), (int *)g_colourText0x0052496c, 0x11);
+    if (active != 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = p->widths[pMenu->cursor] + p->spacing / 2 + x0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    g_unk0x008189a8[0]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+
+    x = p->widths[pMenu->cursor] + x0 + p->spacing;
+    if (active != 0) {
+        pSep = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    } else {
+        pSep = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
+    }
+    i = pMenu->cursor;
+    while (x < (int)g_pGraphics->resX) {
+        i++;
+        if (i >= pMenu->itemCount)
+            i = 0;
+        SCROLLER_TEXT(i);
+        pColour = pSep;
+        if (!pMenu->items[i].enabled)
+            pColour = g_colourDim0x00524970;
+        Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        if (pMenu->items[i].enabled) {
+            g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+            pColour = pShadow;
+        } else {
+            g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
+            pColour = g_colourShadowDim0x0052497c;
+        }
+        g_unk0x008189a8[0]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+        x += p->widths[i] + p->spacing;
+    }
+
+    i = pMenu->cursor - 1;
+    if (i < 0)
+        i = pMenu->itemCount - 1;
+    x = x0 - p->widths[i] - p->spacing;
+    if (active != 0) {
+        pColour = g_colourText0x0052496c;
+        pSep = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourDim0x00524970;
+        pSep = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    while (p->widths[i] + p->spacing + x > 0) {
+        SCROLLER_TEXT(i);
+        if (!pMenu->items[i].enabled)
+            pColour = g_colourDim0x00524970;
+        Font_DrawText(2, CFrontend::m_stringDest, x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        next = i + 1;
+        if (next >= pMenu->itemCount)
+            next = 0;
+        if (pMenu->items[next].enabled) {
+            g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+        } else {
+            g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 1);
+            pShadow = g_colourShadowDim0x0052497c;
+        }
+        g_unk0x008189a8[0]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+        i--;
+        if (i < 0)
+            i = pMenu->itemCount - 1;
+        x -= p->widths[i] + p->spacing;
+        if (active != 0) {
+            pShadow = g_colourShadowText0x00524978;
+            pColour = g_colourText0x0052496c;
+            pSep = g_colourText0x0052496c;
+        } else {
+            pShadow = g_colourShadowDim0x0052497c;
+            pColour = g_colourDim0x00524970;
+            pSep = g_colourDim0x00524970;
         }
     }
 }

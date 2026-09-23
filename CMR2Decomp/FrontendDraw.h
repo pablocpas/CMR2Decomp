@@ -2,6 +2,7 @@
 #define _FRONTENDDRAW_H
 
 #include "Menu.h"
+#include "FrontendMenus.h"
 
 // Drawing helpers shared by the frontend screens (0x4d2cd0-0x4d45b0)
 
@@ -15,6 +16,7 @@ int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char 
 void FrontendDraw_PlayTime(void);
 void FrontendDraw_HelpText(char *text, int reset);
 void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active);
+void FrontendDraw_ScrollerRow(MenuScroller *p, char active);
 void FrontendDraw_Carousel(Menu *pMenu, char active, char *help);
 
 #endif
