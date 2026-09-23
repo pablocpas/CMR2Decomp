@@ -903,6 +903,35 @@ int g_unk0x0053ce60[16];
 int g_unk0x0053ce68[16];
 // GLOBAL: CMR2 0x0053cfa0
 int g_unk0x0053cfa0[16];
+// GLOBAL: CMR2 0x0053cdbc
+int g_unk0x0053cdbc;
+
+// FUNCTION: CMR2 0x00445a40
+int FUN_00445a40(void)
+{
+    if (g_unk0x0053cdbc != 0) {
+        g_unk0x0053cdbc = 0;
+        return 1;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x00445db0
+void FUN_00445db0(void)
+{
+    g_unk0x0053cfa0[2] = 0;
+    g_unk0x0053ce68[12] = -1;
+    g_unk0x0053cfa0[3] = 0;
+    g_unk0x0053ce68[13] = -1;
+}
+
+// FUNCTION: CMR2 0x00445dd0
+int FUN_00445dd0(int index)
+{
+    if (index < 2)
+        return g_unk0x0053ce54[index];
+    return 0;
+}
 
 
 // GLOBAL: CMR2 0x00542420
