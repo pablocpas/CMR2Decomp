@@ -768,7 +768,7 @@ Menu *g_pHeaderMenu;
 // Breadcrumb of the in-game screens: the menu title (when it is the one that
 // owns it), the stage or championship name and, for the first two stages, the
 // race mode; each entry is followed by its marker rectangle.
-// FUNCTION: CMR2 0x00451890
+// TODO: CMR2 0x00451890 (implemented, match 93%)
 void FUN_00451890(Menu *pMenu)
 {
     int flag;
