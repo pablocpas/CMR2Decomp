@@ -1126,8 +1126,32 @@ int FUN_004a1b90(int param1, void **param2)
 }
 
 
+// FUNCTION: CMR2 0x004a19c0
+int FUN_004a19c0(DPID *pId, char *pIndex)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
+            *pIndex = i;
+            return 1;
+        }
+    }
+    *pIndex = 0;
+    return 0;
+}
+
 // FUNCTION: CMR2 0x004a1a00
 DPID FUN_004a1a00(void)
 {
     return CGame::m_unk0x005a1ea0;
 }
+
+// FUNCTION: CMR2 0x004a1b60
+char *FUN_004a1b60(BYTE index)
+{
+    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
+        return CGame::m_unk0x005a1820[index].field_0x64;
+    return NULL;
+}
+

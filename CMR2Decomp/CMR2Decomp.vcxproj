@@ -151,6 +151,7 @@
     <ClCompile Include="InstallInfo.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="NetPlayers.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RallyData.cpp" />

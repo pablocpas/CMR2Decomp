@@ -3,6 +3,7 @@
 #include "InstallInfo.h"
 #include "FileBuffer.h"
 #include <stdio.h>
+#include <string.h>
 
 int CNetworkLeaderboards::m_leaderboardId = -1;
 int CNetworkLeaderboards::m_totalLeaderboards;
@@ -65,3 +66,28 @@ int CNetworkLeaderboards::GetTotalLeaderboards(void)
 {
     return m_totalLeaderboards;
 }
+
+// GLOBAL: CMR2 0x00533900
+BYTE g_unk0x00533900[0x104];
+// GLOBAL: CMR2 0x00535b8c
+BYTE g_unk0x00535b8c;
+
+// FUNCTION: CMR2 0x0040e890
+void FUN_0040e890(void)
+{
+    g_unk0x00535b8c = 0;
+}
+
+// FUNCTION: CMR2 0x0040e8a0
+void FUN_0040e8a0(BYTE *p)
+{
+    memcpy(g_unk0x00533900, p, sizeof(g_unk0x00533900));
+    g_unk0x00535b8c = 1;
+}
+
+// FUNCTION: CMR2 0x0040e8c0
+BYTE *FUN_0040e8c0(void)
+{
+    return g_unk0x00535b8c ? g_unk0x00533900 : NULL;
+}
+

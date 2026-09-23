@@ -11,6 +11,7 @@
 #include "Game.h"
 #include "Sound.h"
 #include "RallyData.h"
+#include "NetPlayers.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -1200,10 +1201,6 @@ int g_unk0x0082ac5c;
 int g_unk0x0082b0a0;
 // GLOBAL: CMR2 0x0082b2c0
 Unk0x0082b2c0 g_unk0x0082b2c0[8];
-// GLOBAL: CMR2 0x00531c94
-int g_unk0x00531c94[16];
-// GLOBAL: CMR2 0x00531c98
-int g_unk0x00531c98;
 
 // FUNCTION: CMR2 0x005011a0
 void CGameInfo::FUN_005011a0(void)
@@ -1245,8 +1242,8 @@ int CGameInfo::FUN_005012c0(void)
 int CGameInfo::FUN_0040a420(int index)
 {
     if (FUN_00405d80() == 0xc)
-        return g_unk0x00531c98;
-    return g_unk0x00531c94[index];
+        return g_netStageBest[0];
+    return g_netStageBest[index - 1];
 }
 
 // FUNCTION: CMR2 0x00501cc0
