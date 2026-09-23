@@ -540,9 +540,111 @@ void FUN_0044e130(void)
 {
 }
 
-// STUB: CMR2 0x0044efa0
+void GameMenus_DrawRowHighlight(short row);
+BYTE FUN_00407fc0(int param1);
+void GameMenus_DrawRowSeparator(short row);
+extern int g_unk0x00540c60;
+extern int g_unk0x0053e698;
+
+// Set when the standings menus of the stage end / pause screens show their
+// extra first row.
+// GLOBAL: CMR2 0x0053f5a8
+int g_unk0x0053f5a8;
+// GLOBAL: CMR2 0x005413f8
+int g_unk0x005413f8;
+
+// Draw callback of the scrolling championship points table: six rows from
+// the position in item 0, each with the driver, its points, its car and its
+// position; rows of the human drivers are highlighted and the top five are
+// separated from the rest.
+// TODO: CMR2 0x0044efa0 (implemented, match 82%)
 void FUN_0044efa0(Menu *pMenu)
 {
+    BOOL isPlayer;
+    int rows;
+    int row;
+    int pos;
+    int id;
+    int points;
+    int player;
+    BYTE first;
+
+    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    FUN_0044b760();
+    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                          CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
+                          CFrontend::GetTextString(0x8d), 0);
+    for (row = 0; row < rows; row++) {
+        if (g_unk0x0053f5a8 != 0) {
+            first = pMenu->items[0].max;
+            row++;
+            pos = (first - 1) + row;
+        } else {
+            if (g_unk0x005413f8 != 0)
+                row++;
+            first = pMenu->items[0].max;
+            pos = first + row;
+        }
+        if (pos < 6 || first > 5)
+            g_unk0x0053e698 = 0;
+        else
+            g_unk0x0053e698 = (int)(g_pGraphics->resY * 10) / 480;
+        id = RallyTiming_GetOverallPositionDriverID(pos);
+        points = RallyTiming_GetStagePenalty(id, RallyDataCountryIndex());
+        isPlayer = FALSE;
+        for (player = 0; player < CGameInfo::FUN_00405d70(); player++) {
+            if (RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(player)) == pos) {
+                isPlayer = TRUE;
+                strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
+                goto found;
+            }
+        }
+        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
+    found:
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                      (int *)g_menuFrameColour, 9);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, points);
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
+                      (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60 + g_unk0x0053e698,
+                      (int *)g_menuFrameColour, 9);
+        if (isPlayer) {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(player)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
+                                    g_unk0x00540c60 - 1 + g_unk0x0053e698);
+            g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
+            g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
+            g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+        } else {
+            if (pos < 6)
+                GameMenus_DrawRowHighlight(row);
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(id)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            GameMenus_DrawRowFrame(row, 0, 0);
+        }
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                          g_unk0x00540c60 + g_unk0x0053e698,
+                      (int *)g_menuFrameColour, 0x21);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
+        Font_DrawText(1, CFrontend::m_stringDest,
+                      ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
+                          (int)(g_pGraphics->resX * 0x20) / 640,
+                      (((int)(g_pGraphics->resY * 8) / 480 +
+                        ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
+                        ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480 + g_unk0x0053e698,
+                      (int *)g_menuFrameColour, 0x12);
+        if (pos == 5 && pMenu->items[0].max != 0)
+            GameMenus_DrawRowSeparator(row);
+        if (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0)
+            row--;
+    }
+    Font_SetBlendMode(2);
 }
 
 // STUB: CMR2 0x0044fea0
