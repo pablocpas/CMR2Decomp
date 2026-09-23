@@ -228,11 +228,6 @@ void FUN_0044e130(void)
 {
 }
 
-// STUB: CMR2 0x0044e830
-void FUN_0044e830(void)
-{
-}
-
 // STUB: CMR2 0x0044efa0
 void FUN_0044efa0(Menu *pMenu)
 {
@@ -443,6 +438,17 @@ void GameMenus_Build(void)
 #include "Sprite.h"
 #include "GenericFileLoader.h"
 #include "Graphics.h"
+#include "RallyData.h"
+#include "NetPlayers.h"
+#include "Input.h"
+#include "TimingUtils.h"
+#include "main.h"
+
+int FUN_0040ae90(void);
+NetClassification *FUN_0040aea0(int index);
+unsigned int FUN_0040aeb0(int index);
+unsigned int FUN_0040aec0(int index);
+void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
 
 // GLOBAL: CMR2 0x00541cc0
 short g_menuRect[4];
@@ -452,6 +458,65 @@ BYTE g_menuFrameColour[4] = { 0, 0, 0, 0 };
 int g_unk0x00540c60;
 // GLOBAL: CMR2 0x0053e698
 int g_unk0x0053e698;
+
+// GLOBAL: CMR2 0x00516098
+char g_classRowHeaderFormat[] = "%s %d";
+// GLOBAL: CMR2 0x00516e30
+char g_noTimeText[] = "--:--.--";
+
+// Championship classification screen: header row (country plus either the
+// special-stage name or "round N") and one row per class with the class name,
+// its tag (from the three text ids) and the best time of the class.
+// FUNCTION: CMR2 0x0044e830
+void FUN_0044e830(Menu *pMenu)
+{
+    char *texts[4];
+    int i;
+    char *pClass;
+
+    texts[0] = CMain::m_logFileBlankLine;
+    texts[1] = CFrontend::GetTextString(0xff);
+    texts[2] = CFrontend::GetTextString(0x100);
+    texts[3] = CFrontend::GetTextString(0x101);
+    FUN_0044b760();
+    if (RallyDataStageIndex() == 0xa) {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                              CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
+                              CFrontend::GetTextString(0xba), NULL);
+    } else {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                              CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
+                              CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
+                                                   RallyDataStageIndex() + 1), NULL);
+    }
+    i = 0;
+    if (FUN_0040ae90() > 0) {
+        do {
+            Font_DrawText(1, FUN_0040aea0(i)->name, (int)(g_pGraphics->resX * 0x5c) / 0x280, (int)(g_pGraphics->resY * 3) / 0x1e0 +
+                          ((((int)(g_pGraphics->resY * 0x82) / 0x1e0 + ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                            (int)(g_pGraphics->resY * 0x14) / 0x1e0) - (int)(g_pGraphics->resY * 8) / 0x1e0),
+                          (int *)g_menuFrameColour, 9);
+            Font_DrawText(1, texts[FUN_0040aeb0(i)], (int)(g_pGraphics->resX * 0x5c) / 0x280 + (int)(g_pGraphics->resX * 100) / 0x280, (int)(g_pGraphics->resY * 3) / 0x1e0 +
+                          ((((int)(g_pGraphics->resY * 0x82) / 0x1e0 + ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                            (int)(g_pGraphics->resY * 0x14) / 0x1e0) - (int)(g_pGraphics->resY * 8) / 0x1e0),
+                          (int *)g_menuFrameColour, 9);
+            if ((int)FUN_0040aec0(i) == -1) {
+                sprintf(CFrontend::m_stringDest, g_noTimeText);
+            } else {
+                FormatCentisecondsAsMinSecMSec(FUN_0040aec0(i), CFrontend::m_stringDest);
+            }
+            pClass = CFrontend::m_stringDest;
+            Font_DrawText(1, pClass, (int)(g_pGraphics->resX * 0x5c) / 0x280 + (int)(g_pGraphics->resX * 0xfa) / 0x280, (int)(g_pGraphics->resY * 3) / 0x1e0 +
+                          ((((int)(g_pGraphics->resY * 0x82) / 0x1e0 + ((int)(g_pGraphics->resY * 0x2d) / 0x1e0) * i) -
+                            (int)(g_pGraphics->resY * 0x14) / 0x1e0) - (int)(g_pGraphics->resY * 8) / 0x1e0),
+                          (int *)g_menuFrameColour, 9);
+            i++;
+        } while (i < FUN_0040ae90());
+    }
+    Font_SetBlendMode(2);
+}
+
+
 
 // Draws the four edges of the box around one menu row.
 // FUNCTION: CMR2 0x0044ec30
