@@ -2511,10 +2511,149 @@ Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
     return pTexture;
 }
 
+// GLOBAL: CMR2 0x005210b8
+int g_unk0x005210b8 = -1;
+// GLOBAL: CMR2 0x005210bc
+int g_unk0x005210bc = 1;
+// GLOBAL: CMR2 0x005210c0
+int g_unk0x005210c0 = 1;
+// GLOBAL: CMR2 0x005210c4
+int g_unk0x005210c4 = 5;
+// GLOBAL: CMR2 0x00521138
+BYTE g_unk0x00521138[32][0x30] = {
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 },
+    { 5 }
+};
+
+// FUNCTION: CMR2 0x004b2970
+void FUN_004b2970(int value)
+{
+    g_unk0x005210bc = value;
+}
+
+// FUNCTION: CMR2 0x004b2e40
+void FUN_004b2e40(BYTE *p, int value)
+{
+    *(int *)(p + 0x2c) = value;
+}
+
+// FUNCTION: CMR2 0x004b6ef0
+void FUN_004b6ef0(int value)
+{
+    g_unk0x005210c0 = value;
+}
+
+// FUNCTION: CMR2 0x004b7200
+int FUN_004b7200(void)
+{
+    return g_unk0x005210c4;
+}
+
+// FUNCTION: CMR2 0x004b98f0
+void FUN_004b98f0(int *p, int value)
+{
+    if (*p == -1) {
+        *p = 0;
+        return;
+    }
+    *p += value;
+}
+
+// FUNCTION: CMR2 0x004bc3e0
+BYTE FUN_004bc3e0(unsigned int index)
+{
+    BYTE *p = g_unk0x00521138[index & 0xff];
+    BYTE r = (BYTE)index;
+    int i = 24;
+
+    do {
+        r |= *p++;
+    } while (--i != 0);
+    return r;
+}
+
+// FUNCTION: CMR2 0x004bc440
+void FUN_004bc440(void)
+{
+    BYTE *p;
+
+    memset(g_unk0x00521138, 0, sizeof(g_unk0x00521138));
+    p = g_unk0x00521138[0];
+    do {
+        *p = 5;
+        p += 0x30;
+    } while ((int)p < 0x521738);
+}
+
+// FUNCTION: CMR2 0x004bc470
+void FUN_004bc470(BYTE *p)
+{
+    g_unk0x00521138[*p][0] = 5;
+}
+
 // GLOBAL: CMR2 0x008164c8
 int g_unk0x008164c8;
 // GLOBAL: CMR2 0x00816298
 BYTE g_unk0x00816298[0x230];
+
+// GLOBAL: CMR2 0x00816704
+int g_unk0x00816704;
+// GLOBAL: CMR2 0x00816820
+char *g_unk0x00816820[20];
+// GLOBAL: CMR2 0x00816974
+unsigned int g_unk0x00816974;
+
+// FUNCTION: CMR2 0x004bcad0
+void FUN_004bcad0(int value)
+{
+    g_unk0x00816704 = value;
+}
+
+// FUNCTION: CMR2 0x004bcae0
+int FUN_004bcae0(void)
+{
+    return g_unk0x00816704;
+}
+
+// FUNCTION: CMR2 0x004bcfe0
+char *FUN_004bcfe0(unsigned int index)
+{
+    if (index >= 20)
+        return CMain::m_logFileBlankLine;
+    if (index >= g_unk0x00816974)
+        return CMain::m_logFileBlankLine;
+    return g_unk0x00816820[index];
+}
 
 // FUNCTION: CMR2 0x004bcac0
 int FUN_004bcac0(void)
