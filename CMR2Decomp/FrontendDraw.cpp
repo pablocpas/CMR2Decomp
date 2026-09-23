@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <mmsystem.h>
 #include <string.h>
 #include "FrontendDraw.h"
 #include "Frontend.h"
@@ -14,6 +15,15 @@
 BYTE g_colourWhite0x00524968[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x0052496c
 BYTE g_colourText0x0052496c[4] = { 0xd7, 0xeb, 0xda, 0xff };
+
+// GLOBAL: CMR2 0x00524970
+BYTE g_colourDim0x00524970[4] = { 0x48, 0x78, 0x74, 0xff };
+// GLOBAL: CMR2 0x00524974
+BYTE g_colourShadowWhite0x00524974[4] = { 0xff, 0xff, 0xff, 0x80 };
+// GLOBAL: CMR2 0x00524978
+BYTE g_colourShadowText0x00524978[4] = { 0xd2, 0xca, 0xd2, 0x80 };
+// GLOBAL: CMR2 0x0052497c
+BYTE g_colourShadowDim0x0052497c[4] = { 0x74, 0x83, 0x8d, 0x80 };
 
 // GLOBAL: CMR2 0x00524b88
 BYTE g_helpColour0x00524b88[4] = { 0xff, 0xff, 0xff, 0xff };
@@ -164,6 +174,126 @@ void FrontendDraw_HelpText(char *text, int reset)
         Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 102) / 640,
                       (int)(g_pGraphics->resY * 64) / 480 + (int)(g_pGraphics->resY * 384) / 480,
                       (int *)g_helpColour0x00524b88, 0x11);
+    }
+}
+
+#define CAROUSEL_Y() ((int)(g_pGraphics->resY * 32) / 480 + (int)(g_pGraphics->resY * 384) / 480)
+
+// Horizontal menu at the bottom of the screen: the selected item at a fixed
+// place (plus the slide offset of its MenuScroller), the following items to
+// its right and the previous ones to its left, each with a separator.
+// FUNCTION: CMR2 0x004d45b0
+void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
+{
+    MenuScroller *p;
+    DWORD now;
+    int state[2];
+    int x0;
+    int x;
+    int i;
+    int w;
+    BYTE *pColour;
+    BYTE *pShadow;
+    BYTE *pSep;
+    BYTE *pSepShadow;
+
+    p = FUN_004f24f0();
+    g_unk0x008189a8[2] = 1;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 384) / 480;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 45) / 480;
+    now = timeGetTime();
+    FUN_004ef480(&state[1], &state[0]);
+    now -= state[0];
+    if (help == NULL)
+        help = CFrontend::GetTextString(0x57);
+    FrontendDraw_HelpText(help, 1);
+    if (state[1] != -1 && now <= 250) {
+        CFrontend::GetTextString(pMenu->items[pMenu->cursor].id);
+        x0 = (int)(g_pGraphics->resX * 102) / 640 + p->offset;
+    } else {
+        CFrontend::GetTextString(pMenu->items[pMenu->cursor].id);
+        x0 = (int)(g_pGraphics->resX * 102) / 640 + p->offset;
+    }
+    if (p->offset == 0 && active != 0)
+        Font_DrawText(2, CFrontend::GetTextString(pMenu->items[pMenu->cursor].id), x0, CAROUSEL_Y(),
+                      (int *)g_colourWhite0x00524968, 0x11);
+    else
+        Font_DrawText(2, CFrontend::GetTextString(pMenu->items[pMenu->cursor].id), x0, CAROUSEL_Y(),
+                      (int *)g_colourText0x0052496c, 0x11);
+    if (active != 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = p->widths[pMenu->cursor] + p->spacing / 2 + x0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    g_unk0x008189a8[0]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+
+    i = pMenu->cursor;
+    x = p->widths[i] + x0 + p->spacing;
+    if (active != 0) {
+        pSep = g_colourText0x0052496c;
+        pSepShadow = g_colourShadowText0x00524978;
+    } else {
+        pSep = g_colourDim0x00524970;
+        pSepShadow = g_colourShadowDim0x0052497c;
+    }
+    while (x < (int)g_pGraphics->resX) {
+        i++;
+        if (i >= pMenu->itemCount)
+            i = 0;
+        if (pMenu->items[i].enabled)
+            Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pSep, 0x11);
+        else
+            Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pSepShadow, 0x11);
+        g_unk0x008189a8[0] = p->spacing / 2 + p->widths[i] + x;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+        g_unk0x008189a8[0]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSepShadow, 1);
+        x += p->widths[i] + p->spacing;
+    }
+
+    i = pMenu->cursor - 1;
+    if (i < 0)
+        i = pMenu->itemCount - 1;
+    x = x0 - p->spacing - Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[i].id));
+    if (active != 0) {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+        pSep = g_colourWhite0x00524968;
+        pSepShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
+        pSep = g_colourText0x0052496c;
+        pSepShadow = g_colourShadowText0x00524978;
+    }
+    for (w = Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[i].id)) + x; w > 0;
+         w = Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[i].id)) + x) {
+        if (pMenu->items[i].enabled)
+            Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pColour, 0x11);
+        else
+            Font_DrawText(2, CFrontend::GetTextString(pMenu->items[i].id), x, CAROUSEL_Y(), (int *)pShadow, 0x11);
+        g_unk0x008189a8[0] = p->widths[i] + p->spacing / 2 + x;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSep, 1);
+        g_unk0x008189a8[0]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pSepShadow, 1);
+        i--;
+        if (i < 0)
+            i = pMenu->itemCount - 1;
+        x -= p->widths[i] + p->spacing;
+        if (active != 0) {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        } else {
+            pColour = g_colourDim0x00524970;
+            pShadow = g_colourShadowDim0x0052497c;
+        }
+        pSep = pColour;
+        pSepShadow = pShadow;
     }
 }
 
