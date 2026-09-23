@@ -361,4 +361,20 @@ inline void FixVecScaleRecip(FixVector *out, FixVector *src, int len)
     }
 }
 
+#ifndef FIX_ABS
+#define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
+
+#define FIX_NORMALIZE_INTO(out, v)                                                  \
+    {                                                                               \
+        int len = FixVecLength(&v);                                                 \
+        if (len == 0) {                                                             \
+            out.x = 0;                                                              \
+            out.y = 0;                                                              \
+            out.z = 0;                                                              \
+        } else {                                                                    \
+            FixVecScaleRecip(&out, &v, len);                                        \
+        }                                                                           \
+    }
+#endif
+
 #endif

@@ -97,20 +97,6 @@ Car *Car_Get(int index)
     return g_cars[index];
 }
 
-#define FIX_ABS(x) ((x) < 0 ? -(x) : (x))
-
-#define FIX_NORMALIZE_INTO(out, v)                                                  \
-    {                                                                               \
-        int len = FixVecLength(&v);                                                 \
-        if (len == 0) {                                                             \
-            out.x = 0;                                                              \
-            out.y = 0;                                                              \
-            out.z = 0;                                                              \
-        } else {                                                                    \
-            FixVecScaleRecip(&out, &v, len);                                        \
-        }                                                                           \
-    }
-
 #define ADD_POSITION(p, pos)    \
     (p)->x += (pos).x;          \
     (p)->y += (pos).y;          \

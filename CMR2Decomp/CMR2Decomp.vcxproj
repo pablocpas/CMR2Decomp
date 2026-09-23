@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="TrackCollision.cpp" />
     <ClCompile Include="ZlibAdler32.cpp" />
     <ClCompile Include="ZlibCrc32.cpp" />
     <ClCompile Include="ZlibDeflate.cpp" />
