@@ -66,9 +66,9 @@ void FUN_00451690(Menu *pMenu);
 void FUN_00451df0(Menu *pMenu);
 void FUN_00452430(Menu *pMenu);
 void FUN_004529c0(Menu *pMenu);
-void FUN_00452be0(void);
+void FUN_00452be0(Menu *pMenu);
 void FUN_004530e0(void);
-void FUN_00453830(void);
+void FUN_00453830(Menu *pMenu);
 void FUN_00453c50(Menu *pMenu);
 
 #endif

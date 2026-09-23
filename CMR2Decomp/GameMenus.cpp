@@ -114,6 +114,8 @@ extern int g_unk0x00537f0c[6];
 extern BYTE *g_unk0x00537f3c[8];
 extern BYTE g_menuFrameColour[4];
 extern Menu *g_pHeaderMenu;
+extern short g_menuRect[4];
+extern char g_nameSpaceFormat[];
 
 // Fade value of the stage end menus.
 // GLOBAL: CMR2 0x00519ec8
@@ -658,9 +660,77 @@ void FUN_004529c0(Menu *pMenu)
                   (int *)g_menuFrameColour, 0x11);
 }
 
-// STUB: CMR2 0x00452be0
-void FUN_00452be0(void)
+int FUN_0041bf50(int index);
+int FUN_0041bf60(int index);
+int FUN_0041bf70(int index);
+
+// Draw callback of the stage penalties screen: for every car, its
+// disqualification or retirement reason, jump start / speeding penalties
+// and car damage notes, one line each.
+// TODO: CMR2 0x00452be0 (implemented, match 92%)
+void FUN_00452be0(Menu *pMenu)
 {
+    int x;
+    int y;
+    int lines;
+    int i;
+
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    lines = 0;
+    y = (int)(g_pGraphics->resY * 242) / 480;
+    FUN_0044b760();
+    Font_DrawText(2, CFrontend::GetTextString(0x49), x, y, (int *)g_menuFrameColour, 0x11);
+    for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+        if (FUN_0041bf50(i) & 0x80) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7f), CFrontend::FUN_0040ede0(FUN_0041bf60(i)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            lines++;
+        } else if (FUN_0041bf50(i) & 0x2000) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xad),
+                    CFrontend::GetTextString(FUN_0041bf70(i) + 0xad));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            lines++;
+        }
+        if (FUN_0041bf50(i) & 0x1800) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xbf),
+                    CFrontend::GetTextString((FUN_0041bf50(i) & 0x800) ? 5 : 7));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * lines +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            lines++;
+        }
+        if (FUN_0041bf50(i) & 0x300) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xc1));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * lines +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            lines++;
+        }
+        if (FUN_0041bf50(i) & 0x400) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xc0));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 5) / 480 + Font_GetLineHeight(0) + y +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * lines +
+                              ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            lines++;
+        }
+    }
 }
 
 // STUB: CMR2 0x004530e0
@@ -668,9 +738,75 @@ void FUN_004530e0(void)
 {
 }
 
-// STUB: CMR2 0x00453830
-void FUN_00453830(void)
+int FUN_0040ceb0(int index);
+unsigned int RallyData_FUN_00406940(void);
+
+// Draw callback of the rally results screen: "stage N of the rally" with the
+// rally name between two separator bars (before the first driver in the top
+// three), then one line per driver with its rally position.
+// TODO: CMR2 0x00453830 (implemented, match 80%)
+void FUN_00453830(Menu *pMenu)
 {
+    BOOL shown;
+    int x;
+    int place;
+    int i;
+    int resY;
+    int lineHeight;
+    unsigned int *pResY;
+
+    shown = FALSE;
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    FUN_0044b760();
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x43), 0x62 - (RallyData_FUN_00406940() & 0xff));
+    Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 242) / 480, (int *)g_menuFrameColour, 0x11);
+    x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+        place = FUN_0040ceb0(i);
+        if (!shown && place < 3) {
+            x += (int)(g_pGraphics->resX * 8) / 640;
+            pResY = &g_pGraphics->resY;
+            g_menuRect[0] = (short)x;
+            resY = *pResY;
+            lineHeight = Font_GetLineHeight(2);
+            g_menuRect[2] = 2;
+            g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
+            g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+            x += (int)(g_pGraphics->resX * 8) / 640;
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
+            Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 242) / 480,
+                          (int *)g_menuFrameColour, 0x11);
+            x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest) + (int)(g_pGraphics->resX * 8) / 640;
+            g_menuRect[0] = (short)x;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+            x += (int)(g_pGraphics->resX * 8) / 640;
+            Font_DrawText(2, CFrontend::GetTextString(0x49), x, (int)(g_pGraphics->resY * 242) / 480,
+                          (int *)g_menuFrameColour, 0x11);
+            shown = TRUE;
+        }
+        sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, (char *)RallyData_GetRecord(i));
+        switch (place) {
+        case 0:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x51));
+            break;
+        case 1:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x52));
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x53));
+            break;
+        default:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x54), place + 1);
+            break;
+        }
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                      (int)(g_pGraphics->resY * 242) / 480 +
+                          ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)) * (i + 1),
+                      (int *)g_menuFrameColour, 0x11);
+    }
+    Font_SetBlendMode(2);
 }
 
 // Builds the in-game menu tree (pause / results / options screens).
@@ -928,6 +1064,8 @@ BYTE g_menuTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
 
 // GLOBAL: CMR2 0x00517dd0
 char g_stageNumberFormat[] = "%d";
+// GLOBAL: CMR2 0x00517dd4
+char g_nameSpaceFormat[] = "%s ";
 // GLOBAL: CMR2 0x00541cdc
 int g_stageResultTimes[4];
 // GLOBAL: CMR2 0x00541cec
