@@ -1,3 +1,4 @@
+#include <string.h>
 #include <windows.h>
 #include "RallyData.h"
 #include "GameInfo.h"
@@ -743,4 +744,99 @@ void RallyData_FUN_0040df60(int param1, int param2)
 {
     g_unk0x0052f290 = param1;
     g_unk0x0052f0fc = param2;
+}
+
+unsigned int RallyData_FUN_004070e0(void);
+
+// FUNCTION: CMR2 0x004070c0
+void RallyData_FUN_004070c0(void)
+{
+    RallyData_FUN_004068b0(RallyData_FUN_004070e0() & 0xff);
+    RallyData_FUN_004068e0(10);
+}
+
+// FUNCTION: CMR2 0x004070e0
+unsigned int RallyData_FUN_004070e0(void)
+{
+    return g_unk0x0052f2b4 >> 16 & 0xf;
+}
+
+// FUNCTION: CMR2 0x00407500
+void RallyData_FUN_00407500(BYTE param1)
+{
+    g_selectedRallyData = ((param1 & 3) << 14) | (g_selectedRallyData & 0xffff3fffU);
+}
+
+// FUNCTION: CMR2 0x00407800
+void RallyData_FUN_00407800(unsigned int param1)
+{
+    g_selectedRallyData = ((param1 & 1) << 20) | (g_selectedRallyData & 0xffefffffU);
+}
+
+// FUNCTION: CMR2 0x00407e20
+unsigned int RallyData_GetFlag21(void)
+{
+    return g_selectedRallyData >> 21 & 1;
+}
+
+// FUNCTION: CMR2 0x00407e30
+unsigned int RallyData_GetFlag22(void)
+{
+    return g_selectedRallyData >> 22 & 1;
+}
+
+// FUNCTION: CMR2 0x00407e40
+unsigned int RallyData_GetFlag23(void)
+{
+    return g_selectedRallyData >> 23 & 1;
+}
+
+// FUNCTION: CMR2 0x00407e80
+unsigned int RallyData_GetFlag31(void)
+{
+    return g_selectedRallyData >> 31;
+}
+
+// FUNCTION: CMR2 0x00407eb0
+unsigned int RallyData_GetFlag30(void)
+{
+    return g_selectedRallyData >> 30 & 1;
+}
+
+// FUNCTION: CMR2 0x00408290
+void RallyData_FUN_00408290(void)
+{
+    memset(g_unk0x0052ebc0, 0, 4 * sizeof(Unk0x0052ebc0));
+}
+
+// FUNCTION: CMR2 0x004082c0
+unsigned int RallyData_FUN_004082c0(void)
+{
+    return g_unk0x0052f2b0 >> 7 & 0xf;
+}
+
+// FUNCTION: CMR2 0x004082d0
+unsigned int RallyData_FUN_004082d0(void)
+{
+    return g_unk0x0052f2b0 >> 3 & 0xf;
+}
+
+// FUNCTION: CMR2 0x004082f0
+BYTE *RallyData_FUN_004082f0(void)
+{
+    return g_unk0x0052ea68;
+}
+
+// FUNCTION: CMR2 0x004083d0
+Unk0x0052ebc0 *RallyData_FUN_004083d0(void)
+{
+    return g_unk0x0052ebc0;
+}
+
+// FUNCTION: CMR2 0x004084c0
+void RallyData_FUN_004084c0(BYTE index, BYTE param2)
+{
+    *(unsigned int *)&g_unk0x00531350[index * 0x30] =
+        ((param2 & 0xf) << 14) | (*(unsigned int *)&g_unk0x00531350[index * 0x30] & 0xfffc0000U);
+    *(unsigned int *)&g_unk0x00531350[index * 0x30 + 4] = 0;
 }
