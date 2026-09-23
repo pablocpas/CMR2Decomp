@@ -25,6 +25,11 @@ BYTE g_colourShadowText0x00524978[4] = { 0xd2, 0xca, 0xd2, 0x80 };
 // GLOBAL: CMR2 0x0052497c
 BYTE g_colourShadowDim0x0052497c[4] = { 0x74, 0x83, 0x8d, 0x80 };
 
+// GLOBAL: CMR2 0x00524980
+BYTE g_colourBlack0x00524980[4] = { 0x00, 0x00, 0x00, 0xff };
+// GLOBAL: CMR2 0x00524984
+BYTE g_colourTitle0x00524984[4] = { 0xff, 0xff, 0xff, 0xff };
+
 // GLOBAL: CMR2 0x00524b88
 BYTE g_helpColour0x00524b88[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x00524b8c
@@ -294,6 +299,117 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
         }
         pSep = pColour;
         pSepShadow = pShadow;
+    }
+}
+
+#define ROW_H() ((int)(g_pGraphics->resY * 36) / 480)
+
+// Vertical menu: an optional title row and the visible items from "first"
+// on, each with its background sprite and a separator line below.
+// FUNCTION: CMR2 0x004d3360
+void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active)
+{
+    int count;
+    int i;
+    int x;
+    int hasTitle;
+    short top;
+    int row;
+    SpriteRect dst;
+    BYTE *pColour;
+    BYTE *pShadow;
+    Texture *pTexture;
+
+    count = 0;
+    hasTitle = 0;
+    dst.y = 0;
+    dst.x = (int)(g_pGraphics->resX * 100) / 640;
+    dst.w = CFrontend::m_pAr640ATexture->width;
+    dst.h = CFrontend::m_pAr640ATexture->height;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        if (pMenu->items[i].visible)
+            count++;
+    }
+    if (xOffset == -1) {
+        x = (int)(g_pGraphics->resX * 122) / 640;
+    } else {
+        x = (int)(g_pGraphics->resX * 122) / 640 - (int)(g_pGraphics->resX * 24) / 640 + xOffset;
+        dst.x = (int)(g_pGraphics->resX * 100) / 640 - (int)(g_pGraphics->resX * 24) / 640 + xOffset;
+    }
+    if (title != NULL)
+        hasTitle = 1;
+    if (y == -1)
+        y = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 +
+             (int)(g_pGraphics->resY * 384) / 480) / 2;
+    hasTitle = count - first + hasTitle;
+    top = y - ROW_H() * hasTitle / 2;
+    if (pMenu->cursor == first) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    if (xOffset == -1)
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    else
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640 - (int)(g_pGraphics->resX * 24) / 640 + xOffset;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[1] = top;
+    if (title != NULL)
+        g_unk0x008189a8[1] = ROW_H() + top;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (row = 0; row < hasTitle; row++) {
+        while (!pMenu->items[first].visible)
+            first++;
+        dst.y = (int)(g_pGraphics->resY * 20) / 480 + top + ROW_H() * row - CFrontend::m_pAr640ATexture->height / 2;
+        if (title == NULL || row != 0) {
+            if (pMenu->items[first].visible) {
+                if (pMenu->cursor == first && active != 0) {
+                    pColour = g_colourWhite0x00524968;
+                    pTexture = CFrontend::m_pAr640ATexture;
+                } else {
+                    pTexture = CFrontend::m_pAr640DTexture;
+                    if (pMenu->items[first].enabled && active != 0)
+                        pColour = g_colourText0x0052496c;
+                    else
+                        pColour = g_colourDim0x00524970;
+                }
+                Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dst, pTexture, 1, 0, NULL, NULL, pColour, 8);
+                if (pMenu->items[first].id == -1)
+                    Font_DrawText(1, (char *)pMenu->items[first].stringId, x,
+                                  (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                else
+                    Font_DrawText(1, CFrontend::GetTextString(pMenu->items[first].id), x,
+                                  (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                if (pMenu->cursor == first || pMenu->cursor == first + 1) {
+                    pColour = g_colourWhite0x00524968;
+                    pShadow = g_colourShadowWhite0x00524974;
+                } else if (!pMenu->items[first].enabled && !pMenu->items[first + 1].enabled) {
+                    pColour = g_colourDim0x00524970;
+                    pShadow = g_colourShadowDim0x0052497c;
+                } else {
+                    pColour = g_colourText0x0052496c;
+                    pShadow = g_colourShadowText0x00524978;
+                }
+                g_unk0x008189a8[1] = ROW_H() * (row + 1) + top;
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+                g_unk0x008189a8[1]++;
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+            }
+            first++;
+        } else {
+            g_unk0x008189a8[3] = ROW_H();
+            g_unk0x008189a8[1] = top;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+            Font_DrawText(1, title, x, (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]),
+                          (int *)g_colourTitle0x00524984, 0x11);
+            g_unk0x008189a8[3] = 1;
+            g_unk0x008189a8[1] = ROW_H() + top;
+        }
     }
 }
 
