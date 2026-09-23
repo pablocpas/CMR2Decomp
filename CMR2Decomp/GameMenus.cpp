@@ -436,7 +436,10 @@ int FUN_0040ab50(int index, int total);
 unsigned int FUN_0040abe0(int index, int total);
 int FUN_0040ab20(int index, int total);
 unsigned int FUN_0040ab80(int index, int total);
+unsigned int RallyData_FUN_00406940(void);
+unsigned int RallyData_FUN_00406950(void);
 void FUN_00451890(Menu *pMenu);
+void GameMenus_FormatModeName(int unused, int mode);
 int FUN_004055e0(void);
 int FUN_004055f0(void);
 BYTE FUN_0041b370(void);
@@ -748,10 +751,67 @@ void FUN_0044f8a0(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
-// Breadcrumb header of the in-game screens (pending: 1100 bytes). Empty body,
-// with no annotation, only so its callers can be measured.
+// GLOBAL: CMR2 0x00541cc8
+Menu *g_pHeaderMenu;
+
+// Draws the text and, right after it, the two-pixel marker rectangle that
+// separates the breadcrumb entries, then moves x past both.
+#define GAMEMENUS_HEADER_MARKER(pText)                                                        \
+    x = x + (int)(g_pGraphics->resX * 8) / 0x280 + Font_GetTextWidth(2, (BYTE *)pText);         \
+    g_menuRect[0] = (short)x;                                                                  \
+    g_menuRect[2] = 2;                                                                         \
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);                          \
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);                          \
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);                \
+    x = x + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
+
+// Breadcrumb of the in-game screens: the menu title (when it is the one that
+// owns it), the stage or championship name and, for the first two stages, the
+// race mode; each entry is followed by its marker rectangle.
+// FUNCTION: CMR2 0x00451890
 void FUN_00451890(Menu *pMenu)
 {
+    int flag;
+    char *pText;
+    int x;
+
+    x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
+    if (pMenu == &g_menu0x00541218) {
+        Font_DrawText(2, CFrontend::GetTextString(0xac), x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                      (int *)g_menuFrameColour, 0x11);
+        GAMEMENUS_HEADER_MARKER(CFrontend::GetTextString(0xac))
+    }
+    if ((BYTE)RallyData_FUN_00406940() < 2) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x43),
+                0x62 - (BYTE)RallyData_FUN_00406940());
+        flag = 1;
+    } else {
+        flag = 0;
+        if ((BYTE)RallyData_FUN_00406950() == 0) {
+            pText = CFrontend::GetTextString(5);
+        } else {
+            pText = CFrontend::GetTextString(7);
+        }
+        sprintf(CFrontend::m_stringDest, pText);
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+    }
+    Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                  (int *)g_menuFrameColour, 0x11);
+    if (flag) {
+        GAMEMENUS_HEADER_MARKER(CFrontend::m_stringDest)
+        GameMenus_FormatModeName((int)CFrontend::m_stringDest,
+                                 (BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950());
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                      (int *)g_menuFrameColour, 0x11);
+    }
+    if (g_pHeaderMenu == &g_menu0x0053ec48) {
+        GAMEMENUS_HEADER_MARKER(CFrontend::m_stringDest)
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x8d));
+        Font_DrawText(2, CFrontend::m_stringDest,
+                      x + 2 + (int)(g_pGraphics->resX * 8) / 0x280,
+                      (int)(g_pGraphics->resY * 0x43) / 0x1e0, (int *)g_menuFrameColour, 0x11);
+    }
 }
 
 // Standings table of the championship: one row per driver with its name, its
