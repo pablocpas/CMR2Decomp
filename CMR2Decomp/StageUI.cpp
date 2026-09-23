@@ -9,6 +9,16 @@
 #include "Graphics.h"
 #include "RallyData.h"
 
+// FUNCTION: CMR2 0x00415bc0
+void FUN_00415bc0(int, int)
+{
+}
+
+// FUNCTION: CMR2 0x00415f40
+void FUN_00415f40(void)
+{
+}
+
 // GLOBAL: CMR2 0x00517e14
 char g_positiveSymbol[2] = "+";
 

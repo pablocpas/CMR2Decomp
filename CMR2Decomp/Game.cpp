@@ -138,6 +138,11 @@ BOOL CGame::FUN_004d0780(void)
     }
 }
 
+// FUNCTION: CMR2 0x004057ab
+void FUN_004057ab(void)
+{
+}
+
 // FUNCTION: CMR2 0x004057d0
 int CGame::FUN_004057d0(void)
 {
