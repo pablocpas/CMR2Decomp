@@ -149,7 +149,7 @@ int FUN_00494d40(Car *pCar, CarContact *pContact, int index)
 // Updates the contact patch of every wheel: its position under the car
 // (dropped onto the ground), the grip left by the suspension travel and the
 // four corners of the patch, flattened onto the ground plane.
-// TODO: CMR2 0x00497db0 (implemented, match 59%)
+// TODO: CMR2 0x00497db0 (implemented, match 60%)
 void FUN_00497db0(Car *pCar)
 {
     CarContact *pContact;
@@ -201,7 +201,7 @@ void FUN_00497db0(Car *pCar)
             travel = pos.y - t;
             pos.y = t;
             if (travel >= 1) {
-                t = FixMul(travel, 0x40000);
+                t = FixMul(travel, FixDiv(0x10000, 0x4000));
                 if (t > 0x10000)
                     t = 0x10000;
                 pContact->wheelGrip[wheel] = 0x10000 - t;
@@ -261,7 +261,7 @@ void FUN_00497db0(Car *pCar)
 // spanning the car's hull points (or taken from the car's box when the
 // ground normal is unknown), or, for ghost cars, the hull points themselves
 // rescaled for the stage.
-// TODO: CMR2 0x004962c0 (implemented, match 47%)
+// TODO: CMR2 0x004962c0 (implemented, match 62%)
 void FUN_004962c0(Car *pCar, CarContact *pContact)
 {
     BYTE stage;
@@ -290,15 +290,17 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
                 d.x = g_physRight.x - d.x;
                 d.y = g_physRight.y - d.y;
                 d.z = g_physRight.z - d.z;
+                FIX_NORMALIZE_INTO(g_physPatchDir, d);
+                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
             } else {
                 t = FixVecDot(&g_physUp, pNormal);
                 FixVecScale(&d, pNormal, t);
                 d.x = g_physUp.x - d.x;
                 d.y = g_physUp.y - d.y;
                 d.z = g_physUp.z - d.z;
+                FIX_NORMALIZE_INTO(g_physPatchDir, d);
+                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
             }
-            FIX_NORMALIZE_INTO(g_physPatchDir, d);
-            FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
             for (i = 0; i < 8; i++) {
                 rel.x = g_physGroundPoint[i].x - g_physPos.x;
                 rel.y = g_physGroundPoint[i].y - g_physPos.y;
@@ -624,7 +626,7 @@ void FUN_00495f50(int view, CarContact *pContact)
 // car, the skid trail laid out behind the body patch along the car's skid
 // profile, bent round when the car is sliding sideways. Every point is then
 // eased towards the ground height under it.
-// TODO: CMR2 0x00496e00 (implemented, match 58%)
+// TODO: CMR2 0x00496e00 (implemented, match 62%)
 void FUN_00496e00(Car *pCar)
 {
     CarContact *pContact;
@@ -702,7 +704,7 @@ void FUN_00496e00(Car *pCar)
         if (grip < 0) {
             grip = 0;
         } else {
-            grip = FixMul(grip, 0x4ffec);
+            grip = FixMul(grip, FixDiv(0x10000, 0x3334));
             if (grip > 0x10000)
                 grip = 0x10000;
         }
@@ -801,10 +803,10 @@ void FUN_00496e00(Car *pCar)
         else
             c = 0;
         while (c < *g_physSkidCount[pCar->field_0xb1a] && c >= 0) {
-            k = (c + (short)first) % pContact->pointCount;
-            v.x = pContact->points[k].x - g_physGroundPos.x;
-            v.y = pContact->points[k].y - g_physGroundPos.y;
-            v.z = pContact->points[k].z - g_physGroundPos.z;
+            k = c + (short)first;
+            v.x = pContact->points[k % pContact->pointCount].x - g_physGroundPos.x;
+            v.y = pContact->points[k % pContact->pointCount].y - g_physGroundPos.y;
+            v.z = pContact->points[k % pContact->pointCount].z - g_physGroundPos.z;
             len = FixVecLength(&v);
             if (len > 0)
                 FixVecScaleRecip(&v, &v, len);
@@ -823,10 +825,9 @@ void FUN_00496e00(Car *pCar)
                     p.z = FixMul(g_physPatchDir.z, a) + w.z;
                     FIX_NORMALIZE_INTO(v, p);
                     FixVecScale(&v, &v, len);
-                    k = ((short)first + c) % pContact->pointCount;
-                    pContact->points[k].x = g_physGroundPos.x + v.x;
-                    pContact->points[k].y = g_physGroundPos.y + v.y;
-                    pContact->points[k].z = g_physGroundPos.z + v.z;
+                    pContact->points[((short)first + c) % pContact->pointCount].x = g_physGroundPos.x + v.x;
+                    pContact->points[((short)first + c) % pContact->pointCount].y = g_physGroundPos.y + v.y;
+                    pContact->points[((short)first + c) % pContact->pointCount].z = g_physGroundPos.z + v.z;
                     limit = acc;
                 }
             }
