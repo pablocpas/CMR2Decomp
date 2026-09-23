@@ -571,14 +571,71 @@ void RallyData_FUN_0040df30(void)
 }
 
 // Grid row of the driver for the given position flag.
-// TODO: CMR2 0x00407150 (implemented, match 47%)
-int FUN_00407150(BYTE param1, char param2)
+// FUNCTION: CMR2 0x00407150
+BYTE FUN_00407150(BYTE param1, char param2)
 {
     if (param2 == 0)
-        return ((param1 % 2) != 0) + 4;
+        return (bool)(param1 % 2) + 4;
     if (param2 == 1)
-        return ((param1 % 2) != 0) + 8;
-    return ((param1 % 2) != 0) + 10;
+        return (bool)(param1 % 2) + 8;
+    return (bool)(param1 % 2) + 10;
+}
+
+void RallyData_UpdateFlags(void);
+
+// Advances g_selectedRallyData to the next stage (bits 5-9) and, at the end of
+// a rally, to the next rally (bits 0-4). Returns 0 when the championship is over.
+// FUNCTION: CMR2 0x004072d0
+BYTE FUN_004072d0(void)
+{
+    BYTE mode;
+    BYTE count;
+    unsigned int stage;
+    int i;
+
+    mode = CGameInfo::FUN_00405d80();
+    count = CGameInfo::FUN_00405d90();
+    if (CGameInfo::FUN_00405e00()) {
+        count = FUN_00407150(g_selectedRallyData & 0x1f, 2);
+        g_selectedRallyData ^= (((g_selectedRallyData & 0xffffffe0) + 0x20) ^ g_selectedRallyData) & 0x3e0;
+        for (stage = (g_selectedRallyData >> 5) & 0x1f; stage < count; stage = (g_selectedRallyData >> 5) & 0x1f) {
+            if ((g_unk0x0052ea68[stage] & 1) &&
+                (!(g_unk0x0052ea68[stage] & 2) || CGameInfo::FUN_00406410(0xd)) &&
+                !(g_unk0x0052ea68[(g_selectedRallyData >> 5) & 0x1f] & 4))
+                goto done;
+            g_selectedRallyData ^= (((g_selectedRallyData & 0xffffffe0) + 0x20) ^ g_selectedRallyData) & 0x3e0;
+        }
+        return 0;
+    }
+    count = FUN_00407150(g_selectedRallyData & 0x1f, count);
+    if (mode != 0 && mode != 1)
+        return 0;
+    g_selectedRallyData ^= (((g_selectedRallyData & 0xffffffe0) + 0x20) ^ g_selectedRallyData) & 0x3e0;
+    stage = (g_selectedRallyData >> 5) & 0x1f;
+    if (stage != count && (g_selectedRallyData & 0x3e0) <= 0x140) {
+        if (stage + 1 == count && (g_selectedRallyData & 1)) {
+            g_selectedRallyData = (g_selectedRallyData & 0xfffffd5f) | 0x140;
+            RallyData_UpdateFlags();
+            return 1;
+        }
+        goto done;
+    }
+    if (mode == 1)
+        return 0;
+    g_selectedRallyData ^= ((g_selectedRallyData + 1) ^ g_selectedRallyData) & 0x1f;
+    if ((g_selectedRallyData & 0x1f) == 8) {
+        for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+            if (RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i)) < 3)
+                goto done;
+        }
+        return 0;
+    }
+    if ((g_selectedRallyData & 0x1f) == 9)
+        return 0;
+    g_selectedRallyData &= 0xfffffc1f;
+done:
+    RallyData_UpdateFlags();
+    return 1;
 }
 
 // La base real de los registros por categoria; g_unk0x0052fa5c (mas abajo) es
