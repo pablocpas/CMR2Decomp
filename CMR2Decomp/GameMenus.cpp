@@ -990,10 +990,85 @@ void FUN_00449cd0(Menu *pMenu, int param)
     FUN_004b7c80();
 }
 
-// Not decompiled yet (0x449ce0 and 0x4541c0 are callbacks of g_menu0x005416e0).
+int FUN_004a1af0(void);
+void FUN_004d0700(char *text);
+bool FUN_004b7cd0(int *pOut);
+
+// GLOBAL: CMR2 0x00519ee8
+char g_chatChars0x00519ee8[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ., !\"%&*()-=_+`/?\\:;[]{}'~";
+// Set while the chat line (the item with value 0x3eb) is selected.
+// GLOBAL: CMR2 0x00540e48
+BYTE g_unk0x00540e48;
+// GLOBAL: CMR2 0x00541cf8
+char g_chatLine[0x100];
+// GLOBAL: CMR2 0x00541df8
+int g_chatLineLength;
+
+// Network results menu: typing on the chat line, Enter sends it, Escape
+// leaves the menu. Up/down jump between the chat line and the menu items.
+// TODO: CMR2 0x00449ce0 (implemented, match 87%)
 void FUN_00449ce0(Menu *pMenu)
 {
+    DeviceInfo *pDevice;
+    int key;
+    int len;
+
+    if (g_unk0x00540e48) {
+        pDevice = CInput::FUN_0049ead0(0);
+        if (pDevice->field_0x8 & 8)
+            pMenu->cursor = 1;
+        else if (pDevice->field_0x8 & 4)
+            pMenu->cursor = pMenu->itemCount - 1;
+    }
+    if (g_unk0x00519ee4 != pMenu->cursor) {
+        if (pMenu->items[pMenu->cursor].value == 0x3eb) {
+            FUN_004b7c80();
+            g_chatLine[0] = 0;
+            g_chatLineLength = 0;
+            g_unk0x00540e48 = 1;
+            Menu_SetFlags(pMenu, 0, 0, 0, 0);
+        } else {
+            if (pMenu->items[g_unk0x00519ee4].value == 0x3eb)
+                Menu_SetFlags(pMenu, 1, 1, 1, 1);
+            g_unk0x00540e48 = 0;
+        }
+        g_unk0x00519ee4 = pMenu->cursor;
+    }
+    FUN_004a1af0();
+    if (!g_unk0x00540e48 || !FUN_004b7cd0(&key))
+        return;
+    switch (key) {
+    case 8:
+        len = strlen(g_chatLine);
+        if (len > 0) {
+            g_chatLine[len - 1] = 0;
+            g_chatLineLength--;
+        }
+        break;
+    case 0xd:
+        if (g_chatLine[0] != 0) {
+            FUN_004d0700(g_chatLine);
+            g_chatLineLength = 0;
+            g_chatLine[0] = 0;
+        }
+        break;
+    case 0x1b:
+        Menu_SetNextAction((int)pMenu->pParent);
+        break;
+    default:
+        if (strchr(g_chatChars0x00519ee8, (char)key) == NULL)
+            break;
+        len = Font_GetTextWidth(0, (BYTE *)g_chatLine);
+        if (g_chatLineLength < 0xff && len < ((int)g_pGraphics->resX >= 0x400 ? 0x210 : 0x14a)) {
+            g_chatLine[g_chatLineLength] = (char)key;
+            g_chatLine[g_chatLineLength + 1] = 0;
+            g_chatLineLength++;
+        }
+        break;
+    }
 }
+
+// Not decompiled yet (0x4541c0 is the draw callback of g_menu0x005416e0).
 
 void FUN_004541c0(Menu *pMenu)
 {

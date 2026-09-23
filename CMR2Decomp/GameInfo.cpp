@@ -1116,6 +1116,53 @@ void FUN_004d05f0(void)
     g_unk0x00817780 = -1;
 }
 
+int FUN_004a19c0(DPID *pId, char *pIndex);
+Unk0x005a1820 *FUN_004a1b30(BYTE index);
+char FUN_004a1c50(int to, int guaranteed, int data, int size);
+
+// GLOBAL: CMR2 0x00523bbc
+char g_chatLineFormat[] = "%s > %s";
+
+// Adds a chat line "name > text" to the ring of the last five lines and
+// rebuilds g_unk0x00817c84 newest first.
+// TODO: CMR2 0x004d0620 (implemented, match 91%)
+void FUN_004d0620(DPID *pFrom, char *text, char local)
+{
+    char **pp;
+    int line;
+    int i;
+
+    if (local) {
+        if (++g_unk0x00817780 >= 5)
+            g_unk0x00817780 = 0;
+        sprintf(g_unk0x00817784[g_unk0x00817780], g_chatLineFormat, (char *)RallyData_GetRecord(0), text);
+    } else {
+        if (!FUN_004a19c0(pFrom, &local))
+            return;
+        if (++g_unk0x00817780 >= 5)
+            g_unk0x00817780 = 0;
+        sprintf(g_unk0x00817784[g_unk0x00817780], g_chatLineFormat, FUN_004a1b30(local)->field_0x0, text);
+    }
+    line = g_unk0x00817780 + 5;
+    pp = g_unk0x00817c84;
+    i = 5;
+    do {
+        *pp++ = g_unk0x00817784[line-- % 5];
+    } while (--i);
+}
+
+// Sends a chat line to every player and adds it to the local log.
+// FUNCTION: CMR2 0x004d0700
+void FUN_004d0700(char *text)
+{
+    char message[0x101];
+
+    message[0] = 0;
+    strcpy(message + 1, text);
+    FUN_004a1c50(0, 0, (int)message, 0x101);
+    FUN_004d0620(NULL, text, 1);
+}
+
 // FUNCTION: CMR2 0x00406710
 int FUN_00406710(void)
 {
