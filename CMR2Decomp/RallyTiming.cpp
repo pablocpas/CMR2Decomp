@@ -29,6 +29,153 @@ char g_stagePenalty[16];
 // GLOBAL: CMR2 0x005335a8
 char g_stageTieBreak[16];
 
+// Per car tables of the championship (8 cars)
+// GLOBAL: CMR2 0x005335b8
+int g_unk0x005335b8[8];
+#pragma pack(push, 1)
+struct Unk0x005335d8 {
+    short field_0x0;
+    BYTE field_0x2;
+};
+#pragma pack(pop)
+
+// GLOBAL: CMR2 0x005335d8
+Unk0x005335d8 g_unk0x005335d8[8];
+// GLOBAL: CMR2 0x005335f0
+int g_unk0x005335f0[8];
+// GLOBAL: CMR2 0x00533610
+char g_unk0x00533610[8];
+// GLOBAL: CMR2 0x00533618
+char g_unk0x00533618[8];
+// GLOBAL: CMR2 0x00533620
+char g_unk0x00533620[8];
+// GLOBAL: CMR2 0x00533628
+char g_unk0x00533628[8];
+
+// TODO: CMR2 0x0040cc60 (implemented, match 44%)
+void FUN_0040cc60(void)
+{
+    int i;
+    int *p;
+    Unk0x005335d8 *q;
+    Unk0x005335d8 *r;
+
+    i = 0;
+    q = g_unk0x005335d8;
+    p = g_unk0x005335f0;
+    do {
+        p[-14] = 0;
+        *p = 0;
+        g_unk0x00533628[i] = 0;
+        g_unk0x00533610[i] = i;
+        r = q;
+        g_unk0x00533618[i] = i;
+        g_unk0x00533620[i] = i;
+        r->field_0x0 = 0;
+        p++;
+        i++;
+        q++;
+        r->field_0x2 = 0;
+    } while ((int)p < (int)g_unk0x00533610);
+}
+
+// FUNCTION: CMR2 0x0040ccb0
+void FUN_0040ccb0(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++)
+        g_unk0x00533620[g_unk0x00533610[i]] = i;
+}
+
+// FUNCTION: CMR2 0x0040ce30
+int FUN_0040ce30(int index)
+{
+    return g_unk0x00533628[index];
+}
+
+// Championship points for a finishing position.
+// FUNCTION: CMR2 0x0040ce40
+int FUN_0040ce40(int position)
+{
+    switch (position) {
+    case 0:
+        return 6;
+    case 1:
+        return 4;
+    case 2:
+        return 3;
+    case 3:
+        return 2;
+    case 4:
+        return 1;
+    case 5:
+    default:
+        return 0;
+    }
+}
+
+// FUNCTION: CMR2 0x0040cea0
+int FUN_0040cea0(int index)
+{
+    return g_unk0x00533610[index];
+}
+
+// FUNCTION: CMR2 0x0040ceb0
+int FUN_0040ceb0(int index)
+{
+    return g_unk0x00533618[index];
+}
+
+// FUNCTION: CMR2 0x0040cec0
+int FUN_0040cec0(int index)
+{
+    return g_unk0x00533620[index];
+}
+
+// FUNCTION: CMR2 0x0040ced0
+int FUN_0040ced0(int index)
+{
+    return g_unk0x005335b8[index] >> 16;
+}
+
+// FUNCTION: CMR2 0x0040cef0
+int FUN_0040cef0(int index)
+{
+    return g_unk0x005335f0[index];
+}
+
+// FUNCTION: CMR2 0x0040cf00
+void FUN_0040cf00(void)
+{
+    int i;
+    int *p;
+
+    i = 0;
+    p = g_stageTimesRaw;
+    do {
+        g_stageOrderDriverID[i] = i;
+        g_stagePositionOfDriver[i] = i;
+        *p = 0;
+        g_stagePenalty[i] = 0;
+        g_stageTieBreak[i] = 0;
+        p++;
+        i++;
+    } while ((int)p < (int)g_stagePenalty);
+}
+
+// FUNCTION: CMR2 0x0040cfe0
+int FUN_0040cfe0(int index)
+{
+    return g_stageTieBreak[index];
+}
+
+// FUNCTION: CMR2 0x0040cff0
+void FUN_0040cff0(int index, char value)
+{
+    g_stageTieBreak[index] = value;
+}
+
 // FUNCTION: CMR2 0x0040d390
 int RallyTiming_GetOverallPositionDriverID(int iPosition)
 {

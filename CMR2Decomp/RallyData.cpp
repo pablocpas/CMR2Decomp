@@ -304,6 +304,12 @@ char *RallyData_FUN_00494a40(void)
 
 // GLOBAL: CMR2 0x0052ea68
 BYTE g_unk0x0052ea68[11];
+// GLOBAL: CMR2 0x0052ea74
+BYTE g_unk0x0052ea74[0x24];
+// GLOBAL: CMR2 0x0052ea98
+int g_unk0x0052ea98[8];
+// GLOBAL: CMR2 0x0052eab8
+int g_unk0x0052eab8;
 
 // FUNCTION: CMR2 0x00408300
 BOOL RallyData_FUN_00408300(void)
@@ -840,3 +846,56 @@ void RallyData_FUN_004084c0(BYTE index, BYTE param2)
         ((param2 & 0xf) << 14) | (*(unsigned int *)&g_unk0x00531350[index * 0x30] & 0xfffc0000U);
     *(unsigned int *)&g_unk0x00531350[index * 0x30 + 4] = 0;
 }
+
+// FUNCTION: CMR2 0x0040df80
+void RallyData_FUN_0040df80(int index, int value)
+{
+    g_unk0x0052ea98[index] = value;
+}
+
+// FUNCTION: CMR2 0x0040e330
+void RallyData_FUN_0040e330(char param1)
+{
+    if (param1 != 0) {
+        g_unk0x0052f2b0 |= 0x800;
+        return;
+    }
+    g_unk0x0052f2b0 &= ~0x800;
+}
+
+// FUNCTION: CMR2 0x0040e360
+void RallyData_FUN_0040e360(unsigned int param1)
+{
+    g_unk0x0052f2b0 = g_unk0x0052f2b0 ^ (g_unk0x0052f2b0 ^ param1) & 7;
+}
+
+// FUNCTION: CMR2 0x0040e380
+void RallyData_FUN_0040e380(unsigned int param1)
+{
+    g_unk0x0052f2b0 = ((param1 & 0xf) << 7) | (g_unk0x0052f2b0 & 0xfffff87fU);
+}
+
+// FUNCTION: CMR2 0x0040e3a0
+void RallyData_FUN_0040e3a0(unsigned int param1)
+{
+    g_unk0x0052f2b0 = ((param1 & 0xf) << 3) | (g_unk0x0052f2b0 & 0xffffff87U);
+}
+
+// FUNCTION: CMR2 0x00408010
+int RallyData_FUN_00408010(int index)
+{
+    return g_unk0x0052ea98[index];
+}
+
+// FUNCTION: CMR2 0x00408270
+BYTE *RallyData_FUN_00408270(void)
+{
+    return g_unk0x0052ea74;
+}
+
+// FUNCTION: CMR2 0x00408280
+int RallyData_FUN_00408280(void)
+{
+    return g_unk0x0052eab8;
+}
+

@@ -67,6 +67,54 @@ char CInstallInfo::m_texturesSubDir[11] = ".\\Textures";
 char CInstallInfo::m_fontsSubDir[8] = ".\\Fonts";
 char CInstallInfo::m_surprisedSubDir[3] = "O:";
 
+// FUNCTION: CMR2 0x0040ed20
+char *CInstallInfo::GetTracksDir(void)
+{
+    return m_tracksDir;
+}
+
+// FUNCTION: CMR2 0x0040ed30
+char *CInstallInfo::GetSoundsDir(void)
+{
+    return m_soundsDir;
+}
+
+// FUNCTION: CMR2 0x0040ed40
+char *CInstallInfo::GetCarsDir(void)
+{
+    return m_carsDir;
+}
+
+// FUNCTION: CMR2 0x0040ed70
+char *CInstallInfo::GetMusicDir(void)
+{
+    return m_musicDir;
+}
+
+// FUNCTION: CMR2 0x0040ed80
+char *CInstallInfo::GetVideosDir(void)
+{
+    return m_videosDir;
+}
+
+// FUNCTION: CMR2 0x0040edb0
+char *CInstallInfo::GetSetupRepDir(void)
+{
+    return m_setupRepDir;
+}
+
+// FUNCTION: CMR2 0x0040edc0
+char *CInstallInfo::GetBigFilesDir(void)
+{
+    return m_bigFilesDir;
+}
+
+// FUNCTION: CMR2 0x0040edd0
+char *CInstallInfo::GetCountrySpecificOtherDir(void)
+{
+    return m_countrySpecificOtherDir;
+}
+
 // FUNCTION: CMR2 0x0040ed60
 char *CInstallInfo::GetFontsDir(void)
 {

@@ -16,6 +16,14 @@ public:
     static void SetGameCDPath(char *filePath);
     static char *GetGameHDPath(void);
     static char *GetGameCDPath(void);    
+    static char *GetTracksDir(void);
+    static char *GetSoundsDir(void);
+    static char *GetCarsDir(void);
+    static char *GetMusicDir(void);
+    static char *GetVideosDir(void);
+    static char *GetSetupRepDir(void);
+    static char *GetBigFilesDir(void);
+    static char *GetCountrySpecificOtherDir(void);
 
 private:
     // GLOBAL: CMR2 0x00520ef0
