@@ -88,7 +88,8 @@ struct ControllerData {
     char name[MAX_PATH];
     BYTE field_0x10c_padding[8];
     DWORD field_0x114;
-    BYTE field_0x118_padding[8];
+    BYTE field_0x118_padding[4];
+    DWORD field_0x11c;
     DWORD field_0x120;
     DWORD field_0x124;
     unsigned short field_0x128; // are you actually a struct?

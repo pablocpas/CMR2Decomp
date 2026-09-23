@@ -351,20 +351,26 @@ struct Unk0x542ae8 {
 // GLOBAL: CMR2 0x00542ae8
 Unk0x542ae8 g_unk0x00542ae8[32];
 
-// TODO: CMR2 0x00456b70 (implemented, match below 90%)
+// TODO: CMR2 0x00456b70 (implemented, match 64%, registers only)
 bool FUN_00456b70(void)
 {
-    int i;
+    Unk0x542ae8 *p;
+    int j;
 
-    for (i = 0; i < 32; i++) {
-        if (g_unk0x00542ae8[i].pBuffer != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(g_unk0x00542ae8[i].pBuffer);
-            g_unk0x00542ae8[i].pBuffer = NULL;
-        }
-        g_unk0x00542ae8[i].pBuffer = NULL;
-        g_unk0x00542ae8[i].field_0x4 = NULL;
-        g_unk0x00542ae8[i].field_0x8 = NULL;
-    }
+    p = g_unk0x00542ae8;
+    do {
+        j = 2;
+        do {
+            if (p->pBuffer != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(p->pBuffer);
+                p->pBuffer = NULL;
+            }
+            p->pBuffer = NULL;
+            p->field_0x4 = NULL;
+            p->field_0x8 = NULL;
+            p++;
+        } while (--j != 0);
+    } while ((int)p < 0x542c68);
     return true;
 }
 

@@ -1637,14 +1637,13 @@ void CInput::FUN_0049eab0(void)
         UpdateDevice(i);
 }
 
-// TODO: CMR2 0x0040bc90 (implemented, match below 90%)
+// TODO: CMR2 0x0040bc90 (implemented, match 57%)
 void CInput::FUN_0040bc90(int param1, DWORD param2)
 {
-    int index;
+    unsigned short index;
 
     index = CInput::m_unk0x005168f4[param1 & 0xffff];
-    *(DWORD *)((char *)CInput::m_controllerInfo + index * 0x2f0 + 0x11c) = param2;
-    FUN_004aaf50(param2, index);
+    FUN_004aaf50(m_controllerInfo[index].field_0x11c = param2, index);
 }
 
 

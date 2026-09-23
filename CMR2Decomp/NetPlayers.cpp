@@ -64,7 +64,7 @@ BYTE *FUN_0040e8c0(void);
 int FUN_004a19c0(DPID *pId, char *pIndex);
 char *FUN_004a1b60(BYTE index);
 DPID FUN_004a1a00(void);
-int FUN_004a1cb0(int param2, int param3);
+char FUN_004a1cb0(int data, int size);
 unsigned int FUN_00448680(int index, int split);
 char FUN_004a1c50(int to, int guaranteed, int data, int size);
 

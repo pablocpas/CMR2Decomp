@@ -1019,27 +1019,36 @@ int FUN_004a1af0(void)
     return 1;
 }
 
-// TODO: CMR2 0x004aac00 (implemented, match below 90%)
+// EnumConnections callback: keeps every service provider connection.
+// FUNCTION: CMR2 0x004aabd0
+BOOL __stdcall FUN_004aabd0(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConnectionSize, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
+{
+    CGame::AddConnection(lpName->lpszShortNameA, lpConnection, dwConnectionSize, (GUID *)lpguidSP);
+    return TRUE;
+}
+
+// FUNCTION: CMR2 0x004aac00
 bool FUN_004aac00(void)
 {
     HRESULT hr;
 
     CGame::ClearConnections();
-    hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)0x4aabd0, 0, 0);
-    if (hr != (HRESULT)0x80070057 && hr != (HRESULT)0x88770078)
-        return !hr;
-    return false;
+    hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)FUN_004aabd0, 0, 0);
+    if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
+        return false;
+    return hr == 0;
 }
 
-// TODO: CMR2 0x004a1cb0 (implemented, match below 90%)
-int FUN_004a1cb0(int param2, int param3)
+// Sets the local player data (guaranteed).
+// FUNCTION: CMR2 0x004a1cb0
+char FUN_004a1cb0(int data, int size)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
     pDP = CGame::GetDirectPlay();
     if (pDP != NULL) {
-        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_unk0x005a1ea0, param3, param2, 2);
+        hr = ((DPMethod4)(*(void ***)pDP)[0x74 / 4])(pDP, CGame::m_unk0x005a1ea0, data, size, 2);
         if (hr > (HRESULT)0x88770082 && hr != (HRESULT)0x88770096 &&
             hr != (HRESULT)0x88770168 && hr == 0)
             return 1;
