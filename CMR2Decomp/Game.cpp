@@ -365,6 +365,12 @@ void CGame::FUN_00501680(struct Unk0049c2c0 *, BYTE) { return; }
 // FUNCTION: CMR2 0x004ea880
 BYTE CGame::FUN_004ea880(void) { return m_unk0x00516120; }
 
+// FUNCTION: CMR2 0x004ea890
+void FUN_004ea890(BYTE param1)
+{
+    CGame::m_unk0x00516120 = param1;
+}
+
 // FUNCTION: CMR2 0x004083e0
 void CGame::FUN_004083e0(BYTE param1)
 {

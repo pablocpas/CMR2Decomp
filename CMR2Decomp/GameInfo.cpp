@@ -1505,6 +1505,168 @@ void FUN_004ea990(int *pOut1, int *pOut2)
     *pOut2 = CGameInfo::m_gameInfo.field_0x14 >> 27 & 0xf;
 }
 
+// FUNCTION: CMR2 0x004ea8a0
+void FUN_004ea8a0(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7)) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffffff8U);
+}
+
+// FUNCTION: CMR2 0x004ea8c0
+void FUN_004ea8c0(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 0xf) << 13) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffe1fffU);
+}
+
+// FUNCTION: CMR2 0x004ea920
+BYTE FUN_004ea920(void)
+{
+    return CGameInfo::m_gameInfo.field_0x3980;
+}
+
+// FUNCTION: CMR2 0x004ea930
+void FUN_004ea930(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 7) << 10) | (CGameInfo::m_gameInfo.field_0x14 & 0xffffe3ffU);
+}
+
+// FUNCTION: CMR2 0x004ea950
+void FUN_004ea950(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x14 = ((param1 & 1) << 17) | (CGameInfo::m_gameInfo.field_0x14 & 0xfffdffffU);
+}
+
+// FUNCTION: CMR2 0x004ea9c0
+void FUN_004ea9c0(unsigned int param1, unsigned int param2)
+{
+    CGameInfo::m_gameInfo.field_0x14 = (((param2 & 0xf) << 4 | param1 & 0xf) << 23) | (CGameInfo::m_gameInfo.field_0x14 & 0x807fffffU);
+}
+
+// GLOBAL: CMR2 0x0052af90
+DWORD g_unk0x0052af90;
+
+// FUNCTION: CMR2 0x004ea9f0
+void FUN_004ea9f0(void)
+{
+    g_unk0x0052af90 = timeGetTime();
+}
+
+// FUNCTION: CMR2 0x004eaa00
+DWORD FUN_004eaa00(void)
+{
+    return g_unk0x0052af90;
+}
+
+// FUNCTION: CMR2 0x004eaa10
+void FUN_004eaa10(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 22) | (CGameInfo::m_gameInfo.field_0x18 & 0xffbfffffU);
+}
+
+// FUNCTION: CMR2 0x004eaa30
+char FUN_004eaa30(void)
+{
+    return 1;
+}
+
+// FUNCTION: CMR2 0x004eaa40
+void FUN_004eaa40(unsigned int param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 3) << 1) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffffff9U);
+}
+
+// FUNCTION: CMR2 0x004eaa60
+void FUN_004eaa60(unsigned int param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 7) << 8) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffff8ffU);
+}
+
+// FUNCTION: CMR2 0x004eaa80
+unsigned int FUN_004eaa80(void)
+{
+    return CGameInfo::m_gameInfo.field_0x1c >> 8 & 7;
+}
+
+// FUNCTION: CMR2 0x004eaa90
+void FUN_004eaa90(unsigned int param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0x1f) << 3) | (CGameInfo::m_gameInfo.field_0x1c & 0xffffff07U);
+}
+
+// FUNCTION: CMR2 0x004eaab0
+unsigned int FUN_004eaab0(void)
+{
+    return CGameInfo::m_gameInfo.field_0x1c >> 3 & 0x1f;
+}
+
+// Number of bits set.
+// FUNCTION: CMR2 0x004eaac0
+int FUN_004eaac0(unsigned int value)
+{
+    int count = 0;
+    int i = 32;
+
+    do {
+        if (value & 1)
+            count++;
+        value >>= 1;
+    } while (--i != 0);
+    return count;
+}
+
+// FUNCTION: CMR2 0x004eab20
+void FUN_004eab20(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 30) | (CGameInfo::m_gameInfo.field_0x18 & 0xbfffffffU);
+}
+
+// FUNCTION: CMR2 0x004eab80
+void FUN_004eab80(void)
+{
+    CGameInfo::m_gameInfo.field_0x20 = ((CGameInfo::m_gameInfo.field_0x20 & 0xff00) << 16) | (CGameInfo::m_gameInfo.field_0x20 & 0xffffff);
+}
+
+// FUNCTION: CMR2 0x004eaba0
+void FUN_004eaba0(void)
+{
+    CGameInfo::m_gameInfo.field_0x20 = (CGameInfo::m_gameInfo.field_0x20 >> 24) << 8 | (CGameInfo::m_gameInfo.field_0x20 & 0xffff00ffU);
+}
+
+// FUNCTION: CMR2 0x004eac80
+void FUN_004eac80(BYTE param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 1) << 11) | (CGameInfo::m_gameInfo.field_0x1c & 0xfffff7ffU);
+}
+
+// FUNCTION: CMR2 0x004eaca0
+int FUN_004eaca0(void)
+{
+    return *(int *)&CGameInfo::m_gameInfo.field_0x98;
+}
+
+// FUNCTION: CMR2 0x004eacb0
+void FUN_004eacb0(unsigned int param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0xf) << 12) | (CGameInfo::m_gameInfo.field_0x1c & 0xffff0fffU);
+}
+
+// FUNCTION: CMR2 0x004eacd0
+void FUN_004eacd0(unsigned int param1)
+{
+    CGameInfo::m_gameInfo.field_0x1c = ((param1 & 0xf) << 16) | (CGameInfo::m_gameInfo.field_0x1c & 0xfff0ffffU);
+}
+
+// FUNCTION: CMR2 0x004eacf0
+unsigned int FUN_004eacf0(void)
+{
+    return CGameInfo::m_gameInfo.field_0x1c >> 12 & 0xf;
+}
+
+// FUNCTION: CMR2 0x004ead00
+unsigned int FUN_004ead00(void)
+{
+    return CGameInfo::m_gameInfo.field_0x1c >> 16 & 0xf;
+}
+
 // FUNCTION: CMR2 0x004eabc0
 void FUN_004eabc0(void)
 {
