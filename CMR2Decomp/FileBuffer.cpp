@@ -186,6 +186,14 @@ void CFileBuffer::FreeGenericFileBuffer(void *param1)
 
 // GLOBAL: CMR2 0x00531650
 int g_unk0x00531650;
+// GLOBAL: CMR2 0x00531764
+BYTE *g_unk0x00531764;
+
+// FUNCTION: CMR2 0x004eb450
+BYTE *FUN_004eb450(int index)
+{
+    return g_unk0x00531764 + index * 12;
+}
 
 // FUNCTION: CMR2 0x004eb440
 int FUN_004eb440(void)

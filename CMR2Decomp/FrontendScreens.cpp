@@ -334,6 +334,15 @@ void FUN_004e7770(int value)
     g_unk0x008182b4 = value;
 }
 
+// GLOBAL: CMR2 0x00818274
+char g_unk0x00818274[0x40];
+
+// FUNCTION: CMR2 0x004e7780
+void FUN_004e7780(const char *text)
+{
+    strcpy(g_unk0x00818274, text);
+}
+
 // FUNCTION: CMR2 0x004e77b0
 void FUN_004e77b0(BYTE value)
 {

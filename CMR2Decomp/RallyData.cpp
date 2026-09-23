@@ -435,6 +435,24 @@ BYTE g_unk0x0052f3e8[0x2000];
 BYTE g_unk0x00531350[0x1000];
 extern BYTE g_unk0x0052fa5c[];
 
+// FUNCTION: CMR2 0x004ebfd0
+void FUN_004ebfd0(int index)
+{
+    unsigned int value = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    value = (value & 0xffffdfffU) | 0x3c0000;
+    *(unsigned int *)(g_unk0x00531350 + index * 0x30) = value;
+}
+
+// FUNCTION: CMR2 0x004ec000
+void FUN_004ec000(void)
+{
+    int i = 0;
+    do {
+        FUN_004ebfd0(i);
+        i++;
+    } while (i < 16);
+}
+
 // FUNCTION: CMR2 0x004075b0
 int *RallyData_FUN_004075b0(int index)
 {
