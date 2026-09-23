@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <windows.h>
 #include "RallyData.h"
@@ -659,16 +660,16 @@ void *FUN_00408470(unsigned int param1)
 
 // Returns 1 when the record can be used (and 0 when it is full), unless the
 // record is one of the "always usable" ones whose flag lacks the category.
-// TODO: CMR2 0x004085a0 (implemented, match 85%)
-BYTE FUN_004085a0(unsigned int param1)
+// FUNCTION: CMR2 0x004085a0
+BYTE FUN_004085a0(BYTE param1)
 {
-    param1 = param1 & 0xff;
     RallyData_ValidateIndex(param1);
-    if ((*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) & 0x3c0000) == 0x3c0000)
-        return 0;
-    if (CGameInfo::FUN_00405d80() == 4)
-        return 1;
-    return (*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) >> 0x1a) & 1;
+    if ((*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) & 0x3c0000) != 0x3c0000) {
+        if (CGameInfo::FUN_00405d80() == 4)
+            return 1;
+        return (*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) >> 0x1a) & 1;
+    }
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004086b0
@@ -959,6 +960,74 @@ void FUN_00413610(int car)
     }
     ((BYTE *)&g_unk0x005170e0[car])[3] = 0xff;
     g_unk0x00536c20[car] = 0x4b;
+}
+
+BYTE FUN_00448cd0(int car);
+BYTE FUN_004085a0(BYTE param1);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_004082e0(void);
+
+// GLOBAL: CMR2 0x00536c00
+int g_unk0x00536c00[2];
+// GLOBAL: CMR2 0x00536c28
+int g_unk0x00536c28[2];
+// GLOBAL: CMR2 0x00536c3c
+int g_unk0x00536c3c;
+// GLOBAL: CMR2 0x00536e88
+int g_unk0x00536e88[2];
+// GLOBAL: CMR2 0x00536ec4
+int g_unk0x00536ec4[2];
+// GLOBAL: CMR2 0x00536ed0
+char g_unk0x00536ed0[0x100];
+// GLOBAL: CMR2 0x0053706c
+int g_unk0x0053706c;
+
+// Called when the car crosses the finish line: raises the finish messages
+// (stage record, qualification, best time) for the stage end screen.
+// FUNCTION: CMR2 0x00415a60
+void FUN_00415a60(int car)
+{
+    int time;
+
+    if (!FUN_00458290(car))
+        return;
+    time = FUN_004481f0(car, FUN_00458330(car));
+    g_unk0x00536c00[car] = 0;
+    g_unk0x00536c88[car] = 0;
+    g_unk0x00536c28[car] = 0;
+    g_unk0x00536e88[car] = 0;
+    g_unk0x00536ec4[car] = 0;
+    if ((!(BYTE)CGameInfo::FUN_00406440() || !(BYTE)RallyData_GetFlag24()) && !CGameInfo::FUN_00405e00()) {
+        if (FUN_00448cd0(car)) {
+            g_unk0x00536c00[car] = 1;
+            g_unk0x00536c08[car] = 0x7d;
+        }
+        if ((g_unk0x00536c3c == 0 || g_unk0x00536c3c > time) &&
+            !FUN_004085a0((BYTE)(FUN_0041b370() + car))) {
+            g_unk0x00536e88[car] = 1;
+            g_unk0x00536c08[car] = 0x7d;
+        }
+    }
+    if (CGameInfo::FUN_00405e00()) {
+        if (CGameInfo::FUN_00405d80() != 0xc || !FUN_0040a3c0())
+            goto done;
+        g_unk0x0053706c = CGameInfo::FUN_0040a420(0);
+        sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(0));
+        g_unk0x00536c28[car] = 1;
+        g_unk0x00536c08[car] = 0x7d;
+    } else {
+        if (g_unk0x0053706c != 0 && g_unk0x0053706c <= time)
+            goto done;
+        g_unk0x0053706c = time;
+        sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + car));
+        g_unk0x00536c28[car] = 1;
+        g_unk0x00536c08[car] = 0x7d;
+    }
+done:
+    if ((BYTE)RallyData_FUN_00407e70())
+        RallyData_FUN_004082e0();
+    g_unk0x00536ec4[car] = 1;
+    g_unk0x00536c08[car] = 0x7d;
 }
 
 // FUNCTION: CMR2 0x004074a0

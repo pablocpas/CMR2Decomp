@@ -10,6 +10,6 @@ struct StageSplitData {
 	int times[14];         // times[0] is the start, times[n] the time at split n
 };
 
-extern StageSplitData g_stageSplitData[2];
+extern StageSplitData g_stageSplitData[1];
 
 #endif
