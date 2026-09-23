@@ -29,6 +29,7 @@ public:
     static void SetLeaderboardId(int id);
     static int GetLeaderboardId(void);
     static int GetTotalLeaderboards(void);
+    static NetworkLeaderboard *GetLoadedLeaderboard(int index);
 
 private:
     // GLOBAL: CMR2 0x00516a0c

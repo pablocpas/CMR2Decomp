@@ -67,6 +67,13 @@ int CNetworkLeaderboards::GetTotalLeaderboards(void)
     return m_totalLeaderboards;
 }
 
+// FUNCTION: CMR2 0x0040e510
+NetworkLeaderboard *CNetworkLeaderboards::GetLoadedLeaderboard(int index)
+{
+    NetworkLeaderboard *p = &m_leaderboards[index];
+    return *(BYTE *)p ? p : NULL;
+}
+
 // GLOBAL: CMR2 0x00533900
 BYTE g_unk0x00533900[0x104];
 // GLOBAL: CMR2 0x00535b8c
@@ -90,4 +97,3 @@ BYTE *FUN_0040e8c0(void)
 {
     return g_unk0x00535b8c ? g_unk0x00533900 : NULL;
 }
-
