@@ -1244,6 +1244,303 @@ int g_unk0x0082ac5c;
 int g_unk0x0082b0a0;
 // GLOBAL: CMR2 0x0082b2c0
 Unk0x0082b2c0 g_unk0x0082b2c0[8];
+// GLOBAL: CMR2 0x00526f54
+int g_unk0x00526f54[7] = { 0, 1, 3, 4, 5, 5, 7 };
+// GLOBAL: CMR2 0x00526f70
+int g_unk0x00526f70[7] = { 0, 1, 2, 3, 4, 5, 6 };
+// GLOBAL: CMR2 0x00526f8c
+int g_unk0x00526f8c[11] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+// GLOBAL: CMR2 0x00527098
+int g_unk0x00527098[7] = { 12000, 30000, 48000, 42000, 24000, 24000, 30000 };
+// GLOBAL: CMR2 0x005270b4
+int g_unk0x005270b4[12] = { 0, 96000, 48000, 48000, 72000, 60000, 60000, 84000, 36000, 24000, 48000, 48000 };
+// GLOBAL: CMR2 0x0082a90c
+int g_unk0x0082a90c[6];
+// GLOBAL: CMR2 0x0082a928
+int g_unk0x0082a928;
+// GLOBAL: CMR2 0x0082a92c
+int g_unk0x0082a92c;
+// GLOBAL: CMR2 0x0082a930
+int g_unk0x0082a930;
+// GLOBAL: CMR2 0x0082af78
+int g_unk0x0082af78[4];
+// GLOBAL: CMR2 0x0082af90
+int g_unk0x0082af90[4];
+// GLOBAL: CMR2 0x0082b1b4
+int g_unk0x0082b1b4;
+// GLOBAL: CMR2 0x0082b1bc
+int g_unk0x0082b1bc;
+// GLOBAL: CMR2 0x0082b488
+BYTE g_unk0x0082b488[0x1e0];
+// GLOBAL: CMR2 0x0082ba28
+BYTE g_unk0x0082ba28[0x1e0];
+// GLOBAL: CMR2 0x0082bf20
+BYTE g_unk0x0082bf20[16][7];
+// GLOBAL: CMR2 0x0082c040
+BYTE g_unk0x0082c040[16][12];
+struct Unk0x0082d220Vec {
+    int v[4];
+};
+
+struct Unk0x0082d220 {
+    BYTE field_0x0[0x22c];
+    Unk0x0082d220Vec field_0x22c;
+    Unk0x0082d220Vec field_0x23c;
+    BYTE field_0x24c[0x60];
+};
+
+// GLOBAL: CMR2 0x0082d220
+Unk0x0082d220 g_unk0x0082d220[8];
+// GLOBAL: CMR2 0x00831778
+Menu *g_pMenu0x00831778;
+// GLOBAL: CMR2 0x0083177c
+Menu *g_pMenu0x0083177c;
+// GLOBAL: CMR2 0x00831a90
+int g_unk0x00831a90[4];
+// GLOBAL: CMR2 0x00831aa0
+int g_unk0x00831aa0[4];
+// GLOBAL: CMR2 0x00831ab0
+int g_unk0x00831ab0[4];
+
+// FUNCTION: CMR2 0x004ff4b0
+int FUN_004ff4b0(int index)
+{
+    return g_unk0x00526f54[index];
+}
+
+// FUNCTION: CMR2 0x004ff4c0
+int FUN_004ff4c0(int index)
+{
+    return g_unk0x00526f70[index];
+}
+
+// FUNCTION: CMR2 0x004ff4d0
+int FUN_004ff4d0(int index)
+{
+    return g_unk0x00526f8c[index];
+}
+
+// FUNCTION: CMR2 0x004ff540
+int FUN_004ff540(void)
+{
+    return g_unk0x0082a928 - g_unk0x0082a930;
+}
+
+// FUNCTION: CMR2 0x004ff5a0
+int FUN_004ff5a0(int index)
+{
+    return g_unk0x0082a90c[index];
+}
+
+// FUNCTION: CMR2 0x005004a0
+int FUN_005004a0(void)
+{
+    return g_unk0x0082a92c;
+}
+
+// FUNCTION: CMR2 0x005004b0
+void FUN_005004b0(int value)
+{
+    g_unk0x0082a92c = value;
+}
+
+// FUNCTION: CMR2 0x00500520
+void FUN_00500520(void)
+{
+    g_unk0x0082ac58 = 0;
+    g_unk0x0082ac5c = 0;
+}
+
+// FUNCTION: CMR2 0x00500530
+void FUN_00500530(void)
+{
+    if (g_unk0x0082ac58 != 0 && (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082ac5c) >= 30)
+        FUN_00500520();
+}
+
+// FUNCTION: CMR2 0x005011d0
+int FUN_005011d0(void)
+{
+    return g_unk0x0082b0a8;
+}
+
+// FUNCTION: CMR2 0x005011e0
+void FUN_005011e0(int value)
+{
+    g_unk0x0082b0a8 = value;
+}
+
+// FUNCTION: CMR2 0x005011f0
+int FUN_005011f0(int index)
+{
+    return g_unk0x0082af90[index];
+}
+
+// FUNCTION: CMR2 0x00501200
+int FUN_00501200(int index)
+{
+    return g_unk0x0082af78[index];
+}
+
+// FUNCTION: CMR2 0x00501210
+void FUN_00501210(int index, int value)
+{
+    g_unk0x0082af90[index] = value;
+}
+
+// FUNCTION: CMR2 0x00501510
+int FUN_00501510(void)
+{
+    return g_unk0x0082b1b4;
+}
+
+// FUNCTION: CMR2 0x00501d00
+void FUN_00501d00(int index)
+{
+    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+
+    p->field_0x8 = 0;
+    p->field_0x4 = 0;
+    p->field_0x0 = 0;
+    p->field_0xc = 0;
+}
+
+// FUNCTION: CMR2 0x00501d20
+void FUN_00501d20(int count)
+{
+    int i;
+
+    g_unk0x0082b1bc = count;
+    for (i = 0; i < g_unk0x0082b1bc; i++)
+        FUN_00501d00(i);
+}
+
+// FUNCTION: CMR2 0x005021c0
+int FUN_005021c0(int index)
+{
+    return g_unk0x0082b2c0[index].field_0xc;
+}
+
+// FUNCTION: CMR2 0x005021e0
+void FUN_005021e0(void)
+{
+    int i;
+    Unk0x0082b2c0 *p;
+
+    if (g_unk0x0082b1bc > 0) {
+        p = g_unk0x0082b2c0;
+        i = g_unk0x0082b1bc;
+        do {
+            p->field_0x0 = 0x10000;
+            p->field_0xc = 2;
+            p++;
+        } while (--i != 0);
+    }
+}
+
+// FUNCTION: CMR2 0x00502210
+BYTE *FUN_00502210(void)
+{
+    return g_unk0x0082ba28;
+}
+
+// FUNCTION: CMR2 0x00502220
+BYTE *FUN_00502220(void)
+{
+    return g_unk0x0082b488;
+}
+
+// FUNCTION: CMR2 0x00502990
+BYTE FUN_00502990(int i, int j)
+{
+    return g_unk0x0082bf20[i][j];
+}
+
+// FUNCTION: CMR2 0x00502d40
+int FUN_00502d40(int index)
+{
+    return g_unk0x00527098[index];
+}
+
+// FUNCTION: CMR2 0x00503930
+int FUN_00503930(int index)
+{
+    return g_unk0x005270b4[index];
+}
+
+// FUNCTION: CMR2 0x00503940
+BYTE FUN_00503940(int i, int j)
+{
+    return g_unk0x0082c040[i][j];
+}
+
+// FUNCTION: CMR2 0x00509d00
+void FUN_00509d00(int index)
+{
+    Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x22c;
+
+    p->v[0] = 0;
+    p->v[1] = 0;
+    p->v[2] = 0;
+    p->v[3] = 0;
+}
+
+// FUNCTION: CMR2 0x00509d90
+void FUN_00509d90(int index)
+{
+    Unk0x0082d220Vec *p = &g_unk0x0082d220[index].field_0x23c;
+
+    p->v[0] = 0;
+    p->v[1] = 0;
+    p->v[2] = 0;
+    p->v[3] = 0;
+}
+
+// FUNCTION: CMR2 0x0050a020
+int FUN_0050a020(int mode, int type)
+{
+    if (type == 6 && mode != 11 && mode != 8 && mode != 10 && mode != 13)
+        return 1;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0050a050
+int FUN_0050a050(int mode, int type)
+{
+    if (type <= 1 && mode != 11 && mode != 8 && mode != 10 && mode != 13)
+        return 1;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x0050f1c0
+void FUN_0050f1c0(void)
+{
+    g_pMenu0x00831778 = g_pMenu0x0083177c;
+}
+
+// FUNCTION: CMR2 0x0050f230
+void FUN_0050f230(void)
+{
+    Menu_CallCallback2(g_pMenu0x00831778);
+}
+
+// FUNCTION: CMR2 0x0050f620
+int *FUN_0050f620(void)
+{
+    return g_unk0x00831a90;
+}
+
+// FUNCTION: CMR2 0x0050f630
+int *FUN_0050f630(void)
+{
+    return g_unk0x00831ab0;
+}
+
+// FUNCTION: CMR2 0x0050f640
+int *FUN_0050f640(void)
+{
+    return g_unk0x00831aa0;
+}
 
 // FUNCTION: CMR2 0x005011a0
 void CGameInfo::FUN_005011a0(void)
