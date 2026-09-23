@@ -86,9 +86,10 @@ struct ControllerData {
     unsigned int field_0x0;
     unsigned int field_0x4;
     char name[MAX_PATH];
-    BYTE field_0x10c_padding[8];
+    BYTE field_0x10c_padding[4];
+    DWORD field_0x110;
     DWORD field_0x114;
-    BYTE field_0x118_padding[4];
+    DWORD field_0x118;
     DWORD field_0x11c;
     DWORD field_0x120;
     DWORD field_0x124;

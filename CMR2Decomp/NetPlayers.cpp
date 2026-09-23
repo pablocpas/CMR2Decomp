@@ -1009,3 +1009,10 @@ unsigned int FUN_0040b1e0(int index)
 {
     return g_netPlayers[index].flags >> 23 & 1;
 }
+
+// FUNCTION: CMR2 0x0040b200
+void FUN_0040b200(int index)
+{
+    g_netPlayers[index].flags |= 0x800000;
+}
+

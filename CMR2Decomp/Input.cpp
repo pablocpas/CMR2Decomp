@@ -1681,3 +1681,70 @@ int FUN_004b7d60(int *pOut)
     return 0;
 }
 
+// Controller slots are mapped to entries of m_controllerInfo through m_unk0x005168f4.
+// FUNCTION: CMR2 0x0040bba0
+unsigned short FUN_0040bba0(void)
+{
+    return CInput::m_controllerCount;
+}
+
+// FUNCTION: CMR2 0x0040bbb0
+ControllerData *FUN_0040bbb0(void)
+{
+    return CInput::m_controllerInfo;
+}
+
+// FUNCTION: CMR2 0x0040bbc0
+unsigned short FUN_0040bbc0(unsigned short slot)
+{
+    return CInput::m_unk0x005168f4[slot];
+}
+
+// FUNCTION: CMR2 0x0040bbe0
+void FUN_0040bbe0(unsigned short slot, unsigned short index)
+{
+    CInput::m_unk0x005168f4[slot] = index;
+}
+
+// FUNCTION: CMR2 0x0040bc00
+unsigned int FUN_0040bc00(unsigned short slot)
+{
+    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0;
+}
+
+// FUNCTION: CMR2 0x0040bc30
+unsigned int FUN_0040bc30(unsigned short slot)
+{
+    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4;
+}
+
+// FUNCTION: CMR2 0x0040bc60
+void FUN_0040bc60(unsigned short slot, unsigned int value)
+{
+    CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x0 = value;
+}
+
+// FUNCTION: CMR2 0x0040bcd0
+DWORD FUN_0040bcd0(unsigned short slot)
+{
+    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x11c;
+}
+
+// FUNCTION: CMR2 0x0040bd00
+void FUN_0040bd00(unsigned short slot, unsigned int value)
+{
+    CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x4 = value;
+}
+
+// FUNCTION: CMR2 0x0040bd30
+DWORD FUN_0040bd30(unsigned short slot)
+{
+    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x118;
+}
+
+// FUNCTION: CMR2 0x0040bdd0
+DWORD FUN_0040bdd0(unsigned short slot)
+{
+    return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x110;
+}
+
