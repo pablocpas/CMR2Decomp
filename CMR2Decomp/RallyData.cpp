@@ -12,6 +12,9 @@
 #include "Graphics.h"
 
 int FUN_00456c00(int index);
+int FUN_0041f3d0(BYTE index);
+int FUN_00418570(void);
+int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -431,6 +434,8 @@ BOOL RallyData_FUN_00408340(void)
     return TRUE;
 }
 
+// GLOBAL: CMR2 0x0052f3e0
+BYTE g_unk0x0052f3e0[8 * 196];
 // GLOBAL: CMR2 0x0052f3e8
 BYTE g_unk0x0052f3e8[0x2000];
 // GLOBAL: CMR2 0x00531350
@@ -568,6 +573,47 @@ BYTE RallyData_FUN_004086b0(BYTE index)
     if (CGameInfo::FUN_00405d80() == 4)
         return *(BYTE *)((int *)g_unk0x0052f3e8 + index * 49);
     return *(int *)((char *)g_unk0x00531350 + index * 48) & 0x3f;
+}
+
+// Returns bit 0 of the record flag, or bit 5 of the category flag when the
+// record belongs to a category.
+// FUNCTION: CMR2 0x004086f0
+BYTE FUN_004086f0(unsigned int param1)
+{
+    unsigned int category;
+    BYTE flag;
+
+    param1 = param1 & 0xff;
+    RallyData_ValidateIndex(param1);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        flag = *(BYTE *)(g_unk0x0052f3e8 + param1 * 196 + 4);
+        flag &= 1;
+        return flag;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return (*(unsigned int *)(g_unk0x0052fa5c + category * 0x650) >> 5) & 1;
+    return 1;
+}
+
+// GLOBAL: CMR2 0x00536ecc
+short g_unk0x00536ecc;
+// GLOBAL: CMR2 0x00537060
+short g_unk0x00537060;
+
+// Plays the looping sound of the stage that is not the one already playing.
+// FUNCTION: CMR2 0x00411ab0
+void FUN_00411ab0(BYTE param1, int param2)
+{
+    if (CGameInfo::FUN_00406320() != 0)
+        return;
+    if (FUN_0041f3d0(param1) != 0)
+        return;
+    if (param2 != 0) {
+        FUN_004b7790(g_unk0x00536ecc, FUN_00418570() / 2, 0x5622, 0, 0, 0);
+        return;
+    }
+    FUN_004b7790(g_unk0x00537060, FUN_00418570() / 2, 0x2b11, 0, 0, 0);
 }
 
 // FUNCTION: CMR2 0x004074a0
@@ -907,8 +953,6 @@ int RallyData_FUN_00421470(BYTE *p)
     return result;
 }
 
-// GLOBAL: CMR2 0x0052f3e0
-BYTE g_unk0x0052f3e0[8 * 196];
 // Per-category records of 0x650 bytes (runs up to the 0x531350 table).
 // GLOBAL: CMR2 0x0052fa18
 BYTE g_unk0x0052fa18[0x1938];

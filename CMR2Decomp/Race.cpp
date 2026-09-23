@@ -248,6 +248,10 @@ void FUN_00417e60(void)
     g_unk0x00537190 = 0;
 }
 
+int FUN_004781c0(int index);
+int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
+void Sound_Free(unsigned int handle);
+
 // FUNCTION: CMR2 0x00418560
 void FUN_00418560(int value)
 {
@@ -264,6 +268,57 @@ int FUN_00418570(void)
 void FUN_00418d20(int value)
 {
     g_unk0x00537394 = value;
+}
+
+// GLOBAL: CMR2 0x005377c4
+int g_unk0x005377c4[10];    // hasta g_unk0x005377ec, el siguiente que usa la funcion
+// GLOBAL: CMR2 0x005377ec
+int g_unk0x005377ec[10];    // hasta g_unk0x00537814
+// GLOBAL: CMR2 0x00537814
+int g_unk0x00537814[10];    // hasta g_unk0x0053783c
+// GLOBAL: CMR2 0x0053783c
+BYTE g_unk0x0053783c[0x590];    // hasta g_unk0x00537dcc
+// GLOBAL: CMR2 0x005375f4
+BYTE g_unk0x005375f4[0x1d0];    // hasta g_unk0x005377c4
+
+// Starts the sound of one entry of the stage table and stores its handle, the
+// random pitch and the id of the sound.
+// TODO: CMR2 0x00418d30 (implemented, match 54%)
+void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
+{
+    int index;
+
+    index = param3 + param1 * 0x2d;
+    g_unk0x005377c4[index] = FUN_004b7790(param2, param4, 0x5622, (param5 == 0) ? 0 : param5, 1, 0);
+    g_unk0x00537814[index] = rand() % 0x19 + 0x32 + FUN_004781c0(param1);
+    g_unk0x0053783c[param1 * 0xb4 + param3] = g_unk0x005375f4[param1];
+    g_unk0x005377ec[index] = param2;
+}
+
+// Stops the sound of one entry of the stage table (and forgets both the handle
+// and the id).
+// FUNCTION: CMR2 0x00418dd0
+void FUN_00418dd0(int param1, int param2, char param3)
+{
+    if (param3 != 0)
+        g_unk0x005377ec[param1 * 0x2d + param2] = -1;
+    Sound_Free(g_unk0x005377c4[param1 * 0x2d + param2]);
+    g_unk0x005377c4[param1 * 0x2d + param2] = -1;
+}
+
+// Returns a random value in [0, param2) that is not param1.
+// TODO: CMR2 0x00419b50 (implemented, match 53%)
+int FUN_00419b50(int param1, int param2)
+{
+    int value;
+
+    if (param2 == 1)
+        return 0;
+    value = rand();
+    while (value % param2 == param1) {
+        value = rand();
+    }
+    return value % param2;
 }
 
 // FUNCTION: CMR2 0x0041b040

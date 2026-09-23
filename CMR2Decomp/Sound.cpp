@@ -594,7 +594,7 @@ void FUN_004a26f0(SoundSlot *pSlot)
 }
 
 // STUB: CMR2 0x004b7790
-int FUN_004b7790(unsigned int id, int volume, int pan, int loop, int param5, int param6)
+int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6)
 {
     return -1;
 }

@@ -119,6 +119,6 @@ public:
     static SoundSlot *m_soundSlotsEnd;
 };
 
-int FUN_004b7790(unsigned int id, int volume, int pan, int loop, int param5, int param6);
+int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
 
 #endif
