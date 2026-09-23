@@ -3063,6 +3063,28 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
 
 int CGraphics::m_unk0x00520b1c;
 int CGraphics::m_unk0x00520b20;
+
+// GLOBAL: CMR2 0x00520b18
+int g_unk0x00520b18 = -1;
+
+// FUNCTION: CMR2 0x004a3dc0
+void FUN_004a3dc0(int param1)
+{
+    CGraphics::m_unk0x00520b14 = param1;
+}
+
+// FUNCTION: CMR2 0x004a3dd0
+void FUN_004a3dd0(void)
+{
+    g_unk0x00520b18 = -1;
+}
+
+// FUNCTION: CMR2 0x004a3de0
+void CGraphics::FUN_004a3de0(void)
+{
+    m_unk0x00520b1c = 1;
+    m_unk0x00520b20 = 1;
+}
 int CGraphics::m_unk0x00520b28;
 unsigned int CGraphics::m_unk0x0065fa24;
 int CGraphics::m_unk0x0065fa38;

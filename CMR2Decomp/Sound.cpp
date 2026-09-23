@@ -721,3 +721,15 @@ IDirectSound *FUN_004a1d00(void)
     return g_unk0x005a2844;
 }
 
+// FUNCTION: CMR2 0x004a3180
+void FUN_004a3180(void)
+{
+    if (CSound::m_unk0x005a2730 != 0)
+        CSound::m_unk0x005a2724 = 0;
+}
+
+// FUNCTION: CMR2 0x004a3240
+void FUN_004a3240(int unused)
+{
+}
+

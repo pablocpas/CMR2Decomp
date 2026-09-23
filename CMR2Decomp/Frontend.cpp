@@ -403,6 +403,16 @@ BYTE CFrontend::m_unk0x0065aa71;
 
 // Looks up one of the loaded text strings; out-of-range ids fall back to the
 // "INVALID TEXT STRING" placeholder.
+// Selects the language of the text strings.
+// FUNCTION: CMR2 0x004a3c30
+void FUN_004a3c30(int language)
+{
+    if (language < CFrontend::m_unk0x0065aa71) {
+        CFrontend::m_unk0x0065aa70 = language;
+        CFrontend::m_textFirstId = CFrontend::m_textCount * language;
+    }
+}
+
 // FUNCTION: CMR2 0x004a3c60
 char *CFrontend::GetTextString(int index)
 {
@@ -459,6 +469,22 @@ void CFrontend::FUN_004d2790(void)
 }
 
 // Releases the text string table.
+// Terminates the line at p and, when asked, returns the start of the next one.
+// FUNCTION: CMR2 0x004a3d50
+BYTE *FUN_004a3d50(BYTE *p, char next)
+{
+    while (*p >= 0x20)
+        p++;
+    *p = 0;
+    if (next != 0) {
+        do {
+            p++;
+        } while (*p < 0x20);
+        return p;
+    }
+    return NULL;
+}
+
 // FUNCTION: CMR2 0x004a3d80
 void CFrontend::FUN_004a3d80(void)
 {
