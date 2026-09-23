@@ -6,6 +6,16 @@
 #include "Font.h"
 #include "RallyTiming.h"
 #include "StageTiming.h"
+#include <cstdio>
+#include "Sprite.h"
+#include "GenericFileLoader.h"
+#include "Graphics.h"
+#include "RallyData.h"
+#include "NetPlayers.h"
+#include "Input.h"
+#include "TimingUtils.h"
+#include "main.h"
+#include "Game.h"
 
 int FUN_0040ab10(void);
 
@@ -72,14 +82,127 @@ Menu g_menu0x00541ae0;
 // GLOBAL: CMR2 0x0053fd50
 DWORD g_menuBuildTime;
 
-// STUB: CMR2 0x00449b00
-void FUN_00449b00(void)
+typedef void (*FadeCallback)(BYTE index);
+short Car_GetOrderCount(void);
+void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+BYTE *FUN_0041b390(void);
+BOOL FUN_004a15a0(void);
+int FUN_004a1280(void);
+void FUN_004067d0(void);
+void FUN_0041f280(void);
+void FUN_0041f290(void);
+void FUN_0041f2a0(void);
+void FUN_0041f390(void);
+void FUN_00404ef0(void);
+void FUN_0041b3a0(void);
+void FUN_00427a10(void);
+void FUN_00427a30(void);
+void FUN_00427a50(void);
+void FUN_00427a80(void);
+void FUN_0040ad20(void);
+void FUN_00409bc0(void);
+void FUN_00469b50(int index);
+void FUN_0041f2b0(void);
+int FUN_0046d2a0(int *p);
+void FUN_00466080(void);
+void FUN_004728b0(void);
+unsigned int *RallyData_GetChampionshipState(void);
+unsigned int RallyDataState(void);
+unsigned int RallyData_FUN_00407ea0(void);
+extern int g_unk0x00537f0c[6];
+extern BYTE *g_unk0x00537f3c[8];
+extern BYTE g_menuFrameColour[4];
+
+// Fade value of the stage end menus.
+// GLOBAL: CMR2 0x00519ec8
+int g_unk0x00519ec8 = 0xacb49c;
+// GLOBAL: CMR2 0x00541cd4
+int g_unk0x00541cd4;
+
+// Promotes every car of the race table one level (end of stage).
+#define PROMOTE_CARS()                                                                  \
+    for (i = 0; i < *FUN_0041b390(); i++)                                               \
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)FUN_0041b390(), i, 1, 3)
+
+// Fade callback of the "quit" item: ends the championship and leaves.
+// TODO: CMR2 0x00449020 (implemented, match 97%)
+void FUN_00449020(BYTE index)
 {
+    BYTE i;
+
+    PROMOTE_CARS();
+    if (CGameInfo::FUN_00405d80() == 4)
+        *RallyData_GetChampionshipState() |= 0x800000;
+    if (CGameInfo::FUN_00405e00()) {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+        FUN_004067d0();
+    }
+    FUN_0041f2a0();
 }
 
-// STUB: CMR2 0x00449b60
-void FUN_00449b60(void)
+// Fade callback of the network "quit" item.
+// FUNCTION: CMR2 0x00449090
+void FUN_00449090(BYTE index)
 {
+    BYTE i;
+
+    if (CGameInfo::FUN_00404f20())
+        FUN_00404ef0();
+    PROMOTE_CARS();
+    if (FUN_004a15a0()) {
+        FUN_0041b3a0();
+        FUN_00427a10();
+    }
+    FUN_0040ad20();
+    FUN_0041f2a0();
+}
+
+// Fade callback of the "restart" item.
+// FUNCTION: CMR2 0x00449ea0
+void FUN_00449ea0(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    FUN_0041f280();
+}
+
+// Fade callback of the "retry" item.
+// FUNCTION: CMR2 0x00449ee0
+void FUN_00449ee0(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    FUN_0041f280();
+    FUN_0041f290();
+}
+
+// Fade callback of the "continue" item.
+// FUNCTION: CMR2 0x00449fe0
+void FUN_00449fe0(BYTE index)
+{
+    FUN_0041f2b0();
+    FUN_0041f390();
+    CGameInfo::FUN_0049ea90(0);
+}
+
+// Menu action "quit": fades every player out, the first one quits.
+// FUNCTION: CMR2 0x00449b00
+void FUN_00449b00(Menu *pMenu, int param)
+{
+    BYTE i;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : FUN_00449020, 1, 0, g_unk0x00519ec8, 1);
+}
+
+// Menu action "quit" of the network results menu.
+// FUNCTION: CMR2 0x00449b60
+void FUN_00449b60(Menu *pMenu, int param)
+{
+    FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x00519ec8, 1);
 }
 
 // FUNCTION: CMR2 0x00449b80
@@ -166,19 +289,66 @@ void FUN_00449e90(Menu *pMenu, int param)
     Menu_SetNextAction((int)pMenu->items[0].pSubMenu);
 }
 
-// STUB: CMR2 0x00449f30
-void FUN_00449f30(void)
+// Menu action "restart".
+// TODO: CMR2 0x00449f30 (implemented, match 67%)
+void FUN_00449f30(Menu *pMenu, int param)
 {
+    BYTE i;
+    int value;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++) {
+        if (CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 1 && CGameInfo::FUN_00405d80() != 0)
+            value = g_unk0x00541cd4;
+        else
+            value = g_unk0x00519ec8;
+        FUN_004283e0(i, i != 0 ? NULL : FUN_00449ea0, 1, 0, value, 1);
+    }
+    if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10 &&
+        CGameInfo::FUN_00405d80() != 12) {
+        FUN_00409bc0();
+        FUN_00427a50();
+    }
 }
 
-// STUB: CMR2 0x0044a000
+// Menu action "continue".
+// FUNCTION: CMR2 0x0044a000
 void FUN_0044a000(Menu *pMenu, int param1)
 {
+    BYTE i;
+
+    if (CGameInfo::FUN_00405e00()) {
+        FUN_004283e0(0, FUN_00449fe0, 1, 0, g_unk0x00519ec8, 1);
+        if (FUN_004a15a0())
+            FUN_00427a30();
+        return;
+    }
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : FUN_00449fe0, 1, 0, g_unk0x00519ec8, 1);
 }
 
-// STUB: CMR2 0x0041f2b0
+// Leaves the stage: stores every car's timing, updates the race table and
+// starts the next step of the championship.
+// TODO: CMR2 0x0041f2b0 (implemented, match 85%)
 void FUN_0041f2b0(void)
 {
+    int i;
+
+    for (i = 0; i < (int)(RallyDataState() & 0xff); i++)
+        FUN_00469b50(i);
+    for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
+        FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
+    }
+    if ((BYTE)RallyData_FUN_00407ea0() && CGameInfo::FUN_00406310())
+        FUN_00466080();
+    if (CGameInfo::FUN_00405d80() != 4)
+        return;
+    if (!(*RallyData_GetChampionshipState() & 0x800000)) {
+        FUN_004728b0();
+        FUN_0041f280();
+        return;
+    }
+    FUN_0041f2a0();
 }
 
 // FUNCTION: CMR2 0x0044a090
@@ -188,9 +358,16 @@ void FUN_0044a090(Menu *pMenu, int param)
     CGameInfo::FUN_0049ea90(0);
 }
 
-// STUB: CMR2 0x0044a0a0
-void FUN_0044a0a0(void)
+// Menu action "retry".
+// FUNCTION: CMR2 0x0044a0a0
+void FUN_0044a0a0(Menu *pMenu, int param)
 {
+    BYTE i;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : FUN_00449ee0, 1, 0, g_unk0x00519ec8, 1);
+    if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10)
+        FUN_00427a80();
 }
 
 // STUB: CMR2 0x0044b7b0
@@ -198,9 +375,15 @@ void FUN_0044b7b0(void)
 {
 }
 
-// STUB: CMR2 0x0044bc30
-void FUN_0044bc30(void)
+// Draw callback of the "waiting for the other players" screen.
+// TODO: CMR2 0x0044bc30 (implemented, match 81%)
+void FUN_0044bc30(Menu *pMenu)
 {
+    Font_DrawText(2, CFrontend::GetTextString(0x47), (int)(g_pGraphics->resX * 30) / 640,
+                  (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
+    Font_DrawText(2, CFrontend::GetTextString(0xfa), g_pGraphics->resX / 2, g_pGraphics->resY / 2,
+                  (int *)g_menuFrameColour, 0x12);
+    Font_SetBlendMode(2);
 }
 
 // STUB: CMR2 0x0044bcd0
@@ -243,9 +426,14 @@ void FUN_00450c10(void)
 {
 }
 
-// STUB: CMR2 0x00450ed0
-void FUN_00450ed0(void)
+// GLOBAL: CMR2 0x00519f74
+char g_networkRallyEndMenuName[] = "NetworkRallyRallyEndMenu_Display";
+
+// Placeholder draw callback of the network rally end menu.
+// FUNCTION: CMR2 0x00450ed0
+void FUN_00450ed0(Menu *pMenu)
 {
+    Font_DrawText(0, g_networkRallyEndMenuName, 100, 100, (int *)g_menuFrameColour, 9);
 }
 
 // STUB: CMR2 0x00450ef0
@@ -414,15 +602,6 @@ void GameMenus_Build(void)
     Menu_ValidateCursor(&g_menu0x005404d8, 0);
 }
 
-#include <cstdio>
-#include "Sprite.h"
-#include "GenericFileLoader.h"
-#include "Graphics.h"
-#include "RallyData.h"
-#include "NetPlayers.h"
-#include "Input.h"
-#include "TimingUtils.h"
-#include "main.h"
 
 int FUN_0040ae90(void);
 NetClassification *FUN_0040aea0(int index);

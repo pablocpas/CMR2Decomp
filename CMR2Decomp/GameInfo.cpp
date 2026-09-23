@@ -2385,3 +2385,14 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
     edge[2] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
 }
+
+void FUN_00423010(int view, int start);
+extern BYTE g_unk0x0052af58[2];
+
+// TODO: CMR2 0x00404ef0 (implemented, match 70%)
+void FUN_00404ef0(void)
+{
+    CGameInfo::FUN_0049ea90(0);
+    FUN_00423010(g_unk0x0052af58[1], 0);
+    CGameInfo::m_unk0x0052af40 = 0;
+}

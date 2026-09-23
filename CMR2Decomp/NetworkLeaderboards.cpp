@@ -4,6 +4,8 @@
 #include "FileBuffer.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include "main.h"
 
 int CNetworkLeaderboards::m_leaderboardId = -1;
 int CNetworkLeaderboards::m_totalLeaderboards;
@@ -72,6 +74,56 @@ NetworkLeaderboard *CNetworkLeaderboards::GetLoadedLeaderboard(int index)
 {
     NetworkLeaderboard *p = &m_leaderboards[index];
     return *(BYTE *)p ? p : NULL;
+}
+
+void FUN_0040e8a0(BYTE *p);
+
+// Leaderboard order: most wins first, then names in reverse order.
+// TODO: CMR2 0x0040e790 (implemented, match 93%)
+int __cdecl FUN_0040e790(const void *a, const void *b)
+{
+    const NetworkLeaderboardEntry *e1 = (const NetworkLeaderboardEntry *)a;
+    const NetworkLeaderboardEntry *e2 = (const NetworkLeaderboardEntry *)b;
+
+    if (e1->wins > e2->wins)
+        return -1;
+    if (e1->wins < e2->wins)
+        return 1;
+    if (strcmp(e1->name, e2->name) > 0)
+        return -1;
+    return strcmp(e1->name, e2->name) >= 0 ? -1 : 1;
+}
+
+// FUNCTION: CMR2 0x0040e850
+void FUN_0040e850(int index)
+{
+    qsort(CNetworkLeaderboards::m_leaderboards[index].entries, 0x20, sizeof(NetworkLeaderboardEntry), FUN_0040e790);
+    FUN_0040e8a0((BYTE *)&CNetworkLeaderboards::m_leaderboards[index]);
+}
+
+// Adds wins to the entry with the given name, creating it in the first
+// empty slot when it is not listed yet, and re-sorts the leaderboard.
+// TODO: CMR2 0x0040e660 (implemented, match 97%)
+void FUN_0040e660(int index, char *name, int wins)
+{
+    int i;
+
+    for (i = 0; i < 0x20; i++) {
+        if (strcmp(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, name) == 0) {
+            CNetworkLeaderboards::m_leaderboards[index].entries[i].wins += wins;
+            FUN_0040e850(index);
+            return;
+        }
+    }
+    for (i = 0; i < 0x20; i++) {
+        if (strcmp(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, CMain::m_logFileBlankLine) == 0)
+            break;
+    }
+    if (i < 0x20) {
+        strcpy(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, name);
+        CNetworkLeaderboards::m_leaderboards[index].entries[i].wins = wins;
+    }
+    FUN_0040e850(index);
 }
 
 // GLOBAL: CMR2 0x00533900

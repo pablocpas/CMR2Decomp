@@ -21,7 +21,13 @@ int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
 BYTE g_unk0x00538e0c[0x20];
 // GLOBAL: CMR2 0x00538d2c
-BYTE g_unk0x00538d2c[0xd8];
+BYTE g_unk0x00538d2c[0xc8];
+// GLOBAL: CMR2 0x00538df8
+short g_unk0x00538df8[2];
+// GLOBAL: CMR2 0x00538c98
+int g_unk0x00538c98[2];
+// GLOBAL: CMR2 0x00538f00
+int g_unk0x00538f00[2];
 // GLOBAL: CMR2 0x0053901a
 BYTE g_unk0x0053901a[2];
 // GLOBAL: CMR2 0x0053901c
@@ -1972,3 +1978,23 @@ int FUN_00417760(int index)
 {
     return Car_Get(index)->field_0xc10 != 0;
 }
+
+// Starts (param2 != 0) or stops the camera shake of a view: 0 idle, 1 active,
+// 2 locked, 3 stopping.
+// FUNCTION: CMR2 0x00423010
+void FUN_00423010(int view, int start)
+{
+    if (start != 0) {
+        if (g_unk0x00538f00[view] != 2) {
+            if (g_unk0x00538f00[view] == 0) {
+                g_unk0x00538df8[view] = 0;
+                g_unk0x00538c98[view] = 0;
+            }
+            g_unk0x00538f00[view] = 1;
+        }
+        return;
+    }
+    if (g_unk0x00538f00[view] != 0)
+        g_unk0x00538f00[view] = 3;
+}
+

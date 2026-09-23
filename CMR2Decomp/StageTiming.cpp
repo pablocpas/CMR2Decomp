@@ -1152,6 +1152,25 @@ int *FUN_00469680(int index)
     return g_unk0x00588990[index];
 }
 
+struct Car *Car_Get(int index);
+struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+
+// Copies the car's stage timing record (split times and penalties) into its
+// rally record.
+// FUNCTION: CMR2 0x00469b50
+void FUN_00469b50(int index)
+{
+    Car *pCar;
+    BYTE *pTiming;
+    BYTE *pRecord;
+
+    pCar = Car_Get(index);
+    pTiming = g_unk0x00588b98 + pCar->field_0xb1a * 0x290;
+    pRecord = (BYTE *)RallyData_FUN_00407610(FUN_0041b370() + pCar->field_0xb1a);
+    memcpy(pRecord, pTiming + 0x106, 0x106);
+    memcpy(pRecord + 0x108, pTiming + 0x24c, 0x40);
+}
+
 // GLOBAL: CMR2 0x00542630
 BYTE g_unk0x00542630[0x24 * 32];
 

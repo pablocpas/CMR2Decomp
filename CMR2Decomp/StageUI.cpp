@@ -1,3 +1,5 @@
+#include "NetworkLeaderboards.h"
+#include "NetPlayers.h"
 #include "Game.h"
 #include "StageUI.h"
 #include <cstdio>
@@ -188,6 +190,35 @@ int FUN_0041b380(void)
 BYTE *FUN_0041b390(void)
 {
     return g_unk0x00537dd0;
+}
+
+void FUN_0040ad20(void);
+BOOL FUN_004a15a0(void);
+unsigned int FUN_0040aec0(int index);
+int FUN_0040ae90(void);
+void FUN_0040af60(void);
+struct NetClassification *FUN_0040aea0(int index);
+void FUN_0040e660(int index, char *name, int wins);
+
+// End of a network race: gives a leaderboard win to every driver with the
+// winning time and registers the others with no win.
+// TODO: CMR2 0x0041b3a0 (implemented, match 84%)
+void FUN_0041b3a0(void)
+{
+    int i;
+
+    FUN_0040ad20();
+    if (CNetworkLeaderboards::GetLeaderboardId() == -1)
+        return;
+    if (FUN_004a15a0() && FUN_0040aec0(0) != -1) {
+        FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(0)->name, 1);
+        for (i = 1; i < FUN_0040ae90(); i++)
+            FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name,
+                         FUN_0040aec0(i) == FUN_0040aec0(0) ? 1 : 0);
+    }
+    for (i = 0; i < FUN_0040ae90(); i++)
+        FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);
+    FUN_0040af60();
 }
 
 

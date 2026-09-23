@@ -336,6 +336,36 @@ void CGame::FUN_0049c190(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTabl
     p1->funcLookupTable = funcLookupTable;
     p1->unk2 = unk2;
 }
+
+// Promotes entry index of the table to the given level when a rule of
+// p->unk2 (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
+// with the given value; the rule's top byte becomes the entry's third byte.
+// TODO: CMR2 0x0049c1c0 (implemented, match 45%)
+int CGame::FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
+{
+    unsigned int *pEntry;
+    unsigned int *pRule;
+    unsigned int entry;
+    unsigned int rule;
+
+    pEntry = (unsigned int *)&p->unk[index];
+    entry = *pEntry;
+    if ((entry & 0x3000000) == 0x3000000 || (int)((entry >> 24) & 3) < level) {
+        for (pRule = (unsigned int *)p->unk2;; pRule++) {
+            rule = *pRule;
+            if ((rule & 0xff) == 0xff && (rule & 0xff00) == 0xff00 && (rule & 0xff0000) == 0xff0000 &&
+                (rule & 0xff000000) == 0xff000000)
+                break;
+            if (((BYTE)(rule ^ entry) == 0 || (rule & 0xff) == 0xff) &&
+                ((BYTE)((rule ^ entry) >> 8) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
+                *pEntry = ((level & 3) << 24) | (entry & 0xfcffffff);
+                *pEntry = ((*pRule >> 8) & 0xff0000) | ((level & 3) << 24) | (entry & 0xfc00ffff);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 // GLOBAL: CMR2 0x0082a7f0
 Unk0049c2c0 g_unk0x0082a7f0;
 

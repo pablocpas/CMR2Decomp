@@ -119,6 +119,7 @@ public:
     static BOOL FUN_004ff450();
     static BOOL FUN_0041b060();
     static void FUN_00501680(struct Unk0049c2c0 *, BYTE);
+    static int FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level);
     static BYTE FUN_004ea880(void);
     static void FUN_004083e0(BYTE param1);
     static void FUN_00406810(BYTE param1);

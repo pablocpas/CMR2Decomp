@@ -19,14 +19,24 @@ int g_unk0x00539dcc;
 int g_unk0x00539ed0;
 // GLOBAL: CMR2 0x00539ed8
 BYTE g_unk0x00539ed8;
+// GLOBAL: CMR2 0x0053a00c
+int g_unk0x0053a00c[8];
 // GLOBAL: CMR2 0x0053a04c
 int g_unk0x0053a04c[8];
 // GLOBAL: CMR2 0x0053a06c
 int g_unk0x0053a06c[8];
+// Per-player fade: the callback runs when the fade (mode) completes.
+typedef void (*FadeCallback)(BYTE index);
+// GLOBAL: CMR2 0x0053a08c
+FadeCallback g_fadeCallbacks[8];
 // GLOBAL: CMR2 0x0053a0ac
 int g_unk0x0053a0ac[8];
 // GLOBAL: CMR2 0x0053a0cc
 int g_unk0x0053a0cc[8];
+// GLOBAL: CMR2 0x0053a0ec
+int g_unk0x0053a0ec[8];
+// GLOBAL: CMR2 0x0053a20c
+int g_unk0x0053a20c[8];
 // GLOBAL: CMR2 0x005394bc
 BYTE g_unk0x005394bc[8][0xec];
 
@@ -201,6 +211,38 @@ void FUN_004283b0(void)
 int FUN_00428740(BYTE index)
 {
     return g_unk0x0053a0ac[index] != 0;
+}
+
+// Starts a fade of the player's screen; an active fade is only replaced
+// (running its callback first) when force is set.
+// FUNCTION: CMR2 0x00428410
+void FUN_00428410(BYTE index, int speed, FadeCallback pfnDone, int mode, int param5, int param6, int param7,
+                  char force)
+{
+    if (FUN_00428740((BYTE)index)) {
+        if (!force)
+            return;
+        if (g_fadeCallbacks[index & 0xff] != NULL)
+            g_fadeCallbacks[index & 0xff](index);
+    }
+    g_unk0x0053a0ec[index & 0xff] = speed;
+    g_unk0x0053a00c[index & 0xff] = param7;
+    g_unk0x0053a04c[index & 0xff] = mode == 2 ? -speed : 0;
+    g_fadeCallbacks[index & 0xff] = pfnDone;
+    g_unk0x0053a0ac[index & 0xff] = mode;
+    if ((mode == 0 || mode == 2) && pfnDone != NULL)
+        pfnDone(index);
+    if (mode == 0 || mode == 4)
+        g_unk0x0053a06c[index & 0xff] = 0;
+    g_unk0x0053a20c[index & 0xff] = param5;
+    g_unk0x0053a0cc[index & 0xff] = param6;
+}
+
+// Fades the player's screen out (mode 3) and runs pfnDone when it is done.
+// FUNCTION: CMR2 0x004283e0
+void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force)
+{
+    FUN_00428410(index, 0xc8000, pfnDone, 3, param3, param4, param5, force);
 }
 
 // FUNCTION: CMR2 0x00428760
