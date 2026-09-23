@@ -1179,6 +1179,7 @@ public:
     static Texture *FUN_004a49c0(char *name, unsigned int flags);
     static Texture *LoadTGATexture(BYTE *pTGA, Texture *pTexture);
     static BYTE *SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pInfo, unsigned int flags);
+    static Texture *LoadTGABumpMap(BYTE *pTGA, Texture *pTexture);
 
     // GLOBAL: CMR2 0x00520b14
     static int m_unk0x00520b14;

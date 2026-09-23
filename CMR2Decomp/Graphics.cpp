@@ -3454,7 +3454,6 @@ void CGraphics::FUN_004a3e40(int param1, int param2)
 
 struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
-Texture *FUN_004a6370(void *pData, Texture *pTexture);
 
 // Creates a texture from file data already in memory (DDS or TGA).
 // TODO: CMR2 0x004a48c0 (implemented, match 82%)
@@ -3527,7 +3526,7 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
     sprintf(pTexture->name, name);
     pTexture->flags |= flags;
     if ((pTexture->flags & 0x20) && (g_pGraphics->field913_0x3bc & 0x10))
-        return FUN_004a6370(pData, pTexture);
+        return LoadTGABumpMap((BYTE *)pData, pTexture);
     if (isDDS)
         return LoadDDSTexture((DDSFile *)pData, pTexture);
     return LoadTGATexture((BYTE *)pData, pTexture);
@@ -3790,11 +3789,96 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
     return m_tgaPixel;
 }
 
-// Not decompiled yet: 0x4a6370 (bump map texture from TGA).
-
-Texture *FUN_004a6370(void *pData, Texture *pTexture)
+// Builds a bump map texture from a height map TGA: the height differences
+// to the right (dU) and lower (dV) neighbours plus the alpha channel as
+// luminance, packed into the 16 or 24 bit bump map format.
+// TODO: CMR2 0x004a6370 (implemented, match 47%)
+Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
 {
-    return NULL;
+    TGAImageInfo *pInfo;
+    DDSURFACEDESC2 desc;
+    unsigned int mask;
+    BYTE uBits;
+    BYTE vBits;
+    BYTE lBits;
+    int uShift;
+    int vShift;
+    int lShift;
+    int i;
+    unsigned int x;
+    unsigned int y;
+    unsigned int height;
+    unsigned int right;
+    unsigned int down;
+    int du;
+    int dv;
+    BYTE l;
+    WORD *pDst16;
+    BYTE *pDst24;
+
+    if (m_pTextureManager->textureInfo5 == NULL)
+        return NULL;
+    pInfo = ParseTGAHeader(pTGA);
+    if (pInfo == NULL)
+        return NULL;
+    if (pInfo->bytesPerPixel == 3)
+        return NULL;
+    CreateTextureSurface(pTexture, pInfo->width, pInfo->height, pTexture->flags);
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(desc);
+    pTexture->pSurface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
+    if (desc.ddpfPixelFormat.dwRGBBitCount != 16 && desc.ddpfPixelFormat.dwRGBBitCount != 24) {
+        pTexture->pSurface->Unlock(NULL);
+        return NULL;
+    }
+    for (uBits = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask, i = 32; i != 0; i--, mask >>= 1)
+        if (mask & 1)
+            uBits++;
+    uBits = 8 - uBits;
+    for (vBits = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask, i = 32; i != 0; i--, mask >>= 1)
+        if (mask & 1)
+            vBits++;
+    vBits = 8 - vBits;
+    for (lBits = 0, mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask, i = 32; i != 0; i--, mask >>= 1)
+        if (mask & 1)
+            lBits++;
+    lBits = 8 - lBits;
+    for (uShift = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask; uShift < 32 && !(mask & 1); uShift++)
+        mask >>= 1;
+    for (vShift = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask; vShift < 32 && !(mask & 1); vShift++)
+        mask >>= 1;
+    for (lShift = 0, mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask; lShift < 32 && !(mask & 1); lShift++)
+        mask >>= 1;
+
+    pDst16 = (WORD *)desc.lpSurface;
+    pDst24 = (BYTE *)desc.lpSurface;
+    for (y = 0; y < pInfo->height; y++) {
+        for (x = 0; x < pInfo->width; x++) {
+            height = *SampleTGAPixel(x, y, pInfo, 0);
+            if (x < pInfo->width - 1)
+                right = *SampleTGAPixel(x + 1, y, pInfo, 0);
+            else
+                right = height + 0x80;
+            if (y < pInfo->height - 1)
+                down = *SampleTGAPixel(x, y + 1, pInfo, 0);
+            else
+                down = height + 0x80;
+            du = abs((int)(height - right));
+            dv = abs((int)(height - down));
+            l = SampleTGAPixel(x, y, pInfo, 0)[3];
+            if (desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
+            } else {
+                pDst24[0] = (BYTE)du;
+                pDst24[1] = (BYTE)dv;
+                pDst24[2] = l;
+                pDst24 += 3;
+            }
+        }
+    }
+    pTexture->pSurface->Unlock(NULL);
+    CFileBuffer::FreeGenericFileBuffer(pTGA);
+    return pTexture;
 }
 
 // STUB: CMR2 0x004a3e90
