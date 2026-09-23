@@ -9,6 +9,7 @@
 #include "Input.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
+#include "StageUI.h"
 #include "Mesh.h"
 #include <string.h>
 
@@ -39,6 +40,12 @@ char g_stageSplitDriverCount[12];
 
 // GLOBAL: CMR2 0x00542418
 short g_unk0x00542418;
+
+// FUNCTION: CMR2 0x00456a30
+void FUN_00456a30(int offset, int unused)
+{
+    *((BYTE *)&g_unk0x00542418 + offset) = 1;
+}
 
 // GLOBAL: CMR2 0x00542604
 BYTE g_unk0x00542604;
@@ -313,6 +320,16 @@ void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour)
     rgb[3] = 0;
     if (pNode->type == 0 && pNode->pObject != 0)
         Mesh_SetVertexColours((Mesh *)pNode->pObject, rgb);
+}
+
+// FUNCTION: CMR2 0x00456d60
+void FUN_00456d60(SceneNode *pNode, BYTE colour)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        StageTiming_FUN_00456d20(pNode, colour);
+        if (pNode->pFirstChild != NULL)
+            FUN_00456d60(pNode->pFirstChild, colour);
+    }
 }
 
 // GLOBAL: CMR2 0x00588e80
@@ -948,7 +965,64 @@ int FUN_00445dd0(int index)
 // GLOBAL: CMR2 0x00542420
 int g_unk0x00542420[2];
 // GLOBAL: CMR2 0x00542528
-BYTE g_unk0x00542528[0x100];
+BYTE g_unk0x00542528[0xd8];
+int FUN_004584c0(void);
+extern BYTE g_unk0x00542630[];
+// GLOBAL: CMR2 0x00542600
+int g_unk0x00542600;
+// GLOBAL: CMR2 0x0054260c
+int g_unk0x0054260c[9];
+
+// FUNCTION: CMR2 0x00456b00
+void FUN_00456b00(int value)
+{
+    g_unk0x00542600 = value;
+}
+
+// FUNCTION: CMR2 0x00456b10
+unsigned int FUN_00456b10(void)
+{
+    if (CGameInfo::FUN_00405d80() == 4)
+        return g_unk0x00542600;
+    return FUN_0041b370() & 0xff;
+}
+
+// TODO: CMR2 0x00456ae0 (implemented, match 90%)
+float FUN_00456ae0(void)
+{
+    int stage = FUN_00456b10() * 2;
+    int checkpoint = FUN_004584c0();
+    stage -= checkpoint;
+    return *(float *)(g_unk0x00542528 + 0x14 + stage * 12);
+}
+
+// FUNCTION: CMR2 0x00456c00
+int FUN_00456c00(int index)
+{
+    return g_unk0x0054260c[index];
+}
+
+// FUNCTION: CMR2 0x00456c90
+int FUN_00456c90(int unused)
+{
+    return *(int *)(g_unk0x00542630 + 0x244);
+}
+
+// FUNCTION: CMR2 0x00457e00
+int FUN_00457e00(int index)
+{
+    return *(int *)(g_unk0x00542630 + 0x398 + index * 4);
+}
+
+// TODO: CMR2 0x00457e10 (implemented, match 81%)
+int FUN_00457e10(BYTE *pCar, int offset)
+{
+    int address = FUN_00457e00((signed char)pCar[0xb1a]);
+    if (offset > 0)
+        address += offset * 2;
+    int base = FUN_00457e00((signed char)pCar[0xb1a]);
+    return *(unsigned short *)address + base;
+}
 // GLOBAL: CMR2 0x005113b0
 double g_unk0x005113b0;
 // GLOBAL: CMR2 0x005113a8
