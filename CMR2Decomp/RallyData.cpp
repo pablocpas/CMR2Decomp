@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "RallyData.h"
 #include "RallyRoute.h"
+#include "Car.h"
 #include "GameInfo.h"
 #include "RallyTiming.h"
 #include "main.h"
@@ -1447,6 +1448,46 @@ BYTE *RallyData_FUN_00421440(int index)
     if (g_unk0x00538a84 == 0)
         return NULL;
     return g_routeNodes + index * 0x2c;
+}
+
+int RallyData_FUN_00421500(void);
+void RallyData_FUN_00421530(int index, int *pOut);
+
+// Progress of the car along the route segment that ends at node pProgress[0]:
+// the car position projected on the segment direction, as a 16.16 fraction
+// of the segment length (stored in pProgress[4]).
+// TODO: CMR2 0x00421230 (implemented, match 93%)
+void FUN_00421230(Car *pCar, int *pProgress)
+{
+    FixVector dir;
+    FixVector end;
+    FixVector start;
+    FixVector delta;
+    int node;
+    int prev;
+    int length;
+    int along;
+
+    node = *pProgress;
+    prev = node - 1;
+    if (prev < 0)
+        prev += g_unk0x00538a84;
+    if (!RallyData_FUN_00421500() && node <= 0) {
+        pProgress[4] = 0;
+        return;
+    }
+    RallyRoute_GetNodeDirection(&dir, prev);
+    RallyData_FUN_00421530(node, (int *)&end);
+    RallyData_FUN_00421530(prev, (int *)&start);
+    delta.x = end.x - start.x;
+    delta.y = end.y - start.y;
+    delta.z = end.z - start.z;
+    length = FixVecDot(&delta, &dir);
+    delta.x = pCar->position.x - start.x;
+    delta.y = pCar->position.y - start.y;
+    delta.z = pCar->position.z - start.z;
+    along = FixVecDot(&delta, &dir);
+    pProgress[4] = FixDiv(along, length);
 }
 
 // FUNCTION: CMR2 0x00421500
