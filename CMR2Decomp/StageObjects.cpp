@@ -327,3 +327,177 @@ void FUN_004789b0(BYTE *pCar)
 {
     *(int *)(pCar + 0xa74) = *(int *)(pCar + 0xa78);
 }
+
+// Second group (0x4805f0-0x49e940)
+
+#include "FixedPoint.h"
+#include "Input.h"
+
+extern void *g_unk0x00592734;
+void FUN_0046f4c0(int *pOut);
+void FUN_004ae410(BYTE a, BYTE b, int c, int d);
+
+// GLOBAL: CMR2 0x005909bc
+int g_unk0x005909bc;
+// GLOBAL: CMR2 0x00590b7c
+BYTE *g_unk0x00590b7c[5][8];
+// GLOBAL: CMR2 0x00590c24
+BYTE g_unk0x00590c24[8][8];
+// GLOBAL: CMR2 0x00590d70
+int g_unk0x00590d70;
+// GLOBAL: CMR2 0x00590db0
+int g_unk0x00590db0[64];
+// GLOBAL: CMR2 0x00590ed0
+BYTE g_unk0x00590ed0[8][0x98];
+// GLOBAL: CMR2 0x00591390
+int g_unk0x00591390;
+// GLOBAL: CMR2 0x00591740
+int g_unk0x00591740[64];
+// GLOBAL: CMR2 0x005918c8
+int g_unk0x005918c8;
+// GLOBAL: CMR2 0x005920f0
+BYTE *g_unk0x005920f0;
+// GLOBAL: CMR2 0x00592114
+FixVector g_unk0x00592114;
+// GLOBAL: CMR2 0x00592128
+int g_unk0x00592128;
+// GLOBAL: CMR2 0x0059212c
+int g_unk0x0059212c;
+// GLOBAL: CMR2 0x00592130
+int g_unk0x00592130;
+// GLOBAL: CMR2 0x00592134
+int g_unk0x00592134;
+
+// FUNCTION: CMR2 0x004805f0
+void FUN_004805f0(int value)
+{
+    g_unk0x005909bc = value;
+}
+
+// FUNCTION: CMR2 0x00480a50
+void FUN_00480a50(void)
+{
+    g_unk0x00590d70 = 0;
+}
+
+// FUNCTION: CMR2 0x00480ac0
+void FUN_00480ac0(BYTE *pCar, int slot, int reset)
+{
+    if (g_unk0x00590b7c[slot][(signed char)pCar[0xb1a]] != NULL && reset != 0)
+        g_unk0x00590b7c[slot][(signed char)pCar[0xb1a]][0x17c] = 0;
+}
+
+// FUNCTION: CMR2 0x00484d10
+unsigned int FUN_00484d10(int i, int j)
+{
+    return g_unk0x00590c24[i][j];
+}
+
+// FUNCTION: CMR2 0x00484de0
+BYTE *FUN_00484de0(BYTE *pCar, int slot)
+{
+    return g_unk0x00590b7c[slot][(signed char)pCar[0xb1a]];
+}
+
+// FUNCTION: CMR2 0x00486be0
+void FUN_00486be0(BYTE *p, int unused)
+{
+    g_unk0x00590db0[*p] = 0x10000;
+}
+
+// FUNCTION: CMR2 0x00486c00
+void FUN_00486c00(BYTE *p, BYTE *q)
+{
+    FUN_004ae410(q[2], q[1], 0, 0);
+    g_unk0x00590db0[*p] = 0x10000;
+}
+
+// FUNCTION: CMR2 0x00487130
+int FUN_00487130(void)
+{
+    return g_unk0x00591390;
+}
+
+// FUNCTION: CMR2 0x0048ca40
+BYTE *FUN_0048ca40(int index)
+{
+    return g_unk0x00590ed0[index];
+}
+
+// FUNCTION: CMR2 0x0048ca90
+int FUN_0048ca90(void)
+{
+    return g_unk0x005918c8;
+}
+
+// FUNCTION: CMR2 0x0048d930
+int FUN_0048d930(BYTE *p)
+{
+    return g_unk0x00591740[*p];
+}
+
+// FUNCTION: CMR2 0x00492890
+void FUN_00492890(FixVector *pOut)
+{
+    int obj;
+
+    FUN_0046f4c0(&obj);
+    FixMatrix_RotateVector(pOut, &g_unk0x00592114, (FixMatrix *)(obj + 0x98));
+}
+
+// FUNCTION: CMR2 0x004928c0
+void FUN_004928c0(int *pOut1, int *pOut2, int *pOut3)
+{
+    *pOut3 = g_unk0x00592128;
+    *pOut1 = g_unk0x0059212c;
+    *pOut2 = g_unk0x00592130;
+}
+
+// FUNCTION: CMR2 0x004928f0
+void FUN_004928f0(int *pOut)
+{
+    *pOut = g_unk0x00592134;
+}
+
+// FUNCTION: CMR2 0x00492900
+void FUN_00492900(int value)
+{
+    g_unk0x00592134 = value;
+}
+
+// FUNCTION: CMR2 0x00492bb0
+void FUN_00492bb0(int *pOut)
+{
+    *pOut = *(int *)(*(BYTE **)(g_unk0x005920f0 + 0x24) + 0x34);
+}
+
+// FUNCTION: CMR2 0x00498570
+BYTE *FUN_00498570(int index)
+{
+    return (BYTE *)g_unk0x00592734 + index * 0x2a4;
+}
+
+// Wraps a 16.16 angle in degrees into [-180, 180).
+// FUNCTION: CMR2 0x00498db0
+int FUN_00498db0(int angle)
+{
+    if (angle >= 0xb40000)
+        angle -= 0x1680000;
+    if (angle < -0xb40000)
+        angle += 0x1680000;
+    return angle;
+}
+
+// Buttons held on any connected device.
+// FUNCTION: CMR2 0x0049e940
+unsigned int FUN_0049e940(void)
+{
+    unsigned int buttons = 0;
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (CInput::m_availableDevices[i].field_0x0 != -1)
+            buttons |= CInput::m_availableDevices[i].field_0x4;
+    }
+    return buttons;
+}

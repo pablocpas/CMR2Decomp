@@ -2639,7 +2639,7 @@ void FUN_004ae3f0(BYTE *p, int value)
 }
 
 // FUNCTION: CMR2 0x004ae410
-void FUN_004ae410(int a, int b, int c, int d)
+void FUN_004ae410(BYTE a, BYTE b, int c, int d)
 {
 }
 
