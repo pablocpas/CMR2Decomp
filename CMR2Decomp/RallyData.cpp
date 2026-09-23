@@ -11,6 +11,8 @@
 #include "Sprite.h"
 #include "Graphics.h"
 
+int FUN_00456c00(int index);
+
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
 
@@ -1193,6 +1195,29 @@ void RallyData_FUN_0040e380(unsigned int param1)
 void RallyData_FUN_0040e3a0(unsigned int param1)
 {
     g_unk0x0052f2b0 = ((param1 & 0xf) << 3) | (g_unk0x0052f2b0 & 0xffffff87U);
+}
+
+// GLOBAL: CMR2 0x0051681c
+BYTE g_unk0x0051681c[15] = { 0x00, 0x09, 0x0a, 0x08, 0x04, 0x04, 0x09, 0x00,
+                             0x0a, 0x0b, 0x08, 0x0b, 0x04, 0x00, 0x0a };
+
+// Row/slot of the driver select screen for one list index: the rally modes
+// (5..7) only have six slots and ask the AI helper for the row, everything
+// else uses a 15-entry lookup table.
+// FUNCTION: CMR2 0x00407fc0
+BYTE FUN_00407fc0(int param1)
+{
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7) {
+        if (param1 >= 0 && param1 < 6)
+            return FUN_00456c00(param1);
+        return 0;
+    }
+    if (param1 < 0)
+        return 0;
+    if (param1 >= 0xf)
+        return 0;
+    return g_unk0x0051681c[param1];
 }
 
 // FUNCTION: CMR2 0x00408010

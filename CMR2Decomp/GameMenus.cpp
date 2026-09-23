@@ -4,6 +4,10 @@
 #include "GameInfo.h"
 #include "Frontend.h"
 #include "Font.h"
+#include "RallyTiming.h"
+#include "StageTiming.h"
+
+int FUN_0040ab10(void);
 
 // GLOBAL: CMR2 0x0053e2d8
 Menu g_menu0x0053e2d8;
@@ -90,14 +94,70 @@ void FUN_00449b90(Menu *pMenu, int param)
     pMenu->cursor = pMenu->itemCount - 1;
 }
 
-// STUB: CMR2 0x00449ba0
-void FUN_00449ba0(Menu *pMenu)
+// Resizes the first item of one of the standings menus: it scans the drivers
+// of the current table (overall, split or stage) and keeps the worst position,
+// which becomes the scroll window (five rows below it, at most ten).
+// FUNCTION: CMR2 0x00449ba0
+void FUN_00449ba0(Menu *pMenu, int param)
 {
+    int i;
+    int slot;
+    int worstTime;
+    int worstPos;
+
+    worstPos = 0x10;
+    worstTime = 0;
+    if (pMenu == &g_menu0x0053f008 || pMenu == &g_menu0x0053e6a0) {
+        i = 0;
+        if (CGameInfo::FUN_00405d70() > 0) {
+            slot = 0xf;
+            do {
+                if (RallyTiming_GetOverallPositionOfDriver(slot) < worstPos)
+                    worstPos = RallyTiming_GetOverallPositionOfDriver(slot);
+                i++;
+                slot--;
+            } while (i < CGameInfo::FUN_00405d70());
+        }
+    }
+    if (pMenu == &g_menu0x0053e4b8) {
+        i = 0;
+        if (CGameInfo::FUN_00405d70() > 0) {
+            do {
+                if (StageTiming_GetCurrentSplitPositionOfDriver(i) < worstPos)
+                    worstPos = StageTiming_GetCurrentSplitPositionOfDriver(i);
+                i++;
+            } while (i < CGameInfo::FUN_00405d70());
+        }
+    }
+    if (pMenu == &g_menu0x00541ae0) {
+        i = 0;
+        if (CGameInfo::FUN_00405d70() > 0) {
+            do {
+                if (RallyTiming_GetStageTimeSeconds(StageTiming_GetDriverSlot(i)) > worstTime) {
+                    worstTime = RallyTiming_GetStageTimeSeconds(StageTiming_GetDriverSlot(i));
+                    worstPos = RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(i));
+                }
+                i++;
+            } while (i < CGameInfo::FUN_00405d70());
+        }
+    }
+    if (worstPos > 5)
+        pMenu->items[0].max = worstPos - 5;
+    if (pMenu->items[0].max > 10)
+        pMenu->items[0].max = 10;
 }
 
-// STUB: CMR2 0x00449ca0
-void FUN_00449ca0(Menu *pMenu)
+// Sets the range of the first item to the remaining races of the championship
+// (zero once it is over, one as the minimum otherwise).
+// FUNCTION: CMR2 0x00449ca0
+void FUN_00449ca0(Menu *pMenu, int param)
 {
+    pMenu->items[0].max = 0;
+    if (FUN_0040ab10() > 6) {
+        pMenu->items[0].min = FUN_0040ab10() - 5;
+    } else {
+        pMenu->items[0].min = 1;
+    }
 }
 
 // FUNCTION: CMR2 0x00449e90
@@ -472,6 +532,20 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 
 // GLOBAL: CMR2 0x00519ed4
 DWORD g_menuHighlightColour;
+
+// Clears the menu list: fills the whole screen with the highlight colour
+// through the menu sprite buffer (the sprite layer only tints, so the menu
+// colour is blended first).
+// FUNCTION: CMR2 0x0044b760
+void FUN_0044b760(void)
+{
+    g_menuRect[0] = 0;
+    g_menuRect[1] = 0;
+    g_menuRect[2] = (short)g_pGraphics->resX;
+    g_menuRect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, (BYTE *)&g_menuHighlightColour, 2);
+}
 
 // Fills the row the cursor is on with the highlight colour.
 // FUNCTION: CMR2 0x0044f680
