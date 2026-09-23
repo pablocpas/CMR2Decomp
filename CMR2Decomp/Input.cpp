@@ -1653,3 +1653,32 @@ DeviceInfo *CInput::FUN_0049ead0(int index)
 {
     return &m_availableDevices[index];
 }
+
+// FUNCTION: CMR2 0x004b7d40
+void FUN_004b7d40(void)
+{
+    int i;
+
+    for (i = 0; i < 30; i++)
+        g_unk0x006ed46c[i] = 0;
+}
+
+// Pops the oldest key of the key press queue.
+// FUNCTION: CMR2 0x004b7d60
+int FUN_004b7d60(int *pOut)
+{
+    int *p;
+
+    if (g_unk0x006ed46c[0] != 0) {
+        *pOut = g_unk0x006ed46c[0];
+        p = g_unk0x006ed46c;
+        do {
+            p[0] = p[1];
+            p++;
+        } while ((int)p < 0x6ed4e0);
+        g_unk0x006ed46c[29] = 0;
+        return 1;
+    }
+    return 0;
+}
+

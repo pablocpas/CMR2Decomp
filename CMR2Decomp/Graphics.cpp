@@ -2081,6 +2081,60 @@ BOOL CGraphics::FUN_004b74b0(void) {
   return m_d3dDeviceDesc7.field0x84;
 }
 
+// FUNCTION: CMR2 0x004b74c0
+DWORD FUN_004b74c0(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x90;
+}
+
+// FUNCTION: CMR2 0x004b74d0
+DWORD FUN_004b74d0(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x94;
+}
+
+// FUNCTION: CMR2 0x004b74e0
+DWORD FUN_004b74e0(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x3c;
+}
+
+// FUNCTION: CMR2 0x004b74f0
+DWORD FUN_004b74f0(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x40;
+}
+
+// FUNCTION: CMR2 0x004b7500
+DWORD FUN_004b7500(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x44;
+}
+
+// FUNCTION: CMR2 0x004b7510
+DWORD FUN_004b7510(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x64;
+}
+
+// FUNCTION: CMR2 0x004b7530
+DWORD FUN_004b7530(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x98;
+}
+
+// FUNCTION: CMR2 0x004b7540
+DWORD FUN_004b7540(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0x9c;
+}
+
+// FUNCTION: CMR2 0x004b7550
+DWORD FUN_004b7550(void)
+{
+    return CGraphics::m_d3dDeviceDesc7.field0xa4;
+}
+
 // FUNCTION: CMR2 0x004b7210
 void CGraphics::FUN_004b7210(void) {
     D3DDEVICEDESC7 d3ddesc;

@@ -598,3 +598,120 @@ int FUN_004b7790(unsigned int id, int volume, int pan, int loop, int param5, int
 {
     return -1;
 }
+
+// GLOBAL: CMR2 0x005210f4
+int g_soundMasterVolume = 0x10000;
+// GLOBAL: CMR2 0x006e0ef0
+int g_unk0x006e0ef0;
+
+int FUN_004a2430(SoundSlot *pSlot);
+int Sound_FindHandle(unsigned int handle);
+void FUN_004a26f0(SoundSlot *pSlot);
+void FUN_004a2690(SoundSlot *pSlot);
+
+// FUNCTION: CMR2 0x004b7610
+SoundSlot *Sound_GetSlot(int index)
+{
+    return CSound::m_soundSlots[index];
+}
+
+// FUNCTION: CMR2 0x004b7780
+int FUN_004b7780(void)
+{
+    return g_unk0x006e0ef0;
+}
+
+// FUNCTION: CMR2 0x004b78a0
+int Sound_IsPlaying(unsigned int handle)
+{
+    int index = Sound_FindHandle(handle);
+    if (index != -1)
+        return FUN_004a2430(CSound::m_soundSlots[index]);
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004b78d0
+void Sound_Free(unsigned int handle)
+{
+    int index = Sound_FindHandle(handle);
+    if (index != -1) {
+        FUN_004a26f0(CSound::m_soundSlots[index]);
+        CFileBuffer::FreeGenericFileBuffer(CSound::m_soundSlots[index]);
+        CSound::m_soundSlots[index] = NULL;
+    }
+}
+
+// FUNCTION: CMR2 0x004b7910
+void Sound_FreeAll(void)
+{
+    SoundSlot **pp = CSound::m_soundSlots;
+
+    do {
+        if (*pp != NULL) {
+            FUN_004a26f0(*pp);
+            CFileBuffer::FreeGenericFileBuffer(*pp);
+            *pp = NULL;
+        }
+        pp++;
+    } while ((int)pp < (int)&CSound::m_soundSlotsEnd);
+}
+
+// FUNCTION: CMR2 0x004b7940
+int FUN_004b7940(void)
+{
+    return g_unk0x006e0ef0;
+}
+
+// FUNCTION: CMR2 0x004b7990
+int Sound_GetMasterVolume(void)
+{
+    return g_soundMasterVolume;
+}
+
+// FUNCTION: CMR2 0x004b79e0
+void Sound_SetPan(unsigned int handle, unsigned short pan)
+{
+    int index = Sound_FindHandle(handle);
+    if (index != -1) {
+        CSound::m_soundSlots[index]->field_0xa = pan;
+        FUN_004a2690(CSound::m_soundSlots[index]);
+    }
+}
+
+// FUNCTION: CMR2 0x004b7a10
+int Sound_GetVolume(unsigned int handle)
+{
+    int index = Sound_FindHandle(handle);
+    if (index != -1)
+        return CSound::m_soundSlots[index]->field_0xc;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004b7a70
+int Sound_FindFreeSlot(void)
+{
+    int i;
+    SoundSlot **pp;
+
+    for (i = 0, pp = CSound::m_soundSlots; (int)pp < (int)&CSound::m_soundSlotsEnd; pp++, i++) {
+        if (*pp == NULL)
+            return i;
+    }
+    return -1;
+}
+
+// FUNCTION: CMR2 0x004b7a90
+unsigned int Sound_MakeHandle(unsigned int index, unsigned int serial)
+{
+    return (serial & 0xffff) << 8 | index & 0x3f;
+}
+
+// FUNCTION: CMR2 0x004b7ab0
+int Sound_FindHandle(unsigned int handle)
+{
+    if ((int)handle >= 0 && CSound::m_soundSlots[handle & 0x3f] != NULL &&
+        CSound::m_soundSlots[handle & 0x3f]->handle == handle)
+        return handle & 0x3f;
+    return -1;
+}
+
