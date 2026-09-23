@@ -86,7 +86,7 @@ struct ControllerData {
     unsigned int field_0x0;
     unsigned int field_0x4;
     char name[MAX_PATH];
-    BYTE field_0x10c_padding[4];
+    DWORD field_0x10c;
     DWORD field_0x110;
     DWORD field_0x114;
     DWORD field_0x118;
@@ -104,9 +104,13 @@ struct ControllerData {
     unsigned short field_0x138;
     unsigned short field_0x13a;
     unsigned short field_0x13c;
-    BYTE field_0x13e[210];
+    BYTE field_0x13e[9];            // key (DIK_*) of each keyboard binding
+    char keyNames[9][20];           // 0x147 text shown for each binding
+    BYTE field_0x1fb[0x15];
     ControllerDataUnk0x210 field_0x210[10];
-    unsigned short field_0x2d8[12];
+    unsigned short field_0x2d8[10];
+    BYTE index;                     // 0x2ec
+    BYTE field_0x2ed[3];
 };
 
 struct ControllerInfo {
