@@ -1286,9 +1286,93 @@ void FUN_00452be0(Menu *pMenu)
     }
 }
 
-// STUB: CMR2 0x004530e0
-void FUN_004530e0(void)
+int FUN_0040ce30(int index);
+int FUN_0040cea0(int index);
+int FUN_0040ced0(int index);
+
+// Draw callback of the rally points table: every car in rally order with its
+// car, points, tie-break note (count-back) and position ("=" for a tie).
+// TODO: CMR2 0x004530e0 (implemented, match 86%)
+void FUN_004530e0(Menu *pMenu)
 {
+    BOOL isPlayer;
+    BOOL tied;
+    int i;
+    int j;
+    int id;
+
+    FUN_0044b760();
+    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                          CInput::FormatString(CFrontend::GetTextString(0x43), 0x62 - (RallyData_FUN_00406940() & 0xff)),
+                          CFrontend::GetTextString(0x42), CFrontend::GetTextString(0x8d), 0);
+    for (i = 0; i < (BYTE)FUN_00420190(); i++)
+        g_unk0x005418c4[i] = (BYTE)FUN_0040ced0(FUN_0040cea0(i));
+    for (i = 0; i < (BYTE)FUN_00420190(); i++) {
+        isPlayer = FALSE;
+        tied = FALSE;
+        id = FUN_0040cea0(i);
+        if (id < (int)(RallyDataState() & 0xff)) {
+            isPlayer = TRUE;
+            strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(id));
+        } else {
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
+        }
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
+                          (int)(g_pGraphics->resY * 8) / 480,
+                      (int *)g_menuFrameColour, 9);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_0040ced0(id));
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
+                      ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
+                          (int)(g_pGraphics->resY * 8) / 480,
+                      (int *)g_menuFrameColour, 9);
+        if (g_unk0x005418c4[i] != 0) {
+            for (j = 0; j < (BYTE)FUN_00420190(); j++) {
+                if (j != i && g_unk0x005418c4[i] == g_unk0x005418c4[j]) {
+                    if (FUN_0040ce30(id) == 1)
+                        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb8), FUN_0040ce30(id));
+                    else
+                        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb6), FUN_0040ce30(id));
+                    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 640,
+                                  ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
+                                      (int)(g_pGraphics->resY * 8) / 480,
+                                  (int *)g_menuFrameColour, 0xc);
+                    if (i > 0 && FUN_0040ce30(FUN_0040cea0(i - 1)) == FUN_0040ce30(id) &&
+                        g_unk0x005418c4[i - 1] == g_unk0x005418c4[i])
+                        tied = TRUE;
+                    break;
+                }
+            }
+        }
+        if (isPlayer) {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(id)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i - 1);
+            g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
+            g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
+            g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+        } else {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(id)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            GameMenus_DrawRowFrame(i, 0, 0);
+        }
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      (int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i,
+                      (int *)g_menuFrameColour, 0x21);
+        if (tied)
+            sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
+        else
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, i + 1);
+        Font_DrawText(1, CFrontend::m_stringDest,
+                      ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
+                          (int)(g_pGraphics->resX * 0x20) / 640,
+                      (int)(g_pGraphics->resY * 8) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i +
+                          (int)(g_pGraphics->resY * 0x82) / 480 +
+                          ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2,
+                      (int *)g_menuFrameColour, 0x12);
+    }
+    Font_SetBlendMode(2);
 }
 
 int FUN_0040ceb0(int index);
