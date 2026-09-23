@@ -381,6 +381,7 @@ void gen_trees_header(void)
 /* ===========================================================================
  * Initialize the tree data structures for a new zlib stream.
  */
+// TODO: CMR2 0x004c1be0 (implemented, match 93%, zlib 1.1.3 built with different inlining)
 void _tr_init(deflate_state *s)
 {
     tr_static_init();
@@ -452,6 +453,7 @@ local void init_block(deflate_state *s)
  * when the heap property is re-established (each father smaller than its
  * two sons).
  */
+// FUNCTION: CMR2 0x004c2b50
 local void pqdownheap(deflate_state *s, ct_data *tree, int k)
     /* the tree to restore */
     /* node to move down */
@@ -614,6 +616,7 @@ local void gen_codes(ct_data *tree, int max_code, ushf *bl_count)
  *     and corresponding code. The length opt_len is updated; static_len is
  *     also updated if stree is not null. The field max_code is set.
  */
+// TODO: CMR2 0x004c26c0 (implemented, match 97%, zlib 1.1.3 built with different inlining)
 local void build_tree(deflate_state *s, tree_desc *desc)
     /* the tree descriptor */
 {
@@ -700,6 +703,7 @@ local void build_tree(deflate_state *s, tree_desc *desc)
  * Scan a literal or distance tree to determine the frequencies of the codes
  * in the bit length tree.
  */
+// FUNCTION: CMR2 0x004c2c30
 local void scan_tree(deflate_state *s, ct_data *tree, int max_code)
     /* the tree to be scanned */
     /* and its largest code of non zero frequency */
@@ -744,6 +748,7 @@ local void scan_tree(deflate_state *s, ct_data *tree, int max_code)
  * Send a literal or distance tree in compressed form, using the codes in
  * bl_tree.
  */
+// FUNCTION: CMR2 0x004c2d20
 local void send_tree(deflate_state *s, ct_data *tree, int max_code)
     /* the tree to be scanned */
     /* and its largest code of non zero frequency */
@@ -856,6 +861,7 @@ local void send_all_trees(deflate_state *s, int lcodes, int dcodes, int blcodes)
 /* ===========================================================================
  * Send a stored block
  */
+// FUNCTION: CMR2 0x004c1ca0
 void _tr_stored_block(deflate_state *s, charf *buf, ulg stored_len, int eof)
     /* input block */
     /* length of input block */
@@ -880,6 +886,7 @@ void _tr_stored_block(deflate_state *s, charf *buf, ulg stored_len, int eof)
  * To simplify the code, we assume the worst case of last real code encoded
  * on one bit only.
  */
+// TODO: CMR2 0x004c1e00 (implemented, match 98%, zlib 1.1.3 built with different inlining)
 void _tr_align(deflate_state *s)
 {
     send_bits(s, STATIC_TREES<<1, 3);
@@ -908,6 +915,7 @@ void _tr_align(deflate_state *s)
  * Determine the best encoding for the current block: dynamic trees, static
  * trees or store, and output the encoded block to the zip file.
  */
+// TODO: CMR2 0x004c2160 (implemented, match 98%, zlib 1.1.3 built with different inlining)
 void _tr_flush_block(deflate_state *s, charf *buf, ulg stored_len, int eof)
     /* input block, or NULL if too old */
     /* length of input block */
@@ -1056,6 +1064,7 @@ int _tr_tally(deflate_state *s, unsigned dist, unsigned lc)
 /* ===========================================================================
  * Send the block data compressed using the given Huffman trees
  */
+// TODO: CMR2 0x004c32a0 (implemented, match 89%, zlib 1.1.3 built with different inlining)
 local void compress_block(deflate_state *s, ct_data *ltree, ct_data *dtree)
     /* literal tree */
     /* distance tree */
@@ -1155,6 +1164,7 @@ local void bi_flush(deflate_state *s)
 /* ===========================================================================
  * Flush the bit buffer and align the output on a byte boundary
  */
+// FUNCTION: CMR2 0x004c36e0
 local void bi_windup(deflate_state *s)
 {
     if (s->bi_valid > 8) {

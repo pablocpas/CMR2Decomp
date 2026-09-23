@@ -838,6 +838,7 @@ local uInt longest_match(deflate_state *s, IPos cur_match)
 /* ---------------------------------------------------------------------------
  * Optimized version for level == 1 only
  */
+// FUNCTION: CMR2 0x004c03b0
 local uInt longest_match(deflate_state *s, IPos cur_match)
     /* current match */
 {
@@ -927,6 +928,7 @@ local void check_match(deflate_state *s, IPos start, IPos match, int length)
  *    performed for at least two bytes (required for the zip translate_eol
  *    option -- not supported here).
  */
+// FUNCTION: CMR2 0x004bfdf0
 local void fill_window(deflate_state *s)
 {
     register unsigned n, m;
@@ -1046,6 +1048,7 @@ local void fill_window(deflate_state *s)
  * NOTE: this function should be optimized to avoid extra copying from
  * window to pending_buf.
  */
+// FUNCTION: CMR2 0x004bfb50
 local block_state deflate_stored(deflate_state *s, int flush)
 {
     /* Stored blocks are limited to 0xffff bytes, pending_buf is limited
@@ -1102,6 +1105,7 @@ local block_state deflate_stored(deflate_state *s, int flush)
  * new strings in the dictionary only for unmatched strings or for short
  * matches. It is used only for the fast compression options.
  */
+// TODO: CMR2 0x004bff90 (implemented, match 94%, zlib 1.1.3 built with different inlining)
 local block_state deflate_fast(deflate_state *s, int flush)
 {
     IPos hash_head = NIL; /* head of the hash chain */
@@ -1196,6 +1200,7 @@ local block_state deflate_fast(deflate_state *s, int flush)
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
+// TODO: CMR2 0x004c0530 (implemented, match 94%, zlib 1.1.3 built with different inlining)
 local block_state deflate_slow(deflate_state *s, int flush)
 {
     IPos hash_head = NIL;    /* head of hash chain */
