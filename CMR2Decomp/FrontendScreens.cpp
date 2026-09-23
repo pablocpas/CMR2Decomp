@@ -775,6 +775,80 @@ void FUN_004f1160(Menu *pMenu, char param)
     pMenu->items[2].max = pMenu->items[2].min - 1;
 }
 
+// GLOBAL: CMR2 0x005253f4
+char g_nameChars0x005253f4[] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+// GLOBAL: CMR2 0x0052542c
+char g_upperChars0x0052542c[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+void *FUN_00408470(unsigned int param1);
+void FUN_004eaf90(BYTE index, char *name);
+
+// Name entry of the category record: typed letters also move the cursor of
+// the three letter rows (a-j, k-t, u-z plus '.', space, delete and OK).
+// FUNCTION: CMR2 0x004f11d0
+void FUN_004f11d0(Menu *pMenu)
+{
+    int key;
+    int len;
+
+    if (!g_unk0x00819038)
+        return;
+    strcpy(CFrontend::m_stringDest, (char *)FUN_00408470(FUN_004f2be0()));
+    if (FUN_004b7cd0(&key)) {
+        if (key != 8) {
+            len = strlen(CFrontend::m_stringDest);
+            if (len >= 0x2b || strchr(g_nameChars0x005253f4, (char)key) == NULL)
+                goto done;
+            if (strchr(g_upperChars0x0052542c, (char)key) != NULL)
+                key += 0x20;
+            CFrontend::m_stringDest[len] = (char)key;
+            CFrontend::m_stringDest[len + 1] = 0;
+            if ((char)key >= 'a' && (char)key <= 'j') {
+                pMenu->cursor = 0;
+                pMenu->items[0].max = (char)key - 'a';
+            }
+            if ((char)key >= 'k' && (char)key <= 't') {
+                pMenu->cursor = 1;
+                pMenu->items[1].max = (char)key - 'k';
+            }
+            if ((char)key >= 'u' && (char)key <= 'z') {
+                pMenu->cursor = 2;
+                pMenu->items[2].max = (char)key - 'u';
+            }
+            if ((char)key == '.') {
+                pMenu->cursor = 2;
+                pMenu->items[2].max = 7;
+            } else if ((char)key == ' ') {
+                pMenu->cursor = 2;
+                pMenu->items[2].max = 8;
+            }
+            g_unk0x00819040 = CMain::GetFrameDelta();
+            g_unk0x0081986c = 1;
+            Menu_PlaySoundId(1);
+        } else {
+            if (CFrontend::m_stringDest[0] != 0) {
+                CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
+                Menu_PlaySoundId(2);
+            }
+            pMenu->cursor = 2;
+            pMenu->items[2].max = 8;
+            g_unk0x00819040 = CMain::GetFrameDelta();
+            g_unk0x0081986c = 1;
+        }
+    } else {
+        if (!g_unk0x0081986c || CMain::GetFrameDelta() - g_unk0x00819040 <= 10)
+            goto done;
+        g_unk0x00819040 = -1;
+        pMenu->cursor = 2;
+        pMenu->items[2].max = 9;
+        g_unk0x0081986c = 0;
+        Menu_PlaySoundId(0);
+    }
+done:
+    FUN_004eaf90(FUN_004f2be0(), CFrontend::m_stringDest);
+    strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
+}
+
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
 // FUNCTION: CMR2 0x004f1640
 void FUN_004f1640(Menu *pMenu)

@@ -446,6 +446,23 @@ BYTE g_unk0x0052f3e8[0x2000];
 BYTE g_unk0x00531350[0x1000];
 extern BYTE g_unk0x0052fa5c[];
 
+
+extern BYTE g_unk0x0052fa24[0x10 * 0x650];
+extern BYTE g_unk0x0052f3e8[0x2000];
+
+
+// Copies the name into the category record of the given record index.
+// FUNCTION: CMR2 0x004eaf90
+void FUN_004eaf90(BYTE index, char *name)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    strcpy((char *)(g_unk0x0052fa24 + category * 0x650), name);
+    // 0x52fa00: per-category "name edited" flags, inside the oversized g_unk0x0052f3e8.
+    g_unk0x0052f3e8[0x618 + category] = 1;
+}
 // FUNCTION: CMR2 0x004ebfd0
 void FUN_004ebfd0(int index)
 {
