@@ -7,9 +7,11 @@
 #include "Font.h"
 #include "GenericFileLoader.h"
 #include <string.h>
+#include <stdio.h>
 #include "FrontendMenus.h"
 #include "FrontendDraw.h"
 #include "Sound.h"
+#include "main.h"
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 #define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
@@ -71,6 +73,34 @@ int g_unk0x0082aa3c;
 int g_unk0x0082aa40;
 // GLOBAL: CMR2 0x0082ac48
 int g_unk0x0082ac48;
+// GLOBAL: CMR2 0x00525288
+int g_unk0x00525288 = -1;
+// GLOBAL: CMR2 0x0052528c
+int g_unk0x0052528c = -1;
+// GLOBAL: CMR2 0x00525330
+char g_nameChars0x00525330[68] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+// GLOBAL: CMR2 0x00818cd8
+char *g_unk0x00818cd8;
+// GLOBAL: CMR2 0x00818d04
+BYTE g_unk0x00818d04;
+// GLOBAL: CMR2 0x00818da8
+char g_unk0x00818da8[256];
+// GLOBAL: CMR2 0x00818ef4
+BYTE g_unk0x00818ef4;
+// GLOBAL: CMR2 0x00819014
+BYTE g_unk0x00819014;
+// GLOBAL: CMR2 0x0081901c
+int g_unk0x0081901c;
+// GLOBAL: CMR2 0x00819020
+int g_unk0x00819020;
+// GLOBAL: CMR2 0x00819024
+BYTE g_unk0x00819024;
+// GLOBAL: CMR2 0x00819038
+BYTE g_unk0x00819038;
+// GLOBAL: CMR2 0x00819040
+unsigned int g_unk0x00819040;
+// GLOBAL: CMR2 0x0081986c
+BYTE g_unk0x0081986c;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
 // GLOBAL: CMR2 0x0081903c
@@ -238,6 +268,28 @@ void FUN_004e3230(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
+// FUNCTION: CMR2 0x004eca60
+void FUN_004eca60(Menu *pMenu, char param)
+{
+    Menu_SetFlags(pMenu, 1, 1, 1, 1);
+    g_unk0x00818ef4 = 0;
+    g_unk0x00819024 = 0;
+    g_unk0x00819014 = 0;
+    g_unk0x0052528c = -1;
+    g_unk0x00525288 = -1;
+    FUN_004b7c80();
+    sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
+    g_unk0x0081901c = 0;
+    g_unk0x00819020 = 0;
+    pMenu->items[0].id = 0x1ff;
+    if (param == 0) {
+        g_unk0x00818d04 = 0;
+        return;
+    }
+    g_unk0x00818d04 = 1;
+    FUN_004b7c80();
+}
+
 // FUNCTION: CMR2 0x004ecfa0
 void FUN_004ecfa0(Menu *pMenu, char param)
 {
@@ -312,6 +364,39 @@ void FUN_004edca0(Menu *pMenu, int param)
         return;
     }
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
+}
+
+// FUNCTION: CMR2 0x004eed50
+void FUN_004eed50(Menu *pMenu, int param)
+{
+    Menu_SetFlags(pMenu, 0, 0, 1, 1);
+    FUN_004b7c80();
+    sprintf(g_unk0x00818da8, CMain::m_logFileBlankLine);
+}
+
+// Name entry: appends the typed character or deletes the last one.
+// FUNCTION: CMR2 0x004eed80
+void FUN_004eed80(Menu *pMenu)
+{
+    int key;
+    int len;
+
+    g_unk0x00818cd8 = g_unk0x00818da8;
+    strcpy(CFrontend::m_stringDest, g_unk0x00818da8);
+    if (!FUN_004b7cd0(&key))
+        return;
+    if (key != 8) {
+        len = strlen(CFrontend::m_stringDest);
+        if (len < 19 && strchr(g_nameChars0x00525330, (char)key) != NULL) {
+            CFrontend::m_stringDest[len] = (char)key;
+            CFrontend::m_stringDest[len + 1] = 0;
+            Menu_PlaySoundId(1);
+        }
+    } else if (CFrontend::m_stringDest[0] != 0) {
+        CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
+        Menu_PlaySoundId(2);
+    }
+    strcpy(g_unk0x00818cd8, CFrontend::m_stringDest);
 }
 
 // FUNCTION: CMR2 0x004ef480
@@ -434,6 +519,26 @@ void FUN_004f0e60(Menu *pMenu, int param)
 {
     FUN_004ea480(0);
     FUN_004a0c50(0);
+}
+
+// FUNCTION: CMR2 0x004f1160
+void FUN_004f1160(Menu *pMenu, char param)
+{
+    g_unk0x00819040 = CMain::GetFrameDelta();
+    g_unk0x0081986c = 1;
+    FUN_004a0c50(1);
+    g_unk0x00819038 = 1;
+    FUN_004ea480(FUN_004f2be0());
+    if (param != 0) {
+        pMenu->cursor = 2;
+        pMenu->items[2].max = pMenu->items[2].min - 1;
+    } else {
+        pMenu->cursor = 0;
+        pMenu->items[0].max = 0;
+    }
+    FUN_004b7c80();
+    pMenu->cursor = 2;
+    pMenu->items[2].max = pMenu->items[2].min - 1;
 }
 
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)

@@ -1120,6 +1120,12 @@ int FUN_00406710(void)
     return CGameInfo::m_gameInfo.field_0x397c;
 }
 
+// FUNCTION: CMR2 0x00406730
+int FUN_00406730(void)
+{
+    return CGameInfo::m_gameInfo.field_0x3984;
+}
+
 // FUNCTION: CMR2 0x00406780
 void FUN_00406780(int param1)
 {

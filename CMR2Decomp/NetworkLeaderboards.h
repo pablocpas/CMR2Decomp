@@ -27,6 +27,7 @@ public:
     static void Reset(void);
     static bool LoadLeaderboards(void);
     static void SetLeaderboardId(int id);
+    static int GetLeaderboardId(void);
     static int GetTotalLeaderboards(void);
 
 private:

@@ -48,6 +48,12 @@ bool CNetworkLeaderboards::LoadLeaderboards(void) {
     return hasLoaded;
 }
 
+// FUNCTION: CMR2 0x0040e4f0
+int CNetworkLeaderboards::GetLeaderboardId(void)
+{
+    return m_leaderboardId;
+}
+
 // FUNCTION: CMR2 0x0040e500
 void CNetworkLeaderboards::SetLeaderboardId(int id)
 {
