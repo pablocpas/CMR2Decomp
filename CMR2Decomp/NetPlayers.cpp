@@ -66,6 +66,7 @@ int FUN_004a19c0(DPID *pId, char *pIndex);
 char *FUN_004a1b60(BYTE index);
 DPID FUN_004a1a00(void);
 int FUN_004a1cb0(int param2, int param3);
+unsigned int FUN_00448680(int index, int split);
 int FUN_004a1c50(int param1, int param2, int param3, int param4);
 
 // FUNCTION: CMR2 0x00409a30
@@ -321,6 +322,124 @@ void FUN_00409f80(DPID *pId)
             return;
         }
     }
+}
+
+// FUNCTION: CMR2 0x00409fd0
+void FUN_00409fd0(DPID *pId, int split, unsigned int time)
+{
+    int i;
+    char *name;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+            g_netPlayers[i].splits[split - 1] = time;
+            if (time < g_netSplitBest[split - 1] || g_netSplitBest[split - 1] == 0) {
+                g_netSplitBest[split - 1] = time;
+                i = FUN_0040a7a0(*pId);
+                if ((char)RallyData_GetFlag25()) {
+                    if (split != 2)
+                        return;
+                } else {
+                    if (split != 8)
+                        return;
+                }
+                name = FUN_00409cd0(i);
+                if (name != NULL)
+                    strcpy(g_netRecordName, name);
+                else
+                    strcpy(g_netRecordName, CMain::m_logFileBlankLine);
+            }
+            return;
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x0040a0e0
+void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
+{
+    int i;
+    char *name;
+
+    if (CGameInfo::FUN_00405d80() == 12) {
+        for (i = 0; i < 7; i++) {
+            if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+                g_netPlayers[i].stageTimes[0] = time;
+                if (time < g_netStageBest[0] || g_netStageBest[0] == 0) {
+                    g_netPrevBest = g_netStageBest[0];
+                    g_netStageBest[0] = time;
+                    g_netNewRecord = 0;
+                    name = FUN_00409cd0(FUN_0040a7a0(*pId));
+                    if (name == NULL)
+                        strcpy(g_netRecordName, CMain::m_logFileBlankLine);
+                    else
+                        strcpy(g_netRecordName, name);
+                    return;
+                }
+                if (time < g_netPrevBest || g_netPrevBest == 0)
+                    g_netPrevBest = time;
+                return;
+            }
+        }
+    } else {
+        for (i = 0; i < 7; i++) {
+            if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+                g_netPlayers[i].stageTimes[stage - 1] = time;
+                if (time < g_netStageBest[stage - 1] || g_netStageBest[stage - 1] == 0)
+                    g_netStageBest[stage - 1] = time;
+                return;
+            }
+        }
+    }
+}
+
+// FUNCTION: CMR2 0x0040a230
+void FUN_0040a230(int splitCount)
+{
+    int i;
+    unsigned int time;
+
+    for (i = 1; i <= splitCount; i++) {
+        time = FUN_00448680(0, i);
+        if (time < g_netSplitBest[i - 1] || g_netSplitBest[i - 1] == 0) {
+            g_netSplitBest[i - 1] = time;
+            if ((char)RallyData_GetFlag25()) {
+                if (i == 2)
+                    strcpy(g_netRecordName, (char *)RallyData_GetRecord(0));
+            } else {
+                if (i == 8)
+                    strcpy(g_netRecordName, (char *)RallyData_GetRecord(0));
+            }
+        }
+    }
+    if ((char)RallyData_GetFlag25()) {
+        if (splitCount != 2)
+            return;
+        time = FUN_00448680(0, 2);
+    } else {
+        if (splitCount != 8)
+            return;
+        time = FUN_00448680(0, 8);
+    }
+    if (time < g_netLapBest || g_netLapBest == 0)
+        g_netLapBest = time;
+}
+
+// FUNCTION: CMR2 0x0040a330
+void FUN_0040a330(unsigned int time, int stage)
+{
+    if (CGameInfo::FUN_00405d80() == 12) {
+        if (time < g_netStageBest[0] || g_netStageBest[0] == 0) {
+            g_netPrevBest = g_netStageBest[0];
+            g_netStageBest[0] = time;
+            strcpy(g_netRecordName, (char *)RallyData_GetRecord(0));
+            g_netNewRecord = 1;
+            return;
+        }
+        g_netNewRecord = 0;
+        return;
+    }
+    if (time < g_netStageBest[stage - 1] || g_netStageBest[stage - 1] == 0)
+        g_netStageBest[stage - 1] = time;
 }
 
 // FUNCTION: CMR2 0x0040a3c0

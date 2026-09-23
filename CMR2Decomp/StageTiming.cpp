@@ -391,6 +391,12 @@ void FUN_00448630(int index)
     g_unk0x0053e18c++;
 }
 
+// FUNCTION: CMR2 0x00448680
+unsigned int FUN_00448680(int index, int split)
+{
+    return g_unk0x0053e190[index * 9 + split];
+}
+
 // Registers the mesh-backed node in the per-slot tables.
 // FUNCTION: CMR2 0x00466e90
 void FUN_00466e90(SceneNode *pNode, int *pSlot)
