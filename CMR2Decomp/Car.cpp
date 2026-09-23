@@ -1929,6 +1929,22 @@ BYTE *FUN_0042cac0(int index)
     return g_unk0x0053c5a0[index];
 }
 
+BYTE *FUN_00456be0(int index);
+
+// Whether the car uses the narrow wheel setup (car class 6 on the normal
+// surfaces); param2 also accepts the 'A' variant.
+// FUNCTION: CMR2 0x0042cae0
+int FUN_0042cae0(Car *pCar, int param2)
+{
+    char stage;
+
+    stage = *FUN_00456be0(pCar->field_0xb1a);
+    if (!CGameInfo::FUN_004063f0(6) && pCar->field_0xb29 == 6 && stage != 0xb && stage != 8 && stage != 0xa &&
+        stage != 0xd && (FUN_00456be0(pCar->field_0xb1a)[0x20] != 'A' || param2 != 0))
+        return 1;
+    return 0;
+}
+
 // FUNCTION: CMR2 0x0043e160
 void FUN_0043e160(int value)
 {

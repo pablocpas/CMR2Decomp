@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CarPhysics.cpp" />
     <ClCompile Include="TrackCollision.cpp" />
     <ClCompile Include="ZlibAdler32.cpp" />
     <ClCompile Include="ZlibCrc32.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="TimingUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CarPhysics.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zconf.h" />
     <ClInclude Include="zlib\zutil.h" />
