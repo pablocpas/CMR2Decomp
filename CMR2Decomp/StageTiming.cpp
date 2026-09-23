@@ -1053,16 +1053,117 @@ void FUN_00481560(unsigned short *pAngles)
 
 // Records of the 0x542e7c table (stride 0x1c); count derived from the next
 // known global (0x543eb8).
-struct Unk0x00542e7c {
+struct Unk0x00542e78 {
     short field_0x0;
-    BYTE field_0x2[0x1a];
+    short field_0x2;
+    short field_0x4;
+    short field_0x6;
+    BYTE field_0x8[8];
+    short field_0x10;
+    short field_0x12;
+    short field_0x14;
+    BYTE field_0x16;
+    BYTE field_0x17;
+    BYTE field_0x18;
+    BYTE field_0x19;
+    BYTE field_0x1a;
+    BYTE pad_0x1b;
 };
 
-// GLOBAL: CMR2 0x00542e7c
-Unk0x00542e7c g_unk0x00542e7c[0x94];
+// GLOBAL: CMR2 0x00542e78
+Unk0x00542e78 g_unk0x00542e78[8];
+// GLOBAL: CMR2 0x00542f58
+int g_unk0x00542f58[8];
+// GLOBAL: CMR2 0x00542f78
+int g_unk0x00542f78[8];
+// GLOBAL: CMR2 0x00543098
+int g_unk0x00543098;
+
+// FUNCTION: CMR2 0x00459370
+void FUN_00459370(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++)
+        g_unk0x00542f58[i] = -1;
+    for (i = 0; i < 8; i++)
+        g_unk0x00542f78[i] = 0;
+}
+
+// FUNCTION: CMR2 0x00459390
+bool FUN_00459390(void)
+{
+    return g_unk0x00543098 != 0;
+}
+
+// FUNCTION: CMR2 0x00458230
+BYTE FUN_00458230(int index)
+{
+    return g_unk0x00542e78[index].field_0x16;
+}
+
+// FUNCTION: CMR2 0x00458250
+BYTE FUN_00458250(int index)
+{
+    return g_unk0x00542e78[index].field_0x17;
+}
+
+// FUNCTION: CMR2 0x00458270
+BYTE FUN_00458270(int index)
+{
+    return g_unk0x00542e78[index].field_0x18;
+}
+
+// FUNCTION: CMR2 0x00458290
+BYTE FUN_00458290(int index)
+{
+    return g_unk0x00542e78[index].field_0x19;
+}
+
+// FUNCTION: CMR2 0x004582b0
+BYTE FUN_004582b0(int index)
+{
+    return g_unk0x00542e78[index].field_0x1a;
+}
+
+// FUNCTION: CMR2 0x004582d0
+int FUN_004582d0(int index)
+{
+    return g_unk0x00542e78[index].field_0x2;
+}
+
+// FUNCTION: CMR2 0x004582f0
+int FUN_004582f0(int index)
+{
+    return g_unk0x00542e78[index].field_0x0;
+}
+
+// FUNCTION: CMR2 0x00458310
+int FUN_00458310(int index)
+{
+    return g_unk0x00542e78[index].field_0x12;
+}
 
 // FUNCTION: CMR2 0x00458330
 int FUN_00458330(int index)
 {
-    return g_unk0x00542e7c[index].field_0x0;
+    return g_unk0x00542e78[index].field_0x4;
+}
+
+// FUNCTION: CMR2 0x00458350
+int FUN_00458350(int index)
+{
+    return g_unk0x00542e78[index].field_0x6;
+}
+
+// FUNCTION: CMR2 0x00458370
+int FUN_00458370(int index)
+{
+    return g_unk0x00542e78[index].field_0x14;
+}
+
+// FUNCTION: CMR2 0x004589e0
+short FUN_004589e0(int index)
+{
+    return g_unk0x00542e78[index].field_0x10;
 }
