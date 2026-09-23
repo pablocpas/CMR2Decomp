@@ -1,4 +1,5 @@
 #include "GameInfo.h"
+#include "Menu.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "Frontend.h"
@@ -1683,10 +1684,77 @@ BYTE *FUN_00502510(void)
     return g_unk0x0082b848;
 }
 
+// GLOBAL: CMR2 0x0052aa60
+int g_unk0x0052aa60;
+// GLOBAL: CMR2 0x0052aa68
+int g_unk0x0052aa68;
+// GLOBAL: CMR2 0x0052aa70
+Menu g_menu0x0052aa70;
+// GLOBAL: CMR2 0x0052af41
+BYTE g_unk0x0052af41;
+// GLOBAL: CMR2 0x0052af44
+Menu *g_pMenu0x0052af44;
+// GLOBAL: CMR2 0x0052af4c
+int g_unk0x0052af4c;
+// GLOBAL: CMR2 0x0052af50
+int g_unk0x0052af50;
+// GLOBAL: CMR2 0x0052af58
+BYTE g_unk0x0052af58[2];
+
+// FUNCTION: CMR2 0x00404f10
+void FUN_00404f10(void)
+{
+    g_unk0x0052af41 = 0;
+}
+
 // FUNCTION: CMR2 0x00404f20
 unsigned char CGameInfo::FUN_00404f20(void)
 {
     return m_unk0x0052af40;
+}
+
+// FUNCTION: CMR2 0x00404f30
+BYTE FUN_00404f30(void)
+{
+    return g_unk0x0052af41;
+}
+
+// FUNCTION: CMR2 0x004054a0
+void FUN_004054a0(void)
+{
+    Menu_CallCallback2(g_pMenu0x0052af44);
+}
+
+// FUNCTION: CMR2 0x004054b0
+int FUN_004054b0(unsigned int param1)
+{
+    if (CGameInfo::FUN_00404f20() && g_unk0x0052af58[1] == param1 && g_pMenu0x0052af44 == &g_menu0x0052aa70)
+        return 1;
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004055e0
+int FUN_004055e0(void)
+{
+    return g_unk0x0052aa60;
+}
+
+// FUNCTION: CMR2 0x004055f0
+int FUN_004055f0(void)
+{
+    return g_unk0x0052aa68;
+}
+
+// FUNCTION: CMR2 0x00405600
+int FUN_00405600(void)
+{
+    return g_unk0x0052af4c;
+}
+
+// FUNCTION: CMR2 0x00405610
+int FUN_00405610(void)
+{
+    return g_unk0x0052af50;
 }
 
 // Text buffer for the truncated draw below (256 bytes up to the next global).
