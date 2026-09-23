@@ -40,6 +40,7 @@ float CGraphics::m_oneOver128 = 1.0f / 128.0f;
 float CGraphics::m_unk0x00520b34 = 1.0f;
 float CGraphics::m_unk0x00520b38 = 1.0f;
 BYTE CGraphics::m_tgaPixel[4];
+float CGraphics::m_bumpScale = 1.0f;
 char CGraphics::m_ddsExtension[8] = ".DDS";
 char CGraphics::m_tgaExtension[8] = ".TGA";
 TGAImageInfo CGraphics::m_tgaImageInfo;
@@ -3881,13 +3882,178 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
     return pTexture;
 }
 
-// STUB: CMR2 0x004a3e90
-// 2435 bytes of ~88 repeated SetRenderState-style calls; honest stub so its
-// caller FUN_004a4850 can be implemented and measured.
+// Sets up the texture stage for the texture's blend mode (stage alone with
+// no texture): colour/alpha operations, filters, blend render states and
+// texture coordinate set.
+// FUNCTION: CMR2 0x004a3e90
 void CGraphics::FUN_004a3e90(int param1, int param2)
 {
-    (void)param1;
-    (void)param2;
+    Texture *pTexture;
+    float value;
+
+    pTexture = (Texture *)param2;
+    if (pTexture == NULL) {
+        g_unk0x00520b18 = -1;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, (DWORD)pTexture);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, (DWORD)pTexture);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        return;
+    }
+    switch (pTexture->blendMode) {
+    case 0:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        if (g_pGraphics->field913_0x3bc & 1)
+            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_POINT);
+        else if (g_pGraphics->field913_0x3bc & 2)
+            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
+        else
+            m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MIPFILTER, D3DTFP_NONE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAXMIPLEVEL, 0);
+        FUN_004a3e40(5, 6);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 1:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        FUN_004a3e40(2, 2);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 2:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        FUN_004a3e40(5, 2);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 3:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        FUN_004a3e40(1, 4);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 4:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+        SetTexCoordIndex(param1, 1);
+        break;
+    case 5:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+        FUN_004a3e40(5, 2);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 6:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 7:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_COMPLEMENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        FUN_004a3e40(9, 3);
+        SetTexCoordIndex(param1, 1);
+        break;
+    case 8:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_BUMPENVMAPLUMINANCE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        value = m_bumpScale;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT00, *(DWORD *)&value);
+        value = 0.0f;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT01, *(DWORD *)&value);
+        value = 0.0f;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT10, *(DWORD *)&value);
+        value = m_bumpScale;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVMAT11, *(DWORD *)&value);
+        value = 1.0f;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVLSCALE, *(DWORD *)&value);
+        value = 0.0f;
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_BUMPENVLOFFSET, *(DWORD *)&value);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 9:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+        FUN_004a3e40(2, 2);
+        SetTexCoordIndex(param1, 1);
+        break;
+    case 10:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE | D3DTA_ALPHAREPLICATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        FUN_004a3e40(5, 6);
+        SetTexCoordIndex(param1, 0);
+        break;
+    case 11:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_TEXCOORDINDEX,
+                                                      D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR | 1);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT3);
+        break;
+    case 0xff:
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        m_pTextureManager->pD3D->SetTextureStageState(param1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        FUN_004a3e40(5, 6);
+        SetTexCoordIndex(param1, 0);
+        break;
+    }
+    g_unk0x00520b18 = pTexture->blendMode;
 }
 
 // Applies a texture stage change and forwards it to the render states.

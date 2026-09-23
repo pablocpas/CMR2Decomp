@@ -1356,6 +1356,8 @@ private:
     static float m_unk0x00520b38;
     // GLOBAL: CMR2 0x0065aa80
     static BYTE m_tgaPixel[4];
+    // GLOBAL: CMR2 0x00520b24
+    static float m_bumpScale;
     // GLOBAL: CMR2 0x00520b3c
     static char m_ddsExtension[8];
     // GLOBAL: CMR2 0x00520b44
