@@ -12,6 +12,7 @@
 #include "FrontendDraw.h"
 #include "Sound.h"
 #include "main.h"
+#include "NetworkLeaderboards.h"
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 #define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
@@ -85,6 +86,8 @@ char *g_unk0x00818cd8;
 BYTE g_unk0x00818d04;
 // GLOBAL: CMR2 0x00818da8
 char g_unk0x00818da8[256];
+// GLOBAL: CMR2 0x00818ed4
+int g_unk0x00818ed4[8];
 // GLOBAL: CMR2 0x00818ef4
 BYTE g_unk0x00818ef4;
 // GLOBAL: CMR2 0x00819014
@@ -178,6 +181,31 @@ void FUN_004d63e0(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
+// FUNCTION: CMR2 0x004da630
+void FUN_004da630(Menu *pMenu)
+{
+    char *text[2];
+
+    switch (CGameInfo::FUN_00405d80()) {
+    case 1:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xd);
+        break;
+    case 2:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xf);
+        break;
+    case 3:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
+    FrontendDraw_MenuList(FUN_004f8360(), NULL, -1, -1, 0, 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
 // Network connection list.
 // FUNCTION: CMR2 0x004dc7b0
 void FUN_004dc7b0(Menu *pMenu)
@@ -265,6 +293,27 @@ void FUN_004e3230(Menu *pMenu)
     }
     FrontendDraw_PlayTime();
     FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Network game: the name being typed, with a blinking cursor.
+// FUNCTION: CMR2 0x004e9820
+void FUN_004e9820(Menu *pMenu)
+{
+    char *text[3];
+
+    text[0] = CFrontend::GetTextString(0);
+    text[1] = CFrontend::GetTextString(0x12);
+    text[2] = CFrontend::GetTextString(0x1e7);
+    FrontendDraw_PlayTime();
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
+    Font_DrawText(1, CFrontend::GetTextString(0x1e8), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 4,
+                  (int *)g_colourWhite0x00524968, 0x12);
+    sprintf(CFrontend::m_stringDest, "%s : %s", CFrontend::GetTextString(0x1c3), g_unk0x00818da8);
+    if ((int)CMain::GetFrameDelta() % 20 > 9)
+        strcat(CFrontend::m_stringDest, "_");
+    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 260) / 640, (int)g_pGraphics->resY / 2,
+                  (int *)g_colourWhite0x00524968, 0x11);
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
@@ -366,6 +415,63 @@ void FUN_004edca0(Menu *pMenu, int param)
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
 }
 
+// FUNCTION: CMR2 0x004eeab0
+void FUN_004eeab0(Menu *pMenu, char param)
+{
+    int order[8];
+    unsigned int *pFlags;
+    unsigned int count;
+    unsigned int n;
+    int i;
+
+    i = 0;
+    order[0] = 6;
+    order[1] = 3;
+    order[2] = 1;
+    order[3] = 4;
+    order[4] = 0;
+    order[5] = 2;
+    order[6] = 5;
+    order[7] = 7;
+    pFlags = CGameInfo::FUN_00405db0();
+    count = 6;
+    if (!CGameInfo::FUN_00406410(0xd)) {
+        count = (*pFlags >> 2 & 3) * 3;
+        n = (*pFlags >> 4 & 3) * 3;
+        if (n > count)
+            count = n;
+        n = (*pFlags >> 6 & 3) * 3;
+        if (n > count)
+            count = n;
+    }
+    do {
+        if (i < (int)count || CGameInfo::FUN_00406410(0xd))
+            g_unk0x00818ed4[i] = order[i];
+        i++;
+    } while (i < 6);
+    if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd)) {
+        count++;
+        g_unk0x00818ed4[i] = 5;
+    }
+    if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd)) {
+        count++;
+        g_unk0x00818ed4[i + 1] = 7;
+    }
+    Menu_GetItem(pMenu, 0)->min = count;
+    Menu_GetItem(pMenu, 0)->max = 0;
+    for (i = 0; i < (int)count; i++) {
+        if (g_unk0x00818ed4[i] == FUN_00406730()) {
+            Menu_GetItem(pMenu, 0)->max = i;
+            break;
+        }
+    }
+    if (param == 0) {
+        Menu_GetItem(pMenu, 1)->max = FUN_00406710();
+        if (Menu_GetItem(pMenu, 1)->max != 0)
+            Menu_GetItem(pMenu, 1)->max -= 4;
+    }
+}
+
 // FUNCTION: CMR2 0x004eed50
 void FUN_004eed50(Menu *pMenu, int param)
 {
@@ -397,6 +503,44 @@ void FUN_004eed80(Menu *pMenu)
         Menu_PlaySoundId(2);
     }
     strcpy(g_unk0x00818cd8, CFrontend::m_stringDest);
+}
+
+// FUNCTION: CMR2 0x004eef30
+void FUN_004eef30(Menu *pMenu, int param)
+{
+    Menu_GetItem(pMenu, 0)->min = CNetworkLeaderboards::GetTotalLeaderboards();
+    if (Menu_GetItem(pMenu, 0)->min != 0) {
+        Menu_GetItem(pMenu, 0)->enabled = 1;
+        if (CNetworkLeaderboards::GetLeaderboardId() == -1)
+            CNetworkLeaderboards::SetLeaderboardId(0);
+        Menu_GetItem(pMenu, 0)->max = CNetworkLeaderboards::GetLeaderboardId();
+        return;
+    }
+    Menu_GetItem(pMenu, 0)->enabled = 0;
+}
+
+// FUNCTION: CMR2 0x004ef030
+void FUN_004ef030(Menu *pMenu)
+{
+    Menu_GetItem(pMenu, 0)->min = CNetworkLeaderboards::GetTotalLeaderboards();
+    if (Menu_GetItem(pMenu, 0)->min != 0) {
+        Menu_GetItem(pMenu, 2)->enabled = 1;
+        if (!Menu_GetItem(pMenu, 0)->enabled) {
+            Menu_GetItem(pMenu, 0)->enabled = 1;
+            if (CNetworkLeaderboards::GetLeaderboardId() == -1)
+                CNetworkLeaderboards::SetLeaderboardId(0);
+            Menu_GetItem(pMenu, 0)->max = CNetworkLeaderboards::GetLeaderboardId();
+        }
+        if (CNetworkLeaderboards::GetTotalLeaderboards() < 32)
+            Menu_GetItem(pMenu, 1)->enabled = 1;
+        else
+            Menu_GetItem(pMenu, 1)->enabled = 0;
+        if (Menu_GetItem(pMenu, 0)->max >= Menu_GetItem(pMenu, 0)->min)
+            Menu_GetItem(pMenu, 0)->max = Menu_GetItem(pMenu, 0)->min - 1;
+    } else {
+        Menu_GetItem(pMenu, 2)->enabled = 0;
+        Menu_GetItem(pMenu, 1)->enabled = 1;
+    }
 }
 
 // FUNCTION: CMR2 0x004ef480

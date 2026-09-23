@@ -60,10 +60,6 @@ void FUN_004d9c40(Menu *pMenu, int param)
 {
 }
 
-void FUN_004da630(Menu *pMenu, int param)
-{
-}
-
 void FUN_004db850(Menu *pMenu, int param)
 {
 }
@@ -168,10 +164,6 @@ void FUN_004e90f0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004e9820(Menu *pMenu, int param)
-{
-}
-
 void FUN_004e9990(Menu *pMenu, int param)
 {
 }
@@ -264,10 +256,6 @@ void FUN_004ee9b0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004eeab0(Menu *pMenu, int param)
-{
-}
-
 void FUN_004eec30(Menu *pMenu, int param)
 {
 }
@@ -280,10 +268,6 @@ void FUN_004eee60(Menu *pMenu, int param)
 {
 }
 
-void FUN_004eef30(Menu *pMenu, int param)
-{
-}
-
 void FUN_004eefb0(Menu *pMenu, int param)
 {
 }
@@ -293,10 +277,6 @@ void FUN_004eefe0(Menu *pMenu, int param)
 }
 
 void FUN_004ef000(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ef030(Menu *pMenu, int param)
 {
 }
 
