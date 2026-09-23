@@ -4,7 +4,7 @@
 
 // Network messages sent during a race (0x427620-0x428760)
 
-int FUN_004a1c50(int param1, int param2, int param3, int param4);
+char FUN_004a1c50(int to, int guaranteed, int data, int size);
 int FUN_0040ac30(void);
 void FUN_0040afd0(void);
 

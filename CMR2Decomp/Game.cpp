@@ -876,6 +876,7 @@ void FUN_004238e0(Unk004238e0 *param1, int param2)
 
 typedef HRESULT (__stdcall *DPMethod0)(void *pThis);
 typedef HRESULT (__stdcall *DPMethod2)(void *pThis, void *p1, DWORD p2);
+typedef HRESULT (__stdcall *DPSendFn)(void *pThis, DPID from, DPID to, DWORD flags, void *data, DWORD size);
 typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4);
 
 // GLOBAL: CMR2 0x005a0068
@@ -1046,18 +1047,24 @@ int FUN_004a1cb0(int param2, int param3)
     return 0;
 }
 
-// TODO: CMR2 0x004a1c50 (implemented, match below 90%)
-int FUN_004a1c50(int param1, int param2, int param3, int param4)
+// Sends a message to a player (0 = all), guaranteed when requested.
+// FUNCTION: CMR2 0x004a1c50
+char FUN_004a1c50(int to, int guaranteed, int data, int size)
 {
+    BOOL flags;
     IDirectPlay4A *pDP;
     HRESULT hr;
+
+    flags = FALSE;
+    if (guaranteed == 1)
+        flags = TRUE;
     pDP = CGame::GetDirectPlay();
-    if (pDP == NULL)
-        return 0;
-    hr = ((DPMethod4)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, param2, (param2 == 1), param4);
-    if (hr <= (HRESULT)0x8877010e || hr == (HRESULT)0x88770816 || hr != 0)
-        return 0;
-    return 1;
+    if (pDP != NULL) {
+        hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, to, flags, (void *)data, size);
+        if (hr > (HRESULT)0x8877010e && hr != (HRESULT)0x88770816 && hr == 0)
+            return 1;
+    }
+    return 0;
 }
 
 typedef HRESULT (__stdcall *DPMethod5)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
