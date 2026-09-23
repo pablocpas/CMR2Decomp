@@ -904,9 +904,121 @@ void FUN_00450ed0(Menu *pMenu)
     Font_DrawText(0, g_networkRallyEndMenuName, 100, 100, (int *)g_menuFrameColour, 9);
 }
 
-// STUB: CMR2 0x00450ef0
+int FUN_0040cfe0(int index);
+int RallyTiming_GetStageTimeSeconds(int iDriver);
+int RallyTiming_GetStageOrderDriverID(int iPosition);
+
+// Stage points of the sixteen stage positions, for the tie checks below.
+// GLOBAL: CMR2 0x005418c4
+BYTE g_unk0x005418c4[0x10];
+
+// Draw callback of the scrolling stage points table: driver, car, points and
+// position; tied drivers get the tie-break note (count-back) and "=" instead
+// of their position.
+// TODO: CMR2 0x00450ef0 (implemented, match 85%)
 void FUN_00450ef0(Menu *pMenu)
 {
+    BOOL isPlayer;
+    int rows;
+    int row;
+    int pos;
+    int id;
+    int points;
+    int player;
+    int i;
+
+    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    FUN_0044b760();
+    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+                          CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x42),
+                          CFrontend::GetTextString(0x8d), 0);
+    i = 0;
+    do {
+        g_unk0x005418c4[i] = (BYTE)RallyTiming_GetStageTimeSeconds(RallyTiming_GetStageOrderDriverID(i));
+        i++;
+    } while (i < 0x10);
+    for (row = 0; row < rows; row++) {
+        if (g_unk0x0053f5a8 != 0) {
+            row++;
+            pos = (pMenu->items[0].max - 1) + row;
+        } else {
+            if (g_unk0x005413f8 != 0)
+                row++;
+            pos = pMenu->items[0].max + row;
+        }
+        id = RallyTiming_GetStageOrderDriverID(pos);
+        points = RallyTiming_GetStageTimeSeconds(id);
+        isPlayer = FALSE;
+        for (player = 0; player < CGameInfo::FUN_00405d70(); player++) {
+            if (StageTiming_GetDriverSlot(player) == id) {
+                isPlayer = TRUE;
+                strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
+                goto found;
+            }
+        }
+        strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(id));
+    found:
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                      (int *)g_menuFrameColour, 9);
+        if (isPlayer) {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(player)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row -
+                                    g_unk0x00540c60 - 1);
+            g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
+            g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
+            g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+        } else {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(id)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            GameMenus_DrawRowFrame(row, 0, 0);
+        }
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                          g_unk0x00540c60,
+                      (int *)g_menuFrameColour, 0x21);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, points);
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
+                      (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                      (int *)g_menuFrameColour, 9);
+        if (g_unk0x005418c4[pos] != 0) {
+            for (i = 0; i < 0x10; i++) {
+                if (i != pos && g_unk0x005418c4[pos] == g_unk0x005418c4[i]) {
+                    if (FUN_0040cfe0(id) == 1)
+                        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb9), FUN_0040cfe0(id));
+                    else
+                        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xb7), FUN_0040cfe0(id));
+                    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 640,
+                                  (((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                                   (int)(g_pGraphics->resY * 8) / 480) - g_unk0x00540c60,
+                                  (int *)g_menuFrameColour, 0xc);
+                    if (pos > 0 && FUN_0040cfe0(RallyTiming_GetStageOrderDriverID(pos - 1)) == FUN_0040cfe0(id) &&
+                        g_unk0x005418c4[pos - 1] == g_unk0x005418c4[pos]) {
+                        sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
+                        goto draw;
+                    }
+                    break;
+                }
+            }
+        }
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
+    draw:
+        Font_DrawText(1, CFrontend::m_stringDest,
+                      ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
+                          (int)(g_pGraphics->resX * 0x20) / 640,
+                      (((int)(g_pGraphics->resY * 8) / 480 +
+                        ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2 +
+                        ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
+                       g_unk0x00540c60) + (int)(g_pGraphics->resY * 0x82) / 480,
+                      (int *)g_menuFrameColour, 0x12);
+        if (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0)
+            row--;
+    }
+    Font_SetBlendMode(2);
 }
 
 // Draw callback of the final championship standings (header menu) screen.
