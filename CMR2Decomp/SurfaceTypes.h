@@ -6,7 +6,7 @@
 // and the one it is crossing into.
 
 // GLOBAL: CMR2 0x0051de5c
-extern int g_surfaceDrag[87];
+extern int g_surfaceDrag[63];
 // GLOBAL: CMR2 0x0051dfb8
 extern int g_surfaceGrip[48][2];
 // GLOBAL: CMR2 0x0051e138

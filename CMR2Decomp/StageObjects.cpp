@@ -60,6 +60,71 @@ int g_unk0x0058d6a8[2];
 int g_unk0x0058d6b0[7];
 // GLOBAL: CMR2 0x0058da30
 int g_unk0x0058da30[8];
+// GLOBAL: CMR2 0x0058da10
+int g_unk0x0058da10[8];
+// GLOBAL: CMR2 0x0058dda8
+int g_unk0x0058dda8;
+// GLOBAL: CMR2 0x0058e230
+int g_unk0x0058e230[16];
+// GLOBAL: CMR2 0x0058e270
+char g_unk0x0058e270[16];
+// GLOBAL: CMR2 0x0058e0b0
+BYTE g_unk0x0058e0b0[8];
+struct StageObjectValue { int value; BYTE rest[0x2c]; };
+// GLOBAL: CMR2 0x0058e0b8
+StageObjectValue g_unk0x0058e0b8[4];
+// GLOBAL: CMR2 0x0058e178
+int g_unk0x0058e178;
+
+int FUN_0041d290(void);
+char FUN_00420190(void);
+
+// FUNCTION: CMR2 0x00478130
+void FUN_00478130(int index)
+{
+    g_unk0x0058da10[index] = FUN_0041d290();
+}
+
+// FUNCTION: CMR2 0x00478150
+void FUN_00478150(int index)
+{
+    g_unk0x0058da30[index] = FUN_0041d290() - g_unk0x0058da10[index];
+}
+
+// FUNCTION: CMR2 0x0047aa60
+void FUN_0047aa60(int value)
+{
+    g_unk0x0058dda8 = value;
+}
+
+// FUNCTION: CMR2 0x0047c5b0
+int FUN_0047c5b0(int index)
+{
+    return g_unk0x0058e230[index];
+}
+
+// FUNCTION: CMR2 0x0047c5c0
+void FUN_0047c5c0(void)
+{
+    StageObjectValue *p = g_unk0x0058e0b8;
+    do {
+        p->value = 0x10000;
+        p++;
+    } while ((int)p < (int)&g_unk0x0058e178);
+}
+
+// FUNCTION: CMR2 0x0047cc30
+void FUN_0047cc30(void)
+{
+    g_unk0x0058e0b0[0] = FUN_00420190();
+    g_unk0x0058e0b0[1] = 1;
+}
+
+// FUNCTION: CMR2 0x0047cd00
+int FUN_0047cd00(int index)
+{
+    return g_unk0x0058e270[index];
+}
 
 struct Block0x309 { int data[0x309]; };
 struct Block0x134 { int data[0x134]; };

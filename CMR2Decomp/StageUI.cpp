@@ -187,6 +187,12 @@ BYTE g_barBackColour[4] = { 0, 0, 0, 0 };
 BYTE g_barTextColour[4] = { 0, 0, 0, 0 };
 // GLOBAL: CMR2 0x0051c97c
 BYTE *g_pUnk0x0051c97c;
+
+// FUNCTION: CMR2 0x00475a40
+BYTE *FUN_00475a40(void)
+{
+    return g_pUnk0x0051c97c;
+}
 // GLOBAL: CMR2 0x0058ca90
 BYTE g_unk0x0058ca90[1];
 // GLOBAL: CMR2 0x0058cf7c
