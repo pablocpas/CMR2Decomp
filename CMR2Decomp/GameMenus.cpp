@@ -16,6 +16,7 @@
 #include "TimingUtils.h"
 #include "main.h"
 #include "Game.h"
+#include "StageUI.h"
 
 int FUN_0040ab10(void);
 
@@ -481,9 +482,71 @@ void FUN_004505b0(void)
 {
 }
 
-// STUB: CMR2 0x00450c10
-void FUN_00450c10(void)
+// Draw callback of the championship standings screen: the best driver's
+// position decides between the "champion" and "rally over" headers.
+// TODO: CMR2 0x00450c10 (implemented, match 78%)
+void FUN_00450c10(Menu *pMenu)
 {
+    char position[100];
+    char *pPosition;
+    int x;
+    int y;
+    int best;
+    int i;
+    int slot;
+    int place;
+    int resY;
+
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    y = (int)(g_pGraphics->resY * 242) / 480;
+    FUN_0044b760();
+    best = 99;
+    i = 0;
+    slot = 99;
+    if (CGameInfo::FUN_00405d70() != 0) {
+        slot = 0xf;
+        do {
+            if (RallyTiming_GetOverallPositionOfDriver(slot) < best)
+                best = RallyTiming_GetOverallPositionOfDriver(slot);
+            i++;
+            slot--;
+        } while (i < CGameInfo::FUN_00405d70());
+        slot = best;
+    }
+    GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                          CFrontend::GetTextString(0x41), CFrontend::GetTextString(slot < 6 ? 0x49 : 0x88), 0);
+    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+        place = RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(i));
+        switch (place) {
+        case 0:
+            pPosition = CFrontend::GetTextString(0x51);
+            break;
+        case 1:
+            pPosition = CFrontend::GetTextString(0x52);
+            break;
+        case 2:
+            pPosition = CFrontend::GetTextString(0x53);
+            break;
+        default:
+            sprintf(position, CFrontend::GetTextString(0x54), place + 1);
+            pPosition = position;
+            break;
+        }
+        sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        resY = g_pGraphics->resY;
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                      (resY * 10) / 480 + ((resY * 20) / 480) * i + y + Font_GetLineHeight(0),
+                      (int *)g_menuFrameColour, 0x11);
+    }
+    if (slot > 5) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(RallyDataCountryIndex() == 7 ? 0xee : 0xbb));
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        resY = g_pGraphics->resY;
+        Font_DrawText(0, CFrontend::m_stringDest, x, (resY * 10) / 480 + ((resY * 20) / 480) * i + y + Font_GetLineHeight(0),
+                      (int *)g_menuFrameColour, 0x11);
+    }
+    Font_SetBlendMode(2);
 }
 
 // GLOBAL: CMR2 0x00519f74
@@ -550,9 +613,49 @@ void FUN_00451df0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x004529c0
-void FUN_004529c0(void)
+int FUN_00472990(KnockoutMatch *pMatch);
+extern char g_keypadFormat[];
+
+// Match of the arcade knockout table shown by the result screen.
+// GLOBAL: CMR2 0x00541cd0
+KnockoutMatch *g_pKnockoutMatch;
+
+// Draw callback of the arcade knockout match result: who won, and whether
+// the player goes through to the next round (or wins the final).
+// TODO: CMR2 0x004529c0 (implemented, match 59%)
+void FUN_004529c0(Menu *pMenu)
 {
+    char name[4];
+    unsigned int *pState;
+    int x;
+    int y;
+    BYTE driver;
+    int lineHeight;
+
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    y = (int)(g_pGraphics->resY * 242) / 480;
+    pState = RallyData_GetChampionshipState();
+    FUN_0044b760();
+    if (FUN_00472990(g_pKnockoutMatch)) {
+        Font_DrawText(2, CFrontend::GetTextString(0x49), x, y, (int *)g_menuFrameColour, 0x11);
+        if (g_pKnockoutMatch->time1 > g_pKnockoutMatch->time2)
+            driver = FUN_0041b370() + ((BYTE)(g_pKnockoutMatch->flags >> 5) & 0x1f);
+        else
+            driver = FUN_0041b370() + ((BYTE)g_pKnockoutMatch->flags & 0x1f);
+        sprintf(name, (char *)RallyData_GetRecord(driver));
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString((*pState & 0x38) < 0x20 ? 0x7e : 0x7d), name);
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+    } else {
+        sprintf(name, (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
+        sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x88), name);
+        Font_DrawText(2, CFrontend::m_stringDest, x, y, (int *)g_menuFrameColour, 0x11);
+        sprintf(CFrontend::m_stringDest,
+                CFrontend::GetTextString((*pState & 0x38) < 0x20 && (*pState & 7) != 1 ? 0x91 : 0x92));
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+    }
+    lineHeight = Font_GetLineHeight(0);
+    Font_DrawText(0, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 5) / 480 + y + lineHeight,
+                  (int *)g_menuFrameColour, 0x11);
 }
 
 // STUB: CMR2 0x00452be0

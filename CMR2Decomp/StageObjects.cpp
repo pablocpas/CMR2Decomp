@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <string.h>
+#include "RallyData.h"
 #include "SceneNode.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
@@ -379,6 +380,18 @@ void FUN_004728c0(void)
 int FUN_004728d0(void)
 {
     return g_unk0x0058cf68;
+}
+
+// Whether the human player lost the knockout match (the winner is not a human
+// driver): bit 11 means the second driver won, bit 12 the first one.
+// FUNCTION: CMR2 0x00472990
+int FUN_00472990(KnockoutMatch *pMatch)
+{
+    if (RallyData_FUN_00408500(pMatch->flags & 0x1f) == -1 && (pMatch->flags & 0x1800) == 0x800)
+        return 1;
+    if (RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f) == -1 && (pMatch->flags & 0x1800) == 0x1000)
+        return 1;
+    return 0;
 }
 
 // FUNCTION: CMR2 0x00472ca0

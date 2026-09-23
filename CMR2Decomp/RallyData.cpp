@@ -151,24 +151,6 @@ unsigned int g_selectedRallyData = 0;
 // GLOBAL: CMR2 0x0052f2b0
 unsigned int g_unk0x0052f2b0;
 
-// Arcade knockout table: state bits 0-2 mode, 3-5 round (1 = first round ..
-// 4 = final), 6-8, 12-15 current match, 16-19. Each match holds the two
-// driver indices (bits 0-4 and 5-9), the winner (bit 11 second, bit 12 first)
-// and the two times.
-struct KnockoutMatch {
-    unsigned int flags;
-    unsigned int time1;
-    unsigned int time2;
-};
-
-struct KnockoutTable {
-    unsigned int state;         // 0x52f2b4
-    KnockoutMatch final;        // 0x52f2b8
-    KnockoutMatch semis[2];     // 0x52f2c4
-    KnockoutMatch quarters[4];  // 0x52f2dc
-    KnockoutMatch round1[16];   // 0x52f30c
-};
-
 // GLOBAL: CMR2 0x0052f2b4
 KnockoutTable g_knockout;
 
@@ -1582,7 +1564,7 @@ void *RallyData_GetRecord(BYTE index)
 
 // Returns the 4-bit category of the record, or -1 when it is not usable.
 // FUNCTION: CMR2 0x00408500
-char RallyData_FUN_00408500(unsigned int param1)
+char RallyData_FUN_00408500(BYTE param1)
 {
     unsigned int index;
 
