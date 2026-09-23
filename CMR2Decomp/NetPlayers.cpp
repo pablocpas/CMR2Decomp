@@ -592,6 +592,86 @@ int __cdecl FUN_0040a7d0(const void *a, const void *b)
     return (unsigned int)p1->id > (unsigned int)p2->id ? 1 : -1;
 }
 
+// Stage standings of all players, sorted by time, plus their ranks.
+// FUNCTION: CMR2 0x0040a820
+void FUN_0040a820(unsigned int localTime)
+{
+    int rank;
+    int i;
+    char *name;
+
+    rank = 1;
+    g_netStandingCount = 1;
+    for (i = 0; i < 7; i++) {
+        if (g_netPlayers[i].flags & 0x80) {
+            g_netStandings2[i].index = i;
+            g_netStandings2[i].time = g_netPlayers[i].time;
+            g_netStandings2[i].id = g_netPlayers[i].id;
+            g_netStandings2[i].car = FUN_00409d00(i);
+            name = FUN_00409cd0(i);
+            if (name != NULL) {
+                strcpy(g_netStandings2[i].name, name);
+                g_netStandingCount++;
+                continue;
+            }
+        }
+        g_netStandings2[i].index = -1;
+    }
+    g_netStandings2[i].index = -2;
+    g_netStandings2[i].time = localTime;
+    g_netStandings2[i].id = FUN_004a1a00();
+    strcpy(g_netStandings2[i].name, (char *)RallyData_GetRecord(0));
+    g_netStandings2[i].car = (BYTE)RallyData_FUN_004086b0(0);
+    qsort(g_netStandings2, 8, sizeof(NetStanding), FUN_0040a7d0);
+    g_netRanks2[0] = 1;
+    for (i = 1; i < 8; i++) {
+        if (g_netStandings2[i].index == -1)
+            return;
+        if (g_netStandings2[i].time != g_netStandings2[i - 1].time)
+            rank++;
+        g_netRanks2[i] = rank;
+    }
+}
+
+// Overall standings: accumulates the local time and awards 3 points to the leaders.
+// FUNCTION: CMR2 0x0040a980
+void FUN_0040a980(unsigned int localTime)
+{
+    int rank;
+    int i;
+    char *name;
+
+    g_netTotal += localTime;
+    rank = 1;
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) && (name = FUN_00409cd0(i)) != NULL) {
+            strcpy(g_netStandings[i].name, name);
+            g_netStandings[i].index = i;
+            g_netStandings[i].time = g_netPlayers[i].field_0x7c;
+            g_netStandings[i].id = g_netPlayers[i].id;
+            g_netStandings[i].car = FUN_00409d00(i);
+        } else {
+            g_netStandings[i].index = -1;
+        }
+    }
+    g_netStandings[i].index = -2;
+    g_netStandings[i].time = g_netTotal;
+    g_netStandings[i].id = FUN_004a1a00();
+    strcpy(g_netStandings[i].name, (char *)RallyData_GetRecord(0));
+    g_netStandings[i].car = (BYTE)RallyData_FUN_004086b0(0);
+    qsort(g_netStandings, 8, sizeof(NetStanding), FUN_0040a7d0);
+    g_netRanks[0] = 1;
+    for (i = 1; i < 8; i++) {
+        if (g_netStandings[i].index == -1)
+            break;
+        if (g_netStandings[i].time != g_netStandings[i - 1].time)
+            rank++;
+        g_netRanks[i] = rank;
+    }
+    for (i = 0; i < 8; i++)
+        g_netStandings[i].points = g_netRanks[i] == 1 ? 3 : 0;
+}
+
 // FUNCTION: CMR2 0x0040ab10
 int FUN_0040ab10(void)
 {
@@ -693,6 +773,42 @@ int __cdecl FUN_0040acd0(const void *a, const void *b)
     if (p1->time < p2->time)
         return -1;
     return (unsigned int)p2->id < (unsigned int)p1->id ? 1 : -1;
+}
+
+// Final classification: best time of every player plus the local one.
+// FUNCTION: CMR2 0x0040ad20
+void FUN_0040ad20(void)
+{
+    int i;
+    int count;
+    char *name;
+
+    g_netClassCount = 0;
+    for (i = 0; i < 7; i++) {
+        if (g_netPlayers[i].flags & 0x80) {
+            g_netClassification[g_netClassCount].id = g_netPlayers[i].id;
+            g_netClassification[g_netClassCount].carClass = g_netPlayers[i].flags >> 18 & 0xf;
+            g_netClassification[g_netClassCount].time = g_netPlayers[i].bestTime;
+            name = FUN_00409cd0(i);
+            if (name != NULL) {
+                strcpy(g_netClassification[g_netClassCount].name, name);
+                g_netClassCount++;
+            }
+        }
+    }
+    g_netClassification[g_netClassCount].carClass = 3;
+    g_netClassification[g_netClassCount].time = g_netBestTime;
+    strcpy(g_netClassification[g_netClassCount].name, (char *)RallyData_GetRecord(0));
+    g_netClassification[g_netClassCount].id = FUN_004a1a00();
+    count = g_netClassCount + 1;
+    g_netClassCount = count;
+    for (i = count; i < 7; i++) {
+        g_netClassification[i].carClass = 0;
+        g_netClassification[i].time = -1;
+        strcpy(g_netClassification[i].name, CMain::m_logFileBlankLine);
+        g_netClassification[i].id = 0;
+    }
+    qsort(g_netClassification, count, sizeof(NetClassification), FUN_0040acd0);
 }
 
 // FUNCTION: CMR2 0x0040ae90

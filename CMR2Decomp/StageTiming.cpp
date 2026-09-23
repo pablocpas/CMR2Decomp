@@ -391,6 +391,14 @@ void FUN_00448630(int index)
     g_unk0x0053e18c++;
 }
 
+// FUNCTION: CMR2 0x004483c0
+int FUN_004483c0(int index)
+{
+    if (index == -1)
+        return -1;
+    return g_unk0x0053d1b8[index];
+}
+
 // FUNCTION: CMR2 0x00448680
 unsigned int FUN_00448680(int index, int split)
 {
