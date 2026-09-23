@@ -668,9 +668,107 @@ void FUN_00451690(Menu *pMenu)
     }
 }
 
-// STUB: CMR2 0x00451df0
+extern char g_pointsFormat[];
+extern char g_plusTimeFormat[];
+extern BYTE g_menuRowFillColour[4];
+extern char g_stageNumberFormat[];
+extern char g_stageResultSameTime[];
+int FUN_0040ce40(int position);
+int FUN_004483c0(int index);
+int FUN_00448c60(int index);
+BYTE FUN_00407fc0(int param1);
+void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime);
+void GameMenus_DrawRowFrame(short row, short yOffset, char compact);
+void FUN_00451890(Menu *pMenu);
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082d0(void);
+unsigned int RallyData_FUN_004082e0(void);
+
+// Draw callback of the stage classification table: one boxed row per car
+// with its name, time (or target time, or points) and car, the players'
+// rows highlighted, and the position number on the left ("=" for a tie).
+// TODO: CMR2 0x00451df0 (implemented, match 87%)
 void FUN_00451df0(Menu *pMenu)
 {
+    char diff[12];
+    BOOL isPlayer;
+    int i;
+    int next;
+    int car;
+    int time;
+    int flags;
+    char *pFormat;
+
+    FUN_0044b760();
+    FUN_00451890(pMenu);
+    for (i = 0; i < (BYTE)FUN_00420190(); i = next) {
+        isPlayer = FALSE;
+        car = FUN_00448390(i);
+        time = FUN_004483c0(car);
+        if (car < (int)(RallyDataState() & 0xff)) {
+            isPlayer = TRUE;
+            strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(car));
+        } else {
+            strcpy(CFrontend::m_stringDest, CAIHelper::GetNameForID(car));
+        }
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
+                          (int)(g_pGraphics->resY * 8) / 480,
+                      (int *)g_menuFrameColour, 9);
+        flags = 9;
+        if (g_pHeaderMenu == &g_menu0x0053ec48) {
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_0040ce40(i));
+        } else if (!(BYTE)RallyData_FUN_004082e0() ||
+                   (RallyData_FUN_004082b0() != 1 && RallyData_FUN_004082b0() != 2)) {
+            FormatCentisecondsAsMinSecMSec(time, CFrontend::m_stringDest);
+        } else if (RallyData_FUN_004082b0() == 1) {
+            flags = 0xc;
+            if (i == 0) {
+                FormatCentisecondsAsMinSecMSec(time - RallyData_FUN_004082d0() * 100, CFrontend::m_stringDest);
+            } else {
+                FormatCentisecondsAsMinSecMSec(RallyData_FUN_004082d0() * 100, diff);
+                sprintf(CFrontend::m_stringDest, g_plusTimeFormat, diff);
+            }
+        } else {
+            sprintf(CFrontend::m_stringDest, g_pointsFormat, FUN_00448c60(car));
+        }
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 640,
+                      ((int)(g_pGraphics->resY * 0x82) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i) -
+                          (int)(g_pGraphics->resY * 8) / 480,
+                      (int *)g_menuFrameColour, flags);
+        if (isPlayer) {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(car)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x82) / 480 +
+                                    ((int)(g_pGraphics->resY * 0x34) / 480) * i - 1);
+            g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480 + 1);
+            g_menuRect[0] = (short)((int)(g_pGraphics->resX * 0x20) / 640);
+            g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
+        } else {
+            strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(car)));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            GameMenus_DrawRowFrame(i, 0, 0);
+        }
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 640,
+                      (int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i,
+                      (int *)g_menuFrameColour, 0x21);
+        if (RallyData_FUN_004082b0() == 1 || RallyData_FUN_004082b0() == 2 ||
+            FUN_004483c0(FUN_00448390(i)) != FUN_004483c0(FUN_00448390(i - 1)))
+            pFormat = g_stageNumberFormat;
+        else
+            pFormat = g_stageResultSameTime;
+        next = i + 1;
+        sprintf(CFrontend::m_stringDest, pFormat, next);
+        Font_DrawText(1, CFrontend::m_stringDest,
+                      ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
+                          (int)(g_pGraphics->resX * 0x20) / 640,
+                      (int)(g_pGraphics->resY * 8) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * i +
+                          (int)(g_pGraphics->resY * 0x82) / 480 +
+                          ((int)(g_pGraphics->resY * 0xa3) / 480 - (int)(g_pGraphics->resY * 0x82) / 480) / 2,
+                      (int *)g_menuFrameColour, 0x12);
+    }
+    Font_SetBlendMode(2);
 }
 
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -1005,6 +1103,7 @@ unsigned int FUN_0040aeb0(int index);
 unsigned int FUN_0040aec0(int index);
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
 void GameMenus_DrawRowFrame(short row, short yOffset, char compact);
+void FUN_00451890(Menu *pMenu);
 char *FUN_0040abb0(int index, int total);
 int FUN_0040ac10(int index);
 int FUN_0040ab50(int index, int total);
@@ -1843,6 +1942,10 @@ void GameMenus_DrawRowSeparator(short row)
 
 // GLOBAL: CMR2 0x00519f98
 char g_strInvalid[8] = "INVALID";
+// GLOBAL: CMR2 0x00519fa0
+char g_pointsFormat[] = "%d pts";
+// GLOBAL: CMR2 0x00519fa8
+char g_plusTimeFormat[] = "+ %s";
 
 // Formats the name of one of the eight game modes into the shared string.
 // FUNCTION: CMR2 0x00451ce0
