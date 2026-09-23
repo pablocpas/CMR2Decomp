@@ -2,6 +2,13 @@
 #include <string.h>
 #include "RallyData.h"
 #include "SceneNode.h"
+#include "Frontend.h"
+#include "AIHelper.h"
+#include "RegKey.h"
+#include <stdio.h>
+#include "FixedPoint.h"
+#include "Input.h"
+#include "main.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -408,6 +415,94 @@ int FUN_00473680(unsigned int *p)
     return 1;
 }
 
+int *RallyData_FUN_00407f20(int index);
+
+// Name of the driver on the given side (0 first, 1 second) of a knockout
+// match: the player's name, the AI name, or "" for an empty slot.
+// TODO: CMR2 0x004736b0 (implemented, match 55%)
+char *FUN_004736b0(KnockoutMatch *pMatch, int side)
+{
+    unsigned int driver;
+
+    if (side == 0) {
+        if ((pMatch->flags & 0x1f) == 0x1f)
+            return CMain::m_logFileBlankLine;
+        if (RallyData_FUN_00408500(pMatch->flags & 0x1f) != -1) {
+            sprintf(CFrontend::m_stringDest, CAIHelper::GetNameForID(RallyData_FUN_00408500(pMatch->flags & 0x1f)));
+            return CFrontend::m_stringDest;
+        }
+        driver = pMatch->flags;
+    } else {
+        if (side != 1)
+            return CFrontend::m_stringDest;
+        if ((pMatch->flags & 0x3e0) == 0x3e0)
+            return CMain::m_logFileBlankLine;
+        if (RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f) != -1) {
+            sprintf(CFrontend::m_stringDest,
+                    CAIHelper::GetNameForID(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
+            return CFrontend::m_stringDest;
+        }
+        driver = pMatch->flags >> 5;
+    }
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(driver & 0x1f));
+    return CFrontend::m_stringDest;
+}
+
+// Whether the given side of the match is the human player.
+// TODO: CMR2 0x00473790 (implemented, match 66%)
+int FUN_00473790(KnockoutMatch *pMatch, int side)
+{
+    unsigned int driver;
+
+    if (side == 0)
+        driver = pMatch->flags;
+    else
+        driver = pMatch->flags >> 5;
+    if ((driver & 0x1f) == 0x1f)
+        return 0;
+    return RallyData_FUN_00408500(driver & 0x1f) == -1;
+}
+
+// Side of the match to show: the human player's side when it is param2,
+// otherwise the other side.
+// TODO: CMR2 0x004737d0 (implemented, match 62%)
+int FUN_004737d0(KnockoutMatch *pMatch, int param2)
+{
+    if ((pMatch->flags & 0x1f) != 0x1f && RallyData_FUN_00408500(pMatch->flags & 0x1f) == -1)
+        return param2 != 0;
+    return param2 == 0;
+}
+
+// Same as FUN_004736b0 with the car names of the AI drivers.
+// TODO: CMR2 0x00473810 (implemented, match 55%)
+char *FUN_00473810(KnockoutMatch *pMatch, int side)
+{
+    unsigned int driver;
+
+    if (side == 0) {
+        if ((pMatch->flags & 0x1f) == 0x1f)
+            return CMain::m_logFileBlankLine;
+        if (RallyData_FUN_00408500(pMatch->flags & 0x1f) != -1) {
+            sprintf(CFrontend::m_stringDest, (char *)RallyData_FUN_00407f20(RallyData_FUN_00408500(pMatch->flags & 0x1f)));
+            return CFrontend::m_stringDest;
+        }
+        driver = pMatch->flags;
+    } else {
+        if (side != 1)
+            return CFrontend::m_stringDest;
+        if ((pMatch->flags & 0x3e0) == 0x3e0)
+            return CMain::m_logFileBlankLine;
+        if (RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f) != -1) {
+            sprintf(CFrontend::m_stringDest,
+                    (char *)RallyData_FUN_00407f20(RallyData_FUN_00408500((pMatch->flags >> 5) & 0x1f)));
+            return CFrontend::m_stringDest;
+        }
+        driver = pMatch->flags >> 5;
+    }
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(driver & 0x1f));
+    return CFrontend::m_stringDest;
+}
+
 // FUNCTION: CMR2 0x00475f70
 BYTE *FUN_00475f70(void)
 {
@@ -459,8 +554,6 @@ void FUN_004789b0(BYTE *pCar)
 
 // Second group (0x4805f0-0x49e940)
 
-#include "FixedPoint.h"
-#include "Input.h"
 
 extern void *g_unk0x00592734;
 void FUN_0046f4c0(int *pOut);

@@ -17,6 +17,7 @@
 #include "main.h"
 #include "Game.h"
 #include "StageUI.h"
+#include "AIHelper.h"
 
 int FUN_0040ab10(void);
 
@@ -374,9 +375,66 @@ void FUN_0044a0a0(Menu *pMenu, int param)
         FUN_00427a80();
 }
 
-// STUB: CMR2 0x0044b7b0
-void FUN_0044b7b0(void)
+int FUN_0041f3a0(void);
+BYTE FUN_00422fb0(unsigned int index);
+char *FUN_004736b0(KnockoutMatch *pMatch, int side);
+int FUN_00473790(KnockoutMatch *pMatch, int side);
+int FUN_004737d0(KnockoutMatch *pMatch, int param2);
+char *FUN_00473810(KnockoutMatch *pMatch, int side);
+void FUN_004125a0(int id);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00407e90(void);
+extern KnockoutMatch *g_pKnockoutMatch;
+
+// Draw callback of the in-race pause header: "PAUSED" followed by a separator
+// bar and the name of the driver (or car) the pause menu belongs to.
+// TODO: CMR2 0x0044b7b0 (implemented, match 48%)
+void FUN_0044b7b0(Menu *pMenu)
 {
+    int x;
+    int width;
+    char *pText;
+    char result;
+
+    Font_DrawText(2, CFrontend::GetTextString(0x47), (int)(g_pGraphics->resX * 30) / 640,
+                  (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
+    width = g_pGraphics->resX;
+    x = (width * 30) / 640 + Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(0x47));
+    g_menuRect[0] = (short)((width * 8) / 640 + x);
+    g_menuRect[2] = 2;
+    g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 480);
+    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 480);
+    x = g_menuRect[0] + 2 + (int)(g_pGraphics->resX * 8) / 640;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+    if (FUN_0041f3a0()) {
+        if (CGameInfo::FUN_00405d80() == 4)
+            pText = FUN_00473810(g_pKnockoutMatch, FUN_00422fb0(1));
+        else
+            pText = (char *)RallyData_GetRecord(FUN_00422fb0(1));
+    } else if ((BYTE)RallyData_FUN_00407e70() && (BYTE)RallyDataState() == 1) {
+        if (RallyData_FUN_00408500(FUN_00422fb0(0)) == -1)
+            pText = (char *)RallyData_GetRecord(FUN_00422fb0(0));
+        else
+            pText = CAIHelper::GetNameForID(FUN_00422fb0(0));
+    } else if (CGameInfo::FUN_00405d80() == 4) {
+        if (!FUN_00473790(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))))
+            pText = FUN_004736b0(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0)));
+        else
+            pText = FUN_00473810(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0)));
+    } else if ((BYTE)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00()) {
+        FUN_004125a0(StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_00422fb0(0)));
+        Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
+        Font_SetBlendMode(2);
+        return;
+    } else {
+        result = RallyData_FUN_00408500(FUN_00422fb0(0) + FUN_0041b370());
+        if (result == -1)
+            pText = (char *)RallyData_GetRecord(FUN_00422fb0(0) + FUN_0041b370());
+        else
+            pText = CAIHelper::GetNameForID(RallyData_FUN_00408500(FUN_00422fb0(0) + FUN_0041b370()));
+    }
+    Font_DrawText(2, pText, x, (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
+    Font_SetBlendMode(2);
 }
 
 // Draw callback of the "waiting for the other players" screen.

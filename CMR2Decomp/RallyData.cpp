@@ -9,6 +9,7 @@
 #include "main.h"
 #include "Frontend.h"
 #include "AIHelper.h"
+#include "RegKey.h"
 #include "Font.h"
 #include "Sprite.h"
 #include "Graphics.h"
@@ -853,6 +854,25 @@ void FUN_00411ab0(BYTE param1, int param2)
         return;
     }
     FUN_004b7790(g_unk0x00537060, FUN_00418570() / 2, 0x2b11, 0, 0, 0);
+}
+
+// Copies the name of the driver with the given id (a human player's name, or
+// the AI driver name) into CFrontend::m_stringDest.
+// FUNCTION: CMR2 0x004125a0
+void FUN_004125a0(int id)
+{
+    char *pName;
+    int i;
+
+    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+        if (id == StageTiming_GetDriverSlot(i)) {
+            pName = (char *)RallyData_GetRecord(i);
+            goto done;
+        }
+    }
+    pName = CAIHelper::GetNameForID(id);
+done:
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, pName);
 }
 
 BYTE FUN_00448ca0(void);
