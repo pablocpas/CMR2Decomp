@@ -1317,6 +1317,9 @@ private:
     static void FUN_004a4850(int param1, int param2);
     // SceneNode_CreateRoot stores the root node in the texture manager.
     friend SceneNode *SceneNode_CreateRoot(void);
+    friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);
+    friend void Graphics_ReloadTexture(Texture *pTexture);
+    friend void FUN_0042cb90(char mode, SceneNode **pWheels);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;

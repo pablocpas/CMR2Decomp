@@ -5,6 +5,8 @@
 #include "Game.h"
 #include "GameInfo.h"
 #include "RallyData.h"
+#include "Mesh.h"
+#include <string.h>
 
 Car *g_cars[64];
 int g_carCount;
@@ -1981,3 +1983,60 @@ void FUN_00423010(int view, int start)
         g_unk0x00538f00[view] = 3;
 }
 
+
+// Whether the car shows its clean wheels: not yet damaged and not on one
+// of the snow/night stages.
+// FUNCTION: CMR2 0x0042cb50
+BOOL FUN_0042cb50(Car *pCar)
+{
+    char stage;
+
+    stage = *FUN_00456be0(pCar->field_0xb1a);
+    if (pCar->field_0xb29 <= 1 && stage != 11 && stage != 8 && stage != 10 && stage != 13)
+        return TRUE;
+    return FALSE;
+}
+
+void Graphics_ReloadTexture(Texture *pTexture);
+
+// GLOBAL: CMR2 0x00519c94
+char g_strWheelVariantL[4] = "L";
+// GLOBAL: CMR2 0x00519c98
+char g_strWheelVariantN[4] = "N";
+
+// Swaps the textures of the four wheel meshes between their "L" and "N"
+// variants (the letter 9 characters from the end of the texture name) to
+// match FUN_0042cb50, reloading every texture that changed.
+// FUNCTION: CMR2 0x0042cb90
+void FUN_0042cb90(char mode, SceneNode **pWheels)
+{
+    int w;
+    int t;
+    int k;
+    Mesh *pMesh;
+    Texture *pTex;
+
+    if (mode == 'A')
+        return;
+    for (w = 0; w < 4; w++) {
+        if (pWheels[w] == NULL)
+            continue;
+        pMesh = *(Mesh **)((BYTE *)pWheels[w] + 0xc);
+        for (t = 0; t < pMesh->triangleCount; t++) {
+            for (k = 0; k < 10; k++) {
+                pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[t])[k + 1]];
+                if (pTex == NULL)
+                    continue;
+                if (!FUN_0042cb50(g_pCurrentCar)) {
+                    if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                        Graphics_ReloadTexture(pTex);
+                    }
+                } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                    strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                    Graphics_ReloadTexture(pTex);
+                }
+            }
+        }
+    }
+}

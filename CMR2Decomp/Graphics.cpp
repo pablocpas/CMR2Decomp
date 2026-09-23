@@ -3,6 +3,7 @@
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
 #pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
 #include "Frontend.h"
+#include "GenericFileLoader.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
 #include "RegKey.h"
@@ -4073,4 +4074,45 @@ void CGraphics::FUN_004a4850(int param1, int param2)
         FUN_004a3e90(param1, 0);
     }
     m_unk0x0065fa24++;
+}
+
+// GLOBAL: CMR2 0x0065ad18
+DWORD g_textureFactor;
+
+// Sets the alpha of the texture factor render state from pColour[3].
+// FUNCTION: CMR2 0x004a3df0
+void Graphics_SetTextureFactorAlpha(BYTE *pColour)
+{
+    g_textureFactor = pColour[3] << 24;
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR, g_textureFactor);
+}
+
+// GLOBAL: CMR2 0x00520b4c
+char g_strTextureNotFound[28] = "couldn't find texture =  %s";
+
+// Reloads the image of a loaded texture from its archive, e.g. after its
+// name was changed to another variant.
+// FUNCTION: CMR2 0x004a5da0
+void Graphics_ReloadTexture(Texture *pTexture)
+{
+    int i;
+    Texture *p;
+    DWORD *pData;
+
+    for (i = 0; i < 2048; i++) {
+        p = CGraphics::m_pTextureManager->textureBuffer[i];
+        if (p == pTexture) {
+            if (p->pSurface != NULL && p->pSurface->Release() == 0)
+                p->pSurface = NULL;
+            pData = (DWORD *)CGenericFileLoader::FindFile((GenericFile *)p->pArchive, p->name, NULL, NULL, 0);
+            if (pData == NULL) {
+                sprintf(CFrontend::m_stringDest, g_strTextureNotFound, p->name);
+                return;
+            }
+            if (*pData == 0x20534444)
+                CGraphics::LoadDDSTexture((DDSFile *)pData, p);
+            else
+                CGraphics::LoadTGATexture((BYTE *)pData, p);
+        }
+    }
 }

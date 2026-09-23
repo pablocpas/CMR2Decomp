@@ -26,6 +26,8 @@ CarTransforms *FUN_0042ca70(int index);
 FixMatrix *FUN_0042cab0(int index);
 BYTE *FUN_0042cac0(int index);
 void FUN_00497db0(Car *pCar);
+void FUN_004ae140(BYTE *pColour);
+void Graphics_SetTextureFactorAlpha(BYTE *pColour);
 void FUN_004962c0(Car *pCar, CarContact *pContact);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
 
@@ -844,4 +846,46 @@ void FUN_00496e00(Car *pCar)
             h = h < 1 ? -0x8000 : 0x8000;
         pContact->points[c].y += h;
     }
+}
+
+// Points the skid trail reference axis along v (flattened, reversed) and
+// sets the trail length from how far v leans out of the horizontal.
+// FUNCTION: CMR2 0x00498370
+void FUN_00498370(FixVector *v)
+{
+    int len;
+
+    g_physTrailAxis = *v;
+    g_physTrailAxis.y = 0;
+    len = FixVecLength(&g_physTrailAxis);
+    if (len > 0)
+        FixVecScaleRecip(&g_physTrailAxis, &g_physTrailAxis, -len);
+    g_physTrailAxis.y = 0;
+    g_physTrailScale = FixMul(0x10000 - v->y, 0x20000);
+}
+
+// Sets the shadow level of a car and the matching blend colours.
+// TODO: CMR2 0x004984b0 (implemented, match 81%)
+void FUN_004984b0(int car, int level)
+{
+    BYTE colour[4];
+    BYTE factor[4];
+    BYTE alpha;
+
+    colour[3] = 0x32;
+    factor[3] = 0x32;
+    colour[0] = 0;
+    colour[1] = 0;
+    colour[2] = 0;
+    factor[0] = 0;
+    factor[1] = 0;
+    factor[2] = 0;
+    CAR_CONTACT(car)->field_0x250 = level;
+    colour[3] = FixMulShift32(0x4b0000, CAR_CONTACT(car)->field_0x250);
+    FUN_004ae140(colour);
+    alpha = FixMulShift32(0x4b0000, CAR_CONTACT(car)->field_0x250) + 100;
+    factor[3] = alpha;
+    if (alpha > 0xff)
+        factor[3] = 0xff;
+    Graphics_SetTextureFactorAlpha(factor);
 }
