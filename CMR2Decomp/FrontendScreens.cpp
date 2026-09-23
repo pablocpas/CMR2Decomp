@@ -8,7 +8,11 @@
 #include "GenericFileLoader.h"
 #include <string.h>
 #include "FrontendMenus.h"
+#include "FrontendDraw.h"
 #include "Sound.h"
+
+#define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
+#define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
 
 // Callbacks of the frontend screens, hooked to the menus built in
 // FrontendMenus.cpp.
@@ -75,6 +79,164 @@ unsigned int g_unk0x0081903c;
 unsigned int g_unk0x00819754;
 // GLOBAL: CMR2 0x00819860
 unsigned int g_unk0x00819860;
+
+// FUNCTION: CMR2 0x004d4c40
+void FUN_004d4c40(Menu *pMenu)
+{
+    char *text[3];
+
+    FrontendDraw_PlayTime();
+    text[0] = CFrontend::GetTextString(0xb);
+    text[1] = CFrontend::GetTextString(pMenu->field_0x4);
+    text[2] = (char *)RallyData_GetRecord(0);
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
+    FrontendDraw_MenuList(pMenu, (char *)RallyData_GetRecord(0), -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004d6290
+void FUN_004d6290(Menu *pMenu)
+{
+    char *text[2];
+
+    FrontendDraw_PlayTime();
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 1:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xd);
+        break;
+    case 2:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xf);
+        break;
+    case 3:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    case 4:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x11);
+        break;
+    case 5:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 6:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xe2);
+        break;
+    case 7:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    }
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004d63e0
+void FUN_004d63e0(Menu *pMenu)
+{
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, -1, NULL, -1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Network connection list.
+// FUNCTION: CMR2 0x004dc7b0
+void FUN_004dc7b0(Menu *pMenu)
+{
+    char *text[2];
+    int y;
+    unsigned int i;
+    BYTE *pColour;
+
+    FrontendDraw_PlayTime();
+    text[0] = CFrontend::GetTextString(0x12);
+    text[1] = CFrontend::GetTextString(0x3c);
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 2);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    y = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2 -
+        (int)((int)(g_pGraphics->resY * 20) / 480 * pMenu->items[0].min) / 2;
+    for (i = 0; (int)i < pMenu->items[0].min; i++) {
+        pColour = g_colourWhite0x00524968;
+        if (i != pMenu->items[0].max)
+            pColour = g_colourText0x0052496c;
+        Font_DrawText(1, CGame::GetConnection(i)->name, (int)g_pGraphics->resX / 2, y, (int *)pColour, 0x12);
+        y += (int)(g_pGraphics->resY * 20) / 480;
+    }
+}
+
+// FUNCTION: CMR2 0x004e1890
+void FUN_004e1890(Menu *pMenu)
+{
+    char *text[1];
+
+    text[0] = CFrontend::GetTextString(0x8e);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, text, 1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004e1fb0
+void FUN_004e1fb0(Menu *pMenu)
+{
+    char *text[1];
+
+    text[0] = CFrontend::GetTextString(0xd9);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, text, 1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004e2040
+void FUN_004e2040(Menu *pMenu)
+{
+    char *text[2];
+
+    text[0] = CFrontend::GetTextString(0xe7);
+    text[1] = CFrontend::GetTextString(0xc);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004e2ab0
+void FUN_004e2ab0(Menu *pMenu)
+{
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 1, NULL, -1);
+    FrontendDraw_MenuList(pMenu, CFrontend::GetTextString(0x89), -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004e3230
+void FUN_004e3230(Menu *pMenu)
+{
+    char *text[4];
+
+    if (g_unk0x00818848 != 0) {
+        text[0] = CFrontend::GetTextString(0xb);
+        text[1] = CFrontend::GetTextString(0x59);
+        text[2] = (char *)RallyData_GetRecord(0);
+        text[3] = CFrontend::GetTextString(pMenu->field_0x4);
+        FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 4);
+    } else {
+        FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, NULL, -1);
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
 
 // FUNCTION: CMR2 0x004ecfa0
 void FUN_004ecfa0(Menu *pMenu, char param)
