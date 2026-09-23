@@ -1052,9 +1052,35 @@ BYTE FUN_004a1790(BYTE index)
     return r;
 }
 
-// STUB: CMR2 0x004a1850
+// Adds a remote player to the session player table (at most 7 players,
+// ignoring the local player and players already listed).
+// TODO: CMR2 0x004a1850 (implemented, match 80%)
 void FUN_004a1850(char *shortName, char *longName, DPID dpId)
 {
+    Unk0x005a1820 *pPlayer;
+    int i;
+
+    if (CGame::m_unk0x005a1ea0 == dpId)
+        return;
+    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++) {
+        if (pPlayer->field_0xc8 == dpId)
+            return;
+    }
+    if (CGame::m_unk0x005a1818 >= 7)
+        return;
+    i = 0;
+    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++, i++) {
+        if (pPlayer->field_0xcc == 0) {
+            if (shortName != NULL)
+                strcpy(CGame::m_unk0x005a1820[i].field_0x0, shortName);
+            if (longName != NULL)
+                strcpy(CGame::m_unk0x005a1820[i].field_0x64, longName);
+            CGame::m_unk0x005a1820[i].field_0xc8 = dpId;
+            CGame::m_unk0x005a1820[i].field_0xcc = 1;
+            CGame::m_unk0x005a1818++;
+            return;
+        }
+    }
 }
 
 // IDirectPlay4::EnumPlayers callback of FUN_004a1af0.
