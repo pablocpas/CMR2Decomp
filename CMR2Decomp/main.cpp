@@ -108,11 +108,16 @@ unsigned char CMain::Initialize(HINSTANCE hInstance, unsigned char param2, LPSTR
 	return m_win32Msg.wParam;
 }
 
-// STUB: CMR2 0x004a8270
+// Destroys the current game window.
+// FUNCTION: CMR2 0x004a8270
 BOOL FUN_004a8270(void)
 {
-	// todo
-	return 1;
+	if (DestroyWindow(CMain::m_hWndList[CMain::m_hWndIx])) {
+		CMain::m_hWndList[CMain::m_hWndIx] = NULL;
+		return TRUE;
+	}
+	CMain::m_hWndList[CMain::m_hWndIx] = NULL;
+	return FALSE;
 }
 
 // FUNCTION: CMR2 0x004a8140
