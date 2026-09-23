@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "Graphics.h"
+#include "../third_party/dx7sdk-7001/include/d3dxmath.h"
+#pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
 #include "Frontend.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
@@ -37,6 +39,7 @@ int CGraphics::m_unk0x0065fa48;
 float CGraphics::m_oneOver128 = 1.0f / 128.0f;
 float CGraphics::m_unk0x00520b34 = 1.0f;
 float CGraphics::m_unk0x00520b38 = 1.0f;
+BYTE CGraphics::m_tgaPixel[4];
 char CGraphics::m_ddsExtension[8] = ".DDS";
 char CGraphics::m_tgaExtension[8] = ".TGA";
 TGAImageInfo CGraphics::m_tgaImageInfo;
@@ -3451,7 +3454,6 @@ void CGraphics::FUN_004a3e40(int param1, int param2)
 
 struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
-Texture *FUN_004a6710(void *pTGA, Texture *pTexture);
 Texture *FUN_004a6370(void *pData, Texture *pTexture);
 
 // Creates a texture from file data already in memory (DDS or TGA).
@@ -3484,7 +3486,7 @@ Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
     pTexture->flags |= flags | 0x1000;
     if (isDDS)
         return LoadDDSTexture((DDSFile *)pData, pTexture);
-    return FUN_004a6710(pData, pTexture);
+    return LoadTGATexture((BYTE *)pData, pTexture);
 }
 
 // Loads a texture by file name, trying the .DDS file first and the .TGA
@@ -3514,7 +3516,7 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
             m_pTextureManager->textureBuffer[i] = (Texture *)CFileBuffer::AllocateLockedBuffer(0x130);
             pTexture = m_pTextureManager->textureBuffer[i];
             pTexture->textureId = i;
-            *(void **)&pTexture->field_0x12c = NULL;
+            pTexture->pArchive = NULL;
             FUN_004a3e20((Unk0x004a3e20 *)pTexture, 0);
             if (pTexture == NULL)
                 return NULL;
@@ -3528,14 +3530,267 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
         return FUN_004a6370(pData, pTexture);
     if (isDDS)
         return LoadDDSTexture((DDSFile *)pData, pTexture);
-    return FUN_004a6710(pData, pTexture);
+    return LoadTGATexture((BYTE *)pData, pTexture);
 }
 
-// Not decompiled yet: TGA texture loading (0x4a6710) and 0x4a6370.
-Texture *FUN_004a6710(void *pTGA, Texture *pTexture)
+// Converts a TGA image into a texture: the pixels (read through
+// FUN_004a60d0) are packed into a system memory surface of the texture
+// format, which is then copied (or turned into a bump map) into the texture.
+// TODO: CMR2 0x004a6710 (implemented, match 45%)
+Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
 {
-    return NULL;
+    TGAImageInfo *pInfo;
+    DDSURFACEDESC2 lockDesc;
+    DDSURFACEDESC2 createDesc;
+    Texture tmpTexture;
+    TextureFormat *pFormat;
+    unsigned int width;
+    unsigned int height;
+    unsigned int x;
+    unsigned int y;
+    unsigned int rMask;
+    unsigned int gMask;
+    unsigned int bMask;
+    unsigned int aMask;
+    unsigned int mask;
+    unsigned short rShift;
+    unsigned short gShift;
+    unsigned short bShift;
+    unsigned short aShift;
+    short rDepth;
+    short gDepth;
+    short bDepth;
+    short aDepth;
+    unsigned short bitCount;
+    int padding;
+    int i;
+    BYTE *p;
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+    unsigned int a;
+    WORD *pDst16;
+    DWORD *pDst32;
+
+    pInfo = ParseTGAHeader(pTGA);
+    if (pInfo == NULL)
+        return NULL;
+    if (pInfo->bytesPerPixel == 4)
+        pTexture->flags |= 1;
+    width = pInfo->width;
+    height = pInfo->height;
+    memset(&createDesc, 0, sizeof(createDesc));
+    createDesc.dwSize = sizeof(createDesc);
+    createDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    createDesc.dwWidth = width;
+    createDesc.dwHeight = height;
+    createDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
+    if ((pTexture->flags & 1) && m_pTextureManager->textureInfo2 != NULL)
+        pFormat = m_pTextureManager->textureInfo2;
+    else
+        pFormat = m_pTextureManager->textureInfo1;
+    createDesc.ddpfPixelFormat = pFormat->desc.ddpfPixelFormat;
+    g_pGraphics->pDD7->CreateSurface(&createDesc, &tmpTexture.pSurface, NULL);
+    memset(&lockDesc, 0, sizeof(lockDesc));
+    lockDesc.dwSize = sizeof(lockDesc);
+    tmpTexture.pSurface->Lock(NULL, &lockDesc, DDLOCK_WAIT, NULL);
+
+    rMask = lockDesc.ddpfPixelFormat.dwRBitMask;
+    gMask = lockDesc.ddpfPixelFormat.dwGBitMask;
+    bMask = lockDesc.ddpfPixelFormat.dwBBitMask;
+    aMask = lockDesc.ddpfPixelFormat.dwRGBAlphaBitMask;
+    for (i = 0, mask = rMask; i < 32 && !(mask & 1); i++)
+        mask >>= 1;
+    rShift = (BYTE)i;
+    for (i = 0, mask = gMask; i < 32 && !(mask & 1); i++)
+        mask >>= 1;
+    gShift = (BYTE)i;
+    for (i = 0, mask = bMask; i < 32 && !(mask & 1); i++)
+        mask >>= 1;
+    bShift = (BYTE)i;
+    for (i = 0, mask = aMask; i < 32 && !(mask & 1); i++)
+        mask >>= 1;
+    aShift = (BYTE)i;
+    for (i = 0, mask = rMask; i < 32 && mask != 0; i++)
+        mask >>= 1;
+    rDepth = (BYTE)i - 8;
+    for (i = 0, mask = gMask; i < 32 && mask != 0; i++)
+        mask >>= 1;
+    gDepth = (BYTE)i - 8;
+    for (i = 0, mask = bMask; i < 32 && mask != 0; i++)
+        mask >>= 1;
+    bDepth = (BYTE)i - 8;
+    for (i = 0, mask = aMask; i < 32 && mask != 0; i++)
+        mask >>= 1;
+    aDepth = (BYTE)i - 8;
+
+    bitCount = (unsigned short)lockDesc.ddpfPixelFormat.dwRGBBitCount;
+    padding = lockDesc.lPitch - (bitCount * width >> 3);
+    if (bitCount == 16) {
+        pDst16 = (WORD *)lockDesc.lpSurface;
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                p = SampleTGAPixel(x, y, pInfo, pTexture->flags);
+                r = p[0];
+                g = p[1];
+                b = p[2];
+                if (aShift < pInfo->bytesPerPixel * 8)
+                    a = p[3];
+                else
+                    a = 0xff;
+                if (aDepth >= 0)
+                    a = ((aMask >> abs(aDepth)) & a) << abs(aDepth);
+                else
+                    a = ((aMask << abs(aDepth)) & a) >> abs(aDepth);
+                if (rDepth >= 0)
+                    r = ((rMask >> abs(rDepth)) & r) << abs(rDepth);
+                else
+                    r = ((rMask << abs(rDepth)) & r) >> abs(rDepth);
+                if (gDepth >= 0)
+                    g = ((gMask >> abs(gDepth)) & g) << abs(gDepth);
+                else
+                    g = ((gMask << abs(gDepth)) & g) >> abs(gDepth);
+                if (bDepth >= 0)
+                    b = ((bMask >> abs(bDepth)) & b) << abs(bDepth);
+                else
+                    b = ((bMask << abs(bDepth)) & b) >> abs(bDepth);
+                *pDst16++ = (WORD)(r | g | b | a);
+            }
+            if (y != height - 1)
+                pDst16 += (unsigned short)padding;
+        }
+    } else if (bitCount == 32) {
+        pDst32 = (DWORD *)lockDesc.lpSurface;
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                p = SampleTGAPixel(x, y, pInfo, pTexture->flags);
+                if (aShift < pInfo->bytesPerPixel * 8)
+                    a = p[3];
+                else
+                    a = 0;
+                *pDst32++ = (p[0] << rShift) | (p[1] << gShift) | (p[2] << bShift) | (a << aShift);
+            }
+            if (y != height - 1)
+                pDst32 += padding;
+        }
+    } else {
+        if (pTexture->pSurface != NULL && pTexture->pSurface->Release() == 0)
+            pTexture->pSurface = NULL;
+        return NULL;
+    }
+
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        m_unk0x0065fa2c += GetMipMapDataSize(pTexture);
+    if (bitCount == 16)
+        m_unk0x0065fa2c += height * width * 2;
+    else
+        m_unk0x0065fa2c += height * width * 4;
+    tmpTexture.pSurface->Unlock(NULL);
+    if (g_pGraphics->field913_0x3bc & 0x10) {
+        if (strncmp(pTexture->name + strlen(pTexture->name) - 6, m_strSuffixBU, 2) == 0)
+            pTexture->flags = (pTexture->flags & ~1) | 0x20;
+    }
+    pTexture->flags &= ~0x6000;
+    if ((pTexture->flags & 0x20) && (g_pGraphics->field913_0x3bc & 0x10)) {
+        CreateTextureSurface(pTexture, width, height, pTexture->flags);
+        GenerateBumpMap(&tmpTexture, pTexture);
+    } else {
+        CreateTextureSurface(pTexture, width, height, pTexture->flags);
+        pTexture->pSurface->Blt(NULL, tmpTexture.pSurface, NULL, DDBLT_WAIT, NULL);
+    }
+    if (tmpTexture.pSurface != NULL && tmpTexture.pSurface->Release() == 0)
+        tmpTexture.pSurface = NULL;
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        GetMipMapSurfaces(pTexture);
+    if ((g_pGraphics->field913_0x3bc & 3) && (pTexture->flags & 0x10))
+        BltMipMaps(pTexture);
+    if (!(pTexture->flags & 0x1000))
+        CFileBuffer::FreeGenericFileBuffer(pTGA);
+    return pTexture;
 }
+
+// Reads pixel (x, y) of a bottom-up TGA image as R, G, B, A in m_tgaPixel,
+// applying the brightness and contrast of the car (flag 0x80) or track
+// (flag 0x100) textures.
+// TODO: CMR2 0x004a60d0 (implemented, match 86%)
+BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pInfo, unsigned int flags)
+{
+    BYTE *p;
+    float contrast;
+    int brightness;
+    int r;
+    int g;
+    int b;
+    D3DXCOLOR in;
+    D3DXCOLOR out;
+
+    if (x >= pInfo->width || y >= pInfo->height) {
+        m_tgaPixel[3] = 0;
+        m_tgaPixel[2] = 0;
+        m_tgaPixel[1] = 0;
+        m_tgaPixel[0] = 0;
+        return m_tgaPixel;
+    }
+    p = pInfo->pixels + ((pInfo->height - y - 1) * pInfo->width + x) * pInfo->bytesPerPixel;
+    m_tgaPixel[2] = p[0];
+    m_tgaPixel[1] = p[1];
+    m_tgaPixel[0] = p[2];
+    if (pInfo->bytesPerPixel == 4)
+        m_tgaPixel[3] = p[3];
+    if (flags & 0x80) {
+        contrast = m_unk0x00520b34;
+        brightness = m_unk0x0065fa44;
+    } else if (flags & 0x100) {
+        contrast = m_unk0x00520b38;
+        brightness = m_unk0x0065fa48;
+    }
+    if (!(flags & 0x80) && !(flags & 0x100))
+        return m_tgaPixel;
+    if (brightness != 0) {
+        r = m_tgaPixel[0] + brightness;
+        g = m_tgaPixel[1] + brightness;
+        b = m_tgaPixel[2] + brightness;
+        if (r < 0)
+            r = 0;
+        else if (r > 0xff)
+            r = 0xff;
+        if (g < 0)
+            g = 0;
+        else if (g > 0xff)
+            g = 0xff;
+        if (b < 0)
+            b = 0;
+        else if (b > 0xff)
+            b = 0xff;
+        m_tgaPixel[0] = r;
+        m_tgaPixel[1] = g;
+        m_tgaPixel[2] = b;
+    }
+    if (contrast != 1.0) {
+        in.r = m_tgaPixel[0] * (1.0f / 255.0f);
+        in.g = m_tgaPixel[1] * (1.0f / 255.0f);
+        in.b = m_tgaPixel[2] * (1.0f / 255.0f);
+        D3DXColorAdjustContrast(&out, &in, contrast);
+        if (out.r > 1.0f)
+            out.r = 1.0f;
+        if (out.g > 1.0f)
+            out.g = 1.0f;
+        if (out.b > 1.0f)
+            out.b = 1.0f;
+        if (out.r < 0.0f)
+            out.r = 0.0f;
+        if (out.g < 0.0f)
+            out.g = 0.0f;
+        if (out.b < 0.0f)
+            out.b = 0.0f;
+        m_tgaPixel[0] = (BYTE)(int)(out.r * 255.0f);
+        m_tgaPixel[1] = (BYTE)(int)(out.g * 255.0f);
+        m_tgaPixel[2] = (BYTE)(int)(out.b * 255.0f);
+    }
+    return m_tgaPixel;
+}
+
+// Not decompiled yet: 0x4a6370 (bump map texture from TGA).
 
 Texture *FUN_004a6370(void *pData, Texture *pTexture)
 {

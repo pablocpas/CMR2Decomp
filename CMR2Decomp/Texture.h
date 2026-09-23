@@ -18,8 +18,7 @@ struct Texture {
     short                   bitsPerPixel;
     BYTE                    field_0x126[2];
     unsigned int            flags;
-    BYTE                    field_0x12c[592];
-    void*                   buffer;
+    void*                   pArchive;       // 0x12c GenericFile the texture was found in
 };
 
 // Layout used by the entries of D3DTextureManager::textureBuffer2 (cube maps):

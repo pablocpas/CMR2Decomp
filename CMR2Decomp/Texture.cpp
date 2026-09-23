@@ -40,7 +40,7 @@ Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *
         if (didLoadTexture != NULL)
             *didLoadTexture = true;
         pTexture = CGraphics::FUN_004a48c0(textureName, pData, flag);
-        *(GenericFile **)&pTexture->field_0x12c = pFile;
+        pTexture->pArchive = pFile;
         return pTexture;
     }
     return CGraphics::FUN_004a49c0(textureName, flag);
