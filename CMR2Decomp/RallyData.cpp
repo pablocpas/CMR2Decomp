@@ -563,11 +563,11 @@ void RallyData_FUN_0040df30(void)
 }
 
 // FUNCTION: CMR2 0x004086b0
-int RallyData_FUN_004086b0(unsigned int index)
+BYTE RallyData_FUN_004086b0(BYTE index)
 {
     if (CGameInfo::FUN_00405d80() == 4)
-        return *(BYTE *)((int *)g_unk0x0052f3e8 + (index & 0xff) * 49);
-    return *(int *)((char *)g_unk0x00531350 + (index & 0xff) * 48) & 0x3f;
+        return *(BYTE *)((int *)g_unk0x0052f3e8 + index * 49);
+    return *(int *)((char *)g_unk0x00531350 + index * 48) & 0x3f;
 }
 
 // FUNCTION: CMR2 0x004074a0

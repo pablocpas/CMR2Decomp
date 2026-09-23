@@ -208,11 +208,6 @@ void FUN_0044bcd0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x0044d260
-void FUN_0044d260(void)
-{
-}
-
 // STUB: CMR2 0x0044d790
 void FUN_0044d790(void)
 {
@@ -444,6 +439,7 @@ NetClassification *FUN_0040aea0(int index);
 unsigned int FUN_0040aeb0(int index);
 unsigned int FUN_0040aec0(int index);
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
+void GameMenus_DrawRowFrame(short row, short yOffset, char compact);
 int FUN_004055e0(void);
 int FUN_004055f0(void);
 BYTE FUN_0041b370(void);
@@ -548,6 +544,92 @@ BYTE g_menuTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
                   (int *)pColour, 0x11);                                                         \
     Sprite_Queue((SpriteRect *)(pTexture() + 0x11c), (SpriteRect *)rect, (Texture *)pTexture(), 2, 0, NULL,    \
                  NULL, pColour, 8);
+
+// GLOBAL: CMR2 0x00517dd0
+char g_stageNumberFormat[] = "%d";
+// GLOBAL: CMR2 0x00541cdc
+int g_stageResultTimes[4];
+// GLOBAL: CMR2 0x00541cec
+BYTE g_stageResultRecords[4];
+
+// Stage results screen: header (country plus either the special-stage name or
+// "round N") and one row per record - driver, class tag, time and position -
+// with a frame around the row. The stage type (1..3) shifts the rows down.
+// FUNCTION: CMR2 0x0044d260
+void FUN_0044d260(Menu *pMenu)
+{
+    int offset;
+    int i;
+    int *pTime;
+
+    FUN_0044b760();
+    if (RallyDataStageIndex() == 0xa) {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280,
+                              (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                              CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
+                              CFrontend::GetTextString(0xba), CFrontend::GetTextString(0x9a), NULL);
+    } else {
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 0x1e) / 0x280,
+                              (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                              CFrontend::GetTextString((unsigned char)RallyDataCountryIndex()),
+                              CInput::FormatString(g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
+                                                   RallyDataStageIndex() + 1),
+                              CFrontend::GetTextString(0x9a), NULL);
+    }
+    switch (FUN_0041b370()) {
+    case 1:
+        offset = (int)(g_pGraphics->resY * 0x50) / 0x1e0;
+        break;
+    case 2:
+        offset = (int)(g_pGraphics->resY * 0x32) / 0x1e0;
+        break;
+    case 3:
+        offset = (int)(g_pGraphics->resY * 0x14) / 0x1e0;
+        break;
+    }
+    i = 0;
+    if (FUN_0041b370() + 1 > 0) {
+        pTime = g_stageResultTimes;
+        do {
+            sprintf(CFrontend::m_stringDest, (char *)RallyData_GetRecord(g_stageResultRecords[i]));
+            CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          ((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                           ((int)(g_pGraphics->resY * 0x34) / 0x1e0) * i) -
+                              (int)(g_pGraphics->resY * 8) / 0x1e0 + offset,
+                          (int *)g_menuFrameColour, 9);
+            sprintf(CFrontend::m_stringDest,
+                    (char *)CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(g_stageResultRecords[i])));
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x5c) / 0x280,
+                          (int)(g_pGraphics->resY * 0xa3) / 0x1e0 + offset +
+                              ((int)(g_pGraphics->resY * 0x34) / 0x1e0) * i,
+                          (int *)g_menuFrameColour, 0x11);
+            sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, *pTime / 6000,
+                    (*pTime / 100) % 0x3c, *pTime % 100);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21e) / 0x280,
+                          (int)(g_pGraphics->resY * 6) / 0x1e0 + offset +
+                              (((int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                                ((int)(g_pGraphics->resY * 0x34) / 0x1e0) * i) -
+                               (int)(g_pGraphics->resY * 8) / 0x1e0),
+                          (int *)g_menuFrameColour, 9);
+            GameMenus_DrawRowFrame(i, offset, 0);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, i + 1);
+            Font_DrawText(1, CFrontend::m_stringDest,
+                          ((int)(g_pGraphics->resX * 0x41) / 0x280 -
+                           (int)(g_pGraphics->resX * 0x20) / 0x280) / 2 +
+                              (int)(g_pGraphics->resX * 0x20) / 0x280,
+                          (int)(g_pGraphics->resY * 8) / 0x1e0 +
+                              ((int)(g_pGraphics->resY * 0x34) / 0x1e0) * i +
+                              (int)(g_pGraphics->resY * 0x82) / 0x1e0 +
+                              ((int)(g_pGraphics->resY * 0xa3) / 0x1e0 -
+                               (int)(g_pGraphics->resY * 0x82) / 0x1e0) / 2 + offset,
+                          (int *)g_menuFrameColour, 0x12);
+            i++;
+            pTime++;
+        } while (i < FUN_0041b370() + 1);
+    }
+}
 
 // Standings list of one menu: title, then one row per item.
 // FUNCTION: CMR2 0x00453c50
