@@ -567,6 +567,50 @@ void RallyData_FUN_0040df30(void)
     } while (i < 4);
 }
 
+// Grid row of the driver for the given position flag.
+// TODO: CMR2 0x00407150 (implemented, match 47%)
+int FUN_00407150(BYTE param1, char param2)
+{
+    if (param2 == 0)
+        return ((param1 % 2) != 0) + 4;
+    if (param2 == 1)
+        return ((param1 % 2) != 0) + 8;
+    return ((param1 % 2) != 0) + 10;
+}
+
+// La base real de los registros por categoria; g_unk0x0052fa5c (mas abajo) es
+// el campo +0x38 del mismo registro, de ahi el solape de las dos anotaciones.
+// GLOBAL: CMR2 0x0052fa24
+BYTE g_unk0x0052fa24[0x10 * 0x650];
+
+// Returns the record of the category that the index belongs to, or NULL when
+// the record has no category.
+// FUNCTION: CMR2 0x00408470
+void *FUN_00408470(unsigned int param1)
+{
+    unsigned int category;
+
+    category = (*(unsigned int *)(g_unk0x00531350 + (param1 & 0xff) * 0x30) >> 0x12) & 0xf;
+    RallyData_ValidateIndex(param1 & 0xff);
+    if (category != 0xf)
+        return g_unk0x0052fa24 + category * 0x650;
+    return NULL;
+}
+
+// Returns 1 when the record can be used (and 0 when it is full), unless the
+// record is one of the "always usable" ones whose flag lacks the category.
+// TODO: CMR2 0x004085a0 (implemented, match 85%)
+BYTE FUN_004085a0(unsigned int param1)
+{
+    param1 = param1 & 0xff;
+    RallyData_ValidateIndex(param1);
+    if ((*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) & 0x3c0000) == 0x3c0000)
+        return 0;
+    if (CGameInfo::FUN_00405d80() == 4)
+        return 1;
+    return (*(unsigned int *)(g_unk0x00531350 + param1 * 0x30) >> 0x1a) & 1;
+}
+
 // FUNCTION: CMR2 0x004086b0
 BYTE RallyData_FUN_004086b0(BYTE index)
 {
