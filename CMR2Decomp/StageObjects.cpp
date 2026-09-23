@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <string.h>
+#include "SceneNode.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -63,6 +64,56 @@ int g_unk0x0058da30[8];
 struct Block0x309 { int data[0x309]; };
 struct Block0x134 { int data[0x134]; };
 struct Block6 { int data[6]; };
+
+struct StageTableEntry { int flag; short a; short b; };
+// GLOBAL: CMR2 0x0051b9f0
+StageTableEntry g_unk0x0051b9f0[5] = {
+    {0, 2, 2}, {0, 2, 1}, {0, 1, 2}, {1, 0, 1}, {1, 1, 2}
+};
+
+// FUNCTION: CMR2 0x00464b00
+StageTableEntry *FUN_00464b00(int index)
+{
+    return &g_unk0x0051b9f0[index];
+}
+
+// FUNCTION: CMR2 0x0046b6b0
+void FUN_0046b6b0(SceneNode *pNode, BYTE threshold)
+{
+    if (pNode->type == 0 && pNode->pObject != NULL &&
+        *(BYTE *)(*(int *)((BYTE *)pNode->pObject + 0x24) + 0x37) <= threshold)
+        pNode->field_0x17c = 0;
+}
+
+// FUNCTION: CMR2 0x0046b6e0
+void FUN_0046b6e0(SceneNode *pNode, BYTE threshold)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        FUN_0046b6b0(pNode, threshold);
+        if (pNode->pFirstChild != NULL)
+            FUN_0046b6e0(pNode->pFirstChild, threshold);
+    }
+}
+
+struct StageObjectEntry0x128 { int *pObject; BYTE rest[0x124]; };
+// GLOBAL: CMR2 0x005894e4
+StageObjectEntry0x128 g_unk0x005894e4[40];
+// GLOBAL: CMR2 0x0058c324
+int g_unk0x0058c324;
+// GLOBAL: CMR2 0x0058c924
+BYTE g_unk0x0058c924;
+
+// FUNCTION: CMR2 0x0046f7e0
+void FUN_0046f7e0(void)
+{
+    g_unk0x0058c924 = 0;
+    StageObjectEntry0x128 *p = g_unk0x005894e4;
+    do {
+        if (p->pObject != NULL)
+            p->pObject[0xcc / 4] += 0xd8f00000U;
+        p++;
+    } while ((int)p < (int)&g_unk0x0058c324);
+}
 
 // FUNCTION: CMR2 0x00460bf0
 BYTE FUN_00460bf0(int index)
