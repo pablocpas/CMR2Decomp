@@ -1781,3 +1781,113 @@ void Car_UpdateWheelForces(void)
     g_pCurrentCar->cornerForce[0] = g_pCurrentCar->cornerForce[1];
     g_pCurrentCar->cornerForce[2] = g_pCurrentCar->cornerForce[3];
 }
+
+// GLOBAL: CMR2 0x0053a3a8
+BYTE g_unk0x0053a3a8[8][0xfc];
+// GLOBAL: CMR2 0x0053acc8
+BYTE g_unk0x0053acc8[16];
+// GLOBAL: CMR2 0x0053acf0
+int g_unk0x0053acf0[16];
+// GLOBAL: CMR2 0x0053c5a0
+BYTE g_unk0x0053c5a0[10][0x60];
+// GLOBAL: CMR2 0x0053c9a8
+int g_unk0x0053c9a8;
+
+// FUNCTION: CMR2 0x0042b6f0
+short *Car_GetOrder(void)
+{
+    return g_carOrder;
+}
+
+// FUNCTION: CMR2 0x0042b700
+short Car_GetOrderCount(void)
+{
+    return g_carOrderCount;
+}
+
+// FUNCTION: CMR2 0x0042b710
+BYTE FUN_0042b710(int index)
+{
+    return g_unk0x0053acc8[index];
+}
+
+// FUNCTION: CMR2 0x0042b720
+void FUN_0042b720(int index, BYTE value)
+{
+    g_unk0x0053acc8[index] = value;
+}
+
+// FUNCTION: CMR2 0x0042c840
+void FUN_0042c840(int first, int count)
+{
+    int i;
+
+    for (i = first; i < first + count; i++)
+        g_unk0x0053acf0[i] = 1;
+}
+
+// FUNCTION: CMR2 0x0042c870
+void FUN_0042c870(int index)
+{
+    g_unk0x0053acf0[index] = 1;
+}
+
+// FUNCTION: CMR2 0x0042ca70
+CarTransforms *FUN_0042ca70(int index)
+{
+    return &g_carTransforms[index];
+}
+
+// FUNCTION: CMR2 0x0042ca90
+BYTE *FUN_0042ca90(int index)
+{
+    return g_unk0x0053a3a8[index];
+}
+
+// FUNCTION: CMR2 0x0042cab0
+FixMatrix *FUN_0042cab0(int index)
+{
+    return g_carWheelTransforms[index];
+}
+
+// FUNCTION: CMR2 0x0042cac0
+BYTE *FUN_0042cac0(int index)
+{
+    return g_unk0x0053c5a0[index];
+}
+
+// FUNCTION: CMR2 0x0043e160
+void FUN_0043e160(int value)
+{
+    g_pCurrentCar->field_0x82c = FixMul(0x13333, value) + 0x3333;
+}
+
+// FUNCTION: CMR2 0x0043e190
+void FUN_0043e190(int value)
+{
+    g_pCurrentCar->field_0x830 = value;
+}
+
+// FUNCTION: CMR2 0x0043e1b0
+void FUN_0043e1b0(int value)
+{
+    g_pCurrentCar->field_0x7b4 = value;
+}
+
+// FUNCTION: CMR2 0x0043e1d0
+void FUN_0043e1d0(BYTE value)
+{
+    g_pCurrentCar->field_0xb29 = value;
+}
+
+// FUNCTION: CMR2 0x00443230
+void FUN_00443230(void)
+{
+    g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
+}
+
+// FUNCTION: CMR2 0x00417760
+int FUN_00417760(int index)
+{
+    return Car_Get(index)->field_0xc10 != 0;
+}

@@ -64,7 +64,11 @@ struct Car {
     int speed;                        // 0x778  length of the velocity vector
     BYTE field_0x77c[0x18];
     int field_0x794;                  // 0x794
-    BYTE field_0x798[0x1c];
+    BYTE field_0x798[0xc];
+    int field_0x7a4;                  // 0x7a4
+    BYTE field_0x7a8[0x4];
+    int field_0x7ac;                  // 0x7ac
+    BYTE field_0x7b0[0x4];
     int field_0x7b4;                  // 0x7b4
     BYTE field_0x7b8[0x4];
     int field_0x7bc[4];               // 0x7bc
@@ -74,7 +78,8 @@ struct Car {
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0x10];
+    BYTE field_0x820[0xc];
+    int field_0x82c;                  // 0x82c
     int field_0x830;                  // 0x830
     BYTE field_0x834[0x4];
     int field_0x838;                  // 0x838
@@ -120,7 +125,8 @@ struct Car {
     char field_0xb1e;                 // 0xb1e
     BYTE field_0xb1f[0x9];
     BYTE field_0xb28;                 // 0xb28
-    BYTE field_0xb29[0x3];
+    BYTE field_0xb29;                 // 0xb29
+    BYTE field_0xb2a[0x2];
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
     char field_0xb34;                 // 0xb34
     BYTE field_0xb35[0x2b];
@@ -134,7 +140,9 @@ struct Car {
     int field_0xbac[8];               // 0xbac
     BYTE field_0xbcc[0x34];
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
-    BYTE field_0xc04[0x20];
+    BYTE field_0xc04[0xc];
+    int field_0xc10;                  // 0xc10
+    BYTE field_0xc14[0x10];
 };
 
 // Stored transforms of a car, written by the physics and applied to the
