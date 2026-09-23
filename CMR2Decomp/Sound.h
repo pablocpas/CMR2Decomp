@@ -5,7 +5,7 @@
 #include <MMREG.H>
 #include <MMSYSTEM.H>
 #include <MSACM.H>
-#include <DSOUND.H>
+#include "../third_party/dx7sdk-7001/include/dsound.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,12 +46,12 @@ struct SoundSlot {
     unsigned short id;                  // 0x00 index into CSound::m_soundSlots
     BYTE field_0x2[0x2];
     unsigned int handle;                // 0x04 id | serial << 8, see Sound_MakeHandle
-    BYTE field_0x8[0x2];
-    unsigned short field_0xa;           // 0x0a volume, clamped to [100, 100000]
+    unsigned short sampleId;            // 0x08 index into g_soundBuffers
+    unsigned short field_0xa;           // 0x0a frequency, clamped to [100, 100000]
     int field_0xc;                      // 0x0c volume scale
-    BYTE field_0x10[0x4];
-    int field_0x14;                     // 0x14 released when the slot is reset
-    int field_0x18;
+    int field_0x10;                     // 0x10 loops
+    int field_0x14;                     // 0x14 3D sound, released when the slot is reset
+    int field_0x18;                     // 0x18 loop start offset in bytes
     IDirectSoundBuffer *pBuffer;        // 0x1c
     IDirectSoundBuffer *field_0x20;     // 0x20
     IDirectSoundBuffer *pLoopBuffer;    // 0x24 restarted while field_0x30 is set
@@ -74,7 +74,7 @@ public:
     static void FUN_004a2b50(BOOL param1);
     static bool FUN_004bd230(void);
     static HRESULT StopDirectSoundBuffer(void);
-    static bool FUN_004a3250(HRESULT param1);
+    static BOOL FUN_004a3250(HRESULT param1);
     static MMRESULT __fastcall CloseMMIO(MMIOData* hhmio);
     static void __fastcall CloseAndCleanupMMIO(MMIOData* pMMIO);
     static void FUN_004a31f0(int volume);
@@ -119,6 +119,6 @@ public:
     static SoundSlot *m_soundSlotsEnd;
 };
 
-int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 
 #endif

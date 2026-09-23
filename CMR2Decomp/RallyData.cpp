@@ -21,7 +21,7 @@
 int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
 int FUN_00418570(void);
-int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;

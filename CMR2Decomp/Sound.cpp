@@ -1,3 +1,5 @@
+#include <math.h>
+#include <stdlib.h>
 #include "Sprite.h"
 #include "Game.h"
 #include "Sound.h"
@@ -88,7 +90,7 @@ HRESULT CSound::StopDirectSoundBuffer(void) {
 
 
 // FUNCTION: CMR2 0x004a3250
-bool CSound::FUN_004a3250(HRESULT param_1) {
+BOOL CSound::FUN_004a3250(HRESULT param_1) {
     return param_1 >= 0;
 }
 
@@ -540,6 +542,165 @@ int FUN_004a2430(SoundSlot *pSlot)
     return result;
 }
 
+// Per-sample 3D interfaces and buffers loaded by the sound bank.
+// GLOBAL: CMR2 0x005a1fc8
+IDirectSound3DBuffer *g_sound3DBuffers[200];
+// GLOBAL: CMR2 0x005a23ec
+IDirectSoundBuffer *g_soundBuffers[200];
+// GLOBAL: CMR2 0x005a283c
+BOOL g_unk0x005a283c;
+
+extern IDirectSound *g_unk0x005a2844;
+void FUN_004a2690(SoundSlot *pSlot);
+BOOL FUN_004b75c0(void);
+int Sound_GetMasterVolume(void);
+SoundSlot *Sound_GetSlot(int index);
+
+// Creates a PCM buffer of the given format (3D buffers use the HRTF light
+// algorithm on Windows 98 and later).
+// TODO: CMR2 0x004a20c0 (implemented, match 84%)
+BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
+                  DWORD size)
+{
+    PCMWAVEFORMAT format = {0};
+    DSBUFFERDESC desc;
+
+    format.wf.nSamplesPerSec = rate;
+    format.wf.nBlockAlign = (WORD)channels * bits / 8;
+    format.wf.nAvgBytesPerSec = format.wf.nBlockAlign * rate;
+    memset(&desc, 0, sizeof(desc));
+    format.wf.wFormatTag = WAVE_FORMAT_PCM;
+    format.wf.nChannels = channels;
+    format.wBitsPerSample = bits;
+    desc.dwSize = sizeof(desc);
+    if (g_unk0x005a283c && is3D)
+        desc.dwFlags = DSBCAPS_LOCDEFER | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY;
+    else
+        desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
+    if (channels == 2)
+        desc.dwFlags |= DSBCAPS_CTRLPAN;
+    if (is3D) {
+        desc.dwFlags |= DSBCAPS_CTRL3D | DSBCAPS_MUTE3DATMAXDISTANCE;
+        if (FUN_004b75c0())
+            desc.guid3DAlgorithm = DS3DALG_HRTF_LIGHT;
+        else
+            desc.guid3DAlgorithm = GUID_NULL;
+    }
+    desc.dwBufferBytes = size;
+    desc.lpwfxFormat = (LPWAVEFORMATEX)&format;
+    return CSound::FUN_004a3250(pDS->CreateSoundBuffer(&desc, ppBuffer, NULL)) != 0;
+}
+
+// Copies size bytes of data into the buffer at the given offset.
+// FUNCTION: CMR2 0x004a2210
+BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size)
+{
+    void *p1;
+    DWORD n1;
+    void *p2;
+    DWORD n2;
+
+    if (pBuffer->Lock(offset, size, &p1, &n1, &p2, &n2, 0) == DS_OK) {
+        if (p1 != NULL)
+            memcpy(p1, pData, n1);
+        if (p2 != NULL)
+            memcpy(p2, (BYTE *)pData + n1, n2);
+        if (pBuffer->Unlock(p1, n1, p2, n2) == DS_OK)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// Builds the looping buffer of the slot from the part of the sample after
+// the loop start.
+// TODO: CMR2 0x004a24a0 (implemented, match 85%)
+void FUN_004a24a0(SoundSlot *pSlot)
+{
+    DSBCAPS caps = {0};
+    WAVEFORMATEX format = {0};
+    void *p1;
+    DWORD n1;
+    void *p2;
+    DWORD n2;
+
+    caps.dwSize = sizeof(caps);
+    CSound::FUN_004a3250(pSlot->pBuffer->GetCaps(&caps));
+    CSound::FUN_004a3250(pSlot->pBuffer->GetFormat(&format, sizeof(format), NULL));
+    CSound::FUN_004a3250(pSlot->pBuffer->Lock(0, caps.dwBufferBytes, &p1, &n1, &p2, &n2, 0));
+    if (FUN_004a20c0(g_unk0x005a2844, &pSlot->pLoopBuffer, format.nSamplesPerSec, format.wBitsPerSample,
+                     format.nChannels, pSlot->field_0x14, n1 - pSlot->field_0x18))
+        FUN_004a2210(pSlot->pLoopBuffer, 0, (BYTE *)p1 + pSlot->field_0x18, n1 - pSlot->field_0x18);
+    CSound::FUN_004a3250(pSlot->pBuffer->Unlock(p1, n1, p2, n2));
+    if (pSlot->field_0x14 != 0 &&
+        CSound::FUN_004a3250(pSlot->pLoopBuffer->QueryInterface(IID_IDirectSound3DBuffer, (void **)&pSlot->field_0x28)))
+        ((IDirectSound3DBuffer *)pSlot->field_0x28)->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED);
+}
+
+// Applies the slot volume (scaled by the master volume) as a logarithmic
+// attenuation in hundredths of a decibel.
+// TODO: CMR2 0x004a25f0 (implemented, match 91%)
+void FUN_004a25f0(SoundSlot *pSlot)
+{
+    int volume;
+    int attenuation;
+
+    volume = (int)((float)Sound_GetMasterVolume() * pSlot->field_0xc * (1.0f / 65536.0f));
+    attenuation = DSBVOLUME_MIN -
+                  (int)(log((double)volume) * -10.0) * abs(DSBVOLUME_MIN) / (int)(log(65536.0) * 10.0);
+    CSound::FUN_004a3250(pSlot->pBuffer->SetVolume(attenuation));
+    if (pSlot->pLoopBuffer != NULL)
+        CSound::FUN_004a3250(pSlot->pLoopBuffer->SetVolume(attenuation));
+}
+
+// Gives the slot a buffer for its sample (a duplicate when the sample is
+// already playing), sets it up and starts it.
+// FUNCTION: CMR2 0x004a22c0
+int FUN_004a22c0(SoundSlot *pSlot)
+{
+    IDirectSoundBuffer *pSource;
+    SoundSlot *pOther;
+    DWORD status;
+    int flags;
+    int shared;
+    int i;
+
+    i = 0;
+    flags = 0;
+    status = 0;
+    pSource = g_soundBuffers[pSlot->sampleId];
+    if (pSource == NULL)
+        return 0;
+    if (pSlot->field_0x10 != 0 && pSlot->field_0x18 == 0)
+        flags = DSBPLAY_LOOPING;
+    CSound::FUN_004a3250(pSource->GetStatus(&status));
+    shared = 0;
+    for (i = 0; i < 32; i++) {
+        pOther = Sound_GetSlot(i);
+        if (pOther != NULL && pOther->sampleId == pSlot->sampleId && pOther->id != pSlot->id) {
+            shared = 1;
+            break;
+        }
+    }
+    if ((status & DSBSTATUS_PLAYING) || shared) {
+        CSound::FUN_004a3250(g_unk0x005a2844->DuplicateSoundBuffer(g_soundBuffers[pSlot->sampleId], &pSlot->pBuffer));
+        pSlot->field_0x2c = 1;
+    } else {
+        pSlot->pBuffer = g_soundBuffers[pSlot->sampleId];
+    }
+    if (pSlot->field_0x14 != 0) {
+        if (pSlot->field_0x2c != 0)
+            pSlot->pBuffer->QueryInterface(IID_IDirectSound3DBuffer, (void **)&pSlot->field_0x20);
+        else
+            pSlot->field_0x20 = (IDirectSoundBuffer *)g_sound3DBuffers[pSlot->sampleId];
+    }
+    if (pSlot->field_0x10 != 0 && pSlot->field_0x18 != 0)
+        FUN_004a24a0(pSlot);
+    FUN_004a25f0(pSlot);
+    FUN_004a2690(pSlot);
+    CSound::FUN_004a23f0(pSlot->pBuffer, flags);
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004a2690
 void FUN_004a2690(SoundSlot *pSlot)
 {
@@ -593,10 +754,68 @@ void FUN_004a26f0(SoundSlot *pSlot)
     }
 }
 
-// STUB: CMR2 0x004b7790
-int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6)
+int Sound_FindFreeSlot(void);
+unsigned int Sound_MakeHandle(unsigned int index, unsigned short serial);
+int Sound_FindHandle(unsigned int handle);
+void Sound_SetPan(unsigned int handle, unsigned short pan);
+
+// Whether the system is Windows 98 / NT 5 or later.
+// FUNCTION: CMR2 0x004b75c0
+BOOL FUN_004b75c0(void)
 {
-    return -1;
+    OSVERSIONINFOA info;
+
+    info.dwOSVersionInfoSize = sizeof(info);
+    if (GetVersionExA(&info) &&
+        (info.dwMajorVersion > 4 || (info.dwMajorVersion == 4 && info.dwMinorVersion > 0)))
+        return TRUE;
+    return FALSE;
+}
+
+// Sets the volume of a playing sound.
+// FUNCTION: CMR2 0x004b79a0
+void FUN_004b79a0(unsigned int handle, int volume)
+{
+    int index;
+
+    index = Sound_FindHandle(handle);
+    if (index != -1 && CSound::m_soundSlots[index]->field_0xc != volume) {
+        CSound::m_soundSlots[index]->field_0xc = volume;
+        FUN_004a25f0(CSound::m_soundSlots[index]);
+    }
+}
+
+// Starts a sound: takes a free slot, fills it and plays it. Returns the slot
+// handle, or -1 when no slot is free or the sample cannot be played.
+// FUNCTION: CMR2 0x004b7790
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D)
+{
+    int index;
+    unsigned int handle;
+
+    index = Sound_FindFreeSlot();
+    if (index == -1 || id >= 200)
+        return -1;
+    handle = Sound_MakeHandle(index, id);
+    memset(CSound::m_soundSlots[index] = (SoundSlot *)CFileBuffer::AllocateLockedBuffer(sizeof(SoundSlot)), 0,
+           sizeof(SoundSlot));
+    CSound::m_soundSlots[index]->sampleId = id;
+    CSound::m_soundSlots[index]->id = index;
+    CSound::m_soundSlots[index]->handle = handle;
+    CSound::m_soundSlots[index]->field_0x10 = loops;
+    CSound::m_soundSlots[index]->field_0x14 = is3D;
+    CSound::m_soundSlots[index]->field_0x18 = loopStart;
+    CSound::m_soundSlots[index]->field_0x30 = loopStart != 0;
+    CSound::m_soundSlots[index]->field_0xc = volume;
+    CSound::m_soundSlots[index]->field_0xa = frequency;
+    if (!FUN_004a22c0(CSound::m_soundSlots[index])) {
+        CFileBuffer::FreeGenericFileBuffer(CSound::m_soundSlots[index]);
+        CSound::m_soundSlots[index] = NULL;
+        return -1;
+    }
+    FUN_004b79a0(handle, volume);
+    Sound_SetPan(handle, frequency);
+    return handle;
 }
 
 // GLOBAL: CMR2 0x005210f4
@@ -701,7 +920,7 @@ int Sound_FindFreeSlot(void)
 }
 
 // FUNCTION: CMR2 0x004b7a90
-unsigned int Sound_MakeHandle(unsigned int index, unsigned int serial)
+unsigned int Sound_MakeHandle(unsigned int index, unsigned short serial)
 {
     return (serial & 0xffff) << 8 | index & 0x3f;
 }

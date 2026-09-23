@@ -249,7 +249,7 @@ void FUN_00417e60(void)
 }
 
 int FUN_004781c0(int index);
-int FUN_004b7790(short id, int volume, int pan, int loop, int param5, int param6);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void Sound_Free(unsigned int handle);
 
 // FUNCTION: CMR2 0x00418560
