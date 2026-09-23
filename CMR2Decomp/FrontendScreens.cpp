@@ -104,6 +104,32 @@ BYTE g_unk0x00819038;
 unsigned int g_unk0x00819040;
 // GLOBAL: CMR2 0x0081986c
 BYTE g_unk0x0081986c;
+// GLOBAL: CMR2 0x008182b4
+int g_unk0x008182b4;
+// GLOBAL: CMR2 0x008189a4
+BYTE g_unk0x008189a4;
+// GLOBAL: CMR2 0x00818abc
+Menu *g_pMenu0x00818abc;
+// GLOBAL: CMR2 0x00818ac0
+Menu *g_pMenu0x00818ac0;
+// GLOBAL: CMR2 0x00818ac4
+BYTE g_unk0x00818ac4;
+// GLOBAL: CMR2 0x00818f14
+BYTE g_unk0x00818f14[0xe0];
+// GLOBAL: CMR2 0x00819030
+int g_unk0x00819030;
+// GLOBAL: CMR2 0x00819050
+int g_unk0x00819050;
+// GLOBAL: CMR2 0x008190f4
+BYTE g_unk0x008190f4[0x30];
+// GLOBAL: CMR2 0x00819124
+int g_unk0x00819124;
+// GLOBAL: CMR2 0x00819748
+BYTE g_unk0x00819748;
+// GLOBAL: CMR2 0x00819870
+int g_unk0x00819870;
+// GLOBAL: CMR2 0x00826138
+int g_unk0x00826138;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
 // GLOBAL: CMR2 0x0081903c
@@ -112,6 +138,12 @@ unsigned int g_unk0x0081903c;
 unsigned int g_unk0x00819754;
 // GLOBAL: CMR2 0x00819860
 unsigned int g_unk0x00819860;
+
+// FUNCTION: CMR2 0x004d27c0
+void FUN_004d27c0(BYTE value)
+{
+    g_unk0x00818848 = value;
+}
 
 // FUNCTION: CMR2 0x004d4c40
 void FUN_004d4c40(Menu *pMenu)
@@ -296,6 +328,18 @@ void FUN_004e3230(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
+// FUNCTION: CMR2 0x004e7770
+void FUN_004e7770(int value)
+{
+    g_unk0x008182b4 = value;
+}
+
+// FUNCTION: CMR2 0x004e77b0
+void FUN_004e77b0(BYTE value)
+{
+    g_unk0x008189a4 = value;
+}
+
 // Network game: the name being typed, with a blinking cursor.
 // FUNCTION: CMR2 0x004e9820
 void FUN_004e9820(Menu *pMenu)
@@ -315,6 +359,30 @@ void FUN_004e9820(Menu *pMenu)
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 260) / 640, (int)g_pGraphics->resY / 2,
                   (int *)g_colourWhite0x00524968, 0x11);
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// FUNCTION: CMR2 0x004ea470
+void FUN_004ea470(void)
+{
+    g_pMenu0x00818abc = g_pMenu0x00818ac0;
+}
+
+// FUNCTION: CMR2 0x004ea5b0
+void FUN_004ea5b0(void)
+{
+    Menu_CallCallback2(g_pMenu0x00818abc);
+}
+
+// FUNCTION: CMR2 0x004ea5c0
+void FUN_004ea5c0(BYTE value)
+{
+    g_unk0x00818ac4 = value;
+}
+
+// FUNCTION: CMR2 0x004ea5d0
+Menu *FUN_004ea5d0(void)
+{
+    return g_pMenu0x00818abc;
 }
 
 // FUNCTION: CMR2 0x004eca60
@@ -367,6 +435,12 @@ void FUN_004edb30(Menu *pMenu, char param)
         CGame::FUN_004a1a90();
         FUN_004a1280();
     }
+}
+
+// FUNCTION: CMR2 0x004edb50
+BYTE *FUN_004edb50(void)
+{
+    return g_unk0x00818f14;
 }
 
 // FUNCTION: CMR2 0x004edb70
@@ -548,6 +622,13 @@ void FUN_004ef480(int *pOut1, int *pOut2)
 {
     *pOut1 = g_unk0x00525398;
     *pOut2 = g_unk0x0081912c;
+}
+
+// FUNCTION: CMR2 0x004ef4a0
+void FUN_004ef4a0(int value)
+{
+    g_unk0x00525398 = value;
+    g_unk0x0052539c = value;
 }
 
 // FUNCTION: CMR2 0x004ef4c0
@@ -732,12 +813,30 @@ BYTE FUN_004f1ba0(void)
     return g_unk0x00819048;
 }
 
+// FUNCTION: CMR2 0x004f1bb0
+void FUN_004f1bb0(BYTE value)
+{
+    g_unk0x00819048 = value;
+}
+
+// FUNCTION: CMR2 0x004f1bc0
+void FUN_004f1bc0(int value)
+{
+    g_unk0x00819870 = value;
+}
+
 // FUNCTION: CMR2 0x004f1bd0
 void FUN_004f1bd0(Menu *pMenu, int param)
 {
     g_unk0x00819864 = 1;
     g_unk0x0081987c = 0;
     g_unk0x008196e4 = CFrontend::FUN_004d20e0();
+}
+
+// FUNCTION: CMR2 0x004f1bf0
+int FUN_004f1bf0(void)
+{
+    return g_unk0x008196e4;
 }
 
 // FUNCTION: CMR2 0x004f1c00
@@ -888,6 +987,12 @@ void FUN_004f2050(Menu *pMenu, int param)
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
+// FUNCTION: CMR2 0x004f23c0
+int FUN_004f23c0(void)
+{
+    return g_unk0x00819128;
+}
+
 // FUNCTION: CMR2 0x004f23d0
 void FUN_004f23d0(Menu *pMenu)
 {
@@ -974,6 +1079,18 @@ int FUN_004f25a0(void)
     return g_unk0x0081987c;
 }
 
+// FUNCTION: CMR2 0x004f25b0
+int FUN_004f25b0(void)
+{
+    return g_unk0x00525398;
+}
+
+// FUNCTION: CMR2 0x004f25c0
+int FUN_004f25c0(void)
+{
+    return g_unk0x0081912c;
+}
+
 // FUNCTION: CMR2 0x004f2840
 void FUN_004f2840(Menu *pMenu, int param)
 {
@@ -1003,6 +1120,36 @@ void FUN_004f2b70(Menu *pMenu, char param)
 int FUN_004f2be0(void)
 {
     return g_unk0x00819880;
+}
+
+// FUNCTION: CMR2 0x004f2bf0
+void FUN_004f2bf0(int value)
+{
+    g_unk0x00819880 = value;
+}
+
+// FUNCTION: CMR2 0x004f2c00
+int FUN_004f2c00(void)
+{
+    return g_unk0x00819030;
+}
+
+// FUNCTION: CMR2 0x004f2c10
+void FUN_004f2c10(int value)
+{
+    g_unk0x00819030 = value;
+}
+
+// FUNCTION: CMR2 0x004f2c20
+int FUN_004f2c20(void)
+{
+    return g_unk0x00819124;
+}
+
+// FUNCTION: CMR2 0x004f2c30
+void FUN_004f2c30(int value)
+{
+    g_unk0x00819124 = value;
 }
 
 // FUNCTION: CMR2 0x004f2c40
@@ -1274,6 +1421,18 @@ void FUN_004f39d0(Menu *pMenu)
     FUN_004f37c0(FUN_004f2500());
 }
 
+// FUNCTION: CMR2 0x004f3a30
+BYTE FUN_004f3a30(void)
+{
+    return g_unk0x00819748;
+}
+
+// FUNCTION: CMR2 0x004f3a40
+int FUN_004f3a40(void)
+{
+    return g_unk0x00819050;
+}
+
 // FUNCTION: CMR2 0x004f3a60
 int FUN_004f3a60(void)
 {
@@ -1302,6 +1461,12 @@ void FUN_004f3ae0(Menu *pMenu)
     FUN_004f37c0(FUN_004f24f0());
 }
 
+// FUNCTION: CMR2 0x004f3af0
+BYTE *FUN_004f3af0(void)
+{
+    return g_unk0x008190f4;
+}
+
 // FUNCTION: CMR2 0x004f3b00
 void FUN_004f3b00(Menu *pMenu, int param)
 {
@@ -1320,6 +1485,18 @@ void FUN_004f3b30(Menu *pMenu, char param)
 {
     if (g_unk0x00819878 == 0 && param == 0)
         Menu_SetNextAction((int)FUN_004f8990());
+}
+
+// FUNCTION: CMR2 0x004f92e0
+void FUN_004f92e0(int value)
+{
+    g_unk0x00826138 = value;
+}
+
+// FUNCTION: CMR2 0x004f92f0
+int FUN_004f92f0(void)
+{
+    return g_unk0x00826138;
 }
 
 // FUNCTION: CMR2 0x004faa00

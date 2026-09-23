@@ -1369,6 +1369,24 @@ void *g_unk0x0081a730;
 // GLOBAL: CMR2 0x0081a734
 void *g_unk0x0081a734;
 
+// FUNCTION: CMR2 0x004f4b10
+void *FUN_004f4b10(void)
+{
+    return g_unk0x0081a734;
+}
+
+// FUNCTION: CMR2 0x004f4b20
+void *FUN_004f4b20(void)
+{
+    return g_unk0x0081a728;
+}
+
+// FUNCTION: CMR2 0x004f4b30
+void *FUN_004f4b30(void)
+{
+    return g_unk0x0081a72c;
+}
+
 // FUNCTION: CMR2 0x004f48b0
 bool FUN_004f48b0(void)
 {
@@ -1430,6 +1448,43 @@ int g_unk0x0081b154;
 int FUN_004f4db0(void)
 {
     return g_unk0x0081b154;
+}
+
+// Saved games list: records of 0x7f4 bytes
+// FUNCTION: CMR2 0x004f4dc0
+BYTE *FUN_004f4dc0(int index)
+{
+    return (BYTE *)g_unk0x0081b14c + 0x10 + index * 0x7f4;
+}
+
+// FUNCTION: CMR2 0x004f4de0
+unsigned int FUN_004f4de0(int index)
+{
+    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x30 + index * 0x7f4) >> 10 & 0xf;
+}
+
+// FUNCTION: CMR2 0x004f4e00
+unsigned int FUN_004f4e00(int index)
+{
+    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) & 0x1f;
+}
+
+// FUNCTION: CMR2 0x004f4e20
+unsigned int FUN_004f4e20(int index)
+{
+    return *(unsigned int *)((BYTE *)g_unk0x0081b14c + 0x7d8 + index * 0x7f4) >> 5 & 0x1f;
+}
+
+// FUNCTION: CMR2 0x004f4e50
+BYTE *FUN_004f4e50(int index)
+{
+    return (BYTE *)g_unk0x0081b14c + index * 0x7f4;
+}
+
+// FUNCTION: CMR2 0x004f4e70
+void *FUN_004f4e70(int index)
+{
+    return g_unk0x0081b150[index];
 }
 
 // TODO: CMR2 0x004f4e80 (implemented, match 50%)
