@@ -917,14 +917,14 @@ BYTE g_unk0x0052fa18[0x1938];
 // (mode 4), otherwise the 0x650-byte category record (NULL when the
 // category nibble is 15).
 // FUNCTION: CMR2 0x00408400
-void *RallyData_GetRecord(unsigned int index)
+void *RallyData_GetRecord(BYTE index)
 {
     unsigned int category;
 
     if (CGameInfo::FUN_00405d80() == 4)
-        return g_unk0x0052f3e0 + (index & 0xff) * 196;
-    RallyData_ValidateIndex(index & 0xff);
-    category = (*(unsigned int *)(g_unk0x00531350 + (index & 0xff) * 0x30) >> 0x12) & 0xf;
+        return g_unk0x0052f3e0 + index * 196;
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
         return g_unk0x0052fa18 + category * 0x650;
     return NULL;

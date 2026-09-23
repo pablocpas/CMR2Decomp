@@ -298,11 +298,6 @@ void FUN_00453830(void)
 {
 }
 
-// STUB: CMR2 0x00453c50
-void FUN_00453c50(Menu *pMenu)
-{
-}
-
 // Builds the in-game menu tree (pause / results / options screens).
 // FUNCTION: CMR2 0x00449100
 void GameMenus_Build(void)
@@ -449,6 +444,9 @@ NetClassification *FUN_0040aea0(int index);
 unsigned int FUN_0040aeb0(int index);
 unsigned int FUN_0040aec0(int index);
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...);
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+BYTE FUN_0041b370(void);
 
 // GLOBAL: CMR2 0x00541cc0
 short g_menuRect[4];
@@ -516,7 +514,75 @@ void FUN_0044e830(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
+// GLOBAL: CMR2 0x00517dd8
+char g_standingsRowFormat[] = "%s - %s";
+// GLOBAL: CMR2 0x00519ed0
+BYTE g_menuTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
 
+// Draws one row of the standings list: the item text (with the driver record
+// appended when the item is the "go to" one) plus the small tag that follows
+// it, and the row background sprite. The highlighted row uses the frame
+// colour and the first background texture, the rest the text colour and the
+// second one.
+#define GAMEMENUS_DRAW_STANDINGS_ROW(pColour, pTexture)                                          \
+    if (pItem->value == 0x3ea) {                                                                 \
+        sprintf(CFrontend::m_stringDest, g_standingsRowFormat,                                   \
+                CFrontend::GetTextString(pItem->id),                                             \
+                (char *)RallyData_GetRecord((BYTE)(FUN_0041b370() + 1)));                        \
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x86) / 0x280,       \
+                      (int)(g_pGraphics->resY * 0xde) / 0x1e0 +                                  \
+                          ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,                         \
+                      (int *)pColour, 0x11);                                                     \
+    } else {                                                                                     \
+        Font_DrawText(1, CFrontend::GetTextString(pItem->id),                                    \
+                      (int)(g_pGraphics->resX * 0x86) / 0x280,                                   \
+                      (int)(g_pGraphics->resY * 0xde) / 0x1e0 +                                  \
+                          ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,                         \
+                      (int *)pColour, 0x11);                                                     \
+    }                                                                                            \
+    Font_DrawText(0, CFrontend::GetTextString(pItem->id + 1),                                    \
+                  (int)(g_pGraphics->resX * 0x86) / 0x280,                                       \
+                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 +                                       \
+                      (int)(g_pGraphics->resY * 0xde) / 0x1e0 +                                  \
+                      ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,                             \
+                  (int *)pColour, 0x11);                                                         \
+    Sprite_Queue((SpriteRect *)(pTexture() + 0x11c), (SpriteRect *)rect, (Texture *)pTexture(), 2, 0, NULL,    \
+                 NULL, pColour, 8);
+
+// Standings list of one menu: title, then one row per item.
+// FUNCTION: CMR2 0x00453c50
+void FUN_00453c50(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    int x;
+    int i;
+
+    x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
+    FUN_0044b760();
+    Font_DrawText(2, CFrontend::GetTextString(0x56), x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                  (int *)g_menuFrameColour, 0x11);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->w;
+    rect[3] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->h;
+    i = 0;
+    pItem = pMenu->items;
+    if (pMenu->itemCount > 0) {
+        do {
+            rect[1] = (short)(((int)(g_pGraphics->resY * 0xde) / 0x1e0 +
+                               ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i) -
+                              (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (pMenu->cursor == i) {
+                GAMEMENUS_DRAW_STANDINGS_ROW(g_menuFrameColour, FUN_004055e0)
+            } else {
+                GAMEMENUS_DRAW_STANDINGS_ROW(g_menuTextColour, FUN_004055f0)
+            }
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
+    }
+    Font_SetBlendMode(2);
+}
 
 // Draws the four edges of the box around one menu row.
 // FUNCTION: CMR2 0x0044ec30

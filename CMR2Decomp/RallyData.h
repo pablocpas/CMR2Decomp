@@ -20,7 +20,7 @@ void RallyData_FUN_0040d6a0(BYTE param1);
 unsigned int RallyData_GetFlag24(void);
 unsigned int RallyData_GetFlag25(void);
 void RallyData_ValidateIndex(int index);
-void *RallyData_GetRecord(unsigned int index);
+void *RallyData_GetRecord(BYTE index);
 int RallyData_FUN_004086b0(unsigned int index);
 unsigned int *RallyData_GetChampionshipState(void);
 void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond);
