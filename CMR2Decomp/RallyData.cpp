@@ -1118,6 +1118,10 @@ void FUN_00413610(int car)
 
 BYTE FUN_00448cd0(int car);
 BYTE FUN_004085a0(BYTE param1);
+extern BYTE g_itemColour[4];
+extern char g_classRowHeaderFormat[];
+int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha);
+BYTE *RallyData_FUN_00408cb0(int index);
 unsigned int RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_004082e0(void);
 
@@ -1240,6 +1244,169 @@ char *RallyData_FUN_0040fe50(void)
     table[7] = 7;
     return CFrontend::GetTextString(table[(RallyData_FUN_00406940() & 0xff) * 3 +
                                           (RallyData_FUN_00406950() & 0xff)]);
+}
+
+extern char g_noTimeText[];
+BYTE FUN_004085a0(BYTE param1);
+extern BYTE g_itemColour[4];
+extern char g_classRowHeaderFormat[];
+int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha);
+BYTE *RallyData_FUN_00408cb0(int index);
+
+// GLOBAL: CMR2 0x00516e3c
+char g_loadRecordTimeFormat[] = "%.2d:%.2d.%.2d";
+
+#define LOAD_TIME_TEXT(t) sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, (t) / 6000, (int)(((t) / 100) % 60), (t) % 100)
+
+// Loading screen text: the breadcrumb (game mode, rally, stage), the stage
+// record and the best time of every player on it, faded in with alpha.
+// TODO: CMR2 0x00410100 (implemented, match 74%)
+void FUN_00410100(BYTE alpha)
+{
+    BYTE colour[4];
+    GameInfo0xa4 *pInfo;
+    unsigned int time;
+    int x;
+    int i;
+    int shown;
+    int next;
+
+    colour[0] = g_itemColour[0];
+    colour[1] = g_itemColour[1];
+    colour[2] = g_itemColour[2];
+    colour[3] = alpha;
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    if (FUN_00407270()) {
+        RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x93), 1, alpha);
+        return;
+    }
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 8:
+    case 9:
+    case 10:
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x6b), 0, alpha);
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x41), 0, alpha);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(RallyDataCountryIndex() & 0xff));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::m_stringDest, 0, alpha);
+        if (RallyDataStageIndex() == 10)
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0xba));
+        else
+            sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat, CFrontend::GetTextString(0x40),
+                    RallyDataStageIndex() + 1);
+        RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::m_stringDest, 1, alpha);
+        pInfo = CGameInfo::FUN_00405fe0();
+        time = (pInfo->rallyStageRecordTimes[(RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff)]
+                    .value >> 7) & 0xffff;
+        LOAD_TIME_TEXT(time);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x268) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480, (int *)colour, 0x24);
+        pInfo = CGameInfo::FUN_00405fe0();
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                pInfo->rallyStageRecordTimes[(RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff)].ident);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x22a) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480, (int *)colour, 0x24);
+        Font_DrawText(0, CFrontend::GetTextString(0x6d), (int)(g_pGraphics->resX * 0x268) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480 - (int)(g_pGraphics->resY * 0x18) / 480, (int *)colour,
+                      0x24);
+        shown = 0;
+        if ((RallyDataState() & 0xff) == 0)
+            return;
+        for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+            next = shown;
+            if (!FUN_004085a0(i)) {
+                next = shown + 1;
+                if (!(*(RallyData_FUN_00408cb0(i) + 0x150 +
+                        ((RallyDataStageIndex() & 0xff) + (RallyDataCountryIndex() & 0xff) * 12) * 8) &
+                      0x80)) {
+                    sprintf(CFrontend::m_stringDest, g_noTimeText);
+                } else {
+                    time = *(unsigned int *)(RallyData_FUN_00408cb0(i) + 0x154 +
+                                             ((RallyDataStageIndex() & 0xff) + (RallyDataCountryIndex() & 0xff) * 12) * 8);
+                    LOAD_TIME_TEXT(time);
+                }
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x268) / 640,
+                              (int)(g_pGraphics->resY * 0x1a6) / 480 - ((int)(g_pGraphics->resY * 0x18) / 480) * (shown + 3),
+                              (int *)colour, 0x24);
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(i));
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x22a) / 640,
+                              (int)(g_pGraphics->resY * 0x1a6) / 480 - ((int)(g_pGraphics->resY * 0x18) / 480) * (shown + 3),
+                              (int *)colour, 0x24);
+            }
+            shown = next;
+        }
+        break;
+    case 4:
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x6b), 0, alpha);
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x6f), 0, alpha);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(RallyDataCountryIndex() & 0xff));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::m_stringDest, 1, alpha);
+        return;
+    case 5:
+    case 6:
+    case 7:
+    case 11:
+    case 12:
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x6b), 0, alpha);
+        x = RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x6c), 0, alpha);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, RallyData_FUN_0040fe50());
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::m_stringDest, 1, alpha);
+        pInfo = CGameInfo::FUN_00405fe0();
+        time = (pInfo->arcadeRecordTimes[(RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)]
+                    .value >> 7) & 0xffff;
+        LOAD_TIME_TEXT(time);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x268) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480, (int *)colour, 0x24);
+        pInfo = CGameInfo::FUN_00405fe0();
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                pInfo->arcadeRecordTimes[(RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)].ident);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x22a) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480, (int *)colour, 0x24);
+        Font_DrawText(0, CFrontend::GetTextString(0x6d), (int)(g_pGraphics->resX * 0x268) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480 - (int)(g_pGraphics->resY * 0x18) / 480, (int *)colour,
+                      0x24);
+        shown = 0;
+        if ((RallyDataState() & 0xff) == 0)
+            return;
+        for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+            next = shown;
+            if (!FUN_004085a0(i)) {
+                next = shown + 1;
+                if (!(*(RallyData_FUN_00408cb0(i) + 0x4bc +
+                        ((RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)) * 8) &
+                      0x80)) {
+                    sprintf(CFrontend::m_stringDest, g_noTimeText);
+                } else {
+                    time = *(unsigned int *)(RallyData_FUN_00408cb0(i) + 0x4c0 +
+                                             ((RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)) * 8);
+                    LOAD_TIME_TEXT(time);
+                }
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x268) / 640,
+                              (int)(g_pGraphics->resY * 0x1a6) / 480 - ((int)(g_pGraphics->resY * 0x18) / 480) * (shown + 3),
+                              (int *)colour, 0x24);
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(i));
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x22a) / 640,
+                              (int)(g_pGraphics->resY * 0x1a6) / 480 - ((int)(g_pGraphics->resY * 0x18) / 480) * (shown + 3),
+                              (int *)colour, 0x24);
+            }
+            shown = next;
+        }
+        break;
+    default:
+        return;
+    }
+    if (shown > 0)
+        Font_DrawText(0, CFrontend::GetTextString(0x70), (int)(g_pGraphics->resX * 0x268) / 640,
+                      (int)(g_pGraphics->resY * 0x1a6) / 480 - ((int)(g_pGraphics->resY * 0x18) / 480) * (shown + 3),
+                      (int *)colour, 0x24);
 }
 
 // GLOBAL: CMR2 0x0058c938
