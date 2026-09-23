@@ -1,6 +1,7 @@
 #include <string.h>
 #include <windows.h>
 #include "RallyData.h"
+#include "RallyRoute.h"
 #include "GameInfo.h"
 #include "RallyTiming.h"
 #include "main.h"
@@ -565,19 +566,128 @@ void RallyData_FUN_00408d80(void)
     }
 }
 
+void RallyData_FUN_00420820(void);
+
+// Per car progress along the route, 0x18 bytes
+struct RaceRecord {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+    int field_0xc;
+    int field_0x10;
+    short field_0x14;
+    short field_0x16;
+};
+
+// GLOBAL: CMR2 0x00538a78
+int g_unk0x00538a78;
+// GLOBAL: CMR2 0x00538a7c
+int g_unk0x00538a7c;
+// GLOBAL: CMR2 0x00538a80
+int g_unk0x00538a80;
 // GLOBAL: CMR2 0x00538a84
 int g_unk0x00538a84;
+// GLOBAL: CMR2 0x00538a88
+int g_unk0x00538a88;
 // GLOBAL: CMR2 0x00538a94
 int g_unk0x00538a94;
-// GLOBAL: CMR2 0x00538ab0
-int g_unk0x00538ab0[16 * 6];
+// GLOBAL: CMR2 0x00538a98
+int g_unk0x00538a98;
+// GLOBAL: CMR2 0x00538aa8
+RaceRecord g_raceRecords[8];
+// GLOBAL: CMR2 0x00538c8c
+int g_unk0x00538c8c;
+// GLOBAL: CMR2 0x00538c90
+int g_unk0x00538c90;
+
+// TODO: CMR2 0x004207f0 (implemented, match 45%)
+void RallyData_FUN_004207f0(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        g_raceRecords[i].field_0x8 = 0;
+        g_raceRecords[i].field_0x0 = g_raceRecords[i].field_0x4;
+        g_raceRecords[i].field_0x14 = 0;
+        g_raceRecords[i].field_0xc = 0;
+    }
+    RallyData_FUN_00420820();
+}
+
+// FUNCTION: CMR2 0x00420820
+void RallyData_FUN_00420820(void)
+{
+    g_unk0x00538a80 = 0;
+    g_unk0x00538a98 = 0;
+    g_unk0x00538a78 = 0;
+    g_unk0x00538c8c = 0;
+    g_unk0x00538a7c = 0;
+    g_unk0x00538c90 = 0;
+}
+
+// FUNCTION: CMR2 0x00421370
+int RallyData_FUN_00421370(BYTE *p)
+{
+    if (g_unk0x00538a84 == 0)
+        return 0;
+    return g_raceRecords[(signed char)p[0xb1a]].field_0x0;
+}
+
+// FUNCTION: CMR2 0x004213a0
+short RallyData_FUN_004213a0(BYTE *p)
+{
+    if (g_unk0x00538a84 == 0)
+        return 0;
+    return g_raceRecords[(signed char)p[0xb1a]].field_0x14;
+}
+
+// FUNCTION: CMR2 0x00421420
+int RallyData_FUN_00421420(void)
+{
+    return g_unk0x00538a84;
+}
+
+// FUNCTION: CMR2 0x00421430
+int RallyData_FUN_00421430(void)
+{
+    return g_unk0x00538a88;
+}
+
+// FUNCTION: CMR2 0x00421440
+BYTE *RallyData_FUN_00421440(int index)
+{
+    if (g_unk0x00538a84 == 0)
+        return NULL;
+    return g_routeNodes + index * 0x2c;
+}
+
+// FUNCTION: CMR2 0x00421500
+int RallyData_FUN_00421500(void)
+{
+    return g_unk0x00538a94;
+}
+
+// FUNCTION: CMR2 0x00421510
+RaceRecord *RallyData_FUN_00421510(int index)
+{
+    return &g_raceRecords[index];
+}
+
+// FUNCTION: CMR2 0x00421530
+void RallyData_FUN_00421530(int index, int *pOut)
+{
+    int x = *(int *)(g_routeNodes + index * 0x2c);
+    pOut[1] = 0;
+    pOut[0] = x;
+    pOut[2] = *(int *)(g_routeNodes + index * 0x2c + 8);
+}
 // GLOBAL: CMR2 0x00538c94
 int g_unk0x00538c94;
 
 // FUNCTION: CMR2 0x004209d0
 int RallyData_FUN_004209d0(BYTE *p)
 {
-    return g_unk0x00538ab0[(signed char)p[0xb1a] * 6 + 2];
+    return g_raceRecords[(signed char)p[0xb1a]].field_0x10;
 }
 
 // Scales the per-record value at p[0xb1a] to a 0..0x10000 ratio.
@@ -589,7 +699,7 @@ int RallyData_FUN_00421470(BYTE *p)
 
     if (g_unk0x00538a84 == 0)
         return 0;
-    value = g_unk0x00538ab0[(signed char)p[0xb1a] * 6];
+    value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
     if (g_unk0x00538a94 != 0) {
         if (value >= (RallyData_FUN_00406990() & 0xff) * g_unk0x00538a84)
             return 0x10000;
