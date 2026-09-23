@@ -589,17 +589,12 @@ BYTE FUN_00448cd0(int car)
     return g_carStageTiming[car].field_0x84;
 }
 
-// TODO: CMR2 0x00448630 (implemented, match 50%)
+// FUNCTION: CMR2 0x00448630
 void FUN_00448630(int index)
 {
-    int value;
-    int split;
-
     g_unk0x0053d1da[index] = 1;
-    split = GetStageSplitCount();
-    value = g_unk0x0053d1b0;
-    g_unk0x0053e190[split + index * 9] = value;
-    g_unk0x0053d1b8[index] = value + 0x4650;
+    g_unk0x0053e190[GetStageSplitCount() + index * 9] = g_unk0x0053d1b0;
+    g_unk0x0053d1b8[index] = g_unk0x0053d1b0 + 0x4650;
     g_unk0x0053e18c++;
 }
 
