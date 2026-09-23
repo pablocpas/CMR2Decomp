@@ -57,6 +57,9 @@
     <ClCompile Include="NetPlayers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NetRace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FrontendScreens.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

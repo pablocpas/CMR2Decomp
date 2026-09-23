@@ -50,8 +50,7 @@ NetStanding g_netStandings2[8];
 int g_netClassCount;
 // GLOBAL: CMR2 0x00531f84
 unsigned int g_netSplitBest[8];
-// GLOBAL: CMR2 0x00539cc8
-BYTE g_unk0x00539cc8;
+extern BYTE g_unk0x00539cc8;
 // GLOBAL: CMR2 0x005320a8
 unsigned int g_netLapBest;
 // GLOBAL: CMR2 0x005320b0
