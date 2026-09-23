@@ -52,7 +52,7 @@ void FUN_0044bc30(Menu *pMenu);
 void FUN_0044bcd0(Menu *pMenu);
 void FUN_0044d260(Menu *pMenu);
 void FUN_0044d790(Menu *pMenu);
-void FUN_0044d960(void);
+void FUN_0044d960(Menu *pMenu);
 void FUN_0044e130(Menu *pMenu);
 void FUN_0044e830(Menu *pMenu);
 void FUN_0044efa0(Menu *pMenu);
