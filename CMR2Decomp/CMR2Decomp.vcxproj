@@ -162,6 +162,7 @@
     <ClCompile Include="Sector.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StageSplitData.cpp" />
+    <ClCompile Include="StageObjects.cpp" />
     <ClCompile Include="StageTiming.cpp" />
     <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="TimingUtils.cpp" />
