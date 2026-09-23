@@ -2768,20 +2768,76 @@ void FUN_00457c50(void)
 }
 
 
-// Inicializa una vez el temporizador 0x6dd8a0 y recalcula los factores de
-// escala 0x5210b0/0x5210a0.
-// TODO: CMR2 0x004b21e0 (implemented, match 54%)
+// GLOBAL: CMR2 0x0052109c
+float g_unk0x0052109c = 1.0f;
+// GLOBAL: CMR2 0x005210a0
+float g_frameScale = 25.0f;
+// GLOBAL: CMR2 0x005210a4
+float g_averageFps = 25.0f;
+// GLOBAL: CMR2 0x005210a8
+float g_fps = 25.0f;
+extern int g_unk0x005210ac;
+#define g_fpsWarmup g_unk0x005210ac
+// GLOBAL: CMR2 0x005210b0
+float g_frameScale2 = 25.0f;
+// GLOBAL: CMR2 0x006dd9a8
+int g_averageFpsDone;
+// GLOBAL: CMR2 0x006dd9b0
+int g_frameCount;
+// GLOBAL: CMR2 0x006dd9b4
+int g_framesThisSecond;
+// GLOBAL: CMR2 0x006dd9b8
+unsigned int g_lastSecond;
+
+// Frame timing: average fps after a 3 s warm-up, fps of the last second and
+// the time scale of the current frame (1000 / frame time in ms).
+// FUNCTION: CMR2 0x004b21e0
 void FUN_004b21e0(void)
 {
-    float f;
+    static unsigned int s_start = CMain::GetFrameTime();
+    static unsigned int s_now = CMain::GetFrameTime();
+    static unsigned int s_prev = CMain::GetFrameTime() - 40;
+    static unsigned int s_secondStart = CMain::GetFrameTime();
+    unsigned int elapsed;
 
-    if ((*(unsigned char *)0x6dd894 & 1) == 0) {
-        *(unsigned char *)0x6dd894 |= 1;
-        *(int *)0x6dd8a0 = (int)CMain::GetFrameTime();
+    s_prev = s_now;
+    s_now = CMain::GetFrameTime();
+    g_frameCount++;
+    g_framesThisSecond++;
+    if (g_fpsWarmup != 0) {
+        if (s_now - s_start > 3000) {
+            g_fpsWarmup = 0;
+            g_averageFpsDone = 0;
+            s_start = s_now;
+            g_frameCount = 0;
+            g_averageFps = 0.0f;
+        }
+    } else {
+        if (g_averageFpsDone == 0 && s_now - s_start > 3000) {
+            g_averageFpsDone = 1;
+            g_averageFps = (float)g_frameCount * 1000.0f / (float)(s_now - s_start);
+        }
+        if (g_lastSecond != s_now / 1000) {
+            g_lastSecond = s_now / 1000;
+            elapsed = s_now - s_secondStart;
+            s_secondStart = s_now;
+            g_fps = (float)g_framesThisSecond * 1000.0f / (float)elapsed;
+            g_framesThisSecond = 0;
+        }
     }
-    f = (float)*(int *)0x6dd8a0;
-    *(float *)0x5210b0 = f / *(float *)0x51138c;
-    *(float *)0x5210a0 = *(float *)0x5210b0;
+    g_frameScale = g_frameScale2 = 1000.0f / (float)(s_now - s_prev);
+}
+
+// FUNCTION: CMR2 0x004b23a0
+float FUN_004b23a0(void)
+{
+    return g_frameScale;
+}
+
+// FUNCTION: CMR2 0x004b23b0
+void FUN_004b23b0(float value)
+{
+    g_unk0x0052109c = value;
 }
 
 // Definition of one particle kind (0x70 bytes).

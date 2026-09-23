@@ -19,7 +19,7 @@ int CMain::m_unk0x00663dbc;
 int CMain::m_unk0x00663dc0;
 
 // GLOBAL: CMR2 0x005210ac
-int g_unk0x005210ac;
+int g_unk0x005210ac = 1;
 
 char CMain::m_logFileLocation[14] = "c:\\error.txt";
 char CMain::m_gameName[20] = "Colin McRae Rally 2";
