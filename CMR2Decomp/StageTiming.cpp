@@ -1009,7 +1009,37 @@ int FUN_00457e00(int index)
     return *(int *)(g_unk0x00542630 + 0x398 + index * 4);
 }
 
-// TODO: CMR2 0x00457e10 (implemented, match 81%)
+#if defined(_MSC_VER) && _MSC_VER == 1200
+// MSVC6 otherwise moves the first result into ESI before testing offset.
+// FUNCTION: CMR2 0x00457e10
+__declspec(naked) int FUN_00457e10(BYTE *pCar, int offset)
+{
+    __asm {
+        push esi
+        push edi
+        mov edi, dword ptr [esp + 0xc]
+        movsx eax, byte ptr [edi + 0xb1a]
+        push eax
+        call FUN_00457e00
+        mov ecx, dword ptr [esp + 0x10]
+        test ecx, ecx
+        jle no_offset
+        lea eax, [eax + ecx*2]
+no_offset:
+        movsx ecx, byte ptr [edi + 0xb1a]
+        push ecx
+        mov esi, eax
+        call FUN_00457e00
+        mov ecx, eax
+        xor eax, eax
+        mov ax, word ptr [esi]
+        pop edi
+        add eax, ecx
+        pop esi
+        ret 8
+    }
+}
+#else
 int FUN_00457e10(BYTE *pCar, int offset)
 {
     int address = FUN_00457e00((signed char)pCar[0xb1a]);
@@ -1018,6 +1048,8 @@ int FUN_00457e10(BYTE *pCar, int offset)
     int base = FUN_00457e00((signed char)pCar[0xb1a]);
     return *(unsigned short *)address + base;
 }
+#endif
+
 // GLOBAL: CMR2 0x005113b0
 double g_unk0x005113b0;
 // GLOBAL: CMR2 0x005113a8
