@@ -12,6 +12,8 @@
 #include "Sprite.h"
 #include "Graphics.h"
 #include "StageSplitData.h"
+#include "FixedPoint.h"
+#include <stdlib.h>
 #include "StageTiming.h"
 #include "StageUI.h"
 
@@ -76,6 +78,66 @@ unsigned int g_unk0x0051627c[9][30] = {
 };
 // GLOBAL: CMR2 0x0052f1a0
 int g_unk0x0052f1a0[20];
+
+// Picks the AI skill of the four opponents of a slot: for each opponent a
+// random window around its rating (pRatings[1], [3], [5], [7]) is spread over
+// the nine skill classes of pClasses (one per 10 points), and the most
+// frequent class wins. Slot 2 only uses two opponents.
+// TODO: CMR2 0x0040d6c0 (implemented, match 75%)
+void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
+{
+    unsigned int counts[9];
+    int classes[4];
+    int total;
+    int opponent;
+    int *pClass;
+    int bestClass;
+    int lo;
+    int hi;
+    int range;
+    int best;
+    int i;
+    int j;
+    int *pDest;
+
+    pClass = classes;
+    pRatings++;
+    opponent = 4;
+    do {
+        memset(counts, 0, sizeof(counts));
+        lo = *pRatings - rand() % 20 - 1;
+        hi = rand() % 20 + *pRatings + 1;
+        if (lo < 0)
+            lo = 0;
+        else if (hi > 100)
+            hi = 100;
+        range = 0;
+        if (lo < hi) {
+            range = hi - lo;
+            for (j = lo; j < hi; j++)
+                counts[pClasses[j / 10]]++;
+        }
+        best = -100;
+        total = range << 16;
+        bestClass = -1;
+        for (i = 0; i < 9; i++) {
+            counts[i] = FixMulShift32(0x640000, FixDiv(counts[i] << 16, total));
+            if ((int)counts[i] > best) {
+                best = counts[i];
+                bestClass = i;
+            }
+        }
+        *pClass++ = bestClass;
+        pRatings += 2;
+    } while (--opponent);
+    pDest = &g_unk0x0052f1a0[slot * 4];
+    for (i = 0; i < 4; i++) {
+        if (slot == 2 && i > 1)
+            pDest[i] = 0;
+        else
+            pDest[i] = classes[i];
+    }
+}
 // GLOBAL: CMR2 0x0052f1f0
 int g_unk0x0052f1f0[20];
 // GLOBAL: CMR2 0x0052f240
