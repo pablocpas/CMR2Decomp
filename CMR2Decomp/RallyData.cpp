@@ -186,6 +186,13 @@ void RallyData_ValidateIndex(int index)
 {
 }
 
+// FUNCTION: CMR2 0x004239e0
+void FUN_004239e0(int *p)
+{
+    if (p[1] == 3)
+        RallyData_ValidateIndex((int)p);
+}
+
 // FUNCTION: CMR2 0x00406940
 unsigned int RallyData_FUN_00406940(void)
 {

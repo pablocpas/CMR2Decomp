@@ -4,6 +4,7 @@
 #include "FileBuffer.h"
 #include "Game.h"
 #include "GameInfo.h"
+#include "RallyData.h"
 
 Car *g_cars[64];
 int g_carCount;
@@ -15,6 +16,54 @@ short g_carOrderCount;
 short g_carOrder[48];
 int g_carViewScale[15][2];
 SceneNode *g_viewNodes[8];
+// GLOBAL: CMR2 0x00538e04
+int g_unk0x00538e04[2];
+// GLOBAL: CMR2 0x00538e0c
+BYTE g_unk0x00538e0c[0x20];
+// GLOBAL: CMR2 0x00538d2c
+BYTE g_unk0x00538d2c[0xd8];
+// GLOBAL: CMR2 0x0053901a
+BYTE g_unk0x0053901a[2];
+// GLOBAL: CMR2 0x0053901c
+BYTE g_unk0x0053901c[0x200];
+// GLOBAL: CMR2 0x00538ca0
+FixMatrix g_unk0x00538ca0[2];
+
+// FUNCTION: CMR2 0x00422f90
+void FUN_00422f90(unsigned int index, int value)
+{
+    g_unk0x00538e04[index & 0xff] = value;
+}
+
+// FUNCTION: CMR2 0x00422f50
+int FUN_00422f50(unsigned int index)
+{
+    index &= 0xff;
+    if (*(int *)(g_unk0x00538d2c + index * 100) != 8)
+        return *(int *)(g_unk0x0053901c + ((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100);
+    return 8;
+}
+
+// FUNCTION: CMR2 0x00422fb0
+BYTE FUN_00422fb0(unsigned int index)
+{
+    index &= 0xff;
+    return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
+}
+
+// TODO: CMR2 0x00423d70 (implemented, match 67%)
+FixMatrix *FUN_00423d70(unsigned int index)
+{
+    BYTE state = (BYTE)RallyDataState();
+    if ((BYTE)index < state) {
+        index &= 0xff;
+        index <<= 6;
+        index += (unsigned int)g_unk0x00538ca0;
+        return (FixMatrix *)index;
+    }
+    index &= 0xff;
+    return Car_Get(index)->pWorld;
+}
 
 // GLOBAL: CMR2 0x00428790
 BYTE g_unk0x00428790[1];
@@ -1792,6 +1841,38 @@ int g_unk0x0053acf0[16];
 BYTE g_unk0x0053c5a0[10][0x60];
 // GLOBAL: CMR2 0x0053c9a8
 int g_unk0x0053c9a8;
+
+struct CarShortValues {
+    short a, b, c, d;
+};
+// GLOBAL: CMR2 0x0053a230
+CarShortValues g_unk0x0053a230[30];
+
+// TODO: CMR2 0x0042b5b0 (implemented, match 13%)
+void FUN_0042b5b0(int first, int count)
+{
+    if (first < first + count) {
+        short *p = &g_unk0x0053a230[first].b;
+        count = first + count - first;
+        do {
+            p[-1] = 0;
+            p[0] = 0;
+            p[1] = 0;
+            p[2] = 0;
+            p += 4;
+            count--;
+        } while (count != 0);
+    }
+}
+
+void FUN_004b23b0(float value);
+
+// FUNCTION: CMR2 0x0042b7e0
+void FUN_0042b7e0(void)
+{
+    FUN_004b23b0(100.0f);
+    g_unk0x0053c9a8 = 6;
+}
 
 // FUNCTION: CMR2 0x0042b6f0
 short *Car_GetOrder(void)

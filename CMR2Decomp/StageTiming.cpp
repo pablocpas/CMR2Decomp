@@ -744,6 +744,17 @@ struct Unk0x00539278 {
 // GLOBAL: CMR2 0x00539278
 Unk0x00539278 *g_unk0x00539278;
 
+// TODO: CMR2 0x004246a0 (implemented, match 75%; reccmp reports 100% effective)
+void FUN_004246a0(void)
+{
+    int i = 0;
+    do {
+        *(int *)(i + (int)g_unk0x00539278) =
+            *(int *)(i + (int)g_unk0x00539278 + 0xc);
+        i += 4;
+    } while (i < 0xc);
+}
+
 // Re-applies the stored force-feedback values to the selected device.
 // FUNCTION: CMR2 0x00424560
 void FUN_00424560(void)

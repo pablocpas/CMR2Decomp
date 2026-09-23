@@ -6,6 +6,12 @@ BYTE *g_routeNodes;
 short g_routeDirCount;
 FixVector g_routeDir[3];
 
+// FUNCTION: CMR2 0x00421570
+void FUN_00421570(unsigned int nodeIndex, FixVector *pOut)
+{
+    RallyRoute_GetNodeDirection(pOut, nodeIndex);
+}
+
 // Direction of the route at one node: the average of the directions to the
 // previous and the next node, cached for the last three nodes asked for.
 // FUNCTION: CMR2 0x004201d0

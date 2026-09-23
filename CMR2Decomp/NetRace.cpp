@@ -24,6 +24,14 @@ int g_unk0x0053a06c[8];
 int g_unk0x0053a0ac[8];
 // GLOBAL: CMR2 0x0053a0cc
 int g_unk0x0053a0cc[8];
+// GLOBAL: CMR2 0x005394bc
+BYTE g_unk0x005394bc[8][0xec];
+
+// FUNCTION: CMR2 0x00427620
+int FUN_00427620(int index)
+{
+    return *(int *)g_unk0x005394bc[index];
+}
 
 // FUNCTION: CMR2 0x00427640
 void FUN_00427640(BYTE param1)
