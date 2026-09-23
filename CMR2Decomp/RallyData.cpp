@@ -660,6 +660,85 @@ void FUN_00411ab0(BYTE param1, int param2)
     FUN_004b7790(g_unk0x00537060, FUN_00418570() / 2, 0x2b11, 0, 0, 0);
 }
 
+BYTE FUN_00448ca0(void);
+BYTE FUN_00448c90(void);
+int FUN_00448c80(void);
+int FUN_00448c70(void);
+int FUN_00448c60(int index);
+int FUN_004481c0(int car);
+BYTE FUN_00458290(int index);
+void Sound_SetPan(unsigned int handle, unsigned short pan);
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082d0(void);
+
+// GLOBAL: CMR2 0x00536c08
+BYTE g_unk0x00536c08[4];
+// GLOBAL: CMR2 0x00536c88
+int g_unk0x00536c88[2];
+// GLOBAL: CMR2 0x00536cac
+BYTE g_unk0x00536cac[4];
+// GLOBAL: CMR2 0x00536cb0
+short g_unk0x00536cb0;
+// GLOBAL: CMR2 0x00536fec
+int g_unk0x00536fec;
+// GLOBAL: CMR2 0x00537050
+int g_unk0x00537050;
+
+// Per-frame stage sounds: the start beep once the stage is over, and the
+// countdown beeps (rising in pitch over the last five seconds) while racing.
+// FUNCTION: CMR2 0x004118b0
+void FUN_004118b0(int car)
+{
+    int elapsed;
+    int remaining;
+    int handle;
+
+    if (FUN_00448ca0()) {
+        if (g_unk0x00537050 == 0) {
+            g_unk0x00537050 = 1;
+            if (RallyData_FUN_004082b0() == 1)
+                FUN_004b7790(g_unk0x00536cb0 + 2, FUN_00418570(), 0xac44, 0, 0, 0);
+            else
+                FUN_004b7790(g_unk0x00536cb0 + 1, FUN_00418570(), 0xac44, 0, 0, 0);
+        }
+        return;
+    }
+    switch (RallyData_FUN_004082b0()) {
+    case 1:
+        if (FUN_00458290(car)) {
+            if (FUN_004481c0(car) == 0)
+                FUN_004b7790(g_unk0x00536cb0 + 1, FUN_00418570(), 0xac44, 0, 0, 0);
+            else
+                FUN_00411ab0(car, 1);
+            g_unk0x00536fec = RallyData_FUN_004082d0() - FUN_00448c70() / 100;
+        }
+        if (FUN_00448c90() && FUN_00448c80() != car) {
+            elapsed = FUN_00448c70() / 100;
+            remaining = RallyData_FUN_004082d0() - elapsed;
+            if (remaining < g_unk0x00536fec) {
+                g_unk0x00536fec = remaining;
+                if (remaining > 5)
+                    elapsed = 0xac44;
+                else
+                    elapsed = (6 - remaining) * 0xac44 / 0x30 + 0xac44;
+                if (remaining != 0) {
+                    handle = FUN_004b7790(g_unk0x00536cb0, FUN_00418570(), elapsed, 0, 0, 0);
+                    Sound_SetPan(handle, elapsed);
+                }
+            }
+        }
+        break;
+    case 2:
+        if (FUN_00458290(car) && g_unk0x00536cac[car] != (BYTE)FUN_00448c60(car)) {
+            g_unk0x00536cac[car] = FUN_00448c60(car);
+            g_unk0x00536c88[car] = 1;
+            g_unk0x00536c08[car] = 0x7d;
+            FUN_004b7790(g_unk0x00536cb0 + 1, FUN_00418570(), 0xac44, 0, 0, 0);
+        }
+        break;
+    }
+}
+
 // FUNCTION: CMR2 0x004074a0
 bool RallyData_FUN_004074a0(void)
 {
