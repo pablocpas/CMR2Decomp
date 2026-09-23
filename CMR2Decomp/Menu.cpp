@@ -504,6 +504,15 @@ done:
     return action;
 }
 
+// FUNCTION: CMR2 0x004a0ba0
+void FUN_004a0ba0(void)
+{
+    g_menuActionPending = 1;
+    g_unk0x0059fa15 = 0;
+    g_unk0x0059fa16 = 0;
+    g_menuNextAction = 0;
+}
+
 // FUNCTION: CMR2 0x004a0bc0
 void Menu_PlaySoundId(int id)
 {

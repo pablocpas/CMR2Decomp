@@ -715,3 +715,9 @@ int Sound_FindHandle(unsigned int handle)
     return -1;
 }
 
+// FUNCTION: CMR2 0x004a1d00
+IDirectSound *FUN_004a1d00(void)
+{
+    return g_unk0x005a2844;
+}
+

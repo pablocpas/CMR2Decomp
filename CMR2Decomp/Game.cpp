@@ -879,7 +879,11 @@ typedef HRESULT (__stdcall *DPMethod2)(void *pThis, void *p1, DWORD p2);
 typedef HRESULT (__stdcall *DPMethod4)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4);
 
 // GLOBAL: CMR2 0x005a0068
-BYTE g_unk0x005a0068[0x10];
+BYTE g_unk0x005a0068[0x50];
+
+// The current session description and the list of enumerated sessions
+#define SESSION (*(DPSESSIONDESC2 *)g_unk0x005a0068)
+#define SESSIONS ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)
 
 // Closes the DirectPlay session object.
 // FUNCTION: CMR2 0x004a1280
@@ -911,6 +915,78 @@ bool FUN_004a14e0(void)
     if (hr <= (HRESULT)0x887700dc || hr == (HRESULT)0x88770168 || hr != 0)
         return false;
     return true;
+}
+
+// FUNCTION: CMR2 0x004a1480
+unsigned int FUN_004a1480(void)
+{
+    return *(unsigned int *)&CGameInfo::m_unk0x005a01bc & 0xff;
+}
+
+// FUNCTION: CMR2 0x004a1490
+char *FUN_004a1490(BYTE index)
+{
+    if (index < CGameInfo::m_unk0x005a01bc)
+        return SESSIONS[index].lpszSessionNameA;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004a14c0
+LPVOID *FUN_004a14c0(void)
+{
+    return CGameInfo::m_unk0x005a0098;
+}
+
+// FUNCTION: CMR2 0x004a14d0
+LPVOID *FUN_004a14d0(void)
+{
+    return CGameInfo::m_unk0x005a009c;
+}
+
+// FUNCTION: CMR2 0x004a15b0
+void FUN_004a15b0(BOOL param1)
+{
+    CGameInfo::m_unk0x005a0060 = param1;
+}
+
+// FUNCTION: CMR2 0x004a15c0
+int FUN_004a15c0(BYTE index, GUID *pOut)
+{
+    if (index < CGameInfo::m_unk0x005a01bc) {
+        *pOut = SESSIONS[index].guidInstance;
+        return 1;
+    }
+    return 0;
+}
+
+// FUNCTION: CMR2 0x004a1720
+DWORD FUN_004a1720(int index)
+{
+    if (index < 0)
+        return SESSION.dwCurrentPlayers;
+    return SESSIONS[index].dwCurrentPlayers;
+}
+
+// FUNCTION: CMR2 0x004a1740
+DWORD FUN_004a1740(BYTE index)
+{
+    return SESSIONS[index].dwMaxPlayers;
+}
+
+// FUNCTION: CMR2 0x004a1760
+void FUN_004a1760(DPSESSIONDESC2 *pDesc)
+{
+    SESSION = *pDesc;
+    CGameInfo::m_unk0x005a0098 = (LPVOID *)&CGameInfo::m_unk0x005a00b8;
+    CGameInfo::m_unk0x005a009c = (LPVOID *)&CGameInfo::m_unk0x005a02c0;
+}
+
+// FUNCTION: CMR2 0x004a1790
+BYTE FUN_004a1790(BYTE index)
+{
+    BYTE r = (BYTE)(SESSIONS[index].dwFlags >> 10);
+    r &= 1;
+    return r;
 }
 
 // STUB: CMR2 0x004a1850
@@ -1179,6 +1255,14 @@ char *FUN_004a1b60(BYTE index)
 {
     if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
         return CGame::m_unk0x005a1820[index].field_0x64;
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x004a1b30
+Unk0x005a1820 *FUN_004a1b30(BYTE index)
+{
+    if (CGame::m_unk0x005a1820[index].field_0xcc != 0)
+        return &CGame::m_unk0x005a1820[index];
     return NULL;
 }
 
