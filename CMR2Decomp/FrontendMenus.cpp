@@ -108,6 +108,8 @@ Menu g_menu0x00822958;
 Menu g_menu0x00822d18;
 // GLOBAL: CMR2 0x00822ef8
 Menu g_menu0x00822ef8;
+// GLOBAL: CMR2 0x008230d8
+Menu g_menu0x008230d8;
 // GLOBAL: CMR2 0x008232b8
 Menu g_menu0x008232b8;
 // GLOBAL: CMR2 0x00823498
@@ -130,6 +132,8 @@ Menu g_menu0x008241b8;
 Menu g_menu0x00824498;
 // GLOBAL: CMR2 0x00824678
 Menu g_menu0x00824678;
+// GLOBAL: CMR2 0x00824858
+Menu g_menu0x00824858;
 // GLOBAL: CMR2 0x00824a38
 Menu g_menu0x00824a38;
 // GLOBAL: CMR2 0x00824c18
@@ -138,8 +142,14 @@ Menu g_menu0x00824c18;
 Menu g_menu0x00824df8;
 // GLOBAL: CMR2 0x00824fd8
 Menu g_menu0x00824fd8;
+// GLOBAL: CMR2 0x008251b8
+Menu g_menu0x008251b8;
+// GLOBAL: CMR2 0x00826140
+Menu g_menu0x00826140;
 // GLOBAL: CMR2 0x00826420
 Menu g_menu0x00826420;
+// GLOBAL: CMR2 0x00826600
+Menu g_menu0x00826600;
 // GLOBAL: CMR2 0x008267e0
 Menu g_menu0x008267e0;
 // GLOBAL: CMR2 0x00826ba0
@@ -156,16 +166,30 @@ Menu g_menu0x00827320;
 Menu g_menu0x00827500;
 // GLOBAL: CMR2 0x008278c0
 Menu g_menu0x008278c0;
+// GLOBAL: CMR2 0x00827aa0
+Menu g_menu0x00827aa0;
 // GLOBAL: CMR2 0x00827c80
 Menu g_menu0x00827c80;
 // GLOBAL: CMR2 0x00827e60
 Menu g_menu0x00827e60;
+// GLOBAL: CMR2 0x00828040
+Menu g_menu0x00828040;
 // GLOBAL: CMR2 0x00828220
 Menu g_menu0x00828220;
 // GLOBAL: CMR2 0x00828500
 Menu g_menu0x00828500;
 // GLOBAL: CMR2 0x008286e0
 Menu g_menu0x008286e0;
+// GLOBAL: CMR2 0x008288c0
+Menu g_menu0x008288c0;
+// GLOBAL: CMR2 0x00828aa0
+Menu g_menu0x00828aa0;
+// GLOBAL: CMR2 0x00828c80
+Menu g_menu0x00828c80;
+// GLOBAL: CMR2 0x00828e60
+Menu g_menu0x00828e60;
+// GLOBAL: CMR2 0x00829140
+Menu g_menu0x00829140;
 
 // FUNCTION: CMR2 0x004f5520
 void FUN_004f5520(void)
@@ -1023,4 +1047,292 @@ Menu *FUN_004f8470(void)
 Menu *FUN_004f8360(void)
 {
     return &g_menu0x0081f4d8;
+}
+
+// FUNCTION: CMR2 0x004f82c0
+Menu *FUN_004f82c0(void)
+{
+    return &g_menu0x0081f118;
+}
+
+// FUNCTION: CMR2 0x004f82d0
+Menu *FUN_004f82d0(void)
+{
+    return &g_menu0x008221d8;
+}
+
+// FUNCTION: CMR2 0x004f82e0
+Menu *FUN_004f82e0(void)
+{
+    return &g_menu0x0081d318;
+}
+
+// FUNCTION: CMR2 0x004f82f0
+Menu *FUN_004f82f0(void)
+{
+    return &g_menu0x00820978;
+}
+
+// FUNCTION: CMR2 0x004f8300
+Menu *FUN_004f8300(void)
+{
+    return &g_menu0x0081f2f8;
+}
+
+// FUNCTION: CMR2 0x004f8310
+Menu *FUN_004f8310(void)
+{
+    return &g_menu0x00824678;
+}
+
+// FUNCTION: CMR2 0x004f8320
+Menu *FUN_004f8320(void)
+{
+    return &g_menu0x0081e5d8;
+}
+
+// FUNCTION: CMR2 0x004f8340
+Menu *FUN_004f8340(void)
+{
+    return &g_menu0x0081eb78;
+}
+
+// FUNCTION: CMR2 0x004f8350
+Menu *FUN_004f8350(void)
+{
+    return &g_menu0x0081e3f8;
+}
+
+// FUNCTION: CMR2 0x004f8370
+Menu *FUN_004f8370(void)
+{
+    return &g_menu0x008230d8;
+}
+
+// FUNCTION: CMR2 0x004f8380
+Menu *FUN_004f8380(void)
+{
+    return &g_menu0x00824858;
+}
+
+// FUNCTION: CMR2 0x004f8390
+Menu *FUN_004f8390(void)
+{
+    return &g_menu0x008251b8;
+}
+
+// FUNCTION: CMR2 0x004f83b0
+Menu *FUN_004f83b0(void)
+{
+    return &g_menu0x008203d8;
+}
+
+// FUNCTION: CMR2 0x004f83c0
+Menu *FUN_004f83c0(void)
+{
+    return &g_menu0x00824a38;
+}
+
+// FUNCTION: CMR2 0x004f83d0
+Menu *FUN_004f83d0(void)
+{
+    return &g_menu0x0081d8b8;
+}
+
+// FUNCTION: CMR2 0x004f83e0
+Menu *FUN_004f83e0(void)
+{
+    return &g_menu0x0081bc98;
+}
+
+// FUNCTION: CMR2 0x004f83f0
+Menu *FUN_004f83f0(void)
+{
+    return &g_menu0x00821e18;
+}
+
+// FUNCTION: CMR2 0x004f8400
+Menu *FUN_004f8400(void)
+{
+    return &g_menu0x0081cf58;
+}
+
+// FUNCTION: CMR2 0x004f8420
+Menu *FUN_004f8420(void)
+{
+    return &g_menu0x00823858;
+}
+
+// FUNCTION: CMR2 0x004f8430
+Menu *FUN_004f8430(void)
+{
+    return &g_menu0x00822d18;
+}
+
+// FUNCTION: CMR2 0x004f8440
+Menu *FUN_004f8440(void)
+{
+    return &g_menu0x00822598;
+}
+
+// FUNCTION: CMR2 0x004f8460
+Menu *FUN_004f8460(void)
+{
+    return &g_menu0x00821c38;
+}
+
+// FUNCTION: CMR2 0x004f8480
+Menu *FUN_004f8480(void)
+{
+    return &g_menu0x008212d8;
+}
+
+// FUNCTION: CMR2 0x004f8490
+Menu *FUN_004f8490(void)
+{
+    return &g_menu0x0081c058;
+}
+
+// FUNCTION: CMR2 0x004f84a0
+Menu *FUN_004f84a0(void)
+{
+    return &g_menu0x00823a38;
+}
+
+// FUNCTION: CMR2 0x004f84b0
+Menu *FUN_004f84b0(void)
+{
+    return &g_menu0x00824fd8;
+}
+
+// FUNCTION: CMR2 0x004f84c0
+Menu *FUN_004f84c0(void)
+{
+    return &g_menu0x0081fc58;
+}
+
+// FUNCTION: CMR2 0x004f84d0
+Menu *FUN_004f84d0(void)
+{
+    return &g_menu0x0081b338;
+}
+
+// FUNCTION: CMR2 0x004f84e0
+Menu *FUN_004f84e0(void)
+{
+    return &g_menu0x0081e998;
+}
+
+// FUNCTION: CMR2 0x004f84f0
+Menu *FUN_004f84f0(void)
+{
+    return &g_menu0x0081d138;
+}
+
+// FUNCTION: CMR2 0x004f88d0
+Menu *FUN_004f88d0(void)
+{
+    return &g_menu0x0081b158;
+}
+
+// FUNCTION: CMR2 0x004f89a0
+Menu *FUN_004f89a0(void)
+{
+    return &g_menu0x00824df8;
+}
+
+// FUNCTION: CMR2 0x004f9360
+Menu *FUN_004f9360(void)
+{
+    return &g_menu0x00826140;
+}
+
+// FUNCTION: CMR2 0x004fa2d0
+Menu *FUN_004fa2d0(void)
+{
+    return &g_menu0x008267e0;
+}
+
+// FUNCTION: CMR2 0x004fa2e0
+Menu *FUN_004fa2e0(void)
+{
+    return &g_menu0x00826600;
+}
+
+// FUNCTION: CMR2 0x004fa2f0
+Menu *FUN_004fa2f0(void)
+{
+    return &g_menu0x00828220;
+}
+
+// FUNCTION: CMR2 0x004fa300
+Menu *FUN_004fa300(void)
+{
+    return &g_menu0x00826f60;
+}
+
+// FUNCTION: CMR2 0x004fa310
+Menu *FUN_004fa310(void)
+{
+    return &g_menu0x00828500;
+}
+
+// FUNCTION: CMR2 0x004fa320
+Menu *FUN_004fa320(void)
+{
+    return &g_menu0x00827e60;
+}
+
+// FUNCTION: CMR2 0x004fa340
+Menu *FUN_004fa340(void)
+{
+    return &g_menu0x00827320;
+}
+
+// FUNCTION: CMR2 0x004fa350
+Menu *FUN_004fa350(void)
+{
+    return &g_menu0x00826420;
+}
+
+// FUNCTION: CMR2 0x004fa360
+Menu *FUN_004fa360(void)
+{
+    return &g_menu0x00828040;
+}
+
+// FUNCTION: CMR2 0x004fa4c0
+Menu *FUN_004fa4c0(void)
+{
+    return &g_menu0x00827aa0;
+}
+
+// FUNCTION: CMR2 0x004fa4f0
+Menu *FUN_004fa4f0(void)
+{
+    return &g_menu0x00828c80;
+}
+
+// FUNCTION: CMR2 0x004fa500
+Menu *FUN_004fa500(void)
+{
+    return &g_menu0x00828aa0;
+}
+
+// FUNCTION: CMR2 0x004fa510
+Menu *FUN_004fa510(void)
+{
+    return &g_menu0x008288c0;
+}
+
+// FUNCTION: CMR2 0x004fa520
+Menu *FUN_004fa520(void)
+{
+    return &g_menu0x00828e60;
+}
+
+// FUNCTION: CMR2 0x004fa530
+Menu *FUN_004fa530(void)
+{
+    return &g_menu0x00829140;
 }
