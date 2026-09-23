@@ -2589,6 +2589,20 @@ void FUN_004b98f0(int *p, int value)
     *p += value;
 }
 
+// Whether the timer that p was registered with (its first byte is the slot)
+// is still running.
+// FUNCTION: CMR2 0x004bc0c0
+BYTE FUN_004bc0c0(BYTE *p)
+{
+    BYTE *timer = g_unk0x00521138[*p];
+
+    if (*(BYTE **)(timer + 0x20) != p)
+        return 0;
+    if (timer[0x14] != 0)
+        return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4) + 3;
+    return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
+}
+
 // FUNCTION: CMR2 0x004bc3e0
 BYTE FUN_004bc3e0(unsigned int index)
 {

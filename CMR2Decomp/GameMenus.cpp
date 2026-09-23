@@ -971,6 +971,87 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 // GLOBAL: CMR2 0x00519ed4
 DWORD g_menuHighlightColour;
 
+void *FUN_00408470(unsigned int param1);
+BYTE FUN_004bc0c0(BYTE *p);
+
+// Blink timer of the stage end banner.
+// GLOBAL: CMR2 0x0053e880
+BYTE g_unk0x0053e880[8];
+// GLOBAL: CMR2 0x00541cf0
+int g_unk0x00541cf0;
+// GLOBAL: CMR2 0x00519f44
+char g_nameSeparator0x00519f44[] = " - ";
+
+// Stage end banner: the event title, a separator bar and the result text
+// appear one after the other, then one line per driver with its category
+// record name (or the driver name) and position.
+// TODO: CMR2 0x0044b3a0 (implemented, match 89%)
+void FUN_0044b3a0(void)
+{
+    int lineHeight;
+    int y;
+    int x;
+    int resY;
+    int i;
+    int position;
+    unsigned int *pResY;
+
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    y = (int)(g_pGraphics->resY * 242) / 480;
+    if (g_unk0x00541cf0 <= 0)
+        return;
+    if (g_unk0x00541cf0 > 0x4000 || !FUN_004bc0c0(g_unk0x0053e880)) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
+        Font_DrawText(2, CFrontend::m_stringDest, x, y, (int *)g_menuFrameColour, 0x11);
+    }
+    if (g_unk0x00541cf0 > 0x8000 || !FUN_004bc0c0(g_unk0x0053e880)) {
+        x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+        x += (int)(g_pGraphics->resX * 8) / 640;
+        pResY = &g_pGraphics->resY;
+        g_menuRect[0] = (short)x;
+        resY = *pResY;
+        lineHeight = Font_GetLineHeight(2);
+        g_menuRect[2] = 2;
+        g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
+        g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+        x += (int)(g_pGraphics->resX * 8) / 640;
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x93));
+        Font_DrawText(2, CFrontend::m_stringDest, x, y, (int *)g_menuFrameColour, 0x11);
+    }
+    if (g_unk0x00541cf0 <= 0xc000 && FUN_004bc0c0(g_unk0x0053e880))
+        return;
+    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+        position = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
+        if (strlen((char *)FUN_00408470(i)) != 0 && strlen((char *)FUN_00408470(i)) < 0x1e) {
+            sprintf(CFrontend::m_stringDest, (char *)FUN_00408470(i));
+            sprintf(CFrontend::m_stringDest + strlen((char *)FUN_00408470(i)), g_nameSeparator0x00519f44);
+        } else {
+            sprintf(CFrontend::m_stringDest, (char *)RallyData_GetRecord(i));
+            sprintf(CFrontend::m_stringDest + strlen((char *)RallyData_GetRecord(i)), g_nameSeparator0x00519f44);
+        }
+        switch (position) {
+        case 0:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x51));
+            break;
+        case 1:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x52));
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x53));
+            break;
+        default:
+            sprintf(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), CFrontend::GetTextString(0x54), position + 1);
+            break;
+        }
+        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                      (int)(g_pGraphics->resY * 242) / 480 +
+                          (i + 1) * ((int)(g_pGraphics->resY * 10) / 480 + Font_GetLineHeight(0)),
+                      (int *)g_menuFrameColour, 0x11);
+    }
+}
+
 // Clears the menu list: fills the whole screen with the highlight colour
 // through the menu sprite buffer (the sprite layer only tints, so the menu
 // colour is blended first).
