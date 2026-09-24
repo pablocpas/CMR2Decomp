@@ -2758,7 +2758,7 @@ int g_unk0x006a2bc8;
 // GLOBAL: CMR2 0x00520f94
 BYTE g_unk0x00520f94[4];
 // GLOBAL: CMR2 0x00520f98
-Quad2DInputVertex g_projectedQuad[5];
+Quad2DInputVertex g_projectedQuad[4];
 
 // FUNCTION: CMR2 0x004ae140
 void FUN_004ae140(BYTE *pColour)
@@ -2898,7 +2898,7 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
 
     intensity = (BYTE)(((unsigned int)pSurface[0x51] * FixMul(fade, *(int *)(pSurface + 0x3c))) >> 16);
     colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 4; i++)
         *(int *)g_projectedQuad[i].colour = colour;
     Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[1], &g_projectedQuad[2],
                               *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
