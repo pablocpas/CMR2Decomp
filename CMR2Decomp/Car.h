@@ -68,7 +68,8 @@ struct Car {
     BYTE field_0x770[0x8];
     int speed;                        // 0x778  length of the velocity vector
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
-    BYTE field_0x780[0x14];
+    int field_0x780;                  // 0x780  engine acceleration while no gear is engaged
+    BYTE field_0x784[0x10];
     int field_0x794;                  // 0x794
     BYTE field_0x798[0x4];
     int field_0x79c;                  // 0x79c  how fast the rolling direction follows the body
@@ -76,11 +77,10 @@ struct Car {
     int field_0x7a4;                  // 0x7a4
     BYTE field_0x7a8[0x4];
     int field_0x7ac;                  // 0x7ac
-    BYTE field_0x7b0[0x4];
+    int field_0x7b0;                  // 0x7b0  excess revs after limiting
     int field_0x7b4;                  // 0x7b4
     BYTE field_0x7b8[0x4];
-    int field_0x7bc[4];               // 0x7bc
-    BYTE field_0x7cc[0x10];
+    int field_0x7bc[8];               // 0x7bc
     int field_0x7dc[4];               // 0x7dc
     BYTE field_0x7ec[0x1c];
     int field_0x808[4];               // 0x808
@@ -138,7 +138,9 @@ struct Car {
     short wheelSurface[4];            // 0xaae
     BYTE field_0xab6[0x10];
     short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
-    BYTE field_0xace[0x42];
+    BYTE field_0xace[0x30];
+    short field_0xafe;                // 0xafe  engine startup countdown
+    BYTE field_0xb00[0x10];
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x6];
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
@@ -157,12 +159,14 @@ struct Car {
     char field_0xb42;                 // 0xb42
     BYTE field_0xb43[0x5];
     int field_0xb48;                  // 0xb48
-    BYTE field_0xb4c[0x14];
+    int field_0xb4c;                  // 0xb4c  engine restart flag
+    BYTE field_0xb50[0x10];
     int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];
     int field_0xb74;                  // 0xb74
-    BYTE field_0xb78[0xc];
+    int field_0xb78;                  // 0xb78  rev limiter active
+    BYTE field_0xb7c[0x8];
     int field_0xb84;                  // 0xb84
     BYTE field_0xb88[0x24];
     int field_0xbac[8];               // 0xbac
@@ -268,6 +272,7 @@ void Car_ApplyCornerFriction(int grip);
 void Car_UpdateWheelTorques(void);
 void Car_Integrate(void);
 void Car_UpdateWheelForces(void);
+void Car_UpdateEngineSpeed(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.

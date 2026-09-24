@@ -3046,3 +3046,63 @@ void Car_UpdateCornerLoads(void)
     if (g_pCurrentCar->field_0xb34 > 0)
         g_pCurrentCar->baseForce = f;
 }
+
+// Updates the engine speed from the selected gear or the startup animation,
+// then applies the rev limit and its excess-speed flag.
+// TODO: CMR2 0x004380c0 (implemented, match 61%)
+void Car_UpdateEngineSpeed(void)
+{
+    int front;
+    int rear;
+    int excess;
+    short angle;
+
+    if (g_pCurrentCar->field_0xb1e != 0 && g_pCurrentCar->field_0xb84 == 0) {
+        front = FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]) + FixMul(g_pCurrentCar->wheelLoad[1], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]);
+        rear = front;
+        if (g_pCurrentCar->field_0x1d8 == 0 || g_pCurrentCar->field_0x7b4 == 0)
+            rear = FixMul(g_pCurrentCar->wheelLoad[2], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]) + FixMul(g_pCurrentCar->wheelLoad[3], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]);
+        g_pCurrentCar->field_0x7a4 += FixMul(FixMul(front / 2 - rear / 2, g_pCurrentCar->field_0x7b4) - g_pCurrentCar->field_0x7a4 + rear / 2,
+                                  0x10000);
+    } else {
+        if (g_pCurrentCar->field_0xb4c == 0) {
+            if (g_pCurrentCar->field_0xafe == 0) {
+                g_pCurrentCar->field_0x7a4 += FixMul(g_pCurrentCar->field_0x780, 0xa0000);
+            } else if (g_pCurrentCar->field_0xafe > 0) {
+                angle = (short)(__int64)((double)FixMul(FixMul(0x190000 - FixMul(g_pCurrentCar->field_0xafe << 16, 0x41), 0xa3d),
+                                                             0x8c0000) * g_unk0x00511300);
+                g_pCurrentCar->field_0x7a4 = FixMul(FixMul(g_sinTable[(unsigned short)angle & 0xfff], 0x10000), g_pCurrentCar->field_0x794);
+                g_pCurrentCar->field_0xafe -= (short)FixMulShift32(g_physicsTimeStep, 0x3e80000);
+                if (g_pCurrentCar->field_0xafe < 0)
+                    g_pCurrentCar->field_0xafe = 0;
+                if (angle < 0x400)
+                    g_pCurrentCar->field_0x79c = 0x10000;
+            }
+        } else if (g_pCurrentCar->field_0xafe < 0x3e9) {
+            g_pCurrentCar->field_0xb4c = 0;
+            g_pCurrentCar->field_0xafe = 25000;
+        } else {
+            g_pCurrentCar->field_0xafe -= (short)FixMulShift32(g_physicsTimeStep, 0x3e80000);
+            if (g_pCurrentCar->field_0xafe < 0)
+                g_pCurrentCar->field_0xafe = 0;
+        }
+    }
+
+    if (g_pCurrentCar->field_0x7a4 < 0) {
+        g_pCurrentCar->field_0x7a4 = 0;
+    } else if (g_pCurrentCar->field_0x7a4 > g_pCurrentCar->field_0x794) {
+        excess = g_pCurrentCar->field_0x7a4 - g_pCurrentCar->field_0x794;
+        if (excess <= 0xcccc) {
+            g_pCurrentCar->field_0xb78 = 0;
+        } else {
+            excess = FixMul(excess - 0xcccc, 0x10000);
+            if (excess > 0x10000)
+                excess = 0x10000;
+            g_pCurrentCar->field_0x7b0 = FixMul(excess, 0x51eb);
+            g_pCurrentCar->field_0xb78 = 1;
+        }
+        g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
+        return;
+    }
+    g_pCurrentCar->field_0xb78 = 0;
+}
