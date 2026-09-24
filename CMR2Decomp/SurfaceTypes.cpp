@@ -1,6 +1,8 @@
 #include <windows.h>
 #include "SurfaceTypes.h"
 #include "FixedPoint.h"
+#include "StageTiming.h"
+#include "GenericFileLoader.h"
 #include "Car.h"
 
 int g_surfaceDrag[63] = {
@@ -290,5 +292,29 @@ store_grip2B:
             *(int *)((BYTE *)pCar + 0xa74) = previous - 0x3333;
             return;
         }
+    }
+}
+
+// GLOBAL: CMR2 0x0051e994
+char g_fontNames[7][20] = {
+    "general\\hel_13pt", "general\\hel_20pt", "general\\hel_36pt", "general\\lcd_14pt",
+    "general\\lcd_640", "general\\ocr_12pt", "general\\ocr_60pt",
+};
+
+int Font_InitTable(unsigned int count);
+void Font_Load(char *name, GenericFile *pFile, unsigned int index);
+
+// Loads the seven game fonts from stage file 1.
+// TODO: CMR2 0x00478b50 (implemented, match 88%)
+void FUN_00478b50(void)
+{
+    char *pName;
+    int i;
+
+    Font_InitTable(7);
+    i = 0;
+    for (pName = g_fontNames[0]; pName < g_fontNames[7]; pName += 20) {
+        Font_Load(pName, (GenericFile *)StageTiming_GetStageFile1(), i);
+        i++;
     }
 }

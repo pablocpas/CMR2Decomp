@@ -4,6 +4,9 @@
 #include "GameInfo.h"
 #include "StageUI.h"
 #include "FixedPoint.h"
+#include <stdio.h>
+#include "InstallInfo.h"
+#include "Frontend.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -411,4 +414,17 @@ void FUN_00420100(void)
 {
     Sound_FreeAll();
     CGame::UnwindCallbacks(g_raceCallbackMark);
+}
+
+// GLOBAL: CMR2 0x00538868
+char g_raceCarPath[0x104];
+// GLOBAL: CMR2 0x0051945c
+char g_strPathFormat[] = "%s\\%s";
+
+// Path of a car's directory ("<cars dir>\<car>").
+// FUNCTION: CMR2 0x004200d0
+char *FUN_004200d0(int car)
+{
+    sprintf(g_raceCarPath, g_strPathFormat, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car));
+    return g_raceCarPath;
 }

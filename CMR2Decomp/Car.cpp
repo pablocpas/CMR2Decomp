@@ -3184,3 +3184,39 @@ int FUN_00445a20(void)
         return 0;
     return 1;
 }
+
+BYTE *FUN_0042ca90(int index);
+int FUN_0048df10(BYTE *pCar);
+int FUN_0048d930(BYTE *p);
+
+// Rotation of car `index`'s camera placement.
+// FUNCTION: CMR2 0x00423a00
+FixMatrix *FUN_00423a00(FixMatrix *pOut, BYTE index)
+{
+    FixMatrix_CopyRotationFrom(pOut, (FixMatrix *)FUN_0042ca90(index));
+    return pOut;
+}
+
+// Position of a car's camera target node (at +0x750).
+// FUNCTION: CMR2 0x00423db0
+FixVector *FUN_00423db0(FixVector *pOut, BYTE index)
+{
+    FixMatrix_GetPosition(pOut, *(FixMatrix **)((BYTE *)Car_Get(index) + 0x750));
+    return pOut;
+}
+
+// Current camera mode record (100 bytes) of a view.
+#define VIEW_MODE_RECORD(i) (g_unk0x0053901c - 4 + ((unsigned int)g_unk0x00538e0c[i] + (i) * 2) * 100)
+
+// TODO: CMR2 0x00423fc0 (implemented, match 80%)
+void FUN_00423fc0(int view)
+{
+    FUN_0048df10(VIEW_MODE_RECORD(view));
+}
+
+// FUNCTION: CMR2 0x00421980
+void FUN_00421980(unsigned int view)
+{
+    view &= 0xff;
+    FUN_0048d930(VIEW_MODE_RECORD(view));
+}

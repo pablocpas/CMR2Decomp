@@ -1,6 +1,7 @@
 #include "RallyTiming.h"
 #include "TimingUtils.h"
 #include "GameInfo.h"
+#include "Graphics.h"
 
 // GLOBAL: CMR2 0x00533638
 char g_rallyOverallOrderDriverID[16];
@@ -392,3 +393,9 @@ void RallyTiming_FUN_0040d0c0(void)
     RallyTiming_SortOverallOrder();
 }
 
+
+// FUNCTION: CMR2 0x0040d090
+void FUN_0040d090(int index, int seconds)
+{
+    g_stageTimesRaw[index] = (int)(__int64)((double)seconds * CGraphics::m_65536);
+}

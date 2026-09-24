@@ -2021,3 +2021,13 @@ void FUN_004b5760(FixVector *pLightDir)
 {
     Scene_SetShadowDirection(pLightDir);
 }
+
+// Sets the view mask of a mesh node and of its whole subtree.
+// FUNCTION: CMR2 0x004addd0
+void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask)
+{
+    if (pNode->type == SCENE_NODE_MESH)
+        pNode->field_0x17c = mask;
+    if (pNode->pFirstChild != NULL)
+        SceneNode_SetViewMask(pNode->pFirstChild, mask);
+}

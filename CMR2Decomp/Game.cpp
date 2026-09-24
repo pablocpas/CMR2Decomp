@@ -1427,3 +1427,17 @@ void Session_SetMaxPlayers(int count)
     *(int *)(g_unk0x005a0068 + 0x28) = count;
     FUN_004a14e0();
 }
+
+void SceneNode_UpdateTree(SceneNode *pNode, int unused);
+void SceneNode_FlushTransforms(SceneNode *pNode);
+void Scene_SetViewFromCamera(SceneNode *pCamera);
+
+// Updates a scene tree for drawing from a camera.
+// TODO: CMR2 0x0049ce10 (implemented, match 85%)
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
+{
+    SceneNode_UpdateTree(pRoot, param);
+    SceneNode_FlushTransforms(pRoot);
+    Scene_SetViewFromCamera(pCamera);
+    return 1;
+}

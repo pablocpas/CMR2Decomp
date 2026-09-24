@@ -1,4 +1,7 @@
 #include "StageTiming.h"
+#include <stdio.h>
+#include "Frontend.h"
+#include "GenericFileLoader.h"
 #include "Car.h"
 #include "Stage.h"
 #include "RallyData.h"
@@ -1670,4 +1673,65 @@ void FUN_0045f240(void)
     g_unk0x00543ec8 = -1;
     g_unk0x00543ec0 = 0;
     g_unk0x00543ec4 = 0;
+}
+
+// Per car (8) and side (2): trail textures of the two trail kinds.
+// GLOBAL: CMR2 0x00543580
+int g_trailTextureA[8][2];
+// GLOBAL: CMR2 0x005431c0
+int g_trailTextureB[8][2];
+// GLOBAL: CMR2 0x005433e0
+int g_trailForced[8];
+// GLOBAL: CMR2 0x005436e8
+int g_trailForcedSurface[8];
+
+// FUNCTION: CMR2 0x0045a150
+void FUN_0045a150(int texture, int side, int car)
+{
+    if (car < 8)
+        g_trailTextureA[car][side] = texture;
+}
+
+// FUNCTION: CMR2 0x0045b530
+void FUN_0045b530(int texture, int side, int car)
+{
+    if (car < 8)
+        g_trailTextureB[car][side] = texture;
+}
+
+// FUNCTION: CMR2 0x0045b550
+void FUN_0045b550(int car, int surface)
+{
+    if (car < 8) {
+        g_trailForced[car] = 1;
+        g_trailForcedSurface[car] = surface;
+    }
+}
+
+BYTE FUN_0041b370(void);
+BYTE *RallyData_GetTyreRecord(BYTE index);
+
+// Value `index` of the tyre record `offset` places after the current one.
+// FUNCTION: CMR2 0x0045c720
+int FUN_0045c720(char offset, int index)
+{
+    BYTE *pRecord;
+
+    pRecord = RallyData_GetTyreRecord((BYTE)(FUN_0041b370() + offset));
+    if (pRecord != NULL)
+        return *(int *)(pRecord + 0x90 + index * 4);
+    return 0;
+}
+
+char *FUN_0041f8f0(void);
+
+// GLOBAL: CMR2 0x0051a12c
+char g_strBflFormat[] = "%s.bfl";
+
+// Loads the <stage>.bfl archive into stage file 3.
+// FUNCTION: CMR2 0x00455260
+void FUN_00455260(void)
+{
+    sprintf(CFrontend::m_stringDest, g_strBflFormat, FUN_0041f8f0());
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest);
 }
