@@ -2878,3 +2878,171 @@ void Car_UpdateRollover(void)
         g_pCurrentCar->field_0x5d0.x += FixMul(FixMul(slide, g_physicsScale), -0xa0000);
     }
 }
+
+// Steering: the rolling direction of the car eases towards the body's
+// right axis (faster with field_0x79c), and the steered wheels turn from it
+// by the steering angle, which wobbles with the position on the stage on
+// the cars whose setup asks for it.
+// TODO: CMR2 0x00434140 (implemented, match 76%)
+void Car_UpdateSteering(void)
+{
+    FixMatrix m;
+    FixVector right;
+    FixVector t;
+    FixVector d;
+    short angle;
+    int x;
+    int z;
+    int diff;
+    int w;
+    int k;
+
+    if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
+        angle = 0;
+    } else {
+        angle = g_pCurrentCar->heading;
+        if (*(int *)(g_pCarSetup + 0x3d8) > 0) {
+            x = g_pCurrentCar->position.x;
+            z = g_pCurrentCar->position.z;
+            if (FIX_ABS(x) - FIX_ABS(z) < 0)
+                diff = FIX_ABS(z) - FIX_ABS(x);
+            else
+                diff = FIX_ABS(x) - FIX_ABS(z);
+            w = FixMul((diff % 0x401 - 0x200) * 0x40, 0x20000);
+            if (g_pCurrentCar->speed < 0x10000)
+                w = FixMul(w, g_pCurrentCar->speed);
+            angle += (short)(__int64)((double)FixMul(w, *(int *)(g_pCarSetup + 0x3d8)) * g_unk0x00511300);
+        }
+    }
+    right = g_pCurrentCar->right;
+    FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->wheelDirFront));
+    t.x = g_pCurrentCar->wheelDirFront.x - t.x;
+    t.y = g_pCurrentCar->wheelDirFront.y - t.y;
+    t.z = g_pCurrentCar->wheelDirFront.z - t.z;
+    FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirFront, t);
+    d.x = right.x - g_pCurrentCar->wheelDirFront.x;
+    d.y = right.y - g_pCurrentCar->wheelDirFront.y;
+    d.z = right.z - g_pCurrentCar->wheelDirFront.z;
+    k = FixMul(FixMul(FixVecLength(&d), 0x13333),
+               FixMul(FixMul(g_pCurrentCar->field_0x79c, 0xcccd) + 0x3333, g_physicsTimeStep));
+    if (k >= 0x10000) {
+        g_pCurrentCar->wheelDirFront = right;
+    } else {
+        FixVecScale(&d, &d, k);
+        g_pCurrentCar->wheelDirFront.x += d.x;
+        g_pCurrentCar->wheelDirFront.y += d.y;
+        g_pCurrentCar->wheelDirFront.z += d.z;
+        FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirFront, g_pCurrentCar->wheelDirFront);
+    }
+    if (angle == 0) {
+        g_pCurrentCar->wheelDirRear = g_pCurrentCar->wheelDirFront;
+    } else {
+        FixMatrix_FromAxisAngle(&m, &g_pCurrentCar->up, angle);
+        FixMatrix_RotateVector(&t, &g_pCurrentCar->wheelDirFront, &m);
+        FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirRear, t);
+    }
+    FixVecCross(&g_pCurrentCar->wheelAxisRear, &g_pCurrentCar->wheelDirRear, &g_pCurrentCar->up);
+}
+
+// GLOBAL: CMR2 0x0053c9d4
+int g_unk0x0053c9d4;
+// Direction of gravity.
+// GLOBAL: CMR2 0x0053cad0
+FixVector g_gravityDir;
+
+// Ground load: the normal force of the ground spread over the touching
+// corners, and from the suspension load of each wheel its grip limits.
+// TODO: CMR2 0x004348c0 (implemented, match 76%)
+void Car_UpdateCornerLoads(void)
+{
+    FixVector n0;
+    FixVector f;
+    int k;
+    int n;
+    int load;
+    int grip;
+    int i;
+    int *pGripB;
+
+    n = g_pCurrentCar->field_0xb34;
+    if (n == 0) {
+        g_pCurrentCar->cornerMass = 0;
+    } else {
+        if (n == 4)
+            load = g_pCurrentCar->field_0x75c / 4;
+        else if (n == 2)
+            load = g_pCurrentCar->field_0x75c / 2;
+        else {
+            load = g_pCurrentCar->field_0x75c;
+            if (n != 1)
+                load = load / n;
+        }
+        g_pCurrentCar->cornerMass = load;
+    }
+    n0 = g_pCurrentCar->groundNormal;
+    load = -FixMul(g_pCurrentCar->cornerMass + 0x1e0000, FixVecDot(&g_gravityDir, &n0));
+    FixVecScale(&f, &n0, FixMul(load, 0x10000));
+    grip = FixMul(g_pCurrentCar->speed, FixMul(0x1cccc, 0x10000));
+    if (grip > 0x1cccc)
+        grip = 0x1cccc;
+    grip += 0x10000;
+    for (i = 0; i < 8; i++) {
+        pGripB = &g_pCurrentCar->cornerGripB[i];
+        if (g_pCurrentCar->cornerFlags[i] == 0 || (i < 4 && g_pCurrentCar->field_0xbac[i] != 0)) {
+            if (n != 4) {
+                g_pCurrentCar->cornerLoad[i].x += f.x;
+                g_pCurrentCar->cornerLoad[i].y += f.y;
+                g_pCurrentCar->cornerLoad[i].z += f.z;
+            }
+            if (i < 4 && g_pCurrentCar->field_0xb74 != 0) {
+                load = FixMul(g_pCurrentCar->field_0x8b8[i] + 0x1e0000, FixMul(g_pCurrentCar->cornerAxis[i].y, 0x8000));
+                g_pCurrentCar->field_0xa5c[i] =
+                    FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x1a4 + i * 0xc) +
+                                     *(int *)((BYTE *)g_pCurrentCar + 0x88 + i * 0x24));
+                g_pCurrentCar->field_0xa4c[i] =
+                    FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x1a4 + i * 0xc) +
+                                     *(int *)((BYTE *)g_pCurrentCar + 0x80 + i * 0x24));
+            } else {
+                g_pCurrentCar->cornerGripA[i] = FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x88 + i * 0x24));
+                *pGripB = FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x80 + i * 0x24));
+                g_pCurrentCar->cornerGripA[i] = FixMul(g_pCurrentCar->cornerGripA[i], grip);
+                *pGripB = FixMul(*pGripB, grip);
+            }
+        } else if (i < 4) {
+            *pGripB = 0;
+            g_pCurrentCar->cornerGripA[i] = 0;
+            g_pCurrentCar->field_0xa4c[i] = 0;
+            g_pCurrentCar->field_0xa5c[i] = 0;
+        } else {
+            *pGripB = 0;
+            g_pCurrentCar->cornerGripA[i] = 0;
+        }
+    }
+    if (g_pCurrentCar->field_0xb34 > 0 || g_pCurrentCar->field_0xb28 != 0) {
+        // The base force without its push into the ground, shared by the
+        // touching corners.
+        FixVecScale(&f, &n0, FixVecDot(&n0, &g_pCurrentCar->baseForce));
+        f.x = g_pCurrentCar->baseForce.x - f.x;
+        f.y = g_pCurrentCar->baseForce.y - f.y;
+        f.z = g_pCurrentCar->baseForce.z - f.z;
+        FixVecScale(&f, &f, 0x10000 - g_unk0x0053c9d4);
+        if (g_pCurrentCar->field_0xb74 == 0) {
+            if (g_pCurrentCar->field_0xb34 > 0)
+                FixVecScaleRecip(&g_carStepAccel, &f,
+                                 (int)(__int64)((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+            else
+                FixVecScaleRecip(&g_carStepAccel, &f,
+                                 (int)(__int64)((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+        } else if (g_pCurrentCar->field_0xb28 > 0) {
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)(__int64)((double)g_pCurrentCar->field_0xb28 * CGraphics::m_65536));
+        } else {
+            FixVecScaleRecip(&g_carStepAccel, &f, (int)(__int64)((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
+        }
+        k = FixMul(FixDiv(0x10000, 0x3d70), -0xb333);
+        if (k < 0)
+            k = 0;
+        FixVecScale(&g_carStepAccel, &g_carStepAccel, k);
+    }
+    if (g_pCurrentCar->field_0xb34 > 0)
+        g_pCurrentCar->baseForce = f;
+}

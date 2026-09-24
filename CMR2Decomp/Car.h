@@ -42,7 +42,8 @@ struct Car {
     BYTE field_0x570[0x54];
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
-    BYTE field_0x5dc[0x6c];
+    BYTE field_0x5dc[0xc];
+    FixVector cornerLoad[8];          // 0x5e8  normal force of the ground at each corner
     FixVector cornerForce[8];         // 0x648  force accumulated at each corner
     FixVector baseForce;              // 0x6a8  constant force applied every step
     FixVector groundDir[2];           // 0x6b4  front/rear rolling direction on the ground plane
@@ -69,7 +70,9 @@ struct Car {
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
     BYTE field_0x780[0x14];
     int field_0x794;                  // 0x794
-    BYTE field_0x798[0xc];
+    BYTE field_0x798[0x4];
+    int field_0x79c;                  // 0x79c  how fast the rolling direction follows the body
+    BYTE field_0x7a0[0x4];
     int field_0x7a4;                  // 0x7a4
     BYTE field_0x7a8[0x4];
     int field_0x7ac;                  // 0x7ac
@@ -95,7 +98,8 @@ struct Car {
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
     int field_0x870[4];               // 0x870
     int field_0x880[4];               // 0x880
-    BYTE field_0x890[0x24];
+    BYTE field_0x890[0x20];
+    int cornerMass;                   // 0x8b0  mass carried by each touching corner
     int field_0x8b4;                  // 0x8b4
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
@@ -119,7 +123,9 @@ struct Car {
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
-    BYTE field_0x9e8[0x64];
+    BYTE field_0x9e8[0x24];
+    int cornerGripA[8];               // 0xa0c  grip limits of a corner without a wheel
+    int cornerGripB[8];               // 0xa2c
     int field_0xa4c[4];               // 0xa4c
     int field_0xa5c[4];               // 0xa5c
     BYTE field_0xa6c[0x4];
