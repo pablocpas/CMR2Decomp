@@ -1342,6 +1342,7 @@ private:
     friend void ScreenLine2D_Draw(int layer);
     friend void Line2D_Draw(void);
     friend void Tri2D_DrawLayer(int layer);
+    friend void Scene_RestoreLights(void);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);

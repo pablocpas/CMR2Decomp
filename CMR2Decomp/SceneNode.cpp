@@ -1855,3 +1855,49 @@ void SceneNode_SetViewMask(SceneNode *pNode, BYTE mask)
         }
     }
 }
+
+// Default material (white diffuse/ambient).
+// GLOBAL: CMR2 0x006e00c8
+D3DMATERIAL7 g_sceneMaterial;
+
+// Restores the D3D lights, the default material and the ambient colour
+// after the device was (re)created.
+// TODO: CMR2 0x004b2e50 (implemented, match 80%)
+void Scene_RestoreLights(void)
+{
+    void **pSlot;
+    int i;
+
+    i = 0;
+    pSlot = g_sceneType1Objects;
+    do {
+        if (*pSlot != NULL) {
+            CGraphics::m_pTextureManager->pD3D->SetLight(i, (D3DLIGHT7 *)*pSlot);
+            CGraphics::m_pTextureManager->pD3D->LightEnable(i, TRUE);
+        }
+        pSlot++;
+        i++;
+    } while ((int)pSlot < (int)&g_sceneType1Objects[60]);
+    memset(&g_sceneMaterial, 0, sizeof(g_sceneMaterial));
+    g_sceneMaterial.diffuse.r = 1.0f;
+    g_sceneMaterial.ambient.r = 1.0f;
+    g_sceneMaterial.diffuse.g = 1.0f;
+    g_sceneMaterial.ambient.g = 1.0f;
+    g_sceneMaterial.diffuse.b = 1.0f;
+    g_sceneMaterial.ambient.b = 1.0f;
+    g_sceneMaterial.diffuse.a = 1.0f;
+    g_sceneMaterial.ambient.a = 1.0f;
+    g_sceneMaterial.specular.r = 0.0f;
+    g_sceneMaterial.emissive.r = 0.0f;
+    g_sceneMaterial.specular.g = 0.0f;
+    g_sceneMaterial.emissive.g = 0.0f;
+    g_sceneMaterial.specular.b = 0.0f;
+    g_sceneMaterial.emissive.b = 0.0f;
+    g_sceneMaterial.specular.a = 0.0f;
+    g_sceneMaterial.emissive.a = 0.0f;
+    g_sceneMaterial.power = 0.0f;
+    CGraphics::m_pTextureManager->pD3D->SetMaterial(&g_sceneMaterial);
+    g_sceneAmbientD3D = ((((DWORD)g_sceneAmbientColour[3] << 8 | g_sceneAmbientColour[0]) << 8) |
+                         g_sceneAmbientColour[1]) << 8 | g_sceneAmbientColour[2];
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
+}

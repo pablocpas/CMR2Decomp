@@ -3113,6 +3113,82 @@ char *FUN_004bcfe0(unsigned int index)
     return g_unk0x00816820[index];
 }
 
+// GLOBAL: CMR2 0x00816970
+int g_argsParsed;
+
+// Release callback: frees the argument copies.
+// FUNCTION: CMR2 0x004bcf80
+int Args_Free(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < g_unk0x00816974; i++) {
+        GlobalUnlock(GlobalHandle(g_unk0x00816820[i]));
+        GlobalFree(GlobalHandle(g_unk0x00816820[i]));
+    }
+    return 1;
+}
+
+// Splits the command line into space-separated arguments (GlobalAlloc copies);
+// returns their count.
+// FUNCTION: CMR2 0x004bce80
+int Args_Parse(char *pCommandLine)
+{
+    char word[260];
+    char *pOut;
+    int last;
+    int i;
+
+    last = 0;
+    g_unk0x00816974 = 0;
+    for (i = 0; i < 20; i++)
+        g_unk0x00816820[i] = NULL;
+    if (pCommandLine == NULL || *pCommandLine == '\0') {
+        g_argsParsed = 1;
+        return 0;
+    }
+    for (;;) {
+        memset(word, 0, sizeof(word));
+        pOut = word;
+        while (*pCommandLine == ' ')
+            pCommandLine++;
+        while (*pCommandLine != ' ') {
+            if (*pCommandLine == '\0') {
+                last = 1;
+                break;
+            }
+            *pOut++ = *pCommandLine++;
+        }
+        g_unk0x00816820[g_unk0x00816974] = (char *)GlobalLock(GlobalAlloc(GHND, lstrlenA(word) + 2));
+        lstrcpyA(g_unk0x00816820[g_unk0x00816974], word);
+        g_unk0x00816974++;
+        if (last) {
+            g_argsParsed = 1;
+            CGame::RegisterCallback(Args_Free, NULL);
+            return g_unk0x00816974;
+        }
+    }
+}
+
+// Case-insensitive search for an argument; returns 1 when present.
+// FUNCTION: CMR2 0x004bd010
+int Args_Has(char *pArg)
+{
+    char wanted[260];
+    char arg[260];
+    unsigned int i;
+
+    strcpy(wanted, pArg);
+    _strlwr(wanted);
+    for (i = 0; i < g_unk0x00816974; i++) {
+        strcpy(arg, FUN_004bcfe0(i));
+        _strlwr(arg);
+        if (strcmp(wanted, arg) == 0)
+            return 1;
+    }
+    return 0;
+}
+
 // FUNCTION: CMR2 0x004bcac0
 int FUN_004bcac0(void)
 {
@@ -4778,6 +4854,30 @@ void Particle_UpdateAll(int param)
         }
         if (pType->postUpdate != NULL)
             pType->postUpdate(p, pType, param);
+    }
+}
+
+// Interpolates every active particle between its last two positions (and
+// alpha values) by t (0..1) for drawing.
+// TODO: CMR2 0x004b06a0 (implemented, match 42%)
+void Particle_Interpolate(int t)
+{
+    Particle *p;
+    FixVector d;
+    int i;
+
+    p = g_particles;
+    for (i = 0; i < g_particleCount; i++, p++) {
+        if (p->active != 0) {
+            d.x = p->vector0x28.x - p->vector0x10.x;
+            d.y = p->vector0x28.y - p->vector0x10.y;
+            d.z = p->vector0x28.z - p->vector0x10.z;
+            FixVecScale(&d, &d, t);
+            p->vector0x1c.x = p->vector0x10.x + d.x;
+            p->vector0x1c.y = p->vector0x10.y + d.y;
+            p->vector0x1c.z = p->vector0x10.z + d.z;
+            p->type0x53 = (BYTE)((p->type0x52 * 0x10000 + FixMul((p->type0x56 - p->type0x52) * 0x10000, t)) >> 16);
+        }
     }
 }
 
