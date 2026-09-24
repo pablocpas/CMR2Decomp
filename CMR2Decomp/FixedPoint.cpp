@@ -39,6 +39,39 @@ void FixMatrix_Identity(FixMatrix *pOut)
     *pOut = *(FixMatrix *)m;
 }
 
+// Applies a rotation about the matrix's right axis while preserving position.
+// FUNCTION: CMR2 0x00422e70
+void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned int angle)
+{
+    FixVector position;
+    FixMatrix rotation;
+    FixVector axis;
+
+    FixMatrix_GetPosition(&position, pOut);
+    pOut->position.x = 0;
+    pOut->position.y = 0;
+    pOut->position.z = 0;
+    FixMatrix_Identity(&rotation);
+
+    axis.x = 0x10000;
+    axis.y = 0;
+    axis.z = 0;
+    FixMatrix_SetRight(&axis, &rotation);
+
+    axis.x = 0;
+    axis.y = g_sinTable[(angle + 0x400) & 0xfff];
+    axis.z = g_sinTable[angle & 0xfff];
+    FixMatrix_SetUp(&axis, &rotation);
+
+    axis.x = 0;
+    axis.y = -g_sinTable[angle & 0xfff];
+    axis.z = g_sinTable[(angle + 0x400) & 0xfff];
+    FixMatrix_SetForward(&axis, &rotation);
+
+    FixMatrix_Multiply(pOut, &rotation, pOut);
+    FixMatrix_SetPosition(&position, pOut);
+}
+
 // Inverts an affine 16.16 matrix (3x3 rotation/scale plus translation) through
 // its cofactors; a singular matrix gives the identity.
 // FUNCTION: CMR2 0x004ba440
