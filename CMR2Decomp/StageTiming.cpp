@@ -14,6 +14,29 @@
 #include "Graphics.h"
 #include <string.h>
 
+// GLOBAL: CMR2 0x00543da0
+int g_unk0x00543da0;
+
+// GLOBAL: CMR2 0x00547930
+FixVector g_unk0x00547930;
+
+// GLOBAL: CMR2 0x00547940
+int g_unk0x00547940;
+
+// Scales a timed stage event's displacement and vertical offset.
+// FUNCTION: CMR2 0x00460270
+void StageTiming_UpdateEventDisplacement(int *event)
+{
+    int t = FixMul(event[0x16], g_unk0x00543da0);
+    if (t > 0x10000) t = 0x10000;
+    int scale = FixMul(t, g_unk0x00547940);
+    FixVecScale((FixVector *)(event + 0xb), &g_unk0x00547930, scale);
+    if (event[0] == 1)
+        event[0xc] = -0x13333 - FixMul(0xcccd, t);
+    else
+        event[0xc] = -0x1999 - FixMul(0x3333, t);
+}
+
 // GLOBAL: CMR2 0x00541f08
 StageFile g_stageFiles[7];
 
