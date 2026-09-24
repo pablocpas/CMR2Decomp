@@ -3064,6 +3064,124 @@ void FUN_004b1150(void)
     CGame::RegisterCallback(g_unk0x004b1500, NULL);
 }
 
+// Camera-facing quad requested by the game (0x24 bytes); 16.16 fixed point.
+struct BillboardDef {
+    FixVector pos;              // 0x0
+    int top;                    // 0xc
+    int left;                   // 0x10
+    int bottom;                 // 0x14
+    int right;                  // 0x18
+    BYTE r, g, b, a;            // 0x1c
+    short field_0x20;           // 0x20
+    BYTE shade;                 // 0x22 0 = fully lit ... 256 = scene dark colour
+    BYTE flags;                 // 0x23 1 additive, 2 lit by the scene light
+};
+
+// Queued billboard in render format (0x58 bytes).
+struct BillboardQuad {
+    float corner[4][3];         // 0x0  offsets from pos in camera space
+    unsigned short texture;     // 0x30
+    float pos[3];               // 0x34
+    D3DCOLOR colour;            // 0x40
+    BYTE field_0x44[0xc];
+    int additive;               // 0x50
+    short field_0x54;           // 0x54
+};
+
+// Runs of consecutive quads sharing a texture: {count, texture}.
+// GLOBAL: CMR2 0x006c84f8
+int *g_billboardRun;
+// GLOBAL: CMR2 0x006c8500
+int g_billboardRuns[800][2];
+// GLOBAL: CMR2 0x006c9e00
+BillboardQuad g_billboards[800];
+// GLOBAL: CMR2 0x006dd780
+int g_billboardsEnabled;
+// GLOBAL: CMR2 0x006dd78c
+int g_billboardsRequested;
+
+void Scene_GetLightColour(DWORD *pColour, int level);
+
+// Queues a billboard for this frame (at most 800), grouping it with the
+// previous one when both use the same texture.
+// TODO: CMR2 0x004b11c0 (implemented, match 69%)
+void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
+{
+    BillboardQuad *pQuad;
+    float left;
+    float top;
+    float right;
+    float bottom;
+    BYTE dark[4];
+    BYTE bright[4];
+    int t;
+
+    if (g_billboardsEnabled == 0) {
+        if (g_billboardsRequested == 0)
+            g_billboardsRequested = 1;
+        return;
+    }
+    if (pTexture == NULL || pDef == NULL || (unsigned int)g_unk0x006dd784 >= 800)
+        return;
+    pQuad = &g_billboards[g_unk0x006dd784];
+    left = (float)pDef->left * CGraphics::m_oneOver65536;
+    top = (float)pDef->top * CGraphics::m_oneOver65536;
+    right = (float)pDef->right * CGraphics::m_oneOver65536;
+    bottom = (float)pDef->bottom * CGraphics::m_oneOver65536;
+    pQuad->corner[0][0] = 0.0f;
+    pQuad->corner[1][0] = 0.0f;
+    pQuad->corner[2][0] = 0.0f;
+    pQuad->corner[3][0] = 0.0f;
+    pQuad->corner[0][1] = -left;
+    pQuad->corner[0][2] = top;
+    pQuad->corner[1][1] = -left;
+    pQuad->corner[1][2] = bottom;
+    pQuad->corner[2][1] = -right;
+    pQuad->corner[2][2] = top;
+    pQuad->corner[3][1] = -right;
+    pQuad->corner[3][2] = bottom;
+    pQuad->texture = *pTexture;
+    pQuad->pos[0] = (float)pDef->pos.x * CGraphics::m_oneOver65536;
+    pQuad->pos[1] = (float)pDef->pos.y * CGraphics::m_oneOver65536;
+    pQuad->pos[2] = (float)pDef->pos.z * CGraphics::m_oneOver65536;
+    if ((pDef->flags & 2) == 0) {
+        pQuad->colour = RGBA_MAKE(pDef->r, pDef->g, pDef->b, pDef->a);
+    } else {
+        Scene_GetLightColour((DWORD *)dark, 0);
+        Scene_GetLightColour((DWORD *)bright, 0x10000);
+        dark[0] = dark[0] * pDef->r / 256;
+        dark[1] = dark[1] * pDef->g / 256;
+        dark[2] = dark[2] * pDef->b / 256;
+        bright[0] = bright[0] * pDef->r / 256;
+        bright[1] = bright[1] * pDef->g / 256;
+        bright[2] = bright[2] * pDef->b / 256;
+        t = pDef->shade;
+        pQuad->colour = RGBA_MAKE((bright[0] * (256 - t) + dark[0] * t) >> 8,
+                                  (bright[1] * (256 - t) + dark[1] * t) >> 8,
+                                  (bright[2] * (256 - t) + dark[2] * t) >> 8, pDef->a);
+    }
+    pQuad->additive = pDef->flags & 1;
+    pQuad->field_0x54 = pDef->field_0x20;
+    if (g_unk0x006dd784 == 0) {
+        g_billboardRun = g_billboardRuns[0];
+        g_billboardRuns[0][0] = 1;
+        g_billboardRuns[0][1] = pQuad->texture;
+        g_unk0x006dd788 = 1;
+        g_unk0x006dd784++;
+        return;
+    }
+    if (pQuad->texture != g_billboardRun[1]) {
+        g_billboardRun += 2;
+        g_unk0x006dd788++;
+        g_billboardRun[0] = 1;
+        g_billboardRun[1] = pQuad->texture;
+        g_unk0x006dd784++;
+        return;
+    }
+    g_billboardRun[0]++;
+    g_unk0x006dd784++;
+}
+
 // Takes a free texture slot, copies the 0x130-byte texture into it and
 // returns the slot index (or -1 when the table is full).
 // FUNCTION: CMR2 0x004a4bd0
