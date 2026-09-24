@@ -2858,6 +2858,103 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
     return pMesh;
 }
 
+extern void *g_sceneType1Objects[60];
+extern int *g_sceneSectorFlags;
+extern BYTE *g_sceneLightZones;
+extern short *g_sceneSectorZone;
+
+// Light zone of a sector (0x14 bytes): vertices whose intensity (at 0x20) the
+// scene lights attenuate.
+struct LightZone {
+    short field_0x0;
+    unsigned short vertexCount;     // 0x2
+    BYTE field_0x4[8];
+    BYTE *pVertices;                // 0xc  0x30 bytes each: x at 8, z at 0xc, intensity at 0x20
+    int field_0x10;
+};
+
+// Attenuates the light-zone vertices of a sector by D3D light `light` (by
+// horizontal distance); outside the light's reach they go back to full
+// intensity. Returns 1 when any intensity changed.
+// TODO: CMR2 0x004b6ca0 (implemented, match 48%)
+int Scene_AttenuateSectorLight(int sector, int light)
+{
+    D3DLIGHT7 *pLight;
+    LightZone *pZone;
+    int *pIntensity;
+    int changed;
+    int range;
+    int att0;
+    int base;
+    int att2;
+    int limit;
+    FixVector lpos;
+    FixVector d;
+    int dx, dz;
+    int wasLit;
+    int old;
+    int d2;
+    int i;
+
+    pLight = (D3DLIGHT7 *)g_sceneType1Objects[light];
+    changed = 0;
+    if (pLight == NULL)
+        return changed;
+    range = (int)(__int64)(pLight->dvRange * CGraphics::m_65536);
+    att0 = (int)(__int64)(pLight->dvAttenuation0 * CGraphics::m_65536);
+    base = FixMul(0x20000, att0);
+    att2 = (int)(__int64)(pLight->dvAttenuation2 * CGraphics::m_65536);
+    limit = g_sectorHalfSize + range + 0x140000;
+    lpos.x = (int)(__int64)(pLight->dvPosition.x * CGraphics::m_65536);
+    lpos.y = (int)(__int64)(pLight->dvPosition.y * CGraphics::m_65536);
+    lpos.z = (int)(__int64)(pLight->dvPosition.z * CGraphics::m_65536);
+    wasLit = g_sceneSectorFlags[sector];
+    d.x = g_sectors[sector]->x - lpos.x;
+    d.y = g_sectors[sector]->y - lpos.y;
+    d.z = g_sectors[sector]->z - lpos.z;
+    if (FIX_ABS(d.x) <= limit && FIX_ABS(d.z) <= limit)
+        g_sceneSectorFlags[sector] = 1;
+    else
+        g_sceneSectorFlags[sector] = 0;
+    if (g_sceneSectorFlags[sector] != 0) {
+        pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+        pIntensity = (int *)(pZone->pVertices + 0x20);
+        for (i = 0; i < pZone->vertexCount; i++) {
+            old = *pIntensity;
+            dx = lpos.x - pIntensity[-6];
+            dz = lpos.z - pIntensity[-5];
+            *pIntensity = 0x10000;
+            if (dx <= range || dz <= range) {
+                d2 = FixMul(dx, dx) + FixMul(dz, dz);
+                d2 = FixMul(d2, att2) + base;
+                d2 = FixDiv(d2, 0x1000000);
+                if (d2 < 0)
+                    d2 = 0;
+                else if (d2 > 0x10000)
+                    d2 = 0x10000;
+                *pIntensity = d2;
+            }
+            if (*pIntensity != old)
+                changed = 1;
+            pIntensity += 12;
+        }
+    } else if (wasLit != 0) {
+        pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+        if (pZone->vertexCount != 0) {
+            pIntensity = (int *)(pZone->pVertices + 0x20);
+            for (i = 0; i < pZone->vertexCount; i++) {
+                old = *pIntensity;
+                *pIntensity = 0x10000;
+                if (old != 0x10000)
+                    changed = 1;
+                pIntensity += 12;
+            }
+            return changed;
+        }
+    }
+    return changed;
+}
+
 // FUNCTION: CMR2 0x004b6ef0
 void FUN_004b6ef0(int value)
 {
