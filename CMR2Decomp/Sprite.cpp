@@ -544,6 +544,107 @@ void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
     p->verts = *pVerts;
 }
 
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+void FUN_004a3dd0(void);
+
+// Applies the texture (with its blend setup) and the z/cull flags of a queued quad.
+#define QUAD2D_SET_STATE(q)                                                          \
+    if ((q)->pTexture != NULL) {                                                    \
+        FUN_004a3e20((Unk0x004a3e20 *)(q)->pTexture, (q)->pTexture->blendMode);      \
+        CGraphics::FUN_004a4850(0, (int)(q)->pTexture);                              \
+    } else {                                                                        \
+        CGraphics::FUN_004a4850(0, 0);                                               \
+    }
+
+#define QUAD2D_SET_FLAGS(q)                                                          \
+    CGraphics::SetZEnable(((q)->flags & 1) ? 0 : 1);                                \
+    CGraphics::SetZWriteEnable(((q)->flags & 2) ? 0 : 1);                           \
+    CGraphics::SetCullMode(((q)->flags & 4) ? 1 : CGame::FUN_0049dcb0());
+
+// Copies one queued layer (8, 0x10, 0x20 or other) into the shared vertex
+// buffer and draws it, flushing whenever the texture or flags change.
+// TODO: CMR2 0x004bbd80 (implemented, match 82%)
+void Quad2D_DrawLayer(unsigned int layer)
+{
+    IDirect3DVertexBuffer7 *pVB;
+    Quad2D *pQuad;
+    Quad2D *pLast;
+    Texture *pLastTexture;
+    unsigned int lastFlags;
+    unsigned int count;
+    unsigned int i;
+    unsigned int n;
+    BYTE *pData;
+
+    n = 0;
+    pLastTexture = (Texture *)1;
+    lastFlags = 0xffffffff;
+    CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
+    if (layer & 8) {
+        count = g_unk0x0081616c;
+        pQuad = g_quad2DLayerA;
+        g_unk0x0081616c = 0;
+    } else if (layer & 0x10) {
+        count = g_unk0x00816170;
+        pQuad = g_quad2DLayerB;
+        g_unk0x00816170 = 0;
+    } else if (layer & 0x20) {
+        count = g_quad2DCountC;
+        pQuad = g_quad2DLayerC;
+        g_quad2DCountC = 0;
+    } else {
+        count = g_quad2DCountD;
+        pQuad = g_quad2DLayerD;
+        g_quad2DCountD = 0;
+    }
+    for (i = count; i > 0; i--) {
+        if (pLastTexture != pQuad->pTexture || lastFlags != pQuad->flags) {
+            pVB = CGraphics::m_pTextureManager->pVertexBuffer1;
+            pVB->Unlock();
+            if (n > 0) {
+                CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
+                                                                    CGraphics::m_pTextureManager->pVertexBuffer1, 0, n, 0);
+                n = 0;
+            }
+            CGraphics::m_pTextureManager->pVertexBuffer1->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, (LPVOID *)&pData, NULL);
+            if (pLastTexture != pQuad->pTexture) {
+                QUAD2D_SET_STATE(pQuad);
+            }
+            if (lastFlags != pQuad->flags) {
+                QUAD2D_SET_FLAGS(pQuad);
+            }
+            pLastTexture = pQuad->pTexture;
+            lastFlags = pQuad->flags;
+        }
+        *(Quad2DVertices *)(pData + n * 0x30) = pQuad->verts;
+        n += 3;
+        CGame::m_unk0x0059ce20++;
+        pQuad++;
+    }
+    CGraphics::m_pTextureManager->pVertexBuffer1->Unlock();
+    if (n > 0) {
+        if (layer & 8)
+            pLast = &g_quad2DLayerA[count - 1];
+        else if (layer & 0x10)
+            pLast = &g_quad2DLayerB[count - 1];
+        else if (layer & 0x20)
+            pLast = &g_quad2DLayerC[count - 1];
+        else
+            pLast = &g_quad2DLayerD[count - 1];
+        QUAD2D_SET_STATE(pLast);
+        QUAD2D_SET_FLAGS(pLast);
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
+                                                            CGraphics::m_pTextureManager->pVertexBuffer1, 0, n, 0);
+    }
+    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+    FUN_004a3dd0();
+    CGraphics::FUN_004a3de0();
+}
+
 // Converts three fixed-point vertices and queues them in the selected layer.
 // FUNCTION: CMR2 0x004bba00
 void Quad2D_QueueFixedTriangle(int, Quad2DInputVertex *pA,
