@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="CarPhysics.cpp" />
     <ClCompile Include="HudDash.cpp" />
+    <ClCompile Include="CarEffects.cpp" />
     <ClCompile Include="TrackCollision.cpp" />
     <ClCompile Include="ZlibAdler32.cpp" />
     <ClCompile Include="ZlibCrc32.cpp" />

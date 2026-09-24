@@ -21,6 +21,9 @@
     <ClCompile Include="HudDash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CarEffects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TrackCollision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

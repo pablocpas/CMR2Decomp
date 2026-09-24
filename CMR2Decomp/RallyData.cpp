@@ -671,6 +671,25 @@ BYTE *RallyData_FUN_00408a00(BYTE index)
     return NULL;
 }
 
+// Tyre record of a driver (NULL for the ghost cars of the time trials).
+// TODO: CMR2 0x00408a60 (implemented, match 78%)
+BYTE *RallyData_GetTyreRecord(BYTE index)
+{
+    unsigned int category;
+
+    if ((CGameInfo::FUN_00405e00() != 0 || CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+         CGameInfo::FUN_00405d80() == 7 || RallyDataStageIndex() == 10) &&
+        (int)(CGameInfo::FUN_00405d70() - 1) < (int)index)
+        return NULL;
+    if (CGameInfo::FUN_00405d80() == 4)
+        return g_unk0x0052f3e8 + 8 + index * 0xc4;
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category == 0xf)
+        return NULL;
+    return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+}
+
 // FUNCTION: CMR2 0x00408c70
 BYTE *RallyData_FUN_00408c70(int index)
 {
@@ -680,6 +699,22 @@ BYTE *RallyData_FUN_00408c70(int index)
     if (category != 0xf)
         return g_unk0x0052fa5c + category * 0x650 + 0xc;
     return NULL;
+}
+
+// Marks the tyre record of a driver as changed.
+// FUNCTION: CMR2 0x00408d00
+void RallyData_MarkTyresChanged(int index)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        g_unk0x0052f3e8[4 + index * 0xc4] |= 2;
+        return;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        g_unk0x0052f3e8[0x618 + category] = 1;
 }
 
 // FUNCTION: CMR2 0x00408d60

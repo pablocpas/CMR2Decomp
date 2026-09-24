@@ -130,7 +130,9 @@ struct Car {
     unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
     short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
     short wheelSurface[4];            // 0xaae
-    BYTE field_0xab6[0x5a];
+    BYTE field_0xab6[0x10];
+    short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
+    BYTE field_0xace[0x42];
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x6];
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
@@ -163,7 +165,8 @@ struct Car {
     int field_0xbf8;                  // 0xbf8
     BYTE field_0xbfc[0x4];
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
-    BYTE field_0xc04[0xc];
+    BYTE field_0xc04[0x8];
+    int field_0xc0c;                  // 0xc0c
     int field_0xc10;                  // 0xc10
     BYTE field_0xc14[0x10];
 };

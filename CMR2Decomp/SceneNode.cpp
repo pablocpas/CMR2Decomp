@@ -587,3 +587,96 @@ void Scene_GetShadowColour(DWORD *pColour, int *pLevel)
     *pColour = g_shadowColour;
     *pLevel = g_shadowLevel;
 }
+
+// Scene lighting: ambient plus a light colour scaled by 50 levels.
+// GLOBAL: CMR2 0x006e0118
+FixVector g_sceneAmbient;
+// GLOBAL: CMR2 0x006e0348
+FixVector g_sceneLightColour;
+// GLOBAL: CMR2 0x006e0244
+int g_sceneLightDirty;
+// GLOBAL: CMR2 0x006e0b34
+BYTE *g_sceneLightTable;            // 50 RGBA colours
+// GLOBAL: CMR2 0x006dfdc8
+DWORD *g_sceneLightTableD3D;        // the same as D3D ARGB
+// GLOBAL: CMR2 0x006dfd9c
+DWORD *g_sceneShadowTable;          // shadow colour at each level
+// GLOBAL: CMR2 0x006deacc
+DWORD *g_sceneShadowTableD3D;
+
+// Rebuilds the light and shadow colour tables.
+// TODO: CMR2 0x004b3940 (implemented, match 82%)
+void Scene_BuildLightTables(void)
+{
+    FixVector c;
+    BYTE *p;
+    DWORD *pShadow;
+    int level;
+    int step;
+    int offset;
+    int v;
+    BYTE alpha;
+
+    if (g_sceneLightTable != NULL && g_sceneLightTableD3D != NULL) {
+        step = FixDiv(0x10000, 0x310000);
+        level = 0;
+        p = g_sceneLightTable;
+        offset = 0;
+        pShadow = g_sceneShadowTable;
+        do {
+            FixVecScale(&c, &g_sceneLightColour, level);
+            c.y += g_sceneAmbient.y;
+            c.x += g_sceneAmbient.x;
+            c.z += g_sceneAmbient.z;
+            v = c.x >> 16;
+            if (v < 0)
+                v = 0;
+            else if (v > 0xff)
+                v = 0xff;
+            p[0] = (BYTE)v;
+            v = c.y >> 16;
+            if (v < 0)
+                v = 0;
+            else if (v > 0xff)
+                v = 0xff;
+            p[1] = (BYTE)v;
+            v = c.z >> 16;
+            if (v < 0)
+                v = 0;
+            else if (v > 0xff)
+                v = 0xff;
+            p[2] = (BYTE)v;
+            p[3] = 0xff;
+            *(DWORD *)((BYTE *)g_sceneLightTableD3D + offset) = ((p[0] | 0xffffff00) << 8 | p[1]) << 8 | (v & 0xff);
+            *pShadow = g_shadowColour;
+            alpha = (BYTE)FixMulShift32(g_shadowLevel, level);
+            ((BYTE *)pShadow)[3] = alpha;
+            *(DWORD *)((BYTE *)g_sceneShadowTableD3D + offset) =
+                ((((DWORD)alpha << 8 | ((BYTE *)pShadow)[0]) << 8) | ((BYTE *)pShadow)[1]) << 8 | ((BYTE *)pShadow)[2];
+            offset += 4;
+            p += 4;
+            pShadow++;
+            level += step;
+        } while (offset < 200);
+    }
+}
+
+// Light colour at a level (0..1.0).
+// TODO: CMR2 0x004b3ae0 (implemented, match 87%)
+void Scene_GetLightColour(DWORD *pColour, int level)
+{
+    int i;
+
+    if (g_sceneLightDirty != 0) {
+        Scene_BuildLightTables();
+        g_sceneLightDirty = 0;
+    }
+    i = level * 0x31 >> 16;
+    if (i < 0) {
+        *pColour = *(DWORD *)g_sceneLightTable;
+        return;
+    }
+    if (i > 0x31)
+        i = 0x31;
+    *pColour = ((DWORD *)g_sceneLightTable)[i];
+}
