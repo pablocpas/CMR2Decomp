@@ -26,7 +26,7 @@ struct SceneNode {
     FixMatrix local;            // 0x58  transform at creation / reset
     FixMatrix current;          // 0x98  local transform (right/up/forward/position)
     FixMatrix world;            // 0xd8  current * parent world
-    BYTE field_0x118[0x40];
+    float worldF[16];           // 0x118 float copy of world for Direct3D
     int allocated;              // 0x158 free the node memory on destroy
     BYTE field_0x15c[0x14];
     SceneNode *pNextInSector;   // 0x170

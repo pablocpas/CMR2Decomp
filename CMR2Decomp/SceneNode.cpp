@@ -1933,3 +1933,85 @@ void Scene_SetViewFromCamera(SceneNode *pCamera)
         CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX *)view);
     }
 }
+
+// Moves a point/spot light: position (16.16) and a direction pointing back
+// at the origin.
+// FUNCTION: CMR2 0x004b35b0
+void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z)
+{
+    SceneLight *pLight;
+    FixVector d;
+    FixVector dir;
+
+    pLight = (SceneLight *)pNode->pObject;
+    pLight->light.dvPosition.x = (float)x * CGraphics::m_oneOver65536;
+    d.x = -x;
+    d.y = -y;
+    d.z = -z;
+    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
+    FIX_NORMALIZE_INTO(dir, d);
+    pLight->light.dvDirection.x = (float)dir.x * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.y = (float)dir.y * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.z = (float)dir.z * CGraphics::m_oneOver65536;
+    CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
+}
+
+// Pushes the world matrices of dirty visible nodes to their Direct3D
+// objects: float matrix for meshes (types 0 and 3), position (and spot
+// direction) for lights.
+// TODO: CMR2 0x004ad8d0 (implemented, match 87%)
+void SceneNode_FlushTransforms(SceneNode *pNode)
+{
+    SceneLight *pLight;
+    int *m;
+
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        if (SceneNode_IsVisible(pNode)) {
+            if (pNode->type == SCENE_NODE_MESH || pNode->type == SCENE_NODE_EMPTY) {
+                if (pNode->dirty == 1) {
+                    m = (int *)&pNode->world;
+                    pNode->worldF[0] = (float)m[0] * CGraphics::m_oneOver65536;
+                    pNode->worldF[1] = (float)m[1] * CGraphics::m_oneOver65536;
+                    pNode->worldF[2] = (float)m[2] * CGraphics::m_oneOver65536;
+                    pNode->worldF[3] = (float)m[3] * CGraphics::m_oneOver65536;
+                    pNode->worldF[4] = (float)m[4] * CGraphics::m_oneOver65536;
+                    pNode->worldF[5] = (float)m[5] * CGraphics::m_oneOver65536;
+                    pNode->worldF[6] = (float)m[6] * CGraphics::m_oneOver65536;
+                    pNode->worldF[7] = (float)m[7] * CGraphics::m_oneOver65536;
+                    pNode->worldF[8] = (float)m[8] * CGraphics::m_oneOver65536;
+                    pNode->worldF[9] = (float)m[9] * CGraphics::m_oneOver65536;
+                    pNode->worldF[10] = (float)m[10] * CGraphics::m_oneOver65536;
+                    pNode->worldF[11] = (float)m[11] * CGraphics::m_oneOver65536;
+                    pNode->worldF[12] = (float)m[12] * CGraphics::m_oneOver65536;
+                    pNode->worldF[13] = (float)m[13] * CGraphics::m_oneOver65536;
+                    pNode->worldF[14] = (float)m[14] * CGraphics::m_oneOver65536;
+                    pNode->worldF[15] = (float)m[15] * CGraphics::m_oneOver65536;
+                    pNode->dirty = 0;
+                }
+            } else if (pNode->type == SCENE_NODE_TYPE1) {
+                pLight = (SceneLight *)pNode->pObject;
+                if (pNode->dirty == 1) {
+                    if (pLight->light.dltType != D3DLIGHT_DIRECTIONAL) {
+                        if (pLight->light.dltType == D3DLIGHT_SPOT) {
+                            pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
+                            pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
+                            pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
+                        } else if (pLight->light.dltType != D3DLIGHT_POINT) {
+                            pNode->dirty = 0;
+                            goto next;
+                        }
+                        pLight->light.dvPosition.x = (float)pNode->world.position.x * CGraphics::m_oneOver65536;
+                        pLight->light.dvPosition.y = (float)pNode->world.position.y * CGraphics::m_oneOver65536;
+                        pLight->light.dvPosition.z = (float)pNode->world.position.z * CGraphics::m_oneOver65536;
+                        CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
+                    }
+                    pNode->dirty = 0;
+                }
+            }
+        }
+    next:
+        if (SceneNode_IsVisible(pNode) && pNode->pFirstChild != NULL)
+            SceneNode_FlushTransforms(pNode->pFirstChild);
+    }
+}
