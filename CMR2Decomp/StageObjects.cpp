@@ -20,6 +20,8 @@ extern BYTE *g_unk0x0058c94c;
 extern unsigned int g_unk0x0058ca6c;
 
 int FUN_0046d2a0(int *p);
+int RallyData_FUN_00421370(BYTE *p);
+int RallyData_FUN_00421420(void);
 
 // GLOBAL: CMR2 0x00543f28
 int g_unk0x00543f28[8 * 4];
@@ -763,6 +765,28 @@ int FUN_00498db0(int angle)
     if (angle < -0xb40000)
         angle += 0x1680000;
     return angle;
+}
+
+// Marks a nearby car as travelling roughly towards the player car.
+// TODO: CMR2 0x0047cc50 (implemented, match 78%)
+void StageObject_UpdateApproachingCar(int carIndex, int time)
+{
+    g_unk0x0058e270[carIndex] = 1;
+    Car *pPlayer = Car_Get(0);
+    Car *pOther = Car_Get(carIndex);
+    int otherZ = pOther->position.z;
+    int otherX = pOther->position.x;
+    int heading = StageObject_Atan2Degrees(pOther->right.z, pOther->right.x);
+    int duration = RallyData_FUN_00421420();
+    int difference = RallyData_FUN_00421370((BYTE *)pPlayer) - time;
+    if (difference < -100) difference += duration;
+    if (difference >= 0 && difference <= 7) {
+        int direction = StageObject_Atan2Degrees(pPlayer->position.z - otherZ,
+                                                 pPlayer->position.x - otherX);
+        direction = FUN_00498db0(heading - direction);
+        if (direction <= 0xa0000 && direction >= -0xa0000) return;
+    }
+    g_unk0x0058e270[carIndex] = 0;
 }
 
 // Buttons held on any connected device.
