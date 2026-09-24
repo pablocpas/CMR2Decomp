@@ -21,6 +21,7 @@ struct KnockoutTable {
 
 struct Car;
 void RallyData_UpdateCarRoute(Car *pCar);
+void FUN_004129d0(int car);
 
 extern KnockoutTable g_knockout;
 

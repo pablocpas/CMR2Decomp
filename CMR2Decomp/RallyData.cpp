@@ -23,6 +23,15 @@ int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
 int FUN_00418570(void);
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+int FUN_004582d0(int index);
+bool FUN_00459390(void);
+int FUN_00448c60(int index);
+int FUN_004481c0(int car);
+int FUN_0040a700(int index);
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082c0(void);
+unsigned int RallyData_FUN_004082e0(void);
+unsigned int RallyData_FUN_00407e90(void);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -923,6 +932,155 @@ void FUN_004125a0(int id)
     pName = CAIHelper::GetNameForID(id);
 done:
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, pName);
+}
+
+extern char g_stageNumberFormat[];
+extern char g_nameSpaceFormat[];
+
+// GLOBAL: CMR2 0x005170bc
+unsigned int g_stageHudPanelColour = 0x96dcbebc;
+// GLOBAL: CMR2 0x005170c4
+unsigned int g_stageHudTextColour = 0xffffffff;
+// GLOBAL: CMR2 0x00517dcc
+char g_stageSlashFormat[] = " / ";
+
+// Draws a car's stage gap, stage number and position in the on-stage HUD.
+// TODO: CMR2 0x004129d0 (implemented, match 54%)
+void FUN_004129d0(int car)
+{
+    short rect[4];
+    int xShift = 0;
+    int yShift = 0;
+    int marginX = (int)g_pGraphics->resX * 3 / 640;
+    int wideMarginX = (int)g_pGraphics->resX * 44 / 640;
+    int topMarginY = (int)g_pGraphics->resY * 3 / 480;
+    int mode;
+    int stage;
+    int count;
+    int x;
+    int y;
+    int i;
+    int pixelFixed;
+    int dimensionFixed;
+
+    if (RallyData_FUN_00411880()) {
+        if (CGameInfo::FUN_00405dc0()) {
+            if (car == 1)
+                yShift = (int)g_pGraphics->resY / 2;
+        } else if (car == 0) {
+            xShift = -((int)g_pGraphics->resX / 2);
+        }
+    }
+    rect[0] = (short)(((int)g_pGraphics->resX * 0xab9b >> 16) + xShift);
+    rect[1] = (short)(((int)g_pGraphics->resY << 12 >> 16) + yShift);
+    rect[2] = (short)(((int)g_pGraphics->resX * 0x4865 >> 16) + 1);
+    rect[3] = (short)((int)g_pGraphics->resY * 53 / 480);
+
+    if (FUN_00459390()) {
+        if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 ||
+            CGameInfo::GetGameLanguage() == 2)
+            rect[3] += (short)((int)g_pGraphics->resY * 24 / 480 * 2);
+        else
+            rect[3] += (short)((int)g_pGraphics->resY * 24 / 480);
+    }
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
+    if (FUN_00459390()) {
+        if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 ||
+            CGameInfo::GetGameLanguage() == 2)
+            rect[3] += (short)((int)g_pGraphics->resY * -24 / 480 * 2);
+        else
+            rect[3] += (short)((int)g_pGraphics->resY * -24 / 480);
+    }
+
+    pixelFixed = (int)(__int64)((double)(rect[3] + rect[1] - topMarginY + 1) * CGraphics::m_65536);
+    dimensionFixed = (int)(__int64)((double)g_pGraphics->resY * CGraphics::m_65536);
+    y = FixDiv(pixelFixed, dimensionFixed);
+    pixelFixed = (int)(__int64)((double)(rect[0] + 16 + marginX) * CGraphics::m_65536);
+    dimensionFixed = (int)(__int64)((double)g_pGraphics->resX * CGraphics::m_65536);
+    x = FixDiv(pixelFixed, dimensionFixed);
+    FormatGapToLeader(g_stageSplitData[car].targetTime, 4, 4, x, y,
+                      &g_stageHudTextColour, 0x21, NULL, 0);
+
+    stage = FUN_004582d0(car);
+    count = RallyData_FUN_00406990() & 0xff;
+    mode = 0;
+    if (RallyData_FUN_004082e0()) {
+        int uiState = RallyData_FUN_004082b0();
+        if (uiState == 1)
+            mode = 1;
+        else if (uiState == 2)
+            mode = 2;
+    }
+
+    if (mode != 2) {
+        if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 12 || mode == 1) {
+            if (stage < 0)
+                stage = 0;
+            sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0x2f));
+            x = rect[0] + marginX;
+            y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+            Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+            x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, (stage + 1) % 100);
+            Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                          (int *)&g_stageHudTextColour, 9);
+        } else if (!RallyData_FUN_00407e90()) {
+            if (stage < 0)
+                stage = 0;
+            if (stage < count)
+                stage++;
+            sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0x2f), stage, count);
+            x = rect[0] + marginX;
+            y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+            Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+            x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, stage % 100);
+            Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                          (int *)&g_stageHudTextColour, 9);
+            x += Font_GetTextWidth(5, (BYTE *)CFrontend::m_stringDest);
+            sprintf(CFrontend::m_stringDest, g_stageSlashFormat);
+            Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+            x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, count);
+            Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                          (int *)&g_stageHudTextColour, 9);
+        }
+    } else {
+        sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0xbc));
+        x = rect[0] + marginX;
+        y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_00448c60(car));
+        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                      (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(5, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageSlashFormat);
+        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, RallyData_FUN_004082c0());
+        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                      (int *)&g_stageHudTextColour, 9);
+    }
+
+    if (CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 12 &&
+        (RallyDataStageIndex() != 10 || CGameInfo::FUN_00405d80() != 10)) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x99));
+        x = rect[0] + rect[2] - wideMarginX;
+        y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 12);
+        if (CGameInfo::FUN_00405d80() == 11 ||
+            (CGameInfo::FUN_00405e00() && RallyData_GetFlag25())) {
+            for (i = 0; i < 8; i++) {
+                if (FUN_0040a700(i) == -2)
+                    sprintf(CFrontend::m_stringDest, g_stageNumberFormat, i + 1);
+            }
+        } else {
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004481c0(car) + 1);
+        }
+        Font_DrawText(6, CFrontend::m_stringDest, rect[0] + rect[2] - marginX,
+                      rect[1] + topMarginY, (int *)&g_stageHudTextColour, 12);
+    }
 }
 
 BYTE FUN_00448ca0(void);
