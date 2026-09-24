@@ -41,5 +41,7 @@ void StageTiming_RebuildSplitPositions(void);
 
 int *FUN_00469680(int index);
 BYTE *FUN_00456be0(int index);
+void StageDeform_ApplyRadialDent(void);
+void StageDeform_ApplyPlanarDent(void);
 
 #endif
