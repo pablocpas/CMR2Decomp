@@ -26,15 +26,15 @@ struct ParticleType {
     BYTE directionFlags;
     BYTE pad0x37;
     int field0x38;
-    int field0x3c;
+    int field0x3c;          // 0x3c billboard top/left/bottom/right (0x3c..0x48)
     int field0x40;
     int field0x44;
     int field0x48;
-    int field0x4c;
-    int field0x50;
-    int field0x54;
-    int field0x58;
-    int field0x5c;
+    int field0x4c;          // 0x4c animation frames (texture per frame)
+    int field0x50;          // 0x50 frame count
+    int field0x54;          // 0x54 delay before the animation starts
+    int field0x58;          // 0x58 time per frame
+    int field0x5c;          // 0x5c custom draw callback
     void (*update)(void *, ParticleType *, int);        // 0x60 replaces the default motion
     void (*postUpdate)(void *, ParticleType *, int);    // 0x64
     void (*callback)(void *, ParticleType *, int);

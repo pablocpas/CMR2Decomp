@@ -4617,6 +4617,54 @@ ParticleType *g_pEditParticleType;
 // GLOBAL: CMR2 0x006a2ce4
 int g_nextParticle;
 
+// Selects the particle type to edit and resets it to defaults.
+// FUNCTION: CMR2 0x004af940
+void ParticleEdit_Select(int index)
+{
+    if (index >= 0 && index < g_particleTypeCount) {
+        g_pEditParticleType = &g_particleTypes[index];
+        g_pEditParticleType->lifetime = 0;
+        g_pEditParticleType->gravity = 0;
+        g_pEditParticleType->drag = 0;
+        g_pEditParticleType->bounce = 0;
+        g_pEditParticleType->friction = 0;
+        g_pEditParticleType->type = 0x80;
+        g_pEditParticleType->alphaEnd = 0;
+        g_pEditParticleType->alphaStep = 0;
+        g_pEditParticleType->colour[0] = 0xff;
+        g_pEditParticleType->colour[1] = 0xff;
+        g_pEditParticleType->colour[2] = 0xff;
+        g_pEditParticleType->field0x38 = 0;
+        g_pEditParticleType->field0x4c = 0;
+        g_pEditParticleType->field0x50 = 0;
+        g_pEditParticleType->field0x54 = 0;
+        g_pEditParticleType->field0x58 = 0;
+        g_pEditParticleType->postUpdate = NULL;
+        g_pEditParticleType->callback = NULL;
+        g_pEditParticleType->field0x6c = 0;
+        g_pEditParticleType->update = NULL;
+        g_pEditParticleType->field0x5c = 0;
+        g_pEditParticleType->flags &= 0xfe;
+        g_pEditParticleType->flags &= 0xfd;
+        g_pEditParticleType->flags &= 0xfb;
+        g_pEditParticleType->flags &= 0xf7;
+        g_pEditParticleType->flags &= 0xef;
+        g_pEditParticleType->flags &= 0xdf;
+        g_pEditParticleType->flags &= 0xbf;
+        g_pEditParticleType->flags &= 0x7f;
+        g_pEditParticleType->directionFlags &= 0xfe;
+        g_pEditParticleType->directionFlags &= 0xfd;
+        g_pEditParticleType->directionFlags &= 0xfb;
+        g_pEditParticleType->directionFlags &= 0xf7;
+        g_pEditParticleType->spread.x = 0;
+        g_pEditParticleType->spread.y = 0;
+        g_pEditParticleType->spread.z = 0;
+        g_pEditParticleType->field0x38 = 0;
+        return;
+    }
+    g_pEditParticleType = NULL;
+}
+
 // Particle type editor: setters for g_pEditParticleType.
 
 // Copies a template particle type (flag 1) into the type being edited.
@@ -5016,6 +5064,83 @@ void Particle_Interpolate(int t)
             p->vector0x1c.z = p->vector0x10.z + d.z;
             p->type0x53 = (BYTE)((p->type0x52 * 0x10000 + FixMul((p->type0x56 - p->type0x52) * 0x10000, t)) >> 16);
         }
+    }
+}
+
+// Queues a billboard for every active particle visible in view `view`
+// (animated texture frames, size scaling, spin, lighting), or calls the
+// type's own draw callback.
+// TODO: CMR2 0x004b0480 (implemented, match 39%)
+void Particle_DrawAll(int param, BYTE view)
+{
+    Particle *p;
+    ParticleType *pType;
+    BillboardDef def;
+    int frame;
+    int elapsed;
+    int texture;
+    int *pFrames;
+    int i;
+
+    def.flags &= 0xfe;
+    p = g_particles;
+    for (i = 0; i < g_particleCount; i++, p++) {
+        if (p->active == 0 || (p->field0x55 & (1 << view)) == 0)
+            continue;
+        pType = p->pType;
+        if (pType->field0x5c != 0) {
+            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(p, pType, param);
+            continue;
+        }
+        pFrames = (int *)pType->field0x4c;
+        if (pFrames == NULL) {
+            texture = p->field0x60;
+        } else {
+            frame = 0;
+            elapsed = pType->lifetime - p->age;
+            if (pType->field0x54 < elapsed && pType->field0x58 > 0) {
+                frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
+                if (pType->directionFlags & 8)
+                    frame += ((unsigned int)p & 0xffff) % (unsigned int)pType->field0x50;
+                if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
+                    texture = pFrames[pType->field0x50 - 1];
+                    goto draw;
+                }
+                frame %= pType->field0x50;
+            }
+            texture = pFrames[frame];
+        }
+    draw:
+        if (texture == 0)
+            continue;
+        if (p->size == 0x10000) {
+            def.top = pType->field0x3c;
+            def.left = pType->field0x40;
+            def.bottom = pType->field0x44;
+            def.right = pType->field0x48;
+        } else {
+            def.top = FixMul(pType->field0x3c, p->size);
+            def.left = FixMul(pType->field0x40, p->size);
+            def.bottom = FixMul(pType->field0x44, p->size);
+            def.right = FixMul(pType->field0x48, p->size);
+        }
+        if ((pType->flags & 0x20) == 0)
+            def.field_0x20 = 0;
+        else
+            def.field_0x20 = p->field0x50;
+        def.pos = p->vector0x1c;
+        if (p->field0x40 != 0) {
+            def.pos.x += *(int *)(p->field0x40 + 0x30);
+            def.pos.y += *(int *)(p->field0x40 + 0x34);
+            def.pos.z += *(int *)(p->field0x40 + 0x38);
+        }
+        def.flags ^= (pType->directionFlags ^ def.flags) & 2;
+        def.r = p->colour[0];
+        def.g = p->colour[1];
+        def.b = p->colour[2];
+        def.a = p->type0x53;
+        def.shade = p->field0x54;
+        Billboard_Add(&def, (unsigned short *)texture);
     }
 }
 
