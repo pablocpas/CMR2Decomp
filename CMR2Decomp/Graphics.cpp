@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "Graphics.h"
+#include "Sprite.h"
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
 #pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
 #include "Frontend.h"
@@ -2756,6 +2757,8 @@ int g_unk0x006a2bcc;
 int g_unk0x006a2bc8;
 // GLOBAL: CMR2 0x00520f94
 BYTE g_unk0x00520f94[4];
+// GLOBAL: CMR2 0x00520f98
+Quad2DInputVertex g_projectedQuad[5];
 
 // FUNCTION: CMR2 0x004ae140
 void FUN_004ae140(BYTE *pColour)
@@ -2802,6 +2805,105 @@ void FUN_004ae3f0(BYTE *p, int value)
 // FUNCTION: CMR2 0x004ae410
 void FUN_004ae410(BYTE a, BYTE b, int c, int d)
 {
+}
+
+// Draws a fading rectangle around a point projected onto the given plane.
+// The corners and colours use the fixed-point triangle queue's shared scratch.
+// TODO: CMR2 0x004ae950 (implemented, match 64%)
+void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget)
+{
+    FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
+    FixVector *pNormal = (FixVector *)(pSurface + 0x28);
+    FixVector displacement;
+    FixVector projected;
+    FixVector offset;
+    FixVector axisA;
+    FixVector axisB;
+    FixVector step;
+    int depth;
+    int fade;
+    int size;
+    int length;
+    int reciprocal;
+    int colour;
+    int i;
+    BYTE intensity;
+
+    displacement.x = pPoint->x - pPlanePoint->x;
+    displacement.y = pPoint->y - pPlanePoint->y;
+    displacement.z = pPoint->z - pPlanePoint->z;
+    depth = FixVecDot(pNormal, &displacement);
+    FixVecScale(&offset, pNormal, depth);
+    projected.x = pPoint->x - offset.x;
+    projected.y = pPoint->y - offset.y;
+    projected.z = pPoint->z - offset.z;
+    if (depth < 0)
+        depth = -depth;
+    fade = FixMul(depth - 0x6666, 0x1aaac);
+    if (fade < 0)
+        fade = 0;
+    else if (fade > 0x10000)
+        fade = 0x10000;
+    fade = 0x10000 - fade;
+
+    depth = FixMul(pNormal->x, 0x10000);
+    axisA.x = 0x10000 - FixMul(pNormal->x, depth);
+    axisA.y = -FixMul(pNormal->y, depth);
+    axisA.z = -FixMul(pNormal->z, depth);
+    length = FixVecLength(&axisA);
+    if (length == 0) {
+        axisA.x = 0; axisA.y = 0; axisA.z = 0;
+    } else {
+        FixVecScaleRecip(&axisA, &axisA, length);
+    }
+    FixVecCross(&axisB, &axisA, pNormal);
+    length = FixVecLength(&axisB);
+    if (length == 0) {
+        axisB.x = 0; axisB.y = 0; axisB.z = 0;
+    } else {
+        FixVecScaleRecip(&axisB, &axisB, length);
+    }
+    size = FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34));
+    FixVecScale(&axisA, &axisA, size);
+    size = FixMul(*(int *)(pSurface + 0x40), *(int *)(pSurface + 0x34));
+    FixVecScale(&axisB, &axisB, size);
+
+    displacement.x = pTarget->x - projected.x;
+    displacement.y = pTarget->y - projected.y;
+    displacement.z = pTarget->z - projected.z;
+    length = FixVecLength(&displacement);
+    if (length > 0x10000) {
+        reciprocal = FixDiv(0x10000, length);
+        FixVecScale(&step, &displacement, reciprocal);
+        projected.x += step.x;
+        projected.y += step.y;
+        projected.z += step.z;
+        reciprocal = 0x10000 - reciprocal;
+        FixVecScale(&axisA, &axisA, reciprocal);
+        FixVecScale(&axisB, &axisB, reciprocal);
+    }
+
+    g_projectedQuad[0].x = projected.x + axisA.x - axisB.x;
+    g_projectedQuad[0].y = projected.y + axisA.y - axisB.y;
+    g_projectedQuad[0].z = projected.z + axisA.z - axisB.z;
+    g_projectedQuad[1].x = projected.x + axisA.x + axisB.x;
+    g_projectedQuad[1].y = projected.y + axisA.y + axisB.y;
+    g_projectedQuad[1].z = projected.z + axisA.z + axisB.z;
+    g_projectedQuad[2].x = projected.x - axisA.x + axisB.x;
+    g_projectedQuad[2].y = projected.y - axisA.y + axisB.y;
+    g_projectedQuad[2].z = projected.z - axisA.z + axisB.z;
+    g_projectedQuad[3].x = projected.x - axisA.x - axisB.x;
+    g_projectedQuad[3].y = projected.y - axisA.y - axisB.y;
+    g_projectedQuad[3].z = projected.z - axisA.z - axisB.z;
+
+    intensity = (BYTE)(((unsigned int)pSurface[0x51] * FixMul(fade, *(int *)(pSurface + 0x3c))) >> 16);
+    colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
+    for (i = 0; i < 5; i++)
+        *(int *)g_projectedQuad[i].colour = colour;
+    Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[1], &g_projectedQuad[2],
+                              *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
+    Quad2D_QueueFixedTriangle(0, &g_projectedQuad[0], &g_projectedQuad[2], &g_projectedQuad[3],
+                              *(Texture **)(pSurface + 0x48), (Quad2D *)0xe);
 }
 
 // FUNCTION: CMR2 0x004b1970
