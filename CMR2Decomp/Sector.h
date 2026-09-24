@@ -18,6 +18,7 @@ struct Sector {
     int nodeCount;              // 0x20
     BYTE field_0x24[8];
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
+    int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
 };
 
 // Static object placed in a sector (only the fields used so far).

@@ -1338,6 +1338,7 @@ private:
     friend void Graphics_DisableFog(void);
     friend void Graphics_SetRenderTarget(Texture *pTexture);
     friend void StageObject_FreeAll(void);
+    friend void Sector_RebuildNodeLists(void);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);

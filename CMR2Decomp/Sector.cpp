@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Sector.h"
 #include "SceneNode.h"
+#include "Graphics.h"
 
 int g_sectorsPerRow;
 Sector *g_sectors[14096];
@@ -365,4 +366,151 @@ void FUN_004b8b10(SceneNode *pNode)
     }
     g_sectors[index]->nodeCount++;
     pNode->sector = (WORD)index;
+}
+
+// Rebuilds the node list of every sector from the positions of the root's children.
+// TODO: CMR2 0x004b8450 (implemented, match 43%)
+void Sector_RebuildNodeLists(void)
+{
+    unsigned int i;
+    Sector **ppSector;
+    SceneNode *pNode;
+    SceneNode *pLast;
+    FixVector pos;
+    short index;
+
+    for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
+        if (g_sceneNodes[i] != NULL)
+            g_sceneNodes[i]->pNextInSector = NULL;
+    }
+    ppSector = g_sectors;
+    do {
+        if (*ppSector != NULL) {
+            (*ppSector)->pFirstNode = NULL;
+            (*ppSector)->nodeCount = 0;
+        }
+        ppSector++;
+    } while (ppSector < &g_sectors[4096]);
+    for (pNode = CGraphics::m_pTextureManager->pRootNode->pFirstChild; pNode != NULL; pNode = pNode->pNext) {
+        if ((BYTE)pNode->flags != 0xff) {
+            pos = pNode->current.position;
+            index = (short)Sector_FromPosition(&pos);
+            pNode->sector = index;
+            if (g_sectors[index]->pFirstNode == NULL) {
+                g_sectors[index]->pFirstNode = pNode;
+            } else {
+                for (pLast = g_sectors[index]->pFirstNode; pLast->pNextInSector != NULL; pLast = pLast->pNextInSector)
+                    ;
+                pLast->pNextInSector = pNode;
+            }
+            g_sectors[index]->nodeCount++;
+            pNode->sector = index;
+        }
+    }
+}
+
+// Up to three sectors next to the one containing pPos that lie within 4.5
+// units of it (left/right, above/below and the diagonal); -1 when unused.
+// TODO: CMR2 0x004b8910 (implemented, match 40%)
+void Sector_GetNeighbours(FixVector *pPos, short *pOut)
+{
+    Sector *pSector;
+    short index;
+    int left;
+    int right;
+    unsigned int k;
+
+    right = 0;
+    pOut[0] = -1;
+    pOut[1] = -1;
+    pOut[2] = -1;
+    index = (short)Sector_FromPosition(pPos);
+    pSector = g_sectors[index];
+    if (pPos->x - 0x48000 < pSector->x - g_sectorHalfSize) {
+        left = 1;
+        pOut[0] = index - 1;
+        k = 1;
+    } else {
+        right = pSector->x + g_sectorHalfSize < pPos->x + 0x48000;
+        if (right)
+            pOut[0] = index + 1;
+        k = right;
+        left = 0;
+    }
+    if (g_sectorHalfSize + pSector->z < pPos->z + 0x48000) {
+        pOut[k++] = index - (short)g_sectorsPerRow;
+        if (left)
+            pOut[k] = index - (short)g_sectorsPerRow - 1;
+        else if (right)
+            pOut[k] = index - (short)g_sectorsPerRow + 1;
+    } else if (pSector->z - g_sectorHalfSize > pPos->z - 0x48000) {
+        pOut[k++] = (short)g_sectorsPerRow + index;
+        if (left)
+            pOut[k] = (short)g_sectorsPerRow - 1 + index;
+        else if (right)
+            pOut[k] = (short)g_sectorsPerRow + 1 + index;
+    }
+    if (pOut[0] >= (short)g_sectorCount || pOut[0] < -1)
+        pOut[0] = -1;
+    if (pOut[1] >= (short)g_sectorCount || pOut[1] < -1)
+        pOut[1] = -1;
+    if (pOut[2] >= (short)g_sectorCount || pOut[2] < -1)
+        pOut[2] = -1;
+}
+
+// Bounding rectangle (x/z) of each sector's ground mesh, or of the sector
+// square when it has none.
+// TODO: CMR2 0x004b9170 (implemented, match 84%)
+void Sector_ComputeBounds(void)
+{
+    Sector **ppSector;
+    Sector *pSector;
+    SectorMesh *pMesh;
+    float *pVertex;
+    int minX, maxX, minZ, maxZ;
+    int n;
+    int i;
+
+    ppSector = g_sectors;
+    for (i = 0; i < g_sectorCount; i++, ppSector++) {
+        pSector = *ppSector;
+        if (pSector->pMesh == NULL) {
+            pSector->bounds[0][0] = pSector->x - g_sectorHalfSize;
+            (*ppSector)->bounds[0][1] = (*ppSector)->z - g_sectorHalfSize;
+            (*ppSector)->bounds[1][0] = g_sectorHalfSize + (*ppSector)->x;
+            (*ppSector)->bounds[1][1] = (*ppSector)->z - g_sectorHalfSize;
+            (*ppSector)->bounds[3][0] = (*ppSector)->x - g_sectorHalfSize;
+            (*ppSector)->bounds[3][1] = (*ppSector)->z + g_sectorHalfSize;
+            (*ppSector)->bounds[2][0] = g_sectorHalfSize + (*ppSector)->x;
+            (*ppSector)->bounds[2][1] = (*ppSector)->z + g_sectorHalfSize;
+        } else {
+            pMesh = &((SectorMesh *)pSector->pMesh)[pSector->pMesh->lodIndex];
+            pVertex = pMesh->pVertices;
+            n = pMesh->vertexCount;
+            minX = maxX = (int)(__int64)pVertex[0];
+            minZ = maxZ = (int)(__int64)pVertex[2];
+            for (pVertex += 12, n--; n > 0; n--, pVertex += 12) {
+                if (pVertex[0] < (float)minX)
+                    minX = (int)(__int64)pVertex[0];
+                if ((float)maxX < pVertex[0])
+                    maxX = (int)(__int64)pVertex[0];
+                if (pVertex[2] < (float)minZ)
+                    minZ = (int)(__int64)pVertex[2];
+                if ((float)maxZ < pVertex[2])
+                    maxZ = (int)(__int64)pVertex[2];
+            }
+            minX = (int)(__int64)((double)minX * CGraphics::m_65536);
+            pSector->bounds[0][0] = minX;
+            minZ = (int)(__int64)((double)minZ * CGraphics::m_65536);
+            (*ppSector)->bounds[0][1] = minZ;
+            maxX = (int)(__int64)((double)maxX * CGraphics::m_65536);
+            (*ppSector)->bounds[1][0] = maxX;
+            (*ppSector)->bounds[1][1] = minZ;
+            (*ppSector)->bounds[3][0] = minX;
+            maxZ = (int)(__int64)((double)maxZ * CGraphics::m_65536);
+            (*ppSector)->bounds[3][1] = maxZ;
+            (*ppSector)->bounds[2][0] = maxX;
+            (*ppSector)->bounds[2][1] = maxZ;
+        }
+    }
 }
