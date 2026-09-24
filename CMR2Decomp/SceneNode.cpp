@@ -1538,3 +1538,306 @@ void Scene_InitLighting(int *pData, int *pHeights)
         g_triangleVertexHeights = pHeights;
     CGame::RegisterCallback((void *)Scene_FreeLighting, NULL);
 }
+
+// Shadow geometry streamed into pVertexBuffer2 between Scene_BeginShadowBatch
+// and Scene_EndShadowBatch, split into {first vertex, vertex count, texture,
+// view mask} batches.
+// GLOBAL: CMR2 0x006dead0
+int g_shadowBatches[300][4];
+// GLOBAL: CMR2 0x006e01f0
+int *g_shadowBatch;
+// GLOBAL: CMR2 0x006e0b90
+void *g_shadowVertexData;
+// GLOBAL: CMR2 0x006e0b94
+int g_shadowVertexCount;
+// GLOBAL: CMR2 0x006e0b98
+BYTE g_shadowBatchCount;
+// GLOBAL: CMR2 0x005210d4
+int g_shadowLastTexture = -1;
+// GLOBAL: CMR2 0x005210d8
+int g_shadowLastFlags = -1;
+// Direction the shadows are cast along (opposite of the light).
+// GLOBAL: CMR2 0x006dfdd8
+FixVector g_sceneShadowDir;
+
+// FUNCTION: CMR2 0x004b5340
+void Scene_SetShadowDirection(FixVector *pLightDir)
+{
+    FixVecScale(&g_sceneShadowDir, pLightDir, -0x10000);
+}
+
+// Locks the shadow vertex buffer and starts the first batch.
+// FUNCTION: CMR2 0x004b5e60
+void Scene_BeginShadowBatch(void)
+{
+    if (g_sceneSectorZone != NULL) {
+        CGraphics::m_pTextureManager->pVertexBuffer2->Lock(DDLOCK_WAIT | DDLOCK_WRITEONLY, &g_shadowVertexData, NULL);
+        g_shadowVertexCount = 0;
+        g_shadowBatchCount = 0;
+        g_shadowLastTexture = -1;
+        g_shadowLastFlags = -1;
+        g_shadowBatch = g_shadowBatches[0];
+    }
+}
+
+// Closes the current batch and unlocks the shadow vertex buffer.
+// FUNCTION: CMR2 0x004b5eb0
+void Scene_EndShadowBatch(void)
+{
+    if (g_sceneSectorZone != NULL) {
+        g_shadowBatch[1] = g_shadowVertexCount - g_shadowBatch[0];
+        CGraphics::m_pTextureManager->pVertexBuffer2->Unlock();
+    }
+}
+
+// FUNCTION: CMR2 0x004b3840
+void Scene_GetAmbientColour(DWORD *pColour)
+{
+    *pColour = *(DWORD *)g_sceneAmbientColour;
+}
+
+// FUNCTION: CMR2 0x004b3850
+void Scene_GetLightColourBytes(DWORD *pColour)
+{
+    *pColour = *(DWORD *)g_sceneLightColourBytes;
+}
+
+// Sets the constant attenuation of the D3D light held by a type-1 node.
+// FUNCTION: CMR2 0x004b3570
+void Scene_SetLightAttenuation(SceneNode *pNode, int attenuation)
+{
+    SceneLight *pLight;
+
+    if (pNode != NULL && (pLight = (SceneLight *)pNode->pObject) != NULL) {
+        pLight->light.dvAttenuation0 = (float)attenuation * CGraphics::m_oneOver65536;
+        CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
+    }
+}
+
+// Depth-first search (children before siblings) for the first node whose
+// flags type byte is `type`.
+// FUNCTION: CMR2 0x004ad890
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type)
+{
+    SceneNode *pFound;
+
+    while (pNode != NULL) {
+        if ((pNode->flags & 0xff) == type)
+            return pNode;
+        if (pNode->pFirstChild != NULL && (pFound = SceneNode_FindByType(pNode->pFirstChild, type)) != NULL)
+            return pFound;
+        pNode = pNode->pNext;
+    }
+    return NULL;
+}
+
+// Sets the diffuse colour (16.16 per channel, clamped to 0..255) of the D3D
+// light held by a type-1 node.
+// FUNCTION: CMR2 0x004b34d0
+void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b)
+{
+    SceneLight *pLight;
+
+    pLight = (SceneLight *)pNode->pObject;
+    if (r < 0)
+        r = 0;
+    if (g < 0)
+        g = 0;
+    if (b < 0)
+        b = 0;
+    if (r > 0xff0000)
+        r = 0xff0000;
+    if (g > 0xff0000)
+        g = 0xff0000;
+    if (b > 0xff0000)
+        b = 0xff0000;
+    pLight->light.dcvDiffuse.r = (float)r * CGraphics::m_oneOver65536;
+    pLight->light.dcvDiffuse.g = (float)g * CGraphics::m_oneOver65536;
+    pLight->light.dcvDiffuse.b = (float)b * CGraphics::m_oneOver65536;
+    CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
+}
+
+// Light level (0..1) of one corner of a mesh triangle for a light direction:
+// four times the dot product of its vertex normal with pDir, clamped.
+// TODO: CMR2 0x004b4040 (implemented, match 85%)
+int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int corner)
+{
+    float *pVertex;
+    FixVector normal;
+    int level;
+
+    pVertex = (float *)((BYTE *)pMesh->pVertexData + pTri->vertexIndex[corner] * 0x30);
+    normal.x = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
+    normal.y = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
+    normal.z = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
+    level = FixMul(FixVecDot(&normal, pDir), 0x40000);
+    if (level < 0)
+        return 0;
+    if (level > 0x10000)
+        level = 0x10000;
+    return level;
+}
+
+// Light level and colour of the ground at a position: those of the nearest
+// (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
+// TODO: CMR2 0x004b3860 (implemented, match 39%)
+DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
+{
+    Mesh *pMesh;
+    float *pVertex;
+    float *pNearest;
+    int *pVertexLevel;
+    float dx;
+    float dz;
+    float d2;
+    float best;
+    BYTE rgb[4];
+    int x;
+    int z;
+    int i;
+
+    *pLevel = 0x10000;
+    x = pPos->x;
+    pNearest = NULL;
+    *(DWORD *)rgb = 0xffffff;
+    best = 32000.0f;
+    z = pPos->z;
+    pMesh = (Mesh *)g_sectors[(short)Sector_FromPosition(pPos)]->pMesh;
+    if (pMesh != NULL) {
+        pVertex = (float *)pMesh->pVertexData;
+        pVertexLevel = pMesh->pLightLevels;
+        for (i = 0; i < pMesh->field_0x10; i++) {
+            dx = pVertex[0] - (float)x * (float)CGraphics::m_oneOver65536;
+            dz = pVertex[2] - (float)z * (float)CGraphics::m_oneOver65536;
+            d2 = dx * dx + dz * dz;
+            if (d2 < best) {
+                *pLevel = *pVertexLevel;
+                pNearest = pVertex;
+                best = d2;
+            }
+            pVertex += 12;
+            pVertexLevel++;
+        }
+        if (pNearest != NULL) {
+            rgb[2] = (BYTE)((DWORD *)pNearest)[6];
+            rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
+            rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
+        }
+    }
+    return *(DWORD *)rgb;
+}
+
+// Frees every shadow caster (with its per-part buffers) and every cached
+// shadow cylinder.
+// TODO: CMR2 0x004b5380 (implemented, match 48%)
+void Scene_FreeShadowCasters(void)
+{
+    int *p;
+    ShadowCaster *pCaster;
+    Mesh *pCyl;
+    int i;
+
+    p = g_sceneLightState;
+    do {
+        pCaster = (ShadowCaster *)*p;
+        if (pCaster != NULL) {
+            if (pCaster->pParts != NULL) {
+                for (i = 0; i < pCaster->partCount; i++) {
+                    if (((ShadowCaster *)*p)->pParts[i].pVertexWork != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pVertexWork);
+                        ((ShadowCaster *)*p)->pParts[i].pVertexWork = NULL;
+                    }
+                    if (((ShadowCaster *)*p)->pParts[i].pVertexFlags != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pVertexFlags);
+                        ((ShadowCaster *)*p)->pParts[i].pVertexFlags = NULL;
+                    }
+                    if (((ShadowCaster *)*p)->pParts[i].pVertexWork2 != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pVertexWork2);
+                        ((ShadowCaster *)*p)->pParts[i].pVertexWork2 = NULL;
+                    }
+                    if (((ShadowCaster *)*p)->pParts[i].pVertices != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pVertices);
+                        ((ShadowCaster *)*p)->pParts[i].pVertices = NULL;
+                    }
+                    if (((ShadowCaster *)*p)->pParts[i].pVertexWork3 != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pVertexWork3);
+                        ((ShadowCaster *)*p)->pParts[i].pVertexWork3 = NULL;
+                    }
+                    if (((ShadowCaster *)*p)->pParts[i].pTriangleWork != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts[i].pTriangleWork);
+                        ((ShadowCaster *)*p)->pParts[i].pTriangleWork = NULL;
+                    }
+                }
+                CFileBuffer::FreeGenericFileBuffer(((ShadowCaster *)*p)->pParts);
+                ((ShadowCaster *)*p)->pParts = NULL;
+            }
+            CFileBuffer::FreeGenericFileBuffer((void *)*p);
+            *p = 0;
+        }
+        *p = 0;
+        p++;
+    } while ((int)p < (int)&g_sceneLightState[30]);
+    p = g_sceneLightState2;
+    do {
+        pCyl = (Mesh *)*p;
+        if (pCyl != NULL) {
+            if (pCyl->pTriangles != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(pCyl->pTriangles);
+                ((Mesh *)*p)->pTriangles = NULL;
+            }
+            if (((Mesh *)*p)->pVertexData != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(((Mesh *)*p)->pVertexData);
+                ((Mesh *)*p)->pVertexData = NULL;
+            }
+            CFileBuffer::FreeGenericFileBuffer((void *)*p);
+            *p = 0;
+        }
+        *p = 0;
+        p++;
+    } while ((int)p < (int)&g_sceneLightState2[10]);
+    g_sceneLightFlag = 0;
+    g_sceneLightFlag2 = 0;
+}
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+void FUN_004a3dd0(void);
+
+// Draws the shadow batches visible in view `view` (bit of each batch mask),
+// with the batch texture forced to blend mode 10.
+// TODO: CMR2 0x004b6240 (implemented, match 72%)
+void Scene_DrawShadowBatches(BYTE view)
+{
+    Texture *pTexture;
+    Texture *pLast;
+    int blend;
+    int i;
+
+    if (g_shadowVertexCount == 0)
+        return;
+    CGraphics::SetZWriteEnable(0);
+    CGraphics::SetCullMode(1);
+    pLast = NULL;
+    g_shadowBatch = g_shadowBatches[0];
+    for (i = 0; i < g_shadowBatchCount; i++) {
+        if (g_shadowBatch[1] != 0 && (*(BYTE *)&g_shadowBatch[3] & (1 << view)) != 0) {
+            pTexture = CGraphics::m_pTextureManager->textureBuffer[g_shadowBatch[2]];
+            if (pTexture != pLast) {
+                blend = pTexture->blendMode;
+                FUN_004a3e20((Unk0x004a3e20 *)pTexture, 10);
+                CGraphics::FUN_004a4850(0, (int)pTexture);
+                FUN_004a3e20((Unk0x004a3e20 *)pTexture, blend);
+                pLast = pTexture;
+            }
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
+                                                                CGraphics::m_pTextureManager->pVertexBuffer2,
+                                                                g_shadowBatch[0], g_shadowBatch[1], 0);
+        }
+        g_shadowBatch += 4;
+    }
+    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::SetZWriteEnable(1);
+    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+    FUN_004a3dd0();
+    CGraphics::FUN_004a3de0();
+}

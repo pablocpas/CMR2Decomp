@@ -1327,6 +1327,11 @@ private:
     friend void Sprite_DrawLayer(int layer);
     friend void Quad2D_DrawLayer(unsigned int layer);
     friend void Graphics_SetLightingMode(int mode);
+    friend void Scene_BeginShadowBatch(void);
+    friend void Scene_EndShadowBatch(void);
+    friend void Scene_SetLightAttenuation(SceneNode *pNode, int attenuation);
+    friend void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b);
+    friend void Scene_DrawShadowBatches(BYTE view);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);
