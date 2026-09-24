@@ -3908,6 +3908,51 @@ struct GlowLight {
     int field_0x58;
 };
 
+// Reserves a free glow slot and copies its position, direction, and draw settings.
+// FUNCTION: CMR2 0x004ae2f0
+GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
+                    int sizeX, int sizeY, int layerIntensity, int texture,
+                    int intensity, int node, BYTE projected, int unused2,
+                    int field_0x40)
+{
+    int i;
+    GlowLight *light;
+
+    if (g_unk0x006a2bc8 < g_unk0x006a2bcc) {
+        for (i = 0; i < g_unk0x006a2bcc; i++) {
+            light = &((GlowLight *)g_unk0x006a2a98)[i];
+            if (light->type == 0)
+                break;
+        }
+        if (i < g_unk0x006a2bcc) {
+            light = &((GlowLight *)g_unk0x006a2a98)[i];
+            if (light != NULL) {
+                light->type = type;
+                light->pos = *pos;
+                if (dir == NULL) {
+                    light->dir.x = 0;
+                    light->dir.y = 0;
+                    light->dir.z = 0;
+                } else {
+                    light->dir = *dir;
+                }
+                light->sizeX = sizeX;
+                light->sizeY = sizeY;
+                light->pTexture = (unsigned short *)layerIntensity;
+                light->pLayerTexture = (Texture *)texture;
+                light->intensity = intensity;
+                light->pNode = (SceneNode *)node;
+                light->enabled = 1;
+                light->projected = projected;
+                light->field_0x40 = field_0x40;
+                g_unk0x006a2bc8++;
+                return light;
+            }
+        }
+    }
+    return NULL;
+}
+
 // GLOBAL: CMR2 0x006a2aa0
 BillboardDef g_glowBillboard;
 // Horizontal camera forward (normalised) used by the glow quads.
