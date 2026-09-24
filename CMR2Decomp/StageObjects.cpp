@@ -1640,6 +1640,25 @@ struct StageLight {
     int level;          // 0..1, eased towards the pattern
 };
 
+// Position (x, y in units of the transform axes) of each light per kind.
+// GLOBAL: CMR2 0x0051b1a8
+int g_stageLightOffsets[4][8][2] = {
+    -112787, 246022, -75038, 246022, -38273, 246022, -196, 246022, 37093, 246022, 74579, 246022, 111935, 246022, 0, 0,
+    -238616, 170590, -238616, 143130, -238616, 114950, -215220, 175964, -215220, 160104, -215220, 144244, -215220, 128385, -215220, 112525,
+    -624558, 203882, -604962, 203882, -585891, 203882, -567934, 203882, -550633, 203882, -531693, 203882, -513736, 203882, 0, 0,
+    -567672, 203882, -548143, 203882, -529072, 203882, -511049, 203882, -493748, 203882, -474873, 203882, -456851, 203882,
+};
+// Depth of the lights per kind.
+// GLOBAL: CMR2 0x0051b2a8
+int g_stageLightDepth[4] = {
+    -58982, -38469, -31653, -31653,
+};
+// Colour (0 red, 1 green) of each light per kind.
+// GLOBAL: CMR2 0x0051b2b8
+int g_stageLightColour[4][8] = {
+    0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 2, 2, 2,
+    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1,
+};
 // On/off pattern of each light, per kind (4), state (7) and light (8).
 // GLOBAL: CMR2 0x0051b338
 int g_stageLightStates[4][7][8] = {
@@ -1658,10 +1677,22 @@ int g_stageLightStates[4][7][8] = {
     1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
     1,
 };
-// Whether a kind drives the second glow of each light.
+// Offset (along the light row's right axis) of each light's second glow;
+// 0 when the kind has only one glow per light.
 // GLOBAL: CMR2 0x0051b6b8
 int g_stageLightDouble[4] = {
     0, 459341, 1048444, 944439,
+};
+// Glow size per kind and colour.
+// GLOBAL: CMR2 0x0051b6c8
+int g_stageLightSize[4][3] = {
+    19660, 19660, 0, 13107, 13107, 6553, 9830, 9830,
+    0, 9830, 9830,
+};
+// Countries (bit per stage index) that use the eight-light layout.
+// GLOBAL: CMR2 0x0051b6f8
+unsigned short g_stageLightEightMask[10] = {
+    0x0000, 0x03ff, 0x03ff, 0x0000, 0x0002, 0x0200, 0x03ff, 0x0250,
 };
 // GLOBAL: CMR2 0x00547ad8
 int g_stageLightKind;
@@ -1822,4 +1853,136 @@ void CarLights_LoadTextures(void)
     LOAD_STAGE_TEXTURE(g_carLights[1].pHead, g_strHeadLiteTga);
     LOAD_STAGE_TEXTURE(g_carLights[1].pBrake, g_strBrakeLiteTga);
     LOAD_STAGE_TEXTURE(g_carLights[1].pHazard2, g_strHazardLiteTga);
+}
+
+void FUN_00492890(FixVector *pOut);
+void FUN_004928c0(int *pOut1, int *pOut2, int *pOut3);
+void FUN_00498370(FixVector *v);
+
+// Direction of the stage light (sun direction raised by the sky offset),
+// normalised; passed on to FUN_00498370.
+// GLOBAL: CMR2 0x005477f8
+FixVector g_stageLightDirection;
+
+// TODO: CMR2 0x00463070 (implemented, match 85%)
+void StageLights_UpdateDirection(void)
+{
+    FixVector d;
+    FixVector s;
+    int lift;
+    int unused1;
+    int unused2;
+    int m;
+
+    FUN_00492890(&d);
+    FUN_004928c0(&lift, &unused1, &unused2);
+    d.y += lift;
+    if (FIX_ABS(d.x) > FIX_ABS(d.y) && FIX_ABS(d.x) > FIX_ABS(d.z))
+        m = FIX_ABS(d.x);
+    else if (FIX_ABS(d.y) > FIX_ABS(d.x) && FIX_ABS(d.y) > FIX_ABS(d.z))
+        m = FIX_ABS(d.y);
+    else
+        m = FIX_ABS(d.z);
+    FixVecScaleRecip(&s, &d, m);
+    FIX_NORMALIZE_INTO(g_stageLightDirection, s);
+    FUN_00498370(&g_stageLightDirection);
+}
+
+// Light row axes with the scale removed.
+// GLOBAL: CMR2 0x00547b88
+FixMatrix g_stageLightBasis;
+
+unsigned char RallyDataStageIndex(void);
+struct GlowLight;
+GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
+                    int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
+
+#define LIGHT_SIZE(i) FixMul(lenX, g_stageLightSize[g_stageLightKind][g_stageLightColour[g_stageLightKind][i]])
+
+// Creates the glows of the stage lights (start gantry) from the placed
+// transform: layout by country and stage, one or two glows per light, all off.
+// TODO: CMR2 0x00463410 (implemented, match 53%)
+void StageLights_Create(void)
+{
+    FixVector pos[8];
+    FixVector v;
+    FixVector local;
+    FixVector zero;
+    FixVector dir;
+    FixVector origin;
+    FixVector pair;
+    int lenX, lenY, lenZ;
+    BYTE stage;
+    int i;
+
+    local.x = 0;
+    local.y = 0;
+    local.z = -0x10000;
+    zero.x = 0;
+    zero.y = 0;
+    zero.z = 0;
+    g_stageLightsActive = 0;
+    if (g_stageLightHasMatrix == 0)
+        return;
+    FixMatrix_GetPosition(&origin, &g_stageLightMatrix);
+    if (origin.x == 0 && origin.y == 0 && origin.z == 0)
+        return;
+    stage = RallyDataStageIndex();
+    if ((char)RallyDataStageIndex() == 10) {
+        g_stageLightCount = 7;
+        if ((char)RallyDataCountryIndex() == 3)
+            g_stageLightKind = 2;
+        else
+            g_stageLightKind = 3;
+    } else if ((g_stageLightEightMask[RallyDataCountryIndex() & 0xff] & (unsigned short)(1 << stage)) == 0) {
+        g_stageLightCount = 7;
+        g_stageLightKind = 0;
+    } else {
+        g_stageLightCount = 8;
+        g_stageLightKind = 1;
+    }
+    FixMatrix_GetRight(&v, &g_stageLightMatrix);
+    lenX = FixVecLength(&v);
+    FixVecScaleRecip(&v, &v, lenX);
+    FixMatrix_SetRight(&v, &g_stageLightBasis);
+    FixMatrix_GetUp(&v, &g_stageLightMatrix);
+    lenY = FixVecLength(&v);
+    FixVecScaleRecip(&v, &v, lenY);
+    FixMatrix_SetUp(&v, &g_stageLightBasis);
+    FixMatrix_GetForward(&v, &g_stageLightMatrix);
+    lenZ = FixVecLength(&v);
+    FixVecScaleRecip(&v, &v, lenZ);
+    FixMatrix_SetForward(&v, &g_stageLightBasis);
+    FixMatrix_RotateVector(&dir, &local, &g_stageLightBasis);
+    FIX_NORMALIZE_INTO(dir, dir);
+    FixMatrix_GetRight(&pair, &g_stageLightMatrix);
+    FixVecScale(&pair, &pair, g_stageLightDouble[g_stageLightKind]);
+    for (i = 0; i < g_stageLightCount; i++) {
+        v.x = FixMul(g_stageLightOffsets[g_stageLightKind][i][0], lenX);
+        v.y = FixMul(g_stageLightOffsets[g_stageLightKind][i][1], lenY);
+        v.z = FixMul(g_stageLightDepth[g_stageLightKind], lenZ);
+        FixMatrix_RotateVector(&pos[i], &v, &g_stageLightBasis);
+        pos[i].x += origin.x;
+        pos[i].y += origin.y;
+        pos[i].z += origin.z;
+        g_stageLights[i].pGlow = (BYTE *)Glow_Add(
+            2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
+            (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]],
+            (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+        if (g_stageLightDouble[g_stageLightKind] != 0) {
+            pos[i].x += pair.x;
+            pos[i].y += pair.y;
+            pos[i].z += pair.z;
+            g_stageLights[i].pGlow2 = (BYTE *)Glow_Add(
+                2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
+                (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]],
+                (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+        }
+        g_stageLights[i].level = 0;
+        FUN_004ae3d0(g_stageLights[i].pGlow, 0);
+        if (g_stageLightDouble[g_stageLightKind] != 0)
+            FUN_004ae3d0(g_stageLights[i].pGlow2, 0);
+    }
+    g_unk0x00547b80 = 6;
+    g_stageLightsActive = 1;
 }
