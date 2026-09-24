@@ -44,7 +44,9 @@ struct Car {
     BYTE field_0x5dc[0x6c];
     FixVector cornerForce[8];         // 0x648  force accumulated at each corner
     FixVector baseForce;              // 0x6a8  constant force applied every step
-    BYTE field_0x6b4[0x3c];
+    FixVector groundDir[2];           // 0x6b4  front/rear rolling direction on the ground plane
+    FixVector groundAxis[2];          // 0x6cc  front/rear lateral axis on the ground plane
+    BYTE field_0x6e4[0xc];
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
     BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
@@ -124,7 +126,8 @@ struct Car {
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
     BYTE field_0xb1b[0x3];
     char field_0xb1e;                 // 0xb1e
-    BYTE field_0xb1f[0x9];
+    char field_0xb1f;                 // 0xb1f
+    BYTE field_0xb20[0x8];
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29;                 // 0xb29
     BYTE field_0xb2a[0x2];
@@ -139,7 +142,9 @@ struct Car {
     int field_0xb84;                  // 0xb84
     BYTE field_0xb88[0x24];
     int field_0xbac[8];               // 0xbac
-    BYTE field_0xbcc[0x34];
+    BYTE field_0xbcc[0x1c];
+    int wheelSlipping[4];             // 0xbe8  set while the wheel spins faster than the ground
+    BYTE field_0xbf8[0x8];
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
     BYTE field_0xc04[0xc];
     int field_0xc10;                  // 0xc10

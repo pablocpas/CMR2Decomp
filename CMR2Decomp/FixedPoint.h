@@ -187,6 +187,71 @@ inline int FixVecLength(FixVector *v)
     }
 }
 
+// Square root of a 16.16 value via the same table as FixVecLength.
+inline int FixSqrt(int v)
+{
+    __asm {
+        mov eax, v
+        or eax, eax
+        mov ebx, eax
+        jnz nonzero
+        mov eax, 0
+        jmp done
+    nonzero:
+        xor ecx, ecx
+        cmp eax, 0x10000
+        jb l1
+        shr eax, 16
+        add cl, 16
+    l1:
+        cmp eax, 0x100
+        jb l2
+        shr eax, 8
+        add cl, 8
+    l2:
+        cmp eax, 0x10
+        jb l3
+        shr eax, 4
+        add cl, 4
+    l3:
+        cmp eax, 4
+        jb l4
+        shr eax, 2
+        add cl, 2
+    l4:
+        cmp eax, 2
+        jb l5
+        inc ecx
+    l5:
+        mov eax, ebx
+        sub cl, 15
+        test cl, 1
+        jz l6
+        inc cl
+    l6:
+        mov bl, cl
+        add cl, 4
+        jns l7
+        neg cl
+        shl eax, cl
+        jmp l8
+    l7:
+        shr eax, cl
+    l8:
+        sar bl, 1
+        mov ax, word ptr [eax * 2 + g_sqrtTable]
+        or bl, bl
+        mov cl, bl
+        js l9
+        shl eax, cl
+        jmp done
+    l9:
+        neg cl
+        shr eax, cl
+    done:
+    }
+}
+
 // out = src * t
 inline void FixVecScale(FixVector *out, FixVector *src, int t)
 {
