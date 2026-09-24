@@ -4171,6 +4171,123 @@ void FUN_004b1140(int count)
     g_particleCount = count;
 }
 
+// Wind the particle drag pulls toward.
+// GLOBAL: CMR2 0x006a2ce8
+FixVector g_particleWind;
+
+// Advances every active particle by one step: age, drag, gravity, alpha, size
+// and angle ramps, floor kill or bounce (unless the type has its own update).
+// TODO: CMR2 0x004b0110 (implemented, match 50%)
+void Particle_UpdateAll(int param)
+{
+    Particle *p;
+    ParticleType *pType;
+    FixVector wind;
+    FixVector rel;
+    int keep;
+    int a;
+    int size;
+    short angle;
+    int i;
+
+    p = g_particles;
+    for (i = 0; i < g_particleCount; i++, p++) {
+        if (p->active == 0)
+            continue;
+        pType = p->pType;
+        p->vector0x10 = p->vector0x28;
+        p->age -= 0x10000;
+        if (p->age <= 0) {
+            Particle_Kill(p);
+            continue;
+        }
+        if (pType->update == NULL) {
+            if (pType->drag > 0) {
+                keep = 0x10000 - FixMul(pType->drag, 0x290);
+                FixVecScale(&wind, &g_particleWind, 0x1999);
+                rel.x = p->position.x - wind.x;
+                rel.y = p->position.y - wind.y;
+                rel.z = p->position.z - wind.z;
+                FixVecScale(&rel, &rel, keep);
+                p->position.x = rel.x + wind.x;
+                p->position.y = rel.y + wind.y;
+                p->position.z = rel.z + wind.z;
+            }
+            p->position.y -= pType->gravity;
+            p->vector0x1c.x += p->position.x;
+            p->vector0x1c.y += p->position.y + pType->gravity / 2;
+            p->vector0x1c.z += p->position.z;
+            if (pType->flags & 0x40) {
+                p->type0x52 = p->type0x56;
+                a = p->type0x56;
+                if (pType->type < pType->alphaEnd) {
+                    a += pType->alphaStep;
+                    if (a > pType->alphaEnd)
+                        a = pType->alphaEnd;
+                } else if (pType->alphaEnd < pType->type) {
+                    a -= pType->alphaStep;
+                    if (a < pType->alphaEnd)
+                        a = pType->alphaEnd;
+                }
+                p->type0x56 = (BYTE)a;
+                if ((pType->flags & 4) && a == pType->alphaEnd) {
+                    Particle_Kill(p);
+                    continue;
+                }
+            }
+            if (pType->flags & 8) {
+                size = p->size;
+                if (pType->size < pType->sizeVariation) {
+                    size += pType->sizeStep;
+                    if (size > pType->sizeVariation)
+                        size = pType->sizeVariation;
+                } else if (pType->sizeVariation < pType->size) {
+                    size -= pType->sizeStep;
+                    if (size < pType->sizeVariation)
+                        size = pType->sizeVariation;
+                }
+                p->size = size;
+            }
+            if (pType->flags & 0x20) {
+                angle = p->field0x50 + pType->field0x2c;
+                p->field0x50 = angle;
+                if (angle > 0x1000)
+                    p->field0x50 = angle - 0x1000;
+                else if (angle < 0)
+                    p->field0x50 = angle + 0x1000;
+            }
+            if ((pType->flags & 2) && p->vector0x1c.y < p->field0x48) {
+                Particle_Kill(p);
+                continue;
+            }
+            if (pType->flags & 0x80) {
+                keep = 0x10000 - pType->friction;
+                if (p->field0x58 == 0) {
+                    if (p->vector0x1c.y < p->field0x48) {
+                        p->position.y = -FixMul(p->position.y, pType->bounce);
+                        p->vector0x1c.y = p->field0x48;
+                        p->position.x = FixMul(p->position.x, keep);
+                        p->position.z = FixMul(p->position.z, keep);
+                        if (p->position.y < 0x1999) {
+                            p->position.y = 0;
+                            p->field0x58 = 1;
+                        }
+                    }
+                } else {
+                    p->vector0x1c.y = p->field0x48;
+                    p->position.x = FixMul(p->position.x, keep);
+                    p->position.z = FixMul(p->position.z, keep);
+                }
+            }
+            p->vector0x28 = p->vector0x1c;
+        } else {
+            pType->update(p, pType, param);
+        }
+        if (pType->postUpdate != NULL)
+            pType->postUpdate(p, pType, param);
+    }
+}
+
 // Allocates and initialises a particle, optionally orienting its random spread
 // around the supplied position vector.
 // FUNCTION: CMR2 0x004b07a0

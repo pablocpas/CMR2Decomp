@@ -8,20 +8,26 @@
 struct ParticleType {
     int lifetime;
     FixVector spread;
-    BYTE pad0x10[0x10];
+    int gravity;            // 0x10
+    int drag;               // 0x14 air drag toward g_particleWind
+    int bounce;             // 0x18 vertical restitution on the floor
+    int friction;           // 0x1c horizontal loss on the floor
     int size;
-    int sizeVariation;
-    BYTE pad0x28[4];
-    short field0x2c;
-    BYTE type;
-    BYTE pad0x2f[2];
+    int sizeVariation;      // 0x24 also the size the particle grows/shrinks to
+    int sizeStep;           // 0x28
+    short field0x2c;        // angle step
+    BYTE type;              // 0x2e also the initial alpha
+    BYTE alphaEnd;          // 0x2f
+    BYTE alphaStep;         // 0x30
     BYTE colour[3];
     BYTE pad0x34;
     BYTE flags;
     BYTE directionFlags;
     BYTE pad0x37;
     int field0x38;
-    BYTE pad0x3c[0x2c];
+    BYTE pad0x3c[0x24];
+    void (*update)(void *, ParticleType *, int);        // 0x60 replaces the default motion
+    void (*postUpdate)(void *, ParticleType *, int);    // 0x64
     void (*callback)(void *, ParticleType *, int);
     int field0x6c;
 };
