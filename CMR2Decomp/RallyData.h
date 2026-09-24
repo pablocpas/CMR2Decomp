@@ -25,6 +25,7 @@ void FUN_004129d0(int car);
 void FUN_004147f0(int car, short *position);
 
 extern KnockoutTable g_knockout;
+void RallyData_InitKnockoutBracket(void);
 
 unsigned int RallyDataCountryIndex(void);
 unsigned char RallyDataStageIndex(void);

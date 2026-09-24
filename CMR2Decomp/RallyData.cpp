@@ -23,6 +23,7 @@ int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
 int FUN_00418570(void);
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void RallyData_FUN_004084c0(BYTE index, BYTE param2);
 int FUN_004582d0(int index);
 bool FUN_00459390(void);
 int FUN_00448c60(int index);
@@ -166,6 +167,120 @@ unsigned int g_unk0x0052f2b0;
 
 // GLOBAL: CMR2 0x0052f2b4
 KnockoutTable g_knockout;
+
+// Seeds the knockout bracket, separates human drivers where possible and
+// puts the lower human driver index first in each all-human pairing.
+// TODO: CMR2 0x004069c0 (implemented, match 11%)
+void RallyData_InitKnockoutBracket(void)
+{
+    unsigned int state;
+    unsigned int players;
+    unsigned int flags;
+    unsigned int first;
+    unsigned int second;
+    KnockoutMatch *round;
+    int matchCount = 0;
+    int participantCount;
+    int roundIndex;
+    int i;
+    int j;
+    int pick;
+    BYTE aiIndex = 0;
+
+    state = (g_knockout.state & 0xffff03ffU) | 0x200;
+    switch (g_knockout.state & 7) {
+    case 1: matchCount = 1; state = (g_knockout.state & 0xffff03e7U) | 0x220; break;
+    case 2: matchCount = 2; state = (g_knockout.state & 0xffff03dfU) | 0x218; break;
+    case 3: matchCount = 4; state = (g_knockout.state & 0xffff03d7U) | 0x210; break;
+    case 4: matchCount = 8; state = (g_knockout.state & 0xffff03cfU) | 0x208; break;
+    }
+    g_knockout.state = state;
+    players = CGameInfo::FUN_00405d70() & 0xff;
+
+    for (i = 0; i < 8; i++) {
+        g_knockout.round1[i].flags &= 0xfffffbffU;
+        g_knockout.round1[i].time1 = 0;
+        g_knockout.round1[i].time2 = 0;
+        g_knockout.round1[i].flags = (g_knockout.round1[i].flags & 0xffffe7ffU) | 0x3ff;
+    }
+    for (i = 0; i < 4; i++) {
+        g_knockout.quarters[i].flags &= 0xfffffbffU;
+        g_knockout.quarters[i].time1 = 0;
+        g_knockout.quarters[i].time2 = 0;
+        g_knockout.quarters[i].flags = (g_knockout.quarters[i].flags & 0xffffe7ffU) | 0x3ff;
+    }
+    for (i = 0; i < 2; i++) {
+        g_knockout.semis[i].flags &= 0xfffffbffU;
+        g_knockout.semis[i].time1 = 0;
+        g_knockout.semis[i].time2 = 0;
+        g_knockout.semis[i].flags = (g_knockout.semis[i].flags & 0xffffe7ffU) | 0x3ff;
+    }
+    g_knockout.final.time1 = 0;
+    g_knockout.final.time2 = 0;
+    g_knockout.final.flags = (g_knockout.final.flags & 0xffffe3ffU) | 0x3ff;
+
+    switch (g_knockout.state & 7) {
+    case 1: round = &g_knockout.final; break;
+    case 2: round = g_knockout.semis; break;
+    case 3: round = g_knockout.quarters; break;
+    case 4: round = g_knockout.round1; break;
+    default: round = NULL; break;
+    }
+    if (round != NULL) {
+        participantCount = CGameInfo::FUN_00405dd0() ? matchCount * 2 : players;
+        for (i = 0; i < participantCount; i++) {
+            if ((CGameInfo::FUN_00405d70() & 0xff) <= (unsigned int)i)
+                RallyData_FUN_004084c0((BYTE)i, aiIndex++);
+            for (;;) {
+                pick = rand() & (matchCount * 2 - 1);
+                flags = round[pick >> 1].flags;
+                if (pick & 1) {
+                    if ((flags & 0x3e0) != 0x3e0)
+                        continue;
+                    round[pick >> 1].flags = (flags & 0xfffffc1fU) | ((i & 0x1f) << 5);
+                    break;
+                }
+                if ((flags & 0x1f) != 0x1f)
+                    continue;
+                round[pick >> 1].flags = (flags & 0xffffffe0U) | (i & 0x1f);
+                break;
+            }
+        }
+    }
+
+    for (i = 0; i < matchCount; i++) {
+        flags = g_knockout.round1[i].flags;
+        if ((flags & 0x1f) < (CGameInfo::FUN_00405d70() & 0xff) &&
+            ((flags >> 5) & 0x1f) < (CGameInfo::FUN_00405d70() & 0xff) && i + 1 < matchCount) {
+            for (j = i + 1; j < matchCount; j++) {
+                if ((CGameInfo::FUN_00405d70() & 0xff) <= (g_knockout.round1[j].flags & 0x1f)) {
+                    flags = g_knockout.round1[j].flags;
+                    if ((CGameInfo::FUN_00405d70() & 0xff) <= ((flags >> 5) & 0x1f)) {
+                        second = (g_knockout.round1[i].flags >> 5) & 0x1f;
+                        g_knockout.round1[j].flags = (flags & 0xffffffe0U) | second;
+                        g_knockout.round1[i].flags =
+                            (g_knockout.round1[i].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+                    }
+                }
+            }
+        }
+    }
+
+    for (roundIndex = 0; roundIndex < 4; roundIndex++) {
+        if (roundIndex == 0) { round = g_knockout.round1; matchCount = 8; }
+        else if (roundIndex == 1) { round = g_knockout.quarters; matchCount = 4; }
+        else if (roundIndex == 2) { round = g_knockout.semis; matchCount = 2; }
+        else { round = &g_knockout.final; matchCount = 1; }
+        for (i = 0; i < matchCount; i++) {
+            first = round[i].flags & 0x1f;
+            if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
+                second = (round[i].flags >> 5) & 0x1f;
+                if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
+                    round[i].flags = (round[i].flags & 0xfffffc00U) | second | (first << 5);
+            }
+        }
+    }
+}
 
 // FUNCTION: CMR2 0x00407820
 unsigned int *RallyData_GetChampionshipState(void)
