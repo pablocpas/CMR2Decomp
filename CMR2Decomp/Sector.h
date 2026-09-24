@@ -38,8 +38,12 @@ extern int g_sectorsPerRow;
 extern Sector *g_sectors[14096];
 // GLOBAL: CMR2 0x0072d248
 extern int g_sectorHalfSize;
+// GLOBAL: CMR2 0x0072d24c
+extern int g_sectorSize;
+// GLOBAL: CMR2 0x0072d458
+extern int g_sectorRows;
 // GLOBAL: CMR2 0x0072d258
-extern int g_sectorVisibleBits[198];
+extern int g_sectorVisibleBits[128];
 // GLOBAL: CMR2 0x0072d55c
 extern int g_sectorScale;
 // GLOBAL: CMR2 0x0072d568

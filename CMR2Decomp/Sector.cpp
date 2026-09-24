@@ -5,7 +5,9 @@
 int g_sectorsPerRow;
 Sector *g_sectors[14096];
 int g_sectorHalfSize;
-int g_sectorVisibleBits[198];
+int g_sectorVisibleBits[128];
+int g_sectorSize;
+int g_sectorRows;
 int g_sectorScale;
 int g_sectorCount;
 int g_sectorCullEnabled;
@@ -196,6 +198,111 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
     g_sectors[index]->corners[side].x = best.x;
     g_sectors[index]->corners[side].z = best.z;
     return height;
+}
+
+// Sets the four corner points of every sector from the ground mesh heights
+// around each grid vertex (lowest nearby vertex plus one unit, or 10 units
+// when no neighbouring sector has a mesh).
+// TODO: CMR2 0x004b8b90 (implemented, match 22%)
+void Sector_BuildCorners(void)
+{
+    int x;
+    int z;
+    unsigned int row;
+    unsigned int col;
+    int rowStart;
+    int cur;
+    int left;
+    int above;
+    int aboveLeft;
+    int h;
+    int height;
+    int hasAboveLeft;
+    int hasAbove;
+    int hasLeft;
+    int hasCur;
+
+    x = g_sectors[0]->x - g_sectorHalfSize;
+    z = g_sectors[0]->z + g_sectorHalfSize;
+    for (row = 0; row < (unsigned int)g_sectorRows + 1; row++) {
+        rowStart = g_sectorsPerRow * row;
+        above = (row - 1) * g_sectorsPerRow;
+        cur = rowStart;
+        aboveLeft = -1;
+        left = -1;
+        for (col = 0; col < (unsigned int)g_sectorsPerRow + 1; col++) {
+            height = 0x7fff0000;
+            if (cur >= g_sectorCount || above >= g_sectorCount)
+                break;
+            hasAboveLeft = 0;
+            hasAbove = 0;
+            hasLeft = 0;
+            hasCur = 0;
+            if (aboveLeft >= 0) {
+                if (g_sectors[aboveLeft]->pMesh != NULL) {
+                    h = Sector_NearestCornerHeight(2, aboveLeft);
+                    if (h < 0x7fff0000)
+                        height = h;
+                }
+                hasAboveLeft = 1;
+            }
+            if (above >= 0 && above <= rowStart - 1) {
+                if (g_sectors[above]->pMesh != NULL) {
+                    h = Sector_NearestCornerHeight(3, above);
+                    if (h < height)
+                        height = h;
+                }
+                hasAbove = 1;
+            }
+            if (left >= 0 && left < g_sectorCount) {
+                if (g_sectors[left]->pMesh != NULL) {
+                    h = Sector_NearestCornerHeight(1, left);
+                    if (h < height)
+                        height = h;
+                }
+                hasLeft = 1;
+            }
+            if (cur >= 0 && (unsigned int)(cur - rowStart) <= (unsigned int)g_sectorsPerRow) {
+                if (g_sectors[cur]->pMesh != NULL) {
+                    h = Sector_NearestCornerHeight(0, cur);
+                    if (h < height)
+                        height = h;
+                }
+                hasCur = 1;
+            }
+            if (height == 0x7fff0000)
+                height = 0xa0000;
+            else
+                height += 0x10000;
+            if (hasAboveLeft) {
+                g_sectors[aboveLeft]->corners[2].x = x;
+                g_sectors[aboveLeft]->corners[2].y = height;
+                g_sectors[aboveLeft]->corners[2].z = z;
+            }
+            if (hasAbove) {
+                g_sectors[above]->corners[3].x = x;
+                g_sectors[above]->corners[3].y = height;
+                g_sectors[above]->corners[3].z = z;
+            }
+            if (hasLeft) {
+                g_sectors[left]->corners[1].x = x;
+                g_sectors[left]->corners[1].y = height;
+                g_sectors[left]->corners[1].z = z;
+            }
+            if (hasCur) {
+                g_sectors[cur]->corners[0].x = x;
+                g_sectors[cur]->corners[0].y = height;
+                g_sectors[cur]->corners[0].z = z;
+            }
+            x += g_sectorSize;
+            aboveLeft = above;
+            above++;
+            left = cur;
+            cur++;
+        }
+        z -= g_sectorSize;
+        x = g_sectors[0]->x - g_sectorHalfSize;
+    }
 }
 
 // Appends the node to the sector its world position falls in.
