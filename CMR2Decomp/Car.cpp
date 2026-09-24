@@ -2513,6 +2513,20 @@ void FUN_0042b720(int index, BYTE value)
     g_unk0x0053acc8[index] = value;
 }
 
+// Counts down field 0xb43 of every car in the list.
+// FUNCTION: CMR2 0x0042bc80
+void FUN_0042bc80(short *pList, short count)
+{
+    int i;
+    Car *pCar;
+
+    for (i = count - 1; i >= 0; i--) {
+        pCar = &g_carBuffer[pList[i]];
+        if (pCar->field_0xb43[0] != 0)
+            pCar->field_0xb43[0]--;
+    }
+}
+
 // FUNCTION: CMR2 0x0042c840
 void FUN_0042c840(int first, int count)
 {
@@ -2955,6 +2969,26 @@ void Car_UpdateRollover(void)
     }
 }
 
+// Counts field 0xb1f of the current car down while it is slow compared to
+// the load of the (front or rear) wheels; clears it once it is fast enough.
+// TODO: CMR2 0x004340f0 (implemented, match 27%)
+void FUN_004340f0(void)
+{
+    int load;
+
+    if (g_pCurrentCar->field_0xb1f != 0) {
+        if (g_pCurrentCar->field_0x7b4 == 0)
+            load = g_pCurrentCar->wheelLoad[2];
+        else
+            load = g_pCurrentCar->wheelLoad[0];
+        if (g_pCurrentCar->speed * 4 - load > -0x1999) {
+            g_pCurrentCar->field_0xb1f = 0;
+            return;
+        }
+        g_pCurrentCar->field_0xb1f--;
+    }
+}
+
 // Steering: the rolling direction of the car eases towards the body's
 // right axis (faster with field_0x79c), and the steered wheels turn from it
 // by the steering angle, which wobbles with the position on the stage on
@@ -3216,6 +3250,25 @@ FixVector *FUN_00423db0(FixVector *pOut, BYTE index)
 
 // Current camera mode record (100 bytes) of a view.
 #define VIEW_MODE_RECORD(i) (g_unk0x0053901c - 4 + ((unsigned int)g_unk0x00538e0c[i] + (i) * 2) * 100)
+
+struct Unk00423ee0Block {
+    int value[16];
+};
+
+// Copies the state record at src into dst (fields 0x4..0x64 except 0x0).
+// FUNCTION: CMR2 0x00423ee0
+void FUN_00423ee0(BYTE *dst, BYTE *src)
+{
+    *(int *)(dst + 0x4) = *(int *)(src + 0x4);
+    *(Unk00423ee0Block *)(dst + 0x8) = *(Unk00423ee0Block *)(src + 0x8);
+    *(int *)(dst + 0x48) = *(int *)(src + 0x48);
+    *(int *)(dst + 0x4c) = *(int *)(src + 0x4c);
+    *(int *)(dst + 0x54) = *(int *)(src + 0x54);
+    *(int *)(dst + 0x58) = *(int *)(src + 0x58);
+    *(int *)(dst + 0x5c) = *(int *)(src + 0x5c);
+    *(int *)(dst + 0x50) = *(int *)(src + 0x50);
+    *(int *)(dst + 0x60) = *(int *)(src + 0x60);
+}
 
 // TODO: CMR2 0x00423fc0 (implemented, match 80%)
 void FUN_00423fc0(int view)

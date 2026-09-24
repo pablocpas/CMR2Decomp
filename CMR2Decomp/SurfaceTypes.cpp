@@ -348,3 +348,71 @@ int FUN_004789d0(int surface, int t)
     return FixMul(g_surfaceBlendRate[g_surfaceNext[surface]] - g_surfaceBlendRate[surface], t) +
            g_surfaceBlendRate[surface];
 }
+
+// Per-player surface sound state (two entries each).
+// GLOBAL: CMR2 0x0058dd70
+int g_unk0x0058dd70[2];
+// GLOBAL: CMR2 0x0058ddc0
+int g_unk0x0058ddc0[2];
+// GLOBAL: CMR2 0x0058de00
+int g_unk0x0058de00[2];
+// GLOBAL: CMR2 0x0058de08
+int g_unk0x0058de08[2];
+// GLOBAL: CMR2 0x0058df20
+int g_unk0x0058df20[2];
+
+int Sound_IsPlaying(unsigned int handle);
+void Sound_Free(unsigned int handle);
+void FUN_004b7740(int first);
+int FUN_00420120(void);
+
+// Releases the stage's surface sounds (registered callback of 0x478dc0).
+// FUNCTION: CMR2 0x00478f30
+int FUN_00478f30(void)
+{
+    FUN_004b7740(FUN_00420120());
+    return 1;
+}
+
+// Stops the player's surface sound started by flag g_unk0x0058dd70.
+// FUNCTION: CMR2 0x004792c0
+void FUN_004792c0(int player)
+{
+    if (g_unk0x0058dd70[player] != 0) {
+        if (Sound_IsPlaying(g_unk0x0058ddc0[player])) {
+            Sound_Free(g_unk0x0058ddc0[player]);
+            g_unk0x0058ddc0[player] = -1;
+        }
+        g_unk0x0058dd70[player] = 0;
+    }
+}
+
+// Stops the player's surface sound started by flag g_unk0x0058df20.
+// FUNCTION: CMR2 0x00479310
+void FUN_00479310(int player)
+{
+    if (g_unk0x0058df20[player] != 0) {
+        if (Sound_IsPlaying(g_unk0x0058ddc0[player])) {
+            Sound_Free(g_unk0x0058ddc0[player]);
+            g_unk0x0058ddc0[player] = -1;
+        }
+        g_unk0x0058df20[player] = 0;
+    }
+}
+
+// Moves the player's value toward target, at most 20 up or 10 down per call.
+// TODO: CMR2 0x0047a380 (implemented, match 88%)
+void FUN_0047a380(int target, int player)
+{
+    int cur = g_unk0x0058de00[player];
+
+    if (target - cur > 20)
+        target = cur + 20;
+    else if (cur - target > 10)
+        target = cur - 10;
+    if (target < 0)
+        target = 0;
+    g_unk0x0058de00[player] = target;
+    g_unk0x0058de08[player] = target;
+}
+

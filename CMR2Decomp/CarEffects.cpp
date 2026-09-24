@@ -1115,6 +1115,20 @@ void FUN_0045d250(void *pParticle, ParticleType *pType, int param)
     p->vector0x28.y += p->size / 2;
 }
 
+// Update callback: moves the particle with the car stored in its effect data.
+// FUNCTION: CMR2 0x0045dea0
+void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
+{
+    Particle *p = (Particle *)pParticle;
+    int car = p->field0x64;
+
+    if (car < 8) {
+        p->vector0x28.x += Car_Get(car)->position.x;
+        p->vector0x28.y += Car_Get(car)->position.y;
+        p->vector0x28.z += Car_Get(car)->position.z;
+    }
+}
+
 // Spawn callback: stores the effect data passed by the spawner.
 // TODO: CMR2 0x0045de80 (implemented, match 72%)
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)

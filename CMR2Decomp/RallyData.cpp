@@ -428,6 +428,21 @@ void RallyData_ValidateIndex(int index)
 extern BYTE g_unk0x0052fa18[0x1938];
 extern BYTE g_unk0x00531350[0x1000];
 
+// Increments counter 8 of this entry's category unless the entry is unassigned.
+// FUNCTION: CMR2 0x00408f20
+void RallyData_FUN_00408f20(int index)
+{
+    unsigned int record;
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    record = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    if ((record & 0x3c0000) != 0x3c0000) {
+        category = (record >> 18) & 15;
+        ++g_unk0x0052fa18[8 + category * 0x650];
+    }
+}
+
 // Increments the use count of this entry's category unless the entry is unassigned.
 // FUNCTION: CMR2 0x00408f70
 void RallyData_IncrementCategoryUse(int index)
@@ -441,6 +456,45 @@ void RallyData_IncrementCategoryUse(int index)
         category = (record >> 18) & 15;
         ++g_unk0x0052fa18[9 + category * 0x650];
     }
+}
+
+// Increments counter 10 of this entry's category unless the entry is unassigned.
+// FUNCTION: CMR2 0x00408fc0
+void RallyData_FUN_00408fc0(int index)
+{
+    unsigned int record;
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    record = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    if ((record & 0x3c0000) != 0x3c0000) {
+        category = (record >> 18) & 15;
+        ++g_unk0x0052fa18[10 + category * 0x650];
+    }
+}
+
+BYTE *FUN_0041b390(void);
+int FUN_004232a0(int index, int mode);
+
+// TODO: CMR2 0x00423970 (implemented, match 60%)
+int FUN_00423970(unsigned int index, int mode)
+{
+    switch (mode) {
+    case 1:
+    case 3:
+    case 4:
+    case 5:
+        break;
+    case 2:
+        if ((*(BYTE **)(FUN_0041b390() + 4))[(index & 0xff) * 8] == 10)
+            return 0;
+        break;
+    default:
+        return 0;
+    }
+    if (FUN_004232a0(index, mode) == 0)
+        return 0;
+    return 1;
 }
 
 // FUNCTION: CMR2 0x004239e0
@@ -1777,6 +1831,22 @@ char g_loadRecordTimeFormat[] = "%.2d:%.2d.%.2d";
 
 #define LOAD_TIME_TEXT(t) sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, (t) / 6000, (int)(((t) / 100) % 60), (t) % 100)
 
+// Returns 1 when the stage must end early: a championship with more lost
+// than remaining rounds, or a replay being skipped.
+// FUNCTION: CMR2 0x004100a0
+int FUN_004100a0(void)
+{
+    unsigned int *pState = RallyData_GetChampionshipState();
+
+    if (CGameInfo::FUN_00405d80() == 4 && (int)(5 - (*pState & 7)) < (int)((*pState >> 3) & 7))
+        return 1;
+    if (CGameInfo::FUN_00405da0() && FUN_0041b370()) {
+        CGraphics::ClearTarget();
+        return 1;
+    }
+    return 0;
+}
+
 // Loading screen text: the breadcrumb (game mode, rally, stage), the stage
 // record and the best time of every player on it, faded in with alpha.
 // TODO: CMR2 0x00410100 (implemented, match 74%)
@@ -2173,6 +2243,34 @@ short g_routeProbeBestIndex[8];
 RaceRecord g_raceRecords[8];
 // GLOBAL: CMR2 0x00538c8c
 int g_routeProbeCycles[2];
+
+// Restarts race record index; the two players also reset their route probe.
+// TODO: CMR2 0x004207a0 (implemented, match 51%)
+void RallyData_FUN_004207a0(int index)
+{
+    g_raceRecords[index].field_0x0 = g_raceRecords[index].field_0x4;
+    g_raceRecords[index].field_0x8 = 0;
+    g_raceRecords[index].field_0x14 = 0;
+    g_raceRecords[index].field_0xc = 0;
+    if (index < 2) {
+        g_routeProbeCycles[index] = 0;
+        g_routeProbeBestDistance[index] = 0;
+        g_routeProbeBestIndex[index] = 0;
+        g_routeProbeIndex[index] = 0;
+    }
+}
+
+// Sets the car's race record position.
+// FUNCTION: CMR2 0x004213d0
+void RallyData_FUN_004213d0(Car *pCar, int value)
+{
+    if (g_unk0x00538a84 != 0) {
+        g_raceRecords[pCar->field_0xb1a].field_0x0 = value;
+        g_raceRecords[pCar->field_0xb1a].field_0x14 = (short)value;
+        if (pCar->field_0xb1a < 2)
+            g_routeProbeCycles[pCar->field_0xb1a] = 0;
+    }
+}
 
 // TODO: CMR2 0x004207f0 (implemented, match 45%)
 void RallyData_FUN_004207f0(void)
@@ -2851,3 +2949,21 @@ BYTE FUN_00471d40(BYTE **pEntry, BYTE bit)
         return 0;
     return (g_unk0x0058c938[index] & (1 << bit)) != 0;
 }
+
+// Sets or clears bit `bit` of the flag byte of the 8-byte element *pp points at.
+// TODO: CMR2 0x00471d80 (implemented, match 87%)
+void FUN_00471d80(BYTE **pp, BYTE bit, int set)
+{
+    unsigned int index = (unsigned int)(*pp - g_unk0x0058c94c) >> 3;
+    BYTE mask;
+
+    if ((int)index < (int)g_unk0x0058ca6c) {
+        mask = 1 << bit;
+        if (set == 0) {
+            g_unk0x0058c938[index] &= ~mask;
+            return;
+        }
+        g_unk0x0058c938[index] |= mask;
+    }
+}
+

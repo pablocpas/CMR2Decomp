@@ -185,6 +185,21 @@ void StageTiming_FUN_00455610(void)
     g_unk0x00542418 = 0;
 }
 
+int FUN_004583a0(void);
+
+// Gives the last count driver slots (15 downwards) to the split table.
+// FUNCTION: CMR2 0x004556a0
+void FUN_004556a0(int count)
+{
+    int i;
+
+    g_unk0x00541f98 = 16 - count;
+    for (i = 0; i < count; i++)
+        g_stageDriverSlot[i] = 15 - i;
+    for (i = 1; i <= FUN_004583a0(); i++)
+        g_stageSplitDriverCount[i] = g_unk0x00541f98;
+}
+
 // FUNCTION: CMR2 0x00455ab0
 int StageTiming_FUN_00455ab0(int iSplit)
 {
@@ -852,10 +867,20 @@ struct Unk0x00539278 {
     int field_0xc;
     int field_0x10;
     int field_0x14;
-    BYTE field_0x18[0x14];
-    signed char field_0x2c;
+    int field_0x18;
+    int field_0x1c;
+    int field_0x20;
+    int field_0x24;
+    int field_0x28;
+    signed char field_0x2c;         // device index, < 0 when none
+    BYTE pad_0x2d[3];
+    int field_0x30;
+    int field_0x34;                 // slot in use
 };
 
+// Force-feedback state of the two local players.
+// GLOBAL: CMR2 0x00539200
+Unk0x00539278 g_forceFeedbackSlots[2];
 // GLOBAL: CMR2 0x00539278
 Unk0x00539278 *g_unk0x00539278;
 
@@ -889,6 +914,62 @@ void FUN_00424560(void)
                                               g_unk0x00539278->field_0x2c);
     }
 }
+
+// Stops the forces of every active slot and releases the slots.
+// TODO: CMR2 0x00424640 (implemented, match 62%)
+void FUN_00424640(void)
+{
+    Unk0x00539278 *p;
+    int i;
+
+    for (p = g_forceFeedbackSlots; p < g_forceFeedbackSlots + 2; p++) {
+        g_unk0x00539278 = p;
+        if (p->field_0x34 != 0) {
+            if (p->field_0x2c >= 0) {
+                FUN_004246a0();
+                for (i = 0; i < 3; i++)
+                    (&g_unk0x00539278->field_0xc)[i] = 0;
+                FUN_00424560();
+            }
+            g_unk0x00539278->field_0x34 = 0;
+        }
+    }
+}
+
+// Stops the forces of every active slot.
+// TODO: CMR2 0x004246c0 (implemented, match 59%)
+void FUN_004246c0(void)
+{
+    Unk0x00539278 *p;
+    int i;
+
+    for (p = g_forceFeedbackSlots; p < g_forceFeedbackSlots + 2; p++) {
+        g_unk0x00539278 = p;
+        if (p->field_0x34 != 0 && p->field_0x2c >= 0) {
+            FUN_004246a0();
+            for (i = 0; i < 3; i++)
+                (&g_unk0x00539278->field_0xc)[i] = 0;
+            FUN_00424560();
+        }
+    }
+}
+
+// Fades the two impulse forces of the current slot out.
+// FUNCTION: CMR2 0x00424c00
+void FUN_00424c00(void)
+{
+    if (g_unk0x00539278->field_0x24 > 0) {
+        g_unk0x00539278->field_0x24 -= 0x1999;
+        if (g_unk0x00539278->field_0x24 < 0)
+            g_unk0x00539278->field_0x24 = 0;
+    }
+    if (g_unk0x00539278->field_0x28 > 0) {
+        g_unk0x00539278->field_0x28 -= 0x1999;
+        if (g_unk0x00539278->field_0x28 < 0)
+            g_unk0x00539278->field_0x28 = 0;
+    }
+}
+
 
 // GLOBAL: CMR2 0x00588a90
 int g_unk0x00588a90;
@@ -1248,6 +1329,24 @@ void FUN_00456a40(int param1, int param2)
 int g_unk0x0051bd3c = 0x10000;
 // GLOBAL: CMR2 0x0051bd40
 int g_unk0x0051bd40 = 0x10000;
+
+// GLOBAL: CMR2 0x00543d9c
+int g_unk0x00543d9c;
+// GLOBAL: CMR2 0x00543e88
+int g_unk0x00543e88;
+// GLOBAL: CMR2 0x00543e8c
+int g_unk0x00543e8c;
+// GLOBAL: CMR2 0x00543e94
+int g_unk0x00543e94;
+
+// FUNCTION: CMR2 0x0045e6b0
+void FUN_0045e6b0(int *p1, int *p2, int *p3, int *p4)
+{
+    *p1 = g_unk0x00543e88;
+    *p2 = g_unk0x00543d9c;
+    *p3 = (int)(__int64)(g_unk0x00543e8c * CGraphics::m_65536);
+    *p4 = (int)(__int64)(g_unk0x00543e94 * CGraphics::m_65536);
+}
 
 // Marca el nodo como "sucio" en las etapas especiales y ajusta su 0x64.
 // TODO: CMR2 0x0045e9a0 (implemented, match 59%)
@@ -1686,7 +1785,10 @@ struct Unk0x00542e78 {
     short field_0x2;
     short field_0x4;
     short field_0x6;
-    BYTE field_0x8[8];
+    short field_0x8;
+    short field_0xa;
+    short field_0xc;
+    short field_0xe;
     short field_0x10;
     short field_0x12;
     short field_0x14;
@@ -1722,6 +1824,13 @@ void FUN_00459370(void)
 bool FUN_00459390(void)
 {
     return g_unk0x00543098 != 0;
+}
+
+// Registered callback with nothing to release.
+// FUNCTION: CMR2 0x00458040
+int FUN_00458040(void)
+{
+    return 1;
 }
 
 // FUNCTION: CMR2 0x00458230
@@ -1916,6 +2025,14 @@ int FUN_004692b0(unsigned int type, BYTE *pModel)
     return -1;
 }
 
+// Reads the two values at +0x4a0 of the car's 0x4d0-byte record.
+// FUNCTION: CMR2 0x00466870
+void FUN_00466870(int *pA, int *pB, Car *pCar)
+{
+    *pA = *(int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0 + 0x4a0);
+    *pB = *(int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0 + 0x4a4);
+}
+
 // Clears `count` stage records (0x4d0 bytes) from `first`.
 // FUNCTION: CMR2 0x004669b0
 void FUN_004669b0(int first, int count)
@@ -1925,3 +2042,41 @@ void FUN_004669b0(int first, int count)
     for (i = first; i < count + first; i++)
         memset(g_unk0x00588b94 + i * 0x4d0, 0, 0x4d0);
 }
+
+extern int g_unk0x00542c68;
+// GLOBAL: CMR2 0x00542d58
+short g_unk0x00542d58[8];
+// GLOBAL: CMR2 0x00542d68
+short g_unk0x00542d68[8];
+
+int FUN_00459320(int index);
+int RallyData_FUN_00421370(BYTE *p);
+
+// Stores, per car, the checkpoint before its current one and its record's
+// field 0x12.
+// FUNCTION: CMR2 0x00458b80
+void FUN_00458b80(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x00542c68; i++) {
+        g_unk0x00542d58[i] = FUN_00459320(RallyData_FUN_00421370((BYTE *)Car_Get(i)));
+        g_unk0x00542d68[i] = g_unk0x00542e78[i].field_0x12;
+    }
+}
+
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082e0(void);
+
+// Flags the record when its two positions coincide (not in some network modes).
+// FUNCTION: CMR2 0x00459180
+void FUN_00459180(int index)
+{
+    if (g_unk0x00542e78[index].field_0x4 == g_unk0x00542e78[index].field_0xc &&
+        g_unk0x00542e78[index].field_0x6 == g_unk0x00542e78[index].field_0xe) {
+        g_unk0x00542e78[index].field_0x1a = 1;
+        if ((BYTE)RallyData_FUN_004082e0() && RallyData_FUN_004082b0() == 1)
+            g_unk0x00542e78[index].field_0x1a = 0;
+    }
+}
+

@@ -959,6 +959,31 @@ struct Unk004238e0 {
     int field_0x4;
 };
 
+void FUN_00486c00(BYTE *p, BYTE *q);
+void FUN_00486be0(BYTE *p, int unused);
+void FUN_00476500(void *param1);
+void FUN_0048d850(BYTE *pCar, BYTE *pInfo);
+
+// Dispatches by the object type stored at +4.
+// TODO: CMR2 0x00423900 (implemented, match 52%)
+void FUN_00423900(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 1:
+    case 10:
+        FUN_00486c00(pObject, pInfo);
+        return;
+    case 2:
+        FUN_00486be0(pObject, (int)pInfo);
+        return;
+    case 3:
+        FUN_00476500(pObject);
+        return;
+    case 7:
+        FUN_0048d850(pObject, pInfo);
+    }
+}
+
 // FUNCTION: CMR2 0x004238e0
 void FUN_004238e0(Unk004238e0 *param1, int param2)
 {

@@ -309,6 +309,29 @@ bool FUN_004174d0(void)
     return (char)RallyData_GetFlag24() == 0;
 }
 
+// GLOBAL: CMR2 0x0053708c
+int g_unk0x0053708c[2];
+// GLOBAL: CMR2 0x00537198
+int g_unk0x00537198[2];
+
+#include "Car.h"
+int RallyData_FUN_00421370(BYTE *p);
+
+// Stores the player's route position twice and frees the first five race slots.
+// TODO: CMR2 0x00417780 (implemented, match 70%)
+void FUN_00417780(int player)
+{
+    RaceSlotState *p;
+
+    g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
+    g_unk0x00537198[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
+    for (p = g_raceSlotState; p < g_raceSlotState + 5; p++) {
+        p->flags &= 0xfc;
+        p->pending = -1;
+        p->owner = -1;
+    }
+}
+
 // FUNCTION: CMR2 0x00417e60
 void FUN_00417e60(void)
 {
@@ -521,6 +544,16 @@ void FUN_0041fc90(void)
 int Sound_IsPlaying(unsigned int handle);
 void FUN_004b79a0(unsigned int handle, int volume);
 void Sound_Free(unsigned int handle);
+
+// Moves sound slot src of a car's sound set to slot dst.
+// FUNCTION: CMR2 0x00418e20
+void FUN_00418e20(int set, int dst, int src)
+{
+    g_carSoundSets[set].id[dst] = g_carSoundSets[set].id[src];
+    g_carSoundSets[set].handle[dst] = g_carSoundSets[set].handle[src];
+    g_carSoundSets[set].handle[src] = -1;
+    g_carSoundSets[set].id[src] = -1;
+}
 
 // Silences every stage sound still playing.
 // FUNCTION: CMR2 0x00418ee0

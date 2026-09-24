@@ -292,9 +292,11 @@ void FUN_0046b6e0(SceneNode *pNode, BYTE threshold)
     }
 }
 
-struct StageObjectEntry0x128 { int *pObject; BYTE rest[0x124]; };
-// GLOBAL: CMR2 0x005894e4
-StageObjectEntry0x128 g_unk0x005894e4[40];
+struct StageObjectEntry0x128 { int field_0x0; int *pObject; BYTE rest[0x120]; };
+// GLOBAL: CMR2 0x005894e0
+StageObjectEntry0x128 g_unk0x005894e0[40];
+// GLOBAL: CMR2 0x0058c320
+BYTE g_unk0x0058c320;
 // GLOBAL: CMR2 0x0058c324
 int g_unk0x0058c324;
 // GLOBAL: CMR2 0x0058c924
@@ -303,13 +305,15 @@ BYTE g_unk0x0058c924;
 // FUNCTION: CMR2 0x0046f7e0
 void FUN_0046f7e0(void)
 {
+    int **pp;
+
     g_unk0x0058c924 = 0;
-    StageObjectEntry0x128 *p = g_unk0x005894e4;
+    pp = &g_unk0x005894e0[0].pObject;
     do {
-        if (p->pObject != NULL)
-            p->pObject[0xcc / 4] += 0xd8f00000U;
-        p++;
-    } while ((int)p < (int)&g_unk0x0058c324);
+        if (*pp != NULL)
+            (*pp)[0xcc / 4] += 0xd8f00000U;
+        pp = (int **)((BYTE *)pp + sizeof(StageObjectEntry0x128));
+    } while ((int)pp < (int)&g_unk0x005894e0[40].pObject);
 }
 
 // FUNCTION: CMR2 0x00460bf0
@@ -497,6 +501,33 @@ void FUN_0046f4c0(int *pOut)
 void FUN_0046f4d0(int *pOut)
 {
     *pOut = g_unk0x0058943c;
+}
+
+// GLOBAL: CMR2 0x0058c928
+void *g_unk0x0058c928;
+// GLOBAL: CMR2 0x0058c92c
+void *g_unk0x0058c92c;
+// GLOBAL: CMR2 0x0058c930
+void *g_unk0x0058c930;
+
+// Releases the three files loaded by 0x46f550 (registered callback).
+// FUNCTION: CMR2 0x0046f500
+int FUN_0046f500(void)
+{
+    if (g_unk0x0058c928 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c928);
+        g_unk0x0058c928 = NULL;
+    }
+    if (g_unk0x0058c930 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c930);
+        g_unk0x0058c930 = NULL;
+    }
+    if (g_unk0x0058c92c != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c92c);
+        g_unk0x0058c92c = NULL;
+    }
+    g_unk0x0058c320 = 0;
+    return 1;
 }
 
 // FUNCTION: CMR2 0x0046f4e0
@@ -1602,6 +1633,25 @@ short g_sunVisibility;
 
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
 void FUN_00492bb0(int *pOut);
+
+void Scene_GetAmbientColour(DWORD *pColour);
+void Scene_SetAmbient(BYTE *pColour, int boost);
+unsigned int RallyDataCountryIndex(void);
+int FUN_00407270(void);
+void FUN_0047e490(BYTE *pColour);
+
+// Sets the scene's ambient colour when it changes.
+// TODO: CMR2 0x00462cb0 (implemented, match 80%)
+void FUN_00462cb0(BYTE *pColour)
+{
+    BYTE ambient[4];
+
+    Scene_GetAmbientColour((DWORD *)ambient);
+    if (ambient[0] != pColour[0] || ambient[1] != pColour[1] || ambient[2] != pColour[2])
+        Scene_SetAmbient(pColour, (BYTE)RallyDataCountryIndex() == 3 ? 0 : 1);
+    if ((BYTE)FUN_00407270())
+        FUN_0047e490(pColour);
+}
 
 // TODO: CMR2 0x00462d10 (implemented, match 72%)
 void FUN_00462d10(short *pRect)
