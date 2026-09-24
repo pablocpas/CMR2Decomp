@@ -637,7 +637,7 @@ void FUN_004adf60(void *pObject)
             count++;
         }
         pSlot++;
-    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
+    } while ((int)pSlot < (int)&g_sceneType2Objects[256]);
     if (count > 0) {
         CFileBuffer::FreeGenericFileBuffer(pObject);
         g_sceneType2Count--;
@@ -668,7 +668,7 @@ int SceneType2_ReleaseAll(void)
         if (*pSlot != NULL)
             FUN_004adf60(*pSlot);
         pSlot++;
-    } while ((int)pSlot < 0x683788); // &g_sceneType2Objects[256]
+    } while ((int)pSlot < (int)&g_sceneType2Objects[256]);
     g_sceneType2CallbackRegistered = 0;
     return 1;
 }

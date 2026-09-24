@@ -1323,6 +1323,7 @@ private:
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
+    friend void Sprite_DrawLayer(int layer);
     friend void Billboard_Draw(SceneNode *pCamera);
     friend SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
     // Note: this friend shifts the register allocation of FUN_004a7910 (87.0% -> 85.8%).

@@ -28,6 +28,162 @@ unsigned int g_unk0x0081616c;
 // GLOBAL: CMR2 0x00816170
 unsigned int g_unk0x00816170;
 
+// Screen-space quads of each sprite layer, four vertices per sprite.
+// GLOBAL: CMR2 0x005a2858
+D3DTLVERTEX g_spriteVerts1[1024 * 4];
+// GLOBAL: CMR2 0x005c2858
+D3DTLVERTEX g_spriteVerts2[1024 * 4];
+// GLOBAL: CMR2 0x005fe858
+D3DTLVERTEX g_spriteVerts4[1024 * 4];
+// GLOBAL: CMR2 0x0061e858
+D3DTLVERTEX g_spriteVerts3[1024 * 4];
+
+void FUN_004a3dd0(void);
+
+#define SPRITE_VERTEX(v, px, py, u, vv)                                             \
+    (v)->sx = (float)(px);                                                          \
+    (v)->sy = (float)(py);                                                          \
+    (v)->sz = 0.0f;                                                                 \
+    (v)->rhw = 1.0f;                                                                \
+    (v)->color = colour;                                                            \
+    (v)->specular = 0xff000000;                                                     \
+    (v)->tu = (u);                                                                  \
+    (v)->tv = (vv);                                                                 \
+    if (angle != 0) {                                                               \
+        p.x = (int)(__int64)(v)->sx;                                                \
+        p.y = (int)(__int64)(v)->sy;                                                \
+        p.z = (int)(__int64)(v)->sz;                                                \
+        FixMatrix_TransformAboutPivot(&out, &p, (FixVector *)centre, &rotation);    \
+        (v)->sx = (float)out.x;                                                     \
+        (v)->sy = (float)out.y;                                                     \
+        (v)->sz = (float)out.z;                                                     \
+    }
+
+// Builds the quads of one sprite layer (1..4), rotating them about their
+// centre when needed, draws them with point filtering and empties the layer.
+// TODO: CMR2 0x004a3650 (implemented, match 44%)
+void Sprite_DrawLayer(int layer)
+{
+    D3DTLVERTEX *pVert;
+    Sprite *pSprite;
+    unsigned int count;
+    unsigned int n;
+    float w, h;
+    float u0, u1, v0, v1;
+    float t;
+    D3DCOLOR colour;
+    int centre[3];
+    short angle;
+    FixMatrix rotation;
+    FixVector p;
+    FixVector out;
+
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
+    switch (layer) {
+    case 2:
+        count = g_spriteCount2;
+        g_spriteCount2 = 0;
+        pVert = g_spriteVerts2;
+        pSprite = g_spriteLayer2;
+        break;
+    case 3:
+        count = g_spriteCount3;
+        g_spriteCount3 = 0;
+        pVert = g_spriteVerts3;
+        pSprite = g_spriteLayer3;
+        break;
+    case 4:
+        count = g_spriteCount4;
+        g_spriteCount4 = 0;
+        pVert = g_spriteVerts4;
+        pSprite = g_spriteLayer4;
+        break;
+    default:
+        count = g_spriteCount1;
+        g_spriteCount1 = 0;
+        pVert = g_spriteVerts1;
+        pSprite = g_spriteLayer1;
+        break;
+    }
+    for (n = count; n != 0; n--) {
+        // A sprite without texture is skipped without advancing (as the original does).
+        if (pSprite->pTexture == NULL)
+            continue;
+        w = (float)(unsigned int)pSprite->pTexture->width;
+        u0 = (float)pSprite->src.x / w;
+        u1 = (float)(pSprite->src.x + pSprite->src.w) / w;
+        h = (float)(unsigned int)pSprite->pTexture->height;
+        v0 = (float)pSprite->src.y / h;
+        v1 = (float)(pSprite->src.y + pSprite->src.h) / h;
+        if (CGraphics::FUN_004a8bc0() == 0) {
+            u0 += 0.5f / w;
+            u1 += 0.5f / w;
+            v0 += 0.5f / h;
+            v1 += 0.5f / h;
+        }
+        if (pSprite->param & 5) {
+            t = u0;
+            u0 = u1;
+            u1 = t;
+        }
+        if (pSprite->param & 6) {
+            t = v0;
+            v0 = v1;
+            v1 = t;
+        }
+        colour = RGBA_MAKE(pSprite->colour[0], pSprite->colour[1], pSprite->colour[2], pSprite->colour[3]);
+        centre[0] = pSprite->centre[0];
+        centre[1] = pSprite->centre[1];
+        centre[2] = pSprite->centre[2];
+        if (centre[0] == -1 && centre[1] == -1 && centre[2] == -1) {
+            centre[0] = pSprite->dst.w / 2 + pSprite->dst.x;
+            centre[1] = pSprite->dst.h / 2 + pSprite->dst.y;
+        }
+        angle = pSprite->angle;
+        if (angle != 0)
+            FixMatrix_RotationZ(&rotation, angle);
+        SPRITE_VERTEX(&pVert[0], pSprite->dst.x, pSprite->dst.y, u0, v0);
+        SPRITE_VERTEX(&pVert[1], pSprite->dst.x + pSprite->dst.w, pSprite->dst.y, u1, v0);
+        SPRITE_VERTEX(&pVert[2], pSprite->dst.x, pSprite->dst.y + pSprite->dst.h, u0, v1);
+        SPRITE_VERTEX(&pVert[3], pSprite->dst.x + pSprite->dst.w, pSprite->dst.y + pSprite->dst.h, u1, v1);
+        pVert += 4;
+        pSprite++;
+    }
+
+    switch (layer) {
+    case 2:
+        pVert = g_spriteVerts2;
+        pSprite = g_spriteLayer2;
+        break;
+    case 3:
+        pVert = g_spriteVerts3;
+        pSprite = g_spriteLayer3;
+        break;
+    case 4:
+        pVert = g_spriteVerts4;
+        pSprite = g_spriteLayer4;
+        break;
+    default:
+        pVert = g_spriteVerts1;
+        pSprite = g_spriteLayer1;
+        break;
+    }
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
+    for (n = count; n != 0; n--) {
+        CGraphics::FUN_004a4850(0, (int)pSprite->pTexture);
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, pVert, 4, 0);
+        pSprite++;
+        pVert += 4;
+        CGame::m_unk0x0059ce20 += 2;
+    }
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+    CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+    FUN_004a3dd0();
+    CGraphics::FUN_004a3de0();
+}
+
 // Exit callback of Sprite_Init.
 // FUNCTION: CMR2 0x004a3640
 int Sprite_Shutdown(void)
