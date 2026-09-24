@@ -3037,8 +3037,7 @@ unsigned short g_unk0x006db200[800 * 6];
 int g_unk0x006dd784;
 // GLOBAL: CMR2 0x006dd788
 int g_unk0x006dd788;
-// GLOBAL: CMR2 0x004b1500
-BYTE g_unk0x004b1500[1];
+void Billboard_Reset(void);
 
 // Builds the 800-entry triangle-strip index table.
 // TODO: CMR2 0x004b1150 (implemented, match 45%)
@@ -3061,7 +3060,7 @@ void FUN_004b1150(void)
         pIndex[5] = v;
         pIndex += 6;
     }
-    CGame::RegisterCallback(g_unk0x004b1500, NULL);
+    CGame::RegisterCallback(Billboard_Reset, NULL);
 }
 
 // Camera-facing quad requested by the game (0x24 bytes); 16.16 fixed point.
@@ -3072,20 +3071,20 @@ struct BillboardDef {
     int bottom;                 // 0x14
     int right;                  // 0x18
     BYTE r, g, b, a;            // 0x1c
-    short field_0x20;           // 0x20
+    short field_0x20;           // 0x20 rotation (12-bit angle)
     BYTE shade;                 // 0x22 0 = fully lit ... 256 = scene dark colour
-    BYTE flags;                 // 0x23 1 additive, 2 lit by the scene light
+    BYTE flags;                 // 0x23 1 mirrored, 2 lit by the scene light
 };
 
 // Queued billboard in render format (0x58 bytes).
 struct BillboardQuad {
-    float corner[4][3];         // 0x0  offsets from pos in camera space
+    D3DVECTOR corner[4];        // 0x0  offsets from pos in camera space (y right, z up)
     unsigned short texture;     // 0x30
-    float pos[3];               // 0x34
+    D3DVECTOR pos;              // 0x34
     D3DCOLOR colour;            // 0x40
     BYTE field_0x44[0xc];
-    int additive;               // 0x50
-    short field_0x54;           // 0x54
+    int mirror;                 // 0x50 flip the texture horizontally
+    short field_0x54;           // 0x54 rotation about the view axis (12-bit angle)
 };
 
 // Runs of consecutive quads sharing a texture: {count, texture}.
@@ -3128,22 +3127,22 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
     top = (float)pDef->top * CGraphics::m_oneOver65536;
     right = (float)pDef->right * CGraphics::m_oneOver65536;
     bottom = (float)pDef->bottom * CGraphics::m_oneOver65536;
-    pQuad->corner[0][0] = 0.0f;
-    pQuad->corner[1][0] = 0.0f;
-    pQuad->corner[2][0] = 0.0f;
-    pQuad->corner[3][0] = 0.0f;
-    pQuad->corner[0][1] = -left;
-    pQuad->corner[0][2] = top;
-    pQuad->corner[1][1] = -left;
-    pQuad->corner[1][2] = bottom;
-    pQuad->corner[2][1] = -right;
-    pQuad->corner[2][2] = top;
-    pQuad->corner[3][1] = -right;
-    pQuad->corner[3][2] = bottom;
+    pQuad->corner[0].x = 0.0f;
+    pQuad->corner[1].x = 0.0f;
+    pQuad->corner[2].x = 0.0f;
+    pQuad->corner[3].x = 0.0f;
+    pQuad->corner[0].y = -left;
+    pQuad->corner[0].z = top;
+    pQuad->corner[1].y = -left;
+    pQuad->corner[1].z = bottom;
+    pQuad->corner[2].y = -right;
+    pQuad->corner[2].z = top;
+    pQuad->corner[3].y = -right;
+    pQuad->corner[3].z = bottom;
     pQuad->texture = *pTexture;
-    pQuad->pos[0] = (float)pDef->pos.x * CGraphics::m_oneOver65536;
-    pQuad->pos[1] = (float)pDef->pos.y * CGraphics::m_oneOver65536;
-    pQuad->pos[2] = (float)pDef->pos.z * CGraphics::m_oneOver65536;
+    pQuad->pos.x = (float)pDef->pos.x * CGraphics::m_oneOver65536;
+    pQuad->pos.y = (float)pDef->pos.y * CGraphics::m_oneOver65536;
+    pQuad->pos.z = (float)pDef->pos.z * CGraphics::m_oneOver65536;
     if ((pDef->flags & 2) == 0) {
         pQuad->colour = RGBA_MAKE(pDef->r, pDef->g, pDef->b, pDef->a);
     } else {
@@ -3160,7 +3159,7 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
                                   (bright[1] * (256 - t) + dark[1] * t) >> 8,
                                   (bright[2] * (256 - t) + dark[2] * t) >> 8, pDef->a);
     }
-    pQuad->additive = pDef->flags & 1;
+    pQuad->mirror = pDef->flags & 1;
     pQuad->field_0x54 = pDef->field_0x20;
     if (g_unk0x006dd784 == 0) {
         g_billboardRun = g_billboardRuns[0];
@@ -3180,6 +3179,142 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
     }
     g_billboardRun[0]++;
     g_unk0x006dd784++;
+}
+
+// Release callback: empties the billboard queue and disables it.
+// TODO: CMR2 0x004b1500 (implemented, match 55%)
+void Billboard_Reset(void)
+{
+    memset(g_billboards, 0, sizeof(g_billboards));
+    g_unk0x006dd784 = 0;
+    g_unk0x006dd788 = 0;
+    g_billboardsEnabled = 0;
+}
+
+// Vertex of a billboard (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
+struct BillboardVertex {
+    float x, y, z;
+    float nx, ny, nz;
+    D3DCOLOR diffuse;
+    D3DCOLOR specular;
+    float u, v;
+    float u2, v2;
+};
+
+// GLOBAL: CMR2 0x006a2cf8
+BillboardVertex g_billboardVerts[800 * 4];
+
+void FUN_004a3dd0(void);
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+
+// Turns the queued billboards into quads facing pCamera (rotated by their
+// angle), draws them one texture run at a time and empties the queue.
+// TODO: CMR2 0x004b1530 (implemented, match 56%)
+void Billboard_Draw(SceneNode *pCamera)
+{
+    BillboardVertex *pVert;
+    BillboardQuad *pQuad;
+    D3DMATRIX axes;
+    D3DMATRIX view;
+    D3DVECTOR pos;
+    D3DVECTOR c0, c1, c2, c3;
+    unsigned short angle;
+    D3DCOLOR colour;
+    float c, s;
+    int n;
+    unsigned int i;
+    int first;
+
+    first = 0;
+    if (g_billboardsEnabled == 0 || g_unk0x006dd784 == 0)
+        return;
+    pVert = g_billboardVerts;
+    FixMatrix_ToFloat(&view, &pCamera->world);
+    if (g_unk0x006dd784 != 0) {
+        n = g_unk0x006dd784;
+        pQuad = g_billboards;
+        CGame::m_unk0x0059ce20 += g_unk0x006dd784 * 2;
+        do {
+            pos = pQuad->pos;
+            c0 = pQuad->corner[0];
+            c1 = pQuad->corner[1];
+            c2 = pQuad->corner[2];
+            c3 = pQuad->corner[3];
+            angle = pQuad->field_0x54;
+            colour = pQuad->colour;
+            if (angle == 0) {
+                axes = view;
+            } else {
+                c = (float)g_sinTable[(angle + 0x400) & 0xfff] * CGraphics::m_oneOver65536;
+                s = (float)g_sinTable[angle & 0xfff] * CGraphics::m_oneOver65536;
+                axes._11 = view._11 * c + view._21 * s;
+                axes._12 = view._12 * c + view._22 * s;
+                axes._13 = view._13 * c + view._23 * s;
+                axes._21 = view._21 * c - view._11 * s;
+                axes._22 = view._22 * c - view._12 * s;
+                axes._23 = view._23 * c - view._13 * s;
+            }
+            pVert[0].x = c0.z * axes._21 + c0.y * axes._11 + pos.x;
+            pVert[0].y = c0.z * axes._22 + c0.y * axes._12 + pos.y;
+            pVert[0].z = c0.z * axes._23 + c0.y * axes._13 + pos.z;
+            if (pQuad->mirror == 0) {
+                pVert[0].u = 0.0f;
+                pVert[0].v = 1.0f;
+            } else {
+                pVert[0].u = 1.0f;
+                pVert[0].v = 1.0f;
+            }
+            pVert[0].diffuse = colour;
+            pVert[0].specular = 0xff000000;
+            pVert[1].x = c1.z * axes._21 + c1.y * axes._11 + pos.x;
+            pVert[1].y = c1.z * axes._22 + c1.y * axes._12 + pos.y;
+            pVert[1].z = c1.z * axes._23 + c1.y * axes._13 + pos.z;
+            if (pQuad->mirror == 0)
+                pVert[1].u = 0.0f;
+            else
+                pVert[1].u = 1.0f;
+            pVert[1].v = 0.0f;
+            pVert[1].diffuse = colour;
+            pVert[1].specular = 0xff000000;
+            pVert[2].x = c2.z * axes._21 + c2.y * axes._11 + pos.x;
+            pVert[2].y = c2.z * axes._22 + c2.y * axes._12 + pos.y;
+            pVert[2].z = c2.z * axes._23 + c2.y * axes._13 + pos.z;
+            if (pQuad->mirror == 0)
+                pVert[2].u = 1.0f;
+            else
+                pVert[2].u = 0.0f;
+            pVert[2].v = 1.0f;
+            pVert[2].diffuse = colour;
+            pVert[2].specular = 0xff000000;
+            pVert[3].x = c3.z * axes._21 + c3.y * axes._11 + pos.x;
+            pVert[3].y = c3.z * axes._22 + c3.y * axes._12 + pos.y;
+            pVert[3].z = c3.z * axes._23 + c3.y * axes._13 + pos.z;
+            if (pQuad->mirror == 0)
+                pVert[3].u = 1.0f;
+            else
+                pVert[3].u = 0.0f;
+            pVert[3].v = 0.0f;
+            pVert[3].diffuse = colour;
+            pVert[3].specular = 0xff000000;
+            pVert += 4;
+            pQuad++;
+        } while (--n != 0);
+    }
+    CGraphics::SetZWriteEnable(0);
+    g_billboardRun = g_billboardRuns[0];
+    for (i = 0; i < (unsigned int)g_unk0x006dd788; i++) {
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[g_billboardRun[1]]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0x2d2, &g_billboardVerts[first * 4],
+                                                                 g_billboardRun[0] * 4, g_unk0x006db200,
+                                                                 g_billboardRun[0] * 6, 0);
+        first += g_billboardRun[0];
+        g_billboardRun += 2;
+    }
+    CGraphics::SetZWriteEnable(1);
+    g_unk0x006dd784 = 0;
+    g_unk0x006dd788 = 0;
+    FUN_004a3dd0();
+    CGraphics::FUN_004a3de0();
 }
 
 // Takes a free texture slot, copies the 0x130-byte texture into it and

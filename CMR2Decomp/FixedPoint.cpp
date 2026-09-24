@@ -1,8 +1,32 @@
 #include <windows.h>
 #include "FixedPoint.h"
+#include "Graphics.h"
 
 // GLOBAL: CMR2 0x0072d67c
 int g_fixMatrixMultiplyCount;
+
+// Converts a 16.16 matrix into a Direct3D float matrix.
+// FUNCTION: CMR2 0x004ba090
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
+{
+    pOut->_11 = (float)pIn->right.x * CGraphics::m_oneOver65536;
+    pOut->_12 = (float)pIn->right.y * CGraphics::m_oneOver65536;
+    pOut->_13 = (float)pIn->right.z * CGraphics::m_oneOver65536;
+    pOut->_14 = (float)pIn->rw * CGraphics::m_oneOver65536;
+    pOut->_21 = (float)pIn->up.x * CGraphics::m_oneOver65536;
+    pOut->_22 = (float)pIn->up.y * CGraphics::m_oneOver65536;
+    pOut->_23 = (float)pIn->up.z * CGraphics::m_oneOver65536;
+    pOut->_24 = (float)pIn->uw * CGraphics::m_oneOver65536;
+    pOut->_31 = (float)pIn->forward.x * CGraphics::m_oneOver65536;
+    pOut->_32 = (float)pIn->forward.y * CGraphics::m_oneOver65536;
+    pOut->_33 = (float)pIn->forward.z * CGraphics::m_oneOver65536;
+    pOut->_34 = (float)pIn->fw * CGraphics::m_oneOver65536;
+    pOut->_41 = (float)pIn->position.x * CGraphics::m_oneOver65536;
+    pOut->_42 = (float)pIn->position.y * CGraphics::m_oneOver65536;
+    pOut->_43 = (float)pIn->position.z * CGraphics::m_oneOver65536;
+    pOut->_44 = (float)pIn->pw * CGraphics::m_oneOver65536;
+    return pOut;
+}
 
 // FUNCTION: CMR2 0x004ba2b0
 void FixMatrix_Identity(FixMatrix *pOut)
