@@ -63,6 +63,8 @@ void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAng
 #include "Sector.h"
 #include "Mesh.h"
 
+void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh);
+
 // Light zone of a sector (0x14 bytes): vertices whose intensity (at 0x20) the
 // scene lights attenuate; each covers the next `count` (at 0x28) shadow mesh vertices.
 struct LightZone {

@@ -1120,6 +1120,52 @@ struct ShadowCaster {
     int field_0x10;
 };
 
+// Marks one mesh part of a registered shadow caster for rebuilding.
+// TODO: CMR2 0x004b4100 (implemented, match 33%)
+void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
+{
+    ShadowCaster *pCaster = NULL;
+    ShadowPart *pPart = NULL;
+    int i;
+    int next;
+    int count;
+
+    if (g_sceneShadowMeshes != NULL) {
+        count = g_sceneLightFlag & 0xff;
+        i = 0;
+        if (count > 0) {
+            do {
+                next = i;
+                ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
+                if (p->pNode == pNode) {
+                    next = count;
+                    pCaster = p;
+                }
+                i = next + 1;
+            } while (i < count);
+            if (pCaster != NULL) {
+                count = pCaster->partCount;
+                i = 0;
+                if (count > 0) {
+                    do {
+                        next = i;
+                        ShadowPart *p = &pCaster->pParts[i];
+                        if (p->pMesh == pMesh) {
+                            next = count;
+                            pPart = p;
+                        }
+                        i = next + 1;
+                    } while (i < count);
+                    if (pPart != NULL) {
+                        pPart->field_0x54 = 1;
+                        pCaster->field_0xc = 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Mesh nodes whose flags type is 6, 14 or 15 cast no shadow.
 #define CASTS_SHADOW(n)                                                              \
     ((n)->type == SCENE_NODE_MESH && (n)->pObject != NULL && ((n)->flags & 0xff) != 6 && \
