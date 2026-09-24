@@ -38,7 +38,8 @@ struct Car {
     FixVector normal0x498;            // 0x498
     FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
     FixVector cornerNormal[8];        // 0x504  per-corner contact normal
-    BYTE field_0x564[0x60];
+    FixVector field_0x564;            // 0x564  ground normal used while field_0xbac[4] is set
+    BYTE field_0x570[0x54];
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
     BYTE field_0x5dc[0x6c];
@@ -98,11 +99,14 @@ struct Car {
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
-    BYTE field_0x8fc[0x20];
+    int field_0x8fc;                  // 0x8fc
+    BYTE field_0x900[0x1c];
     int field_0x91c;                  // 0x91c
     int field_0x920;                  // 0x920
     int field_0x924;                  // 0x924
-    BYTE field_0x928[0x60];
+    BYTE field_0x928[0x30];
+    int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
+    BYTE field_0x95c[0x2c];
     int wheel0x988[4];                // 0x988
     int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
@@ -117,7 +121,10 @@ struct Car {
     int field_0xa5c[4];               // 0xa5c
     BYTE field_0xa6c[0x4];
     int field_0xa70;                  // 0xa70
-    BYTE field_0xa74[0x3a];
+    BYTE field_0xa74[0x8];
+    int field_0xa7c;                  // 0xa7c
+    BYTE field_0xa80[0x1e];
+    short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
     short wheelSurface[4];            // 0xaae
     BYTE field_0xab6[0x5a];
     unsigned short heading;           // 0xb10  12-bit angle
@@ -144,7 +151,8 @@ struct Car {
     int field_0xbac[8];               // 0xbac
     BYTE field_0xbcc[0x1c];
     int wheelSlipping[4];             // 0xbe8  set while the wheel spins faster than the ground
-    BYTE field_0xbf8[0x8];
+    int field_0xbf8;                  // 0xbf8
+    BYTE field_0xbfc[0x4];
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
     BYTE field_0xc04[0xc];
     int field_0xc10;                  // 0xc10

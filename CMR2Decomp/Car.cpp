@@ -2588,3 +2588,176 @@ void FUN_0042cb90(char mode, SceneNode **pWheels)
         }
     }
 }
+
+int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
+                                 unsigned short *pSurface, int defaultY);
+
+// GLOBAL: CMR2 0x0053cadc
+int g_gravityScale;
+
+// Simple ground contact (the car as a box resting on one point): the ground
+// normal under the car is eased towards the one below it, the body is
+// turned to stand on it while the car is not moving away from the ground,
+// and the lowest corner of the box is kept on the ground. field_0xb74 is
+// cleared once the car is clearly above the ground.
+// TODO: CMR2 0x00443d10 (implemented, match 70%)
+void Car_FollowGround(void)
+{
+    FixVector n;
+    FixVector oldNormal;
+    FixVector dn;
+    FixVector rel;
+    FixVector corner;
+    FixVector p;
+    FixVector d;
+    FixVector t;
+    unsigned short surface;
+    int ease;
+    int along;
+    int slow;
+    int h;
+    int len;
+    int k;
+    int i;
+
+    g_pCurrentCar->cornerHeight[0] =
+        Track_GetGroundHeightSurface(&g_pCurrentCar->position, &n, &g_pCurrentCar->cornerTriangle[0],
+                                     &g_pCurrentCar->wheelSurface[0], &surface, g_pCurrentCar->cornerHeight[0]);
+    if (g_pCurrentCar->field_0xbac[4] != 0) {
+        g_pCurrentCar->cornerHeight[0] += g_pCurrentCar->field_0x8fc;
+        n = g_pCurrentCar->field_0x564;
+        g_pCurrentCar->wheelSurface[0] = 0x2f;
+    }
+    if (g_pCurrentCar->wheelSurface[0] == 0xf && g_pCurrentCar->field_0xa7c == 0 && g_pCurrentCar->field_0xbf8 == 0)
+        g_pCurrentCar->field_0xa7c = 0x190000;
+
+    // Ease the ground normal towards the new one.
+    oldNormal = g_pCurrentCar->groundNormal;
+    n.x -= g_pCurrentCar->groundNormal.x;
+    n.y -= g_pCurrentCar->groundNormal.y;
+    n.z -= g_pCurrentCar->groundNormal.z;
+    ease = FixMul(g_physicsTimeStep, 0x8000);
+    if (ease > 0x8000)
+        ease = 0x8000;
+    FixVecScale(&dn, &n, ease);
+    dn.x = n.x - dn.x;
+    dn.y = n.y - dn.y;
+    dn.z = n.z - dn.z;
+    n.x = g_pCurrentCar->groundNormal.x + dn.x;
+    n.y = g_pCurrentCar->groundNormal.y + dn.y;
+    n.z = g_pCurrentCar->groundNormal.z + dn.z;
+    FIX_NORMALIZE_INTO(g_pCurrentCar->groundNormal, n);
+    along = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->groundNormal);
+    slow = FixMul(g_pCurrentCar->speed, 0x8000);
+    if (slow > 0x10000)
+        slow = 0x10000;
+    slow = FixMul(0x10000 - slow, 0x1999);
+    if (g_pCurrentCar->field_0xb74 != 0) {
+        if (along <= slow) {
+            g_pCurrentCar->up = g_pCurrentCar->groundNormal;
+            FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up));
+            t.x = g_pCurrentCar->right.x - t.x;
+            t.y = g_pCurrentCar->right.y - t.y;
+            t.z = g_pCurrentCar->right.z - t.z;
+            FIX_NORMALIZE_INTO(g_pCurrentCar->right, t);
+            FixVecCross(&t, &g_pCurrentCar->right, &g_pCurrentCar->up);
+            FIX_NORMALIZE_INTO(g_pCurrentCar->forward, t);
+        } else {
+            g_pCurrentCar->groundNormal = oldNormal;
+        }
+    }
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+
+    // Drop the lowest corner of the box onto the ground.
+    t.x = -g_pCurrentCar->groundNormal.x;
+    t.y = -g_pCurrentCar->groundNormal.y;
+    t.z = -g_pCurrentCar->groundNormal.z;
+    FixMatrix_InverseRotateVector(&rel, &t, g_pCurrentCar->pWorld);
+    corner.x = g_pCurrentCar->halfExtents.x;
+    corner.y = -g_pCurrentCar->halfExtents.y;
+    corner.z = g_pCurrentCar->halfExtents.z;
+    if (rel.y >= 0)
+        corner.y = g_pCurrentCar->halfExtents.y;
+    if (rel.x < 0)
+        corner.x = -g_pCurrentCar->halfExtents.x;
+    if (rel.z < 0)
+        corner.z = -g_pCurrentCar->halfExtents.z;
+    FixMatrix_RotateVector(&p, &corner, g_pCurrentCar->pWorld);
+    p.x += g_pCurrentCar->position.x;
+    p.y += g_pCurrentCar->position.y;
+    p.z += g_pCurrentCar->position.z;
+    d.x = g_pCurrentCar->position.x - p.x;
+    d.y = g_pCurrentCar->cornerHeight[0] - p.y;
+    d.z = g_pCurrentCar->position.z - p.z;
+    h = FixDiv(FixVecDot(&g_pCurrentCar->groundNormal, &d), g_pCurrentCar->groundNormal.y);
+    for (i = 0; i < 8; i++) {
+        g_pCurrentCar->cornerAxis[i].x = 0;
+        g_pCurrentCar->cornerAxis[i].y = 0x10000;
+        g_pCurrentCar->cornerAxis[i].z = 0;
+        g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
+    }
+    g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
+    for (i = 1; i < 4; i++) {
+        g_pCurrentCar->cornerHeight[i] = g_pCurrentCar->cornerHeight[0];
+        g_pCurrentCar->wheelSurface[i] = g_pCurrentCar->wheelSurface[0];
+    }
+    ((char *)&g_pCurrentCar->field_0xb34)[1] = 0;
+    g_pCurrentCar->field_0xb34 = 4;
+    ((char *)&g_pCurrentCar->field_0xb34)[2] = 0;
+    ((char *)&g_pCurrentCar->field_0xb34)[3] = 1;
+    ((char *)&g_pCurrentCar->field_0xb34)[4] = 2;
+    ((char *)&g_pCurrentCar->field_0xb34)[5] = 3;
+    g_pCurrentCar->cornerFlags[0] = 0;
+    g_pCurrentCar->cornerFlags[1] = 0;
+    g_pCurrentCar->cornerFlags[2] = 0;
+    g_pCurrentCar->cornerFlags[3] = 0;
+    g_pCurrentCar->cornerFlags[4] = 1;
+    g_pCurrentCar->cornerFlags[5] = 1;
+    g_pCurrentCar->cornerFlags[6] = 1;
+    g_pCurrentCar->cornerFlags[7] = 1;
+    if (h > 0) {
+        g_pCurrentCar->position.y += h;
+        g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+    }
+    if (h >= -0x1999) {
+        if (h < 0)
+            g_pCurrentCar->field_0x958 = h;
+        else
+            g_pCurrentCar->field_0x958 = 0;
+        if (along < 0) {
+            FixVecScale(&t, &g_pCurrentCar->groundNormal, along);
+            g_pCurrentCar->velocity.x -= t.x;
+            g_pCurrentCar->velocity.y -= t.y;
+            g_pCurrentCar->velocity.z -= t.z;
+        }
+        g_pCurrentCar->baseForce.x = 0;
+        g_pCurrentCar->baseForce.y = 0;
+        g_pCurrentCar->baseForce.z = 0;
+        g_pCurrentCar->angularVelocity.z = 0;
+        g_pCurrentCar->angularVelocity.x = 0;
+    } else {
+        g_pCurrentCar->field_0x958 = -0x1999;
+        g_pCurrentCar->baseForce.x = 0;
+        g_pCurrentCar->baseForce.y = -FixMul(g_pCurrentCar->field_0x75c, FixMul(g_gravityScale, 0x8000));
+        g_pCurrentCar->baseForce.z = 0;
+    }
+    if (h < -0xcccc) {
+        if (g_pCurrentCar->field_0xb74 != 0) {
+            // Tip over with the change of the ground normal.
+            FixMatrix_InverseRotateVector(&t, &dn, g_pCurrentCar->pWorld);
+            t.y = 0;
+            len = FixVecLength(&t);
+            if (len > 10000)
+                FixVecScale(&t, &t, FixDiv(10000, len));
+            k = -FixMul(g_pCurrentCar->halfExtents.y, FixMul(g_physicsTimeStep, 0x4ccc));
+            g_pCurrentCar->angularVelocity.x -= FixMul(t.z, k);
+            g_pCurrentCar->angularVelocity.z += FixMul(t.x, k);
+        }
+        g_pCurrentCar->field_0xb74 = 0;
+        return;
+    }
+    g_pCurrentCar->field_0xb74 = 1;
+}
