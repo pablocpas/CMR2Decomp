@@ -138,6 +138,66 @@ void SceneNode_UpdateSector(SceneNode *pNode)
     }
 }
 
+
+// Finds the ground vertex of a sector nearest (in x/z) to one of its corners
+// (0: -x+z, 1: +x+z, 2: +x-z, 3: -x-z), stores its offset from that corner
+// and returns its height (0 when the first vertex is the nearest).
+// FUNCTION: CMR2 0x004b8e30
+int Sector_NearestCornerHeight(unsigned int side, int index)
+{
+    int cx;
+    int cz;
+    int height;
+    unsigned int i;
+    float *pVert;
+    SectorMesh *pMesh;
+    FixVector best;
+    FixVector d;
+
+    cx = 0;
+    cz = 0;
+    switch (side) {
+    case 0:
+        cx = g_sectors[index]->x - g_sectorHalfSize;
+        cz = g_sectors[index]->z + g_sectorHalfSize;
+        break;
+    case 1:
+        cx = g_sectors[index]->x + g_sectorHalfSize;
+        cz = g_sectors[index]->z + g_sectorHalfSize;
+        break;
+    case 2:
+        cx = g_sectors[index]->x + g_sectorHalfSize;
+        cz = g_sectors[index]->z - g_sectorHalfSize;
+        break;
+    case 3:
+        cx = g_sectors[index]->x - g_sectorHalfSize;
+        cz = g_sectors[index]->z - g_sectorHalfSize;
+        break;
+    }
+    height = 0;
+    best.x = g_sectors[index]->corners[side].x - cx;
+    best.y = 0;
+    best.z = g_sectors[index]->corners[side].z - cz;
+    pMesh = &((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex];
+    pVert = pMesh->pVertices;
+    best.y = 0;
+    best.x = -cx - (int)(__int64)(pVert[0] * -65536.0);
+    best.z = -cz - (int)(__int64)(pVert[2] * -65536.0);
+    for (i = 1; i < ((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex].vertexCount; i++) {
+        d.x = -cx - (int)(__int64)(pVert[0] * -65536.0);
+        d.y = 0;
+        d.z = -cz - (int)(__int64)(pVert[2] * -65536.0);
+        if (FixVecLength(&d) < FixVecLength(&best)) {
+            height = (int)(__int64)(pVert[1] * 65536.0);
+            best = d;
+        }
+        pVert += 12;
+    }
+    g_sectors[index]->corners[side].x = best.x;
+    g_sectors[index]->corners[side].z = best.z;
+    return height;
+}
+
 // Appends the node to the sector its world position falls in.
 // FUNCTION: CMR2 0x004b8b10
 void FUN_004b8b10(SceneNode *pNode)

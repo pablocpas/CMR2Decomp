@@ -10,9 +10,26 @@ struct Sector {
     int x;                      // 0x0  centre, 16.16
     int y;                      // 0x4
     int z;                      // 0x8
-    BYTE field_0xc[0x10];
+    int field_0xc;
+    struct SectorModel *pMesh;  // 0x10 ground mesh (LOD records of 0x108 bytes)
+    BYTE field_0x14[8];
     SceneNode *pFirstNode;      // 0x1c
     int nodeCount;              // 0x20
+    BYTE field_0x24[8];
+    FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
+};
+
+// Ground mesh LOD record of a sector (0x108 bytes).
+struct SectorMesh {
+    BYTE field_0x0[0xc];
+    float *pVertices;           // 0xc  0x30 bytes per vertex, x/y/z first
+    unsigned int vertexCount;   // 0x10
+    BYTE field_0x14[0xf4];
+};
+struct SectorModel {
+    SectorMesh lod0;
+    BYTE field_0x108[0xa];
+    BYTE lodIndex;              // 0x112 LOD record in use
 };
 
 // GLOBAL: CMR2 0x0071f600
