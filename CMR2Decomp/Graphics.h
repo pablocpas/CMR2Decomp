@@ -1015,7 +1015,8 @@ struct D3DTextureManager {
     Texture* textureBuffer2[20];            // 0x2384
     BYTE field_0x23d4[0x10];             // 0x23d4
     int fixedProjection[16];             // 0x23e4 16.16 copy of the projection matrix
-    BYTE field_0x2424[0x44];             // 0x2424 - 0x2467 (padding)
+    FixMatrix viewMatrix;                // 0x2424 inverse of the camera world matrix
+    int field_0x2464;                    // 0x2464
 };
 
 struct DDEnumDeviceBufferEntry
@@ -1343,6 +1344,7 @@ private:
     friend void Line2D_Draw(void);
     friend void Tri2D_DrawLayer(int layer);
     friend void Scene_RestoreLights(void);
+    friend void Scene_SetViewFromCamera(SceneNode *pCamera);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);

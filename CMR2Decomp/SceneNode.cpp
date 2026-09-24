@@ -1901,3 +1901,35 @@ void Scene_RestoreLights(void)
                          g_sceneAmbientColour[1]) << 8 | g_sceneAmbientColour[2];
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
 }
+
+// GLOBAL: CMR2 0x006838d0
+int g_viewSetupMode;
+
+// Sets the Direct3D view transform from a moved camera node (inverse of its
+// world matrix), unless the view setup mode is 5 or more.
+// TODO: CMR2 0x004ade00 (implemented, match 44%)
+void Scene_SetViewFromCamera(SceneNode *pCamera)
+{
+    float view[16];
+
+    if (g_viewSetupMode < 5 && pCamera->dirty != 0) {
+        FixMatrix_Invert(&CGraphics::m_pTextureManager->viewMatrix, &pCamera->world);
+        view[0] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[0] * CGraphics::m_oneOver65536;
+        view[1] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[1] * CGraphics::m_oneOver65536;
+        view[2] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[2] * CGraphics::m_oneOver65536;
+        view[3] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[3] * CGraphics::m_oneOver65536;
+        view[4] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[4] * CGraphics::m_oneOver65536;
+        view[5] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[5] * CGraphics::m_oneOver65536;
+        view[6] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[6] * CGraphics::m_oneOver65536;
+        view[7] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[7] * CGraphics::m_oneOver65536;
+        view[8] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[8] * CGraphics::m_oneOver65536;
+        view[9] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[9] * CGraphics::m_oneOver65536;
+        view[10] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[10] * CGraphics::m_oneOver65536;
+        view[11] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[11] * CGraphics::m_oneOver65536;
+        view[12] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[12] * CGraphics::m_oneOver65536;
+        view[13] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[13] * CGraphics::m_oneOver65536;
+        view[14] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[14] * CGraphics::m_oneOver65536;
+        view[15] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[15] * CGraphics::m_oneOver65536;
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX *)view);
+    }
+}
