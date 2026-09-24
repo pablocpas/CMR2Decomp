@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "FixedPoint.h"
+#include "Car.h"
 
 // Ground queries against the stage collision mesh loaded by FUN_00490d50:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
@@ -239,4 +240,101 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
     height = Track_GetGroundHeight(pPoint, pNormal, pTri, pSurface, defaultY);
     *pSurfaceClass = FUN_00478a10(*pSurface);
     return height;
+}
+
+// GLOBAL: CMR2 0x0059226c
+Car *g_pAutoGearCar;
+// GLOBAL: CMR2 0x00592270
+BYTE *g_pAutoGearSetup;
+
+// Selects the automatic gearbox's next gear from engine speed and road load.
+// It also chooses reverse when the car stops against the driving direction.
+// TODO: CMR2 0x00493b30 (implemented, match 49%)
+void Car_UpdateAutomaticGear(void)
+{
+    int i;
+    int gear;
+    int selected;
+    int best;
+    int candidate;
+    int engine;
+    int load;
+    int chance;
+    int difference;
+    int dot;
+    BOOL wheelAvailable = FALSE;
+
+    if (g_pAutoGearCar->field_0xb9c == 0)
+        return;
+
+    for (i = 0; i < 4; i++) {
+        if (g_pAutoGearCar->cornerFlags[i] == 0) {
+            wheelAvailable = TRUE;
+            break;
+        }
+    }
+    if (g_pAutoGearCar->field_0xb21 > 0)
+        g_pAutoGearCar->field_0xb21--;
+
+    if (g_pAutoGearCar->field_0xb94 == 0 && wheelAvailable) {
+        best = (int)0xd8f00000;
+        selected = 0;
+        gear = g_pAutoGearCar->field_0xb1e;
+        engine = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[gear]);
+        for (i = 1; i <= 6; i++) {
+            candidate = FixMul(engine, g_pAutoGearCar->field_0x7bc[i]);
+            if (candidate > best &&
+                (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
+                best = candidate;
+                selected = i;
+            }
+        }
+        if (selected != gear) {
+            load = FIX_ABS(g_pAutoGearCar->field_0x870[0]);
+            if ((load < 0x8000 || selected < gear || g_pAutoGearCar->flag0x1d0[2] == 0) &&
+                (g_pAutoGearCar->field_0xb21 == 0 ||
+                 ((g_pAutoGearCar->field_0xb22 != 2 || gear <= selected) &&
+                  (g_pAutoGearCar->field_0xb22 != 1 || selected <= gear)))) {
+                g_pAutoGearCar->field_0xb84 = 1;
+                if (gear < selected)
+                    g_pAutoGearCar->field_0xb22 = 2;
+                else
+                    g_pAutoGearCar->field_0xb22 = 1;
+                g_pAutoGearCar->field_0xb21 = 10;
+
+                if (gear < selected && *(int *)(g_pAutoGearSetup + 0x278) > 0xb333) {
+                    chance = FixMul(*(int *)(g_pAutoGearSetup + 0x278) - 0xb333, 0x3553f);
+                    if (chance < 0)
+                        chance = 0;
+                    else if (chance > 0x10000)
+                        chance = 0x10000;
+                    difference = FIX_ABS(FIX_ABS(g_pAutoGearCar->corners[0].x) -
+                                         FIX_ABS(g_pAutoGearCar->corners[0].z));
+                    if ((difference % 0x401) * 0x40 < FixMul(chance, 0x4ccc) && selected < 6)
+                        selected++;
+                }
+                g_pAutoGearCar->field_0xb20 = (char)selected;
+                g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+            }
+        }
+    }
+
+    dot = FixMul(g_pAutoGearCar->right.x, g_pAutoGearCar->velocity.x) +
+          FixMul(g_pAutoGearCar->right.y, g_pAutoGearCar->velocity.y) +
+          FixMul(g_pAutoGearCar->right.z, g_pAutoGearCar->velocity.z);
+    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->field_0xb1e == 1 &&
+        g_pAutoGearCar->flag0x1d0[2] == 0 && g_pAutoGearCar->field_0x7a4 < 0x1999 && dot < 0x1999) {
+        g_pAutoGearCar->field_0xb20 = 7;
+        g_pAutoGearCar->field_0xb84 = 1;
+        g_pAutoGearCar->field_0xb94 = 1;
+        g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+        return;
+    }
+    if (g_pAutoGearCar->flag0x1d0[2] != 0 && g_pAutoGearCar->flag0x1d0[3] == 0 &&
+        g_pAutoGearCar->field_0xb1e == 7) {
+        g_pAutoGearCar->field_0xb20 = 1;
+        g_pAutoGearCar->field_0xb84 = 1;
+        g_pAutoGearCar->field_0xb94 = 0;
+        g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+    }
 }

@@ -81,8 +81,8 @@ struct Car {
     int field_0x7b4;                  // 0x7b4
     BYTE field_0x7b8[0x4];
     int field_0x7bc[8];               // 0x7bc
-    int field_0x7dc[4];               // 0x7dc
-    BYTE field_0x7ec[0x1c];
+    int field_0x7dc[8];               // 0x7dc
+    BYTE field_0x7fc[0xc];
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c
@@ -149,7 +149,12 @@ struct Car {
     char field_0xb1d;                 // 0xb1d
     char field_0xb1e;                 // 0xb1e
     char field_0xb1f;                 // 0xb1f
-    BYTE field_0xb20[0x8];
+    char field_0xb20;                 // 0xb20  requested gear
+    char field_0xb21;                 // 0xb21  shift delay
+    char field_0xb22;                 // 0xb22  shift direction
+    BYTE field_0xb23[0x1];
+    char field_0xb24;                 // 0xb24  shift mode snapshot
+    BYTE field_0xb25[0x3];
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29;                 // 0xb29
     BYTE field_0xb2a[0x2];
@@ -168,7 +173,11 @@ struct Car {
     int field_0xb78;                  // 0xb78  rev limiter active
     BYTE field_0xb7c[0x8];
     int field_0xb84;                  // 0xb84
-    BYTE field_0xb88[0x24];
+    BYTE field_0xb88[0xc];
+    int field_0xb94;                  // 0xb94  automatic shift lock
+    BYTE field_0xb98[0x4];
+    int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
+    BYTE field_0xba0[0xc];
     int field_0xbac[8];               // 0xbac
     BYTE field_0xbcc[0x1c];
     int wheelSlipping[4];             // 0xbe8  set while the wheel spins faster than the ground
@@ -273,6 +282,7 @@ void Car_UpdateWheelTorques(void);
 void Car_Integrate(void);
 void Car_UpdateWheelForces(void);
 void Car_UpdateEngineSpeed(void);
+void Car_UpdateAutomaticGear(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
