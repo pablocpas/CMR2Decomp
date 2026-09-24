@@ -1401,6 +1401,46 @@ inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
     g_tyreForce.z = g_tyreLatForce.z + g_tyreLongForce.z;                                   \
     mag = FixMul(FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &g_tyreForce)), g_tyreForceMax)
 
+// Sliding friction of the box corners without a wheel: the part of each corner
+// velocity along the ground plane is opposed by a force proportional to it (plus
+// the step acceleration while almost stopped), clamped to the corner grip.
+// TODO: CMR2 0x00438460 (implemented, match 80%)
+void Car_UpdateCornerFriction(void)
+{
+    int i;
+    int d;
+    int len;
+    int force;
+    FixVector tangent;
+    FixVector dir;
+
+    if (g_pCurrentCar->field_0xb74 != 0)
+        return;
+    for (i = 7; i >= 0; i--) {
+        if (g_pCurrentCar->cornerFlags[i] != 0)
+            continue;
+        d = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->groundNormal);
+        FixVecScale(&tangent, &g_pCurrentCar->groundNormal, d);
+        tangent.x = g_pCurrentCar->cornerVelocity[i].x - tangent.x;
+        tangent.y = g_pCurrentCar->cornerVelocity[i].y - tangent.y;
+        tangent.z = g_pCurrentCar->cornerVelocity[i].z - tangent.z;
+        len = FixVecLength(&tangent);
+        if (len > 0) {
+            FixVecScaleRecip(&dir, &tangent, len);
+            force = -FixMul(len, g_pCurrentCar->cornerMass);
+            if (len < 0x10000)
+                force -= FixVecLength(&g_carStepAccel);
+            if (abs(force) > g_pCurrentCar->cornerGripB[i]) {
+                if (force > 0)
+                    force = g_pCurrentCar->cornerGripA[i];
+                else
+                    force = -g_pCurrentCar->cornerGripA[i];
+            }
+            FixVecScale(&g_pCurrentCar->cornerForce[i], &dir, force);
+        }
+    }
+}
+
 // Tyre model of a car on the ground: spins the wheels up and down with the
 // drive torque, brakes and handbrake, then turns the rolling and lateral slip
 // of each wheel into a force at its corner, capped by a friction ellipse.
