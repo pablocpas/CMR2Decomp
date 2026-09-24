@@ -1326,6 +1326,7 @@ private:
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
     friend void Sprite_DrawLayer(int layer);
     friend void Quad2D_DrawLayer(unsigned int layer);
+    friend void Graphics_SetLightingMode(int mode);
     friend void Billboard_Draw(SceneNode *pCamera);
     friend SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
     // Note: this friend shifts the register allocation of FUN_004a7910 (87.0% -> 85.8%).

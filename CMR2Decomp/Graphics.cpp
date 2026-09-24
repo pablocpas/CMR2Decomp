@@ -2864,6 +2864,72 @@ void FUN_004b6ef0(int value)
     g_unk0x005210c0 = value;
 }
 
+extern DWORD g_sceneAmbientD3D;
+// Ambient colour used outside the stage lighting.
+// GLOBAL: CMR2 0x006e0bac
+DWORD g_defaultAmbientD3D;
+
+// Sets up Direct3D lighting for a rendering mode: 0/1 object lights (light 1
+// or 2), 2/3 stage ambient with light 0, 4/5 unlit. Lights 1 and 2 stay off
+// while g_unk0x005210c0 is clear.
+// FUNCTION: CMR2 0x004b6f00
+void Graphics_SetLightingMode(int mode)
+{
+    switch (mode) {
+    case 0:
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_defaultAmbientD3D);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, D3DMCS_MATERIAL);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(0, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, TRUE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, FALSE);
+        break;
+    case 1:
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_defaultAmbientD3D);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, D3DMCS_MATERIAL);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(0, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, TRUE);
+        break;
+    case 2:
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_COLORVERTEX, FALSE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, D3DMCS_MATERIAL);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(0, TRUE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, FALSE);
+        break;
+    case 3:
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, D3DMCS_COLOR1);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(0, TRUE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, FALSE);
+        break;
+    case 4:
+    case 5:
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_defaultAmbientD3D);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, D3DMCS_MATERIAL);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(0, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, FALSE);
+        break;
+    }
+    if (g_unk0x005210c0 == 0) {
+        CGraphics::m_pTextureManager->pD3D->LightEnable(1, FALSE);
+        CGraphics::m_pTextureManager->pD3D->LightEnable(2, FALSE);
+    }
+    g_unk0x005210c4 = mode;
+}
+
 // FUNCTION: CMR2 0x004b7200
 int FUN_004b7200(void)
 {

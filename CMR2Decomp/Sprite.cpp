@@ -78,7 +78,7 @@ void Sprite_DrawLayer(int layer)
     FixVector p;
     FixVector out;
 
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
     switch (layer) {
     case 2:
         count = g_spriteCount2;
@@ -179,7 +179,7 @@ void Sprite_DrawLayer(int layer)
     }
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
     CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
     FUN_004a3dd0();
     CGraphics::FUN_004a3de0();
 }
