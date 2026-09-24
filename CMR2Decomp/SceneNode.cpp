@@ -1121,40 +1121,35 @@ struct ShadowCaster {
 };
 
 // Marks one mesh part of a registered shadow caster for rebuilding.
-// TODO: CMR2 0x004b4100 (implemented, match 33%)
+// FUNCTION: CMR2 0x004b4100
 void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
 {
     ShadowCaster *pCaster = NULL;
     ShadowPart *pPart = NULL;
     int i;
-    int next;
     int count;
-
     if (g_sceneShadowMeshes != NULL) {
         count = g_sceneLightFlag & 0xff;
         i = 0;
         if (count > 0) {
             do {
-                next = i;
                 ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
                 if (p->pNode == pNode) {
-                    next = count;
                     pCaster = p;
+                    i = count;
                 }
-                i = next + 1;
+                ++i;
             } while (i < count);
             if (pCaster != NULL) {
-                count = pCaster->partCount;
                 i = 0;
+                count = pCaster->partCount;
                 if (count > 0) {
                     do {
-                        next = i;
-                        ShadowPart *p = &pCaster->pParts[i];
-                        if (p->pMesh == pMesh) {
-                            next = count;
-                            pPart = p;
+                        if (pCaster->pParts[i].pMesh == pMesh) {
+                            pPart = &pCaster->pParts[i];
+                            i = count;
                         }
-                        i = next + 1;
+                        ++i;
                     } while (i < count);
                     if (pPart != NULL) {
                         pPart->field_0x54 = 1;
