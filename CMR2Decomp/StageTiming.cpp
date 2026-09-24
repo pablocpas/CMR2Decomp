@@ -1340,6 +1340,111 @@ void StageDeform_ApplyRadialDent(void)
     }
 }
 
+// Deforms the body mesh around an impact projected onto a plane.
+// TODO: CMR2 0x00467e90 (implemented, match 46%)
+void StageDeform_ApplyPlanarDent(void)
+{
+    Car *pCar = g_stageDeformCar;
+    int *pRecord = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
+    if (FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0)
+        FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal, -0x10000);
+
+    FixVector delta;
+    FixVecScale(&delta, &g_stageDeformNormal, g_stageDeformRadius);
+    g_stageDeformOffset.x -= delta.x;
+    g_stageDeformOffset.y -= delta.y;
+    g_stageDeformOffset.z -= delta.z;
+
+    int radiusSquare = FixMul(g_stageDeformSpeed, g_stageDeformSpeed);
+    int reciprocalRadius = FixDiv(0x10000, g_stageDeformSpeed);
+    int outer = g_stageDeformFalloff + g_stageDeformSpeed;
+    int outerSquare = FixMul(outer, outer);
+    int reciprocalFalloff = FixDiv(0x10000, g_stageDeformFalloff);
+    int shellScale = FixMul(g_stageDeformScale, 0x3333);
+
+    int meshCount = pRecord[0x117];
+    for (int meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
+        int *pMeshSlot = pRecord + meshIndex;
+        int vertexCount = pMeshSlot[0x108];
+        int changed = 0;
+        for (int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex) {
+            Mesh *pMesh = (Mesh *)*pMeshSlot;
+            float *pVertex = (float *)pMesh->pVertexData + vertexIndex * 12;
+            int originalX = (int)(__int64)(pVertex[0] * CGraphics::m_65536);
+            int originalY = (int)(__int64)(pVertex[1] * CGraphics::m_65536);
+            int originalZ = (int)(__int64)(pVertex[2] * CGraphics::m_65536);
+
+            FixVector distance;
+            distance.x = g_stageDeformOffset.x - originalX;
+            distance.y = g_stageDeformOffset.y - originalY;
+            distance.z = g_stageDeformOffset.z - originalZ;
+            int axialDistance = FixVecDot(&g_stageDeformImpact, &distance);
+            FixVector axial;
+            FixVecScale(&axial, &g_stageDeformImpact, axialDistance);
+            distance.x -= axial.x;
+            distance.y -= axial.y;
+            distance.z -= axial.z;
+            int distanceSquare = FixVecDot(&distance, &distance);
+            if (distanceSquare <= outerSquare) {
+                FixVector displacement;
+                if (radiusSquare < distanceSquare) {
+                    int length = FixSqrt(distanceSquare);
+                    int shellWeight = FixMul(FixMul(length - g_stageDeformSpeed,
+                                                    reciprocalFalloff), shellScale);
+                    int phase = distance.z + distance.x;
+                    if (phase < 0) phase = -phase;
+                    phase &= 0x80000380;
+                    if (phase < 0) phase = ((phase - 1) | 0xfffffc00) + 1;
+                    phase *= 0x40;
+                    if (phase < 0x8000) phase -= 0x10000;
+                    int push = FixMul(shellWeight, phase);
+                    signed char *pLimits = (signed char *)(pMeshSlot[0x1e] + vertexIndex * 0x20);
+                    FixVector direction;
+                    direction.x = (int)pLimits[0x18] << 9;
+                    direction.y = (int)pLimits[0x19] << 9;
+                    direction.z = (int)pLimits[0x1a] << 9;
+                    FixVecScale(&displacement, &direction, push);
+                } else {
+                    int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
+                                                                  distanceSquare);
+                    FixVecScale(&displacement, &g_stageDeformNormal, penetration);
+                }
+
+                FixVector position;
+                position.x = originalX + displacement.x;
+                position.y = originalY + displacement.y;
+                position.z = originalZ + displacement.z;
+                StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
+
+                int secondX = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
+                int secondY = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
+                int secondZ = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
+                FixVector secondDelta;
+                secondDelta.x = position.x - originalX;
+                secondDelta.y = position.y - originalY;
+                secondDelta.z = position.z - originalZ;
+                FixVecScale(&secondDelta, &secondDelta, 0x30000);
+                secondX += secondDelta.x;
+                secondY += secondDelta.y;
+                secondZ += secondDelta.z;
+                pVertex[3] = (float)((double)secondX * CGraphics::m_oneOver65536);
+                pVertex[4] = (float)((double)secondY * CGraphics::m_oneOver65536);
+                pVertex[5] = (float)((double)secondZ * CGraphics::m_oneOver65536);
+                changed = 1;
+            }
+        }
+        if (changed) {
+            SceneNode *pNode = (SceneNode *)pMeshSlot[0xf];
+            Mesh *pMesh = (Mesh *)pNode->pObject;
+            if (pMesh != NULL) {
+                Mesh_RefreshVertices(pMesh);
+                RallyData_ValidateIndex((int)pMesh);
+                Scene_MarkShadowPartDirty(pCar->pNode0x720, pMesh);
+            }
+        }
+    }
+}
+
 struct Car *Car_Get(int index);
 struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
 
