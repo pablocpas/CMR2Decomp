@@ -11,6 +11,7 @@
 #include "SceneNode.h"
 #include "StageUI.h"
 #include "Mesh.h"
+#include "Graphics.h"
 #include <string.h>
 
 // GLOBAL: CMR2 0x00541f08
@@ -798,7 +799,31 @@ int *g_unk0x00588b9c;
 // GLOBAL: CMR2 0x00588ba0
 int *g_unk0x00588ba0;
 // GLOBAL: CMR2 0x00588990
-int *g_unk0x00588990[128];
+int *g_unk0x00588990[8];
+
+// Twelve collision hull vertices occupy the space immediately after the slot pointers.
+// GLOBAL: CMR2 0x005889b0
+FixVector g_stageDeformHull[12];
+// GLOBAL: CMR2 0x00588a40
+FixVector g_stageDeformOffset;
+// GLOBAL: CMR2 0x00588a4c
+FixVector g_stageDeformNormal;
+// GLOBAL: CMR2 0x00588a58
+FixVector g_stageDeformImpact;
+// GLOBAL: CMR2 0x00588a64
+int g_stageDeformSpeed;
+// GLOBAL: CMR2 0x00588a68
+int g_stageDeformStrength;
+// GLOBAL: CMR2 0x00588a6c
+int g_stageDeformMode;
+// GLOBAL: CMR2 0x00588a70
+Car *g_stageDeformCar;
+// GLOBAL: CMR2 0x00588a74
+int g_stageDeformRadius;
+// GLOBAL: CMR2 0x00588a78
+int g_stageDeformFalloff;
+// GLOBAL: CMR2 0x00588a7c
+int g_stageDeformScale;
 // GLOBAL: CMR2 0x00466680
 BYTE g_unk0x00466680[1];
 
@@ -1142,6 +1167,177 @@ void FUN_00475f80(void)
 int *FUN_00469680(int index)
 {
     return g_unk0x00588990[index];
+}
+
+// Restricts a deformed vertex to the per-axis displacement limits and writes it
+// back to the mesh's floating-point vertex data.
+// TODO: CMR2 0x00508740 (implemented, match 20%)
+void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord)
+{
+    int *pLimit = (int *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4) + vertexIndex * 0x20);
+    int baseX = pLimit[0];
+    int baseY = pLimit[1];
+    int baseZ = pLimit[2];
+    int x = pPosition[0] - baseX >> 6;
+    int y = pPosition[1] - baseY >> 6;
+    int z = pPosition[2] - baseZ >> 6;
+
+    if (((0 < x) && (*(signed char *)((BYTE *)pLimit + 0x1b) < 1)) ||
+        ((x < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1b)))) x = 0;
+    if (((0 < y) && (*(signed char *)((BYTE *)pLimit + 0x1c) < 1)) ||
+        ((y < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1c)))) y = 0;
+    if (((0 < z) && (*(signed char *)((BYTE *)pLimit + 0x1d) < 1)) ||
+        ((z < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1d)))) z = 0;
+
+    int limit = (int)*(signed char *)((BYTE *)pLimit + 0x1b);
+    if (((limit < x) && (0 < x)) || ((x < limit) && (x < 0))) x = limit;
+    limit = (int)*(signed char *)((BYTE *)pLimit + 0x1c);
+    if (((limit < y) && (0 < y)) || ((y < limit) && (y < 0))) y = limit;
+    limit = (int)*(signed char *)((BYTE *)pLimit + 0x1d);
+    if (((limit < z) && (0 < z)) || ((z < limit) && (z < 0))) z = limit;
+
+    pPosition[0] = baseX + x * 0x40;
+    pPosition[1] = baseY + y * 0x40;
+    pPosition[2] = baseZ + z * 0x40;
+    float *pVertex = (float *)((BYTE *)(*(Mesh **)((BYTE *)pRecord + meshIndex * 4))->pVertexData + vertexIndex * 0x30);
+    pVertex[0] = (float)((double)pPosition[0] * CGraphics::m_oneOver65536);
+    pVertex[1] = (float)((double)pPosition[1] * CGraphics::m_oneOver65536);
+    pVertex[2] = (float)((double)pPosition[2] * CGraphics::m_oneOver65536);
+}
+
+// Pushes the body mesh vertices within the impact radius, then refreshes each
+// affected mesh and its shadow copy.
+// TODO: CMR2 0x00467700 (implemented, match 32%)
+void StageDeform_ApplyRadialDent(void)
+{
+    Car *pCar = g_stageDeformCar;
+    int *pRecord = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
+    FixVector *pHull;
+    int nearest = 0;
+    int deepest = 0;
+    FixVector scaled;
+    FixVecScale(&scaled, &g_stageDeformOffset, -0x10000);
+    int sign = FixVecDot(&scaled, &g_stageDeformNormal) < 0;
+
+    for (pHull = g_stageDeformHull; pHull < g_stageDeformHull + 12; ++pHull) {
+        FixVector distance;
+        distance.x = pHull->x - g_stageDeformOffset.x;
+        distance.y = pHull->y - g_stageDeformOffset.y;
+        distance.z = pHull->z - g_stageDeformOffset.z;
+        int projection = FixVecDot(&distance, &g_stageDeformNormal);
+        if (sign) projection = -projection;
+        if (projection < deepest) deepest = projection;
+        if (projection > 0 && (nearest == 0 || projection < nearest)) nearest = projection;
+    }
+    if (sign) {
+        deepest = -deepest;
+        nearest = -nearest;
+    }
+    if (deepest == 0) {
+        if (nearest != 0) {
+            FixVecScale(&scaled, &g_stageDeformNormal, nearest);
+            g_stageDeformOffset.x += scaled.x;
+            g_stageDeformOffset.y += scaled.y;
+            g_stageDeformOffset.z += scaled.z;
+        }
+    } else {
+        FixVecScale(&scaled, &g_stageDeformNormal, deepest);
+        g_stageDeformOffset.x += scaled.x;
+        g_stageDeformOffset.y += scaled.y;
+        g_stageDeformOffset.z += scaled.z;
+    }
+
+    int normalSide = FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0;
+    int innerSquare = FixMul(g_stageDeformRadius, g_stageDeformRadius);
+    int reciprocalInner = FixDiv(0x10000, g_stageDeformRadius);
+    int outer = g_stageDeformFalloff + g_stageDeformRadius;
+    int outerSquare = FixMul(outer, outer);
+    int reciprocalFalloff = FixDiv(0x10000, g_stageDeformFalloff);
+    int shellScale = FixMul(g_stageDeformScale, 0x3333);
+
+    int meshCount = pRecord[0x117];
+    for (int meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
+        int *pMeshSlot = pRecord + meshIndex;
+        int vertexCount = pMeshSlot[0x108];
+        int changed = 0;
+        for (int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex) {
+            Mesh *pMesh = (Mesh *)*pMeshSlot;
+            float *pVertex = (float *)pMesh->pVertexData + vertexIndex * 12;
+            int originalX = (int)(__int64)(pVertex[0] * CGraphics::m_65536);
+            int originalY = (int)(__int64)(pVertex[1] * CGraphics::m_65536);
+            int originalZ = (int)(__int64)(pVertex[2] * CGraphics::m_65536);
+            FixVector distance;
+            distance.x = g_stageDeformOffset.x - originalX;
+            distance.y = g_stageDeformOffset.y - originalY;
+            distance.z = g_stageDeformOffset.z - originalZ;
+            int projection = FixVecDot(&g_stageDeformNormal, &distance);
+            int projectionSquare = FixMul(projection, projection);
+            if (projectionSquare <= outerSquare) {
+                FixVector position;
+                if (innerSquare < projectionSquare) {
+                    int length = FixSqrt(projectionSquare);
+                    int shellWeight = FixMul(FixMul(length - g_stageDeformRadius,
+                                                    reciprocalFalloff), shellScale);
+                    int phase = distance.z + distance.x;
+                    if (phase < 0) phase = -phase;
+                    phase &= 0x80000380;
+                    if (phase < 0) phase = ((phase - 1) | 0xfffffc00) + 1;
+                    phase *= 0x40;
+                    if (phase < 0x8000) phase -= 0x10000;
+                    int displacement = FixMul(shellWeight, phase);
+                    signed char *pLimits = (signed char *)(pMeshSlot[0x1e] + vertexIndex * 0x20);
+                    FixVector direction;
+                    direction.x = (int)pLimits[0x18] << 9;
+                    direction.y = (int)pLimits[0x19] << 9;
+                    direction.z = (int)pLimits[0x1a] << 9;
+                    FixVector delta;
+                    FixVecScale(&delta, &direction, displacement);
+                    position.x = originalX + delta.x;
+                    position.y = originalY + delta.y;
+                    position.z = originalZ + delta.z;
+                } else {
+                    int penetration = g_stageDeformRadius - FixMul(reciprocalInner,
+                                                                   projectionSquare);
+                    FixVector delta;
+                    FixVecScale(&delta, &g_stageDeformNormal, penetration);
+                    if (normalSide == 0) {
+                        position.x = originalX + delta.x;
+                        position.y = originalY + delta.y;
+                        position.z = originalZ + delta.z;
+                    } else {
+                        position.x = originalX - delta.x;
+                        position.y = originalY - delta.y;
+                        position.z = originalZ - delta.z;
+                    }
+                }
+                StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
+                int secondX = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
+                int secondY = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
+                int secondZ = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
+                FixVector secondDelta;
+                secondDelta.x = position.x - originalX;
+                secondDelta.y = position.y - originalY;
+                secondDelta.z = position.z - originalZ;
+                FixVecScale(&secondDelta, &secondDelta, 0x30000);
+                secondX += secondDelta.x;
+                secondY += secondDelta.y;
+                secondZ += secondDelta.z;
+                pVertex[3] = (float)((double)secondX * CGraphics::m_oneOver65536);
+                pVertex[4] = (float)((double)secondY * CGraphics::m_oneOver65536);
+                pVertex[5] = (float)((double)secondZ * CGraphics::m_oneOver65536);
+                changed = 1;
+            }
+        }
+        if (changed) {
+            SceneNode *pNode = (SceneNode *)pMeshSlot[0xf];
+            Mesh *pMesh = (Mesh *)pNode->pObject;
+            if (pMesh != NULL) {
+                Mesh_RefreshVertices(pMesh);
+                RallyData_ValidateIndex((int)pMesh);
+                Scene_MarkShadowPartDirty(pCar->pNode0x720, pMesh);
+            }
+        }
+    }
 }
 
 struct Car *Car_Get(int index);
