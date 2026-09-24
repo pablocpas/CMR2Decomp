@@ -3206,7 +3206,7 @@ void FUN_004bc440(void)
     do {
         *p = 5;
         p += 0x30;
-    } while ((int)p < 0x521738);
+    } while ((int)p < (int)g_unk0x00521138[32]);
 }
 
 // FUNCTION: CMR2 0x004bc470
@@ -4489,8 +4489,17 @@ void Glow_Draw(SceneNode *pCamera, BYTE view)
     }
 }
 
-// GLOBAL: CMR2 0x004ae200
-BYTE g_unk0x004ae200[1];
+// Release callback of FUN_004ae170: frees the glow table.
+// FUNCTION: CMR2 0x004ae200
+int Glow_FreeTable(void)
+{
+    if (g_unk0x006a2a98 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
+        g_unk0x006a2a98 = NULL;
+    }
+    g_unk0x006a2bcc = 0;
+    return 1;
+}
 
 // TODO: CMR2 0x004ae170 (implemented, match 73%)
 void FUN_004ae170(int param1)
@@ -4509,14 +4518,23 @@ void FUN_004ae170(int param1)
     g_layerQuad[2].v = 0xfff9;
     g_layerQuad[3].u = 0;
     g_layerQuad[3].v = 0xfff9;
-    CGame::RegisterCallback(g_unk0x004ae200, NULL);
+    CGame::RegisterCallback(Glow_FreeTable, NULL);
 }
-
-// GLOBAL: CMR2 0x004ae120
-BYTE g_unk0x004ae120[1];
 
 // GLOBAL: CMR2 0x006a2a08
 LPDIRECT3DVERTEXBUFFER7 g_quadVertexBuffer;
+
+// Release callback of FUN_004ae0a0: releases the quad vertex buffer.
+// FUNCTION: CMR2 0x004ae120
+int QuadVB_Release(void)
+{
+    if (g_quadVertexBuffer != NULL) {
+        if (g_quadVertexBuffer->Release() == 0)
+            g_quadVertexBuffer = NULL;
+    }
+    return 1;
+}
+
 
 // Creates the 0x1000-vertex write-only buffer once and registers its callback.
 // FUNCTION: CMR2 0x004ae0a0
@@ -4532,7 +4550,7 @@ void FUN_004ae0a0(void)
     desc.dwNumVertices = 0x1000;
     CGraphics::m_pTextureManager->pDD->CreateVertexBuffer(
         &desc, &g_quadVertexBuffer, 0);
-    CGame::RegisterCallback(g_unk0x004ae120, NULL);
+    CGame::RegisterCallback(QuadVB_Release, NULL);
 }
 
 
@@ -4573,8 +4591,16 @@ int g_unk0x0067f228;
 
 
 
-// Prepara las tablas de color de los vertices de la interfaz.
-// TODO: CMR2 0x00457c50 (implemented, match 46%)
+// Detail level letter ('A' best .. 'D') of each stage/texture group.
+// GLOBAL: CMR2 0x0051a3d0
+char g_stageQualityCodes[24] = {
+    0x43, 0x43, 0x43, 0x43, 0x44, 0x44, 0x44, 0x44, 0x44, 0x43, 0x44, 0x43, 0x44, 0x44, 0x44, 0x44,
+    0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
+};
+extern BYTE g_unk0x00542630[];
+
+// Raises the detail levels when the hardware allows it (texture memory, caps).
+// TODO: CMR2 0x00457c50 (implemented, match 27%)
 void FUN_00457c50(void)
 {
     if (!CGameInfo::FUN_00406410(0x10))
@@ -4583,16 +4609,26 @@ void FUN_00457c50(void)
         return;
     if (CFrontend::FUN_004b7590(0x400) == 0)
         return;
-    *(unsigned char *)0x51a3d0 = 0x41;
-    *(unsigned char *)0x51a3d1 = 0x41;
-    *(unsigned char *)0x51a3d2 = 0x41;
-    *(unsigned char *)0x51a3d3 = 0x41;
-    *(unsigned char *)0x51a3d4 = 0x43;
-    *(unsigned char *)0x51a3db = 0x46;
-    *(unsigned char *)0x51a3e3 = 0x46;
-    *(unsigned char *)0x5429c4 = 0x41;
-    *(unsigned char *)0x5429c5 = 0x43;
-    *(unsigned char *)0x51a3dc = 0x43;
+    g_stageQualityCodes[0] = 'A';
+    g_stageQualityCodes[1] = 'A';
+    g_stageQualityCodes[3] = 'A';
+    g_stageQualityCodes[2] = 'A';
+    g_stageQualityCodes[4] = 'C';
+    g_stageQualityCodes[5] = 'C';
+    g_stageQualityCodes[6] = 'C';
+    g_stageQualityCodes[7] = 'A';
+    g_stageQualityCodes[8] = 'A';
+    g_stageQualityCodes[13] = 'A';
+    g_stageQualityCodes[14] = 'A';
+    g_stageQualityCodes[15] = 'A';
+    g_stageQualityCodes[16] = 'A';
+    g_stageQualityCodes[17] = 'A';
+    g_stageQualityCodes[18] = 'A';
+    g_stageQualityCodes[19] = 'A';
+    g_unk0x00542630[0x394] = 'A';
+    g_unk0x00542630[0x395] = 'A';
+    g_stageQualityCodes[11] = 'A';
+    g_stageQualityCodes[12] = 'A';
 }
 
 

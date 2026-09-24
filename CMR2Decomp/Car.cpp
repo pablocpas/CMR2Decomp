@@ -90,8 +90,17 @@ FixMatrix *FUN_00423d70(unsigned int index)
     return Car_Get(index)->pWorld;
 }
 
-// GLOBAL: CMR2 0x00428790
-BYTE g_unk0x00428790[1];
+// Release callback of Car_AllocateTable.
+// FUNCTION: CMR2 0x00428790
+int Car_FreeTable(void)
+{
+    if (g_carBuffer != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_carBuffer);
+        g_carBuffer = NULL;
+    }
+    g_carCount = 0;
+    return 1;
+}
 
 // Allocates one Car per slot and registers the 0x428790 callback.
 // FUNCTION: CMR2 0x004287c0
@@ -107,7 +116,7 @@ void Car_AllocateTable(int count)
         g_cars[i] = pBuffer;
         pBuffer++;
     }
-    CGame::RegisterCallback(g_unk0x00428790, NULL);
+    CGame::RegisterCallback(Car_FreeTable, NULL);
 }
 
 // FUNCTION: CMR2 0x0042b5f0

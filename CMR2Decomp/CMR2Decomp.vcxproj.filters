@@ -242,6 +242,9 @@
     <ClInclude Include="StageUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StageBlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="RegKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "StageBlock.h"
 #include <string.h>
 #include "RallyData.h"
 #include "SceneNode.h"
@@ -142,14 +143,7 @@ int g_unk0x00589444;
 int g_unk0x0058cf68;
 // GLOBAL: CMR2 0x0058cf80
 BYTE g_unk0x0058cf80[0x100];
-// GLOBAL: CMR2 0x0058d2a0
-int g_unk0x0058d2a0[12];
-// GLOBAL: CMR2 0x0058d3b0
-int g_unk0x0058d3b0[64];
-// GLOBAL: CMR2 0x0058d6a8
-int g_unk0x0058d6a8[2];
-// GLOBAL: CMR2 0x0058d6b0
-int g_unk0x0058d6b0[7];
+BYTE g_stageBlock[0x430];
 // GLOBAL: CMR2 0x0058da30
 int g_unk0x0058da30[8];
 // GLOBAL: CMR2 0x0058da10
@@ -668,8 +662,8 @@ int FUN_00476520(BYTE index)
 // FUNCTION: CMR2 0x00477a90
 void FUN_00477a90(void)
 {
-    memset(g_unk0x0058d6b0, 0xff, sizeof(g_unk0x0058d6b0));
-    memset(g_unk0x0058d2a0, 0xff, sizeof(g_unk0x0058d2a0));
+    memset(g_unk0x0058d6b0, 0xff, 7 * 4);
+    memset(g_unk0x0058d2a0, 0xff, 12 * 4);
 }
 
 // FUNCTION: CMR2 0x00478170

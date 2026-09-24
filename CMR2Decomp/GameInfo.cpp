@@ -54,9 +54,10 @@ unsigned int CGameInfo::m_unk0x00520870 = 1;
 void* CGameInfo::m_unk0x0081777c = NULL;
 BOOL CGameInfo::m_unk0x00817678 = FALSE;
 LPVOID *CGameInfo::m_unk0x005a0098;
-void *CGameInfo::m_unk0x005a00b8;
+char CGameInfo::m_unk0x005a00b8[0x104];
 LPVOID *CGameInfo::m_unk0x005a009c;
-void *CGameInfo::m_unk0x005a02c0;
+char CGameInfo::m_unk0x005a02c0[0x104];
+char CGameInfo::m_sessionNames[20][0x104];
 BOOL CGameInfo::m_unk0x005a0060;
 HRESULT CGameInfo::m_unk0x005a1814;
 BYTE CGameInfo::m_unk0x005a01bc;
@@ -1261,8 +1262,8 @@ bool CGameInfo::FUN_004d05a0(void) {
 void CGameInfo::FUN_004a0c60(void) {
     memset(m_unk0x0059fa20, 0, sizeof(m_unk0x0059fa20));
 
-    m_unk0x005a0098 = &m_unk0x005a00b8;
-    m_unk0x005a009c = &m_unk0x005a02c0;
+    m_unk0x005a0098 = (LPVOID *)m_unk0x005a00b8;
+    m_unk0x005a009c = (LPVOID *)m_unk0x005a02c0;
 
     m_unk0x005a0060 = FALSE;
     m_unk0x005a1814 = FALSE;
@@ -2101,6 +2102,35 @@ int g_unk0x00511cd8[4] = {
 
 typedef HRESULT (__stdcall *DPMethod5GI)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
 
+// Adds a session found by DirectPlay to the list (at most 20, ignoring the
+// blank-named ones): a copy of its description with its own name buffer.
+// FUNCTION: CMR2 0x004a0ca0
+void Session_AddToList(DPSESSIONDESC2 *pDesc)
+{
+    unsigned int n;
+
+    if (CGameInfo::m_unk0x005a01bc >= 20)
+        return;
+    if (strcmp(CMain::m_logFileBlankLine, pDesc->lpszSessionNameA) == 0)
+        return;
+    n = CGameInfo::m_unk0x005a01bc;
+    ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)[n] = *pDesc;
+    strcpy(CGameInfo::m_sessionNames[n], pDesc->lpszSessionNameA);
+    ((DPSESSIONDESC2 *)CGameInfo::m_unk0x0059fa20)[n].lpszSessionNameA = CGameInfo::m_sessionNames[n];
+    CGameInfo::m_unk0x005a01bc++;
+}
+
+// DirectPlay EnumSessions callback: stops on time-out, otherwise lists the session.
+// FUNCTION: CMR2 0x004a12b0
+BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, DWORD flags, LPVOID pContext)
+{
+    if (flags & DPESC_TIMEDOUT)
+        return FALSE;
+    Session_AddToList((DPSESSIONDESC2 *)pDesc);
+    return TRUE;
+}
+
+
 // Prepara el descriptor de sesion 0x5a0068 y crea la sesion de DirectPlay.
 // TODO: CMR2 0x004a13b0 (implemented, match 58%)
 void CGameInfo::FUN_004a13b0(void)
@@ -2122,7 +2152,7 @@ void CGameInfo::FUN_004a13b0(void)
     if (pDP == NULL)
         return;
     hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
-                                                (DWORD)0x4a12b0, 0, 0x20);
+                                                (DWORD)Session_EnumCallback, 0, 0x20);
     if (hr > (HRESULT)0x887700aa) {
         if (hr == (HRESULT)0x8877015e)
             return;
@@ -2161,7 +2191,7 @@ void CGameInfo::FUN_004a12d0(int param1)
     if (pDP == NULL)
         return;
     hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
-                                                  (DWORD)0x4a12b0, 0, 0x51);
+                                                  (DWORD)Session_EnumCallback, 0, 0x51);
     if (hr > (HRESULT)0x887700aa) {
         if (hr == (HRESULT)0x8877015e)
             return;

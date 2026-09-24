@@ -83,10 +83,16 @@ void PrepareFormatGapToLeader(int iLeaderGap, unsigned char param_2, unsigned in
     FormatGapToLeader(iLeaderGap, param_3, param_4, param_5, param_6, param_7, param_8, g_positiveSymbol, param_10);
 }
 
-// GLOBAL: CMR2 0x00537660
-int g_unk0x00537660;
 // GLOBAL: CMR2 0x00537dcc
 BYTE g_unk0x00537dcc;
+
+// Release callback of FUN_00418f20.
+// FUNCTION: CMR2 0x00418fe0
+int FUN_00418fe0(void)
+{
+    g_unk0x00537dcc = 0;
+    return 1;
+}
 
 // Reinicia las tablas de la interfaz de etapa y registra su callback una vez.
 // TODO: CMR2 0x00418f20 (implemented, match 54%)
@@ -96,11 +102,11 @@ void FUN_00418f20(void)
     int i;
 
     g_unk0x00537660 = 0;
-    memset((void *)0x5375b0, 0, 0x20);
-    memset((void *)0x5375fc, 0, 0x20);
-    memset((void *)0x537788, 0, 0x20);
-    memset((void *)0x537568, 0, 0x20);
-    for (p = (BYTE *)0x53784c; p < (BYTE *)0x537dec; p += 0xb4) {
+    memset(g_raceBlock + 0x48, 0, 0x20);       // 0x5375b0
+    memset(g_raceBlock + 0x94, 0, 0x20);       // 0x5375fc
+    memset(g_raceBlock + 0x220, 0, 0x20);      // 0x537788
+    memset(g_raceBlock + 0x0, 0, 0x20);        // 0x537568
+    for (p = g_raceBlock + 0x2e4; p < g_raceBlock + 0x884; p += 0xb4) {   // 0x53784c..0x537dec
         for (i = 0; i < 10; i++) {
             *(int *)(p - 0x88 + i * 4) = -1;
             *(int *)(p - 0x60 + i * 4) = -1;
@@ -114,7 +120,7 @@ void FUN_00418f20(void)
         *(int *)(p - 0xb0) = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
-        CGame::RegisterCallback((void *)0x418fe0, NULL);
+        CGame::RegisterCallback(FUN_00418fe0, NULL);
         g_unk0x00537dcc = 1;
     }
 }
@@ -164,7 +170,6 @@ StageSoundPattern g_stageSoundPatterns[31] = {
     {{0, 0, 0, 0}, 17, {0, 0, 0}, 1} // 30
 };
 
-extern BYTE g_unk0x005375f4[0x1d0];
 void FUN_00418d30(int channel, int sound, int slot, int volume, int flags);
 void FUN_00418dd0(int channel, int slot, char clear);
 int FUN_00419b50(int exclude, int count);

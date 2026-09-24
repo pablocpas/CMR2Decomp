@@ -1,3 +1,4 @@
+#include "StageBlock.h"
 #include "Game.h"
 #include "main.h"
 #include "RegKey.h"
@@ -892,8 +893,6 @@ void CGame::FUN_004aad50(void)
     g_unk0x00665324 = 1;
 }
 
-// GLOBAL: CMR2 0x0058d49c
-void *g_unk0x0058d49c[8];
 
 // FUNCTION: CMR2 0x004764c0
 void FUN_004764c0(void *param1)
@@ -1229,14 +1228,6 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
     return 1;
 }
 
-// GLOBAL: CMR2 0x0058d3b8
-BYTE g_unk0x0058d3b8[0xc0];
-// GLOBAL: CMR2 0x0058d4c4
-int g_unk0x0058d4c4[4];
-// GLOBAL: CMR2 0x0058d530
-BYTE g_unk0x0058d530[0x1c * 2];
-// GLOBAL: CMR2 0x0058d6a0
-void *g_unk0x0058d6a0[2];
 
 // Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks.
 // TODO: CMR2 0x004779e0 (implemented, match 74%)

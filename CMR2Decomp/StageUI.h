@@ -19,4 +19,25 @@ BYTE FUN_0041b370(void);
 int FUN_0041b380(void);
 BYTE *FUN_0041b390(void);
 
+
+// Race/stage-UI tables 0x537568..0x537dcc. The original uses them as rows of
+// 0xb4 bytes (one per car) that overlap the named fields below, so they are
+// kept as one contiguous block with the fields addressed inside it.
+// GLOBAL: CMR2 0x00537568
+extern BYTE g_raceBlock[0x864];
+
+// Stage sounds of each car (rows of 0xb4 bytes starting at 0x5377c4).
+struct CarSoundSet {
+    int handle[10];         // 0x00 playing sound handle (-1 none)
+    int id[10];             // 0x28 sound id
+    int pitch[10];          // 0x50 random pitch
+    BYTE surface[10];       // 0x78 surface when started
+    BYTE field_0x82[0x32];
+};
+
+#define g_carSoundSets ((CarSoundSet *)(g_raceBlock + 0x25c))      // 0x5377c4
+#define g_unk0x005375f4 (g_raceBlock + 0x8c)                       // 0x5375f4: surface per car
+#define g_unk0x00537660 (*(int *)(g_raceBlock + 0xf8))             // 0x537660
+#define g_unk0x00537664 (*(int *)(g_raceBlock + 0xfc))             // 0x537664
+
 #endif

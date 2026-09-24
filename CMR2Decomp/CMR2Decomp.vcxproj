@@ -216,6 +216,7 @@
     <ClInclude Include="StageSplitData.h" />
     <ClInclude Include="StageTiming.h" />
     <ClInclude Include="StageUI.h" />
+    <ClInclude Include="StageBlock.h" />
     <ClInclude Include="TimingUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

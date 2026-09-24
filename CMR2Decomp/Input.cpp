@@ -630,7 +630,7 @@ void CInput::ResetForceFeedbackEffects(void) {
         }
         
         pEffects = (LPDIRECTINPUTEFFECT*)((BYTE*)pEffects + 0x34);
-    } while ((int)pEffects < (int)&m_forceFeedbackDevices[8]+16);
+    } while ((int)pEffects < (int)m_forceFeedbackDevices[8].effects);
 }
 
 // 96.77% match, only concern is this
@@ -1743,7 +1743,7 @@ bool FUN_004b7cd0(int *pOut)
         do {
             p[0] = p[1];
             p++;
-        } while ((int)p < 0x6ed468);
+        } while ((int)p < (int)&g_unk0x006ed3f4[29]);
         g_unk0x006ed3f4[29] = 0;
         return true;
     }
@@ -1827,7 +1827,7 @@ int FUN_004b7d60(int *pOut)
         do {
             p[0] = p[1];
             p++;
-        } while ((int)p < 0x6ed4e0);
+        } while ((int)p < (int)&g_unk0x006ed46c[29]);
         g_unk0x006ed46c[29] = 0;
         return 1;
     }

@@ -54,8 +54,6 @@ int g_unk0x00537190;
 int g_unk0x00537194;
 // GLOBAL: CMR2 0x00537394
 int g_unk0x00537394;
-// GLOBAL: CMR2 0x00537664
-int g_unk0x00537664;
 // GLOBAL: CMR2 0x00537f0c
 int g_unk0x00537f0c[6];
 // GLOBAL: CMR2 0x00537f24
@@ -304,19 +302,7 @@ void FUN_00418d20(int value)
     g_unk0x00537394 = value;
 }
 
-// Stage sounds of each car (0xb4 bytes per car, eight cars).
-struct CarSoundSet {
-    int handle[10];         // 0x00 playing sound handle (-1 none)
-    int id[10];             // 0x28 sound id
-    int pitch[10];          // 0x50 random pitch
-    BYTE surface[10];       // 0x78 surface when started
-    BYTE field_0x82[0x32];
-};
-
-// GLOBAL: CMR2 0x005377c4
-CarSoundSet g_carSoundSets[8];
-// GLOBAL: CMR2 0x005375f4
-BYTE g_unk0x005375f4[0x1d0];    // hasta g_unk0x005377c4
+BYTE g_raceBlock[0x864];
 
 // Starts the sound of one entry of the stage table and stores its handle, the
 // random pitch and the id of the sound.

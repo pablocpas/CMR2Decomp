@@ -277,11 +277,13 @@ public:
     // GLOBAL: CMR2 0x005a0098
     static LPVOID *m_unk0x005a0098;
     // GLOBAL: CMR2 0x005a00b8
-    static void *m_unk0x005a00b8;
+    static char m_unk0x005a00b8[0x104];     // session name
     // GLOBAL: CMR2 0x005a009c
     static LPVOID *m_unk0x005a009c;
     // GLOBAL: CMR2 0x005a02c0
-    static void *m_unk0x005a02c0;
+    static char m_unk0x005a02c0[0x104];     // session password
+    // GLOBAL: CMR2 0x005a03c4
+    static char m_sessionNames[20][0x104];
     // GLOBAL: CMR2 0x005a0060
     static BOOL m_unk0x005a0060;
     // GLOBAL: CMR2 0x005a1814

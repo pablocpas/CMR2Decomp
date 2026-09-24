@@ -1,3 +1,4 @@
+#include "StageBlock.h"
 #include "StageTiming.h"
 #include <stdio.h>
 #include "Frontend.h"
@@ -381,7 +382,7 @@ BOOL FUN_0046c500(void)
             *p = NULL;
         }
         p++;
-    } while ((int)p < 0x588ea0);
+    } while ((int)p < (int)&g_unk0x00588e80[8]);
     g_unk0x00588d3c = 0;
     g_unk0x00588d14 = 0;
     return TRUE;
@@ -416,7 +417,7 @@ bool FUN_00456b70(void)
             p->field_0x8 = NULL;
             p++;
         } while (--j != 0);
-    } while ((int)p < 0x542c68);
+    } while ((int)p < (int)&g_unk0x00542ae8[32]);
     return true;
 }
 
@@ -684,8 +685,24 @@ void FUN_00466e90(SceneNode *pNode, int *pSlot)
 void *g_unk0x00592734;
 // GLOBAL: CMR2 0x00592738
 int g_unk0x00592738;
-// GLOBAL: CMR2 0x00494b10
-BYTE g_unk0x00494b10[1];
+// GLOBAL: CMR2 0x0059273c
+int g_unk0x0059273c;
+// GLOBAL: CMR2 0x00592740
+int g_unk0x00592740;
+
+// Release callback of FUN_00494b50.
+// FUNCTION: CMR2 0x00494b10
+int FUN_00494b10(void)
+{
+    if (g_unk0x00592734 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00592734);
+        g_unk0x00592734 = NULL;
+    }
+    g_unk0x00592738 = 0;
+    g_unk0x0059273c = 0;
+    g_unk0x00592740 = 0;
+    return 1;
+}
 
 // FUNCTION: CMR2 0x00494b50
 void FUN_00494b50(int count)
@@ -696,7 +713,7 @@ void FUN_00494b50(int count)
     g_unk0x00592734 = pBuffer;
     memset(pBuffer, 0, count * 0x2a4);
     g_unk0x00592738 = count;
-    CGame::RegisterCallback(g_unk0x00494b10, NULL);
+    CGame::RegisterCallback(FUN_00494b10, NULL);
 }
 
 // GLOBAL: CMR2 0x00547ac8
@@ -707,8 +724,25 @@ void *g_unk0x00543ecc;
 void *g_unk0x00543eb8;
 // GLOBAL: CMR2 0x00547acc
 BYTE g_unk0x00547acc;
-// GLOBAL: CMR2 0x0045e560
-BYTE g_unk0x0045e560[1];
+// Release callback of FUN_0045e5b0.
+// FUNCTION: CMR2 0x0045e560
+int FUN_0045e560(void)
+{
+    if (g_unk0x00547ac8 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00547ac8);
+        g_unk0x00547ac8 = NULL;
+    }
+    if (g_unk0x00543ecc != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00543ecc);
+        g_unk0x00543ecc = NULL;
+    }
+    if (g_unk0x00543eb8 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00543eb8);
+        g_unk0x00543eb8 = NULL;
+    }
+    g_unk0x00547acc = 0;
+    return 1;
+}
 
 // FUNCTION: CMR2 0x0045e5b0
 void FUN_0045e5b0(int count)
@@ -717,7 +751,7 @@ void FUN_0045e5b0(int count)
     g_unk0x00543ecc = CFileBuffer::AllocateLockedBuffer(count * 12);
     g_unk0x00543eb8 = CFileBuffer::AllocateLockedBuffer(count * 44);
     g_unk0x00547acc = (BYTE)count;
-    CGame::RegisterCallback(g_unk0x0045e560, NULL);
+    CGame::RegisterCallback(FUN_0045e560, NULL);
 }
 
 // FUNCTION: CMR2 0x00465ec0
@@ -768,8 +802,34 @@ void *g_unk0x00590d7c[4];
 int g_unk0x00590c64;
 // GLOBAL: CMR2 0x00590c6c
 void **g_unk0x00590c6c;
-// GLOBAL: CMR2 0x00480870
-BYTE g_unk0x00480870[1];
+// Release callback: frees the four per-car node tables and the lists.
+// FUNCTION: CMR2 0x00480870
+int FUN_00480870(void)
+{
+    void **p;
+    int i;
+
+    p = g_unk0x00590d7c;
+    do {
+        if (*p != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*p);
+            *p = NULL;
+        }
+        p++;
+    } while (p < &g_unk0x00590d7c[4]);
+    if (g_unk0x00590c6c != NULL) {
+        for (i = 0; i < g_unk0x00590c64; i++) {
+            if (g_unk0x00590c6c[i] != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_unk0x00590c6c[i]);
+                g_unk0x00590c6c[i] = NULL;
+            }
+        }
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00590c6c);
+        g_unk0x00590c6c = NULL;
+    }
+    g_unk0x00590c64 = 0;
+    return 1;
+}
 
 // FUNCTION: CMR2 0x00480900
 void FUN_00480900(int count)
@@ -782,7 +842,7 @@ void FUN_00480900(int count)
     for (i = 0; i < count; i++)
         g_unk0x00590c6c[i] = CFileBuffer::AllocateLockedBuffer(0xb4);
     g_unk0x00590c64 = count;
-    CGame::RegisterCallback(g_unk0x00480870, NULL);
+    CGame::RegisterCallback(FUN_00480870, NULL);
 }
 
 struct Unk0x00539278 {
@@ -866,14 +926,63 @@ int g_stageDeformRadius;
 int g_stageDeformFalloff;
 // GLOBAL: CMR2 0x00588a7c
 int g_stageDeformScale;
-// GLOBAL: CMR2 0x00466680
-BYTE g_unk0x00466680[1];
 
 // Reads entry `index` of the 0x4b0-byte tail of a car's 0x4d0-byte record.
 // FUNCTION: CMR2 0x00469bc0
 int FUN_00469bc0(void *pCar, int index)
 {
     return *(int *)(g_unk0x00588b94 + (index + *(char *)((BYTE *)pCar + 0xb1a) * 0x134) * 4 + 0x4b0);
+}
+
+// Release callback of FUN_004667c0: frees the per-record part tables
+// (0x588b9c), the per-record buffers (0x588ba0) and the record arrays.
+// FUNCTION: CMR2 0x00466680
+int FUN_00466680(void)
+{
+    void ***pParts;
+    void **pBuffers;
+    int i;
+    int j;
+
+    if (g_unk0x00588b9c != NULL) {
+        pParts = (void ***)g_unk0x00588b9c;
+        for (i = 0; i < g_unk0x00588a90; i++) {
+            if (((void ***)g_unk0x00588b9c)[i] != NULL) {
+                for (j = 0; j < *(int *)(g_unk0x00588b94 + i * 0x4d0 + 0x45c); j++) {
+                    if (((void ***)g_unk0x00588b9c)[i][j] != NULL) {
+                        CFileBuffer::FreeGenericFileBuffer(((void ***)g_unk0x00588b9c)[i][j]);
+                        ((void ***)g_unk0x00588b9c)[i][j] = NULL;
+                    }
+                }
+                CFileBuffer::FreeGenericFileBuffer(((void ***)g_unk0x00588b9c)[i]);
+                ((void ***)g_unk0x00588b9c)[i] = NULL;
+            }
+        }
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00588b9c);
+        g_unk0x00588b9c = NULL;
+    }
+    if (g_unk0x00588ba0 != NULL) {
+        pBuffers = (void **)g_unk0x00588ba0;
+        for (i = 0; i < g_unk0x00588a90; i++) {
+            if (pBuffers[i] != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(pBuffers[i]);
+                ((void **)g_unk0x00588ba0)[i] = NULL;
+                pBuffers = (void **)g_unk0x00588ba0;
+            }
+        }
+        CFileBuffer::FreeGenericFileBuffer(pBuffers);
+        g_unk0x00588ba0 = NULL;
+    }
+    if (g_unk0x00588b94 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00588b94);
+        g_unk0x00588b94 = NULL;
+    }
+    if (g_unk0x00588b98 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00588b98);
+        g_unk0x00588b98 = NULL;
+    }
+    g_unk0x00588a90 = 0;
+    return 1;
 }
 
 // FUNCTION: CMR2 0x004667c0
@@ -894,7 +1003,7 @@ void FUN_004667c0(int count)
         g_unk0x00588990[i] = (int *)(g_unk0x00588b94 + offset);
         offset += 0x4d0;
     }
-    CGame::RegisterCallback(g_unk0x00466680, NULL);
+    CGame::RegisterCallback(FUN_00466680, NULL);
 }
 
 // Sets up the whole force-feedback effect set (spring, damper, constant force)
@@ -939,8 +1048,12 @@ int g_unk0x00591b30;
 int g_unk0x00591b34;
 // GLOBAL: CMR2 0x00591b38
 int g_unk0x00591b38[5];
-// GLOBAL: CMR2 0x004918c0
-BYTE g_unk0x004918c0[1];
+// Release callback with nothing to free.
+// FUNCTION: CMR2 0x004918c0
+BYTE FUN_004918c0(void)
+{
+    return 1;
+}
 
 // Walks the serialised stage block, recording a pointer to every sub-table.
 // FUNCTION: CMR2 0x00490d50
@@ -978,7 +1091,7 @@ void FUN_00490d50(BYTE *pData)
     g_unk0x00591b20 = (int)p;
     p += 2;
     g_unk0x00591b1c = (int)p;
-    CGame::RegisterCallback(g_unk0x004918c0, NULL);
+    CGame::RegisterCallback(FUN_004918c0, NULL);
 }
 
 // GLOBAL: CMR2 0x0053cdbc
@@ -1144,6 +1257,8 @@ void FUN_0045e9a0(SceneNode *pNode)
     }
 }
 
+bool FUN_004779e0(void);
+
 // Reinicia las tablas de escena 0x58d2xx/0x58d3xx/0x58d4xx y registra el
 // callback 0x4779e0.
 // TODO: CMR2 0x00475f80 (implemented, match 40%)
@@ -1152,24 +1267,24 @@ void FUN_00475f80(void)
     int i;
     int *p;
 
-    *(int *)0x58d6a8 = 0;
-    memset((void *)0x58d47c, 0, 0x20);
-    memset((void *)0x58d340, 0, 0x20);
-    memset((void *)0x58d49c, 0, 0x20);
-    *(int *)0x58d6ac = 0;
-    memset((void *)0x58d6b0, 0xff, 0x1c);
-    memset((void *)0x58d2a0, 0xff, 0x30);
-    for (p = (int *)0x58d36c; p < (int *)0x58d3b8; p += 3) {
+    g_unk0x0058d6a8[0] = 0;
+    memset(g_stageBlock_58d47c, 0, 0x20);
+    memset(g_stageBlock_58d340, 0, 0x20);
+    memset(g_unk0x0058d49c, 0, 0x20);
+    g_unk0x0058d6a8[1] = 0;
+    memset(g_unk0x0058d6b0, 0xff, 0x1c);
+    memset(g_unk0x0058d2a0, 0xff, 0x30);
+    for (p = g_stageBlock_58d368 + 1; p < (int *)g_unk0x0058d3b8; p += 3) {
         p[-1] = -1;
         p[0] = -1;
         p[1] = -1;
     }
-    for (p = (int *)0x58d3bc; p < (int *)0x58d47c; p += 3) {
+    for (p = (int *)g_unk0x0058d3b8 + 1; p < g_stageBlock_58d47c; p += 3) {
         p[-1] = 0;
         p[0] = 0;
         p[1] = 0;
     }
-    CGame::RegisterCallback((void *)0x4779e0, NULL);
+    CGame::RegisterCallback(FUN_004779e0, NULL);
 }
 
 
