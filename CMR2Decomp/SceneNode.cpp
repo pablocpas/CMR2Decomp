@@ -979,6 +979,105 @@ BYTE g_sceneLightFlag;
 // GLOBAL: CMR2 0x006e0b99
 BYTE g_sceneLightFlag2;
 
+// One mesh of a shadow caster with its per-vertex working buffers (0x58 bytes).
+struct ShadowPart {
+    BYTE field_0x0[0x30];
+    Mesh *pMesh;                // 0x30 mesh (or its shadow cylinder)
+    SceneNode *pNode;           // 0x34 node that owns the mesh
+    void *pVertexWork;          // 0x38 12 bytes per vertex
+    void *pVertexWork2;         // 0x3c 12 bytes per vertex
+    void *pVertexFlags;         // 0x40 4 bytes per vertex
+    void *pVertexWork3;         // 0x44 12 bytes per vertex
+    BYTE *pVertices;            // 0x48 0x30 bytes per vertex, colour 0xff000000
+    void *pTriangleWork;        // 0x4c 12 bytes per triangle
+    short field_0x50;
+    short field_0x52;
+    int field_0x54;
+};
+
+// A scene node hierarchy that casts shadows (0x14 bytes).
+struct ShadowCaster {
+    SceneNode *pNode;           // 0x0
+    ShadowPart *pParts;         // 0x4
+    BYTE partCount;             // 0x8
+    int field_0xc;              // 0xc
+    int field_0x10;
+};
+
+// Mesh nodes whose flags type is 6, 14 or 15 cast no shadow.
+#define CASTS_SHADOW(n)                                                              \
+    ((n)->type == SCENE_NODE_MESH && (n)->pObject != NULL && ((n)->flags & 0xff) != 6 && \
+     ((n)->flags & 0xff) != 0xf && ((n)->flags & 0xff) != 0xe)
+
+static __forceinline void ShadowPart_Init(ShadowPart *pPart)
+{
+    int i;
+
+    pPart->pVertexWork = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
+    pPart->pVertexFlags = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 4);
+    pPart->pVertexWork2 = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
+    pPart->pTriangleWork = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->triangleCount * 0xc);
+    pPart->pVertices = (BYTE *)CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0x30);
+    for (i = 0; i < pPart->pMesh->field_0x10; i++)
+        *(DWORD *)(pPart->pVertices + i * 0x30 + 0x1c) = 0xff000000;
+    pPart->pVertexWork3 = CFileBuffer::AllocateLockedBuffer(pPart->pMesh->field_0x10 * 0xc);
+    pPart->field_0x54 = 1;
+}
+
+// Registers pNode and every mesh below it as a shadow caster (at most 29). Small
+// objects (flags type <= 4) use a cylinder around the mesh unless exactMeshes is set.
+// TODO: CMR2 0x004b45d0 (implemented, match 55%)
+void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
+{
+    ShadowCaster *pCaster;
+    ShadowPart *pPart;
+    SceneNode *pChild;
+    SceneNode *p;
+
+    if (pNode == NULL || g_sceneLightFlag >= 29)
+        return;
+    pCaster = (ShadowCaster *)CFileBuffer::AllocateLockedBuffer(sizeof(ShadowCaster));
+    g_sceneLightState[g_sceneLightFlag++] = (int)pCaster;
+    pCaster->pNode = pNode;
+    pCaster->pParts = NULL;
+    pCaster->partCount = 0;
+    pCaster->field_0xc = 1;
+    if (CASTS_SHADOW(pNode))
+        pCaster->partCount = 1;
+    for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
+        for (p = pChild; p != NULL; p = p->pFirstChild) {
+            if (CASTS_SHADOW(p))
+                pCaster->partCount++;
+        }
+    }
+    pCaster->pParts = (ShadowPart *)CFileBuffer::AllocateLockedBuffer(pCaster->partCount * sizeof(ShadowPart));
+    pPart = pCaster->pParts;
+    if (CASTS_SHADOW(pNode)) {
+        pPart->pMesh = (Mesh *)pNode->pObject;
+        if (exactMeshes == 0 && (pNode->flags & 0xff) <= 4)
+            pPart->pMesh = Mesh_GetShadowCylinder((Mesh *)pNode->pObject);
+        ShadowPart_Init(pPart);
+        pPart->field_0x50 = 0;
+        pPart->pNode = pNode;
+        pPart->field_0x52 = 0;
+        pPart++;
+    }
+    for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
+        for (p = pChild; p != NULL; p = p->pFirstChild) {
+            if (CASTS_SHADOW(p)) {
+                pPart->pMesh = (Mesh *)p->pObject;
+                if (exactMeshes == 0 && (pNode->flags & 0xff) <= 4)
+                    pPart->pMesh = Mesh_GetShadowCylinder((Mesh *)p->pObject);
+                ShadowPart_Init(pPart);
+                pPart->pNode = p;
+                pPart->field_0x50 = 0;
+                pPart->field_0x52 = 0;
+                pPart++;
+            }
+        }
+    }
+}
+
 extern int *g_triangleVertexHeights;
 void Mesh_BuildParts(Mesh *pMesh);
 void Mesh_UploadVertices(Mesh *pMesh);

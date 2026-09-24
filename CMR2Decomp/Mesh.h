@@ -53,5 +53,6 @@ void Mesh_SetVertexColours(Mesh *pMesh, BYTE *pRGB);
 void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha);
 void Mesh_Rebuild(Mesh *pMesh);
 int Mesh_GetField0x10(Mesh *pMesh);
+Mesh *Mesh_GetShadowCylinder(Mesh *pMesh);
 
 #endif
