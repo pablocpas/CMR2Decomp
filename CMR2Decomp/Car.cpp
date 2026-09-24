@@ -99,6 +99,16 @@ Car *Car_Get(int index)
     return g_cars[index];
 }
 
+// Dampens the car's secondary body motion while this mode is active.
+// FUNCTION: CMR2 0x00437d70
+void Car_DampenBodyMotion(void)
+{
+    if (g_pCurrentCar->field_0xb28 == 0 && g_pCurrentCar->field_0xb74 != 0) {
+        int change = g_pCurrentCar->field_0x7a4 - *(int *)g_pCurrentCar->field_0x7a8;
+        g_pCurrentCar->field_0x5d0.z -= FixMul(0x1999, change);
+    }
+}
+
 // Road speed of a wheel from its spin: raw (unit 2), in km/h (0) or mph (1).
 // FUNCTION: CMR2 0x0042b600
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit)

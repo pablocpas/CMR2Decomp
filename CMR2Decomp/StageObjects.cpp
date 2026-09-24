@@ -7,6 +7,7 @@
 #include "RegKey.h"
 #include <stdio.h>
 #include "FixedPoint.h"
+#include "Car.h"
 #include "Input.h"
 #include "main.h"
 
@@ -83,6 +84,60 @@ struct StageObjectValue { int value; BYTE rest[0x2c]; };
 StageObjectValue g_unk0x0058e0b8[4];
 // GLOBAL: CMR2 0x0058e178
 int g_unk0x0058e178;
+
+// GLOBAL: CMR2 0x005113f8
+double g_radiansToDegrees = 57.295827908797776;
+static const double *g_pFixedAngleScale = &CGraphics::m_65536;
+
+// The larger of the longitudinal and lateral wheel slip, after each dead zone.
+// FUNCTION: CMR2 0x00465d70
+int StageObject_GetWheelSlip(int carIndex, int wheelIndex)
+{
+    if (carIndex < 8) {
+        int slip = Car_Get(carIndex)->field_0x880[wheelIndex];
+        if (slip < 0)
+            slip = -Car_Get(carIndex)->field_0x880[wheelIndex];
+        else
+            slip = Car_Get(carIndex)->field_0x880[wheelIndex];
+        slip -= 0xccc;
+        if (slip < 0) slip = 0;
+
+        int lateral = Car_Get(carIndex)->field_0x870[wheelIndex];
+        if (lateral < 0)
+            lateral = -Car_Get(carIndex)->field_0x870[wheelIndex];
+        else
+            lateral = Car_Get(carIndex)->field_0x870[wheelIndex];
+        lateral -= 0x2666;
+        if (lateral < 0) lateral = 0;
+        if (slip < lateral) slip = lateral;
+        if (slip < 0) slip = -slip;
+        if (slip > 0) {
+            slip = FixDiv(slip, 0x10000);
+            if (slip < 0x10000) return slip;
+            return 0x10000;
+        }
+    }
+    return 0;
+}
+
+// Returns a 16.16 angle in degrees from the x87 atan2 instruction.
+// TODO: CMR2 0x00498d80 (implemented, match 80%)
+__declspec(naked) int StageObject_Atan2Degrees(int y, int x)
+{
+    __asm {
+        sub esp, 8
+        fild dword ptr [esp + 0xc]
+        fild dword ptr [esp + 0x10]
+        fpatan
+        fmul qword ptr g_radiansToDegrees
+        mov eax, g_pFixedAngleScale
+        fmul qword ptr [eax]
+        fistp qword ptr [esp]
+        mov eax, dword ptr [esp]
+        add esp, 8
+        ret 8
+    }
+}
 
 int FUN_0041d290(void);
 char FUN_00420190(void);
