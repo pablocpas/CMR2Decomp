@@ -23,34 +23,21 @@ struct RaceSlotState {
 RaceSlotState g_raceSlotState[20];
 
 // Assigns an unused race slot and marks its owner for refresh.
-// FUNCTION: CMR2 0x00417660
-__declspec(naked) void Race_AssignUnusedSlot(int owner)
+// TODO: CMR2 0x00417660 (implemented, match 73%)
+void Race_AssignUnusedSlot(int owner)
 {
-    __asm {
-        push esi
-        mov esi, dword ptr [esp + 8]
-        xor edx, edx
-    next_slot:
-        lea eax, [edx + edx * 2]
-        shl eax, 2
-        mov cl, byte ptr [eax + g_raceSlotState + 8]
-        test cl, 2
-        jne advance
-        or cl, 2
-        mov edx, 20
-        mov byte ptr [eax + g_raceSlotState + 8], cl
-        mov dword ptr [eax + g_raceSlotState], esi
-        mov cl, byte ptr [eax + g_raceSlotState + 8]
-        and cl, 0xfe
-        mov byte ptr [eax + g_raceSlotState + 8], cl
-        mov dword ptr [eax + g_raceSlotState + 4], 0xffffffff
-    advance:
-        inc edx
-        cmp edx, 20
-        jl next_slot
-        pop esi
-        ret 4
-    }
+    int i = 0;
+    do {
+        int next = i;
+        if ((g_raceSlotState[i].flags & 2) == 0) {
+            next = 20;
+            g_raceSlotState[i].flags |= 2;
+            g_raceSlotState[i].owner = owner;
+            g_raceSlotState[i].flags &= 0xfe;
+            g_raceSlotState[i].pending = -1;
+        }
+        i = next + 1;
+    } while (i < 20);
 }
 // GLOBAL: CMR2 0x00537f08
 BYTE g_unk0x00537f08;

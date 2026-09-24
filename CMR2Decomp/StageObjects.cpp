@@ -6,8 +6,10 @@
 #include "AIHelper.h"
 #include "RegKey.h"
 #include <stdio.h>
+#include <math.h>
 #include "FixedPoint.h"
 #include "Car.h"
+#include "GameInfo.h"
 #include "Input.h"
 #include "main.h"
 
@@ -22,6 +24,26 @@ extern unsigned int g_unk0x0058ca6c;
 int FUN_0046d2a0(int *p);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00421420(void);
+unsigned int RallyData_FUN_00407e90(void);
+
+// Chooses the stage object path for the current game mode and rally state.
+// FUNCTION: CMR2 0x0046bd50
+int StageObject_UsesExtendedMode(void)
+{
+    if (CGameInfo::FUN_00405d80() == 8 ||
+        CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 10)
+        return false;
+    if (CGameInfo::FUN_00405d80() == 11 ||
+        CGameInfo::FUN_00405d80() == 12)
+        return true;
+    if (CGameInfo::FUN_00405d80() != 0 &&
+        CGameInfo::FUN_00405d80() != 1 &&
+        CGameInfo::FUN_00405d80() != 2 &&
+        CGameInfo::FUN_00405d80() != 3)
+        return true;
+    return (BYTE)RallyData_FUN_00407e90() != 0;
+}
 
 // FUNCTION: CMR2 0x00469de0
 int StageObject_IsEligibleType(short type, int mode, int category)
@@ -144,7 +166,6 @@ int g_unk0x0058e178;
 
 // GLOBAL: CMR2 0x005113f8
 double g_radiansToDegrees = 57.295827908797776;
-static const double *g_pFixedAngleScale = &CGraphics::m_65536;
 
 // The larger of the longitudinal and lateral wheel slip, after each dead zone.
 // FUNCTION: CMR2 0x00465d70
@@ -177,23 +198,12 @@ int StageObject_GetWheelSlip(int carIndex, int wheelIndex)
     return 0;
 }
 
-// Returns a 16.16 angle in degrees from the x87 atan2 instruction.
-// TODO: CMR2 0x00498d80 (implemented, match 80%)
-__declspec(naked) int StageObject_Atan2Degrees(int y, int x)
+// Returns a 16.16 angle in degrees from the two vector components.
+// FUNCTION: CMR2 0x00498d80
+int StageObject_Atan2Degrees(int y, int x)
 {
-    __asm {
-        sub esp, 8
-        fild dword ptr [esp + 0xc]
-        fild dword ptr [esp + 0x10]
-        fpatan
-        fmul qword ptr g_radiansToDegrees
-        mov eax, g_pFixedAngleScale
-        fmul qword ptr [eax]
-        fistp qword ptr [esp]
-        mov eax, dword ptr [esp]
-        add esp, 8
-        ret 8
-    }
+    double degrees = atan2((double)y, (double)x) * g_radiansToDegrees;
+    return (int)(__int64)(degrees * CGraphics::m_65536);
 }
 
 int FUN_0041d290(void);

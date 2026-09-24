@@ -17,18 +17,7 @@ void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime)
 int ConvertRawTimeToCentiseconds(int iTime)
 {
 	// raw times are 16.16 fixed point seconds; 0x28f5c28 = 0.01 * 2^32.
-	// The original used inline assembly for the 64-bit intermediate.
-	__asm {
-		mov eax, iTime
-		add eax, 0x147
-		mov iTime, eax
-		mov eax, iTime
-		mov ecx, 0x28f5c28
-		cdq
-		shld edx, eax, 16
-		shl eax, 16
-		idiv ecx
-	}
+	return FixDiv(iTime + 0x147, 0x28f5c28);
 }
 
 // FUNCTION: CMR2 0x0040d3f0

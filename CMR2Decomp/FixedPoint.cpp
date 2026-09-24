@@ -161,44 +161,26 @@ int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM)
     return 1;
 }
 
+// Rotates a float vector through the matrix columns.
+// FUNCTION: CMR2 0x004b9d40
+int FloatMatrix_RotateVector(float *pOut, float *pV, float *pM)
+{
+    pOut[0] = pV[0] * pM[0] + pM[4] * pV[1] + pM[8] * pV[2];
+    pOut[1] = pM[1] * pV[0] + pM[5] * pV[1] + pM[9] * pV[2];
+    pOut[2] = pM[2] * pV[0] + pM[6] * pV[1] + pM[10] * pV[2];
+    return 1;
+}
+
 // Rotates a float vector by the three rows of a float 4x4 matrix.
 // FUNCTION: CMR2 0x004b9ec0
-__declspec(naked) int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM)
+int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM)
 {
-    __asm {
-        mov ecx, dword ptr [esp + 12]
-        mov eax, dword ptr [esp + 8]
-        mov edx, dword ptr [esp + 4]
-        fld dword ptr [ecx + 8]
-        fmul dword ptr [eax + 8]
-        fld dword ptr [ecx + 4]
-        fmul dword ptr [eax + 4]
-        faddp st(1), st
-        fld dword ptr [eax]
-        fmul dword ptr [ecx]
-        faddp st(1), st
-        fstp dword ptr [edx]
-        fld dword ptr [ecx + 16]
-        fmul dword ptr [eax]
-        fld dword ptr [ecx + 24]
-        fmul dword ptr [eax + 8]
-        faddp st(1), st
-        fld dword ptr [ecx + 20]
-        fmul dword ptr [eax + 4]
-        faddp st(1), st
-        fstp dword ptr [edx + 4]
-        fld dword ptr [ecx + 32]
-        fmul dword ptr [eax]
-        fld dword ptr [ecx + 40]
-        fmul dword ptr [eax + 8]
-        faddp st(1), st
-        fld dword ptr [ecx + 36]
-        fmul dword ptr [eax + 4]
-        mov eax, 1
-        faddp st(1), st
-        fstp dword ptr [edx + 8]
-        ret 12
-    }
+    double first = pM[2] * pV[2];
+    first += pM[1] * pV[1];
+    pOut[0] = (float)(first + pM[0] * pV[0]);
+    pOut[1] = pM[5] * pV[1] + (pM[4] * pV[0] + pM[6] * pV[2]);
+    pOut[2] = pM[9] * pV[1] + (pM[8] * pV[0] + pM[10] * pV[2]);
+    return 1;
 }
 
 // Copies the rotation part (right/up/forward) of a matrix.
