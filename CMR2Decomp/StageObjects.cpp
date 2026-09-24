@@ -715,7 +715,9 @@ BYTE g_unk0x00590ed0[8][0x98];
 // GLOBAL: CMR2 0x00591390
 int g_unk0x00591390;
 // GLOBAL: CMR2 0x00591740
-int g_unk0x00591740[64];
+int g_unk0x00591740[4];
+// GLOBAL: CMR2 0x00591750
+BYTE *g_unk0x00591750;
 // GLOBAL: CMR2 0x005918c8
 int g_unk0x005918c8;
 // GLOBAL: CMR2 0x005920f0
@@ -1045,4 +1047,184 @@ void FUN_00477f30(void)
         p[8] = -1;
         p += 0x24;
     } while ((int)p < (int)&g_unk0x0058d6ec[8][1]);
+}
+
+int FUN_00460c80(BYTE *pCar);
+char RallyData_FUN_00408500(BYTE param1);
+
+// GLOBAL: CMR2 0x005909b8
+int g_unk0x005909b8;
+// GLOBAL: CMR2 0x005909c0
+BYTE g_unk0x005909c0[4];
+// GLOBAL: CMR2 0x005909c4
+BYTE g_unk0x005909c4[4];
+
+// FUNCTION: CMR2 0x0047e490
+void FUN_0047e490(BYTE *pColour)
+{
+    g_unk0x005909c0[0] = pColour[0];
+    g_unk0x005909c0[1] = pColour[1];
+    g_unk0x005909c0[2] = pColour[2];
+    g_unk0x005909c4[0] = 0xff;
+    g_unk0x005909c4[1] = 0xff;
+    g_unk0x005909c4[2] = 0xff;
+    g_unk0x005909b8 = 0;
+}
+
+// Selects a list of 0x6c-byte records (count first); returns whether it is non-empty.
+// TODO: CMR2 0x0048caa0 (implemented, match 17%)
+int FUN_0048caa0(int *pList)
+{
+    int count;
+
+    if (pList != NULL) {
+        count = *pList;
+        g_unk0x00591750 = (BYTE *)(pList + 1);
+        g_unk0x005918c8 = count;
+        return count != 0;
+    }
+    g_unk0x005918c8 = 0;
+    g_unk0x00591750 = NULL;
+    return 0;
+}
+
+// Whether a car's wheel sits on a surface of kind 0, 3, 12, 13 or 26 while FUN_00460c80 > 0.
+// FUNCTION: CMR2 0x0046eeb0
+BYTE FUN_0046eeb0(int index, int wheel)
+{
+    BYTE result;
+    BYTE *pCar;
+
+    result = 0;
+    pCar = (BYTE *)Car_Get(index);
+    switch (*(short *)(pCar + 0xaae + wheel * 2)) {
+    case 0:
+    case 3:
+    case 0xc:
+    case 0xd:
+    case 0x1a:
+        if (FUN_00460c80(pCar) > 0)
+            result = 1;
+    }
+    return result;
+}
+
+// GLOBAL: CMR2 0x00591730
+int g_unk0x00591730[4];
+
+// Adds to a car's level (clamped to 1.0).
+// TODO: CMR2 0x0048dca0 (implemented, match 25%)
+void FUN_0048dca0(BYTE *pCar, int amount)
+{
+    BYTE car;
+    int v;
+
+    if (amount > 0) {
+        car = *pCar;
+        v = g_unk0x00591730[car] + amount;
+        g_unk0x00591730[car] = v;
+        if (v > 0x10000)
+            g_unk0x00591730[car] = 0x10000;
+    }
+}
+
+// TODO: CMR2 0x0048df10 (implemented, match 83%)
+int FUN_0048df10(BYTE *pCar)
+{
+    short v;
+
+    if (*(int *)(pCar + 4) == 7) {
+        v = *(short *)(g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c + 2);
+        if (v < -0x3f4 && v > -0x40b)
+            return 1;
+    }
+    return 0;
+}
+
+// TODO: CMR2 0x00486b90 (implemented, match 51%)
+void FUN_00486b90(BYTE *pCar, BYTE *pInfo)
+{
+    int kind;
+
+    kind = *(int *)(pInfo + 4);
+    if (kind != 2 && kind != 1 && kind != 10) {
+        g_unk0x00590db0[*pCar] = 0;
+        return;
+    }
+    g_unk0x00590db0[*pCar] = 0x10000;
+}
+
+// Whether both drivers of the current round are known.
+// FUNCTION: CMR2 0x00473310
+int FUN_00473310(void)
+{
+    unsigned int first;
+    unsigned int second;
+
+    RallyData_GetChampionshipState();
+    RallyData_GetRoundDrivers(&first, &second);
+    if (RallyData_FUN_00408500((BYTE)first) != -1 && RallyData_FUN_00408500((BYTE)second) != -1)
+        return 1;
+    return 0;
+}
+
+// GLOBAL: CMR2 0x00591490
+int g_unk0x00591490;
+// GLOBAL: CMR2 0x00591494
+int g_unk0x00591494;
+// GLOBAL: CMR2 0x00591498
+FixVector g_unk0x00591498;
+
+// FUNCTION: CMR2 0x00487e00
+void FUN_00487e00(FixVector *pPos, int *pInfo)
+{
+    g_unk0x00591498 = *pPos;
+    g_unk0x00591490 = *(int *)pInfo[1];
+    g_unk0x00591494 = *(int *)(*(int *)(*(int *)(pInfo[0] + 0xc) + 0x10c) + 0x4c);
+}
+
+extern int g_unk0x0051bd40;
+extern int g_unk0x0051bd3c;
+
+// Sets the scale 0x51bd40 (value / 25, at least 0.6) and its reciprocal 0x51bd3c.
+// TODO: CMR2 0x00466630 (implemented, match 89%)
+void FUN_00466630(int value)
+{
+    g_unk0x0051bd40 = FixMul(value, 0xa3d);
+    if (g_unk0x0051bd40 < 0x9999)
+        g_unk0x0051bd40 = 0x9999;
+    g_unk0x0051bd3c = FixDiv(0x10000, g_unk0x0051bd40);
+}
+
+// Blends two byte values: b + (a - b) * t, clamped to 255.
+// TODO: CMR2 0x004616c0 (implemented, match 83%)
+int FUN_004616c0(BYTE a, BYTE b, int t)
+{
+    int v;
+
+    v = ((int)b * 0x10000 + FixMul((int)a * 0x10000 - (int)b * 0x10000, t)) >> 16;
+    if (v > 0xff)
+        v = 0xff;
+    return v;
+}
+
+// GLOBAL: CMR2 0x005885a0
+int g_unk0x005885a0[8][4];
+// GLOBAL: CMR2 0x00549ba0
+int g_unk0x00549ba0[8][4];
+
+// Advances (mod 200) the counters of a car's four flagged slots and clears the flags.
+// FUNCTION: CMR2 0x00464c60
+void FUN_00464c60(int car)
+{
+    int i;
+
+    if (car < 8) {
+        for (i = 0; i < 4; i++) {
+            if (g_unk0x005885a0[car][i] != 0) {
+                g_unk0x005885a0[car][i] = 0;
+                g_unk0x00549ba0[car][i] = (g_unk0x00549ba0[car][i] + 1) % 200;
+            }
+        }
+    }
 }

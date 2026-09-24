@@ -1109,6 +1109,8 @@ void FUN_00456a40(int param1, int param2)
 
 // GLOBAL: CMR2 0x0051bd3c
 int g_unk0x0051bd3c = 0x10000;
+// GLOBAL: CMR2 0x0051bd40
+int g_unk0x0051bd40 = 0x10000;
 
 // Marca el nodo como "sucio" en las etapas especiales y ajusta su 0x64.
 // TODO: CMR2 0x0045e9a0 (implemented, match 59%)
