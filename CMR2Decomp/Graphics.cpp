@@ -928,6 +928,72 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
         pTexture->pSurface->Blt(&rect, m_textureCache[surfaceIndex].pSurface, NULL, DDBLT_WAIT, NULL);
 }
 
+// Moves an 8-bit channel value into a 16-bit pixel channel whose top bit is
+// `depth` bits above bit 7 (negative: below).
+#define PACK_CHANNEL(mask, depth, v)                                                \
+    ((depth) < 0 ? (((mask) << abs(depth)) & (v)) >> abs(depth)                     \
+                 : (((mask) >> abs(depth)) & (v)) << abs(depth))
+
+// Blends pColour (r, g, b, a) into pixel (x, y) of a locked texture.
+// TODO: CMR2 0x004a52d0 (implemented, match 24%)
+void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BYTE *pColour)
+{
+    LockedTexture *pLocked;
+    unsigned int i;
+    int stride;
+    int r, g, b;
+    float f, inv;
+    BYTE px;
+    BYTE dst[3];
+    WORD *p16;
+    DWORD *p32;
+
+    r = pColour[0];
+    g = pColour[1];
+    b = pColour[2];
+    if (x >= (unsigned int)pTexture->width || y >= (unsigned int)pTexture->height)
+        return;
+    for (i = 0; i < m_lockedTextureCount; i++) {
+        if (pTexture == m_lockedTextures[i].pTexture)
+            break;
+    }
+    if (i == m_lockedTextureCount)
+        return;
+    pLocked = &m_lockedTextures[i];
+    stride = pLocked->desc.lPitch - ((pLocked->desc.dwWidth * pLocked->desc.ddpfPixelFormat.dwRGBBitCount) >> 3);
+    if (pLocked->desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+        p16 = (WORD *)pLocked->desc.lpSurface + ((pLocked->desc.dwWidth + stride) * y + x);
+        if (pColour[3] != 0xff) {
+            px = *(BYTE *)p16;
+            dst[0] = (BYTE)((BYTE)pLocked->masks[0] & px) >> (BYTE)pLocked->depths[0];
+            dst[1] = (BYTE)((BYTE)pLocked->masks[1] & px) << (BYTE)pLocked->depths[1];
+            dst[2] = (BYTE)((BYTE)pLocked->masks[2] & px) << (BYTE)-pLocked->depths[2];
+            f = (float)pColour[3] * (1.0f / 255.0f);
+            inv = 1.0f - f;
+            r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
+            g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
+            b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
+        }
+        *p16 = (WORD)(PACK_CHANNEL(pLocked->masks[3], (short)pLocked->depths[3], 0xff) |
+                      PACK_CHANNEL(pLocked->masks[0], (short)pLocked->depths[0], r) |
+                      PACK_CHANNEL(pLocked->masks[1], (short)pLocked->depths[1], g) |
+                      PACK_CHANNEL(pLocked->masks[2], (short)pLocked->depths[2], b));
+    } else if (pLocked->desc.ddpfPixelFormat.dwRGBBitCount == 32) {
+        p32 = (DWORD *)pLocked->desc.lpSurface + ((pLocked->desc.dwWidth + stride) * y + x);
+        if (pColour[3] != 0xff) {
+            dst[0] = 0;
+            dst[1] = 0;
+            dst[2] = *(BYTE *)p32;
+            f = (float)pColour[3] * (1.0f / 255.0f);
+            inv = 1.0f - f;
+            r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
+            g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
+            b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
+        }
+        *p32 = RGBA_MAKE(r, g, b, 0xff);
+    }
+}
+
 // FUNCTION: CMR2 0x004a56c0
 void CGraphics::UnlockTexture(Texture *pTexture)
 {

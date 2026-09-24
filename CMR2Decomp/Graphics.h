@@ -1176,6 +1176,7 @@ public:
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
     static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
     static void RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2, int cacheSlot);
+    static void BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BYTE *pColour);
     static Texture *LoadDDSTexture(DDSFile *pDDS, Texture *pTexture);
     static Texture *FUN_004a48c0(char *name, void *pData, unsigned int flags);
     static Texture *FUN_004a49c0(char *name, unsigned int flags);
