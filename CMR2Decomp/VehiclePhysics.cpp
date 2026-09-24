@@ -266,7 +266,7 @@ apply_torque:
 }
 
 // Classifies face vertices by signed distance from the active collision plane.
-// FUNCTION: CMR2 0x00490720
+// TODO: CMR2 0x00490720 (implemented, match 80%)
 void Collision_ClassifyFaceVertices(void)
 {
     FixVector newDirection;
@@ -361,13 +361,10 @@ checkSecondary:
 
 addVertex:
         if (*pDistance >= 0) {
-            __asm mov cl, byte ptr [g_collisionPositiveCandidateCount]
-            __asm mov bl, byte ptr [vertexIndex]
-            __asm xor edx, edx
-            __asm mov dl, cl
-            __asm inc cl
-            __asm mov byte ptr [g_collisionPositiveCandidateCount], cl
-            __asm mov byte ptr [edx + g_collisionPositiveCandidates], bl
+            BYTE candidateIndex = g_collisionPositiveCandidateCount;
+            BYTE vertex = (BYTE)vertexIndex;
+            *(volatile BYTE *)&g_collisionPositiveCandidateCount = (BYTE)(candidateIndex + 1);
+            ((volatile BYTE *)g_collisionPositiveCandidates)[candidateIndex] = vertex;
         } else {
             g_collisionNegativeCandidates[g_collisionNegativeCandidateCount++] = (BYTE)vertexIndex;
         }
