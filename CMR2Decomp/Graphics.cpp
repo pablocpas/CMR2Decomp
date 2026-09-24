@@ -27,7 +27,10 @@ Graphics g_graphics;
 
 // GLOBAL: CMR2 0x00520b74
 Graphics *g_pGraphics = &g_graphics;
-D3DTextureManager *CGraphics::m_pTextureManager;
+// The Direct3D device state (vertex buffers, textures, matrices).
+// GLOBAL: CMR2 0x00660d90
+D3DTextureManager g_textureManager;
+D3DTextureManager *CGraphics::m_pTextureManager = &g_textureManager;
 
 char CGraphics::m_strSettingConfigurationToDefault[36] = "Setting configuration to defaults";
 
@@ -4006,9 +4009,14 @@ int g_unk0x006a2bcc;
 // GLOBAL: CMR2 0x006a2bc8
 int g_unk0x006a2bc8;
 // GLOBAL: CMR2 0x00520f94
-BYTE g_unk0x00520f94[4];
+BYTE g_unk0x00520f94[4] = { 0, 0, 0, 70 };
 // GLOBAL: CMR2 0x00520f98
-Quad2DInputVertex g_projectedQuad[4];
+Quad2DInputVertex g_projectedQuad[4] = {
+    { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0, 0 },
+    { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0xfff9, 0 },
+    { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0xfff9, 0xfff9 },
+    { 0, 0, 0, { 0xff, 0xff, 0xff, 0xff }, 0, 0xfff9 },
+};
 // GLOBAL: CMR2 0x00521004
 FixVector g_quadBasisA = {0, 0x10000, 0};
 // GLOBAL: CMR2 0x00521010
@@ -4343,7 +4351,7 @@ void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal
 BillboardDef g_glowBillboard;
 // Horizontal camera forward (normalised) used by the glow quads.
 // GLOBAL: CMR2 0x00520ff8
-FixVector g_glowForward;
+FixVector g_glowForward = { 0x10000, 0, 0 };
 
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
@@ -5478,8 +5486,8 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
     return -65470464;
 }
 
-int CGraphics::m_unk0x00520b1c;
-int CGraphics::m_unk0x00520b20;
+int CGraphics::m_unk0x00520b1c = 1;
+int CGraphics::m_unk0x00520b20 = 1;
 
 // GLOBAL: CMR2 0x00520b18
 int g_unk0x00520b18 = -1;
@@ -5502,7 +5510,7 @@ void CGraphics::FUN_004a3de0(void)
     m_unk0x00520b1c = 1;
     m_unk0x00520b20 = 1;
 }
-int CGraphics::m_unk0x00520b28;
+int CGraphics::m_unk0x00520b28 = -1;
 unsigned int CGraphics::m_unk0x0065fa24;
 int CGraphics::m_unk0x0065fa38;
 

@@ -2083,7 +2083,7 @@ void FUN_004eabc0(void)
 }
 
 // GLOBAL: CMR2 0x00511300
-double g_unk0x00511300;
+double g_unk0x00511300 = 4096.0 / (360.0 * 65536.0);   // 16.16 degrees -> sine table index
 // GLOBAL: CMR2 0x0082b1b8
 BYTE g_unk0x0082b1b8;
 // GLOBAL: CMR2 0x0082b1b9
@@ -2095,7 +2095,9 @@ BYTE g_unk0x0082b1bb;
 
 
 // GLOBAL: CMR2 0x00511cd8
-int g_unk0x00511cd8[4];
+int g_unk0x00511cd8[4] = {
+    0x1bff2d87, 0x11d24cb7, 0x60004cb1, 0xe0014e08,
+};
 
 typedef HRESULT (__stdcall *DPMethod5GI)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5);
 

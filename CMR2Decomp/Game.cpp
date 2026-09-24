@@ -26,7 +26,7 @@ int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
 void *CGame::m_unk0x00593cb0[4117];
 void *CGame::m_unk0x00597d04[4096];
-int CGame::m_unk0x005207f8;
+int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
 DPlayConnection CGame::m_connections[10];
 BYTE CGame::m_maxConnections = 10;
@@ -381,7 +381,7 @@ BYTE g_unk0x0082a908;
 // GLOBAL: CMR2 0x00526ee0
 FuncTableGroup g_unk0x00526ee0[7];
 // GLOBAL: CMR2 0x00526f18
-void *g_unk0x00526f18;
+void *g_unk0x00526f18 = (void *)0x0100ff00;
 
 // FUNCTION: CMR2 0x004ff450
 BOOL CGame::FUN_004ff450()

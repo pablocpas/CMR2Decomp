@@ -2614,7 +2614,7 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 }
 
 // GLOBAL: CMR2 0x00519ed4
-DWORD g_menuHighlightColour;
+DWORD g_menuHighlightColour = 0xbfae8072;
 
 void *FUN_00408470(unsigned int param1);
 BYTE FUN_004bc0c0(BYTE *p);

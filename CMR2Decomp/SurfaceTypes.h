@@ -26,7 +26,9 @@ extern int g_surface0x51e738[48];
 // GLOBAL: CMR2 0x0051e7f8
 extern BYTE g_surfaceEffect[48][2];
 // GLOBAL: CMR2 0x0051e858
-extern BYTE g_surfaceNoise[144];
+extern BYTE g_surfaceNoise[48];
+// GLOBAL: CMR2 0x0051e888
+extern unsigned short g_surfaceBlendRate[48];
 // GLOBAL: CMR2 0x0051e8e8
 extern BYTE g_surfaceNext[48];
 // GLOBAL: CMR2 0x0051e918
