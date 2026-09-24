@@ -2759,6 +2759,10 @@ int g_unk0x006a2bc8;
 BYTE g_unk0x00520f94[4];
 // GLOBAL: CMR2 0x00520f98
 Quad2DInputVertex g_projectedQuad[4];
+// GLOBAL: CMR2 0x00521004
+FixVector g_quadBasisA = {0, 0x10000, 0};
+// GLOBAL: CMR2 0x00521010
+FixVector g_quadBasisB = {0, 0, 0x10000};
 
 // FUNCTION: CMR2 0x004ae140
 void FUN_004ae140(BYTE *pColour)
@@ -2911,22 +2915,96 @@ int CGraphics::FUN_004b1970(void)
 {
     return (unsigned int)m_unk0x006dd890 >> 10;
 }
-// GLOBAL: CMR2 0x006a2a20
-int g_unk0x006a2a20;
-// GLOBAL: CMR2 0x006a2a24
-int g_unk0x006a2a24;
-// GLOBAL: CMR2 0x006a2a38
-int g_unk0x006a2a38;
-// GLOBAL: CMR2 0x006a2a3c
-int g_unk0x006a2a3c;
-// GLOBAL: CMR2 0x006a2a50
-int g_unk0x006a2a50;
-// GLOBAL: CMR2 0x006a2a54
-int g_unk0x006a2a54;
-// GLOBAL: CMR2 0x006a2a68
-int g_unk0x006a2a68;
-// GLOBAL: CMR2 0x006a2a6c
-int g_unk0x006a2a6c;
+// GLOBAL: CMR2 0x006a2a10
+Quad2DInputVertex g_layerQuad[4];
+// GLOBAL: CMR2 0x006a2a70
+FixVector g_layerQuadAnchor;
+// GLOBAL: CMR2 0x006a2a7c
+int g_layerQuadRate;
+// GLOBAL: CMR2 0x006a2a8c
+BYTE g_layerQuadOpacity;
+
+// Projects the layer anchor onto a plane, stretches it toward a target and
+// draws a four-vertex strip with distance-based greyscale opacity.
+// TODO: CMR2 0x004ae470 (implemented, match 48%)
+void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
+{
+    FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
+    FixVector *pNormal = (FixVector *)(pSurface + 0x28);
+    FixVector displacement;
+    FixVector projected;
+    FixVector offset;
+    FixVector axisA;
+    FixVector axisB;
+    int depth;
+    int length;
+    int extension;
+    int residual;
+    int opacity;
+    int fade;
+    int colour;
+    int i;
+    BYTE intensity;
+
+    displacement.x = g_layerQuadAnchor.x - pPlanePoint->x;
+    displacement.y = g_layerQuadAnchor.y - pPlanePoint->y;
+    displacement.z = g_layerQuadAnchor.z - pPlanePoint->z;
+    depth = FixVecDot(pNormal, &displacement);
+    FixVecScale(&offset, pNormal, depth);
+    projected.x = g_layerQuadAnchor.x - offset.x;
+    projected.y = g_layerQuadAnchor.y - offset.y;
+    projected.z = g_layerQuadAnchor.z - offset.z;
+    fade = FixMul(depth, 0x20000);
+    opacity = FixMul(g_layerQuadRate, 0x9999);
+
+    displacement.x = pTarget->x - projected.x;
+    displacement.y = pTarget->y - projected.y;
+    displacement.z = pTarget->z - projected.z;
+    length = FixVecLength(&displacement);
+    extension = length - 0x30000;
+    if (extension > 0xa0000)
+        extension = 0xa0000;
+    FixVecScaleRecip(&displacement, &displacement, length);
+    FixVecScale(&displacement, &displacement, extension);
+    projected.x += displacement.x;
+    projected.y += displacement.y;
+    projected.z += displacement.z;
+
+    residual = 0x10000 - FixDiv(extension, length);
+    FixVecScale(&axisA, &g_quadBasisA, fade);
+    FixVecScale(&axisA, &axisA, residual);
+    FixVecScale(&axisB, &g_quadBasisB, opacity);
+    FixVecScale(&axisB, &axisB, residual);
+
+    g_layerQuad[0].x = projected.x - axisB.x;
+    g_layerQuad[0].y = projected.y - axisB.y;
+    g_layerQuad[0].z = projected.z - axisB.z;
+    g_layerQuad[1].x = projected.x + axisB.x;
+    g_layerQuad[1].y = projected.y + axisB.y;
+    g_layerQuad[1].z = projected.z + axisB.z;
+    g_layerQuad[2].x = projected.x - axisA.x + axisB.x;
+    g_layerQuad[2].y = projected.y - axisA.y + axisB.y;
+    g_layerQuad[2].z = projected.z - axisA.z + axisB.z;
+    g_layerQuad[3].x = projected.x - axisA.x - axisB.x;
+    g_layerQuad[3].y = projected.y - axisA.y - axisB.y;
+    g_layerQuad[3].z = projected.z - axisA.z - axisB.z;
+
+    fade = depth - 0x20000;
+    if (fade < 0)
+        fade = 0;
+    fade = FixMul(fade, 0x20000);
+    if (fade > 0x10000)
+        fade = 0x10000;
+    intensity = (BYTE)FixMulShift32(FixMul(0x10000 - fade, *(int *)(pSurface + 0x44)),
+                                    (int)g_layerQuadOpacity << 16);
+    colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
+    for (i = 0; i < 4; i++)
+        *(int *)g_layerQuad[i].colour = colour;
+    Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[1], &g_layerQuad[2],
+                              *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
+    Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[2], &g_layerQuad[3],
+                              *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
+}
 // GLOBAL: CMR2 0x004ae200
 BYTE g_unk0x004ae200[1];
 
@@ -2939,14 +3017,14 @@ void FUN_004ae170(int param1)
     }
     g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * 92);
     g_unk0x006a2bcc = param1 & 0xff;
-    g_unk0x006a2a20 = 0;
-    g_unk0x006a2a24 = 0;
-    g_unk0x006a2a38 = 0xfff9;
-    g_unk0x006a2a3c = 0;
-    g_unk0x006a2a50 = 0xfff9;
-    g_unk0x006a2a54 = 0xfff9;
-    g_unk0x006a2a68 = 0;
-    g_unk0x006a2a6c = 0xfff9;
+    g_layerQuad[0].u = 0;
+    g_layerQuad[0].v = 0;
+    g_layerQuad[1].u = 0xfff9;
+    g_layerQuad[1].v = 0;
+    g_layerQuad[2].u = 0xfff9;
+    g_layerQuad[2].v = 0xfff9;
+    g_layerQuad[3].u = 0;
+    g_layerQuad[3].v = 0xfff9;
     CGame::RegisterCallback(g_unk0x004ae200, NULL);
 }
 
