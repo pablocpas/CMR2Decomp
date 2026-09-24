@@ -438,9 +438,9 @@ void FUN_0041b3a0(void)
 
 
 // GLOBAL: CMR2 0x0051c988
-BYTE g_barBackColour[4] = { 0, 0, 0, 0 };
+BYTE g_barBackColour[4] = { 156, 180, 172, 255 };
 // GLOBAL: CMR2 0x0051c990
-BYTE g_barTextColour[4] = { 0, 0, 0, 0 };
+BYTE g_barTextColour[4] = { 255, 255, 255, 255 };
 extern BYTE g_unk0x0058ca90[1];
 // GLOBAL: CMR2 0x0051c97c
 BYTE *g_pUnk0x0051c97c = g_unk0x0058ca90;
@@ -542,11 +542,11 @@ void StageUI_DrawChampionshipBar(void)
 }
 
 // GLOBAL: CMR2 0x0051c9f4
-BYTE g_gridBackColour[4] = { 0, 0, 0, 0 };
+BYTE g_gridBackColour[4] = { 0, 0, 0, 255 };
 // GLOBAL: CMR2 0x0051c9f8
-BYTE g_gridColour2[4] = { 0, 0, 0, 0 };
+BYTE g_gridColour2[4] = { 153, 255, 0, 255 };
 // GLOBAL: CMR2 0x0051c9fc
-BYTE g_gridColour1[4] = { 0, 0, 0, 0 };
+BYTE g_gridColour1[4] = { 255, 178, 0, 255 };
 // GLOBAL: CMR2 0x0051ca00
 char g_stageGrid[3][0x294] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

@@ -29,7 +29,7 @@ void *CGame::m_unk0x00597d04[4096];
 int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
 DPlayConnection CGame::m_connections[10];
-BYTE CGame::m_maxConnections = 10;
+BYTE CGame::m_maxConnections;
 BYTE CGame::m_connectionCount;
 int CGame::m_unk0x00523c58 = -1;
 int CGame::m_unk0x00523c5c = -1;

@@ -22,7 +22,7 @@ short g_fontCharRect[4];
 // GLOBAL: CMR2 0x005168dc
 char g_fontTgaFormat[12] = "%s\\%s.tga";
 // GLOBAL: CMR2 0x005168d4
-char g_fontPcfExtension[8] = "pcf";
+char g_fontPcfExtension[8] = ".pcf";
 // GLOBAL: CMR2 0x005168e8
 char g_fontPcfFormat[12] = "%s\\%s.pcf";
 

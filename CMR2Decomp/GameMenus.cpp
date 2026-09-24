@@ -2090,7 +2090,7 @@ BYTE FUN_0041b370(void);
 // GLOBAL: CMR2 0x00541cc0
 short g_menuRect[4];
 // GLOBAL: CMR2 0x00519ecc
-BYTE g_menuFrameColour[4] = { 0, 0, 0, 0 };
+BYTE g_menuFrameColour[4] = { 250, 250, 250, 255 };
 // GLOBAL: CMR2 0x00540c60
 int g_unk0x00540c60;
 // GLOBAL: CMR2 0x0053e698
@@ -2156,7 +2156,7 @@ void FUN_0044e830(Menu *pMenu)
 // GLOBAL: CMR2 0x00517dd8
 char g_standingsRowFormat[] = "%s - %s";
 // GLOBAL: CMR2 0x00519ed0
-BYTE g_menuTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
+BYTE g_menuTextColour[4] = { 0xa7, 0xac, 0xdb, 0xff };
 
 // Draws one row of the standings list: the item text (with the driver record
 // appended when the item is the "go to" one) plus the small tag that follows

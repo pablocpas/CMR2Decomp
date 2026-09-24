@@ -562,7 +562,21 @@ void CFrontend::FUN_004cf0f0(void)
 // Table of pointers indexed by id; size derived from the 0x516c78 boundary
 // (next known global), so it may cover further undeclared values.
 // GLOBAL: CMR2 0x00516b40
-void *g_unk0x00516b40[0x4e];
+void *g_unk0x00516b40[0x4e] = {
+    (void *)0, (void *)0, (void *)0, (void *)0, (void *)1, (void *)1,
+    (void *)1, (void *)1, (void *)2, (void *)3, (void *)4, (void *)5,
+    (void *)6, (void *)6, (void *)6, (void *)7, (void *)8, (void *)9,
+    (void *)10, (void *)11, (void *)12, (void *)13, (void *)0, (void *)4,
+    (void *)8, (void *)9, (void *)10, (void *)11, CFrontend::m_strFoc, CFrontend::m_strF99Short,
+    CFrontend::m_strFA1, CFrontend::m_strFA2, CFrontend::m_strMit, CFrontend::m_strMA1, CFrontend::m_strMA2, CFrontend::m_strMA3,
+    CFrontend::m_strCor, CFrontend::m_strSubShort, CFrontend::m_str206, CFrontend::m_strSea, CFrontend::m_strInt, CFrontend::m_strIA1,
+    CFrontend::m_strIA2, CFrontend::m_strSie, CFrontend::m_strMin, CFrontend::m_str6R4, CFrontend::m_strStr, CFrontend::m_str205,
+    CFrontend::m_strPum, CFrontend::m_strEsc, (void *)1, (void *)1, (void *)1, (void *)1,
+    (void *)1, (void *)1, (void *)1, (void *)0, (void *)0, (void *)1,
+    (void *)0, (void *)1, (void *)1, (void *)0, (void *)1, (void *)1,
+    (void *)1, (void *)1, (void *)1, (void *)1, (void *)1, (void *)1,
+    (void *)0, (void *)0, (void *)0, (void *)1, (void *)1, (void *)0,
+};
 
 // FUNCTION: CMR2 0x0040ee60
 void *CFrontend::FUN_0040ee60(int index)

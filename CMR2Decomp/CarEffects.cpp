@@ -705,13 +705,13 @@ char g_sprayInterval[13][2] = {{10, 2}, {10, 2}, {4, 4}, {4, 4}, {2, 2}, {2, 2},
                                {3, 3}, {2, 2}, {3, 3}, {2, 2}, {10, 2}, {10, 2}};
 
 // GLOBAL: CMR2 0x00593860
-short g_spraySurface = -1;          // last surface looked up
+short g_spraySurface;          // last surface looked up
 // GLOBAL: CMR2 0x00593864
 int g_sprayHalf;
 // GLOBAL: CMR2 0x00593868
 int g_sprayRange;
 // GLOBAL: CMR2 0x0059386c
-short g_sprayEffect = -1;           // its effect
+short g_sprayEffect;           // its effect
 // GLOBAL: CMR2 0x00593870
 int g_sprayRecip;
 // GLOBAL: CMR2 0x00593874

@@ -1076,7 +1076,7 @@ int FUN_00457e10(BYTE *pCar, int offset)
 // GLOBAL: CMR2 0x005113b0
 float g_unk0x005113b0 = 4.0f;
 // GLOBAL: CMR2 0x005113a8
-double g_unk0x005113a8;
+double g_unk0x005113a8 = 100.0;
 
 // Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
 // TODO: CMR2 0x00456a40 (implemented, match 47%)

@@ -2514,7 +2514,7 @@ Unk0x0052ebc0 *RallyData_FUN_00407610(int index)
 }
 
 // GLOBAL: CMR2 0x00516cd0
-BYTE g_itemColour[4] = { 0, 0, 0, 0 };
+BYTE g_itemColour[4] = { 255, 255, 255, 255 };
 // GLOBAL: CMR2 0x00536bd8
 short g_itemRect[4];
 

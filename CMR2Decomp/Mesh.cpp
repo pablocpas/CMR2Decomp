@@ -123,7 +123,9 @@ void Mesh_Rebuild(Mesh *pMesh)
 }
 
 // GLOBAL: CMR2 0x0052101c
-char g_strVertexBufferFull[] = "Failed to add shape to vertex buffer\n";
+char g_strVertexBufferFull[] =
+    "Failed to add shape to vertex buffer\nTrack block with too many vertices will be transparent\n"
+    "Requested Vertices : %d  Limit : %d";
 
 // Groups the triangles of a mesh by texture into index lists (once).
 // TODO: CMR2 0x004b1ac0 (implemented, match 44%)

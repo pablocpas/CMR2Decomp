@@ -263,7 +263,7 @@ struct Block6 { int data[6]; };
 struct StageTableEntry { int flag; short a; short b; };
 // GLOBAL: CMR2 0x0051b9f0
 StageTableEntry g_unk0x0051b9f0[5] = {
-    {0, 2, 2}, {0, 2, 1}, {0, 1, 2}, {1, 0, 1}, {1, 1, 2}
+    {0, 2, 2}, {0, 2, 1}, {0x10000, 2, 1}, {0, 1, 2}, {1, 1, 2}
 };
 
 // FUNCTION: CMR2 0x00464b00
