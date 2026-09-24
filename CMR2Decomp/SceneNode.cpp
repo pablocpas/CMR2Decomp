@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdio.h>
 #include "SceneNode.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
@@ -679,4 +680,472 @@ void Scene_GetLightColour(DWORD *pColour, int level)
     if (i > 0x31)
         i = 0x31;
     *pColour = ((DWORD *)g_sceneLightTable)[i];
+}
+
+// Light colour of the scene (absolute, 16.16 per channel).
+// GLOBAL: CMR2 0x006e01a0
+FixVector g_sceneLight;
+// GLOBAL: CMR2 0x006e01ec
+BYTE g_sceneAmbientColour[4];       // last ambient colour set
+// GLOBAL: CMR2 0x006e020c
+DWORD g_sceneAmbientD3D;
+// GLOBAL: CMR2 0x006dfdc4
+BYTE g_sceneLightColourBytes[4];
+
+// Derives the shadow colour and strength from the contrast between the
+// ambient and the light: the shadow is tinted by the ambient minus its
+// weakest channel, or with boost set, a darker copy of the ambient and a
+// stronger shadow.
+// FUNCTION: CMR2 0x004b4910
+void Scene_UpdateShadowColour(int boost)
+{
+    FixVector c;
+    int r;
+    int g;
+    int b;
+
+    g_shadowLevel = FIX_ABS(g_sceneAmbient.x - g_sceneLight.x);
+    g_shadowLevel += FIX_ABS(g_sceneAmbient.y - g_sceneLight.y);
+    g_shadowLevel += FIX_ABS(g_sceneAmbient.z - g_sceneLight.z);
+    g_shadowLevel = FixMul(g_shadowLevel, 0x55);
+    if (g_shadowLevel > 0x10000)
+        g_shadowLevel = 0x10000;
+    g_shadowLevel = FixMul(g_shadowLevel, 0xff0000);
+    c = g_sceneAmbient;
+    if (boost != 0) {
+        g_shadowLevel = FixMul(g_shadowLevel, 0x20000);
+        if (g_shadowLevel > 0xff0000)
+            g_shadowLevel = 0xff0000;
+        FixVecScale(&c, &c, 0x2aac);
+        r = c.x;
+        g = c.y;
+        b = c.z;
+    } else {
+        r = c.x;
+        g = c.y;
+        b = c.z;
+        if (g >= r && r <= b) {
+            g -= r;
+            b -= r;
+            r = 0;
+        } else if (g <= r && g <= b) {
+            r -= g;
+            b -= g;
+            g = 0;
+        } else {
+            r -= b;
+            g -= b;
+            b = 0;
+        }
+    }
+    ((BYTE *)&g_shadowColour)[0] = (BYTE)(r >> 16);
+    ((BYTE *)&g_shadowColour)[1] = (BYTE)(g >> 16);
+    ((BYTE *)&g_shadowColour)[2] = (BYTE)(b >> 16);
+}
+
+// Sets the ambient colour of the scene (RGBA bytes).
+// TODO: CMR2 0x004b3740 (implemented, match 63%)
+void Scene_SetAmbient(BYTE *pColour, int boost)
+{
+    g_sceneAmbientD3D = ((((DWORD)pColour[3] << 8 | pColour[0]) << 8) | pColour[1]) << 8 | pColour[2];
+    if (pColour[0] != g_sceneAmbientColour[0] || pColour[1] != g_sceneAmbientColour[1] ||
+        pColour[2] != g_sceneAmbientColour[2])
+        g_sceneLightDirty = 1;
+    g_sceneAmbientColour[0] = pColour[0];
+    g_sceneAmbientColour[1] = pColour[1];
+    g_sceneAmbientColour[2] = pColour[2];
+    g_sceneAmbientColour[3] = pColour[3];
+    g_sceneAmbient.x = pColour[0] << 16;
+    g_sceneLightColour.x = g_sceneLight.x - (pColour[0] << 16);
+    g_sceneAmbient.y = pColour[1] << 16;
+    g_sceneLightColour.y = g_sceneLight.y - (pColour[1] << 16);
+    g_sceneAmbient.z = pColour[2] << 16;
+    g_sceneLightColour.z = g_sceneLight.z - (pColour[2] << 16);
+    Scene_UpdateShadowColour(boost);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
+}
+
+// Sets the light colour of the scene.
+// FUNCTION: CMR2 0x004b3f90
+void Scene_SetLight(FixVector *pLight, int boost)
+{
+    if (pLight->x != g_sceneLight.x || pLight->y != g_sceneLight.y || pLight->z != g_sceneLight.z)
+        g_sceneLightDirty = 1;
+    g_sceneLight.x = pLight->x;
+    g_sceneLight.y = pLight->y;
+    g_sceneLight.z = pLight->z;
+    g_sceneLightColourBytes[0] = (BYTE)((unsigned int)g_sceneLight.x >> 16);
+    g_sceneLightColourBytes[1] = (BYTE)((unsigned int)g_sceneLight.y >> 16);
+    g_sceneLightColourBytes[2] = (BYTE)((unsigned int)g_sceneLight.z >> 16);
+    g_sceneLightColour.x = g_sceneLight.x - g_sceneAmbient.x;
+    g_sceneLightColour.y = g_sceneLight.y - g_sceneAmbient.y;
+    g_sceneLightColour.z = g_sceneLight.z - g_sceneAmbient.z;
+    Scene_UpdateShadowColour(boost);
+}
+
+// Light colour at a level (0..1.0), as D3D ARGB.
+// TODO: CMR2 0x004b3b40 (implemented, match 83%)
+void Scene_GetLightColourD3D(DWORD *pColour, int level)
+{
+    int i;
+
+    if (g_sceneLightDirty != 0) {
+        Scene_BuildLightTables();
+        g_sceneLightDirty = 0;
+    }
+    i = level * 0x31 >> 16;
+    if (i < 0) {
+        *pColour = g_sceneLightTableD3D[0];
+        return;
+    }
+    if (i > 0x31)
+        i = 0x31;
+    *pColour = g_sceneLightTableD3D[i];
+}
+
+// Shadow colour at a level (0..1.0), as D3D ARGB.
+// TODO: CMR2 0x004b3ba0 (implemented, match 83%)
+void Scene_GetShadowColourD3D(DWORD *pColour, int level)
+{
+    int i;
+
+    if (g_sceneLightDirty != 0) {
+        Scene_BuildLightTables();
+        g_sceneLightDirty = 0;
+    }
+    i = level * 0x31 >> 16;
+    if (i < 0) {
+        *pColour = g_sceneShadowTableD3D[0];
+        return;
+    }
+    if (i > 0x31)
+        i = 0x31;
+    *pColour = g_sceneShadowTableD3D[i];
+}
+
+// GLOBAL: CMR2 0x006e0124
+int g_sceneLightState[30];
+// GLOBAL: CMR2 0x006e01c4
+int g_sceneLightState2[10];
+// GLOBAL: CMR2 0x006e019c
+void *g_sceneSectorLights;          // per sector
+// GLOBAL: CMR2 0x006dfd90
+void *g_sceneSectorLights2;         // per sector
+// GLOBAL: CMR2 0x006dfd98
+Mesh **g_sceneShadowMeshes;         // shadow mesh of each sector
+// GLOBAL: CMR2 0x006dfdcc
+unsigned short *g_sceneLightData;   // lighting data of the stage
+// GLOBAL: CMR2 0x006dfdbc
+BYTE *g_sceneLightZones;            // 0x14 bytes each
+// GLOBAL: CMR2 0x006dfdfc
+int *g_sceneSectorFlags;            // per sector
+// GLOBAL: CMR2 0x006e0204
+short *g_sceneSectorZone;           // zone of each sector (-1 none)
+// GLOBAL: CMR2 0x006deab8
+BYTE g_sceneLightFlag;
+// GLOBAL: CMR2 0x006e0b99
+BYTE g_sceneLightFlag2;
+
+extern int *g_triangleVertexHeights;
+void Mesh_BuildParts(Mesh *pMesh);
+void Mesh_UploadVertices(Mesh *pMesh);
+
+// GLOBAL: CMR2 0x006dfe00
+FixVector g_sceneLightDir;
+// GLOBAL: CMR2 0x006e00a0
+FixVector g_sceneLightBasis[3];
+// GLOBAL: CMR2 0x006e0b28
+FixVector g_sceneLightRight;        // basis[0] flattened
+// GLOBAL: CMR2 0x006dfda0
+FixVector g_sceneLightForward;      // basis[2] flattened
+// GLOBAL: CMR2 0x006e01b0
+float g_sceneLightDirF[3];
+// GLOBAL: CMR2 0x006e0220
+float g_sceneLightBasisF[9];
+// GLOBAL: CMR2 0x005210ec
+char g_strShadowMeshName[] = "SHAD%d";
+
+// Reads the lighting data of a stage: the light direction and basis, then
+// the shadow zones (one per sector with a shadow mesh). Offsets in the data
+// are turned into pointers, zones are matched to their sector and their
+// items to the scene objects there, and a shadow mesh is built for each.
+// TODO: CMR2 0x004b4aa0 (implemented, match 34%)
+void Scene_LoadLighting(int *pData)
+{
+    BYTE *pZone;
+    BYTE *p;
+    int *pHeader;
+    int *pItem;
+    int *pObj;
+    Mesh *pMesh;
+    FixVector *pBasis;
+    unsigned short *pCursor;
+    unsigned int s;
+    unsigned int found;
+    unsigned int next;
+    int zone;
+    int item;
+    int off;
+    int itemOff;
+    int zoneOff;
+    int d;
+    int i;
+    BOOL done;
+
+    if (pData == NULL)
+        return;
+    g_sceneLightDir.x = pData[0];
+    g_sceneLightDir.y = pData[1];
+    g_sceneLightDir.z = pData[2];
+    g_sceneLightData = (unsigned short *)(pData + 3);
+    pBasis = g_sceneLightBasis;
+    do {
+        pCursor = g_sceneLightData;
+        g_sceneLightData = pCursor + 6;
+        pBasis->x = *(int *)pCursor;
+        pBasis->y = *(int *)(pCursor + 2);
+        pBasis->z = *(int *)(pCursor + 4);
+        pBasis++;
+    } while (pBasis < &g_sceneLightBasis[3]);
+    g_sceneLightRight.x = g_sceneLightBasis[0].x;
+    g_sceneLightDirF[0] = (float)g_sceneLightDir.x * (float)CGraphics::m_oneOver65536;
+    g_sceneLightRight.z = g_sceneLightBasis[0].z;
+    g_sceneLightRight.y = 0;
+    g_sceneLightForward.x = g_sceneLightBasis[2].x;
+    g_sceneLightForward.y = 0;
+    g_sceneLightForward.z = g_sceneLightBasis[2].z;
+    g_sceneLightDirF[1] = (float)g_sceneLightDir.y * (float)CGraphics::m_oneOver65536;
+    g_sceneLightDirF[2] = (float)g_sceneLightDir.z * (float)CGraphics::m_oneOver65536;
+    for (i = 0; i < 9; i++)
+        g_sceneLightBasisF[i] = (float)(&g_sceneLightBasis[0].x)[i] * (float)CGraphics::m_oneOver65536;
+
+    // Zones, followed by their items, headers, vertices, triangles and
+    // vertex heights.
+    g_sceneLightZones = (BYTE *)(pCursor + 7);
+    p = g_sceneLightZones + *g_sceneLightData * 0x14;
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        *(BYTE **)(g_sceneLightZones + off + 0xc) = p;
+        p += *(unsigned short *)(g_sceneLightZones + off + 2) * 0x30;
+    }
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        *(BYTE **)(g_sceneLightZones + off + 0x10) = p;
+        p += 0x14;
+    }
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        pHeader[2] = (int)p;
+        p += pHeader[1] * 0x30;
+    }
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        pHeader[3] = (int)p;
+        p += pHeader[0] * 0x4c;
+    }
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        pHeader[4] = (int)p;
+        p += pHeader[1] * 4;
+    }
+
+    // Sector of each zone.
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        found = 0xffffffff;
+        s = 0;
+        if (g_sectorCount == 0) {
+            *(short *)(g_sceneLightZones + off) = -1;
+            continue;
+        }
+        do {
+            next = s;
+            if (g_sectors[s]->x == *(int *)(g_sceneLightZones + off + 4) &&
+                g_sectors[s]->z == *(int *)(g_sceneLightZones + off + 8)) {
+                next = g_sectorCount;
+                found = s;
+            }
+            s = next + 1;
+        } while (s < (unsigned int)g_sectorCount);
+        if ((int)found < 0)
+            *(short *)(g_sceneLightZones + off) = -1;
+        else
+            *(short *)(g_sceneLightZones + off) = (short)found;
+    }
+
+    // Scene object under each item.
+    for (zone = 0, zoneOff = 0; zone < *g_sceneLightData; zone++, zoneOff += 0x14) {
+        for (item = 0, itemOff = 0; item < *(unsigned short *)(g_sceneLightZones + zoneOff + 2);
+             item++, itemOff += 0x30) {
+            pItem = (int *)(*(BYTE **)(g_sceneLightZones + zoneOff + 0xc) + itemOff);
+            for (s = 0; s < (unsigned int)g_sectorCount; s++) {
+                done = FALSE;
+                pObj = *(int **)((BYTE *)g_sectors[s] + 0x14);
+                if (pObj == NULL)
+                    continue;
+                do {
+                    if (done)
+                        break;
+                    d = pObj[0] - pItem[0];
+                    if (FIX_ABS(d) < 0x28f) {
+                        d = pObj[2] - pItem[1];
+                        if (FIX_ABS(d) < 0x28f) {
+                            pItem[0xb] = (int)pObj;
+                            done = TRUE;
+                        }
+                    }
+                    pObj = (int *)pObj[0x26];
+                } while (pObj != NULL);
+                if (done)
+                    s = g_sectorCount;
+            }
+            pItem[8] = 0x10000;
+        }
+    }
+
+    // Each shadow triangle takes the texture of its item's object.
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        for (i = 0, itemOff = 0; i < pHeader[0]; i++, itemOff += 0x4c) {
+            int *pTri = (int *)(pHeader[3] + 4 + itemOff);
+            int *pOwner = (int *)(*(BYTE **)(g_sceneLightZones + off + 0xc) + *pTri * 0x30);
+            *pTri = *(int *)(*(BYTE **)(*(BYTE **)(pOwner[0xb] + 0xc) + 0x24) + 4);
+        }
+    }
+
+    // A shadow mesh per zone.
+    g_sceneShadowMeshes = (Mesh **)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
+    g_sceneSectorZone = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
+    s = 0;
+    if (g_sectorCount != 0) {
+        do {
+            s++;
+            g_sceneShadowMeshes[s - 1] = NULL;
+            g_sceneSectorZone[s - 1] = -1;
+        } while (s < (unsigned int)g_sectorCount);
+    }
+    for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
+        if (*(short *)(g_sceneLightZones + off) == -1)
+            continue;
+        g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)] = Mesh_Alloc();
+        g_sceneSectorZone[*(unsigned short *)(g_sceneLightZones + off)] = (short)zone;
+        pMesh = g_sceneShadowMeshes[*(unsigned short *)(g_sceneLightZones + off)];
+        ((BYTE *)pMesh)[0x108] = 0xff;
+        ((BYTE *)pMesh)[0x109] = 0xff;
+        ((BYTE *)pMesh)[0x10a] = 0xff;
+        for (i = 0x10c; i < 0x120; i++)
+            ((BYTE *)pMesh)[i] = 0;
+        pHeader = *(int **)(g_sceneLightZones + off + 0x10);
+        for (i = 0xc; i != 0; i--)
+            sprintf((char *)pMesh, g_strShadowMeshName, zone);
+        pMesh->field_0x10 = pHeader[1];
+        pMesh->pVertexData = (DWORD *)pHeader[2];
+        pMesh->triangleCount = pHeader[0];
+        pMesh->pTriangles = (MeshTriangle *)pHeader[3];
+        *(int *)((BYTE *)pMesh + 0x20) = 0;
+        ((BYTE *)pMesh)[0x104] = 0;
+        *(int *)((BYTE *)pMesh + 0x34) = pHeader[4];
+        *(unsigned int *)((BYTE *)pMesh + 0x30) = (itemOff & 0xffffe02d) | 0x402d;
+        *(int *)((BYTE *)pMesh + 0x2c) = 0;
+        Mesh_BuildParts(pMesh);
+        Mesh_UploadVertices(pMesh);
+    }
+}
+
+// Frees the lighting of a stage (callback registered by Scene_InitLighting).
+// FUNCTION: CMR2 0x004b5510
+int Scene_FreeLighting(void)
+{
+    unsigned int i;
+
+    if (g_sceneSectorLights != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneSectorLights);
+        g_sceneSectorLights = NULL;
+    }
+    if (g_sceneSectorLights2 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneSectorLights2);
+        g_sceneSectorLights2 = NULL;
+    }
+    if (g_sceneLightTable != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneLightTable);
+        g_sceneLightTable = NULL;
+    }
+    if (g_sceneLightTableD3D != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneLightTableD3D);
+        g_sceneLightTableD3D = NULL;
+    }
+    if (g_sceneShadowTable != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneShadowTable);
+        g_sceneShadowTable = NULL;
+    }
+    if (g_sceneShadowTableD3D != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneShadowTableD3D);
+        g_sceneShadowTableD3D = NULL;
+    }
+    if (g_sceneShadowMeshes != NULL) {
+        for (i = 0; i < (unsigned int)g_sectorCount; i++) {
+            if (g_sceneShadowMeshes[i] != NULL) {
+                Mesh_Free(g_sceneShadowMeshes[i]);
+                CFileBuffer::FreeGenericFileBuffer(g_sceneShadowMeshes[i]);
+                g_sceneShadowMeshes[i] = NULL;
+            }
+        }
+        CFileBuffer::FreeGenericFileBuffer(g_sceneShadowMeshes);
+        g_sceneShadowMeshes = NULL;
+    }
+    if (g_sceneSectorFlags != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneSectorFlags);
+        g_sceneSectorFlags = NULL;
+    }
+    if (g_sceneSectorZone != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_sceneSectorZone);
+        g_sceneSectorZone = NULL;
+    }
+    g_triangleVertexHeights = NULL;
+    return 1;
+}
+
+// Sets up the lighting of a stage: the light and shadow tables, per-sector
+// state, and the stage's lighting data (shadow meshes).
+// FUNCTION: CMR2 0x004b5620
+void Scene_InitLighting(int *pData, int *pHeights)
+{
+    int i;
+    int *p;
+    unsigned int k;
+
+    p = g_sceneLightState;
+    for (i = 30; i != 0; i--)
+        *p++ = 0;
+    p = g_sceneLightState2;
+    for (i = 10; i != 0; i--)
+        *p++ = 0;
+    g_triangleVertexHeights = NULL;
+    g_sceneSectorLights = NULL;
+    g_sceneSectorLights2 = NULL;
+    g_sceneLightTable = NULL;
+    g_sceneLightTableD3D = NULL;
+    g_sceneShadowTable = NULL;
+    g_sceneShadowTableD3D = NULL;
+    g_sceneShadowMeshes = NULL;
+    g_sceneLightData = NULL;
+    g_sceneLightZones = NULL;
+    g_sceneSectorFlags = NULL;
+    g_sceneLightFlag = 0;
+    g_sceneLightFlag2 = 0;
+    g_sceneSectorLights = CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
+    g_sceneSectorLights2 = CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
+    g_sceneLightTable = (BYTE *)CFileBuffer::AllocateLockedBuffer(200);
+    g_sceneLightTableD3D = (DWORD *)CFileBuffer::AllocateLockedBuffer(200);
+    g_sceneShadowTable = (DWORD *)CFileBuffer::AllocateLockedBuffer(200);
+    g_sceneShadowTableD3D = (DWORD *)CFileBuffer::AllocateLockedBuffer(200);
+    g_sceneSectorFlags = (int *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
+    k = 0;
+    if (g_sectorCount != 0) {
+        do {
+            k++;
+            g_sceneSectorFlags[k - 1] = 0;
+        } while (k < (unsigned int)g_sectorCount);
+    }
+    Scene_LoadLighting(pData);
+    if (pHeights != NULL)
+        g_triangleVertexHeights = pHeights;
+    CGame::RegisterCallback((void *)Scene_FreeLighting, NULL);
 }

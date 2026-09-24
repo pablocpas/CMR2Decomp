@@ -1696,7 +1696,7 @@ void CGraphics::FUN_004b1980(void)
 
     for (i = 0; i < 100; i++) {
         m_pTextureManager->pDD->CreateVertexBuffer(&desc, &m_pTextureManager->pVertexBuffers[i], 0);
-        m_pTextureManager->pVertexBuffers[i + 100] = NULL;
+        m_pTextureManager->vertexBufferFill[i] = 0;
         m_unk0x006dd890 += 0x17700;
     }
 

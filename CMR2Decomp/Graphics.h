@@ -997,7 +997,8 @@ struct D3DTextureManager {
     IDirect3D7* pDD;                              // 0x0
     IDirect3DDevice7* pD3D;                       // 0x4
     GUID deviceGUID;                             // 0x8
-    IDirect3DVertexBuffer7* pVertexBuffers[200];   // 0x18 - 0x337
+    IDirect3DVertexBuffer7* pVertexBuffers[100];   // 0x18
+    int vertexBufferFill[100];                     // 0x1a8 vertices used in each buffer
     IDirect3DVertexBuffer7* pVertexBuffer1;        // 0x338
     IDirect3DVertexBuffer7* pVertexBuffer2;        // 0x33c
     IDirect3DVertexBuffer7* pVertexBuffer3;        // 0x340
@@ -1320,6 +1321,9 @@ private:
     friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
+    friend void Scene_SetAmbient(BYTE *pColour, int boost);
+    // Note: this friend shifts the register allocation of FUN_004a7910 (87.0% -> 85.8%).
+    friend void Mesh_UploadVertices(Mesh *pMesh);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;

@@ -9,9 +9,15 @@ struct MeshTriangle {
     BYTE field_0x46[0x6];
 };
 
+// Triangles of a mesh sharing one texture, as an index list (0x1c bytes).
 struct MeshPart {
-    BYTE field_0x0[0x14];
-    void *pData;                // 0x14
+    int texture;                // 0x0  texture of the triangles
+    int field_0x4;              // 0x4
+    int minIndex;               // 0x8  first vertex used (indices are relative to it)
+    int maxIndex;               // 0xc
+    int indexCount;             // 0x10
+    unsigned short *pData;      // 0x14 vertex indices
+    int field_0x18;             // 0x18
 };
 
 // Renderable mesh (0x120 bytes); only the fields used so far are named.

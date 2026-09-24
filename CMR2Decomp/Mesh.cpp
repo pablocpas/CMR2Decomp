@@ -3,6 +3,8 @@
 #include "Mesh.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
+#include "Frontend.h"
+#include <stdio.h>
 
 Mesh *g_meshes[4096];
 int g_meshCount;
@@ -118,4 +120,136 @@ void Mesh_Rebuild(Mesh *pMesh)
     memcpy((char *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData,
            pMesh->field_0x10 * 0x30);
     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+}
+
+// GLOBAL: CMR2 0x0052101c
+char g_strVertexBufferFull[] = "Failed to add shape to vertex buffer\n";
+
+// Groups the triangles of a mesh by texture into index lists (once).
+// TODO: CMR2 0x004b1ac0 (implemented, match 44%)
+void Mesh_BuildParts(Mesh *pMesh)
+{
+    MeshPart **ppPart;
+    int count;
+    int last;
+    int i;
+    int k;
+    int off;
+    int n;
+    unsigned int lo;
+    int hi;
+    unsigned short *pIndex;
+
+    if (pMesh->partCount >= 1)
+        return;
+    count = 0;
+    last = -99;
+    if (pMesh->triangleCount > 0) {
+        int *pTex = (int *)((BYTE *)pMesh->pTriangles + 4);
+        for (i = pMesh->triangleCount; i != 0; i--) {
+            if (last != *pTex) {
+                count++;
+                last = *pTex;
+            }
+            pTex += 0x13;
+        }
+    }
+    pMesh->partCount = count;
+    if (count > 0) {
+        ppPart = pMesh->pParts;
+        for (i = count; i != 0; i--)
+            *ppPart++ = (MeshPart *)CFileBuffer::AllocateLockedBuffer(0x1c);
+    }
+    off = 0;
+    count = 0;
+    last = -99;
+    ppPart = pMesh->pParts - 1;
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
+        if (last != n) {
+            count++;
+            ppPart++;
+            (*ppPart)->indexCount = 0;
+            (*ppPart)->texture = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
+            (*ppPart)->field_0x4 = *(int *)((BYTE *)pMesh->pTriangles + off + 8);
+            last = n;
+        }
+        for (k = 3; k != 0; k--)
+            (*ppPart)->indexCount++;
+        off += 0x4c;
+    }
+    if (count > 0) {
+        ppPart = pMesh->pParts;
+        for (i = count; i != 0; i--) {
+            (*ppPart)->pData = (unsigned short *)CFileBuffer::AllocateLockedBuffer((*ppPart)->indexCount << 1);
+            ppPart++;
+        }
+    }
+    count = 0;
+    last = -99;
+    ppPart = pMesh->pParts - 1;
+    off = 0;
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
+        if (last != n) {
+            ppPart++;
+            count++;
+            (*ppPart)->indexCount = 0;
+            last = n;
+        }
+        pIndex = (unsigned short *)((BYTE *)pMesh->pTriangles + off + 0x40);
+        for (k = 3; k != 0; k--) {
+            (*ppPart)->pData[(*ppPart)->indexCount] = *pIndex++;
+            (*ppPart)->indexCount++;
+        }
+        off += 0x4c;
+    }
+    if (count > 0) {
+        ppPart = pMesh->pParts;
+        for (i = count; i != 0; i--) {
+            hi = -1;
+            lo = 999;
+            for (k = 0; k < (*ppPart)->indexCount; k++) {
+                if ((*ppPart)->pData[k] < lo) {
+                    lo = (*ppPart)->pData[k];
+                    (*ppPart)->minIndex = lo;
+                }
+                if (hi < (int)(*ppPart)->pData[k]) {
+                    hi = (*ppPart)->pData[k];
+                    (*ppPart)->maxIndex = hi;
+                }
+            }
+            ppPart++;
+        }
+        ppPart = pMesh->pParts;
+        for (i = count; i != 0; i--) {
+            for (k = 0; k < (*ppPart)->indexCount; k++)
+                (*ppPart)->pData[k] -= (short)(*ppPart)->minIndex;
+            ppPart++;
+        }
+    }
+}
+
+// Copies the vertices of a mesh into the first shared vertex buffer with
+// room for them.
+// FUNCTION: CMR2 0x004b1d00
+void Mesh_UploadVertices(Mesh *pMesh)
+{
+    int i;
+    void *pVertices;
+
+    for (i = 0; i < 100; i++) {
+        if ((unsigned int)(CGraphics::m_pTextureManager->vertexBufferFill[i] + pMesh->field_0x10) < 2000) {
+            CGraphics::m_pTextureManager->pVertexBuffers[i]->Lock(0x821, &pVertices, NULL);
+            memcpy((BYTE *)pVertices + CGraphics::m_pTextureManager->vertexBufferFill[i] * 0x30, pMesh->pVertexData,
+                   pMesh->field_0x10 * 0x30);
+            CGraphics::m_pTextureManager->pVertexBuffers[i]->Unlock();
+            pMesh->vertexBufferIndex = i;
+            pMesh->vertexOffset = CGraphics::m_pTextureManager->vertexBufferFill[i];
+            CGraphics::m_pTextureManager->vertexBufferFill[i] += pMesh->field_0x10;
+            return;
+        }
+    }
+    sprintf(CFrontend::m_stringDest, g_strVertexBufferFull,
+            CGraphics::m_pTextureManager->vertexBufferFill[i] + pMesh->field_0x10, 2000);
 }
