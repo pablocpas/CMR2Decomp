@@ -39,6 +39,74 @@ void FixMatrix_Identity(FixMatrix *pOut)
     *pOut = *(FixMatrix *)m;
 }
 
+// Inverts an affine 16.16 matrix (3x3 rotation/scale plus translation) through
+// its cofactors; a singular matrix gives the identity.
+// FUNCTION: CMR2 0x004ba440
+void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn)
+{
+    int *m;
+    int *o;
+    int p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17;
+    int c0, c1, c2, c4, c5, c6, c8, c9, c10;
+    int det;
+    int tx, ty, tz;
+
+    m = (int *)pIn;
+    p0 = FixMul(m[5], m[10]);
+    p1 = FixMul(m[9], m[6]);
+    p2 = FixMul(m[4], m[10]);
+    p3 = FixMul(m[8], m[6]);
+    p4 = FixMul(m[4], m[9]);
+    p5 = FixMul(m[8], m[5]);
+    p6 = FixMul(m[1], m[10]);
+    p7 = FixMul(m[9], m[2]);
+    p8 = FixMul(m[0], m[10]);
+    p9 = FixMul(m[8], m[2]);
+    p10 = FixMul(m[0], m[9]);
+    p11 = FixMul(m[8], m[1]);
+    p12 = FixMul(m[1], m[6]);
+    p13 = FixMul(m[5], m[2]);
+    p14 = FixMul(m[0], m[6]);
+    p15 = FixMul(m[4], m[2]);
+    p16 = FixMul(m[0], m[5]);
+    p17 = FixMul(m[4], m[1]);
+    c0 = p0 - p1;
+    c1 = p7 - p6;
+    c2 = p12 - p13;
+    c4 = p3 - p2;
+    c5 = p8 - p9;
+    c6 = p15 - p14;
+    c8 = p4 - p5;
+    c9 = p11 - p10;
+    c10 = p16 - p17;
+    det = FixMul(c0, m[0]) + FixMul(c1, m[4]) + FixMul(c2, m[8]);
+    if (det == 0) {
+        FixMatrix_Identity(pOut);
+        return;
+    }
+    det = FixDiv(0x10000, det);
+    o = (int *)pOut;
+    o[11] = 0;
+    o[7] = 0;
+    o[3] = 0;
+    o[0] = FixMul(det, c0);
+    o[1] = FixMul(det, c1);
+    o[2] = FixMul(det, c2);
+    o[4] = FixMul(det, c4);
+    o[5] = FixMul(det, c5);
+    o[6] = FixMul(det, c6);
+    o[8] = FixMul(det, c8);
+    o[9] = FixMul(det, c9);
+    o[10] = FixMul(det, c10);
+    tx = -m[12];
+    ty = -m[13];
+    tz = -m[14];
+    o[12] = FixMul(tx, o[0]) + FixMul(ty, o[4]) + FixMul(tz, o[8]);
+    o[13] = FixMul(tx, o[1]) + FixMul(ty, o[5]) + FixMul(tz, o[9]);
+    o[14] = FixMul(tx, o[2]) + FixMul(ty, o[6]) + FixMul(tz, o[10]);
+    o[15] = 0x10000;
+}
+
 // FUNCTION: CMR2 0x004b9f20
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
 {

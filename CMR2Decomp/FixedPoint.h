@@ -86,6 +86,7 @@ extern int g_rotAxisYZ;
 
 void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle);
 void FixMatrix_Identity(FixMatrix *pOut);
+void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn);
 void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle);
 void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM);
 void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM);
