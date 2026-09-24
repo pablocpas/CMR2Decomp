@@ -410,6 +410,18 @@ int g_line2DInitialised;
 // GLOBAL: CMR2 0x0072f2a0
 int g_unk0x0072f2a0;
 
+// Screen-space lines, drawn on their layer (see ScreenLine2D_Draw).
+struct ScreenLine2D {
+    int a[3];               // 0x0
+    int b[3];               // 0xc
+    BYTE colourA[4];        // 0x18
+    BYTE colourB[4];        // 0x1c
+    int layer;              // 0x20
+};
+
+// GLOBAL: CMR2 0x0072f2a8
+ScreenLine2D g_screenLine2D[200];
+
 // Exit callback of Line2D_Init.
 // FUNCTION: CMR2 0x004bb5f0
 int Line2D_Shutdown(void)
@@ -455,6 +467,128 @@ void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB)
         p->colourB[3] = pColourB[3];
         g_line2DCount++;
     }
+}
+
+// Vertex of a 3D line (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
+struct Line2DVertex {
+    float x, y, z;
+    float nx, ny, nz;
+    D3DCOLOR diffuse;
+    D3DCOLOR specular;
+    float u, v;
+    float u2, v2;
+};
+
+// Draws the queued screen lines of one layer (none for layer 4); layer 1
+// also empties the queue.
+// TODO: CMR2 0x004bb2b0 (implemented, match 64%)
+void ScreenLine2D_Draw(int layer)
+{
+    D3DTLVERTEX v[2];
+    ScreenLine2D *p;
+    unsigned int i;
+
+    if (g_unk0x0072f2a0 == 0 || layer == 4)
+        return;
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
+    CGraphics::FUN_004a4850(0, 0);
+    for (i = 0, p = g_screenLine2D; i < (unsigned int)g_unk0x0072f2a0; i++, p++) {
+        if (layer != p->layer)
+            continue;
+        v[0].sx = (float)p->a[0] * CGraphics::m_oneOver65536;
+        v[0].color = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
+        v[0].rhw = 1.0f;
+        v[0].sy = (float)p->a[1] * CGraphics::m_oneOver65536;
+        v[0].specular = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[0].sz = (float)p->a[2] * CGraphics::m_oneOver65536;
+        v[0].tv = 0.0f;
+        v[0].tu = 0.0f;
+        v[1].color = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[1].sx = (float)p->b[0] * CGraphics::m_oneOver65536;
+        v[1].rhw = 1.0f;
+        v[1].tv = 0.0f;
+        v[1].tu = 0.0f;
+        v[1].sy = (float)p->b[1] * CGraphics::m_oneOver65536;
+        v[1].sz = (float)p->b[2] * CGraphics::m_oneOver65536;
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, D3DFVF_TLVERTEX, v, 2, 0);
+    }
+    if (layer == 1)
+        g_unk0x0072f2a0 = 0;
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
+}
+
+// Draws and empties the queued 3D lines with alpha blending.
+// TODO: CMR2 0x004bb4c0 (implemented, match 76%)
+void Line2D_Draw(void)
+{
+    Line2DVertex v[2];
+    Line2D *p;
+    unsigned int i;
+
+    if (g_line2DCount == 0)
+        return;
+    CGraphics::FUN_004a4850(0, 0);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    for (i = 0, p = g_line2D; i < g_line2DCount; i++, p++) {
+        v[0].x = (float)p->a[0] * CGraphics::m_oneOver65536;
+        v[0].y = (float)p->a[1] * CGraphics::m_oneOver65536;
+        v[0].diffuse = RGBA_MAKE(p->colourA[0], p->colourA[1], p->colourA[2], p->colourA[3]);
+        v[0].z = (float)p->a[2] * CGraphics::m_oneOver65536;
+        v[1].diffuse = RGBA_MAKE(p->colourB[0], p->colourB[1], p->colourB[2], p->colourB[3]);
+        v[1].x = (float)p->b[0] * CGraphics::m_oneOver65536;
+        v[1].y = (float)p->b[1] * CGraphics::m_oneOver65536;
+        v[1].z = (float)p->b[2] * CGraphics::m_oneOver65536;
+        CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_LINELIST, 0x2d2, v, 2, 0);
+    }
+    g_line2DCount = 0;
+}
+
+// Draws and empties one layer (1..4) of queued 2D triangles.
+// FUNCTION: CMR2 0x004bb850
+void Tri2D_DrawLayer(int layer)
+{
+    CGraphics::FUN_004a3e40(5, 6);
+    switch (layer) {
+    case 2:
+        if (g_tri2DCount2 != 0) {
+            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer2,
+                                                              g_tri2DCount2 * 3, 0);
+            CGame::m_unk0x0059ce20 += g_tri2DCount2;
+            g_tri2DCount2 = 0;
+        }
+        break;
+    case 3:
+        if (g_tri2DCount3 != 0) {
+            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer3,
+                                                              g_tri2DCount3 * 3, 0);
+            CGame::m_unk0x0059ce20 += g_tri2DCount3;
+            g_tri2DCount3 = 0;
+        }
+        break;
+    case 4:
+        if (g_tri2DCount4 != 0) {
+            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer4,
+                                                              g_tri2DCount4 * 3, 0);
+            CGame::m_unk0x0059ce20 += g_tri2DCount4;
+            g_tri2DCount4 = 0;
+        }
+        break;
+    default:
+        if (g_tri2DCount1 != 0) {
+            CGraphics::FUN_004a4850(0, 0);
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer1,
+                                                              g_tri2DCount1 * 3, 0);
+            CGame::m_unk0x0059ce20 += g_tri2DCount1;
+            g_tri2DCount1 = 0;
+        }
+        break;
+    }
+    FUN_004a3dd0();
+    CGraphics::FUN_004a3de0();
 }
 
 struct Quad2DRenderVertex {

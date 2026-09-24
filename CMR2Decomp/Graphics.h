@@ -1339,6 +1339,9 @@ private:
     friend void Graphics_SetRenderTarget(Texture *pTexture);
     friend void StageObject_FreeAll(void);
     friend void Sector_RebuildNodeLists(void);
+    friend void ScreenLine2D_Draw(int layer);
+    friend void Line2D_Draw(void);
+    friend void Tri2D_DrawLayer(int layer);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);
