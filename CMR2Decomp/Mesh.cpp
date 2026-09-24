@@ -254,6 +254,39 @@ void Mesh_UploadVertices(Mesh *pMesh)
             CGraphics::m_pTextureManager->vertexBufferFill[i] + pMesh->field_0x10, 2000);
 }
 
+// Copies the (changed) vertices of a mesh back into its slot of the vertex buffer.
+// FUNCTION: CMR2 0x004b2020
+void Mesh_RefreshVertices(Mesh *pMesh)
+{
+    void *pVertices;
+
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, pMesh->field_0x10 * 0x30);
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+}
+
+// Sets the diffuse colour of every vertex of a mesh and refreshes its vertex buffer copy.
+// FUNCTION: CMR2 0x004b2090
+void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour)
+{
+    DWORD *p;
+    int count;
+    int i;
+    void *pVertices;
+
+    count = pMesh->field_0x10;
+    if (count > 0) {
+        p = pMesh->pVertexData + 6;
+        for (i = count; i != 0; i--) {
+            *p = colour;
+            p += 12;
+        }
+    }
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, count * 0x30);
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
+}
+
 // Meshes cloned from others (see Mesh_CloneInto).
 // GLOBAL: CMR2 0x00667364
 short g_meshCloneBase[4096];

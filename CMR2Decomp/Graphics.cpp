@@ -2863,16 +2863,6 @@ extern int *g_sceneSectorFlags;
 extern BYTE *g_sceneLightZones;
 extern short *g_sceneSectorZone;
 
-// Light zone of a sector (0x14 bytes): vertices whose intensity (at 0x20) the
-// scene lights attenuate.
-struct LightZone {
-    short field_0x0;
-    unsigned short vertexCount;     // 0x2
-    BYTE field_0x4[8];
-    BYTE *pVertices;                // 0xc  0x30 bytes each: x at 8, z at 0xc, intensity at 0x20
-    int field_0x10;
-};
-
 // Attenuates the light-zone vertices of a sector by D3D light `light` (by
 // horizontal distance); outside the light's reach they go back to full
 // intensity. Returns 1 when any intensity changed.

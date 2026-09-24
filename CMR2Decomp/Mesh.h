@@ -30,7 +30,9 @@ struct Mesh {
     BYTE field_0x1c[0x8];
     MeshTriangle *pTriangles;   // 0x24
     int triangleCount;          // 0x28
-    BYTE field_0x2c[0xc];
+    int field_0x2c;
+    unsigned int flags;         // 0x30 0x80: lit per vertex (else one level for the whole mesh)
+    int *pLightLevels;          // 0x34 light level of each vertex
     MeshPart *pParts[50];       // 0x38
     int partCount;              // 0x100
     BYTE field_0x104[0xc];
@@ -54,5 +56,7 @@ void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha);
 void Mesh_Rebuild(Mesh *pMesh);
 int Mesh_GetField0x10(Mesh *pMesh);
 Mesh *Mesh_GetShadowCylinder(Mesh *pMesh);
+void Mesh_RefreshVertices(Mesh *pMesh);
+void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
 
 #endif

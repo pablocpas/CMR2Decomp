@@ -979,6 +979,122 @@ BYTE g_sceneLightFlag;
 // GLOBAL: CMR2 0x006e0b99
 BYTE g_sceneLightFlag2;
 
+void FUN_004a3240(int unused);
+int Scene_AttenuateSectorLight(int sector, int light);
+extern int g_unk0x005210c0;
+
+// Lights every vertex of a mesh from its per-vertex light levels.
+#define MESH_LIGHT_VERTICES(m)                                                      \
+    {                                                                               \
+        int *pLevel = (m)->pLightLevels;                                            \
+        BYTE *pColour = (BYTE *)(m)->pVertexData + 0x18;                            \
+        for (i = 0; i < (m)->field_0x10; i++) {                                     \
+            Scene_GetLightColourD3D((DWORD *)pColour, *pLevel);                     \
+            pLevel++;                                                               \
+            pColour += 0x30;                                                        \
+        }                                                                           \
+    }
+
+// Relights a sector when the scene ambient or light colour changed since its
+// last update (ground mesh, static objects, nodes), then its shadow mesh,
+// attenuated by D3D light 1 through the sector light zone when enabled.
+// TODO: CMR2 0x004b3c00 (implemented, match 39%)
+void Scene_RelightSector(int sector)
+{
+    Sector *pSector;
+    Mesh *pMesh;
+    Mesh *pShadow;
+    StageObject *pObject;
+    SceneNode *pNode;
+    LightZone *pZone;
+    DWORD colour;
+    int *pLevel;
+    BYTE *pVertex;
+    int *pZoneVertex;
+    int intensity;
+    int force;
+    int i;
+    int j;
+    int k;
+
+    force = 0;
+    if (g_sceneSectorLights == NULL)
+        return;
+    if (g_sceneAmbientColour[0] != ((BYTE *)g_sceneSectorLights)[sector * 4] ||
+        g_sceneAmbientColour[1] != ((BYTE *)g_sceneSectorLights)[sector * 4 + 1] ||
+        g_sceneAmbientColour[2] != ((BYTE *)g_sceneSectorLights)[sector * 4 + 2] ||
+        g_sceneLightColourBytes[0] != ((BYTE *)g_sceneSectorLights2)[sector * 4] ||
+        g_sceneLightColourBytes[1] != ((BYTE *)g_sceneSectorLights2)[sector * 4 + 1] ||
+        g_sceneLightColourBytes[2] != ((BYTE *)g_sceneSectorLights2)[sector * 4 + 2]) {
+        ((DWORD *)g_sceneSectorLights)[sector] = *(DWORD *)g_sceneAmbientColour;
+        ((DWORD *)g_sceneSectorLights2)[sector] = *(DWORD *)g_sceneLightColourBytes;
+        pSector = g_sectors[sector];
+        if (pSector != NULL) {
+            pMesh = (Mesh *)pSector->pMesh;
+            if (pMesh != NULL) {
+                MESH_LIGHT_VERTICES(pMesh);
+                Mesh_RefreshVertices(pMesh);
+            }
+            for (pObject = pSector->pObjects; pObject != NULL; pObject = pObject->pNext) {
+                pMesh = pObject->pMesh;
+                if ((pMesh->flags & 0x80) == 0) {
+                    Scene_GetLightColourD3D(&colour, pObject->lightLevel);
+                    Mesh_SetColourAndRefresh(pMesh, colour);
+                } else {
+                    MESH_LIGHT_VERTICES(pMesh);
+                    Mesh_RefreshVertices(pMesh);
+                }
+            }
+            for (pNode = pSector->pFirstNode; pNode != NULL; pNode = pNode->pNextInSector)
+                FUN_004a3240((int)pNode);
+            if (g_sceneShadowMeshes == NULL)
+                return;
+            if (g_sceneShadowMeshes[sector] != NULL)
+                force = 1;
+        }
+    }
+    if (((g_sceneShadowMeshes != NULL && g_sceneShadowMeshes[sector] != NULL && g_unk0x005210c0 != 0 &&
+          Scene_AttenuateSectorLight(sector, 1) != 0) ||
+         force) &&
+        (pShadow = g_sceneShadowMeshes[sector]) != NULL) {
+        pLevel = pShadow->pLightLevels;
+        if (g_unk0x005210c0 != 0) {
+            pZone = &((LightZone *)g_sceneLightZones)[g_sceneSectorZone[sector]];
+            pVertex = (BYTE *)pShadow->pVertexData;
+            if (pZone->vertexCount != 0) {
+                pZoneVertex = (int *)(pZone->pVertices + 0x28);
+                for (k = 0; k < pZone->vertexCount; k++) {
+                    intensity = pZoneVertex[-2];
+                    if (intensity == 0x10000) {
+                        for (j = 0; j < *pZoneVertex; j++) {
+                            Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
+                            pVertex += 0x30;
+                            pLevel++;
+                        }
+                    } else {
+                        for (j = 0; j < *pZoneVertex; j++) {
+                            Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), FixMul(intensity, *pLevel));
+                            pLevel++;
+                            pVertex += 0x30;
+                        }
+                    }
+                    pZoneVertex += 12;
+                }
+                Mesh_RefreshVertices(pShadow);
+                return;
+            }
+        } else {
+            pVertex = (BYTE *)pShadow->pVertexData + 0x18;
+            for (i = 0; i < pShadow->field_0x10; i++) {
+                Scene_GetShadowColourD3D((DWORD *)pVertex, *pLevel);
+                pLevel++;
+                pVertex += 0x30;
+            }
+        }
+        Mesh_RefreshVertices(pShadow);
+    }
+}
+
 // One mesh of a shadow caster with its per-vertex working buffers (0x58 bytes).
 struct ShadowPart {
     BYTE field_0x0[0x30];

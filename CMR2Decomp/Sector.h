@@ -12,11 +12,21 @@ struct Sector {
     int z;                      // 0x8
     int field_0xc;
     struct SectorModel *pMesh;  // 0x10 ground mesh (LOD records of 0x108 bytes)
-    BYTE field_0x14[8];
+    struct StageObject *pObjects; // 0x14 static objects of the sector (linked by pNext)
+    int field_0x18;
     SceneNode *pFirstNode;      // 0x1c
     int nodeCount;              // 0x20
     BYTE field_0x24[8];
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
+};
+
+// Static object placed in a sector (only the fields used so far).
+struct StageObject {
+    BYTE field_0x0[0xc];
+    struct Mesh *pMesh;         // 0xc
+    BYTE field_0x10[0x88];
+    StageObject *pNext;         // 0x98 next object of the sector
+    int lightLevel;             // 0x9c light level when not lit per vertex
 };
 
 // Ground mesh LOD record of a sector (0x108 bytes).
