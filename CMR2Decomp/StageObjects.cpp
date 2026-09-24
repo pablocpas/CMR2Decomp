@@ -703,9 +703,23 @@ void FUN_004ae410(BYTE a, BYTE b, int c, int d);
 // GLOBAL: CMR2 0x005909bc
 int g_unk0x005909bc;
 // GLOBAL: CMR2 0x00590b7c
-BYTE *g_unk0x00590b7c[5][8];
+BYTE *g_unk0x00590b7c[4][8];
+// GLOBAL: CMR2 0x00590bfc
+BYTE g_unk0x00590bfc;
+// GLOBAL: CMR2 0x00590bfd
+BYTE g_unk0x00590bfd;
 // GLOBAL: CMR2 0x00590c24
-BYTE g_unk0x00590c24[8][8];
+BYTE g_unk0x00590c24[4][8];
+// GLOBAL: CMR2 0x00590c44
+int g_unk0x00590c44;
+// GLOBAL: CMR2 0x00590c48
+int g_unk0x00590c48;
+// GLOBAL: CMR2 0x00590c4c
+int g_unk0x00590c4c;
+// GLOBAL: CMR2 0x00590c50
+int g_unk0x00590c50;
+// GLOBAL: CMR2 0x00590c60
+BYTE g_unk0x00590c60[4];
 // GLOBAL: CMR2 0x00590d70
 int g_unk0x00590d70;
 // GLOBAL: CMR2 0x00590db0
@@ -1337,4 +1351,108 @@ void FUN_0048d850(BYTE *pCar, BYTE *pInfo)
     }
     if (v < -0x3f4 && v > -0x40b)
         FUN_00486c00(pCar, pInfo);
+}
+
+// Two per-lane shorts (+8 and +0x12, `slot` 0..4) scaled by 256.
+// TODO: CMR2 0x00477c80 (implemented, match 64%)
+void FUN_00477c80(int lane, int *pA, int *pB, int slot)
+{
+    if (pA != NULL)
+        *pA = (*(short *)&g_unk0x0058d6d0[lane][8 + slot * 2] * 0x10000) / 256;
+    if (pB != NULL)
+        *pB = (*(short *)&g_unk0x0058d6d0[lane][0x12 + slot * 2] * 0x10000) / 256;
+}
+
+// Resets the car slot tuning values and reseeds the random generator.
+// FUNCTION: CMR2 0x00480a60
+void FUN_00480a60(void)
+{
+    srand(400);
+    g_unk0x00590c44 = 0x8000;
+    g_unk0x00590c48 = 0x8000;
+    g_unk0x00590c4c = 0x8000;
+    g_unk0x00590c50 = 0x3333;
+    g_unk0x00590c60[0] = 0x16;
+    g_unk0x00590c60[1] = 0x14;
+    g_unk0x00590c60[2] = 0x15;
+    g_unk0x00590c60[3] = 0x12;
+    g_unk0x00590bfc = 1;
+    g_unk0x00590bfd = 2;
+}
+
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+// Fills a rectangle whose width is scaled by `scale` (16.16).
+// FUNCTION: CMR2 0x00475970
+int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer)
+{
+    short rect[4];
+
+    rect[0] = pRect[0];
+    rect[1] = pRect[1];
+    rect[2] = (short)FixMulShift32((int)pRect[2] << 16, scale);
+    rect[3] = pRect[3];
+    return Sprite_FillRect(unused, rect, pColour, layer);
+}
+
+// Wheel slip (field 0x870) above 0.15, as 0..1.
+// TODO: CMR2 0x00465e40 (implemented, match 77%)
+int FUN_00465e40(int car, int wheel)
+{
+    int v;
+
+    if (*(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4) < 0)
+        v = -*(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4);
+    else
+        v = *(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4);
+    v -= 0x2666;
+    if (v < 0 || v < 1)
+        v = 0;
+    else if (v > 0xffff)
+        return 0x10000;
+    return v;
+}
+
+void Scene_GetLightColourBytes(DWORD *pColour);
+
+// Brightness of the scene light colour: (r + g + b - 70) / 550, clamped to 0..1.
+// FUNCTION: CMR2 0x004648f0
+int FUN_004648f0(void)
+{
+    BYTE c[4];
+    int v;
+
+    Scene_GetLightColourBytes((DWORD *)c);
+    v = FixDiv((c[2] + c[1] + c[0] - 0x46) << 16, 0x2260000);
+    if (v < 0)
+        return 0;
+    if (v > 0x10000)
+        v = 0x10000;
+    return v;
+}
+
+struct Unk0x00590d74;
+extern Unk0x00590d74 *g_unk0x00590d74;
+
+// Puts the car's (up to four) attached nodes back to their creation transform
+// and forgets them.
+// FUNCTION: CMR2 0x00480b40
+void FUN_00480b40(BYTE *pCar)
+{
+    void **pTable;
+    SceneNode *pNode;
+    int offset;
+
+    srand(400);
+    g_unk0x00590d74 = (Unk0x00590d74 *)pCar;
+    pTable = &g_unk0x00590d7c[3];
+    offset = (char)pCar[0xb1a] * 0x1a0;
+    do {
+        pNode = *(SceneNode **)((BYTE *)*pTable + offset);
+        if (pNode != NULL) {
+            pNode->current = pNode->local;
+            *(SceneNode **)((BYTE *)*pTable + offset) = NULL;
+        }
+        pTable--;
+    } while (pTable >= g_unk0x00590d7c);
 }
