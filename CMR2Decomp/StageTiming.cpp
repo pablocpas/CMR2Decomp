@@ -1516,6 +1516,28 @@ void FUN_00481560(unsigned short *pAngles)
     FixMatrix_SetForward(&basis.forward, g_unk0x00590c20->field_0x4);
 }
 
+// Integrates the motion offset and writes the corrected world position.
+// FUNCTION: CMR2 0x004815e0
+void VehicleMotion_UpdateWorldPosition(void)
+{
+    FixVector delta;
+
+    FixVecScale(&delta, &g_unk0x00590c20->field_0x138, g_physicsTimeStep);
+    g_unk0x00590c20->field_0x144.x += delta.x;
+    g_unk0x00590c20->field_0x144.y += delta.y;
+    g_unk0x00590c20->field_0x144.z += delta.z;
+
+    FixMatrix_RotateVector(&delta, &g_unk0x00590c20->field_0x120,
+                           g_unk0x00590c20->field_0x4);
+    delta.x = g_unk0x00590c20->field_0x120.x - delta.x;
+    delta.y = g_unk0x00590c20->field_0x120.y - delta.y;
+    delta.z = g_unk0x00590c20->field_0x120.z - delta.z;
+    delta.x += g_unk0x00590c20->field_0x144.x;
+    delta.y += g_unk0x00590c20->field_0x144.y;
+    delta.z += g_unk0x00590c20->field_0x144.z;
+    FixMatrix_SetPosition(&delta, g_unk0x00590c20->field_0x4);
+}
+
 // Records of the 0x542e7c table (stride 0x1c); count derived from the next
 // known global (0x543eb8).
 struct Unk0x00542e78 {
