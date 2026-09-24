@@ -1901,3 +1901,17 @@ DWORD FUN_0040bdd0(unsigned short slot)
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x110;
 }
 
+
+int FUN_004b7d60(int *pOut);
+
+// Name of the last key pressed (waits until the key queue is empty).
+// FUNCTION: CMR2 0x0049ed80
+void Input_GetLastKeyName(LPSTR pName, unsigned int size)
+{
+    LONG key;
+
+    key = 0;
+    while (FUN_004b7d60((int *)&key) != 0)
+        ;
+    GetKeyNameTextA(key, pName, size & 0xff);
+}

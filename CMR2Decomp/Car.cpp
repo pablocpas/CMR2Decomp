@@ -3253,3 +3253,45 @@ int FUN_004232a0(int index, int mode)
     }
     return result;
 }
+
+// Clears `count` car records (0xc24 bytes) from `first`.
+// FUNCTION: CMR2 0x0042b740
+void FUN_0042b740(int first, int count)
+{
+    int i;
+
+    for (i = first; i < count + first; i++)
+        memset((BYTE *)g_carBuffer + i * 0xc24, 0, 0xc24);
+}
+
+float FUN_004b23a0(void);
+void FUN_004b23b0(float value);
+void FUN_00466630(int value);
+extern int g_unk0x0053c9a8;
+
+// GLOBAL: CMR2 0x005210c8
+float g_65536f = 65536.0f;
+
+// Counts down the frame-rate hold (restoring rate 1.0 when it ends) and
+// passes the current rate on to the stage objects.
+// TODO: CMR2 0x0042b790 (implemented, match 62%)
+void FUN_0042b790(void)
+{
+    if (g_unk0x0053c9a8 != 0) {
+        if (g_unk0x0053c9a8 == 1)
+            FUN_004b23b0(1.0f);
+        g_unk0x0053c9a8--;
+    }
+    FUN_00466630((int)(__int64)(FUN_004b23a0() * g_65536f));
+}
+
+// Sets the physics scale (value / 25, at least 0.6) and the time step
+// (its reciprocal).
+// TODO: CMR2 0x00433840 (implemented, match 89%)
+void FUN_00433840(int value)
+{
+    g_physicsScale = FixMul(value, 0xa3d);
+    if (g_physicsScale < 0x9999)
+        g_physicsScale = 0x9999;
+    g_physicsTimeStep = FixDiv(0x10000, g_physicsScale);
+}

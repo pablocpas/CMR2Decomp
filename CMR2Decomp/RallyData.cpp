@@ -2839,3 +2839,15 @@ void FUN_004209f0(void)
         } while (i != 0);
     }
 }
+
+// Whether flag bit `bit` is set for the entry that pEntry points into.
+// TODO: CMR2 0x00471d40 (implemented, match 68%)
+BYTE FUN_00471d40(BYTE **pEntry, BYTE bit)
+{
+    int index;
+
+    index = (unsigned int)(*pEntry - g_unk0x0058c94c) >> 3;
+    if (index >= (int)g_unk0x0058ca6c)
+        return 0;
+    return (g_unk0x0058c938[index] & (1 << bit)) != 0;
+}

@@ -968,3 +968,17 @@ void Sound_SetMasterVolume(int volume)
         ppSlot++;
     } while (ppSlot < &CSound::m_soundSlots[32]);
 }
+
+// Releases the (3D) buffers of a sample.
+// FUNCTION: CMR2 0x004a1d10
+void FUN_004a1d10(int sample)
+{
+    if (g_soundBuffers[sample] != NULL) {
+        if (g_soundBuffers[sample]->Release() == 0)
+            g_soundBuffers[sample] = NULL;
+    }
+    if (g_sound3DBuffers[sample] != NULL) {
+        if (g_sound3DBuffers[sample]->Release() == 0)
+            g_sound3DBuffers[sample] = NULL;
+    }
+}

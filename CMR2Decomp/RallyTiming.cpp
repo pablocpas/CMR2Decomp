@@ -399,3 +399,19 @@ void FUN_0040d090(int index, int seconds)
 {
     g_stageTimesRaw[index] = (int)(__int64)((double)seconds * CGraphics::m_65536);
 }
+
+// Adds each stage's penalty seconds to its raw time.
+// TODO: CMR2 0x0040d010 (implemented, match 71%)
+void FUN_0040d010(void)
+{
+    int *p;
+    int i;
+
+    i = 0;
+    p = g_stageTimesRaw;
+    do {
+        *p += (int)(__int64)((double)g_stagePenalty[i] * CGraphics::m_65536);
+        i++;
+        p++;
+    } while (p < &g_stageTimesRaw[16]);
+}

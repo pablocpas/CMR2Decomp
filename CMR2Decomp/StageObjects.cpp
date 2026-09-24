@@ -2234,3 +2234,28 @@ void Events_Flush(void)
         Events_Reset();
     }
 }
+
+void FUN_00486b20(BYTE *pCar, BYTE *pInfo);
+void FUN_00486b90(BYTE *pCar, BYTE *pInfo);
+
+#define RECORD_NEAR_90(v) (((v) > 0x3f4 && (v) < 0x40b) || ((v) < -0x3f4 && (v) > -0x40b))
+
+// FUNCTION: CMR2 0x0048d7b0
+void FUN_0048d7b0(BYTE *pCar, BYTE *pInfo)
+{
+    short v;
+
+    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    if (RECORD_NEAR_90(v))
+        FUN_00486b20(pCar, pInfo);
+}
+
+// FUNCTION: CMR2 0x0048d800
+void FUN_0048d800(BYTE *pInfo, BYTE *pCar)
+{
+    short v;
+
+    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    if (RECORD_NEAR_90(v))
+        FUN_00486b90(pCar, pInfo);
+}

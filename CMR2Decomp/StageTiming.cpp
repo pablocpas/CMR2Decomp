@@ -1781,3 +1781,13 @@ int FUN_004692b0(unsigned int type, BYTE *pModel)
     }
     return -1;
 }
+
+// Clears `count` stage records (0x4d0 bytes) from `first`.
+// FUNCTION: CMR2 0x004669b0
+void FUN_004669b0(int first, int count)
+{
+    int i;
+
+    for (i = first; i < count + first; i++)
+        memset(g_unk0x00588b94 + i * 0x4d0, 0, 0x4d0);
+}

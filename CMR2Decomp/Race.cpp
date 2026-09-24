@@ -304,14 +304,17 @@ void FUN_00418d20(int value)
     g_unk0x00537394 = value;
 }
 
+// Stage sounds of each car (0xb4 bytes per car, eight cars).
+struct CarSoundSet {
+    int handle[10];         // 0x00 playing sound handle (-1 none)
+    int id[10];             // 0x28 sound id
+    int pitch[10];          // 0x50 random pitch
+    BYTE surface[10];       // 0x78 surface when started
+    BYTE field_0x82[0x32];
+};
+
 // GLOBAL: CMR2 0x005377c4
-int g_unk0x005377c4[10];    // hasta g_unk0x005377ec, el siguiente que usa la funcion
-// GLOBAL: CMR2 0x005377ec
-int g_unk0x005377ec[10];    // hasta g_unk0x00537814
-// GLOBAL: CMR2 0x00537814
-int g_unk0x00537814[10];    // hasta g_unk0x0053783c
-// GLOBAL: CMR2 0x0053783c
-BYTE g_unk0x0053783c[0x590];    // hasta g_unk0x00537dcc
+CarSoundSet g_carSoundSets[8];
 // GLOBAL: CMR2 0x005375f4
 BYTE g_unk0x005375f4[0x1d0];    // hasta g_unk0x005377c4
 
@@ -322,11 +325,11 @@ void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
 {
     int index;
 
-    index = param3 + param1 * 0x2d;
-    g_unk0x005377c4[index] = FUN_004b7790(param2, param4, 0x5622, (param5 == 0) ? 0 : param5, 1, 0);
-    g_unk0x00537814[index] = rand() % 0x19 + 0x32 + FUN_004781c0(param1);
-    g_unk0x0053783c[param1 * 0xb4 + param3] = g_unk0x005375f4[param1];
-    g_unk0x005377ec[index] = param2;
+    index = param3;
+    g_carSoundSets[param1].handle[index] = FUN_004b7790(param2, param4, 0x5622, (param5 == 0) ? 0 : param5, 1, 0);
+    g_carSoundSets[param1].pitch[index] = rand() % 0x19 + 0x32 + FUN_004781c0(param1);
+    g_carSoundSets[param1].surface[param3] = g_unk0x005375f4[param1];
+    g_carSoundSets[param1].id[index] = param2;
 }
 
 // Stops the sound of one entry of the stage table (and forgets both the handle
@@ -335,9 +338,9 @@ void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
 void FUN_00418dd0(int param1, int param2, char param3)
 {
     if (param3 != 0)
-        g_unk0x005377ec[param1 * 0x2d + param2] = -1;
-    Sound_Free(g_unk0x005377c4[param1 * 0x2d + param2]);
-    g_unk0x005377c4[param1 * 0x2d + param2] = -1;
+        g_carSoundSets[param1].id[param2] = -1;
+    Sound_Free(g_carSoundSets[param1].handle[param2]);
+    g_carSoundSets[param1].handle[param2] = -1;
 }
 
 // Returns a random value in [0, param2) that is not param1.
@@ -481,4 +484,53 @@ void FUN_0041fc90(void)
                                                  0, 0, 0);
     if (pData != NULL)
         FUN_00490d50(pData);
+}
+
+int Sound_IsPlaying(unsigned int handle);
+void FUN_004b79a0(unsigned int handle, int volume);
+void Sound_Free(unsigned int handle);
+
+// Silences every stage sound still playing.
+// FUNCTION: CMR2 0x00418ee0
+void FUN_00418ee0(void)
+{
+    CarSoundSet *pSet;
+    int *pHandle;
+    int i;
+
+    pSet = g_carSoundSets;
+    do {
+        pHandle = pSet->handle;
+        for (i = 10; i != 0; i--) {
+            if (Sound_IsPlaying(*pHandle) != 0)
+                FUN_004b79a0(*pHandle, 0);
+            pHandle++;
+        }
+        pSet++;
+    } while (pSet < &g_carSoundSets[8]);
+}
+
+// One sound handle per car.
+// GLOBAL: CMR2 0x005373b0
+int g_carSounds[8];
+
+// Frees the per-car sound of every car in the race.
+// FUNCTION: CMR2 0x00418780
+void FUN_00418780(void)
+{
+    int *p;
+    int i;
+
+    i = 0;
+    if ((char)RallyDataState() != 0) {
+        p = g_carSounds;
+        do {
+            if (Sound_IsPlaying(*p) != 0) {
+                Sound_Free(*p);
+                *p = -1;
+            }
+            i++;
+            p++;
+        } while (i < (int)(RallyDataState() & 0xff));
+    }
 }
