@@ -3911,7 +3911,7 @@ struct GlowLight {
 // Reserves a free glow slot and copies its position, direction, and draw settings.
 // FUNCTION: CMR2 0x004ae2f0
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
-                    int sizeX, int sizeY, int layerIntensity, int texture,
+                    int sizeX, int sizeY, int billboardTexture, int layerTexture,
                     int intensity, int node, BYTE projected, int unused2,
                     int field_0x40)
 {
@@ -3938,8 +3938,8 @@ GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
                 }
                 light->sizeX = sizeX;
                 light->sizeY = sizeY;
-                light->pTexture = (unsigned short *)layerIntensity;
-                light->pLayerTexture = (Texture *)texture;
+                light->pTexture = (unsigned short *)billboardTexture;
+                light->pLayerTexture = (Texture *)layerTexture;
                 light->intensity = intensity;
                 light->pNode = (SceneNode *)node;
                 light->enabled = 1;
