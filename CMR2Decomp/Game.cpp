@@ -1441,3 +1441,33 @@ int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int para
     Scene_SetViewFromCamera(pCamera);
     return 1;
 }
+
+// Network session flag 0x20 (set when `open` is 0).
+// FUNCTION: CMR2 0x004a1570
+void Session_SetOpen(char open)
+{
+    FUN_004a0d60();
+    if (open != 0) {
+        *(DWORD *)(g_unk0x005a0068 + 4) &= 0xffffffdf;
+        FUN_004a14e0();
+        return;
+    }
+    *(DWORD *)(g_unk0x005a0068 + 4) |= 0x20;
+    FUN_004a14e0();
+}
+
+// One of the four session user values (0x40..0x4c of the description).
+// TODO: CMR2 0x004a1680 (implemented, match 70%)
+int Session_GetUserValue(BYTE index)
+{
+    FUN_004a0d60();
+    switch (index) {
+    case 0:
+        return *(int *)(g_unk0x005a0068 + 0x40);
+    case 1:
+        return *(int *)(g_unk0x005a0068 + 0x44);
+    case 2:
+        return *(int *)(g_unk0x005a0068 + 0x48);
+    }
+    return *(int *)(g_unk0x005a0068 + 0x4c);
+}

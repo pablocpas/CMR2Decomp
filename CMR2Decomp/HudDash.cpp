@@ -693,3 +693,12 @@ void FUN_00447ec0(unsigned int index, int value)
 {
     g_unk0x0053d098[index & 0xff] = value;
 }
+
+// GLOBAL: CMR2 0x0053d048
+FixVector g_unk0x0053d048[4];
+
+// FUNCTION: CMR2 0x00447cf0
+void FUN_00447cf0(FixVector *pOut, unsigned int index)
+{
+    *pOut = g_unk0x0053d048[index & 0xff];
+}

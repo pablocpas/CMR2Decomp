@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include "InstallInfo.h"
 #include "Frontend.h"
+#include "Graphics.h"
+#include "StageTiming.h"
+#include "GenericFileLoader.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -427,4 +430,55 @@ char *FUN_004200d0(int car)
 {
     sprintf(g_raceCarPath, g_strPathFormat, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car));
     return g_raceCarPath;
+}
+
+extern int g_unk0x00537f5c;
+// GLOBAL: CMR2 0x00537f64
+BYTE g_raceResourcesFreed;
+extern unsigned int g_unk0x00537fc0;
+void Sound_FreeAll(void);
+
+// Releases the race resources once (sounds, callbacks, textures).
+// FUNCTION: CMR2 0x0041e670
+void FUN_0041e670(void)
+{
+    g_unk0x00537fc0 = 1;
+    Sound_FreeAll();
+    if (g_raceResourcesFreed == 0) {
+        CGame::UnwindCallbacks(g_unk0x00537f5c);
+        CGraphics::FUN_004a5be0();
+        CGraphics::FreeTextureBuffers();
+        g_raceResourcesFreed = 1;
+    }
+}
+
+BYTE *FUN_0041f900(void);
+void StageLights_SetTransform(FixVector *pAxes);
+void FUN_00490d50(BYTE *pData);
+
+// GLOBAL: CMR2 0x005196e8
+char g_strBspFormat[] = "%s.bsp";
+// GLOBAL: CMR2 0x00519498
+char g_strHpcFormat[] = "%s.hpc";
+
+// Loads the stage's .bsp (stage light placement).
+// FUNCTION: CMR2 0x00420020
+void FUN_00420020(void)
+{
+    sprintf(CFrontend::m_stringDest, g_strBspFormat, FUN_0041f900());
+    StageLights_SetTransform((FixVector *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                                     CFrontend::m_stringDest, 0, 0, 0));
+}
+
+// Loads the stage's .hpc data when present.
+// FUNCTION: CMR2 0x0041fc90
+void FUN_0041fc90(void)
+{
+    BYTE *pData;
+
+    sprintf(CFrontend::m_stringDest, g_strHpcFormat, FUN_0041f900());
+    pData = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest,
+                                                 0, 0, 0);
+    if (pData != NULL)
+        FUN_00490d50(pData);
 }

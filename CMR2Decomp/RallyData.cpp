@@ -2817,3 +2817,25 @@ BYTE FUN_0040eef0(void)
     Mesh_FreeClones();
     return 1;
 }
+
+short *Car_GetOrder(void);
+short Car_GetOrderCount(void);
+
+// Updates the route of every car, last in the race order first.
+// TODO: CMR2 0x004209f0 (implemented, match 54%)
+void FUN_004209f0(void)
+{
+    short *pOrder;
+    int i;
+
+    pOrder = Car_GetOrder();
+    i = Car_GetOrderCount();
+    if (i - 1 >= 0) {
+        pOrder += i - 1;
+        do {
+            RallyData_UpdateCarRoute(Car_Get(*pOrder));
+            pOrder--;
+            i--;
+        } while (i != 0);
+    }
+}

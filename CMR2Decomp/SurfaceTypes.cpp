@@ -318,3 +318,11 @@ void FUN_00478b50(void)
         i++;
     }
 }
+
+// Blend rate between a surface and its "next" surface, at t.
+// TODO: CMR2 0x004789d0 (implemented, match 43%)
+int FUN_004789d0(int surface, int t)
+{
+    return FixMul(g_surfaceBlendRate[g_surfaceNext[surface]] - g_surfaceBlendRate[surface], t) +
+           g_surfaceBlendRate[surface];
+}

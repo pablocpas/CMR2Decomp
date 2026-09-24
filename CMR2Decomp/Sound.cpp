@@ -952,3 +952,19 @@ void FUN_004a3240(int unused)
 {
 }
 
+
+// Sets the master volume (0..1) and re-applies it to every sound slot.
+// TODO: CMR2 0x004b7950 (implemented, match 83%)
+void Sound_SetMasterVolume(int volume)
+{
+    SoundSlot **ppSlot;
+
+    if (volume >= 0 && volume <= 0x10000)
+        g_soundMasterVolume = volume;
+    ppSlot = CSound::m_soundSlots;
+    do {
+        if (*ppSlot != NULL)
+            FUN_004a25f0(*ppSlot);
+        ppSlot++;
+    } while (ppSlot < &CSound::m_soundSlots[32]);
+}

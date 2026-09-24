@@ -25,6 +25,8 @@ FixVector g_unk0x00547930;
 
 // GLOBAL: CMR2 0x00547940
 int g_unk0x00547940;
+// GLOBAL: CMR2 0x00547944
+FixVector g_unk0x00547944;
 
 // Scales a timed stage event's displacement and vertical offset.
 // FUNCTION: CMR2 0x00460270
@@ -1734,4 +1736,48 @@ void FUN_00455260(void)
 {
     sprintf(CFrontend::m_stringDest, g_strBflFormat, FUN_0041f8f0());
     CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest);
+}
+
+// Default sky/light vector and cleared offsets.
+// FUNCTION: CMR2 0x0045eea0
+void FUN_0045eea0(void)
+{
+    g_unk0x00547930.x = 0xb4fd;
+    g_unk0x00547930.y = 0;
+    g_unk0x00547930.z = -0xb4fd;
+    g_unk0x00547940 = 0;
+    g_unk0x00547944.x = 0;
+    g_unk0x00547944.y = 0;
+    g_unk0x00547944.z = 0;
+}
+
+// Applies FUN_00465ec0 to a node list and all descendants.
+// FUNCTION: CMR2 0x00465f20
+void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        FUN_00465ec0(pNode, alpha, checkFlag);
+        if (pNode->pFirstChild != NULL)
+            FUN_00465f20(pNode->pFirstChild, alpha, checkFlag);
+    }
+}
+
+// Index of the part of a car model whose node type byte is `type` (-1 none).
+// TODO: CMR2 0x004692b0 (implemented, match 46%)
+int FUN_004692b0(unsigned int type, BYTE *pModel)
+{
+    int i;
+    SceneNode **ppNode;
+
+    i = 0;
+    if (*(int *)(pModel + 0x45c) > 0) {
+        ppNode = (SceneNode **)(pModel + 0x3c);
+        do {
+            if (((*ppNode)->flags & 0xff) == type)
+                return i;
+            i++;
+            ppNode++;
+        } while (i < *(int *)(pModel + 0x45c));
+    }
+    return -1;
 }

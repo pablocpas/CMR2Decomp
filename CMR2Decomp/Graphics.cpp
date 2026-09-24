@@ -6188,3 +6188,18 @@ void Graphics_ReloadTexture(Texture *pTexture)
         }
     }
 }
+
+// Looks for a free timer slot (shape 5); the result is not used.
+// TODO: CMR2 0x004bc410 (implemented, match 57%)
+void Timer_FindFree(void)
+{
+    unsigned int slot;
+    int i;
+
+    slot = 0;
+    for (i = 0; i < 32; i++) {
+        if (g_unk0x00521138[slot][0] == 5)
+            return;
+        slot = (slot + 1) % 32;
+    }
+}

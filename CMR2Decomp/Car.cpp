@@ -3220,3 +3220,36 @@ void FUN_00421980(unsigned int view)
     view &= 0xff;
     FUN_0048d930(VIEW_MODE_RECORD(view));
 }
+
+// FUNCTION: CMR2 0x00437f90
+int FUN_00437f90(void)
+{
+    return FixMul(g_pCurrentCar->field_0x79c, *(int *)(g_pCarSetup + 0x404));
+}
+
+int FUN_00476520(BYTE index);
+int FUN_0048ca90(void);
+
+// Whether view mode `mode` is available for car `index`.
+// TODO: CMR2 0x004232a0 (implemented, match 62%)
+int FUN_004232a0(int index, int mode)
+{
+    int result;
+
+    result = 0;
+    switch (mode) {
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+    case 6:
+    case 10:
+        return 1;
+    case 3:
+        result = FUN_00476520((BYTE)index);
+        break;
+    case 7:
+        return FUN_0048ca90() != 0;
+    }
+    return result;
+}
