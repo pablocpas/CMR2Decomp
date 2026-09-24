@@ -119,6 +119,221 @@ void FUN_00418f20(void)
     }
 }
 
+struct StageSoundPattern {
+    char choices[4];
+    char redirect;
+    BYTE pad[3];
+    int count;
+    int base[4];
+};
+
+// Each sound state can redirect to a shared pattern. The base sound ids are
+// filled in when the stage sound bank is loaded.
+// GLOBAL: CMR2 0x00518ca8
+StageSoundPattern g_stageSoundPatterns[31] = {
+    {{1, 1, 0, 0}, 0, {0, 0, 0}, 1}, // 0
+    {{1, 1, 0, 0}, 1, {0, 0, 0}, 1}, // 1
+    {{3, 3, 0, 0}, 2, {0, 0, 0}, 1}, // 2
+    {{1, 1, 0, 0}, 3, {0, 0, 0}, 1}, // 3
+    {{3, 1, 0, 0}, 4, {0, 0, 0}, 1}, // 4
+    {{0, 0, 0, 0}, 4, {0, 0, 0}, 1}, // 5
+    {{5, 3, 1, 1}, 6, {0, 0, 0}, 2}, // 6
+    {{0, 0, 0, 0}, 1, {0, 0, 0}, 1}, // 7
+    {{0, 0, 0, 0}, 1, {0, 0, 0}, 1}, // 8
+    {{0, 0, 0, 0}, 6, {0, 0, 0}, 1}, // 9
+    {{0, 0, 0, 0}, 6, {0, 0, 0}, 1}, // 10
+    {{0, 0, 0, 0}, 6, {0, 0, 0}, 1}, // 11
+    {{0, 0, 0, 0}, 0, {0, 0, 0}, 1}, // 12
+    {{3, 1, 1, 1}, 13, {0, 0, 0}, 2}, // 13
+    {{1, 1, 0, 0}, 14, {0, 0, 0}, 1}, // 14
+    {{0, 0, 0, 0}, 14, {0, 0, 0}, 1}, // 15
+    {{0, 0, 0, 0}, 25, {0, 0, 0}, 1}, // 16
+    {{1, 1, 1, 1}, 17, {0, 0, 0}, 2}, // 17
+    {{1, 1, 1, 1}, 18, {0, 0, 0}, 2}, // 18
+    {{1, 1, 0, 0}, 19, {0, 0, 0}, 1}, // 19
+    {{0, 0, 0, 0}, 19, {0, 0, 0}, 1}, // 20
+    {{0, 0, 0, 0}, 19, {0, 0, 0}, 1}, // 21
+    {{3, 1, 1, 1}, 22, {0, 0, 0}, 2}, // 22
+    {{0, 0, 0, 0}, 17, {0, 0, 0}, 1}, // 23
+    {{1, 1, 4, 4}, 24, {0, 0, 0}, 4}, // 24
+    {{2, 2, 4, 4}, 25, {0, 0, 0}, 3}, // 25
+    {{0, 0, 0, 0}, 0, {0, 0, 0}, 1}, // 26
+    {{0, 0, 0, 0}, 6, {0, 0, 0}, 1}, // 27
+    {{0, 0, 0, 0}, 1, {0, 0, 0}, 1}, // 28
+    {{1, 1, 4, 4}, 29, {0, 0, 0}, 4}, // 29
+    {{0, 0, 0, 0}, 17, {0, 0, 0}, 1} // 30
+};
+
+extern BYTE g_unk0x005375f4[0x1d0];
+void FUN_00418d30(int channel, int sound, int slot, int volume, int flags);
+void FUN_00418dd0(int channel, int slot, char clear);
+int FUN_00419b50(int exclude, int count);
+BYTE FUN_00427aa0(void);
+
+#define STAGE_PLAY_PRIMARY(slot) do { \
+    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
+    FUN_00418d30(channel, pPattern->base[selected] + \
+                 FUN_00419b50(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
+} while (0)
+#define STAGE_PLAY_SECONDARY(slot) do { \
+    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
+    FUN_00418d30(channel, pPattern->base[selected + 2] + \
+                 FUN_00419b50(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
+} while (0)
+#define STAGE_PLAY_DIRECT(slot) do { \
+    unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
+    FUN_00418d30(channel, pPattern->base[selected], slot, 0, 0); \
+} while (0)
+#define STAGE_STOP(slot) FUN_00418dd0(channel, slot, 1)
+#define STAGE_PLAY_EXTRA() do { STAGE_PLAY_SECONDARY(1); STAGE_PLAY_SECONDARY(2); STAGE_PLAY_SECONDARY(3); } while (0)
+#define STAGE_STOP_EXTRA() do { STAGE_STOP(1); STAGE_STOP(2); STAGE_STOP(3); } while (0)
+
+// Applies one stage sound state to its active channel.  The switch mirrors
+// the combinations of continuous, secondary and network-gated sound slots.
+// TODO: CMR2 0x00419200 (implemented, match 34%)
+void StageUI_ApplySoundState(int channel, BYTE *pState)
+{
+    StageSoundPattern *pPattern = NULL;
+    short pattern = *(short *)(pState + 0x18);
+    int state = *(int *)(pState + 0xa8);
+
+    if (pattern != -1)
+        pPattern = &g_stageSoundPatterns[(int)g_stageSoundPatterns[pattern].redirect];
+
+    switch (state) {
+    case 1:
+        if (pPattern != NULL) goto play_primary;
+        return;
+    case 2:
+        if (pPattern != NULL) goto play_primary_and_seventh;
+        return;
+    case 3:
+        if (pPattern != NULL) goto play_direct_and_secondary_extra;
+        return;
+    case 4:
+        if (pPattern != NULL) goto play_primary_and_secondary_extra;
+        return;
+    case 5:
+        STAGE_STOP(4);
+        return;
+    case 6:
+        if (pPattern != NULL) {
+            if (FUN_00427aa0() != 0) STAGE_STOP(4);
+            goto play_primary;
+        }
+        return;
+    case 7:
+        if (pPattern != NULL) {
+            if (FUN_00427aa0() != 0) STAGE_STOP(4);
+            goto play_primary_and_seventh;
+        }
+        return;
+    case 8:
+        STAGE_STOP(4);
+        if (pPattern == NULL) return;
+        if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        goto play_direct_and_secondary;
+    case 9:
+        STAGE_STOP(4);
+        if (pPattern == NULL) return;
+        if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+        goto play_primary_and_secondary;
+    case 10:
+        STAGE_STOP(4); STAGE_STOP(6);
+        return;
+    case 11:
+        if (pPattern == NULL) return;
+        if (FUN_00427aa0() != 0) { STAGE_STOP(4); STAGE_STOP(6); }
+        goto play_primary;
+    case 12:
+        if (pPattern == NULL) return;
+        if (FUN_00427aa0() != 0) { STAGE_STOP(4); STAGE_STOP(6); }
+        goto play_primary_and_seventh;
+    case 13:
+        STAGE_STOP(4); STAGE_STOP(6);
+        if (pPattern != NULL) goto play_direct_and_secondary_extra;
+        return;
+    case 14:
+        STAGE_STOP(4); STAGE_STOP(6);
+        if (pPattern != NULL) goto play_primary_and_secondary_extra;
+        return;
+    case 15:
+    case 20:
+        STAGE_STOP(4); STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        return;
+    case 16:
+        STAGE_STOP(4); STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (pPattern != NULL) goto play_primary;
+        return;
+    case 17:
+        STAGE_STOP(4); STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (pPattern != NULL) goto play_primary_and_seventh;
+        return;
+    case 19:
+        STAGE_STOP(4);
+        if (pPattern != NULL) goto play_primary;
+        return;
+    case 21:
+        STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        else STAGE_STOP(4);
+        if (pPattern != NULL) goto play_primary;
+        return;
+    case 22:
+        STAGE_STOP(4); STAGE_STOP(0);
+        if (FUN_00427aa0() == 0) STAGE_STOP_EXTRA();
+        if (pPattern != NULL) goto play_primary_and_seventh;
+        return;
+    case 23:
+        STAGE_STOP(4);
+        if (pPattern != NULL) goto play_direct;
+        return;
+    case 24:
+        STAGE_STOP(4);
+        if (pPattern != NULL) goto play_primary;
+        return;
+    }
+    return;
+
+play_primary_and_secondary_extra:
+    STAGE_PLAY_PRIMARY(5);
+    goto play_secondary_extra;
+play_direct_and_secondary_extra:
+    STAGE_PLAY_DIRECT(4);
+play_secondary_extra:
+    STAGE_PLAY_SECONDARY(0);
+    if (FUN_00427aa0() == 0) STAGE_PLAY_EXTRA();
+    return;
+play_primary_and_secondary:
+    STAGE_PLAY_PRIMARY(5);
+    goto play_secondary;
+play_direct_and_secondary:
+    STAGE_PLAY_DIRECT(4);
+play_secondary:
+    STAGE_PLAY_SECONDARY(0);
+    return;
+play_primary_and_seventh:
+    STAGE_PLAY_PRIMARY(5);
+    STAGE_PLAY_SECONDARY(7);
+    return;
+play_primary:
+    STAGE_PLAY_PRIMARY(5);
+    return;
+play_direct:
+    STAGE_PLAY_DIRECT(4);
+    return;
+}
+
+#undef STAGE_PLAY_PRIMARY
+#undef STAGE_PLAY_SECONDARY
+#undef STAGE_PLAY_DIRECT
+#undef STAGE_STOP
+#undef STAGE_PLAY_EXTRA
+#undef STAGE_STOP_EXTRA
+
 
 // Frame/tick counters shared by the in-game UI (0x537df0..0x537efc).
 // GLOBAL: CMR2 0x00537dd0
