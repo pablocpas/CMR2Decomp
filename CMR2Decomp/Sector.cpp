@@ -15,6 +15,53 @@ int g_sectorCullDisabled;
 int g_sectorOriginX;
 int g_sectorOriginZ;
 
+// FUNCTION: CMR2 0x004b9360
+void Sector_GetGridDimensions(int *columns, int *rows)
+{
+    *columns = g_sectorsPerRow;
+    *rows = g_sectorRows;
+}
+
+// Removes a scene node from the linked list of its current sector.
+// FUNCTION: CMR2 0x004b8aa0
+__declspec(naked) void Sector_RemoveNode(SceneNode *pNode)
+{
+    __asm {
+        mov ecx, dword ptr [esp + 4]
+        push esi
+        push edi
+        movsx esi, word ptr [ecx + 0x24]
+        mov edi, dword ptr [esi * 4 + g_sectors]
+        mov eax, dword ptr [edi + 0x1c]
+        cmp eax, ecx
+        je remove_head
+    find_node:
+        mov edx, eax
+        mov eax, dword ptr [eax + 0x170]
+        cmp eax, ecx
+        jne find_node
+        test edx, edx
+        jne remove_after
+    remove_head:
+        mov ecx, dword ptr [eax + 0x170]
+        mov dword ptr [edi + 0x1c], ecx
+        jmp finish_unlink
+    remove_after:
+        mov ecx, dword ptr [eax + 0x170]
+        mov dword ptr [edx + 0x170], ecx
+    finish_unlink:
+        mov ecx, dword ptr [esi * 4 + g_sectors]
+        pop edi
+        pop esi
+        mov edx, dword ptr [ecx + 0x20]
+        dec edx
+        mov dword ptr [ecx + 0x20], edx
+        mov dword ptr [eax + 0x170], 0
+        mov word ptr [eax + 0x24], 0xffff
+        ret 4
+    }
+}
+
 // FUNCTION: CMR2 0x004b7da0
 int Sector_IsVisible(int iSector)
 {
@@ -332,4 +379,3 @@ void FUN_004b8b10(SceneNode *pNode)
     g_sectors[index]->nodeCount++;
     pNode->sector = (WORD)index;
 }
-

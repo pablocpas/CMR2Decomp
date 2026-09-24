@@ -295,6 +295,12 @@ Mesh *g_meshClones[4096];
 // GLOBAL: CMR2 0x0067f22c
 int g_meshCloneCount;
 
+// FUNCTION: CMR2 0x004ab9c0
+void Mesh_ResetCloneCount(void)
+{
+    g_meshCloneCount = 0;
+}
+
 // Clones a mesh and moves its vertices (positions and normals) into the
 // local space of pSource->matrix (at +0x18), with the matrix axes
 // normalised; the clone gets its own parts and vertex buffer slot.

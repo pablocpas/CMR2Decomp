@@ -23,6 +23,30 @@ int FUN_0046d2a0(int *p);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00421420(void);
 
+// FUNCTION: CMR2 0x00469de0
+int StageObject_IsEligibleType(short type, int mode, int category)
+{
+    int result = 0;
+    if (mode == 0 || category == 6) {
+        switch (type) {
+        case 1:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 16:
+        case 24:
+        case 25:
+        case 27:
+        case 28:
+            result = 1;
+        }
+    }
+    return result;
+}
+
 // Full strength within ten fixed-point units, fading to zero at fifty.
 // FUNCTION: CMR2 0x004863d0
 int StageObject_DistanceFade(FixVector *delta)

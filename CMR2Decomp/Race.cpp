@@ -12,6 +12,46 @@ unsigned int RallyData_FUN_00407e90(void);
 
 // GLOBAL: CMR2 0x005191a0
 BYTE g_unk0x005191a0 = 0xff;
+
+struct RaceSlotState {
+    int owner;
+    int pending;
+    BYTE flags;
+    BYTE unused[3];
+};
+// GLOBAL: CMR2 0x005370a0
+RaceSlotState g_raceSlotState[20];
+
+// Assigns an unused race slot and marks its owner for refresh.
+// FUNCTION: CMR2 0x00417660
+__declspec(naked) void Race_AssignUnusedSlot(int owner)
+{
+    __asm {
+        push esi
+        mov esi, dword ptr [esp + 8]
+        xor edx, edx
+    next_slot:
+        lea eax, [edx + edx * 2]
+        shl eax, 2
+        mov cl, byte ptr [eax + g_raceSlotState + 8]
+        test cl, 2
+        jne advance
+        or cl, 2
+        mov edx, 20
+        mov byte ptr [eax + g_raceSlotState + 8], cl
+        mov dword ptr [eax + g_raceSlotState], esi
+        mov cl, byte ptr [eax + g_raceSlotState + 8]
+        and cl, 0xfe
+        mov byte ptr [eax + g_raceSlotState + 8], cl
+        mov dword ptr [eax + g_raceSlotState + 4], 0xffffffff
+    advance:
+        inc edx
+        cmp edx, 20
+        jl next_slot
+        pop esi
+        ret 4
+    }
+}
 // GLOBAL: CMR2 0x00537f08
 BYTE g_unk0x00537f08;
 // GLOBAL: CMR2 0x00537190
@@ -371,4 +411,3 @@ BYTE FUN_0041db00(void)
 {
     return g_unk0x0053811c;
 }
-
