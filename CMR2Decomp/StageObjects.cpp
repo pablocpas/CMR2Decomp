@@ -322,6 +322,24 @@ int FUN_00460c10(int index)
     return *(int *)((BYTE *)g_unk0x00547ac8 + 0x54 + index * 0x178);
 }
 
+// GLOBAL: CMR2 0x00543d50
+int g_unk0x00543d50;
+
+// Sets an object's scalar and derives its fixed-point scaled component.
+// TODO: CMR2 0x00460c30 (implemented, match 72%)
+void StageObject_SetScaledValue(int value, int index)
+{
+    BYTE *entry;
+    int scaled;
+    int factor;
+
+    entry = (BYTE *)g_unk0x00547ac8 + index * 0x178;
+    *(int *)(entry + 0x54) = value;
+    scaled = FixMul(g_unk0x00543d50, value);
+    factor = (int)*(short *)(entry + 0x74) << 16;
+    *(int *)(entry + 0x5c) = FixMul(scaled, factor);
+}
+
 // FUNCTION: CMR2 0x00460c80
 int FUN_00460c80(BYTE *pCar)
 {
