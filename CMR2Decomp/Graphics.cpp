@@ -2697,6 +2697,202 @@ void FUN_004bca70(short *param1)
     }
 }
 
+// Screen rectangle and colour of the sun for the lens flare test.
+// GLOBAL: CMR2 0x008164d0
+short g_flareRect[4];
+// GLOBAL: CMR2 0x008164d8
+BYTE g_flareColour[3];
+// GLOBAL: CMR2 0x008164dc
+BYTE g_flareVisibility;
+// GLOBAL: CMR2 0x008164dd
+BYTE g_flareTolerance;
+
+// Lowest set bit and number of set bits of a colour mask.
+#define MASK_SHIFT(mask, out)             \
+    v = (mask);                           \
+    for (k = 0; k < 32; k++) {            \
+        if (v & 1)                        \
+            break;                        \
+        v >>= 1;                          \
+    }                                     \
+    out = (BYTE)k
+#define MASK_BITS(mask, out)              \
+    v = (mask);                           \
+    n = 0;                                \
+    for (k = 32; k != 0; k--) {           \
+        if (v & 1)                        \
+            n++;                          \
+        v >>= 1;                          \
+    }                                     \
+    out = (BYTE)n
+
+// Lens flare occlusion test. With a rectangle and a colour, stores them for
+// the next test and returns the last result; without, copies that screen
+// rectangle out of the back buffer and returns the percentage of its pixels
+// still showing the sun's colour (within the tolerance).
+// TODO: CMR2 0x004bc490 (implemented, match 34%)
+BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
+{
+    DDSURFACEDESC2 desc;
+    RECT src;
+    RECT dst;
+    IDirectDrawSurface7 *pSurface;
+    unsigned short resX;
+    unsigned short resY;
+    short x;
+    short y;
+    short w;
+    short h;
+    short rLo;
+    short rHi;
+    short gLo;
+    short gHi;
+    short bLo;
+    short bHi;
+    short c;
+    int area;
+    int count;
+    int rShift;
+    int gShift;
+    int bShift;
+    int rBits;
+    int gBits;
+    int bBits;
+    unsigned int v;
+    unsigned int pixel;
+    unsigned short row;
+    unsigned short col;
+    int k;
+    int n;
+
+    resX = (unsigned short)g_pGraphics->resX;
+    resY = (unsigned short)g_pGraphics->resY;
+    count = 0;
+    if (g_unk0x008164c8 == 0) {
+        if (pRect == NULL)
+            goto sample;
+        FUN_004bca70(pRect);
+        if (g_unk0x008164c8 == 0)
+            return 0;
+    }
+    if (pRect != NULL && pColour != NULL) {
+        g_flareRect[0] = pRect[0];
+        g_flareRect[1] = pRect[1];
+        g_flareRect[2] = pRect[2];
+        g_flareRect[3] = pRect[3];
+        g_flareColour[0] = pColour[0];
+        g_flareColour[1] = pColour[1];
+        g_flareColour[2] = pColour[2];
+        g_flareTolerance = tolerance;
+        return g_flareVisibility;
+    }
+sample:
+    rHi = g_flareColour[0] + g_flareTolerance;
+    rLo = g_flareColour[0] - g_flareTolerance;
+    gHi = g_flareColour[1] + g_flareTolerance;
+    gLo = g_flareColour[1] - g_flareTolerance;
+    bHi = g_flareColour[2] + g_flareTolerance;
+    bLo = g_flareColour[2] - g_flareTolerance;
+    area = g_flareRect[2] * g_flareRect[3];
+    if (area == 0)
+        return 0;
+
+    // Clip the rectangle to the screen.
+    x = g_flareRect[0];
+    y = g_flareRect[1];
+    w = g_flareRect[2];
+    h = g_flareRect[3];
+    if (x < 0) {
+        if (w > -x) {
+            w += x;
+            x = 0;
+        } else {
+            w = 0;
+            x = 0;
+        }
+    }
+    if (y < 0) {
+        if (h > -y) {
+            h += y;
+            y = 0;
+        } else {
+            h = 0;
+            y = 0;
+        }
+    }
+    if (x >= (int)resX) {
+        w = 0;
+        x = 0;
+    }
+    if (y >= (int)resY) {
+        h = 0;
+        y = 0;
+    }
+    if (x + w >= (int)resX)
+        w = resX - x;
+    if (y + h >= (int)resY)
+        h = resY - y;
+    if (w == 0 || h == 0)
+        return 0;
+
+    src.left = x;
+    src.top = y;
+    src.right = x + w;
+    src.bottom = y + h;
+    dst.left = 0;
+    dst.top = 0;
+    dst.right = w;
+    dst.bottom = h;
+    desc.dwSize = 0x7c;
+    pSurface = ((Texture *)g_unk0x00816298)->pSurface;
+    if (pSurface->Blt(&dst, g_pGraphics->pBackBufferSurface, &src, DDBLT_WAIT, NULL) != DD_OK)
+        return 0;
+    pSurface = ((Texture *)g_unk0x00816298)->pSurface;
+    pSurface->Lock(NULL, &desc, DDLOCK_WAIT | DDLOCK_READONLY, NULL);
+    MASK_SHIFT(desc.ddpfPixelFormat.dwRBitMask, rShift);
+    MASK_SHIFT(desc.ddpfPixelFormat.dwGBitMask, gShift);
+    MASK_SHIFT(desc.ddpfPixelFormat.dwBBitMask, bShift);
+    MASK_BITS(desc.ddpfPixelFormat.dwRBitMask, rBits);
+    MASK_BITS(desc.ddpfPixelFormat.dwGBitMask, gBits);
+    MASK_BITS(desc.ddpfPixelFormat.dwBBitMask, bBits);
+    if (desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+        for (row = 0; row < h; row++) {
+            for (col = 0; col < w; col++) {
+                pixel = ((unsigned short *)desc.lpSurface)[(row * desc.lPitch) / 2 + col];
+                c = (BYTE)(((pixel & desc.ddpfPixelFormat.dwRBitMask) >> rShift) << (8 - rBits));
+                if (c < rLo || c > rHi)
+                    continue;
+                c = (BYTE)(((pixel & desc.ddpfPixelFormat.dwGBitMask) >> gShift) << (8 - gBits));
+                if (c < gLo || c > gHi)
+                    continue;
+                c = (BYTE)(((pixel & desc.ddpfPixelFormat.dwBBitMask) >> bShift) << (8 - bBits));
+                if (c < bLo || c > bHi)
+                    continue;
+                count++;
+            }
+        }
+    } else if (desc.ddpfPixelFormat.dwRGBBitCount == 32) {
+        for (row = 0; row < h; row++) {
+            for (col = 0; col < w; col++) {
+                pixel = ((DWORD *)desc.lpSurface)[(row * desc.lPitch) / 4 + col];
+                c = (BYTE)((pixel & desc.ddpfPixelFormat.dwRBitMask) >> rShift);
+                if (c < rLo || c > rHi)
+                    continue;
+                c = (BYTE)((pixel & desc.ddpfPixelFormat.dwGBitMask) >> gShift);
+                if (c < gLo || c > gHi)
+                    continue;
+                c = (BYTE)((pixel & desc.ddpfPixelFormat.dwBBitMask) >> bShift);
+                if (c < bLo || c > bHi)
+                    continue;
+                count++;
+            }
+        }
+    }
+    pSurface->Unlock(NULL);
+    g_flareVisibility = (BYTE)(count * 100 / area);
+    return g_flareVisibility;
+}
+
 // GLOBAL: CMR2 0x006db200
 unsigned short g_unk0x006db200[800 * 6];
 // GLOBAL: CMR2 0x006dd784

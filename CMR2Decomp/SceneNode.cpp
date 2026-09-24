@@ -490,6 +490,139 @@ void FUN_004b3480(void *pObject)
     g_sceneType1Count--;
 }
 
+// A Direct3D light plus the device light index it occupies.
+struct SceneLight {
+    D3DLIGHT7 light;
+    int index;
+};
+
+// GLOBAL: CMR2 0x006e0b9c
+int g_sceneLightCallbackSet;
+
+// Release callback: frees every light still allocated.
+// FUNCTION: CMR2 0x004b3450
+int Scene_FreeAllLights(void)
+{
+    int i;
+
+    g_sceneLightCallbackSet = 0;
+    for (i = 0; i < 60; i++) {
+        if (g_sceneType1Objects[i] != NULL)
+            FUN_004b3480(g_sceneType1Objects[i]);
+    }
+    return 1;
+}
+
+// Creates a Direct3D light (0 point, 1 spot, 2 directional, 3 parallel point) in the
+// first free slot and optionally hangs it from a scene node placed at pPosition.
+// Colour components and position are 16.16 fixed point.
+// FUNCTION: CMR2 0x004b2f80
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles,
+                             SceneNode *pParent)
+{
+    SceneNode *pNode;
+    int index;
+    float fr, fg, fb;
+    FixVector dir;
+    SceneLight *pLight;
+
+    pNode = NULL;
+    if (g_sceneLightCallbackSet == 0) {
+        CGame::RegisterCallback(Scene_FreeAllLights, NULL);
+        g_sceneLightCallbackSet = 1;
+    }
+    for (index = 0; index < 60; index++) {
+        if (g_sceneType1Objects[index] == NULL)
+            goto found;
+    }
+    return NULL;
+
+found:
+
+    pLight = (SceneLight *)CFileBuffer::AllocateLockedBuffer(sizeof(SceneLight));
+    g_sceneType1Objects[index] = pLight;
+    memset(pLight, 0, sizeof(D3DLIGHT7));
+    fr = (float)r * CGraphics::m_oneOver65536;
+    fg = (float)g * CGraphics::m_oneOver65536;
+    fb = (float)b * CGraphics::m_oneOver65536;
+    ((SceneLight *)g_sceneType1Objects[index])->index = index;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.r = fr;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.g = fg;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.b = fb;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvDiffuse.a = 1.0f / 65536.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvSpecular.r = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvSpecular.g = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvSpecular.b = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvSpecular.a = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.r = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.g = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.b = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.a = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.x = (float)pPosition->x * CGraphics::m_oneOver65536;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.y = (float)pPosition->y * CGraphics::m_oneOver65536;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPosition.z = (float)pPosition->z * CGraphics::m_oneOver65536;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation0 = 1.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation1 = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation2 = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.x = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.y = 0.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.z = 1.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvFalloff = 1.0f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvTheta = 0.5f;
+    ((SceneLight *)g_sceneType1Objects[index])->light.dvPhi = 1.0f;
+
+    switch (type) {
+    case 0:
+        ((SceneLight *)g_sceneType1Objects[index])->light.dltType = D3DLIGHT_POINT;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.r = fr;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.g = fg;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.b = fb;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.a = 1.0f / 65536.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvRange = 60.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation0 = 0.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation1 = 0.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation2 = 0.1f;
+        break;
+    case 1:
+        ((SceneLight *)g_sceneType1Objects[index])->light.dltType = D3DLIGHT_SPOT;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.r = fr;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.g = fg;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.b = fb;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dcvAmbient.a = 1.0f / 65536.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvRange = 100.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvFalloff = 1.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvTheta = 0.2f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvPhi = 2.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation0 = 0.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation1 = 0.0f;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvAttenuation2 = 0.0f;
+        break;
+    case 2:
+        ((SceneLight *)g_sceneType1Objects[index])->light.dltType = D3DLIGHT_DIRECTIONAL;
+        dir.x = -pPosition->x;
+        dir.y = -pPosition->y;
+        dir.z = -pPosition->z;
+        FIX_NORMALIZE_INTO(dir, dir);
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.x = (float)dir.x * CGraphics::m_oneOver65536;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.y = (float)dir.y * CGraphics::m_oneOver65536;
+        ((SceneLight *)g_sceneType1Objects[index])->light.dvDirection.z = (float)dir.z * CGraphics::m_oneOver65536;
+        break;
+    case 3:
+        ((SceneLight *)g_sceneType1Objects[index])->light.dltType = D3DLIGHT_PARALLELPOINT;
+        break;
+    }
+
+    CGraphics::m_pTextureManager->pD3D->SetLight(index, &((SceneLight *)g_sceneType1Objects[index])->light);
+    CGraphics::m_pTextureManager->pD3D->LightEnable(index, TRUE);
+    if (pParent != NULL) {
+        pNode = SceneNode_Create(pParent);
+        SceneNode_SetObject(pNode, 1, g_sceneType1Objects[index]);
+        SceneNode_SetTransform(pNode, pPosition, pAngles);
+    }
+    g_sceneType1Count++;
+    return pNode;
+}
+
 // FUNCTION: CMR2 0x004adf60
 void FUN_004adf60(void *pObject)
 {
