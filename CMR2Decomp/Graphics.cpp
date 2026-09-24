@@ -2514,6 +2514,68 @@ BOOL CGraphics::ClearZBuffer(void)
     return TRUE;
 }
 
+// Reloads every texture from its archive (.DDS first, else .TGA) and
+// recreates the cube map surfaces, e.g. after the device was lost.
+// TODO: CMR2 0x004a4c40 (implemented, match 88%)
+void Graphics_ReloadAllTextures(void)
+{
+    Texture *pTexture;
+    char *pExt;
+    void *pData;
+    unsigned int i;
+
+    for (i = 0; i < CGraphics::m_textureCount; i++) {
+        pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
+        if (pTexture->textureId == i) {
+            pExt = pTexture->name + strlen(pTexture->name) - 4;
+            strncpy(pExt, CGraphics::m_ddsExtension, 4);
+            pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
+            if (pData == NULL) {
+                strncpy(pExt, CGraphics::m_tgaExtension, 4);
+                CGraphics::LoadTGATexture(
+                    (BYTE *)CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0),
+                    pTexture);
+            } else {
+                CGraphics::LoadDDSTexture((DDSFile *)pData, pTexture);
+            }
+        }
+    }
+    for (i = 0; i < CGraphics::m_unk0x0065fa28; i++)
+        CGraphics::CreateCubeMapSurfaces((RenderTexture *)CGraphics::m_pTextureManager->textureBuffer2[i]);
+}
+
+// Whether a 2D point lies inside a triangle (x0, y0, x1, y1, x2, y2), all
+// 16.16; the edge tests work on values scaled by 0.01 to avoid overflow.
+// TODO: CMR2 0x0049da50 (implemented, match 48%)
+int Tri2D_Contains(int *pPoint, int *pTri)
+{
+    int ex0, ey0, ex1, ey1, ex2, ey2;
+    int px0, py0, px1, py1, px2, py2;
+
+    if ((pTri[0] > pPoint[0] && pTri[2] > pPoint[0] && pTri[4] > pPoint[0]) ||
+        (pPoint[0] > pTri[0] && pPoint[0] > pTri[2] && pPoint[0] > pTri[4]))
+        return 0;
+    if ((pTri[1] > pPoint[1] && pTri[3] > pPoint[1] && pTri[5] > pPoint[1]) ||
+        (pPoint[1] > pTri[1] && pPoint[1] > pTri[3] && pPoint[1] > pTri[5]))
+        return 0;
+    ey0 = FixMul(pTri[3] - pTri[1], 0x28f);
+    ex0 = FixMul(pTri[2] - pTri[0], 0x28f);
+    ey1 = FixMul(pTri[5] - pTri[3], 0x28f);
+    ex1 = FixMul(pTri[4] - pTri[2], 0x28f);
+    ey2 = FixMul(pTri[1] - pTri[5], 0x28f);
+    ex2 = FixMul(pTri[0] - pTri[4], 0x28f);
+    px0 = FixMul(pPoint[0] - pTri[0], 0x28f);
+    py0 = FixMul(pPoint[1] - pTri[1], 0x28f);
+    px1 = FixMul(pPoint[0] - pTri[2], 0x28f);
+    py1 = FixMul(pPoint[1] - pTri[3], 0x28f);
+    px2 = FixMul(pPoint[0] - pTri[4], 0x28f);
+    py2 = FixMul(pPoint[1] - pTri[5], 0x28f);
+    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(py1, -ex1) + FixMul(px1, ey1) >= 0 &&
+        FixMul(py2, -ex2) + FixMul(px2, ey2) >= 0)
+        return 1;
+    return 0;
+}
+
 // FUNCTION: CMR2 0x0049dc70
 void CGraphics::SetCullMode(int mode)
 {

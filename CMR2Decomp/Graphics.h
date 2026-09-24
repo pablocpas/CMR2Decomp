@@ -1347,6 +1347,7 @@ private:
     friend void Scene_SetViewFromCamera(SceneNode *pCamera);
     friend void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z);
     friend void SceneNode_FlushTransforms(SceneNode *pNode);
+    friend void Graphics_ReloadAllTextures(void);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);
