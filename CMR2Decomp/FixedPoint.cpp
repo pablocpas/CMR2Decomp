@@ -161,6 +161,46 @@ int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM)
     return 1;
 }
 
+// Rotates a float vector by the three rows of a float 4x4 matrix.
+// FUNCTION: CMR2 0x004b9ec0
+__declspec(naked) int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM)
+{
+    __asm {
+        mov ecx, dword ptr [esp + 12]
+        mov eax, dword ptr [esp + 8]
+        mov edx, dword ptr [esp + 4]
+        fld dword ptr [ecx + 8]
+        fmul dword ptr [eax + 8]
+        fld dword ptr [ecx + 4]
+        fmul dword ptr [eax + 4]
+        faddp st(1), st
+        fld dword ptr [eax]
+        fmul dword ptr [ecx]
+        faddp st(1), st
+        fstp dword ptr [edx]
+        fld dword ptr [ecx + 16]
+        fmul dword ptr [eax]
+        fld dword ptr [ecx + 24]
+        fmul dword ptr [eax + 8]
+        faddp st(1), st
+        fld dword ptr [ecx + 20]
+        fmul dword ptr [eax + 4]
+        faddp st(1), st
+        fstp dword ptr [edx + 4]
+        fld dword ptr [ecx + 32]
+        fmul dword ptr [eax]
+        fld dword ptr [ecx + 40]
+        fmul dword ptr [eax + 8]
+        faddp st(1), st
+        fld dword ptr [ecx + 36]
+        fmul dword ptr [eax + 4]
+        mov eax, 1
+        faddp st(1), st
+        fstp dword ptr [edx + 8]
+        ret 12
+    }
+}
+
 // Copies the rotation part (right/up/forward) of a matrix.
 // FUNCTION: CMR2 0x004bab80
 void FixMatrix_CopyRotation(FixMatrix *pSrc, FixMatrix *pDst)

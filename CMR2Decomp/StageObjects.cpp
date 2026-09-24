@@ -23,6 +23,37 @@ int FUN_0046d2a0(int *p);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00421420(void);
 
+// Full strength within ten fixed-point units, fading to zero at fifty.
+// FUNCTION: CMR2 0x004863d0
+int StageObject_DistanceFade(FixVector *delta)
+{
+    int component;
+    int length;
+    int fade;
+
+    component = delta->x;
+    if (component < 0) component = -component;
+    if (component <= 0x320000) {
+        component = delta->y;
+        if (component < 0) component = -component;
+        if (component <= 0x320000) {
+            component = delta->z;
+            if (component < 0) component = -component;
+            if (component <= 0x320000) {
+                length = FixVecLength(delta);
+                if (length <= 0x320000) {
+                    length -= 0xa0000;
+                    if (length <= 0) return 0x10000;
+                    fade = FixMul(length, 0x666);
+                    if (fade > 0x10000) fade = 0x10000;
+                    return 0x10000 - fade;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 // GLOBAL: CMR2 0x00543f28
 int g_unk0x00543f28[8 * 4];
 // GLOBAL: CMR2 0x00547b80

@@ -425,6 +425,24 @@ void RallyData_ValidateIndex(int index)
 {
 }
 
+extern BYTE g_unk0x0052fa18[0x1938];
+extern BYTE g_unk0x00531350[0x1000];
+
+// Increments the use count of this entry's category unless the entry is unassigned.
+// FUNCTION: CMR2 0x00408f70
+void RallyData_IncrementCategoryUse(int index)
+{
+    unsigned int record;
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    record = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
+    if ((record & 0x3c0000) != 0x3c0000) {
+        category = (record >> 18) & 15;
+        ++g_unk0x0052fa18[9 + category * 0x650];
+    }
+}
+
 // FUNCTION: CMR2 0x004239e0
 void FUN_004239e0(int *p)
 {
