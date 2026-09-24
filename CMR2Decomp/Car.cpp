@@ -99,6 +99,22 @@ Car *Car_Get(int index)
     return g_cars[index];
 }
 
+// Road speed of a wheel from its spin: raw (unit 2), in km/h (0) or mph (1).
+// FUNCTION: CMR2 0x0042b600
+int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit)
+{
+    int speed;
+
+    speed = FixMul(pCar->wheelLoad[wheel], 0x4000);
+    switch (unit) {
+    case 0:
+        return FixMul(speed, 0x431168);
+    case 1:
+        return FixMul(speed, 0x6bfa9f);
+    }
+    return speed;
+}
+
 #define ADD_POSITION(p, pos)    \
     (p)->x += (pos).x;          \
     (p)->y += (pos).y;          \

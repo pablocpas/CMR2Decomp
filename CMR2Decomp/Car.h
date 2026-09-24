@@ -147,7 +147,9 @@ struct Car {
     char field_0xb34;                 // 0xb34
     BYTE field_0xb35[0xd];
     char field_0xb42;                 // 0xb42
-    BYTE field_0xb43[0x1d];
+    BYTE field_0xb43[0x5];
+    int field_0xb48;                  // 0xb48
+    BYTE field_0xb4c[0x14];
     int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];

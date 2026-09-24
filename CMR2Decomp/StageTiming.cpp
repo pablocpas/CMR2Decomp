@@ -914,18 +914,6 @@ void FUN_00490d50(BYTE *pData)
     CGame::RegisterCallback(g_unk0x004918c0, NULL);
 }
 
-// GLOBAL: CMR2 0x0053ce38
-int g_unk0x0053ce38[16];
-// GLOBAL: CMR2 0x0053ce44
-int g_unk0x0053ce44[16];
-// GLOBAL: CMR2 0x0053ce54
-int g_unk0x0053ce54[16];
-// GLOBAL: CMR2 0x0053ce60
-int g_unk0x0053ce60[16];
-// GLOBAL: CMR2 0x0053ce68
-int g_unk0x0053ce68[16];
-// GLOBAL: CMR2 0x0053cfa0
-int g_unk0x0053cfa0[16];
 // GLOBAL: CMR2 0x0053cdbc
 int g_unk0x0053cdbc;
 
@@ -939,23 +927,27 @@ int FUN_00445a40(void)
     return 0;
 }
 
+
+extern int g_dashGearMarker[2];
+extern int g_dashIdle[2];
+extern int g_dashRev[2];
+
 // FUNCTION: CMR2 0x00445db0
 void FUN_00445db0(void)
 {
-    g_unk0x0053cfa0[2] = 0;
-    g_unk0x0053ce68[12] = -1;
-    g_unk0x0053cfa0[3] = 0;
-    g_unk0x0053ce68[13] = -1;
+    g_dashIdle[0] = 0;
+    g_dashGearMarker[0] = -1;
+    g_dashIdle[1] = 0;
+    g_dashGearMarker[1] = -1;
 }
 
 // FUNCTION: CMR2 0x00445dd0
 int FUN_00445dd0(int index)
 {
     if (index < 2)
-        return g_unk0x0053ce54[index];
+        return g_dashRev[index];
     return 0;
 }
-
 
 // GLOBAL: CMR2 0x00542420
 int g_unk0x00542420[2];

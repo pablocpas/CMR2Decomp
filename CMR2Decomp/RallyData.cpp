@@ -656,6 +656,21 @@ BYTE *RallyData_FUN_00408860(int index)
     return NULL;
 }
 
+// Driver record of a car: its knockout entry, or its team's record.
+// FUNCTION: CMR2 0x00408a00
+BYTE *RallyData_FUN_00408a00(BYTE index)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4)
+        return g_unk0x0052f3e8 + 5 + index * 0xc4;
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return g_unk0x0052f3e8 + 0xba8 + category * 0x650;
+    return NULL;
+}
+
 // FUNCTION: CMR2 0x00408c70
 BYTE *RallyData_FUN_00408c70(int index)
 {
