@@ -1895,6 +1895,22 @@ DWORD FUN_0040bd30(unsigned short slot)
     return CInput::m_controllerInfo[CInput::m_unk0x005168f4[slot]].field_0x118;
 }
 
+// Merges the buttons of the joystick assigned to the slot into pOut.
+// FUNCTION: CMR2 0x0040bd60
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut)
+{
+    DeviceInfo *pDev;
+
+    if ((short)FUN_0040bbc0(slot) != 0 && (short)FUN_0040bbc0(slot) != 1) {
+        pDev = CInput::FUN_0049ead0(FUN_0040bbc0(slot));
+        if (pDev->field_0x0 == 0 || pDev->field_0x0 == 3) {
+            pOut->field_0x8 |= pDev->field_0x8;
+            pOut->field_0x4 |= pDev->field_0x4;
+            pOut->field_0xc |= pDev->field_0xc;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x0040bdd0
 DWORD FUN_0040bdd0(unsigned short slot)
 {

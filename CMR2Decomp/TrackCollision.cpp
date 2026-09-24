@@ -2,6 +2,10 @@
 #include "FixedPoint.h"
 #include "Car.h"
 #include "Mesh.h"
+#include <stdio.h>
+#include "Frontend.h"
+#include "GenericFileLoader.h"
+#include "StageTiming.h"
 
 // Ground queries against the stage collision mesh loaded by FUN_00490d50:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
@@ -209,6 +213,30 @@ int Track_FindTriangle(FixVector *pPoint, short *pOut, int y)
     }
     return Track_FindNearestTriangle(pPoint, pOut, y, *(short *)(g_unk0x00591b00[level] + node * 8),
                                      (short *)(g_unk0x00591b18 + *(int *)(g_unk0x00591b00[level] + node * 8 + 4) * 2));
+}
+
+// GLOBAL: CMR2 0x005918d8
+BYTE g_unk0x005918d8;
+// GLOBAL: CMR2 0x0072d250
+int g_finCount;
+// GLOBAL: CMR2 0x0072d254
+BYTE *g_finData;
+// GLOBAL: CMR2 0x0051fc38
+char g_strFinFormat[] = "%sfin.dat";
+
+BYTE *FUN_0041f900(void);
+
+// Loads the stage's fin.dat table (0x30-byte records).
+// FUNCTION: CMR2 0x00490c30
+void FUN_00490c30(void)
+{
+    DWORD size = 0;
+
+    g_unk0x005918d8 = 0;
+    sprintf(CFrontend::m_stringDest, g_strFinFormat, FUN_0041f900());
+    g_finData = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                     CFrontend::m_stringDest, 0, &size, 0);
+    g_finCount = size / 0x30;
 }
 
 // Ground height under the point, reusing the cached triangle *pTri when the

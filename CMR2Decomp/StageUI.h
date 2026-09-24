@@ -36,8 +36,21 @@ struct CarSoundSet {
 };
 
 #define g_carSoundSets ((CarSoundSet *)(g_raceBlock + 0x25c))      // 0x5377c4
+#define g_stageSoundCount (*(unsigned int *)(g_raceBlock + 0x68))  // 0x5375d0
+#define g_stageSoundUsed (g_raceBlock + 0x6c)                      // 0x5375d4: [0x1f] sound groups in use
 #define g_unk0x005375f4 (g_raceBlock + 0x8c)                       // 0x5375f4: surface per car
 #define g_unk0x00537660 (*(int *)(g_raceBlock + 0xf8))             // 0x537660
 #define g_unk0x00537664 (*(int *)(g_raceBlock + 0xfc))             // 0x537664
+
+// Stage sound states; each can redirect to a shared pattern (0x1c bytes).
+struct StageSoundPattern {
+    char choices[4];
+    char redirect;
+    BYTE pad[3];
+    int count;
+    int base[4];
+};
+extern StageSoundPattern g_stageSoundPatterns[31];
+short FUN_00478a10(short index);
 
 #endif

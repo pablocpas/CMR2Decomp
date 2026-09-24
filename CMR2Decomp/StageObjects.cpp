@@ -145,6 +145,8 @@ int g_unk0x00589444;
 GenericFile g_unk0x00589448;
 // GLOBAL: CMR2 0x0058cf68
 int g_unk0x0058cf68;
+// GLOBAL: CMR2 0x0058cf6c
+int g_unk0x0058cf6c;
 // GLOBAL: CMR2 0x0058cf80
 BYTE g_unk0x0058cf80[0x100];
 BYTE g_stageBlock[0x430];
@@ -421,10 +423,28 @@ void FUN_0046b400(int value, int index)
     g_unk0x00588970[index] = value;
 }
 
+// FUNCTION: CMR2 0x0046b420
+void FUN_0046b420(void)
+{
+    memset(g_unk0x00588970, 0, 8 * sizeof(int));
+}
+
 // FUNCTION: CMR2 0x0046b4c0
 int FUN_0046b4c0(BYTE *pCar)
 {
     return g_unk0x00588970[(signed char)pCar[0xb1a]];
+}
+
+// TODO: CMR2 0x0046b710 (implemented, match 50%)
+void FUN_0046b710(void)
+{
+    int i;
+
+    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
+    for (i = 0; i < 8; i++) {
+        g_unk0x00588cd4[i * 2] = 0;
+        g_unk0x00588cd4[i * 2 + 1] = 0;
+    }
 }
 
 // FUNCTION: CMR2 0x0046b740
@@ -471,6 +491,23 @@ void FUN_0046c180(Block0x134 *pSrc, Block0x134 *pDst)
 void FUN_0046c220(Block6 *pSrc, Block6 *pDst)
 {
     *pDst = *pSrc;
+}
+
+int *FUN_00469680(int index);
+struct RaceRecord;
+RaceRecord *RallyData_FUN_00421510(int index);
+void RallyData_FUN_004207a0(int index);
+
+// Snapshots a car's state into the 0x1100-byte record at pDst.
+// FUNCTION: CMR2 0x0046c240
+void FUN_0046c240(BYTE *pDst, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+
+    FUN_0046c180((Block0x134 *)FUN_00469680(car), (Block0x134 *)pDst);
+    FUN_0046bfb0((Block0x309 *)pCar, (Block0x309 *)(pDst + 0x4d0));
+    FUN_0046c220((Block6 *)RallyData_FUN_00421510(car), (Block6 *)(pDst + 0x10f4));
+    RallyData_FUN_004207a0(car);
 }
 
 // FUNCTION: CMR2 0x0046d2a0

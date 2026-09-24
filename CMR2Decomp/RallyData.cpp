@@ -8,6 +8,20 @@
 #include "RallyTiming.h"
 #include "main.h"
 #include "Frontend.h"
+
+// Championship save data, one contiguous block as in the original:
+//   0x52f3e0  8 driver records of 0xc4 bytes
+//   0x52fa00  per-category "name edited" flags
+//   0x52fa10  4 category records of 0x650 bytes (counters at +0x10, name at +0x14)
+//   0x531350  16 index records of 0x30 bytes (category in bits 18..21 of +0)
+// GLOBAL: CMR2 0x0052f3e0
+BYTE g_saveData[0x2270];
+#define g_unk0x0052f3e0 (g_saveData)
+#define g_unk0x0052f3e8 (g_saveData + 0x8)
+#define g_unk0x0052fa18 (g_saveData + 0x638)
+#define g_unk0x0052fa24 (g_saveData + 0x644)
+#define g_unk0x0052fa5c (g_saveData + 0x67c)
+#define g_unk0x00531350 (g_saveData + 0x1f70)
 #include "AIHelper.h"
 #include "RegKey.h"
 #include "Font.h"
@@ -425,8 +439,6 @@ void RallyData_ValidateIndex(int index)
 {
 }
 
-extern BYTE g_unk0x0052fa18[0x1938];
-extern BYTE g_unk0x00531350[0x1000];
 
 // Increments counter 8 of this entry's category unless the entry is unassigned.
 // FUNCTION: CMR2 0x00408f20
@@ -754,17 +766,8 @@ BOOL RallyData_FUN_00408340(void)
     return TRUE;
 }
 
-// GLOBAL: CMR2 0x0052f3e0
-BYTE g_unk0x0052f3e0[8 * 196];
-// GLOBAL: CMR2 0x0052f3e8
-BYTE g_unk0x0052f3e8[0x2000];
-// GLOBAL: CMR2 0x00531350
-BYTE g_unk0x00531350[0x1000];
-extern BYTE g_unk0x0052fa5c[];
 
 
-extern BYTE g_unk0x0052fa24[0x10 * 0x650];
-extern BYTE g_unk0x0052f3e8[0x2000];
 
 
 // Copies the name into the category record of the given record index.
@@ -858,6 +861,21 @@ int RallyData_FUN_004077d0(int row, int column, int variant)
     return (unsigned int)g_stageScoreScale[(column + row * 12) * 2 + variant] * 100;
 }
 
+// Car of a driver: from the driver record in championship mode, else from its category.
+// FUNCTION: CMR2 0x00408800
+int RallyData_FUN_00408800(BYTE index)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4)
+        return *(int *)(g_unk0x0052f3e0 + 4 + index * 0xc4);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return *(int *)(g_unk0x0052f3e8 + 0x678 + category * 0x650);
+    return 0;
+}
+
 // FUNCTION: CMR2 0x00408860
 BYTE *RallyData_FUN_00408860(int index)
 {
@@ -867,6 +885,36 @@ BYTE *RallyData_FUN_00408860(int index)
     if (category != 0xf)
         return g_unk0x0052f3e8 + category * 0x650 + 0x620;
     return NULL;
+}
+
+// FUNCTION: CMR2 0x00408930
+BYTE *RallyData_FUN_00408930(BYTE index)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4)
+        return g_unk0x0052f3e8 + 0xa8 + index * 0xc4;
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        return g_unk0x0052f3e8 + 0xc54 + category * 0x650;
+    return NULL;
+}
+
+// Stores a driver's byte setting (driver record or category record).
+// FUNCTION: CMR2 0x00408990
+void RallyData_FUN_00408990(BYTE index, BYTE *pValue)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        g_unk0x0052f3e8[5 + index * 0xc4] = *pValue;
+        return;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf)
+        g_unk0x0052f3e8[0xba8 + category * 0x650] = *pValue;
 }
 
 // Driver record of a car: its knockout entry, or its team's record.
@@ -1037,10 +1085,6 @@ done:
     return 1;
 }
 
-// La base real de los registros por categoria; g_unk0x0052fa5c (mas abajo) es
-// el campo +0x38 del mismo registro, de ahi el solape de las dos anotaciones.
-// GLOBAL: CMR2 0x0052fa24
-BYTE g_unk0x0052fa24[0x10 * 0x650];
 
 // Returns the record of the category that the index belongs to, or NULL when
 // the record has no category.
@@ -2104,8 +2148,6 @@ void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
     }
 }
 
-// GLOBAL: CMR2 0x0052fa5c
-BYTE g_unk0x0052fa5c[0x10 * 0x650];
 
 // Bumps the 0x7f80-masked field of the entry selected by each 0x30-byte record.
 // TODO: CMR2 0x004ec1a0 (implemented, match 62%)
@@ -2565,8 +2607,6 @@ int RallyData_FUN_00421470(BYTE *p)
 }
 
 // Per-category records of 0x650 bytes (runs up to the 0x531350 table).
-// GLOBAL: CMR2 0x0052fa18
-BYTE g_unk0x0052fa18[0x1938];
 
 // Record of the selected entry: the 196-byte entry in championship mode
 // (mode 4), otherwise the 0x650-byte category record (NULL when the
@@ -2964,6 +3004,22 @@ void FUN_00471d80(BYTE **pp, BYTE bit, int set)
             return;
         }
         g_unk0x0058c938[index] |= mask;
+    }
+}
+
+unsigned int RallyDataState(void);
+
+// Marks the element as reached by the car; the first time, in single player,
+// pushes its object out of the way.
+// TODO: CMR2 0x00470240 (implemented, match 78%)
+void FUN_00470240(BYTE **pElement, BYTE car)
+{
+    if (FUN_00471d40((BYTE **)&pElement, car) == 0) {
+        FUN_00471d80((BYTE **)&pElement, car, 1);
+        if (Car_Get(car)->field_0xc0c == 0 && (BYTE)RallyDataState() == 1) {
+            *(int *)(*pElement + 4) += 0x3e80000;
+            (*pElement)[0x14] = 0xff;
+        }
     }
 }
 

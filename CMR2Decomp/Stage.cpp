@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "Stage.h"
 
 // GLOBAL: CMR2 0x00542cac
@@ -37,6 +38,22 @@ int FUN_004583a0(void)
 int FUN_004583b0(int index)
 {
     return g_unk0x00542c7c[index];
+}
+
+// GLOBAL: CMR2 0x00542d38
+int g_unk0x00542d38[8];
+
+#include "Car.h"
+void RallyData_FUN_004213d0(Car *pCar, int value);
+
+// Puts every car back on its stored route position.
+// TODO: CMR2 0x00458480 (implemented, match 86%)
+void FUN_00458480(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x00542c68; i++)
+        RallyData_FUN_004213d0(Car_Get(i), g_unk0x00542d38[i] >> 16);
 }
 
 // FUNCTION: CMR2 0x004584c0

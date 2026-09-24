@@ -2371,6 +2371,23 @@ void FUN_00402c40(void)
     Menu_SetCallbacks(&g_menu0x00529ce8, NULL, NULL, (MenuCallback)FUN_00402c30, NULL);
 }
 
+// Callback 0 of the network options menu: loads the two switches.
+// FUNCTION: CMR2 0x00402eb0
+void FUN_00402eb0(Menu *pMenu, char param)
+{
+    if (param == 0) {
+        if (CGameInfo::FUN_00405dc0() == 0)
+            pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
+        else
+            pMenu->items[Menu_FindItem(pMenu, 2)].max = 1;
+        if ((BYTE)CGameInfo::FUN_00405eb0()) {
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
+            return;
+        }
+        pMenu->items[Menu_FindItem(pMenu, 4)].max = 0;
+    }
+}
+
 // FUNCTION: CMR2 0x00402f70
 void FUN_00402f70(Menu *pMenu, int param)
 {

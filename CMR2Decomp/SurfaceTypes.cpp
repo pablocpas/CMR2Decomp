@@ -4,6 +4,8 @@
 #include "StageTiming.h"
 #include "GenericFileLoader.h"
 #include "Car.h"
+#include "GameInfo.h"
+#include "Input.h"
 
 int g_surfaceDrag[63] = {
     0, 0, -65536, -32768, -65536, -65536, -65536, -131072,
@@ -414,5 +416,27 @@ void FUN_0047a380(int target, int player)
         target = 0;
     g_unk0x0058de00[player] = target;
     g_unk0x0058de08[player] = target;
+}
+
+// GLOBAL: CMR2 0x0058dc58
+DWORD g_unk0x0058dc58;
+// GLOBAL: CMR2 0x0058dc5c
+int g_unk0x0058dc5c;
+
+void FUN_004a0c40(char param1);
+
+// Menu setup of the surface screen: input repeat from the options and the
+// button mapping stored in g_unk0x0058dc58.
+// TODO: CMR2 0x00478be0 (implemented, match 70%)
+void FUN_00478be0(void)
+{
+    int rate;
+
+    g_unk0x0058dc5c = -1;
+    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
+    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ff80(g_unk0x0058dc58, g_unk0x0058dc58 + 1, g_unk0x0058dc58 + 2, g_unk0x0058dc58 + 3,
+                         g_unk0x0058dc58 + 4);
+    FUN_004a0c40(1);
 }
 

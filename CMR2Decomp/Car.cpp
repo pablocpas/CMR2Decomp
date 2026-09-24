@@ -157,6 +157,15 @@ int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit)
     (p)->z += (pos).z;          \
     (p)++;
 
+// Sets three handling factors of the current car from a 16.16 level.
+// TODO: CMR2 0x0043e530 (implemented, match 76%)
+void FUN_0043e530(int level)
+{
+    g_pCurrentCar->field_0x804 = FixMul(level, 0xcccc) + 0x9999;
+    g_pCurrentCar->field_0x7fc = FixMul(level, 0xa3d) + 0xccc;
+    g_pCurrentCar->field_0x800 = FixMul(level, 0x3333) + 0x1999;
+}
+
 // Recomputes the eight world-space corners of the car's box from its
 // half extents and world matrix, then applies the suspension offsets.
 // FUNCTION: CMR2 0x0043eef0

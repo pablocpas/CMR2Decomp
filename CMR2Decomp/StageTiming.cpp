@@ -556,6 +556,22 @@ int FUN_00448240(int car, int index)
     return g_carStageTiming[car].splits[index];
 }
 
+// Split times of each car per checkpoint group (8 x 12 x 5).
+// GLOBAL: CMR2 0x0053d1e8
+int g_unk0x0053d1e8[8][12][5];
+
+int FUN_00458330(int index);
+int FUN_00458350(int index);
+int FUN_00458370(int index);
+
+// TODO: CMR2 0x004482d0 (implemented, match 65%)
+int FUN_004482d0(int index, int car)
+{
+    if ((BYTE)RallyData_GetFlag24())
+        return g_unk0x0053d1e8[car][FUN_00458330(index)][FUN_00458350(index)];
+    return g_carStageTiming[car].field_0x4[FUN_00458370(index)];
+}
+
 // FUNCTION: CMR2 0x00448330
 int FUN_00448330(int car)
 {
@@ -598,6 +614,24 @@ int FUN_00448670(void)
 void FUN_00448780(int car)
 {
     g_carStageTiming[car].startTime = g_unk0x0053d1b0;
+}
+
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082d0(void);
+void StageTiming_QueueDriverSlot(int index);
+
+// In a two-player split race, queues both driver slots once the leader's lead
+// exceeds the allowed gap.
+// FUNCTION: CMR2 0x00448bf0
+void FUN_00448bf0(int slot)
+{
+    if (RallyData_FUN_004082b0() == 1 && g_unk0x0053d1a6 != 0 && slot != g_unk0x0053d1a8) {
+        if ((int)(RallyData_FUN_004082d0() * 100) < g_unk0x0053d1a2) {
+            g_unk0x0053d1a7 = 1;
+            StageTiming_QueueDriverSlot(g_unk0x0053d1a8);
+            StageTiming_QueueDriverSlot(1 - g_unk0x0053d1a8);
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x00448c60
@@ -915,6 +949,29 @@ void FUN_00424560(void)
     }
 }
 
+// Resets the force values of every idle slot with a device and marks it active.
+// TODO: CMR2 0x004245e0 (implemented, match 75%)
+void FUN_004245e0(void)
+{
+    Unk0x00539278 *p;
+    int i;
+
+    for (p = g_forceFeedbackSlots; p < g_forceFeedbackSlots + 2; p++) {
+        g_unk0x00539278 = p;
+        if (p->field_0x34 == 0) {
+            if (p->field_0x2c >= 0) {
+                p->field_0x28 = 0;
+                g_unk0x00539278->field_0x24 = 0;
+                for (i = 0; i < 3; i++) {
+                    (&g_unk0x00539278->field_0x0)[i] = 0;
+                    (&g_unk0x00539278->field_0xc)[i] = 0;
+                }
+            }
+            g_unk0x00539278->field_0x34 = 1;
+        }
+    }
+}
+
 // Stops the forces of every active slot and releases the slots.
 // TODO: CMR2 0x00424640 (implemented, match 62%)
 void FUN_00424640(void)
@@ -1129,6 +1186,19 @@ int g_unk0x00591b30;
 int g_unk0x00591b34;
 // GLOBAL: CMR2 0x00591b38
 int g_unk0x00591b38[5];
+// Reads entry index of the 8-byte table at g_unk0x00591af0.
+// TODO: CMR2 0x00491790 (implemented, match 53%)
+void FUN_00491790(short index, short *pA, short *pB, short *pC, short *pD, unsigned short *pFlags)
+{
+    int offset = index * 8;
+
+    *pA = *(short *)(offset + g_unk0x00591af0);
+    *pB = *(short *)(offset + 2 + g_unk0x00591af0);
+    *pC = *(short *)(offset + 4 + g_unk0x00591af0);
+    *pFlags = *(BYTE *)(offset + 6 + g_unk0x00591af0) & 0x7f;
+    *pD = 0;
+}
+
 // Release callback with nothing to free.
 // FUNCTION: CMR2 0x004918c0
 BYTE FUN_004918c0(void)
@@ -1267,6 +1337,28 @@ float FUN_00456ae0(void)
 int FUN_00456c00(int index)
 {
     return g_unk0x0054260c[index];
+}
+
+// GLOBAL: CMR2 0x00542608
+BYTE *g_unk0x00542608;
+// GLOBAL: CMR2 0x0051a8bc
+char g_strCspFormat[] = "%s.csp";
+
+int FUN_00458040(void);
+BYTE *FUN_0041f900(void);
+
+// Loads the stage's .csp data.
+// TODO: CMR2 0x00456c10 (implemented, match 80%)
+void FUN_00456c10(void)
+{
+    sprintf(CFrontend::m_stringDest, g_strCspFormat, FUN_0041f900());
+    g_unk0x00542608 = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                           CFrontend::m_stringDest, 0, 0, 0);
+    if (g_unk0x00542608 != NULL) {
+        *(BYTE **)(g_unk0x00542630 + 0x244) = g_unk0x00542608 + 0x18;
+        *(BYTE **)(g_unk0x00542630 + 0x240) = g_unk0x00542608;
+        CGame::RegisterCallback(FUN_00458040, 0);
+    }
 }
 
 // FUNCTION: CMR2 0x00456c90
@@ -1713,6 +1805,20 @@ void FUN_00469b50(int index)
 // GLOBAL: CMR2 0x00542630
 BYTE g_unk0x00542630[0x24 * 32];
 
+// Clears the stage file table and registers its release callback.
+// TODO: CMR2 0x00456bb0 (implemented, match 16%)
+void FUN_00456bb0(void)
+{
+    int i;
+
+    for (i = 0; i < 32; i++) {
+        g_unk0x00542ae8[i].pBuffer = NULL;
+        g_unk0x00542ae8[i].field_0x4 = NULL;
+        g_unk0x00542ae8[i].field_0x8 = NULL;
+    }
+    CGame::RegisterCallback(FUN_00456b70, 0);
+}
+
 // FUNCTION: CMR2 0x00456be0
 BYTE *FUN_00456be0(int index)
 {
@@ -2077,6 +2183,46 @@ void FUN_00459180(int index)
         g_unk0x00542e78[index].field_0x1a = 1;
         if ((BYTE)RallyData_FUN_004082e0() && RallyData_FUN_004082b0() == 1)
             g_unk0x00542e78[index].field_0x1a = 0;
+    }
+}
+
+// GLOBAL: CMR2 0x00590b30
+int g_unk0x00590b30[8];
+// GLOBAL: CMR2 0x00590b5c
+int g_unk0x00590b5c[8];
+// GLOBAL: CMR2 0x00590c00
+int g_unk0x00590c00[8];
+extern BYTE *g_unk0x00590b7c[4][8];
+extern BYTE g_unk0x00590c24[4][8];
+
+// Clears every car's four 0x1a0-byte record arrays and the slot tables.
+// TODO: CMR2 0x00480980 (implemented, match 73%)
+void FUN_00480980(void)
+{
+    void **pp;
+    int i;
+
+    for (pp = g_unk0x00590d7c; pp < g_unk0x00590d7c + 4; pp++)
+        for (i = 0; i < g_unk0x00590c64; i++)
+            memset((BYTE *)*pp + i * 0x1a0, 0, 0x1a0);
+    memset(g_unk0x00590b7c, 0, sizeof(g_unk0x00590b7c));
+    memset(g_unk0x00590c24, 0xff, sizeof(g_unk0x00590c24));
+}
+
+// Caches, per car in the list, pointers into its timing record.
+// TODO: CMR2 0x004809e0 (implemented, match 80%)
+void FUN_004809e0(short *pList, short count)
+{
+    int i;
+    Car *pCar;
+    int p;
+
+    for (i = count - 1; i >= 0; i--) {
+        pCar = Car_Get(pList[i]);
+        p = FUN_00457e10((BYTE *)pCar, 3);
+        g_unk0x00590b5c[pCar->field_0xb1a] = p;
+        g_unk0x00590b30[pCar->field_0xb1a] = p + 0xc;
+        g_unk0x00590c00[pCar->field_0xb1a] = p + 0x10;
     }
 }
 

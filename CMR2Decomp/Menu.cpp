@@ -504,6 +504,16 @@ done:
     return action;
 }
 
+// Goes back to the parent menu (with the back sound unless muted).
+// TODO: CMR2 0x004a0b30 (implemented, match 87%)
+void Menu_GoBack(Menu *pMenu)
+{
+    if (g_unk0x0059f8fc == 0 && g_unk0x0059fa14 != 0)
+        Menu_PlaySound(CInput::m_unk0x0059f910);
+    g_unk0x0059fa17 = 1;
+    g_menuNextAction = (int)pMenu->pParent;
+}
+
 // FUNCTION: CMR2 0x004a0ba0
 void FUN_004a0ba0(void)
 {

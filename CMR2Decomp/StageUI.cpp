@@ -125,13 +125,6 @@ void FUN_00418f20(void)
     }
 }
 
-struct StageSoundPattern {
-    char choices[4];
-    char redirect;
-    BYTE pad[3];
-    int count;
-    int base[4];
-};
 
 // Each sound state can redirect to a shared pattern. The base sound ids are
 // filled in when the stage sound bank is loaded.
@@ -752,3 +745,22 @@ void StageUI_DrawStageGrid(int unused, int set)
         i++;
     } while (i < 0x1a);
 }
+
+// GLOBAL: CMR2 0x0058ca88
+BYTE *g_unk0x0058ca88;
+extern int g_unk0x0058cf6c;
+void FUN_0041f2a0(void);
+
+// Callback of the "retire" item: flags the championship and promotes the cars.
+// FUNCTION: CMR2 0x004734f0
+void FUN_004734f0(Menu *pMenu)
+{
+    int i;
+
+    *RallyData_GetChampionshipState() |= 0x800000;
+    g_unk0x0058cf6c = 0;
+    FUN_0041f2a0();
+    for (i = 0; i < *g_unk0x0058ca88; i++)
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
+}
+

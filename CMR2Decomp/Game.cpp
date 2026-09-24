@@ -8,6 +8,7 @@
 #include "Graphics.h"
 #include "Input.h"
 #include "FileBuffer.h"
+#include "Mesh.h"
 #include "Frontend.h"
 #include "Texture.h"
 #include "Sound.h"
@@ -860,6 +861,41 @@ int CGame::FUN_0049c430(void)
     return m_unk0x0059ce14;
 }
 
+// Sets field 0x2c of the mesh triangles whose flags match the group mask
+// (bits 0..6 against flags 0..6, bits 7..13 against flags 9..15).
+// TODO: CMR2 0x0049c440 (implemented, match 86%)
+void FUN_0049c440(Mesh *pMesh, int mask, int value)
+{
+    int low = mask & 0x7f;
+    int high = (mask >> 7) & 0x7f;
+    int i;
+    MeshTriangle *pTri;
+
+    if (pMesh != NULL) {
+        for (i = 0; i < pMesh->triangleCount; i++) {
+            pTri = &pMesh->pTriangles[i];
+            if ((pTri->flags & low & 0x7f) != 0 || (high & (pTri->flags >> 9)) != 0)
+                pTri->field_0x2c = value;
+        }
+    }
+}
+
+// Same as FUN_0049c440 for field 0x30 (the mesh must exist).
+// FUNCTION: CMR2 0x0049c4b0
+void FUN_0049c4b0(Mesh *pMesh, int mask, int value)
+{
+    int low = mask & 0x7f;
+    int high = (mask >> 7) & 0x7f;
+    int i;
+    MeshTriangle *pTri;
+
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        pTri = &pMesh->pTriangles[i];
+        if ((pTri->flags & low & 0x7f) != 0 || (high & (pTri->flags >> 9)) != 0)
+            pTri->field_0x30 = value;
+    }
+}
+
 // FUNCTION: CMR2 0x0049cb50
 void CGame::FUN_0049cb50(void *param1)
 {
@@ -1120,6 +1156,29 @@ int FUN_004a15c0(BYTE index, GUID *pOut)
         return 1;
     }
     return 0;
+}
+
+// Sets one of the four session user values and pushes the description.
+// TODO: CMR2 0x004a16c0 (implemented, match 68%)
+void Session_SetUserValue(char index, int value)
+{
+    FUN_004a0d60();
+    switch (index) {
+    case 0:
+        *(int *)(g_unk0x005a0068 + 0x40) = value;
+        FUN_004a14e0();
+        return;
+    case 1:
+        *(int *)(g_unk0x005a0068 + 0x44) = value;
+        FUN_004a14e0();
+        return;
+    case 2:
+        *(int *)(g_unk0x005a0068 + 0x48) = value;
+        FUN_004a14e0();
+        return;
+    }
+    *(int *)(g_unk0x005a0068 + 0x4c) = value;
+    FUN_004a14e0();
 }
 
 // FUNCTION: CMR2 0x004a1720

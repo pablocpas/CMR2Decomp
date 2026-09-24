@@ -82,7 +82,9 @@ struct Car {
     BYTE field_0x7b8[0x4];
     int field_0x7bc[8];               // 0x7bc
     int field_0x7dc[8];               // 0x7dc
-    BYTE field_0x7fc[0xc];
+    int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)
+    int field_0x800;                  // 0x800
+    int field_0x804;                  // 0x804
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c

@@ -3,7 +3,10 @@
 
 // Triangle of a Mesh (0x4c bytes); per-vertex colour bytes at 0x34/0x38/0x3c.
 struct MeshTriangle {
-    BYTE field_0x0[0x34];
+    unsigned short flags;           // 0x0  bits 0..6 and 9..15: material groups
+    BYTE field_0x2[0x2a];
+    int field_0x2c;                 // 0x2c set per group (0x49c440)
+    int field_0x30;                 // 0x30 set per group (0x49c4b0)
     BYTE colour[3][4];              // 0x34  r,g,b,a per vertex
     unsigned short vertexIndex[3];  // 0x40  index into the mesh vertex array
     BYTE field_0x46[0x6];

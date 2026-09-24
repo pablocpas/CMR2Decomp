@@ -1129,6 +1129,24 @@ void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
     }
 }
 
+// Update callback: rises by half its size (capped at 1.5) and follows its car.
+// TODO: CMR2 0x0045d270 (implemented, match 83%)
+void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
+{
+    Particle *p = (Particle *)pParticle;
+    Car *pCar;
+
+    p->vector0x28.y += p->size / 2;
+    if (p->size > 0x18000)
+        p->size = 0x18000;
+    if (p->field0x64 < 8) {
+        pCar = Car_Get(p->field0x64);
+        p->vector0x28.x += pCar->position.x;
+        p->vector0x28.y += pCar->position.y;
+        p->vector0x28.z += pCar->position.z;
+    }
+}
+
 // Spawn callback: stores the effect data passed by the spawner.
 // TODO: CMR2 0x0045de80 (implemented, match 72%)
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)

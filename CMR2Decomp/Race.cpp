@@ -5,6 +5,7 @@
 #include "StageUI.h"
 #include "FixedPoint.h"
 #include <stdio.h>
+#include <string.h>
 #include "InstallInfo.h"
 #include "Frontend.h"
 #include "Graphics.h"
@@ -413,6 +414,18 @@ int FUN_00419b50(int param1, int param2)
     return value % param2;
 }
 
+// Marks the sound groups used by the stage's surfaces.
+// FUNCTION: CMR2 0x0041afe0
+void FUN_0041afe0(BYTE *pSurfaces, unsigned int count)
+{
+    unsigned int i;
+
+    memset(g_stageSoundUsed, 0, 0x1f);
+    g_stageSoundCount = count;
+    for (i = 0; i < g_stageSoundCount; i++)
+        g_stageSoundUsed[g_stageSoundPatterns[FUN_00478a10(pSurfaces[i])].redirect] = 1;
+}
+
 // FUNCTION: CMR2 0x0041b040
 void FUN_0041b040(int value)
 {
@@ -481,6 +494,24 @@ void FUN_00420100(void)
 char g_raceCarPath[0x104];
 // GLOBAL: CMR2 0x0051945c
 char g_strPathFormat[] = "%s\\%s";
+
+// GLOBAL: CMR2 0x005196f0
+char g_strCarC1Format[] = "%s\\%sc1";
+// GLOBAL: CMR2 0x005196f8
+char g_strCarD3Format[] = "%s\\%sd3%d";
+
+// Path of a car's texture set: "<cars dir>\<car>d3<n>" or "<cars dir>\<car>c1".
+// FUNCTION: CMR2 0x00420060
+char *FUN_00420060(int car, int variant, int unused)
+{
+    if ((BYTE)RallyData_GetFlag24()) {
+        sprintf(g_raceCarPath, g_strCarD3Format, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car),
+                variant + 1);
+        return g_raceCarPath;
+    }
+    sprintf(g_raceCarPath, g_strCarC1Format, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car));
+    return g_raceCarPath;
+}
 
 // Path of a car's directory ("<cars dir>\<car>").
 // FUNCTION: CMR2 0x004200d0
@@ -599,3 +630,11 @@ void FUN_00418780(void)
         } while (i < (int)(RallyDataState() & 0xff));
     }
 }
+
+// FUNCTION: CMR2 0x00420130
+void FUN_00420130(int value)
+{
+    g_unk0x00538970 = value;
+    g_raceCallbackMark = CGame::GetCallbackCount();
+}
+
