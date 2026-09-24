@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "FixedPoint.h"
 #include "Car.h"
+#include "Mesh.h"
 
 // Ground queries against the stage collision mesh loaded by FUN_00490d50:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
@@ -337,4 +338,209 @@ void Car_UpdateAutomaticGear(void)
         g_pAutoGearCar->field_0xb94 = 0;
         g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
     }
+}
+
+void FUN_0046f4c0(int *pOut);
+void FUN_0046f4d0(int *pOut);
+void FUN_0046f4e0(int *pOut1, int *pOut2);
+extern BYTE *g_unk0x005920f0;
+extern FixVector g_unk0x00592114;
+
+// GLOBAL: CMR2 0x00591c80
+int g_stageHeightSamples[200];
+// GLOBAL: CMR2 0x00591fa0
+FixVector g_stageLightOrigin;
+// GLOBAL: CMR2 0x00591fac
+int g_stageHeightTarget;
+// GLOBAL: CMR2 0x005920b8
+SceneNode *g_stageLightNode;
+// GLOBAL: CMR2 0x005920bc
+SceneNode *g_stageLightObject;
+// GLOBAL: CMR2 0x005920c0
+SceneNode *g_stageLightRoot;
+// GLOBAL: CMR2 0x005920c4
+Mesh *g_stageMesh0;
+// GLOBAL: CMR2 0x005920c8
+Mesh *g_stageMesh0Copy;
+// GLOBAL: CMR2 0x005920cc
+Mesh *g_stageMesh1;
+// GLOBAL: CMR2 0x005920d0
+Mesh *g_stageMesh1Copy;
+// GLOBAL: CMR2 0x005920d4
+Mesh *g_stageMesh2;
+// GLOBAL: CMR2 0x005920d8
+Mesh *g_stageMesh2Copy;
+// GLOBAL: CMR2 0x005920dc
+Mesh *g_stageMesh3;
+// GLOBAL: CMR2 0x005920e0
+Mesh *g_stageMesh3Copy;
+// GLOBAL: CMR2 0x005920e4
+Mesh *g_stageMesh4;
+// GLOBAL: CMR2 0x005920e8
+Mesh *g_stageMesh4Copy;
+// GLOBAL: CMR2 0x005920ec
+Mesh *g_stageMesh5;
+// GLOBAL: CMR2 0x005920f4
+Mesh *g_stageMesh6;
+// GLOBAL: CMR2 0x005920f8
+Mesh *g_stageMesh6Copy;
+// GLOBAL: CMR2 0x00592108
+FixVector g_stageRangeOrigin;
+// GLOBAL: CMR2 0x00592120
+int g_stageHeightMin;
+// GLOBAL: CMR2 0x00592124
+int g_stageHeightScale;
+// GLOBAL: CMR2 0x00592138
+short g_stageMesh2Count;
+// GLOBAL: CMR2 0x0059213a
+short g_stageMesh3Count;
+// GLOBAL: CMR2 0x0059213c
+short g_stageMesh1Count;
+// GLOBAL: CMR2 0x0059213e
+short g_stageMesh0Count;
+// GLOBAL: CMR2 0x00592140
+short g_stageMesh4Count;
+// GLOBAL: CMR2 0x00592142
+short g_stageMesh5Count;
+// GLOBAL: CMR2 0x00592144
+short g_stageMesh6Count;
+// GLOBAL: CMR2 0x00592148
+int g_stageColourDirty;
+// GLOBAL: CMR2 0x0059214c
+int g_stageColourMode;
+// GLOBAL: CMR2 0x00592150
+int g_stageColourValue;
+// GLOBAL: CMR2 0x00592154
+int g_stageColourStep;
+// GLOBAL: CMR2 0x0059215c
+int g_stageColourState;
+// GLOBAL: CMR2 0x00592158
+int g_stageLightReady;
+
+// Loads the stage's light meshes and their height samples.  The samples are
+// fixed point values converted from the first mesh's floating point vertices.
+// TODO: CMR2 0x004919a0 (implemented, match 48%)
+void Stage_InitLightMeshes(void)
+{
+    int object0;
+    int object1;
+    int object2;
+    int object3;
+    int *node;
+    int *root;
+    int *child;
+    int i;
+    int value;
+    int minimum;
+    int maximum;
+    float *vertices;
+
+    FUN_0046f4c0(&object0);
+    FUN_0046f4d0(&object1);
+    FUN_0046f4e0(&object2, &object3);
+    node = NULL;
+    root = NULL;
+    child = NULL;
+    if (object0 != 0 && (node = *(int **)(object0 + 4)) != NULL &&
+        (root = (int *)*node) != NULL)
+        child = (int *)*root;
+
+    g_stageLightOrigin.x = 0;
+    g_stageLightOrigin.y = 0;
+    g_stageLightOrigin.z = 0;
+    g_stageLightNode = (SceneNode *)node;
+    g_stageLightObject = SceneType2_Create((FixVector *)(node + 4), (FixAngles *)(node + 7), NULL,
+                                           (SceneNode *)node);
+    g_stageMesh0Count = 0;
+    g_stageMesh1Copy = NULL;
+    g_stageMesh1Count = 0;
+    g_stageMesh2Copy = NULL;
+    g_stageMesh2Count = 0;
+    g_stageMesh3Copy = NULL;
+    g_stageMesh3Count = 0;
+    g_stageMesh4Copy = NULL;
+    g_stageMesh4Count = 0;
+    g_unk0x005920f0 = NULL;
+    g_stageMesh5Count = 0;
+    g_stageMesh6Copy = NULL;
+    g_stageMesh6Count = 0;
+
+    g_stageMesh0 = *(Mesh **)(object0 + 0xc);
+    g_stageLightRoot = (SceneNode *)child;
+    g_stageMesh0Copy = g_stageMesh0;
+    g_stageMesh0Count = (short)Mesh_GetField0x10(g_stageMesh0);
+    g_stageMesh1 = *(Mesh **)(object1 + 0xc);
+    g_stageMesh1Copy = g_stageMesh1;
+    g_stageMesh1Count = (short)Mesh_GetField0x10(g_stageMesh1);
+    g_stageMesh2 = *(Mesh **)(object2 + 0xc);
+    g_stageMesh2Copy = g_stageMesh2;
+    g_stageMesh2Count = (short)Mesh_GetField0x10(g_stageMesh2);
+    if (object3 != 0) {
+        g_stageMesh3 = *(Mesh **)(object3 + 0xc);
+        g_stageMesh3Copy = g_stageMesh3;
+        g_stageMesh3Count = (short)Mesh_GetField0x10(g_stageMesh3);
+    }
+    g_stageMesh4 = (Mesh *)root[3];
+    g_stageMesh4Copy = g_stageMesh4;
+    g_stageMesh4Count = (short)Mesh_GetField0x10(g_stageMesh4);
+    g_stageMesh5 = (Mesh *)node[3];
+    g_unk0x005920f0 = (BYTE *)g_stageMesh5;
+    g_stageMesh5Count = (short)Mesh_GetField0x10(g_stageMesh5);
+    if (child != NULL) {
+        g_stageMesh6 = *(Mesh **)((BYTE *)child + 0xc);
+        g_stageMesh6Copy = g_stageMesh6;
+        g_stageMesh6Count = (short)Mesh_GetField0x10(g_stageMesh6);
+    }
+    g_stageColourDirty = 0;
+    g_stageColourMode = 0;
+    g_stageColourValue = 0;
+    g_stageColourStep = 0;
+    g_stageColourState = 0;
+
+    if (g_stageMesh0Count != 0) {
+        maximum = 0;
+        minimum = 0;
+        for (i = g_stageMesh0Count - 1; i >= 0; i--) {
+            vertices = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
+            value = (int)(__int64)((double)vertices[1] * CGraphics::m_65536);
+            if (i == g_stageMesh0Count - 1) {
+                minimum = value;
+                maximum = value;
+            } else {
+                if (maximum < value)
+                    maximum = value;
+                if (value < minimum)
+                    minimum = value;
+            }
+            if (i == 0x68) {
+                g_unk0x00592114.y = value;
+                g_unk0x00592114.x = (int)(__int64)((double)vertices[0] * CGraphics::m_65536);
+                g_unk0x00592114.z = (int)(__int64)((double)vertices[2] * CGraphics::m_65536);
+            }
+            g_stageHeightSamples[i] = value;
+        }
+        if (maximum != minimum) {
+            g_stageHeightScale = FixDiv(0x10000, maximum - minimum);
+            g_stageHeightMin = minimum;
+        }
+    }
+    if (g_stageMesh1Count != 0) {
+        vertices = (float *)g_stageMesh1Copy->pVertexData;
+        g_stageRangeOrigin.x = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x960) * CGraphics::m_65536);
+        g_stageRangeOrigin.y = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x964) * CGraphics::m_65536);
+        g_stageRangeOrigin.z = (int)(__int64)((double)*(float *)((BYTE *)vertices + 0x968) * CGraphics::m_65536);
+        minimum = (int)(__int64)((double)vertices[1] * CGraphics::m_65536);
+        maximum = minimum;
+        for (i = g_stageMesh1Count - 1; i >= 0; i--) {
+            value = (int)(__int64)((double)*(float *)((BYTE *)vertices + i * 0x30 + 4) * CGraphics::m_65536);
+            if (maximum < value)
+                maximum = value;
+            if (value < minimum)
+                minimum = value;
+        }
+        g_stageHeightTarget = minimum + FixMul(maximum - minimum, 0xc000);
+    }
+    for (i = g_stageMesh4Count - 1; i >= 0; i--)
+        *(int *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x18) = 0;
+    g_stageLightReady = 1;
 }
