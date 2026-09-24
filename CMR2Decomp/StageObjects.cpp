@@ -12,6 +12,7 @@
 #include "GameInfo.h"
 #include "Input.h"
 #include "main.h"
+#include "Game.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -111,7 +112,7 @@ int *g_unk0x00588758;
 // GLOBAL: CMR2 0x00588760
 char g_unk0x00588760;
 // GLOBAL: CMR2 0x00588761
-BYTE g_unk0x00588761;
+signed char g_unk0x00588761;
 // GLOBAL: CMR2 0x00588864
 int g_unk0x00588864;
 // GLOBAL: CMR2 0x00588868
@@ -884,4 +885,164 @@ unsigned int FUN_0049e940(void)
             buttons |= CInput::m_availableDevices[i].field_0x4;
     }
     return buttons;
+}
+
+void FUN_004bcad0(int value);
+void Scene_SetLight(FixVector *pLight, int boost);
+int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
+                                 unsigned short *pSurface, int defaultY);
+DWORD FUN_004b74e0(void);
+DWORD FUN_004b74f0(void);
+DWORD FUN_004b7500(void);
+int *FUN_00469680(int index);
+void FUN_00480ac0(BYTE *pCar, int slot, int reset);
+void FUN_0042b720(int index, BYTE value);
+int FUN_00457e10(BYTE *pCar, int offset);
+short Car_GetOrderCount(void);
+
+// FUNCTION: CMR2 0x00492fd0
+void FUN_00492fd0(int value)
+{
+    FUN_004bcad0(value);
+}
+
+// Position of the object held in 0x589438 (its matrix at +0x98).
+// FUNCTION: CMR2 0x0046f4a0
+void FUN_0046f4a0(FixVector *pOut)
+{
+    if (g_unk0x00589438 != 0)
+        FixMatrix_GetPosition(pOut, (FixMatrix *)(g_unk0x00589438 + 0x98));
+}
+
+// Ground height at a point; the surface id is written over the defaultY slot.
+// FUNCTION: CMR2 0x004930b0
+int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY)
+{
+    return Track_GetGroundHeightSurface(pPoint, pNormal, pTri, pSurfaceClass, (unsigned short *)&defaultY, defaultY);
+}
+
+// Sets the stage light, without the boost for country 3.
+// FUNCTION: CMR2 0x00492e30
+void FUN_00492e30(FixVector *pLight)
+{
+    if ((char)RallyDataCountryIndex() == 3) {
+        Scene_SetLight(pLight, 0);
+        return;
+    }
+    Scene_SetLight(pLight, 1);
+}
+
+// Clears the value of every car slot not in use (or all of them when
+// CGameInfo::FUN_00406320 is set).
+// TODO: CMR2 0x0047c1b0 (implemented, match 75%)
+void FUN_0047c1b0(void)
+{
+    int i;
+
+    for (i = 0; i < 6; i++) {
+        if (i >= (int)(RallyDataState() & 0xff) || CGameInfo::FUN_00406320() != 0)
+            FUN_0042b720(i, 0xff);
+    }
+}
+
+// FUNCTION: CMR2 0x00466490
+void FUN_00466490(void)
+{
+    if (FUN_004b74e0() == 0 && FUN_004b74f0() == 0 && FUN_004b7500() == 0) {
+        g_unk0x00588868 = 0;
+        return;
+    }
+    g_unk0x00588868 = 1;
+}
+
+// Swaps *pValue with the value stored for `slot` when that slot is pending.
+// FUNCTION: CMR2 0x004660a0
+void FUN_004660a0(int **pValue, int slot, char flag)
+{
+    int *old;
+
+    if (g_unk0x00588761 == slot) {
+        old = g_unk0x00588758;
+        g_unk0x00588758 = *pValue;
+        *pValue = old;
+        g_unk0x00588761 = -1;
+        g_unk0x00588760 = flag;
+    }
+}
+
+// TODO: CMR2 0x0046b670 (implemented, match 85%)
+void FUN_0046b670(BYTE *pCar)
+{
+    int *p;
+    int i;
+
+    p = FUN_00469680((char)pCar[0xb1a]) + 0x4b0 / 4;
+    for (i = 0; i < 4; i++) {
+        FUN_00480ac0(pCar, i, *p);
+        p++;
+    }
+}
+
+// Per car in race order: its split value (see FUN_00457e10).
+// GLOBAL: CMR2 0x00590d90
+int g_carSplitValues[8];
+
+// FUNCTION: CMR2 0x00486700
+void FUN_00486700(void)
+{
+    int *p;
+    int i;
+
+    i = 0;
+    if (Car_GetOrderCount() > 0) {
+        p = g_carSplitValues;
+        do {
+            *p = FUN_00457e10((BYTE *)Car_Get(i), 4);
+            i++;
+            p++;
+        } while (i < Car_GetOrderCount());
+    }
+}
+
+// GLOBAL: CMR2 0x0058cf70
+int g_unk0x0058cf70;
+
+// Clears the championship "pending" flag (bit 23) when set, or when 0x58cf70 is clear.
+// FUNCTION: CMR2 0x004729f0
+BYTE FUN_004729f0(void)
+{
+    unsigned int *pState;
+
+    pState = RallyData_GetChampionshipState();
+    if ((*pState & 0x800000) == 0 && g_unk0x0058cf70 != 0)
+        return 0;
+    *pState &= 0xff7fffff;
+    g_unk0x0058cf7c = 0;
+    CGame::FUN_004057e0(0);
+    return 1;
+}
+
+// Eight records of 0x48 bytes whose ten shorts from +0 are reset to -1.
+// GLOBAL: CMR2 0x0058d6ec
+short g_unk0x0058d6ec[8][0x24];
+
+// TODO: CMR2 0x00477f30 (implemented, match 64%)
+void FUN_00477f30(void)
+{
+    short *p;
+
+    p = &g_unk0x0058d6ec[0][1];
+    do {
+        p[-1] = -1;
+        p[0] = -1;
+        p[1] = -1;
+        p[2] = -1;
+        p[3] = -1;
+        p[4] = -1;
+        p[5] = -1;
+        p[6] = -1;
+        p[7] = -1;
+        p[8] = -1;
+        p += 0x24;
+    } while ((int)p < (int)&g_unk0x0058d6ec[8][1]);
 }
