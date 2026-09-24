@@ -1986,3 +1986,251 @@ void StageLights_Create(void)
     g_unk0x00547b80 = 6;
     g_stageLightsActive = 1;
 }
+
+// ---------------------------------------------------------------------------
+// Replay buffers and stage event records.
+
+extern int g_unk0x00588d3c;
+extern int g_unk0x00588d14;
+extern void *g_unk0x00588e80[8];
+
+// Second set of eight buffers and the per-slot pointers into both sets.
+// GLOBAL: CMR2 0x00588d40
+void **g_unk0x00588d40[8];
+// GLOBAL: CMR2 0x00588d60
+void **g_unk0x00588d60[8];
+// GLOBAL: CMR2 0x00588ea0
+void *g_unk0x00588ea0[8];
+
+// FUNCTION: CMR2 0x0046c540
+void Replay_InitSlots(void)
+{
+    int i;
+
+    g_unk0x00588d3c = 0;
+    memset(g_unk0x00588e80, 0, sizeof(g_unk0x00588e80));
+    for (i = 0; i < 8; i++)
+        g_unk0x00588d40[i] = &g_unk0x00588e80[i];
+    g_unk0x00588d14 = 0;
+    memset(g_unk0x00588ea0, 0, sizeof(g_unk0x00588ea0));
+    for (i = 0; i < 8; i++)
+        g_unk0x00588d60[i] = &g_unk0x00588ea0[i];
+}
+
+// Stops recording into a replay buffer, closing the current segment.
+// TODO: CMR2 0x0046cc60 (implemented, match 36%)
+int Replay_StopRecording(BYTE *pBuffer)
+{
+    short *pCount;
+
+    if (pBuffer == NULL || *(int *)(pBuffer + 0xc) == 0)
+        return 0;
+    *(int *)(pBuffer + 0xc) = 0;
+    if (*(int *)(pBuffer + 0x10) == 0) {
+        if (*(int *)(pBuffer + 0x1c) != 2)
+            goto done;
+    } else if (*(int *)(pBuffer + 0x1c) != 2) {
+        pCount = (short *)(*(int *)(pBuffer + 0x104) + *(short *)(pBuffer + 0x100) * 2);
+        (*pCount)++;
+        (*(short *)(pBuffer + 0x100))++;
+        *(int *)(pBuffer + 0x10) = 0;
+        *(int *)(pBuffer + 0x18) = 0;
+        return 1;
+    }
+    *(short *)(pBuffer + 0x100) = 1;
+done:
+    *(int *)(pBuffer + 0x10) = 0;
+    *(int *)(pBuffer + 0x18) = 0;
+    return 1;
+}
+
+// GLOBAL: CMR2 0x0051bfec
+char g_strReplaySaved[] = "\n";
+
+// Writes a replay buffer (header plus its used arrays) to a file.
+// FUNCTION: CMR2 0x0046d3f0
+int Replay_Save(BYTE *pBuffer, char *pName)
+{
+    int frames;
+    int extra;
+    int records;
+
+    frames = *(short *)(pBuffer + 0xfc);
+    if (*(int *)(pBuffer + 0x1c) == 2)
+        extra = *(short *)(pBuffer + 0xfe) * frames * 0x10;
+    else
+        extra = *(short *)(pBuffer + 0xfe) * frames * 4;
+    if (*(int *)(pBuffer + 0x1c) == 0)
+        records = frames * 0x114c;
+    else
+        records = frames * 0x5c;
+    CInstallInfo::WriteFileToDisk(pName, 0, pBuffer, records + 0x110 + frames * 2 + extra);
+    puts(pName);
+    puts(g_strReplaySaved);
+    return 1;
+}
+
+// Points the arrays of a replay buffer into its data block (after the 0x110
+// header), according to its type.
+// TODO: CMR2 0x0046d470 (implemented, match 43%)
+void Replay_SetupPointers(BYTE *pBuffer)
+{
+    int recordSize;
+    int frames;
+    int extraSize;
+
+    if (*(int *)(pBuffer + 0x1c) == 0) {
+        *(BYTE **)(pBuffer + 0x24) = pBuffer + 0x110;
+        *(BYTE **)(pBuffer + 0x30) = NULL;
+        recordSize = 0x114c;
+    } else {
+        *(BYTE **)(pBuffer + 0x30) = pBuffer + 0x110;
+        *(BYTE **)(pBuffer + 0x24) = NULL;
+        recordSize = 0x5c;
+    }
+    frames = *(short *)(pBuffer + 0xfc);
+    if (*(int *)(pBuffer + 0x1c) == 2) {
+        *(BYTE **)(pBuffer + 0x3c) = NULL;
+        extraSize = 0x10;
+        *(BYTE **)(pBuffer + 0x40) = pBuffer + frames * recordSize + 0x110;
+    } else {
+        *(BYTE **)(pBuffer + 0x40) = NULL;
+        extraSize = 4;
+        *(BYTE **)(pBuffer + 0x3c) = pBuffer + frames * recordSize + 0x110;
+    }
+    *(BYTE **)(pBuffer + 0x104) = pBuffer + (*(short *)(pBuffer + 0xfe) * extraSize + recordSize) * frames + 0x110;
+}
+
+// Velocity estimate between two matrices (current at +0, previous at +0x40):
+// (difference - 3 * offset) / 6, stored at +0x80.
+// TODO: CMR2 0x0046e340 (implemented, match 79%)
+void FUN_0046e340(BYTE *pMatrices, BYTE *pInfo)
+{
+    FixVector a;
+    FixVector b;
+    FixVector d;
+    FixVector o;
+
+    FixMatrix_GetPosition(&a, (FixMatrix *)pMatrices);
+    FixMatrix_GetPosition(&b, (FixMatrix *)(pMatrices + 0x40));
+    d.x = b.x - a.x;
+    d.y = b.y - a.y;
+    d.z = b.z - a.z;
+    FixVecScale(&o, (FixVector *)(pInfo + 0x408), 0x30000);
+    d.x -= o.x;
+    d.y -= o.y;
+    d.z -= o.z;
+    FixVecScale((FixVector *)(pMatrices + 0x80), &d, 0x2aaa);
+}
+
+// Timed stage events (0x1c bytes each).
+struct EventRec {
+    short a;            // 0x0
+    short b;            // 0x2
+    BYTE field_0x4[8];
+    unsigned short step;    // 0xc
+    short range;        // 0xe
+    unsigned short counter; // 0x10
+    short field_0x12;   // 0x12
+    BYTE paused;        // 0x14
+    BYTE field_0x15[7];
+};
+
+// GLOBAL: CMR2 0x00588edc
+EventRec g_eventRecords[29];
+// GLOBAL: CMR2 0x00589210
+int g_eventScale;
+// GLOBAL: CMR2 0x00589318
+int g_unk0x00589318;
+// GLOBAL: CMR2 0x0058931c
+int g_eventCount;
+// GLOBAL: CMR2 0x00589320
+int g_unk0x00589320[4];
+// GLOBAL: CMR2 0x00589330
+BYTE g_eventsDirty;
+// GLOBAL: CMR2 0x00588ed0
+Texture *g_eventTexture;
+
+// Scales the event steps by their share of the largest a*b product.
+// TODO: CMR2 0x0046e6a0 (implemented, match 71%)
+void Events_ComputeSteps(void)
+{
+    EventRec *p;
+    int maxProduct;
+    int product;
+    int share;
+    int i;
+
+    maxProduct = 0;
+    for (i = g_eventCount, p = g_eventRecords; i > 0; i--, p++) {
+        product = p->b * p->a;
+        if (product > maxProduct)
+            maxProduct = product;
+    }
+    for (i = 0, p = g_eventRecords; i < g_eventCount; i++, p++) {
+        share = FixDiv((p->b * p->a) << 16, (maxProduct / 2) << 16);
+        p->step = (unsigned short)FixMul(share, g_eventScale);
+        p->range = (short)FixMul(share, 30000);
+        p->counter = 0;
+        p->field_0x12 = 0;
+        p->paused = 0;
+    }
+    if (g_eventCount > 2) {
+        p = &g_eventRecords[2];
+        for (i = g_eventCount - 2; i != 0; i--, p++) {
+            p->step >>= 1;
+            if (p->step == 0)
+                p->step = 1;
+        }
+    }
+}
+
+// TODO: CMR2 0x0046e530 (implemented, match 71%)
+void Events_Reset(void)
+{
+    EventRec *p;
+    int i;
+
+    g_unk0x00589318 = 0;
+    if (g_eventCount > 0) {
+        p = g_eventRecords;
+        for (i = g_eventCount; i != 0; i--, p++) {
+            p->counter = 0;
+            p->field_0x12 = 0;
+            p->paused = 0;
+        }
+    }
+    g_eventsDirty = 0;
+    g_unk0x00589320[0] = 0;
+    g_unk0x00589320[1] = 0;
+    g_unk0x00589320[2] = 0;
+    g_unk0x00589320[3] = 0;
+}
+
+// Advances an event's counter; returns 1 when it wraps past 255.
+// TODO: CMR2 0x0046ed40 (implemented, match 66%)
+int Events_Tick(int index)
+{
+    int wrapped;
+
+    wrapped = 0;
+    if (g_eventRecords[index].paused == 0) {
+        g_eventRecords[index].counter += g_eventRecords[index].step;
+        if (g_eventRecords[index].counter > 0xff) {
+            g_eventRecords[index].counter = 0;
+            wrapped = 1;
+        }
+    }
+    return wrapped;
+}
+
+void Graphics_ReloadTexture(Texture *pTexture);
+
+// FUNCTION: CMR2 0x0046ef20
+void Events_Flush(void)
+{
+    if (g_eventCount > 0 && g_eventsDirty != 0) {
+        Graphics_ReloadTexture(g_eventTexture);
+        Events_Reset();
+    }
+}
