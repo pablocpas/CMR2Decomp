@@ -1175,6 +1175,7 @@ public:
     static void SetProjection(int fovX, int fovY, int farPlane, int nearPlane);
     static void GenerateBumpMap(Texture *pSrc, Texture *pDst);
     static void CreateTextureSurface(Texture *pTexture, int width, int height, unsigned int flags);
+    static void RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2, int cacheSlot);
     static Texture *LoadDDSTexture(DDSFile *pDDS, Texture *pTexture);
     static Texture *FUN_004a48c0(char *name, void *pData, unsigned int flags);
     static Texture *FUN_004a49c0(char *name, unsigned int flags);
@@ -1346,9 +1347,10 @@ private:
     // GLOBAL: CMR2 0x0065fa3c
     static unsigned int m_lockedTextureCount;
     // GLOBAL: CMR2 0x0065aa88
-    static LockedTexture m_lockedTextures[7];
-    // GLOBAL: CMR2 0x0065aee8
-    static Unk0x0065aee8 m_unk0x0065aee8[64];
+    static LockedTexture m_lockedTextures[5];
+    // Backup copies of textures (surfaces restored with BltTexture).
+    // GLOBAL: CMR2 0x0065ae20
+    static Texture m_textureCache[64];
     // GLOBAL: CMR2 0x00520b2c
     static unsigned int m_unk0x00520b2c;
     // GLOBAL: CMR2 0x00520b30

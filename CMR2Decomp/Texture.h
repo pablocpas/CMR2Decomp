@@ -59,12 +59,6 @@ struct LockedTexture {
     WORD depths[4];     // bits in each mask minus 8
 };
 
-struct Unk0x0065aee8 {
-    BYTE field_0x0[0x4c];
-    IDirectDrawSurface7 *pSurface;
-    BYTE field_0x50[0xe0];
-};
-
 class CTexture {
 public:
     static Texture* FindLoadTexture(GenericFile* pFile, char* textureName, bool *didLoadTexture, LPVOID param4, bool param5, unsigned int flag);

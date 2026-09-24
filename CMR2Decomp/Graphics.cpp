@@ -35,8 +35,8 @@ BOOL CGraphics::m_unk0x00520b7c = TRUE;
 unsigned int CGraphics::m_unk0x0065fa2c;
 unsigned int CGraphics::m_textureCount;
 unsigned int CGraphics::m_lockedTextureCount;
-LockedTexture CGraphics::m_lockedTextures[7];
-Unk0x0065aee8 CGraphics::m_unk0x0065aee8[64];
+LockedTexture CGraphics::m_lockedTextures[5];
+Texture CGraphics::m_textureCache[64];
 unsigned int CGraphics::m_unk0x00520b2c = 0xff;
 unsigned int CGraphics::m_unk0x00520b30 = 0xff;
 int CGraphics::m_unk0x0065fa44;
@@ -280,16 +280,16 @@ BOOL CGraphics::ReleaseDirect3D(void)
 // GLOBAL: CMR2 0x0065fa30
 unsigned int g_unk0x0065fa30;
 
-// Releases the 64 cached surfaces held by m_unk0x0065aee8.
+// Releases the 64 cached surfaces held by m_textureCache.
 // FUNCTION: CMR2 0x004a5ba0
 void CGraphics::FUN_004a5ba0(void)
 {
     int i;
 
     for (i = 0; i < 64; i++) {
-        if (m_unk0x0065aee8[i].pSurface != NULL) {
-            if (m_unk0x0065aee8[i].pSurface->Release() == 0)
-                m_unk0x0065aee8[i].pSurface = NULL;
+        if (m_textureCache[i].pSurface != NULL) {
+            if (m_textureCache[i].pSurface->Release() == 0)
+                m_textureCache[i].pSurface = NULL;
         }
     }
     g_unk0x0065fa30 = 0;
@@ -838,6 +838,83 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
     return TRUE;
 }
 
+// Replaces three alpha values of a texture (4444 or 8888 formats), e.g. to
+// recolour masked areas. The untouched original is first saved in cache slot
+// cacheSlot so BltTexture can restore it.
+// TODO: CMR2 0x004a4d30 (implemented, match 42%)
+void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2,
+                                  int cacheSlot)
+{
+    DDSURFACEDESC2 desc;
+    RECT rect;
+    unsigned int width;
+    unsigned int height;
+    unsigned int x;
+    unsigned int y;
+    unsigned int mask;
+    BYTE bits;
+    int i;
+    DWORD *p32;
+    WORD *p16;
+    int skip;
+
+    desc.dwSize = sizeof(DDSURFACEDESC2);
+    rect.left = 0;
+    rect.right = pTexture->width;
+    rect.top = 0;
+    rect.bottom = pTexture->height;
+    if (m_textureCache[cacheSlot].pSurface == NULL) {
+        CreateTextureSurface(&m_textureCache[cacheSlot], pTexture->width, pTexture->height, 9);
+        m_textureCache[cacheSlot].pSurface->Blt(&rect, pTexture->pSurface, NULL, DDBLT_WAIT, NULL);
+        g_unk0x0065fa30++;
+    }
+    pTexture->pSurface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
+    width = pTexture->width;
+    height = pTexture->height;
+    bits = 0;
+    mask = desc.ddpfPixelFormat.dwRGBAlphaBitMask;
+    for (i = 32; i != 0; i--) {
+        if (mask & 1)
+            bits++;
+        mask >>= 1;
+    }
+    switch (bits) {
+    case 4:
+        p16 = (WORD *)desc.lpSurface;
+        skip = desc.lPitch - width * 2;
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from0 << 8 >> 8) & 0xf0))
+                    *p16 = ((to0 & 0xf0) << 8) | (*p16 & 0xfff);
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from1 << 8 >> 8) & 0xf0))
+                    *p16 = ((to1 & 0xf0) << 8) | (*p16 & 0xfff);
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from2 << 8 >> 8) & 0xf0))
+                    *p16 = ((to2 & 0xf0) << 8) | (*p16 & 0xfff);
+                p16++;
+            }
+            p16 += skip;
+        }
+        break;
+    case 8:
+        p32 = (DWORD *)desc.lpSurface;
+        skip = (unsigned int)(desc.lPitch - width * 4) >> 2;
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                if ((*p32 >> 24) == from0)
+                    *p32 = (*p32 & 0xffffff) | ((DWORD)to0 << 24);
+                if ((*p32 >> 24) == from1)
+                    *p32 = (*p32 & 0xffffff) | ((DWORD)to1 << 24);
+                if ((*p32 >> 24) == from2)
+                    *p32 = (*p32 & 0xffffff) | ((DWORD)to2 << 24);
+                p32++;
+            }
+            p32 += skip;
+        }
+        break;
+    }
+    pTexture->pSurface->Unlock(NULL);
+}
+
 // FUNCTION: CMR2 0x004a5080
 void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
 {
@@ -847,8 +924,8 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
     rect.right = pTexture->width;
     rect.top = 0;
     rect.bottom = pTexture->height;
-    if (pTexture->pSurface != NULL && m_unk0x0065aee8[surfaceIndex].pSurface != NULL)
-        pTexture->pSurface->Blt(&rect, m_unk0x0065aee8[surfaceIndex].pSurface, NULL, DDBLT_WAIT, NULL);
+    if (pTexture->pSurface != NULL && m_textureCache[surfaceIndex].pSurface != NULL)
+        pTexture->pSurface->Blt(&rect, m_textureCache[surfaceIndex].pSurface, NULL, DDBLT_WAIT, NULL);
 }
 
 // FUNCTION: CMR2 0x004a56c0
