@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <math.h>
+#include <string.h>
 #include "Graphics.h"
 #include "Sprite.h"
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
@@ -2574,6 +2576,142 @@ void FUN_004b2970(int value)
 void FUN_004b2e40(BYTE *p, int value)
 {
     *(int *)(p + 0x2c) = value;
+}
+
+// Shadow volumes: up to 9 cylinders built from meshes, cached by mesh name.
+extern int g_sceneLightState2[10];
+extern BYTE g_sceneLightFlag2;
+// 4096 / (360 * 65536): 16.16 degrees to a sine table index.
+extern double g_unk0x00511300;
+
+// Vertex of a Mesh (0x30 bytes): position and normal, then colour/uv data.
+struct MeshVertexF {
+    float x, y, z;
+    float nx, ny, nz;
+    BYTE field_0x18[0x18];
+};
+
+// Returns a closed 10-sided cylinder (22 vertices, 20 triangles) enclosing pMesh:
+// its radius is the furthest point where a triangle crosses z = 0, its height the
+// mesh's z range. Cylinders are cached by name; returns pMesh when the cache is full.
+// TODO: CMR2 0x004b67f0 (implemented, match 72%)
+Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
+{
+    Mesh *pFound;
+    Mesh *pCyl;
+    MeshVertexF *pVerts;
+    MeshVertexF *pA;
+    MeshVertexF *pB;
+    MeshVertexF *pC;
+    MeshVertexF *pLone;
+    MeshTriangle *pTri;
+    float radius;
+    float minZ;
+    float maxZ;
+    float d;
+    int count;
+    int angle;
+    unsigned short idx;
+    int i;
+    int n;
+
+    count = g_sceneLightFlag2;
+    pFound = NULL;
+    for (i = 0; i < count; i++) {
+        if (strcmp((char *)g_sceneLightState2[i], (char *)pMesh) == 0) {
+            pFound = (Mesh *)g_sceneLightState2[i];
+            i = count;
+        }
+    }
+    if (pFound != NULL)
+        return pFound;
+
+    if (g_sceneLightFlag2 < 9) {
+        pVerts = (MeshVertexF *)pMesh->pVertexData;
+        radius = 0.0f;
+        minZ = 0.0f;
+        maxZ = 0.0f;
+        for (i = 0; i < pMesh->field_0x10; i++) {
+            if (pVerts[i].z > maxZ)
+                maxZ = pVerts[i].z;
+            if (pVerts[i].z < minZ)
+                minZ = pVerts[i].z;
+        }
+        pTri = pMesh->pTriangles;
+        for (n = pMesh->triangleCount; n > 0; n--, pTri++) {
+            pLone = NULL;
+            pA = &pVerts[pTri->vertexIndex[0]];
+            pB = &pVerts[pTri->vertexIndex[1]];
+            pC = &pVerts[pTri->vertexIndex[2]];
+            if ((pA->z < 0.0f && pB->z > 0.0f && pC->z > 0.0f) ||
+                (pA->z > 0.0f && pB->z < 0.0f && pC->z < 0.0f))
+                pLone = pA;
+            if ((pB->z < 0.0f && pA->z > 0.0f && pC->z > 0.0f) ||
+                (pB->z > 0.0f && pA->z < 0.0f && pC->z < 0.0f))
+                pLone = pB;
+            if (!((pC->z < 0.0f && pB->z > 0.0f && pA->z > 0.0f) ||
+                  (pC->z > 0.0f && pB->z < 0.0f && pA->z < 0.0f)))
+                pC = pLone;
+            if (pC != NULL) {
+                d = (float)sqrt(pC->x * pC->x + pC->y * pC->y);
+                if (d > radius)
+                    radius = d;
+            }
+        }
+
+        pCyl = (Mesh *)CFileBuffer::AllocateLockedBuffer(0x108);
+        g_sceneLightState2[g_sceneLightFlag2++] = (int)pCyl;
+        memset(pCyl, 0, 0x108);
+        strcpy((char *)pCyl, (char *)pMesh);
+        pCyl->field_0x10 = 22;
+        pCyl->triangleCount = 20;
+        pCyl->pTriangles = (MeshTriangle *)CFileBuffer::AllocateLockedBuffer(20 * sizeof(MeshTriangle));
+        pCyl->pVertexData = (DWORD *)CFileBuffer::AllocateLockedBuffer(pCyl->field_0x10 * sizeof(MeshVertexF));
+
+        // Bottom ring: centre plus 10 points every 36 degrees.
+        ((MeshVertexF *)pCyl->pVertexData)[0].x = 0.0f;
+        ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
+        angle = 0;
+        for (i = 1; i < 11; i++) {
+            idx = (unsigned short)(__int64)((double)angle * g_unk0x00511300);
+            ((MeshVertexF *)pCyl->pVertexData)[i].x =
+                (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;
+            ((MeshVertexF *)pCyl->pVertexData)[i].y =
+                (float)g_sinTable[(idx + 0x400) & 0xfff] * CGraphics::m_oneOver65536 * radius;
+            angle += FixDiv(360 << 16, 10 << 16);
+        }
+        for (i = 0; i < 11; i++) {
+            ((MeshVertexF *)pCyl->pVertexData)[i].z = minZ;
+            ((MeshVertexF *)pCyl->pVertexData)[i].nx = 0.0f;
+            ((MeshVertexF *)pCyl->pVertexData)[i].ny = 0.0f;
+            ((MeshVertexF *)pCyl->pVertexData)[i].nz = -1.0f;
+        }
+        // Top ring: copy of the bottom one at the top of the mesh.
+        for (i = 11; i < pCyl->field_0x10; i++) {
+            ((MeshVertexF *)pCyl->pVertexData)[i] = ((MeshVertexF *)pCyl->pVertexData)[i - 11];
+            ((MeshVertexF *)pCyl->pVertexData)[i].z = maxZ;
+            ((MeshVertexF *)pCyl->pVertexData)[i].nx = 0.0f;
+            ((MeshVertexF *)pCyl->pVertexData)[i].ny = 0.0f;
+            ((MeshVertexF *)pCyl->pVertexData)[i].nz = 1.0f;
+        }
+        // Bottom cap as a fan around the centre, top cap offset by 11 vertices.
+        for (i = 0; i < 10; i++) {
+            pCyl->pTriangles[i].vertexIndex[0] = 0;
+            pCyl->pTriangles[i].vertexIndex[1] = i + 1;
+            if (i == 9)
+                pCyl->pTriangles[9].vertexIndex[2] = 1;
+            else
+                pCyl->pTriangles[i].vertexIndex[2] = i + 2;
+        }
+        for (i = 10; i < pCyl->triangleCount; i++) {
+            pCyl->pTriangles[i].vertexIndex[0] = pCyl->pTriangles[i - 10].vertexIndex[0] + 11;
+            pCyl->pTriangles[i].vertexIndex[1] = pCyl->pTriangles[i - 10].vertexIndex[1] + 11;
+            pCyl->pTriangles[i].vertexIndex[2] = pCyl->pTriangles[i - 10].vertexIndex[2] + 11;
+        }
+        if (pCyl != NULL)
+            return pCyl;
+    }
+    return pMesh;
 }
 
 // FUNCTION: CMR2 0x004b6ef0
