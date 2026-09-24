@@ -3,6 +3,9 @@
 #include "RallyData.h"
 #include "SceneNode.h"
 #include "Frontend.h"
+#include "InstallInfo.h"
+#include "Texture.h"
+#include "StageTiming.h"
 #include "AIHelper.h"
 #include "RegKey.h"
 #include <stdio.h>
@@ -1619,4 +1622,204 @@ void FUN_00462d10(short *pRect)
     }
     if (g_sunVisibility > 100)
         g_sunVisibility = 100;
+}
+
+// ---------------------------------------------------------------------------
+// Stage lights: up to eight glowing lamps (e.g. start lights) whose on/off
+// pattern per state comes from g_stageLightStates, plus the car lamp textures.
+
+void FUN_004ae3d0(BYTE *p, BYTE value);
+void FUN_004ae3f0(BYTE *p, int value);
+void FUN_004ae260(void);
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+struct StageLight {
+    BYTE *pGlow;        // glow source
+    BYTE *pGlow2;       // second glow when the kind doubles them
+    int level;          // 0..1, eased towards the pattern
+};
+
+// On/off pattern of each light, per kind (4), state (7) and light (8).
+// GLOBAL: CMR2 0x0051b338
+int g_stageLightStates[4][7][8] = {
+    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0,
+    1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+    1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+    1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0,
+    1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
+    1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0,
+    1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+    1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
+    1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
+    1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+    1,
+};
+// Whether a kind drives the second glow of each light.
+// GLOBAL: CMR2 0x0051b6b8
+int g_stageLightDouble[4] = {
+    0, 459341, 1048444, 944439,
+};
+// GLOBAL: CMR2 0x00547ad8
+int g_stageLightKind;
+// GLOBAL: CMR2 0x00547adc
+int g_stageLightHasMatrix;
+// GLOBAL: CMR2 0x00547ae0
+StageLight g_stageLights[8];
+// GLOBAL: CMR2 0x00547b40
+FixMatrix g_stageLightMatrix;
+// GLOBAL: CMR2 0x00547cc8
+Texture *g_stageLightRedTexture;
+// GLOBAL: CMR2 0x00547ccc
+Texture *g_stageLightGreenTexture;
+// GLOBAL: CMR2 0x00547cd0
+Texture *g_stageLightTexture;
+// GLOBAL: CMR2 0x00547cd4
+int g_stageLightsActive;
+// GLOBAL: CMR2 0x00547cd8
+int g_stageLightCount;
+
+// Lamp textures of a car (0x4c bytes; two cars).
+struct CarLights {
+    BYTE field_0x0[0x2c];
+    Texture *pBrake;        // 0x2c
+    Texture *pReverse;      // 0x30
+    Texture *pHazard;       // 0x34
+    Texture *pHazard2;      // 0x38
+    Texture *pHead;         // 0x3c
+    BYTE field_0x40[0xc];
+};
+
+// GLOBAL: CMR2 0x00547f80
+CarLights g_carLights[2];
+
+// GLOBAL: CMR2 0x0051b724
+char g_strLightRedTga[] = "\\NEWIMAGE\\lgt_red.tga";
+// GLOBAL: CMR2 0x0051b70c
+char g_strLightGreenTga[] = "\\NEWIMAGE\\lgt_gre.tga";
+// GLOBAL: CMR2 0x0051b9d4
+char g_strHazardLiteTga[] = "\\NEWIMAGE\\hazdlite.tga";
+// GLOBAL: CMR2 0x0051b9bc
+char g_strRevLiteTga[] = "\\NEWIMAGE\\revlite.tga";
+// GLOBAL: CMR2 0x0051b9a4
+char g_strHeadLiteTga[] = "\\NEWIMAGE\\headlite.tga";
+// GLOBAL: CMR2 0x0051b98c
+char g_strBrakeLiteTga[] = "\\NEWIMAGE\\brkelite.tga";
+
+StageFile *StageTiming_GetStageFile0(void);
+
+#define LOAD_STAGE_TEXTURE(dst, name)                                                          \
+    sprintf(CFrontend::m_stringDest, "%s%s", CInstallInfo::FUN_0040ed50(), name);             \
+    dst = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest, \
+                                    &loaded, NULL, 0, 0)
+
+// Places the lights: rows of the given 4x3 vectors are the right, up,
+// forward axes and the position (NULL: no transform).
+// TODO: CMR2 0x00463290 (implemented, match 47%)
+void StageLights_SetTransform(FixVector *pAxes)
+{
+    FixVector v;
+
+    if (pAxes == NULL) {
+        g_stageLightHasMatrix = (int)pAxes;
+        return;
+    }
+    g_stageLightHasMatrix = 1;
+    v = pAxes[0];
+    FixMatrix_SetRight(&v, &g_stageLightMatrix);
+    v = pAxes[1];
+    FixMatrix_SetUp(&v, &g_stageLightMatrix);
+    v = pAxes[2];
+    FixMatrix_SetForward(&v, &g_stageLightMatrix);
+    v = pAxes[3];
+    FixMatrix_SetPosition(&v, &g_stageLightMatrix);
+}
+
+// FUNCTION: CMR2 0x00463360
+void StageLights_LoadTextures(void)
+{
+    bool loaded;
+
+    LOAD_STAGE_TEXTURE(g_stageLightRedTexture, g_strLightRedTga);
+    LOAD_STAGE_TEXTURE(g_stageLightGreenTexture, g_strLightGreenTga);
+    FUN_004a3e20((Unk0x004a3e20 *)g_stageLightRedTexture, 1);
+    FUN_004a3e20((Unk0x004a3e20 *)g_stageLightGreenTexture, 1);
+    g_stageLightTexture = g_stageLightRedTexture;
+}
+
+// Eases every light towards its pattern for the current state and updates
+// its glow(s).
+// FUNCTION: CMR2 0x00463bd0
+void StageLights_Update(void)
+{
+    StageLight *p;
+    int target;
+    int d;
+    int i;
+
+    if (g_stageLightsActive == 0)
+        return;
+    for (i = 0, p = g_stageLights; i < g_stageLightCount; i++, p++) {
+        target = g_stageLightStates[g_stageLightKind][g_unk0x00547b80][i] != 0 ? 0x10000 : 0;
+        d = target - p->level;
+        if (FIX_ABS(d) < 0x3333)
+            p->level = target;
+        else if (d > 0)
+            p->level += 0x3333;
+        else
+            p->level -= 0x3333;
+        if (p->level > 0) {
+            FUN_004ae3d0(p->pGlow, 1);
+            if (g_stageLightDouble[g_stageLightKind] != 0)
+                FUN_004ae3d0(p->pGlow2, 1);
+        } else {
+            FUN_004ae3d0(p->pGlow, 0);
+            if (g_stageLightDouble[g_stageLightKind] != 0)
+                FUN_004ae3d0(p->pGlow2, 0);
+        }
+        FUN_004ae3f0(p->pGlow, p->level);
+        if (g_stageLightDouble[g_stageLightKind] != 0)
+            FUN_004ae3f0(p->pGlow2, p->level);
+    }
+}
+
+// Turns every light off (state 6).
+// TODO: CMR2 0x00463d00 (implemented, match 84%)
+void StageLights_Off(void)
+{
+    StageLight *p;
+    int i;
+
+    g_unk0x00547b80 = 6;
+    if (g_stageLightsActive == 0)
+        return;
+    for (i = 0, p = g_stageLights; i < g_stageLightCount; i++, p++) {
+        p->level = 0;
+        FUN_004ae3d0(p->pGlow, 0);
+        if (g_stageLightDouble[g_stageLightKind] != 0)
+            FUN_004ae3d0(p->pGlow2, 0);
+    }
+}
+
+// Resets the glow table and loads the lamp textures of both cars.
+// TODO: CMR2 0x00463d60 (implemented, match 88%)
+void CarLights_LoadTextures(void)
+{
+    bool loaded;
+
+    FUN_004ae260();
+    CGame::RegisterCallback(FUN_004ae260, NULL);
+    LOAD_STAGE_TEXTURE(g_carLights[0].pHazard, g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[0].pReverse, g_strRevLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[0].pHead, g_strHeadLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[0].pBrake, g_strBrakeLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[0].pHazard2, g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[1].pHazard, g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[1].pReverse, g_strRevLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[1].pHead, g_strHeadLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[1].pBrake, g_strBrakeLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLights[1].pHazard2, g_strHazardLiteTga);
 }
