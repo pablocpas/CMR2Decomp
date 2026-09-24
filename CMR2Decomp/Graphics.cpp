@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "Graphics.h"
+#include "Car.h"
 #include "Sprite.h"
 #include "../third_party/dx7sdk-7001/include/d3dxmath.h"
 #pragma comment(lib, "third_party/dx7sdk-7001/lib/d3dx.lib")
@@ -3074,6 +3075,7 @@ struct BillboardDef {
     short field_0x20;           // 0x20 rotation (12-bit angle)
     BYTE shade;                 // 0x22 0 = fully lit ... 256 = scene dark colour
     BYTE flags;                 // 0x23 1 mirrored, 2 lit by the scene light
+    int field_0x24;
 };
 
 // Queued billboard in render format (0x58 bytes).
@@ -3401,7 +3403,7 @@ void FUN_004ae410(BYTE a, BYTE b, int c, int d)
 // Draws a fading rectangle around a point projected onto the given plane.
 // The corners and colours use the fixed-point triangle queue's shared scratch.
 // TODO: CMR2 0x004ae950 (implemented, match 64%)
-void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget)
+void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget, FixVector *pUnused)
 {
     FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
     FixVector *pNormal = (FixVector *)(pSurface + 0x28);
@@ -3504,12 +3506,9 @@ int CGraphics::FUN_004b1970(void)
 }
 // GLOBAL: CMR2 0x006a2a10
 Quad2DInputVertex g_layerQuad[4];
+// Glow billboard being built; its position anchors the layer quad.
 // GLOBAL: CMR2 0x006a2a70
-FixVector g_layerQuadAnchor;
-// GLOBAL: CMR2 0x006a2a7c
-int g_layerQuadRate;
-// GLOBAL: CMR2 0x006a2a8c
-BYTE g_layerQuadOpacity;
+BillboardDef g_glowDef;
 
 // Projects the layer anchor onto a plane, stretches it toward a target and
 // draws a four-vertex strip with distance-based greyscale opacity.
@@ -3533,16 +3532,16 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     int i;
     BYTE intensity;
 
-    displacement.x = g_layerQuadAnchor.x - pPlanePoint->x;
-    displacement.y = g_layerQuadAnchor.y - pPlanePoint->y;
-    displacement.z = g_layerQuadAnchor.z - pPlanePoint->z;
+    displacement.x = g_glowDef.pos.x - pPlanePoint->x;
+    displacement.y = g_glowDef.pos.y - pPlanePoint->y;
+    displacement.z = g_glowDef.pos.z - pPlanePoint->z;
     depth = FixVecDot(pNormal, &displacement);
     FixVecScale(&offset, pNormal, depth);
-    projected.x = g_layerQuadAnchor.x - offset.x;
-    projected.y = g_layerQuadAnchor.y - offset.y;
-    projected.z = g_layerQuadAnchor.z - offset.z;
+    projected.x = g_glowDef.pos.x - offset.x;
+    projected.y = g_glowDef.pos.y - offset.y;
+    projected.z = g_glowDef.pos.z - offset.z;
     fade = FixMul(depth, 0x20000);
-    opacity = FixMul(g_layerQuadRate, 0x9999);
+    opacity = FixMul(g_glowDef.top, 0x9999);
 
     displacement.x = pTarget->x - projected.x;
     displacement.y = pTarget->y - projected.y;
@@ -3583,7 +3582,7 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     if (fade > 0x10000)
         fade = 0x10000;
     intensity = (BYTE)FixMulShift32(FixMul(0x10000 - fade, *(int *)(pSurface + 0x44)),
-                                    (int)g_layerQuadOpacity << 16);
+                                    (int)g_glowDef.r << 16);
     colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
     for (i = 0; i < 4; i++)
         *(int *)g_layerQuad[i].colour = colour;
@@ -3592,6 +3591,169 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     Quad2D_QueueFixedTriangle(0, &g_layerQuad[0], &g_layerQuad[2], &g_layerQuad[3],
                               *(Texture **)(pSurface + 0x4c), (Quad2D *)0x16);
 }
+// Light glow source (0x5c bytes), one per entry of g_unk0x006a2a98.
+struct GlowLight {
+    int type;                   // 0x0  0 free, 2 seen from behind, 3 seen from both sides
+    FixVector pos;              // 0x4  local to pNode when set
+    FixVector dir;              // 0x10
+    FixVector planePoint;       // 0x1c
+    FixVector planeNormal;      // 0x28
+    int sizeX;                  // 0x34
+    int sizeY;                  // 0x38
+    int intensity;              // 0x3c
+    int field_0x40;
+    int layerIntensity;         // 0x44 draw the ground layer quad when non-zero
+    unsigned short *pTexture;   // 0x48
+    Texture *pLayerTexture;     // 0x4c
+    BYTE enabled;               // 0x50
+    BYTE projected;             // 0x51 also draw the projected quad
+    BYTE field_0x52[2];
+    SceneNode *pNode;           // 0x54
+    int field_0x58;
+};
+
+// GLOBAL: CMR2 0x006a2aa0
+BillboardDef g_glowBillboard;
+// Horizontal camera forward (normalised) used by the glow quads.
+// GLOBAL: CMR2 0x00520ff8
+FixVector g_glowForward;
+
+int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_GetForward(FixVector *pOut, FixMatrix *pM);
+
+// Draws the glow of every enabled light seen from pCamera in view `view`: a
+// billboard pulled one unit toward the camera and faded by the viewing angle,
+// plus the optional ground layer and projected quads.
+// FUNCTION: CMR2 0x004af120
+void Glow_Draw(SceneNode *pCamera, BYTE view)
+{
+    FixMatrix *pCamMatrix;
+    GlowLight *pLight;
+    FixVector camPos;
+    FixVector dir;
+    FixVector pos;
+    FixVector nodePos;
+    FixVector toLight;
+    FixVector toCamera;
+    BYTE mask;
+    int len;
+    int d;
+    int m;
+    int degrees;
+    int fade;
+    int intensity;
+    int inv;
+    int scale;
+    int i;
+    short a;
+
+    pCamMatrix = &pCamera->world;
+    FixMatrix_GetPosition(&camPos, pCamMatrix);
+    mask = 1 << view;
+    FixMatrix_GetForward(&g_glowForward, pCamMatrix);
+    g_glowForward.y = 0;
+    FIX_NORMALIZE_INTO(g_glowForward, g_glowForward);
+    g_quadBasisB.x = -g_glowForward.z;
+    g_quadBasisB.y = 0;
+    g_quadBasisB.z = g_glowForward.x;
+
+    for (i = 0; i < g_unk0x006a2bcc; i++) {
+        pLight = &((GlowLight *)g_unk0x006a2a98)[i];
+        if (pLight->type == 0 || pLight->enabled == 0 || pLight->intensity <= 0)
+            continue;
+        if (pLight->pNode != NULL && (mask & pLight->pNode->field_0x17c) == 0)
+            continue;
+        if (pLight->pNode != NULL && pLight->pNode->pParent != NULL &&
+            (mask & pLight->pNode->pParent->field_0x17c) == 0)
+            continue;
+        if (pLight->pNode == NULL) {
+            dir = pLight->dir;
+            pos = pLight->pos;
+        } else {
+            FixMatrix_RotateVector(&dir, &pLight->dir, &pLight->pNode->world);
+            FixMatrix_RotateVector(&pos, &pLight->pos, &pLight->pNode->world);
+            FixMatrix_GetPosition(&nodePos, &pLight->pNode->world);
+            pos.x += nodePos.x;
+            pos.y += nodePos.y;
+            pos.z += nodePos.z;
+        }
+
+        if (pLight->type == 2 || pLight->type == 3) {
+            FixMatrix_GetPosition(&toLight, pCamMatrix);
+            toLight.x = pos.x - toLight.x;
+            toLight.y = pos.y - toLight.y;
+            toLight.z = pos.z - toLight.z;
+            // Pre-scale by the largest component so the length cannot overflow.
+            if (FIX_ABS(toLight.x) > FIX_ABS(toLight.y) && FIX_ABS(toLight.x) > FIX_ABS(toLight.z))
+                m = FIX_ABS(toLight.x);
+            else if (FIX_ABS(toLight.y) > FIX_ABS(toLight.x) && FIX_ABS(toLight.y) > FIX_ABS(toLight.z))
+                m = FIX_ABS(toLight.y);
+            else
+                m = FIX_ABS(toLight.z);
+            if (m != 0)
+                FixVecScaleRecip(&toLight, &toLight, m);
+            if (toLight.x == 0 && toLight.y == 0 && toLight.z == 0)
+                toLight.x = 0x10000;
+            FIX_NORMALIZE_INTO(toLight, toLight);
+            d = FixVecDot(&dir, &toLight);
+            if (FIX_ABS(d) >= 0xfd70) {
+                if (d > 0)
+                    degrees = 0;
+                else
+                    degrees = 0xb40000;
+            } else {
+                a = FixAcos(d);
+                degrees = (0x400 - a) * 0x1680;
+            }
+            if (degrees > 0x5a0000) {
+                fade = FixMul(degrees - 0x5a0000, 0x3d7);
+            } else {
+                if (degrees >= 0x5a0000 || pLight->type != 3)
+                    goto projected;
+                fade = FixMul(0x5a0000 - degrees, 0x3d7);
+            }
+            if (fade > 0x10000)
+                fade = 0x10000;
+            else if (fade <= 0)
+                goto projected;
+        } else {
+            fade = 0x10000;
+        }
+
+        intensity = FixMul(fade, pLight->intensity);
+        FUN_004ae230((int *)&g_glowDef, pLight->sizeX, pLight->sizeY);
+        g_glowDef.r = (BYTE)((intensity * 254) >> 16);
+        g_glowDef.g = g_glowDef.r;
+        g_glowDef.b = g_glowDef.r;
+        g_glowDef.a = 0xff;
+        g_glowDef.pos = pos;
+        g_glowBillboard = g_glowDef;
+        toCamera.x = camPos.x - pos.x;
+        toCamera.y = camPos.y - pos.y;
+        toCamera.z = camPos.z - pos.z;
+        len = FixVecLength(&toCamera);
+        if (len >= 0x10000) {
+            inv = FixDiv(0x10000, len);
+            FixVecScale(&toCamera, &toCamera, inv);
+            g_glowBillboard.pos.x += toCamera.x;
+            g_glowBillboard.pos.y += toCamera.y;
+            g_glowBillboard.pos.z += toCamera.z;
+            scale = 0x10000 - inv;
+            g_glowBillboard.bottom = FixMul(g_glowBillboard.bottom, scale);
+            g_glowBillboard.right = FixMul(g_glowBillboard.right, scale);
+            g_glowBillboard.top = FixMul(g_glowBillboard.top, scale);
+            g_glowBillboard.left = FixMul(g_glowBillboard.left, scale);
+        }
+        Billboard_Add(&g_glowBillboard, pLight->pTexture);
+        if (pLight->layerIntensity != 0)
+            Graphics_DrawLayerQuad((BYTE *)pLight, &camPos);
+    projected:
+        if (pLight->projected != 0)
+            Graphics_DrawProjectedQuad((BYTE *)pLight, &pos, &camPos, &dir);
+    }
+}
+
 // GLOBAL: CMR2 0x004ae200
 BYTE g_unk0x004ae200[1];
 
