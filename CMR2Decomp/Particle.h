@@ -21,11 +21,20 @@ struct ParticleType {
     BYTE alphaStep;         // 0x30
     BYTE colour[3];
     BYTE pad0x34;
-    BYTE flags;
+    BYTE flags;             // 0x35 1 template, 2 kill below floor, 4 kill at alpha end, 8 size ramp,
+                            //      0x10 size ramp set by range, 0x20 spin, 0x40 alpha ramp, 0x80 bounce
     BYTE directionFlags;
     BYTE pad0x37;
     int field0x38;
-    BYTE pad0x3c[0x24];
+    int field0x3c;
+    int field0x40;
+    int field0x44;
+    int field0x48;
+    int field0x4c;
+    int field0x50;
+    int field0x54;
+    int field0x58;
+    int field0x5c;
     void (*update)(void *, ParticleType *, int);        // 0x60 replaces the default motion
     void (*postUpdate)(void *, ParticleType *, int);    // 0x64
     void (*callback)(void *, ParticleType *, int);

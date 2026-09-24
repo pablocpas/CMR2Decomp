@@ -3120,6 +3120,95 @@ int FUN_004bcac0(void)
     return 1;
 }
 
+// Fog distances (floats written to the render states as raw bits).
+// GLOBAL: CMR2 0x008165f4
+float g_fogEnd;
+// GLOBAL: CMR2 0x008165f8
+float g_fogField2;
+// GLOBAL: CMR2 0x008165fc
+float g_fogField1;
+// GLOBAL: CMR2 0x00816600
+float g_fogStart;
+
+// Sets the fog range (16.16) and colour (r, g, b in the low bytes) and turns
+// on linear vertex fog when fog is enabled.
+// FUNCTION: CMR2 0x004bcaf0
+void Graphics_SetFog(int start, int end, int a, int b, DWORD colour)
+{
+    g_fogStart = (float)start * CGraphics::m_oneOver65536;
+    g_fogEnd = (float)end * CGraphics::m_oneOver65536;
+    g_fogField1 = (float)a * CGraphics::m_oneOver65536;
+    g_fogField2 = (float)b * CGraphics::m_oneOver65536;
+    CGraphics::m_pTextureManager->pD3D->SetRenderState(
+        D3DRENDERSTATE_FOGCOLOR, RGBA_MAKE(((BYTE *)&colour)[0], ((BYTE *)&colour)[1], ((BYTE *)&colour)[2], 0xff));
+    if (FUN_004b74c0() != 0) {
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_LINEAR);
+    }
+}
+
+// Re-enables linear vertex fog with the stored range.
+// FUNCTION: CMR2 0x004bcbb0
+void Graphics_EnableFog(void)
+{
+    if (FUN_004b74c0() != 0) {
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_LINEAR);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGSTART, *(DWORD *)&g_fogStart);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGEND, *(DWORD *)&g_fogEnd);
+    }
+}
+
+// FUNCTION: CMR2 0x004bcc20
+void Graphics_DisableFog(void)
+{
+    if (FUN_004b74d0() != 0 || FUN_004b74c0() != 0) {
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, D3DFOG_NONE);
+    }
+}
+
+// FUNCTION: CMR2 0x004b2d70
+void Graphics_SetRenderTarget(Texture *pTexture)
+{
+    CGraphics::m_pTextureManager->pD3D->SetRenderTarget(pTexture->pSurface, 0);
+}
+
+// Stores a 3-bit value in bits 15..17 of the flags of every mesh in a hierarchy.
+// TODO: CMR2 0x004b2d90 (implemented, match 57%)
+void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value)
+{
+    SceneNode *pChild;
+    SceneNode *p;
+    Mesh *pMesh;
+
+    if (pNode == NULL)
+        return;
+    if (pNode->type == SCENE_NODE_MESH && (pMesh = (Mesh *)pNode->pObject) != NULL)
+        pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
+    for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
+        for (p = pChild; p != NULL; p = p->pFirstChild) {
+            if (p->type == SCENE_NODE_MESH && (pMesh = (Mesh *)p->pObject) != NULL)
+                pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
+        }
+    }
+}
+
+// GLOBAL: CMR2 0x0052111c
+char g_strSuffixW[4] = "W";
+
+// Returns 1 when a file name ends in a localised suffix: "RU"/"BR" before
+// the extension, or 'W' two characters earlier.
+// FUNCTION: CMR2 0x004b9af0
+int Graphics_HasLocalSuffix(char *pName)
+{
+    if (strncmp(pName + strlen(pName) - 6, CGraphics::m_strSuffixBR, 2) != 0 &&
+        strncmp(pName + strlen(pName) - 6, CGraphics::m_strSuffixRU, 2) != 0 &&
+        strncmp(pName + strlen(pName) - 8, g_strSuffixW, 1) != 0)
+        return 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004bca70
 void FUN_004bca70(short *param1)
 {
@@ -3953,6 +4042,27 @@ GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1,
     return NULL;
 }
 
+// FUNCTION: CMR2 0x004ae2a0
+void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir)
+{
+    if (pLight != NULL) {
+        if (pPos != NULL)
+            pLight->pos = *pPos;
+        if (pDir != NULL)
+            pLight->dir = *pDir;
+    }
+}
+
+// FUNCTION: CMR2 0x004ae420
+void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity)
+{
+    if (pLight != NULL) {
+        pLight->planePoint = *pPoint;
+        pLight->planeNormal = *pNormal;
+        pLight->layerIntensity = layerIntensity;
+    }
+}
+
 // GLOBAL: CMR2 0x006a2aa0
 BillboardDef g_glowBillboard;
 // Horizontal camera forward (normalised) used by the glow quads.
@@ -4293,6 +4403,144 @@ ParticleType *g_pEditParticleType;
 // GLOBAL: CMR2 0x006a2ce4
 int g_nextParticle;
 
+// Particle type editor: setters for g_pEditParticleType.
+
+// Copies a template particle type (flag 1) into the type being edited.
+// FUNCTION: CMR2 0x004afb20
+void ParticleEdit_CopyTemplate(int index)
+{
+    ParticleType *pSrc;
+
+    if (g_pEditParticleType != NULL && index >= 0 && index < g_particleTypeCount) {
+        pSrc = &g_particleTypes[index];
+        if (pSrc->flags & 1)
+            *g_pEditParticleType = *pSrc;
+    }
+}
+
+// FUNCTION: CMR2 0x004afb70
+void ParticleEdit_SetTextureParams(int a, int b, int c, int d, int e)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->field0x38 = a;
+        g_pEditParticleType->field0x3c = b;
+        g_pEditParticleType->field0x40 = c;
+        g_pEditParticleType->field0x44 = d;
+        g_pEditParticleType->field0x48 = e;
+    }
+}
+
+// FUNCTION: CMR2 0x004afbc0
+void ParticleEdit_SetExtendedParams(int a, int b, int c, int d, BYTE flag4, BYTE flag8, int e, int f, int g, int h)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->field0x4c = a;
+        g_pEditParticleType->field0x50 = b;
+        g_pEditParticleType->field0x54 = c;
+        g_pEditParticleType->field0x58 = d;
+        g_pEditParticleType->directionFlags = (flag4 & 1) << 2 | g_pEditParticleType->directionFlags & 0xfb;
+        g_pEditParticleType->directionFlags = (flag8 & 1) << 3 | g_pEditParticleType->directionFlags & 0xf7;
+        g_pEditParticleType->field0x3c = e;
+        g_pEditParticleType->field0x40 = f;
+        g_pEditParticleType->field0x44 = g;
+        g_pEditParticleType->field0x48 = h;
+    }
+}
+
+// FUNCTION: CMR2 0x004afc70
+void ParticleEdit_SetMotion(int lifetime, int gravity, int drag, int bounce, int friction, char bounces,
+                            BYTE killBelowFloor)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->lifetime = lifetime;
+        g_pEditParticleType->gravity = gravity;
+        g_pEditParticleType->drag = drag;
+        g_pEditParticleType->bounce = bounce;
+        g_pEditParticleType->friction = friction;
+        g_pEditParticleType->flags = g_pEditParticleType->flags & 0x7f | bounces << 7;
+        g_pEditParticleType->flags = (killBelowFloor & 1) << 1 | g_pEditParticleType->flags & 0xfd;
+    }
+}
+
+// FUNCTION: CMR2 0x004afcf0
+void ParticleEdit_SetAlphaRamp(BYTE start, BYTE end, char step, BYTE killAtEnd)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->type = start;
+        g_pEditParticleType->alphaEnd = end;
+        g_pEditParticleType->alphaStep = step;
+        g_pEditParticleType->flags = ((step != 0) & 1) << 6 | g_pEditParticleType->flags & 0xbf;
+        g_pEditParticleType->flags = (killAtEnd & 1) << 2 | g_pEditParticleType->flags & 0xfb;
+    }
+}
+
+// FUNCTION: CMR2 0x004afd60
+void ParticleEdit_SetColour(BYTE r, BYTE g, BYTE b, BYTE flag)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->directionFlags = (flag & 1) << 1 | g_pEditParticleType->directionFlags & 0xfd;
+        g_pEditParticleType->colour[0] = r;
+        g_pEditParticleType->colour[1] = g;
+        g_pEditParticleType->colour[2] = b;
+    }
+}
+
+// FUNCTION: CMR2 0x004afdb0
+void ParticleEdit_SetSizeRamp(int size, int target, int step)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->flags &= 0xef;
+        g_pEditParticleType->size = size;
+        g_pEditParticleType->sizeVariation = target;
+        g_pEditParticleType->sizeStep = step;
+        g_pEditParticleType->flags = ((step != 0) & 1) << 3 | g_pEditParticleType->flags & 0xf7;
+    }
+}
+
+// FUNCTION: CMR2 0x004afe10
+void ParticleEdit_SetSizeRange(int min, int max)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->flags &= 0xf7;
+        g_pEditParticleType->sizeStep = 0;
+        if (min < max) {
+            g_pEditParticleType->size = min;
+            g_pEditParticleType->sizeVariation = max - min;
+            g_pEditParticleType->flags |= 0x10;
+            return;
+        }
+        g_pEditParticleType->size = min;
+        g_pEditParticleType->sizeVariation = 0;
+        g_pEditParticleType->flags &= 0xef;
+    }
+}
+
+// FUNCTION: CMR2 0x004afec0
+void ParticleEdit_SetSpread(int x, int y, int z, BYTE flag)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->spread.x = x;
+        g_pEditParticleType->spread.y = y;
+        g_pEditParticleType->spread.z = z;
+        g_pEditParticleType->directionFlags = (g_pEditParticleType->directionFlags ^ flag) & 1 ^
+                                              g_pEditParticleType->directionFlags;
+    }
+}
+
+// FUNCTION: CMR2 0x004aff10
+void ParticleEdit_SetCallbacks(int field0x5c, void (*update)(void *, ParticleType *, int),
+                               void (*postUpdate)(void *, ParticleType *, int),
+                               void (*callback)(void *, ParticleType *, int), int field0x6c)
+{
+    if (g_pEditParticleType != NULL) {
+        g_pEditParticleType->postUpdate = postUpdate;
+        g_pEditParticleType->callback = callback;
+        g_pEditParticleType->field0x6c = field0x6c;
+        g_pEditParticleType->update = update;
+        g_pEditParticleType->field0x5c = field0x5c;
+    }
+}
+
 // FUNCTION: CMR2 0x004afe80
 void FUN_004afe80(short param1)
 {
@@ -4361,6 +4609,53 @@ void FUN_004affe0(void)
             p += sizeof(ParticleType);
         } while (i < g_particleTypeCount);
     }
+}
+
+void FUN_004affb0(void);
+
+// Release callback of the particle system.
+// FUNCTION: CMR2 0x004b0010
+BYTE Particle_Shutdown(void)
+{
+    FUN_004affe0();
+    FUN_004affb0();
+    if (g_particleTypes != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_particleTypes);
+        g_particleTypes = NULL;
+    }
+    if (g_particles != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_particles);
+        g_particles = NULL;
+    }
+    g_particleTypeCount = 0;
+    g_particleCount = 0;
+    return 1;
+}
+
+// Allocates the particle type table and the particle pool.
+// FUNCTION: CMR2 0x004b0060
+void Particle_Init(int typeCount, int particleCount)
+{
+    g_particleTypes = (ParticleType *)CFileBuffer::AllocateLockedBuffer(typeCount * sizeof(ParticleType));
+    g_particles = (Particle *)CFileBuffer::AllocateLockedBuffer(particleCount * sizeof(Particle));
+    if (g_particleTypes != NULL) {
+        if (g_particles != NULL) {
+            g_particleTypeCount = typeCount;
+            g_particleCount = particleCount;
+            FUN_004affe0();
+            FUN_004affb0();
+            CGame::RegisterCallback(Particle_Shutdown, NULL);
+            return;
+        }
+        CFileBuffer::FreeGenericFileBuffer(g_particleTypes);
+        g_particleTypes = NULL;
+    }
+    if (g_particles != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_particles);
+        g_particles = NULL;
+    }
+    g_particleTypeCount = 0;
+    g_particleCount = 0;
 }
 
 // FUNCTION: CMR2 0x004b1140
