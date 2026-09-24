@@ -1260,3 +1260,16 @@ void WheelSplash_Update(int player)
         pVel++;
     } while (wheel < 4);
 }
+
+// Spawn callback of a debris piece or glass fragment: a random shape and
+// the colour passed by the emitter ({light level, colour index << 16}).
+// FUNCTION: CMR2 0x00499a80
+void Debris_Init(Particle *p, ParticleType *pType, int *pParam)
+{
+    int shape;
+
+    shape = (rand() % 30) << 8;
+    p->field0x64 = (short)shape;
+    p->field0x64 = (short)((pParam[1] >> 16) + shape);
+    p->size = pParam[0];
+}

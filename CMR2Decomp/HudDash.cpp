@@ -583,6 +583,7 @@ void Dash_DrawDial(int player, int layer)
         g_dashLastResX = g_pGraphics->resX;
         g_dashLastResY = g_pGraphics->resY;
     }
+    k = FixMul(FixDiv(g_dashSpeedPrev[player] + g_dashSpeedNext[player], 0x640000), 0x9110000);
     dialCentre[0] = 0xf333;
     needleCentre[0] = 0xf333;
     dialCentre[1] = 0xd113;
