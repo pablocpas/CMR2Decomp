@@ -502,7 +502,7 @@ BYTE g_unk0x0053e18d[2];
 // GLOBAL: CMR2 0x0053e18f
 BYTE g_unk0x0053e18f;
 // GLOBAL: CMR2 0x0053e190
-int g_unk0x0053e190[0x400];
+int g_unk0x0053e190[82];  // 9 splits per car, up to the menu at 0x53e2d8
 
 // FUNCTION: CMR2 0x00448100
 void FUN_00448100(void)

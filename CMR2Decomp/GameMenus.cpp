@@ -573,7 +573,7 @@ char g_recordHeaderFormat[] = "%s,  ";
 char g_ghostName[4] = "cps";
 // Split times of the ghost car.
 // GLOBAL: CMR2 0x00541ab8
-int g_ghostSplits[11];
+int g_ghostSplits[10];
 
 // Draw callback of the split times screen: the country flag in the corner,
 // then per car the name, the time of every split and the total; in arcade

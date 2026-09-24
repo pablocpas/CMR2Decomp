@@ -26,7 +26,7 @@ int CGame::m_unk0x0059ce18;
 int CGame::m_unk0x0059ce20;
 int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
-void *CGame::m_unk0x00593cb0[4117];
+void *CGame::m_unk0x00593cb0[4098];
 void *CGame::m_unk0x00597d04[4096];
 int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
@@ -1133,13 +1133,13 @@ char *FUN_004a1490(BYTE index)
 // FUNCTION: CMR2 0x004a14c0
 LPVOID *FUN_004a14c0(void)
 {
-    return CGameInfo::m_unk0x005a0098;
+    return g_sessionNamePtr;
 }
 
 // FUNCTION: CMR2 0x004a14d0
 LPVOID *FUN_004a14d0(void)
 {
-    return CGameInfo::m_unk0x005a009c;
+    return g_sessionPasswordPtr;
 }
 
 // FUNCTION: CMR2 0x004a15b0
@@ -1199,8 +1199,8 @@ DWORD FUN_004a1740(BYTE index)
 void FUN_004a1760(DPSESSIONDESC2 *pDesc)
 {
     SESSION = *pDesc;
-    CGameInfo::m_unk0x005a0098 = (LPVOID *)&CGameInfo::m_unk0x005a00b8;
-    CGameInfo::m_unk0x005a009c = (LPVOID *)&CGameInfo::m_unk0x005a02c0;
+    g_sessionNamePtr = (LPVOID *)&CGameInfo::m_unk0x005a00b8;
+    g_sessionPasswordPtr = (LPVOID *)&CGameInfo::m_unk0x005a02c0;
 }
 
 // FUNCTION: CMR2 0x004a1790
@@ -1529,7 +1529,7 @@ bool FUN_004a14e0(void);
 void Session_SetName(LPVOID pName)
 {
     FUN_004a0d60();
-    CGameInfo::m_unk0x005a0098 = (LPVOID *)pName;
+    g_sessionNamePtr = (LPVOID *)pName;
     FUN_004a14e0();
 }
 
@@ -1537,7 +1537,7 @@ void Session_SetName(LPVOID pName)
 void Session_SetPassword(LPVOID pPassword)
 {
     FUN_004a0d60();
-    CGameInfo::m_unk0x005a009c = (LPVOID *)pPassword;
+    g_sessionPasswordPtr = (LPVOID *)pPassword;
     FUN_004a14e0();
 }
 

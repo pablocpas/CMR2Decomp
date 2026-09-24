@@ -53,9 +53,7 @@ unsigned int CGameInfo::m_unk0x0059f8d0;
 unsigned int CGameInfo::m_unk0x00520870 = 1;
 void* CGameInfo::m_unk0x0081777c = NULL;
 BOOL CGameInfo::m_unk0x00817678 = FALSE;
-LPVOID *CGameInfo::m_unk0x005a0098;
 char CGameInfo::m_unk0x005a00b8[0x104];
-LPVOID *CGameInfo::m_unk0x005a009c;
 char CGameInfo::m_unk0x005a02c0[0x104];
 char CGameInfo::m_sessionNames[20][0x104];
 BOOL CGameInfo::m_unk0x005a0060;
@@ -1262,8 +1260,8 @@ bool CGameInfo::FUN_004d05a0(void) {
 void CGameInfo::FUN_004a0c60(void) {
     memset(m_unk0x0059fa20, 0, sizeof(m_unk0x0059fa20));
 
-    m_unk0x005a0098 = (LPVOID *)m_unk0x005a00b8;
-    m_unk0x005a009c = (LPVOID *)m_unk0x005a02c0;
+    g_sessionNamePtr = (LPVOID *)m_unk0x005a00b8;
+    g_sessionPasswordPtr = (LPVOID *)m_unk0x005a02c0;
 
     m_unk0x005a0060 = FALSE;
     m_unk0x005a1814 = FALSE;
@@ -2147,7 +2145,7 @@ void CGameInfo::FUN_004a13b0(void)
     *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[2];
     *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
-    m_unk0x005a0098 = (LPVOID *)&m_unk0x005a00b8;
+    g_sessionNamePtr = (LPVOID *)&m_unk0x005a00b8;
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return;

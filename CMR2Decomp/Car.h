@@ -205,7 +205,7 @@ struct CarTransforms {
 // GLOBAL: CMR2 0x0053b560
 extern CarTransforms g_carTransforms[16];
 // GLOBAL: CMR2 0x0053bda0
-extern FixMatrix g_carWheelTransforms[16][4];
+extern FixMatrix g_carWheelTransforms[8][4];
 // GLOBAL: CMR2 0x0053a3a0
 extern short g_carOrderCount;
 // GLOBAL: CMR2 0x0053b500

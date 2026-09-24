@@ -83,7 +83,7 @@ public:
     // GLOBAL: CMR2 0x0059ce2c
     static int m_unk0x0059ce2c;
     // GLOBAL: CMR2 0x00593cb0
-    static void *m_unk0x00593cb0[4117];
+    static void *m_unk0x00593cb0[4098];
     // GLOBAL: CMR2 0x00597d04
     static void *m_unk0x00597d04[4096];
     // GLOBAL: CMR2 0x005207f8

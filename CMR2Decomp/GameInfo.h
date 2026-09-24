@@ -274,12 +274,8 @@ public:
     // GLOBAL: CMR2 0x00817678
     static BOOL m_unk0x00817678;
 
-    // GLOBAL: CMR2 0x005a0098
-    static LPVOID *m_unk0x005a0098;
     // GLOBAL: CMR2 0x005a00b8
     static char m_unk0x005a00b8[0x104];     // session name
-    // GLOBAL: CMR2 0x005a009c
-    static LPVOID *m_unk0x005a009c;
     // GLOBAL: CMR2 0x005a02c0
     static char m_unk0x005a02c0[0x104];     // session password
     // GLOBAL: CMR2 0x005a03c4
@@ -295,5 +291,11 @@ public:
     static BOOL m_unk0x0059fa20[400];
 
 };
+
+// DPSESSIONDESC2 of the hosted/joined session (0x50 bytes, defined in Game.cpp);
+// its lpszSessionName/lpszPassword fields are set to the name buffers below.
+extern BYTE g_unk0x005a0068[0x50];
+#define g_sessionNamePtr (*(LPVOID **)(g_unk0x005a0068 + 0x30))       // 0x5a0098
+#define g_sessionPasswordPtr (*(LPVOID **)(g_unk0x005a0068 + 0x34))   // 0x5a009c
 
 #endif

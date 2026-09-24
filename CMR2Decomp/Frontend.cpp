@@ -537,7 +537,7 @@ char *CFrontend::FUN_0040ee20(int offset)
 // GLOBAL: CMR2 0x008173f0
 int g_unk0x008173f0;
 // GLOBAL: CMR2 0x00817420
-BYTE g_unk0x00817420[0x100 * 0xa];
+BYTE g_unk0x00817420[34 * 0xa];  // up to 0x817574
 // GLOBAL: CMR2 0x00817410
 BYTE g_unk0x00817410;
 

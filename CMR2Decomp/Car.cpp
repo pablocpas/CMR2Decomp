@@ -13,7 +13,7 @@ int g_carCount;
 Car *g_carBuffer;
 Car *g_pCurrentCar;
 CarTransforms g_carTransforms[16];
-FixMatrix g_carWheelTransforms[16][4];
+FixMatrix g_carWheelTransforms[8][4];
 short g_carOrderCount;
 short g_carOrder[48];
 int g_carViewScale[15][2];
@@ -23,7 +23,7 @@ BYTE g_unk0x00538e40[0xc0];
 // GLOBAL: CMR2 0x00538e04
 int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
-BYTE g_unk0x00538e0c[0x20];
+BYTE g_unk0x00538e0c[4];
 // GLOBAL: CMR2 0x00538d2c
 BYTE g_unk0x00538d2c[0xc8];
 // GLOBAL: CMR2 0x00538df8
@@ -32,10 +32,11 @@ short g_unk0x00538df8[2];
 int g_unk0x00538c98[2];
 // GLOBAL: CMR2 0x00538f00
 int g_unk0x00538f00[2];
-// GLOBAL: CMR2 0x0053901a
-BYTE g_unk0x0053901a[2];
-// GLOBAL: CMR2 0x0053901c
-BYTE g_unk0x0053901c[0x200];
+// View camera records: 2 per player (the player's two view modes), 100 bytes each.
+// GLOBAL: CMR2 0x00539018
+BYTE g_viewRecords[4][100];
+#define g_unk0x0053901a (g_viewRecords[0] + 2)
+#define g_unk0x0053901c (g_viewRecords[0] + 4)
 // GLOBAL: CMR2 0x00538ca0
 FixMatrix g_unk0x00538ca0[2];
 
