@@ -1669,6 +1669,180 @@ void Car_UpdateTyreForces(void)
 
 int FUN_00469bc0(void *pCar, int index);
 
+extern double g_unk0x00511300;
+
+// Orientation of a lean vector: up along (lean.x, 1, lean.z) with the tilt
+// limited to about 0.09, right the X axis made perpendicular to it.
+#define LEAN_BASIS(lean)                                                     \
+    t = (lean);                                                              \
+    if (FIX_ABS(t.x) > 0x170a)                                               \
+        t.x = t.x < 1 ? -0x170a : 0x170a;                                    \
+    if (FIX_ABS(t.z) > 0x170a)                                               \
+        t.z = t.z < 1 ? -0x170a : 0x170a;                                    \
+    t.y = 0x10000;                                                           \
+    FIX_NORMALIZE_INTO(up, t);                                               \
+    xAxis.x = 0x10000;                                                       \
+    xAxis.y = 0;                                                             \
+    xAxis.z = 0;                                                             \
+    FixVecScale(&t, &up, FixVecDot(&up, &xAxis));                            \
+    t.x = xAxis.x - t.x;                                                     \
+    t.y = xAxis.y - t.y;                                                     \
+    t.z = xAxis.z - t.z;                                                     \
+    FIX_NORMALIZE_INTO(right, t);                                            \
+    FixVecCross(&t, &right, &up);                                            \
+    FIX_NORMALIZE_INTO(fwd, t);                                              \
+    m.right = right;                                                         \
+    m.up = up;                                                               \
+    m.forward = fwd
+
+// Damping of a lean vector: against it, proportional to its length.
+#define LEAN_DAMP(lean, rate)                                                \
+    len = FixVecLength(&(lean));                                             \
+    if (len > 0) {                                                           \
+        k = -FixMul(len, (rate));                                            \
+        FixVecScaleRecip(&damp, &(lean), len);                               \
+        FixVecScale(&damp, &damp, k);                                        \
+    } else {                                                                 \
+        damp.x = 0;                                                          \
+        damp.y = 0;                                                          \
+        damp.z = 0;                                                          \
+    }
+
+// Suspension of the car: two lean vectors (the wheel frame and the body)
+// are pushed by the car's acceleration and damped, and the height of each
+// corner of the body under the leaned frames gives the suspension travel of
+// that corner. The body lean also rolls with the steering on the cars that
+// use it.
+// TODO: CMR2 0x0043b100 (implemented, match 81%)
+void Car_UpdateSuspension(void)
+{
+    FixMatrix m;
+    FixVector box[4];
+    FixVector right;
+    FixVector up;
+    FixVector fwd;
+    FixVector damp;
+    FixVector delta;
+    FixVector accel;
+    FixVector scaled;
+    FixVector diff;
+    FixVector flat;
+    FixVector xAxis;
+    FixVector t;
+    FixVector *pV;
+    int len;
+    int k;
+    int i;
+    short angle;
+
+    if (g_pCurrentCar->field_0xb28 == 0 || g_pCurrentCar->field_0xb74 == 0) {
+        accel.x = 0;
+        accel.y = 0;
+        accel.z = 0;
+        scaled.x = 0;
+        scaled.y = 0;
+        scaled.z = 0;
+    } else {
+        diff.x = g_pCurrentCar->velocityNext.x - g_pCurrentCar->velocity.x;
+        diff.y = g_pCurrentCar->velocityNext.y - g_pCurrentCar->velocity.y;
+        diff.z = g_pCurrentCar->velocityNext.z - g_pCurrentCar->velocity.z;
+        FixMatrix_InverseRotateVector(&accel, &diff, g_pCurrentCar->pWorld);
+        len = FixVecLength(&accel);
+        accel.y = 0;
+        if (len == 0 || g_pCurrentCar->field_0xb60 != 0) {
+            accel.x = 0;
+            accel.y = 0;
+            accel.z = 0;
+        }
+        FixVecScale(&scaled, &accel, g_physicsScale);
+    }
+
+    // Wheel frame.
+    LEAN_DAMP(g_pCurrentCar->wheelLean, g_pCurrentCar->field_0x9b8);
+    delta.x = damp.x + accel.x;
+    delta.y = damp.y + accel.y;
+    delta.z = damp.z + accel.z;
+    FixVecScale(&delta, &delta, FixMul(g_physicsTimeStep, 0x13333));
+    flat = delta;
+    flat.y = 0;
+    len = FixVecLength(&flat);
+    if (len > 0x312) {
+        FixVecScaleRecip(&flat, &flat, len);
+        FixVecScale(&flat, &flat, 0x312);
+        delta.x = flat.x;
+        delta.z = flat.z;
+    }
+    g_pCurrentCar->wheelLean.x += delta.x;
+    g_pCurrentCar->wheelLean.y += delta.y;
+    g_pCurrentCar->wheelLean.z += delta.z;
+    LEAN_BASIS(g_pCurrentCar->wheelLean);
+    box[0].x = g_pCurrentCar->halfExtents.x;
+    box[0].y = 0;
+    box[0].z = g_pCurrentCar->halfExtents.z;
+    box[1].x = g_pCurrentCar->halfExtents.x;
+    box[1].y = 0;
+    box[1].z = -g_pCurrentCar->halfExtents.z;
+    box[2].x = -g_pCurrentCar->halfExtents.x;
+    box[2].y = 0;
+    box[2].z = g_pCurrentCar->halfExtents.z;
+    box[3].x = -g_pCurrentCar->halfExtents.x;
+    box[3].y = 0;
+    box[3].z = -g_pCurrentCar->halfExtents.z;
+    for (i = 0; i < 4; i++) {
+        FixMatrix_RotateVector(&t, &box[i], &m);
+        g_pCurrentCar->field_0x998[i] = t.y;
+        g_pCurrentCar->field_0x998[i] += *(int *)(g_pCarSetup + 0x3dc + i * 4);
+    }
+
+    // Body.
+    scaled.z = FixMul(scaled.z, 0x20000);
+    LEAN_DAMP(g_pCurrentCar->lean, g_pCurrentCar->field_0x9bc);
+    delta.x = scaled.x + damp.x;
+    delta.y = scaled.y + damp.y;
+    delta.z = scaled.z + damp.z;
+    FixVecScale(&delta, &delta, FixMul(g_physicsTimeStep, 0x13333));
+    flat = delta;
+    flat.y = 0;
+    len = FixVecLength(&flat);
+    if (len > FixMul(g_physicsTimeStep, 0x312)) {
+        FixVecScaleRecip(&flat, &flat, len);
+        FixVecScale(&flat, &flat, FixMul(g_physicsTimeStep, 0x312));
+        delta.x = flat.x;
+        delta.z = flat.z;
+    }
+    g_pCurrentCar->lean.x += delta.x;
+    g_pCurrentCar->lean.y += delta.y;
+    g_pCurrentCar->lean.z += delta.z;
+    LEAN_BASIS(g_pCurrentCar->lean);
+    if (g_pCurrentCar->field_0xb1d != 0 && g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e] != 0) {
+        t.x = 0;
+        t.y = 0;
+        t.z = 0x10000;
+        angle = (short)((double)FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333) * g_unk0x00511300);
+        FixMatrix_FromAxisAngle(&m, &t, angle);
+        pV = &right;
+        for (i = 3; i != 0; i--) {
+            FixMatrix_RotateVector(&t, pV, &m);
+            FIX_NORMALIZE_INTO(pV[0], t);
+            pV++;
+        }
+    }
+    m.right = right;
+    m.up = up;
+    m.forward = fwd;
+    for (i = 0; i < 4; i++) {
+        FixMatrix_RotateVector(&t, &box[i], &m);
+        g_pCurrentCar->wheel0x9a8[i] = t.y;
+        g_pCurrentCar->wheel0x9a8[i] += *(int *)(g_pCarSetup + 0x3dc + i * 4);
+    }
+    if (g_pCurrentCar->field_0xb28 != 4) {
+        for (i = 7; i >= 0; i--)
+            g_pCurrentCar->field_0x8b8[i] = g_pCurrentCar->field_0x8b4;
+        return;
+    }
+    Car_UpdateWheelTorques();
+}
+
 // Normalises the per-wheel slip, turns it into wheel torque and, on the cars
 // that use it, feeds the torque back towards half the drive torque.
 // FUNCTION: CMR2 0x0043c640

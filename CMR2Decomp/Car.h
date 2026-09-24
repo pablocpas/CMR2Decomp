@@ -46,7 +46,7 @@ struct Car {
     FixVector baseForce;              // 0x6a8  constant force applied every step
     FixVector groundDir[2];           // 0x6b4  front/rear rolling direction on the ground plane
     FixVector groundAxis[2];          // 0x6cc  front/rear lateral axis on the ground plane
-    BYTE field_0x6e4[0xc];
+    FixVector wheelLean;              // 0x6e4  lean of the wheel frame, integrated like lean
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
     BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
@@ -95,8 +95,7 @@ struct Car {
     int field_0x880[4];               // 0x880
     BYTE field_0x890[0x24];
     int field_0x8b4;                  // 0x8b4
-    int field_0x8b8[4];               // 0x8b8  per-wheel torque rebuilt every step
-    BYTE field_0x8c8[0x10];
+    int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
     BYTE field_0x8fc[0x20];
@@ -105,9 +104,9 @@ struct Car {
     int field_0x924;                  // 0x924
     BYTE field_0x928[0x60];
     int wheel0x988[4];                // 0x988
-    int field_0x998[4];               // 0x998
-    int wheel0x9a8[4];                // 0x9a8
-    BYTE field_0x9b8[0x4];
+    int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
+    int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
+    int field_0x9b8;                  // 0x9b8  damping of wheelLean
     int field_0x9bc;                  // 0x9bc
     BYTE field_0x9c0[0x4];
     int field_0x9c4;                  // 0x9c4
@@ -124,7 +123,8 @@ struct Car {
     unsigned short heading;           // 0xb10  12-bit angle
     BYTE field_0xb12[0x8];
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
-    BYTE field_0xb1b[0x3];
+    BYTE field_0xb1b[0x2];
+    char field_0xb1d;                 // 0xb1d
     char field_0xb1e;                 // 0xb1e
     char field_0xb1f;                 // 0xb1f
     BYTE field_0xb20[0x8];
