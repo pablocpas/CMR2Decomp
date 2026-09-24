@@ -446,7 +446,7 @@ void FUN_0041b3a0(void)
 BYTE g_barBackColour[4] = { 156, 180, 172, 255 };
 // GLOBAL: CMR2 0x0051c990
 BYTE g_barTextColour[4] = { 255, 255, 255, 255 };
-extern BYTE g_unk0x0058ca90[1];
+extern BYTE g_unk0x0058ca90[0x4d8];
 // GLOBAL: CMR2 0x0051c97c
 BYTE *g_pUnk0x0051c97c = g_unk0x0058ca90;
 
@@ -456,7 +456,7 @@ BYTE *FUN_00475a40(void)
     return g_pUnk0x0051c97c;
 }
 // GLOBAL: CMR2 0x0058ca90
-BYTE g_unk0x0058ca90[1];
+BYTE g_unk0x0058ca90[0x4d8];
 // GLOBAL: CMR2 0x0058cf7c
 int g_unk0x0058cf7c;
 
