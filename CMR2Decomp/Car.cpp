@@ -17,7 +17,9 @@ FixMatrix g_carWheelTransforms[16][4];
 short g_carOrderCount;
 short g_carOrder[48];
 int g_carViewScale[15][2];
-SceneNode *g_viewNodes[8];
+SceneNode *g_viewNodes[5];
+// GLOBAL: CMR2 0x00538e40
+BYTE g_unk0x00538e40[0xc0];
 // GLOBAL: CMR2 0x00538e04
 int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
@@ -36,6 +38,21 @@ BYTE g_unk0x0053901a[2];
 BYTE g_unk0x0053901c[0x200];
 // GLOBAL: CMR2 0x00538ca0
 FixMatrix g_unk0x00538ca0[2];
+
+// Difference between the two stored view positions for one car slot.
+// FUNCTION: CMR2 0x004220d0
+void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view)
+{
+    FixVector a;
+    FixVector b;
+    int offset = (view & 0xff) * 100;
+
+    FixMatrix_GetPosition(&b, (FixMatrix *)(g_unk0x00538e40 + offset));
+    FixMatrix_GetPosition(&a, (FixMatrix *)(g_unk0x00538d2c + 4 + offset));
+    pOut->x = a.x - b.x;
+    pOut->y = a.y - b.y;
+    pOut->z = a.z - b.z;
+}
 
 // FUNCTION: CMR2 0x00422f90
 void FUN_00422f90(unsigned int index, int value)
