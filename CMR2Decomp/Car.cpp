@@ -2761,3 +2761,104 @@ void Car_FollowGround(void)
     }
     g_pCurrentCar->field_0xb74 = 1;
 }
+
+// Switches the car to the tumbling (eight corner) model and stores the
+// ground normal in its body axes.
+#define CAR_START_TUMBLING()                                                                         \
+    g_pCurrentCar->field_0xc00 = 1;                                                                  \
+    g_pCurrentCar->field_0x96c = 0x10000;                                                            \
+    g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->right);     \
+    g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);        \
+    g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward)
+
+// Roll-over: on a slope too steep to stand on (over about 30 degrees) the
+// car gets a growing torque that tips it over; otherwise, sliding sideways
+// faster than the wheels can hold tips the body, and past the limit the car
+// starts to tumble.
+// TODO: CMR2 0x004373c0 (implemented, match 77%)
+void Car_UpdateRollover(void)
+{
+    FixVector t;
+    FixVector a;
+    FixVector b;
+    FixVector c;
+    FixVector dir;
+    int k;
+    int sum;
+    int limit;
+    int slide;
+    int tip;
+    int target;
+    int diff;
+    int rate;
+    int mag;
+    int i;
+
+    k = 0;
+    if (g_pCurrentCar->field_0xb28 == 0 && g_pCurrentCar->field_0xb34 == 0)
+        return;
+    if (g_pCurrentCar->groundNormal.y < 0x10000 && (short)(0x400 - FixAcos(g_pCurrentCar->groundNormal.y)) > 0x155 &&
+        g_pCurrentCar->field_0xb42 <= 0) {
+        FixVecScale(&t, &g_pCurrentCar->groundNormal, 0x280000);
+        FixMatrix_InverseRotateVector(&a, &t, g_pCurrentCar->pWorld);
+        FixVecScale(&t, &g_pCurrentCar->baseForce,
+                    FixMul(g_pCurrentCar->steepTime << 16, FixMul(FixDiv(0x10000, 0xc80000), 0x8000)));
+        FixMatrix_InverseRotateVector(&b, &t, g_pCurrentCar->pWorld);
+        FixVecCross(&c, &b, &a);
+        FixVecScale(&c, &c, g_pCurrentCar->field_0x760);
+        if (g_pCurrentCar->field_0xc00 == 0) {
+            CAR_START_TUMBLING();
+        }
+        g_pCurrentCar->field_0x5d0.x += c.x;
+        g_pCurrentCar->field_0x5d0.y += c.y;
+        g_pCurrentCar->field_0x5d0.z += c.z;
+        if (g_pCurrentCar->steepTime < 200)
+            g_pCurrentCar->steepTime++;
+    } else {
+        g_pCurrentCar->steepTime = 0;
+    }
+    if (g_pCurrentCar->field_0xc00 != 0)
+        return;
+
+    // Sideways slide against the grip of the wheels.
+    sum = 0;
+    for (i = 0; i < 4; i++)
+        sum += *((BYTE *)g_pCurrentCar + 0x1a0 + i * 0xc) << 16;
+    limit = FixMul(FixDiv(sum, 0x40000), 0x3d1);
+    FixVecScale(&t, &g_pCurrentCar->groundNormal, FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward));
+    t.x = g_pCurrentCar->forward.x - t.x;
+    t.y = g_pCurrentCar->forward.y - t.y;
+    t.z = g_pCurrentCar->forward.z - t.z;
+    FIX_NORMALIZE_INTO(dir, t);
+    slide = FixVecDot(&g_pCurrentCar->velocity, &dir);
+    tip = 0;
+    if (FIX_ABS(slide) > limit) {
+        sum = 0;
+        for (i = 0; i < 4; i++)
+            sum += *((BYTE *)g_pCurrentCar + 0x1a1 + i * 0xc) << 16;
+        if (limit != 0)
+            k = FixDiv(0x10000, FixMul(FixDiv(sum, 0x40000), 0x3d1) - limit);
+        if (slide > 0)
+            limit = -limit;
+        tip = FixMul(slide + limit, k);
+        if (FIX_ABS(tip) > 0x10000)
+            tip = tip < 1 ? -0x10000 : 0x10000;
+    }
+    target = FixMul(tip, 0x10000);
+    diff = target - g_pCurrentCar->tipRatio;
+    rate = FixMul(g_physicsTimeStep, 0x1999);
+    if (FIX_ABS(diff) < rate) {
+        g_pCurrentCar->tipRatio = target;
+    } else {
+        if (diff < 1)
+            rate = -rate;
+        g_pCurrentCar->tipRatio += rate;
+    }
+    mag = FIX_ABS(g_pCurrentCar->tipRatio);
+    g_pCurrentCar->tipAngle = FixAtan2(g_pCurrentCar->tipRatio, 0x20000);
+    if (mag > 0xcccc) {
+        g_pCurrentCar->tipAngle = 0;
+        CAR_START_TUMBLING();
+        g_pCurrentCar->field_0x5d0.x += FixMul(FixMul(slide, g_physicsScale), -0xa0000);
+    }
+}

@@ -66,7 +66,8 @@ struct Car {
     int scale0x76c;                   // 0x76c
     BYTE field_0x770[0x8];
     int speed;                        // 0x778  length of the velocity vector
-    BYTE field_0x77c[0x18];
+    int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
+    BYTE field_0x780[0x14];
     int field_0x794;                  // 0x794
     BYTE field_0x798[0xc];
     int field_0x7a4;                  // 0x7a4
@@ -106,7 +107,9 @@ struct Car {
     int field_0x924;                  // 0x924
     BYTE field_0x928[0x30];
     int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
-    BYTE field_0x95c[0x2c];
+    BYTE field_0x95c[0x10];
+    int field_0x96c;                  // 0x96c
+    BYTE field_0x970[0x18];
     int wheel0x988[4];                // 0x988
     int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
@@ -123,12 +126,14 @@ struct Car {
     int field_0xa70;                  // 0xa70
     BYTE field_0xa74[0x8];
     int field_0xa7c;                  // 0xa7c
-    BYTE field_0xa80[0x1e];
+    BYTE field_0xa80[0x1c];
+    unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
     short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
     short wheelSurface[4];            // 0xaae
     BYTE field_0xab6[0x5a];
     unsigned short heading;           // 0xb10  12-bit angle
-    BYTE field_0xb12[0x8];
+    BYTE field_0xb12[0x6];
+    short tipAngle;                   // 0xb18  12-bit angle the body tips by
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
     BYTE field_0xb1b[0x2];
     char field_0xb1d;                 // 0xb1d
@@ -140,7 +145,9 @@ struct Car {
     BYTE field_0xb2a[0x2];
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
     char field_0xb34;                 // 0xb34
-    BYTE field_0xb35[0x2b];
+    BYTE field_0xb35[0xd];
+    char field_0xb42;                 // 0xb42
+    BYTE field_0xb43[0x1d];
     int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
     BYTE field_0xb68[0xc];
