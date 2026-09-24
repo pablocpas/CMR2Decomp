@@ -151,6 +151,32 @@ int g_unk0x00541cd4;
     for (i = 0; i < *FUN_0041b390(); i++)                                               \
         CGame::FUN_0049c1c0((Unk0049c2c0 *)FUN_0041b390(), i, 1, 3)
 
+void FUN_0041f280(void);
+void FUN_0041f290(void);
+
+// Fade callback: promotes the cars and closes the network menu (restart).
+// FUNCTION: CMR2 0x004014f0
+void FUN_004014f0(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    FUN_0041f280();
+    FUN_0041f290();
+    FUN_00404ef0();
+}
+
+// Fade callback: promotes the cars and closes the network menu.
+// FUNCTION: CMR2 0x00401540
+void FUN_00401540(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    FUN_0041f280();
+    FUN_00404ef0();
+}
+
 // Fade callback of the "quit" item: ends the championship and leaves.
 // TODO: CMR2 0x00449020 (implemented, match 97%)
 void FUN_00449020(BYTE index)

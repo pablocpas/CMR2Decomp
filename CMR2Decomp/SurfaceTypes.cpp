@@ -30,6 +30,28 @@ short FUN_00478a10(short index)
 {
     return g_surfaceIndexMap[index];
 }
+// Path of the surface texture file; empty when the data came from memory.
+// GLOBAL: CMR2 0x0058db50
+char g_unk0x0058db50[MAX_PATH];
+// GLOBAL: CMR2 0x0058dc54
+void *g_unk0x0058dc54;
+
+#include "FileBuffer.h"
+#include "Frontend.h"
+
+// Releases the surface texture data (registered callback of 0x478a20).
+// FUNCTION: CMR2 0x00478b20
+BYTE FUN_00478b20(void)
+{
+    if (g_unk0x0058dc54 != NULL) {
+        if (g_unk0x0058db50[0] == 0)
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0058dc54);
+        g_unk0x0058dc54 = NULL;
+    }
+    CFrontend::FUN_004a3d80();
+    return 1;
+}
+
 int g_surfaceGrip[48][2] = {
     15073, 98304, 14745, 91750, 13107, 78643, 9830, 78643,
     13107, 78643, 13107, 78643, 15400, 91750, 14090, 91750,

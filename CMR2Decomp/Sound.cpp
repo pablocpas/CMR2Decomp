@@ -834,6 +834,25 @@ SoundSlot *Sound_GetSlot(int index)
     return CSound::m_soundSlots[index];
 }
 
+void Sound_FreeAll(void);
+void FUN_004a1d10(int sample);
+
+// Frees every loaded sound and releases the samples from index first on.
+// FUNCTION: CMR2 0x004b7740
+void FUN_004b7740(int first)
+{
+    int count = g_unk0x006e0ef0;
+
+    if (CSound::m_unk0x006e0eec) {
+        Sound_FreeAll();
+        for (; first < g_unk0x006e0ef0; first++) {
+            FUN_004a1d10(first);
+            count--;
+        }
+        g_unk0x006e0ef0 = count;
+    }
+}
+
 // FUNCTION: CMR2 0x004b7780
 int FUN_004b7780(void)
 {

@@ -1154,6 +1154,25 @@ unsigned int FUN_00456b10(void)
     return FUN_0041b370() & 0xff;
 }
 
+// Startup (C runtime .CRT$XCU) initializers of two default quality codes.
+extern char g_stageQualityCodes[24];
+
+// FUNCTION: CMR2 0x00456b40
+void __cdecl StageQuality_InitCode7(void)
+{
+    g_unk0x00542630[0x394] = g_stageQualityCodes[7];
+}
+
+// FUNCTION: CMR2 0x00456b60
+void __cdecl StageQuality_InitCode8(void)
+{
+    g_unk0x00542630[0x395] = g_stageQualityCodes[8];
+}
+
+#pragma data_seg(".CRT$XCU")
+static void (__cdecl *s_stageQualityInit[2])(void) = { StageQuality_InitCode7, StageQuality_InitCode8 };
+#pragma data_seg()
+
 // TODO: CMR2 0x00456ae0 (implemented, match 90%)
 float FUN_00456ae0(void)
 {

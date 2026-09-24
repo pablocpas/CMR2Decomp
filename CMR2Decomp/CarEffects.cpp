@@ -422,6 +422,16 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     if (lb > 0x10000)                                                             \
         lb = 0x10000;
 
+// Update callback: once old enough the particle switches to its type's look.
+// FUNCTION: CMR2 0x004994d0
+void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
+{
+    Particle *p = (Particle *)pParticle;
+
+    if (p->age >= 0x78000)
+        p->type0x56 = pType->type;
+}
+
 // Draw callback of a glass shard, tinted like the car's windows.
 // TODO: CMR2 0x004994f0 (implemented, match 41%)
 void GlassShard_Draw(Particle *p, ParticleType *pType)
@@ -1095,6 +1105,22 @@ extern BYTE g_unk0x00538d2c[0xc8];
 
 #define EFFECT_RAND_NEG() (int)(__int64)((float)rand() * g_oneOverRandMax * (float)g_minus65536)
 extern double g_minus65536;
+
+// Update callback: lifts the particle by half its size.
+// FUNCTION: CMR2 0x0045d250
+void FUN_0045d250(void *pParticle, ParticleType *pType, int param)
+{
+    Particle *p = (Particle *)pParticle;
+
+    p->vector0x28.y += p->size / 2;
+}
+
+// Spawn callback: stores the effect data passed by the spawner.
+// TODO: CMR2 0x0045de80 (implemented, match 72%)
+void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
+{
+    ((Particle *)pParticle)->field0x64 = (short)*(int *)param;
+}
 
 // Splashes and sparks thrown along the wheel trails of a player's car:
 // water on the wet surfaces, sparks on some hard ones (when the stage asks

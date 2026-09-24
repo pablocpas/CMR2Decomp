@@ -2294,6 +2294,120 @@ int g_unk0x0052af50;
 // GLOBAL: CMR2 0x0052af58
 BYTE g_unk0x0052af58[2];
 
+// In-race network menus (built by 0x402c40..0x404000).
+// GLOBAL: CMR2 0x00529918
+Menu g_menu0x00529918;
+// GLOBAL: CMR2 0x00529af8
+Menu g_menu0x00529af8;
+// GLOBAL: CMR2 0x00529ce8
+Menu g_menu0x00529ce8;
+// GLOBAL: CMR2 0x00529ed8
+Menu g_menu0x00529ed8;
+// GLOBAL: CMR2 0x0052a0c0
+Menu g_menu0x0052a0c0;
+// GLOBAL: CMR2 0x0052a2a8
+Menu g_menu0x0052a2a8;
+// GLOBAL: CMR2 0x0052a490
+Menu g_menu0x0052a490;
+// GLOBAL: CMR2 0x0052a670
+Menu g_menu0x0052a670;
+// GLOBAL: CMR2 0x0052a870
+Menu g_menu0x0052a870;
+// GLOBAL: CMR2 0x0052ad54
+int g_unk0x0052ad54;
+// GLOBAL: CMR2 0x0052ad60
+Menu g_menu0x0052ad60;
+// GLOBAL: CMR2 0x0052af48
+Menu *g_pMenu0x0052af48;
+// GLOBAL: CMR2 0x0052af6c
+int g_unk0x0052af6c;
+
+void FUN_00404ef0(void);
+void FUN_004a0ba0(void);
+void FUN_004a3180(void);
+unsigned int RallyData_FUN_00407e70(void);
+
+// TODO: CMR2 0x00401850 (implemented, match 83%)
+void FUN_00401850(Menu *pMenu, int param)
+{
+    if ((BYTE)RallyData_FUN_00407e70())
+        FUN_004a3180();
+    FUN_00404ef0();
+}
+
+// FUNCTION: CMR2 0x00402bb0
+void FUN_00402bb0(Menu *pMenu, char param)
+{
+    if (param == 0) {
+        pMenu->cursor = (char)Menu_FindItem(pMenu, 7);
+        g_unk0x0052af6c = pMenu->cursor;
+        return;
+    }
+    g_unk0x0052af6c = pMenu->cursor;
+}
+
+// TODO: CMR2 0x00402bf0 (implemented, match 19%, registers only)
+void FUN_00402bf0(Menu *pMenu)
+{
+    if (pMenu->cursor == 2) {
+        pMenu->cursor = ((g_unk0x0052af6c >= 2) - 1 & 2) + 1;
+        g_unk0x0052af6c = pMenu->cursor;
+        return;
+    }
+    g_unk0x0052af6c = pMenu->cursor;
+}
+
+// TODO: CMR2 0x00402c30 (implemented, match 50%)
+void FUN_00402c30(Menu *pMenu)
+{
+    FUN_00404ef0();
+}
+
+// FUNCTION: CMR2 0x00402c40
+void FUN_00402c40(void)
+{
+    Menu_Init(&g_menu0x00529ce8, 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_menu0x00529ce8, 0, -1, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00529ce8, NULL, NULL, (MenuCallback)FUN_00402c30, NULL);
+}
+
+// FUNCTION: CMR2 0x00402f70
+void FUN_00402f70(Menu *pMenu, int param)
+{
+    Menu_SetNextAction((int)&g_menu0x0052ad60);
+}
+
+// FUNCTION: CMR2 0x00402f80
+void FUN_00402f80(Menu *pMenu)
+{
+    Menu_SetNextAction((int)&g_menu0x0052ad60);
+}
+
+// FUNCTION: CMR2 0x00403360
+void FUN_00403360(Menu *pMenu, int param)
+{
+    pMenu->cursor = pMenu->itemCount - 1;
+}
+
+// FUNCTION: CMR2 0x004035d0
+void FUN_004035d0(Menu *pMenu, int param)
+{
+    g_unk0x0052af58[1] = pMenu->cursor;
+}
+
+// FUNCTION: CMR2 0x00404ea0
+void FUN_00404ea0(BYTE param1)
+{
+    g_unk0x0052af58[0] = param1;
+    CGameInfo::m_unk0x0052af40 = 1;
+    g_unk0x0052ad54 = 0;
+    CGameInfo::FUN_0049ea90(1);
+    g_unk0x0052af41 = 1;
+    g_pMenu0x0052af44 = NULL;
+    g_pMenu0x0052af48 = &g_menu0x0052ad60;
+    FUN_004a0ba0();
+}
+
 // FUNCTION: CMR2 0x00404f10
 void FUN_00404f10(void)
 {

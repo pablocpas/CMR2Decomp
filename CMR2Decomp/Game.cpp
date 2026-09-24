@@ -798,6 +798,24 @@ bool CGame::FUN_004aad30(int param1, int param2, int param3)
     return false;
 }
 
+struct Menu;
+void FUN_0041f4c0(void);
+void FUN_0041f4d0(void);
+
+// Item callbacks of the menu built by 0x475f00.
+// FUNCTION: CMR2 0x0049c070
+void FUN_0049c070(Menu *pMenu, int param)
+{
+    FUN_0041f4c0();
+}
+
+// FUNCTION: CMR2 0x0049c080
+void FUN_0049c080(Menu *pMenu, int param)
+{
+    FUN_0041f4c0();
+    FUN_0041f4d0();
+}
+
 // FUNCTION: CMR2 0x0049c090
 int CGame::GetCallbackCount(void)
 {
@@ -856,6 +874,16 @@ void CGame::FUN_0049cb70(void *param1)
     m_unk0x0059ce2c++;
 }
 
+// qsort comparator of the deferred draw list (0x49cc50): sorts by the
+// depth at +0x114 of each entry's node, farthest first.
+// FUNCTION: CMR2 0x0049cb90
+int __cdecl FUN_0049cb90(const void *a, const void *b)
+{
+    int depthA = *(int *)(*(BYTE **)(*(BYTE **)a + 0xc) + 0x114);
+    int depthB = *(int *)(*(BYTE **)(*(BYTE **)b + 0xc) + 0x114);
+    return depthA < depthB ? 1 : -1;
+}
+
 // FUNCTION: CMR2 0x0049dca0
 void CGame::FUN_0049dca0(int param1)
 {
@@ -906,6 +934,24 @@ void FUN_00476500(void *param1)
 {
     if (g_unk0x0058d49c[*((BYTE *)param1 + 2)] != NULL)
         CGame::FUN_0049c420(1);
+}
+
+void FUN_00486b20(BYTE *pCar, BYTE *pInfo);
+void FUN_0048d7b0(BYTE *pCar, BYTE *pInfo);
+
+// Dispatches by the object type stored at +4.
+// FUNCTION: CMR2 0x00423810
+void FUN_00423810(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 1:
+    case 2:
+    case 10:
+        FUN_00486b20(pObject, pInfo);
+        return;
+    case 7:
+        FUN_0048d7b0(pObject, pInfo);
+    }
 }
 
 struct Unk004238e0 {

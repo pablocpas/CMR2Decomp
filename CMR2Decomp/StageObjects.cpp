@@ -17,6 +17,8 @@
 #include "Input.h"
 #include "main.h"
 #include "Game.h"
+#include "GenericFileLoader.h"
+#include "FileBuffer.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -139,6 +141,8 @@ int g_unk0x0058943c;
 int g_unk0x00589440;
 // GLOBAL: CMR2 0x00589444
 int g_unk0x00589444;
+// GLOBAL: CMR2 0x00589448
+GenericFile g_unk0x00589448;
 // GLOBAL: CMR2 0x0058cf68
 int g_unk0x0058cf68;
 // GLOBAL: CMR2 0x0058cf80
@@ -2227,6 +2231,19 @@ void Events_Flush(void)
         Graphics_ReloadTexture(g_eventTexture);
         Events_Reset();
     }
+}
+
+// Releases the file loaded by 0x46f060 (registered callback).
+// FUNCTION: CMR2 0x0046f030
+BYTE FUN_0046f030(void)
+{
+    if (g_unk0x00589448.buffer) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00589448.buffer);
+        g_unk0x00589448.buffer = NULL;
+    }
+    g_unk0x00589448.didFileLoad = FALSE;
+    g_unk0x00589448.fileSize = 0;
+    return 1;
 }
 
 void FUN_00486b20(BYTE *pCar, BYTE *pInfo);

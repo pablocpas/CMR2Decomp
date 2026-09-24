@@ -10,6 +10,7 @@
 #include "Graphics.h"
 #include "StageTiming.h"
 #include "GenericFileLoader.h"
+#include "FileBuffer.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -92,10 +93,12 @@ char g_unk0x00538340[MAX_PATH];
 char g_unk0x00538444[MAX_PATH];
 // GLOBAL: CMR2 0x0053874c
 char g_unk0x0053874c[MAX_PATH];
+// GLOBAL: CMR2 0x00538850
+int g_unk0x00538850;
 // GLOBAL: CMR2 0x00538858
-BYTE g_unk0x00538858[8];
-// GLOBAL: CMR2 0x00538860
-int g_unk0x00538860;
+GenericFile g_raceFile;
+// GLOBAL: CMR2 0x00538864
+BYTE g_raceFileCallbackSet;
 // GLOBAL: CMR2 0x00538970
 int g_unk0x00538970;
 
@@ -213,10 +216,42 @@ void FUN_0041f4d0(void)
     g_unk0x00537f94 = 1;
 }
 
-// FUNCTION: CMR2 0x0041f500
-BYTE *FUN_0041f500(void)
+BYTE FUN_0040eef0(void);
+void FUN_0041e670(void);
+void FUN_0041b300(void);
+
+// Update handler of game state 12 (state table 0x5190b0).
+// FUNCTION: CMR2 0x0041f4e0
+void FUN_0041f4e0(Unk0049c2c0 *p, BYTE index)
 {
-    return g_unk0x00538860 ? g_unk0x00538858 : NULL;
+    CGame::FUN_004057e0(0);
+    FUN_0041e670();
+    FUN_0040eef0();
+    FUN_0041b300();
+}
+
+// FUNCTION: CMR2 0x0041f500
+GenericFile *FUN_0041f500(void)
+{
+    return g_raceFile.didFileLoad ? &g_raceFile : NULL;
+}
+
+void StageObject_FreeAll(void);
+
+// Releases the race file loaded by FUN_0041f930 (registered callback).
+// FUNCTION: CMR2 0x0041f510
+BYTE FUN_0041f510(void)
+{
+    if (g_raceFile.didFileLoad && g_raceFile.buffer) {
+        CFileBuffer::FreeGenericFileBuffer(g_raceFile.buffer);
+        g_raceFile.buffer = NULL;
+    }
+    g_raceFile.didFileLoad = FALSE;
+    g_raceFile.fileSize = 0;
+    if (g_unk0x00538850)
+        StageObject_FreeAll();
+    g_raceFileCallbackSet = 0;
+    return 1;
 }
 
 // FUNCTION: CMR2 0x0041f8e0
@@ -283,6 +318,17 @@ void FUN_00417e60(void)
 int FUN_004781c0(int index);
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void Sound_Free(unsigned int handle);
+
+// GLOBAL: CMR2 0x00537358
+int g_unk0x00537358;
+
+// Registered callback of 0x416720.
+// FUNCTION: CMR2 0x00418550
+int FUN_00418550(void)
+{
+    g_unk0x00537358 = 0;
+    return 1;
+}
 
 // FUNCTION: CMR2 0x00418560
 void FUN_00418560(int value)

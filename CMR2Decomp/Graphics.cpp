@@ -2781,6 +2781,22 @@ void FUN_004b2970(int value)
     g_unk0x005210bc = value;
 }
 
+// GLOBAL: CMR2 0x005210d0
+float g_unk0x005210d0 = 0.5f;
+// GLOBAL: CMR2 0x006dfdf8
+float g_unk0x006dfdf8;
+
+// Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
+// TODO: CMR2 0x004b2e20 (implemented, match 75%)
+void __cdecl FUN_004b2e20(void)
+{
+    g_unk0x006dfdf8 = 1.0f - g_unk0x005210d0;
+}
+
+#pragma data_seg(".CRT$XCU")
+static void (__cdecl *s_graphicsInit)(void) = FUN_004b2e20;
+#pragma data_seg()
+
 // FUNCTION: CMR2 0x004b2e40
 void FUN_004b2e40(BYTE *p, int value)
 {
