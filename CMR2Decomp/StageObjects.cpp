@@ -1456,3 +1456,167 @@ void FUN_00480b40(BYTE *pCar)
         pTable--;
     } while (pTable >= g_unk0x00590d7c);
 }
+
+// Per-car values eased towards their targets (0x591710) by a step.
+// GLOBAL: CMR2 0x00591690
+int g_unk0x00591690[4];
+// GLOBAL: CMR2 0x00591710
+int g_unk0x00591710[4];
+
+// TODO: CMR2 0x0048dc30 (implemented, match 35%)
+void FUN_0048dc30(BYTE *pCar, int step)
+{
+    unsigned int car;
+    int cur;
+    int d;
+
+    car = *pCar;
+    cur = g_unk0x00591690[car];
+    d = g_unk0x00591710[car] - cur;
+    if (FIX_ABS(d) < step) {
+        g_unk0x00591690[car] = g_unk0x00591710[car];
+        return;
+    }
+    if (d > 0) {
+        g_unk0x00591690[car] = cur + step;
+        return;
+    }
+    g_unk0x00591690[car] = cur - step;
+}
+
+// Five-bit field of the current round entry (bits 0..4, or 5..9 with pHigh).
+// TODO: CMR2 0x004735a0 (implemented, match 41%)
+unsigned int FUN_004735a0(unsigned int *pHigh)
+{
+    unsigned int *pState;
+    unsigned int *pEntry;
+    unsigned int state;
+
+    pState = RallyData_GetChampionshipState();
+    state = *pState;
+    pEntry = pHigh;
+    switch ((state >> 3) & 7) {
+    case 1:
+        pEntry = pState + ((state >> 12) & 0xf) * 3 + 0x16;
+        break;
+    case 2:
+        pEntry = pState + ((state >> 12) & 0xf) * 3 + 10;
+        break;
+    case 3:
+        pEntry = pState + ((state >> 12) & 0xf) * 3 + 4;
+        break;
+    case 4:
+        pEntry = pState + 1;
+        break;
+    }
+    state = *pEntry;
+    if (pHigh != NULL)
+        state >>= 5;
+    return state & 0x1f;
+}
+
+extern Car *g_collisionCar;
+extern FixVector g_collisionTarget;
+extern FixVector g_collisionLineStart;
+
+// 1 when no corner of the collision car lies strictly between the heights of
+// the line start and the target.
+// TODO: CMR2 0x0048f400 (implemented, match 17%)
+int FUN_0048f400(void)
+{
+    int *pY;
+    int i;
+
+    if (g_collisionLineStart.y < g_collisionTarget.y) {
+        i = 0;
+        pY = &g_collisionCar->corners[0].y;
+        while (g_collisionTarget.y <= *pY || *pY <= g_collisionLineStart.y) {
+            i++;
+            pY += 3;
+            if (i > 7)
+                return 1;
+        }
+    } else {
+        i = 0;
+        pY = &g_collisionCar->corners[0].y;
+        while (*pY <= g_collisionTarget.y || g_collisionLineStart.y <= *pY) {
+            i++;
+            pY += 3;
+            if (i > 7)
+                return 1;
+        }
+    }
+    return 0;
+}
+
+void FUN_004ae410(BYTE a, BYTE b, int c, int d);
+
+// TODO: CMR2 0x00486b20 (implemented, match 68%)
+void FUN_00486b20(BYTE *pCar, BYTE *pInfo)
+{
+    int kind;
+
+    if (*(int *)(pCar + 4) == 1 && *(int *)(pInfo + 4) == 2)
+        FUN_00486be0(pInfo, (int)pCar);
+    else
+        FUN_004ae410(pCar[2], pCar[1], 1, 1);
+    kind = *(int *)(pInfo + 4);
+    if (kind != 2 && kind != 1 && kind != 10) {
+        g_unk0x00590db0[*pCar] = 0;
+        return;
+    }
+    g_unk0x00590db0[*pCar] = 0x10000;
+}
+
+extern void **g_unk0x00590c6c;
+
+// Resets record `index` (0x3c bytes) of list `list`: its three vectors to the
+// origin and its final int to `value`.
+// TODO: CMR2 0x00486630 (implemented, match 61%)
+void FUN_00486630(int list, int index, int value)
+{
+    int *p;
+
+    p = (int *)((BYTE *)g_unk0x00590c6c[list] + index * 0x3c);
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[9] = 0;
+    p[10] = 0;
+    p[11] = 0;
+    p[3] = p[0];
+    p[12] = 0;
+    p[13] = 0;
+    p[4] = p[1];
+    p[5] = p[2];
+    p[14] = value;
+    p[6] = p[0];
+    p[7] = p[1];
+    p[8] = p[2];
+}
+
+// Sun visibility (0..100) from the lens flare sample.
+// GLOBAL: CMR2 0x00543ea0
+short g_sunVisibility;
+
+BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
+void FUN_00492bb0(int *pOut);
+
+// TODO: CMR2 0x00462d10 (implemented, match 72%)
+void FUN_00462d10(short *pRect)
+{
+    BYTE colour[4];
+    int c;
+
+    FUN_00492bb0(&c);
+    colour[0] = (BYTE)c;
+    colour[1] = (BYTE)(c >> 8);
+    colour[2] = (BYTE)(c >> 16);
+    g_sunVisibility = 100 - Flare_SampleVisibility(pRect, colour, 0x28);
+    if (g_sunVisibility < 0) {
+        g_sunVisibility = 0;
+        return;
+    }
+    if (g_sunVisibility > 100)
+        g_sunVisibility = 100;
+}
