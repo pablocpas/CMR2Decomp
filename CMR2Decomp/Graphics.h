@@ -1002,7 +1002,8 @@ struct D3DTextureManager {
     IDirect3DVertexBuffer7* pVertexBuffer1;        // 0x338
     IDirect3DVertexBuffer7* pVertexBuffer2;        // 0x33c
     IDirect3DVertexBuffer7* pVertexBuffer3;        // 0x340
-    BYTE field_0x344[0x8];                          // 0x344 - 0x34b
+    int field_0x344;                                // 0x344
+    int field_0x348;                                // 0x348
     SceneNode *pRootNode;                           // 0x34c root of the scene graph
     TextureFormat* textureInfo1;         // 0x350 opaque RGB format
     TextureFormat* textureInfo2;         // 0x354 RGB format with alpha
@@ -1336,6 +1337,7 @@ private:
     friend void Graphics_EnableFog(void);
     friend void Graphics_DisableFog(void);
     friend void Graphics_SetRenderTarget(Texture *pTexture);
+    friend void StageObject_FreeAll(void);
     friend void Mesh_RefreshVertices(Mesh *pMesh);
     friend void Mesh_SetColourAndRefresh(Mesh *pMesh, DWORD colour);
     friend void Billboard_Draw(SceneNode *pCamera);

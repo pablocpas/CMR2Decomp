@@ -27,7 +27,8 @@ struct Mesh {
     int field_0x10;             // 0x10 vertex count
     int vertexBufferIndex;      // 0x14 index into D3DTextureManager::pVertexBuffers
     int vertexOffset;           // 0x18 first vertex used inside that buffer
-    BYTE field_0x1c[0x8];
+    int field_0x1c;
+    void *pField20;             // 0x20 per-mesh buffer, freed with the clone
     MeshTriangle *pTriangles;   // 0x24
     int triangleCount;          // 0x28
     int field_0x2c;

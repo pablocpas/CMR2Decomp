@@ -384,3 +384,125 @@ Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
     Mesh_UploadVertices(pMesh);
     return pMesh;
 }
+
+extern int g_unk0x0067f228;
+extern int g_sectorCount;
+extern Sector *g_sectors[14096];
+
+// Static stage objects (see StageObject in Sector.h).
+// GLOBAL: CMR2 0x00669364
+StageObject *g_stageObjects[6000];
+
+// FUNCTION: CMR2 0x004ab9b0
+StageObject *StageObject_GetNext(StageObject *pObject)
+{
+    return pObject->pNext;
+}
+
+// Frees the mesh parts of every stage object and empties the table and the
+// vertex buffers.
+// FUNCTION: CMR2 0x004ab720
+void StageObject_FreeAll(void)
+{
+    StageObject **pSlot;
+    Mesh *pMesh;
+    int i;
+
+    pSlot = g_stageObjects;
+    do {
+        if (*pSlot != NULL) {
+            pMesh = (*pSlot)->pMesh;
+            if (pMesh != NULL) {
+                g_meshTotalSize -= pMesh->sizeUnits;
+                for (i = 0; i < pMesh->partCount; i++) {
+                    CFileBuffer::FreeGenericFileBuffer(pMesh->pParts[i]->pData);
+                    pMesh->pParts[i]->pData = NULL;
+                    CFileBuffer::FreeGenericFileBuffer(pMesh->pParts[i]);
+                    pMesh->pParts[i] = NULL;
+                }
+            }
+            *pSlot = NULL;
+            g_unk0x0067f228--;
+        }
+        for (i = 0; i < 100; i++)
+            CGraphics::m_pTextureManager->vertexBufferFill[i] = 0;
+        pSlot++;
+        CGraphics::m_pTextureManager->field_0x348 = 0;
+    } while ((int)pSlot < (int)&g_stageObjects[6000]);
+}
+
+// Frees every cloned mesh (and the parts of its source mesh slot).
+// FUNCTION: CMR2 0x004ab9d0
+void Mesh_FreeClones(void)
+{
+    Mesh **ppClone;
+    short *pBase;
+    Mesh *pClone;
+    int n;
+    int i;
+
+    if (g_meshCloneCount > 0) {
+        ppClone = g_meshClones;
+        pBase = g_meshCloneBase;
+        n = g_meshCloneCount;
+        do {
+            pClone = *ppClone;
+            if (pClone != NULL) {
+                if (pClone->pVertexData != NULL) {
+                    CFileBuffer::FreeGenericFileBuffer(pClone->pVertexData);
+                    pClone->pVertexData = NULL;
+                }
+                if (pClone->pTriangles != NULL) {
+                    CFileBuffer::FreeGenericFileBuffer(pClone->pTriangles);
+                    pClone->pTriangles = NULL;
+                }
+                if (pClone->pField20 != NULL) {
+                    CFileBuffer::FreeGenericFileBuffer(pClone->pField20);
+                    pClone->pField20 = NULL;
+                }
+                if (pClone->pLightLevels != NULL) {
+                    CFileBuffer::FreeGenericFileBuffer(pClone->pLightLevels);
+                    pClone->pLightLevels = NULL;
+                }
+                if (g_meshes[(unsigned short)*pBase] != NULL) {
+                    for (i = 0; i < pClone->partCount; i++) {
+                        CFileBuffer::FreeGenericFileBuffer(pClone->pParts[i]->pData);
+                        pClone->pParts[i]->pData = NULL;
+                        CFileBuffer::FreeGenericFileBuffer(pClone->pParts[i]);
+                        pClone->pParts[i] = NULL;
+                    }
+                    g_meshes[(unsigned short)*pBase] = NULL;
+                    g_meshCount--;
+                }
+                CFileBuffer::FreeGenericFileBuffer(*ppClone);
+                *ppClone = NULL;
+                g_meshCloneCount--;
+            }
+            pBase++;
+            ppClone++;
+        } while (--n != 0);
+    }
+}
+
+// Recreates the vertex buffers and uploads every mesh LOD in use again
+// (meshes, sector ground meshes, stage objects), e.g. after a device reset.
+// FUNCTION: CMR2 0x004b2110
+void Mesh_ReuploadAll(void)
+{
+    unsigned int i;
+
+    CGraphics::ReleaseVertexBuffers();
+    CGraphics::FUN_004b1980();
+    for (i = 0; i < (unsigned int)g_meshCount; i++) {
+        if (g_meshes[i] != NULL)
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_meshes[i] + ((BYTE *)g_meshes[i])[0x112] * 0x108));
+    }
+    for (i = 0; i < (unsigned int)g_sectorCount; i++) {
+        if (g_sectors[i] != NULL && g_sectors[i]->pMesh != NULL)
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_sectors[i]->pMesh + g_sectors[i]->pMesh->lodIndex * 0x108));
+    }
+    for (i = 0; i < (unsigned int)g_unk0x0067f228; i++) {
+        if (g_stageObjects[i] != NULL)
+            Mesh_UploadVertices((Mesh *)((BYTE *)g_stageObjects[i]->pMesh + ((BYTE *)g_stageObjects[i]->pMesh)[0x112] * 0x108));
+    }
+}

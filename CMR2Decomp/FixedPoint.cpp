@@ -28,6 +28,63 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
     return pOut;
 }
 
+// Float 4x4 matrix product out = a * b (row vectors), through local copies.
+// TODO: CMR2 0x004b9ff0 (implemented, match 39%)
+void FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
+{
+    float result[16];
+    float b[16];
+    float a[16];
+    int i, j, k;
+    float *pR;
+    float *pA2;
+    float *pB2;
+    float *pCol;
+
+    *(D3DMATRIX *)a = *pA;
+    *(D3DMATRIX *)b = *pB;
+    for (i = 0; i < 16; i += 4) {
+        pB2 = b;
+        pR = &result[i];
+        for (j = 4; j != 0; j--) {
+            *pR = 0.0f;
+            pA2 = &a[i];
+            pCol = pB2;
+            for (k = 4; k != 0; k--) {
+                *pR += *pCol * *pA2;
+                pCol += 4;
+                pA2++;
+            }
+            pR++;
+            pB2++;
+        }
+    }
+    *pOut = *(D3DMATRIX *)result;
+}
+
+// Converts a Direct3D float matrix into 16.16.
+// FUNCTION: CMR2 0x004ba160
+FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
+{
+    ((int *)pOut)[0] = (int)(__int64)(((float *)pIn)[0] * CGraphics::m_65536);
+    ((int *)pOut)[1] = (int)(__int64)(((float *)pIn)[1] * CGraphics::m_65536);
+    ((int *)pOut)[2] = (int)(__int64)(((float *)pIn)[2] * CGraphics::m_65536);
+    ((int *)pOut)[3] = (int)(__int64)(((float *)pIn)[3] * CGraphics::m_65536);
+    ((int *)pOut)[4] = (int)(__int64)(((float *)pIn)[4] * CGraphics::m_65536);
+    ((int *)pOut)[5] = (int)(__int64)(((float *)pIn)[5] * CGraphics::m_65536);
+    ((int *)pOut)[6] = (int)(__int64)(((float *)pIn)[6] * CGraphics::m_65536);
+    ((int *)pOut)[7] = (int)(__int64)(((float *)pIn)[7] * CGraphics::m_65536);
+    ((int *)pOut)[8] = (int)(__int64)(((float *)pIn)[8] * CGraphics::m_65536);
+    ((int *)pOut)[9] = (int)(__int64)(((float *)pIn)[9] * CGraphics::m_65536);
+    ((int *)pOut)[10] = (int)(__int64)(((float *)pIn)[10] * CGraphics::m_65536);
+    ((int *)pOut)[11] = (int)(__int64)(((float *)pIn)[11] * CGraphics::m_65536);
+    ((int *)pOut)[12] = (int)(__int64)(((float *)pIn)[12] * CGraphics::m_65536);
+    ((int *)pOut)[13] = (int)(__int64)(((float *)pIn)[13] * CGraphics::m_65536);
+    ((int *)pOut)[14] = (int)(__int64)(((float *)pIn)[14] * CGraphics::m_65536);
+    ((int *)pOut)[15] = (int)(__int64)(((float *)pIn)[15] * CGraphics::m_65536);
+    return pOut;
+}
+
 // FUNCTION: CMR2 0x004ba2b0
 void FixMatrix_Identity(FixMatrix *pOut)
 {

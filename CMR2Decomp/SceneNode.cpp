@@ -1841,3 +1841,17 @@ void Scene_DrawShadowBatches(BYTE view)
     FUN_004a3dd0();
     CGraphics::FUN_004a3de0();
 }
+
+// Sets the byte at 0x17c (view mask) on a node list and, recursively, on the
+// children of its mesh nodes.
+// FUNCTION: CMR2 0x004add90
+void SceneNode_SetViewMask(SceneNode *pNode, BYTE mask)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        if (pNode->type == SCENE_NODE_MESH) {
+            pNode->field_0x17c = mask;
+            if (pNode->pFirstChild != NULL)
+                SceneNode_SetViewMask(pNode->pFirstChild, mask);
+        }
+    }
+}
