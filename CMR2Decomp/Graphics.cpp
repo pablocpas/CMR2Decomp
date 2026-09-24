@@ -3033,6 +3033,77 @@ void FUN_004b98f0(int *p, int value)
     *p += value;
 }
 
+// Damped wobble applied by timer shapes 1 and 4 during their last 16 steps.
+// GLOBAL: CMR2 0x00521120
+signed char g_timerWobble[24] = { 3, 6, 6, 3, 0, 2, 4, 4, 2, 0, 1, 2, 2, 1, 0, 1, 0 };
+
+// Current value of a timer (32 slots of 0x30 bytes): base + scale * shape(step)
+// / 4096, stepping once every 16 ms; once finished the slot goes to shape 5
+// and returns its end value.
+// TODO: CMR2 0x004bc110 (implemented, match 45%)
+int Timer_GetValue(unsigned int index)
+{
+    BYTE *t;
+    unsigned int pos;
+    unsigned int dur;
+    unsigned int v;
+    BYTE step;
+    int now;
+
+    index &= 0xff;
+    t = g_unk0x00521138[index];
+    pos = *(unsigned int *)(t + 0x28);
+    dur = *(unsigned int *)(t + 4);
+    step = (BYTE)pos;
+    if (dur <= pos)
+        step = (BYTE)dur;
+    if (*(int *)(t + 0x24) != 0) {
+        (*(int *)(t + 0x24))--;
+        return *(int *)(t + 0x10);
+    }
+    switch (t[0]) {
+    case 0:
+        v = step;
+        break;
+    case 1:
+        if (dur - 0x11 < step)
+            goto wobble;
+        v = dur - step - 0x11;
+        break;
+    case 2:
+        v = (int)((dur - step + 1) * (dur - step)) / 2;
+        break;
+    case 3:
+        v = ((step + 1) * (unsigned int)step) / 2;
+        break;
+    case 4:
+        if (dur - 0x11 < step) {
+        wobble:
+            v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
+            *(int *)(t + 0x1c) = 0x1000;
+        } else {
+            v = (int)((dur - step - 0x10) * (dur - step - 0x11)) / 2;
+        }
+        break;
+    case 5:
+        v = *(unsigned int *)(t + 0xc);
+        break;
+    default:
+        return *(int *)(t + 0xc);
+    }
+    if (pos < dur + 3) {
+        now = CMain::GetFrameTime();
+        if (abs(now - *(int *)(t + 0x2c)) > 16) {
+            (*(unsigned int *)(t + 0x28))++;
+            *(int *)(t + 0x2c) = CMain::GetFrameTime();
+        }
+    }
+    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(g_unk0x00521138[index] + 4))
+        return (int)(*(int *)(t + 0x1c) * v) / 4096 + *(int *)(t + 8);
+    t[0] = 5;
+    return *(int *)(t + 0xc);
+}
+
 // Whether the timer that p was registered with (its first byte is the slot)
 // is still running.
 // FUNCTION: CMR2 0x004bc0c0
@@ -3090,6 +3161,73 @@ int g_unk0x00816704;
 char *g_unk0x00816820[20];
 // GLOBAL: CMR2 0x00816974
 unsigned int g_unk0x00816974;
+
+// Slow pulsing level (0..0.3) eased near its ends, plus a free-running phase.
+// GLOBAL: CMR2 0x0081680c
+float g_pulsePhase;
+// GLOBAL: CMR2 0x00816810
+float g_pulseLevel;
+// GLOBAL: CMR2 0x00816814
+int g_pulseFrozen;
+// GLOBAL: CMR2 0x00816818
+float g_pulseMin;
+// GLOBAL: CMR2 0x0081681c
+float g_pulseSpeed;
+// GLOBAL: CMR2 0x00521738
+int g_pulseRising = 1;
+// GLOBAL: CMR2 0x0052173c
+float g_pulseMax = 0.3f;
+
+// TODO: CMR2 0x004bcc60 (implemented, match 81%)
+void Pulse_Update(unsigned int dt)
+{
+    float t;
+
+    if (g_pulseFrozen != 0)
+        return;
+    t = (float)dt;
+    g_pulsePhase = t * 0.004f + g_pulsePhase;
+    if (g_pulseRising == 0) {
+        if (g_pulseLevel <= 0.05f)
+            g_pulseSpeed = 0.0007f;
+        else if (g_pulseLevel <= 0.1f)
+            g_pulseSpeed = 0.0011f;
+        else if (g_pulseLevel <= 0.15f)
+            g_pulseSpeed = 0.0014f;
+        else if (g_pulseLevel <= 0.2f)
+            g_pulseSpeed = 0.0011f;
+        else if (g_pulseLevel <= 0.25f)
+            g_pulseSpeed = 0.0007f;
+        else
+            g_pulseSpeed = 0.0004f;
+    } else {
+        if (g_pulseLevel <= 0.05f)
+            g_pulseSpeed = 0.0007f;
+        else if (g_pulseLevel <= 0.1f)
+            g_pulseSpeed = 0.0011f;
+        else if (g_pulseLevel <= 0.15f)
+            g_pulseSpeed = 0.0014f;
+        else if (g_pulseLevel <= 0.2f)
+            g_pulseSpeed = 0.0011f;
+        else if (g_pulseLevel <= 0.25f)
+            g_pulseSpeed = 0.0007f;
+        else
+            g_pulseSpeed = 0.0004f;
+    }
+    if (g_pulseLevel >= g_pulseMax)
+        g_pulseRising = 0;
+    if (g_pulseLevel <= g_pulseMin) {
+        if (g_pulseRising == 0) {
+            g_pulseRising = 1;
+            g_pulseLevel = t * g_pulseSpeed + g_pulseLevel;
+            return;
+        }
+    } else if (g_pulseRising == 0) {
+        g_pulseLevel = g_pulseLevel - t * g_pulseSpeed;
+        return;
+    }
+    g_pulseLevel = t * g_pulseSpeed + g_pulseLevel;
+}
 
 // FUNCTION: CMR2 0x004bcad0
 void FUN_004bcad0(int value)
