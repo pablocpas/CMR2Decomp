@@ -19,6 +19,9 @@ struct KnockoutTable {
     KnockoutMatch round1[16];   // 0x52f30c
 };
 
+struct Car;
+void RallyData_UpdateCarRoute(Car *pCar);
+
 extern KnockoutTable g_knockout;
 
 unsigned int RallyDataCountryIndex(void);

@@ -1603,11 +1603,9 @@ struct RaceRecord {
 };
 
 // GLOBAL: CMR2 0x00538a78
-int g_unk0x00538a78;
-// GLOBAL: CMR2 0x00538a7c
-int g_unk0x00538a7c;
+unsigned int g_routeProbeBestDistance[2];
 // GLOBAL: CMR2 0x00538a80
-int g_unk0x00538a80;
+unsigned short g_routeProbeIndex[2];
 // GLOBAL: CMR2 0x00538a84
 int g_unk0x00538a84;
 // GLOBAL: CMR2 0x00538a88
@@ -1615,13 +1613,11 @@ int g_unk0x00538a88;
 // GLOBAL: CMR2 0x00538a94
 int g_unk0x00538a94;
 // GLOBAL: CMR2 0x00538a98
-int g_unk0x00538a98;
+short g_routeProbeBestIndex[8];
 // GLOBAL: CMR2 0x00538aa8
 RaceRecord g_raceRecords[8];
 // GLOBAL: CMR2 0x00538c8c
-int g_unk0x00538c8c;
-// GLOBAL: CMR2 0x00538c90
-int g_unk0x00538c90;
+int g_routeProbeCycles[2];
 
 // TODO: CMR2 0x004207f0 (implemented, match 45%)
 void RallyData_FUN_004207f0(void)
@@ -1640,13 +1636,150 @@ void RallyData_FUN_004207f0(void)
 // FUNCTION: CMR2 0x00420820
 void RallyData_FUN_00420820(void)
 {
-    g_unk0x00538a80 = 0;
-    g_unk0x00538a98 = 0;
-    g_unk0x00538a78 = 0;
-    g_unk0x00538c8c = 0;
-    g_unk0x00538a7c = 0;
-    g_unk0x00538c90 = 0;
+    *(int *)g_routeProbeIndex = 0;
+    *(int *)g_routeProbeBestIndex = 0;
+    g_routeProbeBestDistance[0] = 0;
+    g_routeProbeCycles[0] = 0;
+    g_routeProbeBestDistance[1] = 0;
+    g_routeProbeCycles[1] = 0;
 }
+
+void RallyData_FUN_00421530(int index, int *pOut);
+unsigned int RallyData_FUN_00407e90(void);
+void FUN_00421230(Car *pCar, int *pProgress);
+
+// Keep the two horizontal components in range before the original fixed point
+// length and reciprocal scale helpers run.
+#define ROUTE_NORMALIZE(v) do { \
+    if (FIX_ABS((v).x) > 0x640000 || FIX_ABS((v).z) > 0x640000) { \
+        (v).x /= 512; \
+        (v).z /= 512; \
+    } \
+    int length = FixVecLength(&(v)); \
+    if (length == 0) { \
+        (v).x = 0; (v).y = 0; (v).z = 0; \
+    } else { \
+        FixVecScaleRecip(&(v), &(v), length); \
+    } \
+} while (0)
+
+// Tracks a car along the stage route. Local players periodically probe nearby
+// nodes; then the forward and previous segment tests advance or retreat the
+// route index and update progress along that segment.
+// TODO: CMR2 0x00420a30 (implemented, match 47%)
+void RallyData_UpdateCarRoute(Car *pCar)
+{
+    int slot = (signed char)pCar->field_0xb1a;
+    RaceRecord *record = &g_raceRecords[slot];
+    FixVector point;
+    FixVector other;
+    FixVector delta;
+    FixVector scaled;
+    FixVector routeDir;
+    int node;
+    int previous;
+    int i;
+    int length;
+    unsigned int distance;
+
+    if (g_unk0x00538a84 == 0)
+        return;
+
+    if (slot < (int)(RallyDataState() & 0xff) && RallyData_GetFlag25() == 0 && RallyData_GetFlag24() == 0) {
+        for (i = 0; i < 25; i++) {
+            short probe = (short)g_routeProbeIndex[slot];
+            RallyData_FUN_00421530((unsigned short)probe, (int *)&point);
+            delta.x = point.x - pCar->position.x;
+            delta.y = 0;
+            delta.z = point.z - pCar->position.z;
+            FixVecScale(&scaled, &delta, 0x28f);
+            distance = (unsigned int)FixVecDot(&scaled, &scaled);
+            if (distance <= g_routeProbeBestDistance[slot] || probe == g_routeProbeBestIndex[slot]) {
+                g_routeProbeBestDistance[slot] = distance;
+                g_routeProbeBestIndex[slot] = probe;
+            }
+            g_routeProbeIndex[slot] = (unsigned short)(probe + 1);
+            if (g_routeProbeIndex[slot] == (unsigned int)g_unk0x00538a88)
+                g_routeProbeIndex[slot] = 0;
+        }
+        if (++g_routeProbeCycles[slot] > 25) {
+            record->field_0x0 = (unsigned short)g_routeProbeBestIndex[slot];
+            g_routeProbeCycles[slot] = 0;
+        }
+    }
+
+    node = record->field_0x0;
+    record->field_0x14 = (short)node;
+    RallyData_FUN_00421530(node, (int *)&point);
+    delta.x = point.x - pCar->position.x;
+    delta.y = 0;
+    delta.z = point.z - pCar->position.z;
+    ROUTE_NORMALIZE(delta);
+    RallyRoute_GetNodeDirection(&routeDir, node);
+
+    if (FixVecDot(&delta, &routeDir) < 0) {
+        if (g_unk0x00538a94 == 0) {
+            if ((unsigned int)node < (unsigned int)(g_unk0x00538a88 - 1)) {
+                record->field_0x14++;
+                record->field_0x0++;
+                record->field_0x8++;
+            } else {
+                record->field_0x14++;
+                record->field_0x8 = g_unk0x00538a84 + 1;
+            }
+        } else if ((unsigned int)node < (unsigned int)(g_unk0x00538a84 - 1)) {
+            record->field_0x14++;
+            record->field_0x0++;
+            record->field_0x8++;
+        } else {
+            record->field_0x0 = 0;
+            record->field_0x14 = 0;
+            record->field_0x8++;
+        }
+        record->field_0xc = 0;
+        if (slot < (int)(RallyDataState() & 0xff) && RallyData_FUN_00407e90() == 0)
+            g_routeProbeCycles[slot] = 0;
+        FUN_00421230(pCar, (int *)record);
+        return;
+    }
+
+    if (g_unk0x00538a94 != 0 || node != 0) {
+        previous = node;
+        if (previous == 0)
+            previous = g_unk0x00538a84;
+        previous--;
+        RallyData_FUN_00421530(previous, (int *)&point);
+        delta.x = point.x - pCar->position.x;
+        delta.y = 0;
+        delta.z = point.z - pCar->position.z;
+        ROUTE_NORMALIZE(delta);
+        RallyRoute_GetNodeDirection(&routeDir, previous);
+        if (FixVecDot(&delta, &routeDir) > 0) {
+            record->field_0x0 = previous;
+            record->field_0x14 = (short)previous;
+            if (g_unk0x00538a94 == 0 && (unsigned int)previous == (unsigned int)(g_unk0x00538a84 - 2))
+                record->field_0x8 = previous;
+            else
+                record->field_0x8--;
+            RallyData_FUN_00421530(node, (int *)&point);
+            RallyData_FUN_00421530(previous, (int *)&other);
+            delta.x = point.x - other.x;
+            delta.y = 0;
+            delta.z = point.z - other.z;
+            if (FIX_ABS(delta.x) > 0x640000 || FIX_ABS(delta.z) > 0x640000) {
+                delta.x /= 512;
+                delta.z /= 512;
+                length = FixVecLength(&delta) << 9;
+            } else {
+                length = FixVecLength(&delta);
+            }
+            record->field_0xc += length;
+        }
+    }
+    FUN_00421230(pCar, (int *)record);
+}
+
+#undef ROUTE_NORMALIZE
 
 // FUNCTION: CMR2 0x00421370
 int RallyData_FUN_00421370(BYTE *p)
