@@ -28,6 +28,9 @@ bool FUN_00459390(void);
 int FUN_00448c60(int index);
 int FUN_004481c0(int car);
 int FUN_0040a700(int index);
+unsigned int FUN_0040a3d0(void);
+char *FUN_0040a400(void);
+unsigned int FUN_0040a410(int split);
 unsigned int RallyData_FUN_004082b0(void);
 unsigned int RallyData_FUN_004082c0(void);
 unsigned int RallyData_FUN_004082e0(void);
@@ -936,6 +939,9 @@ done:
 
 extern char g_stageNumberFormat[];
 extern char g_nameSpaceFormat[];
+extern char g_standingsRowFormat[];
+extern double g_minus65536;
+extern BYTE g_gapTextColour[4];
 
 // GLOBAL: CMR2 0x005170bc
 unsigned int g_stageHudPanelColour = 0x96dcbebc;
@@ -1347,6 +1353,160 @@ int g_unk0x00536ec4[2];
 char g_unk0x00536ed0[0x100];
 // GLOBAL: CMR2 0x0053706c
 int g_unk0x0053706c;
+
+// GLOBAL: CMR2 0x005170d0
+unsigned int g_stageResultTextColour = 0xb4ffffff;
+// GLOBAL: CMR2 0x005170d4
+unsigned int g_stageResultPanelColour = 0x96dcbebc;
+
+// Renders each stage result row, including the player's, record and network
+// result variants. A qualifying player has no second row.
+// TODO: CMR2 0x004147f0 (implemented, match 52%)
+void FUN_004147f0(int car, short *position)
+{
+    BYTE *record;
+    BYTE *gameInfo;
+    unsigned int carTime;
+    unsigned int recordTime;
+    unsigned int time;
+    char recordName[8];
+    short rect[4];
+    int baseHeight;
+    int rows;
+    int row;
+    int shownRow;
+    int fade;
+    int highlight = 0;
+    int offset;
+    int shiftedOffset;
+    int currentOffset;
+    int textY;
+    int pixelFixed;
+    int dimensionFixed;
+    unsigned int panelColour;
+    int index;
+
+    if (CGameInfo::FUN_00405d80() == 3) {
+        record = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + car);
+        index = (RallyDataCountryIndex() & 0xff) * 12 + (RallyDataStageIndex() & 0xff);
+        carTime = *(unsigned int *)(record + 0x154 + index * 8);
+        index = (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff);
+        gameInfo = (BYTE *)CGameInfo::FUN_00405fe0();
+        recordTime = (*(unsigned int *)(gameInfo + 0x658 + index * 8) >> 7) & 0xffff;
+        index = (RallyDataCountryIndex() & 0xff) * 11 + (RallyDataStageIndex() & 0xff);
+        gameInfo = (BYTE *)CGameInfo::FUN_00405fe0();
+        sprintf(recordName, (char *)(gameInfo + 0x654 + index * 8));
+    } else {
+        record = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + car);
+        index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+        carTime = *(unsigned int *)(record + 0x4c0 + index * 8);
+        index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+        gameInfo = (BYTE *)CGameInfo::FUN_00405fe0();
+        recordTime = (*(unsigned int *)(gameInfo + 0x1214 + index * 8) >> 7) & 0xffff;
+        index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+        gameInfo = (BYTE *)CGameInfo::FUN_00405fe0();
+        sprintf(recordName, (char *)(gameInfo + 0x1210 + index * 8));
+    }
+
+    rect[1] = (short)(((int)g_pGraphics->resY << 12 >> 16) + position[1]);
+    baseHeight = (int)g_pGraphics->resY * 0xccc >> 16;
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7) {
+        rows = CGameInfo::FUN_00406440() ? 2 : 4;
+    } else {
+        rows = 3;
+    }
+    if (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12)
+        rows = 2;
+
+    offset = 0;
+    shiftedOffset = -baseHeight;
+    for (row = 0; row < rows; row++, offset += baseHeight, shiftedOffset += baseHeight) {
+        currentOffset = offset;
+        shownRow = row;
+        rect[0] = (short)(((int)g_pGraphics->resX * 0xc00 >> 16) + position[0]);
+        rect[2] = (short)((int)g_pGraphics->resX * 0x47ae >> 16);
+        rect[3] = (short)((int)g_pGraphics->resY * 0xccc >> 16);
+        fade = (signed char)g_unk0x00536c08[car] - 0x77;
+        if (fade < 0)
+            fade = 0;
+
+        if (CGameInfo::FUN_00405d80() != 10 && CGameInfo::FUN_00405d80() != 12) {
+            if (CGameInfo::FUN_00406440()) {
+                shownRow = row + 2;
+            } else if (FUN_004085a0((BYTE)(FUN_0041b370() + car))) {
+                if (row == 1)
+                    continue;
+                if (row > 1)
+                    currentOffset = shiftedOffset;
+            }
+        }
+
+        if (shownRow == 0) {
+            if (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12) {
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, RallyData_GetRecord(0));
+                time = FUN_0040a3d0();
+            } else {
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
+                        CFrontend::GetTextString(0x69), recordName);
+                time = recordTime;
+            }
+            highlight = g_unk0x00536c00[car] != 0 && fade != 0;
+        } else if (shownRow == 1) {
+            if (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12) {
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
+                        CFrontend::GetTextString(0x84), FUN_0040a400());
+                if (CGameInfo::FUN_00405d80() == 10) {
+                    time = RallyData_GetFlag25() ? FUN_0040a410(2) : FUN_0040a410(8);
+                    // The original keeps the previous row's highlight here.
+                } else {
+                    time = CGameInfo::FUN_0040a420(0);
+                    highlight = g_unk0x00536c28[car] != 0 && fade != 0;
+                }
+            } else {
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                        RallyData_GetRecord((BYTE)(FUN_0041b370() + car)));
+                time = carTime;
+                highlight = g_unk0x00536e88[car] != 0 && fade != 0;
+            }
+        } else if (shownRow == 2) {
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
+                    CFrontend::GetTextString(0x84), g_unk0x00536ed0);
+            time = g_unk0x0053706c;
+            highlight = g_unk0x00536c28[car] != 0 && fade != 0;
+        } else {
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                    CFrontend::GetTextString(0xa5));
+            time = FUN_004481f0(car, FUN_00458330(car));
+            highlight = g_unk0x00536ec4[car] != 0 && fade != 0;
+        }
+
+        panelColour = g_stageResultPanelColour;
+        if (highlight) {
+            if (fade >= 4) {
+                panelColour = (g_gapTextColour[3] << 24) | 0x00ffffff;
+            } else {
+                BYTE *from = (BYTE *)&g_stageResultPanelColour;
+                BYTE *to = (BYTE *)&panelColour;
+                for (int channel = 0; channel < 4; channel++) {
+                    int target = channel == 3 ? g_gapTextColour[3] : 0xff;
+                    to[channel] = (BYTE)(from[channel] + ((target - from[channel]) * fade) / 3);
+                }
+            }
+        }
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&panelColour, 2);
+        textY = position[1] + currentOffset + 1 + ((int)g_pGraphics->resY * 0x1b32 >> 16);
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      (short)((int)g_pGraphics->resX * 0xf95 >> 16) + position[0],
+                      textY, (int *)&g_stageResultTextColour, 0x21);
+        pixelFixed = (int)(__int64)((double)(textY - 1) * CGraphics::m_65536);
+        dimensionFixed = (int)(__int64)((double)g_pGraphics->resY * CGraphics::m_65536);
+        FormatGapToLeader(time == 0 ? -1 : time, 5, 5,
+                          0x51e4 - (int)(__int64)((double)position[0] * g_minus65536),
+                          FixDiv(pixelFixed, dimensionFixed), &g_stageResultTextColour, 0x24, NULL, 0);
+        rect[1] += (short)baseHeight;
+    }
+}
 
 // Called when the car crosses the finish line: raises the finish messages
 // (stage record, qualification, best time) for the stage end screen.
