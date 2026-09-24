@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "Game.h"
 #include "RallyData.h"
 #include "GameInfo.h"
 #include "StageUI.h"
@@ -397,4 +398,17 @@ unsigned int FUN_0041d780(void)
 BYTE FUN_0041db00(void)
 {
     return g_unk0x0053811c;
+}
+
+// Callback count to unwind to when the race ends.
+// GLOBAL: CMR2 0x0053896c
+int g_raceCallbackMark;
+
+void Sound_FreeAll(void);
+
+// FUNCTION: CMR2 0x00420100
+void FUN_00420100(void)
+{
+    Sound_FreeAll();
+    CGame::UnwindCallbacks(g_raceCallbackMark);
 }

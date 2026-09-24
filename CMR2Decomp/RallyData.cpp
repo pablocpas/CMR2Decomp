@@ -2794,3 +2794,26 @@ int RallyData_FUN_00408280(void)
 {
     return g_unk0x0052eab8;
 }
+
+void FUN_00477f30(void);
+void FUN_00477a90(void);
+void StageObject_FreeAll(void);
+void Mesh_FreeClones(void);
+
+// TODO: CMR2 0x00411110 (implemented, match 50%)
+void FUN_00411110(void)
+{
+    FUN_00477f30();
+    FUN_00477a90();
+}
+
+// Frees the stage objects, the stage root node and the cloned meshes.
+// FUNCTION: CMR2 0x0040eef0
+BYTE FUN_0040eef0(void)
+{
+    StageObject_FreeAll();
+    if (g_unk0x00536be0 != 0)
+        SceneNode_Destroy((SceneNode *)g_unk0x00536be0);
+    Mesh_FreeClones();
+    return 1;
+}

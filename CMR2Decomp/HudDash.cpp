@@ -670,3 +670,26 @@ void Dash_Draw(int player, int layer)
         Dash_DrawDial(player, layer);
     }
 }
+
+// GLOBAL: CMR2 0x0053d090
+short g_unk0x0053d090[4];
+// GLOBAL: CMR2 0x0053d098
+int g_unk0x0053d098[4];
+
+// FUNCTION: CMR2 0x00447e00
+short FUN_00447e00(unsigned int index)
+{
+    return g_unk0x0053d090[index & 0xff];
+}
+
+// FUNCTION: CMR2 0x00447ea0
+int FUN_00447ea0(unsigned int index)
+{
+    return g_unk0x0053d098[index & 0xff];
+}
+
+// FUNCTION: CMR2 0x00447ec0
+void FUN_00447ec0(unsigned int index, int value)
+{
+    g_unk0x0053d098[index & 0xff] = value;
+}

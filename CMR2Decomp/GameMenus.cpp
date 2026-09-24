@@ -2960,3 +2960,29 @@ BYTE *FUN_0041f900(void)
 {
     return g_unk0x00538130;
 }
+
+// GLOBAL: CMR2 0x005418d4
+BYTE g_unk0x005418d4;
+// Menu shown under the header when it is restored.
+// GLOBAL: CMR2 0x00541ccc
+Menu *g_pSavedHeaderMenu;
+
+// FUNCTION: CMR2 0x0044a120
+void FUN_0044a120(void)
+{
+    g_unk0x005418d4 = 0;
+}
+
+// FUNCTION: CMR2 0x00448e60
+void FUN_00448e60(void)
+{
+    g_pHeaderMenu = g_pSavedHeaderMenu;
+}
+
+extern Menu g_menu0x0053ea68;
+
+// FUNCTION: CMR2 0x0044a130
+BYTE FUN_0044a130(void)
+{
+    return g_pHeaderMenu == &g_menu0x0053ea68;
+}

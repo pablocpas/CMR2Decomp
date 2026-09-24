@@ -1656,3 +1656,18 @@ short FUN_004589e0(int index)
 {
     return g_unk0x00542e78[index].field_0x10;
 }
+
+// GLOBAL: CMR2 0x00543ec0
+int g_unk0x00543ec0;
+// GLOBAL: CMR2 0x00543ec4
+int g_unk0x00543ec4;
+// GLOBAL: CMR2 0x00543ec8
+short g_unk0x00543ec8;
+
+// FUNCTION: CMR2 0x0045f240
+void FUN_0045f240(void)
+{
+    g_unk0x00543ec8 = -1;
+    g_unk0x00543ec0 = 0;
+    g_unk0x00543ec4 = 0;
+}

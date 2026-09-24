@@ -1399,3 +1399,31 @@ Unk0x005a1820 *FUN_004a1b30(BYTE index)
         return &CGame::m_unk0x005a1820[index];
     return NULL;
 }
+
+BOOL FUN_004a0d60(void);
+bool FUN_004a14e0(void);
+
+// Session name, password and player limit of the network session description.
+// TODO: CMR2 0x004a1510 (implemented, match 80%)
+void Session_SetName(LPVOID pName)
+{
+    FUN_004a0d60();
+    CGameInfo::m_unk0x005a0098 = (LPVOID *)pName;
+    FUN_004a14e0();
+}
+
+// TODO: CMR2 0x004a1530 (implemented, match 80%)
+void Session_SetPassword(LPVOID pPassword)
+{
+    FUN_004a0d60();
+    CGameInfo::m_unk0x005a009c = (LPVOID *)pPassword;
+    FUN_004a14e0();
+}
+
+// TODO: CMR2 0x004a1550 (implemented, match 80%)
+void Session_SetMaxPlayers(int count)
+{
+    FUN_004a0d60();
+    *(int *)(g_unk0x005a0068 + 0x28) = count;
+    FUN_004a14e0();
+}

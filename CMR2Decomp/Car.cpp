@@ -3173,3 +3173,14 @@ void Car_UpdateEngineSpeed(void)
     }
     g_pCurrentCar->field_0xb78 = 0;
 }
+
+// GLOBAL: CMR2 0x0053cdb4
+int g_unk0x0053cdb4;
+
+// FUNCTION: CMR2 0x00445a20
+int FUN_00445a20(void)
+{
+    if (FUN_00422f50(0) != 9 && g_unk0x0053cdb4 == 0)
+        return 0;
+    return 1;
+}

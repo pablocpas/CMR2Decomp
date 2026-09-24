@@ -2015,3 +2015,9 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
             SceneNode_FlushTransforms(pNode->pFirstChild);
     }
 }
+
+// FUNCTION: CMR2 0x004b5760
+void FUN_004b5760(FixVector *pLightDir)
+{
+    Scene_SetShadowDirection(pLightDir);
+}
