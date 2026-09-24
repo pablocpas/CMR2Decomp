@@ -1937,6 +1937,75 @@ int *g_unk0x0058c958;
 // GLOBAL: CMR2 0x0058ca6c
 unsigned int g_unk0x0058ca6c;
 
+// Per-sector object lists: sector -> list index (-1 none), entry count and
+// 4-byte entries, for two kinds of stage objects.
+// GLOBAL: CMR2 0x0058c940
+short *g_sectorListIndexA;
+// GLOBAL: CMR2 0x0058c960
+unsigned short *g_sectorListCountA;
+// GLOBAL: CMR2 0x0058ca78
+BYTE *g_sectorListEntriesA;
+// GLOBAL: CMR2 0x0058c93c
+short *g_sectorListIndexB;
+// GLOBAL: CMR2 0x0058c964
+unsigned short *g_sectorListCountB;
+// GLOBAL: CMR2 0x0058c954
+BYTE *g_sectorListEntriesB;
+
+extern int g_sectorCount;
+
+// FUNCTION: CMR2 0x00471b30
+BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount)
+{
+    int index;
+
+    *pCount = 0;
+    if (g_sectorListIndexA != NULL && sector < (unsigned int)g_sectorCount &&
+        (index = g_sectorListIndexA[sector]) != -1) {
+        *pCount = g_sectorListCountA[index];
+        return g_sectorListEntriesA + index * 4;
+    }
+    return NULL;
+}
+
+// FUNCTION: CMR2 0x00471b80
+BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount)
+{
+    int index;
+
+    *pCount = 0;
+    if (g_sectorListIndexB != NULL && sector < (unsigned int)g_sectorCount &&
+        (index = g_sectorListIndexB[sector]) != -1) {
+        *pCount = g_sectorListCountB[index];
+        return g_sectorListEntriesB + index * 4;
+    }
+    return NULL;
+}
+
+// Championship state entry for the current round kind (bits 3..5 of the
+// state; bits 12..15 select the round within kinds 1..3).
+// FUNCTION: CMR2 0x00473620
+unsigned int *RallyData_GetRoundEntry(void)
+{
+    unsigned int *pState;
+    unsigned int state;
+
+    pState = RallyData_GetChampionshipState();
+    state = *pState;
+    switch ((state >> 3) & 7) {
+    case 1:
+        return pState + ((state >> 12) & 0xf) * 3 + 0x16;
+    case 2:
+        return pState + ((state >> 12) & 0xf) * 3 + 10;
+    case 3:
+        return pState + ((state >> 12) & 0xf) * 3 + 4;
+    case 4:
+        return pState + 1;
+    default:
+        return NULL;
+    }
+}
+
 // Copies the 12-byte vector and, when the entry is not already flagged,
 // raises the destination's Y component by 0x3e80000.
 // TODO: CMR2 0x00471cc0 (implemented, match 49%)

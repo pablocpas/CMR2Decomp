@@ -1024,16 +1024,17 @@ BYTE FUN_004729f0(void)
     return 1;
 }
 
-// Eight records of 0x48 bytes whose ten shorts from +0 are reset to -1.
-// GLOBAL: CMR2 0x0058d6ec
-short g_unk0x0058d6ec[8][0x24];
+// Eight records of 0x48 bytes: ten shorts at +0x1c (reset to -1) and two
+// flag bytes at +0x44/+0x45.
+// GLOBAL: CMR2 0x0058d6d0
+BYTE g_unk0x0058d6d0[8][0x48];
 
 // TODO: CMR2 0x00477f30 (implemented, match 64%)
 void FUN_00477f30(void)
 {
     short *p;
 
-    p = &g_unk0x0058d6ec[0][1];
+    p = (short *)&g_unk0x0058d6d0[0][0x1e];
     do {
         p[-1] = -1;
         p[0] = -1;
@@ -1046,7 +1047,7 @@ void FUN_00477f30(void)
         p[7] = -1;
         p[8] = -1;
         p += 0x24;
-    } while ((int)p < (int)&g_unk0x0058d6ec[8][1]);
+    } while ((int)p < (int)&g_unk0x0058d6d0[8][0x1e]);
 }
 
 int FUN_00460c80(BYTE *pCar);
@@ -1227,4 +1228,113 @@ void FUN_00464c60(int car)
             }
         }
     }
+}
+
+// Object classes that fill the four per-car slots of 0x590b7c.
+// GLOBAL: CMR2 0x0051f888
+char g_carSlotClasses[4] = { 9, 10, 12, 13 };
+
+// Stores an object in every car slot whose class matches it.
+// TODO: CMR2 0x00480af0 (implemented, match 87%)
+void FUN_00480af0(BYTE *pCar, BYTE *pObject, BYTE flag)
+{
+    int i;
+
+    for (i = 3; i >= 0; i--) {
+        if ((char)pObject[0x30] == g_carSlotClasses[i]) {
+            g_unk0x00590b7c[i][(char)pCar[0xb1a]] = pObject;
+            g_unk0x00590c24[i][(char)pCar[0xb1a]] = flag;
+        }
+    }
+}
+
+// Sets or clears bits in the two flag bytes of record `index` of 0x58d6d0.
+// TODO: CMR2 0x00477c20 (implemented, match 79%)
+void FUN_00477c20(int index, char set0, char set1, BYTE mask)
+{
+    BYTE *p;
+
+    p = g_unk0x0058d6d0[index];
+    if (set0 == 0)
+        p[0x44] &= ~mask;
+    else
+        p[0x44] |= mask;
+    if (set1 != 0) {
+        p[0x45] |= mask;
+        return;
+    }
+    p[0x45] &= ~mask;
+}
+
+extern unsigned short *g_stageRandomTextures[3];
+extern Mesh *g_stageMesh4Copy;
+
+// Gives every triangle of the stage mesh one of the three random textures.
+// TODO: CMR2 0x00492b50 (implemented, match 50%)
+void FUN_00492b50(void)
+{
+    int r;
+    int n;
+    int offset;
+
+    r = rand() % 3;
+    if (g_stageRandomTextures[r] != NULL) {
+        n = g_stageMesh4Copy->triangleCount;
+        if (n - 1 >= 0) {
+            offset = (n - 1) * 0x4c;
+            do {
+                offset -= 0x4c;
+                n--;
+                // +0x50 from the previous triangle: the texture word (+4) of this one
+                *(unsigned int *)((BYTE *)g_stageMesh4Copy->pTriangles + 0x50 + offset) = *g_stageRandomTextures[r];
+            } while (n != 0);
+        }
+    }
+}
+
+extern int g_unk0x00590c64;
+extern void *g_unk0x00590d7c[4];
+int RallyData_FUN_00411060(void);
+
+// Destroys, in the four node tables, the nodes of every car that belong to
+// the current stage kind.
+// TODO: CMR2 0x004866a0 (implemented, match 52%)
+void FUN_004866a0(void)
+{
+    int car;
+    int offset;
+    void **pTable;
+    SceneNode *pNode;
+
+    car = 0;
+    if (g_unk0x00590c64 > 0) {
+        offset = 0;
+        do {
+            pTable = g_unk0x00590d7c;
+            do {
+                if (*(SceneNode **)((BYTE *)*pTable + offset) != NULL) {
+                    pNode = *(SceneNode **)((BYTE *)*pTable + offset);
+                    if ((int)pNode->pParent == RallyData_FUN_00411060())
+                        SceneNode_Destroy(pNode);
+                }
+                pTable++;
+            } while (pTable < &g_unk0x00590d7c[4]);
+            car++;
+            offset += 0x1a0;
+        } while (car < g_unk0x00590c64);
+    }
+}
+
+// FUNCTION: CMR2 0x0048d850
+void FUN_0048d850(BYTE *pCar, BYTE *pInfo)
+{
+    short v;
+
+    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    if (v > 0x3f4 && v < 0x40b) {
+        FUN_00486c00(pCar, pInfo);
+        return;
+    }
+    if (v < -0x3f4 && v > -0x40b)
+        FUN_00486c00(pCar, pInfo);
 }

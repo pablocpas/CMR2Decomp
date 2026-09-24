@@ -349,7 +349,7 @@ extern FixVector g_unk0x00592114;
 // GLOBAL: CMR2 0x00591c80
 int g_stageHeightSamples[200];
 // GLOBAL: CMR2 0x00591fa0
-FixVector g_stageLightOrigin;
+unsigned short *g_stageRandomTextures[3];   // one is picked at random for the whole stage mesh (0x492b50)
 // GLOBAL: CMR2 0x00591fac
 int g_stageHeightTarget;
 // GLOBAL: CMR2 0x005920b8
@@ -447,9 +447,9 @@ void Stage_InitLightMeshes(void)
         (root = (int *)*node) != NULL)
         child = (int *)*root;
 
-    g_stageLightOrigin.x = 0;
-    g_stageLightOrigin.y = 0;
-    g_stageLightOrigin.z = 0;
+    g_stageRandomTextures[0] = NULL;
+    g_stageRandomTextures[1] = NULL;
+    g_stageRandomTextures[2] = NULL;
     g_stageLightNode = (SceneNode *)node;
     g_stageLightObject = SceneType2_Create((FixVector *)(node + 4), (FixAngles *)(node + 7), NULL,
                                            (SceneNode *)node);
