@@ -98,9 +98,9 @@ struct Car {
     int field_0x838;                  // 0x838
     BYTE field_0x83c[0x4];
     int field_0x840;                  // 0x840
-    BYTE field_0x844[0x4];
+    int field_0x844;                  // 0x844  target of the 0x848 swing
     int field_0x848;                  // 0x848
-    BYTE field_0x84c[0x4];
+    int field_0x84c;                  // 0x84c  swing phase (0..1)
     int wheelTorque[4];               // 0x850  drive/brake torque per wheel
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
     int field_0x870[4];               // 0x870

@@ -489,6 +489,37 @@ int FUN_00419b50(int param1, int param2)
     return value % param2;
 }
 
+void FUN_00418d30(int param1, int param2, int param3, int param4, int param5);
+
+// Switches car's engine sound between its two samples of stage sound group 25
+// as the rolling direction speed (0x79c) changes sign.
+// TODO: CMR2 0x0041ae80 (implemented, match 54%)
+void FUN_0041ae80(int car)
+{
+    BYTE *pSet = g_raceBlock + car * 0xb4;
+    int *pHandle = (int *)(pSet + 0x26c);
+
+    if (*(short *)(pSet + 0x258) == 0x19) {
+        if (Car_Get(car)->field_0x79c < 1) {
+            if (pSet[0x2f0] != 0) {
+                if (Sound_IsPlaying(*pHandle)) {
+                    Sound_Free(*pHandle);
+                    *pHandle = -1;
+                }
+                FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]] + 1, 4, 0, 0x3542);
+                pSet[0x2f0] = 0;
+            }
+        } else if (pSet[0x2f0] == 0) {
+            if (Sound_IsPlaying(*pHandle)) {
+                Sound_Free(*pHandle);
+                *pHandle = -1;
+            }
+            FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]], 4, 0, 0);
+            pSet[0x2f0] = 1;
+        }
+    }
+}
+
 // Marks the sound groups used by the stage's surfaces.
 // FUNCTION: CMR2 0x0041afe0
 void FUN_0041afe0(BYTE *pSurfaces, unsigned int count)

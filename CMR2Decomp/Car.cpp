@@ -167,6 +167,36 @@ void FUN_0043e530(int level)
     g_pCurrentCar->field_0x800 = FixMul(level, 0x3333) + 0x1999;
 }
 
+BYTE *FUN_00456be0(int index);
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent);
+int RallyData_FUN_00411060(void);
+void FUN_0042cb90(char mode, SceneNode **pWheels);
+
+// Binds a car to its loaded model: body nodes, wheels and view nodes, and
+// moves both body nodes under the stage root.
+// FUNCTION: CMR2 0x0043e5a0
+void FUN_0043e5a0(int model, Car *pCar)
+{
+    BYTE *pModel = FUN_00456be0(model);
+    SceneNode *pBody = *(SceneNode **)(pModel + 8);
+    SceneNode *pBody2 = *(SceneNode **)(pModel + 4);
+
+    pCar->pNode0x71c = pBody;
+    pCar->pNode0x720 = pBody2;
+    pCar->pWheelNodes[0] = SceneNode_FindByType(pBody, 1);
+    pCar->pWheelNodes[1] = SceneNode_FindByType(pBody, 2);
+    pCar->pWheelNodes[2] = SceneNode_FindByType(pBody, 3);
+    pCar->pWheelNodes[3] = SceneNode_FindByType(pBody, 4);
+    pCar->pViewNodeFar = SceneNode_FindByType(pBody2, 0xe);
+    pCar->pViewNodeNear = SceneNode_FindByType(pBody2, 0xf);
+    FUN_0042cb90(FUN_00456be0(pCar->field_0xb1a)[0x20], pCar->pWheelNodes);
+    if (*(int *)((BYTE *)pBody + 8) != RallyData_FUN_00411060())
+        SceneNode_Reparent(pBody, (SceneNode *)RallyData_FUN_00411060());
+    if (*(int *)((BYTE *)pCar->pNode0x720 + 8) != RallyData_FUN_00411060())
+        SceneNode_Reparent(pCar->pNode0x720, (SceneNode *)RallyData_FUN_00411060());
+}
+
 // Recomputes the eight world-space corners of the car's box from its
 // half extents and world matrix, then applies the suspension offsets.
 // FUNCTION: CMR2 0x0043eef0

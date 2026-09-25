@@ -6349,3 +6349,23 @@ void FUN_0049c880(Mesh *pMesh)
     }
 }
 
+// Same as FUN_0049c880, first marking each part's texture as used (10).
+// FUNCTION: CMR2 0x0049c7b0
+void FUN_0049c7b0(Mesh *pMesh)
+{
+    int i;
+    MeshPart **ppPart;
+    MeshPart *pPart;
+
+    for (i = 0, ppPart = pMesh->pParts; i < pMesh->partCount; i++, ppPart++) {
+        pPart = *ppPart;
+        FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+            D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+            pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
+            pPart->indexCount, 0);
+        CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+    }
+}
+

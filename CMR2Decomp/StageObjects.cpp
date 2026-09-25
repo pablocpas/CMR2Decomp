@@ -2836,6 +2836,48 @@ void Events_Flush(void)
     }
 }
 
+// Cloud cover (0 light .. 2 heavy) of each weather setting.
+// GLOBAL: CMR2 0x0051c688
+BYTE g_cloudLevels[9] = { 1, 1, 2, 2, 2, 2, 2, 2, 2 };
+// GLOBAL: CMR2 0x0051c694
+char g_strCloudLight[] = "Cloud_Light";
+// GLOBAL: CMR2 0x0051c6a0
+char g_strCloudMed[] = "Cloud_Med";
+// GLOBAL: CMR2 0x0051c6ac
+char g_strCloudHeavy[] = "Cloud_Heavy";
+// GLOBAL: CMR2 0x0051c6b8
+char g_strPcLow[] = "PcLow\\";
+// GLOBAL: CMR2 0x0051c6c0
+char g_strPc[] = "Pc\\";
+// GLOBAL: CMR2 0x0051c6c4
+char g_strCloudsDir[] = "%s\\Clouds\\";
+
+int *FUN_00407520(int index);
+
+// Builds the path of the stage's cloud texture in CFrontend::m_stringDest
+// from the heavier of the two weather settings.
+// TODO: CMR2 0x0046ef50 (implemented, match 64%)
+void FUN_0046ef50(void)
+{
+    int *pPair;
+    BYTE level;
+
+    sprintf(CFrontend::m_stringDest, g_strCloudsDir, CInstallInfo::GetTracksDir());
+    strcat(CFrontend::m_stringDest, CGameInfo::FUN_00405d00() ? g_strPcLow : g_strPc);
+    pPair = FUN_00407520(RallyDataStageIndex());
+    level = 0;
+    if (g_cloudLevels[pPair[0]] != 0)
+        level = g_cloudLevels[pPair[0]];
+    if (level < g_cloudLevels[pPair[1]])
+        level = g_cloudLevels[pPair[1]];
+    if (level == 0)
+        strcat(CFrontend::m_stringDest, g_strCloudLight);
+    else if (level == 1)
+        strcat(CFrontend::m_stringDest, g_strCloudMed);
+    else if (level == 2)
+        strcat(CFrontend::m_stringDest, g_strCloudHeavy);
+}
+
 // Releases the file loaded by 0x46f060 (registered callback).
 // FUNCTION: CMR2 0x0046f030
 BYTE FUN_0046f030(void)
@@ -2900,5 +2942,48 @@ void FUN_0047d510(void)
         *(int *)(p + 0x8) = 0;
     }
     memset(g_unk0x0058e4a8, 0, sizeof(g_unk0x0058e4a8));
+}
+
+#include "WheelTrail.h"
+
+// Skid mark points of every car wheel: a used flag and a 0x28-byte record
+// for each of the 200 points.
+// GLOBAL: CMR2 0x00548220
+BYTE g_trailPointUsed[8][4][200];
+// GLOBAL: CMR2 0x00549b20
+int g_unk0x00549b20[8][4];
+// GLOBAL: CMR2 0x00549da0
+BYTE g_trailPoints[8][4][200][0x28];
+
+// Clears every wheel's skid marks and trail state.
+// TODO: CMR2 0x00465530 (implemented, match 87%)
+void FUN_00465530(void)
+{
+    int car;
+    int point;
+    int wheel;
+    FixVector *pDelta;
+
+    for (car = 0; car < 8; car++) {
+        for (point = 0; point < 200; point++) {
+            for (wheel = 0; wheel < 4; wheel++) {
+                g_trailPointUsed[car][wheel][point] = 0;
+                *(int *)g_trailPoints[car][wheel][point] = 0;
+            }
+        }
+    }
+    memset(g_unk0x00549ba0, 0, sizeof(g_unk0x00549ba0));
+    memset(g_trailState, 0, sizeof(g_trailState));
+    memset(g_trailTimer, 0, sizeof(g_trailTimer));
+    memset(g_trailPrevState, 0, sizeof(g_trailPrevState));
+    memset(g_unk0x00549b20, 0, sizeof(g_unk0x00549b20));
+    memset(g_unk0x00543708, 0, sizeof(g_unk0x00543708));
+    for (wheel = 0; wheel < 8 * 4; wheel++)
+        ((int *)g_trailReset)[wheel] = 1;
+    for (pDelta = g_trailDelta[0]; pDelta < g_trailDelta[8]; pDelta++) {
+        pDelta->x = 0;
+        pDelta->y = 0;
+        pDelta->z = 0;
+    }
 }
 

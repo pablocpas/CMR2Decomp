@@ -1169,6 +1169,47 @@ void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
     }
 }
 
+// Exhaust emitter offsets of each car, rotated into the world.
+// GLOBAL: CMR2 0x00543380
+FixVector g_unk0x00543380[8];
+// GLOBAL: CMR2 0x00543cf8
+int g_unk0x00543cf8;
+extern int g_trailTextureA[8][2];
+int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+
+// Spawn callback: places the particle at one of the car's two exhausts
+// (alternating) in world space.
+// TODO: CMR2 0x0045d2d0 (implemented, match 56%)
+void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
+{
+    Particle *p = (Particle *)pParticle;
+    int car = p->field0x64;
+    Car *pCar;
+    FixMatrix *pM;
+    int x;
+    int y;
+    int z;
+
+    if (car < 8) {
+        if (g_trailTextureA[car][1] == 0)
+            g_unk0x00543cf8 = 0;
+        else
+            g_unk0x00543cf8 = (g_unk0x00543cf8 + 1) % 2;
+        pCar = Car_Get(car);
+        FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][g_unk0x00543cf8], pCar->pBodyMatrix);
+        pM = pCar->pBodyMatrix;
+        x = p->vector0x28.x + pM->position.x;
+        p->vector0x28.x = x;
+        y = p->vector0x28.y + pM->position.y;
+        z = p->vector0x28.z + pM->position.z;
+        p->vector0x28.y = y;
+        p->vector0x28.z = z;
+        p->vector0x28.x = g_unk0x00543380[car].x + x;
+        p->vector0x28.y = g_unk0x00543380[car].y + y;
+        p->vector0x28.z = g_unk0x00543380[car].z + z;
+    }
+}
+
 // Spawn callback: stores the effect data passed by the spawner.
 // TODO: CMR2 0x0045de80 (implemented, match 72%)
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)

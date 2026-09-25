@@ -292,6 +292,29 @@ int FUN_00490570(void)
     return 1;
 }
 
+// Accepts the collision when the target is behind the face and the direction
+// is nearly parallel to it.
+// TODO: CMR2 0x00490640 (implemented, match 36%)
+int FUN_00490640(void)
+{
+    BYTE *pCar = (BYTE *)g_collisionCar;
+    int side;
+    int d;
+
+    side = FixMul(g_collisionTarget.z - *(int *)(pCar + 0x2f0), g_collisionDirection.z) +
+           FixMul(g_collisionTarget.x - *(int *)(pCar + 0x2e8), g_collisionDirection.x) +
+           FixMul(g_collisionTarget.y - *(int *)(pCar + 0x2ec), g_collisionDirection.y);
+    if (side > 0)
+        return 0;
+    d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
+    if (d < 0)
+        d = -d;
+    if (g_unk0x005919b8 < d)
+        return 0;
+    g_collisionSelectBackSide = side >= 0;
+    return 1;
+}
+
 // Classifies face vertices by signed distance from the active collision plane.
 // TODO: CMR2 0x00490720 (implemented, match 80%)
 void Collision_ClassifyFaceVertices(void)

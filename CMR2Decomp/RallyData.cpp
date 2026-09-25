@@ -2409,6 +2409,35 @@ unsigned int *RallyData_GetRoundEntry(void)
     }
 }
 
+// Moves each element's object in or out of the way to match the car's
+// reached flags (multi-player only).
+// TODO: CMR2 0x00471bf0 (implemented, match 29%)
+void FUN_00471bf0(BYTE car)
+{
+    int i;
+    BYTE bit;
+    BYTE *pObject;
+
+    if ((BYTE)RallyDataState() < 2) {
+        RallyData_ValidateIndex(car);
+        return;
+    }
+    for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
+        bit = g_unk0x0058c938[i] & (1 << car);
+        if (bit != 0 && g_unk0x0058c958[i] == 0) {
+            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+            *(int *)(pObject + 4) += 0x3e80000;
+            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
+            g_unk0x0058c958[i] = 1;
+        } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+            *(int *)(pObject + 4) -= 0x3e80000;
+            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
+            g_unk0x0058c958[i] = 0;
+        }
+    }
+}
+
 // Copies the 12-byte vector and, when the entry is not already flagged,
 // raises the destination's Y component by 0x3e80000.
 // TODO: CMR2 0x00471cc0 (implemented, match 49%)

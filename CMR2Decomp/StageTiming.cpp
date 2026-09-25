@@ -72,6 +72,9 @@ char g_stageSplitDriverCount[12];
 
 // GLOBAL: CMR2 0x00542418
 short g_unk0x00542418;
+// Split time spread table of the stage (5-byte rows: -, max down, max up).
+// GLOBAL: CMR2 0x0054241c
+char *g_unk0x0054241c;
 
 // FUNCTION: CMR2 0x00456a30
 void FUN_00456a30(int offset, int unused)
@@ -3057,5 +3060,125 @@ void FUN_004918d0(void)
     Scene_SetLight(&light, country != 3);
     g_unk0x00592146 = 0xff;
     g_stageColourAlpha = 0xff;
+}
+
+// Snapshots a car's replay colours and end values once per stage.
+// TODO: CMR2 0x00469a80 (implemented, match 56%)
+void FUN_00469a80(int car)
+{
+    Car *pCar = Car_Get(car);
+    BYTE *pRecord = g_unk0x00588b98 + pCar->field_0xb1a * 0x290;
+    BYTE *pSource = g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0;
+    int i;
+    int value;
+
+    if (*(int *)(pRecord + 0x28c) == 0) {
+        *(int *)(pRecord + 0x28c) = 1;
+        for (i = 0; i < 0x22; i++) {
+            value = FixMul(((int *)(pSource + 0x240))[i], 0xff0000) >> 16;
+            if (value > 0xff)
+                value = 0xff;
+            pRecord[0x24c + i] = (BYTE)value;
+        }
+        memcpy(pRecord + 0x280, pSource + 0x4c0, 3 * sizeof(int));
+        memcpy(pRecord + 0x270, pSource + 0x4b0, 4 * sizeof(int));
+    }
+}
+
+// Inserts a driver's split time into the ranking of a split.
+// TODO: CMR2 0x00455af0 (implemented, match 42%)
+void FUN_00455af0(int driver, int hundredths, int split)
+{
+    int time = FUN_0040d4b0(hundredths);
+    int slot = driver;
+    int pos;
+    int i;
+    char c;
+
+    if (driver < g_unk0x00541f98)
+        slot = g_unk0x00541f90[FUN_0041b370() & 0xff];
+    g_stageSplitTimesRaw[split][slot] = time;
+    for (pos = 0; g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] < time &&
+                  pos != g_stageSplitDriverCount[split];) {
+        pos++;
+        if (pos > 15)
+            goto done;
+    }
+    for (i = 15; pos < i; i--) {
+        g_stageSplitTimesRawDriverIx[split][i] = g_stageSplitTimesRawDriverIx[split][i - 1];
+        c = g_stageSplitDriverIndices[split][i - 1];
+        g_stageSplitDriverIndices[split][i] = c;
+        g_stageSplitPositions[split][c]++;
+    }
+    g_stageSplitTimesRawDriverIx[split][pos] = (char)slot;
+    g_stageSplitDriverIndices[split][pos] = (char)driver;
+    g_stageSplitPositions[split][driver] = (char)pos;
+done:
+    g_stageSplitDriverCount[split]++;
+}
+
+extern double g_minus65536;
+
+// Adds a random spread to the computer drivers' times and sorts them.
+// TODO: CMR2 0x00456110 (implemented, match 84%)
+void FUN_00456110(int *pTimes)
+{
+    int split = GetStageSplitCount();
+    int i;
+    int *p = pTimes;
+    int low;
+    int high;
+    unsigned int r;
+
+    for (i = 0; i < 0x50; i += 5, p++) {
+        low = (int)(__int64)(g_unk0x0054241c[i + 2] * CGraphics::m_65536);
+        high = (int)(__int64)(g_unk0x0054241c[i + 1] * g_minus65536);
+        r = (unsigned int)(__int64)(rand() * CGraphics::m_65536);
+        *p += FixMul(FixDiv(r, 0x7fff0000), -high - low) + low;
+    }
+    RallyTiming_SortOrder(pTimes, g_stageSplitDriverIndices[split], 0, g_unk0x00541f98, 1);
+}
+
+extern int g_unk0x00542c7c[12];
+extern int g_unk0x00542c74;
+
+// Advances a car's lap record when it reaches the next checkpoint on time.
+// TODO: CMR2 0x00458fd0 (implemented, match 13%)
+void FUN_00458fd0(int car, int time)
+{
+    Unk0x00542e78 *p = &g_unk0x00542e78[car];
+    int count;
+
+    if (p->field_0x2 == p->field_0x8 && (int)(__int64)(time * CGraphics::m_65536) == g_unk0x00542c7c[p->field_0xa]) {
+        p->field_0x17 = 1;
+        p->field_0x4 = p->field_0x8;
+        p->field_0x6 = p->field_0xa;
+        p->field_0xa++;
+        if (p->field_0x6 == 0)
+            p->field_0x19 = 1;
+        count = g_unk0x00542c74;
+        if (p->field_0xa == count) {
+            p->field_0xa = 0;
+            p->field_0x8++;
+        }
+        p->field_0x14++;
+        if (count < p->field_0x14)
+            p->field_0x14 = 1;
+    }
+}
+
+// Copies the three vertices of a triangle (indices in pIndices).
+// FUNCTION: CMR2 0x004917f0
+void FUN_004917f0(int *pOut, unsigned short *pIndices)
+{
+    pOut[0] = *(int *)(g_unk0x00591b14 + pIndices[0] * 0xc);
+    pOut[1] = *(int *)(g_unk0x00591b14 + 4 + pIndices[0] * 0xc);
+    pOut[2] = *(int *)(g_unk0x00591b14 + 8 + pIndices[0] * 0xc);
+    pOut[3] = *(int *)(g_unk0x00591b14 + pIndices[1] * 0xc);
+    pOut[4] = *(int *)(g_unk0x00591b14 + 4 + pIndices[1] * 0xc);
+    pOut[5] = *(int *)(g_unk0x00591b14 + 8 + pIndices[1] * 0xc);
+    pOut[6] = *(int *)(g_unk0x00591b14 + pIndices[2] * 0xc);
+    pOut[7] = *(int *)(g_unk0x00591b14 + 4 + pIndices[2] * 0xc);
+    pOut[8] = *(int *)(g_unk0x00591b14 + 8 + pIndices[2] * 0xc);
 }
 

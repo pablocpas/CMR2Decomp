@@ -1326,6 +1326,7 @@ private:
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
     friend void FUN_0049dcc0(int enable);
+    friend void FUN_0049c7b0(Mesh *pMesh);
     friend void FUN_00477b60(int car, int unused1, int unused2, BYTE flag);
     friend void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
     friend void FUN_0049c880(Mesh *pMesh);

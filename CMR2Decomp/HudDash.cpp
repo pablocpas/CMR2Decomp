@@ -766,3 +766,18 @@ void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
     FixMatrix_GetRight(&g_unk0x0053d000[2 + pDst[0]], pM);
 }
 
+// Sets a player's camera offset (and its adjusted copy for the gauges).
+// FUNCTION: CMR2 0x00447d20
+void FUN_00447d20(unsigned int index, FixVector *pOffset)
+{
+    int i = index & 0xff;
+
+    g_unk0x0053d048[i] = *pOffset;
+    g_unk0x0053d000[i] = *pOffset;
+    g_unk0x0053d000[i].y =
+        0x20000 - FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[i].z - 0x50000, 0x50000), 0xcccc),
+                         0x20000 - g_unk0x0053d000[i].y);
+    g_unk0x0053d000[i].z = -g_unk0x0053d000[i].z;
+    FUN_00447e20(index, FUN_00447e00(index));
+}
+

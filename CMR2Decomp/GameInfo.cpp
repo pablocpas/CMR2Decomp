@@ -2570,6 +2570,32 @@ void FUN_00401420(Menu *pMenu, char cancel)
     FUN_00427c10();
 }
 
+BYTE *RallyData_FUN_00408a00(BYTE index);
+
+// Callback 0 of the car setup menu: loads the switches from the driver's
+// setting byte (keeping a copy to restore on cancel).
+// FUNCTION: CMR2 0x00404b80
+void FUN_00404b80(Menu *pMenu, int param)
+{
+    g_unk0x0052a850 = *RallyData_FUN_00408a00(FUN_0041b370() + g_unk0x0052af58[1]);
+    g_unk0x005298f8 = *RallyData_FUN_00408a00(FUN_0041b370() + g_unk0x0052af58[1]);
+    pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
+    pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
+    pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
+    pMenu->items[3].max = (g_unk0x005298f8 >> 5) & 1;
+    if (FUN_004174d0()) {
+        if (RallyData_FUN_00411880()) {
+            if ((g_unk0x005298f8 & 3) == 2) {
+                pMenu->items[Menu_FindItem(pMenu, 4)].max = 0;
+                return;
+            }
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
+            return;
+        }
+        pMenu->items[Menu_FindItem(pMenu, 4)].max = 2 - (g_unk0x005298f8 & 3);
+    }
+}
+
 // FUNCTION: CMR2 0x00404ea0
 void FUN_00404ea0(BYTE param1)
 {

@@ -1834,6 +1834,42 @@ int FUN_004b7d60(int *pOut)
     return 0;
 }
 
+// Latched state of the two throttle axes of each device (pressed once until released).
+// GLOBAL: CMR2 0x005334f4
+int g_unk0x005334f4[8][2];
+
+// Turns the joystick's accelerate/brake axes into one-shot "left"/"right"
+// menu presses (bits 2 and 3) when they are pushed past a quarter.
+// FUNCTION: CMR2 0x0040bad0
+void FUN_0040bad0(void)
+{
+    int i;
+    DeviceInfo *pDev;
+
+    for (i = 0; i < 8; i++) {
+        pDev = CInput::FUN_0049ead0(i);
+        if (pDev->field_0x0 == 3 && CInput::FUN_0040c210(0, 2) != CInput::FUN_0040c210(0, 3)) {
+            pDev->field_0x8 &= 0xfffffff3;
+            if (((int *)pDev)[CInput::FUN_0040c210(0, 2) * 5 + 0x11f] < 0x3333) {
+                if (g_unk0x005334f4[i][0] == 0) {
+                    pDev->field_0x8 |= 4;
+                    g_unk0x005334f4[i][0] = 1;
+                }
+            } else {
+                g_unk0x005334f4[i][0] = 0;
+            }
+            if (((int *)pDev)[CInput::FUN_0040c210(0, 3) * 5 + 0x11f] < 0x3333) {
+                if (g_unk0x005334f4[i][1] == 0) {
+                    pDev->field_0x8 |= 8;
+                    g_unk0x005334f4[i][1] = 1;
+                }
+            } else {
+                g_unk0x005334f4[i][1] = 0;
+            }
+        }
+    }
+}
+
 // Controller slots are mapped to entries of m_controllerInfo through m_unk0x005168f4.
 // FUNCTION: CMR2 0x0040bba0
 unsigned short FUN_0040bba0(void)

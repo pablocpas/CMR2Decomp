@@ -6,6 +6,7 @@
 #include "Frontend.h"
 #include "GenericFileLoader.h"
 #include "StageTiming.h"
+#include "GameInfo.h"
 
 // Ground queries against the stage collision mesh loaded by FUN_00490d50:
 // triangles (three vertex indices plus a surface byte, 8 bytes each), their
@@ -790,5 +791,64 @@ void FUN_00492470(DWORD *pColour)
         *(DWORD *)((BYTE *)((Mesh *)g_unk0x005920f0)->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
     }
     g_stageColourValue = 1;
+}
+
+extern double g_unk0x00511300;
+
+// Swings field 0x848 of the auto-gear car toward its target over time (a
+// quarter sine), or resets it when the swing is off.
+// TODO: CMR2 0x00494960 (implemented, match 88%)
+void FUN_00494960(void)
+{
+    unsigned short angle;
+
+    if (g_pAutoGearCar->field_0x1d8 == 0) {
+        g_pAutoGearCar->field_0x84c = 0;
+        g_pAutoGearCar->field_0x848 = 0;
+        return;
+    }
+    g_pAutoGearCar->field_0x84c += g_pAutoGearCar->field_0x840;
+    if (g_pAutoGearCar->field_0x84c > 0x10000) {
+        g_pAutoGearCar->field_0x84c = 0x10000;
+        g_pAutoGearCar->field_0x848 = g_pAutoGearCar->field_0x844;
+        return;
+    }
+    angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x84c, 0x5a0000) * g_unk0x00511300);
+    g_pAutoGearCar->field_0x848 = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
+}
+
+void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
+
+// Sets the fog and the matching sky alpha: the sky fades out as the draw
+// distance reaches into the fog.
+// TODO: CMR2 0x00492fe0 (implemented, match 48%)
+void FUN_00492fe0(DWORD *pColour, int start, int end)
+{
+    int distance;
+    int t;
+    int alpha;
+
+    Graphics_SetFog(start, end, start, end, *pColour);
+    distance = (CGameInfo::FUN_00405ca0() + 2) * 0x320000;
+    if (distance < start) {
+        g_unk0x00592146 = 0xff;
+        g_stageColourAlpha = 0xff;
+        return;
+    }
+    if (distance <= end) {
+        t = distance - start;
+        if (end - start != 0)
+            t = FixDiv(t, end - start);
+        alpha = FixMul(t, 0xff0000) >> 16;
+        if (alpha > 0xff)
+            alpha = 0xff;
+        else if (alpha < 0)
+            alpha = 0;
+        g_unk0x00592146 = (BYTE)(-1 - alpha);
+        g_stageColourAlpha = g_unk0x00592146;
+        return;
+    }
+    g_unk0x00592146 = 0;
+    g_stageColourAlpha = 0;
 }
 

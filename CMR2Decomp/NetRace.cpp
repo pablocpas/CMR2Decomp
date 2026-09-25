@@ -226,6 +226,41 @@ bool FUN_00427ab0(int value, int *pRange)
     return true;
 }
 
+// GLOBAL: CMR2 0x00539ee0
+FixVector g_unk0x00539ee0;
+// GLOBAL: CMR2 0x00539ef0
+FixVector g_unk0x00539ef0;
+// GLOBAL: CMR2 0x00539f00
+FixVector g_unk0x00539f00;
+
+FixMatrix *FUN_00423d70(unsigned int index);
+int FUN_0041f3a0(void);
+unsigned int FixVec_Length(FixVector *pV);
+extern BYTE g_unk0x00538d2c[0xc8];
+
+// Loudness of a view's sounds by distance to the listener: 1 up to 2 units,
+// fading to 0 at 100.
+// TODO: CMR2 0x00427d50 (implemented, match 85%)
+int FUN_00427d50(unsigned int view, int listener)
+{
+    int index = 1;
+    int distance;
+
+    if (FUN_0041f3a0() == 0)
+        index = listener;
+    FixMatrix_GetPosition(&g_unk0x00539f00, FUN_00423d70(view));
+    FixMatrix_GetPosition(&g_unk0x00539ee0, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    g_unk0x00539ef0.x = g_unk0x00539f00.x - g_unk0x00539ee0.x;
+    g_unk0x00539ef0.y = g_unk0x00539f00.y - g_unk0x00539ee0.y;
+    g_unk0x00539ef0.z = g_unk0x00539f00.z - g_unk0x00539ee0.z;
+    distance = FixVec_Length(&g_unk0x00539ef0);
+    if (distance < 0x20000)
+        return 0x10000;
+    if (distance > 0x640000)
+        return 0;
+    return 0x10000 - FixDiv(distance - 0x20000, 0x620000);
+}
+
 // FUNCTION: CMR2 0x004283b0
 void FUN_004283b0(void)
 {
@@ -238,6 +273,50 @@ int FUN_0041f3a0(void);
 BYTE FUN_00422fb0(unsigned int index);
 
 int FUN_00428740(BYTE index);
+
+extern int g_physicsTimeStep;
+
+// Advances a player's flash timer; at the end it restarts (mode 3) or stops,
+// and runs the player's fade callback.
+// TODO: CMR2 0x004284d0 (implemented, match 36%)
+void FUN_004284d0(unsigned int player, int check)
+{
+    int step = g_physicsTimeStep;
+    unsigned int p;
+    int state;
+    int value;
+
+    if (FUN_00428740((BYTE)player) != 0) {
+        p = player & 0xff;
+        if (g_unk0x0053a0cc[p] == 0 || check == 0) {
+            state = g_unk0x0053a0ac[p];
+            if (state == 4) {
+                g_unk0x0053a0ac[p] = 0;
+                return;
+            }
+            g_unk0x0053a02c[p] = g_unk0x0053a04c[p];
+            value = g_unk0x0053a04c[p] + step;
+            g_unk0x0053a04c[p] = value;
+            if (g_unk0x0053a02c[p] < 0 && value >= 0) {
+                g_unk0x0053a0ac[p] = 4;
+                g_unk0x0053a06c[p] = 0;
+                return;
+            }
+            if (g_unk0x0053a0ec[p] <= value) {
+                if (state == 3) {
+                    value = -g_unk0x0053a0ec[p];
+                    g_unk0x0053a04c[p] = value;
+                    g_unk0x0053a02c[p] = value;
+                } else {
+                    g_unk0x0053a0ac[p] = 0;
+                    g_unk0x0053a06c[p] = 0x10000;
+                }
+                if (g_fadeCallbacks[p] != NULL)
+                    g_fadeCallbacks[p]((BYTE)player);
+            }
+        }
+    }
+}
 
 // Sets a player's flash intensity: the value blended between its two ends
 // by t, divided by its duration (magnitude only).
