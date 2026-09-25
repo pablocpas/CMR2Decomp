@@ -69,7 +69,8 @@ struct Car {
     int speed;                        // 0x778  length of the velocity vector
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
     int field_0x780;                  // 0x780  engine acceleration while no gear is engaged
-    BYTE field_0x784[0x10];
+    BYTE field_0x784[0xc];
+    int field_0x790;                  // 0x790
     int field_0x794;                  // 0x794
     BYTE field_0x798[0x4];
     int field_0x79c;                  // 0x79c  how fast the rolling direction follows the body
@@ -88,12 +89,15 @@ struct Car {
     int field_0x808[4];               // 0x808
     BYTE field_0x818[0x4];
     int field_0x81c;                  // 0x81c
-    BYTE field_0x820[0xc];
+    int field_0x820;                  // 0x820
+    BYTE field_0x824[0x8];
     int field_0x82c;                  // 0x82c
     int field_0x830;                  // 0x830
-    BYTE field_0x834[0x4];
+    int field_0x834;                  // 0x834
     int field_0x838;                  // 0x838
-    BYTE field_0x83c[0xc];
+    BYTE field_0x83c[0x4];
+    int field_0x840;                  // 0x840
+    BYTE field_0x844[0x4];
     int field_0x848;                  // 0x848
     BYTE field_0x84c[0x4];
     int wheelTorque[4];               // 0x850  drive/brake torque per wheel
@@ -156,7 +160,9 @@ struct Car {
     char field_0xb22;                 // 0xb22  shift direction
     BYTE field_0xb23[0x1];
     char field_0xb24;                 // 0xb24  shift mode snapshot
-    BYTE field_0xb25[0x3];
+    BYTE field_0xb25;                 // 0xb25  countdowns started by 0x43b020
+    BYTE field_0xb26;
+    BYTE field_0xb27;
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29;                 // 0xb29
     BYTE field_0xb2a[0x2];
@@ -181,10 +187,13 @@ struct Car {
     int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
     BYTE field_0xba0[0xc];
     int field_0xbac[8];               // 0xbac
-    BYTE field_0xbcc[0x1c];
+    int field_0xbcc[4];               // 0xbcc
+    int field_0xbdc;                  // 0xbdc
+    int field_0xbe0;                  // 0xbe0
+    int field_0xbe4;                  // 0xbe4
     int wheelSlipping[4];             // 0xbe8  set while the wheel spins faster than the ground
     int field_0xbf8;                  // 0xbf8
-    BYTE field_0xbfc[0x4];
+    int field_0xbfc;                  // 0xbfc
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
     BYTE field_0xc04[0x8];
     int field_0xc0c;                  // 0xc0c

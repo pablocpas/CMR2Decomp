@@ -51,6 +51,24 @@ bool CNetworkLeaderboards::LoadLeaderboards(void) {
     return hasLoaded;
 }
 
+// Writes the leaderboards back to NetworkLeaderboards\leaderboards.nlb.
+// FUNCTION: CMR2 0x0040e470
+void CNetworkLeaderboards::SaveLeaderboards(void)
+{
+    NetworkLeaderboardsFile *pFile;
+    char fileLocation[MAX_PATH];
+
+    pFile = (NetworkLeaderboardsFile *)CFileBuffer::AllocateLockedBuffer(0x2088);
+    if (pFile != NULL) {
+        pFile->leaderboardID = m_leaderboardId;
+        pFile->totalLeaderboards = m_totalLeaderboards;
+        memcpy(pFile->leaderboards, m_leaderboards, sizeof(pFile->leaderboards));
+        sprintf(fileLocation, m_strNetworkLeaderboardsDir, CRegKey::GetValueFromKey(CRegKey::m_rkv_gameHDPath));
+        CInstallInfo::WriteFileToDisk(fileLocation, 0, pFile, 0x2088);
+        CFileBuffer::FreeGenericFileBuffer(pFile);
+    }
+}
+
 // FUNCTION: CMR2 0x0040e4f0
 int CNetworkLeaderboards::GetLeaderboardId(void)
 {

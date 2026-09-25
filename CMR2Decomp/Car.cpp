@@ -581,6 +581,23 @@ void Car_UpdateBodyAxes(void)
     }
 }
 
+// Sets up the current car's four drive flags and the per-wheel share of the
+// torque (a quarter of 0x75c each).
+// FUNCTION: CMR2 0x0043fb50
+void FUN_0043fb50(void)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        g_pCurrentCar->field_0xbac[i] = 1;
+        g_pCurrentCar->field_0xb28++;
+    }
+    g_pCurrentCar->field_0xb28 = 4;
+    g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / 4;
+    for (i = 3; i >= 0; i--)
+        g_pCurrentCar->field_0x8b8[i] = g_pCurrentCar->field_0x8b4;
+}
+
 // Same as Car_UpdateBodyAxes without the final velocity damping.
 // FUNCTION: CMR2 0x0043fcc0
 void Car_UpdateBodyAxesNoDamping(void)
@@ -1809,6 +1826,36 @@ extern double g_unk0x00511300;
         damp.y = 0;                                                          \
         damp.z = 0;                                                          \
     }
+
+// Starts the first pending countdown of the current car (200 steps).
+// FUNCTION: CMR2 0x0043b020
+void FUN_0043b020(void)
+{
+    if (g_pCurrentCar->field_0xbdc != 0) {
+        g_pCurrentCar->field_0xbfc = 1;
+        g_pCurrentCar->field_0xb25 = 200;
+        return;
+    }
+    if (g_pCurrentCar->field_0xbe0 != 0) {
+        g_pCurrentCar->field_0xbfc = 1;
+        g_pCurrentCar->field_0xb26 = 200;
+        return;
+    }
+    if (g_pCurrentCar->field_0xbe4 != 0) {
+        g_pCurrentCar->field_0xbfc = 1;
+        g_pCurrentCar->field_0xb27 = 200;
+    }
+}
+
+// Rates of the car scaled by the physics time step.
+// TODO: CMR2 0x0043b090 (implemented, match 62%)
+void FUN_0043b090(Car *pCar)
+{
+    pCar->field_0x790 = FixMul(g_physicsTimeStep, 0xccc);
+    pCar->field_0x834 = FixMul(g_physicsTimeStep, 0xccc);
+    pCar->field_0x840 = FixMul(g_physicsTimeStep, 0x1999);
+    pCar->field_0x820 = FixMul(g_physicsTimeStep, 0x3333);
+}
 
 // Suspension of the car: two lean vectors (the wheel frame and the body)
 // are pushed by the car's acceleration and damped, and the height of each

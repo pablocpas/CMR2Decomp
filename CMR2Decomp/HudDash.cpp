@@ -682,6 +682,18 @@ short FUN_00447e00(unsigned int index)
     return g_unk0x0053d090[index & 0xff];
 }
 
+extern FixVector g_unk0x0053d048[4];
+
+// Sets the player's gauge target and its speed-scaled copy (less at speed).
+// FUNCTION: CMR2 0x00447e20
+void FUN_00447e20(unsigned int index, short value)
+{
+    index &= 0xff;
+    g_unk0x0053d090[index] = value;
+    g_unk0x0053d090[index + 2] =
+        (short)FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[index].z - 0x50000, 0x50000), 0xcccc), value);
+}
+
 // FUNCTION: CMR2 0x00447ea0
 int FUN_00447ea0(unsigned int index)
 {

@@ -1106,6 +1106,28 @@ extern BYTE g_unk0x00538d2c[0xc8];
 #define EFFECT_RAND_NEG() (int)(__int64)((float)rand() * g_oneOverRandMax * (float)g_minus65536)
 extern double g_minus65536;
 
+// Colour of the wheel splashes and its brightened copy.
+// GLOBAL: CMR2 0x005435c0
+BYTE g_unk0x005435c0[4];
+// GLOBAL: CMR2 0x005435cc
+BYTE g_unk0x005435cc[4];
+// GLOBAL: CMR2 0x00543808
+BYTE g_unk0x00543808;
+
+// Sets the splash colour of a player's car (and its average brightness).
+// TODO: CMR2 0x0045d1e0 (implemented, match 21%)
+void FUN_0045d1e0(int player, BYTE *pColour)
+{
+    if (player < 8) {
+        *(DWORD *)g_unk0x005435c0 = *(DWORD *)pColour;
+        g_unk0x005435cc[1] = (g_unk0x005435c0[1] >> 1) + 0x7f;
+        g_unk0x005435cc[0] = (g_unk0x005435c0[0] >> 1) + 0x7f;
+        g_unk0x005435cc[2] = (g_unk0x005435c0[2] >> 1) + 0x7f;
+        g_unk0x005435cc[3] = g_unk0x005435c0[3];
+        g_unk0x00543808 = (BYTE)((pColour[2] + pColour[1] + pColour[0]) / 3);
+    }
+}
+
 // Update callback: lifts the particle by half its size.
 // FUNCTION: CMR2 0x0045d250
 void FUN_0045d250(void *pParticle, ParticleType *pType, int param)

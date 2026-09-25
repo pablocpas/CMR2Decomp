@@ -19,6 +19,8 @@
 #include "Game.h"
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
+#include "Mesh.h"
+#include "Graphics.h"
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -247,6 +249,28 @@ void FUN_0047c5c0(void)
     } while ((int)p < (int)&g_unk0x0058e178);
 }
 
+// Per-type animation tables (0x58e394..0x58e4a4; the loader also fills the tail bytes).
+// GLOBAL: CMR2 0x0058e394
+BYTE *g_unk0x0058e394[68];
+// GLOBAL: CMR2 0x0058e4a4
+BYTE *g_unk0x0058e4a4;
+
+// Looks up the pair of values that table `table` gives for the key of entry `entry`.
+// TODO: CMR2 0x0047cbc0 (implemented, match 69%)
+void FUN_0047cbc0(int unused, int table, int entry, int *pOut1, int *pOut2)
+{
+    BYTE *p = g_unk0x0058e394[table];
+    int i;
+
+    for (i = 0; i < *(int *)(p + 0x84); i++) {
+        if (*(int *)(entry * 0x10 + 4 + g_unk0x0058e4a4) == (char)p[4 + i * 8]) {
+            *pOut1 = (char)p[7 + i * 8];
+            *pOut2 = (char)g_unk0x0058e394[table][6 + i * 8];
+            return;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x0047cc30
 void FUN_0047cc30(void)
 {
@@ -391,6 +415,26 @@ void FUN_00465f80(void)
     g_unk0x00588864 = -1;
 }
 
+// GLOBAL: CMR2 0x0058875c
+Car *g_unk0x0058875c;
+
+void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag);
+void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag);
+
+// Makes a car the ghost car: flags it and fades its body nodes in.
+// FUNCTION: CMR2 0x00465fc0
+void FUN_00465fc0(Car *pCar)
+{
+    g_unk0x0058875c = pCar;
+    pCar->field_0xc0c = 1;
+    g_unk0x00588761 = -1;
+    g_unk0x00588864 = -1;
+    FUN_00465ec0(pCar->pNode0x71c, 100, 1);
+    FUN_00465ec0(pCar->pNode0x720, 100, 1);
+    FUN_00465f20(pCar->pNode0x71c->pFirstChild, 100, 1);
+    FUN_00465f20(pCar->pNode0x720->pFirstChild, 100, 1);
+}
+
 // FUNCTION: CMR2 0x00466080
 void FUN_00466080(void)
 {
@@ -427,6 +471,15 @@ void FUN_0046b400(int value, int index)
 void FUN_0046b420(void)
 {
     memset(g_unk0x00588970, 0, 8 * sizeof(int));
+}
+
+// Reads vertex `vertex` of mesh `mesh` (float source data) as a 16.16 vector.
+// FUNCTION: CMR2 0x0046b440
+void FUN_0046b440(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
+{
+    pOut[0] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30) * CGraphics::m_65536);
+    pOut[1] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 4) * CGraphics::m_65536);
+    pOut[2] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 8) * CGraphics::m_65536);
 }
 
 // FUNCTION: CMR2 0x0046b4c0
@@ -1238,6 +1291,42 @@ void FUN_00486b90(BYTE *pCar, BYTE *pInfo)
     g_unk0x00590db0[*pCar] = 0x10000;
 }
 
+int FUN_00472990(KnockoutMatch *pMatch);
+
+// Returns 1 when a match of the current knockout round is still undecided.
+// FUNCTION: CMR2 0x00473290
+int FUN_00473290(void)
+{
+    unsigned int *pState;
+    KnockoutMatch *pMatch = NULL;
+    int count = 0;
+    int i;
+
+    pState = RallyData_GetChampionshipState();
+    switch ((*pState >> 3) & 7) {
+    case 1:
+        count = 8;
+        pMatch = (KnockoutMatch *)(pState + 0x16);
+        break;
+    case 2:
+        count = 4;
+        pMatch = (KnockoutMatch *)(pState + 10);
+        break;
+    case 3:
+        count = 2;
+        pMatch = (KnockoutMatch *)(pState + 4);
+        break;
+    case 4:
+        count = 1;
+        pMatch = (KnockoutMatch *)(pState + 1);
+    }
+    for (i = 0; i < count; i++, pMatch++) {
+        if (FUN_00472990(pMatch))
+            return 1;
+    }
+    return 0;
+}
+
 // Whether both drivers of the current round are known.
 // FUNCTION: CMR2 0x00473310
 int FUN_00473310(void)
@@ -1676,6 +1765,24 @@ void Scene_SetAmbient(BYTE *pColour, int boost);
 unsigned int RallyDataCountryIndex(void);
 int FUN_00407270(void);
 void FUN_0047e490(BYTE *pColour);
+
+extern void *g_unk0x00543eb8;
+extern BYTE g_unk0x00547acc;
+
+// Interpolates the two animated values of every 0x2c-byte record by t (16.16).
+// TODO: CMR2 0x00461bb0 (implemented, match 62%)
+void FUN_00461bb0(int t)
+{
+    int i;
+    int offset;
+    BYTE *p;
+
+    for (i = 0, offset = 0; i < g_unk0x00547acc; i++, offset += 0x2c) {
+        p = (BYTE *)g_unk0x00543eb8 + offset;
+        *(int *)(p + 0x1c) = FixMul(t, *(int *)(p + 0x10) - *(int *)(p + 0x18)) + *(int *)(p + 0x18);
+        *(int *)(p + 0x24) = *(int *)(p + 0x20) + FixMul(t, *(int *)(p + 0x14) - *(int *)(p + 0x20));
+    }
+}
 
 // Sets the scene's ambient colour when it changes.
 // TODO: CMR2 0x00462cb0 (implemented, match 80%)
@@ -2210,18 +2317,20 @@ void FUN_0046e340(BYTE *pMatrices, BYTE *pInfo)
 
 // Timed stage events (0x1c bytes each).
 struct EventRec {
-    short a;            // 0x0
-    short b;            // 0x2
-    BYTE field_0x4[8];
-    unsigned short step;    // 0xc
-    short range;        // 0xe
-    unsigned short counter; // 0x10
-    short field_0x12;   // 0x12
-    BYTE paused;        // 0x14
-    BYTE field_0x15[7];
+    int pos;            // 0x0  packed x/y of the event's area in the texture
+    short a;            // 0x4  width
+    short b;            // 0x6  height
+    BYTE field_0x8[8];
+    unsigned short step;    // 0x10
+    short range;        // 0x12
+    unsigned short counter; // 0x14
+    short field_0x16;   // 0x16
+    BYTE paused;        // 0x18
+    BYTE active;        // 0x19 has an area
+    BYTE pad_0x1a[2];
 };
 
-// GLOBAL: CMR2 0x00588edc
+// GLOBAL: CMR2 0x00588ed8
 EventRec g_eventRecords[29];
 // GLOBAL: CMR2 0x00589210
 int g_eventScale;
@@ -2257,7 +2366,7 @@ void Events_ComputeSteps(void)
         p->step = (unsigned short)FixMul(share, g_eventScale);
         p->range = (short)FixMul(share, 30000);
         p->counter = 0;
-        p->field_0x12 = 0;
+        p->field_0x16 = 0;
         p->paused = 0;
     }
     if (g_eventCount > 2) {
@@ -2268,6 +2377,29 @@ void Events_ComputeSteps(void)
                 p->step = 1;
         }
     }
+}
+
+// Adds a stage event (up to 11) for the texture area pArea (packed position,
+// width, height) and recomputes the event steps.
+// TODO: CMR2 0x0046e620 (implemented, match 20%)
+void Events_Add(EventRec *pArea, int unused)
+{
+    EventRec *p;
+
+    if (g_eventCount < 11) {
+        p = &g_eventRecords[g_eventCount];
+        p->active = 0;
+        p->paused = 0;
+        p->step = 0;
+        p->counter = 0;
+        if (pArea != NULL && pArea->a > 0 && pArea->b > 0) {
+            p->pos = pArea->pos;
+            *(int *)&p->a = *(int *)&pArea->a;
+            p->active = 1;
+        }
+        g_eventCount++;
+    }
+    Events_ComputeSteps();
 }
 
 // TODO: CMR2 0x0046e530 (implemented, match 71%)
@@ -2281,7 +2413,7 @@ void Events_Reset(void)
         p = g_eventRecords;
         for (i = g_eventCount; i != 0; i--, p++) {
             p->counter = 0;
-            p->field_0x12 = 0;
+            p->field_0x16 = 0;
             p->paused = 0;
         }
     }

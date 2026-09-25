@@ -177,6 +177,81 @@ void FUN_00401540(BYTE index)
     FUN_00404ef0();
 }
 
+// Fade colour of the in-race network menu transitions.
+// GLOBAL: CMR2 0x00516090
+int g_unk0x00516090 = 0xacb49c;
+
+void FUN_00427a80(void);
+void FUN_0041b3a0(void);
+void FUN_00427a10(void);
+
+// Fade callback: promotes the cars and quits the (network) championship.
+// FUNCTION: CMR2 0x004016b0
+void FUN_004016b0(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    if (CGameInfo::FUN_00405d80() == 4)
+        *RallyData_GetChampionshipState() |= 0x800000;
+    FUN_0041f2a0();
+    FUN_00404ef0();
+    if (CGameInfo::FUN_00405e00()) {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+        FUN_004067d0();
+    }
+}
+
+// Fade callback: promotes the cars and leaves the championship.
+// TODO: CMR2 0x00401720 (implemented, match 89%)
+void FUN_00401720(BYTE index)
+{
+    BYTE i;
+
+    PROMOTE_CARS();
+    if (CGameInfo::FUN_00405d80() == 4)
+        *RallyData_GetChampionshipState() |= 0x800000;
+    FUN_0041f2a0();
+    FUN_00404ef0();
+}
+
+// Item callback of the network "restart" item: fades every car out.
+// FUNCTION: CMR2 0x00401630
+void FUN_00401630(Menu *pMenu, int param)
+{
+    BYTE i;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_004014f0, 1, 0, g_unk0x00516090, 1);
+    if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10)
+        FUN_00427a80();
+}
+
+// Item callback of the network "quit" item.
+// FUNCTION: CMR2 0x00401780
+void FUN_00401780(Menu *pMenu, int param)
+{
+    BYTE i;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_004016b0, 1, 0, g_unk0x00516090, 1);
+}
+
+// Item callback of the network "leave" item.
+// FUNCTION: CMR2 0x004017e0
+void FUN_004017e0(Menu *pMenu, int param)
+{
+    BYTE i;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++)
+        FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_00401720, 1, 0, g_unk0x00516090, 1);
+    if (CGameInfo::FUN_00405e00() && FUN_004a15a0()) {
+        FUN_0041b3a0();
+        FUN_00427a10();
+    }
+}
+
 // Fade callback of the "quit" item: ends the championship and leaves.
 // TODO: CMR2 0x00449020 (implemented, match 97%)
 void FUN_00449020(BYTE index)
@@ -3012,3 +3087,31 @@ BYTE FUN_0044a130(void)
 {
     return g_pHeaderMenu == &g_menu0x0053ea68;
 }
+
+// GLOBAL: CMR2 0x00541dfc
+Menu *g_unk0x00541dfc;
+// GLOBAL: CMR2 0x00541e00
+int g_unk0x00541e00;
+
+// Per-frame update of the header menu: waits two frames after the menu
+// changes before running its callback 2 (and the network one).
+// TODO: CMR2 0x0044b330 (implemented, match 70%)
+void FUN_0044b330(void)
+{
+    if (g_unk0x00541dfc == g_pHeaderMenu || g_pHeaderMenu == &g_menu0x0053ea68) {
+        if (g_unk0x00541e00 < 1) {
+            Menu_CallCallback2(g_pHeaderMenu);
+            if ((BYTE)FUN_00407270())
+                FUN_0044b3a0();
+            g_unk0x0053e698 = 0;
+            return;
+        }
+    } else {
+        g_unk0x00541dfc = g_pHeaderMenu;
+        g_unk0x00541e00 = 2;
+    }
+    FUN_0044b760();
+    g_unk0x0053e698 = 0;
+    g_unk0x00541e00--;
+}
+

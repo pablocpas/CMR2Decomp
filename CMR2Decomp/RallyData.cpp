@@ -653,6 +653,34 @@ BYTE g_unk0x0051682c[132] = {
     0x42, 0x52, 0x49, 0x47, 0x48, 0x54, 0x00, 0x00, 0x42, 0x4c, 0x49, 0x5a, 0x5a, 0x41, 0x52, 0x44,
 };
 
+BYTE *RallyData_FUN_00407630(int index);
+extern int g_unk0x0052f290;
+extern int g_unk0x0052f0fc;
+
+// Copies the country's default 7-byte settings into the four player records;
+// in some championship stages the first value is bumped to the next odd one.
+// TODO: CMR2 0x00406820 (implemented, match 67%)
+void FUN_00406820(void)
+{
+    int i;
+    BYTE *p;
+    int row;
+    char c;
+
+    for (i = 0; i < 4; i++) {
+        p = RallyData_FUN_00407630(i);
+        row = (RallyDataCountryIndex() & 0xff) * 7;
+        *(int *)p = *(int *)(g_unk0x0051682c + row);
+        *(short *)(p + 4) = *(short *)(g_unk0x0051682c + row + 4);
+        p[6] = g_unk0x0051682c[row + 6];
+        if (g_unk0x0052f290 != 0 && g_unk0x0052f0fc > 2) {
+            c = p[0];
+            if (c % 2 == 0 && c != 6)
+                p[0] = c + 1;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x00406890
 char *RallyData_FUN_00406890(void)
 {
@@ -949,6 +977,21 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
     if (category == 0xf)
         return NULL;
     return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+}
+
+// Reads a driver's stored position, heading and value.
+// TODO: CMR2 0x00408c20 (implemented, match 81%)
+void RallyData_FUN_00408c20(int *pPos, short *pHeading, int *pValue, BYTE index)
+{
+    int *p;
+
+    RallyData_ValidateIndex(index);
+    p = (int *)RallyData_FUN_00408930(index);
+    pPos[0] = p[0];
+    pPos[1] = p[1];
+    pPos[2] = p[2];
+    *pHeading = *(short *)(RallyData_FUN_00408930(index) + 0xc);
+    *pValue = *(int *)(RallyData_FUN_00408930(index) + 0x10);
 }
 
 // FUNCTION: CMR2 0x00408c70
@@ -3008,5 +3051,41 @@ void FUN_00470240(BYTE **pElement, BYTE car)
             (*pElement)[0x14] = 0xff;
         }
     }
+}
+
+// Row of the 7-byte table g_unk0x00520128 for the current country.
+// TODO: CMR2 0x00494a70 (implemented, match 18%)
+BYTE *FUN_00494a70(void)
+{
+    switch ((BYTE)RallyDataCountryIndex()) {
+    case 3:
+        return g_unk0x00520128 + 7;
+    case 5:
+        return g_unk0x00520128 + 14;
+    case 7:
+        return g_unk0x00520128 + 21;
+    case 8:
+        return g_unk0x00520128 + 28;
+    }
+    return g_unk0x00520128;
+}
+
+unsigned int FUN_00471bd0(BYTE **pOut);
+void FUN_0046f7e0(void);
+
+// Marks every element as reached by every car (start of a replay).
+// FUNCTION: CMR2 0x004702a0
+void FUN_004702a0(void)
+{
+    BYTE *pEntries;
+    int count;
+    int car;
+    int i;
+
+    count = FUN_00471bd0(&pEntries);
+    for (car = 0; car < Car_GetOrderCount(); car++)
+        for (i = 0; i < count; i++)
+            FUN_00470240((BYTE **)(pEntries + i * 8), car);
+    FUN_0046f7e0();
 }
 

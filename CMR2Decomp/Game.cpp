@@ -1484,6 +1484,41 @@ int FUN_004a1b90(int param1, void **param2)
 }
 
 
+// Removes a player (by DirectPlay id) from the session player table.
+// TODO: CMR2 0x004a1940 (implemented, match 50%)
+void FUN_004a1940(DPID *pId)
+{
+    int i;
+    Unk0x005a1820 *pPlayer;
+
+    i = 0;
+    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++, i++) {
+        if (pPlayer->field_0xc8 == *pId) {
+            sprintf(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
+            sprintf(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
+            CGame::m_unk0x005a1820[i].field_0xc8 = 0;
+            CGame::m_unk0x005a1820[i].field_0xcc = 0;
+            CGame::m_unk0x005a1818--;
+            return;
+        }
+    }
+}
+
+// One of the four user values of a listed session.
+// FUNCTION: CMR2 0x004a1610
+int Session_GetListedUserValue(unsigned int session, char index)
+{
+    switch (index) {
+    case 0:
+        return (int)SESSIONS[session & 0xff].dwUser1;
+    case 1:
+        return (int)SESSIONS[session & 0xff].dwUser2;
+    case 2:
+        return (int)SESSIONS[session & 0xff].dwUser3;
+    }
+    return (int)SESSIONS[session & 0xff].dwUser4;
+}
+
 // FUNCTION: CMR2 0x004a19c0
 int FUN_004a19c0(DPID *pId, char *pIndex)
 {

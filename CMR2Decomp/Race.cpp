@@ -550,6 +550,26 @@ char g_strBspFormat[] = "%s.bsp";
 // GLOBAL: CMR2 0x00519498
 char g_strHpcFormat[] = "%s.hpc";
 
+// GLOBAL: CMR2 0x005194a0
+char g_strSrfFormat[] = "%s.srf";
+
+// Loads the stage's surface list (.srf) and marks the sound groups it uses.
+// FUNCTION: CMR2 0x0041fcd0
+void FUN_0041fcd0(void)
+{
+    DWORD size = 0;
+    BYTE *pData;
+
+    sprintf(CFrontend::m_stringDest, g_strSrfFormat, FUN_0041f900());
+    pData = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                 CFrontend::m_stringDest, 0, &size, 0);
+    if (pData != NULL) {
+        FUN_0041afe0(pData, size);
+        return;
+    }
+    FUN_0041afe0(NULL, 0);
+}
+
 // Loads the stage's .bsp (stage light placement).
 // FUNCTION: CMR2 0x00420020
 void FUN_00420020(void)
@@ -584,6 +604,19 @@ void FUN_00418e20(int set, int dst, int src)
     g_carSoundSets[set].handle[dst] = g_carSoundSets[set].handle[src];
     g_carSoundSets[set].handle[src] = -1;
     g_carSoundSets[set].id[src] = -1;
+}
+
+// Car speed as a 16.16 fraction of 120 (speed units clamped to 0..120).
+// TODO: CMR2 0x00418e70 (implemented, match 80%)
+int FUN_00418e70(int car)
+{
+    int speed = FixMul(Car_Get(car)->speed, 0x431168) >> 16;
+
+    if (speed < 0)
+        speed = 0;
+    else if (speed > 120)
+        speed = 120;
+    return FixDiv((int)(__int64)(speed * CGraphics::m_65536), 0x780000);
 }
 
 // Silences every stage sound still playing.

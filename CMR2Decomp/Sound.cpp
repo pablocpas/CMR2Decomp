@@ -66,6 +66,23 @@ BOOL __fastcall CSound::FUN_004a2ac0(void) {
     return TRUE;
 }
 
+// Converts one 16 KB block of the compressed music stream into pDst.
+// FUNCTION: CMR2 0x004bd1b0
+bool FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
+{
+    ACMSTREAMHEADER header;
+
+    memset(&header, 0, sizeof(header));
+    header.pbSrc = pSrc;
+    header.cbStruct = sizeof(header);
+    header.cbSrcLength = 0x4000;
+    header.pbDst = pDst;
+    header.cbDstLength = 0xfe80;
+    if (acmStreamPrepareHeader(CSound::m_unk0x00816a7c, &header, 0) != 0)
+        return false;
+    return acmStreamConvert(CSound::m_unk0x00816a7c, &header, 0) == 0;
+}
+
 // FUNCTION: CMR2 0x004bd230
 bool CSound::FUN_004bd230(void) {
     return acmStreamClose(m_unk0x00816a7c, 0) == 0;

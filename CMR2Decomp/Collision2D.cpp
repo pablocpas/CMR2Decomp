@@ -114,3 +114,23 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
     }
     return result;
 }
+
+// Clamps the magnitude of each component of v to limit (y only when clampY).
+// TODO: CMR2 0x0048c6e0 (implemented, match 86%)
+void FUN_0048c6e0(int *v, int *limit, int clampY)
+{
+    int a;
+
+    a = v[0] < 0 ? -v[0] : v[0];
+    if (limit[0] < a)
+        v[0] = v[0] < 0 ? -limit[0] : limit[0];
+    if (clampY != 0) {
+        a = v[1] < 0 ? -v[1] : v[1];
+        if (limit[1] < a)
+            v[1] = v[1] < 0 ? -limit[1] : limit[1];
+    }
+    a = v[2] < 0 ? -v[2] : v[2];
+    if (limit[2] < a)
+        v[2] = v[2] < 0 ? -limit[2] : limit[2];
+}
+

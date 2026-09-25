@@ -7,6 +7,8 @@ char g_stageSplitCount = 0;
 char g_stageLooped;
 // GLOBAL: CMR2 0x00542cb0
 int g_unk0x00542cb0;
+// GLOBAL: CMR2 0x00542cb4
+int g_unk0x00542cb4[8];     // per player: finished
 // GLOBAL: CMR2 0x00542c68
 int g_unk0x00542c68;
 // GLOBAL: CMR2 0x00542c70

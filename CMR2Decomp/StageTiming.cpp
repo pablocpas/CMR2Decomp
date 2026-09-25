@@ -564,6 +564,26 @@ int FUN_00458330(int index);
 int FUN_00458350(int index);
 int FUN_00458370(int index);
 
+// Leader of each split (row per checkpoint group and split, 8 bytes each).
+// GLOBAL: CMR2 0x0053de1c
+char g_unk0x0053de1c[108][8];
+
+// Time of the split leader at the given split.
+// FUNCTION: CMR2 0x00448260
+int FUN_00448260(int index)
+{
+    int group;
+    int split;
+
+    if ((BYTE)RallyData_GetFlag24()) {
+        group = FUN_00458330(index);
+        split = FUN_00458350(index);
+        return g_unk0x0053d1e8[g_unk0x0053de1c[group * 9 + split][0]][group][split];
+    }
+    split = FUN_00458370(index);
+    return g_carStageTiming[g_unk0x0053de1c[split][0]].field_0x4[split];
+}
+
 // TODO: CMR2 0x004482d0 (implemented, match 65%)
 int FUN_004482d0(int index, int car)
 {
@@ -2223,6 +2243,60 @@ void FUN_004809e0(short *pList, short count)
         g_unk0x00590b5c[pCar->field_0xb1a] = p;
         g_unk0x00590b30[pCar->field_0xb1a] = p + 0xc;
         g_unk0x00590c00[pCar->field_0xb1a] = p + 0x10;
+    }
+}
+
+extern int g_unk0x00542cb4[8];
+extern int g_stageCheckpointCount;
+int FUN_0040b010(int index);
+
+// Advances a player's lap counter by half the checkpoint count (with the
+// fractional part kept in *pFrac), unless the player has finished.
+// TODO: CMR2 0x004591e0 (implemented, match 74%)
+void FUN_004591e0(int player, int *pCount, int *pFrac)
+{
+    int slot;
+    float count;
+    double value;
+
+    if (player == -2)
+        slot = 0;
+    else
+        slot = FUN_0040b010(player);
+    if (g_unk0x00542cb4[slot] == 0) {
+        count = (float)g_stageCheckpointCount;
+        value = count * 0.5 + *pFrac;
+        if (value >= count) {
+            (*pCount)++;
+            *pFrac = (int)(__int64)(value - count);
+            return;
+        }
+        *pFrac = (int)(__int64)value;
+    }
+}
+
+BYTE *RallyData_GetTyreRecord(BYTE index);
+void RallyData_MarkTyresChanged(int index);
+void Tyre_AddWear(int car, int wheel, int damage, int wear);
+
+// Resets the wear record of one wheel of a player's car.
+// FUNCTION: CMR2 0x0045c6b0
+void FUN_0045c6b0(int player, int wheel)
+{
+    BYTE *p = RallyData_GetTyreRecord((BYTE)(FUN_0041b370() + player));
+
+    if (p != NULL) {
+        *(int *)(p + 0x80 + wheel * 4) = 0;
+        *(int *)(p + 0x60 + wheel * 4) = 0;
+        *(int *)(p + 0x70 + wheel * 4) = 0;
+        *(int *)(p + 0x20 + wheel * 4) = 0;
+        *(int *)(p + wheel * 4) = 0;
+        *(int *)(p + 0x10 + wheel * 4) = 0;
+        *(int *)(p + 0x50 + wheel * 4) = 0;
+        *(int *)(p + 0x40 + wheel * 4) = 0;
+        *(int *)(p + 0x30 + wheel * 4) = 0;
+        RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + player);
+        Tyre_AddWear(player, wheel, 0, 0);
     }
 }
 
