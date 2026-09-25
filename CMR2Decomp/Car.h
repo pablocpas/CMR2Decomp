@@ -54,7 +54,7 @@ struct Car {
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
     SceneNode *pNode0x724;            // 0x724  second body part (optional)
-    BYTE field_0x728[0x10];
+    SceneNode *pExtraNodes[4];        // 0x728  optional extra parts (0x728 set means all four)
     SceneNode *pWheelNodes[4];        // 0x738
     SceneNode *pViewNodeNear;         // 0x748  child node placed towards the view
     SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view
@@ -92,7 +92,8 @@ struct Car {
     int field_0x818;                  // 0x818  ramps -1..1 with flag0x1d0[0]/[1] (0x494540)
     int field_0x81c;                  // 0x81c
     int field_0x820;                  // 0x820
-    BYTE field_0x824[0x8];
+    int field_0x824;                  // 0x824  steering torque
+    BYTE field_0x828[0x4];
     int field_0x82c;                  // 0x82c
     int field_0x830;                  // 0x830
     int field_0x834;                  // 0x834
@@ -106,7 +107,8 @@ struct Car {
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
     int field_0x870[4];               // 0x870
     int field_0x880[4];               // 0x880
-    BYTE field_0x890[0x20];
+    int field_0x890[4];               // 0x890  filtered wheel spin (front lean)
+    int field_0x8a0[4];               // 0x8a0  filtered wheel spin (body lean)
     int cornerMass;                   // 0x8b0  mass carried by each touching corner
     int field_0x8b4;                  // 0x8b4
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
@@ -140,11 +142,14 @@ struct Car {
     int field_0xa70;                  // 0xa70
     BYTE field_0xa74[0x8];
     int field_0xa7c;                  // 0xa7c
-    BYTE field_0xa80[0x1c];
+    BYTE field_0xa80[0xc];
+    int field_0xa8c;                  // 0xa8c  camera shake
+    BYTE field_0xa90[0xc];
     unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
     short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
     short wheelSurface[4];            // 0xaae
-    BYTE field_0xab6[0x10];
+    BYTE field_0xab6[0x8];
+    short field_0xabe[4];             // 0xabe  surface of each wheel at the last step
     short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
     BYTE field_0xace[0x30];
     short field_0xafe;                // 0xafe  engine startup countdown
@@ -185,7 +190,7 @@ struct Car {
     int field_0xb84;                  // 0xb84
     BYTE field_0xb88[0xc];
     int field_0xb94;                  // 0xb94  automatic shift lock
-    BYTE field_0xb98[0x4];
+    int field_0xb98;                  // 0xb98  current gear is at or below the best one
     int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
     BYTE field_0xba0[0xc];
     int field_0xbac[8];               // 0xbac

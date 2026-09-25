@@ -874,3 +874,68 @@ void FUN_00494880(void)
     g_pAutoGearCar->field_0x838 = 0;
 }
 
+// Flags whether the auto-gear car is at or below its best gear for the
+// current revs (gear with the most torque below 98% of the limit).
+// TODO: CMR2 0x00493a40 (implemented, match 36%)
+void FUN_00493a40(void)
+{
+    int best;
+    int bestTorque;
+    int torque;
+    int gear;
+
+    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] < 1) {
+        best = 7;
+    } else {
+        bestTorque = 0xd8f00000;
+        best = 0;
+        for (gear = 1; gear < 7; gear++) {
+            torque = FixMul(FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[g_pAutoGearCar->field_0xb1e]),
+                            g_pAutoGearCar->field_0x7bc[gear]);
+            if (bestTorque < torque && (torque < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || gear == 6)) {
+                best = gear;
+                bestTorque = torque;
+            }
+        }
+    }
+    if (g_pAutoGearCar->field_0xb1e <= best) {
+        g_pAutoGearCar->field_0xb98 = 1;
+        return;
+    }
+    g_pAutoGearCar->field_0xb98 = 0;
+}
+
+// GLOBAL: CMR2 0x00592164
+int g_unk0x00592164;
+
+void FUN_00494540(void);
+extern int g_physicsTimeStep;
+
+// Steering torque of the auto-gear car from its steering swing.
+// TODO: CMR2 0x004945d0 (implemented, match 85%)
+void FUN_004945d0(void)
+{
+    int torque;
+    int a;
+    int r;
+
+    FUN_00494540();
+    if (g_pAutoGearCar->flag0x1d0[1] == 0 && g_pAutoGearCar->flag0x1d0[0] == 0) {
+        g_unk0x00592164 = 0;
+        return;
+    }
+    torque = FixMul(g_pAutoGearCar->field_0x824, g_physicsTimeStep);
+    if ((g_pAutoGearCar->field_0xb1b[1] & 2) != 0) {
+        a = g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c;
+        torque = FixMul(torque, FixMul(a - 0x10000, a - 0x10000));
+    }
+    a = g_pAutoGearCar->field_0x818 < 0 ? -g_pAutoGearCar->field_0x818 : g_pAutoGearCar->field_0x818;
+    r = FixMul(torque, a);
+    if (g_pAutoGearCar->flag0x1d0[1] == 0) {
+        if (g_pAutoGearCar->flag0x1d0[0] != 0)
+            g_unk0x00592164 = r;
+        return;
+    }
+    g_unk0x00592164 = -r;
+}
+

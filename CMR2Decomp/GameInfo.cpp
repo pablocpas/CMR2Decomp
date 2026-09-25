@@ -2776,3 +2776,55 @@ void FUN_00404ef0(void)
     FUN_00423010(g_unk0x0052af58[1], 0);
     CGameInfo::m_unk0x0052af40 = 0;
 }
+
+// Callback 0 of the camera options menu: turns the current values into the
+// four slider positions.
+// TODO: CMR2 0x00403110 (implemented, match 45%)
+void FUN_00403110(Menu *pMenu)
+{
+    int distance = (pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000);
+    int angle = (pMenu->items[3].min - 1) * g_unk0x0052a86c;
+    int height = (pMenu->items[0].min - 1) * (g_unk0x0052aa54 - 0x13333);
+    int depth = (pMenu->items[1].min - 1) * (g_unk0x0052aa58 - 0x50000);
+
+    pMenu->items[2].max = (BYTE)((unsigned int)(FixDiv(distance, 0x80000) + 0x8000) >> 16);
+    pMenu->items[3].max = (BYTE)((unsigned int)(FixDiv(angle, 0x11c) + 0x8000) >> 16);
+    pMenu->items[0].max = (BYTE)((unsigned int)(FixDiv(height, 0xcccd) + 0x8000) >> 16);
+    pMenu->items[1].max = (BYTE)((unsigned int)(FixDiv(depth, 0x50000) + 0x8000) >> 16);
+}
+
+// GLOBAL: CMR2 0x005160a0
+char g_strCrtnaTga[] = "%s\\game\\menus\\crtna640.tga";
+// GLOBAL: CMR2 0x005160bc
+char g_strRoCxTga[] = "%s\\game\\menus\\RoCx_640.tga";
+// GLOBAL: CMR2 0x005160d8
+char g_strAr640DTga[] = "%s\\game\\menus\\Ar_640D.tga";
+// GLOBAL: CMR2 0x005160f4
+char g_strAr640ATga[] = "%s\\game\\menus\\Ar_640A.tga";
+
+#include "Texture.h"
+#include "StageTiming.h"
+
+// Loads the in-race menu textures (arrows, curtain and, in championships,
+// the round box).
+// FUNCTION: CMR2 0x004054f0
+void FUN_004054f0(void)
+{
+    bool loaded;
+
+    sprintf(CFrontend::m_stringDest, g_strAr640ATga, CInstallInfo::GetGameCDPath());
+    g_unk0x0052aa60 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), CFrontend::m_stringDest,
+                                                     &loaded, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_strAr640DTga, CInstallInfo::GetGameCDPath());
+    g_unk0x0052aa68 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), CFrontend::m_stringDest,
+                                                     &loaded, 0, 0, 0);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        sprintf(CFrontend::m_stringDest, g_strRoCxTga, CInstallInfo::GetGameCDPath());
+        g_unk0x0052af4c = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                         CFrontend::m_stringDest, &loaded, 0, 0, 0);
+    }
+    sprintf(CFrontend::m_stringDest, g_strCrtnaTga, CInstallInfo::GetGameCDPath());
+    g_unk0x0052af50 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), CFrontend::m_stringDest,
+                                                     &loaded, 0, 0, 0);
+}
+

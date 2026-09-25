@@ -14,6 +14,7 @@
 #include "FileBuffer.h"
 #include "Input.h"
 #include "Menu.h"
+#include "main.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -858,6 +859,8 @@ void FUN_00416720(void)
 
 // GLOBAL: CMR2 0x00537364
 int g_unk0x00537364[4];
+// GLOBAL: CMR2 0x00537374
+int g_unk0x00537374[4];
 // GLOBAL: CMR2 0x00537384
 int g_unk0x00537384[4];
 // GLOBAL: CMR2 0x00537398
@@ -913,5 +916,38 @@ void FUN_0041f420(Unk0049c2c0 *p, BYTE index)
     Menu_Update((Menu *)FUN_00475f70(), pDev->field_0x8);
     if (g_unk0x00537f94 != 0)
         CGame::FUN_0049c1c0(p, index, 1, 2);
+}
+
+// Plays a car sound in a free slot (or the oldest one), with its volume by
+// distance to the listener.
+// FUNCTION: CMR2 0x004187d0
+void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener)
+{
+    unsigned int oldest = 0;
+    unsigned int now = CMain::GetFrameDelta();
+    int slot;
+    int i;
+
+    for (slot = 0; slot < 4; slot++) {
+        if (g_carSounds[slot] == -1)
+            break;
+    }
+    if (slot == 4) {
+        slot = 0;
+        for (i = 0; i < 4; i++) {
+            if (oldest < now - g_unk0x00537374[i]) {
+                slot = i;
+                oldest = now - g_unk0x00537374[i];
+            }
+        }
+    }
+    if (g_carSounds[slot] != -1 && Sound_IsPlaying(g_carSounds[slot]))
+        Sound_Free(g_carSounds[slot]);
+    g_carSounds[slot] =
+        FUN_004b7790(id, FixMul(FUN_00427d50(view, listener), FixMul(g_unk0x00537394, volume)), 0xac44, 0, 0, 0);
+    g_unk0x00537364[slot] = listener;
+    g_unk0x00537374[slot] = now;
+    g_unk0x00537384[slot] = volume;
+    g_unk0x00537398[slot] = view;
 }
 

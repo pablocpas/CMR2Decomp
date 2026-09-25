@@ -3649,3 +3649,33 @@ show:
     }
 }
 
+// Whether a driver's category has award `bit` (with `check`, some cheats
+// count as having it).
+// TODO: CMR2 0x00408e30 (implemented, match 83%)
+bool RallyData_FUN_00408e30(int index, int bit, char check)
+{
+    RallyData_ValidateIndex(index);
+    if ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) & 0x3c0000) == 0x3c0000)
+        return false;
+    if (check != 0) {
+        if (CGameInfo::FUN_00406410(0xc))
+            return true;
+        if (bit == 7) {
+            if (CGameInfo::FUN_00406410(0) || CGameInfo::FUN_00406410(0x12))
+                return true;
+        } else if (bit == 0x10) {
+            if (CGameInfo::FUN_00406410(1))
+                return true;
+        } else if (bit == 0xf) {
+            if (CGameInfo::FUN_00406410(2))
+                return true;
+        } else if (bit == 0x14) {
+            if (CGameInfo::FUN_00406410(3))
+                return true;
+        }
+    }
+    return (*(unsigned int *)(g_unk0x0052f3e8 + 0x66c +
+                              ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650) &
+            (1 << bit)) != 0;
+}
+

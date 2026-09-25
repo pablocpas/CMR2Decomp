@@ -3057,3 +3057,45 @@ void FUN_004853c0(FixVector *pImpulse)
     g_unk0x00590b50.z -= local.z;
 }
 
+void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
+int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
+
+// Hides every node of the cars whose replay buffer is a finished ghost run.
+// FUNCTION: CMR2 0x0046e440
+void FUN_0046e440(void)
+{
+    void ***pp;
+    BYTE *pBuffer;
+    Car *pCar;
+
+    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+        pBuffer = (BYTE *)**pp;
+        if (pBuffer != NULL && *(int *)(pBuffer + 4) != 0 && *(int *)(pBuffer + 0x1c) == 2 &&
+            *(int *)(pBuffer + 0xe8) == 0) {
+            pCar = Car_Get(pBuffer[0x20]);
+            SceneNode_SetViewMaskTree(pCar->pNode0x720, 0);
+            SceneNode_SetViewMaskTree(pCar->pWheelNodes[0], 0);
+            SceneNode_SetViewMaskTree(pCar->pWheelNodes[1], 0);
+            SceneNode_SetViewMaskTree(pCar->pWheelNodes[2], 0);
+            SceneNode_SetViewMaskTree(pCar->pWheelNodes[3], 0);
+            if (pCar->pNode0x724 != NULL)
+                SceneNode_SetViewMaskTree(pCar->pNode0x724, 0);
+            if (pCar->pExtraNodes[0] != NULL) {
+                SceneNode_SetViewMaskTree(pCar->pExtraNodes[0], 0);
+                SceneNode_SetViewMaskTree(pCar->pExtraNodes[1], 0);
+                SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], 0);
+                SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], 0);
+            }
+        }
+    }
+}
+
+// Decodes a replay input packet into a car's control record.
+// FUNCTION: CMR2 0x0046c4b0
+int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
+{
+    Car *pCar = Car_Get(car);
+
+    return FUN_0046bec0(pState, pIn, (BYTE *)pCar + 0x1d0, pCounter, pCar);
+}
+

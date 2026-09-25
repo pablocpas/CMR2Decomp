@@ -3610,3 +3610,165 @@ void FUN_00433840(int value)
         g_physicsScale = 0x9999;
     g_physicsTimeStep = FixDiv(0x10000, g_physicsScale);
 }
+
+void FixMatrix_GetForward(FixVector *pOut, FixMatrix *pM);
+
+// Heading (12-bit angle) of a view's camera from its forward vector.
+// TODO: CMR2 0x00421fe0 (implemented, match 32%)
+void FUN_00421fe0(short *pOut, unsigned int view)
+{
+    FixVector forward;
+    unsigned int az;
+    unsigned int ax;
+    short angle;
+
+    FixMatrix_GetForward(&forward, (FixMatrix *)(g_unk0x00538d2c + 4 + (view & 0xff) * 100));
+    az = forward.z < 0 ? -forward.z : forward.z;
+    ax = forward.x < 0 ? -forward.x : forward.x;
+    if (ax == 0) {
+        angle = 0;
+    } else if (az == 0) {
+        angle = 0x400;
+    } else if ((int)az < (int)ax) {
+        angle = 0x400 - g_atanTable[(unsigned int)FixDiv(az, ax) >> 7];
+    } else {
+        angle = g_atanTable[(unsigned int)FixDiv(ax, az) >> 7];
+    }
+    *pOut = angle;
+    if (forward.z < 0)
+        *pOut = 0x800 - angle;
+    if (forward.x < 0)
+        *pOut = -*pOut;
+}
+
+void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
+void FixMatrix_SetPosition(FixVector *pV, FixMatrix *pM);
+
+// A car's body matrix, raised by its camera shake when that option is on.
+// TODO: CMR2 0x00423a30 (implemented, match 33%)
+FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car)
+{
+    FixVector up;
+    FixVector position;
+    int shake;
+
+    FixMatrix_CopyRotationFrom(pOut, Car_Get(car)->pBodyMatrix);
+    if (CGameInfo::FUN_004063f0(6)) {
+        FixMatrix_GetUp(&up, Car_Get(car)->pWorld);
+        shake = FixMul(Car_Get(car)->field_0xa8c, 0x8000);
+        up.x = FixMul(up.x, shake);
+        up.y = FixMul(up.y, shake);
+        up.z = FixMul(up.z, shake);
+        FixMatrix_GetPosition(&position, pOut);
+        position.y += up.y;
+        position.x += up.x;
+        position.z += up.z;
+        FixMatrix_SetPosition(&position, pOut);
+    }
+    return pOut;
+}
+
+// Counts the current car's wheels near the ground and shares its weight out.
+// TODO: CMR2 0x00432b30 (implemented, match 35%)
+void FUN_00432b30(void)
+{
+    int i;
+    int d;
+
+    g_pCurrentCar->field_0xb28 = 0;
+    for (i = 0; i < 4; i++) {
+        d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y;
+        if (d < 0)
+            d = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
+        if (d < 0xcccc) {
+            g_pCurrentCar->field_0xbac[i] = 1;
+            g_pCurrentCar->field_0xb28++;
+        } else {
+            g_pCurrentCar->field_0xbac[i] = 0;
+        }
+    }
+    switch (g_pCurrentCar->field_0xb28) {
+    case 0:
+        g_pCurrentCar->field_0x8b4 = 0;
+        return;
+    case 4:
+        g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / 4;
+        return;
+    case 2:
+        g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / 2;
+        return;
+    case 1:
+        g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c;
+        return;
+    }
+    g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / g_pCurrentCar->field_0xb28;
+}
+
+// Filters each driven wheel's spin (peak hold with decay) while it keeps the
+// same surface and touches the ground.
+// TODO: CMR2 0x00437fd0 (implemented, match 85%)
+void FUN_00437fd0(void)
+{
+    int i;
+    int a;
+    int d;
+    int rate;
+
+    for (i = 0; i < 4; i++) {
+        if (g_pCurrentCar->field_0xabe[i] == g_pCurrentCar->wheelSurface[i] && g_pCurrentCar->field_0xbac[i] != 0 &&
+            g_pCurrentCar->field_0xb74 != 0) {
+            rate = *(int *)((BYTE *)g_pCurrentCar + 0x98 + i * 0x24);
+            a = g_pCurrentCar->field_0x870[i] < 0 ? -g_pCurrentCar->field_0x870[i] : g_pCurrentCar->field_0x870[i];
+            d = a - g_pCurrentCar->field_0x890[i];
+            if (d < 0)
+                g_pCurrentCar->field_0x890[i] = a;
+            else
+                g_pCurrentCar->field_0x890[i] += FixMul(d, rate);
+            a = g_pCurrentCar->field_0x880[i] < 0 ? -g_pCurrentCar->field_0x880[i] : g_pCurrentCar->field_0x880[i];
+            d = a - g_pCurrentCar->field_0x8a0[i];
+            if (d < 0)
+                g_pCurrentCar->field_0x8a0[i] = a;
+            else
+                g_pCurrentCar->field_0x8a0[i] += FixMul(d, *(int *)((BYTE *)g_pCurrentCar + 0x98 + i * 0x24));
+        } else {
+            g_pCurrentCar->field_0x8a0[i] = 0;
+            g_pCurrentCar->field_0x890[i] = 0;
+        }
+    }
+}
+
+// GLOBAL: CMR2 0x00538d20
+int g_unk0x00538d20[2];
+// GLOBAL: CMR2 0x005391a8
+int g_unk0x005391a8[2];
+// GLOBAL: CMR2 0x005391b0
+int g_unk0x005391b0[2];
+// GLOBAL: CMR2 0x005391c4
+int g_unk0x005391c4[2];
+
+void FUN_00447ca0(unsigned int index);
+int SceneNode_Destroy(SceneNode *pNode);
+
+// Releases both players' view nodes and resets their view state (callback).
+// TODO: CMR2 0x00421590 (implemented, match 33%)
+int FUN_00421590(void)
+{
+    BYTE i;
+
+    for (i = 0; i < 2; i++) {
+        if (g_viewNodes[i] != NULL) {
+            SceneNode_Destroy(g_viewNodes[i]);
+            g_viewNodes[i] = NULL;
+        }
+        *(int *)(g_unk0x00538d2c + i * 100) = 0;
+        g_unk0x00538d20[i] = -0x10000;
+        g_unk0x00538e0c[i] = 0;
+        g_unk0x005391b0[i] = 0;
+        g_unk0x005391c4[i] = 0;
+        g_unk0x005391a8[i] = 0;
+        g_unk0x00538f00[i] = 0;
+        FUN_00447ca0(i);
+    }
+    return 1;
+}
+

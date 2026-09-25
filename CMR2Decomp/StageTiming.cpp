@@ -3330,3 +3330,43 @@ void FUN_00456a00(int car, int driver)
         FUN_00455af0(driver, FUN_00448110(), split);
 }
 
+int FUN_00407710(void);
+int FUN_00407650(void);
+
+// Sets up the three object ramps of the stage from its weather change.
+// TODO: CMR2 0x0045f260 (implemented, match 63%)
+void FUN_0045f260(void)
+{
+    int *pPair = FUN_00407520(RallyDataStageIndex());
+    short a = (short)FUN_00407710();
+    short b = (short)FUN_00407650();
+    int last;
+    int from;
+    int v2;
+
+    if ((b != a || pPair[0] != pPair[1]) && RallyData_FUN_00421500() == 0) {
+        last = RallyData_FUN_00421420() - 1;
+        from = 1;
+        v2 = 0x10000;
+    } else {
+        last = 0;
+        from = 0;
+        v2 = 0;
+    }
+    FUN_0045f3d0(0, v2, from, last);
+    FUN_0045f300(g_unk0x00543e9c, g_unk0x00543fa8, g_unk0x00543e8c, g_unk0x00543e94, g_unk0x00543d54);
+    FUN_0045e710(g_unk0x00543e88, g_unk0x00543d9c, g_unk0x00543e8c, g_unk0x00543e94);
+}
+
+BYTE FUN_004582b0(int index);
+
+// Records a car's split time when it passes a split.
+// FUNCTION: CMR2 0x004569c0
+void FUN_004569c0(int car, int driver)
+{
+    if (FUN_00458250(car))
+        FUN_00456a00(car, driver);
+    if (FUN_004582b0(car))
+        FUN_00456a30(car, driver);
+}
+
