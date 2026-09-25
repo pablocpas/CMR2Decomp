@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <string.h>
 #include "NetPlayers.h"
+#include "Sprite.h"
+#include "Graphics.h"
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "FixedPoint.h"
@@ -38,7 +40,7 @@ int g_unk0x0053a0ec[8];
 // GLOBAL: CMR2 0x0053a20c
 int g_unk0x0053a20c[8];
 // GLOBAL: CMR2 0x005394bc
-BYTE g_unk0x005394bc[8][0xec];
+BYTE g_unk0x005394bc[7][0xec];  // 7 rows up to the triangle table at 0x539b38
 
 // Font picked for the screen size (0x28 normal, 0x29 small).
 // GLOBAL: CMR2 0x005393d4
@@ -230,6 +232,33 @@ void FUN_004283b0(void)
     memset(g_unk0x0053a0ac, 0, sizeof(g_unk0x0053a0ac));
 }
 
+int FUN_0041f3a0(void);
+BYTE FUN_00422fb0(unsigned int index);
+
+// Draws a player's flash overlay (fading with g_unk0x0053a06c) over pRect.
+// TODO: CMR2 0x00428680 (implemented, match 48%)
+void FUN_00428680(unsigned int player, short *pRect, int check)
+{
+    BYTE colour[4];
+    BYTE index = (BYTE)player;
+    unsigned int alpha;
+    BYTE view;
+
+    if ((FUN_0041f3a0() == 0 || index != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
+        view = FUN_00422fb0(player);
+        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
+            alpha = (unsigned int)(g_unk0x0053a06c[view] * 0xff >> 16);
+            if (alpha > 0xff)
+                alpha = 0xff;
+            colour[0] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[0];
+            colour[1] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[1];
+            colour[2] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[2];
+            colour[3] = (BYTE)alpha;
+            Sprite_FillRect((int)g_pGraphics + 0x150, pRect, colour, g_unk0x0053a20c[view]);
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x00428740
 int FUN_00428740(BYTE index)
 {
@@ -337,5 +366,39 @@ void FUN_00427c10(void)
     FUN_0041b040(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0x5555));
     FUN_00418560(FixMul((int)(CGameInfo::FUN_00405ea0() << 16) / 100, 0x10000));
     FUN_00418d20(FixMul((int)(CGameInfo::FUN_00405e70() << 16) / 100, 0xaaaa));
+}
+
+// GLOBAL: CMR2 0x005393a8
+int g_unk0x005393a8;
+// GLOBAL: CMR2 0x005393ac
+int g_unk0x005393ac[7];
+// GLOBAL: CMR2 0x005393cc
+int g_unk0x005393cc;
+// GLOBAL: CMR2 0x005393d0
+int g_unk0x005393d0;
+// Triangular numbers 0, 1, 3, 6, ... (100 entries).
+// GLOBAL: CMR2 0x00539b38
+int g_triangleNumbers[100];
+
+// Resets the network race state and builds the triangle number table.
+// TODO: CMR2 0x00424ed0 (implemented, match 70%)
+void FUN_00424ed0(void)
+{
+    int *p;
+    int sum;
+    int n;
+
+    memset(g_unk0x005393ac, 0, sizeof(g_unk0x005393ac));
+    sum = 0;
+    n = 0;
+    for (p = g_triangleNumbers; p < g_triangleNumbers + 100; p++) {
+        sum += n;
+        n++;
+        *p = sum;
+    }
+    FUN_00427580(20000, 1000000, 2);
+    g_unk0x005393a8 = -1;
+    g_unk0x005393cc = -1;
+    g_unk0x005393d0 = -1;
 }
 

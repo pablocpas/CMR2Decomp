@@ -48,6 +48,34 @@ void Race_AssignUnusedSlot(int owner)
         i = next + 1;
     } while (i < 20);
 }
+
+int FUN_00417760(int index);
+int Sound_IsPlaying(unsigned int handle);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+extern int g_unk0x00537194;
+
+// Plays the queued co-driver calls one after another: starts the first slot's
+// sample, and when it has finished moves the queue up.
+// TODO: CMR2 0x004176b0 (implemented, match 34%)
+void FUN_004176b0(void)
+{
+    RaceSlotState *p;
+
+    if ((g_raceSlotState[0].flags & 2) != 0 && FUN_00417760(0) == 0) {
+        FUN_00417760(0);
+        if ((g_raceSlotState[0].flags & 1) == 0) {
+            g_raceSlotState[0].pending =
+                FUN_004b7790((unsigned short)g_raceSlotState[0].owner, g_unk0x00537194, 0x2b11, 0, 0, 0);
+            g_raceSlotState[0].flags |= 1;
+        } else if (Sound_IsPlaying(g_raceSlotState[0].pending) == 0) {
+            for (p = g_raceSlotState; p < g_raceSlotState + 19; p++)
+                *p = p[1];
+            g_raceSlotState[19].flags &= 0xfc;
+            g_raceSlotState[19].pending = -1;
+            g_raceSlotState[19].owner = -1;
+        }
+    }
+}
 // GLOBAL: CMR2 0x00537f08
 BYTE g_unk0x00537f08;
 // GLOBAL: CMR2 0x00537190
@@ -640,6 +668,8 @@ void FUN_0041fc90(void)
 }
 
 int Sound_IsPlaying(unsigned int handle);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+extern int g_unk0x00537194;
 void FUN_004b79a0(unsigned int handle, int volume);
 void Sound_Free(unsigned int handle);
 
@@ -716,5 +746,22 @@ void FUN_00420130(int value)
 {
     g_unk0x00538970 = value;
     g_raceCallbackMark = CGame::GetCallbackCount();
+}
+
+// GLOBAL: CMR2 0x00517ed4
+char g_strCodFormat[] = "%s.cod";
+// GLOBAL: CMR2 0x00537094
+void *g_unk0x00537094;
+
+// Loads the stage's co-driver calls (.cod) and resets the call state.
+// FUNCTION: CMR2 0x00416720
+void FUN_00416720(void)
+{
+    CGame::RegisterCallback(FUN_00418550, 0);
+    FUN_00416670();
+    sprintf(CFrontend::m_stringDest, g_strCodFormat, FUN_0041f900());
+    g_unk0x00537094 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, 0, 0);
+    if (g_unk0x00537094 != NULL)
+        g_unk0x00537358 = (int)g_unk0x00537094;
 }
 

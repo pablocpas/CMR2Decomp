@@ -52,6 +52,8 @@ char g_stageSplitUnk0x00541f78[10][2];
 // GLOBAL: CMR2 0x00541f8c
 int g_unk0x00541f8c;
 
+// GLOBAL: CMR2 0x00541f90
+char g_unk0x00541f90[8];
 // GLOBAL: CMR2 0x00541f98
 int g_unk0x00541f98;
 
@@ -216,6 +218,27 @@ int StageTiming_FUN_00455ac0(int iSplit, int iIndex)
 BYTE StageTiming_FUN_00455ae0(void)
 {
     return g_unk0x00542604;
+}
+
+// Removes a driver from every split ranking, remembering in slot the
+// driver's old rank index of the last split.
+// TODO: CMR2 0x00455bc0 (implemented, match 10%)
+void FUN_00455bc0(int slot, int driver)
+{
+    int splits = FUN_004583a0();
+    int split;
+    int pos;
+
+    for (split = 1; split <= splits; split++) {
+        pos = g_stageSplitPositions[split][driver];
+        g_unk0x00541f90[slot] = g_stageSplitTimesRawDriverIx[split][pos];
+        for (; pos < g_stageSplitDriverCount[split] - 1; pos++) {
+            g_stageSplitTimesRawDriverIx[split][pos] = g_stageSplitTimesRawDriverIx[split][pos + 1];
+            g_stageSplitDriverIndices[split][pos] = g_stageSplitDriverIndices[split][pos + 1];
+            g_stageSplitPositions[split][g_stageSplitDriverIndices[split][pos]] = (char)pos;
+        }
+        g_stageSplitDriverCount[split]--;
+    }
 }
 
 // FUNCTION: CMR2 0x00455c70
@@ -2663,5 +2686,139 @@ void FUN_00448d50(void)
             g_carStageTiming[b].field_0x81--;
         }
     }
+}
+
+void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode);
+short Car_GetOrderCount(void);
+short *Car_GetOrder(void);
+
+// Interpolates, for every car and each of its four moving parts, the part's
+// matrix between its two keys and applies it to the part's node.
+// TODO: CMR2 0x00484d30 (implemented, match 29%)
+void FUN_00484d30(int t)
+{
+    int count = Car_GetOrderCount();
+    short *pOrder = Car_GetOrder();
+    short *p;
+    char index;
+    void **pp;
+    BYTE *pPart;
+
+    for (p = pOrder + count - 1; count > 0; count--, p--) {
+        index = Car_Get(*p)->field_0xb1a;
+        for (pp = &g_unk0x00590d7c[3]; pp >= g_unk0x00590d7c; pp--) {
+            pPart = (BYTE *)*pp + index * 0x1a0;
+            g_unk0x00590c20 = (Unk0x00590c20 *)pPart;
+            if (*(int *)pPart != 0 && (pPart[0x150] & 1) != 0) {
+                FixMatrix_Interpolate((FixMatrix *)(pPart + 0x8c), (FixMatrix *)(pPart + 0x4c), (FixMatrix *)(pPart + 0xc),
+                                      t, t, t, 0);
+                FixMatrix_CopyRotation((FixMatrix *)(pPart + 0x8c), (FixMatrix *)(*(BYTE **)pPart + 0x98));
+            }
+        }
+    }
+}
+
+// GLOBAL: CMR2 0x00590d78
+BYTE *g_unk0x00590d78;
+extern BYTE g_unk0x00590c60[4];
+
+// Starts a part's swing when the load on its side exceeds 0.8: the swing
+// speed (+0x11c) is added or removed depending on which wheel is loaded more.
+// TODO: CMR2 0x00483050 (implemented, match 5%)
+void FUN_00483050(void)
+{
+    BYTE *pPart = (BYTE *)g_unk0x00590c20;
+    int *pLoad = (int *)(g_unk0x00590d78 + 0x240);
+    int a;
+    int b;
+
+    if (pLoad[g_unk0x00590c60[pPart[0x150] >> 4]] > 0xcccc) {
+        if ((pPart[0x150] & 0xf0) == 0x10) {
+            a = 2;
+            b = 3;
+        } else {
+            a = 0;
+            b = 1;
+        }
+        if (pLoad[b] < pLoad[a])
+            *(int *)(pPart + 0x128) = *(int *)(pPart + 0x128) - *(int *)(pPart + 0x11c);
+        else
+            *(int *)(pPart + 0x128) = *(int *)(pPart + 0x128) + *(int *)(pPart + 0x11c);
+        pPart[0x150] |= 2;
+        *(short *)(pPart + 0x158) = 0;
+    }
+}
+
+// GLOBAL: CMR2 0x00588a80
+int g_unk0x00588a80;
+// GLOBAL: CMR2 0x00588a84
+int g_unk0x00588a84;
+// GLOBAL: CMR2 0x00588a88
+int g_unk0x00588a88;
+// GLOBAL: CMR2 0x00588a8c
+int g_unk0x00588a8c;
+
+// Resets every car's replay recording record.
+// TODO: CMR2 0x004668d0 (implemented, match 67%)
+void FUN_004668d0(void)
+{
+    int i;
+
+    for (i = g_unk0x00588a90 - 1; i >= 0; i--)
+        FUN_00466920(g_unk0x00588b98 + i * 0x290);
+    g_unk0x00588a88 = 0;
+    g_unk0x00588a80 = 0;
+    g_unk0x00588a8c = 0;
+    g_unk0x00588a84 = 0;
+}
+
+void Events_Init(int unused, int slot, char animate);
+struct EventRec;
+void Events_Add(EventRec *pArea, int unused);
+
+// Texture areas of the stage events: 11 records {packed position, width,
+// height} per stage type.
+// GLOBAL: CMR2 0x0051a3e8
+unsigned int g_stageEventAreas[14 * 22] = {
+    0x00c60000, 0x003a0100, 0x00000000, 0x003a0100, 0x003b0000, 0x0034005d, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00b800ea, 0x000d0016, 0x00000000, 0x00000000, 0x00b800d4, 0x000d0016, 0x00000000, 0x00000000,
+    0x00000000, 0x002f0100, 0x00d10000, 0x002f0100, 0x002f009c, 0x00340064, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00320100, 0x00ce0000, 0x00320100, 0x0048003b, 0x00200066, 0x00320028, 0x0016006a, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00300100, 0x00d00000, 0x00300100, 0x00aa00a6, 0x0025005a, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x003b0100, 0x00c50000, 0x003b0100, 0x00a70000, 0x001d0081, 0x00a70089, 0x001d0079, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00340100, 0x00cc0000, 0x00340100, 0x00960090, 0x0036006c, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00310100, 0x00cf0000, 0x00310100, 0x006b0095, 0x0017006a, 0x002f0098, 0x00180068, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x002e0100, 0x00d00000, 0x002e0100, 0x009a0000, 0x002d007e, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x003b0100, 0x00c50000, 0x003b0100, 0x003b0087, 0x00380078, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00390100, 0x00c70000, 0x00390100, 0x0039008f, 0x002b0071, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x002c0100, 0x00d20000, 0x002c0100, 0x002e0000, 0x00270071, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00330100, 0x00cd0000, 0x00330100, 0x0041007e, 0x00280082, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x003b0100, 0x00c50000, 0x003b0100, 0x005600a4, 0x0027005c, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x002f0100, 0x00d10000, 0x002f0100, 0x005f0094, 0x0028006b, 0x008a00fb, 0x00500005,
+};
+
+// Initialises the stage events of a stage type (11 areas per type).
+// FUNCTION: CMR2 0x00458050
+void FUN_00458050(int unused, int slot, int type)
+{
+    BYTE *pArea;
+    int i;
+
+    Events_Init(unused, slot, (char)type);
+    pArea = (BYTE *)&g_stageEventAreas[type * 22];
+    for (i = 11; i != 0; i--, pArea += 8)
+        Events_Add((EventRec *)pArea, slot);
 }
 

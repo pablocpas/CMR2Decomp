@@ -165,6 +165,35 @@ void FUN_0040cf00(void)
     } while ((int)p < (int)g_stagePenalty);
 }
 
+unsigned int RallyDataCountryIndex(void);
+
+// Awards the stage points (by position, ties sharing) to the rally totals and
+// re-sorts the stage order.
+// TODO: CMR2 0x0040cf30 (implemented, match 51%)
+void FUN_0040cf30(void)
+{
+    int i = 0;
+    int position = 0;
+    int points;
+    char driver;
+
+    RallyDataCountryIndex();
+    memset(g_stagePenalty, 0, sizeof(g_stagePenalty));
+    do {
+        driver = g_rallyOverallOrderDriverID[i];
+        if (i > 0 && g_rallyOverallTimesRaw[g_rallyOverallOrderDriverID[i - 1]] < g_rallyOverallTimesRaw[driver])
+            position = i;
+        points = RallyTiming_GetPointsForPosition(position);
+        if (position == 0)
+            g_stageTieBreak[driver]++;
+        g_stagePenalty[driver] = (char)points;
+        g_stageTimesRaw[driver] += (int)(__int64)(points * CGraphics::m_65536);
+        i++;
+    } while (position < 5);
+    RallyTiming_SortOrder(g_stageTimesRaw, g_stageOrderDriverID, 0, 16, 0);
+    RallyTiming_SortStageOrder();
+}
+
 // FUNCTION: CMR2 0x0040cfe0
 int FUN_0040cfe0(int index)
 {

@@ -709,3 +709,84 @@ void FUN_004923d0(DWORD *pColour)
     g_stageLightReady = 1;
 }
 
+// GLOBAL: CMR2 0x005920b0
+SceneNode *g_stageAmbientNode;
+
+void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b);
+void Mesh_RefreshVertices(Mesh *pMesh);
+
+#define CLAMP_UNIT(v) ((v) > 0x10000 ? 0x10000 : ((v) < 0 ? 0 : (v)))
+
+// Sets the stage ambient light from an 8-bit RGB triple (scaled to 16.16).
+// FUNCTION: CMR2 0x00492e60
+void FUN_00492e60(int *pRGB)
+{
+    int r = FixMul(pRGB[0], 0x106);
+    int g;
+    int b;
+
+    if (r > 0x10000)
+        r = 0x10000;
+    else if (r < 0)
+        r = 0;
+    g = FixMul(pRGB[1], 0x106);
+    if (g > 0x10000)
+        g = 0x10000;
+    else if (g < 0)
+        g = 0;
+    b = FixMul(pRGB[2], 0x106);
+    if (b > 0x10000) {
+        Scene_SetLightColour(g_stageAmbientNode, r, g, 0x10000);
+        return;
+    }
+    if (b < 0)
+        b = 0;
+    Scene_SetLightColour(g_stageAmbientNode, r, g, b);
+}
+
+// Pushes the vertex colours of every recoloured stage mesh.
+// FUNCTION: CMR2 0x00492f10
+void FUN_00492f10(void)
+{
+    if (g_stageColourStep != 0) {
+        Mesh_RefreshVertices(g_stageMesh2);
+        if (g_stageMesh3Copy != NULL)
+            Mesh_RefreshVertices(g_stageMesh3);
+        g_stageColourStep = 0;
+    }
+    if (g_stageLightReady != 0) {
+        Mesh_RefreshVertices(g_stageMesh4);
+        g_stageLightReady = 0;
+    }
+    if (g_stageColourMode != 0) {
+        Mesh_RefreshVertices(g_stageMesh1);
+        g_stageColourMode = 0;
+    }
+    if (g_stageColourDirty != 0) {
+        Mesh_RefreshVertices(g_stageMesh0);
+        g_stageColourDirty = 0;
+    }
+    if (g_stageColourValue != 0) {
+        Mesh_RefreshVertices(g_stageMesh5);
+        g_stageColourValue = 0;
+    }
+    if (g_stageColourState != 0) {
+        Mesh_RefreshVertices(g_stageMesh6);
+        g_stageColourState = 0;
+    }
+}
+
+// Sets the diffuse colour (and alpha) of every vertex of stage mesh 5.
+// TODO: CMR2 0x00492470 (implemented, match 13%)
+void FUN_00492470(DWORD *pColour)
+{
+    DWORD colour = *pColour;
+    int i;
+
+    for (i = g_stageMesh5Count - 1; i >= 0; i--) {
+        *(DWORD *)((BYTE *)((Mesh *)g_unk0x005920f0)->pVertexData + i * 0x30 + 0x18) = SWAP_RB(colour);
+        *(DWORD *)((BYTE *)((Mesh *)g_unk0x005920f0)->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+    }
+    g_stageColourValue = 1;
+}
+

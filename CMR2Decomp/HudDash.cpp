@@ -744,3 +744,25 @@ void FUN_00447ee0(FixVector *pOut, BYTE *pSel)
     }
 }
 
+void FixMatrix_GetUp(FixVector *pOut, FixMatrix *pM);
+void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
+
+// Takes the camera up/right vectors of a view from the matrix, or copies them
+// from the other view when both follow the same car in modes 4..6.
+// FUNCTION: CMR2 0x00447be0
+void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
+{
+    int mode;
+
+    if (pSrc[2] == pDst[2]) {
+        mode = *(int *)(pSrc + 4);
+        if (mode == 4 || mode == 5 || mode == 6) {
+            g_unk0x0053d048[2 + pDst[0]] = g_unk0x0053d048[2 + pSrc[0]];
+            g_unk0x0053d000[2 + pDst[0]] = g_unk0x0053d000[2 + pSrc[0]];
+            return;
+        }
+    }
+    FixMatrix_GetUp(&g_unk0x0053d048[2 + pDst[0]], pM);
+    FixMatrix_GetRight(&g_unk0x0053d000[2 + pDst[0]], pM);
+}
+

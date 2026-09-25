@@ -60,6 +60,37 @@ int Sector_IsVisible(int iSector)
     return 1;
 }
 
+#include "FileBuffer.h"
+
+// Frees the part index lists of every sector mesh and clears the sector
+// table (registered callback of 0x4b8270).
+// TODO: CMR2 0x004b8540 (implemented, match 85%)
+int FUN_004b8540(void)
+{
+    int i;
+    int j;
+    BYTE *pModel;
+    BYTE **ppPart;
+
+    for (i = 0; i < g_sectorCount; i++) {
+        pModel = (BYTE *)g_sectors[i]->pMesh;
+        if (pModel != NULL && *(int *)(pModel + 0x100) > 0) {
+            ppPart = (BYTE **)(pModel + 0x38);
+            for (j = 0; j < *(int *)(pModel + 0x100); j++, ppPart++) {
+                CFileBuffer::FreeGenericFileBuffer(*(void **)(*ppPart + 0x14));
+                *(void **)(*ppPart + 0x14) = NULL;
+                CFileBuffer::FreeGenericFileBuffer(*ppPart);
+                *ppPart = NULL;
+            }
+        }
+    }
+    CGraphics::m_unk0x0072d56c = 0;
+    memset(g_sectors, 0, 0x1000 * sizeof(Sector *));
+    g_sectorCount = 0;
+    g_sectorCullEnabled = 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004b85f0
 int Sector_FromPosition(FixVector *pPos)
 {

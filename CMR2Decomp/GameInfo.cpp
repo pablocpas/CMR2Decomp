@@ -2472,6 +2472,80 @@ void FUN_00401380(Menu *pMenu)
     CInput::FUN_0049ffc0(rate / 4);
 }
 
+// Values the in-race option menus started with (restored on cancel).
+// GLOBAL: CMR2 0x005298f8
+BYTE g_unk0x005298f8;
+// GLOBAL: CMR2 0x00529ecc
+int g_unk0x00529ecc;
+// GLOBAL: CMR2 0x0052a488
+int g_unk0x0052a488;
+// GLOBAL: CMR2 0x0052a850
+BYTE g_unk0x0052a850;
+// GLOBAL: CMR2 0x0052ad50
+int g_unk0x0052ad50;
+
+BYTE FUN_0041b370(void);
+void RallyData_FUN_00408990(BYTE index, BYTE *pValue);
+void RallyData_MarkTyresChanged(int index);
+int RallyData_FUN_00411880(void);
+
+// Callback 0 of the sound options menu: loads the three volumes.
+// FUNCTION: CMR2 0x004012d0
+void FUN_004012d0(Menu *pMenu, int param)
+{
+    g_unk0x00529ecc = CGameInfo::FUN_00405e40();
+    g_unk0x0052a488 = CGameInfo::FUN_00405e70();
+    g_unk0x0052ad50 = CGameInfo::FUN_00405ea0();
+    pMenu->items[Menu_FindItem(pMenu, 0)].max = g_unk0x00529ecc / 10;
+    pMenu->items[Menu_FindItem(pMenu, 1)].max = g_unk0x0052a488 / 10;
+    if (FUN_004174d0())
+        pMenu->items[Menu_FindItem(pMenu, 2)].max = g_unk0x0052ad50 / 10;
+}
+
+// Callback 0 of the car setup menu: loads the four switches from the driver's
+// setting byte (resetting them to on).
+// FUNCTION: CMR2 0x00404130
+void FUN_00404130(Menu *pMenu, int param)
+{
+    g_unk0x005298f8 = (g_unk0x005298f8 & 0xfc) | 0x3c;
+    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    pMenu->items[0].max = (g_unk0x005298f8 >> 2) & 1;
+    pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
+    pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
+    pMenu->items[3].max = (g_unk0x005298f8 >> 5) & 1;
+    if (RallyData_FUN_00411880() == 0) {
+        if (FUN_004174d0())
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
+    } else if (FUN_004174d0()) {
+        pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
+    }
+}
+
+// Callback 1 of the car setup menu: stores the setting byte (or the other
+// one when cancelling) and applies the switches.
+// FUNCTION: CMR2 0x00404c50
+void FUN_00404c50(Menu *pMenu, char cancel)
+{
+    if (cancel != 0) {
+        RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x0052a850);
+        return;
+    }
+    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
+    CGameInfo::FUN_00405f40((g_unk0x005298f8 >> 2) & 1);
+    CGameInfo::FUN_00405f20((g_unk0x005298f8 >> 3) & 1);
+    CGameInfo::FUN_00405f60((g_unk0x005298f8 >> 4) & 1);
+    CGameInfo::FUN_00405f80((g_unk0x005298f8 >> 5) & 1);
+    CGameInfo::FUN_00405f00(g_unk0x005298f8 & 3);
+    RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + g_unk0x0052af58[1]);
+}
+
+// Callback 2 of the network options menu.
+// FUNCTION: CMR2 0x00403880
+void FUN_00403880(Menu *pMenu)
+{
+    FUN_00403200(pMenu);
+}
+
 // FUNCTION: CMR2 0x00404ea0
 void FUN_00404ea0(BYTE param1)
 {
