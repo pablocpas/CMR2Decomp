@@ -33,6 +33,7 @@ public:
     static void LoadLanguageFiles(void);
     static bool ReleaseLanguageFiles(void);
 
+    static void FUN_004a3c90(int languages, int count, BYTE **pFiles);
     // GLOBAL: CMR2 0x0065aa6c
     static char **m_textStrings;
     // GLOBAL: CMR2 0x0065aa74

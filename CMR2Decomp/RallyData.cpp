@@ -1097,6 +1097,34 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
     return g_unk0x0052f3e8 + 0xbac + category * 0x650;
 }
 
+// Category colour of a driver's car: hue (5 bits), shade (4 bits) and value
+// byte, or 0x45 each when the driver has no category.
+// TODO: CMR2 0x00408b10 (implemented, match 28%)
+void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue)
+{
+    unsigned int category;
+    unsigned int colour;
+
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category == 0xf) {
+        if (pHue != NULL)
+            *pHue = 0x45;
+        if (pShade != NULL)
+            *pShade = 0x45;
+        if (pValue != NULL)
+            *pValue = 0x45;
+        return;
+    }
+    colour = *(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650);
+    if (pHue != NULL)
+        *pHue = (colour >> 16) & 0x1f;
+    if (pShade != NULL)
+        *pShade = (colour >> 8) & 0xf;
+    if (pValue != NULL)
+        *pValue = colour & 0xff;
+}
+
 // Stores a driver's position (x/z of pPos), heading and value.
 // TODO: CMR2 0x00408bd0 (implemented, match 43%)
 void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index)
@@ -3407,5 +3435,136 @@ int RallyData_FUN_00409010(int index, BYTE bit)
     g_unk0x0052f3e8[0x618 + category] = 1;
     RallyData_FUN_00408f20(index);
     return 1;
+}
+
+// Records the best finishing place (3 - place) of the driver's category at
+// the current difficulty.
+// FUNCTION: CMR2 0x00409090
+void RallyData_FUN_00409090(int index, int place)
+{
+    unsigned int *pBest;
+    unsigned int value;
+
+    RallyData_ValidateIndex(index);
+    pBest = (unsigned int *)(g_unk0x0052f3e8 + 0xc4c +
+                             ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650);
+    value = 3 - place;
+    switch (CGameInfo::FUN_00405d90()) {
+    case 0:
+        if ((*pBest & 3) < value) {
+            *pBest = ((*pBest ^ value) & 3) ^ *pBest;
+            RallyData_IncrementCategoryUse(index);
+        }
+        break;
+    case 1:
+        if (((*pBest >> 2) & 3) < value) {
+            *pBest = ((value & 3) << 2) | (*pBest & 0xfffffff3);
+            RallyData_IncrementCategoryUse(index);
+        }
+        break;
+    case 2:
+        if (((*pBest >> 4) & 3) < value) {
+            *pBest = ((value & 3) << 4) | (*pBest & 0xffffffcf);
+            RallyData_IncrementCategoryUse(index);
+        }
+        break;
+    }
+}
+
+// Split position of each player (index, 16.16 fraction to the next split).
+// GLOBAL: CMR2 0x00536c48
+int g_unk0x00536c48[8][2];
+// Three split rows shown around each player's rank.
+// GLOBAL: CMR2 0x00536c94
+int g_unk0x00536c94[2][3];
+
+int RallyData_FUN_004209d0(BYTE *p);
+int FUN_004582f0(int index);
+int FUN_00409d20(int index);
+int FUN_0040a760(int id);
+int FUN_0040a720(int id);
+int FUN_0040b010(int index);
+unsigned int FUN_00409cb0(int index);
+void FUN_00411e40(int *pOut, int distance, int percent);
+
+// Updates the split position of the player and of every network player.
+// TODO: CMR2 0x00411f00 (implemented, match 82%)
+void FUN_00411f00(void)
+{
+    int i;
+    int percent;
+    int distance;
+
+    percent = RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100 >> 16;
+    FUN_00411e40(g_unk0x00536c48[0], FUN_004582f0(0), percent);
+    for (i = 0; i < 7; i++) {
+        if ((BYTE)FUN_00409cb0(i)) {
+            percent = FUN_0040a760(FUN_00409d20(i));
+            distance = FUN_0040a720(FUN_00409d20(i));
+            FUN_00411e40(g_unk0x00536c48[FUN_0040b010(i)], distance, percent);
+        }
+    }
+}
+
+BYTE StageTiming_FUN_00455ae0(void);
+int StageTiming_GetSplitPositionOfDriver(int iDriver, int iSplit);
+int StageTiming_GetSplitDriverCount(int iSplit);
+
+// Picks the three split rows to show around the player's rank.
+// TODO: CMR2 0x00414720 (implemented, match 51%)
+void FUN_00414720(int car)
+{
+    int position;
+
+    if (g_stageSplitData[car].split == 0)
+        return;
+    if (!StageTiming_FUN_00455ae0()) {
+        position = 15;
+    } else {
+        position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
+        if (position < 1) {
+            g_unk0x00536c94[car][0] = position;
+            g_unk0x00536c94[car][1] = position + 1;
+            g_unk0x00536c94[car][2] = position + 2;
+            return;
+        }
+    }
+    if (StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1 <= position) {
+        g_unk0x00536c94[car][0] = position - 2;
+        g_unk0x00536c94[car][1] = position - 1;
+        g_unk0x00536c94[car][2] = position;
+        return;
+    }
+    g_unk0x00536c94[car][0] = position - 1;
+    g_unk0x00536c94[car][1] = position;
+    g_unk0x00536c94[car][2] = position + 1;
+}
+
+BYTE FUN_004582b0(int index);
+void FUN_00415a60(int car);
+
+// Counts down the car's split display and, when it has improved, records the
+// best time of the stage with the driver's name.
+// TODO: CMR2 0x00415990 (implemented, match 77%)
+void FUN_00415990(int car)
+{
+    if (g_unk0x00536c08[car] != 0)
+        g_unk0x00536c08[car]--;
+    if (g_unk0x00536c08[car] == 0) {
+        g_unk0x00536c00[car] = 0;
+        g_unk0x00536c88[car] = 0;
+        g_unk0x00536e88[car] = 0;
+        g_unk0x00536c28[car] = 0;
+        g_unk0x00536ec4[car] = 0;
+    }
+    if (!(BYTE)RallyData_GetFlag24() &&
+        (!(BYTE)RallyData_GetFlag25() || CGameInfo::FUN_00405d80() != 3 || CGameInfo::FUN_00405e00())) {
+        if (FUN_004582b0(car) && (g_unk0x0053706c == 0 || g_stageSplitData[car].times[0] < g_unk0x0053706c)) {
+            g_unk0x0053706c = g_stageSplitData[car].times[0];
+            sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + (char)car));
+        }
+    } else {
+        FUN_00415a60(car);
+    }
 }
 

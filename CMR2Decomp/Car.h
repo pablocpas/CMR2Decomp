@@ -53,7 +53,8 @@ struct Car {
     BYTE field_0x6fc[0x20];
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
-    BYTE field_0x724[0x14];
+    SceneNode *pNode0x724;            // 0x724  second body part (optional)
+    BYTE field_0x728[0x10];
     SceneNode *pWheelNodes[4];        // 0x738
     SceneNode *pViewNodeNear;         // 0x748  child node placed towards the view
     SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view

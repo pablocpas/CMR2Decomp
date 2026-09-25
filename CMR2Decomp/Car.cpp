@@ -581,6 +581,33 @@ void Car_UpdateBodyAxes(void)
     }
 }
 
+// Resets the current wheels' loads to the engine torque (front, rear or all
+// four, by the drive split) after a gear change.
+// FUNCTION: CMR2 0x0043f570
+void FUN_0043f570(Car *pCar)
+{
+    int load;
+
+    pCar->field_0xb1e = 1;
+    if (pCar->field_0x7b4 == 0) {
+        load = FixMul(pCar->field_0x7a4, pCar->field_0x7dc[1]);
+        pCar->wheelLoad[3] = load;
+        pCar->wheelLoad[2] = load;
+    } else {
+        if (pCar->field_0x7b4 == 0x10000) {
+            load = FixMul(pCar->field_0x7a4, pCar->field_0x7dc[1]);
+        } else {
+            load = FixMul(pCar->field_0x7a4, pCar->field_0x7dc[1]);
+            pCar->wheelLoad[3] = load;
+            pCar->wheelLoad[2] = load;
+        }
+        pCar->wheelLoad[1] = load;
+        pCar->wheelLoad[0] = load;
+    }
+    pCar->field_0xb1f = 10;
+    g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
+}
+
 // Sets up the current car's four drive flags and the per-wheel share of the
 // torque (a quarter of 0x75c each).
 // FUNCTION: CMR2 0x0043fb50

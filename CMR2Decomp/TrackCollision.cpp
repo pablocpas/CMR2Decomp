@@ -432,6 +432,8 @@ short g_stageMesh4Count;
 short g_stageMesh5Count;
 // GLOBAL: CMR2 0x00592144
 short g_stageMesh6Count;
+// GLOBAL: CMR2 0x00592146
+BYTE g_unk0x00592146;
 // GLOBAL: CMR2 0x00592147
 BYTE g_stageColourAlpha;
 // GLOBAL: CMR2 0x00592148

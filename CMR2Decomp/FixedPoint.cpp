@@ -571,6 +571,26 @@ unsigned int FixVec_Length(FixVector *pV)
     return FixVecLength(&scaled) << 9;
 }
 
+// Projects a world point to screen pixels through the view node's camera
+// (off-screen marker -100,-100 when behind the camera).
+// FUNCTION: CMR2 0x004bad40
+void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView)
+{
+    FixVector v;
+    FixMatrix inverse;
+
+    FixMatrix_Invert(&inverse, (FixMatrix *)(pView + 0xd8));
+    FixMatrix_TransformPoint(&v, pPoint, &inverse);
+    if (v.z < 0x10000) {
+        pOut[0] = -0x640000;
+        pOut[1] = -0x640000;
+        return;
+    }
+    FixMatrix_ProjectToScreen(pOut, &v, (int *)((BYTE *)CGraphics::m_pTextureManager + 0x23e4));
+    pOut[0] += (int)(__int64)((*(int *)g_pGraphics / 2) * CGraphics::m_65536);
+    pOut[1] += (int)(__int64)((*(int *)((BYTE *)g_pGraphics + 4) / 2) * CGraphics::m_65536);
+}
+
 // Normalises a vector; components beyond +-100.0 are scaled down by 512
 // first so the squares do not overflow.
 // FUNCTION: CMR2 0x004bae10

@@ -265,6 +265,33 @@ apply_torque:
     COLLISION_INT(0x5d8) += torque.z;
 }
 
+// Plane normal x/z of the collision face and its accepted distance.
+// GLOBAL: CMR2 0x005918d0
+int g_unk0x005918d0;
+// GLOBAL: CMR2 0x0059195c
+int g_unk0x0059195c;
+// GLOBAL: CMR2 0x005919b8
+int g_unk0x005919b8;
+
+// Accepts the collision direction when it is nearly parallel to the face and
+// picks the side of the car the target is on.
+// TODO: CMR2 0x00490570 (implemented, match 36%)
+int FUN_00490570(void)
+{
+    int d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
+    BYTE *pCar = (BYTE *)g_collisionCar;
+
+    if (d < 0)
+        d = -d;
+    if (g_unk0x005919b8 < d)
+        return 0;
+    g_collisionSelectBackSide =
+        FixMul(g_collisionTarget.z - *(int *)(pCar + 0x2f0), g_collisionDirection.z) +
+        FixMul(g_collisionTarget.x - *(int *)(pCar + 0x2e8), g_collisionDirection.x) +
+        FixMul(g_collisionTarget.y - *(int *)(pCar + 0x2ec), g_collisionDirection.y) >= 0;
+    return 1;
+}
+
 // Classifies face vertices by signed distance from the active collision plane.
 // TODO: CMR2 0x00490720 (implemented, match 80%)
 void Collision_ClassifyFaceVertices(void)

@@ -413,6 +413,36 @@ void FUN_004a3c30(int language)
     }
 }
 
+BYTE *FUN_004a3d50(BYTE *p, char next);
+
+// Splits the loaded text files (one per language) into the string table.
+// FUNCTION: CMR2 0x004a3c90
+void CFrontend::FUN_004a3c90(int languages, int count, BYTE **pFiles)
+{
+    int i;
+    int j;
+    int row;
+    BYTE *p;
+
+    m_unk0x0065aa71 = (BYTE)languages;
+    m_unk0x0065aa70 = 0;
+    m_textFirstId = 0;
+    m_textCount = count;
+    m_textStrings = (char **)CFileBuffer::AllocateLockedBuffer(languages * count * 4);
+    if (m_textStrings != NULL) {
+        for (i = 0, row = 0; i < languages; i++, row += count) {
+            p = pFiles[i];
+            for (j = 0; j < count; j++) {
+                m_textStrings[row + j] = (char *)p;
+                if (j < count - 1)
+                    p = FUN_004a3d50(p, 1);
+                else
+                    FUN_004a3d50(p, 0);
+            }
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x004a3c60
 char *CFrontend::GetTextString(int index)
 {

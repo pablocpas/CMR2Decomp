@@ -1053,6 +1053,34 @@ void FUN_00423900(BYTE *pObject, BYTE *pInfo)
     }
 }
 
+void FUN_00486b90(BYTE *pCar, BYTE *pInfo);
+void FUN_004764e0(BYTE *p);
+FixMatrix *FUN_00423d70(unsigned int index);
+void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
+void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
+
+// Dispatches by the object type stored at +4.
+// TODO: CMR2 0x00423860 (implemented, match 60%)
+void FUN_00423860(BYTE *pObject, BYTE *pInfo)
+{
+    switch (*(int *)(pObject + 4)) {
+    case 1:
+    case 2:
+    case 10:
+        FUN_00486b90(pObject, pInfo);
+        return;
+    case 3:
+        FUN_004764e0(pObject);
+        return;
+    case 4:
+    case 5:
+        FUN_00447be0(pObject, pInfo, FUN_00423d70(pObject[2]));
+        return;
+    case 7:
+        FUN_0048d800(pObject, pInfo);
+    }
+}
+
 // FUNCTION: CMR2 0x004238e0
 void FUN_004238e0(Unk004238e0 *param1, int param2)
 {

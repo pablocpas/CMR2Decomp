@@ -21,6 +21,7 @@
 #include "FileBuffer.h"
 #include "Mesh.h"
 #include "Graphics.h"
+#include "Font.h"
 
 struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
@@ -1513,6 +1514,20 @@ int g_unk0x00591494;
 // GLOBAL: CMR2 0x00591498
 FixVector g_unk0x00591498;
 
+// True when two spheres (radii r1, r2) overlap.
+// TODO: CMR2 0x00487b80 (implemented, match 51%)
+bool FUN_00487b80(int r1, int r2, int *pA, int *pB)
+{
+    int r = r1 + r2;
+    int dx = pA[0] - pB[0];
+    int dy = pA[1] - pB[1];
+    int dz = pA[2] - pB[2];
+
+    if ((dx < 0 ? -dx : dx) <= r && (dy < 0 ? -dy : dy) <= r && (dz < 0 ? -dz : dz) <= r)
+        return FixMul(dz, dz) + FixMul(dx, dx) + FixMul(dy, dy) < FixMul(r, r);
+    return false;
+}
+
 // FUNCTION: CMR2 0x00487e00
 void FUN_00487e00(FixVector *pPos, int *pInfo)
 {
@@ -1600,6 +1615,39 @@ void FUN_00477ac0(int index)
         ((short *)(p + 0x1c))[i] = -1;
     p[0x44] = 0;
     p[0x45] = 0;
+}
+
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+void FUN_004b2e40(BYTE *p, int value);
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// Sets up a car's damage record: clears it and keeps the textures of its two
+// body parts (scene nodes of type 0xe).
+// FUNCTION: CMR2 0x00477b60
+void FUN_00477b60(int car, int unused1, int unused2, BYTE flag)
+{
+    BYTE *pRecord = g_unk0x0058d6d0[car];
+    BYTE *pMesh;
+    Texture *pTexture;
+
+    pRecord[0x46] = flag;
+    *(Texture **)(pRecord + 0) = NULL;
+    *(Texture **)(pRecord + 4) = NULL;
+    FUN_00477ac0(car);
+    RallyData_ValidateIndex(car);
+    pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pNode0x720, 0xe) + 0xc);
+    FUN_004b2e40(pMesh, 0);
+    pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
+    *(Texture **)(pRecord + 0) = pTexture;
+    FUN_004a3e20((Unk0x004a3e20 *)pTexture, 2);
+    if (Car_Get(car)->pNode0x724 != NULL) {
+        pMesh = *(BYTE **)((BYTE *)SceneNode_FindByType(Car_Get(car)->pNode0x724, 0xe) + 0xc);
+        FUN_004b2e40(pMesh, 0);
+        pTexture = CGraphics::m_pTextureManager->textureBuffer[*(int *)(*(BYTE **)(pMesh + 0x24) + 4)];
+        *(Texture **)(pRecord + 4) = pTexture;
+        FUN_004a3e20((Unk0x004a3e20 *)pTexture, 2);
+    }
 }
 
 // Sets or clears bits in the two flag bytes of record `index` of 0x58d6d0.
@@ -1721,6 +1769,33 @@ void FUN_00480a60(void)
 }
 
 int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+// Draws the first `fraction` of a text (typing effect; spaces don't count)
+// and the next character on its own.
+// FUNCTION: CMR2 0x00474420
+void FUN_00474420(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour, unsigned int flags)
+{
+    int length = (int)strlen(text);
+    int count = FixMul(length << 16, fraction) >> 16;
+    int i;
+    int width;
+    int colour;
+
+    for (i = 0; i < count; i++) {
+        if (text[i] == ' ' && count < length)
+            count++;
+        CFrontend::m_stringDest[i] = text[i];
+    }
+    CFrontend::m_stringDest[count] = 0;
+    Font_DrawText(font, CFrontend::m_stringDest, x, y, pColour, flags);
+    if (count < length) {
+        width = Font_GetTextWidth(font, (BYTE *)CFrontend::m_stringDest);
+        CFrontend::m_stringDest[0] = text[count];
+        CFrontend::m_stringDest[1] = 0;
+        colour = *pColour;
+        Font_DrawText(font, CFrontend::m_stringDest, width + x, y, &colour, flags);
+    }
+}
 
 // Fills a rectangle whose width is scaled by `scale` (16.16).
 // FUNCTION: CMR2 0x00475970
@@ -1972,6 +2047,53 @@ void FUN_00461b30(BYTE *pObject, int type)
     }
     if (g_unk0x0051b114[type] != 0)
         *(int *)(pObject + 0x18) = FixDiv(speed, g_unk0x0051b114[type]);
+}
+
+int *FUN_00407520(int index);
+void FUN_00461b30(BYTE *pObject, int type);
+
+// Sets the speed limits of the two stage objects of a pair from the stage's
+// setting pair; a stopped one takes over the other's limit.
+// FUNCTION: CMR2 0x00461a70
+void FUN_00461a70(BYTE *pA, BYTE *pB)
+{
+    int *pPair;
+    int a;
+    int b;
+    int limit;
+
+    if (pA != NULL && pB != NULL) {
+        pPair = FUN_00407520(RallyDataStageIndex());
+        a = pPair[0];
+        b = pPair[1];
+        if (a == 1) {
+            if (b == 0 || b == 1)
+                pA[0x2f] = 200;
+            else
+                pA[0x2f] = 0x32;
+        }
+        if (b == 1) {
+            if (a == 0 || a == 1)
+                pB[0x2f] = 200;
+            else
+                pB[0x2f] = 0x32;
+        }
+        FUN_00461b30(pA, a);
+        FUN_00461b30(pB, b);
+        if (*(int *)(pA + 0x14) == 0 && *(int *)(pA + 0x18) == 0 &&
+            (*(int *)(pB + 0x14) != 0 || *(int *)(pB + 0x18) != 0)) {
+            limit = *(int *)(pB + 0x18);
+            *(int *)(pA + 0x18) = limit;
+            *(int *)(pA + 0x14) = limit;
+            return;
+        }
+        if (*(int *)(pB + 0x14) == 0 && *(int *)(pB + 0x18) == 0 &&
+            (*(int *)(pA + 0x14) != 0 || *(int *)(pA + 0x18) != 0)) {
+            limit = *(int *)(pA + 0x18);
+            *(int *)(pB + 0x18) = limit;
+            *(int *)(pB + 0x14) = limit;
+        }
+    }
 }
 
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).

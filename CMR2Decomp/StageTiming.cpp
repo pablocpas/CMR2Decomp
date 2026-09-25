@@ -2822,3 +2822,240 @@ void FUN_00458050(int unused, int slot, int type)
         Events_Add((EventRec *)pArea, slot);
 }
 
+// GLOBAL: CMR2 0x00543d78
+int g_unk0x00543d78;
+// GLOBAL: CMR2 0x00543d7c
+int g_unk0x00543d7c;
+// GLOBAL: CMR2 0x00543d80
+unsigned int g_unk0x00543d80;
+// GLOBAL: CMR2 0x00543d84
+unsigned int g_unk0x00543d84;
+// GLOBAL: CMR2 0x00543d88
+int g_unk0x00543d88;
+// GLOBAL: CMR2 0x00543d8c
+int g_unk0x00543d8c;
+// GLOBAL: CMR2 0x00543d90
+int g_unk0x00543d90;
+// GLOBAL: CMR2 0x00543d94
+int g_unk0x00543d94;
+// GLOBAL: CMR2 0x00543d98
+int g_unk0x00543d98;
+
+// Sets the object value ramp (v1 at route position `from` to v2 at `to`)
+// and resets every view's object state.
+// TODO: CMR2 0x0045f300 (implemented, match 52%)
+void FUN_0045f300(int v1, int v2, int from, int to, int initial)
+{
+    int i;
+    int *p;
+
+    g_unk0x00543d60 = v1;
+    g_unk0x00543d64 = v2;
+    g_unk0x00543d70 = to;
+    g_unk0x00543d68 = (to - from) << 16;
+    g_unk0x00543d6c = from;
+    if (g_unk0x00543d68 > 0)
+        g_unk0x00543d68 = FixDiv(0x10000, g_unk0x00543d68);
+    g_unk0x00543d68 = FixMul(g_unk0x00543d68, v2 - v1);
+    g_unk0x00543e98 = (BYTE)RallyDataState();
+    for (i = 0; i < g_unk0x00543e98; i++) {
+        p = (int *)((BYTE *)g_unk0x00547ac8 + i * 0x178);
+        p[1] = initial;
+        p[0] = initial;
+        p[0x1c] = 0;
+        p[0x1b] = 0;
+        StageObject_SetScaledValue(v1, i);
+    }
+}
+
+// Sets the second ramp (records of 0x2c bytes at g_unk0x00543eb8).
+// TODO: CMR2 0x0045f3d0 (implemented, match 45%)
+void FUN_0045f3d0(int v1, int v2, int from, int to)
+{
+    int i;
+    int *p;
+
+    g_unk0x00543d88 = v1;
+    g_unk0x00543d98 = to;
+    g_unk0x00543d90 = (to - from) << 16;
+    g_unk0x00543d8c = v2;
+    g_unk0x00543d94 = from;
+    if (g_unk0x00543d90 > 0)
+        g_unk0x00543d90 = FixDiv(0x10000, g_unk0x00543d90);
+    g_unk0x00543d90 = FixMul(g_unk0x00543d90, v2 - v1);
+    for (i = 0; i < g_unk0x00547acc; i++) {
+        p = (int *)((BYTE *)g_unk0x00543eb8 + i * 0x2c);
+        p[1] = 0;
+        p[0] = 0;
+        p[2] = g_unk0x00543d88;
+        p[3] = 0;
+        p[4] = g_unk0x00543d88;
+        p[6] = g_unk0x00543d88;
+        p[10] = 1;
+    }
+}
+
+short *Car_GetOrder(void);
+
+// Updates each car's third ramp value from its route position.
+// TODO: CMR2 0x0045e7f0 (implemented, match 60%)
+void FUN_0045e7f0(void)
+{
+    int count;
+    short *p;
+    Car *pCar;
+    unsigned int *pRec;
+    unsigned int position;
+
+    if (RallyData_FUN_00421500() == 0) {
+        count = Car_GetOrderCount();
+        for (p = Car_GetOrder() + count - 1; count > 0; count--, p--) {
+            pCar = Car_Get(*p);
+            pRec = (unsigned int *)((BYTE *)g_unk0x00543ecc + pCar->field_0xb1a * 0xc);
+            position = RallyData_FUN_00421370((BYTE *)pCar);
+            pRec[0] = position;
+            if (position != pRec[1]) {
+                pRec[1] = position;
+                if (g_unk0x00543d80 < position) {
+                    if (position < g_unk0x00543d84)
+                        pRec[2] = FixMul((position - g_unk0x00543d80) << 16, g_unk0x00543d7c) + g_unk0x00543d74;
+                    else
+                        pRec[2] = g_unk0x00543d78;
+                } else {
+                    pRec[2] = g_unk0x00543d74;
+                }
+            }
+        }
+    }
+}
+
+short FUN_004589e0(int index);
+unsigned int RallyData_FUN_00406990(void);
+int FUN_0040d4b0(int hundredths);
+
+// Estimates the stage time from the progress so far (at least halfway).
+// TODO: CMR2 0x00448550 (implemented, match 72%)
+void FUN_00448550(void)
+{
+    int total;
+    int progress;
+
+    g_unk0x0053d1da[0] = 1;
+    g_unk0x0053e18c++;
+    if (CGameInfo::FUN_00405d80() == 11)
+        total = (BYTE)RallyData_FUN_00406990() * RallyData_FUN_00421420() * 0x10000;
+    else
+        total = RallyData_FUN_00421420() << 16;
+    progress = FixDiv(FUN_004589e0(0) << 16, total);
+    if (progress > 0x8000) {
+        g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, progress), FUN_0040d4b0(g_unk0x0053d1b0)));
+        return;
+    }
+    g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2;
+}
+
+BYTE *RallyData_FUN_00421440(int index);
+void FUN_00422f90(unsigned int index, int value);
+int FUN_00423f30(void);
+int FUN_0041f3a0(void);
+
+// Sets the player's view distance from the route node's limits (forward or
+// backward direction).
+// TODO: CMR2 0x00459250 (implemented, match 52%)
+void FUN_00459250(BYTE player, unsigned int node, int dir)
+{
+    BYTE *pNode;
+    int nearDist;
+    int farDist;
+    int distance;
+    int *pFar = (int *)((BYTE *)g_pGraphics + 0x3c8);
+    int *pNear = (int *)((BYTE *)g_pGraphics + 0x3c4);
+
+    if (player < (BYTE)RallyDataState()) {
+        if (dir < 0) {
+            node++;
+            if ((unsigned int)RallyData_FUN_00421420() <= node)
+                node = RallyData_FUN_00421420() - 1;
+        }
+        if ((BYTE)RallyDataState() > 1 && FUN_0041f3a0() == 0)
+            CGameInfo::FUN_00405da0();
+        pNode = RallyData_FUN_00421440(node);
+        if (dir < 0) {
+            nearDist = *(int *)(pNode + 0x1c);
+            farDist = *(int *)(pNode + 0x20);
+        } else {
+            nearDist = *(int *)(pNode + 0x24);
+            farDist = *(int *)(pNode + 0x28);
+        }
+        if (farDist > 0) {
+            *pFar = farDist;
+            distance = FUN_00423f30();
+            if (*pFar < distance)
+                distance = *pFar;
+            FUN_00422f90(player, distance);
+        }
+        if (nearDist > 0) {
+            *pNear = nearDist;
+            distance = FUN_00423f30();
+            if (*pFar < distance)
+                distance = *pFar;
+            FUN_00422f90(player, distance);
+        }
+    }
+}
+
+void FUN_004583d0(int car, int *pStarts, int *pOut);
+
+// Start position of a car in the .csp start table.
+// FUNCTION: CMR2 0x00456c70
+int *FUN_00456c70(int car)
+{
+    FUN_004583d0(car, *(int **)(g_unk0x00542630 + 0x240), (int *)(g_unk0x00542630 + 0x248));
+    return (int *)(g_unk0x00542630 + 0x248);
+}
+
+struct FixAngles;
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
+void Scene_SetAmbient(BYTE *pColour, int boost);
+void Scene_SetLight(FixVector *pLight, int boost);
+int RallyData_FUN_00411060(void);
+extern SceneNode *g_stageAmbientNode;
+extern BYTE g_unk0x00592146;
+extern BYTE g_stageColourAlpha;
+
+// Creates the stage light with full white ambient and directional light.
+// TODO: CMR2 0x004918d0 (implemented, match 55%)
+void FUN_004918d0(void)
+{
+    BYTE ambient[4];
+    unsigned short angles[4];
+    FixVector light;
+    FixVector position;
+    char country;
+
+    light.x = 0xff0000;
+    light.y = 0xff0000;
+    light.z = 0xff0000;
+    ambient[0] = 0xff;
+    ambient[1] = 0xff;
+    ambient[2] = 0xff;
+    ambient[3] = 0xff;
+    position.x = 0x320000;
+    position.y = 0x4b0000;
+    position.z = 0x4b0000;
+    angles[0] = 0;
+    angles[1] = 0;
+    angles[2] = 0;
+    angles[3] = 0;
+    g_stageAmbientNode = Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &position, (FixAngles *)angles,
+                                           (SceneNode *)RallyData_FUN_00411060());
+    country = (char)RallyDataCountryIndex();
+    if (country != 3)
+        Scene_SetAmbient(ambient, 1);
+    else
+        Scene_SetAmbient(ambient, 0);
+    Scene_SetLight(&light, country != 3);
+    g_unk0x00592146 = 0xff;
+    g_stageColourAlpha = 0xff;
+}
+

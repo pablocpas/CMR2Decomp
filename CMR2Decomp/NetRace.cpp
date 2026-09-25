@@ -23,6 +23,8 @@ int g_unk0x00539ed0;
 BYTE g_unk0x00539ed8;
 // GLOBAL: CMR2 0x0053a00c
 int g_unk0x0053a00c[8];
+// GLOBAL: CMR2 0x0053a02c
+int g_unk0x0053a02c[8];
 // GLOBAL: CMR2 0x0053a04c
 int g_unk0x0053a04c[8];
 // GLOBAL: CMR2 0x0053a06c
@@ -234,6 +236,28 @@ void FUN_004283b0(void)
 
 int FUN_0041f3a0(void);
 BYTE FUN_00422fb0(unsigned int index);
+
+int FUN_00428740(BYTE index);
+
+// Sets a player's flash intensity: the value blended between its two ends
+// by t, divided by its duration (magnitude only).
+// TODO: CMR2 0x004285b0 (implemented, match 69%)
+void FUN_004285b0(unsigned int player, int t, int check)
+{
+    int value;
+
+    if (FUN_00428740((BYTE)player) != 0) {
+        player &= 0xff;
+        if (g_unk0x0053a0cc[player] == 0 || check == 0) {
+            value = FixMul(0x10000 - t, g_unk0x0053a02c[player]) + FixMul(t, g_unk0x0053a04c[player]);
+            if (value < 0) {
+                g_unk0x0053a06c[player] = FixDiv(-value, g_unk0x0053a0ec[player]);
+                return;
+            }
+            g_unk0x0053a06c[player] = FixDiv(value, g_unk0x0053a0ec[player]);
+        }
+    }
+}
 
 // Draws a player's flash overlay (fading with g_unk0x0053a06c) over pRect.
 // TODO: CMR2 0x00428680 (implemented, match 48%)

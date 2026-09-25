@@ -3140,3 +3140,31 @@ void FUN_0044b330(void)
     g_unk0x00541e00--;
 }
 
+// Sorts the stage results by time (zero times, i.e. no time, go last).
+// TODO: CMR2 0x0044b270 (implemented, match 83%)
+void FUN_0044b270(void)
+{
+    int i;
+    int j;
+    int best = 0;
+    int bestTime;
+    int time;
+    BYTE record;
+
+    for (i = 0; i < (int)((FUN_0041b370() & 0xff) + 1); i++) {
+        bestTime = 0xffff;
+        for (j = i; j < (int)((FUN_0041b370() & 0xff) + 1); j++) {
+            if (g_stageResultTimes[j] != 0 && g_stageResultTimes[j] < bestTime) {
+                best = j;
+                bestTime = g_stageResultTimes[j];
+            }
+        }
+        time = g_stageResultTimes[i];
+        record = g_stageResultRecords[best];
+        g_stageResultTimes[i] = g_stageResultTimes[best];
+        g_stageResultTimes[best] = time;
+        g_stageResultRecords[best] = g_stageResultRecords[i];
+        g_stageResultRecords[i] = record;
+    }
+}
+

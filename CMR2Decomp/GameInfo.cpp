@@ -2546,6 +2546,30 @@ void FUN_00403880(Menu *pMenu)
     FUN_00403200(pMenu);
 }
 
+void FUN_00427c10(void);
+
+// Callback 1 of the sound options menu: applies the volumes (or restores the
+// ones the menu started with when cancelled).
+// TODO: CMR2 0x00401420 (implemented, match 77%)
+void FUN_00401420(Menu *pMenu, char cancel)
+{
+    int rate;
+
+    if (cancel == 0) {
+        CGameInfo::FUN_00405e10(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
+        CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
+        if (FUN_004174d0())
+            CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
+    } else {
+        CGameInfo::FUN_00405e10(g_unk0x00529ecc);
+        CGameInfo::FUN_00405e50(g_unk0x0052a488);
+        CGameInfo::FUN_00405e80(g_unk0x0052ad50);
+    }
+    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
+    CInput::FUN_0049ffc0(rate / 4);
+    FUN_00427c10();
+}
+
 // FUNCTION: CMR2 0x00404ea0
 void FUN_00404ea0(BYTE param1)
 {

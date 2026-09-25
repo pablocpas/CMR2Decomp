@@ -6329,3 +6329,23 @@ Texture *FUN_004b9b80(char *name)
     return NULL;
 }
 
+// Draws every part of a mesh from its vertex buffer, one texture at a time,
+// and counts the triangles drawn.
+// FUNCTION: CMR2 0x0049c880
+void FUN_0049c880(Mesh *pMesh)
+{
+    int i;
+    MeshPart **ppPart;
+    MeshPart *pPart;
+
+    for (i = 0, ppPart = pMesh->pParts; i < pMesh->partCount; i++, ppPart++) {
+        pPart = *ppPart;
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+            D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+            pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
+            pPart->indexCount, 0);
+        CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+    }
+}
+
