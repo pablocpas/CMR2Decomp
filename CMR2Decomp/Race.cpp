@@ -12,6 +12,8 @@
 #include "StageTiming.h"
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
+#include "Input.h"
+#include "Menu.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -491,6 +493,64 @@ int FUN_00419b50(int param1, int param2)
 
 void FUN_00418d30(int param1, int param2, int param3, int param4, int param5);
 
+void FUN_00418dd0(int param1, int param2, char param3);
+void FUN_00418e20(int set, int dst, int src);
+BYTE FUN_00427aa0(void);
+
+// Moves the car's current sounds to the second bank (slots 4/5 to 6/7) on a
+// sound state change, stopping the ones that don't carry over.
+// TODO: CMR2 0x00419b90 (implemented, match 50%)
+void FUN_00419b90(int car, BYTE *pInfo)
+{
+    switch (*(int *)(pInfo + 0xa8)) {
+    case 1:
+    case 4:
+    case 9:
+    case 0xe:
+    case 0x10:
+    case 0x13:
+    case 0x18:
+        break;
+    case 2:
+    case 0x11:
+    case 0x16:
+        goto both;
+    default:
+        goto tail;
+    case 6:
+    case 0x15:
+        if (!FUN_00427aa0())
+            FUN_00418dd0(car, 4, 1);
+        break;
+    case 7:
+        if (!FUN_00427aa0())
+            FUN_00418dd0(car, 4, 1);
+        goto both;
+    case 0xb:
+        if (!FUN_00427aa0()) {
+            FUN_00418dd0(car, 4, 1);
+            FUN_00418dd0(car, 6, 1);
+        }
+        break;
+    case 0xc:
+        if (!FUN_00427aa0()) {
+            FUN_00418dd0(car, 4, 1);
+            FUN_00418dd0(car, 6, 1);
+        }
+        goto both;
+    }
+    FUN_00418e20(car, 4, 5);
+    goto tail;
+both:
+    FUN_00418e20(car, 4, 5);
+    FUN_00418e20(car, 6, 7);
+tail:
+    *(int *)(g_raceBlock + 0x94 + car * 4) = *(int *)(g_raceBlock + 0x48 + car * 4);
+    *(int *)(g_raceBlock + car * 4) = *(int *)(g_raceBlock + 0x220 + car * 4);
+    *(int *)(g_raceBlock + 0x48 + car * 4) = 0;
+    *(int *)(g_raceBlock + 0x220 + car * 4) = 0;
+}
+
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
 // TODO: CMR2 0x0041ae80 (implemented, match 54%)
@@ -794,5 +854,64 @@ void FUN_00416720(void)
     g_unk0x00537094 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, 0, 0);
     if (g_unk0x00537094 != NULL)
         g_unk0x00537358 = (int)g_unk0x00537094;
+}
+
+// GLOBAL: CMR2 0x00537364
+int g_unk0x00537364[4];
+// GLOBAL: CMR2 0x00537384
+int g_unk0x00537384[4];
+// GLOBAL: CMR2 0x00537398
+int g_unk0x00537398[4];
+
+int FUN_00427d50(unsigned int view, int listener);
+void FUN_004b79a0(unsigned int handle, int volume);
+
+// Updates the volume of each player's car sound by distance to its listener.
+// FUNCTION: CMR2 0x00418b00
+void FUN_00418b00(Unk0049c2c0 *p, BYTE index)
+{
+    int i;
+
+    for (i = 0; i < (BYTE)RallyDataState(); i++) {
+        if (g_carSounds[i] != -1) {
+            if (Sound_IsPlaying(g_carSounds[i]) == 0)
+                g_carSounds[i] = -1;
+            else
+                FUN_004b79a0(g_carSounds[i], FixMul(FUN_00427d50(g_unk0x00537398[i], g_unk0x00537364[i]),
+                                                    FixMul(g_unk0x00537394, g_unk0x00537384[i])));
+        }
+    }
+}
+
+void FUN_0040bad0(void);
+struct DeviceInfo;
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+BYTE *FUN_00475f70(void);
+int FUN_0041f410(void);
+
+// Update handler of the pause state (state table 0x5190b0): runs the pause
+// menu until it closes.
+// FUNCTION: CMR2 0x0041f420
+void FUN_0041f420(Unk0049c2c0 *p, BYTE index)
+{
+    DeviceInfo *pDev;
+
+    if (g_unk0x00538108 != 0) {
+        if (FUN_0041f410()) {
+            CGameInfo::FUN_0049ea90(0);
+            CGame::FUN_0049c1c0(p, index, 0, 2);
+            return;
+        }
+        g_unk0x00538108 = 0;
+        return;
+    }
+    CGameInfo::FUN_0049ea90(1);
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    pDev = CInput::FUN_0049ead0(0);
+    FUN_0040bd60(0, pDev);
+    Menu_Update((Menu *)FUN_00475f70(), pDev->field_0x8);
+    if (g_unk0x00537f94 != 0)
+        CGame::FUN_0049c1c0(p, index, 1, 2);
 }
 

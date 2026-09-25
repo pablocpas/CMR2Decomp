@@ -3182,3 +3182,151 @@ void FUN_004917f0(int *pOut, unsigned short *pIndices)
     pOut[8] = *(int *)(g_unk0x00591b14 + 8 + pIndices[2] * 0xc);
 }
 
+int RallyData_FUN_004209d0(BYTE *p);
+int *FUN_00407520(int index);
+
+// Third ramp of a view's object state: value by route position plus the
+// car's progress within the node.
+// TODO: CMR2 0x0045e8b0 (implemented, match 70%)
+void FUN_0045e8b0(unsigned int *pRecord, int view)
+{
+    Car *pCar;
+    unsigned int position;
+
+    if (RallyData_FUN_00421500() == 0) {
+        pRecord[6] = pRecord[4];
+        pCar = Car_Get(FUN_00422fb0(view));
+        position = RallyData_FUN_00421370((BYTE *)pCar);
+        pRecord[0] = position;
+        if (position != pRecord[1]) {
+            pRecord[1] = position;
+            if ((unsigned int)g_unk0x00543d94 < position) {
+                if (position < (unsigned int)g_unk0x00543d98)
+                    pRecord[2] = FixMul((position - g_unk0x00543d94) << 16, g_unk0x00543d90) + g_unk0x00543d88;
+                else
+                    pRecord[2] = g_unk0x00543d8c;
+            } else {
+                pRecord[2] = g_unk0x00543d88;
+            }
+        }
+        if (pRecord[0] < (unsigned int)g_unk0x00543d98 && (unsigned int)g_unk0x00543d94 <= pRecord[0]) {
+            pRecord[3] = FixMul(g_unk0x00543d90, RallyData_FUN_004209d0((BYTE *)pCar));
+            pRecord[4] = pRecord[2] + pRecord[3];
+            return;
+        }
+        pRecord[3] = 0;
+        pRecord[4] = pRecord[2] + pRecord[3];
+    }
+}
+
+int FUN_00460c80(BYTE *pCar);
+void Car_UpdateSurfaceParams(Car *pCar, int blend);
+void FUN_004789b0(BYTE *pCar);
+
+// Sets the third object ramp and resets every car's record and surface.
+// TODO: CMR2 0x0045e710 (implemented, match 59%)
+void FUN_0045e710(int v1, int v2, int from, int to)
+{
+    int i;
+    int *p;
+
+    g_unk0x00543d74 = v1;
+    g_unk0x00543d78 = v2;
+    g_unk0x00543d84 = to;
+    g_unk0x00543d7c = (to - from) << 16;
+    g_unk0x00543d80 = from;
+    if (g_unk0x00543d7c > 0)
+        g_unk0x00543d7c = FixDiv(0x10000, g_unk0x00543d7c);
+    g_unk0x00543d7c = FixMul(g_unk0x00543d7c, v2 - v1);
+    for (i = 0; i < g_unk0x00547acc; i++) {
+        p = (int *)((BYTE *)g_unk0x00543ecc + i * 0xc);
+        p[1] = 0;
+        p[0] = 0;
+        p[2] = g_unk0x00543d74;
+        Car_UpdateSurfaceParams(Car_Get(i), FUN_00460c80((BYTE *)Car_Get(i)));
+        FUN_004789b0((BYTE *)Car_Get(i));
+    }
+}
+
+// Weather tables by setting: type, and two blend values.
+// GLOBAL: CMR2 0x0051b04c
+int g_weatherType[9] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+// GLOBAL: CMR2 0x0051b070
+int g_weatherBlendA[9] = { 0, 32768, 65536, 26214, 45875, 65536, 26214, 45875, 65536 };
+// GLOBAL: CMR2 0x0051b094
+int g_weatherBlendB[9] = { 0, 0, 0, 45875, 55705, 65536, 45875, 55705, 65536 };
+// GLOBAL: CMR2 0x00543d54
+int g_unk0x00543d54;
+// GLOBAL: CMR2 0x00543e9c
+int g_unk0x00543e9c;
+// GLOBAL: CMR2 0x00543fa8
+int g_unk0x00543fa8;
+
+// Sets up the weather change of the stage from its two settings.
+// TODO: CMR2 0x0045ea70 (implemented, match 71%)
+void FUN_0045ea70(void)
+{
+    int *pPair = FUN_00407520(RallyDataStageIndex());
+    int other = g_weatherType[pPair[1]];
+
+    g_unk0x00543d54 = g_weatherType[pPair[0]];
+    g_unk0x00543e9c = g_weatherBlendA[pPair[0]];
+    g_unk0x00543fa8 = g_weatherBlendA[pPair[1]];
+    g_unk0x00543e88 = g_weatherBlendB[pPair[0]];
+    g_unk0x00543d9c = g_weatherBlendB[pPair[1]];
+    if (g_unk0x00543d54 == 0) {
+        if (other != 0) {
+            g_unk0x00543e9c = 0;
+            g_unk0x00543d54 = other;
+        }
+    } else if (other == 0) {
+        g_unk0x00543fa8 = 0;
+    }
+    if (g_unk0x00543e9c != g_unk0x00543fa8) {
+        g_unk0x00543e8c = (unsigned int)RallyData_FUN_00421420() / 5;
+        g_unk0x00543e94 = RallyData_FUN_00421420() - g_unk0x00543e8c / 5;
+        return;
+    }
+    g_unk0x00543e8c = 0;
+    g_unk0x00543e94 = 0;
+}
+
+// Advances a car's checkpoint record on a looped stage.
+// TODO: CMR2 0x004590a0 (implemented, match 18%)
+void FUN_004590a0(int car, int time)
+{
+    Unk0x00542e78 *p = &g_unk0x00542e78[car];
+    int count;
+
+    if (p->field_0x18 != 0) {
+        if (p->field_0x6 == g_unk0x00542c74 - 1)
+            p->field_0x19 = 1;
+        p->field_0x6 = 0;
+        p->field_0xa = 1;
+        p->field_0x14 = 0;
+        p->field_0x17 = 1;
+        return;
+    }
+    if ((int)(__int64)(time * CGraphics::m_65536) == g_unk0x00542c7c[p->field_0xa]) {
+        p->field_0x17 = 1;
+        p->field_0x6 = p->field_0xa;
+        p->field_0xa++;
+        count = g_unk0x00542c74;
+        if (p->field_0xa == count)
+            p->field_0xa = 0;
+        p->field_0x14++;
+        if (count <= p->field_0x14)
+            p->field_0x14 = 0;
+    }
+}
+
+// Inserts the car's current time at its split into the split ranking.
+// FUNCTION: CMR2 0x00456a00
+void FUN_00456a00(int car, int driver)
+{
+    int split = FUN_00458370(car);
+
+    if (CGameInfo::FUN_00405d80() != 4)
+        FUN_00455af0(driver, FUN_00448110(), split);
+}
+

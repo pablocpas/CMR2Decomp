@@ -655,6 +655,30 @@ void FUN_0043fb50(void)
         g_pCurrentCar->field_0x8b8[i] = g_pCurrentCar->field_0x8b4;
 }
 
+extern FixVector g_carStepAccel;
+
+// Sets the current car's corner mass and the per-corner spring rates from its
+// mass and suspension lengths.
+// TODO: CMR2 0x0043fbd0 (implemented, match 69%)
+void FUN_0043fbd0(void)
+{
+    BYTE *p = (BYTE *)g_pCurrentCar;
+    int k;
+    int i;
+
+    g_pCurrentCar->cornerMass = g_pCurrentCar->field_0x75c / 4;
+    g_carStepAccel.x = 0;
+    g_carStepAccel.y = 0;
+    g_carStepAccel.z = 0;
+    k = FixMul(g_pCurrentCar->cornerMass + 0x1e0000, 0x8000);
+    g_pCurrentCar->field_0xa5c[0] = FixMul(k, *(int *)(p + 0x1a4) + *(int *)(p + 0x88));
+    g_pCurrentCar->field_0xa4c[0] = FixMul(k, *(int *)(p + 0x1a4) + *(int *)(p + 0x80));
+    for (i = 1; i < 4; i++) {
+        g_pCurrentCar->field_0xa5c[i] = g_pCurrentCar->field_0xa5c[0];
+        g_pCurrentCar->field_0xa4c[i] = g_pCurrentCar->field_0xa4c[0];
+    }
+}
+
 // Same as Car_UpdateBodyAxes without the final velocity damping.
 // FUNCTION: CMR2 0x0043fcc0
 void Car_UpdateBodyAxesNoDamping(void)
@@ -2754,6 +2778,27 @@ void FUN_0043e1b0(int value)
 void FUN_0043e1d0(BYTE value)
 {
     g_pCurrentCar->field_0xb29 = value;
+}
+
+int FUN_00437f90(void);
+
+// Engine torque of the current car (less the speed drag) split between the
+// front and rear wheels by the drive split.
+// TODO: CMR2 0x00442fc0 (implemented, match 63%)
+void FUN_00442fc0(void)
+{
+    int torque;
+    int front;
+
+    g_pCurrentCar->field_0x780 =
+        FUN_00437f90() - FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
+    torque = FixMul(g_pCurrentCar->field_0x780, g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]);
+    front = FixMul(torque, g_pCurrentCar->field_0x7b4) / 2;
+    g_pCurrentCar->wheelTorque[0] = front;
+    g_pCurrentCar->wheelTorque[1] = front;
+    front = torque / 2 - front;
+    g_pCurrentCar->wheelTorque[2] = front;
+    g_pCurrentCar->wheelTorque[3] = front;
 }
 
 // FUNCTION: CMR2 0x00443230

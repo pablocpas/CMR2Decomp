@@ -1883,8 +1883,13 @@ int g_unk0x00536c3c;
 int g_unk0x00536e88[2];
 // GLOBAL: CMR2 0x00536ec4
 int g_unk0x00536ec4[2];
+// Name of the stage leader (8 bytes in the original; longer names run into the
+// split values at +8/+0xc as there), kept as one block up to 0x536fe0.
 // GLOBAL: CMR2 0x00536ed0
-char g_unk0x00536ed0[0x100];
+BYTE g_unk0x00536ed0Block[0x110];
+#define g_unk0x00536ed0 ((char *)g_unk0x00536ed0Block)
+#define g_unk0x00536ed8 (*(int *)(g_unk0x00536ed0Block + 8))
+#define g_unk0x00536edc (*(int *)(g_unk0x00536ed0Block + 0xc))
 // GLOBAL: CMR2 0x0053706c
 int g_unk0x0053706c;
 
@@ -3594,6 +3599,53 @@ void FUN_00415990(int car)
         }
     } else {
         FUN_00415a60(car);
+    }
+}
+
+BYTE FUN_00458250(int index);
+void FUN_00427990(int index, int value);
+unsigned int FUN_0040a410(int split);
+void FUN_00411ab0(BYTE param1, int param2);
+
+// On passing a split: stores the split time, fetches the time to beat and
+// starts the split display (ahead/behind) for the car.
+// TODO: CMR2 0x00413520 (implemented, match 69%)
+void FUN_00413520(int car)
+{
+    int split;
+    int target;
+
+    g_unk0x00536e90[0] = 0;
+    if (FUN_00458250(car) == 0) {
+        if (g_unk0x00536c14 == 0)
+            return;
+    } else {
+        split = FUN_00458370(car);
+        g_unk0x00536ed8 = split;
+        if (split > 0 && split < 9) {
+            g_stageSplitData[car].times[split + 1] = g_stageSplitData[car].times[0];
+            g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
+            g_stageSplitData[car].split = split;
+            FUN_00427990(split, g_stageSplitData[car].times[0]);
+        }
+        g_unk0x00536c14 = 1;
+    }
+    target = FUN_0040a410(g_unk0x00536ed8);
+    g_stageSplitData[car].targetTime = target;
+    if (g_stageSplitData[car].lastSplitTime < target) {
+        FUN_00411ab0((BYTE)car, 1);
+    } else {
+        if (target == 0) {
+            g_unk0x00536e90[0] = 1;
+            goto show;
+        }
+        FUN_00411ab0((BYTE)car, 0);
+    }
+    g_unk0x00536c14 = 0;
+show:
+    if (g_unk0x00536ed8 != 0) {
+        ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
+        g_unk0x00536c20[car] = 0x4b;
     }
 }
 

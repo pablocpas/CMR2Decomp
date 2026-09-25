@@ -2436,17 +2436,18 @@ int FUN_00404e10(unsigned short slot)
     return 0;
 }
 
-// Network race options chosen in the options menu (0x4035e0).
+// Camera options chosen in the camera menu (0x4035e0): offset, height, distance.
 // GLOBAL: CMR2 0x0052a86c
 short g_unk0x0052a86c;
-// GLOBAL: CMR2 0x0052aa54
-int g_unk0x0052aa54;
-// GLOBAL: CMR2 0x0052aa58
-int g_unk0x0052aa58;
+// Camera offset chosen in the camera options menu.
+// GLOBAL: CMR2 0x0052aa50
+FixVector g_unk0x0052aa50;
+#define g_unk0x0052aa54 (g_unk0x0052aa50.y)
+#define g_unk0x0052aa58 (g_unk0x0052aa50.z)
 // GLOBAL: CMR2 0x0052aa5c
 int g_unk0x0052aa5c;
 
-// Callback of the network options menu: turns the four sliders into values.
+// Callback of the camera options menu: turns the four sliders into values.
 // FUNCTION: CMR2 0x00403200
 void FUN_00403200(Menu *pMenu)
 {
@@ -2594,6 +2595,38 @@ void FUN_00404b80(Menu *pMenu, int param)
         }
         pMenu->items[Menu_FindItem(pMenu, 4)].max = 2 - (g_unk0x005298f8 & 3);
     }
+}
+
+// Offset, height and distance the camera menu started with (restored on cancel).
+// GLOBAL: CMR2 0x0052af60
+FixVector g_unk0x0052af60;
+// GLOBAL: CMR2 0x00529914
+int g_unk0x00529914;
+// GLOBAL: CMR2 0x0052a48c
+short g_unk0x0052a48c;
+
+void FUN_00447d20(unsigned int index, FixVector *pOffset);
+void FUN_00447e20(unsigned int index, short value);
+void FUN_00447ec0(unsigned int index, int value);
+void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
+
+// Callback 1 of the camera options menu: applies the chosen offset (and
+// stores it for the driver), or restores the old one when cancelled.
+// TODO: CMR2 0x004037c0 (implemented, match 77%)
+void FUN_004037c0(Menu *pMenu, char cancel)
+{
+    if (cancel != 0) {
+        FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052af60);
+        FUN_00447ec0(g_unk0x0052af58[1], g_unk0x00529914);
+        FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a48c);
+        return;
+    }
+    FUN_00447ec0(g_unk0x0052af58[1], g_unk0x0052aa5c);
+    FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052aa50);
+    FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
+    CGameInfo::FUN_00405fa0((DWORD *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c);
+    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c,
+                           (BYTE)((FUN_0041b370() & 0xff) + g_unk0x0052af58[1]));
 }
 
 // FUNCTION: CMR2 0x00404ea0

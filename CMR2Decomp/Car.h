@@ -70,7 +70,8 @@ struct Car {
     int speed;                        // 0x778  length of the velocity vector
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
     int field_0x780;                  // 0x780  engine acceleration while no gear is engaged
-    BYTE field_0x784[0xc];
+    int field_0x784;                  // 0x784  drag factor of the engine speed
+    BYTE field_0x788[0x8];
     int field_0x790;                  // 0x790
     int field_0x794;                  // 0x794
     BYTE field_0x798[0x4];
@@ -96,7 +97,7 @@ struct Car {
     int field_0x830;                  // 0x830
     int field_0x834;                  // 0x834
     int field_0x838;                  // 0x838
-    BYTE field_0x83c[0x4];
+    int field_0x83c;                  // 0x83c  swing phase of 0x838
     int field_0x840;                  // 0x840
     int field_0x844;                  // 0x844  target of the 0x848 swing
     int field_0x848;                  // 0x848

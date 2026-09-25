@@ -14,6 +14,8 @@
 #include "StageTiming.h"
 #include "GameInfo.h"
 #include "Texture.h"
+#include "Input.h"
+#include "Menu.h"
 
 // FUNCTION: CMR2 0x00415bc0
 void FUN_00415bc0(int, int)
@@ -803,5 +805,36 @@ void FUN_004165e0(void)
         return;
     }
     g_pArrowRects = g_arrowRectsSmall;
+}
+
+// GLOBAL: CMR2 0x0058ca8c
+BYTE g_unk0x0058ca8c[4];
+
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+BYTE FUN_004bc0c0(BYTE *p);
+
+// Runs the current in-race menu for one frame (with no input while one of
+// the two key latches is held) and follows the menu it returns.
+// FUNCTION: CMR2 0x00473470
+void FUN_00473470(void)
+{
+    DeviceInfo *pDev;
+    int next;
+
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    if (!FUN_004bc0c0(g_unk0x0058ca90 + 0x1e0) && !FUN_004bc0c0(g_unk0x0058ca8c)) {
+        pDev = CInput::FUN_0049ead0(0);
+        FUN_0040bd60(0, pDev);
+        next = Menu_Update((Menu *)g_pUnk0x0051c97c, pDev->field_0x8);
+    } else {
+        next = Menu_Update((Menu *)g_pUnk0x0051c97c, 0);
+    }
+    if (next != 0) {
+        g_unk0x0058ca90[7] = 0;
+        g_unk0x0058ca90[0x1ef] = 1;
+        g_pUnk0x0051c97c = (BYTE *)next;
+    }
 }
 

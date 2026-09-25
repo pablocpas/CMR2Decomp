@@ -852,3 +852,25 @@ void FUN_00492fe0(DWORD *pColour, int start, int end)
     g_stageColourAlpha = 0;
 }
 
+// Swings field 0x838 of the auto-gear car toward 0x82c over time while its
+// flag 3 is set and the shift is unlocked; else resets it.
+// FUNCTION: CMR2 0x00494880
+void FUN_00494880(void)
+{
+    unsigned short angle;
+
+    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->field_0xb94 == 0) {
+        g_pAutoGearCar->field_0x83c += g_pAutoGearCar->field_0x834;
+        if (g_pAutoGearCar->field_0x83c > 0x10000) {
+            g_pAutoGearCar->field_0x83c = 0x10000;
+            g_pAutoGearCar->field_0x838 = g_pAutoGearCar->field_0x82c;
+            return;
+        }
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x83c, 0x5a0000) * g_unk0x00511300);
+        g_pAutoGearCar->field_0x838 = FixMul(g_pAutoGearCar->field_0x82c, g_sinTable[angle & 0xfff]);
+        return;
+    }
+    g_pAutoGearCar->field_0x83c = 0;
+    g_pAutoGearCar->field_0x838 = 0;
+}
+

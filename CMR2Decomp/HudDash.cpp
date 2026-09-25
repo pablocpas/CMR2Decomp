@@ -781,3 +781,17 @@ void FUN_00447d20(unsigned int index, FixVector *pOffset)
     FUN_00447e20(index, FUN_00447e00(index));
 }
 
+// Resets a player's camera to the default offset, height and distance.
+// FUNCTION: CMR2 0x00447ca0
+void FUN_00447ca0(unsigned int index)
+{
+    FixVector offset;
+
+    offset.x = 0;
+    offset.y = 0x18000;
+    offset.z = 0x68000;
+    FUN_00447d20(index, &offset);
+    FUN_00447e20(index, 0x2d);
+    FUN_00447ec0(index, 0xe0000);
+}
+

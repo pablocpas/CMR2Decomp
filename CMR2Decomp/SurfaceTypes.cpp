@@ -440,3 +440,69 @@ void FUN_00478be0(void)
     FUN_004a0c40(1);
 }
 
+// GLOBAL: CMR2 0x0051e948
+char g_strTxtFormat[] = "%s.txt";
+// GLOBAL: CMR2 0x0051e950
+char g_strLangPolish[] = "gpolish";
+// GLOBAL: CMR2 0x0051e958
+char g_strLangEngUsa[] = "gengusa";
+// GLOBAL: CMR2 0x0051e960
+char g_strLangGerman[] = "ggerman";
+// GLOBAL: CMR2 0x0051e968
+char g_strLangItalian[] = "gitalian";
+// GLOBAL: CMR2 0x0051e974
+char g_strLangSpanish[] = "gspanish";
+// GLOBAL: CMR2 0x0051e980
+char g_strLangFrench[] = "gfrench";
+// GLOBAL: CMR2 0x0051e988
+char g_strLangEnglish[] = "genglish";
+
+#include "StageTiming.h"
+#include "GenericFileLoader.h"
+#include "Game.h"
+#include <stdio.h>
+
+BYTE FUN_00478b20(void);
+
+// Loads the game text of the region's language and splits it into the
+// string table (release callback FUN_00478b20).
+// TODO: CMR2 0x00478a20 (implemented, match 80%)
+int FUN_00478a20(void)
+{
+    char *names[10];
+    char **pList;
+
+    names[5] = g_strLangEnglish;
+    names[6] = g_strLangFrench;
+    names[7] = g_strLangSpanish;
+    names[8] = g_strLangItalian;
+    names[9] = g_strLangGerman;
+    names[2] = g_strLangEngUsa;
+    names[3] = g_strLangFrench;
+    names[4] = g_strLangSpanish;
+    names[0] = g_strLangEnglish;
+    names[1] = g_strLangPolish;
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        pList = &names[5];
+        break;
+    case 1:
+        pList = &names[2];
+        break;
+    case 2:
+        pList = &names[0];
+        break;
+    default:
+        pList = &names[1];
+        break;
+    }
+    sprintf(CFrontend::m_stringDest, g_strTxtFormat, pList[CGameInfo::GetGameLanguage()]);
+    g_unk0x0058dc54 = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile6(), CFrontend::m_stringDest,
+                                                   (BYTE *)g_unk0x0058db50, 0, 0);
+    if (g_unk0x0058dc54 == NULL)
+        return 0;
+    CFrontend::FUN_004a3c90(1, 0x104, (BYTE **)&g_unk0x0058dc54);
+    CGame::RegisterCallback(FUN_00478b20, 0);
+    return 1;
+}
+

@@ -537,6 +537,47 @@ BYTE FUN_0046bd40(int index)
     return g_unk0x00588ba4[index];
 }
 
+// Decodes one 4-byte replay input packet into the control record pOut and the
+// car's handbrake/light switches; returns 1 when the packet's repeat count is
+// used up.
+// TODO: CMR2 0x0046bec0 (implemented, match 75%)
+int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
+{
+    BYTE steer = pIn[3] & 0x3f;
+    BYTE *p = (BYTE *)pCar;
+
+    if ((pIn[3] & 0x40) == 0) {
+        pOut[0] = 0;
+        pOut[1] = steer;
+    } else {
+        pOut[0] = steer;
+        pOut[1] = 0;
+    }
+    pOut[2] = pIn[0] >> 2;
+    pOut[3] = pIn[1] >> 2;
+    *(unsigned int *)(pOut + 8) = pIn[2] >> 7;
+    pOut[4] = (pIn[1] & 3) - 1;
+    *(unsigned int *)(pOut + 0xc) = (pIn[2] & 0x40) >> 6;
+    if ((pIn[0] & 1) == 0)
+        *(int *)(p + 0xb8c) = 0;
+    else
+        *(int *)(p + 0xb8c) = 1;
+    if ((pIn[0] & 2) == 0)
+        *(int *)(p + 0xb90) = 0;
+    else
+        *(int *)(p + 0xb90) = 1;
+    if ((pIn[3] & 0x80) == 0)
+        *(int *)(p + 0xb88) = 0;
+    else if (*pState == 0)
+        *(int *)(p + 0xb88) = 2;
+    else
+        *(int *)(p + 0xb88) = 1;
+    if ((BYTE)++*pCounter < (pIn[2] & 0x3f))
+        return 0;
+    *pCounter = 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x0046bfb0
 void FUN_0046bfb0(Block0x309 *pSrc, Block0x309 *pDst)
 {
@@ -2985,5 +3026,34 @@ void FUN_00465530(void)
         pDelta->y = 0;
         pDelta->z = 0;
     }
+}
+
+// GLOBAL: CMR2 0x00590b50
+FixVector g_unk0x00590b50;
+
+int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+extern float g_oneOverRandMax;
+
+// Applies an impulse (scaled by a random 0.7..1.0) against the vehicle's
+// velocity, in its body frame.
+// TODO: CMR2 0x004853c0 (implemented, match 34%)
+void FUN_004853c0(FixVector *pImpulse)
+{
+    BYTE *pVehicle = (BYTE *)g_unk0x00590d74;
+    FixVector scaled;
+    FixVector local;
+    int random;
+    int scale;
+
+    FixMatrix_InverseRotateVector(&g_unk0x00590b50, (FixVector *)(pVehicle + 0x408), *(FixMatrix **)(pVehicle + 0x750));
+    random = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
+    scale = FixMul(random, 0x4ccc) + 0xb333;
+    scaled.x = FixMul(pImpulse->x, scale);
+    scaled.y = FixMul(pImpulse->y, scale);
+    scaled.z = FixMul(pImpulse->z, scale);
+    FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(pVehicle + 0x750));
+    g_unk0x00590b50.y -= local.y;
+    g_unk0x00590b50.x -= local.x;
+    g_unk0x00590b50.z -= local.z;
 }
 
