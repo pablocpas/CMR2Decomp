@@ -168,7 +168,10 @@ int g_unk0x0058da10[8];
 // GLOBAL: CMR2 0x0058dda8
 int g_unk0x0058dda8;
 // GLOBAL: CMR2 0x0058e230
-int g_unk0x0058e230[16];
+int g_unk0x0058e230[15];
+// Random seed of the stage (kept for replays).
+// GLOBAL: CMR2 0x0058e26c
+int g_unk0x0058e26c;
 // GLOBAL: CMR2 0x0058e270
 char g_unk0x0058e270[16];
 // GLOBAL: CMR2 0x0058e0b0
@@ -3280,5 +3283,149 @@ void FUN_00464b60(void)
     p[16] = (short)(w / 2);
     p[18] = (short)(w / 2);
     p[19] = (short)h;
+}
+
+#define FIXVEC_EQ(a, b) ((a).x == (b).x && (a).y == (b).y && (a).z == (b).z)
+
+// Interpolates every stage object's matrix between its two keys and flags
+// the ones that moved.
+// TODO: CMR2 0x00471950 (implemented, match 68%)
+void FUN_00471950(int t)
+{
+    int i;
+    BYTE *p;
+    FixMatrix old;
+    FixMatrix *pCurrent;
+
+    for (i = 0; i < g_unk0x0058c924; i++) {
+        p = (BYTE *)&g_unk0x005894e0[i];
+        pCurrent = (FixMatrix *)(p + 0x88);
+        old = *pCurrent;
+        FixMatrix_Interpolate(pCurrent, (FixMatrix *)(p + 0x48), (FixMatrix *)(p + 8), t, t, t, 1);
+        if (FIXVEC_EQ(old.right, pCurrent->right) && FIXVEC_EQ(old.up, pCurrent->up) &&
+            FIXVEC_EQ(old.forward, pCurrent->forward) && FIXVEC_EQ(old.position, pCurrent->position))
+            *(int *)(p + 0x124) = 0;
+        else
+            *(int *)(p + 0x124) = 1;
+    }
+}
+
+char FUN_00420190(void);
+void FUN_0043f570(Car *pCar);
+
+// Seeds the stage's random numbers (unless replaying) and gives the computer
+// cars their start revs by difficulty.
+// TODO: CMR2 0x0047c1e0 (implemented, match 87%)
+void FUN_0047c1e0(char replay, char restart)
+{
+    int i;
+    int r;
+    int v;
+    int start;
+    Car *pCar;
+
+    if (replay == 0 || restart != 0)
+        g_unk0x0058e26c = CMain::GetFrameTime();
+    if (CGameInfo::FUN_00406320())
+        g_unk0x0058e26c = 0;
+    srand(g_unk0x0058e26c);
+    rand();
+    for (i = 0; i < (BYTE)FUN_00420190(); i++) {
+        r = rand();
+        switch (CGameInfo::FUN_00405d90()) {
+        case 0:
+            v = r * 2;
+            break;
+        case 1:
+            v = r + 0x8000;
+            break;
+        case 2:
+            if (i > 2)
+                v = r + 0x8000;
+            else
+                v = 0x10000;
+            break;
+        default:
+            v = 0;
+        }
+        if (r < 0x4ccd)
+            start = 0x10000 - v % 10;
+        else
+            start = 0;
+        if ((int)(RallyDataState() & 0xff) <= i) {
+            pCar = Car_Get(i);
+            pCar->field_0x7a4 = FixMul(start, pCar->field_0x794);
+            if (replay != 0 && restart == 0)
+                FUN_0043f570(pCar);
+        }
+    }
+}
+
+BYTE *FUN_00498570(int index);
+
+// Exhaust points of each car (4 per car).
+// GLOBAL: CMR2 0x00549c20
+FixVector g_unk0x00549c20[8][4];
+
+// Rebuilds a car's four exhaust points halfway between its body path points.
+// TODO: CMR2 0x004657d0 (implemented, match 9%)
+void FUN_004657d0(int car)
+{
+    int off;
+    int *pOut;
+    int *pA;
+    int *pB;
+    FixVector d;
+
+    if (car < 8 && FUN_00498570(car) != NULL) {
+        pOut = &g_unk0x00549c20[car][0].y;
+        for (off = 0x1c8; off < 0x1f8; off += 0xc, pOut += 3) {
+            pA = (int *)(FUN_00498570(car) - 0x30 + off);
+            pB = (int *)(FUN_00498570(car) + off);
+            d.x = pA[0] - pB[0];
+            d.y = pA[1] - pB[1];
+            d.z = pA[2] - pB[2];
+            d.x = FixMul(d.x, 0x8000);
+            d.y = FixMul(d.y, 0x8000);
+            d.z = FixMul(d.z, 0x8000);
+            d.x += pB[0];
+            d.y += pB[1];
+            d.z += pB[2];
+            pOut[-1] = d.x;
+            pOut[0] = d.y;
+            pOut[1] = d.z;
+            pOut[0] += 0xccc;
+        }
+    }
+}
+
+BYTE FUN_0042b710(int index);
+void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
+
+// Encodes a car's controls into a replay packet.
+// FUNCTION: CMR2 0x0046c450
+void FUN_0046c450(BYTE *pOut, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+    DeviceInfo *pDev = CInput::FUN_0049ead0((char)FUN_0042b710(pCar->field_0xb1a));
+
+    FUN_0046bdc0((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, *(int *)((BYTE *)pCar + 0xb88),
+                 *(int *)((BYTE *)pCar + 0xb8c), *(int *)((BYTE *)pCar + 0xb90));
+}
+
+int FUN_0041f3a0(void);
+
+// Screen rectangle of a view: full screen with one player, else the half
+// for the split direction.
+// FUNCTION: CMR2 0x00464b10
+BYTE *FUN_00464b10(int view)
+{
+    FUN_00464b60();
+    if ((BYTE)RallyDataState() != 1 && FUN_0041f3a0() == 0) {
+        if (CGameInfo::FUN_00405dc0())
+            return (BYTE *)&g_unk0x0051b9f0[1 + view];
+        return (BYTE *)&g_unk0x0051b9f0[3 + view];
+    }
+    return (BYTE *)g_unk0x0051b9f0;
 }
 

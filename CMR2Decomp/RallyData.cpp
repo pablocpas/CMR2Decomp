@@ -32,6 +32,7 @@ BYTE g_saveData[0x2270];
 #include <stdlib.h>
 #include "StageTiming.h"
 #include "StageUI.h"
+#include "FileBuffer.h"
 
 int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
@@ -3677,5 +3678,68 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
     return (*(unsigned int *)(g_unk0x0052f3e8 + 0x66c +
                               ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650) &
             (1 << bit)) != 0;
+}
+
+// GLOBAL: CMR2 0x0058c944
+void *g_unk0x0058c944;
+// GLOBAL: CMR2 0x0058c948
+void *g_unk0x0058c948;
+// GLOBAL: CMR2 0x0058ca70
+void *g_unk0x0058ca70;
+
+#define FREE_AND_CLEAR(p)                            \
+    if ((p) != NULL) {                               \
+        CFileBuffer::FreeGenericFileBuffer((void *)(p)); \
+        (p) = NULL;                                  \
+    }
+
+// Releases the sector lists and element tables (registered callback of 0x471dd0).
+// FUNCTION: CMR2 0x00472720
+int FUN_00472720(void)
+{
+    FREE_AND_CLEAR(g_unk0x0058c948)
+    FREE_AND_CLEAR(g_unk0x0058c958)
+    FREE_AND_CLEAR(g_unk0x0058ca70)
+    FREE_AND_CLEAR(g_sectorListEntriesA)
+    FREE_AND_CLEAR(g_unk0x0058c944)
+    FREE_AND_CLEAR(g_sectorListIndexA)
+    FREE_AND_CLEAR(g_sectorListCountA)
+    FREE_AND_CLEAR(g_unk0x0058c94c)
+    FREE_AND_CLEAR(g_sectorListCountB)
+    FREE_AND_CLEAR(g_sectorListIndexB)
+    FREE_AND_CLEAR(g_sectorListEntriesB)
+    FREE_AND_CLEAR(g_unk0x0058c938)
+    return 1;
+}
+
+BYTE *FUN_00464af0(int index);
+struct StageTableEntry;
+StageTableEntry *FUN_00464b00(int index);
+void FUN_00464b60(void);
+int FUN_0041f3a0(void);
+
+// Screen rectangle of a view: full screen, or the half chosen by the split
+// direction (vertical or horizontal).
+// TODO: CMR2 0x0040f050 (implemented, match 55%)
+int *FUN_0040f050(int view)
+{
+    int *pRect;
+    int *pSource;
+    int which;
+
+    FUN_00464b60();
+    pRect = (int *)FUN_00464af0(view);
+    if ((BYTE)RallyDataState() != 1 && FUN_0041f3a0() == 0) {
+        if (view == 0)
+            which = CGameInfo::FUN_00405dc0() ? 1 : 3;
+        else
+            which = CGameInfo::FUN_00405dc0() ? 2 : 4;
+    } else {
+        which = 0;
+    }
+    pSource = (int *)FUN_00464b00(which);
+    pRect[0] = pSource[0];
+    pRect[1] = pSource[1];
+    return pRect;
 }
 

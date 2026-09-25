@@ -255,7 +255,7 @@ inline short FixAcos(int x)
 }
 
 // GLOBAL: CMR2 0x0053aba8
-extern Car *g_cars[64];
+extern Car *g_cars[40];
 // GLOBAL: CMR2 0x0053bd68
 extern int g_carCount;
 // GLOBAL: CMR2 0x0053c9a4

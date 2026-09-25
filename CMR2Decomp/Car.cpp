@@ -8,7 +8,7 @@
 #include "Mesh.h"
 #include <string.h>
 
-Car *g_cars[64];
+Car *g_cars[40];
 int g_carCount;
 Car *g_carBuffer;
 Car *g_pCurrentCar;
@@ -2620,7 +2620,7 @@ struct CarShortValues {
     short a, b, c, d;
 };
 // GLOBAL: CMR2 0x0053a230
-CarShortValues g_unk0x0053a230[30];
+CarShortValues g_unk0x0053a230[8];
 
 // TODO: CMR2 0x0042b5b0 (implemented, match 13%)
 void FUN_0042b5b0(int first, int count)
@@ -3787,5 +3787,67 @@ int FUN_00421590(void)
         FUN_00447ca0(i);
     }
     return 1;
+}
+
+// Lifts the current car out of the ground by the deepest penetration of a
+// free corner.
+// TODO: CMR2 0x0042f8c0 (implemented, match 14%)
+void FUN_0042f8c0(void)
+{
+    int found = 0;
+    int deepest = 0;
+    int i;
+    int d;
+    int lift;
+
+    for (i = 7; i >= 0; i--) {
+        if (g_pCurrentCar->cornerFlags[i] == 0) {
+            d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y;
+            if (d > 0 && deepest < d) {
+                found = 1;
+                deepest = d;
+            }
+        }
+    }
+    lift = 0;
+    if (found)
+        lift = deepest;
+    g_pCurrentCar->position.y += lift;
+    for (i = 0; i < 8; i++)
+        g_pCurrentCar->corners[i].y += lift;
+}
+
+// Per-wheel spin flag of each car (load change above half a unit this step).
+// GLOBAL: CMR2 0x0053ac48
+int g_unk0x0053ac48[8][4];
+
+// Integrates each car's wheel rotation angles from the wheel loads and flags
+// the wheels spinning fast.
+// TODO: CMR2 0x0042b4a0 (implemented, match 64%)
+void FUN_0042b4a0(short *pList, short count)
+{
+    int n;
+    int index;
+    int w;
+    int v;
+    Car *pCar;
+    short *p;
+
+    for (n = count, p = pList + count - 1; n > 0; n--, p--) {
+        index = *p;
+        pCar = &g_carBuffer[index];
+        for (w = 0; w < 4; w++) {
+            v = FixMul(pCar->wheelLoad[w], g_physicsTimeStep);
+            if (pCar->field_0xb60 == 0 || pCar->flag0x1d0[2] != 0 || pCar->flag0x1d0[3] != 0 ||
+                pCar->field_0x1d8 > 0)
+                (&g_unk0x0053a230[index].a)[w] += (short)(__int64)(v * -0.009947183943243459);
+            if (v < 0)
+                v = -v;
+            if (v < 0x8001)
+                g_unk0x0053ac48[index][w] = 0;
+            else
+                g_unk0x0053ac48[index][w] = 1;
+        }
+    }
 }
 

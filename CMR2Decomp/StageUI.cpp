@@ -838,3 +838,52 @@ void FUN_00473470(void)
     }
 }
 
+// Stage map layout: route extent, centre and scale.
+// GLOBAL: CMR2 0x00536bf0
+FixVector g_stageMapCentre;
+// GLOBAL: CMR2 0x00536c24
+int g_unk0x00536c24;
+// GLOBAL: CMR2 0x00536fe0
+int g_unk0x00536fe0;
+// GLOBAL: CMR2 0x0053705c
+unsigned int g_stageMapScale;
+
+void RallyData_FUN_00421530(int index, int *pOut);
+int RallyData_FUN_00421420(void);
+
+// Fits the stage map to the route: centre and scale of the larger extent.
+// TODO: CMR2 0x00415e30 (implemented, match 37%)
+void FUN_00415e30(void)
+{
+    int maxX = -0x7d000000;
+    int minZ = 0x7d000000;
+    int maxZ = -0x7d000000;
+    int minX = 0x7d000000;
+    int point[3];
+    int i;
+
+    g_unk0x00536fe0 = 0;
+    if ((unsigned int)RallyData_FUN_00421420() < 100)
+        g_unk0x00536c24 = 1;
+    else
+        g_unk0x00536c24 = (unsigned int)RallyData_FUN_00421420() / 100 + 1;
+    for (i = 0; i < RallyData_FUN_00421420(); i++) {
+        RallyData_FUN_00421530(i, point);
+        if (maxX < point[0])
+            maxX = point[0];
+        if (point[0] < minX)
+            minX = point[0];
+        if (maxZ < point[2])
+            maxZ = point[2];
+        if (point[2] < minZ)
+            minZ = point[2];
+    }
+    if (maxX - minX < maxZ - minZ)
+        g_stageMapScale = 0xa3d70000u / (unsigned int)(maxZ - minZ);
+    else
+        g_stageMapScale = 0xa3d70000u / (unsigned int)(maxX - minX);
+    g_stageMapCentre.y = 0;
+    g_stageMapCentre.x = (minX + maxX) / 2;
+    g_stageMapCentre.z = (minZ + maxZ) / 2;
+}
+

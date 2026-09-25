@@ -3456,3 +3456,29 @@ void FUN_00455590(int group)
     }
 }
 
+extern float g_oneOverRandMax;
+extern double g_minus65536;
+
+// Random force-feedback road noise of the current slot, scaled by speed and
+// the suspension movement.
+// TODO: CMR2 0x00424af0 (implemented, match 57%)
+void FUN_00424af0(void)
+{
+    int speed;
+    int k;
+
+    if (g_unk0x00539278->field_0x20 == 0)
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
+    else if (g_unk0x00539278->field_0x20 < 1)
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
+    else
+        g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)g_minus65536);
+    speed = FixMul(*(int *)(g_unk0x0053937c + 0x778), 0x10000);
+    if (speed > 0x10000)
+        speed = 0x10000;
+    k = FixMul(*(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c), speed) + g_unk0x00539278->field_0x28;
+    if (k > 0x10000)
+        k = 0x10000;
+    g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);
+}
+
