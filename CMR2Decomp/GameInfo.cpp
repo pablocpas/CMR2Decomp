@@ -2828,3 +2828,47 @@ void FUN_004054f0(void)
                                                      &loaded, 0, 0, 0);
 }
 
+// Driver position record the camera menu started with.
+// GLOBAL: CMR2 0x00529900
+int g_unk0x00529900[5];
+// GLOBAL: CMR2 0x0052a858
+int g_unk0x0052a858[5];
+
+void FUN_00447cf0(FixVector *pOut, unsigned int index);
+int FUN_00447ea0(unsigned int index);
+short FUN_00447e00(unsigned int index);
+BYTE *RallyData_FUN_00408930(BYTE index);
+
+// Callback 0 of the camera options menu: remembers the current camera and
+// shows it on the sliders.
+// TODO: CMR2 0x00403700 (implemented, match 77%)
+void FUN_00403700(Menu *pMenu)
+{
+    BYTE index;
+
+    memcpy(g_unk0x00529900, RallyData_FUN_00408930(FUN_0041b370() + g_unk0x0052af58[1]), sizeof(g_unk0x00529900));
+    index = g_unk0x0052af58[1];
+    memcpy(g_unk0x0052a858, g_unk0x00529900, sizeof(g_unk0x0052a858));
+    FUN_00447cf0(&g_unk0x0052af60, index);
+    g_unk0x00529914 = FUN_00447ea0(g_unk0x0052af58[1]);
+    g_unk0x0052a48c = FUN_00447e00(g_unk0x0052af58[1]);
+    g_unk0x0052aa50.x = g_unk0x0052af60.x;
+    g_unk0x0052aa54 = g_unk0x0052af60.y;
+    g_unk0x0052aa58 = g_unk0x0052af60.z;
+    g_unk0x0052aa5c = g_unk0x00529914;
+    g_unk0x0052a86c = g_unk0x0052a48c;
+    FUN_00403110(pMenu);
+    g_unk0x0052ad54 = 1;
+}
+
+// Item callback of the camera menu "default" item.
+// TODO: CMR2 0x004036c0 (implemented, match 75%)
+void FUN_004036c0(Menu *pMenu)
+{
+    g_unk0x0052aa5c = 0xe0000;
+    g_unk0x0052a86c = 0x2d;
+    g_unk0x0052aa54 = 0x18000;
+    g_unk0x0052aa58 = 0x68000;
+    FUN_00403110(pMenu);
+}
+

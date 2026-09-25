@@ -3370,3 +3370,89 @@ void FUN_004569c0(int car, int driver)
         FUN_00456a30(car, driver);
 }
 
+// Road rumble strength of the two players (from the suspension travel).
+// GLOBAL: CMR2 0x005391f8
+int g_unk0x005391f8[2];
+// GLOBAL: CMR2 0x00539270
+int g_unk0x00539270[2];
+// GLOBAL: CMR2 0x0053937c
+BYTE *g_unk0x0053937c;
+// GLOBAL: CMR2 0x00539380
+int g_unk0x00539380;
+
+// Computes each axle's rumble from its suspension travel and stiffness,
+// plus the ground roughness, and their average.
+// TODO: CMR2 0x004247a0 (implemented, match 77%)
+void FUN_004247a0(void)
+{
+    int i;
+    int v;
+    BYTE *p = g_unk0x0053937c;
+
+    for (i = 0; i < 2; i++) {
+        if (g_unk0x00539270[i] == 0) {
+            g_unk0x005391f8[i] = 0;
+        } else {
+            v = *(int *)(p + 0x1a8 + i * 0xc) + *(int *)(p + 0x8c + i * 0x24);
+            g_unk0x005391f8[i] = v;
+            v = FixMul(v, *(int *)(p + 0x1a4 + i * 0xc) + *(int *)(p + 0x88 + i * 0x24));
+            g_unk0x005391f8[i] = v;
+            v = FixMul(v, 0x16e14);
+            g_unk0x005391f8[i] = v;
+            if (v < 0)
+                g_unk0x005391f8[i] = 0;
+            if (g_unk0x005391f8[i] > 0x9999)
+                g_unk0x005391f8[i] = 0x9999;
+            p = g_unk0x0053937c;
+            g_unk0x005391f8[i] += *(int *)(p + 0x90 + i * 0x24);
+            if (g_unk0x005391f8[i] > 0x10000)
+                g_unk0x005391f8[i] = 0x10000;
+        }
+    }
+    g_unk0x00539380 = FixMul(g_unk0x005391f8[1] + g_unk0x005391f8[0], 0x8000);
+}
+
+// Releases the stage's files (registered callback of 0x455080).
+// FUNCTION: CMR2 0x00454f20
+int FUN_00454f20(void)
+{
+#define RELEASE_STAGE_FILE(i)                                   \
+    if (g_stageFiles[i].buffer != NULL)                         \
+        CFileBuffer::FreeGenericFileBuffer(g_stageFiles[i].buffer); \
+    g_stageFiles[i].buffer = NULL;                              \
+    g_stageFiles[i].loaded = 0;                                 \
+    g_stageFiles[i].size = 0;
+
+    RELEASE_STAGE_FILE(0)
+    RELEASE_STAGE_FILE(1)
+    RELEASE_STAGE_FILE(2)
+    RELEASE_STAGE_FILE(6)
+    RELEASE_STAGE_FILE(3)
+    RELEASE_STAGE_FILE(4)
+    RELEASE_STAGE_FILE(5)
+    return 1;
+#undef RELEASE_STAGE_FILE
+}
+
+void FUN_004569c0(int car, int driver);
+unsigned int RallyData_FUN_00407e90(void);
+
+// Records the split times of every car in the current split group.
+// FUNCTION: CMR2 0x00455590
+void FUN_00455590(int group)
+{
+    int i;
+
+    if ((BYTE)RallyData_FUN_00407e90()) {
+        for (i = 1; i >= 0; i--) {
+            if (((BYTE *)&g_unk0x00542418)[i] == 0)
+                FUN_004569c0(i, g_stageSplitUnk0x00541f78[group][i]);
+        }
+        return;
+    }
+    for (i = 0; i < (char)g_unk0x00542528[0xc0 + group]; i++) {
+        if (((BYTE *)&g_unk0x00542418)[i] == 0)
+            FUN_004569c0(i, (char)g_unk0x00542528[0xc8 + group * 2 + i]);
+    }
+}
+

@@ -951,3 +951,65 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
     g_unk0x00537398[slot] = view;
 }
 
+// GLOBAL: CMR2 0x00537360
+int g_unk0x00537360;
+// First sample of the impact, scrape and horn sound groups.
+// GLOBAL: CMR2 0x005373a8
+int g_unk0x005373a8;
+// GLOBAL: CMR2 0x005373ac
+int g_unk0x005373ac;
+
+void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener);
+
+// Raises the car's damage shake level by the strength of a hit.
+#define CAR_SHAKE(view, strength)                                         \
+    do {                                                                  \
+        int level = (FixMul(strength, 0x70000) >> 16) + 1;                \
+        if (level > 8)                                                    \
+            level = 8;                                                    \
+        if (Car_Get(view)->field_0xb43[3] < level)                        \
+            Car_Get(view)->field_0xb43[3] = (BYTE)level;                  \
+    } while (0)
+
+// Plays a random impact sound (light or heavy set) and shakes the car.
+// TODO: CMR2 0x00418c30 (implemented, match 57%)
+void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
+{
+    int sound;
+
+    if (heavy == 0)
+        sound = rand() % 4 + g_unk0x005373ac;
+    else
+        sound = rand() % 3 + 4 + g_unk0x005373ac;
+    FUN_004187d0(view, (unsigned short)sound, volume, listener);
+    CAR_SHAKE(view, volume);
+}
+
+// Plays the scrape sound for its strength (10 levels) and shakes the car.
+// TODO: CMR2 0x00418ba0 (implemented, match 80%)
+void FUN_00418ba0(unsigned int view, int strength, int listener)
+{
+    int level;
+
+    if (strength > 0xccc) {
+        level = FixMul(strength, 0xa0000) >> 16;
+        if (level > 9)
+            level = 9;
+        FUN_004187d0(view, (unsigned short)(g_unk0x00537360 + level), 0x10000, listener);
+        CAR_SHAKE(view, strength);
+    }
+}
+
+// Plays one of the three horn sounds (random for kind 0).
+// TODO: CMR2 0x00418cd0 (implemented, match 68%)
+void FUN_00418cd0(unsigned int view, int kind, int listener)
+{
+    int sound = 0;
+
+    if (kind == 0)
+        sound = rand() % 2;
+    else if (kind == 2)
+        sound = 2;
+    FUN_004187d0(view, (unsigned short)(g_unk0x005373a8 + sound), 0x10000, listener);
+}
+

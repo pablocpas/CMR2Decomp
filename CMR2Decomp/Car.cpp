@@ -3487,6 +3487,23 @@ struct Unk00423ee0Block {
     int value[16];
 };
 
+void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode);
+
+// Interpolates between two state records (matrix and the values at +0x48).
+// TODO: CMR2 0x00423de0 (implemented, match 63%)
+void FUN_00423de0(BYTE *pOut, BYTE *pA, BYTE *pB, int t)
+{
+    int off;
+
+    FixMatrix_Interpolate((FixMatrix *)(pOut + 8), (FixMatrix *)(pA + 8), (FixMatrix *)(pB + 8), t, t, t, 1);
+    *(int *)(pOut + 0x48) = *(int *)(pA + 0x48) + FixMul(*(int *)(pB + 0x48) - *(int *)(pA + 0x48), t);
+    *(int *)(pOut + 0x4c) = *(int *)(pA + 0x4c) + FixMul(*(int *)(pB + 0x4c) - *(int *)(pA + 0x4c), t);
+    for (off = 0x54; off <= 0x5c; off += 4)
+        *(int *)(pOut + off) = *(int *)(pA + off) + FixMul(*(int *)(pB + off) - *(int *)(pA + off), t);
+    *(int *)(pOut + 0x50) = *(int *)(pA + 0x50) + FixMul(*(int *)(pB + 0x50) - *(int *)(pA + 0x50), t);
+    *(int *)(pOut + 0x60) = *(int *)(pA + 0x60) + FixMul(*(int *)(pB + 0x60) - *(int *)(pA + 0x60), t);
+}
+
 // Copies the state record at src into dst (fields 0x4..0x64 except 0x0).
 // FUNCTION: CMR2 0x00423ee0
 void FUN_00423ee0(BYTE *dst, BYTE *src)

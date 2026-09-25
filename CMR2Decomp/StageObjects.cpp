@@ -3099,3 +3099,186 @@ int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
     return FUN_0046bec0(pState, pIn, (BYTE *)pCar + 0x1d0, pCounter, pCar);
 }
 
+// GLOBAL: CMR2 0x0058e0a0
+Car *g_unk0x0058e0a0;
+// Which of the steering/throttle/brake controls are analogue.
+// GLOBAL: CMR2 0x0058e0a8
+BYTE g_unk0x0058e0a8[3];
+// Button bit of each car control (read from the controller mapping).
+// GLOBAL: CMR2 0x0051f4b0
+unsigned short g_carButtonMasks[9] = { 1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100 };
+
+short *Car_GetOrder(void);
+
+// Resets a car's controls for the start of the stage (automatic box on,
+// velocity damped).
+// TODO: CMR2 0x0047b870 (implemented, match 23%)
+void FUN_0047b870(int index)
+{
+    BYTE *p;
+
+    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[index]);
+    p = (BYTE *)g_unk0x0058e0a0;
+    *(int *)(p + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1d8 = 0;
+    p[0x1d4] = 0;
+    g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_unk0x0058e0a0->flag0x1d0[2] = 0;
+    g_unk0x0058e0a0->flag0x1d0[1] = 0;
+    g_unk0x0058e0a0->flag0x1d0[0] = 0;
+    if (g_unk0x0058e0a0->field_0xb94 == 0)
+        g_unk0x0058e0a0->flag0x1d0[3] = 1;
+    else
+        g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_unk0x0058e0a0->flag0x1d0[2] = 0;
+    g_unk0x0058e0a0->field_0x1d8 = 1;
+    g_unk0x0058e0a0->field_0xb9c = 0;
+    *(int *)(p + 0x1e4) = 0;
+    p = (BYTE *)g_unk0x0058e0a0;
+    g_unk0x0058e0a0->velocity.x = FixMul(g_unk0x0058e0a0->velocity.x, 0xf851);
+    ((Car *)p)->velocity.y = FixMul(((Car *)p)->velocity.y, 0xf851);
+    ((Car *)p)->velocity.z = FixMul(((Car *)p)->velocity.z, 0xf851);
+}
+
+DWORD FUN_0040bdd0(unsigned short slot);
+
+// Reads the controller mapping of a slot into the car control masks and the
+// analogue flags.
+// TODO: CMR2 0x0047bca0 (implemented, match 89%)
+void FUN_0047bca0(unsigned short slot)
+{
+    g_carButtonMasks[0] = CInput::GetButtonMapping(slot, 0);
+    g_carButtonMasks[1] = CInput::GetButtonMapping(slot, 1);
+    g_carButtonMasks[2] = CInput::GetButtonMapping(slot, 2);
+    g_carButtonMasks[3] = CInput::GetButtonMapping(slot, 3);
+    g_carButtonMasks[4] = CInput::GetButtonMapping(slot, 4);
+    g_carButtonMasks[5] = CInput::GetButtonMapping(slot, 5);
+    g_carButtonMasks[6] = CInput::GetButtonMapping(slot, 6);
+    g_carButtonMasks[7] = CInput::GetButtonMapping(slot, 7);
+    g_carButtonMasks[8] = CInput::GetButtonMapping(slot, 8);
+    if (FUN_0040bdd0(slot) == 0 || (int)CInput::FUN_0040c210(slot, 0) == -1)
+        g_unk0x0058e0a8[0] = 0;
+    else
+        g_unk0x0058e0a8[0] = 1;
+    if (CInput::FUN_0040be00(slot) == 0 || (int)CInput::FUN_0040c210(slot, 2) == -1)
+        g_unk0x0058e0a8[1] = 0;
+    else
+        g_unk0x0058e0a8[1] = 1;
+    if (CInput::FUN_0040be00(slot) != 0 && (int)CInput::FUN_0040c210(slot, 3) != -1) {
+        g_unk0x0058e0a8[2] = 1;
+        return;
+    }
+    g_unk0x0058e0a8[2] = 0;
+}
+
+// Encodes a car's control record into a 4-byte replay packet.
+// TODO: CMR2 0x0046bdc0 (implemented, match 30%)
+void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB)
+{
+    BYTE hb = (handbrake != 0 && active != 0) ? 1 : 0;
+    BYTE a = (lightA != 0 && active != 0) ? 1 : 0;
+    BYTE b = (lightB != 0 && active != 0) ? 1 : 0;
+    BYTE byte3 = pOut[3];
+    BYTE v;
+    BYTE b0;
+
+    v = (byte3 & 0x7f) | (hb << 7);
+    pOut[3] = v;
+    b0 = ((pOut[0] ^ a) & 1) ^ pOut[0];
+    pOut[0] = b0;
+    pOut[0] = (b << 1) | (b0 & 0xfd);
+    if (pIn[0] == 0) {
+        v = (byte3 & 0x3f) | (hb << 7);
+        pOut[3] = v;
+        byte3 = pIn[1];
+    } else {
+        v |= 0x40;
+        pOut[3] = v;
+        byte3 = pIn[0];
+    }
+    pOut[3] = ((byte3 ^ v) & 0x3f) ^ v;
+    pOut[0] = (pIn[2] << 2) | (b << 1) | (b0 & 1);
+    pOut[1] = (pIn[3] << 2) | (pOut[1] & 3);
+    pOut[2] = (pIn[8] << 7) | (pOut[2] & 0x7f);
+    pOut[1] = (((pIn[4] + 1) ^ pOut[1]) & 3) ^ pOut[1];
+    v = ((pIn[0xc] & 1) << 6) | (pOut[2] & 0xbf);
+    pOut[2] = (((v + 1) ^ v) & 0x3f) ^ v;
+}
+
+// Queued stage event draws (area, x, y, rows).
+struct EventDraw {
+    EventRec *pEvent;
+    char x;
+    char y;
+    char rows;
+    BYTE pad;
+};
+// GLOBAL: CMR2 0x00589010
+EventDraw g_eventDraws[64];
+
+int Events_Tick(int index);
+
+// Queues a draw of event `index` at (x, y) when it ticks and is on the area;
+// pauses it once it has been drawn `range` times.
+// TODO: CMR2 0x0046ec40 (implemented, match 28%)
+void FUN_0046ec40(int index, int x, int y)
+{
+    EventRec *p = &g_eventRecords[index];
+    int over;
+
+    if (index < g_eventCount && p->active != 0 && Events_Tick(index) && x >= 0 && y >= 0 &&
+        x < p->a * 4 - 4 && y < p->b && g_unk0x00589318 < 0x40 && p != NULL) {
+        g_eventDraws[g_unk0x00589318].pEvent = p;
+        g_eventDraws[g_unk0x00589318].x = (char)x;
+        over = y - p->b + 4;
+        g_eventDraws[g_unk0x00589318].y = (char)y;
+        if (over < 1)
+            g_eventDraws[g_unk0x00589318].rows = 4;
+        else
+            g_eventDraws[g_unk0x00589318].rows = 4 - (char)over;
+        if ((unsigned short)p->range <= (unsigned short)p->field_0x16) {
+            p->paused = 1;
+            g_unk0x00589318++;
+            return;
+        }
+        g_unk0x00589318++;
+        p->field_0x16++;
+    }
+}
+
+// Sets the screen rectangles of the views from the screen size (full, top,
+// bottom, left and right halves).
+// TODO: CMR2 0x00464b60 (implemented, match 20%)
+void FUN_00464b60(void)
+{
+    short *pFull = (short *)g_unk0x00548110[0];
+    short *p = (short *)g_unk0x0051b9f0;
+    int w = *(int *)g_pGraphics;
+    int h = *(int *)((BYTE *)g_pGraphics + 4);
+
+    pFull[0] = 0;
+    pFull[1] = 0;
+    pFull[2] = (short)w;
+    pFull[3] = (short)h;
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = (short)w;
+    p[3] = (short)h;
+    p[4] = 0;
+    p[5] = 0;
+    p[6] = (short)w;
+    p[8] = 0;
+    p[7] = (short)(h / 2);
+    p[9] = (short)(h / 2);
+    p[10] = (short)w;
+    p[12] = 0;
+    p[11] = (short)(h / 2);
+    p[13] = 0;
+    p[14] = (short)(w / 2);
+    p[15] = (short)h;
+    p[17] = 0;
+    p[16] = (short)(w / 2);
+    p[18] = (short)(w / 2);
+    p[19] = (short)h;
+}
+
