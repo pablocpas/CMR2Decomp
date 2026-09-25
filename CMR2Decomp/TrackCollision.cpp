@@ -676,3 +676,36 @@ void FUN_00494540(void)
     }
 }
 
+#define SWAP_RB(c) ((((((c) >> 24) << 8 | ((c) & 0xff)) << 8 | (((c) >> 8) & 0xff)) << 8) | (((c) >> 16) & 0xff))
+
+// Sets the diffuse colour (and alpha) of every vertex of the stage sky mesh.
+// TODO: CMR2 0x00492520 (implemented, match 13%)
+void FUN_00492520(DWORD *pColour)
+{
+    DWORD colour;
+    int i;
+
+    if (g_stageMesh6Copy != NULL) {
+        colour = *pColour;
+        for (i = g_stageMesh6Count - 1; i >= 0; i--) {
+            *(DWORD *)((BYTE *)g_stageMesh6Copy->pVertexData + i * 0x30 + 0x18) = SWAP_RB(colour);
+            *(DWORD *)((BYTE *)g_stageMesh6Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+        }
+        g_stageColourState = 1;
+    }
+}
+
+// Sets the diffuse colour of every vertex of the stage light mesh.
+// TODO: CMR2 0x004923d0 (implemented, match 14%)
+void FUN_004923d0(DWORD *pColour)
+{
+    DWORD colour = *pColour;
+    int i;
+
+    for (i = g_stageMesh4Count - 1; i >= 0; i--) {
+        *(DWORD *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x18) = SWAP_RB(colour);
+        *(DWORD *)((BYTE *)g_stageMesh4Copy->pVertexData + i * 0x30 + 0x1c) = 0xff000000;
+    }
+    g_stageLightReady = 1;
+}
+

@@ -835,6 +835,27 @@ void Car_UpdateBodyMatrix(void)
         }                                                                           \
     }
 
+// Flags the box corners of the current car that are off the ground and lists
+// (from 0xb36) the ones that touch it.
+// TODO: CMR2 0x0042f820 (implemented, match 71%)
+void FUN_0042f820(void)
+{
+    int i;
+
+    g_pCurrentCar->field_0xb34 = 0;
+    g_pCurrentCar->field_0xb35[0] = 1;
+    for (i = 7; i >= 0; i--) {
+        if (g_pCurrentCar->corners[i].y > g_pCurrentCar->cornerHeight[i] + 0x1999) {
+            g_pCurrentCar->cornerFlags[i] = 1;
+        } else {
+            g_pCurrentCar->cornerFlags[i] = 0;
+            g_pCurrentCar->field_0xb35[0] = 0;
+            g_pCurrentCar->field_0xb35[1 + g_pCurrentCar->field_0xb34] = (BYTE)i;
+            g_pCurrentCar->field_0xb34++;
+        }
+    }
+}
+
 // Relaxes the body up and forward vectors of g_pCurrentCar towards their
 // targets (0x390/0x39c) with a rate that grows with the distance, then
 // re-orthogonalises the basis and writes it to the world matrix.
@@ -3042,6 +3063,25 @@ void Car_UpdateRollover(void)
 }
 
 extern int g_unk0x0053c9d4;
+
+// Lowers the current car's target (0x7a4) toward 0x794 minus a fading offset.
+// FUNCTION: CMR2 0x00433fd0
+void FUN_00433fd0(void)
+{
+    int target = g_pCurrentCar->field_0x794 - FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333);
+
+    if (g_pCurrentCar->field_0x7a4 - target > -0x290) {
+        g_pCurrentCar->field_0x7a4 = target;
+        if (g_pCurrentCar->field_0xb1d == 0)
+            g_pCurrentCar->field_0xb1d = 3;
+    }
+    if (g_pCurrentCar->field_0xb1d != 0) {
+        g_pCurrentCar->field_0xb1d--;
+        g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
+        return;
+    }
+    g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
+}
 
 // Ground grip factor of the current car from the slope it stands on.
 // TODO: CMR2 0x00434070 (implemented, match 69%)

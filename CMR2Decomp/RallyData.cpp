@@ -734,12 +734,13 @@ char *RallyData_FUN_00494a40(void)
 
 // GLOBAL: CMR2 0x0052ea68
 BYTE g_unk0x0052ea68[11];
+// Sorted distinct values (9), the 8 per-slot values and the count: one block,
+// because 0x4081d0 can append past the 9 sorted entries as the original does.
 // GLOBAL: CMR2 0x0052ea74
-BYTE g_unk0x0052ea74[0x24];
-// GLOBAL: CMR2 0x0052ea98
-int g_unk0x0052ea98[8];
-// GLOBAL: CMR2 0x0052eab8
-int g_unk0x0052eab8;
+int g_unk0x0052ea74Block[18];
+#define g_unk0x0052ea74 ((BYTE *)g_unk0x0052ea74Block)
+#define g_unk0x0052ea98 (g_unk0x0052ea74Block + 9)
+#define g_unk0x0052eab8 (g_unk0x0052ea74Block[17])
 
 // FUNCTION: CMR2 0x00408300
 BOOL RallyData_FUN_00408300(void)
@@ -919,6 +920,28 @@ int RallyData_FUN_004077d0(int row, int column, int variant)
     return (unsigned int)g_stageScoreScale[(column + row * 12) * 2 + variant] * 100;
 }
 
+// Stores a driver's car (driver record, or category record when allowed).
+// FUNCTION: CMR2 0x00408760
+void RallyData_FUN_00408760(BYTE index, int value)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        CGameInfo::FUN_00405fd0(value);
+        *(int *)(g_unk0x0052f3e0 + 4 + index * 0xc4) = value;
+        g_unk0x0052f3e8[4 + index * 0xc4] |= 2;
+        return;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf) {
+        if ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650) & 0x200000) != 0)
+            CGameInfo::FUN_00405fd0(value);
+        *(int *)(g_unk0x0052f3e8 + 0x678 + category * 0x650) = value;
+        g_unk0x0052f3e8[0x618 + category] = 1;
+    }
+}
+
 // Car of a driver: from the driver record in championship mode, else from its category.
 // FUNCTION: CMR2 0x00408800
 int RallyData_FUN_00408800(BYTE index)
@@ -1027,6 +1050,21 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
     if (category == 0xf)
         return NULL;
     return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+}
+
+// Stores a driver's position (x/z of pPos), heading and value.
+// TODO: CMR2 0x00408bd0 (implemented, match 43%)
+void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index)
+{
+    int record[5];
+
+    RallyData_ValidateIndex(index);
+    record[0] = 0;
+    *(short *)&record[3] = heading;
+    record[1] = pPos[1];
+    record[2] = pPos[2];
+    record[4] = value;
+    RallyData_FUN_004088a0(index, record);
 }
 
 // Reads a driver's stored position, heading and value.
@@ -3038,6 +3076,48 @@ BYTE FUN_00407fc0(int param1)
 int RallyData_FUN_00408010(int index)
 {
     return g_unk0x0052ea98[index];
+}
+
+// Builds the sorted list of distinct values from the 30 entries of the table
+// at 0x4075f0 (shifting at most the first 9).
+// TODO: CMR2 0x004081d0 (implemented, match 26%)
+void FUN_004081d0(void)
+{
+    int *pValues;
+    int *pSorted = g_unk0x0052ea74Block;
+    int count;
+    int remaining;
+    int value;
+    int pos;
+    int i;
+
+    pValues = (int *)RallyData_FUN_004075f0();
+    count = 1;
+    g_unk0x0052eab8 = 1;
+    pSorted[0] = *pValues;
+    for (remaining = 30; remaining != 0; remaining--, pValues++) {
+        value = *pValues;
+        pos = -1;
+        for (i = 0; i < count; i++) {
+            if (value <= pSorted[i]) {
+                pos = i;
+                break;
+            }
+        }
+        if (pos == -1) {
+            pSorted[count] = value;
+            count++;
+            g_unk0x0052eab8 = count;
+        } else if (pSorted[pos] != value) {
+            if (pos < 8) {
+                for (i = 8; i > pos; i--)
+                    pSorted[i] = pSorted[i - 1];
+            }
+            pSorted[pos] = value;
+            count++;
+            g_unk0x0052eab8 = count;
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x00408270

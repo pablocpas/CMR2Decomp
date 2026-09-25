@@ -40,6 +40,29 @@ int g_unk0x0053a20c[8];
 // GLOBAL: CMR2 0x005394bc
 BYTE g_unk0x005394bc[8][0xec];
 
+// Font picked for the screen size (0x28 normal, 0x29 small).
+// GLOBAL: CMR2 0x005393d4
+int g_unk0x005393d4;
+
+// Chooses the HUD font from the screen size and the number of players shown.
+// TODO: CMR2 0x00427580 (implemented, match 68%)
+void FUN_00427580(int width, int height, int players)
+{
+    float rowWidth = (float)(players * 0xc0 + 0x230);
+    float scaleX = (float)width / rowWidth;
+    float scaleY = (float)height / ((float)players * rowWidth);
+    float scale;
+
+    scale = scaleY;
+    if (scaleX <= scaleY)
+        scale = scaleX;
+    if (scale > 30.0f)
+        scale = 30.0f;
+    g_unk0x005393d4 = 0x28;
+    if ((1.0f / scale) * 1000.0f - 40.0f > 0.0f)
+        g_unk0x005393d4 = 0x29;
+}
+
 // FUNCTION: CMR2 0x00427620
 int FUN_00427620(int index)
 {
@@ -257,6 +280,46 @@ void FUN_0047aa60(int value);
 void FUN_0041b040(int value);
 void FUN_00418560(int value);
 void FUN_00418d20(int value);
+
+// Linearly interpolated lookup in a byte curve {count, min, max, -, bytes}.
+// TODO: CMR2 0x00427ad0 (implemented, match 79%)
+unsigned int FUN_00427ad0(int value, int *pCurve)
+{
+    int range = pCurve[2] - pCurve[1];
+    int index;
+    int step;
+    int frac;
+
+    value -= pCurve[1];
+    index = (pCurve[0] * value) / range;
+    step = range / pCurve[0];
+    if (step > 0) {
+        frac = ((value % step) * 100) / step;
+        return (int)((100 - frac) * ((BYTE *)pCurve[4])[index]) / 100 +
+               (int)(((BYTE *)pCurve[4])[index + 1] * frac) / 100;
+    }
+    return ((BYTE *)pCurve[4])[index];
+}
+
+// Linearly interpolated lookup in a 16-bit curve {count, min, max, words}.
+// TODO: CMR2 0x00427b70 (implemented, match 80%)
+unsigned int FUN_00427b70(int value, int *pCurve)
+{
+    int range = pCurve[2] - pCurve[1];
+    int index;
+    int step;
+    int frac;
+
+    value -= pCurve[1];
+    index = (pCurve[0] * value) / range;
+    step = range / pCurve[0];
+    if (step > 0) {
+        frac = ((value % step) * 100) / step;
+        return (int)(((unsigned short *)pCurve[3])[index + 1] * frac) / 100 +
+               (int)(((unsigned short *)pCurve[3])[index] * (100 - frac)) / 100;
+    }
+    return ((unsigned short *)pCurve[3])[index];
+}
 
 // Race start: decides g_unk0x00539ed8 from the game mode and applies the
 // volume settings (percentages scaled to 16.16).

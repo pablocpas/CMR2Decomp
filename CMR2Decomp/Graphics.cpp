@@ -4596,8 +4596,10 @@ void FUN_004ae0a0(void)
 
 // Finds a free entry of the 0x2384 table and initialises its six 0x130-byte
 // records, or notifies the failure through FUN_004a76d0(NULL).
+// Allocates a free cube-map slot (six 0x130-byte faces) and creates its
+// surfaces; returns the render texture (NULL when out of memory).
 // TODO: CMR2 0x004a4b10 (implemented, match 38%)
-void FUN_004a4b10(void)
+RenderTexture *FUN_004a4b10(void)
 {
     BYTE *p;
     int i;
@@ -4616,14 +4618,13 @@ void FUN_004a4b10(void)
                 *(unsigned short *)(q + 0x120) = CGraphics::m_cubeMapSize;
                 *(unsigned short *)(q + 0x122) = CGraphics::m_cubeMapSize;
             }
-            if (p != NULL) {
-                CGraphics::m_unk0x0065fa28++;
-                CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
-            }
-            return;
+            if (p == NULL)
+                return NULL;
+            CGraphics::m_unk0x0065fa28++;
+            return CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
         }
     }
-    CGraphics::CreateCubeMapSurfaces(NULL);
+    return CGraphics::CreateCubeMapSurfaces(NULL);
 }
 
 // GLOBAL: CMR2 0x0067f228
@@ -6279,3 +6280,52 @@ void Timer_FindFree(void)
         slot = (slot + 1) % 32;
     }
 }
+
+// Cube-map texture ids reserved for the car reflections (-1 when unused).
+// GLOBAL: CMR2 0x006de95c
+unsigned int g_unk0x006de95c[20];
+
+// Reserves count cube maps of the given size, then loads the environment
+// texture; returns 0 when it is missing.
+// TODO: CMR2 0x004b23c0 (implemented, match 88%)
+int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
+{
+    unsigned int *pId;
+    unsigned short *pTexture;
+
+    CGraphics::m_cubeMapSize = size;
+    memset(g_unk0x006de95c, 0xff, sizeof(g_unk0x006de95c));
+    if ((*(BYTE *)&g_pGraphics->field913_0x3bc & 0x80) != 0 && count > 0) {
+        pId = g_unk0x006de95c;
+        do {
+            *pId++ = *(unsigned short *)FUN_004a4b10();
+        } while (--count != 0);
+    }
+    pTexture = (unsigned short *)CTexture::FindLoadTexture(pFile, name, NULL, 0, 0, 0x8000);
+    if (pTexture != NULL) {
+        g_unk0x005210b8 = *pTexture;
+        FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
+        return 1;
+    }
+    return 0;
+}
+
+// Finds a loaded texture by name (not for "local" textures) and makes sure
+// it is resident.
+// FUNCTION: CMR2 0x004b9b80
+Texture *FUN_004b9b80(char *name)
+{
+    int i;
+
+    if (Graphics_HasLocalSuffix(name) == 0) {
+        for (i = 0; i < (int)CGraphics::m_textureCount; i++) {
+            if (CGraphics::m_pTextureManager->textureBuffer[i] != NULL &&
+                strcmp(CGraphics::m_pTextureManager->textureBuffer[i]->name, name) == 0) {
+                i = FUN_004a4bd0(CGraphics::m_pTextureManager->textureBuffer[i], i);
+                return CGraphics::m_pTextureManager->textureBuffer[i];
+            }
+        }
+    }
+    return NULL;
+}
+

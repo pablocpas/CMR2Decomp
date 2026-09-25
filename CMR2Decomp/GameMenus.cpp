@@ -216,6 +216,31 @@ void FUN_00401720(BYTE index)
     FUN_00404ef0();
 }
 
+// GLOBAL: CMR2 0x0052af54
+int g_unk0x0052af54;
+
+void FUN_00409bc0(void);
+void FUN_00427a50(void);
+
+// Item callback of the in-race "restart stage" item.
+// TODO: CMR2 0x00401590 (implemented, match 59%)
+void FUN_00401590(Menu *pMenu, int param)
+{
+    BYTE i;
+    int colour;
+
+    for (i = 0; (short)i < Car_GetOrderCount(); i++) {
+        colour = g_unk0x00516090;
+        if (CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 1 && CGameInfo::FUN_00405d80() != 0)
+            colour = g_unk0x0052af54;
+        FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_00401540, 1, 0, colour, 1);
+    }
+    if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10) {
+        FUN_00409bc0();
+        FUN_00427a50();
+    }
+}
+
 // Item callback of the network "restart" item: fades every car out.
 // FUNCTION: CMR2 0x00401630
 void FUN_00401630(Menu *pMenu, int param)

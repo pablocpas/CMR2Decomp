@@ -1068,3 +1068,40 @@ void FUN_004a2830(void)
     g_unk0x005a284c = 0;
 }
 
+// Creates the shared 16-bit stereo 44.1 kHz streaming buffer.
+// TODO: CMR2 0x004a2a20 (implemented, match 81%)
+BOOL FUN_004a2a20(void)
+{
+    WAVEFORMATEX format;
+    DSBUFFERDESC desc;
+
+    memset(&desc, 0, sizeof(desc));
+    format.cbSize = 0;
+    g_unk0x005a271c = 0x7f400;
+    desc.dwBufferBytes = 0x7f400;
+    desc.dwSize = sizeof(desc);
+    desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS;
+    format.wFormatTag = WAVE_FORMAT_PCM;
+    format.nChannels = 2;
+    format.nSamplesPerSec = 44100;
+    format.nBlockAlign = 4;
+    format.nAvgBytesPerSec = 176400;
+    format.wBitsPerSample = 16;
+    desc.lpwfxFormat = &format;
+    return CSound::FUN_004a3250(g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, NULL)) != 0;
+}
+
+void FUN_004a2830(void);
+
+// Shuts the sound system down (registered callback of 0x4b7650).
+// TODO: CMR2 0x004b7ae0 (implemented, match 87%)
+int FUN_004b7ae0(void)
+{
+    Sound_FreeAll();
+    Sound_SetMasterVolume(0);
+    FUN_004a2830();
+    g_unk0x006e0ef0 = 0;
+    CSound::m_unk0x006e0eec = 0;
+    return 1;
+}
+

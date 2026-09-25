@@ -333,6 +333,53 @@ void FUN_00417780(int player)
     }
 }
 
+// GLOBAL: CMR2 0x005371a0
+int g_unk0x005371a0;
+// GLOBAL: CMR2 0x005371a4
+int g_unk0x005371a4[10];
+struct RaceCallRecord {
+    int field_0x0;
+    int field_0x4;
+    unsigned int flags;         // low 10 bits cleared on reset
+};
+// GLOBAL: CMR2 0x005371d0
+RaceCallRecord g_raceCallRecords[10];
+// GLOBAL: CMR2 0x00537248
+int g_unk0x00537248;
+// GLOBAL: CMR2 0x0053724c
+int g_unk0x0053724c;
+
+// Resets the per-player race state: best values, call records and slots.
+// TODO: CMR2 0x00416670 (implemented, match 37%)
+void FUN_00416670(void)
+{
+    RaceCallRecord *p;
+    RaceSlotState *pSlot;
+    int i;
+
+    g_unk0x00537198[0] = 9999;
+    g_unk0x00537248 = 0;
+    g_unk0x00537198[1] = 9999;
+    g_unk0x0053724c = 0;
+    g_unk0x0053708c[0] = -1;
+    g_unk0x0053708c[1] = -1;
+    memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
+    p = g_raceCallRecords;
+    do {
+        for (i = 0; i < 5; i++, p++) {
+            p->flags &= 0xfffffc00;
+            p->field_0x4 = 0;
+            p->field_0x0 = 0;
+        }
+        g_unk0x005371a0 = 0;
+    } while (p < g_raceCallRecords + 10);
+    for (pSlot = g_raceSlotState; pSlot < g_raceSlotState + 5; pSlot++) {
+        pSlot->flags &= 0xfc;
+        pSlot->pending = -1;
+        pSlot->owner = -1;
+    }
+}
+
 // FUNCTION: CMR2 0x00417e60
 void FUN_00417e60(void)
 {

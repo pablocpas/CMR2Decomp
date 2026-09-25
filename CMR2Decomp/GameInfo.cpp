@@ -2436,6 +2436,42 @@ int FUN_00404e10(unsigned short slot)
     return 0;
 }
 
+// Network race options chosen in the options menu (0x4035e0).
+// GLOBAL: CMR2 0x0052a86c
+short g_unk0x0052a86c;
+// GLOBAL: CMR2 0x0052aa54
+int g_unk0x0052aa54;
+// GLOBAL: CMR2 0x0052aa58
+int g_unk0x0052aa58;
+// GLOBAL: CMR2 0x0052aa5c
+int g_unk0x0052aa5c;
+
+// Callback of the network options menu: turns the four sliders into values.
+// FUNCTION: CMR2 0x00403200
+void FUN_00403200(Menu *pMenu)
+{
+    g_unk0x0052aa5c = (int)(pMenu->items[2].max << 19) / (pMenu->items[2].min - 1) + 0x80000;
+    g_unk0x0052a86c = (short)((int)(pMenu->items[3].max * 0x11c) / (pMenu->items[3].min - 1));
+    g_unk0x0052aa54 = (int)(pMenu->items[0].max * 0xcccd) / (pMenu->items[0].min - 1) + 0x13333;
+    g_unk0x0052aa58 = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
+}
+
+bool FUN_004174d0(void);
+
+// Callback of the sound options menu: applies the three volumes.
+// FUNCTION: CMR2 0x00401380
+void FUN_00401380(Menu *pMenu)
+{
+    int rate;
+
+    CGameInfo::FUN_00405e10(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
+    CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
+    if (FUN_004174d0())
+        CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
+    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
+    CInput::FUN_0049ffc0(rate / 4);
+}
+
 // FUNCTION: CMR2 0x00404ea0
 void FUN_00404ea0(BYTE param1)
 {

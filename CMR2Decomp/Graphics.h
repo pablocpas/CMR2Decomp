@@ -1304,7 +1304,7 @@ private:
     friend void Mesh_Rebuild(Mesh *pMesh);
     friend int FUN_004a4bd0(void *pSource, int param2);
     friend void FUN_004ae0a0(void);
-    friend void FUN_004a4b10(void);
+    friend RenderTexture *FUN_004a4b10(void);
 
     // GLOBAL: CMR2 0x00520b1c
     static int m_unk0x00520b1c;
@@ -1326,6 +1326,9 @@ private:
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
     friend void FUN_0049dcc0(int enable);
+    friend int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
+    friend Texture *FUN_004b9b80(char *name);
+    friend void Events_Init(int unused, int slot, char animate);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
     friend void Sprite_DrawLayer(int layer);
     friend void Quad2D_DrawLayer(unsigned int layer);

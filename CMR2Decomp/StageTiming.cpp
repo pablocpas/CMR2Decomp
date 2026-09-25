@@ -2505,3 +2505,163 @@ void FUN_00455620(void)
     }
 }
 
+extern char g_unk0x00542cad;
+
+// Counts laps: crossing from the last checkpoint to the first adds one
+// (wrapping at 1000); going back the other way removes one.
+// TODO: CMR2 0x00458f30 (implemented, match 10%)
+void FUN_00458f30(int car, int from, int to)
+{
+    int count = g_stageCheckpointCount;
+    Unk0x00542e78 *p = &g_unk0x00542e78[car];
+
+    if (to < p->field_0x0 && to == 0 && from == count - 1) {
+        p->field_0x2++;
+        p->field_0x18 = 1;
+        if (p->field_0x2 == 1000)
+            p->field_0x2 = 0;
+    }
+    if (p->field_0x0 < to && to == count - 1 && from == 0) {
+        p->field_0x2--;
+        if (p->field_0x2 < -1)
+            p->field_0x2 = -1;
+        if (g_unk0x00542cad != 0)
+            p->field_0x6 = 0;
+    }
+}
+
+// GLOBAL: CMR2 0x00543d60
+int g_unk0x00543d60;
+// GLOBAL: CMR2 0x00543d64
+int g_unk0x00543d64;
+// GLOBAL: CMR2 0x00543d68
+int g_unk0x00543d68;
+// GLOBAL: CMR2 0x00543d6c
+unsigned int g_unk0x00543d6c;
+// GLOBAL: CMR2 0x00543d70
+unsigned int g_unk0x00543d70;
+// GLOBAL: CMR2 0x00543d74
+int g_unk0x00543d74;
+// GLOBAL: CMR2 0x00543e98
+BYTE g_unk0x00543e98;
+
+void StageObject_SetScaledValue(int value, int index);
+BYTE FUN_00422fb0(unsigned int index);
+int RallyData_FUN_00421500(void);
+
+// Scales a view's object value by the car's route position between two limits.
+// TODO: CMR2 0x0045f530 (implemented, match 77%)
+void FUN_0045f530(BYTE *pObject, int view)
+{
+    unsigned int position;
+
+    if (RallyData_FUN_00421500() == 0) {
+        position = RallyData_FUN_00421370((BYTE *)Car_Get(FUN_00422fb0(view)));
+        *(unsigned int *)(pObject + 0x6c) = position;
+        if (position != *(unsigned int *)(pObject + 0x70)) {
+            *(unsigned int *)(pObject + 0x70) = position;
+            if (position <= g_unk0x00543d6c) {
+                StageObject_SetScaledValue(g_unk0x00543d60, view);
+                return;
+            }
+            if (g_unk0x00543d70 <= position) {
+                StageObject_SetScaledValue(g_unk0x00543d64, view);
+                return;
+            }
+            StageObject_SetScaledValue(FixMul((position - g_unk0x00543d6c) << 16, g_unk0x00543d68) + g_unk0x00543d60,
+                                       view);
+        }
+    }
+}
+
+// Resets every view's scaled object state.
+// FUNCTION: CMR2 0x0045e610
+void FUN_0045e610(void)
+{
+    int i;
+    int *p;
+
+    for (i = 0; i < g_unk0x00543e98; i++) {
+        StageObject_SetScaledValue(g_unk0x00543d60, i);
+        *(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178 + 0x58) = *(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178 + 0x5c);
+        *(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178 + 0x174) = 0;
+        *(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178 + 0x64) = 0x10000;
+        *(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178 + 0x68) = 0x10000;
+        p = (int *)((BYTE *)g_unk0x00543ecc + i * 0xc);
+        p[1] = 0;
+        p[0] = 0;
+        p[2] = g_unk0x00543d74;
+    }
+}
+
+// Commits (or, with a == b == 0, first resets) the tyre wear of count players.
+// TODO: CMR2 0x0045c610 (implemented, match 68%)
+void FUN_0045c610(int a, int b, int count)
+{
+    int i;
+    int j;
+    BYTE *pRecord;
+    int *w;
+
+    for (i = 0; i < count; i++) {
+        pRecord = RallyData_GetTyreRecord((BYTE)(FUN_0041b370() + i));
+        if (pRecord != NULL) {
+            w = (int *)(pRecord + 0x50);
+            for (j = 0; j < 4; j++, w++) {
+                if (a == 0 && b == 0) {
+                    w[0] = w[-0xc];
+                    if (w[-0x10] < w[-0x14])
+                        w[-8] = w[-0x14];
+                    else
+                        w[-8] = w[-0x10];
+                    w[-4] = 0;
+                }
+                w[0xc] = w[0];
+                w[4] = w[-4];
+                w[8] = w[-8];
+                RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + i);
+                Tyre_AddWear(i, j, 0, 0);
+            }
+        }
+    }
+}
+
+// Resets a car's replay recording record.
+// TODO: CMR2 0x00466920 (implemented, match 67%)
+void FUN_00466920(BYTE *p)
+{
+    int i;
+
+    p[0x20a] = 0;
+    p[0x20b] = 0;
+    for (i = 0; i < 20; i++)
+        p[0x112 + i * 0xd] = 0xff;
+    memset(p + 0x24c, 0, 0x22);
+    memset(p + 0x270, 0, 7 * sizeof(int));
+    memcpy(p, p + 0x106, 0x106);
+    memcpy(p + 0x20c, p + 0x24c, 0x40);
+}
+
+int FUN_00458390(void);
+
+// One bubble pass over the running order, keeping each car's position count.
+// TODO: CMR2 0x00448d50 (implemented, match 22%)
+void FUN_00448d50(void)
+{
+    int count = FUN_00458390();
+    int i;
+    char a;
+    char b;
+
+    for (i = 1; i < count; i++) {
+        if (FUN_004486a0(g_unk0x0053dda8[i], g_unk0x0053dda8[i - 1]) == 1) {
+            a = g_unk0x0053dda8[i - 1];
+            g_carStageTiming[a].field_0x81++;
+            b = g_unk0x0053dda8[i];
+            g_unk0x0053dda8[i] = a;
+            g_unk0x0053dda8[i - 1] = b;
+            g_carStageTiming[b].field_0x81--;
+        }
+    }
+}
+

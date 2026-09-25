@@ -3,6 +3,8 @@
 
 // GLOBAL: CMR2 0x00542cac
 char g_stageSplitCount = 0;
+// GLOBAL: CMR2 0x00542cad
+char g_unk0x00542cad;
 // GLOBAL: CMR2 0x00542cae
 char g_stageLooped;
 // GLOBAL: CMR2 0x00542cb0

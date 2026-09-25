@@ -22,6 +22,14 @@
 #include "Mesh.h"
 #include "Graphics.h"
 
+struct GlowLight;
+GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
+                    int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
+void FUN_004ae3d0(BYTE *p, BYTE value);
+int FUN_00457e10(BYTE *pCar, int offset);
+struct KnockoutMatch;
+int FUN_00472990(KnockoutMatch *pMatch);
+
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
 extern void *g_unk0x00547ac8;
@@ -673,6 +681,44 @@ int FUN_004728d0(void)
     return g_unk0x0058cf68;
 }
 
+// Returns 1 when a match of the current knockout round is undecided or one of
+// its drivers is not in the table.
+// FUNCTION: CMR2 0x004728e0
+int FUN_004728e0(void)
+{
+    unsigned int *pState;
+    KnockoutMatch *pMatch = NULL;
+    int count = 0;
+    int i;
+
+    pState = RallyData_GetChampionshipState();
+    switch ((*pState >> 3) & 7) {
+    case 1:
+        count = 8;
+        pMatch = (KnockoutMatch *)(pState + 0x16);
+        break;
+    case 2:
+        count = 4;
+        pMatch = (KnockoutMatch *)(pState + 10);
+        break;
+    case 3:
+        count = 2;
+        pMatch = (KnockoutMatch *)(pState + 4);
+        break;
+    case 4:
+        count = 1;
+        pMatch = (KnockoutMatch *)(pState + 1);
+    }
+    for (i = 0; i < count; i++, pMatch++) {
+        if ((RallyData_FUN_00408500((BYTE)(pMatch->flags & 0x1f)) == -1 && (pMatch->flags & 0x400) == 0) ||
+            (RallyData_FUN_00408500((BYTE)((pMatch->flags >> 5) & 0x1f)) == -1 && (pMatch->flags & 0x400) == 0))
+            return 1;
+        if (FUN_00472990(pMatch))
+            return 1;
+    }
+    return 0;
+}
+
 // Whether the human player lost the knockout match (the winner is not a human
 // driver): bit 11 means the second driver won, bit 12 the first one.
 // FUNCTION: CMR2 0x00472990
@@ -803,6 +849,31 @@ void FUN_004764e0(BYTE *p)
 int FUN_00476520(BYTE index)
 {
     return g_unk0x0058d6a8[index];
+}
+
+// Caches, for a car, whether its class is special and pointers into its
+// timing record.
+// TODO: CMR2 0x00476540 (implemented, match 60%)
+void FUN_00476540(int index)
+{
+    Car *pCar = Car_Get(index);
+    char type = pCar->field_0xb1b[0];
+    int p;
+    int *pRow;
+
+    if (type == 8 || type == 7 || type == 9 || type == 13)
+        g_unk0x0058d2f0[index] = 1;
+    else
+        g_unk0x0058d2f0[index] = 0;
+    p = FUN_00457e10((BYTE *)pCar, 5);
+    pRow = (int *)(g_unk0x0058d4f0 + index * 0x1c);
+    pRow[0] = p;
+    pRow[1] = p + 8;
+    pRow[2] = p + 0xc;
+    pRow[3] = p + 0x18;
+    pRow[4] = p + 0x1c;
+    pRow[5] = p + 0x24;
+    pRow[6] = p + 0x2c;
 }
 
 // FUNCTION: CMR2 0x00477a90
@@ -1128,6 +1199,8 @@ int *FUN_00469680(int index);
 void FUN_00480ac0(BYTE *pCar, int slot, int reset);
 void FUN_0042b720(int index, BYTE value);
 int FUN_00457e10(BYTE *pCar, int offset);
+struct KnockoutMatch;
+int FUN_00472990(KnockoutMatch *pMatch);
 short Car_GetOrderCount(void);
 
 // FUNCTION: CMR2 0x00492fd0
@@ -1510,6 +1583,23 @@ void FUN_00480af0(BYTE *pCar, BYTE *pObject, BYTE flag)
             g_unk0x00590c24[i][(char)pCar[0xb1a]] = flag;
         }
     }
+}
+
+// Clears record `index` of the 0x48-byte table at 0x58d6d0.
+// TODO: CMR2 0x00477ac0 (implemented, match 18%)
+void FUN_00477ac0(int index)
+{
+    BYTE *p = g_unk0x0058d6d0[index];
+    int i;
+
+    for (i = 0; i < 10; i++)
+        ((short *)(p + 8))[i] = 0;
+    for (i = 0; i < 10; i++)
+        ((short *)(p + 0x30))[i] = 0;
+    for (i = 0; i < 10; i++)
+        ((short *)(p + 0x1c))[i] = -1;
+    p[0x44] = 0;
+    p[0x45] = 0;
 }
 
 // Sets or clears bits in the two flag bytes of record `index` of 0x58d6d0.
@@ -2524,6 +2614,33 @@ void Events_ComputeSteps(void)
     }
 }
 
+// GLOBAL: CMR2 0x00589331
+BYTE g_unk0x00589331;
+
+void Events_Reset(void);
+
+// Resets the stage events and finds the event texture (name ending in BODF).
+// FUNCTION: CMR2 0x0046e580
+void Events_Init(int unused, int slot, char animate)
+{
+    int i;
+    Texture *pTexture;
+
+    Events_Reset();
+    g_unk0x00589331 = animate == 0;
+    g_eventCount = 0;
+    for (i = 0; i < 2048; i++) {
+        pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
+        if (pTexture != NULL &&
+            strncmp(pTexture->name + strlen(pTexture->name) - 8, CGraphics::m_strSuffixBODF, 4) == 0) {
+            (&g_eventTexture)[slot] = CGraphics::m_pTextureManager->textureBuffer[i];
+            break;
+        }
+    }
+    if ((&g_eventTexture)[slot] != NULL)
+        (&g_eventScale)[slot] = (&g_eventTexture)[slot]->width;
+}
+
 // Adds a stage event (up to 11) for the texture area pArea (packed position,
 // width, height) and recomputes the event steps.
 // TODO: CMR2 0x0046e620 (implemented, match 20%)
@@ -2634,3 +2751,32 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar)
     if (RECORD_NEAR_90(v))
         FUN_00486b90(pCar, pInfo);
 }
+
+// GLOBAL: CMR2 0x0058e4a8
+int g_unk0x0058e4a8[8];
+// Headlight glows of the stage objects (100 records of 0x5c bytes).
+// GLOBAL: CMR2 0x0058e4e0
+BYTE g_unk0x0058e4e0[100][0x5c];
+
+// Creates the glow of every record and resets the records.
+// FUNCTION: CMR2 0x0047d510
+void FUN_0047d510(void)
+{
+    FixVector unused;
+    BYTE *p;
+
+    for (p = g_unk0x0058e4e0[0]; p < g_unk0x0058e4e0[100]; p += 0x5c) {
+        *(int *)(p + 0x3c) = 0;
+        *(GlowLight **)(p + 0x38) =
+            Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, *(int *)((BYTE *)g_carLights + 0x34),
+                     *(int *)((BYTE *)g_carLights + 0x80), 0x10000, 0, 0xb4, (int)&unused, 0x20000);
+        FUN_004ae3d0(*(BYTE **)(p + 0x38), 0);
+        *(int *)(p + 0x2c) = 0;
+        *(short *)(p + 0x34) = -1;
+        *(int *)(p + 0x0) = 0;
+        *(int *)(p + 0x4) = 0x10000;
+        *(int *)(p + 0x8) = 0;
+    }
+    memset(g_unk0x0058e4a8, 0, sizeof(g_unk0x0058e4a8));
+}
+
