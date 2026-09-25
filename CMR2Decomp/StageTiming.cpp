@@ -3557,7 +3557,7 @@ void FUN_00458e00(int car, int target)
 // GLOBAL: CMR2 0x00590b10
 int g_unk0x00590b10[8];
 // GLOBAL: CMR2 0x00511380
-const double g_unk0x00511380 = 0.0099471839432434591;
+extern const double g_unk0x00511380 = 0.0099471839432434591;
 
 // Smooths the active car's steering offset and derives a short angle.
 // TODO: CMR2 0x00480cb0 (implemented, match 65%)
@@ -3634,3 +3634,192 @@ void FUN_00423ff0(void)
     FUN_00424640();
     CGame::RegisterCallback(FUN_00424640, NULL);
 }
+
+#include "WheelTrail.h"
+
+extern int Car_GetWheelSpeed(Car *, BYTE, int);
+extern int StageObject_GetWheelSlip(int, int);
+extern BYTE FUN_00460bf0(int);
+extern int FUN_00460c10(int);
+extern int FUN_0041f3d0(BYTE);
+extern void Tyre_AddWear(int, int, int, int);
+extern void Particle_Spawn(int, FixVector *, FixVector *, int, int, BYTE *, BYTE, int, BYTE);
+
+#define TRAIL_RANDOM(scale) ((int)(__int64)(rand() * g_oneOverRandMax * (scale)))
+
+// Chooses wheel spray/dust from the surface, then interpolates its spawn position.
+// TODO: CMR2 0x0045b580 (implemented, match 38%)
+void StageTiming_SpawnWheelParticles(int carIndex)
+{
+    BYTE colour[4] = { 255, 255, 255, 255 };
+    if (carIndex >= 8) return;
+    Car *car = Car_Get(carIndex);
+    int intensity = 100;
+    for (int wheel = 0; wheel < 4; wheel++) {
+        int other = wheel ^ 1;
+        int front = wheel == 2 || wheel == 3;
+        int reverse = car->field_0xb1e == 7;
+        int leading = reverse ? front : !front;
+        int surface = car->wheelSurface[wheel];
+        short material = car->wheelSurfaceType[wheel];
+        int spray = surface == 11 || material == 0x5b || material == 0x5c || material == 0x5d;
+        int loose = surface == 10 || surface == 6 || material == 0x1b || material == 0x1c ||
+                    material == 0x11 || material == 0x12 || material == 0x48;
+        int gravel = surface == 9;
+        int slipping = 0;
+        if (surface == 13 || surface == 24)
+            slipping = StageObject_GetWheelSlip(carIndex, wheel) >= 0xe666;
+        if (gravel && TRAIL_RANDOM(CGraphics::m_65536) > 0x3333) gravel = 0;
+        if (loose && TRAIL_RANDOM(CGraphics::m_65536) > 0x6666) loose = 0;
+        if (spray && TRAIL_RANDOM(CGraphics::m_65536) > 0x8000) spray = 0;
+        RallyDataCountryIndex();
+        int dust = ((BYTE)RallyDataCountryIndex() != 0 && (spray || loose || gravel)) || slipping;
+        if (FUN_00460bf0(carIndex) == 1 && (FixMul(FUN_00460c10(carIndex), 0xff0000) >> 16) > 1) {
+            dust = 0;
+        } else if (dust) {
+            int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
+            if (speed > 0x1e0000 && carIndex < (BYTE)RallyDataState())
+                Tyre_AddWear(carIndex, wheel, 1, 0);
+        }
+        if (leading) {
+            dust = 0;
+        } else if (dust) {
+            colour[0] = 0xeb; colour[1] = 0xb8; colour[2] = 0xa0;
+            int brown = material == 2 || material == 3 || material == 4 || material == 5 ||
+                        material == 0x11 || material == 0x1b || material == 0x5d;
+            int dark = material == 8 || material == 9 || material == 10 || material == 0x12 ||
+                       material == 0x1c || material == 0x5b;
+            int white = material == 6 || material == 10;
+            switch ((BYTE)RallyDataCountryIndex()) {
+            case 0: colour[0] = 0x90; colour[1] = 0x7f; colour[2] = 0x78; break;
+            case 1:
+                if (brown) break;
+                // Fall through to the grey surface colour.
+            case 8: colour[0] = 0x9c; colour[1] = 0x8f; colour[2] = 0x87; break;
+            case 4: colour[0] = 0xb6; colour[1] = 0x91; colour[2] = 0x43; break;
+            case 5:
+                if (white) { colour[0] = colour[1] = colour[2] = 255; }
+                else if (dark) { colour[0] = 0x7a; colour[1] = 0x71; colour[2] = 0x5c; }
+                else { colour[0] = 0xbb; colour[1] = 0x86; colour[2] = 0x3e; }
+                break;
+            case 7: dust = 0; break;
+            default: colour[0] = colour[1] = colour[2] = 0xf0; break;
+            }
+        }
+        int water = surface == 0x11 || surface == 0x13 || surface == 0x14 ||
+                    surface == 0x15 || surface == 0x16 || surface == 0x17;
+        int deep = surface == 0x13 || surface == 0x14 || surface == 0x15;
+        if (!leading || deep) {
+            if (water) colour[0] = colour[1] = colour[2] = 255;
+        } else {
+            water = 0;
+        }
+        if ((leading && FUN_0041f3d0((BYTE)carIndex)) ||
+            (water && leading && FUN_00460bf0(carIndex) == 2 &&
+             (FixMul(FUN_00460c10(carIndex), 0xff0000) >> 16) > 100)) water = 0;
+        int emit = dust || water;
+        if (!car->field_0xbac[wheel]) emit = 0;
+        int speedLimit = leading ? 0x320000 : 0x230000;
+        int type = 4;
+        int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
+        if (speed < 0x1e0000) {
+            int chance = FixDiv(speed, 0x1e0000);
+            if (chance < TRAIL_RANDOM(CGraphics::m_65536)) emit = 0;
+        }
+        if (leading) {
+            type = 6;
+            if (!FUN_0041f3d0((BYTE)carIndex) && TRAIL_RANDOM(CGraphics::m_65536) > 0xb333) emit = 0;
+        }
+        if (carIndex > 0 && TRAIL_RANDOM(CGraphics::m_65536) > 0x8000) continue;
+        if (!emit) continue;
+        if (type == 4) rand();
+
+        FixVector delta, rolling, lateral, velocity, jitter, position, blend, source, particleVelocity;
+        delta.x = g_trailPos[carIndex][wheel].x - g_trailLastPos[carIndex][wheel].x;
+        delta.y = g_trailPos[carIndex][wheel].y - g_trailLastPos[carIndex][wheel].y;
+        delta.z = g_trailPos[carIndex][wheel].z - g_trailLastPos[carIndex][wheel].z;
+        int slipA = FIX_ABS(car->field_0x880[wheel]) - 0xccc;
+        int slipB = FIX_ABS(car->field_0x870[wheel]) - 0xccc;
+        FixVector *cornerVelocity = &car->cornerVelocity[wheel];
+        velocity = *cornerVelocity;
+        FixVecScale(&rolling, &car->groundDir[front], car->field_0x870[wheel]);
+        int random = TRAIL_RANDOM(g_minus65536);
+        FixVecScale(&lateral, &car->groundAxis[front], -0x8000 - random);
+        int uniform;
+        if (type == 5) {
+            FixVecScale(&lateral, &lateral, 0x1999);
+            uniform = 1;
+        } else {
+            FixVecScale(&lateral, &lateral, 0x4ccc);
+            uniform = 0;
+        }
+        if (!leading) uniform = 1;
+        FixVecScale(&rolling, &rolling, 0x1999);
+        velocity.x = rolling.x + velocity.x + lateral.x;
+        velocity.y = velocity.y + rolling.y + lateral.y;
+        velocity.z = rolling.z + velocity.z + lateral.z;
+        if ((slipA > 0 || slipB > 0) && FixDiv(slipA, 0x20000) + FixDiv(slipB, 0x8000) > 0x8000)
+            intensity = (intensity * 3) / 2;
+        if (FUN_0041f3d0((BYTE)carIndex) || (*(BYTE **)(FUN_0041b390() + 4))[carIndex * 8] == 9) {
+            type = 7;
+            uniform = 1;
+        }
+        if (dust) type += 4;
+        random = TRAIL_RANDOM(g_minus65536);
+        FixVecScale(&jitter, &delta, random);
+        int t = TRAIL_RANDOM(CGraphics::m_65536);
+        if (!uniform) {
+            random = TRAIL_RANDOM(g_minus65536);
+            t = FixDiv(t, 0x1547a - random * 9);
+            if (leading) {
+                random = TRAIL_RANDOM(g_minus65536);
+                t = FixDiv(t, 0x30000 - random * 14);
+            }
+        }
+        FixVecScale(&position, &g_trailPos[carIndex][other], t);
+        t = 0x10000 - t;
+        FixVecScale(&blend, &g_trailPos[carIndex][wheel], t);
+        position.x += blend.x;
+        position.y += blend.y;
+        position.z += blend.z;
+        if (type == 6 || type == 10 || type == 4 || type == 8) {
+            source.x = position.x - car->position.x + jitter.x;
+            source.y = position.y - car->position.y + jitter.y;
+            source.z = position.z - car->position.z + jitter.z;
+            if (type != 4 && type != 8 && !reverse && (wheel == 2 || wheel == 3)) {
+                FixVector offset;
+                offset.x = g_trailPos[carIndex][2].x - g_trailPos[carIndex][0].x;
+                offset.y = g_trailPos[carIndex][2].y - g_trailPos[carIndex][0].y;
+                offset.z = g_trailPos[carIndex][2].z - g_trailPos[carIndex][0].z;
+                FixVecScale(&offset, &offset, 0x6666);
+                source.x += offset.x; source.y += offset.y; source.z += offset.z;
+            }
+            particleVelocity.y = cornerVelocity->y / 10;
+            particleVelocity.x = -(cornerVelocity->x / 4);
+            particleVelocity.z = -(cornerVelocity->z / 4);
+            speed = FIX_ABS(Car_GetWheelSpeed(car, 2, 0));
+            if (speed > speedLimit) {
+                int scale = FixDiv(speedLimit, speed);
+                particleVelocity.x = FixMul(particleVelocity.x, scale);
+                particleVelocity.y = FixMul(particleVelocity.y, scale);
+                particleVelocity.z = FixMul(particleVelocity.z, scale);
+            } else {
+                FixVector offset;
+                offset.x = velocity.x - cornerVelocity->x;
+                offset.y = velocity.y - cornerVelocity->y;
+                offset.z = velocity.z - cornerVelocity->z;
+                FixVecScale(&offset, &offset, 0x6666);
+                particleVelocity.x += offset.x; particleVelocity.y += offset.y; particleVelocity.z += offset.z;
+            }
+            Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
+                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
+        } else {
+            source.x = position.x - cornerVelocity->x;
+            source.y = position.y - cornerVelocity->y;
+            source.z = position.z - cornerVelocity->z;
+            Particle_Spawn(type, &source, cornerVelocity, position.y - 0x10000, 0, colour,
+                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
+        }
+    }
+}
+#undef TRAIL_RANDOM

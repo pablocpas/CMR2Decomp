@@ -505,3 +505,152 @@ void FUN_00424ed0(void)
     g_unk0x005393d0 = -1;
 }
 
+#include "Car.h"
+#include "Sector.h"
+
+extern int FUN_0041d2a0(void);
+extern int FUN_004582d0(int);
+extern int FUN_004582f0(int);
+extern int RallyData_FUN_004209d0(BYTE *);
+
+// GLOBAL: CMR2 0x00539388
+NetStats g_localCarStats;
+
+// This translation unit is not built with /QIfist. Preserve the original's
+// FISTP conversion, which uses the game's current FPU rounding mode.
+inline int Net_Round(double value)
+{
+    __int64 result;
+    __asm fld value
+    __asm fistp result
+    return (int)result;
+}
+
+// Packs the local car into the network state, preserving unrelated flag bits.
+// TODO: CMR2 0x00424f20 (implemented, match 49%)
+void NetRace_PackCarState(Car *car)
+{
+    BYTE *packet = (BYTE *)&g_localCarStats;
+    BYTE *raw = (BYTE *)car;
+    FixVector average, displacement, relative, axes[2];
+    float value, z;
+    int i;
+    g_localCarStats.seq = (unsigned short)FUN_0041d2a0();
+    displacement.x = *(int *)(raw + 0x2dc) - *(int *)(raw + 0x2e8);
+    displacement.z = *(int *)(raw + 0x2e4) - *(int *)(raw + 0x2f0);
+    average.x = average.y = average.z = 0;
+    for (i = 0; i < 4; i++) {
+        average.x += *(int *)(raw + 0x1a4 + i * 12) + *(int *)(raw + 0x88 + i * 36);
+        average.z += *(int *)(raw + 0x1a8 + i * 12) + *(int *)(raw + 0x8c + i * 36);
+    }
+    FixVecScaleRecip(&average, &average, 0x40000);
+    value = (float)((double)displacement.x * CGraphics::m_oneOver65536 * 0.2f);
+    if (value >= 1.0f) *(short *)(packet + 2) = 0x7ffd;
+    else if (value <= -1.0f) *(short *)(packet + 2) = (short)0x8003;
+    else *(short *)(packet + 2) = (short)Net_Round((double)value * 32765.0f);
+    value = (float)((double)displacement.z * CGraphics::m_oneOver65536 * 0.2f);
+    if (value >= 1.0f) *(short *)(packet + 4) = 0x7ffd;
+    else if (value <= -1.0f) *(short *)(packet + 4) = (short)0x8003;
+    else *(short *)(packet + 4) = (short)Net_Round((double)value * 32765.0f);
+    double product = (double)FixMul(average.x, average.z) * CGraphics::m_oneOver65536;
+    if (product >= 1.0f) *(unsigned short *)(packet + 6) = 0xfffa;
+    else *(unsigned short *)(packet + 6) = (unsigned short)Net_Round(product * 65530.0f);
+    value = (float)((double)car->angularVelocity.x * CGraphics::m_oneOver65536 * 5.0f);
+    if (value >= 1.0f) packet[20] = 0x7f;
+    else if (value <= -1.0f) packet[20] = 0x81;
+    else packet[20] = (BYTE)Net_Round((double)value * 127.0f);
+    value = (float)((double)car->angularVelocity.y * CGraphics::m_oneOver65536 * 5.0f);
+    if (value >= 1.0f) packet[21] = 0x7f;
+    else if (value <= -1.0f) packet[21] = 0x81;
+    else packet[21] = (BYTE)Net_Round((double)value * 127.0f);
+    value = (float)((double)car->angularVelocity.z * CGraphics::m_oneOver65536 * 5.0f);
+    if (value >= 1.0f) packet[22] = 0x7f;
+    else if (value <= -1.0f) packet[22] = 0x81;
+    else packet[22] = (BYTE)Net_Round((double)value * 127.0f);
+    g_localCarStats.speed = (g_localCarStats.speed & 0xfeff) | ((raw[0xb35] & 1) << 8);
+    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0xfeff) | ((raw[0xc00] & 1) << 8);
+    *(short *)(packet + 12) = *(short *)(raw + 0xb00);
+    FixMatrix_GetPosition(&relative, car->pWorld);
+    Sector *sector = g_sectors[*(short *)(raw + 0xb00)];
+    relative.x -= sector->x;
+    relative.z -= sector->z;
+    relative.y -= sector->y;
+    value = (float)((double)relative.x * CGraphics::m_oneOver65536 * 0.0078125f);
+    z = (float)((double)relative.z * CGraphics::m_oneOver65536 * 0.0078125f);
+    if (value >= 1.0f) *(short *)(packet + 8) = 0x7ffd;
+    else if (value <= -1.0f) *(short *)(packet + 8) = (short)0x8003;
+    else *(short *)(packet + 8) = (short)Net_Round((double)value * 32765.0f);
+    if (z >= 1.0f) *(short *)(packet + 10) = 0x7ffd;
+    else if (z <= -1.0f) *(short *)(packet + 10) = (short)0x8003;
+    else *(short *)(packet + 10) = (short)Net_Round((double)z * 32765.0f);
+    FixMatrix_GetRight(&axes[0], car->pWorld);
+    FixMatrix_GetForward(&axes[1], car->pWorld);
+    for (i = 0; i < 2; i++) {
+        FixVector *axis = &axes[i];
+        int x = FIX_ABS(axis->x);
+        int y = FIX_ABS(axis->y);
+        int az = FIX_ABS(axis->z);
+        int heading = x == 0 ? 0 : (int)FixAtan2(az, x) * 0x1680;
+        // FixAcos uses /QIfist in the physics TUs; use FISTP explicitly here.
+        int negative = y < 0;
+        if (negative) y = -y;
+        short acos;
+        if (y > 0x10000) acos = g_acosTable[4095];
+        else {
+            int index = Net_Round((double)y * CGraphics::m_oneOver65536 * -4095.0);
+            acos = negative ? -g_acosTable[-index] : g_acosTable[-index];
+        }
+        int elevation = (0x400 - acos) * 0x1680;
+        if (axis->x >= 0 && axis->z <= 0) heading = 0x1680000 - heading;
+        else if (axis->x <= 0) {
+            if (axis->z >= 0) heading = 0xb40000 - heading;
+            else heading += 0xb40000;
+        }
+        if (axis->y <= 0) elevation = 0xb40000 - elevation;
+        value = (float)((double)heading * CGraphics::m_oneOver65536 * (1.0f / 360.0f) * 255.0f);
+        double vertical = (double)elevation * CGraphics::m_oneOver65536 * (1.0f / 180.0f) * 255.0f;
+        if (value < 0.0f) value = 0.0f;
+        else if (value > 255.0f) value = 255.0f;
+        if (vertical < 0.0f) vertical = 0.0f;
+        else if (vertical > 255.0f) vertical = 255.0f;
+        BYTE high = (BYTE)Net_Round(vertical);
+        BYTE low = (BYTE)Net_Round(value);
+        *(unsigned short *)(packet + 16 + i * 2) = (high << 8) | low;
+    }
+    int steer = FixMul(FixDiv((int)*(short *)(raw + 0xb10) * 0x1680,
+                             (int)*(short *)(raw + 0xb16) * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
+    if (steer > 0x7e8000) steer = 0x7e8000;
+    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0xff80) | ((steer >> 16) & 0x7f);
+    if (car->field_0x79c) g_localCarStats.field_0x1a |= 0x80;
+    else g_localCarStats.field_0x1a &= 0xff7f;
+    g_localCarStats.speed = (g_localCarStats.speed & 0xfdff) | ((raw[0xb54] & 1) << 9);
+    value = (float)((double)*(int *)(raw + 0x960) * CGraphics::m_oneOver65536 * 0.1f);
+    if (value >= 1.0f) packet[14] = 255;
+    else if (value <= 0.0f) packet[14] = 0;
+    else packet[14] = (BYTE)Net_Round((double)value * 255.0f);
+    value = (float)((double)(*(int *)(raw + 0x960) - *(int *)(raw + 0x964)) * CGraphics::m_oneOver65536 * 0.2f);
+    if (value >= 1.0f) packet[15] = 0x7f;
+    else if (value <= -1.0f) packet[15] = 0x81;
+    else packet[15] = (BYTE)Net_Round((double)value * 127.0f);
+    if (raw[0xb45]) {
+        g_localCarStats.field_0x1a |= 0x200;
+        --raw[0xb45];
+    } else g_localCarStats.field_0x1a &= 0xfdff;
+    if (CGameInfo::FUN_00404f20()) g_localCarStats.field_0x1a |= 0x400;
+    else g_localCarStats.field_0x1a &= 0xfbff;
+    int node = FUN_004582f0(car->field_0xb1a);
+    if (node < 0) node = 0;
+    else if (node > 0x400) node = 0x400;
+    g_localCarStats.field_0x18 = (g_localCarStats.field_0x18 & 0xfc00) | (node & 0x3ff);
+    int stage = FUN_004582d0(car->field_0xb1a);
+    if (stage < 0) {
+        stage = -stage;
+        g_localCarStats.field_0x1a |= 0x8000;
+    } else g_localCarStats.field_0x1a &= 0x7fff;
+    if (stage > 15) stage = 15;
+    g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0x87ff) | ((stage & 15) << 11);
+    int progress = FixMul(RallyData_FUN_004209d0(raw), 0x400000) >> 16;
+    if (progress < 0) progress = 0;
+    else if (progress > 63) progress = 63;
+    g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);
+}

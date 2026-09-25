@@ -3939,3 +3939,192 @@ void FUN_00442e90(void)
 
 // GLOBAL: CMR2 0x005391cc
 int g_unk0x005391cc[2];
+
+extern const double g_unk0x00511380;
+
+// Integrates contact forces and body motion, including the transition to tumbling.
+// TODO: CMR2 0x00435470 (implemented, match 69%)
+void Car_IntegrateContacts(void)
+{
+    FixVector force, torque, tmp, bodyForce, cross, accel, angAccel, posStep, angStep;
+    short angles[3];
+    int i, corner, scale, drag;
+
+    Car_UpdateBodyAxes();
+    Car_UpdateRollover();
+    Car_DampenBodyMotion();
+    torque.x = torque.y = torque.z = 0;
+    force = g_pCurrentCar->baseForce;
+    if (CGameInfo::FUN_004063f0(1)) {
+        FixVecScale(&force, &force, 0x6666);
+    } else {
+        FixVecScale(&force, &force, 0xcccc);
+    }
+    if (g_pCurrentCar->field_0xb34 > 0) {
+        scale = FixMul(g_pCurrentCar->speed, 0x13333);
+        if (scale > 0x13333) scale = 0x13333;
+        scale += 0x10000;
+        for (i = g_pCurrentCar->field_0xb34 - 1; i >= 0; i--) {
+            corner = *(signed char *)((BYTE *)g_pCurrentCar + 0xb36 + i);
+            if (corner >= 4) {
+                FixVecScale(&tmp, &g_pCurrentCar->cornerForce[corner], scale);
+                tmp.x += g_pCurrentCar->cornerLoad[corner].x;
+                tmp.y += g_pCurrentCar->cornerLoad[corner].y;
+                tmp.z += g_pCurrentCar->cornerLoad[corner].z;
+                force.x += g_pCurrentCar->cornerForce[corner].x;
+                force.y += g_pCurrentCar->cornerForce[corner].y;
+                force.z += g_pCurrentCar->cornerForce[corner].z;
+            } else if (g_pCurrentCar->field_0xc00 != 0) {
+                if (g_pCurrentCar->field_0xb74 != 0) {
+                    tmp = g_pCurrentCar->cornerForce[corner];
+                } else {
+                    FixVecScale(&tmp, &g_pCurrentCar->cornerForce[corner], scale);
+                }
+                tmp.x += g_pCurrentCar->cornerLoad[corner].x;
+                tmp.y += g_pCurrentCar->cornerLoad[corner].y;
+                tmp.z += g_pCurrentCar->cornerLoad[corner].z;
+            } else {
+                tmp.x = tmp.y = tmp.z = 0;
+            }
+            FixMatrix_InverseRotateVector(&bodyForce, &tmp, g_pCurrentCar->pWorld);
+            // The eight local corner positions start at 0x210 (four are named wheelPos).
+            FixVecCross(&cross, &bodyForce, (FixVector *)((BYTE *)g_pCurrentCar + 0x210 + corner * 12));
+            torque.x += cross.x;
+            torque.y += cross.y;
+            torque.z += cross.z;
+        }
+        if (g_pCurrentCar->field_0xc00 != 0) {
+            if ((torque.x > 0 && g_pCurrentCar->angularVelocity.x < 0) ||
+                (torque.x < 0 && g_pCurrentCar->angularVelocity.x > 0)) {
+                int damping = FixMul(FIX_ABS(g_pCurrentCar->angularVelocity.x), 0x50000);
+                if (damping > 0x10000) damping = 0x10000;
+                torque.x = FixMul(torque.x, FixMul(0x10000 - damping, 0xf333));
+            }
+            if ((torque.y > 0 && g_pCurrentCar->angularVelocity.y < 0) ||
+                (torque.y < 0 && g_pCurrentCar->angularVelocity.y > 0)) {
+                int damping = FixMul(FIX_ABS(g_pCurrentCar->angularVelocity.y), 0x50000);
+                if (damping > 0x10000) damping = 0x10000;
+                torque.y = FixMul(torque.y, FixMul(0x10000 - damping, 0xcccc));
+            }
+            if ((torque.z > 0 && g_pCurrentCar->angularVelocity.z < 0) ||
+                (torque.z < 0 && g_pCurrentCar->angularVelocity.z > 0)) {
+                int damping = FixMul(FIX_ABS(g_pCurrentCar->angularVelocity.z), 0x50000);
+                if (damping > 0x10000) damping = 0x10000;
+                torque.z = FixMul(torque.z, FixMul(0x10000 - damping, 0xf333));
+            }
+        }
+        for (i = 3; i >= 0; i--) {
+            if (g_pCurrentCar->field_0xbac[i] != 0) {
+                tmp = g_pCurrentCar->cornerForce[i];
+                force.x += tmp.x;
+                force.y += tmp.y;
+                force.z += tmp.z;
+                if (g_pCurrentCar->field_0xc00 == 0) {
+                    FixMatrix_InverseRotateVector(&bodyForce, &tmp, g_pCurrentCar->pWorld);
+                    FixVecCross(&cross, &bodyForce, &g_pCurrentCar->wheelPos[i]);
+                    torque.x += cross.x;
+                    torque.y += cross.y;
+                    torque.z += cross.z;
+                }
+            }
+        }
+    }
+    if (g_pCurrentCar->field_0xc00 == 0 &&
+        FixMul(FIX_ABS(g_pCurrentCar->field_0x5d0.x) + FIX_ABS(g_pCurrentCar->field_0x5d0.z),
+               g_pCurrentCar->field_0x75c) > 0xbb80000) {
+        g_pCurrentCar->field_0xc00 = 1;
+        g_pCurrentCar->field_0x96c = 0x10000;
+        *(int *)g_pCurrentCar->field_0xc04 = 1;
+        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->right);
+        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+        g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward);
+    }
+    drag = FixMul(FIX_ABS(g_pCurrentCar->speed), *(int *)(g_pCarSetup + 0x408) + g_dragBase);
+    FixVecScale(&tmp, &g_pCurrentCar->velocity, drag);
+    force.x -= tmp.x;
+    force.y -= tmp.y;
+    force.z -= tmp.z;
+    FixVecScale(&accel, &force, g_pCurrentCar->field_0x760);
+    accel.x += g_pCurrentCar->field_0x5c4.x;
+    accel.y += g_pCurrentCar->field_0x5c4.y;
+    accel.z += g_pCurrentCar->field_0x5c4.z;
+    angAccel.x = -FixMul(torque.x, g_pCurrentCar->inertia.x);
+    angAccel.y = -FixMul(torque.y, g_pCurrentCar->inertia.y);
+    angAccel.z = -FixMul(torque.z, g_pCurrentCar->inertia.z);
+    angAccel.x -= FixMul(g_pCurrentCar->field_0x5d0.x, FixMul(g_pCurrentCar->inertia.x, g_pCurrentCar->field_0x75c));
+    angAccel.y -= FixMul(g_pCurrentCar->field_0x5d0.y, FixMul(g_pCurrentCar->inertia.y, g_pCurrentCar->field_0x75c));
+    angAccel.z -= FixMul(g_pCurrentCar->field_0x5d0.z, FixMul(g_pCurrentCar->inertia.z, g_pCurrentCar->field_0x75c));
+    FixVecScale(&accel, &accel, 0x3333);
+    g_pCurrentCar->velocityNext = g_pCurrentCar->velocity;
+    FixVecScale(&accel, &accel, g_physicsTimeStep);
+    g_pCurrentCar->velocity.x += accel.x;
+    g_pCurrentCar->velocity.y += accel.y;
+    g_pCurrentCar->velocity.z += accel.z;
+    g_pCurrentCar->speed = FixVecLength(&g_pCurrentCar->velocity);
+    FixVecScale(&angAccel, &angAccel, g_physicsTimeStep);
+    g_pCurrentCar->angularVelocity.x += angAccel.x;
+    g_pCurrentCar->angularVelocity.y += angAccel.y;
+    g_pCurrentCar->angularVelocity.z += angAccel.z;
+    FixVecScale(&posStep, &g_pCurrentCar->velocity, g_physicsTimeStep);
+    FixVecScale(&accel, &accel, g_physicsTimeStep / 2);
+    posStep.x -= accel.x;
+    posStep.y -= accel.y;
+    posStep.z -= accel.z;
+    if (g_pCurrentCar->steepTime != 0) {
+        if (FIX_ABS(g_pCurrentCar->angularVelocity.x) > 0x3333)
+            g_pCurrentCar->angularVelocity.x = g_pCurrentCar->angularVelocity.x > 0 ? 0x3333 : -0x3333;
+        if (FIX_ABS(g_pCurrentCar->angularVelocity.y) > 0x3333)
+            g_pCurrentCar->angularVelocity.y = g_pCurrentCar->angularVelocity.y > 0 ? 0x3333 : -0x3333;
+        if (FIX_ABS(g_pCurrentCar->angularVelocity.z) > 0x3333)
+            g_pCurrentCar->angularVelocity.z = g_pCurrentCar->angularVelocity.z > 0 ? 0x3333 : -0x3333;
+    }
+    if (g_pCurrentCar->field_0xc00 == 0) {
+        FixVecScale(&angStep, &g_pCurrentCar->angularVelocity, g_physicsTimeStep);
+        FixVecScale(&angAccel, &angAccel, g_physicsTimeStep / 2);
+        angStep.x -= angAccel.x;
+        angStep.y -= angAccel.y;
+        angStep.z -= angAccel.z;
+        angles[0] = (short)(__int64)((double)angStep.x * g_unk0x00511380);
+        angles[1] = (short)(__int64)((double)angStep.y * g_unk0x00511380);
+        angles[2] = (short)(__int64)((double)angStep.z * g_unk0x00511380);
+    } else {
+        angles[0] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.x, g_physicsTimeStep) * g_unk0x00511380);
+        angles[1] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.y, g_physicsTimeStep) * g_unk0x00511380);
+        angles[2] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep) * g_unk0x00511380);
+    }
+    if (g_pCurrentCar->field_0xb34 > 0) {
+        int upDot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+        if (FIX_ABS(angles[0]) < 10 && FIX_ABS(upDot) > 0xcccc) angles[0] = 0;
+        if ((g_pCurrentCar->flag0x1d0[0] == 0 && g_pCurrentCar->flag0x1d0[1] == 0) ||
+            FIX_ABS(g_pCurrentCar->speed) < 0x28f || g_pCurrentCar->field_0xb74 == 0) {
+            if (FIX_ABS(angles[1]) < 10) angles[1] = 0;
+        }
+        if (FIX_ABS(angles[2]) < 10) angles[2] = 0;
+        if (g_pCurrentCar->speed < 0xccc) posStep.x = posStep.y = posStep.z = 0;
+    }
+    if (g_pCurrentCar->field_0xbfc != 0) {
+        if (g_pCurrentCar->field_0xbdc != 0) {
+            g_pCurrentCar->angularVelocity.z = 0;
+            g_pCurrentCar->angularVelocity.x = 0;
+            angles[2] = angles[0] = 0;
+        } else if (g_pCurrentCar->field_0xbe0 != 0) {
+            g_pCurrentCar->angularVelocity.y = 0;
+            g_pCurrentCar->angularVelocity.x = 0;
+            angles[1] = angles[0] = 0;
+        }
+    }
+    g_pCurrentCar->position.x += posStep.x;
+    g_pCurrentCar->position.y += posStep.y;
+    g_pCurrentCar->position.z += posStep.z;
+    g_pCurrentCar->field_0xb60 = 0;
+    if (angles[0] == 0 && angles[1] == 0 && angles[2] == 0) {
+        if (g_pCurrentCar->speed < 0x51e) g_pCurrentCar->field_0xb60 = 1;
+    } else {
+        FixBasis_Rotate((FixBasis *)&g_pCurrentCar->right, (unsigned short *)angles);
+    }
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+    Car_UpdateCorners(g_pCurrentCar);
+}
