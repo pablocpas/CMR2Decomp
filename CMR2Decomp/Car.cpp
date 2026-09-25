@@ -12,7 +12,7 @@ Car *g_cars[64];
 int g_carCount;
 Car *g_carBuffer;
 Car *g_pCurrentCar;
-CarTransforms g_carTransforms[16];
+CarTransforms g_carTransforms[8];
 FixMatrix g_carWheelTransforms[8][4];
 short g_carOrderCount;
 short g_carOrder[48];
@@ -2584,6 +2584,21 @@ void FUN_0042bc80(short *pList, short count)
     }
 }
 
+// Copies a car's render transforms (body matrices, wheel records, ground data).
+// FUNCTION: CMR2 0x0042c7b0
+void FUN_0042c7b0(CarTransforms *pDst, CarTransforms *pSrc)
+{
+    int i;
+
+    FixMatrix_CopyRotation(&pSrc->body2, &pDst->body2);
+    FixMatrix_CopyRotation(&pSrc->body, &pDst->body);
+    for (i = 0; i < 4; i++) {
+        memcpy(pDst->field_0x80 + i * 0x18, pSrc->field_0x80 + i * 0x18, 0x18);
+        pDst->cornerHeight[i] = pSrc->cornerHeight[i];
+    }
+    pDst->groundNormal = pSrc->groundNormal;
+}
+
 // FUNCTION: CMR2 0x0042c840
 void FUN_0042c840(int first, int count)
 {
@@ -3026,6 +3041,24 @@ void Car_UpdateRollover(void)
     }
 }
 
+extern int g_unk0x0053c9d4;
+
+// Ground grip factor of the current car from the slope it stands on.
+// TODO: CMR2 0x00434070 (implemented, match 69%)
+void FUN_00434070(void)
+{
+    int grip;
+
+    if (g_pCurrentCar->groundNormal.y < 0xf0a3) {
+        grip = FixMul(g_pCurrentCar->groundNormal.y - 0xb333, FixDiv(0x10000, 0x3d70));
+        if (grip < 0)
+            grip = 0;
+        g_unk0x0053c9d4 = FixMul(grip, 0xe666);
+        return;
+    }
+    g_unk0x0053c9d4 = 0xe666;
+}
+
 // Counts field 0xb1f of the current car down while it is slow compared to
 // the load of the (front or rear) wheels; clears it once it is fast enough.
 // TODO: CMR2 0x004340f0 (implemented, match 27%)
@@ -3325,6 +3358,27 @@ void FUN_00423ee0(BYTE *dst, BYTE *src)
     *(int *)(dst + 0x5c) = *(int *)(src + 0x5c);
     *(int *)(dst + 0x50) = *(int *)(src + 0x50);
     *(int *)(dst + 0x60) = *(int *)(src + 0x60);
+}
+
+// Scale of the render distance for the detail level: base * (1 + step).
+// TODO: CMR2 0x00423f30 (implemented, match 80%)
+int FUN_00423f30(void)
+{
+    float steps[10];
+    float base;
+
+    steps[0] = -0.5f;
+    steps[1] = 0.0f;
+    steps[2] = 0.5f;
+    base = (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
+    steps[3] = 1.0f;
+    steps[4] = 1.5f;
+    steps[5] = 2.0f;
+    steps[6] = 2.5f;
+    steps[7] = 3.0f;
+    steps[8] = 3.5f;
+    steps[9] = 4.0f;
+    return (int)(__int64)((base * steps[CGameInfo::FUN_00405ca0()] + base) * CGraphics::m_65536);
 }
 
 // TODO: CMR2 0x00423fc0 (implemented, match 80%)

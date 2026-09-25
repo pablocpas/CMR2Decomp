@@ -87,7 +87,7 @@ struct Car {
     int field_0x800;                  // 0x800
     int field_0x804;                  // 0x804
     int field_0x808[4];               // 0x808
-    BYTE field_0x818[0x4];
+    int field_0x818;                  // 0x818  ramps -1..1 with flag0x1d0[0]/[1] (0x494540)
     int field_0x81c;                  // 0x81c
     int field_0x820;                  // 0x820
     BYTE field_0x824[0x8];
@@ -212,7 +212,7 @@ struct CarTransforms {
 };
 
 // GLOBAL: CMR2 0x0053b560
-extern CarTransforms g_carTransforms[16];
+extern CarTransforms g_carTransforms[8];
 // GLOBAL: CMR2 0x0053bda0
 extern FixMatrix g_carWheelTransforms[8][4];
 // GLOBAL: CMR2 0x0053a3a0

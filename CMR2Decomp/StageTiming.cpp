@@ -353,6 +353,34 @@ void StageTiming_RebuildSplitPositions(void)
     }
 }
 
+BYTE RallyData_FUN_004069a0(void);
+unsigned int RallyData_FUN_00407e70(void);
+char FUN_00420190(void);
+unsigned int RallyData_FUN_00407ea0(void);
+unsigned int FUN_00409cb0(int index);
+
+// Number of cars in the stage (players, ghost and network players).
+// FUNCTION: CMR2 0x00456ca0
+unsigned int FUN_00456ca0(void)
+{
+    unsigned int count;
+    int i;
+
+    if ((BYTE)RallyData_FUN_00407e70() && !CGameInfo::FUN_00405e00())
+        count = (BYTE)RallyDataState() + RallyData_FUN_004069a0();
+    else
+        count = (BYTE)FUN_00420190();
+    if ((BYTE)RallyData_FUN_00407ea0() && (BYTE)CGameInfo::FUN_00406310())
+        count++;
+    if (CGameInfo::FUN_00405e00() && CGameInfo::FUN_00405d80() != 10) {
+        for (i = 0; i < 7; i++) {
+            if ((BYTE)FUN_00409cb0(i))
+                count++;
+        }
+    }
+    return count;
+}
+
 // Sets every vertex of a mesh-backed scene node to a shade of grey.
 // FUNCTION: CMR2 0x00456d20
 void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour)
@@ -628,6 +656,25 @@ int FUN_004483b0(int index)
 int FUN_00448670(void)
 {
     return (char)g_unk0x0053e18c;
+}
+
+int FUN_00458310(int index);
+
+// Sort order of two cars by checkpoint group, then start time.
+// TODO: CMR2 0x004486a0 (implemented, match 80%)
+int FUN_004486a0(int a, int b)
+{
+    int result = 0;
+
+    if (FUN_00458310(a) == FUN_00458310(b)) {
+        if (g_carStageTiming[b].startTime <= g_carStageTiming[a].startTime)
+            return -1;
+    } else {
+        result = FUN_00458310(b) < FUN_00458310(a);
+        if (FUN_00458310(a) < FUN_00458310(b))
+            return -1;
+    }
+    return result;
 }
 
 // FUNCTION: CMR2 0x00448780
@@ -2297,6 +2344,164 @@ void FUN_0045c6b0(int player, int wheel)
         *(int *)(p + 0x30 + wheel * 4) = 0;
         RallyData_MarkTyresChanged((FUN_0041b370() & 0xff) + player);
         Tyre_AddWear(player, wheel, 0, 0);
+    }
+}
+
+// GLOBAL: CMR2 0x00590c68
+int g_unk0x00590c68;
+
+// Turns the vehicle about its vertical axis by the per-frame rate, toward the
+// side given by its orientation.
+// TODO: CMR2 0x004814d0 (implemented, match 13%)
+void FUN_004814d0(void)
+{
+    unsigned short angles[3];
+
+    if ((g_unk0x00590c20->field_0x150[0] & 0xf0) == 0x20) {
+        angles[2] = (unsigned short)g_unk0x00590c68;
+        if (*(int *)&g_unk0x00590c20->field_0x17c >= 0)
+            angles[2] = (unsigned short)-(short)g_unk0x00590c68;
+    } else if (*(int *)&g_unk0x00590c20->field_0x17c < 1) {
+        angles[2] = (unsigned short)-(short)g_unk0x00590c68;
+    } else {
+        angles[2] = (unsigned short)g_unk0x00590c68;
+    }
+    angles[1] = 0;
+    angles[0] = 0;
+    FUN_00481560(angles);
+    VehicleMotion_UpdateWorldPosition();
+}
+
+// GLOBAL: CMR2 0x00592748
+int g_unk0x00592748[8];
+
+void RallyData_FUN_00421530(int index, int *pOut);
+int RallyData_FUN_00421420(void);
+
+// Lays out count 0x1720-byte car records from p and offsets their route
+// points by the route origin; returns the end of the records.
+// TODO: CMR2 0x00498590 (implemented, match 67%)
+BYTE *FUN_00498590(BYTE *p, int unused, int count)
+{
+    int origin[3];
+    int points;
+    int *pp;
+    int i;
+
+    RallyData_FUN_00421530(0, origin);
+    points = RallyData_FUN_00421420();
+    for (pp = g_unk0x00592748; count > 0; count--, pp++) {
+        *pp = (int)p;
+        p += 0x1720;
+        for (i = 0; i < points; i++) {
+            *(int *)(*pp + 0xb90 + i * 4) += origin[0];
+            *(int *)(*pp + 0x1158 + i * 4) += origin[2];
+        }
+    }
+    return p;
+}
+
+// Fills pOut[1..n] from the car values selected by the descriptor's type list.
+// TODO: CMR2 0x00498ca0 (implemented, match 60%)
+void FUN_00498ca0(char *pDesc, int *pValues, int *pOut)
+{
+    int i;
+    int value;
+
+    for (i = 1; i <= pDesc[0xc]; i++) {
+        pOut++;
+        switch ((BYTE)pDesc[i]) {
+        case 0:
+            value = pValues[6];
+            break;
+        case 1:
+            value = pValues[7];
+            break;
+        case 3:
+            value = pValues[3];
+            break;
+        case 4:
+            value = pValues[0x28];
+            break;
+        case 6:
+            value = pValues[0];
+            break;
+        case 8:
+            value = pValues[0xd];
+            break;
+        case 9:
+            value = pValues[0xe];
+            break;
+        case 10:
+            value = pValues[1];
+            break;
+        case 11:
+            value = pValues[2];
+            break;
+        case 12:
+            value = pValues[0x18];
+            break;
+        case 14:
+            value = pValues[0x19];
+            break;
+        case 18:
+            value = pValues[0x1e];
+            break;
+        case 20:
+            value = pValues[0x20];
+            break;
+        default:
+            exit(0);
+        }
+        *pOut = value;
+    }
+}
+
+// GLOBAL: CMR2 0x0053d1d9
+BYTE g_unk0x0053d1d9;
+
+// Advances the stage clock by 4 with a little jitter, stopping at one hour.
+// TODO: CMR2 0x00448de0 (implemented, match 51%)
+void FUN_00448de0(void)
+{
+    int jitter;
+
+    if (g_unk0x0053d1d9 == 0 && g_unk0x0053d1b4 > 359995) {
+        g_unk0x0053d1d8 = 1;
+        g_unk0x0053d1b4 = 360000;
+        g_unk0x0053d1b0 = 359999;
+    } else {
+        g_unk0x0053d1b4 += 4;
+        jitter = rand() % 4;
+        g_unk0x0053d1b0 = g_unk0x0053d1b4 + (jitter - 1);
+        if ((BYTE)RallyData_FUN_004082e0()) {
+            g_unk0x0053d1a0 += 4;
+            g_unk0x0053d1a2 = g_unk0x0053d1a0 + (short)(jitter - 1);
+        }
+    }
+}
+
+int FUN_0041b380(void);
+
+// Copies the driver slots into the split display table for the current view mode.
+// TODO: CMR2 0x00455620 (implemented, match 42%)
+void FUN_00455620(void)
+{
+    BYTE count = CGameInfo::FUN_00405d70();
+    int mode = FUN_0041b380();
+    int i;
+
+    if (mode >= 0) {
+        if (mode < 2) {
+            g_unk0x00542528[0xc0] = count;
+            if (count != 0)
+                memcpy(g_unk0x00542528 + 0xc8, g_stageDriverSlot, count);
+        } else if (mode == 4) {
+            for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+                g_unk0x00542528[0xc0 + i] = 1;
+                g_unk0x00542528[0xc8 + i * 2] = g_stageDriverSlot[i];
+            }
+        }
     }
 }
 

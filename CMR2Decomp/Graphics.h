@@ -1325,6 +1325,7 @@ private:
     friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
+    friend void FUN_0049dcc0(int enable);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
     friend void Sprite_DrawLayer(int layer);
     friend void Quad2D_DrawLayer(unsigned int layer);

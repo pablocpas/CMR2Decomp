@@ -540,6 +540,27 @@ void FUN_0046c180(Block0x134 *pSrc, Block0x134 *pDst)
     *pDst = *pSrc;
 }
 
+// Copies a 0x134-int car state record, keeping the destination's first three
+// 15-int blocks.
+// TODO: CMR2 0x0046c1a0 (implemented, match 77%)
+void FUN_0046c1a0(Block0x134 *pSrc, Block0x134 *pDst)
+{
+    int keepC[15];
+    int keepB[15];
+    int keepA[15];
+    int i;
+
+    memcpy(keepC, pDst->data + 30, sizeof(keepC));
+    memcpy(keepB, pDst->data + 15, sizeof(keepB));
+    memcpy(keepA, pDst->data, sizeof(keepA));
+    *pDst = *pSrc;
+    for (i = 0; i < 15; i++) {
+        pDst->data[i] = keepA[i];
+        pDst->data[15 + i] = keepB[i];
+        pDst->data[30 + i] = keepC[i];
+    }
+}
+
 // FUNCTION: CMR2 0x0046c220
 void FUN_0046c220(Block6 *pSrc, Block6 *pDst)
 {
@@ -869,6 +890,53 @@ int g_unk0x00592130;
 // GLOBAL: CMR2 0x00592134
 int g_unk0x00592134;
 
+// GLOBAL: CMR2 0x00590af8
+void *g_unk0x00590af8;
+// GLOBAL: CMR2 0x00590afc
+BYTE g_unk0x00590afc;
+// GLOBAL: CMR2 0x00590b00
+int g_unk0x00590b00;
+// GLOBAL: CMR2 0x00590b04
+void *g_unk0x00590b04;
+// GLOBAL: CMR2 0x00590b08
+void *g_unk0x00590b08;
+// GLOBAL: CMR2 0x00590b0c
+void **g_unk0x00590b0c;
+
+// Releases the vehicle files loaded by 0x47e4d0 (registered callback).
+// FUNCTION: CMR2 0x0047ea20
+BYTE FUN_0047ea20(void)
+{
+    int i;
+
+    if (g_unk0x00590af8 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00590af8);
+        g_unk0x00590af8 = NULL;
+    }
+    if (g_unk0x00590b04 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00590b04);
+        g_unk0x00590b04 = NULL;
+    }
+    if (g_unk0x00590b08 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00590b08);
+        g_unk0x00590b08 = NULL;
+    }
+    if (g_unk0x00590b0c != NULL) {
+        for (i = 0; i < 3; i++) {
+            if (g_unk0x00590b0c[i] != NULL) {
+                CFileBuffer::FreeGenericFileBuffer(g_unk0x00590b0c[i]);
+                g_unk0x00590b0c[i] = NULL;
+            }
+        }
+        if (g_unk0x00590b0c != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00590b0c);
+            g_unk0x00590b0c = NULL;
+        }
+    }
+    g_unk0x00590afc = 0;
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004805f0
 void FUN_004805f0(int value)
 {
@@ -929,6 +997,30 @@ BYTE *FUN_0048ca40(int index)
 int FUN_0048ca90(void)
 {
     return g_unk0x005918c8;
+}
+
+// Index of the 0x6c-byte record whose position (+0x34) is nearest to pPos.
+// TODO: CMR2 0x0048d8b0 (implemented, match 80%)
+unsigned int FUN_0048d8b0(FixVector *pPos)
+{
+    unsigned int i;
+    unsigned int best = 0;
+    int bestDistance = 0x270f0000;
+    int offset;
+    int distance;
+    FixVector d;
+
+    for (i = 0, offset = 0; i < (unsigned int)g_unk0x005918c8; i++, offset += 0x6c) {
+        d.x = *(int *)(offset + 0x34 + g_unk0x00591750) - pPos->x;
+        d.y = *(int *)(offset + 0x38 + g_unk0x00591750) - pPos->y;
+        d.z = *(int *)(offset + 0x3c + g_unk0x00591750) - pPos->z;
+        distance = FixVec_Length(&d);
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            best = i;
+        }
+    }
+    return best;
 }
 
 // FUNCTION: CMR2 0x0048d930
@@ -1769,6 +1861,29 @@ void FUN_0047e490(BYTE *pColour);
 extern void *g_unk0x00543eb8;
 extern BYTE g_unk0x00547acc;
 
+int *RallyData_FUN_004075b0(int index);
+// GLOBAL: CMR2 0x0051b114
+int g_unk0x0051b114[9] = { 0, 0, 0, 0x6666, 0x8000, 0x9999, 0x6666, 0x8000, 0x9999 };
+
+// Speed limits of a stage object: fixed in some stages, else scaled by the
+// difficulty and the object's type factor.
+// FUNCTION: CMR2 0x00461b30
+void FUN_00461b30(BYTE *pObject, int type)
+{
+    unsigned int speed;
+
+    *(int *)(pObject + 0x14) = 0;
+    *(int *)(pObject + 0x18) = 0;
+    speed = (CGameInfo::FUN_00405ca0() + 2) * 0x320000;
+    if (*RallyData_FUN_004075b0(RallyDataStageIndex()) != 0) {
+        *(int *)(pObject + 0x14) = 0xf0000;
+        *(int *)(pObject + 0x18) = 0x500000;
+        return;
+    }
+    if (g_unk0x0051b114[type] != 0)
+        *(int *)(pObject + 0x18) = FixDiv(speed, g_unk0x0051b114[type]);
+}
+
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).
 // TODO: CMR2 0x00461bb0 (implemented, match 62%)
 void FUN_00461bb0(int t)
@@ -2207,6 +2322,36 @@ void Replay_InitSlots(void)
     memset(g_unk0x00588ea0, 0, sizeof(g_unk0x00588ea0));
     for (i = 0; i < 8; i++)
         g_unk0x00588d60[i] = &g_unk0x00588ea0[i];
+}
+
+// GLOBAL: CMR2 0x00588d18
+int g_unk0x00588d18[8];
+// GLOBAL: CMR2 0x00588ec8
+int g_unk0x00588ec8;
+
+// Frees the replay buffers (the second set only when not needed any more).
+// TODO: CMR2 0x0046c6d0 (implemented, match 65%)
+int Replay_FreeBuffers(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (g_unk0x00588e80[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00588e80[i]);
+            g_unk0x00588e80[i] = NULL;
+        }
+        if (CGameInfo::FUN_00406320() || CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 7) {
+            if (g_unk0x00588ea0[i] != NULL && g_unk0x00588d18[i] == 0) {
+                CFileBuffer::FreeGenericFileBuffer(g_unk0x00588ea0[i]);
+                g_unk0x00588ea0[i] = NULL;
+                g_unk0x00588d18[i] = 0;
+            }
+        }
+    }
+    g_unk0x00588d3c = 0;
+    g_unk0x00588d14 = 0;
+    g_unk0x00588ec8 = 0;
+    return 1;
 }
 
 // Stops recording into a replay buffer, closing the current segment.

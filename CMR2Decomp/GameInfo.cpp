@@ -2410,6 +2410,32 @@ void FUN_004035d0(Menu *pMenu, int param)
     g_unk0x0052af58[1] = pMenu->cursor;
 }
 
+// GLOBAL: CMR2 0x0052a0b8
+short g_unk0x0052a0b8;
+
+unsigned short FUN_0040bbc0(unsigned short slot);
+
+// Returns 1 when the slot's device pressed "back" (button 0x400, or the
+// joystick button mapped to action 9, which is then remembered).
+// TODO: CMR2 0x00404e10 (implemented, match 89%)
+int FUN_00404e10(unsigned short slot)
+{
+    DeviceInfo *pDev = CInput::FUN_0049ead0(FUN_0040bbc0(slot));
+
+    if (pDev->field_0x0 == 1 || pDev->field_0x0 == 2) {
+        if ((pDev->field_0x8 & 0x400) != 0)
+            return 1;
+    } else {
+        if ((pDev->field_0x8 & CInput::GetButtonMapping(slot, 9) & 0xffff) != 0) {
+            g_unk0x0052a0b8 = CInput::GetButtonMapping(slot, 9);
+            return 1;
+        }
+        if ((CInput::FUN_0049ead0(0)->field_0x8 & 0x400) != 0)
+            return 1;
+    }
+    return 0;
+}
+
 // FUNCTION: CMR2 0x00404ea0
 void FUN_00404ea0(BYTE param1)
 {

@@ -2588,6 +2588,30 @@ void CGraphics::SetCullMode(int mode)
     }
 }
 
+// GLOBAL: CMR2 0x0059ce30
+int g_unk0x0059ce30;
+
+// Switches alpha blending; with alpha test support the reference value follows.
+// TODO: CMR2 0x0049dcc0 (implemented, match 89%)
+void FUN_0049dcc0(int enable)
+{
+    if (enable != g_unk0x0059ce30) {
+        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1b, enable);
+        if (FUN_004b7510()) {
+            if (enable != 0) {
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 1);
+                g_unk0x0059ce30 = enable;
+                return;
+            }
+            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 0x80);
+            g_unk0x0059ce30 = enable;
+            return;
+        }
+        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1b, 1);
+        g_unk0x0059ce30 = enable;
+    }
+}
+
 // FUNCTION: CMR2 0x0049dd40
 void CGraphics::SetZEnable(int enable)
 {

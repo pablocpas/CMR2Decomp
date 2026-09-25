@@ -119,6 +119,40 @@ void FUN_0040e850(int index)
     FUN_0040e8a0((BYTE *)&CNetworkLeaderboards::m_leaderboards[index]);
 }
 
+void *RallyData_GetRecord(BYTE index);
+
+// Adds an empty leaderboard whose first entry is the local player.
+// FUNCTION: CMR2 0x0040e550
+void CNetworkLeaderboards::AddLeaderboard(void)
+{
+    int i;
+
+    *(BYTE *)&m_leaderboards[m_totalLeaderboards].isLoaded = 1;
+    for (i = 0; i < MAX_LEADERBOARD_PLAYERS; i++) {
+        sprintf(m_leaderboards[m_totalLeaderboards].entries[i].name, CMain::m_logFileBlankLine);
+        m_leaderboards[m_totalLeaderboards].entries[i].wins = 0;
+    }
+    sprintf(m_leaderboards[m_totalLeaderboards].entries[0].name, (char *)RallyData_GetRecord(0));
+    m_totalLeaderboards++;
+}
+
+// Removes a leaderboard, moving the following ones down.
+// TODO: CMR2 0x0040e5e0 (implemented, match 22%)
+void CNetworkLeaderboards::RemoveLeaderboard(int index)
+{
+    NetworkLeaderboard *p;
+
+    if (index <= m_leaderboardId)
+        m_leaderboardId--;
+    *(BYTE *)&m_leaderboards[m_totalLeaderboards].isLoaded = 1;
+    if (index < MAX_LEADERBOARDS - 1) {
+        for (p = &m_leaderboards[index]; p < &m_leaderboards[MAX_LEADERBOARDS - 1]; p++)
+            *p = p[1];
+    }
+    m_leaderboards[MAX_LEADERBOARDS - 1].isLoaded = 0;
+    m_totalLeaderboards--;
+}
+
 // Adds wins to the entry with the given name, creating it in the first
 // empty slot when it is not listed yet, and re-sorts the leaderboard.
 // TODO: CMR2 0x0040e660 (implemented, match 97%)

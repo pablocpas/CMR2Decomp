@@ -920,6 +920,39 @@ int __cdecl FUN_0049cb90(const void *a, const void *b)
     return depthA < depthB ? 1 : -1;
 }
 
+// qsort comparator of the transparent draw list (0x49cd20): type 0x14 goes
+// last, type 5 sorts after type 0 at equal depth, else farthest first.
+// TODO: CMR2 0x0049cbc0 (implemented, match 50%)
+int __cdecl FUN_0049cbc0(const void *a, const void *b)
+{
+    BYTE *pA = *(BYTE **)a;
+    BYTE *pB = *(BYTE **)b;
+    unsigned int typeA;
+    unsigned int typeB;
+    int depthA;
+    int depthB;
+    int diff;
+
+    typeA = *(unsigned int *)(pA + 0x30) & 0xff;
+    if (typeA == 0x14)
+        return 1;
+    typeB = *(unsigned int *)(pB + 0x30) & 0xff;
+    if (typeB == 0x14)
+        return 1;
+    depthA = *(int *)(pA + 0x16c);
+    depthB = *(int *)(pB + 0x16c);
+    diff = depthA - depthB;
+    if (diff < 0)
+        diff = depthB - depthA;
+    if (diff < 0x10000) {
+        if (typeA == 5 && typeB == 0)
+            return 1;
+        if (typeA == 0 && typeB == 5)
+            return -1;
+    }
+    return depthA < depthB ? 1 : -1;
+}
+
 // FUNCTION: CMR2 0x0049dca0
 void CGame::FUN_0049dca0(int param1)
 {

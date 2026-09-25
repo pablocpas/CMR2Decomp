@@ -648,3 +648,31 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
     }
     g_stageColourDirty = 1;
 }
+
+// Ramps field 0x818 of the auto-gear car toward +1 or -1 by its two flags.
+// TODO: CMR2 0x00494540 (implemented, match 44%)
+void FUN_00494540(void)
+{
+    int value = 0;
+
+    if (g_pAutoGearCar->flag0x1d0[0] == 0) {
+        if (g_pAutoGearCar->flag0x1d0[1] != 0) {
+            if (g_pAutoGearCar->field_0x818 > 0)
+                g_pAutoGearCar->field_0x818 = 0;
+            value = -0x10000;
+            g_pAutoGearCar->field_0x818 -= 0x10000;
+            if (g_pAutoGearCar->field_0x818 > -0x10001)
+                return;
+        }
+        g_pAutoGearCar->field_0x818 = value;
+    } else {
+        if (g_pAutoGearCar->field_0x818 < 0)
+            g_pAutoGearCar->field_0x818 = 0;
+        g_pAutoGearCar->field_0x818 += 0x10000;
+        if (g_pAutoGearCar->field_0x818 > 0x10000) {
+            g_pAutoGearCar->field_0x818 = 0x10000;
+            return;
+        }
+    }
+}
+

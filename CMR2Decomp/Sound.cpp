@@ -506,6 +506,29 @@ BOOL FUN_004bd100(void)
     return id != NULL;
 }
 
+WAVEFORMATEX *AcmGetDriverFormat(HACMDRIVERID hadid, WORD wFormatTag);
+
+// Opens the ACM stream that decodes the ADPCM music into PCM.
+// FUNCTION: CMR2 0x004bd120
+BOOL FUN_004bd120(void)
+{
+    WAVEFORMATEX *pSrc;
+    WAVEFORMATEX *pDst;
+    HACMDRIVER had;
+
+    CSound::m_unk0x00816a7c = 0;
+    pSrc = AcmGetDriverFormat(g_unk0x00816978, 2);
+    if (pSrc == NULL)
+        return FALSE;
+    pDst = AcmGetDriverFormat(g_unk0x00816978, 1);
+    if (pDst == NULL)
+        return FALSE;
+    had = 0;
+    if (acmDriverOpen(&had, g_unk0x00816978, 0) != 0)
+        return FALSE;
+    return acmStreamOpen(&CSound::m_unk0x00816a7c, had, pSrc, pDst, NULL, 0, 0, ACM_STREAMOPENF_NONREALTIME) == 0;
+}
+
 // FUNCTION: CMR2 0x004a3160
 void CSound::FUN_004a3160(void)
 {
@@ -1018,3 +1041,30 @@ void FUN_004a1d10(int sample)
             g_sound3DBuffers[sample] = NULL;
     }
 }
+
+// GLOBAL: CMR2 0x005a2848
+IDirectSoundBuffer *g_unk0x005a2848;
+// GLOBAL: CMR2 0x005a284c
+int g_unk0x005a284c;
+
+int FUN_004b7780(void);
+
+// Releases every sample buffer, the primary buffer and DirectSound itself.
+// FUNCTION: CMR2 0x004a2830
+void FUN_004a2830(void)
+{
+    int i;
+
+    for (i = 0; i < FUN_004b7780(); i++) {
+        if (g_soundBuffers[i] != NULL && g_soundBuffers[i]->Release() == 0)
+            g_soundBuffers[i] = NULL;
+        if (g_sound3DBuffers[i] != NULL && g_sound3DBuffers[i]->Release() == 0)
+            g_sound3DBuffers[i] = NULL;
+    }
+    if (g_unk0x005a2848 != NULL && g_unk0x005a2848->Release() == 0)
+        g_unk0x005a2848 = NULL;
+    if (g_unk0x005a2844 != NULL && g_unk0x005a2844->Release() == 0)
+        g_unk0x005a2844 = NULL;
+    g_unk0x005a284c = 0;
+}
+

@@ -828,6 +828,36 @@ void FUN_004ec000(void)
     } while (i < 16);
 }
 
+// GLOBAL: CMR2 0x0052ea60
+int g_unk0x0052ea60;
+// GLOBAL: CMR2 0x0052ea64
+int g_unk0x0052ea64;
+// GLOBAL: CMR2 0x0052f100
+int g_unk0x0052f100[20][2];
+
+unsigned int RallyData_FUN_00406940(void);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00406950(void);
+
+// Setting pair of a driver; in the rally modes it comes from the current
+// championship position (both values the same).
+// TODO: CMR2 0x00407520 (implemented, match 71%)
+int *FUN_00407520(int index)
+{
+    if ((BYTE)RallyData_GetFlag24()) {
+        if (!(BYTE)RallyData_FUN_00407e70())
+            g_unk0x0052ea64 = *(int *)((BYTE *)&g_knockout + 0xb8 +
+                                       ((RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)) * 0xc);
+        else
+            g_unk0x0052ea64 = *(int *)((BYTE *)&g_knockout + 0xb8 +
+                                       (((RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff)) * 3 +
+                                        (CGameInfo::FUN_00405d90() & 0xff)) * 4);
+        g_unk0x0052ea60 = g_unk0x0052ea64;
+        return &g_unk0x0052ea60;
+    }
+    return g_unk0x0052f100[index];
+}
+
 // FUNCTION: CMR2 0x004075b0
 int *RallyData_FUN_004075b0(int index)
 {
@@ -913,6 +943,26 @@ BYTE *RallyData_FUN_00408860(int index)
     if (category != 0xf)
         return g_unk0x0052f3e8 + category * 0x650 + 0x620;
     return NULL;
+}
+
+void RallyData_MarkTyresChanged(int index);
+
+// Stores a driver's 20-byte tyre choice (driver record or category record).
+// FUNCTION: CMR2 0x004088a0
+void RallyData_FUN_004088a0(BYTE index, int *pValues)
+{
+    unsigned int category;
+
+    if (CGameInfo::FUN_00405d80() == 4) {
+        memcpy(g_unk0x0052f3e8 + 0xa8 + index * 0xc4, pValues, 5 * sizeof(int));
+        g_unk0x0052f3e8[4 + index * 0xc4] |= 2;
+        return;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf) {
+        memcpy(g_unk0x0052f3e8 + 0xc54 + category * 0x650, pValues, 5 * sizeof(int));
+        RallyData_MarkTyresChanged(index);
+    }
 }
 
 // FUNCTION: CMR2 0x00408930
@@ -2755,6 +2805,25 @@ BYTE g_itemColour[4] = { 255, 255, 255, 255 };
 // GLOBAL: CMR2 0x00536bd8
 short g_itemRect[4];
 
+// Builds the frontend scene: root node, camera node and projection.
+// TODO: CMR2 0x0040ef10 (implemented, match 49%)
+void FUN_0040ef10(void)
+{
+    FixVector position;
+    FixAngles angles;
+    SceneNode *pNode;
+
+    position.x = 0;
+    position.y = 0;
+    position.z = -0xa0000;
+    memset(&angles, 0, sizeof(angles));
+    g_unk0x00536be0 = (int)SceneNode_CreateRoot();
+    g_unk0x00536be4 = (int)SceneType2_Create(&position, &angles, NULL, (SceneNode *)g_unk0x00536be0);
+    for (pNode = (SceneNode *)g_unk0x00536be0; pNode != NULL; pNode = *(SceneNode **)((BYTE *)pNode + 8))
+        *(int *)((BYTE *)pNode + 0x174) = 1;
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+}
+
 // Draws one item of a horizontal list and, unless it is the last one, the thin
 // separator after it; returns the x the next item starts at.
 // FUNCTION: CMR2 0x0040fd30
@@ -2892,6 +2961,26 @@ void RallyData_FUN_004084c0(BYTE index, BYTE param2)
 void RallyData_FUN_0040df80(int index, int value)
 {
     g_unk0x0052ea98[index] = value;
+}
+
+// GLOBAL: CMR2 0x005337c4
+int g_unk0x005337c4;
+// GLOBAL: CMR2 0x005337d4
+int g_unk0x005337d4[6];
+
+// Picks a random stage (0..11) whose group is not one of the two excluded ones.
+// FUNCTION: CMR2 0x0040e180
+int FUN_0040e180(int exclude1, int exclude2)
+{
+    memset(g_unk0x005337d4, 0, sizeof(g_unk0x005337d4));
+    if (exclude1 >= 0)
+        g_unk0x005337d4[(int)CFrontend::FUN_0040ee90(exclude1)] = 1;
+    if (exclude2 >= 0)
+        g_unk0x005337d4[(int)CFrontend::FUN_0040ee90(exclude2)] = 1;
+    g_unk0x005337c4 = rand() % 12;
+    while (g_unk0x005337d4[(int)CFrontend::FUN_0040ee90(g_unk0x005337c4)] == 1)
+        g_unk0x005337c4 = rand() % 12;
+    return g_unk0x005337c4;
 }
 
 // FUNCTION: CMR2 0x0040e330
@@ -3087,5 +3176,26 @@ void FUN_004702a0(void)
         for (i = 0; i < count; i++)
             FUN_00470240((BYTE **)(pEntries + i * 8), car);
     FUN_0046f7e0();
+}
+
+// Sets bit `bit` of the driver's category award mask; returns 0 when the
+// driver has no category or already had it.
+// TODO: CMR2 0x00409010 (implemented, match 87%)
+int RallyData_FUN_00409010(int index, BYTE bit)
+{
+    unsigned int category;
+    unsigned int mask;
+
+    RallyData_ValidateIndex(index);
+    if ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) & 0x3c0000) == 0x3c0000)
+        return 0;
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    mask = 1 << bit;
+    if ((mask & *(unsigned int *)(g_unk0x0052f3e8 + 0x66c + category * 0x650)) != 0)
+        return 0;
+    *(unsigned int *)(g_unk0x0052f3e8 + 0x66c + category * 0x650) |= mask;
+    g_unk0x0052f3e8[0x618 + category] = 1;
+    RallyData_FUN_00408f20(index);
+    return 1;
 }
 

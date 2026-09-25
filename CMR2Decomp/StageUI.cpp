@@ -10,6 +10,10 @@
 #include "Sprite.h"
 #include "Graphics.h"
 #include "RallyData.h"
+#include "InstallInfo.h"
+#include "StageTiming.h"
+#include "GameInfo.h"
+#include "Texture.h"
 
 // FUNCTION: CMR2 0x00415bc0
 void FUN_00415bc0(int, int)
@@ -762,5 +766,42 @@ void FUN_004734f0(Menu *pMenu)
     FUN_0041f2a0();
     for (i = 0; i < *g_unk0x0058ca88; i++)
         CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
+}
+
+// Co-driver arrow sprites: 64-pixel cells for low resolutions, 102-pixel
+// cells when the screen is at least 1024 wide and the texture fits.
+// GLOBAL: CMR2 0x00517e30
+SpriteRect g_arrowRectsSmall[8] = {
+    { 0, 0, 64, 64 }, { 64, 0, 64, 64 }, { 128, 0, 64, 64 }, { 192, 0, 64, 64 },
+    { 0, 64, 64, 64 }, { 64, 64, 64, 64 }, { 128, 64, 64, 64 }, { 192, 64, 64, 64 },
+};
+// GLOBAL: CMR2 0x00517e70
+SpriteRect g_arrowRectsLarge[8] = {
+    { 1, 0, 102, 102 }, { 103, 0, 102, 102 }, { 205, 0, 102, 102 }, { 307, 0, 102, 102 },
+    { 1, 102, 102, 102 }, { 103, 102, 102, 102 }, { 205, 102, 102, 102 }, { 307, 109, 107, 92 },
+};
+// GLOBAL: CMR2 0x00517eb0
+char g_strArrowsTexture[] = "\\NEWIMAGE\\OSD\\CODRIV\\ARROWS4.TGA";
+// GLOBAL: CMR2 0x00517d98
+char g_strPathConcat[] = "%s%s";
+// GLOBAL: CMR2 0x00537088
+SpriteRect *g_pArrowRects;
+// GLOBAL: CMR2 0x00537098
+Texture *g_arrowTexture;
+
+// Loads the co-driver arrow texture and picks the sprite layout for the resolution.
+// FUNCTION: CMR2 0x004165e0
+void FUN_004165e0(void)
+{
+    char path[MAX_PATH];
+    bool loaded;
+
+    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strArrowsTexture);
+    g_arrowTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, 0, 0, 0);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400)) {
+        g_pArrowRects = g_arrowRectsLarge;
+        return;
+    }
+    g_pArrowRects = g_arrowRectsSmall;
 }
 

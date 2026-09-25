@@ -714,3 +714,33 @@ void FUN_00447cf0(FixVector *pOut, unsigned int index)
 {
     *pOut = g_unk0x0053d048[index & 0xff];
 }
+
+// Camera mode of each player (4 = free camera using g_unk0x0053d000).
+// GLOBAL: CMR2 0x0053cff8
+BYTE g_unk0x0053cff8[8];
+// GLOBAL: CMR2 0x0053d000
+FixVector g_unk0x0053d000[6];
+// Default view offsets of the fixed camera modes.
+// GLOBAL: CMR2 0x00519ea0
+FixVector g_unk0x00519ea0[3] = { { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 }, { 0, 0x13333, -0x50000 } };
+
+int FUN_0041f3a0(void);
+int RallyData_FUN_00411880(void);
+
+// View offset of a player's camera (lowered in the split-screen cockpit view).
+// TODO: CMR2 0x00447ee0 (implemented, match 41%)
+void FUN_00447ee0(FixVector *pOut, BYTE *pSel)
+{
+    FixVector *p;
+
+    if (g_unk0x0053cff8[pSel[0]] == 4)
+        p = &g_unk0x0053d000[pSel[1]];
+    else
+        p = &g_unk0x00519ea0[g_unk0x0053cff8[pSel[0]]];
+    *pOut = *p;
+    if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0()) {
+        pOut->y -= 0x3333;
+        pOut->z -= 0x9999;
+    }
+}
+
