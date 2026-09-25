@@ -1297,6 +1297,7 @@ public:
     static BOOL m_hasTexFormatBump32;
 
 private:
+    friend void NetRace_PackCarState(struct Car *car);
     // GLOBAL: CMR2 0x0051615c
     static char m_strSettingConfigurationToDefault[36];
 

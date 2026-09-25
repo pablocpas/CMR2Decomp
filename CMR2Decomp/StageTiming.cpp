@@ -3648,7 +3648,7 @@ extern void Particle_Spawn(int, FixVector *, FixVector *, int, int, BYTE *, BYTE
 #define TRAIL_RANDOM(scale) ((int)(__int64)(rand() * g_oneOverRandMax * (scale)))
 
 // Chooses wheel spray/dust from the surface, then interpolates its spawn position.
-// TODO: CMR2 0x0045b580 (implemented, match 38%)
+// TODO: CMR2 0x0045b580 (implemented, match 41%)
 void StageTiming_SpawnWheelParticles(int carIndex)
 {
     BYTE colour[4] = { 255, 255, 255, 255 };
@@ -3734,17 +3734,24 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         if (!emit) continue;
         if (type == 4) rand();
 
-        FixVector delta, rolling, lateral, velocity, jitter, position, blend, source, particleVelocity;
+        FixVector delta, rolling, lateral, velocity, cornerMotion, jitter, position, blend, source, particleVelocity;
         delta.x = g_trailPos[carIndex][wheel].x - g_trailLastPos[carIndex][wheel].x;
         delta.y = g_trailPos[carIndex][wheel].y - g_trailLastPos[carIndex][wheel].y;
         delta.z = g_trailPos[carIndex][wheel].z - g_trailLastPos[carIndex][wheel].z;
         int slipA = FIX_ABS(car->field_0x880[wheel]) - 0xccc;
         int slipB = FIX_ABS(car->field_0x870[wheel]) - 0xccc;
         FixVector *cornerVelocity = &car->cornerVelocity[wheel];
-        velocity = *cornerVelocity;
-        FixVecScale(&rolling, &car->groundDir[front], car->field_0x870[wheel]);
-        int random = TRAIL_RANDOM(g_minus65536);
-        FixVecScale(&lateral, &car->groundAxis[front], -0x8000 - random);
+        cornerMotion = *cornerVelocity;
+        int random;
+        if (front) {
+            FixVecScale(&rolling, &car->groundDir[1], car->field_0x870[wheel]);
+            random = TRAIL_RANDOM(g_minus65536);
+            FixVecScale(&lateral, &car->groundAxis[1], -0x8000 - random);
+        } else {
+            FixVecScale(&rolling, &car->groundDir[0], car->field_0x870[wheel]);
+            random = TRAIL_RANDOM(g_minus65536);
+            FixVecScale(&lateral, &car->groundAxis[0], -0x8000 - random);
+        }
         int uniform;
         if (type == 5) {
             FixVecScale(&lateral, &lateral, 0x1999);
@@ -3755,9 +3762,9 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         }
         if (!leading) uniform = 1;
         FixVecScale(&rolling, &rolling, 0x1999);
-        velocity.x = rolling.x + velocity.x + lateral.x;
-        velocity.y = velocity.y + rolling.y + lateral.y;
-        velocity.z = rolling.z + velocity.z + lateral.z;
+        velocity.x = rolling.x + cornerMotion.x + lateral.x;
+        velocity.y = cornerMotion.y + rolling.y + lateral.y;
+        velocity.z = rolling.z + cornerMotion.z + lateral.z;
         if ((slipA > 0 || slipB > 0) && FixDiv(slipA, 0x20000) + FixDiv(slipB, 0x8000) > 0x8000)
             intensity = (intensity * 3) / 2;
         if (FUN_0041f3d0((BYTE)carIndex) || (*(BYTE **)(FUN_0041b390() + 4))[carIndex * 8] == 9) {
@@ -3767,22 +3774,39 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         if (dust) type += 4;
         random = TRAIL_RANDOM(g_minus65536);
         FixVecScale(&jitter, &delta, random);
-        int t = TRAIL_RANDOM(CGraphics::m_65536);
-        if (!uniform) {
-            random = TRAIL_RANDOM(g_minus65536);
-            t = FixDiv(t, 0x1547a - random * 9);
-            if (leading) {
+        int t;
+        if (!leading) {
+            t = TRAIL_RANDOM(CGraphics::m_65536);
+            if (!uniform) {
+                random = TRAIL_RANDOM(g_minus65536);
+                t = FixDiv(t, 0x1547a - random * 9);
+            }
+            FixVecScale(&position, &g_trailPos[carIndex][other], t);
+            t = 0x10000 - t;
+            FixVecScale(&blend, &g_trailPos[carIndex][wheel], t);
+        } else {
+            t = TRAIL_RANDOM(CGraphics::m_65536);
+            if (!uniform) {
+                random = TRAIL_RANDOM(g_minus65536);
+                t = FixDiv(t, 0x1547a - random * 9);
                 random = TRAIL_RANDOM(g_minus65536);
                 t = FixDiv(t, 0x30000 - random * 14);
             }
+            FixVecScale(&position, &g_trailPos[carIndex][other], t);
+            t = 0x10000 - t;
+            FixVecScale(&blend, &g_trailPos[carIndex][wheel], t);
         }
-        FixVecScale(&position, &g_trailPos[carIndex][other], t);
-        t = 0x10000 - t;
-        FixVecScale(&blend, &g_trailPos[carIndex][wheel], t);
         position.x += blend.x;
         position.y += blend.y;
         position.z += blend.z;
-        if (type == 6 || type == 10 || type == 4 || type == 8) {
+        if (type != 6 && type != 10 && type != 4 && type != 8) {
+            FixVector freeSource;
+            freeSource.x = position.x - cornerVelocity->x;
+            freeSource.y = position.y - cornerVelocity->y;
+            freeSource.z = position.z - cornerVelocity->z;
+            Particle_Spawn(type, &freeSource, cornerVelocity, position.y - 0x10000, 0, colour,
+                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
+        } else {
             source.x = position.x - car->position.x + jitter.x;
             source.y = position.y - car->position.y + jitter.y;
             source.z = position.z - car->position.z + jitter.z;
@@ -3813,12 +3837,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             }
             Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
                            g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
-        } else {
-            source.x = position.x - cornerVelocity->x;
-            source.y = position.y - cornerVelocity->y;
-            source.z = position.z - cornerVelocity->z;
-            Particle_Spawn(type, &source, cornerVelocity, position.y - 0x10000, 0, colour,
-                           g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
+
         }
     }
 }
