@@ -3851,3 +3851,47 @@ void FUN_0042b4a0(short *pList, short count)
     }
 }
 
+int FUN_0045c720(char car, int wheel);
+void FUN_0049c440(Mesh *pMesh, int mask, int value);
+
+// Sets four wheel mesh states for each car in draw order.
+// TODO: CMR2 0x0042be30 (implemented, match 53%)
+void FUN_0042be30(void)
+{
+    int order;
+    int wheel;
+    int car;
+    int state;
+    int appearance;
+    BYTE *pCar;
+    BYTE *pNode;
+
+    for (order = g_carOrderCount - 1; order >= 0; order--) {
+        car = g_carOrder[order];
+        pCar = (BYTE *)g_carBuffer + car * 0xc24;
+        for (wheel = 0; wheel < 4; wheel++) {
+            state = FUN_0045c720(car, wheel);
+            if (g_unk0x0053ac48[car][wheel] == 0) {
+                switch (state) {
+                case 1: appearance = 3; break;
+                case 2: appearance = 5; break;
+                case 3: appearance = 8; break;
+                default: appearance = 0; break;
+                }
+            } else {
+                switch (state) {
+                case 1: appearance = 4; break;
+                case 2: appearance = 7; break;
+                case 3: appearance = 9; break;
+                default: appearance = 6; break;
+                }
+            }
+            pNode = *(BYTE **)(pCar + 0x738 + wheel * 4);
+            FUN_0049c440(*(Mesh **)(pNode + 0xc), 1, appearance);
+            pNode = *(BYTE **)(pCar + 0x728 + wheel * 4);
+            if (pNode != NULL)
+                FUN_0049c440(*(Mesh **)(pNode + 0xc), 1, appearance);
+        }
+    }
+}
+

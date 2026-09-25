@@ -2522,6 +2522,40 @@ void FUN_00404130(Menu *pMenu, int param)
     }
 }
 
+// Callback of the car setup menu: encodes the selected switches and tyres.
+// TODO: CMR2 0x00404d00 (implemented, match 71%)
+void FUN_00404d00(Menu *pMenu)
+{
+    g_unk0x005298f8 = (g_unk0x005298f8 & ~4) | ((pMenu->items[0].max & 1) << 2);
+    g_unk0x005298f8 = (g_unk0x005298f8 & ~8) | ((pMenu->items[1].max & 1) << 3);
+    g_unk0x005298f8 = (g_unk0x005298f8 & ~0x20) | ((pMenu->items[3].max & 1) << 5);
+
+    if (FUN_004174d0()) {
+        if (RallyData_FUN_00411880()) {
+            if (pMenu->items[Menu_FindItem(pMenu, 4)].max == 0)
+                g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
+            else
+                g_unk0x005298f8 &= ~3;
+        } else {
+            BYTE bits = 0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max;
+            g_unk0x005298f8 ^= (bits ^ g_unk0x005298f8) & 3;
+        }
+    }
+
+    if (RallyData_FUN_00411880()) {
+        if (pMenu->items[Menu_FindItem(pMenu, 2)].max == 0)
+            g_unk0x005298f8 &= ~0x10;
+        else
+            g_unk0x005298f8 |= 0x10;
+    } else {
+        if (pMenu->items[Menu_FindItem(pMenu, 2)].max == 0)
+            g_unk0x005298f8 &= ~0x10;
+        else
+            g_unk0x005298f8 |= 0x10;
+    }
+    RallyData_FUN_00408990(FUN_0041b370() + g_unk0x0052af58[1], &g_unk0x005298f8);
+}
+
 // Callback 1 of the car setup menu: stores the setting byte (or the other
 // one when cancelling) and applies the switches.
 // FUNCTION: CMR2 0x00404c50
@@ -2871,4 +2905,3 @@ void FUN_004036c0(Menu *pMenu)
     g_unk0x0052aa58 = 0x68000;
     FUN_00403110(pMenu);
 }
-

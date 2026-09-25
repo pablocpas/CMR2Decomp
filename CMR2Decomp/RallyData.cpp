@@ -3743,3 +3743,136 @@ int *FUN_0040f050(int view)
     return pRect;
 }
 
+extern int g_unk0x00536fe0;
+int FUN_00448330(int car);
+
+// GLOBAL: CMR2 0x00536c30
+int g_unk0x00536c30[3];
+
+// Updates the split display rows for a car.
+// TODO: CMR2 0x00415870 (implemented, match 57%)
+void FUN_00415870(int car)
+{
+    int i;
+    int position;
+
+    if (RallyData_GetFlag24() || RallyData_GetFlag25()) {
+        for (i = 0; i < 3; i++) {
+            if (g_unk0x00536c30[i] > 0)
+                g_unk0x00536c30[i]--;
+        }
+        if (g_unk0x00536fe0 == 0) {
+            for (i = 0; i < 3; i++)
+                g_unk0x00536c94[car][i] = i;
+            g_stageSplitData[car].position = FUN_004481c0(car);
+        } else {
+            for (i = 0; i < 3; i++)
+                g_unk0x00536c94[car][i] = -1;
+            position = FUN_00448330(car);
+            g_stageSplitData[car].position = position;
+            if (position != -1) {
+                if (position <= 0) {
+                    g_unk0x00536c94[car][0] = position;
+                    g_unk0x00536c94[car][1] = position + 1;
+                    g_unk0x00536c94[car][2] = position + 2;
+                } else if (position < 5) {
+                    g_unk0x00536c94[car][0] = position - 1;
+                    g_unk0x00536c94[car][1] = position;
+                    g_unk0x00536c94[car][2] = position + 1;
+                } else {
+                    g_unk0x00536c94[car][0] = position - 2;
+                    g_unk0x00536c94[car][1] = position - 1;
+                    g_unk0x00536c94[car][2] = position;
+                }
+            }
+        }
+    }
+    if ((BYTE)CGameInfo::FUN_00405d80() == 5 || (BYTE)CGameInfo::FUN_00405d80() == 6)
+        FUN_00458290(car);
+    else if (FUN_00458250(car))
+        g_unk0x00536c20[car] = 0x4b;
+}
+
+// GLOBAL: CMR2 0x00533758
+int g_unk0x00533758[21];
+// GLOBAL: CMR2 0x005337cc
+int g_unk0x005337cc;
+
+// Picks an unexcluded event from the three or four events in its group.
+// TODO: CMR2 0x0040e210 (implemented, match 58%)
+int FUN_0040e210(int exclude1, int exclude2)
+{
+    int *choices = &g_unk0x00533758[17];
+
+    if (exclude1 != 0x13 && exclude1 != 0x11 && exclude1 != 0x12) {
+        choices[0] = 0;
+        choices[1] = 0;
+        choices[2] = 0;
+        choices[3] = 0;
+        if (exclude1 >= 0)
+            g_unk0x00533758[5 + exclude1] = 1;
+        if (exclude2 >= 0)
+            g_unk0x00533758[5 + exclude2] = 1;
+        do {
+            g_unk0x005337cc = rand() % 4;
+        } while (choices[g_unk0x005337cc] == 1);
+        return g_unk0x005337cc + 12;
+    }
+    choices[0] = 0;
+    choices[1] = 0;
+    choices[2] = 0;
+    if (exclude1 >= 0)
+        g_unk0x00533758[exclude1] = 1;
+    if (exclude2 >= 0)
+        g_unk0x00533758[exclude2] = 1;
+    do {
+        g_unk0x005337cc = rand() % 3;
+    } while (choices[g_unk0x005337cc] == 1);
+    return g_unk0x005337cc + 0x11;
+}
+
+int FUN_004481e0(int index);
+int StageTiming_FUN_00455ac0(int split, int index);
+int StageTiming_GetSplitDriverIDForPosition(int position, int split);
+int StageTiming_GetSplitPositionOfDriver(int driver, int split);
+unsigned int FUN_004735a0(unsigned int *pHigh);
+
+// Formats the name shown for a driver in the current result list.
+// TODO: CMR2 0x00415750 (implemented, match 59%)
+void FUN_00415750(int driver, int split, int useLongName, int useSplit)
+{
+    int entry;
+    int row;
+    char *name;
+
+    sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
+    if (useSplit == 0)
+        entry = StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_004481e0(driver));
+    else
+        entry = StageTiming_GetSplitDriverIDForPosition(driver, split);
+    if (entry == -1) {
+        sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
+        return;
+    }
+    for (row = 0; row < CGameInfo::FUN_00405d70(); row++) {
+        int candidate = useSplit == 0 ? FUN_004481c0(row) : StageTiming_GetSplitPositionOfDriver(row, split);
+        if (candidate == driver) {
+            if (CGameInfo::FUN_00405d80() == 4)
+                name = (char *)RallyData_GetRecord((BYTE)FUN_004735a0((unsigned int *)entry));
+            else
+                name = (char *)RallyData_GetRecord((BYTE)row);
+            sprintf(CFrontend::m_stringDest, name);
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            return;
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 4)
+        entry = FUN_004735a0((unsigned int *)entry);
+    if (useLongName)
+        name = (char *)RallyData_FUN_00407f20(entry);
+    else
+        name = CAIHelper::GetNameForID(entry);
+    sprintf(CFrontend::m_stringDest, name);
+    CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+}
+

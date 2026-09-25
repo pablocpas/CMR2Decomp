@@ -3429,3 +3429,84 @@ BYTE *FUN_00464b10(int view)
     return (BYTE *)g_unk0x0051b9f0;
 }
 
+// Starts a fresh stage object session.
+// TODO: CMR2 0x0047bda0 (implemented, match 66%)
+void FUN_0047bda0(void)
+{
+    FUN_0047c5c0();
+    FUN_0047c1b0();
+    FUN_0047c1e0(0, 0);
+    FUN_0047cc30();
+}
+
+// Starts replay mode with the selected restart flag.
+// TODO: CMR2 0x0047bdc0 (implemented, match 80%)
+void FUN_0047bdc0(char restart)
+{
+    FUN_0047c1e0(1, restart);
+}
+
+// Checks whether a replay packet agrees with current controls.
+// TODO: CMR2 0x0046cbe0 (implemented, match 57%)
+int FUN_0046cbe0(BYTE *packet, BYTE car)
+{
+    BYTE current[4];
+
+    if ((packet[2] & 0x3f) == 0)
+        return 1;
+    if ((packet[2] & 0x3f) >= 0x3f)
+        return 0;
+    FUN_0046c450(current, car);
+    return ((packet[0] ^ current[0]) & 0xfc) == 0 &&
+           ((packet[1] ^ current[1]) & 0xfc) == 0 &&
+           ((packet[3] ^ current[3]) & 0x7f) == 0 &&
+           ((packet[1] ^ current[1]) & 3) == 0 &&
+           ((packet[2] ^ current[2]) & 0xc0) == 0 &&
+           ((packet[0] ^ current[0]) & 3) == 0 &&
+           ((packet[3] ^ current[3]) & 0x80) == 0;
+}
+
+// Interpolates a stage object record between two frames.
+// TODO: CMR2 0x00461710 (implemented, match 58%)
+void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t)
+{
+    int i;
+
+    for (i = 0x1c; i < 0x48; i += 4) {
+        out[i] = (BYTE)FUN_004616c0(to[i], from[i], t);
+        out[i + 1] = (BYTE)FUN_004616c0(to[i + 1], from[i + 1], t);
+        out[i + 2] = (BYTE)FUN_004616c0(to[i + 2], from[i + 2], t);
+        out[i + 3] = (BYTE)FUN_004616c0(to[i + 3], from[i + 3], t);
+    }
+    for (i = 0; i < 7; i++)
+        ((int *)out)[i] = ((int *)from)[i] + FixMul(((int *)to)[i] - ((int *)from)[i], t);
+    for (i = 0x48; i < 0x4e; i++)
+        out[i] = (BYTE)FUN_004616c0(to[i], from[i], t);
+}
+
+#include <stdlib.h>
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// Finds the rev counter and digit textures for a player.
+// TODO: CMR2 0x00477340 (implemented, match 73%)
+void FUN_00477340(int player)
+{
+    char base[260];
+    unsigned int i;
+    Texture *texture;
+
+    for (i = 0; i < CGraphics::m_textureCount; i++) {
+        texture = CGraphics::m_pTextureManager->textureBuffer[i];
+        _splitpath(texture->name, CFrontend::m_stringDest, CFrontend::m_stringDest,
+                   base, CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)base));
+        if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixREVCT) == 0) {
+            *(Texture **)(g_stageBlock + 0x220 + player * 8) = texture;
+            FUN_004a3e20((Unk0x004a3e20 *)texture, 2);
+        }
+        if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
+            *(Texture **)(g_stageBlock + 0x224 + player * 8) = texture;
+    }
+}

@@ -3482,3 +3482,30 @@ void FUN_00424af0(void)
     g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);
 }
 
+// Attaches a stage object to the current car and copies its matrices.
+// TODO: CMR2 0x004813b0 (implemented, match 18%)
+int FUN_004813b0(int slot)
+{
+    BYTE *part = (BYTE *)g_unk0x00590c20;
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    BYTE *object;
+
+    if (*(int *)part != 0)
+        return 0;
+    object = g_unk0x00590b7c[slot][(signed char)car[0xb1a]];
+    if (object == NULL)
+        return 0;
+
+    *(BYTE **)part = object;
+    *(BYTE **)(part + 4) = part + 0xc;
+    *(BYTE **)(part + 8) = part + 0xcc;
+    memcpy(part + 0xc, object + 0x98, 0x40);
+    memcpy(part + 0xcc, object + 0xd8, 0x40);
+    *(BYTE **)(part + 0x10c) = *(BYTE **)(car + 0x71c) + 0x98;
+    memcpy(*(BYTE **)(part + 8), *(BYTE **)(car + 0x720) + 0xd8, 0x40);
+    FixMatrix_GetRight((FixVector *)(part + 0x17c), (FixMatrix *)(object + 0x98));
+    FixMatrix_GetUp((FixVector *)(part + 0x188), (FixMatrix *)(object + 0x98));
+    FixMatrix_GetForward((FixVector *)(part + 0x194), (FixMatrix *)(object + 0x98));
+    return 1;
+}
+

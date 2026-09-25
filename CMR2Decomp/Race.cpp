@@ -1013,3 +1013,47 @@ void FUN_00418cd0(unsigned int view, int kind, int listener)
     FUN_004187d0(view, (unsigned short)(g_unk0x005373a8 + sound), 0x10000, listener);
 }
 
+void FUN_00463ce0(BYTE value);
+
+// GLOBAL: CMR2 0x00537350
+int g_unk0x00537350;
+// GLOBAL: CMR2 0x0053735c
+int g_unk0x0053735c;
+
+// Updates the current route block and queues its first callout.
+// TODO: CMR2 0x00416f70 (implemented, match 59%)
+void FUN_00416f70(int player)
+{
+    int remaining = 500 - FUN_0041d780();
+    int block = remaining / 100;
+    int slot;
+
+    g_unk0x00537350 = -1;
+    g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
+    if ((BYTE)RallyData_FUN_00407e70()) {
+        if (remaining % 100 < 20)
+            g_unk0x00537350 = 6;
+        else if (block < 5)
+            g_unk0x00537350 = block + 1;
+        else
+            g_unk0x00537350 = -1;
+    }
+    FUN_004176b0();
+    slot = block + player * 5;
+    if (player > 0 && (&g_unk0x00537190)[slot] != 0) {
+        g_unk0x005371a4[slot] = 1;
+        return;
+    }
+    if (player == 0 && g_unk0x005371a4[block] == 0) {
+        g_unk0x005371a4[block] = 1;
+        FUN_00463ce0(block + 1);
+        if (block == 2)
+            Race_AssignUnusedSlot(g_unk0x0053735c + 0x38);
+        else if (block == 1)
+            Race_AssignUnusedSlot(g_unk0x0053735c + 0x39);
+        else if (block == 0)
+            Race_AssignUnusedSlot(g_unk0x0053735c + 0x3a);
+    }
+    g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player)) - 1;
+}
+

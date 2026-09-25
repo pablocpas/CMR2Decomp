@@ -134,3 +134,23 @@ void FUN_0048c6e0(int *v, int *limit, int clampY)
         v[2] = v[2] < 0 ? -limit[2] : limit[2];
 }
 
+extern int g_physicsScale;
+
+// Clamps a vector to the scaled limits: eight units on X/Z, four on Y.
+// TODO: CMR2 0x0048c750 (implemented, match 56%)
+void FUN_0048c750(int *v)
+{
+    if (v[0] > FixMul(g_physicsScale, 0x80000))
+        v[0] = FixMul(g_physicsScale, 0x80000);
+    else if (v[0] < -FixMul(g_physicsScale, 0x80000))
+        v[0] = -FixMul(g_physicsScale, 0x80000);
+    if (v[1] > FixMul(g_physicsScale, 0x40000))
+        v[1] = FixMul(g_physicsScale, 0x40000);
+    else if (v[1] < -FixMul(g_physicsScale, 0x40000))
+        v[1] = -FixMul(g_physicsScale, 0x40000);
+    if (v[2] > FixMul(g_physicsScale, 0x80000))
+        v[2] = FixMul(g_physicsScale, 0x80000);
+    else if (v[2] < -FixMul(g_physicsScale, 0x80000))
+        v[2] = -FixMul(g_physicsScale, 0x80000);
+}
+
