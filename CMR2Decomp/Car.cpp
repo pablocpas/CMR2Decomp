@@ -25,7 +25,9 @@ int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
 BYTE g_unk0x00538e0c[4];
 // GLOBAL: CMR2 0x00538d2c
-BYTE g_unk0x00538d2c[0xc8];
+BYTE g_unk0x00538d2c[0xcc];
+// View of the final eight bytes of the camera records at 0x00538df0.
+#define g_unk0x00538df0 ((int *)(g_unk0x00538d2c + 0xc4))
 // GLOBAL: CMR2 0x00538df8
 short g_unk0x00538df8[2];
 // GLOBAL: CMR2 0x00538c98
@@ -3895,3 +3897,45 @@ void FUN_0042be30(void)
     }
 }
 
+// Smooths the current car's three force feedback levels.
+// TODO: CMR2 0x00442e90 (implemented, match 20%)
+void FUN_00442e90(void)
+{
+    BYTE *car = (BYTE *)g_pCurrentCar;
+    int i;
+    int base = 0x880;
+    int tag = 0xab6;
+    int rate = 0x128;
+
+    for (i = 0; i < 3; i++, base -= 8, tag -= 4, rate -= 0x48) {
+        if (*(short *)(car + tag + 0x10) == *(short *)(car + tag) &&
+            *(int *)(car + base + 0x33c) != 0 && *(int *)(car + 0xb74) != 0) {
+            int magnitude = *(int *)(car + base);
+            int delta;
+            if (magnitude < 0) magnitude = -magnitude;
+            delta = magnitude - *(int *)(car + base + 0x20);
+            if (delta < 0)
+                *(int *)(car + base + 0x20) = magnitude;
+            else
+                *(int *)(car + base + 0x20) += FixMul(delta, *(int *)(car + rate));
+
+            magnitude = *(int *)(car + base + 0x10);
+            if (magnitude < 0) magnitude = -magnitude;
+            delta = magnitude - *(int *)(car + base + 0x30);
+            if (delta < 0)
+                *(int *)(car + base + 0x30) = magnitude;
+            else
+                *(int *)(car + base + 0x30) += FixMul(delta, *(int *)(car + rate));
+        } else {
+            *(int *)(car + base + 0x20) = 0;
+            *(int *)(car + base + 0x30) = 0;
+        }
+    }
+    *(int *)(car + 0x8a0) = *(int *)(car + 0x8a4);
+    *(int *)(car + 0x890) = *(int *)(car + 0x8a4);
+    *(int *)(car + 0x8a8) = *(int *)(car + 0x8ac);
+    *(int *)(car + 0x898) = *(int *)(car + 0x8ac);
+}
+
+// GLOBAL: CMR2 0x005391cc
+int g_unk0x005391cc[2];

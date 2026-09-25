@@ -3876,3 +3876,57 @@ void FUN_00415750(int driver, int split, int useLongName, int useSplit)
     CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
 }
 
+int FUN_00448260(int car);
+int FUN_00448110(void);
+int FUN_00448330(int car);
+int FUN_00448350(int car);
+BYTE FUN_00448370(int car);
+int FUN_004482d0(int index, int car);
+
+// GLOBAL: CMR2 0x00536c18
+int g_unk0x00536c18[2];
+// GLOBAL: CMR2 0x00536fe4
+int g_unk0x00536fe4[2];
+// GLOBAL: CMR2 0x00537054
+int g_unk0x00537054[2];
+
+// Updates the split timer and stage sound for a player.
+// TODO: CMR2 0x00413200 (implemented, match 82%)
+void FUN_00413200(int car)
+{
+    if (FUN_00458250(car)) {
+        g_unk0x00537054[car] = 1;
+        g_unk0x00536fe4[car] = FUN_00448110() - FUN_00448260(car);
+        if (FUN_00448330(car) <= 0) {
+            FUN_00411ab0(car, 1);
+            g_unk0x00536c18[car] = 1;
+            g_unk0x00536c0c[car] = 1;
+            g_stageSplitData[car].split = 1;
+        } else {
+            FUN_00411ab0(car, 0);
+            ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
+            g_unk0x00536c20[car] = 0x4b;
+            g_unk0x00536c0c[car] = 0;
+            g_unk0x00536c18[car] = 0;
+            g_stageSplitData[car].split = 1;
+        }
+    }
+    if (FUN_00448370(car)) {
+        if (g_unk0x00536c18[car] == 0)
+            return;
+        g_unk0x00537054[car] = 1;
+        g_unk0x00536c0c[car] = 0;
+        int index = FUN_00448350(car);
+        int now = FUN_00448110();
+        g_unk0x00536fe4[car] = FUN_004482d0(index, car) - now;
+        ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
+        g_unk0x00536c20[car] = 0x4b;
+        g_stageSplitData[car].split = 1;
+        g_unk0x00536c18[car] = 0;
+    }
+    if (g_unk0x00536c18[car] != 0 && g_unk0x00537054[car] != 0) {
+        ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
+        g_unk0x00536c20[car] = 0x4b;
+    }
+}
+

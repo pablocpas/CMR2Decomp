@@ -939,3 +939,35 @@ void FUN_004945d0(void)
     g_unk0x00592164 = -r;
 }
 
+void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z);
+extern int g_unk0x00592128;
+extern int g_unk0x0059212c;
+extern int g_unk0x00592130;
+
+// Shifts stage mesh heights and moves the ambient light with the stage.
+// FUNCTION: CMR2 0x004925c0
+void FUN_004925c0(int oldHeight, int newHeight, int mode)
+{
+    int height = g_stageHeightTarget - oldHeight + newHeight;
+    int i;
+    int object;
+    FixVector position;
+
+    for (i = g_stageMesh0Count - 1; i >= 0; i--) {
+        if (g_stageHeightSamples[i] < height) {
+            float *vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
+            if ((int)(__int64)((double)vertex[0] * CGraphics::m_65536) != g_unk0x00592114.x ||
+                (int)(__int64)((double)vertex[1] * CGraphics::m_65536) != g_unk0x00592114.y ||
+                (int)(__int64)((double)vertex[2] * CGraphics::m_65536) != g_unk0x00592114.z)
+                vertex[1] = (float)((double)height * CGraphics::m_oneOver65536);
+        }
+    }
+    g_stageColourDirty = 1;
+    g_unk0x00592128 = mode;
+    g_unk0x00592130 = newHeight;
+    g_unk0x0059212c = oldHeight;
+    FUN_0046f4c0(&object);
+    FixMatrix_RotateVector(&position, &g_unk0x00592114, (FixMatrix *)(object + 0x98));
+    position.y += g_unk0x0059212c;
+    Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
+}

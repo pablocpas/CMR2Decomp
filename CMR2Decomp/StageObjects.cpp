@@ -2666,7 +2666,7 @@ int Replay_Save(BYTE *pBuffer, char *pName)
 // Points the arrays of a replay buffer into its data block (after the 0x110
 // header), according to its type.
 // TODO: CMR2 0x0046d470 (implemented, match 43%)
-void Replay_SetupPointers(BYTE *pBuffer)
+void Replay_SetupPointers(BYTE *pBuffer, int unused)
 {
     int recordSize;
     int frames;
@@ -3509,4 +3509,135 @@ void FUN_00477340(int player)
         if (strcmp(CFrontend::m_stringDest, CGraphics::m_strSuffixDIGIT) == 0)
             *(Texture **)(g_stageBlock + 0x224 + player * 8) = texture;
     }
+}
+
+BYTE FUN_004918c0(void);
+
+// Starts stage objects and registers their frame callback.
+// TODO: CMR2 0x0048ca70 (implemented, match 80%)
+void FUN_0048ca70(void)
+{
+    FUN_0047bda0();
+    CGame::RegisterCallback(FUN_004918c0, NULL);
+}
+
+// Allocates and registers a replay buffer.
+// TODO: CMR2 0x0046c5a0 (implemented, match 52%)
+BYTE *FUN_0046c5a0(short frames, short samples, int type)
+{
+    BYTE *buffer;
+    int recordSize;
+    int extraSize;
+    BYTE slot;
+
+    if (*(BYTE *)&g_unk0x00588ec8 == 0) {
+        CGame::RegisterCallback(Replay_FreeBuffers, NULL);
+        *(BYTE *)&g_unk0x00588ec8 = 1;
+    }
+    if (g_unk0x00588d3c == 8)
+        return NULL;
+    recordSize = type == 0 ? 0x114c : 0x5c;
+    extraSize = type == 2 ? 0x10 : 4;
+    buffer = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x110 + frames * 2 + frames * recordSize + samples * frames * extraSize);
+    if (buffer == NULL)
+        return NULL;
+    *(int *)(buffer + 0x1c) = type;
+    *(short *)(buffer + 0xfc) = frames;
+    *(short *)(buffer + 0xfe) = samples;
+    Replay_SetupPointers(buffer, 0);
+    *(int *)(buffer + 4) = 0;
+    *(int *)(buffer + 0xc) = 0;
+    *(int *)(buffer + 0x14) = 0;
+    *(int *)(buffer + 0x18) = 0;
+    *(short *)(buffer + 0x100) = 0;
+    for (slot = 0; slot < 8; slot++) {
+        if (g_unk0x00588e80[slot] == NULL) {
+            g_unk0x00588e80[slot] = buffer;
+            break;
+        }
+    }
+    g_unk0x00588d3c++;
+    return buffer;
+}
+
+// Loads a replay buffer and validates its recorded dimensions.
+// TODO: CMR2 0x0046d2d0 (implemented, match 37%)
+BYTE *FUN_0046d2d0(char *path)
+{
+    DWORD size;
+    BYTE *buffer;
+    int frames;
+    int samples;
+
+    if (*(BYTE *)&g_unk0x00588ec8 == 0) {
+        CGame::RegisterCallback(Replay_FreeBuffers, NULL);
+        *(BYTE *)&g_unk0x00588ec8 = 1;
+    }
+    buffer = (BYTE *)CFileBuffer::GetGenericFileBuffer(path, 1);
+    if (buffer == NULL) {
+        buffer = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                      path, NULL, &size, 0);
+        g_unk0x00588d18[g_unk0x00588d14] = 1;
+    } else {
+        size = CGenericFileLoader::GetGenericFileSize();
+        g_unk0x00588d18[g_unk0x00588d14] = 0;
+    }
+    if (buffer == NULL)
+        return NULL;
+    frames = *(short *)(buffer + 0xfc);
+    samples = *(short *)(buffer + 0xfe);
+    if (size != 0x110 + frames * (0x114e + samples * 4) &&
+        size != 0x110 + frames * (0x5e + samples * 4) &&
+        size != 0x110 + frames * (0x114e + samples * 16) &&
+        size != 0x110 + frames * (0x5e + samples * 16)) {
+        CFileBuffer::FreeGenericFileBuffer(buffer);
+        return NULL;
+    }
+    Replay_SetupPointers(buffer, 1);
+    g_unk0x00588ea0[g_unk0x00588d14] = buffer;
+    g_unk0x00588d14++;
+    return buffer;
+}
+
+void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned int angle);
+
+// GLOBAL: CMR2 0x0051c9b0
+short g_unk0x0051c9b0 = 0x71;
+
+// Builds a stage object's world matrix from its car and mount point.
+// TODO: CMR2 0x004778b0 (implemented, match 41%)
+void FUN_004778b0(BYTE *object, int unused)
+{
+    int car = object[2];
+    FixVector position = *(FixVector *)(g_stageBlock + 0xe0 + car * 36);
+    FixMatrix orient;
+    FixMatrix mount;
+    FixMatrix combined;
+    BYTE *node;
+    BYTE *pCar;
+
+    FixMatrix_Identity(&mount);
+    FixMatrix_SetPosition(&position, &mount);
+    FixMatrix_Identity(&orient);
+    orient.right.x = 0;
+    orient.right.y = 0;
+    orient.right.z = -0x10000;
+    orient.up.x = 0;
+    orient.up.y = 0x10000;
+    orient.up.z = 0;
+    orient.forward.x = 0x10000;
+    orient.forward.y = 0;
+    orient.forward.z = 0;
+    FixMatrix_RotateAboutRight(&orient, (unsigned short)g_unk0x0051c9b0);
+    FixMatrix_SetPosition((FixVector *)(g_stageBlock + 0xe0 + car * 36), &orient);
+    node = *(BYTE **)(g_stageBlock + 0x294 + car * 0x1c);
+    FixMatrix_Multiply(&combined, &orient, (FixMatrix *)(node + 0x98));
+    pCar = (BYTE *)Car_Get(car);
+    FixMatrix_Multiply((FixMatrix *)(object + 8), &combined, *(FixMatrix **)(pCar + 0x754));
+    *(int *)(object + 0x48) = 0x10000;
+    *(int *)(object + 0x4c) = 0x1999;
+    *(int *)(object + 0x50) = 0;
+    *(int *)(object + 0x54) = 0xa000;
+    *(int *)(object + 0x58) = 0;
+    *(int *)(object + 0x5c) = 0x10000;
 }

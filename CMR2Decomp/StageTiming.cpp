@@ -3509,3 +3509,128 @@ int FUN_004813b0(int slot)
     return 1;
 }
 
+extern char g_stageLooped;
+extern int g_stageCheckpointCount;
+
+// Advances one car through crossed checkpoints.
+// TODO: CMR2 0x00458e00 (implemented, match 32%)
+void FUN_00458e00(int car, int target)
+{
+    Unk0x00542e78 *p = &g_unk0x00542e78[car];
+    int current = p->field_0x0;
+    int delta;
+    int step;
+    int i;
+
+    if (target == current)
+        return;
+    delta = target - current;
+    if (g_stageLooped == 0)
+        step = delta > 0 ? 1 : -1;
+    else if (delta < -50 || (delta > 0 && delta < 50))
+        step = 1;
+    else
+        step = -1;
+    for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
+        p->field_0x12 += (short)step;
+        if ((unsigned short)p->field_0x10 < (int)p->field_0x12)
+            p->field_0x10 = p->field_0x12;
+        int next = current + step;
+        if (next < 0)
+            next = g_stageCheckpointCount - 1;
+        if (next >= g_stageCheckpointCount)
+            next = 0;
+        if (g_stageLooped)
+            FUN_00458f30(car, current, next);
+        if (g_unk0x00542cad == 0)
+            FUN_00458fd0(car, next);
+        else
+            FUN_004590a0(car, next);
+        FUN_00459180(car);
+        FUN_00459250(car, next, step);
+        current = next;
+    }
+    p->field_0x0 = (short)target;
+    p->field_0x16 = 1;
+}
+
+// GLOBAL: CMR2 0x00590b10
+int g_unk0x00590b10[8];
+// GLOBAL: CMR2 0x00511380
+const double g_unk0x00511380 = 0.0099471839432434591;
+
+// Smooths the active car's steering offset and derives a short angle.
+// TODO: CMR2 0x00480cb0 (implemented, match 65%)
+void FUN_00480cb0(void)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    int speed = FixMul(*(int *)(car + 0x778), FixDiv(0x10000, 0x18000));
+    int step;
+    int target;
+    int index;
+    int delta;
+    int phase;
+
+    if (speed > 0x10000)
+        speed = 0x10000;
+    step = FixMul(FixMul(speed, g_physicsTimeStep), 0xf5c);
+    target = FixMul(FixMul(speed, g_physicsTimeStep), 0x3333);
+    phase = *(int *)(car + 0x2d0) + *(int *)(car + 0x2d8);
+    if (phase < 0)
+        phase = -phase;
+    phase %= 1024;
+    target = FixMul(target, phase << 6);
+    index = (signed char)car[0xb1a];
+    delta = target - g_unk0x00590b10[index];
+    if (delta < -step)
+        target = g_unk0x00590b10[index] - step;
+    else if (delta > step)
+        target = g_unk0x00590b10[index] + step;
+    g_unk0x00590b10[index] = target;
+    *(short *)&g_unk0x00590c68 = (short)(int)(__int64)((double)target * g_unk0x00511380);
+}
+
+BYTE FUN_0042b710(int index);
+unsigned short FUN_0040bbc0(unsigned short slot);
+unsigned int FUN_0040bc00(unsigned short slot);
+unsigned int FUN_0040bc30(unsigned short slot);
+DWORD FUN_0040bcd0(unsigned short slot);
+DWORD FUN_0040bd30(unsigned short slot);
+
+// Initializes the two force feedback slots and registers their stop callback.
+// TODO: CMR2 0x00423ff0 (implemented, match 62%)
+void FUN_00423ff0(void)
+{
+    int i;
+
+    CInput::ResetForceFeedbackEffects();
+    for (i = 0; i < 2; i++) {
+        g_forceFeedbackSlots[i].field_0x2c = -1;
+        g_forceFeedbackSlots[i].field_0x34 = 0;
+    }
+    for (i = 0; i < (BYTE)RallyDataState(); i++) {
+        Unk0x00539278 *p = &g_forceFeedbackSlots[i];
+        BYTE device = FUN_0042b710(Car_Get(i)->field_0xb1a);
+        g_unk0x00539278 = p;
+        CInput::FUN_0049ead0((signed char)device);
+        if (FUN_0040bd30(i) != 0) {
+            device = FUN_0042b710(Car_Get(i)->field_0xb1a);
+            CInput::FUN_004aaf50(FUN_0040bcd0(i), (signed char)device);
+            p->field_0x18 = FUN_0040bc00(i);
+            p->field_0x1c = FUN_0040bc30(i);
+            p->field_0x2c = (signed char)FUN_0040bbc0(i);
+            if (p->field_0x2c >= 0) {
+                FUN_00424120();
+                for (int j = 0; j < 3; j++) {
+                    (&p->field_0x0)[j] = 0;
+                    (&p->field_0xc)[j] = 0;
+                }
+                p->field_0x20 = 0;
+                p->field_0x24 = 0;
+                p->field_0x28 = 0;
+            }
+        }
+    }
+    FUN_00424640();
+    CGame::RegisterCallback(FUN_00424640, NULL);
+}

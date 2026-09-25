@@ -6369,3 +6369,42 @@ void FUN_0049c7b0(Mesh *pMesh)
     }
 }
 
+// GLOBAL: CMR2 0x0059be74
+unsigned short g_unk0x0059be74[2000];
+
+// Draws a mesh's triangles in contiguous texture runs.
+// TODO: CMR2 0x0049c680 (implemented, match 43%)
+void FUN_0049c680(Mesh *pMesh)
+{
+    int currentTexture = -1;
+    int count = 0;
+    int i;
+    MeshTriangle *pTri = pMesh->pTriangles;
+
+    for (i = 0; i < pMesh->triangleCount; i++, pTri++) {
+        int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
+        if (texture != currentTexture) {
+            if (count > 0) {
+                CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                    D3DPT_TRIANGLELIST,
+                    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                    pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+            }
+            count = 0;
+            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            currentTexture = texture;
+        }
+        g_unk0x0059be74[count++] = pTri->vertexIndex[0];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[1];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[2];
+        CGame::m_unk0x0059ce18++;
+    }
+    if (count != 0) {
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+            D3DPT_TRIANGLELIST,
+            CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+            pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+    }
+}
+

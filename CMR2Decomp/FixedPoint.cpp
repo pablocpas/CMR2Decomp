@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "FixedPoint.h"
 #include "Graphics.h"
+#include "GameInfo.h"
 
 // GLOBAL: CMR2 0x0072d67c
 int g_fixMatrixMultiplyCount;
@@ -709,4 +710,39 @@ void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
         pRows++;
         i--;
     } while (i != 0);
+}
+
+extern BYTE g_unk0x00538d2c[0xcc];
+#define g_unk0x00538df0 ((int *)(g_unk0x00538d2c + 0xc4))
+extern int g_unk0x00538e04[2];
+extern int g_unk0x005391cc[2];
+int FUN_0041f3a0(void);
+int FUN_00407270(void);
+int RallyData_FUN_00411880(void);
+
+// Sets the camera projection for the selected player's view.
+// TODO: CMR2 0x00422d40 (implemented, match 66%)
+void FUN_00422d40(unsigned int player)
+{
+    int i = player & 0xff;
+    int base = FixMul(g_unk0x005391cc[i], 0x275c2);
+    int ratio = (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536);
+    int fovX = FixMul(FixMul(base, ratio), 0x123d7);
+    int fovY = FixMul(base, 0x2147a);
+
+    if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880()) {
+        if (CGameInfo::FUN_00405dc0())
+            fovY *= 2;
+        else
+            fovX *= 2;
+    }
+    if (CGameInfo::FUN_004063f0(2)) {
+        CGraphics::SetProjection(-fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
+        return;
+    }
+    if (FUN_00407270() && g_unk0x00538e04[i] < 0x960000) {
+        CGraphics::SetProjection(fovX, fovY, 0x960000, g_unk0x00538df0[i]);
+        return;
+    }
+    CGraphics::SetProjection(fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
 }
