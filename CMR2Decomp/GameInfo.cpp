@@ -7765,3 +7765,174 @@ void FUN_0050a3f0(void)
                      (int)g_pGraphics->resY * 0x90 / 0x1e0,
                      &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
 }
+
+// 13-byte entry of the option record's 0x104-byte block at +0x0.
+struct Unk0x0082c070Item {
+    BYTE field_0x0[0xd];
+};
+
+// GLOBAL: CMR2 0x005270b8
+int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
+                            0x14820, 0x8ca0, 0x5dc0, 0xbb80, 0xbb80 };
+
+// Copies one group of fields of a rally data record into the working option
+// record of the given index and adds the group's weight to its value; clears the
+// group's "already applied" flag.
+// FUNCTION: CMR2 0x005034f0
+void FUN_005034f0(int param_1, int param_2)
+{
+    BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
+    BYTE *pSrc = (BYTE *)RallyData_FUN_00407610(param_1);
+    int value;
+    int i;
+
+    switch (param_2) {
+    case 1:
+        pDest[0x116] = pSrc[0x116];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[0]);
+        g_unk0x0082c040[param_1][1] = 0;
+        return;
+    case 2:
+        pDest[0x117] = pSrc[0x117];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[1]);
+        g_unk0x0082c040[param_1][2] = 0;
+        return;
+    case 3:
+        pDest[0x10e] = pSrc[0x10e];
+        pDest[0x10f] = pSrc[0x10f];
+        pDest[0x110] = pSrc[0x110];
+        pDest[0x111] = pSrc[0x111];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[2]);
+        FUN_00509be0(param_1);
+        g_unk0x0082c040[param_1][3] = 0;
+        return;
+    case 4:
+        pDest[0x118] = pSrc[0x118];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[3]);
+        g_unk0x0082c040[param_1][4] = 0;
+        return;
+    case 5:
+        pDest[0x112] = pSrc[0x112];
+        pDest[0x113] = pSrc[0x113];
+        pDest[0x114] = pSrc[0x114];
+        pDest[0x115] = pSrc[0x115];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[4]);
+        g_unk0x0082c040[param_1][5] = 0;
+        return;
+    case 6:
+        pDest[0x119] = pSrc[0x119];
+        pDest[0x11a] = pSrc[0x11a];
+        pDest[0x11b] = pSrc[0x11b];
+        pDest[0x11c] = pSrc[0x11c];
+        pDest[0x11d] = pSrc[0x11d];
+        pDest[0x11e] = pSrc[0x11e];
+        pDest[0x122] = pSrc[0x122];
+        pDest[0x123] = pSrc[0x123];
+        pDest[0x124] = pSrc[0x124];
+        pDest[0x125] = pSrc[0x125];
+        pDest[0x126] = pSrc[0x126];
+        pDest[0x127] = pSrc[0x127];
+        pDest[0x128] = pSrc[0x128];
+        pDest[0x129] = pSrc[0x129];
+        for (i = 0; i < 3; i++)
+            *(int *)(pDest + 0x13c + i * 4) = *(int *)(pSrc + 0x13c + i * 4);
+        for (i = 0; i < 4; i++)
+            *(int *)(pDest + 0x12c + i * 4) = *(int *)(pSrc + 0x12c + i * 4);
+        pDest[0x104] = pSrc[0x104];
+        pDest[0x105] = pSrc[0x105];
+        for (i = 0; i < 20; i++)
+            *(Unk0x0082c070Item *)(pDest + i * 0xd) = *(Unk0x0082c070Item *)(pSrc + i * 0xd);
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[5]);
+        g_unk0x0082c040[param_1][6] = 0;
+        FUN_00507650(param_1);
+        return;
+    case 7:
+        pDest[0x10c] = pSrc[0x10c];
+        pDest[0x10d] = pSrc[0x10d];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[6]);
+        g_unk0x0082c040[param_1][7] = 0;
+        return;
+    case 8:
+        pDest[0x11f] = pSrc[0x11f];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[7]);
+        g_unk0x0082c040[param_1][8] = 0;
+        return;
+    case 9:
+        pDest[0x120] = pSrc[0x120];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[8]);
+        g_unk0x0082c040[param_1][9] = 0;
+        return;
+    case 10:
+        pDest[0x121] = pSrc[0x121];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[9]);
+        g_unk0x0082c040[param_1][10] = 0;
+        return;
+    case 11:
+        pDest[0x108] = pSrc[0x108];
+        pDest[0x109] = pSrc[0x109];
+        pDest[0x10a] = pSrc[0x10a];
+        pDest[0x10b] = pSrc[0x10b];
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value + g_unk0x005270b8[10]);
+        FUN_00509d30(param_1);
+        g_unk0x0082c040[param_1][11] = 0;
+    }
+}
+
+// Applies the second item of the mode menu when its value still differs from the
+// stored option; the parent menu is always left as the next action.
+// FUNCTION: CMR2 0x00500360
+void FUN_00500360(Menu *pMenu, int param)
+{
+    int index = Menu_FindItem((Menu *)FUN_00502500(), 2);
+
+    if (FUN_00503940(CGameInfo::FUN_005011b0(),
+                     FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max))) {
+        FUN_005034f0(CGameInfo::FUN_005011b0(),
+                     FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max));
+    }
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
+// Callback of the option menu: applies the highlighted item when the confirm
+// button was pressed this frame.
+// FUNCTION: CMR2 0x004ff630
+void FUN_004ff630(Menu *pMenu)
+{
+    int slot = 0;
+    int index;
+    int value;
+    int option;
+
+    if (CGameInfo::FUN_005011b0() == 1) {
+        if (CGameInfo::FUN_00405da0() == 0)
+            slot = 1;
+    }
+    if ((CInput::FUN_0049ead0(slot)->field_0x8 & 0x20) == 0)
+        return;
+    if (pMenu->cursor == Menu_FindItem(pMenu, 0)) {
+        FUN_00503960(0, 1);
+        return;
+    }
+    if (pMenu->cursor == Menu_FindItem(pMenu, 2)) {
+        index = Menu_FindItem(pMenu, 2);
+        option = pMenu->items[index].max;
+        if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option)))
+            FUN_005034f0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option));
+    } else if (pMenu->cursor == Menu_FindItem(pMenu, 1)) {
+        index = Menu_FindItem(pMenu, 1);
+        value = FUN_004ff4c0(pMenu->items[index].max);
+        if (FUN_00502990(CGameInfo::FUN_005011b0(), value))
+            FUN_00502790(CGameInfo::FUN_005011b0(), value);
+    }
+}
