@@ -2398,6 +2398,132 @@ BOOL FUN_004a0d60(void)
     return FALSE;
 }
 
+// The GUID of the CMR2 DirectPlay application (shared with GameInfo.cpp).
+extern int g_unk0x00511cd8[4];
+
+// Creates (hosts) a DirectPlay session with the given name, password and user
+// values. Returns 1 when the session was created.
+// TODO: CMR2 0x004a0ec0 (implemented, match 87%)
+int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
+                 DWORD user3, DWORD user4, DWORD maxPlayers)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
+    SESSION.dwSize = sizeof(DPSESSIONDESC2);
+    SESSION.dwFlags = 0x2064;
+    SESSION.guidApplication = *(GUID *)g_unk0x00511cd8;
+    SESSION.dwMaxPlayers = maxPlayers;
+    strcpy((char *)&CGameInfo::m_unk0x005a00b8, pSessionName);
+    SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
+    strcpy((char *)&CGameInfo::m_unk0x005a02c0, pPassword);
+    SESSION.lpszPasswordA = (LPSTR)&CGameInfo::m_unk0x005a02c0;
+    SESSION.dwUser1 = user1;
+    SESSION.dwUser2 = user2;
+    SESSION.dwUser3 = user3;
+    SESSION.dwUser4 = user4;
+    pDP = CGame::GetDirectPlay();
+    if (pDP == NULL)
+        return 0;
+    hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_CREATE);
+    switch (hr) {
+    case DPERR_INVALIDPARAM:
+    case DPERR_ALREADYINITIALIZED:
+    case DPERR_ACCESSDENIED:
+    case DPERR_INVALIDFLAGS:
+    case DPERR_NOCONNECTION:
+    case DPERR_TIMEOUT:
+    case DPERR_USERCANCEL:
+    case DPERR_UNINITIALIZED:
+    case DPERR_NONEWPLAYERS:
+    case DPERR_INVALIDPASSWORD:
+    case DPERR_CONNECTING:
+    case DPERR_AUTHENTICATIONFAILED:
+    case DPERR_CANTLOADSSPI:
+    case DPERR_ENCRYPTIONFAILED:
+    case DPERR_SIGNFAILED:
+    case DPERR_CANTLOADSECURITYPACKAGE:
+    case DPERR_CANTLOADCAPI:
+    case DPERR_LOGONDENIED:
+        return 0;
+    case DP_OK:
+        CGameInfo::m_unk0x005a0060 = 1;
+        CGameInfo::m_unk0x005a1814 = 1;
+        return 1;
+    }
+    return 0;
+}
+
+// Opens (joins) the enumerated session at index into SESSION using the given
+// password and pushes it to DirectPlay. Returns 1 when the join is still in
+// progress, and sets *pInvalidPassword when DirectPlay rejects the password.
+// FUNCTION: CMR2 0x004a10b0
+int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword)
+{
+    IDirectPlay4A *pDP;
+    HRESULT hr;
+
+    *pInvalidPassword = 0;
+    if (index < CGameInfo::m_unk0x005a01bc) {
+        memset(g_unk0x005a0068, 0, sizeof(g_unk0x005a0068));
+        SESSION.dwSize = sizeof(DPSESSIONDESC2);
+        SESSION.guidInstance = SESSIONS[index].guidInstance;
+        SESSION.lpszSessionNameA = (LPSTR)&CGameInfo::m_unk0x005a00b8;
+        SESSION.lpszPasswordA = pPassword;
+        pDP = CGame::GetDirectPlay();
+        if (pDP != NULL) {
+            hr = ((DPMethod2)(*(void ***)pDP)[0x60 / 4])(pDP, g_unk0x005a0068, DPOPEN_JOIN);
+            switch (hr) {
+            case DPERR_INVALIDPASSWORD:
+                *pInvalidPassword = 1;
+                return 0;
+            case DPERR_ALREADYINITIALIZED:
+                return 0;
+            case DPERR_ACCESSDENIED:
+                return 0;
+            case DPERR_INVALIDFLAGS:
+                return 0;
+            case DPERR_INVALIDPARAM:
+                return 0;
+            case DPERR_NOCONNECTION:
+                return 0;
+            case DPERR_TIMEOUT:
+                return 0;
+            case DPERR_USERCANCEL:
+                return 0;
+            case DPERR_UNINITIALIZED:
+                return 0;
+            case DPERR_NONEWPLAYERS:
+                return 0;
+            case DPERR_CONNECTING:
+                return 0;
+            case DPERR_AUTHENTICATIONFAILED:
+                return 0;
+            case DPERR_CANTLOADSSPI:
+                return 0;
+            case DPERR_ENCRYPTIONFAILED:
+                return 0;
+            case DPERR_SIGNFAILED:
+                return 0;
+            case DPERR_CANTLOADSECURITYPACKAGE:
+                return 0;
+            case DPERR_CANTLOADCAPI:
+                return 0;
+            case DPERR_LOGONDENIED:
+                return 0;
+            default:
+                return 1;
+            case DP_OK:
+                CGameInfo::m_unk0x005a1814 = TRUE;
+                FUN_004a0d60();
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 // Closes the DirectPlay session object.
 // FUNCTION: CMR2 0x004a1280
 int FUN_004a1280(void)
