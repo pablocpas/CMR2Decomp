@@ -2775,20 +2775,13 @@ int *FUN_0050f620(void);
 int *FUN_0050f640(void);
 int FUN_00458040(void);
 
-// GLOBAL: CMR2 0x00519268
-char g_str0x00519268[4] = "ITA";
-// GLOBAL: CMR2 0x0051926c
-char g_str0x0051926c[4] = "KEN";
-// GLOBAL: CMR2 0x00519270
-char g_str0x00519270[4] = "AUS";
-// GLOBAL: CMR2 0x00519274
-char g_str0x00519274[4] = "SWE";
-// GLOBAL: CMR2 0x00519278
-char g_str0x00519278[4] = "FRA";
-// GLOBAL: CMR2 0x0051927c
-char g_str0x0051927c[4] = "GRE";
-// GLOBAL: CMR2 0x00519280
-char g_str0x00519280[4] = "FIN";
+extern char g_str0x00519268[4];
+extern char g_str0x0051926c[4];
+extern char g_str0x00519270[4];
+extern char g_str0x00519274[4];
+extern char g_str0x00519278[4];
+extern char g_str0x0051927c[4];
+extern char g_str0x00519280[4];
 // GLOBAL: CMR2 0x00519348
 char g_str0x00519348[6] = "ITALY";
 // GLOBAL: CMR2 0x00519350
@@ -2833,8 +2826,7 @@ short g_unk0x0082cb60[10];
 BYTE g_unk0x0082cb70[0x10];
 // GLOBAL: CMR2 0x0082c690
 void *g_unk0x0082c690;
-// GLOBAL: CMR2 0x0082c694
-int g_unk0x0082c694;
+extern int g_unk0x0082c694;
 // GLOBAL: CMR2 0x0082ca20
 int g_unk0x0082ca20[9];
 // GLOBAL: CMR2 0x0082c9e8
