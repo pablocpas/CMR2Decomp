@@ -3608,6 +3608,292 @@ void FUN_004f0c50(Menu *pMenu, int param)
     Menu_SetNextAction((int)pNext);
 }
 
+// GLOBAL: CMR2 0x00524d38
+char g_strLabelText[8] = "%s: %s";
+// GLOBAL: CMR2 0x00524d40
+char g_strLabelNumber[8] = "%s: %d";
+// GLOBAL: CMR2 0x00524d64
+char g_strLabelSpacedText[8] = "%s : %s";
+
+unsigned int RallyData_FUN_004069b0(void);
+unsigned int RallyData_FUN_004070e0(void);
+void RallyData_FUN_0040d660(BYTE param1);
+void RallyData_FUN_0040d680(BYTE param1);
+void RallyData_FUN_0040d6a0(BYTE param1);
+void RallyData_InitKnockoutBracket(void);
+void RallyData_FUN_004070c0(void);
+void FUN_004ea970(BYTE param1);
+int FUN_004eaac0(unsigned int value);
+
+// Number of stages the player count allows: 1-2 players 1, 3-4 players 2,
+// more 3.
+#define FRONTEND_PLAYER_GROUP(v)            \
+    switch (CGameInfo::FUN_00405d70()) {    \
+    case 1:                                 \
+    case 2:                                 \
+        v = 1;                              \
+        break;                              \
+    case 3:                                 \
+    case 4:                                 \
+        v = 2;                              \
+        break;                              \
+    default:                                \
+        v = 3;                              \
+        break;                              \
+    }
+
+// Entering the multiplayer race settings page: loads the current settings
+// (and the ranges the player count allows) into its entries.
+// TODO: CMR2 0x004ef970 (implemented, match 78%)
+void FUN_004ef970(Menu *pMenu, int param)
+{
+    BYTE group;
+
+    switch (CGameInfo::FUN_00405d70()) {
+    case 1:
+    case 2:
+        g_unk0x00819050 = 0;
+        break;
+    case 3:
+    case 4:
+        g_unk0x00819050 = 1;
+        break;
+    default:
+        g_unk0x00819050 = 2;
+        break;
+    }
+    if (CGameInfo::FUN_00405d70() == 1) {
+        if (CGameInfo::FUN_00405dd0() == 0) {
+            FUN_004ea970(CGameInfo::FUN_00405d90() + 1);
+            pMenu->items[0].max = CGameInfo::FUN_00405d90();
+        } else {
+            pMenu->items[0].max = CGameInfo::FUN_00405dd0() - 1;
+        }
+        pMenu->items[0].min = 3;
+        g_unk0x00819748 = 1;
+    } else {
+        pMenu->items[0].max = CGameInfo::FUN_00405dd0();
+        pMenu->items[0].min = 4;
+        g_unk0x00819748 = 0;
+    }
+    if (CGameInfo::FUN_00405dd0() == 0) {
+        FRONTEND_PLAYER_GROUP(group)
+        RallyData_FUN_0040d660(group);
+        pMenu->items[1].enabled = 0;
+        pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
+    } else {
+        pMenu->items[1].enabled = 1;
+    }
+    pMenu->items[1].min = 4 - g_unk0x00819050;
+    pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
+    if (pMenu->items[1].max >= pMenu->items[1].min)
+        pMenu->items[1].max = pMenu->items[1].min - 1;
+    switch (RallyData_FUN_004070e0()) {
+    case 1:
+        pMenu->items[2].max = 1;
+        break;
+    case 3:
+        pMenu->items[2].max = 2;
+        break;
+    case 5:
+        pMenu->items[2].max = 3;
+        break;
+    case 7:
+        pMenu->items[2].max = 4;
+        break;
+    default:
+        pMenu->items[2].max = 0;
+        break;
+    }
+    if (CGameInfo::FUN_00406410(0xd))
+        pMenu->items[2].min = 5;
+    else
+        pMenu->items[2].min = FUN_004eaac0(CGameInfo::FUN_00405db0()[1] & 0x1f) + 1;
+    if (pMenu->items[2].max >= pMenu->items[2].min)
+        pMenu->items[2].max = pMenu->items[2].min - 1;
+}
+
+// Item callback of "start" on the multiplayer race settings page: stores
+// the settings and starts the knockout.
+// TODO: CMR2 0x004f01c0 (implemented, match 64%)
+void FUN_004f01c0(Menu *pMenu, int param)
+{
+    BYTE value;
+
+    if (g_unk0x00819748 != 0)
+        FUN_004ea970(pMenu->items[0].max + 1);
+    else
+        FUN_004ea970(pMenu->items[0].max);
+    RallyData_FUN_0040d660(pMenu->items[1].max + g_unk0x00819050 + 1);
+    RallyData_FUN_0040d680(1);
+    switch (pMenu->items[2].max) {
+    case 1:
+        value = 1;
+        break;
+    case 2:
+        value = 3;
+        break;
+    case 3:
+        value = 5;
+        break;
+    case 4:
+        value = 7;
+        break;
+    default:
+        value = 8;
+        break;
+    }
+    RallyData_FUN_0040d6a0(value);
+    RallyData_InitKnockoutBracket();
+    RallyData_FUN_004070c0();
+    Menu_SetNextAction((int)FUN_004f8330());
+}
+
+// Update callback of the multiplayer race settings page.
+// TODO: CMR2 0x004f0250 (implemented, match 66%)
+void FUN_004f0250(Menu *pMenu)
+{
+    BYTE group;
+
+    if (g_unk0x00819748 != 0)
+        FUN_004ea970(pMenu->items[0].max + 1);
+    else
+        FUN_004ea970(pMenu->items[0].max);
+    if (CGameInfo::FUN_00405dd0() == 0) {
+        FRONTEND_PLAYER_GROUP(group)
+        RallyData_FUN_0040d660(group);
+        pMenu->items[1].enabled = 0;
+        pMenu->items[1].max = RallyData_FUN_004069b0() + (-1 - g_unk0x00819050);
+        return;
+    }
+    pMenu->items[1].enabled = 1;
+}
+
+// Draw callback of the multiplayer race settings page.
+// TODO: CMR2 0x004e1230 (implemented, match 83%)
+void FUN_004e1230(Menu *pMenu)
+{
+    short icon[4];
+    char *text[3];
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    short y0;
+    int id;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 440) / 640;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 100) / 480;
+    g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2)
+                         - g_unk0x008189a8[3] / 2;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 160) / 640;
+    FrontendDraw_PlayTime();
+    text[0] = CFrontend::GetTextString(0xe7);
+    text[1] = CFrontend::GetTextString(0xe);
+    text[2] = CFrontend::GetTextString(0x65);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 3);
+    y0 = (short)(((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2)
+         - (short)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount / 2);
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)i
+                  - CFrontend::m_pAr640ATexture->height / 2;
+        if (pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pTexture = CFrontend::m_pAr640ATexture;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pTexture = CFrontend::m_pAr640DTexture;
+            if (!pMenu->items[i].enabled)
+                pColour = g_colourDim0x00524970;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        switch (i) {
+        case 0:
+            if (FUN_004f3a30() != 0) {
+                switch (pMenu->items[0].max) {
+                case 0:
+                    id = 0x43;
+                    break;
+                case 1:
+                    id = 0x44;
+                    break;
+                case 2:
+                    id = 0x45;
+                    break;
+                default:
+                    goto draw;
+                }
+            } else {
+                switch (pMenu->items[0].max) {
+                case 0:
+                    id = 0x133;
+                    break;
+                case 1:
+                    id = 0x43;
+                    break;
+                case 2:
+                    id = 0x44;
+                    break;
+                case 3:
+                    id = 0x45;
+                    break;
+                default:
+                    goto draw;
+                }
+            }
+            sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x142), CFrontend::GetTextString(id));
+            break;
+        case 1:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x143),
+                    FUN_004f3a40() + pMenu->items[1].max + 1);
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x31),
+                    CFrontend::GetTextString(pMenu->items[2].max == 0 ? 0x2f : pMenu->items[2].max * 2 + 0x26));
+            break;
+        case 3:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x67));
+            break;
+        case 4:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1b));
+            break;
+        }
+    draw:
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+                      (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+        if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 36) / 480 * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+        g_unk0x008189a8[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    }
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)

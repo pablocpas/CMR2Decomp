@@ -2175,6 +2175,28 @@ void FUN_004f76f0(void)
     Menu_ValidateCursor(&g_menu0x008241b8, 0);
 }
 
+void FUN_004ef970(Menu *pMenu, int param);
+void FUN_004f01c0(Menu *pMenu, int param);
+void FUN_004f0250(Menu *pMenu);
+void FUN_004e1230(Menu *pMenu);
+
+// Multiplayer race settings page: three settings and "start".
+// FUNCTION: CMR2 0x004f8170
+void FUN_004f8170(void)
+{
+    Menu_Init(&g_menu0x00823858, 0, 0x46, 0, &g_menu0x00822d18, NULL, 1, 3, 1);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 5, 0, 0, 0, 0, 2);
+    Menu_AddItemType4(&g_menu0x00823858, 0, -1, (int)FUN_004f01c0, 3);
+    Menu_SetCallbacks(&g_menu0x00823858, (MenuCallback)FUN_004ef970, (MenuCallback)FUN_004f0250,
+                      (MenuCallback)FUN_004e1230, NULL);
+    Menu_ValidateCursor(&g_menu0x00823858, 0);
+    g_menu0x00823858.items[0].flag3 = 1;
+    g_menu0x00823858.items[1].flag3 = 1;
+    g_menu0x00823858.items[2].flag3 = 1;
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {
