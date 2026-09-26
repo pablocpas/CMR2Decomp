@@ -2488,7 +2488,7 @@ void CGraphics::FUN_004b7210(void) {
 }
 
 // FUNCTION: CMR2 0x0049d940
-void CGraphics::SetClearColour(int unused, BYTE r, BYTE g, BYTE b)
+void CGraphics::SetClearColour(int unused, int r, int g, int b)
 {
     ((BYTE *)&m_clearColour)[0] = r;
     ((BYTE *)&m_clearColour)[1] = g;

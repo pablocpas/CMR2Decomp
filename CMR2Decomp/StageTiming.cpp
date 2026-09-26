@@ -3849,14 +3849,11 @@ void FUN_00508fa0(int index, int param2, BYTE param3);
 
 // Camera-space dent parameters: apex, direction, reference direction, radius,
 // advance step and the falloff/scale factors used by FUN_00508890.
-// GLOBAL: CMR2 0x0082d120
-FixVector g_unk0x0082d120;
-// GLOBAL: CMR2 0x0082d12c
-FixVector g_unk0x0082d12c;
-// GLOBAL: CMR2 0x0082d138
-FixVector g_unk0x0082d138;
-// GLOBAL: CMR2 0x0082d144
-int g_unk0x0082d144;
+// Defined in GameInfo.cpp (same address, one definition per symbol).
+extern FixVector g_unk0x0082d120;
+extern FixVector g_unk0x0082d12c;
+extern FixVector g_unk0x0082d138;
+extern int g_unk0x0082d144;
 // GLOBAL: CMR2 0x0082d150
 int g_unk0x0082d150;
 // GLOBAL: CMR2 0x0082d154

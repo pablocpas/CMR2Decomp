@@ -1200,7 +1200,7 @@ public:
     static char m_strSuffixDIGIT[8];
     // GLOBAL: CMR2 0x0051c9ec
     static char m_strSuffixREVCT[8];
-    static void SetClearColour(int unused, BYTE r, BYTE g, BYTE b);
+    static void SetClearColour(int unused, int r, int g, int b);
     static void ClearTarget(void);
     static BOOL ClearZBuffer(void);
     static void SetCullMode(int mode);
