@@ -87,7 +87,13 @@ int g_unk0x00818ce8;
 int g_unk0x00818d00;
 // Filtered stage/route ids, one int per entry (up to 0x16).
 // GLOBAL: CMR2 0x00818d18
-int g_unk0x00818d18[36];
+int g_unk0x00818d18[0x16];
+// Index of the route/stage the setup screens currently point at.
+// GLOBAL: CMR2 0x00818d70
+int g_unk0x00818d70;
+// Route ids of the four selected stages of the outgoing setup packet.
+// GLOBAL: CMR2 0x00818d74
+int g_unk0x00818d74[4];
 // GLOBAL: CMR2 0x00818ebc
 char g_unk0x00818ebc[20];
 // GLOBAL: CMR2 0x00818ed0
@@ -1350,6 +1356,15 @@ void FUN_004d0620(DPID *pFrom, char *text, char local);
 void RallyData_FUN_004068e0(BYTE param1);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
 void FUN_004eb0c0(BYTE index, BYTE flag);
+void FUN_004067a0(int param1);
+unsigned int FUN_004a1480(void);
+int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword);
+BYTE FUN_004a1790(BYTE index);
+char Session_SetMaxPlayers(int count);
+void Session_SetUserValue(char index, int value);
+void Session_SetName(LPVOID pName);
+void Session_SetPassword(LPVOID pPassword);
+void FUN_004f92e0(int value);
 
 // The player setup data (0x540..0x6e7 of the rally data block) is mirrored
 // into the outgoing packet and back. 0x18 bytes of it are per-player rows,
@@ -1606,15 +1621,16 @@ void FUN_004ec9a0(Menu *pMenu, int param)
     }
 }
 
-// Sends the local player's description to the DirectPlay lobby.
+// Sends the local player's description to the DirectPlay lobby. The original
+// leaks the return value of the send call through this function.
 // FUNCTION: CMR2 0x004eca10
-void FUN_004eca10(void)
+char FUN_004eca10(void)
 {
     unsigned int info[4];
 
     info[0] = FUN_004a1a00();
     info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
-    FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
+    return FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
 }
 
 // FUNCTION: CMR2 0x004eca60
@@ -1637,6 +1653,54 @@ void FUN_004eca60(Menu *pMenu, char param)
     }
     g_unk0x00818d04 = 1;
     FUN_004b7c80();
+}
+
+// Item action of the session browser: joins the session the list points at
+// and moves on to the car select or the error screen.
+// FUNCTION: CMR2 0x004ecd60
+void FUN_004ecd60(Menu *pMenu, int param)
+{
+    if (g_unk0x00818ef4 != 0) {
+        if (g_unk0x00819014 != 0 && g_unk0x00819024 != 0 && g_unk0x00525288 >= 0
+            && (int)g_unk0x00525288 < (int)FUN_004a1480()) {
+            g_unk0x00818ce4 = 0;
+            FUN_00409a30();
+            FUN_004d05f0();
+            g_unk0x00818ef4 = 0;
+            if (FUN_004a1790((BYTE)g_unk0x00525288) == 0) {
+                // The original reuses the menu parameter slot for the
+                // invalid-password flag of the join call (its value is unused).
+                if (FUN_004a10b0((BYTE)g_unk0x00525288, g_unk0x00818da8, (BYTE *)&pMenu) != 0) {
+                    FUN_004ea8e0((BYTE)Session_GetUserValue(0));
+                    FUN_00406780(Session_GetUserValue(2));
+                    FUN_004a1a00();
+                    RallyData_FUN_004086b0(0);
+                    if (FUN_004eca10() != 0) {
+                        Menu_SetParent(FUN_004f8470(), FUN_004f8450());
+                        Menu_SetNextAction((int)FUN_004f8470());
+                        return;
+                    }
+                    FUN_004a1280();
+                    FUN_004f92e0(3);
+                    Menu_SetNextAction((int)FUN_004f9360());
+                    return;
+                }
+            }
+            if (FUN_004a1790((BYTE)g_unk0x00525288) != 0) {
+                Menu_SetNextAction((int)FUN_004f88d0());
+                return;
+            }
+            FUN_004a1280();
+            FUN_004f92e0(1);
+            Menu_SetNextAction((int)FUN_004f9360());
+            return;
+        }
+        if ((int)FUN_004a1480() > 0)
+            g_unk0x00819014 = 1;
+    } else {
+        pMenu->items[0].id = 0x1ec;
+        g_unk0x00818ef4 = 1;
+    }
 }
 
 bool FUN_004aac40(BYTE param1);
@@ -1688,6 +1752,51 @@ void FUN_004ecfd0(Menu *pMenu, char param)
         Menu_GetItem(pMenu, 3)->max = FUN_00406790() - 2;
     }
     Menu_GetItem(pMenu, 1)->max = FUN_004ea920() - 8;
+}
+
+// Item action of the "create session" screen: validates the session name,
+// player count and password items and sends the session setup of this host.
+// FUNCTION: CMR2 0x004ed340
+void FUN_004ed340(Menu *pMenu, int param)
+{
+    if (strcmp(CMain::m_logFileBlankLine, g_unk0x00818ebc) == 0) {
+        pMenu->cursor = 0;
+        Menu_PlaySoundId(3);
+        return;
+    }
+    Session_SetUserValue(2, Menu_GetItem(pMenu, 2)->max - 1);
+    FUN_00406780(Menu_GetItem(pMenu, 2)->max - 1);
+    if (Session_SetMaxPlayers(Menu_GetItem(pMenu, 3)->max + 2)) {
+        FUN_004067a0(Menu_GetItem(pMenu, 3)->max + 2);
+        Session_SetName(g_unk0x00818ebc);
+        CGameInfo::FUN_004066a0(g_unk0x00818ebc);
+        Session_SetPassword(g_unk0x00818ef8);
+        CGameInfo::FUN_004066e0(g_unk0x00818ef8);
+        FUN_004ea8e0(Menu_GetItem(pMenu, 1)->max + 8);
+        Session_SetUserValue(0, Menu_GetItem(pMenu, 1)->max + 8);
+        Session_SetOpen(1);
+        switch (Menu_GetItem(pMenu, 1)->max) {
+        case 0:
+            Menu_SetNextAction((int)FUN_004f84b0());
+            break;
+        case 1:
+            Menu_SetNextAction((int)FUN_004f84c0());
+            break;
+        case 2:
+            Menu_SetNextAction((int)FUN_004f84d0());
+            break;
+        case 3:
+            Menu_SetNextAction((int)FUN_004f84e0());
+            break;
+        default:
+            Menu_SetNextAction((int)FUN_004f84f0());
+            break;
+        }
+        FUN_004ec460();
+        return;
+    }
+    Menu_PlaySoundId(3);
+    Menu_SelectItem(pMenu, 3);
 }
 
 // FUNCTION: CMR2 0x004ed500
@@ -1745,6 +1854,64 @@ void FUN_004ed530(Menu *pMenu, int unused)
     Menu_GetItem(pMenu, 1)->min = index;
 }
 
+// Start action of the "host race" screen: copies the selected rally setup
+// into the rally data block and sends the host setup packet (type 2).
+// FUNCTION: CMR2 0x004ed610
+void FUN_004ed610(Menu *pMenu, int param)
+{
+    BYTE *pState = RallyData_FUN_004082f0();
+    NetSetupPacket packet;
+    int i;
+
+    if (FUN_004a15a0()) {
+        Session_SetOpen(0);
+        for (i = 0; i < 0xb; i++) {
+            packet.field_0x8[i] = CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i);
+            if (CGameInfo::FUN_00406410(0xd))
+                packet.field_0x8[i] &= 0xfd;
+            pState[i] = packet.field_0x8[i];
+        }
+        if (CGameInfo::FUN_00405d80() == 8) {
+            for (i = 0; i < 0xb; i++) {
+                if ((CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 1) != 0
+                    && ((CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 2) == 0
+                        || CGameInfo::FUN_00406410(0xd))
+                    && (CGameInfo::FUN_00406520((BYTE)RallyDataCountryIndex(), i) & 4) == 0) {
+                    RallyData_FUN_004068e0(i);
+                    break;
+                }
+            }
+        }
+        RallyData_FUN_00408600(0, g_unk0x00818d18[Menu_GetItem(pMenu, 1)->max]);
+        FUN_004eb0c0(0, Menu_GetItem(pMenu, 2)->max);
+        packet.type = 2;
+        packet.gameMode = CGameInfo::FUN_00405d80();
+        switch (CGameInfo::FUN_00405d80()) {
+        case 8:
+        case 9:
+        case 10:
+            packet.country = RallyDataCountryIndex();
+            packet.stage = RallyDataStageIndex();
+            break;
+        case 0xb:
+        case 0xc:
+            packet.rallyA = RallyData_FUN_00406940();
+            packet.rallyB = RallyData_FUN_00406950();
+            packet.rallyC = RallyData_FUN_00406990();
+            break;
+        }
+        packet.field_0x14 = FUN_00406710();
+        FUN_004ec320((BYTE *)&packet);
+        FUN_004a1c50(0, 1, (int)&packet, 0x1c4);
+        FUN_00409e30(1, 1);
+        FUN_00409b60();
+        FUN_00409ab0(0, 1);
+        CGame::FUN_004083e0(1);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_0040b120();
+    }
+}
+
 // FUNCTION: CMR2 0x004edb30
 void FUN_004edb30(Menu *pMenu, char param)
 {
@@ -1758,6 +1925,14 @@ void FUN_004edb30(Menu *pMenu, char param)
 BYTE *FUN_004edb50(void)
 {
     return g_unk0x00818f14;
+}
+
+// Update callback of the session browser menu: drains the network queue.
+// FUNCTION: CMR2 0x004edb60
+void FUN_004edb60(Menu *pMenu)
+{
+    FUN_004ec8d0();
+    FUN_004b7c80();
 }
 
 // FUNCTION: CMR2 0x004edb70
@@ -1804,6 +1979,133 @@ void FUN_004edca0(Menu *pMenu, int param)
         return;
     }
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
+}
+
+// Item action of the "join session" screen: applies the selected role and
+// opens the session, then continues to the car select screen.
+// FUNCTION: CMR2 0x004edd50
+void FUN_004edd50(Menu *pMenu, int param)
+{
+    int i;
+    int value;
+
+    for (i = 0; i < Menu_GetItem(pMenu, 0)->min; i++) {
+        if ((Menu_GetItem(pMenu, 0)->min == 5 && i == 4)
+            || (Menu_GetItem(pMenu, 0)->min == 9 && i == 8))
+            value = 10;
+        else
+            value = i;
+        if ((CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, value) & 1) != 0) {
+            RallyData_FUN_004068e0(0);
+            RallyData_FUN_004068b0(Menu_GetItem(pMenu, 1)->max);
+            FUN_004f8470()->pParent = pMenu;
+            Menu_SetNextAction((int)FUN_004f8470());
+            break;
+        }
+    }
+    FUN_004ec460();
+}
+
+// Change callback of the "join session" menu: keeps the role item's minimum
+// (the number of players) in sync with the selected player count.
+// FUNCTION: CMR2 0x004ede10
+void FUN_004ede10(Menu *pMenu)
+{
+    int i;
+
+    if (CGameInfo::FUN_00406410(0xd)) {
+        Menu_GetItem(pMenu, 0)->min = Menu_GetItem(pMenu, 1)->max % 2 + 10;
+        FUN_004ec8d0();
+        return;
+    }
+    for (i = 0; i < 0xb; i++) {
+        if ((CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, i) & 2) != 0) {
+            Menu_GetItem(pMenu, 0)->min = i;
+            break;
+        }
+    }
+    if (Menu_GetItem(pMenu, 1)->max % 2 != 0 && (i == 4 || i == 8)
+        && (CGameInfo::FUN_00406520(Menu_GetItem(pMenu, 1)->max, 10) & 2) == 0)
+        Menu_GetItem(pMenu, 0)->min++;
+    FUN_004ec8d0();
+}
+
+// Init callback of the "join session" menu: sets the allowed player count
+// from the game mode flags and fills the setup items of the local player.
+// FUNCTION: CMR2 0x004edef0
+void FUN_004edef0(Menu *pMenu, char param)
+{
+    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    int values[2];
+    int min;
+
+    if (CGameInfo::FUN_00406410(0xd)) {
+        min = 8;
+    } else {
+        unsigned int v = *pFlags;
+
+        min = 4;
+        if ((int)((v >> 8) & 0xf) > min)
+            min = (v >> 8) & 0xf;
+        if ((int)((v >> 0xc) & 0xf) > min)
+            min = (v >> 0xc) & 0xf;
+        if ((v & 1) != 0 && (int)((v >> 0x10) & 0xf) > min)
+            min = (v >> 0x10) & 0xf;
+    }
+    Menu_GetItem(pMenu, 0)->min = min;
+    if (param != 0) {
+        values[0] = (BYTE)RallyDataCountryIndex();
+        values[1] = (BYTE)RallyDataStageIndex();
+    } else {
+        FUN_004ea990(&values[0], &values[1]);
+        Menu_GetItem(pMenu, 0)->max = values[0];
+        Menu_GetItem(pMenu, 1)->max = values[1];
+    }
+    if (CGameInfo::FUN_00406410(0xd)) {
+        min = (values[0] % 2 != 0) + 0xa;
+    } else {
+        min = 4;
+        if ((int)((*pFlags >> 8) & 0xf) >= values[0] + 1)
+            min = param;
+        if ((int)((*pFlags >> 0xc) & 0xf) < values[0] + 1)
+            min = 8;
+        if ((*pFlags & 1) != 0 && (int)((*pFlags >> 0x10) & 0xf) < values[0] + 1)
+            min = 0xa;
+        if (values[0] % 2 != 0) {
+            unsigned int mask = 1 << ((values[0] + 1) / 2 - 1);
+
+            if ((pFlags[1] & mask & 0x1f) != 0
+                || (((pFlags[1] >> 5) & 0x1f) & mask) != 0
+                || (((pFlags[1] >> 10) & 0x1f) & mask) != 0)
+                min++;
+        }
+    }
+    Menu_GetItem(pMenu, 1)->min = min;
+    if (param == 0)
+        Menu_GetItem(pMenu, 2)->max = 0;
+    g_unk0x00818d70 = values[0];
+    FUN_004ee170(pMenu);
+}
+
+// Item action of the "join" screen: applies the selected rally/route and
+// sends the join setup of this player.
+// FUNCTION: CMR2 0x004ee090
+void FUN_004ee090(Menu *pMenu, int param)
+{
+    if ((Menu_GetItem(pMenu, 1)->min == 5 && Menu_GetItem(pMenu, 1)->max == 4)
+        || (Menu_GetItem(pMenu, 1)->min == 9 && Menu_GetItem(pMenu, 1)->max == 8)
+        || (Menu_GetItem(pMenu, 1)->min == 0xb && Menu_GetItem(pMenu, 1)->max == 0xa))
+        RallyData_FUN_004068e0(10);
+    else
+        RallyData_FUN_004068e0(Menu_GetItem(pMenu, 1)->max);
+    RallyData_FUN_004068b0(Menu_GetItem(pMenu, 0)->max);
+    if (RallyDataStageIndex() != 0xa && g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max] != -1)
+        RallyData_FUN_0040df60(1, g_unk0x00818d74[Menu_GetItem(pMenu, 2)->max]);
+    else
+        RallyData_FUN_0040df60(1, 0);
+    FUN_004f8470()->pParent = pMenu;
+    Menu_SetNextAction((int)FUN_004f8470());
+    FUN_004ec460();
 }
 
 int FUN_00406750(void);
