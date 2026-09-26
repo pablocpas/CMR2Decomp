@@ -1968,6 +1968,63 @@ void FUN_004f63b0(void)
     Menu_ValidateCursor(&g_menu0x0081c7d8, 0);
 }
 
+void FUN_004f3a90(Menu *pMenu, int param);
+void FUN_004e3340(Menu *pMenu);
+
+// High score page (the table shown cycles on each press).
+// FUNCTION: CMR2 0x004f66e0
+void FUN_004f66e0(void)
+{
+    Menu_Init(&g_menu0x00820b58, 0, 0x162, 0, &g_menu0x00823c18, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00820b58, 0, -1, (int)FUN_004f3a90, -1);
+    Menu_SetCallbacks(&g_menu0x00820b58, NULL, NULL, (MenuCallback)FUN_004e3340, NULL);
+    Menu_ValidateCursor(&g_menu0x00820b58, 0);
+    g_menu0x00820b58.items[0].flag3 = 1;
+}
+
+void FUN_004e3a80(Menu *pMenu);
+
+// Record page (the table shown cycles on each press).
+// FUNCTION: CMR2 0x004f69f0
+void FUN_004f69f0(void)
+{
+    Menu_Init(&g_menu0x00823498, 0, 0x162, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00823498, 0, -1, (int)FUN_004f3a90, -1);
+    Menu_SetCallbacks(&g_menu0x00823498, NULL, NULL, (MenuCallback)FUN_004e3a80, NULL);
+    Menu_ValidateCursor(&g_menu0x00823498, 0);
+    g_menu0x00823498.items[0].flag3 = 1;
+}
+
+void FUN_004f2e70(Menu *pMenu, int param);
+void FUN_004f3980(Menu *pMenu);
+void FUN_004e5630(Menu *pMenu);
+
+// Stage records page: one entry per rally.
+// FUNCTION: CMR2 0x004f6b40
+void FUN_004f6b40(void)
+{
+    Menu_Init(&g_menu0x00822ef8, 0, 0x164, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x27, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x28, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x29, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2a, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2b, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2c, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2d, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2e, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00822ef8, (MenuCallback)FUN_004f2e70, (MenuCallback)FUN_004f3980,
+                      (MenuCallback)FUN_004e5630, NULL);
+    Menu_ValidateCursor(&g_menu0x00822ef8, 0);
+    g_menu0x00822ef8.items[0].flag3 = 1;
+    g_menu0x00822ef8.items[1].flag3 = 1;
+    g_menu0x00822ef8.items[2].flag3 = 1;
+    g_menu0x00822ef8.items[3].flag3 = 1;
+    g_menu0x00822ef8.items[4].flag3 = 1;
+    g_menu0x00822ef8.items[5].flag3 = 1;
+    g_menu0x00822ef8.items[6].flag3 = 1;
+    g_menu0x00822ef8.items[7].flag3 = 1;
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {

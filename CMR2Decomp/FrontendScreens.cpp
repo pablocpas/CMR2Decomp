@@ -2855,6 +2855,215 @@ void FUN_004f2210(Menu *pMenu, int param)
     Menu_SetNextAction((int)pMenu->pParent);
 }
 
+// GLOBAL: CMR2 0x005250a4
+char g_strTwoDigits[8] = "%.2d";
+// Gearbox of a record: manual / automatic.
+// GLOBAL: CMR2 0x00524db4
+char g_strGearboxManual[4] = "MT";
+// GLOBAL: CMR2 0x00524db8
+char g_strGearboxAuto[4] = "AT";
+
+extern BYTE g_colourTitle0x00524984[4];
+
+// Draw callback of the high score pages: title of the table shown (cycled
+// by FUN_004f3a90), the column headers and the 5 entries (position, name,
+// car, gearbox and two numbers).
+// TODO: CMR2 0x004e3340 (implemented, match 83%)
+void FUN_004e3340(Menu *pMenu)
+{
+    GameInfo0xa4SubStruct12 *pEntry;
+    int table;
+    int title;
+    int y0;
+    int y;
+    int offset;
+    int i;
+
+    table = FUN_004f3a60();
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, NULL, -1);
+    if (table == 0)
+        title = 0x167;
+    else if (table == 1)
+        title = 0x168;
+    else if (table == 2)
+        title = 0x169;
+    else
+        goto header;
+    Font_DrawText(2, CFrontend::GetTextString(title), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                  (int *)g_colourWhite0x00524968, 10);
+header:
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 25) / 480;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    y0 = (int)(g_pGraphics->resY * 19) / 480 + ((int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480);
+    Font_DrawText(0, CFrontend::GetTextString(0x16a), (int)(g_pGraphics->resX * 150) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16b), (int)(g_pGraphics->resX * 290) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16c), (int)(g_pGraphics->resX * 430) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 485) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16e), (int)(g_pGraphics->resX * 540) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    g_unk0x008189a8[3] = 1;
+    offset = table * 0x3c;
+    i = 0;
+    do {
+        y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
+        pEntry = (GameInfo0xa4SubStruct12 *)((BYTE *)CGameInfo::FUN_00405fe0() + offset);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
+        Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 150) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 290) / 640, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(1, (pEntry->flags & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
+                      (int)(g_pGraphics->resX * 430) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, (pEntry->flags >> 0xe & 0xf) + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 485) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, pEntry->flags >> 7 & 0x7f);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 540) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)i + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+        offset += 0xc;
+        i++;
+    } while (i < 5);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
+}
+
+BYTE *RallyData_FUN_00408cb0(int index);
+BYTE *FUN_004f9280(int index);
+
+// Draw callback of the record page: the record of the table shown (car,
+// gearbox, two numbers and its time), or "no record".
+// TODO: CMR2 0x004e3a80 (implemented, match 80%)
+void FUN_004e3a80(Menu *pMenu)
+{
+    unsigned int *pSecond;
+    BYTE *pRecord;
+    int table;
+    int title;
+    int y0;
+    int y;
+    int offset;
+
+    table = FUN_004f3a60();
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuTitle(pMenu);
+    if (table == 0)
+        title = 0x167;
+    else if (table == 1)
+        title = 0x168;
+    else if (table == 2)
+        title = 0x169;
+    else
+        goto header;
+    Font_DrawText(2, CFrontend::GetTextString(title), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                  (int *)g_colourWhite0x00524968, 10);
+header:
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 25) / 480;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    y0 = (int)(g_pGraphics->resY * 19) / 480 + ((int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480);
+    Font_DrawText(0, CFrontend::GetTextString(0x16b), (int)(g_pGraphics->resX * 180) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16c), (int)(g_pGraphics->resX * 310) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 370) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16e), (int)(g_pGraphics->resX * 435) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 520) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480;
+    offset = table * 0x10;
+    if ((RallyData_FUN_00408cb0(0)[offset] & 0x80) == 0) {
+        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
+    } else {
+        pSecond = (unsigned int *)(RallyData_FUN_00408cb0(0) + offset + 4);
+        pRecord = RallyData_FUN_00408cb0(0) + offset;
+        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)pRecord & 0x3f), (int)(g_pGraphics->resX * 180) / 640, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(1, (*(unsigned int *)pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
+                      (int)(g_pGraphics->resX * 310) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*pSecond & 0xf) + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 370) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, *pSecond >> 6 & 0xff);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 435) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(0, (char *)FUN_004f9280(table), (int)(g_pGraphics->resX * 520) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+    }
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 25) / 480) + (short)((int)(g_pGraphics->resY * 200) / 480);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
+}
+
+extern char g_loadRecordTimeFormat[];
+BYTE *FUN_004f9240(int row, int column);
+
+// Draw callback of the stage records page of a rally: for each stage (10,
+// or 11 for every second rally) the record car, gearbox, time and holder.
+// TODO: CMR2 0x004e5630 (implemented, match 65%)
+void FUN_004e5630(Menu *pMenu)
+{
+    unsigned int *pRecord;
+    unsigned int time;
+    BYTE *pRecords;
+    char rally;
+    int odd;
+    int y0;
+    int y;
+    int i;
+
+    FUN_004f3a60();
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuTitle(pMenu);
+    odd = pMenu->cursor % 2;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 90) / 480 - (int)(g_pGraphics->resY * 25) / 480;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 25) / 480;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    y0 = (int)(g_pGraphics->resY * 19) / 480 + ((int)(g_pGraphics->resY * 90) / 480 - (int)(g_pGraphics->resY * 25) / 480);
+    Font_DrawText(0, CFrontend::GetTextString(0x17d), (int)(g_pGraphics->resX * 100) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16b), (int)(g_pGraphics->resX * 230) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16c), (int)(g_pGraphics->resX * 355) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x174), (int)(g_pGraphics->resX * 415) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 520) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 90) / 480;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    i = 0;
+    do {
+        y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 90) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
+        pRecords = RallyData_FUN_00408cb0(0);
+        rally = pMenu->cursor;
+        pRecord = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x150 + (i + pMenu->cursor * 12) * 8);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
+        if ((*pRecord & 0x80) == 0) {
+            Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
+        } else {
+            Font_DrawText(1, CFrontend::FUN_0040ede0(*pRecord & 0x3f), (int)(g_pGraphics->resX * 230) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+            Font_DrawText(1, (*pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
+                          (int)(g_pGraphics->resX * 355) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+            time = *(unsigned int *)(pRecords + 0x154 + (i + rally * 12) * 8);
+            sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000, time / 100 % 60, time % 100);
+            Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 415) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+            Font_DrawText(0, (char *)FUN_004f9240(pMenu->cursor, i), (int)(g_pGraphics->resX * 520) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        }
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 90) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)i + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+        i++;
+    } while (i < (odd != 0) + 10);
+    FrontendDraw_ScrollerRow(FUN_004f2550(), 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)
