@@ -1946,6 +1946,28 @@ void FUN_004f5fc0(void)
     Menu_ValidateCursor(&g_menu0x0081be78, 0);
 }
 
+void FUN_004f21c0(Menu *pMenu, int param);
+void FUN_004f2210(Menu *pMenu, int param);
+void FUN_004e1920(Menu *pMenu);
+
+// Display device menu: one entry per display device.
+// FUNCTION: CMR2 0x004f63b0
+void FUN_004f63b0(void)
+{
+    unsigned int i;
+
+    Menu_Init(&g_menu0x0081c7d8, 0, 0x14, 0, &g_menu0x008210f8, NULL, 1, 0, 1);
+    i = 0;
+    if (CGraphics::FUN_004a8be0() != 0) {
+        do {
+            Menu_AddItemType4(&g_menu0x0081c7d8, 0, -1, (int)FUN_004f2210, 0);
+            i++;
+        } while (i < (unsigned int)CGraphics::FUN_004a8be0());
+    }
+    Menu_SetCallbacks(&g_menu0x0081c7d8, (MenuCallback)FUN_004f21c0, NULL, (MenuCallback)FUN_004e1920, NULL);
+    Menu_ValidateCursor(&g_menu0x0081c7d8, 0);
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {

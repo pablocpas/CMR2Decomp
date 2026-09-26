@@ -1861,15 +1861,13 @@ char g_strTextFrench[8] = "ffrench";
 // GLOBAL: CMR2 0x00525b90
 char g_strTextEnglish[12] = "fenglish";
 
-// Frontend fonts (Fonts\<name>.tga + .pcf)
+// Frontend fonts (Fonts\<name>.tga + .pcf); FUN_004f4d80 walks them as one array
 // GLOBAL: CMR2 0x00525b9c
-char g_strFontHel12[20] = "general\\hel_12pt";
-// GLOBAL: CMR2 0x00525bb0
-char g_strFontHel15[20] = "general\\hel_15pt";
-// GLOBAL: CMR2 0x00525bc4
-char g_strFontHel36[20] = "general\\hel_36pt";
-// GLOBAL: CMR2 0x00525bd8
-char g_strFontDot[20] = "general\\dot";
+char g_frontendFontNames[4][20] = { "general\\hel_12pt", "general\\hel_15pt", "general\\hel_36pt", "general\\dot" };
+#define g_strFontHel12 g_frontendFontNames[0]
+#define g_strFontHel15 g_frontendFontNames[1]
+#define g_strFontHel36 g_frontendFontNames[2]
+#define g_strFontDot g_frontendFontNames[3]
 
 // Text buffers of the frontend languages and whether each one lives inside
 // its archive (then it is not freed on release)
@@ -1960,6 +1958,22 @@ BYTE FUN_004f4d20(void)
         return 1;
     }
     return 0;
+}
+
+// Reloads the four frontend fonts (after the display was re-created).
+// FUNCTION: CMR2 0x004f4d80
+void FUN_004f4d80(void)
+{
+    char *pName;
+    int i;
+
+    i = 0;
+    pName = g_frontendFontNames[0];
+    do {
+        Font_Reload(pName, CGenericFileLoader::GetGenericFile(), i);
+        pName += 20;
+        i++;
+    } while (pName < g_frontendFontNames[4]);
 }
 
 // FUNCTION: CMR2 0x004f48b0

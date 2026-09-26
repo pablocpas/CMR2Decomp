@@ -11,6 +11,7 @@
 #include "FrontendMenus.h"
 #include "InstallInfo.h"
 #include "Sprite.h"
+#include "RegKey.h"
 #include "FixedPoint.h"
 #include <stdlib.h>
 #include "FrontendDraw.h"
@@ -2779,6 +2780,136 @@ void FUN_004ded80(Menu *pMenu)
         } else if (!pItem->enabled && !pItem[1].enabled) {
             pColour = g_colourDim0x00524970;
             pShadow = g_colourShadowDim0x0052497c;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+        g_unk0x008189a8[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+void FUN_004f4d80(void);
+
+// Entering the display device menu: one entry per device, the current one
+// under the cursor, and only the usable ones enabled.
+// TODO: CMR2 0x004f21c0 (implemented, match 86%)
+void FUN_004f21c0(Menu *pMenu, int param)
+{
+    MenuItem *pItem;
+    unsigned int i;
+
+    pMenu->itemCount = CGraphics::FUN_004a8be0();
+    pMenu->cursor = CGameInfo::FUN_00405bd0();
+    i = 0;
+    if (CGraphics::FUN_004a8be0() != 0) {
+        pItem = pMenu->items;
+        do {
+            if (CGraphics::FUN_004a96c0(i) == 0)
+                pItem->enabled = 0;
+            else
+                pItem->enabled = 1;
+            i++;
+            pItem++;
+        } while (i < (unsigned int)CGraphics::FUN_004a8be0());
+    }
+}
+
+// Item callback of a display device: switches to it, re-creating the
+// display, the textures and the fonts with the default video settings.
+// FUNCTION: CMR2 0x004f2210
+void FUN_004f2210(Menu *pMenu, int param)
+{
+    CGameInfo::FUN_00405be0(pMenu->cursor);
+    CGraphics::FUN_004a8bd0(pMenu->cursor);
+    CMain::FUN_004a9a50(1);
+    CGraphics::FUN_004a78a0(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth, CGameInfo::FUN_00405bd0(),
+                            CGraphics::FUN_004a8d80());
+    CGameInfo::SetScreenWidth(g_pGraphics->resX);
+    CGameInfo::SetScreenHeight(g_pGraphics->resY);
+    CGameInfo::SetColourDepth(g_pGraphics->depth);
+    CFrontend::FUN_004d21e0();
+    Graphics_ReloadAllTextures();
+    FUN_004f4d80();
+    FUN_004ef190();
+    CMain::FUN_004a9a50(0);
+    CGameInfo::FUN_00405b60(0);
+    g_pGraphics->field913_0x3bc &= ~8;
+    g_pGraphics->field913_0x3bc &= ~0x10;
+    g_pGraphics->field913_0x3bc &= ~0x80;
+    CGameInfo::FUN_00405b80(0);
+    g_pGraphics->field913_0x3bc &= ~0x20;
+    CGameInfo::FUN_00405bb0(0);
+    g_pGraphics->field913_0x3bc &= ~0x40;
+    CGameInfo::FUN_00405c80(0);
+    g_pGraphics->field913_0x3bc &= ~1;
+    g_pGraphics->field913_0x3bc &= ~2;
+    CGameInfo::FUN_00405cb0(1);
+    g_pGraphics->field917_0x3c0 = 1;
+    CGameInfo::FUN_00405ce0(1);
+    CGameInfo::FUN_00405d20(1);
+    CGameInfo::FUN_00405d40(2);
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
+// Draw callback of the display device menu: one row per device name.
+// FUNCTION: CMR2 0x004e1920
+void FUN_004e1920(Menu *pMenu)
+{
+    char name[80];
+    char description[80];
+    short icon[4];
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    short y0;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    y0 = (short)(((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2)
+         - (short)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount / 2);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, NULL, -1);
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
+                  + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
+        if (pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pTexture = CFrontend::m_pAr640ATexture;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pTexture = CFrontend::m_pAr640DTexture;
+            if (!pMenu->items[i].enabled)
+                pColour = g_colourDim0x00524970;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        CGraphics::GetDisplayDeviceNames(i, description, name);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, description);
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+                      (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+        if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
         } else {
             pColour = g_colourText0x0052496c;
             pShadow = g_colourShadowText0x00524978;
