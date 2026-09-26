@@ -3049,8 +3049,8 @@ void SceneNode_FlushTransforms(SceneNode *pNode);
 void Scene_SetViewFromCamera(SceneNode *pCamera);
 
 // Updates a scene tree for drawing from a camera.
-// FUNCTION: CMR2 0x0049ce10
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049ce10
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
 {
     SceneNode_UpdateTree(pRoot, param);

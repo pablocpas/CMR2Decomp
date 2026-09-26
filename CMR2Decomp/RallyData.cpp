@@ -1800,9 +1800,9 @@ BYTE FUN_004086f0(BYTE param1)
 }
 
 // GLOBAL: CMR2 0x00536ecc
-short g_unk0x00536ecc;
+int g_unk0x00536ecc;
 // GLOBAL: CMR2 0x00537060
-short g_unk0x00537060;
+int g_unk0x00537060;
 
 // Plays the looping sound of the stage that is not the one already playing.
 // FUNCTION: CMR2 0x00411ab0
@@ -2040,7 +2040,7 @@ int g_unk0x00536c88[2];
 // GLOBAL: CMR2 0x00536cac
 BYTE g_unk0x00536cac[4];
 // GLOBAL: CMR2 0x00536cb0
-short g_unk0x00536cb0;
+int g_unk0x00536cb0;
 // GLOBAL: CMR2 0x00536fec
 int g_unk0x00536fec;
 // GLOBAL: CMR2 0x00537050
@@ -2140,8 +2140,8 @@ unsigned int g_unk0x005170e0[2] = {0x00ffffff, 0x00ffffff};
 
 // Records the time of the split the car just passed, colours it against the
 // reference time and updates the car's position at that split.
-// FUNCTION: CMR2 0x00413330
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00413330
 void FUN_00413330(int car)
 {
     int split;
@@ -2199,8 +2199,8 @@ void FUN_00413330(int car)
 }
 
 // Same as FUN_00413330 for the stage start and the time-trial ghost.
-// FUNCTION: CMR2 0x00413610
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00413610
 void FUN_00413610(int car)
 {
     int time;
@@ -4360,8 +4360,8 @@ void FUN_00411ab0(BYTE param1, int param2);
 
 // On passing a split: stores the split time, fetches the time to beat and
 // starts the split display (ahead/behind) for the car.
-// FUNCTION: CMR2 0x00413520
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00413520
 void FUN_00413520(int car)
 {
     int split;
@@ -4646,8 +4646,8 @@ int g_unk0x00536fe4[2];
 int g_unk0x00537054[2];
 
 // Updates the split timer and stage sound for a player.
-// FUNCTION: CMR2 0x00413200
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00413200
 void FUN_00413200(int car)
 {
     if (FUN_00458250(car)) {
@@ -4686,3 +4686,158 @@ void FUN_00413200(int car)
     }
 }
 
+
+
+/* --------------------------------------------------------------------------
+   Rally-data input dispatch and per-category difficulty records.
+   -------------------------------------------------------------------------- */
+
+void FUN_00413200(int car);
+void FUN_00413330(int car);
+void FUN_00413520(int car);
+void FUN_00413610(int car);
+void RallyData_IncrementCategoryUse(int index);
+void FUN_0049de40(void);
+
+// Notifies the menu handler when the received value is one below the key code.
+// FUNCTION: CMR2 0x0040eed0
+void FUN_0040eed0(BYTE *pKey, int value)
+{
+    if ((value & 0xff) == *pKey - 1)
+        FUN_0049de40();
+}
+
+// Dispatches the current game state to the handler of the active game mode.
+// FUNCTION: CMR2 0x00413160
+void FUN_00413160(int car)
+{
+    if (CGameInfo::FUN_00405e00() != 0) {
+        switch (CGameInfo::FUN_00405d80()) {
+        case 8:
+        case 9:
+        case 10:
+            FUN_00413520(car);
+            break;
+        case 11:
+        case 12:
+            FUN_00413610(car);
+            break;
+        }
+    } else if (CGameInfo::FUN_00405d80() != 6 && CGameInfo::FUN_00405d80() != 5) {
+        if ((BYTE)RallyData_FUN_00407e90() != 0)
+            FUN_00413200(car);
+        else
+            FUN_00413330(car);
+    } else {
+        FUN_00413200(car);
+    }
+}
+
+// Sets the 2-bit difficulty field of the category of a rally entry, keeping the
+// best value seen so far. mode selects the game mode, player the player slot.
+// FUNCTION: CMR2 0x00409680
+void FUN_00409680(int index, int player, int difficulty)
+{
+    unsigned int *pRecord;
+    unsigned char mode;
+    unsigned int level;
+
+    RallyData_ValidateIndex(index);
+    pRecord = (unsigned int *)(g_unk0x0052f3e8 + 0xc4c +
+        ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650);
+    level = 3 - difficulty;
+    mode = CGameInfo::FUN_00405d90();
+    switch (mode) {
+    case 0:
+        if (level > (*pRecord >> 6 & 3)) {
+            *pRecord = (level & 3) << 6 | *pRecord & 0xffffff3f;
+            RallyData_IncrementCategoryUse(index);
+        }
+        break;
+    case 1:
+        if (player == 0) {
+            if (level > (*pRecord >> 8 & 3)) {
+                *pRecord = (level & 3) << 8 | *pRecord & 0xfffffcff;
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+        } else if (level > (*pRecord >> 0xc & 3)) {
+            *pRecord = (level & 3) << 0xc | *pRecord & 0xffffcfff;
+            RallyData_IncrementCategoryUse(index);
+            return;
+        }
+        break;
+    case 2:
+        if (player == 0) {
+            if (level > (*pRecord >> 10 & 3)) {
+                *pRecord = (level & 3) << 10 | *pRecord & 0xfffff3ff;
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+        } else if (level > (*pRecord >> 0xe & 3)) {
+            *pRecord = (level & 3) << 0xe | *pRecord & 0xffff3fff;
+            RallyData_IncrementCategoryUse(index);
+            return;
+        }
+        break;
+    }
+}
+
+/* Sound samples used by the rally-data screens (original .data at 0x517d00). */
+// GLOBAL: CMR2 0x00517d00
+char g_strTimeoutWav[12] = "timeout.wav";
+// GLOBAL: CMR2 0x00517d0c
+char g_strCrossWav[12] = "cross.wav";
+// GLOBAL: CMR2 0x00517d18
+char g_strBlipWav[12] = "blip.wav";
+// GLOBAL: CMR2 0x00517d24
+char g_strDownWav[12] = "down.wav";
+// GLOBAL: CMR2 0x00517d30
+char g_strUpWav[8] = "up.wav";
+
+struct StageFile;
+int FUN_004b7780(void);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+StageFile *StageTiming_GetStageFile0(void);
+
+// Loads the navigation sound samples of the rally-data screens.
+// FUNCTION: CMR2 0x00411120
+void FUN_00411120(void)
+{
+    g_unk0x00536ecc = FUN_004b7780();
+    Sound_LoadSample(g_strUpWav, 0, (GenericFile *)StageTiming_GetStageFile0());
+    g_unk0x00537060 = FUN_004b7780();
+    Sound_LoadSample(g_strDownWav, 0, (GenericFile *)StageTiming_GetStageFile0());
+    g_unk0x00536cb0 = FUN_004b7780();
+    Sound_LoadSample(g_strBlipWav, 0, (GenericFile *)StageTiming_GetStageFile0());
+    Sound_LoadSample(g_strCrossWav, 0, (GenericFile *)StageTiming_GetStageFile0());
+    Sound_LoadSample(g_strTimeoutWav, 0, (GenericFile *)StageTiming_GetStageFile0());
+}
+
+struct Menu;
+void Menu_CallCallback2(Menu *pMenu);
+int FUN_0041f4b0(void);
+BYTE *FUN_00475f70(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+
+// Sets up the projection, clears the targets and draws the challenge scene.
+// FUNCTION: CMR2 0x00411070
+void FUN_00411070(int param1, int param2)
+{
+    short rect[4];
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = *(short *)g_pGraphics;
+    rect[3] = *(short *)((BYTE *)g_pGraphics + 4);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    if (FUN_0041f4b0() == 0)
+        Menu_CallCallback2((Menu *)FUN_00475f70());
+    Game_PrepareScene((SceneNode *)g_unk0x00536be0, (SceneNode *)g_unk0x00536be4, (int)rect, 0);
+    FUN_0049d3f0(g_unk0x00536be0, g_unk0x00536be4, rect, 0, 1);
+    FUN_0049de40();
+}
