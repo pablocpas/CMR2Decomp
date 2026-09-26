@@ -109,6 +109,8 @@ BYTE g_unk0x00819024;
 BYTE g_unk0x00819038;
 // GLOBAL: CMR2 0x00819040
 unsigned int g_unk0x00819040;
+// GLOBAL: CMR2 0x00819044
+int g_unk0x00819044;
 // GLOBAL: CMR2 0x0081986c
 BYTE g_unk0x0081986c;
 // GLOBAL: CMR2 0x008182b4
@@ -133,18 +135,24 @@ BYTE g_unk0x008190f4[0x30];
 int g_unk0x00819124;
 // GLOBAL: CMR2 0x00819748
 BYTE g_unk0x00819748;
+// GLOBAL: CMR2 0x0081975c
+int g_unk0x0081975c;
 // GLOBAL: CMR2 0x00819870
 int g_unk0x00819870;
-// GLOBAL: CMR2 0x00826138
-int g_unk0x00826138;
 // GLOBAL: CMR2 0x00819878
 BYTE g_unk0x00819878;
+// GLOBAL: CMR2 0x00819884
+int g_unk0x00819884;
+// GLOBAL: CMR2 0x00826138
+int g_unk0x00826138;
 // GLOBAL: CMR2 0x0081903c
 unsigned int g_unk0x0081903c;
 // GLOBAL: CMR2 0x00819754
 unsigned int g_unk0x00819754;
 // GLOBAL: CMR2 0x00819860
 unsigned int g_unk0x00819860;
+// GLOBAL: CMR2 0x00819868
+int g_unk0x00819868;
 
 // FUNCTION: CMR2 0x004d27c0
 void FUN_004d27c0(BYTE value)
@@ -970,6 +978,17 @@ void FUN_004eca60(Menu *pMenu, char param)
     FUN_004b7c80();
 }
 
+bool FUN_004aac40(BYTE param1);
+
+// Item action of the network leaderboard list: goes on to the leaderboard of
+// the slot shown in the first row, but only while it is still connected.
+// FUNCTION: CMR2 0x004ecf80
+void FUN_004ecf80(Menu *pMenu, int param)
+{
+    if (FUN_004aac40(pMenu->items[0].max))
+        Menu_SetNextAction((int)FUN_004f8450());
+}
+
 // FUNCTION: CMR2 0x004ecfa0
 void FUN_004ecfa0(Menu *pMenu, char param)
 {
@@ -1201,6 +1220,15 @@ void FUN_004eef30(Menu *pMenu, int param)
 }
 
 
+// Item action of a leaderboard entry: shows the leaderboard of the slot the
+// item stands for and goes back to the list.
+// FUNCTION: CMR2 0x004eefb0
+void FUN_004eefb0(Menu *pMenu, int param)
+{
+    CNetworkLeaderboards::SetLeaderboardId(Menu_GetItem(pMenu, 0)->max);
+    Menu_GoBack(pMenu);
+}
+
 // Removes the last leaderboard while fewer than 0x20 slots are in use.
 // FUNCTION: CMR2 0x004eefe0
 void FUN_004eefe0(int unused1, int unused2)
@@ -1396,6 +1424,64 @@ void FUN_004f0600(Menu *pMenu, int param)
     FUN_004a0c40(1);
 }
 
+// Update callback of the "select stage" screen: when the row in the first
+// item moves, the list slides sideways by the distance between the old and
+// the new row (the shortest way round) and eases back to the middle.
+// TODO: CMR2 0x004f0620 (implemented, match 59%)
+void FUN_004f0620(Menu *pMenu)
+{
+    int index;
+    int old;
+    int other;
+    int steps;
+    unsigned int elapsed;
+
+    old = g_unk0x00819044;
+    index = pMenu->items[0].max;
+    if (index != old) {
+        if (old != -1) {
+            if (index > old) {
+                other = index - old;
+                steps = pMenu->items[0].min - index + old;
+            } else {
+                steps = old - index;
+                other = pMenu->items[0].min - old + index;
+            }
+            if (steps < other) {
+                while (steps > 0) {
+                    g_unk0x00819868 += (int)(g_pGraphics->resX * -0x50) / 640;
+                    steps--;
+                }
+            } else if (steps > other) {
+                while (other > 0) {
+                    g_unk0x00819868 += (int)(g_pGraphics->resX * 0x50) / 640;
+                    other--;
+                }
+            } else {
+                if (pMenu->moveFlags & 2)
+                    other = g_pGraphics->resX * -5;
+                else
+                    other = g_pGraphics->resX * 5;
+                g_unk0x00819868 += (other << 4) / 640;
+            }
+            g_unk0x00819884 = g_unk0x00819868;
+        }
+        g_unk0x0081975c = CFrontend::FUN_004d20e0();
+        g_unk0x00819044 = pMenu->items[0].max;
+    }
+    if (g_unk0x00819044 != -1) {
+        elapsed = CFrontend::FUN_004d20e0() - g_unk0x0081975c;
+        if (elapsed > 0xfa) {
+            g_unk0x00819868 = 0;
+            return;
+        }
+        if (g_unk0x00819884 > 0)
+            g_unk0x00819868 = g_unk0x00819884 - elapsed * g_unk0x00819884 / 0xfa;
+        else
+            g_unk0x00819868 = -(elapsed * g_unk0x00819884) / 0xfa + g_unk0x00819884;
+    }
+}
+
 // FUNCTION: CMR2 0x004f0e60
 void FUN_004f0e60(Menu *pMenu, int param)
 {
@@ -1535,6 +1621,57 @@ void FUN_004f1640(Menu *pMenu)
 
 // Maps a screen index to its palette/colour id and stores it for the current mode.
 void RallyData_FUN_00408600(BYTE index, BYTE value);
+
+// Enter callback of a rally menu: lists the stages of the rally that are in
+// the save as text ids, points the cursor at the one that is selected in the
+// rally data and measures them for the scroller.
+// TODO: CMR2 0x004f17d0 (implemented, match 86%)
+void FUN_004f17d0(Menu *pMenu, int param)
+{
+    MenuScroller *pScroller;
+    MenuItem *pItem;
+    MenuItem *p;
+    int *pPalette;
+    int *pWidths;
+    int i;
+    int count;
+
+    count = 0;
+    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
+    pScroller = FUN_004f2500();
+    pScroller->pMenu = pMenu;
+    pPalette = g_unk0x008196e8;
+    pItem = pMenu->items;
+    pMenu->cursor = 0;
+    for (i = 0, p = pItem; i < 0x16; i++) {
+        if (RallyData_FUN_00408e30(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1, i, 1)) {
+            *pPalette = i;
+            p->id = i + 0x98;
+            if (i == (RallyData_FUN_004086b0(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1) & 0xff))
+                pMenu->cursor = count;
+            count++;
+            pPalette++;
+            p++;
+        }
+    }
+    pMenu->itemCount = count;
+    pScroller = FUN_004f2500();
+    pScroller->offset = 0;
+    pScroller->startOffset = 0;
+    pScroller->current = pMenu->cursor;
+    pScroller->previous = pMenu->cursor;
+    pScroller->spacing = PATH_X();
+    pScroller->count = pMenu->itemCount;
+    pScroller->offset = 0;
+    pScroller->startOffset = 0;
+    for (i = 0, p = pItem, pWidths = g_menuScroller0x00819230.widths; i < pScroller->count; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(p->id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        *pWidths = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+        pWidths++;
+        p++;
+    }
+}
 
 // FUNCTION: CMR2 0x004f1a10
 void FUN_004f1a10(int param_1, int unused)
@@ -1748,6 +1885,36 @@ void FUN_004f23d0(Menu *pMenu)
         g_unk0x00819128++;
     if (CGame::FUN_004a9b20() != 0)
         FUN_004f2360((BYTE *)pMenu, 0);
+}
+
+void FUN_004f4d80(void);
+
+// Item action of the video menu: switches the game to the display mode
+// selected in the first row and rebuilds the frontend on top of it.
+// FUNCTION: CMR2 0x004f2430
+void FUN_004f2430(Menu *pMenu, int param)
+{
+    DWORD width;
+    DWORD height;
+    DWORD depth;
+    int mode;
+
+    CGraphics::GetDisplayMode(pMenu->items[0].max, &width, &height, &depth);
+    CGameInfo::SetScreenWidth(width);
+    CGameInfo::SetScreenHeight(height);
+    CGameInfo::SetColourDepth(depth);
+    CMain::FUN_004a9a50(1);
+    mode = CGraphics::FUN_004a8d80();
+    CGraphics::FUN_004a78a0(width, height, depth, CGameInfo::FUN_00405bd0(), mode);
+    CGameInfo::SetScreenWidth(g_pGraphics->resX);
+    CGameInfo::SetScreenHeight(g_pGraphics->resY);
+    CGameInfo::SetColourDepth(g_pGraphics->depth);
+    CFrontend::FUN_004d21e0();
+    Graphics_ReloadAllTextures();
+    FUN_004f4d80();
+    FUN_004ef190();
+    CMain::FUN_004a9a50(0);
+    Menu_SetNextAction((int)pMenu->pParent);
 }
 
 // FUNCTION: CMR2 0x004f24f0
@@ -3214,8 +3381,6 @@ void FUN_004ded80(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
-void FUN_004f4d80(void);
-
 // Entering the display device menu: one entry per device, the current one
 // under the cursor, and only the usable ones enabled.
 // TODO: CMR2 0x004f21c0 (implemented, match 86%)
@@ -4189,6 +4354,141 @@ void FUN_004f0250(Menu *pMenu)
         return;
     }
     pMenu->items[1].enabled = 1;
+}
+
+// Draw callback of the rally menu: one row per rally, drawn in the layout of
+// its item value (title only, or with the stage names of the rally), over the
+// strip of the selected rows, plus the carousel.
+// TODO: CMR2 0x004df410 (implemented, match 75%)
+void FUN_004df410(Menu *pMenu)
+{
+    SpriteRect dst;
+    BYTE *pColour;
+    BYTE *pShadow;
+    Texture *pTexture;
+    int top;
+    int x;
+    int i;
+    int j;
+
+    dst.y = 0;
+    dst.x = (int)(g_pGraphics->resX * 100) / 640;
+    dst.w = CFrontend::m_pAr640ATexture->width;
+    dst.h = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 2, NULL, -1);
+    top = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 +
+           (int)(g_pGraphics->resY * 384) / 480) / 2 -
+          (int)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount) / 2;
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[1] = top;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        dst.y = (int)(g_pGraphics->resY * 20) / 480 +
+                (top + ((int)(g_pGraphics->resY * 36) / 480 * i - CFrontend::m_pAr640ATexture->height / 2));
+        if (pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pTexture = CFrontend::m_pAr640ATexture;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pTexture = CFrontend::m_pAr640DTexture;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dst, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        switch (pMenu->items[i].value) {
+        case 3:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+            x = (int)(g_pGraphics->resX * 122) / 640;
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            for (j = 0; j < pMenu->items[i].min; j++) {
+                pColour = g_colourWhite0x00524968;
+                if (pMenu->items[i].max != j)
+                    pColour = g_colourText0x0052496c;
+                x = (int)(g_pGraphics->resX * 10) / 640 + x +
+                    Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, CFrontend::GetTextString(j + 0x135), x,
+                              (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x135));
+            }
+            break;
+        case 4:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+            x = (int)(g_pGraphics->resX * 122) / 640;
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            for (j = 0; j < pMenu->items[i].min; j++) {
+                pColour = g_colourWhite0x00524968;
+                if (pMenu->items[i].max != j)
+                    pColour = g_colourText0x0052496c;
+                x = (int)(g_pGraphics->resX * 10) / 640 + x +
+                    Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, CFrontend::GetTextString(j + 0x152), x,
+                              (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x152));
+            }
+            break;
+        case 2:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+            x = (int)(g_pGraphics->resX * 122) / 640;
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            for (j = 0; j < pMenu->items[i].min; j++) {
+                pColour = g_colourWhite0x00524968;
+                if (pMenu->items[i].max != j)
+                    pColour = g_colourText0x0052496c;
+                x = (int)(g_pGraphics->resX * 10) / 640 + x +
+                    Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, CFrontend::GetTextString(0x134 - j), x,
+                              (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x134 - j));
+            }
+            break;
+        case 0:
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+            x = (int)(g_pGraphics->resX * 122) / 640;
+            Font_DrawText(1, CFrontend::m_stringDest, x,
+                          (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            for (j = 0; j < pMenu->items[i].min; j++) {
+                pColour = g_colourWhite0x00524968;
+                if (pMenu->items[i].max != j)
+                    pColour = g_colourText0x0052496c;
+                x = (int)(g_pGraphics->resX * 10) / 640 + x +
+                    Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, CFrontend::GetTextString(j + 0x137), x,
+                              (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x137));
+            }
+            break;
+        default:
+            Font_DrawText(1, CFrontend::GetTextString(pMenu->items[i].id),
+                          (int)(g_pGraphics->resX * 122) / 640,
+                          (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            break;
+        }
+        if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 36) / 480 * (i + 1) + top;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+        g_unk0x008189a8[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
 // Draw callback of the multiplayer race settings page.
