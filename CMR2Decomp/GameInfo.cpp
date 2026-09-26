@@ -2341,15 +2341,18 @@ int FUN_004eaac0(unsigned int value)
     return count;
 }
 
-// Default stage setting values from the game options.
-// TODO: CMR2 0x004eaae0 (implemented, match 80%)
-void FUN_004eaae0(int *pValues, int *pOut1, int *pOut2)
+
+
+// Reads back the current camera defaults: fills a 3 dword vector out of
+// 0x52b028/0x52b02c, a short out of 0x52b034 and an int out of 0x52b030.
+// FUNCTION: CMR2 0x004eaae0
+void FUN_004eaae0(int *param_1, short *param_2, int *param_3)
 {
-    pValues[0] = 0;
-    pValues[1] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x88);
-    pValues[2] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x8c);
-    *pOut1 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x94);
-    *pOut2 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x90);
+    param_1[0] = 0;
+    param_1[1] = CGameInfo::m_gameInfo.field_0x88;
+    param_1[2] = CGameInfo::m_gameInfo.field_0x8c;
+    *param_2 = CGameInfo::m_gameInfo.field_0x94;
+    *param_3 = CGameInfo::m_gameInfo.field_0x90;
 }
 
 // FUNCTION: CMR2 0x004eab20
