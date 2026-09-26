@@ -16,11 +16,20 @@ void FUN_004b9380(unsigned int, unsigned int, unsigned int) { }
 // STUB: CMR2 0x00500c00
 void FUN_00500c00(void) { }
 
+// STUB: CMR2 0x00501710
+
 // STUB: CMR2 0x00502310
 void FUN_00502310(void) { }
 
 // STUB: CMR2 0x005062d0
 void FUN_005062d0(unsigned int) { }
 
+// STUB: CMR2 0x0050a3c0
+
 // STUB: CMR2 0x0050f180
 void FUN_0050f180(void) { }
+
+// Blocks the RallyData binding/draw helpers (0x40f8d0, 0x4125f0, 0x412390,
+// 0x4177d0); lives in Race.cpp.
+// STUB: CMR2 0x00417e70
+void FUN_00417e70(char *, unsigned char *, int, int, int, int) { }
