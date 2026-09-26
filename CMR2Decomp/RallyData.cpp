@@ -54,6 +54,20 @@ unsigned int RallyData_FUN_004082e0(void);
 unsigned int RallyData_FUN_00407e90(void);
 int FUN_0040e180(int exclude1, int exclude2);
 int FUN_0040e210(int exclude1, int exclude2);
+extern char g_keypadFormat[];
+BYTE *FUN_00464b10(int view);
+unsigned int *RallyData_GetRoundEntry(void);
+char *FUN_00473810(KnockoutMatch *pMatch, int side);
+void FUN_00417e70(char *pText, BYTE *pColour, int x, int y, int unused1, int unused2);
+void FUN_0040fec0(int value, char drawScene, BYTE alpha);
+void FUN_00410100(BYTE alpha);
+void FUN_00428680(unsigned int player, short *pRect, int check);
+void FUN_0040eed0(BYTE *pKey, int value);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+BYTE FUN_0041db00(void);
+BYTE FUN_0044a130(void);
+BYTE FUN_0041f380(void);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -4493,6 +4507,212 @@ int *FUN_0040f050(int view)
     pRect[0] = pSource[0];
     pRect[1] = pSource[1];
     return pRect;
+}
+
+// --------------------------------------------------------------------------
+// Rally-data gauge and key binding list.
+// --------------------------------------------------------------------------
+
+// GLOBAL: CMR2 0x00516cd4
+BYTE g_unk0x00516cd4[4] = { 0xbd, 0xb6, 0xbd, 0xff };
+// GLOBAL: CMR2 0x00516cdc
+BYTE g_unk0x00516cdc[4] = { 0xff, 0xff, 0xff, 0xff };
+
+// Draws the row of eleven gauge ticks of the rally-data screens and, when
+// asked, the full-screen scene of the challenge.
+// FUNCTION: CMR2 0x0040fec0
+void FUN_0040fec0(int value, char drawScene, BYTE alpha)
+{
+    BYTE colour[4];
+    BYTE colour2[4];
+    int i;
+    int n;
+    int a;
+    int b;
+    int x;
+
+    colour[0] = g_unk0x00516cdc[0];
+    colour[1] = g_unk0x00516cdc[1];
+    colour[2] = g_unk0x00516cdc[2];
+    colour[3] = alpha;
+    colour2[0] = g_unk0x00516cd4[0];
+    colour2[1] = g_unk0x00516cd4[1];
+    colour2[2] = g_unk0x00516cd4[2];
+    colour2[3] = alpha;
+
+    if (FUN_004100a0() != 0)
+        return;
+
+    i = 0;
+    for (n = 100; n < 0x4b0; i++, n += 100) {
+        a = (int)(g_pGraphics->resX * 8) / 0x280;
+        b = (int)(g_pGraphics->resX * 3) / 0x280;
+        x = (a + b) * i;
+        g_itemRect[0] = (short)((int)(g_pGraphics->resX * 0x268) / 0x280 + x - a * 0xb - b * 0xa);
+        g_itemRect[1] = (short)((int)(g_pGraphics->resY * 0x1b2) / 0x1e0);
+        g_itemRect[2] = (short)((int)(g_pGraphics->resX * 8) / 0x280);
+        g_itemRect[3] = (short)((int)(g_pGraphics->resX * 8) / 0x280);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_itemRect,
+                        (value < 100 && n / 0xb >= value) ? colour2 : colour, 1);
+    }
+    if (drawScene != 0) {
+        short rect[4];
+        rect[0] = 0;
+        rect[1] = 0;
+        rect[2] = *(short *)g_pGraphics;
+        rect[3] = *(short *)((BYTE *)g_pGraphics + 4);
+        FUN_0049d3f0(RallyData_FUN_00411060(), g_unk0x00536be4, rect, 0, 0);
+        FUN_0049de40();
+    }
+}
+
+// --------------------------------------------------------------------------
+
+// 8-byte entry of a binding list: the row character ('\t' scroll, '\b' back,
+// '\n' newline) followed by the binding value.
+struct KeyBindingEntry { char key; char pad[7]; };
+
+// GLOBAL: CMR2 0x00536ac8
+BYTE g_unk0x00536ac8;
+// GLOBAL: CMR2 0x00536acc
+int g_unk0x00536acc;
+// GLOBAL: CMR2 0x00536ad4
+int g_unk0x00536ad4;
+// GLOBAL: CMR2 0x00536be8
+int g_unk0x00536be8;
+
+// GLOBAL: CMR2 0x00516cd8
+BYTE g_unk0x00516cd8[4] = { 0x00, 0x00, 0x00, 0xff };
+// GLOBAL: CMR2 0x00516ce0
+BYTE g_unk0x00516ce0[4] = { 0x72, 0x80, 0xae, 0xbf };
+// GLOBAL: CMR2 0x00516e20
+char g_strFmt00516e20[10] = "%s %s %s";
+// GLOBAL: CMR2 0x00516e2c
+char g_strFmt00516e2c[3] = "%s";
+
+// match 67%: same logic and layout, but MSVC6 keeps pKey in EBP here while the
+// original re-reads it from its argument slot on every use, which shifts all the
+// frame offsets inside the loop (see CONOCIMIENTO 4.y).
+// FUNCTION: CMR2 0x0040f8d0
+void FUN_0040f8d0(BYTE *pKey, int view)
+{
+    BYTE colour[4] = { 0xff, 0xff, 0xff, 0xff };
+    char text[8];
+    short rect[4];
+    short screenRect[4];
+    int i;
+    int other;
+    int alpha;
+    int delta;
+    int elapsed;
+
+    if (CGameInfo::FUN_00405d00() == 1 && CGraphics::FUN_004a5fe0() > 0x800 && g_unk0x00536be8 == 0)
+        g_unk0x00536be8 = 1;
+
+    if (view == 0 && FUN_0041f3a0() != 0)
+        return;
+
+    if (g_unk0x00536ac8 != 0) {
+        g_unk0x00536acc = (int)CMain::GetFrameDelta();
+        g_unk0x00536ac8 = 0;
+    }
+
+    if (view == pKey[0] - 1) {
+        for (i = 0; i < (int)(BYTE)RallyDataState(); i++) {
+            if (CGameInfo::FUN_00404f20())
+                FUN_00428680(i, (short *)FUN_00464b10(i), 1);
+            else
+                FUN_00428680(i, (short *)FUN_00464b10(i), 0);
+            if (*(char *)(*(BYTE **)(pKey + 4) + i * 8) == '\t') {
+                other = (i + 1) % 2;
+                if (*(char *)(*(BYTE **)(pKey + 4) + other * 8) == '\b'
+                    && CGameInfo::FUN_00404f20() == 0
+                    && (BYTE)RallyDataState() > 1
+                    && FUN_0041db00() == 'd') {
+                    if ((BYTE)RallyData_FUN_00407e70() != 0) {
+                        if ((BYTE)RallyData_FUN_004082e0() == 0 || RallyData_FUN_004082b0() != 0)
+                            goto next;
+                        Sprite_FillRect((int)g_pGraphics + 0x150, (short *)FUN_00464b10(i),
+                                        g_unk0x00516ce0, 2);
+                        sprintf(CFrontend::m_stringDest, g_strFmt00516e20,
+                                CFrontend::GetTextString(0x85), CFrontend::GetTextString(0x87),
+                                (char *)RallyData_GetRecord((BYTE)other));
+                    } else {
+                        Sprite_FillRect((int)g_pGraphics + 0x150, (short *)FUN_00464b10(i),
+                                        g_unk0x00516ce0, 2);
+                        if (FUN_0041f380() == 0xff || (char)FUN_0041f380() != i) {
+                            if (CGameInfo::FUN_00405d80() == 4)
+                                sprintf(text, g_strFmt00516e2c,
+                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), other));
+                            else
+                                sprintf(text, g_strFmt00516e2c,
+                                        (char *)RallyData_GetRecord((BYTE)other));
+                            sprintf(CFrontend::m_stringDest, g_strFmt00516e20,
+                                    CFrontend::GetTextString(0x86), CFrontend::GetTextString(0x87),
+                                    text);
+                        } else {
+                            if (CGameInfo::FUN_00405d80() == 4)
+                                sprintf(text, g_strFmt00516e2c,
+                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), i));
+                            else
+                                sprintf(text, g_strFmt00516e2c, (char *)RallyData_GetRecord((BYTE)i));
+                            sprintf(CFrontend::m_stringDest, g_keypadFormat,
+                                    CFrontend::GetTextString(0x94), text);
+                        }
+                    }
+                    FUN_00417e70(CFrontend::m_stringDest, colour, i, 0, -1, -1);
+                }
+            }
+next:
+            if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880() != 0
+                && CGameInfo::FUN_00404f20() == 0 && i == 1
+                && (*(char *)(*(BYTE **)(pKey + 4) + 8) != '\n' || FUN_0044a130() != 0)) {
+                if (CGameInfo::FUN_00405dc0() != 0) {
+                    rect[0] = 0;
+                    rect[2] = *(short *)(FUN_00464b10(1) + 4);
+                    rect[3] = 1;
+                    rect[1] = *(short *)(FUN_00464b10(1) + 2);
+                } else {
+                    rect[0] = *(short *)(FUN_00464b10(1));
+                    rect[2] = 1;
+                    rect[1] = *(short *)(FUN_00464b10(1) + 2);
+                    rect[3] = *(short *)(FUN_00464b10(1) + 6);
+                }
+                Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x00516cd8, 2);
+            }
+        }
+    }
+
+    if ((*(unsigned int *)(*(BYTE **)(pKey + 4) + view * 8) & 0xff) < 8
+        && CGameInfo::FUN_00405d80() != 4) {
+        BYTE fadeColour[4];
+
+        delta = (int)CMain::GetFrameDelta();
+        screenRect[0] = 0;
+        screenRect[1] = 0;
+        screenRect[2] = *(short *)g_pGraphics;
+        screenRect[3] = *(short *)((BYTE *)g_pGraphics + 4);
+        elapsed = delta - g_unk0x00536acc;
+        if ((unsigned int)elapsed < 0xe1) {
+            if ((unsigned int)elapsed < 0x19) {
+                alpha = 0xff;
+            } else {
+                alpha = 0xff - (delta * 0xff - g_unk0x00536acc * 0xff - 0x18e7) / 200;
+            }
+            fadeColour[0] = 0x9c;
+            fadeColour[1] = 0xb4;
+            fadeColour[2] = 0xac;
+            fadeColour[3] = (BYTE)alpha;
+            Sprite_FillRect((int)g_pGraphics + 0x150, screenRect, fadeColour, 1);
+            FUN_00410100((BYTE)alpha);
+            FUN_0040fec0(100, 0, alpha);
+        }
+    }
+
+    g_unk0x00536ad4 = (int)FUN_0040f050(view);
+    FUN_0049d3f0(RallyData_FUN_00411060(), (int)g_viewNodes[view], (void *)g_unk0x00536ad4,
+                 view, 1);
+    FUN_0040eed0(pKey, view);
 }
 
 extern int g_unk0x00536fe0;
