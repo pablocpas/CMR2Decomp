@@ -30,6 +30,21 @@ void FUN_004ae3d0(BYTE *p, BYTE value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
+void Stage_InitLightMeshes(void);
+int *FUN_00407520(int index);
+void FUN_004925c0(int oldHeight, int newHeight, int mode);
+void FUN_00492900(int value);
+void FUN_00492fd0(int value);
+
+// Global fixed-point lighting parameters for both stage conditions.
+// GLOBAL: CMR2 0x00547950
+int g_stageLighting[0x178 / 4];
+
+// Default intensity by stage weather index.
+// GLOBAL: CMR2 0x0051b0b8
+int g_stageWeatherIntensity[9] = {
+    0x10000, 0x10000, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999
+};
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -1591,6 +1606,209 @@ void FUN_00466630(int value)
     if (g_unk0x0051bd40 < 0x9999)
         g_unk0x0051bd40 = 0x9999;
     g_unk0x0051bd3c = FixDiv(0x10000, g_unk0x0051bd40);
+}
+
+// Sets the fixed-point lighting values for both stage weather conditions.
+// TODO: CMR2 0x00460da0 (implemented, match 24%)
+void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary)
+{
+    Stage_InitLightMeshes();
+    *(WORD *)&g_stageLighting[0x5c] = 0xffff;
+    int *pWeatherPair = FUN_00407520(RallyDataStageIndex());
+    g_stageLighting[0x2c] = g_stageWeatherIntensity[pWeatherPair[0]];
+    g_stageLighting[0x59] = g_stageWeatherIntensity[pWeatherPair[1]];
+    if (pPrimary != NULL && pSecondary != NULL) {
+        g_stageLighting[0x1b] = *(int *)pPrimary;
+        g_stageLighting[0x1c] = *(int *)(pPrimary + 0x4);
+        g_stageLighting[0x1d] = *(int *)(pPrimary + 0x8);
+        g_stageLighting[0x48] = *(int *)pSecondary;
+        g_stageLighting[0x49] = *(int *)(pSecondary + 0x4);
+        g_stageLighting[0x4a] = *(int *)(pSecondary + 0x8);
+        FUN_004925c0(g_stageLighting[0x1b], g_stageLighting[0x1c], g_stageLighting[0x1d]);
+        FUN_00492900(0x10000);
+        g_stageLighting[0x0] = (unsigned int)pPrimary[0x20] * 0x10000;
+        g_stageLighting[0x1] = (unsigned int)pPrimary[0x21] * 0x10000;
+        g_stageLighting[0x2] = (unsigned int)pPrimary[0x22] * 0x10000;
+        g_stageLighting[0x3] = (unsigned int)pPrimary[0x1c] * 0x10000 + (unsigned int)pPrimary[0x20] * -0x10000;
+        g_stageLighting[0x4] = (unsigned int)pPrimary[0x1d] * 0x10000 + (unsigned int)pPrimary[0x21] * -0x10000;
+        g_stageLighting[0x5] = (unsigned int)pPrimary[0x1e] * 0x10000 + (unsigned int)pPrimary[0x22] * -0x10000;
+        g_stageLighting[0x2d] = (unsigned int)pSecondary[0x20] * 0x10000;
+        g_stageLighting[0x2e] = (unsigned int)pSecondary[0x21] * 0x10000;
+        g_stageLighting[0x2f] = (unsigned int)pSecondary[0x22] * 0x10000;
+        g_stageLighting[0x30] = (unsigned int)pSecondary[0x1c] * 0x10000 + (unsigned int)pSecondary[0x20] * -0x10000;
+        g_stageLighting[0x31] = (unsigned int)pSecondary[0x1d] * 0x10000 + (unsigned int)pSecondary[0x21] * -0x10000;
+        g_stageLighting[0x32] = (unsigned int)pSecondary[0x1e] * 0x10000 + (unsigned int)pSecondary[0x22] * -0x10000;
+        g_stageLighting[0x6] = (unsigned int)pPrimary[0x24] << 0x10;
+        g_stageLighting[0x7] = (unsigned int)pPrimary[0x25] << 0x10;
+        g_stageLighting[0x8] = (unsigned int)pPrimary[0x26] << 0x10;
+        g_stageLighting[0x33] = (unsigned int)pSecondary[0x24] << 0x10;
+        g_stageLighting[0x34] = (unsigned int)pSecondary[0x25] << 0x10;
+        g_stageLighting[0x35] = (unsigned int)pSecondary[0x26] << 0x10;
+        g_stageLighting[0x27] = FixDiv((int)pPrimary[0x27] << 16, 0xff0000);
+        g_stageLighting[0x54] = FixDiv((int)pSecondary[0x27] << 16, 0xff0000);
+        g_stageLighting[0x9] = (unsigned int)pPrimary[0x3c] << 0x10;
+        g_stageLighting[0xa] = (unsigned int)pPrimary[0x3d] << 0x10;
+        g_stageLighting[0xb] = (unsigned int)pPrimary[0x3e] << 0x10;
+        g_stageLighting[0x36] = (unsigned int)pSecondary[0x3c] << 0x10;
+        g_stageLighting[0x37] = (unsigned int)pSecondary[0x3d] << 0x10;
+        g_stageLighting[0x38] = (unsigned int)pSecondary[0x3e] << 0x10;
+        g_stageLighting[0x2b] = *(int *)(pPrimary + 0x10);
+        g_stageLighting[0x58] = *(int *)(pSecondary + 0x10);
+        g_stageLighting[0x18] = (unsigned int)pPrimary[0x34] << 0x10;
+        g_stageLighting[0x19] = (unsigned int)pPrimary[0x35] << 0x10;
+        g_stageLighting[0x1a] = (unsigned int)pPrimary[0x36] << 0x10;
+        g_stageLighting[0x45] = (unsigned int)pSecondary[0x34] << 0x10;
+        g_stageLighting[0x46] = (unsigned int)pSecondary[0x35] << 0x10;
+        g_stageLighting[0x47] = (unsigned int)pSecondary[0x36] << 0x10;
+        g_stageLighting[0x2a] = (unsigned int)pPrimary[0x37] << 0x10;
+        g_stageLighting[0x57] = (unsigned int)pSecondary[0x37] << 0x10;
+        g_stageLighting[0x15] = (unsigned int)pPrimary[0x38] << 0x10;
+        g_stageLighting[0x16] = (unsigned int)pPrimary[0x39] << 0x10;
+        g_stageLighting[0x17] = (unsigned int)pPrimary[0x3a] << 0x10;
+        g_stageLighting[0x42] = (unsigned int)pSecondary[0x38] << 0x10;
+        g_stageLighting[0x43] = (unsigned int)pSecondary[0x39] << 0x10;
+        g_stageLighting[0x44] = (unsigned int)pSecondary[0x3a] << 0x10;
+        g_stageLighting[0xc] = (unsigned int)pPrimary[0x28] << 0x10;
+        g_stageLighting[0xd] = (unsigned int)pPrimary[0x29] << 0x10;
+        g_stageLighting[0xe] = (unsigned int)pPrimary[0x2a] << 0x10;
+        g_stageLighting[0x39] = (unsigned int)pSecondary[0x28] << 0x10;
+        g_stageLighting[0x3a] = (unsigned int)pSecondary[0x29] << 0x10;
+        g_stageLighting[0x3b] = (unsigned int)pSecondary[0x2a] << 0x10;
+        g_stageLighting[0x28] = FixDiv((int)pPrimary[0x2b] << 16, 0xff0000);
+        g_stageLighting[0x55] = FixDiv((int)pSecondary[0x2b] << 16, 0xff0000);
+        g_stageLighting[0xf] = (unsigned int)pPrimary[0x2c] << 0x10;
+        g_stageLighting[0x10] = (unsigned int)pPrimary[0x2d] << 0x10;
+        g_stageLighting[0x11] = (unsigned int)pPrimary[0x2e] << 0x10;
+        g_stageLighting[0x3c] = (unsigned int)pSecondary[0x2c] << 0x10;
+        g_stageLighting[0x3d] = (unsigned int)pSecondary[0x2d] << 0x10;
+        g_stageLighting[0x3e] = (unsigned int)pSecondary[0x2e] << 0x10;
+        g_stageLighting[0x29] = (int)((unsigned int)pPrimary[0x2f] << 0x10);
+        g_stageLighting[0x56] = (int)((unsigned int)pSecondary[0x2f] << 0x10);
+        g_stageLighting[0x12] = (unsigned int)pPrimary[0x30] << 0x10;
+        g_stageLighting[0x13] = (unsigned int)pPrimary[0x31] << 0x10;
+        g_stageLighting[0x14] = (unsigned int)pPrimary[0x32] << 0x10;
+        g_stageLighting[0x3f] = (unsigned int)pSecondary[0x30] << 0x10;
+        g_stageLighting[0x40] = (unsigned int)pSecondary[0x31] << 0x10;
+        g_stageLighting[0x41] = (unsigned int)pSecondary[0x32] << 0x10;
+        g_stageLighting[0x1e] = (unsigned int)pPrimary[0x44] << 0x10;
+        g_stageLighting[0x1f] = (unsigned int)pPrimary[0x45] << 0x10;
+        g_stageLighting[0x20] = (unsigned int)pPrimary[0x46] << 0x10;
+        g_stageLighting[0x25] = *(int *)(pPrimary + 0x14);
+        g_stageLighting[0x26] = *(int *)(pPrimary + 0x18);
+        g_stageLighting[0x4b] = (unsigned int)pSecondary[0x44] << 0x10;
+        g_stageLighting[0x4c] = (unsigned int)pSecondary[0x45] << 0x10;
+        g_stageLighting[0x4d] = (unsigned int)pSecondary[0x46] << 0x10;
+        g_stageLighting[0x52] = *(int *)(pSecondary + 0x14);
+        g_stageLighting[0x53] = *(int *)(pSecondary + 0x18);
+        g_stageLighting[0x21] = (unsigned int)pPrimary[0x40] << 0x10;
+        g_stageLighting[0x22] = (unsigned int)pPrimary[0x41] << 0x10;
+        g_stageLighting[0x23] = (unsigned int)pPrimary[0x42] << 0x10;
+        g_stageLighting[0x24] = (unsigned int)pPrimary[0x43] << 0x10;
+        g_stageLighting[0x4e] = (unsigned int)pSecondary[0x40] << 0x10;
+        g_stageLighting[0x4f] = (unsigned int)pSecondary[0x41] << 0x10;
+        g_stageLighting[0x50] = (unsigned int)pSecondary[0x42] << 0x10;
+        g_stageLighting[0x51] = (unsigned int)pSecondary[0x43] << 0x10;
+    } else {
+        g_stageLighting[0x1b] = 0xfffb0000;
+        g_stageLighting[0x1c] = 0xffda0000;
+        g_stageLighting[0x1d] = 0xfff30000;
+        g_stageLighting[0x48] = 0xfffb0000;
+        g_stageLighting[0x49] = 0xffda0000;
+        g_stageLighting[0x4a] = 0xfff30000;
+        FUN_004925c0(0xfffb0000, 0xffda0000, 0xfff30000);
+        FUN_00492900(0x10000);
+        g_stageLighting[0x3] = -0x5d0000;
+        g_stageLighting[0x6] = 0xff0000;
+        g_stageLighting[0x30] = -0x5d0000;
+        g_stageLighting[0x4] = -0x620000;
+        g_stageLighting[0x5] = 0;
+        g_stageLighting[0x7] = 0xff0000;
+        g_stageLighting[0x8] = 0xff0000;
+        g_stageLighting[0x1e] = 0;
+        g_stageLighting[0x1f] = 0;
+        g_stageLighting[0x20] = 0;
+        g_stageLighting[0x25] = 0;
+        g_stageLighting[0x26] = 0;
+        g_stageLighting[0x21] = 0;
+        g_stageLighting[0x22] = 0;
+        g_stageLighting[0x31] = -0x620000;
+        g_stageLighting[0x32] = 0;
+        g_stageLighting[0x9] = 0xff0000;
+        g_stageLighting[0x33] = 0xff0000;
+        g_stageLighting[0xa] = 0xff0000;
+        g_stageLighting[0xb] = 0xff0000;
+        g_stageLighting[0x34] = 0xff0000;
+        g_stageLighting[0x35] = 0xff0000;
+        g_stageLighting[0x2] = 0xff0000;
+        g_stageLighting[0x36] = 0xff0000;
+        g_stageLighting[0x0] = 0xbc0000;
+        g_stageLighting[0x1] = 0xca0000;
+        g_stageLighting[0x29] = 0x640000;
+        g_stageLighting[0x2b] = 0xfa0000;
+        g_stageLighting[0x27] = 0x8000;
+        g_stageLighting[0x18] = 0xff0000;
+        g_stageLighting[0x19] = 0xff0000;
+        g_stageLighting[0x1a] = 0xff0000;
+        g_stageLighting[0x2a] = 0xff0000;
+        g_stageLighting[0x15] = 0xff0000;
+        g_stageLighting[0x16] = 0xff0000;
+        g_stageLighting[0x17] = 0xff0000;
+        g_stageLighting[0xc] = 0x9b0000;
+        g_stageLighting[0xd] = 0x9b0000;
+        g_stageLighting[0xe] = 0x9b0000;
+        g_stageLighting[0x28] = 0x8000;
+        g_stageLighting[0xf] = 0xff0000;
+        g_stageLighting[0x10] = 0xff0000;
+        g_stageLighting[0x11] = 0xff0000;
+        g_stageLighting[0x12] = 0xc80000;
+        g_stageLighting[0x13] = 0xc80000;
+        g_stageLighting[0x14] = 0xc80000;
+        g_stageLighting[0x23] = 0;
+        g_stageLighting[0x24] = 0;
+        g_stageLighting[0x37] = 0xff0000;
+        g_stageLighting[0x38] = 0xff0000;
+        g_stageLighting[0x58] = 0xfa0000;
+        g_stageLighting[0x2d] = 0xbc0000;
+        g_stageLighting[0x2e] = 0xca0000;
+        g_stageLighting[0x45] = 0xff0000;
+        g_stageLighting[0x46] = 0xff0000;
+        g_stageLighting[0x47] = 0xff0000;
+        g_stageLighting[0x42] = 0xff0000;
+        g_stageLighting[0x43] = 0xff0000;
+        g_stageLighting[0x44] = 0xff0000;
+        g_stageLighting[0x39] = 0x9b0000;
+        g_stageLighting[0x2f] = 0xff0000;
+        g_stageLighting[0x3a] = 0x9b0000;
+        g_stageLighting[0x3b] = 0x9b0000;
+        g_stageLighting[0x54] = 0x8000;
+        g_stageLighting[0x55] = 0x8000;
+        g_stageLighting[0x3c] = 0xff0000;
+        g_stageLighting[0x3e] = 0xff0000;
+        g_stageLighting[0x3d] = 0xff0000;
+        g_stageLighting[0x3f] = 0xc80000;
+        g_stageLighting[0x41] = 0xc80000;
+        g_stageLighting[0x40] = 0xc80000;
+        g_stageLighting[0x4b] = 0;
+        g_stageLighting[0x4d] = 0;
+        g_stageLighting[0x4c] = 0;
+        g_stageLighting[0x4e] = 0;
+        g_stageLighting[0x57] = 0xff0000;
+        g_stageLighting[0x56] = 0x640000;
+        g_stageLighting[0x52] = 0;
+        g_stageLighting[0x53] = 0;
+        g_stageLighting[0x4f] = 0;
+        g_stageLighting[0x50] = 0;
+        g_stageLighting[0x51] = 0;
+    }
+    g_stageLighting[0x5a] = 0xffff0000;
+    if (g_stageLighting[0x25] == 0 && g_stageLighting[0x26] == 0 &&
+        g_stageLighting[0x52] == 0 && g_stageLighting[0x53] == 0) {
+        FUN_00492fd0(0);
+        g_stageLighting[0x5d] = 0;
+        return;
+    }
+    FUN_00492fd0(1);
+    g_stageLighting[0x5d] = 1;
 }
 
 // Blends two byte values: b + (a - b) * t, clamped to 255.
