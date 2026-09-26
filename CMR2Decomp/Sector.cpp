@@ -575,7 +575,7 @@ void FUN_004b8b10(SceneNode *pNode)
 
 // Visible sector indices collected by 0x004b7de0 (one short per sector).
 // GLOBAL: CMR2 0x006ed5f0
-short g_unk0x006ed5f0[14096];
+short g_unk0x006ed5f0[4096];
 int Tri2D_Contains(int *pPoint, int *pTri);
 
 // Sector culling pass of a scene node: walks the sector grid around its world
