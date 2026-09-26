@@ -3982,3 +3982,20 @@ void FUN_0050f370(void)
     Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
 }
 
+// Sets the whole mesh list of the record to opaque when the record has content
+// and the per-mesh flag is set, to fully transparent otherwise.
+// FUNCTION: CMR2 0x00509150
+void FUN_00509150(int index)
+{
+    BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
+    int i;
+    if (*(int *)(pRecord + 0x2a8) != 0) {
+        for (i = 0; i < pRecord[0x26a]; ++i) {
+            if (*(int *)(pRecord + 0x26c + i * 4) != 0)
+                *(BYTE *)(*(int *)(pRecord + 0x3c + i * 4) + 0x17c) = 0xff;
+            else
+                *(BYTE *)(*(int *)(pRecord + 0x3c + i * 4) + 0x17c) = 0;
+        }
+    }
+}
+
