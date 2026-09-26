@@ -3017,11 +3017,11 @@ void Session_SetPassword(LPVOID pPassword)
 }
 
 // TODO: CMR2 0x004a1550 (implemented, match 80%)
-void Session_SetMaxPlayers(int count)
+char Session_SetMaxPlayers(int count)
 {
     FUN_004a0d60();
     *(int *)(g_unk0x005a0068 + 0x28) = count;
-    FUN_004a14e0();
+    return FUN_004a14e0();
 }
 
 void SceneNode_UpdateTree(SceneNode *pNode, int unused);
