@@ -13,6 +13,7 @@
 #include <string.h>
 #include "main.h"
 #include "Game.h"
+#include "RallyData.h"
 
 // GLOBAL: CMR2 0x00525c30
 BYTE g_eventEntries[288] = {
@@ -1775,6 +1776,8 @@ Menu g_menu0x00826420;
 Menu g_menu0x00826600;
 // GLOBAL: CMR2 0x008267e0
 Menu g_menu0x008267e0;
+// GLOBAL: CMR2 0x008269c0
+Menu g_menu0x008269c0;
 // GLOBAL: CMR2 0x00826ba0
 Menu g_menu0x00826ba0;
 // GLOBAL: CMR2 0x00826d80
@@ -1787,6 +1790,8 @@ Menu g_menu0x00827140;
 Menu g_menu0x00827320;
 // GLOBAL: CMR2 0x00827500
 Menu g_menu0x00827500;
+// GLOBAL: CMR2 0x008276e0
+Menu g_menu0x008276e0;
 // GLOBAL: CMR2 0x008278c0
 Menu g_menu0x008278c0;
 // GLOBAL: CMR2 0x00827aa0
@@ -1944,6 +1949,439 @@ void FUN_004f5fc0(void)
     Menu_SetCallbacks(&g_menu0x0081be78, (MenuCallback)FUN_004f28c0, NULL, (MenuCallback)FUN_004ded80,
                       (MenuCallback)FUN_004f2970);
     Menu_ValidateCursor(&g_menu0x0081be78, 0);
+}
+
+void FUN_004f21c0(Menu *pMenu, int param);
+void FUN_004f2210(Menu *pMenu, int param);
+void FUN_004e1920(Menu *pMenu);
+
+// Display device menu: one entry per display device.
+// FUNCTION: CMR2 0x004f63b0
+void FUN_004f63b0(void)
+{
+    unsigned int i;
+
+    Menu_Init(&g_menu0x0081c7d8, 0, 0x14, 0, &g_menu0x008210f8, NULL, 1, 0, 1);
+    i = 0;
+    if (CGraphics::FUN_004a8be0() != 0) {
+        do {
+            Menu_AddItemType4(&g_menu0x0081c7d8, 0, -1, (int)FUN_004f2210, 0);
+            i++;
+        } while (i < (unsigned int)CGraphics::FUN_004a8be0());
+    }
+    Menu_SetCallbacks(&g_menu0x0081c7d8, (MenuCallback)FUN_004f21c0, NULL, (MenuCallback)FUN_004e1920, NULL);
+    Menu_ValidateCursor(&g_menu0x0081c7d8, 0);
+}
+
+void FUN_004f3a90(Menu *pMenu, int param);
+void FUN_004e3340(Menu *pMenu);
+
+// High score page (the table shown cycles on each press).
+// FUNCTION: CMR2 0x004f66e0
+void FUN_004f66e0(void)
+{
+    Menu_Init(&g_menu0x00820b58, 0, 0x162, 0, &g_menu0x00823c18, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00820b58, 0, -1, (int)FUN_004f3a90, -1);
+    Menu_SetCallbacks(&g_menu0x00820b58, NULL, NULL, (MenuCallback)FUN_004e3340, NULL);
+    Menu_ValidateCursor(&g_menu0x00820b58, 0);
+    g_menu0x00820b58.items[0].flag3 = 1;
+}
+
+void FUN_004e3a80(Menu *pMenu);
+
+// Record page (the table shown cycles on each press).
+// FUNCTION: CMR2 0x004f69f0
+void FUN_004f69f0(void)
+{
+    Menu_Init(&g_menu0x00823498, 0, 0x162, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00823498, 0, -1, (int)FUN_004f3a90, -1);
+    Menu_SetCallbacks(&g_menu0x00823498, NULL, NULL, (MenuCallback)FUN_004e3a80, NULL);
+    Menu_ValidateCursor(&g_menu0x00823498, 0);
+    g_menu0x00823498.items[0].flag3 = 1;
+}
+
+void FUN_004f2e70(Menu *pMenu, int param);
+void FUN_004f3980(Menu *pMenu);
+void FUN_004e5630(Menu *pMenu);
+
+// Stage records page: one entry per rally.
+// FUNCTION: CMR2 0x004f6b40
+void FUN_004f6b40(void)
+{
+    Menu_Init(&g_menu0x00822ef8, 0, 0x164, 0, &g_menu0x00820d38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x27, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x28, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x29, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2a, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2b, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2c, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2d, 0, -1);
+    Menu_AddItemType4(&g_menu0x00822ef8, 0, 0x2e, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00822ef8, (MenuCallback)FUN_004f2e70, (MenuCallback)FUN_004f3980,
+                      (MenuCallback)FUN_004e5630, NULL);
+    Menu_ValidateCursor(&g_menu0x00822ef8, 0);
+    g_menu0x00822ef8.items[0].flag3 = 1;
+    g_menu0x00822ef8.items[1].flag3 = 1;
+    g_menu0x00822ef8.items[2].flag3 = 1;
+    g_menu0x00822ef8.items[3].flag3 = 1;
+    g_menu0x00822ef8.items[4].flag3 = 1;
+    g_menu0x00822ef8.items[5].flag3 = 1;
+    g_menu0x00822ef8.items[6].flag3 = 1;
+    g_menu0x00822ef8.items[7].flag3 = 1;
+}
+
+void FUN_004ef7c0(Menu *pMenu, int param);
+void FUN_004f3610(Menu *pMenu, int param);
+void FUN_004f3530(Menu *pMenu, int param);
+void FUN_004f39f0(Menu *pMenu);
+void FUN_004d5fb0(Menu *pMenu);
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6e50
+void FUN_004f6e50(char difficulty)
+{
+    Menu_Init(&g_menu0x0081d318, 0, 0x1c, 0, &g_menu0x0081d4f8, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081d318, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081d318, 0);
+    g_menu0x0081d318.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6f10
+void FUN_004f6f10(char difficulty)
+{
+    Menu_Init(&g_menu0x00820978, 0, 0x1c, 0, &g_menu0x00824498, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x00820978, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x00820978, 0);
+    g_menu0x00820978.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6fd0
+void FUN_004f6fd0(char difficulty)
+{
+    Menu_Init(&g_menu0x0081f2f8, 0, 0x1c, 0, &g_menu0x00823fd8, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081f2f8, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081f2f8, 0);
+    g_menu0x0081f2f8.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f7090
+void FUN_004f7090(char difficulty)
+{
+    Menu_Init(&g_menu0x00824678, 0, 0x1c, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x00824678, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x00824678, 0);
+    g_menu0x00824678.cursor = difficulty - 1;
+}
+
+// Difficulty page (8 levels).
+// FUNCTION: CMR2 0x004f7150
+void FUN_004f7150(char difficulty)
+{
+    Menu_Init(&g_menu0x0081e5d8, 0, 0x40, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc9, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xca, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcb, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcc, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081e5d8, (MenuCallback)FUN_004f3530, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081e5d8, 0);
+    g_menu0x0081e5d8.cursor = difficulty - 1;
+}
+
+void FUN_004d6460(Menu *pMenu);
+void FUN_004ef410(Menu *pMenu);
+void FUN_004efb20(Menu *pMenu, int param);
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f7510
+void FUN_004f7510(char choice)
+{
+    Menu_Init(&g_menu0x008230d8, 0, 0x1e, 0, &g_menu0x0081d318, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x008230d8, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x008230d8, 0);
+    g_menu0x008230d8.cursor = choice;
+    g_menu0x008230d8.items[0].enabled = 1;
+}
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f75b0
+void FUN_004f75b0(char choice)
+{
+    Menu_Init(&g_menu0x00824858, 0, 0x1e, 0, &g_menu0x00820978, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x00824858, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x00824858, 0);
+    g_menu0x00824858.cursor = choice;
+    g_menu0x00824858.items[0].enabled = 1;
+}
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f7650
+void FUN_004f7650(char choice)
+{
+    Menu_Init(&g_menu0x008251b8, 0, 0x1e, 0, &g_menu0x0081f2f8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x008251b8, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x008251b8, 0);
+    g_menu0x008251b8.cursor = choice;
+    g_menu0x008251b8.items[0].enabled = 1;
+}
+
+void FUN_004f03f0(Menu *pMenu, char back);
+void FUN_004f0960(Menu *pMenu, int param);
+void FUN_004f0ac0(Menu *pMenu, int param);
+void FUN_004f0c50(Menu *pMenu, int param);
+void FUN_004d9880(Menu *pMenu);
+
+// Player profile menu of the multiplayer modes: continue, new profile,
+// no profile and up to 4 saved ones.
+// FUNCTION: CMR2 0x004f76f0
+void FUN_004f76f0(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x008241b8, 0, 0x21, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008241b8, 0, 0x102, &g_menu0x008203d8, (int)FUN_004f0c40, -1);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe6, (int)FUN_004f0960, 0);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe5, (int)FUN_004f0ac0, 0);
+    i = 4;
+    do {
+        Menu_AddItemType4(&g_menu0x008241b8, 0, -1, (int)FUN_004f0c50, -1);
+        i--;
+    } while (i != 0);
+    Menu_SetCallbacks(&g_menu0x008241b8, (MenuCallback)FUN_004f03f0, NULL, (MenuCallback)FUN_004d9880,
+                      (MenuCallback)FUN_004f07e0);
+    Menu_ValidateCursor(&g_menu0x008241b8, 0);
+}
+
+void FUN_004ef970(Menu *pMenu, int param);
+void FUN_004f01c0(Menu *pMenu, int param);
+void FUN_004f0250(Menu *pMenu);
+void FUN_004e1230(Menu *pMenu);
+
+// Multiplayer race settings page: three settings and "start".
+// FUNCTION: CMR2 0x004f8170
+void FUN_004f8170(void)
+{
+    Menu_Init(&g_menu0x00823858, 0, 0x46, 0, &g_menu0x00822d18, NULL, 1, 3, 1);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 4, 0, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x00823858, 0, -1, 5, 0, 0, 0, 0, 2);
+    Menu_AddItemType4(&g_menu0x00823858, 0, -1, (int)FUN_004f01c0, 3);
+    Menu_SetCallbacks(&g_menu0x00823858, (MenuCallback)FUN_004ef970, (MenuCallback)FUN_004f0250,
+                      (MenuCallback)FUN_004e1230, NULL);
+    Menu_ValidateCursor(&g_menu0x00823858, 0);
+    g_menu0x00823858.items[0].flag3 = 1;
+    g_menu0x00823858.items[1].flag3 = 1;
+    g_menu0x00823858.items[2].flag3 = 1;
+}
+
+void FUN_004e96d0(Menu *pMenu);
+void FUN_004e2500(Menu *pMenu);
+void FUN_004ef740(Menu *pMenu, char back);
+void FUN_004ef930(Menu *pMenu, int param);
+void FUN_004faa00(Menu *pMenu, int param);
+void FUN_004d6290(Menu *pMenu);
+void FUN_004f1bb0(BYTE value);
+void FUN_004f1bc0(int value);
+void FUN_004ea8c0(BYTE param1);
+void FUN_004ea950(BYTE param1);
+
+// Network message page (one hidden entry).
+// FUNCTION: CMR2 0x004f9300
+void FUN_004f9300(void)
+{
+    Menu_Init(&g_menu0x00826140, 0, -1, 0, FUN_004f8410(), NULL, 1, 0, 0);
+    Menu_AddItemType1(&g_menu0x00826140, 0, -1, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00826140, NULL, NULL, (MenuCallback)FUN_004e96d0, NULL);
+    Menu_ValidateCursor(&g_menu0x00826140, 0);
+}
+
+// Item callback of "arcade": starts an arcade game for the chosen players.
+// TODO: CMR2 0x004fa9b0 (implemented, match 89%)
+void FUN_004fa9b0(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(1);
+    FUN_004f1bb0(CGameInfo::FUN_00405d70());
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    FUN_004f1bc0((int)pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+void FUN_004fa9b0(Menu *pMenu, int param);
+
+// Arcade menu: two submenus and "start".
+// FUNCTION: CMR2 0x004f9370
+void FUN_004f9370(void)
+{
+    Menu_Init(&g_menu0x008267e0, 0, 0x58, 0, FUN_004f8410(), NULL, 1, 1, 1);
+    Menu_AddItemType2(&g_menu0x008267e0, 0, 0xc, &g_menu0x00826600, 0, 0);
+    Menu_AddItemType2(&g_menu0x008267e0, 0, 0xe2, &g_menu0x008276e0, 0, 0);
+    Menu_AddItemType4(&g_menu0x008267e0, 0, 0x10, (int)FUN_004fa9b0, -1);
+    Menu_SetCallbacks(&g_menu0x008267e0, NULL, (MenuCallback)FUN_004f3ae0, (MenuCallback)FUN_004e2500,
+                      (MenuCallback)FUN_004ef740);
+    Menu_ValidateCursor(&g_menu0x008267e0, 0);
+}
+
+// Entering the arcade player-count page: sets up the scroller and the
+// cursor from the number of players.
+// TODO: CMR2 0x004fa890 (implemented, match 87%)
+void FUN_004fa890(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int k;
+
+    RallyData_FUN_0040d640(5);
+    p = FUN_004f2520();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->count = pMenu->itemCount;
+    for (k = 0; k < pMenu->itemCount; k++)
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[k].id));
+    if (CGameInfo::FUN_00405d70() >= 3) {
+        pMenu->cursor = 0;
+        return;
+    }
+    pMenu->cursor = CGameInfo::FUN_00405d70() - 1;
+}
+
+// Item callback of the arcade player-count page.
+// TODO: CMR2 0x004fa910 (implemented, match 75%)
+void FUN_004fa910(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(pMenu->cursor + 1);
+    RallyData_FUN_0040d640(CGameInfo::FUN_00405d70() == 1 ? 5 : 0);
+    FUN_004f1bb0(CGameInfo::FUN_00405d70());
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    FUN_004f1bc0((int)pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+void FUN_004fa890(Menu *pMenu, int param);
+void FUN_004fa910(Menu *pMenu, int param);
+void FUN_004f39f0(Menu *pMenu);
+void FUN_004d5fb0(Menu *pMenu);
+
+// Arcade player-count page (under the arcade "championship" submenu).
+// FUNCTION: CMR2 0x004f9400
+void FUN_004f9400(char players)
+{
+    Menu_Init(&g_menu0x008269c0, 0, 0x1c, 0, &g_menu0x00826600, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x19f, (int)FUN_004fa910, -1);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x1a0, (int)FUN_004fa910, -1);
+    Menu_SetCallbacks(&g_menu0x008269c0, (MenuCallback)FUN_004fa890, (MenuCallback)FUN_004f39f0,
+                      (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x008269c0, 0);
+    g_menu0x008269c0.cursor = players - 1;
+}
+
+// Update callback of the arcade player-count page under the arcade menu.
+// FUNCTION: CMR2 0x004f9520
+void FUN_004f9520(Menu *pMenu)
+{
+    FUN_004f39f0(pMenu);
+}
+
+// Arcade player-count page (under the arcade menu).
+// FUNCTION: CMR2 0x004f9490
+void FUN_004f9490(char players)
+{
+    Menu_Init(&g_menu0x008276e0, 0, 0x1c, 0, &g_menu0x008267e0, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x19f, (int)FUN_004fa910, -1);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x1a0, (int)FUN_004fa910, -1);
+    Menu_SetCallbacks(&g_menu0x008276e0, (MenuCallback)FUN_004fa890, (MenuCallback)FUN_004f9520,
+                      (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x008276e0, 0);
+    g_menu0x008276e0.cursor = players - 1;
+}
+
+// Sets up a one-player arcade game.
+// FUNCTION: CMR2 0x004fa970
+void FUN_004fa970(void)
+{
+    FUN_004ea8c0(1);
+    RallyData_FUN_0040d640(5);
+    FUN_004f1bb0(1);
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), FUN_004fa2e0());
+    FUN_004f1bc0((int)FUN_004fa2e0());
+}
+
+// Arcade game type menu: three types.
+// FUNCTION: CMR2 0x004f9530
+void FUN_004f9530(char unused)
+{
+    Menu_Init(&g_menu0x00826600, 0, 0x1d, 0, &g_menu0x008267e0, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd0, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd1, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd2, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_SetCallbacks(&g_menu0x00826600, (MenuCallback)FUN_004faa00, NULL, (MenuCallback)FUN_004d6290, NULL);
+    Menu_ValidateCursor(&g_menu0x00826600, 0);
+}
+
+void FUN_004f0090(Menu *pMenu, int param);
+void FUN_004f3220(Menu *pMenu, int param);
+void FUN_004fb360(Menu *pMenu);
+void FUN_004da710(Menu *pMenu);
+void FUN_004f0110(Menu *pMenu, int param);
+void FUN_004f3280(Menu *pMenu, int param);
+void FUN_004f3310(Menu *pMenu);
+void FUN_004daf90(Menu *pMenu);
+
+// First quick race page: two settings and "start".
+// FUNCTION: CMR2 0x004fa370
+void FUN_004fa370(void)
+{
+    Menu_Init(&g_menu0x00828040, 0, 0x1a7, 0, FUN_004fa340(), NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00828040, 0, -1, 10, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00828040, 0, -1, 5, 0, 0, 0, 0, 1);
+    Menu_AddItemType4(&g_menu0x00828040, 0, 0x67, (int)FUN_004f0090, -1);
+    Menu_SetCallbacks(&g_menu0x00828040, (MenuCallback)FUN_004f3220, (MenuCallback)FUN_004fb360,
+                      (MenuCallback)FUN_004da710, NULL);
+    Menu_ValidateCursor(&g_menu0x00828040, 0);
+}
+
+// Second quick race page: game type, its setting, an on/off option and
+// "start".
+// FUNCTION: CMR2 0x004fa410
+void FUN_004fa410(void)
+{
+    Menu_Init(&g_menu0x00827aa0, 0, 0x1a7, 0, FUN_004fa340(), NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 3, 0, 0, 0, 0, 3);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, -1);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, 2);
+    Menu_AddItemType4(&g_menu0x00827aa0, 0, 0x67, (int)FUN_004f0110, -1);
+    Menu_SetCallbacks(&g_menu0x00827aa0, (MenuCallback)FUN_004f3280, (MenuCallback)FUN_004f3310,
+                      (MenuCallback)FUN_004daf90, NULL);
+    Menu_ValidateCursor(&g_menu0x00827aa0, 0);
 }
 
 // FUNCTION: CMR2 0x004f5810

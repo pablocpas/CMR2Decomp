@@ -78,6 +78,8 @@ extern Menu g_menu0x008251b8;
 extern Menu g_menu0x00826140;
 extern Menu g_menu0x00826420;
 extern Menu g_menu0x00826600;
+extern Menu g_menu0x008269c0;
+extern Menu g_menu0x008276e0;
 extern Menu g_menu0x008267e0;
 extern Menu g_menu0x00826ba0;
 extern Menu g_menu0x00826d80;
