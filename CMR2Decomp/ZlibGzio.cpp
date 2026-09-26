@@ -15,6 +15,14 @@
 
 struct internal_state {int dummy;}; /* for buggy compilers */
 
+/* The original was linked against the static CRT, where errno is a plain
+   variable; the /MD build would emit a call to _errno() instead.  Declare the
+   original variable and route errno accesses to it so they stay direct stores. */
+// GLOBAL: CMR2 0x008170a0
+int g_errno;
+#undef errno
+#define errno g_errno
+
 #ifndef Z_BUFSIZE
 #  ifdef MAXSEG_64K
 #    define Z_BUFSIZE 4096 /* minimize memory usage for 16-bit DOS */
