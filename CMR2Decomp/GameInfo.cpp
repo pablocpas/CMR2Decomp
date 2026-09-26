@@ -3592,3 +3592,142 @@ int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
     return 0;
 }
 
+// Re-runs the option-menu callback stored in the global (0x82b1b4).
+// FUNCTION: CMR2 0x00501390
+BYTE FUN_00501390(void)
+{
+    SceneNode_Destroy((SceneNode *)g_unk0x0082b1b4);
+    return 1;
+}
+// Releases the three option menu textures and clears their handles.
+// FUNCTION: CMR2 0x0050f480
+int FUN_0050f480(void)
+{
+    if (g_unk0x00831a90[0] != 0) {
+        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831a90[0]);
+        g_unk0x00831a90[0] = 0;
+    }
+    g_unk0x00831a90[2] = 0;
+    g_unk0x00831a90[1] = 0;
+    if (g_unk0x00831aa0[0] != 0) {
+        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831aa0[0]);
+        g_unk0x00831aa0[0] = 0;
+    }
+    g_unk0x00831aa0[2] = 0;
+    g_unk0x00831aa0[1] = 0;
+    if (g_unk0x00831ab0[0] != 0) {
+        CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831ab0[0]);
+        g_unk0x00831ab0[0] = 0;
+    }
+    g_unk0x00831ab0[2] = 0;
+    g_unk0x00831ab0[1] = 0;
+    return 1;
+}
+
+// Fills the 0x23c vector of the option record with the 16.16 fractions of its
+// four bytes at +0x108.
+// TODO: CMR2 0x00509d30 (implemented, match 86%)
+void FUN_00509d30(int index)
+{
+    BYTE *p;
+    int *pOut;
+    int i;
+
+    pOut = g_unk0x0082d220[index].field_0x23c.v;
+    p = (BYTE *)RallyData_FUN_00407610(index);
+    for (i = 0; i < 4; i++)
+        pOut[i] = FixDiv(p[0x108 + i] << 16, 0xff0000);
+}
+
+// Sets the fade/shape values of the option record's sky colours (field_0x22c).
+// TODO: CMR2 0x00509be0 (implemented, match 81%)
+void FUN_00509be0(int index)
+{
+    BYTE *p;
+    int *pColour;
+    int i;
+
+    pColour = g_unk0x0082d220[index].field_0x22c.v;
+    p = (BYTE *)RallyData_FUN_00407610(index);
+    for (i = 0; i < 4; i++)
+        pColour[i] = FixDiv(p[0x10e + i] << 16, 0xff0000);
+    pColour[0] = FixMul(pColour[0], FixMul(0x3333, 0xffff0000));
+    pColour[1] = FixMul(pColour[1], FixMul(0x3333, 0xffff0000));
+    pColour[2] = FixMul(pColour[2], FixMul(0x3333, 0x8000));
+    pColour[3] = FixMul(pColour[3], FixMul(0x3333, 0xffff8000));
+}
+
+// Applies the option menu's fade to the stage meshes of the given category:
+// each mesh in the record's list takes the target value for its bit.
+void FUN_0049c440(Mesh *pMesh, int mask, int value);
+void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
+// TODO: CMR2 0x00508fa0 (implemented, match 84%)
+void FUN_00508fa0(int index, int param2, BYTE param3){
+    BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
+    int target;
+    int mask;
+    int i;
+
+    if (param2 == 0) {
+        target = 0;
+        mask = 1;
+    } else if (param2 == 1 || param3 == 4 || param3 == 5) {
+        target = 3;
+        mask = 4;
+    } else {
+        target = 5;
+        mask = 7;
+    }
+    switch (param3) {
+    case 0:
+        i = FUN_00508f60(7, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x100, target);
+            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x100, mask);
+            return;
+        }
+        break;
+    case 1:
+        i = FUN_00508f60(0xc, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x20, target);
+            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x20, mask);
+        }
+        i = FUN_00508f60(7, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x20, target);
+            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x20, mask);
+            return;
+        }
+        break;
+    case 2:
+        i = FUN_00508f60(7, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x40, target);
+            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x40, mask);
+            return;
+        }
+        break;
+    case 3:
+        i = FUN_00508f60(7, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 0x80, target);
+            FUN_0049c4b0(*(Mesh **)(pRecord + i * 4), 0x80, mask);
+            return;
+        }
+        break;
+    case 4:
+        i = FUN_00508f60(0xe, (int)pRecord);
+        if (i >= 0) {
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 4, target);
+            return;
+        }
+        break;
+    case 5:
+        i = FUN_00508f60(0xe, (int)pRecord);
+        if (i >= 0)
+            FUN_0049c440(*(Mesh **)(pRecord + i * 4), 8, target);
+        break;
+    }
+}
+
