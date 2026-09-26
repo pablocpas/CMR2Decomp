@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "Frontend.h"
 #include "Texture.h"
+#include "Sprite.h"
 #include "Sound.h"
 #include "Font.h"
 
@@ -83,12 +84,13 @@ void *CGame::m_unk0x005a1fb8;
 void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1080(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {InitializeGame,
      FUN_00501680},
-    {FUN_004d1b40, NULL},   // render 0x4d1080 not written yet
+    {FUN_004d1b40, FUN_004d1080},
     {FUN_004d1b40, NULL},   // render 0x4d1370 not written yet
     {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
     {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
@@ -200,6 +202,103 @@ void FUN_004d0840(void)
 
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
     CGame::RegisterCallback(FUN_004d0820, NULL);
+}
+
+float FUN_004b23a0(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+// Shared with the other boot renders of Game.cpp (0x4d0a80, 0x4d1370).
+// GLOBAL: CMR2 0x00817fcc
+BYTE g_unk0x00817fcc;
+// GLOBAL: CMR2 0x00516e14
+char g_strFpsFormat0x00516e14[10] = "FPS: %.2f";
+
+// Render half of boot state 1: draws the CMR2 logo and a row of up to four
+// loading sprites, prepares the splash scene and shows the FPS counter when the
+// debug flag of the graphics device is on.
+// FUNCTION: CMR2 0x004d1080
+void FUN_004d1080(Unk0049c2c0 *p1, BYTE p2)
+{
+    BYTE colour[4];
+    SpriteRect dst;
+    SpriteRect src;
+    SpriteRect screen;
+    int centre[3];
+    Texture *pTexture;
+    int count;
+    int i;
+
+    screen.x = 0;
+    screen.y = 0;
+    screen.w = g_pGraphics->resX;
+    screen.h = g_pGraphics->resY;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    centre[0] = 0;
+    centre[1] = 0;
+    centre[2] = 0;
+
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+
+    pTexture = CFrontend::m_unk0x00817fd0;
+    if (pTexture != NULL) {
+        // the texture size is reused for the source, the destination and the centre
+        src.x = pTexture->field_0x11c;
+        src.y = pTexture->field_0x11e;
+        short w = pTexture->width;
+        src.w = w;
+        short h = pTexture->height;
+        src.h = h;
+        dst.x = (int)(g_pGraphics->resX * 43) / 640;
+        dst.y = (int)(g_pGraphics->resY * 202) / 480;
+        dst.w = w;
+        dst.h = h;
+        centre[0] = w / 2;
+        centre[1] = h / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, centre, NULL, colour, 8);
+    }
+
+    if (CGameInfo::GetScreenWidth() >= 0x400 &&
+        CFrontend::FUN_004b7560(0x400) &&
+        CFrontend::FUN_004b7590(0x400))
+        count = 4;
+    else
+        count = 3;
+
+    dst.x = (int)(g_pGraphics->resX * 43) / 640;
+    dst.y = (int)(g_pGraphics->resY * 260) / 480;
+
+    for (i = 0; i < count; i++) {
+        pTexture = CFrontend::m_unk0x00817fd4[i];
+        if (pTexture != NULL) {
+            src.x = pTexture->field_0x11c;
+            src.y = pTexture->field_0x11e;
+            short w = pTexture->width;
+            src.w = w;
+            short h = pTexture->height;
+            src.h = h;
+            dst.w = w;
+            dst.h = h;
+            centre[0] = w / 2;
+            centre[1] = h / 2;
+            Sprite_Queue(&src, &dst, pTexture, 1, 0, centre, NULL, colour, 8);
+            dst.x += dst.w;
+        }
+    }
+
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screen, 0);
+    if (g_pGraphics->field913_0x3bc & 4) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, FUN_004b23a0());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+    }
+    FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screen, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        FUN_0049de40();
 }
 
 // FUNCTION: CMR2 0x004057ab
