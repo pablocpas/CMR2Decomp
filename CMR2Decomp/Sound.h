@@ -121,4 +121,10 @@ public:
 
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 
+struct GenericFile;
+BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused);
+BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile);
+BOOL Sound_Init(int sampleRate, int channels, int bits, int unused);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+
 #endif

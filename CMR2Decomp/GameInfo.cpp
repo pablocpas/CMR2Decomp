@@ -2333,6 +2333,27 @@ unsigned int FUN_004ead00(void)
     return CGameInfo::m_gameInfo.field_0x1c >> 16 & 0xf;
 }
 
+void RallyData_FUN_00406960(BYTE param1);
+void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_FUN_004068b0(BYTE param1);
+
+// Pushes the frontend option settings to the modules that use them.
+// FUNCTION: CMR2 0x004ead10
+void FUN_004ead10(void)
+{
+    FUN_004ea8e0((BYTE)CGameInfo::m_unk0x0052af94);
+    FUN_004ea8c0((BYTE)CGameInfo::m_unk0x0052ea44);
+    FUN_004ea930((BYTE)CGameInfo::m_unk0x0052af9c);
+    RallyData_FUN_0040d640((BYTE)CGameInfo::m_unk0x0052af80);
+    RallyData_FUN_0040d600((BYTE)CGameInfo::m_unk0x0052af84);
+    RallyData_FUN_00406960((BYTE)CGameInfo::m_unk0x0052af8c);
+    RallyData_FUN_0040d620((BYTE)CGameInfo::m_unk0x0052e93c);
+    RallyData_FUN_004068e0((BYTE)CGameInfo::m_unk0x0052ea48);
+    RallyData_FUN_004068b0((BYTE)CGameInfo::m_unk0x0052e940);
+    CGameInfo::m_gameInfo.field_0x14 = ((CGameInfo::m_unk0x0052af88 & 0xf) << 4 | CGameInfo::m_unk0x0052af98 & 0xf) << 0x17
+        | CGameInfo::m_gameInfo.field_0x14 & 0x807fffff;
+}
+
 // FUNCTION: CMR2 0x004eabc0
 void FUN_004eabc0(void)
 {

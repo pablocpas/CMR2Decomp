@@ -1,5 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "Sprite.h"
 #include "Game.h"
 #include "Sound.h"
@@ -596,6 +598,130 @@ BOOL FUN_004b75c0(void);
 int Sound_GetMasterVolume(void);
 SoundSlot *Sound_GetSlot(int index);
 
+// The original imported DirectSoundCreate from DSOUND.dll (the SilentPatch exe
+// routes it through SPCMR2.dll ordinal 1).
+#pragma comment(lib, "third_party/dx7sdk-7001/lib/dsound.lib")
+
+// 3D sound enabled (primary buffer with CTRL3D and a listener)
+// GLOBAL: CMR2 0x005a2838
+BOOL g_sound3DEnabled;
+// Speaker configuration read from DirectSound (DSSPEAKER_*)
+// GLOBAL: CMR2 0x00520890
+DWORD g_soundSpeakerConfig = DSSPEAKER_STEREO;
+
+extern IDirectSoundBuffer *g_unk0x005a2848;
+extern int g_unk0x005a284c;
+BOOL FUN_004bd100(void);
+
+// Creates the DirectSound device and sets the format of the primary buffer
+// (16-bit PCM at sampleRate; mono when the speakers are mono). bits and
+// unused are ignored: the original always uses 16 bits.
+// TODO: CMR2 0x004a1d60 (implemented, match 76%)
+BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
+{
+    IDirectSoundBuffer *pPrimary;
+    WAVEFORMATEX format;
+    DSBUFFERDESC desc;
+
+    pPrimary = NULL;
+    if (!CSound::FUN_004a3250(DirectSoundCreate(NULL, &g_unk0x005a2844, NULL)))
+        return FALSE;
+    if (!CSound::FUN_004a3250(g_unk0x005a2844->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DSSCL_PRIORITY)))
+        return FALSE;
+
+    if (FUN_004b75c0() && (g_unk0x005a2844->GetSpeakerConfig(&g_soundSpeakerConfig), (BYTE)g_soundSpeakerConfig == DSSPEAKER_MONO))
+        channels = 1;
+    if (channels == 1)
+        g_sound3DEnabled = FALSE;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(desc);
+    desc.dwFlags = g_unk0x005a283c ? DSBCAPS_PRIMARYBUFFER | DSBCAPS_LOCHARDWARE : DSBCAPS_PRIMARYBUFFER | DSBCAPS_LOCSOFTWARE;
+    if (g_sound3DEnabled)
+        desc.dwFlags |= DSBCAPS_CTRL3D;
+    desc.dwBufferBytes = 0;
+    desc.lpwfxFormat = NULL;
+
+    format.wFormatTag = WAVE_FORMAT_PCM;
+    format.nChannels = (WORD)channels;
+    format.nSamplesPerSec = sampleRate;
+    format.wBitsPerSample = 16;
+    format.nBlockAlign = (WORD)(channels * 2);
+    format.nAvgBytesPerSec = format.nBlockAlign * sampleRate;
+    format.cbSize = 0;
+
+    if (!CSound::FUN_004a3250(g_unk0x005a2844->CreateSoundBuffer(&desc, &pPrimary, NULL)))
+        return FALSE;
+    if (!CSound::FUN_004a3250(pPrimary->SetFormat(&format)))
+        return FALSE;
+    if (g_sound3DEnabled) {
+        if (!CSound::FUN_004a3250(pPrimary->QueryInterface(IID_IDirectSound3DListener, (LPVOID *)&g_unk0x005a2848)))
+            return FALSE;
+        g_unk0x005a284c = 1;
+    }
+
+    FUN_004bd100();
+    CSound::m_unk0x005a2734 = FALSE;
+    strcpy(CSound::m_unk0x005a2738, CMain::m_logFileBlankLine);
+    CSound::m_pMMIO = NULL;
+    if (pPrimary != NULL)
+        pPrimary->Release();
+    return TRUE;
+}
+
+// GLOBAL: CMR2 0x00520a34
+char g_strWave[8] = "WAVE";
+
+int FUN_004b7780(void);
+BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
+                  DWORD size);
+BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD size);
+
+// Loads a .wav from pFile into the next free sample slot: creates its buffer
+// (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
+// The file buffer is freed unless it lives inside the archive.
+// TODO: CMR2 0x004a1f50 (implemented, match 69%)
+BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
+{
+    BYTE *pWave;
+    BYTE inArchive;
+    int channels, bits;
+    DWORD rate;
+    BYTE *pData;
+    int slot;
+
+    pWave = (BYTE *)CGenericFileLoader::FindFile(pFile, name, &inArchive, NULL, 0);
+    if (pWave == NULL)
+        return FALSE;
+
+    if (strncmp((char *)pWave + 8, g_strWave, 4) == 0) {
+        channels = *(WORD *)(pWave + 0x16);
+        rate = *(DWORD *)(pWave + 0x18);
+        bits = *(WORD *)(pWave + 0x22);
+        pData = pWave + 0x2c;
+        if ((flags & 1) == 0 || !g_sound3DEnabled) {
+            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 0,
+                              *(DWORD *)(pWave + 0x28)))
+                return FALSE;
+            FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28));
+        } else {
+            if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 1,
+                              *(DWORD *)(pWave + 0x28)))
+                return FALSE;
+            slot = FUN_004b7780();
+            if (CSound::FUN_004a3250(g_soundBuffers[slot]->QueryInterface(IID_IDirectSound3DBuffer,
+                                                                            (LPVOID *)&g_sound3DBuffers[FUN_004b7780()]))) {
+                if (!FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28)))
+                    return FALSE;
+                CSound::FUN_004a3250(g_sound3DBuffers[FUN_004b7780()]->SetMode(DS3DMODE_NORMAL, DS3D_DEFERRED));
+            }
+        }
+    }
+    if (inArchive == 0)
+        CFileBuffer::FreeGenericFileBuffer(pWave);
+    return TRUE;
+}
+
 // Creates a PCM buffer of the given format (3D buffers use the HRTF light
 // algorithm on Windows 98 and later).
 // TODO: CMR2 0x004a20c0 (implemented, match 84%)
@@ -878,6 +1004,47 @@ void Sound_FreeAll(void);
 void FUN_004a1d10(int sample);
 
 // Frees every loaded sound and releases the samples from index first on.
+// GLOBAL: CMR2 0x005210f8
+char g_strFailedToLoad[20] = "Failed to load \"%s\"";
+
+int FUN_004b7ae0(void);
+
+// Starts the sound system: clears the sound slots, creates the DirectSound
+// device and registers the shutdown callback.
+// FUNCTION: CMR2 0x004b7650
+BOOL Sound_Init(int sampleRate, int channels, int bits, int unused)
+{
+    int i;
+
+    if (CSound::m_unk0x006e0eec != 0)
+        return FALSE;
+    g_soundMasterVolume = 0x10000;
+    for (i = 0; i < 32; i++)
+        CSound::m_soundSlots[i] = NULL;
+    if (!Sound_InitDevice(sampleRate, channels, bits, unused))
+        return FALSE;
+    CGame::RegisterCallback(FUN_004b7ae0, NULL);
+    CSound::m_unk0x006e0eec = 1;
+    return TRUE;
+}
+
+// Loads a sample into the next slot (at most 200).
+// FUNCTION: CMR2 0x004b76c0
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile)
+{
+    char message[260];
+
+    if (CSound::m_unk0x006e0eec == 0 || (unsigned int)g_unk0x006e0ef0 >= 200)
+        return FALSE;
+    if (Sound_LoadWave(name, flags, pFile)) {
+        g_unk0x006e0ef0++;
+        return TRUE;
+    }
+    // the original formats an error message nobody reads
+    sprintf(message, g_strFailedToLoad, name);
+    return FALSE;
+}
+
 // FUNCTION: CMR2 0x004b7740
 void FUN_004b7740(int first)
 {

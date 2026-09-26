@@ -800,6 +800,36 @@ BOOL RallyData_FUN_00408340(void)
 
 
 
+extern int g_unk0x00531650;
+extern int g_unk0x00531654[4];
+extern BYTE *g_unk0x00531764;
+void FUN_004ec000(void);
+void FUN_004ec260(int player);
+
+// Resets the four players' records in the save block (all cleared, then the
+// default flags, setup values and car position of each one).
+// TODO: CMR2 0x004eadb0 (implemented, match 63%)
+void FUN_004eadb0(void)
+{
+    int i;
+
+    memset(g_saveData + 0x628, 0, 0x650 * 4);
+    memset(g_unk0x00531350, 0, 0xc0 * 4);
+    g_unk0x00531650 = 0;
+    for (i = 0; i < 4; i++) {
+        BYTE *pPlayer = g_saveData + 0x63c + i * 0x650;
+        *(int *)(pPlayer + 0x44) = 4;
+        g_saveData[0x620 + i] = 0;
+        *(unsigned int *)pPlayer = (*(unsigned int *)pPlayer & 0xffe1f17e) | 0x1017e;
+        g_unk0x00531654[i] = 0;
+        *(unsigned int *)(pPlayer + 0x40) |= 0x20;
+        *(int *)(pPlayer + 0x38) = 0xf11;
+        FUN_004ec260(i);
+    }
+    FUN_004ec000();
+    g_unk0x00531764 = NULL;
+}
+
 // Copies the name into the category record of the given record index.
 // FUNCTION: CMR2 0x004eaf90
 void FUN_004eaf90(BYTE index, char *name)
@@ -2491,6 +2521,23 @@ void RallyData_FUN_004ec1a0(void)
                       (((*pEntry & 0x7f80) + 0x80) & 0x7f80);
         i++;
     } while (i < CGameInfo::FUN_00405d70());
+}
+
+// Default setup of a player's car: validates the player's rally data (except
+// in mode 4) and stores the default position and heading values.
+// FUNCTION: CMR2 0x004ec260
+void FUN_004ec260(int player)
+{
+    int values[5];
+
+    if (CGameInfo::FUN_00405d80() != 4)
+        RallyData_ValidateIndex(player);
+    *(short *)&values[3] = 0x2d;
+    values[0] = 0;
+    values[1] = 0x18000;
+    values[2] = 0x68000;
+    values[4] = 0xe0000;
+    RallyData_FUN_004088a0((BYTE)player, values);
 }
 
 // GLOBAL: CMR2 0x00520128

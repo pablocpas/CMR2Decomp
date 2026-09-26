@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "FrontendMenus.h"
+#include "InstallInfo.h"
 #include "FrontendDraw.h"
 #include "Sound.h"
 #include "main.h"
@@ -32,30 +33,10 @@ int g_unk0x0081912c;
 BYTE g_unk0x00819048;
 // GLOBAL: CMR2 0x00819130
 char g_unk0x00819130[12];
+// The 12 frontend scrollers are one contiguous array in the original (see
+// FUN_004ef150); the old per-address names are views (FrontendMenus.h).
 // GLOBAL: CMR2 0x00819140
-MenuScroller g_menuScroller0x00819140;
-// GLOBAL: CMR2 0x008191b8
-MenuScroller g_menuScroller0x008191b8;
-// GLOBAL: CMR2 0x00819230
-MenuScroller g_menuScroller0x00819230;
-// GLOBAL: CMR2 0x008192a8
-MenuScroller g_menuScroller0x008192a8;
-// GLOBAL: CMR2 0x00819320
-MenuScroller g_menuScroller0x00819320;
-// GLOBAL: CMR2 0x00819398
-MenuScroller g_menuScroller0x00819398;
-// GLOBAL: CMR2 0x00819410
-MenuScroller g_menuScroller0x00819410;
-// GLOBAL: CMR2 0x00819488
-MenuScroller g_menuScroller0x00819488;
-// GLOBAL: CMR2 0x00819500
-MenuScroller g_menuScroller0x00819500;
-// GLOBAL: CMR2 0x00819578
-MenuScroller g_menuScroller0x00819578;
-// GLOBAL: CMR2 0x008195f0
-MenuScroller g_menuScroller0x008195f0;
-// GLOBAL: CMR2 0x00819668
-MenuScroller g_menuScroller0x00819668;
+MenuScroller g_menuScrollers[12];
 // GLOBAL: CMR2 0x008196e0
 unsigned int g_unk0x008196e0;
 // GLOBAL: CMR2 0x008196e4
@@ -64,6 +45,14 @@ int g_unk0x008196e4;
 BYTE g_unk0x00819864;
 // GLOBAL: CMR2 0x00819880
 int g_unk0x00819880;
+// Sample index of the first frontend sound (move, select, back, error, toggle)
+// GLOBAL: CMR2 0x00819888
+int g_menuSoundBase;
+// GLOBAL: CMR2 0x0081988c
+int g_unk0x0081988c;
+// The four "dot" textures of the frontend (dot00..dot03)
+// GLOBAL: CMR2 0x00819e94
+Texture *g_menuDotTextures[4];
 // GLOBAL: CMR2 0x0081987c
 int g_unk0x0081987c;
 // GLOBAL: CMR2 0x0082a924
@@ -394,6 +383,29 @@ Menu *FUN_004ea5d0(void)
     return g_pMenu0x00818abc;
 }
 
+extern BYTE g_unk0x00818ce4;
+DPID FUN_004a1a00(void);
+BYTE RallyData_FUN_004086b0(BYTE index);
+BYTE FUN_004086f0(unsigned int param1);
+void FUN_00409be0(int param);
+
+// Sends this machine's player description (id, car, flags) to the network
+// player list.
+// TODO: CMR2 0x004ec2b0 (implemented, match 44%)
+void FUN_004ec2b0(void)
+{
+    DWORD info[4];
+
+    info[0] = 0;
+    info[1] = 0;
+    info[2] = 0;
+    info[3] = 0;
+    info[0] = FUN_004a1a00();
+    info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0);
+    info[1] = ((((g_unk0x00818ce4 & 1) | 2) << 1 | (FUN_004086f0(0) & 1)) << 5) | (info[1] & 0xfffffc9f);
+    FUN_00409be0((int)info);
+}
+
 // FUNCTION: CMR2 0x004eca60
 void FUN_004eca60(Menu *pMenu, char param)
 {
@@ -623,6 +635,19 @@ void FUN_004ef030(Menu *pMenu)
     } else {
         Menu_GetItem(pMenu, 2)->enabled = 0;
         Menu_GetItem(pMenu, 1)->enabled = 1;
+    }
+}
+
+// Resets the 12 frontend scrollers: no menu attached, item gap scaled from
+// 24 pixels at 640 wide.
+// FUNCTION: CMR2 0x004ef150
+void FUN_004ef150(void)
+{
+    int i;
+
+    for (i = 0; i < 12; i++) {
+        g_menuScrollers[i].pMenu = NULL;
+        g_menuScrollers[i].spacing = (int)(g_pGraphics->resX * 24) / 640;
     }
 }
 
@@ -1568,6 +1593,59 @@ void FUN_004f3b30(Menu *pMenu, char param)
 {
     if (g_unk0x00819878 == 0 && param == 0)
         Menu_SetNextAction((int)FUN_004f8990());
+}
+
+// Frontend sound names and path
+// GLOBAL: CMR2 0x0052544c
+char g_menuSoundNames[5][9] = {"move", "select", "back", "error", "toggle"};
+// GLOBAL: CMR2 0x0051ea44
+char g_strMenuSoundFormat[24] = "%s\\Sounds\\menu\\%s.wav";
+// GLOBAL: CMR2 0x00525a84
+char g_strMenuDotFormat[32] = "%s\\frontend\\Textures\\dot0%d.tga";
+
+// Loads the five frontend sounds from the common frontend archive.
+// FUNCTION: CMR2 0x004f3b50
+BYTE FUN_004f3b50(void)
+{
+    BYTE ok;
+    int i;
+
+    ok = 1;
+    g_menuSoundBase = 0;
+    for (i = 0; i < 5; i++) {
+        sprintf(CFrontend::m_stringDest, g_strMenuSoundFormat, CInstallInfo::GetGameCDPath(), g_menuSoundNames[i]);
+        if (!Sound_LoadSample(CFrontend::m_stringDest, 0, CFrontend::FUN_004d2190()))
+            ok = 0;
+    }
+    return ok;
+}
+
+// Sets the input repeat rate from the options and binds the five frontend
+// sounds to the menu actions.
+// TODO: CMR2 0x004f3bb0 (implemented, match 71%)
+void FUN_004f3bb0(void)
+{
+    int rate;
+
+    g_unk0x0081988c = -1;
+    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
+    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ff80(g_menuSoundBase, g_menuSoundBase + 1, g_menuSoundBase + 2, g_menuSoundBase + 3,
+                         g_menuSoundBase + 4);
+    FUN_004a0c40(1);
+}
+
+// Loads the four "dot" textures of the frontend.
+// FUNCTION: CMR2 0x004f3f60
+void FUN_004f3f60(void)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        sprintf(CFrontend::m_stringDest, g_strMenuDotFormat, CInstallInfo::GetGameCDPath(), i);
+        g_menuDotTextures[i] =
+            CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    }
 }
 
 // FUNCTION: CMR2 0x004f92e0
