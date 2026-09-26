@@ -1498,11 +1498,39 @@ struct Unk0x0082d220Vec {
     int v[4];
 };
 
+// Source copy of one vertex of a stage mesh (0x20 bytes): position and normal in
+// 16.16, then the packed normal bytes. Filled by FUN_00506bb0.
+struct Unk0x0082d220VertexFixed {
+    FixVector position; // 0x0
+    FixVector normal;   // 0xc
+    BYTE field_0x18[8]; // 0x18
+};
+
+// Mesh vertex the engine renders (0x30 bytes), same layout as MeshVertexF.
+struct Unk0x0082d220VertexF {
+    float x, y, z;      // 0x0
+    float nx, ny, nz;   // 0xc
+    BYTE field_0x18[0x18]; // 0x18
+};
+
+// Stage mesh record (0x2ac bytes): 15 mesh slots (mesh id - 5) with their scene
+// node, source vertex data, bounding box and per-option state.
 struct Unk0x0082d220 {
-    BYTE field_0x0[0x22c];
+    Mesh *pMeshes[15];                            // 0x0
+    SceneNode *pNodes[15];                        // 0x3c
+    Unk0x0082d220VertexFixed *pVertexData[15];    // 0x78
+    int centre[15][3];                            // 0xb4  bounding box centre
+    int halfSize[15][3];                          // 0x168 half size of the box
+    int field_0x21c;                              // 0x21c
+    int field_0x220;
+    int field_0x224;
+    int field_0x228;
     Unk0x0082d220Vec field_0x22c;
     Unk0x0082d220Vec field_0x23c;
-    BYTE field_0x24c[0x60];
+    WORD vertexCount[15];                         // 0x24c
+    BYTE meshCount;                               // 0x26a used slots
+    int field_0x26c[15];                          // 0x26c
+    int field_0x2a8;                              // 0x2a8 meshes rebuilt
 };
 
 // GLOBAL: CMR2 0x0082d220
@@ -1970,6 +1998,169 @@ int CGameInfo::FUN_00505e10(BYTE param1)
     g_unk0x0082c6c0 = CMain::GetFrameDelta();
     g_unk0x0082cb44 = 0;
     return 1;
+}
+
+// Adds the mesh of a scene node to a stage mesh record (g_unk0x0082d220): stores
+// the node, its mesh and its vertex count in the slot of the node's mesh id,
+// expands the +/-100 bounding box with every vertex and stores the centre and
+// the half size of the slot. Bumps the counter of used slots.
+// FUNCTION: CMR2 0x00507290
+void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
+{
+    Unk0x0082d220VertexF *pVertex;
+    FixVector halfSize;
+    Mesh *pMesh;
+    WORD count;
+    int slot;
+    int maxX, maxY, maxZ;
+    int minX, minY, minZ;
+    int x, y, z;
+    int i;
+
+    slot = (pNode->flags & 0xff) - 5;
+    pMesh = (Mesh *)pNode->pObject;
+    if (pMesh != NULL && pNode->type == 0) {
+        pRecord->pNodes[slot] = pNode;
+        pRecord->pMeshes[slot] = pMesh;
+        count = (WORD)Mesh_GetField0x10(pMesh);
+        pRecord->vertexCount[slot] = count;
+        if (pRecord->pMeshes[slot] != NULL && count > 0) {
+            maxZ = -0x640000;
+            maxY = -0x640000;
+            maxX = -0x640000;
+            minZ = 0x640000;
+            minY = 0x640000;
+            minX = 0x640000;
+            for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
+                pVertex = &((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i];
+                x = (int)(__int64)(pVertex->x * CGraphics::m_65536);
+                y = (int)(__int64)(pVertex->y * CGraphics::m_65536);
+                z = (int)(__int64)(pVertex->z * CGraphics::m_65536);
+                if (x > maxX)
+                    maxX = x;
+                if (x < minX)
+                    minX = x;
+                if (y > maxY)
+                    maxY = y;
+                if (y < minY)
+                    minY = y;
+                if (z > maxZ)
+                    maxZ = z;
+                if (z < minZ)
+                    minZ = z;
+                if (x >= 0) {
+                    if (x > pRecord->field_0x21c)
+                        pRecord->field_0x21c = x;
+                } else {
+                    if (x < pRecord->field_0x220)
+                        pRecord->field_0x220 = x;
+                }
+                if (z >= 0) {
+                    if (z > pRecord->field_0x224)
+                        pRecord->field_0x224 = z;
+                } else {
+                    if (z < pRecord->field_0x228)
+                        pRecord->field_0x228 = z;
+                }
+            }
+            halfSize.x = minX - maxX;
+            halfSize.y = minY - maxY;
+            halfSize.z = minZ - maxZ;
+            FixVecScale(&halfSize, &halfSize, 0x8000);
+            pRecord->centre[slot][0] = maxX + halfSize.x;
+            pRecord->centre[slot][1] = maxY + halfSize.y;
+            pRecord->centre[slot][2] = maxZ + halfSize.z;
+            pRecord->halfSize[slot][0] = maxX - pRecord->centre[slot][0];
+            pRecord->halfSize[slot][1] = maxY - pRecord->centre[slot][1];
+            pRecord->halfSize[slot][2] = maxZ - pRecord->centre[slot][2];
+            pRecord->meshCount++;
+        }
+    }
+}
+
+void FUN_00508fa0(int index, int param2, BYTE param3);
+
+// Converts the source vertex data of every mesh of a stage mesh record back into
+// its 0x30-byte mesh vertices, rebuilds the meshes, marks the option state of
+// each slot and resets the 8 option meshes of the record.
+// FUNCTION: CMR2 0x005074d0
+void FUN_005074d0(int index)
+{
+    Unk0x0082d220 *pRecord;
+    FixVector position;
+    FixVector normal;
+    int i;
+    int j;
+
+    pRecord = &g_unk0x0082d220[index];
+    if (pRecord->field_0x2a8 == 0)
+        return;
+
+    for (i = 0; i < (int)pRecord->meshCount; i++) {
+        for (j = 0; j < (int)pRecord->vertexCount[i]; j++) {
+            position = pRecord->pVertexData[i][j].position;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].x =
+                (float)position.x * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].y =
+                (float)position.y * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].z =
+                (float)position.z * CGraphics::m_oneOver65536;
+            normal = pRecord->pVertexData[i][j].normal;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].nx =
+                (float)normal.x * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].ny =
+                (float)normal.y * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].nz =
+                (float)normal.z * CGraphics::m_oneOver65536;
+        }
+        if (pRecord->pNodes[i]->pObject != NULL)
+            Mesh_Rebuild((Mesh *)pRecord->pNodes[i]->pObject);
+        pRecord->field_0x26c[i] = 1;
+    }
+    for (i = 0; i < 8; i++)
+        FUN_00508fa0(index, 0, i);
+}
+
+// GLOBAL: CMR2 0x0082d120
+FixVector g_unk0x0082d120;
+// GLOBAL: CMR2 0x0082d12c
+FixVector g_unk0x0082d12c;
+// GLOBAL: CMR2 0x0082d138
+FixVector g_unk0x0082d138;
+// GLOBAL: CMR2 0x0082d144
+int g_unk0x0082d144;
+// GLOBAL: CMR2 0x0082d148
+int g_unk0x0082d148;
+// GLOBAL: CMR2 0x0082d14c
+BYTE g_unk0x0082d14c;
+
+// Loads a 13-byte car colour record into the globals the stage sky uses: three
+// 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
+// TODO: CMR2 0x00507710 (implemented, match 89%)
+void FUN_00507710(BYTE *pColour)
+{
+    g_unk0x0082d120.x = (int)(signed char)pColour[9] << 16;
+    g_unk0x0082d120.y = (int)(signed char)pColour[10] << 16;
+    g_unk0x0082d120.z = (int)(signed char)pColour[0xb] << 16;
+    FixVecScale(&g_unk0x0082d120, &g_unk0x0082d120, FixMul(0xa0000, FixDiv(0x10000, 0x7f0000)));
+    g_unk0x0082d12c.x = (int)(signed char)pColour[3] << 16;
+    g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
+    g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
+    // The original expands the 1/127 scale as a 64-bit division (its compiler
+    // keeps the constant divisor in a register, like at 0x4689c8); ours folds
+    // the whole constant expression to the 0x204 it also computes.
+    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
+    g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
+    g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
+    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_unk0x0082d148 = (int)pColour[0] << 16;
+    g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
+    g_unk0x0082d14c = pColour[1];
+    if (pColour[1] == 1) {
+        g_unk0x0082d144 = (int)pColour[2] << 16;
+        g_unk0x0082d144 = FixMul(g_unk0x0082d144, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
+    }
 }
 
 // Number of credit entries (pairs of quoted strings) in the credits file
