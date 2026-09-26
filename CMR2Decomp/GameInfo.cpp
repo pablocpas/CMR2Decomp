@@ -533,6 +533,169 @@ void CGameInfo::FUN_004066e0(char *name)
     strcpy(m_gameInfo.field_0x3965, name);
 }
 
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+void FUN_004a2fe0(void);
+IDirectSound *FUN_004a1d00(void);
+
+#include "../third_party/bink-sdk-1.0p/include/bink.h"
+
+// Bink movie state: the open movie and its dimensions, the Bink buffer the
+// frames are played on, the DirectDraw surface they are converted to, and the
+// surface type returned for it (-1 while unknown).
+// GLOBAL: CMR2 0x005297d0
+int g_unk0x005297d0 = -1;
+// GLOBAL: CMR2 0x00831ac8
+unsigned int g_unk0x00831ac8;
+// GLOBAL: CMR2 0x00831acc
+unsigned int g_unk0x00831acc;
+// GLOBAL: CMR2 0x00831ad0
+HBINK g_pUnk0x00831ad0;
+// GLOBAL: CMR2 0x00831ad4
+HBINKBUFFER g_pUnk0x00831ad4;
+// GLOBAL: CMR2 0x00831c54
+IDirectDrawSurface7 *g_pUnk0x00831c54;
+// GLOBAL: CMR2 0x00831c68
+int g_unk0x00831c68;
+// GLOBAL: CMR2 0x00831c6c
+IDirectDrawSurface7 *g_pUnk0x00831c6c;
+
+// Opens the movie file with Bink, creates the DirectDraw surface its frames are
+// copied to and opens a Bink buffer on the game window. Returns 0 if the CD is
+// missing.
+// FUNCTION: CMR2 0x0050ff90
+int FUN_0050ff90(char *fileName, unsigned int trackIndex)
+{
+    DDSURFACEDESC2 desc;
+
+    BinkSoundUseDirectSound(FUN_004a1d00());
+    BinkSetSoundTrack(trackIndex);
+    g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+    while (g_pUnk0x00831ad0 == NULL) {
+        if (!CInstallInfo::ShowNoCDErrorMessage())
+            return 0;
+        g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+    }
+
+    g_unk0x00831ac8 = g_pUnk0x00831ad0->Width;
+    g_unk0x00831acc = g_pUnk0x00831ad0->Height;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(desc);
+    desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    desc.dwWidth = g_pUnk0x00831ad0->Width;
+    desc.dwHeight = g_pUnk0x00831ad0->Height;
+    desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+    if (CGraphics::FUN_004a8d60() == 1 || CGraphics::FUN_004a8d60() == 2)
+        desc.ddsCaps.dwCaps2 = DDSCAPS2_DONOTPERSIST | DDSCAPS2_TEXTUREMANAGE;
+    else
+        desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+    desc.ddsCaps.dwCaps2 |= DDSCAPS2_HINTDYNAMIC;
+    desc.ddpfPixelFormat = CGraphics::m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
+    desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+    g_pGraphics->pDD7->CreateSurface(&desc, &g_pUnk0x00831c6c, NULL);
+
+    g_unk0x005297d0 = BinkDDSurfaceType(g_pUnk0x00831c6c);
+    if (g_pUnk0x00831c54 == g_pGraphics->pPrimarySurface && g_pGraphics->isFullscreen)
+        g_pGraphics->pDD7->FlipToGDISurface();
+
+    g_pUnk0x00831ad4 = BinkBufferOpen(CMain::m_hWndList[CMain::m_hWndIx], g_pUnk0x00831ad0->Width,
+                                      g_pUnk0x00831ad0->Height,
+                                      BINKBUFFERSTRETCHX | BINKBUFFERSTRETCHY);
+    return 1;
+}
+
+// Half of the letterbox border added to centre the movie (0.5).
+// GLOBAL: CMR2 0x005113b8
+double g_unk0x005113b8 = 0.5;
+
+// Plays one frame of the current movie: scales and offsets the Bink buffer to
+// the game window, copies the frame into it and blits it to the screen.
+// Returns whether the movie has more frames left.
+// TODO: CMR2 0x00510120 (implemented, match 68%)
+BOOL FUN_00510120(BYTE skipOnSpace)
+{
+    DeviceInfo *pDevice;
+    RECT clientRect;
+    BYTE keyByte;
+    int scaleWidth;
+    int scaleHeight;
+    int waitResult;
+
+    CInput::FUN_0049eab0();
+    pDevice = CInput::FUN_0049ead0(0);
+    FUN_0040bd60(0, pDevice);
+    if (pDevice->field_0x8 & 0x10)
+        return FALSE;
+    if (skipOnSpace & 1) {
+        keyByte = (BYTE)((GetAsyncKeyState(VK_SPACE) & 0xff00) >> 8);
+        if (keyByte != 0)
+            return TRUE;
+    }
+
+    BinkDoFrame(g_pUnk0x00831ad0);
+    if (!g_pGraphics->isFullscreen) {
+        GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], &clientRect);
+        BinkBufferSetScale(g_pUnk0x00831ad4, clientRect.right - clientRect.left,
+                           clientRect.bottom - clientRect.top);
+    } else {
+        if (CGraphics::FUN_004a96d0(CGraphics::FUN_004a8bc0()) != 0) {
+            if (CGameInfo::GetScreenWidth() >= 0x640) {
+                scaleWidth = 0x500;
+                scaleHeight = 0x3c0;
+            } else if (CGameInfo::GetScreenWidth() >= 0x400) {
+                scaleWidth = 0x400;
+                scaleHeight = 0x300;
+            } else {
+                scaleWidth = 0x280;
+                scaleHeight = 0x1e0;
+            }
+            BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
+            BinkBufferSetOffset(g_pUnk0x00831ad4,
+                                (int)((int)(g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+        } else {
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)((int)(g_pGraphics->resX - 0x280) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+        }
+        if (CGraphics::FUN_004a96e0(CGraphics::FUN_004a8bc0()) == 0)
+            BinkBufferSetOffset(g_pUnk0x00831ad4,
+                                (int)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+    }
+
+    if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
+        BinkCopyToBuffer(g_pUnk0x00831ad0, g_pUnk0x00831ad4->Buffer, g_pUnk0x00831ad4->BufferPitch,
+                         g_pUnk0x00831ad4->Height, 0, 0, g_pUnk0x00831ad4->SurfaceType);
+        BinkBufferUnlock(g_pUnk0x00831ad4);
+    }
+    BinkBufferBlit(g_pUnk0x00831ad4, g_pUnk0x00831ad0->FrameRects,
+                   BinkGetRects(g_pUnk0x00831ad0, g_pUnk0x00831ad4->SurfaceType));
+    BinkNextFrame(g_pUnk0x00831ad0);
+    waitResult = BinkWait(g_pUnk0x00831ad0);
+    while (waitResult != 0)
+        waitResult = BinkWait(g_pUnk0x00831ad0);
+    return g_pUnk0x00831ad0->FrameNum < g_pUnk0x00831ad0->Frames;
+}
+
+// Releases the DirectDraw surface the movie frames are converted to and closes
+// the open movie.
+// FUNCTION: CMR2 0x005103d0
+void FUN_005103d0(void)
+{
+    ULONG refCount;
+
+    g_unk0x00831c68 = 0;
+    g_pUnk0x00831c54 = NULL;
+    if (g_pUnk0x00831c6c != NULL) {
+        refCount = g_pUnk0x00831c6c->Release();
+        if (refCount == 0)
+            g_pUnk0x00831c6c = NULL;
+    }
+    if (g_pUnk0x00831ad0 != NULL)
+        BinkClose(g_pUnk0x00831ad0);
+}
+
 // FUNCTION: CMR2 0x00510410
 void CGameInfo::FUN_00510410(void)
 {
@@ -1571,10 +1734,109 @@ void FUN_0050f1c0(void)
     g_pMenu0x00831778 = g_pMenu0x0083177c;
 }
 
+// Per-frame update of the option menu: refreshes the active menu, polls the
+// input device and forwards its state to Menu_Update.
+// FUNCTION: CMR2 0x0050f1d0
+void FUN_0050f1d0(void)
+{
+    int input;
+    DeviceInfo *pDevice;
+    Menu *pNextMenu;
+
+    FUN_0050f1c0();
+    FUN_004a2fe0();
+    CInput::FUN_0049eab0();
+    input = 0;
+    if (CGameInfo::FUN_005011b0() == 1) {
+        if (CGameInfo::FUN_00405da0() == 0)
+            input = 1;
+    }
+    FUN_0040bad0();
+    pDevice = CInput::FUN_0049ead0(input);
+    FUN_0040bd60((unsigned short)input, pDevice);
+    pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->field_0x8);
+    if (pNextMenu != NULL)
+        g_pMenu0x0083177c = pNextMenu;
+}
+
 // FUNCTION: CMR2 0x0050f230
 void FUN_0050f230(void)
 {
     Menu_CallCallback2(g_pMenu0x00831778);
+}
+
+// Option menu text file prefixes, indexed by game language ("s" + language).
+// GLOBAL: CMR2 0x0052962c
+char g_str0x0052962c[8] = "spolish";
+// GLOBAL: CMR2 0x00529634
+char g_str0x00529634[8] = "sengusa";
+// GLOBAL: CMR2 0x0052963c
+char g_str0x0052963c[8] = "sgerman";
+// GLOBAL: CMR2 0x00529644
+char g_str0x00529644[12] = "sitalian";
+// GLOBAL: CMR2 0x00529650
+char g_str0x00529650[12] = "sspanish";
+// GLOBAL: CMR2 0x0052965c
+char g_str0x0052965c[8] = "sfrench";
+// GLOBAL: CMR2 0x00529664
+char g_str0x00529664[12] = "senglish";
+
+extern char g_strTxtFormat[];
+extern int g_unk0x00831880;
+extern BYTE g_unk0x00831884;
+int *FUN_0050f620(void);
+int *FUN_0050f630(void);
+int *FUN_0050f640(void);
+int FUN_0050f340(void);
+int FUN_0050f480(void);
+
+// Loads the option menu text file of the current region and language and
+// registers it with the frontend.
+// FUNCTION: CMR2 0x0050f240
+BYTE FUN_0050f240(void)
+{
+    char *europe[5];
+    char *usa[3];
+    char *japan[1];
+    char *poland[1];
+    char **names;
+
+    europe[0] = g_str0x00529664;
+    europe[1] = g_str0x0052965c;
+    europe[2] = g_str0x00529650;
+    europe[3] = g_str0x00529644;
+    europe[4] = g_str0x0052963c;
+    usa[0] = g_str0x00529634;
+    usa[1] = g_str0x0052965c;
+    usa[2] = g_str0x00529650;
+    japan[0] = g_str0x00529664;
+    poland[0] = g_str0x0052962c;
+
+    names = NULL;
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        names = europe;
+        break;
+    case 1:
+        names = usa;
+        break;
+    case 2:
+        names = japan;
+        break;
+    case 3:
+        names = poland;
+    }
+
+    sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
+    g_unk0x00831880 = (int)CGenericFileLoader::FindFile((GenericFile *)FUN_0050f630(),
+                                                       CFrontend::m_stringDest, &g_unk0x00831884, NULL, 0);
+    // the original tests the address of the buffer, so this is always true
+    if (&g_unk0x00831880 != NULL) {
+        CFrontend::FUN_004a3c90(1, 0x146, (BYTE **)&g_unk0x00831880);
+        CGame::RegisterCallback(FUN_0050f340, NULL);
+        return 1;
+    }
+    return 0;
 }
 
 // FUNCTION: CMR2 0x0050f620
@@ -3613,6 +3875,146 @@ BYTE FUN_00501390(void)
     SceneNode_Destroy((SceneNode *)g_unk0x0082b1b4);
     return 1;
 }
+
+// Option menu sound names (7 bytes each) and the file name they are loaded
+// from, plus the volume/index state of the option menu.
+// GLOBAL: CMR2 0x005296c4
+char g_unk0x005296c4[5][7] = {"move", "select", "back", "error", "toggle"};
+// GLOBAL: CMR2 0x005296e8
+char g_str0x005296e8[16] = "%s\\menu\\%s.wav";
+// GLOBAL: CMR2 0x00831888
+int g_unk0x00831888;
+// GLOBAL: CMR2 0x0083188c
+int g_unk0x0083188c;
+
+// Loads the five option menu sounds. Returns 0 if any of them failed to load.
+// FUNCTION: CMR2 0x0050f3c0
+BYTE FUN_0050f3c0(void)
+{
+    BYTE result;
+    char *name;
+    int nameEnd;
+
+    result = 1;
+    g_unk0x00831888 = 0;
+    name = (char *)g_unk0x005296c4;
+    nameEnd = (int)g_unk0x005296c4 + sizeof(g_unk0x005296c4);
+    do {
+        sprintf(CFrontend::m_stringDest, g_str0x005296e8, CInstallInfo::GetSoundsDir(), name);
+        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620()) == 0)
+            result = 0;
+        name += 7;
+    } while ((int)name < nameEnd);
+    return result;
+}
+
+// Sets the option menu volume and hands the menu sound handles to the input
+// system.
+// FUNCTION: CMR2 0x0050f420
+void FUN_0050f420(void)
+{
+    g_unk0x0083188c = -1;
+    // option menu volume: the stored 0..0x7f setting scaled to 16.16 and quartered
+    CInput::FUN_0049ffc0((((int)CGameInfo::FUN_00405e70() << 16) / 100) / 4);
+    CInput::FUN_0049ff80(g_unk0x00831888, g_unk0x00831888 + 1, g_unk0x00831888 + 2,
+                         g_unk0x00831888 + 3, g_unk0x00831888 + 4);
+    FUN_004a0c40(1);
+}
+
+// Option menu archives: every region uses the language directories of its own
+// languages (region * 5 + language), indexed like the country codes.
+// GLOBAL: CMR2 0x00529794
+char g_str0x00529794[20] = "%s\\%d\\Common.bfl";
+// GLOBAL: CMR2 0x0052976c
+char g_str0x0052976c[20] = "%s\\%d\\%sDay%d.bfl";
+// GLOBAL: CMR2 0x00529780
+char g_str0x00529780[20] = "%s\\%d\\%sDay%dC.bfl";
+// GLOBAL: CMR2 0x0051a100
+char g_str0x0051a100[12] = "%s%s%s.bfl";
+
+// Country code of each RallyDataCountryIndex value.
+// GLOBAL: CMR2 0x00519260
+char g_str0x00519260[4] = "JAP";
+// GLOBAL: CMR2 0x00519268
+char g_str0x00519268[4] = "ITA";
+// GLOBAL: CMR2 0x0051926c
+char g_str0x0051926c[4] = "KEN";
+// GLOBAL: CMR2 0x00519270
+char g_str0x00519270[4] = "AUS";
+// GLOBAL: CMR2 0x00519274
+char g_str0x00519274[4] = "SWE";
+// GLOBAL: CMR2 0x00519278
+char g_str0x00519278[4] = "FRA";
+// GLOBAL: CMR2 0x0051927c
+char g_str0x0051927c[4] = "GRE";
+// GLOBAL: CMR2 0x00519280
+char g_str0x00519280[4] = "FIN";
+// GLOBAL: CMR2 0x005296f8
+char *g_unk0x005296f8[9] = {g_str0x00519280, g_str0x0051927c, g_str0x00519278,
+                            g_str0x00519274, g_str0x00519270, g_str0x0051926c,
+                            g_str0x00519268, CFrontend::m_strUK, g_str0x00519260};
+
+// Language text directory of every region and language (region * 5 + language).
+// Countries without a language of their own keep an empty entry.
+// GLOBAL: CMR2 0x0051a00c
+char g_str0x0051a00c[12] = "polishtext";
+// GLOBAL: CMR2 0x0051a018
+char g_str0x0051a018[12] = "engusatext";
+// GLOBAL: CMR2 0x0051a024
+char g_str0x0051a024[12] = "germantext";
+// GLOBAL: CMR2 0x0051a030
+char g_str0x0051a030[12] = "italiantext";
+// GLOBAL: CMR2 0x0051a03c
+char g_str0x0051a03c[12] = "spanishtext";
+// GLOBAL: CMR2 0x0051a048
+char g_str0x0051a048[12] = "frenchtext";
+// GLOBAL: CMR2 0x0051a054
+char g_str0x0051a054[12] = "englishtext";
+// GLOBAL: CMR2 0x0052971c
+char *g_unk0x0052971c[25] = {
+    g_str0x0051a054, g_str0x0051a048, g_str0x0051a03c, g_str0x0051a030, g_str0x0051a024,
+    g_str0x0051a018, g_str0x0051a048, g_str0x0051a03c, NULL, NULL,
+    NULL, g_str0x0051a054, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL,
+    g_str0x0051a00c, NULL, NULL, NULL, NULL};
+
+// Loads the three option menu archives: the common one, the day file of the
+// stage and the region/language file.
+// FUNCTION: CMR2 0x0050f4f0
+void FUN_0050f4f0(void)
+{
+    int resolution;
+    int stage;
+
+    stage = RallyDataStageIndex() >> 2;
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400)) {
+        resolution = 0x400;
+        if (!CFrontend::FUN_004b7590(0x400))
+            resolution = 0x280;
+    } else {
+        resolution = 0x280;
+    }
+
+    sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
+
+    if (CFrontend::FUN_004a9700()) {
+        sprintf(CFrontend::m_stringDest, g_str0x00529780, CInstallInfo::GetSetupRepDir(), resolution,
+                g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
+    } else {
+        sprintf(CFrontend::m_stringDest, g_str0x0052976c, CInstallInfo::GetSetupRepDir(), resolution,
+                g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
+    }
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest);
+
+    sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
+            CGameInfo::GetGameRegionDirectory(),
+            g_unk0x0052971c[CGameInfo::GetGameRegion() * 5 + CGameInfo::GetGameLanguage()]);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f630(), CFrontend::m_stringDest);
+
+    CGame::RegisterCallback(FUN_0050f480, NULL);
+}
+
 // Releases the three option menu textures and clears their handles.
 // FUNCTION: CMR2 0x0050f480
 int FUN_0050f480(void)
