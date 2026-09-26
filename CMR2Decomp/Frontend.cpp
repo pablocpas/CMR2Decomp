@@ -591,6 +591,29 @@ int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength)
     return g_sinTable[(FixDiv(FixVecLength(&d) % wavelength, wavelength) + phase) & 0xfff];
 }
 
+// Draws the one-pixel outline of pRect (x, y, width, height) in pColour as
+// four one-pixel thick rectangles.
+// FUNCTION: CMR2 0x004d27e0
+void FUN_004d27e0(short *pRect, BYTE *pColour)
+{
+    short rect[4];
+
+    rect[0] = pRect[0];
+    rect[1] = pRect[1] + 1;
+    rect[2] = 1;
+    rect[3] = pRect[3] - 2;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    rect[0] = pRect[2] + pRect[0] - 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    rect[0] = pRect[0];
+    rect[1] = pRect[1];
+    rect[2] = pRect[2];
+    rect[3] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+    rect[1] = pRect[1] + pRect[3] - 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 4);
+}
+
 // Draws the animated frontend background: an 18x12 grid of the large matrix
 // texture, coloured by pMap and rippling from two centres (top-left and
 // top-right of the screen).

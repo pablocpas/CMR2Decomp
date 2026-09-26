@@ -52,6 +52,8 @@ unsigned int RallyData_FUN_004082b0(void);
 unsigned int RallyData_FUN_004082c0(void);
 unsigned int RallyData_FUN_004082e0(void);
 unsigned int RallyData_FUN_00407e90(void);
+int FUN_0040e180(int exclude1, int exclude2);
+int FUN_0040e210(int exclude1, int exclude2);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -3826,6 +3828,72 @@ void RallyData_FUN_004084c0(BYTE index, BYTE param2)
 void RallyData_FUN_0040df80(int index, int value)
 {
     g_unk0x0052ea98[index] = value;
+}
+
+// GLOBAL: CMR2 0x005337c8
+int g_unk0x005337c8;
+// GLOBAL: CMR2 0x005337d0
+int g_unk0x005337d0;
+// GLOBAL: CMR2 0x005337ec
+int g_unk0x005337ec;
+// The event table's slot 16 holds the event the other five slots are built from.
+extern int g_unk0x00533758[21];
+
+// Fills the six per-slot values of the current event: a fixed set when the
+// event's group is one of the special ones, otherwise the events picked from
+// the event's group avoiding the previous one.
+// FUNCTION: CMR2 0x0040dfa0
+void FUN_0040dfa0(void)
+{
+    if (!RallyData_FUN_004069a0())
+        return;
+    g_unk0x005337ec = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(0));
+    g_unk0x00533758[16] = RallyData_FUN_004086b0(0);
+    if (g_unk0x005337ec >= 0 && g_unk0x005337ec <= 5 || g_unk0x005337ec == 0xc) {
+        if (CGameInfo::FUN_00406320()) {
+            RallyData_FUN_0040df80(0, 0);
+            RallyData_FUN_0040df80(3, 0);
+            RallyData_FUN_0040df80(1, 8);
+            RallyData_FUN_0040df80(4, 8);
+            RallyData_FUN_0040df80(2, 10);
+            RallyData_FUN_0040df80(5, 10);
+            return;
+        }
+        g_unk0x005337d0 = 0;
+        RallyData_FUN_0040df80(0, g_unk0x00533758[16]);
+        RallyData_FUN_0040df80(3, g_unk0x00533758[16]);
+        g_unk0x005337c8 = FUN_0040e180(g_unk0x00533758[16], -1);
+        RallyData_FUN_0040df80(1, g_unk0x005337c8);
+        RallyData_FUN_0040df80(4, g_unk0x005337c8);
+        g_unk0x005337c8 = FUN_0040e180(g_unk0x00533758[16], g_unk0x005337c8);
+    } else {
+        if (g_unk0x005337ec == 8) {
+            RallyData_FUN_0040df80(0, 0x10);
+            RallyData_FUN_0040df80(3, 0x10);
+            RallyData_FUN_0040df80(1, 0x10);
+            RallyData_FUN_0040df80(4, 0x10);
+            RallyData_FUN_0040df80(2, 0x10);
+            RallyData_FUN_0040df80(5, 0x10);
+            return;
+        }
+        if (g_unk0x005337ec == 0xd) {
+            RallyData_FUN_0040df80(0, 0x15);
+            RallyData_FUN_0040df80(3, 0x15);
+            RallyData_FUN_0040df80(1, 0x15);
+            RallyData_FUN_0040df80(4, 0x15);
+            RallyData_FUN_0040df80(2, 0x15);
+            RallyData_FUN_0040df80(5, 0x15);
+            return;
+        }
+        RallyData_FUN_0040df80(0, g_unk0x00533758[16]);
+        RallyData_FUN_0040df80(3, g_unk0x00533758[16]);
+        g_unk0x005337c8 = FUN_0040e210(g_unk0x00533758[16], -1);
+        RallyData_FUN_0040df80(1, g_unk0x005337c8);
+        RallyData_FUN_0040df80(4, g_unk0x005337c8);
+        g_unk0x005337c8 = FUN_0040e210(g_unk0x00533758[16], g_unk0x005337c8);
+    }
+    RallyData_FUN_0040df80(2, g_unk0x005337c8);
+    RallyData_FUN_0040df80(5, g_unk0x005337c8);
 }
 
 // GLOBAL: CMR2 0x005337c4
