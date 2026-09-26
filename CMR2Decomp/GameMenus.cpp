@@ -223,17 +223,17 @@ void FUN_00409bc0(void);
 void FUN_00427a50(void);
 
 // Item callback of the in-race "restart stage" item.
-// TODO: CMR2 0x00401590 (implemented, match 59%)
+// FUNCTION: CMR2 0x00401590
 void FUN_00401590(Menu *pMenu, int param)
 {
     BYTE i;
-    int colour;
 
     for (i = 0; (short)i < Car_GetOrderCount(); i++) {
-        colour = g_unk0x00516090;
-        if (CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 1 && CGameInfo::FUN_00405d80() != 0)
-            colour = g_unk0x0052af54;
-        FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_00401540, 1, 0, colour, 1);
+        if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 1 ||
+            CGameInfo::FUN_00405d80() == 0)
+            FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_00401540, 1, 0, g_unk0x00516090, 1);
+        else
+            FUN_004283e0(i, i != 0 ? NULL : (FadeCallback)FUN_00401540, 1, 0, g_unk0x0052af54, 1);
     }
     if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10) {
         FUN_00409bc0();
@@ -443,18 +443,16 @@ void FUN_00449e90(Menu *pMenu, int param)
 }
 
 // Menu action "restart".
-// TODO: CMR2 0x00449f30 (implemented, match 67%)
+// FUNCTION: CMR2 0x00449f30
 void FUN_00449f30(Menu *pMenu, int param)
 {
     BYTE i;
-    int value;
 
     for (i = 0; (short)i < Car_GetOrderCount(); i++) {
-        if (CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 1 && CGameInfo::FUN_00405d80() != 0)
-            value = g_unk0x00541cd4;
+        if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 1 || CGameInfo::FUN_00405d80() == 0)
+            FUN_004283e0(i, i != 0 ? NULL : FUN_00449ea0, 1, 0, g_unk0x00519ec8, 1);
         else
-            value = g_unk0x00519ec8;
-        FUN_004283e0(i, i != 0 ? NULL : FUN_00449ea0, 1, 0, value, 1);
+            FUN_004283e0(i, i != 0 ? NULL : FUN_00449ea0, 1, 0, g_unk0x00541cd4, 1);
     }
     if (CGameInfo::FUN_00405e00() && FUN_004a15a0() && CGameInfo::FUN_00405d80() != 10 &&
         CGameInfo::FUN_00405d80() != 12) {
@@ -492,16 +490,16 @@ void FUN_0041f2b0(void)
         CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
         FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
     }
-    if ((BYTE)RallyData_FUN_00407ea0() && CGameInfo::FUN_00406310())
+    if ((BYTE)RallyData_FUN_00407ea0() && (BYTE)CGameInfo::FUN_00406310())
         FUN_00466080();
     if (CGameInfo::FUN_00405d80() != 4)
         return;
-    if (*RallyData_GetChampionshipState() & 0x800000)
+    if (*RallyData_GetChampionshipState() & 0x800000) {
         FUN_0041f2a0();
-    else {
-        FUN_004728b0();
-        FUN_0041f280();
+        return;
     }
+    FUN_004728b0();
+    FUN_0041f280();
 }
 
 // FUNCTION: CMR2 0x0044a090
@@ -536,12 +534,11 @@ extern KnockoutMatch *g_pKnockoutMatch;
 
 // Draw callback of the in-race pause header: "PAUSED" followed by a separator
 // bar and the name of the driver (or car) the pause menu belongs to.
-// TODO: CMR2 0x0044b7b0 (implemented, match 48%)
+// FUNCTION: CMR2 0x0044b7b0
 void FUN_0044b7b0(Menu *pMenu)
 {
     int x;
     int width;
-    char *pText;
     char result;
 
     Font_DrawText(2, CFrontend::GetTextString(0x47), (int)(g_pGraphics->resX * 30) / 640,
@@ -556,19 +553,25 @@ void FUN_0044b7b0(Menu *pMenu)
     Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
     if (FUN_0041f3a0()) {
         if (CGameInfo::FUN_00405d80() == 4)
-            pText = FUN_00473810(g_pKnockoutMatch, FUN_00422fb0(1));
+            Font_DrawText(2, FUN_00473810(g_pKnockoutMatch, FUN_00422fb0(1)), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
         else
-            pText = (char *)RallyData_GetRecord(FUN_00422fb0(1));
+            Font_DrawText(2, (char *)RallyData_GetRecord(FUN_00422fb0(1)), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     } else if ((BYTE)RallyData_FUN_00407e70() && (BYTE)RallyDataState() == 1) {
         if (RallyData_FUN_00408500(FUN_00422fb0(0)) == -1)
-            pText = (char *)RallyData_GetRecord(FUN_00422fb0(0));
+            Font_DrawText(2, (char *)RallyData_GetRecord(FUN_00422fb0(0)), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
         else
-            pText = CAIHelper::GetNameForID(FUN_00422fb0(0));
+            Font_DrawText(2, CAIHelper::GetNameForID(FUN_00422fb0(0)), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     } else if (CGameInfo::FUN_00405d80() == 4) {
         if (!FUN_00473790(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))))
-            pText = FUN_004736b0(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0)));
+            Font_DrawText(2, FUN_004736b0(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
         else
-            pText = FUN_00473810(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0)));
+            Font_DrawText(2, FUN_00473810(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     } else if ((BYTE)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00()) {
         FUN_004125a0(StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_00422fb0(0)));
         Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
@@ -577,21 +580,22 @@ void FUN_0044b7b0(Menu *pMenu)
     } else {
         result = RallyData_FUN_00408500(FUN_00422fb0(0) + FUN_0041b370());
         if (result == -1)
-            pText = (char *)RallyData_GetRecord(FUN_00422fb0(0) + FUN_0041b370());
+            Font_DrawText(2, (char *)RallyData_GetRecord(FUN_00422fb0(0) + FUN_0041b370()), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
         else
-            pText = CAIHelper::GetNameForID(RallyData_FUN_00408500(FUN_00422fb0(0) + FUN_0041b370()));
+            Font_DrawText(2, CAIHelper::GetNameForID(RallyData_FUN_00408500(FUN_00422fb0(0) + FUN_0041b370())), x,
+                          (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     }
-    Font_DrawText(2, pText, x, (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     Font_SetBlendMode(2);
 }
 
 // Draw callback of the "waiting for the other players" screen.
-// TODO: CMR2 0x0044bc30 (implemented, match 81%)
+// FUNCTION: CMR2 0x0044bc30
 void FUN_0044bc30(Menu *pMenu)
 {
     Font_DrawText(2, CFrontend::GetTextString(0x47), (int)(g_pGraphics->resX * 30) / 640,
                   (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
-    Font_DrawText(2, CFrontend::GetTextString(0xfa), g_pGraphics->resX / 2, g_pGraphics->resY / 2,
+    Font_DrawText(2, CFrontend::GetTextString(0xfa), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
                   (int *)g_menuFrameColour, 0x12);
     Font_SetBlendMode(2);
 }
@@ -602,11 +606,10 @@ extern char g_minSecMSECFormatString[];
 
 // Split times of the two drivers of the current arcade knockout match, side
 // by side: name, split times, total.
-// TODO: CMR2 0x0044cdb0 (implemented, match 89%)
+// FUNCTION: CMR2 0x0044cdb0
 void FUN_0044cdb0(void)
 {
     char names[2][20];
-    char *pName;
     int car;
     int x;
     int split;
@@ -615,15 +618,14 @@ void FUN_0044cdb0(void)
     if (RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f) == -1 &&
         RallyData_FUN_00408500((g_pKnockoutMatch->flags >> 5) & 0x1f) == -1) {
         sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
-        pName = (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f));
+        sprintf(names[1], (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f)));
     } else if (RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f) == -1) {
         sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
-        pName = CAIHelper::GetNameForID(RallyData_FUN_00408500((g_pKnockoutMatch->flags >> 5) & 0x1f));
+        sprintf(names[1], CAIHelper::GetNameForID(RallyData_FUN_00408500((g_pKnockoutMatch->flags >> 5) & 0x1f)));
     } else {
         sprintf(names[0], (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f)));
-        pName = CAIHelper::GetNameForID(RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f));
+        sprintf(names[1], CAIHelper::GetNameForID(RallyData_FUN_00408500(g_pKnockoutMatch->flags & 0x1f)));
     }
-    sprintf(names[1], pName);
     for (car = 0; car < 2; car++) {
         x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
         Font_DrawText(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
@@ -920,8 +922,6 @@ void FUN_0044d790(Menu *pMenu)
     int best;
     int winner;
     int i;
-    char *pName;
-    char *pText;
     int resY;
 
     best = 0x10;
@@ -930,8 +930,7 @@ void FUN_0044d790(Menu *pMenu)
     if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6) {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
                               CFrontend::GetTextString(0x49), CFrontend::GetTextString(0x46), 0);
-        pText = CFrontend::GetTextString(0x4a);
-        pName = g_unk0x00519edc;
+        sprintf(CFrontend::m_stringDest, g_winnerFormat, g_unk0x00519edc, CFrontend::GetTextString(0x4a));
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
                               CFrontend::GetTextString(0x49), 0);
@@ -941,10 +940,9 @@ void FUN_0044d790(Menu *pMenu)
                 winner = i;
             }
         }
-        pText = CFrontend::GetTextString(0x4a);
-        pName = (char *)RallyData_GetRecord(winner);
+        sprintf(CFrontend::m_stringDest, g_winnerFormat, (char *)RallyData_GetRecord(winner),
+                CFrontend::GetTextString(0x4a));
     }
-    sprintf(CFrontend::m_stringDest, g_winnerFormat, pName, pText);
     CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
     resY = g_pGraphics->resY;
     Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
@@ -954,11 +952,11 @@ void FUN_0044d790(Menu *pMenu)
 
 // Draw callback of the scrolling stage split table: driver, split time, car
 // and position ("=" when the time equals the previous row's).
-// TODO: CMR2 0x0044d960 (implemented, match 87%)
+// FUNCTION: CMR2 0x0044d960
 void FUN_0044d960(Menu *pMenu)
 {
     char stage[80];
-    BOOL isPlayer;
+    bool isPlayer;
     int rows;
     int row;
     int pos;
@@ -966,7 +964,7 @@ void FUN_0044d960(Menu *pMenu)
     int time;
     int player;
 
-    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    rows = (g_unk0x005413f8 | g_unk0x0053f5a8) ? 5 : 6;
     FUN_0044b760();
     if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
         if (RallyDataStageIndex() == 10)
@@ -999,10 +997,10 @@ void FUN_0044d960(Menu *pMenu)
         }
         id = StageTiming_GetDriverIDForPosition(pos);
         time = StageTiming_GetTimeForPosition(pos);
-        isPlayer = FALSE;
+        isPlayer = false;
         for (player = 0; player < CGameInfo::FUN_00405d70(); player++) {
             if (StageTiming_GetCurrentSplitPositionOfDriver(player) == pos) {
-                isPlayer = TRUE;
+                isPlayer = true;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
                 goto found;
             }
@@ -1168,44 +1166,43 @@ int g_unk0x005413f8;
 // the position in item 0, each with the driver, its points, its car and its
 // position; rows of the human drivers are highlighted and the top five are
 // separated from the rest.
-// TODO: CMR2 0x0044efa0 (implemented, match 82%)
+// FUNCTION: CMR2 0x0044efa0
 void FUN_0044efa0(Menu *pMenu)
 {
-    BOOL isPlayer;
+    bool isPlayer;
     int rows;
     int row;
     int pos;
     int id;
     int points;
     int player;
-    BYTE first;
+    int x;
 
-    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    rows = (g_unk0x005413f8 | g_unk0x0053f5a8) ? 5 : 6;
     FUN_0044b760();
-    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+    GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                           CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x41),
                           CFrontend::GetTextString(0x8d), 0);
     for (row = 0; row < rows; row++) {
         if (g_unk0x0053f5a8 != 0) {
-            first = pMenu->items[0].max;
             row++;
-            pos = (first - 1) + row;
+            pos = (pMenu->items[0].max - 1) + row;
         } else {
             if (g_unk0x005413f8 != 0)
                 row++;
-            first = pMenu->items[0].max;
-            pos = first + row;
+            pos = pMenu->items[0].max + row;
         }
-        if (pos < 6 || first > 5)
-            g_unk0x0053e698 = 0;
-        else
+        if (pos > 5 && pMenu->items[0].max < 6)
             g_unk0x0053e698 = (int)(g_pGraphics->resY * 10) / 480;
+        else
+            g_unk0x0053e698 = 0;
         id = RallyTiming_GetOverallPositionDriverID(pos);
         points = RallyTiming_GetStagePenalty(id, RallyDataCountryIndex());
-        isPlayer = FALSE;
+        isPlayer = false;
         for (player = 0; player < CGameInfo::FUN_00405d70(); player++) {
             if (RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(player)) == pos) {
-                isPlayer = TRUE;
+                isPlayer = true;
                 strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(player));
                 goto found;
             }
@@ -1259,10 +1256,10 @@ void FUN_0044efa0(Menu *pMenu)
 }
 
 // Same as FUN_0044efa0 for the overall rally times table.
-// TODO: CMR2 0x0044fea0 (implemented, match 83%)
+// FUNCTION: CMR2 0x0044fea0
 void FUN_0044fea0(Menu *pMenu)
 {
-    BOOL isPlayer;
+    bool isPlayer;
     int x;
     int rows;
     int row;
@@ -1271,10 +1268,9 @@ void FUN_0044fea0(Menu *pMenu)
     int time;
     int player;
     int slot;
-    BYTE first;
 
     x = (int)(g_pGraphics->resX * 30) / 640;
-    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    rows = (g_unk0x0053f5a8 | g_unk0x005413f8) ? 5 : 6;
     FUN_0044b760();
     if (!g_unk0x00541210 || !g_unk0x00540898)
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
@@ -1285,16 +1281,14 @@ void FUN_0044fea0(Menu *pMenu)
                               CFrontend::GetTextString(0xef), 0);
     for (row = 0; row < rows; row++) {
         if (g_unk0x0053f5a8 != 0) {
-            first = pMenu->items[0].max;
             row++;
-            pos = (first - 1) + row;
+            pos = (pMenu->items[0].max - 1) + row;
         } else {
             if (g_unk0x005413f8 != 0)
                 row++;
-            first = pMenu->items[0].max;
-            pos = first + row;
+            pos = pMenu->items[0].max + row;
         }
-        if (pos < 6 || first > 5)
+        if (pos <= 5 || pMenu->items[0].max >= 6)
             g_unk0x0053e698 = 0;
         else
             g_unk0x0053e698 = (int)(g_pGraphics->resY * 10) / 480;
@@ -1440,7 +1434,7 @@ void FUN_004505b0(Menu *pMenu)
 
 // Draw callback of the championship standings screen: the best driver's
 // position decides between the "champion" and "rally over" headers.
-// TODO: CMR2 0x00450c10 (implemented, match 78%)
+// TODO: CMR2 0x00450c10 (implemented, match 86%)
 void FUN_00450c10(Menu *pMenu)
 {
     char position[100];
@@ -1458,7 +1452,7 @@ void FUN_00450c10(Menu *pMenu)
     FUN_0044b760();
     best = 99;
     i = 0;
-    slot = 99;
+    slot = best;
     if (CGameInfo::FUN_00405d70() != 0) {
         slot = 0xf;
         do {
@@ -1469,8 +1463,12 @@ void FUN_00450c10(Menu *pMenu)
         } while (i < CGameInfo::FUN_00405d70());
         slot = best;
     }
-    GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
-                          CFrontend::GetTextString(0x41), CFrontend::GetTextString(slot < 6 ? 0x49 : 0x88), 0);
+    if (slot < 6)
+        GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x49), 0);
+    else
+        GameMenus_DrawTextRow(x, y, CFrontend::GetTextString(RallyDataCountryIndex() & 0xff),
+                              CFrontend::GetTextString(0x41), CFrontend::GetTextString(0x88), 0);
     for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
         place = RallyTiming_GetOverallPositionOfDriver(StageTiming_GetDriverSlot(i));
         switch (place) {
@@ -1526,10 +1524,11 @@ BYTE g_unk0x005418c4[0x10];
 // Draw callback of the scrolling stage points table: driver, car, points and
 // position; tied drivers get the tie-break note (count-back) and "=" instead
 // of their position.
-// TODO: CMR2 0x00450ef0 (implemented, match 85%)
+// FUNCTION: CMR2 0x00450ef0
 void FUN_00450ef0(Menu *pMenu)
 {
-    BOOL isPlayer;
+    bool isPlayer;
+    int x;
     int rows;
     int row;
     int pos;
@@ -1538,9 +1537,10 @@ void FUN_00450ef0(Menu *pMenu)
     int player;
     int i;
 
-    rows = 6 - (g_unk0x0053f5a8 != 0 || g_unk0x005413f8 != 0);
+    x = (int)(g_pGraphics->resX * 30) / 640;
+    rows = (g_unk0x005413f8 | g_unk0x0053f5a8) ? 5 : 6;
     FUN_0044b760();
-    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 0x43) / 480,
+    GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
                           CFrontend::GetTextString(RallyDataCountryIndex() & 0xff), CFrontend::GetTextString(0x42),
                           CFrontend::GetTextString(0x8d), 0);
     i = 0;
@@ -1633,7 +1633,7 @@ void FUN_00450ef0(Menu *pMenu)
 }
 
 // Draw callback of the final championship standings (header menu) screen.
-// TODO: CMR2 0x00451690 (implemented, match 78%)
+// TODO: CMR2 0x00451690 (implemented, match 81%)
 void FUN_00451690(Menu *pMenu)
 {
     char position[100];
@@ -1642,37 +1642,37 @@ void FUN_00451690(Menu *pMenu)
     int place;
     int resY;
 
-    if (g_pHeaderMenu != &g_menu0x0053f790) {
+    if (g_pHeaderMenu == &g_menu0x0053f790) {
+        FUN_0044b760();
+        GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
+                              CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
+        for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+            place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
+            switch (place) {
+            case 0:
+                pPosition = CFrontend::GetTextString(0x51);
+                break;
+            case 1:
+                pPosition = CFrontend::GetTextString(0x52);
+                break;
+            case 2:
+                pPosition = CFrontend::GetTextString(0x53);
+                break;
+            default:
+                sprintf(position, CFrontend::GetTextString(0x54), place + 1);
+                pPosition = position;
+                break;
+            }
+            sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
+            CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+            resY = g_pGraphics->resY;
+            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
+                          (resY * 242) / 480 + ((resY * 10) / 480 + Font_GetLineHeight(0)) * (i + 1),
+                          (int *)g_menuFrameColour, 0x11);
+        }
+    } else {
         if (!FUN_00407270())
             FUN_0044b760();
-        return;
-    }
-    FUN_0044b760();
-    GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
-                          CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
-    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
-        place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
-        switch (place) {
-        case 0:
-            pPosition = CFrontend::GetTextString(0x51);
-            break;
-        case 1:
-            pPosition = CFrontend::GetTextString(0x52);
-            break;
-        case 2:
-            pPosition = CFrontend::GetTextString(0x53);
-            break;
-        default:
-            sprintf(position, CFrontend::GetTextString(0x54), place + 1);
-            pPosition = position;
-            break;
-        }
-        sprintf(CFrontend::m_stringDest, g_standingsRowFormat, (char *)RallyData_GetRecord(i), pPosition);
-        CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
-        resY = g_pGraphics->resY;
-        Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 30) / 640,
-                      (resY * 242) / 480 + ((resY * 10) / 480 + Font_GetLineHeight(0)) * (i + 1),
-                      (int *)g_menuFrameColour, 0x11);
     }
 }
 
@@ -1698,11 +1698,11 @@ unsigned int RallyData_FUN_004082e0(void);
 // Draw callback of the stage classification table: one boxed row per car
 // with its name, time (or target time, or points) and car, the players'
 // rows highlighted, and the position number on the left ("=" for a tie).
-// TODO: CMR2 0x00451df0 (implemented, match 87%)
+// FUNCTION: CMR2 0x00451df0
 void FUN_00451df0(Menu *pMenu)
 {
     char diff[12];
-    BOOL isPlayer;
+    bool isPlayer;
     int i;
     int next;
     int car;
@@ -1791,15 +1791,13 @@ KnockoutMatch *g_pKnockoutMatch;
 
 // Draw callback of the arcade knockout match result: who won, and whether
 // the player goes through to the next round (or wins the final).
-// TODO: CMR2 0x004529c0 (implemented, match 59%)
+// FUNCTION: CMR2 0x004529c0
 void FUN_004529c0(Menu *pMenu)
 {
     char name[4];
     unsigned int *pState;
     int x;
     int y;
-    BYTE driver;
-    int lineHeight;
 
     x = (int)(g_pGraphics->resX * 30) / 640;
     y = (int)(g_pGraphics->resY * 242) / 480;
@@ -1807,24 +1805,29 @@ void FUN_004529c0(Menu *pMenu)
     FUN_0044b760();
     if (FUN_00472990(g_pKnockoutMatch)) {
         Font_DrawText(2, CFrontend::GetTextString(0x49), x, y, (int *)g_menuFrameColour, 0x11);
-        if (g_pKnockoutMatch->time1 > g_pKnockoutMatch->time2)
-            driver = FUN_0041b370() + ((BYTE)(g_pKnockoutMatch->flags >> 5) & 0x1f);
+        if (g_pKnockoutMatch->time1 <= g_pKnockoutMatch->time2)
+            sprintf(name, (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
         else
-            driver = FUN_0041b370() + ((BYTE)g_pKnockoutMatch->flags & 0x1f);
-        sprintf(name, (char *)RallyData_GetRecord(driver));
-        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString((*pState & 0x38) < 0x20 ? 0x7e : 0x7d), name);
+            sprintf(name, (char *)RallyData_GetRecord(FUN_0041b370() + ((g_pKnockoutMatch->flags >> 5) & 0x1f)));
+        if ((*pState & 0x38) >= 0x20)
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7d), name);
+        else
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7e), name);
         CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 5) / 480 + (y + Font_GetLineHeight(0)),
+                      (int *)g_menuFrameColour, 0x11);
     } else {
         sprintf(name, (char *)RallyData_GetRecord(FUN_0041b370() + (g_pKnockoutMatch->flags & 0x1f)));
         sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x88), name);
         Font_DrawText(2, CFrontend::m_stringDest, x, y, (int *)g_menuFrameColour, 0x11);
-        sprintf(CFrontend::m_stringDest,
-                CFrontend::GetTextString((*pState & 0x38) < 0x20 && (*pState & 7) != 1 ? 0x91 : 0x92));
+        if ((*pState & 0x38) < 0x20 && (*pState & 7) != 1)
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91));
+        else
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x92));
         CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
+        Font_DrawText(0, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 5) / 480 + (y + Font_GetLineHeight(0)),
+                      (int *)g_menuFrameColour, 0x11);
     }
-    lineHeight = Font_GetLineHeight(0);
-    Font_DrawText(0, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 5) / 480 + y + lineHeight,
-                  (int *)g_menuFrameColour, 0x11);
 }
 
 int FUN_0041bf50(int index);
@@ -1906,11 +1909,11 @@ int FUN_0040ced0(int index);
 
 // Draw callback of the rally points table: every car in rally order with its
 // car, points, tie-break note (count-back) and position ("=" for a tie).
-// TODO: CMR2 0x004530e0 (implemented, match 86%)
+// FUNCTION: CMR2 0x004530e0
 void FUN_004530e0(Menu *pMenu)
 {
-    BOOL isPlayer;
-    BOOL tied;
+    bool isPlayer;
+    bool tied;
     int i;
     int j;
     int id;
@@ -1995,10 +1998,10 @@ unsigned int RallyData_FUN_00406940(void);
 // Draw callback of the rally results screen: "stage N of the rally" with the
 // rally name between two separator bars (before the first driver in the top
 // three), then one line per driver with its rally position.
-// TODO: CMR2 0x00453830 (implemented, match 80%)
+// FUNCTION: CMR2 0x00453830
 void FUN_00453830(Menu *pMenu)
 {
-    BOOL shown;
+    bool shown;
     int x;
     int place;
     int i;
@@ -2028,7 +2031,8 @@ void FUN_00453830(Menu *pMenu)
             strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
             Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 242) / 480,
                           (int *)g_menuFrameColour, 0x11);
-            x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest) + (int)(g_pGraphics->resX * 8) / 640;
+            x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+            x += (int)(g_pGraphics->resX * 8) / 640;
             g_menuRect[0] = (short)x;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
             x += (int)(g_pGraphics->resX * 8) / 640;
@@ -2709,33 +2713,29 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
 }
 
 // Draws a row of strings at (x, y), separated by a thin vertical bar.
-// TODO: CMR2 0x00454df0 (implemented, match 61%)
+// TODO: CMR2 0x00454df0 (implemented, match 82%)
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 {
     int width;
 
     g_menuRect[2] = 2;
-    g_menuRect[1] = (short)y - (short)((int)(g_pGraphics->resY * 0x1e) / 0x1e0);
-    g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);
-    if (pText != NULL) {
-        char **ppNext = &pText;
-        char *pCur = pText;
-
-        for (;;) {
-            CGenericFileLoader::StrLowerPolish(pCur);
-            Font_DrawText(2, pCur, x, y, (int *)g_menuFrameColour, 0x11);
-            sprintf(CFrontend::m_stringDest, pCur);
-            pCur = ppNext[1];
-            ppNext++;
-            if (pCur == NULL) {
-                break;
-            }
-            width = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
-            width = (int)(g_pGraphics->resX * 8) / 0x280 + x + width;
-            g_menuRect[0] = (short)width;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
-            x = width + 2 + (int)(g_pGraphics->resX * 8) / 0x280;
+    g_menuRect[1] = y - (int)(g_pGraphics->resY * 0x1e) / 0x1e0;
+    g_menuRect[3] = (int)(g_pGraphics->resY * 0x29) / 0x1e0;
+    char *pCur = pText;
+    char **ppNext = &pText;
+    while (pCur != NULL) {
+        CGenericFileLoader::StrLowerPolish(pCur);
+        Font_DrawText(2, pCur, x, y, (int *)g_menuFrameColour, 0x11);
+        sprintf(CFrontend::m_stringDest, pCur);
+        pCur = ppNext[1];
+        ppNext++;
+        if (pCur == NULL) {
+            break;
         }
+        width = (int)(g_pGraphics->resX * 8) / 0x280 + x + Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+        g_menuRect[0] = (short)width;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
+        x = width + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
     }
 }
 
@@ -2783,6 +2783,7 @@ void FUN_00449ce0(Menu *pMenu)
     DeviceInfo *pDevice;
     int key;
     int len;
+    int maxLen;
 
     if (g_unk0x00540e48) {
         pDevice = CInput::FUN_0049ead0(0);
@@ -2830,7 +2831,8 @@ void FUN_00449ce0(Menu *pMenu)
         if (strchr(g_chatChars0x00519ee8, (char)key) == NULL)
             break;
         len = Font_GetTextWidth(0, (BYTE *)g_chatLine);
-        if (g_chatLineLength < 0xff && len < ((int)g_pGraphics->resX >= 0x400 ? 0x210 : 0x14a)) {
+        maxLen = (int)g_pGraphics->resX >= 0x400 ? 0x210 : 0x14a;
+        if (g_chatLineLength < 0xff && len < maxLen) {
             g_chatLine[g_chatLineLength] = (char)key;
             g_chatLine[g_chatLineLength + 1] = 0;
             g_chatLineLength++;
@@ -2921,13 +2923,13 @@ char g_nameSeparator0x00519f44[] = " - ";
 // TODO: CMR2 0x0044b3a0 (implemented, match 89%)
 void FUN_0044b3a0(void)
 {
-    int lineHeight;
     int y;
     int x;
     int resY;
     int i;
     int position;
     unsigned int *pResY;
+    int lineHeight;
 
     x = (int)(g_pGraphics->resX * 30) / 640;
     y = (int)(g_pGraphics->resY * 242) / 480;
@@ -3162,12 +3164,11 @@ void FUN_0044b270(void)
             }
         }
         time = g_stageResultTimes[i];
-        record = g_stageResultRecords[best];
         g_stageResultTimes[i] = g_stageResultTimes[best];
         g_stageResultTimes[best] = time;
-        recordI = g_stageResultRecords[i];
-        g_stageResultRecords[i] = record;
-        g_stageResultRecords[best] = recordI;
+        record = g_stageResultRecords[i];
+        g_stageResultRecords[i] = g_stageResultRecords[best];
+        g_stageResultRecords[best] = record;
     }
 }
 

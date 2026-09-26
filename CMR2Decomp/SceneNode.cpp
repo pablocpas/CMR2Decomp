@@ -100,7 +100,7 @@ int g_rotAxisYZ;
         }                                                                             \
     }
 
-// TODO: CMR2 0x004ac820 (implemented, match 65%)
+// FUNCTION: CMR2 0x004ac820
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles)
 {
     int rx, ry, rz;
@@ -425,11 +425,10 @@ SceneNode *SceneNode_Create(SceneNode *pParent)
 }
 
 // Moves pNode (and its subtree) under pNewParent.
-// TODO: CMR2 0x004ac7a0 (implemented, match 21%)
+// FUNCTION: CMR2 0x004ac7a0
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
 {
     SceneNode *p;
-    SceneNode *pNext;
 
     if (pNode == NULL)
         return 0;
@@ -441,10 +440,10 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
     if (p == pNode) {
         pNode->pParent->pFirstChild = pNode->pNext;
     } else {
-        for (pNext = p->pNext; pNext != pNode; pNext = pNext->pNext) {
-            if (pNext == NULL)
+        while (p->pNext != pNode) {
+            p = p->pNext;
+            if (p == NULL)
                 return 0;
-            p = pNext;
         }
         p->pNext = pNode->pNext;
     }
@@ -743,7 +742,7 @@ DWORD *g_sceneShadowTable;          // shadow colour at each level
 DWORD *g_sceneShadowTableD3D;
 
 // Rebuilds the light and shadow colour tables.
-// TODO: CMR2 0x004b3940 (implemented, match 82%)
+// FUNCTION: CMR2 0x004b3940
 void Scene_BuildLightTables(void)
 {
     FixVector c;
@@ -879,7 +878,7 @@ void Scene_UpdateShadowColour(int boost)
 }
 
 // Sets the ambient colour of the scene (RGBA bytes).
-// TODO: CMR2 0x004b3740 (implemented, match 64%)
+// FUNCTION: CMR2 0x004b3740
 void Scene_SetAmbient(BYTE *pColour, int boost)
 {
     g_sceneAmbientD3D = ((((DWORD)pColour[3] << 8 | pColour[0]) << 8) | pColour[1]) << 8 | pColour[2];
@@ -890,12 +889,12 @@ void Scene_SetAmbient(BYTE *pColour, int boost)
     g_sceneAmbientColour[1] = pColour[1];
     g_sceneAmbientColour[2] = pColour[2];
     g_sceneAmbientColour[3] = pColour[3];
-    g_sceneAmbient.x = pColour[0] << 16;
-    g_sceneLightColour.x = g_sceneLight.x - (pColour[0] << 16);
-    g_sceneAmbient.y = pColour[1] << 16;
-    g_sceneLightColour.y = g_sceneLight.y - (pColour[1] << 16);
-    g_sceneAmbient.z = pColour[2] << 16;
-    g_sceneLightColour.z = g_sceneLight.z - (pColour[2] << 16);
+    g_sceneAmbient.x = g_sceneAmbientColour[0] << 16;
+    g_sceneLightColour.x = g_sceneLight.x - g_sceneAmbient.x;
+    g_sceneAmbient.y = g_sceneAmbientColour[1] << 16;
+    g_sceneLightColour.y = g_sceneLight.y - g_sceneAmbient.y;
+    g_sceneAmbient.z = g_sceneAmbientColour[2] << 16;
+    g_sceneLightColour.z = g_sceneLight.z - g_sceneAmbient.z;
     Scene_UpdateShadowColour(boost);
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
 }
@@ -996,7 +995,7 @@ extern int g_unk0x005210c0;
 // Relights a sector when the scene ambient or light colour changed since its
 // last update (ground mesh, static objects, nodes), then its shadow mesh,
 // attenuated by D3D light 1 through the sector light zone when enabled.
-// TODO: CMR2 0x004b3c00 (implemented, match 40%)
+// FUNCTION: CMR2 0x004b3c00
 void Scene_RelightSector(int sector)
 {
     Sector *pSector;
@@ -1181,7 +1180,7 @@ static __forceinline void ShadowPart_Init(ShadowPart *pPart)
 
 // Registers pNode and every mesh below it as a shadow caster (at most 29). Small
 // objects (flags type <= 4) use a cylinder around the mesh unless exactMeshes is set.
-// TODO: CMR2 0x004b45d0 (implemented, match 55%)
+// FUNCTION: CMR2 0x004b45d0
 void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
 {
     ShadowCaster *pCaster;
@@ -1256,7 +1255,7 @@ char g_strShadowMeshName[] = "SHAD%d";
 // the shadow zones (one per sector with a shadow mesh). Offsets in the data
 // are turned into pointers, zones are matched to their sector and their
 // items to the scene objects there, and a shadow mesh is built for each.
-// TODO: CMR2 0x004b4aa0 (implemented, match 34%)
+// FUNCTION: CMR2 0x004b4aa0
 void Scene_LoadLighting(int *pData)
 {
     BYTE *pZone;
@@ -1657,7 +1656,7 @@ void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b)
 
 // Light level (0..1) of one corner of a mesh triangle for a light direction:
 // four times the dot product of its vertex normal with pDir, clamped.
-// TODO: CMR2 0x004b4040 (implemented, match 85%)
+// FUNCTION: CMR2 0x004b4040
 int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int corner)
 {
     float *pVertex;
@@ -1668,7 +1667,7 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
     normal.x = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
     normal.y = (int)(__int64)(pVertex[4] * CGraphics::m_65536);
     normal.z = (int)(__int64)(pVertex[5] * CGraphics::m_65536);
-    level = FixMul(FixVecDot(&normal, pDir), 0x40000);
+    level = FixMul(FixVecDot(pDir, &normal), 0x40000);
     if (level < 0)
         return 0;
     if (level > 0x10000)
@@ -1678,7 +1677,7 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 // Light level and colour of the ground at a position: those of the nearest
 // (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
-// TODO: CMR2 0x004b3860 (implemented, match 41%)
+// FUNCTION: CMR2 0x004b3860
 DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 {
     Mesh *pMesh;
@@ -1689,24 +1688,27 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     float dz;
     float d2;
     float best;
+    float x;
+    float z;
     BYTE rgb[4];
-    int x;
-    int z;
     int i;
 
     *pLevel = 0x10000;
-    x = pPos->x;
+    x = (float)pPos->x * CGraphics::m_oneOver65536;
     pNearest = NULL;
-    *(DWORD *)rgb = 0xffffff;
+    rgb[0] = 0xff;
+    rgb[1] = 0xff;
+    rgb[2] = 0xff;
+    rgb[3] = 0;
     best = 32000.0f;
-    z = pPos->z;
+    z = (float)pPos->z * CGraphics::m_oneOver65536;
     pMesh = (Mesh *)g_sectors[(short)Sector_FromPosition(pPos)]->pMesh;
     if (pMesh != NULL) {
         pVertex = (float *)pMesh->pVertexData;
         pVertexLevel = pMesh->pLightLevels;
         for (i = 0; i < pMesh->field_0x10; i++) {
-            dx = pVertex[0] - (float)x * (float)CGraphics::m_oneOver65536;
-            dz = pVertex[2] - (float)z * (float)CGraphics::m_oneOver65536;
+            dx = pVertex[0] - x;
+            dz = pVertex[2] - z;
             d2 = dx * dx + dz * dz;
             if (d2 < best) {
                 *pLevel = *pVertexLevel;
@@ -1727,7 +1729,7 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 
 // Frees every shadow caster (with its per-part buffers) and every cached
 // shadow cylinder.
-// TODO: CMR2 0x004b5380 (implemented, match 48%)
+// FUNCTION: CMR2 0x004b5380
 void Scene_FreeShadowCasters(void)
 {
     int *p;
@@ -1803,7 +1805,7 @@ void FUN_004a3dd0(void);
 
 // Draws the shadow batches visible in view `view` (bit of each batch mask),
 // with the batch texture forced to blend mode 10.
-// TODO: CMR2 0x004b6240 (implemented, match 72%)
+// FUNCTION: CMR2 0x004b6240
 void Scene_DrawShadowBatches(BYTE view)
 {
     Texture *pTexture;
@@ -1860,7 +1862,7 @@ D3DMATERIAL7 g_sceneMaterial;
 
 // Restores the D3D lights, the default material and the ambient colour
 // after the device was (re)created.
-// TODO: CMR2 0x004b2e50 (implemented, match 80%)
+// FUNCTION: CMR2 0x004b2e50
 void Scene_RestoreLights(void)
 {
     void **pSlot;
@@ -1905,13 +1907,16 @@ int g_viewSetupMode;
 
 // Sets the Direct3D view transform from a moved camera node (inverse of its
 // world matrix), unless the view setup mode is 5 or more.
-// TODO: CMR2 0x004ade00 (implemented, match 44%)
+// FUNCTION: CMR2 0x004ade00
+// FUNCTION: CMR2 0x004ade00
 void Scene_SetViewFromCamera(SceneNode *pCamera)
 {
     float view[16];
+    D3DMATRIX *pView;
 
     if (g_viewSetupMode < 5 && pCamera->dirty != 0) {
         FixMatrix_Invert(&CGraphics::m_pTextureManager->viewMatrix, &pCamera->world);
+        pView = (D3DMATRIX *)view;
         view[0] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[0] * CGraphics::m_oneOver65536;
         view[1] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[1] * CGraphics::m_oneOver65536;
         view[2] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[2] * CGraphics::m_oneOver65536;
@@ -1928,7 +1933,7 @@ void Scene_SetViewFromCamera(SceneNode *pCamera)
         view[13] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[13] * CGraphics::m_oneOver65536;
         view[14] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[14] * CGraphics::m_oneOver65536;
         view[15] = (float)((int *)&CGraphics::m_pTextureManager->viewMatrix)[15] * CGraphics::m_oneOver65536;
-        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX *)view);
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX *)&view[0]);
     }
 }
 
@@ -2009,6 +2014,7 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
                     }
                     pNode->dirty = 0;
                 }
+                break;
             }
         }
     next:
@@ -2055,7 +2061,7 @@ extern const double g_unk0x00511380;
 // The conversions to 16.16 go through __int64, which is the original's fistp
 // rounding. The two shortest loops stop one entry short of the table size,
 // like the original does.
-// TODO: CMR2 0x004b7b20 (implemented, match 68%)
+// FUNCTION: CMR2 0x004b7b20
 void FUN_004b7b20(void)
 {
     int i;
@@ -2069,11 +2075,11 @@ void FUN_004b7b20(void)
     g_tanTable[3072] = 0x7fffffff;
     g_tanTable[1024] = 0x7fffffff;
 
-    for (i = 0; i < 4095; i++) {
+    for (i = 0; i < 4096; i++) {
         g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * g_unk0x00511310) * CGraphics::m_65536);
     }
 
-    for (i = 0; i < 4095; i++) {
+    for (i = 0; i < 4096; i++) {
         value = (double)(int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
         g_acosTable[i] = (short)(__int64)(value * g_unk0x00511380);
     }

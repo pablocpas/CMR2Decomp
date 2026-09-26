@@ -198,27 +198,23 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
 }
 
 // Removes a scene node from the linked list of its current sector.
-// TODO: CMR2 0x004b8aa0 (implemented, match 82%)
+// FUNCTION: CMR2 0x004b8aa0
 void Sector_RemoveNode(SceneNode *pNode)
 {
     short sectorIndex = pNode->sector;
     Sector *sector = g_sectors[sectorIndex];
     SceneNode *current = sector->pFirstNode;
-    SceneNode *previous;
-
+    SceneNode *previous = NULL;
     if (current != pNode) {
         do {
             previous = current;
             current = previous->pNextInSector;
         } while (current != pNode);
-        if (previous != NULL)
-            goto remove_after;
     }
-    sector->pFirstNode = current->pNextInSector;
-    goto unlinked;
-remove_after:
-    previous->pNextInSector = current->pNextInSector;
-unlinked:
+    if (previous == NULL)
+        sector->pFirstNode = current->pNextInSector;
+    else
+        previous->pNextInSector = current->pNextInSector;
     g_sectors[sectorIndex]->nodeCount--;
     current->pNextInSector = NULL;
     current->sector = -1;
@@ -238,8 +234,8 @@ int Sector_IsVisible(int iSector)
 
 // Frees the part index lists of every sector mesh and clears the sector
 // table (registered callback of 0x4b8270).
-// TODO: CMR2 0x004b8540 (implemented, match 85%)
-int FUN_004b8540(void)
+// FUNCTION: CMR2 0x004b8540
+BYTE FUN_004b8540(void)
 {
     int i;
     int j;
@@ -248,7 +244,7 @@ int FUN_004b8540(void)
 
     for (i = 0; i < g_sectorCount; i++) {
         pModel = (BYTE *)g_sectors[i]->pMesh;
-        if (pModel != NULL && *(int *)(pModel + 0x100) > 0) {
+        if (pModel != NULL) {
             ppPart = (BYTE **)(pModel + 0x38);
             for (j = 0; j < *(int *)(pModel + 0x100); j++, ppPart++) {
                 CFileBuffer::FreeGenericFileBuffer(*(void **)(*ppPart + 0x14));
@@ -273,9 +269,11 @@ int Sector_FromPosition(FixVector *pPos)
     int col;
     int iSector;
 
-    offset = pPos->z - g_sectorHalfSize - g_sectorOriginZ;
+    // the subtrahend order matters: MSVC evaluates these two subtractions
+    // right to left, and the original binary has (z - halfSize) - originZ.
+    offset = pPos->z - g_sectorOriginZ - g_sectorHalfSize;
     if (offset < 0)
-        offset = g_sectorHalfSize - pPos->z + g_sectorOriginZ;
+        offset = g_sectorOriginZ - pPos->z + g_sectorHalfSize;
     row = FixMulShift32(offset, g_sectorScale);
 
     offset = pPos->x - g_sectorOriginX + g_sectorHalfSize;
@@ -292,7 +290,7 @@ int Sector_FromPosition(FixVector *pPos)
 // Re-evaluates which sector the node's world position falls in, records
 // the neighbouring sectors it overlaps (within 4.5 units) and moves the node
 // between the sector lists.
-// TODO: CMR2 0x004b8690 (implemented, match 68%)
+// TODO: CMR2 0x004b8690 (implemented, match 89%)
 void SceneNode_UpdateSector(SceneNode *pNode)
 {
     int n;
@@ -304,10 +302,8 @@ void SceneNode_UpdateSector(SceneNode *pNode)
     int c;
     SceneNode *p;
     SceneNode *pPrev;
-
     n = 0;
     iSector = pNode->sector;
-    pos.x = pNode->world.position.x;
     bLeft = 0;
     bRight = 0;
     pSector = g_sectors[iSector];
@@ -315,9 +311,10 @@ void SceneNode_UpdateSector(SceneNode *pNode)
     pNode->neighbourSectors[1] = -1;
     pNode->neighbourSectors[2] = -1;
     c = pSector->x;
-    if (pos.x < c - g_sectorHalfSize || c + g_sectorHalfSize < pos.x ||
+    if (pNode->world.position.x < c - g_sectorHalfSize || pNode->world.position.x > c + g_sectorHalfSize ||
         (c = pSector->z, pNode->world.position.z < c - g_sectorHalfSize) ||
-        c + g_sectorHalfSize < pNode->world.position.z) {
+        pNode->world.position.z > c + g_sectorHalfSize) {
+        pos.x = pNode->world.position.x;
         pos.y = pNode->world.position.y;
         pos.z = pNode->world.position.z;
         iSector = (short)Sector_FromPosition(&pos);
@@ -328,24 +325,24 @@ void SceneNode_UpdateSector(SceneNode *pNode)
         bLeft = 1;
         pNode->neighbourSectors[0] = iSector - 1;
         n = 1;
-    } else if (c + g_sectorHalfSize < pNode->world.position.x + 0x48000) {
+    } else if (pNode->world.position.x + 0x48000 > c + g_sectorHalfSize) {
         bRight = 1;
         pNode->neighbourSectors[0] = iSector + 1;
         n = 1;
     }
     c = pSector->z;
-    if (c + g_sectorHalfSize < pNode->world.position.z + 0x48000) {
-        pNode->neighbourSectors[n] = iSector - (short)g_sectorsPerRow;
+    if (pNode->world.position.z + 0x48000 > g_sectorHalfSize + c) {
+        pNode->neighbourSectors[n++] = iSector - (short)g_sectorsPerRow;
         if (bLeft)
-            pNode->neighbourSectors[n + 1] = iSector - (short)g_sectorsPerRow - 1;
+            pNode->neighbourSectors[n] = iSector - (short)g_sectorsPerRow - 1;
         else if (bRight)
-            pNode->neighbourSectors[n + 1] = iSector - (short)g_sectorsPerRow + 1;
+            pNode->neighbourSectors[n] = iSector - (short)g_sectorsPerRow + 1;
     } else if (pNode->world.position.z - 0x48000 < c - g_sectorHalfSize) {
-        pNode->neighbourSectors[n] = iSector + (short)g_sectorsPerRow;
+        pNode->neighbourSectors[n++] = iSector + (short)g_sectorsPerRow;
         if (bLeft)
-            pNode->neighbourSectors[n + 1] = iSector + (short)g_sectorsPerRow - 1;
+            pNode->neighbourSectors[n] = iSector + (short)g_sectorsPerRow - 1;
         else if (bRight)
-            pNode->neighbourSectors[n + 1] = iSector + (short)g_sectorsPerRow + 1;
+            pNode->neighbourSectors[n] = iSector + (short)g_sectorsPerRow + 1;
     }
 
     if (iSector != pNode->sector && iSector >= 0 && iSector < g_sectorCount) {
@@ -378,6 +375,7 @@ void SceneNode_UpdateSector(SceneNode *pNode)
             pNode->sector = iSector;
         }
     }
+
 }
 
 
@@ -561,16 +559,17 @@ void FUN_004b8b10(SceneNode *pNode)
     pos.z = pNode->world.position.z;
     index = (short)Sector_FromPosition(&pos);
     pSector = g_sectors[index];
-    if (pSector->pFirstNode == NULL) {
+    if (pSector->pFirstNode == NULL)
         pSector->pFirstNode = pNode;
-    } else {
-        pLast = pSector->pFirstNode;
-        while (pLast->pNextInSector != NULL)
-            pLast = pLast->pNextInSector;
+    else {
+        for (pLast = pSector->pFirstNode; pLast->pNextInSector != NULL;
+             pLast = pLast->pNextInSector)
+            ;
         pLast->pNextInSector = pNode;
     }
     g_sectors[index]->nodeCount++;
     pNode->sector = (WORD)index;
+
 }
 
 // Visible sector indices collected by 0x004b7de0 (one short per sector).
@@ -582,7 +581,7 @@ int Tri2D_Contains(int *pPoint, int *pTri);
 // position and marks every sector whose bounding rectangle overlaps the screen
 // triangle built from the node position and the "radius" (the fixed far plane
 // distance), storing the squared distance of each marked sector.
-// TODO: CMR2 0x004b7de0 (implemented, match 67%)
+// TODO: CMR2 0x004b7de0 (implemented, match 68%)
 void FUN_004b7de0(SceneNode *pNode, int unused)
 {
     FixVector pos;
@@ -642,7 +641,7 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
         dir.y = 0;
         dir.z = 0;
     } else {
-        FixVecScale(&dir, &dir, (int)(0x100000000i64 / len));
+        FixVecScale(&dir, &dir, FixDiv(0x10000, len));
     }
     tri[0] = pNode->world.position.x;
     tri[1] = pNode->world.position.z;
@@ -687,16 +686,15 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
 }
 
 // Rebuilds the node list of every sector from the positions of the root's children.
-// TODO: CMR2 0x004b8450 (implemented, match 43%)
+// FUNCTION: CMR2 0x004b8450
 void Sector_RebuildNodeLists(void)
 {
     unsigned int i;
     Sector **ppSector;
     SceneNode *pNode;
     SceneNode *pLast;
-    FixVector pos;
-    short index;
-
+    FixVector pos = { 0, 0, 0 };
+    int index;
     for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
         if (g_sceneNodes[i] != NULL)
             g_sceneNodes[i]->pNextInSector = NULL;
@@ -711,9 +709,11 @@ void Sector_RebuildNodeLists(void)
     } while (ppSector < &g_sectors[4096]);
     for (pNode = CGraphics::m_pTextureManager->pRootNode->pFirstChild; pNode != NULL; pNode = pNode->pNext) {
         if ((BYTE)pNode->flags != 0xff) {
-            pos = pNode->current.position;
-            index = (short)Sector_FromPosition(&pos);
-            pNode->sector = index;
+            pos.x = pNode->current.position.x;
+            pos.y = pNode->current.position.y;
+            pos.z = pNode->current.position.z;
+            pNode->sector = (short)Sector_FromPosition(&pos);
+            index = pNode->sector;
             if (g_sectors[index]->pFirstNode == NULL) {
                 g_sectors[index]->pFirstNode = pNode;
             } else {
@@ -722,14 +722,15 @@ void Sector_RebuildNodeLists(void)
                 pLast->pNextInSector = pNode;
             }
             g_sectors[index]->nodeCount++;
-            pNode->sector = index;
+            pNode->sector = (short)index;
         }
     }
+
 }
 
 // Up to three sectors next to the one containing pPos that lie within 4.5
 // units of it (left/right, above/below and the diagonal); -1 when unused.
-// TODO: CMR2 0x004b8910 (implemented, match 40%)
+// TODO: CMR2 0x004b8910 (implemented, match 75%)
 void Sector_GetNeighbours(FixVector *pPos, short *pOut)
 {
     Sector *pSector;
@@ -738,7 +739,9 @@ void Sector_GetNeighbours(FixVector *pPos, short *pOut)
     int right;
     unsigned int k;
 
+    left = 0;
     right = 0;
+    k = 0;
     pOut[0] = -1;
     pOut[1] = -1;
     pOut[2] = -1;
@@ -748,25 +751,23 @@ void Sector_GetNeighbours(FixVector *pPos, short *pOut)
         left = 1;
         pOut[0] = index - 1;
         k = 1;
-    } else {
-        right = pSector->x + g_sectorHalfSize < pPos->x + 0x48000;
-        if (right)
-            pOut[0] = index + 1;
-        k = right;
-        left = 0;
+    } else if (pPos->x + 0x48000 > pSector->x + g_sectorHalfSize) {
+        right = 1;
+        pOut[0] = index + 1;
+        k = 1;
     }
-    if (g_sectorHalfSize + pSector->z < pPos->z + 0x48000) {
-        pOut[k++] = index - (short)g_sectorsPerRow;
+    if (pPos->z + 0x48000 > g_sectorHalfSize + pSector->z) {
+        pOut[k++] = index - g_sectorsPerRow;
         if (left)
-            pOut[k] = index - (short)g_sectorsPerRow - 1;
+            pOut[k] = index - g_sectorsPerRow - 1;
         else if (right)
-            pOut[k] = index - (short)g_sectorsPerRow + 1;
-    } else if (pSector->z - g_sectorHalfSize > pPos->z - 0x48000) {
-        pOut[k++] = (short)g_sectorsPerRow + index;
+            pOut[k] = index - g_sectorsPerRow + 1;
+    } else if (pPos->z - 0x48000 < pSector->z - g_sectorHalfSize) {
+        pOut[k++] = g_sectorsPerRow + index;
         if (left)
-            pOut[k] = (short)g_sectorsPerRow - 1 + index;
+            pOut[k] = g_sectorsPerRow - 1 + index;
         else if (right)
-            pOut[k] = (short)g_sectorsPerRow + 1 + index;
+            pOut[k] = g_sectorsPerRow + 1 + index;
     }
     if (pOut[0] >= (short)g_sectorCount || pOut[0] < -1)
         pOut[0] = -1;
@@ -774,11 +775,12 @@ void Sector_GetNeighbours(FixVector *pPos, short *pOut)
         pOut[1] = -1;
     if (pOut[2] >= (short)g_sectorCount || pOut[2] < -1)
         pOut[2] = -1;
+
 }
 
 // Bounding rectangle (x/z) of each sector's ground mesh, or of the sector
 // square when it has none.
-// TODO: CMR2 0x004b9170 (implemented, match 84%)
+// FUNCTION: CMR2 0x004b9170
 void Sector_ComputeBounds(void)
 {
     Sector **ppSector;
@@ -805,17 +807,18 @@ void Sector_ComputeBounds(void)
             pMesh = &((SectorMesh *)pSector->pMesh)[pSector->pMesh->lodIndex];
             pVertex = pMesh->pVertices;
             n = pMesh->vertexCount;
-            minX = maxX = (int)(__int64)pVertex[0];
+            minX = (int)(__int64)pVertex[0];
+            maxX = minX;
             minZ = maxZ = (int)(__int64)pVertex[2];
-            for (pVertex += 12, n--; n > 0; n--, pVertex += 12) {
+            for (pVertex += 12; n > 1; n--, pVertex += 12) {
                 if (pVertex[0] < (float)minX)
                     minX = (int)(__int64)pVertex[0];
                 if ((float)maxX < pVertex[0])
                     maxX = (int)(__int64)pVertex[0];
-                if (pVertex[2] < (float)minZ)
-                    minZ = (int)(__int64)pVertex[2];
                 if ((float)maxZ < pVertex[2])
                     maxZ = (int)(__int64)pVertex[2];
+                if (pVertex[2] < (float)minZ)
+                    minZ = (int)(__int64)pVertex[2];
             }
             minX = (int)(__int64)((double)minX * CGraphics::m_65536);
             pSector->bounds[0][0] = minX;

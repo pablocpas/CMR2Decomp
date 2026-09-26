@@ -18,6 +18,7 @@
 // physics steps.
 
 struct GenericFile;
+extern char g_strPathConcat[];
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
 BYTE *RallyData_FUN_00408a00(BYTE index);
 BYTE FUN_0041b370(void);
@@ -139,37 +140,40 @@ char g_strDashSpeedDigits[] = "%03d";
 #define DASH_Y(f) (short)(FixMul(g_pGraphics->resY << 16, (f)) >> 16)
 #define DASH_HIRES()                                                                                   \
     (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
-#define DASH_RAND() (int)(__int64)((float)rand() * g_oneOverRandMax * (float)CGraphics::m_65536)
+#define DASH_RAND() (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536)
 
-// TODO: CMR2 0x00445a60 (implemented, match 85%)
+// FUNCTION: CMR2 0x00445a60
 void Dash_LoadTextures(void)
 {
     char path[260];
     bool loaded;
 
-    sprintf(path, "%s%s", CInstallInfo::FUN_0040ed50(), g_strDashMphTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashMphTga);
     g_dashMphTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
-    sprintf(path, "%s%s", CInstallInfo::FUN_0040ed50(), g_strDashKphTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashKphTga);
     g_dashKphTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
-    sprintf(path, "%s%s", CInstallInfo::FUN_0040ed50(), g_strDashBarTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashBarTga);
     g_dashBarTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
     if (DASH_HIRES()) {
         g_dashBarOff.w = 0x125;
         g_dashBarOff.h = 0xc5;
+        g_dashBarOff.x = 0;
+        g_dashBarOff.y = 0;
         g_dashBarOn.w = 0x125;
         g_dashBarOn.h = 0xc5;
+        g_dashBarOn.x = 0;
         g_dashBarOn.y = 0xc4;
     } else {
         g_dashBarOff.w = 0xb5;
         g_dashBarOff.h = 0x7b;
+        g_dashBarOff.x = 0;
+        g_dashBarOff.y = 0;
         g_dashBarOn.w = 0xb5;
         g_dashBarOn.h = 0x7b;
+        g_dashBarOn.x = 0;
         g_dashBarOn.y = 0x7a;
     }
-    g_dashBarOn.x = 0;
-    g_dashBarOff.y = 0;
-    g_dashBarOff.x = 0;
-    sprintf(path, "%s%s", CInstallInfo::FUN_0040ed50(), g_strDashDialTga);
+    sprintf(path, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strDashDialTga);
     g_dashDialTexture = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(), path, &loaded, NULL, 0, 0);
     if (DASH_HIRES()) {
         g_dashDialSrc.x = 0;
@@ -185,25 +189,25 @@ void Dash_LoadTextures(void)
 }
 
 // Picks the dial or the digital bar for every car.
-// TODO: CMR2 0x00445d30 (implemented, match 71%)
+// FUNCTION: CMR2 0x00445d30
 void Dash_InitStyle(void)
 {
     int i;
     int *p;
 
     i = 0;
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if (CGameInfo::FUN_00405d70() > 0) {
         p = g_dashDigital;
         do {
-            if (RallyData_FUN_00411880() == 0) {
+            if (RallyData_FUN_00411880() != 0) {
+                *p = 1;
+                g_dashSimple = 1;
+            } else {
                 if (CGameInfo::FUN_00405ef0() == 0)
                     *p = g_dashCarDigital[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(i))];
                 else
                     *p = CGameInfo::FUN_00405ef0() == 1;
                 g_dashSimple = 0;
-            } else {
-                *p = 1;
-                g_dashSimple = 1;
             }
             i++;
             p++;
@@ -211,25 +215,21 @@ void Dash_InitStyle(void)
     }
 }
 
-// TODO: CMR2 0x00445c80 (implemented, match 64%)
+// FUNCTION: CMR2 0x00445c80
 void Dash_Reset(void)
 {
-    g_dashSpeedPrev[0] = 0;
-    g_dashGearMarkerY[0] = 0;
-    g_dashSpeedPrev[1] = 0;
-    g_dashGear[0] = 0;
-    g_dashGearMarkerY[1] = 0;
-    g_dashRevPrev[0] = 0;
-    g_dashIdle[0] = 0;
-    g_dashGear[1] = 0;
-    g_dashRevPrev[1] = 0;
-    g_dashIdle[1] = 0;
-    g_dashRevNext[0] = 0;
-    g_dashSpeedNext[0] = 0;
-    g_dashGearMarker[0] = -1;
-    g_dashRevNext[1] = 0;
-    g_dashSpeedNext[1] = 0;
-    g_dashGearMarker[1] = -1;
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        g_dashGearMarker[i] = -1;
+        g_dashSpeedNext[i] = 0;
+        g_dashRevNext[i] = 0;
+        g_dashGear[i] = 0;
+        g_dashIdle[i] = 0;
+        g_dashRevPrev[i] = 0;
+        g_dashSpeedPrev[i] = 0;
+        g_dashGearMarkerY[i] = 0;
+    }
     Dash_InitStyle();
     if (DASH_HIRES()) {
         g_dashRevTicks = g_dashRevTicks1024;
@@ -239,16 +239,18 @@ void Dash_Reset(void)
 }
 
 // Shown speed and revs between the last two physics steps (t = 0..1).
-// TODO: CMR2 0x00445df0 (implemented, match 45%)
+// FUNCTION: CMR2 0x00445df0
 void Dash_Interpolate(int t)
 {
+    int inv;
     unsigned int i;
 
+    inv = 0x10000 - t;
     i = 0;
-    if ((BYTE)RallyDataState() != 0) {
+    if ((BYTE)RallyDataState() > 0) {
         do {
-            g_dashSpeed[i] = FixMul(g_dashSpeedPrev[i], 0x10000 - t) + FixMul(g_dashSpeedNext[i], t);
-            g_dashRev[i] = FixMul(g_dashRevPrev[i], 0x10000 - t) + FixMul(g_dashRevNext[i], t);
+            g_dashSpeed[i] = FixMul(g_dashSpeedNext[i], t) + FixMul(g_dashSpeedPrev[i], inv);
+            g_dashRev[i] = FixMul(g_dashRevNext[i], t) + FixMul(g_dashRevPrev[i], inv);
             i++;
         } while (i < (RallyDataState() & 0xff));
     }
@@ -256,59 +258,60 @@ void Dash_Interpolate(int t)
 
 // Physics step of the dashboard: smooths the speed and revs of the car
 // (with an idle flicker while standing), and eases the gear marker.
-// TODO: CMR2 0x00445ea0 (implemented, match 55%)
+// FUNCTION: CMR2 0x00445ea0
 void Dash_Update(int player)
 {
-    int *pFlash;
-    int *pGear;
     int y;
     int d;
     int lim;
 
-    if (player > 1)
+    if (player >= 2)
         return;
-    pFlash = &g_dashGearFlash[player];
     if (g_dashGearFlash[player] > 0)
-        *pFlash = g_dashGearFlash[player] - 1;
+        g_dashGearFlash[player] = g_dashGearFlash[player] - 1;
     g_dashSpeedPrev[player] = g_dashSpeedNext[player];
     g_dashRevPrev[player] = g_dashRevNext[player];
-    pGear = &g_dashGear[player];
-    *pGear = Car_Get(player)->field_0xb1e;
-    if (CGameInfo::FUN_00405eb0() == 0)
-        g_dashSpeedNext[player] =
-            FixMul(g_dashSpeedNext[player], 0x6666) + FixMul(Car_GetWheelSpeed(Car_Get(player), 0, 1), 0x9999);
+    g_dashGear[player] = Car_Get(player)->field_0xb1e;
+    if ((BYTE)CGameInfo::FUN_00405eb0() != 0)
+        g_dashSpeedNext[player] = FixMul(0x9999, Car_GetWheelSpeed(Car_Get(player), 0, 0)) +
+                                  FixMul(0x6666, g_dashSpeedNext[player]);
     else
-        g_dashSpeedNext[player] =
-            FixMul(g_dashSpeedNext[player], 0x6666) + FixMul(Car_GetWheelSpeed(Car_Get(player), 0, 0), 0x9999);
-    g_dashRevNext[player] = FixMul(g_dashRevNext[player], 0x6666) +
-                            FixMul(FixDiv(Car_Get(player)->field_0x7ac, Car_Get(player)->field_0x794), 0x9999);
-    if (Car_Get(player)->field_0xb48 == 1) {
-        if (g_dashSpeedNext[player] > 0xffff) {
-            g_dashIdle[player] = 0;
-        } else if (g_dashIdle[player] > 5) {
-            if (g_dashRevNext[player] < 0x1eb8)
-                g_dashRevNext[player] = FixMul(DASH_RAND(), 0x7ae) + 0x170a;
+        g_dashSpeedNext[player] = FixMul(0x9999, Car_GetWheelSpeed(Car_Get(player), 0, 1)) +
+                                  FixMul(0x6666, g_dashSpeedNext[player]);
+    g_dashRevNext[player] =
+        FixMul(0x9999, FixDiv(Car_Get(player)->field_0x7ac, Car_Get(player)->field_0x794)) +
+        FixMul(0x6666, g_dashRevNext[player]);
+    if (Car_Get(player)->field_0xb48 != 1) {
+        if (g_dashSpeedNext[player] < 0x10000) {
+            if (g_dashIdle[player] > 5) {
+                if (g_dashRevNext[player] < 0x1eb8)
+                    g_dashRevNext[player] = FixMul(DASH_RAND(), 0x7ae) + 0x170a;
+            } else {
+                g_dashIdle[player]++;
+            }
         } else {
-            g_dashIdle[player]++;
+            g_dashIdle[player] = 0;
         }
     } else {
-        if (g_dashSpeedNext[player] > 0xffff) {
-            g_dashIdle[player] = 0;
-        } else if (g_dashIdle[player] > 5) {
-            if (g_dashRevNext[player] < 0x1eb8)
-                g_dashRevNext[player] = FixMul(DASH_RAND(), 0x7ae) + 0x170a;
+        if (g_dashSpeedNext[player] < 0x10000) {
+            if (g_dashIdle[player] > 5) {
+                if (g_dashRevNext[player] < 0x1eb8)
+                    g_dashRevNext[player] = FixMul(DASH_RAND(), 0x7ae) + 0x170a;
+            } else {
+                g_dashIdle[player]++;
+            }
         } else {
-            g_dashIdle[player]++;
+            g_dashIdle[player] = 0;
         }
     }
     if (g_dashRevNext[player] < 0x147a)
         g_dashRevNext[player] = FixMul(DASH_RAND(), 0x28f) + 0x11eb;
     g_dashSpeedNext[player] = FIX_ABS(g_dashSpeedNext[player]);
-    if (*pGear == 7)
-        *pGear = 0;
+    if (g_dashGear[player] == 7)
+        g_dashGear[player] = 0;
     else
-        *pGear = *pGear + 1;
-    y = FixMul(g_pGraphics->resY << 16, *pGear * -0xae1 + 0xbe66) >> 16;
+        g_dashGear[player] = g_dashGear[player] + 1;
+    y = FixMul(g_pGraphics->resY << 16, g_dashGear[player] * -0xae1 + 0xbe66) >> 16;
     if (g_dashGearMarker[player] == -1)
         g_dashGearMarker[player] = y;
     d = y - g_dashGearMarker[player];
@@ -319,16 +322,16 @@ void Dash_Update(int player)
     if (d < -lim)
         d = -lim;
     g_dashGearMarker[player] += d;
-    if (*pGear != g_dashLastGear[player]) {
-        if (*pFlash == 0)
-            *pFlash = 6;
-        g_dashLastGear[player] = *pGear;
+    if (g_dashGear[player] != g_dashLastGear[player]) {
+        if (g_dashGearFlash[player] == 0)
+            g_dashGearFlash[player] = 6;
+        g_dashLastGear[player] = g_dashGear[player];
     }
 }
 
 // Digital rev counter: the lit part of the bar texture (or plain
 // rectangles), the gear letter and the speed.
-// TODO: CMR2 0x00446270 (implemented, match 26%)
+// FUNCTION: CMR2 0x00446270
 void Dash_DrawBar(int player, int layer)
 {
     DashGearNames gears;
@@ -462,21 +465,29 @@ void Dash_DrawBar(int player, int layer)
 
 // Draws the dial face of the rev counter centred on pCentre (fractions of
 // the screen).
-// TODO: CMR2 0x00447100 (implemented, match 47%)
+// FUNCTION: CMR2 0x00447100
 void Dash_DrawDialFace(int *pCentre, int unused, Texture *pTexture)
 {
     SpriteRect dst;
+    int x;
+    int y;
+    int w;
+    int h;
 
-    dst.x = (short)(FixMul(g_pGraphics->resX << 16, pCentre[0]) >> 16) - g_dashDialSrc.w;
-    dst.y = (short)(FixMul(g_pGraphics->resY << 16, pCentre[1]) >> 16) - g_dashDialSrc.h / 2;
-    dst.w = g_dashDialSrc.w;
-    dst.h = g_dashDialSrc.h;
+    x = FixMul(g_pGraphics->resX << 16, pCentre[0]) >> 16;
+    y = FixMul(g_pGraphics->resY << 16, pCentre[1]) >> 16;
+    w = g_dashDialSrc.w;
+    h = g_dashDialSrc.h;
+    dst.x = x - w;
+    dst.y = y - h / 2;
+    dst.w = w;
+    dst.h = h;
     Sprite_Queue(&g_dashDialSrc, &dst, pTexture, 2, 0, NULL, NULL, g_dashDialColour, 8);
 }
 
 // Draws the needle of the dial: a thin quad from the tail to the tip, with
 // its point, rotated by angle about pCentre.
-// TODO: CMR2 0x004471b0 (implemented, match 35%)
+// FUNCTION: CMR2 0x004471b0
 void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, int tip, unsigned int angle,
                      BYTE *pColour, int layer)
 {
@@ -500,13 +511,11 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
     int tailY;
     int midX;
     int midY;
-    int s;
-    int co;
 
     point[0] = 0xf6;
-    point[3] = pColour[3];
     point[1] = 0xf6;
     point[2] = 0xf6;
+    point[3] = pColour[3];
     body[0] = 0xfa;
     body[1] = 0xfa;
     body[2] = 0xfa;
@@ -524,18 +533,16 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
     }
     cx = FixMul(pCentre[0], g_pGraphics->resX << 16) + (g_dashDialSrc.w / 2) * -0x10000;
     cy = FixMul(pCentre[1], g_pGraphics->resY << 16);
-    s = g_sinTable[angle & 0xfff];
-    co = g_sinTable[(angle + 0x400) & 0xfff];
-    w1x = FixMul(FixMul(width, s), sx);
-    w1y = FixMul(FixMul(FixMul(width, co), sy), g_dashAspect);
-    w2x = FixMul(FixMul(tipWidth, s), sx);
-    w2y = FixMul(FixMul(FixMul(tipWidth, co), sy), g_dashAspect);
-    e[0] = FixMul(-FixMul(tip, co), sx);
-    e[1] = FixMul(FixMul(FixMul(tip, s), sy), g_dashAspect);
-    midX = FixMul(-FixMul(mid, co), sx);
-    midY = FixMul(FixMul(FixMul(mid, s), sy), g_dashAspect);
-    tailX = FixMul(-FixMul(tail, co), sx);
-    tailY = FixMul(FixMul(FixMul(tail, s), sy), g_dashAspect);
+    w1x = FixMul(FixMul(width, g_sinTable[angle & 0xfff]), sx);
+    w1y = FixMul(FixMul(FixMul(width, g_sinTable[(angle + 0x400) & 0xfff]), sy), g_dashAspect);
+    w2x = FixMul(FixMul(tipWidth, g_sinTable[angle & 0xfff]), sx);
+    w2y = FixMul(FixMul(FixMul(tipWidth, g_sinTable[(angle + 0x400) & 0xfff]), sy), g_dashAspect);
+    e[0] = FixMul(-FixMul(tip, g_sinTable[(angle + 0x400) & 0xfff]), sx);
+    e[1] = FixMul(FixMul(FixMul(tip, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
+    midX = FixMul(-FixMul(mid, g_sinTable[(angle + 0x400) & 0xfff]), sx);
+    midY = FixMul(FixMul(FixMul(mid, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
+    tailX = FixMul(-FixMul(tail, g_sinTable[(angle + 0x400) & 0xfff]), sx);
+    tailY = FixMul(FixMul(FixMul(tail, g_sinTable[angle & 0xfff]), sy), g_dashAspect);
     a[0] = tailX + w1x + cx;
     b[0] = tailX - w1x + cx;
     b[1] = tailY - w1y + cy;
@@ -553,7 +560,7 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
 
 // Analogue rev counter: the dial with its needle, the gear marker beside
 // the gear letters, the speed and the MPH/KPH plate.
-// TODO: CMR2 0x00446bf0 (implemented, match 50%)
+// FUNCTION: CMR2 0x00446bf0
 void Dash_DrawDial(int player, int layer)
 {
     DashGearNames gears;
@@ -728,15 +735,17 @@ int FUN_0041f3a0(void);
 int RallyData_FUN_00411880(void);
 
 // View offset of a player's camera (lowered in the split-screen cockpit view).
-// TODO: CMR2 0x00447ee0 (implemented, match 41%)
+// FUNCTION: CMR2 0x00447ee0
 void FUN_00447ee0(FixVector *pOut, BYTE *pSel)
 {
+    BYTE mode;
     FixVector *p;
 
-    if (g_unk0x0053cff8[pSel[0]] == 4)
+    mode = g_unk0x0053cff8[pSel[0]];
+    if (mode == 4)
         p = &g_unk0x0053d000[pSel[1]];
     else
-        p = &g_unk0x00519ea0[g_unk0x0053cff8[pSel[0]]];
+        p = &g_unk0x00519ea0[mode];
     *pOut = *p;
     if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0()) {
         pOut->y -= 0x3333;
