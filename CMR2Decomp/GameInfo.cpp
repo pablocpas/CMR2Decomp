@@ -1320,10 +1320,17 @@ int g_unk0x0082b1bc;
 BYTE g_unk0x0082b488[0x1e0];
 // GLOBAL: CMR2 0x0082ba28
 BYTE g_unk0x0082ba28[0x1e0];
+// GLOBAL: CMR2 0x0082bee8
+BYTE g_unk0x0082bee8[8][7];
 // GLOBAL: CMR2 0x0082bf20
 BYTE g_unk0x0082bf20[16][7];
+// Same table as g_unk0x0082bee8, viewed from its 4th row.
+#define g_unk0x0082bf04 ((char *)&g_unk0x0082bee8[4][0])
 // GLOBAL: CMR2 0x0082c040
-BYTE g_unk0x0082c040[16][12];
+BYTE g_unk0x0082c040[4][12];
+// Option records, copied from RallyData_FUN_00407610 by FUN_00502d50; each
+// entry is 0x148 bytes and the block runs up to the globals at 0x82c698.
+#define g_unk0x0082c070 ((BYTE *)&g_unk0x0082c040[4][0])
 struct Unk0x0082d220Vec {
     int v[4];
 };
@@ -2082,6 +2089,47 @@ bool FUN_004f4e80(void)
 char g_strSaveGamePattern[8] = "*.rcs";
 // GLOBAL: CMR2 0x00525bf4
 char g_strSaveGameDirFormat[16] = "%s\\gamesave\\";
+// GLOBAL: CMR2 0x00525c04
+char g_strSaveGameFileFormat[28] = "%s\\gamesave\\game%.5d.rcs";
+
+#include <io.h>
+
+// Formats into the buffer the first save game file name that does not exist
+// yet (<install>\gamesave\gameNNNNN.rcs), starting from index 0.
+// FUNCTION: CMR2 0x004f5150
+void FUN_004f5150(char *pName)
+{
+    bool exists = true;
+    int i;
+
+    for (i = 0; exists; i++) {
+        sprintf(pName, g_strSaveGameFileFormat, CInstallInfo::GetGameHDPath(), i);
+        if (_access(pName, 0) == -1)
+            exists = false;
+    }
+}
+
+// Copies the string into CFrontend::m_stringDest and writes it back into the
+// buffer in groups of four characters, one space between groups (the last
+// character is dropped).
+// FUNCTION: CMR2 0x004f8a90
+void FUN_004f8a90(char *pText)
+{
+    int len;
+    int i;
+    int out;
+
+    strcpy(CFrontend::m_stringDest, pText);
+    len = (int)strlen(CFrontend::m_stringDest) - 1;
+    i = 1;
+    out = 0;
+    for (; i - 1 < len; i++) {
+        pText[out++] = CFrontend::m_stringDest[i - 1];
+        if ((i & 3) == 0)
+            pText[out++] = ' ';
+    }
+    pText[out] = 0;
+}
 
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
@@ -3194,3 +3242,232 @@ void FUN_004036c0(Menu *pMenu, char unused)
     g_unk0x0052aa58 = 0x68000;
     FUN_00403110(pMenu);
 }
+
+// ===== Agent3 batch 1: GameInfo option records (>= 0x4f0000) =====
+
+struct Unk0x0052ebc0;
+extern struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+
+// Draws the four one pixel edges of the option record's box (x, y, w, h);
+// the vertical edges start one pixel inside the horizontal ones.
+// FUNCTION: CMR2 0x0050cb30
+void FUN_0050cb30(short *pRect, BYTE *pColour)
+{
+    short edge[4];
+
+    edge[0] = pRect[0];
+    edge[1] = pRect[1];
+    edge[2] = pRect[2];
+    edge[3] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    edge[1] = pRect[3] + pRect[1] - 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    edge[3] = pRect[3];
+    edge[1] = pRect[1];
+    edge[0] = pRect[0];
+    edge[2] = 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+    edge[0] = pRect[2] + pRect[0] - 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 3);
+}
+
+// Returns the byte at column type of the 7-byte option record index,
+// sign extended; 0 for an unknown column.
+// FUNCTION: CMR2 0x00502c60
+int FUN_00502c60(int index, int type)
+{
+    switch (type) {
+    case 0: return g_unk0x0082bf04[index * 7];
+    case 1: return g_unk0x0082bf04[index * 7 + 1];
+    case 6: return g_unk0x0082bf04[index * 7 + 6];
+    case 2: return g_unk0x0082bf04[index * 7 + 2];
+    case 3: return g_unk0x0082bf04[index * 7 + 3];
+    case 4: return g_unk0x0082bf04[index * 7 + 4];
+    case 5: return g_unk0x0082bf04[index * 7 + 5];
+    }
+    return 0;
+}
+
+// Eases the option record's bar towards its target: while the record is faded
+// out (mode 0) both bar sizes are cleared; in mode 1 the current fraction is
+// scaled by field_0x0 when direction is set, otherwise the remaining distance.
+// FUNCTION: CMR2 0x00501d50
+void FUN_00501d50(int index, short *pBar, int direction, int unused)
+{
+    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+
+    if (p->field_0xc == 1) {
+        if (direction != 0) {
+            pBar[2] = (short)FixMulShift32(pBar[2] << 16, p->field_0x0);
+            return;
+        }
+        pBar[3] = (short)FixMulShift32(pBar[3] << 16, p->field_0x0);
+        return;
+    }
+    if (p->field_0xc == 0) {
+        pBar[3] = 0;
+        pBar[2] = 0;
+    }
+}
+
+// Returns the byte at column type of the 7-byte option record index; the
+// signed columns are divided by 10.
+// FUNCTION: CMR2 0x005028a0
+int FUN_005028a0(int index, int type)
+{
+    switch (type) {
+    case 0: return (BYTE)g_unk0x0082bee8[index][0];
+    case 1: return (BYTE)g_unk0x0082bee8[index][1];
+    case 6: return (char)g_unk0x0082bee8[index][6] / 10;
+    case 2: return (char)g_unk0x0082bee8[index][2] / 10;
+    case 3: return (char)g_unk0x0082bee8[index][3] / 10;
+    case 4: return (char)g_unk0x0082bee8[index][4] / 10;
+    case 5: return (char)g_unk0x0082bee8[index][5] / 10;
+    }
+    return 0;
+}
+
+// Index of the first option slot that is not a plain list entry, or 5 when
+// the slot at index 4 holds one; 0 when there is none.
+// FUNCTION: CMR2 0x004ff550
+int FUN_004ff550(void)
+{
+    int i;
+    int found;
+
+    found = 0;
+    for (i = 0; i < (char)FUN_00502500()[6]; i++) {
+        if (g_unk0x0082a90c[i] != 3) {
+            found = 1;
+            break;
+        }
+    }
+    if (found) {
+        if (CGameInfo::FUN_00405d80() != 0) {
+            if (i == 4)
+                i = 5;
+        }
+        return i;
+    }
+    return 0;
+}
+
+// Draws the option record's text: mode 2 draws it whole; in mode 1 the part
+// inside the 16.16 fraction of its length is drawn with the first font and
+// the remainder with the second one, at that width.
+// FUNCTION: CMR2 0x005020a0
+void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
+                  int *pColour1, int *pColour2, unsigned int flags)
+{
+    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+    int len;
+    int count;
+    int width;
+    int i;
+    int j;
+
+    if (p->field_0xc == 2) {
+        Font_DrawText(font1, text, x, y, pColour1, flags);
+        return;
+    }
+    if (p->field_0xc == 1) {
+        len = (int)strlen(text);
+        count = FixMulShift32(len << 16, p->field_0x0);
+        for (i = 0; i < count; i++)
+            g_unk0x0082b1c0[i] = text[i];
+        g_unk0x0082b1c0[count] = 0;
+        Font_DrawText(font1, g_unk0x0082b1c0, x, y, pColour1, flags);
+        if (count < len) {
+            width = Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
+            for (i = count, j = 0; i < len; i++, j++)
+                g_unk0x0082b1c0[j] = text[i];
+            g_unk0x0082b1c0[len - count] = 0;
+            Font_DrawText(font2, g_unk0x0082b1c0, width + x, y, pColour2, flags);
+        }
+    }
+}
+
+// Option record value as a percentage 0..100: picks the byte selected by
+// type, letting a byte that follows it win when it is larger, and a later
+// byte win when the value is still smaller.
+// FUNCTION: CMR2 0x00502df0
+unsigned int FUN_00502df0(int index, int type, int dynamic)
+{
+    BYTE *p;
+    int value;
+    int other;
+
+    value = 0;
+    if (dynamic != 0)
+        p = (BYTE *)RallyData_FUN_00407610(index);
+    else
+        p = g_unk0x0082c070 + index * 0x148;
+    switch (type) {
+    case 1:
+        value = p[0x116];
+        break;
+    case 2:
+        value = p[0x117];
+        break;
+    case 3:
+        value = p[0x10e];
+        if (p[0x10f] > value)
+            value = p[0x10f];
+        if (p[0x110] > value)
+            value = p[0x110];
+        other = p[0x111];
+        if (other > value)
+            value = other;
+        break;
+    case 4:
+        value = p[0x118];
+        break;
+    case 5:
+        value = p[0x112];
+        if (p[0x113] > value)
+            value = p[0x113];
+        if (p[0x114] > value)
+            value = p[0x114];
+        other = p[0x115];
+        if (other > value)
+            value = other;
+        break;
+    case 6:
+        value = p[0x119];
+        break;
+    case 7:
+        value = p[0x10c];
+        other = p[0x10d];
+        if (other > value)
+            value = other;
+        break;
+    case 8:
+        value = p[0x11f];
+        break;
+    case 9:
+        value = p[0x120];
+        break;
+    case 10:
+        value = p[0x121];
+        break;
+    case 11:
+        value = p[0x108];
+        if (p[0x109] > value)
+            value = p[0x109];
+        if (p[0x10a] > value)
+            value = p[0x10a];
+        other = p[0x10b];
+        if (other > value)
+            value = other;
+        break;
+    }
+    other = (value * 100) / 0xff;
+    if (other == 0) {
+        if (value != 0)
+            return 1;
+    } else if (other > 100) {
+        other = 100;
+    }
+    return other;
+}
+
