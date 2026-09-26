@@ -531,6 +531,326 @@ void FUN_004e9820(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
+
+Menu *FUN_004f8290(BYTE param1);
+Menu *FUN_004f82c0(void);
+Menu *FUN_004f82d0(void);
+Menu *FUN_004f8410(void);
+Menu *FUN_004f8450(void);
+Menu *FUN_004f8470(void);
+Menu *FUN_004f84a0(void);
+Menu *FUN_004f84b0(void);
+Menu *FUN_004f84c0(void);
+Menu *FUN_004f84d0(void);
+Menu *FUN_004f84e0(void);
+Menu *FUN_004f84f0(void);
+Menu *FUN_004f89a0(void);
+void FUN_004f5520(void);
+void FUN_004f5580(void);
+void FUN_004f5670(void);
+void FUN_004f5770(void);
+void FUN_004f5810(void);
+void FUN_004f5850(void);
+void FUN_004f58e0(void);
+void FUN_004f5940(void);
+void FUN_004f59a0(void);
+void FUN_004f5a60(void);
+void FUN_004f5ae0(void);
+void FUN_004f5b50(void);
+void FUN_004f5b90(void);
+void FUN_004f5c00(void);
+void FUN_004f5c90(void);
+void FUN_004f5d90(void);
+void FUN_004f5e50(void);
+void FUN_004f5eb0(void);
+void FUN_004f5fc0(void);
+void FUN_004f6040(void);
+void FUN_004f6130(void);
+void FUN_004f6240(void);
+void FUN_004f6300(void);
+void FUN_004f63b0(void);
+void FUN_004f6420(void);
+void FUN_004f6490(void);
+void FUN_004f6540(void);
+void FUN_004f6610(void);
+void FUN_004f66e0(void);
+void FUN_004f6740(void);
+void FUN_004f6830(void);
+void FUN_004f6910(void);
+void FUN_004f6990(void);
+void FUN_004f69f0(void);
+void FUN_004f6a50(void);
+void FUN_004f6b40(void);
+void FUN_004f6c90(void);
+void FUN_004f6d10(void);
+void FUN_004f6d70(void);
+void FUN_004f6dd0(void);
+void FUN_004f6e50(char difficulty);
+void FUN_004f6f10(char difficulty);
+void FUN_004f6fd0(char difficulty);
+void FUN_004f7090(char difficulty);
+void FUN_004f7150(char difficulty);
+void FUN_004f7270(int unused);
+void FUN_004f7310(int unused);
+void FUN_004f73b0(int unused);
+void FUN_004f7450(void);
+void FUN_004f7510(char choice);
+void FUN_004f75b0(char choice);
+void FUN_004f7650(char choice);
+void FUN_004f76f0(void);
+void FUN_004f77a0(void);
+void FUN_004f7820(void);
+void FUN_004f78c0(void);
+void FUN_004f7970(void);
+void FUN_004f7a30(void);
+void FUN_004f7d00(void);
+void FUN_004f7d70(void);
+void FUN_004f7de0(void);
+void FUN_004f7ed0(void);
+void FUN_004f8020(void);
+void FUN_004f8170(void);
+void FUN_004f8250(void);
+void FUN_004f8500(void);
+void FUN_004f85b0(void);
+void FUN_004f8670(void);
+void FUN_004f8730(void);
+void FUN_004f87d0(void);
+void FUN_004f8870(void);
+void FUN_004f88e0(void);
+void FUN_004f9300(void);
+void FUN_004f9370(void);
+void FUN_004f9400(char players);
+void FUN_004f9490(char players);
+void FUN_004f9530(char unused);
+void FUN_004f95d0(int unused);
+void FUN_004f9670(void);
+void FUN_004f9940(void);
+void FUN_004f99b0(void);
+void FUN_004f9c80(void);
+void FUN_004f9cf0(void);
+void FUN_004f9fc0(void);
+void FUN_004fa030(void);
+void FUN_004fa0b0(void);
+void FUN_004fa1c0(void);
+void FUN_004fa370(void);
+void FUN_004fa410(void);
+void FUN_004fa4d0(void);
+BYTE FUN_00406800(void);
+void FUN_004b7c80(void);
+void FUN_004a0ba0(void);
+void FUN_004a0c40(char param1);
+void FUN_004a3c30(int language);
+BOOL FUN_004a15a0(void);
+void FUN_004eaa10(BYTE param1);
+void FUN_004ef4a0(int value);
+extern BYTE g_unk0x00818ac4;
+extern int g_menuEnterTime;
+
+// Builds every frontend menu and picks the first one: after a network game
+// the network lobby; otherwise the language menu (first run) or the main
+// menu, and when coming back from a race (`back`) the menus of the game
+// mode that was played, with their cursors.
+// TODO: CMR2 0x004e9f70 (implemented, match 89%)
+void FUN_004e9f70(BYTE param1, BYTE back)
+{
+    Menu *pMenu;
+    unsigned int region;
+
+    if (CGameInfo::FUN_00405e00() != 0) {
+        if (FUN_004a15a0() == 0) {
+            pMenu = FUN_004f8450();
+            FUN_004f8470()->pParent = pMenu;
+        } else {
+            switch (CGameInfo::FUN_00405d80()) {
+            case 8:
+                pMenu = FUN_004f84b0();
+                break;
+            case 9:
+                pMenu = FUN_004f84c0();
+                break;
+            case 10:
+                pMenu = FUN_004f84d0();
+                break;
+            case 11:
+                pMenu = FUN_004f84e0();
+                break;
+            case 12:
+                pMenu = FUN_004f84f0();
+                break;
+            default:
+                goto lobby;
+            }
+            FUN_004f8470()->pParent = pMenu;
+        }
+    lobby:
+        g_pMenu0x00818abc = NULL;
+        if (FUN_00406800() != 0) {
+            g_pMenu0x00818ac0 = FUN_004f89a0();
+        } else {
+            g_pMenu0x00818ac0 = FUN_004f8470();
+            FUN_004f8470()->items[Menu_FindItem(FUN_004f8470(), 3)].max = 1;
+        }
+        FUN_004b7c80();
+        FUN_004a3c30(CGameInfo::GetGameLanguage());
+        return;
+    }
+    g_pMenu0x00818abc = NULL;
+    g_pMenu0x00818ac0 = FUN_004f8290(param1);
+    g_menuEnterTime = timeGetTime();
+    if (FUN_004eaa30() == 0 && CGameInfo::FUN_00406450(0) > 180000)
+        FUN_004eaa10(1);
+    FUN_004a0ba0();
+    FUN_004a0c40(0);
+    CInput::FUN_0049ff80(-1, -1, -1, -1, -1);
+    FUN_004f5670();
+    g_unk0x00818ac4 = 0;
+    FUN_004f5520();
+    FUN_004f5580();
+    region = CGameInfo::GetGameRegion();
+    if (region == 2 || region == 3) {
+        FUN_004a3c30(0);
+        FUN_004fa4d0();
+    } else if (param1 != 0) {
+        FUN_004a3c30(0);
+    } else {
+        FUN_004a3c30(CGameInfo::GetGameLanguage());
+        Menu_SetParent(FUN_004f82d0(), FUN_004f82c0());
+        FUN_004f82d0()->items[0].pSubMenu = FUN_004f82c0();
+        FUN_004f82d0()->items[1].pSubMenu = FUN_004f82c0();
+        FUN_004f82d0()->items[2].pSubMenu = FUN_004f82c0();
+        FUN_004f82d0()->items[3].pSubMenu = FUN_004f82c0();
+        FUN_004f82d0()->items[4].pSubMenu = FUN_004f82c0();
+        Menu_SetCursor(FUN_004f82d0(), CGameInfo::GetGameLanguage());
+    }
+    FUN_004f5770();
+    FUN_004f5810();
+    FUN_004f5850();
+    FUN_004f58e0();
+    FUN_004f5940();
+    FUN_004f59a0();
+    FUN_004f5a60();
+    FUN_004f5ae0();
+    FUN_004f5b50();
+    FUN_004f9370();
+    FUN_004f9400(CGameInfo::FUN_00405d70());
+    FUN_004f9490(CGameInfo::FUN_00405d70());
+    FUN_004f9530(CGameInfo::FUN_00405d90());
+    FUN_004f95d0(CGameInfo::FUN_00405d90());
+    FUN_004f9670();
+    FUN_004f9940();
+    FUN_004f99b0();
+    FUN_004f9c80();
+    FUN_004f9cf0();
+    FUN_004f9fc0();
+    FUN_004fa030();
+    FUN_004fa0b0();
+    FUN_004fa1c0();
+    FUN_004f5b90();
+    FUN_004f5c00();
+    FUN_004f5c90();
+    FUN_004f5d90();
+    FUN_004f5e50();
+    FUN_004f8500();
+    FUN_004f85b0();
+    FUN_004f8670();
+    FUN_004f8730();
+    FUN_004f87d0();
+    FUN_004f9300();
+    FUN_004f8870();
+    FUN_004f88e0();
+    FUN_004f5eb0();
+    FUN_004f6040();
+    FUN_004f6130();
+    FUN_004f6300();
+    FUN_004f6240();
+    FUN_004f63b0();
+    FUN_004f6420();
+    FUN_004f6490();
+    FUN_004f6540();
+    FUN_004f66e0();
+    FUN_004f6740();
+    FUN_004f6830();
+    FUN_004f6910();
+    FUN_004f6990();
+    FUN_004f6610();
+    FUN_004f69f0();
+    FUN_004f6a50();
+    FUN_004f6b40();
+    FUN_004f6c90();
+    FUN_004f6d10();
+    if (param1 == 0)
+        FUN_004fa4d0();
+    FUN_004f5fc0();
+    FUN_004f6d70();
+    FUN_004f6dd0();
+    FUN_004f6e50(CGameInfo::FUN_00405d70());
+    FUN_004f6f10(CGameInfo::FUN_00405d70());
+    FUN_004f6fd0(CGameInfo::FUN_00405d70());
+    FUN_004f7090(CGameInfo::FUN_00405d70());
+    FUN_004f7150(CGameInfo::FUN_00405d70());
+    FUN_004f7270(CGameInfo::FUN_00405d90());
+    FUN_004f7310(CGameInfo::FUN_00405d90());
+    FUN_004f73b0(CGameInfo::FUN_00405d90());
+    FUN_004f7510(CGameInfo::FUN_00405da0());
+    FUN_004f75b0(CGameInfo::FUN_00405da0());
+    FUN_004f7650(CGameInfo::FUN_00405da0());
+    FUN_004f76f0();
+    FUN_004f77a0();
+    FUN_004f7820();
+    FUN_004f78c0();
+    FUN_004f7970();
+    FUN_004f7a30();
+    FUN_004f7d00();
+    FUN_004f7d70();
+    FUN_004f7de0();
+    FUN_004f7ed0();
+    FUN_004f8020();
+    FUN_004fa370();
+    FUN_004fa410();
+    FUN_004f7450();
+    FUN_004f8170();
+    FUN_004f8250();
+    if (back != 0) {
+        FUN_004f8410()->cursor = 1;
+        FUN_004ef4a0(1);
+        FUN_004f84a0()->cursor = 2;
+        FUN_004fa2d0()->cursor = 1;
+        CFrontend::FUN_004d2790();
+        return;
+    }
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        FUN_004f84a0()->cursor = CGameInfo::FUN_00405d80();
+        FUN_004f8410()->cursor = 1;
+        FUN_004ef4a0(1);
+        FUN_004fa2d0()->cursor = 1;
+        CFrontend::FUN_004d2790();
+        return;
+    case 5:
+    case 6:
+    case 7:
+        FUN_004fa2d0()->cursor = CGameInfo::FUN_00405d80() - 5;
+        FUN_004f8410()->cursor = 2;
+        FUN_004ef4a0(2);
+        FUN_004f84a0()->cursor = 2;
+        CFrontend::FUN_004d2790();
+        return;
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        FUN_004f8410()->cursor = 3;
+        FUN_004ef4a0(3);
+        break;
+    }
+    CFrontend::FUN_004d2790();
+}
+
 // FUNCTION: CMR2 0x004ea470
 void FUN_004ea470(void)
 {

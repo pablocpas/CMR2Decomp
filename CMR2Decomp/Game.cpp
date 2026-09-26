@@ -250,8 +250,7 @@ int g_unk0x00819744;
 BYTE g_unk0x00818ce4;
 
 // Signatures follow the original's `ret N` (stdcall: N/4 arguments).
-// STUB: CMR2 0x004e9f70
-void FUN_004e9f70(BYTE param1, BYTE param2) { }
+void FUN_004e9f70(BYTE param1, BYTE param2);
 void FUN_004f4ef0(void);
 BYTE FUN_004f3b50(void);
 BYTE FUN_004f4d20(void);
