@@ -1512,6 +1512,23 @@ void Quad2D_DrawLayer(unsigned int layer);
 void Pulse_Update(unsigned int dt);
 extern Mesh **g_sceneShadowMeshes;
 
+// Draws the queue of scene nodes collected by 0x0049d290: depth sorts it
+// (farthest first) when depth sorting is enabled, draws every node of the
+// queue with the given view mask bit and empties it.
+// FUNCTION: CMR2 0x0049cd20
+void Game_DrawSortedNodes(int bit)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce2c >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, 4, FUN_0049cbc0);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce2c; i++)
+            Game_DrawViewMaskNode((SceneNode *)CGame::m_unk0x00597d04[i], bit);
+        CGame::m_unk0x0059ce2c = 0;
+    }
+}
+
 // Draws every mesh node of the scene in world space with Z test and write
 // enabled, then the 2D layer 0x10.
 // FUNCTION: CMR2 0x0049cd90
@@ -1533,6 +1550,29 @@ void FUN_0049cd90(void)
         }
     }
     Quad2D_DrawLayer(0x10);
+}
+
+// Draws the view-mask scene nodes of the culled sectors that were not queued
+// for depth sorting (visible == 0), with Z test and Z write disabled, then
+// restores them.
+// FUNCTION: CMR2 0x0049ce40
+void Game_DrawUnsortedNodes(int bit)
+{
+    SceneNode *pNode;
+    unsigned int i;
+
+    CGraphics::SetZEnable(0);
+    CGraphics::SetZWriteEnable(0);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pNode = g_sectors[g_unk0x006ed5f0[i]]->pFirstNode;
+        while (pNode != NULL) {
+            if (pNode->visible == 0)
+                Game_DrawViewMaskNode(pNode, bit);
+            pNode = pNode->pNextInSector;
+        }
+    }
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
 }
 
 // Advances the pulse effect by the frame delta and draws the ground mesh of
