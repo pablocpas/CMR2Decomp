@@ -182,18 +182,24 @@ void FUN_0040d9e0(int group);
 // Restarts the driver pairing tables of a rally: both values of every pair, the
 // AI skill array and the entry array take the rally key, the two flag arrays
 // are cleared, and the three groups of the rally are rebuilt.
-// FUNCTION: CMR2 0x0040dbe0
+// MSVC folds the three int[20] tables into one base register with +-0x50
+// displacements in the original (they are contiguous in its .bss); our tables
+// are not adjacent, so the compiler picks another induction variable and the
+// opcodes differ.
+// TODO: CMR2 0x0040dbe0 (implemented, match 27%)
 void FUN_0040dbe0(int value)
 {
     int i;
 
-    for (i = 0; i < 20; i++) {
+    i = 20;
+    do {
+        i--;
         g_unk0x0052f100[i][0] = value;
         g_unk0x0052f100[i][1] = value;
         g_unk0x0052f1a0[i] = value;
         g_unk0x0052f1f0[i] = 0;
         g_unk0x0052f240[i] = 0;
-    }
+    } while (i);
     FUN_0040d9e0(0);
     FUN_0040d9e0(1);
     FUN_0040d9e0(2);
