@@ -3861,3 +3861,110 @@ void FUN_0050e740(int unused)
                  g_unk0x00527380, g_unk0x0052738c, 0x12);
 }
 
+// GLOBAL: CMR2 0x0082b0a4
+int g_unk0x0082b0a4;
+// GLOBAL: CMR2 0x0082a938
+BYTE g_unk0x0082a938;
+
+BYTE *RallyData_FUN_00407630(int index);
+
+// GLOBAL: CMR2 0x00529670
+char g_strFontGeneralHel15pt[17] = "general\\hel_15pt";
+// GLOBAL: CMR2 0x00529684
+char g_strFontGeneralHel12pt[17] = "general\\hel_12pt";
+// GLOBAL: CMR2 0x00529698
+char g_strFontGeneralDot[12] = "general\\dot";
+// GLOBAL: CMR2 0x005296ac
+char g_strFontGeneralHandel[15] = "general\\handel";
+
+// Starts the fade of the option menu once more than 50 frames have passed.
+// FUNCTION: CMR2 0x00501350
+void FUN_00501350(int param1, int unused)
+{
+    unsigned int delta = CMain::GetFrameDelta() - g_unk0x0082b0a4;
+
+    if (delta > 0x32) {
+        if (g_unk0x0082a938 != 0) {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 2, 2);
+            return;
+        }
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 0, 2);
+    }
+}
+
+// Copies the option records back into the rally data (undo of FUN_00502d50).
+// FUNCTION: CMR2 0x00502db0
+void FUN_00502db0(void)
+{
+    int *pSrc;
+    int *pDst;
+    int i;
+    int j;
+
+    i = 0;
+    if ((char)CGameInfo::FUN_00405d70() != 0) {
+        pSrc = (int *)g_unk0x0082c070;
+        do {
+            pDst = (int *)RallyData_FUN_00407610(i);
+            i++;
+            memcpy(pDst, pSrc, 0x148);
+            pSrc += 0x52;
+        } while (i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
+}
+
+// Copies the default option values from the global table into each record.
+// TODO: CMR2 0x005029b0 (implemented, match 55%)
+void FUN_005029b0(void)
+{
+    BYTE *pDst;
+    char *pSrc;
+    int i;
+
+    i = 0;
+    pSrc = (char *)&g_unk0x0082bee8[0][5];
+    do {
+        pDst = (BYTE *)RallyData_FUN_00407630(i);
+        pDst[4] = pSrc[-1];
+        pDst[5] = pSrc[0];
+        pDst[1] = pSrc[-4];
+        pDst[6] = pSrc[1];
+        pDst[3] = pSrc[-2];
+        pDst[2] = pSrc[-3];
+        i++;
+        pDst[0] = pSrc[-5];
+        pSrc += 7;
+    } while ((int)pSrc < 0x82bf09);
+}
+
+// Applies the selected option: advances the menu when its value is set, or
+// starts the fade otherwise.
+// TODO: CMR2 0x005000b0 (implemented, match 54%)
+void FUN_005000b0(int unused, int unused2)
+{
+    BYTE *pMode;
+    int index;
+    BYTE value;
+
+    FUN_004ff5b0();
+    index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    pMode = FUN_00502500();
+    value = pMode[0x1f + index * 0x14];
+    if (FUN_00502630(CGameInfo::FUN_005011b0(), value) != 0) {
+        Menu_SetNextAction((int)FUN_00502510());
+        return;
+    }
+    CGameInfo::FUN_00500500();
+}
+
+// Loads the four option menu fonts.
+// FUNCTION: CMR2 0x0050f370
+void FUN_0050f370(void)
+{
+    Font_InitTable(4);
+    Font_Load(g_strFontGeneralHel15pt, (GenericFile *)FUN_0050f620(), 0);
+    Font_Load(g_strFontGeneralHel12pt, (GenericFile *)FUN_0050f620(), 1);
+    Font_Load(g_strFontGeneralDot, (GenericFile *)FUN_0050f620(), 2);
+    Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
+}
+
