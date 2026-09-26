@@ -18,9 +18,9 @@ struct MMIOData {
     DWORD dwSize;           // Offset 0x30
 
     MMIOData();
-    void Open(LPSTR strFileName);
-    void StartDataRead(void);
-    void Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead);
+    HRESULT Open(LPSTR strFileName);
+    HRESULT StartDataRead(void);
+    HRESULT Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead);
 };
 
 // Data passed through the ACM enumeration callbacks
@@ -71,6 +71,7 @@ public:
     static void FUN_004b7620(int index);
 
     static BOOL __fastcall FUN_004a2ac0(void);
+    static void FUN_004a28d0(char *path);
     static void FUN_004a2b50(BOOL param1);
     static bool FUN_004bd230(void);
     static HRESULT StopDirectSoundBuffer(void);

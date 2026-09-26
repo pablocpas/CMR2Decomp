@@ -169,6 +169,35 @@ int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
 BYTE *g_unk0x00531764;
 
+// GLOBAL: CMR2 0x00525258
+char g_strPpsPathFormat[32] = "%s\\pps\\%s%.2d%.2d%.2d%.2d.pps";
+// GLOBAL: CMR2 0x00818acc
+char g_ppsPath[260];
+
+extern BYTE g_saveData[];
+
+// Builds the path of a player profile save: <hd>\pps\<name><date>.pps.
+// The packed dword after the 4-byte name holds the date fields.
+// FUNCTION: CMR2 0x004eb2e0
+char *FUN_004eb2e0(char *pName)
+{
+    unsigned int packed = *(unsigned int *)(pName + 4);
+
+    // the original passes one value more than the format uses
+    sprintf(g_ppsPath, g_strPpsPathFormat, CInstallInfo::GetGameHDPath(), pName,
+            packed >> 0x10 & 0x1f, packed >> 8 & 0xf, packed & 0xff, packed >> 0xc & 0xf,
+            packed >> 0x16 & 0x3f);
+    return g_ppsPath;
+}
+
+// Writes a 0x650-byte player profile to its .pps file.
+// TODO: CMR2 0x004eb340 (implemented, match 43%)
+BYTE FUN_004eb340(int unused, BYTE *pProfile)
+{
+    CInstallInfo::WriteFileToDisk(FUN_004eb2e0((char *)pProfile + 0x10), 0, pProfile, 0x650);
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004eb450
 BYTE *FUN_004eb450(int index)
 {
@@ -181,10 +210,52 @@ int FUN_004eb440(void)
     return g_unk0x00531650;
 }
 
+// Saves every player profile marked dirty (unless it has flag 0x200000).
+// TODO: CMR2 0x004eb470 (implemented, match 52%)
+void FUN_004eb470(void)
+{
+    BYTE *pProfile;
+    int i;
+
+    i = 0;
+    pProfile = g_saveData + 0x628;
+    do {
+        if ((*(unsigned int *)(pProfile + 0x14) & 0x200000) == 0 && g_saveData[0x620 + i] != 0) {
+            FUN_004eb340(0, pProfile);
+            g_saveData[0x620 + i] = 0;
+        }
+        pProfile += 0x650;
+        i++;
+    } while (pProfile < g_saveData + 0x1f68);
+}
+
 // FUNCTION: CMR2 0x004eb4b0
 void FUN_004eb4b0(char *param1, int param2)
 {
     CFileBuffer::GetGenericFileBuffer(param1, 1);
+}
+
+// Resets record `index` of the 0x531350 table to category 0xf, clearing bit 0x2000.
+// TODO: CMR2 0x004ebe80 (implemented, match 41%)
+void FUN_004ebe80(int index)
+{
+    unsigned int *pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
+    unsigned int value = *pRecord;
+
+    if ((value & 0x3c0000) != 0x3c0000)
+        *pRecord = value & 0xffffdfff | 0x3c0000;
+}
+
+// FUNCTION: CMR2 0x004ebec0
+void FUN_004ebec0(void)
+{
+    int i;
+
+    i = 0;
+    do {
+        FUN_004ebe80(i);
+        i++;
+    } while (i < 0x10);
 }
 
 // 12-byte block read from the file buffer (at offset 0x10).

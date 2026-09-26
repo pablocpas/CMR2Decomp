@@ -24,6 +24,62 @@ BOOL CSound::m_unk0x005a2724;
 BOOL CSound::m_unk0x005a2734 = FALSE;
 char CSound::m_unk0x005a2738[256];
 
+// GLOBAL: CMR2 0x00520a3c
+char g_strCouldNotCreateStreamingBuffer[36] = "Could not create streaming buffer";
+// GLOBAL: CMR2 0x00520a60
+char g_strCouldNotOpenAdpcm[44] = "Could not open Microsoft ADPCM Audio CODEC";
+// GLOBAL: CMR2 0x00520a8c
+char g_strCouldNotOpenMusicFile[28] = "Could not open music file";
+
+BOOL FUN_004a2a20(void);
+BOOL FUN_004bd120(void);
+void FUN_004a3240(int unused);
+
+// Opens a music file (.wav with Microsoft ADPCM data) and prepares it for
+// streaming: creates the streaming buffer and the ACM decoder; on failure the
+// music is stopped again. The name is remembered in m_unk0x005a2738.
+// TODO: CMR2 0x004a28d0 (implemented, match 74%)
+void CSound::FUN_004a28d0(char *path) {
+    if (m_unk0x006e0eec == 0)
+        return;
+
+    m_unk0x005a2728 = FALSE;
+    m_unk0x005a272c = FALSE;
+    m_unk0x005a2730 = FALSE;
+    if (m_pMMIO != NULL) {
+        CloseMMIO(m_pMMIO);
+        MMIOData *pMMIO = m_pMMIO;
+        if (pMMIO != NULL) {
+            CloseAndCleanupMMIO(pMMIO);
+            delete pMMIO;
+            m_pMMIO = NULL;
+        }
+    }
+
+    m_pMMIO = new MMIOData();
+    if (m_pMMIO->Open(path) != 0) {
+        FUN_004a3240((int)g_strCouldNotOpenMusicFile);
+    } else {
+        m_unk0x005a2728 = TRUE;
+        if (FUN_004a3250(FUN_004a2a20()) == 0) {
+            FUN_004a3240((int)g_strCouldNotCreateStreamingBuffer);
+        } else {
+            m_unk0x005a272c = TRUE;
+            if (m_unk0x005a2734 == FALSE)
+                CGame::RegisterCallback((void *)FUN_004a2ac0, NULL);
+            if (FUN_004bd120() == 1) {
+                m_unk0x005a2730 = TRUE;
+                m_unk0x005a2734 = TRUE;
+                strcpy(m_unk0x005a2738, path);
+            } else {
+                FUN_004a3240((int)g_strCouldNotOpenAdpcm);
+            }
+        }
+    }
+    if (m_unk0x005a2730 == FALSE)
+        FUN_004a2b50(FALSE);
+}
+
 // FUNCTION: CMR2 0x004a2b50
 void CSound::FUN_004a2b50(BOOL param1) {
     FUN_004a2ac0();
@@ -400,27 +456,31 @@ MMIOData::MMIOData()
 }
 
 // FUNCTION: CMR2 0x004bd8e0
-void MMIOData::Open(LPSTR strFileName)
+HRESULT MMIOData::Open(LPSTR strFileName)
 {
+    HRESULT hr;
+
     if (pBuffer != NULL) {
         delete pBuffer;
         pBuffer = NULL;
     }
 
-    if (SUCCEEDED(WaveOpenFile(strFileName, &hmmio, &pBuffer, &ckRiff)))
-        StartDataRead();
+    hr = WaveOpenFile(strFileName, &hmmio, &pBuffer, &ckRiff);
+    if (SUCCEEDED(hr))
+        hr = StartDataRead();
+    return hr;
 }
 
 // FUNCTION: CMR2 0x004bd920
-void MMIOData::StartDataRead(void)
+HRESULT MMIOData::StartDataRead(void)
 {
-    WaveStartDataRead(&hmmio, &ck, &ckRiff, &dwSize);
+    return WaveStartDataRead(&hmmio, &ck, &ckRiff, &dwSize);
 }
 
 // FUNCTION: CMR2 0x004bd940
-void MMIOData::Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead)
+HRESULT MMIOData::Read(UINT cbRead, BYTE *pbDest, UINT *pcbRead)
 {
-    WaveReadFile(hmmio, cbRead, pbDest, &ck, pcbRead);
+    return WaveReadFile(hmmio, cbRead, pbDest, &ck, pcbRead);
 }
 
 // Releases the sound data held by one slot and clears the slot.
@@ -564,6 +624,125 @@ void FUN_004a2d30(void)
         g_unk0x005a2718 = (int)v - 1;
     else
         g_unk0x005a2718 = (int)v + 7;
+}
+
+extern int g_unk0x005a271c;
+
+// Decodes `count` 16 KB blocks of the music file into pDst (0xfe80 bytes of
+// PCM each). At the end of the file the block is padded to the ADPCM block size
+// and the file is rewound, so the music loops.
+// FUNCTION: CMR2 0x004a2d90
+HRESULT FUN_004a2d90(BYTE *pDst, int count)
+{
+    BYTE buffer[0x4000];
+    UINT read;
+    BYTE *pOut;
+    UINT pos;
+    UINT pad;
+    UINT blocks;
+    HRESULT hr;
+    int i;
+
+    for (i = 0; i < count; i++) {
+        pOut = pDst + i * 0xfe80;
+        hr = CSound::m_pMMIO->Read(0x4000, buffer, &read);
+        if (hr != 0)
+            return hr;
+        if (read < 0x4000) {
+            pos = read;
+            do {
+                pad = 0x800 - (read & 0x7ff);
+                memset(buffer + read, 0, pad);
+                pos += pad;
+                FUN_004bd1b0(buffer, pOut);
+                blocks = (UINT)(read * (1.0f / 2048.0f));
+                CSound::FUN_004a3250(CSound::m_pMMIO->StartDataRead());
+                CSound::FUN_004a3250(CSound::m_pMMIO->Read(0x4000 - pos, buffer + pos, &read));
+                FUN_004bd1b0(buffer, pDst + (blocks + 0xfe80) * i);
+                pos += read;
+            } while (pos < 0x4000);
+        } else {
+            FUN_004bd1b0(buffer, pOut);
+        }
+        g_unk0x005a2714++;
+        if (g_unk0x005a2714 == 8)
+            g_unk0x005a2714 = 0;
+    }
+    return 0;
+}
+
+// Rewinds the music file and fills the whole streaming buffer from the start.
+// FUNCTION: CMR2 0x004a2c70
+HRESULT FUN_004a2c70(int unused)
+{
+    void *pAudio1 = NULL;
+    void *pAudio2 = NULL;
+    DWORD bytes1;
+    DWORD bytes2;
+
+    if (CSound::m_pDirectSoundBuffer == NULL)
+        return E_FAIL;
+    CSound::m_pMMIO->StartDataRead();
+    CSound::m_pDirectSoundBuffer->SetCurrentPosition(0);
+    FUN_004a2d30();
+    CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Lock(0, g_unk0x005a271c, &pAudio1, &bytes1, &pAudio2, &bytes2, 0));
+    CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, 8));
+    CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
+    return 0;
+}
+
+// Restores the streaming buffer if it was lost, then refills it.
+// FUNCTION: CMR2 0x004a2f70
+HRESULT FUN_004a2f70(int param1)
+{
+    DWORD status;
+    HRESULT hr;
+
+    if (CSound::m_pDirectSoundBuffer != NULL) {
+        hr = CSound::m_pDirectSoundBuffer->GetStatus(&status);
+        if (hr < 0)
+            return hr;
+        if (status & DSBSTATUS_BUFFERLOST) {
+            do {
+                if (CSound::m_pDirectSoundBuffer->Restore() == DSERR_BUFFERLOST)
+                    Sleep(10);
+            } while (CSound::m_pDirectSoundBuffer->Restore() != 0);
+            hr = FUN_004a2c70(param1);
+            if (hr < 0)
+                return hr;
+        }
+    }
+    return 0;
+}
+
+// GLOBAL: CMR2 0x00520aa8
+char g_strCouldNotPlayMusicFile[28] = "Could not play music file";
+// GLOBAL: CMR2 0x00520ac4
+char g_strCouldNotFillMusicBuffer[28] = "Could not fill music buffer";
+// GLOBAL: CMR2 0x00520ae0
+char g_strCouldNotRestoreMusicBuffer[32] = "Could not restore music buffer";
+
+void FUN_004a3240(int unused);
+
+// Starts playing the opened music from the beginning, looping.
+// FUNCTION: CMR2 0x004a2bd0
+HRESULT FUN_004a2bd0(int param1)
+{
+    if (CSound::m_unk0x005a2730 != 0) {
+        g_unk0x005a2710 = 0;
+        g_unk0x005a2714 = 0;
+        CSound::m_unk0x005a2720 = FALSE;
+        CSound::m_unk0x005a2724 = FALSE;
+        if (CSound::m_pDirectSoundBuffer == NULL)
+            return E_FAIL;
+        if (CSound::FUN_004a3250(FUN_004a2f70(param1)) == 0)
+            FUN_004a3240((int)g_strCouldNotRestoreMusicBuffer);
+        if (CSound::FUN_004a3250(FUN_004a2c70(param1)) == 0)
+            FUN_004a3240((int)g_strCouldNotFillMusicBuffer);
+        if (CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING)) == 0)
+            FUN_004a3240((int)g_strCouldNotPlayMusicFile);
+    }
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004a2430
