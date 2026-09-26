@@ -3471,3 +3471,124 @@ unsigned int FUN_00502df0(int index, int type, int dynamic)
     return other;
 }
 
+// Scales both bar sizes of the option record by field_0x0 while it fades in
+// (mode 1), or clears them when it is fully out (mode 0).
+// FUNCTION: CMR2 0x00501f00
+void FUN_00501f00(int index, short *pBar)
+{
+    Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
+
+    if (p->field_0xc == 1) {
+        pBar[2] = (short)FixMulShift32(pBar[2] << 16, p->field_0x0);
+        pBar[3] = (short)FixMulShift32(pBar[3] << 16, p->field_0x0);
+        return;
+    }
+    if (p->field_0xc == 0) {
+        pBar[3] = 0;
+        pBar[2] = 0;
+    }
+}
+
+// Address of the byte set by the option menu (0x82b1b8).
+// FUNCTION: CMR2 0x00501ab0
+BYTE *FUN_00501ab0(void)
+{
+    return &g_unk0x0082b1b8;
+}
+
+// True when the option slot is enabled: mode 2/4 are checked against their
+// selectors, everything else is accepted.
+// FUNCTION: CMR2 0x00501280
+int FUN_00501280(int mode, int index)
+{
+    int result = 1;
+
+    if (mode == 2) {
+        if (CFrontend::FUN_0040ee80(index) == 0)
+            result = 0;
+    } else if (mode == 4) {
+        if (CFrontend::FUN_0040ee70(index) == 0)
+            result = 0;
+    }
+    return result;
+}
+
+// Whether the option slot has been raised above its base value.
+// FUNCTION: CMR2 0x00502630
+int FUN_00502630(int index, int type)
+{
+    int value;
+
+    value = FUN_005011f0(index);
+    if (g_unk0x00527098[type] <= value)
+        return 1;
+    return g_unk0x0082bf20[index][type] != 0;
+}
+
+// Whether the option slot value differs from its default, per column.
+// FUNCTION: CMR2 0x00502b10
+int FUN_00502b10(int index, int type)
+{
+    switch (type) {
+    case 0: return g_unk0x0082bf04[index * 7] == (char)g_unk0x0082bee8[index][0];
+    case 1: return g_unk0x0082bf04[index * 7 + 1] == (char)g_unk0x0082bee8[index][1];
+    case 6: return g_unk0x0082bf04[index * 7 + 6] == (char)g_unk0x0082bee8[index][6];
+    case 2: return g_unk0x0082bf04[index * 7 + 2] == (char)g_unk0x0082bee8[index][2];
+    case 3: return g_unk0x0082bf04[index * 7 + 3] == (char)g_unk0x0082bee8[index][3];
+    case 4: return g_unk0x0082bf04[index * 7 + 4] == (char)g_unk0x0082bee8[index][4];
+    case 5: return g_unk0x0082bf04[index * 7 + 5] == (char)g_unk0x0082bee8[index][5];
+    }
+    return 0;
+}
+
+// Whether the option slot value has risen above its base value.
+// FUNCTION: CMR2 0x00502fc0
+int FUN_00502fc0(int index, int type)
+{
+    int value;
+
+    value = FUN_005011f0(index);
+    if (g_unk0x005270b4[type] <= value)
+        return FUN_00502df0(index, type, 1) != 0;
+    return g_unk0x0082c040[index][type] != 0;
+}
+
+// Finds the index of the entry with the given id in the list at 0x3c, or -1.
+// FUNCTION: CMR2 0x00508f60
+int FUN_00508f60(unsigned int id, int param2)
+{
+    int *pEntry;
+    int count;
+    int i;
+
+    count = *(char *)(param2 + 0x26a);
+    i = 0;
+    while (i < count) {
+        if ((*(unsigned int *)(*(int *)(param2 + 0x3c + i * 4) + 0x30) & 0xff) == id)
+            return i;
+        i++;
+    }
+    return -1;
+}
+
+// Screen-space viewport used by the stage HUD: x, y, width, height.
+// GLOBAL: CMR2 0x0082c9ec
+short g_unk0x0082c9ec[4];
+
+// Maps a HUD point from viewport space to screen space; when the transform is
+// marked as already scaled (field_0x1c == 0x10000) it only resolves the
+// 640x480 reference to the current resolution.
+// TODO: CMR2 0x00503b70 (implemented, match 65%)
+int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
+{
+    if (p->field_0x1c != 0x10000) {
+        *pX = (short)FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
+                                   *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
+        *pY = (short)FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
+                                   *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
+    }
+    *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
+    *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);
+    return 0;
+}
+
