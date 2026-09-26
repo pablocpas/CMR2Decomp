@@ -68,6 +68,10 @@ void FUN_0049de40(void);
 BYTE FUN_0041db00(void);
 BYTE FUN_0044a130(void);
 BYTE FUN_0041f380(void);
+char *FUN_00409cd0(int index);
+int FUN_00409d20(int index);
+BYTE *FUN_0040b0a0(int id);
+unsigned long FUN_004a1a00(void);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -5060,4 +5064,74 @@ void FUN_00411070(int param1, int param2)
     Game_PrepareScene((SceneNode *)g_unk0x00536be0, (SceneNode *)g_unk0x00536be4, (int)rect, 0);
     FUN_0049d3f0(g_unk0x00536be0, g_unk0x00536be4, rect, 0, 1);
     FUN_0049de40();
+}
+
+// --------------------------------------------------------------------------
+// Stage result rows: position panel, position number and driver name.
+// --------------------------------------------------------------------------
+
+// GLOBAL: CMR2 0x005170d8
+unsigned int g_unk0x005170d8 = 0xffff9265;
+// GLOBAL: CMR2 0x00517df0
+char g_str00517df0[4] = "%1d";
+
+// match 55%: the original scales the screen size with signed shifts (sar) and
+// keeps the row colour and the row cursor in different registers, so the frame
+// is 4 bytes wider and every stack offset differs; the logic and the call
+// sequence are the same.
+// Draws the eight classified rows of a stage result screen at pOrigin: for each
+// entry the row panel, its position number and the driver name, stepping down
+// by the row height.
+// FUNCTION: CMR2 0x00415480
+void FUN_00415480(short *pOrigin)
+{
+    short rect[4];
+    short panel[4];
+    char text[4];
+    char name[256];
+    BYTE *pColour;
+    int y;
+    int index;
+    int value;
+    int i;
+
+    rect[1] = (short)((g_pGraphics->resY << 12) >> 16) + pOrigin[1];
+    y = (int)((g_pGraphics->resY * 0x1b32) >> 16) + pOrigin[1] - 2;
+    rect[0] = (short)((g_pGraphics->resX * 0xc00) >> 16) + pOrigin[0];
+    rect[2] = (short)((g_pGraphics->resX * 0x47ae) >> 16);
+    rect[3] = (short)((g_pGraphics->resY * 0xccc) >> 16) - 2;
+    i = 0;
+    do {
+        index = FUN_0040a700(i);
+        if (index != -1) {
+            if (index == -2) {
+                sprintf(name, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(0));
+                Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x005170d8, 2);
+                value = (int)FUN_004a1a00();
+            } else {
+                char *pName = FUN_00409cd0(index);
+                if (pName == 0)
+                    sprintf(name, CMain::m_logFileBlankLine);
+                else
+                    sprintf(name, CRegKey::m_regKeyPathFormatValue, pName);
+                Sprite_FillRect((int)g_pGraphics + 0x150, rect,
+                                (BYTE *)&g_stageResultPanelColour, 2);
+                value = FUN_00409d20(index);
+            }
+            pColour = FUN_0040b0a0(value);
+            panel[2] = (short)(g_pGraphics->resX * 10 / 0x280);
+            panel[3] = (short)(g_pGraphics->resY * 10 / 0x1e0);
+            panel[0] = (short)((rect[2] - panel[2]) + rect[0] - panel[2] / 2);
+            panel[1] = (short)(rect[3] / 2 + rect[1] - panel[3] / 2);
+            Sprite_FillRect((int)g_pGraphics + 0x150, panel, pColour, 2);
+            sprintf(text, g_str00517df0, i + 1);
+            Font_DrawText(0, text, (short)((g_pGraphics->resX * 0xf95) >> 16) + pOrigin[0], y,
+                          (int *)&g_stageResultTextColour, 0x22);
+            Font_DrawText(0, name, (short)((g_pGraphics->resX * 0x132a) >> 16) + pOrigin[0], y,
+                          (int *)&g_stageResultTextColour, 0x21);
+            rect[1] += rect[3];
+            y += rect[3];
+        }
+        i++;
+    } while (i < 8);
 }
