@@ -78,7 +78,7 @@ int ZEXPORT inflateEnd(z_streamp z)
   Tracev((stderr, "inflate: end\n"));
   return Z_OK;
 }
-// TODO: CMR2 0x004bed90 (implemented, match 99%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004bed90
 
 
 int ZEXPORT inflateInit2_(z_streamp z, int w, const char *version, int stream_size)
@@ -142,7 +142,7 @@ int ZEXPORT inflateInit_(z_streamp z, const char *version, int stream_size)
 
 #define NEEDBYTE {if(z->avail_in==0)return r;r=f;}
 #define NEXTBYTE (z->avail_in--,z->total_in++,*z->next_in++)
-// TODO: CMR2 0x004bef00 (implemented, match 98%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004bef00
 
 int ZEXPORT inflate(z_streamp z, int f)
 {

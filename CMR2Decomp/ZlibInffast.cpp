@@ -26,7 +26,7 @@ struct inflate_codes_state {int dummy;}; /* for buggy compilers */
    (the maximum string length) and number of input bytes available
    at least ten.  The ten bytes are six bytes for the longest length/
    distance pair plus four bytes for overloading the bit buffer. */
-// TODO: CMR2 0x004c47c0 (implemented, match 97%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c47c0
 
 int inflate_fast(uInt bl, uInt bd, inflate_huft *tl, inflate_huft *td, inflate_blocks_statef *s, z_streamp z)
     /* need separate declaration for Borland C++ */

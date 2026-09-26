@@ -76,7 +76,7 @@ inflate_codes_statef *inflate_codes_new(uInt bl, uInt bd, inflate_huft *tl, infl
   }
   return c;
 }
-// TODO: CMR2 0x004c37a0 (implemented, match 99%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c37a0
 
 
 int inflate_codes(inflate_blocks_statef *s, z_streamp z, int r)

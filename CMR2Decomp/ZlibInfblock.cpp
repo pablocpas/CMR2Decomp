@@ -68,7 +68,7 @@ local const uInt border[] = { /* Order of the bit length code lengths */
 // FUNCTION: CMR2 0x004c0c10
 
 
-void inflate_blocks_reset(inflate_blocks_statef *s, z_streamp z, uLongf *c)
+__inline void inflate_blocks_reset(inflate_blocks_statef *s, z_streamp z, uLongf *c)
 {
   if (c != Z_NULL)
     *c = s->check;
@@ -84,7 +84,7 @@ void inflate_blocks_reset(inflate_blocks_statef *s, z_streamp z, uLongf *c)
     z->adler = s->check = (*s->checkfn)(0L, (const Bytef *)Z_NULL, 0);
   Tracev((stderr, "inflate:   blocks reset\n"));
 }
-// TODO: CMR2 0x004c0c90 (implemented, match 85%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c0c90
 
 
 inflate_blocks_statef *inflate_blocks_new(z_streamp z, check_func c, uInt w)
@@ -113,7 +113,7 @@ inflate_blocks_statef *inflate_blocks_new(z_streamp z, check_func c, uInt w)
   inflate_blocks_reset(s, z, Z_NULL);
   return s;
 }
-// TODO: CMR2 0x004c0d50 (implemented, match 99%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c0d50
 
 
 int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
@@ -358,7 +358,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
       LEAVE
   }
 }
-// TODO: CMR2 0x004c1a20 (implemented, match 20%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c1a20
 
 
 int inflate_blocks_free(inflate_blocks_statef *s, z_streamp z)

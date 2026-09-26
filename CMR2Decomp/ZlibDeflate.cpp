@@ -197,7 +197,7 @@ int ZEXPORT deflateInit_(z_streamp strm, int level, const char *version, int str
 }
 
 /* ========================================================================= */
-// TODO: CMR2 0x004bf340 (implemented, match 97%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004bf340
 int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy,
                           const char *version, int stream_size)
 {
@@ -414,7 +414,7 @@ local void flush_pending(z_streamp strm)
 }
 
 /* ========================================================================= */
-// TODO: CMR2 0x004bf640 (implemented, match 98%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004bf640
 int ZEXPORT deflate(z_streamp strm, int flush)
 {
     int old_flush; /* value of flush param for previous deflate call */
@@ -697,6 +697,7 @@ local void lm_init(deflate_state *s)
  * match.S. The code will be functionally equivalent.
  */
 #ifndef FASTEST
+// FUNCTION: CMR2 0x004c03b0
 local uInt longest_match(deflate_state *s, IPos cur_match)
     /* current match */
 {
@@ -838,7 +839,6 @@ local uInt longest_match(deflate_state *s, IPos cur_match)
 /* ---------------------------------------------------------------------------
  * Optimized version for level == 1 only
  */
-// FUNCTION: CMR2 0x004c03b0
 local uInt longest_match(deflate_state *s, IPos cur_match)
     /* current match */
 {
@@ -1105,7 +1105,7 @@ local block_state deflate_stored(deflate_state *s, int flush)
  * new strings in the dictionary only for unmatched strings or for short
  * matches. It is used only for the fast compression options.
  */
-// TODO: CMR2 0x004bff90 (implemented, match 94%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004bff90
 local block_state deflate_fast(deflate_state *s, int flush)
 {
     IPos hash_head = NIL; /* head of the hash chain */
@@ -1200,7 +1200,7 @@ local block_state deflate_fast(deflate_state *s, int flush)
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
-// TODO: CMR2 0x004c0530 (implemented, match 94%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c0530
 local block_state deflate_slow(deflate_state *s, int flush)
 {
     IPos hash_head = NIL;    /* head of hash chain */
