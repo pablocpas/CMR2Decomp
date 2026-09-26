@@ -316,6 +316,48 @@ void FUN_004dc7b0(Menu *pMenu)
     }
 }
 
+void *FUN_004f4b10(void);
+int FUN_004f4b20(void);
+void *FUN_004f4b30(void);
+int FUN_004f1bf0(void);
+
+// Draws the two columns of text of the scrolling credits screen; when every
+// line has scrolled past the top the screen finishes.
+// TODO: CMR2 0x004dec30 (implemented, match 84%)
+void FUN_004dec30(Menu *pMenu)
+{
+    char **ppText;
+    unsigned short *pLineY;
+    unsigned int elapsed;
+    bool allOffScreen;
+    int i;
+
+    allOffScreen = true;
+    ppText = (char **)FUN_004f4b10();
+    pLineY = (unsigned short *)FUN_004f4b30();
+    elapsed = (unsigned int)CFrontend::FUN_004d20e0();
+    elapsed -= FUN_004f1bf0();
+    elapsed /= 30;
+    for (i = 0; i < FUN_004f4b20(); i++) {
+        ((int *)FUN_004f4b30())[i] = ((int)g_pGraphics->resY * 40) / 480 * i - elapsed + 1
+            + FUN_004f25a0() + (int)g_pGraphics->resY + Font_GetLineHeight(2);
+        if (((int *)FUN_004f4b30())[i] < (int)g_pGraphics->resY + 100
+            && ((int *)FUN_004f4b30())[i] > -100) {
+            Font_DrawText(2, ppText[0], (int)g_pGraphics->resX / 2 - 10,
+                          pLineY[i * 2],
+                          (int *)g_colourWhite0x00524968, 0x14);
+            Font_DrawText(2, ppText[1], (int)g_pGraphics->resX / 2 + 10,
+                          pLineY[i * 2],
+                          (int *)g_colourWhite0x00524968, 0x11);
+        }
+        if (((int *)FUN_004f4b30())[i] > -10)
+            allOffScreen = false;
+        ppText += 2;
+    }
+    if (allOffScreen)
+        FUN_004f1bd0(0, 0);
+}
+
 // FUNCTION: CMR2 0x004e1890
 void FUN_004e1890(Menu *pMenu)
 {
@@ -948,6 +990,31 @@ void FUN_004ec2b0(void)
     FUN_00409be0((int)info);
 }
 
+bool FUN_004aac00(void);
+
+// Callback of the network session menu: creates the DirectPlay session and
+// lobby; the connection count becomes the value of the session type item.
+// FUNCTION: CMR2 0x004ec9a0
+void FUN_004ec9a0(Menu *pMenu, int param)
+{
+    g_unk0x00818f10 = 0;
+    if (CGame::CreateDirectPlay()) {
+        if (CGame::CreateDirectPlayLobby()) {
+            if (FUN_004aac00()) {
+                FUN_004f8440()->items[0].min = (BYTE)CGame::GetConnectionCount();
+                FUN_004f8440()->items[0].max = 0;
+                g_unk0x00818f10 = 1;
+                return;
+            }
+            CGame::DestroyDirectPlayLobby();
+            CGame::DestroyDirectPlay();
+            Menu_SetNextAction((int)pMenu->pParent);
+            return;
+        }
+        CGame::DestroyDirectPlay();
+    }
+}
+
 // FUNCTION: CMR2 0x004eca60
 void FUN_004eca60(Menu *pMenu, char param)
 {
@@ -1094,6 +1161,62 @@ void FUN_004edca0(Menu *pMenu, int param)
         return;
     }
     CGameInfo::FUN_00406540(Menu_GetItem(pMenu, 1)->max, value, flags | 1);
+}
+
+int FUN_00406750(void);
+
+// Initialises the rally/stage select menu from the unlocked rally count.
+// FUNCTION: CMR2 0x004ee850
+void FUN_004ee850(Menu *pMenu, int param)
+{
+    int order[8];
+    unsigned int *pFlags;
+    unsigned int count;
+    unsigned int n;
+    int i;
+
+    i = 0;
+    order[0] = 6;
+    order[1] = 3;
+    order[2] = 1;
+    order[3] = 4;
+    order[4] = 0;
+    order[5] = 2;
+    order[6] = 5;
+    order[7] = 7;
+    pFlags = CGameInfo::FUN_00405db0();
+    count = 6;
+    if (!CGameInfo::FUN_00406410(0xd)) {
+        count = (*pFlags >> 2 & 3) * 3;
+        n = (*pFlags >> 4 & 3) * 3;
+        if (n > count)
+            count = n;
+        n = (*pFlags >> 6 & 3) * 3;
+        if (n > count)
+            count = n;
+    }
+    do {
+        if (i < (int)count || CGameInfo::FUN_00406410(0xd))
+            g_unk0x00818ed4[i] = order[i];
+        i++;
+    } while (i < 6);
+    if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd)) {
+        count++;
+        g_unk0x00818ed4[i] = 5;
+    }
+    if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd)) {
+        count++;
+        g_unk0x00818ed4[i + 1] = 7;
+    }
+    Menu_GetItem(pMenu, 0)->min = count;
+    Menu_GetItem(pMenu, 0)->max = 0;
+    for (i = 0; i < (int)count; i++) {
+        if (g_unk0x00818ed4[i] == FUN_00406730()) {
+            Menu_GetItem(pMenu, 0)->max = i;
+            break;
+        }
+    }
+    Menu_GetItem(pMenu, 1)->max = FUN_00406750() - 1;
 }
 
 // FUNCTION: CMR2 0x004eeab0
@@ -1336,6 +1459,60 @@ void FUN_004ef5f0(Menu *pMenu, int param)
     RallyData_FUN_0040d620(1);
 }
 
+void RallyData_FUN_004068e0(BYTE param1);
+
+// Callback of the rally options menu: copies the current cursor to the
+// matching options sub-menu and seeds its value from the game info.
+// FUNCTION: CMR2 0x004ef600
+void FUN_004ef600(Menu *pMenu, int param)
+{
+    switch (pMenu->cursor) {
+    case 0:
+        FUN_004ea8e0(0);
+        RallyData_FUN_004068b0(0);
+        RallyData_FUN_004068e0(0);
+        if (CGameInfo::FUN_00405d70() < 5) {
+            FUN_004f82e0()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+            return;
+        }
+        FUN_004f82e0()->items[0].max = 0;
+        return;
+    case 1:
+        FUN_004ea8e0(1);
+        RallyData_FUN_004068e0(0);
+        if (CGameInfo::FUN_00405d70() < 5) {
+            FUN_004f82f0()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+            return;
+        }
+        FUN_004f82f0()->items[0].max = 0;
+        return;
+    case 2:
+        FUN_004ea8e0(2);
+        if (CGameInfo::FUN_00405d70() < 5) {
+            FUN_004f8300()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+            return;
+        }
+        FUN_004f8300()->items[0].max = 0;
+        return;
+    case 3:
+        FUN_004ea8e0(3);
+        if (CGameInfo::FUN_00405d70() < 5) {
+            FUN_004f8310()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+            return;
+        }
+        FUN_004f8310()->items[0].max = 0;
+        return;
+    case 4:
+        FUN_004ea8e0(4);
+        if (CGameInfo::FUN_00405d70() < 9) {
+            FUN_004f8320()->items[0].max = CGameInfo::FUN_00405d70() - 1;
+            return;
+        }
+        FUN_004f8320()->items[0].max = 0;
+        break;
+    }
+}
+
 // FUNCTION: CMR2 0x004ef8f0
 void FUN_004ef8f0(Menu *pMenu, int param)
 {
@@ -1536,6 +1713,52 @@ void FUN_004f1640(Menu *pMenu)
 // Maps a screen index to its palette/colour id and stores it for the current mode.
 void RallyData_FUN_00408600(BYTE index, BYTE value);
 
+void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
+
+// Callback of the car colour menu: reads the current driver's category colour
+// and reflects it onto the colour picker items.
+// TODO: CMR2 0x004f16f0 (implemented, match 70%)
+void FUN_004f16f0(Menu *pMenu, int param)
+{
+    int hue;
+    int value;
+    int shade;
+    BYTE idx;
+
+    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
+    pMenu->items[2].max = 0;
+    pMenu->cursor = 0;
+    pMenu->items[0].max = value;
+    idx = (BYTE)shade - 1;
+    pMenu->items[1].max = idx;
+    switch (idx) {
+    case 3:
+    case 5:
+    case 8:
+    case 0xa:
+        pMenu->items[2].min = 0x1e;
+        return;
+    case 1:
+        break;
+    case 0:
+    case 2:
+    case 4:
+    case 6:
+    case 7:
+    case 9:
+    case 0xb:
+        pMenu->items[2].min = 0x1f;
+        return;
+    default:
+        return;
+    }
+    if (value % 4 == 0)
+        pMenu->items[2].min = 0x1d;
+    else
+        pMenu->items[2].min = 0x1c;
+}
+
 // FUNCTION: CMR2 0x004f1a10
 void FUN_004f1a10(int param_1, int unused)
 {
@@ -1696,6 +1919,36 @@ void FUN_004f1f70(Menu *pMenu, char param)
 {
     if (param == 0)
         FUN_004f1e40(pMenu, (int)&pMenu->items[pMenu->cursor]);
+}
+
+DWORD FUN_004b7530(void);
+DWORD FUN_004b7540(void);
+DWORD FUN_004b7550(void);
+
+// Callback of the options menu: enables the items supported by the current
+// device and puts the cursor on the active option group.
+// FUNCTION: CMR2 0x004f1fa0
+void FUN_004f1fa0(Menu *pMenu, int param)
+{
+    pMenu->items[0].min = 4;
+    pMenu->items[0].enabled |= 1;
+    pMenu->items[1].enabled = FUN_004b7530();
+    pMenu->items[2].enabled = FUN_004b7530() && FUN_004b7540();
+    pMenu->items[3].enabled = FUN_004b7530() && FUN_004b7550();
+    switch (CGameInfo::FUN_00405b50()) {
+    case 1:
+        pMenu->cursor = 1;
+        return;
+    case 2:
+        pMenu->cursor = 2;
+        return;
+    case 3:
+        pMenu->cursor = 3;
+        return;
+    default:
+        pMenu->cursor = 0;
+        return;
+    }
 }
 
 // FUNCTION: CMR2 0x004f2050
@@ -4868,6 +5121,97 @@ void FUN_004fafe0(Menu *pMenu, int param)
     RallyData_FUN_00406960(0);
     RallyData_FUN_0040d620(3);
     Menu_SetNextAction((int)FUN_004f8330());
+}
+
+// Item callback that rebuilds a horizontally scrolling menu: the visible item
+// count comes from the current difficulty and the item widths are measured
+// from the localised strings.
+// FUNCTION: CMR2 0x004fb010
+void FUN_004fb010(Menu *pMenu, int param)
+{
+    MenuScroller *pScroller;
+    unsigned int *pFlags;
+    unsigned int count;
+    unsigned int n;
+    int i;
+
+    FUN_004ea480(0);
+    pScroller = FUN_004f2590();
+    pScroller->startTime = CFrontend::FUN_004d20e0();
+    pScroller->count = pMenu->itemCount;
+    pScroller->pMenu = pMenu;
+    for (i = 0; i < 8; i++) {
+        FUN_004fa340()->items[i].enabled &= ~1;
+        FUN_004fa350()->items[i].enabled &= ~1;
+    }
+    pFlags = CGameInfo::FUN_00405db0();
+    if (CGameInfo::FUN_00405d80() == 7) {
+        count = (*pFlags >> 2 & 3) * 3;
+        n = (*pFlags >> 4 & 3) * 3;
+        if (n > count)
+            count = n;
+        n = (*pFlags >> 6 & 3) * 3;
+        if (n > count)
+            count = n;
+    } else if (CGameInfo::FUN_00405d70() == 1) {
+        switch (CGameInfo::FUN_00405d90()) {
+        case 0:
+            count = (*pFlags >> 2 & 3) * 3;
+            break;
+        case 1:
+            count = (*pFlags >> 4 & 3) * 3;
+            break;
+        case 2:
+            count = (*pFlags >> 6 & 3) * 3;
+            break;
+        }
+    } else {
+        count = (*pFlags >> 6 & 3) * 3;
+        n = (*pFlags >> 4 & 3) * 3;
+        if (count < n)
+            count = n;
+        n = (*pFlags >> 2 & 3) * 3;
+        if (count < n)
+            count = n;
+    }
+    for (i = 0; i < 6; i++) {
+        if (i < (int)count || CGameInfo::FUN_00406410(0xd)) {
+            FUN_004fa340()->items[i].enabled |= 1;
+            FUN_004fa350()->items[i].enabled |= 1;
+        } else {
+            FUN_004fa340()->items[i].enabled &= ~1;
+            FUN_004fa350()->items[i].enabled &= ~1;
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 7) {
+        pScroller->count = 8;
+        pMenu->itemCount = 8;
+        if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd))
+            FUN_004fa350()->items[6].enabled |= 1;
+        if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd))
+            FUN_004fa350()->items[7].enabled |= 1;
+    } else if (CGameInfo::FUN_00405d90() == 0 && CGameInfo::FUN_00405d70() == 1) {
+        pScroller->count = 3;
+        pMenu->itemCount = 3;
+        for (i = count; i < pScroller->count; i++)
+            FUN_004fa340()->items[i].enabled &= ~1;
+    } else {
+        pScroller->count = 8;
+        pMenu->itemCount = 8;
+        if ((*pFlags & 0x100000) || CGameInfo::FUN_00406410(0xd))
+            FUN_004fa340()->items[6].enabled |= 1;
+        if ((*pFlags & 0x200000) || CGameInfo::FUN_00406410(0xd))
+            FUN_004fa340()->items[7].enabled |= 1;
+    }
+    pScroller->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    pScroller->count = pMenu->itemCount;
+    pScroller->offset = 0;
+    pScroller->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        pScroller->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
 }
 
 // FUNCTION: CMR2 0x004fb360

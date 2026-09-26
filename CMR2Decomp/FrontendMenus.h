@@ -191,7 +191,7 @@ void FUN_004dc930(Menu *pMenu, int param);
 void FUN_004dce00(Menu *pMenu, int param);
 void FUN_004dd4b0(Menu *pMenu, int param);
 void FUN_004de1d0(Menu *pMenu, int param);
-void FUN_004dec30(Menu *pMenu, int param);
+void FUN_004dec30(Menu *pMenu);
 void FUN_004df410(Menu *pMenu, int param);
 void FUN_004dfe20(Menu *pMenu, int param);
 void FUN_004e0770(Menu *pMenu, int param);

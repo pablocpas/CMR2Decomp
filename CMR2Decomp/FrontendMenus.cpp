@@ -2795,7 +2795,7 @@ void FUN_004f6d70(void)
 {
     Menu_Init(&g_menu0x00822958, 0, 0x34, 0, &g_menu0x0081d6d8, NULL, 1, 0, 0);
     Menu_AddItemType4(&g_menu0x00822958, 0, -1, 0, 0);
-    Menu_SetCallbacks(&g_menu0x00822958, FUN_004f1bd0, NULL, FUN_004dec30, NULL);
+    Menu_SetCallbacks(&g_menu0x00822958, FUN_004f1bd0, NULL, (MenuCallback)FUN_004dec30, NULL);
     Menu_ValidateCursor(&g_menu0x00822958, 0);
 }
 
