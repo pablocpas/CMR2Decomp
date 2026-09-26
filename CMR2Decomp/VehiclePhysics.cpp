@@ -275,8 +275,8 @@ int g_unk0x005919b8;
 
 // Accepts the collision direction when it is nearly parallel to the face and
 // picks the side of the car the target is on.
-// FUNCTION: CMR2 0x00490570
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00490570
 int FUN_00490570(void)
 {
     int d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
@@ -295,8 +295,8 @@ int FUN_00490570(void)
 
 // Accepts the collision when the target is behind the face and the direction
 // is nearly parallel to it.
-// FUNCTION: CMR2 0x00490640
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00490640
 int FUN_00490640(void)
 {
     BYTE *pCar = (BYTE *)g_collisionCar;
@@ -318,8 +318,8 @@ int FUN_00490640(void)
 }
 
 // Classifies face vertices by signed distance from the active collision plane.
-// FUNCTION: CMR2 0x00490720
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00490720
 void Collision_ClassifyFaceVertices(void)
 {
     FixVector newDirection;

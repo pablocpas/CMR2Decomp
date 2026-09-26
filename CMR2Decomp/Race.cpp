@@ -35,8 +35,8 @@ struct RaceSlotState {
 RaceSlotState g_raceSlotState[20];
 
 // Assigns an unused race slot and marks its owner for refresh.
-// FUNCTION: CMR2 0x00417660
 // match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00417660
 void Race_AssignUnusedSlot(int owner)
 {
     int i = 0;
@@ -60,8 +60,8 @@ extern int g_unk0x00537194;
 
 // Plays the queued co-driver calls one after another: starts the first slot's
 // sample, and when it has finished moves the queue up.
-// FUNCTION: CMR2 0x004176b0
 // match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004176b0
 void FUN_004176b0(void)
 {
     RaceSlotState *p;
@@ -352,8 +352,8 @@ int g_unk0x00537198[2];
 int RallyData_FUN_00421370(BYTE *p);
 
 // Stores the player's route position twice and frees the first five race slots.
-// FUNCTION: CMR2 0x00417780
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00417780
 void FUN_00417780(int player)
 {
     RaceSlotState *p;
@@ -384,8 +384,8 @@ int g_unk0x00537248;
 int g_unk0x0053724c;
 
 // Resets the per-player race state: best values, call records and slots.
-// FUNCTION: CMR2 0x00416670
 // match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00416670
 void FUN_00416670(void)
 {
     RaceCallRecord *p;
@@ -458,8 +458,8 @@ BYTE g_raceBlock[0x864];
 
 // Starts the sound of one entry of the stage table and stores its handle, the
 // random pitch and the id of the sound.
-// FUNCTION: CMR2 0x00418d30
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418d30
 void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
 {
     int index;
@@ -483,8 +483,8 @@ void FUN_00418dd0(int param1, int param2, char param3)
 }
 
 // Returns a random value in [0, param2) that is not param1.
-// FUNCTION: CMR2 0x00419b50
 // match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00419b50
 int FUN_00419b50(int param1, int param2)
 {
     int value;
@@ -506,8 +506,8 @@ BYTE FUN_00427aa0(void);
 
 // Moves the car's current sounds to the second bank (slots 4/5 to 6/7) on a
 // sound state change, stopping the ones that don't carry over.
-// FUNCTION: CMR2 0x00419b90
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00419b90
 void FUN_00419b90(int car, BYTE *pInfo)
 {
     switch (*(int *)(pInfo + 0xa8)) {
@@ -561,8 +561,8 @@ tail:
 
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
-// FUNCTION: CMR2 0x0041ae80
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0041ae80
 void FUN_0041ae80(int car, int unused)
 {
     BYTE *pSet = g_raceBlock + car * 0xb4;
@@ -784,8 +784,8 @@ void FUN_00418e20(int set, int dst, int src)
 }
 
 // Car speed as a 16.16 fraction of 120 (speed units clamped to 0..120).
-// FUNCTION: CMR2 0x00418e70
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418e70
 int FUN_00418e70(int car)
 {
     int speed = FixMul(Car_Get(car)->speed, 0x431168) >> 16;
@@ -981,8 +981,8 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
     } while (0)
 
 // Plays a random impact sound (light or heavy set) and shakes the car.
-// FUNCTION: CMR2 0x00418c30
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418c30
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 {
     int sound;
@@ -996,8 +996,8 @@ void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 }
 
 // Plays the scrape sound for its strength (10 levels) and shakes the car.
-// FUNCTION: CMR2 0x00418ba0
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418ba0
 void FUN_00418ba0(unsigned int view, int strength, int listener)
 {
     int level;
@@ -1012,8 +1012,8 @@ void FUN_00418ba0(unsigned int view, int strength, int listener)
 }
 
 // Plays one of the three horn sounds (random for kind 0).
-// FUNCTION: CMR2 0x00418cd0
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418cd0
 void FUN_00418cd0(unsigned int view, int kind, int listener)
 {
     int sound = 0;
@@ -1033,8 +1033,8 @@ int g_unk0x00537350;
 int g_unk0x0053735c;
 
 // Updates the current route block and queues its first callout.
-// FUNCTION: CMR2 0x00416f70
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00416f70
 void FUN_00416f70(int player)
 {
     int remaining = 500 - FUN_0041d780();

@@ -65,8 +65,8 @@ int Track_GetTriangle(FixVector *pOut, short tri)
 
 // Whether the point lies inside the triangle when seen from above (the X/Z
 // bounding box first, then the three edges). pTri may be NULL to load it.
-// FUNCTION: CMR2 0x00490f20
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00490f20
 int Track_PointInTriangle(FixVector *pPoint, short tri, FixVector *pTri)
 {
     int v;
@@ -97,8 +97,8 @@ int Track_PointInTriangle(FixVector *pPoint, short tri, FixVector *pTri)
 
 // Height of the point on the triangle's plane; pNormal receives the plane
 // normal and pSurface the triangle's surface type.
-// FUNCTION: CMR2 0x004910f0
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004910f0
 int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNormal, unsigned short *pSurface)
 {
     FixVector t[3];
@@ -139,8 +139,8 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
 
 // Of the listed triangles under the point, the one whose centre height is
 // closest to y.
-// FUNCTION: CMR2 0x004916a0
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004916a0
 int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count, short *pList)
 {
     FixVector t[3];
@@ -183,8 +183,8 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
 
 // Finds the triangle under the point by walking down the quadtree from the
 // top-level grid cell.
-// FUNCTION: CMR2 0x00491550
 // match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00491550
 int Track_FindTriangle(FixVector *pPoint, short *pOut, int y)
 {
     int dx;
@@ -283,8 +283,8 @@ BYTE *g_pAutoGearSetup;
 
 // Selects the automatic gearbox's next gear from engine speed and road load.
 // It also chooses reverse when the car stops against the driving direction.
-// FUNCTION: CMR2 0x00493b30
 // match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00493b30
 void Car_UpdateAutomaticGear(void)
 {
     int i;
@@ -457,8 +457,8 @@ int g_stageLightReady;
 
 // Loads the stage's light meshes and their height samples.  The samples are
 // fixed point values converted from the first mesh's floating point vertices.
-// FUNCTION: CMR2 0x004919a0
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004919a0
 void Stage_InitLightMeshes(void)
 {
     int object0;
@@ -586,8 +586,8 @@ void Stage_InitLightMeshes(void)
 
 // Sets vertex colours from their heights, with a separate colour for the
 // reference vertex recorded by Stage_InitLightMeshes.
-// FUNCTION: CMR2 0x00491d40
 // match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00491d40
 void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int referenceBlend)
 {
     FixVector low;
@@ -660,8 +660,8 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
 }
 
 // Ramps field 0x818 of the auto-gear car toward +1 or -1 by its two flags.
-// FUNCTION: CMR2 0x00494540
 // match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00494540
 void FUN_00494540(void)
 {
     int value = 0;
@@ -690,8 +690,8 @@ void FUN_00494540(void)
 #define SWAP_RB(c) ((((((c) >> 24) << 8 | ((c) & 0xff)) << 8 | (((c) >> 8) & 0xff)) << 8) | (((c) >> 16) & 0xff))
 
 // Sets the diffuse colour (and alpha) of every vertex of the stage sky mesh.
-// FUNCTION: CMR2 0x00492520
 // match 13%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00492520
 void FUN_00492520(DWORD *pColour)
 {
     DWORD colour;
@@ -708,8 +708,8 @@ void FUN_00492520(DWORD *pColour)
 }
 
 // Sets the diffuse colour of every vertex of the stage light mesh.
-// FUNCTION: CMR2 0x004923d0
 // match 14%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004923d0
 void FUN_004923d0(DWORD *pColour)
 {
     DWORD colour = *pColour;
@@ -790,8 +790,8 @@ void FUN_00492f10(void)
 }
 
 // Sets the diffuse colour (and alpha) of every vertex of stage mesh 5.
-// FUNCTION: CMR2 0x00492470
 // match 13%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00492470
 void FUN_00492470(DWORD *pColour)
 {
     DWORD colour = *pColour;
@@ -808,8 +808,8 @@ extern double g_unk0x00511300;
 
 // Swings field 0x848 of the auto-gear car toward its target over time (a
 // quarter sine), or resets it when the swing is off.
-// FUNCTION: CMR2 0x00494960
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00494960
 void FUN_00494960(void)
 {
     unsigned short angle;
@@ -833,8 +833,8 @@ void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
 
 // Sets the fog and the matching sky alpha: the sky fades out as the draw
 // distance reaches into the fog.
-// FUNCTION: CMR2 0x00492fe0
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00492fe0
 void FUN_00492fe0(DWORD *pColour, int start, int end)
 {
     int distance;
@@ -889,8 +889,8 @@ void FUN_00494880(void)
 
 // Flags whether the auto-gear car is at or below its best gear for the
 // current revs (gear with the most torque below 98% of the limit).
-// FUNCTION: CMR2 0x00493a40
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00493a40
 void FUN_00493a40(void)
 {
     int best;
@@ -926,8 +926,8 @@ void FUN_00494540(void);
 extern int g_physicsTimeStep;
 
 // Steering torque of the auto-gear car from its steering swing.
-// FUNCTION: CMR2 0x004945d0
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004945d0
 void FUN_004945d0(void)
 {
     int torque;

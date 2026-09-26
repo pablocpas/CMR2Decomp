@@ -505,8 +505,8 @@ done:
 }
 
 // Goes back to the parent menu (with the back sound unless muted).
-// FUNCTION: CMR2 0x004a0b30
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a0b30
 void Menu_GoBack(Menu *pMenu)
 {
     if (g_unk0x0059f8fc == 0 && g_unk0x0059fa14 != 0)

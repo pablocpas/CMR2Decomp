@@ -200,8 +200,8 @@ void *g_dmdFiles[9][11];
 char FUN_004eaa30(void);
 
 // Finds the stage map files of every rally in the common frontend archive.
-// FUNCTION: CMR2 0x004d5ca0
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d5ca0
 void FUN_004d5ca0(void)
 {
     int counts[9] = { 10, 11, 10, 11, 10, 11, 10, 11, 8 };
@@ -594,8 +594,8 @@ int FUN_004f1bf0(void);
 
 // Draws the two columns of text of the scrolling credits screen; when every
 // line has scrolled past the top the screen finishes.
-// FUNCTION: CMR2 0x004dec30
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004dec30
 void FUN_004dec30(Menu *pMenu)
 {
     char **ppText;
@@ -1049,8 +1049,8 @@ extern int g_menuEnterTime;
 // the network lobby; otherwise the language menu (first run) or the main
 // menu, and when coming back from a race (`back`) the menus of the game
 // mode that was played, with their cursors.
-// FUNCTION: CMR2 0x004e9f70
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e9f70
 void FUN_004e9f70(BYTE param1, BYTE back)
 {
     Menu *pMenu;
@@ -1319,8 +1319,8 @@ void FUN_00409be0(int param);
 
 // Sends this machine's player description (id, car, flags) to the network
 // player list.
-// FUNCTION: CMR2 0x004ec2b0
 // match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ec2b0
 void FUN_004ec2b0(void)
 {
     DWORD info[4];
@@ -2342,8 +2342,8 @@ void FUN_004ef150(void)
 
 // Recomputes every scroller attached to a menu: gap, reset position and the
 // width of each item's text.
-// FUNCTION: CMR2 0x004ef190
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ef190
 void FUN_004ef190(void)
 {
     MenuScroller *p;
@@ -2566,8 +2566,8 @@ void FUN_004f0d30(Menu *pMenu, char param)
 // Update callback of the "select stage" screen: when the row in the first
 // item moves, the list slides sideways by the distance between the old and
 // the new row (the shortest way round) and eases back to the middle.
-// FUNCTION: CMR2 0x004f0620
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f0620
 void FUN_004f0620(Menu *pMenu)
 {
     int index;
@@ -2644,8 +2644,8 @@ char g_nameRow0x0052538c[12] = "uvwxyz. <_";
 // Item picker of the name entry screens: appends the character of the picked
 // column to the name; the '<' entry deletes the last character and '_'
 // accepts the name.
-// FUNCTION: CMR2 0x004f1040
 // match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f1040
 void FUN_004f1040(Menu *pMenu, int param)
 {
     char *chars;
@@ -2837,8 +2837,8 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
-// FUNCTION: CMR2 0x004f16f0
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f16f0
 void FUN_004f16f0(Menu *pMenu, int param)
 {
     int hue;
@@ -2882,8 +2882,8 @@ void FUN_004f16f0(Menu *pMenu, int param)
 // Enter callback of a rally menu: lists the stages of the rally that are in
 // the save as text ids, points the cursor at the one that is selected in the
 // rally data and measures them for the scroller.
-// FUNCTION: CMR2 0x004f17d0
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f17d0
 void FUN_004f17d0(Menu *pMenu, int param)
 {
     MenuScroller *pScroller;
@@ -3747,8 +3747,8 @@ BYTE FUN_004f3b50(void)
 
 // Sets the input repeat rate from the options and binds the five frontend
 // sounds to the menu actions.
-// FUNCTION: CMR2 0x004f3bb0
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f3bb0
 void FUN_004f3bb0(void)
 {
     int rate;
@@ -3846,8 +3846,8 @@ short g_menuDotRect[4];
 
 // Point of the path at t (16.16, 0..1): cubic Hermite spline through the
 // control points 1..17 with Catmull-Rom style tangents.
-// FUNCTION: CMR2 0x004f3c10
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f3c10
 void FUN_004f3c10(int *pPoints, int t, int *pOut)
 {
     int *p;
@@ -3893,8 +3893,8 @@ void FUN_004f3c10(int *pPoints, int t, int *pOut)
 
 // Resets the main menu animation: letters spread along the path, dots at
 // the start, and the path of the entry under the cursor.
-// FUNCTION: CMR2 0x004f3dd0
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f3dd0
 void FUN_004f3dd0(void)
 {
     int *pPos;
@@ -3968,8 +3968,8 @@ void FUN_004f3fb0(int *pOut, int speed)
 
 // Main menu animation update: moves the letters, the trail and the streams
 // along the path and picks (or morphs) the path of the entry under the cursor.
-// FUNCTION: CMR2 0x004f4050
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f4050
 void FUN_004f4050(void)
 {
     int *pPos;
@@ -4156,8 +4156,8 @@ void FUN_004f4650(void)
 }
 
 // Draws the six streams of 10 dots, fading out towards their tails.
-// FUNCTION: CMR2 0x004f4760
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f4760
 void FUN_004f4760(void)
 {
     BYTE colour[4];
@@ -4217,8 +4217,8 @@ void RallyData_FUN_004068e0(BYTE param1);
 // Leaving the language menu: applies the chosen language (texts, fonts,
 // credits), rebuilds the scrollers and, the first time, the controls menu,
 // and makes the main menu the parent of the language menu and its entries.
-// FUNCTION: CMR2 0x004ef270
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ef270
 void FUN_004ef270(Menu *pMenu, char back)
 {
     int i;
@@ -4430,8 +4430,8 @@ void FUN_004f27d0(Menu *pMenu, int param)
 
 // Entering the profile menu (back: undoes the profile created by "new").
 // Lists the free saved profiles and puts the cursor on the first one.
-// FUNCTION: CMR2 0x004f2620
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f2620
 void FUN_004f2620(Menu *pMenu, char back)
 {
     MenuItem *pItem;
@@ -4592,8 +4592,8 @@ char g_strLockedCheat[4] = "...";
 
 // Draw callback of the cheats menu: name and on/off of each cheat, "..."
 // for the ones not available yet.
-// FUNCTION: CMR2 0x004ded80
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ded80
 void FUN_004ded80(Menu *pMenu)
 {
     short icon[4];
@@ -4694,8 +4694,8 @@ void FUN_004ded80(Menu *pMenu)
 
 // Entering the display device menu: one entry per device, the current one
 // under the cursor, and only the usable ones enabled.
-// FUNCTION: CMR2 0x004f21c0
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f21c0
 void FUN_004f21c0(Menu *pMenu, int param)
 {
     MenuItem *pItem;
@@ -4767,8 +4767,8 @@ extern BYTE g_colourTitle0x00524984[4];
 // Draw callback of the high score pages: title of the table shown (cycled
 // by FUN_004f3a90), the column headers and the 5 entries (position, name,
 // car, gearbox and two numbers).
-// FUNCTION: CMR2 0x004e3340
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e3340
 void FUN_004e3340(Menu *pMenu)
 {
     GameInfo0xa4SubStruct12 *pEntry;
@@ -4837,8 +4837,8 @@ BYTE *FUN_004f9280(int index);
 
 // Draw callback of the record page: the record of the table shown (car,
 // gearbox, two numbers and its time), or "no record".
-// FUNCTION: CMR2 0x004e3a80
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e3a80
 void FUN_004e3a80(Menu *pMenu)
 {
     unsigned int *pSecond;
@@ -4905,8 +4905,8 @@ BYTE *FUN_004f9240(int row, int column);
 
 // Draw callback of the stage records page of a rally: for each stage (10,
 // or 11 for every second rally) the record car, gearbox, time and holder.
-// FUNCTION: CMR2 0x004e5630
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e5630
 void FUN_004e5630(Menu *pMenu)
 {
     unsigned int *pRecord;
@@ -4992,8 +4992,8 @@ void FUN_004eb000(BYTE index, char set);
 void FUN_004ec000(void);
 
 // Draws one 7x15 dot icon at (x, y), each dot shaded by the ripple.
-// FUNCTION: CMR2 0x004d5ad0
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d5ad0
 void FUN_004d5ad0(int x, int y, short phase)
 {
     BYTE colour[4];
@@ -5042,8 +5042,8 @@ void FUN_004d5ad0(int x, int y, short phase)
 
 // Draw callback of the difficulty pages: title from the game mode, the
 // scroller and one dot icon per difficulty level up to the selected one.
-// FUNCTION: CMR2 0x004d5fb0
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d5fb0
 void FUN_004d5fb0(Menu *pMenu)
 {
     char *text[2];
@@ -5220,8 +5220,8 @@ int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5
 }
 
 // Clears the championship data and sets up the 8 championship entries.
-// FUNCTION: CMR2 0x004eae40
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eae40
 void FUN_004eae40(void)
 {
     BYTE *pEntry;
@@ -5292,8 +5292,8 @@ bool FUN_004ebd60(int index)
 
 // Next player: gives the player a profile and goes to the name entry (or
 // for championship mode 4 to the championship screen).
-// FUNCTION: CMR2 0x004f0ac0
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f0ac0
 void FUN_004f0ac0(Menu *pMenu, int param)
 {
     Menu *pNext;
@@ -5631,8 +5631,8 @@ void FUN_004f02e0(void)
 
 // Entering the player profile menu (back: undoes the previous player's
 // profile). Lists the free saved profiles.
-// FUNCTION: CMR2 0x004f03f0
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f03f0
 void FUN_004f03f0(Menu *pMenu, char back)
 {
     MenuItem *pItem;
@@ -5679,8 +5679,8 @@ void FUN_004f03f0(Menu *pMenu, char back)
 }
 
 // Item callback of "new profile" in the player profile menu.
-// FUNCTION: CMR2 0x004f0960
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f0960
 void FUN_004f0960(Menu *pMenu, int param)
 {
     Menu *pNext;
@@ -5763,8 +5763,8 @@ int FUN_004eaac0(unsigned int value);
 
 // Entering the multiplayer race settings page: loads the current settings
 // (and the ranges the player count allows) into its entries.
-// FUNCTION: CMR2 0x004ef970
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ef970
 void FUN_004ef970(Menu *pMenu, int param)
 {
     BYTE group;
@@ -5835,8 +5835,8 @@ void FUN_004ef970(Menu *pMenu, int param)
 
 // Item callback of "start" on the multiplayer race settings page: stores
 // the settings and starts the knockout.
-// FUNCTION: CMR2 0x004f01c0
 // match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f01c0
 void FUN_004f01c0(Menu *pMenu, int param)
 {
     BYTE value;
@@ -5871,8 +5871,8 @@ void FUN_004f01c0(Menu *pMenu, int param)
 }
 
 // Update callback of the multiplayer race settings page.
-// FUNCTION: CMR2 0x004f0250
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f0250
 void FUN_004f0250(Menu *pMenu)
 {
     BYTE group;
@@ -5894,8 +5894,8 @@ void FUN_004f0250(Menu *pMenu)
 // Draw callback of the rally menu: one row per rally, drawn in the layout of
 // its item value (title only, or with the stage names of the rally), over the
 // strip of the selected rows, plus the carousel.
-// FUNCTION: CMR2 0x004df410
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004df410
 void FUN_004df410(Menu *pMenu)
 {
     SpriteRect dst;
@@ -6028,8 +6028,8 @@ void FUN_004df410(Menu *pMenu)
 }
 
 // Draw callback of the multiplayer race settings page.
-// FUNCTION: CMR2 0x004e1230
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e1230
 void FUN_004e1230(Menu *pMenu)
 {
     short icon[4];
@@ -6157,8 +6157,8 @@ int FUN_004f92f0(void);
 
 // Draw callback of the network message page: title and the message of the
 // current network state.
-// FUNCTION: CMR2 0x004e96d0
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004e96d0
 void FUN_004e96d0(Menu *pMenu)
 {
     char *text[2];
@@ -6206,8 +6206,8 @@ void FUN_004e2500(Menu *pMenu)
 void FUN_004f1bb0(BYTE value);
 
 // Leaving the arcade menu: sets the arcade mode of the entry chosen.
-// FUNCTION: CMR2 0x004ef740
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ef740
 void FUN_004ef740(Menu *pMenu, char back)
 {
     if (back != 0)
@@ -6337,8 +6337,8 @@ MenuScroller *FUN_004f2590(void);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
 
 // Draw callback of the first quick race page (stages, cars, ...).
-// FUNCTION: CMR2 0x004da710
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004da710
 void FUN_004da710(Menu *pMenu)
 {
     short icon[4];
@@ -6384,8 +6384,8 @@ void FUN_004da710(Menu *pMenu)
 }
 
 // Draw callback of the second quick race page (game type and its settings).
-// FUNCTION: CMR2 0x004daf90
 // match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004daf90
 void FUN_004daf90(Menu *pMenu)
 {
     short icon[4];
@@ -6518,8 +6518,8 @@ void FUN_004f0110(Menu *pMenu, int param)
 }
 
 // Entering the second quick race page: loads its settings.
-// FUNCTION: CMR2 0x004f3280
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f3280
 void FUN_004f3280(Menu *pMenu, int param)
 {
     unsigned int type;
@@ -6662,8 +6662,8 @@ void FUN_004faa00(Menu *pMenu, int param)
 
 // Lays out the scroller of the route list screens: marks the entries the
 // current mode makes available and measures their text.
-// FUNCTION: CMR2 0x004faa50
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004faa50
 void FUN_004faa50(Menu *pMenu, int param)
 {
     MenuScroller *pScroller;
@@ -6703,8 +6703,8 @@ void FUN_004faa50(Menu *pMenu, int param)
 
 // Change callback of the championship entry screens: stores the new entry
 // value, resets the mode's selection and re-lays the entry list on request.
-// FUNCTION: CMR2 0x004fac70
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004fac70
 void FUN_004fac70(Menu *pMenu, char param)
 {
     pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));

@@ -38,8 +38,8 @@ void FUN_004a3240(int unused);
 // Opens a music file (.wav with Microsoft ADPCM data) and prepares it for
 // streaming: creates the streaming buffer and the ACM decoder; on failure the
 // music is stopped again. The name is remembered in m_unk0x005a2738.
-// FUNCTION: CMR2 0x004a28d0
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a28d0
 void CSound::FUN_004a28d0(char *path) {
     if (m_unk0x006e0eec == 0)
         return;
@@ -610,8 +610,8 @@ int g_unk0x005a2718;
 
 typedef HRESULT (__stdcall *DPSoundMethod2)(void *pThis, void *a1, void *a2);
 
-// FUNCTION: CMR2 0x004a2d30
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a2d30
 void FUN_004a2d30(void)
 {
     int lo, hi;
@@ -748,8 +748,8 @@ HRESULT FUN_004a2bd0(int param1)
 }
 
 // Refills the part of the streaming buffer that has already been played.
-// FUNCTION: CMR2 0x004a3050
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a3050
 HRESULT FUN_004a3050(int unused)
 {
     void *pAudio2 = NULL;
@@ -843,8 +843,8 @@ BOOL FUN_004bd100(void);
 // Creates the DirectSound device and sets the format of the primary buffer
 // (16-bit PCM at sampleRate; mono when the speakers are mono). bits and
 // unused are ignored: the original always uses 16 bits.
-// FUNCTION: CMR2 0x004a1d60
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a1d60
 BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
 {
     IDirectSoundBuffer *pPrimary;
@@ -908,8 +908,8 @@ BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD 
 // Loads a .wav from pFile into the next free sample slot: creates its buffer
 // (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
 // The file buffer is freed unless it lives inside the archive.
-// FUNCTION: CMR2 0x004a1f50
 // match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a1f50
 BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 {
     BYTE *pWave;
@@ -953,8 +953,8 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 
 // Creates a PCM buffer of the given format (3D buffers use the HRTF light
 // algorithm on Windows 98 and later).
-// FUNCTION: CMR2 0x004a20c0
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a20c0
 BOOL FUN_004a20c0(IDirectSound *pDS, IDirectSoundBuffer **ppBuffer, DWORD rate, int bits, int channels, int is3D,
                   DWORD size)
 {
@@ -1009,8 +1009,8 @@ BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD 
 
 // Builds the looping buffer of the slot from the part of the sample after
 // the loop start.
-// FUNCTION: CMR2 0x004a24a0
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a24a0
 void FUN_004a24a0(SoundSlot *pSlot)
 {
     DSBCAPS caps = {0};
@@ -1035,8 +1035,8 @@ void FUN_004a24a0(SoundSlot *pSlot)
 
 // Applies the slot volume (scaled by the master volume) as a logarithmic
 // attenuation in hundredths of a decibel.
-// FUNCTION: CMR2 0x004a25f0
 // match 91%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a25f0
 void FUN_004a25f0(SoundSlot *pSlot)
 {
     int volume;
@@ -1412,8 +1412,8 @@ void FUN_004a3240(int unused)
 
 
 // Sets the master volume (0..1) and re-applies it to every sound slot.
-// FUNCTION: CMR2 0x004b7950
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004b7950
 void Sound_SetMasterVolume(int volume)
 {
     SoundSlot **ppSlot;
@@ -1469,8 +1469,8 @@ void FUN_004a2830(void)
 }
 
 // Creates the shared 16-bit stereo 44.1 kHz streaming buffer.
-// FUNCTION: CMR2 0x004a2a20
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a2a20
 BOOL FUN_004a2a20(void)
 {
     WAVEFORMATEX format;
@@ -1495,8 +1495,8 @@ BOOL FUN_004a2a20(void)
 void FUN_004a2830(void);
 
 // Shuts the sound system down (registered callback of 0x4b7650).
-// FUNCTION: CMR2 0x004b7ae0
 // match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004b7ae0
 int FUN_004b7ae0(void)
 {
     Sound_FreeAll();

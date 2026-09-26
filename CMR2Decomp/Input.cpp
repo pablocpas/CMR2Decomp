@@ -1761,8 +1761,8 @@ char g_keyCloseBracket[] = "]";
 
 // Fills controller slot index from a detected device: its name, type flags,
 // the default bindings and the texts shown for them in the controls menu.
-// FUNCTION: CMR2 0x0040c610
 // match 92%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0040c610
 void CInput::FUN_0040c610(DeviceInfo *pDevice, int index)
 {
     ControllerData *pController;
@@ -1998,8 +1998,8 @@ void CInput::FUN_0049eab0(void)
         UpdateDevice(i);
 }
 
-// FUNCTION: CMR2 0x0040bc90
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0040bc90
 void CInput::FUN_0040bc90(int param1, DWORD param2)
 {
     unsigned short index;

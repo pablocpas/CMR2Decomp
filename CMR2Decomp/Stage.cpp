@@ -89,8 +89,8 @@ void FUN_004583d0(int car, int *pStarts, int *pOut)
 }
 
 // Puts every car back on its stored route position.
-// FUNCTION: CMR2 0x00458480
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00458480
 void FUN_00458480(void)
 {
     int i;
@@ -106,8 +106,8 @@ int FUN_004584c0(void)
 }
 
 // Previous checkpoint, wrapping round on looped stages.
-// FUNCTION: CMR2 0x00459320
 // match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00459320
 int FUN_00459320(int index)
 {
     index--;

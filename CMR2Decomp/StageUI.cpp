@@ -101,8 +101,8 @@ int FUN_00418fe0(void)
 }
 
 // Reinicia las tablas de la interfaz de etapa y registra su callback una vez.
-// FUNCTION: CMR2 0x00418f20
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00418f20
 void FUN_00418f20(void)
 {
     BYTE *p;
@@ -195,8 +195,8 @@ BYTE FUN_00427aa0(void);
 
 // Applies one stage sound state to its active channel.  The switch mirrors
 // the combinations of continuous, secondary and network-gated sound slots.
-// FUNCTION: CMR2 0x00419200
 // match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00419200
 void StageUI_ApplySoundState(int channel, BYTE *pState)
 {
     StageSoundPattern *pPattern = NULL;
@@ -423,8 +423,8 @@ void FUN_0040e660(int index, char *name, int wins);
 
 // End of a network race: gives a leaderboard win to every driver with the
 // winning time and registers the others with no win.
-// FUNCTION: CMR2 0x0041b3a0
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0041b3a0
 void FUN_0041b3a0(void)
 {
     int i;
@@ -855,8 +855,8 @@ void RallyData_FUN_00421530(int index, int *pOut);
 int RallyData_FUN_00421420(void);
 
 // Fits the stage map to the route: centre and scale of the larger extent.
-// FUNCTION: CMR2 0x00415e30
 // match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00415e30
 void FUN_00415e30(void)
 {
     int maxX = -0x7d000000;

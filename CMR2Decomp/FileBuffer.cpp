@@ -194,8 +194,8 @@ char *FUN_004eb2e0(char *pName)
 }
 
 // Writes a 0x650-byte player profile to its .pps file.
-// FUNCTION: CMR2 0x004eb340
 // match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eb340
 BYTE FUN_004eb340(int unused, BYTE *pProfile)
 {
     CInstallInfo::WriteFileToDisk(FUN_004eb2e0((char *)pProfile + 0x10), 0, pProfile, 0x650);
@@ -211,8 +211,8 @@ BYTE *FUN_004eb450(int index)
 // Saves the profiles whose name has just been edited, clearing the dirty flag
 // of the ones written; returns whether all of them were saved. Profiles with
 // bit 0x200000 set are left alone.
-// FUNCTION: CMR2 0x004eb3e0
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eb3e0
 bool FUN_004eb3e0(void)
 {
     bool saved = true;
@@ -243,8 +243,8 @@ int FUN_004eb440(void)
 }
 
 // Saves every player profile marked dirty (unless it has flag 0x200000).
-// FUNCTION: CMR2 0x004eb470
 // match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eb470
 void FUN_004eb470(void)
 {
     BYTE *pProfile;
@@ -269,8 +269,8 @@ void FUN_004eb4b0(char *param1, int param2)
 }
 
 // Resets record `index` of the 0x531350 table to category 0xf, clearing bit 0x2000.
-// FUNCTION: CMR2 0x004ebe80
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ebe80
 void FUN_004ebe80(int index)
 {
     unsigned int *pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
@@ -299,8 +299,8 @@ void FUN_004ec260(int player);
 // if given; otherwise the first free profile no earlier record uses; else
 // the free profile with the lowest age, or when they all have the same age
 // the one unused for longest.
-// FUNCTION: CMR2 0x004eb860
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eb860
 void FUN_004eb860(int index, int profile)
 {
     unsigned int *pRecord;

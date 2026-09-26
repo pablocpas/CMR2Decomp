@@ -8,8 +8,8 @@ FixVector g_collisionQuad[4];
 // Intersects the ray pDir with the four sides of the collision quad and returns
 // the distance to the closest side (0x7d000000 when it misses), along with the
 // side that was hit.
-// FUNCTION: CMR2 0x00489060
 // match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00489060
 // Every expression and branch was traced against the disassembly; what does not
 // match is the frame layout: the original keeps the returned distance in a stack
 // slot (ebp-0x14) while MSVC keeps ours in edi, which shifts every other slot.
@@ -117,8 +117,8 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
 }
 
 // Clamps the magnitude of each component of v to limit (y only when clampY).
-// FUNCTION: CMR2 0x0048c6e0
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0048c6e0
 void FUN_0048c6e0(int *v, int *limit, int clampY)
 {
     int a;
@@ -139,8 +139,8 @@ void FUN_0048c6e0(int *v, int *limit, int clampY)
 extern int g_physicsScale;
 
 // Clamps a vector to the scaled limits: eight units on X/Z, four on Y.
-// FUNCTION: CMR2 0x0048c750
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0048c750
 void FUN_0048c750(int *v)
 {
     if (v[0] > FixMul(g_physicsScale, 0x80000))

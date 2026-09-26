@@ -617,8 +617,8 @@ void FUN_004d27e0(short *pRect, BYTE *pColour)
 // Draws the animated frontend background: an 18x12 grid of the large matrix
 // texture, coloured by pMap and rippling from two centres (top-left and
 // top-right of the screen).
-// FUNCTION: CMR2 0x004d28c0
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d28c0
 void FUN_004d28c0(short x0, short y0, char *pMap)
 {
     int centre2[2];

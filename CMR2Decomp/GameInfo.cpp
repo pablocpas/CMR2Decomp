@@ -675,8 +675,8 @@ double g_unk0x005113b8 = 0.5;
 // Plays one frame of the current movie: scales and offsets the Bink buffer to
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
-// FUNCTION: CMR2 0x00510120
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00510120
 BOOL FUN_00510120(BYTE skipOnSpace)
 {
     DeviceInfo *pDevice;
@@ -1351,8 +1351,8 @@ char g_chatLineFormat[] = "%s > %s";
 
 // Adds a chat line "name > text" to the ring of the last five lines and
 // rebuilds g_unk0x00817c84 newest first.
-// FUNCTION: CMR2 0x004d0620
 // match 91%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d0620
 void FUN_004d0620(DPID *pFrom, char *text, char local)
 {
     char **pp;
@@ -1987,8 +1987,8 @@ char g_str0x00527070[] = "%s\\textures\\environment\\environment.tga";
 // The only differences against the original are the call sites reccmp shows as
 // <OFFSETn>: 0x4b1150, 0x503ea0, 0x5040f0 and the two 0x4b23c0 calls go to
 // functions that are still annotated TODO, so reccmp cannot name them.
-// FUNCTION: CMR2 0x00501520
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00501520
 void FUN_00501520(void)
 {
     CGraphics::SetClearColour(1, 0x8d, 0x97, 0x9f);
@@ -2890,8 +2890,8 @@ int g_unk0x0082c6c0;
 // GLOBAL: CMR2 0x0082cb44
 int g_unk0x0082cb44;
 
-// FUNCTION: CMR2 0x00505e10
 // match below 90%; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00505e10
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
     Unk0x0082c6c8 *pEntry;
@@ -3089,8 +3089,8 @@ BYTE g_unk0x0082d14c;
 
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
-// FUNCTION: CMR2 0x00507710
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00507710
 void FUN_00507710(BYTE *pColour)
 {
     g_unk0x0082d120.x = (int)(signed char)pColour[9] << 16;
@@ -3304,8 +3304,8 @@ BYTE FUN_004f4cc0(void)
 
 // Loads the text file of every frontend language of this region from its
 // language archive and hands them to the frontend text tables.
-// FUNCTION: CMR2 0x004f4b90
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f4b90
 BYTE FUN_004f4b90(void)
 {
     char *japan[1];
@@ -3421,8 +3421,8 @@ void FUN_004f2360(BYTE *p, int param2)
     CGame::FUN_004a9b10(0);
 }
 
-// FUNCTION: CMR2 0x004f2b00
 // match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f2b00
 void FUN_004f2b00(BYTE *p)
 {
     unsigned int v;
@@ -3485,8 +3485,8 @@ void *FUN_004f4e70(int index)
     return g_unk0x0081b150[index];
 }
 
-// FUNCTION: CMR2 0x004f4e80
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f4e80
 bool FUN_004f4e80(void)
 {
     int i;
@@ -3536,8 +3536,8 @@ void FUN_004f5150(char *pName)
 // Copies the string into CFrontend::m_stringDest and writes it back into the
 // buffer in groups of four characters, one space between groups (the last
 // character is dropped).
-// FUNCTION: CMR2 0x004f8a90
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f8a90
 void FUN_004f8a90(char *pText)
 {
     int len;
@@ -3558,8 +3558,8 @@ void FUN_004f8a90(char *pText)
 
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
-// FUNCTION: CMR2 0x004f4ef0
 // match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004f4ef0
 void FUN_004f4ef0(void)
 {
     WIN32_FIND_DATAA find;
@@ -3920,8 +3920,8 @@ BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, 
 
 
 // Prepara el descriptor de sesion 0x5a0068 y crea la sesion de DirectPlay.
-// FUNCTION: CMR2 0x004a13b0
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a13b0
 void CGameInfo::FUN_004a13b0(void)
 {
     IDirectPlay4A *pDP;
@@ -3959,8 +3959,8 @@ void CGameInfo::FUN_004a13b0(void)
 
 // Variante de FUN_004a13b0 que ademas guarda el parametro en 0x5a009c y usa
 // 0x51 como tamano inicial.
-// FUNCTION: CMR2 0x004a12d0
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a12d0
 void CGameInfo::FUN_004a12d0(int param1)
 {
     IDirectPlay4A *pDP;
@@ -3999,8 +3999,8 @@ void CGameInfo::FUN_004a12d0(int param1)
 
 // Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
 // reinicia el temporizador.
-// FUNCTION: CMR2 0x00505a60
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00505a60
 void CGameInfo::FUN_00505a60(int param1)
 {
     int current;
@@ -4072,8 +4072,8 @@ BYTE *RallyData_FUN_00407630(int index);
 
 // Copies the seven option bytes of every rally data record into rows 4..7 of
 // the default table, mirrors them into rows 0..3 and clears the option flags.
-// FUNCTION: CMR2 0x00502570
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00502570
 void FUN_00502570(void)
 {
     int i;
@@ -4165,8 +4165,8 @@ void FUN_004a0ba0(void);
 void FUN_004a3180(void);
 unsigned int RallyData_FUN_00407e70(void);
 
-// FUNCTION: CMR2 0x00401850
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00401850
 void FUN_00401850(Menu *pMenu, int param)
 {
     if ((BYTE)RallyData_FUN_00407e70())
@@ -4185,8 +4185,8 @@ void FUN_00402bb0(Menu *pMenu, char param)
     g_unk0x0052af6c = pMenu->cursor;
 }
 
-// FUNCTION: CMR2 0x00402bf0
 // match 19%, registers only; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00402bf0
 void FUN_00402bf0(Menu *pMenu)
 {
     if (pMenu->cursor == 2) {
@@ -4197,8 +4197,8 @@ void FUN_00402bf0(Menu *pMenu)
     g_unk0x0052af6c = pMenu->cursor;
 }
 
-// FUNCTION: CMR2 0x00402c30
 // match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00402c30
 void FUN_00402c30(Menu *pMenu)
 {
     FUN_00404ef0();
@@ -4260,8 +4260,8 @@ unsigned short FUN_0040bbc0(unsigned short slot);
 
 // Returns 1 when the slot's device pressed "back" (button 0x400, or the
 // joystick button mapped to action 9, which is then remembered).
-// FUNCTION: CMR2 0x00404e10
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00404e10
 int FUN_00404e10(unsigned short slot)
 {
     DeviceInfo *pDev = CInput::FUN_0049ead0(FUN_0040bbc0(slot));
@@ -4367,8 +4367,8 @@ void FUN_00404130(Menu *pMenu, int param)
 }
 
 // Callback of the car setup menu: encodes the selected switches and tyres.
-// FUNCTION: CMR2 0x00404d00
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00404d00
 void FUN_00404d00(Menu *pMenu)
 {
     g_unk0x005298f8 = (g_unk0x005298f8 & ~4) | ((pMenu->items[0].max & 1) << 2);
@@ -4430,8 +4430,8 @@ void FUN_00427c10(void);
 
 // Callback 1 of the sound options menu: applies the volumes (or restores the
 // ones the menu started with when cancelled).
-// FUNCTION: CMR2 0x00401420
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00401420
 void FUN_00401420(Menu *pMenu, char cancel)
 {
     int rate;
@@ -4492,8 +4492,8 @@ void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
-// FUNCTION: CMR2 0x004037c0
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004037c0
 void FUN_004037c0(Menu *pMenu, char cancel)
 {
     if (cancel != 0) {
@@ -4650,8 +4650,8 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
 void FUN_00423010(int view, int start);
 extern BYTE g_unk0x0052af58[2];
 
-// FUNCTION: CMR2 0x00404ef0
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00404ef0
 void FUN_00404ef0(void)
 {
     CGameInfo::FUN_0049ea90(0);
@@ -4661,8 +4661,8 @@ void FUN_00404ef0(void)
 
 // Callback 0 of the camera options menu: turns the current values into the
 // four slider positions.
-// FUNCTION: CMR2 0x00403110
 // match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00403110
 void FUN_00403110(Menu *pMenu)
 {
     int distance = (pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000);
@@ -4724,8 +4724,8 @@ BYTE *RallyData_FUN_00408930(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
-// FUNCTION: CMR2 0x00403700
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00403700
 void FUN_00403700(Menu *pMenu, char unused)
 {
     BYTE index;
@@ -4746,8 +4746,8 @@ void FUN_00403700(Menu *pMenu, char unused)
 }
 
 // Item callback of the camera menu "default" item.
-// FUNCTION: CMR2 0x004036c0
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004036c0
 void FUN_004036c0(Menu *pMenu, char unused)
 {
     g_unk0x0052aa5c = 0xe0000;
@@ -4764,8 +4764,8 @@ extern struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
 
 // Draws the four one pixel edges of the option record's box (x, y, w, h);
 // the vertical edges start one pixel inside the horizontal ones.
-// FUNCTION: CMR2 0x0050cb30
 // match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0050cb30
 void FUN_0050cb30(short *pRect, BYTE *pColour)
 {
     short edge[4];
@@ -4827,8 +4827,8 @@ void FUN_00501d50(int index, short *pBar, int direction, int unused)
 
 // Returns the byte at column type of the 7-byte option record index; the
 // signed columns are divided by 10.
-// FUNCTION: CMR2 0x005028a0
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005028a0
 int FUN_005028a0(int index, int type)
 {
     switch (type) {
@@ -4871,8 +4871,8 @@ int FUN_004ff550(void)
 // Draws the option record's text: mode 2 draws it whole; in mode 1 the part
 // inside the 16.16 fraction of its length is drawn with the first font and
 // the remainder with the second one, at that width.
-// FUNCTION: CMR2 0x005020a0
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005020a0
 void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
@@ -5153,8 +5153,8 @@ short g_unk0x0082c9ec[4];
 // Maps a HUD point from viewport space to screen space; when the transform is
 // marked as already scaled (field_0x1c == 0x10000) it only resolves the
 // 640x480 reference to the current resolution.
-// FUNCTION: CMR2 0x00503b70
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00503b70
 int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     if (p->field_0x1c != 0x10000) {
@@ -5395,8 +5395,8 @@ int FUN_0050f480(void)
 
 // Fills the 0x23c vector of the option record with the 16.16 fractions of its
 // four bytes at +0x108.
-// FUNCTION: CMR2 0x00509d30
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00509d30
 void FUN_00509d30(int index)
 {
     BYTE *p;
@@ -5410,8 +5410,8 @@ void FUN_00509d30(int index)
 }
 
 // Sets the fade/shape values of the option record's sky colours (field_0x22c).
-// FUNCTION: CMR2 0x00509be0
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00509be0
 void FUN_00509be0(int index)
 {
     BYTE *p;
@@ -5432,8 +5432,8 @@ void FUN_00509be0(int index)
 // each mesh in the record's list takes the target value for its bit.
 void FUN_0049c440(Mesh *pMesh, int mask, int value);
 void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
-// FUNCTION: CMR2 0x00508fa0
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00508fa0
 void FUN_00508fa0(int index, int param2, BYTE param3){
     BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
     int target;
@@ -5512,8 +5512,8 @@ int g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
-// FUNCTION: CMR2 0x004ff5b0
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004ff5b0
 void FUN_004ff5b0(void)
 {
     BYTE *pMode;
@@ -5542,8 +5542,8 @@ void FUN_004ff5b0(void)
 }
 
 // Frees the option menu sound buffer and stops the streaming sound.
-// FUNCTION: CMR2 0x0050f340
 // match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0050f340
 int FUN_0050f340(void)
 {
     if (g_unk0x00831880 != 0) {
@@ -5695,8 +5695,8 @@ void FUN_0050e740(int unused)
 // over the first half and from colour 1 to colour 2 over the second half
 // (pColours: three RGBA colours; count must be at least 2). The strip widths
 // are rounded so that together they cover the rectangle exactly.
-// FUNCTION: CMR2 0x0050ee50
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0050ee50
 void FUN_0050ee50(short *pRect, int unused, unsigned int count, BYTE *pColours)
 {
     BYTE colour[4];
@@ -6003,8 +6003,8 @@ void FUN_00502db0(void)
 }
 
 // Copies the default option values from the global table into each record.
-// FUNCTION: CMR2 0x005029b0
 // match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005029b0
 void FUN_005029b0(void)
 {
     BYTE *pDst;
@@ -6029,8 +6029,8 @@ void FUN_005029b0(void)
 
 // Applies the selected option: advances the menu when its value is set, or
 // starts the fade otherwise.
-// FUNCTION: CMR2 0x005000b0
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005000b0
 void FUN_005000b0(int unused, int unused2)
 {
     BYTE *pMode;
@@ -6218,8 +6218,8 @@ void FUN_00506fc0(int param1, int param2, int param3);
 // Rebuilds the stage mesh record of the option menu preview entry: clears the
 // record, adds the mesh of every node of the entry's node tree, compacts the
 // empty slots and matches the converted vertex buffers.
-// FUNCTION: CMR2 0x00507080
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00507080
 void FUN_00507080(int index)
 {
     Unk0x0082d220 *pRecord;
@@ -6384,8 +6384,8 @@ void FUN_00509dc0(int index)
 // the option record (field_0x22c): the up axis is the sum of the two edge
 // normals, the other axes come from Gram-Schmidt and the position from the
 // average height.
-// FUNCTION: CMR2 0x005091c0
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005091c0
 void FUN_005091c0(int index)
 {
     Unk0x0082d220 *pRec;
@@ -6699,8 +6699,8 @@ void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *p
 // Stores the target angles of a slot (three degrees as 16-bit values) in the
 // current tables, wraps the delta to the target into [-180, 180) and writes
 // the three wrapped deltas as 12-bit angles in the animated table.
-// FUNCTION: CMR2 0x00506930
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00506930
 void FUN_00506930(int param1, short *param2, int param3)
 {
     unsigned int time;
@@ -6787,8 +6787,8 @@ void FUN_00506b20(int index, char visible)
 // floats of every source entry become 16.16 values and its normal is stored
 // twice as three signed bytes biased by 0x80, the second copy scaled to unit
 // length.
-// FUNCTION: CMR2 0x00506bb0
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00506bb0
 void FUN_00506bb0(int param1, int param2, int param3)
 {
     BYTE ***ppBlock;

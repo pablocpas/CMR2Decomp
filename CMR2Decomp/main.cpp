@@ -308,8 +308,8 @@ extern "C" HRESULT WINAPI D3DXInitialize(void);
 extern "C" HRESULT WINAPI D3DXUninitialize(void);
 
 // Shuts D3DX down (registered as a callback by FUN_004a9b30).
-// FUNCTION: CMR2 0x004a9b50
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a9b50
 BYTE FUN_004a9b50(void)
 {
     D3DXUninitialize();
@@ -317,8 +317,8 @@ BYTE FUN_004a9b50(void)
 }
 
 // Starts D3DX and registers its shutdown.
-// FUNCTION: CMR2 0x004a9b30
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004a9b30
 void FUN_004a9b30(void)
 {
     D3DXInitialize();

@@ -329,8 +329,8 @@ int Font_InitTable(unsigned int count);
 void Font_Load(char *name, GenericFile *pFile, unsigned int index);
 
 // Loads the seven game fonts from stage file 1.
-// FUNCTION: CMR2 0x00478b50
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00478b50
 void FUN_00478b50(void)
 {
     char *pName;
@@ -345,8 +345,8 @@ void FUN_00478b50(void)
 }
 
 // Blend rate between a surface and its "next" surface, at t.
-// FUNCTION: CMR2 0x004789d0
 // match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004789d0
 int FUN_004789d0(int surface, int t)
 {
     return FixMul(g_surfaceBlendRate[g_surfaceNext[surface]] - g_surfaceBlendRate[surface], t) +
@@ -405,8 +405,8 @@ void FUN_00479310(int player)
 }
 
 // Moves the player's value toward target, at most 20 up or 10 down per call.
-// FUNCTION: CMR2 0x0047a380
 // match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0047a380
 void FUN_0047a380(int target, int player)
 {
     int cur = g_unk0x0058de00[player];
@@ -430,8 +430,8 @@ void FUN_004a0c40(char param1);
 
 // Menu setup of the surface screen: input repeat from the options and the
 // button mapping stored in g_unk0x0058dc58.
-// FUNCTION: CMR2 0x00478be0
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00478be0
 void FUN_00478be0(void)
 {
     int rate;
@@ -470,8 +470,8 @@ BYTE FUN_00478b20(void);
 
 // Loads the game text of the region's language and splits it into the
 // string table (release callback FUN_00478b20).
-// FUNCTION: CMR2 0x00478a20
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00478a20
 int FUN_00478a20(void)
 {
     char *names[10];

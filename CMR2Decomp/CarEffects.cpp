@@ -65,8 +65,8 @@ BYTE g_debrisColours[2][4] = {{0xff, 0xff, 0xff, 0xaa}, {0xff, 0, 0, 0xaa}};
 
 // Prepares the effects for a stage: random glass shards and the window
 // data of every car.
-// FUNCTION: CMR2 0x00498dd0
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00498dd0
 void CarEffects_Init(void)
 {
     int *p;
@@ -129,8 +129,8 @@ void CarEffects_Init(void)
 // Breaks a window of the car (quad corners in body space, pDir the impact
 // direction): the window is cut into a grid and every cell throws a glass
 // particle, faster near the impact and when the window faces the blow.
-// FUNCTION: CMR2 0x00499de0
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00499de0
 void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
 {
     FixVector t;
@@ -267,8 +267,8 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
 }
 
 // Builds the quad of a window of the car from its window vertices.
-// FUNCTION: CMR2 0x0049a870
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049a870
 int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 {
     FixVector *pVerts;
@@ -297,8 +297,8 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 
 // Queues the windows broken by damage to a part of the car; the rear and
 // side part ids break two windows each.
-// FUNCTION: CMR2 0x0049a910
 // match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049a910
 void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
 {
 #define SMASH_SLOT (pCar->field_0xb1a * 10 + g_windowSmashCount[pCar->field_0xb1a])
@@ -326,8 +326,8 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
 }
 
 // Breaks the queued windows of the car.
-// FUNCTION: CMR2 0x0049ab20
 // match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049ab20
 void Car_BreakQueuedWindows(Car *pCar)
 {
     int i;
@@ -369,8 +369,8 @@ void CarEffects_InitUVs(int unused1, int unused2)
     }
 
 // Draw callback of a spark: a streak along its velocity, facing the view.
-// FUNCTION: CMR2 0x00499070
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00499070
 void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 {
     FixVector pos;
@@ -439,8 +439,8 @@ void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
 }
 
 // Draw callback of a glass shard, tinted like the car's windows.
-// FUNCTION: CMR2 0x004994f0
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004994f0
 void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 {
     FixVector pos;
@@ -506,8 +506,8 @@ void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar)
 // Throws debris (and, a limited number of times per car, glass) from a
 // point of the car: count pieces with random velocities along the given
 // axes.
-// FUNCTION: CMR2 0x00499750
 // match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00499750
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance)
 {
     FixVector off[3];
@@ -582,8 +582,8 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 
 // Draw callback of a debris piece: a random triangle, lit, bulging
 // towards the view.
-// FUNCTION: CMR2 0x00499ac0
 // match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00499ac0
 void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 {
     FixVector pos;
@@ -648,8 +648,8 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 }
 
 // Makes the random debris triangles (at most 0.1 from their centre).
-// FUNCTION: CMR2 0x0049ab90
 // match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049ab90
 void CarEffects_InitDebris(void)
 {
     FixVector *pShape;
@@ -744,8 +744,8 @@ int g_sprayThird;
 BYTE g_sprayLife;
 
 // Sets up the wheel spray for a spread and range.
-// FUNCTION: CMR2 0x0049af20
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049af20
 int WheelSpray_Init(int spread, int range)
 {
     FixVector v;
@@ -770,8 +770,8 @@ int WheelSpray_Init(int spread, int range)
 }
 
 // Spray effect thrown on a surface in the current country (-1 for none).
-// FUNCTION: CMR2 0x0049b0d0
 // match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049b0d0
 int WheelSpray_GetEffect(int surface)
 {
     if (surface != g_spraySurface) {
@@ -934,8 +934,8 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
 
 // Throws the spray of the car's sliding wheels (gravel, mud, dust, water)
 // and wears the tyres on the loose surfaces.
-// FUNCTION: CMR2 0x0049b3e0
 // match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0049b3e0
 void WheelSpray_Update(int player)
 {
     Car *pCar;
@@ -1128,8 +1128,8 @@ BYTE g_unk0x005435cc[4];
 BYTE g_unk0x00543808;
 
 // Sets the splash colour of a player's car (and its average brightness).
-// FUNCTION: CMR2 0x0045d1e0
 // match 21%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0045d1e0
 void FUN_0045d1e0(int player, BYTE *pColour)
 {
     if (player < 8) {
@@ -1166,8 +1166,8 @@ void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
 }
 
 // Update callback: rises by half its size (capped at 1.5) and follows its car.
-// FUNCTION: CMR2 0x0045d270
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0045d270
 void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
@@ -1194,8 +1194,8 @@ int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 // Spawn callback: places the particle at one of the car's two exhausts
 // (alternating) in world space.
-// FUNCTION: CMR2 0x0045d2d0
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0045d2d0
 void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
@@ -1227,8 +1227,8 @@ void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
 }
 
 // Spawn callback: stores the effect data passed by the spawner.
-// FUNCTION: CMR2 0x0045de80
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0045de80
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
 {
     ((Particle *)pParticle)->field0x64 = (short)*(int *)param;
@@ -1238,8 +1238,8 @@ void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
 // water on the wet surfaces, sparks on some hard ones (when the stage asks
 // for them), each particle placed at a random point of the trail between
 // the two wheels of the axle.
-// FUNCTION: CMR2 0x0045c820
 // match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0045c820
 void WheelSplash_Update(int player)
 {
     Car *pCar;

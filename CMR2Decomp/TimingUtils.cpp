@@ -31,8 +31,8 @@ void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds)
 extern double g_minus65536;
 
 // Converts a time in hundredths of a second into 16.16 seconds.
-// FUNCTION: CMR2 0x0040d4b0
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0040d4b0
 int FUN_0040d4b0(int hundredths)
 {
     return FixDiv((int)(__int64)((hundredths % 100) * CGraphics::m_65536), 0x640000) -

@@ -92,8 +92,8 @@ int g_physTrailScale = 0x10000;
 // Resets the contact records for a new stage and caches the pointers into
 // every car's handling data. In the time trial modes only the first car
 // (the player) is driven, the others are ghosts.
-// FUNCTION: CMR2 0x00494bb0
 // match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00494bb0
 void FUN_00494bb0(void)
 {
     int i;
@@ -150,8 +150,8 @@ int FUN_00494d40(Car *pCar, CarContact *pContact, int index)
 // Updates the contact patch of every wheel: its position under the car
 // (dropped onto the ground), the grip left by the suspension travel and the
 // four corners of the patch, flattened onto the ground plane.
-// FUNCTION: CMR2 0x00497db0
 // match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00497db0
 void FUN_00497db0(Car *pCar)
 {
     CarContact *pContact;
@@ -263,8 +263,8 @@ void FUN_00497db0(Car *pCar)
 // spanning the car's hull points (or taken from the car's box when the
 // ground normal is unknown), or, for ghost cars, the hull points themselves
 // rescaled for the stage.
-// FUNCTION: CMR2 0x004962c0
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004962c0
 void FUN_004962c0(Car *pCar, CarContact *pContact)
 {
     BYTE stage;
@@ -440,8 +440,8 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
 // Draws the shadow of the car: a soft octagon under the body, a patch under
 // every wheel on the ground and, for the driven car, a smear along its skid
 // trail. Each is a solid core fading out to a transparent rim.
-// FUNCTION: CMR2 0x00494db0
 // match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00494db0
 void FUN_00494db0(Car *pCar, int view)
 {
     Quad2DInputVertex v0;
@@ -582,8 +582,8 @@ void FUN_00494db0(Car *pCar, int view)
 
 // Pulls the shadow points one unit towards the camera so they do not sink
 // into the ground: the body and skid points, and the wheel patches when drawn.
-// FUNCTION: CMR2 0x00495f50
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00495f50
 void FUN_00495f50(int view, CarContact *pContact)
 {
     FixVector cam;
@@ -631,8 +631,8 @@ void FUN_00495f50(int view, CarContact *pContact)
 // car, the skid trail laid out behind the body patch along the car's skid
 // profile, bent round when the car is sliding sideways. Every point is then
 // eased towards the ground height under it.
-// FUNCTION: CMR2 0x00496e00
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00496e00
 void FUN_00496e00(Car *pCar)
 {
     CarContact *pContact;
@@ -872,8 +872,8 @@ void FUN_00498370(FixVector *v)
 }
 
 // Sets the shadow level of a car and the matching blend colours.
-// FUNCTION: CMR2 0x004984b0
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004984b0
 void FUN_004984b0(int car, int level)
 {
     BYTE colour[4];
