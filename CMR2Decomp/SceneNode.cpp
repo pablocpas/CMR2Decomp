@@ -1908,7 +1908,6 @@ int g_viewSetupMode;
 // Sets the Direct3D view transform from a moved camera node (inverse of its
 // world matrix), unless the view setup mode is 5 or more.
 // FUNCTION: CMR2 0x004ade00
-// FUNCTION: CMR2 0x004ade00
 void Scene_SetViewFromCamera(SceneNode *pCamera)
 {
     float view[16];
