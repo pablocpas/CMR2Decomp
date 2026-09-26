@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "main.h"
+#include "Game.h"
 
 // GLOBAL: CMR2 0x00525c30
 BYTE g_eventEntries[288] = {
@@ -440,8 +441,27 @@ AxisBinding g_axisBindings[8];
 
 void FUN_004fcc50(ControllerData *p, int index);
 void Input_GetLastKeyName(LPSTR pName, unsigned int size);
+unsigned int FUN_0040bc30(unsigned short slot);
+unsigned int FUN_0040bc00(unsigned short slot);
+DWORD FUN_0040bcd0(unsigned short slot);
+void FUN_0040bd00(unsigned short slot, unsigned int value);
+void FUN_0040bc60(unsigned short slot, unsigned int value);
+void FUN_0040bbe0(unsigned short slot, unsigned short index);
+unsigned short FUN_0040bbc0(unsigned short slot);
+unsigned short FUN_0040bba0(void);
+
+// Separator line under the rows of the controls pages.
+// GLOBAL: CMR2 0x0082af70
+short g_controlsLine[4];
+// Controller configuration used by each of the 8 player slots.
 // GLOBAL: CMR2 0x0082a7c8
-unsigned short g_unk0x0082a7c8[12];
+unsigned short g_unk0x0082a7c8[8];
+// Configuration the device settings page was last showing.
+// GLOBAL: CMR2 0x0082a7d8
+unsigned short g_unk0x0082a7d8;
+// Set when the devices must be re-read (the game lost the focus).
+// GLOBAL: CMR2 0x0082a7dc
+int g_unk0x0082a7dc;
 // GLOBAL: CMR2 0x0082a7e4
 int g_unk0x0082a7e4;
 // GLOBAL: CMR2 0x0082a7e8
@@ -759,6 +779,142 @@ void FUN_004fc620(Menu *pMenu)
     Menu_SetFlags(pMenu, 1, 1, 1, 1);
 }
 
+// Loads the pad page from the slot's settings: two sensitivities (0..10)
+// and whether the pad vibrates.
+// FUNCTION: CMR2 0x004fc880
+void FUN_004fc880(Menu *pMenu, int param)
+{
+    pMenu->items[0].max = (char)((int)(FUN_0040bc30((unsigned short)g_unk0x0082a7ec) * 10) / 0x10000);
+    pMenu->items[1].max = (char)((int)(FUN_0040bc00((unsigned short)g_unk0x0082a7ec) * 10) / 0x10000);
+    if (FUN_0040bcd0((unsigned short)g_unk0x0082a7ec) != 0)
+        pMenu->items[2].max = 0;
+    else
+        pMenu->items[2].max = 1;
+}
+
+// Leaving the pad page: stores the settings unless backing out.
+// TODO: CMR2 0x004fc8f0 (implemented, match 86%)
+void FUN_004fc8f0(Menu *pMenu, char back)
+{
+    if (back == 0) {
+        FUN_0040bd00((unsigned short)g_unk0x0082a7ec, (pMenu->items[0].max << 16) / 10);
+        FUN_0040bc60((unsigned short)g_unk0x0082a7ec, (pMenu->items[1].max << 16) / 10);
+        CInput::FUN_0040bc90((unsigned short)g_unk0x0082a7ec, 1 - pMenu->items[2].max);
+    }
+}
+
+// Leaving the device settings page: stores the slot assignments and the
+// edited configurations unless backing out.
+// FUNCTION: CMR2 0x004fc970
+void FUN_004fc970(Menu *pMenu, char back)
+{
+    unsigned short *pSlot;
+    int i;
+
+    if (back == 0) {
+        i = 0;
+        pSlot = g_unk0x0082a7c8;
+        do {
+            FUN_0040bbe0(i, *pSlot);
+            pSlot++;
+            i++;
+        } while (pSlot < &g_unk0x0082a7c8[8]);
+        memcpy(FUN_0040bbb0(), g_controlsCopy, sizeof(g_controlsCopy));
+    }
+}
+
+// Fills the device settings page from the configuration of the slot.
+// TODO: CMR2 0x004fcb30 (implemented, match 43%)
+void FUN_004fcb30(void)
+{
+    Menu *pMenu;
+    DeviceInfo *pDevice;
+    unsigned int dev;
+    unsigned short slotDev;
+
+    pMenu = FUN_004fa530();
+    slotDev = CONTROLS_SEL;
+    pMenu->items[0].max = (BYTE)slotDev;
+    pDevice = CInput::UpdateDevice(slotDev);
+    dev = slotDev;
+    if (pDevice == NULL) {
+        dev = g_unk0x0082a7ec;
+        CONTROLS_SEL = (unsigned short)g_unk0x0082a7ec;
+        pDevice = CInput::UpdateDevice(g_unk0x0082a7ec & 0xffff);
+    }
+    pMenu->items[1].enabled = pDevice->field_0x0 == 3;
+    pMenu->items[1].max = (BYTE)g_controlsCopy[dev & 0xffff].field_0x110;
+    pMenu->items[2].enabled = pDevice->field_0x0 == 3;
+    pMenu->items[2].max = (BYTE)g_controlsCopy[dev & 0xffff].field_0x114;
+    pMenu->items[4].enabled = pDevice->field_0x0 == 3;
+    pMenu->items[5].enabled = pDevice->field_0x0 == 3;
+    pMenu->items[3].enabled = *(int *)((BYTE *)pDevice + 0x464) != 0;
+    pMenu->items[3].max = g_controlsCopy[dev & 0xffff].field_0x118 == 0;
+    pMenu->items[4].max = g_controlsCopy[dev & 0xffff].field_0x120 == 0;
+    pMenu->items[5].max = g_controlsCopy[dev & 0xffff].field_0x124 == 0;
+}
+
+// Entering the device settings page: copies the slot assignments and every
+// configuration.
+// FUNCTION: CMR2 0x004fc9b0
+void FUN_004fc9b0(Menu *pMenu, int param)
+{
+    unsigned short *pSlot;
+    int i;
+
+    CInput::FUN_0040c050();
+    i = 0;
+    pSlot = g_unk0x0082a7c8;
+    do {
+        *pSlot = FUN_0040bbc0(i);
+        pSlot++;
+        i++;
+    } while (pSlot < &g_unk0x0082a7c8[8]);
+    memcpy(g_controlsCopy, FUN_0040bbb0(), sizeof(g_controlsCopy));
+    FUN_004fcb30();
+}
+
+// Update callback of the device settings page: leaves when no device is
+// left, re-reads the devices after the game was inactive, then either stores
+// the options or switches the slot to the configuration chosen in entry 0.
+// TODO: CMR2 0x004fc9f0 (implemented, match 59%)
+void FUN_004fc9f0(Menu *pMenu)
+{
+    unsigned int dev;
+
+    if (FUN_0040bba0() == 0) {
+        Menu_SetNextAction((int)FUN_004f82c0());
+        return;
+    }
+    if (CGame::IsActive() == 0) {
+        if (g_unk0x0082a7dc != 0) {
+            CInput::FUN_0049eb50();
+            CInput::FUN_0040c050();
+            FUN_004fc9b0(pMenu, 0);
+            FUN_0040bba0();
+            g_unk0x0082a7dc = 0;
+        }
+    } else if (g_unk0x0082a7dc != 0) {
+        return;
+    }
+    if (pMenu->items[0].max == g_unk0x0082a7d8) {
+        dev = CONTROLS_SEL;
+        g_controlsCopy[dev].field_0x110 = pMenu->items[1].max;
+        g_controlsCopy[dev].field_0x114 = pMenu->items[2].max;
+        g_controlsCopy[dev].field_0x118 = 1 - pMenu->items[3].max;
+        g_controlsCopy[dev].field_0x120 = 1 - pMenu->items[4].max;
+        g_controlsCopy[dev].field_0x124 = 1 - pMenu->items[5].max;
+        return;
+    }
+    if (pMenu->items[0].max == 0 && (short)g_unk0x0082a7ec == 1)
+        pMenu->items[0].max = (char)g_unk0x0082a7ec;
+    if (pMenu->items[0].max == 1 && (short)g_unk0x0082a7ec == 0)
+        pMenu->items[0].max = g_unk0x0082a7d8 != 0 ? 0 : 2;
+    CONTROLS_SEL = pMenu->items[0].max;
+    FUN_004fcb30();
+    g_unk0x0082a7d8 = pMenu->items[0].max;
+}
+
 // Starts calibrating: freezes the menu and waits for the keys to be released.
 // FUNCTION: CMR2 0x004fc850
 void FUN_004fc850(Menu *pMenu, int param)
@@ -1060,6 +1216,329 @@ void FUN_004fd080(Menu *pMenu)
     }
 }
 
+void FUN_004ff060(short x, short y, Menu *pMenu, int index);
+
+// GLOBAL: CMR2 0x00526ec8
+char g_strPercentFormat[8] = "%s %d%%";
+// GLOBAL: CMR2 0x00526ed0
+char g_strSlashFormat[8] = "%s / %s";
+// GLOBAL: CMR2 0x00526ed8
+char g_strAngleFormat[8] = "< %s >";
+
+// Draws the two choices of an entry after its label at x: the active one
+// (A when value is 0) in pBright, the other one in pDim.
+inline void FrontendMenus_DrawChoice(int x, int y, BYTE value, int idA, int idB, BYTE *pBright, BYTE *pDim)
+{
+    int xB;
+
+    Font_DrawText(1, CFrontend::GetTextString(idA), x, y, (int *)(value == 0 ? pBright : pDim), 0x11);
+    xB = (int)(g_pGraphics->resX * 10) / 640 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(idA));
+    Font_DrawText(1, CFrontend::GetTextString(idB), xB, y, (int *)(value == 0 ? pDim : pBright), 0x11);
+}
+
+// Draws a label at x and returns where its choices start.
+inline int FrontendMenus_DrawLabel(char *text, int x, int y, BYTE *pColour)
+{
+    Font_DrawText(1, text, x, y, (int *)pColour, 0x11);
+    return Font_GetTextWidth(1, (BYTE *)text) + (int)(g_pGraphics->resX * 10) / 640 + x;
+}
+
+// Draw callback of the calibration page: one row per axis ("axis N" and its
+// calibration bar), "back", and the key help at the bottom.
+// TODO: CMR2 0x004fd480 (implemented, match 77%)
+void FUN_004fd480(Menu *pMenu)
+{
+    short icon[4];
+    char *text[2];
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    int resX;
+    int maxWidth;
+    int width;
+    short y0;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), FUN_004fba80() + 1);
+    text[0] = CFrontend::m_stringDest;
+    text[1] = CFrontend::GetTextString(pMenu->field_0x4);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    y0 = (int)(g_pGraphics->resY * 75) / 480;
+    g_controlsLine[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_controlsLine[3] = 1;
+    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_controlsLine[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+    g_controlsLine[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    maxWidth = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
+        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+        if (maxWidth < width)
+            maxWidth = width;
+    }
+    resX = g_pGraphics->resX;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
+                  + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
+        if (pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pTexture = CFrontend::m_pAr640ATexture;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pTexture = CFrontend::m_pAr640DTexture;
+            if (!pMenu->items[i].enabled)
+                pColour = g_colourDim0x00524970;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        if (i < pMenu->itemCount - 1) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
+                          (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]), (int *)pColour, 0x11);
+            FUN_004ff060((int)(g_pGraphics->resX * 0x7a) / 640 + maxWidth + resX * 5 / 640 + (int)(g_pGraphics->resX * 200) / 1280,
+                         (int)(g_pGraphics->resY * 10) / 480 + icon[1], pMenu, i);
+        } else {
+            Font_DrawText(1, CFrontend::GetTextString(pMenu->items[i].id), (int)(g_pGraphics->resX * 0x7a) / 640,
+                          (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]), (int *)pColour, 0x11);
+        }
+        if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+        g_controlsLine[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    }
+    if (FUN_004fc610() == 0) {
+        Font_DrawText(1, CFrontend::GetTextString(0x20a), (int)(g_pGraphics->resX * 24) / 640,
+                      (int)(g_pGraphics->resY * 420) / 480, (int *)g_colourText0x0052496c, 9);
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x207), (int)(g_pGraphics->resX * 24) / 640,
+                      (int)(g_pGraphics->resY * 420) / 480, (int *)g_colourText0x0052496c, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0x208), (int)(g_pGraphics->resX * 24) / 640,
+                      (int)(g_pGraphics->resY * 440) / 480, (int *)g_colourText0x0052496c, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0x209), (int)(g_pGraphics->resX * 24) / 640,
+                      (int)(g_pGraphics->resY * 460) / 480, (int *)g_colourText0x0052496c, 9);
+    }
+}
+
+// Picks the colours of row i of a settings page: icon/label, active choice,
+// inactive choice; disabled rows are all dim.
+#define CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)       \
+    if ((pMenu)->cursor == (i)) {                                             \
+        pLabel = g_colourWhite0x00524968;                                     \
+        pBright = g_colourWhite0x00524968;                                    \
+        pDim = g_colourText0x0052496c;                                        \
+        pTexture = CFrontend::m_pAr640ATexture;                               \
+    } else {                                                                  \
+        pTexture = CFrontend::m_pAr640DTexture;                               \
+        if (!(pMenu)->items[i].enabled) {                                     \
+            pLabel = g_colourDim0x00524970;                                   \
+            pBright = g_colourDim0x00524970;                                  \
+            pDim = g_colourDim0x00524970;                                     \
+        } else {                                                              \
+            pLabel = g_colourText0x0052496c;                                  \
+            pBright = g_colourWhite0x00524968;                                \
+            pDim = g_colourText0x0052496c;                                    \
+        }                                                                     \
+    }
+
+// Draw callback of the pad page: the two sensitivities (%), the vibration
+// on/off choice and "back", vertically centred.
+// TODO: CMR2 0x004fdb10 (implemented, match 48%)
+void FUN_004fdb10(Menu *pMenu)
+{
+    short icon[4];
+    char *text[2];
+    BYTE *pLabel;
+    BYTE *pBright;
+    BYTE *pDim;
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    MenuItem *pItem;
+    short y0;
+    int x;
+    int y;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), FUN_004fba80() + 1);
+    text[0] = CFrontend::m_stringDest;
+    text[1] = CFrontend::GetTextString(pMenu->field_0x4);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    y0 = (short)(((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2)
+         - (short)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount / 2);
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_controlsLine[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_controlsLine[3] = 1;
+    g_controlsLine[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_controlsLine[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+    g_controlsLine[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        icon[1] = (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 + y0
+                  + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
+        CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
+        x = (int)(g_pGraphics->resX * 0x7a) / 640;
+        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]);
+        switch (pItem->value) {
+        case 0:
+        case 1:
+            sprintf(CFrontend::m_stringDest, g_strPercentFormat, CFrontend::GetTextString(pItem->id), pItem->max * 10);
+            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            break;
+        case 2:
+            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
+            FrontendMenus_DrawChoice(x, y, pItem->max, 0x134, 0x133, pBright, pDim);
+            break;
+        case 3:
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x, y, (int *)pLabel, 0x11);
+            break;
+        }
+        if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pShadow, 1);
+        g_controlsLine[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Draw callback of the device settings page: the configuration chosen for
+// the slot and its on/off options.
+// TODO: CMR2 0x004fe240 (implemented, match 33%)
+void FUN_004fe240(Menu *pMenu)
+{
+    short icon[4];
+    short line[4];
+    char *text[2];
+    BYTE *pLabel;
+    BYTE *pBright;
+    BYTE *pDim;
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    MenuItem *pItem;
+    short y0;
+    int x;
+    int y;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), FUN_004fba80() + 1);
+    text[0] = CFrontend::m_stringDest;
+    text[1] = CFrontend::GetTextString(pMenu->field_0x4);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    y0 = (int)(g_pGraphics->resY * 100) / 480;
+    line[0] = (int)(g_pGraphics->resX * 99) / 640;
+    line[3] = 1;
+    line[2] = (int)(g_pGraphics->resX * 282) / 640;
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else if (!pMenu->items[0].enabled) {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    line[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    line[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)i
+                  - CFrontend::m_pAr640ATexture->height / 2;
+        CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
+        x = (int)(g_pGraphics->resX * 0x7a) / 640;
+        y = (int)(g_pGraphics->resY * 24) / 480 + line[1];
+        switch (pItem->value) {
+        case 0:
+            sprintf(CFrontend::m_stringDest, g_strAngleFormat, FUN_004fbab0());
+            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            break;
+        case 1:
+            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(0x197), x, y, pLabel);
+            FrontendMenus_DrawChoice(x, y, pItem->max, 0x69, 0x68, pBright, pDim);
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest, g_strSlashFormat, CFrontend::GetTextString(0x6d), CFrontend::GetTextString(0x6e));
+            x = FrontendMenus_DrawLabel(CFrontend::m_stringDest, x, y, pLabel);
+            FrontendMenus_DrawChoice(x, y, pItem->max, 0x69, 0x68, pBright, pDim);
+            break;
+        case 3:
+            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
+            FrontendMenus_DrawChoice(x, y, pItem->max, 0x134, 0x133, pBright, pDim);
+            break;
+        case 4:
+        case 5:
+            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
+            FrontendMenus_DrawChoice(x, y, pItem->max, 5, 4, pBright, pDim);
+            break;
+        case 6:
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            break;
+        }
+        if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        line[1] = (int)(g_pGraphics->resY * 36) / 480 * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+        line[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
 int FUN_004ff420(int a, int b);
 
 // Draws the calibration bar of an axis centred on (x, y): the bar, the
@@ -1149,6 +1628,9 @@ Menu g_menu0x0081b158;
 Menu g_menu0x0081b338;
 // GLOBAL: CMR2 0x0081b518
 Menu g_menu0x0081b518;
+// Cheats menu.
+// GLOBAL: CMR2 0x0081be78
+Menu g_menu0x0081be78;
 // GLOBAL: CMR2 0x0081bab8
 Menu g_menu0x0081bab8;
 // GLOBAL: CMR2 0x0081bc98
@@ -1339,6 +1821,129 @@ void FUN_004f5520(void)
     Menu_AddItemType1(&g_menu0x008205b8, 0, 0x1b, 0, 0);
     Menu_SetCallbacks(&g_menu0x008205b8, NULL, NULL, FUN_004e2b40, NULL);
     Menu_ValidateCursor(&g_menu0x008205b8, 0);
+}
+
+void FUN_004f3400(Menu *pMenu, int param);
+void FUN_004f39e0(Menu *pMenu);
+void FUN_004e2da0(Menu *pMenu);
+void FUN_004ef270(Menu *pMenu, char back);
+void FUN_004ef300(Menu *pMenu, int param);
+void FUN_004ef420(Menu *pMenu);
+void FUN_004d4ba0(Menu *pMenu);
+void FUN_004f25d0(Menu *pMenu, int param);
+void FUN_004ec930(Menu *pMenu, int param);
+char FUN_004eaa30(void);
+
+// Language menu: five languages, or three in region 1.
+// FUNCTION: CMR2 0x004f5580
+void FUN_004f5580(void)
+{
+    Menu_Init(&g_menu0x008221d8, 0, 1, 0, NULL, NULL, 1, 0, 0);
+    if (CGameInfo::GetGameRegion() == 0) {
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 6, &g_menu0x0081d6d8, 0, 0);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 7, &g_menu0x0081d6d8, 0, 1);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 8, &g_menu0x0081d6d8, 0, 2);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 9, &g_menu0x0081d6d8, 0, 3);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 10, &g_menu0x0081d6d8, 0, 4);
+    } else {
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 6, &g_menu0x0081d6d8, 0, 0);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 7, &g_menu0x0081d6d8, 0, 1);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 8, &g_menu0x0081d6d8, 0, 2);
+    }
+    Menu_SetCallbacks(&g_menu0x008221d8, (MenuCallback)FUN_004f3400, (MenuCallback)FUN_004f39e0,
+                      (MenuCallback)FUN_004e2da0, (MenuCallback)FUN_004ef270);
+    Menu_ValidateCursor(&g_menu0x008221d8, 0);
+}
+
+// Main menu: single rally, championship, time trial, multiplayer, options,
+// (extras when unlocked) and quit.
+// FUNCTION: CMR2 0x004f5670
+void FUN_004f5670(void)
+{
+    Menu_Init(&g_menu0x0081d6d8, 0, 0, 0, &g_menu0x00823df8, NULL, 1, 1, 0);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x4f, &g_menu0x008212d8, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x50, &g_menu0x00823a38, 0, 1);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x51, FUN_004fa2d0(), 0, 2);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x52, &g_menu0x008241b8, (int)FUN_004ec930, 3);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x53, &g_menu0x0081f118, 0, 4);
+    if (FUN_004eaa30() != 0)
+        Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x54, &g_menu0x00822958, 0, 5);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x56, &g_menu0x00823df8, 0, 6);
+    Menu_SetCallbacks(&g_menu0x0081d6d8, (MenuCallback)FUN_004ef300, (MenuCallback)FUN_004ef420,
+                      (MenuCallback)FUN_004d4ba0, (MenuCallback)FUN_004f25d0);
+    Menu_ValidateCursor(&g_menu0x0081d6d8, 0);
+}
+
+void FUN_004f0c40(Menu *pMenu, int param);
+void FUN_004f2750(Menu *pMenu, int param);
+void FUN_004f27d0(Menu *pMenu, int param);
+void FUN_004f2620(Menu *pMenu, char back);
+void FUN_004f3ae0(Menu *pMenu);
+void FUN_004d9a40(Menu *pMenu);
+void FUN_004f07e0(Menu *pMenu, char back);
+
+// Profile menu of a rally: continue, new profile and up to 4 saved ones.
+// FUNCTION: CMR2 0x004f5770
+void FUN_004f5770(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x008212d8, 0, 0xb, 0, &g_menu0x0081d6d8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008212d8, 0, 0x102, &g_menu0x008203d8, (int)FUN_004f0c40, -1);
+    Menu_AddItemType4(&g_menu0x008212d8, 0, 0xe6, (int)FUN_004f2750, -1);
+    i = 4;
+    do {
+        Menu_AddItemType4(&g_menu0x008212d8, 0, -1, (int)FUN_004f27d0, -1);
+        i--;
+    } while (i != 0);
+    Menu_SetCallbacks(&g_menu0x008212d8, (MenuCallback)FUN_004f2620, (MenuCallback)FUN_004f3ae0,
+                      (MenuCallback)FUN_004d9a40, (MenuCallback)FUN_004f07e0);
+    Menu_ValidateCursor(&g_menu0x008212d8, 0);
+}
+
+void FUN_004f29b0(Menu *pMenu, int param);
+void FUN_004e2590(Menu *pMenu);
+void FUN_004f28c0(Menu *pMenu, int param);
+void FUN_004ded80(Menu *pMenu);
+void FUN_004f2970(Menu *pMenu, char back);
+void FUN_004f3a50(Menu *pMenu, int param);
+
+// Options menu: game, sound, graphics, controls, language (not in regions
+// 2/3), cheats (id 1000) and back.
+// FUNCTION: CMR2 0x004f5eb0
+void FUN_004f5eb0(void)
+{
+    Menu_Init(&g_menu0x0081f118, 0, 0x13, 0, &g_menu0x0081d6d8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x14, &g_menu0x0081ef38, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x15, &g_menu0x0081fa78, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x16, &g_menu0x00823c18, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x18, FUN_004fa4f0(), 0, 0);
+    if (CGameInfo::GetGameRegion() != 3 && CGameInfo::GetGameRegion() != 2)
+        Menu_AddItemType2(&g_menu0x0081f118, 0, 0x19, &g_menu0x008221d8, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x148, &g_menu0x0081be78, 0, 1000);
+    Menu_AddItemType1(&g_menu0x0081f118, 0, 0x67, 0, -1);
+    Menu_SetCallbacks(&g_menu0x0081f118, (MenuCallback)FUN_004f29b0, (MenuCallback)FUN_004f3ae0,
+                      (MenuCallback)FUN_004e2590, NULL);
+    Menu_ValidateCursor(&g_menu0x0081f118, 0);
+    g_menu0x0081f118.items[6].enabled = 1;
+    g_menu0x0081f118.items[6].visible = 1;
+}
+
+// Cheats menu: the 8 cheats as on/off entries.
+// FUNCTION: CMR2 0x004f5fc0
+void FUN_004f5fc0(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x0081be78, 0, 0x148, 0, &g_menu0x0081f118, NULL, 1, 0, 1);
+    i = 0;
+    do {
+        Menu_AddItemType3(&g_menu0x0081be78, 0, i + 0x149, 2, 0, 0, 0, (int)FUN_004f3a50, -1);
+        i++;
+    } while (i < 8);
+    Menu_SetCallbacks(&g_menu0x0081be78, (MenuCallback)FUN_004f28c0, NULL, (MenuCallback)FUN_004ded80,
+                      (MenuCallback)FUN_004f2970);
+    Menu_ValidateCursor(&g_menu0x0081be78, 0);
 }
 
 // FUNCTION: CMR2 0x004f5810
@@ -2514,4 +3119,78 @@ void FUN_004fa5d0(void)
     Menu_SetCallbacks(&g_menu0x008288c0, (MenuCallback)FUN_004fbf60, (MenuCallback)FUN_004fc070,
                       (MenuCallback)FUN_004fd080, (MenuCallback)FUN_004fbff0);
     Menu_ValidateCursor(&g_menu0x008288c0, 0);
+}
+
+void FUN_004fc850(Menu *pMenu, int param);
+void FUN_004fc500(Menu *pMenu, int param);
+void FUN_004fc620(Menu *pMenu);
+void FUN_004fd480(Menu *pMenu);
+void FUN_004fc880(Menu *pMenu, int param);
+void FUN_004fdb10(Menu *pMenu);
+void FUN_004fc8f0(Menu *pMenu, char back);
+void FUN_004fc9b0(Menu *pMenu, int param);
+void FUN_004fc9f0(Menu *pMenu);
+void FUN_004fe240(Menu *pMenu);
+void FUN_004fc970(Menu *pMenu, char back);
+
+// Calibration page of the controls menu: one entry per axis and "back".
+// FUNCTION: CMR2 0x004fa650
+void FUN_004fa650(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x00828aa0, 0, 0x75, 0, &g_menu0x008288c0, NULL, 1, 0, 1);
+    i = 0;
+    do {
+        Menu_AddItemType4(&g_menu0x00828aa0, 0, -1, (int)FUN_004fc850, i);
+        i++;
+    } while (i < 8);
+    Menu_AddItemType2(&g_menu0x00828aa0, 0, 0x67, &g_menu0x00828c80, 0, 0);
+    Menu_SetCallbacks(&g_menu0x00828aa0, (MenuCallback)FUN_004fc500, (MenuCallback)FUN_004fc620,
+                      (MenuCallback)FUN_004fd480, NULL);
+    Menu_ValidateCursor(&g_menu0x00828aa0, 0);
+}
+
+// Pad page of the controls menu: two sensitivities, vibration and "back".
+// FUNCTION: CMR2 0x004fa6d0
+void FUN_004fa6d0(void)
+{
+    Menu_Init(&g_menu0x00828e60, 0, 0x75, 0, &g_menu0x008288c0, NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00828e60, 0, 0x7a, 0xb, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00828e60, 0, 0x7b, 0xb, 0, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x00828e60, 0, 0x1a8, 2, 0, 0, 0, 0, 2);
+    Menu_AddItemType2(&g_menu0x00828e60, 0, 0x67, &g_menu0x00828c80, 0, 3);
+    Menu_SetCallbacks(&g_menu0x00828e60, (MenuCallback)FUN_004fc880, NULL, (MenuCallback)FUN_004fdb10,
+                      (MenuCallback)FUN_004fc8f0);
+    Menu_ValidateCursor(&g_menu0x00828e60, 0);
+}
+
+// Device settings page of the controls menu: configuration of the slot
+// (one of the connected devices) and its options.
+// FUNCTION: CMR2 0x004fa780
+void FUN_004fa780(void)
+{
+    Menu_Init(&g_menu0x00829140, 0, 0x65, 0, &g_menu0x00828c80, NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00829140, 0, -1, (BYTE)CInput::FUN_0049ef90(), 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00829140, 0, 0x68, 2, 0, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x00829140, 0, 0x68, 2, 0, 0, 0, 0, 2);
+    Menu_AddItemType3(&g_menu0x00829140, 0, 0x6a, 2, 0, 0, 0, 0, 3);
+    Menu_AddItemType3(&g_menu0x00829140, 0, 0x20b, 2, 0, 0, 0, 0, 4);
+    Menu_AddItemType3(&g_menu0x00829140, 0, 0x20c, 2, 0, 0, 0, 0, 5);
+    Menu_AddItemType2(&g_menu0x00829140, 0, 0x67, &g_menu0x008288c0, 0, 6);
+    Menu_SetCallbacks(&g_menu0x00829140, (MenuCallback)FUN_004fc9b0, (MenuCallback)FUN_004fc9f0,
+                      (MenuCallback)FUN_004fe240, (MenuCallback)FUN_004fc970);
+    Menu_ValidateCursor(&g_menu0x00829140, 0);
+}
+
+// Builds every page of the controls menu.
+// FUNCTION: CMR2 0x004fa4d0
+void FUN_004fa4d0(void)
+{
+    FUN_004fa540();
+    FUN_004fa5d0();
+    FUN_004fa650();
+    CInput::FUN_0040c050();
+    FUN_004fa780();
+    FUN_004fa6d0();
 }

@@ -6,6 +6,7 @@
 extern Menu g_menu0x0081b158;
 extern Menu g_menu0x0081b338;
 extern Menu g_menu0x0081b518;
+extern Menu g_menu0x0081be78;
 extern Menu g_menu0x0081bab8;
 extern Menu g_menu0x0081bc98;
 extern Menu g_menu0x0081c058;

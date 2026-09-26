@@ -842,6 +842,137 @@ void FUN_004eaf90(BYTE index, char *name)
     // 0x52fa00: per-category "name edited" flags, inside the oversized g_unk0x0052f3e8.
     g_unk0x0052f3e8[0x618 + category] = 1;
 }
+void FUN_004eaae0(int *pValues, int *pOut1, int *pOut2);
+int FUN_004eaca0(void);
+void RallyData_FUN_004088a0(BYTE index, int *pValues);
+
+// Resets the settings of record `index` to the defaults of the options.
+// TODO: CMR2 0x004ec210 (implemented, match 64%)
+void FUN_004ec210(int index)
+{
+    int values[5];
+
+    RallyData_ValidateIndex(index);
+    values[0] = 0;
+    values[1] = 0;
+    values[2] = 0;
+    values[3] = 0;
+    values[4] = 0;
+    FUN_004eaae0(values, &values[3], &values[4]);
+    RallyData_FUN_004088a0(index, values);
+}
+
+// Marks record `index` (and its category's profile) as in use or not; when
+// set, the record starts again from the defaults.
+// TODO: CMR2 0x004eb000 (implemented, match 65%)
+void FUN_004eb000(BYTE index, char set)
+{
+    unsigned int i;
+    unsigned int record;
+    unsigned int category;
+    unsigned int bit;
+
+    i = index;
+    RallyData_ValidateIndex(i);
+    record = *(unsigned int *)(g_unk0x00531350 + i * 0x30);
+    category = record >> 0x12 & 0xf;
+    if (category != 0xf) {
+        bit = set & 1;
+        record = (record & 0xfbffffff) | bit << 0x1a;
+        *(unsigned int *)(g_saveData + 0x63c + category * 0x650) =
+            (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffdfffff) | bit << 0x15;
+        record |= 0x2000;
+        *(unsigned int *)(g_unk0x00531350 + i * 0x30) = record;
+        if (set != 0) {
+            *(unsigned int *)(g_unk0x00531350 + i * 0x30) = record & 0xffffe000;
+            *(unsigned int *)(g_unk0x00531350 + i * 0x30 + 4) = 0;
+            FUN_004ec210(i);
+            *(int *)(g_saveData + 0x680 + i * 0x650) = FUN_004eaca0();
+            *(int *)(g_saveData + 0x680 + category * 0x650) = FUN_004eaca0();
+        }
+    }
+}
+
+// Which of the 4 profiles are used by the first 4 records.
+#define RALLYDATA_USED_PROFILES(used)                                             \
+    for (p = 0; p < 4; p++) {                                                     \
+        used[p] = 0;                                                              \
+        for (pRecord = g_unk0x00531350; pRecord < g_unk0x00531350 + 4 * 0x30; pRecord += 0x30) { \
+            if ((*(unsigned int *)pRecord >> 0x12 & 0xf) == p) {                  \
+                used[p] = 1;                                                      \
+                break;                                                            \
+            }                                                                     \
+        }                                                                         \
+    }
+
+// Number of saved profiles (named, not hidden) no record is using.
+// TODO: CMR2 0x004ec020 (implemented, match 89%)
+int FUN_004ec020(void)
+{
+    char used[4];
+    BYTE *pRecord;
+    BYTE *pProfile;
+    unsigned int p;
+    int count;
+
+    count = 0;
+    RALLYDATA_USED_PROFILES(used)
+    p = 0;
+    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, p++) {
+        if (used[p] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0)
+            count++;
+    }
+    return count;
+}
+
+// Index of the n-th free saved profile, -1 if none.
+// FUNCTION: CMR2 0x004ec090
+int FUN_004ec090(int n)
+{
+    char used[4];
+    BYTE *pRecord;
+    BYTE *pProfile;
+    unsigned int p;
+    int count;
+    int i;
+
+    count = 0;
+    RALLYDATA_USED_PROFILES(used)
+    i = 0;
+    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+        if (used[i] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0) {
+            if (count == n)
+                return i;
+            count++;
+        }
+    }
+    return -1;
+}
+
+// Name of the n-th free saved profile, NULL if none.
+// FUNCTION: CMR2 0x004ec110
+BYTE *FUN_004ec110(int n)
+{
+    char used[4];
+    BYTE *pRecord;
+    BYTE *pProfile;
+    unsigned int p;
+    int count;
+    int i;
+
+    count = 0;
+    RALLYDATA_USED_PROFILES(used)
+    i = 0;
+    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+        if (used[i] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0) {
+            if (count == n)
+                return g_saveData + 0x638 + i * 0x650;
+            count++;
+        }
+    }
+    return NULL;
+}
+
 // FUNCTION: CMR2 0x004ebfd0
 void FUN_004ebfd0(int index)
 {

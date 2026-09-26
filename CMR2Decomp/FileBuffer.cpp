@@ -258,6 +258,115 @@ void FUN_004ebec0(void)
     } while (i < 0x10);
 }
 
+void RallyData_ValidateIndex(int index);
+void FUN_004ec260(int player);
+
+// Gives record `index` a profile (category) unless it has one: `profile`
+// if given; otherwise the first free profile no earlier record uses; else
+// the free profile with the lowest age, or when they all have the same age
+// the one unused for longest.
+// TODO: CMR2 0x004eb860 (implemented, match 51%)
+void FUN_004eb860(int index, int profile)
+{
+    unsigned int *pRecord;
+    unsigned int flags;
+    unsigned int age;
+    unsigned int minAge;
+    unsigned int firstAge;
+    unsigned int best;
+    unsigned int now;
+    int free[4];
+    int count;
+    int chosen;
+    int c;
+    int i;
+    BYTE *p;
+    BYTE *pRec;
+    char allSame;
+
+    RallyData_ValidateIndex(index);
+    pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
+    if ((*pRecord & 0x3c0000) != 0x3c0000)
+        return;
+    if (profile != -1) {
+        flags = *(unsigned int *)(g_saveData + 0x67c + profile * 0x650);
+        *pRecord = ((flags & 0x40) << 1 | profile & 0xf) << 0x12 | *pRecord & 0xfdc3ffc0 | flags & 0x1f;
+        return;
+    }
+    c = 0;
+    for (p = g_saveData + 0x63c; p < g_saveData + 0x1f7c; p += 0x650, c++) {
+        if (p[-4] == 0 || (*(unsigned int *)p & 0x200000))
+            break;
+    }
+    if (p < g_saveData + 0x1f7c && c != -1) {
+        for (i = 0; i < index; i++) {
+            if ((*(unsigned int *)(g_saveData + 0x1f70 + i * 0x30) >> 0x12 & 0xf) == (unsigned int)c)
+                c = -1;
+        }
+        if (c != -1) {
+            chosen = c;
+            goto assign;
+        }
+    }
+    count = 0;
+    for (c = 0; c < 4; c++) {
+        free[count] = -1;
+        for (pRec = g_saveData + 0x1f70; pRec < g_saveData + 0x2270; pRec += 0x30) {
+            if ((*(unsigned int *)pRec >> 0x12 & 0xf) == (unsigned int)c)
+                break;
+        }
+        if (pRec >= g_saveData + 0x2270) {
+            free[count] = c;
+            count++;
+        }
+    }
+    minAge = 0xff;
+    allSame = 1;
+    firstAge = *(unsigned int *)(g_saveData + 0x67c + free[0] * 0x650) >> 7 & 0xff;
+    chosen = index;
+    for (i = 0; i < count; i++) {
+        age = *(unsigned int *)(g_saveData + 0x67c + free[i] * 0x650) >> 7 & 0xff;
+        if (firstAge != age)
+            allSame = 0;
+        if (age <= minAge) {
+            minAge = age;
+            chosen = free[i];
+        }
+    }
+    now = CMain::GetFrameDelta();
+    if (allSame) {
+        best = 0;
+        for (i = 0; i < count; i++) {
+            if (best <= now - g_unk0x00531654[free[i]]) {
+                best = now - g_unk0x00531654[free[i]];
+                chosen = free[i];
+            }
+        }
+    }
+assign:
+    *pRecord = (*pRecord & 0xffc3ffff) | (chosen & 0xf) << 0x12;
+    g_unk0x00531654[*pRecord >> 0x12 & 0xf] = CMain::GetFrameDelta();
+}
+
+// Clears the profile of record `index`'s category back to a new profile.
+// FUNCTION: CMR2 0x004ebf20
+void FUN_004ebf20(int index)
+{
+    unsigned int category;
+
+    RallyData_ValidateIndex(index);
+    category = *(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12 & 0xf;
+    memset(g_saveData + 0x628 + category * 0x650, 0, 0x650);
+    *(int *)(g_saveData + 0x680 + category * 0x650) = 4;
+    *(unsigned int *)(g_saveData + 0x63c + category * 0x650) =
+        (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffe1f17e) | 0x1017e;
+    *(unsigned int *)(g_saveData + 0x67c + category * 0x650) |= 0x20;
+    *(int *)(g_saveData + 0x674 + category * 0x650) = 0xf11;
+    g_saveData[0xbb0 + category * 0x650] = (g_saveData[0xbb0 + category * 0x650] & 0xfc) | 0x3c;
+    FUN_004ec260(index);
+    g_saveData[0x620 + (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12 & 0xf)] = 0;
+}
+
 // 12-byte block read from the file buffer (at offset 0x10).
 struct Unk0x10Block {
     int field_0x0;

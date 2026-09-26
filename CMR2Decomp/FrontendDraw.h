@@ -11,6 +11,8 @@ extern BYTE g_colourText0x0052496c[4];
 extern BYTE g_colourDim0x00524970[4];
 extern BYTE g_colourShadowWhite0x00524974[4];
 extern BYTE g_colourShadowText0x00524978[4];
+extern BYTE g_colourShadowDim0x0052497c[4];
+extern short g_unk0x008189a8[4];
 
 int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *text);
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count);

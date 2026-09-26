@@ -2327,10 +2327,34 @@ int FUN_004eaac0(unsigned int value)
     return count;
 }
 
+// Default stage setting values from the game options.
+// TODO: CMR2 0x004eaae0 (implemented, match 80%)
+void FUN_004eaae0(int *pValues, int *pOut1, int *pOut2)
+{
+    pValues[0] = 0;
+    pValues[1] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x88);
+    pValues[2] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x8c);
+    *pOut1 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x94);
+    *pOut2 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x90);
+}
+
 // FUNCTION: CMR2 0x004eab20
 void FUN_004eab20(BYTE param1)
 {
     CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 30) | (CGameInfo::m_gameInfo.field_0x18 & 0xbfffffffU);
+}
+
+// Turns cheat `bit` on or off in the game options.
+// FUNCTION: CMR2 0x004eab40
+void FUN_004eab40(int bit, int value)
+{
+    BYTE mask = 1 << bit;
+
+    if (value != 0) {
+        *(unsigned int *)((BYTE *)&CGameInfo::m_gameInfo + 0x20) |= (unsigned int)mask << 8;
+        return;
+    }
+    *(unsigned int *)((BYTE *)&CGameInfo::m_gameInfo + 0x20) &= (unsigned int)(BYTE)~mask << 8 | 0xffff00ff;
 }
 
 // FUNCTION: CMR2 0x004eab80
