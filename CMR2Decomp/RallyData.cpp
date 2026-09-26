@@ -169,10 +169,42 @@ void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
             pDest[i] = classes[i];
     }
 }
+
+// GLOBAL: CMR2 0x0052f100
+int g_unk0x0052f100[20][2];
 // GLOBAL: CMR2 0x0052f1f0
 int g_unk0x0052f1f0[20];
 // GLOBAL: CMR2 0x0052f240
 int g_unk0x0052f240[20];
+
+void FUN_0040d9e0(int group);
+
+// Restarts the driver pairing tables of a rally: both values of every pair, the
+// AI skill array and the entry array take the rally key, the two flag arrays
+// are cleared, and the three groups of the rally are rebuilt.
+// MSVC folds the three int[20] tables into one base register with +-0x50
+// displacements in the original (they are contiguous in its .bss); our tables
+// are not adjacent, so the compiler picks another induction variable and the
+// opcodes differ.
+// TODO: CMR2 0x0040dbe0 (implemented, match 27%)
+void FUN_0040dbe0(int value)
+{
+    int i;
+
+    i = 20;
+    do {
+        i--;
+        g_unk0x0052f100[i][0] = value;
+        g_unk0x0052f100[i][1] = value;
+        g_unk0x0052f1a0[i] = value;
+        g_unk0x0052f1f0[i] = 0;
+        g_unk0x0052f240[i] = 0;
+    } while (i);
+    FUN_0040d9e0(0);
+    FUN_0040d9e0(1);
+    FUN_0040d9e0(2);
+}
+
 // GLOBAL: CMR2 0x0052f294
 BYTE g_unk0x0052f294[0x14];
 // GLOBAL: CMR2 0x0052f2ac
@@ -894,8 +926,6 @@ void FUN_004ec000(void)
 int g_unk0x0052ea60;
 // GLOBAL: CMR2 0x0052ea64
 int g_unk0x0052ea64;
-// GLOBAL: CMR2 0x0052f100
-int g_unk0x0052f100[20][2];
 
 unsigned int RallyData_FUN_00406940(void);
 unsigned int RallyData_FUN_00407e70(void);

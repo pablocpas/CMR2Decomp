@@ -1789,6 +1789,48 @@ int FUN_00501510(void)
     return g_unk0x0082b1b4;
 }
 
+void FUN_005013a0(void);
+void FUN_0050f4f0(void);
+void FUN_00505e70(void);
+void FUN_00503ea0(void);
+void FUN_005040f0(void);
+int *FUN_0050f620(void);
+void FUN_004b1150(void);
+void FUN_004b2970(int value);
+
+// Format of the environment texture of the track. The %s is the install
+// directory returned by the setup.
+// GLOBAL: CMR2 0x00527070
+char g_str0x00527070[] = "%s\\textures\\environment\\environment.tga";
+
+// Starts the option menu background: clear colour and blend mode, then the
+// option menu data, the world, the weather textures and their stage entries.
+// Finally it registers the environment texture of the track, at the resolution
+// the display option asks for.
+// The only differences against the original are the call sites reccmp shows as
+// <OFFSETn>: 0x4b1150, 0x503ea0, 0x5040f0 and the two 0x4b23c0 calls go to
+// functions that are still annotated TODO, so reccmp cannot name them.
+// TODO: CMR2 0x00501520 (implemented, match 89%)
+void FUN_00501520(void)
+{
+    CGraphics::SetClearColour(1, 0x8d, 0x97, 0x9f);
+    Font_SetBlendMode(1);
+    CGameInfo::FUN_005011a0();
+    FUN_005013a0();
+    FUN_0050f4f0();
+    FUN_004b1150();
+    CGame::FUN_0049dca0(3);
+    FUN_00503ea0();
+    FUN_005040f0();
+    FUN_00505e70();
+    sprintf(CFrontend::m_stringDest, g_str0x00527070, CInstallInfo::GetSetupRepDir());
+    FUN_004b2970(!CGameInfo::FUN_00406410(0xf));
+    if (CGameInfo::FUN_00406410(0x10))
+        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x80);
+    else
+        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x40);
+}
+
 // FUNCTION: CMR2 0x00501d00
 void FUN_00501d00(int index)
 {
@@ -6151,6 +6193,51 @@ extern int g_unk0x0082d154;  // defined in StageTiming.cpp
 extern int g_unk0x0082d158;  // defined in StageTiming.cpp
 
 void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
+
+void FUN_00508890(int *pRecord);
+void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom);
+
+// Recomputes the three sky colours of the stage from the colour loaded by
+// FUN_00507710: the raw weights when the sky type is 0, a single clamped value
+// for type 1 and two interpolated values for the rest. It only touches stages
+// whose mesh record is filled in.
+// FUNCTION: CMR2 0x005078e0
+void FUN_005078e0(int index)
+{
+    int scale;
+
+    if (g_unk0x0082d220[index].meshCount == 0)
+        return;
+    if (g_unk0x0082d220[index].field_0x2a8 == 0)
+        return;
+    switch (g_unk0x0082d14c) {
+    case 0:
+        g_unk0x0082d150 = FixMul(g_unk0x0082d148, 0x5999);
+        g_unk0x0082d154 = FixMul(g_unk0x0082d148, 0x9999);
+        g_unk0x0082d158 = FixMul(g_unk0x0082d148, 0xb333);
+        FUN_00507fe0(&g_unk0x0082d220[index], &g_unk0x0082fd00[index]);
+        return;
+    case 1:
+        scale = FixMul(g_unk0x0082d148, 0x8000);
+        if (scale > 0x4000)
+            scale = 0x4000;
+        g_unk0x0082d150 = scale;
+        g_unk0x0082d154 = scale;
+        g_unk0x0082d158 = scale;
+        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        return;
+    default:
+        g_unk0x0082d144 = 0x4000;
+        scale = FixMul(g_unk0x0082d148, 0x8000);
+        if (scale > g_unk0x0082d144)
+            scale = g_unk0x0082d144;
+        g_unk0x0082d150 = scale;
+        g_unk0x0082d154 = scale;
+        g_unk0x0082d158 = scale;
+        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        return;
+    }
+}
 
 // Builds the deform geometry of stage entry <index>: the eight corners of the
 // box around it, the twelve vertices FUN_00507fe0 deforms and the position of
