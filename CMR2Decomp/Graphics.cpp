@@ -855,7 +855,8 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
 // Replaces three alpha values of a texture (4444 or 8888 formats), e.g. to
 // recolour masked areas. The untouched original is first saved in cache slot
 // cacheSlot so BltTexture can restore it.
-// TODO: CMR2 0x004a4d30 (implemented, match 42%)
+// FUNCTION: CMR2 0x004a4d30
+// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD from1, WORD to1, WORD from2, WORD to2,
                                   int cacheSlot)
 {
@@ -949,7 +950,8 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
                  : (((mask) >> abs(depth)) & (v)) << abs(depth))
 
 // Blends pColour (r, g, b, a) into pixel (x, y) of a locked texture.
-// TODO: CMR2 0x004a52d0 (implemented, match 24%)
+// FUNCTION: CMR2 0x004a52d0
+// match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BYTE *pColour)
 {
     LockedTexture *pLocked;
@@ -2530,7 +2532,8 @@ BOOL CGraphics::ClearZBuffer(void)
 
 // Reloads every texture from its archive (.DDS first, else .TGA) and
 // recreates the cube map surfaces, e.g. after the device was lost.
-// TODO: CMR2 0x004a4c40 (implemented, match 88%)
+// FUNCTION: CMR2 0x004a4c40
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Graphics_ReloadAllTextures(void)
 {
     Texture *pTexture;
@@ -2560,7 +2563,8 @@ void Graphics_ReloadAllTextures(void)
 
 // Whether a 2D point lies inside a triangle (x0, y0, x1, y1, x2, y2), all
 // 16.16; the edge tests work on values scaled by 0.01 to avoid overflow.
-// TODO: CMR2 0x0049da50 (implemented, match 48%)
+// FUNCTION: CMR2 0x0049da50
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int Tri2D_Contains(int *pPoint, int *pTri)
 {
     int ex0, ey0, ex1, ey1, ex2, ey2;
@@ -2603,7 +2607,8 @@ void CGraphics::SetCullMode(int mode)
 int g_unk0x0059ce30;
 
 // Switches alpha blending; with alpha test support the reference value follows.
-// TODO: CMR2 0x0049dcc0 (implemented, match 89%)
+// FUNCTION: CMR2 0x0049dcc0
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0049dcc0(int enable)
 {
     if (enable != g_unk0x0059ce30) {
@@ -2980,7 +2985,8 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
 }
 
 // Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
-// TODO: CMR2 0x004b2e20 (implemented, match 75%)
+// FUNCTION: CMR2 0x004b2e20
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void __cdecl FUN_004b2e20(void)
 {
     g_unk0x006dfdf8 = 1.0f - g_unk0x005210d0;
@@ -3012,7 +3018,8 @@ struct MeshVertexF {
 // Returns a closed 10-sided cylinder (22 vertices, 20 triangles) enclosing pMesh:
 // its radius is the furthest point where a triangle crosses z = 0, its height the
 // mesh's z range. Cylinders are cached by name; returns pMesh when the cache is full.
-// TODO: CMR2 0x004b67f0 (implemented, match 72%)
+// FUNCTION: CMR2 0x004b67f0
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
 {
     Mesh *pFound;
@@ -3140,7 +3147,8 @@ extern short *g_sceneSectorZone;
 // Attenuates the light-zone vertices of a sector by D3D light `light` (by
 // horizontal distance); outside the light's reach they go back to full
 // intensity. Returns 1 when any intensity changed.
-// TODO: CMR2 0x004b6ca0 (implemented, match 48%)
+// FUNCTION: CMR2 0x004b6ca0
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int Scene_AttenuateSectorLight(int sector, int light)
 {
     D3DLIGHT7 *pLight;
@@ -3314,7 +3322,8 @@ signed char g_timerWobble[24] = { 3, 6, 6, 3, 0, 2, 4, 4, 2, 0, 1, 2, 2, 1, 0, 1
 // Current value of a timer (32 slots of 0x30 bytes): base + scale * shape(step)
 // / 4096, stepping once every 16 ms; once finished the slot goes to shape 5
 // and returns its end value.
-// TODO: CMR2 0x004bc110 (implemented, match 45%)
+// FUNCTION: CMR2 0x004bc110
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int Timer_GetValue(unsigned int index)
 {
     BYTE *t;
@@ -3452,7 +3461,8 @@ int g_pulseRising = 1;
 // GLOBAL: CMR2 0x0052173c
 float g_pulseMax = 0.3f;
 
-// TODO: CMR2 0x004bcc60 (implemented, match 81%)
+// FUNCTION: CMR2 0x004bcc60
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Pulse_Update(unsigned int dt)
 {
     float t;
@@ -3663,7 +3673,8 @@ void Graphics_SetRenderTarget(Texture *pTexture)
 }
 
 // Stores a 3-bit value in bits 15..17 of the flags of every mesh in a hierarchy.
-// TODO: CMR2 0x004b2d90 (implemented, match 57%)
+// FUNCTION: CMR2 0x004b2d90
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value)
 {
     SceneNode *pChild;
@@ -3700,7 +3711,8 @@ char g_str0x00521118[4] = "B2";
 // the texture directory; the file name is built from the directory of the game
 // plus the last path component of the texture entry. Resident textures are
 // skipped when the record type is 6.
-// TODO: CMR2 0x004b9910 (implemented, match 62%)
+// FUNCTION: CMR2 0x004b9910
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5)
 {
     unsigned int flags = param3;
@@ -3793,7 +3805,8 @@ BYTE g_flareTolerance;
 // the next test and returns the last result; without, copies that screen
 // rectangle out of the back buffer and returns the percentage of its pixels
 // still showing the sun's colour (within the tolerance).
-// TODO: CMR2 0x004bc490 (implemented, match 34%)
+// FUNCTION: CMR2 0x004bc490
+// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
 {
     DDSURFACEDESC2 desc;
@@ -3965,7 +3978,8 @@ int g_unk0x006dd788;
 void Billboard_Reset(void);
 
 // Builds the 800-entry triangle-strip index table.
-// TODO: CMR2 0x004b1150 (implemented, match 45%)
+// FUNCTION: CMR2 0x004b1150
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004b1150(void)
 {
     unsigned short *pIndex;
@@ -4029,7 +4043,8 @@ void Scene_GetLightColour(DWORD *pColour, int level);
 
 // Queues a billboard for this frame (at most 800), grouping it with the
 // previous one when both use the same texture.
-// TODO: CMR2 0x004b11c0 (implemented, match 69%)
+// FUNCTION: CMR2 0x004b11c0
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 {
     BillboardQuad *pQuad;
@@ -4108,7 +4123,8 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 }
 
 // Release callback: empties the billboard queue and disables it.
-// TODO: CMR2 0x004b1500 (implemented, match 55%)
+// FUNCTION: CMR2 0x004b1500
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Billboard_Reset(void)
 {
     memset(g_billboards, 0, sizeof(g_billboards));
@@ -4135,7 +4151,8 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 
 // Turns the queued billboards into quads facing pCamera (rotated by their
 // angle), draws them one texture run at a time and empties the queue.
-// TODO: CMR2 0x004b1530 (implemented, match 56%)
+// FUNCTION: CMR2 0x004b1530
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Billboard_Draw(SceneNode *pCamera)
 {
     BillboardVertex *pVert;
@@ -4331,7 +4348,8 @@ void FUN_004ae410(BYTE a, BYTE b, int c, int d)
 
 // Draws a fading rectangle around a point projected onto the given plane.
 // The corners and colours use the fixed-point triangle queue's shared scratch.
-// TODO: CMR2 0x004ae950 (implemented, match 64%)
+// FUNCTION: CMR2 0x004ae950
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pTarget, FixVector *pUnused)
 {
     FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
@@ -4441,7 +4459,8 @@ BillboardDef g_glowDef;
 
 // Projects the layer anchor onto a plane, stretches it toward a target and
 // draws a four-vertex strip with distance-based greyscale opacity.
-// TODO: CMR2 0x004ae470 (implemented, match 48%)
+// FUNCTION: CMR2 0x004ae470
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
 {
     FixVector *pPlanePoint = (FixVector *)(pSurface + 0x1c);
@@ -4761,7 +4780,8 @@ int Glow_FreeTable(void)
     return 1;
 }
 
-// TODO: CMR2 0x004ae170 (implemented, match 73%)
+// FUNCTION: CMR2 0x004ae170
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004ae170(int param1)
 {
     if (g_unk0x006a2a98 != NULL) {
@@ -4818,7 +4838,8 @@ void FUN_004ae0a0(void)
 // records, or notifies the failure through FUN_004a76d0(NULL).
 // Allocates a free cube-map slot (six 0x130-byte faces) and creates its
 // surfaces; returns the render texture (NULL when out of memory).
-// TODO: CMR2 0x004a4b10 (implemented, match 38%)
+// FUNCTION: CMR2 0x004a4b10
+// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 RenderTexture *FUN_004a4b10(void)
 {
     BYTE *p;
@@ -4861,7 +4882,8 @@ char g_stageQualityCodes[24] = {
 extern BYTE g_unk0x00542630[];
 
 // Raises the detail levels when the hardware allows it (texture memory, caps).
-// TODO: CMR2 0x00457c50 (implemented, match 27%)
+// FUNCTION: CMR2 0x00457c50
+// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00457c50(void)
 {
     if (!CGameInfo::FUN_00406410(0x10))
@@ -5301,7 +5323,8 @@ FixVector g_particleWind;
 
 // Advances every active particle by one step: age, drag, gravity, alpha, size
 // and angle ramps, floor kill or bounce (unless the type has its own update).
-// TODO: CMR2 0x004b0110 (implemented, match 50%)
+// FUNCTION: CMR2 0x004b0110
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Particle_UpdateAll(int param)
 {
     Particle *p;
@@ -5414,7 +5437,8 @@ void Particle_UpdateAll(int param)
 
 // Interpolates every active particle between its last two positions (and
 // alpha values) by t (0..1) for drawing.
-// TODO: CMR2 0x004b06a0 (implemented, match 42%)
+// FUNCTION: CMR2 0x004b06a0
+// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Particle_Interpolate(int t)
 {
     Particle *p;
@@ -5439,7 +5463,8 @@ void Particle_Interpolate(int t)
 // Queues a billboard for every active particle visible in view `view`
 // (animated texture frames, size scaling, spin, lighting), or calls the
 // type's own draw callback.
-// TODO: CMR2 0x004b0480 (implemented, match 39%)
+// FUNCTION: CMR2 0x004b0480
+// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Particle_DrawAll(int param, BYTE view)
 {
     Particle *p;
@@ -5829,7 +5854,8 @@ struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
 
 // Creates a texture from file data already in memory (DDS or TGA).
-// TODO: CMR2 0x004a48c0 (implemented, match 82%)
+// FUNCTION: CMR2 0x004a48c0
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
 {
     Texture *pTexture;
@@ -5863,7 +5889,8 @@ Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
 
 // Loads a texture by file name, trying the .DDS file first and the .TGA
 // file next.
-// TODO: CMR2 0x004a49c0 (implemented, match 46%)
+// FUNCTION: CMR2 0x004a49c0
+// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
 {
     Texture *pTexture;
@@ -5908,7 +5935,8 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
 // Converts a TGA image into a texture: the pixels (read through
 // FUN_004a60d0) are packed into a system memory surface of the texture
 // format, which is then copied (or turned into a bump map) into the texture.
-// TODO: CMR2 0x004a6710 (implemented, match 45%)
+// FUNCTION: CMR2 0x004a6710
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
 {
     TGAImageInfo *pInfo;
@@ -6084,7 +6112,8 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
 // Reads pixel (x, y) of a bottom-up TGA image as R, G, B, A in m_tgaPixel,
 // applying the brightness and contrast of the car (flag 0x80) or track
 // (flag 0x100) textures.
-// TODO: CMR2 0x004a60d0 (implemented, match 86%)
+// FUNCTION: CMR2 0x004a60d0
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pInfo, unsigned int flags)
 {
     BYTE *p;
@@ -6165,7 +6194,8 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
 // Builds a bump map texture from a height map TGA: the height differences
 // to the right (dU) and lower (dV) neighbours plus the alpha channel as
 // luminance, packed into the 16 or 24 bit bump map format.
-// TODO: CMR2 0x004a6370 (implemented, match 47%)
+// FUNCTION: CMR2 0x004a6370
+// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
 {
     TGAImageInfo *pInfo;
@@ -6489,7 +6519,8 @@ void Graphics_ReloadTexture(Texture *pTexture)
 }
 
 // Looks for a free timer slot (shape 5); the result is not used.
-// TODO: CMR2 0x004bc410 (implemented, match 57%)
+// FUNCTION: CMR2 0x004bc410
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Timer_FindFree(void)
 {
     unsigned int slot;
@@ -6509,7 +6540,8 @@ unsigned int g_unk0x006de95c[20];
 
 // Reserves count cube maps of the given size, then loads the environment
 // texture; returns 0 when it is missing.
-// TODO: CMR2 0x004b23c0 (implemented, match 88%)
+// FUNCTION: CMR2 0x004b23c0
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
 {
     unsigned int *pId;
@@ -6792,7 +6824,8 @@ void FUN_0049c7b0(Mesh *pMesh)
 unsigned short g_unk0x0059be74[2000];
 
 // Draws a mesh's triangles in contiguous texture runs.
-// TODO: CMR2 0x0049c680 (implemented, match 43%)
+// FUNCTION: CMR2 0x0049c680
+// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0049c680(Mesh *pMesh)
 {
     int currentTexture = -1;

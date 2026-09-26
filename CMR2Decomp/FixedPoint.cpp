@@ -30,7 +30,8 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
 }
 
 // Float 4x4 matrix product out = a * b (row vectors), through local copies.
-// TODO: CMR2 0x004b9ff0 (implemented, match 39%)
+// FUNCTION: CMR2 0x004b9ff0
+// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
 {
     float result[16];
@@ -721,7 +722,8 @@ int FUN_00407270(void);
 int RallyData_FUN_00411880(void);
 
 // Sets the camera projection for the selected player's view.
-// TODO: CMR2 0x00422d40 (implemented, match 66%)
+// FUNCTION: CMR2 0x00422d40
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00422d40(unsigned int player)
 {
     int i = player & 0xff;

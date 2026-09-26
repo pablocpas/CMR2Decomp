@@ -292,7 +292,8 @@ local int huft_build(uIntf *b, uInt n, uInt s, const uIntf *d, const uIntf *e, i
   /* Return Z_BUF_ERROR if we were given an incomplete table */
   return y != 0 && g != 1 ? Z_BUF_ERROR : Z_OK;
 }
-// TODO: CMR2 0x004c3f60 (implemented, match 97%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c3f60
+// match 97%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 
 
 int inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb, inflate_huft *hp, z_streamp z)
@@ -320,7 +321,8 @@ int inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb, inflate_huft
   ZFREE(z, v);
   return r;
 }
-// TODO: CMR2 0x004c44e0 (implemented, match 94%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c44e0
+// match 94%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 
 
 int inflate_trees_dynamic(uInt nl, uInt nd, uIntf *c, uIntf *bl, uIntf *bd, inflate_huft * FAR *tl, inflate_huft * FAR *td, inflate_huft *hp, z_streamp z)

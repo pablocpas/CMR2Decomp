@@ -49,7 +49,8 @@ BYTE g_unk0x005394bc[7][0xec];  // 7 rows up to the triangle table at 0x539b38
 int g_unk0x005393d4;
 
 // Chooses the HUD font from the screen size and the number of players shown.
-// TODO: CMR2 0x00427580 (implemented, match 68%)
+// FUNCTION: CMR2 0x00427580
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00427580(int width, int height, int players)
 {
     float rowWidth = (float)(players * 0xc0 + 0x230);
@@ -240,7 +241,8 @@ extern BYTE g_unk0x00538d2c[0xc8];
 
 // Loudness of a view's sounds by distance to the listener: 1 up to 2 units,
 // fading to 0 at 100.
-// TODO: CMR2 0x00427d50 (implemented, match 85%)
+// FUNCTION: CMR2 0x00427d50
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_00427d50(unsigned int view, int listener)
 {
     int index = 1;
@@ -278,7 +280,8 @@ extern int g_physicsTimeStep;
 
 // Advances a player's flash timer; at the end it restarts (mode 3) or stops,
 // and runs the player's fade callback.
-// TODO: CMR2 0x004284d0 (implemented, match 36%)
+// FUNCTION: CMR2 0x004284d0
+// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004284d0(unsigned int player, int check)
 {
     int step = g_physicsTimeStep;
@@ -320,7 +323,8 @@ void FUN_004284d0(unsigned int player, int check)
 
 // Sets a player's flash intensity: the value blended between its two ends
 // by t, divided by its duration (magnitude only).
-// TODO: CMR2 0x004285b0 (implemented, match 69%)
+// FUNCTION: CMR2 0x004285b0
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004285b0(unsigned int player, int t, int check)
 {
     int value;
@@ -339,7 +343,8 @@ void FUN_004285b0(unsigned int player, int t, int check)
 }
 
 // Draws a player's flash overlay (fading with g_unk0x0053a06c) over pRect.
-// TODO: CMR2 0x00428680 (implemented, match 48%)
+// FUNCTION: CMR2 0x00428680
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00428680(unsigned int player, short *pRect, int check)
 {
     BYTE colour[4];
@@ -414,7 +419,8 @@ void FUN_00418560(int value);
 void FUN_00418d20(int value);
 
 // Linearly interpolated lookup in a byte curve {count, min, max, -, bytes}.
-// TODO: CMR2 0x00427ad0 (implemented, match 79%)
+// FUNCTION: CMR2 0x00427ad0
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 unsigned int FUN_00427ad0(int value, int *pCurve)
 {
     int range = pCurve[2] - pCurve[1];
@@ -434,7 +440,8 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 }
 
 // Linearly interpolated lookup in a 16-bit curve {count, min, max, words}.
-// TODO: CMR2 0x00427b70 (implemented, match 80%)
+// FUNCTION: CMR2 0x00427b70
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 unsigned int FUN_00427b70(int value, int *pCurve)
 {
     int range = pCurve[2] - pCurve[1];
@@ -484,7 +491,8 @@ int g_unk0x005393d0;
 int g_triangleNumbers[100];
 
 // Resets the network race state and builds the triangle number table.
-// TODO: CMR2 0x00424ed0 (implemented, match 70%)
+// FUNCTION: CMR2 0x00424ed0
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00424ed0(void)
 {
     int *p;
@@ -545,7 +553,8 @@ extern const float g_netOne = 1.0f;
 extern const float g_netDeltaScale = 0.2f;
 
 // Packs the local car into the network state, preserving unrelated flag bits.
-// TODO: CMR2 0x00424f20 (implemented, match 49%)
+// FUNCTION: CMR2 0x00424f20
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void NetRace_PackCarState(Car *car)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;

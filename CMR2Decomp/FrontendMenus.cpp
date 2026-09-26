@@ -597,7 +597,8 @@ void FUN_004b7d40(void);
 
 // Starts redefining a control: freezes the menu, waits for the keys to be
 // released and snapshots the axes of the selected joystick/mouse.
-// TODO: CMR2 0x004fbec0 (implemented, match 81%)
+// FUNCTION: CMR2 0x004fbec0
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fbec0(Menu *pMenu, int param)
 {
     BYTE *pDevice;
@@ -628,7 +629,8 @@ void FUN_004fbec0(Menu *pMenu, int param)
 // Menu callback of the device page: shows the entries the selected device
 // supports (no calibration entry for keyboard/mouse or fewer than 4 axes, no
 // axis entries for the mouse).
-// TODO: CMR2 0x004fbf60 (implemented, match 82%)
+// FUNCTION: CMR2 0x004fbf60
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fbf60(Menu *pMenu, char param)
 {
     DeviceInfo *pDevice;
@@ -658,7 +660,8 @@ ControllerData *FUN_0040bbb0(void);
 
 // Leaving the device page: "back" goes to the controls menu; otherwise the
 // edited configuration is stored and a joystick goes on to its calibration.
-// TODO: CMR2 0x004fbff0 (implemented, match 89%)
+// FUNCTION: CMR2 0x004fbff0
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fbff0(Menu *pMenu, char back)
 {
     if (back != 0) {
@@ -686,7 +689,8 @@ int FUN_004fc490(Menu *pMenu)
 // Menu callback while a control is being redefined: waits for a new key,
 // button or axis movement (more than 0.3 of the range), stores it for the
 // entry under the cursor and unfreezes the menu.
-// TODO: CMR2 0x004fc070 (implemented, match 77%)
+// FUNCTION: CMR2 0x004fc070
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fc070(Menu *pMenu)
 {
     DeviceInfo *pDevice;
@@ -764,7 +768,8 @@ void FUN_004fc070(Menu *pMenu)
 // Menu callback of the calibration page: one entry per axis the device has,
 // with the stored calibration of the axis; the last entry leads to the
 // pad or the joystick page.
-// TODO: CMR2 0x004fc500 (implemented, match 63%)
+// FUNCTION: CMR2 0x004fc500
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fc500(Menu *pMenu, int param)
 {
     ControllerData *pData;
@@ -807,7 +812,8 @@ void FUN_004fc500(Menu *pMenu, int param)
 // Menu callback while calibrating an axis: left/right (shift: saturation)
 // move the deadzone in steps of 50; the confirm button applies every axis to
 // the device and the reset button takes the device's current values.
-// TODO: CMR2 0x004fc620 (implemented, match 68%)
+// FUNCTION: CMR2 0x004fc620
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fc620(Menu *pMenu)
 {
     DeviceInfo *pKeys;
@@ -878,7 +884,8 @@ void FUN_004fc880(Menu *pMenu, int param)
 }
 
 // Leaving the pad page: stores the settings unless backing out.
-// TODO: CMR2 0x004fc8f0 (implemented, match 86%)
+// FUNCTION: CMR2 0x004fc8f0
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fc8f0(Menu *pMenu, char back)
 {
     if (back == 0) {
@@ -909,7 +916,8 @@ void FUN_004fc970(Menu *pMenu, char back)
 }
 
 // Fills the device settings page from the configuration of the slot.
-// TODO: CMR2 0x004fcb30 (implemented, match 43%)
+// FUNCTION: CMR2 0x004fcb30
+// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fcb30(void)
 {
     Menu *pMenu;
@@ -962,7 +970,8 @@ void FUN_004fc9b0(Menu *pMenu, int param)
 // Update callback of the device settings page: leaves when no device is
 // left, re-reads the devices after the game was inactive, then either stores
 // the options or switches the slot to the configuration chosen in entry 0.
-// TODO: CMR2 0x004fc9f0 (implemented, match 59%)
+// FUNCTION: CMR2 0x004fc9f0
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fc9f0(Menu *pMenu)
 {
     unsigned int dev;
@@ -1053,7 +1062,8 @@ char g_bindingText[64];
 
 // Text shown for binding `index` of the selected device: the key name, the
 // button name, "axis N", or the direction names of a pad/mouse.
-// TODO: CMR2 0x004fbae0 (implemented, match 71%)
+// FUNCTION: CMR2 0x004fbae0
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 char *FUN_004fbae0(int index)
 {
     DeviceInfo *pDevice;
@@ -1135,7 +1145,8 @@ int FUN_004fc610(void)
 
 // Draw callback of the controls menu: title, one row (icon + name) per
 // visible entry, separators around the selected row, and the carousel.
-// TODO: CMR2 0x004fccb0 (implemented, match 57%)
+// FUNCTION: CMR2 0x004fccb0
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fccb0(Menu *pMenu)
 {
     short icon[4];
@@ -1218,7 +1229,8 @@ extern BYTE g_colourShadowDim0x0052497c[4];
 
 // Draw callback of the device page: "Controller N | <device>" title and one
 // row per visible binding with its current assignment.
-// TODO: CMR2 0x004fd080 (implemented, match 44%)
+// FUNCTION: CMR2 0x004fd080
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fd080(Menu *pMenu)
 {
     short icon[4];
@@ -1330,7 +1342,8 @@ inline int FrontendMenus_DrawLabel(char *text, int x, int y, BYTE *pColour)
 
 // Draw callback of the calibration page: one row per axis ("axis N" and its
 // calibration bar), "back", and the key help at the bottom.
-// TODO: CMR2 0x004fd480 (implemented, match 77%)
+// FUNCTION: CMR2 0x004fd480
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fd480(Menu *pMenu)
 {
     short icon[4];
@@ -1447,7 +1460,8 @@ void FUN_004fd480(Menu *pMenu)
 
 // Draw callback of the pad page: the two sensitivities (%), the vibration
 // on/off choice and "back", vertically centred.
-// TODO: CMR2 0x004fdb10 (implemented, match 48%)
+// FUNCTION: CMR2 0x004fdb10
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fdb10(Menu *pMenu)
 {
     short icon[4];
@@ -1528,7 +1542,8 @@ void FUN_004fdb10(Menu *pMenu)
 
 // Draw callback of the device settings page: the configuration chosen for
 // the slot and its on/off options.
-// TODO: CMR2 0x004fe240 (implemented, match 33%)
+// FUNCTION: CMR2 0x004fe240
+// match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fe240(Menu *pMenu)
 {
     short icon[4];
@@ -1628,7 +1643,8 @@ int FUN_004ff420(int a, int b);
 
 // Draws the calibration bar of an axis centred on (x, y): the bar, the
 // deadzone and saturation marks and the current position.
-// TODO: CMR2 0x004ff0f0 (implemented, match 62%)
+// FUNCTION: CMR2 0x004ff0f0
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004ff0f0(short x, short y, DWORD colour, AxisBinding *pAxis)
 {
     short deadzone[4];
@@ -1672,7 +1688,8 @@ void FUN_004ff0f0(short x, short y, DWORD colour, AxisBinding *pAxis)
 
 // Draws row `index` of the calibration page: the axis bar in white when
 // selected (red while calibrating), dim when the entry is hidden.
-// TODO: CMR2 0x004ff060 (implemented, match 65%)
+// FUNCTION: CMR2 0x004ff060
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004ff060(short x, short y, Menu *pMenu, int index)
 {
     AxisBinding *pAxis;
@@ -2308,7 +2325,8 @@ void FUN_004f9300(void)
 }
 
 // Item callback of "arcade": starts an arcade game for the chosen players.
-// TODO: CMR2 0x004fa9b0 (implemented, match 89%)
+// FUNCTION: CMR2 0x004fa9b0
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fa9b0(Menu *pMenu, int param)
 {
     FUN_004ea8c0(1);
@@ -2336,7 +2354,8 @@ void FUN_004f9370(void)
 
 // Entering the arcade player-count page: sets up the scroller and the
 // cursor from the number of players.
-// TODO: CMR2 0x004fa890 (implemented, match 87%)
+// FUNCTION: CMR2 0x004fa890
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fa890(Menu *pMenu, int param)
 {
     MenuScroller *p;
@@ -2357,7 +2376,8 @@ void FUN_004fa890(Menu *pMenu, int param)
 }
 
 // Item callback of the arcade player-count page.
-// TODO: CMR2 0x004fa910 (implemented, match 75%)
+// FUNCTION: CMR2 0x004fa910
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004fa910(Menu *pMenu, int param)
 {
     FUN_004ea8c0(pMenu->cursor + 1);

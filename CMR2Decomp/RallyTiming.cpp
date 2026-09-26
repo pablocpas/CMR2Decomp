@@ -53,7 +53,8 @@ char g_unk0x00533620[8];
 // GLOBAL: CMR2 0x00533628
 char g_unk0x00533628[8];
 
-// TODO: CMR2 0x0040cc60 (implemented, match 44%)
+// FUNCTION: CMR2 0x0040cc60
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0040cc60(void)
 {
     int i;
@@ -169,7 +170,8 @@ unsigned int RallyDataCountryIndex(void);
 
 // Awards the stage points (by position, ties sharing) to the rally totals and
 // re-sorts the stage order.
-// TODO: CMR2 0x0040cf30 (implemented, match 51%)
+// FUNCTION: CMR2 0x0040cf30
+// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0040cf30(void)
 {
     int i = 0;
@@ -430,7 +432,8 @@ void FUN_0040d090(int index, int seconds)
 }
 
 // Adds each stage's penalty seconds to its raw time.
-// TODO: CMR2 0x0040d010 (implemented, match 71%)
+// FUNCTION: CMR2 0x0040d010
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0040d010(void)
 {
     int *p;

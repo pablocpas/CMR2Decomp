@@ -183,7 +183,8 @@ SceneNode *g_unk0x00817fc4;
 SceneNode *g_unk0x00817fc8;
 
 // Destroys the splash screen scene (registered as a callback by FUN_004d0840).
-// TODO: CMR2 0x004d0820 (implemented, match 70%)
+// FUNCTION: CMR2 0x004d0820
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 BOOL FUN_004d0820(void)
 {
     if (g_unk0x00817fc8 != NULL)
@@ -595,7 +596,8 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
 // Draws a boot/HUD label at (x, y) in a colour that fades out 2.5 s after the
 // frame timer was last reset; unless flag is set it also fills the 2 pixel wide
 // bar that follows the text. Returns the x after the bar.
-// TODO: CMR2 0x004d0d30 (implemented, match 69%)
+// FUNCTION: CMR2 0x004d0d30
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_004d0d30(int x, int y, char *pText, char flag)
 {
     int elapsed;
@@ -1184,7 +1186,8 @@ void CGame::FUN_0049c190(Unk0049c2c0 *p1, BYTE count, Unk00817d98 *unk, FuncTabl
 // Promotes entry index of the table to the given level when a rule of
 // p->unk2 (terminated by 0xffffffff, 0xff bytes are wildcards) matches it
 // with the given value; the rule's top byte becomes the entry's third byte.
-// TODO: CMR2 0x0049c1c0 (implemented, match 45%)
+// FUNCTION: CMR2 0x0049c1c0
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int CGame::FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
 {
     unsigned int *pEntry;
@@ -1752,7 +1755,8 @@ int CGame::FUN_0049c430(void)
 
 // Sets field 0x2c of the mesh triangles whose flags match the group mask
 // (bits 0..6 against flags 0..6, bits 7..13 against flags 9..15).
-// TODO: CMR2 0x0049c440 (implemented, match 86%)
+// FUNCTION: CMR2 0x0049c440
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0049c440(Mesh *pMesh, int mask, int value)
 {
     int low = mask & 0x7f;
@@ -1790,7 +1794,8 @@ extern unsigned short g_unk0x0059be74[];
 // Draws the triangles of a mesh in runs that share a texture, using the mesh
 // slot already reserved in the shared vertex buffer, and clamps texture
 // addressing for the material groups that need it.
-// TODO: CMR2 0x0049c510 (implemented, match 74%)
+// FUNCTION: CMR2 0x0049c510
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_0049c510(Mesh *pMesh)
 {
     int i;
@@ -1964,7 +1969,8 @@ void Game_DrawDeferredObjects(void)
 
 // qsort comparator of the transparent draw list (0x49cd20): type 0x14 goes
 // last, type 5 sorts after type 0 at equal depth, else farthest first.
-// TODO: CMR2 0x0049cbc0 (implemented, match 50%)
+// FUNCTION: CMR2 0x0049cbc0
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int __cdecl FUN_0049cbc0(const void *a, const void *b)
 {
     BYTE *pA = *(BYTE **)a;
@@ -2287,7 +2293,8 @@ void FUN_00476500(void *param1);
 void FUN_0048d850(BYTE *pCar, BYTE *pInfo);
 
 // Dispatches by the object type stored at +4.
-// TODO: CMR2 0x00423900 (implemented, match 52%)
+// FUNCTION: CMR2 0x00423900
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00423900(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
@@ -2313,7 +2320,8 @@ void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
 void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
 
 // Dispatches by the object type stored at +4.
-// TODO: CMR2 0x00423860 (implemented, match 60%)
+// FUNCTION: CMR2 0x00423860
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_00423860(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
@@ -2355,7 +2363,8 @@ BYTE g_unk0x005a0068[0x50];
 
 // Reads the description of the joined session into SESSION (the session
 // name is copied to m_unk0x005a00b8).
-// TODO: CMR2 0x004a0d60 (implemented, match 81%)
+// FUNCTION: CMR2 0x004a0d60
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 BOOL FUN_004a0d60(void)
 {
     IDirectPlay4A *pDP;
@@ -2403,7 +2412,8 @@ extern int g_unk0x00511cd8[4];
 
 // Creates (hosts) a DirectPlay session with the given name, password and user
 // values. Returns 1 when the session was created.
-// TODO: CMR2 0x004a0ec0 (implemented, match 87%)
+// FUNCTION: CMR2 0x004a0ec0
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2,
                  DWORD user3, DWORD user4, DWORD maxPlayers)
 {
@@ -2599,7 +2609,8 @@ int FUN_004a15c0(BYTE index, GUID *pOut)
 }
 
 // Sets one of the four session user values and pushes the description.
-// TODO: CMR2 0x004a16c0 (implemented, match 68%)
+// FUNCTION: CMR2 0x004a16c0
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Session_SetUserValue(char index, int value)
 {
     FUN_004a0d60();
@@ -2653,7 +2664,8 @@ BYTE FUN_004a1790(BYTE index)
 
 // Adds a remote player to the session player table (at most 7 players,
 // ignoring the local player and players already listed).
-// TODO: CMR2 0x004a1850 (implemented, match 80%)
+// FUNCTION: CMR2 0x004a1850
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004a1850(char *shortName, char *longName, DPID dpId)
 {
     Unk0x005a1820 *pPlayer;
@@ -2774,7 +2786,8 @@ int g_unk0x005a1fac;
 int g_unk0x005a1fb0;
 // GLOBAL: CMR2 0x005a1fb4
 int g_unk0x005a1fb4;
-// TODO: CMR2 0x004a1a10 (implemented, match 48%)
+// FUNCTION: CMR2 0x004a1a10
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_004a1a10(int param1, int param2, int param3, int param4)
 {
     IDirectPlay4A *pDP;
@@ -2800,7 +2813,8 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
 
 
 // Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks.
-// TODO: CMR2 0x004779e0 (implemented, match 74%)
+// FUNCTION: CMR2 0x004779e0
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 bool FUN_004779e0(void)
 {
     void **pA;
@@ -2853,7 +2867,8 @@ bool FUN_004779e0(void)
 }
 
 // Adds the player slot to the DirectPlay session.
-// TODO: CMR2 0x004aac40 (implemented, match 63%)
+// FUNCTION: CMR2 0x004aac40
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 bool FUN_004aac40(BYTE param1)
 {
     IDirectPlay4A *pDP;
@@ -2886,7 +2901,8 @@ bool FUN_004aac40(BYTE param1)
 }
 
 // Enumera las sesiones o vuelca el buffer recibido en *param2.
-// TODO: CMR2 0x004a1b90 (implemented, match 44%)
+// FUNCTION: CMR2 0x004a1b90
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int FUN_004a1b90(int param1, void **param2)
 {
     IDirectPlay4A *pDP;
@@ -2925,7 +2941,8 @@ int FUN_004a1b90(int param1, void **param2)
 
 
 // Removes a player (by DirectPlay id) from the session player table.
-// TODO: CMR2 0x004a1940 (implemented, match 50%)
+// FUNCTION: CMR2 0x004a1940
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004a1940(DPID *pId)
 {
     int i;
@@ -3000,7 +3017,8 @@ BOOL FUN_004a0d60(void);
 bool FUN_004a14e0(void);
 
 // Session name, password and player limit of the network session description.
-// TODO: CMR2 0x004a1510 (implemented, match 80%)
+// FUNCTION: CMR2 0x004a1510
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Session_SetName(LPVOID pName)
 {
     FUN_004a0d60();
@@ -3008,7 +3026,8 @@ void Session_SetName(LPVOID pName)
     FUN_004a14e0();
 }
 
-// TODO: CMR2 0x004a1530 (implemented, match 80%)
+// FUNCTION: CMR2 0x004a1530
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Session_SetPassword(LPVOID pPassword)
 {
     FUN_004a0d60();
@@ -3016,7 +3035,8 @@ void Session_SetPassword(LPVOID pPassword)
     FUN_004a14e0();
 }
 
-// TODO: CMR2 0x004a1550 (implemented, match 80%)
+// FUNCTION: CMR2 0x004a1550
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 char Session_SetMaxPlayers(int count)
 {
     FUN_004a0d60();
@@ -3029,7 +3049,8 @@ void SceneNode_FlushTransforms(SceneNode *pNode);
 void Scene_SetViewFromCamera(SceneNode *pCamera);
 
 // Updates a scene tree for drawing from a camera.
-// TODO: CMR2 0x0049ce10 (implemented, match 85%)
+// FUNCTION: CMR2 0x0049ce10
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
 {
     SceneNode_UpdateTree(pRoot, param);
@@ -3053,7 +3074,8 @@ void Session_SetOpen(char open)
 }
 
 // One of the four session user values (0x40..0x4c of the description).
-// TODO: CMR2 0x004a1680 (implemented, match 70%)
+// FUNCTION: CMR2 0x004a1680
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 int Session_GetUserValue(BYTE index)
 {
     FUN_004a0d60();

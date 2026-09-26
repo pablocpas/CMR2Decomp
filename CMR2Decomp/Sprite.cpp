@@ -61,7 +61,8 @@ void FUN_004a3dd0(void);
 
 // Builds the quads of one sprite layer (1..4), rotating them about their
 // centre when needed, draws them with point filtering and empties the layer.
-// TODO: CMR2 0x004a3650 (implemented, match 44%)
+// FUNCTION: CMR2 0x004a3650
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Sprite_DrawLayer(int layer)
 {
     D3DTLVERTEX *pVert;
@@ -481,7 +482,8 @@ struct Line2DVertex {
 
 // Draws the queued screen lines of one layer (none for layer 4); layer 1
 // also empties the queue.
-// TODO: CMR2 0x004bb2b0 (implemented, match 64%)
+// FUNCTION: CMR2 0x004bb2b0
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void ScreenLine2D_Draw(int layer)
 {
     D3DTLVERTEX v[2];
@@ -518,7 +520,8 @@ void ScreenLine2D_Draw(int layer)
 }
 
 // Draws and empties the queued 3D lines with alpha blending.
-// TODO: CMR2 0x004bb4c0 (implemented, match 76%)
+// FUNCTION: CMR2 0x004bb4c0
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Line2D_Draw(void)
 {
     Line2DVertex v[2];
@@ -698,7 +701,8 @@ void FUN_004a3dd0(void);
 
 // Copies one queued layer (8, 0x10, 0x20 or other) into the shared vertex
 // buffer and draws it, flushing whenever the texture or flags change.
-// TODO: CMR2 0x004bbd80 (implemented, match 82%)
+// FUNCTION: CMR2 0x004bbd80
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Quad2D_DrawLayer(unsigned int layer)
 {
     IDirect3DVertexBuffer7 *pVB;

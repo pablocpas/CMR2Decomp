@@ -128,7 +128,8 @@ char g_strVertexBufferFull[] =
     "Requested Vertices : %d  Limit : %d";
 
 // Groups the triangles of a mesh by texture into index lists (once).
-// TODO: CMR2 0x004b1ac0 (implemented, match 44%)
+// FUNCTION: CMR2 0x004b1ac0
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void Mesh_BuildParts(Mesh *pMesh)
 {
     MeshPart **ppPart;
@@ -306,7 +307,8 @@ void Mesh_ResetCloneCount(void)
 // Clones a mesh and moves its vertices (positions and normals) into the
 // local space of pSource->matrix (at +0x18), with the matrix axes
 // normalised; the clone gets its own parts and vertex buffer slot.
-// TODO: CMR2 0x004abaf0 (implemented, match 69%)
+// FUNCTION: CMR2 0x004abaf0
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource)
 {
     FixMatrix m;

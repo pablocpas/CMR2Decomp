@@ -10,7 +10,8 @@ char g_tgaSuffix[] = ".tga";
 extern char g_emptyString[4];
 
 // Replaces the extension of the file name part of path with the empty string.
-// TODO: CMR2 0x004a9f50 (implemented, match 87%)
+// FUNCTION: CMR2 0x004a9f50
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 void FUN_004a9f50(char *pOut, char *path)
 {
     sprintf(pOut, strrchr(path, '\\') + 1);
@@ -19,7 +20,8 @@ void FUN_004a9f50(char *pOut, char *path)
 
 // Finds a texture in the archive pFile (as .dds, then .tga) and creates it,
 // or falls back to loading it from disk by name.
-// TODO: CMR2 0x004a9e60 (implemented, match 78%)
+// FUNCTION: CMR2 0x004a9e60
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *didLoadTexture, LPVOID param4, bool param5, unsigned int flag) {
     char name[64];
     void *pData;

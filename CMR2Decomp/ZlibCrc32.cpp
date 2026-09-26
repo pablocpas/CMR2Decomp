@@ -141,7 +141,8 @@ const uLongf * ZEXPORT get_crc_table(void)
 #define DO8(buf)  DO4(buf); DO4(buf);
 
 /* ========================================================================= */
-// TODO: CMR2 0x004c0aa0 (implemented, match 91%, zlib 1.1.3 built with different inlining)
+// FUNCTION: CMR2 0x004c0aa0
+// match 91%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 uLong ZEXPORT crc32(uLong crc, const Bytef *buf, uInt len)
 {
     if (buf == Z_NULL) return 0L;
