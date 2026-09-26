@@ -3982,3 +3982,313 @@ void FUN_0050f370(void)
     Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
 }
 
+// Textures of the option menu (symbols, banners and car parts).
+// GLOBAL: CMR2 0x00831360
+int g_unk0x00831360;
+// GLOBAL: CMR2 0x00831364
+int g_unk0x00831364;
+// GLOBAL: CMR2 0x00831368
+int g_unk0x00831368;
+// GLOBAL: CMR2 0x00831668
+int g_unk0x00831668;
+// GLOBAL: CMR2 0x0083166c
+int g_unk0x0083166c;
+// GLOBAL: CMR2 0x00831670
+int g_unk0x00831670;
+// GLOBAL: CMR2 0x008313ac
+int g_unk0x008313ac;
+// GLOBAL: CMR2 0x00831648
+int g_unk0x00831648;
+// GLOBAL: CMR2 0x008313b0
+int g_unk0x008313b0;
+// GLOBAL: CMR2 0x00831674
+int g_unk0x00831674;
+// GLOBAL: CMR2 0x0083137c
+int g_unk0x0083137c[12];
+// Country banner codes, in banner order (the last one is CFrontend::m_strUK).
+// GLOBAL: CMR2 0x00519268
+char g_str0x00519268[4] = "ITA";
+// GLOBAL: CMR2 0x0051926c
+char g_str0x0051926c[4] = "KEN";
+// GLOBAL: CMR2 0x00519270
+char g_str0x00519270[4] = "AUS";
+// GLOBAL: CMR2 0x00519274
+char g_str0x00519274[4] = "SWE";
+// GLOBAL: CMR2 0x00519278
+char g_str0x00519278[4] = "FRA";
+// GLOBAL: CMR2 0x0051927c
+char g_str0x0051927c[4] = "GRE";
+// GLOBAL: CMR2 0x00519280
+char g_str0x00519280[4] = "FIN";
+// Names of the car part textures.
+// GLOBAL: CMR2 0x00529590
+char g_str0x00529590[8] = "AXLES";
+// GLOBAL: CMR2 0x00529598
+char g_str0x00529598[8] = "DRIVE";
+// GLOBAL: CMR2 0x005295a0
+char g_str0x005295a0[8] = "EXHAUST";
+// GLOBAL: CMR2 0x005295a8
+char g_str0x005295a8[8] = "ELEC";
+// GLOBAL: CMR2 0x005295b0
+char g_str0x005295b0[8] = "STEER";
+// GLOBAL: CMR2 0x005295b8
+char g_str0x005295b8[8] = "BODY";
+// GLOBAL: CMR2 0x005295c0
+char g_str0x005295c0[8] = "BRAKES";
+// GLOBAL: CMR2 0x005295c8
+char g_str0x005295c8[8] = "DIFFER";
+// GLOBAL: CMR2 0x005295d0
+char g_str0x005295d0[8] = "SUSP";
+// GLOBAL: CMR2 0x005295d8
+char g_str0x005295d8[8] = "TURBO";
+// GLOBAL: CMR2 0x005295e0
+char g_str0x005295e0[8] = "GEAR";
+// GLOBAL: CMR2 0x005295e8
+char g_str0x005295e8[8] = "TYRES";
+// GLOBAL: CMR2 0x0052956c
+char g_str0x0052956c[] = "%s\\Textures\\Symbols\\%d\\DanRed.tga";
+// GLOBAL: CMR2 0x00529548
+char g_str0x00529548[] = "%s\\Textures\\Symbols\\%d\\DanOra.tga";
+// GLOBAL: CMR2 0x00529524
+char g_str0x00529524[] = "%s\\Textures\\Symbols\\%d\\DanYel.tga";
+// GLOBAL: CMR2 0x00529508
+char g_str0x00529508[] = "%s\\Textures\\Banners\\b%s.tga";
+// GLOBAL: CMR2 0x005294f0
+char g_str0x005294f0[] = "%s\\Textures\\Ar_640A.tga";
+// GLOBAL: CMR2 0x005294d8
+char g_str0x005294d8[] = "%s\\Textures\\Ar_640D.tga";
+// GLOBAL: CMR2 0x005294b8
+char g_str0x005294b8[] = "%s\\Textures\\Symbols\\%d\\Tick.tga";
+// GLOBAL: CMR2 0x00529494
+char g_str0x00529494[] = "%s\\Textures\\Symbols\\%d\\Cross.tga";
+// GLOBAL: CMR2 0x00529474
+char g_str0x00529474[] = "%s\\Textures\\Symbols\\%d\\Box.tga";
+// GLOBAL: CMR2 0x00529450
+char g_str0x00529450[] = "%s\\Textures\\Symbols\\%d\\Circle.tga";
+// GLOBAL: CMR2 0x00529434
+char g_str0x00529434[] = "%s\\Textures\\Parts\\%d\\%s.tga";
+
+// Loads the option menu textures: the three "Dan" symbols, the country
+// banner, the 640 arrows, the tick/cross/box/circle symbols and one texture
+// per car part.
+// FUNCTION: CMR2 0x0050a080
+void FUN_0050a080(void)
+{
+    char *pBanners[8] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+                          g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK };
+    char *pParts[12] = { g_str0x005295e8, g_str0x005295e0, g_str0x005295d8, g_str0x005295d0,
+                         g_str0x005295c8, g_str0x005295c0, g_str0x005295b8, g_str0x005295b0,
+                         g_str0x005295a8, g_str0x005295a0, g_str0x00529598, g_str0x00529590 };
+    int i;
+
+    sprintf(CFrontend::m_stringDest, g_str0x0052956c, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831360 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529548, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831364 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529524, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831368 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529508, CInstallInfo::GetSetupRepDir(),
+            pBanners[RallyDataCountryIndex() & 0xff]);
+    g_unk0x00831668 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294f0, CInstallInfo::GetFrontendDir());
+    g_unk0x0083166c = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294d8, CInstallInfo::GetFrontendDir());
+    g_unk0x00831670 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294b8, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x008313ac = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529494, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831648 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529474, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x008313b0 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529450, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831674 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    for (i = 0; i < 12; i++) {
+        sprintf(CFrontend::m_stringDest, g_str0x00529434, CInstallInfo::GetSetupRepDir(), 0x280, pParts[i]);
+        g_unk0x0083137c[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest,
+                                                            0, 0, 0, 0);
+    }
+}
+
+// Per-index block of the option menu's 3D preview (0x138 bytes each).
+// GLOBAL: CMR2 0x0082fd00
+int g_unk0x0082fd00[8][0x138 / 4];
+
+// Timestamp of the previous frame of the option menu preview animation.
+// GLOBAL: CMR2 0x0082d118
+unsigned int g_unk0x0082d118;
+
+// Animates the four preview nodes of the option record: each one gets an
+// identity (or mirrored) basis, and while the menu is fading the forward
+// vector is shrunk to 0x9999.
+// FUNCTION: CMR2 0x00509dc0
+void FUN_00509dc0(int index)
+{
+    int *pList;
+    Unk0x0082d220 *pRec;
+    FixBasis mirror;
+    FixBasis basis;
+    FixVector v;
+    unsigned int elapsed;
+    unsigned int now;
+    int i;
+    int value;
+
+    pList = g_unk0x0082fd00[index];
+    pRec = &g_unk0x0082d220[index];
+    basis.right.x = 0x10000;
+    basis.right.y = 0;
+    basis.right.z = 0;
+    basis.up.x = 0;
+    basis.up.y = 0x10000;
+    basis.up.z = 0;
+    basis.forward.x = 0;
+    basis.forward.y = 0;
+    basis.forward.z = 0x10000;
+    mirror.right.x = -0x10000;
+    mirror.right.y = 0;
+    mirror.right.z = 0;
+    mirror.up.x = 0;
+    mirror.up.y = 0x10000;
+    mirror.up.z = 0;
+    mirror.forward.x = 0;
+    mirror.forward.y = 0;
+    mirror.forward.z = -0x10000;
+    if (g_unk0x0082d118 == 0) {
+        g_unk0x0082d118 = timeGetTime();
+        elapsed = 0;
+    } else {
+        now = timeGetTime();
+        elapsed = now - g_unk0x0082d118;
+        g_unk0x0082d118 = now;
+        elapsed = FixDiv(elapsed << 16, 0x280000);
+        elapsed = FixMul(0xa0000, elapsed);
+    }
+    value = pList[0x124 / 4] + elapsed;
+    pList[0x124 / 4] = value;
+    if (value > 0x1680000)
+        pList[0x124 / 4] = value - 0x1680000;
+    for (i = 0; i < 4; i++) {
+        // the original discards this result
+        value = pRec->field_0x23c.v[i];
+        value = FixMul(0x50000, value);
+        if (i % 2 == 0) {
+            FixMatrix_SetRight(&basis.right, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetUp(&basis.up, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetForward(&basis.forward, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        } else {
+            FixMatrix_SetRight(&mirror.right, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetUp(&mirror.up, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetForward(&mirror.forward, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        }
+        if ((FUN_0050a020(*(BYTE *)pList[0], (char)FUN_005028a0(index, 0)) != 0 && CGameInfo::FUN_00405d10() == 2) ||
+            CGameInfo::FUN_00405d70() > 1) {
+            FixMatrix_GetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixVecScale(&v, &v, 0x9999);
+            FixMatrix_SetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        }
+    }
+}
+
+// Normalises a vector and flips it when it points down.
+#define OPTIONS_FIX_NORMALIZE_FLIP(v)                                               \
+    {                                                                               \
+        int len = FixVecLength(&v);                                                 \
+        if (len == 0) {                                                             \
+            v.x = 0;                                                                \
+            v.y = 0;                                                                \
+            v.z = 0;                                                                \
+        } else {                                                                    \
+            FixVecScaleRecip(&v, &v, len);                                          \
+            if (v.y < 0)                                                            \
+                FixVecScale(&v, &v, -0x10000);                                      \
+        }                                                                           \
+    }
+
+// Builds the preview node's transform from the four corner heights stored in
+// the option record (field_0x22c): the up axis is the sum of the two edge
+// normals, the other axes come from Gram-Schmidt and the position from the
+// average height.
+// TODO: CMR2 0x005091c0 (implemented, match 71%)
+void FUN_005091c0(int index)
+{
+    Unk0x0082d220 *pRec;
+    int *pList;
+    int f[4];
+    FixVector v;
+    FixVector v2;
+    FixVector cross1;
+    FixVector cross2;
+    FixBasis basis;
+    int a;
+    int b;
+    int len;
+    int i;
+    int t;
+
+    pRec = &g_unk0x0082d220[index];
+    pList = g_unk0x0082fd00[index];
+    if (FUN_004ff550() == 1 && FUN_00502500()[Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14 + 0x1f] == 2) {
+        t = (unsigned char)FUN_00502510()[0x1f] << 16;
+        t = FixMul(t, 0x1999);
+    } else {
+        t = (int)(char)FUN_005028a0(index, 2) << 16;
+        t = FixMul(t, 0x1999);
+    }
+    t = FixMul(0x10000 - t, 0x1999);
+    for (i = 0; i < 4; i++) {
+        f[i] = pRec->field_0x22c.v[i] + t;
+        if (f[i] < -0x1999)
+            f[i] = -0x1999;
+    }
+    a = FixMul(0x8000, f[3] + f[2]);
+    b = FixMul(0x8000, f[1] + f[0]);
+    v.x = pList[4] - pList[1];
+    v.y = f[1] - f[0];
+    v.z = pList[6] - pList[3];
+    v2.x = pList[7] - pList[1];
+    v2.y = a - f[0];
+    v2.z = -pList[3];
+    FixVecCross(&cross1, &v, &v2);
+    OPTIONS_FIX_NORMALIZE_FLIP(cross1);
+    v.x = pList[10] - pList[7];
+    v.y = f[3] - f[2];
+    v.z = pList[12] - pList[9];
+    v2.x = pList[1] - pList[7];
+    v2.y = b - f[2];
+    v2.z = -pList[9];
+    FixVecCross(&cross2, &v, &v2);
+    OPTIONS_FIX_NORMALIZE_FLIP(cross2);
+    v.x = cross1.x + cross2.x;
+    v.y = cross1.y + cross2.y;
+    v.z = cross1.z + cross2.z;
+    basis.right.x = 0x10000;
+    basis.right.y = 0;
+    basis.right.z = 0;
+    basis.up.x = 0;
+    basis.up.y = 0x10000;
+    basis.up.z = 0;
+    basis.forward.x = 0;
+    basis.forward.y = 0;
+    basis.forward.z = 0x10000;
+    FIX_NORMALIZE_INTO(cross1, v)
+    basis.up.x = cross1.x;
+    basis.up.y = cross1.y;
+    basis.up.z = cross1.z;
+    len = FixVecDot(&basis.right, &basis.up);
+    FixVecScale(&v, &basis.up, len);
+    v.x = basis.right.x - v.x;
+    v.y = basis.right.y - v.y;
+    v.z = basis.right.z - v.z;
+    FIX_NORMALIZE_INTO(basis.right, v)
+    FixVecCross(&v, &basis.right, &basis.up);
+    FIX_NORMALIZE_INTO(basis.forward, v)
+    v.x = 0;
+    v.y = FixMul(0x8000, a + b);
+    v.z = 0;
+    (*(SceneNode **)(pList[0] + 4))->useParentWorld = 0;
+    FixMatrix_SetRight(&basis.right, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetUp(&basis.up, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetForward(&basis.forward, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetPosition(&v, &(*(SceneNode **)(pList[0] + 4))->current);
+}
+
