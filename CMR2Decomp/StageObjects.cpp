@@ -42,6 +42,7 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
                           unsigned short *pSurface, int defaultY);
 void Sector_RemoveNode(SceneNode *pNode);
 void FUN_004b8b10(SceneNode *pNode);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void Stage_InitLightMeshes(void);
 int *FUN_00407520(int index);
 void FUN_004925c0(int oldHeight, int newHeight, int mode);
@@ -1217,6 +1218,129 @@ BYTE FUN_0047ea20(void)
     }
     g_unk0x00590afc = 0;
     return 1;
+}
+
+extern float g_oneOverRandMax;
+
+// Colours picked for the vehicle debris fragments.
+// GLOBAL: CMR2 0x0051f4ec
+DWORD g_stageDebrisPalette[6] = {
+    0xffb34aff, 0xffff5c30, 0xffffff3d,
+    0xff4ec4ff, 0xff2368ff, 0xff27ff9e
+};
+
+// Starts a vehicle debris effect in the first free slot, including its fragments and sound.
+// TODO: CMR2 0x0047fcb0 (implemented, match 36%)
+void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVelocity, unsigned int variant)
+{
+    BYTE *pPool = (BYTE *)g_unk0x00590af8;
+    int slotIndex = -1;
+    int count = g_unk0x00590afc;
+    int i;
+    for (i = 0; i < count; ++i) {
+        if (*(int *)(pPool + i * 0x938 + 0x694) == 0) {
+            slotIndex = i;
+            break;
+        }
+    }
+    if (slotIndex < 0)
+        return;
+
+    BYTE *pSlot = pPool + slotIndex * 0x938;
+    *(int *)(pSlot + 0x694) = 1;
+    memcpy(pSlot, pPosition, sizeof(FixVector));
+    memcpy(pSlot + 0x1e0, pPosition, sizeof(FixVector));
+    memcpy(pSlot + 0xc, pVelocity, sizeof(FixVector));
+    pSlot[0x690] = 0;
+    pSlot[0x691] = 0;
+    for (i = 0; i < 20; ++i) {
+        memcpy(pSlot + 0x18 + i * 12, pPosition, sizeof(FixVector));
+        memcpy(pSlot + 0x1f8 + i * 12, pPosition, sizeof(FixVector));
+        *(int *)(pSlot + 0x69c + i * 4) = 0;
+    }
+    *(int *)(pSlot + 0x934) = 0;
+
+    int randomFixed;
+    if (variant == 0) {
+        *(int *)(pSlot + 0x664) = 0x190000;
+    } else {
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        *(int *)(pSlot + 0x664) = FixMul(randomFixed, 0xa0000) + 0x50000;
+    }
+    *(int *)(pSlot + 0x66c) = 0xa3d;
+    *(int *)(pSlot + 0x670) = 0x624;
+
+    int colourIndex = rand() % 6;
+    pSlot[0x692] = (BYTE)colourIndex;
+    *(DWORD *)(pSlot + 0x678) = g_stageDebrisPalette[(BYTE)colourIndex];
+    pSlot[0x67b] = 0xff;
+    *(DWORD *)(pSlot + 0x67c) = *(DWORD *)(pSlot + 0x678);
+    *(DWORD *)(pSlot + 0x680) = *(DWORD *)(pSlot + 0x678);
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x684) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x687] = 0xff;
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x68c) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x68f] = 0xff;
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x688) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x68b] = 0xff;
+
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    if (variant == 0)
+        *(int *)(pSlot + 0x698) = randomFixed < 0x8000 ? 1 : 2;
+    else
+        *(int *)(pSlot + 0x698) = randomFixed < 0x10001 ? 1 : 0;
+
+    if (*(int *)(pSlot + 0x698) == 1) {
+        int chance = FixMul((rand() % 9 + 1) * 0x10000, 0x1999);
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        if (randomFixed < 0xfd71) {
+            *(int *)(pSlot + 0x930) = 0;
+        } else {
+            *(int *)(pSlot + 0x930) = 1;
+            chance = FixMul(chance, 0x20000);
+        }
+        int enabled = 0;
+        int row, column, fragment;
+        for (row = 0; row < 3; ++row) {
+            for (column = 0; column < 6; ++column) {
+                for (fragment = 0; fragment < 4; ++fragment) {
+                    int offset = (row * 6 + column) * 4 + fragment;
+                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    int on = randomFixed <= chance;
+                    *(int *)(pSlot + 0x6ec + offset * 4) = on;
+                    enabled += on;
+                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    *(int *)(pSlot + 0x80c + offset * 4) = randomFixed >= 0x8001;
+                }
+            }
+        }
+        int density = FixDiv(enabled << 16, 0x480000);
+        *(int *)(pSlot + 0x668) = FixMul(density, 0xf0000) + 0xa0000;
+        *(int *)(pSlot + 0x92c) = 1;
+        *(int *)(pSlot + 0x660) = FixMul(0x10000 - density, 0xccc) + 0x11eb;
+        if (*(int *)(pSlot + 0x930) != 0) {
+            *(int *)(pSlot + 0x674) = *(int *)(pSlot + 0x668);
+            *(int *)(pSlot + 0x668) = FixMul(*(int *)(pSlot + 0x668), 0x20000);
+        }
+    } else {
+        memset(pSlot + 0x6ec, 0, 0x48 * 4);
+        *(int *)(pSlot + 0x668) = 0x50000;
+        *(int *)(pSlot + 0x660) = 0x11eb;
+        *(int *)(pSlot + 0x92c) = 0;
+    }
+
+    FUN_004b7790((unsigned short)(g_unk0x005909bc + 10), 0xccc, 0x5622, 0, 0, 0);
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    if (randomFixed > 0x1999) {
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        int volume = FixMul(randomFixed, 0x4000) + 0x4000;
+        pSlot[0x693] = (BYTE)FUN_004b7790((unsigned short)(g_unk0x005909bc + rand() % 2),
+                                            volume, 0x5622, 0, 0, 0);
+    } else {
+        pSlot[0x693] = 0xff;
+    }
 }
 
 // FUNCTION: CMR2 0x004805f0
