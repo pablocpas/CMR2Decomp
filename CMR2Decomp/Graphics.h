@@ -1334,6 +1334,7 @@ private:
     friend void FUN_0049c880(Mesh *pMesh);
     friend int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
     friend void FUN_004b2460(Mesh *pMesh);
+    friend void FUN_00506080(int param1);
     friend Texture *FUN_004b9b80(char *name);
     friend void Events_Init(int unused, int slot, char animate);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);

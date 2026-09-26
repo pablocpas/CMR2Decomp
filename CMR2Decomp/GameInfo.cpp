@@ -5236,3 +5236,370 @@ void FUN_005091c0(int index)
     FixMatrix_SetPosition(&v, &(*(SceneNode **)(pList[0] + 4))->current);
 }
 
+/* ===== integrated from casc/s2 ===== */
+// ---------------------------------------------------------------------------
+// Per-slot rally tables used by the wheel-mesh selection and the stage
+// timing data of each slot.
+// ---------------------------------------------------------------------------
+
+// Number of filled slots (1 or 2), from CGameInfo::FUN_00501230.
+// GLOBAL: CMR2 0x0082c694
+int g_unk0x0082c694;
+// Active slot read from the current mode entry's field 0x48.
+// GLOBAL: CMR2 0x0082c710
+BYTE g_unk0x0082c710;
+// Texture set index of each slot (100 = no data); g_unk0x0082ca18 holds how
+// many of them are valid.
+// GLOBAL: CMR2 0x0082ca04
+BYTE g_unk0x0082ca04[0x14];
+// GLOBAL: CMR2 0x0082ca18
+BYTE g_unk0x0082ca18;
+
+// 0x54-byte per-slot entry of the table at 0x82cb78: the scene node whose
+// mesh is shown and the three wheel-mesh variants that can be assigned to it.
+struct Unk0x0082cb78 {
+    BYTE field_0x0;             // 0x0
+    BYTE field_0x1[7];
+    SceneNode *pNode;           // 0x8
+    BYTE field_0xc[8];
+    SceneNode *pWheels[4];      // 0x14
+    Mesh *pMesh24[4];           // 0x24
+    Mesh *pMesh34[4];           // 0x34
+    Mesh *pMesh44[4];           // 0x44
+};
+
+// GLOBAL: CMR2 0x0082cb78
+Unk0x0082cb78 g_unk0x0082cb78[2];
+// GLOBAL: CMR2 0x0082d15c
+int g_unk0x0082d15c[2];
+
+// 8-byte entry (four 16-bit values) of the timing tables: current
+// 0x82d0b8/0x82d0f8, animated 0x82d0d8 and target 0x82fce0, four slots each.
+struct Unk0x0082d0b8 {
+    short field_0x0;            // 0x0
+    short field_0x2;            // 0x2
+    short field_0x4;            // 0x4
+    short field_0x6;            // 0x6
+};
+
+// GLOBAL: CMR2 0x0082d0b8
+Unk0x0082d0b8 g_unk0x0082d0b8[4];
+// GLOBAL: CMR2 0x0082d0d8
+Unk0x0082d0b8 g_unk0x0082d0d8[4];
+// GLOBAL: CMR2 0x0082d0f8
+Unk0x0082d0b8 g_unk0x0082d0f8[4];
+// GLOBAL: CMR2 0x0082fce0
+Unk0x0082d0b8 g_unk0x0082fce0[4];
+// GLOBAL: CMR2 0x00831080
+int g_unk0x00831080;
+// GLOBAL: CMR2 0x00831148
+int g_unk0x00831148[20];
+// GLOBAL: CMR2 0x0083131c
+BYTE g_unk0x0083131c[4];
+// Per-slot converted vertex buffer of the wheel meshes: each slot holds an
+// array of one block per source mesh.
+// GLOBAL: CMR2 0x00831198
+BYTE **g_unk0x00831198[2];
+// Per-slot byte copied from each source mesh (its field 0x30).
+// GLOBAL: CMR2 0x0082d1dc
+BYTE *g_unk0x0082d1dc[2];
+
+int *RallyData_FUN_004075e0(int index);
+int *FUN_00407520(int index);
+int *RallyData_FUN_004075c0(int index);
+int FUN_005028a0(int index, int type);
+extern char g_strWheelVariantL[4];
+extern char g_strWheelVariantN[4];
+extern double g_unk0x00511300;
+
+// Fills the per-slot texture set indices (g_unk0x0082ca04, counted by
+// g_unk0x0082ca18) from the rally tables of the active slot; entries without
+// a table value are marked 100.
+// FUNCTION: CMR2 0x00505e70
+void FUN_00505e70(void)
+{
+    int *pStages;
+    BYTE *pPairs;
+    BYTE *pDest;
+    int slot;
+    int count;
+    int i;
+    int *pEntry;
+
+    pStages = RallyData_FUN_004075e0(0);
+    pPairs = (BYTE *)FUN_00407520(0);
+    count = ((BYTE *)&g_unk0x0082c6c0)[g_unk0x0082c694 * 0x50];
+    slot = g_unk0x0082c710 & 0xff;
+    g_unk0x0082ca18 = count - slot + 2;
+    pEntry = RallyData_FUN_004075c0(slot);
+    if (*pEntry != 0)
+        g_unk0x0082ca04[0] = 100;
+    else
+        g_unk0x0082ca04[0] = pPairs[slot * 8];
+    if (slot <= count) {
+        pDest = &g_unk0x0082ca04[1];
+        i = slot;
+        do {
+            pEntry = RallyData_FUN_004075c0(slot);
+            if (*pEntry != 0)
+                *pDest = 100;
+            else
+                *pDest = (BYTE)pStages[i];
+            i++;
+            pDest++;
+        } while (i <= count);
+    }
+}
+
+// Assigns one of the three wheel-mesh variants to the scene nodes of the slot
+// according to the option tables, and when the textures do not come from the
+// CD swaps the "L"/"N" variants of every wheel mesh triangle of the slot.
+// Byte-offset views of the 0x54-byte entries of the table at 0x82cb78 (same
+// fields as Unk0x0082cb78, indexed with the source's byte offset).
+#define CB78_BYTE(o) (*(BYTE *)((BYTE *)&g_unk0x0082cb78 + (o)))
+#define CB78_NODE(o) (*(SceneNode **)((BYTE *)&g_unk0x0082cb78 + (o)))
+#define CB78_MESH(o) (*(Mesh **)((BYTE *)&g_unk0x0082cb78 + (o)))
+
+// FUNCTION: CMR2 0x00506080
+void FUN_00506080(int param1)
+{
+    int off;
+    int i;
+    int k;
+    int w;
+    Mesh *pMesh;
+    Texture *pTex;
+
+    off = param1 * 0x54;
+    if (CGameInfo::FUN_00405d10() == 0) {
+        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
+            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
+            if (FUN_0050a020(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                for (i = 0; i < 4; i++) {
+                    if (CB78_MESH(off + 0x44 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x44 + i * 4);
+                }
+                return;
+            }
+            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+                for (i = 0; i < 4; i++) {
+                    if (CB78_MESH(off + 0x24 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
+                }
+                return;
+            }
+            for (i = 0; i < 4; i++) {
+                if (CB78_MESH(off + 0x34 + i * 4) != 0)
+                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
+            }
+            return;
+        }
+    } else {
+        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
+            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
+            for (w = 0; w < 4; w++) {
+                pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
+                for (k = 0; k < pMesh->triangleCount; k++) {
+                    pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
+                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                            Graphics_ReloadTexture(pTex);
+                        }
+                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                        Graphics_ReloadTexture(pTex);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Saves the rotation matrix of the slot's scene node, rotates the node to the
+// given angles, rotates param2 by the new matrix into param3 and puts the old
+// rotation matrix back.
+// FUNCTION: CMR2 0x005068b0
+void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4)
+{
+    SceneNode *pNode;
+    FixMatrix saved;
+
+    pNode = g_unk0x0082cb78[param1].pNode;
+    saved = *(FixMatrix *)((BYTE *)pNode + 0x98);
+    SceneNode_SetRotation(pNode, param4);
+    FixMatrix_RotateVector(param3, param2, (FixMatrix *)((BYTE *)g_unk0x0082cb78[param1].pNode + 0x98));
+    *(FixMatrix *)((BYTE *)g_unk0x0082cb78[param1].pNode + 0x98) = saved;
+}
+
+// Stores the target angles of a slot (three degrees as 16-bit values) in the
+// current tables, wraps the delta to the target into [-180, 180) and writes
+// the three wrapped deltas as 12-bit angles in the animated table.
+// TODO: CMR2 0x00506930 (implemented, match 60%)
+void FUN_00506930(int param1, short *param2, int param3)
+{
+    unsigned int time;
+    short tX, tY, tZ;
+    int d[3];
+    int a[3];
+    int abs;
+
+    time = CMain::GetFrameDelta();
+    g_unk0x00831080 = 0x14;
+    tY = g_unk0x0082d0b8[param1].field_0x2;
+    g_unk0x00831148[param1] = time;
+    tX = g_unk0x0082d0b8[param1].field_0x0;
+    g_unk0x0083131c[param1] = 1;
+    tZ = g_unk0x0082d0b8[param1].field_0x4;
+    g_unk0x0082d0f8[param1].field_0x0 = tX;
+    g_unk0x0082d0f8[param1].field_0x2 = tY;
+    g_unk0x0082d0f8[param1].field_0x4 = tZ;
+    g_unk0x0082fce0[param1].field_0x0 = param2[0];
+    g_unk0x0082fce0[param1].field_0x2 = param2[1];
+    g_unk0x0082fce0[param1].field_0x4 = param2[2];
+    if (param3 != 0) {
+        g_unk0x0082d0b8[param1] = g_unk0x0082fce0[param1];
+        g_unk0x0082d0f8[param1] = g_unk0x0082fce0[param1];
+    }
+    d[0] = g_unk0x0082fce0[param1].field_0x0 - g_unk0x0082d0f8[param1].field_0x0;
+    d[1] = g_unk0x0082fce0[param1].field_0x2 - g_unk0x0082d0f8[param1].field_0x2;
+    d[2] = g_unk0x0082fce0[param1].field_0x4 - g_unk0x0082d0f8[param1].field_0x4;
+    a[0] = d[0] * 0x1680;
+    a[1] = d[1] * 0x1680;
+    a[2] = d[2] * 0x1680;
+    abs = a[0];
+    if (a[0] < 0)
+        abs = -a[0];
+    if (abs > 0xb40000) {
+        if (a[0] > 0)
+            a[0] = 0x1680000 - a[0];
+        else
+            a[0] += 0x1680000;
+    }
+    abs = a[1];
+    if (a[1] < 0)
+        abs = -a[1];
+    if (abs > 0xb40000) {
+        if (a[1] > 0)
+            a[1] = 0x1680000 - a[1];
+        else
+            a[1] += 0x1680000;
+    }
+    abs = a[2];
+    if (a[2] < 0)
+        abs = -a[2];
+    if (abs > 0xb40000) {
+        if (a[2] > 0)
+            a[2] = 0x1680000 - a[2];
+        else
+            a[2] += 0x1680000;
+    }
+    g_unk0x0082d0d8[param1].field_0x0 = (short)(__int64)((double)a[0] * g_unk0x00511300);
+    g_unk0x0082d0d8[param1].field_0x2 = (short)(__int64)((double)a[1] * g_unk0x00511300);
+    g_unk0x0082d0d8[param1].field_0x4 = (short)(__int64)((double)a[2] * g_unk0x00511300);
+}
+
+// Allocates and fills the per-slot wheel vertex buffers of param3: the six
+// floats of every source entry become 16.16 values and its normal is stored
+// twice as three signed bytes biased by 0x80, the second copy scaled to unit
+// length.
+// TODO: CMR2 0x00506bb0 (implemented, match 57%)
+void FUN_00506bb0(int param1, int param2, int param3)
+{
+    BYTE ***ppBlock;
+    BYTE **ppFlags;
+    unsigned short *pCounts;
+    FixVector normal;
+    int totalSize;
+    int i;
+    int k;
+    int srcOff;
+    int destOff;
+    int length;
+    int v;
+    int *pDest;
+    BYTE *pNormal;
+    unsigned int n;
+    BYTE nb0, nb1, nb2;
+
+    ppBlock = &g_unk0x00831198[param1];
+    *ppBlock = (BYTE **)CFileBuffer::AllocateLockedBuffer((unsigned int)*(BYTE *)(param3 + 0x26a) << 2);
+    totalSize = (unsigned int)*(BYTE *)(param3 + 0x26a) << 2;
+    ppFlags = &g_unk0x0082d1dc[param1];
+    *ppFlags = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)*(BYTE *)(param3 + 0x26a));
+    pCounts = (unsigned short *)(param3 + 0x24c);
+    for (i = 0; i < (int)(*(BYTE *)(param3 + 0x26a) & 0xff); i++) {
+        {
+            (*ppBlock)[i] = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)*pCounts << 5);
+            totalSize += (unsigned int)*pCounts * 0x20;
+            (*ppFlags)[i] = *(BYTE *)(*(int *)(param3 + i * 4 + 0x3c) + 0x30);
+            srcOff = 0;
+            destOff = 0;
+            for (k = 0; k < (int)(unsigned int)*pCounts; k++) {
+                pDest = (int *)((*ppBlock)[i] + destOff);
+                pDest[0] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff) * CGraphics::m_65536);
+                pDest[1] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 4) * CGraphics::m_65536);
+                pDest[2] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 8) * CGraphics::m_65536);
+                pDest[3] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0xc) * CGraphics::m_65536);
+                pDest[4] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x10) * CGraphics::m_65536);
+                pDest[5] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x14) * CGraphics::m_65536);
+                pNormal = (BYTE *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x18);
+                n = *(unsigned int *)pNormal;
+                nb2 = (BYTE)(n >> 16);
+                nb1 = (BYTE)(n >> 8);
+                nb0 = (BYTE)n;
+                v = (nb2 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1b) = (BYTE)v;
+                v = (nb1 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1c) = (BYTE)v;
+                v = (nb0 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1d) = (BYTE)v;
+                normal.x = *(char *)((BYTE *)pDest + 0x1b) * -0x200;
+                normal.y = *(char *)((BYTE *)pDest + 0x1c) * -0x200;
+                normal.z = *(char *)((BYTE *)pDest + 0x1d) * -0x200;
+                length = FixVecLength(&normal);
+                if (length == 0) {
+                    *(BYTE *)((BYTE *)pDest + 0x18) = 0;
+                    *(BYTE *)((BYTE *)pDest + 0x19) = 0;
+                    *(BYTE *)((BYTE *)pDest + 0x1a) = 0;
+                } else {
+                    FixVecScale(&normal, &normal, (int)(((__int64)0x10000 << 16) / length));
+                    v = normal.x >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x18) = (BYTE)v;
+                    v = normal.y >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x19) = (BYTE)v;
+                    v = normal.z >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x1a) = (BYTE)v;
+                }
+                srcOff += 0x30;
+                destOff += 0x20;
+            }
+        }
+        pCounts++;
+    }
+}
+
