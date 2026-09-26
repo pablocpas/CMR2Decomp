@@ -18,6 +18,7 @@
 BYTE g_saveData[0x2270];
 #define g_unk0x0052f3e0 (g_saveData)
 #define g_unk0x0052f3e8 (g_saveData + 0x8)
+#define g_unk0x0052f3ec (g_saveData + 0xc)
 #define g_unk0x0052fa18 (g_saveData + 0x638)
 #define g_unk0x0052fa24 (g_saveData + 0x644)
 #define g_unk0x0052fa5c (g_saveData + 0x67c)
@@ -828,6 +829,35 @@ void FUN_004eadb0(void)
     }
     FUN_004ec000();
     g_unk0x00531764 = NULL;
+}
+
+
+// Stores a driver (FUN_00405d80()==4) or category (otherwise) name into the
+// championship save data, marking the record as edited and randomising the
+// two packed counters of the category record.
+// FUNCTION: CMR2 0x004eae90
+void FUN_004eae90(unsigned int slot, char *pName)
+{
+    unsigned int category;
+
+    slot &= 0xff;
+    RallyData_ValidateIndex(slot);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        strcpy((char *)(g_unk0x0052f3e0 + slot * 0xc4), pName);
+        g_unk0x0052f3ec[slot * 0xc4] |= 2;
+        return;
+    }
+    category = (*(unsigned int *)(g_unk0x00531350 + slot * 0x30) >> 0x12) & 0xf;
+    if (category == 0xf)
+        return;
+    strcpy((char *)(g_unk0x0052fa18 + category * 0x650), pName);
+    g_saveData[0x620 + category] = 1;
+    *(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) =
+        (rand() & 0xf) << 0xc |
+        (*(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) & 0xffff0fffU);
+    *(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) =
+        (rand() & 0x3f) << 0x16 |
+        (*(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) & 0xf03fffffU);
 }
 
 // Copies the name into the category record of the given record index.

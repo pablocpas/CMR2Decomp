@@ -168,6 +168,9 @@ int g_unk0x00531650;
 int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
 BYTE *g_unk0x00531764;
+// CMR2 0x00818cd0: generic file load flag, cleared together with the load counter
+// GLOBAL: CMR2 0x00818cd0
+BYTE g_unk0x00818cd0;
 
 // GLOBAL: CMR2 0x00525258
 char g_strPpsPathFormat[32] = "%s\\pps\\%s%.2d%.2d%.2d%.2d.pps";
@@ -278,3 +281,18 @@ BOOL FUN_004ebee0(Unk0x10Block *pOut, char *param2)
     CFileBuffer::FreeGenericFileBuffer(pBuffer);
     return TRUE;
 }
+
+
+// Releases the current generic file buffer and resets the load state.
+// FUNCTION: CMR2 0x004eb6d0
+char FUN_004eb6d0(void)
+{
+    if (g_unk0x00531764 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
+        g_unk0x00531764 = NULL;
+    }
+    g_unk0x00531650 = 0;
+    g_unk0x00818cd0 = 0;
+    return 1;
+}
+

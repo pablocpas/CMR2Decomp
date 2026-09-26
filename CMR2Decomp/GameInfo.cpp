@@ -2327,6 +2327,20 @@ int FUN_004eaac0(unsigned int value)
     return count;
 }
 
+
+
+// Reads back the current camera defaults: fills a 3 dword vector out of
+// 0x52b028/0x52b02c, a short out of 0x52b034 and an int out of 0x52b030.
+// FUNCTION: CMR2 0x004eaae0
+void FUN_004eaae0(int *param_1, short *param_2, int *param_3)
+{
+    param_1[0] = 0;
+    param_1[1] = CGameInfo::m_gameInfo.field_0x88;
+    param_1[2] = CGameInfo::m_gameInfo.field_0x8c;
+    *param_2 = CGameInfo::m_gameInfo.field_0x94;
+    *param_3 = CGameInfo::m_gameInfo.field_0x90;
+}
+
 // FUNCTION: CMR2 0x004eab20
 void FUN_004eab20(BYTE param1)
 {
