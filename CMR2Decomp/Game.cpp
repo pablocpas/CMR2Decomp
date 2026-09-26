@@ -252,18 +252,14 @@ BYTE g_unk0x00818ce4;
 // Signatures follow the original's `ret N` (stdcall: N/4 arguments).
 // STUB: CMR2 0x004e9f70
 void FUN_004e9f70(BYTE param1, BYTE param2) { }
-// STUB: CMR2 0x004f4ef0
-void FUN_004f4ef0(void) { }
+void FUN_004f4ef0(void);
 // STUB: CMR2 0x004b7650
 int FUN_004b7650(int param1, int param2, int param3, int param4) { return 0; }
 // STUB: CMR2 0x004f3b50
 void FUN_004f3b50(void) { }
-// STUB: CMR2 0x004f4d20
-BYTE FUN_004f4d20(void) { return 0; }
-// STUB: CMR2 0x004f4b90
-BYTE FUN_004f4b90(void) { return 0; }
-// STUB: CMR2 0x004f4910
-void FUN_004f4910(int param1) { }
+BYTE FUN_004f4d20(void);
+BYTE FUN_004f4b90(void);
+void FUN_004f4910(char registerRelease);
 // STUB: CMR2 0x004eadb0
 void FUN_004eadb0(void) { }
 // STUB: CMR2 0x004ef150
