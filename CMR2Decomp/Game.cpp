@@ -1341,6 +1341,86 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
 unsigned short g_unk0x006ed5f0[4096];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
+// GLOBAL: CMR2 0x00597cc0
+D3DMATRIX g_unk0x00597cc0;
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Drawing view of a sector's stage objects (StageObject in Sector.h). It lives
+// here instead of in the shared header because touching Sector.h perturbs the
+// codegen of unrelated translation units.
+struct StageObjectDraw {
+    FixVector position;         // 0x0  world position (16.16)
+    Mesh *pMesh;                // 0xc
+    int field_0x10;
+    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
+    BYTE field_0x15[3];
+    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
+    int field_0x1c[4];
+    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
+    int field_0x30[4];
+    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
+    int field_0x44;
+    int offsetX;                // 0x48 world matrix translation (16.16)
+    int offsetY;                // 0x4c
+    int offsetZ;                // 0x50
+    int field_0x54;
+    float matrix[16];           // 0x58 world matrix, built from the camera matrix
+    StageObjectDraw *pNext;     // 0x98 next object of the sector
+    int lightLevel;             // 0x9c light level when not lit per vertex
+};
+typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
+
+// Draws the static stage objects of the culled sectors. Objects whose mesh is
+// flagged for the deferred pass (mesh flag 2) get their world matrix and view
+// depth updated and are queued; the rest are drawn right away.
+// FUNCTION: CMR2 0x0049d040
+void FUN_0049d040(void)
+{
+    StageObjectDraw *pObject;
+    unsigned int i;
+    FixVector delta;
+
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pObject = (StageObjectDraw *)g_sectors[g_unk0x006ed5f0[i]]->pObjects;
+        while (pObject != NULL) {
+            if (pObject->field_0x14 != 0) {
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
+                    if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
+                        pObject->scaleZ != 0x10000) {
+                        float scale;
+                        scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                        pObject->matrix[0] = scale * pObject->matrix[0];
+                        pObject->matrix[1] = scale * pObject->matrix[1];
+                        pObject->matrix[2] = scale * pObject->matrix[2];
+                        scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                        pObject->matrix[4] = scale * pObject->matrix[4];
+                        pObject->matrix[5] = scale * pObject->matrix[5];
+                        pObject->matrix[6] = scale * pObject->matrix[6];
+                        scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                        pObject->matrix[8] = scale * pObject->matrix[8];
+                        pObject->matrix[9] = scale * pObject->matrix[9];
+                        pObject->matrix[10] = scale * pObject->matrix[10];
+                    }
+                    pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
+                    pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
+                    pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                }
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    delta.x = g_unk0x0059be6c->world.position.x - pObject->position.x;
+                    delta.y = 0;
+                    delta.z = g_unk0x0059be6c->world.position.z - pObject->position.z;
+                    *(int *)((BYTE *)pObject->pMesh + 0x114) = FixVecLength(&delta);
+                    CGame::FUN_0049cb50(pObject);
+                } else {
+                    Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);
+                }
+            }
+            pObject = pObject->pNext;
+        }
+    }
+}
 
 // Computes the view depth of every visible node of the culled sectors and
 // queues them for drawing.
