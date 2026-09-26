@@ -3366,6 +3366,248 @@ void FUN_004f3530(Menu *pMenu, int param)
     p->previous = pMenu->cursor;
 }
 
+// Draw callback of the two-choice pages after the difficulty: the same
+// title as the difficulty pages, the list and the scroller.
+// FUNCTION: CMR2 0x004d6460
+void FUN_004d6460(Menu *pMenu)
+{
+    char *text[2];
+
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 1:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xd);
+        break;
+    case 2:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xf);
+        break;
+    case 3:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    case 4:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x11);
+        break;
+    case 5:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 6:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xe2);
+        break;
+    case 7:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_ScrollerRow(FUN_004f2520(), 0);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
+// Update callback of the two-choice pages: the first choice is always
+// available.
+// FUNCTION: CMR2 0x004ef410
+void FUN_004ef410(Menu *pMenu)
+{
+    pMenu->items[0].enabled = 1;
+}
+
+// Item callback of the two-choice pages: stores the choice and goes to the
+// next screen of the mode.
+// FUNCTION: CMR2 0x004efb20
+void FUN_004efb20(Menu *pMenu, int param)
+{
+    FUN_004ea950(pMenu->cursor);
+    g_unk0x00819870 = (int)pMenu;
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    g_unk0x00819048 = CGameInfo::FUN_00405d70();
+}
+
+BYTE FUN_004085a0(BYTE param1);
+
+// Menu the current game mode continues to after the player setup.
+#define FRONTEND_MODE_NEXT_MENU(pNext)          \
+    switch (CGameInfo::FUN_00405d80()) {        \
+    case 4:                                     \
+        pNext = FUN_004f8430();                 \
+        break;                                  \
+    case 5:                                     \
+        pNext = FUN_004fa300();                 \
+        break;                                  \
+    case 6:                                     \
+        pNext = FUN_004fa310();                 \
+        break;                                  \
+    case 7:                                     \
+        pNext = FUN_004fa320();                 \
+        break;                                  \
+    default:                                    \
+        pNext = FUN_004f83f0();                 \
+        break;                                  \
+    }
+
+// Draw callback of the player profile menu: "<mode> | Player N | <menu>".
+// FUNCTION: CMR2 0x004d9880
+void FUN_004d9880(Menu *pMenu)
+{
+    char *text[4];
+
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc), g_unk0x008182b4);
+    text[2] = CFrontend::m_stringDest;
+    text[3] = CFrontend::GetTextString(pMenu->field_0x4);
+    if (CGameInfo::FUN_00405e00() != 0) {
+        text[1] = NULL;
+        text[2] = NULL;
+        text[0] = CFrontend::GetTextString(0x12);
+    } else {
+        switch (CGameInfo::FUN_00405d80()) {
+        case 0:
+            text[0] = CFrontend::GetTextString(0xe7);
+            text[1] = CFrontend::GetTextString(0xc);
+            break;
+        case 1:
+            text[0] = CFrontend::GetTextString(0xe7);
+            text[1] = CFrontend::GetTextString(0xd);
+            break;
+        case 2:
+            text[0] = CFrontend::GetTextString(0xe7);
+            text[1] = CFrontend::GetTextString(0xf);
+            break;
+        case 3:
+            text[0] = CFrontend::GetTextString(0xe7);
+            text[1] = CFrontend::GetTextString(0x10);
+            break;
+        case 4:
+            text[0] = CFrontend::GetTextString(0xe7);
+            text[1] = CFrontend::GetTextString(0xe);
+            break;
+        case 5:
+            text[0] = CFrontend::GetTextString(0x94);
+            text[1] = CFrontend::GetTextString(0xc);
+            break;
+        case 6:
+            text[0] = CFrontend::GetTextString(0x94);
+            text[1] = CFrontend::GetTextString(0xe2);
+            break;
+        case 7:
+            text[0] = CFrontend::GetTextString(0x94);
+            text[1] = CFrontend::GetTextString(0x10);
+            break;
+        }
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 4);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+    if (CGameInfo::FUN_00405e00() != 0)
+        FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Entering the player profile menu (back: undoes the previous player's
+// profile). Lists the free saved profiles.
+// TODO: CMR2 0x004f03f0 (implemented, match 40%)
+void FUN_004f03f0(Menu *pMenu, char back)
+{
+    MenuItem *pItem;
+    char *pText;
+    int i;
+
+    i = 0;
+    if (back != 0) {
+        if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
+            if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048))) {
+                g_unk0x00819744--;
+                FUN_004eb000(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048), 0);
+            }
+            FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+        }
+        FUN_004ebe80((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+        g_unk0x00819048++;
+    }
+    g_unk0x00819879 = 0;
+    FUN_004e7770((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0() + 1);
+    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
+    CSound::FUN_004a28c0();
+    pText = g_profileEntryTexts[0];
+    pItem = &pMenu->items[3];
+    do {
+        if (i < FUN_004ec020()) {
+            sprintf(pText, CFrontend::GetTextString(0x17e), FUN_004ec110(i));
+            pItem->enabled = 1;
+            pItem->visible = 1;
+            pItem->stringId = (int)pText;
+        } else {
+            pItem->enabled = 0;
+            pItem->visible = 0;
+        }
+        pText += 40;
+        i++;
+        pItem++;
+    } while (pText < g_profileEntryTexts[4]);
+    if (FUN_004ec020() > 0) {
+        pMenu->cursor = 3;
+        return;
+    }
+    pMenu->cursor = 2;
+}
+
+// Item callback of "new profile" in the player profile menu.
+// TODO: CMR2 0x004f0960 (implemented, match 81%)
+void FUN_004f0960(Menu *pMenu, int param)
+{
+    Menu *pNext;
+    Menu *pAfter;
+
+    g_unk0x00819879 = 1;
+    FRONTEND_MODE_NEXT_MENU(pNext)
+    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
+    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+    FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
+    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+    Menu_SetParent(FUN_004f83c0(), pMenu);
+    FUN_004f2c10((int)FUN_004f83d0());
+    pAfter = pNext;
+    if (CGameInfo::FUN_00405e00() != 0)
+        pAfter = FUN_004f8440();
+    FUN_004f2c30((int)pAfter);
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
+            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
+    FUN_004e7780(CFrontend::m_stringDest);
+    g_unk0x00819048--;
+    Menu_SetParent(pNext, pMenu);
+    Menu_SetNextAction((int)FUN_004f83c0());
+}
+
+// Item callback of a saved profile in the player profile menu.
+// FUNCTION: CMR2 0x004f0c50
+void FUN_004f0c50(Menu *pMenu, int param)
+{
+    Menu *pNext;
+    int profile;
+
+    profile = FUN_004ec090(pMenu->cursor - 3);
+    FRONTEND_MODE_NEXT_MENU(pNext)
+    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+    g_unk0x00819048--;
+    if (CGameInfo::FUN_00405e00() != 0) {
+        Menu_SetParent(FUN_004f8440(), pMenu);
+        Menu_SetNextAction((int)FUN_004f8440());
+        return;
+    }
+    Menu_SetParent(pNext, pMenu);
+    Menu_SetNextAction((int)pNext);
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)

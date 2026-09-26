@@ -2105,6 +2105,76 @@ void FUN_004f7150(char difficulty)
     g_menu0x0081e5d8.cursor = difficulty - 1;
 }
 
+void FUN_004d6460(Menu *pMenu);
+void FUN_004ef410(Menu *pMenu);
+void FUN_004efb20(Menu *pMenu, int param);
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f7510
+void FUN_004f7510(char choice)
+{
+    Menu_Init(&g_menu0x008230d8, 0, 0x1e, 0, &g_menu0x0081d318, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x008230d8, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x008230d8, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x008230d8, 0);
+    g_menu0x008230d8.cursor = choice;
+    g_menu0x008230d8.items[0].enabled = 1;
+}
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f75b0
+void FUN_004f75b0(char choice)
+{
+    Menu_Init(&g_menu0x00824858, 0, 0x1e, 0, &g_menu0x00820978, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x00824858, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x00824858, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x00824858, 0);
+    g_menu0x00824858.cursor = choice;
+    g_menu0x00824858.items[0].enabled = 1;
+}
+
+// Two-choice page after a difficulty page.
+// FUNCTION: CMR2 0x004f7650
+void FUN_004f7650(char choice)
+{
+    Menu_Init(&g_menu0x008251b8, 0, 0x1e, 0, &g_menu0x0081f2f8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd3, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_AddItemType2(&g_menu0x008251b8, 0, 0xd4, &g_menu0x008241b8, (int)FUN_004efb20, -1);
+    Menu_SetCallbacks(&g_menu0x008251b8, NULL, (MenuCallback)FUN_004ef410, (MenuCallback)FUN_004d6460, NULL);
+    Menu_ValidateCursor(&g_menu0x008251b8, 0);
+    g_menu0x008251b8.cursor = choice;
+    g_menu0x008251b8.items[0].enabled = 1;
+}
+
+void FUN_004f03f0(Menu *pMenu, char back);
+void FUN_004f0960(Menu *pMenu, int param);
+void FUN_004f0ac0(Menu *pMenu, int param);
+void FUN_004f0c50(Menu *pMenu, int param);
+void FUN_004d9880(Menu *pMenu);
+
+// Player profile menu of the multiplayer modes: continue, new profile,
+// no profile and up to 4 saved ones.
+// FUNCTION: CMR2 0x004f76f0
+void FUN_004f76f0(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x008241b8, 0, 0x21, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008241b8, 0, 0x102, &g_menu0x008203d8, (int)FUN_004f0c40, -1);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe6, (int)FUN_004f0960, 0);
+    Menu_AddItemType4(&g_menu0x008241b8, 0, 0xe5, (int)FUN_004f0ac0, 0);
+    i = 4;
+    do {
+        Menu_AddItemType4(&g_menu0x008241b8, 0, -1, (int)FUN_004f0c50, -1);
+        i--;
+    } while (i != 0);
+    Menu_SetCallbacks(&g_menu0x008241b8, (MenuCallback)FUN_004f03f0, NULL, (MenuCallback)FUN_004d9880,
+                      (MenuCallback)FUN_004f07e0);
+    Menu_ValidateCursor(&g_menu0x008241b8, 0);
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {
