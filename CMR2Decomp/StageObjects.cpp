@@ -4337,3 +4337,402 @@ void FUN_004778b0(BYTE *object, int unused)
     *(int *)(object + 0x58) = 0;
     *(int *)(object + 0x5c) = 0x10000;
 }
+
+GenericFile *FUN_0041f500(void);
+BYTE *FUN_00475a40(void);
+void StageUI_DrawChampionshipBar(void);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int RallyData_FUN_0040eeb0(void);
+int *FUN_0040f050(int view);
+void FUN_00428680(unsigned int player, short *pRect, int check);
+struct Menu;
+void Menu_CallCallback2(Menu *pMenu);
+
+// GLOBAL: CMR2 0x0051c950
+char g_strTempObj[] = "TEMP.OBJ";
+// GLOBAL: CMR2 0x0051c95c
+char g_strTempSht[] = "TEMP.SHT";
+
+// Replaces the active replay buffer with a freshly allocated one.
+// FUNCTION: CMR2 0x00465f60
+void FUN_00465f60(int frames, int samples)
+{
+    g_unk0x00588758 = (int *)FUN_0046c5a0(frames, samples, 0);
+    FUN_00465f80();
+}
+
+// Loads a replay buffer from a path, falling back to a 10-second default one.
+// FUNCTION: CMR2 0x00465f90
+void FUN_00465f90(char *path)
+{
+    g_unk0x00588758 = (int *)FUN_0046d2d0(path);
+    if (g_unk0x00588758 == NULL)
+        FUN_00465f60(1, 0x1d4c);
+    FUN_00465f80();
+}
+
+// Loads the stage's TEMP.OBJ model into memory.
+// FUNCTION: CMR2 0x00472830
+void FUN_00472830(void)
+{
+    void *pObj;
+    GenericFile *pFile;
+
+    pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempObj, NULL, NULL, 0);
+    if (pObj != NULL) {
+        pFile = FUN_0041f500();
+        FUN_004b9380((unsigned int)pObj, RallyData_FUN_00411060(), (unsigned int)pFile);
+    }
+}
+
+// Loads the stage's TEMP.SHT model into memory.
+// FUNCTION: CMR2 0x00472870
+void FUN_00472870(void)
+{
+    void *pObj;
+    GenericFile *pFile;
+
+    pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSht, NULL, NULL, 0);
+    if (pObj != NULL) {
+        pFile = FUN_0041f500();
+        FUN_004b9380((unsigned int)pObj, RallyData_FUN_00411060(), (unsigned int)pFile);
+    }
+}
+
+// Clears the screen and redraws the split bars and championship positions.
+// FUNCTION: CMR2 0x004759d0
+void FUN_004759d0(int unused1, int unused2)
+{
+    int i;
+
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    StageUI_DrawChampionshipBar();
+    Menu_CallCallback2((Menu *)FUN_00475a40());
+    i = 0;
+    if ((BYTE)RallyDataState() != 0) {
+        do {
+            FUN_00428680(i, (short *)FUN_00464b10(i), 0);
+            i++;
+        } while (i < (int)(RallyDataState() & 0xff));
+    }
+    FUN_0049d3f0(RallyData_FUN_00411060(), RallyData_FUN_0040eeb0(), (void *)FUN_0040f050(0), 0, 0);
+    FUN_0049de40();
+}
+
+struct ObjectMatrix16 { int v[16]; };
+
+// Builds a stage object's orientation matrix from a car and a node, flipping
+// the right-hand column and rotating about the object's right axis.
+// FUNCTION: CMR2 0x00477850
+void FUN_00477850(int object, int *src)
+{
+    int *dst = (int *)(object + 8);
+
+    *(ObjectMatrix16 *)dst = *(ObjectMatrix16 *)src;
+    dst[0] = -src[8];
+    *(int *)(object + 0xc) = -src[9];
+    *(int *)(object + 0x10) = -src[10];
+    *(int *)(object + 0x28) = src[0];
+    *(int *)(object + 0x2c) = src[1];
+    *(int *)(object + 0x30) = src[2];
+    FixMatrix_RotateAboutRight((FixMatrix *)dst, (unsigned short)g_unk0x0051c9b0);
+    FUN_004778b0((BYTE *)object, (int)src);
+}
+
+// Builds a wheel/damper orientation matrix from two scale factors.
+// FUNCTION: CMR2 0x00486fc0
+void FUN_00486fc0(int *pMatrix, int *pOffset)
+{
+    FixVector u, t;
+    int i;
+
+    FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
+    FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
+    pMatrix[0xc] = t.x - u.x;
+    pMatrix[0xd] = t.y - u.y;
+    pMatrix[0xe] = t.z - u.z;
+    pMatrix[0xf] = u.x + t.x;
+    pMatrix[0x10] = u.y + t.y;
+    pMatrix[0x11] = u.z + t.z;
+    FixVecScale(&t, &t, -0x10000);
+    pMatrix[0x12] = t.x - u.x;
+    pMatrix[0x13] = t.y - u.y;
+    pMatrix[0x14] = t.z - u.z;
+    pMatrix[0x15] = u.x + t.x;
+    pMatrix[0x16] = u.y + t.y;
+    pMatrix[0x17] = u.z + t.z;
+    for (i = 0; i < 4; i++) {
+        pMatrix[0xc + i * 3] += pOffset[0];
+        pMatrix[0xd + i * 3] += pOffset[1];
+        pMatrix[0xe + i * 3] += pOffset[2];
+        pMatrix[0xd + i * 3] = pMatrix[2];
+    }
+}
+
+// Builds a sprite orientation matrix from a pair of 16-bit extents.
+// FUNCTION: CMR2 0x00487c40
+void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
+{
+    short *p = *(short **)(*(int *)(param_2 + 4) + 4);
+    FixVector t, u;
+    int i;
+
+    if (pMatrix[10] == 0) {
+        pMatrix[0] = (int)p[4] << 9;
+        pMatrix[1] = (int)p[5] << 9;
+        pMatrix[4] = (int)p[0] << 9;
+        pMatrix[5] = 0;
+        pMatrix[6] = (int)p[1] << 9;
+        pMatrix[7] = (int)p[1] << 9;
+        pMatrix[8] = 0;
+        pMatrix[9] = p[0] * -0x200;
+        pMatrix[2] = p[2] * 0x200 + pOffset[1];
+        pMatrix[3] = p[3] * 0x200 + pOffset[1];
+        pMatrix[0x25] = (int)pOffset;
+        pMatrix[0x24] = 0;
+        FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
+        FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
+        pMatrix[0xc] = t.x - u.x;
+        pMatrix[0xe] = t.z - u.z;
+        pMatrix[0xf] = u.x + t.x;
+        pMatrix[0x11] = u.z + t.z;
+        FixVecScale(&t, &t, -0x10000);
+        pMatrix[0x12] = t.x - u.x;
+        pMatrix[0x14] = t.z - u.z;
+        pMatrix[0x15] = u.x + t.x;
+        pMatrix[0x17] = u.z + t.z;
+        for (i = 0; i < 4; i++) {
+            pMatrix[0xc + i * 3] += pOffset[0];
+            pMatrix[0xd + i * 3] = pMatrix[3];
+            pMatrix[0xe + i * 3] += pOffset[2];
+        }
+        pMatrix[10] = 1;
+    }
+}
+
+// Blends two colours according to a fade timer and writes the result.
+// FUNCTION: CMR2 0x0047f510
+void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
+{
+    int t = *(int *)(param_1 + 0x668);
+    FixVector c;
+    int v, r, g, b;
+
+    if (t > 0xa0000) {
+        if (*(int *)(param_1 + 0x930) != 0) {
+            v = t - *(int *)(param_1 + 0x674);
+            if (v > 0x50000) {
+                *(DWORD *)pOut = *(DWORD *)pFrom;
+                return;
+            }
+            if (v < -0x50000) {
+                *(DWORD *)pOut = *(DWORD *)pTo;
+                return;
+            }
+            v = FixMul(v, 0x1999) + 0x8000;
+            c.x = pFrom[0] * 0x10000 - pTo[0] * 0x10000;
+            c.y = pFrom[1] * 0x10000 - pTo[1] * 0x10000;
+            c.z = pFrom[2] * 0x10000 - pTo[2] * 0x10000;
+            FixVecScale(&c, &c, v);
+            r = c.x + pTo[0] * 0x10000;
+            g = c.y + pTo[1] * 0x10000;
+            b = c.z + pTo[2] * 0x10000;
+            if (r > 0xff0000)
+                r = 0xff0000;
+            if (g > 0xff0000)
+                g = 0xff0000;
+            if (b > 0xff0000)
+                b = 0xff0000;
+            pOut[0] = (BYTE)(r >> 16);
+            pOut[1] = (BYTE)(g >> 16);
+            pOut[2] = (BYTE)(b >> 16);
+            pOut[3] = 0xff;
+            return;
+        }
+        *(DWORD *)pOut = *(DWORD *)pFrom;
+        return;
+    }
+    v = FixMul(t, 0x1999);
+    if (v > 0x10000)
+        v = 0x10000;
+    else if (v < 0)
+        v = 0;
+    if (*(int *)(param_1 + 0x930) != 0) {
+        c.x = pTo[0] << 16;
+        c.y = pTo[1] << 16;
+        c.z = pTo[2] << 16;
+    } else {
+        c.x = pFrom[0] << 16;
+        c.y = pFrom[1] << 16;
+        c.z = pFrom[2] << 16;
+    }
+    pOut[0] = (BYTE)(FixMul(c.x, v) >> 16);
+    pOut[1] = (BYTE)(FixMul(c.y, v) >> 16);
+    pOut[2] = (BYTE)(FixMul(c.z, v) >> 16);
+    pOut[3] = 0xff;
+}
+
+// Sets per-car visibility bits used by the stage object renderer.
+// FUNCTION: CMR2 0x0046b790
+void FUN_0046b790(int type, int car, int index)
+{
+    BYTE bit = 1 << car;
+
+    switch (type) {
+    case 0:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        g_unk0x00588ba4[11] |= bit;
+    case 3:
+        g_unk0x00588ba4[12] |= bit;
+        g_unk0x00588ba4[13] |= bit;
+        g_unk0x00588ba4[14] |= bit;
+        break;
+    case 1:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        g_unk0x00588ba4[13] |= bit;
+        g_unk0x00588ba4[14] |= bit;
+        break;
+    case 2:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        return;
+    case 4:
+        g_unk0x00588ba4[12] |= bit;
+        return;
+    case 5:
+        g_unk0x00588ba4[8] |= bit;
+        break;
+    case 8:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[11] |= bit;
+        return;
+    default:
+        return;
+    }
+    g_unk0x00588ba4[index] |= bit;
+}
+
+extern Car *g_collisionCar;
+
+// Updates per-wheel slip tables and damps the car's velocity.
+// FUNCTION: CMR2 0x0048df50
+void FUN_0048df50(Car *param_1)
+{
+    int i;
+    int off;
+    int v;
+
+    g_collisionCar = param_1;
+    i = 0;
+    off = 0xbbc;
+    do {
+        int a, b, d, aa, bb, u;
+
+        v = *(int *)(g_collisionCar + 0x778);
+        if (v > 0x10000)
+            v = 0x10000;
+        v = FixMul(v, 0x6666);
+        a = *(int *)(g_collisionCar + i + 0x270);
+        b = *(int *)(g_collisionCar + i + 0x278);
+        aa = a < 0 ? -a : a;
+        bb = b < 0 ? -b : b;
+        if (aa - bb < 0)
+            d = bb - aa;
+        else
+            d = aa - bb;
+        u = FixMul((d % 0x401) << 6, v);
+        if (*(int *)(g_collisionCar + off) == 0 ||
+            *(int *)(g_collisionCar + off - 0x2c0) <= u) {
+            *(int *)(g_collisionCar + off - 0x2c0) = u;
+            *(int *)(g_collisionCar + off) = 1;
+            *(int *)(g_collisionCar + i + 0x564) = 0;
+            *(int *)(g_collisionCar + i + 0x568) = 0x10000;
+            *(int *)(g_collisionCar + i + 0x56c) = 0;
+        }
+        off += 4;
+        i += 0xc;
+    } while (off < 0xbcc);
+    FixVecScale((FixVector *)(g_collisionCar + 0x408), (FixVector *)(g_collisionCar + 0x408),
+                0xf851);
+}
+
+// Builds a 3x4 matrix from three basis vectors plus a translation.
+// FUNCTION: CMR2 0x00487140
+void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4)
+{
+    int x = param_4[0];
+    int y = param_4[1];
+    int z = param_4[2];
+    int a, b, c;
+    int v7, v2, v8, v6;
+
+    a = FixMul(param_3[0], x);
+    b = FixMul(param_3[4], y);
+    c = FixMul(param_3[8], z);
+    param_1[0xc] = c + b + a;
+    param_1[0xf] = (b - c) + a;
+    param_1[0x15] = (b - c) - a;
+    param_1[0x12] = (c - a) + b;
+    a = FixMul(param_3[1], x);
+    b = FixMul(param_3[5], y);
+    c = FixMul(param_3[9], z);
+    param_1[0xd] = c + b + a;
+    param_1[0x10] = (b - c) + a;
+    param_1[0x16] = (b - c) - a;
+    param_1[0x13] = (c - a) + b;
+    a = FixMul(param_3[2], x);
+    b = FixMul(param_3[6], y);
+    c = FixMul(param_3[10], z);
+    v7 = c + b + a;
+    param_1[0xe] = v7;
+    v2 = (b - c) + a;
+    v8 = (b - c) - a;
+    v6 = (c - a) + b;
+    param_1[0x17] = v8;
+    param_1[0x14] = v6;
+    param_1[3] = -param_1[0x12];
+    param_1[4] = -param_1[0x13];
+    param_1[5] = -v6;
+    param_1[6] = -param_1[0xf];
+    param_1[7] = -param_1[0x10];
+    param_1[8] = -v2;
+    param_1[9] = -param_1[0xc];
+    param_1[10] = -param_1[0xd];
+    param_1[0x11] = v2;
+    param_1[0xb] = -v7;
+    v8 = -v8;
+    param_1[0] = -param_1[0x15];
+    param_1[1] = -param_1[0x16];
+    param_1[2] = v8;
+    param_1[0] = -param_1[0x15] + param_2[0];
+    param_1[1] = -param_1[0x16] + param_2[1];
+    param_1[2] = v8 + param_2[2];
+    param_1[3] = param_1[3] + param_2[0];
+    param_1[4] = param_1[4] + param_2[1];
+    param_1[5] = param_1[5] + param_2[2];
+    param_1[6] = param_1[6] + param_2[0];
+    param_1[7] = param_1[7] + param_2[1];
+    param_1[8] = param_1[8] + param_2[2];
+    param_1[9] = param_1[9] + param_2[0];
+    param_1[10] = param_1[10] + param_2[1];
+    param_1[0xb] = param_1[0xb] + param_2[2];
+    param_1[0xc] = param_1[0xc] + param_2[0];
+    param_1[0xd] = param_1[0xd] + param_2[1];
+    param_1[0xe] = param_1[0xe] + param_2[2];
+    param_1[0xf] = param_1[0xf] + param_2[0];
+    param_1[0x10] = param_1[0x10] + param_2[1];
+    param_1[0x11] = param_1[0x11] + param_2[2];
+    param_1[0x12] = param_1[0x12] + param_2[0];
+    param_1[0x13] = param_1[0x13] + param_2[1];
+    param_1[0x14] = param_1[0x14] + param_2[2];
+    param_1[0x15] = param_1[0x15] + param_2[0];
+    param_1[0x16] = param_1[0x16] + param_2[1];
+    param_1[0x17] = param_1[0x17] + param_2[2];
+}
