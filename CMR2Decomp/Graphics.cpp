@@ -10,6 +10,7 @@
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
 #include "GameInfo.h"
+#include "InstallInfo.h"
 #include "RegKey.h"
 #include "main.h"
 #include "Sound.h"
@@ -2660,6 +2661,58 @@ void CGraphics::SetTexCoordIndex(int stage, int index)
     m_texCoordIndex[stage] = index;
 }
 
+int Args_Has(char *pArg);
+
+extern int g_sceneStatCopied;
+extern int g_sceneStatMultiplied;
+extern int g_sceneStatClean;
+extern int g_sceneStatHidden;
+extern int g_fixMatrixMultiplyCount;
+
+// Frame rate counter argument ("gamegauge"): when present the vsync wait is
+// skipped.
+// GLOBAL: CMR2 0x005207fc
+char g_str0x005207fc[] = "gamegauge";
+
+// Ends the frame: resets the per frame counters and presents the back buffer,
+// which in windowed mode means blitting it into the client area of the game
+// window and in fullscreen mode flipping (waiting for the vertical blank only
+// when the frame rate counter is off).
+// FUNCTION: CMR2 0x0049de40
+void FUN_0049de40(void)
+{
+    POINT pt;
+    POINT corners[2];
+    RECT rect;
+
+    CMain::UpdateFrameTime();
+    g_sceneStatCopied = 0;
+    g_sceneStatMultiplied = 0;
+    g_sceneStatClean = 0;
+    g_sceneStatHidden = 0;
+    g_fixMatrixMultiplyCount = 0;
+    CGraphics::m_unk0x0065fa24 = 0;
+    if (g_pGraphics->isFullscreen == 0) {
+        GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], &rect);
+        pt.x = rect.left;
+        pt.y = rect.top;
+        ClientToScreen(CMain::m_hWndList[CMain::m_hWndIx], &pt);
+        GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], (LPRECT)corners);
+        ClientToScreen(CMain::m_hWndList[CMain::m_hWndIx], corners);
+        ClientToScreen(CMain::m_hWndList[CMain::m_hWndIx], corners + 1);
+        if (Args_Has(g_str0x005207fc) == 0)
+            g_pGraphics->pDD7->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+        g_pGraphics->pPrimarySurface->Blt((LPRECT)corners, g_pGraphics->pBackBufferSurface,
+                                          NULL, DDBLT_WAIT, NULL);
+        return;
+    }
+    if (Args_Has(g_str0x005207fc) != 0) {
+        g_pGraphics->pPrimarySurface->Flip(NULL, DDFLIP_NOVSYNC);
+        return;
+    }
+    g_pGraphics->pPrimarySurface->Flip(NULL, DDFLIP_WAIT);
+}
+
 // FUNCTION: CMR2 0x004a6e30
 Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
 {
@@ -3525,6 +3578,57 @@ void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value)
 
 // GLOBAL: CMR2 0x0052111c
 char g_strSuffixW[4] = "W";
+
+extern char g_fontTgaFormat[12];
+int Graphics_HasLocalSuffix(char *pName);
+Texture *FUN_004b9b80(char *name);
+
+// Variants of the texture file suffix the load flags depend on.
+// GLOBAL: CMR2 0x00521114
+char g_str0x00521114[4] = "B3";
+// GLOBAL: CMR2 0x00521118
+char g_str0x00521118[4] = "B2";
+
+// Loads every texture of a list of texture records. Each record holds a header
+// with the number of textures followed by that many index/offset entries into
+// the texture directory; the file name is built from the directory of the game
+// plus the last path component of the texture entry. Resident textures are
+// skipped when the record type is 6.
+// TODO: CMR2 0x004b9910 (implemented, match 62%)
+void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5)
+{
+    unsigned int flags = param3;
+    unsigned int records;
+    unsigned short *pEntry;
+    char *pName;
+    char fileName[260];
+    unsigned int i;
+
+    for (records = param3; records > 0; records--) {
+        pEntry = (unsigned short *)((BYTE *)param1 + 0x14);
+        for (i = 0; i < *(unsigned short *)((BYTE *)param1 + 0xc); i++) {
+            pName = (char *)(param2 + *pEntry * 0x104);
+            CGenericFileLoader::StrUpperPolish((BYTE *)pName);
+            strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
+            sprintf(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
+                    strchr(pName, '\\') + 1);
+            if (param4 == 6) {
+                if (FUN_004b9b80(fileName) == 0) {
+                    if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
+                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
+                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521114, 2) != 0)
+                        flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x140 : 0x100;
+                    CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0, flags);
+                }
+            } else {
+                CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0,
+                                          param4 != 10 ? 0x90 : 0);
+            }
+            pEntry += 4;
+        }
+        param1 = (int)((BYTE *)param1 + 0x10 + i * 8);
+    }
+}
 
 // Returns 1 when a file name ends in a localised suffix: "RU"/"BR" before
 // the extension, or 'W' two characters earlier.
@@ -6318,6 +6422,55 @@ int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
         return 1;
     }
     return 0;
+}
+
+void FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB);
+extern const float g_netOne;
+
+// Scale applied to the shadow vertex positions (0.5).
+// GLOBAL: CMR2 0x00511424
+extern const float g_unk0x00511424 = 0.5f;
+
+// Builds the view * world matrix, uses it to project every mesh vertex (taking
+// the midpoint between the vertex and the next one, 0x30 bytes apart) into the
+// x/y stored at offsets 0x28/0x2c of the vertex, and re-uploads the vertices
+// to the mesh's slot of the shared vertex buffer.
+// FUNCTION: CMR2 0x004b2460
+void FUN_004b2460(Mesh *pMesh)
+{
+    D3DMATRIX transform;
+    D3DMATRIX world;
+    D3DMATRIX view;
+    float m11, m21, m31, m12, m22, m32;
+    float *pVertexData = (float *)pMesh->pVertexData;
+    void *pVertices;
+    int i;
+    int j;
+
+    CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_VIEW, &view);
+    CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_WORLD, &world);
+    FloatMatrix_Multiply(&transform, &view, &world);
+    m11 = transform._11;
+    m21 = transform._21;
+    m31 = transform._31;
+    m12 = transform._12;
+    m22 = transform._22;
+    m32 = transform._32;
+    for (i = 0; i < pMesh->triangleCount; i++) {
+        for (j = 0; j < 3; j++) {
+            int index = pMesh->pTriangles[i].vertexIndex[j];
+            float *pVertex = (float *)((BYTE *)pVertexData + index * 0x30);
+            float x = (pVertex[3] + pVertex[0]) * g_unk0x00511424;
+            float y = (pVertex[4] + pVertex[1]) * g_unk0x00511424;
+            float z = (pVertex[5] + pVertex[2]) * g_unk0x00511424;
+
+            pVertex[10] = (z * m31 + y * m21 + x * m11 + g_netOne) * g_unk0x00511424;
+            pVertex[11] = (g_netOne - (z * m32 + y * m22 + x * m12)) * g_unk0x00511424;
+        }
+    }
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
+    memcpy((BYTE *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData, pMesh->field_0x10 * 0x30);
+    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
 }
 
 // Finds a loaded texture by name (not for "local" textures) and makes sure

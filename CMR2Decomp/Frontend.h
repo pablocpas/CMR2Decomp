@@ -25,6 +25,7 @@ public:
     static DWORD FUN_004b7520(void);
     static unsigned int FUN_004d20d0(void);
     static int FUN_004d20e0(void);
+    static BYTE FUN_004d20f0(void);
     static BOOL FUN_004b7560(unsigned int param_1);
     static BOOL FUN_004b7590(unsigned int param_1);
     static BOOL FUN_004a9700(void);
