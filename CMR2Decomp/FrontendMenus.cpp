@@ -3137,7 +3137,7 @@ void FUN_004f9940(void)
 {
     Menu_Init(&g_menu0x00826d80, 0, 0x97, 0, &g_menu0x00826f60, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x00826d80, 0, 0x88, 2, 0, 0, 0, (int)FUN_004fad40, 0x88);
-    Menu_SetCallbacks(&g_menu0x00826d80, FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
+    Menu_SetCallbacks(&g_menu0x00826d80, (MenuCallback)FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
     Menu_ValidateCursor(&g_menu0x00826d80, 0);
 }
 
@@ -3176,7 +3176,7 @@ void FUN_004f9c80(void)
 {
     Menu_Init(&g_menu0x00827140, 0, 0x97, 0, &g_menu0x00828500, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x00827140, 0, 0x88, 2, 0, 0, 0, (int)FUN_004fadd0, 0x88);
-    Menu_SetCallbacks(&g_menu0x00827140, FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
+    Menu_SetCallbacks(&g_menu0x00827140, (MenuCallback)FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
     Menu_ValidateCursor(&g_menu0x00827140, 0);
 }
 
@@ -3215,7 +3215,7 @@ void FUN_004f9fc0(void)
 {
     Menu_Init(&g_menu0x00827500, 0, 0x97, 0, &g_menu0x00827e60, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x00827500, 0, 0x88, 2, 0, 0, 0, (int)FUN_004faea0, 0x88);
-    Menu_SetCallbacks(&g_menu0x00827500, FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
+    Menu_SetCallbacks(&g_menu0x00827500, (MenuCallback)FUN_004fac70, (MenuCallback)FUN_004f39d0, FUN_004d8ed0, NULL);
     Menu_ValidateCursor(&g_menu0x00827500, 0);
 }
 

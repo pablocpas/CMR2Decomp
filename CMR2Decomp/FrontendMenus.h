@@ -332,7 +332,7 @@ void FUN_004f3b20(Menu *pMenu, int param);
 void FUN_004f3b30(Menu *pMenu, char param);
 void FUN_004faa00(Menu *pMenu, int param);
 void FUN_004faa50(Menu *pMenu, int param);
-void FUN_004fac70(Menu *pMenu, int param);
+void FUN_004fac70(Menu *pMenu, char param);
 void FUN_004facd0(Menu *pMenu, int param);
 void FUN_004fad40(Menu *pMenu, int param);
 void FUN_004fad90(Menu *pMenu, int param);

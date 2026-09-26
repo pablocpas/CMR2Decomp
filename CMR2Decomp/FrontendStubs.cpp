@@ -277,43 +277,11 @@ void FUN_004f1a40(Menu *pMenu, int param)
 {
 }
 
-void FUN_004f1b30(Menu *pMenu, int param)
-{
-}
-
 void FUN_004f3a00(Menu *pMenu, int param)
 {
 }
 
 void FUN_004f3a70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fac70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004facd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fad40(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fad90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fadd0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004fae70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004faea0(Menu *pMenu, int param)
 {
 }
 

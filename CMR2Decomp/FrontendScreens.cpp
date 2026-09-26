@@ -1350,6 +1350,8 @@ void FUN_004d0620(DPID *pFrom, char *text, char local);
 void RallyData_FUN_004068e0(BYTE param1);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
 void FUN_004eb0c0(BYTE index, BYTE flag);
+void FUN_004f02e0(void);
+void FUN_0040dfa0(void);
 
 // The player setup data (0x540..0x6e7 of the rally data block) is mirrored
 // into the outgoing packet and back. 0x18 bytes of it are per-player rows,
@@ -2624,6 +2626,21 @@ void FUN_004f1a10(Menu *pMenu, int unused)
     RallyData_FUN_00408600(
         CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
         (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+}
+
+// Item callback of the championship entry screens: toggles the selected
+// entry's championship flag and moves to the next or the parent menu.
+// FUNCTION: CMR2 0x004f1b30
+void FUN_004f1b30(Menu *pMenu, int param)
+{
+    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    if (g_unk0x00819048 == 0) {
+        FUN_004f02e0();
+        Menu_SetNextAction((int)FUN_004f8420());
+        return;
+    }
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
 }
 
 // FUNCTION: CMR2 0x004f1b90
@@ -6342,6 +6359,106 @@ void FUN_004faa50(Menu *pMenu, int param)
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         pScroller->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     }
+}
+
+// Change callback of the championship entry screens: stores the new entry
+// value, resets the mode's selection and re-lays the entry list on request.
+// TODO: CMR2 0x004fac70 (implemented, match 82%)
+void FUN_004fac70(Menu *pMenu, char param)
+{
+    pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));
+    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
+    if (param != 0)
+        FUN_004faa50(FUN_004f2500()->pMenu, 0);
+}
+
+// Item callback of the entry value screens: stores the value selected for the
+// entry and moves to the next or the parent menu.
+// FUNCTION: CMR2 0x004facd0
+void FUN_004facd0(Menu *pMenu, int param)
+{
+    RallyData_FUN_00408600(
+        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+    FUN_0040dfa0();
+    if (g_unk0x00819048 == 0) {
+        Menu_SetNextAction((int)FUN_004fa330());
+        return;
+    }
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+// Item callback of the championship value screens: toggles the entry's
+// championship flag and moves to the next or the parent menu.
+// FUNCTION: CMR2 0x004fad40
+void FUN_004fad40(Menu *pMenu, int param)
+{
+    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    if (g_unk0x00819048 == 0) {
+        Menu_SetNextAction((int)FUN_004fa330());
+        return;
+    }
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+// Change callback of the entry value screens: stores the value selected for
+// the highlighted entry and refills the event list from it.
+// FUNCTION: CMR2 0x004fad90
+void FUN_004fad90(Menu *pMenu, int param)
+{
+    FUN_004ea480(0);
+    RallyData_FUN_00408600(
+        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+    FUN_0040dfa0();
+}
+
+// Item callback of the shared entry screens: applies the value of the
+// highlighted entry and rewires the parent of the screen the mode goes to.
+// FUNCTION: CMR2 0x004fadd0
+void FUN_004fadd0(Menu *pMenu, int param)
+{
+    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    if (g_unk0x00819048 == 0) {
+        if (CGameInfo::FUN_00405d70() == 2) {
+            FUN_004f83a0()->pParent = pMenu;
+            FUN_004fa340()->pParent = pMenu;
+            Menu_SetNextAction((int)FUN_004fa340());
+        } else {
+            FUN_004fa340()->pParent = FUN_004fa2f0();
+            FUN_004fa2f0()->pParent = pMenu;
+            Menu_SetNextAction((int)FUN_004fa2f0());
+        }
+    } else {
+        if (CGameInfo::FUN_00405d70() == 2)
+            FUN_004f83a0()->pParent = pMenu;
+        Menu_SetNextAction((int)FUN_004f83a0());
+    }
+}
+
+// Change callback of the second entry value screens: like FUN_004fad90 but
+// without resetting the mode's selection first.
+// FUNCTION: CMR2 0x004fae70
+void FUN_004fae70(Menu *pMenu, int param)
+{
+    RallyData_FUN_00408600(
+        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        (unsigned char)g_unk0x008196e8[pMenu->cursor]);
+    FUN_0040dfa0();
+}
+
+// Item callback of the second championship value screens: toggles the entry's
+// championship flag and moves to the next or the parent menu.
+// FUNCTION: CMR2 0x004faea0
+void FUN_004faea0(Menu *pMenu, int param)
+{
+    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    if (g_unk0x00819048 == 0) {
+        Menu_SetNextAction((int)FUN_004fa350());
+        return;
+    }
+    Menu_SetNextAction((int)FUN_004f83a0());
 }
 
 // FUNCTION: CMR2 0x004faef0
