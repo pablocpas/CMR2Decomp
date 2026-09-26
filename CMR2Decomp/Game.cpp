@@ -267,8 +267,7 @@ void FUN_004f3bb0(void);
 void FUN_004eb470(void);
 void FUN_004ebec0(void);
 HRESULT FUN_004a2bd0(int param1);
-// STUB: CMR2 0x004d5ca0
-void FUN_004d5ca0(void) { }
+void FUN_004d5ca0(void);
 
 // Frontend music track ("%s\\select1.adp").
 // GLOBAL: CMR2 0x00523d70
