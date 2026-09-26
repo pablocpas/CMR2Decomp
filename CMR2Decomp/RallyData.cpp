@@ -2819,11 +2819,11 @@ unsigned int g_unk0x0082cb48;
 // GLOBAL: CMR2 0x0082cb4c
 void *g_unk0x0082cb4c;
 // GLOBAL: CMR2 0x0082cb50
-int g_unk0x0082cb50[5];
+int g_unk0x0082cb50[4];
 // GLOBAL: CMR2 0x0082cb60
-short g_unk0x0082cb60[10];
+short g_unk0x0082cb60[8];
 // GLOBAL: CMR2 0x0082cb70
-BYTE g_unk0x0082cb70[0x10];
+BYTE g_unk0x0082cb70[8];
 // GLOBAL: CMR2 0x0082c690
 void *g_unk0x0082c690;
 extern int g_unk0x0082c694;

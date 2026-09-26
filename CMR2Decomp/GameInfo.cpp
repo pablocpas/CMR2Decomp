@@ -6146,11 +6146,8 @@ extern float g_oneOverRandMax;
 
 // Planar influence of the camera on the stage (all 16.16): inner radius, width
 // of the falloff band and the scale of the falloff, set by FUN_005078e0.
-// GLOBAL: CMR2 0x0082d150
 extern int g_unk0x0082d150;  // defined in StageTiming.cpp
-// GLOBAL: CMR2 0x0082d154
 extern int g_unk0x0082d154;  // defined in StageTiming.cpp
-// GLOBAL: CMR2 0x0082d158
 extern int g_unk0x0082d158;  // defined in StageTiming.cpp
 
 void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
