@@ -83,6 +83,8 @@ void *CGame::m_unk0x005a1fb8;
 void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
@@ -93,8 +95,8 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
     {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
     {FUN_004d1a90, NULL},   // render 0x4d0ea0 (CMR2 logo) not written yet
-    {FUN_004d1c90, NULL},   // render 0x4d0a80 not written yet
-    {NULL, NULL},           // state 0x4d1cc0 / render 0x4d0ba0 not written yet
+    {FUN_004d1c90, FUN_004d0a80},
+    {NULL, FUN_004d0ba0},   // state 0x4d1cc0 not written yet
     {NULL, FUN_00501680},   // state 0x4d1e10 not written yet
     {NULL, FUN_00501680},   // state 0x4d1e90 not written yet
 };
@@ -200,6 +202,107 @@ void FUN_004d0840(void)
 
     CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
     CGame::RegisterCallback(FUN_004d0820, NULL);
+}
+
+// Set once the boot sequence has finished loading; the render states clear it.
+// GLOBAL: CMR2 0x00817fcc
+BYTE g_unk0x00817fcc;
+// Format of the debug FPS counter ("FPS: %.2f").
+// GLOBAL: CMR2 0x00516e14
+char g_strFpsFormat0x00516e14[10] = "FPS: %.2f";
+// Colour table of the debug FPS text; only the entry 0 is read.
+// GLOBAL: CMR2 0x00523c64
+int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
+
+void FUN_004ea5b0(void);
+float FUN_004b23a0(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+
+// Boot render state: places the splash-scene camera, clears the target and
+// prints the FPS counter while the graphics debug flag (bit 2) is set.
+// FUNCTION: CMR2 0x004d0a80
+void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2)
+{
+    FixVector translation;
+    FixAngles angles;
+    short rect[4];
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+
+    SceneNode_SetPosition(g_unk0x00817fc4, &translation);
+    SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    FUN_004ea5b0();
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, FUN_004b23a0());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_unk0x00523c64, 9);
+    }
+    FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        FUN_0049de40();
+}
+
+unsigned char FUN_004d20f0(void);
+int FUN_004d0d30(int, int, char *, char);
+unsigned int RallyDataCountryIndex(void);
+
+// Boot render state shown while the country data loads: draws the country name
+// with the current championship position, centred on the screen.
+// FUNCTION: CMR2 0x004d0ba0
+void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2)
+{
+    FixVector translation;
+    FixAngles angles;
+    short rect[4];
+    int x;
+    int y;
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+
+    if (FUN_004d20f0() == 1) {
+        rect[0] = 0;
+        rect[1] = 0;
+        rect[2] = (short)g_pGraphics->resX;
+        rect[3] = (short)g_pGraphics->resY;
+        SceneNode_SetPosition(g_unk0x00817fc4, &translation);
+        SceneNode_SetRotation(g_unk0x00817fc4, &angles);
+        CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+        CGraphics::SetClearColour(1, 0, 0, 0);
+        CGraphics::ClearTarget();
+        CGraphics::ClearZBuffer();
+        x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
+        y = FUN_004d0d30(x, (int)g_pGraphics->resY / 2, CFrontend::GetTextString(0x1bd), 0);
+        // the original copies the country text with sprintf("%s").
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x27));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        FUN_004d0d30(y, (int)g_pGraphics->resY / 2, CFrontend::m_stringDest, 1);
+        Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)rect, 0);
+        FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+        if (g_unk0x00817fcc == 0)
+            FUN_0049de40();
+    }
 }
 
 // FUNCTION: CMR2 0x004057ab
@@ -675,11 +778,13 @@ Unk0049c2c0 *FUN_004ff440(void)
 Unk00817d98 g_unk0x0082a800;
 // GLOBAL: CMR2 0x0082a908
 BYTE g_unk0x0082a908;
+// State 0x500df0 (country menus) is defined in GameInfo.cpp.
+void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2);
 // GLOBAL: CMR2 0x00526ee0
 FuncTableGroup g_unk0x00526ee0[7] = {
     {NULL, NULL},                        // state 0x500c80 not written yet
     {NULL, NULL},                        // state 0x5012e0 / render 0x501780 not written yet
-    {NULL, NULL},                        // state 0x500df0 not written yet
+    {FUN_00500df0, NULL},
     {NULL, NULL},                        // state 0x500f80 / render 0x5015d0 not written yet
     {(FuncTableEntry)FUN_00501350, NULL}, // render 0x501920 not written yet
     {NULL, CGame::FUN_00501680},         // state 0x5010a0 not written yet

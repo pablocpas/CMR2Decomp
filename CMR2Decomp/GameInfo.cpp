@@ -1891,6 +1891,35 @@ void FUN_00500ec0(void)
     }
 }
 
+void FUN_00502520(void);
+extern FixAngles g_unk0x005273c0[12];
+extern int g_unk0x008313c8[96];
+void FUN_00506b20(int index, char visible);
+void FUN_00506930(int param1, short *param2, int param3);
+
+// Boot state of the country menus: marks the item of the selected country and
+// points its two record tables at the matching entry.
+// FUNCTION: CMR2 0x00500df0
+void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2)
+{
+    int i;
+
+    FUN_00502520();
+    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
+        if (i == CGameInfo::FUN_005011b0()) {
+            FUN_00506b20(i, 1);
+            FUN_00506930(i, (short *)&g_unk0x005273c0[FUN_004ff4d0(
+                             FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])], 0);
+            FUN_005009c0(i, &g_unk0x008313c8[FUN_004ff4d0(
+                             FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14]) * 8], 1);
+        } else {
+            FUN_00506b20(i, 0);
+        }
+    }
+    CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    g_unk0x0082b0a0 = CMain::GetFrameDelta();
+}
+
 // FUNCTION: CMR2 0x005011d0
 int FUN_005011d0(void)
 {
@@ -3930,6 +3959,18 @@ void FUN_00502570(void)
         *(short *)(pFlags + 4) = 0;
         pFlags[6] = 0;
     }
+}
+
+void FUN_004ff4e0(void);
+
+// Resets the mode menu cursor and the value byte of its first two items.
+// FUNCTION: CMR2 0x00502520
+void FUN_00502520(void)
+{
+    ((Menu *)g_unk0x0082b668)->cursor = 0;
+    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max = 0;
+    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max = 0;
+    FUN_004ff4e0();
 }
 
 // GLOBAL: CMR2 0x0052aa60
