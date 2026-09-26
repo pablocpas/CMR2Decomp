@@ -1608,13 +1608,13 @@ void FUN_004ec9a0(Menu *pMenu, int param)
 
 // Sends the local player's description to the DirectPlay lobby.
 // FUNCTION: CMR2 0x004eca10
-void FUN_004eca10(void)
+char FUN_004eca10(void)
 {
     unsigned int info[4];
 
     info[0] = FUN_004a1a00();
     info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
-    FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
+    return FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
 }
 
 // FUNCTION: CMR2 0x004eca60
@@ -1808,6 +1808,80 @@ void FUN_004edca0(Menu *pMenu, int param)
 
 int FUN_00406750(void);
 
+// Update callback of the two-player rally menu: limits the rally list to the
+// unlocked events and mirrors the rally/stage reached in the profile.
+// FUNCTION: CMR2 0x004ee460
+void FUN_004ee460(Menu *pMenu, int param)
+{
+    unsigned int *pFlags = CGameInfo::FUN_00405db0();
+    int values[2];
+    int mask;
+    int count;
+
+    if (CGameInfo::FUN_00406410(0xd)) {
+        count = 8;
+    } else {
+        count = 4;
+        if ((int)(*pFlags >> 8 & 0xf) > count)
+            count = (int)(*pFlags >> 8 & 0xf);
+        if ((int)(*pFlags >> 0xc & 0xf) > count)
+            count = (int)(*pFlags >> 0xc & 0xf);
+        if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) > count)
+            count = (int)(*pFlags >> 0x10 & 0xf);
+    }
+    Menu_GetItem(pMenu, 0)->min = count;
+    FUN_004ea990(&values[0], &values[1]);
+    Menu_GetItem(pMenu, 0)->max = values[0];
+    Menu_GetItem(pMenu, 1)->max = values[1];
+    if (CGameInfo::FUN_00406410(0xd)) {
+        count = (values[0] % 2 != 0) + 10;
+    } else {
+        count = 4;
+        if ((int)(*pFlags >> 8 & 0xf) >= values[0] + 1)
+            count = param;
+        if ((int)(*pFlags >> 0xc & 0xf) < values[0] + 1)
+            count = 8;
+        if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) < values[0] + 1)
+            count = 0xa;
+        if (values[0] % 2 != 0) {
+            mask = 1 << ((values[0] + 1) / 2 - 1);
+            if ((pFlags[1] & mask & 0x1f) != 0 ||
+                (mask & (pFlags[1] >> 5 & 0x1f)) != 0 ||
+                (mask & (pFlags[1] >> 10 & 0x1f)) != 0)
+                count++;
+        }
+    }
+    Menu_GetItem(pMenu, 1)->min = count;
+    if ((param & 0xff) == 0) {
+        Menu_GetItem(pMenu, 2)->max = FUN_00406710();
+        if (Menu_GetItem(pMenu, 2)->max != 0)
+            Menu_GetItem(pMenu, 2)->max -= 4;
+    }
+    FUN_004ee6e0(pMenu);
+}
+
+// Item action of the two-player rally menu: selects the rally and stage and
+// moves on to the driver selection.
+// FUNCTION: CMR2 0x004ee600
+void FUN_004ee600(Menu *pMenu, int param)
+{
+    if ((Menu_GetItem(pMenu, 1)->min == 5 && Menu_GetItem(pMenu, 1)->max == 4) ||
+        (Menu_GetItem(pMenu, 1)->min == 9 && Menu_GetItem(pMenu, 1)->max == 8) ||
+        (Menu_GetItem(pMenu, 1)->min == 0xb && Menu_GetItem(pMenu, 1)->max == 0xa))
+        RallyData_FUN_004068e0(10);
+    else
+        RallyData_FUN_004068e0(Menu_GetItem(pMenu, 1)->max);
+    RallyData_FUN_004068b0(Menu_GetItem(pMenu, 0)->max);
+    if (Menu_GetItem(pMenu, 2)->max != 0)
+        FUN_00406720(Menu_GetItem(pMenu, 2)->max + 4);
+    else
+        FUN_00406720(Menu_GetItem(pMenu, 2)->max);
+    RallyData_FUN_0040df60(1, 0);
+    FUN_004f8470()->pParent = pMenu;
+    Menu_SetNextAction((int)FUN_004f8470());
+    FUN_004ec460();
+}
+
 // Initialises the rally/stage select menu from the unlocked rally count.
 // FUNCTION: CMR2 0x004ee850
 void FUN_004ee850(Menu *pMenu, int param)
@@ -1860,6 +1934,33 @@ void FUN_004ee850(Menu *pMenu, int param)
         }
     }
     Menu_GetItem(pMenu, 1)->max = FUN_00406750() - 1;
+}
+
+void FUN_00406740(int param1);
+void FUN_00406760(int param1);
+
+// Item action of the single-player rally menu: selects the rally and stage
+// picked in the menu.
+// FUNCTION: CMR2 0x004ee9b0
+void FUN_004ee9b0(Menu *pMenu, int param)
+{
+    int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
+    int i;
+
+    i = 0;
+    for (i = 0; i < 8; i++) {
+        if (order[i] == g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max])
+            break;
+    }
+    RallyData_FUN_004068e0(0);
+    RallyData_FUN_0040d600(i / 3);
+    RallyData_FUN_00406960(i % 3);
+    RallyData_FUN_0040d620(Menu_GetItem(pMenu, 1)->max + 1);
+    FUN_00406760(Menu_GetItem(pMenu, 1)->max + 1);
+    FUN_00406740(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
+    FUN_004f8470()->pParent = pMenu;
+    Menu_SetNextAction((int)FUN_004f8470());
+    FUN_004ec460();
 }
 
 // FUNCTION: CMR2 0x004eeab0
@@ -1919,6 +2020,42 @@ void FUN_004eeab0(Menu *pMenu, char param)
     }
 }
 
+// Update callback of the network session menu: pumps the DirectPlay message
+// queue.
+// FUNCTION: CMR2 0x004eec30
+void FUN_004eec30(Menu *pMenu)
+{
+    FUN_004ec8d0();
+}
+
+void FUN_00406740(int param1);
+
+// Item action of the championship rally menu: stores the rally and stage
+// picked in the menu.
+// FUNCTION: CMR2 0x004eec40
+void FUN_004eec40(Menu *pMenu, int param)
+{
+    int order[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
+    int i;
+
+    i = 0;
+    for (i = 0; i < 8; i++) {
+        if (order[i] == g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max])
+            break;
+    }
+    RallyData_FUN_004068e0(0);
+    RallyData_FUN_0040d600(i / 3);
+    RallyData_FUN_00406960(i % 3);
+    FUN_00406740(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max]);
+    if (Menu_GetItem(pMenu, 1)->max != 0)
+        FUN_00406720(Menu_GetItem(pMenu, 1)->max + 4);
+    else
+        FUN_00406720(Menu_GetItem(pMenu, 1)->max);
+    FUN_004f8470()->pParent = pMenu;
+    Menu_SetNextAction((int)FUN_004f8470());
+    FUN_004ec460();
+}
+
 // FUNCTION: CMR2 0x004eed50
 void FUN_004eed50(Menu *pMenu, int param)
 {
@@ -1950,6 +2087,47 @@ void FUN_004eed80(Menu *pMenu)
         Menu_PlaySoundId(2);
     }
     strcpy(g_unk0x00818cd8, CFrontend::m_stringDest);
+}
+
+void FUN_004d05f0(void);
+void FUN_004ea9f0(void);
+void FUN_004f92e0(int value);
+int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword);
+
+// Callback that joins a DirectPlay session with the network settings of the
+// menu: sends the local player description and opens the session or the lobby.
+// FUNCTION: CMR2 0x004eee60
+void FUN_004eee60(Menu *pMenu, int param)
+{
+    BYTE invalidPassword;
+
+    g_unk0x00818ce4 = 0;
+    FUN_00409a30();
+    FUN_004d05f0();
+    g_unk0x00818ef4 = 0;
+    if (FUN_004a10b0((BYTE)g_unk0x00525288, g_unk0x00818da8, &invalidPassword) != 0) {
+        FUN_004ea8e0((BYTE)Session_GetUserValue(0));
+        FUN_00406780(Session_GetUserValue(2));
+        FUN_004a1a00();
+        RallyData_FUN_004086b0(0);
+        if (FUN_004eca10() != 0) {
+            Menu *pLobby = FUN_004f8450();
+            Menu_SetParent(FUN_004f8470(), pLobby);
+            Menu_SetNextAction((int)FUN_004f8470());
+        } else {
+            FUN_004a1280();
+            FUN_004f92e0(3);
+            Menu_SetNextAction((int)FUN_004f9360());
+        }
+        return;
+    }
+    if (invalidPassword != 0) {
+        Menu_SetNextAction((int)FUN_004f88d0());
+        return;
+    }
+    FUN_004a1280();
+    FUN_004f92e0(1);
+    Menu_SetNextAction((int)FUN_004f9360());
 }
 
 // FUNCTION: CMR2 0x004eef30
@@ -2513,6 +2691,17 @@ void FUN_004f1640(Menu *pMenu)
 // Maps a screen index to its palette/colour id and stores it for the current mode.
 void RallyData_FUN_00408600(BYTE index, BYTE value);
 
+// Update callback of the palette menu: shows the colour of the palette the
+// profile uses and resets the scrolled list.
+// FUNCTION: CMR2 0x004f1960
+void FUN_004f1960(Menu *pMenu, char param)
+{
+    pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));
+    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+    if (param != 0 && CGameInfo::FUN_00405d80() != 4)
+        FUN_004f17d0(FUN_004f2500()->pMenu, 0);
+}
+
 // Keeps the palette screen's OK item disabled while the palette id is invalid.
 // FUNCTION: CMR2 0x004f19d0
 void FUN_004f19d0(Menu *pMenu, int param)
@@ -2615,6 +2804,46 @@ void FUN_004f17d0(Menu *pMenu, int param)
         *pWidths = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
         pWidths++;
         p++;
+    }
+}
+
+void FUN_004ea9f0(void);
+void FUN_004f02e0(void);
+void FUN_004f0ac0(Menu *pMenu, int param);
+
+// Item action of the palette menu: opens the palette editor of the current
+// screen mode.
+// FUNCTION: CMR2 0x004f1a40
+void FUN_004f1a40(Menu *pMenu, int param)
+{
+    FUN_004ea480(0);
+    FUN_004eb0c0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048), pMenu->items[0].max);
+    if (g_unk0x00819048 == 0) {
+        switch (CGameInfo::FUN_00405d80()) {
+        case 0:
+            Menu_SetNextAction((int)FUN_004f8330());
+            FUN_004ea9f0();
+            return;
+        case 1:
+        case 2:
+        case 3:
+            FUN_004f02e0();
+            Menu_SetParent(FUN_004f8340(), pMenu);
+            Menu_SetNextAction((int)FUN_004f8340());
+            return;
+        case 4:
+            Menu_SetParent(FUN_004f8420(), pMenu);
+            Menu_SetNextAction((int)FUN_004f8420());
+            return;
+        }
+    } else {
+        Menu_SetParent(FUN_004f83a0(), pMenu);
+        if (CGameInfo::FUN_00405d80() != 4) {
+            Menu_SetNextAction((int)FUN_004f83a0());
+            return;
+        }
+        FUN_004f0ac0(pMenu, param);
+        Menu_SetNextAction((int)FUN_004f83c0());
     }
 }
 
