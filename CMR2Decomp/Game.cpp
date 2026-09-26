@@ -1280,6 +1280,29 @@ void FUN_0049c510(Mesh *pMesh)
     }
 }
 
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Draws every mesh node of a node list whose view mask contains the given bit,
+// recursing into the children of the nodes that match.
+// FUNCTION: CMR2 0x0049ca50
+void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        if (pNode->type == SCENE_NODE_MESH) {
+            Mesh *pMesh = (Mesh *)pNode->pObject;
+            int mask = 1 << bit;
+            if ((mask & pNode->field_0x17c) != 0) {
+                if (pMesh != NULL) {
+                    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                    Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+                }
+                if ((pNode->field_0x17c & mask) != 0 && pNode->pFirstChild != NULL)
+                    Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+            }
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x0049cb50
 void CGame::FUN_0049cb50(void *param1)
 {
@@ -1302,6 +1325,65 @@ int __cdecl FUN_0049cb90(const void *a, const void *b)
     int depthA = *(int *)(*(BYTE **)(*(BYTE **)a + 0xc) + 0x114);
     int depthB = *(int *)(*(BYTE **)(*(BYTE **)b + 0xc) + 0x114);
     return depthA < depthB ? 1 : -1;
+}
+
+// Drawing view of a sector's stage objects (StageObject in Sector.h). It lives
+// here instead of in the shared header because touching Sector.h perturbs the
+// codegen of unrelated translation units.
+struct StageObjectDraw {
+    FixVector position;         // 0x0  world position (16.16)
+    Mesh *pMesh;                // 0xc
+    int field_0x10;
+    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
+    BYTE field_0x15[3];
+    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
+    int field_0x1c[4];
+    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
+    int field_0x30[4];
+    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
+    int field_0x44;
+    int offsetX;                // 0x48 world matrix translation (16.16)
+    int offsetY;                // 0x4c
+    int offsetZ;                // 0x50
+    int field_0x54;
+    float matrix[16];           // 0x58 world matrix, built from the camera matrix
+    StageObjectDraw *pNext;     // 0x98 next object of the sector
+    int lightLevel;             // 0x9c light level when not lit per vertex
+};
+typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
+
+// Non-zero while the draw lists are depth sorted before being drawn
+// (defined in Graphics.cpp).
+extern int g_unk0x005207b4;
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// Draws the objects the deferred pass of the static stage objects queued:
+// sorts them by view depth (farthest first) and, for each one, binds its
+// texture, sets its world matrix and marks the mesh for the culling test of
+// the next frame before drawing it.
+// FUNCTION: CMR2 0x0049cc50
+void Game_DrawDeferredObjects(void)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce28 >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, 4, FUN_0049cb90);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
+            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[
+                ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
+            if (*(int *)((BYTE *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh + 0x114) < 0xc80000)
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags |= 8;
+            else
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags &= 0xfffffff7;
+            Graphics_DrawMeshLOD(((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh, 1, 0, 0);
+        }
+        CGame::m_unk0x0059ce28 = 0;
+    }
 }
 
 // qsort comparator of the transparent draw list (0x49cd20): type 0x14 goes
@@ -1345,31 +1427,6 @@ SceneNode *g_unk0x0059be6c;
 D3DMATRIX g_unk0x00597cc0;
 
 void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
-
-// Drawing view of a sector's stage objects (StageObject in Sector.h). It lives
-// here instead of in the shared header because touching Sector.h perturbs the
-// codegen of unrelated translation units.
-struct StageObjectDraw {
-    FixVector position;         // 0x0  world position (16.16)
-    Mesh *pMesh;                // 0xc
-    int field_0x10;
-    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
-    BYTE field_0x15[3];
-    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
-    int field_0x1c[4];
-    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
-    int field_0x30[4];
-    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
-    int field_0x44;
-    int offsetX;                // 0x48 world matrix translation (16.16)
-    int offsetY;                // 0x4c
-    int offsetZ;                // 0x50
-    int field_0x54;
-    float matrix[16];           // 0x58 world matrix, built from the camera matrix
-    StageObjectDraw *pNext;     // 0x98 next object of the sector
-    int lightLevel;             // 0x9c light level when not lit per vertex
-};
-typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
 
 // Draws the static stage objects of the culled sectors. Objects whose mesh is
 // flagged for the deferred pass (mesh flag 2) get their world matrix and view
