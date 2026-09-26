@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "Frontend.h"
 #include "Texture.h"
+#include "Sprite.h"
 #include "Sound.h"
 #include "Font.h"
 
@@ -84,12 +85,13 @@ void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
+void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {InitializeGame,
      FUN_00501680},
     {FUN_004d1b40, NULL},   // render 0x4d1080 not written yet
-    {FUN_004d1b40, NULL},   // render 0x4d1370 not written yet
+    {FUN_004d1b40, FUN_004d1370},
     {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
     {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
     {FUN_004d1a90, NULL},   // render 0x4d0ea0 (CMR2 logo) not written yet
@@ -319,6 +321,80 @@ void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2)
     g_unk0x00817fe4 = timeGetTime();
     g_unk0x00817ff4 = g_unk0x00817fe4 - FUN_004eaa00();
     FUN_004ea510();
+}
+
+float FUN_004b23a0(void);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+
+// Needed by every boot-screen render of this file (0x4d0a80 / 0x4d0ea0 /
+// 0x4d1080 / 0x4d1370); the duplicated definition is deduplicated on integration.
+// GLOBAL: CMR2 0x00817fcc
+BYTE g_unk0x00817fcc;
+// GLOBAL: CMR2 0x00516e14
+char g_str0x00516e14[10] = "FPS: %.2f";
+
+// Bink Video credit line drawn at the bottom of the boot screens.
+// GLOBAL: CMR2 0x00523cd8
+char g_strBinkCredit0x00523cd8[65] = "Uses Bink Video. Copyright (C) 1997-1999 by RAD Game Tools, Inc.";
+// Bink Video credit line of the Polish build.
+// GLOBAL: CMR2 0x00523d1c
+char g_strBinkCreditPl0x00523d1c[73] = "Wykorzystuje Bink Video. Copyright (C) 1997-1999 by RAD Game Tools, Inc.";
+
+// Renders the boot screens: clears the target white, draws the frontend movie
+// frame centred, then the FPS counter and the Bink Video credit line.
+// FUNCTION: CMR2 0x004d1370
+void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2)
+{
+    SpriteRect dst;
+    SpriteRect viewport;
+    SpriteRect src;
+
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.w = (short)g_pGraphics->resX;
+    viewport.h = (short)g_pGraphics->resY;
+    BYTE white[4] = { 0xff, 0xff, 0xff, 0xff };
+    BYTE black[4] = { 0x00, 0x00, 0x00, 0xff };
+    int centre[3] = { 0, 0, 0 };
+
+    CGraphics::SetClearColour(1, 0xff, 0xff, 0xff);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    if (CFrontend::m_unk0x00817ebc != NULL) {
+        short w = CFrontend::m_unk0x00817ebc->width;
+        short h = CFrontend::m_unk0x00817ebc->height;
+
+        src.x = CFrontend::m_unk0x00817ebc->field_0x11c;
+        src.y = CFrontend::m_unk0x00817ebc->field_0x11e;
+        src.w = w;
+        src.h = h;
+        dst.w = w;
+        dst.h = h;
+        dst.x = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
+        dst.y = (short)((int)(g_pGraphics->resY * 0xf0) / 0x1e0);
+        dst.x -= w / 2;
+        dst.y -= h / 2;
+        centre[0] = w / 2;
+        centre[1] = h / 2;
+        Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817ebc, 1, 0, centre, NULL, white, 8);
+    }
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&viewport, 0);
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_str0x00516e14, FUN_004b23a0());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)white, 9);
+    }
+    if (CGameInfo::GetGameRegion() == 3)
+        sprintf(CFrontend::m_stringDest, g_strBinkCreditPl0x00523d1c);
+    else
+        sprintf(CFrontend::m_stringDest, g_strBinkCredit0x00523cd8);
+    Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x140) / 0x280,
+                  (int)(g_pGraphics->resY * 0x15e) / 0x1e0, (int *)black, 10);
+    FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &viewport, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        FUN_0049de40();
 }
 
 // FUNCTION: CMR2 0x004d15e0
