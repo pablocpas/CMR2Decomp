@@ -23,6 +23,180 @@ void Sector_GetGridDimensions(int *columns, int *rows)
     *rows = g_sectorRows;
 }
 
+// Counts of the records that follow the 0x30-byte header of a stage mesh file.
+struct MeshFileHeader {
+    int field_0x0;
+    int textureFile;               // 0x4  passed to the texture loader
+    int field_0x8;
+    int field_0xc;                 // 0xc  offset of the texture name table
+    int field_0x10;                // 0x10 records of 0x14
+    int field_0x14;                // 0x14 records of 0x30
+    unsigned short nodeCount;      // 0x18 records of 0x18c
+    unsigned short meshCount;      // 0x1a records of 0x120
+    unsigned short objectCount;    // 0x1c records of 0xa0
+    unsigned short sectorCount;    // 0x1e records of 0x88
+    int triangleCount;             // 0x20 records of 0x4c
+    unsigned short field_0x24;
+    unsigned short recordCount;    // 0x26 records of 0x5c
+    unsigned short partCount;      // 0x28 records of 0x1c
+    int field_0x2c;
+};
+
+// Meshes registered by the mesh file loader, indexed by total mesh size.
+// GLOBAL: CMR2 0x0066f124
+void *g_unk0x0066f124[8192];
+extern int g_unk0x0067f228;
+extern StageObject *g_stageObjects[6000];
+
+void FUN_004b98f0(int *p, int value);
+void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5);
+void Mesh_UploadVertices(Mesh *pMesh);
+void Mesh_BuildParts(Mesh *pMesh);
+
+// Relocates the stage mesh file: turns the offsets stored in the node, mesh,
+// object and sector records into pointers, registers them in the scene node,
+// mesh, stage object and sector tables, loads the textures and re-uploads the
+// vertex buffers of every mesh.
+// TODO: CMR2 0x004b93c0 (implemented, match 37%)
+void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
+{
+    int count = 0;
+    BYTE *pNodes;
+    BYTE *pMeshArray;
+    BYTE *pStageObjects;
+    BYTE *pSectors;
+    BYTE *pTriangles;
+    BYTE *pVertexData;
+    BYTE *pLightLevels;
+    BYTE *pVertexFlags;
+    BYTE *pRecords;
+    int textureRecords;
+    unsigned short recordSize;
+    int savedNodeCount;
+    int i;
+    int j;
+    int k;
+    int *pField;
+    BYTE *p;
+
+    pNodes = pData + 0x30;
+    pMeshArray = pNodes + *(unsigned short *)(pData + 0x18) * 0x18c;
+    pStageObjects = pMeshArray + (*(unsigned short *)(pData + 0x1a) + *(unsigned short *)(pData + 0x1c)) * 0x120;
+    pSectors = pStageObjects + *(unsigned short *)(pData + 0x1c) * 0xa0;
+    pTriangles = pSectors + *(unsigned short *)(pData + 0x1e) * 0x88 + *(unsigned short *)(pData + 0x28) * 0x1c;
+    pVertexData = pTriangles + *(int *)(pData + 0x20) * 0x4c;
+    pLightLevels = pVertexData + *(int *)(pData + 0x14) * 0x30;
+    pVertexFlags = pLightLevels + *(int *)(pData + 0x14) * 4;
+    pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
+    textureRecords = *(int *)(pData + 0xc) + (int)pData;
+    recordSize = *(unsigned short *)(pData + 0x26);
+    if (*(int *)(pData + 0x20) != 0) {
+        pField = (int *)(pTriangles + 4);
+        do {
+            k = 10;
+            do {
+                if (*pField != -1)
+                    *pField += (int)CGraphics::m_textureCount;
+                pField++;
+                k--;
+            } while (k != 0);
+            count++;
+            pField += 0x13;
+        } while (count < *(unsigned int *)(pData + 0x20));
+    }
+    FUN_004b9910((int)(pRecords + recordSize * 0x5c), textureRecords,
+                 *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
+    savedNodeCount = g_sceneNodeCount;
+    if (*(unsigned short *)(pData + 0x18) != 0) {
+        for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
+            FUN_004b98f0((int *)p, (int)pNodes);
+            FUN_004b98f0((int *)(p + 4), (int)pNodes);
+            if (param_2 == 0 || *(short *)(p + 0x24) != -1) {
+                FUN_004b98f0((int *)(p + 8), (int)pNodes);
+                *(short *)(p + 0x24) = -1;
+            } else {
+                SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
+            }
+            FUN_004b98f0((int *)(p + 0x170), (int)pNodes);
+            FUN_004b98f0((int *)(p + 0xc), (int)pMeshArray);
+            g_sceneNodes[g_sceneNodeCount + i] = (SceneNode *)p;
+            *(short *)(p + 0x26) = (short)(g_sceneNodeCount + i);
+        }
+        g_sceneNodeCount += *(unsigned short *)(pData + 0x18);
+    }
+    if (*(short *)(pData + 0x26) != 0) {
+        for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
+            FUN_004b98f0((int *)(p + 0x58), (int)pRecords);
+            g_unk0x0066f124[g_meshTotalSize + j] = p;
+        }
+        g_meshTotalSize += *(unsigned short *)(pData + 0x26);
+    }
+    if (*(short *)(pData + 0x1a) != 0) {
+        for (i = 0, p = pMeshArray + 0x113; i < *(unsigned short *)(pData + 0x1a); i++, p += 0x120) {
+            j = 0;
+            if (*p != 0) {
+                pField = (int *)(p - 0x107);
+                do {
+                    FUN_004b98f0(pField + 6, (int)pTriangles);
+                    FUN_004b98f0(pField, (int)pVertexData);
+                    FUN_004b98f0(pField + 10, (int)pLightLevels);
+                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                    j++;
+                    pField += 0x42;
+                } while (j < *p);
+            }
+            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+            if (*(short *)(pData + 0x1e) == 0)
+                g_meshes[g_meshCount + i] = (Mesh *)(p - 0x113);
+        }
+        if (*(short *)(pData + 0x1e) == 0)
+            g_meshCount += *(unsigned short *)(pData + 0x1a);
+    }
+    if (*(unsigned short *)(pData + 0x1c) != 0) {
+        for (j = *(unsigned short *)(pData + 0x1a), p = pMeshArray + j * 0x120 + 0x113;
+             j < *(unsigned short *)(pData + 0x1c) + *(unsigned short *)(pData + 0x1a);
+             j++, p += 0x120) {
+            i = 0;
+            if (*p != 0) {
+                pField = (int *)(p - 0x107);
+                do {
+                    FUN_004b98f0(pField + 6, (int)pTriangles);
+                    FUN_004b98f0(pField, (int)pVertexData);
+                    FUN_004b98f0(pField + 10, (int)pLightLevels);
+                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                    i++;
+                    pField += 0x42;
+                } while (i < *p);
+            }
+            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+        }
+        i = 0;
+        if (*(short *)(pData + 0x1c) != 0) {
+            for (p = pStageObjects + 0x98; i < *(unsigned short *)(pData + 0x1c); i++, p += 0xa0) {
+                FUN_004b98f0((int *)(p - 0x8c),
+                             (int)(pMeshArray + *(unsigned short *)(pData + 0x1a) * 0x120));
+                FUN_004b98f0((int *)p, (int)pStageObjects);
+                g_stageObjects[g_unk0x0067f228 + i] = (StageObject *)(p - 0x98);
+            }
+        }
+        g_unk0x0067f228 += *(unsigned short *)(pData + 0x1c);
+    }
+    if (*(short *)(pData + 0x1e) != 0) {
+        for (i = 0, p = pSectors; i < *(unsigned short *)(pData + 0x1e); i++, p += 0x88) {
+            FUN_004b98f0((int *)(p + 0x10), (int)pMeshArray);
+            g_sectors[i] = (Sector *)p;
+        }
+        g_sectorCount = *(unsigned short *)(pData + 0x1e);
+    }
+    return g_sceneNodes[savedNodeCount];
+}
+
 // Removes a scene node from the linked list of its current sector.
 // TODO: CMR2 0x004b8aa0 (implemented, match 82%)
 void Sector_RemoveNode(SceneNode *pNode)
