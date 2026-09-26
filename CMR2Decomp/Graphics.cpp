@@ -2873,6 +2873,112 @@ float g_unk0x005210d0 = 0.5f;
 // GLOBAL: CMR2 0x006dfdf8
 float g_unk0x006dfdf8;
 
+FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn);
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+extern unsigned int g_unk0x006de95c[20];
+extern unsigned short g_unk0x006dd9bc[2000];
+
+// Draws the triangles of a mesh in contiguous texture runs, with the reserved
+// cube map of the mesh projected on them: the inverse of the view * world
+// matrix (both translations removed) becomes the texture transform of stage 0,
+// so the texture coordinates are generated from the camera space position.
+// FUNCTION: CMR2 0x004b2980
+void Mesh_DrawEnvMapped(Mesh *pMesh)
+{
+    D3DMATRIX world;
+    D3DMATRIX view;
+    FixMatrix worldFix;
+    FixMatrix combined;
+    FixMatrix inverse;
+    FixMatrix viewFix;
+    D3DMATRIX projected;
+    int triangleCount;
+    int count;
+    int currentTexture;
+    int i;
+    int textureIndex;
+    int texture;
+
+    count = 0;
+    triangleCount = pMesh->triangleCount;
+    currentTexture = -1;
+    if ((*(BYTE *)&g_pGraphics->field913_0x3bc & 0x80) != 0) {
+        if ((int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] < 0) {
+            FUN_004b2610(pMesh);
+            return;
+        }
+        CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_VIEW, &view);
+        CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_WORLD, &world);
+        view._41 = view._42 = view._43 = view._44 = 0.0f;
+        world._41 = world._42 = world._43 = world._44 = 0.0f;
+        FloatMatrix_ToFix(&worldFix, &world);
+        FloatMatrix_ToFix(&viewFix, &view);
+        FixMatrix_Multiply(&combined, &worldFix, &viewFix);
+        FixMatrix_Invert(&inverse, &combined);
+        FixMatrix_ToFloat(&projected, &inverse);
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_TEXTURE0, &projected);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 1);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LOCALVIEWER, 1);
+        FUN_0049dcc0(1);
+        CGraphics::SetTextureAddressClamp(0);
+        FUN_004a3e20(
+            (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]],
+            0xb);
+        CGraphics::FUN_004a4850(
+            0, (int)CGraphics::m_pTextureManager->textureBuffer2[g_unk0x006de95c[(pMesh->flags >> 15) & 7]]);
+        if ((g_unk0x005210b8 >= 0 || (int)g_unk0x006de95c[(pMesh->flags >> 15) & 7] >= 0) &&
+            triangleCount > 0) {
+            for (i = 0; i < triangleCount; i++) {
+                textureIndex = pMesh->pTriangles[i].field_0x30;
+                if (currentTexture != *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4)) {
+                    if (count > 0) {
+                        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                            D3DPT_TRIANGLELIST,
+                            CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                            pMesh->vertexOffset, pMesh->field_0x10, g_unk0x006dd9bc, count, 0);
+                    }
+                    count = 0;
+                    currentTexture = *(int *)((BYTE *)&pMesh->pTriangles[i] + 4 + textureIndex * 4);
+                    if (currentTexture > -1) {
+                        FUN_004a3e20(
+                            (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[currentTexture], 5);
+                        if (g_unk0x005210bc != 0)
+                            CGraphics::FUN_004a4850(
+                                1, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+                    }
+                }
+                if (currentTexture > -1) {
+                    g_unk0x006dd9bc[count++] = pMesh->pTriangles[i].vertexIndex[0];
+                    g_unk0x006dd9bc[count++] = pMesh->pTriangles[i].vertexIndex[1];
+                    g_unk0x006dd9bc[count++] = pMesh->pTriangles[i].vertexIndex[2];
+                    CGame::m_unk0x0059ce18++;
+                }
+            }
+            if (count != 0) {
+                texture = *(int *)((BYTE *)&pMesh->pTriangles[triangleCount - 1] + 4 + textureIndex * 4);
+                if (texture > -1) {
+                    FUN_004a3e20(
+                        (Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[texture], 5);
+                    if (g_unk0x005210bc != 0)
+                        CGraphics::FUN_004a4850(1, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+                    CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                        D3DPT_TRIANGLELIST,
+                        CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                        pMesh->vertexOffset, pMesh->field_0x10, g_unk0x006dd9bc, count, 0);
+                }
+            }
+        }
+        CGraphics::SetTextureAddressClamp(1);
+        CGraphics::FUN_004a4850(1, 0);
+        CGraphics::FUN_004a4850(2, 0);
+        CGraphics::m_pTextureManager->pD3D->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 0);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_LOCALVIEWER, 0);
+    }
+}
+
 // Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
 // TODO: CMR2 0x004b2e20 (implemented, match 75%)
 void __cdecl FUN_004b2e20(void)
