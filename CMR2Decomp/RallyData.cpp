@@ -1249,6 +1249,160 @@ BYTE *RallyData_FUN_00408d60(int index)
     return g_unk0x00531350 + index * 0x30;
 }
 
+// Track condition tables of the stage setup (4 groups of 9 entries): the value
+// of a group is interpolated between the dry and the wet entry of the current
+// rally by the fade of its track index.
+// GLOBAL: CMR2 0x00516974
+int g_unk0x00516974[9] = {
+    0x50000, 0xf0000, 0x70000, -0xa0000, 0xf0000, 0x140000, 0xa0000, 0x70000, 0x70000
+};
+// GLOBAL: CMR2 0x00516998
+int g_unk0x00516998[9] = {
+    0xf0000, 0x140000, 0x140000, 0xf0000, 0xf0000, 0x140000, 0xf0000, 0xa0000, 0x140000
+};
+// GLOBAL: CMR2 0x005169bc
+int g_unk0x005169bc[9] = {
+    -0x50000, 0x50000, 0x0, -0xf0000, 0x50000, 0xa0000, 0x0, -0x50000, 0x50000
+};
+// GLOBAL: CMR2 0x005169e0
+int g_unk0x005169e0[9] = {
+    0xa0000, 0xa0000, 0xa0000, 0xf0000, 0xa0000, 0xa0000, 0xa0000, 0xc0000, 0xa0000
+};
+
+extern float g_oneOverRandMax;
+
+// Draws the wet/dry share of every stage of the current rally: the flag of a
+// stage is set when its track value passes 80 and the share of the range above
+// 80 is stored per stage.
+// TODO: CMR2 0x0040d820 (implemented, match 64%)
+void FUN_0040d820(void)
+{
+    int index;
+    int *pFlag;
+    int *pOther;
+    int *pPairs;
+    int i;
+    int value;
+    int lo;
+    int hi;
+    int count;
+    int above;
+    int below;
+    int total;
+    unsigned int counts[2];
+    unsigned int *pCount;
+    unsigned short track;
+
+    index = 0;
+    pFlag = g_unk0x0052f1f0;
+    pOther = g_unk0x0052f240;
+    pPairs = &g_unk0x0052f100[0][1];
+    do {
+        *pFlag = 0;
+        *pOther = 0;
+        if (pPairs[-1] == 2 && pPairs[0] == 2) {
+            if (((BYTE)RallyDataCountryIndex() == 6 &&
+                 (pPairs == &g_unk0x0052f100[2][1] || pPairs == &g_unk0x0052f100[5][1] ||
+                  pPairs == &g_unk0x0052f100[7][1])) ||
+                ((BYTE)RallyDataCountryIndex() == 7 && (index / 4 == 0 || index / 4 == 2))) {
+                track = (unsigned short)RallyData_FUN_004077d0(g_selectedRallyData & 0x1f, index, 0);
+                if (track < 0x834) {
+                    value = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    value = FixMulShift32(value, 0x640000);
+                    if (value > 0x50)
+                        *pFlag = 1;
+                    lo = value - rand() % 0x14 - 1;
+                    hi = rand() % 0x14 + value + 1;
+                    if (lo < 0)
+                        lo = 0;
+                    else if (hi > 100)
+                        hi = 100;
+                    count = 0;
+                    above = 0;
+                    below = 0;
+                    counts[1] = 0;
+                    counts[0] = 0;
+                    if (lo < hi) {
+                        count = hi - lo;
+                        for (i = lo; i < hi; i++) {
+                            if (i > 0x50)
+                                above++;
+                            else
+                                below++;
+                        }
+                        counts[1] = below;
+                        counts[0] = above;
+                    }
+                    total = count << 16;
+                    pCount = counts;
+                    i = 2;
+                    do {
+                        *pCount = FixMulShift32(0x640000, FixDiv(*pCount << 16, total));
+                        pCount++;
+                    } while (--i);
+                    *pOther = (counts[0] != 0);
+                }
+            }
+        }
+        pFlag++;
+        pOther++;
+        pPairs += 2;
+        index++;
+    } while ((int)pPairs < (int)&g_unk0x0052f100[11][1]);
+}
+
+// Recomputes the grip byte of the four stages of a rally group, interpolating
+// between the dry and the wet value of the group by the rally's track fade.
+// TODO: CMR2 0x0040d9e0 (implemented, match 70%)
+void FUN_0040d9e0(int group)
+{
+    int index;
+    int *pPairs;
+    int k;
+    int m;
+    int n;
+    int fade;
+    int base;
+    int track;
+
+    index = group << 2;
+    pPairs = &g_unk0x0052f100[index][1];
+    k = 4;
+    do {
+        m = pPairs[-1];
+        if (m >= 6)
+            m += -3;
+        if (pPairs[0] >= 6)
+            m = m + -3 + pPairs[0];
+        else
+            m = m + pPairs[0];
+        base = FixDiv(m << 16, 0xa0000);
+        if (base < 0)
+            base = 0;
+        else if (base > 0x10000)
+            base = 0x10000;
+        fade = 0x10000 - base;
+        m = g_unk0x00516974[(BYTE)RallyDataCountryIndex()] +
+            FixMul(g_unk0x00516998[(BYTE)RallyDataCountryIndex()], fade);
+        n = g_unk0x005169bc[(BYTE)RallyDataCountryIndex()] +
+            FixMul(g_unk0x005169e0[(BYTE)RallyDataCountryIndex()], fade);
+        track = (unsigned short)RallyData_FUN_004077d0((BYTE)RallyDataCountryIndex(), index, 0);
+        if (track <= 0x1f4 || track >= 0x834) {
+            g_unk0x0052f294[index] = (BYTE)(n >> 16);
+        } else if (track < 0x4b0) {
+            g_unk0x0052f294[index] =
+                (BYTE)((FixMul(m - n, FixDiv((track / 100 - 5) << 16, 0x70000)) + n) >> 16);
+        } else if (track > 0x640) {
+            g_unk0x0052f294[index] =
+                (BYTE)((FixMul(n - m, FixDiv((track / 100 - 0x10) << 16, 0x50000)) + m) >> 16);
+        } else {
+            g_unk0x0052f294[index] = (BYTE)(m >> 16);
+        }
+        index++;
+        pPairs += 2;
+    } while (--k);
+}
+
 // FUNCTION: CMR2 0x0040df30
 void RallyData_FUN_0040df30(void)
 {
@@ -2613,6 +2767,256 @@ void FUN_00503e00(void)
         g_unk0x0082c6a8 = 4;
         g_unk0x0082c6ac = 5;
     }
+}
+
+#include "InstallInfo.h"
+#include "Game.h"
+int *FUN_0050f620(void);
+int *FUN_0050f640(void);
+int FUN_00458040(void);
+
+// GLOBAL: CMR2 0x00519268
+char g_str0x00519268[4] = "ITA";
+// GLOBAL: CMR2 0x0051926c
+char g_str0x0051926c[4] = "KEN";
+// GLOBAL: CMR2 0x00519270
+char g_str0x00519270[4] = "AUS";
+// GLOBAL: CMR2 0x00519274
+char g_str0x00519274[4] = "SWE";
+// GLOBAL: CMR2 0x00519278
+char g_str0x00519278[4] = "FRA";
+// GLOBAL: CMR2 0x0051927c
+char g_str0x0051927c[4] = "GRE";
+// GLOBAL: CMR2 0x00519280
+char g_str0x00519280[4] = "FIN";
+// GLOBAL: CMR2 0x00519348
+char g_str0x00519348[6] = "ITALY";
+// GLOBAL: CMR2 0x00519350
+char g_str0x00519350[6] = "KENYA";
+// GLOBAL: CMR2 0x00519358
+char g_str0x00519358[7] = "SWEDEN";
+// GLOBAL: CMR2 0x00519360
+char g_str0x00519360[7] = "FRANCE";
+// GLOBAL: CMR2 0x00519368
+char g_str0x00519368[7] = "GREECE";
+// GLOBAL: CMR2 0x00519370
+char g_str0x00519370[8] = "FINLAND";
+// GLOBAL: CMR2 0x0052726c
+char g_str0x0052726c[10] = "AUSTRALIA";
+// GLOBAL: CMR2 0x00527278
+char g_str0x00527278[8] = "SSHOWER";
+// GLOBAL: CMR2 0x00527280
+char g_str0x00527280[6] = "CLEAR";
+
+// GLOBAL: CMR2 0x0052714c
+char *g_unk0x0052714c[8] = {
+    g_str0x00519370, g_str0x00519368, g_str0x00519360, g_str0x00519358, g_str0x0052726c, g_str0x00519350, g_str0x00519348, CFrontend::m_strUK
+};
+// GLOBAL: CMR2 0x0052716c
+char *g_unk0x0052716c[8] = {
+    g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274, g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK
+};
+// GLOBAL: CMR2 0x00527128
+char *g_unk0x00527128[9] = {
+    (char *)(g_unk0x0051682c + 0x70), g_str0x00527280, (char *)(g_unk0x0051682c + 0x68), (char *)(g_unk0x0051682c + 0x60), (char *)(g_unk0x0051682c + 0x58), (char *)(g_unk0x0051682c + 0x50), g_str0x00527278, (char *)(g_unk0x0051682c + 0x48), (char *)(g_unk0x0051682c + 0x78)
+};
+
+// GLOBAL: CMR2 0x0082cb48
+unsigned int g_unk0x0082cb48;
+// GLOBAL: CMR2 0x0082cb4c
+void *g_unk0x0082cb4c;
+// GLOBAL: CMR2 0x0082cb50
+int g_unk0x0082cb50[5];
+// GLOBAL: CMR2 0x0082cb60
+short g_unk0x0082cb60[10];
+// GLOBAL: CMR2 0x0082cb70
+BYTE g_unk0x0082cb70[0x10];
+// GLOBAL: CMR2 0x0082c690
+void *g_unk0x0082c690;
+// GLOBAL: CMR2 0x0082c694
+int g_unk0x0082c694;
+// GLOBAL: CMR2 0x0082ca20
+int g_unk0x0082ca20[9];
+// GLOBAL: CMR2 0x0082c9e8
+void *g_unk0x0082c9e8;
+// GLOBAL: CMR2 0x0082c9f4
+int g_unk0x0082c9f4;
+// GLOBAL: CMR2 0x0082c9f8
+int g_unk0x0082c9f8;
+// GLOBAL: CMR2 0x0082c9fa
+short g_unk0x0082c9fa;
+// GLOBAL: CMR2 0x0082c9fc
+short g_unk0x0082c9fc;
+// GLOBAL: CMR2 0x0082c9fe
+short g_unk0x0082c9fe;
+// GLOBAL: CMR2 0x0082ca00
+short g_unk0x0082ca00;
+// GLOBAL: CMR2 0x0082ca02
+short g_unk0x0082ca02;
+// GLOBAL: CMR2 0x0052718c
+BYTE g_unk0x0052718c[22] = {
+    0x94, 0x99, 0x91, 0x8b, 0xa0, 0x8e, 0x94, 0x99, 0x7d, 0x4c, 0x75,
+    0x50, 0x6f, 0x44, 0x7d, 0x4c, 0x82, 0x9c, 0x79, 0xa5, 0x00, 0x00
+};
+// GLOBAL: CMR2 0x00527300
+char g_str0x00527300[35] = "%s\\Textures\\Weather\\%s\\MainMap.tga";
+// GLOBAL: CMR2 0x005272dc
+char g_str0x005272dc[34] = "%s\\Textures\\Weather\\%s\\%s%.2d.tga";
+// GLOBAL: CMR2 0x005272b4
+char g_str0x005272b4[38] = "%s\\Textures\\Weather\\Symbols\\%d\\%s.tga";
+// GLOBAL: CMR2 0x00527290
+char g_str0x00527290[33] = "%s\\Textures\\Symbols\\%d\\Arrow.tga";
+
+// 0x50-byte entry of the table at 0x82c6c8 (same layout as GameInfo.cpp).
+struct Unk0x0082c6c8 {
+    BYTE field_0x0[0x1c];
+    int field_0x1c;
+    BYTE field_0x20[0x2c];
+    int field_0x4c;
+};
+extern Unk0x0082c6c8 g_unk0x0082c6c8[16];
+extern short g_unk0x0082c9ec[4];
+extern BYTE g_unk0x0082ca1c;
+extern int g_unk0x0082c6c0;
+extern int g_unk0x0082cb44;
+
+// Builds the weather textures of the current rally: the main map, the
+// per-weather maps and the weather symbols, then rebinds the stage state.
+// TODO: CMR2 0x00503ea0 (implemented, match 63%)
+void FUN_00503ea0(void)
+{
+    int i;
+    int count;
+    int stage;
+    int index;
+    short *pPair;
+    int *pMap;
+
+    *(BYTE *)&g_unk0x0082cb48 = 0;
+    pMap = g_unk0x0082cb50;
+    pPair = g_unk0x0082cb60;
+    while ((int)pPair < (int)((BYTE *)g_unk0x0082cb70 + 4)) {
+        *pMap = 0;
+        pPair[0] = 0;
+        pPair[1] = 0;
+        pMap++;
+        pPair += 2;
+    }
+    stage = (BYTE)RallyDataStageIndex() >> 2;
+    if (stage < 2)
+        *(BYTE *)&g_unk0x0082cb48 = 4;
+    else
+        *(BYTE *)&g_unk0x0082cb48 = (BYTE)RallyDataCountryIndex() % 2 + 2;
+    count = g_unk0x0082cb48 & 0xff;
+    i = 0;
+    pPair = g_unk0x0082cb60 + 1;
+    while (i < 4) {
+        if (i < count) {
+            g_unk0x0082cb70[i] = (BYTE)(stage * 4 + i);
+            pPair[-1] = g_unk0x0052718c
+                [(RallyDataCountryIndex() * 0xb + g_unk0x0082cb70[i]) * 2];
+            pPair[0] = g_unk0x0052718c
+                [(RallyDataCountryIndex() * 0xb + g_unk0x0082cb70[i]) * 2 + 1];
+        }
+        pPair += 2;
+        i++;
+    }
+    sprintf(CFrontend::m_stringDest, g_str0x00527300, CInstallInfo::GetSetupRepDir(),
+            g_unk0x0052714c[RallyDataCountryIndex()]);
+    g_unk0x0082cb4c = CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
+                                                CFrontend::m_stringDest, 0, NULL, false, 0);
+    for (i = 0; i < 4; i++) {
+        if (i < count) {
+            index = g_unk0x0082cb70[i] + 1;
+            sprintf(CFrontend::m_stringDest, g_str0x005272dc, CInstallInfo::GetSetupRepDir(),
+                    g_unk0x0052714c[RallyDataCountryIndex()],
+                    g_unk0x0052716c[RallyDataCountryIndex()], index);
+            g_unk0x0082cb50[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
+                                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
+        }
+    }
+    for (i = 0; i < 9; i++) {
+        sprintf(CFrontend::m_stringDest, g_str0x005272b4, CInstallInfo::GetSetupRepDir(),
+                0x280, g_unk0x00527128[i]);
+        g_unk0x0082ca20[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(),
+                                                             CFrontend::m_stringDest, 0, NULL, false, 0);
+    }
+    sprintf(CFrontend::m_stringDest, g_str0x00527290, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x0082c690 = CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(),
+                                                CFrontend::m_stringDest, 0, NULL, false, 0);
+    CGame::RegisterCallback((void *)FUN_00458040, 0);
+}
+
+// Sets up the weather entries of the stage: their texture, screen rectangle and
+// the fixed texture coordinates.
+// TODO: CMR2 0x005040f0 (implemented, match 40%)
+void FUN_005040f0(void)
+{
+    BYTE *pEntry;
+    BYTE *pTex;
+    int count;
+    int i;
+    int index;
+    int x;
+    int y;
+
+    pTex = (BYTE *)g_unk0x0082cb4c;
+    g_unk0x0082c9e8 = g_unk0x0082cb4c;
+    g_unk0x0082c9ec[0] = 0x1c;
+    g_unk0x0082c9ec[1] = 0x72;
+    g_unk0x0082c9ec[2] = 0x100;
+    g_unk0x0082c9ec[3] = 0xf6;
+    g_unk0x0082c9f4 = *(int *)(pTex + 0x11c);
+    g_unk0x0082c9f8 = *(int *)(pTex + 0x120);
+    g_unk0x0082c9fa = 0xf6;
+    g_unk0x0082c9fc = 0xd8;
+    g_unk0x0082c9fe = 0x7c;
+    g_unk0x0082ca00 = 0x3b;
+    g_unk0x0082ca02 = 0x39;
+    count = CGameInfo::FUN_00501230();
+    g_unk0x0082c694 = count;
+    if (count > 0) {
+        for (i = 0; i < count; i++) {
+            pEntry = (BYTE *)g_unk0x0082c6c8 + i * 0x50;
+            *(int *)(pEntry + 0x18) = 0;
+            *(int *)(pEntry + 0x14) = 0;
+            *(int *)(pEntry + 0x1c) = 0;
+            *(int *)(pEntry + 0x24) = 0;
+            *(int *)(pEntry + 0x28) = 0;
+            *(int *)(pEntry + 0x4c) = 0;
+            *(int *)(pEntry + 0x20) = 0;
+            *(int *)(pEntry + 0x44) = 0;
+            *(int *)(pEntry + 0x40) = 0;
+            *(int *)(pEntry + 0x3c) = 0;
+            index = (RallyDataStageIndex() & 3) + i;
+            *(BYTE *)(pEntry + 0x48) = g_unk0x0082cb70[index];
+            *(int *)pEntry = g_unk0x0082cb50[index];
+            x = g_unk0x0082cb60[index * 2] + g_unk0x0082c9ec[0];
+            y = g_unk0x0082cb60[index * 2 + 1] + g_unk0x0082c9ec[1];
+            *(short *)(pEntry + 0x04) = (short)x;
+            *(short *)(pEntry + 0x06) = (short)y;
+            *(short *)(pEntry + 0x08) = 10;
+            *(short *)(pEntry + 0x0a) = 9;
+            *(int *)(pEntry + 0x2c) = (short)g_unk0x0082c9f4 * 0x10000 +
+                FixMul(FixDiv((x - g_unk0x0082c9ec[0]) << 16, (short)g_unk0x0082c9ec[2] << 16),
+                       (short)g_unk0x0082c9f8 << 16);
+            *(int *)(pEntry + 0x30) = (short)g_unk0x0082c9f4 * 0x10000 +
+                FixMul(FixDiv(((short)x - g_unk0x0082c9ec[0] + 10) << 16,
+                              (short)g_unk0x0082c9ec[2] << 16),
+                       (short)g_unk0x0082c9f8 << 16);
+            *(int *)(pEntry + 0x34) = (short)(g_unk0x0082c9f4 >> 16) * 0x10000 +
+                FixMul(FixDiv((y - g_unk0x0082c9ec[1]) << 16, (short)g_unk0x0082c9ec[3] << 16),
+                       (short)g_unk0x0082c9fa << 16);
+            *(int *)(pEntry + 0x38) = (short)(g_unk0x0082c9f4 >> 16) * 0x10000 +
+                FixMul(FixDiv(((short)y - g_unk0x0082c9ec[1] + 9) << 16,
+                              (short)g_unk0x0082c9ec[3] << 16),
+                       (short)g_unk0x0082c9fa << 16);
+        }
+    }
+    g_unk0x0082ca1c = 0;
+    g_unk0x0082c6c0 = CMain::GetFrameDelta();
+    g_unk0x0082cb44 = 0;
+    FUN_00503e00();
 }
 
 // Copies the per-driver stage times into the 0x30-byte records, first for the
