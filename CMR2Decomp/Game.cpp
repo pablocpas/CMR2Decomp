@@ -264,24 +264,16 @@ void FUN_004ead10(void);
 void FUN_004ea840(void);
 void FUN_004f3f60(void);
 void FUN_004f3bb0(void);
-// STUB: CMR2 0x004eb470
-void FUN_004eb470(void) { }
-// STUB: CMR2 0x004ebec0
-void FUN_004ebec0(void) { }
-// STUB: CMR2 0x004a28d0
-void FUN_004a28d0(char *path) { }
-// STUB: CMR2 0x004a2bd0
-void FUN_004a2bd0(int param1) { }
-// STUB: CMR2 0x004d5ca0
-void FUN_004d5ca0(void) { }
+void FUN_004eb470(void);
+void FUN_004ebec0(void);
+HRESULT FUN_004a2bd0(int param1);
+void FUN_004d5ca0(void);
 
 // Frontend music track ("%s\\select1.adp").
 // GLOBAL: CMR2 0x00523d70
 char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 
-// Frontend per-frame entry; not decompiled yet.
-// STUB: CMR2 0x004ea510
-void FUN_004ea510(void) { }
+void FUN_004ea510(void);
 
 // Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
 // FUNCTION: CMR2 0x004d1a90
@@ -298,7 +290,7 @@ void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2)
     if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_unk0x00817fe4 - FUN_004eaa00()) > 0x1388) {
         FUN_004ea9f0();
         sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
-        FUN_004a28d0(path);
+        CSound::FUN_004a28d0(path);
         CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
         FUN_004a2bd0(1);
         CGame::FUN_0049c1c0(p1, p2, 0, 2);
@@ -475,7 +467,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     FUN_004f3f60();
     FUN_004f3bb0();
     sprintf(CFrontend::m_stringDest, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
-    FUN_004a28d0(CFrontend::m_stringDest);
+    CSound::FUN_004a28d0(CFrontend::m_stringDest);
     CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
     FUN_004a2bd0(1);
     FUN_004eb470();

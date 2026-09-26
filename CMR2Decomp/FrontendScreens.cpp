@@ -148,6 +148,52 @@ void FUN_004d4c40(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
+// GLOBAL: CMR2 0x00524c88
+char g_strDmdFormat[12] = "%s%.2d.dmd";
+// GLOBAL: CMR2 0x00524c94
+char g_strChaDmdFormat[12] = "cha%.2d.dmd";
+// GLOBAL: CMR2 0x00524ca0
+char g_strDmdBfl[36] = "%s\\frontend\\Textures\\dmd\\dmd.bfl";
+
+// Stage map files (.dmd) of the 8 rallies (10 or 11 stages each) plus the
+// 8 of the championship ("cha").
+// GLOBAL: CMR2 0x008185bc
+void *g_dmdFiles[9][11];
+
+char FUN_004eaa30(void);
+
+// Finds the stage map files of every rally in the common frontend archive.
+// TODO: CMR2 0x004d5ca0 (implemented, match 85%)
+void FUN_004d5ca0(void)
+{
+    int counts[9] = { 10, 11, 10, 11, 10, 11, 10, 11, 8 };
+    char names[8][4] = { "fin", "gre", "fra", "swe", "aus", "ken", "ita", "uk" };
+    void **ppFile;
+    int count;
+    int i;
+    int j;
+
+    // the original builds this path and never uses it
+    sprintf(CFrontend::m_stringDest, g_strDmdBfl, CInstallInfo::GetGameCDPath());
+    for (i = 0; i < 9; i++) {
+        count = counts[i];
+        if (count > 0) {
+            ppFile = g_dmdFiles[i];
+            j = 1;
+            do {
+                *ppFile = NULL;
+                if (i == 8)
+                    sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, j);
+                else
+                    sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], j);
+                *ppFile = CGenericFileLoader::FindFile(CFrontend::FUN_004d2190(), CFrontend::m_stringDest, NULL, NULL, 0);
+                ppFile++;
+            } while (j++ < count);
+        }
+    }
+    CGame::RegisterCallback((void *)FUN_004eaa30, NULL);
+}
+
 // FUNCTION: CMR2 0x004d6290
 void FUN_004d6290(Menu *pMenu)
 {
@@ -363,6 +409,42 @@ void FUN_004e9820(Menu *pMenu)
 void FUN_004ea470(void)
 {
     g_pMenu0x00818abc = g_pMenu0x00818ac0;
+}
+
+extern int g_unk0x00818ac8;
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+unsigned short FUN_0040bbc0(unsigned short slot);
+void FUN_004a2fe0(void);
+
+// Time (CFrontend::FUN_004d20e0) at which the current menu was entered.
+// GLOBAL: CMR2 0x008189b8
+int g_menuEnterTime;
+
+// Frontend per-frame update: reads the input, keeps the music streaming and
+// runs the current menu, switching to the menu it returns.
+// FUNCTION: CMR2 0x004ea510
+void FUN_004ea510(void)
+{
+    DeviceInfo *pDevice;
+    unsigned int input;
+    Menu *pNext;
+
+    pDevice = CInput::FUN_0049ead0(g_unk0x00818ac8);
+    FUN_004ea470();
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    FUN_004a2fe0();
+    if (g_pMenu0x00818abc != FUN_004fa510() && g_pMenu0x00818abc != FUN_004fa500())
+        FUN_0040bd60(g_unk0x00818ac8, pDevice);
+    input = pDevice->field_0x8;
+    if (g_unk0x00818ac8 == 1)
+        input |= CInput::FUN_0049ead0(FUN_0040bbc0(0))->field_0x8 & 0x20;
+    pNext = (Menu *)Menu_Update(g_pMenu0x00818abc, input);
+    if (pNext != NULL) {
+        g_menuEnterTime = CFrontend::FUN_004d20e0();
+        g_pMenu0x00818ac0 = pNext;
+    }
 }
 
 // FUNCTION: CMR2 0x004ea5b0
