@@ -41,6 +41,9 @@ MenuScroller g_menuScrollers[12];
 unsigned int g_unk0x008196e0;
 // GLOBAL: CMR2 0x008196e4
 int g_unk0x008196e4;
+// Per-screen colour/palette ids, indexed by the screen number in field +7.
+// GLOBAL: CMR2 0x008196e8
+int g_unk0x008196e8[23];
 // GLOBAL: CMR2 0x00819864
 BYTE g_unk0x00819864;
 // GLOBAL: CMR2 0x00819880
@@ -71,6 +74,17 @@ int g_unk0x0052528c = -1;
 char g_nameChars0x00525330[68] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // GLOBAL: CMR2 0x00818cd8
 char *g_unk0x00818cd8;
+// GLOBAL: CMR2 0x00818ce0
+int g_unk0x00818ce0;
+// GLOBAL: CMR2 0x00818ce8
+int g_unk0x00818ce8;
+// GLOBAL: CMR2 0x00818d00
+int g_unk0x00818d00;
+// Filtered stage/route ids, one int per entry (up to 0x16).
+// GLOBAL: CMR2 0x00818d18
+int g_unk0x00818d18[36];
+// GLOBAL: CMR2 0x00818ed0
+BYTE g_unk0x00818ed0;
 // GLOBAL: CMR2 0x00818d04
 BYTE g_unk0x00818d04;
 // GLOBAL: CMR2 0x00818da8
@@ -531,6 +545,50 @@ void FUN_004ed500(Menu *pMenu, char param)
     }
 }
 
+
+// Rebuilds a front-end stage/route list menu from the current selection.
+bool RallyData_FUN_00408e30(int index, int bit, char check);
+BYTE FUN_004086f0(unsigned int param1);
+
+// FUNCTION: CMR2 0x004ed530
+void FUN_004ed530(int param_1, int unused)
+{
+    int i;
+    int index;
+    int *pEntry;
+
+    g_unk0x00818ed0 = 1;
+    g_unk0x00818ce8 = -1;
+    g_unk0x00818ce0 = -1;
+    FUN_004ea5c0(0);
+    Menu_SetFlags((Menu *)param_1, 1, 1, 1, 1);
+    *(BYTE *)(param_1 + 7) = 0;
+    g_unk0x00818d00 = 0;
+    index = 0;
+    pEntry = g_unk0x00818d18;
+    for (i = 0; i < 0x16; i++) {
+        if (RallyData_FUN_00408e30(0, i, 1)) {
+            *pEntry = i;
+            if (i == (RallyData_FUN_004086b0(0) & 0xff)) {
+                Menu_GetItem((Menu *)param_1, 1)->max = index;
+            }
+            index++;
+            pEntry++;
+        }
+    }
+    if (FUN_004086f0(0) != 0)
+        Menu_GetItem((Menu *)param_1, 2)->max = 1;
+    else
+        Menu_GetItem((Menu *)param_1, 2)->max = 0;
+    if (g_unk0x00818ce4 != 0) {
+        Menu_GetItem((Menu *)param_1, 3)->max = 0;
+        Menu_GetItem((Menu *)param_1, 1)->min = index;
+        return;
+    }
+    Menu_GetItem((Menu *)param_1, 3)->max = 1;
+    Menu_GetItem((Menu *)param_1, 1)->min = index;
+}
+
 // FUNCTION: CMR2 0x004edb30
 void FUN_004edb30(Menu *pMenu, char param)
 {
@@ -694,6 +752,18 @@ void FUN_004eef30(Menu *pMenu, int param)
         return;
     }
     Menu_GetItem(pMenu, 0)->enabled = 0;
+}
+
+
+// Removes the last leaderboard while fewer than 0x20 slots are in use.
+// FUNCTION: CMR2 0x004eefe0
+void FUN_004eefe0(int unused1, int unused2)
+{
+    if (CNetworkLeaderboards::GetTotalLeaderboards() < 0x20) {
+        CNetworkLeaderboards::AddLeaderboard();
+        CNetworkLeaderboards::SetLeaderboardId(
+            CNetworkLeaderboards::GetTotalLeaderboards() - 1);
+    }
 }
 
 // FUNCTION: CMR2 0x004ef030
@@ -989,6 +1059,18 @@ void FUN_004f1640(Menu *pMenu)
     }
     if (day > days)
         pMenu->items[2].max = days - 1;
+}
+
+
+// Maps a screen index to its palette/colour id and stores it for the current mode.
+void RallyData_FUN_00408600(BYTE index, BYTE value);
+
+// FUNCTION: CMR2 0x004f1a10
+void FUN_004f1a10(int param_1, int unused)
+{
+    RallyData_FUN_00408600(
+        CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048),
+        (unsigned char)g_unk0x008196e8[*(signed char *)(param_1 + 7)]);
 }
 
 // FUNCTION: CMR2 0x004f1b90
@@ -1365,6 +1447,26 @@ void FUN_004f2c40(Menu *pMenu, char param)
         if (CGameInfo::FUN_00405ef0() == 2)
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
     }
+}
+
+
+// Applies the front-end options from the menu items back to the game info.
+void FUN_004eab20(BYTE param1);
+void FUN_004eaa40(unsigned int param1);
+
+// FUNCTION: CMR2 0x004f2d20
+void FUN_004f2d20(int param_1, int unused)
+{
+    int index;
+
+    index = Menu_FindItem((Menu *)param_1, 0);
+    CGameInfo::FUN_00406340(*(BYTE *)(param_1 + 0x1f + index * 0x14));
+    index = Menu_FindItem((Menu *)param_1, 2);
+    FUN_004eab20(1 - *(BYTE *)(param_1 + 0x1f + index * 0x14));
+    index = Menu_FindItem((Menu *)param_1, 3);
+    CGameInfo::FUN_00405ec0(*(BYTE *)(param_1 + 0x1f + index * 0x14));
+    index = Menu_FindItem((Menu *)param_1, 4);
+    FUN_004eaa40(*(BYTE *)(param_1 + 0x1f + index * 0x14));
 }
 
 // FUNCTION: CMR2 0x004f2d90
@@ -1814,3 +1916,26 @@ void FUN_004fb360(Menu *pMenu)
 {
     FUN_004f37c0(FUN_004f2590());
 }
+
+
+// Selects the menu row/page for a front-end list screen.
+// FUNCTION: CMR2 0x004fb370
+void FUN_004fb370(int param_1, int unused)
+{
+    RallyData_FUN_0040d600((int)*(signed char *)(param_1 + 7) / 3);
+    RallyData_FUN_00406960((int)*(signed char *)(param_1 + 7) % 3);
+    if (CGameInfo::FUN_00405d70() == 2)
+        RallyData_FUN_0040d640(0);
+    else
+        RallyData_FUN_0040d640(5);
+    if (CGameInfo::FUN_00405d80() == 6) {
+        if (CGameInfo::FUN_00405d70() == 2)
+            Menu_SetNextAction((int)FUN_004fa4c0());
+        else
+            Menu_SetNextAction((int)FUN_004fa360());
+        return;
+    }
+    RallyData_FUN_0040d620(3);
+    Menu_SetNextAction((int)FUN_004f8330());
+}
+

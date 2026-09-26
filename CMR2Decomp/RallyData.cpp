@@ -1412,7 +1412,7 @@ BYTE FUN_004085a0(BYTE param1)
 }
 
 // Stores a driver's 5/6-bit setting in the driver or category record.
-// TODO: CMR2 0x00408600 (implemented, match 82%)
+// FUNCTION: CMR2 0x00408600
 void RallyData_FUN_00408600(BYTE index, BYTE value)
 {
     unsigned int record;
@@ -3729,7 +3729,7 @@ show:
 
 // Whether a driver's category has award `bit` (with `check`, some cheats
 // count as having it).
-// TODO: CMR2 0x00408e30 (implemented, match 83%)
+// FUNCTION: CMR2 0x00408e30
 bool RallyData_FUN_00408e30(int index, int bit, char check)
 {
     RallyData_ValidateIndex(index);
