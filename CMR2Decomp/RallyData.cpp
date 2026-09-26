@@ -21,7 +21,6 @@ BYTE g_saveData[0x2270];
 #define g_unk0x0052f3ec (g_saveData + 0xc)
 #define g_unk0x0052fa18 (g_saveData + 0x638)
 #define g_unk0x0052fa24 (g_saveData + 0x644)
-#define g_unk0x0052fa00 (g_saveData + 0x620)
 #define g_unk0x0052fa5c (g_saveData + 0x67c)
 #define g_unk0x00531350 (g_saveData + 0x1f70)
 #include "AIHelper.h"
@@ -955,30 +954,6 @@ void FUN_004eb000(BYTE index, char set)
             *(int *)(g_saveData + 0x680 + i * 0x650) = FUN_004eaca0();
             *(int *)(g_saveData + 0x680 + category * 0x650) = FUN_004eaca0();
         }
-    }
-}
-
-// Marks record `index` as edited (in the driver record when the game is in
-// mode 4, otherwise in its category) and stores the low bit of `set` in the
-// record's and the category's bit 5.
-// TODO: CMR2 0x004eb0c0 (implemented, match 78%)
-void FUN_004eb0c0(BYTE index, BYTE set)
-{
-    unsigned int category;
-    unsigned int bit;
-
-    RallyData_ValidateIndex(index);
-    if (CGameInfo::FUN_00405d80() == 4) {
-        g_unk0x0052f3ec[index * 0xc4] =
-            (g_unk0x0052f3ec[index * 0xc4] ^ set) & 1 ^ g_unk0x0052f3ec[index * 0xc4] | 2;
-        return;
-    }
-    category = *(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12 & 0xf;
-    if (category != 0xf) {
-        bit = (set & 1) << 5;
-        g_unk0x0052fa00[category] = 1;
-        *(unsigned int *)(g_unk0x0052fa5c + category * 0x650) =
-            (*(unsigned int *)(g_unk0x0052fa5c + category * 0x650) & 0xffffffdf) | bit;
     }
 }
 
