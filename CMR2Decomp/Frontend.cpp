@@ -11,6 +11,8 @@
 #include "Texture.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Not ported/declared elsewhere yet.
 void Scene_SetAmbient(BYTE *pColour, int boost);
@@ -18,6 +20,31 @@ void FUN_004ae260(void);
 void FUN_004b1150(void);
 void FUN_004b7b20(void);
 void FUN_004d0840(void);
+
+// Callees that live in other translation units and are not declared in their
+// headers yet.
+BYTE *RallyData_FUN_00408c70(int index);
+BYTE *RallyData_FUN_00408cb0(int index);
+unsigned int RallyData_GetFlag30(void);
+unsigned int RallyData_GetFlag23(void);
+BYTE FUN_004086f0(BYTE param1);
+void RallyData_MarkTyresChanged(int index);
+BYTE FUN_004071c0(BYTE flags, char mode);
+BYTE FUN_00448cb0(int index);
+BYTE FUN_00448cc0(void);
+unsigned int FUN_00448680(int index, int split);
+int FUN_00448240(int car, int index);
+int FUN_004582d0(int index);
+int FUN_004583a0(void);
+extern BYTE g_unk0x008180fa;
+
+// Defined later in this file (device setup helpers).
+BYTE *FUN_004d0280(int index);
+BYTE *FUN_004d02d0(int index);
+void FUN_004d0300(int *pDest, int *pSource);
+void FUN_004d0310(int *pDest, int *pSource);
+void FUN_004d0370(int *pDest, int *pSource);
+void FUN_004d03b0(int *pDest, int *pSource);
 
 char CFrontend::m_stringDest[MAX_PATH];
 
@@ -770,8 +797,10 @@ int g_unk0x008173f0;
 int g_unk0x008173f4;
 // GLOBAL: CMR2 0x00817400
 int g_unk0x00817400;
+// Per-player input state, at most 4 players; the split-time arrays at
+// 0x817448 start right after the 4th record.
 // GLOBAL: CMR2 0x00817420
-BYTE g_unk0x00817420[34 * 0xa];  // up to 0x817574
+BYTE g_unk0x00817420[4 * 0xa];
 // GLOBAL: CMR2 0x00817410
 BYTE g_unk0x00817410;
 // GLOBAL: CMR2 0x00817411
@@ -976,4 +1005,615 @@ void FUN_004a3e20(Unk0x004a3e20 *pObject, int value)
 {
     if (pObject != NULL)
         pObject->field_0x118 = value;
+}
+
+// ---------------------------------------------------------------------------
+// Frontend device setup: option words, per-player key state and split times.
+// ---------------------------------------------------------------------------
+
+// Split times mirrored out of the loaded game info record; 10 entries for the
+// rally records, the arcade records only fill the first 6.
+// GLOBAL: CMR2 0x00817448
+int g_unk0x00817448[10];
+// Lowest split value seen so far, reset to a whole stage length.
+// GLOBAL: CMR2 0x00817570
+int g_unk0x00817570;
+// Placeholder string copied (and discarded) by FUN_004cfe80.
+// GLOBAL: CMR2 0x00523bb4
+char g_str0x00523bb4[8] = "ABCDEFG";
+
+// Merges the frontend menu keys into the per-player key state: the first flag
+// word of each state comes from the "keys" flag and the second from the
+// "buttons" flag, each one shifted by the current stage index.
+// FUNCTION: CMR2 0x004cf140
+void FUN_004cf140(void)
+{
+    InputKeyState *pState;
+    BYTE stage;
+    int i;
+
+    if (RallyData_GetFlag30()) {
+        for (i = 0; i < g_unk0x008173f0; i++) {
+            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState->field_0x4 |= (short)(pState->field_0x0[0] << RallyDataStageIndex());
+        }
+        g_unk0x00817414 |= (short)(g_unk0x00817410 << RallyDataStageIndex());
+    }
+    if (RallyData_GetFlag24()) {
+        for (i = 0; i < g_unk0x008173f0; i++) {
+            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState->field_0x4 |= (short)(FUN_00448cb0(i) << RallyData_FUN_00406950());
+        }
+        g_unk0x00817414 |= (short)(FUN_00448cc0() << RallyData_FUN_00406950());
+    }
+    stage = FUN_004071c0(RallyDataCountryIndex(), (char)CGameInfo::FUN_00405d90());
+    if (RallyDataStageIndex() == stage) {
+        for (i = 0; i < g_unk0x008173f0; i++) {
+            pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
+            pState->field_0x6 |= (short)(pState->field_0x0[1] << RallyDataStageIndex());
+        }
+        g_unk0x00817416 |= (short)(g_unk0x00817411 << RallyDataStageIndex());
+    }
+}
+
+// Clears the two key fields of a device option word.
+// FUNCTION: CMR2 0x004cf390
+void FUN_004cf390(int index)
+{
+    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
+
+    if (pValue != NULL)
+        *pValue &= 0xffffc3ff;
+}
+
+// Advances the 4-bit option field of a device word; only for the first mode.
+// FUNCTION: CMR2 0x004cf3b0
+void FUN_004cf3b0(int index, int mode)
+{
+    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
+
+    if (pValue != NULL && mode == 0)
+        *pValue = (((*pValue & 0xfffffc00) + 0x400) ^ *pValue) & 0x3c00 ^ *pValue;
+}
+
+// Resets the value and the three stat counters of a device record.
+// match 50%: MSVC keeps the zero in a register (xor ecx / cmp eax,ecx) instead of an
+// immediate store plus test; the code is the same.
+// FUNCTION: CMR2 0x004cf3f0
+void FUN_004cf3f0(int index)
+{
+    BYTE *pDevice = RallyData_FUN_00408c70(index);
+
+    if (pDevice != NULL) {
+        *(int *)(pDevice + 4) = 0;
+        pDevice += 8;
+        *(short *)pDevice = 0;
+        *(pDevice + 2) = 0;
+    }
+}
+
+// Adds to the value field of a device record and bumps one of its three stats.
+// FUNCTION: CMR2 0x004cf420
+void FUN_004cf420(int index, int amount, int stat)
+{
+    BYTE *pDevice = RallyData_FUN_00408c70(index);
+
+    if (pDevice != NULL) {
+        *(int *)(pDevice + 4) = *(int *)(pDevice + 4) + amount;
+        if (stat < 3)
+            pDevice[8 + stat]++;
+    }
+}
+
+// Stores a value into the option block of a device (see FUN_004d0280).
+// FUNCTION: CMR2 0x004cf450
+void FUN_004cf450(int index, int arg, int value)
+{
+    int *pOption;
+
+    FUN_004d0230();
+    pOption = (int *)FUN_004d0280(index);
+    if (pOption != NULL)
+        *pOption = value;
+}
+
+// Writes a device option word: the option index in the low nibble, a 2-bit and
+// a 4-bit field above it, and the value in the following dword.
+// match 52%: MSVC schedules the *pValue load after the stores and allocates
+// different registers for option/field; the code is the same.
+// FUNCTION: CMR2 0x004cf470
+void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
+{
+    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
+    unsigned int word;
+
+    if (pValue != NULL) {
+        word = (*pValue & 0xfffffc00) ^ (option & 0xf);
+        pValue[1] = value;
+        word = ((((option & 3) << 4) | (field & 0xf)) << 4) | word;
+        *pValue = word;
+        if (0x300 < (word & 0x300)) {
+            word &= 0xffffc3ff;
+            *pValue = word;
+        }
+    }
+}
+
+// Writes the two 6-bit fields of a device record and clears its second dword.
+// match 83%: MSVC folds the two AND masks into 0xffffc000 where the original
+// keeps 0xffffc03f then 0xffffffc0.
+// FUNCTION: CMR2 0x004cf4d0
+void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
+{
+    unsigned int *pValue = (unsigned int *)RallyData_FUN_00408c70(index);
+    unsigned int word;
+
+    if (pValue != NULL) {
+        word = ((field & 0xff) << 6) | (*pValue & 0xffffc03f);
+        word &= 0xffffffc0;
+        word ^= value & 0xf;
+        word |= (value & 3) << 4;
+        pValue[1] = 0;
+        *pValue = word;
+        if (0x30 < (word & 0x30)) {
+            word &= 0xffffffcf;
+            *pValue = word;
+        }
+    }
+}
+
+// Stores a value into the extra dword of a device record.
+// FUNCTION: CMR2 0x004cf530
+void FUN_004cf530(int index, int value)
+{
+    int *pField;
+
+    FUN_004d0230();
+    pField = (int *)(RallyData_FUN_00408c70(index) + 0x20);
+    if (pField != NULL)
+        *pField = value;
+}
+
+// Writes the 6-bit, 2-bit and 3-bit fields of a device record and its extra
+// dword.
+// match 87%: MSVC folds (*p & 0xfffff81f) & 0xffffffe0 and orders the pops
+// differently; the code is the same.
+// FUNCTION: CMR2 0x004cf550
+void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
+{
+    unsigned int *pValue = (unsigned int *)(RallyData_FUN_00408c70(index) + 0x18);
+    unsigned int word;
+
+    if (pValue != NULL) {
+        pValue[1] = extra;
+        word = ((field & 0x3f) << 5) | (*pValue & 0xfffff81f);
+        word &= 0xffffffe0;
+        word ^= value & 7;
+        word |= (value & 3) << 3;
+        *pValue = word;
+        if (0x18 < (word & 0x18)) {
+            word &= 0xffffffe7;
+            *pValue = word;
+        }
+    }
+}
+
+// Rebuilds the option value of a device into the stage setup block when it is
+// better than the stored one, and marks the player's key state as dirty.
+// FUNCTION: CMR2 0x004cf5b0
+BYTE FUN_004cf5b0(int index, int pBlock)
+{
+    unsigned int *pOption;
+    unsigned int *pEntry;
+    unsigned int value;
+
+    pOption = (unsigned int *)FUN_004d0280(index);
+    pEntry = (unsigned int *)(pBlock + 0x150 + (g_unk0x008173fc + g_unk0x008173f8 * 0xc) * 8);
+    if (pOption != NULL && (*pOption < pEntry[1] || (*pEntry & 0x80) == 0)) {
+        *pEntry |= 0x80;
+        value = rand();
+        *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+        FUN_004d0300((int *)(pEntry + 1), (int *)pOption);
+        *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+        *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        RallyData_MarkTyresChanged(index);
+        g_unk0x00817420[index * 0xa] = 1;
+        return 1;
+    }
+    return 0;
+}
+
+// Same as FUN_004cf5b0 for the button option word (uses the record option
+// block of FUN_004d02d0 and the three-field merge of FUN_004d0310).
+// match 81%: MSVC keeps *pOption in a register instead of re-reading it and uses
+// ebp for the entry word; the code is the same.
+// FUNCTION: CMR2 0x004cf660
+BYTE FUN_004cf660(int index, int pBlock)
+{
+    unsigned int *pOption;
+    unsigned int *pEntry;
+    unsigned int value;
+    BOOL better;
+
+    pOption = (unsigned int *)FUN_004d02d0(index);
+    pEntry = (unsigned int *)(pBlock + (g_unk0x008173f8 * 3 + 4 + g_unk0x00817400) * 0xc);
+    better = FALSE;
+    if (pOption != NULL) {
+        value = pEntry[1];
+        if ((*pOption & 0xf) < (value & 0xf))
+            better = TRUE;
+        if ((((*pOption ^ value) & 0xf) == 0 && pOption[1] < pEntry[2]) || better ||
+            (*pEntry & 0x80) == 0) {
+            *pEntry |= 0x80;
+            value = rand();
+            *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+            FUN_004d0310((int *)(pEntry + 1), (int *)pOption);
+            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            RallyData_MarkTyresChanged(index);
+            g_unk0x00817420[index * 0xa + 1] = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Same as FUN_004cf5b0 for the per-player word of the second dword, using the
+// two 4-bit fields merge of FUN_004d0370.
+// match 59%: register allocation of the device pointer and of the "better" flag
+// differs (the original keeps more values on the stack).
+// FUNCTION: CMR2 0x004cf740
+BYTE FUN_004cf740(int index, int pBlock)
+{
+    unsigned int *pDevice;
+    unsigned int *pEntry;
+    unsigned int value;
+    BOOL better;
+
+    pDevice = (unsigned int *)RallyData_FUN_00408c70(index);
+    better = FALSE;
+    if (pDevice != NULL) {
+        pEntry = (unsigned int *)(g_unk0x00817400 * 0x10 + pBlock);
+        value = pEntry[1];
+        if ((*pDevice & 0xf) < (value & 0xf))
+            better = TRUE;
+        if ((((*pDevice ^ value) & 0xf) == 0 && (*pDevice & 0x3fc0) > (pEntry[1] & 0x3fc0)) ||
+            better || (*pEntry & 0x80) == 0) {
+            *pEntry |= 0x80;
+            value = rand();
+            *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+            FUN_004d0370((int *)(pEntry + 1), (int *)pDevice);
+            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            RallyData_MarkTyresChanged(index);
+            g_unk0x00817420[index * 0xa + 2] = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Rebuilds the arcade-record option value of a device from the category record
+// (pointer at +0x20) into the arcade block.
+// FUNCTION: CMR2 0x004cf830
+BYTE FUN_004cf830(int index)
+{
+    int base;
+    unsigned int *pDevice;
+    unsigned int *pEntry;
+    unsigned int value;
+
+    base = (int)RallyData_FUN_00408cb0(index);
+    pDevice = (unsigned int *)((int)RallyData_FUN_00408c70(index) + 0x20);
+    pEntry = (unsigned int *)(base + 0x4bc + (g_unk0x008173fc + g_unk0x00817404 * 3) * 8);
+    if (pDevice != NULL && (*pDevice < pEntry[1] || (*pEntry & 0x80) == 0)) {
+        *pEntry |= 0x80;
+        value = rand();
+        *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+        FUN_004d0300((int *)(pEntry + 1), (int *)pDevice);
+        *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+        *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        RallyData_MarkTyresChanged(index);
+        return 1;
+    }
+    return 0;
+}
+
+// Same as FUN_004cf740 for the 3-bit/6-bit option word at +0x18, using the
+// three 3-bit fields merge of FUN_004d03b0.
+// FUNCTION: CMR2 0x004cf8e0
+BYTE FUN_004cf8e0(int index, int pBlock)
+{
+    unsigned int *pValue;
+    unsigned int *pEntry;
+    unsigned int value;
+    BOOL better;
+
+    pValue = (unsigned int *)(RallyData_FUN_00408c70(index) + 0x18);
+    pEntry = (unsigned int *)(pBlock + (g_unk0x00817404 * 3 + 0x5c + g_unk0x00817400) * 0xc);
+    if (pValue != NULL) {
+        value = pEntry[1];
+        better = FALSE;
+        if ((*pValue & 7) < (value & 7))
+            better = TRUE;
+        if ((((*pValue ^ value) & 7) == 0 && (*pValue & 0x7e0) > (pEntry[1] & 0x7e0)) || better ||
+            (*pEntry & 0x80) == 0) {
+            *pEntry |= 0x80;
+            value = rand();
+            *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+            FUN_004d03b0((int *)(pEntry + 1), (int *)pValue);
+            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
+            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            RallyData_MarkTyresChanged(index);
+            g_unk0x00817420[index * 0xa + 3] = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Keeps the lowest option value of a device in the running minimum.
+// FUNCTION: CMR2 0x004cf9d0
+int FUN_004cf9d0(int param_1, int param_2)
+{
+    unsigned int *pOption;
+
+    RallyData_FUN_00408c70(param_2);
+    pOption = (unsigned int *)FUN_004d0280(param_2);
+    if (pOption != NULL && *pOption < (unsigned int)g_unk0x00817570) {
+        g_unk0x00817570 = *pOption;
+        return 1;
+    }
+    return 0;
+}
+
+// Copies a stage record name and its split times into the mirror array; only
+// when the option value beats the stored one.
+// match 70%: register allocation and the stack frame differ (the original uses
+// push ecx where we allocate two slots); the code is the same.
+// FUNCTION: CMR2 0x004cfa10
+BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
+{
+    GameInfo0xa4 *pInfo;
+    GameInfo0xa4SubStruct8 *pRecord;
+    short *pSplits;
+    unsigned int *pOption;
+    int index;
+    int i;
+
+    RallyData_FUN_00408c70(param_2);
+    pOption = (unsigned int *)FUN_004d0280(param_2);
+    pInfo = CGameInfo::FUN_00405fe0();
+    index = g_unk0x008173fc + g_unk0x008173f8 * 0xb;
+    pRecord = &pInfo->rallyStageRecordTimes[index];
+    pSplits = pInfo->rallyStageRecordSplits[index];
+    if (pOption == NULL || ((pRecord->value >> 7) & 0xffff) <= *pOption)
+        return 0;
+    strcpy(pRecord->ident, pName);
+    pRecord->value = (RallyData_FUN_004086b0((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
+    pRecord->value = (FUN_004086f0((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
+    pRecord->value = (*pOption & 0xffff) << 7 | (pRecord->value & 0xff80007f);
+    {
+        int *pMirror = g_unk0x00817448;
+        short *pSplit = pSplits;
+
+        i = 0;
+        do {
+            unsigned short value = (unsigned short)FUN_00448680(param_1, i);
+            *pSplit = value;
+            *pMirror = value;
+            pSplit++;
+            pMirror++;
+            i++;
+        } while ((int)pMirror < (int)&g_unk0x00817448[10]);
+    }
+    g_unk0x00817410 = 1;
+    return 1;
+}
+
+// Keeps the lowest arcade-record option value in the running minimum.
+// FUNCTION: CMR2 0x004cfe20
+int FUN_004cfe20(int param_1, int param_2)
+{
+    unsigned int *pDevice;
+    unsigned int value;
+
+    pDevice = (unsigned int *)((int)RallyData_FUN_00408c70(param_2) + 0x20);
+    if (pDevice != NULL) {
+        value = *pDevice;
+        if (value < (unsigned int)g_unk0x00817570) {
+            g_unk0x00817570 = value;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Copies an arcade record name and its (6) split times into the mirror array.
+// match 76%: register allocation and the stack frame differ; the code is the
+// same.
+// FUNCTION: CMR2 0x004cfe80
+BYTE FUN_004cfe80(int param_1, int param_2)
+{
+    GameInfo0xa4 *pInfo;
+    GameInfo0xa4SubStruct8 *pRecord;
+    short *pSplits;
+    unsigned int *pOption;
+    char placeholder[16];
+    int index;
+    int i;
+
+    pOption = (unsigned int *)RallyData_FUN_00408c70(param_2);
+    pInfo = CGameInfo::FUN_00405fe0();
+    index = g_unk0x008173fc + g_unk0x00817404 * 3;
+    FUN_004582d0(param_1);
+    strcpy(placeholder, g_str0x00523bb4);
+    pRecord = &pInfo->arcadeRecordTimes[index];
+    pSplits = pInfo->arcadeRecordSplits[index];
+    if ((unsigned int *)((int)pOption + 0x20) != NULL) {
+        unsigned int value = *(unsigned int *)((int)pOption + 0x20);
+
+        if (value < ((pRecord->value >> 7) & 0xffff)) {
+            pRecord->value = (value & 0xffff) << 7 | (pRecord->value & 0xff80007f);
+            {
+                int *pMirror = g_unk0x00817448;
+                short *pSplit = pSplits;
+
+                i = 0;
+                do {
+                    unsigned short split = (unsigned short)FUN_00448240(param_1, i);
+                    *pSplit = split;
+                    *pMirror = split;
+                    pSplit++;
+                    pMirror++;
+                    i++;
+                } while ((int)pMirror < (int)&g_unk0x00817448[6]);
+            }
+            value = (pRecord->value >> 7) & 0xffff;
+            i = FUN_004583a0();
+            g_unk0x00817448[i] = value;
+            strcpy(pRecord->ident, (char *)RallyData_GetRecord((BYTE)param_2));
+            pRecord->value = (RallyData_FUN_004086b0((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
+            pRecord->value = (FUN_004086f0((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Loads the current set of split times (rally or arcade) into the mirror array
+// and resets the running minimum to a whole stage length.
+// FUNCTION: CMR2 0x004d0180
+void FUN_004d0180(void)
+{
+    GameInfo0xa4 *pInfo;
+    int *pDest;
+    int index;
+    int i;
+
+    pInfo = CGameInfo::FUN_00405fe0();
+    if ((BYTE)RallyData_GetFlag23()) {
+        FUN_004d0230();
+        i = 0;
+        pDest = g_unk0x00817448;
+        do {
+            if ((BYTE)RallyData_GetFlag24()) {
+                index = g_unk0x008173fc + g_unk0x00817404 * 3;
+                *pDest = ((unsigned short *)pInfo->arcadeRecordSplits[index])[i];
+            } else {
+                index = g_unk0x008173fc + g_unk0x008173f8 * 0xb;
+                *pDest = ((unsigned short *)pInfo->rallyStageRecordSplits[index])[i];
+            }
+            pDest++;
+            i++;
+        } while ((int)pDest < (int)&g_unk0x00817448[10]);
+        RallyData_GetFlag24();
+        g_unk0x00817570 = 360000;
+        return;
+    }
+    g_unk0x00817570 = 360000;
+}
+
+// Stores a value into the option block of the given device (see FUN_004d0280).
+// FUNCTION: CMR2 0x004d0220
+int FUN_004d0220(int index)
+{
+    return g_unk0x00817448[index];
+}
+
+// Returns the option block of a device when the current menu mode has one
+// (five option words per device), or NULL.
+// FUNCTION: CMR2 0x004d0280
+BYTE *FUN_004d0280(int index)
+{
+    BYTE *pDevice = RallyData_FUN_00408c70(index);
+
+    switch (g_unk0x008173f4) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 8:
+    case 9:
+    case 10:
+        return pDevice + 0x14;
+    }
+    return NULL;
+}
+
+// Returns the setup word of a device in the single-player and the first
+// multi-player modes.
+// FUNCTION: CMR2 0x004d02d0
+BYTE *FUN_004d02d0(int index)
+{
+    BYTE *pDevice = RallyData_FUN_00408c70(index);
+
+    if (g_unk0x008173f4 >= 0 && (g_unk0x008173f4 <= 1 || g_unk0x008173f4 == 8))
+        return pDevice + 0xc;
+    return NULL;
+}
+
+// Copies one 32-bit option word.
+// FUNCTION: CMR2 0x004d0300
+void FUN_004d0300(int *pDest, int *pSource)
+{
+    *pDest = *pSource;
+}
+
+// Merges the four 4-bit fields of a source word into a destination word.
+// FUNCTION: CMR2 0x004d0310
+void FUN_004d0310(int *pDest, int *pSource)
+{
+    pDest[1] = pSource[1];
+    *pDest = (((*pDest ^ *pSource) & 0xf) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0xf0) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x300) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x3c00) ^ *pDest);
+}
+
+// Merges the 4-bit, 2-bit and 6-bit fields of a source word into a
+// destination word.
+// FUNCTION: CMR2 0x004d0370
+void FUN_004d0370(int *pDest, int *pSource)
+{
+    pDest[1] = pSource[1];
+    *pDest = (((*pDest ^ *pSource) & 0xf) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x30) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x3fc0) ^ *pDest);
+}
+
+// Merges the 3-bit, 2-bit and 6-bit fields of a source word into a
+// destination word.
+// FUNCTION: CMR2 0x004d03b0
+void FUN_004d03b0(int *pDest, int *pSource)
+{
+    pDest[1] = pSource[1];
+    *pDest = (((*pDest ^ *pSource) & 7) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x18) ^ *pDest);
+    *pDest = (((*pDest ^ *pSource) & 0x7e0) ^ *pDest);
+}
+
+// cross-range: 0x4d0770 belongs to the Game.cpp range but is only used by
+// FUN_004d2070 here; it returns the callback machine state block.
+// FUNCTION: CMR2 0x004d0770
+Unk0049c2c0 *FUN_004d0770(void)
+{
+    return &CGame::m_unk0x00817da0;
+}
+
+// Enables/disables the debug overlay channels and pushes the new flags into
+// the grouped callback machine.
+// FUNCTION: CMR2 0x004d2070
+void FUN_004d2070(BYTE param1, BYTE param2, BYTE param3)
+{
+    Unk0049c2c0 *p;
+
+    p = (Unk0049c2c0 *)FUN_004d0770();
+    CGame::m_unk0x00523d68 = param1;
+    CGame::m_unk0x008180f9 = param2;
+    g_unk0x008180fa = param3;
+    if (param1 == 0 && param2 == 0 && param3 == 0)
+        CGame::FUN_0049c1c0(p, 0, 7, 2);
+    else
+        CGame::FUN_0049c1c0(p, 0, 0, 2);
 }
