@@ -131,6 +131,36 @@ struct ControllerInfo {
     BYTE pad[4185];
 };
 
+// GUIDs referenced by the data-format descriptor arrays in Input.cpp. They are
+// data imports (copies live in our .data) but reccmp needs the markers to pair
+// them with the original's copies.
+// GLOBAL: CMR2 0x005117e8
+// GUID_XAxis
+
+// GLOBAL: CMR2 0x005117f8
+// GUID_YAxis
+
+// GLOBAL: CMR2 0x00511808
+// GUID_ZAxis
+
+// GLOBAL: CMR2 0x00511818
+// GUID_RxAxis
+
+// GLOBAL: CMR2 0x00511828
+// GUID_RyAxis
+
+// GLOBAL: CMR2 0x00511838
+// GUID_RzAxis
+
+// GLOBAL: CMR2 0x00511848
+// GUID_Slider
+
+// GLOBAL: CMR2 0x00511868
+// GUID_Key
+
+// GLOBAL: CMR2 0x00511878
+// GUID_POV
+
 // GLOBAL: CMR2 0x00511908
 // GUID_ConstantForce
 

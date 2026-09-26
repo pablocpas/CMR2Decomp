@@ -23,6 +23,180 @@ void Sector_GetGridDimensions(int *columns, int *rows)
     *rows = g_sectorRows;
 }
 
+// Counts of the records that follow the 0x30-byte header of a stage mesh file.
+struct MeshFileHeader {
+    int field_0x0;
+    int textureFile;               // 0x4  passed to the texture loader
+    int field_0x8;
+    int field_0xc;                 // 0xc  offset of the texture name table
+    int field_0x10;                // 0x10 records of 0x14
+    int field_0x14;                // 0x14 records of 0x30
+    unsigned short nodeCount;      // 0x18 records of 0x18c
+    unsigned short meshCount;      // 0x1a records of 0x120
+    unsigned short objectCount;    // 0x1c records of 0xa0
+    unsigned short sectorCount;    // 0x1e records of 0x88
+    int triangleCount;             // 0x20 records of 0x4c
+    unsigned short field_0x24;
+    unsigned short recordCount;    // 0x26 records of 0x5c
+    unsigned short partCount;      // 0x28 records of 0x1c
+    int field_0x2c;
+};
+
+// Meshes registered by the mesh file loader, indexed by total mesh size.
+// GLOBAL: CMR2 0x0066f124
+void *g_unk0x0066f124[8192];
+extern int g_unk0x0067f228;
+extern StageObject *g_stageObjects[6000];
+
+void FUN_004b98f0(int *p, int value);
+void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5);
+void Mesh_UploadVertices(Mesh *pMesh);
+void Mesh_BuildParts(Mesh *pMesh);
+
+// Relocates the stage mesh file: turns the offsets stored in the node, mesh,
+// object and sector records into pointers, registers them in the scene node,
+// mesh, stage object and sector tables, loads the textures and re-uploads the
+// vertex buffers of every mesh.
+// TODO: CMR2 0x004b93c0 (implemented, match 37%)
+void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
+{
+    int count = 0;
+    BYTE *pNodes;
+    BYTE *pMeshArray;
+    BYTE *pStageObjects;
+    BYTE *pSectors;
+    BYTE *pTriangles;
+    BYTE *pVertexData;
+    BYTE *pLightLevels;
+    BYTE *pVertexFlags;
+    BYTE *pRecords;
+    int textureRecords;
+    unsigned short recordSize;
+    int savedNodeCount;
+    int i;
+    int j;
+    int k;
+    int *pField;
+    BYTE *p;
+
+    pNodes = pData + 0x30;
+    pMeshArray = pNodes + *(unsigned short *)(pData + 0x18) * 0x18c;
+    pStageObjects = pMeshArray + (*(unsigned short *)(pData + 0x1a) + *(unsigned short *)(pData + 0x1c)) * 0x120;
+    pSectors = pStageObjects + *(unsigned short *)(pData + 0x1c) * 0xa0;
+    pTriangles = pSectors + *(unsigned short *)(pData + 0x1e) * 0x88 + *(unsigned short *)(pData + 0x28) * 0x1c;
+    pVertexData = pTriangles + *(int *)(pData + 0x20) * 0x4c;
+    pLightLevels = pVertexData + *(int *)(pData + 0x14) * 0x30;
+    pVertexFlags = pLightLevels + *(int *)(pData + 0x14) * 4;
+    pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
+    textureRecords = *(int *)(pData + 0xc) + (int)pData;
+    recordSize = *(unsigned short *)(pData + 0x26);
+    if (*(int *)(pData + 0x20) != 0) {
+        pField = (int *)(pTriangles + 4);
+        do {
+            k = 10;
+            do {
+                if (*pField != -1)
+                    *pField += (int)CGraphics::m_textureCount;
+                pField++;
+                k--;
+            } while (k != 0);
+            count++;
+            pField += 0x13;
+        } while (count < *(unsigned int *)(pData + 0x20));
+    }
+    FUN_004b9910((int)(pRecords + recordSize * 0x5c), textureRecords,
+                 *(unsigned short *)(pData + 0x24), *(int *)(pData + 4), param_3);
+    savedNodeCount = g_sceneNodeCount;
+    if (*(unsigned short *)(pData + 0x18) != 0) {
+        for (i = 0, p = pNodes; i < *(unsigned short *)(pData + 0x18); i++, p += 0x18c) {
+            FUN_004b98f0((int *)p, (int)pNodes);
+            FUN_004b98f0((int *)(p + 4), (int)pNodes);
+            if (param_2 == 0 || *(short *)(p + 0x24) != -1) {
+                FUN_004b98f0((int *)(p + 8), (int)pNodes);
+                *(short *)(p + 0x24) = -1;
+            } else {
+                SceneNode_Attach((SceneNode *)p, (SceneNode *)param_2);
+            }
+            FUN_004b98f0((int *)(p + 0x170), (int)pNodes);
+            FUN_004b98f0((int *)(p + 0xc), (int)pMeshArray);
+            g_sceneNodes[g_sceneNodeCount + i] = (SceneNode *)p;
+            *(short *)(p + 0x26) = (short)(g_sceneNodeCount + i);
+        }
+        g_sceneNodeCount += *(unsigned short *)(pData + 0x18);
+    }
+    if (*(short *)(pData + 0x26) != 0) {
+        for (j = 0, p = pRecords; j < *(unsigned short *)(pData + 0x26); j++, p += 0x5c) {
+            FUN_004b98f0((int *)(p + 0x58), (int)pRecords);
+            g_unk0x0066f124[g_meshTotalSize + j] = p;
+        }
+        g_meshTotalSize += *(unsigned short *)(pData + 0x26);
+    }
+    if (*(short *)(pData + 0x1a) != 0) {
+        for (i = 0, p = pMeshArray + 0x113; i < *(unsigned short *)(pData + 0x1a); i++, p += 0x120) {
+            j = 0;
+            if (*p != 0) {
+                pField = (int *)(p - 0x107);
+                do {
+                    FUN_004b98f0(pField + 6, (int)pTriangles);
+                    FUN_004b98f0(pField, (int)pVertexData);
+                    FUN_004b98f0(pField + 10, (int)pLightLevels);
+                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                    j++;
+                    pField += 0x42;
+                } while (j < *p);
+            }
+            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+            if (*(short *)(pData + 0x1e) == 0)
+                g_meshes[g_meshCount + i] = (Mesh *)(p - 0x113);
+        }
+        if (*(short *)(pData + 0x1e) == 0)
+            g_meshCount += *(unsigned short *)(pData + 0x1a);
+    }
+    if (*(unsigned short *)(pData + 0x1c) != 0) {
+        for (j = *(unsigned short *)(pData + 0x1a), p = pMeshArray + j * 0x120 + 0x113;
+             j < *(unsigned short *)(pData + 0x1c) + *(unsigned short *)(pData + 0x1a);
+             j++, p += 0x120) {
+            i = 0;
+            if (*p != 0) {
+                pField = (int *)(p - 0x107);
+                do {
+                    FUN_004b98f0(pField + 6, (int)pTriangles);
+                    FUN_004b98f0(pField, (int)pVertexData);
+                    FUN_004b98f0(pField + 10, (int)pLightLevels);
+                    FUN_004b98f0(pField + 5, (int)pVertexFlags);
+                    Mesh_UploadVertices((Mesh *)((BYTE *)pField - 0xc));
+                    Mesh_BuildParts((Mesh *)((BYTE *)pField - 0xc));
+                    *(unsigned int *)((BYTE *)pField + 0x24) &= 0xfffbffff;
+                    i++;
+                    pField += 0x42;
+                } while (i < *p);
+            }
+            FUN_004b98f0((int *)(p - 7), (int)pRecords);
+        }
+        i = 0;
+        if (*(short *)(pData + 0x1c) != 0) {
+            for (p = pStageObjects + 0x98; i < *(unsigned short *)(pData + 0x1c); i++, p += 0xa0) {
+                FUN_004b98f0((int *)(p - 0x8c),
+                             (int)(pMeshArray + *(unsigned short *)(pData + 0x1a) * 0x120));
+                FUN_004b98f0((int *)p, (int)pStageObjects);
+                g_stageObjects[g_unk0x0067f228 + i] = (StageObject *)(p - 0x98);
+            }
+        }
+        g_unk0x0067f228 += *(unsigned short *)(pData + 0x1c);
+    }
+    if (*(short *)(pData + 0x1e) != 0) {
+        for (i = 0, p = pSectors; i < *(unsigned short *)(pData + 0x1e); i++, p += 0x88) {
+            FUN_004b98f0((int *)(p + 0x10), (int)pMeshArray);
+            g_sectors[i] = (Sector *)p;
+        }
+        g_sectorCount = *(unsigned short *)(pData + 0x1e);
+    }
+    return g_sceneNodes[savedNodeCount];
+}
+
 // Removes a scene node from the linked list of its current sector.
 // TODO: CMR2 0x004b8aa0 (implemented, match 82%)
 void Sector_RemoveNode(SceneNode *pNode)
@@ -397,6 +571,119 @@ void FUN_004b8b10(SceneNode *pNode)
     }
     g_sectors[index]->nodeCount++;
     pNode->sector = (WORD)index;
+}
+
+// Visible sector indices collected by 0x004b7de0 (one short per sector).
+// GLOBAL: CMR2 0x006ed5f0
+short g_unk0x006ed5f0[14096];
+int Tri2D_Contains(int *pPoint, int *pTri);
+
+// Sector culling pass of a scene node: walks the sector grid around its world
+// position and marks every sector whose bounding rectangle overlaps the screen
+// triangle built from the node position and the "radius" (the fixed far plane
+// distance), storing the squared distance of each marked sector.
+// TODO: CMR2 0x004b7de0 (implemented, match 67%)
+void FUN_004b7de0(SceneNode *pNode, int unused)
+{
+    FixVector pos;
+    FixVector dir;
+    FixVector origin;
+    FixVector forward;
+    FixVector scaled;
+    int tri[6];
+    short iSector;
+    int radius;
+    int spread;
+    int rem;
+    int quo;
+    int colStart;
+    int colEnd;
+    int rowStart;
+    int rowEnd;
+    int row;
+    int col;
+    int index;
+    int len;
+    int ex;
+    int ez;
+    int fx;
+    int fz;
+    int dx;
+    int dz;
+
+    radius = CGraphics::m_farPlaneFixed;
+    memset(g_sectorVisibleBits, 0, sizeof(g_sectorVisibleBits));
+    g_sectorCullEnabled = 0;
+    pos.y = 0;
+    pos.x = pNode->world.position.x;
+    pos.z = pNode->world.position.z;
+    spread = FixMulShift32(radius, g_sectorScale);
+    iSector = (short)Sector_FromPosition(&pos);
+    rem = iSector % g_sectorsPerRow;
+    quo = iSector / g_sectorsPerRow;
+    colStart = rem - spread - 1;
+    if (colStart < 0)
+        colStart = 0;
+    colEnd = rem + spread + 2;
+    if (colEnd > g_sectorsPerRow)
+        colEnd = g_sectorsPerRow;
+    rowStart = quo - spread - 1;
+    if (rowStart < 0)
+        rowStart = 0;
+    rowEnd = quo + spread + 2;
+    if (rowEnd > g_sectorRows)
+        rowEnd = g_sectorRows;
+    dir.x = pNode->world.forward.x;
+    dir.y = 0;
+    dir.z = pNode->world.forward.z;
+    len = FixVecLength(&dir);
+    if (len == 0) {
+        dir.x = 0;
+        dir.y = 0;
+        dir.z = 0;
+    } else {
+        FixVecScale(&dir, &dir, (int)(0x100000000i64 / len));
+    }
+    tri[0] = pNode->world.position.x;
+    tri[1] = pNode->world.position.z;
+    ex = FixMul(dir.x, radius);
+    ez = FixMul(dir.z, radius);
+    fz = FixMul(dir.z, FixMul(radius, 0x10000));
+    fx = -FixMul(dir.x, FixMul(radius, 0x10000));
+    tri[4] = tri[0] - fz + ex;
+    tri[5] = tri[1] - fx + ez;
+    tri[2] = tri[0] + fz + ex;
+    tri[3] = tri[1] + fx + ez;
+    FixMatrix_GetPosition(&origin, &pNode->world);
+    FixMatrix_GetForward(&forward, &pNode->world);
+    FixVecScale(&scaled, &forward, 0xa0000);
+    origin.x = origin.x - scaled.x;
+    origin.y = origin.y - scaled.y;
+    origin.z = origin.z - scaled.z;
+    for (row = rowStart; row < rowEnd; row++) {
+        for (col = colStart; col < colEnd; col++) {
+            index = row * g_sectorsPerRow + col;
+            if (Tri2D_Contains(g_sectors[index]->bounds[2], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[3], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[1], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[0], tri) ||
+                index == iSector - g_sectorsPerRow - 1 || index == iSector - g_sectorsPerRow ||
+                index == iSector - g_sectorsPerRow + 1 || index == iSector - 1 || index == iSector ||
+                index == iSector + 1 || index == iSector + g_sectorsPerRow - 1 ||
+                index == iSector + g_sectorsPerRow || index == iSector + g_sectorsPerRow + 1) {
+                dx = g_sectors[index]->x - tri[0];
+                dz = g_sectors[index]->z - tri[1];
+                *(int *)((BYTE *)g_sectors[index] + 0x7c) = FixMul(dx, dx) + FixMul(dz, dz);
+                if (index < g_sectorCount && index >= 0) {
+                    g_unk0x006ed5f0[g_sectorCullEnabled] = (short)index;
+                    g_sectorCullEnabled++;
+                    *(int *)((BYTE *)g_sectors[index] + 0x80) = 0;
+                    *(int *)((BYTE *)g_sectors[index] + 0x84) = 1;
+                    g_sectorVisibleBits[index >> 5] |= 1 << (index & 0x1f);
+                }
+            }
+        }
+    }
 }
 
 // Rebuilds the node list of every sector from the positions of the root's children.

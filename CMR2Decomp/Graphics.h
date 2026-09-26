@@ -1200,7 +1200,7 @@ public:
     static char m_strSuffixDIGIT[8];
     // GLOBAL: CMR2 0x0051c9ec
     static char m_strSuffixREVCT[8];
-    static void SetClearColour(int unused, BYTE r, BYTE g, BYTE b);
+    static void SetClearColour(int unused, int r, int g, int b);
     static void ClearTarget(void);
     static BOOL ClearZBuffer(void);
     static void SetCullMode(int mode);
@@ -1327,11 +1327,20 @@ private:
     friend void Graphics_ReloadTexture(Texture *pTexture);
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
     friend void FUN_0049dcc0(int enable);
+    friend void FUN_0049de40(void);
     friend void FUN_0049c7b0(Mesh *pMesh);
     friend void FUN_00477b60(int car, int unused1, int unused2, BYTE flag);
     friend void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
     friend void FUN_0049c880(Mesh *pMesh);
+    // Draws the mesh LOD record in use with the state its flags ask for.
+    friend void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
     friend int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
+    friend void FUN_004b2460(Mesh *pMesh);
+    friend void FUN_004b2610(Mesh *pMesh);
+    // Mesh_DrawEnvMapped sets the texture transform of the projected cube map.
+    friend void Mesh_DrawEnvMapped(Mesh *pMesh);
+    friend void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
+    friend void FUN_00506080(int param1);
     friend Texture *FUN_004b9b80(char *name);
     friend void Events_Init(int unused, int slot, char animate);
     friend void Scene_SetAmbient(BYTE *pColour, int boost);
@@ -1365,6 +1374,8 @@ private:
     friend void Mesh_UploadVertices(Mesh *pMesh);
     friend void FUN_00477340(int player);
     friend void FUN_0049c680(Mesh *pMesh);
+    friend int FUN_0050ff90(char *fileName, unsigned int trackIndex);
+    friend void FUN_0049c510(Mesh *pMesh);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;

@@ -311,36 +311,120 @@ BYTE g_stageEntries[3168] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+// Pool of stage/event name literals. The original keeps it right after
+// g_stageNames (0x526b30, ending where the 0x526df0 pointer table starts);
+// both tables below point into it.
+// GLOBAL: CMR2 0x00526b30
+const char g_stageNameStrings[] =
+    "Kington" "\0"
+    "Penybont" "\0\0\0\0"
+    "Caersw" "\0\0"
+    "Ripley" "\0\0"
+    "Darton" "\0\0"
+    "Melsonby" "\0\0\0\0"
+    "Dalton" "\0\0"
+    "Richmond" "\0\0\0\0"
+    "Rieti" "\0\0\0"
+    "Celano" "\0\0"
+    "Valenza" "\0"
+    "Voghera" "\0"
+    "Castel" "\0\0"
+    "Lodi" "\0\0\0\0"
+    "Vignola" "\0"
+    "Carpi" "\0\0\0"
+    "Modena" "\0\0"
+    "Mirwani" "\0"
+    "Pelekech" "\0\0\0\0"
+    "Lodwar" "\0\0"
+    "Choba" "\0\0\0"
+    "Holta" "\0\0\0"
+    "Buna" "\0\0\0\0"
+    "Kalossia" "\0\0\0\0"
+    "Kapuitr" "\0"
+    "Lokichar" "\0\0\0\0"
+    "Kooline" "\0"
+    "Warrie" "\0\0"
+    "Mornington" "\0\0"
+    "Billiluna" "\0\0\0"
+    "Ellendale" "\0\0\0"
+    "Wiluna" "\0\0"
+    "Earaheady" "\0\0\0"
+    "Wongawol" "\0\0\0\0"
+    "Ljungby" "\0"
+    "Skara" "\0\0\0"
+    "Tranas" "\0\0"
+    "Falun" "\0\0\0"
+    "Arvika" "\0\0"
+    "Karlstad" "\0\0\0\0"
+    "Ange" "\0\0\0\0"
+    "Bispfors" "\0\0\0\0"
+    "Hoting" "\0\0"
+    "Mora" "\0\0\0\0"
+    "Laon" "\0\0\0\0"
+    "Chauny" "\0\0"
+    "Damville" "\0\0\0\0"
+    "Dreux" "\0\0\0"
+    "Falaise" "\0"
+    "Livarot" "\0"
+    "Authon" "\0\0"
+    "Ballon" "\0\0"
+    "Veroia" "\0\0"
+    "Kozani" "\0\0"
+    "Siatista" "\0\0\0\0"
+    "Grammos" "\0"
+    "Smolikas" "\0\0\0\0"
+    "Kilkis" "\0\0"
+    "Dodona" "\0\0"
+    "Kalabaka" "\0\0\0\0"
+    "Kivotos" "\0"
+    "Nowhere" "\0"
+    "Tampere" "\0"
+    "Jamsa" "\0\0\0"
+    "Kittila" "\0"
+    "Rovaniemi" "\0\0\0"
+    "Kemijarvi" "\0\0\0"
+    "Joensuu" "\0"
+    "Kupio" "\0\0\0"
+    "Mikkeli" "\0"
+    "Redmire" "\0"
+    "Lokichokio" "\0\0"
+    "Zonza" "\0\0\0"
+    "Ivalo" "\0\0\0"
+    "Cables" "\0\0"
+    "Tomaros" "\0"
+    "Lysvik" "\0\0"
+    "Berceto";
+
 // GLOBAL: CMR2 0x005269b0
 const char *g_eventNames[8] = {
-    (const char *)0x00526de8, (const char *)0x00526de0, (const char *)0x00526dd8, (const char *)0x00526dd0,
-    (const char *)0x00526dc8, (const char *)0x00526dc0, (const char *)0x00526db4, (const char *)0x00526dac,
+    g_stageNameStrings + 0x2b8, g_stageNameStrings + 0x2b0, g_stageNameStrings + 0x2a8, g_stageNameStrings + 0x2a0,
+    g_stageNameStrings + 0x298, g_stageNameStrings + 0x290, g_stageNameStrings + 0x284, g_stageNameStrings + 0x27c,
 };
 
 // GLOBAL: CMR2 0x005269d0
 const char *g_stageNames[88] = {
-    (const char *)0x00526da4, (const char *)0x00526d9c, (const char *)0x00526d94, (const char *)0x00526da4,
-    (const char *)0x00526d88, (const char *)0x00526d7c, (const char *)0x00526d74, (const char *)0x00526d88,
-    (const char *)0x00526d6c, (const char *)0x00526d64, (const char *)0x00526d5c, (const char *)0x00526d54,
-    (const char *)0x00526d48, (const char *)0x00526d40, (const char *)0x00526d38, (const char *)0x00526d2c,
-    (const char *)0x00526d24, (const char *)0x00526d18, (const char *)0x00526d10, (const char *)0x00526d38,
-    (const char *)0x00526d10, (const char *)0x00526d08, (const char *)0x00526d00, (const char *)0x00526cf8,
-    (const char *)0x00526cf0, (const char *)0x00526ce8, (const char *)0x00526ce8, (const char *)0x00526cf0,
-    (const char *)0x00526ce0, (const char *)0x00526cd4, (const char *)0x00526ccc, (const char *)0x00526cc4,
-    (const char *)0x00526d5c, (const char *)0x00526cbc, (const char *)0x00526cb4, (const char *)0x00526ca8,
-    (const char *)0x00526ca0, (const char *)0x00526c94, (const char *)0x00526c8c, (const char *)0x00526c84,
-    (const char *)0x00526cbc, (const char *)0x00526c7c, (const char *)0x00526c74, (const char *)0x00526c6c,
-    (const char *)0x00526c60, (const char *)0x00526c54, (const char *)0x00526c4c, (const char *)0x00526c40,
-    (const char *)0x00526c34, (const char *)0x00526c28, (const char *)0x00526c40, (const char *)0x00526c34,
-    (const char *)0x00526c20, (const char *)0x00526c18, (const char *)0x00526d5c, (const char *)0x00526c0c,
-    (const char *)0x00526c04, (const char *)0x00526bf8, (const char *)0x00526c0c, (const char *)0x00526bf0,
-    (const char *)0x00526be8, (const char *)0x00526be0, (const char *)0x00526bf0, (const char *)0x00526bd8,
-    (const char *)0x00526bcc, (const char *)0x00526bc4, (const char *)0x00526bbc, (const char *)0x00526bb4,
-    (const char *)0x00526bac, (const char *)0x00526ba4, (const char *)0x00526b9c, (const char *)0x00526b94,
-    (const char *)0x00526ba4, (const char *)0x00526b8c, (const char *)0x00526b84, (const char *)0x00526b7c,
-    (const char *)0x00526d5c, (const char *)0x00526b70, (const char *)0x00526b68, (const char *)0x00526b5c,
-    (const char *)0x00526b70, (const char *)0x00526b54, (const char *)0x00526b4c, (const char *)0x00526b54,
-    (const char *)0x00526b4c, (const char *)0x00526b44, (const char *)0x00526b38, (const char *)0x00526b30,
+    g_stageNameStrings + 0x274, g_stageNameStrings + 0x26c, g_stageNameStrings + 0x264, g_stageNameStrings + 0x274,
+    g_stageNameStrings + 0x258, g_stageNameStrings + 0x24c, g_stageNameStrings + 0x244, g_stageNameStrings + 0x258,
+    g_stageNameStrings + 0x23c, g_stageNameStrings + 0x234, g_stageNameStrings + 0x22c, g_stageNameStrings + 0x224,
+    g_stageNameStrings + 0x218, g_stageNameStrings + 0x210, g_stageNameStrings + 0x208, g_stageNameStrings + 0x1fc,
+    g_stageNameStrings + 0x1f4, g_stageNameStrings + 0x1e8, g_stageNameStrings + 0x1e0, g_stageNameStrings + 0x208,
+    g_stageNameStrings + 0x1e0, g_stageNameStrings + 0x1d8, g_stageNameStrings + 0x1d0, g_stageNameStrings + 0x1c8,
+    g_stageNameStrings + 0x1c0, g_stageNameStrings + 0x1b8, g_stageNameStrings + 0x1b8, g_stageNameStrings + 0x1c0,
+    g_stageNameStrings + 0x1b0, g_stageNameStrings + 0x1a4, g_stageNameStrings + 0x19c, g_stageNameStrings + 0x194,
+    g_stageNameStrings + 0x22c, g_stageNameStrings + 0x18c, g_stageNameStrings + 0x184, g_stageNameStrings + 0x178,
+    g_stageNameStrings + 0x170, g_stageNameStrings + 0x164, g_stageNameStrings + 0x15c, g_stageNameStrings + 0x154,
+    g_stageNameStrings + 0x18c, g_stageNameStrings + 0x14c, g_stageNameStrings + 0x144, g_stageNameStrings + 0x13c,
+    g_stageNameStrings + 0x130, g_stageNameStrings + 0x124, g_stageNameStrings + 0x11c, g_stageNameStrings + 0x110,
+    g_stageNameStrings + 0x104, g_stageNameStrings + 0xf8, g_stageNameStrings + 0x110, g_stageNameStrings + 0x104,
+    g_stageNameStrings + 0xf0, g_stageNameStrings + 0xe8, g_stageNameStrings + 0x22c, g_stageNameStrings + 0xdc,
+    g_stageNameStrings + 0xd4, g_stageNameStrings + 0xc8, g_stageNameStrings + 0xdc, g_stageNameStrings + 0xc0,
+    g_stageNameStrings + 0xb8, g_stageNameStrings + 0xb0, g_stageNameStrings + 0xc0, g_stageNameStrings + 0xa8,
+    g_stageNameStrings + 0x9c, g_stageNameStrings + 0x94, g_stageNameStrings + 0x8c, g_stageNameStrings + 0x84,
+    g_stageNameStrings + 0x7c, g_stageNameStrings + 0x74, g_stageNameStrings + 0x6c, g_stageNameStrings + 0x64,
+    g_stageNameStrings + 0x74, g_stageNameStrings + 0x5c, g_stageNameStrings + 0x54, g_stageNameStrings + 0x4c,
+    g_stageNameStrings + 0x22c, g_stageNameStrings + 0x40, g_stageNameStrings + 0x38, g_stageNameStrings + 0x2c,
+    g_stageNameStrings + 0x40, g_stageNameStrings + 0x24, g_stageNameStrings + 0x1c, g_stageNameStrings + 0x24,
+    g_stageNameStrings + 0x1c, g_stageNameStrings + 0x14, g_stageNameStrings + 0x8, g_stageNameStrings + 0x0,
 };
 
 // FUNCTION: CMR2 0x004f89b0

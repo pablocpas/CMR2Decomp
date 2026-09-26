@@ -533,6 +533,169 @@ void CGameInfo::FUN_004066e0(char *name)
     strcpy(m_gameInfo.field_0x3965, name);
 }
 
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+void FUN_004a2fe0(void);
+IDirectSound *FUN_004a1d00(void);
+
+#include "../third_party/bink-sdk-1.0p/include/bink.h"
+
+// Bink movie state: the open movie and its dimensions, the Bink buffer the
+// frames are played on, the DirectDraw surface they are converted to, and the
+// surface type returned for it (-1 while unknown).
+// GLOBAL: CMR2 0x005297d0
+int g_unk0x005297d0 = -1;
+// GLOBAL: CMR2 0x00831ac8
+unsigned int g_unk0x00831ac8;
+// GLOBAL: CMR2 0x00831acc
+unsigned int g_unk0x00831acc;
+// GLOBAL: CMR2 0x00831ad0
+HBINK g_pUnk0x00831ad0;
+// GLOBAL: CMR2 0x00831ad4
+HBINKBUFFER g_pUnk0x00831ad4;
+// GLOBAL: CMR2 0x00831c54
+IDirectDrawSurface7 *g_pUnk0x00831c54;
+// GLOBAL: CMR2 0x00831c68
+int g_unk0x00831c68;
+// GLOBAL: CMR2 0x00831c6c
+IDirectDrawSurface7 *g_pUnk0x00831c6c;
+
+// Opens the movie file with Bink, creates the DirectDraw surface its frames are
+// copied to and opens a Bink buffer on the game window. Returns 0 if the CD is
+// missing.
+// FUNCTION: CMR2 0x0050ff90
+int FUN_0050ff90(char *fileName, unsigned int trackIndex)
+{
+    DDSURFACEDESC2 desc;
+
+    BinkSoundUseDirectSound(FUN_004a1d00());
+    BinkSetSoundTrack(trackIndex);
+    g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+    while (g_pUnk0x00831ad0 == NULL) {
+        if (!CInstallInfo::ShowNoCDErrorMessage())
+            return 0;
+        g_pUnk0x00831ad0 = BinkOpen(fileName, BINKNOTHREADEDIO | BINKSNDTRACK);
+    }
+
+    g_unk0x00831ac8 = g_pUnk0x00831ad0->Width;
+    g_unk0x00831acc = g_pUnk0x00831ad0->Height;
+
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(desc);
+    desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    desc.dwWidth = g_pUnk0x00831ad0->Width;
+    desc.dwHeight = g_pUnk0x00831ad0->Height;
+    desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+    if (CGraphics::FUN_004a8d60() == 1 || CGraphics::FUN_004a8d60() == 2)
+        desc.ddsCaps.dwCaps2 = DDSCAPS2_DONOTPERSIST | DDSCAPS2_TEXTUREMANAGE;
+    else
+        desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+    desc.ddsCaps.dwCaps2 |= DDSCAPS2_HINTDYNAMIC;
+    desc.ddpfPixelFormat = CGraphics::m_pTextureManager->textureInfo1->desc.ddpfPixelFormat;
+    desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+    g_pGraphics->pDD7->CreateSurface(&desc, &g_pUnk0x00831c6c, NULL);
+
+    g_unk0x005297d0 = BinkDDSurfaceType(g_pUnk0x00831c6c);
+    if (g_pUnk0x00831c54 == g_pGraphics->pPrimarySurface && g_pGraphics->isFullscreen)
+        g_pGraphics->pDD7->FlipToGDISurface();
+
+    g_pUnk0x00831ad4 = BinkBufferOpen(CMain::m_hWndList[CMain::m_hWndIx], g_pUnk0x00831ad0->Width,
+                                      g_pUnk0x00831ad0->Height,
+                                      BINKBUFFERSTRETCHX | BINKBUFFERSTRETCHY);
+    return 1;
+}
+
+// Half of the letterbox border added to centre the movie (0.5).
+// GLOBAL: CMR2 0x005113b8
+double g_unk0x005113b8 = 0.5;
+
+// Plays one frame of the current movie: scales and offsets the Bink buffer to
+// the game window, copies the frame into it and blits it to the screen.
+// Returns whether the movie has more frames left.
+// TODO: CMR2 0x00510120 (implemented, match 68%)
+BOOL FUN_00510120(BYTE skipOnSpace)
+{
+    DeviceInfo *pDevice;
+    RECT clientRect;
+    BYTE keyByte;
+    int scaleWidth;
+    int scaleHeight;
+    int waitResult;
+
+    CInput::FUN_0049eab0();
+    pDevice = CInput::FUN_0049ead0(0);
+    FUN_0040bd60(0, pDevice);
+    if (pDevice->field_0x8 & 0x10)
+        return FALSE;
+    if (skipOnSpace & 1) {
+        keyByte = (BYTE)((GetAsyncKeyState(VK_SPACE) & 0xff00) >> 8);
+        if (keyByte != 0)
+            return TRUE;
+    }
+
+    BinkDoFrame(g_pUnk0x00831ad0);
+    if (!g_pGraphics->isFullscreen) {
+        GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], &clientRect);
+        BinkBufferSetScale(g_pUnk0x00831ad4, clientRect.right - clientRect.left,
+                           clientRect.bottom - clientRect.top);
+    } else {
+        if (CGraphics::FUN_004a96d0(CGraphics::FUN_004a8bc0()) != 0) {
+            if (CGameInfo::GetScreenWidth() >= 0x640) {
+                scaleWidth = 0x500;
+                scaleHeight = 0x3c0;
+            } else if (CGameInfo::GetScreenWidth() >= 0x400) {
+                scaleWidth = 0x400;
+                scaleHeight = 0x300;
+            } else {
+                scaleWidth = 0x280;
+                scaleHeight = 0x1e0;
+            }
+            BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
+            BinkBufferSetOffset(g_pUnk0x00831ad4,
+                                (int)((int)(g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+        } else {
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)((int)(g_pGraphics->resX - 0x280) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+        }
+        if (CGraphics::FUN_004a96e0(CGraphics::FUN_004a8bc0()) == 0)
+            BinkBufferSetOffset(g_pUnk0x00831ad4,
+                                (int)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
+                                (int)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+    }
+
+    if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
+        BinkCopyToBuffer(g_pUnk0x00831ad0, g_pUnk0x00831ad4->Buffer, g_pUnk0x00831ad4->BufferPitch,
+                         g_pUnk0x00831ad4->Height, 0, 0, g_pUnk0x00831ad4->SurfaceType);
+        BinkBufferUnlock(g_pUnk0x00831ad4);
+    }
+    BinkBufferBlit(g_pUnk0x00831ad4, g_pUnk0x00831ad0->FrameRects,
+                   BinkGetRects(g_pUnk0x00831ad0, g_pUnk0x00831ad4->SurfaceType));
+    BinkNextFrame(g_pUnk0x00831ad0);
+    waitResult = BinkWait(g_pUnk0x00831ad0);
+    while (waitResult != 0)
+        waitResult = BinkWait(g_pUnk0x00831ad0);
+    return g_pUnk0x00831ad0->FrameNum < g_pUnk0x00831ad0->Frames;
+}
+
+// Releases the DirectDraw surface the movie frames are converted to and closes
+// the open movie.
+// FUNCTION: CMR2 0x005103d0
+void FUN_005103d0(void)
+{
+    ULONG refCount;
+
+    g_unk0x00831c68 = 0;
+    g_pUnk0x00831c54 = NULL;
+    if (g_pUnk0x00831c6c != NULL) {
+        refCount = g_pUnk0x00831c6c->Release();
+        if (refCount == 0)
+            g_pUnk0x00831c6c = NULL;
+    }
+    if (g_pUnk0x00831ad0 != NULL)
+        BinkClose(g_pUnk0x00831ad0);
+}
+
 // FUNCTION: CMR2 0x00510410
 void CGameInfo::FUN_00510410(void)
 {
@@ -1222,6 +1385,11 @@ void FUN_00406780(int param1)
     CGameInfo::m_gameInfo.field_0x398c = param1;
 }
 
+// FUNCTION: CMR2 0x004d0580
+unsigned char FUN_004d0580(void) {
+    return CGameInfo::m_unk0x00817574;
+}
+
 // FUNCTION: CMR2 0x004d0590
 void CGameInfo::FUN_004d0590(BYTE param1) {
     m_unk0x00817574 = param1;
@@ -1282,6 +1450,8 @@ unsigned int CGameInfo::FUN_00405c00(void) {
 int g_unk0x0082af88;
 // GLOBAL: CMR2 0x0082b0a8
 int g_unk0x0082b0a8;
+// GLOBAL: CMR2 0x0082b0ac
+BYTE g_unk0x0082b0ac;
 // GLOBAL: CMR2 0x0082ac58
 int g_unk0x0082ac58;
 // GLOBAL: CMR2 0x0082ac5c
@@ -1335,11 +1505,44 @@ struct Unk0x0082d220Vec {
     int v[4];
 };
 
+// 3-component integer vector of the mesh record (12 bytes).
+struct Unk0x0082d220Vec3 {
+    int v[3];
+};
+
+// Source copy of one vertex of a stage mesh (0x20 bytes): position and normal in
+// 16.16, then the packed normal bytes. Filled by FUN_00506bb0.
+struct Unk0x0082d220VertexFixed {
+    FixVector position; // 0x0
+    FixVector normal;   // 0xc
+    BYTE field_0x18[8]; // 0x18
+};
+
+// Mesh vertex the engine renders (0x30 bytes), same layout as MeshVertexF.
+struct Unk0x0082d220VertexF {
+    float x, y, z;      // 0x0
+    float nx, ny, nz;   // 0xc
+    BYTE field_0x18[0x18]; // 0x18
+};
+
+// Stage mesh record (0x2ac bytes): 15 mesh slots (mesh id - 5) with their scene
+// node, source vertex data, bounding box and per-option state.
 struct Unk0x0082d220 {
-    BYTE field_0x0[0x22c];
+    Mesh *pMeshes[15];                            // 0x0
+    SceneNode *pNodes[15];                        // 0x3c
+    Unk0x0082d220VertexFixed *pVertexData[15];    // 0x78
+    Unk0x0082d220Vec3 centre[15];                 // 0xb4  bounding box centre
+    Unk0x0082d220Vec3 halfSize[15];               // 0x168 half size of the box
+    int field_0x21c;                              // 0x21c
+    int field_0x220;
+    int field_0x224;
+    int field_0x228;
     Unk0x0082d220Vec field_0x22c;
     Unk0x0082d220Vec field_0x23c;
-    BYTE field_0x24c[0x60];
+    WORD vertexCount[15];                         // 0x24c
+    BYTE meshCount;                               // 0x26a used slots
+    int field_0x26c[15];                          // 0x26c
+    int field_0x2a8;                              // 0x2a8 meshes rebuilt
 };
 
 // GLOBAL: CMR2 0x0082d220
@@ -1371,6 +1574,37 @@ int FUN_004ff4c0(int index)
 int FUN_004ff4d0(int index)
 {
     return g_unk0x00526f8c[index];
+}
+
+// GLOBAL: CMR2 0x00526f44
+int g_unk0x00526f44 = -1;
+// GLOBAL: CMR2 0x00526f48
+int g_unk0x00526f48 = -1;
+// GLOBAL: CMR2 0x00526f4c
+int g_unk0x00526f4c = -1;
+// GLOBAL: CMR2 0x00526f50
+int g_unk0x00526f50 = -1;
+
+void FUN_00501d20(int count);
+
+// Clears the option menu counters and rebuilds the eight option records.
+// FUNCTION: CMR2 0x004ff4e0
+void FUN_004ff4e0(void)
+{
+    g_unk0x00526f48 = 0;
+    g_unk0x00526f4c = 0;
+    g_unk0x00526f50 = 0;
+    g_unk0x0082a92c = 0;
+    g_unk0x0082ac58 = 0;
+    g_unk0x0082ac5c = 0;
+    g_unk0x0082a90c[0] = 0;
+    g_unk0x00526f44 = 2;
+    g_unk0x0082a90c[1] = 3;
+    g_unk0x0082a90c[2] = 3;
+    g_unk0x0082a90c[3] = 3;
+    g_unk0x0082a90c[4] = 3;
+    g_unk0x0082a90c[5] = 3;
+    FUN_00501d20(8);
 }
 
 // FUNCTION: CMR2 0x004ff540
@@ -1411,6 +1645,189 @@ void FUN_00500530(void)
         FUN_00500520();
 }
 
+// The option menu's interpolation base (0x82acf0) and the eight bytes at
+// 0x82ace8 that the record loop walks over before it.
+struct Unk0x0082ace8 {
+    short pad[4];
+    int pairs[16][2];
+};
+// GLOBAL: CMR2 0x0082ace8
+Unk0x0082ace8 g_unk0x0082ace8;
+#define g_unk0x0082acf0 (g_unk0x0082ace8.pairs)
+// 16.16 coordinate pairs of the option menu's layout records: the current
+// position, the target it animates to and the interpolated delta.
+// GLOBAL: CMR2 0x0082ac68
+int g_unk0x0082ac68[16][2];
+// GLOBAL: CMR2 0x0082ad70
+int g_unk0x0082ad70[16][2];
+// GLOBAL: CMR2 0x0082adf0
+int g_unk0x0082adf0[16][2];
+
+// A 32-byte row of the option layout table: four slots of two coordinates.
+struct Unk0x0082ac68Row {
+    int v[4][2];
+};
+
+int FUN_005021c0(int index);
+
+void FUN_004a15b0(BOOL param1);
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+
+// Recomputes the four layout pairs of option record param1; param2 selects a
+// straight copy of the target pairs instead of the param3 percent blend.
+// FUNCTION: CMR2 0x00500920
+void FUN_00500920(int param1, int param2, int param3)
+{
+    int i;
+
+    if (param2 == 0) {
+        for (i = 0; i < 4; i++) {
+            g_unk0x0082ac68[param1 * 4 + i][0] =
+                (g_unk0x0082adf0[param1 * 4 + i][0] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][0];
+            g_unk0x0082ac68[param1 * 4 + i][1] =
+                (g_unk0x0082adf0[param1 * 4 + i][1] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][1];
+        }
+        return;
+    }
+    *(Unk0x0082ac68Row *)g_unk0x0082ac68[param1 * 4] =
+        *(Unk0x0082ac68Row *)g_unk0x0082ad70[param1 * 4];
+}
+
+// Stores a new target pair per layout slot of option record param1 and rebuilds
+// the deltas; param3 also warps the current pairs to the target.
+// FUNCTION: CMR2 0x005009c0
+void FUN_005009c0(int param1, int *param2, int param3)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        g_unk0x0082acf0[param1 * 4 + i][0] = g_unk0x0082ac68[param1 * 4 + i][0];
+        g_unk0x0082acf0[param1 * 4 + i][1] = g_unk0x0082ac68[param1 * 4 + i][1];
+        g_unk0x0082ad70[param1 * 4 + i][0] = param2[0];
+        g_unk0x0082ad70[param1 * 4 + i][1] = param2[1];
+        if (param3 != 0) {
+            g_unk0x0082ac68[param1 * 4 + i][0] = param2[0];
+            g_unk0x0082ac68[param1 * 4 + i][1] = param2[1];
+            g_unk0x0082acf0[param1 * 4 + i][0] = g_unk0x0082ad70[param1 * 4 + i][0];
+            g_unk0x0082acf0[param1 * 4 + i][1] = g_unk0x0082ad70[param1 * 4 + i][1];
+        }
+        g_unk0x0082adf0[param1 * 4 + i][0] =
+            g_unk0x0082ad70[param1 * 4 + i][0] - g_unk0x0082acf0[param1 * 4 + i][0];
+        g_unk0x0082adf0[param1 * 4 + i][1] =
+            g_unk0x0082ad70[param1 * 4 + i][1] - g_unk0x0082acf0[param1 * 4 + i][1];
+        param2 += 2;
+    }
+}
+
+// Option menu item notification: refreshes the player list of a network device
+// entry when it changes, or opens the advanced options on the select action.
+// FUNCTION: CMR2 0x00500a70
+void FUN_00500a70(int unused, int *param2)
+{
+    if (*param2 != 5) {
+        if (*param2 == 0x101)
+            FUN_004a15b0(1);
+        return;
+    }
+    FUN_004a1940((DWORD *)(param2 + 2));
+    FUN_00409c80(param2 + 2);
+}
+
+void FUN_00409d50(DPID *pId, NetStats *pStats);
+void FUN_00409e90(DPID *pId);
+void FUN_00409f00(DPID *pId, unsigned int time, int value);
+void FUN_00409f80(DPID *pId);
+void FUN_00409fd0(DPID *pId, int split, unsigned int time);
+void FUN_0040ac70(DPID *pId, unsigned int carClass);
+void FUN_0040ad20(void);
+void FUN_0040afb0(char valid, BYTE *p);
+void FUN_005001c0(char param1);
+Unk0049c2c0 *FUN_004ff440(void);
+
+// Handles an option menu notification of a network player: the first byte of the
+// record selects the operation, the following ones carry its arguments.
+// FUNCTION: CMR2 0x00500aa0
+void FUN_00500aa0(DPID *pId, BYTE *pData)
+{
+    // the case order mirrors the original's jump table layout
+    switch (pData[0]) {
+    case 11:
+        FUN_00409d50(pId, (NetStats *)(pData + 2));
+        break;
+    case 7:
+        FUN_00409e90(pId);
+        break;
+    case 8:
+        FUN_00409fd0(pId, pData[1], *(unsigned int *)(pData + 4));
+        break;
+    case 10:
+        FUN_00409f80(pId);
+        FUN_00409f00(pId, *(unsigned int *)(pData + 4), *(int *)(pData + 8));
+        break;
+    case 12:
+        FUN_005001c0(1);
+        FUN_0040ad20();
+        break;
+    case 6:
+        FUN_0040ac70(pId, pData[1]);
+        break;
+    case 16:
+        g_unk0x0082b0ac = 1;
+        CGame::FUN_0049c1c0(FUN_004ff440(), 0, 0, 2);
+        FUN_0040ad20();
+        break;
+    case 17:
+        FUN_0040afb0(pData[1], pData + 4);
+        FUN_0040ad20();
+        break;
+    }
+}
+
+int FUN_004a1b90(int param1, void **param2);
+
+// Drains the pending network messages: those coming from the system id (0) go to
+// the player-list handler, the rest to the option notification handler.
+// FUNCTION: CMR2 0x00500ba0
+void GameInfo_ProcessNetworkMessages(void)
+{
+    int senderId;
+    void *pMessage;
+
+    while (FUN_004a1b90((int)&senderId, &pMessage) != 0) {
+        if (senderId == 0)
+            FUN_00500a70((int)&senderId, (int *)pMessage);
+        else
+            FUN_00500aa0((DPID *)&senderId, (BYTE *)pMessage);
+    }
+}
+
+// Arms the countdown of every option record that has not been started yet.
+// FUNCTION: CMR2 0x00500ec0
+void FUN_00500ec0(void)
+{
+    if (FUN_005021c0(2) == 0)
+        CGameInfo::FUN_00501cc0(2, 0x28, 0);
+    if (FUN_005021c0(6) == 0)
+        CGameInfo::FUN_00501cc0(6, 0xf, 0);
+    if (FUN_005021c0(7) == 0)
+        CGameInfo::FUN_00501cc0(7, 0xf, 0);
+    if (FUN_005021c0(4) == 0)
+        CGameInfo::FUN_00501cc0(4, 0x1e, 0);
+    if (FUN_005021c0(5) == 0)
+        CGameInfo::FUN_00501cc0(5, 0x1e, 1);
+    if (FUN_005021c0(0) == 0) {
+        CGameInfo::FUN_00501cc0(0, 0x14, 1);
+        return;
+    }
+    if (FUN_005021c0(0) == 2) {
+        if (FUN_005021c0(1) == 0)
+            CGameInfo::FUN_00501cc0(1, 0x14, 0);
+        if (FUN_005021c0(3) == 0)
+            CGameInfo::FUN_00501cc0(3, 0x14, 0);
+    }
+}
+
 // FUNCTION: CMR2 0x005011d0
 int FUN_005011d0(void)
 {
@@ -1445,6 +1862,48 @@ void FUN_00501210(int index, int value)
 int FUN_00501510(void)
 {
     return g_unk0x0082b1b4;
+}
+
+void FUN_005013a0(void);
+void FUN_0050f4f0(void);
+void FUN_00505e70(void);
+void FUN_00503ea0(void);
+void FUN_005040f0(void);
+int *FUN_0050f620(void);
+void FUN_004b1150(void);
+void FUN_004b2970(int value);
+
+// Format of the environment texture of the track. The %s is the install
+// directory returned by the setup.
+// GLOBAL: CMR2 0x00527070
+char g_str0x00527070[] = "%s\\textures\\environment\\environment.tga";
+
+// Starts the option menu background: clear colour and blend mode, then the
+// option menu data, the world, the weather textures and their stage entries.
+// Finally it registers the environment texture of the track, at the resolution
+// the display option asks for.
+// The only differences against the original are the call sites reccmp shows as
+// <OFFSETn>: 0x4b1150, 0x503ea0, 0x5040f0 and the two 0x4b23c0 calls go to
+// functions that are still annotated TODO, so reccmp cannot name them.
+// TODO: CMR2 0x00501520 (implemented, match 89%)
+void FUN_00501520(void)
+{
+    CGraphics::SetClearColour(1, 0x8d, 0x97, 0x9f);
+    Font_SetBlendMode(1);
+    CGameInfo::FUN_005011a0();
+    FUN_005013a0();
+    FUN_0050f4f0();
+    FUN_004b1150();
+    CGame::FUN_0049dca0(3);
+    FUN_00503ea0();
+    FUN_005040f0();
+    FUN_00505e70();
+    sprintf(CFrontend::m_stringDest, g_str0x00527070, CInstallInfo::GetSetupRepDir());
+    FUN_004b2970(!CGameInfo::FUN_00406410(0xf));
+    if (CGameInfo::FUN_00406410(0x10))
+        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x80);
+    else
+        FUN_004b23c0(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620(), 0x40);
 }
 
 // FUNCTION: CMR2 0x00501d00
@@ -1515,6 +1974,35 @@ int FUN_00502d40(int index)
     return g_unk0x00527098[index];
 }
 
+struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+
+// Copies every option record from the rally data into the working table and
+// clears the per-record dirty words.
+// FUNCTION: CMR2 0x00502d50
+void FUN_00502d50(void)
+{
+    int i;
+    int j;
+    int *pDst;
+    int *pDirty;
+    int *pSrc;
+
+    i = 0;
+    if (CGameInfo::FUN_00405d70() > 0) {
+        pDst = (int *)g_unk0x0082c070;
+        pDirty = (int *)g_unk0x0082c040;
+        do {
+            pSrc = (int *)RallyData_FUN_00407610(i);
+            i++;
+            memcpy(pDst, pSrc, 0x148);
+            for (j = 0; j < 3; j++)
+                pDirty[j] = 0;
+            pDst += 0x52;
+            pDirty += 3;
+        } while (i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
+}
+
 // FUNCTION: CMR2 0x00503930
 int FUN_00503930(int index)
 {
@@ -1565,16 +2053,501 @@ int FUN_0050a050(int mode, int type)
     return 0;
 }
 
+// Rotation angles of the 12 parts of the option menu car preview.
+// GLOBAL: CMR2 0x005273c0
+FixAngles g_unk0x005273c0[12] = {
+    0x0000, 0x0000, 0x0000, 0x0000, 0xfc00, 0x0000, 0x0000, 0x0000,
+    0x0000, 0x01c7, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    0x0400, 0x0000, 0x0000, 0x0000, 0x0000, 0x01c7, 0x0000, 0x0000,
+    0xfc00, 0x0000, 0x0000, 0x0000, 0x0000, 0x0238, 0x0000, 0x0000,
+    0x0000, 0x0400, 0xffbc, 0x0000, 0x0400, 0x0000, 0x0000, 0x0000,
+    0x0400, 0x0000, 0x0000, 0x0000, 0x0400,
+};
+
+// Wheel vertices of the option menu car preview: one 12x4 block of vertices
+// per car (14 cars, one per id of g_unk0x00516b40.ids).
+// GLOBAL: CMR2 0x00527420
+FixVector g_unk0x00527420[672] = {
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -134742, -27459, -34013 }, { -134742, -27459, -34013 },
+    { -134742, -27459, -34013 }, { -134742, -27459, -34013 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 85131, -51118, 49807 }, { 85131, -51118, -49807 },
+    { -83820, -51118, 49807 }, { -83820, -49020, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 87752, -3538, 57671 }, { 87752, -3538, -57671 },
+    { -79233, -3538, 57671 }, { -79233, -3538, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 87752, -3538, 57671 }, { 87752, -3538, -57671 },
+    { -79233, -3538, 57671 }, { -79233, -3538, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 85131, -48758, 49807 }, { 85131, -48758, 49807 },
+    { 85131, -48758, -49807 }, { 85131, -48758, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -136052, -26411, 31260 }, { -136052, -26411, 31260 },
+    { -136052, -26411, 31260 }, { -136052, -26411, 31260 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -85196, -48496, 49807 }, { -85196, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -85196, -3276, 57671 }, { -85196, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -85196, -3276, 57671 }, { -85196, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 36700 }, { 121831, 0, 36700 },
+    { 121831, 0, -36700 }, { 121831, 0, -36700 },
+    { -126156, -27656, -28508 }, { -126156, -27656, -28508 },
+    { -126156, -27656, -28508 }, { -126156, -27656, -28508 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 80543, -43909, 55705 }, { 80543, -43909, -55705 },
+    { -84475, -43909, 55705 }, { -84475, -43909, -55705 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 80543, -46530, 47185 }, { 80543, -46530, 47185 },
+    { 80543, -46530, -47185 }, { 80543, -46530, -47185 },
+    { 127008, -3276, 35389 }, { 127008, -3276, 35389 },
+    { 127008, -3276, -35389 }, { 127008, -3276, -35389 },
+    { -139853, -28639, -21299 }, { -139853, -28639, -21299 },
+    { -139853, -28639, -21299 }, { -139853, -28639, -21299 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -129236, -31326, 32243 }, { -129236, -31326, 32243 },
+    { -129236, -31326, 32243 }, { -129236, -31326, 32243 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -134217, -21757, 30539 }, { -134217, -21757, 30539 },
+    { -134217, -21757, 30539 }, { -134217, -21757, 30539 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -124518, -28835, -28246 }, { -124518, -28835, -28246 },
+    { -124518, -28835, -28246 }, { -124518, -28835, -28246 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 80543, -43909, 55705 }, { 80543, -43909, -55705 },
+    { -84475, -43909, 55705 }, { -84475, -43909, -55705 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 80543, -46530, 47185 }, { 80543, -46530, 47185 },
+    { 80543, -46530, -47185 }, { 80543, -46530, -47185 },
+    { 127008, -3276, 35389 }, { 127008, -3276, 35389 },
+    { 127008, -3276, -35389 }, { 127008, -3276, -35389 },
+    { -154140, -26083, -17498 }, { -154140, -26083, -17498 },
+    { -154140, -26083, -17498 }, { -154140, -26083, -17498 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 66191, -45875, 43909 }, { 66191, -45875, -43909 },
+    { -70057, -45875, 43909 }, { -70057, -45875, -43909 },
+    { 37355, -11141, 0 }, { 37355, -11141, 0 },
+    { 37355, -11141, 0 }, { 37355, -11141, 0 },
+    { 61538, 8519, 0 }, { 61538, 8519, 0 },
+    { 61538, 8519, 0 }, { 61538, 8519, 0 },
+    { 66191, -9830, 43909 }, { 66191, -9830, -43909 },
+    { -70057, -9830, 43909 }, { -70057, -9830, -43909 },
+    { 58327, -28835, 0 }, { 58327, -28835, 0 },
+    { -58327, -28835, 0 }, { -58327, -28835, 0 },
+    { 66191, -9830, 43909 }, { 66191, -9830, -43909 },
+    { -70057, -9830, 43909 }, { -70057, -9830, -43909 },
+    { 73990, 17694, 0 }, { 73990, 17694, 0 },
+    { -20971, 52428, 0 }, { -20971, 52428, 0 },
+    { 66191, -45875, 43909 }, { 66191, -45875, 43909 },
+    { 66191, -45875, -43909 }, { 66191, -45875, -43909 },
+    { 108068, 3932, 34734 }, { 108068, 3932, 34734 },
+    { 108068, 3932, -34734 }, { 108068, 3932, -34734 },
+    { -102498, -28377, 196 }, { -102498, -28377, 196 },
+    { -102498, -28377, 196 }, { -102498, -28377, 196 },
+    { 65, -30801, 0 }, { 65, -30801, 0 },
+    { 65, -30801, 0 }, { 65, -30801, 0 },
+    { 58327, -28835, 0 }, { 58327, -28835, 0 },
+    { -58327, -28835, 0 }, { -58327, -28835, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -121896, -31784, -36438 }, { -121896, -31784, 36438 },
+    { -121896, -31784, -36438 }, { -121896, -31784, 36438 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, -42598 },
+    { -79888, -41287, 42598 }, { -79888, -41287, -42598 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, 42598 },
+    { 73334, -41287, -42598 }, { 73334, -41287, -42598 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -115015, -17694, -25952 }, { -115015, -17694, 25952 },
+    { -115015, -17694, -25952 }, { -115015, -17694, 25952 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -124125, -26738, -1769 }, { -124125, -26738, -1769 },
+    { -124125, -26738, -1769 }, { -124125, -26738, -1769 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, -42598 },
+    { -79888, -41287, 42598 }, { -79888, -41287, -42598 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, 42598 },
+    { 73334, -41287, -42598 }, { 73334, -41287, -42598 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -127336, -34406, -23986 }, { -127336, -34406, -23986 },
+    { -127336, -34406, -23986 }, { -127336, -34406, -23986 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 93650, -48496, 44564 }, { 93650, -48496, -44564 },
+    { -75300, -48496, 44564 }, { -75300, -48496, -44564 },
+    { 33423, -7864, 0 }, { 33423, -7864, 0 },
+    { 33423, -7864, 0 }, { 33423, -7864, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 93650, -4587, 44564 }, { 93650, -4587, -44564 },
+    { -75300, -4587, 44564 }, { -75300, -4587, -44564 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 93650, -4587, 44564 }, { 93650, -4587, -44564 },
+    { -75300, -4587, 44564 }, { -75300, -4587, -44564 },
+    { 102825, 16384, 0 }, { 102825, 16384, 0 },
+    { -22937, 51118, 0 }, { -22937, 51118, 0 },
+    { 93650, -48496, 44564 }, { 93650, -48496, 44564 },
+    { 93650, -48496, -44564 }, { 93650, -48496, -44564 },
+    { 137625, -65, 35389 }, { 137625, -65, 35389 },
+    { 137625, -65, -35389 }, { 137625, -65, -35389 },
+    { -126418, -25559, 25559 }, { -126418, -25559, 25559 },
+    { -126418, -25559, 25559 }, { -126418, -25559, 25559 },
+    { 2621, -29491, 0 }, { 2621, -29491, 0 },
+    { 2621, -29491, 0 }, { 2621, -29491, 0 },
+    { 91029, -29491, 0 }, { 91029, -29491, 0 },
+    { -69402, -29491, 0 }, { -69402, -29491 },
+};
+
+// Projected 2D points of the option menu car preview: 4 points per part.
+// GLOBAL: CMR2 0x008313c8
+int g_unk0x008313c8[96];
+
+void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4);
+void FUN_00501690(int *param1, FixVector *param2);
+
+// Projects the wheel vertices of one car's option menu preview: every part's
+// 4 vertices are rotated by the part angles and the projected points are
+// stored in the shared preview buffer.
+// FUNCTION: CMR2 0x0050f120
+void FUN_0050f120(int param1)
+{
+    FixVector *pVec;
+    int *pOut;
+    FixAngles *pAngles;
+    FixVector local;
+    int k;
+
+    pVec = &g_unk0x00527420[param1 * 48];
+    pOut = g_unk0x008313c8;
+    pAngles = g_unk0x005273c0;
+    do {
+        for (k = 0; k < 4; k++) {
+            FUN_005068b0(0, pVec, &local, pAngles);
+            FUN_00501690(pOut, &local);
+            pVec++;
+            pOut += 2;
+        }
+        pAngles++;
+    } while ((int)pAngles < (int)&g_unk0x00527420[0]);
+}
+
 // FUNCTION: CMR2 0x0050f1c0
 void FUN_0050f1c0(void)
 {
     g_pMenu0x00831778 = g_pMenu0x0083177c;
 }
 
+// Per-frame update of the option menu: refreshes the active menu, polls the
+// input device and forwards its state to Menu_Update.
+// FUNCTION: CMR2 0x0050f1d0
+void FUN_0050f1d0(void)
+{
+    int input;
+    DeviceInfo *pDevice;
+    Menu *pNextMenu;
+
+    FUN_0050f1c0();
+    FUN_004a2fe0();
+    CInput::FUN_0049eab0();
+    input = 0;
+    if (CGameInfo::FUN_005011b0() == 1) {
+        if (CGameInfo::FUN_00405da0() == 0)
+            input = 1;
+    }
+    FUN_0040bad0();
+    pDevice = CInput::FUN_0049ead0(input);
+    FUN_0040bd60((unsigned short)input, pDevice);
+    pNextMenu = (Menu *)Menu_Update(g_pMenu0x00831778, pDevice->field_0x8);
+    if (pNextMenu != NULL)
+        g_pMenu0x0083177c = pNextMenu;
+}
+
 // FUNCTION: CMR2 0x0050f230
 void FUN_0050f230(void)
 {
     Menu_CallCallback2(g_pMenu0x00831778);
+}
+
+// Option menu text file prefixes, indexed by game language ("s" + language).
+// GLOBAL: CMR2 0x0052962c
+char g_str0x0052962c[8] = "spolish";
+// GLOBAL: CMR2 0x00529634
+char g_str0x00529634[8] = "sengusa";
+// GLOBAL: CMR2 0x0052963c
+char g_str0x0052963c[8] = "sgerman";
+// GLOBAL: CMR2 0x00529644
+char g_str0x00529644[12] = "sitalian";
+// GLOBAL: CMR2 0x00529650
+char g_str0x00529650[12] = "sspanish";
+// GLOBAL: CMR2 0x0052965c
+char g_str0x0052965c[8] = "sfrench";
+// GLOBAL: CMR2 0x00529664
+char g_str0x00529664[12] = "senglish";
+
+extern char g_strTxtFormat[];
+extern int g_unk0x00831880;
+extern BYTE g_unk0x00831884;
+int *FUN_0050f620(void);
+int *FUN_0050f630(void);
+int *FUN_0050f640(void);
+int FUN_0050f340(void);
+int FUN_0050f480(void);
+
+// Loads the option menu text file of the current region and language and
+// registers it with the frontend.
+// FUNCTION: CMR2 0x0050f240
+BYTE FUN_0050f240(void)
+{
+    char *europe[5];
+    char *usa[3];
+    char *japan[1];
+    char *poland[1];
+    char **names;
+
+    europe[0] = g_str0x00529664;
+    europe[1] = g_str0x0052965c;
+    europe[2] = g_str0x00529650;
+    europe[3] = g_str0x00529644;
+    europe[4] = g_str0x0052963c;
+    usa[0] = g_str0x00529634;
+    usa[1] = g_str0x0052965c;
+    usa[2] = g_str0x00529650;
+    japan[0] = g_str0x00529664;
+    poland[0] = g_str0x0052962c;
+
+    names = NULL;
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        names = europe;
+        break;
+    case 1:
+        names = usa;
+        break;
+    case 2:
+        names = japan;
+        break;
+    case 3:
+        names = poland;
+    }
+
+    sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[CGameInfo::GetGameLanguage()]);
+    g_unk0x00831880 = (int)CGenericFileLoader::FindFile((GenericFile *)FUN_0050f630(),
+                                                       CFrontend::m_stringDest, &g_unk0x00831884, NULL, 0);
+    // the original tests the address of the buffer, so this is always true
+    if (&g_unk0x00831880 != NULL) {
+        CFrontend::FUN_004a3c90(1, 0x146, (BYTE **)&g_unk0x00831880);
+        CGame::RegisterCallback(FUN_0050f340, NULL);
+        return 1;
+    }
+    return 0;
 }
 
 // FUNCTION: CMR2 0x0050f620
@@ -1708,6 +2681,215 @@ int CGameInfo::FUN_00505e10(BYTE param1)
     g_unk0x0082c6c0 = CMain::GetFrameDelta();
     g_unk0x0082cb44 = 0;
     return 1;
+}
+
+// Adds the mesh of a scene node to a stage mesh record (g_unk0x0082d220): stores
+// the node, its mesh and its vertex count in the slot of the node's mesh id,
+// expands the +/-100 bounding box with every vertex and stores the centre and
+// the half size of the slot. Bumps the counter of used slots.
+// FUNCTION: CMR2 0x00507290
+void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
+{
+    Unk0x0082d220VertexF *pVertex;
+    FixVector halfSize;
+    Mesh *pMesh;
+    WORD count;
+    int slot;
+    int maxX, maxY, maxZ;
+    int minX, minY, minZ;
+    int x, y, z;
+    int i;
+
+    slot = (pNode->flags & 0xff) - 5;
+    pMesh = (Mesh *)pNode->pObject;
+    if (pMesh != NULL && pNode->type == 0) {
+        pRecord->pNodes[slot] = pNode;
+        pRecord->pMeshes[slot] = pMesh;
+        count = (WORD)Mesh_GetField0x10(pMesh);
+        pRecord->vertexCount[slot] = count;
+        if (pRecord->pMeshes[slot] != NULL && count > 0) {
+            maxZ = -0x640000;
+            maxY = -0x640000;
+            maxX = -0x640000;
+            minZ = 0x640000;
+            minY = 0x640000;
+            minX = 0x640000;
+            for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
+                pVertex = &((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i];
+                x = (int)(__int64)(pVertex->x * CGraphics::m_65536);
+                y = (int)(__int64)(pVertex->y * CGraphics::m_65536);
+                z = (int)(__int64)(pVertex->z * CGraphics::m_65536);
+                if (x > maxX)
+                    maxX = x;
+                if (x < minX)
+                    minX = x;
+                if (y > maxY)
+                    maxY = y;
+                if (y < minY)
+                    minY = y;
+                if (z > maxZ)
+                    maxZ = z;
+                if (z < minZ)
+                    minZ = z;
+                if (x >= 0) {
+                    if (x > pRecord->field_0x21c)
+                        pRecord->field_0x21c = x;
+                } else {
+                    if (x < pRecord->field_0x220)
+                        pRecord->field_0x220 = x;
+                }
+                if (z >= 0) {
+                    if (z > pRecord->field_0x224)
+                        pRecord->field_0x224 = z;
+                } else {
+                    if (z < pRecord->field_0x228)
+                        pRecord->field_0x228 = z;
+                }
+            }
+            halfSize.x = minX - maxX;
+            halfSize.y = minY - maxY;
+            halfSize.z = minZ - maxZ;
+            FixVecScale(&halfSize, &halfSize, 0x8000);
+            pRecord->centre[slot].v[0] = maxX + halfSize.x;
+            pRecord->centre[slot].v[1] = maxY + halfSize.y;
+            pRecord->centre[slot].v[2] = maxZ + halfSize.z;
+            pRecord->halfSize[slot].v[0] = maxX - pRecord->centre[slot].v[0];
+            pRecord->halfSize[slot].v[1] = maxY - pRecord->centre[slot].v[1];
+            pRecord->halfSize[slot].v[2] = maxZ - pRecord->centre[slot].v[2];
+            pRecord->meshCount++;
+        }
+    }
+}
+
+void FUN_00508fa0(int index, int param2, BYTE param3);
+
+// Converts the source vertex data of every mesh of a stage mesh record back into
+// its 0x30-byte mesh vertices, rebuilds the meshes, marks the option state of
+// each slot and resets the 8 option meshes of the record.
+// FUNCTION: CMR2 0x005074d0
+void FUN_005074d0(int index)
+{
+    Unk0x0082d220 *pRecord;
+    FixVector position;
+    FixVector normal;
+    int i;
+    int j;
+
+    pRecord = &g_unk0x0082d220[index];
+    if (pRecord->field_0x2a8 == 0)
+        return;
+
+    for (i = 0; i < (int)pRecord->meshCount; i++) {
+        for (j = 0; j < (int)pRecord->vertexCount[i]; j++) {
+            position = pRecord->pVertexData[i][j].position;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].x =
+                (float)position.x * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].y =
+                (float)position.y * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].z =
+                (float)position.z * CGraphics::m_oneOver65536;
+            normal = pRecord->pVertexData[i][j].normal;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].nx =
+                (float)normal.x * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].ny =
+                (float)normal.y * CGraphics::m_oneOver65536;
+            ((Unk0x0082d220VertexF *)pRecord->pMeshes[i]->pVertexData)[j].nz =
+                (float)normal.z * CGraphics::m_oneOver65536;
+        }
+        if (pRecord->pNodes[i]->pObject != NULL)
+            Mesh_Rebuild((Mesh *)pRecord->pNodes[i]->pObject);
+        pRecord->field_0x26c[i] = 1;
+    }
+    for (i = 0; i < 8; i++)
+        FUN_00508fa0(index, 0, i);
+}
+
+void FUN_00507710(BYTE *pColour);
+void FUN_005078e0(int index);
+void FUN_00508ee0(int index);
+void FUN_00509be0(int index);
+void FUN_00509d30(int index);
+
+// Mesh slot of the stage mesh record (g_unk0x0082d220) each of the four deform
+// options deforms.
+// GLOBAL: CMR2 0x00527364
+BYTE g_unk0x00527364[4] = { 4, 5, 6, 7 };
+
+// Applies the option record of a stage: commits the deformations of its mesh
+// record, rebuilds the stage sky with the colours of the record's linked list of
+// 13-byte entries and clears the option state of the meshes it marks as applied.
+// FUNCTION: CMR2 0x00507650
+void FUN_00507650(int index)
+{
+    Unk0x0082d220 *pRecord;
+    BYTE *pRally;
+    BYTE *pEntry;
+    char next;
+    int i;
+
+    pRecord = &g_unk0x0082d220[index];
+    FUN_005074d0(index);
+    pRally = (BYTE *)RallyData_FUN_00407610(index);
+    pEntry = pRally + pRally[0x105] * 13;
+    if (pRally[0x104] != 0) {
+        while (pEntry != NULL) {
+            FUN_00507710(pEntry);
+            FUN_005078e0(index);
+            next = (char)pEntry[0xc];
+            if (next == -1)
+                break;
+            pEntry = pRally + next * 13;
+        }
+    }
+    FUN_00508ee0(index);
+    for (i = 0; i < 4; i++) {
+        if (((int *)(pRally + 0x12c))[i] != 0)
+            pRecord->field_0x26c[g_unk0x00527364[i]] = 0;
+    }
+    FUN_00509be0(index);
+    FUN_00509d30(index);
+}
+
+// GLOBAL: CMR2 0x0082d120
+FixVector g_unk0x0082d120;
+// GLOBAL: CMR2 0x0082d12c
+FixVector g_unk0x0082d12c;
+// GLOBAL: CMR2 0x0082d138
+FixVector g_unk0x0082d138;
+// GLOBAL: CMR2 0x0082d144
+int g_unk0x0082d144;
+// GLOBAL: CMR2 0x0082d148
+int g_unk0x0082d148;
+// GLOBAL: CMR2 0x0082d14c
+BYTE g_unk0x0082d14c;
+
+// Loads a 13-byte car colour record into the globals the stage sky uses: three
+// 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
+// TODO: CMR2 0x00507710 (implemented, match 89%)
+void FUN_00507710(BYTE *pColour)
+{
+    g_unk0x0082d120.x = (int)(signed char)pColour[9] << 16;
+    g_unk0x0082d120.y = (int)(signed char)pColour[10] << 16;
+    g_unk0x0082d120.z = (int)(signed char)pColour[0xb] << 16;
+    FixVecScale(&g_unk0x0082d120, &g_unk0x0082d120, FixMul(0xa0000, FixDiv(0x10000, 0x7f0000)));
+    g_unk0x0082d12c.x = (int)(signed char)pColour[3] << 16;
+    g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
+    g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
+    // The original expands the 1/127 scale as a 64-bit division (its compiler
+    // keeps the constant divisor in a register, like at 0x4689c8); ours folds
+    // the whole constant expression to the 0x204 it also computes.
+    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
+    g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
+    g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
+    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_unk0x0082d148 = (int)pColour[0] << 16;
+    g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
+    g_unk0x0082d14c = pColour[1];
+    if (pColour[1] == 1) {
+        g_unk0x0082d144 = (int)pColour[2] << 16;
+        g_unk0x0082d144 = FixMul(g_unk0x0082d144, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
+    }
 }
 
 // Number of credit entries (pairs of quoted strings) in the credits file
@@ -2653,6 +3835,40 @@ BYTE *FUN_00502510(void)
     return g_unk0x0082b848;
 }
 
+BYTE *RallyData_FUN_00407630(int index);
+
+// Copies the seven option bytes of every rally data record into rows 4..7 of
+// the default table, mirrors them into rows 0..3 and clears the option flags.
+// TODO: CMR2 0x00502570 (implemented, match 70%)
+void FUN_00502570(void)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        BYTE *p = RallyData_FUN_00407630(i);
+        BYTE *pFlags;
+
+        g_unk0x0082bee8[i + 4][4] = p[4];
+        g_unk0x0082bee8[i + 4][5] = p[5];
+        g_unk0x0082bee8[i + 4][1] = p[1];
+        g_unk0x0082bee8[i + 4][6] = p[6];
+        g_unk0x0082bee8[i + 4][3] = p[3];
+        g_unk0x0082bee8[i + 4][2] = p[2];
+        g_unk0x0082bee8[i + 4][0] = p[0];
+        g_unk0x0082bee8[i][4] = g_unk0x0082bf04[i * 7 + 4];
+        g_unk0x0082bee8[i][5] = g_unk0x0082bf04[i * 7 + 5];
+        g_unk0x0082bee8[i][1] = g_unk0x0082bf04[i * 7 + 1];
+        g_unk0x0082bee8[i][6] = g_unk0x0082bf04[i * 7 + 6];
+        g_unk0x0082bee8[i][3] = g_unk0x0082bf04[i * 7 + 3];
+        g_unk0x0082bee8[i][2] = g_unk0x0082bf04[i * 7 + 2];
+        g_unk0x0082bee8[i][0] = g_unk0x0082bf04[i * 7 + 0];
+        pFlags = &g_unk0x0082bf20[i][0];
+        *(int *)pFlags = 0;
+        *(short *)(pFlags + 4) = 0;
+        pFlags[6] = 0;
+    }
+}
+
 // GLOBAL: CMR2 0x0052aa60
 int g_unk0x0052aa60;
 // GLOBAL: CMR2 0x0052aa68
@@ -3537,6 +4753,64 @@ BYTE *FUN_00501ab0(void)
     return &g_unk0x0082b1b8;
 }
 
+// Advances the option menu's overlay pulse: a sine running over a minute is
+// mapped to a grey level and stored in the fade colour bytes.
+// FUNCTION: CMR2 0x00501ac0
+void FUN_00501ac0(void)
+{
+    int value;
+    BYTE shade;
+
+    value = CMain::GetFrameDelta() % 0x3c;
+    value = FixDiv(value << 16, 0x3c0000);
+    value = FixMul(value, 0x1680000);
+    value = g_sinTable[(unsigned short)(__int64)(value * g_unk0x00511300) & 0xfff] + 0x10000;
+    value = FixMul(value, 0x8000);
+    if (value < 0)
+        value = 0;
+    else if (value > 0x10000)
+        value = 0x10000;
+    shade = (BYTE)((FixMul(value, 0x7f0000) + 0x800000) >> 16);
+    g_unk0x0082b1bb = 0xff;
+    g_unk0x0082b1ba = shade;
+    g_unk0x0082b1b9 = shade;
+    g_unk0x0082b1b8 = shade;
+}
+
+// Advances the 16.16 transition value of every option record: records that
+// passed their duration switch to mode 2 at full scale, the rest receive the
+// proportion of the elapsed time squared in mode 1 or square-rooted in mode 2.
+// FUNCTION: CMR2 0x00501b90
+void FUN_00501b90(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x0082b1bc; i++) {
+        int elapsed;
+
+        if (g_unk0x0082b2c0[i].field_0xc != 1)
+            continue;
+        elapsed = CMain::GetFrameDelta() - g_unk0x0082b2c0[i].field_0x8;
+        if (elapsed >= g_unk0x0082b2c0[i].field_0x4) {
+            g_unk0x0082b2c0[i].field_0xc = 2;
+            g_unk0x0082b2c0[i].field_0x0 = 0x10000;
+        } else {
+            g_unk0x0082b2c0[i].field_0x0 =
+                FixDiv(elapsed << 16, g_unk0x0082b2c0[i].field_0x4 << 16);
+            switch (g_unk0x0082b2c0[i].field_0x10) {
+            case 2:
+                g_unk0x0082b2c0[i].field_0x0 = FixSqrt(g_unk0x0082b2c0[i].field_0x0);
+                break;
+            case 1:
+                g_unk0x0082b2c0[i].field_0x0 =
+                    FixMul(g_unk0x0082b2c0[i].field_0x0, g_unk0x0082b2c0[i].field_0x0);
+                break;
+            }
+        }
+    }
+    FUN_00501ac0();
+}
+
 // True when the option slot is enabled: mode 2/4 are checked against their
 // selectors, everything else is accepted.
 // FUNCTION: CMR2 0x00501280
@@ -3639,6 +4913,199 @@ BYTE FUN_00501390(void)
 {
     SceneNode_Destroy((SceneNode *)g_unk0x0082b1b4);
     return 1;
+}
+
+// Option menu sound names (7 bytes each) and the file name they are loaded
+// from, plus the volume/index state of the option menu.
+// GLOBAL: CMR2 0x005296c4
+char g_unk0x005296c4[5][7] = {"move", "select", "back", "error", "toggle"};
+// GLOBAL: CMR2 0x005296e8
+char g_str0x005296e8[16] = "%s\\menu\\%s.wav";
+// GLOBAL: CMR2 0x00831888
+int g_unk0x00831888;
+// GLOBAL: CMR2 0x0083188c
+int g_unk0x0083188c;
+
+// Loads the five option menu sounds. Returns 0 if any of them failed to load.
+// FUNCTION: CMR2 0x0050f3c0
+BYTE FUN_0050f3c0(void)
+{
+    BYTE result;
+    char *name;
+    int nameEnd;
+
+    result = 1;
+    g_unk0x00831888 = 0;
+    name = (char *)g_unk0x005296c4;
+    nameEnd = (int)g_unk0x005296c4 + sizeof(g_unk0x005296c4);
+    do {
+        sprintf(CFrontend::m_stringDest, g_str0x005296e8, CInstallInfo::GetSoundsDir(), name);
+        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)FUN_0050f620()) == 0)
+            result = 0;
+        name += 7;
+    } while ((int)name < nameEnd);
+    return result;
+}
+
+// Sets the option menu volume and hands the menu sound handles to the input
+// system.
+// FUNCTION: CMR2 0x0050f420
+void FUN_0050f420(void)
+{
+    g_unk0x0083188c = -1;
+    // option menu volume: the stored 0..0x7f setting scaled to 16.16 and quartered
+    CInput::FUN_0049ffc0((((int)CGameInfo::FUN_00405e70() << 16) / 100) / 4);
+    CInput::FUN_0049ff80(g_unk0x00831888, g_unk0x00831888 + 1, g_unk0x00831888 + 2,
+                         g_unk0x00831888 + 3, g_unk0x00831888 + 4);
+    FUN_004a0c40(1);
+}
+
+// Option menu archives: every region uses the language directories of its own
+// languages (region * 5 + language), indexed like the country codes.
+// GLOBAL: CMR2 0x00529794
+char g_str0x00529794[20] = "%s\\%d\\Common.bfl";
+// GLOBAL: CMR2 0x0052976c
+char g_str0x0052976c[20] = "%s\\%d\\%sDay%d.bfl";
+// GLOBAL: CMR2 0x00529780
+char g_str0x00529780[20] = "%s\\%d\\%sDay%dC.bfl";
+// GLOBAL: CMR2 0x0051a100
+char g_str0x0051a100[12] = "%s%s%s.bfl";
+
+// Country code of each RallyDataCountryIndex value.
+// GLOBAL: CMR2 0x00519260
+char g_str0x00519260[4] = "JAP";
+// GLOBAL: CMR2 0x00519268
+char g_str0x00519268[4] = "ITA";
+// GLOBAL: CMR2 0x0051926c
+char g_str0x0051926c[4] = "KEN";
+// GLOBAL: CMR2 0x00519270
+char g_str0x00519270[4] = "AUS";
+// GLOBAL: CMR2 0x00519274
+char g_str0x00519274[4] = "SWE";
+// GLOBAL: CMR2 0x00519278
+char g_str0x00519278[4] = "FRA";
+// GLOBAL: CMR2 0x0051927c
+char g_str0x0051927c[4] = "GRE";
+// GLOBAL: CMR2 0x00519280
+char g_str0x00519280[4] = "FIN";
+// GLOBAL: CMR2 0x005296f8
+char *g_unk0x005296f8[9] = {g_str0x00519280, g_str0x0051927c, g_str0x00519278,
+                            g_str0x00519274, g_str0x00519270, g_str0x0051926c,
+                            g_str0x00519268, CFrontend::m_strUK, NULL};
+
+// Language text directory of every region and language (region * 5 + language).
+// Countries without a language of their own keep an empty entry.
+// GLOBAL: CMR2 0x0051a00c
+char g_str0x0051a00c[12] = "polishtext";
+// GLOBAL: CMR2 0x0051a018
+char g_str0x0051a018[12] = "engusatext";
+// GLOBAL: CMR2 0x0051a024
+char g_str0x0051a024[12] = "germantext";
+// GLOBAL: CMR2 0x0051a030
+char g_str0x0051a030[12] = "italiantext";
+// GLOBAL: CMR2 0x0051a03c
+char g_str0x0051a03c[12] = "spanishtext";
+// GLOBAL: CMR2 0x0051a048
+char g_str0x0051a048[12] = "frenchtext";
+// GLOBAL: CMR2 0x0051a054
+char g_str0x0051a054[12] = "englishtext";
+// GLOBAL: CMR2 0x0052971c
+char *g_unk0x0052971c[20] = {
+    g_str0x0051a054, g_str0x0051a048, g_str0x0051a03c, g_str0x0051a030, g_str0x0051a024,
+    g_str0x0051a018, g_str0x0051a048, g_str0x0051a03c, NULL, NULL,
+    g_str0x0051a054, NULL, NULL, NULL, NULL,
+    g_str0x0051a00c, NULL, NULL, NULL, NULL};
+
+// Loads the three option menu archives: the common one, the day file of the
+// stage and the region/language file.
+// FUNCTION: CMR2 0x0050f4f0
+void FUN_0050f4f0(void)
+{
+    int resolution;
+    int stage;
+
+    stage = RallyDataStageIndex() >> 2;
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400)) {
+        resolution = 0x400;
+        if (!CFrontend::FUN_004b7590(0x400))
+            resolution = 0x280;
+    } else {
+        resolution = 0x280;
+    }
+
+    sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
+
+    if (CFrontend::FUN_004a9700()) {
+        sprintf(CFrontend::m_stringDest, g_str0x00529780, CInstallInfo::GetSetupRepDir(), resolution,
+                g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
+    } else {
+        sprintf(CFrontend::m_stringDest, g_str0x0052976c, CInstallInfo::GetSetupRepDir(), resolution,
+                g_unk0x005296f8[RallyDataCountryIndex() & 0xff], stage + 1);
+    }
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest);
+
+    sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
+            CGameInfo::GetGameRegionDirectory(),
+            g_unk0x0052971c[CGameInfo::GetGameRegion() * 5 + CGameInfo::GetGameLanguage()]);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f630(), CFrontend::m_stringDest);
+
+    CGame::RegisterCallback(FUN_0050f480, NULL);
+}
+
+// Format string printed when the option menu's background world is created.
+// GLOBAL: CMR2 0x00527050
+char g_str0x00527050[] = "*** WORLD CREATED: 0x%08X ***\n";
+// Camera node of the option menu's background world (0x82b1b0).
+// GLOBAL: CMR2 0x0082b1b0
+int g_unk0x0082b1b0;
+
+void Scene_SetAmbient(BYTE *pColour, int boost);
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+
+// Builds the option menu's background world: root node, camera, ambient and key
+// light, then registers the release callback.
+// FUNCTION: CMR2 0x005013a0
+void FUN_005013a0(void)
+{
+    SceneNode *pNode;
+    BYTE colour[4];
+    FixAngles angles;
+    short view[4];
+    FixVector translation;
+    FixVector lightPosition;
+    int i;
+
+    view[0] = 0;
+    view[1] = 0;
+    view[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    view[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    lightPosition.x = 0x50000;
+    lightPosition.y = 0x50000;
+    translation.x = 0x23d7;
+    translation.y = 0xffffe8f6;
+    translation.z = 0xfffb0000;
+    lightPosition.z = 0xfffb0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+    colour[0] = 0xc8;
+    colour[1] = 0xc8;
+    colour[2] = 0xc8;
+    colour[3] = 0xff;
+    g_unk0x0082b1b4 = (int)SceneNode_CreateRoot();
+    sprintf(CFrontend::m_stringDest, g_str0x00527050, g_unk0x0082b1b4);
+    puts(CFrontend::m_stringDest);
+    g_unk0x0082b1b0 = (int)SceneType2_Create(&translation, &angles, NULL, (SceneNode *)g_unk0x0082b1b4);
+    for (pNode = (SceneNode *)g_unk0x0082b1b4; pNode != NULL; pNode = pNode->pParent)
+        pNode->dirty = 1;
+    Scene_SetAmbient(colour, 0);
+    Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &lightPosition, &angles, (SceneNode *)g_unk0x0082b1b4);
+    CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
+    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)view, 0);
+    CGame::RegisterCallback(FUN_00501390, NULL);
 }
 // Releases the three option menu textures and clears their handles.
 // FUNCTION: CMR2 0x0050f480
@@ -3850,6 +5317,62 @@ void FUN_00502230(int unused, int unused2)
     g_unk0x0082ac60 = 1;
 }
 
+// GLOBAL: CMR2 0x0082bc08
+BYTE g_unk0x0082bc08[0x1e0];
+
+void FUN_0050e740(int unused);
+void FUN_004ffa50(char *pItem, int unused);
+void FUN_00500020(unsigned int, unsigned int);
+void FUN_0050e780(unsigned int);
+void FUN_0050edf0(unsigned int);
+void FUN_00500210(unsigned int, unsigned int);
+void FUN_005003d0(unsigned int, unsigned int);
+void FUN_0050ee10(unsigned int);
+
+// Builds the option menu's status line: the record-list refresh callback and
+// the owner's help-text draw.
+// FUNCTION: CMR2 0x00502240
+void FUN_00502240(void)
+{
+    Menu_Init((Menu *)g_unk0x0082ba28, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
+    Menu_AddItemType1((Menu *)g_unk0x0082ba28, 0, -1, 0, -1);
+    Menu_SetCallbacks((Menu *)g_unk0x0082ba28, (MenuCallback)FUN_00502230, NULL, (MenuCallback)FUN_0050e740, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082ba28, 0);
+}
+
+// Builds the option menu's advanced-options list with its device and accept
+// entries.
+// FUNCTION: CMR2 0x005022a0
+void FUN_005022a0(void)
+{
+    Menu_Init((Menu *)g_unk0x0082b488, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 0, 0, 1);
+    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x100, (int)FUN_00500020, -1);
+    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x101, 0, -1);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b488, (MenuCallback)FUN_004ffa50, NULL, (MenuCallback)FUN_0050e780, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082b488, 0);
+}
+
+// Builds the option menu's control-setup screen.
+// FUNCTION: CMR2 0x00502440
+void FUN_00502440(void)
+{
+    Menu_Init((Menu *)g_unk0x0082bc08, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
+    Menu_SetCallbacks((Menu *)g_unk0x0082bc08, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050edf0,
+                      (MenuCallback)FUN_00500210);
+    Menu_ValidateCursor((Menu *)g_unk0x0082bc08, 0);
+    Menu_SetFlags((Menu *)g_unk0x0082bc08, 0, 0, 0, 1);
+}
+
+// Builds the option menu's slider screen.
+// FUNCTION: CMR2 0x005024a0
+void FUN_005024a0(void)
+{
+    Menu_Init((Menu *)g_unk0x0082b848, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 1);
+    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)FUN_005003d0, 0);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b848, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050ee10, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082b848, 0);
+}
+
 // Marks the given item selected and requests a refresh.
 // FUNCTION: CMR2 0x004ffa50
 void FUN_004ffa50(char *pItem, int unused)
@@ -3996,6 +5519,31 @@ char g_strFontGeneralDot[12] = "general\\dot";
 // GLOBAL: CMR2 0x005296ac
 char g_strFontGeneralHandel[15] = "general\\handel";
 
+void FUN_004cf260(void);
+Unk0049c2c0 *FUN_004ff440(void);
+int FUN_004a1280(void);
+void FUN_004067d0(void);
+
+// Starts the option menu: rebuilds the frontend, flags the option state, arms
+// the fade timer and switches the grouped callback machine to level 2; when the
+// menu is active and this is not the "restart" path it runs the transitions.
+// FUNCTION: CMR2 0x005001c0
+void FUN_005001c0(char param1)
+{
+    Unk0049c2c0 *p;
+
+    FUN_004cf260();
+    p = FUN_004ff440();
+    g_unk0x0082a938 = 1;
+    g_unk0x0082b0a4 = CMain::GetFrameDelta();
+    CGame::FUN_0049c1c0(p, 0, 0, 2);
+    if (CGameInfo::FUN_00405e00() != '\0' && param1 == '\0') {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+        FUN_004067d0();
+    }
+}
+
 // Starts the fade of the option menu once more than 50 frames have passed.
 // FUNCTION: CMR2 0x00501350
 void FUN_00501350(int param1, int unused)
@@ -4087,3 +5635,1295 @@ void FUN_0050f370(void)
     Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
 }
 
+// Sets the whole mesh list of the record to opaque when the record has content
+// and the per-mesh flag is set, to fully transparent otherwise.
+// FUNCTION: CMR2 0x00509150
+void FUN_00509150(int index)
+{
+    BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
+    int i;
+    if (*(int *)(pRecord + 0x2a8) != 0) {
+        for (i = 0; i < pRecord[0x26a]; ++i) {
+            if (*(int *)(pRecord + 0x26c + i * 4) != 0)
+                *(BYTE *)(*(int *)(pRecord + 0x3c + i * 4) + 0x17c) = 0xff;
+            else
+                *(BYTE *)(*(int *)(pRecord + 0x3c + i * 4) + 0x17c) = 0;
+        }
+    }
+}
+
+/* ===== integrated from casc/s6 ===== */
+// Textures of the option menu (symbols, banners and car parts).
+// GLOBAL: CMR2 0x00831360
+int g_unk0x00831360;
+// GLOBAL: CMR2 0x00831364
+int g_unk0x00831364;
+// GLOBAL: CMR2 0x00831368
+int g_unk0x00831368;
+// GLOBAL: CMR2 0x00831668
+int g_unk0x00831668;
+// GLOBAL: CMR2 0x0083166c
+int g_unk0x0083166c;
+// GLOBAL: CMR2 0x00831670
+int g_unk0x00831670;
+// GLOBAL: CMR2 0x008313ac
+int g_unk0x008313ac;
+// GLOBAL: CMR2 0x00831648
+int g_unk0x00831648;
+// GLOBAL: CMR2 0x008313b0
+int g_unk0x008313b0;
+// GLOBAL: CMR2 0x00831674
+int g_unk0x00831674;
+// GLOBAL: CMR2 0x0083137c
+int g_unk0x0083137c[12];
+// Country banner codes, in banner order (the last one is CFrontend::m_strUK).
+// Names of the car part textures.
+// GLOBAL: CMR2 0x00529590
+char g_str0x00529590[8] = "AXLES";
+// GLOBAL: CMR2 0x00529598
+char g_str0x00529598[8] = "DRIVE";
+// GLOBAL: CMR2 0x005295a0
+char g_str0x005295a0[8] = "EXHAUST";
+// GLOBAL: CMR2 0x005295a8
+char g_str0x005295a8[8] = "ELEC";
+// GLOBAL: CMR2 0x005295b0
+char g_str0x005295b0[8] = "STEER";
+// GLOBAL: CMR2 0x005295b8
+char g_str0x005295b8[8] = "BODY";
+// GLOBAL: CMR2 0x005295c0
+char g_str0x005295c0[8] = "BRAKES";
+// GLOBAL: CMR2 0x005295c8
+char g_str0x005295c8[8] = "DIFFER";
+// GLOBAL: CMR2 0x005295d0
+char g_str0x005295d0[8] = "SUSP";
+// GLOBAL: CMR2 0x005295d8
+char g_str0x005295d8[8] = "TURBO";
+// GLOBAL: CMR2 0x005295e0
+char g_str0x005295e0[8] = "GEAR";
+// GLOBAL: CMR2 0x005295e8
+char g_str0x005295e8[8] = "TYRES";
+// GLOBAL: CMR2 0x0052956c
+char g_str0x0052956c[] = "%s\\Textures\\Symbols\\%d\\DanRed.tga";
+// GLOBAL: CMR2 0x00529548
+char g_str0x00529548[] = "%s\\Textures\\Symbols\\%d\\DanOra.tga";
+// GLOBAL: CMR2 0x00529524
+char g_str0x00529524[] = "%s\\Textures\\Symbols\\%d\\DanYel.tga";
+// GLOBAL: CMR2 0x00529508
+char g_str0x00529508[] = "%s\\Textures\\Banners\\b%s.tga";
+// GLOBAL: CMR2 0x005294f0
+char g_str0x005294f0[] = "%s\\Textures\\Ar_640A.tga";
+// GLOBAL: CMR2 0x005294d8
+char g_str0x005294d8[] = "%s\\Textures\\Ar_640D.tga";
+// GLOBAL: CMR2 0x005294b8
+char g_str0x005294b8[] = "%s\\Textures\\Symbols\\%d\\Tick.tga";
+// GLOBAL: CMR2 0x00529494
+char g_str0x00529494[] = "%s\\Textures\\Symbols\\%d\\Cross.tga";
+// GLOBAL: CMR2 0x00529474
+char g_str0x00529474[] = "%s\\Textures\\Symbols\\%d\\Box.tga";
+// GLOBAL: CMR2 0x00529450
+char g_str0x00529450[] = "%s\\Textures\\Symbols\\%d\\Circle.tga";
+// GLOBAL: CMR2 0x00529434
+char g_str0x00529434[] = "%s\\Textures\\Parts\\%d\\%s.tga";
+
+// Loads the option menu textures: the three "Dan" symbols, the country
+// banner, the 640 arrows, the tick/cross/box/circle symbols and one texture
+// per car part.
+// FUNCTION: CMR2 0x0050a080
+void FUN_0050a080(void)
+{
+    char *pBanners[8] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+                          g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK };
+    char *pParts[12] = { g_str0x005295e8, g_str0x005295e0, g_str0x005295d8, g_str0x005295d0,
+                         g_str0x005295c8, g_str0x005295c0, g_str0x005295b8, g_str0x005295b0,
+                         g_str0x005295a8, g_str0x005295a0, g_str0x00529598, g_str0x00529590 };
+    int i;
+
+    sprintf(CFrontend::m_stringDest, g_str0x0052956c, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831360 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529548, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831364 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529524, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831368 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529508, CInstallInfo::GetSetupRepDir(),
+            pBanners[RallyDataCountryIndex() & 0xff]);
+    g_unk0x00831668 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294f0, CInstallInfo::GetFrontendDir());
+    g_unk0x0083166c = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294d8, CInstallInfo::GetFrontendDir());
+    g_unk0x00831670 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x005294b8, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x008313ac = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529494, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831648 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529474, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x008313b0 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x00529450, CInstallInfo::GetSetupRepDir(), 0x280);
+    g_unk0x00831674 = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest, 0, 0, 0, 0);
+    for (i = 0; i < 12; i++) {
+        sprintf(CFrontend::m_stringDest, g_str0x00529434, CInstallInfo::GetSetupRepDir(), 0x280, pParts[i]);
+        g_unk0x0083137c[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest,
+                                                            0, 0, 0, 0);
+    }
+}
+
+// Per-index block of the option menu's 3D preview (0x138 bytes each).
+// Geometry of the option menu preview deform (0x138 bytes per record, 8 records).
+struct Unk0x0082cb78 {
+    // The deform code (FUN_00507a10/0x507fe0) reads the first 0x14 bytes as ints and the
+    // 0x14/0x24/0x34/0x44 slots as int[4]; both spellings are the same memory.
+    union {
+        struct { BYTE field_0x0; BYTE field_0x1[3]; SceneNode *pNode5; }; // 0x4 fifth child
+        struct { int field_0x00; int field_0x04; };
+    };
+    union { SceneNode *pNode; int field_0x08; };              // 0x8
+    union {
+        BYTE field_0xc[8];
+        struct { int field_0x0c; int field_0x10; };
+    };
+    union { SceneNode *pWheels[4]; int matrix[4]; };          // 0x14 anchor matrices
+    union { Mesh *pMesh24[4]; int field_0x24[4]; };           // 0x24
+    union { Mesh *pMesh34[4]; int field_0x34[4]; };           // 0x34
+    union { Mesh *pMesh44[4]; int field_0x44[4]; };           // 0x44
+};
+
+// GLOBAL: CMR2 0x0082cb78
+Unk0x0082cb78 g_unk0x0082cb78[16];
+
+void FUN_00506fc0(int param1, int param2, int param3);
+
+// Rebuilds the stage mesh record of the option menu preview entry: clears the
+// record, adds the mesh of every node of the entry's node tree, compacts the
+// empty slots and matches the converted vertex buffers.
+// TODO: CMR2 0x00507080 (implemented, match 85%)
+void FUN_00507080(int index)
+{
+    Unk0x0082d220 *pRecord;
+    Unk0x0082cb78 *pEntry;
+    SceneNode *pNode;
+    SceneNode *pSibling;
+    int i;
+    int j;
+    int moved;
+
+    pRecord = &g_unk0x0082d220[index];
+    memset(pRecord, 0, sizeof(Unk0x0082d220));
+    pEntry = &g_unk0x0082cb78[index];
+    pRecord->meshCount = 0;
+    if (pEntry->pNode5 == 0)
+        return;
+    pRecord->field_0x228 = 0;
+    pRecord->field_0x224 = 0;
+    pRecord->field_0x220 = 0;
+    pRecord->field_0x21c = 0;
+    FUN_00507290(pEntry->pNode5, pRecord);
+    pNode = pEntry->pNode5->pFirstChild;
+    if (pNode != 0) {
+        do {
+            pSibling = pNode;
+            if ((BYTE)pNode->flags != 0x14 && pNode != 0) {
+                do {
+                    FUN_00507290(pNode, pRecord);
+                    pNode = pNode->pFirstChild;
+                } while (pNode != 0);
+            }
+            pNode = pSibling->pNext;
+        } while (pNode != 0);
+    }
+    for (i = 0; i < 15; i++) {
+        if (pRecord->pNodes[i] != 0)
+            continue;
+        moved = 0;
+        if (i < 14) {
+            for (j = i; j < 14; j++) {
+                if (pRecord->pNodes[j] != 0 || pRecord->pNodes[j + 1] != 0)
+                    moved = 1;
+                pRecord->pMeshes[j] = pRecord->pMeshes[j + 1];
+                pRecord->pNodes[j] = pRecord->pNodes[j + 1];
+                pRecord->pVertexData[j] = pRecord->pVertexData[j + 1];
+                pRecord->vertexCount[j] = pRecord->vertexCount[j + 1];
+                pRecord->centre[j] = pRecord->centre[j + 1];
+                pRecord->halfSize[j] = pRecord->halfSize[j + 1];
+            }
+            if (moved)
+                i--;
+        }
+    }
+    FUN_00506fc0(index, (int)pEntry->pNode5, (int)pRecord);
+}
+
+struct Unk0x0082fd00 {
+    Unk0x0082cb78 *pEntry;      // 0x000 stage entry the geometry belongs to
+    FixVector corner[8];        // 0x004 bounding-box corners
+    FixVector vertex[12];       // 0x064 vertices the deform displaces
+    FixVector anchor[4];        // 0x0f4 position of each anchor matrix
+    int field_0x124;            // 0x124
+    int field_0x128[4];         // 0x128 random wobble of each anchor
+};
+
+// GLOBAL: CMR2 0x0082fd00
+Unk0x0082fd00 g_unk0x0082fd00[8];
+
+
+// Timestamp of the previous frame of the option menu preview animation.
+// GLOBAL: CMR2 0x0082d118
+unsigned int g_unk0x0082d118;
+
+// Animates the four preview nodes of the option record: each one gets an
+// identity (or mirrored) basis, and while the menu is fading the forward
+// vector is shrunk to 0x9999.
+// FUNCTION: CMR2 0x00509dc0
+void FUN_00509dc0(int index)
+{
+    int *pList;
+    Unk0x0082d220 *pRec;
+    FixBasis mirror;
+    FixBasis basis;
+    FixVector v;
+    unsigned int elapsed;
+    unsigned int now;
+    int i;
+    int value;
+
+    pList = (int *)&g_unk0x0082fd00[index];
+    pRec = &g_unk0x0082d220[index];
+    basis.right.x = 0x10000;
+    basis.right.y = 0;
+    basis.right.z = 0;
+    basis.up.x = 0;
+    basis.up.y = 0x10000;
+    basis.up.z = 0;
+    basis.forward.x = 0;
+    basis.forward.y = 0;
+    basis.forward.z = 0x10000;
+    mirror.right.x = -0x10000;
+    mirror.right.y = 0;
+    mirror.right.z = 0;
+    mirror.up.x = 0;
+    mirror.up.y = 0x10000;
+    mirror.up.z = 0;
+    mirror.forward.x = 0;
+    mirror.forward.y = 0;
+    mirror.forward.z = -0x10000;
+    if (g_unk0x0082d118 == 0) {
+        g_unk0x0082d118 = timeGetTime();
+        elapsed = 0;
+    } else {
+        now = timeGetTime();
+        elapsed = now - g_unk0x0082d118;
+        g_unk0x0082d118 = now;
+        elapsed = FixDiv(elapsed << 16, 0x280000);
+        elapsed = FixMul(0xa0000, elapsed);
+    }
+    value = pList[0x124 / 4] + elapsed;
+    pList[0x124 / 4] = value;
+    if (value > 0x1680000)
+        pList[0x124 / 4] = value - 0x1680000;
+    for (i = 0; i < 4; i++) {
+        // the original discards this result
+        value = pRec->field_0x23c.v[i];
+        value = FixMul(0x50000, value);
+        if (i % 2 == 0) {
+            FixMatrix_SetRight(&basis.right, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetUp(&basis.up, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetForward(&basis.forward, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        } else {
+            FixMatrix_SetRight(&mirror.right, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetUp(&mirror.up, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixMatrix_SetForward(&mirror.forward, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        }
+        if ((FUN_0050a020(*(BYTE *)pList[0], (char)FUN_005028a0(index, 0)) != 0 && CGameInfo::FUN_00405d10() == 2) ||
+            CGameInfo::FUN_00405d70() > 1) {
+            FixMatrix_GetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+            FixVecScale(&v, &v, 0x9999);
+            FixMatrix_SetForward(&v, &(*(SceneNode **)(pList[0] + 0x14 + i * 4))->current);
+        }
+    }
+}
+
+// Normalises a vector and flips it when it points down.
+#define OPTIONS_FIX_NORMALIZE_FLIP(v)                                               \
+    {                                                                               \
+        int len = FixVecLength(&v);                                                 \
+        if (len == 0) {                                                             \
+            v.x = 0;                                                                \
+            v.y = 0;                                                                \
+            v.z = 0;                                                                \
+        } else {                                                                    \
+            FixVecScaleRecip(&v, &v, len);                                          \
+            if (v.y < 0)                                                            \
+                FixVecScale(&v, &v, -0x10000);                                      \
+        }                                                                           \
+    }
+
+// Builds the preview node's transform from the four corner heights stored in
+// the option record (field_0x22c): the up axis is the sum of the two edge
+// normals, the other axes come from Gram-Schmidt and the position from the
+// average height.
+// TODO: CMR2 0x005091c0 (implemented, match 71%)
+void FUN_005091c0(int index)
+{
+    Unk0x0082d220 *pRec;
+    int *pList;
+    int f[4];
+    FixVector v;
+    FixVector v2;
+    FixVector cross1;
+    FixVector cross2;
+    FixBasis basis;
+    int a;
+    int b;
+    int len;
+    int i;
+    int t;
+
+    pRec = &g_unk0x0082d220[index];
+    pList = (int *)&g_unk0x0082fd00[index];
+    if (FUN_004ff550() == 1 && FUN_00502500()[Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14 + 0x1f] == 2) {
+        t = (unsigned char)FUN_00502510()[0x1f] << 16;
+        t = FixMul(t, 0x1999);
+    } else {
+        t = (int)(char)FUN_005028a0(index, 2) << 16;
+        t = FixMul(t, 0x1999);
+    }
+    t = FixMul(0x10000 - t, 0x1999);
+    for (i = 0; i < 4; i++) {
+        f[i] = pRec->field_0x22c.v[i] + t;
+        if (f[i] < -0x1999)
+            f[i] = -0x1999;
+    }
+    a = FixMul(0x8000, f[3] + f[2]);
+    b = FixMul(0x8000, f[1] + f[0]);
+    v.x = pList[4] - pList[1];
+    v.y = f[1] - f[0];
+    v.z = pList[6] - pList[3];
+    v2.x = pList[7] - pList[1];
+    v2.y = a - f[0];
+    v2.z = -pList[3];
+    FixVecCross(&cross1, &v, &v2);
+    OPTIONS_FIX_NORMALIZE_FLIP(cross1);
+    v.x = pList[10] - pList[7];
+    v.y = f[3] - f[2];
+    v.z = pList[12] - pList[9];
+    v2.x = pList[1] - pList[7];
+    v2.y = b - f[2];
+    v2.z = -pList[9];
+    FixVecCross(&cross2, &v, &v2);
+    OPTIONS_FIX_NORMALIZE_FLIP(cross2);
+    v.x = cross1.x + cross2.x;
+    v.y = cross1.y + cross2.y;
+    v.z = cross1.z + cross2.z;
+    basis.right.x = 0x10000;
+    basis.right.y = 0;
+    basis.right.z = 0;
+    basis.up.x = 0;
+    basis.up.y = 0x10000;
+    basis.up.z = 0;
+    basis.forward.x = 0;
+    basis.forward.y = 0;
+    basis.forward.z = 0x10000;
+    FIX_NORMALIZE_INTO(cross1, v)
+    basis.up.x = cross1.x;
+    basis.up.y = cross1.y;
+    basis.up.z = cross1.z;
+    len = FixVecDot(&basis.right, &basis.up);
+    FixVecScale(&v, &basis.up, len);
+    v.x = basis.right.x - v.x;
+    v.y = basis.right.y - v.y;
+    v.z = basis.right.z - v.z;
+    FIX_NORMALIZE_INTO(basis.right, v)
+    FixVecCross(&v, &basis.right, &basis.up);
+    FIX_NORMALIZE_INTO(basis.forward, v)
+    v.x = 0;
+    v.y = FixMul(0x8000, a + b);
+    v.z = 0;
+    (*(SceneNode **)(pList[0] + 4))->useParentWorld = 0;
+    FixMatrix_SetRight(&basis.right, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetUp(&basis.up, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetForward(&basis.forward, &(*(SceneNode **)(pList[0] + 4))->current);
+    FixMatrix_SetPosition(&v, &(*(SceneNode **)(pList[0] + 4))->current);
+}
+
+/* ===== integrated from casc/s2 ===== */
+// ---------------------------------------------------------------------------
+// Per-slot rally tables used by the wheel-mesh selection and the stage
+// timing data of each slot.
+// ---------------------------------------------------------------------------
+
+// Number of filled slots (1 or 2), from CGameInfo::FUN_00501230.
+// GLOBAL: CMR2 0x0082c694
+int g_unk0x0082c694;
+// Active slot read from the current mode entry's field 0x48.
+// GLOBAL: CMR2 0x0082c710
+BYTE g_unk0x0082c710;
+// Texture set index of each slot (100 = no data); g_unk0x0082ca18 holds how
+// many of them are valid.
+// GLOBAL: CMR2 0x0082ca04
+BYTE g_unk0x0082ca04[0x14];
+// GLOBAL: CMR2 0x0082ca18
+BYTE g_unk0x0082ca18;
+
+// 0x54-byte per-slot entry of the table at 0x82cb78: the scene node whose
+// mesh is shown and the three wheel-mesh variants that can be assigned to it.
+
+// GLOBAL: CMR2 0x0082d15c
+int g_unk0x0082d15c[2];
+
+// 8-byte entry (four 16-bit values) of the timing tables: current
+// 0x82d0b8/0x82d0f8, animated 0x82d0d8 and target 0x82fce0, four slots each.
+struct Unk0x0082d0b8 {
+    short field_0x0;            // 0x0
+    short field_0x2;            // 0x2
+    short field_0x4;            // 0x4
+    short field_0x6;            // 0x6
+};
+
+// GLOBAL: CMR2 0x0082d0b8
+Unk0x0082d0b8 g_unk0x0082d0b8[4];
+// GLOBAL: CMR2 0x0082d0d8
+Unk0x0082d0b8 g_unk0x0082d0d8[4];
+// GLOBAL: CMR2 0x0082d0f8
+Unk0x0082d0b8 g_unk0x0082d0f8[4];
+// GLOBAL: CMR2 0x0082fce0
+Unk0x0082d0b8 g_unk0x0082fce0[4];
+// GLOBAL: CMR2 0x00831080
+int g_unk0x00831080;
+// GLOBAL: CMR2 0x00831148
+int g_unk0x00831148[20];
+// GLOBAL: CMR2 0x0083131c
+BYTE g_unk0x0083131c[4];
+// Per-slot converted vertex buffer of the wheel meshes: each slot holds an
+// array of one block per source mesh.
+// GLOBAL: CMR2 0x00831198
+BYTE **g_unk0x00831198[2];
+// Per-slot byte copied from each source mesh (its field 0x30).
+// GLOBAL: CMR2 0x0082d1dc
+BYTE *g_unk0x0082d1dc[2];
+
+int *RallyData_FUN_004075e0(int index);
+int *FUN_00407520(int index);
+int *RallyData_FUN_004075c0(int index);
+int FUN_005028a0(int index, int type);
+extern char g_strWheelVariantL[4];
+extern char g_strWheelVariantN[4];
+extern double g_unk0x00511300;
+
+// Fills the per-slot texture set indices (g_unk0x0082ca04, counted by
+// g_unk0x0082ca18) from the rally tables of the active slot; entries without
+// a table value are marked 100.
+// FUNCTION: CMR2 0x00505e70
+void FUN_00505e70(void)
+{
+    int *pStages;
+    BYTE *pPairs;
+    BYTE *pDest;
+    int slot;
+    int count;
+    int i;
+    int *pEntry;
+
+    pStages = RallyData_FUN_004075e0(0);
+    pPairs = (BYTE *)FUN_00407520(0);
+    count = ((BYTE *)&g_unk0x0082c6c0)[g_unk0x0082c694 * 0x50];
+    slot = g_unk0x0082c710 & 0xff;
+    g_unk0x0082ca18 = count - slot + 2;
+    pEntry = RallyData_FUN_004075c0(slot);
+    if (*pEntry != 0)
+        g_unk0x0082ca04[0] = 100;
+    else
+        g_unk0x0082ca04[0] = pPairs[slot * 8];
+    if (slot <= count) {
+        pDest = &g_unk0x0082ca04[1];
+        i = slot;
+        do {
+            pEntry = RallyData_FUN_004075c0(slot);
+            if (*pEntry != 0)
+                *pDest = 100;
+            else
+                *pDest = (BYTE)pStages[i];
+            i++;
+            pDest++;
+        } while (i <= count);
+    }
+}
+
+// Assigns one of the three wheel-mesh variants to the scene nodes of the slot
+// according to the option tables, and when the textures do not come from the
+// CD swaps the "L"/"N" variants of every wheel mesh triangle of the slot.
+// Byte-offset views of the 0x54-byte entries of the table at 0x82cb78 (same
+// fields as Unk0x0082cb78, indexed with the source's byte offset).
+#define CB78_BYTE(o) (*(BYTE *)((BYTE *)&g_unk0x0082cb78 + (o)))
+#define CB78_NODE(o) (*(SceneNode **)((BYTE *)&g_unk0x0082cb78 + (o)))
+#define CB78_MESH(o) (*(Mesh **)((BYTE *)&g_unk0x0082cb78 + (o)))
+
+// FUNCTION: CMR2 0x00506080
+void FUN_00506080(int param1)
+{
+    int off;
+    int i;
+    int k;
+    int w;
+    Mesh *pMesh;
+    Texture *pTex;
+
+    off = param1 * 0x54;
+    if (CGameInfo::FUN_00405d10() == 0) {
+        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
+            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
+            if (FUN_0050a020(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                for (i = 0; i < 4; i++) {
+                    if (CB78_MESH(off + 0x44 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x44 + i * 4);
+                }
+                return;
+            }
+            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+                for (i = 0; i < 4; i++) {
+                    if (CB78_MESH(off + 0x24 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
+                }
+                return;
+            }
+            for (i = 0; i < 4; i++) {
+                if (CB78_MESH(off + 0x34 + i * 4) != 0)
+                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
+            }
+            return;
+        }
+    } else {
+        if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
+            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
+            for (w = 0; w < 4; w++) {
+                pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
+                for (k = 0; k < pMesh->triangleCount; k++) {
+                    pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
+                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                            Graphics_ReloadTexture(pTex);
+                        }
+                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                        Graphics_ReloadTexture(pTex);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Animates every slot's wheel rotation towards its target angles: slots whose
+// animation time is over copy the target straight into the current angles, the
+// rest write the animated angles scaled by the squared proportion of the
+// elapsed time and hand them to the slot's scene node.
+// FUNCTION: CMR2 0x00506720
+void FUN_00506720(void)
+{
+    unsigned int time;
+    int i;
+
+    time = CMain::GetFrameDelta();
+    i = 0;
+    if (CGameInfo::FUN_00405d70() > 0) {
+        do {
+            unsigned int duration;
+            short *pAngles;
+
+            duration = g_unk0x00831080;
+            if (g_unk0x0083131c[i] != 0 && time - g_unk0x00831148[i] > g_unk0x00831080)
+                g_unk0x0083131c[i] = 0;
+            pAngles = (short *)&g_unk0x0082d0b8[i];
+            if (g_unk0x0083131c[i] != 0) {
+                unsigned int t = (time * 100 - g_unk0x00831148[i] * 100) / duration;
+                int k = (int)(t * t) / 100;
+
+                pAngles[0] = (short)(g_unk0x0082d0d8[i].field_0x0 * k / 100 + g_unk0x0082d0f8[i].field_0x0);
+                pAngles[1] = (short)(g_unk0x0082d0d8[i].field_0x2 * k / 100 + g_unk0x0082d0f8[i].field_0x2);
+                pAngles[2] = (short)(g_unk0x0082d0d8[i].field_0x4 * k / 100 + g_unk0x0082d0f8[i].field_0x4);
+                FUN_00500920(i, 0, k);
+            } else {
+                pAngles[0] = g_unk0x0082fce0[i].field_0x0;
+                pAngles[1] = g_unk0x0082fce0[i].field_0x2;
+                pAngles[2] = g_unk0x0082fce0[i].field_0x4;
+                FUN_00500920(i, 1, 0);
+            }
+            SceneNode_SetRotation(g_unk0x0082cb78[i].pNode, (FixAngles *)pAngles);
+            FUN_00509dc0(i);
+            FUN_005091c0(i);
+            i++;
+        } while (i < (CGameInfo::FUN_00405d70() & 0xff));
+    }
+}
+
+// Saves the rotation matrix of the slot's scene node, rotates the node to the
+// given angles, rotates param2 by the new matrix into param3 and puts the old
+// rotation matrix back.
+// FUNCTION: CMR2 0x005068b0
+void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4)
+{
+    SceneNode *pNode;
+    FixMatrix saved;
+
+    pNode = g_unk0x0082cb78[param1].pNode;
+    saved = *(FixMatrix *)((BYTE *)pNode + 0x98);
+    SceneNode_SetRotation(pNode, param4);
+    FixMatrix_RotateVector(param3, param2, (FixMatrix *)((BYTE *)g_unk0x0082cb78[param1].pNode + 0x98));
+    *(FixMatrix *)((BYTE *)g_unk0x0082cb78[param1].pNode + 0x98) = saved;
+}
+
+// Stores the target angles of a slot (three degrees as 16-bit values) in the
+// current tables, wraps the delta to the target into [-180, 180) and writes
+// the three wrapped deltas as 12-bit angles in the animated table.
+// TODO: CMR2 0x00506930 (implemented, match 60%)
+void FUN_00506930(int param1, short *param2, int param3)
+{
+    unsigned int time;
+    short tX, tY, tZ;
+    int d[3];
+    int a[3];
+    int abs;
+
+    time = CMain::GetFrameDelta();
+    g_unk0x00831080 = 0x14;
+    tY = g_unk0x0082d0b8[param1].field_0x2;
+    g_unk0x00831148[param1] = time;
+    tX = g_unk0x0082d0b8[param1].field_0x0;
+    g_unk0x0083131c[param1] = 1;
+    tZ = g_unk0x0082d0b8[param1].field_0x4;
+    g_unk0x0082d0f8[param1].field_0x0 = tX;
+    g_unk0x0082d0f8[param1].field_0x2 = tY;
+    g_unk0x0082d0f8[param1].field_0x4 = tZ;
+    g_unk0x0082fce0[param1].field_0x0 = param2[0];
+    g_unk0x0082fce0[param1].field_0x2 = param2[1];
+    g_unk0x0082fce0[param1].field_0x4 = param2[2];
+    if (param3 != 0) {
+        g_unk0x0082d0b8[param1] = g_unk0x0082fce0[param1];
+        g_unk0x0082d0f8[param1] = g_unk0x0082fce0[param1];
+    }
+    d[0] = g_unk0x0082fce0[param1].field_0x0 - g_unk0x0082d0f8[param1].field_0x0;
+    d[1] = g_unk0x0082fce0[param1].field_0x2 - g_unk0x0082d0f8[param1].field_0x2;
+    d[2] = g_unk0x0082fce0[param1].field_0x4 - g_unk0x0082d0f8[param1].field_0x4;
+    a[0] = d[0] * 0x1680;
+    a[1] = d[1] * 0x1680;
+    a[2] = d[2] * 0x1680;
+    abs = a[0];
+    if (a[0] < 0)
+        abs = -a[0];
+    if (abs > 0xb40000) {
+        if (a[0] > 0)
+            a[0] = 0x1680000 - a[0];
+        else
+            a[0] += 0x1680000;
+    }
+    abs = a[1];
+    if (a[1] < 0)
+        abs = -a[1];
+    if (abs > 0xb40000) {
+        if (a[1] > 0)
+            a[1] = 0x1680000 - a[1];
+        else
+            a[1] += 0x1680000;
+    }
+    abs = a[2];
+    if (a[2] < 0)
+        abs = -a[2];
+    if (abs > 0xb40000) {
+        if (a[2] > 0)
+            a[2] = 0x1680000 - a[2];
+        else
+            a[2] += 0x1680000;
+    }
+    g_unk0x0082d0d8[param1].field_0x0 = (short)(__int64)((double)a[0] * g_unk0x00511300);
+    g_unk0x0082d0d8[param1].field_0x2 = (short)(__int64)((double)a[1] * g_unk0x00511300);
+    g_unk0x0082d0d8[param1].field_0x4 = (short)(__int64)((double)a[2] * g_unk0x00511300);
+}
+
+void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
+
+// Shows or hides the wheel scene nodes of a slot: the root node and its
+// bounding-box child receive the visibility mask, and showing them also
+// re-applies the option state and the wheel mesh variants.
+// FUNCTION: CMR2 0x00506b20
+void FUN_00506b20(int index, char visible)
+{
+    if (visible != '\0') {
+        SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0xff);
+        SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode5, 0xff);
+        FUN_00509150(index);
+        FUN_00506080(index);
+        return;
+    }
+    SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0);
+    SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode5, 0);
+}
+
+// Allocates and fills the per-slot wheel vertex buffers of param3: the six
+// floats of every source entry become 16.16 values and its normal is stored
+// twice as three signed bytes biased by 0x80, the second copy scaled to unit
+// length.
+// TODO: CMR2 0x00506bb0 (implemented, match 57%)
+void FUN_00506bb0(int param1, int param2, int param3)
+{
+    BYTE ***ppBlock;
+    BYTE **ppFlags;
+    unsigned short *pCounts;
+    FixVector normal;
+    int totalSize;
+    int i;
+    int k;
+    int srcOff;
+    int destOff;
+    int length;
+    int v;
+    int *pDest;
+    BYTE *pNormal;
+    unsigned int n;
+    BYTE nb0, nb1, nb2;
+
+    ppBlock = &g_unk0x00831198[param1];
+    *ppBlock = (BYTE **)CFileBuffer::AllocateLockedBuffer((unsigned int)*(BYTE *)(param3 + 0x26a) << 2);
+    totalSize = (unsigned int)*(BYTE *)(param3 + 0x26a) << 2;
+    ppFlags = &g_unk0x0082d1dc[param1];
+    *ppFlags = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)*(BYTE *)(param3 + 0x26a));
+    pCounts = (unsigned short *)(param3 + 0x24c);
+    for (i = 0; i < (int)(*(BYTE *)(param3 + 0x26a) & 0xff); i++) {
+        {
+            (*ppBlock)[i] = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)*pCounts << 5);
+            totalSize += (unsigned int)*pCounts * 0x20;
+            (*ppFlags)[i] = *(BYTE *)(*(int *)(param3 + i * 4 + 0x3c) + 0x30);
+            srcOff = 0;
+            destOff = 0;
+            for (k = 0; k < (int)(unsigned int)*pCounts; k++) {
+                pDest = (int *)((*ppBlock)[i] + destOff);
+                pDest[0] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff) * CGraphics::m_65536);
+                pDest[1] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 4) * CGraphics::m_65536);
+                pDest[2] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 8) * CGraphics::m_65536);
+                pDest[3] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0xc) * CGraphics::m_65536);
+                pDest[4] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x10) * CGraphics::m_65536);
+                pDest[5] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x14) * CGraphics::m_65536);
+                pNormal = (BYTE *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x18);
+                n = *(unsigned int *)pNormal;
+                nb2 = (BYTE)(n >> 16);
+                nb1 = (BYTE)(n >> 8);
+                nb0 = (BYTE)n;
+                v = (nb2 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1b) = (BYTE)v;
+                v = (nb1 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1c) = (BYTE)v;
+                v = (nb0 & 0xff) - 0x80;
+                if (v < -0x7f)
+                    v = -0x7f;
+                else if (v > 0x7f)
+                    v = 0x7f;
+                *(BYTE *)((BYTE *)pDest + 0x1d) = (BYTE)v;
+                normal.x = *(char *)((BYTE *)pDest + 0x1b) * -0x200;
+                normal.y = *(char *)((BYTE *)pDest + 0x1c) * -0x200;
+                normal.z = *(char *)((BYTE *)pDest + 0x1d) * -0x200;
+                length = FixVecLength(&normal);
+                if (length == 0) {
+                    *(BYTE *)((BYTE *)pDest + 0x18) = 0;
+                    *(BYTE *)((BYTE *)pDest + 0x19) = 0;
+                    *(BYTE *)((BYTE *)pDest + 0x1a) = 0;
+                } else {
+                    FixVecScale(&normal, &normal, (int)(((__int64)0x10000 << 16) / length));
+                    v = normal.x >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x18) = (BYTE)v;
+                    v = normal.y >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x19) = (BYTE)v;
+                    v = normal.z >> 9;
+                    if (v > 0x7f)
+                        v = 0x7f;
+                    else if (v < -0x7f)
+                        v = -0x7f;
+                    *(BYTE *)((BYTE *)pDest + 0x1a) = (BYTE)v;
+                }
+                srcOff += 0x30;
+                destOff += 0x20;
+            }
+        }
+        pCounts++;
+    }
+}
+
+/* ===== integrated from casc/s4 ===== */
+
+// Provisional copy of the globals the stage deform code shares with the other
+// GameInfo lots (they are declared next to FUN_00507710 as well).
+extern float g_oneOverRandMax;
+
+// Per-entry stage data loaded from the entry's .c3d file (0x54 bytes): the four
+// anchor matrices and the handles of the entry's meshes.
+
+
+// Deform geometry of one stage entry (0x138 bytes): the box FUN_00507a10 builds
+// around it, the twelve vertices FUN_00507fe0 deforms and the position of the
+// entry's four anchor matrices.
+
+// Planar influence of the camera on the stage (all 16.16): inner radius, width
+// of the falloff band and the scale of the falloff, set by FUN_005078e0.
+extern int g_unk0x0082d150;  // defined in StageTiming.cpp
+extern int g_unk0x0082d154;  // defined in StageTiming.cpp
+extern int g_unk0x0082d158;  // defined in StageTiming.cpp
+
+void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
+
+void FUN_00508890(int *pRecord);
+void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom);
+
+// Recomputes the three sky colours of the stage from the colour loaded by
+// FUN_00507710: the raw weights when the sky type is 0, a single clamped value
+// for type 1 and two interpolated values for the rest. It only touches stages
+// whose mesh record is filled in.
+// FUNCTION: CMR2 0x005078e0
+void FUN_005078e0(int index)
+{
+    int scale;
+
+    if (g_unk0x0082d220[index].meshCount == 0)
+        return;
+    if (g_unk0x0082d220[index].field_0x2a8 == 0)
+        return;
+    switch (g_unk0x0082d14c) {
+    case 0:
+        g_unk0x0082d150 = FixMul(g_unk0x0082d148, 0x5999);
+        g_unk0x0082d154 = FixMul(g_unk0x0082d148, 0x9999);
+        g_unk0x0082d158 = FixMul(g_unk0x0082d148, 0xb333);
+        FUN_00507fe0(&g_unk0x0082d220[index], &g_unk0x0082fd00[index]);
+        return;
+    case 1:
+        scale = FixMul(g_unk0x0082d148, 0x8000);
+        if (scale > 0x4000)
+            scale = 0x4000;
+        g_unk0x0082d150 = scale;
+        g_unk0x0082d154 = scale;
+        g_unk0x0082d158 = scale;
+        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        return;
+    default:
+        g_unk0x0082d144 = 0x4000;
+        scale = FixMul(g_unk0x0082d148, 0x8000);
+        if (scale > g_unk0x0082d144)
+            scale = g_unk0x0082d144;
+        g_unk0x0082d150 = scale;
+        g_unk0x0082d154 = scale;
+        g_unk0x0082d158 = scale;
+        FUN_00508890((int *)&g_unk0x0082d220[index]);
+        return;
+    }
+}
+
+// Builds the deform geometry of stage entry <index>: the eight corners of the
+// box around it, the twelve vertices FUN_00507fe0 deforms and the position of
+// the four anchor matrices. The box extents depend on the rally the entry
+// belongs to.
+// FUNCTION: CMR2 0x00507a10
+void FUN_00507a10(Unk0x0082d220 *pObject, int index)
+{
+    Unk0x0082fd00 *pGeom;
+    FixVector sizes;
+    FixVector half;
+    int i;
+    int value;
+    int offX0;
+    int offX1;
+    int offY0;
+    int offY1;
+    int offZ0;
+
+    pGeom = &g_unk0x0082fd00[index];
+    pGeom->pEntry = &g_unk0x0082cb78[index];
+    pGeom->field_0x124 = 0;
+    for (i = 0; i < 4; i++) {
+        FixMatrix_GetPosition(&pGeom->anchor[i],
+                              (FixMatrix *)(pGeom->pEntry->matrix[i] + 0x58));
+        value = rand();
+        pGeom->field_0x128[i] =
+            FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
+    }
+    switch ((int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)index))) {
+    case 3:
+        sizes.x = 0x44560;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1cfdf;
+        offX0 = 0x1cccc;
+        offX1 = 0x14ccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xb0a3;
+        offY1 = 0xfa9f;
+        break;
+    case 0:
+        sizes.x = 0x426e9;
+        sizes.y = 0x16b85;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x8000;
+        offZ0 = 0x3d70;
+        offY0 = 0xcf5c;
+        offY1 = 0x10ccc;
+        break;
+    case 6:
+        sizes.x = 0x3e3d7;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1ae14;
+        offX1 = 0x9c28;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 2:
+        sizes.x = 0x40f5c;
+        sizes.y = 0x163d7;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x451e;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 7:
+        sizes.x = 0x475c2;
+        sizes.y = 0x1570a;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1e147;
+        offX1 = 0x1028f;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 1:
+        sizes.x = 0x4451e;
+        sizes.y = 0x15999;
+        sizes.z = 0x1d70a;
+        offX0 = 0x1cccc;
+        offX1 = 0xf851;
+        offZ0 = 0x570a;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 8:
+        sizes.x = 0x30083;
+        sizes.y = 0x14041;
+        sizes.z = 0x18000;
+        offX0 = 0x13333;
+        offX1 = 0x4ccc;
+        offZ0 = 0x2666;
+        offY0 = 0xb5c2;
+        offY1 = 0xfa9f;
+        break;
+    case 5:
+        sizes.x = 0x41c28;
+        sizes.y = 0x154bc;
+        sizes.z = 0x1d47a;
+        offX0 = 0x1c000;
+        offX1 = 0x10000;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 4:
+        sizes.x = 0x40312;
+        sizes.y = 0x14ccc;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1c000;
+        offX1 = 0xcccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 9:
+        sizes.x = 0x3b958;
+        sizes.y = 0x15db2;
+        sizes.z = 0x1e041;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 11:
+        sizes.x = 0x3d333;
+        sizes.y = 0x15999;
+        sizes.z = 0x1c312;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 10:
+        sizes.x = 0x3b333;
+        sizes.y = 0x106a7;
+        sizes.z = 0x1cf5c;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 12:
+        sizes.x = 0x3ec49;
+        sizes.y = 0x146a7;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 13:
+        sizes.x = 0x41687;
+        sizes.y = 0x16147;
+        sizes.z = 0x1bb22;
+        offX0 = 0x1ae14;
+        offX1 = 0xfd70;
+        offZ0 = 0x428f;
+        offY0 = 0xd70a;
+        offY1 = 0xf581;
+        break;
+    }
+    FixVecScale(&half, &sizes, 0x8000);
+    pGeom->corner[1].x = half.x;
+    pGeom->corner[1].y = -half.y;
+    pGeom->corner[1].z = -half.z;
+    pGeom->corner[0].x = half.x;
+    pGeom->corner[0].y = -half.y;
+    pGeom->corner[0].z = half.z;
+    pGeom->corner[2].x = -half.x;
+    pGeom->corner[2].y = -half.y;
+    pGeom->corner[2].z = half.z;
+    pGeom->corner[3].x = -half.x;
+    pGeom->corner[3].y = -half.y;
+    pGeom->corner[3].z = -half.z;
+    pGeom->corner[5].x = half.x;
+    pGeom->corner[5].y = half.y;
+    pGeom->corner[5].z = -half.z;
+    pGeom->corner[4].x = half.x;
+    pGeom->corner[4].y = half.y;
+    pGeom->corner[4].z = half.z;
+    pGeom->corner[6].x = -half.x;
+    pGeom->corner[6].y = half.y;
+    pGeom->corner[6].z = half.z;
+    pGeom->corner[7].x = -half.x;
+    pGeom->corner[7].y = half.y;
+    pGeom->corner[7].z = -half.z;
+    pGeom->vertex[0].x = pObject->field_0x21c;
+    pGeom->vertex[0].y = -half.y;
+    pGeom->vertex[0].z = pObject->field_0x224;
+    pGeom->vertex[1].x = pObject->field_0x21c;
+    pGeom->vertex[1].y = -half.y;
+    pGeom->vertex[1].z = pObject->field_0x228;
+    pGeom->vertex[2].x = pObject->field_0x220;
+    pGeom->vertex[2].y = -half.y;
+    pGeom->vertex[2].z = pObject->field_0x224;
+    pGeom->vertex[3].x = pObject->field_0x220;
+    pGeom->vertex[3].y = -half.y;
+    pGeom->vertex[3].z = pObject->field_0x228;
+    pGeom->vertex[4].x = pObject->field_0x21c;
+    pGeom->vertex[4].y = offY0 - half.y;
+    pGeom->vertex[4].z = pObject->field_0x224;
+    pGeom->vertex[5].x = pObject->field_0x21c;
+    pGeom->vertex[5].y = offY0 - half.y;
+    pGeom->vertex[5].z = pObject->field_0x228;
+    pGeom->vertex[6].x = pObject->field_0x220;
+    pGeom->vertex[6].y = offY1 - half.y;
+    pGeom->vertex[6].z = pObject->field_0x224;
+    pGeom->vertex[7].x = pObject->field_0x220;
+    pGeom->vertex[7].y = offY1 - half.y;
+    pGeom->vertex[7].z = pObject->field_0x228;
+    pGeom->vertex[8].x = half.x - offX0;
+    pGeom->vertex[8].y = half.y;
+    pGeom->vertex[8].z = offZ0 - half.z;
+    pGeom->vertex[9].x = half.x - offX0;
+    pGeom->vertex[9].y = half.y;
+    pGeom->vertex[9].z = half.z - offZ0;
+    pGeom->vertex[10].x = offX1 - half.x;
+    pGeom->vertex[10].y = half.y;
+    pGeom->vertex[10].z = half.z - offZ0;
+    pGeom->vertex[11].x = offX1 - half.x;
+    pGeom->vertex[11].y = half.y;
+    pGeom->vertex[11].z = offZ0 - half.z;
+}
+
+// Rebuilds the deformed geometry of the stage entry <pObject> refers to: the
+// twelve vertices FUN_00507a10 generated are used to find the vertex closest to
+// the camera on either side of the camera plane, the camera is pushed onto that
+// plane and then every vertex of the entry's meshes is moved along its stored
+// limit normal (clamped by StageDeform_ClampVertex) with three times the
+// displacement the clamp applied.
+// FUNCTION: CMR2 0x00507fe0
+void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
+{
+    FixVector d;
+    FixVector dv;
+    FixVector pos;
+    FixVector dest;
+    FixVector saved;
+    int positive;
+    int minValue;
+    int minPositive;
+    int radius2;
+    int invRadius;
+    int band2;
+    int invBand;
+    int falloff;
+    int value;
+    int band;
+    int angle;
+    int dirty;
+    int i;
+    int j;
+
+    FixVecScale(&d, &g_unk0x0082d120, -0x10000);
+    positive = FixVecDot(&g_unk0x0082d12c, &d) >= 0;
+    minPositive = 0;
+    minValue = 0;
+    for (i = 0; i < 12; i++) {
+        d.x = pGeom->vertex[i].x - g_unk0x0082d120.x;
+        d.y = pGeom->vertex[i].y - g_unk0x0082d120.y;
+        d.z = pGeom->vertex[i].z - g_unk0x0082d120.z;
+        value = FixVecDot(&g_unk0x0082d12c, &d);
+        if (!positive)
+            value = -value;
+        if (value < minValue)
+            minValue = value;
+        if (value > 0 && (minPositive == 0 || value < minPositive))
+            minPositive = value;
+    }
+    if (!positive) {
+        minValue = -minValue;
+        minPositive = -minPositive;
+    }
+    if (minValue != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minValue);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    } else if (minPositive != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minPositive);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    }
+    positive = FixVecDot(&g_unk0x0082d12c, &g_unk0x0082d120) >= 0;
+    radius2 = FixMul(g_unk0x0082d150, g_unk0x0082d150);
+    invRadius = FixDiv(0x10000, g_unk0x0082d150);
+    band = g_unk0x0082d150 + g_unk0x0082d154;
+    band2 = FixMul(band, band);
+    invBand = FixDiv(0x10000, g_unk0x0082d154);
+    falloff = FixMul(g_unk0x0082d158, 0x3333);
+    for (j = 0; j < pObject->meshCount; j++) {
+        dirty = 0;
+        for (i = 0; i < pObject->vertexCount[j]; i++) {
+            pos.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+            pos.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].y *
+                                   CGraphics::m_65536);
+            pos.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].z *
+                                   CGraphics::m_65536);
+            dv.x = g_unk0x0082d120.x - pos.x;
+            dv.y = g_unk0x0082d120.y - pos.y;
+            dv.z = g_unk0x0082d120.z - pos.z;
+            value = FixVecDot(&dv, &g_unk0x0082d12c);
+            value = FixMul(value, value);
+            if (value > band2)
+                continue;
+            saved = pos;
+            if (value <= radius2) {
+                value = g_unk0x0082d150 - FixMul(invRadius, value);
+                FixVecScale(&dv, &g_unk0x0082d12c, value);
+                if (positive) {
+                    pos.x -= dv.x;
+                    pos.y -= dv.y;
+                    pos.z -= dv.z;
+                } else {
+                    pos.x += dv.x;
+                    pos.y += dv.y;
+                    pos.z += dv.z;
+                }
+            } else {
+                value = FixMul(FixSqrt(value) - g_unk0x0082d150, invBand);
+                value = FixMul(value, falloff);
+                angle = dv.x + dv.z;
+                if (angle < 0)
+                    angle = -angle;
+                angle %= 1024;
+                angle <<= 6;
+                if (angle < 0x8000)
+                    angle -= 0x10000;
+                value = FixMul(value, angle);
+                dest.x = (int)(signed char)pObject->pVertexData[j][i].field_0x18[0] << 9;
+                dest.y = (int)(signed char)pObject->pVertexData[j][i].field_0x18[1] << 9;
+                dest.z = (int)(signed char)pObject->pVertexData[j][i].field_0x18[2] << 9;
+                FixVecScale(&dv, &dest, value);
+                pos.x += dv.x;
+                pos.y += dv.y;
+                pos.z += dv.z;
+            }
+            StageDeform_ClampVertex(&pos.x, j, i, (int *)pObject);
+            dest.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx *
+                                    CGraphics::m_65536);
+            dest.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny *
+                                    CGraphics::m_65536);
+            dest.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz *
+                                    CGraphics::m_65536);
+            d.x = pos.x - saved.x;
+            d.y = pos.y - saved.y;
+            d.z = pos.z - saved.z;
+            FixVecScale(&d, &d, 0x30000);
+            dest.x += d.x;
+            dest.y += d.y;
+            dest.z += d.z;
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx =
+                (float)(dest.x * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny =
+                (float)(dest.y * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz =
+                (float)(dest.z * CGraphics::m_oneOver65536);
+            dirty = 1;
+        }
+        if (dirty && pObject->pNodes[j]->pObject != 0)
+            Mesh_Rebuild((Mesh *)pObject->pNodes[j]->pObject);
+    }
+}
+// Copies the converted vertex buffers of the slot into its per-mesh pointer
+// array: for every source mesh it finds the first buffer whose stored flag
+// matches the mesh's flag and points the mesh entry at it.
+// FUNCTION: CMR2 0x00506fc0
+void FUN_00506fc0(int param1, int param2, int param3)
+{
+    int i;
+    int j;
+    int match;
+    int target;
+
+    FUN_00506bb0(param1, param2, param3);
+    for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
+        match = -1;
+        target = *(int *)(*(int *)(param3 + 0x3c + i * 4) + 0x30) & 0xff;
+        for (j = 0; j <= *(BYTE *)(param3 + 0x26a); j++) {
+            if (g_unk0x0082d1dc[param1][j] == target) {
+                match = j;
+                j = *(BYTE *)(param3 + 0x26a);
+            }
+        }
+        if (match >= 0)
+            *(BYTE **)(param3 + 0x78 + i * 4) = g_unk0x00831198[param1][match];
+    }
+    *(int *)(param3 + 0x2a8) = 1;
+}

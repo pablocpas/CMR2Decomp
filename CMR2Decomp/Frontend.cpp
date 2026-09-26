@@ -529,6 +529,8 @@ char *CFrontend::GetTextString(int index)
 int g_unk0x00817fe4;
 // GLOBAL: CMR2 0x00817fe8
 int g_unk0x00817fe8;
+// GLOBAL: CMR2 0x00817fec
+BYTE g_unk0x00817fec;
 // GLOBAL: CMR2 0x00817ff4
 unsigned int g_unk0x00817ff4;
 
@@ -548,6 +550,12 @@ unsigned int CFrontend::FUN_004d20d0(void)
 int CFrontend::FUN_004d20e0(void)
 {
     return g_unk0x00817fe4;
+}
+
+// FUNCTION: CMR2 0x004d20f0
+BYTE CFrontend::FUN_004d20f0(void)
+{
+    return g_unk0x00817fec;
 }
 
 // GLOBAL: CMR2 0x00818540
@@ -721,12 +729,73 @@ char *CFrontend::FUN_0040ee20(int offset)
     return NULL;
 }
 
+// One entry of the input state block (0x817420): two one-shot flags, the bit
+// mask of the keys held and a counter of the frames each key has been held.
+struct InputKeyState {
+    BYTE field_0x0[2];
+    BYTE field_0x2;
+    BYTE field_0x3;
+    short field_0x4;
+    short field_0x6;
+    short field_0x8;
+};
+
 // GLOBAL: CMR2 0x008173f0
 int g_unk0x008173f0;
+// GLOBAL: CMR2 0x008173f4
+int g_unk0x008173f4;
+// GLOBAL: CMR2 0x00817400
+int g_unk0x00817400;
 // GLOBAL: CMR2 0x00817420
 BYTE g_unk0x00817420[34 * 0xa];  // up to 0x817574
 // GLOBAL: CMR2 0x00817410
 BYTE g_unk0x00817410;
+// GLOBAL: CMR2 0x00817411
+BYTE g_unk0x00817411;
+// GLOBAL: CMR2 0x00817412
+BYTE g_unk0x00817412;
+// GLOBAL: CMR2 0x00817413
+BYTE g_unk0x00817413;
+// GLOBAL: CMR2 0x00817414
+short g_unk0x00817414;
+// GLOBAL: CMR2 0x00817416
+short g_unk0x00817416;
+// GLOBAL: CMR2 0x00817418
+short g_unk0x00817418;
+
+void FUN_004d0230(void);
+
+// Reads the player/mode values of the game info block, clears the per-device
+// input state for every device and resets the global key state.
+// FUNCTION: CMR2 0x004cf060
+void CFrontend::FUN_004cf060(void)
+{
+    InputKeyState *pState;
+    int i;
+
+    g_unk0x008173f0 = CGameInfo::FUN_00405d70() & 0xff;
+    g_unk0x008173f4 = CGameInfo::FUN_00405d80() & 0xff;
+    g_unk0x00817400 = CGameInfo::FUN_00405d90() & 0xff;
+    FUN_004d0230();
+    pState = (InputKeyState *)g_unk0x00817420;
+    for (i = 0; i < g_unk0x008173f0; i++) {
+        pState->field_0x8 = 0;
+        pState->field_0x4 = 0;
+        pState->field_0x6 = 0;
+        pState->field_0x0[0] = 0;
+        pState->field_0x0[1] = 0;
+        pState->field_0x2 = 0;
+        pState->field_0x3 = 0;
+        pState++;
+    }
+    g_unk0x00817418 = 0;
+    g_unk0x00817414 = 0;
+    g_unk0x00817416 = 0;
+    g_unk0x00817410 = 0;
+    g_unk0x00817411 = 0;
+    g_unk0x00817412 = 0;
+    g_unk0x00817413 = 0;
+}
 
 // FUNCTION: CMR2 0x004cf0f0
 void CFrontend::FUN_004cf0f0(void)
@@ -746,53 +815,131 @@ void CFrontend::FUN_004cf0f0(void)
         g_unk0x00817410 = index;
 }
 
-// Table of pointers indexed by id; size derived from the 0x516c78 boundary
-// (next known global), so it may cover further undeclared values.
+void RallyData_FUN_00408fc0(int index);
+
+// Accumulates the pressed keys of every input device (and of the two global
+// flags) into the per-key counters.
+// FUNCTION: CMR2 0x004cf260
+void FUN_004cf260(void)
+{
+    InputKeyState *pState;
+    int i;
+    int j;
+
+    for (i = 0; i < 0xb; i++) {
+        for (j = 0; j < g_unk0x008173f0; j++) {
+            pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+            if ((1 << i) & pState->field_0x4) {
+                pState->field_0x8++;
+                RallyData_FUN_00408fc0(j);
+            }
+        }
+        if ((1 << i) & g_unk0x00817414) {
+            g_unk0x00817418++;
+            CGame::FUN_004057c0();
+        }
+    }
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < g_unk0x008173f0; j++) {
+            pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+            if ((1 << i) & pState->field_0x6) {
+                pState->field_0x8++;
+                RallyData_FUN_00408fc0(j);
+            }
+        }
+        if ((1 << i) & g_unk0x00817416) {
+            g_unk0x00817418++;
+            CGame::FUN_004057c0();
+        }
+    }
+    for (j = 0; j < g_unk0x008173f0; j++) {
+        pState = (InputKeyState *)(g_unk0x00817420 + j * 0xa);
+        if (pState->field_0x2 != 0) {
+            pState->field_0x8++;
+            RallyData_FUN_00408fc0(j);
+        }
+        if (pState->field_0x3 != 0) {
+            pState->field_0x8++;
+            RallyData_FUN_00408fc0(j);
+        }
+    }
+    if (g_unk0x00817412 != 0) {
+        g_unk0x00817418++;
+        CGame::FUN_004057c0();
+    }
+    if (g_unk0x00817413 != 0) {
+        g_unk0x00817418++;
+        CGame::FUN_004057c0();
+    }
+}
+
+// GLOBAL: CMR2 0x008173f8
+int g_unk0x008173f8;
+
+// Stores the country/stage selection of the current rally data record.
+// FUNCTION: CMR2 0x004d0230
+void FUN_004d0230(void)
+{
+    g_unk0x008173f8 = RallyDataCountryIndex() & 0xff;
+    if ((BYTE)RallyData_GetFlag24() != 0) {
+        g_unk0x008173fc = RallyData_FUN_00406950() & 0xff;
+        g_unk0x00817404 = RallyData_FUN_00406940() & 0xff;
+        return;
+    }
+    g_unk0x008173fc = RallyDataStageIndex() & 0xff;
+}
+
+// Indexed by id. A mix of small integers (car/stage index and 0/1 option
+// flags) and pointers to the CFrontend car directory names, so it cannot be a
+// uniform pointer array. Size derived from the 0x516c78 boundary (next known
+// global), so it may cover further undeclared values.
+struct Unk0x00516b40 {
+    int ids[28];           // 0x00 car/stage index
+    const char *dirs[22];  // 0x70 car directory name
+    int flags[28];         // 0xc8 option flag
+};
 // GLOBAL: CMR2 0x00516b40
-void *g_unk0x00516b40[0x4e] = {
-    (void *)0, (void *)0, (void *)0, (void *)0, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)2, (void *)3, (void *)4, (void *)5,
-    (void *)6, (void *)6, (void *)6, (void *)7, (void *)8, (void *)9,
-    (void *)10, (void *)11, (void *)12, (void *)13, (void *)0, (void *)4,
-    (void *)8, (void *)9, (void *)10, (void *)11, CFrontend::m_strFoc, CFrontend::m_strF99Short,
-    CFrontend::m_strFA1, CFrontend::m_strFA2, CFrontend::m_strMit, CFrontend::m_strMA1, CFrontend::m_strMA2, CFrontend::m_strMA3,
-    CFrontend::m_strCor, CFrontend::m_strSubShort, CFrontend::m_str206, CFrontend::m_strSea, CFrontend::m_strInt, CFrontend::m_strIA1,
-    CFrontend::m_strIA2, CFrontend::m_strSie, CFrontend::m_strMin, CFrontend::m_str6R4, CFrontend::m_strStr, CFrontend::m_str205,
-    CFrontend::m_strPum, CFrontend::m_strEsc, (void *)1, (void *)1, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)1, (void *)0, (void *)0, (void *)1,
-    (void *)0, (void *)1, (void *)1, (void *)0, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)1, (void *)1, (void *)1, (void *)1,
-    (void *)0, (void *)0, (void *)0, (void *)1, (void *)1, (void *)0,
+Unk0x00516b40 g_unk0x00516b40 = {
+    { 0, 0, 0, 0, 1, 1, 1, 1, 2, 3, 4, 5, 6, 6, 6, 7, 8, 9, 10, 11, 12, 13, 0, 4, 8, 9, 10, 11 },
+    {
+        CFrontend::m_strFoc, CFrontend::m_strF99Short, CFrontend::m_strFA1, CFrontend::m_strFA2,
+        CFrontend::m_strMit, CFrontend::m_strMA1, CFrontend::m_strMA2, CFrontend::m_strMA3,
+        CFrontend::m_strCor, CFrontend::m_strSubShort, CFrontend::m_str206, CFrontend::m_strSea,
+        CFrontend::m_strInt, CFrontend::m_strIA1, CFrontend::m_strIA2, CFrontend::m_strSie,
+        CFrontend::m_strMin, CFrontend::m_str6R4, CFrontend::m_strStr, CFrontend::m_str205,
+        CFrontend::m_strPum, CFrontend::m_strEsc,
+    },
+    { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0 },
 };
 
 // FUNCTION: CMR2 0x0040ee60
 void *CFrontend::FUN_0040ee60(int index)
 {
-    return g_unk0x00516b40[index + 0x1c];
+    return (void *)g_unk0x00516b40.dirs[index];
 }
 
 // FUNCTION: CMR2 0x0040ee70
 void *CFrontend::FUN_0040ee70(int index)
 {
-    return g_unk0x00516b40[index + 0x32];
+    return (void *)g_unk0x00516b40.flags[index];
 }
 
 // FUNCTION: CMR2 0x0040ee80
 void *CFrontend::FUN_0040ee80(int index)
 {
-    return g_unk0x00516b40[index + 0x40];
+    return (void *)g_unk0x00516b40.flags[index + 14];
 }
 
 // FUNCTION: CMR2 0x0040ee90
 void *CFrontend::FUN_0040ee90(int index)
 {
-    return g_unk0x00516b40[index];
+    return (void *)g_unk0x00516b40.ids[index];
 }
 
 // FUNCTION: CMR2 0x0040eea0
 void *CFrontend::FUN_0040eea0(int index)
 {
-    return g_unk0x00516b40[index + 0x16];
+    return (void *)g_unk0x00516b40.ids[index + 22];
 }
 
 struct Unk0x004a3e20 {

@@ -1834,7 +1834,7 @@ void StageDeform_ApplyPlanarDent(void)
                     direction.x = (int)pLimits[0x18] << 9;
                     direction.y = (int)pLimits[0x19] << 9;
                     direction.z = (int)pLimits[0x1a] << 9;
-                    FixVecScale(&displacement, &direction, push);
+                    FixVecScale(&distance, &direction, push);
                 } else {
                     int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
                                                                   distanceSquare);
@@ -3842,3 +3842,154 @@ void StageTiming_SpawnWheelParticles(int carIndex)
     }
 }
 #undef TRAIL_RANDOM
+
+struct Unk0x0052ebc0;
+Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+void FUN_00508fa0(int index, int param2, BYTE param3);
+
+// Camera-space dent parameters: apex, direction, reference direction, radius,
+// advance step and the falloff/scale factors used by FUN_00508890.
+// Defined in GameInfo.cpp (same address, one definition per symbol).
+extern FixVector g_unk0x0082d120;
+extern FixVector g_unk0x0082d12c;
+extern FixVector g_unk0x0082d138;
+extern int g_unk0x0082d144;
+// GLOBAL: CMR2 0x0082d150
+int g_unk0x0082d150;
+// GLOBAL: CMR2 0x0082d154
+int g_unk0x0082d154;
+// GLOBAL: CMR2 0x0082d158
+int g_unk0x0082d158;
+
+// Applies the record's camera-space dent to every mesh: vertices inside the
+// radius move along the dent direction, those in the falloff shell along their
+// per-vertex limit direction, and each touched mesh is rebuilt.
+// TODO: CMR2 0x00508890 (implemented, match 56%)
+void FUN_00508890(int *pRecord)
+{
+    if (FixVecDot(&g_unk0x0082d120, &g_unk0x0082d12c) >= 0)
+        FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, -0x10000);
+
+    FixVector offset;
+    FixVecScale(&offset, &g_unk0x0082d12c, g_unk0x0082d150);
+    g_unk0x0082d120.x += offset.x;
+    g_unk0x0082d120.y += offset.y;
+    g_unk0x0082d120.z += offset.z;
+
+    int innerSquare = FixMul(g_unk0x0082d144, g_unk0x0082d144);
+    int reciprocalInner = FixDiv(0x10000, g_unk0x0082d144);
+    int outer = g_unk0x0082d154 + g_unk0x0082d144;
+    int outerSquare = FixMul(outer, outer);
+    int reciprocalFalloff = FixDiv(0x10000, g_unk0x0082d154);
+    int shellScale = FixMul(g_unk0x0082d158, 0x3333);
+
+    int meshIndex;
+    for (meshIndex = 0; meshIndex < *(BYTE *)((BYTE *)pRecord + 0x26a); ++meshIndex) {
+        int changed = 0;
+        int vertexIndex;
+        for (vertexIndex = 0;
+             vertexIndex < *(USHORT *)((BYTE *)pRecord + 0x24c + meshIndex * 2);
+             ++vertexIndex) {
+            Mesh *pMesh = (Mesh *)*(int *)((BYTE *)pRecord + meshIndex * 4);
+            FixVector position;
+            position.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                   + vertexIndex * 0x30 + 0x0) * CGraphics::m_65536);
+            position.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                   + vertexIndex * 0x30 + 0x4) * CGraphics::m_65536);
+            position.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                   + vertexIndex * 0x30 + 0x8) * CGraphics::m_65536);
+            FixVector distance;
+            distance.x = g_unk0x0082d120.x - position.x;
+            distance.y = g_unk0x0082d120.y - position.y;
+            distance.z = g_unk0x0082d120.z - position.z;
+            int projection = FixVecDot(&distance, &g_unk0x0082d138);
+            FixVecScale(&offset, &g_unk0x0082d138, projection);
+            distance.x -= offset.x;
+            distance.y -= offset.y;
+            distance.z -= offset.z;
+            int distanceSquare = FixVecDot(&distance, &distance);
+            if (distanceSquare <= outerSquare) {
+                FixVector original = position;
+                if (distanceSquare <= innerSquare) {
+                    int penetration = g_unk0x0082d144 - FixMul(reciprocalInner,
+                                                               distanceSquare);
+                    FixVecScale(&distance, &g_unk0x0082d12c, penetration);
+                } else {
+                    int length = FixSqrt(distanceSquare);
+                    int shellWeight = FixMul(FixMul(length - g_unk0x0082d144,
+                                                    reciprocalFalloff), shellScale);
+                    int phase = distance.z + distance.x;
+                    if (phase < 0) phase = -phase;
+                    phase &= 0xffffff80;
+                    phase %= 0x400;
+                    phase *= 0x40;
+                    if (phase < 0x8000) phase -= 0x10000;
+                    int push = FixMul(shellWeight, phase);
+                    signed char *pLimits =
+                        (signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
+                                        + vertexIndex * 0x20);
+                    FixVector direction;
+                    direction.x = (int)pLimits[0x18] << 9;
+                    direction.y = (int)pLimits[0x19] << 9;
+                    direction.z = (int)pLimits[0x1a] << 9;
+                    FixVecScale(&distance, &direction, push);
+                }
+                position.x += distance.x;
+                position.y += distance.y;
+                position.z += distance.z;
+                StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
+                int secondX = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                         + vertexIndex * 0x30 + 0xc) * CGraphics::m_65536);
+                int secondY = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                         + vertexIndex * 0x30 + 0x10) * CGraphics::m_65536);
+                int secondZ = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                         + vertexIndex * 0x30 + 0x14) * CGraphics::m_65536);
+                FixVector secondDelta;
+                secondDelta.x = position.x - original.x;
+                secondDelta.y = position.y - original.y;
+                secondDelta.z = position.z - original.z;
+                FixVecScale(&secondDelta, &secondDelta, 0x30000);
+                secondX += secondDelta.x;
+                secondY += secondDelta.y;
+                secondZ += secondDelta.z;
+                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0xc) =
+                    (float)((double)secondX * CGraphics::m_oneOver65536);
+                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x10) =
+                    (float)((double)secondY * CGraphics::m_oneOver65536);
+                *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x14) =
+                    (float)((double)secondZ * CGraphics::m_oneOver65536);
+                changed = 1;
+            }
+        }
+        if (changed) {
+            int mesh = *(int *)(*(int *)((BYTE *)pRecord + 0x3c + meshIndex * 4) + 0xc);
+            if (mesh != 0) Mesh_Rebuild((Mesh *)mesh);
+        }
+    }
+}
+
+// Per-level stage light thresholds (16.16), used to pick the brightness level
+// of each mesh from its stored value.
+// GLOBAL: CMR2 0x00527324
+int g_unk0x00527324[8] = { 0x3333, 0x3333, 0x3333, 0x3333,
+                           0x1999, 0x1999, 0x1999, 0x1999 };
+// GLOBAL: CMR2 0x00527344
+int g_unk0x00527344[8] = { 0x1999, 0x1999, 0x1999, 0x1999,
+                           0x1999, 0x1999, 0x1999, 0x1999 };
+
+// Picks the brightness level of the record's meshes: each of the eight stored
+// values is scaled to 16.16 and compared against the two thresholds.
+// FUNCTION: CMR2 0x00508ee0
+void FUN_00508ee0(int index)
+{
+    BYTE *pValue = (BYTE *)((BYTE *)RallyData_FUN_00407610(index) + 0x122);
+    BYTE level = 0;
+    do {
+        int value = FixDiv((int)pValue[level] << 16, 0xff0000);
+        if (value > g_unk0x00527324[level])
+            FUN_00508fa0(index, 2, level);
+        else if (value > g_unk0x00527344[level])
+            FUN_00508fa0(index, 1, level);
+    } while (++level < 8);
+}
+
