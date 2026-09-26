@@ -1335,11 +1335,39 @@ struct Unk0x0082d220Vec {
     int v[4];
 };
 
+// Source copy of one vertex of a stage mesh (0x20 bytes): position and normal in
+// 16.16, then the packed normal bytes. Filled by FUN_00506bb0.
+struct Unk0x0082d220VertexFixed {
+    FixVector position; // 0x0
+    FixVector normal;   // 0xc
+    BYTE field_0x18[8]; // 0x18
+};
+
+// Mesh vertex the engine renders (0x30 bytes), same layout as MeshVertexF.
+struct Unk0x0082d220VertexF {
+    float x, y, z;      // 0x0
+    float nx, ny, nz;   // 0xc
+    BYTE field_0x18[0x18]; // 0x18
+};
+
+// Stage mesh record (0x2ac bytes): 15 mesh slots (mesh id - 5) with their scene
+// node, source vertex data, bounding box and per-option state.
 struct Unk0x0082d220 {
-    BYTE field_0x0[0x22c];
+    Mesh *pMeshes[15];                            // 0x0
+    SceneNode *pNodes[15];                        // 0x3c
+    Unk0x0082d220VertexFixed *pVertexData[15];    // 0x78
+    int centre[15][3];                            // 0xb4  bounding box centre
+    int halfSize[15][3];                          // 0x168 half size of the box
+    int field_0x21c;                              // 0x21c
+    int field_0x220;
+    int field_0x224;
+    int field_0x228;
     Unk0x0082d220Vec field_0x22c;
     Unk0x0082d220Vec field_0x23c;
-    BYTE field_0x24c[0x60];
+    WORD vertexCount[15];                         // 0x24c
+    BYTE meshCount;                               // 0x26a used slots
+    int field_0x26c[15];                          // 0x26c
+    int field_0x2a8;                              // 0x2a8 meshes rebuilt
 };
 
 // GLOBAL: CMR2 0x0082d220
@@ -3982,3 +4010,428 @@ void FUN_0050f370(void)
     Font_Load(g_strFontGeneralHandel, (GenericFile *)FUN_0050f620(), 3);
 }
 
+
+// Provisional copy of the globals the stage deform code shares with the other
+// GameInfo lots (they are declared next to FUN_00507710 as well).
+extern float g_oneOverRandMax;
+// GLOBAL: CMR2 0x0082d120
+FixVector g_unk0x0082d120;
+// GLOBAL: CMR2 0x0082d12c
+FixVector g_unk0x0082d12c;
+
+// Per-entry stage data loaded from the entry's .c3d file (0x54 bytes): the four
+// anchor matrices and the handles of the entry's meshes.
+struct Unk0x0082cb78 {
+    int field_0x00;     // 0x00
+    int field_0x04;     // 0x04
+    int field_0x08;     // 0x08
+    int field_0x0c;     // 0x0c
+    int field_0x10;     // 0x10
+    int matrix[4];      // 0x14 anchor matrices
+    int field_0x24[4];  // 0x24
+    int field_0x34[4];  // 0x34
+    int field_0x44[4];  // 0x44
+};
+
+// GLOBAL: CMR2 0x0082cb78
+Unk0x0082cb78 g_unk0x0082cb78[16];
+
+// Deform geometry of one stage entry (0x138 bytes): the box FUN_00507a10 builds
+// around it, the twelve vertices FUN_00507fe0 deforms and the position of the
+// entry's four anchor matrices.
+struct Unk0x0082fd00 {
+    Unk0x0082cb78 *pEntry;      // 0x000 stage entry the geometry belongs to
+    FixVector corner[8];        // 0x004 bounding-box corners
+    FixVector vertex[12];       // 0x064 vertices the deform displaces
+    FixVector anchor[4];        // 0x0f4 position of each anchor matrix
+    int field_0x124;            // 0x124
+    int field_0x128[4];         // 0x128 random wobble of each anchor
+};
+
+// GLOBAL: CMR2 0x0082fd00
+Unk0x0082fd00 g_unk0x0082fd00[16];
+// Planar influence of the camera on the stage (all 16.16): inner radius, width
+// of the falloff band and the scale of the falloff, set by FUN_005078e0.
+// GLOBAL: CMR2 0x0082d150
+int g_unk0x0082d150;
+// GLOBAL: CMR2 0x0082d154
+int g_unk0x0082d154;
+// GLOBAL: CMR2 0x0082d158
+int g_unk0x0082d158;
+
+void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
+
+// Builds the deform geometry of stage entry <index>: the eight corners of the
+// box around it, the twelve vertices FUN_00507fe0 deforms and the position of
+// the four anchor matrices. The box extents depend on the rally the entry
+// belongs to.
+// FUNCTION: CMR2 0x00507a10
+void FUN_00507a10(Unk0x0082d220 *pObject, int index)
+{
+    Unk0x0082fd00 *pGeom;
+    FixVector sizes;
+    FixVector half;
+    int i;
+    int value;
+    int offX0;
+    int offX1;
+    int offY0;
+    int offY1;
+    int offZ0;
+
+    pGeom = &g_unk0x0082fd00[index];
+    pGeom->pEntry = &g_unk0x0082cb78[index];
+    pGeom->field_0x124 = 0;
+    for (i = 0; i < 4; i++) {
+        FixMatrix_GetPosition(&pGeom->anchor[i],
+                              (FixMatrix *)(pGeom->pEntry->matrix[i] + 0x58));
+        value = rand();
+        pGeom->field_0x128[i] =
+            FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
+    }
+    switch ((int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)index))) {
+    case 3:
+        sizes.x = 0x44560;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1cfdf;
+        offX0 = 0x1cccc;
+        offX1 = 0x14ccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xb0a3;
+        offY1 = 0xfa9f;
+        break;
+    case 0:
+        sizes.x = 0x426e9;
+        sizes.y = 0x16b85;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x8000;
+        offZ0 = 0x3d70;
+        offY0 = 0xcf5c;
+        offY1 = 0x10ccc;
+        break;
+    case 6:
+        sizes.x = 0x3e3d7;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1ae14;
+        offX1 = 0x9c28;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 2:
+        sizes.x = 0x40f5c;
+        sizes.y = 0x163d7;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x451e;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 7:
+        sizes.x = 0x475c2;
+        sizes.y = 0x1570a;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1e147;
+        offX1 = 0x1028f;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 1:
+        sizes.x = 0x4451e;
+        sizes.y = 0x15999;
+        sizes.z = 0x1d70a;
+        offX0 = 0x1cccc;
+        offX1 = 0xf851;
+        offZ0 = 0x570a;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 8:
+        sizes.x = 0x30083;
+        sizes.y = 0x14041;
+        sizes.z = 0x18000;
+        offX0 = 0x13333;
+        offX1 = 0x4ccc;
+        offZ0 = 0x2666;
+        offY0 = 0xb5c2;
+        offY1 = 0xfa9f;
+        break;
+    case 5:
+        sizes.x = 0x41c28;
+        sizes.y = 0x154bc;
+        sizes.z = 0x1d47a;
+        offX0 = 0x1c000;
+        offX1 = 0x10000;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 4:
+        sizes.x = 0x40312;
+        sizes.y = 0x14ccc;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1c000;
+        offX1 = 0xcccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 9:
+        sizes.x = 0x3b958;
+        sizes.y = 0x15db2;
+        sizes.z = 0x1e041;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 11:
+        sizes.x = 0x3d333;
+        sizes.y = 0x15999;
+        sizes.z = 0x1c312;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 10:
+        sizes.x = 0x3b333;
+        sizes.y = 0x106a7;
+        sizes.z = 0x1cf5c;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 12:
+        sizes.x = 0x3ec49;
+        sizes.y = 0x146a7;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 13:
+        sizes.x = 0x41687;
+        sizes.y = 0x16147;
+        sizes.z = 0x1bb22;
+        offX0 = 0x1ae14;
+        offX1 = 0xfd70;
+        offZ0 = 0x428f;
+        offY0 = 0xd70a;
+        offY1 = 0xf581;
+        break;
+    }
+    FixVecScale(&half, &sizes, 0x8000);
+    pGeom->corner[1].x = half.x;
+    pGeom->corner[1].y = -half.y;
+    pGeom->corner[1].z = -half.z;
+    pGeom->corner[0].x = half.x;
+    pGeom->corner[0].y = -half.y;
+    pGeom->corner[0].z = half.z;
+    pGeom->corner[2].x = -half.x;
+    pGeom->corner[2].y = -half.y;
+    pGeom->corner[2].z = half.z;
+    pGeom->corner[3].x = -half.x;
+    pGeom->corner[3].y = -half.y;
+    pGeom->corner[3].z = -half.z;
+    pGeom->corner[5].x = half.x;
+    pGeom->corner[5].y = half.y;
+    pGeom->corner[5].z = -half.z;
+    pGeom->corner[4].x = half.x;
+    pGeom->corner[4].y = half.y;
+    pGeom->corner[4].z = half.z;
+    pGeom->corner[6].x = -half.x;
+    pGeom->corner[6].y = half.y;
+    pGeom->corner[6].z = half.z;
+    pGeom->corner[7].x = -half.x;
+    pGeom->corner[7].y = half.y;
+    pGeom->corner[7].z = -half.z;
+    pGeom->vertex[0].x = pObject->field_0x21c;
+    pGeom->vertex[0].y = -half.y;
+    pGeom->vertex[0].z = pObject->field_0x224;
+    pGeom->vertex[1].x = pObject->field_0x21c;
+    pGeom->vertex[1].y = -half.y;
+    pGeom->vertex[1].z = pObject->field_0x228;
+    pGeom->vertex[2].x = pObject->field_0x220;
+    pGeom->vertex[2].y = -half.y;
+    pGeom->vertex[2].z = pObject->field_0x224;
+    pGeom->vertex[3].x = pObject->field_0x220;
+    pGeom->vertex[3].y = -half.y;
+    pGeom->vertex[3].z = pObject->field_0x228;
+    pGeom->vertex[4].x = pObject->field_0x21c;
+    pGeom->vertex[4].y = offY0 - half.y;
+    pGeom->vertex[4].z = pObject->field_0x224;
+    pGeom->vertex[5].x = pObject->field_0x21c;
+    pGeom->vertex[5].y = offY0 - half.y;
+    pGeom->vertex[5].z = pObject->field_0x228;
+    pGeom->vertex[6].x = pObject->field_0x220;
+    pGeom->vertex[6].y = offY1 - half.y;
+    pGeom->vertex[6].z = pObject->field_0x224;
+    pGeom->vertex[7].x = pObject->field_0x220;
+    pGeom->vertex[7].y = offY1 - half.y;
+    pGeom->vertex[7].z = pObject->field_0x228;
+    pGeom->vertex[8].x = half.x - offX0;
+    pGeom->vertex[8].y = half.y;
+    pGeom->vertex[8].z = offZ0 - half.z;
+    pGeom->vertex[9].x = half.x - offX0;
+    pGeom->vertex[9].y = half.y;
+    pGeom->vertex[9].z = half.z - offZ0;
+    pGeom->vertex[10].x = offX1 - half.x;
+    pGeom->vertex[10].y = half.y;
+    pGeom->vertex[10].z = half.z - offZ0;
+    pGeom->vertex[11].x = offX1 - half.x;
+    pGeom->vertex[11].y = half.y;
+    pGeom->vertex[11].z = offZ0 - half.z;
+}
+
+// Rebuilds the deformed geometry of the stage entry <pObject> refers to: the
+// twelve vertices FUN_00507a10 generated are used to find the vertex closest to
+// the camera on either side of the camera plane, the camera is pushed onto that
+// plane and then every vertex of the entry's meshes is moved along its stored
+// limit normal (clamped by StageDeform_ClampVertex) with three times the
+// displacement the clamp applied.
+// FUNCTION: CMR2 0x00507fe0
+void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
+{
+    FixVector d;
+    FixVector dv;
+    FixVector pos;
+    FixVector dest;
+    FixVector saved;
+    int positive;
+    int minValue;
+    int minPositive;
+    int radius2;
+    int invRadius;
+    int band2;
+    int invBand;
+    int falloff;
+    int value;
+    int band;
+    int angle;
+    int dirty;
+    int i;
+    int j;
+
+    FixVecScale(&d, &g_unk0x0082d120, -0x10000);
+    positive = FixVecDot(&g_unk0x0082d12c, &d) >= 0;
+    minPositive = 0;
+    minValue = 0;
+    for (i = 0; i < 12; i++) {
+        d.x = pGeom->vertex[i].x - g_unk0x0082d120.x;
+        d.y = pGeom->vertex[i].y - g_unk0x0082d120.y;
+        d.z = pGeom->vertex[i].z - g_unk0x0082d120.z;
+        value = FixVecDot(&g_unk0x0082d12c, &d);
+        if (!positive)
+            value = -value;
+        if (value < minValue)
+            minValue = value;
+        if (value > 0 && (minPositive == 0 || value < minPositive))
+            minPositive = value;
+    }
+    if (!positive) {
+        minValue = -minValue;
+        minPositive = -minPositive;
+    }
+    if (minValue != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minValue);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    } else if (minPositive != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minPositive);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    }
+    positive = FixVecDot(&g_unk0x0082d12c, &g_unk0x0082d120) >= 0;
+    radius2 = FixMul(g_unk0x0082d150, g_unk0x0082d150);
+    invRadius = FixDiv(0x10000, g_unk0x0082d150);
+    band = g_unk0x0082d150 + g_unk0x0082d154;
+    band2 = FixMul(band, band);
+    invBand = FixDiv(0x10000, g_unk0x0082d154);
+    falloff = FixMul(g_unk0x0082d158, 0x3333);
+    for (j = 0; j < pObject->meshCount; j++) {
+        dirty = 0;
+        for (i = 0; i < pObject->vertexCount[j]; i++) {
+            pos.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+            pos.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].y *
+                                   CGraphics::m_65536);
+            pos.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].z *
+                                   CGraphics::m_65536);
+            dv.x = g_unk0x0082d120.x - pos.x;
+            dv.y = g_unk0x0082d120.y - pos.y;
+            dv.z = g_unk0x0082d120.z - pos.z;
+            value = FixVecDot(&dv, &g_unk0x0082d12c);
+            value = FixMul(value, value);
+            if (value > band2)
+                continue;
+            saved = pos;
+            if (value <= radius2) {
+                value = g_unk0x0082d150 - FixMul(invRadius, value);
+                FixVecScale(&dv, &g_unk0x0082d12c, value);
+                if (positive) {
+                    pos.x -= dv.x;
+                    pos.y -= dv.y;
+                    pos.z -= dv.z;
+                } else {
+                    pos.x += dv.x;
+                    pos.y += dv.y;
+                    pos.z += dv.z;
+                }
+            } else {
+                value = FixMul(FixSqrt(value) - g_unk0x0082d150, invBand);
+                value = FixMul(value, falloff);
+                angle = dv.x + dv.z;
+                if (angle < 0)
+                    angle = -angle;
+                angle %= 1024;
+                angle <<= 6;
+                if (angle < 0x8000)
+                    angle -= 0x10000;
+                value = FixMul(value, angle);
+                dest.x = (int)(signed char)pObject->pVertexData[j][i].field_0x18[0] << 9;
+                dest.y = (int)(signed char)pObject->pVertexData[j][i].field_0x18[1] << 9;
+                dest.z = (int)(signed char)pObject->pVertexData[j][i].field_0x18[2] << 9;
+                FixVecScale(&dv, &dest, value);
+                pos.x += dv.x;
+                pos.y += dv.y;
+                pos.z += dv.z;
+            }
+            StageDeform_ClampVertex(&pos.x, j, i, (int *)pObject);
+            dest.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx *
+                                    CGraphics::m_65536);
+            dest.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny *
+                                    CGraphics::m_65536);
+            dest.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz *
+                                    CGraphics::m_65536);
+            d.x = pos.x - saved.x;
+            d.y = pos.y - saved.y;
+            d.z = pos.z - saved.z;
+            FixVecScale(&d, &d, 0x30000);
+            dest.x += d.x;
+            dest.y += d.y;
+            dest.z += d.z;
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx =
+                (float)(dest.x * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny =
+                (float)(dest.y * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz =
+                (float)(dest.z * CGraphics::m_oneOver65536);
+            dirty = 1;
+        }
+        if (dirty && pObject->pNodes[j]->pObject != 0)
+            Mesh_Rebuild((Mesh *)pObject->pNodes[j]->pObject);
+    }
+}
