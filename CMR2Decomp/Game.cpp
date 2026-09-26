@@ -321,6 +321,55 @@ void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2)
     FUN_004ea510();
 }
 
+// Fade step of the boot/HUD colour: 1/1500 per elapsed millisecond.
+// GLOBAL: CMR2 0x00513ec8
+float g_unk0x00513ec8 = 1.0f / 1500.0f;
+extern const float g_netByteScale;
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+// Draws a boot/HUD label at (x, y) in a colour that fades out 2.5 s after the
+// frame timer was last reset; unless flag is set it also fills the 2 pixel wide
+// bar that follows the text. Returns the x after the bar.
+// TODO: CMR2 0x004d0d30 (implemented, match 69%)
+int FUN_004d0d30(int x, int y, char *pText, char flag)
+{
+    int elapsed;
+    int alpha;
+    BYTE colour[8];
+    short rect[4];
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    elapsed = timeGetTime();
+    elapsed = elapsed - FUN_004eaa00();
+    if (elapsed > 0x9c4) {
+        if (elapsed > 0xfa0)
+            alpha = 0;
+        else
+            alpha = 0xff -
+                    (int)(__int64)((float)(elapsed - 0x9c4) * g_netByteScale * g_unk0x00513ec8);
+    } else {
+        alpha = 0xff;
+    }
+    colour[0] = alpha;
+    colour[1] = alpha;
+    colour[2] = alpha;
+    Font_DrawText(2, pText, x, y, (int *)colour, 0x11);
+    if (flag == 0) {
+        x += Font_GetTextWidth(2, (BYTE *)pText);
+        x += (int)(g_pGraphics->resX * 10) / 0x280;
+        rect[0] = (short)x;
+        rect[2] = 2;
+        rect[1] = (int)(g_pGraphics->resY * 200) / 0x1e0;
+        rect[3] = (int)(g_pGraphics->resY * 60) / 0x1e0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour + 4, 1);
+        x += (int)(g_pGraphics->resX * 10) / 0x280;
+    }
+    return x;
+}
+
 // FUNCTION: CMR2 0x004d15e0
 void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
 {

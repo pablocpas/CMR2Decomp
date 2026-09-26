@@ -207,6 +207,33 @@ BYTE *FUN_004eb450(int index)
     return g_unk0x00531764 + index * 12;
 }
 
+// Saves the profiles whose name has just been edited, clearing the dirty flag
+// of the ones written; returns whether all of them were saved. Profiles with
+// bit 0x200000 set are left alone.
+// TODO: CMR2 0x004eb3e0 (implemented, match 58%)
+bool FUN_004eb3e0(void)
+{
+    bool saved = true;
+    int i = 0;
+    BYTE *pProfile = g_saveData + 0x638;
+
+    do {
+        if ((*(unsigned int *)(pProfile + 4) & 0x200000) == 0 && *pProfile != 0 &&
+            g_saveData[0x620 + i] != 0) {
+            BYTE result = FUN_004eb340(0, pProfile - 0x10);
+            if (result != 0)
+                g_saveData[0x620 + i] = 0;
+            if (saved && result != 0)
+                saved = true;
+            else
+                saved = false;
+        }
+        pProfile += 0x650;
+        i++;
+    } while ((int)pProfile < (int)(g_saveData + 0x1f78));
+    return saved;
+}
+
 // FUNCTION: CMR2 0x004eb440
 int FUN_004eb440(void)
 {

@@ -1975,6 +1975,392 @@ int FUN_0050a050(int mode, int type)
     return 0;
 }
 
+// Rotation angles of the 12 parts of the option menu car preview.
+// GLOBAL: CMR2 0x005273c0
+FixAngles g_unk0x005273c0[12] = {
+    0x0000, 0x0000, 0x0000, 0x0000, 0xfc00, 0x0000, 0x0000, 0x0000,
+    0x0000, 0x01c7, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    0x0400, 0x0000, 0x0000, 0x0000, 0x0000, 0x01c7, 0x0000, 0x0000,
+    0xfc00, 0x0000, 0x0000, 0x0000, 0x0000, 0x0238, 0x0000, 0x0000,
+    0x0000, 0x0400, 0xffbc, 0x0000, 0x0400, 0x0000, 0x0000, 0x0000,
+    0x0400, 0x0000, 0x0000, 0x0000, 0x0400,
+};
+
+// Wheel vertices of the option menu car preview: one 12x4 block of vertices
+// per car (14 cars, one per id of g_unk0x00516b40.ids).
+// GLOBAL: CMR2 0x00527420
+FixVector g_unk0x00527420[672] = {
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -134742, -27459, -34013 }, { -134742, -27459, -34013 },
+    { -134742, -27459, -34013 }, { -134742, -27459, -34013 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 85131, -51118, 49807 }, { 85131, -51118, -49807 },
+    { -83820, -51118, 49807 }, { -83820, -49020, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 87752, -3538, 57671 }, { 87752, -3538, -57671 },
+    { -79233, -3538, 57671 }, { -79233, -3538, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 87752, -3538, 57671 }, { 87752, -3538, -57671 },
+    { -79233, -3538, 57671 }, { -79233, -3538, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 85131, -48758, 49807 }, { 85131, -48758, 49807 },
+    { 85131, -48758, -49807 }, { 85131, -48758, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -136052, -26411, 31260 }, { -136052, -26411, 31260 },
+    { -136052, -26411, 31260 }, { -136052, -26411, 31260 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -85196, -48496, 49807 }, { -85196, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -85196, -3276, 57671 }, { -85196, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -85196, -3276, 57671 }, { -85196, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 36700 }, { 121831, 0, 36700 },
+    { 121831, 0, -36700 }, { 121831, 0, -36700 },
+    { -126156, -27656, -28508 }, { -126156, -27656, -28508 },
+    { -126156, -27656, -28508 }, { -126156, -27656, -28508 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 80543, -43909, 55705 }, { 80543, -43909, -55705 },
+    { -84475, -43909, 55705 }, { -84475, -43909, -55705 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 80543, -46530, 47185 }, { 80543, -46530, 47185 },
+    { 80543, -46530, -47185 }, { 80543, -46530, -47185 },
+    { 127008, -3276, 35389 }, { 127008, -3276, 35389 },
+    { 127008, -3276, -35389 }, { 127008, -3276, -35389 },
+    { -139853, -28639, -21299 }, { -139853, -28639, -21299 },
+    { -139853, -28639, -21299 }, { -139853, -28639, -21299 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -129236, -31326, 32243 }, { -129236, -31326, 32243 },
+    { -129236, -31326, 32243 }, { -129236, -31326, 32243 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -134217, -21757, 30539 }, { -134217, -21757, 30539 },
+    { -134217, -21757, 30539 }, { -134217, -21757, 30539 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -124518, -28835, -28246 }, { -124518, -28835, -28246 },
+    { -124518, -28835, -28246 }, { -124518, -28835, -28246 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 80543, -43909, 55705 }, { 80543, -43909, -55705 },
+    { -84475, -43909, 55705 }, { -84475, -43909, -55705 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 39321, -11796, 0 }, { 39321, -11796, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 86441, 6553, 0 }, { 86441, 6553, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 80543, -1310, 55705 }, { 80543, -1310, -55705 },
+    { -84475, -1310, 55705 }, { -84475, -1310, -55705 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 80543, -46530, 47185 }, { 80543, -46530, 47185 },
+    { 80543, -46530, -47185 }, { 80543, -46530, -47185 },
+    { 127008, -3276, 35389 }, { 127008, -3276, 35389 },
+    { 127008, -3276, -35389 }, { 127008, -3276, -35389 },
+    { -154140, -26083, -17498 }, { -154140, -26083, -17498 },
+    { -154140, -26083, -17498 }, { -154140, -26083, -17498 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 66191, -45875, 43909 }, { 66191, -45875, -43909 },
+    { -70057, -45875, 43909 }, { -70057, -45875, -43909 },
+    { 37355, -11141, 0 }, { 37355, -11141, 0 },
+    { 37355, -11141, 0 }, { 37355, -11141, 0 },
+    { 61538, 8519, 0 }, { 61538, 8519, 0 },
+    { 61538, 8519, 0 }, { 61538, 8519, 0 },
+    { 66191, -9830, 43909 }, { 66191, -9830, -43909 },
+    { -70057, -9830, 43909 }, { -70057, -9830, -43909 },
+    { 58327, -28835, 0 }, { 58327, -28835, 0 },
+    { -58327, -28835, 0 }, { -58327, -28835, 0 },
+    { 66191, -9830, 43909 }, { 66191, -9830, -43909 },
+    { -70057, -9830, 43909 }, { -70057, -9830, -43909 },
+    { 73990, 17694, 0 }, { 73990, 17694, 0 },
+    { -20971, 52428, 0 }, { -20971, 52428, 0 },
+    { 66191, -45875, 43909 }, { 66191, -45875, 43909 },
+    { 66191, -45875, -43909 }, { 66191, -45875, -43909 },
+    { 108068, 3932, 34734 }, { 108068, 3932, 34734 },
+    { 108068, 3932, -34734 }, { 108068, 3932, -34734 },
+    { -102498, -28377, 196 }, { -102498, -28377, 196 },
+    { -102498, -28377, 196 }, { -102498, -28377, 196 },
+    { 65, -30801, 0 }, { 65, -30801, 0 },
+    { 65, -30801, 0 }, { 65, -30801, 0 },
+    { 58327, -28835, 0 }, { 58327, -28835, 0 },
+    { -58327, -28835, 0 }, { -58327, -28835, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -121896, -31784, -36438 }, { -121896, -31784, 36438 },
+    { -121896, -31784, -36438 }, { -121896, -31784, 36438 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, -42598 },
+    { -79888, -41287, 42598 }, { -79888, -41287, -42598 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, 42598 },
+    { 73334, -41287, -42598 }, { 73334, -41287, -42598 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -115015, -17694, -25952 }, { -115015, -17694, 25952 },
+    { -115015, -17694, -25952 }, { -115015, -17694, 25952 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, -49807 },
+    { -96927, -48496, 49807 }, { -96927, -48496, -49807 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 81199, -3276, 57671 }, { 81199, -3276, -57671 },
+    { -92340, -3276, 57671 }, { -92340, -3276, -57671 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 78577, -48496, 49807 }, { 78577, -48496, 49807 },
+    { 78577, -48496, -49807 }, { 78577, -48496, -49807 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -124125, -26738, -1769 }, { -124125, -26738, -1769 },
+    { -124125, -26738, -1769 }, { -124125, -26738, -1769 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, -42598 },
+    { -79888, -41287, 42598 }, { -79888, -41287, -42598 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 22937, -19660, 0 }, { 22937, -19660, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 73334, -1966, 42598 }, { 73334, -1966, -42598 },
+    { -79888, -1966, 42598 }, { -79888, -1966, -42598 },
+    { 106102, 11796, 0 }, { 106102, 11796, 0 },
+    { -43253, 54394, 0 }, { -43253, 54394, 0 },
+    { 73334, -41287, 42598 }, { 73334, -41287, 42598 },
+    { 73334, -41287, -42598 }, { 73334, -41287, -42598 },
+    { 121831, 0, 40632 }, { 121831, 0, 40632 },
+    { 121831, 0, -40632 }, { 121831, 0, -40632 },
+    { -127336, -34406, -23986 }, { -127336, -34406, -23986 },
+    { -127336, -34406, -23986 }, { -127336, -34406, -23986 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 0, -38010, 0 }, { 0, -38010, 0 },
+    { 75300, -38010, 0 }, { 75300, -38010, 0 },
+    { -81199, -38010, 0 }, { -81199, -38010, 0 },
+    { 93650, -48496, 44564 }, { 93650, -48496, -44564 },
+    { -75300, -48496, 44564 }, { -75300, -48496, -44564 },
+    { 33423, -7864, 0 }, { 33423, -7864, 0 },
+    { 33423, -7864, 0 }, { 33423, -7864, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 67436, 5898, 0 }, { 67436, 5898, 0 },
+    { 93650, -4587, 44564 }, { 93650, -4587, -44564 },
+    { -75300, -4587, 44564 }, { -75300, -4587, -44564 },
+    { 75300, 38010, 0 }, { 75300, 38010, 0 },
+    { -81199, 38010, 0 }, { -81199, 38010, 0 },
+    { 93650, -4587, 44564 }, { 93650, -4587, -44564 },
+    { -75300, -4587, 44564 }, { -75300, -4587, -44564 },
+    { 102825, 16384, 0 }, { 102825, 16384, 0 },
+    { -22937, 51118, 0 }, { -22937, 51118, 0 },
+    { 93650, -48496, 44564 }, { 93650, -48496, 44564 },
+    { 93650, -48496, -44564 }, { 93650, -48496, -44564 },
+    { 137625, -65, 35389 }, { 137625, -65, 35389 },
+    { 137625, -65, -35389 }, { 137625, -65, -35389 },
+    { -126418, -25559, 25559 }, { -126418, -25559, 25559 },
+    { -126418, -25559, 25559 }, { -126418, -25559, 25559 },
+    { 2621, -29491, 0 }, { 2621, -29491, 0 },
+    { 2621, -29491, 0 }, { 2621, -29491, 0 },
+    { 91029, -29491, 0 }, { 91029, -29491, 0 },
+    { -69402, -29491, 0 }, { -69402, -29491 },
+};
+
+// Projected 2D points of the option menu car preview: 4 points per part.
+// GLOBAL: CMR2 0x008313c8
+int g_unk0x008313c8[96];
+
+void FUN_005068b0(int param1, FixVector *param2, FixVector *param3, FixAngles *param4);
+void FUN_00501690(int *param1, FixVector *param2);
+
+// Projects the wheel vertices of one car's option menu preview: every part's
+// 4 vertices are rotated by the part angles and the projected points are
+// stored in the shared preview buffer.
+// FUNCTION: CMR2 0x0050f120
+void FUN_0050f120(int param1)
+{
+    FixVector *pVec;
+    int *pOut;
+    FixAngles *pAngles;
+    FixVector local;
+    int k;
+
+    pVec = &g_unk0x00527420[param1 * 48];
+    pOut = g_unk0x008313c8;
+    pAngles = g_unk0x005273c0;
+    do {
+        for (k = 0; k < 4; k++) {
+            FUN_005068b0(0, pVec, &local, pAngles);
+            FUN_00501690(pOut, &local);
+            pVec++;
+            pOut += 2;
+        }
+        pAngles++;
+    } while ((int)pAngles < (int)&g_unk0x00527420[0]);
+}
+
 // FUNCTION: CMR2 0x0050f1c0
 void FUN_0050f1c0(void)
 {
@@ -5135,8 +5521,40 @@ void FUN_0050a080(void)
 }
 
 // Per-index block of the option menu's 3D preview (0x138 bytes each).
+// Geometry of the option menu preview deform (0x138 bytes per record, 8 records).
+struct Unk0x0082cb78 {
+    // The deform code (FUN_00507a10/0x507fe0) reads the first 0x14 bytes as ints and the
+    // 0x14/0x24/0x34/0x44 slots as int[4]; both spellings are the same memory.
+    union {
+        struct { BYTE field_0x0; BYTE field_0x1[7]; };
+        struct { int field_0x00; int field_0x04; };
+    };
+    union { SceneNode *pNode; int field_0x08; };              // 0x8
+    union {
+        BYTE field_0xc[8];
+        struct { int field_0x0c; int field_0x10; };
+    };
+    union { SceneNode *pWheels[4]; int matrix[4]; };          // 0x14 anchor matrices
+    union { Mesh *pMesh24[4]; int field_0x24[4]; };           // 0x24
+    union { Mesh *pMesh34[4]; int field_0x34[4]; };           // 0x34
+    union { Mesh *pMesh44[4]; int field_0x44[4]; };           // 0x44
+};
+
+// GLOBAL: CMR2 0x0082cb78
+Unk0x0082cb78 g_unk0x0082cb78[16];
+
+struct Unk0x0082fd00 {
+    Unk0x0082cb78 *pEntry;      // 0x000 stage entry the geometry belongs to
+    FixVector corner[8];        // 0x004 bounding-box corners
+    FixVector vertex[12];       // 0x064 vertices the deform displaces
+    FixVector anchor[4];        // 0x0f4 position of each anchor matrix
+    int field_0x124;            // 0x124
+    int field_0x128[4];         // 0x128 random wobble of each anchor
+};
+
 // GLOBAL: CMR2 0x0082fd00
-int g_unk0x0082fd00[8][0x138 / 4];
+Unk0x0082fd00 g_unk0x0082fd00[8];
+
 
 // Timestamp of the previous frame of the option menu preview animation.
 // GLOBAL: CMR2 0x0082d118
@@ -5158,7 +5576,7 @@ void FUN_00509dc0(int index)
     int i;
     int value;
 
-    pList = g_unk0x0082fd00[index];
+    pList = (int *)&g_unk0x0082fd00[index];
     pRec = &g_unk0x0082d220[index];
     basis.right.x = 0x10000;
     basis.right.y = 0;
@@ -5251,7 +5669,7 @@ void FUN_005091c0(int index)
     int t;
 
     pRec = &g_unk0x0082d220[index];
-    pList = g_unk0x0082fd00[index];
+    pList = (int *)&g_unk0x0082fd00[index];
     if (FUN_004ff550() == 1 && FUN_00502500()[Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14 + 0x1f] == 2) {
         t = (unsigned char)FUN_00502510()[0x1f] << 16;
         t = FixMul(t, 0x1999);
@@ -5338,19 +5756,6 @@ BYTE g_unk0x0082ca18;
 
 // 0x54-byte per-slot entry of the table at 0x82cb78: the scene node whose
 // mesh is shown and the three wheel-mesh variants that can be assigned to it.
-struct Unk0x0082cb78 {
-    BYTE field_0x0;             // 0x0
-    BYTE field_0x1[7];
-    SceneNode *pNode;           // 0x8
-    BYTE field_0xc[8];
-    SceneNode *pWheels[4];      // 0x14
-    Mesh *pMesh24[4];           // 0x24
-    Mesh *pMesh34[4];           // 0x34
-    Mesh *pMesh44[4];           // 0x44
-};
-
-// GLOBAL: CMR2 0x0082cb78
-Unk0x0082cb78 g_unk0x0082cb78[2];
 // GLOBAL: CMR2 0x0082d15c
 int g_unk0x0082d15c[2];
 
@@ -5684,3 +6089,428 @@ void FUN_00506bb0(int param1, int param2, int param3)
     }
 }
 
+/* ===== integrated from casc/s4 ===== */
+
+// Provisional copy of the globals the stage deform code shares with the other
+// GameInfo lots (they are declared next to FUN_00507710 as well).
+extern float g_oneOverRandMax;
+
+// Per-entry stage data loaded from the entry's .c3d file (0x54 bytes): the four
+// anchor matrices and the handles of the entry's meshes.
+
+
+// Deform geometry of one stage entry (0x138 bytes): the box FUN_00507a10 builds
+// around it, the twelve vertices FUN_00507fe0 deforms and the position of the
+// entry's four anchor matrices.
+
+// Planar influence of the camera on the stage (all 16.16): inner radius, width
+// of the falloff band and the scale of the falloff, set by FUN_005078e0.
+// GLOBAL: CMR2 0x0082d150
+extern int g_unk0x0082d150;  // defined in StageTiming.cpp
+// GLOBAL: CMR2 0x0082d154
+extern int g_unk0x0082d154;  // defined in StageTiming.cpp
+// GLOBAL: CMR2 0x0082d158
+extern int g_unk0x0082d158;  // defined in StageTiming.cpp
+
+void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord);
+
+// Builds the deform geometry of stage entry <index>: the eight corners of the
+// box around it, the twelve vertices FUN_00507fe0 deforms and the position of
+// the four anchor matrices. The box extents depend on the rally the entry
+// belongs to.
+// FUNCTION: CMR2 0x00507a10
+void FUN_00507a10(Unk0x0082d220 *pObject, int index)
+{
+    Unk0x0082fd00 *pGeom;
+    FixVector sizes;
+    FixVector half;
+    int i;
+    int value;
+    int offX0;
+    int offX1;
+    int offY0;
+    int offY1;
+    int offZ0;
+
+    pGeom = &g_unk0x0082fd00[index];
+    pGeom->pEntry = &g_unk0x0082cb78[index];
+    pGeom->field_0x124 = 0;
+    for (i = 0; i < 4; i++) {
+        FixMatrix_GetPosition(&pGeom->anchor[i],
+                              (FixMatrix *)(pGeom->pEntry->matrix[i] + 0x58));
+        value = rand();
+        pGeom->field_0x128[i] =
+            FixMul((int)(__int64)((float)value * g_oneOverRandMax * CGraphics::m_65536), 0x1680000);
+    }
+    switch ((int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)index))) {
+    case 3:
+        sizes.x = 0x44560;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1cfdf;
+        offX0 = 0x1cccc;
+        offX1 = 0x14ccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xb0a3;
+        offY1 = 0xfa9f;
+        break;
+    case 0:
+        sizes.x = 0x426e9;
+        sizes.y = 0x16b85;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x8000;
+        offZ0 = 0x3d70;
+        offY0 = 0xcf5c;
+        offY1 = 0x10ccc;
+        break;
+    case 6:
+        sizes.x = 0x3e3d7;
+        sizes.y = 0x15eb8;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1ae14;
+        offX1 = 0x9c28;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 2:
+        sizes.x = 0x40f5c;
+        sizes.y = 0x163d7;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1cccc;
+        offX1 = 0x451e;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 7:
+        sizes.x = 0x475c2;
+        sizes.y = 0x1570a;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1e147;
+        offX1 = 0x1028f;
+        offZ0 = 0x4ccc;
+        offY0 = 0xcf5c;
+        offY1 = 0xfae1;
+        break;
+    case 1:
+        sizes.x = 0x4451e;
+        sizes.y = 0x15999;
+        sizes.z = 0x1d70a;
+        offX0 = 0x1cccc;
+        offX1 = 0xf851;
+        offZ0 = 0x570a;
+        offY0 = 0xcf5c;
+        offY1 = 0x1147a;
+        break;
+    case 8:
+        sizes.x = 0x30083;
+        sizes.y = 0x14041;
+        sizes.z = 0x18000;
+        offX0 = 0x13333;
+        offX1 = 0x4ccc;
+        offZ0 = 0x2666;
+        offY0 = 0xb5c2;
+        offY1 = 0xfa9f;
+        break;
+    case 5:
+        sizes.x = 0x41c28;
+        sizes.y = 0x154bc;
+        sizes.z = 0x1d47a;
+        offX0 = 0x1c000;
+        offX1 = 0x10000;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 4:
+        sizes.x = 0x40312;
+        sizes.y = 0x14ccc;
+        sizes.z = 0x1c51e;
+        offX0 = 0x1c000;
+        offX1 = 0xcccc;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0x12dd2;
+        break;
+    case 9:
+        sizes.x = 0x3b958;
+        sizes.y = 0x15db2;
+        sizes.z = 0x1e041;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 11:
+        sizes.x = 0x3d333;
+        sizes.y = 0x15999;
+        sizes.z = 0x1c312;
+        offX0 = 0x1a666;
+        offX1 = 0x9999;
+        offZ0 = 0x4ccc;
+        offY0 = 0xe3d7;
+        offY1 = 0xe106;
+        break;
+    case 10:
+        sizes.x = 0x3b333;
+        sizes.y = 0x106a7;
+        sizes.z = 0x1cf5c;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 12:
+        sizes.x = 0x3ec49;
+        sizes.y = 0x146a7;
+        sizes.z = 0x1c28f;
+        offX0 = 0x1a666;
+        offX1 = 0x13333;
+        offZ0 = 0x4ccc;
+        offY0 = 0xca3d;
+        offY1 = 0xe106;
+        break;
+    case 13:
+        sizes.x = 0x41687;
+        sizes.y = 0x16147;
+        sizes.z = 0x1bb22;
+        offX0 = 0x1ae14;
+        offX1 = 0xfd70;
+        offZ0 = 0x428f;
+        offY0 = 0xd70a;
+        offY1 = 0xf581;
+        break;
+    }
+    FixVecScale(&half, &sizes, 0x8000);
+    pGeom->corner[1].x = half.x;
+    pGeom->corner[1].y = -half.y;
+    pGeom->corner[1].z = -half.z;
+    pGeom->corner[0].x = half.x;
+    pGeom->corner[0].y = -half.y;
+    pGeom->corner[0].z = half.z;
+    pGeom->corner[2].x = -half.x;
+    pGeom->corner[2].y = -half.y;
+    pGeom->corner[2].z = half.z;
+    pGeom->corner[3].x = -half.x;
+    pGeom->corner[3].y = -half.y;
+    pGeom->corner[3].z = -half.z;
+    pGeom->corner[5].x = half.x;
+    pGeom->corner[5].y = half.y;
+    pGeom->corner[5].z = -half.z;
+    pGeom->corner[4].x = half.x;
+    pGeom->corner[4].y = half.y;
+    pGeom->corner[4].z = half.z;
+    pGeom->corner[6].x = -half.x;
+    pGeom->corner[6].y = half.y;
+    pGeom->corner[6].z = half.z;
+    pGeom->corner[7].x = -half.x;
+    pGeom->corner[7].y = half.y;
+    pGeom->corner[7].z = -half.z;
+    pGeom->vertex[0].x = pObject->field_0x21c;
+    pGeom->vertex[0].y = -half.y;
+    pGeom->vertex[0].z = pObject->field_0x224;
+    pGeom->vertex[1].x = pObject->field_0x21c;
+    pGeom->vertex[1].y = -half.y;
+    pGeom->vertex[1].z = pObject->field_0x228;
+    pGeom->vertex[2].x = pObject->field_0x220;
+    pGeom->vertex[2].y = -half.y;
+    pGeom->vertex[2].z = pObject->field_0x224;
+    pGeom->vertex[3].x = pObject->field_0x220;
+    pGeom->vertex[3].y = -half.y;
+    pGeom->vertex[3].z = pObject->field_0x228;
+    pGeom->vertex[4].x = pObject->field_0x21c;
+    pGeom->vertex[4].y = offY0 - half.y;
+    pGeom->vertex[4].z = pObject->field_0x224;
+    pGeom->vertex[5].x = pObject->field_0x21c;
+    pGeom->vertex[5].y = offY0 - half.y;
+    pGeom->vertex[5].z = pObject->field_0x228;
+    pGeom->vertex[6].x = pObject->field_0x220;
+    pGeom->vertex[6].y = offY1 - half.y;
+    pGeom->vertex[6].z = pObject->field_0x224;
+    pGeom->vertex[7].x = pObject->field_0x220;
+    pGeom->vertex[7].y = offY1 - half.y;
+    pGeom->vertex[7].z = pObject->field_0x228;
+    pGeom->vertex[8].x = half.x - offX0;
+    pGeom->vertex[8].y = half.y;
+    pGeom->vertex[8].z = offZ0 - half.z;
+    pGeom->vertex[9].x = half.x - offX0;
+    pGeom->vertex[9].y = half.y;
+    pGeom->vertex[9].z = half.z - offZ0;
+    pGeom->vertex[10].x = offX1 - half.x;
+    pGeom->vertex[10].y = half.y;
+    pGeom->vertex[10].z = half.z - offZ0;
+    pGeom->vertex[11].x = offX1 - half.x;
+    pGeom->vertex[11].y = half.y;
+    pGeom->vertex[11].z = offZ0 - half.z;
+}
+
+// Rebuilds the deformed geometry of the stage entry <pObject> refers to: the
+// twelve vertices FUN_00507a10 generated are used to find the vertex closest to
+// the camera on either side of the camera plane, the camera is pushed onto that
+// plane and then every vertex of the entry's meshes is moved along its stored
+// limit normal (clamped by StageDeform_ClampVertex) with three times the
+// displacement the clamp applied.
+// FUNCTION: CMR2 0x00507fe0
+void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
+{
+    FixVector d;
+    FixVector dv;
+    FixVector pos;
+    FixVector dest;
+    FixVector saved;
+    int positive;
+    int minValue;
+    int minPositive;
+    int radius2;
+    int invRadius;
+    int band2;
+    int invBand;
+    int falloff;
+    int value;
+    int band;
+    int angle;
+    int dirty;
+    int i;
+    int j;
+
+    FixVecScale(&d, &g_unk0x0082d120, -0x10000);
+    positive = FixVecDot(&g_unk0x0082d12c, &d) >= 0;
+    minPositive = 0;
+    minValue = 0;
+    for (i = 0; i < 12; i++) {
+        d.x = pGeom->vertex[i].x - g_unk0x0082d120.x;
+        d.y = pGeom->vertex[i].y - g_unk0x0082d120.y;
+        d.z = pGeom->vertex[i].z - g_unk0x0082d120.z;
+        value = FixVecDot(&g_unk0x0082d12c, &d);
+        if (!positive)
+            value = -value;
+        if (value < minValue)
+            minValue = value;
+        if (value > 0 && (minPositive == 0 || value < minPositive))
+            minPositive = value;
+    }
+    if (!positive) {
+        minValue = -minValue;
+        minPositive = -minPositive;
+    }
+    if (minValue != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minValue);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    } else if (minPositive != 0) {
+        FixVecScale(&d, &g_unk0x0082d12c, minPositive);
+        g_unk0x0082d120.x += d.x;
+        g_unk0x0082d120.y += d.y;
+        g_unk0x0082d120.z += d.z;
+    }
+    positive = FixVecDot(&g_unk0x0082d12c, &g_unk0x0082d120) >= 0;
+    radius2 = FixMul(g_unk0x0082d150, g_unk0x0082d150);
+    invRadius = FixDiv(0x10000, g_unk0x0082d150);
+    band = g_unk0x0082d150 + g_unk0x0082d154;
+    band2 = FixMul(band, band);
+    invBand = FixDiv(0x10000, g_unk0x0082d154);
+    falloff = FixMul(g_unk0x0082d158, 0x3333);
+    for (j = 0; j < pObject->meshCount; j++) {
+        dirty = 0;
+        for (i = 0; i < pObject->vertexCount[j]; i++) {
+            pos.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+            pos.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].y *
+                                   CGraphics::m_65536);
+            pos.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].z *
+                                   CGraphics::m_65536);
+            dv.x = g_unk0x0082d120.x - pos.x;
+            dv.y = g_unk0x0082d120.y - pos.y;
+            dv.z = g_unk0x0082d120.z - pos.z;
+            value = FixVecDot(&dv, &g_unk0x0082d12c);
+            value = FixMul(value, value);
+            if (value > band2)
+                continue;
+            saved = pos;
+            if (value <= radius2) {
+                value = g_unk0x0082d150 - FixMul(invRadius, value);
+                FixVecScale(&dv, &g_unk0x0082d12c, value);
+                if (positive) {
+                    pos.x -= dv.x;
+                    pos.y -= dv.y;
+                    pos.z -= dv.z;
+                } else {
+                    pos.x += dv.x;
+                    pos.y += dv.y;
+                    pos.z += dv.z;
+                }
+            } else {
+                value = FixMul(FixSqrt(value) - g_unk0x0082d150, invBand);
+                value = FixMul(value, falloff);
+                angle = dv.x + dv.z;
+                if (angle < 0)
+                    angle = -angle;
+                angle %= 1024;
+                angle <<= 6;
+                if (angle < 0x8000)
+                    angle -= 0x10000;
+                value = FixMul(value, angle);
+                dest.x = (int)(signed char)pObject->pVertexData[j][i].field_0x18[0] << 9;
+                dest.y = (int)(signed char)pObject->pVertexData[j][i].field_0x18[1] << 9;
+                dest.z = (int)(signed char)pObject->pVertexData[j][i].field_0x18[2] << 9;
+                FixVecScale(&dv, &dest, value);
+                pos.x += dv.x;
+                pos.y += dv.y;
+                pos.z += dv.z;
+            }
+            StageDeform_ClampVertex(&pos.x, j, i, (int *)pObject);
+            dest.x = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx *
+                                    CGraphics::m_65536);
+            dest.y = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny *
+                                    CGraphics::m_65536);
+            dest.z = (int)(__int64)(((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz *
+                                    CGraphics::m_65536);
+            d.x = pos.x - saved.x;
+            d.y = pos.y - saved.y;
+            d.z = pos.z - saved.z;
+            FixVecScale(&d, &d, 0x30000);
+            dest.x += d.x;
+            dest.y += d.y;
+            dest.z += d.z;
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nx =
+                (float)(dest.x * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].ny =
+                (float)(dest.y * CGraphics::m_oneOver65536);
+            ((Unk0x0082d220VertexF *)pObject->pMeshes[j]->pVertexData)[i].nz =
+                (float)(dest.z * CGraphics::m_oneOver65536);
+            dirty = 1;
+        }
+        if (dirty && pObject->pNodes[j]->pObject != 0)
+            Mesh_Rebuild((Mesh *)pObject->pNodes[j]->pObject);
+    }
+}
+// Copies the converted vertex buffers of the slot into its per-mesh pointer
+// array: for every source mesh it finds the first buffer whose stored flag
+// matches the mesh's flag and points the mesh entry at it.
+// FUNCTION: CMR2 0x00506fc0
+void FUN_00506fc0(int param1, int param2, int param3)
+{
+    int i;
+    int j;
+    int match;
+    int target;
+
+    FUN_00506bb0(param1, param2, param3);
+    for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
+        match = -1;
+        target = *(int *)(*(int *)(param3 + 0x3c + i * 4) + 0x30) & 0xff;
+        for (j = 0; j <= *(BYTE *)(param3 + 0x26a); j++) {
+            if (g_unk0x0082d1dc[param1][j] == target) {
+                match = j;
+                j = *(BYTE *)(param3 + 0x26a);
+            }
+        }
+        if (match >= 0)
+            *(BYTE **)(param3 + 0x78 + i * 4) = g_unk0x00831198[param1][match];
+    }
+    *(int *)(param3 + 0x2a8) = 1;
+}
