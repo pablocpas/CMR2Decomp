@@ -6683,6 +6683,71 @@ Texture *FUN_004b9b80(char *name)
     return NULL;
 }
 
+// Non-zero while the draw lists are depth sorted before being drawn
+// (0x49cbc0/0x49cc50/0x49cd20).
+// GLOBAL: CMR2 0x005207b4
+int g_unk0x005207b4 = 1;
+
+// Draws the LOD record a mesh is using: takes the whole-triangle-list or the
+// part-list path its flags ask for and binds cull mode, alpha blending and
+// lighting for it, restoring the lighting mode afterwards.
+// FUNCTION: CMR2 0x0049c940
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures)
+{
+    Mesh *pLod = (Mesh *)((BYTE *)pMesh + ((BYTE *)pMesh)[0x112] * 0x108);
+    unsigned int lightingMode;
+
+    if (pLod->pTriangles == NULL)
+        return;
+
+    // Triangle runs are only stored for meshes flagged with the run list.
+    if (useParts == 0 && (pLod->flags & 0x2000) == 0)
+        useParts = 1;
+
+    if ((pLod->flags & 1) != 0)
+        CGraphics::SetCullMode(1);
+    else
+        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+
+    // Meshes with flag 0x20 keep their own lighting mode and the restore at
+    // the end skips them, so the saved mode stays uninitialised for them
+    // (the original reads it anyway).
+    if ((pLod->flags & 0x20) == 0) {
+        lightingMode = (unsigned int)FUN_004b7200();
+        if ((pLod->flags & 0x40000) != 0)
+            Graphics_SetLightingMode(3);
+        else
+            Graphics_SetLightingMode(2);
+    }
+
+    if (g_unk0x005207b4 != 0)
+        FUN_0049dcc0((int)((pLod->flags >> 3) & 1));
+    else
+        FUN_0049dcc0(0);
+
+    if (useParts != 0) {
+        if (markTextures != 0)
+            FUN_0049c7b0(pLod);
+        else
+            FUN_0049c880(pLod);
+    } else if (clampTexture != 0) {
+        FUN_0049c510(pLod);
+    } else {
+        FUN_0049c680(pLod);
+    }
+
+    if ((pLod->flags & 0x200) != 0 && (pLod->flags & 0x40000) == 0 &&
+        (g_pGraphics->field913_0x3bc & 8) != 0) {
+        if ((g_pGraphics->field913_0x3bc & 0x80) != 0)
+            Mesh_DrawEnvMapped(pLod);
+        else
+            FUN_004b2610(pLod);
+    }
+
+    if ((pLod->flags & 0x20) == 0)
+        Graphics_SetLightingMode(lightingMode);
+}
+
 // Draws every part of a mesh from its vertex buffer, one texture at a time,
 // and counts the triangles drawn.
 // FUNCTION: CMR2 0x0049c880

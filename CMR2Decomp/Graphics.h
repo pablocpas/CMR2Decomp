@@ -1332,6 +1332,8 @@ private:
     friend void FUN_00477b60(int car, int unused1, int unused2, BYTE flag);
     friend void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
     friend void FUN_0049c880(Mesh *pMesh);
+    // Draws the mesh LOD record in use with the state its flags ask for.
+    friend void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
     friend int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
     friend void FUN_004b2460(Mesh *pMesh);
     friend void FUN_004b2610(Mesh *pMesh);
