@@ -4943,3 +4943,133 @@ void FUN_0047c9a0(int param_1, int param_2, int *param_3)
         i += 4;
     } while (i < 0x14);
 }
+
+int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri,
+                                 short *pSurfaceClass, unsigned short *pSurface, int defaultY);
+
+// Updates each wheel's suspension height against the ground.
+// FUNCTION: CMR2 0x004930e0
+void FUN_004930e0(int param_1, int param_2)
+{
+    int *p;
+    short i;
+    short local_8;
+
+    p = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    i = 0;
+    local_8 = 0;
+    if (param_2 > 0) {
+        do {
+            int v = Track_GetGroundHeightSurface(
+                (FixVector *)(param_1 + (i * 3 + 0x9c) * 4),
+                (FixVector *)(param_1 + (i * 3 + 0x129) * 4),
+                (short *)(param_1 + 0xa9e + i * 2),
+                (short *)(param_1 + 0xaae + i * 2),
+                (unsigned short *)(param_1 + 0xac6 + i * 2),
+                *(int *)(param_1 + 0x8dc + i * 4));
+            *(int *)(param_1 + 0x8dc + i * 4) = v;
+            if (*(short *)(param_1 + 0xa9e + i * 2) == -1)
+                local_8 = local_8 + 1;
+            if (i < 4) {
+                int t = *(int *)(param_1 + 0x978 + i * 4) + *(int *)((int)p + 600 + i * 4);
+                if (t > 0x10000)
+                    t = 0x10000;
+                *(int *)(param_1 + 0x8dc + i * 4) += FixMul(t, *(int *)(param_1 + 0x938 + i * 4));
+            }
+            if (*(int *)(param_1 + 0xbbc + i * 4) != 0) {
+                int *src;
+                *(int *)(param_1 + 0x8dc + i * 4) += *(int *)(param_1 + 0x8fc + i * 4);
+                src = (int *)(param_1 + (i * 3 + 0x159) * 4);
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[0] = src[0];
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[1] = src[1];
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[2] = src[2];
+                *(short *)(param_1 + 0xaae + i * 2) = 0x2f;
+            }
+            if (*(short *)(param_1 + 0xaae + i * 2) == 0xf &&
+                *(int *)(param_1 + 0xa7c) == 0 && *(int *)(param_1 + 0xbf8) == 0) {
+                *(int *)(param_1 + 0xa7c) = 0x190000;
+            }
+            if (i < 4)
+                *(int *)(param_1 + 0x8dc + i * 4) -= *(int *)(param_1 + 0x700 + i * 8);
+            i++;
+        } while ((int)i < param_2);
+    }
+    if ((short)param_2 < 8) {
+        int n = 8 - (short)param_2;
+        int *pDst = (int *)(param_1 + 0x8dc + (short)param_2 * 4);
+        do {
+            n--;
+            *pDst = pDst[-4] - 0x50000;
+            pDst++;
+        } while (n != 0);
+    }
+    if (local_8 != param_2)
+        *(int *)(param_1 + 0xa80) = 0;
+    else
+        *(int *)(param_1 + 0xa80) = *(int *)(param_1 + 0xa80) + 0x10000;
+}
+
+// Views into g_stageBlock for the object fade tables at 0x58d2d0/0x58d360/0x58d478.
+#define g_unk0x0058d2d0 ((BYTE *)(g_stageBlock + 0x30))
+#define g_unk0x0058d360 ((int *)(g_stageBlock + 0xc0))
+#define g_unk0x0058d478 ((BYTE *)(g_stageBlock + 0x1d8))
+
+// Fades a car's stage object in and out as its body state changes.
+// FUNCTION: CMR2 0x00476850
+int FUN_00476850(int param_1, int param_2)
+{
+    int result = 0;
+
+    if (g_unk0x0058d360[param_1] == 1 &&
+        ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
+         *(int *)(param_2 + 0x1d8) != 0)) {
+        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        g_unk0x0058d360[param_1] = 2;
+        g_unk0x0058d478[param_1] = 0;
+    }
+    if (g_unk0x0058d360[param_1] == 2) {
+        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+        BYTE c;
+        result = FixDiv(local_c, 0x70000);
+        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        c = g_unk0x0058d478[param_1];
+        g_unk0x0058d478[param_1] = c + 1;
+        if ((BYTE)(c + 1) > 7) {
+            g_unk0x0058d360[param_1] = 3;
+            g_unk0x0058d478[param_1] = 0;
+        }
+    }
+    if (g_unk0x0058d360[param_1] == 3) {
+        result = 0x10000;
+        g_unk0x0058d478[param_1] = g_unk0x0058d478[param_1] + 1;
+        if ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
+            *(int *)(param_2 + 0x1d8) != 0) {
+            g_unk0x0058d478[param_1] = 0;
+            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        }
+        if ((BYTE)g_unk0x0058d478[param_1] > 3) {
+            g_unk0x0058d360[param_1] = 4;
+            g_unk0x0058d478[param_1] = 0;
+        }
+    }
+    if (g_unk0x0058d360[param_1] == 4) {
+        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+        result = 0x10000 - FixDiv(local_c, 0x70000);
+        if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)*(char *)(param_2 + 0xb20) &&
+            *(int *)(param_2 + 0x1d8) == 0) {
+            BYTE c = g_unk0x0058d478[param_1];
+            g_unk0x0058d478[param_1] = c + 1;
+            if ((BYTE)(c + 1) > 7) {
+                g_unk0x0058d360[param_1] = 1;
+                g_unk0x0058d478[param_1] = 0;
+                return 0;
+            }
+        } else {
+            BYTE c = g_unk0x0058d478[param_1];
+            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+            g_unk0x0058d360[param_1] = 2;
+            g_unk0x0058d478[param_1] = 7 - c;
+        }
+    }
+    return result;
+}
