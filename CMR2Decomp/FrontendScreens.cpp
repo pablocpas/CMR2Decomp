@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include "FrontendMenus.h"
 #include "InstallInfo.h"
+#include "Sprite.h"
+#include "FixedPoint.h"
+#include <stdlib.h>
 #include "FrontendDraw.h"
 #include "Sound.h"
 #include "main.h"
@@ -1875,6 +1878,601 @@ void FUN_004f3f60(void)
         g_menuDotTextures[i] =
             CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, 0, 0, 0, 0);
     }
+}
+
+// --- Main menu animation: the letters of "colinmcrae", a trail of dots and
+// six dot streams run along a closed 16-segment spline; each kind of main
+// menu entry has its own path and the path morphs into the next one over
+// 250 ms when the cursor moves.
+
+// Path used with cheat 0xe.
+// GLOBAL: CMR2 0x00525490
+int g_menuPathCheat[19][2] = {
+    324, 157, 371, 152, 366, 91, 395, 108,
+    463, 133, 391, 217, 405, 340, 385, 352,
+    366, 276, 361, 330, 374, 337, 356, 356,
+    239, 357, 225, 341, 245, 320, 246, 244,
+    289, 181, 371, 152, 414, 54,
+};
+// One path (19 points, 16.16 spline control points in 640x480 units) per
+// animation mode.
+// GLOBAL: CMR2 0x00525528
+int g_menuPaths[9][19][2] = {
+    216, 133, 260, 100, 307, 89, 349, 95, 398, 127, 426, 172, 430, 229, 405, 306, 340, 314, 261, 315, 266, 279, 286, 224, 252, 194, 207, 197, 177, 192, 192, 176, 216, 133, 260, 100, 307, 89,
+    536, 122, 520, 113, 479, 110, 437, 112, 494, 131, 468, 144, 404, 144, 349, 156, 439, 174, 509, 192, 404, 212, 219, 203, 75, 215, 153, 242, 142, 284, 234, 320, 400, 294, 536, 294, 648, 238,
+    221, 108, 279, 104, 340, 108, 400, 117, 473, 148, 505, 192, 499, 240, 459, 274, 393, 272, 315, 262, 232, 271, 144, 291, 93, 254, 84, 205, 108, 154, 165, 121, 221, 108, 279, 104, 340, 108,
+    49, 158, 512, 158, 608, 171, 542, 188, 608, 204, 544, 226, 608, 244, 543, 264, 587, 294, 110, 301, 27, 283, 85, 264, 25, 247, 87, 224, 24, 206, 87, 185, 49, 158, 512, 158, 608, 171,
+    219, 115, 302, 88, 385, 112, 441, 188, 465, 312, 428, 322, 405, 278, 387, 235, 355, 216, 303, 239, 245, 216, 219, 232, 197, 276, 175, 322, 138, 303, 167, 189, 219, 115, 302, 88, 385, 112,
+    270, 174, 332, 125, 382, 84, 390, 92, 391, 163, 410, 206, 409, 237, 394, 271, 394, 350, 374, 343, 326, 306, 269, 266, 203, 263, 187, 252, 186, 196, 197, 177, 270, 174, 332, 125, 382, 84,
+    229, 74, 324, 67, 399, 69, 476, 82, 505, 114, 509, 201, 505, 289, 477, 323, 399, 336, 324, 341, 244, 338, 166, 323, 135, 289, 129, 211, 135, 115, 166, 82, 244, 71, 324, 67, 428, 73,
+    291, 88, 312, 73, 329, 86, 326, 118, 354, 134, 367, 187, 350, 217, 342, 309, 360, 331, 313, 327, 268, 330, 284, 306, 271, 219, 253, 185, 267, 131, 294, 117, 291, 88, 312, 73, 329, 86,
+    178, 224, 199, 282, 250, 326, 322, 334, 386, 306, 421, 254, 428, 191, 404, 143, 354, 174, 303, 210, 256, 243, 201, 276, 178, 225, 186, 163, 232, 107, 296, 86, 358, 99, 407, 140, 428, 191,
+};
+// Spline tension (tangents are scaled by 1 - tension).
+// GLOBAL: CMR2 0x00525a80
+int g_menuPathTension = 0x20000;
+// GLOBAL: CMR2 0x00525480
+char g_strColinMcrae[12] = "colinmcrae";
+// Time of the last animation update, -1 = none yet.
+// GLOBAL: CMR2 0x0052548c
+int g_menuAnimTime = -1;
+
+// GLOBAL: CMR2 0x00819990
+int *g_pMenuPath;
+// Position (0..1 along the path) of each of the 200 letters.
+// GLOBAL: CMR2 0x00819994
+int g_menuLetterPos[200];
+// Path of the entry under the cursor.
+// GLOBAL: CMR2 0x00819cb4
+int g_menuPathMode;
+// Six streams of 10 dots (head first).
+// GLOBAL: CMR2 0x00819cb8
+int g_menuStreamPos[6][10];
+// Which of the three paths the entries of type 4 cycle through.
+// GLOBAL: CMR2 0x00819da8
+int g_menuPathVariant;
+// Path being morphed from.
+// GLOBAL: CMR2 0x00819dac
+int g_menuPathPrevMode;
+// GLOBAL: CMR2 0x00819db0
+int g_menuStreamPoint[6][2];
+// Speed of each stream (16.16, 0.5..1.5, random walk).
+// GLOBAL: CMR2 0x00819de0
+int g_menuStreamSpeed[6];
+// Path while morphing from one mode to another.
+// GLOBAL: CMR2 0x00819df8
+int g_menuPathMorph[19][2];
+// GLOBAL: CMR2 0x00819e90
+int g_menuPathInit;
+// The trail of 15 dots (head first).
+// GLOBAL: CMR2 0x00819ea4
+int g_menuTrailPos[15];
+// GLOBAL: CMR2 0x0081a620
+short g_menuDotRect[4];
+
+// Point of the path at t (16.16, 0..1): cubic Hermite spline through the
+// control points 1..17 with Catmull-Rom style tangents.
+// TODO: CMR2 0x004f3c10 (implemented, match 54%)
+void FUN_004f3c10(int *pPoints, int t, int *pOut)
+{
+    int *p;
+    int seg;
+    int u;
+    int u2;
+    int u3;
+    int h00;
+    int h01;
+    int h10;
+    int h11;
+    int tanA;
+    int tanB;
+    int x;
+
+    if (t == 0) {
+        pOut[0] = pPoints[2];
+        pOut[1] = pPoints[3];
+        return;
+    }
+    if (t == 0x10000) {
+        pOut[0] = pPoints[0x22];
+        pOut[1] = pPoints[0x23];
+        return;
+    }
+    seg = ((t << 4) >> 16) + 1;
+    u = (((seg << 16) - 0x10000) / 16 - t + 0x1000) << 4;
+    u2 = FixMul(u, u);
+    u3 = FixMul(u, u2);
+    h00 = u3 * 2 + 0x10000 - u2 * 3;
+    h01 = u2 * 3 - u3 * 2;
+    h10 = u3 - u2 * 2 + u;
+    h11 = u3 - u2;
+    p = &pPoints[seg * 2];
+    tanA = (p[2] - p[-2]) * (0x10000 - g_menuPathTension) / 2;
+    tanB = (p[4] - p[0]) * (0x10000 - g_menuPathTension) / 2;
+    x = p[2] * h00 + (FixMul(h11, tanA) + p[0] * h01) + FixMul(h10, tanB);
+    tanA = (p[3] - p[-1]) * (0x10000 - g_menuPathTension) / 2;
+    tanB = (p[5] - p[1]) * (0x10000 - g_menuPathTension) / 2;
+    pOut[0] = x >> 16;
+    pOut[1] = (p[3] * h00 + (FixMul(h11, tanA) + p[1] * h01) + FixMul(h10, tanB)) >> 16;
+}
+
+// Resets the main menu animation: letters spread along the path, dots at
+// the start, and the path of the entry under the cursor.
+// TODO: CMR2 0x004f3dd0 (implemented, match 76%)
+void FUN_004f3dd0(void)
+{
+    int *pPos;
+    int i;
+    int j;
+    int k;
+
+    i = 0;
+    pPos = g_menuLetterPos;
+    do {
+        *pPos++ = (i << 16) / 200;
+        i++;
+    } while (pPos < &g_menuLetterPos[200]);
+    memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
+    memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
+    k = 0;
+    pPos = g_menuStreamPos[0];
+    do {
+        for (j = 0; j < 10; j++)
+            pPos[j] = k / 6;
+        pPos += 10;
+        k += 0x4000;
+    } while (pPos < g_menuStreamPos[6]);
+    g_menuAnimTime = -1;
+    switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
+    case 0:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 0;
+        break;
+    case 1:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 1;
+        break;
+    case 2:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 2;
+        break;
+    case 3:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 3;
+        break;
+    case 4:
+        g_menuPathMode = 4;
+        g_menuPathPrevMode = 4;
+        g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
+        break;
+    case 5:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 7;
+        break;
+    case 6:
+        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 8;
+        break;
+    }
+}
+
+// Distance to move this frame at `speed` (16.16 per second), from the time
+// since the last update (0.02 s the first time).
+// FUNCTION: CMR2 0x004f3fb0
+void FUN_004f3fb0(int *pOut, int speed)
+{
+    if (g_menuAnimTime == -1) {
+        *pOut = FixMul(speed, FixDiv(20 << 16, 1000 << 16));
+        return;
+    }
+    *pOut = FixMul(speed, FixDiv((int)(__int64)((unsigned int)(CFrontend::FUN_004d20e0() - g_menuAnimTime) * CGraphics::m_65536),
+                                 1000 << 16));
+}
+
+// Wraps a position along the path into 0..1.
+#define MENU_WRAP(v)                        \
+    if ((v) < 0)                            \
+        (v) = (v) % 0x10000 + 0x10000;      \
+    else if ((v) > 0)                       \
+        (v) = (v) % 0x10000;
+
+// Main menu animation update: moves the letters, the trail and the streams
+// along the path and picks (or morphs) the path of the entry under the cursor.
+// TODO: CMR2 0x004f4050 (implemented, match 72%)
+void FUN_004f4050(void)
+{
+    int *pPos;
+    int *pSpeed;
+    int *pPoint;
+    unsigned int elapsed;
+    int step;
+    int f;
+    int dx;
+    int dy;
+    int j;
+
+    CInput::FUN_0049ead0(0);
+    FUN_004f3fb0(&step, 0xccc);
+    pPos = g_menuLetterPos;
+    do {
+        *pPos -= step;
+        MENU_WRAP(*pPos)
+        pPos++;
+    } while (pPos < &g_menuLetterPos[200]);
+    if (CGameInfo::FUN_00406410(0xe)) {
+        g_pMenuPath = g_menuPathCheat[0];
+    } else if (g_menuPathInit == 0) {
+        g_menuPathInit = 1;
+        g_pMenuPath = g_menuPaths[g_menuPathMode][0];
+    } else if (g_menuPathInit == 1) {
+        switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
+        case 0:
+            g_menuPathMode = 0;
+            break;
+        case 1:
+            g_menuPathMode = 1;
+            break;
+        case 2:
+            g_menuPathMode = 2;
+            break;
+        case 3:
+            g_menuPathMode = 3;
+            break;
+        case 4:
+            g_menuPathMode = g_menuPathVariant + 4;
+            g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
+            break;
+        case 5:
+            g_menuPathMode = 7;
+            break;
+        case 6:
+            g_menuPathMode = 8;
+            break;
+        }
+        if (FUN_004f25b0() == -1) {
+            g_menuPathPrevMode = g_menuPathMode;
+        } else if (FUN_004f8410()->items[FUN_004f8410()->cursor].value == 4
+                   && (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) > 250) {
+            g_menuPathPrevMode = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3 + 3;
+            if (g_menuPathPrevMode < 4)
+                g_menuPathPrevMode = 6;
+        } else {
+            switch (FUN_004f8410()->items[FUN_004f25b0()].value) {
+            case 0:
+                g_menuPathPrevMode = 0;
+                break;
+            case 1:
+                g_menuPathPrevMode = 1;
+                break;
+            case 2:
+                g_menuPathPrevMode = 2;
+                break;
+            case 3:
+                g_menuPathPrevMode = 3;
+                break;
+            case 4:
+                g_menuPathPrevMode = g_menuPathVariant + 4;
+                break;
+            case 5:
+                g_menuPathPrevMode = 7;
+                break;
+            case 6:
+                g_menuPathPrevMode = 8;
+                break;
+            }
+        }
+        if (FUN_004f8410()->items[FUN_004f8410()->cursor].value == 4)
+            elapsed = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) % 500;
+        else
+            elapsed = CFrontend::FUN_004d20e0() - FUN_004f25c0();
+        if (elapsed > 250) {
+            g_pMenuPath = g_menuPaths[g_menuPathMode][0];
+        } else {
+            f = FixDiv((int)(__int64)(elapsed * CGraphics::m_65536), 250 << 16);
+            j = 0;
+            pPoint = g_menuPathMorph[0];
+            do {
+                dy = g_menuPaths[g_menuPathMode][j][1] - g_menuPaths[g_menuPathPrevMode][j][1];
+                dx = g_menuPaths[g_menuPathMode][j][0] - g_menuPaths[g_menuPathPrevMode][j][0];
+                pPoint[0] = g_menuPaths[g_menuPathPrevMode][j][0] + FixMulShift32((int)(__int64)(dx * CGraphics::m_65536), f);
+                pPoint[1] = g_menuPaths[g_menuPathPrevMode][j][1] + FixMulShift32((int)(__int64)(dy * CGraphics::m_65536), f);
+                pPoint += 2;
+                j++;
+            } while (pPoint < g_menuPathMorph[19]);
+            g_pMenuPath = g_menuPathMorph[0];
+        }
+    }
+    FUN_004f3fb0(&step, 0x1333);
+    g_menuTrailPos[0] -= step;
+    MENU_WRAP(g_menuTrailPos[0])
+    for (pPos = &g_menuTrailPos[14]; pPos > g_menuTrailPos; pPos--)
+        *pPos = pPos[-1];
+    pSpeed = g_menuStreamSpeed;
+    do {
+        *pSpeed += FixDiv((int)(__int64)((rand() % 101 - 50) * CGraphics::m_65536), 1000 << 16);
+        if (*pSpeed > 0x18000)
+            *pSpeed = 0x18000;
+        if (*pSpeed < 0x8000)
+            *pSpeed = 0x8000;
+        pSpeed++;
+    } while (pSpeed < &g_menuStreamSpeed[6]);
+    FUN_004f3fb0(&step, 0x3333);
+    pPos = g_menuStreamPos[0];
+    pSpeed = g_menuStreamSpeed;
+    do {
+        *pPos -= FixMul(step, *pSpeed);
+        MENU_WRAP(*pPos)
+        for (j = 9; j != 0; j--)
+            pPos[j] = pPos[j - 1];
+        pSpeed++;
+        pPos += 10;
+    } while (pSpeed < &g_menuStreamSpeed[6]);
+    g_menuAnimTime = CFrontend::FUN_004d20e0();
+}
+
+// Draws the 200 letters of "colinmcrae" along the path.
+// FUNCTION: CMR2 0x004f45a0
+void FUN_004f45a0(void)
+{
+    BYTE colour[4];
+    int point[2];
+    unsigned int i;
+    int *pPos;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0x80;
+    Font_Select(0, (int *)colour);
+    i = 0;
+    pPos = g_menuLetterPos;
+    do {
+        FUN_004f3c10(g_pMenuPath, *pPos, point);
+        Font_DrawChar(g_strColinMcrae[i % strlen(g_strColinMcrae)], (int)(g_pGraphics->resX * point[0]) / 640,
+                      (int)(g_pGraphics->resY * point[1]) / 480);
+        pPos++;
+        i++;
+    } while (pPos < &g_menuLetterPos[200]);
+}
+
+// Draws the trail of 15 dots, fading out towards the tail.
+// FUNCTION: CMR2 0x004f4650
+void FUN_004f4650(void)
+{
+    BYTE colour[4];
+    int point[2];
+    Texture *pTexture;
+    int k;
+    int fade;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    k = 14 * 4;
+    fade = 14 * 0xff;
+    do {
+        colour[3] = 0xff - fade / 15;
+        FUN_004f3c10(g_pMenuPath, *(int *)((BYTE *)g_menuTrailPos + k), point);
+        g_menuDotRect[0] = (int)(g_pGraphics->resX * point[0]) / 640 - 2;
+        g_menuDotRect[1] = (int)(g_pGraphics->resY * point[1]) / 480 + 3;
+        pTexture = g_menuDotTextures[k / 15];
+        g_menuDotRect[2] = pTexture->width;
+        g_menuDotRect[3] = pTexture->height;
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)g_menuDotRect, pTexture, 1, 0, NULL, NULL, colour, 8);
+        fade -= 0xff;
+        k -= 4;
+    } while (fade >= 0);
+}
+
+// Draws the six streams of 10 dots, fading out towards their tails.
+// TODO: CMR2 0x004f4760 (implemented, match 51%)
+void FUN_004f4760(void)
+{
+    BYTE colour[4];
+    Texture *pTexture;
+    int *pPoint;
+    int *pPos;
+    int *pStream;
+    int k;
+    int fade;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    pStream = &g_menuStreamPos[0][9];
+    pPoint = g_menuStreamPoint[0];
+    do {
+        k = 9 * 4;
+        fade = 9 * 0xff;
+        pPos = pStream;
+        do {
+            colour[3] = 0xff - fade / 10;
+            FUN_004f3c10(g_pMenuPath, *pPos, pPoint);
+            g_menuDotRect[0] = (int)(pPoint[0] * g_pGraphics->resX) / 640 - 2;
+            g_menuDotRect[1] = (int)(g_pGraphics->resY * pPoint[1]) / 480 + 3;
+            pTexture = g_menuDotTextures[k / 10];
+            g_menuDotRect[2] = pTexture->width;
+            g_menuDotRect[3] = pTexture->height;
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)g_menuDotRect, pTexture, 1, 0, NULL, NULL, colour, 8);
+            fade -= 0xff;
+            k -= 4;
+            pPos--;
+        } while (fade >= 0);
+        pPoint += 2;
+        pStream += 10;
+    } while (pPoint < g_menuStreamPoint[6]);
+}
+
+// Time of the last input on the main menu (for the attract mode).
+// GLOBAL: CMR2 0x0081904c
+DWORD g_mainMenuInputTime;
+
+void FUN_004ea8a0(BYTE param1);
+void FUN_004a3c30(int language);
+bool FUN_004f48b0(void);
+void FUN_004f4910(char registerRelease);
+void FUN_004fa4d0(void);
+unsigned int FUN_0049e940(void);
+void FUN_004ea8c0(BYTE param1);
+void FUN_004ea8e0(BYTE param1);
+void FUN_004ea950(BYTE param1);
+void FUN_004ea9c0(unsigned int param1, unsigned int param2);
+void FUN_004d05f0(void);
+void FUN_00409a30(void);
+void RallyData_FUN_004068b0(BYTE param1);
+void RallyData_FUN_004068e0(BYTE param1);
+
+// Leaving the language menu: applies the chosen language (texts, fonts,
+// credits), rebuilds the scrollers and, the first time, the controls menu,
+// and makes the main menu the parent of the language menu and its entries.
+// TODO: CMR2 0x004ef270 (implemented, match 82%)
+void FUN_004ef270(Menu *pMenu, char back)
+{
+    int i;
+
+    if (back == 0) {
+        FUN_004ea8a0(pMenu->cursor);
+        FUN_004a3c30(pMenu->cursor);
+        FUN_004f48b0();
+        FUN_004f4910(0);
+        CGameInfo::FUN_00405ec0(CGameInfo::GetGameLanguage() == 0);
+        CFrontend::FUN_004d2790();
+        FUN_004ef190();
+        if (pMenu->pParent == NULL)
+            FUN_004fa4d0();
+        Menu_SetParent(pMenu, FUN_004f82c0());
+        for (i = 0; i < pMenu->itemCount; i++)
+            Menu_SetItemSubMenu(pMenu, i, FUN_004f82c0());
+    }
+}
+
+// Entering the main menu: resets the animation and the attract-mode timer and
+// sets up the scroller of the main menu.
+// FUNCTION: CMR2 0x004ef300
+void FUN_004ef300(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int k;
+
+    g_mainMenuInputTime = timeGetTime();
+    FUN_004f3dd0();
+    p = FUN_004f24f0();
+    p->offset = 0;
+    p->startOffset = 0;
+    p->current = pMenu->cursor;
+    p->previous = pMenu->cursor;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = pMenu->itemCount;
+    p->offset = 0;
+    p->current = pMenu->cursor;
+    for (k = 0; k < pMenu->itemCount; k++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[k].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    CGameInfo::FUN_00405de0(0);
+}
+
+// Update callback of the main menu: scroller, animation, and the attract
+// mode after 30.5 s without input.
+// FUNCTION: CMR2 0x004ef420
+void FUN_004ef420(Menu *pMenu)
+{
+    DWORD now;
+
+    FUN_004f37c0(FUN_004f24f0());
+    FUN_004f4050();
+    now = timeGetTime();
+    if (FUN_0049e940() != 0)
+        g_mainMenuInputTime = timeGetTime();
+    if ((int)(now - g_mainMenuInputTime) > 30500) {
+        CGameInfo::FUN_00406330(1);
+        Menu_SetNextAction((int)FUN_004f8330());
+    }
+}
+
+// Draw callback of the main menu: path, carousel, the "colinmcrae" letters
+// and, for some entries, the dot trail or the dot streams.
+// FUNCTION: CMR2 0x004d4ba0
+void FUN_004d4ba0(Menu *pMenu)
+{
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, -1, NULL, -1);
+    FrontendDraw_Carousel(pMenu, 1, NULL);
+    FUN_004f45a0();
+    if (pMenu->items[pMenu->cursor].value == 1)
+        FUN_004f4650();
+    if (pMenu->items[pMenu->cursor].value == 2)
+        FUN_004f4760();
+}
+
+// Leaving the main menu: remembers the entry; the first entry (single
+// player) resets the session differently from the others.
+// FUNCTION: CMR2 0x004f25d0
+void FUN_004f25d0(Menu *pMenu, int param)
+{
+    g_unk0x00525398 = pMenu->cursor;
+    if (pMenu->items[pMenu->cursor].value == 0) {
+        FUN_004d27c0(1);
+        FUN_004ea8e0(2);
+        FUN_00409a30();
+        FUN_004d05f0();
+        return;
+    }
+    FUN_004d27c0(0);
+    FUN_00409a30();
+    FUN_004d05f0();
+}
+
+// Item callback of the championship entry: sets up a new championship.
+// FUNCTION: CMR2 0x004ec930
+void FUN_004ec930(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(1);
+    CGameInfo::FUN_00405de0(1);
+    FUN_004ea950(0);
+    FUN_004f1bc0((int)pMenu);
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    FUN_004f1bb0(CGameInfo::FUN_00405d70());
+    if (CGameInfo::FUN_00405d80() < 8) {
+        FUN_004ea8e0(8);
+        RallyData_FUN_004068b0(0);
+        RallyData_FUN_004068e0(0);
+        FUN_004ea9c0(0, 0);
+    }
+}
+
+// Entering the language menu: puts the cursor on the current language and
+// sets up its scroller.
+// FUNCTION: CMR2 0x004f3400
+void FUN_004f3400(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int language;
+    int k;
+
+    language = CGameInfo::GetGameLanguage();
+    if (language == 1000)
+        FUN_004f82d0()->cursor = 0;
+    else
+        FUN_004f82d0()->cursor = language;
+    p = FUN_004f2510();
+    p->current = FUN_004f82d0()->cursor;
+    p->previous = FUN_004f82d0()->cursor;
+    p->spacing = (int)(g_pGraphics->resX * 24) / 640;
+    p->count = FUN_004f82d0()->itemCount;
+    p->offset = 0;
+    p->startOffset = 0;
+    for (k = 0; k < FUN_004f82d0()->itemCount; k++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(FUN_004f82d0()->items[k].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+}
+
+// Update callback of the language menu.
+// FUNCTION: CMR2 0x004f39e0
+void FUN_004f39e0(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f2510());
 }
 
 // FUNCTION: CMR2 0x004f92e0

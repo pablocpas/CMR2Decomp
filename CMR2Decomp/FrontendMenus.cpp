@@ -1820,6 +1820,57 @@ void FUN_004f5520(void)
     Menu_ValidateCursor(&g_menu0x008205b8, 0);
 }
 
+void FUN_004f3400(Menu *pMenu, int param);
+void FUN_004f39e0(Menu *pMenu);
+void FUN_004e2da0(Menu *pMenu);
+void FUN_004ef270(Menu *pMenu, char back);
+void FUN_004ef300(Menu *pMenu, int param);
+void FUN_004ef420(Menu *pMenu);
+void FUN_004d4ba0(Menu *pMenu);
+void FUN_004f25d0(Menu *pMenu, int param);
+void FUN_004ec930(Menu *pMenu, int param);
+char FUN_004eaa30(void);
+
+// Language menu: five languages, or three in region 1.
+// FUNCTION: CMR2 0x004f5580
+void FUN_004f5580(void)
+{
+    Menu_Init(&g_menu0x008221d8, 0, 1, 0, NULL, NULL, 1, 0, 0);
+    if (CGameInfo::GetGameRegion() == 0) {
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 6, &g_menu0x0081d6d8, 0, 0);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 7, &g_menu0x0081d6d8, 0, 1);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 8, &g_menu0x0081d6d8, 0, 2);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 9, &g_menu0x0081d6d8, 0, 3);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 10, &g_menu0x0081d6d8, 0, 4);
+    } else {
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 6, &g_menu0x0081d6d8, 0, 0);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 7, &g_menu0x0081d6d8, 0, 1);
+        Menu_AddItemType2(&g_menu0x008221d8, 0, 8, &g_menu0x0081d6d8, 0, 2);
+    }
+    Menu_SetCallbacks(&g_menu0x008221d8, (MenuCallback)FUN_004f3400, (MenuCallback)FUN_004f39e0,
+                      (MenuCallback)FUN_004e2da0, (MenuCallback)FUN_004ef270);
+    Menu_ValidateCursor(&g_menu0x008221d8, 0);
+}
+
+// Main menu: single rally, championship, time trial, multiplayer, options,
+// (extras when unlocked) and quit.
+// FUNCTION: CMR2 0x004f5670
+void FUN_004f5670(void)
+{
+    Menu_Init(&g_menu0x0081d6d8, 0, 0, 0, &g_menu0x00823df8, NULL, 1, 1, 0);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x4f, &g_menu0x008212d8, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x50, &g_menu0x00823a38, 0, 1);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x51, FUN_004fa2d0(), 0, 2);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x52, &g_menu0x008241b8, (int)FUN_004ec930, 3);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x53, &g_menu0x0081f118, 0, 4);
+    if (FUN_004eaa30() != 0)
+        Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x54, &g_menu0x00822958, 0, 5);
+    Menu_AddItemType2(&g_menu0x0081d6d8, 0, 0x56, &g_menu0x00823df8, 0, 6);
+    Menu_SetCallbacks(&g_menu0x0081d6d8, (MenuCallback)FUN_004ef300, (MenuCallback)FUN_004ef420,
+                      (MenuCallback)FUN_004d4ba0, (MenuCallback)FUN_004f25d0);
+    Menu_ValidateCursor(&g_menu0x0081d6d8, 0);
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {
