@@ -537,12 +537,15 @@ void FUN_0040bad0(void);
 void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
 void FUN_004a2fe0(void);
 IDirectSound *FUN_004a1d00(void);
+BOOL FUN_00510120(BYTE skipOnSpace);
+void FUN_005103d0(void);
 
 #include "../third_party/bink-sdk-1.0p/include/bink.h"
 
 // Bink movie state: the open movie and its dimensions, the Bink buffer the
 // frames are played on, the DirectDraw surface they are converted to, and the
-// surface type returned for it (-1 while unknown).
+// surface type returned for it (-1 while unknown). The four screen coordinates
+// are the rectangle the movie is scaled into (left, top, right, bottom).
 // GLOBAL: CMR2 0x005297d0
 int g_unk0x005297d0 = -1;
 // GLOBAL: CMR2 0x00831ac8
@@ -555,10 +558,70 @@ HBINK g_pUnk0x00831ad0;
 HBINKBUFFER g_pUnk0x00831ad4;
 // GLOBAL: CMR2 0x00831c54
 IDirectDrawSurface7 *g_pUnk0x00831c54;
+// GLOBAL: CMR2 0x00831c58
+int g_unk0x00831c58;
+// GLOBAL: CMR2 0x00831c5c
+int g_unk0x00831c5c;
+// GLOBAL: CMR2 0x00831c60
+int g_unk0x00831c60;
+// GLOBAL: CMR2 0x00831c64
+int g_unk0x00831c64;
 // GLOBAL: CMR2 0x00831c68
 int g_unk0x00831c68;
 // GLOBAL: CMR2 0x00831c6c
 IDirectDrawSurface7 *g_pUnk0x00831c6c;
+
+// Starts the movie in the file: remembers the rectangle it is played in (or
+// uses the whole screen when no rectangle is given) and the surface it is
+// copied to, then opens it. With flag 4 only one frame is played and 2 is
+// returned while frames are left; otherwise it plays to the end. Returns 1 when
+// it is done, or when the movie could not be opened.
+// FUNCTION: CMR2 0x0050fdf0
+int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track)
+{
+    RECT windowRect;
+
+    if (g_unk0x00831c68 == 0) {
+        if (pRect != NULL) {
+            g_unk0x00831c58 = pRect[0];
+            g_unk0x00831c5c = pRect[1];
+            g_unk0x00831c60 = pRect[2] + pRect[0];
+            g_unk0x00831c64 = pRect[3] + pRect[1];
+        } else {
+            g_unk0x00831c58 = 0;
+            g_unk0x00831c5c = 0;
+            g_unk0x00831c60 = g_pGraphics->resX;
+            g_unk0x00831c64 = g_pGraphics->resY;
+        }
+        if (!g_pGraphics->isFullscreen) {
+            int borderX = GetSystemMetrics(SM_CXEDGE) + GetSystemMetrics(SM_CXBORDER);
+            int borderY = GetSystemMetrics(SM_CYEDGE) + GetSystemMetrics(SM_CYBORDER) +
+                          GetSystemMetrics(SM_CYCAPTION);
+
+            GetWindowRect(CMain::m_hWndList[CMain::m_hWndIx], &windowRect);
+            g_unk0x00831c58 += windowRect.left + borderX;
+            g_unk0x00831c5c += windowRect.top + borderY;
+            g_unk0x00831c60 += windowRect.left + borderX;
+            g_unk0x00831c64 += windowRect.top + borderY;
+        }
+        if (pTexture != NULL)
+            g_pUnk0x00831c54 = pTexture->pSurface;
+        else
+            g_pUnk0x00831c54 = g_pGraphics->pPrimarySurface;
+        if (FUN_0050ff90(path, track) == 0)
+            return 1;
+        g_unk0x00831c68 = 1;
+    }
+    if (flags & 4) {
+        if (FUN_00510120((BYTE)flags) != 0)
+            return 2;
+    } else {
+        while (FUN_00510120((BYTE)flags) != 0) {
+        }
+    }
+    FUN_005103d0();
+    return 1;
+}
 
 // Opens the movie file with Bink, creates the DirectDraw surface its frames are
 // copied to and opens a Bink buffer on the game window. Returns 0 if the CD is
