@@ -3984,6 +3984,324 @@ void FUN_004ef930(Menu *pMenu, int param)
         FUN_004fa970();
 }
 
+// GLOBAL: CMR2 0x00524d48
+char g_strLabelColon[4] = "%s:";
+// Game type the second quick race page was last showing.
+// GLOBAL: CMR2 0x00829320
+unsigned int g_unk0x00829320;
+
+unsigned int FUN_004eaa80(void);
+unsigned int FUN_004eaab0(void);
+unsigned int FUN_004eacf0(void);
+unsigned int FUN_004ead00(void);
+void FUN_004eaa60(unsigned int param1);
+void FUN_004eaa90(unsigned int param1);
+void FUN_004eac80(BYTE param1);
+void FUN_004eacb0(unsigned int param1);
+void FUN_004eacd0(unsigned int param1);
+unsigned int RallyData_FUN_004082b0(void);
+void RallyData_FUN_0040d620(BYTE param1);
+void RallyData_FUN_0040e360(unsigned int param1);
+void RallyData_FUN_0040e380(unsigned int param1);
+void RallyData_FUN_0040e3a0(unsigned int param1);
+MenuScroller *FUN_004f2590(void);
+
+// Draws the on/off choice of a settings row after the text in m_stringDest.
+#define QUICKRACE_DRAW_CHOICE(value, y)                                                                     \
+    x0 = (int)(g_pGraphics->resX * 0x7a) / 640;                                                             \
+    Font_DrawText(1, CFrontend::GetTextString(0x133),                                                        \
+                  (int)(g_pGraphics->resX * 10) / 640 + x0 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y, \
+                  (int *)((value) == 0 ? g_colourWhite0x00524968 : g_colourText0x0052496c), 0x11);         \
+    Font_DrawText(1, CFrontend::GetTextString(0x134),                                                        \
+                  (int)(g_pGraphics->resX * 20) / 640 + x0 + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) \
+                      + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest), y,                            \
+                  (int *)((value) == 0 ? g_colourText0x0052496c : g_colourWhite0x00524968), 0x11);
+
+// Draws the frame of a quick race page: path, help, header line; returns the
+// y of the first row.
+#define QUICKRACE_FRAME()                                                                                   \
+    icon[1] = 0;                                                                                            \
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;                                                         \
+    icon[2] = CFrontend::m_pAr640ATexture->width;                                                           \
+    icon[3] = CFrontend::m_pAr640ATexture->height;                                                          \
+    text[0] = CFrontend::GetTextString(0x94);                                                               \
+    text[1] = CFrontend::GetTextString(0xe2);                                                               \
+    FrontendDraw_PlayTime();                                                                                \
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2); \
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);                                               \
+    y0 = (short)(((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2)           \
+         - (short)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount / 2);                              \
+    if (pMenu->cursor == 0) {                                                                               \
+        pColour = g_colourWhite0x00524968;                                                                  \
+        pShadow = g_colourShadowWhite0x00524974;                                                            \
+    } else {                                                                                                \
+        pColour = g_colourText0x0052496c;                                                                   \
+        pShadow = g_colourShadowText0x00524978;                                                             \
+    }                                                                                                       \
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;                                               \
+    g_unk0x008189a8[3] = 1;                                                                                 \
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;                                              \
+    g_unk0x008189a8[1] = y0;                                                                                \
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);                                 \
+    g_unk0x008189a8[1]++;                                                                                   \
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+
+// Icon and colour of row i of a quick race page.
+#define QUICKRACE_ROW_ICON(i)                                                                               \
+    icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)(i)   \
+              - CFrontend::m_pAr640ATexture->height / 2;                                                    \
+    if (pMenu->cursor == (i)) {                                                                             \
+        pColour = g_colourWhite0x00524968;                                                                  \
+        pTexture = CFrontend::m_pAr640ATexture;                                                             \
+    } else {                                                                                                \
+        pColour = g_colourText0x0052496c;                                                                   \
+        pTexture = CFrontend::m_pAr640DTexture;                                                             \
+        if (!pMenu->items[i].enabled)                                                                       \
+            pColour = g_colourDim0x00524970;                                                                \
+    }                                                                                                       \
+    Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+
+// Separator under row i of a quick race page.
+#define QUICKRACE_ROW_LINE(i)                                                                               \
+    if (pMenu->cursor == (i) || pMenu->cursor == (i) + 1) {                                                 \
+        pColour = g_colourWhite0x00524968;                                                                  \
+        pShadow = g_colourShadowWhite0x00524974;                                                            \
+    } else {                                                                                                \
+        pColour = g_colourText0x0052496c;                                                                   \
+        pShadow = g_colourShadowText0x00524978;                                                             \
+    }                                                                                                       \
+    g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 36) / 480 * ((short)(i) + 1) + y0;                       \
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);                                 \
+    g_unk0x008189a8[1]++;                                                                                   \
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+
+// Draw callback of the first quick race page (stages, cars, ...).
+// TODO: CMR2 0x004da710 (implemented, match 50%)
+void FUN_004da710(Menu *pMenu)
+{
+    short icon[4];
+    char *text[2];
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    MenuItem *pItem;
+    short y0;
+    int x0;
+    int y;
+    int i;
+
+    QUICKRACE_FRAME()
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        QUICKRACE_ROW_ICON(i)
+        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
+        switch (pItem->value) {
+        case 0:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pMenu->items[0].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            break;
+        case 1:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x196), pMenu->items[1].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest, g_strLabelColon, CFrontend::GetTextString(0x19e));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            QUICKRACE_DRAW_CHOICE(pItem->max, y)
+            break;
+        default:
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pItem->id),
+                    pMenu->items[1].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            break;
+        }
+        QUICKRACE_ROW_LINE(i)
+    }
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+    FrontendDraw_ScrollerRow(FUN_004f2590(), 0);
+}
+
+// Draw callback of the second quick race page (game type and its settings).
+// TODO: CMR2 0x004daf90 (implemented, match 44%)
+void FUN_004daf90(Menu *pMenu)
+{
+    short icon[4];
+    char *text[2];
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    MenuItem *pItem;
+    short y0;
+    int x0;
+    int y;
+    int i;
+
+    QUICKRACE_FRAME()
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        QUICKRACE_ROW_ICON(i)
+        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
+        switch (pItem->value) {
+        case 2:
+            sprintf(CFrontend::m_stringDest, g_strLabelColon, CFrontend::GetTextString(0x19e));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            QUICKRACE_DRAW_CHOICE(pItem->max, y)
+            goto line;
+        case 3:
+            sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1a3),
+                    CFrontend::GetTextString(pItem->max + 0x1a4));
+            break;
+        case 4:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pItem->max + 1);
+            break;
+        case 5:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a2), pItem->max + 1);
+            break;
+        case 6:
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a1), pItem->max + 1);
+            break;
+        default:
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pItem->id),
+                    pMenu->items[1].max + 1);
+            break;
+        }
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+    line:
+        QUICKRACE_ROW_LINE(i)
+    }
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+    FrontendDraw_ScrollerRow(FUN_004f2590(), 0);
+}
+
+// Item callback of "start" on the first quick race page.
+// FUNCTION: CMR2 0x004f0090
+void FUN_004f0090(Menu *pMenu, int param)
+{
+    RallyData_FUN_0040d620(pMenu->items[0].max + 1);
+    FUN_004eaa90(pMenu->items[0].max + 1);
+    if (CGameInfo::FUN_00405d70() == 2) {
+        RallyData_FUN_0040d640(0);
+        FUN_004eac80(pMenu->items[1].max);
+    } else {
+        RallyData_FUN_0040d640(pMenu->items[1].max + 1);
+        FUN_004eaa60(pMenu->items[1].max + 1);
+        FUN_004eac80(0);
+    }
+    Menu_SetNextAction((int)FUN_004f8330());
+}
+
+// Entering the first quick race page: loads its settings.
+// FUNCTION: CMR2 0x004f3220
+void FUN_004f3220(Menu *pMenu, int param)
+{
+    pMenu->items[0].max = FUN_004eaab0() - 1;
+    if (CGameInfo::FUN_00405d70() == 2) {
+        pMenu->items[1].value = 2;
+        pMenu->items[1].max = 0;
+        pMenu->items[1].min = 2;
+        pMenu->items[1].max = CGameInfo::FUN_00406440() != 0;
+        pMenu->cursor = 2;
+        return;
+    }
+    pMenu->items[1].value = 1;
+    pMenu->items[1].min = 5;
+    pMenu->cursor = 2;
+    pMenu->items[1].max = FUN_004eaa80() - 1;
+}
+
+// Setting row of the game type chosen in entry 0 of the second quick race
+// page.
+#define QUICKRACE_TYPE_SETTING(pMenu, type)                          \
+    switch (type) {                                                  \
+    case 0:                                                          \
+        pMenu->items[1].min = 10;                                    \
+        pMenu->items[1].max = FUN_004eaab0() - 1;                    \
+        pMenu->items[1].value = 4;                                   \
+        break;                                                       \
+    case 1:                                                          \
+        pMenu->items[1].min = 10;                                    \
+        pMenu->items[1].max = FUN_004eacf0() - 1;                    \
+        pMenu->items[1].value = 6;                                   \
+        break;                                                       \
+    case 2:                                                          \
+        pMenu->items[1].min = 10;                                    \
+        pMenu->items[1].max = FUN_004ead00() - 1;                    \
+        pMenu->items[1].value = 5;                                   \
+        break;                                                       \
+    }
+
+// Item callback of "start" on the second quick race page.
+// FUNCTION: CMR2 0x004f0110
+void FUN_004f0110(Menu *pMenu, int param)
+{
+    RallyData_FUN_0040d640(0);
+    RallyData_FUN_0040e360(pMenu->items[0].max);
+    FUN_004eac80(pMenu->items[2].max);
+    switch (RallyData_FUN_004082b0()) {
+    case 0:
+        RallyData_FUN_0040d620(pMenu->items[1].max + 1);
+        FUN_004eaa90(pMenu->items[1].max + 1);
+        break;
+    case 1:
+        RallyData_FUN_0040e3a0(pMenu->items[1].max + 1);
+        FUN_004eacb0(pMenu->items[1].max + 1);
+        break;
+    case 2:
+        RallyData_FUN_0040e380(pMenu->items[1].max + 1);
+        FUN_004eacd0(pMenu->items[1].max + 1);
+        break;
+    }
+    Menu_SetNextAction((int)FUN_004f8330());
+}
+
+// Entering the second quick race page: loads its settings.
+// TODO: CMR2 0x004f3280 (implemented, match 78%)
+void FUN_004f3280(Menu *pMenu, int param)
+{
+    unsigned int type;
+
+    g_unk0x00829320 = RallyData_FUN_004082b0();
+    pMenu->items[0].max = RallyData_FUN_004082b0();
+    type = RallyData_FUN_004082b0();
+    QUICKRACE_TYPE_SETTING(pMenu, type)
+    if (CGameInfo::FUN_00406440() != 0) {
+        pMenu->items[2].max = 1;
+        pMenu->cursor = 3;
+        return;
+    }
+    pMenu->items[2].max = 0;
+    pMenu->cursor = 3;
+}
+
+// Update callback of the second quick race page: when the game type changes
+// the setting row follows it; the setting is stored as it changes.
+// FUNCTION: CMR2 0x004f3310
+void FUN_004f3310(Menu *pMenu)
+{
+    unsigned int type;
+
+    type = pMenu->items[0].max;
+    if (g_unk0x00829320 != type) {
+        QUICKRACE_TYPE_SETTING(pMenu, type)
+        g_unk0x00829320 = pMenu->items[0].max;
+    }
+    switch (pMenu->items[0].max) {
+    case 0:
+        RallyData_FUN_0040d620(pMenu->items[1].max + 1);
+        FUN_004eaa90(pMenu->items[1].max + 1);
+        break;
+    case 1:
+        RallyData_FUN_0040e3a0(pMenu->items[1].max + 1);
+        FUN_004eacb0(pMenu->items[1].max + 1);
+        break;
+    case 2:
+        RallyData_FUN_0040e380(pMenu->items[1].max + 1);
+        FUN_004eacd0(pMenu->items[1].max + 1);
+        break;
+    }
+    FUN_004f37c0(FUN_004f2590());
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)

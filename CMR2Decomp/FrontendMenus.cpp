@@ -2347,6 +2347,43 @@ void FUN_004f9530(char unused)
     Menu_ValidateCursor(&g_menu0x00826600, 0);
 }
 
+void FUN_004f0090(Menu *pMenu, int param);
+void FUN_004f3220(Menu *pMenu, int param);
+void FUN_004fb360(Menu *pMenu);
+void FUN_004da710(Menu *pMenu);
+void FUN_004f0110(Menu *pMenu, int param);
+void FUN_004f3280(Menu *pMenu, int param);
+void FUN_004f3310(Menu *pMenu);
+void FUN_004daf90(Menu *pMenu);
+
+// First quick race page: two settings and "start".
+// FUNCTION: CMR2 0x004fa370
+void FUN_004fa370(void)
+{
+    Menu_Init(&g_menu0x00828040, 0, 0x1a7, 0, FUN_004fa340(), NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00828040, 0, -1, 10, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x00828040, 0, -1, 5, 0, 0, 0, 0, 1);
+    Menu_AddItemType4(&g_menu0x00828040, 0, 0x67, (int)FUN_004f0090, -1);
+    Menu_SetCallbacks(&g_menu0x00828040, (MenuCallback)FUN_004f3220, (MenuCallback)FUN_004fb360,
+                      (MenuCallback)FUN_004da710, NULL);
+    Menu_ValidateCursor(&g_menu0x00828040, 0);
+}
+
+// Second quick race page: game type, its setting, an on/off option and
+// "start".
+// FUNCTION: CMR2 0x004fa410
+void FUN_004fa410(void)
+{
+    Menu_Init(&g_menu0x00827aa0, 0, 0x1a7, 0, FUN_004fa340(), NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 3, 0, 0, 0, 0, 3);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, -1);
+    Menu_AddItemType3(&g_menu0x00827aa0, 0, -1, 5, 0, 0, 0, 0, 2);
+    Menu_AddItemType4(&g_menu0x00827aa0, 0, 0x67, (int)FUN_004f0110, -1);
+    Menu_SetCallbacks(&g_menu0x00827aa0, (MenuCallback)FUN_004f3280, (MenuCallback)FUN_004f3310,
+                      (MenuCallback)FUN_004daf90, NULL);
+    Menu_ValidateCursor(&g_menu0x00827aa0, 0);
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {
