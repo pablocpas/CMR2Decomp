@@ -13,6 +13,7 @@
 #include "Texture.h"
 #include "Sound.h"
 #include "Font.h"
+#include "Sprite.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,11 +81,13 @@ void *CGame::m_unk0x005a1fb8;
 
 // Boot states of the grouped callback machine (functions next to
 // CGame::InitializeGame; the render halves are not written yet).
+void FUN_004d0ea0(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1cc0(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
@@ -94,9 +97,9 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {FUN_004d1b40, NULL},   // render 0x4d1370 not written yet
     {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
     {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
-    {FUN_004d1a90, NULL},   // render 0x4d0ea0 (CMR2 logo) not written yet
+    {FUN_004d1a90, FUN_004d0ea0},
     {FUN_004d1c90, FUN_004d0a80},
-    {NULL, FUN_004d0ba0},   // state 0x4d1cc0 not written yet
+    {FUN_004d1cc0, FUN_004d0ba0},
     {NULL, FUN_00501680},   // state 0x4d1e10 not written yet
     {NULL, FUN_00501680},   // state 0x4d1e90 not written yet
 };
@@ -257,7 +260,6 @@ void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2)
         FUN_0049de40();
 }
 
-unsigned char FUN_004d20f0(void);
 int FUN_004d0d30(int, int, char *, char);
 unsigned int RallyDataCountryIndex(void);
 
@@ -280,7 +282,7 @@ void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2)
     angles.z = 0;
     angles.pad = 0;
 
-    if (FUN_004d20f0() == 1) {
+    if (CFrontend::FUN_004d20f0() == 1) {
         rect[0] = 0;
         rect[1] = 0;
         rect[2] = (short)g_pGraphics->resX;
@@ -378,6 +380,69 @@ char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 
 void FUN_004ea510(void);
 
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+float FUN_004b23a0(void);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+
+// FPS overlay format string ("FPS: %.2f").
+
+// Renders the state-5 boot screen: clears both targets, queues the loaded
+// frontend texture as a sprite centred over the screen and, when the debug
+// flag is on, draws the frame rate.
+// FUNCTION: CMR2 0x004d0ea0
+void FUN_004d0ea0(Unk0049c2c0 *p1, BYTE p2)
+{
+    SpriteRect screenRect;
+    BYTE colour[4];
+    int centre[3];
+    SpriteRect src;
+    SpriteRect dst;
+
+    screenRect.x = 0;
+    screenRect.y = 0;
+    screenRect.w = g_pGraphics->resX;
+    screenRect.h = g_pGraphics->resY;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    centre[0] = 0;
+    centre[1] = 0;
+    centre[2] = 0;
+
+    CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+
+    if (CFrontend::m_unk0x00817fd0 != NULL) {
+        src.x = CFrontend::m_unk0x00817fd0->field_0x11c;
+        src.y = CFrontend::m_unk0x00817fd0->field_0x11e;
+        src.w = CFrontend::m_unk0x00817fd0->width;
+        src.h = CFrontend::m_unk0x00817fd0->height;
+        dst.x = (int)(g_pGraphics->resX * 43) / 640;
+        dst.y = (int)(g_pGraphics->resY * 202) / 480;
+        dst.w = src.w;
+        dst.h = src.h;
+        centre[0] = src.w / 2;
+        centre[1] = src.h / 2;
+        Sprite_Queue(&src, &dst, CFrontend::m_unk0x00817fd0, 1, 0, centre, NULL, colour, 8);
+    }
+
+    Game_PrepareScene(g_unk0x00817fc8, g_unk0x00817fc4, (int)&screenRect, 0);
+
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, FUN_004b23a0());
+        Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+    }
+
+    FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, &screenRect, 0, 1);
+
+    if (g_unk0x00817fcc == 0)
+        FUN_0049de40();
+}
+
 // Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
 // FUNCTION: CMR2 0x004d1a90
 void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2)
@@ -470,6 +535,68 @@ int FUN_004d0d30(int x, int y, char *pText, char flag)
         x += (int)(g_pGraphics->resX * 10) / 0x280;
     }
     return x;
+}
+
+// Prototypes for this boot state (defined in other modules or still stubs).
+unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataStageIndex(void);
+int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track);
+
+// Cleared on entry and set while the intro video of the boot sequence is
+// being shown.
+extern BYTE g_unk0x00817fec;
+
+// Uppercase country codes of the intro videos. They are four bytes apart,
+// 0x00519264..0x00519280; the last one is CFrontend::m_strUK (already
+// declared in Frontend.h).
+extern char g_str0x00519268[4];
+extern char g_str0x0051926c[4];
+extern char g_str0x00519270[4];
+extern char g_str0x00519274[4];
+extern char g_str0x00519278[4];
+extern char g_str0x0051927c[4];
+extern char g_str0x00519280[4];
+
+// Country intro video path template ("%s\\%s\\%s.bik").
+// GLOBAL: CMR2 0x00523dc0
+char g_str0x00523dc0[14] = "%s\\%s\\%s.bik";
+
+// Boot state 7: shows the frontend for four seconds and then plays the
+// country intro video before asking for state 0.
+// FUNCTION: CMR2 0x004d1cc0
+void FUN_004d1cc0(Unk0049c2c0 *p1, BYTE p2)
+{
+    char *codes[8] = {
+        g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+        g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK,
+    };
+    char path[MAX_PATH];
+    DeviceInfo *pDevice;
+    bool queuedVideo;
+
+    g_unk0x00817fec = 0;
+    queuedVideo = false;
+    if (CGame::m_unk0x00523d68 != 0 &&
+        (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) &&
+        RallyDataStageIndex() == 0) {
+        g_unk0x00817fec = 1;
+        CSound::FUN_004a2b50(0);
+        g_unk0x00817fe4 = timeGetTime();
+        CInput::FUN_0049eab0();
+        FUN_0040bad0();
+        pDevice = CInput::FUN_0049ead0(0);
+        FUN_0040bd60(0, pDevice);
+        if (g_unk0x00817fe4 - (int)FUN_004eaa00() > 4000) {
+            int language = CGameInfo::GetGameLanguage();
+            sprintf(path, g_str0x00523dc0, CInstallInfo::GetCountrySpecificOtherDir(),
+                    CGameInfo::GetGameRegionDirectory(), codes[RallyDataCountryIndex() & 0xff]);
+            FUN_0050fdf0(path, NULL, NULL, 2, language);
+            queuedVideo = true;
+        }
+        if ((pDevice->field_0x8 & 0x10) == 0 && !queuedVideo)
+            return;
+    }
+    CGame::FUN_0049c1c0(p1, p2, 0, 2);
 }
 
 // FUNCTION: CMR2 0x004d15e0
@@ -1441,8 +1568,7 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
     return depthA < depthB ? 1 : -1;
 }
 
-// GLOBAL: CMR2 0x006ed5f0
-unsigned short g_unk0x006ed5f0[4096];
+extern short g_unk0x006ed5f0[];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
 
@@ -1456,7 +1582,7 @@ void FUN_0049d290(int param1)
     unsigned short *pIndex;
     unsigned int i;
 
-    for (pIndex = g_unk0x006ed5f0, i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++) {
+    for (pIndex = (unsigned short *)g_unk0x006ed5f0, i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++) {
         pNode = g_sectors[*pIndex]->pFirstNode;
         while (pNode != NULL) {
             if (pNode->visible != 0) {
