@@ -1365,6 +1365,7 @@ private:
     friend void Mesh_UploadVertices(Mesh *pMesh);
     friend void FUN_00477340(int player);
     friend void FUN_0049c680(Mesh *pMesh);
+    friend void FUN_00506080(int param1);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;
