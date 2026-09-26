@@ -5591,8 +5591,8 @@ void FUN_004ffa50(char *pItem, int unused);
 void FUN_00500020(unsigned int, unsigned int);
 void FUN_0050e780(unsigned int);
 void FUN_0050edf0(unsigned int);
-void FUN_00500210(unsigned int, unsigned int);
-void FUN_005003d0(unsigned int, unsigned int);
+void FUN_00500210(Menu *pMenu, char param);
+void FUN_005003d0(Menu *pMenu, int param);
 void FUN_0050ee10(unsigned int);
 
 // Builds the option menu's status line: the record-list refresh callback and
@@ -7487,7 +7487,7 @@ void FUN_00502790(int param_1, int param_2)
 // Tells whether a slot option still holds the given value (options 2..6 store
 // the value multiplied by ten).
 // FUNCTION: CMR2 0x00502a00
-int FUN_00502a00(int param_1, int param_2, int param_3)
+BYTE FUN_00502a00(int param_1, int param_2, int param_3)
 {
     switch (param_2) {
     case 0:
@@ -7625,4 +7625,143 @@ void FUN_0050e1c0(void)
     FUN_00501f80(4, 0, 0, CFrontend::m_stringDest,
                  (int)g_pGraphics->resX * 0x140 / 0x280 - width / 2,
                  (int)g_pGraphics->resY * 0xf0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+}
+
+// Moves the shared value one position up; clamps it to the option count.
+// FUNCTION: CMR2 0x00500210
+void FUN_00500210(Menu *pMenu, char param)
+{
+    Unk0049c2c0 *p;
+    int value;
+
+    if (param == 0)
+        return;
+    p = FUN_004ff440();
+    value = FUN_005011d0() + 1;
+    if (value > CGameInfo::FUN_00405d70())
+        value = CGameInfo::FUN_00405d70();
+    else
+        CGame::FUN_0049c1c0(p, 0, 1, 2);
+    FUN_005011e0(value);
+}
+
+// Applies the option selected in the first item of the mode menu: restores the
+// old value when it still matches, otherwise stores the new one.
+// FUNCTION: CMR2 0x005003d0
+void FUN_005003d0(Menu *pMenu, int param)
+{
+    int index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    int value = FUN_004ff4c0(((Menu *)FUN_00502500())->items[index].max);
+    int option = pMenu->items[0].max;
+
+    if (FUN_00502990(CGameInfo::FUN_005011b0(), value) &&
+        FUN_00502a00(CGameInfo::FUN_005011b0(), value, option)) {
+        FUN_00502790(CGameInfo::FUN_005011b0(), value);
+        Menu_SetNextAction((int)pMenu->pParent);
+        return;
+    }
+    if (!FUN_00502a00(CGameInfo::FUN_005011b0(), value, option)) {
+        if (FUN_005011f0(CGameInfo::FUN_005011b0()) - FUN_00502d40(value) < 0 &&
+            !FUN_00502990(CGameInfo::FUN_005011b0(), value))
+            return;
+        FUN_00502670(CGameInfo::FUN_005011b0(), value, option);
+    }
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
+// Colour pair used by the highlighted option rows and the value at 0x52737c.
+// GLOBAL: CMR2 0x00527378
+int g_unk0x00527378 = -11250490;
+// GLOBAL: CMR2 0x0052737c
+int g_unk0x0052737c = -1;
+// X multiplier of the option menu layout (450/640 of the resolution).
+// GLOBAL: CMR2 0x005293a0
+int g_unk0x005293a0 = 0x1c2;
+
+// Draws the four option rows of the menu's right column: the first one uses the
+// normal font, the other three the highlighted one.
+// FUNCTION: CMR2 0x0050a680
+void FUN_0050a680(void)
+{
+    FUN_00501f80(3, 0, 0,
+                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
+                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4c),
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0xb4 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+    FUN_00501f80(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
+                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4d),
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0xc2 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+    FUN_00501f80(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
+                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4e),
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0xd0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+    FUN_00501f80(3, 1, 0,
+                 CFrontend::GetTextString((int)CFrontend::FUN_0040ee90(
+                     RallyData_FUN_004086b0(CGameInfo::FUN_005011b0())) * 4 + 0x4f),
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0xde / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+}
+
+// GLOBAL: CMR2 0x0051a904
+char g_str0x0051a904[] = "%.2d:%.2d";
+// GLOBAL: CMR2 0x005295f0
+char g_str0x005295f0[] = " (mins)";
+
+// Draws the stage time of the results screen: the elapsed time clamped to one
+// minute around the target, the time of the target and the "(mins)" suffix.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0050a3f0
+void FUN_0050a3f0(void)
+{
+    int value = FUN_005011f0(CGameInfo::FUN_005011b0());
+    int target = FUN_005004a0();
+    int shown;
+    int width;
+    int x;
+
+    if (target > value) {
+        shown = target - 6000;
+        if (shown < value)
+            shown = value;
+    } else if (target < value) {
+        shown = target + 6000;
+        if (shown > value)
+            shown = value;
+    } else {
+        shown = value;
+    }
+    FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x90),
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0x5d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91),
+            FUN_00501200(CGameInfo::FUN_005011b0()));
+    FUN_00501f80(4, 1, 0, CFrontend::m_stringDest,
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+    FUN_005004b0(shown);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
+    if (CGameInfo::FUN_005004c0() != 0)
+        FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
+                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                     (int)g_pGraphics->resY * 0x96 / 0x1e0,
+                     &g_unk0x00527378, &g_unk0x00527378, 0x11);
+    else
+        FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
+                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                     (int)g_pGraphics->resY * 0x96 / 0x1e0,
+                     &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
+    width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
+    x = g_unk0x005293a0 * (int)g_pGraphics->resX;
+    sprintf(CFrontend::m_stringDest, g_str0x005295f0);
+    if (CGameInfo::FUN_005004c0() != 0)
+        FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+                     (int)g_pGraphics->resY * 0x90 / 0x1e0,
+                     &g_unk0x00527378, &g_unk0x00527378, 0x11);
+    else
+        FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,
+                     (int)g_pGraphics->resY * 0x90 / 0x1e0,
+                     &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
 }
