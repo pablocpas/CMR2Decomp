@@ -4356,6 +4356,7 @@ char g_strTempObj[] = "TEMP.OBJ";
 char g_strTempSht[] = "TEMP.SHT";
 
 // Replaces the active replay buffer with a freshly allocated one.
+// match 89%: the call to FUN_0046c5a0 shows as its // match comment because that annotation sits between marker and signature (see CONVENCIONES)
 // FUNCTION: CMR2 0x00465f60
 void FUN_00465f60(int frames, int samples)
 {
@@ -4443,6 +4444,7 @@ void FUN_00477850(int object, int *src)
 }
 
 // Builds a wheel/damper orientation matrix from two scale factors.
+// match 76%: FixVector temp slot order differs from the original (same logic)
 // FUNCTION: CMR2 0x00486fc0
 void FUN_00486fc0(int *pMatrix, int *pOffset)
 {
@@ -4514,6 +4516,7 @@ void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
 }
 
 // Blends two colours according to a fade timer and writes the result.
+// match 75%: colour blend block differs in scheduling/register use (same logic)
 // FUNCTION: CMR2 0x0047f510
 void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
 {
@@ -4576,6 +4579,7 @@ void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
 }
 
 // Sets per-car visibility bits used by the stage object renderer.
+// match 72%: pairs of flag bytes are not scheduled in parallel like the original (same logic)
 // FUNCTION: CMR2 0x0046b790
 void FUN_0046b790(int type, int car, int index)
 {
@@ -4623,6 +4627,7 @@ void FUN_0046b790(int type, int car, int index)
 extern Car *g_collisionCar;
 
 // Updates per-wheel slip tables and damps the car's velocity.
+// match 42%: per-wheel tables and FixMul block differ from the original
 // FUNCTION: CMR2 0x0048df50
 void FUN_0048df50(Car *param_1)
 {
@@ -4665,6 +4670,7 @@ void FUN_0048df50(Car *param_1)
 }
 
 // Builds a 3x4 matrix from three basis vectors plus a translation.
+// match 43%: matrix combination ordering differs from the original
 // FUNCTION: CMR2 0x00487140
 void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4)
 {
@@ -4749,6 +4755,7 @@ short g_unk0x00588edc[28];
 short g_unk0x00588f16[125];
 
 // Spawns a dust/smoke puff at a randomised position relative to a wheel.
+// match 48%: randomised offset evaluation order differs from the original
 // FUNCTION: CMR2 0x0046ed80
 void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
                   int param_7, int param_8)
@@ -4776,6 +4783,7 @@ void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_
 }
 
 // Emits skid/dust effects for the wheels that are slipping.
+// match 44%: dust/skid table indexing differs from the original
 // FUNCTION: CMR2 0x0046ea80
 void FUN_0046ea80(int param_1, int param_2)
 {
@@ -4859,6 +4867,7 @@ int g_unk0x0058e088[6];
 #define g_unk0x0058e4a0 ((int *)g_unk0x0058e394[67])
 
 // Projects a stage object's rotation table into its output rows.
+// match 23%: nested projection loops do not match the original layout
 // FUNCTION: CMR2 0x0047ca30
 void FUN_0047ca30(int param_1)
 {
@@ -4948,6 +4957,7 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
                                  short *pSurfaceClass, unsigned short *pSurface, int defaultY);
 
 // Updates each wheel's suspension height against the ground.
+// match 57%: short loop counter and clamp block differ from the original
 // FUNCTION: CMR2 0x004930e0
 void FUN_004930e0(int param_1, int param_2)
 {
@@ -5015,6 +5025,7 @@ void FUN_004930e0(int param_1, int param_2)
 #define g_unk0x0058d478 ((BYTE *)(g_stageBlock + 0x1d8))
 
 // Fades a car's stage object in and out as its body state changes.
+// match 83%: fade state machine branches differ from the original
 // FUNCTION: CMR2 0x00476850
 int FUN_00476850(int param_1, int param_2)
 {
