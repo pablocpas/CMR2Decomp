@@ -5791,6 +5791,73 @@ void FUN_00501350(int param1, int unused)
     }
 }
 
+// Menu colour the boot screens fade to/from, r/g/b in its low three bytes.
+// GLOBAL: CMR2 0x0052704c
+int g_unk0x0052704c = 0x00acb49c;
+
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+
+// Clears the screen to a colour fading from the stored menu colour to grey over
+// 50 frames, then draws the option menu scene.
+// FUNCTION: CMR2 0x00501780
+void FUN_00501780(int param1, int unused)
+{
+    short rect[4];
+    BYTE colour[4];
+    int t;
+    int inv;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    rect[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    t = (CMain::GetFrameDelta() * 1000 - g_unk0x0082b0a4 * 1000) / 50;
+    inv = 1000 - t;
+    // Fades between the menu colour and the grey (141, 151, 159) used by
+    // FUN_00501520 while the level is built.
+    colour[0] = (BYTE)(((g_unk0x0052704c & 0xff) * inv + 141 * t) / 1000);
+    colour[1] = (BYTE)(((g_unk0x0052704c >> 8 & 0xff) * inv + 151 * t) / 1000);
+    colour[2] = (BYTE)(((g_unk0x0052704c >> 16 & 0xff) * inv + 159 * t) / 1000);
+    CGraphics::SetClearColour(1, colour[0], colour[1], colour[2]);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
+    // The globals are the root and camera scene nodes; the third argument is a
+    // temporary 4-short rectangle covering the middle of the screen.
+    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
+    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
+    FUN_0049de40();
+}
+
+// Same as FUN_00501780 but the colour fades from grey to the stored menu colour.
+// The extra GetFrameDelta() result is discarded by the original.
+// FUNCTION: CMR2 0x00501920
+void FUN_00501920(int param1, int unused)
+{
+    short rect[4];
+    BYTE colour[4];
+    int t;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    rect[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    t = (CMain::GetFrameDelta() * 1000 - g_unk0x0082b0a4 * 1000) / 50;
+    colour[0] = (BYTE)((((g_unk0x0052704c & 0xff) - 141) * t + 141000) / 1000);
+    colour[1] = (BYTE)((((g_unk0x0052704c >> 8 & 0xff) - 151) * t + 151000) / 1000);
+    colour[2] = (BYTE)((((g_unk0x0052704c >> 16 & 0xff) - 159) * t + 159000) / 1000);
+    CGraphics::SetClearColour(1, colour[0], colour[1], colour[2]);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
+    CMain::GetFrameDelta();
+    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)rect, 0);
+    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, rect, 0, 1);
+    FUN_0049de40();
+}
+
 // Copies the option records back into the rally data (undo of FUN_00502d50).
 // FUNCTION: CMR2 0x00502db0
 void FUN_00502db0(void)
