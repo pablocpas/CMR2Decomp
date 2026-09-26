@@ -1166,6 +1166,57 @@ void FUN_0049c4b0(Mesh *pMesh, int mask, int value)
     }
 }
 
+extern unsigned short g_unk0x0059be74[];
+
+// Draws the triangles of a mesh in runs that share a texture, using the mesh
+// slot already reserved in the shared vertex buffer, and clamps texture
+// addressing for the material groups that need it.
+// TODO: CMR2 0x0049c510 (implemented, match 74%)
+void FUN_0049c510(Mesh *pMesh)
+{
+    int i;
+    int texture;
+    int prev = -1;
+    int count = 0;
+    int total = pMesh->triangleCount;
+    MeshTriangle *pTri = pMesh->pTriangles;
+
+    for (i = total; i > 0; i--) {
+        texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
+        if (prev != texture) {
+            if (count > 0) {
+                CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                    D3DPT_TRIANGLELIST,
+                    CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                    pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+            }
+            count = 0;
+            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
+            prev = texture;
+        }
+        g_unk0x0059be74[count++] = pTri->vertexIndex[0];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[1];
+        g_unk0x0059be74[count++] = pTri->vertexIndex[2];
+        CGame::m_unk0x0059ce18++;
+        if ((pTri->flags & 0x7f) == 0x70 || (pTri->flags & 0x7f) == 0x71 ||
+            (pTri->flags & 0x7f) == 0x73 || (pTri->flags & 0x7f) == 0x74) {
+            CGraphics::SetTextureAddressClamp(0);
+        } else {
+            CGraphics::SetTextureAddressClamp(1);
+        }
+        pTri++;
+    }
+    if (count != 0) {
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[
+            *(int *)((BYTE *)&pMesh->pTriangles[total - 1] + 4 +
+                     pMesh->pTriangles[total - 1].field_0x2c * 4)]);
+        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+            D3DPT_TRIANGLELIST,
+            CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+            pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
+    }
+}
+
 // FUNCTION: CMR2 0x0049cb50
 void CGame::FUN_0049cb50(void *param1)
 {
@@ -1221,6 +1272,36 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
             return -1;
     }
     return depthA < depthB ? 1 : -1;
+}
+
+// GLOBAL: CMR2 0x006ed5f0
+unsigned short g_unk0x006ed5f0[4096];
+// GLOBAL: CMR2 0x0059be6c
+SceneNode *g_unk0x0059be6c;
+
+// Computes the view depth of every visible node of the culled sectors and
+// queues them for drawing.
+// FUNCTION: CMR2 0x0049d290
+void FUN_0049d290(int param1)
+{
+    SceneNode *pNode;
+    FixVector delta;
+    unsigned short *pIndex;
+    unsigned int i;
+
+    for (pIndex = g_unk0x006ed5f0, i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++) {
+        pNode = g_sectors[*pIndex]->pFirstNode;
+        while (pNode != NULL) {
+            if (pNode->visible != 0) {
+                delta.x = g_unk0x0059be6c->world.position.x - pNode->world.position.x;
+                delta.y = 0;
+                delta.z = g_unk0x0059be6c->world.position.z - pNode->world.position.z;
+                *(int *)((BYTE *)pNode + 0x16c) = FixVecLength(&delta);
+                CGame::FUN_0049cb70(pNode);
+            }
+            pNode = pNode->pNextInSector;
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x0049dca0

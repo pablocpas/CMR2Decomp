@@ -1222,6 +1222,11 @@ void FUN_00406780(int param1)
     CGameInfo::m_gameInfo.field_0x398c = param1;
 }
 
+// FUNCTION: CMR2 0x004d0580
+unsigned char FUN_004d0580(void) {
+    return CGameInfo::m_unk0x00817574;
+}
+
 // FUNCTION: CMR2 0x004d0590
 void CGameInfo::FUN_004d0590(BYTE param1) {
     m_unk0x00817574 = param1;
