@@ -1760,7 +1760,7 @@ BYTE RallyData_FUN_004086b0(BYTE index)
 // Returns bit 0 of the record flag, or bit 5 of the category flag when the
 // record belongs to a category.
 // FUNCTION: CMR2 0x004086f0
-BYTE FUN_004086f0(unsigned int param1)
+BYTE FUN_004086f0(BYTE param1)
 {
     unsigned int category;
     BYTE flag;

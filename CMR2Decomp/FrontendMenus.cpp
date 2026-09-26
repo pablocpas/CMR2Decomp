@@ -2577,7 +2577,7 @@ void FUN_004f5c90(void)
     Menu_AddItemType2(&g_menu0x00821c38, 0, -1, &g_menu0x0081bab8, 0, 5);
     Menu_AddItemType4(&g_menu0x00821c38, 0, 0x67, (int)FUN_004ed340, 6);
     Menu_AddItemType1(&g_menu0x00821c38, 0, 0x1b, 0, 7);
-    Menu_SetCallbacks(&g_menu0x00821c38, FUN_004ecfd0, FUN_004ed100, FUN_004dce00, (MenuCallback)FUN_004ed500);
+    Menu_SetCallbacks(&g_menu0x00821c38, (MenuCallback)FUN_004ecfd0, FUN_004ed100, FUN_004dce00, (MenuCallback)FUN_004ed500);
     Menu_ValidateCursor(&g_menu0x00821c38, 0);
 }
 
@@ -2641,7 +2641,7 @@ void FUN_004f6240(void)
     Menu_AddItemType3(&g_menu0x0081cd78, 0, 0x1b7, 2, 0, 0, 0, 0, 9);
     Menu_AddItemType3(&g_menu0x0081cd78, 0, 0x1b6, 2, 0, 0, 0, 0, 0xa);
     Menu_AddItemType1(&g_menu0x0081cd78, 0, 0x67, (int)FUN_004f1db0, 0xe);
-    Menu_SetCallbacks(&g_menu0x0081cd78, FUN_004f1d00, (MenuCallback)FUN_004f1d60, FUN_004e0770, NULL);
+    Menu_SetCallbacks(&g_menu0x0081cd78, FUN_004f1d00, (MenuCallback)FUN_004f1d60, (MenuCallback)FUN_004e0770, NULL);
     Menu_ValidateCursor(&g_menu0x0081cd78, 0);
 }
 
@@ -2871,7 +2871,7 @@ void FUN_004f7820(void)
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 0);
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 1);
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 2);
-    Menu_SetCallbacks(&g_menu0x00824a38, FUN_004f0d30, FUN_004f0e80, FUN_004d6f10, FUN_004f0da0);
+    Menu_SetCallbacks(&g_menu0x00824a38, (MenuCallback)FUN_004f0d30, FUN_004f0e80, FUN_004d6f10, FUN_004f0da0);
     Menu_ValidateCursor(&g_menu0x00824a38, 0);
 }
 
@@ -2942,7 +2942,7 @@ void FUN_004f7d70(void)
 {
     Menu_Init(&g_menu0x00822d18, 0, 0x33, 0, &g_menu0x008241b8, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x00822d18, 0, 0x88, 2, 0, 0, 0, (int)FUN_004f1b30, 0);
-    Menu_SetCallbacks(&g_menu0x00822d18, FUN_004f19d0, NULL, FUN_004d9450, NULL);
+    Menu_SetCallbacks(&g_menu0x00822d18, FUN_004f19d0, NULL, (MenuCallback)FUN_004d9450, NULL);
     Menu_ValidateCursor(&g_menu0x00822d18, 0);
 }
 
