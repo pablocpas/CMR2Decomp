@@ -13,6 +13,7 @@
 #include <math.h>
 #include "FixedPoint.h"
 #include "Car.h"
+#include "WheelTrail.h"
 #include "GameInfo.h"
 #include "Input.h"
 #include "main.h"
@@ -30,6 +31,11 @@ void FUN_004ae3d0(BYTE *p, BYTE value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
+int FUN_0042cae0(Car *pCar, int variant);
+int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
+BYTE FUN_00460bf0(int index);
+int FUN_00460c10(int index);
+int *FUN_00463270(int carIndex, int wheelIndex);
 void Stage_InitLightMeshes(void);
 int *FUN_00407520(int index);
 void FUN_004925c0(int oldHeight, int newHeight, int mode);
@@ -45,6 +51,33 @@ int g_stageLighting[0x178 / 4];
 int g_stageWeatherIntensity[9] = {
     0x10000, 0x10000, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999
 };
+
+struct StageSurfaceInfo {
+    int flags;
+    BYTE red, green, blue, alpha;
+};
+// GLOBAL: CMR2 0x0051bc68
+StageSurfaceInfo g_stageSurfaceInfo[9] = {
+    {0, 0, 0, 0, 0}, {1, 2, 2, 2, 0x18},
+    {9, 0x48, 0x32, 0x27, 0x12}, {9, 0x14, 0x0d, 0, 0x12},
+    {9, 0x0e, 0x0c, 0x06, 0x12}, {0x16, 0xad, 0xbd, 0xc6, 0x12},
+    {0x16, 0xf4, 0xf4, 0xf4, 0x12}, {9, 0x48, 0x32, 0x27, 0x12},
+    {4, 0x64, 0x64, 0x64, 0xff}
+};
+// GLOBAL: CMR2 0x0051bcb0
+BYTE g_stageSurfaceMap[48] = {
+    0, 7, 0, 0, 4, 4, 7, 7, 7, 0, 7, 7, 2, 2, 0, 0,
+    0, 6, 5, 0, 0, 0, 6, 6, 0, 1, 2, 7, 7, 0, 6, 0,
+    0, 0, 0, 3, 3, 3, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0
+};
+// GLOBAL: CMR2 0x00588620
+BYTE g_trailColor[8][4];
+// GLOBAL: CMR2 0x00588750
+int g_trailFrame;
+extern BYTE g_trailPointUsed[8][4][200];
+extern BYTE g_trailPoints[8][4][200][0x28];
+extern int g_unk0x00549b20[8][4];
+extern FixVector g_unk0x00549c20[8][4];
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
@@ -1840,6 +1873,135 @@ void FUN_00464c60(int car)
                 g_unk0x005885a0[car][i] = 0;
                 g_unk0x00549ba0[car][i] = (g_unk0x00549ba0[car][i] + 1) % 200;
             }
+        }
+    }
+}
+
+// Updates the four wheel skid trails and fades their colours by surface and slip.
+// TODO: CMR2 0x00464cb0 (implemented, match 46%)
+void StageObject_UpdateSkidTrails(int carIndex)
+{
+    if (carIndex >= 8 || CGameInfo::FUN_00405cd0() == 2)
+        return;
+
+    Car *pCar = Car_Get(carIndex);
+    if (carIndex == 0)
+        ++g_trailFrame;
+
+    int shortLifetime = ((FUN_00460bf0(carIndex) == 1 || FUN_00460bf0(carIndex) == 2) &&
+                         FUN_00460c10(carIndex) > 0x3333);
+    int baseColor = 0x00ffff00;
+    int wheel;
+    int pointIndex;
+    for (wheel = 0; wheel < 4; ++wheel) {
+        int *pBaseColor = FUN_00463270(carIndex, wheel);
+        baseColor = pBaseColor != NULL ? *pBaseColor : 0x00ffff00;
+        for (pointIndex = 0; pointIndex < 200; ++pointIndex) {
+            BYTE *pPoint = g_trailPoints[carIndex][wheel][pointIndex];
+            if (g_trailPointUsed[carIndex][wheel][pointIndex] != 0) {
+                int lifetime = shortLifetime ? g_stageSurfaceInfo[8].flags << 2 :
+                                               g_stageSurfaceInfo[8].flags * 0x50;
+                if (lifetime < *(int *)pPoint) {
+                    g_trailPointUsed[carIndex][wheel][pointIndex] = 0;
+                    pPoint[0x24] = 0;
+                    pPoint[0x25] = 0;
+                }
+            }
+        }
+    }
+
+    for (wheel = 0; wheel < 4; ++wheel) {
+        char currentSurface = (char)pCar->wheelSurface[wheel];
+        char previousSurface = (char)g_trailSurface[carIndex][wheel];
+        BYTE currentMaterial = g_stageSurfaceMap[currentSurface];
+        BYTE previousMaterial = g_stageSurfaceMap[previousSurface];
+        StageSurfaceInfo *pCurrent = &g_stageSurfaceInfo[currentMaterial];
+        StageSurfaceInfo *pPrevious = &g_stageSurfaceInfo[previousMaterial];
+        int activeSurface = g_trailTimer[carIndex][wheel] > 2 && g_trailCount[carIndex] > 1 &&
+                            pCar->field_0xb74 == 1 && (pCurrent->flags & 1) != 0 &&
+                            (pPrevious->flags & 1) != 0;
+        int dualSurface = (pCurrent->flags & 2) != 0 && (pPrevious->flags & 2) != 0;
+
+        if (pCar->field_0xbac[wheel] == 1 && (activeSurface || dualSurface)) {
+            int slip = StageObject_GetWheelSlip(carIndex, wheel);
+            if ((pCurrent->flags & 2) == 0 || pCar->field_0xbac[wheel ^ 2] == 0) {
+                if (slip <= 0)
+                    continue;
+            } else {
+                if (currentSurface == 0x19)
+                    continue;
+                slip = 0x8000;
+            }
+
+            FixVector *pDelta = &g_trailDelta[carIndex][wheel];
+            if ((pDelta->x != 0 || pDelta->z != 0) && g_trailReset[carIndex][wheel] == 0) {
+                g_unk0x005885a0[carIndex][wheel] = 1;
+                int trailIndex = g_unk0x00549ba0[carIndex][wheel];
+                BYTE *pPoint = g_trailPoints[carIndex][wheel][trailIndex];
+                // The original keeps the colour selected by the first loop's last wheel.
+
+                FixVector up = { 0, 0x10000, 0 };
+                FixVector side;
+                FixVecCross(&side, pDelta, &up);
+                int length = FixVecLength(&side);
+                if (length == 0) {
+                    side.x = side.y = side.z = 0;
+                } else {
+                    FixVecScaleRecip(&side, &side, length);
+                }
+                FixVecScale(&side, &side, 0x1eb8);
+
+                if (CGameInfo::FUN_004063f0(6) == 0) {
+                    if (FUN_0042cae0(pCar, 1) != 0)
+                        FixVecScale(&side, &side, 0x9999);
+                } else {
+                    FixVecScale(&side, &side, 0x28000);
+                }
+
+                FixVector *pPosition = &g_unk0x00549c20[carIndex][wheel];
+                int yOffset = -0x20c - wheel * 0x83;
+                *(int *)(pPoint + 8) = pPosition->x + side.x;
+                *(int *)(pPoint + 0xc) = pPosition->y + side.y + yOffset;
+                *(int *)(pPoint + 0x10) = pPosition->z + side.z;
+                *(int *)(pPoint + 0x14) = pPosition->x - side.x;
+                *(int *)(pPoint + 0x18) = pPosition->y - side.y + yOffset;
+                *(int *)(pPoint + 0x1c) = pPosition->z - side.z;
+
+                BYTE opacity = (BYTE)(FixMul(slip, 0xff0000) >> 16);
+                pPoint[0x24] = opacity;
+                pPoint[0x25] = opacity;
+                BYTE oldMaterial = pPoint[0x26];
+                *(int *)pPoint = 0;
+                pPoint[0x26] = (oldMaterial & 0xf0) | (currentMaterial & 0x0f);
+                g_trailPointUsed[carIndex][wheel][trailIndex] = 1;
+                *(int *)(pPoint + 4) = g_trailFrame;
+
+                BYTE *pColor = g_trailColor[carIndex];
+                if ((pCurrent->flags & 2) == 0) {
+                    pColor[0] = (BYTE)((int)pColor[0] + ((int)pPrevious->red - (int)pColor[0]) / 2);
+                    pColor[1] = (BYTE)((int)pColor[1] + ((int)pPrevious->green - (int)pColor[1]) / 2);
+                    pColor[2] = (BYTE)((int)pColor[2] + ((int)pPrevious->blue - (int)pColor[2]) / 2);
+                    pPoint[0x20] = (BYTE)((int)pColor[0] * (baseColor & 0xff) / 0xff);
+                    pPoint[0x21] = (BYTE)((int)pColor[1] * ((baseColor >> 8) & 0xff) / 0xff);
+                    pPoint[0x22] = (BYTE)((int)pColor[2] * ((baseColor >> 16) & 0xff) / 0xff);
+                    g_unk0x00543708[carIndex][wheel] = 1;
+                    g_unk0x00549b20[carIndex][wheel] = 0;
+                } else {
+                    pColor[0] = (BYTE)((int)pPrevious->red * (baseColor & 0xff) / 0xff);
+                    pColor[1] = (BYTE)((int)pPrevious->green * ((baseColor >> 8) & 0xff) / 0xff);
+                    pColor[2] = (BYTE)((int)pPrevious->blue * ((baseColor >> 16) & 0xff) / 0xff);
+                    *(int *)(pPoint + 0x20) = *(int *)pColor;
+                    g_unk0x00543708[carIndex][wheel] = 0;
+                    g_unk0x00549b20[carIndex][wheel] = 1;
+                }
+
+                BYTE *pNextPoint = g_trailPoints[carIndex][wheel][(trailIndex + 1) % 200];
+                pNextPoint[0x24] = 0;
+                pNextPoint[0x25] = 0;
+            }
+        } else if (g_unk0x00543708[carIndex][wheel] != 0 ||
+                   g_unk0x00549b20[carIndex][wheel] != 0) {
+            g_unk0x005885a0[carIndex][wheel] = 1;
         }
     }
 }
