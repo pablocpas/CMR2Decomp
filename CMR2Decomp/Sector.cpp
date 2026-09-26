@@ -399,6 +399,119 @@ void FUN_004b8b10(SceneNode *pNode)
     pNode->sector = (WORD)index;
 }
 
+// Visible sector indices collected by 0x004b7de0 (one short per sector).
+// GLOBAL: CMR2 0x006ed5f0
+short g_unk0x006ed5f0[14096];
+int Tri2D_Contains(int *pPoint, int *pTri);
+
+// Sector culling pass of a scene node: walks the sector grid around its world
+// position and marks every sector whose bounding rectangle overlaps the screen
+// triangle built from the node position and the "radius" (the fixed far plane
+// distance), storing the squared distance of each marked sector.
+// TODO: CMR2 0x004b7de0 (implemented, match 67%)
+void FUN_004b7de0(SceneNode *pNode, int unused)
+{
+    FixVector pos;
+    FixVector dir;
+    FixVector origin;
+    FixVector forward;
+    FixVector scaled;
+    int tri[6];
+    short iSector;
+    int radius;
+    int spread;
+    int rem;
+    int quo;
+    int colStart;
+    int colEnd;
+    int rowStart;
+    int rowEnd;
+    int row;
+    int col;
+    int index;
+    int len;
+    int ex;
+    int ez;
+    int fx;
+    int fz;
+    int dx;
+    int dz;
+
+    radius = CGraphics::m_farPlaneFixed;
+    memset(g_sectorVisibleBits, 0, sizeof(g_sectorVisibleBits));
+    g_sectorCullEnabled = 0;
+    pos.y = 0;
+    pos.x = pNode->world.position.x;
+    pos.z = pNode->world.position.z;
+    spread = FixMulShift32(radius, g_sectorScale);
+    iSector = (short)Sector_FromPosition(&pos);
+    rem = iSector % g_sectorsPerRow;
+    quo = iSector / g_sectorsPerRow;
+    colStart = rem - spread - 1;
+    if (colStart < 0)
+        colStart = 0;
+    colEnd = rem + spread + 2;
+    if (colEnd > g_sectorsPerRow)
+        colEnd = g_sectorsPerRow;
+    rowStart = quo - spread - 1;
+    if (rowStart < 0)
+        rowStart = 0;
+    rowEnd = quo + spread + 2;
+    if (rowEnd > g_sectorRows)
+        rowEnd = g_sectorRows;
+    dir.x = pNode->world.forward.x;
+    dir.y = 0;
+    dir.z = pNode->world.forward.z;
+    len = FixVecLength(&dir);
+    if (len == 0) {
+        dir.x = 0;
+        dir.y = 0;
+        dir.z = 0;
+    } else {
+        FixVecScale(&dir, &dir, (int)(0x100000000i64 / len));
+    }
+    tri[0] = pNode->world.position.x;
+    tri[1] = pNode->world.position.z;
+    ex = FixMul(dir.x, radius);
+    ez = FixMul(dir.z, radius);
+    fz = FixMul(dir.z, FixMul(radius, 0x10000));
+    fx = -FixMul(dir.x, FixMul(radius, 0x10000));
+    tri[4] = tri[0] - fz + ex;
+    tri[5] = tri[1] - fx + ez;
+    tri[2] = tri[0] + fz + ex;
+    tri[3] = tri[1] + fx + ez;
+    FixMatrix_GetPosition(&origin, &pNode->world);
+    FixMatrix_GetForward(&forward, &pNode->world);
+    FixVecScale(&scaled, &forward, 0xa0000);
+    origin.x = origin.x - scaled.x;
+    origin.y = origin.y - scaled.y;
+    origin.z = origin.z - scaled.z;
+    for (row = rowStart; row < rowEnd; row++) {
+        for (col = colStart; col < colEnd; col++) {
+            index = row * g_sectorsPerRow + col;
+            if (Tri2D_Contains(g_sectors[index]->bounds[2], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[3], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[1], tri) ||
+                Tri2D_Contains(g_sectors[index]->bounds[0], tri) ||
+                index == iSector - g_sectorsPerRow - 1 || index == iSector - g_sectorsPerRow ||
+                index == iSector - g_sectorsPerRow + 1 || index == iSector - 1 || index == iSector ||
+                index == iSector + 1 || index == iSector + g_sectorsPerRow - 1 ||
+                index == iSector + g_sectorsPerRow || index == iSector + g_sectorsPerRow + 1) {
+                dx = g_sectors[index]->x - tri[0];
+                dz = g_sectors[index]->z - tri[1];
+                *(int *)((BYTE *)g_sectors[index] + 0x7c) = FixMul(dx, dx) + FixMul(dz, dz);
+                if (index < g_sectorCount && index >= 0) {
+                    g_unk0x006ed5f0[g_sectorCullEnabled] = (short)index;
+                    g_sectorCullEnabled++;
+                    *(int *)((BYTE *)g_sectors[index] + 0x80) = 0;
+                    *(int *)((BYTE *)g_sectors[index] + 0x84) = 1;
+                    g_sectorVisibleBits[index >> 5] |= 1 << (index & 0x1f);
+                }
+            }
+        }
+    }
+}
+
 // Rebuilds the node list of every sector from the positions of the root's children.
 // TODO: CMR2 0x004b8450 (implemented, match 43%)
 void Sector_RebuildNodeLists(void)
