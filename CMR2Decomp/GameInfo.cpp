@@ -7527,6 +7527,7 @@ void FUN_0050a3c0(void)
 
 // Moves the left or the right edge of the slot's layout rectangle towards the
 // centre while its interpolation is running.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00501de0
 void FUN_00501de0(int param_1, short *param_2)
 {
@@ -7778,6 +7779,7 @@ int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
 // Copies one group of fields of a rally data record into the working option
 // record of the given index and adds the group's weight to its value; clears the
 // group's "already applied" flag.
+// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005034f0
 void FUN_005034f0(int param_1, int param_2)
 {
