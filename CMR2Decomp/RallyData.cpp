@@ -706,7 +706,7 @@ void RallyData_FUN_00406960(BYTE param1)
 }
 
 // FUNCTION: CMR2 0x004068d0
-void RallyData_FUN_004068d0(BYTE param1)
+void RallyData_FUN_004068d0(char param1)
 {
     g_unk0x0052f2a8 = param1;
 }
