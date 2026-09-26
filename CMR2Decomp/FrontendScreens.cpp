@@ -2475,6 +2475,128 @@ void FUN_004f39e0(Menu *pMenu)
     FUN_004f37c0(FUN_004f2510());
 }
 
+// Set when the new-profile entry created a profile that "back" must undo.
+// GLOBAL: CMR2 0x00819879
+BYTE g_unk0x00819879;
+// "Load <name>" texts of the up to four free saved profiles.
+// GLOBAL: CMR2 0x00819054
+char g_profileEntryTexts[4][40];
+
+void FUN_004eb860(int index, int profile);
+void FUN_004ebf20(int index);
+void FUN_004eb000(BYTE index, char set);
+void FUN_004ebe80(int index);
+int FUN_004ec020(void);
+int FUN_004ec090(int n);
+BYTE *FUN_004ec110(int n);
+
+// Item callback: makes this menu the parent of the next one.
+// FUNCTION: CMR2 0x004f0c40
+void FUN_004f0c40(Menu *pMenu, int param)
+{
+    FUN_004f83b0()->pParent = pMenu;
+}
+
+// Item callback of "new profile": gives player 1 a fresh profile and goes to
+// the name entry.
+// FUNCTION: CMR2 0x004f2750
+void FUN_004f2750(Menu *pMenu, int param)
+{
+    g_unk0x00819879 = 1;
+    FUN_004f2bf0(0);
+    FUN_004eb860(FUN_004f2be0(), -1);
+    FUN_004ebf20(FUN_004f2be0());
+    FUN_004eb000(FUN_004f2be0(), 0);
+    Menu_SetParent(FUN_004f83c0(), pMenu);
+    FUN_004f2c10((int)FUN_004f83d0());
+    FUN_004f2c30((int)pMenu);
+    FUN_004e7780(CFrontend::GetTextString(0xb));
+    g_unk0x00819048--;
+    Menu_SetNextAction((int)FUN_004f83c0());
+}
+
+// Item callback of a saved profile: loads it for the current player.
+// FUNCTION: CMR2 0x004f27d0
+void FUN_004f27d0(Menu *pMenu, int param)
+{
+    int profile;
+
+    profile = FUN_004ec090(pMenu->cursor - 2);
+    FUN_004f2bf0(0);
+    FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
+    FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+    Menu_SetNextAction((int)FUN_004f8490());
+    g_unk0x00819048--;
+}
+
+// Entering the profile menu (back: undoes the profile created by "new").
+// Lists the free saved profiles and puts the cursor on the first one.
+// TODO: CMR2 0x004f2620 (implemented, match 82%)
+void FUN_004f2620(Menu *pMenu, char back)
+{
+    MenuItem *pItem;
+    char *pText;
+    int i;
+
+    if (back != 0) {
+        if (g_unk0x00819879 != 0) {
+            FUN_004eb000(0, 0);
+            FUN_004ebf20(0);
+        }
+        FUN_004ebe80(0);
+    }
+    g_unk0x00819879 = 0;
+    FUN_004e7770(1);
+    FUN_004ea8c0(1);
+    g_unk0x00819048 = 1;
+    g_unk0x00819870 = (int)pMenu->pParent;
+    CSound::FUN_004a28c0();
+    i = 0;
+    pText = g_profileEntryTexts[0];
+    pItem = &pMenu->items[2];
+    do {
+        if (i < FUN_004ec020()) {
+            sprintf(pText, CFrontend::GetTextString(0x17f), FUN_004ec110(i));
+            pItem->enabled = 1;
+            pItem->visible = 1;
+            pItem->stringId = (int)pText;
+        } else {
+            pItem->enabled = 0;
+            pItem->visible = 0;
+        }
+        pText += 40;
+        i++;
+        pItem++;
+    } while (pText < g_profileEntryTexts[4]);
+    if (FUN_004ec020() > 0) {
+        pMenu->cursor = 2;
+        return;
+    }
+    pMenu->cursor = 0;
+}
+
+// Draw callback of the profile menu.
+// FUNCTION: CMR2 0x004d9a40
+void FUN_004d9a40(Menu *pMenu)
+{
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 1, NULL, 1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
+// Leaving the profile menu: once every player has a profile, goes on.
+// FUNCTION: CMR2 0x004f07e0
+void FUN_004f07e0(Menu *pMenu, char back)
+{
+    FUN_004ea480(0);
+    if (back != 0 && g_unk0x00819048 == CGameInfo::FUN_00405d70()) {
+        g_unk0x00819048 = CGameInfo::FUN_00405d70();
+        Menu_SetNextAction(g_unk0x00819870);
+    }
+}
+
 // FUNCTION: CMR2 0x004f92e0
 void FUN_004f92e0(int value)
 {

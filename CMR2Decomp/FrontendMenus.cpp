@@ -1871,6 +1871,33 @@ void FUN_004f5670(void)
     Menu_ValidateCursor(&g_menu0x0081d6d8, 0);
 }
 
+void FUN_004f0c40(Menu *pMenu, int param);
+void FUN_004f2750(Menu *pMenu, int param);
+void FUN_004f27d0(Menu *pMenu, int param);
+void FUN_004f2620(Menu *pMenu, char back);
+void FUN_004f3ae0(Menu *pMenu);
+void FUN_004d9a40(Menu *pMenu);
+void FUN_004f07e0(Menu *pMenu, char back);
+
+// Profile menu of a rally: continue, new profile and up to 4 saved ones.
+// FUNCTION: CMR2 0x004f5770
+void FUN_004f5770(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x008212d8, 0, 0xb, 0, &g_menu0x0081d6d8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x008212d8, 0, 0x102, &g_menu0x008203d8, (int)FUN_004f0c40, -1);
+    Menu_AddItemType4(&g_menu0x008212d8, 0, 0xe6, (int)FUN_004f2750, -1);
+    i = 4;
+    do {
+        Menu_AddItemType4(&g_menu0x008212d8, 0, -1, (int)FUN_004f27d0, -1);
+        i--;
+    } while (i != 0);
+    Menu_SetCallbacks(&g_menu0x008212d8, (MenuCallback)FUN_004f2620, (MenuCallback)FUN_004f3ae0,
+                      (MenuCallback)FUN_004d9a40, (MenuCallback)FUN_004f07e0);
+    Menu_ValidateCursor(&g_menu0x008212d8, 0);
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {

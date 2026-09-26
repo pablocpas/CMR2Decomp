@@ -2327,6 +2327,17 @@ int FUN_004eaac0(unsigned int value)
     return count;
 }
 
+// Default stage setting values from the game options.
+// TODO: CMR2 0x004eaae0 (implemented, match 80%)
+void FUN_004eaae0(int *pValues, int *pOut1, int *pOut2)
+{
+    pValues[0] = 0;
+    pValues[1] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x88);
+    pValues[2] = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x8c);
+    *pOut1 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x94);
+    *pOut2 = *(int *)((BYTE *)&CGameInfo::m_gameInfo + 0x90);
+}
+
 // FUNCTION: CMR2 0x004eab20
 void FUN_004eab20(BYTE param1)
 {
