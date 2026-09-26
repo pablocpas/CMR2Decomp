@@ -3952,7 +3952,7 @@ char g_str0x00519280[4] = "FIN";
 // GLOBAL: CMR2 0x005296f8
 char *g_unk0x005296f8[9] = {g_str0x00519280, g_str0x0051927c, g_str0x00519278,
                             g_str0x00519274, g_str0x00519270, g_str0x0051926c,
-                            g_str0x00519268, CFrontend::m_strUK, g_str0x00519260};
+                            g_str0x00519268, CFrontend::m_strUK, NULL};
 
 // Language text directory of every region and language (region * 5 + language).
 // Countries without a language of their own keep an empty entry.
@@ -3971,11 +3971,10 @@ char g_str0x0051a048[12] = "frenchtext";
 // GLOBAL: CMR2 0x0051a054
 char g_str0x0051a054[12] = "englishtext";
 // GLOBAL: CMR2 0x0052971c
-char *g_unk0x0052971c[25] = {
+char *g_unk0x0052971c[20] = {
     g_str0x0051a054, g_str0x0051a048, g_str0x0051a03c, g_str0x0051a030, g_str0x0051a024,
     g_str0x0051a018, g_str0x0051a048, g_str0x0051a03c, NULL, NULL,
-    NULL, g_str0x0051a054, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL,
+    g_str0x0051a054, NULL, NULL, NULL, NULL,
     g_str0x0051a00c, NULL, NULL, NULL, NULL};
 
 // Loads the three option menu archives: the common one, the day file of the
