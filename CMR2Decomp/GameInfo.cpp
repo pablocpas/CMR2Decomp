@@ -1564,6 +1564,37 @@ int FUN_004ff4d0(int index)
     return g_unk0x00526f8c[index];
 }
 
+// GLOBAL: CMR2 0x00526f44
+int g_unk0x00526f44 = -1;
+// GLOBAL: CMR2 0x00526f48
+int g_unk0x00526f48 = -1;
+// GLOBAL: CMR2 0x00526f4c
+int g_unk0x00526f4c = -1;
+// GLOBAL: CMR2 0x00526f50
+int g_unk0x00526f50 = -1;
+
+void FUN_00501d20(int count);
+
+// Clears the option menu counters and rebuilds the eight option records.
+// FUNCTION: CMR2 0x004ff4e0
+void FUN_004ff4e0(void)
+{
+    g_unk0x00526f48 = 0;
+    g_unk0x00526f4c = 0;
+    g_unk0x00526f50 = 0;
+    g_unk0x0082a92c = 0;
+    g_unk0x0082ac58 = 0;
+    g_unk0x0082ac5c = 0;
+    g_unk0x0082a90c[0] = 0;
+    g_unk0x00526f44 = 2;
+    g_unk0x0082a90c[1] = 3;
+    g_unk0x0082a90c[2] = 3;
+    g_unk0x0082a90c[3] = 3;
+    g_unk0x0082a90c[4] = 3;
+    g_unk0x0082a90c[5] = 3;
+    FUN_00501d20(8);
+}
+
 // FUNCTION: CMR2 0x004ff540
 int FUN_004ff540(void)
 {
@@ -1600,6 +1631,121 @@ void FUN_00500530(void)
 {
     if (g_unk0x0082ac58 != 0 && (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082ac5c) >= 30)
         FUN_00500520();
+}
+
+// The option menu's interpolation base (0x82acf0) and the eight bytes at
+// 0x82ace8 that the record loop walks over before it.
+struct Unk0x0082ace8 {
+    short pad[4];
+    int pairs[16][2];
+};
+// GLOBAL: CMR2 0x0082ace8
+Unk0x0082ace8 g_unk0x0082ace8;
+#define g_unk0x0082acf0 (g_unk0x0082ace8.pairs)
+// 16.16 coordinate pairs of the option menu's layout records: the current
+// position, the target it animates to and the interpolated delta.
+// GLOBAL: CMR2 0x0082ac68
+int g_unk0x0082ac68[16][2];
+// GLOBAL: CMR2 0x0082ad70
+int g_unk0x0082ad70[16][2];
+// GLOBAL: CMR2 0x0082adf0
+int g_unk0x0082adf0[16][2];
+
+// A 32-byte row of the option layout table: four slots of two coordinates.
+struct Unk0x0082ac68Row {
+    int v[4][2];
+};
+
+int FUN_005021c0(int index);
+
+void FUN_004a15b0(BOOL param1);
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+
+// Recomputes the four layout pairs of option record param1; param2 selects a
+// straight copy of the target pairs instead of the param3 percent blend.
+// FUNCTION: CMR2 0x00500920
+void FUN_00500920(int param1, int param2, int param3)
+{
+    int i;
+
+    if (param2 == 0) {
+        for (i = 0; i < 4; i++) {
+            g_unk0x0082ac68[param1 * 4 + i][0] =
+                (g_unk0x0082adf0[param1 * 4 + i][0] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][0];
+            g_unk0x0082ac68[param1 * 4 + i][1] =
+                (g_unk0x0082adf0[param1 * 4 + i][1] * param3) / 100 + g_unk0x0082acf0[param1 * 4 + i][1];
+        }
+        return;
+    }
+    *(Unk0x0082ac68Row *)g_unk0x0082ac68[param1 * 4] =
+        *(Unk0x0082ac68Row *)g_unk0x0082ad70[param1 * 4];
+}
+
+// Stores a new target pair per layout slot of option record param1 and rebuilds
+// the deltas; param3 also warps the current pairs to the target.
+// FUNCTION: CMR2 0x005009c0
+void FUN_005009c0(int param1, int *param2, int param3)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        g_unk0x0082acf0[param1 * 4 + i][0] = g_unk0x0082ac68[param1 * 4 + i][0];
+        g_unk0x0082acf0[param1 * 4 + i][1] = g_unk0x0082ac68[param1 * 4 + i][1];
+        g_unk0x0082ad70[param1 * 4 + i][0] = param2[0];
+        g_unk0x0082ad70[param1 * 4 + i][1] = param2[1];
+        if (param3 != 0) {
+            g_unk0x0082ac68[param1 * 4 + i][0] = param2[0];
+            g_unk0x0082ac68[param1 * 4 + i][1] = param2[1];
+            g_unk0x0082acf0[param1 * 4 + i][0] = g_unk0x0082ad70[param1 * 4 + i][0];
+            g_unk0x0082acf0[param1 * 4 + i][1] = g_unk0x0082ad70[param1 * 4 + i][1];
+        }
+        g_unk0x0082adf0[param1 * 4 + i][0] =
+            g_unk0x0082ad70[param1 * 4 + i][0] - g_unk0x0082acf0[param1 * 4 + i][0];
+        g_unk0x0082adf0[param1 * 4 + i][1] =
+            g_unk0x0082ad70[param1 * 4 + i][1] - g_unk0x0082acf0[param1 * 4 + i][1];
+        param2 += 2;
+    }
+}
+
+// Option menu item notification: refreshes the player list of a network device
+// entry when it changes, or opens the advanced options on the select action.
+// FUNCTION: CMR2 0x00500a70
+void FUN_00500a70(int unused, int *param2)
+{
+    if (*param2 != 5) {
+        if (*param2 == 0x101)
+            FUN_004a15b0(1);
+        return;
+    }
+    FUN_004a1940((DWORD *)(param2 + 2));
+    FUN_00409c80(param2 + 2);
+}
+
+// Arms the countdown of every option record that has not been started yet.
+// FUNCTION: CMR2 0x00500ec0
+void FUN_00500ec0(void)
+{
+    if (FUN_005021c0(2) == 0)
+        CGameInfo::FUN_00501cc0(2, 0x28, 0);
+    if (FUN_005021c0(6) == 0)
+        CGameInfo::FUN_00501cc0(6, 0xf, 0);
+    if (FUN_005021c0(7) == 0)
+        CGameInfo::FUN_00501cc0(7, 0xf, 0);
+    if (FUN_005021c0(4) == 0)
+        CGameInfo::FUN_00501cc0(4, 0x1e, 0);
+    if (FUN_005021c0(5) == 0)
+        CGameInfo::FUN_00501cc0(5, 0x1e, 1);
+    if (FUN_005021c0(0) == 0) {
+        CGameInfo::FUN_00501cc0(0, 0x14, 1);
+        return;
+    }
+    if (FUN_005021c0(0) == 2) {
+        if (FUN_005021c0(1) == 0)
+            CGameInfo::FUN_00501cc0(1, 0x14, 0);
+        if (FUN_005021c0(3) == 0)
+            CGameInfo::FUN_00501cc0(3, 0x14, 0);
+    }
 }
 
 // FUNCTION: CMR2 0x005011d0
@@ -1704,6 +1850,35 @@ BYTE FUN_00502990(int i, int j)
 int FUN_00502d40(int index)
 {
     return g_unk0x00527098[index];
+}
+
+struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+
+// Copies every option record from the rally data into the working table and
+// clears the per-record dirty words.
+// FUNCTION: CMR2 0x00502d50
+void FUN_00502d50(void)
+{
+    int i;
+    int j;
+    int *pDst;
+    int *pDirty;
+    int *pSrc;
+
+    i = 0;
+    if (CGameInfo::FUN_00405d70() > 0) {
+        pDst = (int *)g_unk0x0082c070;
+        pDirty = (int *)g_unk0x0082c040;
+        do {
+            pSrc = (int *)RallyData_FUN_00407610(i);
+            i++;
+            memcpy(pDst, pSrc, 0x148);
+            for (j = 0; j < 3; j++)
+                pDirty[j] = 0;
+            pDst += 0x52;
+            pDirty += 3;
+        } while (i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
 }
 
 // FUNCTION: CMR2 0x00503930
@@ -3079,6 +3254,40 @@ BYTE *FUN_00502510(void)
     return g_unk0x0082b848;
 }
 
+BYTE *RallyData_FUN_00407630(int index);
+
+// Copies the seven option bytes of every rally data record into rows 4..7 of
+// the default table, mirrors them into rows 0..3 and clears the option flags.
+// TODO: CMR2 0x00502570 (implemented, match 70%)
+void FUN_00502570(void)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        BYTE *p = RallyData_FUN_00407630(i);
+        BYTE *pFlags;
+
+        g_unk0x0082bee8[i + 4][4] = p[4];
+        g_unk0x0082bee8[i + 4][5] = p[5];
+        g_unk0x0082bee8[i + 4][1] = p[1];
+        g_unk0x0082bee8[i + 4][6] = p[6];
+        g_unk0x0082bee8[i + 4][3] = p[3];
+        g_unk0x0082bee8[i + 4][2] = p[2];
+        g_unk0x0082bee8[i + 4][0] = p[0];
+        g_unk0x0082bee8[i][4] = g_unk0x0082bf04[i * 7 + 4];
+        g_unk0x0082bee8[i][5] = g_unk0x0082bf04[i * 7 + 5];
+        g_unk0x0082bee8[i][1] = g_unk0x0082bf04[i * 7 + 1];
+        g_unk0x0082bee8[i][6] = g_unk0x0082bf04[i * 7 + 6];
+        g_unk0x0082bee8[i][3] = g_unk0x0082bf04[i * 7 + 3];
+        g_unk0x0082bee8[i][2] = g_unk0x0082bf04[i * 7 + 2];
+        g_unk0x0082bee8[i][0] = g_unk0x0082bf04[i * 7 + 0];
+        pFlags = &g_unk0x0082bf20[i][0];
+        *(int *)pFlags = 0;
+        *(short *)(pFlags + 4) = 0;
+        pFlags[6] = 0;
+    }
+}
+
 // GLOBAL: CMR2 0x0052aa60
 int g_unk0x0052aa60;
 // GLOBAL: CMR2 0x0052aa68
@@ -3963,6 +4172,30 @@ BYTE *FUN_00501ab0(void)
     return &g_unk0x0082b1b8;
 }
 
+// Advances the option menu's overlay pulse: a sine running over a minute is
+// mapped to a grey level and stored in the fade colour bytes.
+// FUNCTION: CMR2 0x00501ac0
+void FUN_00501ac0(void)
+{
+    int value;
+    BYTE shade;
+
+    value = CMain::GetFrameDelta() % 0x3c;
+    value = FixDiv(value << 16, 0x3c0000);
+    value = FixMul(value, 0x1680000);
+    value = g_sinTable[(unsigned short)(__int64)(value * g_unk0x00511300) & 0xfff] + 0x10000;
+    value = FixMul(value, 0x8000);
+    if (value < 0)
+        value = 0;
+    else if (value > 0x10000)
+        value = 0x10000;
+    shade = (BYTE)((FixMul(value, 0x7f0000) + 0x800000) >> 16);
+    g_unk0x0082b1bb = 0xff;
+    g_unk0x0082b1ba = shade;
+    g_unk0x0082b1b9 = shade;
+    g_unk0x0082b1b8 = shade;
+}
+
 // True when the option slot is enabled: mode 2/4 are checked against their
 // selectors, everything else is accepted.
 // FUNCTION: CMR2 0x00501280
@@ -4205,6 +4438,60 @@ void FUN_0050f4f0(void)
     CGame::RegisterCallback(FUN_0050f480, NULL);
 }
 
+// Format string printed when the option menu's background world is created.
+// GLOBAL: CMR2 0x00527050
+char g_str0x00527050[] = "*** WORLD CREATED: 0x%08X ***\n";
+// Camera node of the option menu's background world (0x82b1b0).
+// GLOBAL: CMR2 0x0082b1b0
+int g_unk0x0082b1b0;
+
+void Scene_SetAmbient(BYTE *pColour, int boost);
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles, SceneNode *pParent);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+
+// Builds the option menu's background world: root node, camera, ambient and key
+// light, then registers the release callback.
+// FUNCTION: CMR2 0x005013a0
+void FUN_005013a0(void)
+{
+    SceneNode *pNode;
+    BYTE colour[4];
+    FixAngles angles;
+    short view[4];
+    FixVector translation;
+    FixVector lightPosition;
+    int i;
+
+    view[0] = 0;
+    view[1] = 0;
+    view[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    view[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    lightPosition.x = 0x50000;
+    lightPosition.y = 0x50000;
+    translation.x = 0x23d7;
+    translation.y = 0xffffe8f6;
+    translation.z = 0xfffb0000;
+    lightPosition.z = 0xfffb0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+    colour[0] = 0xc8;
+    colour[1] = 0xc8;
+    colour[2] = 0xc8;
+    colour[3] = 0xff;
+    g_unk0x0082b1b4 = (int)SceneNode_CreateRoot();
+    sprintf(CFrontend::m_stringDest, g_str0x00527050, g_unk0x0082b1b4);
+    puts(CFrontend::m_stringDest);
+    g_unk0x0082b1b0 = (int)SceneType2_Create(&translation, &angles, NULL, (SceneNode *)g_unk0x0082b1b4);
+    for (pNode = (SceneNode *)g_unk0x0082b1b4; pNode != NULL; pNode = pNode->pParent)
+        pNode->dirty = 1;
+    Scene_SetAmbient(colour, 0);
+    Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &lightPosition, &angles, (SceneNode *)g_unk0x0082b1b4);
+    CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
+    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)view, 0);
+    CGame::RegisterCallback(FUN_00501390, NULL);
+}
 // Releases the three option menu textures and clears their handles.
 // FUNCTION: CMR2 0x0050f480
 int FUN_0050f480(void)
@@ -4413,6 +4700,62 @@ char g_unk0x0082a93c[0x100];
 void FUN_00502230(int unused, int unused2)
 {
     g_unk0x0082ac60 = 1;
+}
+
+// GLOBAL: CMR2 0x0082bc08
+BYTE g_unk0x0082bc08[0x1e0];
+
+void FUN_0050e740(int unused);
+void FUN_004ffa50(char *pItem, int unused);
+void FUN_00500020(unsigned int, unsigned int);
+void FUN_0050e780(unsigned int);
+void FUN_0050edf0(unsigned int);
+void FUN_00500210(unsigned int, unsigned int);
+void FUN_005003d0(unsigned int, unsigned int);
+void FUN_0050ee10(unsigned int);
+
+// Builds the option menu's status line: the record-list refresh callback and
+// the owner's help-text draw.
+// FUNCTION: CMR2 0x00502240
+void FUN_00502240(void)
+{
+    Menu_Init((Menu *)g_unk0x0082ba28, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
+    Menu_AddItemType1((Menu *)g_unk0x0082ba28, 0, -1, 0, -1);
+    Menu_SetCallbacks((Menu *)g_unk0x0082ba28, (MenuCallback)FUN_00502230, NULL, (MenuCallback)FUN_0050e740, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082ba28, 0);
+}
+
+// Builds the option menu's advanced-options list with its device and accept
+// entries.
+// FUNCTION: CMR2 0x005022a0
+void FUN_005022a0(void)
+{
+    Menu_Init((Menu *)g_unk0x0082b488, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 0, 0, 1);
+    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x100, (int)FUN_00500020, -1);
+    Menu_AddItemType1((Menu *)g_unk0x0082b488, 0, 0x101, 0, -1);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b488, (MenuCallback)FUN_004ffa50, NULL, (MenuCallback)FUN_0050e780, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082b488, 0);
+}
+
+// Builds the option menu's control-setup screen.
+// FUNCTION: CMR2 0x00502440
+void FUN_00502440(void)
+{
+    Menu_Init((Menu *)g_unk0x0082bc08, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
+    Menu_SetCallbacks((Menu *)g_unk0x0082bc08, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050edf0,
+                      (MenuCallback)FUN_00500210);
+    Menu_ValidateCursor((Menu *)g_unk0x0082bc08, 0);
+    Menu_SetFlags((Menu *)g_unk0x0082bc08, 0, 0, 0, 1);
+}
+
+// Builds the option menu's slider screen.
+// FUNCTION: CMR2 0x005024a0
+void FUN_005024a0(void)
+{
+    Menu_Init((Menu *)g_unk0x0082b848, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 1);
+    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)FUN_005003d0, 0);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b848, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050ee10, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0082b848, 0);
 }
 
 // Marks the given item selected and requests a refresh.

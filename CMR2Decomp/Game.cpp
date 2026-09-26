@@ -662,6 +662,20 @@ BOOL CGame::FUN_0041b060() { return FALSE; }
 // FUNCTION: CMR2 0x00501680
 void CGame::FUN_00501680(struct Unk0049c2c0 *, BYTE) { return; }
 
+extern int g_unk0x0082b1b0;
+
+void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
+
+// Projects a 16.16 point through the option menu's background camera and scales
+// the result by 2/3.
+// FUNCTION: CMR2 0x00501690
+void FUN_00501690(int *param1, FixVector *param2)
+{
+    FUN_004bad40(param1, param2, (BYTE *)g_unk0x0082b1b0);
+    param1[0] = FixMul(param1[0], FixDiv(0x20000, 0x30000));
+    param1[1] = FixMul(param1[1], FixDiv(0x20000, 0x30000));
+}
+
 // Saves the game configuration (Configuration\GameInfo.rcf), keeping the
 // current fullscreen setting.
 // FUNCTION: CMR2 0x004ea840
