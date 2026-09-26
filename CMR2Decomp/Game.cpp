@@ -1303,6 +1303,26 @@ void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
     }
 }
 
+// Draws a single node: if the node is a mesh whose view mask contains the
+// given bit it binds the node world matrix and draws its mesh, and then
+// recurses into the children that match the view mask as well.
+// FUNCTION: CMR2 0x0049cad0
+void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
+{
+    if (pNode->type == SCENE_NODE_MESH) {
+        Mesh *pMesh = (Mesh *)pNode->pObject;
+        if ((pNode->field_0x17c & (1 << bit)) != 0) {
+            if (pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                    (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
+        }
+    }
+    if ((pNode->field_0x17c & (1 << bit)) != 0 && pNode->pFirstChild != NULL)
+        Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+}
+
 // FUNCTION: CMR2 0x0049cb50
 void CGame::FUN_0049cb50(void *param1)
 {
