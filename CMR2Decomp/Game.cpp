@@ -89,6 +89,13 @@ void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1cc0(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1ba0(Unk0049c2c0 *p1, BYTE state);
+void FUN_004d1c30(Unk0049c2c0 *p1, BYTE state);
+void FUN_004d1e10(Unk0049c2c0 *p1, BYTE state);
+void FUN_005012e0(Unk0049c2c0 *p1, BYTE state);
+void FUN_005015d0(Unk0049c2c0 *p1, BYTE state);
+void FUN_005010a0(Unk0049c2c0 *p1, BYTE state);
+void FUN_00501130(Unk0049c2c0 *p1, BYTE state);
 void FUN_004d1e90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1080(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
@@ -99,12 +106,12 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
      FUN_00501680},
     {FUN_004d1b40, FUN_004d1080},
     {FUN_004d1b40, FUN_004d1370},
-    {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
-    {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
+    {FUN_004d1ba0, FUN_00501680},
+    {FUN_004d1c30, FUN_00501680},
     {FUN_004d1a90, FUN_004d0ea0},
     {FUN_004d1c90, FUN_004d0a80},
     {FUN_004d1cc0, FUN_004d0ba0},
-    {NULL, FUN_00501680},   // state 0x4d1e10 not written yet
+    {FUN_004d1e10, FUN_00501680},
     {FUN_004d1e90, FUN_00501680},
 };
 
@@ -854,6 +861,61 @@ void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2)
         FUN_0049de40();
 }
 
+// Boot states 0x4d1ba0/0x4d1c30/0x4d1e10 (cascade seed batch 1, verified 96-98%).
+// GLOBAL: CMR2 0x00523da4
+char g_strCmBik[] = "%s\\cm.bik";
+// GLOBAL: CMR2 0x00523db0
+char g_strIntroBik[] = "%s\\Intro.bik";
+// GLOBAL: CMR2 0x00523d6c
+int g_unk0x00523d6c = -1;
+// GLOBAL: CMR2 0x00817ff0
+unsigned int g_unk0x00817ff0;
+
+// FUNCTION: CMR2 0x004d1ba0
+void FUN_004d1ba0(Unk0049c2c0 *p1, BYTE state)
+{
+    char path[260];
+
+    CGraphics::SetClearColour(1, 0, 0, 0);
+    CGraphics::ClearTarget();
+    g_pGraphics->pPrimarySurface->Blt(NULL, g_pGraphics->pBackBufferSurface, NULL, DDBLT_WAIT, NULL);
+    sprintf(path, g_strCmBik, CInstallInfo::GetVideosDir());
+    FUN_0050fdf0(path, NULL, NULL, 2, 0);
+    FUN_004ea9f0();
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+}
+
+// FUNCTION: CMR2 0x004d1c30
+void FUN_004d1c30(Unk0049c2c0 *p1, BYTE state)
+{
+    char path[260];
+
+    sprintf(path, g_strIntroBik, CInstallInfo::GetVideosDir());
+    FUN_0050fdf0(path, NULL, NULL, 2, 0);
+    FUN_004ea9f0();
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+}
+
+// FUNCTION: CMR2 0x004d1e10
+void FUN_004d1e10(Unk0049c2c0 *p1, BYTE state)
+{
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    CInput::FUN_0049ead0(0);
+    if (g_unk0x00523d6c == -1) {
+        g_unk0x00817ff0 = CMain::GetFrameDelta();
+        g_unk0x00523d6c = 0;
+    }
+    if (500 < (unsigned int)(CMain::GetFrameDelta() - g_unk0x00817ff0)) {
+        if (g_unk0x00523d6c < 2) {
+            g_unk0x00817ff0 = CMain::GetFrameDelta();
+            g_unk0x00523d6c = g_unk0x00523d6c + 1;
+            return;
+        }
+        CGame::FUN_0049c1c0(p1, state, 0, 2);
+    }
+}
+
 // FUNCTION: CMR2 0x004d15e0
 void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -1166,15 +1228,19 @@ void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2);
 // State of the option menu machine (GameInfo.cpp).
 void FUN_00500c80(Unk0049c2c0 *p1, BYTE state);
 
+void FUN_00500f80(Unk0049c2c0 *p1, BYTE state);
+void FUN_00501780(int param1, int unused);
+void FUN_00501920(int param1, int unused);
+
 // GLOBAL: CMR2 0x00526ee0
 FuncTableGroup g_unk0x00526ee0[7] = {
     {FUN_00500c80, NULL},
-    {NULL, NULL},                        // state 0x5012e0 / render 0x501780 not written yet
+    {FUN_005012e0, (OtherFuncTableEntry)FUN_00501780},
     {FUN_00500df0, NULL},
-    {NULL, NULL},                        // state 0x500f80 / render 0x5015d0 not written yet
-    {(FuncTableEntry)FUN_00501350, NULL}, // render 0x501920 not written yet
-    {NULL, CGame::FUN_00501680},         // state 0x5010a0 not written yet
-    {NULL, CGame::FUN_00501680},         // state 0x501130 not written yet
+    {FUN_00500f80, FUN_005015d0},
+    {(FuncTableEntry)FUN_00501350, (OtherFuncTableEntry)FUN_00501920},
+    {FUN_005010a0, CGame::FUN_00501680},
+    {FUN_00501130, CGame::FUN_00501680},
 };
 // Magic value handed to the callback machine as opaque data (0x0100ff00), not
 // an address, so it must not be typed as a pointer.

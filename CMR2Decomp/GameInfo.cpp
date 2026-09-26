@@ -5801,6 +5801,94 @@ void FUN_0049de40(void);
 
 // Clears the screen to a colour fading from the stored menu colour to grey over
 // 50 frames, then draws the option menu scene.
+// Option menu states 0x5010a0/0x501130/0x5012e0/0x5015d0 (cascade seed batch 1, verified 94-97%).
+void FUN_00502db0(void);
+void FUN_005029b0(void);
+/* ===== cascade: menu states (drafts, iterated against the scaffold) ===== */
+void FUN_00501710(void);
+void FUN_0049de40(void);
+void FUN_00506b20(int index, char visible);
+int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
+void FUN_0050f230(void);
+void FUN_0049d3f0(int a, int b, void *c, int d, int e);
+
+
+// FUNCTION: CMR2 0x005010a0
+void FUN_005010a0(Unk0049c2c0 *p1, BYTE state)
+{
+    CSound::FUN_004a2b50(0);
+    CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    FUN_00501710();
+    FUN_0049de40();
+    FUN_00502db0();
+    FUN_005029b0();
+    CGame::UnwindCallbacks(g_unk0x0082af88);
+    CGraphics::FUN_004a5be0();
+    CGraphics::FreeTextureBuffers();
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    if (g_unk0x0082b0ac != 0) {
+        CGame::FUN_004057e0(0);
+        CGameInfo::FUN_0049ea90(0);
+        return;
+    }
+    CGame::FUN_004057e0(3);
+    CGameInfo::FUN_0049ea90(0);
+}
+
+// FUNCTION: CMR2 0x00501130
+void FUN_00501130(Unk0049c2c0 *p1, BYTE state)
+{
+    CSound::FUN_004a2b50(0);
+    CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    FUN_00501710();
+    FUN_0049de40();
+    CGame::UnwindCallbacks(g_unk0x0082af88);
+    CGraphics::FUN_004a5be0();
+    CGraphics::FreeTextureBuffers();
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    CGame::FUN_004057e0(0);
+    CGameInfo::FUN_0049ea90(0);
+}
+
+// FUNCTION: CMR2 0x005012e0
+void FUN_005012e0(Unk0049c2c0 *p1, BYTE state)
+{
+    int i;
+
+    if (g_unk0x0082af8c != 0) {
+        CMain::UpdateFrameTime();
+        g_unk0x0082b0a4 = CMain::GetFrameDelta();
+        g_unk0x0082af8c = 0;
+    }
+    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
+        FUN_00506b20(i, 0);
+    }
+    if (0x32 < (unsigned int)(CMain::GetFrameDelta() - g_unk0x0082b0a4))
+        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+}
+
+// FUNCTION: CMR2 0x005015d0
+void FUN_005015d0(Unk0049c2c0 *p1, BYTE state)
+{
+    short rect[4];
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    rect[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
+    FUN_0050f230();
+    Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)&rect[0], 0);
+    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[2], 0, 1);
+    FUN_0049de40();
+}
+
 // FUNCTION: CMR2 0x00501780
 void FUN_00501780(int param1, int unused)
 {
