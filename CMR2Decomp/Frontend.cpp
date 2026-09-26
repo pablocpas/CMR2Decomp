@@ -7,6 +7,8 @@
 #include "main.h"
 #include "Graphics.h"
 #include "Sprite.h"
+#include "FixedPoint.h"
+#include "Texture.h"
 
 #include <stdio.h>
 
@@ -552,6 +554,89 @@ int CFrontend::FUN_004d20e0(void)
 char *g_unk0x00818540;
 // GLOBAL: CMR2 0x00818544
 char *g_unk0x00818544;
+
+// Colours of the background matrix cells (RGBA), indexed by the cell map.
+// GLOBAL: CMR2 0x00523ef0
+unsigned int g_matrixColours[16] = {
+    0xff404040, 0xffffffff, 0xff0000ff, 0xff00ff00,
+    0xffff0000, 0xff00ffff, 0xffde9c08, 0xff000000,
+    0xff000000, 0xff000000, 0xff000000, 0xff000000,
+    0xff000000, 0xff000000, 0xff000000, 0xffff00ff,
+};
+// Ripple phases of the background matrix, advanced with the frame time.
+// GLOBAL: CMR2 0x008189b0
+short g_matrixPhase1;
+// GLOBAL: CMR2 0x008189b2
+short g_matrixPhase2;
+extern short g_unk0x008189a8[4];
+
+// Height of a ripple centred on pCentre at (x, y): sine of the distance,
+// with the given phase and wavelength (all 16.16).
+// FUNCTION: CMR2 0x004d2bd0
+int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength)
+{
+    FixVector d;
+
+    d.z = 0;
+    d.x = x - pCentre[0];
+    d.y = y - pCentre[1];
+    return g_sinTable[(FixDiv(FixVecLength(&d) % wavelength, wavelength) + phase) & 0xfff];
+}
+
+// Draws the animated frontend background: an 18x12 grid of the large matrix
+// texture, coloured by pMap and rippling from two centres (top-left and
+// top-right of the screen).
+// TODO: CMR2 0x004d28c0 (implemented, match 78%)
+void FUN_004d28c0(short x0, short y0, char *pMap)
+{
+    int centre2[2];
+    int centre1[2];
+    BYTE colour[4];
+    char *pCell;
+    int u;
+    int v;
+    int wave1;
+    int wave;
+    int brightness;
+    int i;
+    int j;
+
+    colour[0] = 0xff;
+    centre1[0] = 0;
+    centre1[1] = 0;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    centre2[0] = g_pGraphics->resX;
+    centre2[1] = 0;
+    g_matrixPhase1 = (short)(((CMain::GetFrameDelta() + 1) * -0x6000) / 360);
+    g_matrixPhase2 = (short)(((CMain::GetFrameDelta() + 1) * -0x3000) / 360);
+    g_unk0x008189a8[2] = CFrontend::m_pLgMatrixTexture->width;
+    g_unk0x008189a8[3] = CFrontend::m_pLgMatrixTexture->height;
+    for (i = 0; i < 0x12; i++) {
+        pCell = pMap + i;
+        for (j = 0; j < 0xc; j++) {
+            g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 18) / 640 * i + x0;
+            g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 18) / 480 * j + y0;
+            u = FixDiv((int)(__int64)(g_unk0x008189a8[0] * CGraphics::m_65536),
+                       (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
+            v = FixDiv((int)(__int64)(g_unk0x008189a8[1] * CGraphics::m_65536),
+                       (int)(__int64)((int)g_pGraphics->resX * CGraphics::m_65536));
+            wave1 = FUN_004d2bd0(centre1, u, v, g_matrixPhase1, 0x20000);
+            wave = (FUN_004d2bd0(centre2, u, v, g_matrixPhase2, 0x140000) + wave1) / 2;
+            g_unk0x008189a8[0] -= FixMulShift32(0x30000, wave);
+            g_unk0x008189a8[1] -= FixMulShift32(0x30000, wave);
+            *(unsigned int *)colour = g_matrixColours[*pCell];
+            brightness = wave / 4 + 0xc000;
+            colour[0] = FixMulShift32((int)(__int64)(colour[0] * CGraphics::m_65536), brightness);
+            colour[1] = FixMulShift32((int)(__int64)(colour[1] * CGraphics::m_65536), brightness);
+            colour[2] = FixMulShift32((int)(__int64)(colour[2] * CGraphics::m_65536), brightness);
+            Sprite_Queue((SpriteRect *)&CFrontend::m_pLgMatrixTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8,
+                         CFrontend::m_pLgMatrixTexture, 1, 0, NULL, NULL, colour, 8);
+            pCell += 0x12;
+        }
+    }
+}
 
 // GLOBAL: CMR2 0x00818848
 BYTE g_unk0x00818848;
