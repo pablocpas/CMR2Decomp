@@ -2085,10 +2085,3 @@ void FUN_004b7b20(void)
     }
 }
 
-// Not analysed yet: walks the 60 texture slots at 0x6dffa4..0x6e0094 and
-// re-applies each one through the Direct3D device, then resets the matrix at
-// 0x6e00c8 to the identity. Called right after the device is created.
-// STUB: CMR2 0x004b2e50
-void FUN_004b2e50(void)
-{
-}

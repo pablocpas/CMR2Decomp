@@ -25,7 +25,7 @@
 
 // Not declared in Mesh.h yet; the other two are not analysed yet.
 void Mesh_ReuploadAll(void);
-void FUN_004b2e50(void);
+void Scene_RestoreLights(void);
 void FUN_004a2ba0(void);
 
 // GLOBAL: CMR2 0x00660830
@@ -222,7 +222,7 @@ void CGraphics::FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight
     if (FUN_004a7910(screenWidth, screenHeight, colourDepth) != 0) {
         if (CreateDirect3DDevice(screenWidth, screenHeight, colourDepth) != 0) {
             Mesh_ReuploadAll();
-            FUN_004b2e50();
+            Scene_RestoreLights();
             FUN_004a2ba0();
         }
     }
