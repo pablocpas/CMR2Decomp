@@ -644,12 +644,29 @@ char *CFrontend::FUN_0040ee20(int offset)
     return NULL;
 }
 
+// One entry of the input state block (0x817420): two one-shot flags, the bit
+// mask of the keys held and a counter of the frames each key has been held.
+struct InputKeyState {
+    BYTE field_0x0[2];
+    BYTE field_0x2;
+    BYTE field_0x3;
+    short field_0x4;
+    short field_0x6;
+    short field_0x8;
+};
+
 // GLOBAL: CMR2 0x008173f0
 int g_unk0x008173f0;
+// GLOBAL: CMR2 0x008173f4
+int g_unk0x008173f4;
+// GLOBAL: CMR2 0x00817400
+int g_unk0x00817400;
 // GLOBAL: CMR2 0x00817420
 BYTE g_unk0x00817420[34 * 0xa];  // up to 0x817574
 // GLOBAL: CMR2 0x00817410
 BYTE g_unk0x00817410;
+// GLOBAL: CMR2 0x00817411
+BYTE g_unk0x00817411;
 // GLOBAL: CMR2 0x00817412
 BYTE g_unk0x00817412;
 // GLOBAL: CMR2 0x00817413
@@ -660,6 +677,40 @@ short g_unk0x00817414;
 short g_unk0x00817416;
 // GLOBAL: CMR2 0x00817418
 short g_unk0x00817418;
+
+void FUN_004d0230(void);
+
+// Reads the player/mode values of the game info block, clears the per-device
+// input state for every device and resets the global key state.
+// FUNCTION: CMR2 0x004cf060
+void CFrontend::FUN_004cf060(void)
+{
+    InputKeyState *pState;
+    int i;
+
+    g_unk0x008173f0 = CGameInfo::FUN_00405d70() & 0xff;
+    g_unk0x008173f4 = CGameInfo::FUN_00405d80() & 0xff;
+    g_unk0x00817400 = CGameInfo::FUN_00405d90() & 0xff;
+    FUN_004d0230();
+    pState = (InputKeyState *)g_unk0x00817420;
+    for (i = 0; i < g_unk0x008173f0; i++) {
+        pState->field_0x8 = 0;
+        pState->field_0x4 = 0;
+        pState->field_0x6 = 0;
+        pState->field_0x0[0] = 0;
+        pState->field_0x0[1] = 0;
+        pState->field_0x2 = 0;
+        pState->field_0x3 = 0;
+        pState++;
+    }
+    g_unk0x00817418 = 0;
+    g_unk0x00817414 = 0;
+    g_unk0x00817416 = 0;
+    g_unk0x00817410 = 0;
+    g_unk0x00817411 = 0;
+    g_unk0x00817412 = 0;
+    g_unk0x00817413 = 0;
+}
 
 // FUNCTION: CMR2 0x004cf0f0
 void CFrontend::FUN_004cf0f0(void)
@@ -678,17 +729,6 @@ void CFrontend::FUN_004cf0f0(void)
     if (index == 0)
         g_unk0x00817410 = index;
 }
-
-// One entry of the input state block (0x817420): two one-shot flags, the bit
-// mask of the keys held and a counter of the frames each key has been held.
-struct InputKeyState {
-    BYTE field_0x0[2];
-    BYTE field_0x2;
-    BYTE field_0x3;
-    short field_0x4;
-    short field_0x6;
-    short field_0x8;
-};
 
 void RallyData_FUN_00408fc0(int index);
 
