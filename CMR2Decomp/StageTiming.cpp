@@ -3867,13 +3867,16 @@ int g_unk0x0082d158;
 // Applies the record's camera-space dent to every mesh: vertices inside the
 // radius move along the dent direction, those in the falloff shell along their
 // per-vertex limit direction, and each touched mesh is rebuilt.
-// TODO: CMR2 0x00508890 (implemented, match 56%)
+// TODO: CMR2 0x00508890 (implemented, match 61%)
 void FUN_00508890(int *pRecord)
 {
     if (FixVecDot(&g_unk0x0082d120, &g_unk0x0082d12c) >= 0)
         FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, -0x10000);
 
+    FixVector position;
+    FixVector distance;
     FixVector offset;
+    FixVector direction;
     FixVecScale(&offset, &g_unk0x0082d12c, g_unk0x0082d150);
     g_unk0x0082d120.x += offset.x;
     g_unk0x0082d120.y += offset.y;
@@ -3894,14 +3897,12 @@ void FUN_00508890(int *pRecord)
              vertexIndex < *(USHORT *)((BYTE *)pRecord + 0x24c + meshIndex * 2);
              ++vertexIndex) {
             Mesh *pMesh = (Mesh *)*(int *)((BYTE *)pRecord + meshIndex * 4);
-            FixVector position;
             position.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
                                                    + vertexIndex * 0x30 + 0x0) * CGraphics::m_65536);
             position.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
                                                    + vertexIndex * 0x30 + 0x4) * CGraphics::m_65536);
             position.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
                                                    + vertexIndex * 0x30 + 0x8) * CGraphics::m_65536);
-            FixVector distance;
             distance.x = g_unk0x0082d120.x - position.x;
             distance.y = g_unk0x0082d120.y - position.y;
             distance.z = g_unk0x0082d120.z - position.z;
@@ -3928,39 +3929,37 @@ void FUN_00508890(int *pRecord)
                     phase *= 0x40;
                     if (phase < 0x8000) phase -= 0x10000;
                     int push = FixMul(shellWeight, phase);
-                    signed char *pLimits =
-                        (signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
-                                        + vertexIndex * 0x20);
-                    FixVector direction;
-                    direction.x = (int)pLimits[0x18] << 9;
-                    direction.y = (int)pLimits[0x19] << 9;
-                    direction.z = (int)pLimits[0x1a] << 9;
+                    direction.x = (int)((signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
+                                                        + vertexIndex * 0x20))[0x18] << 9;
+                    direction.y = (int)((signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
+                                                        + vertexIndex * 0x20))[0x19] << 9;
+                    direction.z = (int)((signed char *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4)
+                                                        + vertexIndex * 0x20))[0x1a] << 9;
                     FixVecScale(&distance, &direction, push);
                 }
                 position.x += distance.x;
                 position.y += distance.y;
                 position.z += distance.z;
                 StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
-                int secondX = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0xc) * CGraphics::m_65536);
-                int secondY = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0x10) * CGraphics::m_65536);
-                int secondZ = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
-                                                         + vertexIndex * 0x30 + 0x14) * CGraphics::m_65536);
-                FixVector secondDelta;
-                secondDelta.x = position.x - original.x;
-                secondDelta.y = position.y - original.y;
-                secondDelta.z = position.z - original.z;
-                FixVecScale(&secondDelta, &secondDelta, 0x30000);
-                secondX += secondDelta.x;
-                secondY += secondDelta.y;
-                secondZ += secondDelta.z;
+                direction.x = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                        + vertexIndex * 0x30 + 0xc) * CGraphics::m_65536);
+                direction.y = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                        + vertexIndex * 0x30 + 0x10) * CGraphics::m_65536);
+                direction.z = (int)(__int64)(*(float *)((BYTE *)pMesh->pVertexData
+                                                        + vertexIndex * 0x30 + 0x14) * CGraphics::m_65536);
+                offset.x = position.x - original.x;
+                offset.y = position.y - original.y;
+                offset.z = position.z - original.z;
+                FixVecScale(&offset, &offset, 0x30000);
+                direction.x += offset.x;
+                direction.y += offset.y;
+                direction.z += offset.z;
                 *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0xc) =
-                    (float)((double)secondX * CGraphics::m_oneOver65536);
+                    (float)((double)direction.x * CGraphics::m_oneOver65536);
                 *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x10) =
-                    (float)((double)secondY * CGraphics::m_oneOver65536);
+                    (float)((double)direction.y * CGraphics::m_oneOver65536);
                 *(float *)((BYTE *)pMesh->pVertexData + vertexIndex * 0x30 + 0x14) =
-                    (float)((double)secondZ * CGraphics::m_oneOver65536);
+                    (float)((double)direction.z * CGraphics::m_oneOver65536);
                 changed = 1;
             }
         }
@@ -3975,7 +3974,7 @@ void FUN_00508890(int *pRecord)
 // of each mesh from its stored value.
 // GLOBAL: CMR2 0x00527324
 int g_unk0x00527324[8] = { 0x3333, 0x3333, 0x3333, 0x3333,
-                           0x3333, 0x3333, 0x3333, 0x3333 };
+                           0x1999, 0x1999, 0x1999, 0x1999 };
 // GLOBAL: CMR2 0x00527344
 int g_unk0x00527344[8] = { 0x1999, 0x1999, 0x1999, 0x1999,
                            0x1999, 0x1999, 0x1999, 0x1999 };
