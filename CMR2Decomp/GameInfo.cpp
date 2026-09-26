@@ -7355,3 +7355,274 @@ void FUN_00506fc0(int param1, int param2, int param3)
     }
     *(int *)(param3 + 0x2a8) = 1;
 }
+
+// Returns one entry of the pointer table used by the mode selection screens.
+// FUNCTION: CMR2 0x004d06f0
+char *FUN_004d06f0(int index)
+{
+    return g_unk0x00817c84[index];
+}
+
+// Steps the shared mode value one position; when it reaches the top it stores
+// the frame time instead and flags the fade as finished.
+// FUNCTION: CMR2 0x00500130
+void FUN_00500130(void)
+{
+    Unk0049c2c0 *p = FUN_004ff440();
+    int value = FUN_005011d0() - 1;
+
+    if (value != 0) {
+        CGame::FUN_0049c1c0(p, 0, 1, 2);
+        FUN_005011e0(value);
+        return;
+    }
+    CGame::FUN_0049c1c0(p, 0, 0, 2);
+    g_unk0x0082a938 = 0;
+    g_unk0x0082b0a4 = CMain::GetFrameDelta();
+    FUN_005011e0(1);
+}
+
+// Starts the animation of the shared value towards one (or towards zero when it
+// is already at one).
+// FUNCTION: CMR2 0x00503960
+void FUN_00503960(int param_1, int param_2)
+{
+    FixInterp *p;
+
+    if (g_unk0x0082ca1c == 0xff)
+        return;
+    p = (FixInterp *)&g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+    if (param_1 != 0) {
+        if (p->end != 0x10000)
+            FixInterp_StartToOne(p);
+        return;
+    }
+    if (param_2 != 0) {
+        if (p->end != 0) {
+            FixInterp_StartToZero(p);
+            return;
+        }
+    } else {
+        if (p->end == 0) {
+            FixInterp_StartToOne(p);
+            return;
+        }
+        if (p->end == 0x10000)
+            FixInterp_StartToZero(p);
+    }
+}
+
+// Stores one option value of a slot into the working table and, the first time
+// the slot is touched, adds the option's weight to its interpolation distance.
+// FUNCTION: CMR2 0x00502670
+void FUN_00502670(int param_1, int param_2, char param_3)
+{
+    int distance;
+
+    switch (param_2) {
+    case 0:
+        g_unk0x0082bee8[param_1][0] = param_3;
+        break;
+    case 1:
+        g_unk0x0082bee8[param_1][1] = param_3;
+        break;
+    case 6:
+        g_unk0x0082bee8[param_1][6] = param_3 * 10;
+        break;
+    case 2:
+        g_unk0x0082bee8[param_1][2] = param_3 * 10;
+        break;
+    case 3:
+        g_unk0x0082bee8[param_1][3] = param_3 * 10;
+        break;
+    case 4:
+        g_unk0x0082bee8[param_1][4] = param_3 * 10;
+        break;
+    case 5:
+        g_unk0x0082bee8[param_1][5] = param_3 * 10;
+        break;
+    }
+    if (g_unk0x0082bf20[param_1][param_2] == 0) {
+        distance = FUN_005011f0(param_1);
+        FUN_00501210(param_1, distance - g_unk0x00527098[param_2]);
+        g_unk0x0082bf20[param_1][param_2] = 1;
+    }
+}
+
+// Restores one option value of a slot from the default table and subtracts the
+// option's weight from its interpolation distance.
+// FUNCTION: CMR2 0x00502790
+void FUN_00502790(int param_1, int param_2)
+{
+    int distance;
+
+    switch (param_2) {
+    case 0:
+        g_unk0x0082bee8[param_1][0] = g_unk0x0082bf04[param_1 * 7];
+        break;
+    case 1:
+        g_unk0x0082bee8[param_1][1] = g_unk0x0082bf04[param_1 * 7 + 1];
+        break;
+    case 6:
+        g_unk0x0082bee8[param_1][6] = g_unk0x0082bf04[param_1 * 7 + 6];
+        break;
+    case 2:
+        g_unk0x0082bee8[param_1][2] = g_unk0x0082bf04[param_1 * 7 + 2];
+        break;
+    case 3:
+        g_unk0x0082bee8[param_1][3] = g_unk0x0082bf04[param_1 * 7 + 3];
+        break;
+    case 4:
+        g_unk0x0082bee8[param_1][4] = g_unk0x0082bf04[param_1 * 7 + 4];
+        break;
+    case 5:
+        g_unk0x0082bee8[param_1][5] = g_unk0x0082bf04[param_1 * 7 + 5];
+        break;
+    }
+    distance = FUN_005011f0(param_1);
+    FUN_00501210(param_1, distance + g_unk0x00527098[param_2]);
+    g_unk0x0082bf20[param_1][param_2] = 0;
+}
+
+// Tells whether a slot option still holds the given value (options 2..6 store
+// the value multiplied by ten).
+// FUNCTION: CMR2 0x00502a00
+int FUN_00502a00(int param_1, int param_2, int param_3)
+{
+    switch (param_2) {
+    case 0:
+        return g_unk0x0082bf04[param_1 * 7] == param_3;
+    case 1:
+        return g_unk0x0082bf04[param_1 * 7 + 1] == param_3;
+    case 6:
+        return g_unk0x0082bf04[param_1 * 7 + 6] == param_3 * 10;
+    case 2:
+        return g_unk0x0082bf04[param_1 * 7 + 2] == param_3 * 10;
+    case 3:
+        return g_unk0x0082bf04[param_1 * 7 + 3] == param_3 * 10;
+    case 4:
+        return g_unk0x0082bf04[param_1 * 7 + 4] == param_3 * 10;
+    case 5:
+        return g_unk0x0082bf04[param_1 * 7 + 5] == param_3 * 10;
+    }
+    return 0;
+}
+
+// Runs the callback of every enabled slot: the table is 0x14 bytes per slot and
+// each slot owns 8 of them.
+void FUN_005062d0(unsigned int);
+
+// FUNCTION: CMR2 0x0050a3c0
+void FUN_0050a3c0(void)
+{
+    int i = 0;
+
+    if (CGameInfo::FUN_00405d70() != 0) {
+        do {
+            FUN_005062d0(i);
+            i++;
+        } while (i < CGameInfo::FUN_00405d70());
+    }
+}
+
+// Moves the left or the right edge of the slot's layout rectangle towards the
+// centre while its interpolation is running.
+// FUNCTION: CMR2 0x00501de0
+void FUN_00501de0(int param_1, short *param_2)
+{
+    Unk0x0082b2c0 *p;
+    int mid;
+    int a;
+    int delta;
+
+    p = &g_unk0x0082b2c0[param_1];
+    if (g_unk0x0082b2c0[param_1].field_0xc == 1) {
+        mid = param_2[2] / 2 + param_2[0];
+        if (p->field_0x0 < 0x8000) {
+            param_2[0] = mid - 1;
+            param_2[2] = mid + 1 - param_2[0];
+            a = FixMul(p->field_0x0, 0x20000);
+            a = FixMul(a, a);
+            delta = param_2[3] - (FixMul(param_2[3] << 16, a) >> 16);
+            param_2[1] += delta / 2;
+            param_2[3] -= delta;
+            return;
+        }
+        a = FixMul(p->field_0x0 - 0x8000, 0x20000);
+        a = FixMul(a, a);
+        delta = param_2[2] - (FixMul(param_2[2] << 16, a) >> 16);
+        param_2[0] += delta / 2;
+        param_2[2] -= delta;
+        return;
+    } else if (g_unk0x0082b2c0[param_1].field_0xc == 0) {
+        param_2[3] = 0;
+        param_2[2] = 0;
+    }
+}
+
+// Records the viewport of the active menu background (top-left origin and two
+// thirds of the current resolution) in the shared rectangle.
+// FUNCTION: CMR2 0x00501710
+void FUN_00501710(void)
+{
+    short view[4];
+
+    view[0] = 0;
+    view[1] = 0;
+    view[2] = (short)((int)g_pGraphics->resX * 2 / 3);
+    view[3] = (short)((int)g_pGraphics->resY * 2 / 3);
+    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, view, 0, 0);
+}
+
+// Restarts the shared value animation from zero (unused callback parameters).
+// FUNCTION: CMR2 0x00500100
+void FUN_00500100(int param1, int param2)
+{
+    FUN_00503960(0, 0);
+}
+
+// Colour pairs of the results screen: the second pointer (0x5297b4) starts two
+// entries into the first table.
+// GLOBAL: CMR2 0x005297ac
+int g_unk0x005297ac[6] = { -11579569, 1078939471, -1, -11579569, 538976288, 0 };
+// GLOBAL: CMR2 0x005297c4
+char g_str0x005297c4[] = "%s: %.2d.00";
+
+// Draws the four result rows of the screen: the X coordinate and the viewport
+// are fixed, the rows advance 14 units each.
+// FUNCTION: CMR2 0x0050fd30
+void FUN_0050fd30(int param_1)
+{
+    int x = (int)g_pGraphics->resX * 0x1c / 0x280;
+    int y = 0x19a;
+    int index = param_1 * 4 + 0xd9;
+    int count = 4;
+
+    do {
+        FUN_00501f80(5, 1, 1, CFrontend::GetTextString(index), x,
+                     (int)g_pGraphics->resY * y / 0x1e0, g_unk0x005297ac,
+                     g_unk0x005297ac + 2, 0x11);
+        y += 0xe;
+        index++;
+    } while (--count);
+}
+
+// Draws the title of the screen: the text table string is formatted into the
+// shared buffer, right aligned at 0x140/0x280 of the resolution.
+// FUNCTION: CMR2 0x0050e1c0
+void FUN_0050e1c0(void)
+{
+    int flag = 0;
+    int width;
+
+    if (CGameInfo::FUN_005011b0() == 1) {
+        if (CGameInfo::FUN_00405da0() == 0)
+            flag = 1;
+    }
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x131));
+    Font_Unused((int)CFrontend::m_stringDest, flag);
+    width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+    FUN_00501f80(4, 0, 0, CFrontend::m_stringDest,
+                 (int)g_pGraphics->resX * 0x140 / 0x280 - width / 2,
+                 (int)g_pGraphics->resY * 0xf0 / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
+}
