@@ -90,6 +90,63 @@ void FUN_0040ccb0(void)
         g_unk0x00533620[g_unk0x00533610[i]] = i;
 }
 
+unsigned int RallyData_FUN_00406950(void);
+int FUN_0040ce40(int position);
+
+// match 90%: below the bar only because the pPoints loop bound compiles to the
+// address after g_unk0x005335f0, which reccmp renders as the next .bss global of
+// our image (g_unk0x005335d8) instead of the original's g_unk0x00533610.
+// Adds the championship points of one finishing order to the per-car totals and
+// resolves the ties of the overall classification.
+// pPositions: finishing position of each of the eight cars.
+// pPoints: points earned at each position.
+// FUNCTION: CMR2 0x0040ccd0
+void FUN_0040ccd0(char *pPositions, int *pPoints)
+{
+    int i;
+    int j;
+    int car;
+    int other;
+    int score;
+    char swap;
+
+    for (i = 0; i < 8; i++) {
+        car = pPositions[i];
+        if (i == 0)
+            g_unk0x00533628[car]++;
+        score = FUN_0040ce40(i);
+        g_unk0x005335b8[car] += (int)(__int64)((double)score * CGraphics::m_65536);
+        *(char *)((char *)g_unk0x005335d8 + car * 3 + (RallyData_FUN_00406950() & 0xff)) =
+            (char)score;
+    }
+    RallyTiming_SortOrder(g_unk0x005335b8, g_unk0x00533610, 0, 8, 0);
+    for (i = 0; i < 8; i++)
+        g_unk0x00533618[g_unk0x00533610[i]] = (char)i;
+    for (i = 0; i < 8; i++)
+        g_unk0x005335f0[i] += pPoints[i];
+    i = 0;
+    do {
+        for (j = i + 1; j < 8; j++) {
+            car = g_unk0x00533610[i];
+            other = g_unk0x00533610[j];
+            if (g_unk0x005335b8[car] != g_unk0x005335b8[other])
+                break;
+            swap = 0;
+            if ((char)g_unk0x00533628[other] > (char)g_unk0x00533628[car])
+                swap = 1;
+            if (g_unk0x00533628[other] == g_unk0x00533628[car] && other == 0)
+                swap = 1;
+            if (swap) {
+                g_unk0x00533618[car] = (char)j;
+                g_unk0x00533618[other] = (char)i;
+                g_unk0x00533610[i] = (char)other;
+                g_unk0x00533610[j] = (char)car;
+            }
+        }
+        i = j;
+    } while (i < 8);
+}
+
 // FUNCTION: CMR2 0x0040ce30
 int FUN_0040ce30(int index)
 {
