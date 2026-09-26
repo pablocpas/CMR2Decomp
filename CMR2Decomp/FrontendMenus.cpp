@@ -2025,6 +2025,86 @@ void FUN_004f6b40(void)
     g_menu0x00822ef8.items[7].flag3 = 1;
 }
 
+void FUN_004ef7c0(Menu *pMenu, int param);
+void FUN_004f3610(Menu *pMenu, int param);
+void FUN_004f3530(Menu *pMenu, int param);
+void FUN_004f39f0(Menu *pMenu);
+void FUN_004d5fb0(Menu *pMenu);
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6e50
+void FUN_004f6e50(char difficulty)
+{
+    Menu_Init(&g_menu0x0081d318, 0, 0x1c, 0, &g_menu0x0081d4f8, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081d318, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081d318, 0);
+    g_menu0x0081d318.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6f10
+void FUN_004f6f10(char difficulty)
+{
+    Menu_Init(&g_menu0x00820978, 0, 0x1c, 0, &g_menu0x00824498, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00820978, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x00820978, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x00820978, 0);
+    g_menu0x00820978.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f6fd0
+void FUN_004f6fd0(char difficulty)
+{
+    Menu_Init(&g_menu0x0081f2f8, 0, 0x1c, 0, &g_menu0x00823fd8, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081f2f8, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081f2f8, 0);
+    g_menu0x0081f2f8.cursor = difficulty - 1;
+}
+
+// Difficulty page (4 levels).
+// FUNCTION: CMR2 0x004f7090
+void FUN_004f7090(char difficulty)
+{
+    Menu_Init(&g_menu0x00824678, 0, 0x1c, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x00824678, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x00824678, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x00824678, 0);
+    g_menu0x00824678.cursor = difficulty - 1;
+}
+
+// Difficulty page (8 levels).
+// FUNCTION: CMR2 0x004f7150
+void FUN_004f7150(char difficulty)
+{
+    Menu_Init(&g_menu0x0081e5d8, 0, 0x40, 0, &g_menu0x00823a38, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc5, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc6, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc7, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc8, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xc9, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xca, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcb, (int)FUN_004ef7c0, -1);
+    Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcc, (int)FUN_004ef7c0, -1);
+    Menu_SetCallbacks(&g_menu0x0081e5d8, (MenuCallback)FUN_004f3530, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x0081e5d8, 0);
+    g_menu0x0081e5d8.cursor = difficulty - 1;
+}
+
 // FUNCTION: CMR2 0x004f5810
 void FUN_004f5810(void)
 {

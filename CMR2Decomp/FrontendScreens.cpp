@@ -3064,6 +3064,308 @@ void FUN_004e5630(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
 
+extern BYTE g_saveData[];
+int FUN_004eaca0(void);
+void FUN_004ec260(int player);
+
+// 7x15 dot icon drawn by FUN_004d5ad0 (the rest of the block is unused).
+// GLOBAL: CMR2 0x00523f30
+char g_dotIconMap[216] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+    0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01,
+    0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00,
+    0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01,
+};
+// Ripple phase of the dot icons.
+// GLOBAL: CMR2 0x008189b4
+short g_dotIconPhase;
+extern int g_unk0x00819744;
+
+void FUN_004eae40(void);
+int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength);
+void FUN_004eb860(int index, int profile);
+void FUN_004ebf20(int index);
+void FUN_004eb000(BYTE index, char set);
+void FUN_004ec000(void);
+
+// Draws one 7x15 dot icon at (x, y), each dot shaded by the ripple.
+// TODO: CMR2 0x004d5ad0 (implemented, match 71%)
+void FUN_004d5ad0(int x, int y, short phase)
+{
+    BYTE colour[4];
+    int centre[2];
+    char *pDot;
+    int u;
+    int b;
+    int col;
+    int row;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
+    g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
+    centre[0] = 0;
+    centre[1] = 0;
+    g_unk0x008189a8[0] = x;
+    col = 0;
+    do {
+        row = 0;
+        u = (int)(__int64)(((int)(g_pGraphics->resX * 18) / 640 * col + x) * CGraphics::m_65536) / (int)g_pGraphics->resX;
+        g_unk0x008189a8[1] = y;
+        pDot = &g_dotIconMap[col];
+        do {
+            if (*pDot != 0) {
+                b = FUN_004d2bd0(centre, u,
+                                 (int)(__int64)(((int)(g_pGraphics->resY * 18) / 480 * row + y) * CGraphics::m_65536)
+                                     / (int)g_pGraphics->resX,
+                                 phase, 0x140000) / 4 + 0xc000;
+                colour[0] = FixMulShift32(b, 0xff0000);
+                colour[1] = colour[0];
+                colour[2] = colour[0];
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pSmMatrixTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8,
+                             CFrontend::m_pSmMatrixTexture, 1, 0, NULL, NULL, colour, 8);
+            }
+            g_unk0x008189a8[1] += (int)(g_pGraphics->resY * 8) / 480;
+            row++;
+            pDot += 7;
+        } while (row < 15);
+        g_unk0x008189a8[0] += (int)(g_pGraphics->resX * 8) / 640;
+        col++;
+    } while (col < 7);
+}
+
+// Draw callback of the difficulty pages: title from the game mode, the
+// scroller and one dot icon per difficulty level up to the selected one.
+// TODO: CMR2 0x004d5fb0 (implemented, match 67%)
+void FUN_004d5fb0(Menu *pMenu)
+{
+    char *text[2];
+    int x;
+    int y;
+    int i;
+
+    g_dotIconPhase = (short)(((CMain::GetFrameDelta() + 1) * -0x2000) / 360);
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 1:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xd);
+        break;
+    case 2:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xf);
+        break;
+    case 3:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    case 4:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x11);
+        break;
+    case 5:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xc);
+        break;
+    case 6:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0xe2);
+        break;
+    case 7:
+        text[0] = CFrontend::GetTextString(0x94);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2);
+    FrontendDraw_ScrollerRow(FUN_004f2520(), 1);
+    y = ((int)(g_pGraphics->resY * 8) / 480 - (int)(g_pGraphics->resY * 6) / 480) / 2
+        - (int)(g_pGraphics->resY * 8) / 480 * 15 / 2 + (int)g_pGraphics->resY / 2;
+    x = (int)g_pGraphics->resX / 2
+        - (((int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6) * (pMenu->cursor + 1)
+           + (int)(g_pGraphics->resX * 10) / 640 * pMenu->cursor) / 2;
+    for (i = 0; i < pMenu->cursor + 1; i++) {
+        FUN_004d5ad0(x, y, g_dotIconPhase);
+        x += (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 6) / 640 + (int)(g_pGraphics->resX * 8) / 640 * 6;
+    }
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
+// Clears the championship data and sets up the 8 championship entries.
+// TODO: CMR2 0x004eae40 (implemented, match 88%)
+void FUN_004eae40(void)
+{
+    BYTE *pEntry;
+    int i;
+
+    memset(g_saveData, 0, 0x188 * 4);
+    i = 0;
+    pEntry = g_saveData + 0xc;
+    do {
+        *pEntry = (*pEntry & 0xfd) | 1;
+        *(int *)(pEntry - 8) = FUN_004eaca0();
+        FUN_004ec260(i);
+        i++;
+        pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
+        pEntry += 0xc4;
+    } while (pEntry < g_saveData + 0x62c);
+}
+
+// Next player: gives the player a profile and goes to the name entry (or
+// for championship mode 4 to the championship screen).
+// TODO: CMR2 0x004f0ac0 (implemented, match 79%)
+void FUN_004f0ac0(Menu *pMenu, int param)
+{
+    Menu *pNext;
+
+    g_unk0x00819744++;
+    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
+    if (CGameInfo::FUN_00405d80() == 4) {
+        Menu_SetParent(FUN_004f83c0(), pMenu);
+        FUN_004f2c10((int)FUN_004f8400());
+        FUN_004f8430();
+    } else {
+        switch (CGameInfo::FUN_00405d80()) {
+        case 5:
+            pNext = FUN_004fa300();
+            break;
+        case 6:
+            pNext = FUN_004fa310();
+            break;
+        case 7:
+            pNext = FUN_004fa320();
+            break;
+        default:
+            pNext = FUN_004f83f0();
+            break;
+        }
+        FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), -1);
+        FUN_004ebf20((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
+        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+        Menu_SetParent(FUN_004f83c0(), pMenu);
+        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 1);
+        if (CGameInfo::FUN_00405e00() != 0) {
+            FUN_004f2c10((int)FUN_004f8440());
+        } else {
+            FUN_004f2c10((int)pNext);
+            Menu_SetParent(pNext, pMenu);
+        }
+    }
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
+            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
+    FUN_004e7780(CFrontend::m_stringDest);
+    g_unk0x00819048--;
+    Menu_SetNextAction((int)FUN_004f83c0());
+}
+
+// Item callback of a difficulty: stores it and moves on to the next screen
+// of the game mode.
+// FUNCTION: CMR2 0x004ef7c0
+void FUN_004ef7c0(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(pMenu->cursor + 1);
+    FUN_004ec000();
+    CSound::FUN_004a28c0();
+    if (CGameInfo::FUN_00405d80() == 4) {
+        FUN_004eae40();
+        FUN_004ea950(0);
+        FUN_004f8400()->pfnCallback1 = NULL;
+        FUN_004f8400()->pParent = FUN_004f83c0();
+        Menu_SetParent(FUN_004f83c0(), pMenu);
+        g_unk0x00819048 = CGameInfo::FUN_00405d70();
+        FUN_004f0ac0(pMenu, param);
+        return;
+    }
+    FUN_004f8400()->pfnCallback1 = (MenuCallback)FUN_004f39d0;
+    FUN_004f8400()->pParent = FUN_004f83f0();
+    if (CGameInfo::FUN_00405d70() == 1) {
+        FUN_004ea950(0);
+    } else {
+        if (CGameInfo::FUN_00405d80() != 3 && CGameInfo::FUN_00405d70() == 2) {
+            switch (CGameInfo::FUN_00405d80()) {
+            case 0:
+                Menu_SetNextAction((int)FUN_004f8370());
+                return;
+            case 1:
+                Menu_SetNextAction((int)FUN_004f8380());
+                return;
+            case 2:
+                Menu_SetNextAction((int)FUN_004f8390());
+                return;
+            }
+            return;
+        }
+        FUN_004ea950(1);
+    }
+    g_unk0x00819870 = (int)pMenu;
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    g_unk0x00819048 = CGameInfo::FUN_00405d70();
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+// Entering a difficulty page: sets up its scroller.
+// FUNCTION: CMR2 0x004f3610
+void FUN_004f3610(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int k;
+
+    p = FUN_004f2520();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->count = pMenu->itemCount;
+    for (k = 0; k < pMenu->itemCount; k++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[k].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+    p->offset = 0;
+    p->startOffset = 0;
+    p->current = pMenu->cursor;
+    p->previous = pMenu->cursor;
+}
+
+// Update callback of the difficulty pages.
+// FUNCTION: CMR2 0x004f39f0
+void FUN_004f39f0(Menu *pMenu)
+{
+    FUN_004f37c0(FUN_004f2520());
+}
+
+// Entering the 8-level difficulty page: sets up its scroller with all 8
+// levels enabled.
+// FUNCTION: CMR2 0x004f3530
+void FUN_004f3530(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int k;
+
+    pMenu->itemCount = 8;
+    p = FUN_004f2520();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->count = pMenu->itemCount;
+    for (k = 0; k < pMenu->itemCount; k++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[k].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+        if (k < 8)
+            pMenu->items[k].enabled = 1;
+        else
+            pMenu->items[k].enabled = 0;
+    }
+    p->offset = 0;
+    p->startOffset = 0;
+    p->current = pMenu->cursor;
+    p->previous = pMenu->cursor;
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)
