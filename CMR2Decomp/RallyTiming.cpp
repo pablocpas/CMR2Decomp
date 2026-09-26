@@ -93,7 +93,7 @@ void FUN_0040ccb0(void)
 unsigned int RallyData_FUN_00406950(void);
 int FUN_0040ce40(int position);
 
-// match 90%: below the bar only because the pPoints loop bound compiles to the
+// match 89.7%: below the bar only because the pPoints loop bound compiles to the
 // address after g_unk0x005335f0, which reccmp renders as the next .bss global of
 // our image (g_unk0x005335d8) instead of the original's g_unk0x00533610.
 // Adds the championship points of one finishing order to the per-car totals and
