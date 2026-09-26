@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
 #include "RallyData.h"
@@ -4336,4 +4337,750 @@ void FUN_004778b0(BYTE *object, int unused)
     *(int *)(object + 0x54) = 0xa000;
     *(int *)(object + 0x58) = 0;
     *(int *)(object + 0x5c) = 0x10000;
+}
+
+GenericFile *FUN_0041f500(void);
+BYTE *FUN_00475a40(void);
+void StageUI_DrawChampionshipBar(void);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int RallyData_FUN_0040eeb0(void);
+int *FUN_0040f050(int view);
+void FUN_00428680(unsigned int player, short *pRect, int check);
+struct Menu;
+void Menu_CallCallback2(Menu *pMenu);
+
+// GLOBAL: CMR2 0x0051c950
+char g_strTempObj[] = "TEMP.OBJ";
+// GLOBAL: CMR2 0x0051c95c
+char g_strTempSht[] = "TEMP.SHT";
+
+// Replaces the active replay buffer with a freshly allocated one.
+// match 89%: the call to FUN_0046c5a0 shows as its // match comment because that annotation sits between marker and signature (see CONVENCIONES)
+// FUNCTION: CMR2 0x00465f60
+void FUN_00465f60(int frames, int samples)
+{
+    g_unk0x00588758 = (int *)FUN_0046c5a0(frames, samples, 0);
+    FUN_00465f80();
+}
+
+// Loads a replay buffer from a path, falling back to a 10-second default one.
+// FUNCTION: CMR2 0x00465f90
+void FUN_00465f90(char *path)
+{
+    g_unk0x00588758 = (int *)FUN_0046d2d0(path);
+    if (g_unk0x00588758 == NULL)
+        FUN_00465f60(1, 0x1d4c);
+    FUN_00465f80();
+}
+
+// Loads the stage's TEMP.OBJ model into memory.
+// FUNCTION: CMR2 0x00472830
+void FUN_00472830(void)
+{
+    void *pObj;
+    GenericFile *pFile;
+
+    pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempObj, NULL, NULL, 0);
+    if (pObj != NULL) {
+        pFile = FUN_0041f500();
+        FUN_004b9380((unsigned int)pObj, RallyData_FUN_00411060(), (unsigned int)pFile);
+    }
+}
+
+// Loads the stage's TEMP.SHT model into memory.
+// FUNCTION: CMR2 0x00472870
+void FUN_00472870(void)
+{
+    void *pObj;
+    GenericFile *pFile;
+
+    pObj = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSht, NULL, NULL, 0);
+    if (pObj != NULL) {
+        pFile = FUN_0041f500();
+        FUN_004b9380((unsigned int)pObj, RallyData_FUN_00411060(), (unsigned int)pFile);
+    }
+}
+
+// Clears the screen and redraws the split bars and championship positions.
+// FUNCTION: CMR2 0x004759d0
+void FUN_004759d0(int unused1, int unused2)
+{
+    int i;
+
+    CGraphics::ClearTarget();
+    CGraphics::ClearZBuffer();
+    StageUI_DrawChampionshipBar();
+    Menu_CallCallback2((Menu *)FUN_00475a40());
+    i = 0;
+    if ((BYTE)RallyDataState() != 0) {
+        do {
+            FUN_00428680(i, (short *)FUN_00464b10(i), 0);
+            i++;
+        } while (i < (int)(RallyDataState() & 0xff));
+    }
+    FUN_0049d3f0(RallyData_FUN_00411060(), RallyData_FUN_0040eeb0(), (void *)FUN_0040f050(0), 0, 0);
+    FUN_0049de40();
+}
+
+struct ObjectMatrix16 { int v[16]; };
+
+// Builds a stage object's orientation matrix from a car and a node, flipping
+// the right-hand column and rotating about the object's right axis.
+// FUNCTION: CMR2 0x00477850
+void FUN_00477850(int object, int *src)
+{
+    int *dst = (int *)(object + 8);
+
+    *(ObjectMatrix16 *)dst = *(ObjectMatrix16 *)src;
+    dst[0] = -src[8];
+    *(int *)(object + 0xc) = -src[9];
+    *(int *)(object + 0x10) = -src[10];
+    *(int *)(object + 0x28) = src[0];
+    *(int *)(object + 0x2c) = src[1];
+    *(int *)(object + 0x30) = src[2];
+    FixMatrix_RotateAboutRight((FixMatrix *)dst, (unsigned short)g_unk0x0051c9b0);
+    FUN_004778b0((BYTE *)object, (int)src);
+}
+
+// Builds a wheel/damper orientation matrix from two scale factors.
+// match 76%: FixVector temp slot order differs from the original (same logic)
+// FUNCTION: CMR2 0x00486fc0
+void FUN_00486fc0(int *pMatrix, int *pOffset)
+{
+    FixVector u, t;
+    int i;
+
+    FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
+    FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
+    pMatrix[0xc] = t.x - u.x;
+    pMatrix[0xd] = t.y - u.y;
+    pMatrix[0xe] = t.z - u.z;
+    pMatrix[0xf] = u.x + t.x;
+    pMatrix[0x10] = u.y + t.y;
+    pMatrix[0x11] = u.z + t.z;
+    FixVecScale(&t, &t, -0x10000);
+    pMatrix[0x12] = t.x - u.x;
+    pMatrix[0x13] = t.y - u.y;
+    pMatrix[0x14] = t.z - u.z;
+    pMatrix[0x15] = u.x + t.x;
+    pMatrix[0x16] = u.y + t.y;
+    pMatrix[0x17] = u.z + t.z;
+    for (i = 0; i < 4; i++) {
+        pMatrix[0xc + i * 3] += pOffset[0];
+        pMatrix[0xd + i * 3] += pOffset[1];
+        pMatrix[0xe + i * 3] += pOffset[2];
+        pMatrix[0xd + i * 3] = pMatrix[2];
+    }
+}
+
+// Builds a sprite orientation matrix from a pair of 16-bit extents.
+// FUNCTION: CMR2 0x00487c40
+void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
+{
+    short *p = *(short **)(*(int *)(param_2 + 4) + 4);
+    FixVector t, u;
+    int i;
+
+    if (pMatrix[10] == 0) {
+        pMatrix[0] = (int)p[4] << 9;
+        pMatrix[1] = (int)p[5] << 9;
+        pMatrix[4] = (int)p[0] << 9;
+        pMatrix[5] = 0;
+        pMatrix[6] = (int)p[1] << 9;
+        pMatrix[7] = (int)p[1] << 9;
+        pMatrix[8] = 0;
+        pMatrix[9] = p[0] * -0x200;
+        pMatrix[2] = p[2] * 0x200 + pOffset[1];
+        pMatrix[3] = p[3] * 0x200 + pOffset[1];
+        pMatrix[0x25] = (int)pOffset;
+        pMatrix[0x24] = 0;
+        FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
+        FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
+        pMatrix[0xc] = t.x - u.x;
+        pMatrix[0xe] = t.z - u.z;
+        pMatrix[0xf] = u.x + t.x;
+        pMatrix[0x11] = u.z + t.z;
+        FixVecScale(&t, &t, -0x10000);
+        pMatrix[0x12] = t.x - u.x;
+        pMatrix[0x14] = t.z - u.z;
+        pMatrix[0x15] = u.x + t.x;
+        pMatrix[0x17] = u.z + t.z;
+        for (i = 0; i < 4; i++) {
+            pMatrix[0xc + i * 3] += pOffset[0];
+            pMatrix[0xd + i * 3] = pMatrix[3];
+            pMatrix[0xe + i * 3] += pOffset[2];
+        }
+        pMatrix[10] = 1;
+    }
+}
+
+// Blends two colours according to a fade timer and writes the result.
+// match 75%: colour blend block differs in scheduling/register use (same logic)
+// FUNCTION: CMR2 0x0047f510
+void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
+{
+    int t = *(int *)(param_1 + 0x668);
+    FixVector c;
+    int v, r, g, b;
+
+    if (t > 0xa0000) {
+        if (*(int *)(param_1 + 0x930) != 0) {
+            v = t - *(int *)(param_1 + 0x674);
+            if (v > 0x50000) {
+                *(DWORD *)pOut = *(DWORD *)pFrom;
+                return;
+            }
+            if (v < -0x50000) {
+                *(DWORD *)pOut = *(DWORD *)pTo;
+                return;
+            }
+            v = FixMul(v, 0x1999) + 0x8000;
+            c.x = pFrom[0] * 0x10000 - pTo[0] * 0x10000;
+            c.y = pFrom[1] * 0x10000 - pTo[1] * 0x10000;
+            c.z = pFrom[2] * 0x10000 - pTo[2] * 0x10000;
+            FixVecScale(&c, &c, v);
+            r = c.x + pTo[0] * 0x10000;
+            g = c.y + pTo[1] * 0x10000;
+            b = c.z + pTo[2] * 0x10000;
+            if (r > 0xff0000)
+                r = 0xff0000;
+            if (g > 0xff0000)
+                g = 0xff0000;
+            if (b > 0xff0000)
+                b = 0xff0000;
+            pOut[0] = (BYTE)(r >> 16);
+            pOut[1] = (BYTE)(g >> 16);
+            pOut[2] = (BYTE)(b >> 16);
+            pOut[3] = 0xff;
+            return;
+        }
+        *(DWORD *)pOut = *(DWORD *)pFrom;
+        return;
+    }
+    v = FixMul(t, 0x1999);
+    if (v > 0x10000)
+        v = 0x10000;
+    else if (v < 0)
+        v = 0;
+    if (*(int *)(param_1 + 0x930) != 0) {
+        c.x = pTo[0] << 16;
+        c.y = pTo[1] << 16;
+        c.z = pTo[2] << 16;
+    } else {
+        c.x = pFrom[0] << 16;
+        c.y = pFrom[1] << 16;
+        c.z = pFrom[2] << 16;
+    }
+    pOut[0] = (BYTE)(FixMul(c.x, v) >> 16);
+    pOut[1] = (BYTE)(FixMul(c.y, v) >> 16);
+    pOut[2] = (BYTE)(FixMul(c.z, v) >> 16);
+    pOut[3] = 0xff;
+}
+
+// Sets per-car visibility bits used by the stage object renderer.
+// match 72%: pairs of flag bytes are not scheduled in parallel like the original (same logic)
+// FUNCTION: CMR2 0x0046b790
+void FUN_0046b790(int type, int car, int index)
+{
+    BYTE bit = 1 << car;
+
+    switch (type) {
+    case 0:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        g_unk0x00588ba4[11] |= bit;
+    case 3:
+        g_unk0x00588ba4[12] |= bit;
+        g_unk0x00588ba4[13] |= bit;
+        g_unk0x00588ba4[14] |= bit;
+        break;
+    case 1:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        g_unk0x00588ba4[13] |= bit;
+        g_unk0x00588ba4[14] |= bit;
+        break;
+    case 2:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[9] |= bit;
+        g_unk0x00588ba4[10] |= bit;
+        return;
+    case 4:
+        g_unk0x00588ba4[12] |= bit;
+        return;
+    case 5:
+        g_unk0x00588ba4[8] |= bit;
+        break;
+    case 8:
+        g_unk0x00588ba4[8] |= bit;
+        g_unk0x00588ba4[11] |= bit;
+        return;
+    default:
+        return;
+    }
+    g_unk0x00588ba4[index] |= bit;
+}
+
+extern Car *g_collisionCar;
+
+// Updates per-wheel slip tables and damps the car's velocity.
+// match 42%: per-wheel tables and FixMul block differ from the original
+// FUNCTION: CMR2 0x0048df50
+void FUN_0048df50(Car *param_1)
+{
+    int i;
+    int off;
+    int v;
+
+    g_collisionCar = param_1;
+    i = 0;
+    off = 0xbbc;
+    do {
+        int a, b, d, aa, bb, u;
+
+        v = *(int *)(g_collisionCar + 0x778);
+        if (v > 0x10000)
+            v = 0x10000;
+        v = FixMul(v, 0x6666);
+        a = *(int *)(g_collisionCar + i + 0x270);
+        b = *(int *)(g_collisionCar + i + 0x278);
+        aa = a < 0 ? -a : a;
+        bb = b < 0 ? -b : b;
+        if (aa - bb < 0)
+            d = bb - aa;
+        else
+            d = aa - bb;
+        u = FixMul((d % 0x401) << 6, v);
+        if (*(int *)(g_collisionCar + off) == 0 ||
+            *(int *)(g_collisionCar + off - 0x2c0) <= u) {
+            *(int *)(g_collisionCar + off - 0x2c0) = u;
+            *(int *)(g_collisionCar + off) = 1;
+            *(int *)(g_collisionCar + i + 0x564) = 0;
+            *(int *)(g_collisionCar + i + 0x568) = 0x10000;
+            *(int *)(g_collisionCar + i + 0x56c) = 0;
+        }
+        off += 4;
+        i += 0xc;
+    } while (off < 0xbcc);
+    FixVecScale((FixVector *)(g_collisionCar + 0x408), (FixVector *)(g_collisionCar + 0x408),
+                0xf851);
+}
+
+// Builds a 3x4 matrix from three basis vectors plus a translation.
+// match 43%: matrix combination ordering differs from the original
+// FUNCTION: CMR2 0x00487140
+void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4)
+{
+    int x = param_4[0];
+    int y = param_4[1];
+    int z = param_4[2];
+    int a, b, c;
+    int v7, v2, v8, v6;
+
+    a = FixMul(param_3[0], x);
+    b = FixMul(param_3[4], y);
+    c = FixMul(param_3[8], z);
+    param_1[0xc] = c + b + a;
+    param_1[0xf] = (b - c) + a;
+    param_1[0x15] = (b - c) - a;
+    param_1[0x12] = (c - a) + b;
+    a = FixMul(param_3[1], x);
+    b = FixMul(param_3[5], y);
+    c = FixMul(param_3[9], z);
+    param_1[0xd] = c + b + a;
+    param_1[0x10] = (b - c) + a;
+    param_1[0x16] = (b - c) - a;
+    param_1[0x13] = (c - a) + b;
+    a = FixMul(param_3[2], x);
+    b = FixMul(param_3[6], y);
+    c = FixMul(param_3[10], z);
+    v7 = c + b + a;
+    param_1[0xe] = v7;
+    v2 = (b - c) + a;
+    v8 = (b - c) - a;
+    v6 = (c - a) + b;
+    param_1[0x17] = v8;
+    param_1[0x14] = v6;
+    param_1[3] = -param_1[0x12];
+    param_1[4] = -param_1[0x13];
+    param_1[5] = -v6;
+    param_1[6] = -param_1[0xf];
+    param_1[7] = -param_1[0x10];
+    param_1[8] = -v2;
+    param_1[9] = -param_1[0xc];
+    param_1[10] = -param_1[0xd];
+    param_1[0x11] = v2;
+    param_1[0xb] = -v7;
+    v8 = -v8;
+    param_1[0] = -param_1[0x15];
+    param_1[1] = -param_1[0x16];
+    param_1[2] = v8;
+    param_1[0] = -param_1[0x15] + param_2[0];
+    param_1[1] = -param_1[0x16] + param_2[1];
+    param_1[2] = v8 + param_2[2];
+    param_1[3] = param_1[3] + param_2[0];
+    param_1[4] = param_1[4] + param_2[1];
+    param_1[5] = param_1[5] + param_2[2];
+    param_1[6] = param_1[6] + param_2[0];
+    param_1[7] = param_1[7] + param_2[1];
+    param_1[8] = param_1[8] + param_2[2];
+    param_1[9] = param_1[9] + param_2[0];
+    param_1[10] = param_1[10] + param_2[1];
+    param_1[0xb] = param_1[0xb] + param_2[2];
+    param_1[0xc] = param_1[0xc] + param_2[0];
+    param_1[0xd] = param_1[0xd] + param_2[1];
+    param_1[0xe] = param_1[0xe] + param_2[2];
+    param_1[0xf] = param_1[0xf] + param_2[0];
+    param_1[0x10] = param_1[0x10] + param_2[1];
+    param_1[0x11] = param_1[0x11] + param_2[2];
+    param_1[0x12] = param_1[0x12] + param_2[0];
+    param_1[0x13] = param_1[0x13] + param_2[1];
+    param_1[0x14] = param_1[0x14] + param_2[2];
+    param_1[0x15] = param_1[0x15] + param_2[0];
+    param_1[0x16] = param_1[0x16] + param_2[1];
+    param_1[0x17] = param_1[0x17] + param_2[2];
+}
+
+int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
+void FUN_00498ca0(char *pDesc, int *pValues, int *pOut);
+void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
+                  int param_7, int param_8);
+
+// GLOBAL: CMR2 0x00588edc
+short g_unk0x00588edc[28];
+// GLOBAL: CMR2 0x00588f16
+short g_unk0x00588f16[125];
+
+// Spawns a dust/smoke puff at a randomised position relative to a wheel.
+// match 48%: randomised offset evaluation order differs from the original
+// FUNCTION: CMR2 0x0046ed80
+void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
+                  int param_7, int param_8)
+{
+    short s;
+    int x1, x2, a, b, c;
+
+    s = (short)(rand() % (param_8 / 2));
+    rand();
+    param_4 = (s * param_4) / (param_8 / 2);
+    if (s <= 0x400) {
+        unsigned int idx = (int)s & 0xfff;
+        int conv = (int)(__int64)((double)param_5 * CGraphics::m_65536);
+        int v = FixMul(conv, g_sinTable[idx]);
+        if (v < 0)
+            v = -v;
+        param_5 = v >> 0x10;
+    }
+    a = rand() % (param_5 + 1);
+    x2 = a * param_7 + param_3;
+    b = (rand() % 0x11 - 8) / (rand() % 3 + 1);
+    x1 = (param_4 - 0x10) * param_6 + param_2 + b;
+    c = (rand() % 0x11 - 8) / (rand() % 3 + 1);
+    FUN_0046ec40(param_1, x1, x2 + c);
+}
+
+// Emits skid/dust effects for the wheels that are slipping.
+// match 44%: dust/skid table indexing differs from the original
+// FUNCTION: CMR2 0x0046ea80
+void FUN_0046ea80(int param_1, int param_2)
+{
+    int i;
+
+    i = 2;
+    if (param_1 == 2 || param_1 == 3) {
+        short *p;
+        if (g_eventCount > 2) {
+            p = g_unk0x00588f16;
+            do {
+                int r1 = rand();
+                short s = p[-1];
+                int r2 = rand();
+                FUN_0046ec40(i, (r1 * s) / 0x7fff, (r2 * *p) / 0x7fff);
+                i++;
+                p += 0xe;
+            } while (i < g_eventCount);
+        }
+    } else {
+        int e = (param_1 != 0) ? 0xe : 0;
+        int va = (short)g_unk0x00588edc[e];
+        int vb = (short)g_unk0x00588edc[e + 1];
+        int vd = va / 5;
+        int vf = va - vd;
+        int vg = vb - 8;
+        int x, y;
+        if (param_2 < 0x8000)
+            param_2 = 0;
+        else if (param_2 > 0x18000)
+            param_2 = 0x18000;
+        x = (param_2 * (vf - vd)) / 0xb333;
+        y = (param_2 * vg) / 0xb333;
+        if (x > 0x20) {
+            if (param_1 == 0) {
+                if (g_unk0x00589331 != 0)
+                    FUN_0046ed80(0, vd, vb - 1, x, y, 1, -1, 0x4fa);
+                else
+                    FUN_0046ed80(0, vf - 1, 1, x, y, -1, 1, 0x4fa);
+            } else if (g_unk0x00589331 != 0) {
+                FUN_0046ed80(1, vd, 1, x, y, 1, 1, 0x4fa);
+            } else {
+                FUN_0046ed80(1, vf - 1, vb - 1, x, y, -1, -1, 0x4fa);
+            }
+        }
+    }
+    g_unk0x00589320[param_1] = g_unk0x00589320[param_1] + 1;
+}
+
+// Spawns skid effects for all four wheels of a car.
+// FUNCTION: CMR2 0x0046ea10
+void FUN_0046ea10(int param_1)
+{
+    int i;
+
+    if (g_eventCount > 0) {
+        Car_Get(param_1);
+        i = 0;
+        do {
+            if (FUN_0046eeb0(param_1, i) != 0) {
+                int v = Car_GetWheelSpeed(Car_Get(param_1), (BYTE)i, 0);
+                if (v > 0x1e0000) {
+                    int n = 2;
+                    do {
+                        FUN_0046ea80(i, v / 0x3c);
+                        n--;
+                    } while (n != 0);
+                }
+            }
+            i++;
+        } while (i < 4);
+    }
+}
+
+// GLOBAL: CMR2 0x0058e088
+int g_unk0x0058e088[6];
+// Views into the stage object pointer table: 0x58e3ac and 0x58e44c are its
+// 7th and 47th entries, 0x58e4a0 is the last one.
+#define g_unk0x0058e3ac ((char **)(g_unk0x0058e394 + 6))
+#define g_unk0x0058e44c ((char **)(g_unk0x0058e394 + 46))
+#define g_unk0x0058e4a0 ((int *)g_unk0x0058e394[67])
+
+// Projects a stage object's rotation table into its output rows.
+// match 23%: nested projection loops do not match the original layout
+// FUNCTION: CMR2 0x0047ca30
+void FUN_0047ca30(int param_1)
+{
+    char *pRow;
+    int **ppData;
+    int *pDst;
+    int row;
+
+    if (*(int *)(param_1 + 8) > 1) {
+        pRow = (char *)(param_1 + 0xc);
+        ppData = (int **)(param_1 + 0x14);
+        pDst = (int *)g_unk0x0058e0b8;
+        row = 0xc;
+        do {
+            int j = 1;
+            if (pRow[1] > 0) {
+                do {
+                    int *pData;
+                    int *pTable;
+                    int sum;
+                    int cols;
+                    sum = 0;
+                    pTable = pDst;
+                    pData = *ppData;
+                    cols = *pRow + 1;
+                    if (cols > 0) {
+                        do {
+                            if (*pData != 0)
+                                sum += FixMul(*pTable, *pData);
+                            pTable++;
+                            pData++;
+                            cols--;
+                        } while (cols != 0);
+                    }
+                    if (*(int *)(param_1 + 8) - 1 < (int)(pRow + (-0xb - param_1))) {
+                        ((int *)g_unk0x0058e0b8)[row + j] = sum;
+                    } else {
+                        int idx = FixDiv(sum, 0x10000000);
+                        if (idx < 0) {
+                            if (-idx < 0x40)
+                                ((int *)g_unk0x0058e0b8)[row + j] = -g_unk0x0058e4a0[-idx];
+                            else
+                                ((int *)g_unk0x0058e0b8)[row + j] = 0xffff0000;
+                        } else if (idx < 0x40) {
+                            ((int *)g_unk0x0058e0b8)[row + j] = g_unk0x0058e4a0[idx];
+                        } else {
+                            ((int *)g_unk0x0058e0b8)[row + j] = 0x10000;
+                        }
+                    }
+                    j++;
+                } while (j <= pRow[1]);
+            }
+            pDst += 0xc;
+            row += 0xc;
+            ppData++;
+            pRow++;
+        } while ((int)(pRow + (-0xb - param_1)) < *(int *)(param_1 + 8));
+    }
+}
+
+// Builds a stage object's per-row output from its type tables.
+// FUNCTION: CMR2 0x0047c9a0
+void FUN_0047c9a0(int param_1, int param_2, int *param_3)
+{
+    unsigned int mask = 0;
+    int i = 0;
+
+    do {
+        BYTE b = *(BYTE *)(g_unk0x0058e3ac[param_1] + 1 + i);
+        int v = (int)(signed char)b;
+        if (v != 0) {
+            unsigned int bit = 1 << v;
+            if ((mask & bit) == 0) {
+                mask |= bit;
+                FUN_00498ca0(g_unk0x0058e44c[v], param_3, (int *)g_unk0x0058e0b8);
+                FUN_0047ca30((int)g_unk0x0058e44c[v]);
+            }
+            *(int *)(i + param_2) =
+                *(int *)(&g_unk0x0058e088[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
+                                          *(int *)(g_unk0x0058e44c[v] + 8) * 0xc]);
+        }
+        i += 4;
+    } while (i < 0x14);
+}
+
+int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri,
+                                 short *pSurfaceClass, unsigned short *pSurface, int defaultY);
+
+// Updates each wheel's suspension height against the ground.
+// match 57%: short loop counter and clamp block differ from the original
+// FUNCTION: CMR2 0x004930e0
+void FUN_004930e0(int param_1, int param_2)
+{
+    int *p;
+    short i;
+    short local_8;
+
+    p = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    i = 0;
+    local_8 = 0;
+    if (param_2 > 0) {
+        do {
+            int v = Track_GetGroundHeightSurface(
+                (FixVector *)(param_1 + (i * 3 + 0x9c) * 4),
+                (FixVector *)(param_1 + (i * 3 + 0x129) * 4),
+                (short *)(param_1 + 0xa9e + i * 2),
+                (short *)(param_1 + 0xaae + i * 2),
+                (unsigned short *)(param_1 + 0xac6 + i * 2),
+                *(int *)(param_1 + 0x8dc + i * 4));
+            *(int *)(param_1 + 0x8dc + i * 4) = v;
+            if (*(short *)(param_1 + 0xa9e + i * 2) == -1)
+                local_8 = local_8 + 1;
+            if (i < 4) {
+                int t = *(int *)(param_1 + 0x978 + i * 4) + *(int *)((int)p + 600 + i * 4);
+                if (t > 0x10000)
+                    t = 0x10000;
+                *(int *)(param_1 + 0x8dc + i * 4) += FixMul(t, *(int *)(param_1 + 0x938 + i * 4));
+            }
+            if (*(int *)(param_1 + 0xbbc + i * 4) != 0) {
+                int *src;
+                *(int *)(param_1 + 0x8dc + i * 4) += *(int *)(param_1 + 0x8fc + i * 4);
+                src = (int *)(param_1 + (i * 3 + 0x159) * 4);
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[0] = src[0];
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[1] = src[1];
+                ((int *)(param_1 + (i * 3 + 0x129) * 4))[2] = src[2];
+                *(short *)(param_1 + 0xaae + i * 2) = 0x2f;
+            }
+            if (*(short *)(param_1 + 0xaae + i * 2) == 0xf &&
+                *(int *)(param_1 + 0xa7c) == 0 && *(int *)(param_1 + 0xbf8) == 0) {
+                *(int *)(param_1 + 0xa7c) = 0x190000;
+            }
+            if (i < 4)
+                *(int *)(param_1 + 0x8dc + i * 4) -= *(int *)(param_1 + 0x700 + i * 8);
+            i++;
+        } while ((int)i < param_2);
+    }
+    if ((short)param_2 < 8) {
+        int n = 8 - (short)param_2;
+        int *pDst = (int *)(param_1 + 0x8dc + (short)param_2 * 4);
+        do {
+            n--;
+            *pDst = pDst[-4] - 0x50000;
+            pDst++;
+        } while (n != 0);
+    }
+    if (local_8 != param_2)
+        *(int *)(param_1 + 0xa80) = 0;
+    else
+        *(int *)(param_1 + 0xa80) = *(int *)(param_1 + 0xa80) + 0x10000;
+}
+
+// Views into g_stageBlock for the object fade tables at 0x58d2d0/0x58d360/0x58d478.
+#define g_unk0x0058d2d0 ((BYTE *)(g_stageBlock + 0x30))
+#define g_unk0x0058d360 ((int *)(g_stageBlock + 0xc0))
+#define g_unk0x0058d478 ((BYTE *)(g_stageBlock + 0x1d8))
+
+// Fades a car's stage object in and out as its body state changes.
+// match 83%: fade state machine branches differ from the original
+// FUNCTION: CMR2 0x00476850
+int FUN_00476850(int param_1, int param_2)
+{
+    int result = 0;
+
+    if (g_unk0x0058d360[param_1] == 1 &&
+        ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
+         *(int *)(param_2 + 0x1d8) != 0)) {
+        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        g_unk0x0058d360[param_1] = 2;
+        g_unk0x0058d478[param_1] = 0;
+    }
+    if (g_unk0x0058d360[param_1] == 2) {
+        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+        BYTE c;
+        result = FixDiv(local_c, 0x70000);
+        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        c = g_unk0x0058d478[param_1];
+        g_unk0x0058d478[param_1] = c + 1;
+        if ((BYTE)(c + 1) > 7) {
+            g_unk0x0058d360[param_1] = 3;
+            g_unk0x0058d478[param_1] = 0;
+        }
+    }
+    if (g_unk0x0058d360[param_1] == 3) {
+        result = 0x10000;
+        g_unk0x0058d478[param_1] = g_unk0x0058d478[param_1] + 1;
+        if ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
+            *(int *)(param_2 + 0x1d8) != 0) {
+            g_unk0x0058d478[param_1] = 0;
+            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        }
+        if ((BYTE)g_unk0x0058d478[param_1] > 3) {
+            g_unk0x0058d360[param_1] = 4;
+            g_unk0x0058d478[param_1] = 0;
+        }
+    }
+    if (g_unk0x0058d360[param_1] == 4) {
+        int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
+        result = 0x10000 - FixDiv(local_c, 0x70000);
+        if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)*(char *)(param_2 + 0xb20) &&
+            *(int *)(param_2 + 0x1d8) == 0) {
+            BYTE c = g_unk0x0058d478[param_1];
+            g_unk0x0058d478[param_1] = c + 1;
+            if ((BYTE)(c + 1) > 7) {
+                g_unk0x0058d360[param_1] = 1;
+                g_unk0x0058d478[param_1] = 0;
+                return 0;
+            }
+        } else {
+            BYTE c = g_unk0x0058d478[param_1];
+            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+            g_unk0x0058d360[param_1] = 2;
+            g_unk0x0058d478[param_1] = 7 - c;
+        }
+    }
+    return result;
 }
