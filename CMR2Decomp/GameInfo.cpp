@@ -2729,6 +2729,52 @@ void FUN_005074d0(int index)
         FUN_00508fa0(index, 0, i);
 }
 
+void FUN_00507710(BYTE *pColour);
+void FUN_005078e0(int index);
+void FUN_00508ee0(int index);
+void FUN_00509be0(int index);
+void FUN_00509d30(int index);
+
+// Mesh slot of the stage mesh record (g_unk0x0082d220) each of the four deform
+// options deforms.
+// GLOBAL: CMR2 0x00527364
+BYTE g_unk0x00527364[4] = { 4, 5, 6, 7 };
+
+// Applies the option record of a stage: commits the deformations of its mesh
+// record, rebuilds the stage sky with the colours of the record's linked list of
+// 13-byte entries and clears the option state of the meshes it marks as applied.
+// FUNCTION: CMR2 0x00507650
+void FUN_00507650(int index)
+{
+    Unk0x0082d220 *pRecord;
+    BYTE *pRally;
+    BYTE *pEntry;
+    char next;
+    int i;
+
+    pRecord = &g_unk0x0082d220[index];
+    FUN_005074d0(index);
+    pRally = (BYTE *)RallyData_FUN_00407610(index);
+    pEntry = pRally + pRally[0x105] * 13;
+    if (pRally[0x104] != 0) {
+        while (pEntry != NULL) {
+            FUN_00507710(pEntry);
+            FUN_005078e0(index);
+            next = (char)pEntry[0xc];
+            if (next == -1)
+                break;
+            pEntry = pRally + next * 13;
+        }
+    }
+    FUN_00508ee0(index);
+    for (i = 0; i < 4; i++) {
+        if (((int *)(pRally + 0x12c))[i] != 0)
+            pRecord->field_0x26c[g_unk0x00527364[i]] = 0;
+    }
+    FUN_00509be0(index);
+    FUN_00509d30(index);
+}
+
 // GLOBAL: CMR2 0x0082d120
 FixVector g_unk0x0082d120;
 // GLOBAL: CMR2 0x0082d12c
