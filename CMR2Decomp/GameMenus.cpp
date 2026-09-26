@@ -204,7 +204,7 @@ void FUN_004016b0(BYTE index)
 }
 
 // Fade callback: promotes the cars and leaves the championship.
-// TODO: CMR2 0x00401720 (implemented, match 89%)
+// FUNCTION: CMR2 0x00401720
 void FUN_00401720(BYTE index)
 {
     BYTE i;
@@ -681,7 +681,7 @@ int g_ghostSplits[10];
 // then per car the name, the time of every split and the total; in arcade
 // mode the record holder and record time head the list, in the knockout mode
 // FUN_0044cdb0 draws the two drivers of the match.
-// TODO: CMR2 0x0044bcd0 (implemented, match 68%)
+// FUNCTION: CMR2 0x0044bcd0
 void FUN_0044bcd0(Menu *pMenu)
 {
     short rect[4];
@@ -1434,7 +1434,7 @@ void FUN_004505b0(Menu *pMenu)
 
 // Draw callback of the championship standings screen: the best driver's
 // position decides between the "champion" and "rally over" headers.
-// TODO: CMR2 0x00450c10 (implemented, match 86%)
+// FUNCTION: CMR2 0x00450c10
 void FUN_00450c10(Menu *pMenu)
 {
     char position[100];
@@ -1633,7 +1633,7 @@ void FUN_00450ef0(Menu *pMenu)
 }
 
 // Draw callback of the final championship standings (header menu) screen.
-// TODO: CMR2 0x00451690 (implemented, match 81%)
+// FUNCTION: CMR2 0x00451690
 void FUN_00451690(Menu *pMenu)
 {
     char position[100];
@@ -2713,7 +2713,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
 }
 
 // Draws a row of strings at (x, y), separated by a thin vertical bar.
-// TODO: CMR2 0x00454df0 (implemented, match 82%)
+// FUNCTION: CMR2 0x00454df0
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 {
     int width;
@@ -2777,7 +2777,7 @@ int g_chatLineLength;
 
 // Network results menu: typing on the chat line, Enter sends it, Escape
 // leaves the menu. Up/down jump between the chat line and the menu items.
-// TODO: CMR2 0x00449ce0 (implemented, match 86%)
+// FUNCTION: CMR2 0x00449ce0
 void FUN_00449ce0(Menu *pMenu)
 {
     DeviceInfo *pDevice;
@@ -2920,7 +2920,7 @@ char g_nameSeparator0x00519f44[] = " - ";
 // Stage end banner: the event title, a separator bar and the result text
 // appear one after the other, then one line per driver with its category
 // record name (or the driver name) and position.
-// TODO: CMR2 0x0044b3a0 (implemented, match 89%)
+// FUNCTION: CMR2 0x0044b3a0
 void FUN_0044b3a0(void)
 {
     int y;
