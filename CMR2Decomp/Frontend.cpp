@@ -1084,12 +1084,12 @@ void FUN_004cf3f0(int index)
 {
     BYTE *pDevice = RallyData_FUN_00408c70(index);
 
-    if (pDevice == NULL)
-        return;
-    *(int *)(pDevice + 4) = 0;
-    pDevice += 8;
-    *(short *)pDevice = 0;
-    *(pDevice + 2) = 0;
+    if (pDevice != NULL) {
+        *(int *)(pDevice + 4) = 0;
+        pDevice += 8;
+        *(short *)pDevice = 0;
+        *(pDevice + 2) = 0;
+    }
 }
 
 // Adds to the value field of a device record and bumps one of its three stats.
