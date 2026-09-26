@@ -2112,7 +2112,7 @@ void FUN_004f5150(char *pName)
 // Copies the string into CFrontend::m_stringDest and writes it back into the
 // buffer in groups of four characters, one space between groups (the last
 // character is dropped).
-// FUNCTION: CMR2 0x004f8a90
+// TODO: CMR2 0x004f8a90 (implemented, match 54%)
 void FUN_004f8a90(char *pText)
 {
     int len;
@@ -3250,7 +3250,7 @@ extern struct Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
 
 // Draws the four one pixel edges of the option record's box (x, y, w, h);
 // the vertical edges start one pixel inside the horizontal ones.
-// FUNCTION: CMR2 0x0050cb30
+// TODO: CMR2 0x0050cb30 (implemented, match 82%)
 void FUN_0050cb30(short *pRect, BYTE *pColour)
 {
     short edge[4];
@@ -3312,7 +3312,7 @@ void FUN_00501d50(int index, short *pBar, int direction, int unused)
 
 // Returns the byte at column type of the 7-byte option record index; the
 // signed columns are divided by 10.
-// FUNCTION: CMR2 0x005028a0
+// TODO: CMR2 0x005028a0 (implemented, match 83%)
 int FUN_005028a0(int index, int type)
 {
     switch (type) {
@@ -3355,7 +3355,7 @@ int FUN_004ff550(void)
 // Draws the option record's text: mode 2 draws it whole; in mode 1 the part
 // inside the 16.16 fraction of its length is drawn with the first font and
 // the remainder with the second one, at that width.
-// FUNCTION: CMR2 0x005020a0
+// TODO: CMR2 0x005020a0 (implemented, match 77%)
 void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
