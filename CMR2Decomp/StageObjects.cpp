@@ -36,6 +36,12 @@ int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
 BYTE FUN_00460bf0(int index);
 int FUN_00460c10(int index);
 int *FUN_00463270(int carIndex, int wheelIndex);
+unsigned int FUN_00471bd0(BYTE **pOut);
+void RallyData_FUN_00471cc0(int *pDest, void **pEntry);
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
+                          unsigned short *pSurface, int defaultY);
+void Sector_RemoveNode(SceneNode *pNode);
+void FUN_004b8b10(SceneNode *pNode);
 void Stage_InitLightMeshes(void);
 int *FUN_00407520(int index);
 void FUN_004925c0(int oldHeight, int newHeight, int mode);
@@ -82,6 +88,9 @@ extern FixVector g_unk0x00549c20[8][4];
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
 extern void *g_unk0x00547ac8;
+extern void *g_unk0x0058c928;
+extern void *g_unk0x0058c92c;
+extern void *g_unk0x0058c930;
 extern void *g_unk0x00543ecc;
 extern int g_unk0x0058cf7c;
 extern BYTE *g_unk0x0058c94c;
@@ -400,6 +409,115 @@ void FUN_0046f7e0(void)
             (*pp)[0xcc / 4] += 0xd8f00000U;
         pp = (int **)((BYTE *)pp + sizeof(StageObjectEntry0x128));
     } while ((int)pp < (int)&g_unk0x005894e0[40].pObject);
+}
+
+// Initializes a moving stage object from its route entry and the car's motion.
+// TODO: CMR2 0x0046f810 (implemented, match 51%)
+void StageObject_InitMovingObject(int *pState, int carIndex)
+{
+    Car *pCar = Car_Get(carIndex);
+    BYTE *pEntries = NULL;
+    int count = FUN_00471bd0(&pEntries);
+    SceneNode *pNode = (SceneNode *)pState[1];
+    int entryIndex = -1;
+    int i;
+    for (i = 0; i < count; ++i) {
+        if ((int)(pEntries + i * 8) == pState[0]) {
+            entryIndex = i;
+            break;
+        }
+    }
+    if (entryIndex < 0) {
+        pNode->type = SCENE_NODE_EMPTY;
+        return;
+    }
+
+    BYTE mappedIndex = ((BYTE *)g_unk0x0058c928)[entryIndex];
+    pState[0x34] = ((int *)g_unk0x0058c930)[mappedIndex];
+    pNode->type = SCENE_NODE_MESH;
+    pNode->pObject = (void *)((int *)g_unk0x0058c92c)[mappedIndex];
+    pNode->field_0x17c = (BYTE)(1 << (carIndex & 31));
+    pState[0x45] = -0x10000;
+
+    FixVector position;
+    RallyData_FUN_00471cc0((int *)&position, (void **)pState);
+    FixMatrix *pNodeMatrix = &pNode->current;
+    FixMatrix_SetPosition(&position, pNodeMatrix);
+
+    BYTE *pObject = *(BYTE **)pState[0];
+    FixMatrix *pObjectMatrix = (FixMatrix *)(pObject + 0x18);
+    FixVector basis;
+    FixMatrix_GetRight(&basis, pObjectMatrix);
+    FixMatrix_SetRight(&basis, pNodeMatrix);
+    FixMatrix_GetUp(&basis, pObjectMatrix);
+    FixMatrix_SetUp(&basis, pNodeMatrix);
+    FixMatrix_GetForward(&basis, pObjectMatrix);
+    FixMatrix_SetForward(&basis, pNodeMatrix);
+
+    pState[0x32] = (int)(pState + 2);
+    memcpy(pState + 2, pNodeMatrix, 0x40);
+    memcpy(pState + 0x22, pNodeMatrix, 0x40);
+    memcpy(pState + 0x12, pNodeMatrix, 0x40);
+
+    int objectType = pState[0x34];
+    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed <= 0xc000);
+    int airbornePath = objectType == 0 && pCar->speed > 0xc000;
+    pState[0x44] = 0;
+    *(short *)(pState + 0x47) = -1;
+
+    if (groundPath || airbornePath) {
+        FixVector velocity = pCar->velocity;
+        FixVector localVelocity;
+        FixVector axis;
+        BYTE *pParams = *(BYTE **)(*(BYTE **)(pObject + 0xc) + 0x10c);
+        if (groundPath) {
+            int triangle = -1;
+            int surface = 0;
+            Track_GetGroundHeight(&position, (FixVector *)(pState + 0x35),
+                                  (short *)&triangle, (unsigned short *)&surface, 0);
+            if (pCar->speed > 0x8000) {
+                FixVecScaleRecip(&velocity, &velocity, pCar->speed);
+                FixVecScale(&velocity, &velocity, 0x8000);
+            }
+            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)pState[0x32]);
+            axis.x = FixMul(localVelocity.z, 0x10000);
+            axis.y = 0;
+            axis.z = -FixMul(localVelocity.x, 0x10000);
+            if (pState[0x34] == 0)
+                axis.z = 0;
+            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
+            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
+            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x3e] = 0;
+            pState[0x3f] = pState[0x42];
+            pState[0x40] = 0;
+            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
+            pState[0x33] = 1;
+        } else {
+            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)(pState + 2));
+            axis.x = -FixMul(localVelocity.z, 0x6666);
+            axis.y = 0;
+            axis.z = FixMul(localVelocity.x, 0x6666);
+            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
+            FixVecScale((FixVector *)(pState + 0x3b), &velocity, 0xcccc);
+            pState[0x3c] = FixMul(FixVecLength(&velocity), 0x4ccc);
+            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
+            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
+            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x3e] = 0;
+            pState[0x3f] = pState[0x42];
+            pState[0x40] = 0;
+            pState[0x48] = 0;
+            pState[0x33] = 2;
+            pState[0x49] = 1;
+        }
+    }
+
+    memcpy(&pNode->world, pNodeMatrix, sizeof(FixMatrix));
+    if (pNode->sector != -1)
+        Sector_RemoveNode(pNode);
+    if (pNode->sector == -1)
+        FUN_004b8b10(pNode);
 }
 
 // FUNCTION: CMR2 0x00460bf0
