@@ -7,33 +7,6 @@
 // STUB: CMR2 0x0040dc30
 void FUN_0040dc30(void) { }
 
-// STUB: CMR2 0x0049ca50
-void FUN_0049ca50(unsigned int, unsigned int) { }
-
-// STUB: CMR2 0x0049cad0
-void FUN_0049cad0(unsigned int, unsigned int) { }
-
-// STUB: CMR2 0x0049cc50
-void FUN_0049cc50(void) { }
-
-// STUB: CMR2 0x0049cd20
-void FUN_0049cd20(unsigned int) { }
-
-// STUB: CMR2 0x0049cd90
-void FUN_0049cd90(void) { }
-
-// STUB: CMR2 0x0049ce40
-void FUN_0049ce40(unsigned int) { }
-
-// STUB: CMR2 0x0049cec0
-void FUN_0049cec0(void) { }
-
-// STUB: CMR2 0x0049cf80
-void FUN_0049cf80(void) { }
-
-// STUB: CMR2 0x0049d040
-void FUN_0049d040(void) { }
-
 // STUB: CMR2 0x0049d3f0
 void FUN_0049d3f0(int, int, void *, int, int) { }
 
