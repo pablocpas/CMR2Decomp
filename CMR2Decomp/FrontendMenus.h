@@ -370,7 +370,19 @@ struct MenuScroller {
     Menu *pMenu;        // 0x74
 };
 
-extern MenuScroller g_menuScroller0x00819140;
+extern MenuScroller g_menuScrollers[12];
+#define g_menuScroller0x00819140 g_menuScrollers[0]
+#define g_menuScroller0x008191b8 g_menuScrollers[1]
+#define g_menuScroller0x00819230 g_menuScrollers[2]
+#define g_menuScroller0x008192a8 g_menuScrollers[3]
+#define g_menuScroller0x00819320 g_menuScrollers[4]
+#define g_menuScroller0x00819398 g_menuScrollers[5]
+#define g_menuScroller0x00819410 g_menuScrollers[6]
+#define g_menuScroller0x00819488 g_menuScrollers[7]
+#define g_menuScroller0x00819500 g_menuScrollers[8]
+#define g_menuScroller0x00819578 g_menuScrollers[9]
+#define g_menuScroller0x008195f0 g_menuScrollers[10]
+#define g_menuScroller0x00819668 g_menuScrollers[11]
 MenuScroller *FUN_004f24f0(void);
 MenuScroller *FUN_004f2500(void);
 MenuScroller *FUN_004f2510(void);

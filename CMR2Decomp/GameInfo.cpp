@@ -1703,14 +1703,122 @@ int CGameInfo::FUN_00505e10(BYTE param1)
     return 1;
 }
 
+// Number of credit entries (pairs of quoted strings) in the credits file
 // GLOBAL: CMR2 0x0081a728
-void *g_unk0x0081a728;
+int g_unk0x0081a728;
 // GLOBAL: CMR2 0x0081a72c
 void *g_unk0x0081a72c;
 // GLOBAL: CMR2 0x0081a730
 void *g_unk0x0081a730;
 // GLOBAL: CMR2 0x0081a734
 void *g_unk0x0081a734;
+
+// Credits file names per region (index = CGameInfo::GetGameLanguage())
+// GLOBAL: CMR2 0x00525aa4
+char g_strCreditsPathFormat[12] = "%s%s%s.txt";
+// GLOBAL: CMR2 0x00525ab0
+char g_strCreditsPolish[16] = "credits_polish";
+// GLOBAL: CMR2 0x00525ac0
+char g_strCreditsJapanese[20] = "credits_japanese";
+// GLOBAL: CMR2 0x00525ad4
+char g_strCreditsSpanishUsa[20] = "credits_spanishusa";
+// GLOBAL: CMR2 0x00525ae8
+char g_strCreditsFrenchUsa[20] = "credits_frenchusa";
+// GLOBAL: CMR2 0x00525afc
+char g_strCreditsUsa[12] = "credits_usa";
+// GLOBAL: CMR2 0x00525b08
+char g_strCreditsGerman[16] = "credits_german";
+// GLOBAL: CMR2 0x00525b18
+char g_strCreditsItalian[16] = "credits_italian";
+// GLOBAL: CMR2 0x00525b28
+char g_strCreditsSpanish[16] = "credits_spanish";
+// GLOBAL: CMR2 0x00525b38
+char g_strCreditsFrench[16] = "credits_french";
+// GLOBAL: CMR2 0x00525b48
+char g_strCreditsEnglish[16] = "credits_english";
+
+bool FUN_004f48b0(void);
+
+// Loads the credits text of the current language and splits it into
+// entries of two quoted strings ("role", "name"); each quote-delimited
+// string is terminated in place. Optionally registers the release callback.
+// FUNCTION: CMR2 0x004f4910
+void FUN_004f4910(char registerRelease)
+{
+    char *europe[5];
+    char *usa[3];
+    char *japan[1];
+    char *poland[1];
+    char **names;
+    char line[256];
+    char *p;
+    int size;
+    int i, n;
+
+    europe[0] = g_strCreditsEnglish;
+    europe[1] = g_strCreditsFrench;
+    europe[2] = g_strCreditsSpanish;
+    europe[3] = g_strCreditsItalian;
+    europe[4] = g_strCreditsGerman;
+    usa[0] = g_strCreditsUsa;
+    usa[1] = g_strCreditsFrenchUsa;
+    usa[2] = g_strCreditsSpanishUsa;
+    japan[0] = g_strCreditsJapanese;
+    poland[0] = g_strCreditsPolish;
+
+    names = NULL;
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        names = europe;
+        break;
+    case 1:
+        names = usa;
+        break;
+    case 2:
+        names = japan;
+        break;
+    case 3:
+        names = poland;
+        break;
+    }
+
+    sprintf(CFrontend::m_stringDest, g_strCreditsPathFormat, CInstallInfo::GetCountrySpecificDir(),
+            CGameInfo::GetGameRegionDirectory(), names[CGameInfo::GetGameLanguage()]);
+    g_unk0x0081a730 = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, TRUE);
+
+    size = CGenericFileLoader::GetGenericFileSize();
+    for (i = 0; i < size; i++) {
+        if (((char *)g_unk0x0081a730)[i] == '"')
+            g_unk0x0081a728++;
+    }
+    g_unk0x0081a728 = g_unk0x0081a728 / 4;
+
+    g_unk0x0081a734 = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 8);
+    g_unk0x0081a72c = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 4);
+    if (g_unk0x0081a734 == NULL) {
+        g_unk0x0081a728 = 0;
+    } else {
+        p = (char *)g_unk0x0081a730;
+        for (i = 0; i < g_unk0x0081a728; i++) {
+            p = strchr(p, '"') + 1;
+            ((char **)g_unk0x0081a734)[i * 2] = p;
+            for (n = 0; *p != '"'; n++, p++)
+                line[n] = *p;
+            *p = '\0';
+            line[n] = '\0';
+
+            p = strchr(p + 1, '"') + 1;
+            ((char **)g_unk0x0081a734)[i * 2 + 1] = p;
+            for (n = 0; *p != '"'; n++, p++)
+                line[n] = *p;
+            *p = '\0';
+            p++;
+        }
+    }
+
+    if (registerRelease)
+        CGame::RegisterCallback(FUN_004f48b0, NULL);
+}
 
 // FUNCTION: CMR2 0x004f4b10
 void *FUN_004f4b10(void)
@@ -1719,7 +1827,7 @@ void *FUN_004f4b10(void)
 }
 
 // FUNCTION: CMR2 0x004f4b20
-void *FUN_004f4b20(void)
+int FUN_004f4b20(void)
 {
     return g_unk0x0081a728;
 }
@@ -1728,6 +1836,123 @@ void *FUN_004f4b20(void)
 void *FUN_004f4b30(void)
 {
     return g_unk0x0081a72c;
+}
+
+// Frontend text files per region (index = language, see CGameInfo::FUN_004f4b40)
+// GLOBAL: CMR2 0x00525b58
+char g_strTextPolish[8] = "fpolish";
+// GLOBAL: CMR2 0x00525b60
+char g_strTextEngUsa[8] = "fengusa";
+// GLOBAL: CMR2 0x00525b68
+char g_strTextGerman[8] = "fgerman";
+// GLOBAL: CMR2 0x00525b70
+char g_strTextItalian[12] = "fitalian";
+// GLOBAL: CMR2 0x00525b7c
+char g_strTextSpanish[12] = "fspanish";
+// GLOBAL: CMR2 0x00525b88
+char g_strTextFrench[8] = "ffrench";
+// GLOBAL: CMR2 0x00525b90
+char g_strTextEnglish[12] = "fenglish";
+
+// Frontend fonts (Fonts\<name>.tga + .pcf)
+// GLOBAL: CMR2 0x00525b9c
+char g_strFontHel12[20] = "general\\hel_12pt";
+// GLOBAL: CMR2 0x00525bb0
+char g_strFontHel15[20] = "general\\hel_15pt";
+// GLOBAL: CMR2 0x00525bc4
+char g_strFontHel36[20] = "general\\hel_36pt";
+// GLOBAL: CMR2 0x00525bd8
+char g_strFontDot[20] = "general\\dot";
+
+// Text buffers of the frontend languages and whether each one lives inside
+// its archive (then it is not freed on release)
+// GLOBAL: CMR2 0x0081a738
+void *g_languageTexts[5];
+// GLOBAL: CMR2 0x0081a74c
+BYTE g_languageTextInArchive[5];
+
+extern char g_strTxtFormat[];
+
+// Release callback of FUN_004f4b90.
+// FUNCTION: CMR2 0x004f4cc0
+BYTE FUN_004f4cc0(void)
+{
+    BYTE i;
+
+    for (i = 0; i < CGameInfo::m_unk0x0081a754; i++) {
+        if (g_languageTextInArchive[i] == 0) {
+            CFileBuffer::FreeGenericFileBuffer(g_languageTexts[i]);
+            g_languageTexts[i] = NULL;
+        }
+        g_languageTexts[i] = NULL;
+    }
+    CFrontend::FUN_004a3d80();
+    return 1;
+}
+
+// Loads the text file of every frontend language of this region from its
+// language archive and hands them to the frontend text tables.
+// TODO: CMR2 0x004f4b90 (implemented, match 78%)
+BYTE FUN_004f4b90(void)
+{
+    char *japan[1];
+    char *poland[1];
+    char **names;
+    char *usa[3];
+    char *europe[5];
+    BYTE i;
+
+    europe[0] = g_strTextEnglish;
+    europe[1] = g_strTextFrench;
+    europe[2] = g_strTextSpanish;
+    europe[3] = g_strTextItalian;
+    europe[4] = g_strTextGerman;
+    usa[0] = g_strTextEngUsa;
+    usa[1] = g_strTextFrench;
+    usa[2] = g_strTextSpanish;
+    japan[0] = g_strTextEnglish;
+    poland[0] = g_strTextPolish;
+
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        names = europe;
+        break;
+    case 1:
+        names = usa;
+        break;
+    case 2:
+        names = japan;
+        break;
+    case 3:
+        names = poland;
+        break;
+    }
+
+    for (i = 0; i < CGameInfo::m_unk0x0081a754; i++) {
+        g_languageTexts[i] = NULL;
+        sprintf(CFrontend::m_stringDest, g_strTxtFormat, names[i]);
+        g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::FUN_004d21c0(i), CFrontend::m_stringDest,
+                                                        &g_languageTextInArchive[i], NULL, 0);
+    }
+    if (g_languageTexts[0] == NULL)
+        return 0;
+    CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
+    CGame::RegisterCallback(FUN_004f4cc0, NULL);
+    return 1;
+}
+
+// Loads the four frontend fonts from the frontend archive.
+// FUNCTION: CMR2 0x004f4d20
+BYTE FUN_004f4d20(void)
+{
+    if (Font_InitTable(4) != -1) {
+        Font_Load(g_strFontHel12, CGenericFileLoader::GetGenericFile(), 0);
+        Font_Load(g_strFontHel15, CGenericFileLoader::GetGenericFile(), 1);
+        Font_Load(g_strFontHel36, CGenericFileLoader::GetGenericFile(), 2);
+        Font_Load(g_strFontDot, CGenericFileLoader::GetGenericFile(), 3);
+        return 1;
+    }
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004f48b0
@@ -1746,7 +1971,7 @@ bool FUN_004f48b0(void)
     g_unk0x0081a730 = NULL;
     g_unk0x0081a734 = NULL;
     g_unk0x0081a72c = NULL;
-    g_unk0x0081a728 = NULL;
+    g_unk0x0081a728 = 0;
     return true;
 }
 
@@ -1841,12 +2066,55 @@ bool FUN_004f4e80(void)
             g_unk0x0081b150[i] = NULL;
         }
     }
-    if (g_unk0x0081b14c != NULL)
+    if (g_unk0x0081b14c != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x0081b14c);
+        g_unk0x0081b14c = NULL;
+    }
+    if (g_unk0x0081b150 != NULL)
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x0081b150);
     g_unk0x0081b14c = NULL;
     g_unk0x0081b150 = NULL;
     g_unk0x0081b154 = 0;
     return true;
+}
+
+// GLOBAL: CMR2 0x00525bec
+char g_strSaveGamePattern[8] = "*.rcs";
+// GLOBAL: CMR2 0x00525bf4
+char g_strSaveGameDirFormat[16] = "%s\\gamesave\\";
+
+// Reads every saved game (<install>\gamesave\*.rcs) into the saved games
+// list: one 0x7f4-byte record per file plus its file name.
+// TODO: CMR2 0x004f4ef0 (implemented, match 79%)
+void FUN_004f4ef0(void)
+{
+    WIN32_FIND_DATAA find;
+    char saveDir[260];
+    char oldDir[260];
+    HANDLE hFind;
+    void *pRecord;
+
+    FUN_004f4e80();
+    g_unk0x0081b154 = 0;
+    GetCurrentDirectoryA(sizeof(oldDir), oldDir);
+    sprintf(saveDir, g_strSaveGameDirFormat, CInstallInfo::GetGameHDPath());
+    if (SetCurrentDirectoryA(saveDir) != 0 &&
+        (hFind = FindFirstFileA(g_strSaveGamePattern, &find)) != INVALID_HANDLE_VALUE) {
+        do {
+            pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
+            if (pRecord != NULL) {
+                g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
+                memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
+                g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
+                g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
+                strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
+                g_unk0x0081b154++;
+                CFileBuffer::FreeGenericFileBuffer(pRecord);
+            }
+        } while (FindNextFileA(hFind, &find) != 0);
+        FindClose(hFind);
+    }
+    SetCurrentDirectoryA(oldDir);
 }
 
 // GLOBAL: CMR2 0x00818ac8
@@ -2063,6 +2331,27 @@ unsigned int FUN_004eacf0(void)
 unsigned int FUN_004ead00(void)
 {
     return CGameInfo::m_gameInfo.field_0x1c >> 16 & 0xf;
+}
+
+void RallyData_FUN_00406960(BYTE param1);
+void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_FUN_004068b0(BYTE param1);
+
+// Pushes the frontend option settings to the modules that use them.
+// FUNCTION: CMR2 0x004ead10
+void FUN_004ead10(void)
+{
+    FUN_004ea8e0((BYTE)CGameInfo::m_unk0x0052af94);
+    FUN_004ea8c0((BYTE)CGameInfo::m_unk0x0052ea44);
+    FUN_004ea930((BYTE)CGameInfo::m_unk0x0052af9c);
+    RallyData_FUN_0040d640((BYTE)CGameInfo::m_unk0x0052af80);
+    RallyData_FUN_0040d600((BYTE)CGameInfo::m_unk0x0052af84);
+    RallyData_FUN_00406960((BYTE)CGameInfo::m_unk0x0052af8c);
+    RallyData_FUN_0040d620((BYTE)CGameInfo::m_unk0x0052e93c);
+    RallyData_FUN_004068e0((BYTE)CGameInfo::m_unk0x0052ea48);
+    RallyData_FUN_004068b0((BYTE)CGameInfo::m_unk0x0052e940);
+    CGameInfo::m_gameInfo.field_0x14 = ((CGameInfo::m_unk0x0052af88 & 0xf) << 4 | CGameInfo::m_unk0x0052af98 & 0xf) << 0x17
+        | CGameInfo::m_gameInfo.field_0x14 & 0x807fffff;
 }
 
 // FUNCTION: CMR2 0x004eabc0

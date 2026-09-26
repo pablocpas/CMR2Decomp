@@ -33,6 +33,8 @@ public:
     static void LoadLanguageFiles(void);
     static bool ReleaseLanguageFiles(void);
     static GenericFile* FUN_004d21b0(void);
+    static GenericFile* FUN_004d2190(void);
+    static GenericFile* FUN_004d21c0(int language);
 
     static void FUN_004a3c90(int languages, int count, BYTE **pFiles);
     // GLOBAL: CMR2 0x0065aa6c

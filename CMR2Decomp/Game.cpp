@@ -252,32 +252,18 @@ BYTE g_unk0x00818ce4;
 // Signatures follow the original's `ret N` (stdcall: N/4 arguments).
 // STUB: CMR2 0x004e9f70
 void FUN_004e9f70(BYTE param1, BYTE param2) { }
-// STUB: CMR2 0x004f4ef0
-void FUN_004f4ef0(void) { }
-// STUB: CMR2 0x004b7650
-int FUN_004b7650(int param1, int param2, int param3, int param4) { return 0; }
-// STUB: CMR2 0x004f3b50
-void FUN_004f3b50(void) { }
-// STUB: CMR2 0x004f4d20
-BYTE FUN_004f4d20(void) { return 0; }
-// STUB: CMR2 0x004f4b90
-BYTE FUN_004f4b90(void) { return 0; }
-// STUB: CMR2 0x004f4910
-void FUN_004f4910(int param1) { }
-// STUB: CMR2 0x004eadb0
-void FUN_004eadb0(void) { }
-// STUB: CMR2 0x004ef150
-void FUN_004ef150(void) { }
-// STUB: CMR2 0x004ec2b0
-void FUN_004ec2b0(void) { }
-// STUB: CMR2 0x004ead10
-void FUN_004ead10(void) { }
-// STUB: CMR2 0x004ea840
-void FUN_004ea840(void) { }
-// STUB: CMR2 0x004f3f60
-void FUN_004f3f60(void) { }
-// STUB: CMR2 0x004f3bb0
-void FUN_004f3bb0(void) { }
+void FUN_004f4ef0(void);
+BYTE FUN_004f3b50(void);
+BYTE FUN_004f4d20(void);
+BYTE FUN_004f4b90(void);
+void FUN_004f4910(char registerRelease);
+void FUN_004eadb0(void);
+void FUN_004ef150(void);
+void FUN_004ec2b0(void);
+void FUN_004ead10(void);
+void FUN_004ea840(void);
+void FUN_004f3f60(void);
+void FUN_004f3bb0(void);
 // STUB: CMR2 0x004eb470
 void FUN_004eb470(void) { }
 // STUB: CMR2 0x004ebec0
@@ -419,7 +405,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         CGraphics::SetClearColour(1, 0, 0, 0);
         FUN_004f4ef0();
         CGame::RegisterCallback(FUN_004f4e80, NULL);
-        FUN_004b7650(0x5622, 2, 0x10, 0);
+        Sound_Init(0x5622, 2, 0x10, 0);
         CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
         FUN_004f3b50();
         if (FUN_004f4d20() == 0)
@@ -477,7 +463,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         CGraphics::SetClearColour(1, 0, 0, 0);
     FUN_004f4ef0();
     CGame::RegisterCallback(FUN_004f4e80, NULL);
-    FUN_004b7650(0x5622, 2, 0x10, 0);
+    Sound_Init(0x5622, 2, 0x10, 0);
     FUN_004f3b50();
     if (FUN_004f4d20() == 0)
         goto exit;
@@ -672,6 +658,16 @@ BOOL CGame::FUN_0041b060() { return FALSE; }
 
 // FUNCTION: CMR2 0x00501680
 void CGame::FUN_00501680(struct Unk0049c2c0 *, BYTE) { return; }
+
+// Saves the game configuration (Configuration\GameInfo.rcf), keeping the
+// current fullscreen setting.
+// FUNCTION: CMR2 0x004ea840
+void FUN_004ea840(void)
+{
+    CGameInfo::SetFullscreen((BYTE)g_pGraphics->isFullscreen);
+    sprintf(CFrontend::m_stringDest, CGameInfo::m_stringGameInfoRCF, CInstallInfo::GetGameHDPath());
+    CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 0, &CGameInfo::m_gameInfo, sizeof(GameInfo));
+}
 
 // FUNCTION: CMR2 0x004ea880
 BYTE CGame::FUN_004ea880(void) { return m_unk0x00516120; }

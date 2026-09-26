@@ -322,11 +322,23 @@ void CFrontend::FUN_004d2590(void) {
     } while ((int)pTexture < (int)&m_unk0x0081853c[0]);
 }
 
+// Returns the common frontend archive (Common.bfl).
+// FUNCTION: CMR2 0x004d2190
+GenericFile* CFrontend::FUN_004d2190(void) {
+    return &m_commonFile;
+}
+
 // Returns the archive the copyright screens are loaded from (the one
 // FUN_004d21e0 opens).
 // FUNCTION: CMR2 0x004d21b0
 GenericFile* CFrontend::FUN_004d21b0(void) {
     return &m_unk0x00818260;
+}
+
+// Returns the archive of one frontend language.
+// FUNCTION: CMR2 0x004d21c0
+GenericFile* CFrontend::FUN_004d21c0(int language) {
+    return &m_languageFiles[language];
 }
 
 // Loads the splash screen textures: the CMR2 logo, one "Copyright" screen per

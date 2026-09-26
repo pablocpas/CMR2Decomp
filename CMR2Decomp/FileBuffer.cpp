@@ -163,6 +163,9 @@ void CFileBuffer::FreeGenericFileBuffer(void *param1)
 
 // GLOBAL: CMR2 0x00531650
 int g_unk0x00531650;
+// One value per player, cleared by FUN_004eadb0
+// GLOBAL: CMR2 0x00531654
+int g_unk0x00531654[4];
 // GLOBAL: CMR2 0x00531764
 BYTE *g_unk0x00531764;
 
