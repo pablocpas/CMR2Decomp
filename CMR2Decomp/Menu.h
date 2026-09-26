@@ -81,6 +81,7 @@ void Menu_ValidateCursor(Menu *pMenu, int unused);
 void Menu_CallCallback0(Menu *pMenu);
 void Menu_CallCallback3(Menu *pMenu);
 void Menu_CallCallback2(Menu *pMenu);
+void Menu_GoBack(Menu *pMenu);
 void Menu_SetNextAction(int action);
 void Menu_PlaySound(int id);
 void Menu_PlaySoundId(int id);

@@ -2728,7 +2728,7 @@ bool FUN_004779e0(void)
 
 // Adds the player slot to the DirectPlay session.
 // TODO: CMR2 0x004aac40 (implemented, match 63%)
-bool FUN_004aac40(int param1)
+bool FUN_004aac40(BYTE param1)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
