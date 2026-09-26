@@ -274,9 +274,7 @@ void FUN_004d5ca0(void) { }
 // GLOBAL: CMR2 0x00523d70
 char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
 
-// Frontend per-frame entry; not decompiled yet.
-// STUB: CMR2 0x004ea510
-void FUN_004ea510(void) { }
+void FUN_004ea510(void);
 
 // Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
 // FUNCTION: CMR2 0x004d1a90

@@ -365,6 +365,42 @@ void FUN_004ea470(void)
     g_pMenu0x00818abc = g_pMenu0x00818ac0;
 }
 
+extern int g_unk0x00818ac8;
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+unsigned short FUN_0040bbc0(unsigned short slot);
+void FUN_004a2fe0(void);
+
+// Time (CFrontend::FUN_004d20e0) at which the current menu was entered.
+// GLOBAL: CMR2 0x008189b8
+int g_menuEnterTime;
+
+// Frontend per-frame update: reads the input, keeps the music streaming and
+// runs the current menu, switching to the menu it returns.
+// FUNCTION: CMR2 0x004ea510
+void FUN_004ea510(void)
+{
+    DeviceInfo *pDevice;
+    unsigned int input;
+    Menu *pNext;
+
+    pDevice = CInput::FUN_0049ead0(g_unk0x00818ac8);
+    FUN_004ea470();
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    FUN_004a2fe0();
+    if (g_pMenu0x00818abc != FUN_004fa510() && g_pMenu0x00818abc != FUN_004fa500())
+        FUN_0040bd60(g_unk0x00818ac8, pDevice);
+    input = pDevice->field_0x8;
+    if (g_unk0x00818ac8 == 1)
+        input |= CInput::FUN_0049ead0(FUN_0040bbc0(0))->field_0x8 & 0x20;
+    pNext = (Menu *)Menu_Update(g_pMenu0x00818abc, input);
+    if (pNext != NULL) {
+        g_menuEnterTime = CFrontend::FUN_004d20e0();
+        g_pMenu0x00818ac0 = pNext;
+    }
+}
+
 // FUNCTION: CMR2 0x004ea5b0
 void FUN_004ea5b0(void)
 {

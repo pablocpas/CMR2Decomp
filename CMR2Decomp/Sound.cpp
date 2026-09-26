@@ -745,6 +745,51 @@ HRESULT FUN_004a2bd0(int param1)
     return 0;
 }
 
+// Refills the part of the streaming buffer that has already been played.
+// TODO: CMR2 0x004a3050 (implemented, match 86%)
+HRESULT FUN_004a3050(int unused)
+{
+    void *pAudio2 = NULL;
+    void *pAudio1 = NULL;
+    DWORD bytes2;
+    DWORD bytes1;
+
+    FUN_004a2d30();
+    if (g_unk0x005a2718 > 0) {
+        if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
+                                               &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
+            if (pAudio1 != NULL)
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, (UINT)(bytes1 * (1.0f / 0xfe80))));
+            if (pAudio2 != NULL)
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, (UINT)(bytes2 * (1.0f / 0xfe80))));
+            CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
+        }
+    }
+    return 0;
+}
+
+// Per-frame music update: keeps the streaming buffer filled while it plays,
+// or restarts it after a pause.
+// FUNCTION: CMR2 0x004a2fe0
+void FUN_004a2fe0(void)
+{
+    DWORD status;
+
+    if (CSound::m_unk0x005a2724 == 0 && CSound::m_unk0x005a2730 != 0) {
+        if (CSound::m_unk0x005a2720 == 0) {
+            CSound::m_pDirectSoundBuffer->GetStatus(&status);
+            if (status & DSBSTATUS_PLAYING) {
+                FUN_004a3050(1);
+                CSound::m_unk0x005a2720 = FALSE;
+                return;
+            }
+        } else {
+            CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Play(0, 0, DSBPLAY_LOOPING));
+        }
+        CSound::m_unk0x005a2720 = FALSE;
+    }
+}
+
 // FUNCTION: CMR2 0x004a2430
 int FUN_004a2430(SoundSlot *pSlot)
 {
