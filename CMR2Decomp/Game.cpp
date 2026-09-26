@@ -83,19 +83,20 @@ void *CGame::m_unk0x005a1fb8;
 void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
+void FUN_00501350(int param1, int unused);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {InitializeGame,
      FUN_00501680},
     {FUN_004d1b40, NULL},   // render 0x4d1080 not written yet
     {FUN_004d1b40, NULL},   // render 0x4d1370 not written yet
-    {NULL, NULL},           // state 0x4d1ba0 not written yet
-    {NULL, NULL},           // state 0x4d1c30 not written yet
+    {NULL, FUN_00501680},   // state 0x4d1ba0 not written yet
+    {NULL, FUN_00501680},   // state 0x4d1c30 not written yet
     {FUN_004d1a90, NULL},   // render 0x4d0ea0 (CMR2 logo) not written yet
     {FUN_004d1c90, NULL},   // render 0x4d0a80 not written yet
-    {NULL, NULL},           // state 0x4d1cc0 not written yet
-    {NULL, NULL},           // state 0x4d1e10 not written yet
-    {NULL, NULL},           // state 0x4d1e90 not written yet
+    {NULL, NULL},           // state 0x4d1cc0 / render 0x4d0ba0 not written yet
+    {NULL, FUN_00501680},   // state 0x4d1e10 not written yet
+    {NULL, FUN_00501680},   // state 0x4d1e90 not written yet
 };
 
 // FUNCTION: CMR2 0x004a15a0
@@ -627,9 +628,19 @@ Unk00817d98 g_unk0x0082a800;
 // GLOBAL: CMR2 0x0082a908
 BYTE g_unk0x0082a908;
 // GLOBAL: CMR2 0x00526ee0
-FuncTableGroup g_unk0x00526ee0[7];
+FuncTableGroup g_unk0x00526ee0[7] = {
+    {NULL, NULL},                        // state 0x500c80 not written yet
+    {NULL, NULL},                        // state 0x5012e0 / render 0x501780 not written yet
+    {NULL, NULL},                        // state 0x500df0 not written yet
+    {NULL, NULL},                        // state 0x500f80 / render 0x5015d0 not written yet
+    {(FuncTableEntry)FUN_00501350, NULL}, // render 0x501920 not written yet
+    {NULL, CGame::FUN_00501680},         // state 0x5010a0 not written yet
+    {NULL, CGame::FUN_00501680},         // state 0x501130 not written yet
+};
+// Magic value handed to the callback machine as opaque data (0x0100ff00), not
+// an address, so it must not be typed as a pointer.
 // GLOBAL: CMR2 0x00526f18
-void *g_unk0x00526f18 = (void *)0x0100ff00;
+unsigned int g_unk0x00526f18 = 0x0100ff00;
 
 // FUNCTION: CMR2 0x004ff450
 BOOL CGame::FUN_004ff450()

@@ -661,53 +661,57 @@ void CFrontend::FUN_004cf0f0(void)
         g_unk0x00817410 = index;
 }
 
-// Table of pointers indexed by id; size derived from the 0x516c78 boundary
-// (next known global), so it may cover further undeclared values.
+// Indexed by id. A mix of small integers (car/stage index and 0/1 option
+// flags) and pointers to the CFrontend car directory names, so it cannot be a
+// uniform pointer array. Size derived from the 0x516c78 boundary (next known
+// global), so it may cover further undeclared values.
+struct Unk0x00516b40 {
+    int ids[28];           // 0x00 car/stage index
+    const char *dirs[22];  // 0x70 car directory name
+    int flags[28];         // 0xc8 option flag
+};
 // GLOBAL: CMR2 0x00516b40
-void *g_unk0x00516b40[0x4e] = {
-    (void *)0, (void *)0, (void *)0, (void *)0, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)2, (void *)3, (void *)4, (void *)5,
-    (void *)6, (void *)6, (void *)6, (void *)7, (void *)8, (void *)9,
-    (void *)10, (void *)11, (void *)12, (void *)13, (void *)0, (void *)4,
-    (void *)8, (void *)9, (void *)10, (void *)11, CFrontend::m_strFoc, CFrontend::m_strF99Short,
-    CFrontend::m_strFA1, CFrontend::m_strFA2, CFrontend::m_strMit, CFrontend::m_strMA1, CFrontend::m_strMA2, CFrontend::m_strMA3,
-    CFrontend::m_strCor, CFrontend::m_strSubShort, CFrontend::m_str206, CFrontend::m_strSea, CFrontend::m_strInt, CFrontend::m_strIA1,
-    CFrontend::m_strIA2, CFrontend::m_strSie, CFrontend::m_strMin, CFrontend::m_str6R4, CFrontend::m_strStr, CFrontend::m_str205,
-    CFrontend::m_strPum, CFrontend::m_strEsc, (void *)1, (void *)1, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)1, (void *)0, (void *)0, (void *)1,
-    (void *)0, (void *)1, (void *)1, (void *)0, (void *)1, (void *)1,
-    (void *)1, (void *)1, (void *)1, (void *)1, (void *)1, (void *)1,
-    (void *)0, (void *)0, (void *)0, (void *)1, (void *)1, (void *)0,
+Unk0x00516b40 g_unk0x00516b40 = {
+    { 0, 0, 0, 0, 1, 1, 1, 1, 2, 3, 4, 5, 6, 6, 6, 7, 8, 9, 10, 11, 12, 13, 0, 4, 8, 9, 10, 11 },
+    {
+        CFrontend::m_strFoc, CFrontend::m_strF99Short, CFrontend::m_strFA1, CFrontend::m_strFA2,
+        CFrontend::m_strMit, CFrontend::m_strMA1, CFrontend::m_strMA2, CFrontend::m_strMA3,
+        CFrontend::m_strCor, CFrontend::m_strSubShort, CFrontend::m_str206, CFrontend::m_strSea,
+        CFrontend::m_strInt, CFrontend::m_strIA1, CFrontend::m_strIA2, CFrontend::m_strSie,
+        CFrontend::m_strMin, CFrontend::m_str6R4, CFrontend::m_strStr, CFrontend::m_str205,
+        CFrontend::m_strPum, CFrontend::m_strEsc,
+    },
+    { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0 },
 };
 
 // FUNCTION: CMR2 0x0040ee60
 void *CFrontend::FUN_0040ee60(int index)
 {
-    return g_unk0x00516b40[index + 0x1c];
+    return (void *)g_unk0x00516b40.dirs[index];
 }
 
 // FUNCTION: CMR2 0x0040ee70
 void *CFrontend::FUN_0040ee70(int index)
 {
-    return g_unk0x00516b40[index + 0x32];
+    return (void *)g_unk0x00516b40.flags[index];
 }
 
 // FUNCTION: CMR2 0x0040ee80
 void *CFrontend::FUN_0040ee80(int index)
 {
-    return g_unk0x00516b40[index + 0x40];
+    return (void *)g_unk0x00516b40.flags[index + 14];
 }
 
 // FUNCTION: CMR2 0x0040ee90
 void *CFrontend::FUN_0040ee90(int index)
 {
-    return g_unk0x00516b40[index];
+    return (void *)g_unk0x00516b40.ids[index];
 }
 
 // FUNCTION: CMR2 0x0040eea0
 void *CFrontend::FUN_0040eea0(int index)
 {
-    return g_unk0x00516b40[index + 0x16];
+    return (void *)g_unk0x00516b40.ids[index + 22];
 }
 
 struct Unk0x004a3e20 {
