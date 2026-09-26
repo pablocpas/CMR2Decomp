@@ -88,6 +88,7 @@ void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2);
 void FUN_004d1cc0(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1e90(Unk0049c2c0 *p1, BYTE p2);
 void FUN_00501350(int param1, int unused);
 
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
@@ -101,7 +102,7 @@ FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {FUN_004d1c90, FUN_004d0a80},
     {FUN_004d1cc0, FUN_004d0ba0},
     {NULL, FUN_00501680},   // state 0x4d1e10 not written yet
-    {NULL, FUN_00501680},   // state 0x4d1e90 not written yet
+    {FUN_004d1e90, FUN_00501680},
 };
 
 // FUNCTION: CMR2 0x004a15a0
@@ -599,6 +600,100 @@ void FUN_004d1cc0(Unk0049c2c0 *p1, BYTE p2)
     CGame::FUN_0049c1c0(p1, p2, 0, 2);
 }
 
+// Boot pieces called by the exit path of the game state that live in other
+// modules.
+void FUN_004eabc0(void);
+void FUN_004ea9c0(unsigned int param1, unsigned int param2);
+void FUN_00406820(void);
+void RallyData_FUN_004068d0(char param1);
+void FUN_0040dc30(void);
+bool FUN_004eb3e0(void);
+void RallyData_FUN_004ec1a0(void);
+unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataStageIndex(void);
+extern int g_unk0x00817fe8;
+
+// Byte flag the exit path of the boot states tests to pick the next game
+// state (also read by the function at 0x4d2070).
+// GLOBAL: CMR2 0x008180fa
+BYTE g_unk0x008180fa;
+
+// Unwinds the group of callbacks of the current state, saves the data of the
+// ending race and asks for the next state (level 2, state index 0).
+// FUNCTION: CMR2 0x004d1e90
+void FUN_004d1e90(Unk0049c2c0 *p1, BYTE unused)
+{
+    CGame::FUN_00406810(0);
+    if (CGameInfo::FUN_00406410(0x11))
+        CGameInfo::FUN_004d0590(1);
+    else
+        CGameInfo::FUN_004d0590(0);
+    if (CGameInfo::FUN_00405d80() != 4)
+        CFrontend::FUN_004cf060();
+
+    CSound::FUN_004a2b50(0);
+    FUN_004eabc0();
+
+    if (CGame::m_unk0x008180f9 == 0) {
+        if (CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 9 &&
+            CGameInfo::FUN_00405d80() != 10 && CGameInfo::FUN_00405d80() != 11 &&
+            CGameInfo::FUN_00405d80() != 12)
+            FUN_0040dc30();
+
+        FUN_00406820();
+        RallyData_FUN_004068d0(-1);
+        CGameInfo::FUN_00406580();
+
+        if (CGameInfo::FUN_00406320() == 0) {
+            if (CGame::m_unk0x00523d68 != 0 || CGame::m_unk0x008180f9 != 0 || g_unk0x008180fa != 0)
+                FUN_004ea9c0(RallyDataCountryIndex() & 0xff, RallyDataStageIndex() & 0xff);
+
+            FUN_004ea840();
+            CNetworkLeaderboards::SaveLeaderboards();
+            CInput::SaveControllerInfo();
+            FUN_004eb3e0();
+        }
+    }
+
+    CGame::UnwindCallbacks(g_unk0x00817fe8);
+    CGraphics::FUN_004a5be0();
+    CGraphics::FreeTextureBuffers();
+    if (CGameInfo::FUN_00405d80() != 4)
+        RallyData_FUN_004ec1a0();
+
+    if (CGame::m_unk0x00523d68 != 0) {
+        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
+            FUN_004ea9f0();
+            CGame::FUN_004057e0(2);
+            return;
+        }
+        if (CGameInfo::FUN_00405d80() != 2 && CGameInfo::FUN_00405d80() != 3 &&
+            CGameInfo::FUN_00405d80() != 8 && CGameInfo::FUN_00405d80() != 9 &&
+            CGameInfo::FUN_00405d80() != 10) {
+            CGame::FUN_004057e0(3);
+            CInput::FUN_0040af20();
+            return;
+        }
+        CGame::FUN_004057e0(2);
+        CInput::FUN_0040af20();
+        return;
+    }
+
+    if (CGame::m_unk0x008180f9 != 0) {
+        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::FUN_004057e0(2);
+        return;
+    }
+    if (g_unk0x008180fa != 0) {
+        CGame::FUN_0049c1c0(p1, 0, 0, 2);
+        CGame::FUN_004057e0(3);
+        return;
+    }
+    CGame::FUN_0049c1c0(p1, 0, 0, 2);
+    CGame::SetShouldExit();
+}
+
 // FUNCTION: CMR2 0x004d15e0
 void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -907,9 +1002,13 @@ Unk00817d98 g_unk0x0082a800;
 BYTE g_unk0x0082a908;
 // State 0x500df0 (country menus) is defined in GameInfo.cpp.
 void FUN_00500df0(Unk0049c2c0 *p1, BYTE p2);
+
+// State of the option menu machine (GameInfo.cpp).
+void FUN_00500c80(Unk0049c2c0 *p1, BYTE state);
+
 // GLOBAL: CMR2 0x00526ee0
 FuncTableGroup g_unk0x00526ee0[7] = {
-    {NULL, NULL},                        // state 0x500c80 not written yet
+    {FUN_00500c80, NULL},
     {NULL, NULL},                        // state 0x5012e0 / render 0x501780 not written yet
     {FUN_00500df0, NULL},
     {NULL, NULL},                        // state 0x500f80 / render 0x5015d0 not written yet

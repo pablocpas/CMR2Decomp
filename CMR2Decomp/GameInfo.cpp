@@ -1511,6 +1511,8 @@ unsigned int CGameInfo::FUN_00405c00(void) {
 
 // GLOBAL: CMR2 0x0082af88
 int g_unk0x0082af88;
+// GLOBAL: CMR2 0x0082af8c
+BYTE g_unk0x0082af8c;
 // GLOBAL: CMR2 0x0082b0a8
 int g_unk0x0082b0a8;
 // GLOBAL: CMR2 0x0082b0ac
@@ -1523,6 +1525,12 @@ int g_unk0x0082ac5c;
 int g_unk0x0082b0a0;
 // GLOBAL: CMR2 0x0082b2c0
 Unk0x0082b2c0 g_unk0x0082b2c0[8];
+// Byte flag the option menu state (0x500c80) derives from the stage index.
+// GLOBAL: CMR2 0x00527000
+BYTE g_unk0x00527000 = 1;
+// Option menu music track ("%s\\select3.adp").
+// GLOBAL: CMR2 0x0052703c
+char g_str0x0052703c[16] = "%s\\select3.adp";
 // GLOBAL: CMR2 0x00526f54
 int g_unk0x00526f54[7] = { 0, 1, 3, 4, 5, 5, 7 };
 // GLOBAL: CMR2 0x00526f70
@@ -2058,6 +2066,78 @@ BYTE *FUN_00502220(void)
 BYTE FUN_00502990(int i, int j)
 {
     return g_unk0x0082bf20[i][j];
+}
+
+// Option menu builders and loaders that live in the cascade scaffold.
+void FUN_00500c00(void);
+void FUN_00502d50(void);
+void FUN_00502570(void);
+void FUN_00501520(void);
+BYTE FUN_0050f3c0(void);
+void FUN_0050f420(void);
+void FUN_0050f370(void);
+BYTE FUN_0050f240(void);
+void FUN_0050f180(void);
+void FUN_004f4ef0(void);
+bool FUN_004f4e80(void);
+void FUN_0040ac40(BYTE carClass);
+HRESULT FUN_004a2bd0(int param1);
+
+// Starts the option menu state: rebuilds the option records, starts the menu
+// music and asks for the next state (level 2) of the grouped callback machine.
+// FUNCTION: CMR2 0x00500c80
+void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
+{
+    char path[MAX_PATH];
+    int i;
+
+    g_unk0x0082b0ac = 0;
+    CGameInfo::FUN_0049ea90(1);
+    if (CGameInfo::FUN_00405e00() != 0)
+        FUN_0040ac40(1);
+    FUN_004a0c40(0);
+    CInput::FUN_0049ff80(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
+    g_unk0x0082b0a8 = CGameInfo::FUN_00405d70() & 0xff;
+    FUN_00500c00();
+    FUN_00502d50();
+    FUN_00502570();
+    FUN_00501520();
+    FUN_004f4ef0();
+    CGame::RegisterCallback(FUN_004f4e80, NULL);
+    Sound_Init(0x5622, 2, 0x10, 0);
+    FUN_0050f3c0();
+    FUN_0050f420();
+    FUN_0050f370();
+    FUN_0050f240();
+    FUN_0050f180();
+
+    if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
+        g_unk0x00527000 = 0;
+        if ((int)(RallyDataStageIndex() & 0xff) % 4 == 0)
+            g_unk0x00527000 = 1;
+    } else {
+        g_unk0x00527000 = 1;
+    }
+
+    // The original re-reads the flag before each pair of stores: both arms of
+    // the conditional hold the same value, so the branch is gone from the
+    // binary but the load and its test are still there.
+    for (i = 0; i < (int)(CGameInfo::FUN_00405d70() & 0xff); i = i + 1) {
+        if (g_unk0x00527000) {
+            g_unk0x0082af90[i] = 360000;
+            g_unk0x0082af78[i] = 0x3c;
+        } else {
+            g_unk0x0082af90[i] = 360000;
+            g_unk0x0082af78[i] = 0x3c;
+        }
+    }
+
+    sprintf(path, g_str0x0052703c, CInstallInfo::GetMusicDir());
+    CSound::FUN_004a28d0(path);
+    CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
+    FUN_004a2bd0(1);
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    g_unk0x0082af8c = 1;
 }
 
 // FUNCTION: CMR2 0x00502d40
