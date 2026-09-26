@@ -18,6 +18,7 @@
 #include "Sound.h"
 #include "main.h"
 #include "NetworkLeaderboards.h"
+#include "NetPlayers.h"
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 #define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
@@ -1324,6 +1325,262 @@ void FUN_004ec2b0(void)
     FUN_00409be0((int)info);
 }
 
+void FUN_0040dc30(void);
+struct Unk0x0052ebc0;
+struct Unk0x0052ebc0 *RallyData_FUN_004083d0(void);
+BYTE *RallyData_FUN_004082f0(void);
+void FUN_00409bf0(DPID *pId, NetPlayerInfo *pInfo, char add);
+void FUN_00409c80(int *pId);
+void FUN_00409e30(char resetTotal, char resetTimes);
+void FUN_0040ad20(void);
+void FUN_0040afb0(char valid, BYTE *p);
+void FUN_0040b120(void);
+void FUN_00406720(int param1);
+LPVOID *FUN_004a14c0(void);
+LPVOID *FUN_004a14d0(void);
+void FUN_004a15b0(BOOL param1);
+void Session_SetOpen(char open);
+int Session_GetUserValue(BYTE index);
+void FUN_004a1760(DPSESSIONDESC2 *pDesc);
+void FUN_004a1940(DPID *pId);
+int FUN_004a1a10(int param1, int param2, int param3, int param4);
+int FUN_004a1b90(int param1, void **param2);
+char FUN_004a1c50(int to, int guaranteed, int data, int size);
+void FUN_004d0620(DPID *pFrom, char *text, char local);
+void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_FUN_00408600(BYTE index, BYTE value);
+void FUN_004eb0c0(BYTE index, BYTE flag);
+
+// The player setup data (0x540..0x6e7 of the rally data block) is mirrored
+// into the outgoing packet and back. 0x18 bytes of it are per-player rows,
+// the rest are the current selection values.
+#define NET_SETUP_COUNT 0x14
+
+// Copies the local player's setup (20 rows) into the outgoing packet.
+// FUNCTION: CMR2 0x004ec320
+void FUN_004ec320(BYTE *pPacket)
+{
+    BYTE *pState;
+    int i;
+
+    FUN_0040dc30();
+    pState = (BYTE *)RallyData_FUN_004083d0();
+    for (i = 0; i < NET_SETUP_COUNT; i++) {
+        *(unsigned int *)(pPacket + 0x18 + i * 8) = *(unsigned int *)(pState + 0x540 + i * 8);
+        *(unsigned int *)(pPacket + 0x1c + i * 8) = *(unsigned int *)(pState + 0x544 + i * 8);
+        *(unsigned int *)(pPacket + 0xb8 + i * 4) = *(unsigned int *)(pState + 0x5e0 + i * 4);
+        *(unsigned int *)(pPacket + 0x108 + i * 4) = *(unsigned int *)(pState + 0x630 + i * 4);
+        *(unsigned int *)(pPacket + 0x158 + i * 4) = *(unsigned int *)(pState + 0x680 + i * 4);
+        *(BYTE *)(pPacket + 0x1a8 + i) = *(BYTE *)(pState + 0x6d4 + i);
+        *(unsigned int *)(pPacket + 0x1bc) = *(unsigned int *)(pState + 0x53c);
+        *(unsigned int *)(pPacket + 0x1c0) = *(unsigned int *)(pState + 0x6d0);
+    }
+}
+
+// Copies a received setup packet (20 rows) into the local rally data block.
+// FUNCTION: CMR2 0x004ec3c0
+void FUN_004ec3c0(BYTE *pPacket)
+{
+    BYTE *pState = (BYTE *)RallyData_FUN_004083d0();
+    int i;
+
+    for (i = 0; i < NET_SETUP_COUNT; i++) {
+        *(unsigned int *)(pState + 0x540 + i * 8) = *(unsigned int *)(pPacket + 0x18 + i * 8);
+        *(unsigned int *)(pState + 0x544 + i * 8) = *(unsigned int *)(pPacket + 0x1c + i * 8);
+        *(unsigned int *)(pState + 0x5e0 + i * 4) = *(unsigned int *)(pPacket + 0xb8 + i * 4);
+        *(unsigned int *)(pState + 0x630 + i * 4) = *(unsigned int *)(pPacket + 0x108 + i * 4);
+        *(unsigned int *)(pState + 0x680 + i * 4) = *(unsigned int *)(pPacket + 0x158 + i * 4);
+        *(BYTE *)(pState + 0x6d4 + i) = *(BYTE *)(pPacket + 0x1a8 + i);
+        *(unsigned int *)(pState + 0x53c) = *(unsigned int *)(pPacket + 0x1bc);
+        *(unsigned int *)(pState + 0x6d0) = *(unsigned int *)(pPacket + 0x1c0);
+    }
+}
+
+// Outgoing player setup packet (type 3).
+struct NetSetupPacket {
+    BYTE type;                  // 0x0
+    BYTE field_0x1[3];
+    unsigned int gameMode : 8;  // 0x4
+    unsigned int country : 4;   // bits 8..11
+    unsigned int stage : 4;     // bits 12..15
+    unsigned int rallyA : 2;    // bits 16..17
+    unsigned int rallyB : 2;    // bits 18..19
+    unsigned int rallyC : 4;    // bits 20..23
+    unsigned int unused : 8;
+    BYTE field_0x8[0xc];        // 0x8
+    int field_0x14;             // 0x14
+    BYTE field_0x18[0x1ac];     // 0x18
+};
+
+// Builds and sends this machine's player setup packet.
+// FUNCTION: CMR2 0x004ec460
+void FUN_004ec460(void)
+{
+    NetSetupPacket packet;
+
+    packet.type = 3;
+    packet.gameMode = CGameInfo::FUN_00405d80();
+    switch (CGameInfo::FUN_00405d80()) {
+    case 8:
+    case 9:
+    case 10:
+        packet.country = RallyDataCountryIndex();
+        packet.stage = RallyDataStageIndex();
+        break;
+    case 0xb:
+    case 0xc:
+        packet.rallyA = RallyData_FUN_00406940();
+        packet.rallyB = RallyData_FUN_00406950();
+        packet.rallyC = RallyData_FUN_00406990();
+        break;
+    }
+    packet.field_0x14 = FUN_00406710();
+    FUN_004ec320((BYTE *)&packet);
+    FUN_004a1c50(0, 1, (int)&packet, 0x1c4);
+}
+
+// Message handler of the joining side: session data, player info and the
+// setup packet of the host.
+// FUNCTION: CMR2 0x004ec560
+void FUN_004ec560(DPID *pFrom, unsigned int *pData)
+{
+    char *pText;
+    unsigned int type;
+
+    type = pData[0];
+    switch (type) {
+    case 5:
+        FUN_004a1940((DPID *)(pData + 2));
+        FUN_00409c80((int *)(pData + 2));
+        return;
+    case 3:
+        FUN_00409bf0((DPID *)(pData + 2), (NetPlayerInfo *)pData[4], 1);
+        FUN_004ec2b0();
+        FUN_004ec460();
+        return;
+    case 0x101:
+        FUN_004a15b0(1);
+        if (FUN_004a14c0() != NULL)
+            strcpy(g_unk0x00818ebc, (char *)FUN_004a14c0());
+        if (FUN_004a14d0() != NULL)
+            strcpy(g_unk0x00818ef8, (char *)FUN_004a14d0());
+        g_unk0x00818ce4 = 1;
+        FUN_004ec2b0();
+        switch (CGameInfo::FUN_00405d80()) {
+        case 8:
+            FUN_004f8470()->pParent = FUN_004f84b0();
+            break;
+        case 9:
+            FUN_004f8470()->pParent = FUN_004f84c0();
+            break;
+        case 10:
+            FUN_004f8470()->pParent = FUN_004f84d0();
+            break;
+        case 0xb:
+            FUN_004f8470()->pParent = FUN_004f84e0();
+            break;
+        case 0xc:
+            FUN_004f8470()->pParent = FUN_004f84f0();
+            break;
+        }
+        if (FUN_004ea5d0() != FUN_004f8460()) {
+            Session_SetOpen(1);
+            return;
+        }
+        Session_SetOpen(0);
+        return;
+    case 0x104:
+        FUN_004a1760((DPSESSIONDESC2 *)(pData + 1));
+        FUN_004ea8e0((BYTE)Session_GetUserValue(0));
+        FUN_00406780(Session_GetUserValue(2));
+        return;
+    case 0x102:
+        FUN_00409bf0((DPID *)(pData + 2), (NetPlayerInfo *)pData[3], 1);
+        return;
+    }
+}
+
+// Message handler of the host side: applies the setup packet of a joining
+// player and starts the race for it.
+// FUNCTION: CMR2 0x004ec6f0
+void FUN_004ec6f0(DPID *pFrom, BYTE *pMsg)
+{
+    BYTE *pState = RallyData_FUN_004082f0();
+    MenuItem *pItem;
+    int i;
+
+    switch (pMsg[0]) {
+    case 0:
+        FUN_004d0620(pFrom, (char *)(pMsg + 1), 0);
+        return;
+    case 2:
+    case 3:
+        for (i = 0; i < 0xb; i++)
+            pState[i] = pMsg[i + 8];
+        FUN_004ea8e0(pMsg[4]);
+        switch (CGameInfo::FUN_00405d80()) {
+        case 8:
+            RallyData_FUN_004068b0((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
+            for (i = 0; i < 0xb; i++) {
+                if ((pState[i] & 1) != 0 && ((pState[i] & 2) == 0 || CGameInfo::FUN_00406410(0xd))
+                    && (pState[i] & 4) == 0) {
+                    RallyData_FUN_004068e0(i);
+                    break;
+                }
+            }
+            break;
+        case 9:
+        case 10:
+            RallyData_FUN_004068b0((*(unsigned int *)(pMsg + 4) >> 8) & 0xf);
+            RallyData_FUN_004068e0((*(unsigned int *)(pMsg + 4) >> 0xc) & 0xf);
+            break;
+        case 0xb:
+        case 0xc:
+            RallyData_FUN_004068e0(0);
+            RallyData_FUN_0040d600((*(unsigned int *)(pMsg + 4) >> 0x10) & 3);
+            RallyData_FUN_00406960((*(unsigned int *)(pMsg + 4) >> 0x12) & 3);
+            RallyData_FUN_0040d620((*(unsigned int *)(pMsg + 4) >> 0x14) & 0xf);
+            break;
+        }
+        FUN_00406720(*(unsigned int *)(pMsg + 0x14));
+        pItem = Menu_GetItem(FUN_004f8470(), 1);
+        RallyData_FUN_00408600(0, g_unk0x00818d18[pItem->max]);
+        pItem = Menu_GetItem(FUN_004f8470(), 2);
+        FUN_004eb0c0(0, pItem->max);
+        FUN_004ec3c0((BYTE *)pMsg);
+        *(unsigned int *)(g_unk0x00818ef8 + 0x14) = CMain::GetFrameDelta();
+        FUN_00409ab0(0, 1);
+        if (pMsg[0] == 2) {
+            Menu_SetNextAction((int)FUN_004f8330());
+            FUN_00409e30(1, 1);
+            FUN_00409b60();
+            FUN_0040b120();
+            return;
+        }
+        break;
+    case 0x11:
+        FUN_0040afb0(pMsg[1], (BYTE *)(pMsg + 4));
+        FUN_0040ad20();
+        break;
+    }
+}
+
+// Drains the network message queue, dispatching each message to the handler
+// of its direction.
+// FUNCTION: CMR2 0x004ec8d0
+void FUN_004ec8d0(void)
+{
+    DPID from;
+    void *pData;
+
+    while (FUN_004a1b90((int)&from, &pData) != 0) {
+        if (from == 0)
+            FUN_004ec560(&from, (unsigned int *)pData);
+        else
+            FUN_004ec6f0(&from, (BYTE *)pData);
+    }
+}
+
 bool FUN_004aac00(void);
 
 // Callback of the network session menu: creates the DirectPlay session and
@@ -1347,6 +1604,17 @@ void FUN_004ec9a0(Menu *pMenu, int param)
         }
         CGame::DestroyDirectPlay();
     }
+}
+
+// Sends the local player's description to the DirectPlay lobby.
+// FUNCTION: CMR2 0x004eca10
+void FUN_004eca10(void)
+{
+    unsigned int info[4];
+
+    info[0] = FUN_004a1a00();
+    info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
+    FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
 }
 
 // FUNCTION: CMR2 0x004eca60
@@ -4491,6 +4759,124 @@ void FUN_004d5fb0(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
+// Returns the three performance values (speed, acceleration, grip) of a car
+// class: the fixed table values for the known classes, random ones otherwise.
+// FUNCTION: CMR2 0x004d7c00
+void FUN_004d7c00(int param_1, int *param_2, int *param_3, int *param_4)
+{
+    int scale = 0x75c2;
+    int iVar2;
+    int iVar3;
+
+    switch (param_1) {
+    case 0:
+    case 3:
+    case 4:
+        param_1 = 0x570a;
+        iVar2 = 1000;
+        iVar3 = 0;
+        break;
+    case 6:
+        param_1 = 0x63d7;
+        iVar2 = 0x3a6;
+        iVar3 = 0;
+        break;
+    case 7:
+        param_1 = 0x4a3d;
+        iVar2 = 0x3c7;
+        iVar3 = 2;
+        break;
+    case 2:
+        param_1 = 0x5687;
+        iVar2 = 1000;
+        iVar3 = 0;
+        break;
+    case 1:
+        param_1 = 0x570a;
+        iVar2 = 0x400;
+        iVar3 = 0;
+        break;
+    case 8:
+        param_1 = 0x3ae1;
+        iVar2 = 0x1bf;
+        iVar3 = 1;
+        break;
+    case 0xd:
+        param_1 = 0x3ae1;
+        iVar2 = 0x1bf;
+        iVar3 = 2;
+        break;
+    case 5:
+        param_1 = 0x5c28;
+        iVar2 = 1000;
+        iVar3 = 0;
+        break;
+    case 9:
+        param_1 = 0x6666;
+        iVar2 = 0x345;
+        iVar3 = 0;
+        break;
+    case 0xb:
+        param_1 = scale;
+        iVar2 = 0x2fc;
+        iVar3 = 0;
+        break;
+    case 10:
+        param_1 = 0x570a;
+        iVar2 = 0x2dc;
+        iVar3 = 2;
+        break;
+    case 0xc:
+        param_1 = 0x570a;
+        iVar2 = 0x34e;
+        iVar3 = 0;
+        break;
+    default:
+        iVar2 = rand();
+        param_1 = iVar2 % 0xffff;
+        iVar2 = rand();
+        iVar2 = iVar2 % 1000;
+        iVar3 = rand();
+        iVar3 = iVar3 % 3;
+    }
+    param_1 = FixDiv(param_1, scale);
+    *param_2 = FixMulShift32(param_1, 0xb0000);
+    *param_3 = iVar2 * 11 / 1024;
+    *param_4 = iVar3;
+}
+
+// Draws the progress bar of a game mode page: param_3 small rects in a row,
+// the first param_4 highlighted, and the label of param_5 underneath.
+// FUNCTION: CMR2 0x004d8330
+int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5)
+{
+    short rect[4];
+    int i;
+    int x;
+    int step;
+
+    rect[1] = param_2;
+    rect[2] = (int)(g_pGraphics->resX * 8) / 640;
+    rect[3] = (int)(g_pGraphics->resY * 8) / 480;
+    x = param_1 << 16;
+    rect[0] = (short)(x >> 16);
+    step = FixMul(g_pGraphics->resX << 16, FixDiv(0xa0000, 0x2800000));
+    for (i = 0; i < param_3; i++) {
+        if (i < param_4)
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_colourWhite0x00524968, 1);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_colourText0x0052496c, 1);
+        x += step;
+        rect[0] = (short)(x >> 16);
+    }
+    if (param_5 != 0) {
+        Font_DrawText(1, (char *)param_5, *(int *)rect, (int)(g_pGraphics->resY * 0x18) / 0x1e0 + param_2,
+                      (int *)g_colourText0x0052496c, 0x14);
+        return rect[0];
+    }
+    return rect[0];
+}
+
 // Clears the championship data and sets up the 8 championship entries.
 // TODO: CMR2 0x004eae40 (implemented, match 88%)
 void FUN_004eae40(void)
@@ -4509,6 +4895,56 @@ void FUN_004eae40(void)
         pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
         pEntry += 0xc4;
     } while (pEntry < g_saveData + 0x62c);
+}
+
+extern BYTE *g_unk0x00531764;
+
+// Toggles the championship entry bit of a driver slot; in game mode 4 it
+// toggles the |2 flag of that slot's profile record instead.
+// FUNCTION: CMR2 0x004eb0c0
+void FUN_004eb0c0(BYTE index, BYTE flag)
+{
+    unsigned int category;
+    BYTE *pEntry;
+
+    RallyData_ValidateIndex(index);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        pEntry = g_saveData + 0xc + index * 0xc4;
+        *pEntry = ((*pEntry ^ flag) & 1) ^ *pEntry | 2;
+        return;
+    }
+    category = (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12) & 0xf;
+    if (category != 0xf) {
+        *(unsigned int *)(g_saveData + 0x67c + category * 0x650) =
+            (*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0xffffffdf) | (flag & 1) << 5;
+        g_saveData[0x620 + category] = 1;
+    }
+}
+
+// True if the profile of the given index already matches the category record
+// that one of the championship entries points at.
+// FUNCTION: CMR2 0x004ebd60
+bool FUN_004ebd60(int index)
+{
+    BYTE *pRecord;
+    BYTE *pProfile;
+    BYTE *pCategory;
+    unsigned int category;
+    unsigned int diff;
+
+    pProfile = g_unk0x00531764 + index * 12;
+    for (pRecord = g_saveData + 0x1f70; (int)pRecord < (int)(g_saveData + 0x2270); pRecord += 0x30) {
+        category = (*(unsigned int *)pRecord >> 0x12) & 0xf;
+        if (category == 0xf)
+            continue;
+        pCategory = g_saveData + 0x638 + category * 0x650;
+        diff = *(unsigned int *)(pProfile + 4) ^ *(unsigned int *)(pCategory + 4);
+        if ((diff & 0x1f0f00) != 0 || (char)diff != 0 || (diff & 0xfc0f000) != 0)
+            continue;
+        if (strcmp((char *)pProfile, (char *)pCategory) == 0)
+            return 1;
+    }
+    return 0;
 }
 
 // Next player: gives the player a profile and goes to the name entry (or
@@ -4804,6 +5240,49 @@ void FUN_004d9880(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
     if (CGameInfo::FUN_00405e00() != 0)
         FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Enables one item per selected car/difficulty level (and up to the fourth
+// one) of the two player-setup menus, then stores the number of gears and
+// the steering aid read from the game info.
+// FUNCTION: CMR2 0x004f02e0
+void FUN_004f02e0(void)
+{
+    unsigned int *pInfo = CGameInfo::FUN_00405db0();
+    int values[2];
+    unsigned int count;
+    int i;
+
+    if (CGameInfo::FUN_00406410(0xd)) {
+        count = 8;
+    } else if (CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 2) {
+        count = *pInfo >> 8 & 0xf;
+        if ((*pInfo >> 0xc & 0xf) > count)
+            count = *pInfo >> 0xc & 0xf;
+        if ((*pInfo >> 0x10 & 0xf) > count)
+            count = *pInfo >> 0x10 & 0xf;
+    } else {
+        switch (CGameInfo::FUN_00405d90()) {
+        case 0:
+            count = *pInfo >> 8 & 0xf;
+            break;
+        case 1:
+            count = *pInfo >> 0xc & 0xf;
+            break;
+        case 2:
+            count = *pInfo >> 0x10 & 0xf;
+            break;
+        }
+    }
+    for (i = 0; i < 8; i++) {
+        if (i < count || (CGameInfo::FUN_00405d80() != 1 && i < 4))
+            FUN_004f8340()->items[i].enabled = 1;
+        else
+            FUN_004f8340()->items[i].enabled = 0;
+    }
+    FUN_004ea990(&values[0], &values[1]);
+    FUN_004f8340()->cursor = (char)values[0];
+    FUN_004f8350()->cursor = (char)values[1];
 }
 
 // Entering the player profile menu (back: undoes the previous player's
