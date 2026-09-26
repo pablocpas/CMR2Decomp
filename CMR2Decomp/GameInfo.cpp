@@ -4587,6 +4587,40 @@ void FUN_00501ac0(void)
     g_unk0x0082b1b8 = shade;
 }
 
+// Advances the 16.16 transition value of every option record: records that
+// passed their duration switch to mode 2 at full scale, the rest receive the
+// proportion of the elapsed time squared in mode 1 or square-rooted in mode 2.
+// FUNCTION: CMR2 0x00501b90
+void FUN_00501b90(void)
+{
+    int i;
+
+    for (i = 0; i < g_unk0x0082b1bc; i++) {
+        int elapsed;
+
+        if (g_unk0x0082b2c0[i].field_0xc != 1)
+            continue;
+        elapsed = CMain::GetFrameDelta() - g_unk0x0082b2c0[i].field_0x8;
+        if (elapsed >= g_unk0x0082b2c0[i].field_0x4) {
+            g_unk0x0082b2c0[i].field_0xc = 2;
+            g_unk0x0082b2c0[i].field_0x0 = 0x10000;
+        } else {
+            g_unk0x0082b2c0[i].field_0x0 =
+                FixDiv(elapsed << 16, g_unk0x0082b2c0[i].field_0x4 << 16);
+            switch (g_unk0x0082b2c0[i].field_0x10) {
+            case 2:
+                g_unk0x0082b2c0[i].field_0x0 = FixSqrt(g_unk0x0082b2c0[i].field_0x0);
+                break;
+            case 1:
+                g_unk0x0082b2c0[i].field_0x0 =
+                    FixMul(g_unk0x0082b2c0[i].field_0x0, g_unk0x0082b2c0[i].field_0x0);
+                break;
+            }
+        }
+    }
+    FUN_00501ac0();
+}
+
 // True when the option slot is enabled: mode 2/4 are checked against their
 // selectors, everything else is accepted.
 // FUNCTION: CMR2 0x00501280
@@ -5217,6 +5251,31 @@ char g_strFontGeneralDot[12] = "general\\dot";
 // GLOBAL: CMR2 0x005296ac
 char g_strFontGeneralHandel[15] = "general\\handel";
 
+void FUN_004cf260(void);
+Unk0049c2c0 *FUN_004ff440(void);
+int FUN_004a1280(void);
+void FUN_004067d0(void);
+
+// Starts the option menu: rebuilds the frontend, flags the option state, arms
+// the fade timer and switches the grouped callback machine to level 2; when the
+// menu is active and this is not the "restart" path it runs the transitions.
+// FUNCTION: CMR2 0x005001c0
+void FUN_005001c0(char param1)
+{
+    Unk0049c2c0 *p;
+
+    FUN_004cf260();
+    p = FUN_004ff440();
+    g_unk0x0082a938 = 1;
+    g_unk0x0082b0a4 = CMain::GetFrameDelta();
+    CGame::FUN_0049c1c0(p, 0, 0, 2);
+    if (CGameInfo::FUN_00405e00() != '\0' && param1 == '\0') {
+        CGame::FUN_004a1a90();
+        FUN_004a1280();
+        FUN_004067d0();
+    }
+}
+
 // Starts the fade of the option menu once more than 50 frames have passed.
 // FUNCTION: CMR2 0x00501350
 void FUN_00501350(int param1, int unused)
@@ -5445,7 +5504,7 @@ struct Unk0x0082cb78 {
     // The deform code (FUN_00507a10/0x507fe0) reads the first 0x14 bytes as ints and the
     // 0x14/0x24/0x34/0x44 slots as int[4]; both spellings are the same memory.
     union {
-        struct { BYTE field_0x0; BYTE field_0x1[7]; };
+        struct { BYTE field_0x0; BYTE field_0x1[3]; SceneNode *pNode5; }; // 0x4 fifth child
         struct { int field_0x00; int field_0x04; };
     };
     union { SceneNode *pNode; int field_0x08; };              // 0x8
@@ -5675,6 +5734,7 @@ BYTE g_unk0x0082ca18;
 
 // 0x54-byte per-slot entry of the table at 0x82cb78: the scene node whose
 // mesh is shown and the three wheel-mesh variants that can be assigned to it.
+
 // GLOBAL: CMR2 0x0082d15c
 int g_unk0x0082d15c[2];
 
@@ -5821,6 +5881,49 @@ void FUN_00506080(int param1)
     }
 }
 
+// Animates every slot's wheel rotation towards its target angles: slots whose
+// animation time is over copy the target straight into the current angles, the
+// rest write the animated angles scaled by the squared proportion of the
+// elapsed time and hand them to the slot's scene node.
+// FUNCTION: CMR2 0x00506720
+void FUN_00506720(void)
+{
+    unsigned int time;
+    int i;
+
+    time = CMain::GetFrameDelta();
+    i = 0;
+    if (CGameInfo::FUN_00405d70() > 0) {
+        do {
+            unsigned int duration;
+            short *pAngles;
+
+            duration = g_unk0x00831080;
+            if (g_unk0x0083131c[i] != 0 && time - g_unk0x00831148[i] > g_unk0x00831080)
+                g_unk0x0083131c[i] = 0;
+            pAngles = (short *)&g_unk0x0082d0b8[i];
+            if (g_unk0x0083131c[i] != 0) {
+                unsigned int t = (time * 100 - g_unk0x00831148[i] * 100) / duration;
+                int k = (int)(t * t) / 100;
+
+                pAngles[0] = (short)(g_unk0x0082d0d8[i].field_0x0 * k / 100 + g_unk0x0082d0f8[i].field_0x0);
+                pAngles[1] = (short)(g_unk0x0082d0d8[i].field_0x2 * k / 100 + g_unk0x0082d0f8[i].field_0x2);
+                pAngles[2] = (short)(g_unk0x0082d0d8[i].field_0x4 * k / 100 + g_unk0x0082d0f8[i].field_0x4);
+                FUN_00500920(i, 0, k);
+            } else {
+                pAngles[0] = g_unk0x0082fce0[i].field_0x0;
+                pAngles[1] = g_unk0x0082fce0[i].field_0x2;
+                pAngles[2] = g_unk0x0082fce0[i].field_0x4;
+                FUN_00500920(i, 1, 0);
+            }
+            SceneNode_SetRotation(g_unk0x0082cb78[i].pNode, (FixAngles *)pAngles);
+            FUN_00509dc0(i);
+            FUN_005091c0(i);
+            i++;
+        } while (i < (CGameInfo::FUN_00405d70() & 0xff));
+    }
+}
+
 // Saves the rotation matrix of the slot's scene node, rotates the node to the
 // given angles, rotates param2 by the new matrix into param3 and puts the old
 // rotation matrix back.
@@ -5902,6 +6005,25 @@ void FUN_00506930(int param1, short *param2, int param3)
     g_unk0x0082d0d8[param1].field_0x0 = (short)(__int64)((double)a[0] * g_unk0x00511300);
     g_unk0x0082d0d8[param1].field_0x2 = (short)(__int64)((double)a[1] * g_unk0x00511300);
     g_unk0x0082d0d8[param1].field_0x4 = (short)(__int64)((double)a[2] * g_unk0x00511300);
+}
+
+void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
+
+// Shows or hides the wheel scene nodes of a slot: the root node and its
+// bounding-box child receive the visibility mask, and showing them also
+// re-applies the option state and the wheel mesh variants.
+// FUNCTION: CMR2 0x00506b20
+void FUN_00506b20(int index, char visible)
+{
+    if (visible != '\0') {
+        SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0xff);
+        SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode5, 0xff);
+        FUN_00509150(index);
+        FUN_00506080(index);
+        return;
+    }
+    SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode, 0);
+    SceneNode_SetViewMaskTree(g_unk0x0082cb78[index].pNode5, 0);
 }
 
 // Allocates and fills the per-slot wheel vertex buffers of param3: the six
