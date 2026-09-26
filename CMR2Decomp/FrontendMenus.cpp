@@ -1,6 +1,17 @@
 #include <windows.h>
 #include "FrontendMenus.h"
 #include "GameInfo.h"
+#include "Graphics.h"
+#include "Frontend.h"
+#include "FrontendDraw.h"
+#include "Input.h"
+#include "Font.h"
+#include "Sprite.h"
+#include "Texture.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "main.h"
 
 // GLOBAL: CMR2 0x00525c30
 BYTE g_eventEntries[288] = {
@@ -411,10 +422,26 @@ BYTE *FUN_004f92c0(int index)
     return g_unk0x00825f6c + index * 25;
 }
 
-// GLOBAL: CMR2 0x00829450
-BYTE g_unk0x00829450[6][0x2f0];
+// Working copy of the 6 controller configurations edited by the controls
+// menus (copied back to CInput::m_controllerInfo when leaving).
+// GLOBAL: CMR2 0x00829448
+ControllerData g_controlsCopy[6];
+
+// Calibration of one axis as shown by the controls menu.
+struct AxisBinding {
+    int field_0x0;
+    int field_0x4;
+    int deadzone;       // 0x8  0..10000
+    int saturation;     // 0xc  0..10000
+    int position;       // 0x10 16.16, -1..1
+};
+// GLOBAL: CMR2 0x0082a5e8
+AxisBinding g_axisBindings[8];
+
+void FUN_004fcc50(ControllerData *p, int index);
+void Input_GetLastKeyName(LPSTR pName, unsigned int size);
 // GLOBAL: CMR2 0x0082a7c8
-unsigned short g_unk0x0082a7c8[14];
+unsigned short g_unk0x0082a7c8[12];
 // GLOBAL: CMR2 0x0082a7e4
 int g_unk0x0082a7e4;
 // GLOBAL: CMR2 0x0082a7e8
@@ -422,16 +449,435 @@ int g_unk0x0082a7e8;
 // GLOBAL: CMR2 0x0082a7ec
 int g_unk0x0082a7ec;
 
+// Configuration of the device selected in the controls menu.
+#define CONTROLS_SEL (g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff])
+
 // FUNCTION: CMR2 0x004fba80
 short FUN_004fba80(void)
 {
     return (short)g_unk0x0082a7ec;
 }
 
+// Item callback of the controls list: selects the device of this entry.
+// FUNCTION: CMR2 0x004fbea0
+void FUN_004fbea0(Menu *pMenu, int param)
+{
+    *(short *)&g_unk0x0082a7ec = pMenu->cursor;
+}
+
+// Enables and shows the 8 entries of the controls list.
+// FUNCTION: CMR2 0x004fba90
+void FUN_004fba90(Menu *pMenu, int param)
+{
+    MenuItem *pItem;
+    int i;
+
+    i = 8;
+    pItem = pMenu->items;
+    do {
+        i--;
+        pItem->enabled = 1;
+        pItem->visible = 1;
+        pItem++;
+    } while (i != 0);
+}
+
+// GLOBAL: CMR2 0x00829428
+int g_unk0x00829428[8];
+// GLOBAL: CMR2 0x0082a7e0
+int g_unk0x0082a7e0;
+
+void FUN_0040bad0(void);
+void FUN_004b7d40(void);
+
+// Starts redefining a control: freezes the menu, waits for the keys to be
+// released and snapshots the axes of the selected joystick/mouse.
+// TODO: CMR2 0x004fbec0 (implemented, match 81%)
+void FUN_004fbec0(Menu *pMenu, int param)
+{
+    BYTE *pDevice;
+    int *pOut;
+    int i;
+
+    g_unk0x0082a7e4 = 1;
+    Menu_SetFlags(pMenu, 0, 0, 0, 0);
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    g_unk0x0082a7e0 = CInput::GetFirstPressedKey();
+    FUN_004b7d40();
+    pDevice = (BYTE *)CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+    for (i = 0; i < 8; i++)
+        g_unk0x00829428[i] = 0;
+    if (*(int *)pDevice == 3 || *(int *)pDevice == 2) {
+        pOut = g_unk0x00829428;
+        pDevice += 0x47c;
+        do {
+            if (*(int *)(pDevice - 0x10) != 0)
+                *pOut = *(int *)pDevice;
+            pOut++;
+            pDevice += 0x14;
+        } while (pOut < &g_unk0x00829428[8]);
+    }
+}
+
+// Menu callback of the device page: shows the entries the selected device
+// supports (no calibration entry for keyboard/mouse or fewer than 4 axes, no
+// axis entries for the mouse).
+// TODO: CMR2 0x004fbf60 (implemented, match 82%)
+void FUN_004fbf60(Menu *pMenu, char param)
+{
+    DeviceInfo *pDevice;
+
+    if (param == 0) {
+        pDevice = CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+        pMenu->items[1].enabled = 1;
+        pMenu->items[1].visible = 1;
+        pMenu->items[0].enabled = 1;
+        pMenu->items[0].visible = 1;
+        pMenu->items[9].enabled = 1;
+        pMenu->items[9].visible = 1;
+        if (pDevice->field_0x0 == 1 || pDevice->field_0x0 == 2 || pDevice->field_0x14 < 4) {
+            pMenu->items[9].enabled = 0;
+            pMenu->items[9].visible = 0;
+        }
+        if (pDevice->field_0x0 == 2) {
+            pMenu->items[0].enabled = 0;
+            pMenu->items[0].visible = 0;
+            pMenu->items[1].enabled = 0;
+            pMenu->items[1].visible = 0;
+        }
+    }
+}
+
+ControllerData *FUN_0040bbb0(void);
+
+// Leaving the device page: "back" goes to the controls menu; otherwise the
+// edited configuration is stored and a joystick goes on to its calibration.
+// TODO: CMR2 0x004fbff0 (implemented, match 89%)
+void FUN_004fbff0(Menu *pMenu, char back)
+{
+    if (back != 0) {
+        Menu_SetNextAction((int)FUN_004fa530());
+        return;
+    }
+    memcpy(FUN_0040bbb0(), g_controlsCopy, sizeof(g_controlsCopy));
+    CInput::FUN_0040be90(g_unk0x0082a7ec & 0xffff);
+    if (CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff])->field_0x0 == 3)
+        Menu_SetNextAction((int)FUN_004fa500());
+}
+
+// Whether the entry under the cursor is bound: entries 0/1 by field_0x110,
+// 2/3 by field_0x114 of the selected configuration.
+// FUNCTION: CMR2 0x004fc490
+int FUN_004fc490(Menu *pMenu)
+{
+    if (g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1))
+        return 1;
+    if (g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3))
+        return 1;
+    return 0;
+}
+
+// Menu callback while a control is being redefined: waits for a new key,
+// button or axis movement (more than 0.3 of the range), stores it for the
+// entry under the cursor and unfreezes the menu.
+// TODO: CMR2 0x004fc070 (implemented, match 77%)
+void FUN_004fc070(Menu *pMenu)
+{
+    DeviceInfo *pDevice;
+    int *pPosition;
+    int *pReference;
+    unsigned int buttons;
+    BOOL done;
+    BOOL axisPair;
+    short axis;
+    char count;
+    int key;
+    int i;
+
+    done = FALSE;
+    if (g_unk0x0082a7e4 == 0)
+        return;
+    Menu_SetFlags(pMenu, 0, 0, 0, 0);
+    pDevice = CInput::FUN_0049ead0(CONTROLS_SEL);
+    key = CInput::GetFirstPressedKey();
+    if (g_unk0x0082a7e0 != -1) {
+        g_unk0x0082a7e0 = key;
+    } else if (key != -1 && FUN_004fc490(pMenu) == 0) {
+        done = TRUE;
+        Input_GetLastKeyName(g_controlsCopy[CONTROLS_SEL].keyNames[pMenu->cursor], 20);
+        CInput::FUN_0040c550(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, key);
+        if (pDevice->field_0x0 != 1)
+            CInput::FUN_0040c130(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, 0);
+    }
+    axisPair = g_controlsCopy[CONTROLS_SEL].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1);
+    if (((g_controlsCopy[CONTROLS_SEL].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3)) || axisPair)
+        && (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2)) {
+        axis = 0;
+        pPosition = (int *)((BYTE *)pDevice + 0x47c);
+        pReference = g_unk0x00829428;
+        do {
+            if (pPosition[-4] != 0 && abs(*pReference - *pPosition) > 0x4ccc) {
+                done = TRUE;
+                g_controlsCopy[CONTROLS_SEL].field_0x210[pMenu->cursor] = *(ControllerDataUnk0x210 *)(pPosition - 4);
+                g_controlsCopy[CONTROLS_SEL].field_0x2d8[pMenu->cursor] = axis;
+                CInput::FUN_0040c130(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, 0);
+                CInput::FUN_0040c550(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, 0);
+                *pReference = *pPosition;
+            }
+            pReference++;
+            axis++;
+            pPosition += 5;
+        } while (pReference < &g_unk0x00829428[8]);
+    }
+    if (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) {
+        if (g_controlsCopy[CONTROLS_SEL].field_0x110 != 0)
+            pDevice->field_0x8 &= ~3;
+        if (g_controlsCopy[CONTROLS_SEL].field_0x114 != 0)
+            pDevice->field_0x8 &= ~0xc;
+    }
+    buttons = pDevice->field_0x8;
+    count = 0;
+    for (i = 32; i != 0; i--) {
+        if (buttons & 1)
+            count++;
+        buttons >>= 1;
+    }
+    if (count == 1 && pDevice->field_0x0 != 1 && FUN_004fc490(pMenu) == 0) {
+        CInput::FUN_0040c130(&g_controlsCopy[CONTROLS_SEL].field_0x128, pMenu->cursor, (unsigned short)pDevice->field_0x8);
+        CInput::FUN_0040c550(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, 0);
+    } else if (!done) {
+        return;
+    }
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    g_unk0x0082a7e4 = 0;
+    Menu_SetFlags(pMenu, 1, 1, 1, 1);
+    FUN_004fcc50(&g_controlsCopy[CONTROLS_SEL], pMenu->cursor);
+}
+
+// Menu callback of the calibration page: one entry per axis the device has,
+// with the stored calibration of the axis; the last entry leads to the
+// pad or the joystick page.
+// TODO: CMR2 0x004fc500 (implemented, match 63%)
+void FUN_004fc500(Menu *pMenu, int param)
+{
+    ControllerData *pData;
+    unsigned int dev;
+    unsigned int axis;
+    AxisBinding *pBinding;
+    MenuItem *pItem;
+    int *pFlag;
+    int j;
+
+    dev = CONTROLS_SEL;
+    pFlag = (int *)((BYTE *)CInput::FUN_0049ead0(dev) + 0x46c);
+    axis = 0;
+    pBinding = g_axisBindings;
+    pItem = pMenu->items;
+    do {
+        if (*pFlag == 0) {
+            pItem->enabled = 0;
+            pItem->visible = 0;
+        } else {
+            pData = &FUN_0040bbb0()[dev];
+            pItem->enabled = 1;
+            pItem->visible = 1;
+            for (j = 0; j < 10; j++) {
+                if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
+                    *(ControllerDataUnk0x210 *)pBinding = pData->field_0x210[j];
+            }
+        }
+        pBinding++;
+        axis++;
+        pFlag += 5;
+        pItem++;
+    } while (pBinding < &g_axisBindings[8]);
+    if (g_controlsCopy[dev].field_0x118 == 0)
+        pMenu->items[axis].pSubMenu = FUN_004fa4f0();
+    else
+        pMenu->items[axis].pSubMenu = FUN_004fa520();
+}
+
+// Menu callback while calibrating an axis: left/right (shift: saturation)
+// move the deadzone in steps of 50; the confirm button applies every axis to
+// the device and the reset button takes the device's current values.
+// TODO: CMR2 0x004fc620 (implemented, match 68%)
+void FUN_004fc620(Menu *pMenu)
+{
+    DeviceInfo *pKeys;
+    ControllerData *pData;
+    AxisBinding *pBinding;
+    BYTE *pDevice;
+    unsigned int held;
+    unsigned int axis;
+    int j;
+
+    if (g_unk0x0082a7e8 != 0) {
+        pKeys = CInput::FUN_0049ead0(0);
+        if (pKeys->field_0x8 & 0x10) {
+            pData = &FUN_0040bbb0()[CONTROLS_SEL];
+            pBinding = g_axisBindings;
+            axis = 0;
+            do {
+                CInput::SetJoystickAxisSaturation(CONTROLS_SEL, axis, pBinding->saturation);
+                CInput::SetJoystickAxisDeadzone(CONTROLS_SEL, axis, pBinding->deadzone);
+                for (j = 0; j < 10; j++) {
+                    if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
+                        pData->field_0x210[j] = *(ControllerDataUnk0x210 *)pBinding;
+                }
+                pBinding++;
+                axis++;
+            } while (pBinding < &g_axisBindings[8]);
+            g_unk0x0082a7e8 = 0;
+        }
+        if (pKeys->field_0x8 & 0x20) {
+            pDevice = (BYTE *)CInput::FUN_0049ead0(CONTROLS_SEL);
+            g_axisBindings[pMenu->cursor].deadzone = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x474);
+            g_unk0x0082a7e8 = 0;
+            g_axisBindings[pMenu->cursor].saturation = *(int *)(pDevice + pMenu->cursor * 0x14 + 0x478);
+        }
+        held = pKeys->field_0x4;
+        if (CInput::IsShiftPressed() == 0) {
+            if (held & 1) {
+                if (g_axisBindings[pMenu->cursor].saturation < 0x26de)
+                    g_axisBindings[pMenu->cursor].saturation += 0x32;
+            } else if (held & 2) {
+                if (g_axisBindings[pMenu->cursor].saturation > 0x32)
+                    g_axisBindings[pMenu->cursor].saturation -= 0x32;
+            }
+        } else if (held & 1) {
+            if (g_axisBindings[pMenu->cursor].deadzone > 0x32)
+                g_axisBindings[pMenu->cursor].deadzone -= 0x32;
+        } else if (held & 2) {
+            if (g_axisBindings[pMenu->cursor].deadzone < 0x26de)
+                g_axisBindings[pMenu->cursor].deadzone += 0x32;
+        }
+        if (g_unk0x0082a7e8 != 0)
+            return;
+    }
+    Menu_SetFlags(pMenu, 1, 1, 1, 1);
+}
+
+// Starts calibrating: freezes the menu and waits for the keys to be released.
+// FUNCTION: CMR2 0x004fc850
+void FUN_004fc850(Menu *pMenu, int param)
+{
+    g_unk0x0082a7e8 = 1;
+    Menu_SetFlags(pMenu, 0, 0, 0, 0);
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+}
+
+// Clears every other binding of the configuration that uses the same button
+// or key as binding `index`.
+// FUNCTION: CMR2 0x004fcc50
+void FUN_004fcc50(ControllerData *p, int index)
+{
+    unsigned short *pButton;
+    char *pName;
+    int i;
+
+    i = 0;
+    pName = p->keyNames[0];
+    pButton = &p->field_0x128;
+    do {
+        if (i != index) {
+            if (*pButton == (&p->field_0x128)[index])
+                *pButton = 0;
+            if (p->field_0x13e[i] == p->field_0x13e[index]) {
+                p->field_0x13e[i] = 0;
+                *pName = 0;
+            }
+        }
+        i++;
+        pButton++;
+        pName += 20;
+    } while (i < 10);
+}
+
+// Current position of axis `index` of the selected device.
+// FUNCTION: CMR2 0x004fbe60
+AxisBinding *FUN_004fbe60(int index)
+{
+    BYTE *pDevice = (BYTE *)CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
+
+    g_axisBindings[index].position = *(int *)(pDevice + index * 0x14 + 0x47c);
+    return &g_axisBindings[index];
+}
+
+
+// GLOBAL: CMR2 0x0082a788
+char g_bindingText[64];
+
+// Text shown for binding `index` of the selected device: the key name, the
+// button name, "axis N", or the direction names of a pad/mouse.
+// TODO: CMR2 0x004fbae0 (implemented, match 71%)
+char *FUN_004fbae0(int index)
+{
+    DeviceInfo *pDevice;
+    unsigned short button;
+    unsigned int dev;
+    int i;
+
+    pDevice = CInput::FUN_0049ead0(CONTROLS_SEL);
+    if (pDevice->field_0x0 == 1)
+        return g_controlsCopy[CONTROLS_SEL].keyNames[index];
+    if (CInput::FUN_0040c270(index, &g_controlsCopy[CONTROLS_SEL]) != 0)
+        return g_controlsCopy[CONTROLS_SEL].keyNames[index];
+    dev = CONTROLS_SEL;
+    if (g_controlsCopy[dev].field_0x210[index].field_0x0 == 0 || pDevice->field_0x0 != 3) {
+        button = (&g_controlsCopy[dev].field_0x128)[index];
+        if (pDevice->field_0x0 == 0) {
+            if (button == 1)
+                return CFrontend::GetTextString(0x1f9);
+            if (button == 2)
+                return CFrontend::GetTextString(0x1fa);
+            if (button == 4)
+                return CFrontend::GetTextString(0x1fb);
+            if (button == 8)
+                return CFrontend::GetTextString(0x1fc);
+        }
+        if (pDevice->field_0x0 == 2) {
+            if (index == 0)
+                return CFrontend::GetTextString(0x1f9);
+            if (index == 1)
+                return CFrontend::GetTextString(0x1fa);
+        }
+        i = CInput::GetButtonIndexFromMask(button);
+        if (i != -1)
+            return pDevice->field_0x284[i];
+    } else if (g_controlsCopy[dev].field_0x110 == 0 && (index == 0 || index == 1)) {
+        button = (&g_controlsCopy[dev].field_0x128)[index];
+        i = CInput::GetButtonIndexFromMask(button);
+        if (i != -1) {
+            if (strcmp(pDevice->field_0x284[i], CMain::m_logFileBlankLine) != 0)
+                return pDevice->field_0x284[i];
+            if (button == 1)
+                return CFrontend::GetTextString(0x1f9);
+            return CFrontend::GetTextString(0x1fa);
+        }
+    } else if (g_controlsCopy[dev].field_0x114 != 0 || (index != 2 && index != 3)) {
+        sprintf(g_bindingText, CFrontend::GetTextString(0x77), g_controlsCopy[dev].field_0x2d8[index]);
+        return g_bindingText;
+    } else {
+        button = (&g_controlsCopy[dev].field_0x128)[index];
+        i = CInput::GetButtonIndexFromMask(button);
+        if (i != -1) {
+            if (strcmp(pDevice->field_0x284[i], CMain::m_logFileBlankLine) != 0)
+                return pDevice->field_0x284[i];
+            if (button == 4)
+                return CFrontend::GetTextString(0x1fb);
+            return CFrontend::GetTextString(0x1fc);
+        }
+    }
+    return g_controlsCopy[CONTROLS_SEL].keyNames[index];
+}
+
 // FUNCTION: CMR2 0x004fbab0
 BYTE *FUN_004fbab0(void)
 {
-    return g_unk0x00829450[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]];
+    return (BYTE *)g_controlsCopy[g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]].name;
 }
 
 // FUNCTION: CMR2 0x004fc060
@@ -444,6 +890,251 @@ int FUN_004fc060(void)
 int FUN_004fc610(void)
 {
     return g_unk0x0082a7e8;
+}
+
+// Draw callback of the controls menu: title, one row (icon + name) per
+// visible entry, separators around the selected row, and the carousel.
+// TODO: CMR2 0x004fccb0 (implemented, match 57%)
+void FUN_004fccb0(Menu *pMenu)
+{
+    short icon[4];
+    short line[4];
+    BYTE *pLineShadow;
+    BYTE *pLineColour;
+    BYTE *pShadow;
+    BYTE *pColour;
+    MenuItem *pItem;
+    Texture *pTexture;
+    int resX;
+    short y0;
+    short row;
+    int i;
+
+    icon[1] = 0;
+    row = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    FrontendDraw_BreadcrumbItem((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480,
+                                g_colourWhite0x00524968, 1, CFrontend::GetTextString(pMenu->field_0x4));
+    resX = g_pGraphics->resX;
+    y0 = (int)(g_pGraphics->resY * 170) / 480;
+    line[0] = resX * 99 / 640;
+    line[3] = 1;
+    line[2] = resX * 282 / 640;
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    line[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    line[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        if (pItem->visible) {
+            icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * row
+                      - CFrontend::m_pAr640ATexture->height / 2;
+            if (pMenu->cursor == i) {
+                pShadow = g_colourWhite0x00524968;
+                pColour = g_colourWhite0x00524968;
+                pTexture = CFrontend::m_pAr640ATexture;
+            } else {
+                pShadow = g_colourText0x0052496c;
+                pColour = g_colourText0x0052496c;
+                pTexture = CFrontend::m_pAr640DTexture;
+            }
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+            if (i < 2)
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), i + 1);
+            else
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x67));
+            Font_DrawText(1, CFrontend::m_stringDest, resX * 0x7a / 640, (int)(g_pGraphics->resY * 24) / 480 + line[1],
+                          (int *)pShadow, 0x11);
+            if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+                pLineColour = g_colourWhite0x00524968;
+                pLineShadow = g_colourShadowWhite0x00524974;
+            } else {
+                pLineColour = g_colourText0x0052496c;
+                pLineShadow = g_colourShadowText0x00524978;
+            }
+            line[1] = (int)(g_pGraphics->resY * 36) / 480 * (row + 1) + y0;
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineShadow, 1);
+            line[1]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineColour, 1);
+            row++;
+        }
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+extern char g_standingsRowFormat[];
+extern BYTE g_colourShadowDim0x0052497c[4];
+
+// Draw callback of the device page: "Controller N | <device>" title and one
+// row per visible binding with its current assignment.
+// TODO: CMR2 0x004fd080 (implemented, match 44%)
+void FUN_004fd080(Menu *pMenu)
+{
+    short icon[4];
+    short line[4];
+    char *text[2];
+    BYTE *pLineShadow;
+    BYTE *pLineColour;
+    BYTE *pShadow;
+    BYTE *pColour;
+    Texture *pTexture;
+    MenuItem *pItem;
+    int resX;
+    short y0;
+    short row;
+    int i;
+
+    icon[1] = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(100), FUN_004fba80() + 1);
+    text[0] = CFrontend::m_stringDest;
+    text[1] = CFrontend::GetTextString(pMenu->field_0x4);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    resX = g_pGraphics->resX;
+    y0 = (int)(g_pGraphics->resY * 65) / 480;
+    line[0] = resX * 99 / 640;
+    line[3] = 1;
+    line[2] = resX * 282 / 640;
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else if (!pMenu->items[0].enabled) {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    line[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pShadow, 1);
+    line[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, line, pColour, 1);
+    row = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        if (pItem->enabled) {
+            icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * row
+                      - CFrontend::m_pAr640ATexture->height / 2;
+            if (pMenu->cursor == i) {
+                pShadow = g_colourWhite0x00524968;
+                pColour = g_colourWhite0x00524968;
+                pTexture = CFrontend::m_pAr640ATexture;
+            } else {
+                pShadow = g_colourText0x0052496c;
+                pColour = g_colourText0x0052496c;
+                pTexture = CFrontend::m_pAr640DTexture;
+            }
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
+            if (i < 10 && (FUN_004fc060() == 0 || pMenu->cursor != i))
+                sprintf(CFrontend::m_stringDest, g_standingsRowFormat, CFrontend::GetTextString(pItem->id), FUN_004fbae0(i));
+            else
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+            Font_DrawText(1, CFrontend::m_stringDest, resX * 0x7a / 640, (int)(g_pGraphics->resY * 24) / 480 + line[1],
+                          (int *)pShadow, 0x11);
+            if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+                pLineColour = g_colourWhite0x00524968;
+                pLineShadow = g_colourShadowWhite0x00524974;
+            } else {
+                pLineColour = g_colourText0x0052496c;
+                pLineShadow = g_colourShadowText0x00524978;
+            }
+            line[1] = (int)(g_pGraphics->resY * 36) / 480 * (row + 1) + y0;
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineShadow, 1);
+            line[1]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, pLineColour, 1);
+            row++;
+        }
+    }
+}
+
+int FUN_004ff420(int a, int b);
+
+// Draws the calibration bar of an axis centred on (x, y): the bar, the
+// deadzone and saturation marks and the current position.
+// TODO: CMR2 0x004ff0f0 (implemented, match 62%)
+void FUN_004ff0f0(short x, short y, DWORD colour, AxisBinding *pAxis)
+{
+    short deadzone[4];
+    short saturation[4];
+    short bar[4];
+    short position[4];
+    short half;
+    int v;
+
+    bar[0] = x - (short)((int)(g_pGraphics->resX * 200) / 1280);
+    bar[1] = y - (short)((int)(g_pGraphics->resY * 10) / 960);
+    bar[2] = (int)(g_pGraphics->resX * 200) / 640;
+    bar[3] = (int)(g_pGraphics->resY * 10) / 480;
+    Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)&colour, 1);
+    if (pAxis != NULL) {
+        half = (short)(FUN_004ff420(pAxis->deadzone, (int)(g_pGraphics->resX * 200) / 640) / 2);
+        deadzone[0] = x - half;
+        deadzone[2] = 2;
+        deadzone[1] = y - (short)((int)(g_pGraphics->resY * 10) / 960) - 2;
+        deadzone[3] = (int)(g_pGraphics->resY * 10) / 480 + 4;
+        Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
+        v = FUN_004ff420(pAxis->saturation, (int)(g_pGraphics->resX * 200) / 640);
+        deadzone[0] = half + x;
+        saturation[2] = deadzone[2];
+        half = (short)(v / 2);
+        saturation[0] = x - half;
+        saturation[1] = deadzone[1];
+        saturation[3] = deadzone[3];
+        position[3] = deadzone[3];
+        v = (int)(g_pGraphics->resX * 200) / 640 * pAxis->position / 2;
+        position[0] = (short)(v / 0x10000) + x;
+        position[1] = deadzone[1];
+        position[2] = deadzone[2];
+        Sprite_FillRect((int)g_pGraphics + 0x150, deadzone, g_colourWhite0x00524968, 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
+        saturation[0] = half + x;
+        Sprite_FillRect((int)g_pGraphics + 0x150, saturation, g_colourWhite0x00524968, 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, position, g_colourWhite0x00524968, 1);
+    }
+}
+
+// Draws row `index` of the calibration page: the axis bar in white when
+// selected (red while calibrating), dim when the entry is hidden.
+// TODO: CMR2 0x004ff060 (implemented, match 65%)
+void FUN_004ff060(short x, short y, Menu *pMenu, int index)
+{
+    AxisBinding *pAxis;
+    DWORD colour;
+    BYTE red[4];
+
+    red[1] = 0x14;
+    red[2] = 0x14;
+    red[0] = 0xf0;
+    red[3] = 0xff;
+    if (!pMenu->items[index].visible) {
+        pAxis = NULL;
+        colour = *(DWORD *)g_colourDim0x00524970;
+    } else {
+        pAxis = FUN_004fbe60(index);
+        if (pMenu->cursor == index) {
+            colour = *(DWORD *)g_colourWhite0x00524968;
+            if (FUN_004fc610() != 0)
+                colour = *(DWORD *)red;
+        } else {
+            colour = *(DWORD *)g_colourText0x0052496c;
+            if (!pMenu->items[index].enabled)
+                return;
+        }
+    }
+    FUN_004ff0f0(x, y, colour, pAxis);
 }
 
 // FUNCTION: CMR2 0x004ff420
@@ -1785,4 +2476,42 @@ Menu *FUN_004fa520(void)
 Menu *FUN_004fa530(void)
 {
     return &g_menu0x00829140;
+}
+
+void FUN_004fccb0(Menu *pMenu);
+
+// Controls menu: two device entries and "back".
+// FUNCTION: CMR2 0x004fa540
+void FUN_004fa540(void)
+{
+    Menu_Init(&g_menu0x00828c80, 0, 0x18, 0, FUN_004f82c0(), NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (int)FUN_004fbea0, 0);
+    Menu_AddItemType2(&g_menu0x00828c80, 0, -1, &g_menu0x00829140, (int)FUN_004fbea0, 0);
+    Menu_AddItemType1(&g_menu0x00828c80, 0, 0x67, 0, 0);
+    Menu_SetCallbacks(&g_menu0x00828c80, (MenuCallback)FUN_004fba90, NULL, (MenuCallback)FUN_004fccb0, NULL);
+    Menu_ValidateCursor(&g_menu0x00828c80, 0);
+}
+
+void FUN_004fbec0(Menu *pMenu, int param);
+void FUN_004fbf60(Menu *pMenu, char param);
+void FUN_004fc070(Menu *pMenu);
+void FUN_004fd080(Menu *pMenu);
+void FUN_004fbff0(Menu *pMenu, char back);
+
+// Device page of the controls menu: the 10 bindings and "back".
+// FUNCTION: CMR2 0x004fa5d0
+void FUN_004fa5d0(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x008288c0, 0, 0x65, 0, &g_menu0x00828c80, NULL, 1, 0, 1);
+    i = 0;
+    do {
+        Menu_AddItemType4(&g_menu0x008288c0, 0, i + 0x6b, (int)FUN_004fbec0, i);
+        i++;
+    } while (i < 10);
+    Menu_AddItemType2(&g_menu0x008288c0, 0, 0x67, &g_menu0x00828c80, 0, 0);
+    Menu_SetCallbacks(&g_menu0x008288c0, (MenuCallback)FUN_004fbf60, (MenuCallback)FUN_004fc070,
+                      (MenuCallback)FUN_004fd080, (MenuCallback)FUN_004fbff0);
+    Menu_ValidateCursor(&g_menu0x008288c0, 0);
 }

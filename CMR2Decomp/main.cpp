@@ -370,3 +370,7 @@ unsigned int CMain::GetFrameDelta(void)
     m_frameDeltaLast = now;
     return m_frameDelta;
 }
+
+// The game's statically linked CRT sprintf (ours comes from the import library).
+// LIBRARY: CMR2 0x00405620
+// _sprintf
