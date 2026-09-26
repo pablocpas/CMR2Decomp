@@ -6,6 +6,10 @@
 #include "Input.h"
 #include "Sound.h"
 
+void FUN_004a9b30(void);
+void FUN_004b7d40(void);
+int Args_Parse(char *pCommandLine);
+
 HINSTANCE CMain::m_hInstance;
 int CMain::m_frameTime;
 BOOL CMain::m_frameDeltaInitialised;
@@ -37,11 +41,11 @@ char m_lpszMenuName[5] = "menu";
 int WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	HINSTANCE hInstance = GetModuleHandleA(NULL);
-	return CMain::Initialize(hInstance, 0, lpCmdLine); // TODO: params aren't correct
+	return CMain::Initialize(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }
 
 // FUNCTION: CMR2 0x004a9720
-unsigned char CMain::Initialize(HINSTANCE hInstance, unsigned char param2, LPSTR param3)
+unsigned char CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	HWND hWnd;
 	BOOL isMessageAvailable;
@@ -55,6 +59,10 @@ unsigned char CMain::Initialize(HINSTANCE hInstance, unsigned char param2, LPSTR
 	CLogger::LogToFile(m_logFileAsterisks);
 	CLogger::LogToFile(m_logFileBlankLine);
 	m_hInstance = hInstance;
+	FUN_004a9b30();
+	CGame::FUN_004aad50();
+	FUN_004b7d40();
+	Args_Parse(lpCmdLine);
 
 	CreateGameWindow(hInstance, &m_hWndList[m_hWndIx], m_gameName, MessageHandler);
 
@@ -191,22 +199,22 @@ LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 
-	case WM_ACTIVATE:
+	case WM_SIZE: // minimised (SIZE_MINIMIZED) or hidden (SIZE_MAXHIDE) pauses the game
 		if (wParam == 4 || wParam == 1)
 			FUN_004a9a50(1);
 		else
 			FUN_004a9a50(0);
 		break;
 
-	case WM_KILLFOCUS:
+	case WM_SETFOCUS:
 		CSound::FUN_004a28c0();
 		break;
 
-	case WM_ENABLE:
+	case WM_KILLFOCUS:
 		CSound::FUN_004a31a0();
 		break;
 
-	case WM_QUIT:
+	case WM_CLOSE:
 		if (g_pGraphics->isFullscreen != 0)
 			return 0;
 
@@ -294,6 +302,25 @@ void CMain::FUN_004b2390(void)
 void CMain::FUN_0049c130(void)
 {
 	CGame::UnwindCallbacks(0);
+}
+
+extern "C" HRESULT WINAPI D3DXInitialize(void);
+extern "C" HRESULT WINAPI D3DXUninitialize(void);
+
+// Shuts D3DX down (registered as a callback by FUN_004a9b30).
+// TODO: CMR2 0x004a9b50 (implemented, match 66%)
+BYTE FUN_004a9b50(void)
+{
+    D3DXUninitialize();
+    return 1;
+}
+
+// Starts D3DX and registers its shutdown.
+// TODO: CMR2 0x004a9b30 (implemented, match 80%)
+void FUN_004a9b30(void)
+{
+    D3DXInitialize();
+    CGame::RegisterCallback(FUN_004a9b50, NULL);
 }
 
 // FUNCTION: CMR2 0x004a9b60

@@ -38,6 +38,8 @@ inline int FixDiv(int a, int b)
 extern unsigned short g_sqrtTable[4096];
 // GLOBAL: CMR2 0x006e2ef4
 extern int g_sinTable[4096];
+// GLOBAL: CMR2 0x006e93f4
+extern int g_tanTable[4096];
 // arctan(i / 512) as a 12-bit angle, 512 entries
 // GLOBAL: CMR2 0x006e8ff4
 extern unsigned short g_atanTable[512];

@@ -32,6 +32,7 @@ public:
     static bool LoadSplashScreens(bool param1);
     static void LoadLanguageFiles(void);
     static bool ReleaseLanguageFiles(void);
+    static GenericFile* FUN_004d21b0(void);
 
     static void FUN_004a3c90(int languages, int count, BYTE **pFiles);
     // GLOBAL: CMR2 0x0065aa6c
@@ -302,6 +303,15 @@ public:
     // GLOBAL: CMR2 0x00524f58
     static char m_strFrontendTexturesTGoldTGA[32];
 
+    // GLOBAL: CMR2 0x00523c78
+    static char m_strFrontEndBinkTGA[24];
+
+    // GLOBAL: CMR2 0x00523c90
+    static char m_strFrontEndTexturesCopyright[40];
+
+    // GLOBAL: CMR2 0x00523cb8
+    static char m_strFrontEndTexturesCmr2TGA[32];
+
     // GLOBAL: CMR2 0x00818530
     static Texture* m_unk0x00818530[3];
     
@@ -313,6 +323,16 @@ public:
 
     // GLOBAL: CMR2 0x0081884c
     static Texture* m_unk0x0081884c[22];
+
+    // Splash screen textures loaded by LoadSplashScreens
+    // GLOBAL: CMR2 0x00817ebc
+    static Texture* m_unk0x00817ebc;
+
+    // GLOBAL: CMR2 0x00817fd0
+    static Texture* m_unk0x00817fd0;
+
+    // GLOBAL: CMR2 0x00817fd4
+    static Texture* m_unk0x00817fd4[4];
 };
 
 #endif

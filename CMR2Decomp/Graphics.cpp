@@ -22,6 +22,11 @@
 #include <winnt.h>
 #include <winuser.h>
 
+// Not declared in Mesh.h yet; the other two are not analysed yet.
+void Mesh_ReuploadAll(void);
+void FUN_004b2e50(void);
+void FUN_004a2ba0(void);
+
 // GLOBAL: CMR2 0x00660830
 Graphics g_graphics;
 
@@ -213,12 +218,18 @@ void CGraphics::FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight
     FUN_004a8bd0(param4);
     FUN_004a8d90(param5);
 
-    BOOL b = FUN_004a7910(screenWidth, screenHeight, colourDepth);
+    if (FUN_004a7910(screenWidth, screenHeight, colourDepth) != 0) {
+        if (CreateDirect3DDevice(screenWidth, screenHeight, colourDepth) != 0) {
+            Mesh_ReuploadAll();
+            FUN_004b2e50();
+            FUN_004a2ba0();
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x004a5be0
 BOOL CGraphics::FUN_004a5be0(void) {
-    int index, textureID, iVar4, iVar7;
+    int index, textureID, face;
 
     m_pTextureManager->pDD->EvictManagedTextures();
     m_unk0x0065fa2c = 0;
@@ -241,23 +252,19 @@ BOOL CGraphics::FUN_004a5be0(void) {
     FUN_004a5ba0();
     index = 0;
 
-    if (m_unk0x0065fa28 != 0) {
-        do {
-            iVar4 = 0x5f0;
-            iVar7 = 0x734;
-
-            do {
-                Texture* pTexture = m_pTextureManager->textureBuffer2[index];
-                if (pTexture != NULL) {
-                    IDirectDrawSurface7* pOther = pTexture->pSurface;
-                    if (pOther->Release() == 0) {
-                        pTexture->pSurface = NULL;
-                    }
-                }
-            } while (0x71f < iVar7);
-            
-            index++;
-        } while (index < m_unk0x0065fa28);
+    // Cube maps: for each one, its 6 z-buffers and its 6 face surfaces, last first
+    // (the original walks both arrays downwards from face 5)
+    for (index = 0; index < m_unk0x0065fa28; index++) {
+        for (face = 5; face >= 0; face--) {
+            RenderTexture *pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
+            IDirectDrawSurface7 **ppFace;
+            if (pCube->pZBuffers[face] != NULL && pCube->pZBuffers[face]->Release() == 0)
+                ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->pZBuffers[face] = NULL;
+            pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
+            ppFace = (IDirectDrawSurface7 **)((BYTE *)pCube + 0x114 + face * sizeof(RenderTextureFace));
+            if (*ppFace != NULL && (*ppFace)->Release() == 0)
+                *(IDirectDrawSurface7 **)((BYTE *)m_pTextureManager->textureBuffer2[index] + 0x114 + face * sizeof(RenderTextureFace)) = NULL;
+        }
     }
 
     return TRUE;
@@ -435,7 +442,10 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
         g_pGraphics->pDD7->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], 0x851);
     }
 
-    g_pGraphics->pDD7->QueryInterface(IID_IDirect3D7, (LPVOID*)&m_pTextureManager);
+    // The target is the wrapper's pDD field (offset 0), not the pointer itself:
+    // QueryInterface stores the IDirect3D7 there and m_pTextureManager keeps
+    // pointing at g_textureManager.
+    g_pGraphics->pDD7->QueryInterface(IID_IDirect3D7, (LPVOID*)&m_pTextureManager->pDD);
     m_unk0x00663b18 = 0;
     m_unk0x00663b20 = 0;
 

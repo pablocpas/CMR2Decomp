@@ -958,7 +958,7 @@ void CGameInfo::FUN_00406580(void) {
 
 // TODO: is this actually gameinfo related?
 // FUNCTION: CMR2 0x0049eaf0
-DWORD CGameInfo::SetupInputs(void) {
+DWORD CGameInfo::SetupInputs(int unused) {
     if (CInput::DInputCreate()) {
         CInput::m_unk0x0059f8cc.field_0x0 = 0;
         CInput::m_unk0x0059f8cc.field_0x1 = 2;
@@ -2876,7 +2876,7 @@ BYTE *RallyData_FUN_00408930(BYTE index);
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
 // TODO: CMR2 0x00403700 (implemented, match 77%)
-void FUN_00403700(Menu *pMenu)
+void FUN_00403700(Menu *pMenu, char unused)
 {
     BYTE index;
 
@@ -2897,7 +2897,7 @@ void FUN_00403700(Menu *pMenu)
 
 // Item callback of the camera menu "default" item.
 // TODO: CMR2 0x004036c0 (implemented, match 75%)
-void FUN_004036c0(Menu *pMenu)
+void FUN_004036c0(Menu *pMenu, char unused)
 {
     g_unk0x0052aa5c = 0xe0000;
     g_unk0x0052a86c = 0x2d;

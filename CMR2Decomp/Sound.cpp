@@ -1080,7 +1080,7 @@ BOOL FUN_004a2a20(void)
     g_unk0x005a271c = 0x7f400;
     desc.dwBufferBytes = 0x7f400;
     desc.dwSize = sizeof(desc);
-    desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS;
+    desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLVOLUME;
     format.wFormatTag = WAVE_FORMAT_PCM;
     format.nChannels = 2;
     format.nSamplesPerSec = 44100;
@@ -1103,5 +1103,14 @@ int FUN_004b7ae0(void)
     g_unk0x006e0ef0 = 0;
     CSound::m_unk0x006e0eec = 0;
     return 1;
+}
+
+// Not analysed yet: when the slot at 0x5a2734 exists it re-enables the 3D
+// listener (FUN_004a28d0 on the buffer at 0x5a2738), re-applies the volume
+// from FUN_00405e40() through FUN_004a31f0 and calls FUN_004a2bd0(1).
+// Called right after the Direct3D device is created.
+// STUB: CMR2 0x004a2ba0
+void FUN_004a2ba0(void)
+{
 }
 

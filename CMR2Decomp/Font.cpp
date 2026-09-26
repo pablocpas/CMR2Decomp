@@ -107,7 +107,7 @@ void Font_Load(char *name, GenericFile *pFile, unsigned int index)
         sprintf(path, g_fontTgaFormat, CInstallInfo::GetFontsDir(), name);
         pTexture = CTexture::FindLoadTexture(pFile, path, NULL, NULL, 0, 0);
         if (pTexture != NULL) {
-            sprintf(path + strlen(path) - 3, g_fontPcfExtension);
+            sprintf(path + strlen(path) - 4, g_fontPcfExtension);
             pData = CGenericFileLoader::FindFile(pFile, path, &bInArchive, NULL, 0);
             if (pData != NULL)
                 Font_Setup(pData, pTexture, index, bInArchive);

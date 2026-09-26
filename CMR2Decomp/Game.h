@@ -163,8 +163,11 @@ public:
     static Unk0049c2c0 m_unk0x00817da0;
     // GLOBAL: CMR2 0x00817d98
     static Unk00817d98 m_unk0x00817d98;
+    // State transition rules of the grouped callback machine (FUN_0049c1c0):
+    // byte 0 = current state, byte 1 = match (0xff = any), byte 2 = next
+    // state, byte 3 = level. Terminated by 0xffffffff.
     // GLOBAL: CMR2 0x00523c18
-    static BYTE m_unk0x00523c18;
+    static unsigned int m_unk0x00523c18[16];
     // GLOBAL: CMR2 0x00593cac
     static BYTE m_unk0x00593cac;
 

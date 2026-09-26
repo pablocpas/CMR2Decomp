@@ -178,7 +178,7 @@ public:
     static void FUN_00406010(GameInfo0xa4 *param1);
     static void FUN_00406560(void);
     static void FUN_00406580(void);
-    static DWORD SetupInputs(void);
+    static DWORD SetupInputs(int unused);
     static bool LoadGameInfo(void);
     static unsigned int IsFullscreen(void);
     static int FUN_00405ca0(void);

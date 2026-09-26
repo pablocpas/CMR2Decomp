@@ -29,6 +29,7 @@ struct internal_state {int dummy;}; /* for buggy compilers */
 #define ALLOC(size) malloc(size)
 #define TRYFREE(p) {if (p) free(p);}
 
+// GLOBAL: CMR2 0x00521740
 static int gz_magic[2] = {0x1f, 0x8b}; /* gzip magic header */
 
 /* gzip flag byte */

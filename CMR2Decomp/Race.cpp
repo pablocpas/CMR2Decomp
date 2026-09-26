@@ -555,7 +555,7 @@ tail:
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
 // TODO: CMR2 0x0041ae80 (implemented, match 54%)
-void FUN_0041ae80(int car)
+void FUN_0041ae80(int car, int unused)
 {
     BYTE *pSet = g_raceBlock + car * 0xb4;
     int *pHandle = (int *)(pSet + 0x26c);

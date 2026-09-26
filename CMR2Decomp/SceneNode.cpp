@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include <math.h>
 #include "SceneNode.h"
 #include "FileBuffer.h"
 #include "Graphics.h"
@@ -22,6 +23,7 @@ int g_sceneStatHidden;
 
 unsigned short g_sqrtTable[4096];
 int g_sinTable[4096];
+int g_tanTable[4096];
 unsigned short g_atanTable[512];
 
 // Rodrigues rotation scratch values (shared globals in the original)
@@ -2030,4 +2032,63 @@ void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask)
         pNode->field_0x17c = mask;
     if (pNode->pFirstChild != NULL)
         SceneNode_SetViewMask(pNode->pFirstChild, mask);
+}
+
+// GLOBAL: CMR2 0x00511cf8
+extern const double g_unk0x00511cf8 = 0.0019569471624266144;
+// GLOBAL: CMR2 0x00511d00
+extern const double g_unk0x00511d00 = 0.0002442002442002442;
+// GLOBAL: CMR2 0x00511d08
+extern const double g_unk0x00511d08 = 0.0015339807878856412;
+// GLOBAL: CMR2 0x00511310
+extern const double g_unk0x00511310 = 1.52587890625e-05;
+
+extern short g_acosTable[4096];
+extern const double g_unk0x00511380;
+
+// Fills the 16.16 maths tables the original computes at startup. The original
+// uses the x87 instructions in brackets; this is plain C with the same maths:
+//   g_sinTable  sin(i * 2*pi/4096)                  (fsin)
+//   g_tanTable  tan(i * 2*pi/4096)                  (fptan)
+//   g_sqrtTable sqrt(8 + 16 * i) * 256              (fsqrt)
+//   g_acosTable asin(i / 4095) as a 12-bit angle    (_CIasin)
+//   g_atanTable arctan(i / 511) as a 12-bit angle   (fpatan)
+// The conversions to 16.16 go through __int64, which is the original's fistp
+// rounding. The two shortest loops stop one entry short of the table size,
+// like the original does.
+// TODO: CMR2 0x004b7b20 (implemented, match 68%)
+void FUN_004b7b20(void)
+{
+    int i;
+    double value;
+
+    for (i = 0; i < 4096; i++) {
+        g_sinTable[i] = (int)(__int64)(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+        g_tanTable[i] = (int)(__int64)(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
+    }
+    // tan(90°) and tan(270°) would overflow: the original clamps them
+    g_tanTable[3072] = 0x7fffffff;
+    g_tanTable[1024] = 0x7fffffff;
+
+    for (i = 0; i < 4095; i++) {
+        g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * g_unk0x00511310) * CGraphics::m_65536);
+    }
+
+    for (i = 0; i < 4095; i++) {
+        value = (double)(int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
+        g_acosTable[i] = (short)(__int64)(value * g_unk0x00511380);
+    }
+
+    for (i = 0; i < 512; i++) {
+        value = (double)(int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
+        g_atanTable[i] = (unsigned short)(__int64)(value * g_unk0x00511380);
+    }
+}
+
+// Not analysed yet: walks the 60 texture slots at 0x6dffa4..0x6e0094 and
+// re-applies each one through the Direct3D device, then resets the matrix at
+// 0x6e00c8 to the identity. Called right after the device is created.
+// STUB: CMR2 0x004b2e50
+void FUN_004b2e50(void)
+{
 }

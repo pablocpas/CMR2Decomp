@@ -3169,7 +3169,7 @@ void FUN_00458fd0(int car, int time)
 
 // Copies the three vertices of a triangle (indices in pIndices).
 // FUNCTION: CMR2 0x004917f0
-void FUN_004917f0(int *pOut, unsigned short *pIndices)
+void FUN_004917f0(int *pOut, unsigned short *pIndices, int unused)
 {
     pOut[0] = *(int *)(g_unk0x00591b14 + pIndices[0] * 0xc);
     pOut[1] = *(int *)(g_unk0x00591b14 + 4 + pIndices[0] * 0xc);

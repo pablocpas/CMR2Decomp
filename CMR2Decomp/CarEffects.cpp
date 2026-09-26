@@ -337,7 +337,7 @@ void Car_BreakQueuedWindows(Car *pCar)
 
 // Texture coordinates of the effect triangles.
 // FUNCTION: CMR2 0x00499020
-void CarEffects_InitUVs(void)
+void CarEffects_InitUVs(int unused1, int unused2)
 {
     g_sparkTri[0].u = 0x8000;
     g_sparkTri[0].v = 0;
@@ -434,7 +434,7 @@ void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
 
 // Draw callback of a glass shard, tinted like the car's windows.
 // TODO: CMR2 0x004994f0 (implemented, match 41%)
-void GlassShard_Draw(Particle *p, ParticleType *pType)
+void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 {
     FixVector pos;
     FixVector o;

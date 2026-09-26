@@ -40,7 +40,11 @@ int CGame::m_unk0x0052ea4c;
 BYTE CGame::m_unk0x0052ea51;
 bool CGame::m_unk0x00817eb0 = false;
 Unk00817d98 CGame::m_unk0x00817d98;
-BYTE CGame::m_unk0x00523c18 = 0;
+unsigned int CGame::m_unk0x00523c18[16] = {
+    0x0101ff00, 0x0600ff00, 0x0706ff00, 0x0200ff01, 0x0300ff02, 0x0400ff03,
+    0x0500ff04, 0x0600ff05, 0x0700ff06, 0x0902ff06, 0x0707ff06, 0x0807ff06,
+    0x0900ff08, 0x0900ff07, 0x0000ff09, 0xffffffff,
+};
 BYTE CGame::m_unk0x00593cac;
 BYTE CGame::m_unk0x00593ba8;
 Unk00817d98 *CGame::m_unk0x00593ba4;
@@ -74,9 +78,24 @@ void *CGame::m_unk0x005a1fb8;
 
 
 
+// Boot states of the grouped callback machine (functions next to
+// CGame::InitializeGame; the render halves are not written yet).
+void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2);
+void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2);
+
 FuncTableGroup CGame::m_initializeGameGroupedFuncTable[10] = {
     {InitializeGame,
      FUN_00501680},
+    {FUN_004d1b40, NULL},   // render 0x4d1080 not written yet
+    {FUN_004d1b40, NULL},   // render 0x4d1370 not written yet
+    {NULL, NULL},           // state 0x4d1ba0 not written yet
+    {NULL, NULL},           // state 0x4d1c30 not written yet
+    {FUN_004d1a90, NULL},   // render 0x4d0ea0 (CMR2 logo) not written yet
+    {FUN_004d1c90, NULL},   // render 0x4d0a80 not written yet
+    {NULL, NULL},           // state 0x4d1cc0 not written yet
+    {NULL, NULL},           // state 0x4d1e10 not written yet
+    {NULL, NULL},           // state 0x4d1e90 not written yet
 };
 
 // FUNCTION: CMR2 0x004a15a0
@@ -140,6 +159,48 @@ BOOL CGame::FUN_004d0780(void)
     }
 }
 
+// Splash screen scene, created while the frontend resources load.
+// GLOBAL: CMR2 0x00817fc4
+SceneNode *g_unk0x00817fc4;
+// GLOBAL: CMR2 0x00817fc8
+SceneNode *g_unk0x00817fc8;
+
+// Destroys the splash screen scene (registered as a callback by FUN_004d0840).
+// TODO: CMR2 0x004d0820 (implemented, match 70%)
+BOOL FUN_004d0820(void)
+{
+    if (g_unk0x00817fc8 != NULL)
+        SceneNode_Destroy(g_unk0x00817fc8);
+
+    return TRUE;
+}
+
+// Creates the empty scene the frontend draws while it loads its textures.
+// FUNCTION: CMR2 0x004d0840
+void FUN_004d0840(void)
+{
+    FixVector translation;
+    FixAngles angles;
+    SceneNode *pNode;
+
+    translation.x = 0;
+    translation.y = 0;
+    translation.z = 0xffec0000;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
+
+    g_unk0x00817fc8 = SceneNode_CreateRoot();
+    g_unk0x00817fc4 = SceneType2_Create(&translation, &angles, NULL, g_unk0x00817fc8);
+
+    for (pNode = g_unk0x00817fc8; pNode != NULL; pNode = pNode->pParent)
+        pNode->dirty = 1;
+
+    CGraphics::SetProjection(0x25645, 0x4326e, 0xfa0000, 0x10000);
+    CGame::RegisterCallback(FUN_004d0820, NULL);
+}
+
 // FUNCTION: CMR2 0x004057ab
 void FUN_004057ab(void)
 {
@@ -161,6 +222,124 @@ void CGame::FUN_004057c0(void)
 void CGame::FUN_004057e0(int param1)
 {
     m_unk0x0052ea4c = param1;
+}
+
+// --- Boot pieces called by CGame::InitializeGame that are not decompiled
+// yet. They are empty STUBs so the calls are in place; they do nothing yet.
+BYTE FUN_004067b0(void);
+void FUN_004067c0(BYTE param1);
+void RallyData_FUN_00408290(void);
+void RallyData_FUN_0040df30(void);
+void FUN_004ea9f0(void);
+DWORD FUN_004eaa00(void);
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+extern int g_unk0x00817fe4;
+extern unsigned int g_unk0x00817ff4;
+
+void RallyData_ResetSelection(void);
+BOOL FUN_004a15a0(void);
+void Session_SetOpen(char open);
+void FUN_004ea890(BYTE param1);
+bool FUN_004f4e80(void);
+
+// Globals the return-to-frontend path of InitializeGame resets.
+// GLOBAL: CMR2 0x00819744
+int g_unk0x00819744;
+// GLOBAL: CMR2 0x00818ce4
+BYTE g_unk0x00818ce4;
+
+// Signatures follow the original's `ret N` (stdcall: N/4 arguments).
+// STUB: CMR2 0x004e9f70
+void FUN_004e9f70(BYTE param1, BYTE param2) { }
+// STUB: CMR2 0x004f4ef0
+void FUN_004f4ef0(void) { }
+// STUB: CMR2 0x004b7650
+int FUN_004b7650(int param1, int param2, int param3, int param4) { return 0; }
+// STUB: CMR2 0x004f3b50
+void FUN_004f3b50(void) { }
+// STUB: CMR2 0x004f4d20
+BYTE FUN_004f4d20(void) { return 0; }
+// STUB: CMR2 0x004f4b90
+BYTE FUN_004f4b90(void) { return 0; }
+// STUB: CMR2 0x004f4910
+void FUN_004f4910(int param1) { }
+// STUB: CMR2 0x004eadb0
+void FUN_004eadb0(void) { }
+// STUB: CMR2 0x004ef150
+void FUN_004ef150(void) { }
+// STUB: CMR2 0x004ec2b0
+void FUN_004ec2b0(void) { }
+// STUB: CMR2 0x004ead10
+void FUN_004ead10(void) { }
+// STUB: CMR2 0x004ea840
+void FUN_004ea840(void) { }
+// STUB: CMR2 0x004f3f60
+void FUN_004f3f60(void) { }
+// STUB: CMR2 0x004f3bb0
+void FUN_004f3bb0(void) { }
+// STUB: CMR2 0x004eb470
+void FUN_004eb470(void) { }
+// STUB: CMR2 0x004ebec0
+void FUN_004ebec0(void) { }
+// STUB: CMR2 0x004a28d0
+void FUN_004a28d0(char *path) { }
+// STUB: CMR2 0x004a2bd0
+void FUN_004a2bd0(int param1) { }
+// STUB: CMR2 0x004d5ca0
+void FUN_004d5ca0(void) { }
+
+// Frontend music track ("%s\\select1.adp").
+// GLOBAL: CMR2 0x00523d70
+char g_strMusicSelect1Adp[16] = "%s\\select1.adp";
+
+// Frontend per-frame entry; not decompiled yet.
+// STUB: CMR2 0x004ea510
+void FUN_004ea510(void) { }
+
+// Waits for the pad button (or 5 s), then restarts the music and asks for state 0.
+// FUNCTION: CMR2 0x004d1a90
+void FUN_004d1a90(Unk0049c2c0 *p1, BYTE p2)
+{
+    char path[MAX_PATH];
+    DeviceInfo *pDevice;
+
+    g_unk0x00817fe4 = timeGetTime();
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    pDevice = CInput::FUN_0049ead0(0);
+    FUN_0040bd60(0, pDevice);
+    if ((pDevice->field_0x8 & 0x10) != 0 || (unsigned int)(g_unk0x00817fe4 - FUN_004eaa00()) > 0x1388) {
+        FUN_004ea9f0();
+        sprintf(path, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
+        FUN_004a28d0(path);
+        CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
+        FUN_004a2bd0(1);
+        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    }
+}
+
+// Waits ~5 s, then asks for state 0.
+// FUNCTION: CMR2 0x004d1b40
+void FUN_004d1b40(Unk0049c2c0 *p1, BYTE p2)
+{
+    g_unk0x00817fe4 = timeGetTime();
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    FUN_0040bd60(0, CInput::FUN_0049ead0(0));
+    if ((unsigned int)(g_unk0x00817fe4 - FUN_004eaa00()) > 0x1388) {
+        FUN_004ea9f0();
+        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    }
+}
+
+// Stores the frame time and runs the frontend.
+// FUNCTION: CMR2 0x004d1c90
+void FUN_004d1c90(Unk0049c2c0 *p1, BYTE p2)
+{
+    g_unk0x00817fe4 = timeGetTime();
+    g_unk0x00817ff4 = g_unk0x00817fe4 - FUN_004eaa00();
+    FUN_004ea510();
 }
 
 // FUNCTION: CMR2 0x004d15e0
@@ -211,35 +390,124 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     m_unk0x008180fc = FUN_004ea880();
     if (FUN_004ea880() != 0)
     {
+        // First boot: load the configuration, bring up DirectX, sound and the frontend.
         FUN_004083e0(0);
         FUN_00406810(0);
         FUN_004067e0();
         CGameInfo::FUN_00405de0(0);
+        if (CInstallInfo::FUN_0040e8d0() == 0)
+            goto exit;
 
-        // if (CInstallInfo::FUN_0040e8d0() != 0)
-        // {
-            CGameInfo::FUN_00510410();
-            CGameInfo::FUN_00406560();
-            CGameInfo::FUN_00406580();
-            CGameInfo::SetupInputs();
-            didLoadGameInfo = CGameInfo::LoadGameInfo();
-            CNetworkLeaderboards::Reset();
-            CNetworkLeaderboards::LoadLeaderboards();
-            CGameInfo::FUN_00405de0(0);
-            if (CGraphics::InitializeDirectX()) {
-                CGraphics::SetDefaults();
-            }
-            CInput::LoadControllerInfo();
-            CGameInfo::FUN_0049ea90(1);
-            CGameInfo::FUN_004d05d0();
-            if (FUN_004aaa40() != false) {
-                if (CGame::FUN_004d0a50(true)) {
-                    return;
-                }
-            }
-        // }
+        CGameInfo::FUN_00510410();
+        CGameInfo::FUN_00406560();
+        CGameInfo::FUN_00406580();
+        CGameInfo::SetupInputs(2);
+        didLoadGameInfo = CGameInfo::LoadGameInfo();
+        CNetworkLeaderboards::Reset();
+        CNetworkLeaderboards::LoadLeaderboards();
+        CGameInfo::FUN_00405de0(0);
+        if (CGraphics::InitializeDirectX())
+            CGraphics::SetDefaults();
+        CInput::LoadControllerInfo();
+        CGameInfo::FUN_0049ea90(1);
+        CGameInfo::FUN_004d05d0();
+        if (FUN_004aaa40() == false)
+            goto exit;
+        if (CGame::FUN_004d0a50(true) == false)
+            goto exit;
+
+        CGraphics::SetClearColour(1, 0, 0, 0);
+        FUN_004f4ef0();
+        CGame::RegisterCallback(FUN_004f4e80, NULL);
+        FUN_004b7650(0x5622, 2, 0x10, 0);
+        CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+        FUN_004f3b50();
+        if (FUN_004f4d20() == 0)
+            goto exit;
+        if (FUN_004f4b90() == 0)
+            goto exit;
+        FUN_004f4910(1);
+        RallyData_ResetSelection();
+        FUN_004eadb0();
+        FUN_004ef150();
+        FUN_004e9f70(didLoadGameInfo == false, 1);
+        FUN_004f3f60();
+        FUN_004f3bb0();
+        FUN_004ea890(0);
+        RallyData_FUN_00408290();
+        RallyData_FUN_0040df30();
+        CGame::FUN_0049c1c0(p1, p2, 1, 2);
+        FUN_004ea9f0();
+        FUN_004d5ca0();
+        return;
     }
 
+    // Back from a race: save state, reload the frontend and restart its music.
+    if (CGameInfo::FUN_00405d80() == 4)
+        g_unk0x00819744 = 0;
+    FUN_00406810(0);
+    if (FUN_004067e0())
+        CGameInfo::FUN_00405de0(0);
+    else
+    {
+        if (CGameInfo::FUN_00405e00() != 0 &&
+            (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12))
+            FUN_00406810(1);
+        if (FUN_004a15a0())
+            Session_SetOpen(1);
+        g_unk0x00818ce4 = 0;
+        FUN_004ec2b0();
+    }
+    if (CGameInfo::FUN_00406320())
+    {
+        FUN_004ead10();
+        CGameInfo::FUN_00406330(0);
+    }
+    CGameInfo::FUN_00406580();
+    FUN_004ea840();
+    CNetworkLeaderboards::SaveLeaderboards();
+    CInput::SaveControllerInfo();
+    CGameInfo::FUN_0049ea90(1);
+    if (CGame::FUN_004d0a50(false) == false)
+        goto exit;
+
+    if (FUN_004067b0() == 0)
+        CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+    else
+        CGraphics::SetClearColour(1, 0, 0, 0);
+    FUN_004f4ef0();
+    CGame::RegisterCallback(FUN_004f4e80, NULL);
+    FUN_004b7650(0x5622, 2, 0x10, 0);
+    FUN_004f3b50();
+    if (FUN_004f4d20() == 0)
+        goto exit;
+    if (FUN_004f4b90() == 0)
+        goto exit;
+    FUN_004f4910(1);
+    FUN_004ef150();
+    FUN_004e9f70(0, 0);
+    FUN_004f3f60();
+    FUN_004f3bb0();
+    sprintf(CFrontend::m_stringDest, g_strMusicSelect1Adp, CInstallInfo::GetMusicDir());
+    FUN_004a28d0(CFrontend::m_stringDest);
+    CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
+    FUN_004a2bd0(1);
+    FUN_004eb470();
+    if (CGameInfo::FUN_00405e00() == 0 && FUN_004067b0() == 0)
+        FUN_004ebec0();
+    RallyData_FUN_00408290();
+    RallyData_FUN_0040df30();
+    FUN_004ea9f0();
+    if (FUN_004067b0() == 1) {
+        FUN_004067c0(0);
+        CGame::FUN_0049c1c0(p1, p2, 6, 2);
+    } else {
+        CGame::FUN_0049c1c0(p1, p2, 0, 2);
+    }
+    FUN_004d5ca0();
+    return;
+
+exit:
     CGame::SetShouldExit();
 }
 
@@ -509,14 +777,17 @@ void CGame::FUN_004a17f0(bool param1) {
     if (param1)
         m_unk0x005a1fc0 = false;
 
-    Unk0x005a1820 *dest = m_unk0x005a1820;
+    // The original walks a pointer to field_0x64 and stops when it passes
+    // 0x5a1e34, which clears exactly the 7 entries (0x5a1820..0x5a1dd0).
+    char *pLongName = m_unk0x005a1820[0].field_0x64;
     do {
+        Unk0x005a1820 *dest = (Unk0x005a1820 *)(pLongName - 0x64);
         sprintf(dest->field_0x64, CMain::m_logFileBlankLine);
         sprintf(dest->field_0x0, CMain::m_logFileBlankLine);
         dest->field_0xc8 = 0;
         dest->field_0xcc = 0;
-        dest++;
-    } while ((int)dest < (int)&m_unk0x005a1e34);
+        pLongName += sizeof(Unk0x005a1820);
+    } while ((int)pLongName < (int)&m_unk0x005a1e34);
 
     m_unk0x005a1818 = 0;
 }
@@ -1305,7 +1576,7 @@ void FUN_004a1850(char *shortName, char *longName, DPID dpId)
 
 // IDirectPlay4::EnumPlayers callback of FUN_004a1af0.
 // FUNCTION: CMR2 0x004a1ad0
-BOOL FAR PASCAL FUN_004a1ad0(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName)
+BOOL FAR PASCAL FUN_004a1ad0(DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
 {
     FUN_004a1850(lpName->lpszShortNameA, lpName->lpszLongNameA, dpId);
     return 1;

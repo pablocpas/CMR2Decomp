@@ -63,45 +63,39 @@ void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
     unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
     if (!unk0x004bdee0)
     {
-        if (!isLocalFile)
+        if (!isLocalFile && g_pGraphics && g_pGraphics->pDD7 != NULL)
         {
-            // should be an install/cd file
-            if (g_pGraphics)
+            // an install/CD file: ask for the CD until it can be opened
+            g_pGraphics->pDD7->FlipToGDISurface();
+            ShowCursor(TRUE);
+
+            do
             {
-                // flip gdi surface
-                // pDD7 = *g_pGraphics->pDD7;
-                if (g_pGraphics->pDD7 != NULL)
-                {
-                    g_pGraphics->pDD7->FlipToGDISurface();
-                    ShowCursor(TRUE);
+                if (CInstallInfo::ShowNoCDErrorMessage())
+                    unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
+            } while (!unk0x004bdee0);
 
-                    do
-                    {
-                        if (CInstallInfo::ShowNoCDErrorMessage())
-                            unk0x004bdee0 = gzopen(_fileName, m_unk0x00520f1c);
-                    } while (!unk0x004bdee0);
+            ShowCursor(FALSE);
+            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
+        }
+        else
+        {
+            if (g_pGraphics && g_pGraphics->pDD7)
+                g_pGraphics->pDD7->FlipToGDISurface();
 
-                    ShowCursor(FALSE);
-                    ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
-                }
-            }
+            // make sure file exists
+            fileAttributes = GetFileAttributesA(_fileName);
+            if (fileAttributes == -1)
+                return NULL;
+
+            // retry counter; the original discards the retry's result and
+            // carries on with the failed handle (gzread then fails and it
+            // falls back to CreateFileA below)
+            if (++m_unk0x0066461c >= 50)
+                return NULL;
+            GetGenericFileBuffer(fileName, isLocalFile);
         }
     }
-
-    if (g_pGraphics)
-    {
-        if (g_pGraphics->pDD7)
-            g_pGraphics->pDD7->FlipToGDISurface();
-    }
-
-    // make sure file exists
-    fileAttributes = GetFileAttributesA(_fileName);
-    if (fileAttributes == -1)
-        return NULL;
-
-    // retry counter?
-    if (50 > ++m_unk0x0066461c)
-        return GetGenericFileBuffer(fileName, isLocalFile);
 
     // check if its a BFL
     iHeaderSize = gzread(unk0x004bdee0, &pFileHeaderOut, 8);

@@ -6,8 +6,16 @@
 #include "InstallInfo.h"
 #include "main.h"
 #include "Graphics.h"
+#include "Sprite.h"
 
 #include <stdio.h>
+
+// Not ported/declared elsewhere yet.
+void Scene_SetAmbient(BYTE *pColour, int boost);
+void FUN_004ae260(void);
+void FUN_004b1150(void);
+void FUN_004b7b20(void);
+void FUN_004d0840(void);
 
 char CFrontend::m_stringDest[MAX_PATH];
 
@@ -23,6 +31,11 @@ char CFrontend::m_strFrontendTexturesAr640ATGA[36] = "%s\\frontend\\Textures\\Ar
 char CFrontend::m_strFrontendTexturesAr640DTGA[36] = "%s\\frontend\\Textures\\Ar_640D.tga";
 char CFrontend::m_strFrontendTexturesLgMatrixTGA[36] = "%s\\frontend\\Textures\\LgMatrix.tga";
 char CFrontend::m_strFrontendTexturesSmMatrixTGA[36]= "%s\\frontend\\Textures\\SmMatrix.tga";
+
+char CFrontend::m_strFrontEndBinkTGA[24] = "%s\\FrontEnd\\bink.tga";
+char CFrontend::m_strFrontEndTexturesCopyright[40] = "%s\\FrontEnd\\Textures\\Copyright%d.tga";
+char CFrontend::m_strFrontEndTexturesCmr2TGA[32] = "%s\\FrontEnd\\Textures\\cmr2.tga";
+
 Texture* CFrontend::m_pAr640ATexture;
 Texture* CFrontend::m_pAr640DTexture;
 Texture* CFrontend::m_pLgMatrixTexture;
@@ -32,6 +45,10 @@ Texture* CFrontend::m_pTinyFlags[8];
 Texture* CFrontend::m_pTBronze;
 Texture* CFrontend::m_pTSilver;
 Texture* CFrontend::m_pTGold;
+
+Texture* CFrontend::m_unk0x00817ebc;
+Texture* CFrontend::m_unk0x00817fd0;
+Texture* CFrontend::m_unk0x00817fd4[4];
 
 char CFrontend::m_strUK[3] = "UK";
 char CFrontend::m_strIta[4] = "Ita";
@@ -305,14 +322,57 @@ void CFrontend::FUN_004d2590(void) {
     } while ((int)pTexture < (int)&m_unk0x0081853c[0]);
 }
 
+// Returns the archive the copyright screens are loaded from (the one
+// FUN_004d21e0 opens).
+// FUNCTION: CMR2 0x004d21b0
+GenericFile* CFrontend::FUN_004d21b0(void) {
+    return &m_unk0x00818260;
+}
+
+// Loads the splash screen textures: the CMR2 logo, one "Copyright" screen per
+// page and the Bink logo. The textures live inside the .bfl archives that
+// LoadLanguageFiles opens, so they are looked up by name in those files.
 // FUNCTION: CMR2 0x004d08d0
 bool CFrontend::LoadSplashScreens(bool param1) {
-    short sVar1 = -1;
-    
-    if (param1) {      
+    DWORD colour = 0xffffffff;
+    int screenCount;
+    int i;
+
+    if (param1) {
         CGraphics::FUN_004a78a0(CGameInfo::GetScreenWidth(), CGameInfo::GetScreenHeight(), CGameInfo::GetColourDepth(), CGameInfo::FUN_00405bd0(), CGameInfo::FUN_00405c00());
+        FUN_004b7b20();
+        Sprite_Init();
+        Line2D_Init();
+        Tri2D_Init();
     }
-    
+
+    RallyData_ValidateIndex(0);
+    FUN_004ae260();
+    FUN_004d20c0();
+    LoadLanguageFiles();
+
+    screenCount = 3;
+    if (CGameInfo::GetScreenWidth() >= 0x400) {
+        if (FUN_004b7560(0x400) != 0 && FUN_004b7590(0x400) != 0)
+            screenCount = 4;
+    }
+
+    FUN_004d0840();
+    CGame::FUN_0049dca0(3);
+    FUN_004b1150();
+    Scene_SetAmbient((BYTE *)&colour, 0);
+
+    sprintf(m_stringDest, m_strFrontEndTexturesCmr2TGA, CInstallInfo::GetGameCDPath());
+    m_unk0x00817fd0 = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), m_stringDest, 0, 0, 0, 0);
+
+    for (i = 0; i < screenCount; i++) {
+        sprintf(m_stringDest, m_strFrontEndTexturesCopyright, CInstallInfo::GetGameCDPath(), i + 1);
+        m_unk0x00817fd4[i] = CTexture::FindLoadTexture(FUN_004d21b0(), m_stringDest, 0, 0, 0, 0);
+    }
+
+    sprintf(m_stringDest, m_strFrontEndBinkTGA, CInstallInfo::GetGameCDPath());
+    m_unk0x00817ebc = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), m_stringDest, 0, 0, 0, 0);
+
     return true;
 }
 
