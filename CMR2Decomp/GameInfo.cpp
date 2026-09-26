@@ -2740,6 +2740,54 @@ int *FUN_0050f640(void)
     return g_unk0x00831aa0;
 }
 
+unsigned char FUN_004d0580(void);
+void FUN_00500ec0(void);
+void FUN_00501b90(void);
+void FUN_0050f1d0(void);
+void FUN_00506720(void);
+void GameInfo_ProcessNetworkMessages(void);
+int FUN_0040af30(void);
+void FUN_0040af40(void);
+BOOL FUN_004a15a0(void);
+void FUN_0041b3a0(void);
+extern int g_unk0x0082b0a4;
+
+// Set when the option menu has finished fading; drawn by the boot state 0x500c80.
+
+// Frame callback of the boot state machine: while the fade has not timed out
+// (or the menu is not the options one) it keeps the option menu alive,
+// otherwise it lets the state machine advance.
+// FUNCTION: CMR2 0x00500f80
+void FUN_00500f80(Unk0049c2c0 *p1, BYTE state)
+{
+    if (FUN_004d0580() == 0) {
+        if ((unsigned int)(CMain::GetFrameDelta() - g_unk0x0082b0a0) > 0x17d4
+            && CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() != 0xa)
+            goto other;
+        if (CMain::GetFrameDelta() - FUN_0040af30() > FUN_00406710() * 6000
+            && CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() == 0xa
+            && FUN_004a15a0() != 0 && FUN_00406710() != 0)
+            goto other;
+        FUN_00500ec0();
+        FUN_00501b90();
+        FUN_0050f1d0();
+        FUN_00506720();
+        goto tail;
+    }
+other:
+    if (CMain::GetFrameDelta() - FUN_0040af30() > FUN_00406710() * 6000
+        && CGameInfo::FUN_00405d80() == 0xa && FUN_004a15a0() != 0 && FUN_00406710() != 0) {
+        g_unk0x0082b0ac = 1;
+        FUN_0041b3a0();
+        FUN_0040af40();
+    }
+    CGame::FUN_0049c1c0(p1, state, 0, 2);
+    g_unk0x0082b0a4 = CMain::GetFrameDelta();
+tail:
+    if (CGameInfo::FUN_00405e00() != 0)
+        GameInfo_ProcessNetworkMessages();
+}
+
 // FUNCTION: CMR2 0x005011a0
 void CGameInfo::FUN_005011a0(void)
 {
