@@ -1484,6 +1484,15 @@ private:
 
     // GLOBAL: CMR2 0x00660040
     static Unk0x00660040 m_unk0x00660040[10];
+
+    // Declared after the data members: a friend name added before them shifts
+    // the register allocation of FUN_004a7910 (87.9% -> 86.8%).
+    friend void FUN_0049cd90(void);
+    friend void FUN_0049cec0(void);
+    friend void FUN_0049cf80(void);
+    friend void Game_DrawViewMaskNodes(SceneNode *pNode, int bit);
+    friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
+    friend void Game_DrawDeferredObjects(void);
 };
 
 #endif

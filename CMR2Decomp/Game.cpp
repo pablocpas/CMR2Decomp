@@ -28,7 +28,7 @@ int CGame::m_unk0x0059ce18;
 int CGame::m_unk0x0059ce20;
 int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
-void *CGame::m_unk0x00593cb0[4098];
+void *CGame::m_unk0x00593cb0[4096];
 void *CGame::m_unk0x00597d04[4096];
 int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
@@ -1836,6 +1836,49 @@ void FUN_0049c510(Mesh *pMesh)
     }
 }
 
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Draws every mesh node of a node list whose view mask contains the given bit,
+// recursing into the children of the nodes that match.
+// FUNCTION: CMR2 0x0049ca50
+void Game_DrawViewMaskNodes(SceneNode *pNode, int bit)
+{
+    for (; pNode != NULL; pNode = pNode->pNext) {
+        if (pNode->type == SCENE_NODE_MESH) {
+            Mesh *pMesh = (Mesh *)pNode->pObject;
+            int mask = 1 << bit;
+            if ((mask & pNode->field_0x17c) != 0) {
+                if (pMesh != NULL) {
+                    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                    Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+                }
+                if ((pNode->field_0x17c & mask) != 0 && pNode->pFirstChild != NULL)
+                    Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+            }
+        }
+    }
+}
+
+// Draws a single node: if the node is a mesh whose view mask contains the
+// given bit it binds the node world matrix and draws its mesh, and then
+// recurses into the children that match the view mask as well.
+// FUNCTION: CMR2 0x0049cad0
+void Game_DrawViewMaskNode(SceneNode *pNode, int bit)
+{
+    if (pNode->type == SCENE_NODE_MESH) {
+        Mesh *pMesh = (Mesh *)pNode->pObject;
+        if ((pNode->field_0x17c & (1 << bit)) != 0) {
+            if (pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                    (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
+        }
+    }
+    if ((pNode->field_0x17c & (1 << bit)) != 0 && pNode->pFirstChild != NULL)
+        Game_DrawViewMaskNodes(pNode->pFirstChild, bit);
+}
+
 // FUNCTION: CMR2 0x0049cb50
 void CGame::FUN_0049cb50(void *param1)
 {
@@ -1858,6 +1901,65 @@ int __cdecl FUN_0049cb90(const void *a, const void *b)
     int depthA = *(int *)(*(BYTE **)(*(BYTE **)a + 0xc) + 0x114);
     int depthB = *(int *)(*(BYTE **)(*(BYTE **)b + 0xc) + 0x114);
     return depthA < depthB ? 1 : -1;
+}
+
+// Drawing view of a sector's stage objects (StageObject in Sector.h). It lives
+// here instead of in the shared header because touching Sector.h perturbs the
+// codegen of unrelated translation units.
+struct StageObjectDraw {
+    FixVector position;         // 0x0  world position (16.16)
+    Mesh *pMesh;                // 0xc
+    int field_0x10;
+    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
+    BYTE field_0x15[3];
+    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
+    int field_0x1c[4];
+    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
+    int field_0x30[4];
+    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
+    int field_0x44;
+    int offsetX;                // 0x48 world matrix translation (16.16)
+    int offsetY;                // 0x4c
+    int offsetZ;                // 0x50
+    int field_0x54;
+    float matrix[16];           // 0x58 world matrix, built from the camera matrix
+    StageObjectDraw *pNext;     // 0x98 next object of the sector
+    int lightLevel;             // 0x9c light level when not lit per vertex
+};
+typedef char StageObjectDraw_size[sizeof(StageObjectDraw) == 0xa0 ? 1 : -1];
+
+// Non-zero while the draw lists are depth sorted before being drawn
+// (defined in Graphics.cpp).
+extern int g_unk0x005207b4;
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// Draws the objects the deferred pass of the static stage objects queued:
+// sorts them by view depth (farthest first) and, for each one, binds its
+// texture, sets its world matrix and marks the mesh for the culling test of
+// the next frame before drawing it.
+// FUNCTION: CMR2 0x0049cc50
+void Game_DrawDeferredObjects(void)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce28 >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00593cb0, CGame::m_unk0x0059ce28, 4, FUN_0049cb90);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce28; i++) {
+            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[
+                ((int *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->pTriangles)[1]], 0);
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                (D3DMATRIX *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->matrix);
+            if (*(int *)((BYTE *)((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh + 0x114) < 0xc80000)
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags |= 8;
+            else
+                ((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh->flags &= 0xfffffff7;
+            Graphics_DrawMeshLOD(((StageObjectDraw *)CGame::m_unk0x00593cb0[i])->pMesh, 1, 0, 0);
+        }
+        CGame::m_unk0x0059ce28 = 0;
+    }
 }
 
 // qsort comparator of the transparent draw list (0x49cd20): type 0x14 goes
@@ -1896,6 +1998,188 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
 extern short g_unk0x006ed5f0[];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
+// GLOBAL: CMR2 0x00597cc0
+D3DMATRIX g_unk0x00597cc0;
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+
+// Draws the static stage objects of the culled sectors. Objects whose mesh is
+// flagged for the deferred pass (mesh flag 2) get their world matrix and view
+// depth updated and are queued; the rest are drawn right away.
+// FUNCTION: CMR2 0x0049d040
+void FUN_0049d040(void)
+{
+    StageObjectDraw *pObject;
+    unsigned int i;
+    FixVector delta;
+
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pObject = (StageObjectDraw *)g_sectors[g_unk0x006ed5f0[i]]->pObjects;
+        while (pObject != NULL) {
+            if (pObject->field_0x14 != 0) {
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
+                    if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
+                        pObject->scaleZ != 0x10000) {
+                        float scale;
+                        scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                        pObject->matrix[0] = scale * pObject->matrix[0];
+                        pObject->matrix[1] = scale * pObject->matrix[1];
+                        pObject->matrix[2] = scale * pObject->matrix[2];
+                        scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                        pObject->matrix[4] = scale * pObject->matrix[4];
+                        pObject->matrix[5] = scale * pObject->matrix[5];
+                        pObject->matrix[6] = scale * pObject->matrix[6];
+                        scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                        pObject->matrix[8] = scale * pObject->matrix[8];
+                        pObject->matrix[9] = scale * pObject->matrix[9];
+                        pObject->matrix[10] = scale * pObject->matrix[10];
+                    }
+                    pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
+                    pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
+                    pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                }
+                if ((pObject->pMesh->flags & 2) != 0) {
+                    delta.x = g_unk0x0059be6c->world.position.x - pObject->position.x;
+                    delta.y = 0;
+                    delta.z = g_unk0x0059be6c->world.position.z - pObject->position.z;
+                    *(int *)((BYTE *)pObject->pMesh + 0x114) = FixVecLength(&delta);
+                    CGame::FUN_0049cb50(pObject);
+                } else {
+                    Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);
+                }
+            }
+            pObject = pObject->pNext;
+        }
+    }
+}
+
+// Identity world transform: the deferred draw paths set it before drawing
+// geometry whose vertices are already in world space.
+// GLOBAL: CMR2 0x005207b8
+D3DMATRIX g_unk0x005207b8 = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+void Quad2D_DrawLayer(unsigned int layer);
+void Pulse_Update(unsigned int dt);
+extern Mesh **g_sceneShadowMeshes;
+
+// Draws the queue of scene nodes collected by 0x0049d290: depth sorts it
+// (farthest first) when depth sorting is enabled, draws every node of the
+// queue with the given view mask bit and empties it.
+// FUNCTION: CMR2 0x0049cd20
+void Game_DrawSortedNodes(int bit)
+{
+    unsigned int i;
+
+    if ((unsigned int)CGame::m_unk0x0059ce2c >= 1) {
+        if (g_unk0x005207b4 != 0)
+            qsort(CGame::m_unk0x00597d04, CGame::m_unk0x0059ce2c, 4, FUN_0049cbc0);
+        for (i = 0; i < (unsigned int)CGame::m_unk0x0059ce2c; i++)
+            Game_DrawViewMaskNode((SceneNode *)CGame::m_unk0x00597d04[i], bit);
+        CGame::m_unk0x0059ce2c = 0;
+    }
+}
+
+// Draws every mesh node of the scene in world space with Z test and write
+// enabled, then the 2D layer 0x10.
+// FUNCTION: CMR2 0x0049cd90
+void FUN_0049cd90(void)
+{
+    SceneNode *pNode;
+    Mesh *pMesh;
+    unsigned int i;
+
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+    for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
+        pNode = g_sceneNodes[i];
+        if (pNode != NULL && pNode->type == SCENE_NODE_MESH && pNode->field_0x17c != 0 &&
+            pNode->pObject != NULL) {
+            pMesh = (Mesh *)pNode->pObject;
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+            Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+        }
+    }
+    Quad2D_DrawLayer(0x10);
+}
+
+// Draws the view-mask scene nodes of the culled sectors that were not queued
+// for depth sorting (visible == 0), with Z test and Z write disabled, then
+// restores them.
+// FUNCTION: CMR2 0x0049ce40
+void Game_DrawUnsortedNodes(int bit)
+{
+    SceneNode *pNode;
+    unsigned int i;
+
+    CGraphics::SetZEnable(0);
+    CGraphics::SetZWriteEnable(0);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pNode = g_sectors[g_unk0x006ed5f0[i]]->pFirstNode;
+        while (pNode != NULL) {
+            if (pNode->visible == 0)
+                Game_DrawViewMaskNode(pNode, bit);
+            pNode = pNode->pNextInSector;
+        }
+    }
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+}
+
+// Advances the pulse effect by the frame delta and draws the ground mesh of
+// every culled sector in world space.
+// FUNCTION: CMR2 0x0049cec0
+void FUN_0049cec0(void)
+{
+    // The original keeps a second frame stamp that it initializes but never
+    // reads; MSVC6 guards both with the same one-time-init byte.
+    static unsigned int s_start = CMain::GetFrameDelta();
+    static unsigned int s_prev = CMain::GetFrameDelta();
+    Mesh *pMesh;
+    unsigned int i;
+
+    Pulse_Update(CMain::GetFrameDelta() - s_prev);
+    s_prev = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pMesh = (Mesh *)g_sectors[g_unk0x006ed5f0[i]]->pMesh;
+        if (pMesh != NULL) {
+            if ((pMesh->flags & 0x1000) != 0)
+                Graphics_DrawMeshLOD(pMesh, 0, 1, 0);
+            else
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
+        }
+    }
+}
+
+// Advances the pulse effect by the frame delta and draws the shadow mesh of
+// every culled sector in world space, with Z writes disabled.
+// FUNCTION: CMR2 0x0049cf80
+void FUN_0049cf80(void)
+{
+    // Same two frame stamps as FUN_0049cec0 (the first one is never read).
+    static unsigned int s_start = CMain::GetFrameDelta();
+    static unsigned int s_prev = CMain::GetFrameDelta();
+    Mesh *pMesh;
+    unsigned int i;
+
+    Pulse_Update(CMain::GetFrameDelta() - s_prev);
+    s_prev = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    if (g_sceneShadowMeshes != NULL) {
+        CGraphics::SetZWriteEnable(0);
+        for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+            pMesh = g_sceneShadowMeshes[g_unk0x006ed5f0[i]];
+            if (pMesh != NULL)
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 1);
+        }
+        CGraphics::SetZWriteEnable(1);
+    }
+}
 
 // Computes the view depth of every visible node of the culled sectors and
 // queues them for drawing.
