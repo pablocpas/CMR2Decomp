@@ -1784,6 +1784,24 @@ void FUN_00500aa0(DPID *pId, BYTE *pData)
     }
 }
 
+int FUN_004a1b90(int param1, void **param2);
+
+// Drains the pending network messages: those coming from the system id (0) go to
+// the player-list handler, the rest to the option notification handler.
+// FUNCTION: CMR2 0x00500ba0
+void GameInfo_ProcessNetworkMessages(void)
+{
+    int senderId;
+    void *pMessage;
+
+    while (FUN_004a1b90((int)&senderId, &pMessage) != 0) {
+        if (senderId == 0)
+            FUN_00500a70((int)&senderId, (int *)pMessage);
+        else
+            FUN_00500aa0((DPID *)&senderId, (BYTE *)pMessage);
+    }
+}
+
 // Arms the countdown of every option record that has not been started yet.
 // FUNCTION: CMR2 0x00500ec0
 void FUN_00500ec0(void)
