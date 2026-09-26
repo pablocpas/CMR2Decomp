@@ -13,6 +13,7 @@
 #include <math.h>
 #include "FixedPoint.h"
 #include "Car.h"
+#include "WheelTrail.h"
 #include "GameInfo.h"
 #include "Input.h"
 #include "main.h"
@@ -30,10 +31,67 @@ void FUN_004ae3d0(BYTE *p, BYTE value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
+int FUN_0042cae0(Car *pCar, int variant);
+int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
+BYTE FUN_00460bf0(int index);
+int FUN_00460c10(int index);
+int *FUN_00463270(int carIndex, int wheelIndex);
+unsigned int FUN_00471bd0(BYTE **pOut);
+void RallyData_FUN_00471cc0(int *pDest, void **pEntry);
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
+                          unsigned short *pSurface, int defaultY);
+void Sector_RemoveNode(SceneNode *pNode);
+void FUN_004b8b10(SceneNode *pNode);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void Stage_InitLightMeshes(void);
+int *FUN_00407520(int index);
+void FUN_004925c0(int oldHeight, int newHeight, int mode);
+void FUN_00492900(int value);
+void FUN_00492fd0(int value);
+
+// Global fixed-point lighting parameters for both stage conditions.
+// GLOBAL: CMR2 0x00547950
+int g_stageLighting[0x178 / 4];
+
+// Default intensity by stage weather index.
+// GLOBAL: CMR2 0x0051b0b8
+int g_stageWeatherIntensity[9] = {
+    0x10000, 0x10000, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999
+};
+
+struct StageSurfaceInfo {
+    int flags;
+    BYTE red, green, blue, alpha;
+};
+// GLOBAL: CMR2 0x0051bc68
+StageSurfaceInfo g_stageSurfaceInfo[9] = {
+    {0, 0, 0, 0, 0}, {1, 2, 2, 2, 0x18},
+    {9, 0x48, 0x32, 0x27, 0x12}, {9, 0x14, 0x0d, 0, 0x12},
+    {9, 0x0e, 0x0c, 0x06, 0x12}, {0x16, 0xad, 0xbd, 0xc6, 0x12},
+    {0x16, 0xf4, 0xf4, 0xf4, 0x12}, {9, 0x48, 0x32, 0x27, 0x12},
+    {4, 0x64, 0x64, 0x64, 0xff}
+};
+// GLOBAL: CMR2 0x0051bcb0
+BYTE g_stageSurfaceMap[48] = {
+    0, 7, 0, 0, 4, 4, 7, 7, 7, 0, 7, 7, 2, 2, 0, 0,
+    0, 6, 5, 0, 0, 0, 6, 6, 0, 1, 2, 7, 7, 0, 6, 0,
+    0, 0, 0, 3, 3, 3, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0
+};
+// GLOBAL: CMR2 0x00588620
+BYTE g_trailColor[8][4];
+// GLOBAL: CMR2 0x00588750
+int g_trailFrame;
+extern BYTE g_trailPointUsed[8][4][200];
+extern BYTE g_trailPoints[8][4][200][0x28];
+extern int g_unk0x00549b20[8][4];
+extern FixVector g_unk0x00549c20[8][4];
 
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
 extern void *g_unk0x00547ac8;
+extern void *g_unk0x0058c928;
+extern void *g_unk0x0058c92c;
+extern void *g_unk0x0058c930;
 extern void *g_unk0x00543ecc;
 extern int g_unk0x0058cf7c;
 extern BYTE *g_unk0x0058c94c;
@@ -352,6 +410,115 @@ void FUN_0046f7e0(void)
             (*pp)[0xcc / 4] += 0xd8f00000U;
         pp = (int **)((BYTE *)pp + sizeof(StageObjectEntry0x128));
     } while ((int)pp < (int)&g_unk0x005894e0[40].pObject);
+}
+
+// Initializes a moving stage object from its route entry and the car's motion.
+// TODO: CMR2 0x0046f810 (implemented, match 51%)
+void StageObject_InitMovingObject(int *pState, int carIndex)
+{
+    Car *pCar = Car_Get(carIndex);
+    BYTE *pEntries = NULL;
+    int count = FUN_00471bd0(&pEntries);
+    SceneNode *pNode = (SceneNode *)pState[1];
+    int entryIndex = -1;
+    int i;
+    for (i = 0; i < count; ++i) {
+        if ((int)(pEntries + i * 8) == pState[0]) {
+            entryIndex = i;
+            break;
+        }
+    }
+    if (entryIndex < 0) {
+        pNode->type = SCENE_NODE_EMPTY;
+        return;
+    }
+
+    BYTE mappedIndex = ((BYTE *)g_unk0x0058c928)[entryIndex];
+    pState[0x34] = ((int *)g_unk0x0058c930)[mappedIndex];
+    pNode->type = SCENE_NODE_MESH;
+    pNode->pObject = (void *)((int *)g_unk0x0058c92c)[mappedIndex];
+    pNode->field_0x17c = (BYTE)(1 << (carIndex & 31));
+    pState[0x45] = -0x10000;
+
+    FixVector position;
+    RallyData_FUN_00471cc0((int *)&position, (void **)pState);
+    FixMatrix *pNodeMatrix = &pNode->current;
+    FixMatrix_SetPosition(&position, pNodeMatrix);
+
+    BYTE *pObject = *(BYTE **)pState[0];
+    FixMatrix *pObjectMatrix = (FixMatrix *)(pObject + 0x18);
+    FixVector basis;
+    FixMatrix_GetRight(&basis, pObjectMatrix);
+    FixMatrix_SetRight(&basis, pNodeMatrix);
+    FixMatrix_GetUp(&basis, pObjectMatrix);
+    FixMatrix_SetUp(&basis, pNodeMatrix);
+    FixMatrix_GetForward(&basis, pObjectMatrix);
+    FixMatrix_SetForward(&basis, pNodeMatrix);
+
+    pState[0x32] = (int)(pState + 2);
+    memcpy(pState + 2, pNodeMatrix, 0x40);
+    memcpy(pState + 0x22, pNodeMatrix, 0x40);
+    memcpy(pState + 0x12, pNodeMatrix, 0x40);
+
+    int objectType = pState[0x34];
+    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed <= 0xc000);
+    int airbornePath = objectType == 0 && pCar->speed > 0xc000;
+    pState[0x44] = 0;
+    *(short *)(pState + 0x47) = -1;
+
+    if (groundPath || airbornePath) {
+        FixVector velocity = pCar->velocity;
+        FixVector localVelocity;
+        FixVector axis;
+        BYTE *pParams = *(BYTE **)(*(BYTE **)(pObject + 0xc) + 0x10c);
+        if (groundPath) {
+            int triangle = -1;
+            int surface = 0;
+            Track_GetGroundHeight(&position, (FixVector *)(pState + 0x35),
+                                  (short *)&triangle, (unsigned short *)&surface, 0);
+            if (pCar->speed > 0x8000) {
+                FixVecScaleRecip(&velocity, &velocity, pCar->speed);
+                FixVecScale(&velocity, &velocity, 0x8000);
+            }
+            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)pState[0x32]);
+            axis.x = FixMul(localVelocity.z, 0x10000);
+            axis.y = 0;
+            axis.z = -FixMul(localVelocity.x, 0x10000);
+            if (pState[0x34] == 0)
+                axis.z = 0;
+            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
+            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
+            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x3e] = 0;
+            pState[0x3f] = pState[0x42];
+            pState[0x40] = 0;
+            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
+            pState[0x33] = 1;
+        } else {
+            FixMatrix_InverseRotateVector(&localVelocity, &velocity, (FixMatrix *)(pState + 2));
+            axis.x = -FixMul(localVelocity.z, 0x6666);
+            axis.y = 0;
+            axis.z = FixMul(localVelocity.x, 0x6666);
+            FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
+            FixVecScale((FixVector *)(pState + 0x3b), &velocity, 0xcccc);
+            pState[0x3c] = FixMul(FixVecLength(&velocity), 0x4ccc);
+            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
+            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
+            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x3e] = 0;
+            pState[0x3f] = pState[0x42];
+            pState[0x40] = 0;
+            pState[0x48] = 0;
+            pState[0x33] = 2;
+            pState[0x49] = 1;
+        }
+    }
+
+    memcpy(&pNode->world, pNodeMatrix, sizeof(FixMatrix));
+    if (pNode->sector != -1)
+        Sector_RemoveNode(pNode);
+    if (pNode->sector == -1)
+        FUN_004b8b10(pNode);
 }
 
 // FUNCTION: CMR2 0x00460bf0
@@ -1053,6 +1220,129 @@ BYTE FUN_0047ea20(void)
     return 1;
 }
 
+extern float g_oneOverRandMax;
+
+// Colours picked for the vehicle debris fragments.
+// GLOBAL: CMR2 0x0051f4ec
+DWORD g_stageDebrisPalette[6] = {
+    0xffb34aff, 0xffff5c30, 0xffffff3d,
+    0xff4ec4ff, 0xff2368ff, 0xff27ff9e
+};
+
+// Starts a vehicle debris effect in the first free slot, including its fragments and sound.
+// TODO: CMR2 0x0047fcb0 (implemented, match 36%)
+void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVelocity, unsigned int variant)
+{
+    BYTE *pPool = (BYTE *)g_unk0x00590af8;
+    int slotIndex = -1;
+    int count = g_unk0x00590afc;
+    int i;
+    for (i = 0; i < count; ++i) {
+        if (*(int *)(pPool + i * 0x938 + 0x694) == 0) {
+            slotIndex = i;
+            break;
+        }
+    }
+    if (slotIndex < 0)
+        return;
+
+    BYTE *pSlot = pPool + slotIndex * 0x938;
+    *(int *)(pSlot + 0x694) = 1;
+    memcpy(pSlot, pPosition, sizeof(FixVector));
+    memcpy(pSlot + 0x1e0, pPosition, sizeof(FixVector));
+    memcpy(pSlot + 0xc, pVelocity, sizeof(FixVector));
+    pSlot[0x690] = 0;
+    pSlot[0x691] = 0;
+    for (i = 0; i < 20; ++i) {
+        memcpy(pSlot + 0x18 + i * 12, pPosition, sizeof(FixVector));
+        memcpy(pSlot + 0x1f8 + i * 12, pPosition, sizeof(FixVector));
+        *(int *)(pSlot + 0x69c + i * 4) = 0;
+    }
+    *(int *)(pSlot + 0x934) = 0;
+
+    int randomFixed;
+    if (variant == 0) {
+        *(int *)(pSlot + 0x664) = 0x190000;
+    } else {
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        *(int *)(pSlot + 0x664) = FixMul(randomFixed, 0xa0000) + 0x50000;
+    }
+    *(int *)(pSlot + 0x66c) = 0xa3d;
+    *(int *)(pSlot + 0x670) = 0x624;
+
+    int colourIndex = rand() % 6;
+    pSlot[0x692] = (BYTE)colourIndex;
+    *(DWORD *)(pSlot + 0x678) = g_stageDebrisPalette[(BYTE)colourIndex];
+    pSlot[0x67b] = 0xff;
+    *(DWORD *)(pSlot + 0x67c) = *(DWORD *)(pSlot + 0x678);
+    *(DWORD *)(pSlot + 0x680) = *(DWORD *)(pSlot + 0x678);
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x684) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x687] = 0xff;
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x68c) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x68f] = 0xff;
+    colourIndex = rand() % 6;
+    *(DWORD *)(pSlot + 0x688) = g_stageDebrisPalette[colourIndex];
+    pSlot[0x68b] = 0xff;
+
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    if (variant == 0)
+        *(int *)(pSlot + 0x698) = randomFixed < 0x8000 ? 1 : 2;
+    else
+        *(int *)(pSlot + 0x698) = randomFixed < 0x10001 ? 1 : 0;
+
+    if (*(int *)(pSlot + 0x698) == 1) {
+        int chance = FixMul((rand() % 9 + 1) * 0x10000, 0x1999);
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        if (randomFixed < 0xfd71) {
+            *(int *)(pSlot + 0x930) = 0;
+        } else {
+            *(int *)(pSlot + 0x930) = 1;
+            chance = FixMul(chance, 0x20000);
+        }
+        int enabled = 0;
+        int row, column, fragment;
+        for (row = 0; row < 3; ++row) {
+            for (column = 0; column < 6; ++column) {
+                for (fragment = 0; fragment < 4; ++fragment) {
+                    int offset = (row * 6 + column) * 4 + fragment;
+                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    int on = randomFixed <= chance;
+                    *(int *)(pSlot + 0x6ec + offset * 4) = on;
+                    enabled += on;
+                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+                    *(int *)(pSlot + 0x80c + offset * 4) = randomFixed >= 0x8001;
+                }
+            }
+        }
+        int density = FixDiv(enabled << 16, 0x480000);
+        *(int *)(pSlot + 0x668) = FixMul(density, 0xf0000) + 0xa0000;
+        *(int *)(pSlot + 0x92c) = 1;
+        *(int *)(pSlot + 0x660) = FixMul(0x10000 - density, 0xccc) + 0x11eb;
+        if (*(int *)(pSlot + 0x930) != 0) {
+            *(int *)(pSlot + 0x674) = *(int *)(pSlot + 0x668);
+            *(int *)(pSlot + 0x668) = FixMul(*(int *)(pSlot + 0x668), 0x20000);
+        }
+    } else {
+        memset(pSlot + 0x6ec, 0, 0x48 * 4);
+        *(int *)(pSlot + 0x668) = 0x50000;
+        *(int *)(pSlot + 0x660) = 0x11eb;
+        *(int *)(pSlot + 0x92c) = 0;
+    }
+
+    FUN_004b7790((unsigned short)(g_unk0x005909bc + 10), 0xccc, 0x5622, 0, 0, 0);
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    if (randomFixed > 0x1999) {
+        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        int volume = FixMul(randomFixed, 0x4000) + 0x4000;
+        pSlot[0x693] = (BYTE)FUN_004b7790((unsigned short)(g_unk0x005909bc + rand() % 2),
+                                            volume, 0x5622, 0, 0, 0);
+    } else {
+        pSlot[0x693] = 0xff;
+    }
+}
+
 // FUNCTION: CMR2 0x004805f0
 void FUN_004805f0(int value)
 {
@@ -1593,6 +1883,209 @@ void FUN_00466630(int value)
     g_unk0x0051bd3c = FixDiv(0x10000, g_unk0x0051bd40);
 }
 
+// Sets the fixed-point lighting values for both stage weather conditions.
+// TODO: CMR2 0x00460da0 (implemented, match 24%)
+void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary)
+{
+    Stage_InitLightMeshes();
+    *(WORD *)&g_stageLighting[0x5c] = 0xffff;
+    int *pWeatherPair = FUN_00407520(RallyDataStageIndex());
+    g_stageLighting[0x2c] = g_stageWeatherIntensity[pWeatherPair[0]];
+    g_stageLighting[0x59] = g_stageWeatherIntensity[pWeatherPair[1]];
+    if (pPrimary != NULL && pSecondary != NULL) {
+        g_stageLighting[0x1b] = *(int *)pPrimary;
+        g_stageLighting[0x1c] = *(int *)(pPrimary + 0x4);
+        g_stageLighting[0x1d] = *(int *)(pPrimary + 0x8);
+        g_stageLighting[0x48] = *(int *)pSecondary;
+        g_stageLighting[0x49] = *(int *)(pSecondary + 0x4);
+        g_stageLighting[0x4a] = *(int *)(pSecondary + 0x8);
+        FUN_004925c0(g_stageLighting[0x1b], g_stageLighting[0x1c], g_stageLighting[0x1d]);
+        FUN_00492900(0x10000);
+        g_stageLighting[0x0] = (unsigned int)pPrimary[0x20] * 0x10000;
+        g_stageLighting[0x1] = (unsigned int)pPrimary[0x21] * 0x10000;
+        g_stageLighting[0x2] = (unsigned int)pPrimary[0x22] * 0x10000;
+        g_stageLighting[0x3] = (unsigned int)pPrimary[0x1c] * 0x10000 + (unsigned int)pPrimary[0x20] * -0x10000;
+        g_stageLighting[0x4] = (unsigned int)pPrimary[0x1d] * 0x10000 + (unsigned int)pPrimary[0x21] * -0x10000;
+        g_stageLighting[0x5] = (unsigned int)pPrimary[0x1e] * 0x10000 + (unsigned int)pPrimary[0x22] * -0x10000;
+        g_stageLighting[0x2d] = (unsigned int)pSecondary[0x20] * 0x10000;
+        g_stageLighting[0x2e] = (unsigned int)pSecondary[0x21] * 0x10000;
+        g_stageLighting[0x2f] = (unsigned int)pSecondary[0x22] * 0x10000;
+        g_stageLighting[0x30] = (unsigned int)pSecondary[0x1c] * 0x10000 + (unsigned int)pSecondary[0x20] * -0x10000;
+        g_stageLighting[0x31] = (unsigned int)pSecondary[0x1d] * 0x10000 + (unsigned int)pSecondary[0x21] * -0x10000;
+        g_stageLighting[0x32] = (unsigned int)pSecondary[0x1e] * 0x10000 + (unsigned int)pSecondary[0x22] * -0x10000;
+        g_stageLighting[0x6] = (unsigned int)pPrimary[0x24] << 0x10;
+        g_stageLighting[0x7] = (unsigned int)pPrimary[0x25] << 0x10;
+        g_stageLighting[0x8] = (unsigned int)pPrimary[0x26] << 0x10;
+        g_stageLighting[0x33] = (unsigned int)pSecondary[0x24] << 0x10;
+        g_stageLighting[0x34] = (unsigned int)pSecondary[0x25] << 0x10;
+        g_stageLighting[0x35] = (unsigned int)pSecondary[0x26] << 0x10;
+        g_stageLighting[0x27] = FixDiv((int)pPrimary[0x27] << 16, 0xff0000);
+        g_stageLighting[0x54] = FixDiv((int)pSecondary[0x27] << 16, 0xff0000);
+        g_stageLighting[0x9] = (unsigned int)pPrimary[0x3c] << 0x10;
+        g_stageLighting[0xa] = (unsigned int)pPrimary[0x3d] << 0x10;
+        g_stageLighting[0xb] = (unsigned int)pPrimary[0x3e] << 0x10;
+        g_stageLighting[0x36] = (unsigned int)pSecondary[0x3c] << 0x10;
+        g_stageLighting[0x37] = (unsigned int)pSecondary[0x3d] << 0x10;
+        g_stageLighting[0x38] = (unsigned int)pSecondary[0x3e] << 0x10;
+        g_stageLighting[0x2b] = *(int *)(pPrimary + 0x10);
+        g_stageLighting[0x58] = *(int *)(pSecondary + 0x10);
+        g_stageLighting[0x18] = (unsigned int)pPrimary[0x34] << 0x10;
+        g_stageLighting[0x19] = (unsigned int)pPrimary[0x35] << 0x10;
+        g_stageLighting[0x1a] = (unsigned int)pPrimary[0x36] << 0x10;
+        g_stageLighting[0x45] = (unsigned int)pSecondary[0x34] << 0x10;
+        g_stageLighting[0x46] = (unsigned int)pSecondary[0x35] << 0x10;
+        g_stageLighting[0x47] = (unsigned int)pSecondary[0x36] << 0x10;
+        g_stageLighting[0x2a] = (unsigned int)pPrimary[0x37] << 0x10;
+        g_stageLighting[0x57] = (unsigned int)pSecondary[0x37] << 0x10;
+        g_stageLighting[0x15] = (unsigned int)pPrimary[0x38] << 0x10;
+        g_stageLighting[0x16] = (unsigned int)pPrimary[0x39] << 0x10;
+        g_stageLighting[0x17] = (unsigned int)pPrimary[0x3a] << 0x10;
+        g_stageLighting[0x42] = (unsigned int)pSecondary[0x38] << 0x10;
+        g_stageLighting[0x43] = (unsigned int)pSecondary[0x39] << 0x10;
+        g_stageLighting[0x44] = (unsigned int)pSecondary[0x3a] << 0x10;
+        g_stageLighting[0xc] = (unsigned int)pPrimary[0x28] << 0x10;
+        g_stageLighting[0xd] = (unsigned int)pPrimary[0x29] << 0x10;
+        g_stageLighting[0xe] = (unsigned int)pPrimary[0x2a] << 0x10;
+        g_stageLighting[0x39] = (unsigned int)pSecondary[0x28] << 0x10;
+        g_stageLighting[0x3a] = (unsigned int)pSecondary[0x29] << 0x10;
+        g_stageLighting[0x3b] = (unsigned int)pSecondary[0x2a] << 0x10;
+        g_stageLighting[0x28] = FixDiv((int)pPrimary[0x2b] << 16, 0xff0000);
+        g_stageLighting[0x55] = FixDiv((int)pSecondary[0x2b] << 16, 0xff0000);
+        g_stageLighting[0xf] = (unsigned int)pPrimary[0x2c] << 0x10;
+        g_stageLighting[0x10] = (unsigned int)pPrimary[0x2d] << 0x10;
+        g_stageLighting[0x11] = (unsigned int)pPrimary[0x2e] << 0x10;
+        g_stageLighting[0x3c] = (unsigned int)pSecondary[0x2c] << 0x10;
+        g_stageLighting[0x3d] = (unsigned int)pSecondary[0x2d] << 0x10;
+        g_stageLighting[0x3e] = (unsigned int)pSecondary[0x2e] << 0x10;
+        g_stageLighting[0x29] = (int)((unsigned int)pPrimary[0x2f] << 0x10);
+        g_stageLighting[0x56] = (int)((unsigned int)pSecondary[0x2f] << 0x10);
+        g_stageLighting[0x12] = (unsigned int)pPrimary[0x30] << 0x10;
+        g_stageLighting[0x13] = (unsigned int)pPrimary[0x31] << 0x10;
+        g_stageLighting[0x14] = (unsigned int)pPrimary[0x32] << 0x10;
+        g_stageLighting[0x3f] = (unsigned int)pSecondary[0x30] << 0x10;
+        g_stageLighting[0x40] = (unsigned int)pSecondary[0x31] << 0x10;
+        g_stageLighting[0x41] = (unsigned int)pSecondary[0x32] << 0x10;
+        g_stageLighting[0x1e] = (unsigned int)pPrimary[0x44] << 0x10;
+        g_stageLighting[0x1f] = (unsigned int)pPrimary[0x45] << 0x10;
+        g_stageLighting[0x20] = (unsigned int)pPrimary[0x46] << 0x10;
+        g_stageLighting[0x25] = *(int *)(pPrimary + 0x14);
+        g_stageLighting[0x26] = *(int *)(pPrimary + 0x18);
+        g_stageLighting[0x4b] = (unsigned int)pSecondary[0x44] << 0x10;
+        g_stageLighting[0x4c] = (unsigned int)pSecondary[0x45] << 0x10;
+        g_stageLighting[0x4d] = (unsigned int)pSecondary[0x46] << 0x10;
+        g_stageLighting[0x52] = *(int *)(pSecondary + 0x14);
+        g_stageLighting[0x53] = *(int *)(pSecondary + 0x18);
+        g_stageLighting[0x21] = (unsigned int)pPrimary[0x40] << 0x10;
+        g_stageLighting[0x22] = (unsigned int)pPrimary[0x41] << 0x10;
+        g_stageLighting[0x23] = (unsigned int)pPrimary[0x42] << 0x10;
+        g_stageLighting[0x24] = (unsigned int)pPrimary[0x43] << 0x10;
+        g_stageLighting[0x4e] = (unsigned int)pSecondary[0x40] << 0x10;
+        g_stageLighting[0x4f] = (unsigned int)pSecondary[0x41] << 0x10;
+        g_stageLighting[0x50] = (unsigned int)pSecondary[0x42] << 0x10;
+        g_stageLighting[0x51] = (unsigned int)pSecondary[0x43] << 0x10;
+    } else {
+        g_stageLighting[0x1b] = 0xfffb0000;
+        g_stageLighting[0x1c] = 0xffda0000;
+        g_stageLighting[0x1d] = 0xfff30000;
+        g_stageLighting[0x48] = 0xfffb0000;
+        g_stageLighting[0x49] = 0xffda0000;
+        g_stageLighting[0x4a] = 0xfff30000;
+        FUN_004925c0(0xfffb0000, 0xffda0000, 0xfff30000);
+        FUN_00492900(0x10000);
+        g_stageLighting[0x3] = -0x5d0000;
+        g_stageLighting[0x6] = 0xff0000;
+        g_stageLighting[0x30] = -0x5d0000;
+        g_stageLighting[0x4] = -0x620000;
+        g_stageLighting[0x5] = 0;
+        g_stageLighting[0x7] = 0xff0000;
+        g_stageLighting[0x8] = 0xff0000;
+        g_stageLighting[0x1e] = 0;
+        g_stageLighting[0x1f] = 0;
+        g_stageLighting[0x20] = 0;
+        g_stageLighting[0x25] = 0;
+        g_stageLighting[0x26] = 0;
+        g_stageLighting[0x21] = 0;
+        g_stageLighting[0x22] = 0;
+        g_stageLighting[0x31] = -0x620000;
+        g_stageLighting[0x32] = 0;
+        g_stageLighting[0x9] = 0xff0000;
+        g_stageLighting[0x33] = 0xff0000;
+        g_stageLighting[0xa] = 0xff0000;
+        g_stageLighting[0xb] = 0xff0000;
+        g_stageLighting[0x34] = 0xff0000;
+        g_stageLighting[0x35] = 0xff0000;
+        g_stageLighting[0x2] = 0xff0000;
+        g_stageLighting[0x36] = 0xff0000;
+        g_stageLighting[0x0] = 0xbc0000;
+        g_stageLighting[0x1] = 0xca0000;
+        g_stageLighting[0x29] = 0x640000;
+        g_stageLighting[0x2b] = 0xfa0000;
+        g_stageLighting[0x27] = 0x8000;
+        g_stageLighting[0x18] = 0xff0000;
+        g_stageLighting[0x19] = 0xff0000;
+        g_stageLighting[0x1a] = 0xff0000;
+        g_stageLighting[0x2a] = 0xff0000;
+        g_stageLighting[0x15] = 0xff0000;
+        g_stageLighting[0x16] = 0xff0000;
+        g_stageLighting[0x17] = 0xff0000;
+        g_stageLighting[0xc] = 0x9b0000;
+        g_stageLighting[0xd] = 0x9b0000;
+        g_stageLighting[0xe] = 0x9b0000;
+        g_stageLighting[0x28] = 0x8000;
+        g_stageLighting[0xf] = 0xff0000;
+        g_stageLighting[0x10] = 0xff0000;
+        g_stageLighting[0x11] = 0xff0000;
+        g_stageLighting[0x12] = 0xc80000;
+        g_stageLighting[0x13] = 0xc80000;
+        g_stageLighting[0x14] = 0xc80000;
+        g_stageLighting[0x23] = 0;
+        g_stageLighting[0x24] = 0;
+        g_stageLighting[0x37] = 0xff0000;
+        g_stageLighting[0x38] = 0xff0000;
+        g_stageLighting[0x58] = 0xfa0000;
+        g_stageLighting[0x2d] = 0xbc0000;
+        g_stageLighting[0x2e] = 0xca0000;
+        g_stageLighting[0x45] = 0xff0000;
+        g_stageLighting[0x46] = 0xff0000;
+        g_stageLighting[0x47] = 0xff0000;
+        g_stageLighting[0x42] = 0xff0000;
+        g_stageLighting[0x43] = 0xff0000;
+        g_stageLighting[0x44] = 0xff0000;
+        g_stageLighting[0x39] = 0x9b0000;
+        g_stageLighting[0x2f] = 0xff0000;
+        g_stageLighting[0x3a] = 0x9b0000;
+        g_stageLighting[0x3b] = 0x9b0000;
+        g_stageLighting[0x54] = 0x8000;
+        g_stageLighting[0x55] = 0x8000;
+        g_stageLighting[0x3c] = 0xff0000;
+        g_stageLighting[0x3e] = 0xff0000;
+        g_stageLighting[0x3d] = 0xff0000;
+        g_stageLighting[0x3f] = 0xc80000;
+        g_stageLighting[0x41] = 0xc80000;
+        g_stageLighting[0x40] = 0xc80000;
+        g_stageLighting[0x4b] = 0;
+        g_stageLighting[0x4d] = 0;
+        g_stageLighting[0x4c] = 0;
+        g_stageLighting[0x4e] = 0;
+        g_stageLighting[0x57] = 0xff0000;
+        g_stageLighting[0x56] = 0x640000;
+        g_stageLighting[0x52] = 0;
+        g_stageLighting[0x53] = 0;
+        g_stageLighting[0x4f] = 0;
+        g_stageLighting[0x50] = 0;
+        g_stageLighting[0x51] = 0;
+    }
+    g_stageLighting[0x5a] = 0xffff0000;
+    if (g_stageLighting[0x25] == 0 && g_stageLighting[0x26] == 0 &&
+        g_stageLighting[0x52] == 0 && g_stageLighting[0x53] == 0) {
+        FUN_00492fd0(0);
+        g_stageLighting[0x5d] = 0;
+        return;
+    }
+    FUN_00492fd0(1);
+    g_stageLighting[0x5d] = 1;
+}
+
 // Blends two byte values: b + (a - b) * t, clamped to 255.
 // TODO: CMR2 0x004616c0 (implemented, match 83%)
 int FUN_004616c0(BYTE a, BYTE b, int t)
@@ -1622,6 +2115,135 @@ void FUN_00464c60(int car)
                 g_unk0x005885a0[car][i] = 0;
                 g_unk0x00549ba0[car][i] = (g_unk0x00549ba0[car][i] + 1) % 200;
             }
+        }
+    }
+}
+
+// Updates the four wheel skid trails and fades their colours by surface and slip.
+// TODO: CMR2 0x00464cb0 (implemented, match 46%)
+void StageObject_UpdateSkidTrails(int carIndex)
+{
+    if (carIndex >= 8 || CGameInfo::FUN_00405cd0() == 2)
+        return;
+
+    Car *pCar = Car_Get(carIndex);
+    if (carIndex == 0)
+        ++g_trailFrame;
+
+    int shortLifetime = ((FUN_00460bf0(carIndex) == 1 || FUN_00460bf0(carIndex) == 2) &&
+                         FUN_00460c10(carIndex) > 0x3333);
+    int baseColor = 0x00ffff00;
+    int wheel;
+    int pointIndex;
+    for (wheel = 0; wheel < 4; ++wheel) {
+        int *pBaseColor = FUN_00463270(carIndex, wheel);
+        baseColor = pBaseColor != NULL ? *pBaseColor : 0x00ffff00;
+        for (pointIndex = 0; pointIndex < 200; ++pointIndex) {
+            BYTE *pPoint = g_trailPoints[carIndex][wheel][pointIndex];
+            if (g_trailPointUsed[carIndex][wheel][pointIndex] != 0) {
+                int lifetime = shortLifetime ? g_stageSurfaceInfo[8].flags << 2 :
+                                               g_stageSurfaceInfo[8].flags * 0x50;
+                if (lifetime < *(int *)pPoint) {
+                    g_trailPointUsed[carIndex][wheel][pointIndex] = 0;
+                    pPoint[0x24] = 0;
+                    pPoint[0x25] = 0;
+                }
+            }
+        }
+    }
+
+    for (wheel = 0; wheel < 4; ++wheel) {
+        char currentSurface = (char)pCar->wheelSurface[wheel];
+        char previousSurface = (char)g_trailSurface[carIndex][wheel];
+        BYTE currentMaterial = g_stageSurfaceMap[currentSurface];
+        BYTE previousMaterial = g_stageSurfaceMap[previousSurface];
+        StageSurfaceInfo *pCurrent = &g_stageSurfaceInfo[currentMaterial];
+        StageSurfaceInfo *pPrevious = &g_stageSurfaceInfo[previousMaterial];
+        int activeSurface = g_trailTimer[carIndex][wheel] > 2 && g_trailCount[carIndex] > 1 &&
+                            pCar->field_0xb74 == 1 && (pCurrent->flags & 1) != 0 &&
+                            (pPrevious->flags & 1) != 0;
+        int dualSurface = (pCurrent->flags & 2) != 0 && (pPrevious->flags & 2) != 0;
+
+        if (pCar->field_0xbac[wheel] == 1 && (activeSurface || dualSurface)) {
+            int slip = StageObject_GetWheelSlip(carIndex, wheel);
+            if ((pCurrent->flags & 2) == 0 || pCar->field_0xbac[wheel ^ 2] == 0) {
+                if (slip <= 0)
+                    continue;
+            } else {
+                if (currentSurface == 0x19)
+                    continue;
+                slip = 0x8000;
+            }
+
+            FixVector *pDelta = &g_trailDelta[carIndex][wheel];
+            if ((pDelta->x != 0 || pDelta->z != 0) && g_trailReset[carIndex][wheel] == 0) {
+                g_unk0x005885a0[carIndex][wheel] = 1;
+                int trailIndex = g_unk0x00549ba0[carIndex][wheel];
+                BYTE *pPoint = g_trailPoints[carIndex][wheel][trailIndex];
+                // The original keeps the colour selected by the first loop's last wheel.
+
+                FixVector up = { 0, 0x10000, 0 };
+                FixVector side;
+                FixVecCross(&side, pDelta, &up);
+                int length = FixVecLength(&side);
+                if (length == 0) {
+                    side.x = side.y = side.z = 0;
+                } else {
+                    FixVecScaleRecip(&side, &side, length);
+                }
+                FixVecScale(&side, &side, 0x1eb8);
+
+                if (CGameInfo::FUN_004063f0(6) == 0) {
+                    if (FUN_0042cae0(pCar, 1) != 0)
+                        FixVecScale(&side, &side, 0x9999);
+                } else {
+                    FixVecScale(&side, &side, 0x28000);
+                }
+
+                FixVector *pPosition = &g_unk0x00549c20[carIndex][wheel];
+                int yOffset = -0x20c - wheel * 0x83;
+                *(int *)(pPoint + 8) = pPosition->x + side.x;
+                *(int *)(pPoint + 0xc) = pPosition->y + side.y + yOffset;
+                *(int *)(pPoint + 0x10) = pPosition->z + side.z;
+                *(int *)(pPoint + 0x14) = pPosition->x - side.x;
+                *(int *)(pPoint + 0x18) = pPosition->y - side.y + yOffset;
+                *(int *)(pPoint + 0x1c) = pPosition->z - side.z;
+
+                BYTE opacity = (BYTE)(FixMul(slip, 0xff0000) >> 16);
+                pPoint[0x24] = opacity;
+                pPoint[0x25] = opacity;
+                BYTE oldMaterial = pPoint[0x26];
+                *(int *)pPoint = 0;
+                pPoint[0x26] = (oldMaterial & 0xf0) | (currentMaterial & 0x0f);
+                g_trailPointUsed[carIndex][wheel][trailIndex] = 1;
+                *(int *)(pPoint + 4) = g_trailFrame;
+
+                BYTE *pColor = g_trailColor[carIndex];
+                if ((pCurrent->flags & 2) == 0) {
+                    pColor[0] = (BYTE)((int)pColor[0] + ((int)pPrevious->red - (int)pColor[0]) / 2);
+                    pColor[1] = (BYTE)((int)pColor[1] + ((int)pPrevious->green - (int)pColor[1]) / 2);
+                    pColor[2] = (BYTE)((int)pColor[2] + ((int)pPrevious->blue - (int)pColor[2]) / 2);
+                    pPoint[0x20] = (BYTE)((int)pColor[0] * (baseColor & 0xff) / 0xff);
+                    pPoint[0x21] = (BYTE)((int)pColor[1] * ((baseColor >> 8) & 0xff) / 0xff);
+                    pPoint[0x22] = (BYTE)((int)pColor[2] * ((baseColor >> 16) & 0xff) / 0xff);
+                    g_unk0x00543708[carIndex][wheel] = 1;
+                    g_unk0x00549b20[carIndex][wheel] = 0;
+                } else {
+                    pColor[0] = (BYTE)((int)pPrevious->red * (baseColor & 0xff) / 0xff);
+                    pColor[1] = (BYTE)((int)pPrevious->green * ((baseColor >> 8) & 0xff) / 0xff);
+                    pColor[2] = (BYTE)((int)pPrevious->blue * ((baseColor >> 16) & 0xff) / 0xff);
+                    *(int *)(pPoint + 0x20) = *(int *)pColor;
+                    g_unk0x00543708[carIndex][wheel] = 0;
+                    g_unk0x00549b20[carIndex][wheel] = 1;
+                }
+
+                BYTE *pNextPoint = g_trailPoints[carIndex][wheel][(trailIndex + 1) % 200];
+                pNextPoint[0x24] = 0;
+                pNextPoint[0x25] = 0;
+            }
+        } else if (g_unk0x00543708[carIndex][wheel] != 0 ||
+                   g_unk0x00549b20[carIndex][wheel] != 0) {
+            g_unk0x005885a0[carIndex][wheel] = 1;
         }
     }
 }
