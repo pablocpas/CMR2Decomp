@@ -26,7 +26,7 @@ int CGame::m_unk0x0059ce18;
 int CGame::m_unk0x0059ce20;
 int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
-void *CGame::m_unk0x00593cb0[4098];
+void *CGame::m_unk0x00593cb0[4096];
 void *CGame::m_unk0x00597d04[4096];
 int CGame::m_unk0x005207f8 = 3;
 int CGame::m_unk0x00663dc4;
@@ -1341,6 +1341,93 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
 unsigned short g_unk0x006ed5f0[4096];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
+
+// Identity world transform: the deferred draw paths set it before drawing
+// geometry whose vertices are already in world space.
+// GLOBAL: CMR2 0x005207b8
+D3DMATRIX g_unk0x005207b8 = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+void Graphics_DrawMeshLOD(Mesh *pMesh, int useParts, int clampTexture, int markTextures);
+void Quad2D_DrawLayer(unsigned int layer);
+void Pulse_Update(unsigned int dt);
+extern Mesh **g_sceneShadowMeshes;
+
+// Draws every mesh node of the scene in world space with Z test and write
+// enabled, then the 2D layer 0x10.
+// FUNCTION: CMR2 0x0049cd90
+void FUN_0049cd90(void)
+{
+    SceneNode *pNode;
+    Mesh *pMesh;
+    unsigned int i;
+
+    CGraphics::SetZEnable(1);
+    CGraphics::SetZWriteEnable(1);
+    for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
+        pNode = g_sceneNodes[i];
+        if (pNode != NULL && pNode->type == SCENE_NODE_MESH && pNode->field_0x17c != 0 &&
+            pNode->pObject != NULL) {
+            pMesh = (Mesh *)pNode->pObject;
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+            Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+        }
+    }
+    Quad2D_DrawLayer(0x10);
+}
+
+// Advances the pulse effect by the frame delta and draws the ground mesh of
+// every culled sector in world space.
+// FUNCTION: CMR2 0x0049cec0
+void FUN_0049cec0(void)
+{
+    // The original keeps a second frame stamp that it initializes but never
+    // reads; MSVC6 guards both with the same one-time-init byte.
+    static unsigned int s_start = CMain::GetFrameDelta();
+    static unsigned int s_prev = CMain::GetFrameDelta();
+    Mesh *pMesh;
+    unsigned int i;
+
+    Pulse_Update(CMain::GetFrameDelta() - s_prev);
+    s_prev = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+        pMesh = (Mesh *)g_sectors[g_unk0x006ed5f0[i]]->pMesh;
+        if (pMesh != NULL) {
+            if ((pMesh->flags & 0x1000) != 0)
+                Graphics_DrawMeshLOD(pMesh, 0, 1, 0);
+            else
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
+        }
+    }
+}
+
+// Advances the pulse effect by the frame delta and draws the shadow mesh of
+// every culled sector in world space, with Z writes disabled.
+// FUNCTION: CMR2 0x0049cf80
+void FUN_0049cf80(void)
+{
+    // Same two frame stamps as FUN_0049cec0 (the first one is never read).
+    static unsigned int s_start = CMain::GetFrameDelta();
+    static unsigned int s_prev = CMain::GetFrameDelta();
+    Mesh *pMesh;
+    unsigned int i;
+
+    Pulse_Update(CMain::GetFrameDelta() - s_prev);
+    s_prev = CMain::GetFrameDelta();
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+    if (g_sceneShadowMeshes != NULL) {
+        CGraphics::SetZWriteEnable(0);
+        for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
+            pMesh = g_sceneShadowMeshes[g_unk0x006ed5f0[i]];
+            if (pMesh != NULL)
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 1);
+        }
+        CGraphics::SetZWriteEnable(1);
+    }
+}
 
 // Computes the view depth of every visible node of the culled sectors and
 // queues them for drawing.

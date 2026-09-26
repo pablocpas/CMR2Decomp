@@ -82,8 +82,10 @@ public:
     static int m_unk0x0059ce28;
     // GLOBAL: CMR2 0x0059ce2c
     static int m_unk0x0059ce2c;
+    // The list ends at 0x593cb0 + 4096 * 4: the original's frame stamps
+    // (0x597cb0/0x597cb4) are compiler statics, so they cannot be list slots.
     // GLOBAL: CMR2 0x00593cb0
-    static void *m_unk0x00593cb0[4098];
+    static void *m_unk0x00593cb0[4096];
     // GLOBAL: CMR2 0x00597d04
     static void *m_unk0x00597d04[4096];
     // GLOBAL: CMR2 0x005207f8
