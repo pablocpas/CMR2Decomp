@@ -1628,6 +1628,9 @@ Menu g_menu0x0081b158;
 Menu g_menu0x0081b338;
 // GLOBAL: CMR2 0x0081b518
 Menu g_menu0x0081b518;
+// Cheats menu.
+// GLOBAL: CMR2 0x0081be78
+Menu g_menu0x0081be78;
 // GLOBAL: CMR2 0x0081bab8
 Menu g_menu0x0081bab8;
 // GLOBAL: CMR2 0x0081bc98
@@ -1896,6 +1899,51 @@ void FUN_004f5770(void)
     Menu_SetCallbacks(&g_menu0x008212d8, (MenuCallback)FUN_004f2620, (MenuCallback)FUN_004f3ae0,
                       (MenuCallback)FUN_004d9a40, (MenuCallback)FUN_004f07e0);
     Menu_ValidateCursor(&g_menu0x008212d8, 0);
+}
+
+void FUN_004f29b0(Menu *pMenu, int param);
+void FUN_004e2590(Menu *pMenu);
+void FUN_004f28c0(Menu *pMenu, int param);
+void FUN_004ded80(Menu *pMenu);
+void FUN_004f2970(Menu *pMenu, char back);
+void FUN_004f3a50(Menu *pMenu, int param);
+
+// Options menu: game, sound, graphics, controls, language (not in regions
+// 2/3), cheats (id 1000) and back.
+// FUNCTION: CMR2 0x004f5eb0
+void FUN_004f5eb0(void)
+{
+    Menu_Init(&g_menu0x0081f118, 0, 0x13, 0, &g_menu0x0081d6d8, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x14, &g_menu0x0081ef38, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x15, &g_menu0x0081fa78, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x16, &g_menu0x00823c18, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x18, FUN_004fa4f0(), 0, 0);
+    if (CGameInfo::GetGameRegion() != 3 && CGameInfo::GetGameRegion() != 2)
+        Menu_AddItemType2(&g_menu0x0081f118, 0, 0x19, &g_menu0x008221d8, 0, 0);
+    Menu_AddItemType2(&g_menu0x0081f118, 0, 0x148, &g_menu0x0081be78, 0, 1000);
+    Menu_AddItemType1(&g_menu0x0081f118, 0, 0x67, 0, -1);
+    Menu_SetCallbacks(&g_menu0x0081f118, (MenuCallback)FUN_004f29b0, (MenuCallback)FUN_004f3ae0,
+                      (MenuCallback)FUN_004e2590, NULL);
+    Menu_ValidateCursor(&g_menu0x0081f118, 0);
+    g_menu0x0081f118.items[6].enabled = 1;
+    g_menu0x0081f118.items[6].visible = 1;
+}
+
+// Cheats menu: the 8 cheats as on/off entries.
+// FUNCTION: CMR2 0x004f5fc0
+void FUN_004f5fc0(void)
+{
+    int i;
+
+    Menu_Init(&g_menu0x0081be78, 0, 0x148, 0, &g_menu0x0081f118, NULL, 1, 0, 1);
+    i = 0;
+    do {
+        Menu_AddItemType3(&g_menu0x0081be78, 0, i + 0x149, 2, 0, 0, 0, (int)FUN_004f3a50, -1);
+        i++;
+    } while (i < 8);
+    Menu_SetCallbacks(&g_menu0x0081be78, (MenuCallback)FUN_004f28c0, NULL, (MenuCallback)FUN_004ded80,
+                      (MenuCallback)FUN_004f2970);
+    Menu_ValidateCursor(&g_menu0x0081be78, 0);
 }
 
 // FUNCTION: CMR2 0x004f5810

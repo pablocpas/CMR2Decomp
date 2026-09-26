@@ -2344,6 +2344,19 @@ void FUN_004eab20(BYTE param1)
     CGameInfo::m_gameInfo.field_0x18 = ((param1 & 1) << 30) | (CGameInfo::m_gameInfo.field_0x18 & 0xbfffffffU);
 }
 
+// Turns cheat `bit` on or off in the game options.
+// FUNCTION: CMR2 0x004eab40
+void FUN_004eab40(int bit, int value)
+{
+    BYTE mask = 1 << bit;
+
+    if (value != 0) {
+        *(unsigned int *)((BYTE *)&CGameInfo::m_gameInfo + 0x20) |= (unsigned int)mask << 8;
+        return;
+    }
+    *(unsigned int *)((BYTE *)&CGameInfo::m_gameInfo + 0x20) &= (unsigned int)(BYTE)~mask << 8 | 0xffff00ff;
+}
+
 // FUNCTION: CMR2 0x004eab80
 void FUN_004eab80(void)
 {

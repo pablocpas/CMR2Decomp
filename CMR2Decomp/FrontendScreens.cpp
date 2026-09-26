@@ -2597,6 +2597,200 @@ void FUN_004f07e0(Menu *pMenu, char back)
     }
 }
 
+// Draw callback of the options menu.
+// FUNCTION: CMR2 0x004e2590
+void FUN_004e2590(Menu *pMenu)
+{
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 1, NULL, -1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Entering the options menu: the cheats entry is only there once something
+// is unlocked or a cheat is on.
+// FUNCTION: CMR2 0x004f29b0
+void FUN_004f29b0(Menu *pMenu, int param)
+{
+    FUN_004ea480(0);
+    if (CGameInfo::FUN_00406360(7) || CGameInfo::FUN_00406360(1) || CGameInfo::FUN_00406360(2)
+        || CGameInfo::FUN_00406360(3) || CGameInfo::FUN_00406360(4) || CGameInfo::FUN_00406360(5)
+        || CGameInfo::FUN_00406360(6) || CGameInfo::FUN_00406360(0) || CGameInfo::FUN_00406410(4)
+        || CGameInfo::FUN_00406410(5) || CGameInfo::FUN_00406410(6) || CGameInfo::FUN_00406410(7)
+        || CGameInfo::FUN_00406410(8) || CGameInfo::FUN_00406410(9) || CGameInfo::FUN_00406410(10)
+        || CGameInfo::FUN_00406410(0xb)) {
+        Menu_GetItem(pMenu, 1000)->enabled = 1;
+        Menu_GetItem(pMenu, 1000)->visible = 1;
+    } else {
+        Menu_GetItem(pMenu, 1000)->enabled = 0;
+        Menu_GetItem(pMenu, 1000)->visible = 0;
+    }
+}
+
+void FUN_004eab80(void);
+void FUN_004eaba0(void);
+void FUN_004eab40(int bit, int value);
+
+// Entering the cheats menu: each of the 8 entries is available when its
+// extra is unlocked or its cheat code was typed, and shows its state.
+// FUNCTION: CMR2 0x004f28c0
+void FUN_004f28c0(Menu *pMenu, int param)
+{
+    MenuItem *pItem;
+    bool cheat;
+    int i;
+
+    FUN_004eab80();
+    i = 0;
+    pItem = pMenu->items;
+    do {
+        pItem->enabled = 0;
+        pItem->visible = 1;
+        pItem->max = 0;
+        if (i % 2 == 0) {
+            cheat = CGameInfo::FUN_00406410(i / 2 + 4);
+            if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
+                pItem->enabled = 1;
+                if (CGameInfo::FUN_004063d0(i))
+                    pItem->max = 1;
+            }
+        } else {
+            cheat = CGameInfo::FUN_00406410(i / 2 + 8);
+            if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
+                pItem->enabled = 1;
+                if (CGameInfo::FUN_004063d0(i))
+                    pItem->max = 1;
+            }
+        }
+        i++;
+        pItem++;
+    } while (i < 8);
+}
+
+// Leaving the cheats menu: stores the on/off state of each cheat (back:
+// restores them first).
+// FUNCTION: CMR2 0x004f2970
+void FUN_004f2970(Menu *pMenu, char back)
+{
+    int i;
+
+    if (back != 0)
+        FUN_004eaba0();
+    for (i = 0; i < 8; i++)
+        FUN_004eab40(i, pMenu->items[i].max);
+}
+
+// Item callback: back to the parent menu.
+// FUNCTION: CMR2 0x004f3a50
+void FUN_004f3a50(Menu *pMenu, int param)
+{
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
+// GLOBAL: CMR2 0x00524dcc
+char g_strLockedCheat[4] = "...";
+
+// Draw callback of the cheats menu: name and on/off of each cheat, "..."
+// for the ones not available yet.
+// TODO: CMR2 0x004ded80 (implemented, match 56%)
+void FUN_004ded80(Menu *pMenu)
+{
+    short icon[4];
+    BYTE *pShadow;
+    BYTE *pColour;
+    BYTE *pRow;
+    Texture *pTexture;
+    MenuItem *pItem;
+    int maxWidth;
+    int width;
+    int count;
+    int x0;
+    int x;
+    short y0;
+    int y;
+    int i;
+
+    icon[1] = 0;
+    maxWidth = 0;
+    icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[2] = CFrontend::m_pAr640ATexture->width;
+    icon[3] = CFrontend::m_pAr640ATexture->height;
+    for (i = 0; i < 8; i++) {
+        width = Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(i + 0x149));
+        if (maxWidth < width)
+            maxWidth = width;
+    }
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, NULL, -1);
+    count = 0;
+    for (i = pMenu->itemCount, pItem = pMenu->items; i > 0; i--, pItem++) {
+        if (pItem->visible)
+            count++;
+    }
+    x0 = (int)(g_pGraphics->resX * 0x7a) / 640;
+    y0 = (short)(((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2)
+         - (short)((int)(g_pGraphics->resY * 36) / 480 * count / 2);
+    if (pMenu->cursor == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else if (!pMenu->items[0].enabled) {
+        pColour = g_colourDim0x00524970;
+        pShadow = g_colourShadowDim0x0052497c;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[1] = y0;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (i = 0; i < count; i++) {
+        pItem = &pMenu->items[i];
+        icon[1] = (int)(g_pGraphics->resY * 20) / 480 + y0 + (int)(g_pGraphics->resY * 36) / 480 * (short)i
+                  - CFrontend::m_pAr640ATexture->height / 2;
+        if (pMenu->cursor == i) {
+            pRow = g_colourWhite0x00524968;
+            pTexture = CFrontend::m_pAr640ATexture;
+        } else {
+            pRow = g_colourText0x0052496c;
+            pTexture = CFrontend::m_pAr640DTexture;
+            if (!pItem->enabled)
+                pRow = g_colourDim0x00524970;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pRow, 8);
+        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
+        if (!pItem->enabled) {
+            Font_DrawText(1, g_strLockedCheat, x0, y, (int *)pRow, 0x11);
+        } else {
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x0, y, (int *)pRow, 0x11);
+            x = (int)(g_pGraphics->resX * 15) / 640 + maxWidth + x0;
+            Font_DrawText(1, CFrontend::GetTextString(0x133), x, y,
+                          (int *)(pItem->max == 0 ? g_colourWhite0x00524968 : g_colourText0x0052496c), 0x11);
+            x = (int)(g_pGraphics->resX * 25) / 640 + maxWidth + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + x0;
+            Font_DrawText(1, CFrontend::GetTextString(0x134), x, y,
+                          (int *)(pItem->max == 0 ? g_colourText0x0052496c : g_colourWhite0x00524968), 0x11);
+        }
+        if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+            pColour = g_colourWhite0x00524968;
+            pShadow = g_colourShadowWhite0x00524974;
+        } else if (!pItem->enabled && !pItem[1].enabled) {
+            pColour = g_colourDim0x00524970;
+            pShadow = g_colourShadowDim0x0052497c;
+        } else {
+            pColour = g_colourText0x0052496c;
+            pShadow = g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 36) / 480) * ((short)i + 1) + y0;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+        g_unk0x008189a8[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
 // FUNCTION: CMR2 0x004f92e0
 void FUN_004f92e0(int value)
 {
