@@ -3731,3 +3731,133 @@ void FUN_00508fa0(int index, int param2, BYTE param3){
     }
 }
 
+// Chooses the highlight value for the selected option item and stores it at
+// +0x1e, together with the option's current value at +0x1f.
+// (CFrontend::FUN_004a3d80)
+
+// GLOBAL: CMR2 0x00831880
+int g_unk0x00831880;
+// GLOBAL: CMR2 0x00831884
+BYTE g_unk0x00831884;
+
+// TODO: CMR2 0x004ff5b0 (implemented, match 62%)
+void FUN_004ff5b0(void)
+{
+    BYTE *pMode;
+    int index;
+    BYTE value;
+
+    index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    pMode = FUN_00502500();
+    value = pMode[0x1f + index * 0x14];
+    switch (value) {
+    case 0:
+        FUN_00502510()[0x1e] = 7;
+        break;
+    case 1:
+        FUN_00502510()[0x1e] = 5;
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        FUN_00502510()[0x1e] = 0xb;
+        break;
+    }
+    FUN_00502510()[0x1f] = (BYTE)FUN_005028a0(CGameInfo::FUN_005011b0(), value);
+}
+
+// Frees the option menu sound buffer and stops the streaming sound.
+// TODO: CMR2 0x0050f340 (implemented, match 34%)
+int FUN_0050f340(void)
+{
+    if (g_unk0x00831880 != 0) {
+        if (g_unk0x00831884 == 0)
+            CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831880);
+        g_unk0x00831880 = 0;
+    }
+    CFrontend::FUN_004a3d80();
+    return 1;
+}
+
+// GLOBAL: CMR2 0x0082ac60
+BYTE g_unk0x0082ac60;
+// GLOBAL: CMR2 0x0082ac4c
+int g_unk0x0082ac4c;
+// GLOBAL: CMR2 0x0082ac50
+int g_unk0x0082ac50;
+// Defined in FrontendScreens.cpp
+extern int g_unk0x0082a924;
+extern int g_unk0x0082aa3c;
+extern int g_unk0x0082aa40;
+extern int g_unk0x0082ac48;
+// GLOBAL: CMR2 0x0082ab44
+BYTE g_unk0x0082ab44;
+// GLOBAL: CMR2 0x00527380
+int g_unk0x00527380[3] = { -11579569, -11579569, -11579569 };
+// GLOBAL: CMR2 0x0052738c
+int g_unk0x0052738c[3] = { -1, -2130706433, 1078939471 };
+// Text of the option menu's status line (written elsewhere before it is drawn).
+// GLOBAL: CMR2 0x0082a93c
+char g_unk0x0082a93c[0x100];
+
+// Requests a refresh of the option records.
+// FUNCTION: CMR2 0x00502230
+void FUN_00502230(int unused, int unused2)
+{
+    g_unk0x0082ac60 = 1;
+}
+
+// Marks the given item selected and requests a refresh.
+// FUNCTION: CMR2 0x004ffa50
+void FUN_004ffa50(char *pItem, int unused)
+{
+    pItem[7] = 1;
+    g_unk0x0082ac60 = 1;
+}
+
+// Restarts the option records and arms their countdown.
+// FUNCTION: CMR2 0x00500110
+void FUN_00500110(int unused, int unused2)
+{
+    FUN_005021e0();
+    g_unk0x0082ac4c = 1;
+}
+
+// Rebuilds the option records once the refresh request is consumed.
+// FUNCTION: CMR2 0x004ffa70
+void FUN_004ffa70(int unused, int unused2)
+{
+    g_unk0x0082aa40 = FUN_004f4db0();
+    if (g_unk0x0082ac60 == 0) {
+        g_unk0x0082ab44 = 0;
+        g_unk0x0082a924 = 0;
+        g_unk0x0082aa3c = 0;
+        g_unk0x0082ac48 = 0;
+        return;
+    }
+    g_unk0x0082ac60 = 0;
+}
+
+// Restarts the option records when the selected item has no value.
+// FUNCTION: CMR2 0x00500190
+void FUN_00500190(BYTE *pItem, int unused)
+{
+    int index;
+
+    index = Menu_FindItem((Menu *)pItem, 5);
+    if (pItem[index * 0x14 + 0x1f] == 0) {
+        FUN_005021e0();
+        g_unk0x0082ac50 = 1;
+    }
+}
+
+// Draws the option menu's status line centred on the screen.
+// FUNCTION: CMR2 0x0050e740
+void FUN_0050e740(int unused)
+{
+    FUN_00501f80(4, 0, 0, g_unk0x0082a93c, (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                 g_unk0x00527380, g_unk0x0052738c, 0x12);
+}
+
