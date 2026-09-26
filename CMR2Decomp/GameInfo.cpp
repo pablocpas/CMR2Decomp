@@ -1450,6 +1450,8 @@ unsigned int CGameInfo::FUN_00405c00(void) {
 int g_unk0x0082af88;
 // GLOBAL: CMR2 0x0082b0a8
 int g_unk0x0082b0a8;
+// GLOBAL: CMR2 0x0082b0ac
+BYTE g_unk0x0082b0ac;
 // GLOBAL: CMR2 0x0082ac58
 int g_unk0x0082ac58;
 // GLOBAL: CMR2 0x0082ac5c
@@ -1503,6 +1505,11 @@ struct Unk0x0082d220Vec {
     int v[4];
 };
 
+// 3-component integer vector of the mesh record (12 bytes).
+struct Unk0x0082d220Vec3 {
+    int v[3];
+};
+
 // Source copy of one vertex of a stage mesh (0x20 bytes): position and normal in
 // 16.16, then the packed normal bytes. Filled by FUN_00506bb0.
 struct Unk0x0082d220VertexFixed {
@@ -1524,8 +1531,8 @@ struct Unk0x0082d220 {
     Mesh *pMeshes[15];                            // 0x0
     SceneNode *pNodes[15];                        // 0x3c
     Unk0x0082d220VertexFixed *pVertexData[15];    // 0x78
-    int centre[15][3];                            // 0xb4  bounding box centre
-    int halfSize[15][3];                          // 0x168 half size of the box
+    Unk0x0082d220Vec3 centre[15];                 // 0xb4  bounding box centre
+    Unk0x0082d220Vec3 halfSize[15];               // 0x168 half size of the box
     int field_0x21c;                              // 0x21c
     int field_0x220;
     int field_0x224;
@@ -1725,6 +1732,56 @@ void FUN_00500a70(int unused, int *param2)
     }
     FUN_004a1940((DWORD *)(param2 + 2));
     FUN_00409c80(param2 + 2);
+}
+
+void FUN_00409d50(DPID *pId, NetStats *pStats);
+void FUN_00409e90(DPID *pId);
+void FUN_00409f00(DPID *pId, unsigned int time, int value);
+void FUN_00409f80(DPID *pId);
+void FUN_00409fd0(DPID *pId, int split, unsigned int time);
+void FUN_0040ac70(DPID *pId, unsigned int carClass);
+void FUN_0040ad20(void);
+void FUN_0040afb0(char valid, BYTE *p);
+void FUN_005001c0(char param1);
+Unk0049c2c0 *FUN_004ff440(void);
+
+// Handles an option menu notification of a network player: the first byte of the
+// record selects the operation, the following ones carry its arguments.
+// FUNCTION: CMR2 0x00500aa0
+void FUN_00500aa0(DPID *pId, BYTE *pData)
+{
+    // the case order mirrors the original's jump table layout
+    switch (pData[0]) {
+    case 11:
+        FUN_00409d50(pId, (NetStats *)(pData + 2));
+        break;
+    case 7:
+        FUN_00409e90(pId);
+        break;
+    case 8:
+        FUN_00409fd0(pId, pData[1], *(unsigned int *)(pData + 4));
+        break;
+    case 10:
+        FUN_00409f80(pId);
+        FUN_00409f00(pId, *(unsigned int *)(pData + 4), *(int *)(pData + 8));
+        break;
+    case 12:
+        FUN_005001c0(1);
+        FUN_0040ad20();
+        break;
+    case 6:
+        FUN_0040ac70(pId, pData[1]);
+        break;
+    case 16:
+        g_unk0x0082b0ac = 1;
+        CGame::FUN_0049c1c0(FUN_004ff440(), 0, 0, 2);
+        FUN_0040ad20();
+        break;
+    case 17:
+        FUN_0040afb0(pData[1], pData + 4);
+        FUN_0040ad20();
+        break;
+    }
 }
 
 // Arms the countdown of every option record that has not been started yet.
@@ -2633,12 +2690,12 @@ void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
             halfSize.y = minY - maxY;
             halfSize.z = minZ - maxZ;
             FixVecScale(&halfSize, &halfSize, 0x8000);
-            pRecord->centre[slot][0] = maxX + halfSize.x;
-            pRecord->centre[slot][1] = maxY + halfSize.y;
-            pRecord->centre[slot][2] = maxZ + halfSize.z;
-            pRecord->halfSize[slot][0] = maxX - pRecord->centre[slot][0];
-            pRecord->halfSize[slot][1] = maxY - pRecord->centre[slot][1];
-            pRecord->halfSize[slot][2] = maxZ - pRecord->centre[slot][2];
+            pRecord->centre[slot].v[0] = maxX + halfSize.x;
+            pRecord->centre[slot].v[1] = maxY + halfSize.y;
+            pRecord->centre[slot].v[2] = maxZ + halfSize.z;
+            pRecord->halfSize[slot].v[0] = maxX - pRecord->centre[slot].v[0];
+            pRecord->halfSize[slot].v[1] = maxY - pRecord->centre[slot].v[1];
+            pRecord->halfSize[slot].v[2] = maxZ - pRecord->centre[slot].v[2];
             pRecord->meshCount++;
         }
     }
@@ -5520,6 +5577,68 @@ struct Unk0x0082cb78 {
 
 // GLOBAL: CMR2 0x0082cb78
 Unk0x0082cb78 g_unk0x0082cb78[16];
+
+void FUN_00506fc0(int param1, int param2, int param3);
+
+// Rebuilds the stage mesh record of the option menu preview entry: clears the
+// record, adds the mesh of every node of the entry's node tree, compacts the
+// empty slots and matches the converted vertex buffers.
+// TODO: CMR2 0x00507080 (implemented, match 85%)
+void FUN_00507080(int index)
+{
+    Unk0x0082d220 *pRecord;
+    Unk0x0082cb78 *pEntry;
+    SceneNode *pNode;
+    SceneNode *pSibling;
+    int i;
+    int j;
+    int moved;
+
+    pRecord = &g_unk0x0082d220[index];
+    memset(pRecord, 0, sizeof(Unk0x0082d220));
+    pEntry = &g_unk0x0082cb78[index];
+    pRecord->meshCount = 0;
+    if (pEntry->pNode5 == 0)
+        return;
+    pRecord->field_0x228 = 0;
+    pRecord->field_0x224 = 0;
+    pRecord->field_0x220 = 0;
+    pRecord->field_0x21c = 0;
+    FUN_00507290(pEntry->pNode5, pRecord);
+    pNode = pEntry->pNode5->pFirstChild;
+    if (pNode != 0) {
+        do {
+            pSibling = pNode;
+            if ((BYTE)pNode->flags != 0x14 && pNode != 0) {
+                do {
+                    FUN_00507290(pNode, pRecord);
+                    pNode = pNode->pFirstChild;
+                } while (pNode != 0);
+            }
+            pNode = pSibling->pNext;
+        } while (pNode != 0);
+    }
+    for (i = 0; i < 15; i++) {
+        if (pRecord->pNodes[i] != 0)
+            continue;
+        moved = 0;
+        if (i < 14) {
+            for (j = i; j < 14; j++) {
+                if (pRecord->pNodes[j] != 0 || pRecord->pNodes[j + 1] != 0)
+                    moved = 1;
+                pRecord->pMeshes[j] = pRecord->pMeshes[j + 1];
+                pRecord->pNodes[j] = pRecord->pNodes[j + 1];
+                pRecord->pVertexData[j] = pRecord->pVertexData[j + 1];
+                pRecord->vertexCount[j] = pRecord->vertexCount[j + 1];
+                pRecord->centre[j] = pRecord->centre[j + 1];
+                pRecord->halfSize[j] = pRecord->halfSize[j + 1];
+            }
+            if (moved)
+                i--;
+        }
+    }
+    FUN_00506fc0(index, (int)pEntry->pNode5, (int)pRecord);
+}
 
 struct Unk0x0082fd00 {
     Unk0x0082cb78 *pEntry;      // 0x000 stage entry the geometry belongs to
