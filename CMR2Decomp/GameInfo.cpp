@@ -3861,6 +3861,84 @@ void FUN_0050e740(int unused)
                  g_unk0x00527380, g_unk0x0052738c, 0x12);
 }
 
+// Fills pRect with `count` vertical strips shading from colour 0 to colour 1
+// over the first half and from colour 1 to colour 2 over the second half
+// (pColours: three RGBA colours; count must be at least 2). The strip widths
+// are rounded so that together they cover the rectangle exactly.
+// TODO: CMR2 0x0050ee50 (implemented, match 41%)
+void FUN_0050ee50(short *pRect, int unused, unsigned int count, BYTE *pColours)
+{
+    BYTE colour[4];
+    short strip[4];
+    FixVector c0;
+    FixVector c1;
+    FixVector d01;
+    FixVector d12;
+    FixVector c;
+    int r;
+    int g;
+    int b;
+    int n;
+    int half;
+    int i;
+    int t;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    *(int *)&strip[0] = *(int *)&pRect[0];
+    *(int *)&strip[2] = *(int *)&pRect[2];
+    c0.x = pColours[0] << 16;
+    c0.y = pColours[1] << 16;
+    c0.z = pColours[2] << 16;
+    c1.x = pColours[4] << 16;
+    c1.y = pColours[5] << 16;
+    c1.z = pColours[6] << 16;
+    d01.x = c1.x - c0.x;
+    d01.y = c1.y - c0.y;
+    d01.z = c1.z - c0.z;
+    d12.x = (pColours[8] << 16) - c1.x;
+    d12.y = (pColours[9] << 16) - c1.y;
+    d12.z = (pColours[10] << 16) - c1.z;
+    half = (count & 0xff) >> 1;
+    n = count & 0xff;
+    for (i = 0, t = 0; i < n; i++, t += 0x10000) {
+        strip[2] = FixMulShift32(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) + pRect[0] - strip[0];
+        if (i <= half) {
+            FixVecScale(&c, &d01, FixDiv(i << 16, half << 16));
+            c.x += c0.x;
+            c.y += c0.y;
+            c.z += c0.z;
+        } else {
+            FixVecScale(&c, &d12, FixDiv(t - (half << 16), half << 16));
+            c.x += c1.x;
+            c.y += c1.y;
+            c.z += c1.z;
+        }
+        r = c.x >> 16;
+        if (r > 0xff)
+            r = 0xff;
+        else if (r < 0)
+            r = 0;
+        g = c.y >> 16;
+        colour[0] = r;
+        if (g > 0xff)
+            g = 0xff;
+        else if (g < 0)
+            g = 0;
+        b = c.z >> 16;
+        colour[1] = g;
+        if (b > 0xff)
+            b = 0xff;
+        else if (b < 0)
+            b = 0;
+        colour[2] = b;
+        Sprite_FillRect((int)g_pGraphics + 0x150, strip, colour, 3);
+        strip[0] += strip[2];
+    }
+}
+
 // GLOBAL: CMR2 0x0082b0a4
 int g_unk0x0082b0a4;
 // GLOBAL: CMR2 0x0082a938
