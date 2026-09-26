@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
 #include "RallyData.h"
@@ -4735,4 +4736,210 @@ void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4)
     param_1[0x15] = param_1[0x15] + param_2[0];
     param_1[0x16] = param_1[0x16] + param_2[1];
     param_1[0x17] = param_1[0x17] + param_2[2];
+}
+
+int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
+void FUN_00498ca0(char *pDesc, int *pValues, int *pOut);
+void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
+                  int param_7, int param_8);
+
+// GLOBAL: CMR2 0x00588edc
+short g_unk0x00588edc[28];
+// GLOBAL: CMR2 0x00588f16
+short g_unk0x00588f16[125];
+
+// Spawns a dust/smoke puff at a randomised position relative to a wheel.
+// FUNCTION: CMR2 0x0046ed80
+void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
+                  int param_7, int param_8)
+{
+    short s;
+    int x1, x2, a, b, c;
+
+    s = (short)(rand() % (param_8 / 2));
+    rand();
+    param_4 = (s * param_4) / (param_8 / 2);
+    if (s <= 0x400) {
+        unsigned int idx = (int)s & 0xfff;
+        int conv = (int)(__int64)((double)param_5 * CGraphics::m_65536);
+        int v = FixMul(conv, g_sinTable[idx]);
+        if (v < 0)
+            v = -v;
+        param_5 = v >> 0x10;
+    }
+    a = rand() % (param_5 + 1);
+    x2 = a * param_7 + param_3;
+    b = (rand() % 0x11 - 8) / (rand() % 3 + 1);
+    x1 = (param_4 - 0x10) * param_6 + param_2 + b;
+    c = (rand() % 0x11 - 8) / (rand() % 3 + 1);
+    FUN_0046ec40(param_1, x1, x2 + c);
+}
+
+// Emits skid/dust effects for the wheels that are slipping.
+// FUNCTION: CMR2 0x0046ea80
+void FUN_0046ea80(int param_1, int param_2)
+{
+    int i;
+
+    i = 2;
+    if (param_1 == 2 || param_1 == 3) {
+        short *p;
+        if (g_eventCount > 2) {
+            p = g_unk0x00588f16;
+            do {
+                int r1 = rand();
+                short s = p[-1];
+                int r2 = rand();
+                FUN_0046ec40(i, (r1 * s) / 0x7fff, (r2 * *p) / 0x7fff);
+                i++;
+                p += 0xe;
+            } while (i < g_eventCount);
+        }
+    } else {
+        int e = (param_1 != 0) ? 0xe : 0;
+        int va = (short)g_unk0x00588edc[e];
+        int vb = (short)g_unk0x00588edc[e + 1];
+        int vd = va / 5;
+        int vf = va - vd;
+        int vg = vb - 8;
+        int x, y;
+        if (param_2 < 0x8000)
+            param_2 = 0;
+        else if (param_2 > 0x18000)
+            param_2 = 0x18000;
+        x = (param_2 * (vf - vd)) / 0xb333;
+        y = (param_2 * vg) / 0xb333;
+        if (x > 0x20) {
+            if (param_1 == 0) {
+                if (g_unk0x00589331 != 0)
+                    FUN_0046ed80(0, vd, vb - 1, x, y, 1, -1, 0x4fa);
+                else
+                    FUN_0046ed80(0, vf - 1, 1, x, y, -1, 1, 0x4fa);
+            } else if (g_unk0x00589331 != 0) {
+                FUN_0046ed80(1, vd, 1, x, y, 1, 1, 0x4fa);
+            } else {
+                FUN_0046ed80(1, vf - 1, vb - 1, x, y, -1, -1, 0x4fa);
+            }
+        }
+    }
+    g_unk0x00589320[param_1] = g_unk0x00589320[param_1] + 1;
+}
+
+// Spawns skid effects for all four wheels of a car.
+// FUNCTION: CMR2 0x0046ea10
+void FUN_0046ea10(int param_1)
+{
+    int i;
+
+    if (g_eventCount > 0) {
+        Car_Get(param_1);
+        i = 0;
+        do {
+            if (FUN_0046eeb0(param_1, i) != 0) {
+                int v = Car_GetWheelSpeed(Car_Get(param_1), (BYTE)i, 0);
+                if (v > 0x1e0000) {
+                    int n = 2;
+                    do {
+                        FUN_0046ea80(i, v / 0x3c);
+                        n--;
+                    } while (n != 0);
+                }
+            }
+            i++;
+        } while (i < 4);
+    }
+}
+
+// GLOBAL: CMR2 0x0058e088
+int g_unk0x0058e088[6];
+// Views into the stage object pointer table: 0x58e3ac and 0x58e44c are its
+// 7th and 47th entries, 0x58e4a0 is the last one.
+#define g_unk0x0058e3ac ((char **)(g_unk0x0058e394 + 6))
+#define g_unk0x0058e44c ((char **)(g_unk0x0058e394 + 46))
+#define g_unk0x0058e4a0 ((int *)g_unk0x0058e394[67])
+
+// Projects a stage object's rotation table into its output rows.
+// FUNCTION: CMR2 0x0047ca30
+void FUN_0047ca30(int param_1)
+{
+    char *pRow;
+    int **ppData;
+    int *pDst;
+    int row;
+
+    if (*(int *)(param_1 + 8) > 1) {
+        pRow = (char *)(param_1 + 0xc);
+        ppData = (int **)(param_1 + 0x14);
+        pDst = (int *)g_unk0x0058e0b8;
+        row = 0xc;
+        do {
+            int j = 1;
+            if (pRow[1] > 0) {
+                do {
+                    int *pData;
+                    int *pTable;
+                    int sum;
+                    int cols;
+                    sum = 0;
+                    pTable = pDst;
+                    pData = *ppData;
+                    cols = *pRow + 1;
+                    if (cols > 0) {
+                        do {
+                            if (*pData != 0)
+                                sum += FixMul(*pTable, *pData);
+                            pTable++;
+                            pData++;
+                            cols--;
+                        } while (cols != 0);
+                    }
+                    if (*(int *)(param_1 + 8) - 1 < (int)(pRow + (-0xb - param_1))) {
+                        ((int *)g_unk0x0058e0b8)[row + j] = sum;
+                    } else {
+                        int idx = FixDiv(sum, 0x10000000);
+                        if (idx < 0) {
+                            if (-idx < 0x40)
+                                ((int *)g_unk0x0058e0b8)[row + j] = -g_unk0x0058e4a0[-idx];
+                            else
+                                ((int *)g_unk0x0058e0b8)[row + j] = 0xffff0000;
+                        } else if (idx < 0x40) {
+                            ((int *)g_unk0x0058e0b8)[row + j] = g_unk0x0058e4a0[idx];
+                        } else {
+                            ((int *)g_unk0x0058e0b8)[row + j] = 0x10000;
+                        }
+                    }
+                    j++;
+                } while (j <= pRow[1]);
+            }
+            pDst += 0xc;
+            row += 0xc;
+            ppData++;
+            pRow++;
+        } while ((int)(pRow + (-0xb - param_1)) < *(int *)(param_1 + 8));
+    }
+}
+
+// Builds a stage object's per-row output from its type tables.
+// FUNCTION: CMR2 0x0047c9a0
+void FUN_0047c9a0(int param_1, int param_2, int *param_3)
+{
+    unsigned int mask = 0;
+    int i = 0;
+
+    do {
+        BYTE b = *(BYTE *)(g_unk0x0058e3ac[param_1] + 1 + i);
+        int v = (int)(signed char)b;
+        if (v != 0) {
+            unsigned int bit = 1 << v;
+            if ((mask & bit) == 0) {
+                mask |= bit;
+                FUN_00498ca0(g_unk0x0058e44c[v], param_3, (int *)g_unk0x0058e0b8);
+                FUN_0047ca30((int)g_unk0x0058e44c[v]);
+            }
+            *(int *)(i + param_2) =
+                *(int *)(&g_unk0x0058e088[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
+                                          *(int *)(g_unk0x0058e44c[v] + 8) * 0xc]);
+        }
+        i += 4;
+    } while (i < 0x14);
 }
