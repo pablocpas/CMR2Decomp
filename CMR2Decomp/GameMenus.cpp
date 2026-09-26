@@ -278,7 +278,7 @@ void FUN_004017e0(Menu *pMenu, int param)
 }
 
 // Fade callback of the "quit" item: ends the championship and leaves.
-// TODO: CMR2 0x00449020 (implemented, match 97%)
+// FUNCTION: CMR2 0x00449020
 void FUN_00449020(BYTE index)
 {
     BYTE i;
@@ -481,12 +481,12 @@ void FUN_0044a000(Menu *pMenu, int param1)
 
 // Leaves the stage: stores every car's timing, updates the race table and
 // starts the next step of the championship.
-// TODO: CMR2 0x0041f2b0 (implemented, match 85%)
+// FUNCTION: CMR2 0x0041f2b0
 void FUN_0041f2b0(void)
 {
     int i;
 
-    for (i = 0; i < (int)(RallyDataState() & 0xff); i++)
+    for (i = 0; i < (BYTE)RallyDataState(); i++)
         FUN_00469b50(i);
     for (i = 0; i < *(BYTE *)g_unk0x00537f0c[5]; i++) {
         CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x00537f0c[5], i, 0, 2);
@@ -496,12 +496,12 @@ void FUN_0041f2b0(void)
         FUN_00466080();
     if (CGameInfo::FUN_00405d80() != 4)
         return;
-    if (!(*RallyData_GetChampionshipState() & 0x800000)) {
+    if (*RallyData_GetChampionshipState() & 0x800000)
+        FUN_0041f2a0();
+    else {
         FUN_004728b0();
         FUN_0041f280();
-        return;
     }
-    FUN_0041f2a0();
 }
 
 // FUNCTION: CMR2 0x0044a090
@@ -914,7 +914,7 @@ int FUN_00451850(int car)
 }
 
 // Draw callback of the stage winner screen.
-// TODO: CMR2 0x0044d790 (implemented, match 89%)
+// FUNCTION: CMR2 0x0044d790
 void FUN_0044d790(Menu *pMenu)
 {
     int best;
@@ -935,7 +935,7 @@ void FUN_0044d790(Menu *pMenu)
     } else {
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
                               CFrontend::GetTextString(0x49), 0);
-        for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+        for (i = 0; i < (BYTE)RallyDataState(); i++) {
             if (FUN_00451850(i) < best) {
                 best = FUN_00451850(i);
                 winner = i;
@@ -954,7 +954,7 @@ void FUN_0044d790(Menu *pMenu)
 
 // Draw callback of the scrolling stage split table: driver, split time, car
 // and position ("=" when the time equals the previous row's).
-// TODO: CMR2 0x0044d960 (implemented, match 86%)
+// TODO: CMR2 0x0044d960 (implemented, match 87%)
 void FUN_0044d960(Menu *pMenu)
 {
     char stage[80];
@@ -1058,7 +1058,7 @@ extern char g_classRowHeaderFormat[];
 
 // Draw callback of the stage times table (table 0), with the rally / stage
 // header (in championship mode 8 also the leg number).
-// TODO: CMR2 0x0044e130 (implemented, match 99%, one push scheduled differently)
+// FUNCTION: CMR2 0x0044e130
 void FUN_0044e130(Menu *pMenu)
 {
     char stage[80];
@@ -1834,7 +1834,7 @@ int FUN_0041bf70(int index);
 // Draw callback of the stage penalties screen: for every car, its
 // disqualification or retirement reason, jump start / speeding penalties
 // and car damage notes, one line each.
-// TODO: CMR2 0x00452be0 (implemented, match 92%)
+// FUNCTION: CMR2 0x00452be0
 void FUN_00452be0(Menu *pMenu)
 {
     int x;
@@ -2012,7 +2012,7 @@ void FUN_00453830(Menu *pMenu)
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x43), 0x62 - (RallyData_FUN_00406940() & 0xff));
     Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 242) / 480, (int *)g_menuFrameColour, 0x11);
     x += Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
-    for (i = 0; i < (int)(RallyDataState() & 0xff); i++) {
+    for (i = 0; i < (BYTE)RallyDataState(); i++) {
         place = FUN_0040ceb0(i);
         if (!shown && place < 3) {
             x += (int)(g_pGraphics->resX * 8) / 640;
@@ -2539,7 +2539,7 @@ Menu *g_pHeaderMenu;
 // Breadcrumb of the in-game screens: the menu title (when it is the one that
 // owns it), the stage or championship name and, for the first two stages, the
 // race mode; each entry is followed by its marker rectangle.
-// TODO: CMR2 0x00451890 (implemented, match 93%)
+// FUNCTION: CMR2 0x00451890
 void FUN_00451890(Menu *pMenu)
 {
     int flag;
@@ -2709,7 +2709,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
 }
 
 // Draws a row of strings at (x, y), separated by a thin vertical bar.
-// FUNCTION: CMR2 0x00454df0
+// TODO: CMR2 0x00454df0 (implemented, match 61%)
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 {
     int width;
@@ -2777,7 +2777,7 @@ int g_chatLineLength;
 
 // Network results menu: typing on the chat line, Enter sends it, Escape
 // leaves the menu. Up/down jump between the chat line and the menu items.
-// TODO: CMR2 0x00449ce0 (implemented, match 87%)
+// TODO: CMR2 0x00449ce0 (implemented, match 86%)
 void FUN_00449ce0(Menu *pMenu)
 {
     DeviceInfo *pDevice;
@@ -3120,28 +3120,29 @@ int g_unk0x00541e00;
 
 // Per-frame update of the header menu: waits two frames after the menu
 // changes before running its callback 2 (and the network one).
-// TODO: CMR2 0x0044b330 (implemented, match 70%)
+// FUNCTION: CMR2 0x0044b330
 void FUN_0044b330(void)
 {
     if (g_unk0x00541dfc == g_pHeaderMenu || g_pHeaderMenu == &g_menu0x0053ea68) {
-        if (g_unk0x00541e00 < 1) {
-            Menu_CallCallback2(g_pHeaderMenu);
-            if ((BYTE)FUN_00407270())
-                FUN_0044b3a0();
-            g_unk0x0053e698 = 0;
-            return;
-        }
+        if (g_unk0x00541e00 > 0)
+            goto tail;
+        Menu_CallCallback2(g_pHeaderMenu);
+        if ((BYTE)FUN_00407270())
+            FUN_0044b3a0();
+        g_unk0x0053e698 = 0;
+        return;
     } else {
         g_unk0x00541dfc = g_pHeaderMenu;
         g_unk0x00541e00 = 2;
     }
+tail:
     FUN_0044b760();
     g_unk0x0053e698 = 0;
     g_unk0x00541e00--;
 }
 
 // Sorts the stage results by time (zero times, i.e. no time, go last).
-// TODO: CMR2 0x0044b270 (implemented, match 83%)
+// FUNCTION: CMR2 0x0044b270
 void FUN_0044b270(void)
 {
     int i;
@@ -3150,21 +3151,23 @@ void FUN_0044b270(void)
     int bestTime;
     int time;
     BYTE record;
+    BYTE recordI;
 
     for (i = 0; i < (int)((FUN_0041b370() & 0xff) + 1); i++) {
         bestTime = 0xffff;
         for (j = i; j < (int)((FUN_0041b370() & 0xff) + 1); j++) {
             if (g_stageResultTimes[j] != 0 && g_stageResultTimes[j] < bestTime) {
-                best = j;
                 bestTime = g_stageResultTimes[j];
+                best = j;
             }
         }
         time = g_stageResultTimes[i];
         record = g_stageResultRecords[best];
         g_stageResultTimes[i] = g_stageResultTimes[best];
         g_stageResultTimes[best] = time;
-        g_stageResultRecords[best] = g_stageResultRecords[i];
+        recordI = g_stageResultRecords[i];
         g_stageResultRecords[i] = record;
+        g_stageResultRecords[best] = recordI;
     }
 }
 

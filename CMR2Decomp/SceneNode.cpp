@@ -100,7 +100,7 @@ int g_rotAxisYZ;
         }                                                                             \
     }
 
-// FUNCTION: CMR2 0x004ac820
+// TODO: CMR2 0x004ac820 (implemented, match 65%)
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles)
 {
     int rx, ry, rz;
@@ -224,15 +224,17 @@ void SceneNode_UpdateTree(SceneNode *pNode, int unused)
             pParent = pNode->pParent;
             if (pParent != NULL && pNode->type >= 0 && pNode->type <= 3) {
                 if (pNode->dirty == 1 || pParent->dirty == 1) {
-                    if ((char)pParent->flags == -3) {
+                    if ((char)pParent->flags != -3) {
+                        if (pNode->useParentWorld != 0) {
+                            pNode->world = pNode->pParent->world;
+                            g_sceneStatCopied++;
+                        } else {
+                            FixMatrix_Multiply(&pNode->world, &pNode->current, &pParent->world);
+                            g_sceneStatMultiplied++;
+                        }
+                    } else {
                         pNode->world = pNode->current;
                         g_sceneStatCopied++;
-                    } else if (pNode->useParentWorld != 0) {
-                        pNode->world = pNode->pParent->world;
-                        g_sceneStatCopied++;
-                    } else {
-                        FixMatrix_Multiply(&pNode->world, &pNode->current, &pParent->world);
-                        g_sceneStatMultiplied++;
                     }
                     if (pNode->sector != -1 && (char)pNode->flags != -3)
                         SceneNode_UpdateSector(pNode);
@@ -423,7 +425,7 @@ SceneNode *SceneNode_Create(SceneNode *pParent)
 }
 
 // Moves pNode (and its subtree) under pNewParent.
-// FUNCTION: CMR2 0x004ac7a0
+// TODO: CMR2 0x004ac7a0 (implemented, match 21%)
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
 {
     SceneNode *p;
@@ -798,7 +800,7 @@ void Scene_BuildLightTables(void)
 }
 
 // Light colour at a level (0..1.0).
-// TODO: CMR2 0x004b3ae0 (implemented, match 87%)
+// FUNCTION: CMR2 0x004b3ae0
 void Scene_GetLightColour(DWORD *pColour, int level)
 {
     int i;
@@ -808,11 +810,9 @@ void Scene_GetLightColour(DWORD *pColour, int level)
         g_sceneLightDirty = 0;
     }
     i = level * 0x31 >> 16;
-    if (i < 0) {
-        *pColour = *(DWORD *)g_sceneLightTable;
-        return;
-    }
-    if (i > 0x31)
+    if (i < 0)
+        i = 0;
+    else if (i > 0x31)
         i = 0x31;
     *pColour = ((DWORD *)g_sceneLightTable)[i];
 }
@@ -879,7 +879,7 @@ void Scene_UpdateShadowColour(int boost)
 }
 
 // Sets the ambient colour of the scene (RGBA bytes).
-// TODO: CMR2 0x004b3740 (implemented, match 63%)
+// TODO: CMR2 0x004b3740 (implemented, match 64%)
 void Scene_SetAmbient(BYTE *pColour, int boost)
 {
     g_sceneAmbientD3D = ((((DWORD)pColour[3] << 8 | pColour[0]) << 8) | pColour[1]) << 8 | pColour[2];
@@ -919,7 +919,7 @@ void Scene_SetLight(FixVector *pLight, int boost)
 }
 
 // Light colour at a level (0..1.0), as D3D ARGB.
-// TODO: CMR2 0x004b3b40 (implemented, match 83%)
+// FUNCTION: CMR2 0x004b3b40
 void Scene_GetLightColourD3D(DWORD *pColour, int level)
 {
     int i;
@@ -929,17 +929,15 @@ void Scene_GetLightColourD3D(DWORD *pColour, int level)
         g_sceneLightDirty = 0;
     }
     i = level * 0x31 >> 16;
-    if (i < 0) {
-        *pColour = g_sceneLightTableD3D[0];
-        return;
-    }
-    if (i > 0x31)
+    if (i < 0)
+        i = 0;
+    else if (i > 0x31)
         i = 0x31;
     *pColour = g_sceneLightTableD3D[i];
 }
 
 // Shadow colour at a level (0..1.0), as D3D ARGB.
-// TODO: CMR2 0x004b3ba0 (implemented, match 83%)
+// FUNCTION: CMR2 0x004b3ba0
 void Scene_GetShadowColourD3D(DWORD *pColour, int level)
 {
     int i;
@@ -949,11 +947,9 @@ void Scene_GetShadowColourD3D(DWORD *pColour, int level)
         g_sceneLightDirty = 0;
     }
     i = level * 0x31 >> 16;
-    if (i < 0) {
-        *pColour = g_sceneShadowTableD3D[0];
-        return;
-    }
-    if (i > 0x31)
+    if (i < 0)
+        i = 0;
+    else if (i > 0x31)
         i = 0x31;
     *pColour = g_sceneShadowTableD3D[i];
 }
@@ -1000,7 +996,7 @@ extern int g_unk0x005210c0;
 // Relights a sector when the scene ambient or light colour changed since its
 // last update (ground mesh, static objects, nodes), then its shadow mesh,
 // attenuated by D3D light 1 through the sector light zone when enabled.
-// TODO: CMR2 0x004b3c00 (implemented, match 39%)
+// TODO: CMR2 0x004b3c00 (implemented, match 40%)
 void Scene_RelightSector(int sector)
 {
     Sector *pSector;
@@ -1682,7 +1678,7 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 // Light level and colour of the ground at a position: those of the nearest
 // (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
-// TODO: CMR2 0x004b3860 (implemented, match 39%)
+// TODO: CMR2 0x004b3860 (implemented, match 41%)
 DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 {
     Mesh *pMesh;
@@ -1962,7 +1958,7 @@ void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z)
 // Pushes the world matrices of dirty visible nodes to their Direct3D
 // objects: float matrix for meshes (types 0 and 3), position (and spot
 // direction) for lights.
-// TODO: CMR2 0x004ad8d0 (implemented, match 87%)
+// FUNCTION: CMR2 0x004ad8d0
 void SceneNode_FlushTransforms(SceneNode *pNode)
 {
     SceneLight *pLight;
@@ -1970,7 +1966,9 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
 
     for (; pNode != NULL; pNode = pNode->pNext) {
         if (SceneNode_IsVisible(pNode)) {
-            if (pNode->type == SCENE_NODE_MESH || pNode->type == SCENE_NODE_EMPTY) {
+            switch (pNode->type) {
+            case SCENE_NODE_MESH:
+            case SCENE_NODE_EMPTY:
                 if (pNode->dirty == 1) {
                     m = (int *)&pNode->world;
                     pNode->worldF[0] = (float)m[0] * CGraphics::m_oneOver65536;
@@ -1991,7 +1989,8 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
                     pNode->worldF[15] = (float)m[15] * CGraphics::m_oneOver65536;
                     pNode->dirty = 0;
                 }
-            } else if (pNode->type == SCENE_NODE_TYPE1) {
+                break;
+            case SCENE_NODE_TYPE1:
                 pLight = (SceneLight *)pNode->pObject;
                 if (pNode->dirty == 1) {
                     if (pLight->light.dltType != D3DLIGHT_DIRECTIONAL) {

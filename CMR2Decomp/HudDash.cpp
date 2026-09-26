@@ -211,7 +211,7 @@ void Dash_InitStyle(void)
     }
 }
 
-// TODO: CMR2 0x00445c80 (implemented, match 65%)
+// TODO: CMR2 0x00445c80 (implemented, match 64%)
 void Dash_Reset(void)
 {
     g_dashSpeedPrev[0] = 0;
@@ -239,7 +239,7 @@ void Dash_Reset(void)
 }
 
 // Shown speed and revs between the last two physics steps (t = 0..1).
-// TODO: CMR2 0x00445df0 (implemented, match 46%)
+// TODO: CMR2 0x00445df0 (implemented, match 45%)
 void Dash_Interpolate(int t)
 {
     unsigned int i;
@@ -328,7 +328,7 @@ void Dash_Update(int player)
 
 // Digital rev counter: the lit part of the bar texture (or plain
 // rectangles), the gear letter and the speed.
-// TODO: CMR2 0x00446270 (implemented, match 27%)
+// TODO: CMR2 0x00446270 (implemented, match 26%)
 void Dash_DrawBar(int player, int layer)
 {
     DashGearNames gears;
@@ -476,7 +476,7 @@ void Dash_DrawDialFace(int *pCentre, int unused, Texture *pTexture)
 
 // Draws the needle of the dial: a thin quad from the tail to the tip, with
 // its point, rotated by angle about pCentre.
-// TODO: CMR2 0x004471b0 (implemented, match 36%)
+// TODO: CMR2 0x004471b0 (implemented, match 35%)
 void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, int tip, unsigned int angle,
                      BYTE *pColour, int layer)
 {
@@ -553,7 +553,7 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
 
 // Analogue rev counter: the dial with its needle, the gear marker beside
 // the gear letters, the speed and the MPH/KPH plate.
-// TODO: CMR2 0x00446bf0 (implemented, match 54%)
+// TODO: CMR2 0x00446bf0 (implemented, match 50%)
 void Dash_DrawDial(int player, int layer)
 {
     DashGearNames gears;

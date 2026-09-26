@@ -265,7 +265,7 @@ int FUN_004b8540(void)
     return 1;
 }
 
-// FUNCTION: CMR2 0x004b85f0
+// TODO: CMR2 0x004b85f0 (implemented, match 51%)
 int Sector_FromPosition(FixVector *pPos)
 {
     int offset;
@@ -292,7 +292,7 @@ int Sector_FromPosition(FixVector *pPos)
 // Re-evaluates which sector the node's world position falls in, records
 // the neighbouring sectors it overlaps (within 4.5 units) and moves the node
 // between the sector lists.
-// FUNCTION: CMR2 0x004b8690
+// TODO: CMR2 0x004b8690 (implemented, match 68%)
 void SceneNode_UpdateSector(SceneNode *pNode)
 {
     int n;
@@ -546,7 +546,7 @@ void Sector_BuildCorners(void)
 }
 
 // Appends the node to the sector its world position falls in.
-// FUNCTION: CMR2 0x004b8b10
+// TODO: CMR2 0x004b8b10 (implemented, match 70%)
 void FUN_004b8b10(SceneNode *pNode)
 {
     FixVector pos;
