@@ -13,6 +13,7 @@
 #include <string.h>
 #include "main.h"
 #include "Game.h"
+#include "RallyData.h"
 
 // GLOBAL: CMR2 0x00525c30
 BYTE g_eventEntries[288] = {
@@ -1775,6 +1776,8 @@ Menu g_menu0x00826420;
 Menu g_menu0x00826600;
 // GLOBAL: CMR2 0x008267e0
 Menu g_menu0x008267e0;
+// GLOBAL: CMR2 0x008269c0
+Menu g_menu0x008269c0;
 // GLOBAL: CMR2 0x00826ba0
 Menu g_menu0x00826ba0;
 // GLOBAL: CMR2 0x00826d80
@@ -1787,6 +1790,8 @@ Menu g_menu0x00827140;
 Menu g_menu0x00827320;
 // GLOBAL: CMR2 0x00827500
 Menu g_menu0x00827500;
+// GLOBAL: CMR2 0x008276e0
+Menu g_menu0x008276e0;
 // GLOBAL: CMR2 0x008278c0
 Menu g_menu0x008278c0;
 // GLOBAL: CMR2 0x00827aa0
@@ -2195,6 +2200,151 @@ void FUN_004f8170(void)
     g_menu0x00823858.items[0].flag3 = 1;
     g_menu0x00823858.items[1].flag3 = 1;
     g_menu0x00823858.items[2].flag3 = 1;
+}
+
+void FUN_004e96d0(Menu *pMenu);
+void FUN_004e2500(Menu *pMenu);
+void FUN_004ef740(Menu *pMenu, char back);
+void FUN_004ef930(Menu *pMenu, int param);
+void FUN_004faa00(Menu *pMenu, int param);
+void FUN_004d6290(Menu *pMenu);
+void FUN_004f1bb0(BYTE value);
+void FUN_004f1bc0(int value);
+void FUN_004ea8c0(BYTE param1);
+void FUN_004ea950(BYTE param1);
+
+// Network message page (one hidden entry).
+// FUNCTION: CMR2 0x004f9300
+void FUN_004f9300(void)
+{
+    Menu_Init(&g_menu0x00826140, 0, -1, 0, FUN_004f8410(), NULL, 1, 0, 0);
+    Menu_AddItemType1(&g_menu0x00826140, 0, -1, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00826140, NULL, NULL, (MenuCallback)FUN_004e96d0, NULL);
+    Menu_ValidateCursor(&g_menu0x00826140, 0);
+}
+
+// Item callback of "arcade": starts an arcade game for the chosen players.
+// TODO: CMR2 0x004fa9b0 (implemented, match 89%)
+void FUN_004fa9b0(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(1);
+    FUN_004f1bb0(CGameInfo::FUN_00405d70());
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    FUN_004f1bc0((int)pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+void FUN_004fa9b0(Menu *pMenu, int param);
+
+// Arcade menu: two submenus and "start".
+// FUNCTION: CMR2 0x004f9370
+void FUN_004f9370(void)
+{
+    Menu_Init(&g_menu0x008267e0, 0, 0x58, 0, FUN_004f8410(), NULL, 1, 1, 1);
+    Menu_AddItemType2(&g_menu0x008267e0, 0, 0xc, &g_menu0x00826600, 0, 0);
+    Menu_AddItemType2(&g_menu0x008267e0, 0, 0xe2, &g_menu0x008276e0, 0, 0);
+    Menu_AddItemType4(&g_menu0x008267e0, 0, 0x10, (int)FUN_004fa9b0, -1);
+    Menu_SetCallbacks(&g_menu0x008267e0, NULL, (MenuCallback)FUN_004f3ae0, (MenuCallback)FUN_004e2500,
+                      (MenuCallback)FUN_004ef740);
+    Menu_ValidateCursor(&g_menu0x008267e0, 0);
+}
+
+// Entering the arcade player-count page: sets up the scroller and the
+// cursor from the number of players.
+// TODO: CMR2 0x004fa890 (implemented, match 87%)
+void FUN_004fa890(Menu *pMenu, int param)
+{
+    MenuScroller *p;
+    int k;
+
+    RallyData_FUN_0040d640(5);
+    p = FUN_004f2520();
+    p->startTime = CFrontend::FUN_004d20e0();
+    p->pMenu = pMenu;
+    p->count = pMenu->itemCount;
+    for (k = 0; k < pMenu->itemCount; k++)
+        p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[k].id));
+    if (CGameInfo::FUN_00405d70() >= 3) {
+        pMenu->cursor = 0;
+        return;
+    }
+    pMenu->cursor = CGameInfo::FUN_00405d70() - 1;
+}
+
+// Item callback of the arcade player-count page.
+// TODO: CMR2 0x004fa910 (implemented, match 75%)
+void FUN_004fa910(Menu *pMenu, int param)
+{
+    FUN_004ea8c0(pMenu->cursor + 1);
+    RallyData_FUN_0040d640(CGameInfo::FUN_00405d70() == 1 ? 5 : 0);
+    FUN_004f1bb0(CGameInfo::FUN_00405d70());
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), pMenu);
+    FUN_004f1bc0((int)pMenu);
+    Menu_SetNextAction((int)FUN_004f83a0());
+}
+
+void FUN_004fa890(Menu *pMenu, int param);
+void FUN_004fa910(Menu *pMenu, int param);
+void FUN_004f39f0(Menu *pMenu);
+void FUN_004d5fb0(Menu *pMenu);
+
+// Arcade player-count page (under the arcade "championship" submenu).
+// FUNCTION: CMR2 0x004f9400
+void FUN_004f9400(char players)
+{
+    Menu_Init(&g_menu0x008269c0, 0, 0x1c, 0, &g_menu0x00826600, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x19f, (int)FUN_004fa910, -1);
+    Menu_AddItemType4(&g_menu0x008269c0, 0, 0x1a0, (int)FUN_004fa910, -1);
+    Menu_SetCallbacks(&g_menu0x008269c0, (MenuCallback)FUN_004fa890, (MenuCallback)FUN_004f39f0,
+                      (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x008269c0, 0);
+    g_menu0x008269c0.cursor = players - 1;
+}
+
+// Update callback of the arcade player-count page under the arcade menu.
+// FUNCTION: CMR2 0x004f9520
+void FUN_004f9520(Menu *pMenu)
+{
+    FUN_004f39f0(pMenu);
+}
+
+// Arcade player-count page (under the arcade menu).
+// FUNCTION: CMR2 0x004f9490
+void FUN_004f9490(char players)
+{
+    Menu_Init(&g_menu0x008276e0, 0, 0x1c, 0, &g_menu0x008267e0, NULL, 1, 0, 0);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x19f, (int)FUN_004fa910, -1);
+    Menu_AddItemType4(&g_menu0x008276e0, 0, 0x1a0, (int)FUN_004fa910, -1);
+    Menu_SetCallbacks(&g_menu0x008276e0, (MenuCallback)FUN_004fa890, (MenuCallback)FUN_004f9520,
+                      (MenuCallback)FUN_004d5fb0, NULL);
+    Menu_ValidateCursor(&g_menu0x008276e0, 0);
+    g_menu0x008276e0.cursor = players - 1;
+}
+
+// Sets up a one-player arcade game.
+// FUNCTION: CMR2 0x004fa970
+void FUN_004fa970(void)
+{
+    FUN_004ea8c0(1);
+    RallyData_FUN_0040d640(5);
+    FUN_004f1bb0(1);
+    FUN_004ea950(0);
+    Menu_SetParent(FUN_004f83a0(), FUN_004fa2e0());
+    FUN_004f1bc0((int)FUN_004fa2e0());
+}
+
+// Arcade game type menu: three types.
+// FUNCTION: CMR2 0x004f9530
+void FUN_004f9530(char unused)
+{
+    Menu_Init(&g_menu0x00826600, 0, 0x1d, 0, &g_menu0x008267e0, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd0, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd1, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_AddItemType2(&g_menu0x00826600, 0, 0xd2, FUN_004f83a0(), (int)FUN_004ef930, 0);
+    Menu_SetCallbacks(&g_menu0x00826600, (MenuCallback)FUN_004faa00, NULL, (MenuCallback)FUN_004d6290, NULL);
+    Menu_ValidateCursor(&g_menu0x00826600, 0);
 }
 
 // FUNCTION: CMR2 0x004f5810

@@ -3894,6 +3894,96 @@ void FUN_004e1230(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
 
+int FUN_004f92f0(void);
+
+// Draw callback of the network message page: title and the message of the
+// current network state.
+// TODO: CMR2 0x004e96d0 (implemented, match 61%)
+void FUN_004e96d0(Menu *pMenu)
+{
+    char *text[2];
+    int id;
+
+    text[0] = CFrontend::GetTextString(0);
+    text[1] = CFrontend::GetTextString(0x1e2);
+    FrontendDraw_PlayTime();
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
+    switch (FUN_004f92f0()) {
+    case 0:
+        id = 0x1e3;
+        break;
+    case 1:
+        id = 0x1e4;
+        break;
+    case 2:
+        id = 0x1e5;
+        break;
+    case 3:
+        id = 0x1e6;
+        break;
+    default:
+        goto done;
+    }
+    Font_DrawText(1, CFrontend::GetTextString(id), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                  (int *)g_colourWhite0x00524968, 0x12);
+done:
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Draw callback of the arcade menu.
+// FUNCTION: CMR2 0x004e2500
+void FUN_004e2500(Menu *pMenu)
+{
+    char *text[1];
+
+    text[0] = CFrontend::GetTextString(0x94);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, text, 1);
+    FrontendDraw_MenuList(pMenu, NULL, -1, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+void FUN_004f1bb0(BYTE value);
+
+// Leaving the arcade menu: sets the arcade mode of the entry chosen.
+// TODO: CMR2 0x004ef740 (implemented, match 84%)
+void FUN_004ef740(Menu *pMenu, char back)
+{
+    if (back != 0)
+        return;
+    FUN_004ea950(0);
+    switch (pMenu->cursor) {
+    case 0:
+        FUN_004ea8e0(5);
+        break;
+    case 1:
+        FUN_004ea8e0(6);
+        break;
+    case 2:
+        FUN_004ea8e0(7);
+        FUN_004ea8c0(1);
+        FUN_004f1bb0(CGameInfo::FUN_00405d70());
+        FUN_004ea950(0);
+        RallyData_FUN_004068b0(0);
+        RallyData_FUN_004068e0(0);
+        return;
+    }
+    RallyData_FUN_004068b0(0);
+    RallyData_FUN_004068e0(0);
+}
+
+void FUN_004ea930(BYTE param1);
+void FUN_004fa970(void);
+
+// Item callback of an arcade game type.
+// FUNCTION: CMR2 0x004ef930
+void FUN_004ef930(Menu *pMenu, int param)
+{
+    FUN_004ea930(pMenu->cursor);
+    if (CGameInfo::FUN_00405d80() == 5)
+        FUN_004fa970();
+}
+
 // Draw callback of the display device menu: one row per device name.
 // FUNCTION: CMR2 0x004e1920
 void FUN_004e1920(Menu *pMenu)
