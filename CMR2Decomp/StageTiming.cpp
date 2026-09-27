@@ -16,6 +16,9 @@
 #include "StageUI.h"
 #include "Mesh.h"
 #include "Graphics.h"
+#include "Font.h"
+#include "main.h"
+#include <math.h>
 #include <string.h>
 
 // GLOBAL: CMR2 0x00543da0
@@ -2044,6 +2047,247 @@ bool FUN_00459390(void)
 {
     return g_unk0x00543098 != 0;
 }
+
+// GLOBAL: CMR2 0x00537f30
+int g_unk0x00537f30;
+// GLOBAL: CMR2 0x00538120
+BYTE g_unk0x00538120;
+
+extern char g_str0x0051a904[];
+int FUN_00406710(void);
+int FUN_00406770(void);
+int FUN_0040af30(void);
+
+// Draws the stage clock and the countdown timer: picks the timer state from the
+// game info flags, then prints it on the HUD with the seconds text and the
+// minutes:seconds text.
+// FUNCTION: CMR2 0x004593a0
+void FUN_004593a0(void)
+{
+    BYTE colour[4];
+    unsigned int remaining;
+    unsigned int delta;
+    unsigned int limit;
+    unsigned int value;
+    int x;
+    int x2;
+    int y;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    g_unk0x00543098 = 0;
+    if ((**(unsigned int **)(FUN_0041b390() + 4) & 0xff) >= 10)
+        return;
+    if (CGameInfo::FUN_00405d80() == '\n' || CGameInfo::FUN_00405d80() == '\f') {
+        if (FUN_00406710() != 0) {
+            delta = CMain::GetFrameDelta() - FUN_0040af30();
+            limit = FUN_00406710() * 6000;
+            if (delta >= limit) {
+                remaining = 0;
+                g_unk0x00543098 = 2;
+            } else {
+                g_unk0x00543098 = 2;
+                remaining = limit - delta;
+            }
+        } else {
+            g_unk0x00543098 = 0;
+        }
+    }
+    if ((CGameInfo::FUN_00405d80() == '\b' || CGameInfo::FUN_00405d80() == '\t' ||
+         CGameInfo::FUN_00405d80() == '\v') &&
+        g_unk0x00538120 != 0) {
+        delta = CMain::GetFrameDelta() - g_unk0x00537f30;
+        value = FUN_00406770() * 100;
+        if (delta >= value)
+            value = 0;
+        else
+            value -= delta;
+        if (g_unk0x00543098 == 0 || value < remaining) {
+            remaining = value;
+            g_unk0x00543098 = 1;
+        }
+    }
+    if (g_unk0x00543098 == 0)
+        return;
+    x = (int)g_pGraphics->resX * 0xaf30 >> 16;
+    x2 = (int)g_pGraphics->resX * 0xf06b >> 16;
+    if ((**(unsigned int **)(FUN_0041b390() + 4) & 0xff) < 10) {
+        if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0)
+            y = (int)g_pGraphics->resY * 0x14 / 0x1e0 + ((int)g_pGraphics->resY * 0x3000 >> 16);
+        else
+            y = (int)g_pGraphics->resY * 0x14 / 0x1e0 +
+                ((int)g_pGraphics->resY * (0x3000 - FixMul(0xaac, 0x8000)) >> 16);
+    } else {
+        y = (int)g_pGraphics->resY * 0x1c2 / 0x1e0;
+    }
+    if (g_unk0x00543098 == 1)
+        Font_DrawText(0, CFrontend::GetTextString(0xfd), x, y, (int *)colour, 0x21);
+    else
+        Font_DrawText(0, CFrontend::GetTextString(0xfc), x, y, (int *)colour, 0x21);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a904, (remaining / 100) / 60, (remaining / 100) % 60);
+    Font_DrawText(3, CFrontend::m_stringDest, x2, y, (int *)colour, 0x24);
+}
+
+extern const float g_unk0x00511378;  // defined in StageObjects.cpp (single definition)
+extern const float g_unk0x005113d0;  // defined in StageObjects.cpp (single definition)
+// GLOBAL: CMR2 0x005113d4
+const float g_unk0x005113d4 = 220.0f;
+// GLOBAL: CMR2 0x005113d8
+const float g_unk0x005113d8 = 0.04f;
+extern const float g_unk0x005113dc;  // defined in StageObjects.cpp (single definition)
+// GLOBAL: CMR2 0x005113e0
+extern const float g_unk0x005113e0;  // defined in StageObjects.cpp (single definition)
+// GLOBAL: CMR2 0x0051a910
+char g_str0x0051a910[] = "%s (%s)";
+
+extern const float g_netOne;
+extern const float g_netZero;
+extern const float g_netByteScale;
+extern char g_str0x0051a904[];
+
+bool FUN_0040b050(int value);
+int FUN_0040b020(int value);
+char *FUN_00409cd0(int index);
+int FUN_00427620(int index);
+int FUN_00422f50(unsigned int index);
+void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag);
+void FUN_00459630(int *param1, int *param2, int *param3);
+
+// Square of a float expression; the original expands it twice.
+#define FSQR(x) ((x) * (x))
+
+// Fade factors of FUN_00459790, expanded where they are used (the original
+// computes each one once and keeps it in an x87 scratch slot).
+#define TIMER_ALPHA ((distance - g_unk0x00511378) * g_unk0x005113d8)
+#define TIMER_LEVEL (g_netOne - (distance - g_unk0x00511378) * g_unk0x005113d0)
+
+// Projects a car's body node into one player's view and draws the stage timing
+// marker (driver name or rally record) at the projected position, then updates
+// the light level of the car's shadow meshes from the distance to the view
+// centre.
+// FUNCTION: CMR2 0x00459790
+void FUN_00459790(int param_1, int param_2)
+{
+    Car *pCar;
+    SceneNode *pNode;
+    SceneNode *pView;
+    BYTE colour[4];
+    float prevY;
+    float prevX;
+    int proj[2];
+    FixVector up;
+    FixVector nodePos;
+    FixVector out;
+    FixVector viewPos;
+    float distance;
+    int flag;
+    char *pName;
+    int old;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    pCar = Car_Get(param_1);
+    pNode = pCar->pNode0x71c;
+    pView = g_viewNodes[param_2];
+    FixMatrix_GetPosition(&nodePos, &pNode->current);
+    FixMatrix_GetPosition(&viewPos, &pView->current);
+    nodePos.y += 0x10000;
+    FUN_00459630((int *)&nodePos, (int *)&viewPos, (int *)&out);
+    FUN_004bad40(proj, &out, (BYTE *)pView);
+    if (CGameInfo::FUN_00405d80() == '\b' || CGameInfo::FUN_00405d80() == '\t' ||
+        CGameInfo::FUN_00405d80() == '\n')
+        flag = 0;
+    else
+        flag = 1;
+    if (proj[0] != -0x640000 || proj[1] != -0x640000) {
+        prevX = proj[0] * CGraphics::m_oneOver65536;
+        prevY = proj[1] * CGraphics::m_oneOver65536;
+        FixMatrix_GetUp(&up, &pView->current);
+        up.x += nodePos.x;
+        up.y += nodePos.y;
+        up.z += nodePos.z;
+        FUN_00459630((int *)&up, (int *)&viewPos, (int *)&out);
+        FUN_004bad40(proj, &out, (BYTE *)pView);
+        if (proj[0] != -0x640000 || proj[1] != -0x640000) {
+            distance = (float)sqrt(FSQR((proj[0] * CGraphics::m_oneOver65536 - prevX) * g_unk0x005113e0 /
+                                        (int)g_pGraphics->resX) +
+                                   FSQR((proj[1] * CGraphics::m_oneOver65536 - prevY) * g_unk0x005113dc /
+                                        (int)g_pGraphics->resY));
+            if (distance > g_unk0x00511378) {
+                if (TIMER_ALPHA >= g_netOne)
+                    colour[3] = 0xdc;
+                else if (TIMER_ALPHA <= g_netZero)
+                    colour[3] = 0;
+                else
+                    colour[3] = (BYTE)(int)(TIMER_ALPHA * g_unk0x005113d4);
+                if (param_1 != 0) {
+                    if (FUN_0040b050(param_1)) {
+                        pName = FUN_00409cd0(FUN_0040b020(param_1));
+                        if (pName != NULL) {
+                            if (FUN_00427620(param_1) != 0) {
+                                sprintf(CFrontend::m_stringDest, g_str0x0051a910, pName,
+                                        CFrontend::GetTextString(0x18));
+                                Font_DrawText(0, CFrontend::m_stringDest, (short)(int)prevX,
+                                              (short)(int)prevY, (int *)colour, 0x12);
+                            } else {
+                                Font_DrawText(0, pName, (short)(int)prevX, (short)(int)prevY,
+                                              (int *)colour, 0x12);
+                            }
+                        }
+                    }
+                } else {
+                    Font_DrawText(0, (char *)RallyData_GetRecord(0), (short)(int)prevX,
+                                  (short)(int)prevY, (int *)colour, 0x12);
+                }
+            }
+            if (CGameInfo::FUN_00405d80() == '\b' || CGameInfo::FUN_00405d80() == '\t' ||
+                CGameInfo::FUN_00405d80() == '\n') {
+                if (distance > g_unk0x00511378 && param_1 > 0) {
+                    if (TIMER_LEVEL >= g_netOne)
+                        g_unk0x00542f78[param_1] = 0xff;
+                    else if (TIMER_LEVEL <= g_netZero)
+                        g_unk0x00542f78[param_1] = 0;
+                    else
+                        g_unk0x00542f78[param_1] = (int)(TIMER_LEVEL * g_netByteScale);
+                    if (FUN_00422f50(param_2) == 7)
+                        g_unk0x00542f78[param_1] = 0x80;
+                    if (g_unk0x00542f78[param_1] != g_unk0x00542f58[param_1]) {
+                        FUN_00465ec0(Car_Get(param_1)->pNode0x71c,
+                                     (BYTE)g_unk0x00542f78[param_1], 0);
+                        FUN_00465f20(Car_Get(param_1)->pNode0x71c->pFirstChild,
+                                     (BYTE)g_unk0x00542f78[param_1], 0);
+                        FUN_00465ec0(Car_Get(param_1)->pNode0x720,
+                                     (BYTE)g_unk0x00542f78[param_1], 0);
+                        FUN_00465f20(Car_Get(param_1)->pNode0x720->pFirstChild,
+                                     (BYTE)g_unk0x00542f78[param_1], 0);
+                        g_unk0x00542f58[param_1] = g_unk0x00542f78[param_1];
+                    }
+                }
+            }
+            return;
+        }
+    }
+    if (flag == 0 && param_1 > 0) {
+        old = g_unk0x00542f58[param_1];
+        g_unk0x00542f78[param_1] = 0;
+        if (old != 0) {
+            FUN_00465ec0(Car_Get(param_1)->pNode0x71c, 0, 0);
+            FUN_00465f20(Car_Get(param_1)->pNode0x71c->pFirstChild, 0, 0);
+            FUN_00465ec0(Car_Get(param_1)->pNode0x720, 0, 0);
+            FUN_00465f20(Car_Get(param_1)->pNode0x720->pFirstChild, 0, 0);
+            g_unk0x00542f58[param_1] = 0;
+        }
+    }
+}
+
+// Vector helper of FUN_00459790 that is still to be decompiled. Empty body with
+// the original stdcall argument count so the call sites can be measured.
+// STUB: CMR2 0x00459630
+void FUN_00459630(int *param1, int *param2, int *param3) { }
 
 // Registered callback with nothing to release.
 // FUNCTION: CMR2 0x00458040
