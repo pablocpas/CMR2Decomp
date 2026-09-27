@@ -418,13 +418,16 @@ void FUN_0040a230(int splitCount)
         if (splitCount != 2)
             return;
         time = FUN_00448680(0, 2);
+        if (time < g_netLapBest || g_netLapBest == 0)
+            g_netLapBest = time;
+        return;
     } else {
         if (splitCount != 8)
             return;
         time = FUN_00448680(0, 8);
+        if (time < g_netLapBest || g_netLapBest == 0)
+            g_netLapBest = time;
     }
-    if (time < g_netLapBest || g_netLapBest == 0)
-        g_netLapBest = time;
 }
 
 // FUNCTION: CMR2 0x0040a330
@@ -505,12 +508,10 @@ int __cdecl FUN_0040a490(const void *a, const void *b)
 
     if (p1->index != -1 && p2->index == -1)
         return -1;
-    if (p1->index == -1) {
-        if (p2->index != -1)
-            return 1;
-        if (p2->index == -1)
-            return 0;
-    }
+    if (p1->index == -1 && p2->index != -1)
+        return 1;
+    if (p1->index == -1 && p2->index == -1)
+        return 0;
     if (p1->field_0x14 != 0 && p2->field_0x14 == 0)
         return -1;
     if (p1->field_0x14 == 0 && p2->field_0x14 != 0)

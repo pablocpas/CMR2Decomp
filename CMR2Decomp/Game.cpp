@@ -1398,6 +1398,13 @@ void CGame::FUN_004a17b0(void) {
     }    
 }
 
+// The original calls this wrapper instead of FUN_004a17b0 from CGame::Cleanup;
+// it compiles to a five byte tail jump.
+// FUNCTION: CMR2 0x004a17e0
+void CGame::FUN_004a17e0(void) {
+    FUN_004a17b0();
+}
+
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a17f0
 void CGame::FUN_004a17f0(bool param1) {
@@ -1455,7 +1462,7 @@ bool CGame::Cleanup(void)
   DestroyDirectPlayLobby();
   DestroyDirectPlay();
   FUN_004aaa10();
-  FUN_004a17b0();
+  FUN_004a17e0();
   CoUninitialize();
   return 1;
 }
@@ -2012,7 +2019,7 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
     return depthA < depthB ? 1 : -1;
 }
 
-extern short g_unk0x006ed5f0[];
+extern unsigned short g_unk0x006ed5f0[];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
 // GLOBAL: CMR2 0x00597cc0
@@ -2624,7 +2631,7 @@ int FUN_004a15c0(BYTE index, GUID *pOut)
 // Sets one of the four session user values and pushes the description.
 // match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a16c0
-void Session_SetUserValue(char index, int value)
+void Session_SetUserValue(BYTE index, int value)
 {
     FUN_004a0d60();
     switch (index) {

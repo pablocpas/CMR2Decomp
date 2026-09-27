@@ -602,9 +602,11 @@ void FUN_00495f50(int view, CarContact *pContact)
         if (len > 0x20000 && len != 0) {
             FixVecScaleRecip(&d, &d, len);
             FixVecScale(&d, &d, 0x10000);
+            // The original adds the components out of order here (it picks the
+            // base register of the point from the component touched last).
             p->x += d.x;
-            p->y += d.y;
             p->z += d.z;
+            p->y += d.y;
         }
     }
     if (pContact->field_0x298 != 0) {

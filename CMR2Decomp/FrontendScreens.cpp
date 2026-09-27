@@ -1427,7 +1427,7 @@ unsigned int FUN_004a1480(void);
 int FUN_004a10b0(BYTE index, char *pPassword, BYTE *pInvalidPassword);
 BYTE FUN_004a1790(BYTE index);
 char Session_SetMaxPlayers(int count);
-void Session_SetUserValue(char index, int value);
+void Session_SetUserValue(BYTE index, int value);
 void Session_SetName(LPVOID pName);
 void Session_SetPassword(LPVOID pPassword);
 void FUN_004f92e0(int value);

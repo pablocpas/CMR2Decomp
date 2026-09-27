@@ -196,14 +196,16 @@ void CGraphics::SetDefaults(void) {
     g_pGraphics->field913_0x3bc &= 0xfffffffe;
     g_pGraphics->field913_0x3bc &= 0xfffffffd;
 
-    unsigned int unknownGraphicsOptions = CGameInfo::m_gameInfo.unknownGraphicsOptions;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions = (unknownGraphicsOptions & 0xfe3fffff) | 0x200000;
-    
+    CGameInfo::m_gameInfo.unknownGraphicsOptions =
+        (CGameInfo::m_gameInfo.unknownGraphicsOptions & 0xfe3fffff) | 0x200000;
+
     g_pGraphics->field917_0x3c0 = 1;
-    
+
+    CGameInfo::m_gameInfo.unknownGraphicsOptions =
+        (CGameInfo::m_gameInfo.unknownGraphicsOptions & 0xebffffff) | 0xa000000;
     CGameInfo::m_gameInfo.field_0x34 =  (CGameInfo::m_gameInfo.field_0x34 & 0xfffffffe) | 2;
-    CGameInfo::m_gameInfo.unknownGraphicsOptions = (unknownGraphicsOptions & 0xcbffffff) | 0xa000000;
-    
+    CGameInfo::m_gameInfo.unknownGraphicsOptions &= 0xdfffffff;
+
     g_pGraphics->field913_0x3bc &= 0xfffffffb;
 }
 
@@ -1309,7 +1311,7 @@ void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
         }
     }
     pDesc->dwMipMapCount = count & 0xff;
-    if (pDesc->dwMipMapCount > 3)
+    if (3 < pDesc->dwMipMapCount)
         pDesc->dwMipMapCount = 3;
     pDesc->ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
 }
@@ -2545,7 +2547,7 @@ void Graphics_ReloadAllTextures(void)
     for (i = 0; i < CGraphics::m_textureCount; i++) {
         pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture->textureId == i) {
-            pExt = &pTexture->name[strlen(pTexture->name) - 4];
+            pExt = (char *)pTexture->name + (strlen(pTexture->name) - 4);
             strncpy(pExt, CGraphics::m_ddsExtension, 4);
             pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
             if (pData == NULL) {
@@ -2742,7 +2744,7 @@ struct StageObjectDraw {
 
 extern D3DMATRIX g_unk0x00597cc0;
 extern D3DMATRIX g_unk0x005207b8;
-extern short g_unk0x006ed5f0[];
+extern unsigned short g_unk0x006ed5f0[];
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 void FUN_004b2970(int value);
 void FUN_0049d290(int param1);

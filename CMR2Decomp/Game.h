@@ -131,6 +131,7 @@ public:
     static void FUN_0041f260(void);
     static void FUN_004aad50(void);
     static void FUN_004a17b0(void);
+    static void FUN_004a17e0(void);
     static void FUN_004a17f0(bool param1);
     static BOOL FUN_004a1a90(void);
     static void FUN_004aaa10(void);

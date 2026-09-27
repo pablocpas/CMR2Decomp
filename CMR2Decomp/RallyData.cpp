@@ -1319,12 +1319,13 @@ int FUN_004ec020(void)
     BYTE *pProfile;
     unsigned int p;
     int count;
+    int i;
 
     count = 0;
     RALLYDATA_USED_PROFILES(used)
-    p = 0;
-    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, p++) {
-        if (used[p] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0)
+    i = 0;
+    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+        if (used[i] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0)
             count++;
     }
     return count;
@@ -2734,7 +2735,7 @@ void FUN_00413330(int car)
         g_unk0x00536bfc = 0;
     if (g_unk0x00536c40 != g_unk0x00537068) {
         time = g_stageSplitData[car].times[split + 1];
-        if (time - g_stageSplitData[car].times[split] < g_unk0x00536e90[split + 1] - g_unk0x00536e90[split])
+        if (g_unk0x00536e90[split + 1] - g_unk0x00536e90[split] > time - g_stageSplitData[car].times[split])
             g_unk0x00536d14[car * 0x28 + split] = g_unk0x0051709c;
         else
             g_unk0x00536d14[car * 0x28 + split] = g_unk0x005170a0;
