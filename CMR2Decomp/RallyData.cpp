@@ -1744,23 +1744,23 @@ BYTE *RallyData_FUN_00408a00(BYTE index)
 }
 
 // Tyre record of a driver (NULL for the ghost cars of the time trials).
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408a60
 BYTE *RallyData_GetTyreRecord(BYTE index)
 {
     unsigned int category;
 
-    if ((CGameInfo::FUN_00405e00() != 0 || CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
-         CGameInfo::FUN_00405d80() == 7 || RallyDataStageIndex() == 10) &&
-        (int)index > (int)(CGameInfo::FUN_00405d70() - 1))
-        return NULL;
+    if (CGameInfo::FUN_00405e00() != 0 || CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 || RallyDataStageIndex() == 10) {
+        if ((int)index > (int)(CGameInfo::FUN_00405d70() - 1))
+            return NULL;
+    }
     if (CGameInfo::FUN_00405d80() == 4)
         return g_unk0x0052f3e8 + 8 + index * 0xc4;
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
-    if (category == 0xf)
-        return NULL;
-    return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+    if (category != 0xf)
+        return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+    return NULL;
 }
 
 // Category colour of a driver's car: hue (5 bits), shade (4 bits) and value
@@ -4927,7 +4927,7 @@ void FUN_00411ab0(BYTE param1, int param2);
 
 // On passing a split: stores the split time, fetches the time to beat and
 // starts the split display (ahead/behind) for the car.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00413520
 void FUN_00413520(int car)
 {
@@ -4935,19 +4935,19 @@ void FUN_00413520(int car)
     int target;
 
     g_unk0x00536e90[0] = 0;
-    if (FUN_00458250(car) == 0) {
-        if (g_unk0x00536c14 == 0)
-            return;
-    } else {
+    if (FUN_00458250(car) != 0) {
         split = FUN_00458370(car);
         g_unk0x00536ed8 = split;
-        if (split > 0 && split < 9) {
+        if (split > 0 && split <= 8) {
             g_stageSplitData[car].times[split + 1] = g_stageSplitData[car].times[0];
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = split;
             FUN_00427990(split, g_stageSplitData[car].times[0]);
         }
         g_unk0x00536c14 = 1;
+    } else {
+        if (g_unk0x00536c14 == 0)
+            return;
     }
     target = FUN_0040a410(g_unk0x00536ed8);
     g_stageSplitData[car].targetTime = target;

@@ -1837,11 +1837,11 @@ void FUN_00480380(void)
 {
     FixVector velocity;
     FixVector *pPosition;
-    short angle;
+    unsigned short angle;
     int randomFixed;
 
     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    angle = (short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
+    angle = (unsigned short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
     pPosition = &g_unk0x005909c8[rand() % 4];
 
     velocity.x = g_sinTable[angle & 0xfff];
@@ -2167,14 +2167,13 @@ unsigned int FUN_0048d8b0(FixVector *pPos)
     unsigned int i;
     unsigned int best = 0;
     int bestDistance = 0x270f0000;
-    int offset;
     int distance;
     FixVector d;
 
-    for (i = 0, offset = 0; i < (unsigned int)g_unk0x005918c8; i++, offset += 0x6c) {
-        d.x = *(int *)(offset + 0x34 + g_unk0x00591750) - pPos->x;
-        d.y = *(int *)(offset + 0x38 + g_unk0x00591750) - pPos->y;
-        d.z = *(int *)(offset + 0x3c + g_unk0x00591750) - pPos->z;
+    for (i = 0; i < (unsigned int)g_unk0x005918c8; i++) {
+        d.x = *(int *)(g_unk0x00591750 + i * 0x6c + 0x34) - pPos->x;
+        d.y = *(int *)(g_unk0x00591750 + i * 0x6c + 0x38) - pPos->y;
+        d.z = *(int *)(g_unk0x00591750 + i * 0x6c + 0x3c) - pPos->z;
         distance = FixVec_Length(&d);
         if (distance < bestDistance) {
             bestDistance = distance;
@@ -2355,7 +2354,7 @@ unsigned int FUN_0047d0e0(int index, BYTE *pOut, int *pCount, BYTE *pFlag)
             if (delta < 0 || delta > 5) {
                 if (delta < -100)
                     delta += duration;
-                if (delta < 1 || delta > 5)
+                if (delta <= 0 || delta > 5)
                     active[i] = 0;
             }
         }
@@ -2615,17 +2614,19 @@ void FUN_004660a0(int **pValue, int slot, char flag)
     }
 }
 
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046b670
 void FUN_0046b670(BYTE *pCar)
 {
-    int *p;
+    BYTE *p;
     int i;
 
-    p = (int *)((BYTE *)FUN_00469680((char)pCar[0xb1a]) + 0x4b0);
-    for (i = 0; i < 4; i++) {
-        FUN_00480ac0(pCar, i, *p);
-        p++;
+    p = (BYTE *)FUN_00469680((char)pCar[0xb1a]) + 0x4b0;
+    i = 0;
+    while (i < 4) {
+        FUN_00480ac0(pCar, i, *(int *)p);
+        i++;
+        p += 4;
     }
 }
 
@@ -3687,7 +3688,7 @@ int FUN_004616c0(BYTE a, BYTE b, int t)
 {
     int v;
 
-    v = ((int)b * 0x10000 + FixMul((int)a * 0x10000 - (int)b * 0x10000, t)) >> 16;
+    v = (((int)b << 16) + FixMul(((int)a << 16) - ((int)b << 16), t)) >> 16;
     if (v > 0xff)
         v = 0xff;
     return v;
@@ -4673,16 +4674,15 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
 }
 
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461bb0
 void FUN_00461bb0(int t)
 {
     int i;
-    int offset;
     BYTE *p;
 
-    for (i = 0, offset = 0; i < g_unk0x00547acc; i++, offset += 0x2c) {
-        p = (BYTE *)g_unk0x00543eb8 + offset;
+    for (i = 0; i < g_unk0x00547acc; i++) {
+        p = (BYTE *)g_unk0x00543eb8 + i * 0x2c;
         *(int *)(p + 0x1c) = FixMul(t, *(int *)(p + 0x10) - *(int *)(p + 0x18)) + *(int *)(p + 0x18);
         *(int *)(p + 0x24) = *(int *)(p + 0x20) + FixMul(t, *(int *)(p + 0x14) - *(int *)(p + 0x20));
     }
@@ -5001,15 +5001,18 @@ void FUN_00461c30(int index)
 }
 
 // Sets the scene's ambient colour when it changes.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00462cb0
 void FUN_00462cb0(BYTE *pColour)
 {
     BYTE ambient[4];
 
     Scene_GetAmbientColour((DWORD *)ambient);
-    if (ambient[0] != pColour[0] || ambient[1] != pColour[1] || ambient[2] != pColour[2])
-        Scene_SetAmbient(pColour, (BYTE)RallyDataCountryIndex() == 3 ? 0 : 1);
+    if (ambient[0] != pColour[0] || ambient[1] != pColour[1] || ambient[2] != pColour[2]) {
+        if ((BYTE)RallyDataCountryIndex() == 3)
+            Scene_SetAmbient(pColour, 0);
+        else
+            Scene_SetAmbient(pColour, 1);
+    }
     if ((BYTE)FUN_00407270())
         FUN_0047e490(pColour);
 }
@@ -5231,21 +5234,19 @@ void StageLights_Update(void)
 }
 
 // Turns every light off (state 6).
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00463d00
 void StageLights_Off(void)
 {
-    StageLight *p;
     int i;
 
     g_unk0x00547b80 = 6;
     if (g_stageLightsActive == 0)
         return;
-    for (i = 0, p = g_stageLights; i < g_stageLightCount; i++, p++) {
-        p->level = 0;
-        FUN_004ae3d0(p->pGlow, 0);
+    for (i = 0; i < g_stageLightCount; i++) {
+        g_stageLights[i].level = 0;
+        FUN_004ae3d0(g_stageLights[i].pGlow, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0)
-            FUN_004ae3d0(p->pGlow2, 0);
+            FUN_004ae3d0(g_stageLights[i].pGlow2, 0);
     }
 }
 
@@ -6006,14 +6007,12 @@ int g_unk0x00549b20[8][4];
 BYTE g_trailPoints[8][4][200][0x28];
 
 // Clears every wheel's skid marks and trail state.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00465530
 void FUN_00465530(void)
 {
     int car;
     int point;
     int wheel;
-    FixVector *pDelta;
 
     for (car = 0; car < 8; car++) {
         for (point = 0; point < 200; point++) {
@@ -6031,10 +6030,14 @@ void FUN_00465530(void)
     memset(g_unk0x00543708, 0, sizeof(g_unk0x00543708));
     for (wheel = 0; wheel < 8 * 4; wheel++)
         ((int *)g_trailReset)[wheel] = 1;
-    for (pDelta = g_trailDelta[0]; pDelta < g_trailDelta[8]; pDelta++) {
-        pDelta->x = 0;
-        pDelta->y = 0;
-        pDelta->z = 0;
+    for (car = 0; car < 8; car++) {
+        FixVector *pDelta = g_trailDelta[car];
+        for (wheel = 0; wheel < 4; wheel++) {
+            pDelta->x = 0;
+            pDelta->y = 0;
+            pDelta->z = 0;
+            pDelta++;
+        }
     }
 }
 
@@ -7061,13 +7064,13 @@ void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
                 return;
             }
             v = FixMul(v, 0x1999) + 0x8000;
-            c.x = pFrom[0] * 0x10000 - pTo[0] * 0x10000;
-            c.y = pFrom[1] * 0x10000 - pTo[1] * 0x10000;
-            c.z = pFrom[2] * 0x10000 - pTo[2] * 0x10000;
+            c.x = (pFrom[0] << 16) - (pTo[0] << 16);
+            c.y = (pFrom[1] << 16) - (pTo[1] << 16);
+            c.z = (pFrom[2] << 16) - (pTo[2] << 16);
             FixVecScale(&c, &c, v);
-            r = c.x + pTo[0] * 0x10000;
-            g = c.y + pTo[1] * 0x10000;
-            b = c.z + pTo[2] * 0x10000;
+            r = c.x + (pTo[0] << 16);
+            g = c.y + (pTo[1] << 16);
+            b = c.z + (pTo[2] << 16);
             if (r > 0xff0000)
                 r = 0xff0000;
             if (g > 0xff0000)
