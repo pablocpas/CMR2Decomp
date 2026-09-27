@@ -159,8 +159,7 @@ struct Car {
     short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
-    BYTE field_0xb1b;
-    BYTE field_0xb1c;                 // 0xb1c
+    BYTE field_0xb1b[2];              // 0xb1b-0xb1c: [0] type/index, [1] flags (was two separate bytes)
     char field_0xb1d;                 // 0xb1d
     char field_0xb1e;                 // 0xb1e
     char field_0xb1f;                 // 0xb1f

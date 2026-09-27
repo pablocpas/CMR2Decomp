@@ -1000,7 +1000,7 @@ void FUN_004943d0(void)
     int alignment;
     int amount;
 
-    if ((g_pAutoGearCar->field_0xb1c & 1) != 0) {
+    if ((g_pAutoGearCar->field_0xb1b[1] & 1) != 0) {
         alignment = FixMul(g_pAutoGearCar->right.x, g_pAutoGearCar->velocity.x) +
                     FixMul(g_pAutoGearCar->right.y, g_pAutoGearCar->velocity.y) +
                     FixMul(g_pAutoGearCar->right.z, g_pAutoGearCar->velocity.z);

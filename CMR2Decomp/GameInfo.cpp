@@ -4601,6 +4601,8 @@ void FUN_00404000(void)
             settingId = 2;
         Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)settingId, 0, 0, 0, 4, 0);
     }
+void FUN_00404130(Menu *pMenu, int param);
+
     Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)FUN_00404130, 5);
     Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
     Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)FUN_00404b80,
