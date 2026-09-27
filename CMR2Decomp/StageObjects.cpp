@@ -2167,14 +2167,13 @@ unsigned int FUN_0048d8b0(FixVector *pPos)
     unsigned int i;
     unsigned int best = 0;
     int bestDistance = 0x270f0000;
-    int offset;
     int distance;
     FixVector d;
 
-    for (i = 0, offset = 0; i < (unsigned int)g_unk0x005918c8; i++, offset += 0x6c) {
-        d.x = *(int *)(offset + 0x34 + g_unk0x00591750) - pPos->x;
-        d.y = *(int *)(offset + 0x38 + g_unk0x00591750) - pPos->y;
-        d.z = *(int *)(offset + 0x3c + g_unk0x00591750) - pPos->z;
+    for (i = 0; i < (unsigned int)g_unk0x005918c8; i++) {
+        d.x = *(int *)(g_unk0x00591750 + i * 0x6c + 0x34) - pPos->x;
+        d.y = *(int *)(g_unk0x00591750 + i * 0x6c + 0x38) - pPos->y;
+        d.z = *(int *)(g_unk0x00591750 + i * 0x6c + 0x3c) - pPos->z;
         distance = FixVec_Length(&d);
         if (distance < bestDistance) {
             bestDistance = distance;
@@ -4675,16 +4674,15 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
 }
 
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461bb0
 void FUN_00461bb0(int t)
 {
     int i;
-    int offset;
     BYTE *p;
 
-    for (i = 0, offset = 0; i < g_unk0x00547acc; i++, offset += 0x2c) {
-        p = (BYTE *)g_unk0x00543eb8 + offset;
+    for (i = 0; i < g_unk0x00547acc; i++) {
+        p = (BYTE *)g_unk0x00543eb8 + i * 0x2c;
         *(int *)(p + 0x1c) = FixMul(t, *(int *)(p + 0x10) - *(int *)(p + 0x18)) + *(int *)(p + 0x18);
         *(int *)(p + 0x24) = *(int *)(p + 0x20) + FixMul(t, *(int *)(p + 0x14) - *(int *)(p + 0x20));
     }
