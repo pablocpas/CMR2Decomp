@@ -1700,3 +1700,57 @@ void FUN_00416f70(int player)
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player)) - 1;
 }
 
+// Replay path formats of the two difficulty classes.
+// GLOBAL: CMR2 0x005192d4
+char g_strLReplay[] = "%sL.rpl";
+// GLOBAL: CMR2 0x005192dc
+char g_strHReplay[] = "%sH.rpl";
+// GLOBAL: CMR2 0x0051948c
+char g_strTempC3d[] = "TEMP.C3D";
+// GLOBAL: CMR2 0x00538110
+int g_unk0x00538110;
+
+void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+BYTE *FUN_0046d2d0(char *path);
+int RallyData_FUN_00411060(void);
+
+// Loads a sample into the sound slots of the current stage file.
+// FUNCTION: CMR2 0x00418760
+void FUN_00418760(char *name)
+{
+    Sound_LoadSample(name, 0, (GenericFile *)StageTiming_GetStageFile2());
+}
+
+// Builds the .rpl replay path of the current stage and queues it unless the
+// stage is one of the special ones.
+// FUNCTION: CMR2 0x0041c510
+void FUN_0041c510(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++)
+        g_unk0x00537f3c[i] = NULL;
+    if (CGameInfo::FUN_00405d00() == 0)
+        sprintf(CFrontend::m_stringDest, g_strHReplay, FUN_0041f910());
+    else
+        sprintf(CFrontend::m_stringDest, g_strLReplay, FUN_0041f910());
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 11 &&
+        CGameInfo::FUN_00405d80() != 12) {
+        g_unk0x00537f3c[0] = FUN_0046d2d0(CFrontend::m_stringDest);
+        g_unk0x00538110 = 1;
+    }
+}
+
+// Loads the shared TEMP.C3D model of the stage.
+// FUNCTION: CMR2 0x0041fc50
+void FUN_0041fc50(void)
+{
+    void *pModel = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                g_strTempC3d, NULL, NULL, 0);
+
+    if (pModel != 0)
+        FUN_004b9380((unsigned int)pModel, RallyData_FUN_00411060(), (unsigned int)FUN_0041f500());
+}
+

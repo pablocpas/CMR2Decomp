@@ -9,11 +9,13 @@
 #include "TimingUtils.h"
 #include "RallyTiming.h"
 #include "GameInfo.h"
+#include "InstallInfo.h"
 #include "Game.h"
 #include "Input.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
 #include "StageUI.h"
+#include "NetPlayers.h"
 #include "Mesh.h"
 #include "Graphics.h"
 #include "Font.h"
@@ -4295,5 +4297,183 @@ void FUN_00508ee0(int index)
         else if (value > g_unk0x00527344[level])
             FUN_00508fa0(index, 1, level);
     } while (++level < 8);
+}
+
+// Network record of a car's body: a matrix plus the axes and position it was
+// built from. Eight contiguous 0xec-byte rows start at 0x5393d8.
+struct CarNetRecord {
+    FixMatrix matrix;       // 0x00
+    FixVector right;        // 0x40
+    FixVector up;           // 0x4c
+    FixVector forward;      // 0x58
+    FixVector position;     // 0x64
+    BYTE pad_0x70[0x7c];
+};
+// First of the eight car network records (the rest are g_unk0x005394bc).
+// GLOBAL: CMR2 0x005393d8
+CarNetRecord g_unk0x005393d8;
+
+extern NetStats g_localCarStats;
+void NetRace_PackCarState(Car *car);
+NetStats *FUN_00409e20(int index);
+int FUN_0040b020(int value);
+short RallyData_FUN_004213a0(BYTE *p);
+int FUN_0046d500(void);
+unsigned int RallyData_GetFlag21(void);
+
+// Snapshots a car's body axes and position into its network record and marks
+// it for sending.
+// FUNCTION: CMR2 0x00424dc0
+void FUN_00424dc0(Car *car)
+{
+    CarNetRecord *rec = (CarNetRecord *)&g_unk0x005393d8 + car->field_0xb1a;
+    NetStats *stats;
+    int *p = (int *)rec;
+    int i;
+
+    for (i = 0x3b; i != 0; i--)
+        *p++ = 0;
+    rec->position = car->position;
+    rec->right = car->right;
+    rec->up = car->up;
+    rec->forward = car->forward;
+    FixMatrix_SetRight(&rec->right, &rec->matrix);
+    FixMatrix_SetUp(&rec->up, &rec->matrix);
+    FixMatrix_SetForward(&rec->forward, &rec->matrix);
+    FixMatrix_SetPosition(&rec->position, &rec->matrix);
+    if (car->field_0xb1a > 0) {
+        NetRace_PackCarState(car);
+        stats = FUN_00409e20(FUN_0040b020((int)car->field_0xb1a));
+        *stats = g_localCarStats;
+        FUN_00409e20(FUN_0040b020((int)car->field_0xb1a))->seq = 0;
+    }
+}
+
+// Clears the road-book slots of every car in the running order and
+// reinitialises the ones with no pending target.
+// FUNCTION: CMR2 0x004581d0
+void FUN_004581d0(void)
+{
+    int count = Car_GetOrderCount();
+    int i;
+
+    for (i = 0; i < count; i++) {
+        Unk0x00542e78 *p = &g_unk0x00542e78[i];
+
+        p->field_0x16 = 0;
+        p->field_0x17 = 0;
+        p->field_0x18 = 0;
+        p->field_0x19 = 0;
+        if (p->field_0x1a == 0)
+            FUN_00458e00(i, FUN_00459320(RallyData_FUN_004213a0((BYTE *)Car_Get(i)) & 0xffff));
+    }
+}
+
+// Paths of the stage sample files loaded by FUN_0045eb50.
+// GLOBAL: CMR2 0x0051b138
+char g_strSunGlowTga[] = "\\NEWIMAGE\\sunglow.tga";
+// GLOBAL: CMR2 0x0051b150
+char g_strSnowTga[] = "%s\\NEWIMAGE\\snow%d.tga";
+// GLOBAL: CMR2 0x0051b168
+char g_strSplat2Tga[] = "\\NEWIMAGE\\splat2.tga";
+// GLOBAL: CMR2 0x0051b180
+char g_strSplatTga[] = "\\NEWIMAGE\\splat.tga";
+// GLOBAL: CMR2 0x0051b194
+char g_strRainTga[] = "\\NEWIMAGE\\rain.tga";
+
+extern char g_strPathConcat[];
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// GLOBAL: CMR2 0x00543e90
+int g_unk0x00543e90;
+// GLOBAL: CMR2 0x00543ea4
+int g_unk0x00543ea4;
+// GLOBAL: CMR2 0x00543ea8
+int g_unk0x00543ea8[3];
+// GLOBAL: CMR2 0x005477f0
+int g_unk0x005477f0;
+// GLOBAL: CMR2 0x00547ad0
+int g_unk0x00547ad0;
+
+// Loads the weather particle textures (rain, splats, snow, sunglow).
+// FUNCTION: CMR2 0x0045eb50
+void FUN_0045eb50(void)
+{
+    bool didLoad;
+    int i;
+
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strRainTga);
+    g_unk0x00543e90 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSplatTga);
+    g_unk0x00543ea4 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSplat2Tga);
+    g_unk0x005477f0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    for (i = 0; i < 3; i++) {
+        sprintf(CFrontend::m_stringDest, g_strSnowTga, CInstallInfo::FUN_0040ed50(), i + 1);
+        g_unk0x00543ea8[i] = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                            CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    }
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSunGlowTga);
+    g_unk0x00547ad0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    FUN_004a3e20((Unk0x004a3e20 *)g_unk0x00547ad0, 1);
+}
+
+// File name formats of the three "team" model archives.
+// GLOBAL: CMR2 0x0051a134
+char g_strTm2Format[] = "%s.tm2";
+// GLOBAL: CMR2 0x0051a13c
+char g_strTm1Format[] = "%s.tm1";
+// GLOBAL: CMR2 0x0051a144
+char g_strTm0Format[] = "%s.tm0";
+
+// Finds the three .tm? model archives of the current team and copies the one
+// selected by the game mode into the locked stage buffer.
+// match 0%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00455300
+void FUN_00455300(void)
+{
+    unsigned int sizes[3];
+    void *bufs[3];
+    unsigned int size = 0;
+    void *dest;
+    BYTE index;
+
+    g_unk0x00542604 = 0;
+    g_unk0x00541f8c = FUN_0046d500();
+    sprintf(CFrontend::m_stringDest, g_strTm0Format, FUN_0041f900());
+    bufs[0] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[0] = size;
+    sprintf(CFrontend::m_stringDest, g_strTm1Format, FUN_0041f900());
+    bufs[1] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[1] = size;
+    sprintf(CFrontend::m_stringDest, g_strTm2Format, FUN_0041f900());
+    bufs[2] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[2] = size;
+    if ((char)RallyData_GetFlag21() != 0) {
+        dest = (void *)g_unk0x00541f8c;
+        if (dest == NULL)
+            dest = bufs[0];
+        if (CGameInfo::FUN_00405d80() == 4) {
+            index = CGameInfo::FUN_00405dd0();
+            if (index != 0)
+                index = index - 1;
+        } else {
+            index = CGameInfo::FUN_00405d90();
+        }
+        memcpy(dest, bufs[index], sizes[index]);
+        g_unk0x00541f8c = (int)dest + sizes[index];
+        g_unk0x0054241c = (char *)dest;
+        if (dest != NULL)
+            g_unk0x00542604 = 1;
+    }
 }
 
