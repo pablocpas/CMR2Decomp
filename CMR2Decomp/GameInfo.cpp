@@ -4493,7 +4493,6 @@ void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004037c0
 void FUN_004037c0(Menu *pMenu, char cancel)
 {
@@ -4507,8 +4506,9 @@ void FUN_004037c0(Menu *pMenu, char cancel)
     FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052aa50);
     FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
     CGameInfo::FUN_00405fa0((DWORD *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c);
-    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c,
-                           (BYTE)((FUN_0041b370() & 0xff) + g_unk0x0052af58[1]));
+    int id = (FUN_0041b370() & 0xff) + g_unk0x0052af58[1];
+
+    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c, (BYTE)id);
 }
 
 // FUNCTION: CMR2 0x00404ea0
