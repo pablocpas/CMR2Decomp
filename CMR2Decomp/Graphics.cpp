@@ -2718,6 +2718,239 @@ void FUN_0049de40(void)
     g_pGraphics->pPrimarySurface->Flip(NULL, DDFLIP_WAIT);
 }
 
+// Drawing view of a sector's static stage objects (StageObject in Sector.h):
+// the same layout as the copy Game.cpp keeps locally, for the same reason
+// (touching Sector.h perturbs the codegen of unrelated files).
+struct StageObjectDraw {
+    FixVector position;         // 0x0  world position (16.16)
+    Mesh *pMesh;                // 0xc
+    int field_0x10;
+    BYTE field_0x14;            // 0x14 non-zero while the object is drawn
+    BYTE field_0x15[3];
+    int scaleX;                 // 0x18 scale of the first world matrix row (16.16)
+    int field_0x1c[4];
+    int scaleY;                 // 0x2c scale of the second world matrix row (16.16)
+    int field_0x30[4];
+    int scaleZ;                 // 0x40 scale of the third world matrix row (16.16)
+    int field_0x44;
+    int offsetX;                // 0x48 world matrix translation (16.16)
+    int offsetY;                // 0x4c
+    int offsetZ;                // 0x50
+    int field_0x54;
+    float matrix[16];           // 0x58 world matrix, built from the camera matrix
+    StageObjectDraw *pNext;     // 0x98 next object of the sector
+    int lightLevel;             // 0x9c
+};
+
+extern D3DMATRIX g_unk0x00597cc0;
+extern D3DMATRIX g_unk0x005207b8;
+extern short g_unk0x006ed5f0[];
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+void FUN_004b2970(int value);
+void FUN_0049d290(int param1);
+void Game_DrawSortedNodes(int bit);
+
+// Scratch view matrix rebuilt for every cube map face (0x0049d3f0 uses it too).
+// GLOBAL: CMR2 0x0059bd28
+FixMatrix g_unk0x0059bd28;
+
+// Renders the scene into the six faces of the cube map the mesh of pNode
+// belongs to: for each face it derives a view matrix from the node's transform,
+// points the render target at that face and draws the culled sectors (ground
+// meshes, static objects and view-mask nodes). Restores the transforms and the
+// back buffer afterwards.
+// FUNCTION: CMR2 0x0049e1f0
+int FUN_0049e1f0(SceneNode *pNode, int bit)
+{
+    D3DRECT rect;
+    D3DVIEWPORT7 viewport;
+    int farPlane;
+    int cubeIndex;
+    D3DMATRIX view;
+    D3DMATRIX projection;
+    FixMatrix face;
+    FixMatrix inverse;
+    D3DMATRIX floatMatrix;
+    FixVector forward;
+    FixVector tmp;
+    FixMatrix *pCurrent;
+    Mesh *pNodeMesh;
+    Mesh *pMesh;
+    StageObjectDraw *pObject;
+    Sector *pSector;
+    SceneNode *pChild;
+    unsigned int i;
+    unsigned int sectorIndex;
+
+    rect.x1 = 0;
+    rect.y1 = 0;
+    rect.x2 = CGraphics::m_cubeMapSize;
+    rect.y2 = CGraphics::m_cubeMapSize;
+    farPlane = CGraphics::m_farPlaneFixed;
+    pNodeMesh = (Mesh *)pNode->pObject;
+    cubeIndex = (pNodeMesh->flags >> 15) & 7;
+    if (CGraphics::m_pTextureManager->textureBuffer2[cubeIndex] == NULL)
+        return 1;
+
+    FUN_004b2970(1);
+    FUN_0049dcc0(0);
+
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dwX = 0;
+    viewport.dwY = 0;
+    viewport.dwWidth = CGraphics::m_cubeMapSize;
+    viewport.dwHeight = CGraphics::m_cubeMapSize;
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_VIEW, &view);
+    CGraphics::m_pTextureManager->pD3D->GetTransform(D3DTRANSFORMSTATE_PROJECTION, &projection);
+
+    pCurrent = &pNode->current;
+    for (i = 0; i < 6; i++) {
+        switch (i) {
+        case 0:
+            face = *pCurrent;
+            tmp = face.right;
+            face.right.x = -face.forward.x;
+            face.right.y = -face.forward.y;
+            face.right.z = -face.forward.z;
+            face.forward = tmp;
+            break;
+        case 1:
+            face = *pCurrent;
+            tmp = face.right;
+            face.right = face.forward;
+            face.forward.x = -tmp.x;
+            face.forward.y = -tmp.y;
+            face.forward.z = -tmp.z;
+            break;
+        case 2:
+            face = *pCurrent;
+            tmp = face.forward;
+            face.forward = face.up;
+            face.up.x = -tmp.x;
+            face.up.y = -tmp.y;
+            face.up.z = -tmp.z;
+            break;
+        case 3:
+            face = *pCurrent;
+            tmp = face.forward;
+            face.forward.x = -face.up.x;
+            face.forward.y = -face.up.y;
+            face.forward.z = -face.up.z;
+            face.up = tmp;
+            break;
+        case 4:
+            face = *pCurrent;
+            break;
+        case 5:
+            face = *pCurrent;
+            face.right.x = -face.right.x;
+            face.right.y = -face.right.y;
+            face.right.z = -face.right.z;
+            face.forward.x = -face.forward.x;
+            face.forward.y = -face.forward.y;
+            face.forward.z = -face.forward.z;
+            break;
+        }
+        FixMatrix_Invert(&inverse, &face);
+        FixMatrix_ToFloat(&floatMatrix, &inverse);
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, &floatMatrix);
+        forward.x = face.forward.x;
+        forward.y = 0;
+        forward.z = face.forward.z;
+        FIX_NORMALIZE_INTO(forward, forward);
+        g_unk0x0059bd28.right.x = forward.z;
+        g_unk0x0059bd28.right.y = 0;
+        g_unk0x0059bd28.right.z = -forward.x;
+        g_unk0x0059bd28.rw = 0;
+        g_unk0x0059bd28.up.x = 0;
+        g_unk0x0059bd28.up.y = 0x10000;
+        g_unk0x0059bd28.up.z = 0;
+        g_unk0x0059bd28.uw = 0;
+        g_unk0x0059bd28.forward.x = forward.x;
+        g_unk0x0059bd28.forward.y = 0;
+        g_unk0x0059bd28.forward.z = forward.z;
+        g_unk0x0059bd28.fw = 0;
+        g_unk0x0059bd28.position.x = 0;
+        g_unk0x0059bd28.position.y = 0;
+        g_unk0x0059bd28.position.z = 0;
+        g_unk0x0059bd28.pw = 0x10000;
+        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
+        Graphics_SetRenderTarget(&CGraphics::m_pTextureManager->textureBuffer2[cubeIndex][i]);
+        CGraphics::m_pTextureManager->pD3D->Clear(1, &rect, D3DCLEAR_TARGET, 0xff000000, 1.0f, 0);
+        CGraphics::m_pTextureManager->pD3D->BeginScene();
+        CGraphics::SetProjection(0x20000, 0x20000, 0x780000, 0x1999);
+        CGraphics::SetZEnable(0);
+        CGraphics::SetZWriteEnable(0);
+        for (sectorIndex = 0; sectorIndex < (unsigned int)g_sectorCullEnabled; sectorIndex++) {
+            pChild = g_sectors[g_unk0x006ed5f0[sectorIndex]]->pFirstNode;
+            while (pChild != NULL) {
+                if (pChild->visible == 0)
+                    Game_DrawViewMaskNode(pChild, 0);
+                pChild = pChild->pNextInSector;
+            }
+        }
+        CGraphics::SetZEnable(1);
+        CGraphics::SetZWriteEnable(1);
+        CGraphics::SetProjection(0x20000, 0x20000, 0x500000, 0x1999);
+        for (sectorIndex = 0; sectorIndex < (unsigned int)g_sectorCullEnabled; sectorIndex++) {
+            pSector = g_sectors[g_unk0x006ed5f0[sectorIndex]];
+            pMesh = (Mesh *)pSector->pMesh;
+            pObject = (StageObjectDraw *)pSector->pObjects;
+            if (pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                &g_unk0x005207b8);
+                Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
+                while (pObject != NULL) {
+                    if (*(int *)((BYTE *)pObject->pMesh + 0x114) < 0x140000) {
+                        if ((pObject->pMesh->flags & 2) == 0) {
+                            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                            &g_unk0x005207b8);
+                        } else {
+                            float scale;
+
+                            *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
+                            if (pObject->scaleX != 0x10000 || pObject->scaleY != 0x10000 ||
+                                pObject->scaleZ != 0x10000) {
+                                scale = (float)pObject->scaleX * CGraphics::m_oneOver65536;
+                                pObject->matrix[0] = scale * pObject->matrix[0];
+                                pObject->matrix[1] = scale * pObject->matrix[1];
+                                pObject->matrix[2] = scale * pObject->matrix[2];
+                                scale = (float)pObject->scaleY * CGraphics::m_oneOver65536;
+                                pObject->matrix[4] = scale * pObject->matrix[4];
+                                pObject->matrix[5] = scale * pObject->matrix[5];
+                                pObject->matrix[6] = scale * pObject->matrix[6];
+                                scale = (float)pObject->scaleZ * CGraphics::m_oneOver65536;
+                                pObject->matrix[8] = scale * pObject->matrix[8];
+                                pObject->matrix[9] = scale * pObject->matrix[9];
+                                pObject->matrix[10] = scale * pObject->matrix[10];
+                            }
+                            pObject->matrix[12] = (float)pObject->offsetX * CGraphics::m_oneOver65536;
+                            pObject->matrix[13] = (float)pObject->offsetY * CGraphics::m_oneOver65536;
+                            pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
+                            CGraphics::m_pTextureManager->pD3D->SetTransform(
+                                D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pObject->matrix);
+                        }
+                        Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);
+                    }
+                    pObject = pObject->pNext;
+                }
+            }
+        }
+        FUN_0049d290(bit);
+        Game_DrawSortedNodes(bit);
+        CGraphics::m_pTextureManager->pD3D->EndScene();
+    }
+    CGraphics::SetProjection(0x20000, 0x20000, farPlane, 0x10000);
+    Graphics_SetRenderTarget((Texture *)((BYTE *)g_pGraphics + 0x150));
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_VIEW, &view);
+    CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &projection);
+    FUN_0049dcc0(1);
+    return 1;
+}
+
 // FUNCTION: CMR2 0x004a6e30
 Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
 {
@@ -3982,8 +4215,8 @@ void Billboard_Reset(void);
 // FUNCTION: CMR2 0x004b1150
 void FUN_004b1150(void)
 {
-    unsigned short *pIndex;
     int i;
+    unsigned short *pIndex;
 
     g_unk0x006dd784 = 0;
     g_unk0x006dd788 = 0;
