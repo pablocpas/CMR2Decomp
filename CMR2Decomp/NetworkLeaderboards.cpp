@@ -12,6 +12,7 @@ int CNetworkLeaderboards::m_totalLeaderboards;
 NetworkLeaderboard CNetworkLeaderboards::m_leaderboards[32];
 char CNetworkLeaderboards::m_strNetworkLeaderboardsDir[40] = "%s\\NetworkLeaderboards\\leaderboards.nlb";
 
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e3c0
 void CNetworkLeaderboards::Reset() {
     m_leaderboardId = -1;
@@ -97,7 +98,6 @@ NetworkLeaderboard *CNetworkLeaderboards::GetLoadedLeaderboard(int index)
 void FUN_0040e8a0(BYTE *p);
 
 // Leaderboard order: most wins first, then names in reverse order.
-// match 93%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e790
 int __cdecl FUN_0040e790(const void *a, const void *b)
 {
@@ -138,7 +138,7 @@ void CNetworkLeaderboards::AddLeaderboard(void)
 }
 
 // Removes a leaderboard, moving the following ones down.
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e5e0
 void CNetworkLeaderboards::RemoveLeaderboard(int index)
 {
@@ -157,7 +157,6 @@ void CNetworkLeaderboards::RemoveLeaderboard(int index)
 
 // Adds wins to the entry with the given name, creating it in the first
 // empty slot when it is not listed yet, and re-sorts the leaderboard.
-// match 97%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e660
 void FUN_0040e660(int index, char *name, int wins)
 {

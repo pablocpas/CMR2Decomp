@@ -872,7 +872,7 @@ void FUN_00498370(FixVector *v)
 }
 
 // Sets the shadow level of a car and the matching blend colours.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004984b0
 void FUN_004984b0(int car, int level)
 {

@@ -534,6 +534,7 @@ extern KnockoutMatch *g_pKnockoutMatch;
 
 // Draw callback of the in-race pause header: "PAUSED" followed by a separator
 // bar and the name of the driver (or car) the pause menu belongs to.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044b7b0
 void FUN_0044b7b0(Menu *pMenu)
 {
@@ -681,6 +682,7 @@ int g_ghostSplits[10];
 // then per car the name, the time of every split and the total; in arcade
 // mode the record holder and record time head the list, in the knockout mode
 // FUN_0044cdb0 draws the two drivers of the match.
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044bcd0
 void FUN_0044bcd0(Menu *pMenu)
 {
@@ -1434,6 +1436,7 @@ void FUN_004505b0(Menu *pMenu)
 
 // Draw callback of the championship standings screen: the best driver's
 // position decides between the "champion" and "rally over" headers.
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00450c10
 void FUN_00450c10(Menu *pMenu)
 {
@@ -1633,6 +1636,7 @@ void FUN_00450ef0(Menu *pMenu)
 }
 
 // Draw callback of the final championship standings (header menu) screen.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00451690
 void FUN_00451690(Menu *pMenu)
 {
@@ -2713,6 +2717,7 @@ void GameMenus_DrawRowFrame(short row, short yOffset, char compact)
 }
 
 // Draws a row of strings at (x, y), separated by a thin vertical bar.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00454df0
 void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
 {
@@ -2777,6 +2782,7 @@ int g_chatLineLength;
 
 // Network results menu: typing on the chat line, Enter sends it, Escape
 // leaves the menu. Up/down jump between the chat line and the menu items.
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00449ce0
 void FUN_00449ce0(Menu *pMenu)
 {
@@ -2920,6 +2926,7 @@ char g_nameSeparator0x00519f44[] = " - ";
 // Stage end banner: the event title, a separator bar and the result text
 // appear one after the other, then one line per driver with its category
 // record name (or the driver name) and position.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044b3a0
 void FUN_0044b3a0(void)
 {

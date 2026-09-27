@@ -114,6 +114,7 @@ void FUN_00409ab0(char keepReady, char resetTotal)
     RallyData_UpdateFlags();
 }
 
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409b60
 void FUN_00409b60(void)
 {
@@ -125,6 +126,7 @@ void FUN_00409b60(void)
     g_netNewRecord = 0;
 }
 
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409bc0
 void FUN_00409bc0(void)
 {
@@ -323,6 +325,7 @@ void FUN_00409f80(DPID *pId)
     }
 }
 
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409fd0
 void FUN_00409fd0(DPID *pId, int split, unsigned int time)
 {
@@ -391,6 +394,7 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
     }
 }
 
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a230
 void FUN_0040a230(int splitCount)
 {
@@ -466,6 +470,7 @@ char *FUN_0040a400(void)
     return g_netRecordName;
 }
 
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a410
 unsigned int FUN_0040a410(int split)
 {
@@ -491,6 +496,7 @@ unsigned int FUN_0040a470(int index)
 }
 
 // qsort comparator for g_netResults
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a490
 int __cdecl FUN_0040a490(const void *a, const void *b)
 {
@@ -898,6 +904,7 @@ void FUN_0040afb0(char valid, BYTE *p)
         FUN_0040e8a0(p);
 }
 
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040afd0
 void FUN_0040afd0(void)
 {
@@ -1010,6 +1017,7 @@ unsigned int FUN_0040b1e0(int index)
     return g_netPlayers[index].flags >> 23 & 1;
 }
 
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b200
 void FUN_0040b200(int index)
 {

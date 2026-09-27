@@ -283,7 +283,7 @@ BYTE *g_pAutoGearSetup;
 
 // Selects the automatic gearbox's next gear from engine speed and road load.
 // It also chooses reverse when the car stops against the driving direction.
-// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00493b30
 void Car_UpdateAutomaticGear(void)
 {
@@ -926,7 +926,7 @@ void FUN_00494540(void);
 extern int g_physicsTimeStep;
 
 // Steering torque of the auto-gear car from its steering swing.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004945d0
 void FUN_004945d0(void)
 {

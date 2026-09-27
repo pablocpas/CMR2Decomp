@@ -289,6 +289,7 @@ void FUN_004d63e0(Menu *pMenu)
 // Time-attack style screen: menu path, the title taken from the id of the
 // first item and the list of strings selected by that item, plus the
 // underline of the highlighted row.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d9450
 void FUN_004d9450(Menu *pMenu)
 {
@@ -423,6 +424,7 @@ void FUN_004dc7b0(Menu *pMenu)
 
 // Draws a settings screen: one row per item (title plus the strings of the
 // current value) with a separator line under each, coloured by the cursor.
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e0770
 void FUN_004e0770(Menu *pMenu)
 {
@@ -1319,7 +1321,7 @@ void FUN_00409be0(int param);
 
 // Sends this machine's player description (id, car, flags) to the network
 // player list.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec2b0
 void FUN_004ec2b0(void)
 {
@@ -3026,7 +3028,7 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f16f0
 void FUN_004f16f0(Menu *pMenu, int param)
 {
@@ -3780,6 +3782,7 @@ void FUN_004f36e0(Menu *pMenu, int param)
 }
 
 // Slides the scroller towards the menu cursor, the short way round, in 250 ms
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f37c0
 void FUN_004f37c0(MenuScroller *p)
 {
@@ -3976,7 +3979,7 @@ BYTE FUN_004f3b50(void)
 
 // Sets the input repeat rate from the options and binds the five frontend
 // sounds to the menu actions.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3bb0
 void FUN_004f3bb0(void)
 {
@@ -4446,7 +4449,7 @@ void RallyData_FUN_004068e0(BYTE param1);
 // Leaving the language menu: applies the chosen language (texts, fonts,
 // credits), rebuilds the scrollers and, the first time, the controls menu,
 // and makes the main menu the parent of the language menu and its entries.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ef270
 void FUN_004ef270(Menu *pMenu, char back)
 {
@@ -4659,7 +4662,7 @@ void FUN_004f27d0(Menu *pMenu, int param)
 
 // Entering the profile menu (back: undoes the profile created by "new").
 // Lists the free saved profiles and puts the cursor on the first one.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f2620
 void FUN_004f2620(Menu *pMenu, char back)
 {
@@ -5521,7 +5524,7 @@ bool FUN_004ebd60(int index)
 
 // Next player: gives the player a profile and goes to the name entry (or
 // for championship mode 4 to the championship screen).
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0ac0
 void FUN_004f0ac0(Menu *pMenu, int param)
 {
@@ -5860,7 +5863,7 @@ void FUN_004f02e0(void)
 
 // Entering the player profile menu (back: undoes the previous player's
 // profile). Lists the free saved profiles.
-// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f03f0
 void FUN_004f03f0(Menu *pMenu, char back)
 {
@@ -5908,7 +5911,7 @@ void FUN_004f03f0(Menu *pMenu, char back)
 }
 
 // Item callback of "new profile" in the player profile menu.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0960
 void FUN_004f0960(Menu *pMenu, int param)
 {
@@ -6064,7 +6067,7 @@ void FUN_004ef970(Menu *pMenu, int param)
 
 // Item callback of "start" on the multiplayer race settings page: stores
 // the settings and starts the knockout.
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f01c0
 void FUN_004f01c0(Menu *pMenu, int param)
 {
@@ -6100,7 +6103,7 @@ void FUN_004f01c0(Menu *pMenu, int param)
 }
 
 // Update callback of the multiplayer race settings page.
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0250
 void FUN_004f0250(Menu *pMenu)
 {
@@ -6932,7 +6935,7 @@ void FUN_004faa50(Menu *pMenu, int param)
 
 // Change callback of the championship entry screens: stores the new entry
 // value, resets the mode's selection and re-lays the entry list on request.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fac70
 void FUN_004fac70(Menu *pMenu, char param)
 {

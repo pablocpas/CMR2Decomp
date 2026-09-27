@@ -760,6 +760,7 @@ void FUN_005103d0(void)
         BinkClose(g_pUnk0x00831ad0);
 }
 
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00510410
 void CGameInfo::FUN_00510410(void)
 {
@@ -802,6 +803,7 @@ void CGameInfo::FUN_00510570(void)
     m_gameInfo.field_0x90 = 0xe0000;
 }
 
+// match 16%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00406010
 void CGameInfo::FUN_00406010(GameInfo0xa4 *param1)
 {
@@ -1112,6 +1114,7 @@ void CGameInfo::FUN_00406560(void)
     memset(m_gameInfo.field_0x38f8, 0x03, sizeof(m_gameInfo.field_0x38f8));
 }
 
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00406580
 void CGameInfo::FUN_00406580(void) {
     char bVar1;
@@ -1208,6 +1211,7 @@ DWORD CGameInfo::SetupInputs(int unused) {
     return CInput::m_unk0x0059f8cc.field_0x0 & 0xFF;
 }
 
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ea5e0
 bool CGameInfo::LoadGameInfo(void) {
     char *hdPath;
@@ -1351,7 +1355,6 @@ char g_chatLineFormat[] = "%s > %s";
 
 // Adds a chat line "name > text" to the ring of the last five lines and
 // rebuilds g_unk0x00817c84 newest first.
-// match 91%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0620
 void FUN_004d0620(DPID *pFrom, char *text, char local)
 {
@@ -1489,6 +1492,7 @@ bool CGameInfo::FUN_004d05a0(void) {
     return true;
 }
 
+// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0c60
 void CGameInfo::FUN_004a0c60(void) {
     memset(m_unk0x0059fa20, 0, sizeof(m_unk0x0059fa20));
@@ -1987,7 +1991,6 @@ char g_str0x00527070[] = "%s\\textures\\environment\\environment.tga";
 // The only differences against the original are the call sites reccmp shows as
 // <OFFSETn>: 0x4b1150, 0x503ea0, 0x5040f0 and the two 0x4b23c0 calls go to
 // functions that are still annotated TODO, so reccmp cannot name them.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00501520
 void FUN_00501520(void)
 {
@@ -2190,6 +2193,7 @@ BYTE FUN_00503940(int i, int j)
     return g_unk0x0082c040[i][j];
 }
 
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d00
 void FUN_00509d00(int index)
 {
@@ -2201,6 +2205,7 @@ void FUN_00509d00(int index)
     p->v[3] = 0;
 }
 
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00509d90
 void FUN_00509d90(int index)
 {
@@ -2827,6 +2832,7 @@ int CGameInfo::FUN_005012c0(void)
     return result;
 }
 
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a420
 int CGameInfo::FUN_0040a420(int index)
 {
@@ -2848,6 +2854,7 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0x10 = param3;
 }
 
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
 int CGameInfo::FUN_005004c0(void)
 {
@@ -2891,6 +2898,7 @@ int g_unk0x0082c6c0;
 int g_unk0x0082cb44;
 
 // match below 90%; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00505e10
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
@@ -3421,7 +3429,7 @@ void FUN_004f2360(BYTE *p, int param2)
     CGame::FUN_004a9b10(0);
 }
 
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f2b00
 void FUN_004f2b00(BYTE *p)
 {
@@ -3485,7 +3493,6 @@ void *FUN_004f4e70(int index)
     return g_unk0x0081b150[index];
 }
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4e80
 bool FUN_004f4e80(void)
 {
@@ -3558,7 +3565,7 @@ void FUN_004f8a90(char *pText)
 
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4ef0
 void FUN_004f4ef0(void)
 {
@@ -3920,7 +3927,7 @@ BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, 
 
 
 // Prepara el descriptor de sesion 0x5a0068 y crea la sesion de DirectPlay.
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a13b0
 void CGameInfo::FUN_004a13b0(void)
 {
@@ -3959,7 +3966,7 @@ void CGameInfo::FUN_004a13b0(void)
 
 // Variante de FUN_004a13b0 que ademas guarda el parametro en 0x5a009c y usa
 // 0x51 como tamano inicial.
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a12d0
 void CGameInfo::FUN_004a12d0(int param1)
 {
@@ -3999,7 +4006,7 @@ void CGameInfo::FUN_004a12d0(int param1)
 
 // Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
 // reinicia el temporizador.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00505a60
 void CGameInfo::FUN_00505a60(int param1)
 {
@@ -4165,7 +4172,6 @@ void FUN_004a0ba0(void);
 void FUN_004a3180(void);
 unsigned int RallyData_FUN_00407e70(void);
 
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00401850
 void FUN_00401850(Menu *pMenu, int param)
 {
@@ -4186,6 +4192,7 @@ void FUN_00402bb0(Menu *pMenu, char param)
 }
 
 // match 19%, registers only; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 19%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00402bf0
 void FUN_00402bf0(Menu *pMenu)
 {
@@ -4197,7 +4204,6 @@ void FUN_00402bf0(Menu *pMenu)
     g_unk0x0052af6c = pMenu->cursor;
 }
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00402c30
 void FUN_00402c30(Menu *pMenu)
 {
@@ -4492,7 +4498,7 @@ void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004037c0
 void FUN_004037c0(Menu *pMenu, char cancel)
 {
@@ -4547,6 +4553,7 @@ void FUN_004054a0(void)
     Menu_CallCallback2(g_pMenu0x0052af44);
 }
 
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004054b0
 int FUN_004054b0(unsigned int param1)
 {
@@ -4724,7 +4731,7 @@ BYTE *RallyData_FUN_00408930(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403700
 void FUN_00403700(Menu *pMenu, char unused)
 {
@@ -4746,7 +4753,6 @@ void FUN_00403700(Menu *pMenu, char unused)
 }
 
 // Item callback of the camera menu "default" item.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004036c0
 void FUN_004036c0(Menu *pMenu, char unused)
 {
@@ -5432,7 +5438,7 @@ void FUN_00509be0(int index)
 // each mesh in the record's list takes the target value for its bit.
 void FUN_0049c440(Mesh *pMesh, int mask, int value);
 void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00508fa0
 void FUN_00508fa0(int index, int param2, BYTE param3){
     BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
@@ -5512,7 +5518,7 @@ int g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff5b0
 void FUN_004ff5b0(void)
 {
@@ -6029,7 +6035,7 @@ void FUN_005029b0(void)
 
 // Applies the selected option: advances the menu when its value is set, or
 // starts the fade otherwise.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005000b0
 void FUN_005000b0(int unused, int unused2)
 {
@@ -7365,6 +7371,7 @@ char *FUN_004d06f0(int index)
 
 // Steps the shared mode value one position; when it reaches the top it stores
 // the frame time instead and flags the fade as finished.
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00500130
 void FUN_00500130(void)
 {

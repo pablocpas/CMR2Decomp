@@ -142,6 +142,7 @@ void Font_Select(unsigned int index, int *pColour)
 }
 
 // Width in pixels of the widest line of text (lines end at '\n' or '^').
+// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b5b0
 int Font_GetTextWidth(unsigned int index, BYTE *text)
 {
@@ -219,6 +220,7 @@ int Font_GetTextWidth(unsigned int index, BYTE *text)
     return 0;
 }
 
+// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b730
 int Font_GetTextHeight(unsigned int index, char *text)
 {
@@ -276,6 +278,7 @@ void Font_DrawChar(unsigned int ch, short x, short y)
 
 // Draws text at (x, y). flags: 2 = centre, 4 = right-align (both per line),
 // 0x10 = y is the vertical middle of the first line, 0x20 = y is its bottom.
+// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b880
 void Font_DrawText(unsigned int index, char *text, int x, unsigned int y, int *pColour, unsigned int flags)
 {

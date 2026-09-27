@@ -171,6 +171,7 @@ BYTE g_surfaceDragIndex[48] = {
 
 // Rebuilds the per-corner grip parameters of a car by blending the surface it
 // stands on with the next one, and smooths the resulting rolling noise level.
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004781d0
 void Car_UpdateSurfaceParams(Car *pCar, int blend)
 {

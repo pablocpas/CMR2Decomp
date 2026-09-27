@@ -36,7 +36,7 @@ struct RaceSlotState {
 RaceSlotState g_raceSlotState[20];
 
 // Assigns an unused race slot and marks its owner for refresh.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00417660
 void Race_AssignUnusedSlot(int owner)
 {
@@ -353,7 +353,7 @@ int g_unk0x00537198[2];
 int RallyData_FUN_00421370(BYTE *p);
 
 // Stores the player's route position twice and frees the first five race slots.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00417780
 void FUN_00417780(int player)
 {
@@ -431,6 +431,7 @@ int g_unk0x00517e24 = -1;
 
 // Draws the five call slots of one player: the icon sprite of each call (the
 // countdown wobbles it once the slot is the first one) and the timer text.
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004177d0
 void FUN_004177d0(unsigned int player)
 {
@@ -724,6 +725,7 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
 
 // Assigns the race slots announced by a call record: every bit field of the
 // id selects one slot of the race slot table.
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418000
 void FUN_00418000(unsigned int id)
 {
@@ -984,6 +986,7 @@ extern Texture *g_arrowTexture;
 
 // Decodes a race call slot id into the arrow sprite rect of the call icon, the
 // secondary-icon flag and the colour the icon is tinted with.
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418580
 int FUN_00418580(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour)
 {
@@ -1088,7 +1091,7 @@ BYTE g_raceBlock[0x864];
 
 // Starts the sound of one entry of the stage table and stores its handle, the
 // random pitch and the id of the sound.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418d30
 void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
 {
@@ -1191,7 +1194,7 @@ tail:
 
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041ae80
 void FUN_0041ae80(int car, int unused)
 {
@@ -1663,7 +1666,7 @@ int g_unk0x00537350;
 int g_unk0x0053735c;
 
 // Updates the current route block and queues its first callout.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00416f70
 void FUN_00416f70(int player)
 {

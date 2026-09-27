@@ -64,6 +64,7 @@ int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *te
     return x;
 }
 
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d3fa0
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count)
 {
@@ -100,6 +101,7 @@ void FrontendDraw_MenuTitle(Menu *pMenu)
 // Draws the path of parent menus up to pMenu, most distant first. depth
 // limits how many parents are shown (-1 = all); ppNames can override the
 // names of the last nameCount parents.
+// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d40d0
 int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char **ppNames, int nameCount)
 {
@@ -145,6 +147,7 @@ void FrontendDraw_PlayTime(void)
 }
 
 // Help line at the bottom of the screen, its brightness pulsing up and down.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d4460
 void FrontendDraw_HelpText(char *text, int reset)
 {
@@ -188,6 +191,7 @@ void FrontendDraw_HelpText(char *text, int reset)
 // Horizontal menu at the bottom of the screen: the selected item at a fixed
 // place (plus the slide offset of its MenuScroller), the following items to
 // its right and the previous ones to its left, each with a separator.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d45b0
 void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
 {
@@ -307,6 +311,7 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
 
 // Vertical menu: an optional title row and the visible items from "first"
 // on, each with its background sprite and a separator line below.
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d3360
 void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active)
 {
@@ -420,6 +425,7 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
 
 // Same as FrontendDraw_Carousel for a menu driven by a MenuScroller, with
 // the item names in lower case.
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d2cd0
 void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
 {

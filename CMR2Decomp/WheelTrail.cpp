@@ -20,6 +20,7 @@ FixVector g_trailDelta[8][4];
 // Moves each wheel's dust emitter to its new world position, remembers how far
 // the wheel has travelled since the last trail mark and counts the wheels that
 // are currently laying one.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045def0
 void WheelTrail_Update(int carIndex)
 {

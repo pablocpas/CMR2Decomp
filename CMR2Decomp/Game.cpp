@@ -142,6 +142,7 @@ void CGame::FUN_004b7a40(void)
     }
 }
 
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0780
 BOOL CGame::FUN_004d0780(void)
 {
@@ -237,6 +238,7 @@ void FUN_0049de40(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
 // prints the FPS counter while the graphics debug flag (bit 2) is set.
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0a80
 void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -918,6 +920,7 @@ void FUN_004d1e10(Unk0049c2c0 *p1, BYTE state)
     }
 }
 
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d15e0
 void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -1139,6 +1142,7 @@ void CGame::FUN_0049c310(Unk0049c2c0 *param1)
         m_unk0x00593cac = 0;
 }
 
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c370
 void CGame::FUN_0049c370(Unk0049c2c0 *param1)
 {
@@ -1166,6 +1170,7 @@ void CGame::FUN_0049c370(Unk0049c2c0 *param1)
     }
 }
 
+// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c150
 void CGame::FUN_0049c150(Unk00817d98 *param1, int param2, int param3)
 {
@@ -1393,6 +1398,7 @@ void CGame::FUN_004a17b0(void) {
     }    
 }
 
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a17f0
 void CGame::FUN_004a17f0(bool param1) {
     if (param1)
@@ -1441,6 +1447,7 @@ void CGame::FUN_004aaa10(void) {
     }
 }
 
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aaac0
 bool CGame::Cleanup(void)
 {
@@ -1514,6 +1521,7 @@ bool CGame::FUN_004d0a50(bool param1) {
     return false;
 }
 
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2e50
 void CGame::FUN_004e2e50(void) {
     char countryCodes[8][10];
@@ -1628,6 +1636,7 @@ int __cdecl CGame::CompareConnections(const void *a, const void *b)
     return ((DPlayConnection *)b)->guidSP == DPSPGUID_TCPIP;
 }
 
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa880
 void CGame::ClearConnections(void)
 {
@@ -1650,6 +1659,7 @@ void CGame::ClearConnections(void)
     m_maxConnections = 10;
 }
 
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa930
 void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID *pGuidSP)
 {
@@ -1668,6 +1678,7 @@ void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID
     qsort(m_connections, m_connectionCount, sizeof(DPlayConnection), CompareConnections);
 }
 
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aacf0
 unsigned int CGame::GetConnectionCount(void)
 {
@@ -2138,6 +2149,7 @@ void Game_DrawUnsortedNodes(int bit)
 
 // Advances the pulse effect by the frame delta and draws the ground mesh of
 // every culled sector in world space.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049cec0
 void FUN_0049cec0(void)
 {
@@ -2164,6 +2176,7 @@ void FUN_0049cec0(void)
 
 // Advances the pulse effect by the frame delta and draws the shadow mesh of
 // every culled sector in world space, with Z writes disabled.
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049cf80
 void FUN_0049cf80(void)
 {
@@ -2363,7 +2376,7 @@ BYTE g_unk0x005a0068[0x50];
 
 // Reads the description of the joined session into SESSION (the session
 // name is copied to m_unk0x005a00b8).
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0d60
 BOOL FUN_004a0d60(void)
 {
@@ -2609,7 +2622,7 @@ int FUN_004a15c0(BYTE index, GUID *pOut)
 }
 
 // Sets one of the four session user values and pushes the description.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a16c0
 void Session_SetUserValue(char index, int value)
 {
@@ -2726,6 +2739,7 @@ BOOL __stdcall FUN_004aabd0(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConne
     return TRUE;
 }
 
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac00
 bool FUN_004aac00(void)
 {
@@ -2756,6 +2770,7 @@ char FUN_004a1cb0(int data, int size)
 }
 
 // Sends a message to a player (0 = all), guaranteed when requested.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1c50
 char FUN_004a1c50(int to, int guaranteed, int data, int size)
 {
@@ -2786,7 +2801,7 @@ int g_unk0x005a1fac;
 int g_unk0x005a1fb0;
 // GLOBAL: CMR2 0x005a1fb4
 int g_unk0x005a1fb4;
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1a10
 int FUN_004a1a10(int param1, int param2, int param3, int param4)
 {
@@ -2813,7 +2828,7 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
 
 
 // Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks.
-// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004779e0
 bool FUN_004779e0(void)
 {
@@ -2867,7 +2882,7 @@ bool FUN_004779e0(void)
 }
 
 // Adds the player slot to the DirectPlay session.
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac40
 bool FUN_004aac40(BYTE param1)
 {
@@ -3017,7 +3032,6 @@ BOOL FUN_004a0d60(void);
 bool FUN_004a14e0(void);
 
 // Session name, password and player limit of the network session description.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1510
 void Session_SetName(LPVOID pName)
 {
@@ -3026,7 +3040,6 @@ void Session_SetName(LPVOID pName)
     FUN_004a14e0();
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1530
 void Session_SetPassword(LPVOID pPassword)
 {
@@ -3035,7 +3048,6 @@ void Session_SetPassword(LPVOID pPassword)
     FUN_004a14e0();
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1550
 char Session_SetMaxPlayers(int count)
 {
@@ -3049,7 +3061,6 @@ void SceneNode_FlushTransforms(SceneNode *pNode);
 void Scene_SetViewFromCamera(SceneNode *pCamera);
 
 // Updates a scene tree for drawing from a camera.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049ce10
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param)
 {
@@ -3074,7 +3085,6 @@ void Session_SetOpen(char open)
 }
 
 // One of the four session user values (0x40..0x4c of the description).
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1680
 int Session_GetUserValue(BYTE index)
 {

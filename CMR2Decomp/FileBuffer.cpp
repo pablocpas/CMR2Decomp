@@ -42,6 +42,7 @@ void *CFileBuffer::ReallocateLockedBuffer(void *buffer, size_t iSize)
     return handle;
 }
 
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa220
 void *CFileBuffer::GetGenericFileBuffer(char *fileName, BOOL isLocalFile)
 {
@@ -211,7 +212,7 @@ BYTE *FUN_004eb450(int index)
 // Saves the profiles whose name has just been edited, clearing the dirty flag
 // of the ones written; returns whether all of them were saved. Profiles with
 // bit 0x200000 set are left alone.
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb3e0
 bool FUN_004eb3e0(void)
 {
@@ -410,6 +411,7 @@ struct Unk0x10Block {
 };
 
 // Reads the file and copies the 12 bytes at offset 0x10 into *pOut.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ebee0
 BOOL FUN_004ebee0(Unk0x10Block *pOut, char *param2)
 {

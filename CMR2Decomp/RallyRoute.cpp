@@ -14,6 +14,7 @@ void FUN_00421570(unsigned int nodeIndex, FixVector *pOut)
 
 // Direction of the route at one node: the average of the directions to the
 // previous and the next node, cached for the last three nodes asked for.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004201d0
 void RallyRoute_GetNodeDirection(FixVector *pOut, unsigned int nodeIndex)
 {

@@ -43,6 +43,7 @@ char g_strGapTime[20] = "%s%02d:%02d.%02d";
 BYTE g_gapTextColour[4] = { 0xff, 0xff, 0xff, 0xff };
 
 // Formats a time gap as "+mm:ss.hh" and draws it, boxed when param_9 is set.
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00415bd0
 void FormatGapToLeader(int iLeaderGap, unsigned int fontIndex, unsigned char param_3, int x, int y, void *pColour, unsigned int flags, char *pcNegPosSymbol, int drawBox)
 {
@@ -101,7 +102,7 @@ int FUN_00418fe0(void)
 }
 
 // Reinicia las tablas de la interfaz de etapa y registra su callback una vez.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418f20
 void FUN_00418f20(void)
 {
@@ -195,7 +196,7 @@ BYTE FUN_00427aa0(void);
 
 // Applies one stage sound state to its active channel.  The switch mirrors
 // the combinations of continuous, secondary and network-gated sound slots.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00419200
 void StageUI_ApplySoundState(int channel, BYTE *pState)
 {
@@ -481,6 +482,7 @@ void FUN_00473460(Menu *pMenu, int param)
 
 // Draws the championship banner across the top of the screen: the championship
 // name, the class it is run in and, on the longer championships, the round.
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00475a50
 void StageUI_DrawChampionshipBar(void)
 {
@@ -700,6 +702,7 @@ char g_stageGrid[3][0x294] = {
 };
 
 // Draws the little stage grid: a background panel and one cell per set entry.
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477f70
 void StageUI_DrawStageGrid(int unused, int set)
 {

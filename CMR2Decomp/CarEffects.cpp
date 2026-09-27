@@ -506,7 +506,7 @@ void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar)
 // Throws debris (and, a limited number of times per car, glass) from a
 // point of the car: count pieces with random velocities along the given
 // axes.
-// match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00499750
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance)
 {
@@ -1166,7 +1166,7 @@ void FUN_0045dea0(void *pParticle, ParticleType *pType, int param)
 }
 
 // Update callback: rises by half its size (capped at 1.5) and follows its car.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045d270
 void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
 {
@@ -1238,7 +1238,7 @@ void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
 // water on the wet surfaces, sparks on some hard ones (when the stage asks
 // for them), each particle placed at a random point of the trail between
 // the two wheels of the axle.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045c820
 void WheelSplash_Update(int player)
 {

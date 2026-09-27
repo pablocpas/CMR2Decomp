@@ -884,7 +884,7 @@ void FUN_004fc880(Menu *pMenu, int param)
 }
 
 // Leaving the pad page: stores the settings unless backing out.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fc8f0
 void FUN_004fc8f0(Menu *pMenu, char back)
 {
@@ -2966,6 +2966,7 @@ void FUN_004f7d70(void)
     Menu_ValidateCursor(&g_menu0x00822d18, 0);
 }
 
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f7de0
 void FUN_004f7de0(void)
 {
@@ -2982,6 +2983,7 @@ void FUN_004f7de0(void)
     Menu_ValidateCursor(&g_menu0x0081eb78, 0);
 }
 
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f7ed0
 void FUN_004f7ed0(void)
 {

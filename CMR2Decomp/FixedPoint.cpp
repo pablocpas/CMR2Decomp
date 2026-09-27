@@ -224,6 +224,7 @@ void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn)
     o[15] = 0x10000;
 }
 
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9f20
 void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
 {
@@ -450,6 +451,7 @@ void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM)
 
 // Rotates a basis in place by the three 12-bit angles (about up, then
 // forward, then right).
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00429f20
 void FixBasis_Rotate(FixBasis *pBasis, unsigned short *pAngles)
 {
@@ -510,6 +512,7 @@ void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle)
 }
 
 // out = in * M (rotation plus translation).
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004baa40
 void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM)
 {
@@ -696,6 +699,7 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 }
 
 // Rotates a basis by the angular velocity pW: each row gains pW x row.
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00441430
 void FixBasis_Integrate(FixVector *pRows, FixVector *pW)
 {

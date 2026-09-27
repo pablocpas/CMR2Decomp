@@ -100,6 +100,7 @@ int FUN_0040ce40(int position);
 // resolves the ties of the overall classification.
 // pPositions: finishing position of each of the eight cars.
 // pPoints: points earned at each position.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040ccd0
 void FUN_0040ccd0(char *pPositions, int *pPoints)
 {
@@ -271,6 +272,7 @@ int RallyTiming_GetOverallPositionDriverID(int iPosition)
 	return g_rallyOverallOrderDriverID[iPosition];
 }
 
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d3b0
 int RallyTiming_GetOverallTimeForPosition(int iPosition)
 {
@@ -412,6 +414,7 @@ int RallyTiming_GetPointsForPosition(int iPosition)
 	}
 }
 
+// match 18%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d520
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise)
 {

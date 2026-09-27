@@ -103,6 +103,7 @@ void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha)
 // Re-writes the vertex colours of the locked copy of the vertex array (shuffling
 // the stored RGBA bytes into the D3D ARGB layout) and uploads the whole array
 // into the mesh's shared vertex buffer.
+// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1ea0
 void Mesh_Rebuild(Mesh *pMesh)
 {

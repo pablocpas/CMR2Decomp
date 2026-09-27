@@ -61,7 +61,7 @@ void FUN_004a3dd0(void);
 
 // Builds the quads of one sprite layer (1..4), rotating them about their
 // centre when needed, draws them with point filtering and empties the layer.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a3650
 void Sprite_DrawLayer(int layer)
 {
@@ -239,6 +239,7 @@ void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour)
     pVertex->color = RGBA_MAKE(pColour[0], pColour[1], pColour[2], pColour[3]);
 }
 
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bb650
 void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer)
 {
@@ -341,6 +342,7 @@ double g_minus65536 = -65536.0;
 
 // Fills a screen rectangle (x, y, w, h in pixels) with two 2D triangles,
 // clipping it to the screen first.
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a5e40
 int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
 {
@@ -636,6 +638,7 @@ BYTE g_quad2DOverflow;
 
 // Queues a quad into the layer selected by the low bits of pDest (8, 0x10,
 // 0x20, 0x40); with none of those bits set pDest is the destination itself.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bbc60
 void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest)
 {

@@ -331,6 +331,7 @@ void Dash_Update(int player)
 
 // Digital rev counter: the lit part of the bar texture (or plain
 // rectangles), the gear letter and the speed.
+// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00446270
 void Dash_DrawBar(int player, int layer)
 {
@@ -487,6 +488,7 @@ void Dash_DrawDialFace(int *pCentre, int unused, Texture *pTexture)
 
 // Draws the needle of the dial: a thin quad from the tail to the tip, with
 // its point, rotated by angle about pCentre.
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004471b0
 void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, int tip, unsigned int angle,
                      BYTE *pColour, int layer)
@@ -560,6 +562,7 @@ void Dash_DrawNeedle(int *pCentre, int width, int tipWidth, int tail, int mid, i
 
 // Analogue rev counter: the dial with its needle, the gear marker beside
 // the gear letters, the speed and the MPH/KPH plate.
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00446bf0
 void Dash_DrawDial(int player, int layer)
 {

@@ -119,7 +119,7 @@ int g_unk0x0052f1a0[20];
 // random window around its rating (pRatings[1], [3], [5], [7]) is spread over
 // the nine skill classes of pClasses (one per 10 points), and the most
 // frequent class wins. Slot 2 only uses two opponents.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d6c0
 void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
 {
@@ -192,7 +192,7 @@ void FUN_0040d9e0(int group);
 // displacements in the original (they are contiguous in its .bss); our tables
 // are not adjacent, so the compiler picks another induction variable and the
 // opcodes differ.
-// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040dbe0
 void FUN_0040dbe0(int value)
 {
@@ -530,7 +530,7 @@ void RallyData_FUN_00408fc0(int index)
 BYTE *FUN_0041b390(void);
 int FUN_004232a0(int index, int mode);
 
-// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423970
 int FUN_00423970(unsigned int index, int mode)
 {
@@ -725,6 +725,7 @@ void FUN_00406820(void)
     }
 }
 
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00406890
 char *RallyData_FUN_00406890(void)
 {
@@ -786,6 +787,7 @@ int g_unk0x0052ea74Block[18];
 #define g_unk0x0052ea98 (g_unk0x0052ea74Block + 9)
 #define g_unk0x0052eab8 (g_unk0x0052ea74Block[17])
 
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408300
 BOOL RallyData_FUN_00408300(void)
 {
@@ -819,6 +821,7 @@ void RallyData_FUN_00408390(void)
     }
 }
 
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408340
 BOOL RallyData_FUN_00408340(void)
 {
@@ -1318,7 +1321,7 @@ BYTE *RallyData_FUN_00408a00(BYTE index)
 }
 
 // Tyre record of a driver (NULL for the ghost cars of the time trials).
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408a60
 BYTE *RallyData_GetTyreRecord(BYTE index)
 {
@@ -1367,7 +1370,7 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
 }
 
 // Stores a driver's position (x/z of pPos), heading and value.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408bd0
 void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index)
 {
@@ -1751,6 +1754,7 @@ BYTE FUN_004085a0(BYTE param1)
 }
 
 // Stores a driver's 5/6-bit setting in the driver or category record.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408600
 void RallyData_FUN_00408600(BYTE index, BYTE value)
 {
@@ -2255,7 +2259,7 @@ unsigned int g_unk0x005170e0[2] = {0x00ffffff, 0x00ffffff};
 
 // Records the time of the split the car just passed, colours it against the
 // reference time and updates the car's position at that split.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00413330
 void FUN_00413330(int car)
 {
@@ -2314,7 +2318,7 @@ void FUN_00413330(int car)
 }
 
 // Same as FUN_00413330 for the stage start and the time-trial ghost.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00413610
 void FUN_00413610(int car)
 {
@@ -2612,6 +2616,7 @@ done:
     g_unk0x00536c08[car] = 0x7d;
 }
 
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004074a0
 bool RallyData_FUN_004074a0(void)
 {
@@ -2993,7 +2998,7 @@ void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
 
 
 // Bumps the 0x7f80-masked field of the entry selected by each 0x30-byte record.
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec1a0
 void RallyData_FUN_004ec1a0(void)
 {
@@ -3180,7 +3185,7 @@ extern int g_unk0x0082cb44;
 
 // Builds the weather textures of the current rally: the main map, the
 // per-weather maps and the weather symbols, then rebinds the stage state.
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503ea0
 void FUN_00503ea0(void)
 {
@@ -3423,6 +3428,7 @@ void RallyData_FUN_004207f0(void)
     RallyData_FUN_00420820();
 }
 
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00420820
 void RallyData_FUN_00420820(void)
 {
@@ -3456,7 +3462,7 @@ void FUN_00421230(Car *pCar, int *pProgress);
 // Tracks a car along the stage route. Local players periodically probe nearby
 // nodes; then the forward and previous segment tests advance or retreat the
 // route index and update progress along that segment.
-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00420a30
 void RallyData_UpdateCarRoute(Car *pCar)
 {
@@ -3614,7 +3620,6 @@ void RallyData_FUN_00421530(int index, int *pOut);
 // Progress of the car along the route segment that ends at node pProgress[0]:
 // the car position projected on the segment direction, as a 16.16 fraction
 // of the segment length (stored in pProgress[4]).
-// match 93%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421230
 void FUN_00421230(Car *pCar, int *pProgress)
 {
@@ -3853,6 +3858,7 @@ void FUN_0040ef10(void)
 
 // Draws one item of a horizontal list and, unless it is the last one, the thin
 // separator after it; returns the x the next item starts at.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040fd30
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 {
@@ -3891,6 +3897,7 @@ void RallyData_FUN_0040df60(int param1, int param2)
 
 unsigned int RallyData_FUN_004070e0(void);
 
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004070c0
 void RallyData_FUN_004070c0(void)
 {
@@ -4193,7 +4200,6 @@ void FUN_00477a90(void);
 void StageObject_FreeAll(void);
 void Mesh_FreeClones(void);
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00411110
 void FUN_00411110(void)
 {
@@ -4216,7 +4222,7 @@ short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 
 // Updates the route of every car, last in the race order first.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004209f0
 void FUN_004209f0(void)
 {
@@ -4270,7 +4276,7 @@ unsigned int RallyDataState(void);
 
 // Marks the element as reached by the car; the first time, in single player,
 // pushes its object out of the way.
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00470240
 void FUN_00470240(BYTE **pElement, BYTE car)
 {
@@ -4393,7 +4399,7 @@ unsigned int FUN_00409cb0(int index);
 void FUN_00411e40(int *pOut, int distance, int percent);
 
 // Updates the split position of the player and of every network player.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00411f00
 void FUN_00411f00(void)
 {
@@ -4526,6 +4532,7 @@ show:
 
 // Whether a driver's category has award `bit` (with `check`, some cheats
 // count as having it).
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408e30
 bool RallyData_FUN_00408e30(int index, int bit, char check)
 {
@@ -4594,7 +4601,7 @@ int FUN_0041f3a0(void);
 
 // Screen rectangle of a view: full screen, or the half chosen by the split
 // direction (vertical or horizontal).
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040f050
 int *FUN_0040f050(int view)
 {
@@ -4715,7 +4722,7 @@ int StageTiming_GetSplitPositionOfDriver(int driver, int split);
 unsigned int FUN_004735a0(unsigned int *pHigh);
 
 // Formats the name shown for a driver in the current result list.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00415750
 void FUN_00415750(int driver, int split, int useLongName, int useSplit)
 {
@@ -4769,7 +4776,7 @@ int g_unk0x00536fe4[2];
 int g_unk0x00537054[2];
 
 // Updates the split timer and stage sound for a player.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00413200
 void FUN_00413200(int car)
 {

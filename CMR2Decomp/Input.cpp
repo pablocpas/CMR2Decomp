@@ -298,6 +298,7 @@ BOOL CInput::DInputCreate(void) {
     return TRUE;
 }
 
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049fe30
 LPDIRECTINPUTDEVICEA CInput::DInputCreateDevice(REFGUID guid, LPCDIDATAFORMAT pDataFormat) {
     LPDIRECTINPUTDEVICEA pDevice = NULL;
@@ -415,6 +416,7 @@ BOOL CInput::FUN_0049f6b0(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     return TRUE;
 }
 
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049f0e0
 BOOL CInput::SetupKeyboard(void) {
     unsigned int uVar1;
@@ -544,6 +546,7 @@ BOOL CInput::GetAttachedJoysticks(void) {
     return SUCCEEDED(hr);
 }
 
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049f6d0
 BOOL CInput::SetupJoystick(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef) {
     HRESULT hr;
@@ -1541,6 +1544,7 @@ int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, in
     return CreateForceFeedbackEffect(0xd, duration, coefficient, offset, triggerButton, deviceIndex);
 }
 
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040c2a0
 short CInput::GetButtonMapping(unsigned short controller, int button)
 {
@@ -1636,6 +1640,7 @@ HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG dire
     return E_INVALIDARG;
 }
 
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ab150
 int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex)
 {
@@ -1761,7 +1766,6 @@ char g_keyCloseBracket[] = "]";
 
 // Fills controller slot index from a detected device: its name, type flags,
 // the default bindings and the texts shown for them in the controls menu.
-// match 92%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040c610
 void CInput::FUN_0040c610(DeviceInfo *pDevice, int index)
 {
@@ -1920,6 +1924,7 @@ void FUN_004b7c80(void)
 }
 
 // Queues one character for the input ring buffer.
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7ca0
 void CInput::FUN_004b7ca0(int param1)
 {
@@ -1940,6 +1945,7 @@ void CInput::FUN_004b7ca0(int param1)
 }
 
 // Pops the oldest character of the input ring buffer.
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7cd0
 bool FUN_004b7cd0(int *pOut)
 {
@@ -1959,6 +1965,7 @@ bool FUN_004b7cd0(int *pOut)
 }
 
 // Queues one key press (only when the scan code carries a virtual key).
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7d10
 void CInput::FUN_004b7d10(unsigned int param1)
 {
@@ -2025,6 +2032,7 @@ void FUN_004b7d40(void)
 }
 
 // Pops the oldest key of the key press queue.
+// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7d60
 int FUN_004b7d60(int *pOut)
 {

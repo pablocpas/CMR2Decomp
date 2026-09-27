@@ -430,6 +430,7 @@ nextVertex:
 }
 
 // Updates the vehicle-local motion vector and the resulting positional correction.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00482ac0
 void Vehicle_UpdateMotion(FixVector *pInput)
 {

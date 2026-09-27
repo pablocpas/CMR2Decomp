@@ -79,7 +79,7 @@ BYTE FUN_00422fb0(unsigned int index)
     return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
 }
 
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423d70
 FixMatrix *FUN_00423d70(unsigned int index)
 {
@@ -130,6 +130,7 @@ extern float g_65536f;
 
 // Picks the up to three cars to display in one split-screen view (nearest to
 // the view position, in or near the viewport) and hides the remaining ones.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00428bf0
 void FUN_00428bf0(unsigned int view, short *pRect)
 {
@@ -353,6 +354,7 @@ void FUN_0043e5a0(int model, Car *pCar)
 
 // Recomputes the eight world-space corners of the car's box from its
 // half extents and world matrix, then applies the suspension offsets.
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043eef0
 void Car_UpdateCorners(Car *pCar)
 {
@@ -424,6 +426,7 @@ void Car_UpdateCorners(Car *pCar)
 
 // Shifts the four upper corners of g_pCurrentCar by the scaled body
 // offset vectors (suspension travel).
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043f280
 void Car_ApplyCornerOffsets(void)
 {
@@ -571,6 +574,7 @@ void Car_ApplyViewTransforms(int viewIndex)
 // Places the two view-dependent child nodes of every car (0x748 in front of
 // the body towards the view, 0x74c behind it) along the car -> view
 // direction, scaled with the distance.
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00429810
 void Car_UpdateViewNodes(int viewIndex)
 {
@@ -645,6 +649,7 @@ int g_physicsTimeStep = 0x10000;
 // Updates the body axes of g_pCurrentCar: the up vector is pulled towards
 // the wheel plane and the velocity, forward/right are re-orthogonalised,
 // then a fraction of the velocity is turned into lateral force and damped.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00436630
 void Car_UpdateBodyAxes(void)
 {
@@ -969,6 +974,7 @@ void Car_StoreBodyMatrix(void)
 // Tilts the body matrix of g_pCurrentCar to the plane through the wheel
 // contact points (suspension compressions), keeping the right vector, and
 // lifts its position by the mean compression.
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00432cc0
 void Car_UpdateBodyMatrix(void)
 {
@@ -1173,6 +1179,7 @@ void Car_RelaxBodyAxes(int bFast)
 
 // Velocity of each box corner of g_pCurrentCar: v + w x r, with the
 // angular velocity in body space and the corners as +-half extents.
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00434f50
 void Car_UpdateCornerVelocities(void)
 {
@@ -1416,6 +1423,7 @@ int g_physicsScale = 0x10000;
 
 // Integrates the body lean (the chassis pitching/rolling against its own
 // acceleration) and rebuilds the body matrix from the two lean angles.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00443250
 void Car_UpdateBodyLean(void)
 {
@@ -2123,7 +2131,7 @@ void FUN_0043b090(Car *pCar)
 // corner of the body under the leaned frames gives the suspension travel of
 // that corner. The body lean also rolls with the steering on the cars that
 // use it.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043b100
 void Car_UpdateSuspension(void)
 {
@@ -2256,6 +2264,7 @@ void Car_UpdateSuspension(void)
 
 // Normalises the per-wheel slip, turns it into wheel torque and, on the cars
 // that use it, feeds the torque back towards half the drive torque.
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043c640
 void Car_UpdateWheelTorques(void)
 {
@@ -2308,6 +2317,7 @@ int g_dragBase = 0x10000;
 // One physics step of the rigid body: sums the corner forces into a force and
 // a torque, integrates linear and angular velocity, moves the body and rebuilds
 // its world matrix.
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00440840
 void Car_Integrate(void)
 {
@@ -2492,7 +2502,7 @@ void Car_Integrate(void)
 // itself, combining the rolling and the lateral slip and capping it with the
 // tyre's friction ellipse. Only the right hand wheels are solved; the left
 // hand ones are mirrored from them. See also Car_UpdateTyreForces.
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00441500
 void Car_UpdateWheelForces(void)
 {
@@ -3064,7 +3074,7 @@ int g_gravityScale;
 // turned to stand on it while the car is not moving away from the ground,
 // and the lowest corner of the box is kept on the ground. field_0xb74 is
 // cleared once the car is clearly above the ground.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00443d10
 void Car_FollowGround(void)
 {
@@ -3240,7 +3250,7 @@ void Car_FollowGround(void)
 // car gets a growing torque that tips it over; otherwise, sliding sideways
 // faster than the wheels can hold tips the body, and past the limit the car
 // starts to tumble.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004373c0
 void Car_UpdateRollover(void)
 {
@@ -3392,7 +3402,7 @@ void FUN_004340f0(void)
 // right axis (faster with field_0x79c), and the steered wheels turn from it
 // by the steering angle, which wobbles with the position on the stage on
 // the cars whose setup asks for it.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00434140
 void Car_UpdateSteering(void)
 {
@@ -3560,7 +3570,7 @@ void Car_UpdateCornerLoads(void)
 
 // Updates the engine speed from the selected gear or the startup animation,
 // then applies the rev limit and its excess-speed flag.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004380c0
 void Car_UpdateEngineSpeed(void)
 {
@@ -3712,7 +3722,6 @@ int FUN_00423f30(void)
     return (int)(__int64)((base * steps[CGameInfo::FUN_00405ca0()] + base) * CGraphics::m_65536);
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423fc0
 void FUN_00423fc0(int view)
 {
@@ -4038,7 +4047,7 @@ int FUN_0045c720(char car, int wheel);
 void FUN_0049c440(Mesh *pMesh, int mask, int value);
 
 // Sets four wheel mesh states for each car in draw order.
-// match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042be30
 void FUN_0042be30(void)
 {
@@ -4126,7 +4135,7 @@ int g_unk0x005391cc[2];
 extern const double g_unk0x00511380;
 
 // Integrates contact forces and body motion, including the transition to tumbling.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00435470
 void Car_IntegrateContacts(void)
 {

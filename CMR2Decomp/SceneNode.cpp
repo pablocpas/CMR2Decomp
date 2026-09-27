@@ -100,6 +100,7 @@ int g_rotAxisYZ;
         }                                                                             \
     }
 
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ac820
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles)
 {
@@ -425,6 +426,7 @@ SceneNode *SceneNode_Create(SceneNode *pParent)
 }
 
 // Moves pNode (and its subtree) under pNewParent.
+// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ac7a0
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
 {
@@ -742,6 +744,7 @@ DWORD *g_sceneShadowTable;          // shadow colour at each level
 DWORD *g_sceneShadowTableD3D;
 
 // Rebuilds the light and shadow colour tables.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3940
 void Scene_BuildLightTables(void)
 {
@@ -878,6 +881,7 @@ void Scene_UpdateShadowColour(int boost)
 }
 
 // Sets the ambient colour of the scene (RGBA bytes).
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3740
 void Scene_SetAmbient(BYTE *pColour, int boost)
 {
@@ -995,6 +999,7 @@ extern int g_unk0x005210c0;
 // Relights a sector when the scene ambient or light colour changed since its
 // last update (ground mesh, static objects, nodes), then its shadow mesh,
 // attenuated by D3D light 1 through the sector light zone when enabled.
+// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3c00
 void Scene_RelightSector(int sector)
 {
@@ -1180,6 +1185,7 @@ static __forceinline void ShadowPart_Init(ShadowPart *pPart)
 
 // Registers pNode and every mesh below it as a shadow caster (at most 29). Small
 // objects (flags type <= 4) use a cylinder around the mesh unless exactMeshes is set.
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b45d0
 void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes)
 {
@@ -1255,6 +1261,7 @@ char g_strShadowMeshName[] = "SHAD%d";
 // the shadow zones (one per sector with a shadow mesh). Offsets in the data
 // are turned into pointers, zones are matched to their sector and their
 // items to the scene objects there, and a shadow mesh is built for each.
+// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b4aa0
 void Scene_LoadLighting(int *pData)
 {
@@ -1665,6 +1672,7 @@ struct LightZoneVertex {
 // sectors around *pSector is mapped through g_sceneSectorZone, and every item
 // whose box (in the light basis) contains the node within radius is stored in
 // g_sceneZoneList.
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b5f90
 void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector)
 {
@@ -1819,6 +1827,7 @@ void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b)
 
 // Light level (0..1) of one corner of a mesh triangle for a light direction:
 // four times the dot product of its vertex normal with pDir, clamped.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b4040
 int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int corner)
 {
@@ -1840,6 +1849,7 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 // Light level and colour of the ground at a position: those of the nearest
 // (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
+// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3860
 DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 {
@@ -1892,6 +1902,7 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 
 // Frees every shadow caster (with its per-part buffers) and every cached
 // shadow cylinder.
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b5380
 void Scene_FreeShadowCasters(void)
 {
@@ -1968,6 +1979,7 @@ void FUN_004a3dd0(void);
 
 // Draws the shadow batches visible in view `view` (bit of each batch mask),
 // with the batch texture forced to blend mode 10.
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b6240
 void Scene_DrawShadowBatches(BYTE view)
 {
@@ -2025,6 +2037,7 @@ D3DMATERIAL7 g_sceneMaterial;
 
 // Restores the D3D lights, the default material and the ambient colour
 // after the device was (re)created.
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b2e50
 void Scene_RestoreLights(void)
 {
@@ -2070,6 +2083,7 @@ int g_viewSetupMode;
 
 // Sets the Direct3D view transform from a moved camera node (inverse of its
 // world matrix), unless the view setup mode is 5 or more.
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ade00
 void Scene_SetViewFromCamera(SceneNode *pCamera)
 {
@@ -2223,6 +2237,7 @@ extern const double g_unk0x00511380;
 // The conversions to 16.16 go through __int64, which is the original's fistp
 // rounding. The two shortest loops stop one entry short of the table size,
 // like the original does.
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7b20
 void FUN_004b7b20(void)
 {

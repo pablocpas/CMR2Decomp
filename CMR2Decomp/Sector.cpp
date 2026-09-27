@@ -57,6 +57,7 @@ void Mesh_BuildParts(Mesh *pMesh);
 // object and sector records into pointers, registers them in the scene node,
 // mesh, stage object and sector tables, loads the textures and re-uploads the
 // vertex buffers of every mesh.
+// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b93c0
 void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
 {
@@ -261,6 +262,7 @@ BYTE FUN_004b8540(void)
     return 1;
 }
 
+// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b85f0
 int Sector_FromPosition(FixVector *pPos)
 {
@@ -290,6 +292,7 @@ int Sector_FromPosition(FixVector *pPos)
 // Re-evaluates which sector the node's world position falls in, records
 // the neighbouring sectors it overlaps (within 4.5 units) and moves the node
 // between the sector lists.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8690
 void SceneNode_UpdateSector(SceneNode *pNode)
 {
@@ -441,6 +444,7 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
 // Sets the four corner points of every sector from the ground mesh heights
 // around each grid vertex (lowest nearby vertex plus one unit, or 10 units
 // when no neighbouring sector has a mesh).
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8b90
 void Sector_BuildCorners(void)
 {
@@ -544,6 +548,7 @@ void Sector_BuildCorners(void)
 }
 
 // Appends the node to the sector its world position falls in.
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8b10
 void FUN_004b8b10(SceneNode *pNode)
 {
@@ -581,6 +586,7 @@ int Tri2D_Contains(int *pPoint, int *pTri);
 // position and marks every sector whose bounding rectangle overlaps the screen
 // triangle built from the node position and the "radius" (the fixed far plane
 // distance), storing the squared distance of each marked sector.
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7de0
 void FUN_004b7de0(SceneNode *pNode, int unused)
 {
@@ -730,6 +736,7 @@ void Sector_RebuildNodeLists(void)
 
 // Up to three sectors next to the one containing pPos that lie within 4.5
 // units of it (left/right, above/below and the diagonal); -1 when unused.
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8910
 void Sector_GetNeighbours(FixVector *pPos, short *pOut)
 {

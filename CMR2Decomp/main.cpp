@@ -44,6 +44,7 @@ int WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nS
 	return CMain::Initialize(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }
 
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9720
 unsigned char CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -128,6 +129,7 @@ BOOL FUN_004a8270(void)
 	return FALSE;
 }
 
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a8140
 BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC wndProc)
 {
@@ -188,6 +190,7 @@ BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowNam
 	return TRUE;
 }
 
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a98b0
 LRESULT CMain::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -344,6 +347,7 @@ bool CMain::ResetFrameDelta(void)
     return true;
 }
 
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9b80
 unsigned int CMain::GetFrameDelta(void)
 {

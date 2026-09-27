@@ -20,6 +20,7 @@ unsigned int g_menuLastInput;
 // GLOBAL: CMR2 0x0059fa17
 char g_unk0x0059fa17;
 
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049ffd0
 void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout)
 {
@@ -205,6 +206,7 @@ void Menu_SetFlags(Menu *pMenu, BYTE bit0, BYTE bit1, BYTE bit2, BYTE bit3)
 
 // Moves the cursor to the next item that is enabled (flags bit0|bit1),
 // starting at defaultCursor when it is valid.
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a04a0
 void Menu_ValidateCursor(Menu *pMenu, int unused)
 {
@@ -282,6 +284,7 @@ void Menu_SetNextAction(int action)
 // value of type 3/6 items, fires the item callbacks and returns the action
 // queued by the selected item (0 = none). Input bits: 0-3 directions (the
 // pairs swap with layout), 4 select, 5 back.
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0570
 int Menu_Update(Menu *pMenu, unsigned int input)
 {
@@ -524,6 +527,7 @@ void FUN_004a0ba0(void)
     g_menuNextAction = 0;
 }
 
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0bc0
 void Menu_PlaySoundId(int id)
 {

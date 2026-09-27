@@ -1086,6 +1086,7 @@ void FUN_004cf3b0(int index, int mode)
 // Resets the value and the three stat counters of a device record.
 // match 50%: MSVC keeps the zero in a register (xor ecx / cmp eax,ecx) instead of an
 // immediate store plus test; the code is the same.
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf3f0
 void FUN_004cf3f0(int index)
 {
@@ -1128,6 +1129,7 @@ void FUN_004cf450(int index, int arg, int value)
 // a 4-bit field above it, and the value in the following dword.
 // match 52%: MSVC schedules the *pValue load after the stores and allocates
 // different registers for option/field; the code is the same.
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf470
 void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
 {
@@ -1149,6 +1151,7 @@ void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
 // Writes the two 6-bit fields of a device record and clears its second dword.
 // match 83%: MSVC folds the two AND masks into 0xffffc000 where the original
 // keeps 0xffffc03f then 0xffffffc0.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf4d0
 void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
 {
@@ -1185,6 +1188,7 @@ void FUN_004cf530(int index, int value)
 // dword.
 // match 87%: MSVC folds (*p & 0xfffff81f) & 0xffffffe0 and orders the pops
 // differently; the code is the same.
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf550
 void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 {
@@ -1271,6 +1275,7 @@ BYTE FUN_004cf660(int index, int pBlock)
 // two 4-bit fields merge of FUN_004d0370.
 // match 59%: register allocation of the device pointer and of the "better" flag
 // differs (the original keeps more values on the stack).
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf740
 BYTE FUN_004cf740(int index, int pBlock)
 {
@@ -1384,6 +1389,7 @@ int FUN_004cf9d0(int param_1, int param_2)
 // when the option value beats the stored one.
 // match 70%: register allocation and the stack frame differ (the original uses
 // push ecx where we allocate two slots); the code is the same.
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfa10
 BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
 {
@@ -1428,6 +1434,7 @@ BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
 // the current stage group, keeping the list sorted by the option value.
 // match 61%: the original spills `better` and the record base to the stack;
 // MSVC keeps them in registers here, so the code differs only in allocation.
+// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfb30
 char FUN_004cfb30(int param1, int index, char *pName)
 {
@@ -1480,6 +1487,7 @@ char FUN_004cfb30(int param1, int index, char *pName)
 // the current car group, keeping the list sorted by the option value.
 // match 55%: same code as the original; MSVC allocates the loop counter, the
 // base and `better` to different places.
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfc90
 char FUN_004cfc90(int param1, int index, char *pName)
 {
@@ -1554,6 +1562,7 @@ int FUN_004cfe20(int param_1, int param_2)
 // Copies an arcade record name and its (6) split times into the mirror array.
 // match 76%: register allocation and the stack frame differ; the code is the
 // same.
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfe80
 BYTE FUN_004cfe80(int param_1, int param_2)
 {
@@ -1607,6 +1616,7 @@ BYTE FUN_004cfe80(int param_1, int param_2)
 // the current arcade group, keeping the list sorted by the option value.
 // match 57%: same code as the original; MSVC allocates the loop counter, the
 // base and `better` to different places.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfff0
 char FUN_004cfff0(int param1, int index, char *pName)
 {

@@ -40,6 +40,7 @@ GenericFile* CGenericFileLoader::GetGenericFile(void) {
     return &m_genericFile;
 }
 
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9c70
 void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWORD *pId)
 {
@@ -69,6 +70,7 @@ void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWOR
     return NULL;
 }
 
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9da0
 void CGenericFileLoader::GetFileNameFromPath(char *path, char *out)
 {
@@ -85,6 +87,7 @@ void CGenericFileLoader::GetFileNameFromPath(char *path, char *out)
     strcpy(out, pName);
 }
 
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9f90
 BYTE *CGenericFileLoader::StrUpperPolish(BYTE *str)
 {

@@ -266,6 +266,7 @@ local int get_byte(gz_stream *s)
        for concatenated .gz files.
 */
 // match 68%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004be160
 local void check_header(gz_stream *s)
 {

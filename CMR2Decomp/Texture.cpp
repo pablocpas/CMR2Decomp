@@ -10,7 +10,7 @@ char g_tgaSuffix[] = ".tga";
 extern char g_emptyString[4];
 
 // Replaces the extension of the file name part of path with the empty string.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9f50
 void FUN_004a9f50(char *pOut, char *path)
 {

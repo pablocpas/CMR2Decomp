@@ -241,7 +241,7 @@ extern BYTE g_unk0x00538d2c[0xc8];
 
 // Loudness of a view's sounds by distance to the listener: 1 up to 2 units,
 // fading to 0 at 100.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427d50
 int FUN_00427d50(unsigned int view, int listener)
 {
@@ -491,7 +491,7 @@ int g_unk0x005393d0;
 int g_triangleNumbers[100];
 
 // Resets the network race state and builds the triangle number table.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424ed0
 void FUN_00424ed0(void)
 {
