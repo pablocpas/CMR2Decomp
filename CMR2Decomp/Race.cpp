@@ -7,6 +7,7 @@
 #include "FixedPoint.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "InstallInfo.h"
 #include "Frontend.h"
 #include "Graphics.h"
@@ -121,6 +122,20 @@ int g_unk0x00538114;
 int g_unk0x00538118;
 // GLOBAL: CMR2 0x0053811c
 BYTE g_unk0x0053811c;
+// GLOBAL: CMR2 0x00537f00
+int g_unk0x00537f00;
+// GLOBAL: CMR2 0x00537f34
+int g_unk0x00537f34[2];
+// GLOBAL: CMR2 0x00537f98
+int g_unk0x00537f98[8];
+// GLOBAL: CMR2 0x00537fbc
+BYTE g_unk0x00537fbc[2];
+// GLOBAL: CMR2 0x00537fcc
+int g_unk0x00537fcc;
+// GLOBAL: CMR2 0x00537ff8
+BYTE g_unk0x00537ff8[2];
+// GLOBAL: CMR2 0x00538128
+int g_unk0x00538128;
 // GLOBAL: CMR2 0x0053823c
 char g_unk0x0053823c[MAX_PATH];
 // GLOBAL: CMR2 0x00538340
@@ -144,6 +159,12 @@ int g_unk0x00538110;
 char g_str0x005192d4[] = "%sL.rpl";
 // GLOBAL: CMR2 0x005192dc
 char g_str0x005192dc[] = "%sH.rpl";
+// GLOBAL: CMR2 0x005192b0
+char g_strGrp0x005192b0[] = "%s.grp";
+// GLOBAL: CMR2 0x00519228
+int g_unk0x00519228 = -1;
+// GLOBAL: CMR2 0x0051922c
+int g_unk0x0051922c = -1;
 // GLOBAL: CMR2 0x0051948c
 char g_strTempC3D[] = "TEMP.C3D";
 
@@ -1569,7 +1590,7 @@ void FUN_0041f2b0(void);
 void FUN_0040ad20(void);
 unsigned int FUN_00409cb0(int);
 unsigned int FUN_0040a450(int);
-void FUN_00421720(int, int, int, int, int);
+void FUN_00421720(int, int, int, BYTE, int);
 void FUN_00427890(void);
 void FUN_004283e0(BYTE, FadeCallback, int, int, int, char);
 void FUN_00428410(BYTE, int, FadeCallback, int, int, int, int, char);
@@ -1587,6 +1608,139 @@ extern BYTE g_unk0x0053811f;
 int g_unk0x005191a4 = 0xacb49c;
 // GLOBAL: CMR2 0x00537fd8
 int g_unk0x00537fd8[8];
+
+unsigned int RallyData_FUN_004082e0(void);
+BYTE FUN_004582b0(int index);
+BYTE FUN_00448ca0(void);
+int FUN_00487130(void);
+int FUN_004582f0(int index);
+int FUN_004481c0(int car);
+void FUN_00448630(int index);
+int FUN_00406770(void);
+void FUN_0040ac40(BYTE carClass);
+void FUN_00469a80(int car);
+void FUN_00478150(int index);
+int FUN_004483c0(int index);
+int FUN_00448550(void);
+void FUN_00427950(int time);
+void FUN_0040af00(unsigned int time);
+extern int g_unk0x00537f30;
+extern BYTE g_unk0x0053811d;
+extern BYTE g_unk0x0053811e;
+extern BYTE g_unk0x00538120;
+
+// Per-driver in-race update of the pre-race countdown: tracks whether the field
+// has settled, advances the race-slot bookkeeping and drives the fade-out.
+// FUNCTION: CMR2 0x0041d7a0
+void FUN_0041d7a0(int param1, unsigned int param2)
+{
+    unsigned int index;
+    unsigned int cond;
+    char flag;
+    int i;
+    int j;
+    int t;
+
+    index = param2 & 0xff;
+    FUN_00478150(index);
+    flag = FUN_004582b0(index);
+    if ((char)RallyData_FUN_004082e0() != 0 && (char)FUN_00448ca0() != 0)
+        flag = 1;
+    if ((char)RallyData_FUN_00407e90() != 0 && CGameInfo::FUN_00405e00() == 0 && FUN_00487130() != 0) {
+        i = FUN_004582f0(1);
+        j = FUN_004582f0(0);
+        if (abs(j - i) < 3) {
+            i = FUN_004481c0(1);
+            j = FUN_004481c0(0);
+            g_unk0x005191a0 = (j < i);
+            if (index == (int)(char)g_unk0x005191a0) {
+                FUN_00448630(index);
+                g_unk0x00537fbc[index] = 1;
+                flag = 1;
+            }
+        }
+    }
+    g_unk0x0053811e = 0;
+    g_unk0x0053811f = 0;
+    if (CGameInfo::FUN_00405e00() != 0) {
+        if (FUN_00406770() > -1) {
+            if (CGameInfo::FUN_00405d80() != 10) {
+                if (CGameInfo::FUN_00405d80() != 12) {
+                    if (g_unk0x0053811d != 0) {
+                        t = CMain::GetFrameDelta() - g_unk0x00537f30;
+                        if ((unsigned int)t > (unsigned int)(FUN_00406770() * 100))
+                            g_unk0x0053811e = 1;
+                    } else {
+                        for (i = 0; i < 7; i++) {
+                            if ((char)FUN_00409cb0(i) != 0 && (char)FUN_0040a450(i) != 0) {
+                                g_unk0x0053811d = 1;
+                                if (g_unk0x00538120 == 0) {
+                                    g_unk0x00538120 = 1;
+                                    g_unk0x00537f30 = CMain::GetFrameDelta();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12) {
+            if (CGameInfo::FUN_00405d80() == 12)
+                flag = 0;
+            t = FUN_0040af30();
+            if ((unsigned int)(CMain::GetFrameDelta() - t) > (unsigned int)(FUN_00406710() * 6000) &&
+                FUN_004a15a0() != 0 && FUN_00406710() != 0) {
+                if (g_unk0x00538100 != 0)
+                    goto fade;
+                g_unk0x0053811f = 1;
+                FUN_0040af40();
+                g_unk0x00538100 = 1;
+                FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005191a4, 1);
+            }
+        }
+        if (g_unk0x00538100 != 0) {
+fade:
+            FUN_0041c5a0(*(BYTE *)(*(int *)(param1 + 4) + index * 8), 1);
+            return;
+        }
+    }
+    if (flag != 0 || FUN_004d0580() != 0 || g_unk0x0053811e != 0) {
+        if (CGameInfo::FUN_00405e00() != 0)
+            FUN_0040ac40(3);
+        g_unk0x00537f78[4] = g_unk0x00537f78[4] + 1;
+        g_unk0x00537f98[index] = 1;
+        FUN_00469a80(index);
+        g_unk0x00537f34[index] = CMain::GetFrameDelta();
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    }
+    index = RallyDataState();
+    cond = (g_unk0x00537f78[4] == (index & 0xff));
+    if (CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() == 10)
+        cond = (unsigned char)flag;
+    if ((char)param2 == 0) {
+        FUN_0041c5a0(*(BYTE *)(*(int *)(param1 + 4)), cond);
+        if (cond == 0) {
+            if (FUN_004d0580() == 0)
+                goto done;
+        }
+        if (CGameInfo::FUN_00405e00() != 0) {
+            FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+            if (g_unk0x0053811f == 0) {
+                FUN_00427950(g_unk0x0053811e != 0 ? FUN_00448550() : FUN_004483c0(0));
+                if (g_unk0x00538120 == 0) {
+                    if (FUN_00406770() > -1) {
+                        g_unk0x00538120 = 1;
+                        g_unk0x00537f30 = CMain::GetFrameDelta();
+                    }
+                }
+                FUN_0040af00(FUN_004483c0(0));
+            }
+        }
+    }
+done:
+    if (flag != 0)
+        FUN_00421720(param2, 7, 0xffff, FUN_00422fb0(param2), 0);
+}
 
 // Waits for the inter-stage fade of a special stage (mode 10) and otherwise
 // re-arms the per-player fade jobs of the in-race menu.
