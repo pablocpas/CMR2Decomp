@@ -4208,6 +4208,73 @@ FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car)
     return pOut;
 }
 
+int RallyData_FUN_00421500(void);
+void RallyData_FUN_00421530(int index, int *pOut);
+int StageObject_UsesExtendedMode(void);
+
+// Relative position of the current car against every other car in the race
+// order: returns 1 as soon as one overlaps it (distance below the sum of the
+// two body radii), keeping the relative position in 0x53ca58 and its largest
+// absolute component in 0x53ca24.
+// GLOBAL: CMR2 0x0053c9c4
+int g_unk0x0053c9c4;
+// GLOBAL: CMR2 0x0053ca24
+int g_unk0x0053ca24;
+// GLOBAL: CMR2 0x0053ca58
+FixVector g_unk0x0053ca58;
+// GLOBAL: CMR2 0x0053cae8
+FixVector g_unk0x0053cae8;
+// match 69%: same logic; MSVC kept the loop counter in the parameter slot and
+// in EDI in the original, and in ESI here (register numbering).
+// FUNCTION: CMR2 0x00431d80
+int FUN_00431d80(int param_1)
+{
+    short *pOrder;
+    short count;
+    short i;
+    int result;
+    Car *pOther;
+    int inv;
+
+    result = 0;
+    if (param_1 == 0 && RallyData_FUN_00421500() == 0)
+        return 0;
+    pOrder = Car_GetOrder();
+    count = Car_GetOrderCount();
+    RallyData_FUN_00421530(param_1, (int *)&g_unk0x0053cae8);
+    for (i = 0; i < count; i++) {
+        pOther = Car_Get(pOrder[i]);
+        if (pOther->field_0xb1a != g_pCurrentCar->field_0xb1a && StageObject_UsesExtendedMode() != 0) {
+            g_unk0x0053ca58.x = g_unk0x0053cae8.x - pOther->position.x;
+            g_unk0x0053ca58.y = g_unk0x0053cae8.y - pOther->position.y;
+            g_unk0x0053ca58.z = g_unk0x0053cae8.z - pOther->position.z;
+            if (FIX_ABS(g_unk0x0053ca58.x) > FIX_ABS(g_unk0x0053ca58.y) &&
+                FIX_ABS(g_unk0x0053ca58.x) > FIX_ABS(g_unk0x0053ca58.z))
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.x);
+            else if (FIX_ABS(g_unk0x0053ca58.y) > FIX_ABS(g_unk0x0053ca58.x) &&
+                     FIX_ABS(g_unk0x0053ca58.y) > FIX_ABS(g_unk0x0053ca58.z))
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.y);
+            else
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.z);
+            if (g_unk0x0053ca24 != 0) {
+                inv = (int)(0x100000000 / (__int64)g_unk0x0053ca24);
+                g_unk0x0053ca58.x = FixMul(g_unk0x0053ca58.x, inv);
+                g_unk0x0053ca58.y = FixMul(g_unk0x0053ca58.y, inv);
+                g_unk0x0053ca58.z = FixMul(g_unk0x0053ca58.z, inv);
+            }
+            g_unk0x0053c9c4 = FixSqrt(FixMul(g_unk0x0053ca58.x, g_unk0x0053ca58.x) +
+                                      FixMul(g_unk0x0053ca58.y, g_unk0x0053ca58.y) +
+                                      FixMul(g_unk0x0053ca58.z, g_unk0x0053ca58.z));
+            g_unk0x0053c9c4 = FixMul(g_unk0x0053c9c4, g_unk0x0053ca24);
+            if (g_unk0x0053c9c4 < *(int *)pOther->field_0x758 + *(int *)g_pCurrentCar->field_0x758) {
+                result = 1;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 // Counts the current car's wheels near the ground and shares its weight out.
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00432b30

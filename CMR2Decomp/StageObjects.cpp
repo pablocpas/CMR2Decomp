@@ -2254,6 +2254,67 @@ void FUN_00492900(int value)
     g_unk0x00592134 = value;
 }
 
+extern Mesh *g_stageMesh2Copy;
+extern short g_stageMesh2Count;
+// GLOBAL: CMR2 0x005920fc
+int g_unk0x005920fc;
+// GLOBAL: CMR2 0x00592100
+int g_unk0x00592100;
+// GLOBAL: CMR2 0x00592104
+int g_unk0x00592104;
+
+// Finds the vertex of stage mesh 2 closest to g_unk0x00592114 within a radius
+// that shrinks to the best distance found so far, caches its stage-space
+// position in 0x5920fc/0x592100/0x592104 and returns its index (-1 if none).
+// match 53%: same logic; MSVC laid the locals out in different stack slots and
+// kept the delta in different registers (the pointer pair to the delta local
+// comes from the original's FixMul argument materialisation).
+// FUNCTION: CMR2 0x00492910
+int FUN_00492910(void)
+{
+    int obj[2];
+    FixVector delta;
+    FixVector vert;
+    int dx;
+    int dy;
+    int dz;
+    int dist;
+    int limit;
+    int best;
+    int i;
+    BYTE *pVertices;
+
+    limit = 0x640000;
+    best = -1;
+    if (g_stageMesh2Count <= 0)
+        return -1;
+    FUN_0046f4e0(&obj[0], &obj[1]);
+    FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, (FixMatrix *)(obj[1] + 0x98));
+    for (i = 0; i < g_stageMesh2Count; i++) {
+        pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
+        vert.x = (int)(__int64)(*(float *)(pVertices + i * 0x30) * CGraphics::m_65536);
+        vert.y = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 4) * CGraphics::m_65536);
+        vert.z = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 8) * CGraphics::m_65536);
+        dx = delta.x - vert.x;
+        dy = delta.y - vert.y;
+        dz = delta.z - vert.z;
+        if (FIX_ABS(dx) <= limit && FIX_ABS(dy) <= limit && FIX_ABS(dz) <= limit) {
+            dist = FixMul(dx, dx) + FixMul(dy, dy) + FixMul(dz, dz);
+            if (dist <= 0x27100000) {
+                limit = FixSqrt(dist);
+                best = i;
+            }
+        }
+    }
+    if (best == -1)
+        return -1;
+    pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
+    g_unk0x005920fc = (int)(__int64)(*(float *)(pVertices + best * 0x30) * CGraphics::m_65536);
+    g_unk0x00592100 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 4) * CGraphics::m_65536);
+    g_unk0x00592104 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 8) * CGraphics::m_65536);
+    return best;
+}
+
 // FUNCTION: CMR2 0x00492bb0
 void FUN_00492bb0(int *pOut)
 {
