@@ -3214,12 +3214,14 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
     }
 }
 
+extern const float g_netOne;
+
 // Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b2e20
 void __cdecl FUN_004b2e20(void)
 {
-    g_unk0x006dfdf8 = 1.0f - g_unk0x005210d0;
+    g_unk0x006dfdf8 = g_netOne - g_unk0x005210d0;
 }
 
 #pragma data_seg(".CRT$XCU")
