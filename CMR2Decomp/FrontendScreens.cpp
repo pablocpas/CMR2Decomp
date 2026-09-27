@@ -1769,6 +1769,44 @@ void FUN_004ecd60(Menu *pMenu, int param)
     }
 }
 
+BYTE FUN_004ea920(void);
+int FUN_004a0ec0(char *pSessionName, char *pPassword, DWORD user1, DWORD user2, DWORD user3,
+                 DWORD user4, DWORD maxPlayers);
+
+// Item action of the network session menu: refreshes the session data and
+// starts the DirectPlay session, restoring the window when the game had left
+// it hidden for the network dialog.
+// FUNCTION: CMR2 0x004ecea0
+void FUN_004ecea0(Menu *pMenu, int param)
+{
+    g_unk0x00818ef4 = 0;
+    g_unk0x00818ce4 = 1;
+    FUN_00409a30();
+    FUN_004d05f0();
+    FUN_004ea8e0(FUN_004ea920());
+    if (g_unk0x00818d04 == 0) {
+        g_pGraphics->pDD7->FlipToGDISurface();
+        ShowCursor(1);
+    }
+    if (FUN_004a0ec0(CGameInfo::FUN_00406690(), CGameInfo::FUN_004066d0(),
+                     CGameInfo::FUN_00405d80() & 0xff, 0, 0, 0, 8) != 0) {
+        if (g_unk0x00818d04 == 0) {
+            ShowCursor(0);
+            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
+            g_unk0x00818d04 = 1;
+        }
+        if (FUN_004eca10() != 0) {
+            Menu_SetNextAction((int)FUN_004f8460());
+            return;
+        }
+    } else {
+        if (g_unk0x00818d04 == 0) {
+            ShowCursor(0);
+            ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
+        }
+    }
+}
+
 bool FUN_004aac40(BYTE param1);
 
 // Item action of the network leaderboard list: goes on to the leaderboard of
@@ -2661,6 +2699,23 @@ void FUN_004ef4e0(Menu *pMenu)
 }
 
 void FUN_004d2070(BYTE param1, BYTE param2, BYTE param3);
+
+// Callback of the rally options screen: arms the rally data flag from the game
+// mode and then either starts a fresh session or requests the screen change.
+// FUNCTION: CMR2 0x004ef590
+void FUN_004ef590(Menu *pMenu)
+{
+    if (CGameInfo::FUN_00405d70() == 2 && CGameInfo::FUN_00405d80() == 6)
+        RallyData_FUN_0040e330(1);
+    else
+        RallyData_FUN_0040e330(0);
+    if (CGameInfo::FUN_00406320() != 0) {
+        FUN_004e9e40();
+        FUN_004d2070(0, 0, 1);
+    } else {
+        FUN_004d2070(1, 0, 0);
+    }
+}
 
 // Callback that clears the debug overlay channels.
 // FUNCTION: CMR2 0x004ef5e0

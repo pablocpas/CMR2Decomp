@@ -8162,6 +8162,27 @@ void FUN_0050fd30(int param_1)
     } while (--count);
 }
 
+// Startup (.CRT$XCU) initializer: caches the render resolution in the globals
+// the 2D drawing code reads.
+// FUNCTION: CMR2 0x0050fdd0
+void __cdecl FUN_0050fdd0(void)
+{
+    g_unk0x00831c60 = g_pGraphics->resX;
+    g_unk0x00831c64 = g_pGraphics->resY;
+}
+
+// Startup (.CRT$XCU) initializer registered in the startup table. The linker
+// folds it into a jump to the identical initializer above (both are reached).
+// FUNCTION: CMR2 0x0050fdc0
+void __cdecl FUN_0050fdc0(void)
+{
+    FUN_0050fdd0();
+}
+
+#pragma data_seg(".CRT$XCU")
+static void (__cdecl *s_resolutionInit)(void) = FUN_0050fdc0;
+#pragma data_seg()
+
 // Draws the title of the screen: the text table string is formatted into the
 // shared buffer, right aligned at 0x140/0x280 of the resolution.
 // FUNCTION: CMR2 0x0050e1c0
