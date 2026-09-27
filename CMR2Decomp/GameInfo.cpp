@@ -4650,6 +4650,448 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
 void FUN_00423010(int view, int start);
 extern BYTE g_unk0x0052af58[2];
 
+// ---------------------------------------------------------------------------
+// In-race network menu: the drawing helpers and the menu constructors.
+
+// Colours the in-race menu text and the selected/unselected sprites use.
+// GLOBAL: CMR2 0x00516074
+int g_unk0x00516074 = 0xfffafafa;
+// GLOBAL: CMR2 0x00516078
+int g_unk0x00516078 = 0xffdbaca7;
+// GLOBAL: CMR2 0x00516084
+int g_unk0x00516084 = 0x80fafafa;
+// GLOBAL: CMR2 0x0051608c
+int g_unk0x0051608c = 0xbfae8072;
+
+void FUN_00401590(Menu *pMenu, int param);
+void FUN_00401630(Menu *pMenu, int param);
+void FUN_00401780(Menu *pMenu, int param);
+void FUN_004017e0(Menu *pMenu, int param);
+void FUN_00401d20(Menu *pMenu);
+void FUN_004028d0(Menu *pMenu);
+extern char g_classRowHeaderFormat[];
+void FUN_004ffa70(int unused, int unused2);
+void FUN_004ffab0(unsigned int);
+void FUN_004ffed0(unsigned int, unsigned int);
+void FUN_004fffe0(unsigned int, unsigned int);
+void FUN_005000b0(int unused, int unused2);
+void FUN_00500100(int param1, int param2);
+void FUN_00500110(int unused, int unused2);
+void FUN_00500190(BYTE *pItem, int unused);
+void FUN_00500210(Menu *pMenu, char param);
+void FUN_00502240(void);
+void FUN_005022a0(void);
+void FUN_00502440(void);
+void FUN_005024a0(void);
+void FUN_0050a080(void);
+void FUN_0050a3c0(void);
+void FUN_0050eba0(unsigned int);
+void FUN_00502310(void);
+
+// Draws the header of the in-race menu bar: the car count above the bar and
+// the bar itself.
+// FUNCTION: CMR2 0x00401b60
+void FUN_00401b60(void)
+{
+    short rect[4];
+    int x;
+    int y;
+    int count;
+
+    x = (int)(g_pGraphics->resX * 0x1f) / 0x280;
+    count = (FUN_0041b370() & 0xff) + (*(int *)g_unk0x0052af58 & 0xff) + 1;
+    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x98), count);
+    Font_DrawText(2, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 0x45) / 0x1e0,
+                  &g_unk0x00516074, 0x11);
+    y = (int)(g_pGraphics->resY * 10) / 0x1e0 + x
+        + Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    rect[0] = (short)y;
+    rect[2] = 1;
+    rect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x2d) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x00516074, 2);
+    rect[0] = rect[0] + 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x00516084, 2);
+    Font_DrawText(2, CFrontend::GetTextString(0x18), y + (int)(g_pGraphics->resY * 10) / 0x1e0,
+                  (int)(g_pGraphics->resY * 0x45) / 0x1e0, &g_unk0x00516074, 0x11);
+}
+
+// Draws the list of an in-race menu (0x402c90) with the selected row in a
+// brighter colour; the third row is left blank.
+// FUNCTION: CMR2 0x00401870
+void FUN_00401870(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    int i;
+    int y;
+    int string1;
+    int string2;
+    int *pColour;
+    int texture;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
+    pItem = pMenu->items;
+    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+        rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+        if (i != 2) {
+            string1 = pItem->stringId;
+            string2 = string1;
+            if (string1 == 0) {
+                string1 = (int)CFrontend::GetTextString(pItem->id);
+                string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+            }
+            if (pMenu->cursor == i) {
+                Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                              &g_unk0x00516074, 0x11);
+                Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                              (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
+            } else {
+                Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                              &g_unk0x00516078, 0x11);
+                Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                              (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
+            }
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
+                         2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
+        }
+    }
+    Font_SetBlendMode(2);
+}
+
+// Draws every row of an in-race menu (no blank row), selected row brighter.
+// FUNCTION: CMR2 0x00401d20
+void FUN_00401d20(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    int i;
+    int y;
+    int string1;
+    int string2;
+    int *pColour;
+    int texture;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
+    pItem = pMenu->items;
+    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+        rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+        string1 = pItem->stringId;
+        string2 = string1;
+        if (string1 == 0) {
+            string1 = (int)CFrontend::GetTextString(pItem->id);
+            string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+        }
+        if (pMenu->cursor == i) {
+            Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                          &g_unk0x00516074, 0x11);
+            Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
+            pColour = &g_unk0x00516074;
+            texture = g_unk0x0052aa60;
+        } else {
+            Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                          &g_unk0x00516078, 0x11);
+            Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                          (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
+            pColour = &g_unk0x00516078;
+            texture = g_unk0x0052aa68;
+        }
+        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
+                     2, 0, NULL, NULL, (BYTE *)pColour, 8);
+        y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
+    }
+    Font_SetBlendMode(2);
+}
+
+// Draws the player/class rows of the option menu: the class header (name plus
+// its percentage) and the sprite behind each row.
+// FUNCTION: CMR2 0x004028d0
+void FUN_004028d0(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    int i;
+    int *pColour;
+    char *text;
+    short type;
+    int texture;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    pItem = pMenu->items;
+    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+        pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+        type = pItem->value;
+        if (type >= 0 && (type < 3 || type == 4)) {
+            if (type < 3) {
+                sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat,
+                        CFrontend::GetTextString(pItem->id), pItem->max * 10);
+                text = CFrontend::m_stringDest;
+            } else {
+                text = CFrontend::GetTextString(pItem->id);
+            }
+            Font_DrawText(1, text, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                          (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                              + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
+                          pColour, 0x11);
+        }
+        rect[1] = (short)(((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                           + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i)
+                          - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+        if (pMenu->cursor == i) {
+            pColour = &g_unk0x00516074;
+            texture = g_unk0x0052aa60;
+        } else {
+            pColour = &g_unk0x00516078;
+            texture = g_unk0x0052aa68;
+        }
+        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
+                     2, 0, NULL, NULL, (BYTE *)pColour, 8);
+    }
+    Font_SetBlendMode(2);
+}
+
+// Rebuilds the main in-race menu. When param is non-zero it keeps the value of
+// the item currently under the cursor and re-selects it.
+// FUNCTION: CMR2 0x00402c90
+void FUN_00402c90(int param)
+{
+    char flag;
+    int value;
+    int index;
+    short id;
+
+    FUN_00402c40();
+    g_unk0x0052a0b8 = 0;
+    flag = (char)param;
+    if (flag != 0)
+        value = (int)g_menu0x0052ad60.items[g_menu0x0052ad60.cursor].value;
+    else
+        value = param;
+    Menu_Init(&g_menu0x0052ad60, 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x0052ad60, 0, 9,
+                      (char)RallyDataState() == 1 ? &g_menu0x00529ed8 : &g_menu0x00529918, 0, 0);
+    Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xb, &g_menu0x0052a670, 0, 1);
+    Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xd, &g_menu0x0052a490, 0, 2);
+    if (CGameInfo::FUN_00405e00() != 0) {
+        if ((FUN_004a15a0() != 0 && CGameInfo::FUN_00405d80() != 0xc) ||
+            (FUN_004a15a0() == 0 && CGameInfo::FUN_00405d80() == 0xa))
+            Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf, &g_menu0x00529af8, 0, 3);
+        if (FUN_004a15a0() != 0)
+            Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf6, &g_menu0x0052a2a8, 0, 5);
+    } else {
+        Menu_AddItemType2(&g_menu0x0052ad60, 0, 0xf, &g_menu0x00529af8, 0, 3);
+    }
+    Menu_AddItemType2(&g_menu0x0052ad60, 0, 0x11, &g_menu0x0052a0c0, 0, 6);
+    Menu_AddItemType4(&g_menu0x0052ad60, 0, 0x13, (int)FUN_00401850, 7);
+    Menu_SetCallbacks(&g_menu0x0052ad60, (MenuCallback)FUN_00402bb0, (MenuCallback)FUN_00402bf0,
+                      (MenuCallback)FUN_00401870, NULL);
+    if (flag != 0)
+        Menu_SelectItem(&g_menu0x0052ad60, value);
+    else
+        Menu_ValidateCursor(&g_menu0x0052ad60, 0);
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+    case 1:
+    case 8:
+        id = 0x25;
+        break;
+    case 2:
+    case 3:
+    case 9:
+    case 10:
+        id = 0x23;
+        break;
+    case 4:
+        id = 0x27;
+        break;
+    case 5:
+        id = 0x2b;
+        break;
+    case 6:
+    case 7:
+    case 0xb:
+    case 0xc:
+        id = 0x29;
+        break;
+    default:
+        id = (short)param;
+        break;
+    }
+    index = Menu_FindItem(&g_menu0x0052ad60, 3);
+    g_menu0x0052ad60.items[index].id = id;
+    index = Menu_FindItem(&g_menu0x00529af8, 3);
+    g_menu0x00529af8.items[index].id = id;
+}
+
+// Builds the sound options submenu (the three volume sliders).
+// FUNCTION: CMR2 0x004032a0
+void FUN_004032a0(void)
+{
+    Menu_Init(&g_menu0x0052a670, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x19, 0xb, 10, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1a, 0xb, 10, 0, 0, 0, 1);
+    if (FUN_004174d0())
+        Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1b, 0xb, 10, 0, 0, 0, 2);
+    Menu_AddItemType2(&g_menu0x0052a670, 0, 0x3b, &g_menu0x0052ad60, 0, 4);
+    Menu_SetCallbacks(&g_menu0x0052a670, (MenuCallback)FUN_004012d0, (MenuCallback)FUN_00401380,
+                      (MenuCallback)FUN_004028d0, (MenuCallback)FUN_00401420);
+    Menu_ValidateCursor(&g_menu0x0052a670, 0);
+}
+
+// Builds the in-race pause menu.
+// FUNCTION: CMR2 0x00403370
+void FUN_00403370(void)
+{
+    Menu_Init(&g_menu0x00529af8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_menu0x00529af8, 0, 0xf, (int)FUN_00401590, 3);
+    if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 3 ||
+        CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 9)
+        Menu_AddItemType4(&g_menu0x00529af8, 0, 0x8b, (int)FUN_00401630, 4);
+    Menu_AddItemType1(&g_menu0x00529af8, 0, 0xa6, 0, -1);
+    Menu_SetCallbacks(&g_menu0x00529af8, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+                      NULL);
+    Menu_ValidateCursor(&g_menu0x00529af8, 0);
+}
+
+// Builds the "quit" submenu of the pause menu.
+// FUNCTION: CMR2 0x00403420
+void FUN_00403420(void)
+{
+    Menu_Init(&g_menu0x0052a2a8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_menu0x0052a2a8, 0, 0xf6, (int)FUN_004017e0, 3);
+    Menu_AddItemType1(&g_menu0x0052a2a8, 0, 0xa6, 0, -1);
+    Menu_SetCallbacks(&g_menu0x0052a2a8, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+                      NULL);
+    Menu_ValidateCursor(&g_menu0x0052a2a8, 0);
+}
+
+// Builds the "leave" submenu of the pause menu.
+// FUNCTION: CMR2 0x00403490
+void FUN_00403490(void)
+{
+    Menu_Init(&g_menu0x0052a0c0, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
+    Menu_AddItemType4(&g_menu0x0052a0c0, 0, 0xa8, (int)FUN_00401780, 3);
+    Menu_AddItemType1(&g_menu0x0052a0c0, 0, 0xaa, 0, -1);
+    Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
+                      NULL);
+    Menu_ValidateCursor(&g_menu0x0052a0c0, 0);
+}
+
+// Builds the options submenu of the pause menu.
+// FUNCTION: CMR2 0x00403550
+void FUN_00403550(void)
+{
+    Menu_Init(&g_menu0x00529918, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00529918, 0, 0x58, &g_menu0x00529ed8, (int)FUN_004035d0, 0);
+    Menu_AddItemType2(&g_menu0x00529918, 0, 0x5a, &g_menu0x00529ed8, (int)FUN_004035d0, 1);
+    Menu_SetCallbacks(&g_menu0x00529918, NULL, NULL, (MenuCallback)FUN_00401870, NULL);
+    Menu_ValidateCursor(&g_menu0x00529918, 0);
+}
+
+// Printed when the weather/damage/car setup was re-initialised.
+// GLOBAL: CMR2 0x00527004
+char g_strNeedReinitWeather[] = "Need to re-initialise weather, damage and car setup\n";
+
+void FUN_00406820(void);
+BYTE RallyData_FUN_00406920(void);
+void RallyData_FUN_004068d0(char param1);
+void RallyData_FUN_00408290(void);
+void FUN_0040dc30(void);
+
+// Re-initialises the weather/damage/car setup when the country or stage index
+// changed, unless the race is already running.
+// FUNCTION: CMR2 0x00500c00
+void FUN_00500c00(void)
+{
+    unsigned short b;
+    short c;
+
+    b = (unsigned short)RallyDataCountryIndex();
+    c = (short)RallyData_FUN_00406920();
+    if (b != c) {
+        puts(g_strNeedReinitWeather);
+        if (CGameInfo::FUN_00405d80() != 2 && CGameInfo::FUN_00405d80() != 8 &&
+            CGameInfo::FUN_00405d80() != 9 && CGameInfo::FUN_00405d80() != 0xa &&
+            CGameInfo::FUN_00405d80() != 0xb && CGameInfo::FUN_00405d80() != 0xc)
+            FUN_0040dc30();
+        FUN_00406820();
+        RallyData_FUN_00408290();
+        RallyData_FUN_004068d0((char)b);
+    }
+}
+
+// Rebuilds the options menu (record list plus the owner's help text).
+// FUNCTION: CMR2 0x00502310
+void FUN_00502310(void)
+{
+    Menu_Init((Menu *)g_unk0x0082b668, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x48, (BYTE)CGameInfo::FUN_00501230(), 0, 0, 0,
+                      (int)FUN_00500100, 0);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x47, 7, 0, 1, 0, (int)FUN_005000b0, 1);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x46, 0xb, 0, 1, 0, (int)FUN_004fffe0, 2);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (int)FUN_00500110, 3);
+    if (CGameInfo::FUN_00405d80() == 0)
+        Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)FUN_004ffed0, 4);
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)FUN_00500190, 5);
+    Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)FUN_004ffa70, (MenuCallback)FUN_004ffab0,
+                      (MenuCallback)FUN_0050eba0, (MenuCallback)FUN_00500210);
+    Menu_ValidateCursor((Menu *)g_unk0x0082b668, 0);
+    FUN_004ff4e0();
+    FUN_0050a080();
+    FUN_0050a3c0();
+    Menu_SetFlags((Menu *)g_unk0x0082b668, 0, 0, 0, 0);
+}
+
+// Builds the in-race option menus and switches the active menu to the first one.
+// FUNCTION: CMR2 0x0050f180
+void FUN_0050f180(void)
+{
+    FUN_004a0ba0();
+    FUN_00502310();
+    FUN_005024a0();
+    FUN_00502440();
+    FUN_00502240();
+    FUN_005022a0();
+    g_pMenu0x00831778 = NULL;
+    g_pMenu0x0083177c = (Menu *)FUN_00502500();
+}
+
+
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404ef0
 void FUN_00404ef0(void)

@@ -13,14 +13,5 @@ void FUN_0049d3f0(int, int, void *, int, int) { }
 // STUB: CMR2 0x004b9380
 void FUN_004b9380(unsigned int, unsigned int, unsigned int) { }
 
-// STUB: CMR2 0x00500c00
-void FUN_00500c00(void) { }
-
-// STUB: CMR2 0x00502310
-void FUN_00502310(void) { }
-
 // STUB: CMR2 0x005062d0
 void FUN_005062d0(unsigned int) { }
-
-// STUB: CMR2 0x0050f180
-void FUN_0050f180(void) { }
