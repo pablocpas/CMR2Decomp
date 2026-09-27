@@ -1609,6 +1609,133 @@ void FUN_00466490(void)
     g_unk0x00588868 = 1;
 }
 
+// GLOBAL: CMR2 0x0058896c
+int g_unk0x0058896c;
+
+unsigned int RallyData_FUN_00407e70(void);
+BYTE FUN_00422fb0(unsigned int index);
+int FUN_0041f3a0(void);
+void FUN_00494db0(Car *pCar, int view);
+void FUN_00460330(int a, int b);
+void FUN_00485690(short *pOrder, short count, int view);
+void FUN_0047f740(void);
+
+// Updates the "damaged / off-road" state of every car in the given order.
+// FUNCTION: CMR2 0x00466570
+void FUN_00466570(short *param_1, short param_2, int param_3, int param_4)
+{
+    short *p;
+    Car *pCar;
+    int i;
+
+    i = 0;
+    if ((int)param_2 > 0) {
+        p = param_1;
+        do {
+            pCar = Car_Get(*p);
+            if (*(int *)((BYTE *)pCar + 0xc0c) == 0 &&
+                *(int *)((BYTE *)pCar + 0xb68 + param_4 * 4) == 0) {
+                if (FUN_0041f3a0() != 0) {
+                    if ((char)RallyData_FUN_00407e90() || (char)RallyData_FUN_00407e70() ||
+                        (unsigned int)i == (FUN_00422fb0(1) & 0xff))
+                        FUN_00494db0(pCar, 1);
+                } else if (FUN_0046bd20(*(char *)((BYTE *)pCar + 0xb1a), param_4) != 7) {
+                    FUN_00494db0(pCar, param_4);
+                }
+            }
+            i = i + 1;
+            p = p + 1;
+        } while (i < (int)param_2);
+    }
+    FUN_00485690(param_1, param_2, param_4);
+    FUN_00460330(param_3, param_4);
+    if (g_unk0x0058896c != 0)
+        FUN_0047f740();
+}
+
+// Fixed-point to float conversion factors and the fade thresholds of the
+// stage object lighting.
+// GLOBAL: CMR2 0x00511378
+extern const float g_unk0x00511378 = 5.0f;
+// GLOBAL: CMR2 0x005113d0
+extern const float g_unk0x005113d0 = 1.0f / 45.0f;
+// GLOBAL: CMR2 0x005113dc
+extern const float g_unk0x005113dc = 480.0f;
+// GLOBAL: CMR2 0x005113e0
+extern const float g_unk0x005113e0 = 640.0f;
+
+extern const float g_netZero;
+extern const float g_netByteScale;
+extern const float g_netOne;
+
+int FUN_00422f50(unsigned int index);
+
+// Fades a stage object in and out from the screen distance between two
+// projected points of the player's car.
+// FUNCTION: CMR2 0x00466100
+void FUN_00466100(int param_1)
+{
+    Car *pCar;
+    BYTE *pView;
+    FixVector pos;
+    FixVector dir;
+    int screen[2];
+    float f2;
+    float f4;
+    float f1;
+    int alpha;
+
+    pCar = Car_Get(1);
+    pView = (BYTE *)g_viewNodes[param_1];
+    FixMatrix_GetPosition(&pos, (FixMatrix *)((BYTE *)pCar->pNode0x71c + 0x98));
+    pos.y = pos.y + 0x10000;
+    FUN_004bad40(screen, &pos, pView);
+    if (screen[0] != -0x640000 || screen[1] != -0x640000) {
+        f2 = (float)(screen[0] * CGraphics::m_oneOver65536);
+        f4 = (float)(screen[1] * CGraphics::m_oneOver65536);
+        FixMatrix_GetUp(&dir, (FixMatrix *)(pView + 0x98));
+        dir.x = dir.x + pos.x;
+        dir.y = dir.y + pos.y;
+        dir.z = dir.z + pos.z;
+        FUN_004bad40(screen, &dir, pView);
+        if (screen[0] != -0x640000 || screen[1] != -0x640000) {
+            f1 = ((float)(screen[0] * CGraphics::m_oneOver65536) - f2) * g_unk0x005113e0 /
+                 (float)*(int *)g_pGraphics;
+            f2 = ((float)(screen[1] * CGraphics::m_oneOver65536) - f4) * g_unk0x005113dc /
+                 (float)*(int *)((BYTE *)g_pGraphics + 4);
+            f1 = (float)sqrt(f1 * f1 + f2 * f2);
+            if (f1 <= g_unk0x00511378)
+                return;
+            f1 = g_netOne - (f1 - g_unk0x00511378) * g_unk0x005113d0;
+            if (f1 < g_netOne) {
+                if (g_netZero < f1)
+                    alpha = (int)(__int64)(f1 * g_netByteScale);
+                else
+                    alpha = 0;
+            } else {
+                alpha = 0xff;
+            }
+            if (FUN_00422f50(param_1) == 7)
+                alpha = 0x80;
+            if (alpha == g_unk0x00588864)
+                return;
+            FUN_00465ec0(pCar->pNode0x71c, alpha, 0);
+            FUN_00465f20(pCar->pNode0x71c->pFirstChild, alpha, 0);
+            FUN_00465ec0(pCar->pNode0x720, alpha, 0);
+            FUN_00465f20(pCar->pNode0x720->pFirstChild, alpha, 0);
+            g_unk0x00588864 = alpha;
+            return;
+        }
+    }
+    if (g_unk0x00588864 == 0)
+        return;
+    FUN_00465ec0(pCar->pNode0x71c, 0, 0);
+    FUN_00465f20(pCar->pNode0x71c->pFirstChild, 0, 0);
+    FUN_00465ec0(pCar->pNode0x720, 0, 0);
+    FUN_00465f20(pCar->pNode0x720->pFirstChild, 0, 0);
+    g_unk0x00588864 = 0;
+}
+
 // Swaps *pValue with the value stored for `slot` when that slot is pending.
 // FUNCTION: CMR2 0x004660a0
 void FUN_004660a0(int **pValue, int slot, char flag)
@@ -2546,6 +2673,69 @@ int FUN_004648f0(void)
     return v;
 }
 
+// GLOBAL: CMR2 0x00547fa0
+FixVector g_unk0x00547fa0 = { 0, 0, 0 };
+// GLOBAL: CMR2 0x00547fe0
+FixVector g_unk0x00547fe0 = { 0, 0, 0 };
+// GLOBAL: CMR2 0x00547fec
+SceneNode *g_unk0x00547fec = NULL;
+// GLOBAL: CMR2 0x00547ff0
+SceneNode *g_unk0x00547ff0 = NULL;
+// GLOBAL: CMR2 0x00547ff4
+int g_unk0x00547ff4 = 0;
+
+void FUN_004b6ef0(int value);
+
+// Places the two rear view nodes of a car from its brightness level.
+// FUNCTION: CMR2 0x00464960
+void FUN_00464960(unsigned int param_1)
+{
+    unsigned int car;
+    Car *pCar;
+    int value;
+    int level;
+    FixVector pos;
+    FixVector offset;
+
+    car = param_1;
+    pCar = Car_Get(car);
+    level = FUN_004648f0();
+    if (level == 0x10000)
+        *(int *)((BYTE *)pCar + 0xb58) = 0;
+    else
+        *(int *)((BYTE *)pCar + 0xb58) = 1;
+    value = FixMul(level, 0x4c0000);
+    FUN_00477c80(car, (int *)&param_1, (int *)&param_1, 4);
+    if (param_1 == 0)
+        value = 0x3e80000;
+    FUN_004b6ef0(param_1 != 0);
+    param_1 = 0x10000 - param_1;
+    if ((int)param_1 < 0x10001) {
+        if ((int)param_1 < 0)
+            param_1 = 0;
+    } else {
+        param_1 = 0x10000;
+    }
+    param_1 = FixMul((int)param_1, 0x190000);
+    level = value + param_1;
+    if (level != g_unk0x00547ff4) {
+        Scene_SetLightAttenuation(g_unk0x00547fec, level);
+        Scene_SetLightAttenuation(g_unk0x00547ff0, level);
+        g_unk0x00547ff4 = level;
+    }
+    FixMatrix_GetPosition(&pos, (FixMatrix *)((BYTE *)pCar->pNode0x71c + 0x98));
+    FixMatrix_RotateVector(&offset, &g_unk0x00547fe0, (FixMatrix *)((BYTE *)pCar->pNode0x71c + 0x98));
+    offset.x += pos.x;
+    offset.y += pos.y;
+    offset.z += pos.z;
+    SceneNode_SetPosition(g_unk0x00547fec, &offset);
+    FixMatrix_RotateVector(&offset, &g_unk0x00547fa0, (FixMatrix *)((BYTE *)pCar->pNode0x71c + 0x98));
+    offset.x += pos.x;
+    offset.y += pos.y;
+    offset.z += pos.z;
+    SceneNode_SetPosition(g_unk0x00547ff0, &offset);
+}
+
 struct Unk0x00590d74;
 extern Unk0x00590d74 *g_unk0x00590d74;
 
@@ -2801,6 +2991,87 @@ void FUN_00461a70(BYTE *pA, BYTE *pB)
     }
 }
 
+void FUN_00491790(short index, short *pA, short *pB, short *pC, short *pD, unsigned short *pFlags);
+void FUN_004917f0(int *pOut, unsigned short *pIndices, int unused);
+int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVertices, FixVector *pPosition);
+void Scene_GetLightColour(DWORD *pColour, int level);
+void Scene_GetAmbientColour(DWORD *pColour);
+void FUN_00492e60(int *pRGB);
+void FUN_004984b0(int car, int level);
+
+// Averages the ground lighting over a car's four wheel contact points and
+// stores the resulting colour and light level.
+// FUNCTION: CMR2 0x00462aa0
+void FUN_00462aa0(unsigned int param_1, int param_2)
+{
+    Car *pCar;
+    short *pIndex;
+    int vertex;
+    int i;
+    int sum;
+    int count;
+    unsigned short idx[3];
+    unsigned short d;
+    unsigned short flags;
+    int lighting[9];
+    int h;
+    BYTE light[4];
+    DWORD ambient[1];
+    int r, g, b;
+    int avg;
+    int total;
+    int v;
+
+    pCar = Car_Get(param_1);
+    i = 0;
+    sum = 0;
+    count = 0;
+    pIndex = (short *)((BYTE *)pCar + 0xa9e);
+    vertex = (int)pCar + 0x270;
+    do {
+        if (*pIndex >= 0) {
+            FUN_00491790(*pIndex, (short *)&idx[0], (short *)&idx[1], (short *)&idx[2],
+                         (short *)&d, &flags);
+            FUN_004917f0(lighting, idx, (int)&d);
+            h = Graphics_GetTriangleHeight(idx, (FixVector *)lighting, (FixVector *)vertex);
+            if (h != -0x3e70000) {
+                sum = sum + h;
+                count = count + 1;
+                Scene_GetLightColour((DWORD *)light, h);
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4] = light[0];
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4 + 1] = light[1];
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4 + 2] = light[2];
+            }
+        }
+        i = i + 1;
+        pIndex = pIndex + 1;
+        vertex = vertex + 0xc;
+    } while (i < 4);
+    if (count > 0) {
+        avg = FixDiv(sum, count << 16);
+        if (avg > 0x10000)
+            avg = 0x10000;
+        else if (avg < 0)
+            avg = 0;
+        Scene_GetLightColour((DWORD *)light, avg);
+        r = (*(int *)(light + 0) & 0xff) << 16;
+        g = (*(int *)(light + 1) & 0xff) << 16;
+        b = (*(int *)(light + 2) & 0xff) << 16;
+        Scene_GetAmbientColour(ambient);
+        r = r - (*(int *)((BYTE *)ambient + 0) & 0xff) * 0x10000;
+        g = g - (*(int *)((BYTE *)ambient + 1) & 0xff) * 0x10000;
+        b = b - (*(int *)((BYTE *)ambient + 2) & 0xff) * 0x10000;
+        if ((FUN_00422fb0(param_2) & 0xff) == param_1)
+            FUN_00492e60(&r);
+        *(int *)((BYTE *)pCar + 0xa70) = avg;
+        total = (r < 0 ? -r : r) + (g < 0 ? -g : g) + (b < 0 ? -b : b);
+        v = FixMul(total, 0x55);
+        if (v > 0x10000)
+            v = 0x10000;
+        FUN_004984b0(param_1, v);
+    }
+}
+
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).
 // match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461bb0
@@ -2969,8 +3240,10 @@ char g_strBrakeLiteTga[] = "\\NEWIMAGE\\brkelite.tga";
 
 StageFile *StageTiming_GetStageFile0(void);
 
+extern char g_strPathConcat[];
+
 #define LOAD_STAGE_TEXTURE(dst, name)                                                          \
-    sprintf(CFrontend::m_stringDest, "%s%s", CInstallInfo::FUN_0040ed50(), name);             \
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), name);    \
     dst = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest, \
                                     &loaded, NULL, 0, 0)
 
@@ -3457,6 +3730,86 @@ void Events_ComputeSteps(void)
 // GLOBAL: CMR2 0x00589331
 BYTE g_unk0x00589331;
 
+// GLOBAL: CMR2 0x00589334
+int g_unk0x00589334;
+
+// Stamp patterns of the event sprites: a 4x4 grid per rotation and a 16x16
+// grid per rotation.
+// GLOBAL: CMR2 0x0051c240
+BYTE g_unk0x0051c240[0x40] = {
+    0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
+    0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+};
+// GLOBAL: CMR2 0x0051c280
+BYTE g_unk0x0051c280[0x400] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00,
+    0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00,
+    0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
+    0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
 void Events_Reset(void);
 
 // Resets the stage events and finds the event texture (name ending in BODF).
@@ -3611,6 +3964,56 @@ BYTE FUN_0046f030(void)
     g_unk0x00589448.didFileLoad = FALSE;
     g_unk0x00589448.fileSize = 0;
     return 1;
+}
+
+int FUN_00422f50(unsigned int index);
+
+// Places the four view nodes of a split screen from the current view position.
+// FUNCTION: CMR2 0x0046f330
+void FUN_0046f330(int param_1)
+{
+    int car;
+    int node;
+    FixVector pos;
+    FixVector vecB;
+    FixVector vecC;
+    FixVector offset;
+
+    car = param_1;
+    node = FUN_00422f50(car);
+    if (node == 3)
+        node = (int)Car_Get(car)->pNode0x720;
+    else
+        node = (int)g_viewNodes[car];
+    FixMatrix_GetPosition(&pos, (FixMatrix *)(node + 0x98));
+    vecC.x = pos.x;
+    vecB.x = pos.x;
+    vecC.z = pos.z;
+    vecB.z = pos.z;
+    pos.y = pos.y - 0xf0000;
+    vecC.y = pos.y;
+    vecB.y = pos.y;
+    FUN_004928c0(&offset.x, &offset.y, &offset.z);
+    pos.y = pos.y + offset.x;
+    vecC.y = vecC.y + offset.y;
+    vecB.y = vecB.y + offset.z;
+    if ((char)RallyDataCountryIndex() == 3 && (char)RallyDataStageIndex() == 7)
+        vecB.y = vecB.y - 0x40000;
+    if (g_unk0x00589438 != 0)
+        SceneNode_SetPosition((SceneNode *)g_unk0x00589438, &pos);
+    if (g_unk0x0058943c != 0)
+        SceneNode_SetPosition((SceneNode *)g_unk0x0058943c, &vecC);
+    if (g_unk0x00589440 != 0)
+        SceneNode_SetPosition((SceneNode *)g_unk0x00589440, &vecB);
+    if (g_unk0x00589444 != 0) {
+        vecB.y = vecB.y - 0x140000;
+        SceneNode_SetPosition((SceneNode *)g_unk0x00589444, &vecB);
+    }
+    FUN_004928f0(&param_1);
+    offset.x = 0;
+    offset.y = param_1;
+    offset.z = 0;
+    FixMatrix_SetUp(&offset, (FixMatrix *)((BYTE *)g_unk0x00589438 + 0x98));
 }
 
 void FUN_00486b20(BYTE *pCar, BYTE *pInfo);
@@ -3902,6 +4305,100 @@ struct EventDraw {
 // GLOBAL: CMR2 0x00589010
 EventDraw g_eventDraws[64];
 
+// Stamps the pending event draws into one quadrant of the event texture and
+// clears the pending list.
+// FUNCTION: CMR2 0x0046e780
+void FUN_0046e780(void)
+{
+    RECT rect;
+    short *pPos;
+    int i;
+    int j;
+    int k;
+    int x, y;
+    int n;
+    int idx;
+    BYTE c;
+    BYTE colour[4];
+
+    if (g_eventCount < 1)
+        return;
+    if (g_unk0x00589318 < 1)
+        return;
+    colour[0] = 0x2f;
+    colour[1] = 0x27;
+    colour[2] = 0x14;
+    colour[3] = 0xc0;
+    g_unk0x00589334 = g_unk0x00589334 + 1;
+    if (g_unk0x00589334 > 3)
+        g_unk0x00589334 = 0;
+    switch (g_unk0x00589334) {
+    case 0:
+        rect.left = 0;
+        rect.top = 0;
+        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
+        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        break;
+    case 1:
+        rect.left = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
+        rect.top = 0;
+        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) - 1;
+        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        break;
+    case 2:
+        rect.left = 0;
+        rect.top = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
+        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) - 1;
+        break;
+    default:
+        rect.left = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
+        rect.top = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) - 1;
+        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) - 1;
+        break;
+    }
+    CGraphics::LockTexture(g_eventTexture, &rect);
+    i = 0;
+    if (g_unk0x00589318 > 0) {
+        do {
+            j = 0;
+            pPos = (short *)g_eventDraws[i].pEvent;
+            x = (BYTE)g_eventDraws[i].x + pPos[0];
+            y = (BYTE)g_eventDraws[i].y + pPos[1];
+            if (CGameInfo::FUN_00405d10() == 0) {
+                x = x * 4;
+                y = y * 4;
+            }
+            idx = rand() % 4;
+            n = CGameInfo::FUN_00405d10() ? 4 : 0x10;
+            if (n > 0) {
+                do {
+                    k = 0;
+                    do {
+                        if (CGameInfo::FUN_00405d10() == 0)
+                            c = g_unk0x0051c280[(idx * 0x10 + j) * 0x10 + k];
+                        else
+                            c = g_unk0x0051c240[(j + idx * 4) * 4 + k];
+                        if (c != 0) {
+                            if (rect.left < x + j && x + j < rect.right && rect.top < y + k &&
+                                y + k < rect.bottom)
+                                CGraphics::BlendPixel(g_eventTexture, x + j - rect.left,
+                                                      y + k - rect.top, colour);
+                        }
+                        k++;
+                    } while (k < n);
+                    j++;
+                } while (j < n);
+            }
+            i = i + 1;
+            g_eventsDirty = 1;
+        } while ((short)i < g_unk0x00589318);
+    }
+    CGraphics::UnlockTexture(g_eventTexture);
+    g_unk0x00589318 = 0;
+}
+
 int Events_Tick(int index);
 
 // Queues a draw of event `index` at (x, y) when it ticks and is on the area;
@@ -3996,6 +4493,32 @@ void FUN_00471950(int t)
     }
 }
 
+int FUN_004b5320(void *pNode, int value);
+
+// Copies each stage object's interpolated matrix onto its scene node and
+// calls the node refresh when the key changed.
+// FUNCTION: CMR2 0x00471a60
+void FUN_00471a60(int param_1)
+{
+    int i;
+    BYTE *p;
+
+    i = 0;
+    if (g_unk0x0058c924 != 0) {
+        p = (BYTE *)g_unk0x005894e0;
+        do {
+            *(FixMatrix *)(*(int *)(p + 4) + 0x98) = *(FixMatrix *)(p + 0x88);
+            if (*(int *)(p + 0x124) != 0) {
+                *(FixMatrix *)(*(int *)(p + 4) + 0xd8) = *(FixMatrix *)(p + 0x88);
+                *(int *)(p + 0x114) = FUN_004b5320((void *)*(int *)(p + 4), *(int *)(p + 0x114));
+                *(int *)(p + 0x124) = 0;
+            }
+            i = i + 1;
+            p = p + 0x128;
+        } while (i < (int)(g_unk0x0058c924 & 0xff));
+    }
+}
+
 char FUN_00420190(void);
 void FUN_0043f570(Car *pCar);
 
@@ -4044,6 +4567,30 @@ void FUN_0047c1e0(char replay, char restart)
             pCar->field_0x7a4 = FixMul(start, pCar->field_0x794);
             if (replay != 0 && restart == 0)
                 FUN_0043f570(pCar);
+        }
+    }
+}
+
+void FUN_004658e0(int index);
+
+// Refreshes the skid trails of every car in the race order, skipping the
+// replay-style modes where CGameInfo::FUN_00405cd0() returns 2.
+// FUNCTION: CMR2 0x00465780
+void FUN_00465780(int param_1)
+{
+    short s;
+    int i;
+
+    if (CGameInfo::FUN_00405cd0() != 2) {
+        i = 0;
+        s = Car_GetOrderCount();
+        if (0 < s) {
+            do {
+                if (i < 8 && FUN_0046bd20(i, param_1) != 7)
+                    FUN_004658e0(i);
+                i = i + 1;
+                s = Car_GetOrderCount();
+            } while (i < s);
         }
     }
 }
@@ -4624,6 +5171,159 @@ void FUN_0046b790(int type, int car, int index)
     g_unk0x00588ba4[index] |= bit;
 }
 
+int FUN_0040b010(int index);
+unsigned int FUN_00409cb0(int index);
+unsigned int FUN_0040b1e0(int index);
+
+// Resets the per-view flags of a car's body, wheel and extra nodes.
+// FUNCTION: CMR2 0x0046b8f0
+void FUN_0046b8f0(Car *pCar)
+{
+    int carIdx;
+    int node;
+
+    *(int *)(g_unk0x00588ba4 + 8) = 0;
+    *(short *)(g_unk0x00588ba4 + 12) = 0;
+    g_unk0x00588ba4[14] = 0;
+    carIdx = pCar->field_0xb1a;
+    g_unk0x00588ba4[carIdx] = 0;
+    FUN_0046b790(g_unk0x00588cd4[carIdx * 2], 0, carIdx);
+    FUN_0046b790(g_unk0x00588cd4[carIdx * 2 + 1], 1, carIdx);
+    pCar->pNode0x71c->field_0x17c = 0xff;
+    SceneNode_SetViewMaskTree(pCar->pWheelNodes[0], g_unk0x00588ba4[9]);
+    SceneNode_SetViewMaskTree(pCar->pWheelNodes[1], g_unk0x00588ba4[9]);
+    SceneNode_SetViewMaskTree(pCar->pWheelNodes[2], g_unk0x00588ba4[9]);
+    SceneNode_SetViewMaskTree(pCar->pWheelNodes[3], g_unk0x00588ba4[9]);
+    SceneNode_SetViewMaskTree(pCar->pNode0x720, g_unk0x00588ba4[10]);
+    node = (int)SceneNode_FindByType(pCar->pNode0x720, 6);
+    if (node != 0)
+        *(BYTE *)(node + 0x17c) = g_unk0x00588ba4[13];
+    node = (int)SceneNode_FindByType(pCar->pNode0x720, 0xe);
+    if (node != 0)
+        *(BYTE *)(node + 0x17c) = g_unk0x00588ba4[14];
+    if (pCar->pNode0x724 != NULL) {
+        SceneNode_SetViewMaskTree(pCar->pNode0x724, g_unk0x00588ba4[12]);
+        node = (int)SceneNode_FindByType(pCar->pNode0x724, 6);
+        if (node != 0)
+            *(BYTE *)(node + 0x17c) = g_unk0x00588ba4[13];
+        node = (int)SceneNode_FindByType(pCar->pNode0x724, 0xe);
+        if (node != 0)
+            *(BYTE *)(node + 0x17c) = g_unk0x00588ba4[14];
+    }
+    if (pCar->pExtraNodes[0] != NULL)
+        SceneNode_SetViewMaskTree(pCar->pExtraNodes[0], g_unk0x00588ba4[12]);
+    if (pCar->pExtraNodes[1] != NULL)
+        SceneNode_SetViewMaskTree(pCar->pExtraNodes[1], g_unk0x00588ba4[12]);
+    if (pCar->pExtraNodes[2] != NULL)
+        SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], g_unk0x00588ba4[12]);
+    if (pCar->pExtraNodes[3] != NULL)
+        SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], g_unk0x00588ba4[12]);
+    if (*(int *)(g_stageBlock + 0x41c + carIdx * 4) != 0)
+        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x41c + carIdx * 4),
+                                  g_unk0x00588ba4[11]);
+    if (*(int *)(g_stageBlock + 0x2c0 + carIdx * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x2c0 + carIdx * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0x3fc + carIdx * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x3fc + carIdx * 4) + 0x17c) = g_unk0x00588ba4[8];
+    FUN_0046b6b0(pCar->pNode0x71c, 10);
+    FUN_0046b6e0(pCar->pNode0x71c->pFirstChild, 10);
+    FUN_0046b6b0(pCar->pNode0x720, 10);
+    FUN_0046b6e0(pCar->pNode0x720->pFirstChild, 10);
+}
+
+// Rebuilds the per-wheel visibility values of the cars in race order.
+// FUNCTION: CMR2 0x0046bb40
+void FUN_0046bb40(void)
+{
+    int flags[2];
+    short *pOrder;
+    Car *pCar;
+    int i;
+    int v;
+    int count;
+    unsigned int swap;
+
+    i = 0;
+    do {
+        switch (FUN_00422f50(i)) {
+        case 1:
+            flags[i] = 6;
+            break;
+        case 2:
+            flags[i] = 5;
+            break;
+        case 3:
+            flags[i] = 8;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            flags[i] = 1;
+            break;
+        default:
+            flags[i] = 0;
+        }
+        i++;
+    } while (i < 2);
+    count = Car_GetOrderCount() - 1;
+    if (-1 < (short)count) {
+        pOrder = Car_GetOrder() + (short)count;
+        count = (short)count + 1;
+        do {
+            pCar = Car_Get(*pOrder);
+            swap = (*(unsigned int *)(*(int *)(*(int *)((BYTE *)pCar + 0x720) + 0xc) + 0x30) >>
+                    0x12) & 1;
+            i = 0;
+            do {
+                if ((FUN_00422fb0(i) & 0xff) == (unsigned int)pCar->field_0xb1a) {
+                    v = flags[i];
+                    if (v == 1) {
+                        if (g_unk0x00588bb4[pCar->field_0xb1a] == 0) {
+                            if (swap != 0)
+                                v = 2;
+                        } else if (swap == 0) {
+                            v = 3;
+                        } else {
+                            v = 4;
+                        }
+                    }
+                } else {
+                    if ((BYTE)RallyDataState() <= 1 || StageObject_UsesExtendedMode() != 0) {
+                        if (g_unk0x00588bb4[pCar->field_0xb1a] == 0) {
+                            if (swap == 0)
+                                v = 1;
+                            else
+                                v = 2;
+                        } else if (swap == 0) {
+                            v = 3;
+                        } else {
+                            v = 4;
+                        }
+                    } else {
+                        v = 7;
+                    }
+                }
+                FUN_0046b740(pCar->field_0xb1a, v, i);
+                i++;
+            } while (i < 2);
+            pOrder--;
+            count--;
+        } while (count != 0);
+    }
+    if ((char)CGameInfo::FUN_00405e00() != 0) {
+        for (i = 0; i < 7; i++) {
+            if ((char)FUN_00409cb0(i) == 0 && (char)FUN_0040b1e0(i) != 0) {
+                FUN_0046b740(FUN_0040b010(i), 7, 0);
+                FUN_0046b740(FUN_0040b010(i), 7, 1);
+            }
+        }
+    }
+}
+
 extern Car *g_collisionCar;
 
 // Updates per-wheel slip tables and damps the car's velocity.
@@ -5084,3 +5784,22 @@ int FUN_00476850(int param_1, int param_2)
     }
     return result;
 }
+
+// ---------------------------------------------------------------------------
+// TEMPORARY link scaffolding: callees that are not decompiled yet. Their
+// signatures come from the original's `ret N`; the bodies are empty so the
+// calls sites compile and reccmp can measure the callers.
+// STUB: CMR2 0x004658e0
+void FUN_004658e0(int index) { }
+
+// STUB: CMR2 0x004b5320
+int FUN_004b5320(void *pNode, int value) { return 0; }
+
+// STUB: CMR2 0x00460330
+void FUN_00460330(int a, int b) { }
+
+// STUB: CMR2 0x00485690
+void FUN_00485690(short *pOrder, short count, int view) { }
+
+// STUB: CMR2 0x0047f740
+void FUN_0047f740(void) { }
