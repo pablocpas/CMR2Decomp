@@ -57,6 +57,22 @@ unsigned int RallyData_FUN_004082e0(void);
 unsigned int RallyData_FUN_00407e90(void);
 int FUN_0040e180(int exclude1, int exclude2);
 int FUN_0040e210(int exclude1, int exclude2);
+BYTE FUN_004eb340(int unused, BYTE *pProfile);
+bool FUN_004eb200(int param_1, BYTE *param_2);
+struct Menu;
+Menu *FUN_004f8360(void);
+Menu *FUN_004f8330(void);
+void Menu_SetNextAction(int action);
+void FUN_004a0c40(char param1);
+int FUN_00407650(void);
+void FUN_004081d0(void);
+BYTE *RallyData_FUN_00408270(void);
+int RallyData_FUN_00408280(void);
+void RallyData_FUN_0040df60(int param1, int param2);
+int FUN_004583a0(void);
+int FUN_004583b0(int index);
+int RallyData_FUN_00421420(void);
+void RallyData_FUN_00421530(int index, int *pOut);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -430,6 +446,87 @@ int RallyData_FUN_004070f0(void)
     return 0;
 }
 
+// Number of classification entries of the current stage.
+// GLOBAL: CMR2 0x00536c90
+int g_unk0x00536c90;
+// Classification table: per entry the route node index and the distance so far.
+// GLOBAL: CMR2 0x00536ff0
+int g_unk0x00536ff0[24];
+
+// Builds the distance column of the stage classification table: walks the route
+// nodes accumulating the length between consecutive nodes, and for every entry
+// stores the node it reaches and the distance to it.
+// match 78%: same logic and calls; the original reuses EDI/ESI for the totals
+// where we use separate slots, so the loop bodies differ in registers.
+// FUNCTION: CMR2 0x00411550
+int FUN_00411550(void)
+{
+    FixVector a;
+    FixVector b;
+    FixVector diff;
+    int *p;
+    int totalA;
+    int totalB;
+    int i;
+    int j;
+
+    totalA = 0;
+    totalB = 0;
+    g_unk0x00536c90 = 0;
+    if ((char)RallyData_FUN_00406990() == 1) {
+        if ((BYTE)RallyData_GetFlag25() == 0)
+            g_unk0x00536c90 = FUN_004583a0();
+        else
+            g_unk0x00536c90 = FUN_004583a0() + 1;
+    } else {
+        g_unk0x00536c90 = FUN_004583a0();
+        if (g_unk0x00536c90 > 0xc)
+            g_unk0x00536c90 = 0xc;
+    }
+    for (i = 0; i < RallyData_FUN_00421420(); i++) {
+        if (i > 0) {
+            RallyData_FUN_00421530(i - 1, (int *)&a);
+            RallyData_FUN_00421530(i, (int *)&b);
+            diff.x = b.x - a.x;
+            diff.y = b.y - a.y;
+            diff.z = b.z - a.z;
+            totalA += FixVecLength(&diff) / 100;
+        }
+    }
+    for (i = 0; i < RallyData_FUN_00421420(); i++) {
+        if (i > 0) {
+            RallyData_FUN_00421530(i - 1, (int *)&a);
+            RallyData_FUN_00421530(i, (int *)&b);
+            diff.x = b.x - a.x;
+            diff.y = b.y - a.y;
+            diff.z = b.z - a.z;
+            totalB += FixVecLength(&diff) / 100;
+        }
+        for (j = 0; j < g_unk0x00536c90; j++) {
+            if ((FUN_004583b0(j) >> 0x10) == i) {
+                g_unk0x00536ff0[j * 2] = i;
+                g_unk0x00536ff0[j * 2 + 1] = totalB;
+            }
+        }
+    }
+    if ((BYTE)RallyData_GetFlag25() != 0) {
+        if (g_unk0x00536c90 - 1 < 0xc) {
+            for (p = g_unk0x00536ff0 + (g_unk0x00536c90 - 1) * 2;
+                 (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+                p[1] = totalB;
+                p[0] = RallyData_FUN_00421420() - 1;
+            }
+        }
+    } else if (g_unk0x00536c90 < 0xc) {
+        for (p = g_unk0x00536ff0 + g_unk0x00536c90 * 2;
+             (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+            p[1] = totalB;
+            p[0] = RallyData_FUN_00421420() - 1;
+        }
+    }
+    return totalB;
+}
+
 // FUNCTION: CMR2 0x00411880
 int RallyData_FUN_00411880(void)
 {
@@ -525,6 +622,57 @@ void RallyData_FUN_00408fc0(int index)
         category = (record >> 18) & 15;
         ++g_unk0x0052fa18[10 + category * 0x650];
     }
+}
+
+// True when every packed 2-bit field of the two setup words of the category
+// profile of the unassigned-checked record has the "10" pattern.
+// FUNCTION: CMR2 0x004097b0
+char FUN_004097b0(int param_1)
+{
+    unsigned int record;
+    unsigned int *pSetup;
+    unsigned int value;
+
+    RallyData_ValidateIndex(param_1);
+    record = *(unsigned int *)(g_unk0x00531350 + param_1 * 0x30);
+    if ((record & 0x3c0000) == 0x3c0000)
+        return 0;
+    pSetup = (unsigned int *)(g_saveData + 0xc54 + ((record >> 0x12) & 0xf) * 0x650);
+    value = *pSetup;
+    if ((value & 0x3) == 2 &&
+        (value & 0xc) == 8 &&
+        (value & 0x30) == 0x20 &&
+        (value & 0x30000) == 0x20000 &&
+        (value & 0xc0000) == 0x80000 &&
+        (value & 0x300000) == 0x200000 &&
+        (value & 0xc00000) == 0x800000 &&
+        (value & 0x3000000) == 0x2000000 &&
+        (value & 0xc000000) == 0x8000000 &&
+        (value & 0x30000000) == 0x20000000 &&
+        (value & 0xc0000000) == 0x80000000 &&
+        (pSetup[1] & 0x3) == 2 &&
+        (pSetup[1] & 0xc) == 8 &&
+        (pSetup[1] & 0x30) == 0x20 &&
+        (pSetup[1] & 0xc0) == 0x80 &&
+        (pSetup[1] & 0x300) == 0x200 &&
+        (pSetup[1] & 0xc00) == 0x800 &&
+        (pSetup[1] & 0x3000) == 0x2000 &&
+        (pSetup[1] & 0xc000) == 0x8000 &&
+        (pSetup[1] & 0x30000) == 0x20000 &&
+        (pSetup[1] & 0xc0000) == 0x80000 &&
+        (pSetup[1] & 0x300000) == 0x200000 &&
+        (pSetup[1] & 0xc00000) == 0x800000 &&
+        (pSetup[1] & 0x3000000) == 0x2000000 &&
+        (pSetup[1] & 0xc000000) == 0x8000000 &&
+        (pSetup[1] & 0x30000000) == 0x20000000 &&
+        (pSetup[1] & 0xc0000000) == 0x80000000 &&
+        (value & 0xc0) == 0x80 &&
+        (value & 0x300) == 0x200 &&
+        (value & 0x3000) == 0x2000 &&
+        (value & 0xc00) == 0x800 &&
+        (value & 0xc000) == 0x8000)
+        return 1;
+    return 0;
 }
 
 BYTE *FUN_0041b390(void);
@@ -918,6 +1066,184 @@ void FUN_004eaf90(BYTE index, char *name)
     // 0x52fa00: per-category "name edited" flags, inside the oversized g_unk0x0052f3e8.
     g_unk0x0052f3e8[0x618 + category] = 1;
 }
+
+// Cheat-code names (last match wins) and the block of strings they point at.
+// The test only reports the index, which is turned into a flag elsewhere.
+extern BYTE g_cheatStrings[];
+
+// GLOBAL: CMR2 0x005250fc
+BYTE *g_cheatNames[20] = {
+    g_cheatStrings + 0x104, g_cheatStrings + 0xfc, g_cheatStrings + 0xec,
+    g_cheatStrings + 0xe0, g_cheatStrings + 0xd8, g_cheatStrings + 0xc8,
+    g_cheatStrings + 0xb8, g_cheatStrings + 0xac, g_cheatStrings + 0x9c,
+    g_cheatStrings + 0x90, g_cheatStrings + 0x84, g_cheatStrings + 0x74,
+    g_cheatStrings + 0x64, g_cheatStrings + 0x58, g_cheatStrings + 0x44,
+    g_cheatStrings + 0x34, g_cheatStrings + 0x28, g_cheatStrings + 0x18,
+    g_cheatStrings + 0x10, g_cheatStrings + 0x0
+};
+
+// GLOBAL: CMR2 0x0052514c
+BYTE g_cheatStrings[] =
+    "turnontheice\0\0\0\0"
+    "oohnice\0"
+    "automode please\0"
+    "morrismode\0\0"
+    "shinybuttons\0\0\0\0"
+    "hello razu and flea\0"
+    "greatnews\0\0\0"
+    "allthebuttons\0\0\0"
+    "gofasterstripes\0"
+    "curryforme\0\0"
+    "nuttynets\0\0\0"
+    "bouncybouncy\0\0\0\0"
+    "wheelybig\0\0\0"
+    "boingboingboing\0"
+    "waveyourlefts\0\0\0"
+    "eatthis\0"
+    "garywildass\0"
+    "showmethecossy\0\0"
+    "minime\0\0"
+    "evilevo";
+
+// Looks up a cheat code among the known names: on the first match writes the
+// index of the name to param_2 and returns 1, else writes nothing and returns 0.
+// FUNCTION: CMR2 0x004eb290
+BYTE FUN_004eb290(int param_1, BYTE *param_2)
+{
+    BYTE **p;
+    int i;
+    BYTE result;
+
+    RallyData_ValidateIndex(param_1);
+    result = 0;
+    i = 0;
+    p = g_cheatNames;
+    while ((int)p < (int)(g_cheatNames + 20)) {
+        if (FUN_004eb200(param_1, *p)) {
+            *param_2 = CGameInfo::FUN_004eac50(i);
+            result = 1;
+            break;
+        }
+        p++;
+        i++;
+    }
+    return result;
+}
+
+// Writes the category profile of the record `param_1` points at when its name
+// was edited and clears the edited flag; returns the result of the write.
+// FUNCTION: CMR2 0x004eb370
+char FUN_004eb370(int param_1)
+{
+    unsigned int category;
+    char result;
+
+    RallyData_ValidateIndex(param_1);
+    result = 1;
+    category = (*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf;
+    if ((*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0x200000) == 0 &&
+        g_saveData[0x620 + category] != 0) {
+        result = FUN_004eb340(0, g_saveData + 0x628 + category * 0x650);
+        if (result != 0)
+            g_saveData[0x620 + ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
+    }
+    return result;
+}
+
+// Returns the 2-bit display setting `param_2` (0..2) of the category profile
+// that record `param_1` points at; zero when `param_2` is out of range.
+// FUNCTION: CMR2 0x004eba60
+unsigned int FUN_004eba60(int param_1, int param_2)
+{
+    unsigned int *pSetup;
+
+    RallyData_ValidateIndex(param_1);
+    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+        ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
+    switch (param_2) {
+    case 0: return *pSetup & 3;
+    case 1: return *pSetup >> 2 & 3;
+    case 2: return *pSetup >> 4 & 3;
+    }
+    return 0;
+}
+
+// Returns the 2-bit setting of record `param_1` for block `param_2` (0..7) and
+// field group `param_3` (0..2).
+// FUNCTION: CMR2 0x004ebad0
+unsigned int FUN_004ebad0(int param_1, int param_2, int param_3)
+{
+    unsigned int *pSetup;
+
+    RallyData_ValidateIndex(param_1);
+    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+        ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
+    switch (param_3) {
+    case 0:
+        switch (param_2) {
+        case 0: return *pSetup >> 0x10 & 3;
+        case 1: return *pSetup >> 0x12 & 3;
+        case 2: return *pSetup >> 0x14 & 3;
+        case 3: return *pSetup >> 0x16 & 3;
+        case 4: return *pSetup >> 0x18 & 3;
+        case 5: return *pSetup >> 0x1a & 3;
+        case 6: return *pSetup >> 0x1c & 3;
+        case 7: return *pSetup >> 0x1e & 3;
+        }
+        break;
+    case 1:
+        switch (param_2) {
+        case 0: return *(unsigned int *)((BYTE *)pSetup + 4) & 3;
+        case 1: return *(unsigned int *)((BYTE *)pSetup + 4) >> 2 & 3;
+        case 2: return *(unsigned int *)((BYTE *)pSetup + 4) >> 4 & 3;
+        case 3: return *(unsigned int *)((BYTE *)pSetup + 4) >> 6 & 3;
+        case 4: return *(unsigned int *)((BYTE *)pSetup + 4) >> 8 & 3;
+        case 5: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xa & 3;
+        case 6: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xc & 3;
+        case 7: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0xe & 3;
+        }
+        break;
+    case 2:
+        switch (param_2) {
+        case 0: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x10 & 3;
+        case 1: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x12 & 3;
+        case 2: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x14 & 3;
+        case 3: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x16 & 3;
+        case 4: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x18 & 3;
+        case 5: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1a & 3;
+        case 6: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1c & 3;
+        case 7: return *(unsigned int *)((BYTE *)pSetup + 4) >> 0x1e & 3;
+        }
+        break;
+    }
+    return 0;
+}
+
+// Returns the 2-bit setting of record `param_1` for the fourth and fifth
+// blocks (param_3 0/1/2) selected by `param_2` (0..1 for param_3 1 and 2).
+// FUNCTION: CMR2 0x004ebcd0
+unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3)
+{
+    unsigned int *pSetup;
+
+    RallyData_ValidateIndex(param_1);
+    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+        ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
+    switch (param_3) {
+    case 0:
+        return *pSetup >> 6 & 3;
+    case 1:
+        if (param_2 == 0)
+            return *pSetup >> 8 & 3;
+        return *pSetup >> 0xc & 3;
+    case 2:
+        if (param_2 == 0)
+            return *pSetup >> 0xa & 3;
+        return *pSetup >> 0xe & 3;
+    }
+    return 0;
+}
+
 void FUN_004eaae0(int *pValues, short *pOut1, int *pOut2);
 int FUN_004eaca0(void);
 void RallyData_FUN_004088a0(BYTE index, int *pValues);
@@ -1068,6 +1394,103 @@ void FUN_004ec000(void)
         FUN_004ebfd0(i);
         i++;
     } while (i < 16);
+}
+
+// Fills the split-marker rows of the stage-split editor menu, either with the
+// current list of splits (up to three, or four markers in the wide layout) or
+// with the empty/default layout.
+// match 69%: the original keeps the split list in EDI and the row index in ESI
+// (we get them swapped), so every register in the marker loop differs.
+// FUNCTION: CMR2 0x004efe60
+void FUN_004efe60(int param_1, int param_2, char param_3)
+{
+    BYTE *pMenu;
+    short *pSplits;
+    int count;
+    int i;
+    int half;
+    short value;
+
+    FUN_004081d0();
+    count = RallyData_FUN_00408280();
+    pSplits = (short *)RallyData_FUN_00408270();
+    RallyData_FUN_0040df60(0, 0);
+    pMenu = (BYTE *)FUN_004f8360();
+    *(short *)(pMenu + 0x18) = 0x156;
+    pMenu = (BYTE *)FUN_004f8360();
+    *(short *)(pMenu + 0x1c) = 0xffff;
+    pMenu = (BYTE *)FUN_004f8360();
+    *(BYTE *)(pMenu + 0x1a) =
+        (*(BYTE *)(pMenu + 0x1a) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x1a);
+    if ((unsigned short)FUN_00407650() >= 0x834) {
+        RallyData_FUN_0040df60(1, 2);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 0;
+        FUN_004a0c40(0);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_004a0c40(1);
+        return;
+    }
+    if (RallyDataStageIndex() == '\n') {
+        RallyData_FUN_0040df60(1, 0);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 0;
+        FUN_004a0c40(0);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_004a0c40(1);
+        return;
+    }
+    FUN_004a0c40(param_3);
+    Menu_SetNextAction((int)FUN_004f8360());
+    FUN_004a0c40(1);
+    if (count <= 3) {
+        pMenu = (BYTE *)FUN_004f8360();
+        *(char *)(pMenu + 6) = (char)count + 1;
+        if (count > 0) {
+            i = 0;
+            do {
+                value = *pSplits;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(short *)(pMenu + 0x2c + i) = value + 0x157;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(short *)(pMenu + 0x30 + i) = *pSplits;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(BYTE *)(pMenu + 0x2e + i) =
+                    (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
+                pSplits += 2;
+                i += 0x14;
+                count--;
+            } while (count != 0);
+        }
+    } else {
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 4;
+        value = *pSplits;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x2c) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x30) = *pSplits;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x2e) =
+            (*(BYTE *)(pMenu + 0x2e) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e);
+        half = count / 2;
+        value = pSplits[half * 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x40) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x42) =
+            (*(BYTE *)(pMenu + 0x42) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x42);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x44) = pSplits[half * 2];
+        value = pSplits[count * 2 - 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x54) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x58) = pSplits[count * 2 - 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x56) =
+            (*(BYTE *)(pMenu + 0x56) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x56);
+    }
 }
 
 // GLOBAL: CMR2 0x0052ea60
