@@ -90,7 +90,7 @@ void FUN_0041b460(void) { }
 void FUN_0041c260(void) { }
 
 // STUB: CMR2 0x00421720
-void FUN_00421720(int, int, int, int, int) { }
+void FUN_00421720(int, int, int, unsigned char, int) { }
 
 // STUB: CMR2 0x00421e20
 void FUN_00421e20(int) { }

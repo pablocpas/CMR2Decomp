@@ -3299,7 +3299,7 @@ int FUN_0040d4b0(int hundredths);
 // Estimates the stage time from the progress so far (at least halfway).
 // match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00448550
-void FUN_00448550(void)
+int FUN_00448550(void)
 {
     int total;
     int progress;
@@ -3311,11 +3311,9 @@ void FUN_00448550(void)
     else
         total = RallyData_FUN_00421420() << 16;
     progress = FixDiv((unsigned short)FUN_004589e0(0) << 16, total);
-    if (progress > 0x8000) {
-        g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(FUN_0040d4b0(g_unk0x0053d1b0), FixDiv(0x10000, progress)));
-        return;
-    }
-    g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2;
+    if (progress > 0x8000)
+        return g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(FUN_0040d4b0(g_unk0x0053d1b0), FixDiv(0x10000, progress)));
+    return g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2;
 }
 
 BYTE *RallyData_FUN_00421440(int index);
