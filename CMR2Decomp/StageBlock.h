@@ -18,6 +18,7 @@ extern BYTE g_stageBlock[0x430];
 #define g_stageBlock_58d47c ((int *)(g_stageBlock + 0x1dc))    // int[8]
 #define g_unk0x0058d49c ((void **)(g_stageBlock + 0x1fc))      // void *[8]
 #define g_unk0x0058d4c4 ((int *)(g_stageBlock + 0x224))        // pairs from 0x58d4c0
+#define g_unk0x0058d4d0 (g_stageBlock + 0x230)                 // BYTE[8]
 #define g_unk0x0058d4f0 (g_stageBlock + 0x250)                 // 2 rows of 0x1c bytes (pointers into timing records)
 #define g_unk0x0058d530 (g_stageBlock + 0x290)                 // 2 rows of 0x1c bytes
 #define g_unk0x0058d6a0 ((void **)(g_stageBlock + 0x400))      // void *[2]

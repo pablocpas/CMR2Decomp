@@ -49,6 +49,13 @@ int *FUN_00407520(int index);
 void FUN_004925c0(int oldHeight, int newHeight, int mode);
 void FUN_00492900(int value);
 void FUN_00492fd0(int value);
+void FUN_00477850(int object, int *src);
+void FUN_0048df50(Car *param_1);
+short *Car_GetOrder(void);
+short Car_GetOrderCount(void);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+void FUN_0048c900(BYTE index);
+char *FUN_004752f0(int *p, int index, int mode);
 
 // Global fixed-point lighting parameters for both stage conditions.
 // GLOBAL: CMR2 0x00547950
@@ -90,6 +97,9 @@ extern FixVector g_unk0x00549c20[8][4];
 // Accessors of the stage object tables (0x460bf0-0x4789b0)
 
 extern void *g_unk0x00547ac8;
+extern BYTE g_unk0x00543e98;
+extern FixVector g_unk0x00547930;
+extern int g_unk0x00547940;
 extern void *g_unk0x0058c928;
 extern void *g_unk0x0058c92c;
 extern void *g_unk0x0058c930;
@@ -522,6 +532,52 @@ void StageObject_InitMovingObject(int *pState, int carIndex)
         Sector_RemoveNode(pNode);
     if (pNode->sector == -1)
         FUN_004b8b10(pNode);
+}
+
+// Derives the stage's object scale from the loaded records: the average of
+// their +0x54 fields (the single record in created-flag mode 1), floored at
+// 0x4ccc, and scales the global stage vector by it, quadrupled for a type 2.
+// match 84%: MSVC picks EDX for the record count and ESI for the loop counter
+// (the original has them swapped); the code itself is identical.
+// FUNCTION: CMR2 0x00460a30
+void FUN_00460a30(FixVector *pOut)
+{
+    DWORD flags;
+    int value;
+    int typeTwo;
+    int count;
+    int i;
+    int *p;
+
+    // The original loads the whole dword at the flag byte (the variable lived
+    // in that translation unit; see CONOCIMIENTO 4.y) and only uses its low byte.
+    flags = *(DWORD *)&g_unk0x00543e98;
+    value = 0;
+    typeTwo = 0;
+    if ((char)flags == 1) {
+        value = *((int *)g_unk0x00547ac8 + 0x15);
+        if (*((int *)g_unk0x00547ac8) == 2)
+            typeTwo = 1;
+    } else {
+        count = (BYTE)flags;
+        p = (int *)g_unk0x00547ac8;
+        for (i = count; i > 0; i--) {
+            value += p[0x15];
+            if (*p == 2)
+                typeTwo = 1;
+            p += 0x5e;
+        }
+        if ((char)flags != 0)
+            value = FixDiv(value, count << 16);
+        else
+            value = 0x4ccc;
+    }
+    if (value < 0x4ccc)
+        value = 0x4ccc;
+    value = FixMul(value, g_unk0x00547940);
+    if (typeTwo)
+        value = FixMul(0x20000, value);
+    FixVecScale(pOut, &g_unk0x00547930, value);
 }
 
 // FUNCTION: CMR2 0x00460bf0
@@ -1056,10 +1112,88 @@ char *FUN_00473810(KnockoutMatch *pMatch, int side)
     return CFrontend::m_stringDest;
 }
 
+extern int g_unk0x0058cf64;
+// GLOBAL: CMR2 0x0058cf74
+unsigned int g_unk0x0058cf74;
+// GLOBAL: CMR2 0x0058cf78
+unsigned int g_unk0x0058cf78;
+
+extern char g_minSecMSECFormatString[];
+
+// Formats one of the two lap time fields as "%02d:%02d.%02d", printing the
+// identical placeholder while the value eases towards its target.
+// match 68%: same logic; MSVC keeps the two eased values in different
+// registers and spills one extra
+// FUNCTION: CMR2 0x004752f0
+char *FUN_004752f0(int *p, int index, int mode)
+{
+    unsigned int current1;
+    unsigned int current2;
+    int time1;
+    int time2;
+
+    time1 = p[1];
+    time2 = p[2];
+    if (mode != 0) {
+        current1 = g_unk0x0058cf74;
+        if (current1 <= (unsigned)(time1 - 0x27))
+            current1 += 0x27;
+        else
+            current1 = time1;
+        g_unk0x0058cf74 = current1;
+        current2 = g_unk0x0058cf78;
+        if (current2 <= (unsigned)(time2 - 0x27))
+            current2 += 0x27;
+        else
+            current2 = time2;
+        g_unk0x0058cf78 = current2;
+        if (current1 == (unsigned)time1 && current2 == (unsigned)time2)
+            g_unk0x0058cf64 = 1;
+    }
+    if (index == 0) {
+        if ((p[0] & 0x1f) == 0x1f)
+            return CMain::m_logFileBlankLine;
+        RallyData_FUN_00408500((BYTE)(p[0] & 0x1f));
+        sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, time1 / 6000, (time1 % 6000) / 100,
+                time1 % 100);
+    } else if (index == 1) {
+        if ((p[0] & 0x3e0) == 0x3e0)
+            return CMain::m_logFileBlankLine;
+        RallyData_FUN_00408500((BYTE)((p[0] >> 5) & 0x1f));
+        sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, time2 / 6000, (time2 % 6000) / 100,
+                time2 % 100);
+    }
+    return CFrontend::m_stringDest;
+}
+
 // FUNCTION: CMR2 0x00475f70
 BYTE *FUN_00475f70(void)
 {
     return g_unk0x0058cf80;
+}
+
+// Updates one stage object's state byte and re-syncs its scene node with the
+// given source matrix; when the node ends up in another sector it is detached
+// and released from the scene again.
+// FUNCTION: CMR2 0x00476410
+void FUN_00476410(BYTE *p, int *src, int unused, BYTE value)
+{
+    int index;
+    FixVector pos;
+
+    g_unk0x0058d4d0[*p] = value;
+    FUN_00477850((int)p, src);
+    if (g_unk0x0058d49c[p[2]] != NULL) {
+        SceneNode_Unused((SceneNode *)g_unk0x0058d49c[p[2]]);
+        pos.x = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.x;
+        pos.y = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.y;
+        pos.z = ((SceneNode *)g_unk0x0058d49c[p[2]])->world.position.z;
+        index = (short)Sector_FromPosition(&pos);
+        if (index != ((SceneNode *)g_unk0x0058d49c[p[2]])->sector) {
+            FUN_004b8b10((SceneNode *)g_unk0x0058d49c[p[2]]);
+            SceneNode_Unused((SceneNode *)g_unk0x0058d49c[p[2]]);
+        }
+    }
 }
 
 // FUNCTION: CMR2 0x004764e0
@@ -1166,6 +1300,22 @@ int g_unk0x00590db0[64];
 BYTE g_unk0x00590ed0[8][0x98];
 // GLOBAL: CMR2 0x00591390
 int g_unk0x00591390;
+// GLOBAL: CMR2 0x005913d8
+int g_unk0x005913d8;
+// GLOBAL: CMR2 0x005913dc
+BYTE g_unk0x005913dc[4];
+// GLOBAL: CMR2 0x005913f8
+BYTE g_unk0x005913f8[8][8];
+// GLOBAL: CMR2 0x0059146c
+int g_unk0x0059146c[8];
+// GLOBAL: CMR2 0x005914c8
+FixVector g_unk0x005914c8;
+// GLOBAL: CMR2 0x005916a0
+FixVector g_unk0x005916a0[4];
+// GLOBAL: CMR2 0x005916f0
+int g_unk0x005916f0[4];
+// GLOBAL: CMR2 0x00591898
+FixVector g_unk0x00591898[4];
 // GLOBAL: CMR2 0x00591740
 int g_unk0x00591740[4];
 // GLOBAL: CMR2 0x00591750
@@ -1197,6 +1347,32 @@ void *g_unk0x00590b04;
 void *g_unk0x00590b08;
 // GLOBAL: CMR2 0x00590b0c
 void **g_unk0x00590b0c;
+
+// GLOBAL: CMR2 0x0051ea20
+char g_strMenuSoundNames[5][7] = {"move", "select", "back", "error", "toggle"};
+
+extern char g_strMenuSoundFormat[24];
+extern DWORD g_unk0x0058dc58;
+
+// Loads the five menu sounds from the common frontend archive, for the stage
+// menus. Returns 0 if any sample failed to load.
+// FUNCTION: CMR2 0x00478b80
+BYTE FUN_00478b80(void)
+{
+    char *name;
+    BYTE result;
+
+    result = 1;
+    g_unk0x0058dc58 = 0;
+    name = &g_strMenuSoundNames[0][0];
+    do {
+        sprintf(CFrontend::m_stringDest, g_strMenuSoundFormat, CInstallInfo::GetGameCDPath(), name);
+        if (Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile0()) == 0)
+            result = 0;
+        name += 7;
+    } while ((int)name < (int)&g_strMenuSoundNames[5][0]);
+    return result;
+}
 
 // Releases the vehicle files loaded by 0x47e4d0 (registered callback).
 // FUNCTION: CMR2 0x0047ea20
@@ -1387,6 +1563,55 @@ BYTE *FUN_00484de0(BYTE *pCar, int slot)
     return g_unk0x00590b7c[slot][(signed char)pCar[0xb1a]];
 }
 
+struct Unk0x00590d74;
+extern Unk0x00590d74 *g_unk0x00590d74;
+extern int g_unk0x00590b30[8];
+extern void **g_unk0x00590c6c;
+
+// Steps every 0x3c-byte record of the ordered cars' lists: the record's +0x18
+// vector becomes its +0xc vector plus the (+0x0 - +0xc) difference scaled by
+// `scale`.
+// match 65%: same logic; register allocation and the inner loop scheduling differ
+// FUNCTION: CMR2 0x00486500
+void FUN_00486500(int scale)
+{
+    int count;
+    int n;
+    int offset;
+    short *pIndex;
+    int *p;
+    FixVector v;
+
+    pIndex = Car_GetOrder();
+    count = Car_GetOrderCount();
+    if (count - 1 >= 0) {
+        pIndex += count - 1;
+        do {
+            g_unk0x00590d74 = (Unk0x00590d74 *)Car_Get(*pIndex);
+            if (*(int *)((BYTE *)g_unk0x00590d74 + 0xc0c) == 0) {
+                n = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
+                if (n >= 0) {
+                    offset = n * 0x3c;
+                    n++;
+                    do {
+                        p = (int *)((BYTE *)g_unk0x00590c6c[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] +
+                                    offset);
+                        v.x = p[0] - p[3];
+                        v.y = p[1] - p[4];
+                        v.z = p[2] - p[5];
+                        FixVecScale(&v, &v, scale);
+                        p[6] = p[3] + v.x;
+                        p[7] = p[4] + v.y;
+                        p[8] = p[5] + v.z;
+                        offset -= 0x3c;
+                    } while (--n);
+                }
+            }
+            pIndex--;
+        } while (--count);
+    }
+}
+
 // FUNCTION: CMR2 0x00486be0
 void FUN_00486be0(BYTE *p, int unused)
 {
@@ -1404,6 +1629,78 @@ void FUN_00486c00(BYTE *p, BYTE *q)
 int FUN_00487130(void)
 {
     return g_unk0x00591390;
+}
+
+// Applies a per-frame delta to one stage object (plus an optional second car
+// index) and recurses into its children; `flag` enables the 0x5913d8 path.
+// match 90%: the index mask and the load of pDelta[1] are scheduled differently
+// FUNCTION: CMR2 0x0048c870
+void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag)
+{
+    int i;
+
+    g_unk0x005914c8.x = pDelta[0];
+    g_unk0x005914c8.y = pDelta[1];
+    g_unk0x005914c8.z = pDelta[2];
+    g_unk0x005913d8 = flag;
+    memset(g_unk0x0059146c, 0, sizeof(g_unk0x0059146c));
+    g_unk0x0059146c[index] = 1;
+    if (other != 0xff)
+        g_unk0x0059146c[(char)other] = 1;
+    if (g_unk0x005913dc[index] != 0) {
+        i = 0;
+        do {
+            FUN_0048c900(g_unk0x005913f8[index][i]);
+            i++;
+        } while (i < g_unk0x005913dc[index]);
+    }
+}
+
+// Moves one stage object and its eight box corners by the current frame delta
+// and recurses over its children (each object is only moved once).
+// match 70%: same logic; the corner pointer walk uses a different base bias
+// FUNCTION: CMR2 0x0048c900
+void FUN_0048c900(BYTE index)
+{
+    Car *pCar;
+    BYTE i;
+    int j;
+    int *p;
+
+    if (g_unk0x0059146c[index] != 0)
+        return;
+    g_unk0x0059146c[index] = 1;
+    pCar = Car_Get(index);
+    pCar->position.x += g_unk0x005914c8.x;
+    pCar->position.y += g_unk0x005914c8.y;
+    pCar->position.z += g_unk0x005914c8.z;
+    p = (int *)&pCar->corners[0].y;
+    j = 8;
+    do {
+        p[-1] += g_unk0x005914c8.x;
+        p[0] += g_unk0x005914c8.y;
+        p[1] += g_unk0x005914c8.z;
+        p += 3;
+    } while (--j);
+    if (g_unk0x005913d8 != 0) {
+        if (*(int *)(g_unk0x00590ed0[index] + 0x28) != 0) {
+            p = (int *)(g_unk0x00590ed0[index] + 0x34);
+            j = 4;
+            do {
+                p[-1] += g_unk0x005914c8.x;
+                p[0] += g_unk0x005914c8.y;
+                p[1] += g_unk0x005914c8.z;
+                p += 3;
+            } while (--j);
+        }
+    }
+    i = 0;
+    if (g_unk0x005913dc[index] != 0) {
+        do {
+            FUN_0048c900(g_unk0x005913f8[index][i]);
+            i++;
+        } while (i < g_unk0x005913dc[index]);
+    }
 }
 
 // FUNCTION: CMR2 0x0048ca40
@@ -2020,6 +2317,33 @@ void FUN_00487e00(FixVector *pPos, int *pInfo)
     g_unk0x00591494 = *(int *)(*(int *)(*(int *)(pInfo[0] + 0xc) + 0x10c) + 0x4c);
 }
 
+// Updates a car's stage shadow/light when its position, projected on the two
+// box axes, is inside the light box (with the global tolerance).
+// match 89%: the box limit pBox[0] stays in a different register
+// FUNCTION: CMR2 0x00487e50
+void FUN_00487e50(int *pBox, Car *pCar)
+{
+    FixVector delta;
+    int u;
+    int v;
+
+    delta.x = g_unk0x00591498.x - ((int *)pBox[0x25])[0];
+    delta.y = g_unk0x00591498.y - ((int *)pBox[0x25])[1];
+    delta.z = g_unk0x00591498.z - ((int *)pBox[0x25])[2];
+    delta.y = 0;
+    u = FixVecDot(&delta, (FixVector *)(pBox + 4));
+    v = FixVecDot(&delta, (FixVector *)(pBox + 7));
+    if (FIX_ABS(u) > pBox[0] && FIX_ABS(v) > pBox[1])
+        return;
+    u = FIX_ABS(u);
+    if (u > pBox[0] + g_unk0x00591490)
+        return;
+    v = FIX_ABS(v);
+    if (v > pBox[1] + g_unk0x00591490)
+        return;
+    FUN_0048df50(pCar);
+}
+
 extern int g_unk0x0051bd40;
 extern int g_unk0x0051bd3c;
 
@@ -2032,6 +2356,93 @@ void FUN_00466630(int value)
     if (g_unk0x0051bd40 < 0x9999)
         g_unk0x0051bd40 = 0x9999;
     g_unk0x0051bd3c = FixDiv(0x10000, g_unk0x0051bd40);
+}
+
+extern FixVector g_stageDeformHull[12];
+extern FixVector g_stageDeformOffset;
+extern FixVector g_stageDeformNormal;
+extern FixVector g_stageDeformImpact;
+extern int g_stageDeformSpeed;
+extern int g_stageDeformStrength;
+extern int g_stageDeformMode;
+
+// Rebuilds the deformation hull against the other car's velocity: the four
+// source vertices come from its velocity/velocityNext, the four middle ones
+// from the car's own bounds, and the last four are the input points clamped
+// by the car scales.
+// match 48%: MSVC biased the hull pointer walk differently (same logic)
+// FUNCTION: CMR2 0x004675c0
+void FUN_004675c0(Car *pCar, Car *pOther)
+{
+    FixVector *pOut;
+    FixVector *pIn;
+    int v;
+
+    g_stageDeformHull[0].x = pOther->velocity.z;
+    g_stageDeformHull[0].y = -pCar->halfExtents.y;
+    g_stageDeformHull[0].z = pOther->velocityNext.y;
+    g_stageDeformHull[1].x = pOther->velocity.z;
+    g_stageDeformHull[1].y = -pCar->halfExtents.y;
+    g_stageDeformHull[1].z = pOther->velocityNext.z;
+    g_stageDeformHull[2].x = pOther->velocityNext.x;
+    g_stageDeformHull[2].y = -pCar->halfExtents.y;
+    g_stageDeformHull[2].z = pOther->velocityNext.y;
+    g_stageDeformHull[3].x = pOther->velocityNext.x;
+    g_stageDeformHull[3].y = -pCar->halfExtents.y;
+    g_stageDeformHull[3].z = pOther->velocityNext.z;
+    pOut = &g_stageDeformHull[8];
+    pIn = (FixVector *)pCar->field_0x240;
+    do {
+        pOut[-4] = pOut[-8];
+        if ((int)pOut < (int)&g_stageDeformHull[10])
+            v = *(int *)pCar->field_0x770;
+        else
+            v = *(int *)(pCar->field_0x770 + 4);
+        pOut[-4].y += v;
+        *pOut = *pIn;
+        if (pOut->x > 0)
+            pOut->x -= pCar->scale0x764;
+        else
+            pOut->x += pCar->scale0x768;
+        if (pOut->z > 0)
+            pOut->z -= pCar->scale0x76c;
+        else
+            pOut->z += pCar->scale0x76c;
+        pOut++;
+        pIn++;
+    } while ((int)pOut < (int)&g_stageDeformHull[12]);
+}
+
+// Builds the deformation offset, normal and impact vectors plus the strength
+// and mode flags from a per-car byte record (angles, break flags, scale).
+// match 89%: the original folds the 0x10000<<16 division into a plain IDIV in
+// the two later scale blocks, and stores the mode as a byte (declared int in
+// StageTiming.cpp)
+// FUNCTION: CMR2 0x004688b0
+void FUN_004688b0(BYTE *p)
+{
+    g_stageDeformOffset.x = (char)p[9] << 16;
+    g_stageDeformOffset.y = (char)p[10] << 16;
+    g_stageDeformOffset.z = (char)p[11] << 16;
+    FixVecScale(&g_stageDeformOffset, &g_stageDeformOffset,
+                FixMul(0xa0000, FixDiv(0x10000, 0x7f0000)));
+    g_stageDeformNormal.x = (char)p[3] << 16;
+    g_stageDeformNormal.y = (char)p[4] << 16;
+    g_stageDeformNormal.z = (char)p[5] << 16;
+    FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal,
+                (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_stageDeformImpact.x = (char)p[6] << 16;
+    g_stageDeformImpact.y = (char)p[7] << 16;
+    g_stageDeformImpact.z = (char)p[8] << 16;
+    FixVecScale(&g_stageDeformImpact, &g_stageDeformImpact,
+                (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    g_stageDeformStrength = (BYTE)p[0] << 16;
+    g_stageDeformStrength = FixDiv(g_stageDeformStrength, 0xff0000);
+    g_stageDeformMode = p[1];
+    if (p[1] == 1) {
+        g_stageDeformSpeed = (BYTE)p[2] << 16;
+        g_stageDeformSpeed = FixMul(g_stageDeformSpeed, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
+    }
 }
 
 // Sets the fixed-point lighting values for both stage weather conditions.
@@ -2767,6 +3178,34 @@ void FUN_00480b40(BYTE *pCar)
 int g_unk0x00591690[4];
 // GLOBAL: CMR2 0x00591710
 int g_unk0x00591710[4];
+
+// Steps one stage object's current vector toward its target by `step`,
+// marking it arrived (and snapping to the target) once it is closer than that.
+// FUNCTION: CMR2 0x0048db00
+void FUN_0048db00(BYTE *p, int step)
+{
+    BYTE index;
+    FixVector delta;
+
+    index = *p;
+    if (g_unk0x005916f0[index] == 0) {
+        delta.x = g_unk0x005916a0[index].x - g_unk0x00591898[index].x;
+        delta.y = g_unk0x005916a0[index].y - g_unk0x00591898[index].y;
+        delta.z = g_unk0x005916a0[index].z - g_unk0x00591898[index].z;
+        if ((int)FixVec_Length(&delta) < step) {
+            g_unk0x005916f0[index] = 1;
+        } else {
+            FixVec_Normalize(&delta, &delta);
+            FixVecScale(&delta, &delta, step);
+            g_unk0x00591898[index].x += delta.x;
+            g_unk0x00591898[index].y += delta.y;
+            g_unk0x00591898[index].z += delta.z;
+        }
+        if (g_unk0x005916f0[index] == 0)
+            return;
+    }
+    g_unk0x00591898[index] = g_unk0x005916a0[index];
+}
 
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048dc30
