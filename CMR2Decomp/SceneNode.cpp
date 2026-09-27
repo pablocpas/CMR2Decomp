@@ -1557,6 +1557,13 @@ int g_shadowLastFlags = -1;
 // GLOBAL: CMR2 0x006dfdd8
 FixVector g_sceneShadowDir;
 
+// Light zone vertices near the current car, collected by FUN_004b5f90 and
+// consumed by FUN_004b5ee0 (99 entries max).
+// GLOBAL: CMR2 0x006dfe14
+void *g_sceneZoneList[99];
+// GLOBAL: CMR2 0x006e01c0
+int g_sceneZoneCount;
+
 // FUNCTION: CMR2 0x004b5340
 void Scene_SetShadowDirection(FixVector *pLightDir)
 {
@@ -1584,6 +1591,162 @@ void Scene_EndShadowBatch(void)
     if (g_sceneSectorZone != NULL) {
         g_shadowBatch[1] = g_shadowVertexCount - g_shadowBatch[0];
         CGraphics::m_pTextureManager->pVertexBuffer2->Unlock();
+    }
+}
+
+void FUN_004b4490(void *pCaster, int param2);
+void FUN_004b5770(void *pItem, void *pCaster, BYTE param3);
+void Sector_GetGridDimensions(int *columns, int *rows);
+
+// Shadow helpers of FUN_004b5ee0 that are still to be decompiled. Empty bodies
+// with the original stdcall argument count so the call sites can be measured.
+// STUB: CMR2 0x004b4490
+void FUN_004b4490(void *pCaster, int param2) { }
+
+// STUB: CMR2 0x004b5770
+void FUN_004b5770(void *pItem, void *pCaster, BYTE param3) { }
+
+// Marks the node's shadow caster and emits every light zone vertex collected by
+// FUN_004b5f90 through the shadow geometry builder.
+// FUNCTION: CMR2 0x004b5ee0
+void FUN_004b5ee0(SceneNode *pNode, int param2, BYTE param3)
+{
+    ShadowCaster *pCaster;
+    int i;
+    int count;
+
+    pCaster = NULL;
+    if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL &&
+        (unsigned short)g_sceneZoneCount > 0) {
+        count = g_sceneLightFlag & 0xff;
+        i = 0;
+        if (count > 0) {
+            do {
+                ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
+                if (p->pNode == pNode) {
+                    pCaster = p;
+                    i = count;
+                }
+                ++i;
+            } while (i < count);
+            if (pCaster != NULL) {
+                i = 0;
+                pCaster->field_0x10 = 1;
+                if ((unsigned short)g_sceneZoneCount > 0) {
+                    do {
+                        FUN_004b4490(pCaster, param2);
+                        FUN_004b5770(g_sceneZoneList[i], pCaster, param3);
+                        ++i;
+                    } while (i < (g_sceneZoneCount & 0xffff));
+                }
+            }
+        }
+    }
+}
+
+// One vertex of a light zone (0x30 bytes): its position and half extents in the
+// light basis, the light level and the scene object it was matched to.
+struct LightZoneVertex {
+    int field_0x0;
+    int field_0x4;
+    int x;                  // 0x8
+    int z;                  // 0xc
+    int halfSizeRight;      // 0x10
+    int halfSizeForward;    // 0x14
+    int field_0x18;
+    int field_0x1c;
+    int intensity;          // 0x20
+    int field_0x24;
+    int field_0x28;
+    void *pOwner;           // 0x2c
+};
+
+// Collects the light zone vertices around a node: the 3x3 neighbourhood of
+// sectors around *pSector is mapped through g_sceneSectorZone, and every item
+// whose box (in the light basis) contains the node within radius is stored in
+// g_sceneZoneList.
+// FUNCTION: CMR2 0x004b5f90
+void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector)
+{
+    ShadowCaster *pCaster;
+    int i;
+    int count;
+
+    pCaster = NULL;
+    *(unsigned short *)&g_sceneZoneCount = 0;
+    if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL) {
+        count = g_sceneLightFlag & 0xff;
+        i = 0;
+        if (count > 0) {
+            do {
+                ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
+                if (p->pNode == pNode) {
+                    pCaster = p;
+                    i = count;
+                }
+                ++i;
+            } while (i < count);
+            if (pCaster != NULL) {
+                int rows;
+                int item;
+                int itemOff;
+                int n;
+                FixVector pos;
+                int columns;
+                short samples[9];
+                short s;
+                LightZone *pZone;
+                LightZoneVertex *pItem;
+
+                FixMatrix_GetPosition(&pos, &pNode->world);
+                Sector_GetGridDimensions(&columns, &rows);
+                n = 9;
+                samples[0] = *pSector;
+                samples[1] = samples[0] - 1;
+                samples[2] = samples[0] + 1;
+                samples[3] = samples[0] - columns;
+                samples[4] = samples[3] - 1;
+                samples[5] = samples[3] + 1;
+                samples[6] = samples[0] + columns;
+                samples[7] = samples[6] - 1;
+                samples[8] = samples[6] + 1;
+                pSector = samples;
+                do {
+                    s = *pSector++;
+                    if ((unsigned int)s < (unsigned int)g_sectorCount && s >= 0) {
+                        short zone = g_sceneSectorZone[s];
+                        if (zone != -1) {
+                            pZone = (LightZone *)(g_sceneLightZones + zone * 0x14);
+                            for (item = 0, itemOff = 0; item < pZone->vertexCount;
+                                 item++, itemOff += 0x30) {
+                                pItem = (LightZoneVertex *)(pZone->pVertices + itemOff);
+                                if (pItem != NULL && pItem->pOwner != NULL) {
+                                    int dx;
+                                    int dz;
+                                    int d1;
+                                    int d2;
+
+                                    dx = pos.x - pItem->x;
+                                    dz = pos.z - pItem->z;
+                                    d1 = FIX_ABS(FixMul(dx, g_sceneLightRight.x) +
+                                                 FixMul(dz, g_sceneLightRight.z)) -
+                                         radius;
+                                    d2 = FIX_ABS(FixMul(dx, g_sceneLightForward.x) +
+                                                 FixMul(dz, g_sceneLightForward.z)) -
+                                         radius;
+                                    if (d1 <= pItem->halfSizeRight &&
+                                        d2 <= pItem->halfSizeForward &&
+                                        (unsigned short)g_sceneZoneCount < 99) {
+                                        g_sceneZoneList[g_sceneZoneCount & 0xffff] = pItem;
+                                        (*(unsigned short *)&g_sceneZoneCount)++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } while (--n);
+            }
+        }
     }
 }
 

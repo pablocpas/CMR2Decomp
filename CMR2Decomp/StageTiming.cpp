@@ -16,6 +16,8 @@
 #include "StageUI.h"
 #include "Mesh.h"
 #include "Graphics.h"
+#include "Font.h"
+#include "main.h"
 #include <string.h>
 
 // GLOBAL: CMR2 0x00543da0
@@ -2043,6 +2045,88 @@ void FUN_00459370(void)
 bool FUN_00459390(void)
 {
     return g_unk0x00543098 != 0;
+}
+
+// GLOBAL: CMR2 0x00537f30
+int g_unk0x00537f30;
+// GLOBAL: CMR2 0x00538120
+BYTE g_unk0x00538120;
+
+extern char g_str0x0051a904[];
+int FUN_00406710(void);
+int FUN_00406770(void);
+int FUN_0040af30(void);
+
+// Draws the stage clock and the countdown timer: picks the timer state from the
+// game info flags, then prints it on the HUD with the seconds text and the
+// minutes:seconds text.
+// FUNCTION: CMR2 0x004593a0
+void FUN_004593a0(void)
+{
+    BYTE colour[4];
+    unsigned int remaining;
+    unsigned int delta;
+    unsigned int limit;
+    unsigned int value;
+    int x;
+    int x2;
+    int y;
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    g_unk0x00543098 = 0;
+    if ((**(unsigned int **)(FUN_0041b390() + 4) & 0xff) >= 10)
+        return;
+    if (CGameInfo::FUN_00405d80() == '\n' || CGameInfo::FUN_00405d80() == '\f') {
+        if (FUN_00406710() != 0) {
+            delta = CMain::GetFrameDelta() - FUN_0040af30();
+            limit = FUN_00406710() * 6000;
+            if (delta >= limit) {
+                remaining = 0;
+                g_unk0x00543098 = 2;
+            } else {
+                g_unk0x00543098 = 2;
+                remaining = limit - delta;
+            }
+        } else {
+            g_unk0x00543098 = 0;
+        }
+    }
+    if ((CGameInfo::FUN_00405d80() == '\b' || CGameInfo::FUN_00405d80() == '\t' ||
+         CGameInfo::FUN_00405d80() == '\v') &&
+        g_unk0x00538120 != 0) {
+        delta = CMain::GetFrameDelta() - g_unk0x00537f30;
+        value = FUN_00406770() * 100;
+        if (delta >= value)
+            value = 0;
+        else
+            value -= delta;
+        if (g_unk0x00543098 == 0 || value < remaining) {
+            remaining = value;
+            g_unk0x00543098 = 1;
+        }
+    }
+    if (g_unk0x00543098 == 0)
+        return;
+    x = (int)g_pGraphics->resX * 0xaf30 >> 16;
+    x2 = (int)g_pGraphics->resX * 0xf06b >> 16;
+    if ((**(unsigned int **)(FUN_0041b390() + 4) & 0xff) < 10) {
+        if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0)
+            y = (int)g_pGraphics->resY * 0x14 / 0x1e0 + ((int)g_pGraphics->resY * 0x3000 >> 16);
+        else
+            y = (int)g_pGraphics->resY * 0x14 / 0x1e0 +
+                ((int)g_pGraphics->resY * (0x3000 - FixMul(0xaac, 0x8000)) >> 16);
+    } else {
+        y = (int)g_pGraphics->resY * 0x1c2 / 0x1e0;
+    }
+    if (g_unk0x00543098 == 1)
+        Font_DrawText(0, CFrontend::GetTextString(0xfd), x, y, (int *)colour, 0x21);
+    else
+        Font_DrawText(0, CFrontend::GetTextString(0xfc), x, y, (int *)colour, 0x21);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a904, (remaining / 100) / 60, (remaining / 100) % 60);
+    Font_DrawText(3, CFrontend::m_stringDest, x2, y, (int *)colour, 0x24);
 }
 
 // Registered callback with nothing to release.
