@@ -19,6 +19,8 @@ extern BYTE g_stageBlock[0x430];
 #define g_unk0x0058d49c ((void **)(g_stageBlock + 0x1fc))      // void *[8]
 #define g_unk0x0058d4c4 ((int *)(g_stageBlock + 0x224))        // pairs from 0x58d4c0
 #define g_unk0x0058d4d0 (g_stageBlock + 0x230)                 // BYTE[8]
+#define g_unk0x0058d4d8 ((int *)(g_stageBlock + 0x238))        // per object: fade state, direction
+#define g_unk0x0058d4e0 ((short *)(g_stageBlock + 0x240))      // per object: fade value, step
 #define g_unk0x0058d4f0 (g_stageBlock + 0x250)                 // 2 rows of 0x1c bytes (pointers into timing records)
 #define g_unk0x0058d530 (g_stageBlock + 0x290)                 // 2 rows of 0x1c bytes
 #define g_unk0x0058d6a0 ((void **)(g_stageBlock + 0x400))      // void *[2]

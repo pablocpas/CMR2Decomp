@@ -5835,6 +5835,53 @@ void FUN_0046bb40(void)
 
 extern Car *g_collisionCar;
 
+// Steps the fade state machine of one stage object: 0 -> 2 -> 3 ramps the
+// offset up to the record's limit and 1 ramps it back to zero, retriggering
+// from the object's +0x54 field.
+// FUNCTION: CMR2 0x00476c70
+void FUN_00476c70(int index)
+{
+    short *pMax;
+
+    if (FUN_00460bf0(index) == 1) {
+        if (FUN_00460c10(index) > 0x3333 && g_unk0x0058d4d8[index * 3] == 0) {
+            g_unk0x0058d4d8[index * 3] = 2;
+            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x2d;
+        }
+        if (FUN_00460c10(index) > 0x8000 && g_unk0x0058d4d8[index * 3] == 2) {
+            g_unk0x0058d4d8[index * 3] = 3;
+            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x5b;
+        }
+        if (FUN_00460c10(index) < 0x1999 && g_unk0x0058d4d8[index * 3] == 2)
+            g_unk0x0058d4d8[index * 3] = 1;
+        if (FUN_00460c10(index) < 0x6666 && g_unk0x0058d4d8[index * 3] == 3) {
+            g_unk0x0058d4d8[index * 3] = 2;
+            g_unk0x0058d4e0[index * 6 + 1] = rand() % 0xb + 0x2d;
+        }
+    } else {
+        g_unk0x0058d4d8[index * 3] = 0;
+    }
+    if (g_unk0x0058d4d8[index * 3] != 0) {
+        if (g_unk0x0058d4d8[index * 3 + 1] != 0) {
+            g_unk0x0058d4e0[index * 6] += g_unk0x0058d4e0[index * 6 + 1];
+            pMax = *(short **)(g_unk0x0058d4f0 + index * 0x1c + 4);
+            if (g_unk0x0058d4e0[index * 6] > *pMax) {
+                g_unk0x0058d4d8[index * 3 + 1] = 0;
+                g_unk0x0058d4e0[index * 6] = *pMax;
+                return;
+            }
+        } else {
+            g_unk0x0058d4e0[index * 6] -= g_unk0x0058d4e0[index * 6 + 1];
+            if (g_unk0x0058d4e0[index * 6] < 0) {
+                g_unk0x0058d4d8[index * 3 + 1] = 1;
+                if (g_unk0x0058d4d8[index * 3] == 1)
+                    g_unk0x0058d4d8[index * 3] = 0;
+                g_unk0x0058d4e0[index * 6] = 0;
+            }
+        }
+    }
+}
+
 // Updates per-wheel slip tables and damps the car's velocity.
 // match 42%: per-wheel tables and FixMul block differ from the original
 // FUNCTION: CMR2 0x0048df50
