@@ -903,3 +903,138 @@ void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
     *(int *)(pObj + 0x5c) = v;
     *(int *)(pObj + 0x50) = v - 0x10000;
 }
+
+extern BYTE *g_pCarSetup;
+int *FUN_00469680(int index);
+
+// Copies the car's body and world matrices into the local transform of its two
+// body scene nodes.
+// FUNCTION: CMR2 0x0043ecd0
+void FUN_0043ecd0(Car *pCar)
+{
+    FixVector v;
+
+    g_pCurrentCar = pCar;
+    g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)(pCar + 0xb1a));
+    Car_StoreBodyMatrix();
+    FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.right = v;
+    FixMatrix_GetUp(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.up = v;
+    FixMatrix_GetForward(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.forward = v;
+    FixMatrix_GetPosition(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.position = v;
+    FixMatrix_GetRight(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.right = v;
+    FixMatrix_GetUp(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.up = v;
+    FixMatrix_GetForward(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.forward = v;
+    FixMatrix_GetPosition(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.position = v;
+}
+
+void Car_UpdateCorners(Car *pCar);
+
+// Resets a car's physics state from a saved one (used when the body is put
+// back on the road): copies the stored fields and rebuilds the matrix-derived
+// vectors of the body.
+// The body matches the original instruction by instruction, but MSVC6 homes the first parameter in ESI
+// instead of the original's EBX, which renames every scratch register (known ceiling, CONOCIMIENTO 4.u).
+// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00426d80
+void FUN_00426d80(Car *pDst, Car *pSrc)
+{
+    int i;
+
+    *(int *)((BYTE *)pDst + 0xb54) = *(int *)((BYTE *)pSrc + 0xd0);
+    pDst->field_0x7a4 = 0;
+    pDst->heading = *(unsigned short *)((BYTE *)pSrc + 0xc4);
+    pDst->field_0x79c = *(int *)((BYTE *)pSrc + 0xb8);
+    *(FixVector *)((BYTE *)pDst + 0x414) = pDst->velocity;
+    *((BYTE *)pDst + 0xb35) = *((BYTE *)pSrc + 0xcc);
+    pDst->field_0xc00 = *(int *)((BYTE *)pSrc + 0xd4);
+    pDst->velocity = *(FixVector *)((BYTE *)pSrc + 0x70);
+    pDst->angularVelocity = *(FixVector *)((BYTE *)pSrc + 0x7c);
+    FixMatrix_CopyRotation((FixMatrix *)pSrc, pDst->pWorld);
+    pDst->pWorld->uw = *(int *)((BYTE *)pDst + 0x2ec);
+
+    for (i = 0; i < 4; i++) {
+        *(FixVector *)((BYTE *)pDst + 0x30c + i * 0xc) =
+            *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc);
+        *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc) = pDst->corners[i];
+        pDst->field_0xabe[i] = pDst->wheelSurface[i];
+    }
+    for (i = 0; i < 8; i++) {
+        pDst->cornerNormal[i] = pDst->cornerAxis[i];
+        pDst->field_0xbac[4 + i] = 0;
+    }
+    *(int *)((BYTE *)pDst + 0x7a8) = pDst->field_0x7a4;
+    *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
+    *(FixVector *)((BYTE *)pDst + 0x2e8) = pDst->position;
+    pDst->normal0x498 = pDst->groundNormal;
+    for (i = 0; i < 9; i++)
+        ((int *)((BYTE *)pDst + 0x384))[i] = ((int *)((BYTE *)pDst + 0x360))[i];
+
+    FixMatrix_GetPosition((FixVector *)((BYTE *)pDst + 0x2d0), pDst->pWorld);
+    FixMatrix_GetRight(&pDst->right, pDst->pWorld);
+    FixMatrix_GetUp(&pDst->up, pDst->pWorld);
+    FixMatrix_GetForward(&pDst->forward, pDst->pWorld);
+    Car_UpdateCorners(pDst);
+    pDst->field_0x5c4.x = 0;
+    pDst->field_0x5c4.y = 0;
+    pDst->field_0x5c4.z = 0;
+    pDst->field_0x5d0.x = 0;
+    pDst->field_0x5d0.y = 0;
+    pDst->field_0x5d0.z = 0;
+    *(int *)((BYTE *)pDst + 0xc20) = 1;
+}
+
+// One suspension step of the current car: for each wheel, the spring force from
+// the corner heights and the damper force are integrated into the suspension
+// travel (0x9c8) and its rate (0x9d8).
+// FUNCTION: CMR2 0x0042e8e0
+void FUN_0042e8e0(void)
+{
+    FixVector d;
+    FixVector mid;
+    FixVector v;
+    int h;
+    int f;
+    int w;
+
+    for (w = 0; w < 4; w++) {
+        if (g_pCurrentCar->field_0xb74 != 0) {
+            h = g_pCurrentCar->cornerHeight[w] - g_pCurrentCar->corners[w].y;
+            if (h < 0)
+                h = -h;
+            if (h < 0x4ccc &&
+                (((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x != 0 ||
+                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y != 0 ||
+                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z != 0)) {
+                d.x = (g_pCurrentCar->corners[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x);
+                d.y = (g_pCurrentCar->corners[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y);
+                d.z = (g_pCurrentCar->corners[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z);
+                FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
+                f = FixMul(v.z, FixMul(0x9c28, g_physicsScale));
+                if (f > 0)
+                    ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] -= f;
+            }
+        }
+        f = FixMul(g_physicsTimeStep,
+                   -(FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9e8))[w], g_pCurrentCar->wheel0x9d8[w]) +
+                     FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w])));
+        ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] += f;
+        ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] +=
+            FixMul(g_physicsTimeStep, ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w]);
+        if (((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] < -0x3333) {
+            ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] = -0x3333;
+            if (((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] < 0)
+                ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] = 0;
+        }
+    }
+}
