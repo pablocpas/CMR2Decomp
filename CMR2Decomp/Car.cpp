@@ -2918,6 +2918,32 @@ int FUN_0042cae0(Car *pCar, int param2)
     return 0;
 }
 
+// Sets the suspension geometry of the current car from the ride-height
+// setting (0..0x10000).
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0043dff0
+void FUN_0043dff0(int param_1)
+{
+    int off;
+    int inv;
+
+    if (CGameInfo::FUN_004063f0(6) != 0)
+        param_1 = -0x6666;
+    g_pCurrentCar->field_0x9b8 = FixMul(param_1, 0x6666) + 0x9999;
+    g_pCurrentCar->field_0x9bc = FixMul(param_1, 0x3333) + 0x6666;
+    g_pCurrentCar->field_0x8d8 = g_pCurrentCar->field_0x75c / 8;
+    *(int *)g_pCurrentCar->field_0x9c0 = FixDiv(0x10000, FixMul(param_1, -0x1999) + 0x3333);
+    g_pCurrentCar->field_0x9c4 = FixDiv(0x10000, FixMul(param_1, -0x1aaaa) + 0x50000);
+    inv = 0x10000 - param_1;
+    for (off = 0x9f8; off < 0xa08; off += 4) {
+        *(int *)((BYTE *)g_pCurrentCar + off - 0x10) = 0x4ccc;
+        *(int *)((BYTE *)g_pCurrentCar + off) = FixMul(param_1, 0x5999) + 0x4000;
+        *(int *)((BYTE *)g_pCurrentCar + off - 0x70) = FixMul(inv, 0x1999);
+        *(int *)((BYTE *)g_pCurrentCar + off - 0x80) = FixMul(param_1, 0x8000) + 0x8000;
+    }
+    *(int *)((BYTE *)g_pCurrentCar + 0xa08) = -0x1999;
+}
+
 // FUNCTION: CMR2 0x0043e160
 void FUN_0043e160(int value)
 {
@@ -2962,6 +2988,31 @@ void FUN_00442fc0(void)
     front = torque / 2 - front;
     g_pCurrentCar->wheelTorque[2] = front;
     g_pCurrentCar->wheelTorque[3] = front;
+}
+
+// Integrates the ride-height accumulator of the current car toward the
+// average wheel load (or the engine speed while it is off the ground).
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004430b0
+void FUN_004430b0(void)
+{
+    int hi;
+    int lo;
+
+    if (g_pCurrentCar->field_0xb1e == 0) {
+        g_pCurrentCar->field_0x7a4 += FixMul(g_pCurrentCar->field_0x780, 0xa0000);
+        if (g_pCurrentCar->field_0x7a4 > g_pCurrentCar->field_0x794) {
+            g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
+            return;
+        }
+    } else {
+        lo = (FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]) +
+              FixMul(g_pCurrentCar->wheelLoad[1], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e])) / 2;
+        hi = (FixMul(g_pCurrentCar->wheelLoad[2], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]) +
+              FixMul(g_pCurrentCar->wheelLoad[3], g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e])) / 2;
+        g_pCurrentCar->field_0x7a4 +=
+            FixMul(FixMul(lo - hi, g_pCurrentCar->field_0x7b4) - g_pCurrentCar->field_0x7a4 + hi, 0x10000);
+    }
 }
 
 // FUNCTION: CMR2 0x00443230
@@ -3332,6 +3383,56 @@ void Car_UpdateRollover(void)
 extern int g_unk0x0053c9d4;
 
 // Lowers the current car's target (0x7a4) toward 0x794 minus a fading offset.
+int FUN_00458310(int index);
+
+// Transfers ride height between the two cars so the one further back along
+// the road is raised; only active in the 2-player game (state 2).
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00433e80
+void FUN_00433e80(BYTE *param_1, short *param_2, short param_3)
+{
+    BYTE *pCar1;
+    BYTE *pCar2;
+    int diff;
+    int dist;
+    int t;
+    int amount;
+
+    if ((BYTE)RallyDataState() != 2)
+        return;
+    if (param_3 != 2)
+        return;
+    if ((BYTE)RallyData_GetFlag24() == 0)
+        return;
+    if ((BYTE)CGameInfo::FUN_00406440() == 0)
+        return;
+    pCar1 = param_1 + param_2[0] * 0xc24;
+    pCar2 = param_1 + param_2[1] * 0xc24;
+    diff = FUN_00458310(*(char *)(pCar1 + 0xb1a)) - FUN_00458310(*(char *)(pCar2 + 0xb1a));
+    dist = diff * 0x10000;
+    if (dist < 0)
+        dist = -dist;
+    if (dist <= 0x30000) {
+        t = 0;
+    } else if (dist < 0xf0000) {
+        t = FixMul(dist - 0x30000, FixDiv(0x10000, 0xc0000));
+        if (t < 0)
+            t = 0;
+        else if (t > 0x10000)
+            t = 0x10000;
+    } else {
+        t = 0x10000;
+    }
+    amount = FixMul(t, 0xccc);
+    if (diff >= 0) {
+        *(int *)(pCar1 + 0x788) = *(int *)(pCar1 + 0x78c) - amount;
+        *(int *)(pCar2 + 0x788) = *(int *)(pCar2 + 0x78c) + amount;
+        return;
+    }
+    *(int *)(pCar2 + 0x788) = *(int *)(pCar2 + 0x78c) - amount;
+    *(int *)(pCar1 + 0x788) = *(int *)(pCar1 + 0x78c) + amount;
+}
+
 // FUNCTION: CMR2 0x00433fd0
 void FUN_00433fd0(void)
 {
@@ -3619,6 +3720,85 @@ void Car_UpdateEngineSpeed(void)
     g_pCurrentCar->field_0xb78 = 0;
 }
 
+// Rebuilds the body matrix axes and lifts the body along its up axis by the
+// front suspension height. When field_0xb74 is set the axes are taken from
+// the world matrix instead.
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00444a70
+void FUN_00444a70(void)
+{
+    FixVector v[3];
+    FixVector tmp;
+    FixVector *pForward;
+    FixMatrix *pBody;
+    int scale;
+    int i;
+
+    if (g_pCurrentCar->field_0xb74 != 0) {
+        FixMatrix_GetRight(&v[0], g_pCurrentCar->pBodyMatrix);
+        FixMatrix_GetUp(&v[1], g_pCurrentCar->pBodyMatrix);
+        FixMatrix_GetForward(&v[2], g_pCurrentCar->pBodyMatrix);
+        for (i = 0; i < 3; i++) {
+            FixMatrix_RotateVector(&tmp, &v[i], g_pCurrentCar->pWorld);
+            v[i] = tmp;
+        }
+        FixMatrix_SetRight(&v[0], g_pCurrentCar->pBodyMatrix);
+        FixMatrix_SetUp(&v[1], g_pCurrentCar->pBodyMatrix);
+        pForward = &v[2];
+        pBody = g_pCurrentCar->pBodyMatrix;
+    } else {
+        FixMatrix_SetRight(&g_pCurrentCar->right, g_pCurrentCar->pBodyMatrix);
+        FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pBodyMatrix);
+        pForward = &g_pCurrentCar->forward;
+        pBody = g_pCurrentCar->pBodyMatrix;
+    }
+    FixMatrix_SetForward(pForward, pBody);
+    scale = g_pCurrentCar->wheel0x988[0];
+    FixVecScale(&tmp, &g_pCurrentCar->up, scale);
+    g_pCurrentCar->pBodyMatrix->position.x = tmp.x + g_pCurrentCar->position.x;
+    g_pCurrentCar->pBodyMatrix->position.y = tmp.y + g_pCurrentCar->position.y;
+    g_pCurrentCar->pBodyMatrix->position.z = tmp.z + g_pCurrentCar->position.z;
+}
+
+// Lifts the current car out of the ground by the deepest penetration of any
+// of its eight box corners, rising or sinking as needed.
+// FUNCTION: CMR2 0x004458d0
+void FUN_004458d0(void)
+{
+    int maxDrop = 0;
+    int maxRise = -0x3e80000;
+    int foundDrop = 0;
+    int foundRise = 0;
+    int i;
+    int d;
+    int lift = 0;
+
+    for (i = 7; i >= 0; i--) {
+        d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y;
+        if (d >= 0 && d > maxDrop) {
+            maxDrop = d;
+            foundDrop = 1;
+        }
+        if (d <= 0 && d > maxRise) {
+            maxRise = d;
+            foundRise = 1;
+        }
+    }
+    if (foundDrop)
+        lift = maxDrop;
+    else if (foundRise)
+        lift = maxRise;
+    g_pCurrentCar->position.y += lift;
+    g_pCurrentCar->corners[0].y += lift;
+    g_pCurrentCar->corners[1].y += lift;
+    g_pCurrentCar->corners[2].y += lift;
+    g_pCurrentCar->corners[3].y += lift;
+    g_pCurrentCar->corners[4].y += lift;
+    g_pCurrentCar->corners[5].y += lift;
+    g_pCurrentCar->corners[6].y += lift;
+    g_pCurrentCar->corners[7].y += lift;
+}
+
 // GLOBAL: CMR2 0x0053cdb4
 int g_unk0x0053cdb4;
 
@@ -3900,6 +4080,48 @@ void FUN_00432b30(void)
     g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / g_pCurrentCar->field_0xb28;
 }
 
+void FUN_00437fd0(void);
+
+// Updates the engine torque figure and splits it between the wheels, or
+// clears the wheel torques when the car is off its wheels.
+// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00437dc0
+void FUN_00437dc0(void)
+{
+    int value;
+
+    if (g_pCurrentCar->field_0xb78 == 0) {
+        value = g_pCurrentCar->field_0x7a4;
+        if (value >= g_pCurrentCar->field_0x794) {
+            g_pCurrentCar->field_0x780 = 0;
+        } else if (g_pCurrentCar->field_0xb1e != 0 && g_pCurrentCar->field_0xb84 == 1) {
+            g_pCurrentCar->field_0x780 = FixMul(g_pCurrentCar->field_0x784, FixMul(value, value));
+        } else {
+            g_pCurrentCar->field_0x780 =
+                FUN_00437f90() - FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
+        }
+    } else if (g_pCurrentCar->field_0xb1e != 0) {
+        g_pCurrentCar->field_0x780 = -g_pCurrentCar->field_0x7b0;
+    } else {
+        g_pCurrentCar->field_0x780 = 0;
+    }
+    if (g_pCurrentCar->field_0xb1e != 0 && g_pCurrentCar->field_0xb84 == 0) {
+        int torque = FixMul(g_pCurrentCar->field_0x780, g_pCurrentCar->field_0x7bc[g_pCurrentCar->field_0xb1e]);
+        int front = FixMul(torque, g_pCurrentCar->field_0x7b4) / 2;
+        g_pCurrentCar->wheelTorque[0] = front;
+        g_pCurrentCar->wheelTorque[1] = front;
+        g_pCurrentCar->wheelTorque[2] = torque / 2 - front;
+        g_pCurrentCar->wheelTorque[3] = torque / 2 - front;
+    } else {
+        g_pCurrentCar->wheelTorque[0] = 0;
+        g_pCurrentCar->wheelTorque[1] = 0;
+        g_pCurrentCar->wheelTorque[2] = 0;
+        g_pCurrentCar->wheelTorque[3] = 0;
+    }
+    Car_UpdateTyreForces();
+    FUN_00437fd0();
+}
+
 // Filters each driven wheel's spin (peak hold with decay) while it keeps the
 // same surface and touches the ground.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -3997,6 +4219,47 @@ void FUN_0042f8c0(void)
     g_pCurrentCar->position.y += lift;
     for (i = 0; i < 8; i++)
         g_pCurrentCar->corners[i].y += lift;
+}
+
+// Lifts the current car out of the ground by the deepest penetration of a
+// free corner, rising or sinking as needed.
+// FUNCTION: CMR2 0x0042f9d0
+void FUN_0042f9d0(void)
+{
+    int lift = 0;
+    int maxDrop = 0;
+    int maxRise = -0x3e80000;
+    int foundDrop = 0;
+    int foundRise = 0;
+    int i;
+    int d;
+
+    for (i = 7; i >= 0; i--) {
+        if (g_pCurrentCar->cornerFlags[i] != 0)
+            continue;
+        d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y;
+        if (d >= 0 && d > maxDrop) {
+            maxDrop = d;
+            foundDrop = 1;
+        }
+        if (d <= 0 && d > maxRise) {
+            maxRise = d;
+            foundRise = 1;
+        }
+    }
+    if (foundDrop)
+        lift = maxDrop;
+    else if (foundRise)
+        lift = maxRise;
+    g_pCurrentCar->position.y += lift;
+    g_pCurrentCar->corners[0].y += lift;
+    g_pCurrentCar->corners[1].y += lift;
+    g_pCurrentCar->corners[2].y += lift;
+    g_pCurrentCar->corners[3].y += lift;
+    g_pCurrentCar->corners[4].y += lift;
+    g_pCurrentCar->corners[5].y += lift;
+    g_pCurrentCar->corners[6].y += lift;
+    g_pCurrentCar->corners[7].y += lift;
 }
 
 // Per-wheel spin flag of each car (load change above half a unit this step).

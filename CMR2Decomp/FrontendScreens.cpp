@@ -1045,6 +1045,66 @@ void FUN_004ef4a0(int value);
 extern BYTE g_unk0x00818ac4;
 extern int g_menuEnterTime;
 
+// GLOBAL: CMR2 0x0052f3d8
+int g_unk0x0052f3d8;
+// Name of the demo profile used by quick race.
+// GLOBAL: CMR2 0x00519ec4
+char g_strDemoName0x00519ec4[4] = "DEM";
+
+void FUN_004eb860(int index, int profile);
+void FUN_004ebf20(int index);
+void FUN_004eb000(BYTE index, char set);
+void FUN_004eae90(unsigned int slot, char *pName);
+void RallyData_FUN_0040e330(char param1);
+void RallyData_FUN_004068e0(BYTE param1);
+void FUN_0040dfa0(void);
+void RallyData_FUN_00408600(BYTE index, BYTE value);
+void FUN_004eb0c0(BYTE index, BYTE flag);
+void FUN_004ea8c0(BYTE param1);
+void FUN_004ea930(BYTE param1);
+void FUN_004ea8e0(BYTE param1);
+
+// Starts a fresh quick-race/championship session: resets the timing and rally
+// data and selects the difficulty-dependent defaults.
+// FUNCTION: CMR2 0x004e9e40
+void FUN_004e9e40(void)
+{
+    int values[6] = { 5, 3, 2, 2, 0, 0 };
+    int index;
+
+    index = g_unk0x0052f3d8;
+    g_unk0x0052f3d8 = (g_unk0x0052f3d8 + 1) % 4;
+    FUN_004eb860(0, -1);
+    FUN_004ebf20(0);
+    FUN_004eb000(0, 1);
+    FUN_004eae90(0, g_strDemoName0x00519ec4);
+    RallyData_FUN_00408600(0, 0);
+    FUN_004eb0c0(0, 1);
+    CGameInfo::FUN_00406470();
+    if (index == 3) {
+        FUN_004ea8e0(6);
+        FUN_004ea8c0(1);
+        FUN_004ea930(2);
+        RallyData_FUN_0040e330(0);
+        RallyData_FUN_0040d640(5);
+        RallyData_FUN_0040d600(0);
+        RallyData_FUN_00406960(0);
+        RallyData_FUN_0040d620(1);
+        FUN_0040dfa0();
+        RallyData_FUN_004068b0(5);
+        RallyData_FUN_004068e0(2);
+        return;
+    }
+    FUN_004ea8e0(2);
+    RallyData_FUN_0040df60(1, 0);
+    FUN_004ea8c0(1);
+    FUN_004ea930(1);
+    RallyData_FUN_0040e330(0);
+    RallyData_FUN_0040d620(1);
+    RallyData_FUN_004068b0((BYTE)values[index]);
+    RallyData_FUN_004068e0((BYTE)values[index + 3]);
+}
+
 // Builds every frontend menu and picks the first one: after a network game
 // the network lobby; otherwise the language menu (first run) or the main
 // menu, and when coming back from a race (`back`) the menus of the game
@@ -2598,6 +2658,15 @@ void FUN_004ef4e0(Menu *pMenu)
     g_unk0x0082ac48 = 13;
     if (g_unk0x0082aa40 <= 13)
         g_unk0x0082ac48 = g_unk0x0082aa40;
+}
+
+void FUN_004d2070(BYTE param1, BYTE param2, BYTE param3);
+
+// Callback that clears the debug overlay channels.
+// FUNCTION: CMR2 0x004ef5e0
+void FUN_004ef5e0(Menu *pMenu)
+{
+    FUN_004d2070(0, 0, 0);
 }
 
 // FUNCTION: CMR2 0x004ef5f0
@@ -5493,6 +5562,60 @@ void FUN_004eb0c0(BYTE index, BYTE flag)
     }
 }
 
+void FUN_0040d090(int index, int seconds);
+void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds);
+void RallyTiming_FUN_0040d0c0(void);
+
+// Copies the recorded stage times of the pending drivers from the save block
+// into the timing system.
+// FUNCTION: CMR2 0x004eb160
+void FUN_004eb160(void)
+{
+    int count;
+    int i;
+    int n;
+    unsigned int index;
+    BYTE *pRecord;
+
+    count = 0;
+    if (CGameInfo::FUN_00405d70() != 0) {
+        pRecord = g_saveData + 0x1f74;
+        i = 0xf;
+        do {
+            FUN_0040d090(i, (*(unsigned int *)(pRecord - 4) >> 6) & 0x7f);
+            RallyTiming_SetOverallTimeRaw(i, *(int *)pRecord);
+            count++;
+            i--;
+            pRecord += 0x30;
+        } while (count < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
+    n = 0x10 - (CGameInfo::FUN_00405d70() & 0xff);
+    i = 0;
+    while (i < n) {
+        index = (CGameInfo::FUN_00405d70() & 0xff) + i;
+        FUN_0040d090(i, (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 6) & 0x7f);
+        RallyTiming_SetOverallTimeRaw(i, *(int *)(g_saveData + 0x1f74 + index * 0x30));
+        i++;
+    }
+    RallyTiming_FUN_0040d0c0();
+}
+
+// True if the profile name of a driver matches the category record that the
+// given championship entry points at.
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004eb200
+bool FUN_004eb200(int param_1, BYTE *param_2)
+{
+    unsigned int category;
+    char *pName;
+
+    RallyData_ValidateIndex(param_1);
+    category = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
+    pName = (char *)(g_saveData + 0x628 + category * 0x650);
+    CGenericFileLoader::StrLowerPolish((char *)param_2);
+    return !strcmp((char *)param_2, pName + 0x1c);
+}
+
 // True if the profile of the given index already matches the category record
 // that one of the championship entries points at.
 // FUNCTION: CMR2 0x004ebd60
@@ -5517,6 +5640,21 @@ bool FUN_004ebd60(int index)
             return 1;
     }
     return 0;
+}
+
+// Sets the colour word of the category record that the driver's entry points
+// at. param_2 is the 5-bit shade index, param_3 the 4-bit hue.
+// FUNCTION: CMR2 0x004ebe10
+void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4)
+{
+    unsigned int category;
+    unsigned int colour;
+
+    RallyData_ValidateIndex(param_1);
+    category = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
+    colour = ((((param_2 & 0x1f) << 8) | (param_3 & 0xf)) << 8) |
+             (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffe0f0ff);
+    *(unsigned int *)(g_saveData + 0x63c + category * 0x650) = ((colour ^ param_4) & 0xff) ^ colour;
 }
 
 // Next player: gives the player a profile and goes to the name entry (or
@@ -5954,6 +6092,32 @@ void FUN_004f0c50(Menu *pMenu, int param)
     }
     Menu_SetParent(pNext, pMenu);
     Menu_SetNextAction((int)pNext);
+}
+
+// Callback that steps the player list back one player while setting up a
+// championship.
+// FUNCTION: CMR2 0x004f0da0
+void FUN_004f0da0(int param_1, char param_2)
+{
+    FUN_004ea480(0);
+    FUN_004a0c50(0);
+    if (param_2 != 0) {
+        FUN_004e77b0(0);
+        if (CGameInfo::FUN_00405d80() == 4) {
+            if (FUN_004d27d0() == 0) {
+                g_unk0x00819744--;
+                if (g_unk0x00819744 > 0) {
+                    g_unk0x00819048++;
+                    FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
+                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
+                            (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
+                    FUN_004e7780(CFrontend::m_stringDest);
+                    return;
+                }
+                Menu_SetNextAction((int)FUN_004f8320());
+            }
+        }
+    }
 }
 
 // GLOBAL: CMR2 0x00524d38
@@ -7202,3 +7366,33 @@ void FUN_004fb370(int param_1, int unused)
     Menu_SetNextAction((int)FUN_004f8330());
 }
 
+// Builds a profile-less identifier string: the decimal digits of param_2
+// followed by five checksum digits derived from the byte sum of param_2 and
+// param_3.
+// FUNCTION: CMR2 0x004fb9c0
+void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4)
+{
+    unsigned short checksum;
+    BYTE sum;
+    int i;
+    int n;
+
+    i = 0;
+    sum = (BYTE)(param_2 >> 0x18) + (BYTE)(param_2 >> 0x10) + (BYTE)(param_2 >> 8) + (BYTE)param_2 + param_3 + 2;
+    if ((int)param_1 > 0) {
+        param_2 ^= param_1;
+        param_3 ^= (BYTE)param_1;
+    }
+    while (param_2 != 0) {
+        param_4[i] = (char)(param_2 % 10) + '0';
+        i++;
+        param_2 /= 10;
+    }
+    checksum = (unsigned short)(param_3 * 0x100 + sum);
+    for (n = 5; n != 0; n--) {
+        param_4[i] = (char)(checksum % 10) + '0';
+        i++;
+        checksum /= 10;
+    }
+    param_4[i] = 0;
+}

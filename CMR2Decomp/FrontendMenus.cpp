@@ -3024,7 +3024,7 @@ void FUN_004f8020(void)
 void FUN_004f8250(void)
 {
     Menu_Init(&g_menu0x00820798, 0, -1, 0, &g_menu0x0081d6d8, NULL, 1, 0, 0);
-    Menu_SetCallbacks(&g_menu0x00820798, NULL, FUN_004ef5e0, NULL, NULL);
+    Menu_SetCallbacks(&g_menu0x00820798, NULL, (MenuCallback)FUN_004ef5e0, NULL, NULL);
     Menu_ValidateCursor(&g_menu0x00820798, 0);
 }
 
