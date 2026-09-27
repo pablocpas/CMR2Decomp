@@ -681,3 +681,57 @@ void NetRace_PackCarState(Car *car)
     else if (progress > 63) progress = 63;
     g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);
 }
+
+// Packs the state of every car listed in pIndices, from the highest index down.
+// FUNCTION: CMR2 0x004258e0
+void FUN_004258e0(int base, short *pIndices, short count)
+{
+    int i;
+
+    if (g_unk0x00539cc8 != 0) {
+        for (i = (int)count - 1; i >= 0; i--) {
+            Car *pCar = (Car *)(base + pIndices[i] * 0xc24);
+
+            if (*(int *)((BYTE *)pCar + 0xc1c) == 0 &&
+                (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
+                FUN_004278f0(&g_localCarStats);
+        }
+    }
+}
+
+// Clamps the object's displacement so that it does not overshoot the target
+// along the (negated) direction vector.
+// match 89%: identical logic; MSVC6 only differs in which stack slot holds the
+// first dot product ([ebp-4] vs [ebp+8]).
+// FUNCTION: CMR2 0x00426b90
+void FUN_00426b90(int param_1, int param_2)
+{
+    int dot;
+    int scale;
+    FixVector v;
+    FixVector d;
+
+    if (*(int *)(param_1 + 0xdc) == 0 || param_2 == 0)
+        return;
+    FixVecScale(&v, (FixVector *)(param_1 + 0x94), -0x10000);
+    dot = FixVecDot((FixVector *)(param_1 + 0x70), &v);
+    if (dot > 0) {
+        d.x = *(int *)(param_1 + 0xa0) - *(int *)(param_1 + 0x64);
+        d.y = *(int *)(param_1 + 0xa4) - *(int *)(param_1 + 0x68);
+        d.z = *(int *)(param_1 + 0xa8) - *(int *)(param_1 + 0x6c);
+        scale = FixVecDot(&d, &v) + 0x10000;
+        param_2 = FixDiv(scale, param_2);
+        if (param_2 > 0) {
+            if (dot < param_2)
+                param_2 = dot;
+            FixVecScale(&d, &v, dot);
+            *(int *)(param_1 + 0x70) -= d.x;
+            *(int *)(param_1 + 0x74) -= d.y;
+            *(int *)(param_1 + 0x78) -= d.z;
+            FixVecScale(&d, &v, param_2);
+            *(int *)(param_1 + 0x70) += d.x;
+            *(int *)(param_1 + 0x74) += d.y;
+            *(int *)(param_1 + 0x78) += d.z;
+        }
+    }
+}
