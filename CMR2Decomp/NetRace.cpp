@@ -272,7 +272,7 @@ void FUN_004283b0(void)
 }
 
 int FUN_0041f3a0(void);
-BYTE FUN_00422fb0(unsigned int index);
+BYTE FUN_00422fb0(BYTE index);
 
 int FUN_00428740(BYTE index);
 

@@ -65,18 +65,16 @@ void FUN_00422f90(unsigned int index, int value)
 }
 
 // FUNCTION: CMR2 0x00422f50
-int FUN_00422f50(unsigned int index)
+int FUN_00422f50(BYTE index)
 {
-    index &= 0xff;
     if (*(int *)(g_unk0x00538d2c + index * 100) != 8)
         return *(int *)(g_unk0x0053901c + ((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100);
     return 8;
 }
 
 // FUNCTION: CMR2 0x00422fb0
-BYTE FUN_00422fb0(unsigned int index)
+BYTE FUN_00422fb0(BYTE index)
 {
-    index &= 0xff;
     return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
 }
 

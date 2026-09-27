@@ -522,7 +522,7 @@ void FUN_0044a0a0(Menu *pMenu, int param)
 }
 
 int FUN_0041f3a0(void);
-BYTE FUN_00422fb0(unsigned int index);
+BYTE FUN_00422fb0(BYTE index);
 char *FUN_004736b0(KnockoutMatch *pMatch, int side);
 int FUN_00473790(KnockoutMatch *pMatch, int side);
 int FUN_004737d0(KnockoutMatch *pMatch, int param2);

@@ -2535,7 +2535,7 @@ void FUN_00466490(void)
 int g_unk0x0058896c;
 
 unsigned int RallyData_FUN_00407e70(void);
-BYTE FUN_00422fb0(unsigned int index);
+BYTE FUN_00422fb0(BYTE index);
 int FUN_0041f3a0(void);
 void FUN_00494db0(Car *pCar, int view);
 void FUN_00460330(int a, int b);
@@ -2591,7 +2591,7 @@ extern const float g_netZero;
 extern const float g_netByteScale;
 extern const float g_netOne;
 
-int FUN_00422f50(unsigned int index);
+int FUN_00422f50(BYTE index);
 
 // Fades a stage object in and out from the screen distance between two
 // projected points of the player's car.
@@ -6104,7 +6104,7 @@ BYTE FUN_0046f030(void)
     return 1;
 }
 
-int FUN_00422f50(unsigned int index);
+int FUN_00422f50(BYTE index);
 
 // Places the four view nodes of a split screen from the current view position.
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
