@@ -1400,7 +1400,7 @@ BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
     index = g_unk0x008173fc + g_unk0x008173f8 * 0xb;
     pRecord = &pInfo->rallyStageRecordTimes[index];
     pSplits = pInfo->rallyStageRecordSplits[index];
-    if (pOption == NULL || ((pRecord->value >> 7) & 0xffff) <= *pOption)
+    if (pOption == NULL || *pOption >= ((pRecord->value >> 7) & 0xffff))
         return 0;
     strcpy(pRecord->ident, pName);
     pRecord->value = (RallyData_FUN_004086b0((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
