@@ -1227,6 +1227,45 @@ void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
     }
 }
 
+// Gives a particle a deterministic spiral offset and, while its owner is a
+// car slot, moves it into that car's world position.
+// FUNCTION: CMR2 0x0045d3a0
+void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
+{
+    int scales[10] = { 0x1999, 0x3333, 0x4ccc, 0x6666, 0x8000,
+                       0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
+    Particle *p;
+    unsigned short angle;
+    int scale;
+    int x;
+    int z;
+    int car;
+
+    p = (Particle *)pParticle;
+    scale = scales[(((int)p / 3) & 0xffffffU) % 10];
+    if (p->age == 0xc70000)
+        p->field0x50 = (short)((((int)p / 7) & 0xffffffU) % 0x24) * 0x71;
+    p->field0x50 += 0x71;
+    if (p->field0x50 > 0x1000)
+        p->field0x50 -= 0x1000;
+    if (p->field0x50 < 0)
+        p->field0x50 += 0x1000;
+    if ((pType->flags & 4) != 0)
+        angle = (unsigned short)p->field0x50;
+    else
+        angle = (unsigned short)(0x1000 - p->field0x50);
+    x = FixMul(scale, g_sinTable[(angle + 0x400) & 0xfff]);
+    z = FixMul(scale, g_sinTable[angle & 0xfff]);
+    car = p->field0x64;
+    if (car < 8) {
+        p->vector0x28.x += x;
+        p->vector0x28.z += z;
+        p->vector0x28.x += Car_Get(car)->position.x;
+        p->vector0x28.y += Car_Get(car)->position.y;
+        p->vector0x28.z += Car_Get(car)->position.z;
+    }
+}
+
 // Spawn callback: stores the effect data passed by the spawner.
 // FUNCTION: CMR2 0x0045de80
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)

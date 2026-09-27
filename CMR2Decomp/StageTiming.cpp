@@ -3750,6 +3750,60 @@ BYTE *g_unk0x0053937c;
 // GLOBAL: CMR2 0x00539380
 int g_unk0x00539380;
 
+// Builds the steering force from the two front-corner axes, the wheel speed,
+// and the force-feedback slot's current centring/impact state.
+// FUNCTION: CMR2 0x00424360
+void FUN_00424360(void)
+{
+    FixVector *pForward;
+    FixVector *pAxis;
+    int left;
+    int right;
+    int force;
+    int speed;
+
+    if (g_unk0x00539270[0] == 0) {
+        left = 0;
+    } else {
+        pAxis = (FixVector *)(g_unk0x0053937c + 0x4a4);
+        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
+        left = FixMul(pAxis->x, pForward->x) + FixMul(pAxis->y, pForward->y) +
+               FixMul(pAxis->z, pForward->z);
+    }
+    if (g_unk0x00539270[1] == 0) {
+        right = 0;
+    } else {
+        pAxis = (FixVector *)(g_unk0x0053937c + 0x4b0);
+        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
+        right = FixMul(pAxis->x, pForward->x) + FixMul(pAxis->y, pForward->y) +
+                FixMul(pAxis->z, pForward->z);
+    }
+
+    force = g_unk0x005391f8[1] - g_unk0x005391f8[0] - right - left;
+    if (FIX_ABS(force) > 0x10000)
+        force = force > 0 ? 0x10000 : -0x10000;
+
+    speed = FixMul(*(int *)(g_unk0x0053937c + 0x778) - 0x8000, 0x20000);
+    if (speed > 0x10000)
+        speed = 0x10000;
+    else if (speed < 0)
+        speed = 0;
+    force = FixMul(speed, force);
+    force = FixMul(force, 0x6666) + g_unk0x00539278->field_0x20;
+    if (g_unk0x00539278->field_0x30 != 0)
+        force += g_unk0x00539278->field_0x24;
+    else
+        force -= g_unk0x00539278->field_0x24;
+    if (FIX_ABS(force) > 0x10000)
+        force = force > 0 ? 0x10000 : -0x10000;
+
+    speed = FixMul(g_unk0x00539278->field_0x18, 0x40000);
+    force = FixMul(force, speed);
+    if (FIX_ABS(force) > 0x10000)
+        force = force > 0 ? 0x10000 : -0x10000;
+    g_unk0x00539278->field_0x14 = FixMul(force, 0x27100000) >> 16;
+}
+
 // Computes each axle's rumble from its suspension travel and stiffness,
 // plus the ground roughness, and their average.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -3781,6 +3835,60 @@ void FUN_004247a0(void)
         }
     }
     g_unk0x00539380 = FixMul(g_unk0x005391f8[1] + g_unk0x005391f8[0], 0x8000);
+}
+
+// Builds the two condition-effect coefficients from the car's velocity,
+// ground contact and the force-feedback strength selected for this slot.
+// FUNCTION: CMR2 0x004248a0
+void FUN_004248a0(void)
+{
+    FixVector *pForward;
+    FixVector *pVelocity;
+    int contact;
+    int spring;
+    int damper;
+    int speed;
+
+    spring = FixMul(g_unk0x00539380, 0x6666) + 0x1999;
+    damper = FixMul(g_unk0x00539380, 0x4ccc);
+    if (g_unk0x00539270[0] != 0 && g_unk0x00539270[1] != 0) {
+        pForward = (FixVector *)(g_unk0x0053937c + 0x378);
+        pVelocity = (FixVector *)(g_unk0x0053937c + 0x408);
+        contact = FixMul(pForward->x, pVelocity->x) + FixMul(pForward->y, pVelocity->y) +
+                  FixMul(pForward->z, pVelocity->z);
+        if (contact < 0)
+            contact = -contact;
+        contact = FixMul(contact - 0x1999, 0x28000);
+        if (contact > 0x10000)
+            contact = 0x10000;
+        else if (contact < 0)
+            contact = 0;
+        spring -= FixMul(contact, 0x4ccc);
+        if (spring < 0)
+            spring = 0;
+        damper -= FixMul(contact, 0x4ccc);
+
+        if (*(int *)(g_unk0x0053937c + 0x778) <= 0x1999) {
+            speed = 0x10000 - FixMul(*(int *)(g_unk0x0053937c + 0x778), 0xa0000);
+            spring += FixMul(-spring, speed);
+            if (spring < 0)
+                spring = 0;
+            damper += FixMul(0x8000, speed);
+            if (damper > 0x10000)
+                damper = 0x10000;
+        }
+    }
+
+    speed = FixMul(g_unk0x00539278->field_0x1c, 0x40000);
+    spring = FixMul(spring, speed);
+    if (FIX_ABS(spring) > 0x10000)
+        spring = spring > 0 ? 0x10000 : -0x10000;
+    speed = FixMul(g_unk0x00539278->field_0x1c, 0x40000);
+    damper = FixMul(damper, speed);
+    if (FIX_ABS(damper) > 0x10000)
+        damper = damper > 0 ? 0x10000 : -0x10000;
+    g_unk0x00539278->field_0xc = FixMul(spring, 0x27100000) >> 16;
+    g_unk0x00539278->field_0x10 = FixMul(damper, 0x27100000) >> 16;
 }
 
 // Releases the stage's files (registered callback of 0x455080).

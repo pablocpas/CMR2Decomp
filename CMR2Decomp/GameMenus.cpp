@@ -546,11 +546,12 @@ void FUN_0044b7b0(Menu *pMenu)
                   (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     width = g_pGraphics->resX;
     x = (width * 30) / 640 + Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(0x47));
-    g_menuRect[0] = (short)((width * 8) / 640 + x);
-    g_menuRect[2] = 2;
+    x += (width * 8) / 640;
+    g_menuRect[0] = (short)x;
     g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 480);
+    g_menuRect[2] = 2;
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 480);
-    x = g_menuRect[0] + 2 + (int)(g_pGraphics->resX * 8) / 640;
+    x += 2 + (int)(g_pGraphics->resX * 8) / 640;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
     if (FUN_0041f3a0()) {
         if (CGameInfo::FUN_00405d80() == 4)
@@ -567,11 +568,11 @@ void FUN_0044b7b0(Menu *pMenu)
             Font_DrawText(2, CAIHelper::GetNameForID(FUN_00422fb0(0)), x,
                           (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     } else if (CGameInfo::FUN_00405d80() == 4) {
-        if (!FUN_00473790(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))))
-            Font_DrawText(2, FUN_004736b0(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
+        if (FUN_00473790(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))))
+            Font_DrawText(2, FUN_00473810(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
                           (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
         else
-            Font_DrawText(2, FUN_00473810(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
+            Font_DrawText(2, FUN_004736b0(g_pKnockoutMatch, FUN_004737d0(g_pKnockoutMatch, FUN_00422fb0(0))), x,
                           (int)(g_pGraphics->resY * 0x43) / 480, (int *)g_menuFrameColour, 0x11);
     } else if ((BYTE)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00()) {
         FUN_004125a0(StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_00422fb0(0)));
@@ -1497,7 +1498,7 @@ void FUN_00450c10(Menu *pMenu)
                       (int *)g_menuFrameColour, 0x11);
     }
     if (slot > 5) {
-        if (RallyDataCountryIndex() == 7)
+        if ((BYTE)RallyDataCountryIndex() == 7)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xee));
         else
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xbb));
@@ -3181,4 +3182,3 @@ void FUN_0044b270(void)
         g_stageResultRecords[best] = record;
     }
 }
-

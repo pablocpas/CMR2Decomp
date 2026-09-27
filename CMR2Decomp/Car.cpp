@@ -119,6 +119,58 @@ void Car_AllocateTable(int count)
 }
 
 unsigned int RallyData_FUN_00407e70(void);
+BYTE *FUN_0041b390(void);
+
+// Marks which player camera records are too far from, or face away from, the
+// car. The fourth word is set when every active camera has been rejected.
+// FUNCTION: CMR2 0x00428a00
+void FUN_00428a00(Car *pCar)
+{
+    int *pRejected;
+    FixMatrix *pView;
+    FixVector position;
+    FixVector forward;
+    FixVector delta;
+    unsigned int count;
+    unsigned int rejected;
+    unsigned int i;
+
+    pRejected = (int *)((BYTE *)pCar + 0xb68);
+    pRejected[0] = 0;
+    pRejected[1] = 0;
+    pRejected[2] = 0;
+    if ((char)RallyData_FUN_00407e70() != 0 && **(char **)(FUN_0041b390() + 4) != '\n' &&
+        **(char **)(FUN_0041b390() + 4) != '\t' && **(char **)(FUN_0041b390() + 4) != '\r') {
+        rejected = 0;
+        count = RallyDataState() & 0xff;
+        pView = (FixMatrix *)(g_unk0x00538d2c + 4);
+        for (i = 0; i < count; i++, pView = (FixMatrix *)((BYTE *)pView + 100)) {
+            FixMatrix_GetPosition(&position, pView);
+            FixMatrix_GetForward(&forward, pView);
+            if (*pRejected == 0) {
+                delta.x = pCar->position.x - position.x;
+                delta.y = pCar->position.y - position.y;
+                delta.z = pCar->position.z - position.z;
+                if (FIX_ABS(delta.x) > 0x3c0000 || FIX_ABS(delta.y) > 0x3c0000 ||
+                    FIX_ABS(delta.z) > 0x3c0000 ||
+                    FixMul(delta.x, delta.x) + FixMul(delta.y, delta.y) +
+                            FixMul(delta.z, delta.z) >
+                        0xe100000 ||
+                    FixMul(forward.x, delta.x) + FixMul(forward.y, delta.y) +
+                            FixMul(forward.z, delta.z) <
+                        0)
+                    *pRejected = 1;
+            }
+            if (*pRejected != 0)
+                rejected++;
+            pRejected++;
+        }
+        if (rejected == count)
+            *(int *)((BYTE *)pCar + 0xb70) = 1;
+    }
+}
+
+unsigned int RallyData_FUN_00407e70(void);
 int FUN_004054b0(unsigned int param1);
 void FUN_0046b760(int index, int reset);
 extern float g_65536f;
@@ -4326,6 +4378,19 @@ FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car)
 int RallyData_FUN_00421500(void);
 void RallyData_FUN_00421530(int index, int *pOut);
 int StageObject_UsesExtendedMode(void);
+
+typedef void (*CarFadeCallback)(BYTE index);
+void FUN_004283e0(BYTE index, CarFadeCallback pfnDone, int param3, int param4, int param5, char force);
+
+// Starts the reset fade for the current car when its reset request is active.
+// FUNCTION: CMR2 0x00431c10
+void FUN_00431c10(void)
+{
+    int zero = 0;
+
+    if (g_pCurrentCar->field_0xbf8 != 0)
+        FUN_004283e0((BYTE)g_pCurrentCar->field_0xb1a, (CarFadeCallback)0x431c50, 2, 1, zero, (char)zero);
+}
 
 // Relative position of the current car against every other car in the race
 // order: returns 1 as soon as one overlaps it (distance below the sum of the

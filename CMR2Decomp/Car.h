@@ -93,7 +93,7 @@ struct Car {
     int field_0x81c;                  // 0x81c
     int field_0x820;                  // 0x820
     int field_0x824;                  // 0x824  steering torque
-    BYTE field_0x828[0x4];
+    int field_0x828;                  // 0x828
     int field_0x82c;                  // 0x82c
     int field_0x830;                  // 0x830
     int field_0x834;                  // 0x834
@@ -155,10 +155,11 @@ struct Car {
     short field_0xafe;                // 0xafe  engine startup countdown
     BYTE field_0xb00[0x10];
     unsigned short heading;           // 0xb10  12-bit angle
-    BYTE field_0xb12[0x6];
+    BYTE field_0xb12[0x4];
+    short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
     char field_0xb1a;                 // 0xb1a  index of this car in the timing records
-    BYTE field_0xb1b[0x2];
+    BYTE field_0xb1b[2];              // 0xb1b-0xb1c: [0] type/index, [1] flags (was two separate bytes)
     char field_0xb1d;                 // 0xb1d
     char field_0xb1e;                 // 0xb1e
     char field_0xb1f;                 // 0xb1f

@@ -1241,7 +1241,7 @@ void FUN_004284d0(unsigned int player, int check);
 void FUN_004285b0(unsigned int player, int t, int check);
 void FUN_00473470(void);
 BYTE FUN_004bc0c0(BYTE *p);
-int Timer_GetValue(unsigned int index);
+int Timer_GetValue(BYTE index);
 void FUN_004bc290(void *p, int, int, int, int, int, int);
 void FUN_004bc440(void);
 void FUN_004bc470(BYTE *p);
@@ -1274,8 +1274,6 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
     unsigned int *pEntry;
     unsigned int state;
     int i;
-    char c;
-
     pState = RallyData_GetChampionshipState();
     FUN_00478c40();
     FUN_00418ee0();
@@ -1309,7 +1307,7 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
         FUN_00473360();
         g_unk0x0058cf7c = 1;
         for (i = 0; i < 2; i++) {
-            if ((int)(RallyDataState() & 0xff) <= i)
+            if (i >= (int)(RallyDataState() & 0xff))
                 FUN_0042b720(i, -1);
         }
         g_unk0x0058cf64 = 0;
@@ -1334,18 +1332,19 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
             FUN_00472cb0();
             FUN_0046c500();
             FUN_0041c260();
-            if (FUN_00473310() == 0) {
+            if (FUN_00473310() != 0) {
+                g_unk0x0058cf7c = 3;
+                FUN_00472a30();
+                g_unk0x0058cf78 = 0;
+                g_unk0x0058cf74 = 0;
+                g_unk0x0058cf64 = 0;
+                return;
+            } else {
                 g_unk0x0058ce5c = (unsigned int)RallyData_GetRoundEntry();
                 g_unk0x0058cf64 = 0;
                 g_unk0x0058cf7c = 4;
                 return;
             }
-            g_unk0x0058cf7c = 3;
-            FUN_00472a30();
-            g_unk0x0058cf78 = 0;
-            g_unk0x0058cf74 = 0;
-            g_unk0x0058cf64 = 0;
-            return;
         }
         break;
     case 3:
@@ -1363,8 +1362,9 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
             return;
         }
         FUN_004283e0(0, (FadeCallback)FUN_00473540, 1, 0, g_unk0x0051c9a8, 0);
-        c = (char)RallyDataState();
-        goto stepShared;
+        if ((char)RallyDataState() == 2)
+            FUN_004283e0(1, NULL, 1, 0, g_unk0x0051c9a8, 0);
+        break;
     case 5:
         if ((*pState & 0x400000) == 0) {
             g_unk0x0058cf64 = 0;
@@ -1411,7 +1411,7 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
             RallyData_FUN_004070c0();
             FUN_0041f2a0();
             i = 0;
-            if (*g_unk0x0058ca88 != 0) {
+            if (*g_unk0x0058ca88 > 0) {
                 do {
                     CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
                     i++;
@@ -1424,9 +1424,7 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
         break;
     case 7:
         FUN_004283e0(0, (FadeCallback)FUN_004734f0, 1, 0, g_unk0x0051c9a8, 0);
-        c = (char)RallyDataState();
-stepShared:
-        if (c == 2)
+        if ((char)RallyDataState() == 2)
             FUN_004283e0(1, NULL, 1, 0, g_unk0x0051c9a8, 0);
         break;
     }
