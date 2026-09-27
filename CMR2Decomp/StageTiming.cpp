@@ -9,11 +9,13 @@
 #include "TimingUtils.h"
 #include "RallyTiming.h"
 #include "GameInfo.h"
+#include "InstallInfo.h"
 #include "Game.h"
 #include "Input.h"
 #include "FileBuffer.h"
 #include "SceneNode.h"
 #include "StageUI.h"
+#include "NetPlayers.h"
 #include "Mesh.h"
 #include "Graphics.h"
 #include "Font.h"
@@ -285,7 +287,6 @@ int StageTiming_GetSplitTimeForPosition(int iPosition, int iSplit)
     return ConvertRawTimeToCentiseconds(g_stageSplitTimesRaw[iSplit][g_stageSplitTimesRawDriverIx[iSplit][iPosition]]);
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455db0
 int StageTiming_GetCurrentSplitTimeForDriver(int iDriver)
 {
@@ -301,7 +302,6 @@ int StageTiming_GetDriverSlot(int iDriver)
     return g_stageDriverSlot[iDriver];
 }
 
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455e60
 void StageTiming_Reset(void)
 {
@@ -331,7 +331,6 @@ void StageTiming_AddToOverall(void)
     RallyTiming_AddStageTimes(g_stageSplitDriverIndices[iSplit], g_stageSplitTimesRawDriverIx[iSplit], g_stageSplitTimesRaw[iSplit]);
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455df0
 void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2)
 {
@@ -346,7 +345,6 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
     *piTime2 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot2], iSplit);
 }
 
-// match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456250
 void StageTiming_RebuildSplitPositions(void)
 {
@@ -476,7 +474,6 @@ struct Unk0x542ae8 {
 Unk0x542ae8 g_unk0x00542ae8[32];
 
 // match 64%, registers only; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456b70
 bool FUN_00456b70(void)
 {
@@ -930,7 +927,6 @@ void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
 }
 
 // match below 90%; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456960
 void FUN_00456960(int *pDeltas)
 {
@@ -1026,7 +1022,6 @@ Unk0x00539278 g_forceFeedbackSlots[2];
 Unk0x00539278 *g_unk0x00539278;
 
 // match 75%; reccmp reports 100% effective; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004246a0
 void FUN_004246a0(void)
 {
@@ -1039,7 +1034,6 @@ void FUN_004246a0(void)
 }
 
 // Re-applies the stored force-feedback values to the selected device.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424560
 void FUN_00424560(void)
 {
@@ -1084,7 +1078,7 @@ void FUN_004245e0(void)
 }
 
 // Stops the forces of every active slot and releases the slots.
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424640
 void FUN_00424640(void)
 {
@@ -1106,7 +1100,7 @@ void FUN_00424640(void)
 }
 
 // Stops the forces of every active slot.
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004246c0
 void FUN_004246c0(void)
 {
@@ -1321,7 +1315,6 @@ BYTE FUN_004918c0(void)
 }
 
 // Walks the serialised stage block, recording a pointer to every sub-table.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00490d50
 void FUN_00490d50(BYTE *pData)
 {
@@ -1378,7 +1371,6 @@ extern int g_dashGearMarker[2];
 extern int g_dashIdle[2];
 extern int g_dashRev[2];
 
-// match 14%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00445db0
 void FUN_00445db0(void)
 {
@@ -1440,6 +1432,7 @@ void __cdecl StageQuality_InitCode8(void)
 static void (__cdecl *s_stageQualityInit[2])(void) = { StageQuality_InitCode7, StageQuality_InitCode8 };
 #pragma data_seg()
 
+// match 90%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456ae0
 float FUN_00456ae0(void)
 {
@@ -1490,7 +1483,7 @@ int FUN_00457e00(int index)
     return *(int *)(g_unk0x00542630 + 0x398 + index * 4);
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00457e10
 int FUN_00457e10(BYTE *pCar, int offset)
 {
@@ -1507,7 +1500,7 @@ float g_unk0x005113b0 = 4.0f;
 double g_unk0x005113a8 = 100.0;
 
 // Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456a40
 void FUN_00456a40(int param1, int param2)
 {
@@ -1560,7 +1553,7 @@ void FUN_0045e6b0(int *p1, int *p2, int *p3, int *p4)
 }
 
 // Marca el nodo como "sucio" en las etapas especiales y ajusta su 0x64.
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045e9a0
 void FUN_0045e9a0(SceneNode *pNode)
 {
@@ -1591,7 +1584,7 @@ bool FUN_004779e0(void);
 
 // Reinicia las tablas de escena 0x58d2xx/0x58d3xx/0x58d4xx y registra el
 // callback 0x4779e0.
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00475f80
 void FUN_00475f80(void)
 {
@@ -2176,7 +2169,6 @@ void FUN_00459630(int *param1, int *param2, int *param3);
 // marker (driver name or rally record) at the projected position, then updates
 // the light level of the car's shadow meshes from the distance to the view
 // centre.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459790
 void FUN_00459790(int param_1, int param_2)
 {
@@ -2579,7 +2571,7 @@ void FUN_00480980(void)
 }
 
 // Caches, per car in the list, pointers into its timing record.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004809e0
 void FUN_004809e0(short *pList, short count)
 {
@@ -2602,7 +2594,7 @@ int FUN_0040b010(int index);
 
 // Advances a player's lap counter by half the checkpoint count (with the
 // fractional part kept in *pFrac), unless the player has finished.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004591e0
 void FUN_004591e0(int player, int *pCount, int *pFrac)
 {
@@ -2860,7 +2852,7 @@ BYTE FUN_00422fb0(unsigned int index);
 int RallyData_FUN_00421500(void);
 
 // Scales a view's object value by the car's route position between two limits.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045f530
 void FUN_0045f530(BYTE *pObject, int view)
 {
@@ -2906,7 +2898,7 @@ void FUN_0045e610(void)
 }
 
 // Commits (or, with a == b == 0, first resets) the tyre wear of count players.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045c610
 void FUN_0045c610(int a, int b, int count)
 {
@@ -2958,7 +2950,7 @@ void FUN_00466920(BYTE *p)
 int FUN_00458390(void);
 
 // One bubble pass over the running order, keeping each car's position count.
-// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00448d50
 void FUN_00448d50(void)
 {
@@ -3052,7 +3044,7 @@ int g_unk0x00588a88;
 int g_unk0x00588a8c;
 
 // Resets every car's replay recording record.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004668d0
 void FUN_004668d0(void)
 {
@@ -3137,7 +3129,7 @@ int g_unk0x00543d98;
 
 // Sets the object value ramp (v1 at route position `from` to v2 at `to`)
 // and resets every view's object state.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045f300
 void FUN_0045f300(int v1, int v2, int from, int to, int initial)
 {
@@ -3259,7 +3251,7 @@ int FUN_0041f3a0(void);
 
 // Sets the player's view distance from the route node's limits (forward or
 // backward direction).
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459250
 void FUN_00459250(BYTE player, unsigned int node, int dir)
 {
@@ -3384,7 +3376,7 @@ void FUN_00469a80(int car)
 }
 
 // Inserts a driver's split time into the ranking of a split.
-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455af0
 void FUN_00455af0(int driver, int hundredths, int split)
 {
@@ -3566,7 +3558,7 @@ int g_unk0x00543e9c;
 int g_unk0x00543fa8;
 
 // Sets up the weather change of the stage from its two settings.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045ea70
 void FUN_0045ea70(void)
 {
@@ -3639,7 +3631,7 @@ int FUN_00407710(void);
 int FUN_00407650(void);
 
 // Sets up the three object ramps of the stage from its weather change.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045f260
 void FUN_0045f260(void)
 {
@@ -3822,7 +3814,7 @@ extern char g_stageLooped;
 extern int g_stageCheckpointCount;
 
 // Advances one car through crossed checkpoints.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 32%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00458e00
 void FUN_00458e00(int car, int target)
 {
@@ -4307,3 +4299,400 @@ void FUN_00508ee0(int index)
     } while (++level < 8);
 }
 
+// Network record of a car's body: a matrix plus the axes and position it was
+// built from. Eight contiguous 0xec-byte rows start at 0x5393d8.
+struct CarNetRecord {
+    FixMatrix matrix;       // 0x00
+    FixVector right;        // 0x40
+    FixVector up;           // 0x4c
+    FixVector forward;      // 0x58
+    FixVector position;     // 0x64
+    BYTE pad_0x70[0x7c];
+};
+// First of the eight car network records (the rest are g_unk0x005394bc).
+// GLOBAL: CMR2 0x005393d8
+CarNetRecord g_unk0x005393d8;
+
+extern NetStats g_localCarStats;
+void NetRace_PackCarState(Car *car);
+NetStats *FUN_00409e20(int index);
+int FUN_0040b020(int value);
+short RallyData_FUN_004213a0(BYTE *p);
+int FUN_0046d500(void);
+unsigned int RallyData_GetFlag21(void);
+
+// Snapshots a car's body axes and position into its network record and marks
+// it for sending.
+// FUNCTION: CMR2 0x00424dc0
+void FUN_00424dc0(Car *car)
+{
+    CarNetRecord *rec = (CarNetRecord *)&g_unk0x005393d8 + car->field_0xb1a;
+    NetStats *stats;
+    int *p = (int *)rec;
+    int i;
+
+    for (i = 0x3b; i != 0; i--)
+        *p++ = 0;
+    rec->position = car->position;
+    rec->right = car->right;
+    rec->up = car->up;
+    rec->forward = car->forward;
+    FixMatrix_SetRight(&rec->right, &rec->matrix);
+    FixMatrix_SetUp(&rec->up, &rec->matrix);
+    FixMatrix_SetForward(&rec->forward, &rec->matrix);
+    FixMatrix_SetPosition(&rec->position, &rec->matrix);
+    if (car->field_0xb1a > 0) {
+        NetRace_PackCarState(car);
+        stats = FUN_00409e20(FUN_0040b020((int)car->field_0xb1a));
+        *stats = g_localCarStats;
+        FUN_00409e20(FUN_0040b020((int)car->field_0xb1a))->seq = 0;
+    }
+}
+
+// Clears the road-book slots of every car in the running order and
+// reinitialises the ones with no pending target.
+// match 51%: only the esi/edi allocation differs
+// FUNCTION: CMR2 0x004581d0
+void FUN_004581d0(void)
+{
+    int count = Car_GetOrderCount();
+    int i;
+
+    for (i = 0; i < count; i++) {
+        Unk0x00542e78 *p = &g_unk0x00542e78[i];
+
+        p->field_0x16 = 0;
+        p->field_0x17 = 0;
+        p->field_0x18 = 0;
+        p->field_0x19 = 0;
+        if (p->field_0x1a == 0)
+            FUN_00458e00(i, FUN_00459320(RallyData_FUN_004213a0((BYTE *)Car_Get(i)) & 0xffff));
+    }
+}
+
+// Paths of the stage sample files loaded by FUN_0045eb50.
+// GLOBAL: CMR2 0x0051b138
+char g_strSunGlowTga[] = "\\NEWIMAGE\\sunglow.tga";
+// GLOBAL: CMR2 0x0051b150
+char g_strSnowTga[] = "%s\\NEWIMAGE\\snow%d.tga";
+// GLOBAL: CMR2 0x0051b168
+char g_strSplat2Tga[] = "\\NEWIMAGE\\splat2.tga";
+// GLOBAL: CMR2 0x0051b180
+char g_strSplatTga[] = "\\NEWIMAGE\\splat.tga";
+// GLOBAL: CMR2 0x0051b194
+char g_strRainTga[] = "\\NEWIMAGE\\rain.tga";
+
+extern char g_strPathConcat[];
+
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+
+// GLOBAL: CMR2 0x00543e90
+int g_unk0x00543e90;
+// GLOBAL: CMR2 0x00543ea4
+int g_unk0x00543ea4;
+// GLOBAL: CMR2 0x00543ea8
+int g_unk0x00543ea8[3];
+// GLOBAL: CMR2 0x005477f0
+int g_unk0x005477f0;
+// GLOBAL: CMR2 0x00547ad0
+int g_unk0x00547ad0;
+
+// Loads the weather particle textures (rain, splats, snow, sunglow).
+// FUNCTION: CMR2 0x0045eb50
+void FUN_0045eb50(void)
+{
+    bool didLoad;
+    int i;
+
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strRainTga);
+    g_unk0x00543e90 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSplatTga);
+    g_unk0x00543ea4 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSplat2Tga);
+    g_unk0x005477f0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    for (i = 0; i < 3; i++) {
+        sprintf(CFrontend::m_stringDest, g_strSnowTga, CInstallInfo::FUN_0040ed50(), i + 1);
+        g_unk0x00543ea8[i] = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                            CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    }
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strSunGlowTga);
+    g_unk0x00547ad0 = (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(),
+                                                     CFrontend::m_stringDest, &didLoad, NULL, 0, 0);
+    FUN_004a3e20((Unk0x004a3e20 *)g_unk0x00547ad0, 1);
+}
+
+// File name formats of the three "team" model archives.
+// GLOBAL: CMR2 0x0051a134
+char g_strTm2Format[] = "%s.tm2";
+// GLOBAL: CMR2 0x0051a13c
+char g_strTm1Format[] = "%s.tm1";
+// GLOBAL: CMR2 0x0051a144
+char g_strTm0Format[] = "%s.tm0";
+
+// Finds the three .tm? model archives of the current team and copies the one
+// selected by the game mode into the locked stage buffer.
+// match 81%: registers differ; the extra sprintf argument is the original's (see CONOCIMIENTO 4.y)
+// FUNCTION: CMR2 0x00455300
+void FUN_00455300(void)
+{
+    unsigned int sizes[3];
+    void *bufs[3];
+    unsigned int size = 0;
+    void *dest;
+    BYTE index;
+
+    g_unk0x00542604 = 0;
+    g_unk0x00541f8c = FUN_0046d500();
+    sprintf(CFrontend::m_stringDest, g_strTm0Format, FUN_0041f900());
+    bufs[0] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[0] = size;
+    sprintf(CFrontend::m_stringDest, g_strTm1Format, FUN_0041f900());
+    bufs[1] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[1] = size;
+    sprintf(CFrontend::m_stringDest, g_strTm2Format, FUN_0041f900());
+    bufs[2] = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                           CFrontend::m_stringDest, NULL, (DWORD *)&size, 0);
+    sizes[2] = size;
+    if ((char)RallyData_GetFlag21() != 0) {
+        dest = (void *)g_unk0x00541f8c;
+        if (dest == NULL)
+            dest = bufs[0];
+        if (CGameInfo::FUN_00405d80() == 4) {
+            index = CGameInfo::FUN_00405dd0();
+            if (index != 0)
+                index = index - 1;
+        } else {
+            index = CGameInfo::FUN_00405d90();
+        }
+        memcpy(dest, bufs[index], sizes[index]);
+        g_unk0x00541f8c = (int)dest + sizes[index];
+        g_unk0x0054241c = (char *)dest;
+        if (dest != NULL)
+            g_unk0x00542604 = 1;
+    }
+}
+
+extern char g_stageSplitCount;
+BYTE *RallyData_FUN_00421440(int index);
+unsigned int RallyData_FUN_00407e90(void);
+
+// Estimates the remaining stage time of every driver slot from the progress
+// made so far, inserting each newly queued slot at the end of the order.
+// match 43%: registers and the stack layout of the locals differ; logic checked against the asm
+// FUNCTION: CMR2 0x004483e0
+void FUN_004483e0(void)
+{
+    int count = FUN_00458390();
+    int slot = (int)(char)g_unk0x0053e18c;
+    int prev = 0;
+    int total;
+    int i;
+    int j;
+    int k;
+    int value;
+    char *pSlot;
+
+    total = (BYTE)RallyData_FUN_00406990() * RallyData_FUN_00421420() * 0x10000;
+    while (1) {
+        if (count <= slot)
+            return;
+        for (i = 0; i < count; i++) {
+            pSlot = &g_unk0x0053e17c[slot];
+            for (j = 0; j < slot; j++) {
+                if (g_unk0x0053dda8[i] == g_unk0x0053e17c[j])
+                    goto cont;
+            }
+            k = (int)(char)g_unk0x0053dda8[i];
+            *pSlot = g_unk0x0053dda8[i];
+            g_unk0x0053e184[k] = (char)slot;
+            slot = slot + 1;
+            pSlot++;
+            g_unk0x0053d1da[k] = 1;
+            value = FixDiv((FUN_004589e0(k) & 0xffff) << 16, total);
+            if (value < 1) {
+                g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
+            } else {
+                g_unk0x0053d1b8[k] =
+                    ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value),
+                                                        FUN_0040d4b0(g_unk0x0053d1b0)));
+            }
+            if ((char)RallyData_FUN_00407e90() != 0)
+                g_unk0x0053e190[11] = g_unk0x0053d1b8[k];
+            if (prev != 0 && prev == value)
+                g_unk0x0053d1b8[k]++;
+            prev = value;
+        cont:
+            ;
+        }
+    }
+}
+
+// Splits of the stage used for the timing display.
+// GLOBAL: CMR2 0x00542c78
+int g_unk0x00542c78;
+
+// Builds the checkpoint split table of the current stage.
+// match 77%: registers and the shared tail of the two flag tests differ
+// FUNCTION: CMR2 0x00458a00
+void FUN_00458a00(void)
+{
+    int count = 0;
+    int i;
+    int unit;
+    int scale;
+
+    g_unk0x00542c74 = 0;
+    g_stageCheckpointCount = RallyData_FUN_00421420();
+    if (g_stageCheckpointCount == 0)
+        return;
+    for (i = 0; i < g_stageCheckpointCount; i++) {
+        if ((*(BYTE *)(RallyData_FUN_00421440(i) + 0x18) & 1) != 0) {
+            g_unk0x00542c7c[count] = (int)(__int64)((double)i * CGraphics::m_65536);
+            count++;
+        }
+    }
+    g_unk0x00542c74 = count;
+    if ((char)RallyData_GetFlag24() != 0) {
+        g_stageLooped = 1;
+    } else {
+        g_stageLooped = 0;
+        if ((char)RallyData_GetFlag25() != 0)
+            g_stageLooped = 1;
+    }
+    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {
+        g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;
+        g_unk0x00542c78 = g_unk0x00542c74;
+        unit = (int)(__int64)((double)g_unk0x00542c74 * CGraphics::m_65536);
+        if ((char)RallyData_GetFlag24() != 0) {
+            scale = FixDiv((int)(__int64)((double)g_stageCheckpointCount * CGraphics::m_65536), unit);
+            for (i = 0; i < g_unk0x00542c74; i++)
+                g_unk0x00542c7c[i] = FixMul((int)(__int64)((double)i * CGraphics::m_65536), scale)
+                                     & 0xffff0000;
+        }
+    }
+    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0)
+        g_stageSplitCount = (char)g_unk0x00542c74;
+    else
+        g_stageSplitCount = (char)g_unk0x00542c74 - 1;
+}
+
+// GLOBAL: CMR2 0x00542c6c
+int g_unk0x00542c6c;
+
+extern int g_unk0x00542c68;
+extern char g_unk0x00542cad;
+char FUN_00420190(void);
+unsigned int RallyData_FUN_004082e0(void);
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082c0(void);
+
+// Rebuilds the stage split table and the checkpoint count for the current
+// event.
+// FUNCTION: CMR2 0x00458090
+void FUN_00458090(void)
+{
+    FUN_00458a00();
+    g_unk0x00542cad = 0;
+    g_unk0x00542c68 = (BYTE)FUN_00420190();
+    g_unk0x00542c6c = (BYTE)RallyData_FUN_00406990();
+    if ((char)RallyData_FUN_004082e0() != 0 && RallyData_FUN_004082b0() == 2)
+        g_unk0x00542c6c = RallyData_FUN_004082c0() << 1;
+    if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 12)
+        g_unk0x00542cad = 1;
+}
+
+extern int g_sinTable[4096];
+void FUN_00421fe0(short *pOut, unsigned int view);
+void FUN_00460a30(FixVector *pOut);
+
+// Integrates the terrain slope under a car into its body pitch, wrapping at a
+// full turn.
+// match 0%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 45%: registers and frame layout differ (the original keeps the base pointer in edi)
+// FUNCTION: CMR2 0x0045f5d0
+void FUN_0045f5d0(int pData, int param_2)
+{
+    FixVector vec;
+    int cosA;
+    int negSinA;
+    int zero;
+    int *p = (int *)pData;
+    int value;
+    int angle;
+
+    p[8] = p[5];
+    FUN_00421fe0((short *)&pData, param_2);
+    zero = 0;
+    cosA = g_sinTable[(pData + 0x400) & 0xfff];
+    negSinA = -g_sinTable[pData & 0xfff];
+    FUN_00460a30(&vec);
+    value = FixMul(vec.x, negSinA) + FixMul(vec.y, zero) + FixMul(vec.z, cosA);
+    angle = p[5] + FixMul(0xf5c, value);
+    p[5] = angle;
+    if (angle > 0x1680000) {
+        p[5] = angle - 0x1680000;
+        p[8] += -0x1680000;
+    } else if (angle < 0) {
+        p[5] = angle + 0x1680000;
+        p[8] += 0x1680000;
+    }
+}
+
+// GLOBAL: CMR2 0x0053ddb0
+char g_unk0x0053ddb0[108];
+
+// Records a new split time for a car and reorders the shared split table.
+// match 76%: registers differ and the flag tests are re-read (the original calls them per branch)
+// FUNCTION: CMR2 0x004487a0
+void FUN_004487a0(int car)
+{
+    int split = FUN_00458370(car);
+    int count;
+    int group;
+    int index;
+    char prev;
+
+    if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
+        if ((int)((BYTE)RallyDataState()) <= car)
+            return;
+        g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+        return;
+    }
+    count = FUN_00458390();
+    group = FUN_00458330(car);
+    index = FUN_00458350(car);
+    if ((char)RallyData_GetFlag24() == 0)
+        g_carStageTiming[car].field_0x4[split] = g_unk0x0053d1b0;
+    else
+        g_unk0x0053d1e8[car][group][split] = g_unk0x0053d1b0;
+    if (car < (int)((BYTE)RallyDataState()) || (char)RallyData_FUN_00407e90() != 0) {
+        g_carStageTiming[car].field_0x84 = 0;
+        if ((char)RallyData_GetFlag24() == 0)
+            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+        else
+            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0 - g_unk0x0053d1e8[car][group][0];
+    }
+    if ((char)RallyData_FUN_00407e90() != 0) {
+        group = 0;
+        index = split;
+    }
+    index = index + group * 9;
+    prev = g_unk0x0053ddb0[index];
+    g_unk0x0053ddb0[index] = prev + 1;
+    g_carStageTiming[car].field_0x82 = prev;
+    g_unk0x0053de1c[index][(int)prev] = (char)car;
+    if ((int)prev > 0) {
+        char other = g_unk0x0053de1c[index][(int)prev - 1];
+
+        g_carStageTiming[other].field_0x80 = (char)car;
+        g_carStageTiming[other].field_0x83 = 1;
+    }
+    if ((int)prev == count - 1)
+        g_carStageTiming[car].field_0x80 = (char)0xff;
+}
