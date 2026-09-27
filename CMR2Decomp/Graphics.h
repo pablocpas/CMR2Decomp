@@ -1328,8 +1328,6 @@ private:
     friend void FUN_0042cb90(char mode, SceneNode **pWheels);
     friend void FUN_0049dcc0(int enable);
     friend void FUN_0049de40(void);
-    // Renders the scene into the six faces of a cube map.
-    friend int FUN_0049e1f0(SceneNode *pNode, int bit);
     friend void FUN_0049c7b0(Mesh *pMesh);
     friend void FUN_00477b60(int car, int unused1, int unused2, BYTE flag);
     friend void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView);
@@ -1495,6 +1493,7 @@ private:
     friend void Game_DrawViewMaskNodes(SceneNode *pNode, int bit);
     friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
     friend void Game_DrawDeferredObjects(void);
+    friend int FUN_0049e1f0(SceneNode *pNode, int bit);
 };
 
 #endif
