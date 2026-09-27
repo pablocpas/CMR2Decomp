@@ -681,3 +681,20 @@ void NetRace_PackCarState(Car *car)
     else if (progress > 63) progress = 63;
     g_localCarStats.speed = (g_localCarStats.speed & 0x3ff) | (progress << 10);
 }
+
+// Packs the state of every car listed in pIndices, from the highest index down.
+// FUNCTION: CMR2 0x004258e0
+void FUN_004258e0(int base, short *pIndices, short count)
+{
+    int i;
+
+    if (g_unk0x00539cc8 != 0) {
+        for (i = (int)count - 1; i >= 0; i--) {
+            Car *pCar = (Car *)(base + pIndices[i] * 0xc24);
+
+            if (*(int *)((BYTE *)pCar + 0xc1c) == 0 &&
+                (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
+                FUN_004278f0(&g_localCarStats);
+        }
+    }
+}

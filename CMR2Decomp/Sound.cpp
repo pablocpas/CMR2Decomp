@@ -35,6 +35,7 @@ char g_strCouldNotOpenMusicFile[28] = "Could not open music file";
 BOOL FUN_004a2a20(void);
 BOOL FUN_004bd120(void);
 void FUN_004a3240(int unused);
+HRESULT FUN_004a2bd0(int param1);
 
 // Opens a music file (.wav with Microsoft ADPCM data) and prepares it for
 // streaming: creates the streaming buffer and the ACM decoder; on failure the
@@ -690,6 +691,17 @@ HRESULT FUN_004a2c70(int unused)
     CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Lock(0, g_unk0x005a271c, &pAudio1, &bytes1, &pAudio2, &bytes2, 0));
     CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, 8));
     CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
+    return 0;
+}
+
+// Restarts playing the currently opened music stream if one is open.
+// FUNCTION: CMR2 0x004a2f50
+int FUN_004a2f50(void)
+{
+    if (CSound::m_unk0x005a2730 != 0) {
+        CSound::StopDirectSoundBuffer();
+        FUN_004a2bd0(1);
+    }
     return 0;
 }
 

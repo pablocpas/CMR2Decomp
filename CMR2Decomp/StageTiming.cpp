@@ -391,6 +391,72 @@ char FUN_00420190(void);
 unsigned int RallyData_FUN_00407ea0(void);
 unsigned int FUN_00409cb0(int index);
 
+// Builds the per-split interpolation factors between the first and last split
+// time of the stage.
+// FUNCTION: CMR2 0x00456330
+void FUN_00456330(int *param_1)
+{
+    int local_20;
+    int local_24;
+    int iVar1;
+    int iVar2;
+    int iVar3;
+    int iVar4;
+    int iVar5;
+    int iVar6;
+    int iVar7;
+    unsigned int local_14;
+    unsigned int local_c;
+    unsigned int local_8;
+    unsigned int uVar7;
+    int *piVar8;
+
+    iVar1 = GetStageSplitCount();
+    for (iVar5 = 1; iVar5 <= iVar1; iVar5++) {
+        if (param_1[0x28] >= FUN_004583b0(iVar5 - 1) && param_1[0x28] < FUN_004583b0(iVar5))
+            local_20 = iVar5;
+        if (param_1[0x29] > FUN_004583b0(iVar5 - 1) && param_1[0x29] <= FUN_004583b0(iVar5))
+            local_24 = iVar5;
+    }
+    iVar5 = param_1[0x29];
+    iVar2 = param_1[0x28];
+    local_14 = 0;
+    *param_1 = 0;
+    iVar7 = iVar5 - iVar2;
+    iVar6 = 1;
+    if (iVar1 >= 1) {
+        piVar8 = param_1 + 0xb;
+        do {
+            iVar3 = FUN_004583b0(iVar6);
+            iVar4 = FUN_004583b0(iVar6 - 1);
+            uVar7 = iVar3 - iVar4;
+            if (iVar6 < local_20)
+                local_c = uVar7;
+            if (iVar6 == local_20)
+                local_c = param_1[0x28] - FUN_004583b0(iVar6 - 1);
+            if (iVar6 > local_20)
+                local_c = 0;
+            if (iVar6 < local_24)
+                local_8 = 0;
+            if (iVar6 == local_24)
+                local_8 = FUN_004583b0(iVar6) - param_1[0x29];
+            if (iVar6 > local_24)
+                local_8 = uVar7;
+            *piVar8 = FixDiv(local_c, uVar7);
+            iVar3 = FixDiv(local_8, uVar7);
+            piVar8[0x14] = iVar3;
+            piVar8[10] = (0x10000 - *piVar8) - iVar3;
+            local_14 = local_14 + ((uVar7 - local_8) - local_c);
+            if (iVar7 == 0)
+                piVar8[-10] = 0;
+            else
+                piVar8[-10] = FixDiv(local_14, iVar7);
+            piVar8 = piVar8 + 1;
+            iVar6 = iVar6 + 1;
+        } while (iVar6 <= iVar1);
+    }
+}
+
 // Number of cars in the stage (players, ghost and network players).
 // FUNCTION: CMR2 0x00456ca0
 unsigned int FUN_00456ca0(void)
@@ -684,6 +750,12 @@ int FUN_00448390(int index)
 int FUN_004483b0(int index)
 {
     return g_unk0x0053e184[index];
+}
+
+// FUNCTION: CMR2 0x00448620
+void FUN_00448620(void)
+{
+    FUN_0040ccd0(g_unk0x0053e17c, g_unk0x0053d1b8);
 }
 
 // FUNCTION: CMR2 0x00448670

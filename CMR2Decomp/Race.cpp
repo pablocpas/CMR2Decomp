@@ -137,6 +137,58 @@ BYTE g_raceFileCallbackSet;
 // GLOBAL: CMR2 0x00538970
 int g_unk0x00538970;
 
+// GLOBAL: CMR2 0x00538110
+int g_unk0x00538110;
+// GLOBAL: CMR2 0x005192d4
+char g_str0x005192d4[] = "%sL.rpl";
+// GLOBAL: CMR2 0x005192dc
+char g_str0x005192dc[] = "%sH.rpl";
+// GLOBAL: CMR2 0x0051948c
+char g_strTempC3D[] = "TEMP.C3D";
+
+int RallyData_FUN_00411060(void);
+void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+BYTE *FUN_0046d2d0(char *path);
+char *FUN_0041f910(void);
+GenericFile *FUN_0041f500(void);
+
+// Clears the player replay slots, then builds the replay file name for the
+// current game mode and loads it into slot 0.
+// FUNCTION: CMR2 0x0041c510
+void FUN_0041c510(void)
+{
+    int i;
+
+    for (i = 0; i < 8; i++)
+        g_unk0x00537f3c[i] = 0;
+    if (CGameInfo::FUN_00405d00() == 0) {
+        sprintf(CFrontend::m_stringDest, g_str0x005192dc, FUN_0041f910());
+    } else {
+        sprintf(CFrontend::m_stringDest, g_str0x005192d4, FUN_0041f910());
+    }
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 0xb &&
+        CGameInfo::FUN_00405d80() != 0xc) {
+        g_unk0x00537f3c[0] = (BYTE *)FUN_0046d2d0(CFrontend::m_stringDest);
+        g_unk0x00538110 = 1;
+    }
+}
+
+// Loads the stage's TEMP.C3D model into memory.
+// FUNCTION: CMR2 0x0041fc50
+void FUN_0041fc50(void)
+{
+    void *pBuffer;
+    GenericFile *pFile;
+
+    pBuffer = CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempC3D, NULL, NULL, 0);
+    if (pBuffer != NULL) {
+        pFile = FUN_0041f500();
+        FUN_004b9380((unsigned int)pBuffer, RallyData_FUN_00411060(), (unsigned int)pFile);
+    }
+}
+
+
 // FUNCTION: CMR2 0x0041e210
 void FUN_0041e210(void)
 {

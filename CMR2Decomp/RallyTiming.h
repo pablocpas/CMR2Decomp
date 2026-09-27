@@ -19,5 +19,6 @@ void RallyTiming_SortStageOrder(void);
 int RallyTiming_GetPointsForPosition(int iPosition);
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise);
 void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piTimesRaw);
+void FUN_0040ccd0(char *pPositions, int *pPoints);
 
 #endif
