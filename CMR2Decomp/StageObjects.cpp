@@ -3403,6 +3403,59 @@ void FUN_004688b0(BYTE *p)
     }
 }
 
+extern BYTE *g_unk0x00588b94;
+
+// Adds `amount` to the 3x3 grid at +0x21c of the car's 0x4d0-byte record,
+// weighted by how close each grid point is to the car's contact offsets
+// (0x5dc/0x5e4).
+// match 50%: same logic; MSVC6 kept the car pointer in EDI and the FixMul
+// temporaries in the parameter slots instead of the slots we get.
+// FUNCTION: CMR2 0x00468a80
+void FUN_00468a80(Car *pCar, int amount)
+{
+    int *pGrid;
+    int *pElem;
+    int row;
+    int i;
+    int xOff;
+    int yOff;
+    int halfAmount;
+    int gridStep;
+    int xStep;
+    int yStep;
+    int xLimit;
+    int yLimit0;
+    int yLimit1;
+    int colLimit;
+
+    pGrid = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0 + 0x21c);
+    halfAmount = FixMul(amount, 0x8000);
+    gridStep = FixMul(amount, 0x3333);
+    xStep = FixMul(pCar->halfExtents.x, 0xaac0);
+    yStep = FixMul(pCar->halfExtents.z, 0xc000);
+    xLimit = FixMul(pCar->halfExtents.x, 0x553f) + halfAmount;
+    yLimit0 = FixMul(pCar->halfExtents.z, 0x4000) + halfAmount;
+    yLimit1 = FixMul(pCar->halfExtents.z, 0x8000) + halfAmount;
+    row = 0;
+    yOff = -yStep;
+    for (row = 0; row < 3; row++) {
+        colLimit = row == 1 ? yLimit1 : yLimit0;
+        xOff = xStep;
+        pElem = pGrid;
+        for (i = 0; i < 3; i++) {
+            if (FIX_ABS(*(int *)((BYTE *)pCar + 0x5dc) - xOff) <= xLimit &&
+                FIX_ABS(*(int *)((BYTE *)pCar + 0x5e4) - yOff) <= colLimit) {
+                *pElem += gridStep;
+                if (*pElem > 0x640000)
+                    *pElem = 0x640000;
+            }
+            xOff -= xStep;
+            pElem++;
+        }
+        pGrid += 3;
+        yOff += yStep;
+    }
+}
 // Averages (16.16) the per-object distance between every stage object's float
 // vertex data and its fixed-point copy, skipping parts 1 and 3 when the record
 // flag is set (their object count still feeds the divisor).
