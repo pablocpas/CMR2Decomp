@@ -2,6 +2,7 @@
 #include "FixedPoint.h"
 #include "Graphics.h"
 #include "GameInfo.h"
+#include "Car.h"
 
 // GLOBAL: CMR2 0x0072d67c
 int g_fixMatrixMultiplyCount;
@@ -751,4 +752,154 @@ void FUN_00422d40(unsigned int player)
         return;
     }
     CGraphics::SetProjection(fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
+}
+
+// Layout of one force-feedback slot (0x539200). The full definition lives in
+// StageTiming.cpp; keep both copies in sync.
+struct Unk0x00539278 {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+    int field_0xc;
+    int field_0x10;
+    int field_0x14;
+    int field_0x18;
+    int field_0x1c;
+    int field_0x20;
+    int field_0x24;
+    int field_0x28;
+    signed char field_0x2c;         // device index, < 0 when none
+    BYTE pad_0x2d[3];
+    int field_0x30;
+    int field_0x34;                 // slot in use
+};
+extern Unk0x00539278 g_forceFeedbackSlots[2];
+extern Unk0x00539278 *g_unk0x00539278;
+extern BYTE *g_unk0x0053937c;
+
+// Rebuilds the rotation part of a matrix as an orthonormal basis that keeps
+// the current forward direction and the world up axis.
+// FUNCTION: CMR2 0x00423070
+void FixMatrix_RebuildBasis(FixMatrix *pOut)
+{
+    FixVector forward;
+    FixVector up;
+    FixVector right;
+    int len;
+
+    up.x = 0;
+    up.y = 0x10000;
+    up.z = 0;
+    FixMatrix_GetForward(&forward, pOut);
+    FixVecCross(&right, &up, &forward);
+    len = FixVecLength(&right);
+    if (len == 0) {
+        right.x = 0;
+        right.y = 0;
+        right.z = 0;
+    } else {
+        FixVecScaleRecip(&right, &right, len);
+    }
+    FixVecCross(&forward, &right, &up);
+    FixMatrix_SetRight(&right, pOut);
+    FixMatrix_SetUp(&up, pOut);
+    FixMatrix_SetForward(&forward, pOut);
+}
+
+// Updates the player's force-feedback slot from the car's slip: the input
+// vector is rotated into car space and its z / length scaled to 16.16.
+// FUNCTION: CMR2 0x004241d0
+void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero)
+{
+    FixVector v;
+    int x;
+
+    g_unk0x0053937c = pCar;
+    g_unk0x00539278 = &g_forceFeedbackSlots[*(signed char *)(pCar + 0xb1a)];
+    FixMatrix_InverseRotateVector(&v, pIn, *(FixMatrix **)(pCar + 0x750));
+    if (nonzero != 0) {
+        x = v.z;
+        if (x < 0)
+            x = -x;
+        x = FixMul(x - 0x1999, 0x28000);
+        if (x < 0)
+            x = 0;
+        else if (x > 0x10000)
+            x = 0x10000;
+        if (x > g_unk0x00539278->field_0x24) {
+            g_unk0x00539278->field_0x24 = x;
+            if (v.z >= 0)
+                g_unk0x00539278->field_0x30 = 0;
+            else
+                g_unk0x00539278->field_0x30 = 1;
+        }
+    }
+    x = (unsigned int)FixVecLength(&v) - 0x1999;
+    x = FixMul(x, 0x28000);
+    if (x < 0)
+        x = 0;
+    else if (x > 0x10000)
+        x = 0x10000;
+    if (x > g_unk0x00539278->field_0x28)
+        g_unk0x00539278->field_0x28 = x;
+}
+
+// Per-player camera mode (4 = free camera) and the camera up/forward vectors.
+extern BYTE g_unk0x0053cff8[8];
+extern FixVector g_unk0x0053d000[6];
+extern FixVector g_unk0x0053d048[4];
+// Per-player dashboard gauge values.
+extern short g_unk0x0053d090[4];
+// View offset of a player's camera (HudDash.cpp).
+void FUN_00447ee0(FixVector *pOut, BYTE *pSel);
+
+// Builds a view object's matrix: the basis comes from the player's camera
+// up/forward vectors, the position from the player's view offset plus the
+// object's own, and then the object's remaining fields are set.
+// FUNCTION: CMR2 0x00447a40
+void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
+{
+    FixMatrix identity;
+    FixVector right;
+    FixVector base;
+    FixVector off;
+    FixVector pos;
+    FixMatrix *pM;
+    BYTE sel;
+    int index;
+    int v;
+
+    sel = pObj[0];
+    FUN_00447ee0(&base, pObj);
+    FixMatrix_Identity(&identity);
+    FixMatrix_SetPosition(&base, &identity);
+    index = sel & 0xff;
+
+    FixVecCross(&right, &g_unk0x0053d048[2 + index], &g_unk0x0053d000[2 + index]);
+    pM = (FixMatrix *)(pObj + 8);
+    FixMatrix_SetRight(&right, pM);
+    FixMatrix_SetUp(&g_unk0x0053d048[2 + index], pM);
+    FixMatrix_SetForward(&g_unk0x0053d000[2 + index], pM);
+    pM->position.x = 0;
+    pM->position.y = 0;
+    pM->position.z = 0;
+    FixMatrix_Multiply(pM, &identity, pM);
+    FixMatrix_GetPosition(&pos, pM);
+    FixMatrix_GetPosition(&off, pRef);
+    pos.x += off.x;
+    pos.y += off.y;
+    pos.z += off.z;
+    FixMatrix_SetPosition(&pos, pM);
+    if (g_unk0x0053cff8[index] == 4)
+        FixMatrix_RotateAboutRight(pM, (unsigned short)g_unk0x0053d090[2 + pObj[1]]);
+
+    *(int *)(pObj + 0x48) = 0;
+    *(int *)(pObj + 0x4c) = 0x10000;
+    *(int *)(pObj + 0x58) = 0x10000;
+    *(int *)(pObj + 0x54) = 0xa000;
+    v = base.z;
+    if (v < 0)
+        v = -v;
+    *(int *)(pObj + 0x5c) = v;
+    *(int *)(pObj + 0x50) = v - 0x10000;
 }
