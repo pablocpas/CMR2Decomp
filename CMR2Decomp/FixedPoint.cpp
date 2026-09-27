@@ -2,6 +2,7 @@
 #include "FixedPoint.h"
 #include "Graphics.h"
 #include "GameInfo.h"
+#include "Car.h"
 
 // GLOBAL: CMR2 0x0072d67c
 int g_fixMatrixMultiplyCount;
@@ -751,4 +752,403 @@ void FUN_00422d40(unsigned int player)
         return;
     }
     CGraphics::SetProjection(fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
+}
+
+// Layout of one force-feedback slot (0x539200). The full definition lives in
+// StageTiming.cpp; keep both copies in sync.
+struct Unk0x00539278 {
+    int field_0x0;
+    int field_0x4;
+    int field_0x8;
+    int field_0xc;
+    int field_0x10;
+    int field_0x14;
+    int field_0x18;
+    int field_0x1c;
+    int field_0x20;
+    int field_0x24;
+    int field_0x28;
+    signed char field_0x2c;         // device index, < 0 when none
+    BYTE pad_0x2d[3];
+    int field_0x30;
+    int field_0x34;                 // slot in use
+};
+extern Unk0x00539278 g_forceFeedbackSlots[2];
+extern Unk0x00539278 *g_unk0x00539278;
+extern BYTE *g_unk0x0053937c;
+
+// Rebuilds the rotation part of a matrix as an orthonormal basis that keeps
+// the current forward direction and the world up axis.
+// FUNCTION: CMR2 0x00423070
+void FixMatrix_RebuildBasis(FixMatrix *pOut)
+{
+    FixVector forward;
+    FixVector up;
+    FixVector right;
+    int len;
+
+    up.x = 0;
+    up.y = 0x10000;
+    up.z = 0;
+    FixMatrix_GetForward(&forward, pOut);
+    FixVecCross(&right, &up, &forward);
+    len = FixVecLength(&right);
+    if (len == 0) {
+        right.x = 0;
+        right.y = 0;
+        right.z = 0;
+    } else {
+        FixVecScaleRecip(&right, &right, len);
+    }
+    FixVecCross(&forward, &right, &up);
+    FixMatrix_SetRight(&right, pOut);
+    FixMatrix_SetUp(&up, pOut);
+    FixMatrix_SetForward(&forward, pOut);
+}
+
+// Updates the player's force-feedback slot from the car's slip: the input
+// vector is rotated into car space and its z / length scaled to 16.16.
+// FUNCTION: CMR2 0x004241d0
+void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero)
+{
+    FixVector v;
+    int x;
+
+    g_unk0x0053937c = pCar;
+    g_unk0x00539278 = &g_forceFeedbackSlots[*(signed char *)(pCar + 0xb1a)];
+    FixMatrix_InverseRotateVector(&v, pIn, *(FixMatrix **)(pCar + 0x750));
+    if (nonzero != 0) {
+        x = v.z;
+        if (x < 0)
+            x = -x;
+        x = FixMul(x - 0x1999, 0x28000);
+        if (x < 0)
+            x = 0;
+        else if (x > 0x10000)
+            x = 0x10000;
+        if (x > g_unk0x00539278->field_0x24) {
+            g_unk0x00539278->field_0x24 = x;
+            if (v.z >= 0)
+                g_unk0x00539278->field_0x30 = 0;
+            else
+                g_unk0x00539278->field_0x30 = 1;
+        }
+    }
+    x = (unsigned int)FixVecLength(&v) - 0x1999;
+    x = FixMul(x, 0x28000);
+    if (x < 0)
+        x = 0;
+    else if (x > 0x10000)
+        x = 0x10000;
+    if (x > g_unk0x00539278->field_0x28)
+        g_unk0x00539278->field_0x28 = x;
+}
+
+// Per-player camera mode (4 = free camera) and the camera up/forward vectors.
+extern BYTE g_unk0x0053cff8[8];
+extern FixVector g_unk0x0053d000[6];
+extern FixVector g_unk0x0053d048[4];
+// Per-player dashboard gauge values.
+extern short g_unk0x0053d090[4];
+// View offset of a player's camera (HudDash.cpp).
+void FUN_00447ee0(FixVector *pOut, BYTE *pSel);
+
+// Builds a view object's matrix: the basis comes from the player's camera
+// up/forward vectors, the position from the player's view offset plus the
+// object's own, and then the object's remaining fields are set.
+// FUNCTION: CMR2 0x00447a40
+void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
+{
+    FixMatrix identity;
+    FixVector right;
+    FixVector base;
+    FixVector off;
+    FixVector pos;
+    FixMatrix *pM;
+    BYTE sel;
+    int index;
+    int v;
+
+    sel = pObj[0];
+    FUN_00447ee0(&base, pObj);
+    FixMatrix_Identity(&identity);
+    FixMatrix_SetPosition(&base, &identity);
+    index = sel & 0xff;
+
+    FixVecCross(&right, &g_unk0x0053d048[2 + index], &g_unk0x0053d000[2 + index]);
+    pM = (FixMatrix *)(pObj + 8);
+    FixMatrix_SetRight(&right, pM);
+    FixMatrix_SetUp(&g_unk0x0053d048[2 + index], pM);
+    FixMatrix_SetForward(&g_unk0x0053d000[2 + index], pM);
+    pM->position.x = 0;
+    pM->position.y = 0;
+    pM->position.z = 0;
+    FixMatrix_Multiply(pM, &identity, pM);
+    FixMatrix_GetPosition(&pos, pM);
+    FixMatrix_GetPosition(&off, pRef);
+    pos.x += off.x;
+    pos.y += off.y;
+    pos.z += off.z;
+    FixMatrix_SetPosition(&pos, pM);
+    if (g_unk0x0053cff8[index] == 4)
+        FixMatrix_RotateAboutRight(pM, (unsigned short)g_unk0x0053d090[2 + pObj[1]]);
+
+    *(int *)(pObj + 0x48) = 0;
+    *(int *)(pObj + 0x4c) = 0x10000;
+    *(int *)(pObj + 0x58) = 0x10000;
+    *(int *)(pObj + 0x54) = 0xa000;
+    v = base.z;
+    if (v < 0)
+        v = -v;
+    *(int *)(pObj + 0x5c) = v;
+    *(int *)(pObj + 0x50) = v - 0x10000;
+}
+
+extern BYTE *g_pCarSetup;
+int *FUN_00469680(int index);
+
+// Copies the car's body and world matrices into the local transform of its two
+// body scene nodes.
+// FUNCTION: CMR2 0x0043ecd0
+void FUN_0043ecd0(Car *pCar)
+{
+    FixVector v;
+
+    g_pCurrentCar = pCar;
+    g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)(pCar + 0xb1a));
+    Car_StoreBodyMatrix();
+    FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.right = v;
+    FixMatrix_GetUp(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.up = v;
+    FixMatrix_GetForward(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.forward = v;
+    FixMatrix_GetPosition(&v, g_pCurrentCar->pBodyMatrix);
+    g_pCurrentCar->pNode0x720->current.position = v;
+    FixMatrix_GetRight(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.right = v;
+    FixMatrix_GetUp(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.up = v;
+    FixMatrix_GetForward(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.forward = v;
+    FixMatrix_GetPosition(&v, g_pCurrentCar->pWorld);
+    g_pCurrentCar->pNode0x71c->current.position = v;
+}
+
+void Car_UpdateCorners(Car *pCar);
+
+// Resets a car's physics state from a saved one (used when the body is put
+// back on the road): copies the stored fields and rebuilds the matrix-derived
+// vectors of the body.
+// The body matches the original instruction by instruction, but MSVC6 homes the first parameter in ESI
+// instead of the original's EBX, which renames every scratch register (known ceiling, CONOCIMIENTO 4.u).
+// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00426d80
+void FUN_00426d80(Car *pDst, Car *pSrc)
+{
+    int i;
+
+    *(int *)((BYTE *)pDst + 0xb54) = *(int *)((BYTE *)pSrc + 0xd0);
+    pDst->field_0x7a4 = 0;
+    pDst->heading = *(unsigned short *)((BYTE *)pSrc + 0xc4);
+    pDst->field_0x79c = *(int *)((BYTE *)pSrc + 0xb8);
+    *(FixVector *)((BYTE *)pDst + 0x414) = pDst->velocity;
+    *((BYTE *)pDst + 0xb35) = *((BYTE *)pSrc + 0xcc);
+    pDst->field_0xc00 = *(int *)((BYTE *)pSrc + 0xd4);
+    pDst->velocity = *(FixVector *)((BYTE *)pSrc + 0x70);
+    pDst->angularVelocity = *(FixVector *)((BYTE *)pSrc + 0x7c);
+    FixMatrix_CopyRotation((FixMatrix *)pSrc, pDst->pWorld);
+    pDst->pWorld->uw = *(int *)((BYTE *)pDst + 0x2ec);
+
+    for (i = 0; i < 4; i++) {
+        *(FixVector *)((BYTE *)pDst + 0x30c + i * 0xc) =
+            *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc);
+        *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc) = pDst->corners[i];
+        pDst->field_0xabe[i] = pDst->wheelSurface[i];
+    }
+    for (i = 0; i < 8; i++) {
+        pDst->cornerNormal[i] = pDst->cornerAxis[i];
+        pDst->field_0xbac[4 + i] = 0;
+    }
+    *(int *)((BYTE *)pDst + 0x7a8) = pDst->field_0x7a4;
+    *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
+    *(FixVector *)((BYTE *)pDst + 0x2e8) = pDst->position;
+    pDst->normal0x498 = pDst->groundNormal;
+    for (i = 0; i < 9; i++)
+        ((int *)((BYTE *)pDst + 0x384))[i] = ((int *)((BYTE *)pDst + 0x360))[i];
+
+    FixMatrix_GetPosition((FixVector *)((BYTE *)pDst + 0x2d0), pDst->pWorld);
+    FixMatrix_GetRight(&pDst->right, pDst->pWorld);
+    FixMatrix_GetUp(&pDst->up, pDst->pWorld);
+    FixMatrix_GetForward(&pDst->forward, pDst->pWorld);
+    Car_UpdateCorners(pDst);
+    pDst->field_0x5c4.x = 0;
+    pDst->field_0x5c4.y = 0;
+    pDst->field_0x5c4.z = 0;
+    pDst->field_0x5d0.x = 0;
+    pDst->field_0x5d0.y = 0;
+    pDst->field_0x5d0.z = 0;
+    *(int *)((BYTE *)pDst + 0xc20) = 1;
+}
+
+// One suspension step of the current car: for each wheel, the spring force from
+// the corner heights and the damper force are integrated into the suspension
+// travel (0x9c8) and its rate (0x9d8).
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0042e8e0
+void FUN_0042e8e0(void)
+{
+    FixVector d;
+    FixVector mid;
+    FixVector v;
+    int h;
+    int f;
+    int w;
+
+    for (w = 0; w < 4; w++) {
+        if (g_pCurrentCar->field_0xb74 != 0) {
+            h = g_pCurrentCar->cornerHeight[w] - g_pCurrentCar->corners[w].y;
+            if (h < 0)
+                h = -h;
+            if (h < 0x4ccc &&
+                (((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x != 0 ||
+                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y != 0 ||
+                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z != 0)) {
+                d.x = (g_pCurrentCar->corners[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x);
+                d.y = (g_pCurrentCar->corners[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y);
+                d.z = (g_pCurrentCar->corners[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z) -
+                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z);
+                FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
+                f = FixMul(v.z, FixMul(0x9c28, g_physicsScale));
+                if (f > 0)
+                    ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] -= f;
+            }
+        }
+        f = FixMul(g_physicsTimeStep,
+                   -(FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9e8))[w], g_pCurrentCar->wheel0x9d8[w]) +
+                     FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w])));
+        ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] += f;
+        ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] +=
+            FixMul(g_physicsTimeStep, ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w]);
+        if (((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] < -0x3333) {
+            ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] = -0x3333;
+            if (((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] < 0)
+                ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] = 0;
+        }
+    }
+}
+
+// Per-object tables of the stage object payload (see StageObjects.cpp for the
+// tables at 0x590d90 and 0x590db0 they index).
+// GLOBAL: CMR2 0x00590d8c
+BYTE g_unk0x00590d8c[4];
+// GLOBAL: CMR2 0x00590ec0
+BYTE g_unk0x00590ec0[16];
+extern int g_carSplitValues[8];
+extern int g_unk0x00590db0[64];
+
+// Positions a stage object: its matrix is rebuilt from the object's split
+// vector and the reference matrix's position, then its scale fields are set.
+// FUNCTION: CMR2 0x004869e0
+void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
+{
+    FixMatrix identity;
+    FixVector src;
+    FixVector pos;
+    FixVector off;
+    FixMatrix *pM;
+    unsigned int mode;
+    int base;
+
+    if (RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0() != 0 && FUN_0041f3a0() == 0) {
+        if (g_unk0x00590d8c[pObj[0]] == 0)
+            mode = 3;
+        else if (g_unk0x00590d8c[pObj[0]] == 2)
+            mode = 4;
+        else
+            mode = g_unk0x00590d8c[pObj[0]];
+    } else {
+        mode = g_unk0x00590d8c[pObj[0]];
+    }
+    base = g_carSplitValues[g_unk0x00590ec0[pObj[0]]];
+    src = ((FixVector *)base)[mode];
+
+    FixMatrix_Identity(&identity);
+    FixMatrix_SetPosition(&src, &identity);
+    pM = (FixMatrix *)(pObj + 8);
+    pM->position.x = 0;
+    pM->position.y = 0;
+    pM->position.z = 0;
+    FixMatrix_Multiply(pM, &identity, pM);
+    FixMatrix_GetPosition(&pos, pM);
+    FixMatrix_GetPosition(&off, pRef);
+    pos.x += off.x;
+    pos.y += off.y;
+    pos.z += off.z;
+    FixMatrix_SetPosition(&pos, pM);
+
+    *(int *)(pObj + 0x48) = g_unk0x00590db0[pObj[0]];
+    *(int *)(pObj + 0x4c) = 0x1999;
+    *(int *)(pObj + 0x50) = 0;
+    *(int *)(pObj + 0x54) = 0xa000;
+    *(int *)(pObj + 0x58) = 0;
+    *(int *)(pObj + 0x5c) = 0x10000;
+}
+
+// Per-octant reference vectors used to probe the ground.
+// GLOBAL: CMR2 0x00589458
+FixVector g_unk0x00589458[8];
+
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
+                          int defaultY);
+
+// Probes the ground under a stage object: casts the ground normal at the given
+// point and returns the signed distance from the point to the ground plane.
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004702f0
+int FUN_004702f0(BYTE *pObj, FixVector *pPoint)
+{
+    unsigned short surface;
+    FixVector neg;
+    FixVector rot;
+    FixVector v;
+    int idx;
+    int len;
+
+    *(int *)(pObj + 0x110) = Track_GetGroundHeight(pPoint, (FixVector *)(pObj + 0xd4),
+                                                   (short *)(pObj + 0x11c), &surface,
+                                                   *(int *)(pObj + 0x110));
+    if (*(short *)(pObj + 0x11c) == -1) {
+        *(int *)(pObj + 0xd4) = 0;
+        *(int *)(pObj + 0xd8) = 0x10000;
+        *(int *)(pObj + 0xdc) = 0;
+        *(int *)(pObj + 0x110) = pPoint->y - 0xa0000;
+    }
+    len = FixVecLength((FixVector *)(pObj + 0xd4));
+    if (len == 0) {
+        *(int *)(pObj + 0xd4) = 0;
+        *(int *)(pObj + 0xd8) = 0;
+        *(int *)(pObj + 0xdc) = 0;
+    } else {
+        FixVecScaleRecip((FixVector *)(pObj + 0xd4), (FixVector *)(pObj + 0xd4), len);
+    }
+    FixVecScale(&neg, (FixVector *)(pObj + 0xd4), -0x10000);
+    FixMatrix_InverseRotateVector(&rot, &neg, *(FixMatrix **)(pObj + 0xc8));
+    idx = 0;
+    if (rot.y >= 0)
+        idx = 4;
+    if (rot.x < 0)
+        idx += 2;
+    if (rot.z < 0)
+        idx += 1;
+    FixMatrix_RotateVector(&v, &g_unk0x00589458[idx], *(FixMatrix **)(pObj + 0xc8));
+    v.x += pPoint->x;
+    v.y += pPoint->y;
+    v.z += pPoint->z;
+    v.x = pPoint->x - v.x;
+    v.y = *(int *)(pObj + 0x110) - v.y;
+    v.z = pPoint->z - v.z;
+    return FixDiv(FixVecDot(&v, (FixVector *)(pObj + 0xd4)), *(int *)(pObj + 0xd8));
 }
