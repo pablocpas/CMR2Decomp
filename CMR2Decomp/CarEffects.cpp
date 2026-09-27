@@ -50,7 +50,7 @@ Quad2DInputVertex g_debrisTri[3];
 // GLOBAL: CMR2 0x00592d80
 FixVector g_glassShards[10][3];
 // GLOBAL: CMR2 0x00592ee8
-int g_windowSmash[2][10];           // queued windows to break
+BYTE g_windowSmash[2][10];          // queued windows to break
 // Break-up grid of a window (11 rows of 8 points).
 // GLOBAL: CMR2 0x00592f38
 FixVector g_windowGrid[11][8];
@@ -274,17 +274,19 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
     FixVector *pVerts;
     FixVector quad[4];
     FixVector *pQ;
+    CarWindow *pWin;
     int *pMirror;
     int i;
 
     i = 0;
+    pWin = &g_carWindows[window];
     pVerts = NULL;
-    if (window < 6)
+    if (window <= 5)
         pVerts = g_carWindowVerts[pCar->field_0xb1a];
     pQ = quad;
-    pMirror = g_carWindows[window].mirrorZ;
+    pMirror = pWin->mirrorZ;
     do {
-        *pQ = pVerts[g_carWindows[window].vertex[i]];
+        *pQ = pVerts[pWin->vertex[i]];
         if (*pMirror != 0)
             pQ->z = -pQ->z;
         i++;
@@ -1172,12 +1174,14 @@ void FUN_0045d270(void *pParticle, ParticleType *pType, int param)
 {
     Particle *p = (Particle *)pParticle;
     Car *pCar;
+    int car;
 
     p->vector0x28.y += p->size / 2;
     if (p->size > 0x18000)
         p->size = 0x18000;
-    if (p->field0x64 < 8) {
-        pCar = Car_Get(p->field0x64);
+    car = p->field0x64;
+    if (car < 8) {
+        pCar = Car_Get(car);
         p->vector0x28.x += pCar->position.x;
         p->vector0x28.y += pCar->position.y;
         p->vector0x28.z += pCar->position.z;
@@ -1231,7 +1235,9 @@ void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param)
 // FUNCTION: CMR2 0x0045de80
 void FUN_0045de80(void *pParticle, ParticleType *pType, int param)
 {
-    ((Particle *)pParticle)->field0x64 = (short)*(int *)param;
+    int value = *(int *)param;
+
+    ((Particle *)pParticle)->field0x64 = value;
 }
 
 // Splashes and sparks thrown along the wheel trails of a player's car:
