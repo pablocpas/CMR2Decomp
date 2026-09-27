@@ -38,7 +38,7 @@ void FUN_004a3240(int unused);
 // Opens a music file (.wav with Microsoft ADPCM data) and prepares it for
 // streaming: creates the streaming buffer and the ACM decoder; on failure the
 // music is stopped again. The name is remembered in m_unk0x005a2738.
-// match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a28d0
 void CSound::FUN_004a28d0(char *path) {
     if (m_unk0x006e0eec == 0)
@@ -747,7 +747,7 @@ HRESULT FUN_004a2bd0(int param1)
 }
 
 // Refills the part of the streaming buffer that has already been played.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a3050
 HRESULT FUN_004a3050(int unused)
 {
@@ -842,7 +842,7 @@ BOOL FUN_004bd100(void);
 // Creates the DirectSound device and sets the format of the primary buffer
 // (16-bit PCM at sampleRate; mono when the speakers are mono). bits and
 // unused are ignored: the original always uses 16 bits.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1d60
 BOOL Sound_InitDevice(int sampleRate, int channels, int bits, int unused)
 {
@@ -907,7 +907,7 @@ BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD 
 // Loads a .wav from pFile into the next free sample slot: creates its buffer
 // (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
 // The file buffer is freed unless it lives inside the archive.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1f50
 BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 {
