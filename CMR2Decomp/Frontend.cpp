@@ -45,6 +45,13 @@ void FUN_004d0300(int *pDest, int *pSource);
 void FUN_004d0310(int *pDest, int *pSource);
 void FUN_004d0370(int *pDest, int *pSource);
 void FUN_004d03b0(int *pDest, int *pSource);
+void FUN_004d03f0(int *pDest, int *pSource);
+void FUN_004d0470(int *pDest, int *pSource);
+void FUN_004d0500(int *pDest, int *pSource);
+
+char FUN_004cfb30(int param1, int index, char *pName);
+char FUN_004cfc90(int param1, int index, char *pName);
+char FUN_004cfff0(int param1, int index, char *pName);
 
 char CFrontend::m_stringDest[MAX_PATH];
 
@@ -245,7 +252,7 @@ void CFrontend::FUN_004d21e0(void)
 // FUNCTION: CMR2 0x004b7560
 BOOL CFrontend::FUN_004b7560(unsigned int param_1)
 {
-    if (CGraphics::m_d3dDeviceDesc7.minTextureWidth <= param_1 && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureWidth)
+    if (param_1 >= CGraphics::m_d3dDeviceDesc7.minTextureWidth && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureWidth)
         return TRUE;
 
     return FALSE;
@@ -254,7 +261,7 @@ BOOL CFrontend::FUN_004b7560(unsigned int param_1)
 // FUNCTION: CMR2 0x004b7590
 BOOL CFrontend::FUN_004b7590(unsigned int param_1)
 {
-    if (CGraphics::m_d3dDeviceDesc7.minTextureHeight <= param_1 && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureHeight)
+    if (param_1 >= CGraphics::m_d3dDeviceDesc7.minTextureHeight && param_1 <= CGraphics::m_d3dDeviceDesc7.maxTextureHeight)
         return TRUE;
 
     return FALSE;
@@ -1411,6 +1418,115 @@ BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
     return 1;
 }
 
+// Inserts a device name and its option word into the five-entry record list of
+// the current stage group, keeping the list sorted by the option value.
+// match 61%: the original spills `better` and the record base to the stack;
+// MSVC keeps them in registers here, so the code differs only in allocation.
+// FUNCTION: CMR2 0x004cfb30
+char FUN_004cfb30(int param1, int index, char *pName)
+{
+    unsigned char *pInfo;
+    unsigned int *pDevice;
+    GameInfo0xa4SubStruct12 *pRecord;
+    bool better;
+    int slot;
+    int i;
+
+    RallyData_FUN_00408c70(index);
+    pDevice = (unsigned int *)FUN_004d02d0(index);
+    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    better = false;
+    slot = 0;
+    pInfo += (g_unk0x00817400 + g_unk0x008173f8 * 3) * 0x3c;
+    pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xb4);
+    for (;;) {
+        if (pDevice != NULL) {
+            if ((*pDevice & 0xf) < ((pRecord->flags >> 7) & 0xf))
+                better = true;
+            if (((((pRecord->flags >> 7) ^ *pDevice) & 0xf) == 0 && pDevice[1] < pRecord->value) ||
+                better) {
+                if (slot < 4) {
+                    GameInfo0xa4SubStruct12 *p = (GameInfo0xa4SubStruct12 *)(pInfo + 0xe4);
+
+                    for (i = 4 - slot; i != 0; i--) {
+                        FUN_004d03f0((int *)p, (int *)(p - 1));
+                        p--;
+                    }
+                }
+                strcpy(pRecord->ident, pName);
+                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
+                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
+                pRecord->flags = ((*pDevice & 0xf) << 7) | (pRecord->flags & 0xfffff87f);
+                pRecord->value = pDevice[1];
+                pRecord->flags = ((*pDevice & 0x3c00) << 1) | (pRecord->flags & 0xffff803f);
+                g_unk0x00817413 = 1;
+                return (slot != 0) + 1;
+            }
+        }
+        slot++;
+        pRecord++;
+        if (slot > 4)
+            return 0;
+    }
+}
+
+// Inserts a device name and its option word into the five-entry record list of
+// the current car group, keeping the list sorted by the option value.
+// match 55%: same code as the original; MSVC allocates the loop counter, the
+// base and `better` to different places.
+// FUNCTION: CMR2 0x004cfc90
+char FUN_004cfc90(int param1, int index, char *pName)
+{
+    unsigned char *pInfo;
+    unsigned int *pDevice;
+    GameInfo0xa4SubStruct12 *pRecord;
+    int better;
+    int slot;
+    int i;
+
+    pDevice = (unsigned int *)RallyData_FUN_00408c70(index);
+    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    better = 0;
+    slot = 0;
+    pInfo += g_unk0x00817400 * 0x3c;
+    pRecord = (GameInfo0xa4SubStruct12 *)pInfo;
+    for (;;) {
+        if (pDevice != NULL) {
+            if ((*pDevice & 0xf) < ((pRecord->flags >> 0xe) & 0xf))
+                better = 1;
+            if (((((pRecord->flags >> 0xe) ^ *pDevice) & 0xf) == 0 &&
+                 (*pDevice & 0x3fc0) < ((pRecord->flags >> 1) & 0x1fc0)) || better) {
+                char *p;
+
+                if (slot < 4) {
+                    GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x30);
+
+                    for (i = 4 - slot; i != 0; i--) {
+                        FUN_004d0470((int *)pMove, (int *)(pMove - 1));
+                        pMove--;
+                    }
+                }
+                strcpy(pRecord->ident, pName);
+                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
+                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
+                pRecord->flags = ((*pDevice & 0xf) << 0xe) | (pRecord->flags & 0xfffc3fff);
+                pRecord->flags = ((*pDevice & 0x1fc0) << 1) | (pRecord->flags & 0xffffc07f);
+                p = (char *)pRecord + 8;
+                do {
+                    *p = p[(char *)pDevice - (char *)pRecord];
+                    p++;
+                } while ((int)(p + (-8 - (int)pRecord)) < 3);
+                g_unk0x00817412 = 1;
+                return (slot != 0) + 1;
+            }
+        }
+        pRecord++;
+        slot++;
+        if (slot > 4)
+            return 0;
+    }
+}
+
 // Keeps the lowest arcade-record option value in the running minimum.
 // FUNCTION: CMR2 0x004cfe20
 int FUN_004cfe20(int param_1, int param_2)
@@ -1479,6 +1595,57 @@ BYTE FUN_004cfe80(int param_1, int param_2)
         }
     }
     return 0;
+}
+
+// Inserts a device name and its option word into the five-entry record list of
+// the current arcade group, keeping the list sorted by the option value.
+// match 57%: same code as the original; MSVC allocates the loop counter, the
+// base and `better` to different places.
+// FUNCTION: CMR2 0x004cfff0
+char FUN_004cfff0(int param1, int index, char *pName)
+{
+    unsigned char *pInfo;
+    unsigned int *pDevice;
+    GameInfo0xa4SubStruct12 *pRecord;
+    int better;
+    int slot;
+    int i;
+
+    pDevice = (unsigned int *)((char *)RallyData_FUN_00408c70(index) + 0x18);
+    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    better = 0;
+    slot = 0;
+    pInfo += (g_unk0x00817400 + g_unk0x00817404 * 3) * 0x3c;
+    pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xff4);
+    for (;;) {
+        if (pDevice != NULL) {
+            if ((*pDevice & 7) < ((pRecord->flags >> 7) & 7))
+                better = 1;
+            if (((((pRecord->flags >> 7) ^ *pDevice) & 7) == 0 &&
+                 (*pDevice & 0x7e0) < ((pRecord->flags >> 5) & 0x7e0)) || better) {
+                if (slot < 4) {
+                    GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x1024);
+
+                    for (i = 4 - slot; i != 0; i--) {
+                        FUN_004d0500((int *)pMove, (int *)(pMove - 1));
+                        pMove--;
+                    }
+                }
+                strcpy(pRecord->ident, pName);
+                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
+                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
+                pRecord->flags = ((*pDevice & 7) << 7) | (pRecord->flags & 0xfffffc3f);
+                pRecord->flags = ((*pDevice & 0x7e0) << 5) | (pRecord->flags & 0xffff003f);
+                pRecord->value = pDevice[1];
+                g_unk0x00817413 = 1;
+                return (slot != 0) + 1;
+            }
+        }
+        pRecord++;
+        slot++;
+        if (slot > 4)
+            return 0;
+    }
 }
 
 // Loads the current set of split times (rally or arcade) into the mirror array
@@ -1591,6 +1758,50 @@ void FUN_004d03b0(int *pDest, int *pSource)
     *pDest = (((*pDest ^ *pSource) & 7) ^ *pDest);
     *pDest = (((*pDest ^ *pSource) & 0x18) ^ *pDest);
     *pDest = (((*pDest ^ *pSource) & 0x7e0) ^ *pDest);
+}
+
+// Copies a record name and merges the 6-bit, 1-bit, 4-bit and 4-bit fields of
+// the source word into the destination word.
+// FUNCTION: CMR2 0x004d03f0
+void FUN_004d03f0(int *pDest, int *pSource)
+{
+    strcpy((char *)pDest, (char *)pSource);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x40) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x780) ^ pDest[1]);
+    pDest[2] = pSource[2];
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x7800) ^ pDest[1]);
+}
+
+// Copies a record name and merges the 6-bit, 1-bit, 7-bit and 2-bit fields of
+// the source word into the destination word, plus three trailing bytes.
+// FUNCTION: CMR2 0x004d0470
+void FUN_004d0470(int *pDest, int *pSource)
+{
+    char *pDestBytes = (char *)pDest;
+    char *pSourceBytes = (char *)pSource;
+    int i;
+
+    strcpy(pDestBytes, pSourceBytes);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x40) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f80) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3c000) ^ pDest[1]);
+    for (i = 0; i < 3; i++)
+        pDestBytes[8 + i] = pSourceBytes[8 + i];
+}
+
+// Copies a record name and merges the 6-bit, 1-bit, 6-bit and 3-bit fields of
+// the source word into the destination word.
+// FUNCTION: CMR2 0x004d0500
+void FUN_004d0500(int *pDest, int *pSource)
+{
+    strcpy((char *)pDest, (char *)pSource);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x3f) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x40) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0xfc00) ^ pDest[1]);
+    pDest[1] = (((pDest[1] ^ pSource[1]) & 0x380) ^ pDest[1]);
+    pDest[2] = pSource[2];
 }
 
 // cross-range: 0x4d0770 belongs to the Game.cpp range but is only used by
