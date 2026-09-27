@@ -2854,7 +2854,7 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0x10 = param3;
 }
 
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
 int CGameInfo::FUN_005004c0(void)
 {
@@ -4537,7 +4537,7 @@ void FUN_00404130(Menu *pMenu, int param)
 }
 
 // Callback of the car setup menu: encodes the selected switches and tyres.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404d00
 void FUN_00404d00(Menu *pMenu)
 {
@@ -6251,7 +6251,7 @@ int g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff5b0
 void FUN_004ff5b0(void)
 {
@@ -8266,7 +8266,6 @@ void FUN_0050a3c0(void)
 
 // Moves the left or the right edge of the slot's layout rectangle towards the
 // centre while its interpolation is running.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00501de0
 void FUN_00501de0(int param_1, short *param_2)
 {

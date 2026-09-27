@@ -394,7 +394,6 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
     }
 }
 
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a230
 void FUN_0040a230(int splitCount)
 {
@@ -499,7 +498,6 @@ unsigned int FUN_0040a470(int index)
 }
 
 // qsort comparator for g_netResults
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a490
 int __cdecl FUN_0040a490(const void *a, const void *b)
 {

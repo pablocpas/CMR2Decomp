@@ -582,7 +582,6 @@ void FUN_00494db0(Car *pCar, int view)
 
 // Pulls the shadow points one unit towards the camera so they do not sink
 // into the ground: the body and skid points, and the wheel patches when drawn.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00495f50
 void FUN_00495f50(int view, CarContact *pContact)
 {
