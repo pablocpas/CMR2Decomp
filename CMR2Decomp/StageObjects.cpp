@@ -2615,17 +2615,19 @@ void FUN_004660a0(int **pValue, int slot, char flag)
     }
 }
 
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046b670
 void FUN_0046b670(BYTE *pCar)
 {
-    int *p;
+    BYTE *p;
     int i;
 
-    p = (int *)((BYTE *)FUN_00469680((char)pCar[0xb1a]) + 0x4b0);
-    for (i = 0; i < 4; i++) {
-        FUN_00480ac0(pCar, i, *p);
-        p++;
+    p = (BYTE *)FUN_00469680((char)pCar[0xb1a]) + 0x4b0;
+    i = 0;
+    while (i < 4) {
+        FUN_00480ac0(pCar, i, *(int *)p);
+        i++;
+        p += 4;
     }
 }
 
@@ -5001,15 +5003,18 @@ void FUN_00461c30(int index)
 }
 
 // Sets the scene's ambient colour when it changes.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00462cb0
 void FUN_00462cb0(BYTE *pColour)
 {
     BYTE ambient[4];
 
     Scene_GetAmbientColour((DWORD *)ambient);
-    if (ambient[0] != pColour[0] || ambient[1] != pColour[1] || ambient[2] != pColour[2])
-        Scene_SetAmbient(pColour, (BYTE)RallyDataCountryIndex() == 3 ? 0 : 1);
+    if (ambient[0] != pColour[0] || ambient[1] != pColour[1] || ambient[2] != pColour[2]) {
+        if ((BYTE)RallyDataCountryIndex() == 3)
+            Scene_SetAmbient(pColour, 0);
+        else
+            Scene_SetAmbient(pColour, 1);
+    }
     if ((BYTE)FUN_00407270())
         FUN_0047e490(pColour);
 }
@@ -5231,21 +5236,19 @@ void StageLights_Update(void)
 }
 
 // Turns every light off (state 6).
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00463d00
 void StageLights_Off(void)
 {
-    StageLight *p;
     int i;
 
     g_unk0x00547b80 = 6;
     if (g_stageLightsActive == 0)
         return;
-    for (i = 0, p = g_stageLights; i < g_stageLightCount; i++, p++) {
-        p->level = 0;
-        FUN_004ae3d0(p->pGlow, 0);
+    for (i = 0; i < g_stageLightCount; i++) {
+        g_stageLights[i].level = 0;
+        FUN_004ae3d0(g_stageLights[i].pGlow, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0)
-            FUN_004ae3d0(p->pGlow2, 0);
+            FUN_004ae3d0(g_stageLights[i].pGlow2, 0);
     }
 }
 
@@ -6006,14 +6009,12 @@ int g_unk0x00549b20[8][4];
 BYTE g_trailPoints[8][4][200][0x28];
 
 // Clears every wheel's skid marks and trail state.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00465530
 void FUN_00465530(void)
 {
     int car;
     int point;
     int wheel;
-    FixVector *pDelta;
 
     for (car = 0; car < 8; car++) {
         for (point = 0; point < 200; point++) {
@@ -6031,10 +6032,14 @@ void FUN_00465530(void)
     memset(g_unk0x00543708, 0, sizeof(g_unk0x00543708));
     for (wheel = 0; wheel < 8 * 4; wheel++)
         ((int *)g_trailReset)[wheel] = 1;
-    for (pDelta = g_trailDelta[0]; pDelta < g_trailDelta[8]; pDelta++) {
-        pDelta->x = 0;
-        pDelta->y = 0;
-        pDelta->z = 0;
+    for (car = 0; car < 8; car++) {
+        FixVector *pDelta = g_trailDelta[car];
+        for (wheel = 0; wheel < 4; wheel++) {
+            pDelta->x = 0;
+            pDelta->y = 0;
+            pDelta->z = 0;
+            pDelta++;
+        }
     }
 }
 
