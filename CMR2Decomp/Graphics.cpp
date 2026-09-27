@@ -2532,7 +2532,8 @@ BOOL CGraphics::ClearZBuffer(void)
 
 // Reloads every texture from its archive (.DDS first, else .TGA) and
 // recreates the cube map surfaces, e.g. after the device was lost.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: MSVC puts the LoadDDS branch inline here; the original defers it past
+// the function epilogue (same CFG, different block order). No source shape tried reproduces it.
 // FUNCTION: CMR2 0x004a4c40
 void Graphics_ReloadAllTextures(void)
 {
@@ -2544,14 +2545,13 @@ void Graphics_ReloadAllTextures(void)
     for (i = 0; i < CGraphics::m_textureCount; i++) {
         pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture->textureId == i) {
-            pExt = pTexture->name + strlen(pTexture->name) - 4;
+            pExt = &pTexture->name[strlen(pTexture->name) - 4];
             strncpy(pExt, CGraphics::m_ddsExtension, 4);
             pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
             if (pData == NULL) {
                 strncpy(pExt, CGraphics::m_tgaExtension, 4);
-                CGraphics::LoadTGATexture(
-                    (BYTE *)CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0),
-                    pTexture);
+                pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
+                CGraphics::LoadTGATexture((BYTE *)pData, pTexture);
             } else {
                 CGraphics::LoadDDSTexture((DDSFile *)pData, pTexture);
             }
@@ -2607,7 +2607,6 @@ void CGraphics::SetCullMode(int mode)
 int g_unk0x0059ce30;
 
 // Switches alpha blending; with alpha test support the reference value follows.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049dcc0
 void FUN_0049dcc0(int enable)
 {
@@ -2616,10 +2615,9 @@ void FUN_0049dcc0(int enable)
         if (FUN_004b7510()) {
             if (enable != 0) {
                 CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 1);
-                g_unk0x0059ce30 = enable;
-                return;
+            } else {
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 0x80);
             }
-            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 0x80);
             g_unk0x0059ce30 = enable;
             return;
         }
@@ -3217,12 +3215,15 @@ void Mesh_DrawEnvMapped(Mesh *pMesh)
     }
 }
 
+// 1.0 lives at the original's network constant block (0x511350); using the
+// named global instead of a literal keeps reccmp's operand symbol identical.
+extern const float g_netOne;
+
 // Startup (C runtime .CRT$XCU) initializer of g_unk0x006dfdf8.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b2e20
 void __cdecl FUN_004b2e20(void)
 {
-    g_unk0x006dfdf8 = 1.0f - g_unk0x005210d0;
+    g_unk0x006dfdf8 = g_netOne - g_unk0x005210d0;
 }
 
 #pragma data_seg(".CRT$XCU")
@@ -3694,39 +3695,49 @@ int g_pulseRising = 1;
 // GLOBAL: CMR2 0x0052173c
 float g_pulseMax = 0.3f;
 
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Level thresholds and the phase step, taken from the original's constant block.
+// GLOBAL: CMR2 0x00511ce8
+extern const float g_unk0x00511ce8 = 0.1f;
+// GLOBAL: CMR2 0x00511d10
+extern const float g_unk0x00511d10 = 0.25f;
+// GLOBAL: CMR2 0x00511d14
+extern const float g_unk0x00511d14 = 0.15f;
+// GLOBAL: CMR2 0x00511d18
+extern const float g_unk0x00511d18 = 0.05f;
+// GLOBAL: CMR2 0x00511d1c
+extern const float g_unk0x00511d1c = 0.004f;
+// GLOBAL: CMR2 0x0051136c
+extern const float g_unk0x0051136c = 0.2f;
+
 // FUNCTION: CMR2 0x004bcc60
 void Pulse_Update(unsigned int dt)
 {
-    float t;
-
     if (g_pulseFrozen != 0)
         return;
-    t = (float)dt;
-    g_pulsePhase = t * 0.004f + g_pulsePhase;
+    g_pulsePhase = (float)dt * g_unk0x00511d1c + g_pulsePhase;
     if (g_pulseRising == 0) {
-        if (g_pulseLevel <= 0.05f)
+        if (g_pulseLevel <= g_unk0x00511d18)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= 0.1f)
+        else if (g_pulseLevel <= g_unk0x00511ce8)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.15f)
+        else if (g_pulseLevel <= g_unk0x00511d14)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= 0.2f)
+        else if (g_pulseLevel <= g_unk0x0051136c)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.25f)
+        else if (g_pulseLevel <= g_unk0x00511d10)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
     } else {
-        if (g_pulseLevel <= 0.05f)
+        if (g_pulseLevel <= g_unk0x00511d18)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= 0.1f)
+        else if (g_pulseLevel <= g_unk0x00511ce8)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.15f)
+        else if (g_pulseLevel <= g_unk0x00511d14)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= 0.2f)
+        else if (g_pulseLevel <= g_unk0x0051136c)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.25f)
+        else if (g_pulseLevel <= g_unk0x00511d10)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
@@ -3736,14 +3747,14 @@ void Pulse_Update(unsigned int dt)
     if (g_pulseLevel <= g_pulseMin) {
         if (g_pulseRising == 0) {
             g_pulseRising = 1;
-            g_pulseLevel = t * g_pulseSpeed + g_pulseLevel;
+            g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
             return;
         }
     } else if (g_pulseRising == 0) {
-        g_pulseLevel = g_pulseLevel - t * g_pulseSpeed;
+        g_pulseLevel = g_pulseLevel - (float)dt * g_pulseSpeed;
         return;
     }
-    g_pulseLevel = t * g_pulseSpeed + g_pulseLevel;
+    g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
 }
 
 // FUNCTION: CMR2 0x004bcad0
@@ -6342,10 +6353,22 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
     return pTexture;
 }
 
+// 1/255 and the double 1.0 the original keeps in its constant block.
+// GLOBAL: CMR2 0x00511364
+extern const float g_unk0x00511364 = 1.0f / 255.0f;
+// GLOBAL: CMR2 0x00511428
+extern const double g_unk0x00511428 = 1.0;
+extern const float g_netZero;
+extern const float g_netByteScale;
+extern const float g_netOne;
+
+// The D3DX colour helper the original links statically (ours is the import).
+// LIBRARY: CMR2 0x004c674c
+// _D3DXColorAdjustContrast@12
+
 // Reads pixel (x, y) of a bottom-up TGA image as R, G, B, A in m_tgaPixel,
 // applying the brightness and contrast of the car (flag 0x80) or track
 // (flag 0x100) textures.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a60d0
 BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pInfo, unsigned int flags)
 {
@@ -6365,12 +6388,14 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
         m_tgaPixel[0] = 0;
         return m_tgaPixel;
     }
-    p = pInfo->pixels + ((pInfo->height - y - 1) * pInfo->width + x) * pInfo->bytesPerPixel;
+    p = ((pInfo->height - y - 1) * pInfo->width + x) * pInfo->bytesPerPixel + pInfo->pixels;
     m_tgaPixel[2] = p[0];
-    m_tgaPixel[1] = p[1];
-    m_tgaPixel[0] = p[2];
+    p++;
+    m_tgaPixel[1] = p[0];
+    p++;
+    m_tgaPixel[0] = p[0];
     if (pInfo->bytesPerPixel == 4)
-        m_tgaPixel[3] = p[3];
+        m_tgaPixel[3] = p[1];
     if (flags & 0x80) {
         contrast = m_unk0x00520b34;
         brightness = m_unk0x0065fa44;
@@ -6400,26 +6425,26 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
         m_tgaPixel[1] = g;
         m_tgaPixel[2] = b;
     }
-    if (contrast != 1.0) {
-        in.r = m_tgaPixel[0] * (1.0f / 255.0f);
-        in.g = m_tgaPixel[1] * (1.0f / 255.0f);
-        in.b = m_tgaPixel[2] * (1.0f / 255.0f);
+    if (contrast != g_unk0x00511428) {
+        in.r = m_tgaPixel[0] * g_unk0x00511364;
+        in.g = m_tgaPixel[1] * g_unk0x00511364;
+        in.b = m_tgaPixel[2] * g_unk0x00511364;
         D3DXColorAdjustContrast(&out, &in, contrast);
-        if (out.r > 1.0f)
+        if (out.r > g_netOne)
             out.r = 1.0f;
-        if (out.g > 1.0f)
+        if (out.g > g_netOne)
             out.g = 1.0f;
-        if (out.b > 1.0f)
+        if (out.b > g_netOne)
             out.b = 1.0f;
-        if (out.r < 0.0f)
+        if (out.r < g_netZero)
             out.r = 0.0f;
-        if (out.g < 0.0f)
+        if (out.g < g_netZero)
             out.g = 0.0f;
-        if (out.b < 0.0f)
+        if (out.b < g_netZero)
             out.b = 0.0f;
-        m_tgaPixel[0] = (BYTE)(int)(out.r * 255.0f);
-        m_tgaPixel[1] = (BYTE)(int)(out.g * 255.0f);
-        m_tgaPixel[2] = (BYTE)(int)(out.b * 255.0f);
+        m_tgaPixel[0] = (BYTE)(int)(out.r * g_netByteScale);
+        m_tgaPixel[1] = (BYTE)(int)(out.g * g_netByteScale);
+        m_tgaPixel[2] = (BYTE)(int)(out.b * g_netByteScale);
     }
     return m_tgaPixel;
 }
@@ -6773,7 +6798,6 @@ unsigned int g_unk0x006de95c[20];
 
 // Reserves count cube maps of the given size, then loads the environment
 // texture; returns 0 when it is missing.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b23c0
 int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
 {
