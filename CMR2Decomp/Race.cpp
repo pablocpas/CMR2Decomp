@@ -16,6 +16,7 @@
 #include "Input.h"
 #include "Menu.h"
 #include "main.h"
+#include "Sound.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -1384,6 +1385,98 @@ extern int g_unk0x00537f5c;
 BYTE g_raceResourcesFreed;
 extern unsigned int g_unk0x00537fc0;
 void Sound_FreeAll(void);
+
+/* --------------------------------------------------------------------------
+   Race bootstrap / teardown transitions (0x41bf80..0x41e5c0).
+   -------------------------------------------------------------------------- */
+
+void FUN_0042b720(int, char);
+void FUN_0041c5a0(BYTE, int);
+void FUN_0046cce0(int, int, int, int);
+void FUN_00403500(void);
+void FUN_00424640(void);
+int FUN_004582d0(int);
+void FUN_00455260(void);
+BYTE FUN_00478b80(void);
+void FUN_00478be0(void);
+void Replay_InitSlots(void);
+void FUN_00422fe0(int, int, int, int);
+BOOL Sound_Init(int, int, int, int);
+// GLOBAL: CMR2 0x00519284
+char g_strArcadeAdp0x00519284[] = "%s\\arcade%d.adp";
+
+// GLOBAL: CMR2 0x00537ffc
+int g_unk0x00537ffc;
+// GLOBAL: CMR2 0x00537f2c
+int g_unk0x00537f2c;
+
+// Starts the arcade race: initialises the sound system, the replay slots and
+// the race scene, and queues the arcade music track of the current rally.
+// FUNCTION: CMR2 0x0041c0e0
+void FUN_0041c0e0(int param1, int param2)
+{
+    char buffer[MAX_PATH];
+
+    CGameInfo::FUN_0049ea90(0);
+    if ((char)param2 == 0) {
+        Sound_Init(0x5622, 2, 0x10, 1);
+        FUN_00455260();
+        FUN_00478b80();
+        FUN_00478be0();
+        if ((BYTE)RallyData_FUN_00407e70() != 0) {
+            sprintf(buffer, g_strArcadeAdp0x00519284, CInstallInfo::GetMusicDir(),
+                    (BYTE)RallyData_FUN_00406940() * 3 + 1 + (BYTE)RallyData_FUN_00406950());
+            CSound::FUN_004a28d0(buffer);
+        }
+        FUN_00403500();
+        Replay_InitSlots();
+        g_unk0x00537ffc = CMain::GetFrameDelta();
+    }
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    g_unk0x00537f08 = 1;
+    g_unk0x00537f2c = 0;
+    g_unk0x00537f78[5] = 1;
+}
+
+// Leaves the current race: releases the frame resources, tears the stage list
+// down and fades the race out.
+// FUNCTION: CMR2 0x0041e5c0
+void FUN_0041e5c0(int param1, char param2)
+{
+    int i;
+    BYTE *p;
+
+    i = 0;
+    if (g_unk0x00538110 != 0) {
+        g_unk0x00538110 = 0;
+        g_unk0x00538114 = 1;
+        FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
+    }
+    if (CGameInfo::FUN_00405d80() == 6)
+        FUN_0042b720(0, -1);
+    if (param2 != 0)
+        return;
+    FUN_00424640();
+    if (CGameInfo::FUN_00405d80() == 6) {
+        if (FUN_004582d0(0) < 1)
+            goto done;
+    } else {
+        if (FUN_0041f3d0(0) != 0)
+            goto done;
+    }
+    p = FUN_0041b390();
+    if (*p > 0) {
+        do {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)FUN_0041b390(), i, 1, 3);
+            i++;
+            p = FUN_0041b390();
+        } while (i < *p);
+    }
+    FUN_0041f2a0();
+done:
+    FUN_0041c5a0(**(BYTE **)(param1 + 4), 1);
+    g_unk0x00537f08 = 1;
+}
 
 // Releases the race resources once (sounds, callbacks, textures).
 // FUNCTION: CMR2 0x0041e670
