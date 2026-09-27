@@ -7066,13 +7066,13 @@ void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
                 return;
             }
             v = FixMul(v, 0x1999) + 0x8000;
-            c.x = pFrom[0] * 0x10000 - pTo[0] * 0x10000;
-            c.y = pFrom[1] * 0x10000 - pTo[1] * 0x10000;
-            c.z = pFrom[2] * 0x10000 - pTo[2] * 0x10000;
+            c.x = (pFrom[0] << 16) - (pTo[0] << 16);
+            c.y = (pFrom[1] << 16) - (pTo[1] << 16);
+            c.z = (pFrom[2] << 16) - (pTo[2] << 16);
             FixVecScale(&c, &c, v);
-            r = c.x + pTo[0] * 0x10000;
-            g = c.y + pTo[1] * 0x10000;
-            b = c.z + pTo[2] * 0x10000;
+            r = c.x + (pTo[0] << 16);
+            g = c.y + (pTo[1] << 16);
+            b = c.z + (pTo[2] << 16);
             if (r > 0xff0000)
                 r = 0xff0000;
             if (g > 0xff0000)
