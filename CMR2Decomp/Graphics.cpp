@@ -6782,7 +6782,7 @@ void Graphics_ReloadTexture(Texture *pTexture)
 // FUNCTION: CMR2 0x004bc410
 void Timer_FindFree(void)
 {
-    unsigned int slot;
+    int slot;
     int i;
 
     slot = 0;
