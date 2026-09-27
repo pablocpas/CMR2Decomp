@@ -4335,6 +4335,94 @@ void RallyData_FUN_00408990(BYTE index, BYTE *pValue);
 void RallyData_MarkTyresChanged(int index);
 int RallyData_FUN_00411880(void);
 
+/* --------------------------------------------------------------------------
+   Stage entry / exit transitions of the frontend cascades (0x401000..0x405470).
+   -------------------------------------------------------------------------- */
+
+unsigned char FUN_0041f930(void);
+unsigned char FUN_00420150(void);
+void FUN_0041b300(void);
+void FUN_00411120(void);
+void RallyData_FUN_004207f0(void);
+void FUN_00418ff0(void);
+void FUN_004188c0(void);
+void FUN_00416710(void);
+void FUN_0041e670(void);
+void FUN_0040fec0(int, int, int);
+void FUN_00410ea0(BYTE *, unsigned int);
+BYTE FUN_0040eef0(void);
+
+// GLOBAL: CMR2 0x005297f0
+int g_unk0x005297f0;
+// GLOBAL: CMR2 0x00536ac8
+BYTE g_unk0x00536ac8;
+
+// Enters a stage group: either builds the group's stage list (loading each
+// entry) or runs the fade-in sequence of the next group, then forwards the
+// event to the stage-list object.
+// FUNCTION: CMR2 0x00401000
+void FUN_00401000(BYTE *param1, int param2)
+{
+    int i;
+
+    if ((char)param2 == 0) {
+        if ((BYTE)FUN_0041f930() == 0) {
+            i = 0;
+            if (*param1 != 0) {
+                do {
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
+                    i++;
+                } while (i < (int)*param1);
+            }
+            CGame::FUN_004057e0(0);
+            FUN_0041e670();
+            FUN_0041b300();
+            return;
+        }
+        FUN_0040fec0(0x46, 1, 0xff);
+        FUN_00418ff0();
+        FUN_004188c0();
+        FUN_00416710();
+        FUN_00411120();
+        CGame::RegisterCallback((void *)FUN_0040eef0, 0);
+        FUN_0040fec0(0x55, 1, 0xff);
+    }
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+}
+
+// Leaves a stage group: tears the stage list down or runs the fade-out
+// sequence, then forwards the event to the stage-list object.
+// FUNCTION: CMR2 0x004010a0
+void FUN_004010a0(BYTE *param1, int param2)
+{
+    int i;
+
+    if ((char)param2 == 0) {
+        RallyData_FUN_004207f0();
+        if ((BYTE)FUN_00420150() == 0) {
+            i = 0;
+            if (*param1 != 0) {
+                do {
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
+                    i++;
+                } while (i < (int)*param1);
+            }
+            CGame::FUN_004057e0(0);
+            FUN_0041e670();
+            FUN_0041b300();
+            return;
+        }
+        FUN_0040fec0(0x64, 1, 0xff);
+        if (CGameInfo::FUN_00405da0())
+            CGraphics::SetClearColour(0, 0, 0, 0);
+        else
+            CGraphics::SetClearColour(0, 0x9c, 0xb4, 0xac);
+    }
+    g_unk0x005297f0 = 1;
+    g_unk0x00536ac8 = 1;
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+}
+
 // Callback 0 of the sound options menu: loads the three volumes.
 // FUNCTION: CMR2 0x004012d0
 void FUN_004012d0(Menu *pMenu, int param)
@@ -4540,6 +4628,25 @@ unsigned char CGameInfo::FUN_00404f20(void)
 BYTE FUN_00404f30(void)
 {
     return g_unk0x0052af41;
+}
+
+void FUN_00410ea0(BYTE *, unsigned int);
+
+// Advances every entry of a menu screen one step.
+// FUNCTION: CMR2 0x00405470
+void FUN_00405470(BYTE *param1)
+{
+    BYTE i;
+
+    i = 0;
+    if (*param1 > 0) {
+        do {
+            // the original passes the byte counter as a full dword (the callee
+            // keeps only its low byte)
+            FUN_00410ea0(param1, *(unsigned int *)&i);
+            i++;
+        } while (i < *param1);
+    }
 }
 
 // FUNCTION: CMR2 0x004054a0
