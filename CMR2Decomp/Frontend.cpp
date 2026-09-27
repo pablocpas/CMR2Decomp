@@ -651,7 +651,10 @@ void FUN_004d27e0(short *pRect, BYTE *pColour)
 // Draws the animated frontend background: an 18x12 grid of the large matrix
 // texture, coloured by pMap and rippling from two centres (top-left and
 // top-right of the screen).
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 78%: every instruction matches except the stack slot of the loop
+// counter `i` (and of the /QIfist temporaries that follow it); the frame size
+// and the array slots are identical. Reordering the declarations does not move
+// it (MSVC6 assigns slots by first use), so this is an allocation ceiling.
 // FUNCTION: CMR2 0x004d28c0
 void FUN_004d28c0(short x0, short y0, char *pMap)
 {
@@ -864,13 +867,13 @@ void CFrontend::FUN_004cf0f0(void)
     BYTE index;
 
     for (i = 0; i < g_unk0x008173f0; i++) {
-        index = RallyDataStageIndex();
         g_unk0x00817420[i * 0xa] = 0;
+        index = RallyDataStageIndex();
         if (index == 0)
             g_unk0x00817420[i * 0xa] = index;
     }
-    index = RallyDataStageIndex();
     g_unk0x00817410 = 0;
+    index = RallyDataStageIndex();
     if (index == 0)
         g_unk0x00817410 = index;
 }
@@ -1039,14 +1042,14 @@ void FUN_004cf140(void)
     BYTE stage;
     int i;
 
-    if (RallyData_GetFlag30()) {
+    if ((BYTE)RallyData_GetFlag30()) {
         for (i = 0; i < g_unk0x008173f0; i++) {
             pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
             pState->field_0x4 |= (short)(pState->field_0x0[0] << RallyDataStageIndex());
         }
         g_unk0x00817414 |= (short)(g_unk0x00817410 << RallyDataStageIndex());
     }
-    if (RallyData_GetFlag24()) {
+    if ((BYTE)RallyData_GetFlag24()) {
         for (i = 0; i < g_unk0x008173f0; i++) {
             pState = (InputKeyState *)(g_unk0x00817420 + i * 0xa);
             pState->field_0x4 |= (short)(FUN_00448cb0(i) << RallyData_FUN_00406950());
@@ -1126,7 +1129,7 @@ void FUN_004cf450(int index, int arg, int value)
 
 // Writes a device option word: the option index in the low nibble, a 2-bit and
 // a 4-bit field above it, and the value in the following dword.
-// match 52%: MSVC schedules the *pValue load after the stores and allocates
+// match 56%: MSVC schedules the *pValue load after the stores and allocates
 // different registers for option/field; the code is the same.
 // FUNCTION: CMR2 0x004cf470
 void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
@@ -1137,18 +1140,19 @@ void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
     if (pValue != NULL) {
         word = (*pValue & 0xfffffc00) ^ (option & 0xf);
         pValue[1] = value;
-        word = ((((option & 3) << 4) | (field & 0xf)) << 4) | word;
+        word |= (((option & 3) << 4) | (field & 0xf)) << 4;
         *pValue = word;
         if (0x300 < (word & 0x300)) {
-            word &= 0xffffc3ff;
+            word &= 0xfffffcff;
             *pValue = word;
         }
     }
 }
 
 // Writes the two 6-bit fields of a device record and clears its second dword.
-// match 83%: MSVC folds the two AND masks into 0xffffc000 where the original
-// keeps 0xffffc03f then 0xffffffc0.
+// match 96.7%: merging with `+` keeps the original's two AND masks; with `|`
+// MSVC folds them into 0xffffc000 and drops to 83%. Only `add` vs `or` differs
+// (the merged operands are disjoint).
 // FUNCTION: CMR2 0x004cf4d0
 void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
 {
@@ -1156,7 +1160,7 @@ void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
     unsigned int word;
 
     if (pValue != NULL) {
-        word = ((field & 0xff) << 6) | (*pValue & 0xffffc03f);
+        word = (*pValue & 0xffffc03f) + ((field & 0xff) << 6);
         word &= 0xffffffc0;
         word ^= value & 0xf;
         word |= (value & 3) << 4;
@@ -1183,8 +1187,9 @@ void FUN_004cf530(int index, int value)
 
 // Writes the 6-bit, 2-bit and 3-bit fields of a device record and its extra
 // dword.
-// match 87%: MSVC folds (*p & 0xfffff81f) & 0xffffffe0 and orders the pops
-// differently; the code is the same.
+// match 96.8%: merging with `+` keeps the original's two AND masks; with `|`
+// MSVC folds (*p & 0xfffff81f) & 0xffffffe0 into 0xfffff800 and drops to 87%.
+// The remaining diff is the position of the `pop esi`.
 // FUNCTION: CMR2 0x004cf550
 void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 {
@@ -1193,7 +1198,7 @@ void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 
     if (pValue != NULL) {
         pValue[1] = extra;
-        word = ((field & 0x3f) << 5) | (*pValue & 0xfffff81f);
+        word = (*pValue & 0xfffff81f) + ((field & 0x3f) << 5);
         word &= 0xffffffe0;
         word ^= value & 7;
         word |= (value & 3) << 3;
