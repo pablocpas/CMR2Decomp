@@ -1111,7 +1111,6 @@ void FUN_004e9e40(void)
 // the network lobby; otherwise the language menu (first run) or the main
 // menu, and when coming back from a race (`back`) the menus of the game
 // mode that was played, with their cursors.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e9f70
 void FUN_004e9f70(BYTE param1, BYTE back)
 {
@@ -1119,10 +1118,7 @@ void FUN_004e9f70(BYTE param1, BYTE back)
     unsigned int region;
 
     if (CGameInfo::FUN_00405e00() != 0) {
-        if (FUN_004a15a0() == 0) {
-            pMenu = FUN_004f8450();
-            FUN_004f8470()->pParent = pMenu;
-        } else {
+        if (FUN_004a15a0() != 0) {
             switch (CGameInfo::FUN_00405d80()) {
             case 8:
                 pMenu = FUN_004f84b0();
@@ -1142,8 +1138,10 @@ void FUN_004e9f70(BYTE param1, BYTE back)
             default:
                 goto lobby;
             }
-            FUN_004f8470()->pParent = pMenu;
+        } else {
+            pMenu = FUN_004f8450();
         }
+        FUN_004f8470()->pParent = pMenu;
     lobby:
         g_pMenu0x00818abc = NULL;
         if (FUN_00406800() != 0) {
@@ -2603,7 +2601,7 @@ void FUN_004ef190(void)
             }
         }
         p++;
-    } while (p < &g_menuScrollers[12]);
+    } while ((int)&p->pMenu < (int)&g_unk0x00819754);
 }
 
 // FUNCTION: CMR2 0x004ef480
@@ -3093,7 +3091,7 @@ void FUN_004f19d0(Menu *pMenu, int param)
     else
         pMenu->items[0].max = 0;
 }
-void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
+void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pValue, unsigned int *pShade);
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
@@ -3101,13 +3099,13 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
 // FUNCTION: CMR2 0x004f16f0
 void FUN_004f16f0(Menu *pMenu, int param)
 {
-    int hue;
-    int value;
     int shade;
+    int value;
+    int hue;
     BYTE idx;
 
     FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
-    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
+    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&value, (unsigned int *)&shade);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
     pMenu->items[0].max = value;
@@ -4048,15 +4046,11 @@ BYTE FUN_004f3b50(void)
 
 // Sets the input repeat rate from the options and binds the five frontend
 // sounds to the menu actions.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3bb0
 void FUN_004f3bb0(void)
 {
-    int rate;
-
     g_unk0x0081988c = -1;
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     CInput::FUN_0049ff80(g_menuSoundBase, g_menuSoundBase + 1, g_menuSoundBase + 2, g_menuSoundBase + 3,
                          g_menuSoundBase + 4);
     FUN_004a0c40(1);
@@ -4194,7 +4188,6 @@ void FUN_004f3c10(int *pPoints, int t, int *pOut)
 
 // Resets the main menu animation: letters spread along the path, dots at
 // the start, and the path of the entry under the cursor.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3dd0
 void FUN_004f3dd0(void)
 {
@@ -4208,7 +4201,7 @@ void FUN_004f3dd0(void)
     do {
         *pPos++ = (i << 16) / 200;
         i++;
-    } while (pPos < &g_menuLetterPos[200]);
+    } while ((int)pPos < (int)&g_menuPathMode);
     memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
     memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     k = 0;
@@ -4218,20 +4211,20 @@ void FUN_004f3dd0(void)
             pPos[j] = k / 6;
         pPos += 10;
         k += 0x4000;
-    } while (pPos < g_menuStreamPos[6]);
+    } while ((int)pPos < (int)&g_menuPathVariant);
     g_menuAnimTime = -1;
     switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
     case 0:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 0;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 0;
         break;
     case 1:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 1;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 1;
         break;
     case 2:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 2;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 2;
         break;
     case 3:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 3;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 3;
         break;
     case 4:
         g_menuPathMode = 4;
@@ -4239,10 +4232,10 @@ void FUN_004f3dd0(void)
         g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
         break;
     case 5:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 7;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 7;
         break;
     case 6:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 8;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 8;
         break;
     }
 }
@@ -4518,7 +4511,6 @@ void RallyData_FUN_004068e0(BYTE param1);
 // Leaving the language menu: applies the chosen language (texts, fonts,
 // credits), rebuilds the scrollers and, the first time, the controls menu,
 // and makes the main menu the parent of the language menu and its entries.
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ef270
 void FUN_004ef270(Menu *pMenu, char back)
 {
@@ -4529,7 +4521,10 @@ void FUN_004ef270(Menu *pMenu, char back)
         FUN_004a3c30(pMenu->cursor);
         FUN_004f48b0();
         FUN_004f4910(0);
-        CGameInfo::FUN_00405ec0(CGameInfo::GetGameLanguage() == 0);
+        if (CGameInfo::GetGameLanguage() == 0)
+            CGameInfo::FUN_00405ec0(1);
+        else
+            CGameInfo::FUN_00405ec0(0);
         CFrontend::FUN_004d2790();
         FUN_004ef190();
         if (pMenu->pParent == NULL)
@@ -4995,7 +4990,6 @@ void FUN_004ded80(Menu *pMenu)
 
 // Entering the display device menu: one entry per device, the current one
 // under the cursor, and only the usable ones enabled.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f21c0
 void FUN_004f21c0(Menu *pMenu, int param)
 {
@@ -5005,13 +4999,13 @@ void FUN_004f21c0(Menu *pMenu, int param)
     pMenu->itemCount = CGraphics::FUN_004a8be0();
     pMenu->cursor = CGameInfo::FUN_00405bd0();
     i = 0;
-    if (CGraphics::FUN_004a8be0() != 0) {
+    if ((unsigned int)CGraphics::FUN_004a8be0() > 0) {
         pItem = pMenu->items;
         do {
-            if (CGraphics::FUN_004a96c0(i) == 0)
-                pItem->enabled = 0;
-            else
+            if (CGraphics::FUN_004a96c0(i) != 0)
                 pItem->enabled = 1;
+            else
+                pItem->enabled = 0;
             i++;
             pItem++;
         } while (i < (unsigned int)CGraphics::FUN_004a8be0());
@@ -5068,7 +5062,6 @@ extern BYTE g_colourTitle0x00524984[4];
 // Draw callback of the high score pages: title of the table shown (cycled
 // by FUN_004f3a90), the column headers and the 5 entries (position, name,
 // car, gearbox and two numbers).
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e3340
 void FUN_004e3340(Menu *pMenu)
 {
@@ -5083,16 +5076,22 @@ void FUN_004e3340(Menu *pMenu)
     table = FUN_004f3a60();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 2, NULL, -1);
-    if (table == 0)
-        title = 0x167;
-    else if (table == 1)
-        title = 0x168;
-    else if (table == 2)
-        title = 0x169;
-    else
+    switch (table) {
+    case 0:
+        Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    case 1:
+        Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    case 2:
+        Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    default:
         goto header;
-    Font_DrawText(2, CFrontend::GetTextString(title), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
-                  (int *)g_colourWhite0x00524968, 10);
+    }
 header:
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480;
@@ -5119,8 +5118,12 @@ header:
         Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 150) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 290) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, (pEntry->flags & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
-                      (int)(g_pGraphics->resX * 430) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((pEntry->flags & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 430) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 430) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (pEntry->flags >> 0xe & 0xf) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 485) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, pEntry->flags >> 7 & 0x7f);
@@ -5138,7 +5141,6 @@ BYTE *FUN_004f9280(int index);
 
 // Draw callback of the record page: the record of the table shown (car,
 // gearbox, two numbers and its time), or "no record".
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e3a80
 void FUN_004e3a80(Menu *pMenu)
 {
@@ -5153,16 +5155,22 @@ void FUN_004e3a80(Menu *pMenu)
     table = FUN_004f3a60();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
-    if (table == 0)
-        title = 0x167;
-    else if (table == 1)
-        title = 0x168;
-    else if (table == 2)
-        title = 0x169;
-    else
+    switch (table) {
+    case 0:
+        Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    case 1:
+        Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    case 2:
+        Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
+                      (int *)g_colourWhite0x00524968, 10);
+        break;
+    default:
         goto header;
-    Font_DrawText(2, CFrontend::GetTextString(title), (int)g_pGraphics->resX / 2, (int)(g_pGraphics->resY * 100) / 480,
-                  (int *)g_colourWhite0x00524968, 10);
+    }
 header:
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480 - (int)(g_pGraphics->resY * 25) / 480;
@@ -5177,24 +5185,28 @@ header:
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 520) / 640, y0, (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 30) / 640;
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480;
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
+    g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480;
     offset = table * 0x10;
-    if ((RallyData_FUN_00408cb0(0)[offset] & 0x80) == 0) {
-        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
-    } else {
+    if ((RallyData_FUN_00408cb0(0)[offset] & 0x80) != 0) {
         pSecond = (unsigned int *)(RallyData_FUN_00408cb0(0) + offset + 4);
         pRecord = RallyData_FUN_00408cb0(0) + offset;
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)pRecord & 0x3f), (int)(g_pGraphics->resX * 180) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, (*(unsigned int *)pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
-                      (int)(g_pGraphics->resX * 310) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((*(unsigned int *)pRecord & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 310) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 310) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*pSecond & 0xf) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 370) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, *pSecond >> 6 & 0xff);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 435) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(0, (char *)FUN_004f9280(table), (int)(g_pGraphics->resX * 520) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
     }
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 25) / 480) + (short)((int)(g_pGraphics->resY * 200) / 480);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
@@ -5521,7 +5533,6 @@ int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5
 }
 
 // Clears the championship data and sets up the 8 championship entries.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eae40
 void FUN_004eae40(void)
 {
@@ -5535,10 +5546,10 @@ void FUN_004eae40(void)
         *pEntry = (*pEntry & 0xfd) | 1;
         *(int *)(pEntry - 8) = FUN_004eaca0();
         FUN_004ec260(i);
-        i++;
         pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
+        i++;
         pEntry += 0xc4;
-    } while (pEntry < g_saveData + 0x62c);
+    } while ((int)pEntry < (int)g_saveData + 0x62c);
 }
 
 extern BYTE *g_unk0x00531764;
@@ -5616,7 +5627,7 @@ bool FUN_004eb200(int param_1, BYTE *param_2)
     category = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
     pName = (char *)(g_saveData + 0x628 + category * 0x650);
     CGenericFileLoader::StrLowerPolish((char *)param_2);
-    return !strcmp((char *)param_2, pName + 0x1c);
+    return strcmp((char *)param_2, pName + 0x1c) == 0;
 }
 
 // True if the profile of the given index already matches the category record
@@ -5662,7 +5673,6 @@ void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsig
 
 // Next player: gives the player a profile and goes to the name entry (or
 // for championship mode 4 to the championship screen).
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0ac0
 void FUN_004f0ac0(Menu *pMenu, int param)
 {
@@ -5670,11 +5680,7 @@ void FUN_004f0ac0(Menu *pMenu, int param)
 
     g_unk0x00819744++;
     FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-    if (CGameInfo::FUN_00405d80() == 4) {
-        Menu_SetParent(FUN_004f83c0(), pMenu);
-        FUN_004f2c10((int)FUN_004f8400());
-        FUN_004f8430();
-    } else {
+    if (CGameInfo::FUN_00405d80() != 4) {
         switch (CGameInfo::FUN_00405d80()) {
         case 5:
             pNext = FUN_004fa300();
@@ -5700,6 +5706,10 @@ void FUN_004f0ac0(Menu *pMenu, int param)
             FUN_004f2c10((int)pNext);
             Menu_SetParent(pNext, pMenu);
         }
+    } else {
+        Menu_SetParent(FUN_004f83c0(), pMenu);
+        FUN_004f2c10((int)FUN_004f8400());
+        FUN_004f8430();
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
             (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
@@ -6142,29 +6152,26 @@ int FUN_004eaac0(unsigned int value);
 
 // Number of stages the player count allows: 1-2 players 1, 3-4 players 2,
 // more 3.
-#define FRONTEND_PLAYER_GROUP(v)            \
+#define FRONTEND_PLAYER_GROUP(call)         \
     switch (CGameInfo::FUN_00405d70()) {    \
     case 1:                                 \
     case 2:                                 \
-        v = 1;                              \
+        call(1);                            \
         break;                              \
     case 3:                                 \
     case 4:                                 \
-        v = 2;                              \
+        call(2);                            \
         break;                              \
     default:                                \
-        v = 3;                              \
+        call(3);                            \
         break;                              \
     }
 
 // Entering the multiplayer race settings page: loads the current settings
 // (and the ranges the player count allows) into its entries.
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ef970
 void FUN_004ef970(Menu *pMenu, int param)
 {
-    BYTE group;
-
     switch (CGameInfo::FUN_00405d70()) {
     case 1:
     case 2:
@@ -6193,8 +6200,7 @@ void FUN_004ef970(Menu *pMenu, int param)
         g_unk0x00819748 = 0;
     }
     if (CGameInfo::FUN_00405dd0() == 0) {
-        FRONTEND_PLAYER_GROUP(group)
-        RallyData_FUN_0040d660(group);
+        FRONTEND_PLAYER_GROUP(RallyData_FUN_0040d660)
         pMenu->items[1].enabled = 0;
         pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
     } else {
@@ -6231,12 +6237,9 @@ void FUN_004ef970(Menu *pMenu, int param)
 
 // Item callback of "start" on the multiplayer race settings page: stores
 // the settings and starts the knockout.
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f01c0
 void FUN_004f01c0(Menu *pMenu, int param)
 {
-    BYTE value;
-
     if (g_unk0x00819748 != 0)
         FUN_004ea970(pMenu->items[0].max + 1);
     else
@@ -6245,41 +6248,39 @@ void FUN_004f01c0(Menu *pMenu, int param)
     RallyData_FUN_0040d680(1);
     switch (pMenu->items[2].max) {
     case 1:
-        value = 1;
+        RallyData_FUN_0040d6a0(1);
         break;
     case 2:
-        value = 3;
+        RallyData_FUN_0040d6a0(3);
         break;
     case 3:
-        value = 5;
+        RallyData_FUN_0040d6a0(5);
         break;
     case 4:
-        value = 7;
+        RallyData_FUN_0040d6a0(7);
+        break;
+    case 0:
+        RallyData_FUN_0040d6a0(8);
         break;
     default:
-        value = 8;
+        RallyData_FUN_0040d6a0(8);
         break;
     }
-    RallyData_FUN_0040d6a0(value);
     RallyData_InitKnockoutBracket();
     RallyData_FUN_004070c0();
     Menu_SetNextAction((int)FUN_004f8330());
 }
 
 // Update callback of the multiplayer race settings page.
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0250
 void FUN_004f0250(Menu *pMenu)
 {
-    BYTE group;
-
     if (g_unk0x00819748 != 0)
         FUN_004ea970(pMenu->items[0].max + 1);
     else
         FUN_004ea970(pMenu->items[0].max);
     if (CGameInfo::FUN_00405dd0() == 0) {
-        FRONTEND_PLAYER_GROUP(group)
-        RallyData_FUN_0040d660(group);
+        FRONTEND_PLAYER_GROUP(RallyData_FUN_0040d660)
         pMenu->items[1].enabled = 0;
         pMenu->items[1].max = RallyData_FUN_004069b0() + (-1 - g_unk0x00819050);
         return;
@@ -6553,7 +6554,6 @@ int FUN_004f92f0(void);
 
 // Draw callback of the network message page: title and the message of the
 // current network state.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e96d0
 void FUN_004e96d0(Menu *pMenu)
 {
@@ -6566,22 +6566,24 @@ void FUN_004e96d0(Menu *pMenu)
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, text, 2);
     switch (FUN_004f92f0()) {
     case 0:
-        id = 0x1e3;
+        Font_DrawText(1, CFrontend::GetTextString(0x1e3), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                      (int *)g_colourWhite0x00524968, 0x12);
         break;
     case 1:
-        id = 0x1e4;
+        Font_DrawText(1, CFrontend::GetTextString(0x1e4), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                      (int *)g_colourWhite0x00524968, 0x12);
         break;
     case 2:
-        id = 0x1e5;
+        Font_DrawText(1, CFrontend::GetTextString(0x1e5), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                      (int *)g_colourWhite0x00524968, 0x12);
         break;
     case 3:
-        id = 0x1e6;
+        Font_DrawText(1, CFrontend::GetTextString(0x1e6), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
+                      (int *)g_colourWhite0x00524968, 0x12);
         break;
     default:
         goto done;
     }
-    Font_DrawText(1, CFrontend::GetTextString(id), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 2,
-                  (int *)g_colourWhite0x00524968, 0x12);
 done:
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
@@ -6602,10 +6604,11 @@ void FUN_004e2500(Menu *pMenu)
 void FUN_004f1bb0(BYTE value);
 
 // Leaving the arcade menu: sets the arcade mode of the entry chosen.
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ef740
 void FUN_004ef740(Menu *pMenu, char back)
 {
+    unsigned int lang;
+
     if (back != 0)
         return;
     FUN_004ea950(0);
@@ -6619,7 +6622,8 @@ void FUN_004ef740(Menu *pMenu, char back)
     case 2:
         FUN_004ea8e0(7);
         FUN_004ea8c0(1);
-        FUN_004f1bb0(CGameInfo::FUN_00405d70());
+        lang = CGameInfo::FUN_00405d70();
+        FUN_004f1bb0((BYTE)lang);
         FUN_004ea950(0);
         RallyData_FUN_004068b0(0);
         RallyData_FUN_004068e0(0);
@@ -6872,21 +6876,24 @@ void FUN_004f3220(Menu *pMenu, int param)
 // page.
 #define QUICKRACE_TYPE_SETTING(pMenu, type)                          \
     switch (type) {                                                  \
-    case 0:                                                          \
+    case 0: {                                                        \
+        BYTE m = FUN_004eaab0() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
-        pMenu->items[1].max = FUN_004eaab0() - 1;                    \
+        pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 4;                                   \
-        break;                                                       \
-    case 1:                                                          \
+        break; }                                                     \
+    case 1: {                                                        \
+        BYTE m = FUN_004eacf0() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
-        pMenu->items[1].max = FUN_004eacf0() - 1;                    \
+        pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 6;                                   \
-        break;                                                       \
-    case 2:                                                          \
+        break; }                                                     \
+    case 2: {                                                        \
+        BYTE m = FUN_004ead00() - 1;                                 \
         pMenu->items[1].min = 10;                                    \
-        pMenu->items[1].max = FUN_004ead00() - 1;                    \
+        pMenu->items[1].max = m;                                     \
         pMenu->items[1].value = 5;                                   \
-        break;                                                       \
+        break; }                                                     \
     }
 
 // Item callback of "start" on the second quick race page.
@@ -6914,7 +6921,6 @@ void FUN_004f0110(Menu *pMenu, int param)
 }
 
 // Entering the second quick race page: loads its settings.
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3280
 void FUN_004f3280(Menu *pMenu, int param)
 {
@@ -6924,7 +6930,7 @@ void FUN_004f3280(Menu *pMenu, int param)
     pMenu->items[0].max = RallyData_FUN_004082b0();
     type = RallyData_FUN_004082b0();
     QUICKRACE_TYPE_SETTING(pMenu, type)
-    if (CGameInfo::FUN_00406440() != 0) {
+    if ((BYTE)CGameInfo::FUN_00406440() != 0) {
         pMenu->items[2].max = 1;
         pMenu->cursor = 3;
         return;
