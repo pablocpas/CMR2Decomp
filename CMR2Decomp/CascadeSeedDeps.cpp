@@ -80,3 +80,53 @@ void FUN_0046cce0(int, int, int, int) { }
 // STUB: CMR2 0x00420150
 unsigned char FUN_00420150(void) { return 0; }
 
+// STUB: CMR2 0x0041b460
+void FUN_0041b460(void) { }
+
+// STUB: CMR2 0x0041c260
+void FUN_0041c260(void) { }
+
+// STUB: CMR2 0x00421720
+void FUN_00421720(int, int, int, int, int) { }
+
+// STUB: CMR2 0x00421e20
+void FUN_00421e20(int) { }
+
+// STUB: CMR2 0x00422140
+void FUN_00422140(int, int) { }
+
+// STUB: CMR2 0x00427890
+void FUN_00427890(void) { }
+
+// STUB: CMR2 0x0042b800
+void FUN_0042b800(int, int, int) { }
+
+// STUB: CMR2 0x0042bcd0
+void FUN_0042bcd0(void) { }
+
+// STUB: CMR2 0x0044a150
+void FUN_0044a150(void) { }
+
+// STUB: CMR2 0x0044a1b0
+void FUN_0044a1b0(int) { }
+
+// STUB: CMR2 0x00455470
+void FUN_00455470(int) { }
+
+// STUB: CMR2 0x00466030
+void FUN_00466030(int, int) { }
+
+// STUB: CMR2 0x0046c750
+void FUN_0046c750(int, int, int) { }
+
+// STUB: CMR2 0x00472a30
+void FUN_00472a30(void) { }
+
+// STUB: CMR2 0x00473360
+void FUN_00473360(void) { }
+
+// STUB: CMR2 0x00478c40
+void FUN_00478c40(void) { }
+
+// STUB: CMR2 0x004bc290
+void FUN_004bc290(int, int, int, int, int, int, int) { }
