@@ -1493,6 +1493,7 @@ private:
     friend void Game_DrawViewMaskNodes(SceneNode *pNode, int bit);
     friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
     friend void Game_DrawDeferredObjects(void);
+    friend int FUN_0049e1f0(SceneNode *pNode, int bit);
 };
 
 #endif

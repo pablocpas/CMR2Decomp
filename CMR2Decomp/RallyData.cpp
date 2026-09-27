@@ -1,4 +1,6 @@
 #include <stdio.h>
+
+void FUN_00417e70(char *text, int *pColour, int car, int param4, int x, int y);
 #include <string.h>
 #include <windows.h>
 #include "RallyData.h"
@@ -34,6 +36,7 @@ BYTE g_saveData[0x2270];
 #include "StageTiming.h"
 #include "StageUI.h"
 #include "FileBuffer.h"
+#include "Input.h"
 
 int FUN_00456c00(int index);
 int FUN_0041f3d0(BYTE index);
@@ -1879,13 +1882,125 @@ extern BYTE g_gapTextColour[4];
 unsigned int g_stageHudPanelColour = 0x96dcbebc;
 // GLOBAL: CMR2 0x005170c4
 unsigned int g_stageHudTextColour = 0xffffffff;
+// GLOBAL: CMR2 0x005170e8
+unsigned int g_unk0x005170e8 = 0xffffffff;
+// GLOBAL: CMR2 0x00517dc0
+char g_positionFormat[] = "%d / %d  %d";
 // GLOBAL: CMR2 0x00517dcc
 char g_stageSlashFormat[] = " / ";
+
+BYTE *FUN_00464b10(int view);
+int FUN_004483b0(int index);
+int FUN_00448110(void);
+int RallyData_FUN_00421370(BYTE *p);
+int RallyData_FUN_00421420(void);
+extern int g_unk0x00536c88[2];
+extern int g_unk0x00536c00[2];
+extern int g_unk0x00536c28[2];
+extern int g_unk0x00536e88[2];
+void FUN_00415bc0(int, int);
+BYTE FUN_004582b0(int index);
+
+// Temporary scaffolding for the RallyData helpers FUN_004125f0 dispatches to:
+// every one is a real function of the reference exe (empty body, stdcall
+// argument count from its ret N) so that its call sites are in place. Delete
+// each entry as its implementation lands (0x415f50 belongs to StageUI.cpp and
+// 0x417e70 to Race.cpp).
+// STUB: CMR2 0x00412970
+void FUN_00412970(int car, short *pRect) { }
+// STUB: CMR2 0x004137e0
+void FUN_004137e0(int car, short *pRect) { }
+// STUB: CMR2 0x00413fe0
+void FUN_00413fe0(int car, short *pRect) { }
+// STUB: CMR2 0x00414ed0
+void FUN_00414ed0(int car, short *pRect) { }
+// STUB: CMR2 0x00415480
+void FUN_00415480(short *pRect) { }
+// STUB: CMR2 0x00415f50
+void FUN_00415f50(int car, short *pRect) { }
+
+// Draws a car's on-stage HUD: the position/points line plus the per-car
+// action icons, then dispatches the current input to the matching handler.
+// FUNCTION: CMR2 0x004125f0
+void FUN_004125f0(int car, short *pRect)
+{
+    BYTE colour[4] = { 0xff, 0xff, 0xff, 0xff };
+    short rect[4];
+    int *pView;
+
+    if ((BYTE)CGameInfo::FUN_00405d60()) {
+        Font_DrawText(0, CInput::FormatString(g_positionFormat,
+                          RallyData_FUN_00421370((BYTE *)Car_Get(car)), RallyData_FUN_00421420(),
+                          FUN_00448110() / 100),
+                      pRect[0] + 10, pRect[3] + pRect[1] - 10, (int *)colour, 0x21);
+    }
+    pView = (int *)FUN_00464b10(car);
+    *(int *)&rect[0] = pView[0];
+    *(int *)&rect[2] = pView[1];
+    if ((BYTE)RallyData_FUN_004082e0()) {
+        FUN_00412970(car, pRect);
+    } else if (RallyData_FUN_00411880()) {
+        if (((BYTE)RallyData_GetFlag24() || (BYTE)RallyData_GetFlag25()) && FUN_004582b0(car) &&
+            FUN_004483b0(car) == 0) {
+            FUN_00417e70(CFrontend::GetTextString(0xbe), (int *)g_gapTextColour, car, 0, -1, -1);
+        }
+    }
+    if (g_unk0x00536c88[car] != 0) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xbd));
+        FUN_00417e70(CFrontend::m_stringDest, (int *)&g_unk0x005170e8, car, 1, -1, -1);
+    }
+    if (g_unk0x00536c00[car] != 0) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x30));
+        FUN_00417e70(CFrontend::m_stringDest, (int *)&g_unk0x005170e8, car, 1, -1, -1);
+    }
+    if (g_unk0x00536e88[car] != 0) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x6a));
+        FUN_00417e70(CFrontend::m_stringDest, (int *)&g_unk0x005170e8, car, 1, -1, -1);
+    }
+    if (g_unk0x00536c28[car] != 0) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x83));
+        FUN_00417e70(CFrontend::m_stringDest, (int *)&g_unk0x005170e8, car, 1, -1, -1);
+    }
+    if ((*RallyData_FUN_00408a00(FUN_0041b370() + (char)car) & 4) != 0) {
+        if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 5 ||
+            CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 3 ||
+            CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 0xc) {
+            if (RallyData_FUN_00411880() == 0 || CGameInfo::FUN_00405dc0() != 0) {
+                FUN_004147f0(car, rect);
+            }
+        } else if ((BYTE)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00()) {
+            FUN_00415bc0(car, (int)rect);
+        } else if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 0 ||
+                   CGameInfo::FUN_00405d80() == 1) {
+            FUN_00414ed0(car, rect);
+        } else if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+                   CGameInfo::FUN_00405d80() == 0xb) {
+            FUN_00415480(rect);
+        }
+    }
+    if ((*RallyData_FUN_00408a00(FUN_0041b370() + (char)car) & 8) != 0) {
+        if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+            CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xb ||
+            CGameInfo::FUN_00405d80() == 0xc || (BYTE)RallyData_GetFlag25()) {
+            FUN_004129d0(car, rect);
+        } else {
+            FUN_00413fe0(car, rect);
+        }
+    }
+    if ((*RallyData_FUN_00408a00(FUN_0041b370() + (char)car) & 0x20) != 0) {
+        if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+            CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xb ||
+            CGameInfo::FUN_00405d80() == 0xc || (BYTE)RallyData_GetFlag25()) {
+            FUN_00415f50(car, rect);
+        }
+        FUN_004137e0(car, rect);
+    }
+}
 
 // Draws a car's stage gap, stage number and position in the on-stage HUD.
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004129d0
-void FUN_004129d0(int car)
+void FUN_004129d0(int car, short *pRect)
 {
     short rect[4];
     int xShift = 0;
@@ -3668,6 +3783,14 @@ int g_unk0x00536be4;
 int RallyData_FUN_0040eeb0(void)
 {
     return g_unk0x00536be4;
+}
+
+// Tail-call thunk (the original compiles it to a bare jmp): clears the
+// depth buffer before the on-stage 3D pass.
+// FUNCTION: CMR2 0x0040eec0
+BOOL RallyData_FUN_0040eec0(void)
+{
+    return CGraphics::ClearZBuffer();
 }
 
 // FUNCTION: CMR2 0x00411060
