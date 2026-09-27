@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Collision2D.h"
 
+// GLOBAL: CMR2 0x00591438
 FixVector g_collisionQuad[4];
 
 #define FIX_ABS(x) ((x) < 0 ? -(x) : (x))

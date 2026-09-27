@@ -24,6 +24,8 @@
 #include "Mesh.h"
 #include "Graphics.h"
 #include "Font.h"
+#include "Sprite.h"
+#include "Collision2D.h"
 
 struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
@@ -56,6 +58,13 @@ short Car_GetOrderCount(void);
 BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
 void FUN_0048c900(BYTE index);
 char *FUN_004752f0(int *p, int index, int mode);
+void RallyData_FUN_00407500(BYTE param1);
+unsigned short FUN_0040bbc0(unsigned short slot);
+void FUN_0042b720(int index, char value);
+int FUN_00469bc0(void *pCar, int index);
+void FUN_00476c70(int index);
+int FUN_00405600(void);
+int FUN_00476850(int car, int pCar);
 
 // Global fixed-point lighting parameters for both stage conditions.
 // GLOBAL: CMR2 0x00547950
@@ -112,6 +121,8 @@ int FUN_0046d2a0(int *p);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00421420(void);
 unsigned int RallyData_FUN_00407e90(void);
+unsigned int RallyData_FUN_00407ea0(void);
+float FUN_00456ae0(void);
 
 // Chooses the stage object path for the current game mode and rally state.
 // FUNCTION: CMR2 0x0046bd50
@@ -229,6 +240,9 @@ int g_unk0x0058cf68;
 int g_unk0x0058cf6c;
 // GLOBAL: CMR2 0x0058cf80
 BYTE g_unk0x0058cf80[0x100];
+// Scratch rotation matrix for the stage-object nodes.
+// GLOBAL: CMR2 0x0058d260
+FixMatrix g_unk0x0058d260;
 BYTE g_stageBlock[0x430];
 // GLOBAL: CMR2 0x0058da30
 int g_unk0x0058da30[8];
@@ -816,6 +830,53 @@ void FUN_0046bfb0(Block0x309 *pSrc, Block0x309 *pDst)
     *pDst = *pSrc;
 }
 
+// Restores a car from a saved state record, keeping the destination's scene
+// node bindings, its wheel emitter vectors and its timing index.
+// FUNCTION: CMR2 0x0046bfd0
+void FUN_0046bfd0(Block0x309 *pSrc, Car *pDst)
+{
+    SceneNode *pNode0x71c = pDst->pNode0x71c;
+    SceneNode *pNode0x720 = pDst->pNode0x720;
+    SceneNode *pNode0x724 = pDst->pNode0x724;
+    SceneNode *pExtraNodes[4];
+    SceneNode *pWheelNodes[4];
+    SceneNode *pViewNodeNear = pDst->pViewNodeNear;
+    SceneNode *pViewNodeFar = pDst->pViewNodeFar;
+    FixMatrix *pWorld = pDst->pWorld;
+    FixMatrix *pBodyMatrix = pDst->pBodyMatrix;
+    FixVector wheelEmitter[4];
+    char carIndex = pDst->field_0xb1a;
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        pExtraNodes[i] = pDst->pExtraNodes[i];
+        pWheelNodes[i] = pDst->pWheelNodes[i];
+    }
+    memcpy(wheelEmitter, pDst->wheelEmitter, sizeof(wheelEmitter));
+
+    *(Block0x309 *)pDst = *pSrc;
+
+    pDst->pNode0x71c = pNode0x71c;
+    pDst->pNode0x720 = pNode0x720;
+    pDst->pNode0x724 = pNode0x724;
+    pDst->pViewNodeNear = pViewNodeNear;
+    pDst->pViewNodeFar = pViewNodeFar;
+    pDst->pWorld = pWorld;
+    pDst->pBodyMatrix = pBodyMatrix;
+    for (i = 0; i < 4; i++) {
+        pDst->pExtraNodes[i] = pExtraNodes[i];
+        pDst->pWheelNodes[i] = pWheelNodes[i];
+        pDst->wheelEmitter[i] = wheelEmitter[i];
+    }
+    pDst->field_0xb1a = carIndex;
+
+    if ((BYTE)RallyData_FUN_00407ea0() != 0)
+        *(float *)(pDst->field_0xa90 + 8) = 25.0f;
+    if (pDst->field_0xb1a > 0 && (BYTE)RallyData_FUN_00407e90() != 0 &&
+        (BYTE)CGameInfo::FUN_00405e00() == 0 && (BYTE)RallyDataState() == 1)
+        *(float *)(pDst->field_0xa90 + 8) = FUN_00456ae0();
+}
+
 // FUNCTION: CMR2 0x0046c180
 void FUN_0046c180(Block0x134 *pSrc, Block0x134 *pDst)
 {
@@ -1010,6 +1071,53 @@ int FUN_00472990(KnockoutMatch *pMatch)
 void FUN_00472ca0(void)
 {
     g_unk0x0058cf7c = 0;
+}
+
+// Sets the ground material of the two cars from the current championship
+// state (the knockout bracket entry selected by the state flags).
+// FUNCTION: CMR2 0x00472cb0
+void FUN_00472cb0(void)
+{
+    unsigned int *pState = RallyData_GetChampionshipState();
+    BYTE value;
+    int i;
+
+    switch ((*pState >> 3) & 7) {
+    case 1:
+        if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1 &&
+            RallyData_FUN_00408500((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
+            goto fail;
+        value = 1;
+        break;
+    case 2:
+        if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1 &&
+            RallyData_FUN_00408500((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
+            goto fail;
+        value = 1;
+        break;
+    case 3:
+        if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1 &&
+            RallyData_FUN_00408500((BYTE)(pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
+            goto fail;
+        value = 1;
+        break;
+    case 4:
+        if (RallyData_FUN_00408500((BYTE)pState[1] & 0x1f) == -1 &&
+            RallyData_FUN_00408500((BYTE)(pState[1] >> 5) & 0x1f) == -1)
+            goto fail;
+        value = 1;
+        break;
+    default:
+    fail:
+        value = 2;
+        break;
+    }
+    RallyData_FUN_00407500(value);
+    for (i = 0; i < 2; i++) {
+        FUN_0042b720(i, (BYTE)FUN_0040bbc0((unsigned short)i));
+        if (i >= (int)(RallyDataState() & 0xff))
+            FUN_0042b720(i, -1);
+    }
 }
 
 // FUNCTION: CMR2 0x00473680
@@ -1234,6 +1342,105 @@ void FUN_00476540(int index)
     pRow[6] = p + 0x2c;
 }
 
+// Draws a stage box: a filled rectangle, its one pixel outline and, optionally,
+// the championship round box texture scaled to the rectangle.
+// FUNCTION: CMR2 0x00475740
+void FUN_00475740(short *pRect, BYTE *pColour, BYTE *pEdgeColour, int drawTexture)
+{
+    short edge[4];
+    SpriteRect dest;
+
+    if (pColour != NULL)
+        Sprite_FillRect((int)g_pGraphics + 0x150, pRect, pColour, 2);
+    if (pEdgeColour != NULL) {
+        edge[0] = pRect[0];
+        edge[1] = pRect[1];
+        edge[2] = pRect[2];
+        edge[3] = 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        edge[0] = (short)(pRect[0] + pRect[2]);
+        edge[1] = pRect[1];
+        edge[2] = 1;
+        edge[3] = (short)(pRect[3] + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        edge[0] = pRect[0];
+        edge[1] = (short)(pRect[1] + pRect[3]);
+        edge[2] = pRect[2];
+        edge[3] = 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+        edge[0] = pRect[0];
+        edge[1] = pRect[1];
+        edge[2] = 1;
+        edge[3] = pRect[3];
+        Sprite_FillRect((int)g_pGraphics + 0x150, edge, pEdgeColour, 2);
+    }
+    if (drawTexture != 0) {
+        dest.x = pRect[0];
+        dest.y = pRect[1];
+        // The texture quad is scaled to the rectangle and to the reference
+        // resolution (640x480) it was authored for.
+        dest.w = (short)(((int)((Texture *)FUN_00405600())->width * (int)pRect[2] * (int)g_pGraphics->resX / 0x280) /
+                          ((int)g_pGraphics->resX * 0x55 / 0x280));
+        dest.h = (short)(((int)((Texture *)FUN_00405600())->height * (int)pRect[3] * (int)g_pGraphics->resY / 0x1e0) /
+                          ((int)g_pGraphics->resY * 0x26 / 0x1e0));
+        Sprite_Queue((SpriteRect *)(FUN_00405600() + 0x11c), &dest, (Texture *)FUN_00405600(), 2, 0, 0, 0,
+                     pEdgeColour, 8);
+    }
+}
+
+// Blends a car's stage object transform: rotates its mount nodes by the car
+// heading and interpolates the blended node's matrix between the reference
+// node and the rotated mount using the body fade factor.
+// FUNCTION: CMR2 0x00476640
+void FUN_00476640(int car)
+{
+    // Per car fade curve (16.16), sampled with index = 12 * fade.
+    int fadeCurve[13] = {0, 0x51e, 0xccc, 0x1999, 0x3333, 0x6666, 0x9999, 0xcccc,
+                         0xe666, 0xf333, 0xfae1, 0x10000, 0x10000};
+    Car *pCar = Car_Get(car);
+    SceneNode *pRef = *(SceneNode **)(g_stageBlock + 0x288 + car * 0x1c);
+    SceneNode *pBlend = *(SceneNode **)(g_stageBlock + 0x28c + car * 0x1c);
+    SceneNode *pMid = *(SceneNode **)(g_stageBlock + 0x290 + car * 0x1c);
+    SceneNode *pRot = *(SceneNode **)(g_stageBlock + 0x298 + car * 0x1c);
+    short angle = -pCar->heading;
+    FixVector axis;
+    FixMatrix rot;
+    FixMatrix combined;
+    FixMatrix original;
+    int posX;
+    int posY;
+    int posZ;
+    int fade;
+
+    SceneNode_SetRotation(pRot, *(FixAngles **)(g_stageBlock + 0x260 + car * 0x1c));
+    axis = pRot->current.right;
+    FixMatrix_FromAxisAngle(&rot, &axis, angle);
+
+    // Rotate the node without touching its translation.
+    posX = pRot->current.position.x;
+    posY = pRot->current.position.y;
+    posZ = pRot->current.position.z;
+    pRot->current.position.x = 0;
+    pRot->current.position.y = 0;
+    pRot->current.position.z = 0;
+    FixMatrix_Multiply(&pRot->current, &pRot->current, &rot);
+    pRot->current.position.x = posX;
+    pRot->current.position.y = posY;
+    pRot->current.position.z = posZ;
+
+    SceneNode_SetRotation(pMid, *(FixAngles **)(g_stageBlock + 0x260 + car * 0x1c));
+    FixMatrix_Multiply(&combined, &pMid->current, &rot);
+    combined.position.x += posX;
+    combined.position.y += posY;
+    combined.position.z += posZ;
+
+    original = pRef->current;
+
+    fade = FUN_00476850(car, (int)pCar);
+    FixMatrix_Interpolate(&pBlend->current, &combined, &original, 0, 0,
+                          fadeCurve[FixMulShift32(0xC0000, fade)], 1);
+}
+
 // FUNCTION: CMR2 0x00477a90
 void FUN_00477a90(void)
 {
@@ -1274,6 +1481,8 @@ void FUN_004ae410(BYTE a, BYTE b, int c, int d);
 
 // GLOBAL: CMR2 0x005909bc
 int g_unk0x005909bc;
+// GLOBAL: CMR2 0x005909c8
+FixVector g_unk0x005909c8[4];
 // GLOBAL: CMR2 0x00590b7c
 BYTE *g_unk0x00590b7c[4][8];
 // GLOBAL: CMR2 0x00590bfc
@@ -1314,6 +1523,8 @@ FixVector g_unk0x005914c8;
 FixVector g_unk0x005916a0[4];
 // GLOBAL: CMR2 0x005916f0
 int g_unk0x005916f0[4];
+// GLOBAL: CMR2 0x00591868
+FixVector g_unk0x00591868[4];
 // GLOBAL: CMR2 0x00591898
 FixVector g_unk0x00591898[4];
 // GLOBAL: CMR2 0x00591740
@@ -1532,12 +1743,116 @@ void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVeloc
     }
 }
 
+extern double g_unk0x00511300;
+
+// Spawns one debris burst at a random entry of the four-way spawn table with a
+// random, upward-biased velocity of length 1.5..2.5.
+// FUNCTION: CMR2 0x00480380
+void FUN_00480380(void)
+{
+    FixVector velocity;
+    FixVector *pPosition;
+    short angle;
+    int randomFixed;
+
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    angle = (short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
+    pPosition = &g_unk0x005909c8[rand() % 4];
+
+    velocity.x = g_sinTable[angle & 0xfff];
+    velocity.y = 0;
+    velocity.z = g_sinTable[(angle + 0x400) & 0xfff];
+
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    FixVecScale(&velocity, &velocity, randomFixed);
+    velocity.y = 0x40000;
+
+    FIX_NORMALIZE_INTO(velocity, velocity)
+
+    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    FixVecScale(&velocity, &velocity, FixMul(0x10000, randomFixed) + 0x18000);
+
+    StageObject_SpawnDebris(pPosition, &velocity, 0);
+}
+
 // FUNCTION: CMR2 0x004805f0
 void FUN_004805f0(int value)
 {
     g_unk0x005909bc = value;
 }
 
+// Interpolates every active debris slot's derived position arrays one step
+// toward their targets by `scale` (16.16 fixed point).
+// FUNCTION: CMR2 0x00480600
+void StageObject_UpdateDebris(int scale)
+{
+    BYTE *pSlot;
+    FixVector delta;
+    int *p;
+    int *q;
+    int *d;
+    int index;
+    int offset;
+    int count;
+    int row;
+    int column;
+
+    index = 0;
+    if (g_unk0x00590afc == 0)
+        return;
+    offset = 0;
+    do {
+        pSlot = (BYTE *)g_unk0x00590af8 + offset;
+        if (*(int *)(pSlot + 0x694) != 0) {
+            delta.x = *(int *)pSlot - *(int *)(pSlot + 0x1e0);
+            delta.y = *(int *)(pSlot + 4) - *(int *)(pSlot + 0x1e4);
+            delta.z = *(int *)(pSlot + 8) - *(int *)(pSlot + 0x1e8);
+            FixVecScale(&delta, &delta, scale);
+            *(int *)(pSlot + 0x1ec) = *(int *)(pSlot + 0x1e0) + delta.x;
+            *(int *)(pSlot + 0x1f0) = *(int *)(pSlot + 0x1e4) + delta.y;
+            *(int *)(pSlot + 0x1f4) = *(int *)(pSlot + 0x1e8) + delta.z;
+
+            p = (int *)(pSlot + 0x18);
+            q = (int *)(pSlot + 0x1f8);
+            d = (int *)(pSlot + 0x2e8);
+            count = 20;
+            do {
+                delta.x = p[0] - q[0];
+                delta.y = p[1] - q[1];
+                delta.z = p[2] - q[2];
+                FixVecScale(&delta, &delta, scale);
+                d[0] = q[0] + delta.x;
+                d[1] = q[1] + delta.y;
+                d[2] = q[2] + delta.z;
+                p += 3;
+                q += 3;
+                d += 3;
+            } while (--count);
+
+            p = (int *)(pSlot + 0x108);
+            q = (int *)(pSlot + 0x3d8);
+            d = (int *)(pSlot + 0x4b0);
+            row = 3;
+            do {
+                column = 6;
+                do {
+                    delta.x = p[0] - q[0];
+                    delta.y = p[1] - q[1];
+                    delta.z = p[2] - q[2];
+                    FixVecScale(&delta, &delta, scale);
+                    d[0] = q[0] + delta.x;
+                    d[1] = q[1] + delta.y;
+                    d[2] = q[2] + delta.z;
+                    p += 3;
+                    q += 3;
+                    d += 3;
+                } while (--column);
+            } while (--row);
+        }
+        index++;
+        offset += 0x938;
+    } while (index < (int)(g_unk0x00590afc & 0xff));
+}
 // FUNCTION: CMR2 0x00480a50
 void FUN_00480a50(void)
 {
@@ -1567,6 +1882,49 @@ struct Unk0x00590d74;
 extern Unk0x00590d74 *g_unk0x00590d74;
 extern int g_unk0x00590b30[8];
 extern void **g_unk0x00590c6c;
+extern int g_unk0x00590c00[8];
+extern FixVector g_unk0x00590b50;
+
+// Steps one 0x3c-byte record (`index`) of the current car's stage-object list:
+// the record's +0x0 vector is copied into +0xc, the +0x30/+0x34 velocities lose
+// the part of g_unk0x00590b50 that lies along the record's axis vector, and then
+// a damped spring (k = 0x20000, c = 0x3333, step = g_physicsTimeStep) integrates
+// +0x0/+0x2. Records with the +0x38 flag set are skipped.
+// FUNCTION: CMR2 0x004854a0
+void FUN_004854a0(int index)
+{
+    int car = *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a);
+    int *pRecord = (int *)((BYTE *)g_unk0x00590c6c[car] + (index & 0xff) * 0x3c);
+    FixVector *pAxis = (FixVector *)(g_unk0x00590c00[car] + (index & 0xff) * 0x20 + 0xc);
+    FixVector velocity;
+    FixVector projected;
+    int dot;
+
+    if (pRecord[0xe] != 0)
+        return;
+
+    pRecord[3] = pRecord[0];
+    pRecord[4] = pRecord[1];
+    pRecord[5] = pRecord[2];
+
+    velocity = g_unk0x00590b50;
+    dot = FixVecDot(&velocity, pAxis);
+    FixVecScale(&projected, pAxis, dot);
+    velocity.x -= projected.x;
+    velocity.y -= projected.y;
+    velocity.z -= projected.z;
+
+    pRecord[0xc] -= velocity.x;
+    pRecord[0xd] -= velocity.z;
+
+    pRecord[0xc] += FixMul(g_physicsTimeStep,
+                           -(FixMul(0x20000, pRecord[0]) + FixMul(0x3333, pRecord[0xc])));
+    pRecord[0xd] += FixMul(g_physicsTimeStep,
+                           -(FixMul(0x20000, pRecord[2]) + FixMul(0x3333, pRecord[0xd])));
+    pRecord[0] += FixMul(g_physicsTimeStep, pRecord[0xc]);
+    pRecord[2] += FixMul(g_physicsTimeStep, pRecord[0xd]);
+    pRecord[1] = 0x10000;
+}
 
 // Steps every 0x3c-byte record of the ordered cars' lists: the record's +0x18
 // vector becomes its +0xc vector plus the (+0x0 - +0xc) difference scaled by
@@ -1746,6 +2104,41 @@ int FUN_0048d930(BYTE *p)
     return g_unk0x00591740[*p];
 }
 
+extern int g_unk0x00591710[4];
+void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix);
+
+// Sliding impact of a car on a surface: decays the accumulated displacement by
+// 0.9, adds the new weighted impact vector (0.1 * FUN_0048dce0), moves the
+// object position by it, then refreshes the interpolated radius target.
+// FUNCTION: CMR2 0x0048d950
+void FUN_0048d950(BYTE *pSurface, FixMatrix *pMatrix)
+{
+    unsigned int index = *pSurface;
+    FixVector *pPos = &g_unk0x005916a0[index];
+    BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[index] * 0x6c;
+    FixVector *pImpact = &g_unk0x00591868[index];
+    FixVector impact;
+    FixVector delta;
+    int t;
+
+    FUN_0048dce0(&impact, pSurface, Car_Get(pSurface[2]), pMatrix);
+    FixVecScale(pImpact, pImpact, 0xe666);
+    FixVecScale(&impact, &impact, 0x1999);
+    pImpact->x += impact.x;
+    pImpact->y += impact.y;
+    pImpact->z += impact.z;
+    FixMatrix_GetPosition(pPos, pMatrix);
+    pPos->x += pImpact->x;
+    pPos->y += pImpact->y;
+    pPos->z += pImpact->z;
+    delta.x = pPos->x - *(int *)(pRecord + 0x28);
+    delta.y = pPos->y - *(int *)(pRecord + 0x2c);
+    delta.z = pPos->z - *(int *)(pRecord + 0x30);
+    t = FixDiv(FixVec_Length(&delta), *(int *)(pRecord + 0x40));
+    g_unk0x00591710[index] = FixMul(t, *(int *)(pRecord + 0x44)) +
+                             FixMul(0x10000 - t, *(int *)(pRecord + 0x54));
+}
+
 // FUNCTION: CMR2 0x00492890
 void FUN_00492890(FixVector *pOut)
 {
@@ -1835,6 +2228,93 @@ unsigned int FUN_0049e940(void)
     return buttons;
 }
 
+// Keeps the subset of the six cars that are still inside the race-time,
+// squared-distance and heading windows of car `index`, copies the per-car keep
+// flags to pOut, accumulates their number into pCount and reports the overtake
+// side in pFlag (1 / 0xff). Returns the first byte of the 0x10-byte race-record
+// table row of `index`.
+// FUNCTION: CMR2 0x0047d0e0
+unsigned int FUN_0047d0e0(int index, BYTE *pOut, int *pCount, BYTE *pFlag)
+{
+    Car *cars[6];
+    int active[6];
+    int scratch[6];
+    Car *pCar;
+    int i;
+    int duration;
+    int z;
+    int x;
+    int referenceTime;
+    int heading;
+
+    for (i = 0; i < 6; i++)
+        active[i] = 1;
+    for (i = 0; i < 6; i++) {
+        *pFlag = 0;
+        cars[i] = Car_Get(i);
+    }
+    duration = RallyData_FUN_00421420();
+    pCar = cars[index];
+    active[index] = 0;
+    z = pCar->position.z;
+    x = pCar->position.x;
+    *pCount = 0;
+    referenceTime = RallyData_FUN_00421370((BYTE *)pCar);
+
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
+        if (active[i] != 0) {
+            int delta = RallyData_FUN_00421370((BYTE *)cars[i]);
+            scratch[i] = delta;
+            delta -= referenceTime;
+            if (delta < 0 || delta > 5) {
+                if (delta < -100)
+                    delta += duration;
+                if (delta < 1 || delta > 5)
+                    active[i] = 0;
+            }
+        }
+    }
+
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
+        if (active[i] != 0) {
+            int dz = cars[i]->position.z - z;
+            int dx = cars[i]->position.x - x;
+            int dist = FixMul(dz, dz) + FixMul(dx, dx);
+            scratch[i] = dist;
+            if (dist > 0x90000)
+                active[i] = 0;
+        }
+    }
+
+    heading = StageObject_Atan2Degrees(pCar->right.z, pCar->right.x);
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
+        if (active[i] != 0) {
+            int d = StageObject_Atan2Degrees(cars[i]->right.z, cars[i]->right.x);
+            d = FUN_00498db0(heading - d);
+            if (d > 0x140000 || d < -0x140000)
+                active[i] = 0;
+        }
+    }
+
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
+        if (active[i] != 0) {
+            int d = FUN_00498db0(StageObject_Atan2Degrees(cars[i]->position.z - z,
+                                                          cars[i]->position.x - x) - heading);
+            active[i] = 0;
+            if (d > 0x500000 && d < 0x780000)
+                *pFlag = 1;
+            if (d < -0x500000 && d > -0x780000)
+                *pFlag = 0xff;
+        }
+    }
+
+    for (i = 0; i < (signed char)g_unk0x0058e0b0[1]; i++) {
+        pOut[i] = (BYTE)active[i];
+        *pCount += active[i];
+    }
+    return g_unk0x0058e4a4[referenceTime * 0x10];
+}
+
 void FUN_004bcad0(int value);
 void Scene_SetLight(FixVector *pLight, int boost);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
@@ -1844,7 +2324,7 @@ DWORD FUN_004b74f0(void);
 DWORD FUN_004b7500(void);
 int *FUN_00469680(int index);
 void FUN_00480ac0(BYTE *pCar, int slot, int reset);
-void FUN_0042b720(int index, BYTE value);
+void FUN_0042b720(int index, char value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -2105,6 +2585,213 @@ BYTE FUN_004729f0(void)
 // flag bytes at +0x44/+0x45.
 // GLOBAL: CMR2 0x0058d6d0
 BYTE g_unk0x0058d6d0[8][0x48];
+
+// Body colours of the two stage objects for the object's current body state:
+// seven alpha values per object, compared against the ones already applied to
+// the texture so the remap only runs when they change.
+// FUNCTION: CMR2 0x004775f0
+void FUN_004775f0(Texture *pTexture, int state, int cacheBase, int index)
+{
+    WORD *pColours = g_unk0x0058d2d4 + index * 7;
+    WORD *pApplied = (WORD *)g_unk0x0058d6b0 + index * 7;
+    int cacheSlot = index + cacheBase * 8;
+    int changed = 0;
+    int i;
+
+    switch (state) {
+    case 0:
+        pColours[0] = 0;
+        pColours[1] = 0xff;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0xff;
+        pColours[5] = 0xff;
+        pColours[6] = 0xff;
+        break;
+    case 1:
+        pColours[0] = 0;
+        pColours[1] = 0;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0;
+        pColours[5] = 0;
+        pColours[6] = 0;
+        break;
+    case 2:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0xff;
+        pColours[3] = 0;
+        pColours[4] = 0xff;
+        pColours[5] = 0xff;
+        pColours[6] = 0;
+        break;
+    case 3:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0xff;
+        pColours[5] = 0;
+        pColours[6] = 0;
+        break;
+    case 4:
+        pColours[0] = 0xff;
+        pColours[1] = 0;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0;
+        pColours[5] = 0;
+        pColours[6] = 0xff;
+        break;
+    case 5:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0;
+        pColours[3] = 0xff;
+        pColours[4] = 0xff;
+        pColours[5] = 0;
+        pColours[6] = 0xff;
+        break;
+    case 6:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0;
+        pColours[3] = 0xff;
+        pColours[4] = 0xff;
+        pColours[5] = 0xff;
+        pColours[6] = 0xff;
+        break;
+    case 7:
+        pColours[0] = 0xff;
+        pColours[1] = 0;
+        pColours[2] = 0;
+        pColours[3] = 0;
+        pColours[4] = 0;
+        pColours[5] = 0xff;
+        pColours[6] = 0;
+        break;
+    case 8:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0xff;
+        pColours[5] = 0xff;
+        pColours[6] = 0xff;
+        break;
+    case 9:
+        pColours[0] = 0xff;
+        pColours[1] = 0xff;
+        pColours[2] = 0xff;
+        pColours[3] = 0xff;
+        pColours[4] = 0;
+        pColours[5] = 0;
+        pColours[6] = 0xff;
+        break;
+    default:
+        pColours[0] = 0xff;
+        pColours[1] = 0;
+        pColours[2] = 0;
+        pColours[3] = 0;
+        pColours[4] = 0;
+        pColours[5] = 0;
+        pColours[6] = 0;
+        break;
+    }
+    // the original leaves the scan by setting the counter to 7 (a `break` generates different code)
+    for (i = 0; i < 7; i++) {
+        if (pColours[i] != pApplied[i]) {
+            changed = 1;
+            i = 7;
+        }
+    }
+    if (changed != 0) {
+        CGraphics::BltTexture(pTexture, cacheSlot);
+        CGraphics::RemapTextureAlpha(pTexture, 0x80, pColours[0], 0xe0, pColours[1], 0xd0, pColours[2], cacheSlot);
+        CGraphics::RemapTextureAlpha(pTexture, 0xc0, pColours[3], 0xb0, pColours[4], 0xa0, pColours[5], cacheSlot);
+        CGraphics::RemapTextureAlpha(pTexture, 0x90, pColours[6], 0x90, pColours[6], 0x90, pColours[6], cacheSlot);
+        for (i = 0; i < 7; i++)
+            pApplied[i] = pColours[i];
+    }
+}
+
+// Fades the two 5-slot colour ramps of a car's stage object towards its flag
+// bytes, repaints both cached textures when anything changed and stores the frame.
+extern int g_unk0x0051bd3c;
+// FUNCTION: CMR2 0x00477ce0
+void FUN_00477ce0(int car)
+{
+    BYTE *pRecord = g_unk0x0058d6d0[car];
+    short values[5];
+    int changed = 0;
+    int value;
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if ((pRecord[0x44] & (1 << i)) == 0) {
+            value = *(short *)(pRecord + 0x30 + i * 2) - FixMul(0x50, g_unk0x0051bd3c);
+            if (value < 0)
+                value = 0;
+        } else {
+            value = *(short *)(pRecord + 0x30 + i * 2) + FixMul(0x80, g_unk0x0051bd3c);
+            if (value > 0xff)
+                value = 0xff;
+        }
+        *(short *)(pRecord + 0x30 + i * 2) = value;
+        *(short *)(pRecord + 0x8 + i * 2) = value;
+        if ((pRecord[0x45] & (1 << i)) == 0) {
+            value = *(short *)(pRecord + 0x3a + i * 2) - FixMul(0x50, g_unk0x0051bd3c);
+            if (value < 0)
+                value = 0;
+        } else {
+            value = *(short *)(pRecord + 0x3a + i * 2) + FixMul(0x80, g_unk0x0051bd3c);
+            if (value > 0xff)
+                value = 0xff;
+        }
+        *(short *)(pRecord + 0x3a + i * 2) = (BYTE)value;
+        *(short *)(pRecord + 0x12 + i * 2) = (BYTE)value;
+    }
+    if (pRecord[0x46] == 0) {
+        *(short *)(pRecord + 0x8) = (short)((*(short *)(pRecord + 0x8) / 3) * 2);
+        *(short *)(pRecord + 0x12) = (short)((*(short *)(pRecord + 0x12) / 3) * 2);
+    } else {
+        value = *(short *)(pRecord + 0xa) + (*(short *)(pRecord + 0x8) / 3) * 2;
+        if (value > 0xff)
+            value = 0xff;
+        *(short *)(pRecord + 0xa) = (BYTE)value;
+        value = *(short *)(pRecord + 0x14) + (*(short *)(pRecord + 0x12) / 3) * 2;
+        if (value > 0xff)
+            value = 0xff;
+        *(short *)(pRecord + 0x14) = (BYTE)value;
+    }
+    for (i = 0; i < 5; i++) {
+        if (*(short *)(pRecord + 0x12 + i * 2) != *(short *)(pRecord + 0x26 + i * 2) ||
+            *(short *)(pRecord + 0x8 + i * 2) != *(short *)(pRecord + 0x1c + i * 2))
+            changed = 1;
+        if (*(short *)(pRecord + 0x8 + i * 2) > *(short *)(pRecord + 0x12 + i * 2))
+            values[i] = *(short *)(pRecord + 0x8 + i * 2);
+        else
+            values[i] = *(short *)(pRecord + 0x12 + i * 2);
+    }
+    if (changed != 0) {
+        Texture **ppTextures = (Texture **)pRecord;
+        Texture *pTexture;
+
+        for (i = 0; i < 2; i++) {
+            pTexture = ppTextures[i];
+            if (pTexture != NULL) {
+                CGraphics::BltTexture(pTexture, car);
+                CGraphics::RemapTextureAlpha(pTexture, 0xbf, values[1], 0x40, values[3], 0x80, values[2], car);
+                CGraphics::RemapTextureAlpha(pTexture, 0x60, values[0], 0xe0, values[4], 0xe0, values[4], car);
+            }
+        }
+        for (i = 0; i < 5; i++) {
+            *(short *)(pRecord + 0x1c + i * 2) = *(short *)(pRecord + 0x8 + i * 2);
+            *(short *)(pRecord + 0x26 + i * 2) = *(short *)(pRecord + 0x12 + i * 2);
+        }
+    }
+}
 
 // match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477f30
@@ -2416,6 +3103,113 @@ void FUN_00487e50(int *pBox, Car *pCar)
     FUN_0048df50(pCar);
 }
 
+// GLOBAL: CMR2 0x0051fadc
+BYTE g_unk0x0051fadc[4] = { 0, 1, 3, 2 };
+// GLOBAL: CMR2 0x00590ec8
+BYTE g_unk0x00590ec8[4];
+// GLOBAL: CMR2 0x00590ecc
+char g_unk0x00590ecc[4];
+// GLOBAL: CMR2 0x005914a4
+BYTE g_unk0x005914a4[4];
+// GLOBAL: CMR2 0x005914c4
+char g_unk0x005914c4[4];
+// GLOBAL: CMR2 0x005914d4
+char g_unk0x005914d4;
+// GLOBAL: CMR2 0x005915f4
+char g_unk0x005915f4;
+
+// Finds the closest overlap between two 4-corner boxes along the horizontal
+// direction `pDir`, testing every pair of edges of their corner quads. Appends
+// the winning contact (edge orientation 0=horizontal/2=vertical plus the corner
+// index) to the A or B side list and returns 1; returns 0 if nothing overlaps.
+// FUNCTION: CMR2 0x00488de0
+int FUN_00488de0(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance)
+{
+    BYTE *pNext;
+    BYTE *pCur;
+    BYTE corner;
+    BYTE cornerVert;
+    BYTE edge;
+    int rayEdge;
+    int best;
+    int found;
+    int dist;
+    int diff;
+    int i;
+    int j;
+
+    edge = 0;
+    corner = 0;
+    found = 0;
+    best = -0x640000;
+    for (i = 0; i < 4; i++) {
+        pNext = &g_unk0x0051fadc[(i + 1) % 4];
+        for (j = 1; j <= 4; j++) {
+            pCur = &g_unk0x0051fadc[j % 4];
+            g_collisionQuad[0] = pVertsA[g_unk0x0051fadc[i] + 4];
+            g_collisionQuad[1] = pVertsA[*pNext + 4];
+            g_collisionQuad[2] = pVertsB[g_unk0x0051fadc[j - 1] + 4];
+            g_collisionQuad[3] = pVertsB[*pCur + 4];
+            dist = Collision_RayQuad(pDir, &rayEdge, &corner);
+            if (dist != 0x7d000000 && dist > best) {
+                best = dist;
+                switch (corner & 0xff) {
+                case 0:
+                    cornerVert = g_unk0x0051fadc[i];
+                    found = 1;
+                    diff = (int)g_unk0x0051fadc[j - 1] - (int)*pCur;
+                    if (diff < 0)
+                        diff = -diff;
+                    edge = (diff == 1) ? 0 : 2;
+                    break;
+                case 1:
+                    cornerVert = *pNext;
+                    found = 1;
+                    diff = (int)g_unk0x0051fadc[j - 1] - (int)*pCur;
+                    if (diff < 0)
+                        diff = -diff;
+                    edge = (diff == 1) ? 0 : 2;
+                    break;
+                case 2:
+                    cornerVert = g_unk0x0051fadc[j - 1];
+                    found = 0;
+                    diff = (int)g_unk0x0051fadc[i] - (int)*pNext;
+                    if (diff < 0)
+                        diff = -diff;
+                    edge = (diff == 1) ? 0 : 2;
+                    break;
+                case 3:
+                    cornerVert = *pCur;
+                    found = 0;
+                    diff = (int)g_unk0x0051fadc[i] - (int)*pNext;
+                    if (diff < 0)
+                        diff = -diff;
+                    edge = (diff == 1) ? 0 : 2;
+                    break;
+                }
+            }
+        }
+    }
+    if (best < 0)
+        return 0;
+    if (found != 0) {
+        int index = g_unk0x005915f4;
+        g_unk0x00590ec8[index] = edge;
+        g_unk0x005914c4[index] = cornerVert;
+        g_unk0x005915f4++;
+        *pDistance = best;
+        return 1;
+    }
+    {
+        int index = g_unk0x005914d4;
+        g_unk0x005914a4[index] = edge;
+        g_unk0x00590ecc[index] = cornerVert;
+        g_unk0x005914d4++;
+        *pDistance = best;
+        return 1;
+    }
+}
+
 extern int g_unk0x0051bd40;
 extern int g_unk0x0051bd3c;
 
@@ -2515,6 +3309,79 @@ void FUN_004688b0(BYTE *p)
         g_stageDeformSpeed = (BYTE)p[2] << 16;
         g_stageDeformSpeed = FixMul(g_stageDeformSpeed, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
     }
+}
+
+// Averages (16.16) the per-object distance between every stage object's float
+// vertex data and its fixed-point copy, skipping parts 1 and 3 when the record
+// flag is set (their object count still feeds the divisor).
+// FUNCTION: CMR2 0x00469100
+int FUN_00469100(Car *pCar, BYTE *pRecord)
+{
+    int partA;
+    int partB;
+    int total;
+    int sum;
+    int entry;
+    int *pCounts;
+    int i;
+    int offsetDst;
+    int offsetSrc;
+
+    if (g_unk0x00588970[pCar->field_0xb1a] == 0)
+        return 0;
+    partA = FUN_00484d10(1, pCar->field_0xb1a);
+    partB = FUN_00484d10(3, pCar->field_0xb1a);
+    total = 0;
+    sum = 0;
+    entry = 0;
+    pCounts = (int *)(pRecord + 0x420);
+    if (*(int *)(pRecord + 0x45c) > 0) {
+        do {
+            if (entry == partA) {
+                if (FUN_00469bc0(pCar, 1) != 0) {
+                    total += *pCounts;
+                    goto next;
+                }
+            } else if (entry == partB) {
+                if (FUN_00469bc0(pCar, 3) != 0) {
+                    total += *pCounts;
+                    goto next;
+                }
+            }
+            i = 0;
+            if (*pCounts > 0) {
+                offsetDst = 0;
+                offsetSrc = 0;
+                do {
+                    int *pDst = (int *)(*(int *)(pRecord + 0x78 + entry * 4) + offsetDst);
+                    float *pSrc = (float *)(*(int *)(*(int *)(pRecord + entry * 4) + 0xc) + offsetSrc);
+                    int dx = (int)(__int64)((double)pSrc[0] * CGraphics::m_65536) - pDst[0];
+                    int dy = (int)(__int64)((double)pSrc[1] * CGraphics::m_65536) - pDst[1];
+                    int dz = (int)(__int64)((double)pSrc[2] * CGraphics::m_65536) - pDst[2];
+                    int v;
+
+                    if (dx < 0)
+                        dx = -dx;
+                    if (dy < 0)
+                        dy = -dy;
+                    if (dz < 0)
+                        dz = -dz;
+                    v = FixMul(dz + dy + dx, 0x50000);
+                    if (v > 0x10000)
+                        v = 0x10000;
+                    offsetSrc += 0x30;
+                    sum += v;
+                    total++;
+                    i++;
+                    offsetDst += 0x20;
+                } while (i < *pCounts);
+            }
+next:
+            entry++;
+            pCounts++;
+        } while (entry < *(int *)(pRecord + 0x45c));
+    }
+    return FixDiv(sum, total << 16);
 }
 
 // Sets the fixed-point lighting values for both stage weather conditions.
@@ -3457,6 +4324,134 @@ void FUN_00461b30(BYTE *pObject, int type)
 
 int *FUN_00407520(int index);
 void FUN_00461b30(BYTE *pObject, int type);
+
+// Time of day steps (mm*100+ss, 500 = 05:00) that bound the twelve stage object
+// record columns.
+// GLOBAL: CMR2 0x0051b034
+WORD g_stageObjectTimeSteps[12] = {
+    500, 600, 800, 1000, 1200, 1500, 1700, 1800, 1900, 2000, 2200, 2400
+};
+
+// Per stage setting, the two rows of the loaded .hor stage object records to
+// blend: 0 = plain, 1 = CLO, 2 = STO, 3 = BLI.
+// GLOBAL: CMR2 0x0051b0dc
+BYTE g_stageObjectWeatherRows[9][2] = {
+    { 0, 0 }, { 0, 0 }, { 0, 1 }, { 1, 2 }, { 1, 2 },
+    { 1, 2 }, { 1, 3 }, { 1, 3 }, { 1, 3 }
+};
+
+// Per stage setting, the 16.16 factor that blends those two rows.
+// GLOBAL: CMR2 0x0051b0f0
+int g_stageObjectWeatherFactors[9] = {
+    0, 0, 0x10000, 0, 0x8000, 0x10000, 0, 0x8000, 0x10000
+};
+
+// Stage object record of the primary stage setting (0x4e bytes).
+// GLOBAL: CMR2 0x00543d00
+BYTE g_stageObjectPrimary[0x4e];
+// Stage object record of the secondary stage setting.
+// GLOBAL: CMR2 0x00543e38
+BYTE g_stageObjectSecondary[0x4e];
+
+void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t);
+
+// Blends the stage object record for one time of day into the primary (slot 0)
+// or secondary (slot 1) global record: the time picks the two adjacent columns
+// of the loaded .hor table, the stage setting pair picks the record rows and
+// their fixed factor, and the two column results are interpolated by how far
+// the time lies into its band. NULL when a record is missing or invalid.
+// FUNCTION: CMR2 0x00461830
+BYTE *FUN_00461830(unsigned short timeOfDay, int slot, BYTE **records)
+{
+    BYTE buffer0[0x50];
+    BYTE buffer1[0x50];
+    int *pWeatherPair;
+    int index;
+    int lower;
+    int i;
+    int prev;
+    int prevSeconds;
+    int length;
+    int position;
+    int factor;
+    int rowFrom;
+    int rowTo;
+    int rowFactor;
+    BYTE *pFrom0;
+    BYTE *pFrom1;
+    BYTE *pTo0;
+    BYTE *pTo1;
+    BYTE *dest;
+
+    pWeatherPair = FUN_00407520(RallyDataStageIndex());
+    if (slot == 0)
+        index = pWeatherPair[0];
+    else
+        index = pWeatherPair[1];
+
+    lower = -1;
+    for (i = 0; i < 12; i++) {
+        if (g_stageObjectTimeSteps[i] >= timeOfDay) {
+            lower = i;
+            break;
+        }
+    }
+    if (lower == -1)
+        return NULL;
+
+    prev = lower - 1;
+    if (prev < 0) {
+        prev += 12;
+        prevSeconds = 0;
+    } else {
+        prevSeconds = (g_stageObjectTimeSteps[prev] / 100 * 60 + g_stageObjectTimeSteps[prev] % 100) << 16;
+    }
+    length = ((g_stageObjectTimeSteps[lower] / 100 * 60 + g_stageObjectTimeSteps[lower] % 100) << 16) - prevSeconds;
+
+    if (timeOfDay % 100 >= 60)
+        return NULL;
+    position = ((timeOfDay / 100 * 60 + timeOfDay % 100) << 16) - prevSeconds;
+
+    factor = FixDiv(position, length);
+    if (factor > 0x10000)
+        factor = 0x10000;
+    else if (factor < 0)
+        factor = 0;
+
+    rowFrom = g_stageObjectWeatherRows[index][0];
+    rowTo = g_stageObjectWeatherRows[index][1];
+    rowFactor = g_stageObjectWeatherFactors[index];
+    pFrom0 = records[rowFrom * 12 + prev];
+    pFrom1 = records[rowFrom * 12 + lower];
+    pTo0 = records[rowTo * 12 + prev];
+    pTo1 = records[rowTo * 12 + lower];
+    if (pFrom0 == NULL || pTo0 == NULL || pFrom1 == NULL || pTo1 == NULL)
+        return NULL;
+
+    dest = g_stageObjectPrimary;
+    if (slot != 0)
+        dest = g_stageObjectSecondary;
+
+    FUN_00461710(buffer0, pFrom0, pTo0, rowFactor);
+    FUN_00461710(buffer1, pFrom1, pTo1, rowFactor);
+    FUN_00461710(dest, buffer0, buffer1, factor);
+    return dest;
+}
+
+// Blends both stage object records of the stage's setting pair into the two out
+// pointers: the primary from the first setting's time of day, the secondary
+// from the second one.
+// FUNCTION: CMR2 0x00461a30
+void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary)
+{
+    BYTE *pObjectPrimary;
+    BYTE *pObjectSecondary;
+
+    pObjectPrimary = FUN_00461830(timePrimary, 0, records);
+    pObjectSecondary = FUN_00461830(timeSecondary, 1, records);
+    *pPrimary = pObjectPrimary;
+    *pSecondary = pObjectSecondary;
+}
 
 // Sets the speed limits of the two stage objects of a pair from the stage's
 // setting pair; a stopped one takes over the other's limit.
@@ -4935,6 +5930,62 @@ void FUN_00465530(void)
     }
 }
 
+// GLOBAL: CMR2 0x0051bce0
+char g_strNewImageSkidBlankTga[] = "\\NEWIMAGE\\skid\\skids_blank.tga";
+// GLOBAL: CMR2 0x0051bd00
+char g_strNewImageSkidMarkTga[] = "\\NEWIMAGE\\skid\\skids_mark.tga";
+// GLOBAL: CMR2 0x0051bd20
+char g_strNewImageSkid1Tga[] = "\\NEWIMAGE\\skid\\skids_1.tga";
+
+// GLOBAL: CMR2 0x00588740
+Texture *g_unk0x00588740;
+// GLOBAL: CMR2 0x00588744
+Texture *g_unk0x00588744;
+// GLOBAL: CMR2 0x00588748
+Texture *g_unk0x00588748;
+
+// Loads the three skid mark textures and picks the trail lifetime and the
+// skid colour for the current weather and country.
+// FUNCTION: CMR2 0x00465600
+void FUN_00465600(void)
+{
+    char name[260];
+    bool loaded;
+    BYTE country;
+
+    FUN_00465530();
+    sprintf(name, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strNewImageSkid1Tga);
+    g_unk0x00588740 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    sprintf(name, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strNewImageSkidMarkTga);
+    g_unk0x00588744 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    sprintf(name, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strNewImageSkidBlankTga);
+    g_unk0x00588748 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), name, &loaded, 0, 0, 0);
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7)
+        g_stageSurfaceInfo[8].flags = 4;
+    else
+        g_stageSurfaceInfo[8].flags = 2;
+    country = (BYTE)RallyDataCountryIndex();
+    if (country != 0) {
+        if (country > 3 && country <= 5) {
+            g_stageSurfaceInfo[2].red = 0xb7;
+            g_stageSurfaceInfo[2].green = 0x89;
+            g_stageSurfaceInfo[2].blue = 0x43;
+            *(int *)&g_stageSurfaceInfo[7].red = *(int *)&g_stageSurfaceInfo[2].red;
+        } else {
+            g_stageSurfaceInfo[2].red = 0xb7;
+            g_stageSurfaceInfo[2].green = 0x89;
+            g_stageSurfaceInfo[2].blue = 0x43;
+            *(int *)&g_stageSurfaceInfo[7].red = *(int *)&g_stageSurfaceInfo[2].red;
+        }
+    } else {
+        g_stageSurfaceInfo[2].red = 0x89;
+        g_stageSurfaceInfo[2].green = 0x7a;
+        g_stageSurfaceInfo[2].blue = 0x6f;
+        *(int *)&g_stageSurfaceInfo[7].red = *(int *)&g_stageSurfaceInfo[2].red;
+    }
+}
+
 // GLOBAL: CMR2 0x00590b50
 FixVector g_unk0x00590b50;
 
@@ -6145,6 +7196,59 @@ void FUN_0046bb40(void)
 }
 
 extern Car *g_collisionCar;
+
+// Applies the fade-driven roll (about the node's current up axis) to the two
+// scene nodes of car `index`'s stage object and advances its fade state machine.
+// FUNCTION: CMR2 0x00476a40
+void FUN_00476a40(int index)
+{
+    int off = index * 0x1c;
+    SceneNode *pNode;
+    FixVector axis;
+    FixVector position;
+
+    pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+    if (pNode != NULL) {
+        SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off));
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+        axis = pNode->current.up;
+        short angle = g_unk0x0058d4e0[index * 6];
+        if (g_unk0x0058d2f0[index] != 0)
+            angle = -angle;
+        FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+        position = pNode->current.position;
+        pNode->current.position.x = 0;
+        pNode->current.position.y = 0;
+        pNode->current.position.z = 0;
+        FixMatrix_Multiply(&pNode->current, &pNode->current, &g_unk0x0058d260);
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0xc);
+        pNode->current.position = position;
+    }
+    pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+    if (pNode != NULL) {
+        SceneNode_SetRotation(pNode, *(FixAngles **)(g_unk0x0058d4f0 + off + 0x14));
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+        axis = pNode->current.up;
+        short *pNum = *(short **)(g_unk0x0058d4f0 + off + 0x18);
+        short *pDen = *(short **)(g_unk0x0058d4f0 + off + 4);
+        int angle;
+        if (g_unk0x0058d2f0[index] != 0)
+            angle = -(*pNum * g_unk0x0058d4e0[index * 6] / *pDen);
+        else
+            angle = *pNum * g_unk0x0058d4e0[index * 6] / *pDen;
+        FixMatrix_FromAxisAngle(&g_unk0x0058d260, &axis, angle);
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+        position = pNode->current.position;
+        pNode->current.position.x = 0;
+        pNode->current.position.y = 0;
+        pNode->current.position.z = 0;
+        FixMatrix_Multiply(&pNode->current, &pNode->current, &g_unk0x0058d260);
+        pNode = *(SceneNode **)(g_unk0x0058d530 + off + 0x10);
+        pNode->current.position = position;
+    }
+    FUN_00476c70(index);
+}
 
 // Steps the fade state machine of one stage object: 0 -> 2 -> 3 ramps the
 // offset up to the record's limit and 1 ramps it back to zero, retriggering

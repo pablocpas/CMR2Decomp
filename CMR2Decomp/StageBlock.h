@@ -10,6 +10,7 @@
 extern BYTE g_stageBlock[0x430];
 
 #define g_unk0x0058d2a0 ((int *)(g_stageBlock + 0x0))          // int[12]
+#define g_unk0x0058d2d4 ((WORD *)(g_stageBlock + 0x34))        // 2 objects x 7 WORD colours
 #define g_unk0x0058d2f0 ((int *)(g_stageBlock + 0x50))         // int[8]
 #define g_stageBlock_58d340 ((int *)(g_stageBlock + 0xa0))     // int[8]
 #define g_stageBlock_58d368 ((int *)(g_stageBlock + 0xc8))     // 6 rows of 3 ints

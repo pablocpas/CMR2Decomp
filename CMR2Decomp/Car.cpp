@@ -2829,7 +2829,7 @@ BYTE FUN_0042b710(int index)
 }
 
 // FUNCTION: CMR2 0x0042b720
-void FUN_0042b720(int index, BYTE value)
+void FUN_0042b720(int index, char value)
 {
     g_unk0x0053acc8[index] = value;
 }
