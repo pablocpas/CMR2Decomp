@@ -4351,6 +4351,7 @@ void FUN_00424dc0(Car *car)
 
 // Clears the road-book slots of every car in the running order and
 // reinitialises the ones with no pending target.
+// match 51%: only the esi/edi allocation differs
 // FUNCTION: CMR2 0x004581d0
 void FUN_004581d0(void)
 {
@@ -4434,7 +4435,7 @@ char g_strTm0Format[] = "%s.tm0";
 
 // Finds the three .tm? model archives of the current team and copies the one
 // selected by the game mode into the locked stage buffer.
-// match 0%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 81%: registers differ; the extra sprintf argument is the original's (see CONOCIMIENTO 4.y)
 // FUNCTION: CMR2 0x00455300
 void FUN_00455300(void)
 {
@@ -4477,3 +4478,168 @@ void FUN_00455300(void)
     }
 }
 
+extern char g_stageSplitCount;
+BYTE *RallyData_FUN_00421440(int index);
+unsigned int RallyData_FUN_00407e90(void);
+
+// Estimates the remaining stage time of every driver slot from the progress
+// made so far, inserting each newly queued slot at the end of the order.
+// match 43%: registers and the stack layout of the locals differ; logic checked against the asm
+// FUNCTION: CMR2 0x004483e0
+void FUN_004483e0(void)
+{
+    int count = FUN_00458390();
+    int slot = (int)(char)g_unk0x0053e18c;
+    int prev = 0;
+    int total;
+    int i;
+    int j;
+    int k;
+    int value;
+    char *pSlot;
+
+    total = (BYTE)RallyData_FUN_00406990() * RallyData_FUN_00421420() * 0x10000;
+    while (1) {
+        if (count <= slot)
+            return;
+        for (i = 0; i < count; i++) {
+            pSlot = &g_unk0x0053e17c[slot];
+            for (j = 0; j < slot; j++) {
+                if (g_unk0x0053dda8[i] == g_unk0x0053e17c[j])
+                    goto cont;
+            }
+            k = (int)(char)g_unk0x0053dda8[i];
+            *pSlot = g_unk0x0053dda8[i];
+            g_unk0x0053e184[k] = (char)slot;
+            slot = slot + 1;
+            pSlot++;
+            g_unk0x0053d1da[k] = 1;
+            value = FixDiv((FUN_004589e0(k) & 0xffff) << 16, total);
+            if (value < 1) {
+                g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
+            } else {
+                g_unk0x0053d1b8[k] =
+                    ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value),
+                                                        FUN_0040d4b0(g_unk0x0053d1b0)));
+            }
+            if ((char)RallyData_FUN_00407e90() != 0)
+                g_unk0x0053e190[11] = g_unk0x0053d1b8[k];
+            if (prev != 0 && prev == value)
+                g_unk0x0053d1b8[k]++;
+            prev = value;
+        cont:
+            ;
+        }
+    }
+}
+
+// Splits of the stage used for the timing display.
+// GLOBAL: CMR2 0x00542c78
+int g_unk0x00542c78;
+
+// Builds the checkpoint split table of the current stage.
+// match 77%: registers and the shared tail of the two flag tests differ
+// FUNCTION: CMR2 0x00458a00
+void FUN_00458a00(void)
+{
+    int count = 0;
+    int i;
+    int unit;
+    int scale;
+
+    g_unk0x00542c74 = 0;
+    g_stageCheckpointCount = RallyData_FUN_00421420();
+    if (g_stageCheckpointCount == 0)
+        return;
+    for (i = 0; i < g_stageCheckpointCount; i++) {
+        if ((*(BYTE *)(RallyData_FUN_00421440(i) + 0x18) & 1) != 0) {
+            g_unk0x00542c7c[count] = (int)(__int64)((double)i * CGraphics::m_65536);
+            count++;
+        }
+    }
+    g_unk0x00542c74 = count;
+    if ((char)RallyData_GetFlag24() != 0) {
+        g_stageLooped = 1;
+    } else {
+        g_stageLooped = 0;
+        if ((char)RallyData_GetFlag25() != 0)
+            g_stageLooped = 1;
+    }
+    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0) {
+        g_unk0x00542c74 = (char)RallyData_GetFlag24() != 0 ? 4 : 2;
+        g_unk0x00542c78 = g_unk0x00542c74;
+        unit = (int)(__int64)((double)g_unk0x00542c74 * CGraphics::m_65536);
+        if ((char)RallyData_GetFlag24() != 0) {
+            scale = FixDiv((int)(__int64)((double)g_stageCheckpointCount * CGraphics::m_65536), unit);
+            for (i = 0; i < g_unk0x00542c74; i++)
+                g_unk0x00542c7c[i] = FixMul((int)(__int64)((double)i * CGraphics::m_65536), scale)
+                                     & 0xffff0000;
+        }
+    }
+    if ((char)RallyData_GetFlag24() != 0 || (char)RallyData_GetFlag25() != 0)
+        g_stageSplitCount = (char)g_unk0x00542c74;
+    else
+        g_stageSplitCount = (char)g_unk0x00542c74 - 1;
+}
+
+// GLOBAL: CMR2 0x00542c6c
+int g_unk0x00542c6c;
+
+extern int g_unk0x00542c68;
+extern char g_unk0x00542cad;
+char FUN_00420190(void);
+unsigned int RallyData_FUN_004082e0(void);
+unsigned int RallyData_FUN_004082b0(void);
+unsigned int RallyData_FUN_004082c0(void);
+
+// Rebuilds the stage split table and the checkpoint count for the current
+// event.
+// FUNCTION: CMR2 0x00458090
+void FUN_00458090(void)
+{
+    FUN_00458a00();
+    g_unk0x00542cad = 0;
+    g_unk0x00542c68 = (BYTE)FUN_00420190();
+    g_unk0x00542c6c = (BYTE)RallyData_FUN_00406990();
+    if ((char)RallyData_FUN_004082e0() != 0 && RallyData_FUN_004082b0() == 2)
+        g_unk0x00542c6c = RallyData_FUN_004082c0() << 1;
+    if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 12)
+        g_unk0x00542cad = 1;
+}
+
+extern int g_sinTable[4096];
+void FUN_00421fe0(short *pOut, unsigned int view);
+void FUN_00460a30(FixVector *pOut);
+
+// Integrates the terrain slope under a car into its body pitch, wrapping at a
+// full turn.
+// match 0%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 45%: registers and frame layout differ (the original keeps the base pointer in edi)
+// FUNCTION: CMR2 0x0045f5d0
+void FUN_0045f5d0(int pData, int param_2)
+{
+    FixVector vec;
+    int cosA;
+    int negSinA;
+    int zero;
+    int *p = (int *)pData;
+    int value;
+    int angle;
+
+    p[8] = p[5];
+    FUN_00421fe0((short *)&pData, param_2);
+    zero = 0;
+    cosA = g_sinTable[(pData + 0x400) & 0xfff];
+    negSinA = -g_sinTable[pData & 0xfff];
+    FUN_00460a30(&vec);
+    value = FixMul(vec.x, negSinA) + FixMul(vec.y, zero) + FixMul(vec.z, cosA);
+    angle = p[5] + FixMul(0xf5c, value);
+    p[5] = angle;
+    if (angle > 0x1680000) {
+        p[5] = angle - 0x1680000;
+        p[8] += -0x1680000;
+    } else if (angle < 0) {
+        p[5] = angle + 0x1680000;
+        p[8] += 0x1680000;
+    }
+}
