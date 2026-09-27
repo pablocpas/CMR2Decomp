@@ -729,10 +729,7 @@ void FUN_00406820(void)
 // FUNCTION: CMR2 0x00406890
 char *RallyData_FUN_00406890(void)
 {
-    unsigned char country;
-
-    country = (unsigned char)RallyDataCountryIndex();
-    return (char *)g_unk0x0051682c + country * 7;
+    return (char *)g_unk0x0051682c + (unsigned char)RallyDataCountryIndex() * 7;
 }
 
 // FUNCTION: CMR2 0x004068b0
@@ -787,11 +784,11 @@ int g_unk0x0052ea74Block[18];
 #define g_unk0x0052ea98 (g_unk0x0052ea74Block + 9)
 #define g_unk0x0052eab8 (g_unk0x0052ea74Block[17])
 
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408300
-BOOL RallyData_FUN_00408300(void)
+BYTE RallyData_FUN_00408300(void)
 {
     unsigned int i;
+    BYTE result;
 
     for (i = 0; i < 0xb; i++) {
         if ((g_unk0x0052ea68[i] & 1) == 0)
@@ -801,7 +798,8 @@ BOOL RallyData_FUN_00408300(void)
         if ((g_unk0x0052ea68[i] & 4) == 0)
             break;
     }
-    return ((g_selectedRallyData >> 5) & 0x1f) == i;
+    result = ((g_selectedRallyData >> 5) & 0x1f) == i;
+    return result;
 }
 
 // FUNCTION: CMR2 0x00408390
@@ -823,23 +821,23 @@ void RallyData_FUN_00408390(void)
 
 // match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408340
-BOOL RallyData_FUN_00408340(void)
+BYTE RallyData_FUN_00408340(void)
 {
     unsigned int i;
     BYTE *p;
 
     i = ((g_selectedRallyData >> 5) & 0x1f) + 1;
     if (i >= 0xb)
-        return TRUE;
+        return 1;
     p = &g_unk0x0052ea68[i];
     do {
         if ((*p & 1) != 0 &&
             ((*p & 2) == 0 || CGameInfo::FUN_00406410(0xd)) &&
             (*p & 4) == 0)
-            return FALSE;
+            return 0;
         p++;
     } while (p < &g_unk0x0052ea68[0xb]);
-    return TRUE;
+    return 1;
 }
 
 
@@ -2637,7 +2635,6 @@ done:
     g_unk0x00536c08[car] = 0x7d;
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004074a0
 bool RallyData_FUN_004074a0(void)
 {
@@ -2649,9 +2646,8 @@ bool RallyData_FUN_004074a0(void)
         g_selectedRallyData = v;
         if ((v & 0x3000) >= 0x3000)
             return false;
-        if ((v & 0xc00) == 0x800)
-            return false;
-        return true;
+        if ((v & 0xc00) != 0x800)
+            return true;
     }
     return false;
 }
@@ -4263,27 +4259,28 @@ void FUN_004209f0(void)
 }
 
 // Whether flag bit `bit` is set for the entry that pEntry points into.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00471d40
-BYTE FUN_00471d40(BYTE **pEntry, BYTE bit)
+int FUN_00471d40(BYTE **pEntry, int bit)
 {
-    int index;
+    unsigned int index;
+    BYTE mask;
 
     index = (unsigned int)(*pEntry - g_unk0x0058c94c) >> 3;
-    if (index >= (int)g_unk0x0058ca6c)
-        return 0;
-    return (g_unk0x0058c938[index] & (1 << bit)) != 0;
+    if ((int)index < (int)g_unk0x0058ca6c && (int)index >= 0) {
+        mask = 1 << bit;
+        return (g_unk0x0058c938[index] & mask) != 0;
+    }
+    return 0;
 }
 
 // Sets or clears bit `bit` of the flag byte of the 8-byte element *pp points at.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00471d80
-void FUN_00471d80(BYTE **pp, BYTE bit, int set)
+void FUN_00471d80(BYTE **pp, int bit, int set)
 {
     unsigned int index = (unsigned int)(*pp - g_unk0x0058c94c) >> 3;
     BYTE mask;
 
-    if ((int)index < (int)g_unk0x0058ca6c) {
+    if ((int)index < (int)g_unk0x0058ca6c && (int)index >= 0) {
         mask = 1 << bit;
         if (set == 0) {
             g_unk0x0058c938[index] &= ~mask;
@@ -4297,9 +4294,8 @@ unsigned int RallyDataState(void);
 
 // Marks the element as reached by the car; the first time, in single player,
 // pushes its object out of the way.
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00470240
-void FUN_00470240(BYTE **pElement, BYTE car)
+void FUN_00470240(BYTE **pElement, int car)
 {
     if (FUN_00471d40((BYTE **)&pElement, car) == 0) {
         FUN_00471d80((BYTE **)&pElement, car, 1);
@@ -4349,9 +4345,8 @@ void FUN_004702a0(void)
 
 // Sets bit `bit` of the driver's category award mask; returns 0 when the
 // driver has no category or already had it.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409010
-int RallyData_FUN_00409010(int index, BYTE bit)
+BYTE RallyData_FUN_00409010(int index, int bit)
 {
     unsigned int category;
     unsigned int mask;
@@ -4420,22 +4415,18 @@ unsigned int FUN_00409cb0(int index);
 void FUN_00411e40(int *pOut, int distance, int percent);
 
 // Updates the split position of the player and of every network player.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00411f00
 void FUN_00411f00(void)
 {
     int i;
     int percent;
-    int distance;
 
     percent = RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100 >> 16;
     FUN_00411e40(g_unk0x00536c48[0], FUN_004582f0(0), percent);
     for (i = 0; i < 7; i++) {
-        if ((BYTE)FUN_00409cb0(i)) {
-            percent = FUN_0040a760(FUN_00409d20(i));
-            distance = FUN_0040a720(FUN_00409d20(i));
-            FUN_00411e40(g_unk0x00536c48[FUN_0040b010(i)], distance, percent);
-        }
+        if ((BYTE)FUN_00409cb0(i))
+            FUN_00411e40(g_unk0x00536c48[FUN_0040b010(i)], FUN_0040a720(FUN_00409d20(i)),
+                         FUN_0040a760(FUN_00409d20(i)));
     }
 }
 
@@ -4797,24 +4788,23 @@ int g_unk0x00536fe4[2];
 int g_unk0x00537054[2];
 
 // Updates the split timer and stage sound for a player.
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00413200
 void FUN_00413200(int car)
 {
     if (FUN_00458250(car)) {
         g_unk0x00537054[car] = 1;
         g_unk0x00536fe4[car] = FUN_00448110() - FUN_00448260(car);
-        if (FUN_00448330(car) <= 0) {
-            FUN_00411ab0(car, 1);
-            g_unk0x00536c18[car] = 1;
-            g_unk0x00536c0c[car] = 1;
-            g_stageSplitData[car].split = 1;
-        } else {
+        if (FUN_00448330(car) > 0) {
             FUN_00411ab0(car, 0);
             ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
             g_unk0x00536c20[car] = 0x4b;
             g_unk0x00536c0c[car] = 0;
             g_unk0x00536c18[car] = 0;
+            g_stageSplitData[car].split = 1;
+        } else {
+            FUN_00411ab0(car, 1);
+            g_unk0x00536c18[car] = 1;
+            g_unk0x00536c0c[car] = 1;
             g_stageSplitData[car].split = 1;
         }
     }
