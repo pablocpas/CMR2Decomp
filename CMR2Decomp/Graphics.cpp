@@ -4372,9 +4372,7 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 void Billboard_Reset(void)
 {
     memset(g_billboards, 0, sizeof(g_billboards));
-    g_unk0x006dd784 = 0;
-    g_unk0x006dd788 = 0;
-    g_billboardsEnabled = 0;
+    g_unk0x006dd784 = g_unk0x006dd788 = g_billboardsEnabled = 0;
 }
 
 // Vertex of a billboard (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
@@ -5024,7 +5022,6 @@ int Glow_FreeTable(void)
     return 1;
 }
 
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ae170
 void FUN_004ae170(int param1)
 {
@@ -5033,7 +5030,7 @@ void FUN_004ae170(int param1)
         g_unk0x006a2a98 = NULL;
     }
     g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * 92);
-    g_unk0x006a2bcc = param1 & 0xff;
+    g_unk0x006a2bcc = (BYTE)param1;
     g_layerQuad[0].u = 0;
     g_layerQuad[0].v = 0;
     g_layerQuad[1].u = 0xfff9;
@@ -6108,6 +6105,10 @@ Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
 
     pTexture = NULL;
     isDDS = FALSE;
+    // The original passes the count as memset's fill value and 0 as the count:
+    // the call is a no-op (kept so the code matches the original).
+    if (CGraphics::m_textureCount == 0)
+        memset(m_pTextureManager->textureBuffer, 0x98000, 0);
     if (*(DWORD *)pData == 0x20534444)
         isDDS = TRUE;
     for (i = 0; i < 0x800; i++) {
