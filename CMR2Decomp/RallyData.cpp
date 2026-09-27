@@ -432,6 +432,103 @@ void FUN_00407940(unsigned int first, unsigned int second)
     }
 }
 
+// Propagates the winners through every level of the knockout bracket and
+// orders AI-only pairs by driver index.
+// FUNCTION: CMR2 0x00407b10
+void FUN_00407b10(void)
+{
+    unsigned int flags;
+    unsigned int first;
+    unsigned int second;
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        flags = g_knockout.round1[i].flags;
+        if ((flags & 0x1800) != 0) {
+            if ((flags & 0x1800) == 0x800) {
+                if (i % 2 == 0)
+                    g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                else
+                    g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+            } else {
+                if (i % 2 == 0)
+                    g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                else
+                    g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+            }
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        flags = g_knockout.quarters[i].flags;
+        first = flags & 0x1f;
+        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            second = (flags >> 5) & 0x1f;
+            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
+                g_knockout.quarters[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        }
+    }
+
+    for (i = 0; i < 4; i++) {
+        flags = g_knockout.quarters[i].flags;
+        if ((flags & 0x1800) != 0) {
+            if ((flags & 0x1800) == 0x800) {
+                if (i % 2 == 0)
+                    g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                else
+                    g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+            } else {
+                if (i % 2 == 0)
+                    g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                else
+                    g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+            }
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        flags = g_knockout.semis[i].flags;
+        first = flags & 0x1f;
+        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            second = (flags >> 5) & 0x1f;
+            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
+                g_knockout.semis[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        }
+    }
+
+    for (i = 0; i < 2; i++) {
+        flags = g_knockout.semis[i].flags;
+        if ((flags & 0x1800) != 0) {
+            if ((flags & 0x1800) == 0x800) {
+                if (i % 2 == 0)
+                    g_knockout.final.flags = (g_knockout.final.flags & 0xffffffe0U) | (flags & 0x1f);
+                else
+                    g_knockout.final.flags =
+                        (g_knockout.final.flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+            } else {
+                if (i % 2 == 0)
+                    g_knockout.final.flags =
+                        (g_knockout.final.flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                else
+                    g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc1fU) | (flags & 0x3e0);
+            }
+        }
+    }
+    flags = g_knockout.final.flags;
+    first = flags & 0x1f;
+    if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
+        second = (flags >> 5) & 0x1f;
+        if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
+            g_knockout.final.flags = (flags & 0xfffffc00U) | second | (first << 5);
+    }
+}
+
 // FUNCTION: CMR2 0x004070f0
 int RallyData_FUN_004070f0(void)
 {

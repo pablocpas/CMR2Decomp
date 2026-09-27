@@ -3563,7 +3563,7 @@ signed char g_timerWobble[24] = { 3, 6, 6, 3, 0, 2, 4, 4, 2, 0, 1, 2, 2, 1, 0, 1
 // and returns its end value.
 // match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bc110
-int Timer_GetValue(unsigned int index)
+int Timer_GetValue(BYTE index)
 {
     BYTE *t;
     unsigned int pos;
@@ -7166,4 +7166,3 @@ void FUN_0049c680(Mesh *pMesh)
             pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
     }
 }
-

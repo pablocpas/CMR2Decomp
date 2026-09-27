@@ -82,7 +82,7 @@ int g_physPatchScaleB[14] = {0x10000, 0x10a3d, 0x10000, 0x10624, 0x10000, 0x108b
                              0xfe76,  0xd8d4,  0x10f5c, 0x105e3, 0xfeb8,  0xfe76,  0xfe76};
 // Pairs of opposite body patch corners.
 // GLOBAL: CMR2 0x005201c0
-BYTE g_physPatchEdges[4][2] = {{1, 2}, {0, 3}, {1, 0}, {2, 3}};
+BYTE g_physPatchEdges[5][2] = {{1, 2}, {0, 3}, {1, 0}, {2, 3}, {0, 0}};
 // Reference axis of the skid trail and its length scale.
 // GLOBAL: CMR2 0x005201c8
 FixVector g_physTrailAxis = {0x10000, 0, 0};

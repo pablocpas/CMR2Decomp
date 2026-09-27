@@ -281,6 +281,73 @@ Car *g_pAutoGearCar;
 // GLOBAL: CMR2 0x00592270
 BYTE *g_pAutoGearSetup;
 
+// Requests the adjacent automatic gear while the driver is shifting.  On an
+// up-shift, a little extra hysteresis is derived from the difference between
+// the first and third body corners.
+// FUNCTION: CMR2 0x00493890
+unsigned int FUN_00493890(void)
+{
+    unsigned int result;
+    char gear;
+
+    result = g_pAutoGearCar->field_0x1d4[0];
+    if (g_pAutoGearCar->field_0x1d4[0] == 1) {
+        gear = g_pAutoGearCar->field_0xb1e;
+        result = (BYTE)gear;
+        if (gear < 6) {
+            int amount;
+            int x;
+            int z;
+            int difference;
+
+            g_pAutoGearCar->field_0xb20 = gear + 1;
+            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+            result = *(unsigned int *)(g_pAutoGearSetup + 0x278);
+            if ((int)result > 0xb333) {
+                amount = FixMul((int)result - 0xb333, 0x3553f);
+                if (amount > 0x10000)
+                    amount = 0x10000;
+                else if (amount < 0)
+                    amount = 0;
+
+                x = g_pAutoGearCar->corners[0].x;
+                z = g_pAutoGearCar->corners[0].z;
+                difference = FIX_ABS(x) - FIX_ABS(z);
+                if (difference < 0)
+                    difference = FIX_ABS(z) - FIX_ABS(x);
+                result = difference / 0x401;
+                if ((difference % 0x401) * 0x40 < FixMul(amount, 0x4ccc)) {
+                    result = (BYTE)g_pAutoGearCar->field_0xb20;
+                    if (g_pAutoGearCar->field_0xb20 < 6) {
+                        g_pAutoGearCar->field_0xb20++;
+                        result = (BYTE)g_pAutoGearCar->field_0xb20;
+                    }
+                }
+            }
+            g_pAutoGearCar->field_0xb84 = 1;
+            return result;
+        }
+        if (gear == 7) {
+            g_pAutoGearCar->field_0xb20 = 0;
+            g_pAutoGearCar->field_0xb84 = 1;
+            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+            return (unsigned int)g_pAutoGearSetup;
+        }
+    } else if (g_pAutoGearCar->field_0x1d4[0] == 0xff) {
+        gear = g_pAutoGearCar->field_0xb1e;
+        result = (BYTE)gear;
+        if (gear < 7) {
+            g_pAutoGearCar->field_0xb20 = gear - 1;
+            g_pAutoGearCar->field_0xb84 = 1;
+            g_pAutoGearCar->field_0xb24 = *(char *)(g_pAutoGearSetup + 0x468);
+            result = (unsigned int)g_pAutoGearCar;
+            if (g_pAutoGearCar->field_0xb20 < 0)
+                g_pAutoGearCar->field_0xb20 = 7;
+        }
+    }
+    return result;
+}
+
 // Selects the automatic gearbox's next gear from engine speed and road load.
 // It also chooses reverse when the car stops against the driving direction.
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -921,6 +988,31 @@ void FUN_00493a40(void)
 
 // GLOBAL: CMR2 0x00592164
 int g_unk0x00592164;
+
+// GLOBAL: CMR2 0x00592160
+int g_unk0x00592160;
+
+// Reduces the steering scale as the car's forward velocity aligns with its
+// right axis.  The result is expressed in the same 0x1680 units as field b16.
+// FUNCTION: CMR2 0x004943d0
+void FUN_004943d0(void)
+{
+    int alignment;
+    int amount;
+
+    if ((g_pAutoGearCar->field_0xb1c & 1) != 0) {
+        alignment = FixMul(g_pAutoGearCar->right.x, g_pAutoGearCar->velocity.x) +
+                    FixMul(g_pAutoGearCar->right.y, g_pAutoGearCar->velocity.y) +
+                    FixMul(g_pAutoGearCar->right.z, g_pAutoGearCar->velocity.z);
+        alignment = FIX_ABS(alignment);
+        amount = FixMul(alignment, g_pAutoGearCar->field_0x828);
+        if (amount >= 0xb333)
+            amount = 0xb333;
+        g_unk0x00592160 = FixMul(0x10000 - amount, g_pAutoGearCar->field_0xb16) * 0x1680;
+        return;
+    }
+    g_unk0x00592160 = g_pAutoGearCar->field_0xb16 * 0x1680;
+}
 
 void FUN_00494540(void);
 extern int g_physicsTimeStep;

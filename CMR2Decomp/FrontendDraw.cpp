@@ -546,4 +546,3 @@ void FrontendDraw_ScrollerRow(MenuScroller *p, char active)
         }
     }
 }
-

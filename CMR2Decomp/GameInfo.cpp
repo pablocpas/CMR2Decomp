@@ -4166,6 +4166,8 @@ void FUN_00404ef0(void);
 void FUN_004a0ba0(void);
 void FUN_004a3180(void);
 unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00407ea0(void);
+int RallyData_FUN_00411880(void);
 
 // FUNCTION: CMR2 0x00401850
 void FUN_00401850(Menu *pMenu, int param)
@@ -4242,6 +4244,38 @@ void FUN_00402f80(Menu *pMenu)
     Menu_SetNextAction((int)&g_menu0x0052ad60);
 }
 
+// Builds the network options menu and disables the two-state entries when
+// the current rally mode does not support them.
+// FUNCTION: CMR2 0x00402f90
+void FUN_00402f90(void)
+{
+    Menu *pParent;
+    int i;
+
+    if ((char)RallyDataState() == 1)
+        pParent = &g_menu0x0052ad60;
+    else
+        pParent = &g_menu0x00529918;
+    Menu_Init(&g_menu0x00529ed8, 0, 0, 0, pParent, NULL, 1, 0, 1);
+    Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x33, &g_menu0x0052aa70, 0, 0);
+    Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x5c, &g_menu0x0052a870, 0, 1);
+    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 2, 0);
+    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 4, 0);
+    Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
+                      (int)(MenuCallback)0x00402f20, -1);
+    Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)FUN_00402eb0, NULL,
+                      (MenuCallback)0x00402000, NULL);
+    Menu_ValidateCursor(&g_menu0x00529ed8, 0);
+    if (RallyData_FUN_00411880() == 0) {
+        for (i = 0; i < g_menu0x00529ed8.itemCount; i++) {
+            if (g_menu0x00529ed8.items[i].value == 2) {
+                g_menu0x00529ed8.items[i].enabled = 0;
+                g_menu0x00529ed8.items[i].visible = 0;
+            }
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x00403360
 void FUN_00403360(Menu *pMenu, int param)
 {
@@ -4252,6 +4286,28 @@ void FUN_00403360(Menu *pMenu, int param)
 void FUN_004035d0(Menu *pMenu, int param)
 {
     g_unk0x0052af58[1] = pMenu->cursor;
+}
+
+void FUN_004036c0(Menu *pMenu, char unused);
+void FUN_00403700(Menu *pMenu, char unused);
+void FUN_004037c0(Menu *pMenu, char cancel);
+void FUN_00403880(Menu *pMenu);
+
+// Builds the four-slider camera options menu.
+// FUNCTION: CMR2 0x004035e0
+void FUN_004035e0(void)
+{
+    Menu_Init(&g_menu0x0052a870, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5e, 0x15, 10, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5f, 0x15, 10, 0, 0, 1, 0);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x60, 0x15, 10, 0, 0, 2, 0);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x61, 0x15, 10, 0, 0, 3, 0);
+    Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)FUN_004036c0, 4);
+    Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
+    Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)FUN_00403700,
+                      (MenuCallback)FUN_00403880, (MenuCallback)0x00403890,
+                      (MenuCallback)FUN_004037c0);
+    Menu_ValidateCursor(&g_menu0x0052a870, 0);
 }
 
 // GLOBAL: CMR2 0x0052a0b8
@@ -4519,6 +4575,40 @@ void FUN_004012d0(Menu *pMenu, int param)
 
 // Callback 0 of the car setup menu: loads the four switches from the driver's
 // setting byte (resetting them to on).
+void FUN_00404b80(Menu *pMenu, int param);
+void FUN_00404c50(Menu *pMenu, char cancel);
+void FUN_00404d00(Menu *pMenu);
+
+// Builds the car-setup menu used from the in-race network menu.
+// FUNCTION: CMR2 0x00404000
+void FUN_00404000(void)
+{
+    int settingId;
+
+    Menu_Init(&g_menu0x0052aa70, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
+    if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_FUN_00407ea0() == 0)
+        settingId = 0x64;
+    else
+        settingId = 0x30;
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, (short)settingId, 2, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x65, 2, 0, 0, 0, 1, 0);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x66, 2, 0, 0, 0, 2, 0);
+    Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x67, 2, 0, 0, 0, 3, 0);
+    if (FUN_004174d0()) {
+        if (RallyData_FUN_00411880() == 0)
+            settingId = 3;
+        else
+            settingId = 2;
+        Menu_AddItemType3(&g_menu0x0052aa70, 0, 0x68, (BYTE)settingId, 0, 0, 0, 4, 0);
+    }
+    Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)FUN_00404130, 5);
+    Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
+    Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)FUN_00404b80,
+                      (MenuCallback)FUN_00404d00, (MenuCallback)0x004041e0,
+                      (MenuCallback)FUN_00404c50);
+    Menu_ValidateCursor(&g_menu0x0052aa70, 0);
+}
+
 // FUNCTION: CMR2 0x00404130
 void FUN_00404130(Menu *pMenu, int param)
 {
@@ -4793,7 +4883,7 @@ void FUN_00404f40(Unk0049c2c0 *param1)
     FUN_00421720(g_unk0x0052af58[1], 5, 0xffff, FUN_00422fb0(g_unk0x0052af58[1]), 1);
     switch (FUN_0041b380()) {
     case 4:
-        first = (FUN_0041b370() & 0xff) + g_unk0x0052af58[1];
+        first = (FUN_0041b370() & 0xff) + *(BYTE *)&g_unk0x0052af58[1];
         break;
     case 0:
     case 1:
@@ -4831,9 +4921,8 @@ pushCamera:
         FUN_00421e20(g_unk0x0052af58[1]);
         result = FUN_0041f270();
         FUN_00422140(g_unk0x0052af58[1], result);
-        result = 0;
-        if (g_pMenu0x0052af44 == &g_menu0x0052a870 && g_pMenu0x0052af44->cursor == 2)
-            result = 1;
+        result = g_pMenu0x0052af44 == &g_menu0x0052a870 &&
+                 g_pMenu0x0052af44->cursor == 2 ? 1 : 0;
         FUN_00423010(g_unk0x0052af58[1], result);
     }
 
@@ -4850,18 +4939,18 @@ updateMenus:
     CInput::FUN_0049eab0();
     FUN_0040bad0();
     pDev = CInput::FUN_0049ead0(g_unk0x0052af58[0]);
-    FUN_0040bd60(g_unk0x0052af58[0], pDev);
-    if ((pDev->field_0x8 & (unsigned short)g_unk0x0052a0b8) == 0) {
+    FUN_0040bd60(*(unsigned int *)&g_unk0x0052af58[0] & 0xff, pDev);
+    if ((pDev->field_0x8 & (unsigned short)g_unk0x0052a0b8) != 0) {
+        g_unk0x0052a0b8 = 0;
+        if (g_pMenu0x0052af44 != NULL)
+            Menu_CallCallback3(g_pMenu0x0052af44);
+        FUN_00404ef0();
+    } else {
         if (g_pMenu0x0052af44 != NULL)
             Menu_SetFlags(g_pMenu0x0052af44, 1, 1, 1, 1);
         result = Menu_Update(g_pMenu0x0052af44, pDev->field_0x8);
         if (result != 0)
             g_pMenu0x0052af48 = (Menu *)result;
-    } else {
-        g_unk0x0052a0b8 = 0;
-        if (g_pMenu0x0052af44 != NULL)
-            Menu_CallCallback3(g_pMenu0x0052af44);
-        FUN_00404ef0();
     }
 
     if (CGameInfo::FUN_00405e00() == 0)
@@ -4876,7 +4965,7 @@ updateMenus:
         } else {
             i = 0;
             do {
-                if (FUN_00409cb0(i) != 0 && FUN_0040a450(i) != 0) {
+                if ((char)FUN_00409cb0(i) != 0 && (char)FUN_0040a450(i) != 0) {
                     g_unk0x0053811d = 1;
                     if (g_unk0x00538120 == 0) {
                         g_unk0x00538120 = 1;
@@ -4889,7 +4978,9 @@ updateMenus:
     }
     if (CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 0xc) {
         CGameInfo::FUN_00405d80();
-        if ((unsigned int)(CMain::GetFrameDelta() - FUN_0040af30()) >
+        i = CMain::GetFrameDelta();
+        result = FUN_0040af30();
+        if ((unsigned int)(i - result) >
                 (unsigned int)(FUN_00406710() * 6000) &&
             FUN_004a15a0() != 0) {
             if (g_unk0x00538100 != 0)
@@ -4915,10 +5006,10 @@ playerExit:
     if (g_unk0x0053811e != 0) {
         FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
         if (g_unk0x0053811f == 0) {
-            if (g_unk0x0053811e == 0)
-                result = FUN_004483c0(0);
-            else
+            if (g_unk0x0053811e != 0)
                 result = FUN_00448550();
+            else
+                result = FUN_004483c0(0);
             FUN_00427950(result);
             if (g_unk0x00538120 == 0 && FUN_00406770() > -1) {
                 g_unk0x00538120 = 1;
@@ -5466,7 +5557,7 @@ void FUN_00402c90(int param)
 void FUN_00403090(void)
 {
     Menu_Init(&g_menu0x0052a490, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x0052a490, 0, 0x3c, 2, 0, 0, 0, 0, 0);
+    Menu_AddItemType3(&g_menu0x0052a490, 0, 0x3c, 2, 0, 0, 0, 0, 0);;
     Menu_AddItemType4(&g_menu0x0052a490, 0, 0x3b, (int)FUN_00402f70, -1);
     Menu_SetCallbacks(&g_menu0x0052a490, (MenuCallback)CGame::FUN_00501680,
                       (MenuCallback)FUN_00402f80, (MenuCallback)FUN_00402460, NULL);
@@ -5478,10 +5569,10 @@ void FUN_00403090(void)
 void FUN_004032a0(void)
 {
     Menu_Init(&g_menu0x0052a670, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
-    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x19, 0xb, 10, 0, 0, 0, 0);
-    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1a, 0xb, 10, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x19, 0xb, 10, 0, 0, 0, 0);;
+    Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1a, 0xb, 10, 0, 0, 0, 1);;
     if (FUN_004174d0())
-        Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1b, 0xb, 10, 0, 0, 0, 2);
+        Menu_AddItemType3(&g_menu0x0052a670, 0, 0x1b, 0xb, 10, 0, 0, 0, 2);;
     Menu_AddItemType2(&g_menu0x0052a670, 0, 0x3b, &g_menu0x0052ad60, 0, 4);
     Menu_SetCallbacks(&g_menu0x0052a670, (MenuCallback)FUN_004012d0, (MenuCallback)FUN_00401380,
                       (MenuCallback)FUN_004028d0, (MenuCallback)FUN_00401420);
@@ -5576,13 +5667,13 @@ void FUN_00502310(void)
 {
     Menu_Init((Menu *)g_unk0x0082b668, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 0);
     Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x48, (BYTE)CGameInfo::FUN_00501230(), 0, 0, 0,
-                      (int)FUN_00500100, 0);
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x47, 7, 0, 1, 0, (int)FUN_005000b0, 1);
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x46, 0xb, 0, 1, 0, (int)FUN_004fffe0, 2);
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (int)FUN_00500110, 3);
+                      (int)FUN_00500100, 0);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x47, 7, 0, 1, 0, (int)FUN_005000b0, 1);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x46, 0xb, 0, 1, 0, (int)FUN_004fffe0, 2);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x3c, 1, 0, 0, 0, (int)FUN_00500110, 3);;
     if (CGameInfo::FUN_00405d80() == 0)
-        Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)FUN_004ffed0, 4);
-    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)FUN_00500190, 5);
+        Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0xd3, 2, 0, 0, 0, (int)FUN_004ffed0, 4);;
+    Menu_AddItemType3((Menu *)g_unk0x0082b668, 0, 0x88, 2, 1, 1, 0, (int)FUN_00500190, 5);;
     Menu_SetCallbacks((Menu *)g_unk0x0082b668, (MenuCallback)FUN_004ffa70, (MenuCallback)FUN_004ffab0,
                       (MenuCallback)FUN_0050eba0, (MenuCallback)FUN_00500210);
     Menu_ValidateCursor((Menu *)g_unk0x0082b668, 0);
@@ -5644,6 +5735,8 @@ char g_strAr640ATga[] = "%s\\game\\menus\\Ar_640A.tga";
 
 #include "Texture.h"
 #include "StageTiming.h"
+
+void FUN_00404130(Menu *pMenu, int param);
 
 // Loads the in-race menu textures (arrows, curtain and, in championships,
 // the round box).
@@ -6595,7 +6688,7 @@ void FUN_00502440(void)
 void FUN_005024a0(void)
 {
     Menu_Init((Menu *)g_unk0x0082b848, 0, -1, 0, (Menu *)g_unk0x0082b668, NULL, 1, 0, 1);
-    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)FUN_005003d0, 0);
+    Menu_AddItemType3((Menu *)g_unk0x0082b848, 0, -1, 0x65, 0, 0, 0, (int)FUN_005003d0, 0);;
     Menu_SetCallbacks((Menu *)g_unk0x0082b848, NULL, (MenuCallback)RallyData_ValidateIndex, (MenuCallback)FUN_0050ee10, NULL);
     Menu_ValidateCursor((Menu *)g_unk0x0082b848, 0);
 }
