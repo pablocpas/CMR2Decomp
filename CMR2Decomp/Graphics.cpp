@@ -3929,11 +3929,13 @@ void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value)
         return;
     if (pNode->type == SCENE_NODE_MESH && (pMesh = (Mesh *)pNode->pObject) != NULL)
         pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
-    for (pChild = pNode->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
+    pChild = pNode->pFirstChild;
+    while (pChild != NULL) {
         for (p = pChild; p != NULL; p = p->pFirstChild) {
             if (p->type == SCENE_NODE_MESH && (pMesh = (Mesh *)p->pObject) != NULL)
                 pMesh->flags = (value & 7) << 15 | pMesh->flags & 0xfffc7fff;
         }
+        pChild = pChild->pNext;
     }
 }
 
@@ -4372,7 +4374,7 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 void Billboard_Reset(void)
 {
     memset(g_billboards, 0, sizeof(g_billboards));
-    g_unk0x006dd784 = g_unk0x006dd788 = g_billboardsEnabled = 0;
+    g_billboardsEnabled = g_unk0x006dd788 = g_unk0x006dd784 = 0;
 }
 
 // Vertex of a billboard (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
@@ -5123,36 +5125,77 @@ char g_stageQualityCodes[24] = {
 extern BYTE g_unk0x00542630[];
 
 // Raises the detail levels when the hardware allows it (texture memory, caps).
-// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00457c50
 void FUN_00457c50(void)
 {
-    if (!CGameInfo::FUN_00406410(0x10))
+    if (CGameInfo::FUN_00406410(0x10) != 0 && CFrontend::FUN_004b7560(0x400) != 0 &&
+        CFrontend::FUN_004b7590(0x400) != 0) {
+        g_stageQualityCodes[0] = 'A';
+        g_stageQualityCodes[1] = 'A';
+        g_stageQualityCodes[3] = 'A';
+        g_stageQualityCodes[2] = 'A';
+        g_stageQualityCodes[4] = 'C';
+        g_stageQualityCodes[5] = 'C';
+        g_stageQualityCodes[6] = 'C';
+        g_stageQualityCodes[7] = 'A';
+        g_stageQualityCodes[8] = 'A';
+        g_stageQualityCodes[13] = 'A';
+        g_stageQualityCodes[14] = 'A';
+        g_stageQualityCodes[15] = 'A';
+        g_stageQualityCodes[16] = 'A';
+        g_stageQualityCodes[17] = 'A';
+        g_stageQualityCodes[18] = 'A';
+        g_stageQualityCodes[19] = 'A';
+        g_unk0x00542630[0x394] = 'A';
+        g_unk0x00542630[0x395] = 'A';
+        g_stageQualityCodes[11] = 'A';
+        g_stageQualityCodes[12] = 'A';
         return;
-    if (CFrontend::FUN_004b7560(0x400) == 0)
-        return;
-    if (CFrontend::FUN_004b7590(0x400) == 0)
-        return;
-    g_stageQualityCodes[0] = 'A';
-    g_stageQualityCodes[1] = 'A';
-    g_stageQualityCodes[3] = 'A';
-    g_stageQualityCodes[2] = 'A';
-    g_stageQualityCodes[4] = 'C';
-    g_stageQualityCodes[5] = 'C';
-    g_stageQualityCodes[6] = 'C';
-    g_stageQualityCodes[7] = 'A';
-    g_stageQualityCodes[8] = 'A';
-    g_stageQualityCodes[13] = 'A';
-    g_stageQualityCodes[14] = 'A';
-    g_stageQualityCodes[15] = 'A';
-    g_stageQualityCodes[16] = 'A';
-    g_stageQualityCodes[17] = 'A';
-    g_stageQualityCodes[18] = 'A';
-    g_stageQualityCodes[19] = 'A';
-    g_unk0x00542630[0x394] = 'A';
-    g_unk0x00542630[0x395] = 'A';
-    g_stageQualityCodes[11] = 'A';
-    g_stageQualityCodes[12] = 'A';
+    }
+    switch (CGameInfo::FUN_00405d10()) {
+    case 2:
+        g_stageQualityCodes[0] = 'C';
+        g_stageQualityCodes[1] = 'C';
+        g_stageQualityCodes[3] = 'D';
+        g_stageQualityCodes[2] = 'D';
+        g_stageQualityCodes[4] = 'D';
+        g_stageQualityCodes[5] = 'E';
+        g_stageQualityCodes[6] = 'F';
+        g_stageQualityCodes[7] = 'D';
+        g_stageQualityCodes[8] = 'D';
+        g_stageQualityCodes[13] = 'D';
+        g_stageQualityCodes[14] = 'D';
+        g_stageQualityCodes[15] = 'D';
+        g_stageQualityCodes[16] = 'D';
+        g_stageQualityCodes[17] = 'D';
+        g_stageQualityCodes[18] = 'E';
+        g_stageQualityCodes[19] = 'F';
+        g_unk0x00542630[0x394] = 'D';
+        g_unk0x00542630[0x395] = 'D';
+        g_stageQualityCodes[11] = 'C';
+        g_stageQualityCodes[12] = 'D';
+        break;
+    case 0:
+        g_stageQualityCodes[0] = 'A';
+        g_stageQualityCodes[1] = 'A';
+        g_stageQualityCodes[4] = 'A';
+        g_stageQualityCodes[5] = 'C';
+        g_stageQualityCodes[6] = 'D';
+        g_stageQualityCodes[7] = 'A';
+        g_stageQualityCodes[8] = 'C';
+        g_stageQualityCodes[13] = 'D';
+        g_stageQualityCodes[14] = 'D';
+        g_stageQualityCodes[3] = 'C';
+        g_stageQualityCodes[2] = 'A';
+        g_stageQualityCodes[17] = 'D';
+        g_stageQualityCodes[18] = 'E';
+        g_stageQualityCodes[19] = 'F';
+        g_unk0x00542630[0x394] = 'A';
+        g_unk0x00542630[0x395] = 'C';
+        g_stageQualityCodes[11] = 'A';
+        g_stageQualityCodes[12] = 'D';
+        break;
+    }
 }
 
 
@@ -6095,7 +6138,6 @@ struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
 
 // Creates a texture from file data already in memory (DDS or TGA).
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a48c0
 Texture *CGraphics::FUN_004a48c0(char *name, void *pData, unsigned int flags)
 {
@@ -6778,7 +6820,6 @@ void Graphics_ReloadTexture(Texture *pTexture)
 }
 
 // Looks for a free timer slot (shape 5); the result is not used.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bc410
 void Timer_FindFree(void)
 {
@@ -7082,16 +7123,16 @@ void FUN_0049c7b0(Mesh *pMesh)
 unsigned short g_unk0x0059be74[2000];
 
 // Draws a mesh's triangles in contiguous texture runs.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c680
 void FUN_0049c680(Mesh *pMesh)
 {
     int currentTexture = -1;
     int count = 0;
-    int i;
+    int n;
     MeshTriangle *pTri = pMesh->pTriangles;
 
-    for (i = 0; i < pMesh->triangleCount; i++, pTri++) {
+    for (n = pMesh->triangleCount; n != 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
             if (count > 0) {
@@ -7108,9 +7149,12 @@ void FUN_0049c680(Mesh *pMesh)
         g_unk0x0059be74[count++] = pTri->vertexIndex[1];
         g_unk0x0059be74[count++] = pTri->vertexIndex[2];
         CGame::m_unk0x0059ce18++;
+        pTri++;
     }
     if (count != 0) {
-        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[currentTexture]);
+        MeshTriangle *pLast = &pMesh->pTriangles[pMesh->triangleCount - 1];
+        int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
+        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
             D3DPT_TRIANGLELIST,
             CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
