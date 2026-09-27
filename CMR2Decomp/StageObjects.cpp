@@ -2150,6 +2150,39 @@ void FUN_0047e490(BYTE *pColour)
     g_unk0x005909b8 = 0;
 }
 
+// Fades the stage ambient colour towards the base colour while the 0x5909b8
+// timer runs out, then applies it with one step of boost.
+// match 72%: same logic; MSVC puts the length/scale locals in the other stack
+// slots and swaps the addend order
+// FUNCTION: CMR2 0x00480220
+void FUN_00480220(void)
+{
+    BYTE colour[4];
+    int length;
+    int scale;
+
+    length = FixSqrt(g_unk0x005909b8);
+    scale = (g_unk0x005909c4[0] & 0xff) << 16;
+    scale = FixMulShift32(scale, length) + (g_unk0x005909c0[0] & 0xff);
+    if (scale > 0xff)
+        scale = 0xff;
+    colour[0] = scale;
+    scale = (g_unk0x005909c4[1] & 0xff) << 16;
+    scale = FixMulShift32(scale, length) + (g_unk0x005909c0[1] & 0xff);
+    if (scale > 0xff)
+        scale = 0xff;
+    colour[1] = scale;
+    scale = (g_unk0x005909c4[2] & 0xff) << 16;
+    scale = FixMulShift32(scale, length) + (g_unk0x005909c0[2] & 0xff);
+    if (scale > 0xff)
+        scale = 0xff;
+    colour[2] = scale;
+    g_unk0x005909b8 -= 0x8000;
+    if (g_unk0x005909b8 < 0)
+        g_unk0x005909b8 = 0;
+    Scene_SetAmbient(colour, 1);
+}
+
 // Selects a list of 0x6c-byte records (count first); returns whether it is non-empty.
 // match 17%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048caa0
@@ -2207,6 +2240,45 @@ void FUN_0048dca0(BYTE *pCar, int amount)
         if (v > 0x10000)
             g_unk0x00591730[car] = 0x10000;
     }
+}
+
+// Builds the impact displacement of a car on a surface record: the surface's
+// right vector minus the car's (normalised) velocity direction, scaled by the
+// record's factor and the car speed.
+// FUNCTION: CMR2 0x0048dce0
+void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix)
+{
+    FixVector direction;
+    FixVector right;
+    int length;
+    int scale;
+
+    direction = pCar->velocity;
+    FixMatrix_GetRight(&right, pMatrix);
+    if (pCar->speed < 0x28f) {
+        direction.x = 0;
+        direction.y = 0;
+        direction.z = 0;
+    } else {
+        length = FixVecLength(&direction);
+        if (length == 0) {
+            direction.x = 0;
+            direction.y = 0;
+            direction.z = 0;
+        } else {
+            FixVecScaleRecip(&direction, &direction, length);
+        }
+        if (FixVecDot(&right, &direction) < 0) {
+            direction.x = -direction.x;
+            direction.y = -direction.y;
+            direction.z = -direction.z;
+        }
+    }
+    pOut->x = right.x - direction.x;
+    pOut->y = right.y - direction.y;
+    pOut->z = right.z - direction.z;
+    scale = FixMul(*(int *)(g_unk0x00591750 + g_unk0x00591740[*pSurface] * 0x6c + 0x48), pCar->speed);
+    FixVecScale(pOut, pOut, scale);
 }
 
 // match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
