@@ -1038,3 +1038,60 @@ void FUN_0042e8e0(void)
         }
     }
 }
+
+// Per-object tables of the stage object payload (see StageObjects.cpp for the
+// tables at 0x590d90 and 0x590db0 they index).
+// GLOBAL: CMR2 0x00590d8c
+BYTE g_unk0x00590d8c[4];
+// GLOBAL: CMR2 0x00590ec0
+BYTE g_unk0x00590ec0[16];
+extern int g_carSplitValues[8];
+extern int g_unk0x00590db0[64];
+
+// Positions a stage object: its matrix is rebuilt from the object's split
+// vector and the reference matrix's position, then its scale fields are set.
+// FUNCTION: CMR2 0x004869e0
+void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
+{
+    FixMatrix identity;
+    FixVector src;
+    FixVector pos;
+    FixVector off;
+    FixMatrix *pM;
+    unsigned int mode;
+    int base;
+
+    if (RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0() != 0 && FUN_0041f3a0() == 0) {
+        if (g_unk0x00590d8c[pObj[0]] == 0)
+            mode = 3;
+        else if (g_unk0x00590d8c[pObj[0]] == 2)
+            mode = 4;
+        else
+            mode = g_unk0x00590d8c[pObj[0]];
+    } else {
+        mode = g_unk0x00590d8c[pObj[0]];
+    }
+    base = g_carSplitValues[g_unk0x00590ec0[pObj[0]]];
+    src = ((FixVector *)base)[mode];
+
+    FixMatrix_Identity(&identity);
+    FixMatrix_SetPosition(&src, &identity);
+    pM = (FixMatrix *)(pObj + 8);
+    pM->position.x = 0;
+    pM->position.y = 0;
+    pM->position.z = 0;
+    FixMatrix_Multiply(pM, &identity, pM);
+    FixMatrix_GetPosition(&pos, pM);
+    FixMatrix_GetPosition(&off, pRef);
+    pos.x += off.x;
+    pos.y += off.y;
+    pos.z += off.z;
+    FixMatrix_SetPosition(&pos, pM);
+
+    *(int *)(pObj + 0x48) = g_unk0x00590db0[pObj[0]];
+    *(int *)(pObj + 0x4c) = 0x1999;
+    *(int *)(pObj + 0x50) = 0;
+    *(int *)(pObj + 0x54) = 0xa000;
+    *(int *)(pObj + 0x58) = 0;
+    *(int *)(pObj + 0x5c) = 0x10000;
+}
