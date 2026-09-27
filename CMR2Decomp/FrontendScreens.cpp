@@ -1111,7 +1111,6 @@ void FUN_004e9e40(void)
 // the network lobby; otherwise the language menu (first run) or the main
 // menu, and when coming back from a race (`back`) the menus of the game
 // mode that was played, with their cursors.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e9f70
 void FUN_004e9f70(BYTE param1, BYTE back)
 {
@@ -1119,10 +1118,7 @@ void FUN_004e9f70(BYTE param1, BYTE back)
     unsigned int region;
 
     if (CGameInfo::FUN_00405e00() != 0) {
-        if (FUN_004a15a0() == 0) {
-            pMenu = FUN_004f8450();
-            FUN_004f8470()->pParent = pMenu;
-        } else {
+        if (FUN_004a15a0() != 0) {
             switch (CGameInfo::FUN_00405d80()) {
             case 8:
                 pMenu = FUN_004f84b0();
@@ -1142,8 +1138,10 @@ void FUN_004e9f70(BYTE param1, BYTE back)
             default:
                 goto lobby;
             }
-            FUN_004f8470()->pParent = pMenu;
+        } else {
+            pMenu = FUN_004f8450();
         }
+        FUN_004f8470()->pParent = pMenu;
     lobby:
         g_pMenu0x00818abc = NULL;
         if (FUN_00406800() != 0) {
