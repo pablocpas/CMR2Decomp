@@ -132,4 +132,4 @@ void FUN_00473360(void) { }
 void FUN_00478c40(void) { }
 
 // STUB: CMR2 0x004bc290
-void FUN_004bc290(int, int, int, int, int, int, int) { }
+void FUN_004bc290(void *p, int, int, int, int, int, int) { }

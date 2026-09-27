@@ -1203,6 +1203,236 @@ void FUN_00472cb0(void)
     }
 }
 
+// Stage fade timers and race-state flags of the in-race state machine
+// (0x472e00). Each "*" object is registered with the timer manager and its
+// first byte is the timer slot.
+// Magic value handed to FUN_004283e0 as opaque data, not an address.
+// GLOBAL: CMR2 0x0051c9a8
+int g_unk0x0051c9a8 = 0xacb49c;
+// GLOBAL: CMR2 0x0058ca80
+BYTE g_unk0x0058ca80;
+// GLOBAL: CMR2 0x0058ca84
+int g_unk0x0058ca84;
+// The five fade-timer objects below live inside the 0x58ca90 block declared in
+// StageUI.cpp, so they are addressed as offsets of it (a separate declaration
+// would overlap it).
+extern BYTE g_unk0x0058ca90[];
+#define g_unk0x0058cc70 (g_unk0x0058ca90[0x1e0])
+#define g_unk0x0058cc74 (*(int *)(g_unk0x0058ca90 + 0x1e4))
+#define g_unk0x0058ce58 (*(int *)(g_unk0x0058ca90 + 0x3c8))
+#define g_unk0x0058ce5c (*(unsigned int *)(g_unk0x0058ca90 + 0x3cc))
+#define g_unk0x0058cf60 (g_unk0x0058ca90[0x4d0])
+
+extern BYTE *g_unk0x0058ca88;
+extern BYTE g_unk0x0058ca8c[4];
+extern int g_unk0x0058cf64;
+extern int g_unk0x0058cf7c;
+
+typedef void (*FadeCallback)(BYTE index);
+
+extern unsigned int g_unk0x0058cf74;
+extern unsigned int g_unk0x0058cf78;
+extern int g_unk0x0058cf70;
+
+void FUN_00478c40(void);
+void FUN_00418ee0(void);
+void FUN_00418780(void);
+void FUN_004284d0(unsigned int player, int check);
+void FUN_004285b0(unsigned int player, int t, int check);
+void FUN_00473470(void);
+BYTE FUN_004bc0c0(BYTE *p);
+int Timer_GetValue(unsigned int index);
+void FUN_004bc290(void *p, int, int, int, int, int, int);
+void FUN_004bc440(void);
+void FUN_004bc470(BYTE *p);
+unsigned int *RallyData_GetRoundEntry(void);
+int FUN_00428740(BYTE index);
+int FUN_00473680(unsigned int *p);
+int FUN_00473310(void);
+int FUN_00473290(void);
+void FUN_0041b310(void);
+int FUN_0041b320(void);
+void FUN_00455470(int);
+void FUN_00472a30(void);
+BOOL FUN_0046c500(void);
+void FUN_0041c260(void);
+void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+void FUN_0041f2a0(void);
+void RallyData_FUN_004070c0(void);
+void FUN_00473360(void);
+struct Menu;
+void FUN_004734f0(Menu *pMenu);
+void FUN_00473540(BYTE index);
+
+// Per-frame step of the in-race state machine: waits for the stage objects of
+// the round, runs the state transitions and drives the fade in/out of the
+// scene.
+// FUNCTION: CMR2 0x00472e00
+void FUN_00472e00(BYTE *param_1, unsigned int param_2)
+{
+    unsigned int *pState;
+    unsigned int *pEntry;
+    unsigned int state;
+    int i;
+    char c;
+
+    pState = RallyData_GetChampionshipState();
+    FUN_00478c40();
+    FUN_00418ee0();
+    FUN_00418780();
+    g_unk0x0058ca88 = param_1;
+    g_unk0x0058ca84 = param_2 & 0xff;
+    for (i = 0; i < 2; i++) {
+        FUN_004284d0(i, 0);
+        FUN_004285b0(i, 0x10000, 0);
+    }
+    if (FUN_00428740(0) != 0)
+        return;
+    if (g_unk0x0058cf6c != 0)
+        FUN_00473470();
+    if (FUN_004bc0c0(&g_unk0x0058ca80))
+        g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058ca80);
+    if (FUN_004bc0c0(&g_unk0x0058cf60))
+        g_unk0x0058ce58 = Timer_GetValue(g_unk0x0058cf60);
+    else
+        g_unk0x0058ce58 = 0;
+
+    switch (g_unk0x0058cf7c) {
+    case 0:
+        FUN_004bc440();
+        g_unk0x0058cc74 = 0;
+        if ((*pState & 0x38) == 8) {
+            FUN_004bc290(&g_unk0x0058ca80, 2, 0xd, 0, 0, 0x10000, 0);
+            FUN_004bc290(&g_unk0x0058cf60, 2, 7, 0, 0, 0x10000, 0);
+        }
+        *pState = *pState & 0xff1fffff;
+        FUN_00473360();
+        g_unk0x0058cf7c = 1;
+        for (i = 0; i < 2; i++) {
+            if ((int)(RallyDataState() & 0xff) <= i)
+                FUN_0042b720(i, -1);
+        }
+        g_unk0x0058cf64 = 0;
+        return;
+    case 1:
+        if (g_unk0x0058cf64 != 0) {
+            FUN_00455470(1);
+            g_unk0x0058cf64 = 0;
+            g_unk0x0058cf7c = 2;
+            return;
+        }
+        break;
+    case 2:
+        pEntry = RallyData_GetRoundEntry();
+        if (FUN_00473680(pEntry) != 0) {
+            g_unk0x0058cf7c = 5;
+            FUN_00472a30();
+            g_unk0x0058cf78 = 0;
+            g_unk0x0058cf74 = 0;
+        }
+        if (g_unk0x0058cf64 != 0) {
+            FUN_00472cb0();
+            FUN_0046c500();
+            FUN_0041c260();
+            if (FUN_00473310() == 0) {
+                g_unk0x0058ce5c = (unsigned int)RallyData_GetRoundEntry();
+                g_unk0x0058cf64 = 0;
+                g_unk0x0058cf7c = 4;
+                return;
+            }
+            g_unk0x0058cf7c = 3;
+            FUN_00472a30();
+            g_unk0x0058cf78 = 0;
+            g_unk0x0058cf74 = 0;
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        break;
+    case 3:
+        if (g_unk0x0058cf64 != 0) {
+            g_unk0x0058cf7c = 5;
+            FUN_004bc290(&g_unk0x0058cf60, 2, 7, 0, 0, 0x10000, 0);
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        break;
+    case 4:
+        if (FUN_0041b320() == 0) {
+            FUN_0041b310();
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        FUN_004283e0(0, (FadeCallback)FUN_00473540, 1, 0, g_unk0x0051c9a8, 0);
+        c = (char)RallyDataState();
+        goto stepShared;
+    case 5:
+        if ((*pState & 0x400000) == 0) {
+            g_unk0x0058cf64 = 0;
+            g_unk0x0058cf7c = 2;
+            return;
+        }
+        if ((*pState & 0x38) == 0x20) {
+            if (g_unk0x0058cf64 != 0) {
+                g_unk0x0058cf64 = 0;
+                g_unk0x0058cf7c = 7;
+                return;
+            }
+        } else if (g_unk0x0058cf64 != 0) {
+            g_unk0x0058cc74 = 0x10000;
+            FUN_004bc290(&g_unk0x0058cc70, 2, 0xd, 0, 0, 0x10000, 0);
+            g_unk0x0058cf64 = 0;
+            g_unk0x0058cf7c = 6;
+            return;
+        }
+        break;
+    case 6:
+        if (FUN_004bc0c0(&g_unk0x0058cc70)) {
+            g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058cc70);
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        if (!FUN_004bc0c0(g_unk0x0058ca8c)) {
+            FUN_004bc470(&g_unk0x0058cc70);
+            g_unk0x0058cc74 = 0;
+            FUN_004bc290(g_unk0x0058ca8c, 2, 0xd, 0, 0, 0x10000, 1);
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        g_unk0x0058cc74 = Timer_GetValue(g_unk0x0058ca8c[0]);
+        if (!FUN_004bc0c0(g_unk0x0058ca8c))
+            g_unk0x0058cc74 = 0;
+        if (g_unk0x0058cf64 != 0 || !FUN_004bc0c0(g_unk0x0058ca8c)) {
+            FUN_004bc440();
+            g_unk0x0058cc74 = 0;
+            g_unk0x0058ce58 = 0;
+            g_unk0x0058cf70 = FUN_00473290();
+            state = *pState;
+            *pState = (((state & 0xfffffff8) + 8 ^ state) & 0x38 ^ state) & 0xffbf0fff | 0x200000;
+            RallyData_FUN_004070c0();
+            FUN_0041f2a0();
+            i = 0;
+            if (*g_unk0x0058ca88 != 0) {
+                do {
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
+                    i++;
+                } while (i < (int)*g_unk0x0058ca88);
+            }
+            g_unk0x0058cf7c = 0;
+            g_unk0x0058cf64 = 0;
+            return;
+        }
+        break;
+    case 7:
+        FUN_004283e0(0, (FadeCallback)FUN_004734f0, 1, 0, g_unk0x0051c9a8, 0);
+        c = (char)RallyDataState();
+stepShared:
+        if (c == 2)
+            FUN_004283e0(1, NULL, 1, 0, g_unk0x0051c9a8, 0);
+        break;
+    }
+    g_unk0x0058cf64 = 0;
+}
+
 // FUNCTION: CMR2 0x00473680
 int FUN_00473680(unsigned int *p)
 {
