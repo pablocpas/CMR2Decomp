@@ -1410,6 +1410,89 @@ int g_unk0x00537ffc;
 // GLOBAL: CMR2 0x00537f2c
 int g_unk0x00537f2c;
 
+void FUN_00427640(BYTE);
+void FUN_00409dd0(void);
+void FUN_004a0c40(char);
+void FUN_004728c0(void);
+void FUN_0040cf00(void);
+BYTE RallyData_FUN_00408300(void);
+void RallyTiming_ResetOverallPlayerTimes(void);
+void FUN_0040cc60(void);
+void FUN_0040ccb0(void);
+void CFrontend::FUN_004cf0f0(void);
+void FUN_00427c10(void);
+void CGame::FUN_0041f260(void);
+void FUN_00478b50(void);
+int FUN_00478a20(void);
+void FUN_0040a580(int, int, int);
+void FUN_0040efa0(void);
+void FUN_0041f560(void);
+void FUN_00455080(void);
+void FUN_00475f00(void);
+// GLOBAL: CMR2 0x00538100
+BYTE g_unk0x00538100;
+// GLOBAL: CMR2 0x00537fd4
+BYTE g_unk0x00537fd4;
+
+// Enters a race: resets the race state, builds the stage data of the current
+// mode and starts the race scene.
+// FUNCTION: CMR2 0x0041bf80
+void FUN_0041bf80(int param1, int param2)
+{
+    g_unk0x00538100 = 0;
+    FUN_00427640(0);
+    g_unk0x00537fd4 = 0;
+    FUN_00409dd0();
+    g_unk0x0053810c = 0;
+    g_unk0x00537f0c[5] = param1;
+    g_unk0x00537ffa = 0;
+    g_unk0x0053810d = 0;
+    g_unk0x00538108 = 1;
+    g_unk0x00537f94 = 0;
+    if (CGameInfo::FUN_00405e00() != 0)
+        FUN_0040a580(0, 0, 0);
+    if ((char)param2 == 0) {
+        FUN_004a0c40(0);
+        CInput::FUN_0049ff80(-1, -1, -1, -1, -1);
+        if (CGameInfo::FUN_00405d80() == 4)
+            FUN_004728c0();
+        switch (CGameInfo::FUN_00405d80()) {
+        case 0:
+            if (RallyDataStageIndex() == 0) {
+                if ((BYTE)RallyDataCountryIndex() == 0)
+                    FUN_0040cf00();
+                RallyTiming_ResetOverallPlayerTimes();
+            }
+            break;
+        case 1:
+            if (RallyDataStageIndex() == 0)
+                RallyTiming_ResetOverallPlayerTimes();
+            break;
+        case 8:
+            if (RallyData_FUN_00408300() != 0)
+                RallyTiming_ResetOverallPlayerTimes();
+            break;
+        case 5:
+            if ((BYTE)RallyData_FUN_00406950() == 0)
+                FUN_0040cc60();
+            FUN_0040ccb0();
+            break;
+        }
+        if (CGameInfo::FUN_00405d80() != 4)
+            CFrontend::FUN_004cf0f0();
+        FUN_00427c10();
+        FUN_0041f560();
+        CGame::FUN_0041f260();
+        FUN_00455080();
+        FUN_00478b50();
+        FUN_00478a20();
+        FUN_0040efa0();
+        FUN_00475f00();
+        g_raceResourcesFreed = 0;
+    }
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+}
+
 // Starts the arcade race: initialises the sound system, the replay slots and
 // the race scene, and queues the arcade music track of the current rally.
 // FUNCTION: CMR2 0x0041c0e0

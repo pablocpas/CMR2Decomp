@@ -4331,6 +4331,8 @@ BYTE g_unk0x0052a850;
 int g_unk0x0052ad50;
 
 BYTE FUN_0041b370(void);
+BYTE *FUN_0041b390(void);
+void FUN_0041c5a0(BYTE, int);
 void RallyData_FUN_00408990(BYTE index, BYTE *pValue);
 void RallyData_MarkTyresChanged(int index);
 int RallyData_FUN_00411880(void);
@@ -4421,6 +4423,86 @@ void FUN_004010a0(BYTE *param1, int param2)
     g_unk0x005297f0 = 1;
     g_unk0x00536ac8 = 1;
     CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+}
+
+void FUN_0040ac40(BYTE);
+void FUN_00427640(BYTE);
+void FUN_00427650(void);
+void FUN_0041e210(void);
+void FUN_00424ed0(void);
+void FUN_00424c50(void);
+void FUN_004245e0(void);
+void FUN_00422fe0(int, int, int, int);
+BYTE FUN_0041b370(void);
+int RallyData_FUN_00408800(BYTE);
+int FUN_00407270(void);
+void FUN_00406820(void);
+void RallyData_FUN_00408290(void);
+int FUN_004232a0(int, int);
+extern BYTE g_unk0x00537fd4;
+// GLOBAL: CMR2 0x0053811d
+BYTE g_unk0x0053811d;
+// GLOBAL: CMR2 0x005298f4
+int g_unk0x005298f4;
+
+// Advances the in-race menu cascade one step: refreshes the per-player window
+// entries and moves to the next state when the race is over.
+// FUNCTION: CMR2 0x00401150
+void FUN_00401150(int param1, int param2)
+{
+    int i;
+
+    if (CGameInfo::FUN_00405e00() != 0)
+        FUN_0040ac40(2);
+    FUN_00427640(0);
+    g_unk0x0053811d = 0;
+    FUN_00427650();
+    CSound::FUN_004a28c0();
+    g_unk0x00537fd4 = 0;
+    FUN_0041e210();
+    if ((char)param2 == 0) {
+        if (g_unk0x005297f0 != 0) {
+            FUN_00424ed0();
+            FUN_00424c50();
+            g_unk0x005298f4 = 1;
+            g_unk0x005297f0 = 0;
+            if (**(char **)(FUN_0041b390() + 4) != '\r')
+                FUN_004245e0();
+        }
+        i = 0;
+        if ((BYTE)RallyDataState() > 0) {
+            do {
+                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)FUN_00407270() != 0) {
+                    FUN_00422fe0(i, 7, i, 0);
+                } else if (FUN_004232a0(i, RallyData_FUN_00408800(FUN_0041b370() + i)) == 0) {
+                    FUN_00422fe0(i, 4, i, 0);
+                } else {
+                    FUN_00422fe0(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
+                }
+                i++;
+            } while (i < (BYTE)RallyDataState());
+        }
+        g_unk0x005298f4--;
+        FUN_0041c5a0(**(BYTE **)(param1 + 4), 0);
+    }
+    if (g_unk0x005298f4 < 1) {
+        if ((BYTE)CGameInfo::FUN_00406320() != 0) {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 6, 2);
+            return;
+        }
+        if (CGameInfo::FUN_00405d80() == 4) {
+            CGameInfo::FUN_0049ea90(1);
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 5, 2);
+            return;
+        }
+        if ((BYTE)FUN_00407270() != 0) {
+            FUN_00406820();
+            RallyData_FUN_00408290();
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 1, 2);
+            return;
+        }
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    }
 }
 
 // Callback 0 of the sound options menu: loads the three volumes.
