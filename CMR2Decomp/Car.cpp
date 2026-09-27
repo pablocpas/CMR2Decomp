@@ -2931,6 +2931,45 @@ void FUN_0042b7e0(void)
     g_unk0x0053c9a8 = 6;
 }
 
+unsigned short FUN_0040bbc0(unsigned short);
+void FUN_0042b720(int, char);
+void FUN_0042bcd0(void);
+
+// GLOBAL: CMR2 0x0053a314
+short g_unk0x0053a314[8];
+// GLOBAL: CMR2 0x0053bd6c
+short g_unk0x0053bd6c[26];
+// GLOBAL: CMR2 0x0053c9a0
+short g_unk0x0053c9a0;
+
+// Builds the race car order for the given number of cars and clears the
+// per-car "drawn" flags.
+// match 85%: below the 90% bar; the logic is complete, MSVC just keeps the first loop counter in ESI instead of EAX
+// FUNCTION: CMR2 0x0042b660
+void FUN_0042b660(int count)
+{
+    int i;
+    int j;
+
+    for (i = 0; i < count; i++) {
+        g_carOrder[i] = i;
+        g_unk0x0053a314[i] = i;
+        g_unk0x0053bd6c[i] = i;
+    }
+    *(int *)&g_unk0x0053acc8[0] = 0;
+    g_carOrderCount = count;
+    g_unk0x0053c9a0 = count;
+    g_carOrder[44] = count;
+    g_carOrder[25] = count;
+    *(int *)&g_unk0x0053acc8[4] = 0;
+    for (j = 0; j < 2; j++) {
+        g_unk0x0053acc8[j] = FUN_0040bbc0(j);
+        if (!CGameInfo::FUN_00405e00() && j >= (int)(BYTE)RallyDataState())
+            FUN_0042b720(j, -1);
+    }
+    FUN_0042bcd0();
+}
+
 // FUNCTION: CMR2 0x0042b6f0
 short *Car_GetOrder(void)
 {

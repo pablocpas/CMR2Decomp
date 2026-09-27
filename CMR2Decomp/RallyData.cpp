@@ -4240,6 +4240,170 @@ BOOL RallyData_FUN_0040eec0(void)
     return CGraphics::ClearZBuffer();
 }
 
+/* --------------------------------------------------------------------------
+   Per-frame handlers of the rally-data menu screens (0x410c80..0x411020).
+   -------------------------------------------------------------------------- */
+
+void FUN_0040f0c0(int, int, int);
+void FUN_0040f8d0(BYTE *, int);
+void FUN_0040fec0(int, int, int);
+void FUN_00412390(int, int);
+void FUN_004054a0(void);
+int RallyData_FUN_00411060(void);
+int Game_PrepareScene(SceneNode *, SceneNode *, int, int);
+void FUN_0049d3f0(int, int, void *, int, int);
+void FUN_0049de40(void);
+float FUN_004b23a0(void);
+void FUN_0044b330(void);
+BYTE FUN_0041db00(void);
+extern char g_strFpsFormat0x00516e14[];
+extern char g_strHardwareTl0x00516d54[];
+extern char g_strSoftwareTl0x00516d40[];
+// GLOBAL: CMR2 0x0053811e
+BYTE g_unk0x0053811e;
+// GLOBAL: CMR2 0x0053811f
+BYTE g_unk0x0053811f;
+// GLOBAL: CMR2 0x00516ce4
+int g_unk0x00516ce4 = -1;
+
+// Pumps the shared loading screen (three passes) of a challenge/menu stage:
+// clears the target, prepares the scene, draws the optional FPS/T&L overlay and
+// fades the loading text in and out.
+// FUNCTION: CMR2 0x00410c80
+void FUN_00410c80(int param1, char param2)
+{
+    short rect[4];
+    BYTE colour[4];
+    int i;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = *(short *)g_pGraphics;
+    rect[3] = *(short *)((BYTE *)g_pGraphics + 4);
+    if (FUN_004100a0() == 0 && param2 == 0) {
+        CGraphics::SetClearColour(1, 0x9c, 0xb4, 0xac);
+        i = 3;
+        do {
+            CGraphics::ClearTarget();
+            CGraphics::ClearZBuffer();
+            Game_PrepareScene((SceneNode *)RallyData_FUN_00411060(),
+                              (SceneNode *)g_unk0x00536be4, (int)rect, 0);
+            if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+                colour[0] = 0xff;
+                colour[1] = 0xff;
+                colour[2] = 0xff;
+                colour[3] = 0xff;
+                sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, FUN_004b23a0());
+                Font_DrawText(0, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+                if (CGraphics::FUN_004a8d60() == 2)
+                    sprintf(CFrontend::m_stringDest, g_strHardwareTl0x00516d54);
+                else
+                    sprintf(CFrontend::m_stringDest, g_strSoftwareTl0x00516d40);
+                Font_DrawText(0, CFrontend::m_stringDest, 0, 0x5a, (int *)colour, 9);
+            }
+            FUN_00410100(0xff);
+            FUN_0040fec0(0, 0, 0xff);
+            FUN_0049d3f0(RallyData_FUN_00411060(), g_unk0x00536be4, rect, 0, 0);
+            FUN_0049de40();
+            FUN_0040fec0(0, 0, 0xff);
+        } while (--i);
+    }
+}
+
+// Advances one step of the current rally-data menu entry: grows the panel and
+// fires the item's action when the last step is reached.
+// FUNCTION: CMR2 0x00410de0
+void FUN_00410de0(BYTE *param1, unsigned int param2)
+{
+    Font_SetBlendMode(2);
+    if (CGameInfo::FUN_00405d80() != 4) {
+        FUN_0040f0c0((int)param1, param2, 1);
+        FUN_0040f8d0(param1, param2 & 0xff);
+    }
+}
+
+// Advances one step of a rally-data menu entry and, once the panel is fully
+// grown, asks the screen to refresh its records.
+// FUNCTION: CMR2 0x00410e20
+void FUN_00410e20(BYTE *param1, unsigned int param2)
+{
+    FUN_0040f0c0((int)param1, param2, 1);
+    if ((BYTE)RallyData_FUN_00407e90() != 0) {
+        if ((BYTE)CGameInfo::FUN_00405e00() == 0)
+            FUN_00412390(0, param2 & 0xff);
+    }
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
+// Advances one step of a rally-data menu entry, always in "growing" mode.
+// FUNCTION: CMR2 0x00410e70
+void FUN_00410e70(BYTE *param1, unsigned int param2)
+{
+    FUN_0040f0c0((int)param1, param2, 1);
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
+// Advances one step of a rally-data menu entry and notifies the screen when the
+// entry reaches its last step.
+// FUNCTION: CMR2 0x00410ea0
+void FUN_00410ea0(BYTE *param1, unsigned int param2)
+{
+    FUN_0040f0c0((int)param1, param2, 1);
+    if ((param2 & 0xff) == *param1 - 1)
+        FUN_004054a0();
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
+// Advances one step of a rally-data menu entry while the entry's value is not
+// available yet, and overlays the "no time" / "no best time" label when the
+// screen has one pending.
+// FUNCTION: CMR2 0x00410ee0
+void FUN_00410ee0(BYTE *param1, unsigned int param2)
+{
+    BYTE colour[4];
+
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
+    if ((BYTE)FUN_0041db00() < 100 || (BYTE)RallyDataState() == 1)
+        FUN_0040f0c0((int)param1, param2, 1);
+    else
+        FUN_0040f0c0((int)param1, param2, 0);
+    if (g_unk0x0053811e != 0) {
+        Font_DrawText(2, CFrontend::GetTextString(0xf8), (int)g_pGraphics->resX / 2,
+                      (int)g_pGraphics->resY / 2, (int *)colour, 0x12);
+    } else if (g_unk0x0053811f != 0) {
+        Font_DrawText(2, CFrontend::GetTextString(0xf9), (int)g_pGraphics->resX / 2,
+                      (int)g_pGraphics->resY / 2, (int *)colour, 0x12);
+    }
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
+// Advances one step of a rally-data menu entry while shrinking it, and draws
+// the "stage started" banner at the centre of the screen.
+// FUNCTION: CMR2 0x00410fa0
+void FUN_00410fa0(BYTE *param1, unsigned int param2)
+{
+    FUN_0040f0c0((int)param1, param2, 0);
+    Font_DrawText(2, CFrontend::GetTextString(0x71),
+                  (int)g_pGraphics->resX * 0x1e / 0x280,
+                  (int)g_pGraphics->resY * 0x43 / 0x1e0,
+                  &g_unk0x00516ce4, 0x11);
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
+// Advances one step of the current menu entry in "shrinking" mode and notifies
+// the screen when the entry reaches its last step.
+// FUNCTION: CMR2 0x00411020
+void FUN_00411020(BYTE *param1, unsigned int param2)
+{
+    FUN_0040f0c0((int)param1, param2, 0);
+    if ((param2 & 0xff) == *param1 - 1)
+        FUN_0044b330();
+    FUN_0040f8d0(param1, param2 & 0xff);
+}
+
 // FUNCTION: CMR2 0x00411060
 int RallyData_FUN_00411060(void)
 {

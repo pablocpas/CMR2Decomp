@@ -16,6 +16,7 @@
 #include "Input.h"
 #include "Menu.h"
 #include "main.h"
+#include "Sound.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -1384,6 +1385,300 @@ extern int g_unk0x00537f5c;
 BYTE g_raceResourcesFreed;
 extern unsigned int g_unk0x00537fc0;
 void Sound_FreeAll(void);
+
+/* --------------------------------------------------------------------------
+   Race bootstrap / teardown transitions (0x41bf80..0x41e5c0).
+   -------------------------------------------------------------------------- */
+
+void FUN_0042b720(int, char);
+void FUN_0041c5a0(BYTE, int);
+void FUN_0046cce0(int, int, int, int);
+void FUN_00403500(void);
+void FUN_00424640(void);
+int FUN_004582d0(int);
+void FUN_00455260(void);
+BYTE FUN_00478b80(void);
+void FUN_00478be0(void);
+void Replay_InitSlots(void);
+void FUN_00422fe0(int, int, int, int);
+BOOL Sound_Init(int, int, int, int);
+// GLOBAL: CMR2 0x00519284
+char g_strArcadeAdp0x00519284[] = "%s\\arcade%d.adp";
+
+// GLOBAL: CMR2 0x00537ffc
+int g_unk0x00537ffc;
+// GLOBAL: CMR2 0x00537f2c
+int g_unk0x00537f2c;
+
+void FUN_00427640(BYTE);
+void FUN_00409dd0(void);
+void FUN_004a0c40(char);
+void FUN_004728c0(void);
+void FUN_0040cf00(void);
+BYTE RallyData_FUN_00408300(void);
+void RallyTiming_ResetOverallPlayerTimes(void);
+void FUN_0040cc60(void);
+void FUN_0040ccb0(void);
+void CFrontend::FUN_004cf0f0(void);
+void FUN_00427c10(void);
+void CGame::FUN_0041f260(void);
+void FUN_00478b50(void);
+int FUN_00478a20(void);
+void FUN_0040a580(int, int, int);
+void FUN_0040efa0(void);
+void FUN_0041f560(void);
+void FUN_00455080(void);
+void FUN_00475f00(void);
+// GLOBAL: CMR2 0x00538100
+BYTE g_unk0x00538100;
+// GLOBAL: CMR2 0x00537fd4
+BYTE g_unk0x00537fd4;
+
+// Enters a race: resets the race state, builds the stage data of the current
+// mode and starts the race scene.
+// FUNCTION: CMR2 0x0041bf80
+void FUN_0041bf80(int param1, int param2)
+{
+    g_unk0x00538100 = 0;
+    FUN_00427640(0);
+    g_unk0x00537fd4 = 0;
+    FUN_00409dd0();
+    g_unk0x0053810c = 0;
+    g_unk0x00537f0c[5] = param1;
+    g_unk0x00537ffa = 0;
+    g_unk0x0053810d = 0;
+    g_unk0x00538108 = 1;
+    g_unk0x00537f94 = 0;
+    if (CGameInfo::FUN_00405e00() != 0)
+        FUN_0040a580(0, 0, 0);
+    if ((char)param2 == 0) {
+        FUN_004a0c40(0);
+        CInput::FUN_0049ff80(-1, -1, -1, -1, -1);
+        if (CGameInfo::FUN_00405d80() == 4)
+            FUN_004728c0();
+        switch (CGameInfo::FUN_00405d80()) {
+        case 0:
+            if (RallyDataStageIndex() == 0) {
+                if ((BYTE)RallyDataCountryIndex() == 0)
+                    FUN_0040cf00();
+                RallyTiming_ResetOverallPlayerTimes();
+            }
+            break;
+        case 1:
+            if (RallyDataStageIndex() == 0)
+                RallyTiming_ResetOverallPlayerTimes();
+            break;
+        case 8:
+            if (RallyData_FUN_00408300() != 0)
+                RallyTiming_ResetOverallPlayerTimes();
+            break;
+        case 5:
+            if ((BYTE)RallyData_FUN_00406950() == 0)
+                FUN_0040cc60();
+            FUN_0040ccb0();
+            break;
+        }
+        if (CGameInfo::FUN_00405d80() != 4)
+            CFrontend::FUN_004cf0f0();
+        FUN_00427c10();
+        FUN_0041f560();
+        CGame::FUN_0041f260();
+        FUN_00455080();
+        FUN_00478b50();
+        FUN_00478a20();
+        FUN_0040efa0();
+        FUN_00475f00();
+        g_raceResourcesFreed = 0;
+    }
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+}
+
+// Starts the arcade race: initialises the sound system, the replay slots and
+// the race scene, and queues the arcade music track of the current rally.
+// FUNCTION: CMR2 0x0041c0e0
+void FUN_0041c0e0(int param1, int param2)
+{
+    char buffer[MAX_PATH];
+
+    CGameInfo::FUN_0049ea90(0);
+    if ((char)param2 == 0) {
+        Sound_Init(0x5622, 2, 0x10, 1);
+        FUN_00455260();
+        FUN_00478b80();
+        FUN_00478be0();
+        if ((BYTE)RallyData_FUN_00407e70() != 0) {
+            sprintf(buffer, g_strArcadeAdp0x00519284, CInstallInfo::GetMusicDir(),
+                    (BYTE)RallyData_FUN_00406940() * 3 + 1 + (BYTE)RallyData_FUN_00406950());
+            CSound::FUN_004a28d0(buffer);
+        }
+        FUN_00403500();
+        Replay_InitSlots();
+        g_unk0x00537ffc = CMain::GetFrameDelta();
+    }
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
+    g_unk0x00537f08 = 1;
+    g_unk0x00537f2c = 0;
+    g_unk0x00537f78[5] = 1;
+}
+
+// Leaves the current race: releases the frame resources, tears the stage list
+// down and fades the race out.
+// FUNCTION: CMR2 0x0041e5c0
+void FUN_0041e5c0(int param1, char param2)
+{
+    int i;
+    BYTE *p;
+
+    i = 0;
+    if (g_unk0x00538110 != 0) {
+        g_unk0x00538110 = 0;
+        g_unk0x00538114 = 1;
+        FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
+    }
+    if (CGameInfo::FUN_00405d80() == 6)
+        FUN_0042b720(0, -1);
+    if (param2 != 0)
+        return;
+    FUN_00424640();
+    if (CGameInfo::FUN_00405d80() == 6) {
+        if (FUN_004582d0(0) < 1)
+            goto done;
+    } else {
+        if (FUN_0041f3d0(0) != 0)
+            goto done;
+    }
+    p = FUN_0041b390();
+    if (*p > 0) {
+        do {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)FUN_0041b390(), i, 1, 3);
+            i++;
+            p = FUN_0041b390();
+        } while (i < *p);
+    }
+    FUN_0041f2a0();
+done:
+    FUN_0041c5a0(**(BYTE **)(param1 + 4), 1);
+    g_unk0x00537f08 = 1;
+}
+
+typedef void (*FadeCallback)(BYTE index);
+int FUN_0040af30(void);
+void FUN_0040af40(void);
+int FUN_00406710(void);
+void FUN_0041f2b0(void);
+void FUN_0040ad20(void);
+unsigned int FUN_00409cb0(int);
+unsigned int FUN_0040a450(int);
+void FUN_00421720(int, int, int, int, int);
+void FUN_00427890(void);
+void FUN_004283e0(BYTE, FadeCallback, int, int, int, char);
+void FUN_00428410(BYTE, int, FadeCallback, int, int, int, int, char);
+void FUN_00449090(BYTE);
+void FUN_0044a150(void);
+BOOL FUN_004a15a0(void);
+unsigned char FUN_004d0580(void);
+int FUN_0046d2a0(int *);
+void FUN_00480380(void);
+BYTE FUN_00422fb0(unsigned int);
+int FUN_00407270(void);
+void FUN_0041e220(BYTE);
+extern BYTE g_unk0x0053811f;
+// GLOBAL: CMR2 0x005191a4
+int g_unk0x005191a4 = 0xacb49c;
+// GLOBAL: CMR2 0x00537fd8
+int g_unk0x00537fd8[8];
+
+// Waits for the inter-stage fade of a special stage (mode 10) and otherwise
+// re-arms the per-player fade jobs of the in-race menu.
+// FUNCTION: CMR2 0x0041e350
+void FUN_0041e350(int param1, unsigned int param2)
+{
+    BYTE colour[4];
+    int anyAlive;
+    BYTE i;
+    int flag;
+    int x;
+    int start;
+
+    colour[0] = 0;
+    colour[1] = 0;
+    colour[2] = 0;
+    colour[3] = 0;
+    if (CGameInfo::FUN_00405d80() == 10) {
+        start = FUN_0040af30();
+        if ((unsigned int)(CMain::GetFrameDelta() - start) >
+                (unsigned int)(FUN_00406710() * 6000) &&
+            FUN_004a15a0() != 0 && FUN_00406710() != 0) {
+            if (g_unk0x00538100 == 0) {
+                FUN_0040af40();
+                g_unk0x00538100 = 1;
+                FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005191a4, 1);
+                return;
+            }
+            goto fadeEarly;
+        }
+        if (g_unk0x00538100 != 0)
+            goto fadeEarly;
+    }
+    FUN_00427640(0);
+    if (FUN_004d0580() != 0 || g_unk0x0053811f != 0)
+        FUN_0041f2b0();
+    if ((char)param2 != 0)
+        return;
+    anyAlive = 1;
+    if (FUN_00407270() != 0 && g_unk0x00537f3c[0] != 0) {
+        if (g_unk0x00538118 == 0) {
+            if (*(int *)(g_unk0x00537f3c[0] + 4) != 0)
+                goto done;
+            FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+            g_unk0x00538118 = 1;
+            FUN_0046d2a0((int *)g_unk0x00537f3c[0]);
+            FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
+        }
+        if (*(int *)(g_unk0x00537f3c[0] + 4) == 0) {
+            FUN_00480380();
+            FUN_0044a150();
+        }
+        goto done;
+    }
+    i = 0;
+    if ((BYTE)RallyDataState() > 0) {
+        do {
+            if (FUN_0041f3d0(i) != 0)
+                anyAlive = 0;
+            i++;
+        } while (i < (BYTE)RallyDataState());
+        if (anyAlive == 0)
+            goto done;
+    }
+    i = 0;
+    if ((BYTE)RallyDataState() > 0) {
+        do {
+            flag = 3;
+            if (g_unk0x00537fd8[i] != 0) {
+                flag = 2;
+                g_unk0x00537fd8[i] = 0;
+            }
+            FUN_00428410(i, 0xc8000, FUN_0041e220, flag, 2, 0, *(unsigned int *)colour, 0);
+            i++;
+        } while (i < (BYTE)RallyDataState());
+    }
+done:
+    FUN_0041c5a0(**(BYTE **)(param1 + 4), 1);
+    if (CGameInfo::FUN_00405e00() != 0) {
+        FUN_00427890();
+        if (CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 12)
+            FUN_0040ad20();
+        for (x = 0; x < 7; x++) {
+            if ((BYTE)FUN_00409cb0(x) != 0 && (BYTE)FUN_0040a450(x) == 0)
+                return;
+        }
+    }
+    g_unk0x00537f08 = 1;
+    return;
+fadeEarly:
+    FUN_0041c5a0(*(BYTE *)(*(int *)(param1 + 4) + (param2 & 0xff) * 8), 1);
+}
 
 // Releases the race resources once (sounds, callbacks, textures).
 // FUNCTION: CMR2 0x0041e670
