@@ -18,6 +18,7 @@
 #include "Menu.h"
 #include "main.h"
 #include "Sound.h"
+#include "NetworkLeaderboards.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -1922,6 +1923,223 @@ fade:
 done:
     if (flag != 0)
         FUN_00421720(param2, 7, 0xffff, FUN_00422fb0(param2), 0);
+}
+
+unsigned int RallyData_GetFlag22(void);
+unsigned int RallyData_FUN_00407ea0(void);
+int Replay_StopRecording(BYTE *pBuffer);
+void FUN_00424640(void);
+int FUN_00428740(BYTE index);
+void FUN_004483e0(void);
+void FUN_00448620(void);
+int FUN_00448670(void);
+unsigned int FUN_00448680(int index, int split);
+int FUN_0040ab10(void);
+unsigned int FUN_0040ab80(int index, int total);
+char *FUN_0040abb0(int index, int total);
+void FUN_0040e660(int index, char *name, int wins);
+void FUN_0040a820(unsigned int localTime);
+void FUN_0040a980(unsigned int localTime);
+void FUN_0040cf30(void);
+void FUN_0040af60(void);
+void FUN_0044a1b0(int value);
+int FUN_004a2f50(void);
+void FUN_00465530(void);
+BYTE FUN_0041b370(void);
+void FUN_0041b460(void);
+char *FUN_0041f920(void);
+void FUN_00455af0(int driver, int hundredths, int split);
+int StageTiming_GetDriverSlot(int iDriver);
+int Replay_Save(BYTE *pBuffer, char *pName);
+int GetStageSplitCount(void);
+BYTE RallyData_FUN_00408340(void);
+BYTE FUN_004071c0(BYTE flags, char mode);
+
+// In-race per-driver update: enforces the pre-race hold, saves the stage record
+// once every driver is ready and refreshes the leaderboard/knockout tables.
+// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The stage-record block recomputes the table index through three temporary
+// locals; MSVC6 allocates them differently from the original (it keeps the
+// 11*country product in one register across the second call) and the whole
+// 1792-byte function inherits the register pressure.
+// FUNCTION: CMR2 0x0041db10
+void FUN_0041db10(BYTE *param1, unsigned int param2)
+{
+    unsigned int index;
+    int hold;
+    int i;
+    BYTE ready;
+    unsigned int flag;
+    BYTE k;
+    BYTE **pp;
+    unsigned int v;
+    unsigned int country;
+    unsigned int stage;
+    GameInfo0xa4 *pInfo;
+
+    if (CGameInfo::FUN_00405d80() == 10 &&
+        (unsigned int)(CMain::GetFrameDelta() - FUN_0040af30()) >
+            (unsigned int)(FUN_00406710() * 6000) &&
+        FUN_00406710() != 0 && FUN_004a15a0() != 0 && g_unk0x00538100 == 0) {
+        FUN_0040af40();
+        g_unk0x00538100 = 1;
+        FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005191a4, 1);
+        return;
+    }
+    if (g_unk0x0053811c < 100)
+        g_unk0x0053811c = g_unk0x0053811c + 1;
+    hold = 400;
+    if ((char)RallyData_FUN_00407e70() != 0 && CGameInfo::FUN_00405d70() == 2)
+        hold = 800;
+    index = param2 & 0xff;
+    if ((unsigned int)(CMain::GetFrameDelta() - g_unk0x00537f34[index]) >= (unsigned int)hold &&
+        g_unk0x00537fd8[index] == 0) {
+        g_unk0x00537fd8[index] = 1;
+        g_unk0x00537fcc = g_unk0x00537fcc + 1;
+        if (CGameInfo::FUN_00405e00() != 0) {
+            Replay_StopRecording(g_unk0x00537f3c[0]);
+            pp = g_unk0x00537f3c + 1;
+            do {
+                Replay_StopRecording(*pp);
+                pp++;
+            } while ((int)pp < (int)&g_unk0x00537f5c);
+        } else {
+            Replay_StopRecording(g_unk0x00537f3c[index]);
+        }
+        flag = (CGameInfo::FUN_00405d00() == 0);
+        if (CGameInfo::FUN_00405d80() == 3 && g_unk0x00537ff8[index] == 0) {
+            country = RallyDataCountryIndex() & 0xff;
+            stage = RallyDataStageIndex() & 0xff;
+            pInfo = CGameInfo::FUN_00405ff0(flag);
+            v = pInfo->rallyStageRecordTimes[country * 0xb + stage].value;
+            if ((int)FUN_004483c0(index) <= (int)(v >> 7 & 0xffff)) {
+                country = RallyDataCountryIndex() & 0xff;
+                stage = RallyDataStageIndex() & 0xff;
+                pInfo = CGameInfo::FUN_00405ff0(flag);
+                pInfo->rallyStageRecordTimes[country * 0xb + stage].value =
+                    (FUN_004483c0(index) & 0xffff) << 7 |
+                    pInfo->rallyStageRecordTimes[country * 0xb + stage].value & 0xff80007f;
+                k = RallyData_FUN_004086b0(FUN_0041b370());
+                country = RallyDataCountryIndex() & 0xff;
+                stage = RallyDataStageIndex() & 0xff;
+                pInfo = CGameInfo::FUN_00405ff0(flag);
+                pInfo->rallyStageRecordTimes[country * 0xb + stage].value =
+                    k & 0x3f |
+                    pInfo->rallyStageRecordTimes[country * 0xb + stage].value & 0xffffffc0;
+                g_unk0x00538128 = 1;
+                g_unk0x00519228 = RallyDataStageIndex() & 0xff;
+                g_unk0x0051922c = RallyDataCountryIndex() & 0xff;
+                sprintf(CFrontend::m_stringDest, g_strGrp0x005192b0, FUN_0041f920());
+                if (g_unk0x00537f3c[index] != 0)
+                    Replay_Save(g_unk0x00537f3c[index], CFrontend::m_stringDest);
+            }
+            g_unk0x00537ff8[index] = 1;
+        }
+        FUN_00424640();
+    }
+    if ((char)param2 != 0)
+        return;
+    ready = 0;
+    for (k = 0; k < (BYTE)RallyDataState(); k++) {
+        if (FUN_00428740(k) != 0)
+            ready = ready + 1;
+    }
+    flag = (g_unk0x00537fcc == (RallyDataState() & 0xff) && ready == 0);
+    FUN_0041c5a0(*(BYTE *)(*(int *)(param1 + 4)), 1);
+    if (CGameInfo::FUN_00405e00() != 0) {
+        FUN_00427890();
+        if (CGameInfo::FUN_00405d80() != 10 && CGameInfo::FUN_00405d80() != 12) {
+            for (i = 0; i < 7; i++) {
+                if ((char)FUN_00409cb0(i) != 0 && (char)FUN_0040a450(i) == 0) {
+                    g_unk0x00537f34[0] = CMain::GetFrameDelta();
+                    return;
+                }
+            }
+        }
+    }
+    if (flag == 0 && FUN_004d0580() == 0) {
+        g_unk0x00537f08 = 1;
+        return;
+    }
+    k = 0;
+    if (*param1 > 0) {
+        do {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, k, 0, 2);
+            k = k + 1;
+        } while (k < *param1);
+    }
+    if ((char)RallyData_GetFlag22() != 0 || (char)RallyData_GetFlag24() != 0)
+        FUN_004483e0();
+    if ((char)RallyData_FUN_00407e90() != 0 && CGameInfo::FUN_00405e00() == 0) {
+        if (g_unk0x00537fbc[0] != 0)
+            FUN_00455af0(StageTiming_GetDriverSlot(0), FUN_004483c0(0), GetStageSplitCount());
+        if (g_unk0x00537fbc[1] != 0)
+            FUN_00455af0(StageTiming_GetDriverSlot(1), FUN_004483c0(1), GetStageSplitCount());
+    }
+    if (((char)RallyData_GetFlag22() != 0 || (char)RallyData_GetFlag24() != 0) &&
+        (char)RallyData_FUN_00407e90() != 0 && CGameInfo::FUN_00405e00() == 0 &&
+        (BYTE)RallyDataState() == 1 && FUN_00448670() < 2)
+        FUN_00455af0(StageTiming_FUN_00455ab0(FUN_0041b370() & 0xff), FUN_00448680(1, 2),
+                     GetStageSplitCount());
+    if (CGameInfo::FUN_00405da0() != 0 &&
+        (BYTE)FUN_0041b370() != (BYTE)(CGameInfo::FUN_00405d70() - 1))
+        goto label2;
+    if (CGameInfo::FUN_00405d80() != 0 && CGameInfo::FUN_00405d80() != 1 &&
+        CGameInfo::FUN_00405d80() != 8)
+        goto label2;
+    StageTiming_AddToOverall();
+    if (CGameInfo::FUN_00405d80() == 0 &&
+        RallyDataStageIndex() ==
+            (BYTE)FUN_004071c0(RallyDataCountryIndex(), CGameInfo::FUN_00405d90()))
+        FUN_0040cf30();
+label2:
+    if (CGameInfo::FUN_00405d80() == 5)
+        FUN_00448620();
+    if (CGameInfo::FUN_00405da0() == 0 ||
+        (BYTE)FUN_0041b370() != (BYTE)(CGameInfo::FUN_00405d70() - 1)) {
+        if (CGameInfo::FUN_00405da0() != 0)
+            goto label4;
+    }
+    if (CGameInfo::FUN_00405d80() == 4 || CGameInfo::FUN_00405d80() == 8 ||
+        CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 10 ||
+        CGameInfo::FUN_00405d80() == 11 || CGameInfo::FUN_00405d80() == 12)
+        goto label4;
+    if (CGameInfo::FUN_00406430() == 0) {
+        FUN_0041b460();
+    } else {
+        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+            g_unk0x00537f68[i] = 0;
+            g_unk0x00537f78[i] = 0;
+        }
+    }
+label4:
+    if (CGameInfo::FUN_00405e00() != 0 && (BYTE)CGameInfo::FUN_00405d80() >= 8 &&
+        ((BYTE)CGameInfo::FUN_00405d80() <= 9 || (BYTE)CGameInfo::FUN_00405d80() == 11)) {
+        FUN_0040a820(FUN_004483c0(0));
+        FUN_0040a980(FUN_004483c0(0));
+        if (CNetworkLeaderboards::GetLeaderboardId() != -1 && FUN_004a15a0() != 0) {
+            FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 0), 1);
+            for (i = 1; i < FUN_0040ab10(); i++)
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 0),
+                             FUN_0040ab80(i, 0) == FUN_0040ab80(0, 0));
+            if (CGameInfo::FUN_00405d80() == 8 && (char)RallyData_FUN_00408340() != 0) {
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 1), 3);
+                for (i = 1; i < FUN_0040ab10(); i++)
+                    FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 1),
+                                 FUN_0040ab80(i, 1) == FUN_0040ab80(0, 1) ? 3 : 0);
+            }
+        }
+    }
+    if (CGameInfo::FUN_00405e00() != 0 && FUN_004a15a0() != 0 &&
+        CNetworkLeaderboards::GetLeaderboardId() != -1)
+        FUN_0040af60();
+    FUN_0044a1b0(0);
+    if ((char)RallyData_FUN_00407ea0() != 0 && (char)CGameInfo::FUN_00406310() != 0)
+        FUN_00466080();
+    FUN_00465530();
+    if ((char)RallyData_FUN_00407e70() != 0)
+        FUN_004a2f50();
+    g_unk0x00537f08 = 1;
 }
 
 // Waits for the inter-stage fade of a special stage (mode 10) and otherwise
