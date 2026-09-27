@@ -5179,16 +5179,14 @@ unsigned int FUN_0040b1e0(int index);
 // FUNCTION: CMR2 0x0046b8f0
 void FUN_0046b8f0(Car *pCar)
 {
-    int carIdx;
     int node;
 
     *(int *)(g_unk0x00588ba4 + 8) = 0;
     *(short *)(g_unk0x00588ba4 + 12) = 0;
     g_unk0x00588ba4[14] = 0;
-    carIdx = pCar->field_0xb1a;
-    g_unk0x00588ba4[carIdx] = 0;
-    FUN_0046b790(g_unk0x00588cd4[carIdx * 2], 0, carIdx);
-    FUN_0046b790(g_unk0x00588cd4[carIdx * 2 + 1], 1, carIdx);
+    g_unk0x00588ba4[pCar->field_0xb1a] = 0;
+    FUN_0046b790(g_unk0x00588cd4[pCar->field_0xb1a * 2], 0, pCar->field_0xb1a);
+    FUN_0046b790(g_unk0x00588cd4[pCar->field_0xb1a * 2 + 1], 1, pCar->field_0xb1a);
     pCar->pNode0x71c->field_0x17c = 0xff;
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[0], g_unk0x00588ba4[9]);
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[1], g_unk0x00588ba4[9]);
@@ -5218,13 +5216,13 @@ void FUN_0046b8f0(Car *pCar)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], g_unk0x00588ba4[12]);
     if (pCar->pExtraNodes[3] != NULL)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], g_unk0x00588ba4[12]);
-    if (*(int *)(g_stageBlock + 0x41c + carIdx * 4) != 0)
-        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x41c + carIdx * 4),
+    if (*(int *)(g_stageBlock + 0x41c + pCar->field_0xb1a * 4) != 0)
+        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x41c + pCar->field_0xb1a * 4),
                                   g_unk0x00588ba4[11]);
-    if (*(int *)(g_stageBlock + 0x2c0 + carIdx * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x2c0 + carIdx * 4) + 0x17c) = g_unk0x00588ba4[8];
-    if (*(int *)(g_stageBlock + 0x3fc + carIdx * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x3fc + carIdx * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0x2c0 + pCar->field_0xb1a * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x2c0 + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0x3fc + pCar->field_0xb1a * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x3fc + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
     FUN_0046b6b0(pCar->pNode0x71c, 10);
     FUN_0046b6e0(pCar->pNode0x71c->pFirstChild, 10);
     FUN_0046b6b0(pCar->pNode0x720, 10);
