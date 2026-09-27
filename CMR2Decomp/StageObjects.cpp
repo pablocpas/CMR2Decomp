@@ -2905,19 +2905,17 @@ void FUN_004660a0(int **pValue, int slot, char flag)
     }
 }
 
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046b670
 void FUN_0046b670(BYTE *pCar)
 {
-    BYTE *p;
+    int *p;
     int i;
 
-    p = (BYTE *)FUN_00469680((char)pCar[0xb1a]) + 0x4b0;
+    p = FUN_00469680((char)pCar[0xb1a]);
     i = 0;
     while (i < 4) {
-        FUN_00480ac0(pCar, i, *(int *)p);
+        FUN_00480ac0(pCar, i, *(int *)((BYTE *)p + 0x4b0 + i * 4));
         i++;
-        p += 4;
     }
 }
 
@@ -3667,7 +3665,6 @@ void FUN_004675c0(Car *pCar, Car *pOther)
 // match 89%: the original folds the 0x10000<<16 division into a plain IDIV in
 // the two later scale blocks, and stores the mode as a byte (declared int in
 // StageTiming.cpp)
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004688b0
 void FUN_004688b0(BYTE *p)
 {
@@ -3679,13 +3676,11 @@ void FUN_004688b0(BYTE *p)
     g_stageDeformNormal.x = (char)p[3] << 16;
     g_stageDeformNormal.y = (char)p[4] << 16;
     g_stageDeformNormal.z = (char)p[5] << 16;
-    FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal,
-                (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    FixVecScaleRecip(&g_stageDeformNormal, &g_stageDeformNormal, 0x7f0000);
     g_stageDeformImpact.x = (char)p[6] << 16;
     g_stageDeformImpact.y = (char)p[7] << 16;
     g_stageDeformImpact.z = (char)p[8] << 16;
-    FixVecScale(&g_stageDeformImpact, &g_stageDeformImpact,
-                (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    FixVecScaleRecip(&g_stageDeformImpact, &g_stageDeformImpact, 0x7f0000);
     g_stageDeformStrength = (BYTE)p[0] << 16;
     g_stageDeformStrength = FixDiv(g_stageDeformStrength, 0xff0000);
     g_stageDeformMode = p[1];
