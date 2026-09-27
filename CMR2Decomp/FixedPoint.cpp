@@ -994,6 +994,7 @@ void FUN_00426d80(Car *pDst, Car *pSrc)
 // One suspension step of the current car: for each wheel, the spring force from
 // the corner heights and the damper force are integrated into the suspension
 // travel (0x9c8) and its rate (0x9d8).
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042e8e0
 void FUN_0042e8e0(void)
 {
@@ -1094,4 +1095,60 @@ void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
     *(int *)(pObj + 0x54) = 0xa000;
     *(int *)(pObj + 0x58) = 0;
     *(int *)(pObj + 0x5c) = 0x10000;
+}
+
+// Per-octant reference vectors used to probe the ground.
+// GLOBAL: CMR2 0x00589458
+FixVector g_unk0x00589458[8];
+
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface,
+                          int defaultY);
+
+// Probes the ground under a stage object: casts the ground normal at the given
+// point and returns the signed distance from the point to the ground plane.
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004702f0
+int FUN_004702f0(BYTE *pObj, FixVector *pPoint)
+{
+    unsigned short surface;
+    FixVector neg;
+    FixVector rot;
+    FixVector v;
+    int idx;
+    int len;
+
+    *(int *)(pObj + 0x110) = Track_GetGroundHeight(pPoint, (FixVector *)(pObj + 0xd4),
+                                                   (short *)(pObj + 0x11c), &surface,
+                                                   *(int *)(pObj + 0x110));
+    if (*(short *)(pObj + 0x11c) == -1) {
+        *(int *)(pObj + 0xd4) = 0;
+        *(int *)(pObj + 0xd8) = 0x10000;
+        *(int *)(pObj + 0xdc) = 0;
+        *(int *)(pObj + 0x110) = pPoint->y - 0xa0000;
+    }
+    len = FixVecLength((FixVector *)(pObj + 0xd4));
+    if (len == 0) {
+        *(int *)(pObj + 0xd4) = 0;
+        *(int *)(pObj + 0xd8) = 0;
+        *(int *)(pObj + 0xdc) = 0;
+    } else {
+        FixVecScaleRecip((FixVector *)(pObj + 0xd4), (FixVector *)(pObj + 0xd4), len);
+    }
+    FixVecScale(&neg, (FixVector *)(pObj + 0xd4), -0x10000);
+    FixMatrix_InverseRotateVector(&rot, &neg, *(FixMatrix **)(pObj + 0xc8));
+    idx = 0;
+    if (rot.y >= 0)
+        idx = 4;
+    if (rot.x < 0)
+        idx += 2;
+    if (rot.z < 0)
+        idx += 1;
+    FixMatrix_RotateVector(&v, &g_unk0x00589458[idx], *(FixMatrix **)(pObj + 0xc8));
+    v.x += pPoint->x;
+    v.y += pPoint->y;
+    v.z += pPoint->z;
+    v.x = pPoint->x - v.x;
+    v.y = *(int *)(pObj + 0x110) - v.y;
+    v.z = pPoint->z - v.z;
+    return FixDiv(FixVecDot(&v, (FixVector *)(pObj + 0xd4)), *(int *)(pObj + 0xd8));
 }
