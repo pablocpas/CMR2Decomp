@@ -18,3 +18,17 @@ void FUN_004b9380(unsigned int, unsigned int, unsigned int) { }
 // STUB: CMR2 0x005062d0
 void FUN_005062d0(unsigned int) { }
 
+// --- scaffolding for the FUN_0041b060 entry chain (0x401000-0x472e00) -------
+// Same idea as above: the game-state machine and its callees are written before
+// their own dependencies exist. Argument counts come from the call sites /
+// the original's `ret N`.
+
+// STUB: CMR2 0x0040f8d0
+void FUN_0040f8d0(unsigned char *, int) { }
+
+// STUB: CMR2 0x0040fec0
+void FUN_0040fec0(int, int, int) { }
+
+// STUB: CMR2 0x00412390
+void FUN_00412390(int, int) { }
+
