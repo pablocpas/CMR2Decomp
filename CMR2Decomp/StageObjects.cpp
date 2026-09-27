@@ -3466,6 +3466,106 @@ void FUN_004688b0(BYTE *p)
 
 extern BYTE *g_unk0x00588b94;
 
+int FUN_00469100(Car *pCar, BYTE *pRecord);
+
+// Rebuilds the per-wheel/gear block (0x240..0x2c4) of the car's 0x4d0-byte
+// record from its source block (0x21c..), scales it, then recomputes the
+// derived torques and scales (0x3d8..0x408).
+// match 88%: same code; MSVC kept the cached record fields in EDX/EAX in the
+// original and in EDI here (register numbering).
+// FUNCTION: CMR2 0x00468c10
+void FUN_00468c10(Car *pCar)
+{
+    BYTE *pRecord;
+    int *p;
+    int i;
+    int a;
+    int b;
+    int value;
+
+    pRecord = g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0;
+    if (*(int *)pCar->field_0xb50 == 0)
+        return;
+    p = (int *)(pRecord + 0x240);
+    p[0] = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x244) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x248) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x24c) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x254) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x250) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x258) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x25c) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x260) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x264) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x268) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x26c) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x270) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x274) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x278) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x27c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x280) = FixMul(*(int *)(pRecord + 0x22c) + *(int *)(pRecord + 0x228) +
+                                       *(int *)(pRecord + 0x230), 0x5553);
+    *(int *)(pRecord + 0x28c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x288) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x290) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x294) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x2a0) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x298) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x29c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x284) = 0;
+    *(int *)(pRecord + 0x2a4) = FixMul(*(int *)(pRecord + 0x230) + *(int *)(pRecord + 0x228) +
+                                       *(int *)(pRecord + 0x22c), 0x5553);
+    *(int *)(pRecord + 0x2a8) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x2ac) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x2b0) = *(int *)(pRecord + 0x238);
+    *(int *)(pRecord + 0x2b4) = *(int *)(pRecord + 0x220);
+    *(int *)(pRecord + 0x2b8) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x2bc) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x2c0) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x2c4) = *(int *)(pRecord + 0x21c);
+    if (*(int *)pCar->field_0xb7c == 0)
+        *(int *)(pRecord + 0x27c) = 0;
+    if (*(int *)(pCar->field_0xb7c + 4) == 0)
+        *(int *)(pRecord + 0x280) = 0;
+    for (i = 0; i < 0x22; i++) {
+        p[i] = FixMul(p[i], p[i + 0x22]);
+        p[i] = p[i] + p[i + 0x44];
+        if (p[i] > 0x10000)
+            p[i] = 0x10000;
+    }
+    *(int *)(pRecord + 0x404) = 0x10000 - FixMul(*(int *)(pRecord + 0x2a0), 0x666) -
+                                FixMul(*(int *)(pRecord + 0x27c), 0x1333) -
+                                FixMul(*(int *)(pRecord + 0x2a4), 0x2666);
+    *(int *)(pRecord + 0x3dc) = FixMul(*(int *)(pRecord + 0x258), FixMul(0x3333, 0xffff0000));
+    *(int *)(pRecord + 0x3e0) = FixMul(*(int *)(pRecord + 0x25c), FixMul(0x3333, 0xffff0000));
+    *(int *)(pRecord + 0x3e4) = FixMul(*(int *)(pRecord + 0x260), FixMul(0x3333, 0x8000));
+    *(int *)(pRecord + 0x3e8) = FixMul(*(int *)(pRecord + 0x264), FixMul(0x3333, 0xffff8000));
+    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x250) * 2, 0x8000);
+    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x3d8), 0xa0000);
+    *(int *)(pRecord + 0x3fc) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x268) +
+                                                         *(int *)(pRecord + 0x26c), 0x8000), 0x3333);
+    *(int *)(pRecord + 0x400) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x270) +
+                                                         *(int *)(pRecord + 0x274), 0x8000), 0x3333);
+    p = (int *)(pRecord + 0x3ec);
+    for (i = 0; i < 4; i++) {
+        p[i] = FixMul(p[i - 0x6b], 0xccc);
+    }
+    if (*(int *)pCar->field_0x7b8 != 0x10000 && *(int *)pCar->field_0x7b8 != 0) {
+        value = FixMul(*(int *)(pRecord + 0x280), 0x8000) + *(int *)pCar->field_0x7b8;
+        pCar->field_0x7b4 = value;
+        if (value > 0x10000)
+            pCar->field_0x7b4 = 0x10000;
+    }
+    *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
+    value = FUN_00469100(pCar, pRecord);
+    *(int *)(pRecord + 0x408) = FixMul(value, 0x4000);
+    if (FUN_00469bc0(pCar, 3) != 0)
+        *(int *)(pRecord + 0x408) = *(int *)(pRecord + 0x408) + -0x3333;
+    *(int *)(pRecord + 0x284) = value;
+    if (value > 0x10000)
+        *(int *)(pRecord + 0x284) = 0x10000;
+}
+
 // Adds `amount` to the 3x3 grid at +0x21c of the car's 0x4d0-byte record,
 // weighted by how close each grid point is to the car's contact offsets
 // (0x5dc/0x5e4).
