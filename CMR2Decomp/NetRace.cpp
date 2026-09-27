@@ -698,3 +698,40 @@ void FUN_004258e0(int base, short *pIndices, short count)
         }
     }
 }
+
+// Clamps the object's displacement so that it does not overshoot the target
+// along the (negated) direction vector.
+// match 89%: identical logic; MSVC6 only differs in which stack slot holds the
+// first dot product ([ebp-4] vs [ebp+8]).
+// FUNCTION: CMR2 0x00426b90
+void FUN_00426b90(int param_1, int param_2)
+{
+    int dot;
+    int scale;
+    FixVector v;
+    FixVector d;
+
+    if (*(int *)(param_1 + 0xdc) == 0 || param_2 == 0)
+        return;
+    FixVecScale(&v, (FixVector *)(param_1 + 0x94), -0x10000);
+    dot = FixVecDot((FixVector *)(param_1 + 0x70), &v);
+    if (dot > 0) {
+        d.x = *(int *)(param_1 + 0xa0) - *(int *)(param_1 + 0x64);
+        d.y = *(int *)(param_1 + 0xa4) - *(int *)(param_1 + 0x68);
+        d.z = *(int *)(param_1 + 0xa8) - *(int *)(param_1 + 0x6c);
+        scale = FixVecDot(&d, &v) + 0x10000;
+        param_2 = FixDiv(scale, param_2);
+        if (param_2 > 0) {
+            if (dot < param_2)
+                param_2 = dot;
+            FixVecScale(&d, &v, dot);
+            *(int *)(param_1 + 0x70) -= d.x;
+            *(int *)(param_1 + 0x74) -= d.y;
+            *(int *)(param_1 + 0x78) -= d.z;
+            FixVecScale(&d, &v, param_2);
+            *(int *)(param_1 + 0x70) += d.x;
+            *(int *)(param_1 + 0x74) += d.y;
+            *(int *)(param_1 + 0x78) += d.z;
+        }
+    }
+}
