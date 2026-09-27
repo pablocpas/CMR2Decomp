@@ -824,7 +824,7 @@ BOOL CGraphics::FUN_004a8f60(int width, int height, int colourDepth)
 void CGraphics::FUN_004a8ec0(int width, int height, int colourDepth)
 {
     for (int i = 0; i < m_displayCount; i++) {
-        if (m_displays[i].width == width && m_displays[i].height == height && m_displays[i].colourDepth == colourDepth)
+        if (width == m_displays[i].width && height == m_displays[i].height && colourDepth == m_displays[i].colourDepth)
             m_selectedDisplayDeviceIx = i;
     }
 }
