@@ -339,7 +339,7 @@ int FUN_00414700(void)
 }
 
 // FUNCTION: CMR2 0x004174d0
-bool FUN_004174d0(void)
+int FUN_004174d0(void)
 {
     return (char)RallyData_GetFlag24() == 0;
 }

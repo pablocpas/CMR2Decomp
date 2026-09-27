@@ -2678,7 +2678,7 @@ extern BYTE g_unk0x00831884;
 int *FUN_0050f620(void);
 int *FUN_0050f630(void);
 int *FUN_0050f640(void);
-int FUN_0050f340(void);
+bool FUN_0050f340(void);
 int FUN_0050f480(void);
 
 // Loads the option menu text file of the current region and language and
@@ -2854,7 +2854,7 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0x10 = param3;
 }
 
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
 int CGameInfo::FUN_005004c0(void)
 {
@@ -2862,7 +2862,7 @@ int CGameInfo::FUN_005004c0(void)
 
     if (g_unk0x0082ac58 != 0) {
         delta = CMain::GetFrameDelta() - g_unk0x0082ac5c;
-        return (unsigned char)~(delta / 10) & 1;
+        return (unsigned char)~(delta / 10);
     }
     return 0;
 }
@@ -3429,17 +3429,13 @@ void FUN_004f2360(BYTE *p, int param2)
     CGame::FUN_004a9b10(0);
 }
 
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f2b00
 void FUN_004f2b00(BYTE *p)
 {
-    unsigned int v;
-
     CGameInfo::FUN_00405e10(p[0x1f] * 10);
     CGameInfo::FUN_00405e50(p[0x33] * 10);
     CGameInfo::FUN_00405e80(p[0x47] * 10);
-    v = (CGameInfo::FUN_00405e70() * 65536) / 100;
-    CInput::FUN_0049ffc0(v / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     CSound::FUN_004a28c0();
 }
 
@@ -4266,7 +4262,6 @@ unsigned short FUN_0040bbc0(unsigned short slot);
 
 // Returns 1 when the slot's device pressed "back" (button 0x400, or the
 // joystick button mapped to action 9, which is then remembered).
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404e10
 int FUN_00404e10(unsigned short slot)
 {
@@ -4276,7 +4271,7 @@ int FUN_00404e10(unsigned short slot)
         if ((pDev->field_0x8 & 0x400) != 0)
             return 1;
     } else {
-        if ((pDev->field_0x8 & CInput::GetButtonMapping(slot, 9) & 0xffff) != 0) {
+        if ((pDev->field_0x8 & (unsigned short)CInput::GetButtonMapping(slot, 9)) != 0) {
             g_unk0x0052a0b8 = CInput::GetButtonMapping(slot, 9);
             return 1;
         }
@@ -4307,7 +4302,7 @@ void FUN_00403200(Menu *pMenu)
     g_unk0x0052aa58 = (int)(pMenu->items[1].max * 0x50000) / (pMenu->items[1].min - 1) + 0x50000;
 }
 
-bool FUN_004174d0(void);
+int FUN_004174d0(void);
 
 // Callback of the sound options menu: applies the three volumes.
 // FUNCTION: CMR2 0x00401380
@@ -4373,7 +4368,7 @@ void FUN_00404130(Menu *pMenu, int param)
 }
 
 // Callback of the car setup menu: encodes the selected switches and tyres.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404d00
 void FUN_00404d00(Menu *pMenu)
 {
@@ -4436,7 +4431,7 @@ void FUN_00427c10(void);
 
 // Callback 1 of the sound options menu: applies the volumes (or restores the
 // ones the menu started with when cancelled).
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00401420
 void FUN_00401420(Menu *pMenu, char cancel)
 {
@@ -4491,14 +4486,14 @@ int g_unk0x00529914;
 // GLOBAL: CMR2 0x0052a48c
 short g_unk0x0052a48c;
 
-void FUN_00447d20(unsigned int index, FixVector *pOffset);
-void FUN_00447e20(unsigned int index, short value);
-void FUN_00447ec0(unsigned int index, int value);
+void FUN_00447d20(BYTE index, FixVector *pOffset);
+void FUN_00447e20(BYTE index, short value);
+void FUN_00447ec0(BYTE index, int value);
 void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004037c0
 void FUN_004037c0(Menu *pMenu, char cancel)
 {
@@ -5271,14 +5266,13 @@ int g_unk0x00529900[5];
 // GLOBAL: CMR2 0x0052a858
 int g_unk0x0052a858[5];
 
-void FUN_00447cf0(FixVector *pOut, unsigned int index);
-int FUN_00447ea0(unsigned int index);
-short FUN_00447e00(unsigned int index);
+void FUN_00447cf0(FixVector *pOut, BYTE index);
+int FUN_00447ea0(BYTE index);
+short FUN_00447e00(BYTE index);
 BYTE *RallyData_FUN_00408930(BYTE index);
 
 // Callback 0 of the camera options menu: remembers the current camera and
 // shows it on the sliders.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403700
 void FUN_00403700(Menu *pMenu, char unused)
 {
@@ -5380,9 +5374,8 @@ void FUN_00501d50(int index, short *pBar, int direction, int unused)
 
 // Returns the byte at column type of the 7-byte option record index; the
 // signed columns are divided by 10.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005028a0
-int FUN_005028a0(int index, int type)
+BYTE FUN_005028a0(int index, int type)
 {
     switch (type) {
     case 0: return (BYTE)g_unk0x0082bee8[index][0];
@@ -5985,7 +5978,6 @@ void FUN_00509be0(int index)
 // each mesh in the record's list takes the target value for its bit.
 void FUN_0049c440(Mesh *pMesh, int mask, int value);
 void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00508fa0
 void FUN_00508fa0(int index, int param2, BYTE param3){
     BYTE *pRecord = (BYTE *)&g_unk0x0082d220[index];
@@ -5993,15 +5985,24 @@ void FUN_00508fa0(int index, int param2, BYTE param3){
     int mask;
     int i;
 
-    if (param2 == 0) {
+    switch (param2) {
+    case 0:
         target = 0;
         mask = 1;
-    } else if (param2 == 1 || param3 == 4 || param3 == 5) {
+        break;
+    case 1:
         target = 3;
         mask = 4;
-    } else {
-        target = 5;
-        mask = 7;
+        break;
+    default:
+        if (param3 == 4 || param3 == 5) {
+            target = 3;
+            mask = 4;
+        } else {
+            target = 5;
+            mask = 7;
+        }
+        break;
     }
     switch (param3) {
     case 0:
@@ -6095,11 +6096,10 @@ void FUN_004ff5b0(void)
 }
 
 // Frees the option menu sound buffer and stops the streaming sound.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050f340
-int FUN_0050f340(void)
+bool FUN_0050f340(void)
 {
-    if (g_unk0x00831880 != 0) {
+    if (&g_unk0x00831880 != NULL) {
         if (g_unk0x00831884 == 0)
             CFileBuffer::FreeGenericFileBuffer((void *)g_unk0x00831880);
         g_unk0x00831880 = 0;
@@ -7081,7 +7081,7 @@ BYTE *g_unk0x0082d1dc[2];
 int *RallyData_FUN_004075e0(int index);
 int *FUN_00407520(int index);
 int *RallyData_FUN_004075c0(int index);
-int FUN_005028a0(int index, int type);
+BYTE FUN_005028a0(int index, int type);
 extern char g_strWheelVariantL[4];
 extern char g_strWheelVariantN[4];
 extern double g_unk0x00511300;
@@ -8289,27 +8289,27 @@ void FUN_0050a3f0(void)
         shown = value;
     }
     FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x90),
-                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
                  (int)g_pGraphics->resY * 0x5d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91),
             FUN_00501200(CGameInfo::FUN_005011b0()));
     FUN_00501f80(4, 1, 0, CFrontend::m_stringDest,
-                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                 (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
                  (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     FUN_005004b0(shown);
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
     if (CGameInfo::FUN_005004c0() != 0)
         FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
-                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                     (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
     else
         FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
-                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
+                     (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
     width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
-    x = g_unk0x005293a0 * (int)g_pGraphics->resX;
+    x = (int)g_pGraphics->resX * g_unk0x005293a0;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
     if (CGameInfo::FUN_005004c0() != 0)
         FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,

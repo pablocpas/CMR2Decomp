@@ -687,42 +687,42 @@ short g_unk0x0053d090[4];
 int g_unk0x0053d098[4];
 
 // FUNCTION: CMR2 0x00447e00
-short FUN_00447e00(unsigned int index)
+short FUN_00447e00(BYTE index)
 {
-    return g_unk0x0053d090[index & 0xff];
+    return g_unk0x0053d090[index];
 }
 
 extern FixVector g_unk0x0053d048[4];
 
 // Sets the player's gauge target and its speed-scaled copy (less at speed).
 // FUNCTION: CMR2 0x00447e20
-void FUN_00447e20(unsigned int index, short value)
+void FUN_00447e20(BYTE index, short value)
 {
-    index &= 0xff;
+
     g_unk0x0053d090[index] = value;
     g_unk0x0053d090[index + 2] =
         (short)FixMul(0x10000 - FixMul(FixDiv(g_unk0x0053d048[index].z - 0x50000, 0x50000), 0xcccc), value);
 }
 
 // FUNCTION: CMR2 0x00447ea0
-int FUN_00447ea0(unsigned int index)
+int FUN_00447ea0(BYTE index)
 {
-    return g_unk0x0053d098[index & 0xff];
+    return g_unk0x0053d098[index];
 }
 
 // FUNCTION: CMR2 0x00447ec0
-void FUN_00447ec0(unsigned int index, int value)
+void FUN_00447ec0(BYTE index, int value)
 {
-    g_unk0x0053d098[index & 0xff] = value;
+    g_unk0x0053d098[index] = value;
 }
 
 // GLOBAL: CMR2 0x0053d048
 FixVector g_unk0x0053d048[4];
 
 // FUNCTION: CMR2 0x00447cf0
-void FUN_00447cf0(FixVector *pOut, unsigned int index)
+void FUN_00447cf0(FixVector *pOut, BYTE index)
 {
-    *pOut = g_unk0x0053d048[index & 0xff];
+    *pOut = g_unk0x0053d048[index];
 }
 
 // Camera mode of each player (4 = free camera using g_unk0x0053d000).
@@ -780,9 +780,9 @@ void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM)
 
 // Sets a player's camera offset (and its adjusted copy for the gauges).
 // FUNCTION: CMR2 0x00447d20
-void FUN_00447d20(unsigned int index, FixVector *pOffset)
+void FUN_00447d20(BYTE index, FixVector *pOffset)
 {
-    int i = index & 0xff;
+    int i = index;
 
     g_unk0x0053d048[i] = *pOffset;
     g_unk0x0053d000[i] = *pOffset;
