@@ -1312,16 +1312,18 @@ BYTE FUN_004cf830(int index)
     int base;
     unsigned int *pDevice;
     unsigned int *pEntry;
+    unsigned int *pValue;
     unsigned int value;
 
     base = (int)RallyData_FUN_00408cb0(index);
     pDevice = (unsigned int *)((int)RallyData_FUN_00408c70(index) + 0x20);
     pEntry = (unsigned int *)(base + 0x4bc + (g_unk0x008173fc + g_unk0x00817404 * 3) * 8);
-    if (pDevice != NULL && (*pDevice < pEntry[1] || (*pEntry & 0x80) == 0)) {
+    pValue = pEntry + 1;
+    if (pDevice != NULL && (*pDevice < *pValue || (*pEntry & 0x80) == 0)) {
         *pEntry |= 0x80;
         value = rand();
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-        FUN_004d0300((int *)(pEntry + 1), (int *)pDevice);
+        FUN_004d0300((int *)pValue, (int *)pDevice);
         *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
         *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkTyresChanged(index);
