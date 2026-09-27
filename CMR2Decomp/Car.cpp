@@ -6,6 +6,7 @@
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "Mesh.h"
+#include "main.h"
 #include <string.h>
 
 Car *g_cars[40];
@@ -2879,6 +2880,83 @@ void FUN_0042c840(int first, int count)
 void FUN_0042c870(int index)
 {
     g_unk0x0053acf0[index] = 1;
+}
+
+// Per-frame timing state shared with the HUD: a "seeded" flag for the three
+// timestamps and the window start/end the cars are placed in.
+// GLOBAL: CMR2 0x0053b530
+BYTE g_unk0x0053b530;
+// GLOBAL: CMR2 0x0053bd64
+int g_unk0x0053bd64;
+// GLOBAL: CMR2 0x0053bd40
+int g_unk0x0053bd40;
+// GLOBAL: CMR2 0x0053a374
+int g_unk0x0053a374;
+// GLOBAL: CMR2 0x005113a0
+float g_unk0x005113a0 = 0.001f;
+
+BYTE FUN_00404f30(void);
+void FUN_00404f10(void);
+int FUN_0041f360(void);
+
+// Walks the car order and recomputes each car's fraction of the timing window
+// (the engine note falloff), writing it to the car and returning the largest.
+// match 51%: same logic, but MSVC6 keeps the original in an EBP frame with
+// memory-resident loop counters; the register allocation does not reproduce.
+// FUNCTION: CMR2 0x0042c890
+int FUN_0042c890(int *pOut)
+{
+    int i;
+    int max;
+    int offset;
+    int mid;
+    float fromStart;
+    float toEnd;
+    Car *pCar;
+
+    if ((g_unk0x0053b530 & 1) == 0) {
+        g_unk0x0053b530 |= 1;
+        g_unk0x0053bd64 = CMain::GetFrameTime();
+    }
+    if ((g_unk0x0053b530 & 2) == 0) {
+        g_unk0x0053b530 |= 2;
+        g_unk0x0053bd40 = CMain::GetFrameTime();
+    }
+    if ((g_unk0x0053b530 & 4) == 0) {
+        g_unk0x0053b530 |= 4;
+        g_unk0x0053a374 = CMain::GetFrameTime();
+    }
+    g_unk0x0053bd40 = CMain::GetFrameTime();
+    if (FUN_00404f30() != 0)
+        g_unk0x0053a374 = g_unk0x0053bd40;
+    if (FUN_0041f360() != 0)
+        g_unk0x0053a374 = g_unk0x0053bd40;
+    FUN_00404f10();
+    max = 0;
+    for (i = 0; i < g_carOrderCount; i++) {
+        pCar = &g_carBuffer[g_carOrder[i]];
+        if (g_carOrder[i] >= 1 &&
+            *(float *)(pCar->field_0xa90 + 8) == *(float *)(g_carBuffer->field_0xa90 + 8)) {
+            *(int *)pCar->field_0xa90 = *(int *)g_carBuffer->field_0xa90;
+            offset = g_carBuffer->field_0xb43[0];
+        } else {
+            fromStart = (float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) *
+                        g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
+            toEnd = (float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) *
+                    g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
+            mid = (int)(__int64)toEnd;
+            *(int *)pCar->field_0xa90 = (int)((toEnd - (float)mid) * g_65536f);
+            offset = mid - (int)(__int64)fromStart;
+            if (offset > 5)
+                offset = 5;
+        }
+        pCar->field_0xb43[0] = (char)offset;
+        if (max < (offset & 0xff))
+            max = offset & 0xff;
+    }
+    *pOut = *(int *)g_carBuffer->field_0xa90;
+    g_unk0x0053a374 = g_unk0x0053bd40;
+    return max;
 }
 
 // FUNCTION: CMR2 0x0042ca70
