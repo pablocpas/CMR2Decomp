@@ -1212,15 +1212,17 @@ BYTE FUN_004cf5b0(int index, int pBlock)
 {
     unsigned int *pOption;
     unsigned int *pEntry;
+    unsigned int *pValue;
     unsigned int value;
 
     pOption = (unsigned int *)FUN_004d0280(index);
     pEntry = (unsigned int *)(pBlock + 0x150 + (g_unk0x008173fc + g_unk0x008173f8 * 0xc) * 8);
-    if (pOption != NULL && (*pOption < pEntry[1] || (*pEntry & 0x80) == 0)) {
+    pValue = pEntry + 1;
+    if (pOption != NULL && (*pOption < *pValue || (*pEntry & 0x80) == 0)) {
         *pEntry |= 0x80;
         value = rand();
         *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-        FUN_004d0300((int *)(pEntry + 1), (int *)pOption);
+        FUN_004d0300((int *)pValue, (int *)pOption);
         *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
         *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
         RallyData_MarkTyresChanged(index);
@@ -1232,29 +1234,29 @@ BYTE FUN_004cf5b0(int index, int pBlock)
 
 // Same as FUN_004cf5b0 for the button option word (uses the record option
 // block of FUN_004d02d0 and the three-field merge of FUN_004d0310).
-// match 81%: MSVC keeps *pOption in a register instead of re-reading it and uses
-// ebp for the entry word; the code is the same.
 // FUNCTION: CMR2 0x004cf660
 BYTE FUN_004cf660(int index, int pBlock)
 {
     unsigned int *pOption;
     unsigned int *pEntry;
+    unsigned int *pValue;
     unsigned int value;
     BOOL better;
 
     pOption = (unsigned int *)FUN_004d02d0(index);
-    pEntry = (unsigned int *)(pBlock + (g_unk0x008173f8 * 3 + 4 + g_unk0x00817400) * 0xc);
     better = FALSE;
+    pEntry = (unsigned int *)(pBlock + (g_unk0x008173f8 * 3 + 4 + g_unk0x00817400) * 0xc);
+    pValue = pEntry + 1;
     if (pOption != NULL) {
-        value = pEntry[1];
+        value = *pValue;
         if ((*pOption & 0xf) < (value & 0xf))
             better = TRUE;
-        if ((((*pOption ^ value) & 0xf) == 0 && pOption[1] < pEntry[2]) || better ||
+        if ((((*pOption ^ value) & 0xf) == 0 && pOption[1] < pValue[1]) || better ||
             (*pEntry & 0x80) == 0) {
             *pEntry |= 0x80;
             value = rand();
             *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-            FUN_004d0310((int *)(pEntry + 1), (int *)pOption);
+            FUN_004d0310((int *)pValue, (int *)pOption);
             *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
             *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
             RallyData_MarkTyresChanged(index);
@@ -1274,6 +1276,7 @@ BYTE FUN_004cf740(int index, int pBlock)
 {
     unsigned int *pDevice;
     unsigned int *pEntry;
+    unsigned int *pValue;
     unsigned int value;
     BOOL better;
 
@@ -1281,15 +1284,16 @@ BYTE FUN_004cf740(int index, int pBlock)
     better = FALSE;
     if (pDevice != NULL) {
         pEntry = (unsigned int *)(g_unk0x00817400 * 0x10 + pBlock);
-        value = pEntry[1];
+        pValue = pEntry + 1;
+        value = *pValue;
         if ((*pDevice & 0xf) < (value & 0xf))
             better = TRUE;
-        if ((((*pDevice ^ value) & 0xf) == 0 && (*pDevice & 0x3fc0) > (pEntry[1] & 0x3fc0)) ||
+        if ((((*pDevice ^ value) & 0xf) == 0 && (*pDevice & 0x3fc0) > (*pValue & 0x3fc0)) ||
             better || (*pEntry & 0x80) == 0) {
             *pEntry |= 0x80;
             value = rand();
             *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-            FUN_004d0370((int *)(pEntry + 1), (int *)pDevice);
+            FUN_004d0370((int *)pValue, (int *)pDevice);
             *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
             *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
             RallyData_MarkTyresChanged(index);
