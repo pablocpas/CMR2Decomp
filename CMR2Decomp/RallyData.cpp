@@ -1900,14 +1900,35 @@ extern int g_unk0x00536c28[2];
 extern int g_unk0x00536e88[2];
 void FUN_00415bc0(int, int);
 BYTE FUN_004582b0(int index);
+extern BYTE g_gapTextColour[4];
+BYTE FUN_00448ca0(void);
+
+// Draws the time-gap text of a car while the stage is running, for the two
+// rally modes that the input mode selects.
+// FUNCTION: CMR2 0x00412970
+void FUN_00412970(int car, short *pRect)
+{
+    if (FUN_00448ca0() != 0) {
+        switch (RallyData_FUN_004082b0()) {
+        case 1:
+            if (FUN_004483b0(car) == 0)
+                FUN_00417e70(CFrontend::GetTextString(0xbe), (int *)g_gapTextColour, car, 0, -1,
+                             -1);
+            break;
+        case 2:
+            if (FUN_004483b0(car) == 0)
+                FUN_00417e70(CFrontend::GetTextString(0xbe), (int *)g_gapTextColour, car, 0, -1,
+                             -1);
+            break;
+        }
+    }
+}
 
 // Temporary scaffolding for the RallyData helpers FUN_004125f0 dispatches to:
 // every one is a real function of the reference exe (empty body, stdcall
 // argument count from its ret N) so that its call sites are in place. Delete
 // each entry as its implementation lands (0x415f50 belongs to StageUI.cpp and
 // 0x417e70 to Race.cpp).
-// STUB: CMR2 0x00412970
-void FUN_00412970(int car, short *pRect) { }
 // STUB: CMR2 0x004137e0
 void FUN_004137e0(int car, short *pRect) { }
 // STUB: CMR2 0x00413fe0
@@ -5264,3 +5285,45 @@ void FUN_0040f0c0(int param1, int param2, int param3)
     }
 }
 
+// Finds the route node nearest to a car (only nodes within 100.0 in both
+// ground axes are considered) and stores it as the car's current and previous
+// progress record.
+// FUNCTION: CMR2 0x00420850
+void FUN_00420850(Car *pCar)
+{
+    FixVector pos;
+    FixVector d;
+    unsigned int i;
+    int best;
+    unsigned int bestIndex;
+    int dx;
+    int dz;
+
+    best = 0x7d000000;
+    bestIndex = 0;
+    if (g_unk0x00538a94 != 0) {
+        for (i = 0; i < g_unk0x00538a84; i++) {
+            RallyData_FUN_00421530(i, (int *)&pos);
+            dx = pos.x - pCar->position.x;
+            d.x = dx;
+            dz = pos.z - pCar->position.z;
+            d.y = 0;
+            d.z = dz;
+            if (dx < 0)
+                dx = -dx;
+            if (dz < 0)
+                dz = -dz;
+            if (dx < 0x640000 && dz < 0x640000) {
+                int len = FixVecLength(&d);
+                if (len < best) {
+                    best = len;
+                    bestIndex = i;
+                }
+            }
+        }
+        if (best != 0x7d000000) {
+            g_raceRecords[pCar->field_0xb1a].field_0x0 = bestIndex;
+            g_raceRecords[pCar->field_0xb1a].field_0x4 = bestIndex;
+        }
+    }
+}
