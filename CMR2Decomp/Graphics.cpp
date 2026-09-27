@@ -2549,9 +2549,8 @@ void Graphics_ReloadAllTextures(void)
             pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
             if (pData == NULL) {
                 strncpy(pExt, CGraphics::m_tgaExtension, 4);
-                CGraphics::LoadTGATexture(
-                    (BYTE *)CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0),
-                    pTexture);
+                pData = CGenericFileLoader::FindFile((GenericFile *)pTexture->pArchive, pTexture->name, 0, 0, 0);
+                CGraphics::LoadTGATexture((BYTE *)pData, pTexture);
             } else {
                 CGraphics::LoadDDSTexture((DDSFile *)pData, pTexture);
             }
@@ -2614,12 +2613,10 @@ void FUN_0049dcc0(int enable)
     if (enable != g_unk0x0059ce30) {
         CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1b, enable);
         if (FUN_004b7510()) {
-            if (enable != 0) {
+            if (enable != 0)
                 CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 1);
-                g_unk0x0059ce30 = enable;
-                return;
-            }
-            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 0x80);
+            else
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x18, 0x80);
             g_unk0x0059ce30 = enable;
             return;
         }
@@ -6773,7 +6770,6 @@ unsigned int g_unk0x006de95c[20];
 
 // Reserves count cube maps of the given size, then loads the environment
 // texture; returns 0 when it is missing.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b23c0
 int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
 {

@@ -610,7 +610,6 @@ int g_unk0x005a2718;
 
 typedef HRESULT (__stdcall *DPSoundMethod2)(void *pThis, void *a1, void *a2);
 
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a2d30
 void FUN_004a2d30(void)
 {
@@ -619,7 +618,7 @@ void FUN_004a2d30(void)
 
     CSound::FUN_004a3250(((DPSoundMethod2)(*(void ***)CSound::m_pDirectSoundBuffer)[0x10 / 4])(
         CSound::m_pDirectSoundBuffer, &lo, &hi));
-    v = (unsigned int)lo / 1000u;
+    v = (unsigned int)lo / 0xfe80;
     g_unk0x005a2710 = (int)v;
     v -= g_unk0x005a2714;
     if ((int)v > 0)
@@ -1035,7 +1034,6 @@ void FUN_004a24a0(SoundSlot *pSlot)
 
 // Applies the slot volume (scaled by the master volume) as a logarithmic
 // attenuation in hundredths of a decibel.
-// match 91%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a25f0
 void FUN_004a25f0(SoundSlot *pSlot)
 {
@@ -1412,7 +1410,6 @@ void FUN_004a3240(int unused)
 
 
 // Sets the master volume (0..1) and re-applies it to every sound slot.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7950
 void Sound_SetMasterVolume(int volume)
 {
@@ -1425,7 +1422,7 @@ void Sound_SetMasterVolume(int volume)
         if (*ppSlot != NULL)
             FUN_004a25f0(*ppSlot);
         ppSlot++;
-    } while (ppSlot < &CSound::m_soundSlots[32]);
+    } while ((int)ppSlot < (int)&CSound::m_soundSlotsEnd);
 }
 
 // Releases the (3D) buffers of a sample.
@@ -1469,7 +1466,6 @@ void FUN_004a2830(void)
 }
 
 // Creates the shared 16-bit stereo 44.1 kHz streaming buffer.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a2a20
 BOOL FUN_004a2a20(void)
 {
@@ -1478,6 +1474,7 @@ BOOL FUN_004a2a20(void)
 
     memset(&desc, 0, sizeof(desc));
     format.cbSize = 0;
+    desc.lpwfxFormat = &format;
     g_unk0x005a271c = 0x7f400;
     desc.dwBufferBytes = 0x7f400;
     desc.dwSize = sizeof(desc);
@@ -1488,14 +1485,12 @@ BOOL FUN_004a2a20(void)
     format.nBlockAlign = 4;
     format.nAvgBytesPerSec = 176400;
     format.wBitsPerSample = 16;
-    desc.lpwfxFormat = &format;
     return CSound::FUN_004a3250(g_unk0x005a2844->CreateSoundBuffer(&desc, &CSound::m_pDirectSoundBuffer, NULL)) != 0;
 }
 
 void FUN_004a2830(void);
 
 // Shuts the sound system down (registered callback of 0x4b7650).
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7ae0
 int FUN_004b7ae0(void)
 {
