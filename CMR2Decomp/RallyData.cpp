@@ -1904,14 +1904,35 @@ extern int g_unk0x00536c28[2];
 extern int g_unk0x00536e88[2];
 void FUN_00415bc0(int, int);
 BYTE FUN_004582b0(int index);
+extern BYTE g_gapTextColour[4];
+BYTE FUN_00448ca0(void);
+
+// Draws the time-gap text of a car while the stage is running, for the two
+// rally modes that the input mode selects.
+// FUNCTION: CMR2 0x00412970
+void FUN_00412970(int car, short *pRect)
+{
+    if (FUN_00448ca0() != 0) {
+        switch (RallyData_FUN_004082b0()) {
+        case 1:
+            if (FUN_004483b0(car) == 0)
+                FUN_00417e70(CFrontend::GetTextString(0xbe), (int *)g_gapTextColour, car, 0, -1,
+                             -1);
+            break;
+        case 2:
+            if (FUN_004483b0(car) == 0)
+                FUN_00417e70(CFrontend::GetTextString(0xbe), (int *)g_gapTextColour, car, 0, -1,
+                             -1);
+            break;
+        }
+    }
+}
 
 // Temporary scaffolding for the RallyData helpers FUN_004125f0 dispatches to:
 // every one is a real function of the reference exe (empty body, stdcall
 // argument count from its ret N) so that its call sites are in place. Delete
 // each entry as its implementation lands (0x415f50 belongs to StageUI.cpp and
 // 0x417e70 to Race.cpp).
-// STUB: CMR2 0x00412970
-void FUN_00412970(int car, short *pRect) { }
 // STUB: CMR2 0x004137e0
 void FUN_004137e0(int car, short *pRect) { }
 // STUB: CMR2 0x00413fe0
@@ -4970,4 +4991,415 @@ void FUN_00411070(int param1, int param2)
     Game_PrepareScene((SceneNode *)g_unk0x00536be0, (SceneNode *)g_unk0x00536be4, (int)rect, 0);
     FUN_0049d3f0(g_unk0x00536be0, g_unk0x00536be4, rect, 0, 1);
     FUN_0049de40();
+}
+
+
+extern char g_strFpsFormat0x00516e14[10];
+
+void Scene_BeginShadowBatch(void);
+void Scene_EndShadowBatch(void);
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+void FUN_004b5ee0(SceneNode *pNode, int param2, BYTE param3);
+void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector);
+void FUN_00462aa0(unsigned int param1, int param2);
+int FUN_00423f30(void);
+BYTE FUN_00422fb0(unsigned int index);
+void FUN_00428bf0(unsigned int view, short *pRect);
+void FUN_00466570(short *param1, short param2, int param3, int param4);
+void FUN_00464960(unsigned int param1);
+BYTE FUN_0046bd40(int index);
+void FUN_0046b8f0(Car *pCar);
+void FUN_0046b670(BYTE *pCar);
+void FUN_0046e440(void);
+void FUN_0046e780(void);
+void FUN_0046ea10(int param1);
+void FUN_0046f330(int param1);
+void FUN_00465780(int param1);
+void FUN_004657d0(int car);
+void StageObject_UpdateSkidTrails(int carIndex);
+void FUN_00461c30(int index);
+void FUN_00466100(int param1);
+void FUN_0046bb40(void);
+unsigned int FUN_0040b1e0(int index);
+void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
+int FUN_0049e1f0(SceneNode *pNode, int bit);
+void FUN_004b2970(int value);
+float FUN_004b23a0(void);
+void FUN_00459790(int param1, int param2);
+void FUN_004593a0(void);
+void FUN_00422d40(unsigned int player);
+void FUN_00471a60(int param1);
+void FUN_004177d0(unsigned int player, int param2);
+void Dash_Draw(int player, int layer);
+void FUN_00417e60(void);
+int FUN_004054b0(unsigned int param1);
+
+// Set while the shadow geometry of the current view has been streamed.
+// GLOBAL: CMR2 0x00536ad0
+int g_unk0x00536ad0;
+// Screen rectangle of the view being drawn, filled by FUN_0040f050.
+// GLOBAL: CMR2 0x00536ad4
+int *g_unk0x00536ad4;
+// 1 / 1024: kilobytes to megabytes.
+// GLOBAL: CMR2 0x005112f8
+float g_unk0x005112f8 = 9.765625e-04f;
+// 3 / (8 * 1024 * 1024): frame buffer bytes to megabytes.
+// GLOBAL: CMR2 0x005112f4
+float g_unk0x005112f4 = 3.5762786865234375e-07f;
+
+// GLOBAL: CMR2 0x00516ce8
+char g_strDrawDistance0x00516ce8[87] =
+    "Draw Distance, Actual(scaled) : %d  Requested : %d  Maximum : %d  FrontEnd Setting: %d";
+// GLOBAL: CMR2 0x00516d40
+char g_strSoftwareTl0x00516d40[19] = "Using Software T&L";
+// GLOBAL: CMR2 0x00516d54
+char g_strHardwareTl0x00516d54[19] = "Using Hardware T&L";
+// GLOBAL: CMR2 0x00516d68
+char g_strVbMemUsed0x00516d68[30] = "VB mem used = %d K (%0.1f MB)";
+// GLOBAL: CMR2 0x00516d88
+char g_strVramUsed0x00516d88[66] =
+    "VRAM used: Textures = %d K (%0.1f MB)   Buffers = %d K (%0.1f MB)";
+// GLOBAL: CMR2 0x00516dcc
+char g_strTotalPolygons0x00516dcc[22] = " Total Polygons: %d  ";
+// GLOBAL: CMR2 0x00516de4
+char g_strOtherPolygons0x00516de4[22] = " Other Polygons: %d  ";
+// GLOBAL: CMR2 0x00516dfc
+char g_strScenePolygons0x00516dfc[22] = " Scene Polygons: %d  ";
+
+// Per-view frame update of the rally data screens: prepares the cars of the
+// view, streams their shadow geometry, refreshes the on-screen elements and,
+// when the graphics debug flag (bit 2) is set, prints the FPS / polygon /
+// VRAM overlay.
+// match 78%: the logic is all there; the difference is MSVC's register
+// allocation (the original keeps the raw view in EBX and the masked view in
+// EBP, here it is the other way round) and the frame layout (the original
+// reuses the incoming parameter slot for the overlay colour).
+// FUNCTION: CMR2 0x0040f0c0
+void FUN_0040f0c0(int param1, int param2, int param3)
+{
+    int orderCount;
+    short *pOrder;
+    short *pOrderEnd;
+    int n;
+    int i;
+    int pixels;
+    int resX;
+    int resY;
+    int resZ;
+    int target;
+    unsigned int vramKB;
+    float vramMB;
+    float buffersMB;
+    Car *pCar;
+    SceneNode *pNode;
+
+    int view = param2;
+
+    if ((BYTE)view == 0) {
+        g_unk0x00536ad0 = 0;
+        if (FUN_0041f3a0() != 0)
+            return;
+        if (CGame::FUN_004a9b20() != 0) {
+            FUN_00411110();
+            CGame::FUN_004a9b10(0);
+        }
+    }
+    pOrder = Car_GetOrder();
+    orderCount = Car_GetOrderCount();
+    RallyData_FUN_0040eec0();
+    g_unk0x00536ad4 = FUN_0040f050((view & 0xff));
+    FUN_00471bf0((view & 0xff));
+    FUN_00471a60((view & 0xff));
+    if (CGraphics::FUN_004b74b0() != 0)
+        Car_ApplyViewTransforms((view & 0xff));
+    Car_UpdateViewNodes((view & 0xff));
+    FUN_00461c30((view & 0xff));
+    FUN_0046f330((view & 0xff));
+    if ((BYTE)view == 0 && (BYTE)RallyDataState() == 1 &&
+        CGameInfo::FUN_00404f20() == 0 &&
+        (FUN_00456be0(0)[0x20] == 'A' || FUN_00456be0(0)[0x20] == 'C')) {
+        FUN_0046ea10(0);
+        FUN_0046e780();
+    }
+    for (i = 0; i < orderCount; i++)
+        FUN_00462aa0(i, (view & 0xff));
+    FUN_00428bf0((view & 0xff), (short *)g_unk0x00536ad4);
+    FUN_0046e440();
+    FUN_00464960(FUN_00422fb0((view & 0xff)));
+    Game_PrepareScene((SceneNode *)RallyData_FUN_00411060(), g_viewNodes[(view & 0xff)],
+                      (int)g_unk0x00536ad4, (view & 0xff));
+    if (g_unk0x00536ad0 == 0) {
+        g_unk0x00536ad0 = 1;
+        Scene_BeginShadowBatch();
+        n = orderCount;
+        if (orderCount - 1 >= 0) {
+            pOrderEnd = &pOrder[orderCount - 1];
+            do {
+                pCar = Car_Get(*pOrderEnd);
+                pNode = pCar->pNode0x724;
+                if (pNode != NULL && pNode->field_0x17c > 0)
+                    FUN_004b5f90(pCar->pNode0x724, *(int *)pCar->field_0x758,
+                                 (short *)pCar->field_0xb00);
+                else
+                    FUN_004b5f90(pCar->pNode0x71c, *(int *)pCar->field_0x758,
+                                 (short *)pCar->field_0xb00);
+                FUN_004b5ee0(pCar->pNode0x720, pCar->field_0xa70,
+                             FUN_0046bd40(pCar->field_0xb1a));
+                FUN_004b5ee0(pCar->pNode0x71c, pCar->field_0xa70,
+                             FUN_0046bd40(pCar->field_0xb1a));
+                if (pCar->pNode0x724 != NULL)
+                    FUN_004b5ee0(pCar->pNode0x724, pCar->field_0xa70,
+                                 FUN_0046bd40(pCar->field_0xb1a));
+                pOrderEnd--;
+            } while (--n != 0);
+        }
+        Scene_EndShadowBatch();
+    }
+    FUN_0046bb40();
+    if (CGameInfo::FUN_00405e00() != 0) {
+        for (i = 0; i < 7; i++) {
+            if ((BYTE)FUN_00409cb0(i) == 0 && (BYTE)FUN_0040b1e0(i) != 0)
+                FUN_0046b8f0(Car_Get(FUN_0040b010(i)));
+        }
+    }
+    for (i = orderCount - 1; i >= 0; i--) {
+        pCar = Car_Get(pOrder[i]);
+        if (!CGameInfo::FUN_00406410(0x10) && i != 0) {
+            FUN_0046b8f0(pCar);
+            continue;
+        }
+        if ((g_pGraphics->field913_0x3bc & 0x80) != 0) {
+            pNode = pCar->pNode0x724;
+            if (pNode != NULL && pNode->field_0x17c > 0) {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
+                SceneNode_SetViewMaskTree(pCar->pNode0x724, 0);
+                FUN_0049e1f0(pCar->pNode0x724, (view & 0xff));
+            } else {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
+                SceneNode_SetViewMaskTree(pCar->pNode0x720, 0);
+                FUN_0049e1f0(pCar->pNode0x720, (view & 0xff));
+            }
+        }
+        pNode = pCar->pNode0x724;
+        if (pNode != NULL && pNode->field_0x17c > 0) {
+            target = (int)SceneNode_FindByType(pCar->pNode0x724, 0x14);
+            if (CGame::FUN_0049c430() != 0) {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
+                SceneNode_SetViewMaskTree(pCar->pNode0x724, 0);
+                if (target != 0)
+                    SceneNode_SetViewMaskTree((SceneNode *)target, 1);
+            } else {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 1);
+                SceneNode_SetViewMaskTree(pCar->pNode0x724, 1);
+                if (target != 0)
+                    SceneNode_SetViewMaskTree((SceneNode *)target, 0);
+            }
+        } else {
+            target = (int)SceneNode_FindByType(pCar->pNode0x720, 0x14);
+            if (CGame::FUN_0049c430() != 0) {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 0);
+                SceneNode_SetViewMaskTree(pCar->pNode0x720, 0);
+                if (target != 0)
+                    SceneNode_SetViewMaskTree((SceneNode *)target, 1);
+            } else {
+                SceneNode_SetViewMaskTree(pCar->pNode0x71c, 1);
+                SceneNode_SetViewMaskTree(pCar->pNode0x720, 1);
+                if (target != 0)
+                    SceneNode_SetViewMaskTree((SceneNode *)target, 0);
+            }
+        }
+        FUN_0046b8f0(pCar);
+        FUN_0046b670((BYTE *)pCar);
+    }
+    FUN_004b2970(!CGameInfo::FUN_00406410(0xf));
+    FUN_00422d40(param2);
+    if ((g_pGraphics->field913_0x3bc & 4) != 0) {
+        BYTE colour[4];
+
+        colour[0] = 0xff;
+        colour[1] = 0;
+        colour[2] = 0;
+        colour[3] = 0xff;
+        sprintf(CFrontend::m_stringDest, g_strFpsFormat0x00516e14, FUN_004b23a0());
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0, (int *)colour, 9);
+        sprintf(CFrontend::m_stringDest, g_strScenePolygons0x00516dfc, CGame::FUN_0049c400());
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0xf, (int *)colour, 9);
+        sprintf(CFrontend::m_stringDest, g_strOtherPolygons0x00516de4, CGame::FUN_0049c410());
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x1e, (int *)colour, 9);
+        sprintf(CFrontend::m_stringDest, g_strTotalPolygons0x00516dcc,
+                CGame::FUN_0049c410() + CGame::FUN_0049c400());
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x2d, (int *)colour, 9);
+        vramKB = CGraphics::FUN_004a5fe0();
+        vramMB = (float)CGraphics::FUN_004a5fe0() * g_unk0x005112f8;
+        resX = g_pGraphics->resX;
+        resY = g_pGraphics->resY;
+        resZ = g_pGraphics->depth;
+        pixels = resX * resY * resZ;
+        buffersMB = (float)resX * resY * resZ * g_unk0x005112f4;
+        sprintf(CFrontend::m_stringDest, g_strVramUsed0x00516d88, vramKB, (double)vramMB,
+                pixels / 8 / 1024 * 3, (double)buffersMB);
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x3c, (int *)colour, 9);
+        sprintf(CFrontend::m_stringDest, g_strVbMemUsed0x00516d68, CGraphics::FUN_004b1970(),
+                (double)((float)CGraphics::FUN_004b1970() * g_unk0x005112f8));
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x4b, (int *)colour, 9);
+        if (CGraphics::FUN_004a8d60() == 2)
+            sprintf(CFrontend::m_stringDest, g_strHardwareTl0x00516d54);
+        else
+            sprintf(CFrontend::m_stringDest, g_strSoftwareTl0x00516d40);
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x5a, (int *)colour, 9);
+        sprintf(CFrontend::m_stringDest, g_strDrawDistance0x00516ce8,
+                (FUN_00423f30() > *(int *)&g_pGraphics->field925_0x3c8
+                     ? *(int *)&g_pGraphics->field925_0x3c8
+                     : FUN_00423f30()) >> 16,
+                *(int *)&g_pGraphics->field921_0x3c4 >> 16,
+                *(int *)&g_pGraphics->field925_0x3c8 >> 16,
+                (int)g_pGraphics->field917_0x3c0 + 1);
+        Font_DrawText(1, CFrontend::m_stringDest, 0, 0x69, (int *)colour, 9);
+    }
+    FUN_00466570(pOrder, (short)orderCount, (int)g_unk0x00536ad4, (view & 0xff));
+    if (CGameInfo::FUN_00405e00() != 0) {
+        if (CGameInfo::FUN_00405d80() != 0xa) {
+            if (**(char **)(FUN_0041b390() + 4) == '\n')
+                FUN_00459790(0, 0);
+            for (i = 0; i < 7; i++) {
+                if ((BYTE)FUN_00409cb0(i) != 0)
+                    FUN_00459790(FUN_0040b010(i), 0);
+            }
+        }
+        FUN_004593a0();
+    }
+    if (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0)
+        FUN_00466100((view & 0xff));
+    if (CGameInfo::FUN_00404f20() == 0) {
+        FUN_004657d0((view & 0xff));
+        StageObject_UpdateSkidTrails((view & 0xff));
+    }
+    FUN_00465780((view & 0xff));
+    FUN_00417e60();
+    if (CGameInfo::FUN_00404f20() != 0 && FUN_004054b0((view & 0xff)) == 0)
+        return;
+    if ((BYTE)FUN_00407270() != 0)
+        return;
+    if ((BYTE)RallyDataState() == 1 && param3 != 0) {
+        Dash_Draw((view & 0xff), (int)g_unk0x00536ad4);
+        FUN_004125f0((view & 0xff), (short *)g_unk0x00536ad4);
+        FUN_004177d0((view & 0xff), (int)g_unk0x00536ad4);
+    }
+    if ((BYTE)RallyDataState() == 2 && param3 != 0) {
+        Dash_Draw((view & 0xff), (int)g_unk0x00536ad4);
+        FUN_004125f0((view & 0xff), (short *)g_unk0x00536ad4);
+        FUN_004177d0((view & 0xff), (int)g_unk0x00536ad4);
+    }
+}
+
+// Finds the route node nearest to a car (only nodes within 100.0 in both
+// ground axes are considered) and stores it as the car's current and previous
+// progress record.
+// FUNCTION: CMR2 0x00420850
+void FUN_00420850(Car *pCar)
+{
+    FixVector pos;
+    FixVector d;
+    unsigned int i;
+    int best;
+    unsigned int bestIndex;
+    int dx;
+    int dz;
+
+    best = 0x7d000000;
+    bestIndex = 0;
+    if (g_unk0x00538a94 != 0) {
+        for (i = 0; i < g_unk0x00538a84; i++) {
+            RallyData_FUN_00421530(i, (int *)&pos);
+            dx = pos.x - pCar->position.x;
+            d.x = dx;
+            dz = pos.z - pCar->position.z;
+            d.y = 0;
+            d.z = dz;
+            if (dx < 0)
+                dx = -dx;
+            if (dz < 0)
+                dz = -dz;
+            if (dx < 0x640000 && dz < 0x640000) {
+                int len = FixVecLength(&d);
+                if (len < best) {
+                    best = len;
+                    bestIndex = i;
+                }
+            }
+        }
+        if (best != 0x7d000000) {
+            g_raceRecords[pCar->field_0xb1a].field_0x0 = bestIndex;
+            g_raceRecords[pCar->field_0xb1a].field_0x4 = bestIndex;
+        }
+    }
+}
+
+char *FUN_0041f8f0(void);
+GenericFile *FUN_0041f500(void);
+
+// Textures of the challenge screens (net-play blob of each player and the blob
+// of the current challenge).
+// GLOBAL: CMR2 0x00537070
+Texture *g_unk0x00537070;
+// GLOBAL: CMR2 0x00537074
+Texture *g_unk0x00537074;
+// GLOBAL: CMR2 0x00537078
+Texture *g_unk0x00537078;
+// GLOBAL: CMR2 0x0053707c
+Texture *g_unk0x0053707c;
+// GLOBAL: CMR2 0x00517d38
+char g_strChallengeTrackName0x00517d38[22] = "%s\\chall\\cha%.2d.tga";
+// GLOBAL: CMR2 0x00517d50
+char g_strChalblobTga0x00517d50[33] = "\\NEWIMAGE\\osd\\chall\\chalblob.tga";
+// GLOBAL: CMR2 0x00517d74
+char g_strNetblobrTga0x00517d74[33] = "\\NEWIMAGE\\osd\\chall\\netblobr.tga";
+extern char g_strPathConcat[];
+// GLOBAL: CMR2 0x00517da0
+char g_strNetblobTga0x00517da0[32] = "\\NEWIMAGE\\osd\\chall\\netblob.tga";
+
+// Loads the textures of the challenge screens: the net-play blobs for the two
+// network challenge screens and the challenge blob of the current track (the
+// track one is built from the install dir or, for the DD/network tracks, from
+// the name of the loaded file with the extension changed to .DDS).
+// FUNCTION: CMR2 0x00411280
+void FUN_00411280(void)
+{
+    bool loaded;
+    int track;
+
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9) {
+        sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+                g_strNetblobTga0x00517da0);
+        g_unk0x00537070 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                    CFrontend::m_stringDest, &loaded, 0, 0, 0);
+        sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+                g_strNetblobrTga0x00517d74);
+        g_unk0x00537074 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                    CFrontend::m_stringDest, &loaded, 0, 0, 0);
+    }
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 4 &&
+        CGameInfo::FUN_00405d80() != 0xb && CGameInfo::FUN_00405d80() != 0xc &&
+        (BYTE)RallyData_GetFlag25() == 0)
+        return;
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+            g_strChalblobTga0x00517d50);
+    g_unk0x00537078 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                CFrontend::m_stringDest, &loaded, 0, 0, 0);
+    if (CGameInfo::FUN_00405d80() == 4 || (BYTE)RallyData_GetFlag25() != 0) {
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, FUN_0041f8f0());
+        track = strlen(CFrontend::m_stringDest);
+        CFrontend::m_stringDest[track - 2] = '.';
+        CFrontend::m_stringDest[track - 1] = 'D';
+        CFrontend::m_stringDest[track] = 'D';
+        CFrontend::m_stringDest[track + 1] = 'S';
+        CFrontend::m_stringDest[track + 2] = '\0';
+    } else {
+        sprintf(CFrontend::m_stringDest, g_strChallengeTrackName0x00517d38,
+                CInstallInfo::GetTracksDir(),
+                (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff) + 1);
+    }
+    g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
+                                                0, 0);
 }
