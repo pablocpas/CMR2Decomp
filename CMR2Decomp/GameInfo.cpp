@@ -4711,6 +4711,229 @@ BYTE FUN_00404f30(void)
     return g_unk0x0052af41;
 }
 
+// Scratch camera state of the in-race step (0x404f40): current offset, height
+// and distance interpolated from the menu values.
+// GLOBAL: CMR2 0x00529ec8
+int g_unk0x00529ec8;
+// GLOBAL: CMR2 0x00529cd8
+FixVector g_unk0x00529cd8;
+#define g_unk0x00529cdc (g_unk0x00529cd8.y)
+#define g_unk0x00529ce0 (g_unk0x00529cd8.z)
+// GLOBAL: CMR2 0x00529ed0
+int g_unk0x00529ed0;
+// GLOBAL: CMR2 0x0052a0bc
+int g_unk0x0052a0bc;
+// GLOBAL: CMR2 0x0052a2a0
+short g_unk0x0052a2a0;
+// GLOBAL: CMR2 0x0052aa64
+int g_unk0x0052aa64;
+// GLOBAL: CMR2 0x0052aa6c
+short g_unk0x0052aa6c;
+// GLOBAL: CMR2 0x00537f34
+int g_unk0x00537f34;
+
+extern BYTE g_unk0x0053811e;
+extern BYTE g_unk0x0053811f;
+extern BYTE g_unk0x00538120;
+extern BYTE g_unk0x00538100;
+extern int g_unk0x00537f30;
+extern int g_unk0x00516090;
+
+void FUN_0040af00(unsigned int time);
+void FUN_0040ac40(BYTE carClass);
+unsigned int FUN_00409cb0(int index);
+unsigned int FUN_0040a450(int index);
+void FUN_00421e20(BYTE index);
+void FUN_00422140(BYTE index, int param);
+void FUN_00421720(BYTE index, int a, int b, BYTE c, int d);
+void FUN_004246c0(void);
+int FUN_00448550(void);
+int FUN_004483c0(int index);
+void FUN_00427950(int time);
+void FUN_004284d0(unsigned int player, int check);
+void FUN_004285b0(unsigned int player, int t, int check);
+short Car_GetOrderCount(void);
+int FUN_0041f270(void);
+int FUN_00422f50(BYTE index);
+BYTE FUN_00422fb0(BYTE index);
+int FUN_00447ea0(BYTE index);
+void FUN_00447cf0(FixVector *pOut, BYTE index);
+short FUN_00447e00(BYTE index);
+void FUN_00447d20(BYTE index, FixVector *pOffset);
+void FUN_00447e20(BYTE index, short value);
+void FUN_00447ec0(BYTE index, int value);
+int FUN_0041b380(void);
+BYTE FUN_0041b370(void);
+void FUN_00449090(BYTE index);
+typedef void (*FadeCallback)(BYTE index);
+void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+void FUN_00423010(int view, int start);
+void RallyData_FUN_00408760(BYTE index, int value);
+
+// One frame of the in-race state machine: while the race menu is up it pushes
+// the camera settings and the driver names of the active player, then updates
+// the car order, the input menu and the race-start/restart transitions.
+// FUNCTION: CMR2 0x00404f40
+void FUN_00404f40(Unk0049c2c0 *param1)
+{
+    int first;
+    int second;
+    int result;
+    int i;
+    DeviceInfo *pDev;
+
+    FUN_004246c0();
+    if (g_pMenu0x0052af44 != &g_menu0x0052a870)
+        goto updateMenus;
+
+    result = FUN_00422f50(g_unk0x0052af58[1]);
+    if (result == 5 || result == 8)
+        goto pushCamera;
+
+    FUN_00421720(g_unk0x0052af58[1], 5, 0xffff, FUN_00422fb0(g_unk0x0052af58[1]), 1);
+    switch (FUN_0041b380()) {
+    case 4:
+        first = (FUN_0041b370() & 0xff) + g_unk0x0052af58[1];
+        break;
+    case 0:
+    case 1:
+        first = g_unk0x0052af58[1];
+        break;
+    case 2:
+        RallyData_GetRoundDrivers((unsigned int *)&first, (unsigned int *)&second);
+        break;
+    case 3:
+        if (g_unk0x0052af58[1] == 0)
+            RallyData_GetRoundDrivers((unsigned int *)&first, (unsigned int *)&second);
+        else
+            RallyData_GetRoundDrivers((unsigned int *)&second, (unsigned int *)&first);
+        break;
+    }
+    RallyData_FUN_00408760(first, 5);
+
+pushCamera:
+    g_unk0x00529ed0 = FUN_00447ea0(g_unk0x0052af58[1]);
+    FUN_00447cf0(&g_unk0x00529cd8, g_unk0x0052af58[1]);
+    g_unk0x0052a2a0 = FUN_00447e00(g_unk0x0052af58[1]);
+    g_unk0x0052aa64 = g_unk0x0052aa5c - g_unk0x00529ed0;
+    g_unk0x00529ec8 = g_unk0x0052aa54 - g_unk0x00529cdc;
+    g_unk0x0052aa6c = g_unk0x0052a86c - g_unk0x0052a2a0;
+    g_unk0x0052a0bc = g_unk0x0052aa58 - g_unk0x00529ce0;
+    g_unk0x0052aa50.x = 0;
+    g_unk0x0052a86c = g_unk0x0052a2a0 + FixMul(g_unk0x0052aa6c, 0x1999);
+    g_unk0x0052aa54 = g_unk0x00529cdc + FixMul(g_unk0x00529ec8, 0x1999);
+    g_unk0x0052aa58 = g_unk0x00529ce0 + FixMul(g_unk0x0052a0bc, 0x1999);
+    FUN_00447ec0(g_unk0x0052af58[1], g_unk0x0052aa5c);
+    FUN_00447d20(g_unk0x0052af58[1], &g_unk0x0052aa50);
+    FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
+
+    if (g_unk0x0052ad54 != 0) {
+        FUN_00421e20(g_unk0x0052af58[1]);
+        result = FUN_0041f270();
+        FUN_00422140(g_unk0x0052af58[1], result);
+        result = 0;
+        if (g_pMenu0x0052af44 == &g_menu0x0052a870 && g_pMenu0x0052af44->cursor == 2)
+            result = 1;
+        FUN_00423010(g_unk0x0052af58[1], result);
+    }
+
+updateMenus:
+    i = 0;
+    if (Car_GetOrderCount() > 0) {
+        do {
+            FUN_004284d0(i, 1);
+            FUN_004285b0(i, FUN_0041f270(), 1);
+            i++;
+        } while (i < Car_GetOrderCount());
+    }
+    g_pMenu0x0052af44 = g_pMenu0x0052af48;
+    CInput::FUN_0049eab0();
+    FUN_0040bad0();
+    pDev = CInput::FUN_0049ead0(g_unk0x0052af58[0]);
+    FUN_0040bd60(g_unk0x0052af58[0], pDev);
+    if ((pDev->field_0x8 & (unsigned short)g_unk0x0052a0b8) == 0) {
+        if (g_pMenu0x0052af44 != NULL)
+            Menu_SetFlags(g_pMenu0x0052af44, 1, 1, 1, 1);
+        result = Menu_Update(g_pMenu0x0052af44, pDev->field_0x8);
+        if (result != 0)
+            g_pMenu0x0052af48 = (Menu *)result;
+    } else {
+        g_unk0x0052a0b8 = 0;
+        if (g_pMenu0x0052af44 != NULL)
+            Menu_CallCallback3(g_pMenu0x0052af44);
+        FUN_00404ef0();
+    }
+
+    if (CGameInfo::FUN_00405e00() == 0)
+        return;
+    g_unk0x0053811e = 0;
+    g_unk0x0053811f = 0;
+    if (FUN_00406770() > -1 && CGameInfo::FUN_00405d80() != 0xa && CGameInfo::FUN_00405d80() != 0xc) {
+        if (g_unk0x0053811d != 0) {
+            if ((unsigned int)(CMain::GetFrameDelta() - g_unk0x00537f30) >
+                (unsigned int)(FUN_00406770() * 100))
+                g_unk0x0053811e = 1;
+        } else {
+            i = 0;
+            do {
+                if (FUN_00409cb0(i) != 0 && FUN_0040a450(i) != 0) {
+                    g_unk0x0053811d = 1;
+                    if (g_unk0x00538120 == 0) {
+                        g_unk0x00538120 = 1;
+                        g_unk0x00537f30 = CMain::GetFrameDelta();
+                    }
+                }
+                i++;
+            } while (i < 7);
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 0xa || CGameInfo::FUN_00405d80() == 0xc) {
+        CGameInfo::FUN_00405d80();
+        if ((unsigned int)(CMain::GetFrameDelta() - FUN_0040af30()) >
+                (unsigned int)(FUN_00406710() * 6000) &&
+            FUN_004a15a0() != 0) {
+            if (g_unk0x00538100 != 0)
+                goto playerExit;
+            g_unk0x0053811f = 1;
+            FUN_0040af40();
+            g_unk0x00538100 = 1;
+            FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x00516090, 1);
+        }
+        if (g_unk0x00538100 != 0) {
+playerExit:
+            FUN_0041c5a0(*(BYTE *)param1->unk, 1);
+            return;
+        }
+    }
+    if (g_unk0x0053811e != 0 || g_unk0x0053811f != 0) {
+        if (CGameInfo::FUN_00405e00() != 0)
+            FUN_0040ac40(3);
+        g_unk0x00537f34 = CMain::GetFrameDelta();
+    }
+    CGameInfo::FUN_00405d80();
+    FUN_0041c5a0(*(BYTE *)param1->unk, 0);
+    if (g_unk0x0053811e != 0) {
+        FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+        if (g_unk0x0053811f == 0) {
+            if (g_unk0x0053811e == 0)
+                result = FUN_004483c0(0);
+            else
+                result = FUN_00448550();
+            FUN_00427950(result);
+            if (g_unk0x00538120 == 0 && FUN_00406770() > -1) {
+                g_unk0x00538120 = 1;
+                g_unk0x00537f30 = CMain::GetFrameDelta();
+            }
+            result = FUN_004483c0(0);
+            FUN_0040af00(result);
+        }
+        if (g_unk0x0053811e != 0) {
+            FUN_00404ef0();
+            CGame::FUN_0049c1c0(param1, 0, 0, 2);
+        }
+    }
+}
+
 void FUN_00410ea0(BYTE *, unsigned int);
 
 // Advances every entry of a menu screen one step.

@@ -2225,7 +2225,7 @@ bool FUN_0040b050(int value);
 int FUN_0040b020(int value);
 char *FUN_00409cd0(int index);
 int FUN_00427620(int index);
-int FUN_00422f50(unsigned int index);
+int FUN_00422f50(BYTE index);
 void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag);
 void FUN_00459630(int *param1, int *param2, int *param3);
 
@@ -2922,7 +2922,7 @@ int g_unk0x00543d74;
 BYTE g_unk0x00543e98;
 
 void StageObject_SetScaledValue(int value, int index);
-BYTE FUN_00422fb0(unsigned int index);
+BYTE FUN_00422fb0(BYTE index);
 int RallyData_FUN_00421500(void);
 
 // Scales a view's object value by the car's route position between two limits.
@@ -3311,9 +3311,10 @@ int FUN_00448550(void)
     else
         total = RallyData_FUN_00421420() << 16;
     progress = FixDiv((unsigned short)FUN_004589e0(0) << 16, total);
-    if (progress > 0x8000)
-        return g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(FUN_0040d4b0(g_unk0x0053d1b0), FixDiv(0x10000, progress)));
-    return g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2;
+    if (progress > 0x8000) {
+        return (g_unk0x0053d1b8[0] = ConvertRawTimeToCentiseconds(FixMul(FUN_0040d4b0(g_unk0x0053d1b0), FixDiv(0x10000, progress))));
+    }
+    return (g_unk0x0053d1b8[0] = g_unk0x0053d1b0 * 2);
 }
 
 BYTE *RallyData_FUN_00421440(int index);

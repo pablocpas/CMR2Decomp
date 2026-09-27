@@ -90,13 +90,13 @@ void FUN_0041b460(void) { }
 void FUN_0041c260(void) { }
 
 // STUB: CMR2 0x00421720
-void FUN_00421720(int, int, int, unsigned char, int) { }
+void FUN_00421720(unsigned char, int, int, unsigned char, int) { }
 
 // STUB: CMR2 0x00421e20
-void FUN_00421e20(int) { }
+void FUN_00421e20(unsigned char) { }
 
 // STUB: CMR2 0x00422140
-void FUN_00422140(int, int) { }
+void FUN_00422140(unsigned char, int) { }
 
 // STUB: CMR2 0x00427890
 void FUN_00427890(void) { }
@@ -132,4 +132,4 @@ void FUN_00473360(void) { }
 void FUN_00478c40(void) { }
 
 // STUB: CMR2 0x004bc290
-void FUN_004bc290(int, int, int, int, int, int, int) { }
+void FUN_004bc290(void *p, int, int, int, int, int, int) { }

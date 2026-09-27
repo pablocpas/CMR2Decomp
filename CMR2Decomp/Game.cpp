@@ -1268,8 +1268,168 @@ BOOL CGame::FUN_004ff450()
     g_unk0x0082a908 = 1;
     return FALSE;
 }
-// STUB: CMR2 0x0041b060
-BOOL CGame::FUN_0041b060() { return FALSE; }
+// In-race callback group of the game state machine (0x0041b060), filled by
+// FUN_0049c190; its slots live at 0x537de0.
+extern BYTE g_unk0x00537dd0[0x20];
+extern BYTE g_unk0x00537ef4;
+extern BYTE g_unk0x00537ef5;
+extern int g_unk0x00537ef8;
+extern int g_unk0x00537efc;
+extern int g_unk0x00537df0;
+
+void FUN_00404f40(Unk0049c2c0 *param1);
+void FUN_00405470(BYTE *param1);
+void FUN_0041b360(void);
+unsigned int *RallyData_GetChampionshipState(void);
+char RallyData_FUN_00408500(BYTE param1);
+int FUN_00407270(void);
+void RallyData_FUN_00407500(BYTE param1);
+void FUN_0042b660(int count);
+void Dash_Reset(void);
+void FUN_0041bf80(int param1, int param2);
+void FUN_0041f420(Unk0049c2c0 *p, BYTE index);
+void FUN_00411070(int param1, int param2);
+void FUN_0041c0e0(int param1, int param2);
+void FUN_00410c80(int param1, char param2);
+void FUN_00401000(BYTE *param1, int param2);
+void FUN_004010a0(BYTE *param1, int param2);
+void FUN_00401150(int param1, int param2);
+void FUN_00410de0(BYTE *param1, unsigned int param2);
+void FUN_00472e00(BYTE *param_1, unsigned int param_2);
+void FUN_004759d0(int unused1, int unused2);
+
+// In-race state table: pairs of (update, render) callbacks indexed by the state
+// of each slot of the callback group. Only the first seven entries are written;
+// the remaining states belong to Race.cpp functions that are not decompiled yet.
+// GLOBAL: CMR2 0x005190b0
+FuncTableGroup g_unk0x005190b0[7] = {
+    {(FuncTableEntry)FUN_0041bf80, NULL},
+    {(FuncTableEntry)FUN_0041f420, (OtherFuncTableEntry)FUN_00411070},
+    {(FuncTableEntry)FUN_0041c0e0, (OtherFuncTableEntry)FUN_00410c80},
+    {(FuncTableEntry)FUN_00401000, NULL},
+    {(FuncTableEntry)FUN_004010a0, NULL},
+    {(FuncTableEntry)FUN_00401150, (OtherFuncTableEntry)FUN_00410de0},
+    {(FuncTableEntry)FUN_00472e00, (OtherFuncTableEntry)FUN_004759d0},
+};
+
+// State transition rules of the in-race machine (byte 0 = current state, 0xff
+// any; byte 1 = slot level, 0xff any; byte 2 = value; byte 3 = next state),
+// terminated by 0xffffffff.
+// GLOBAL: CMR2 0x00519120
+unsigned int g_unk0x00519120[25] = {
+    0x0100ff00, 0x0200ff01, 0x0c01ff01, 0x0300ff02, 0x0400ff03, 0x0500ff04,
+    0x0700ff05, 0x0605ff05, 0x0d06ff05, 0x0a01ff05, 0x0700ff06, 0x0800ff07,
+    0x0900ff08, 0x0a00ff09, 0x0b00000a, 0x0b00010a, 0x0b00040a, 0x0b00020a,
+    0x0b00030a, 0x0000ff0b, 0x0407ff0b, 0x0403ff0b, 0x0000ff0c, 0x0504ffff,
+    0x0b01ffff
+};
+
+// Entry point of the in-race state machine: on the first frame it builds the
+// callback group of the current in-race mode, on later frames it only
+// dispatches the transition of the current state.
+// FUNCTION: CMR2 0x0041b060
+BOOL CGame::FUN_0041b060(void)
+{
+    unsigned int *pState;
+    Unk00817d98 *pSlot;
+    BYTE level;
+    BYTE state;
+    BYTE i;
+    BYTE value;
+    char c;
+
+    if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
+        if (CGameInfo::FUN_00404f20() != 0) {
+            FUN_00404f40((Unk0049c2c0 *)g_unk0x00537dd0);
+            FUN_00405470(g_unk0x00537dd0);
+            FUN_0049c370((Unk0049c2c0 *)g_unk0x00537dd0);
+            return FALSE;
+        }
+        FUN_0049c2c0((Unk0049c2c0 *)g_unk0x00537dd0);
+        FUN_0049c310((Unk0049c2c0 *)g_unk0x00537dd0);
+        FUN_0049c370((Unk0049c2c0 *)g_unk0x00537dd0);
+        return FALSE;
+    }
+    pState = RallyData_GetChampionshipState();
+    if (g_unk0x00537ef4 == 0)
+        FUN_0041b360();
+    state = CGameInfo::FUN_00405d70();
+    c = (char)CGameInfo::FUN_00405d80();
+    if (c == 4) {
+        switch ((int)((*pState >> 3) & 7) - 1) {
+        case 0:
+            if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1) {
+                if (RallyData_FUN_00408500((pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
+                    goto fail;
+            }
+            break;
+        case 1:
+            if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 10] & 0x1f) == -1) {
+                if (RallyData_FUN_00408500((pState[((*pState >> 0xc) & 0xf) * 3 + 10] >> 5) & 0x1f) == -1)
+                    goto fail;
+            }
+            break;
+        case 2:
+            if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 4] & 0x1f) == -1) {
+                if (RallyData_FUN_00408500((pState[((*pState >> 0xc) & 0xf) * 3 + 4] >> 5) & 0x1f) == -1)
+                    goto fail;
+            }
+            break;
+        case 3:
+            if (RallyData_FUN_00408500((BYTE)pState[1] & 0x1f) == -1) {
+                if (RallyData_FUN_00408500((pState[1] >> 5) & 0x1f) == -1)
+                    goto fail;
+            }
+            break;
+        default:
+fail:
+            level = 3;
+            state = 2;
+            goto done;
+        }
+        level = 2;
+    } else {
+        if (FUN_00407270() == 0 && state > 1) {
+            if (CGameInfo::FUN_00405d80() != 3 && state < 3 && CGameInfo::FUN_00405da0() == 0) {
+                level = 1;
+                state = 2;
+                goto done;
+            }
+            level = 4;
+        } else {
+            level = 0;
+        }
+    }
+    state = 1;
+done:
+    RallyData_FUN_00407500(state);
+    g_unk0x00537df0 = level;
+    if (state != 0) {
+        pSlot = (Unk00817d98 *)&g_unk0x00537dd0[0x10];
+        i = state;
+        do {
+            if (g_unk0x00537ef8 == 0) {
+                value = 0;
+            } else {
+                g_unk0x00537efc = 1;
+                value = 5;
+            }
+            FUN_0049c150(pSlot, value, level);
+            pSlot++;
+            i--;
+        } while (i != 0);
+    }
+    FUN_0049c190((Unk0049c2c0 *)g_unk0x00537dd0, state, (Unk00817d98 *)&g_unk0x00537dd0[0x10],
+                 g_unk0x005190b0, g_unk0x00519120);
+    if (g_unk0x00537ef8 != 0) {
+        FUN_0042b660(2);
+        Dash_Reset();
+    }
+    g_unk0x00537ef4 = 1;
+    g_unk0x00537ef5 = 0;
+    g_unk0x00537ef8 = 0;
+    return FALSE;
+}
 
 // FUNCTION: CMR2 0x00501680
 void CGame::FUN_00501680(struct Unk0049c2c0 *, BYTE) { return; }

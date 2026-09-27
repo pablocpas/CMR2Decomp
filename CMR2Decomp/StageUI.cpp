@@ -776,6 +776,30 @@ void FUN_004734f0(Menu *pMenu)
         CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 1, 2);
 }
 
+extern int g_unk0x0058cf7c;
+extern BYTE g_unk0x0058ca90[];
+void FUN_004bc290(void *p, int, int, int, int, int, int);
+
+// Fade callback of the in-race state machine: releases the scene callbacks and
+// restarts the fade out of the stage objects.
+// FUNCTION: CMR2 0x00473540
+void FUN_00473540(BYTE index)
+{
+    int i;
+
+    i = 0;
+    if (*g_unk0x0058ca88 != 0) {
+        do {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 0, 2);
+            i++;
+        } while (i < (int)*g_unk0x0058ca88);
+    }
+    CGameInfo::FUN_0049ea90(0);
+    FUN_0041b330();
+    g_unk0x0058cf7c = 5;
+    FUN_004bc290(g_unk0x0058ca90 + 0x4d0, 2, 7, 0, 0, 0x10000, 0);
+}
+
 // Co-driver arrow sprites: 64-pixel cells for low resolutions, 102-pixel
 // cells when the screen is at least 1024 wide and the texture fits.
 // GLOBAL: CMR2 0x00517e30
