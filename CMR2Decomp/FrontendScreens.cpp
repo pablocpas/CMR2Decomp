@@ -2603,7 +2603,7 @@ void FUN_004ef190(void)
             }
         }
         p++;
-    } while ((int)p < (int)&g_menuScrollers[12]);
+    } while ((int)&p->pMenu < (int)&g_unk0x00819754);
 }
 
 // FUNCTION: CMR2 0x004ef480
@@ -4048,15 +4048,11 @@ BYTE FUN_004f3b50(void)
 
 // Sets the input repeat rate from the options and binds the five frontend
 // sounds to the menu actions.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3bb0
 void FUN_004f3bb0(void)
 {
-    int rate;
-
     g_unk0x0081988c = -1;
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     CInput::FUN_0049ff80(g_menuSoundBase, g_menuSoundBase + 1, g_menuSoundBase + 2, g_menuSoundBase + 3,
                          g_menuSoundBase + 4);
     FUN_004a0c40(1);
@@ -4194,7 +4190,6 @@ void FUN_004f3c10(int *pPoints, int t, int *pOut)
 
 // Resets the main menu animation: letters spread along the path, dots at
 // the start, and the path of the entry under the cursor.
-// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f3dd0
 void FUN_004f3dd0(void)
 {
@@ -4222,16 +4217,16 @@ void FUN_004f3dd0(void)
     g_menuAnimTime = -1;
     switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
     case 0:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 0;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 0;
         break;
     case 1:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 1;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 1;
         break;
     case 2:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 2;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 2;
         break;
     case 3:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 3;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 3;
         break;
     case 4:
         g_menuPathMode = 4;
@@ -4239,10 +4234,10 @@ void FUN_004f3dd0(void)
         g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
         break;
     case 5:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 7;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 7;
         break;
     case 6:
-        g_menuPathMode = g_menuPathPrevMode = g_menuPathVariant = 8;
+        g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 8;
         break;
     }
 }
@@ -5680,7 +5675,6 @@ void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsig
 
 // Next player: gives the player a profile and goes to the name entry (or
 // for championship mode 4 to the championship screen).
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f0ac0
 void FUN_004f0ac0(Menu *pMenu, int param)
 {
@@ -5688,11 +5682,7 @@ void FUN_004f0ac0(Menu *pMenu, int param)
 
     g_unk0x00819744++;
     FUN_004f2bf0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff));
-    if (CGameInfo::FUN_00405d80() == 4) {
-        Menu_SetParent(FUN_004f83c0(), pMenu);
-        FUN_004f2c10((int)FUN_004f8400());
-        FUN_004f8430();
-    } else {
+    if (CGameInfo::FUN_00405d80() != 4) {
         switch (CGameInfo::FUN_00405d80()) {
         case 5:
             pNext = FUN_004fa300();
@@ -5718,6 +5708,10 @@ void FUN_004f0ac0(Menu *pMenu, int param)
             FUN_004f2c10((int)pNext);
             Menu_SetParent(pNext, pMenu);
         }
+    } else {
+        Menu_SetParent(FUN_004f83c0(), pMenu);
+        FUN_004f2c10((int)FUN_004f8400());
+        FUN_004f8430();
     }
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xdc),
             (CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) + 1);
@@ -6245,7 +6239,6 @@ void FUN_004ef970(Menu *pMenu, int param)
 
 // Item callback of "start" on the multiplayer race settings page: stores
 // the settings and starts the knockout.
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f01c0
 void FUN_004f01c0(Menu *pMenu, int param)
 {
@@ -6269,6 +6262,8 @@ void FUN_004f01c0(Menu *pMenu, int param)
         RallyData_FUN_0040d6a0(7);
         break;
     case 0:
+        RallyData_FUN_0040d6a0(8);
+        break;
     default:
         RallyData_FUN_0040d6a0(8);
         break;
