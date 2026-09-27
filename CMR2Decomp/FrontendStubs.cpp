@@ -175,10 +175,6 @@ void FUN_004ef590(Menu *pMenu, int param)
 {
 }
 
-void FUN_004ef5e0(Menu *pMenu, int param)
-{
-}
-
 void FUN_004efb70(Menu *pMenu, int param)
 {
 }
