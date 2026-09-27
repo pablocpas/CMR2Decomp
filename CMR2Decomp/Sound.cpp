@@ -746,24 +746,26 @@ HRESULT FUN_004a2bd0(int param1)
     return 0;
 }
 
+// GLOBAL: CMR2 0x00511420
+float g_streamChunkRecip = 1.0f / 0xfe80;
+
 // Refills the part of the streaming buffer that has already been played.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a3050
 HRESULT FUN_004a3050(int unused)
 {
-    void *pAudio2 = NULL;
     void *pAudio1 = NULL;
-    DWORD bytes2;
+    void *pAudio2 = NULL;
     DWORD bytes1;
+    DWORD bytes2;
 
     FUN_004a2d30();
     if (g_unk0x005a2718 > 0) {
         if (CSound::m_pDirectSoundBuffer->Lock(g_unk0x005a2714 * 0xfe80, g_unk0x005a2718 * 0xfe80,
                                                &pAudio1, &bytes1, &pAudio2, &bytes2, 0) == 0) {
             if (pAudio1 != NULL)
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, (UINT)(bytes1 * (1.0f / 0xfe80))));
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio1, (UINT)(bytes1 * g_streamChunkRecip)));
             if (pAudio2 != NULL)
-                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, (UINT)(bytes2 * (1.0f / 0xfe80))));
+                CSound::FUN_004a3250(FUN_004a2d90((BYTE *)pAudio2, (UINT)(bytes2 * g_streamChunkRecip)));
             CSound::FUN_004a3250(CSound::m_pDirectSoundBuffer->Unlock(pAudio1, bytes1, pAudio2, bytes2));
         }
     }
