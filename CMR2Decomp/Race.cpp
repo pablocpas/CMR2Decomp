@@ -431,8 +431,9 @@ int g_unk0x00517e24 = -1;
 
 // Draws the five call slots of one player: the icon sprite of each call (the
 // countdown wobbles it once the slot is the first one) and the timer text.
+// The second parameter is unused (the original still cleans 8 bytes).
 // FUNCTION: CMR2 0x004177d0
-void FUN_004177d0(unsigned int player)
+void FUN_004177d0(unsigned int player, int param2)
 {
     BYTE colA[4];
     BYTE colB[4];
