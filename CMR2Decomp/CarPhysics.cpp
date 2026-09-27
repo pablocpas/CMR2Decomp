@@ -582,7 +582,6 @@ void FUN_00494db0(Car *pCar, int view)
 
 // Pulls the shadow points one unit towards the camera so they do not sink
 // into the ground: the body and skid points, and the wheel patches when drawn.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00495f50
 void FUN_00495f50(int view, CarContact *pContact)
 {
@@ -602,9 +601,11 @@ void FUN_00495f50(int view, CarContact *pContact)
         if (len > 0x20000 && len != 0) {
             FixVecScaleRecip(&d, &d, len);
             FixVecScale(&d, &d, 0x10000);
+            // The original adds the components out of order here (it picks the
+            // base register of the point from the component touched last).
             p->x += d.x;
-            p->y += d.y;
             p->z += d.z;
+            p->y += d.y;
         }
     }
     if (pContact->field_0x298 != 0) {

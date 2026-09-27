@@ -394,7 +394,6 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
     }
 }
 
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a230
 void FUN_0040a230(int splitCount)
 {
@@ -418,13 +417,16 @@ void FUN_0040a230(int splitCount)
         if (splitCount != 2)
             return;
         time = FUN_00448680(0, 2);
+        if (time < g_netLapBest || g_netLapBest == 0)
+            g_netLapBest = time;
+        return;
     } else {
         if (splitCount != 8)
             return;
         time = FUN_00448680(0, 8);
+        if (time < g_netLapBest || g_netLapBest == 0)
+            g_netLapBest = time;
     }
-    if (time < g_netLapBest || g_netLapBest == 0)
-        g_netLapBest = time;
 }
 
 // FUNCTION: CMR2 0x0040a330
@@ -496,7 +498,6 @@ unsigned int FUN_0040a470(int index)
 }
 
 // qsort comparator for g_netResults
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a490
 int __cdecl FUN_0040a490(const void *a, const void *b)
 {
@@ -505,12 +506,10 @@ int __cdecl FUN_0040a490(const void *a, const void *b)
 
     if (p1->index != -1 && p2->index == -1)
         return -1;
-    if (p1->index == -1) {
-        if (p2->index != -1)
-            return 1;
-        if (p2->index == -1)
-            return 0;
-    }
+    if (p1->index == -1 && p2->index != -1)
+        return 1;
+    if (p1->index == -1 && p2->index == -1)
+        return 0;
     if (p1->field_0x14 != 0 && p2->field_0x14 == 0)
         return -1;
     if (p1->field_0x14 == 0 && p2->field_0x14 != 0)

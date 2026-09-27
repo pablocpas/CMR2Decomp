@@ -2854,7 +2854,7 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0x10 = param3;
 }
 
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
 int CGameInfo::FUN_005004c0(void)
 {
@@ -3109,13 +3109,12 @@ void FUN_00507710(BYTE *pColour)
     g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
     g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
     // The original expands the 1/127 scale as a 64-bit division (its compiler
-    // keeps the constant divisor in a register, like at 0x4689c8); ours folds
-    // the whole constant expression to the 0x204 it also computes.
-    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    // keeps the constant divisor in a register, like at 0x4689c8).
+    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(0x100000000i64 / 0x7f0000));
     g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
     g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
     g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
-    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(((__int64)0x10000 << 16) / 0x7f0000));
+    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(0x100000000i64 / 0x7f0000));
     g_unk0x0082d148 = (int)pColour[0] << 16;
     g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
     g_unk0x0082d14c = pColour[1];
@@ -4538,7 +4537,7 @@ void FUN_00404130(Menu *pMenu, int param)
 }
 
 // Callback of the car setup menu: encodes the selected switches and tyres.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404d00
 void FUN_00404d00(Menu *pMenu)
 {
@@ -5177,7 +5176,7 @@ void FUN_00402c90(int param)
 
     FUN_00402c40();
     g_unk0x0052a0b8 = 0;
-    if ((char)param != 0)
+    if ((BYTE)param != 0)
         value = (int)g_menu0x0052ad60.items[g_menu0x0052ad60.cursor].value;
     else
         value = param;
@@ -5201,7 +5200,7 @@ void FUN_00402c90(int param)
     Menu_AddItemType4(&g_menu0x0052ad60, 0, 0x13, (int)FUN_00401850, 7);
     Menu_SetCallbacks(&g_menu0x0052ad60, (MenuCallback)FUN_00402bb0, (MenuCallback)FUN_00402bf0,
                       (MenuCallback)FUN_00401870, NULL);
-    if ((char)param != 0)
+    if ((BYTE)param != 0)
         Menu_SelectItem(&g_menu0x0052ad60, value);
     else
         Menu_ValidateCursor(&g_menu0x0052ad60, 0);
@@ -6252,7 +6251,7 @@ int g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff5b0
 void FUN_004ff5b0(void)
 {
@@ -8267,7 +8266,6 @@ void FUN_0050a3c0(void)
 
 // Moves the left or the right edge of the slot's layout rectangle towards the
 // centre while its interpolation is running.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00501de0
 void FUN_00501de0(int param_1, short *param_2)
 {
@@ -8277,7 +8275,7 @@ void FUN_00501de0(int param_1, short *param_2)
     int delta;
 
     p = &g_unk0x0082b2c0[param_1];
-    if (g_unk0x0082b2c0[param_1].field_0xc == 1) {
+    if (p->field_0xc == 1) {
         mid = param_2[2] / 2 + param_2[0];
         if (p->field_0x0 < 0x8000) {
             param_2[0] = mid - 1;
@@ -8295,7 +8293,7 @@ void FUN_00501de0(int param_1, short *param_2)
         param_2[0] += delta / 2;
         param_2[2] -= delta;
         return;
-    } else if (g_unk0x0082b2c0[param_1].field_0xc == 0) {
+    } else if (p->field_0xc == 0) {
         param_2[3] = 0;
         param_2[2] = 0;
     }
@@ -8496,27 +8494,27 @@ void FUN_0050a3f0(void)
         shown = value;
     }
     FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x90),
-                 (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0x5d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x91),
             FUN_00501200(CGameInfo::FUN_005011b0()));
     FUN_00501f80(4, 1, 0, CFrontend::m_stringDest,
-                 (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
+                 g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                  (int)g_pGraphics->resY * 0x6d / 0x1e0, g_unk0x00527380, g_unk0x0052738c, 0x11);
     FUN_005004b0(shown);
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (shown / 100) / 0x3c, (shown / 100) % 0x3c);
     if (CGameInfo::FUN_005004c0() != 0)
         FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
-                     (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
+                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x00527378, &g_unk0x00527378, 0x11);
     else
         FUN_00501f80(4, 3, 3, CFrontend::m_stringDest,
-                     (int)g_pGraphics->resX * g_unk0x005293a0 / 0x280,
+                     g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280,
                      (int)g_pGraphics->resY * 0x96 / 0x1e0,
                      &g_unk0x0052737c, &g_unk0x0052738c[1], 0x11);
     width = Font_GetTextWidth(3, (BYTE *)CFrontend::m_stringDest);
-    x = (int)g_pGraphics->resX * g_unk0x005293a0;
+    x = g_unk0x005293a0 * (int)g_pGraphics->resX;
     sprintf(CFrontend::m_stringDest, g_str0x005295f0);
     if (CGameInfo::FUN_005004c0() != 0)
         FUN_00501f80(4, 0, 0, CFrontend::m_stringDest, x / 0x280 + width,

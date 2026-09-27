@@ -920,7 +920,6 @@ void FUN_004d1e10(Unk0049c2c0 *p1, BYTE state)
     }
 }
 
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d15e0
 void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -934,28 +933,28 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
     // europe sku check
     skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
     skuRegion = CRegKey::m_skuEurope;
-    if (strcmp(skuValue, skuRegion) == 0)
+    if (strcmp(skuRegion, skuValue) == 0)
        CGameInfo::SetGameRegion(0);
     else
     {
        // america sku check
        skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
        skuRegion = CRegKey::m_skuAmerica;
-       if (strcmp(skuValue, skuRegion) == 0)
+       if (strcmp(skuRegion, skuValue) == 0)
            CGameInfo::SetGameRegion(1);
        else
        {
            // japan sku check
            skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
            skuRegion = CRegKey::m_skuJapan;
-           if (strcmp(skuValue, skuRegion) == 0)
+           if (strcmp(skuRegion, skuValue) == 0)
                CGameInfo::SetGameRegion(2);
            else
            {
                // poland sku check
                skuValue = CRegKey::GetValueFromKey(CRegKey::m_regKeySkuType);
                skuRegion = CRegKey::m_skuPoland;
-               if (strcmp(skuValue, skuRegion) == 0)
+               if (strcmp(skuRegion, skuValue) == 0)
                    CGameInfo::SetGameRegion(3);
                else // otherwise die
                    CGame::SetShouldExit();
@@ -1398,6 +1397,13 @@ void CGame::FUN_004a17b0(void) {
     }    
 }
 
+// The original calls this wrapper instead of FUN_004a17b0 from CGame::Cleanup;
+// it compiles to a five byte tail jump.
+// FUNCTION: CMR2 0x004a17e0
+void CGame::FUN_004a17e0(void) {
+    FUN_004a17b0();
+}
+
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a17f0
 void CGame::FUN_004a17f0(bool param1) {
@@ -1447,7 +1453,6 @@ void CGame::FUN_004aaa10(void) {
     }
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aaac0
 bool CGame::Cleanup(void)
 {
@@ -1455,7 +1460,7 @@ bool CGame::Cleanup(void)
   DestroyDirectPlayLobby();
   DestroyDirectPlay();
   FUN_004aaa10();
-  FUN_004a17b0();
+  FUN_004a17e0();
   CoUninitialize();
   return 1;
 }
@@ -1770,10 +1775,10 @@ int CGame::FUN_0049c430(void)
 // FUNCTION: CMR2 0x0049c440
 void FUN_0049c440(Mesh *pMesh, int mask, int value)
 {
+    MeshTriangle *pTri;
     int low = mask & 0x7f;
     int high = (mask >> 7) & 0x7f;
     int i;
-    MeshTriangle *pTri;
 
     if (pMesh != NULL) {
         for (i = 0; i < pMesh->triangleCount; i++) {
@@ -2012,7 +2017,7 @@ int __cdecl FUN_0049cbc0(const void *a, const void *b)
     return depthA < depthB ? 1 : -1;
 }
 
-extern short g_unk0x006ed5f0[];
+extern unsigned short g_unk0x006ed5f0[];
 // GLOBAL: CMR2 0x0059be6c
 SceneNode *g_unk0x0059be6c;
 // GLOBAL: CMR2 0x00597cc0
@@ -2149,7 +2154,6 @@ void Game_DrawUnsortedNodes(int bit)
 
 // Advances the pulse effect by the frame delta and draws the ground mesh of
 // every culled sector in world space.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049cec0
 void FUN_0049cec0(void)
 {
@@ -2176,7 +2180,6 @@ void FUN_0049cec0(void)
 
 // Advances the pulse effect by the frame delta and draws the shadow mesh of
 // every culled sector in world space, with Z writes disabled.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049cf80
 void FUN_0049cf80(void)
 {
@@ -2622,9 +2625,8 @@ int FUN_004a15c0(BYTE index, GUID *pOut)
 }
 
 // Sets one of the four session user values and pushes the description.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a16c0
-void Session_SetUserValue(char index, int value)
+void Session_SetUserValue(BYTE index, int value)
 {
     FUN_004a0d60();
     switch (index) {
