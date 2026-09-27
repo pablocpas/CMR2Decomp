@@ -5327,3 +5327,72 @@ void FUN_00420850(Car *pCar)
         }
     }
 }
+
+char *FUN_0041f8f0(void);
+GenericFile *FUN_0041f500(void);
+
+// Textures of the challenge screens (net-play blob of each player and the blob
+// of the current challenge).
+// GLOBAL: CMR2 0x00537070
+Texture *g_unk0x00537070;
+// GLOBAL: CMR2 0x00537074
+Texture *g_unk0x00537074;
+// GLOBAL: CMR2 0x00537078
+Texture *g_unk0x00537078;
+// GLOBAL: CMR2 0x0053707c
+Texture *g_unk0x0053707c;
+// GLOBAL: CMR2 0x00517d38
+char g_strChallengeTrackName0x00517d38[22] = "%s\\chall\\cha%.2d.tga";
+// GLOBAL: CMR2 0x00517d50
+char g_strChalblobTga0x00517d50[33] = "\\NEWIMAGE\\osd\\chall\\chalblob.tga";
+// GLOBAL: CMR2 0x00517d74
+char g_strNetblobrTga0x00517d74[33] = "\\NEWIMAGE\\osd\\chall\\netblobr.tga";
+extern char g_strPathConcat[];
+// GLOBAL: CMR2 0x00517da0
+char g_strNetblobTga0x00517da0[32] = "\\NEWIMAGE\\osd\\chall\\netblob.tga";
+
+// Loads the textures of the challenge screens: the net-play blobs for the two
+// network challenge screens and the challenge blob of the current track (the
+// track one is built from the install dir or, for the DD/network tracks, from
+// the name of the loaded file with the extension changed to .DDS).
+// FUNCTION: CMR2 0x00411280
+void FUN_00411280(void)
+{
+    bool loaded;
+    int track;
+
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9) {
+        sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+                g_strNetblobTga0x00517da0);
+        g_unk0x00537070 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                    CFrontend::m_stringDest, &loaded, 0, 0, 0);
+        sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+                g_strNetblobrTga0x00517d74);
+        g_unk0x00537074 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                    CFrontend::m_stringDest, &loaded, 0, 0, 0);
+    }
+    if (CGameInfo::FUN_00405d80() != 5 && CGameInfo::FUN_00405d80() != 6 &&
+        CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 4 &&
+        CGameInfo::FUN_00405d80() != 0xb && CGameInfo::FUN_00405d80() != 0xc &&
+        (BYTE)RallyData_GetFlag25() == 0)
+        return;
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(),
+            g_strChalblobTga0x00517d50);
+    g_unk0x00537078 = CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile1(),
+                                                CFrontend::m_stringDest, &loaded, 0, 0, 0);
+    if (CGameInfo::FUN_00405d80() == 4 || (BYTE)RallyData_GetFlag25() != 0) {
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, FUN_0041f8f0());
+        track = strlen(CFrontend::m_stringDest);
+        CFrontend::m_stringDest[track - 2] = '.';
+        CFrontend::m_stringDest[track - 1] = 'D';
+        CFrontend::m_stringDest[track] = 'D';
+        CFrontend::m_stringDest[track + 1] = 'S';
+        CFrontend::m_stringDest[track + 2] = '\0';
+    } else {
+        sprintf(CFrontend::m_stringDest, g_strChallengeTrackName0x00517d38,
+                CInstallInfo::GetTracksDir(),
+                (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff) + 1);
+    }
+    g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
+                                                0, 0);
+}
