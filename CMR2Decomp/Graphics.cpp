@@ -3692,6 +3692,18 @@ float g_pulseSpeed;
 int g_pulseRising = 1;
 // GLOBAL: CMR2 0x0052173c
 float g_pulseMax = 0.3f;
+// GLOBAL: CMR2 0x0051136c
+float g_pulseThreshold3 = 0.2f;
+// GLOBAL: CMR2 0x00511ce8
+float g_pulseThreshold1 = 0.1f;
+// GLOBAL: CMR2 0x00511d10
+float g_pulseThreshold4 = 0.25f;
+// GLOBAL: CMR2 0x00511d14
+float g_pulseThreshold2 = 0.15f;
+// GLOBAL: CMR2 0x00511d18
+float g_pulseThreshold0 = 0.05f;
+// GLOBAL: CMR2 0x00511d1c
+float g_pulsePhaseRate = 0.004f;
 
 // match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bcc60
@@ -3702,30 +3714,30 @@ void Pulse_Update(unsigned int dt)
     if (g_pulseFrozen != 0)
         return;
     t = (float)dt;
-    g_pulsePhase = t * 0.004f + g_pulsePhase;
-    if (g_pulseRising == 0) {
-        if (g_pulseLevel <= 0.05f)
+    g_pulsePhase = t * g_pulsePhaseRate + g_pulsePhase;
+    if (g_pulseRising != 0) {
+        if (g_pulseLevel <= g_pulseThreshold0)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= 0.1f)
+        else if (g_pulseLevel <= g_pulseThreshold1)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.15f)
+        else if (g_pulseLevel <= g_pulseThreshold2)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= 0.2f)
+        else if (g_pulseLevel <= g_pulseThreshold3)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.25f)
+        else if (g_pulseLevel <= g_pulseThreshold4)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
     } else {
-        if (g_pulseLevel <= 0.05f)
+        if (g_pulseLevel <= g_pulseThreshold0)
             g_pulseSpeed = 0.0007f;
-        else if (g_pulseLevel <= 0.1f)
+        else if (g_pulseLevel <= g_pulseThreshold1)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.15f)
+        else if (g_pulseLevel <= g_pulseThreshold2)
             g_pulseSpeed = 0.0014f;
-        else if (g_pulseLevel <= 0.2f)
+        else if (g_pulseLevel <= g_pulseThreshold3)
             g_pulseSpeed = 0.0011f;
-        else if (g_pulseLevel <= 0.25f)
+        else if (g_pulseLevel <= g_pulseThreshold4)
             g_pulseSpeed = 0.0007f;
         else
             g_pulseSpeed = 0.0004f;
@@ -4209,28 +4221,30 @@ int g_unk0x006dd784;
 int g_unk0x006dd788;
 void Billboard_Reset(void);
 
+extern int g_billboardsEnabled;
+
 // Builds the 800-entry triangle-strip index table.
 // match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1150
 void FUN_004b1150(void)
 {
     int i;
-    unsigned short *pIndex;
+    short *pIndex;
+    int v;
 
     g_unk0x006dd784 = 0;
     g_unk0x006dd788 = 0;
-    pIndex = g_unk0x006db200;
-    for (i = 0; i < 800; i++) {
-        int v = i * 4 + 3;
-
-        pIndex[0] = v - 3;
-        pIndex[1] = v;
-        pIndex[2] = v - 1;
-        pIndex[3] = v - 3;
-        pIndex[4] = v - 2;
-        pIndex[5] = v;
+    pIndex = (short *)&g_unk0x006db200[1];
+    for (i = 0, v = 3; i < 800; i++, v += 4) {
+        pIndex[-1] = (short)(v - 3);
+        pIndex[0] = (short)v;
+        pIndex[1] = (short)(v - 1);
+        pIndex[2] = (short)(v - 3);
+        pIndex[3] = (short)(v - 2);
+        pIndex[4] = (short)v;
         pIndex += 6;
     }
+    g_billboardsEnabled = 1;
     CGame::RegisterCallback(Billboard_Reset, NULL);
 }
 
@@ -4360,9 +4374,7 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 void Billboard_Reset(void)
 {
     memset(g_billboards, 0, sizeof(g_billboards));
-    g_unk0x006dd784 = 0;
-    g_unk0x006dd788 = 0;
-    g_billboardsEnabled = 0;
+    g_unk0x006dd784 = g_unk0x006dd788 = 0;
 }
 
 // Vertex of a billboard (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
@@ -5020,7 +5032,7 @@ void FUN_004ae170(int param1)
         CFileBuffer::FreeGenericFileBuffer(g_unk0x006a2a98);
         g_unk0x006a2a98 = NULL;
     }
-    g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((param1 & 0xff) * 92);
+    g_unk0x006a2a98 = CFileBuffer::AllocateLockedBuffer((BYTE)param1 * 92);
     g_unk0x006a2bcc = param1 & 0xff;
     g_layerQuad[0].u = 0;
     g_layerQuad[0].v = 0;
@@ -5118,32 +5130,74 @@ extern BYTE g_unk0x00542630[];
 // FUNCTION: CMR2 0x00457c50
 void FUN_00457c50(void)
 {
-    if (!CGameInfo::FUN_00406410(0x10))
+    if (CGameInfo::FUN_00406410(0x10) && CFrontend::FUN_004b7560(0x400) != 0 &&
+        CFrontend::FUN_004b7590(0x400) != 0) {
+        g_stageQualityCodes[0] = 'A';
+        g_stageQualityCodes[1] = 'A';
+        g_stageQualityCodes[3] = 'A';
+        g_stageQualityCodes[2] = 'A';
+        g_stageQualityCodes[4] = 'C';
+        g_stageQualityCodes[5] = 'C';
+        g_stageQualityCodes[6] = 'C';
+        g_stageQualityCodes[7] = 'A';
+        g_stageQualityCodes[8] = 'A';
+        g_stageQualityCodes[13] = 'A';
+        g_stageQualityCodes[14] = 'A';
+        g_stageQualityCodes[15] = 'A';
+        g_stageQualityCodes[16] = 'A';
+        g_stageQualityCodes[17] = 'A';
+        g_stageQualityCodes[18] = 'A';
+        g_stageQualityCodes[19] = 'A';
+        g_unk0x00542630[0x394] = 'A';
+        g_unk0x00542630[0x395] = 'A';
+        g_stageQualityCodes[11] = 'A';
+        g_stageQualityCodes[12] = 'A';
         return;
-    if (CFrontend::FUN_004b7560(0x400) == 0)
+    }
+    switch (CGameInfo::FUN_00405d10()) {
+    case 0:
+        g_stageQualityCodes[0] = 'A';
+        g_stageQualityCodes[1] = 'A';
+        g_stageQualityCodes[4] = 'A';
+        g_stageQualityCodes[5] = 'C';
+        g_stageQualityCodes[6] = 'D';
+        g_stageQualityCodes[7] = 'A';
+        g_stageQualityCodes[8] = 'C';
+        g_stageQualityCodes[13] = 'D';
+        g_stageQualityCodes[14] = 'D';
+        g_stageQualityCodes[3] = 'C';
+        g_stageQualityCodes[2] = 'A';
+        g_stageQualityCodes[17] = 'D';
+        g_stageQualityCodes[18] = 'E';
+        g_stageQualityCodes[19] = 'F';
+        g_unk0x00542630[0x394] = 'A';
+        g_unk0x00542630[0x395] = 'C';
+        g_stageQualityCodes[11] = 'A';
+        g_stageQualityCodes[12] = 'D';
         return;
-    if (CFrontend::FUN_004b7590(0x400) == 0)
+    case 2:
+        g_stageQualityCodes[0] = 'C';
+        g_stageQualityCodes[1] = 'C';
+        g_stageQualityCodes[3] = 'D';
+        g_stageQualityCodes[2] = 'D';
+        g_stageQualityCodes[4] = 'D';
+        g_stageQualityCodes[5] = 'E';
+        g_stageQualityCodes[6] = 'F';
+        g_stageQualityCodes[7] = 'D';
+        g_stageQualityCodes[8] = 'D';
+        g_stageQualityCodes[13] = 'D';
+        g_stageQualityCodes[14] = 'D';
+        g_stageQualityCodes[15] = 'D';
+        g_stageQualityCodes[16] = 'D';
+        g_stageQualityCodes[17] = 'D';
+        g_stageQualityCodes[18] = 'E';
+        g_stageQualityCodes[19] = 'F';
+        g_unk0x00542630[0x394] = 'D';
+        g_unk0x00542630[0x395] = 'D';
+        g_stageQualityCodes[11] = 'C';
+        g_stageQualityCodes[12] = 'D';
         return;
-    g_stageQualityCodes[0] = 'A';
-    g_stageQualityCodes[1] = 'A';
-    g_stageQualityCodes[3] = 'A';
-    g_stageQualityCodes[2] = 'A';
-    g_stageQualityCodes[4] = 'C';
-    g_stageQualityCodes[5] = 'C';
-    g_stageQualityCodes[6] = 'C';
-    g_stageQualityCodes[7] = 'A';
-    g_stageQualityCodes[8] = 'A';
-    g_stageQualityCodes[13] = 'A';
-    g_stageQualityCodes[14] = 'A';
-    g_stageQualityCodes[15] = 'A';
-    g_stageQualityCodes[16] = 'A';
-    g_stageQualityCodes[17] = 'A';
-    g_stageQualityCodes[18] = 'A';
-    g_stageQualityCodes[19] = 'A';
-    g_unk0x00542630[0x394] = 'A';
-    g_unk0x00542630[0x395] = 'A';
-    g_stageQualityCodes[11] = 'A';
-    g_stageQualityCodes[12] = 'A';
+    }
 }
 
 
@@ -6755,7 +6809,7 @@ void Graphics_ReloadTexture(Texture *pTexture)
 // FUNCTION: CMR2 0x004bc410
 void Timer_FindFree(void)
 {
-    unsigned int slot;
+    int slot;
     int i;
 
     slot = 0;
