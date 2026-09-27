@@ -2355,7 +2355,7 @@ unsigned int FUN_0047d0e0(int index, BYTE *pOut, int *pCount, BYTE *pFlag)
             if (delta < 0 || delta > 5) {
                 if (delta < -100)
                     delta += duration;
-                if (delta < 1 || delta > 5)
+                if (delta <= 0 || delta > 5)
                     active[i] = 0;
             }
         }
@@ -3689,7 +3689,7 @@ int FUN_004616c0(BYTE a, BYTE b, int t)
 {
     int v;
 
-    v = ((int)b * 0x10000 + FixMul((int)a * 0x10000 - (int)b * 0x10000, t)) >> 16;
+    v = (((int)b << 16) + FixMul(((int)a << 16) - ((int)b << 16), t)) >> 16;
     if (v > 0xff)
         v = 0xff;
     return v;
