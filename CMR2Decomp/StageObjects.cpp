@@ -1837,11 +1837,11 @@ void FUN_00480380(void)
 {
     FixVector velocity;
     FixVector *pPosition;
-    short angle;
+    unsigned short angle;
     int randomFixed;
 
     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    angle = (short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
+    angle = (unsigned short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
     pPosition = &g_unk0x005909c8[rand() % 4];
 
     velocity.x = g_sinTable[angle & 0xfff];
