@@ -1297,12 +1297,23 @@ void FUN_00401150(int param1, int param2);
 void FUN_00410de0(BYTE *param1, unsigned int param2);
 void FUN_00472e00(BYTE *param_1, unsigned int param_2);
 void FUN_004759d0(int unused1, int unused2);
+void FUN_0041d2b0(BYTE *param1, unsigned int param2);
+void FUN_0041d7a0(int param1, unsigned int param2);
+void FUN_0041db10(BYTE *param1, unsigned int param2);
+void FUN_0041e8d0(BYTE *param1, unsigned int param2);
+void FUN_0041e350(int param1, unsigned int param2);
+void FUN_0041f4e0(Unk0049c2c0 *p, BYTE index);
+void FUN_0041e5c0(int param1, char param2);
+void FUN_00410e20(BYTE *param1, unsigned int param2);
+void FUN_00410e70(BYTE *param1, unsigned int param2);
+void FUN_00410ee0(BYTE *param1, unsigned int param2);
+void FUN_00411020(BYTE *param1, unsigned int param2);
+void FUN_00410fa0(BYTE *param1, unsigned int param2);
 
 // In-race state table: pairs of (update, render) callbacks indexed by the state
-// of each slot of the callback group. Only the first seven entries are written;
-// the remaining states belong to Race.cpp functions that are not decompiled yet.
+// of each slot of the callback group (0x537dd0).
 // GLOBAL: CMR2 0x005190b0
-FuncTableGroup g_unk0x005190b0[7] = {
+FuncTableGroup g_unk0x005190b0[14] = {
     {(FuncTableEntry)FUN_0041bf80, NULL},
     {(FuncTableEntry)FUN_0041f420, (OtherFuncTableEntry)FUN_00411070},
     {(FuncTableEntry)FUN_0041c0e0, (OtherFuncTableEntry)FUN_00410c80},
@@ -1310,6 +1321,13 @@ FuncTableGroup g_unk0x005190b0[7] = {
     {(FuncTableEntry)FUN_004010a0, NULL},
     {(FuncTableEntry)FUN_00401150, (OtherFuncTableEntry)FUN_00410de0},
     {(FuncTableEntry)FUN_00472e00, (OtherFuncTableEntry)FUN_004759d0},
+    {(FuncTableEntry)FUN_0041d2b0, (OtherFuncTableEntry)FUN_00410e20},
+    {(FuncTableEntry)FUN_0041d7a0, (OtherFuncTableEntry)FUN_00410e70},
+    {(FuncTableEntry)FUN_0041db10, (OtherFuncTableEntry)FUN_00410ee0},
+    {(FuncTableEntry)FUN_0041e350, (OtherFuncTableEntry)FUN_00411020},
+    {(FuncTableEntry)FUN_0041e8d0, (OtherFuncTableEntry)CGame::FUN_00501680},
+    {(FuncTableEntry)FUN_0041f4e0, NULL},
+    {(FuncTableEntry)FUN_0041e5c0, (OtherFuncTableEntry)FUN_00410fa0},
 };
 
 // State transition rules of the in-race machine (byte 0 = current state, 0xff
@@ -1335,7 +1353,6 @@ BOOL CGame::FUN_0041b060(void)
     BYTE level;
     BYTE state;
     BYTE i;
-    BYTE value;
     char c;
 
     if (g_unk0x00537ef4 != 0 && g_unk0x00537ef5 == 0 && g_unk0x00537ef8 == 0) {
@@ -1390,7 +1407,7 @@ fail:
         level = 2;
     } else {
         if (FUN_00407270() == 0 && state > 1) {
-            if (CGameInfo::FUN_00405d80() != 3 && state < 3 && CGameInfo::FUN_00405da0() == 0) {
+            if (CGameInfo::FUN_00405d80() != 3 && 2 >= state && CGameInfo::FUN_00405da0() == 0) {
                 level = 1;
                 state = 2;
                 goto done;
@@ -1408,13 +1425,12 @@ done:
         pSlot = (Unk00817d98 *)&g_unk0x00537dd0[0x10];
         i = state;
         do {
-            if (g_unk0x00537ef8 == 0) {
-                value = 0;
-            } else {
+            if (g_unk0x00537ef8 != 0) {
                 g_unk0x00537efc = 1;
-                value = 5;
+                FUN_0049c150(pSlot, 5, level);
+            } else {
+                FUN_0049c150(pSlot, 0, level);
             }
-            FUN_0049c150(pSlot, value, level);
             pSlot++;
             i--;
         } while (i != 0);
