@@ -4734,8 +4734,6 @@ void FUN_00401870(Menu *pMenu)
     int y;
     int string1;
     int string2;
-    int *pColour;
-    int texture;
 
     rect[0] = 0;
     rect[1] = 0;
@@ -4753,8 +4751,9 @@ void FUN_00401870(Menu *pMenu)
         rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
         if (i != 2) {
             string1 = pItem->stringId;
-            string2 = string1;
-            if (string1 == 0) {
+            if (string1 != 0) {
+                string2 = string1;
+            } else {
                 string1 = (int)CFrontend::GetTextString(pItem->id);
                 string2 = (int)CFrontend::GetTextString(pItem->id + 1);
             }
@@ -4763,18 +4762,16 @@ void FUN_00401870(Menu *pMenu)
                               &g_unk0x00516074, 0x11);
                 Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                               (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
-                pColour = &g_unk0x00516074;
-                texture = g_unk0x0052aa60;
+                Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
             } else {
                 Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
                               &g_unk0x00516078, 0x11);
                 Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
                               (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
-                pColour = &g_unk0x00516078;
-                texture = g_unk0x0052aa68;
+                Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
             }
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
-                         2, 0, NULL, NULL, (BYTE *)pColour, 8);
             y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
         }
     }
