@@ -59,6 +59,20 @@ int FUN_0040e180(int exclude1, int exclude2);
 int FUN_0040e210(int exclude1, int exclude2);
 BYTE FUN_004eb340(int unused, BYTE *pProfile);
 bool FUN_004eb200(int param_1, BYTE *param_2);
+struct Menu;
+Menu *FUN_004f8360(void);
+Menu *FUN_004f8330(void);
+void Menu_SetNextAction(int action);
+void FUN_004a0c40(char param1);
+int FUN_00407650(void);
+void FUN_004081d0(void);
+BYTE *RallyData_FUN_00408270(void);
+int RallyData_FUN_00408280(void);
+void RallyData_FUN_0040df60(int param1, int param2);
+int FUN_004583a0(void);
+int FUN_004583b0(int index);
+int RallyData_FUN_00421420(void);
+void RallyData_FUN_00421530(int index, int *pOut);
 
 // GLOBAL: CMR2 0x0052f2a9
 BYTE g_unk0x0052f2a9;
@@ -432,6 +446,87 @@ int RallyData_FUN_004070f0(void)
     return 0;
 }
 
+// Number of classification entries of the current stage.
+// GLOBAL: CMR2 0x00536c90
+int g_unk0x00536c90;
+// Classification table: per entry the route node index and the distance so far.
+// GLOBAL: CMR2 0x00536ff0
+int g_unk0x00536ff0[24];
+
+// Builds the distance column of the stage classification table: walks the route
+// nodes accumulating the length between consecutive nodes, and for every entry
+// stores the node it reaches and the distance to it.
+// match 78%: same logic and calls; the original reuses EDI/ESI for the totals
+// where we use separate slots, so the loop bodies differ in registers.
+// FUNCTION: CMR2 0x00411550
+int FUN_00411550(void)
+{
+    FixVector a;
+    FixVector b;
+    FixVector diff;
+    int *p;
+    int totalA;
+    int totalB;
+    int i;
+    int j;
+
+    totalA = 0;
+    totalB = 0;
+    g_unk0x00536c90 = 0;
+    if ((char)RallyData_FUN_00406990() == 1) {
+        if ((BYTE)RallyData_GetFlag25() == 0)
+            g_unk0x00536c90 = FUN_004583a0();
+        else
+            g_unk0x00536c90 = FUN_004583a0() + 1;
+    } else {
+        g_unk0x00536c90 = FUN_004583a0();
+        if (g_unk0x00536c90 > 0xc)
+            g_unk0x00536c90 = 0xc;
+    }
+    for (i = 0; i < RallyData_FUN_00421420(); i++) {
+        if (i > 0) {
+            RallyData_FUN_00421530(i - 1, (int *)&a);
+            RallyData_FUN_00421530(i, (int *)&b);
+            diff.x = b.x - a.x;
+            diff.y = b.y - a.y;
+            diff.z = b.z - a.z;
+            totalA += FixVecLength(&diff) / 100;
+        }
+    }
+    for (i = 0; i < RallyData_FUN_00421420(); i++) {
+        if (i > 0) {
+            RallyData_FUN_00421530(i - 1, (int *)&a);
+            RallyData_FUN_00421530(i, (int *)&b);
+            diff.x = b.x - a.x;
+            diff.y = b.y - a.y;
+            diff.z = b.z - a.z;
+            totalB += FixVecLength(&diff) / 100;
+        }
+        for (j = 0; j < g_unk0x00536c90; j++) {
+            if ((FUN_004583b0(j) >> 0x10) == i) {
+                g_unk0x00536ff0[j * 2] = i;
+                g_unk0x00536ff0[j * 2 + 1] = totalB;
+            }
+        }
+    }
+    if ((BYTE)RallyData_GetFlag25() != 0) {
+        if (g_unk0x00536c90 - 1 < 0xc) {
+            for (p = g_unk0x00536ff0 + (g_unk0x00536c90 - 1) * 2;
+                 (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+                p[1] = totalB;
+                p[0] = RallyData_FUN_00421420() - 1;
+            }
+        }
+    } else if (g_unk0x00536c90 < 0xc) {
+        for (p = g_unk0x00536ff0 + g_unk0x00536c90 * 2;
+             (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+            p[1] = totalB;
+            p[0] = RallyData_FUN_00421420() - 1;
+        }
+    }
+    return totalB;
+}
+
 // FUNCTION: CMR2 0x00411880
 int RallyData_FUN_00411880(void)
 {
@@ -527,6 +622,57 @@ void RallyData_FUN_00408fc0(int index)
         category = (record >> 18) & 15;
         ++g_unk0x0052fa18[10 + category * 0x650];
     }
+}
+
+// True when every packed 2-bit field of the two setup words of the category
+// profile of the unassigned-checked record has the "10" pattern.
+// FUNCTION: CMR2 0x004097b0
+char FUN_004097b0(int param_1)
+{
+    unsigned int record;
+    unsigned int *pSetup;
+    unsigned int value;
+
+    RallyData_ValidateIndex(param_1);
+    record = *(unsigned int *)(g_unk0x00531350 + param_1 * 0x30);
+    if ((record & 0x3c0000) == 0x3c0000)
+        return 0;
+    pSetup = (unsigned int *)(g_saveData + 0xc54 + ((record >> 0x12) & 0xf) * 0x650);
+    value = *pSetup;
+    if ((value & 0x3) == 2 &&
+        (value & 0xc) == 8 &&
+        (value & 0x30) == 0x20 &&
+        (value & 0x30000) == 0x20000 &&
+        (value & 0xc0000) == 0x80000 &&
+        (value & 0x300000) == 0x200000 &&
+        (value & 0xc00000) == 0x800000 &&
+        (value & 0x3000000) == 0x2000000 &&
+        (value & 0xc000000) == 0x8000000 &&
+        (value & 0x30000000) == 0x20000000 &&
+        (value & 0xc0000000) == 0x80000000 &&
+        (pSetup[1] & 0x3) == 2 &&
+        (pSetup[1] & 0xc) == 8 &&
+        (pSetup[1] & 0x30) == 0x20 &&
+        (pSetup[1] & 0xc0) == 0x80 &&
+        (pSetup[1] & 0x300) == 0x200 &&
+        (pSetup[1] & 0xc00) == 0x800 &&
+        (pSetup[1] & 0x3000) == 0x2000 &&
+        (pSetup[1] & 0xc000) == 0x8000 &&
+        (pSetup[1] & 0x30000) == 0x20000 &&
+        (pSetup[1] & 0xc0000) == 0x80000 &&
+        (pSetup[1] & 0x300000) == 0x200000 &&
+        (pSetup[1] & 0xc00000) == 0x800000 &&
+        (pSetup[1] & 0x3000000) == 0x2000000 &&
+        (pSetup[1] & 0xc000000) == 0x8000000 &&
+        (pSetup[1] & 0x30000000) == 0x20000000 &&
+        (pSetup[1] & 0xc0000000) == 0x80000000 &&
+        (value & 0xc0) == 0x80 &&
+        (value & 0x300) == 0x200 &&
+        (value & 0x3000) == 0x2000 &&
+        (value & 0xc00) == 0x800 &&
+        (value & 0xc000) == 0x8000)
+        return 1;
+    return 0;
 }
 
 BYTE *FUN_0041b390(void);
@@ -1248,6 +1394,103 @@ void FUN_004ec000(void)
         FUN_004ebfd0(i);
         i++;
     } while (i < 16);
+}
+
+// Fills the split-marker rows of the stage-split editor menu, either with the
+// current list of splits (up to three, or four markers in the wide layout) or
+// with the empty/default layout.
+// match 69%: the original keeps the split list in EDI and the row index in ESI
+// (we get them swapped), so every register in the marker loop differs.
+// FUNCTION: CMR2 0x004efe60
+void FUN_004efe60(int param_1, int param_2, char param_3)
+{
+    BYTE *pMenu;
+    short *pSplits;
+    int count;
+    int i;
+    int half;
+    short value;
+
+    FUN_004081d0();
+    count = RallyData_FUN_00408280();
+    pSplits = (short *)RallyData_FUN_00408270();
+    RallyData_FUN_0040df60(0, 0);
+    pMenu = (BYTE *)FUN_004f8360();
+    *(short *)(pMenu + 0x18) = 0x156;
+    pMenu = (BYTE *)FUN_004f8360();
+    *(short *)(pMenu + 0x1c) = 0xffff;
+    pMenu = (BYTE *)FUN_004f8360();
+    *(BYTE *)(pMenu + 0x1a) =
+        (*(BYTE *)(pMenu + 0x1a) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x1a);
+    if ((unsigned short)FUN_00407650() >= 0x834) {
+        RallyData_FUN_0040df60(1, 2);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 0;
+        FUN_004a0c40(0);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_004a0c40(1);
+        return;
+    }
+    if (RallyDataStageIndex() == '\n') {
+        RallyData_FUN_0040df60(1, 0);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 0;
+        FUN_004a0c40(0);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_004a0c40(1);
+        return;
+    }
+    FUN_004a0c40(param_3);
+    Menu_SetNextAction((int)FUN_004f8360());
+    FUN_004a0c40(1);
+    if (count <= 3) {
+        pMenu = (BYTE *)FUN_004f8360();
+        *(char *)(pMenu + 6) = (char)count + 1;
+        if (count > 0) {
+            i = 0;
+            do {
+                value = *pSplits;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(short *)(pMenu + 0x2c + i) = value + 0x157;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(short *)(pMenu + 0x30 + i) = *pSplits;
+                pMenu = (BYTE *)FUN_004f8360();
+                *(BYTE *)(pMenu + 0x2e + i) =
+                    (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
+                pSplits += 2;
+                i += 0x14;
+                count--;
+            } while (count != 0);
+        }
+    } else {
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 6) = 4;
+        value = *pSplits;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x2c) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x30) = *pSplits;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x2e) =
+            (*(BYTE *)(pMenu + 0x2e) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e);
+        half = count / 2;
+        value = pSplits[half * 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x40) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x42) =
+            (*(BYTE *)(pMenu + 0x42) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x42);
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x44) = pSplits[half * 2];
+        value = pSplits[count * 2 - 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x54) = value + 0x157;
+        pMenu = (BYTE *)FUN_004f8360();
+        *(short *)(pMenu + 0x58) = pSplits[count * 2 - 2];
+        pMenu = (BYTE *)FUN_004f8360();
+        *(BYTE *)(pMenu + 0x56) =
+            (*(BYTE *)(pMenu + 0x56) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x56);
+    }
 }
 
 // GLOBAL: CMR2 0x0052ea60
