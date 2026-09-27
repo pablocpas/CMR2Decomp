@@ -2145,7 +2145,6 @@ extern const float g_unk0x005113e0 = 640.0f;
 // GLOBAL: CMR2 0x0051a910
 char g_str0x0051a910[] = "%s (%s)";
 
-extern const double g_unk0x00511310;
 extern const float g_netOne;
 extern const float g_netZero;
 extern const float g_netByteScale;
@@ -2162,6 +2161,11 @@ void FUN_00459630(int *param1, int *param2, int *param3);
 // Square of a float expression; the original expands it twice.
 #define FSQR(x) ((x) * (x))
 
+// Fade factors of FUN_00459790, expanded where they are used (the original
+// computes each one once and keeps it in an x87 scratch slot).
+#define TIMER_ALPHA ((distance - g_unk0x00511378) * g_unk0x005113d8)
+#define TIMER_LEVEL (g_netOne - (distance - g_unk0x00511378) * g_unk0x005113d0)
+
 // Projects a car's body node into one player's view and draws the stage timing
 // marker (driver name or rally record) at the projected position, then updates
 // the light level of the car's shadow meshes from the distance to the view
@@ -2175,7 +2179,6 @@ void FUN_00459790(int param_1, int param_2)
     BYTE colour[4];
     float prevY;
     float prevX;
-    float f;
     int proj[2];
     FixVector up;
     FixVector nodePos;
@@ -2204,8 +2207,8 @@ void FUN_00459790(int param_1, int param_2)
     else
         flag = 1;
     if (proj[0] != -0x640000 || proj[1] != -0x640000) {
-        prevX = proj[0] * g_unk0x00511310;
-        prevY = proj[1] * g_unk0x00511310;
+        prevX = proj[0] * CGraphics::m_oneOver65536;
+        prevY = proj[1] * CGraphics::m_oneOver65536;
         FixMatrix_GetUp(&up, &pView->current);
         up.x += nodePos.x;
         up.y += nodePos.y;
@@ -2213,18 +2216,17 @@ void FUN_00459790(int param_1, int param_2)
         FUN_00459630((int *)&up, (int *)&viewPos, (int *)&out);
         FUN_004bad40(proj, &out, (BYTE *)pView);
         if (proj[0] != -0x640000 || proj[1] != -0x640000) {
-            distance = (float)sqrt(FSQR((proj[0] * g_unk0x00511310 - prevX) * g_unk0x005113e0 /
+            distance = (float)sqrt(FSQR((proj[0] * CGraphics::m_oneOver65536 - prevX) * g_unk0x005113e0 /
                                         (int)g_pGraphics->resX) +
-                                   FSQR((proj[1] * g_unk0x00511310 - prevY) * g_unk0x005113dc /
+                                   FSQR((proj[1] * CGraphics::m_oneOver65536 - prevY) * g_unk0x005113dc /
                                         (int)g_pGraphics->resY));
             if (distance > g_unk0x00511378) {
-                f = (distance - g_unk0x00511378) * g_unk0x005113d8;
-                if (f >= g_netOne)
+                if (TIMER_ALPHA >= g_netOne)
                     colour[3] = 0xdc;
-                else if (f <= g_netZero)
+                else if (TIMER_ALPHA <= g_netZero)
                     colour[3] = 0;
                 else
-                    colour[3] = (BYTE)(int)(f * g_unk0x005113d4);
+                    colour[3] = (BYTE)(int)(TIMER_ALPHA * g_unk0x005113d4);
                 if (param_1 != 0) {
                     if (FUN_0040b050(param_1)) {
                         pName = FUN_00409cd0(FUN_0040b020(param_1));
@@ -2248,13 +2250,12 @@ void FUN_00459790(int param_1, int param_2)
             if (CGameInfo::FUN_00405d80() == '\b' || CGameInfo::FUN_00405d80() == '\t' ||
                 CGameInfo::FUN_00405d80() == '\n') {
                 if (distance > g_unk0x00511378 && param_1 > 0) {
-                    f = g_netOne - (distance - g_unk0x00511378) * g_unk0x005113d0;
-                    if (f >= g_netOne)
+                    if (TIMER_LEVEL >= g_netOne)
                         g_unk0x00542f78[param_1] = 0xff;
-                    else if (f <= g_netZero)
+                    else if (TIMER_LEVEL <= g_netZero)
                         g_unk0x00542f78[param_1] = 0;
                     else
-                        g_unk0x00542f78[param_1] = (int)(f * g_netByteScale);
+                        g_unk0x00542f78[param_1] = (int)(TIMER_LEVEL * g_netByteScale);
                     if (FUN_00422f50(param_2) == 7)
                         g_unk0x00542f78[param_1] = 0x80;
                     if (g_unk0x00542f78[param_1] != g_unk0x00542f58[param_1]) {
