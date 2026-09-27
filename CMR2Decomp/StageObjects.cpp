@@ -143,6 +143,88 @@ int StageObject_UsesExtendedMode(void)
     return (BYTE)RallyData_FUN_00407e90() != 0;
 }
 
+void FUN_0049c440(Mesh *pMesh, int mask, int value);
+void FUN_0049c4b0(Mesh *pMesh, int mask, int value);
+
+// Enables/disables the sub-meshes of a stage object's model according to the
+// object type and the current game mode.
+// FUNCTION: CMR2 0x004694a0
+void FUN_004694a0(int param_1, int param_2, char param_3)
+{
+    int *pParts;
+    BYTE *pType;
+    int i;
+    int uVar4;
+    int uVar3;
+
+    pParts = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    pType = FUN_00456be0((int)*(char *)(param_1 + 0xb1a));
+    if (*(char *)(pType + 0x20) == 'C' ||
+        (pType = FUN_00456be0((int)*(char *)(param_1 + 0xb1a)), *(char *)(pType + 0x20) == 'A')) {
+        if (param_2 == 0) {
+            uVar4 = 0;
+            uVar3 = 1;
+        } else if (param_2 == 1 || param_3 == 4 || param_3 == 5) {
+            uVar4 = 3;
+            uVar3 = 4;
+        } else {
+            uVar4 = 5;
+            uVar3 = 7;
+        }
+        switch (param_3) {
+        case 0:
+            i = FUN_004692b0(7, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 0x100, uVar4);
+                FUN_0049c4b0((Mesh *)pParts[i], 0x100, uVar3);
+                return;
+            }
+            break;
+        case 1:
+            i = FUN_004692b0(0xc, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 0x20, uVar4);
+                FUN_0049c4b0((Mesh *)pParts[i], 0x20, uVar3);
+            }
+            i = FUN_004692b0(7, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 0x20, uVar4);
+                FUN_0049c4b0((Mesh *)pParts[i], 0x20, uVar3);
+                return;
+            }
+            break;
+        case 2:
+            i = FUN_004692b0(7, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 0x40, uVar4);
+                FUN_0049c4b0((Mesh *)pParts[i], 0x40, uVar3);
+                return;
+            }
+            break;
+        case 3:
+            i = FUN_004692b0(7, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 0x80, uVar4);
+                FUN_0049c4b0((Mesh *)pParts[i], 0x80, uVar3);
+                return;
+            }
+            break;
+        case 4:
+            i = FUN_004692b0(0xe, (BYTE *)pParts);
+            if (i >= 0) {
+                FUN_0049c440((Mesh *)pParts[i], 4, uVar4);
+                return;
+            }
+            break;
+        case 5:
+            i = FUN_004692b0(0xe, (BYTE *)pParts);
+            if (i >= 0)
+                FUN_0049c440((Mesh *)pParts[i], 8, uVar4);
+            break;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x00469de0
 int StageObject_IsEligibleType(short type, int mode, int category)
 {
