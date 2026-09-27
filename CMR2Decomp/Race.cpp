@@ -3,6 +3,7 @@
 #include "RallyData.h"
 #include "GameInfo.h"
 #include "StageUI.h"
+#include "Sprite.h"
 #include "FixedPoint.h"
 #include <stdio.h>
 #include <string.h>
@@ -415,10 +416,540 @@ void FUN_00416670(void)
     }
 }
 
+int FUN_004054b0(unsigned int param1);
+BYTE *RallyData_FUN_00408a00(BYTE index);
+extern int g_unk0x00537350;
+extern int g_unk0x0053735c;
+void StageUI_DrawStageGrid(int unused, int set);
+void FUN_00418000(unsigned int id);
+int FUN_00418580(unsigned int id, int *pOut, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
+void FUN_00417e70(char *pText, int *pColour, int player, int param4, int param5, int param6);
+
+// Colour of the race call text (white).
+// GLOBAL: CMR2 0x00517e24
+int g_unk0x00517e24 = -1;
+
+// Draws the five call slots of one player: the icon sprite of each call (the
+// countdown wobbles it once the slot is the first one) and the timer text.
+// FUNCTION: CMR2 0x004177d0
+void FUN_004177d0(unsigned int player)
+{
+    BYTE colA[4];
+    BYTE colB[4];
+    int texA;
+    int texB;
+    unsigned int flagA;
+    unsigned int flagB;
+    int yOff;
+    int curveB;
+    int xOff;
+    int second;
+    int iVar;
+    int base;
+    int yText;
+    int extra;
+    int value;
+    int found;
+    int bVar2;
+    int n;
+    int r;
+    int half;
+    SpriteRect rectTex;
+    SpriteRect rectIcon;
+    SpriteRect rectSecond;
+    SpriteRect rectMain;
+    RaceCallRecord *rec;
+    int *pCallFlag;
+    BYTE *pState;
+    short curve[11];
+
+    extra = 0;
+    colB[0] = 0xff; colB[1] = 0xff; colB[2] = 0xff; colB[3] = 0xff;
+    colA[0] = 0xff; colA[1] = 0xff; colA[2] = 0xff; colA[3] = 0xff;
+    texB = 0;
+    flagA = 0;
+    flagB = 0;
+    second = 0;
+    xOff = 0;
+    yOff = 0;
+    curve[0] = 0;
+    curve[1] = 0xc;
+    curve[2] = 0x19;
+    curve[3] = 0x4c;
+    curve[4] = 0x99;
+    curve[5] = 0x100;
+    curve[6] = 0x180;
+    curve[7] = 0x219;
+    curve[8] = 0x2cc;
+    curve[9] = 0x399;
+    curve[10] = 0x400;
+
+    if ((char)RallyData_FUN_00407e70() && g_unk0x00537350 != -1) {
+        if (RallyData_FUN_00411880() != 0) {
+            if (player == 1)
+                StageUI_DrawStageGrid(1, g_unk0x00537350);
+        } else {
+            StageUI_DrawStageGrid(player, g_unk0x00537350);
+        }
+    }
+
+    if (RallyData_FUN_00411880() == 0) {
+        iVar = 0;
+    } else {
+        iVar = 1;
+        if (CGameInfo::FUN_00405dc0()) {
+            if (player == 1)
+                yOff = (int)g_pGraphics->resY / 2;
+            yOff += (int)g_pGraphics->resY / 8 + (int)g_pGraphics->resY * 10 / 0x1e0;
+            xOff = (int)g_pGraphics->resX * 46 / 0x280 - ((int)g_pGraphics->resX * 29 << 10 >> 16);
+        } else {
+            if (player == 0)
+                xOff = -((int)g_pGraphics->resX / 4);
+            else
+                xOff = (int)g_pGraphics->resX / 4;
+            yOff = (int)g_pGraphics->resY * 9011 >> 16;
+        }
+    }
+
+    if (iVar == 0) {
+        pState = RallyData_FUN_00408a00(FUN_0041b370() + player);
+        if ((*pState & 3) == 1)
+            extra = 0x10;
+    }
+    yText = ((int)g_pGraphics->resY << 12 >> 16) + extra;
+
+    pCallFlag = &g_unk0x00537248;
+    if (pCallFlag[player] != 0 || FUN_004054b0(player) != 0) {
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x57));
+        FUN_00417e70(CFrontend::m_stringDest, &g_unk0x00517e24, player, 1, -1, -1);
+    }
+
+    if (!FUN_004174d0())
+        return;
+
+    iVar = 0;
+    base = player * 5;
+    do {
+        rec = &g_raceCallRecords[base + iVar];
+        if ((rec->flags & 0x100) == 0) {
+            if (FUN_004054b0(player) == 0)
+                goto next;
+            if ((char)CGameInfo::FUN_00404f20() == 0)
+                goto next;
+        }
+
+        found = FUN_00418580((rec->flags & 0x100) ? rec->field_0x0 : 0x14, &texA, &rectIcon, &flagA, colB);
+        bVar2 = 0;
+        if (rec->field_0x4 != 0) {
+            if (FUN_00418580(rec->field_0x4, &texB, &rectTex, &flagB, colA) != 0) {
+                bVar2 = 1;
+                second = 1;
+            }
+        }
+
+        if ((rec->flags & 0x200) == 0) {
+            if (RallyData_FUN_00411880() == 0) {
+                if (rec->field_0x0 != 0)
+                    FUN_00418000(rec->field_0x0);
+                if (rec->field_0x4 != 0)
+                    FUN_00418000(rec->field_0x4);
+            }
+            rec->flags |= 0x200;
+        }
+
+        if (found == 0 && second == 0)
+            return;
+
+        rectMain.x = rectIcon.x;
+        rectMain.y = (short)yText;
+        rectMain.w = rectIcon.w;
+        rectMain.h = rectIcon.h;
+        rectSecond.y = (short)yText;
+        rectSecond.w = rectIcon.w;
+        rectSecond.h = rectIcon.h;
+
+        if (iVar != 0)
+            goto next;
+
+        pState = RallyData_FUN_00408a00(FUN_0041b370() + player);
+        if ((*pState & 3) == 2)
+            goto next;
+
+        if (bVar2) {
+            n = 0x32 - (rec->flags & 0xff);
+            if (n < 0xa)
+                value = -curve[10 - n];
+            else if (n < 0x14)
+                value = 0;
+            else if (n < 0x1e)
+                value = -curve[n - 0x14];
+            else
+                value = 0x400;
+            if (n < 0x14)
+                curveB = 0x400;
+            else if (n < 0x1e)
+                curveB = -curve[0x1e - n];
+            else if (n < 0x28)
+                curveB = 0;
+            else if (n < 0x32)
+                curveB = -curve[n - 0x28];
+            else
+                curveB = 0x400;
+        } else {
+            n = 0x32 - (rec->flags & 0xff);
+            if (n >= 0x28)
+                value = -curve[n - 0x28];
+            else if (n > 0xa)
+                value = 0;
+            else
+                value = curve[0xa - n];
+        }
+
+        if ((rec->flags & 0x100) == 0)
+            value = 0;
+
+        rectSecond.y = (short)(rectSecond.y + (short)yOff);
+        rectMain.y = (short)(rectMain.y + (short)yOff);
+
+        if (value != 0) {
+            r = FixMul((int)(__int64)(((int)rectMain.w / 2) * 65536.0), g_sinTable[(value + 0x400) & 0xfff]);
+            rectMain.w = (short)(r * 2 >> 16);
+        }
+        if (found == 0)
+            rectMain.w = 0;
+
+        if (bVar2) {
+            r = FixMul((int)(__int64)(((int)rectSecond.w / 2) * 65536.0), g_sinTable[(curveB + 0x400) & 0xfff]);
+            r = r * 2 >> 16;
+            rectSecond.w = (short)r;
+            rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (r + (int)rectMain.w) / 2 + xOff);
+            if (found != 0) {
+                if (flagA == 0) {
+                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
+                } else if (rectMain.w != 0) {
+                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 1);
+                }
+            }
+        } else {
+            rectSecond.w = 0;
+            rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (short)value / 2 + xOff);
+            if (found != 0) {
+                if (flagA == 0)
+                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
+                else
+                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 1);
+            }
+        }
+
+        rectSecond.x = (short)(rectMain.x + rectMain.w);
+        if (second != 0 && rectSecond.w != 0) {
+            if (flagB != 0)
+                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 1);
+            else
+                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 8);
+        }
+
+next:
+        iVar++;
+    } while (iVar < 5);
+}
+
 // FUNCTION: CMR2 0x00417e60
 void FUN_00417e60(void)
 {
     g_unk0x00537190 = 0;
+}
+
+BYTE *FUN_00464b10(int view);
+int Font_GetTextWidth(unsigned int index, BYTE *text);
+int Font_GetTextHeight(unsigned int index, char *text);
+void Font_DrawText(unsigned int index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
+
+// Shadow colour of the race call text (black).
+// GLOBAL: CMR2 0x00517e28
+int g_unk0x00517e28 = 0xff000000;
+
+// Draws one race message text, centred on the given player's viewport, with an
+// optional dark offset copy underneath. Only one message per frame.
+// FUNCTION: CMR2 0x00417e70
+void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int y)
+{
+    short *pViewRect;
+    int textY;
+    int pos;
+    int race;
+    unsigned int flags;
+    BYTE *pState;
+
+    if (g_unk0x00537190 != 0)
+        return;
+
+    race = 1;
+    g_unk0x00537190 = 1;
+    pos = 0;
+    pViewRect = (short *)FUN_00464b10(player);
+    if (RallyData_FUN_00411880() == 0) {
+        race = 0;
+        pos = 0;
+    } else {
+        if (CGameInfo::FUN_00405dc0()) {
+            if (player == 1)
+                pos = (int)g_pGraphics->resY / 2;
+            pos -= (int)g_pGraphics->resY * 9011 >> 16;
+        } else {
+            pos = (int)g_pGraphics->resY * 9011 >> 16;
+        }
+    }
+    textY = pos + ((int)g_pGraphics->resY << 14 >> 16);
+    if (race == 0) {
+        pState = RallyData_FUN_00408a00(FUN_0041b370() + player);
+        if ((*pState & 3) == 1)
+            textY = ((int)g_pGraphics->resY << 14 >> 16) + pos + 0x10;
+    }
+    Font_GetTextWidth(2, (BYTE *)pText);
+    Font_GetTextHeight(2, pText);
+
+    pos = (int)pViewRect[2] / 2 + (int)pViewRect[0];
+    if (x == -1) {
+        flags = 0x12;
+    } else {
+        flags = 9;
+        pos = x;
+        textY = y;
+    }
+    if (shadow != 0)
+        Font_DrawText(2, pText, pos + 1, (int)g_pGraphics->resY / 0x60 + 1 + textY, &g_unk0x00517e28, flags);
+    Font_DrawText(2, pText, pos, (int)g_pGraphics->resY / 0x60 + textY, pColour, flags);
+}
+
+// Assigns the race slots announced by a call record: every bit field of the
+// id selects one slot of the race slot table.
+// FUNCTION: CMR2 0x00418000
+void FUN_00418000(unsigned int id)
+{
+    unsigned int f4;
+    unsigned int f17;
+    unsigned int f5;
+    unsigned int f6;
+    unsigned int f7;
+    unsigned int f3;
+    unsigned int f11;
+    unsigned int f9;
+    unsigned int f12;
+    unsigned int f10;
+    unsigned int f8;
+    unsigned int f1;
+    int slot;
+
+    f4 = id >> 0xc & 7;
+    f17 = id >> 0x17 & 1;
+    f5 = id >> 0xf & 3;
+    f6 = id >> 0x11 & 0xf;
+    f7 = id >> 0x1c & 3;
+    f3 = id >> 4 & 3;
+    f11 = id >> 6 & 0xf;
+    f9 = id >> 10 & 3;
+    f12 = id >> 0x15 & 3;
+    f10 = id & 0xf;
+    f8 = id >> 0x18 & 1;
+    f1 = id >> 0x19 & 7;
+
+    if (f10 == 6) {
+        if (f3 == 0 && f11 == 0 && f9 == 0 && f4 == 0 && f6 == 0 && f12 == 0 && f5 == 0 &&
+            f7 == 0 && f8 == 0 && f1 == 0)
+            return;
+    } else if (f10 == 9) {
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x37);
+    }
+
+    switch (f11) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xe);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xf);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x10);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x11);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x12);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x13);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x14);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x15);
+        break;
+    case 9:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 10:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 11:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 12:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 13:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 14:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    }
+
+
+    if (f12 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1a);
+    else if (f12 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1b);
+    if (f9 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 10);
+    else if (f9 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1c);
+    if (f17 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1d);
+
+    switch (f10) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x5);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x4);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x3);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x6);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x7);
+        break;
+    }
+
+
+    if (f3 == 1) {
+        if (CGameInfo::FUN_004063f0(2) == 0)
+            slot = g_unk0x0053735c + 8;
+        else
+            slot = g_unk0x0053735c + 9;
+        Race_AssignUnusedSlot(slot);
+    } else if (f3 == 2) {
+        if (CGameInfo::FUN_004063f0(2) != 0)
+            slot = g_unk0x0053735c + 8;
+        else
+            slot = g_unk0x0053735c + 9;
+        Race_AssignUnusedSlot(slot);
+    }
+
+    if (f4 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xc);
+    else if (f4 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xb);
+    else if (f4 == 3)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1e);
+    if (f5 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x17);
+    else if (f5 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1f);
+
+    switch (f6) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x19);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x18);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x22);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x23);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x24);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x21);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x25);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x26);
+        break;
+    case 9:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x27);
+        break;
+    case 10:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x28);
+        break;
+    case 11:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x29);
+        break;
+    case 12:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2a);
+        break;
+    case 13:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2b);
+        break;
+    case 14:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x36);
+        break;
+    case 15:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x20);
+        break;
+    }
+
+
+    if (f7 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2c);
+    else if (f7 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2d);
+    if (f8 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2e);
+
+    switch (f1) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2f);
+        return;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x30);
+        return;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x31);
+        return;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x32);
+        return;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x33);
+        return;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x34);
+        return;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x35);
+    }
 }
 
 int FUN_004781c0(int index);
@@ -446,6 +977,105 @@ void FUN_00418560(int value)
 int FUN_00418570(void)
 {
     return g_unk0x00537194;
+}
+
+extern SpriteRect *g_pArrowRects;
+extern Texture *g_arrowTexture;
+
+// Decodes a race call slot id into the arrow sprite rect of the call icon, the
+// secondary-icon flag and the colour the icon is tinted with.
+// FUNCTION: CMR2 0x00418580
+int FUN_00418580(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour)
+{
+    unsigned int type;
+    unsigned int b1;
+    unsigned int b2;
+    unsigned int b3;
+    SpriteRect *pSrc;
+    int result;
+    int afterFirst;
+
+    type = id & 0xf;
+    b1 = id >> 4 & 3;
+    b2 = id >> 0x11 & 0xf;
+    b3 = id >> 0x15 & 3;
+
+    if (type == 0 || type == 9)
+        afterFirst = 0;
+    else
+        afterFirst = 1;
+    if (b1 != 0 || afterFirst || b2 == 0xe || b2 == 2 || b2 == 1 || b3 != 0)
+        result = 1;
+    else
+        result = 0;
+
+    pColour[0] = 0xff;
+    pColour[1] = 0xff;
+    pColour[2] = 0xff;
+    pColour[3] = 0xff;
+    if (b1 == 1)
+        *pFlag = 1;
+    else
+        *pFlag = 0;
+    if (CGameInfo::FUN_004063f0(2) != 0)
+        *pFlag ^= 1;
+
+    switch (type) {
+    case 2:
+        pSrc = &g_pArrowRects[5];
+        break;
+    case 3:
+        pSrc = &g_pArrowRects[4];
+        break;
+    case 4:
+        pSrc = &g_pArrowRects[3];
+        break;
+    case 5:
+    case 6:
+        pSrc = &g_pArrowRects[2];
+        break;
+    case 7:
+        pSrc = &g_pArrowRects[1];
+        break;
+    case 8:
+        pSrc = &g_pArrowRects[0];
+        break;
+    default:
+        pSrc = &g_pArrowRects[6];
+        break;
+    }
+    *pRect = *pSrc;
+
+    if (b2 != 0 && b1 == 0) {
+        *pFlag = 0;
+        *pRect = g_pArrowRects[7];
+        if (b2 == 2 || b2 == 0xe) {
+            pColour[0] = 0xff;
+            pColour[1] = 0xff;
+            pColour[2] = 0xd;
+        }
+        if (b2 == 1) {
+            pColour[0] = 0xff;
+            pColour[1] = 0;
+            pColour[2] = 0;
+        }
+    }
+
+    if (b3 != 0) {
+        *pFlag = 0;
+        *pRect = g_pArrowRects[7];
+        pColour[0] = 0xff;
+        if (b3 == 1) {
+            pColour[1] = 0xff;
+            pColour[2] = 0xd;
+        } else {
+            pColour[1] = 0;
+            pColour[2] = 0;
+        }
+    }
+
+    *pTexture = (int)g_arrowTexture;
+    return result;
 }
 
 // FUNCTION: CMR2 0x00418d20

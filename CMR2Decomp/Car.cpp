@@ -123,6 +123,156 @@ void Car_AllocateTable(int count)
     CGame::RegisterCallback(Car_FreeTable, NULL);
 }
 
+unsigned int RallyData_FUN_00407e70(void);
+int FUN_004054b0(unsigned int param1);
+void FUN_0046b760(int index, int reset);
+extern float g_65536f;
+
+// Picks the up to three cars to display in one split-screen view (nearest to
+// the view position, in or near the viewport) and hides the remaining ones.
+// FUNCTION: CMR2 0x00428bf0
+void FUN_00428bf0(unsigned int view, short *pRect)
+{
+    char visible[8];
+    int i;
+    int j;
+    int k;
+    int car;
+    int bestIdx;
+    int bestDist;
+    SceneNode *pView;
+    FixMatrix *pCurrent;
+    FixVector pos;
+    FixVector otherPos;
+    FixVector delta;
+    FixVector up;
+    int distTable[8];
+    FixMatrix savedWorld;
+    int proj1[2];
+    int proj2[2];
+    int ix;
+    int iy;
+    int xx;
+    int yy;
+    int extend;
+    float ftmp;
+    int sx;
+    int sy;
+
+    if (CGameInfo::FUN_00406410(0x10))
+        return;
+    if ((char)RallyData_FUN_00407e70() && RallyData_FUN_00411880() != 0) {
+        FUN_0046b760(0, 1);
+        FUN_0046b760(1, 1);
+        return;
+    }
+    if (!((char)RallyData_FUN_00407e70() || CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+          CGameInfo::FUN_00405d80() == 10 || CGameInfo::FUN_00405d80() == 11 ||
+          CGameInfo::FUN_00405d80() == 12 || CGameInfo::FUN_00405d80() == 8))
+        return;
+
+    i = g_carOrderCount;
+    if (i > 0) {
+        short *p = g_carOrder;
+        do {
+            visible[*p++] = 0;
+        } while (--i);
+    }
+
+    pView = g_viewNodes[view & 0xff];
+    pCurrent = &pView->current;
+    FixMatrix_GetPosition(&pos, pCurrent);
+
+    i = 0;
+    if (g_carOrderCount > 0) {
+        do {
+            FixMatrix_GetPosition(&otherPos, &Car_Get(g_carOrder[i])->pNode0x71c->current);
+            delta.x = pos.x - otherPos.x;
+            delta.y = pos.y - otherPos.y;
+            delta.z = pos.z - otherPos.z;
+            if (FIX_ABS(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
+                distTable[g_carOrder[i]] = FixMul(delta.x, delta.x) + FixMul(delta.y, delta.y) + FixMul(delta.z, delta.z);
+            else
+                distTable[g_carOrder[i]] = 0x7fbc0000;
+            i++;
+        } while (i < g_carOrderCount);
+    }
+
+    FixMatrix_GetUp(&up, pCurrent);
+    FIX_NORMALIZE_INTO(up, up)
+
+    savedWorld = pView->world;
+    pView->world = pView->current;
+
+    j = 1;
+    if (g_carOrderCount > 1) {
+        do {
+            FixMatrix_GetPosition(&otherPos, &Car_Get(g_carOrder[j])->pNode0x71c->current);
+            FUN_004bad40(proj1, &otherPos, (BYTE *)pView);
+            proj1[0] >>= 16;
+            proj1[1] >>= 16;
+            FixVecScale(&delta, &up, *(int *)Car_Get(g_carOrder[j])->field_0x758);
+            delta.x += otherPos.x;
+            delta.y += otherPos.y;
+            delta.z += otherPos.z;
+            FUN_004bad40(proj2, &delta, (BYTE *)pView);
+            proj2[0] >>= 16;
+            proj2[1] >>= 16;
+            if ((proj1[0] == -100 && proj1[1] == -100) || (proj2[0] == -100 && proj2[1] == -100)) {
+                distTable[g_carOrder[j]] = 0x7fbc0000;
+            } else {
+                ftmp = (float)(proj1[0] - proj2[0]) / (float)(int)g_pGraphics->resX;
+                ix = (int)(ftmp * g_65536f);
+                ftmp = (float)(proj1[1] - proj2[1]) / (float)(int)g_pGraphics->resY;
+                iy = (int)(ftmp * g_65536f);
+                xx = FixMul(FixMul(ix, 0x2800000), 0x28f);
+                yy = FixMul(FixMul(iy, 0x1e00000), 0x28f);
+                extend = FixMul(FixSqrt(FixMul(xx, xx) + FixMul(yy, yy)), 0x4b0000) >> 16;
+                sx = (int)g_pGraphics->resX * extend / 0x280;
+                sy = (int)g_pGraphics->resY * extend / 0x1e0;
+                if (proj1[0] < (short)(pRect[0] - sx) || proj1[0] > (short)(pRect[0] + pRect[2] + sx) ||
+                    proj1[1] < (short)(pRect[1] - sy) || proj1[1] > (short)(pRect[1] + pRect[3] + sy))
+                    distTable[g_carOrder[j]] = 0x7fbc0000;
+            }
+            j++;
+        } while (j < g_carOrderCount);
+    }
+    pView->world = savedWorld;
+
+    for (k = 0; k < 3; k++) {
+        bestIdx = -1;
+        bestDist = 0x7fff0000;
+        if (g_carOrderCount > 0) {
+            for (i = 0; i < g_carOrderCount; i++) {
+                car = g_carOrder[i];
+                if (visible[car] == 0) {
+                    if (car == 0) {
+                        visible[car] = 2;
+                        break;
+                    }
+                    if (distTable[car] < bestDist) {
+                        bestIdx = car;
+                        bestDist = distTable[car];
+                    }
+                }
+            }
+            if (bestIdx != -1) {
+                if (bestDist > 0xe100000)
+                    break;
+                visible[bestIdx] = 2;
+            }
+        }
+    }
+
+    i = 0;
+    if (g_carOrderCount > 0) {
+        do {
+            FUN_0046b760(g_carOrder[i], visible[g_carOrder[i]] == 2);
+            i++;
+        } while (i < g_carOrderCount);
+    }
+}
+
 // FUNCTION: CMR2 0x0042b5f0
 Car *Car_Get(int index)
 {
