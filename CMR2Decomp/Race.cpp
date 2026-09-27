@@ -419,8 +419,9 @@ void FUN_00416670(void)
 int FUN_004054b0(unsigned int param1);
 BYTE *RallyData_FUN_00408a00(BYTE index);
 extern int g_unk0x00537350;
+extern int g_unk0x0053735c;
 void StageUI_DrawStageGrid(int unused, int set);
-void FUN_00418000(int id);
+void FUN_00418000(unsigned int id);
 int FUN_00418580(unsigned int id, int *pOut, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
 void FUN_00417e70(char *pText, int *pColour, int player, int param4, int param5, int param6);
 
@@ -463,8 +464,8 @@ void FUN_004177d0(unsigned int player)
     short curve[11];
 
     extra = 0;
-    colA[0] = 0xff; colA[1] = 0xff; colA[2] = 0xff; colA[3] = 0xff;
     colB[0] = 0xff; colB[1] = 0xff; colB[2] = 0xff; colB[3] = 0xff;
+    colA[0] = 0xff; colA[1] = 0xff; colA[2] = 0xff; colA[3] = 0xff;
     texB = 0;
     flagA = 0;
     flagB = 0;
@@ -484,10 +485,12 @@ void FUN_004177d0(unsigned int player)
     curve[10] = 0x400;
 
     if ((char)RallyData_FUN_00407e70() && g_unk0x00537350 != -1) {
-        if (RallyData_FUN_00411880() == 0)
+        if (RallyData_FUN_00411880() != 0) {
+            if (player == 1)
+                StageUI_DrawStageGrid(1, g_unk0x00537350);
+        } else {
             StageUI_DrawStageGrid(player, g_unk0x00537350);
-        else if (player == 1)
-            StageUI_DrawStageGrid(1, g_unk0x00537350);
+        }
     }
 
     if (RallyData_FUN_00411880() == 0) {
@@ -719,10 +722,234 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
     Font_DrawText(2, pText, pos, (int)g_pGraphics->resY / 0x60 + textY, pColour, flags);
 }
 
-// Blocked: the race slot bookkeeping of 0x418000 is not written yet.
-// STUB: CMR2 0x00418000
-void FUN_00418000(int id)
+// Assigns the race slots announced by a call record: every bit field of the
+// id selects one slot of the race slot table.
+// FUNCTION: CMR2 0x00418000
+void FUN_00418000(unsigned int id)
 {
+    unsigned int f4;
+    unsigned int f17;
+    unsigned int f5;
+    unsigned int f6;
+    unsigned int f7;
+    unsigned int f3;
+    unsigned int f11;
+    unsigned int f9;
+    unsigned int f12;
+    unsigned int f10;
+    unsigned int f8;
+    unsigned int f1;
+    int slot;
+
+    f4 = id >> 0xc & 7;
+    f17 = id >> 0x17 & 1;
+    f5 = id >> 0xf & 3;
+    f6 = id >> 0x11 & 0xf;
+    f7 = id >> 0x1c & 3;
+    f3 = id >> 4 & 3;
+    f11 = id >> 6 & 0xf;
+    f9 = id >> 10 & 3;
+    f12 = id >> 0x15 & 3;
+    f10 = id & 0xf;
+    f8 = id >> 0x18 & 1;
+    f1 = id >> 0x19 & 7;
+
+    if (f10 == 6) {
+        if (f3 == 0 && f11 == 0 && f9 == 0 && f4 == 0 && f6 == 0 && f12 == 0 && f5 == 0 &&
+            f7 == 0 && f8 == 0 && f1 == 0)
+            return;
+    } else if (f10 == 9) {
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x37);
+    }
+
+    switch (f11) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xe);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xf);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x10);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x11);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x12);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x13);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x14);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x15);
+        break;
+    case 9:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 10:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 11:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 12:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 13:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    case 14:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x16);
+        break;
+    }
+
+
+    if (f12 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1a);
+    else if (f12 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1b);
+    if (f9 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 10);
+    else if (f9 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1c);
+    if (f17 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1d);
+
+    switch (f10) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x5);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x4);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x3);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x6);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x7);
+        break;
+    }
+
+
+    if (f3 == 1) {
+        if (CGameInfo::FUN_004063f0(2) == 0)
+            slot = g_unk0x0053735c + 8;
+        else
+            slot = g_unk0x0053735c + 9;
+        Race_AssignUnusedSlot(slot);
+    } else if (f3 == 2) {
+        if (CGameInfo::FUN_004063f0(2) != 0)
+            slot = g_unk0x0053735c + 8;
+        else
+            slot = g_unk0x0053735c + 9;
+        Race_AssignUnusedSlot(slot);
+    }
+
+    if (f4 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xc);
+    else if (f4 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xb);
+    else if (f4 == 3)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1e);
+    if (f5 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x17);
+    else if (f5 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x1f);
+
+    switch (f6) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x19);
+        break;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x18);
+        break;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x22);
+        break;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x23);
+        break;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x24);
+        break;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x21);
+        break;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x25);
+        break;
+    case 8:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x26);
+        break;
+    case 9:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x27);
+        break;
+    case 10:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x28);
+        break;
+    case 11:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x29);
+        break;
+    case 12:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2a);
+        break;
+    case 13:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2b);
+        break;
+    case 14:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x36);
+        break;
+    case 15:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x20);
+        break;
+    }
+
+
+    if (f7 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2c);
+    else if (f7 == 2)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2d);
+    if (f8 == 1)
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2e);
+
+    switch (f1) {
+    case 1:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x2f);
+        return;
+    case 2:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x30);
+        return;
+    case 3:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x31);
+        return;
+    case 4:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x32);
+        return;
+    case 5:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x33);
+        return;
+    case 6:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x34);
+        return;
+    case 7:
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0x35);
+    }
 }
 
 int FUN_004781c0(int index);
