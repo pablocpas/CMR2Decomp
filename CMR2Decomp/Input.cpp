@@ -900,17 +900,19 @@ void CInput::LoadControllerInfo(void) {
 }
 
 // FUNCTION: CMR2 0x0040be90
-void CInput::FUN_0040be90(unsigned int param1) {
+void CInput::FUN_0040be90(unsigned short param1) {
     int uVar1;
+    unsigned int raw;
     unsigned short uVar2;
     ControllerData * pController;
 
+    raw = *(unsigned int *)&param1;
     uVar2 = param1;
     uVar1 = m_unk0x005168f4[uVar2];
     pController = &m_controllerInfo[uVar1];
 
     if (uVar1 > 1) {
-        FUN_0040c440(param1, pController);
+        FUN_0040c440(raw, pController);
     }
 
     FUN_0049eb90(uVar2, 1, pController->field_0x13e[0]);
@@ -2007,11 +2009,11 @@ void CInput::FUN_0049eab0(void)
 
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040bc90
-void CInput::FUN_0040bc90(int param1, DWORD param2)
+void CInput::FUN_0040bc90(unsigned short param1, DWORD param2)
 {
     unsigned short index;
 
-    index = CInput::m_unk0x005168f4[param1 & 0xffff];
+    index = CInput::m_unk0x005168f4[param1];
     FUN_004aaf50(m_controllerInfo[index].field_0x11c = param2, index);
 }
 

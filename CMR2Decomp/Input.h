@@ -271,7 +271,7 @@ public:
     static BOOL ResetForceFeedbackEffectsAlt(void);
     static void DInputReleaseDevices(void);
     static void LoadControllerInfo(void);
-    static void FUN_0040be90(unsigned int param1);
+    static void FUN_0040be90(unsigned short param1);
     static void FUN_0040c440(unsigned int param1, ControllerData * param2);
     static void FUN_0049eb90(int param1, unsigned int param2, unsigned int param3);
     static DeviceInfo *FUN_0049ead0(int index);
@@ -284,7 +284,7 @@ public:
     static void FUN_004b7d10(unsigned int param1);
     static void FUN_0040af20(void);
     static void FUN_0049eab0(void);
-    static void FUN_0040bc90(int param1, DWORD param2);
+    static void FUN_0040bc90(unsigned short param1, DWORD param2);
     static void ReadKeyboardState(void);
     static int GetButtonIndexFromMask(unsigned int mask);
     static void FUN_0049ff80(DWORD p1, DWORD p2, DWORD p3, DWORD p4, DWORD p5);

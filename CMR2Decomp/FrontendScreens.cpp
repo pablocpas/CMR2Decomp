@@ -3320,7 +3320,7 @@ BYTE FUN_004f1ba0(void)
 }
 
 // FUNCTION: CMR2 0x004f1bb0
-void FUN_004f1bb0(BYTE value)
+void FUN_004f1bb0(int value)
 {
     g_unk0x00819048 = value;
 }
@@ -6656,14 +6656,12 @@ void FUN_004e2500(Menu *pMenu)
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
 
-void FUN_004f1bb0(BYTE value);
+void FUN_004f1bb0(int value);
 
 // Leaving the arcade menu: sets the arcade mode of the entry chosen.
 // FUNCTION: CMR2 0x004ef740
 void FUN_004ef740(Menu *pMenu, char back)
 {
-    unsigned int lang;
-
     if (back != 0)
         return;
     FUN_004ea950(0);
@@ -6677,8 +6675,7 @@ void FUN_004ef740(Menu *pMenu, char back)
     case 2:
         FUN_004ea8e0(7);
         FUN_004ea8c0(1);
-        lang = CGameInfo::FUN_00405d70();
-        FUN_004f1bb0((BYTE)lang);
+        FUN_004f1bb0(CGameInfo::FUN_00405d70());
         FUN_004ea950(0);
         RallyData_FUN_004068b0(0);
         RallyData_FUN_004068e0(0);

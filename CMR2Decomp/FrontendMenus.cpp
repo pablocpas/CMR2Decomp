@@ -660,7 +660,6 @@ ControllerData *FUN_0040bbb0(void);
 
 // Leaving the device page: "back" goes to the controls menu; otherwise the
 // edited configuration is stored and a joystick goes on to its calibration.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fbff0
 void FUN_004fbff0(Menu *pMenu, char back)
 {
@@ -884,7 +883,6 @@ void FUN_004fc880(Menu *pMenu, int param)
 }
 
 // Leaving the pad page: stores the settings unless backing out.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fc8f0
 void FUN_004fc8f0(Menu *pMenu, char back)
 {
@@ -2309,7 +2307,7 @@ void FUN_004ef740(Menu *pMenu, char back);
 void FUN_004ef930(Menu *pMenu, int param);
 void FUN_004faa00(Menu *pMenu, int param);
 void FUN_004d6290(Menu *pMenu);
-void FUN_004f1bb0(BYTE value);
+void FUN_004f1bb0(int value);
 void FUN_004f1bc0(int value);
 void FUN_004ea8c0(BYTE param1);
 void FUN_004ea950(BYTE param1);
@@ -2325,7 +2323,6 @@ void FUN_004f9300(void)
 }
 
 // Item callback of "arcade": starts an arcade game for the chosen players.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fa9b0
 void FUN_004fa9b0(Menu *pMenu, int param)
 {
@@ -2354,7 +2351,6 @@ void FUN_004f9370(void)
 
 // Entering the arcade player-count page: sets up the scroller and the
 // cursor from the number of players.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fa890
 void FUN_004fa890(Menu *pMenu, int param)
 {
@@ -2368,15 +2364,14 @@ void FUN_004fa890(Menu *pMenu, int param)
     p->count = pMenu->itemCount;
     for (k = 0; k < pMenu->itemCount; k++)
         p->widths[k] = Font_GetTextWidth(2, (BYTE *)CFrontend::GetTextString(pMenu->items[k].id));
-    if (CGameInfo::FUN_00405d70() >= 3) {
+    if (CGameInfo::FUN_00405d70() < 3)
+        pMenu->cursor = CGameInfo::FUN_00405d70() - 1;
+    else
         pMenu->cursor = 0;
-        return;
-    }
-    pMenu->cursor = CGameInfo::FUN_00405d70() - 1;
 }
 
 // Item callback of the arcade player-count page.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fa910
 void FUN_004fa910(Menu *pMenu, int param)
 {
@@ -2966,7 +2961,6 @@ void FUN_004f7d70(void)
     Menu_ValidateCursor(&g_menu0x00822d18, 0);
 }
 
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f7de0
 void FUN_004f7de0(void)
 {
@@ -2983,7 +2977,6 @@ void FUN_004f7de0(void)
     Menu_ValidateCursor(&g_menu0x0081eb78, 0);
 }
 
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f7ed0
 void FUN_004f7ed0(void)
 {
@@ -2999,7 +2992,7 @@ void FUN_004f7ed0(void)
     Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcd, (int)FUN_004efde0, -1);
     Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xce, (int)FUN_004efde0, -1);
     Menu_AddItemType4(&g_menu0x0081e3f8, 0, 0xcf, (int)FUN_004efde0, -1);
-    Menu_SetCallbacks(&g_menu0x0081e3f8, FUN_004f3010, (MenuCallback)FUN_004efdc0, FUN_004d9c40, NULL);
+    Menu_SetCallbacks(&g_menu0x0081e3f8, FUN_004f3010, (MenuCallback)FUN_004efdc0, (MenuCallback)FUN_004d9c40, NULL);
     Menu_ValidateCursor(&g_menu0x0081e3f8, 0);
 }
 

@@ -1436,7 +1436,7 @@ void FUN_004505b0(Menu *pMenu)
 
 // Draw callback of the championship standings screen: the best driver's
 // position decides between the "champion" and "rally over" headers.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00450c10
 void FUN_00450c10(Menu *pMenu)
 {
@@ -1456,7 +1456,7 @@ void FUN_00450c10(Menu *pMenu)
     best = 99;
     i = 0;
     slot = best;
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if (CGameInfo::FUN_00405d70() > 0) {
         slot = 0xf;
         do {
             if (RallyTiming_GetOverallPositionOfDriver(slot) < best)
@@ -1497,7 +1497,10 @@ void FUN_00450c10(Menu *pMenu)
                       (int *)g_menuFrameColour, 0x11);
     }
     if (slot > 5) {
-        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(RallyDataCountryIndex() == 7 ? 0xee : 0xbb));
+        if (RallyDataCountryIndex() == 7)
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xee));
+        else
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xbb));
         CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
         resY = g_pGraphics->resY;
         Font_DrawText(0, CFrontend::m_stringDest, x, (resY * 10) / 480 + ((resY * 20) / 480) * i + y + Font_GetLineHeight(0),

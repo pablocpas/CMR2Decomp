@@ -48,7 +48,8 @@ void FUN_004d8ed0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004d9c40(Menu *pMenu, int param)
+// STUB: CMR2 0x004d9c40
+void FUN_004d9c40(Menu *pMenu)
 {
 }
 
@@ -166,10 +167,12 @@ void FUN_004ee6e0(Menu *pMenu)
 }
 
 
+// STUB: CMR2 0x004efb70
 void FUN_004efb70(Menu *pMenu, int param)
 {
 }
 
+// STUB: CMR2 0x004efde0
 void FUN_004efde0(Menu *pMenu, int param)
 {
 }
