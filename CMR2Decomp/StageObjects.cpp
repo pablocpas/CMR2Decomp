@@ -2253,6 +2253,67 @@ void FUN_00492900(int value)
     g_unk0x00592134 = value;
 }
 
+extern Mesh *g_stageMesh2Copy;
+extern short g_stageMesh2Count;
+// GLOBAL: CMR2 0x005920fc
+int g_unk0x005920fc;
+// GLOBAL: CMR2 0x00592100
+int g_unk0x00592100;
+// GLOBAL: CMR2 0x00592104
+int g_unk0x00592104;
+
+// Finds the vertex of stage mesh 2 closest to g_unk0x00592114 within a radius
+// that shrinks to the best distance found so far, caches its stage-space
+// position in 0x5920fc/0x592100/0x592104 and returns its index (-1 if none).
+// match 53%: same logic; MSVC laid the locals out in different stack slots and
+// kept the delta in different registers (the pointer pair to the delta local
+// comes from the original's FixMul argument materialisation).
+// FUNCTION: CMR2 0x00492910
+int FUN_00492910(void)
+{
+    int obj[2];
+    FixVector delta;
+    FixVector vert;
+    int dx;
+    int dy;
+    int dz;
+    int dist;
+    int limit;
+    int best;
+    int i;
+    BYTE *pVertices;
+
+    limit = 0x640000;
+    best = -1;
+    if (g_stageMesh2Count <= 0)
+        return -1;
+    FUN_0046f4e0(&obj[0], &obj[1]);
+    FixMatrix_InverseRotateVector(&delta, &g_unk0x00592114, (FixMatrix *)(obj[1] + 0x98));
+    for (i = 0; i < g_stageMesh2Count; i++) {
+        pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
+        vert.x = (int)(__int64)(*(float *)(pVertices + i * 0x30) * CGraphics::m_65536);
+        vert.y = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 4) * CGraphics::m_65536);
+        vert.z = (int)(__int64)(*(float *)(pVertices + i * 0x30 + 8) * CGraphics::m_65536);
+        dx = delta.x - vert.x;
+        dy = delta.y - vert.y;
+        dz = delta.z - vert.z;
+        if (FIX_ABS(dx) <= limit && FIX_ABS(dy) <= limit && FIX_ABS(dz) <= limit) {
+            dist = FixMul(dx, dx) + FixMul(dy, dy) + FixMul(dz, dz);
+            if (dist <= 0x27100000) {
+                limit = FixSqrt(dist);
+                best = i;
+            }
+        }
+    }
+    if (best == -1)
+        return -1;
+    pVertices = (BYTE *)g_stageMesh2Copy->pVertexData;
+    g_unk0x005920fc = (int)(__int64)(*(float *)(pVertices + best * 0x30) * CGraphics::m_65536);
+    g_unk0x00592100 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 4) * CGraphics::m_65536);
+    g_unk0x00592104 = (int)(__int64)(*(float *)(pVertices + best * 0x30 + 8) * CGraphics::m_65536);
+    return best;
+}
+
 // FUNCTION: CMR2 0x00492bb0
 void FUN_00492bb0(int *pOut)
 {
@@ -3404,6 +3465,159 @@ void FUN_004688b0(BYTE *p)
     }
 }
 
+extern BYTE *g_unk0x00588b94;
+
+int FUN_00469100(Car *pCar, BYTE *pRecord);
+
+// Rebuilds the per-wheel/gear block (0x240..0x2c4) of the car's 0x4d0-byte
+// record from its source block (0x21c..), scales it, then recomputes the
+// derived torques and scales (0x3d8..0x408).
+// match 88%: same code; MSVC kept the cached record fields in EDX/EAX in the
+// original and in EDI here (register numbering).
+// FUNCTION: CMR2 0x00468c10
+void FUN_00468c10(Car *pCar)
+{
+    BYTE *pRecord;
+    int *p;
+    int i;
+    int a;
+    int b;
+    int value;
+
+    pRecord = g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0;
+    if (*(int *)pCar->field_0xb50 == 0)
+        return;
+    p = (int *)(pRecord + 0x240);
+    p[0] = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x244) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x248) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x24c) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x254) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x250) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x258) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x25c) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x260) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x264) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x268) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x26c) = *(int *)(pRecord + 0x21c);
+    *(int *)(pRecord + 0x270) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x274) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x278) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x27c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x280) = FixMul(*(int *)(pRecord + 0x22c) + *(int *)(pRecord + 0x228) +
+                                       *(int *)(pRecord + 0x230), 0x5553);
+    *(int *)(pRecord + 0x28c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x288) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x290) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x294) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x2a0) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x298) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x29c) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x284) = 0;
+    *(int *)(pRecord + 0x2a4) = FixMul(*(int *)(pRecord + 0x230) + *(int *)(pRecord + 0x228) +
+                                       *(int *)(pRecord + 0x22c), 0x5553);
+    *(int *)(pRecord + 0x2a8) = *(int *)(pRecord + 0x228);
+    *(int *)(pRecord + 0x2ac) = *(int *)(pRecord + 0x230);
+    *(int *)(pRecord + 0x2b0) = *(int *)(pRecord + 0x238);
+    *(int *)(pRecord + 0x2b4) = *(int *)(pRecord + 0x220);
+    *(int *)(pRecord + 0x2b8) = *(int *)(pRecord + 0x23c);
+    *(int *)(pRecord + 0x2bc) = *(int *)(pRecord + 0x224);
+    *(int *)(pRecord + 0x2c0) = *(int *)(pRecord + 0x234);
+    *(int *)(pRecord + 0x2c4) = *(int *)(pRecord + 0x21c);
+    if (*(int *)pCar->field_0xb7c == 0)
+        *(int *)(pRecord + 0x27c) = 0;
+    if (*(int *)(pCar->field_0xb7c + 4) == 0)
+        *(int *)(pRecord + 0x280) = 0;
+    for (i = 0; i < 0x22; i++) {
+        p[i] = FixMul(p[i], p[i + 0x22]);
+        p[i] = p[i] + p[i + 0x44];
+        if (p[i] > 0x10000)
+            p[i] = 0x10000;
+    }
+    *(int *)(pRecord + 0x404) = 0x10000 - FixMul(*(int *)(pRecord + 0x2a0), 0x666) -
+                                FixMul(*(int *)(pRecord + 0x27c), 0x1333) -
+                                FixMul(*(int *)(pRecord + 0x2a4), 0x2666);
+    *(int *)(pRecord + 0x3dc) = FixMul(*(int *)(pRecord + 0x258), FixMul(0x3333, 0xffff0000));
+    *(int *)(pRecord + 0x3e0) = FixMul(*(int *)(pRecord + 0x25c), FixMul(0x3333, 0xffff0000));
+    *(int *)(pRecord + 0x3e4) = FixMul(*(int *)(pRecord + 0x260), FixMul(0x3333, 0x8000));
+    *(int *)(pRecord + 0x3e8) = FixMul(*(int *)(pRecord + 0x264), FixMul(0x3333, 0xffff8000));
+    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x250) * 2, 0x8000);
+    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x3d8), 0xa0000);
+    *(int *)(pRecord + 0x3fc) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x268) +
+                                                         *(int *)(pRecord + 0x26c), 0x8000), 0x3333);
+    *(int *)(pRecord + 0x400) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x270) +
+                                                         *(int *)(pRecord + 0x274), 0x8000), 0x3333);
+    p = (int *)(pRecord + 0x3ec);
+    for (i = 0; i < 4; i++) {
+        p[i] = FixMul(p[i - 0x6b], 0xccc);
+    }
+    if (*(int *)pCar->field_0x7b8 != 0x10000 && *(int *)pCar->field_0x7b8 != 0) {
+        value = FixMul(*(int *)(pRecord + 0x280), 0x8000) + *(int *)pCar->field_0x7b8;
+        pCar->field_0x7b4 = value;
+        if (value > 0x10000)
+            pCar->field_0x7b4 = 0x10000;
+    }
+    *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
+    value = FUN_00469100(pCar, pRecord);
+    *(int *)(pRecord + 0x408) = FixMul(value, 0x4000);
+    if (FUN_00469bc0(pCar, 3) != 0)
+        *(int *)(pRecord + 0x408) = *(int *)(pRecord + 0x408) + -0x3333;
+    *(int *)(pRecord + 0x284) = value;
+    if (value > 0x10000)
+        *(int *)(pRecord + 0x284) = 0x10000;
+}
+
+// Adds `amount` to the 3x3 grid at +0x21c of the car's 0x4d0-byte record,
+// weighted by how close each grid point is to the car's contact offsets
+// (0x5dc/0x5e4).
+// match 50%: same logic; MSVC6 kept the car pointer in EDI and the FixMul
+// temporaries in the parameter slots instead of the slots we get.
+// FUNCTION: CMR2 0x00468a80
+void FUN_00468a80(Car *pCar, int amount)
+{
+    int *pGrid;
+    int *pElem;
+    int row;
+    int i;
+    int xOff;
+    int yOff;
+    int halfAmount;
+    int gridStep;
+    int xStep;
+    int yStep;
+    int xLimit;
+    int yLimit0;
+    int yLimit1;
+    int colLimit;
+
+    pGrid = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0 + 0x21c);
+    halfAmount = FixMul(amount, 0x8000);
+    gridStep = FixMul(amount, 0x3333);
+    xStep = FixMul(pCar->halfExtents.x, 0xaac0);
+    yStep = FixMul(pCar->halfExtents.z, 0xc000);
+    xLimit = FixMul(pCar->halfExtents.x, 0x553f) + halfAmount;
+    yLimit0 = FixMul(pCar->halfExtents.z, 0x4000) + halfAmount;
+    yLimit1 = FixMul(pCar->halfExtents.z, 0x8000) + halfAmount;
+    row = 0;
+    yOff = -yStep;
+    for (row = 0; row < 3; row++) {
+        colLimit = row == 1 ? yLimit1 : yLimit0;
+        xOff = xStep;
+        pElem = pGrid;
+        for (i = 0; i < 3; i++) {
+            if (FIX_ABS(*(int *)((BYTE *)pCar + 0x5dc) - xOff) <= xLimit &&
+                FIX_ABS(*(int *)((BYTE *)pCar + 0x5e4) - yOff) <= colLimit) {
+                *pElem += gridStep;
+                if (*pElem > 0x640000)
+                    *pElem = 0x640000;
+            }
+            xOff -= xStep;
+            pElem++;
+        }
+        pGrid += 3;
+        yOff += yStep;
+    }
+}
 // Averages (16.16) the per-object distance between every stage object's float
 // vertex data and its fixed-point copy, skipping parts 1 and 3 when the record
 // flag is set (their object count still feeds the divisor).

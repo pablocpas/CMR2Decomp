@@ -309,6 +309,77 @@ int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit)
     (p)->z += (pos).z;          \
     (p)++;
 
+// Selects the per-gear speed table of the current car (eight 16.16 values at
+// 0x7dc) and rescales the engine-speed accumulator (0x788) accordingly, then
+// normalises the table by 0x123d7.
+// FUNCTION: CMR2 0x0043e1f0
+void FUN_0043e1f0(unsigned int param_1)
+{
+    int i;
+    int v;
+
+    switch (param_1) {
+    case 4:
+        g_pCurrentCar->field_0x7dc[0] = 0;
+        g_pCurrentCar->field_0x7dc[1] = 0x553f;
+        g_pCurrentCar->field_0x7dc[2] = 0x7893;
+        g_pCurrentCar->field_0x7dc[3] = 0x9ef9;
+        g_pCurrentCar->field_0x7dc[4] = 0xc28f;
+        g_pCurrentCar->field_0x7dc[5] = 0xe4dd;
+        g_pCurrentCar->field_0x7dc[6] = 0x10ac0;
+        g_pCurrentCar->field_0x7dc[7] = 0xffffaac1;
+        break;
+    case 3:
+        g_pCurrentCar->field_0x7dc[0] = 0;
+        g_pCurrentCar->field_0x7dc[1] = 0x5374;
+        g_pCurrentCar->field_0x7dc[2] = 0x73b6;
+        g_pCurrentCar->field_0x7dc[3] = 0x9604;
+        g_pCurrentCar->field_0x7dc[4] = 0xb4fd;
+        g_pCurrentCar->field_0x7dc[5] = 0xd26e;
+        g_pCurrentCar->field_0x7dc[6] = 0xf26e;
+        g_pCurrentCar->field_0x7dc[7] = 0xffffac8c;
+        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x1eb;
+        break;
+    case 2:
+        g_pCurrentCar->field_0x7dc[0] = 0;
+        g_pCurrentCar->field_0x7dc[1] = 0x5168;
+        g_pCurrentCar->field_0x7dc[2] = 0x6ed9;
+        g_pCurrentCar->field_0x7dc[3] = 0x8d0e;
+        g_pCurrentCar->field_0x7dc[4] = 0xa76c;
+        g_pCurrentCar->field_0x7dc[5] = 0xc000;
+        g_pCurrentCar->field_0x7dc[6] = 0xd9db;
+        g_pCurrentCar->field_0x7dc[7] = 0xffffae98;
+        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x3d7;
+        break;
+    case 1:
+        g_pCurrentCar->field_0x7dc[0] = 0;
+        g_pCurrentCar->field_0x7dc[1] = 0x4f9d;
+        g_pCurrentCar->field_0x7dc[2] = 0x69fb;
+        g_pCurrentCar->field_0x7dc[3] = 0x83d7;
+        g_pCurrentCar->field_0x7dc[4] = 0x9999;
+        g_pCurrentCar->field_0x7dc[5] = 0xad4f;
+        g_pCurrentCar->field_0x7dc[6] = 0xc189;
+        g_pCurrentCar->field_0x7dc[7] = 0xffffb063;
+        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x5c2;
+        break;
+    case 0:
+        g_pCurrentCar->field_0x7dc[0] = 0;
+        g_pCurrentCar->field_0x7dc[1] = 0x4d91;
+        g_pCurrentCar->field_0x7dc[2] = 0x651e;
+        g_pCurrentCar->field_0x7dc[3] = 0x7ae1;
+        g_pCurrentCar->field_0x7dc[4] = 0x8c08;
+        g_pCurrentCar->field_0x7dc[5] = 0x9ae1;
+        g_pCurrentCar->field_0x7dc[6] = 0xa8f5;
+        g_pCurrentCar->field_0x7dc[7] = 0xffffb26f;
+        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x7ae;
+        break;
+    }
+    for (i = 0; i < 8; i++) {
+        v = g_pCurrentCar->field_0x7dc[i];
+        g_pCurrentCar->field_0x7dc[i] = FixDiv(v, 0x123d7);
+    }
+}
+
 // Sets three handling factors of the current car from a 16.16 level.
 // FUNCTION: CMR2 0x0043e530
 void FUN_0043e530(int level)
@@ -1053,6 +1124,52 @@ void Car_UpdateBodyMatrix(void)
     FixMatrix_SetPosition(&a, g_pCurrentCar->pBodyMatrix);
 }
 
+extern BYTE *g_pCarSetup;
+
+// unsigned short field of g_pCurrentCar at byte offset off
+#define CAR_USHORT(off) (*(unsigned short *)((int)g_pCurrentCar + (off)))
+
+// Advances the per-wheel suspension travel angle (0xb08) from the wheel load
+// and turns it into the per-wheel contact-point offset (0x6fc/0x700), scaled
+// by the per-wheel spring constant of the car setup.
+// match 90%: MSVC picked the setup array (0x240) as the induction-variable base
+// instead of the wheel-load array (0x860) the original used; same logic.
+// GLOBAL: CMR2 0x00511398
+double g_unk0x00511398 = -0.009947183943243459;
+// FUNCTION: CMR2 0x004336f0
+void Car_UpdateWheelTravel(void)
+{
+    int i;
+    int load;
+    int absLoad;
+    short delta;
+
+    for (i = 0; i < 4; i++) {
+        load = CAR_INT(0x860 + i * 4);
+        absLoad = FIX_ABS(load);
+        if (absLoad > 0x10000) {
+            if (load > 0) {
+                CAR_USHORT(0xb08 + i * 2) += -0x28b;
+            } else {
+                CAR_USHORT(0xb08 + i * 2) += 0x28b;
+            }
+        } else {
+            delta = (short)(__int64)((double)load * g_unk0x00511398);
+            CAR_USHORT(0xb08 + i * 2) += delta;
+        }
+        if (*(int *)(g_pCarSetup + 0x240 + i * 4) > 0) {
+            CAR_INT(0x6fc + i * 8) =
+                FixMul(g_sinTable[CAR_USHORT(0xb08 + i * 2) & 0xfff],
+                       FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
+            CAR_INT(0x700 + i * 8) =
+                FixMul(-g_sinTable[(unsigned short)(CAR_USHORT(0xb08 + i * 2) + 0x400) & 0xfff],
+                       FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
+        } else {
+            CAR_INT(0x700 + i * 8) = 0;
+            CAR_INT(0x6fc + i * 8) = 0;
+        }
+    }
+}
 // Normalises a body axis of g_pCurrentCar in place through a pointer.
 #define CAR_NORMALIZE_AXIS(field)                                                   \
     {                                                                               \
@@ -3195,12 +3312,47 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 // GLOBAL: CMR2 0x0053cadc
 int g_gravityScale;
 
-// Simple ground contact (the car as a box resting on one point): the ground
-// normal under the car is eased towards the one below it, the body is
-// turned to stand on it while the car is not moving away from the ground,
-// and the lowest corner of the box is kept on the ground. field_0xb74 is
-// cleared once the car is clearly above the ground.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Velocity of the box corners of the current car: the two opposite corners
+// get the rotational component (half-width times the angular velocity through
+// the world matrix) plus the body velocity; the other six copy them.
+// match 76%: same logic; MSVC put pWorld in ESI and pVel in EDI instead of
+// the EDI/ESI the original used (induction/pointer register numbering).
+// FUNCTION: CMR2 0x00443a20
+void Car_UpdateCornerVelocityPair(void)
+{
+    FixMatrix *pWorld;
+    FixVector *pAngVel;
+    FixVector *pVel;
+    FixVector *pCorner;
+    int a;
+    int b;
+
+    pWorld = g_pCurrentCar->pWorld;
+    pAngVel = &g_pCurrentCar->angularVelocity;
+    pVel = &g_pCurrentCar->velocity;
+    pCorner = g_pCurrentCar->cornerVelocity;
+    a = FixMul(pAngVel->z, g_pCurrentCar->halfExtents.x);
+    b = FixMul(pAngVel->y, g_pCurrentCar->halfExtents.x);
+    pCorner[0].x = FixMul(pWorld->up.x, a) - FixMul(pWorld->forward.x, b);
+    pCorner[0].y = FixMul(pWorld->up.y, a) - FixMul(pWorld->forward.y, b);
+    pCorner[0].z = FixMul(pWorld->up.z, a) - FixMul(pWorld->forward.z, b);
+    pCorner[2].x = -pCorner[0].x;
+    pCorner[2].y = -pCorner[0].y;
+    pCorner[2].z = -pCorner[0].z;
+    pCorner[0].x += pVel->x;
+    pCorner[0].y += pVel->y;
+    pCorner[0].z += pVel->z;
+    pCorner[2].x += pVel->x;
+    pCorner[2].y += pVel->y;
+    pCorner[2].z += pVel->z;
+    pCorner[1] = pCorner[0];
+    pCorner[3] = pCorner[2];
+    pCorner[4] = pCorner[0];
+    pCorner[5] = pCorner[0];
+    pCorner[6] = pCorner[2];
+    pCorner[7] = pCorner[2];
+}
+
 // FUNCTION: CMR2 0x00443d10
 void Car_FollowGround(void)
 {
@@ -4132,6 +4284,73 @@ FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car)
         FixMatrix_SetPosition(&position, pOut);
     }
     return pOut;
+}
+
+int RallyData_FUN_00421500(void);
+void RallyData_FUN_00421530(int index, int *pOut);
+int StageObject_UsesExtendedMode(void);
+
+// Relative position of the current car against every other car in the race
+// order: returns 1 as soon as one overlaps it (distance below the sum of the
+// two body radii), keeping the relative position in 0x53ca58 and its largest
+// absolute component in 0x53ca24.
+// GLOBAL: CMR2 0x0053c9c4
+int g_unk0x0053c9c4;
+// GLOBAL: CMR2 0x0053ca24
+int g_unk0x0053ca24;
+// GLOBAL: CMR2 0x0053ca58
+FixVector g_unk0x0053ca58;
+// GLOBAL: CMR2 0x0053cae8
+FixVector g_unk0x0053cae8;
+// match 69%: same logic; MSVC kept the loop counter in the parameter slot and
+// in EDI in the original, and in ESI here (register numbering).
+// FUNCTION: CMR2 0x00431d80
+int FUN_00431d80(int param_1)
+{
+    short *pOrder;
+    short count;
+    short i;
+    int result;
+    Car *pOther;
+    int inv;
+
+    result = 0;
+    if (param_1 == 0 && RallyData_FUN_00421500() == 0)
+        return 0;
+    pOrder = Car_GetOrder();
+    count = Car_GetOrderCount();
+    RallyData_FUN_00421530(param_1, (int *)&g_unk0x0053cae8);
+    for (i = 0; i < count; i++) {
+        pOther = Car_Get(pOrder[i]);
+        if (pOther->field_0xb1a != g_pCurrentCar->field_0xb1a && StageObject_UsesExtendedMode() != 0) {
+            g_unk0x0053ca58.x = g_unk0x0053cae8.x - pOther->position.x;
+            g_unk0x0053ca58.y = g_unk0x0053cae8.y - pOther->position.y;
+            g_unk0x0053ca58.z = g_unk0x0053cae8.z - pOther->position.z;
+            if (FIX_ABS(g_unk0x0053ca58.x) > FIX_ABS(g_unk0x0053ca58.y) &&
+                FIX_ABS(g_unk0x0053ca58.x) > FIX_ABS(g_unk0x0053ca58.z))
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.x);
+            else if (FIX_ABS(g_unk0x0053ca58.y) > FIX_ABS(g_unk0x0053ca58.x) &&
+                     FIX_ABS(g_unk0x0053ca58.y) > FIX_ABS(g_unk0x0053ca58.z))
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.y);
+            else
+                g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.z);
+            if (g_unk0x0053ca24 != 0) {
+                inv = (int)(0x100000000 / (__int64)g_unk0x0053ca24);
+                g_unk0x0053ca58.x = FixMul(g_unk0x0053ca58.x, inv);
+                g_unk0x0053ca58.y = FixMul(g_unk0x0053ca58.y, inv);
+                g_unk0x0053ca58.z = FixMul(g_unk0x0053ca58.z, inv);
+            }
+            g_unk0x0053c9c4 = FixSqrt(FixMul(g_unk0x0053ca58.x, g_unk0x0053ca58.x) +
+                                      FixMul(g_unk0x0053ca58.y, g_unk0x0053ca58.y) +
+                                      FixMul(g_unk0x0053ca58.z, g_unk0x0053ca58.z));
+            g_unk0x0053c9c4 = FixMul(g_unk0x0053c9c4, g_unk0x0053ca24);
+            if (g_unk0x0053c9c4 < *(int *)pOther->field_0x758 + *(int *)g_pCurrentCar->field_0x758) {
+                result = 1;
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 // Counts the current car's wheels near the ground and shares its weight out.
