@@ -4643,3 +4643,56 @@ void FUN_0045f5d0(int pData, int param_2)
         p[8] += 0x1680000;
     }
 }
+
+// GLOBAL: CMR2 0x0053ddb0
+char g_unk0x0053ddb0[108];
+
+// Records a new split time for a car and reorders the shared split table.
+// match 76%: registers differ and the flag tests are re-read (the original calls them per branch)
+// FUNCTION: CMR2 0x004487a0
+void FUN_004487a0(int car)
+{
+    int split = FUN_00458370(car);
+    int count;
+    int group;
+    int index;
+    char prev;
+
+    if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
+        if ((int)((BYTE)RallyDataState()) <= car)
+            return;
+        g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+        return;
+    }
+    count = FUN_00458390();
+    group = FUN_00458330(car);
+    index = FUN_00458350(car);
+    if ((char)RallyData_GetFlag24() == 0)
+        g_carStageTiming[car].field_0x4[split] = g_unk0x0053d1b0;
+    else
+        g_unk0x0053d1e8[car][group][split] = g_unk0x0053d1b0;
+    if (car < (int)((BYTE)RallyDataState()) || (char)RallyData_FUN_00407e90() != 0) {
+        g_carStageTiming[car].field_0x84 = 0;
+        if ((char)RallyData_GetFlag24() == 0)
+            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
+        else
+            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0 - g_unk0x0053d1e8[car][group][0];
+    }
+    if ((char)RallyData_FUN_00407e90() != 0) {
+        group = 0;
+        index = split;
+    }
+    index = index + group * 9;
+    prev = g_unk0x0053ddb0[index];
+    g_unk0x0053ddb0[index] = prev + 1;
+    g_carStageTiming[car].field_0x82 = prev;
+    g_unk0x0053de1c[index][(int)prev] = (char)car;
+    if ((int)prev > 0) {
+        char other = g_unk0x0053de1c[index][(int)prev - 1];
+
+        g_carStageTiming[other].field_0x80 = (char)car;
+        g_carStageTiming[other].field_0x83 = 1;
+    }
+    if ((int)prev == count - 1)
+        g_carStageTiming[car].field_0x80 = (char)0xff;
+}
