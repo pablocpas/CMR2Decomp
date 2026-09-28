@@ -1174,3 +1174,167 @@ void FUN_004932f0(void)
         }
     }
 }
+
+extern double g_unk0x00511300;
+
+// Eases the car's steering angle towards the value taken from its track
+// surface, then stores the damped angle into 0xb10/0xb12.
+// match 87%: implemented; MSVC keeps the two scale factors in different registers and
+// reorders the fixpoint intermediates
+// FUNCTION: CMR2 0x00493ed0
+void FUN_00493ed0(void)
+{
+    int scaleRight;
+    int scaleLeft;
+    int value;
+    int other;
+    short target;
+    short current;
+    short delta;
+
+    scaleRight = *(int *)((BYTE *)g_pAutoGearCar + 0x7fc);
+    scaleLeft = *(int *)((BYTE *)g_pAutoGearCar + 0x800);
+    value = FixMul(*(BYTE *)((BYTE *)g_pAutoGearCar + 0x1d1) << 16, 0x410);
+    if (value > 0x10000)
+        value = 0x10000;
+    other = FixMul(*(BYTE *)((BYTE *)g_pAutoGearCar + 0x1d0) << 16, 0x410);
+    if (other > 0x10000)
+        other = 0x10000;
+    value -= other;
+    FUN_004943d0();
+
+    if (value < -0x10000)
+        value = -0x10000;
+    else if (value > 0x10000)
+        value = 0x10000;
+    if (value == 0)
+        target = 0;
+    else
+        target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_unk0x00511300);
+
+    if (*(int *)((BYTE *)g_pAutoGearCar + 0xb88) == 2) {
+        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) = target;
+        *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+        return;
+    }
+
+    current = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    delta = current - target;
+    if (delta > 0x800)
+        delta = 0x1000 - delta;
+    if (delta > 0x1f || delta < -0x1f) {
+        if (current == 0)
+            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+        else if (current < 1) {
+            if (delta < 1)
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+            else
+                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+        } else if (delta < 0)
+            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+        else
+            delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+    }
+    *(short *)((BYTE *)g_pAutoGearCar + 0xb10) -= delta;
+    *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+}
+
+// GLOBAL: CMR2 0x00592168
+int g_unk0x00592168;
+// GLOBAL: CMR2 0x00511308
+double g_unk0x00511308 = -4096.0 / (360.0 * 65536.0);
+
+// Integrates the auto-gear steering accumulator for the current surface and
+// eases the 16.16 angle in 0xb10/0xb12 towards the new target.
+// match 43%: implemented; the original materialises FixMul(<constant zero>, v) instead of
+// testing zero, which moves the whole decision tree's register allocation
+// FUNCTION: CMR2 0x00494110
+void FUN_00494110(void)
+{
+    int v;
+    int sum;
+    int cur;
+    int magCur;
+    int magSum;
+    short target;
+    short step;
+    short limit;
+
+    FUN_004943d0();
+    FUN_004945d0();
+    g_unk0x00592168 = *(int *)((BYTE *)g_pAutoGearCar + 0x820);
+    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) != 0) {
+        if (FixMul(g_unk0x00592160, *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) > 0)
+            g_unk0x00592168 = -g_unk0x00592168;
+    } else {
+        g_unk0x00592168 = 0;
+    }
+
+    v = 0x10000 - FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xb8) +
+                         *(int *)((BYTE *)g_pAutoGearCar + 0x94), 0x8000);
+    g_unk0x00592164 = FixMul(FixMul(g_unk0x00592164, v), *(int *)((BYTE *)g_pAutoGearCar + 0x804));
+    g_unk0x00592168 = FixMul(FixMul(g_unk0x00592168, v), *(int *)((BYTE *)g_pAutoGearCar + 0x804));
+
+    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0) {
+        if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0)
+            goto modeB;
+        goto modeA;
+    }
+    if (g_unk0x00592168 > 0)
+        goto modeB;
+modeA:
+    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0)
+        goto towardZero;
+    if (g_unk0x00592168 >= 0)
+        goto towardNeg;
+modeB:
+    sum = g_unk0x00592164 + g_unk0x00592168;
+    cur = *(int *)((BYTE *)g_pAutoGearCar + 0x81c);
+    magCur = cur;
+    if (magCur < 0)
+        magCur = -magCur;
+    magSum = sum;
+    if (magSum < 0)
+        magSum = -magSum;
+    if (magCur <= magSum)
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
+    else
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = cur + sum;
+    goto convert;
+
+towardNeg:
+    *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
+    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < -0x10000)
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0xffff0000;
+    else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0)
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
+    goto convert;
+
+towardZero:
+    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0)
+        goto convert;
+    *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
+    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0x10000)
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0x10000;
+    else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < 0)
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
+
+convert:
+    target = (short)(__int64)((double)FixMul(g_unk0x00592160,
+                                             *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) *
+                              g_unk0x00511308);
+    *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = target;
+    step = *(short *)((BYTE *)g_pAutoGearCar + 0xb12) - *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    limit = (short)(FixMul(0x22, 0x10000 - v) + 0x22);
+    cur = step;
+    if (cur < 0)
+        cur = -cur;
+    if (cur < limit) {
+        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) = *(short *)((BYTE *)g_pAutoGearCar + 0xb12);
+        return;
+    }
+    if (step > 0)
+        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) += limit;
+    else
+        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) -= limit;
+}
