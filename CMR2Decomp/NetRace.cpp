@@ -1183,8 +1183,10 @@ int FUN_00425c40(int car, int *pOut)
         axis[i] = f2;
         ang1 = (short)((double)(int)(f1 * g_65536f) * CGraphics::m_oneOver65536);
         ang2 = (short)((double)(int)(f2 * g_65536f) * CGraphics::m_oneOver65536);
-        row.x = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[(ang2 + 0x400) & 0xfff]);
-        row.y = g_sinTable[(ang1 + 0x400) & 0xfff];
+        // ang1 sale de f1 (axis[i+2]*24/17) y ang2 de f2 (axis[i]*12/17). El original (asm 0x425ff5-0x42606a)
+        // usa ang2 en el primer argumento de row.x y en row.y; row.z es un producto conmutativo y no cambia.
+        row.x = FixMul(g_sinTable[ang2 & 0xfff], g_sinTable[(ang1 + 0x400) & 0xfff]);
+        row.y = g_sinTable[(ang2 + 0x400) & 0xfff];
         row.z = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[ang2 & 0xfff]);
         *pRow = row;
         {
