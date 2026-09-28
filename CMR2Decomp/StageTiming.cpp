@@ -216,6 +216,187 @@ void FUN_004556a0(int count)
         g_stageSplitDriverCount[i] = g_unk0x00541f98;
 }
 
+// GLOBAL: CMR2 0x0051a14c
+char g_strRaceHasAiDriver[] = "Race %d has ai driver %d\n";
+// GLOBAL: CMR2 0x0051a168
+char g_strRaceHasPlayer[] = "Race %d has player\n";
+int FUN_0041b380(void);
+void FUN_00456a40(int param1, int param2);
+void FUN_00455bc0(int slot, int driver);
+
+// Pairs each human player's stage slot with an opponent for the split
+// rankings, by game mode: championship/single stages walk the overall
+// standings from the back (so each player races the driver just ahead),
+// arcade uses the stage positions, and the knockout takes the two drivers
+// of every match of the current round.
+// FUNCTION: CMR2 0x004556f0
+void FUN_004556f0(void)
+{
+    int players;
+    int i;
+    int id;
+    int slot;
+    int left;
+    int remaining;
+    int pos;
+    int *pSlot;
+    char *pOut;
+    int slots[4];
+    char used[16];
+    unsigned int *pState;
+    int count;
+    KnockoutMatch *pMatch;
+    int drivers[2];
+    int out[2];
+    int k;
+    int ai;
+    char hasAi;
+    char hasPlayer;
+
+    players = CGameInfo::FUN_00405d70();
+    switch (CGameInfo::FUN_00405d80()) {
+    case 0:
+    case 1:
+        if (FUN_0041b380() == 1) {
+            g_stageSplitUnk0x00541f78[0][0] = (char)StageTiming_GetDriverSlot(0);
+            g_stageSplitUnk0x00541f78[0][1] = (char)StageTiming_GetDriverSlot(1);
+            return;
+        }
+        memset(used, 0, sizeof(used));
+        pSlot = slots;
+        for (i = 0; i < 16; i++) {
+            id = RallyTiming_GetOverallPositionDriverID(i);
+            if (id >= g_unk0x00541f98) {
+                slot = 15 - id;
+                *pSlot++ = slot;
+                g_stageSplitUnk0x00541f78[slot][0] = (char)id;
+                g_stageSplitUnk0x00541f78[slot][1] = 16;
+            }
+        }
+        remaining = g_unk0x00541f98;
+        left = players;
+        pSlot = &slots[players - 1];
+        for (pos = 15; pos >= 0; pos--) {
+            if (left <= 0)
+                break;
+            id = RallyTiming_GetOverallPositionDriverID(pos);
+            if (id < g_unk0x00541f98) {
+                if (remaining == left) {
+                    slot = *pSlot;
+                    left--;
+                    used[id] = 1;
+                    pSlot--;
+                    g_stageSplitUnk0x00541f78[slot][1] = (char)id;
+                }
+                remaining--;
+            } else {
+                slot = 15 - id;
+                if (g_stageSplitUnk0x00541f78[slot][1] == 16) {
+                    k = pos;
+                    do
+                        id = RallyTiming_GetOverallPositionDriverID(--k);
+                    while (id >= g_unk0x00541f98 || used[id] != 0);
+                    left--;
+                    g_stageSplitUnk0x00541f78[slot][1] = (char)id;
+                    used[id] = 1;
+                    pSlot--;
+                }
+            }
+        }
+        // The original tests the last slot touched above, not the one being
+        // filled.
+        for (i = players, pOut = &g_stageSplitUnk0x00541f78[0][1]; i > 0; i--, pOut += 2) {
+            if (g_stageSplitUnk0x00541f78[slot][1] == 16) {
+                for (k = 15; k >= 0; k--) {
+                    if (used[k] == 0) {
+                        *pOut = (char)k;
+                        used[k] = 1;
+                    }
+                }
+            }
+        }
+        for (i = 0; i < players; i++) {
+            FUN_00456a40(i, g_stageSplitUnk0x00541f78[i][1]);
+            FUN_00455bc0(i, g_stageSplitUnk0x00541f78[i][1]);
+        }
+        break;
+    case 2:
+        if (FUN_0041b380() == 1) {
+            g_stageSplitUnk0x00541f78[0][0] = (char)StageTiming_GetDriverSlot(0);
+            g_stageSplitUnk0x00541f78[0][1] = (char)StageTiming_GetDriverSlot(1);
+            return;
+        }
+        for (i = 0; i < players; i++) {
+            g_stageSplitUnk0x00541f78[i][0] = (char)StageTiming_GetDriverSlot(i);
+            g_stageSplitUnk0x00541f78[i][1] = (char)StageTiming_GetDriverIDForPosition(i);
+            FUN_00456a40(i, g_stageSplitUnk0x00541f78[i][1]);
+            FUN_00455bc0(i, g_stageSplitUnk0x00541f78[i][1]);
+        }
+        break;
+    case 4:
+        count = 8;
+        pState = RallyData_GetChampionshipState();
+        switch ((*pState >> 3) & 7) {
+        case 1:
+            count = 8;
+            break;
+        case 2:
+            count = 4;
+            break;
+        case 3:
+            count = 2;
+            break;
+        case 4:
+            count = 1;
+            break;
+        }
+        pOut = &g_stageSplitUnk0x00541f78[0][1];
+        for (i = 0; i < count; i++) {
+            hasAi = 0;
+            hasPlayer = 0;
+            switch ((*pState >> 3) & 7) {
+            case 1:
+                pMatch = &((KnockoutTable *)pState)->round1[i];
+                break;
+            case 2:
+                pMatch = &((KnockoutTable *)pState)->quarters[i];
+                break;
+            case 3:
+                pMatch = &((KnockoutTable *)pState)->semis[i];
+                break;
+            case 4:
+                pMatch = &((KnockoutTable *)pState)->final;
+                break;
+            }
+            drivers[0] = pMatch->flags & 0x1f;
+            drivers[1] = (pMatch->flags >> 5) & 0x1f;
+            for (k = 0; k < 2; k++) {
+                if (RallyData_FUN_00408500((BYTE)drivers[k]) == -1) {
+                    out[k] = StageTiming_GetDriverSlot(drivers[k]);
+                    hasPlayer = 1;
+                } else {
+                    hasAi = 1;
+                    ai = drivers[k] - CGameInfo::FUN_00405d70();
+                    out[k] = ai;
+                }
+            }
+            if (hasPlayer) {
+                sprintf(CFrontend::m_stringDest, g_strRaceHasPlayer, i);
+                puts(CFrontend::m_stringDest);
+                pOut[-1] = (char)out[0];
+                pOut[0] = (char)out[1];
+                if (hasAi) {
+                    sprintf(CFrontend::m_stringDest, g_strRaceHasAiDriver, i, ai);
+                    puts(CFrontend::m_stringDest);
+                    FUN_00456a40(i, ai);
+                }
+                pOut += 2;
+            }
+        }
+        break;
+    }
+}
+
 // FUNCTION: CMR2 0x00455ab0
 int StageTiming_FUN_00455ab0(int iSplit)
 {
