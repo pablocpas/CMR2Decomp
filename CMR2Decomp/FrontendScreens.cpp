@@ -10183,6 +10183,7 @@ void FUN_004d7380(Menu *pMenu)
 
 // Draws the stage selection screen: the rally name and date, the record car of
 // the selected stage and the list of the stages of the rally.
+// match 90%: reparto de registros en el bucle de los nombres de etapa
 // FUNCTION: CMR2 0x004d8480
 void FUN_004d8480(Menu *pMenu)
 {
@@ -10260,6 +10261,7 @@ extern char g_stageNumberFormat[];
 
 // Draws the leaderboard screen: the pager line, the ten names with their wins
 // and the list of leaderboards.
+// match 73%: reparto de registros en el bucle de las diez filas
 // FUNCTION: CMR2 0x004e9990
 void FUN_004e9990(Menu *pMenu)
 {
