@@ -9303,3 +9303,224 @@ void FUN_00403890(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
+extern BYTE g_unk0x0082547c[0x898];
+extern BYTE g_unk0x00825d14[0x258];
+extern BYTE g_unk0x00825398[0x4c];
+extern BYTE g_unk0x008253e4[0x98];
+extern BYTE g_unk0x00825f6c[0x1cc];
+BYTE *RallyData_FUN_00408cb0(int index);
+void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
+
+// Rebuilds the four leaderboard text tables from the saved records:
+// 0x82547c (the 8 row groups of the stage records), 0x825d14 (the rally
+// records, 3 rows of 8), 0x825398 (the 8 special records), 0x8253e4 (the
+// rally records' other column, 0x450-based rows of 2) and 0x825f6c (the last
+// 8 records at 0x4bc). Each entry is packed into a scrambled dword pair and
+// formatted by FUN_004fb8d0; invalid records become an empty string.
+// match 11%: implementada; MSVC reparte los locales y los registros de otra forma (el original
+// reserva 0x1c de marco y recicla EBX/EBP/ESI, nosotros spillamos los punteros a pila) y usa
+// otra forma para el remanente de %3; logica, mascaras y constantes coinciden.
+// FUNCTION: CMR2 0x004f8b30
+void FUN_004f8b30(void)
+{
+    unsigned int value;
+    unsigned int key;
+    unsigned int packed;
+    unsigned int time;
+    BYTE b;
+    BYTE *p;
+    BYTE *pNum;
+    BYTE *pFlags;
+    BYTE *pOut;
+    BYTE *pRow;
+    int row;
+    int col;
+    int offRow;
+    int offCol;
+    int baseIdx;
+    int count;
+    int idx;
+    int j;
+    int k;
+
+    value = 0;
+    key = 0;
+    row = 0;
+    baseIdx = 0;
+    offRow = 0x150;
+    do {
+        col = 0;
+        count = row % 2 + 10;
+        offCol = offRow;
+        do {
+            pNum = RallyData_FUN_00408cb0(0) + 4 + offCol;
+            pFlags = RallyData_FUN_00408cb0(0) + offCol;
+            if ((*pFlags & 0x80) == 0 || *(unsigned int *)pNum / 6000 > 0xf) {
+                g_unk0x0082547c[(col + baseIdx) * 0x19] = 0;
+            } else {
+                time = *(unsigned int *)pNum;
+                packed = (~*(unsigned int *)pFlags & 0xffffffc0) << 0x19 |
+                         (*(unsigned int *)pFlags & 0x3f) << 0xc |
+                         ((col & 0xf) << 4 | row & 0xf) << 4 | value & 0x7ffc000f;
+                value = time % 100 << 0x18 | time / 100 % 0x3c << 0x12 |
+                        (packed ^ (time / 6000 ^ packed) & 0xf) & 0x8003ffff;
+                b = (BYTE)(*(unsigned int *)pFlags >> 8);
+                key = key & 0xffffff00 | (b << 3) & 0xff;
+                p = (BYTE *)&value;
+                k = 4;
+                do {
+                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
+                    p++;
+                    k--;
+                } while (k != 0);
+                FUN_004fb8d0(0, &value, (char *)&key, (char *)&g_unk0x0082547c[(col + baseIdx) * 0x19]);
+                FUN_004f8a90((char *)&g_unk0x0082547c[(col + baseIdx) * 0x19]);
+            }
+            col++;
+            offCol += 8;
+        } while (col < count);
+        offRow += 0x60;
+        row++;
+        baseIdx += 0xb;
+    } while (offRow < 0x450);
+
+    pOut = g_unk0x00825d14;
+    row = 0;
+    offRow = 0;
+    do {
+        col = 0;
+        pRow = pOut;
+        offCol = offRow;
+        do {
+            pNum = RallyData_FUN_00408cb0(0) + 0x34 + offCol;
+            pFlags = RallyData_FUN_00408cb0(0) + 0x30 + offCol;
+            if ((*pFlags & 0x80) == 0 || *(unsigned int *)(pNum + 4) / 6000 > 0x3f) {
+                *pRow = 0;
+            } else {
+                time = *(unsigned int *)(pNum + 4);
+                packed = (~*(unsigned int *)pFlags & 0x40) << 9 |
+                         (*(unsigned int *)pFlags & 0x3f) << 9 |
+                         (col & 7) << 6 | value & 0xffff003f;
+                value = (time % 100 | (row & 3) << 7) << 0x16 |
+                        time / 100 % 0x3c << 0x10 |
+                        (packed ^ (time / 6000 ^ packed) & 0x3f) & 0x8000ffff;
+                b = (BYTE)(*(unsigned int *)pFlags >> 8);
+                key = key & 0xffffff00 | (b << 3) & 0xff | 1;
+                p = (BYTE *)&value;
+                k = 4;
+                do {
+                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
+                    p++;
+                    k--;
+                } while (k != 0);
+                FUN_004fb8d0(0, &value, (char *)&key, (char *)pRow);
+                FUN_004f8a90((char *)pRow);
+            }
+            col++;
+            offCol += 0x24;
+            pRow += 0x4b;
+        } while (col < 8);
+        pOut += 0x19;
+        row++;
+        offRow += 0xc;
+    } while ((int)pOut < 0x825d5f);
+
+    pOut = g_unk0x00825398;
+    idx = 0;
+    offCol = 0;
+    do {
+        pNum = RallyData_FUN_00408cb0(0) + 4 + offCol;
+        pFlags = RallyData_FUN_00408cb0(0) + offCol;
+        if ((*pFlags & 0x80) == 0) {
+            *pOut = 0;
+        } else {
+            packed = ((idx & 3) << 0x12 | *(unsigned int *)pNum & 0x1fc0) << 1 |
+                     (*(unsigned int *)pNum & 0xf) << 0xe | value & 0xffe0007f;
+            packed = packed ^ (*(unsigned int *)pFlags ^ packed) & 0x3f;
+            value = packed ^ (~*(unsigned int *)pFlags ^ packed) & 0x40;
+            b = (BYTE)(*(unsigned int *)pFlags >> 8);
+            key = key & 0xffffff00 | (b << 3) & 0xff | 2;
+            p = (BYTE *)&value;
+            k = 4;
+            do {
+                *p = (BYTE)(*p ^ (b & 0x1f) << 1);
+                p++;
+                k--;
+            } while (k != 0);
+            FUN_004fb8d0(0, &value, (char *)&key, (char *)pOut);
+            FUN_004f8a90((char *)pOut);
+        }
+        pOut += 0x19;
+        idx++;
+        offCol += 0x10;
+    } while ((int)pOut < 0x8253e3);
+
+    row = 0;
+    offRow = 0x450;
+    pOut = g_unk0x008253e4;
+    do {
+        col = 0;
+        pRow = pOut;
+        offCol = offRow;
+        do {
+            RallyData_FUN_00408cb0(0);
+            pFlags = RallyData_FUN_00408cb0(0) + offCol;
+            if ((*(unsigned int *)pFlags & 0x80) == 0) {
+                *pRow = 0;
+            } else {
+                packed = ((row & 3) << 0xe | *(unsigned int *)pNum & 0x7c0) << 1 |
+                         (*(unsigned int *)pNum & 7) << 0xc | value & 0xfffe007f;
+                value = (~*(unsigned int *)pFlags & 0x40) | (col & 3) << 0x11 |
+                        (packed ^ (*(unsigned int *)pFlags ^ packed) & 0x3f) & 0xfff9ffbf;
+                b = (BYTE)(*(unsigned int *)pFlags >> 8);
+                key = key & 0xffffff00 | (b << 3) & 0xff | 3;
+                p = (BYTE *)&value;
+                k = 4;
+                do {
+                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
+                    p++;
+                    k--;
+                } while (k != 0);
+                FUN_004fb8d0(0, &value, (char *)&key, (char *)pRow);
+                FUN_004f8a90((char *)pRow);
+            }
+            col++;
+            offCol += 0x24;
+            pRow += 0x4b;
+        } while (col < 2);
+        offRow += 0xc;
+        row++;
+        pOut += 0x19;
+    } while (offRow < 0x474);
+
+    idx = 0;
+    pOut = g_unk0x00825f6c;
+    do {
+        j = idx / 3 * 3 + idx % 3;
+        pNum = RallyData_FUN_00408cb0(0) + 0x4c0 + j * 8;
+        pFlags = RallyData_FUN_00408cb0(0) + 0x4bc + j * 8;
+        if ((*(unsigned int *)pFlags & 0x80) == 0 ||
+            *(unsigned int *)pNum / 6000 > 0x3f) {
+            *pOut = 0;
+        } else {
+            value = *(unsigned int *)pNum % 100 << 0x10 |
+                    *(unsigned int *)pNum / 100 % 0x3c << 10 |
+                    (*(unsigned int *)pNum / 6000 & 0x3f) << 0x17 |
+                    ~*(unsigned int *)pFlags & 0x40 | (idx & 7) << 7 |
+                    (value ^ (*(unsigned int *)pFlags ^ value) & 0x3f) & 0xe000003f;
+            b = (BYTE)(*(unsigned int *)pFlags >> 8);
+            key = key & 0xffffff00 | (b << 3) & 0xff | 4;
+            p = (BYTE *)&value;
+            k = 4;
+            do {
+                *p = (BYTE)(*p ^ (b & 0x1f) << 1);
+                p++;
+                k--;
+            } while (k != 0);
+            FUN_004fb8d0(0, &value, (char *)&key, (char *)pOut);
+            FUN_004f8a90((char *)pOut);
+        }
+        pOut += 0x19;
+        idx++;
+    } while ((int)pOut < 0x826034);
+}
