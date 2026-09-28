@@ -1243,3 +1243,464 @@ void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
                           0x10000, tAxis, 0x10000, 0);
     FUN_004869e0(pObj, (FixMatrix *)pSrc);
 }
+
+// Per-car network pose record: the body matrix plus the axes and position it
+// was built from. Eight contiguous 0xec-byte rows start at 0x5393d8; the type
+// is owned by StageTiming.cpp (g_unk0x005393d8 is the first row there), so the
+// layout below must stay in sync with it.
+struct CarNetRecord {
+    FixMatrix matrix;       // 0x00
+    FixVector right;        // 0x40
+    FixVector up;           // 0x4c
+    FixVector forward;      // 0x58
+    FixVector position;     // 0x64
+    BYTE pad_0x70[0x7c];    // 0x70
+};
+// (defined in StageTiming.cpp, which owns the GLOBAL annotation)
+extern CarNetRecord g_unk0x005393d8;
+
+void FUN_0042c870(int index);
+void FUN_004263d0(int param_1);
+
+// Refreshes the network pose record of every car of the given order that is
+// still in play (field_0xc20): the record matrix takes the body axes and the
+// body position, the record velocity (0x70) and angular velocity (0x7c) are
+// extrapolated one step from the body state, and the resulting movement is
+// turned into the unit direction at 0x94 the remote cars are advanced along.
+// Records whose pose did not change are marked (0xdc = 0) instead.
+// match 79%: implementada; el bucle y todos los helpers de vectores inline (13 shrd / 15 shld /
+// 28 imul / 1 idiv, como el original) generan las mismas instrucciones, pero MSVC6 mantiene la
+// base del registro en EDI con otro reparto de temporales.
+// FUNCTION: CMR2 0x00426fc0
+void FUN_00426fc0(Car *pCars, short *pOrder, short count)
+{
+    FixVector saved;
+    FixVector v;
+    FixVector t;
+    FixVector mpos;
+    FixVector d;
+    FixVector scaled;
+    Car *pCar;
+    CarNetRecord *pRec;
+    int dot;
+    int len;
+    int ax;
+    int az;
+    int i;
+
+    for (i = count - 1; i >= 0; i--) {
+        pCar = pCars + pOrder[i];
+        pRec = &g_unk0x005393d8 + pOrder[i];
+
+        if (*(int *)((BYTE *)pCar + 0xc20) == 0)
+            continue;
+
+        FixMatrix_SetPosition(&pCar->position, &pRec->matrix);
+        FixMatrix_SetRight(&pCar->right, &pRec->matrix);
+        FixMatrix_SetUp(&pCar->up, &pRec->matrix);
+        FixMatrix_SetForward(&pCar->forward, &pRec->matrix);
+
+        if (*(int *)((BYTE *)pRec + 0xd8) != 0) {
+            FUN_0042c870(pCar->field_0xb1a);
+            pCar->field_0xbf8 = 1;
+            *(int *)((BYTE *)pRec + 0xd8) = 0;
+        }
+
+        saved.x = *(int *)((BYTE *)pRec + 0x70);
+        saved.y = *(int *)((BYTE *)pRec + 0x74);
+        saved.z = *(int *)((BYTE *)pRec + 0x78);
+        *(FixVector *)((BYTE *)pRec + 0x70) = pCar->velocity;
+        v = pCar->field_0x5c4;
+        FixVecScale(&v, &v, 0x3333);
+        FixVecScale(&v, &v, g_physicsTimeStep);
+        *(int *)((BYTE *)pRec + 0x70) += v.x;
+        *(int *)((BYTE *)pRec + 0x74) += v.y;
+        *(int *)((BYTE *)pRec + 0x78) += v.z;
+
+        *(FixVector *)((BYTE *)pRec + 0x7c) = pCar->angularVelocity;
+        t.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
+        t.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
+        t.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
+        *(int *)((BYTE *)pRec + 0x7c) += t.x;
+        *(int *)((BYTE *)pRec + 0x80) += t.y;
+        *(int *)((BYTE *)pRec + 0x84) += t.z;
+
+        *(int *)((BYTE *)pRec + 0xd4) = pCar->field_0xc00;
+        *(int *)((BYTE *)pCar + 0x960) = *(int *)((BYTE *)pRec + 0xb4);
+        FUN_004263d0((int)pRec);
+
+        dot = FixVecDot(&pCar->up, &pCar->groundNormal);
+        pCar->field_0x96c -= FixMul(0x1eb8, g_physicsTimeStep);
+        if (pCar->field_0x96c < 0)
+            pCar->field_0x96c = 0;
+        if (pCar->field_0x96c <= 0 && dot > 0xfc28) {
+            ax = pCar->angularVelocity.x;
+            if (ax < 0)
+                ax = -ax;
+            if (ax < 0x28f) {
+                az = pCar->angularVelocity.z;
+                if (az < 0)
+                    az = -az;
+                if (az < 0x28f) {
+                    pCar->field_0xc00 = 0;
+                    pCar->field_0x96c = 0;
+                    *(int *)((BYTE *)pRec + 0xd4) = 0;
+                }
+            }
+        }
+
+        if (saved.x == *(int *)((BYTE *)pRec + 0x70) &&
+            saved.z == *(int *)((BYTE *)pRec + 0x78)) {
+            *(int *)((BYTE *)pRec + 0xdc) = 0;
+        } else {
+            *(int *)((BYTE *)pRec + 0xdc) = 1;
+            *(int *)((BYTE *)pRec + 0x94) = *(int *)((BYTE *)pRec + 0x70) - saved.x;
+            *(int *)((BYTE *)pRec + 0x98) = *(int *)((BYTE *)pRec + 0x74) - saved.y;
+            *(int *)((BYTE *)pRec + 0x9c) = *(int *)((BYTE *)pRec + 0x78) - saved.z;
+
+            len = FixVecLength((FixVector *)((BYTE *)pRec + 0x94));
+            if (len == 0) {
+                *(int *)((BYTE *)pRec + 0x94) = 0;
+                *(int *)((BYTE *)pRec + 0x98) = 0;
+                *(int *)((BYTE *)pRec + 0x9c) = 0;
+            } else {
+                FixVecScaleRecip((FixVector *)((BYTE *)pRec + 0x94),
+                                 (FixVector *)((BYTE *)pRec + 0x94), len);
+            }
+
+            FixMatrix_GetPosition(&mpos, &pRec->matrix);
+            d.x = pRec->position.x - mpos.x;
+            d.y = pRec->position.y - mpos.y;
+            d.z = pRec->position.z - mpos.z;
+            FixVecScale(&scaled, (FixVector *)((BYTE *)pRec + 0x94),
+                        FixVecDot(&d, (FixVector *)((BYTE *)pRec + 0x94)));
+            d.x -= scaled.x;
+            d.y -= scaled.y;
+            d.z -= scaled.z;
+            pRec->position.x = d.x + mpos.x;
+            pRec->position.y = d.y + mpos.y;
+            pRec->position.z = d.z + mpos.z;
+            FixMatrix_GetPosition((FixVector *)((BYTE *)pRec + 0xa0), &pRec->matrix);
+        }
+    }
+}
+
+// Moving stage objects: the table walked by the per-frame update below, one
+// 0x128-byte record per object (defined in StageObjects.cpp, which owns the
+// GLOBAL annotations of the table and of the active count).
+struct StageObjectEntry0x128 {
+    int field_0x0;              // 0x00
+    int *pObject;               // 0x04  head of the object's node chain
+    BYTE rest[0x120];           // 0x08
+};
+extern StageObjectEntry0x128 g_unk0x005894e0[40];
+extern BYTE g_unk0x0058c924;
+
+// 16.16 -> 12-bit angle of a turn rate (its negated twin is 0x511398 in Car.cpp);
+// defined in StageTiming.cpp, which owns the GLOBAL annotation.
+extern const double g_unk0x00511380;
+
+// The original converts the 16.16 value on the FPU (fild / fmul / fistp) and
+// keeps the low word of the truncated result.
+#define FIX_ANGLE(v) ((short)(__int64)((double)(v) * g_unk0x00511380))
+
+// The eight ground-probe vectors of an object: its reference axes at 0x104 (x),
+// 0x108 (y) and 0x10c (z) with the sign pattern FUN_004702f0 selects with its
+// octant index (y >= 0 -> +4, x < 0 -> +2, z < 0 -> +1).
+#define FILL_PROBE_TABLE(pObj)                                                          \
+    {                                                                                   \
+        int probeX = *(int *)((BYTE *)(pObj) + 0x104);                                  \
+        int probeY = *(int *)((BYTE *)(pObj) + 0x108);                                  \
+        int probeZ = *(int *)((BYTE *)(pObj) + 0x10c);                                  \
+                                                                                        \
+        g_unk0x00589458[0].x = probeX;                                                  \
+        g_unk0x00589458[0].y = -probeY;                                                 \
+        g_unk0x00589458[0].z = probeZ;                                                  \
+        g_unk0x00589458[1].x = probeX;                                                  \
+        g_unk0x00589458[1].y = -probeY;                                                 \
+        g_unk0x00589458[1].z = -probeZ;                                                 \
+        g_unk0x00589458[2].x = -probeX;                                                 \
+        g_unk0x00589458[2].y = -probeY;                                                 \
+        g_unk0x00589458[2].z = probeZ;                                                  \
+        g_unk0x00589458[3].x = -probeX;                                                 \
+        g_unk0x00589458[3].y = -probeY;                                                 \
+        g_unk0x00589458[3].z = -probeZ;                                                 \
+        g_unk0x00589458[4].x = probeX;                                                  \
+        g_unk0x00589458[4].y = probeY;                                                  \
+        g_unk0x00589458[4].z = probeZ;                                                  \
+        g_unk0x00589458[5].x = probeX;                                                  \
+        g_unk0x00589458[5].y = probeY;                                                  \
+        g_unk0x00589458[5].z = -probeZ;                                                 \
+        g_unk0x00589458[6].x = -probeX;                                                 \
+        g_unk0x00589458[6].y = probeY;                                                  \
+        g_unk0x00589458[6].z = probeZ;                                                  \
+        g_unk0x00589458[7].x = -probeX;                                                 \
+        g_unk0x00589458[7].y = probeY;                                                  \
+        g_unk0x00589458[7].z = -probeZ;                                                 \
+    }
+
+// Per-frame update of the moving stage objects. Each active object of
+// g_unk0x005894e0 (count in g_unk0x0058c924) gets its result matrix refreshed
+// from its source matrix and then:
+//   mode 1 - the turn rate at 0xe0 is applied to the object basis, the basis is
+//            re-orthonormalised and the object is dropped onto the ground;
+//   mode 2 - gravity is integrated into the velocity at 0xec and the position,
+//            the basis is reflected against the ground and the object matrix is
+//            placed at the car-relative offset 0xf8;
+// after which the ground-probe octant table is rebuilt and every node of the
+// object's chain is flagged as moved. Any other mode only refreshes the matrix.
+// match 63%: implementada; 1706 instrucciones frente a las 1717 del original, con los mismos
+// inlines (18 shrd / 96 shld / 8 idiv) y las mismas 6 conversiones fild/fmul/fistp, pero MSVC6
+// fusiona los bloques identicos de los dos modos (2 RotateVector y 1 GetPosition frente a 3 y 2).
+// FUNCTION: CMR2 0x00470580
+void FUN_00470580(void)
+{
+    FixBasis basis;
+    FixVector vecD4;
+    FixVector vecE0;
+    FixVector world;
+    FixVector pos;
+    FixVector step;
+    FixVector grav;
+    FixVector v;
+    FixAngles angles;
+    FixMatrix *pMatrix;
+    BYTE *pObj;
+    int *pNode;
+    int len;
+    int len2;
+    int dot;
+    int height;
+    int i;
+
+    if (g_unk0x0058c924 == 0)
+        return;
+
+    pObj = (BYTE *)g_unk0x005894e0;
+
+    for (i = 0; i < (int)(g_unk0x0058c924 & 0xff); i++) {
+        pMatrix = *(FixMatrix **)(pObj + 0xc8);
+        vecD4 = *(FixVector *)(pObj + 0xd4);
+
+        *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+
+        switch (*(int *)(pObj + 0xcc)) {
+        case 1:
+            // Turn rate (scaled first) becomes this step's rotation of the object basis.
+            vecE0 = *(FixVector *)(pObj + 0xe0);
+            FixVecScale(&vecE0, &vecE0, 0x11999);
+            *(FixVector *)(pObj + 0xe0) = vecE0;
+
+            FixMatrix_GetRight(&basis.right, pMatrix);
+            FixMatrix_GetUp(&basis.up, pMatrix);
+            FixMatrix_GetForward(&basis.forward, pMatrix);
+
+            angles.x = FIX_ANGLE(FixMul(vecE0.x, g_physicsTimeStep));
+            angles.y = FIX_ANGLE(FixMul(vecE0.y, g_physicsTimeStep));
+            angles.z = FIX_ANGLE(FixMul(vecE0.z, g_physicsTimeStep));
+            FixBasis_Rotate(&basis, (unsigned short *)&angles);
+
+            // Rebuilds an orthonormal basis out of up/right unless the object is
+            // already upright (up . velocity rate > 0).
+            dot = FixVecDot(&vecD4, &basis.up);
+            if (dot <= 0) {
+                FixVecScale(&pos, &vecD4, dot);
+                pos.x = basis.up.x - pos.x;
+                pos.y = basis.up.y - pos.y;
+                pos.z = basis.up.z - pos.z;
+                len = FixVecLength(&pos);
+                if (len == 0) {
+                    basis.up.x = 0;
+                    basis.up.y = 0;
+                    basis.up.z = 0;
+                } else {
+                    FixVecScaleRecip(&basis.up, &pos, len);
+                }
+
+                dot = FixVecDot(&basis.up, &basis.right);
+                FixVecScale(&pos, &basis.up, dot);
+                pos.x = basis.right.x - pos.x;
+                pos.y = basis.right.y - pos.y;
+                pos.z = basis.right.z - pos.z;
+                len = FixVecLength(&pos);
+                if (len == 0) {
+                    basis.right.x = 0;
+                    basis.right.y = 0;
+                    basis.right.z = 0;
+                } else {
+                    FixVecScaleRecip(&basis.right, &pos, len);
+                }
+
+                FixVecCross(&pos, &basis.right, &basis.up);
+                len = FixVecLength(&pos);
+                if (len == 0) {
+                    basis.forward.x = 0;
+                    basis.forward.y = 0;
+                    basis.forward.z = 0;
+                } else {
+                    FixVecScaleRecip(&basis.forward, &pos, len);
+                }
+                *(int *)(pObj + 0xcc) = 0;
+            }
+
+            FILL_PROBE_TABLE(pObj)
+            FixMatrix_RotateVector(&world, (FixVector *)(pObj + 0xf8), pMatrix);
+            FixMatrix_GetPosition(&pos, pMatrix);
+            world.x += pos.x;
+            world.y += pos.y;
+            world.z += pos.z;
+
+            pMatrix->position.y += FUN_004702f0(pObj, &world);
+            FixMatrix_SetRight(&basis.right, pMatrix);
+            FixMatrix_SetUp(&basis.up, pMatrix);
+            FixMatrix_SetForward(&basis.forward, pMatrix);
+
+            for (pNode = *(int **)(pObj + 4); pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
+                *(int *)((BYTE *)pNode + 0x174) = 1;
+
+            if (*(int *)(pObj + 0xcc) == 0)
+                *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+            break;
+
+        case 2:
+            FixMatrix_GetRight(&basis.right, pMatrix);
+            FixMatrix_GetUp(&basis.up, pMatrix);
+            FixMatrix_GetForward(&basis.forward, pMatrix);
+
+            FILL_PROBE_TABLE(pObj)
+            vecE0 = *(FixVector *)(pObj + 0xe0);
+            angles.x = FIX_ANGLE(FixMul(vecE0.x, g_physicsTimeStep));
+            angles.y = FIX_ANGLE(FixMul(vecE0.y, g_physicsTimeStep));
+            angles.z = FIX_ANGLE(FixMul(vecE0.z, g_physicsTimeStep));
+            FixBasis_Rotate(&basis, (unsigned short *)&angles);
+
+            // Gravity of the object (zeroed while its "on the ground" flag at
+            // 0x120 is set) integrated into the velocity at 0xec, then one step
+            // of it is applied to the position.
+            grav.x = 0;
+            grav.y = 0;
+            grav.z = 0;
+            if (*(int *)(pObj + 0x120) == 0)
+                grav.y = -0xa3d;
+            if (CGameInfo::FUN_004063f0(1) != 0)
+                FixVecScale(&grav, &grav, 0x8000);
+            FixVecScale(&grav, &grav, g_physicsTimeStep);
+
+            ((FixVector *)(pObj + 0xec))->x += grav.x;
+            ((FixVector *)(pObj + 0xec))->y += grav.y;
+            ((FixVector *)(pObj + 0xec))->z += grav.z;
+
+            FixVecScale(&step, (FixVector *)(pObj + 0xec), g_physicsTimeStep);
+            FixVecScale(&grav, &grav, g_physicsTimeStep / 2);
+            step.x -= grav.x;
+            step.y -= grav.y;
+            step.z -= grav.z;
+            world.x += step.x;
+            world.y += step.y;
+            world.z += step.z;
+
+            if (*(int *)(pObj + 0x120) != 0) {
+                // Airborne: the spin is damped twice and, while it is slow
+                // enough, the basis is rebuilt from the fallen-over up axis.
+                FixVecScale(&vecE0, &vecE0, 0xcccc);
+                len = FixVecLength(&vecE0);
+                FixVecScale(&vecE0, &vecE0, 0xcccc);
+                len2 = FixVecLength(&vecE0);
+
+                if (len < 0x28f && len2 < 0x28f) {
+                    *(int *)(pObj + 0xe0) = 0;
+                    *(int *)(pObj + 0xe4) = 0;
+                    *(int *)(pObj + 0xe8) = 0;
+                    *(int *)(pObj + 0xec) = 0;
+                    *(int *)(pObj + 0xf0) = 0;
+                    *(int *)(pObj + 0xf4) = 0;
+
+                    if (FixVecDot(&basis.forward, &vecD4) >= 0) {
+                        v = vecD4;
+                    } else {
+                        FixVecScaleRecip(&v, &vecD4, -0x10000);
+                    }
+
+                    pos.x = v.x - basis.forward.x;
+                    pos.y = v.y - basis.forward.y;
+                    pos.z = v.z - basis.forward.z;
+                    len = FixVecLength(&pos);
+                    if (len > 0x1999) {
+                        FixVecScaleRecip(&pos, &pos, len);
+                        FixVecScale(&pos, &pos, 0x1999);
+                        pos.x += basis.forward.x;
+                        pos.y += basis.forward.y;
+                        pos.z += basis.forward.z;
+                        len = FixVecLength(&pos);
+                        if (len == 0) {
+                            basis.forward.x = 0;
+                            basis.forward.y = 0;
+                            basis.forward.z = 0;
+                        } else {
+                            FixVecScaleRecip(&basis.forward, &pos, len);
+                        }
+                    } else {
+                        basis.forward = v;
+                        *(int *)(pObj + 0xcc) = 0;
+                    }
+
+                    dot = FixVecDot(&basis.right, &basis.forward);
+                    FixVecScale(&pos, &basis.forward, dot);
+                    pos.x = basis.right.x - pos.x;
+                    pos.y = basis.right.y - pos.y;
+                    pos.z = basis.right.z - pos.z;
+                    len = FixVecLength(&pos);
+                    if (len == 0) {
+                        basis.right.x = 0;
+                        basis.right.y = 0;
+                        basis.right.z = 0;
+                    } else {
+                        FixVecScaleRecip(&basis.right, &pos, len);
+                    }
+
+                    FixVecCross(&pos, &basis.forward, &basis.right);
+                    len = FixVecLength(&pos);
+                    if (len == 0) {
+                        basis.up.x = 0;
+                        basis.up.y = 0;
+                        basis.up.z = 0;
+                    } else {
+                        FixVecScaleRecip(&basis.up, &pos, len);
+                    }
+                }
+
+                FixMatrix_SetRight(&basis.right, pMatrix);
+                FixMatrix_SetUp(&basis.up, pMatrix);
+                FixMatrix_SetForward(&basis.forward, pMatrix);
+                world.y += FUN_004702f0(pObj, &world);
+            } else {
+                FixMatrix_SetRight(&basis.right, pMatrix);
+                FixMatrix_SetUp(&basis.up, pMatrix);
+                FixMatrix_SetForward(&basis.forward, pMatrix);
+
+                if (*(int *)(pObj + 4) < 0) {
+                    height = FUN_004702f0(pObj, &world);
+                    if (height > -0xccc) {
+                        *(int *)(pObj + 0xcc) = 1;
+                        world.y += height;
+                    }
+                }
+            }
+
+            FixMatrix_RotateVector(&pos, (FixVector *)(pObj + 0xf8), pMatrix);
+            pos.x = world.x - pos.x;
+            pos.y = world.y - pos.y;
+            pos.z = world.z - pos.z;
+            FixMatrix_SetPosition(&pos, pMatrix);
+
+            for (pNode = *(int **)(pObj + 4); pNode != NULL; pNode = *(int **)((BYTE *)pNode + 8))
+                *(int *)((BYTE *)pNode + 0x174) = 1;
+
+            if (*(int *)(pObj + 0xcc) == 0)
+                *(FixMatrix *)(pObj + 0x48) = *(FixMatrix *)(pObj + 8);
+            break;
+        }
+
+        pObj += 0x128;
+    }
+}
