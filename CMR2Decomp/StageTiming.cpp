@@ -8181,3 +8181,260 @@ void FUN_0045f4a0(void)
     }
 }
 #undef RAND_FIX
+
+extern char g_strDemoName0x00519ec4[4];
+void FUN_0040a3e0(unsigned int time);
+void FUN_0040a330(unsigned int time, int stage);
+void FUN_004cf530(int index, int value);
+BYTE FUN_004cf830(int index);
+BYTE FUN_004cfe80(int param_1, int param_2);
+int FUN_004cfe20(int param_1, int param_2);
+int FUN_004481c0(int car);
+unsigned int RallyData_FUN_004082c0(void);
+
+// A car crosses a split line: stores its split time (from the start or the
+// previous split), reports it to the network and the record tables and runs
+// the head-to-head rules.
+// FUNCTION: CMR2 0x00448920
+void FUN_00448920(int car)
+{
+    int group;
+    int *pRecord;
+    int *pPrev;
+    int *pTime;
+    int *pOut;
+    int base;
+    int i;
+    int slot;
+    BYTE bits;
+
+    group = FUN_00458330(car);
+    if (FUN_00458290(car) == 0)
+        return;
+    if ((char)RallyData_FUN_00407e90() == 0) {
+        pRecord = g_unk0x0053d1e8[car][group];
+        pRecord[0] = g_unk0x0053d1b0;
+        if ((char)RallyData_FUN_00407ea0() == 0 && CGameInfo::FUN_00405d80() != 12) {
+            pPrev = pRecord - 5;
+            base = pPrev[0];
+            pTime = &g_carStageTiming[car].splitTimes[group];
+            *pTime = pRecord[0] - base;
+            pOut = g_carStageTiming[car].splits;
+            for (i = 5; i != 0; i--)
+                *pOut++ = *pPrev++ - base;
+        } else {
+            pTime = &g_carStageTiming[car].splitTimes[group];
+            *pTime = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
+            if (*pTime > 359999)
+                *pTime = 359999;
+            g_carStageTiming[car].splits[0] = 0;
+            pOut = &g_carStageTiming[car].splits[1];
+            pPrev = pRecord + 1;
+            for (i = 4; i != 0; i--) {
+                *pOut = *pPrev - g_carStageTiming[car].lastTime;
+                if (*pPrev - g_carStageTiming[car].lastTime > 359999)
+                    *pOut = 359999;
+                pPrev++;
+                pOut++;
+            }
+        }
+        if (CGameInfo::FUN_00405d80() == 12) {
+            FUN_0040a3e0(*pTime);
+            FUN_0040a330(*pTime, 0);
+        }
+    }
+    if (car < (int)(BYTE)RallyDataState() && (char)CGameInfo::FUN_00406430() == 0 &&
+        (char)CGameInfo::FUN_00406440() == 0 && g_unk0x0053d1d8 == 0 &&
+        strncmp((char *)RallyData_GetRecord(0), g_strDemoName0x00519ec4, 3) != 0) {
+        slot = FUN_0041b370() + car;
+        if ((char)RallyData_GetFlag24()) {
+            FUN_004cf530(slot, g_carStageTiming[car].splitTimes[group]);
+            g_unk0x0053e18d[car] |= FUN_004cf830(slot);
+            bits = FUN_004cfe80(car, slot);
+            g_unk0x0053e18f |= bits & 1;
+            g_carStageTiming[car].field_0x84 = bits & 1;
+            g_carStageTiming[car].pad_0x85[0] = (BYTE)FUN_004cfe20(car, slot) & 1;
+        }
+    }
+    if ((char)RallyData_FUN_004082e0()) {
+        if (RallyData_FUN_004082b0() == 2) {
+            if (FUN_004481c0(car) == 0)
+                g_unk0x0053d1a4[car]++;
+            if (g_unk0x0053d1a4[car] == (int)RallyData_FUN_004082c0()) {
+                g_unk0x0053d1a7 = 1;
+                StageTiming_QueueDriverSlot(car);
+                StageTiming_QueueDriverSlot(1 - car);
+            }
+        }
+        if (RallyData_FUN_004082b0() == 1) {
+            if (g_unk0x0053d1a6 == 0) {
+                if (FUN_004481c0(car) == 0) {
+                    g_unk0x0053d1a6 = 1;
+                    g_unk0x0053d1a0 = 0;
+                    g_unk0x0053d1a2 = 0;
+                    g_unk0x0053d1a8 = (char)car;
+                }
+            } else {
+                g_unk0x0053d1a6 = 0;
+            }
+        }
+    }
+    g_carStageTiming[car].lastTime = g_unk0x0053d1b0;
+}
+
+// Timing of one car for the frame: start, split and finish line crossings.
+// FUNCTION: CMR2 0x00448730
+void FUN_00448730(int car)
+{
+    if (FUN_00458230(car)) {
+        if (FUN_00458250(car))
+            FUN_004487a0(car);
+        if (FUN_00458270(car))
+            FUN_00448920(car);
+        if (FUN_004582b0(car))
+            StageTiming_QueueDriverSlot(car);
+    }
+}
+
+void FUN_00448de0(void);
+void FUN_00448780(int car);
+void FUN_00448d50(void);
+void FUN_00448bf0(int slot);
+
+// Per-frame stage timing of every car: in the championship/arcade modes the
+// start of each car's timing, then each car's line crossings.
+// FUNCTION: CMR2 0x00448120
+void FUN_00448120(void)
+{
+    int count;
+    int i;
+    BYTE *p;
+
+    count = FUN_00458390();
+    FUN_00448de0();
+    if ((char)RallyData_GetFlag24() || (char)RallyData_GetFlag25()) {
+        for (i = count, p = &g_carStageTiming[0].field_0x83; i > 0; i--, p += sizeof(CarStageTiming))
+            *p = 0;
+        for (i = 0; i < count; i++) {
+            if (g_unk0x0053d1da[i] == 0 && FUN_00458230(i))
+                FUN_00448780(i);
+        }
+        FUN_00448d50();
+    }
+    for (i = 0; i < count; i++) {
+        if (g_unk0x0053d1da[i] == 0) {
+            FUN_00448730(i);
+            if ((char)RallyData_FUN_004082e0())
+                FUN_00448bf0(i);
+        }
+    }
+}
+
+int GetStageSplitCount(void);
+
+// Adds a random error to the CPU drivers' split deltas (16 drivers, a row per
+// split), scaled by the difficulty; outside the head-to-head modes the error
+// is kept inside a band that narrows along the stage.
+// FUNCTION: CMR2 0x00456710
+void FUN_00456710(int *pDeltas)
+{
+    int unused[9];
+    int limits[10];
+    int splits;
+    int scale;
+    int top;
+    int amplitude;
+    int step;
+    int column;
+    int *p;
+    int row;
+    int sum;
+    int total;
+    int value;
+    int range;
+    int error;
+    int mid;
+    int k;
+
+    splits = GetStageSplitCount();
+    switch (CGameInfo::FUN_00405d90()) {
+    case 0:
+        scale = 0x19999;
+        break;
+    case 1:
+        scale = 0x10000;
+        break;
+    case 2:
+        scale = 0xa8f5;
+        break;
+    }
+    if ((char)RallyData_GetFlag25() == 0) {
+        top = FixMul(scale, 0x30000);
+        limits[splits] = scale;
+        amplitude = top;
+        limits[1] = top;
+        if (splits > 2) {
+            step = (int)(__int64)((double)(splits - 1) * CGraphics::m_65536);
+            for (k = 2; k < splits; k++)
+                limits[k] = limits[1] - FixMul((int)(__int64)((double)(k - 1) * CGraphics::m_65536),
+                                               FixDiv(limits[1] - scale, step));
+        }
+    } else {
+        amplitude = FixMul(scale, 0x8000);
+    }
+    for (column = 16, p = pDeltas; column != 0; column--, pDeltas++) {
+        p = pDeltas;
+        sum = 0;
+        total = 0;
+        for (row = 0; row < splits; row++, p += 16) {
+            value = *p;
+            total += value;
+            sum += value;
+            range = FixMul(FixMul(amplitude, FixDiv(value, 0x640000)), 0x20000);
+            error = FixMul(FixDiv((int)(__int64)((double)rand() * CGraphics::m_65536), 0x7fff0000), range) -
+                    FixDiv(range, 0x20000);
+            if ((char)RallyData_GetFlag25() == 0) {
+                mid = FixMul(FixDiv(limits[row + 1], 0x640000), total);
+                unused[row] = mid;
+                if (error - mid - total + sum > 0)
+                    error -= error - mid - total + sum;
+                if (mid - total + error + sum < 0)
+                    error -= mid - total + error + sum;
+            }
+            *p += error;
+            sum += error;
+        }
+    }
+}
+
+void FUN_00456330(int *param_1);
+void FUN_004564d0(int pCar, int *pOut);
+void FUN_00456960(int *pDeltas);
+void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise);
+
+// Builds the CPU drivers' split times for a stage and sorts every split.
+// FUNCTION: CMR2 0x004561e0
+void FUN_004561e0(int *pTimes)
+{
+    int *pDeltas;
+    int n;
+    int *pSplit;
+    char *pOrder;
+
+    pDeltas = (int *)CFileBuffer::AllocateLockedBuffer(0x280);
+    FUN_00456330(pTimes);
+    FUN_004564d0((int)pTimes, pDeltas);
+    FUN_00456710(pDeltas);
+    FUN_00456960(pDeltas);
+    n = GetStageSplitCount();
+    if (n >= 0) {
+        pSplit = g_stageSplitTimesRaw[0];
+        pOrder = g_stageSplitTimesRawDriverIx[0];
+        for (n = n + 1; n != 0; n--) {
+            RallyTiming_SortOrder(pSplit, pOrder, 1, g_unk0x00541f98, 1);
+            pOrder += 0x10;
+            pSplit += 0x10;
+        }
+    }
+    CFileBuffer::FreeGenericFileBuffer(pDeltas);
+}
