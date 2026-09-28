@@ -8963,3 +8963,89 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
         }
     }
 }
+
+extern int g_unk0x00547ad0;
+
+// GLOBAL: CMR2 0x00547abc
+int g_unk0x00547abc;
+
+// Positions a lens flare of the given view node on screen: its brightness
+// follows the sun visibility and the camera's pitch, its colour is scaled by
+// the same factor and the sprite is queued on layer 2.
+// match 61%: same structure, calls and constants; MSVC places the brightness
+// temporaries in the unused parameter homes instead of the original's slots.
+// FUNCTION: CMR2 0x00462d80
+void FUN_00462d80(int param_1, int param_2)
+{
+    short rect[4];
+    SpriteRect uv;
+    SpriteRect dst;
+    FixVector nodePos;
+    FixVector viewPos;
+    int screen[2];
+    int level;
+    int delta;
+    int axis;
+    int scale;
+    int i;
+    BYTE colour[4];
+
+    rect[2] = 0x10;
+    rect[3] = 0x10;
+    rect[0] = 0;
+    rect[1] = 0;
+    if (g_unk0x00547ad0 != 0) {
+        uv.x = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x11c);
+        uv.y = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x11e);
+        uv.w = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x120);
+        uv.h = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x122);
+        FUN_00492890(&nodePos);
+        FUN_0046f4a0(&viewPos);
+        nodePos.x = nodePos.x + viewPos.x;
+        nodePos.y = nodePos.y + viewPos.y;
+        nodePos.z = nodePos.z + viewPos.z;
+        FUN_004bad40(screen, &nodePos, (BYTE *)g_viewNodes[param_2]);
+        screen[0] = screen[0] >> 16;
+        screen[1] = screen[1] >> 16;
+        rect[0] = (short)screen[0] - rect[2] / 2;
+        rect[1] = (short)screen[1] - rect[3] / 2;
+        FUN_00462d10(rect);
+        level = FixMul(0xfffe0000, g_unk0x00547abc) + 0x20000;
+        if (level < 0)
+            level = 0;
+        else if (level > 0x10000)
+            level = 0x10000;
+        axis = FixMul((int)g_sunVisibility << 16, 0x28f);
+        i = param_2 * 0x178;
+        delta = axis - *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68);
+        if (delta < 0)
+            scale = -delta;
+        else
+            scale = delta;
+        if (scale > FixMul(0x4ccc, g_unk0x0051bd3c)) {
+            if (delta <= 0)
+                *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) =
+                    *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) - FixMul(0x4ccc, g_unk0x0051bd3c);
+            else
+                *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) =
+                    *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) + FixMul(0x4ccc, g_unk0x0051bd3c);
+        } else {
+            *(unsigned int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) = axis;
+        }
+        level = level + *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68);
+        if (level > 0x10000)
+            level = 0x10000;
+        level = FixMul(0x10000 - level, 0x30000);
+        if (level > 0x10000)
+            level = 0x10000;
+        colour[0] = (BYTE)FixMulShift32((g_unk0x00543eb4[0] & 0xff) << 16, level);
+        colour[1] = (BYTE)FixMulShift32(g_unk0x00543eb4[1] << 16, level);
+        colour[2] = (BYTE)FixMulShift32(g_unk0x00543eb4[2] << 16, level);
+        colour[3] = 0xff;
+        dst.w = (short)FixMul(g_unk0x00543d58, g_pGraphics->resX << 16);
+        dst.h = (short)FixMul(g_unk0x00543d5c, g_pGraphics->resY << 16);
+        dst.x = (short)screen[0] - dst.w / 2;
+        dst.y = (short)screen[1] - dst.h / 2;
+        Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, NULL, NULL, colour, 8);
+    }
+}
