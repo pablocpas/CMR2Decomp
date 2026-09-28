@@ -2032,11 +2032,15 @@ BYTE FUN_004071c0(BYTE flags, char mode);
 
 // In-race per-driver update: enforces the pre-race hold, saves the stage record
 // once every driver is ready and refreshes the leaderboard/knockout tables.
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// The stage-record block recomputes the table index through three temporary
-// locals; MSVC6 allocates them differently from the original (it keeps the
-// 11*country product in one register across the second call) and the whole
-// 1792-byte function inherits the register pressure.
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The stage-record block now reproduces the original's shape: the index is written
+// inline at each use (Country/Stage re-called, the 11*country product hoisted across
+// the second call), FUN_004483c0(index) is pre-read into a raw temp and the record is
+// walked through a pointer to its .value. What is left is the tail's register
+// allocation: MSVC6 dedicates EDI to the constant 0 (the original pushes the literal
+// 0 in ~14 call arguments) and materialises the two leaderboard comparisons with
+// setcc instead of the original's branchy 1/0 (and 3/0) selection — a byte register is
+// free here in our build because our function keeps one value less live.
 // FUNCTION: CMR2 0x0041db10
 void FUN_0041db10(BYTE *param1, unsigned int param2)
 {
@@ -2046,11 +2050,11 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
     BYTE ready;
     unsigned int flag;
     BYTE k;
+    BYTE mode;
     BYTE **pp;
     unsigned int v;
-    unsigned int country;
-    unsigned int stage;
-    GameInfo0xa4 *pInfo;
+    unsigned int t;
+    unsigned int *pRecord;
 
     if (CGameInfo::FUN_00405d80() == 10 &&
         (unsigned int)(CMain::GetFrameDelta() - FUN_0040af30()) >
@@ -2083,24 +2087,17 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
         }
         flag = (CGameInfo::FUN_00405d00() == 0);
         if (CGameInfo::FUN_00405d80() == 3 && g_unk0x00537ff8[index] == 0) {
-            country = RallyDataCountryIndex() & 0xff;
-            stage = RallyDataStageIndex() & 0xff;
-            pInfo = CGameInfo::FUN_00405ff0(flag);
-            v = pInfo->rallyStageRecordTimes[country * 0xb + stage].value;
-            if ((int)FUN_004483c0(index) <= (int)(v >> 7 & 0xffff)) {
-                country = RallyDataCountryIndex() & 0xff;
-                stage = RallyDataStageIndex() & 0xff;
-                pInfo = CGameInfo::FUN_00405ff0(flag);
-                pInfo->rallyStageRecordTimes[country * 0xb + stage].value =
-                    (FUN_004483c0(index) & 0xffff) << 7 |
-                    pInfo->rallyStageRecordTimes[country * 0xb + stage].value & 0xff80007f;
+            v = CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[
+                    (RallyDataCountryIndex() & 0xff) * 0xb + (RallyDataStageIndex() & 0xff)].value >> 7 & 0xffff;
+            if ((int)FUN_004483c0(index) <= (int)v) {
+                t = FUN_004483c0(index);
+                pRecord = &CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[
+                    (RallyDataCountryIndex() & 0xff) * 0xb + (RallyDataStageIndex() & 0xff)].value;
+                *pRecord = (t & 0xffff) << 7 | *pRecord & 0xff80007f;
                 k = RallyData_FUN_004086b0(FUN_0041b370());
-                country = RallyDataCountryIndex() & 0xff;
-                stage = RallyDataStageIndex() & 0xff;
-                pInfo = CGameInfo::FUN_00405ff0(flag);
-                pInfo->rallyStageRecordTimes[country * 0xb + stage].value =
-                    k & 0x3f |
-                    pInfo->rallyStageRecordTimes[country * 0xb + stage].value & 0xffffffc0;
+                pRecord = &CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[
+                    (RallyDataCountryIndex() & 0xff) * 0xb + (RallyDataStageIndex() & 0xff)].value;
+                *pRecord = k & 0x3f | *pRecord & 0xffffffc0;
                 g_unk0x00538128 = 1;
                 g_unk0x00519228 = RallyDataStageIndex() & 0xff;
                 g_unk0x0051922c = RallyDataCountryIndex() & 0xff;
@@ -2136,13 +2133,8 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
         g_unk0x00537f08 = 1;
         return;
     }
-    k = 0;
-    if (*param1 > 0) {
-        do {
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, k, 0, 2);
-            k = k + 1;
-        } while (k < *param1);
-    }
+    for (k = 0; k < *param1; k++)
+        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, k, 0, 2);
     if ((char)RallyData_GetFlag22() != 0 || (char)RallyData_GetFlag24() != 0)
         FUN_004483e0();
     if ((char)RallyData_FUN_00407e90() != 0 && CGameInfo::FUN_00405e00() == 0) {
@@ -2157,7 +2149,7 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
         FUN_00455af0(StageTiming_FUN_00455ab0(FUN_0041b370() & 0xff), FUN_00448680(1, 2),
                      GetStageSplitCount());
     if (CGameInfo::FUN_00405da0() != 0 &&
-        (BYTE)FUN_0041b370() != (BYTE)(CGameInfo::FUN_00405d70() - 1))
+        (FUN_0041b370() & 0xff) != ((CGameInfo::FUN_00405d70() & 0xff) - 1))
         goto label2;
     if (CGameInfo::FUN_00405d80() != 0 && CGameInfo::FUN_00405d80() != 1 &&
         CGameInfo::FUN_00405d80() != 8)
@@ -2171,7 +2163,7 @@ label2:
     if (CGameInfo::FUN_00405d80() == 5)
         FUN_00448620();
     if (CGameInfo::FUN_00405da0() == 0 ||
-        (BYTE)FUN_0041b370() != (BYTE)(CGameInfo::FUN_00405d70() - 1)) {
+        (FUN_0041b370() & 0xff) != ((CGameInfo::FUN_00405d70() & 0xff) - 1)) {
         if (CGameInfo::FUN_00405da0() != 0)
             goto label4;
     }
@@ -2179,29 +2171,31 @@ label2:
         CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 10 ||
         CGameInfo::FUN_00405d80() == 11 || CGameInfo::FUN_00405d80() == 12)
         goto label4;
-    if (CGameInfo::FUN_00406430() == 0) {
-        FUN_0041b460();
-    } else {
+    if ((BYTE)CGameInfo::FUN_00406430() != 0) {
         for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
             g_unk0x00537f68[i] = 0;
             g_unk0x00537f78[i] = 0;
         }
+    } else {
+        FUN_0041b460();
     }
 label4:
-    if (CGameInfo::FUN_00405e00() != 0 && (BYTE)CGameInfo::FUN_00405d80() >= 8 &&
-        ((BYTE)CGameInfo::FUN_00405d80() <= 9 || (BYTE)CGameInfo::FUN_00405d80() == 11)) {
-        FUN_0040a820(FUN_004483c0(0));
-        FUN_0040a980(FUN_004483c0(0));
-        if (CNetworkLeaderboards::GetLeaderboardId() != -1 && FUN_004a15a0() != 0) {
-            FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 0), 1);
-            for (i = 1; i < FUN_0040ab10(); i++)
-                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 0),
-                             FUN_0040ab80(i, 0) == FUN_0040ab80(0, 0));
-            if (CGameInfo::FUN_00405d80() == 8 && (char)RallyData_FUN_00408340() != 0) {
-                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 1), 3);
+    if (CGameInfo::FUN_00405e00() != 0) {
+        mode = (BYTE)CGameInfo::FUN_00405d80();
+        if (mode >= 8 && (mode <= 9 || mode == 11)) {
+            FUN_0040a820(FUN_004483c0(0));
+            FUN_0040a980(FUN_004483c0(0));
+            if (CNetworkLeaderboards::GetLeaderboardId() != -1 && FUN_004a15a0() != 0) {
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 0), 1);
                 for (i = 1; i < FUN_0040ab10(); i++)
-                    FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 1),
-                                 FUN_0040ab80(i, 1) == FUN_0040ab80(0, 1) ? 3 : 0);
+                    FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 0),
+                                 FUN_0040ab80(i, 0) == FUN_0040ab80(0, 0));
+                if (CGameInfo::FUN_00405d80() == 8 && (char)RallyData_FUN_00408340() != 0) {
+                    FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(0, 1), 3);
+                    for (i = 1; i < FUN_0040ab10(); i++)
+                        FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040abb0(i, 1),
+                                     FUN_0040ab80(i, 1) == FUN_0040ab80(0, 1) ? 3 : 0);
+                }
             }
         }
     }
@@ -2360,30 +2354,33 @@ void FUN_0041e6b0(int, int, int);
 // In-race state handler of the mode table (0x5190b0): dispatches the per-mode
 // teardown/replay paths, saves the replay and refreshes the view slots.
 // match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// The five jump-table switches and their fall-throughs are transcribed; the
-// remaining gap is MSVC6's frame: the original keeps its loop counters in
-// 8-bit registers (cl/dl/bl) and reuses the parameter home slots, our version
-// uses full 32-bit locals, which changes the whole function's register
-// assignment and every relative branch inside it.
+// The five jump tables, the per-mode teardown/replay paths and the tail skip flag
+// (EBP, zero-initialised in the prologue and set to 1 when RallyData_FUN_00407ea0
+// is 0) are transcribed. The rest of the gap is MSVC6's frame: the original keeps
+// param1 in ESI for the whole body and its loop limits in 8-bit registers, while our
+// version keeps param1 in ECX and reloads it from the home slot ([esp+0xc]), which
+// renumbers the registers of the whole 2267-byte function and every relative branch.
 // FUNCTION: CMR2 0x0041e8d0
 void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 {
     BYTE car;
     int i;
     int n;
-    int flag;
+    int skip = 0;
+    int count;
     BYTE *p;
     BYTE **pp;
 
+    count = *param1;
     i = 0;
-    if (*param1 != 0) {
+    if (count > 0) {
         p = *(BYTE **)(param1 + 4);
         do {
             if (*p != 11)
                 return;
             i++;
             p += 8;
-        } while (i < *param1);
+        } while (i < count);
     }
     if ((char)param2 != 0)
         return;
@@ -2619,11 +2616,12 @@ L_teardown:
             }
             FUN_00420100();
             Sound_FreeAll();
-            flag = ((char)RallyData_FUN_00407ea0() == 0);
+            if ((char)RallyData_FUN_00407ea0() == 0)
+                skip = 1;
             FUN_00418f20();
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 3, 2);
             FUN_0041b340(0);
-            if (flag != 0)
+            if (skip != 0)
                 return;
             break;
         case 2:
