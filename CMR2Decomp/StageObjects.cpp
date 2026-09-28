@@ -9092,11 +9092,76 @@ void FUN_00485690(short *pOrder, short count, int view) { }
 // STUB: CMR2 0x0047f740
 void FUN_0047f740(void) { }
 
-// STUB: CMR2 0x004920d0
-void FUN_004920d0(DWORD *pColour, DWORD *pReference) { }
+extern Mesh *g_stageMesh1Copy;
+extern Mesh *g_stageMesh3Copy;
+extern short g_stageMesh1Count;
+extern short g_stageMesh3Count;
+extern FixVector g_stageRangeOrigin;
+extern BYTE g_unk0x00592146;
+extern BYTE g_stageColourAlpha;
+extern int g_stageColourMode;
+extern int g_stageColourStep;
+// Byte colour r, g, b, a -> 0xAARRGGBB
+struct StageRGBA {
+    BYTE r, g, b, a;
+};
+#define STAGE_ARGB(c) (((((DWORD)(c).a << 8 | (c).r) << 8 | (c).g) << 8) | (c).b)
 
-// STUB: CMR2 0x00492220
-void FUN_00492220(DWORD *pColour, DWORD *pReference) { }
+// Colours the ground mesh: the vertex at the reference point gets the
+// reference colour, every other one the plain colour.
+// FUNCTION: CMR2 0x004920d0
+void FUN_004920d0(DWORD *pColour, DWORD *pReference)
+{
+    StageRGBA colour;
+    StageRGBA reference;
+    int i;
+    float *vertex;
+
+    colour = *(StageRGBA *)pColour;
+    reference = *(StageRGBA *)pReference;
+    for (i = g_stageMesh1Count - 1; i >= 0; i--) {
+        vertex = (float *)((BYTE *)g_stageMesh1Copy->pVertexData + i * 0x30);
+        if (g_stageRangeOrigin.x == (int)(__int64)(vertex[0] * CGraphics::m_65536) &&
+            g_stageRangeOrigin.y == (int)(__int64)(vertex[1] * CGraphics::m_65536) &&
+            g_stageRangeOrigin.z == (int)(__int64)(vertex[2] * CGraphics::m_65536))
+            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
+        else
+            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
+        *(DWORD *)((BYTE *)g_stageMesh1Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_unk0x00592146 << 24;
+    }
+    g_stageColourMode = 1;
+}
+
+// Colours the object meshes the same way (reference point at 0x5920fc), and
+// the whole of the third mesh in the plain colour.
+// FUNCTION: CMR2 0x00492220
+void FUN_00492220(DWORD *pColour, DWORD *pReference)
+{
+    StageRGBA colour;
+    StageRGBA reference;
+    int i;
+    float *vertex;
+
+    colour = *(StageRGBA *)pColour;
+    reference = *(StageRGBA *)pReference;
+    for (i = g_stageMesh2Count - 1; i >= 0; i--) {
+        vertex = (float *)((BYTE *)g_stageMesh2Copy->pVertexData + i * 0x30);
+        if (g_unk0x005920fc == (int)(__int64)(vertex[0] * CGraphics::m_65536) &&
+            g_unk0x00592100 == (int)(__int64)(vertex[1] * CGraphics::m_65536) &&
+            g_unk0x00592104 == (int)(__int64)(vertex[2] * CGraphics::m_65536))
+            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
+        else
+            *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
+        *(DWORD *)((BYTE *)g_stageMesh2Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+    }
+    if (g_stageMesh3Copy != NULL) {
+        for (i = g_stageMesh3Count - 1; i >= 0; i--) {
+            *(DWORD *)((BYTE *)g_stageMesh3Copy->pVertexData + i * 0x30 + 0x18) = STAGE_ARGB(colour);
+            *(DWORD *)((BYTE *)g_stageMesh3Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+        }
+    }
+    g_stageColourStep = 1;
+}
 
 // STUB: CMR2 0x004926f0
 void FUN_004926f0(int unused1, int unused2, int sunAngle) { }
