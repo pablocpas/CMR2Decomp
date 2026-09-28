@@ -1,5 +1,6 @@
 #include "StageSplitData.h"
 
-// Only one car keeps split data; the per-car globals that follow start at 0x536e88.
+// Two 0x48-byte StageSplitData entries (one per car); the second one's last
+// dword and the dword after it are also the per-car flags g_unk0x00536e88[2].
 // GLOBAL: CMR2 0x00536dfc
-StageSplitData g_stageSplitData[1];
+BYTE g_stageSplitBlock[0x94];

@@ -31,6 +31,10 @@ BYTE g_saveData[0x2270];
 #include "Sprite.h"
 #include "Graphics.h"
 #include "StageSplitData.h"
+// Views into the split data block (see StageSplitData.cpp): 0x536e00 is the
+// block seen from its second field, 0x536e88 the per-car flags at its end.
+#define g_unk0x00536e00 (g_stageSplitBlock + 4)
+#define g_unk0x00536e88 ((int *)(g_stageSplitBlock + 0x8c))
 #include "FixedPoint.h"
 #include <stdlib.h>
 #include "StageTiming.h"
@@ -2618,7 +2622,6 @@ int RallyData_FUN_00421420(void);
 extern int g_unk0x00536c88[2];
 extern int g_unk0x00536c00[2];
 extern int g_unk0x00536c28[2];
-extern int g_unk0x00536e88[2];
 void FUN_00415bc0(int, int);
 BYTE FUN_004582b0(int index);
 extern BYTE g_gapTextColour[4];
@@ -2650,16 +2653,73 @@ void FUN_00412970(int car, short *pRect)
 // argument count from its ret N) so that its call sites are in place. Delete
 // each entry as its implementation lands (0x415f50 belongs to StageUI.cpp and
 // 0x417e70 to Race.cpp).
-// STUB: CMR2 0x004137e0
-void FUN_004137e0(int car, short *pRect) { }
-// STUB: CMR2 0x00413fe0
-void FUN_00413fe0(int car, short *pRect) { }
-// STUB: CMR2 0x00414ed0
-void FUN_00414ed0(int car, short *pRect) { }
-// STUB: CMR2 0x00415480
-void FUN_00415480(short *pRect) { }
-// STUB: CMR2 0x00415f50
-void FUN_00415f50(int car, short *pRect) { }
+void FUN_00414ed0(int car, short *pRect);
+void FUN_00415f50(int car, short *pRect);
+void FUN_00413fe0(int car, short *pRect);
+void FUN_004137e0(int car, short *pRect);
+
+char *FUN_00409cd0(int index);
+int FUN_00409d20(int index);
+BYTE *FUN_0040b0a0(int id);
+DWORD FUN_004a1a00(void);
+extern unsigned int g_stageResultTextColour;
+extern unsigned int g_stageResultPanelColour;
+
+// GLOBAL: CMR2 0x005170d8
+unsigned int g_unk0x005170d8 = 0x96ff9265;
+// GLOBAL: CMR2 0x00517df0
+char g_strOneDigit[] = "%1d";
+
+// Network race standings panel: one row per player in result order, with the
+// local player highlighted, the player's colour square and the position.
+// FUNCTION: CMR2 0x00415480
+void FUN_00415480(short *pRect)
+{
+    short panel[4];
+    int i;
+    int textY;
+    int id;
+    short square[4];
+    BYTE *pColour;
+    char number[4];
+    char name[256];
+
+    panel[1] = (short)((int)(g_pGraphics->resY << 12) >> 16) + pRect[1];
+    textY = ((int)(g_pGraphics->resY * 0x1b32) >> 16) + pRect[1] - 2;
+    panel[0] = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + pRect[0];
+    panel[2] = (short)((int)(g_pGraphics->resX * 0x47ae) >> 16);
+    panel[3] = (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 2;
+    for (i = 0; i < 8; i++) {
+        id = FUN_0040a700(i);
+        if (id == -1)
+            continue;
+        if (id == -2) {
+            sprintf(name, CRegKey::m_regKeyPathFormatValue, (char *)RallyData_GetRecord(0));
+            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+            pColour = FUN_0040b0a0(FUN_004a1a00());
+        } else {
+            char *pName = FUN_00409cd0(id);
+            if (pName != NULL)
+                sprintf(name, CRegKey::m_regKeyPathFormatValue, pName);
+            else
+                sprintf(name, CMain::m_logFileBlankLine);
+            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+            pColour = FUN_0040b0a0(FUN_00409d20(id));
+        }
+        square[2] = (short)((int)(g_pGraphics->resX * 10) / 640);
+        square[3] = (short)((int)(g_pGraphics->resY * 10) / 480);
+        square[0] = panel[2] - (short)((int)(g_pGraphics->resX * 10) / 640) + panel[0] - square[2] / 2;
+        square[1] = panel[3] / 2 + panel[1] - square[3] / 2;
+        Sprite_FillRect((int)g_pGraphics + 0x150, square, pColour, 2);
+        sprintf(number, g_strOneDigit, i + 1);
+        Font_DrawText(0, number, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+                      (int *)&g_stageResultTextColour, 0x22);
+        Font_DrawText(0, name, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                      (int *)&g_stageResultTextColour, 0x21);
+        panel[1] += panel[3];
+        textY += panel[3];
+    }
+}
 
 // Draws a car's on-stage HUD: the position/points line plus the per-car
 // action icons, then dispatches the current input to the matching handler.
@@ -3137,8 +3197,6 @@ int g_unk0x00536c00[2];
 int g_unk0x00536c28[2];
 // GLOBAL: CMR2 0x00536c3c
 int g_unk0x00536c3c;
-// GLOBAL: CMR2 0x00536e88
-int g_unk0x00536e88[2];
 // GLOBAL: CMR2 0x00536ec4
 int g_unk0x00536ec4[2];
 // Name of the stage leader (8 bytes in the original; longer names run into the
@@ -7580,8 +7638,6 @@ int g_unk0x0051711c = -1;
 // GLOBAL: CMR2 0x00537080
 int g_unk0x00537080;
 // Per-car split bar entry: [0] split index, [0xc] current split time.
-// GLOBAL: CMR2 0x00536e00
-BYTE g_unk0x00536e00[0x90];
 
 // Per-frame update of one car's split bar: detects a graphics mode change and
 // rebuilds the split reference table, initialises the per-car split state from
@@ -7951,7 +8007,6 @@ void FUN_0040dc30(void)
 }
 
 #include "GenericFileLoader.h"
-#include "RegKey.h"
 
 char *FUN_00473810(KnockoutMatch *pMatch, int side);
 char *FUN_004736b0(KnockoutMatch *pMatch, int side);
@@ -8126,4 +8181,298 @@ void FUN_0040f8d0(BYTE *pKey, int view)
     g_unk0x00536ad4 = FUN_0040f050(view);
     FUN_0049d3f0(RallyData_FUN_00411060(), (int)g_viewNodes[view], g_unk0x00536ad4, view, 1);
     FUN_0040eed0(pKey, view);
+}
+
+int FUN_004054b0(unsigned int param1);
+
+// Gap display of the stage HUD: time against the target (ahead in one colour,
+// behind in the other) or a blank gap when there is no reference.
+// FUNCTION: CMR2 0x004137e0
+void FUN_004137e0(int car, short *pRect)
+{
+    int reference;
+    int time;
+    int split;
+    char shown;
+    int lastMode;
+    short x;
+    short y;
+    int dx;
+    int dy;
+    int yFixed;
+    int xFixed;
+
+    if (CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 5 ||
+        ((char)RallyData_FUN_00407e90() && CGameInfo::FUN_00405e00() == 0)) {
+        reference = 0;
+        split = *(int *)(g_unk0x00536e00 + car * 0x48);
+        time = g_unk0x00536fe4[car];
+    } else {
+        g_unk0x00536c0c[car] = 0;
+        time = *(int *)(g_unk0x00536e00 + car * 0x48 + 4);
+        split = *(int *)(g_unk0x00536e00 + car * 0x48);
+        reference = *(int *)(g_unk0x00536e00 + car * 0x48 + 8);
+        if ((CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 7) &&
+            (FUN_004054b0(car) == 0 || CGameInfo::FUN_00404f20() == 0)) {
+            if (g_unk0x00536c40 == g_unk0x00537068)
+                return;
+            if (g_unk0x00536c40 == 0)
+                return;
+        }
+    }
+    shown = g_unk0x00536c20[car] != 0 ? -1 : 0;
+    if (RallyData_FUN_00411880())
+        CGameInfo::FUN_00405dc0();
+    lastMode = 0;
+    CGameInfo::FUN_00405d80();
+    if (CGameInfo::FUN_00405d80() == 12)
+        lastMode = 1;
+    if (FUN_004054b0(car) != 0 && CGameInfo::FUN_00404f20() != 0 && (time == -1 || shown == 0 || split == 0)) {
+        shown = -1;
+        if (split <= 0) {
+            time = 0x1c3e;
+            reference = 0x1bbc;
+            goto draw;
+        }
+    }
+    if (time == -1)
+        return;
+    if (shown == 0)
+        return;
+    if (split == 0 && lastMode == 0)
+        return;
+draw:
+    dx = 0;
+    dy = 0;
+    if (RallyData_FUN_00411880()) {
+        if (car == 0) {
+            if (CGameInfo::FUN_00405dc0())
+                dy = -((int)g_pGraphics->resY / 2);
+        } else if (car == 1 && CGameInfo::FUN_00405dc0() == 0) {
+            dx = (int)g_pGraphics->resX / 2;
+        }
+    }
+    x = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + dx;
+    y = (short)(((int)(g_pGraphics->resY * 0xd668) >> 16) + dy) + (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 1;
+#define GAP_POS()                                                                                   \
+    yFixed = FixDiv((int)(__int64)((double)(y + 1) * CGraphics::m_65536),                          \
+                    (int)(__int64)((double)(int)g_pGraphics->resY * CGraphics::m_65536));          \
+    xFixed = FixDiv((int)(__int64)((double)(x + 4) * CGraphics::m_65536),                          \
+                    (int)(__int64)((double)(int)g_pGraphics->resX * CGraphics::m_65536))
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 10 ||
+        CGameInfo::FUN_00405d80() == 11 || CGameInfo::FUN_00405d80() == 12) {
+        if (g_unk0x00536e90[0] == 0) {
+            if (time <= reference) {
+                GAP_POS();
+                PrepareFormatGapToLeader(reference - time, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
+            } else {
+                GAP_POS();
+                PrepareFormatGapToLeader(time - reference, 0, 4, 4, xFixed, yFixed, &g_unk0x005170a0, 9, 0, 1);
+            }
+        } else {
+            GAP_POS();
+            PrepareFormatGapToLeader(-1, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
+        }
+    } else {
+        if (CGameInfo::FUN_00405d80() == 12)
+            return;
+        if (g_unk0x00536c0c[car] == 0) {
+            if (time <= reference) {
+                GAP_POS();
+                PrepareFormatGapToLeader(reference - time, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
+            } else {
+                GAP_POS();
+                PrepareFormatGapToLeader(time - reference, 0, 4, 4, xFixed, yFixed, &g_unk0x005170a0, 9, 0, 1);
+            }
+        } else {
+            GAP_POS();
+            PrepareFormatGapToLeader(-1, 0, 4, 4, xFixed, yFixed, &g_unk0x0051709c, 9, 1, 1);
+        }
+    }
+#undef GAP_POS
+}
+
+void FUN_004143f0(int car, short *pRect);
+void FUN_00414550(int car, short *pRect);
+bool FUN_00459390(void);
+int FUN_00414700(void);
+
+// Stage time panel of the HUD: the split boxes, a background panel (taller when
+// the subtitles need room) and the running stage time.
+// FUNCTION: CMR2 0x00413fe0
+void FUN_00413fe0(int car, short *pRect)
+{
+    short rect[4];
+    int dx;
+    int dy;
+    int yFixed;
+    int xFixed;
+
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 11)
+        FUN_00414550(car, pRect);
+    else
+        FUN_004143f0(car, pRect);
+    dx = 0;
+    dy = 0;
+    rect[2] = (short)((int)(g_pGraphics->resX * 0x4865) >> 16) + 1;
+    rect[0] = (short)((int)(g_pGraphics->resX * 0xab9b) >> 16);
+    if (RallyData_FUN_00411880()) {
+        if (CGameInfo::FUN_00405dc0()) {
+            if (car == 1)
+                dy = (int)g_pGraphics->resY / 2;
+        } else {
+            rect[2] = (short)((int)(g_pGraphics->resX * 0x2acc) >> 16) + 11;
+            rect[0] = (short)((int)(g_pGraphics->resX * 0xc934) >> 16) - 10;
+            if (car == 0)
+                dx = -((int)g_pGraphics->resX / 2);
+        }
+    }
+    rect[0] += (short)dx;
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 || CGameInfo::FUN_00405d80() == 11) {
+        rect[1] = (short)((int)(g_pGraphics->resY << 12) >> 16) + dy;
+        rect[3] = (short)((int)(g_pGraphics->resY << 13) >> 16);
+    } else {
+        rect[1] = (short)((int)(g_pGraphics->resY * 0x1aac) >> 16) + dy;
+        rect[3] = (short)((int)(g_pGraphics->resY * 0x1554) >> 16);
+    }
+    if (FUN_00459390()) {
+        if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 || CGameInfo::GetGameLanguage() == 2)
+            rect[3] += (short)((int)(g_pGraphics->resY * 24) / 480 * 2);
+        else
+            rect[3] += (short)((int)(g_pGraphics->resY * 24) / 480);
+    }
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_stageHudPanelColour, 2);
+    if (FUN_00459390()) {
+        if (CGameInfo::GetGameLanguage() == 1 || CGameInfo::GetGameLanguage() == 3 || CGameInfo::GetGameLanguage() == 2)
+            rect[3] += (short)((int)(g_pGraphics->resY * -24) / 480 * 2);
+        else
+            rect[3] += (short)((int)(g_pGraphics->resY * -24) / 480);
+    }
+    if (FUN_00414700()) {
+        if (car == 0)
+            rect[0] += 7;
+        else
+            rect[0] += 10;
+        yFixed = FixDiv((int)(__int64)((double)pRect[1] * CGraphics::m_65536),
+                        (int)(__int64)((double)(int)g_pGraphics->resY * CGraphics::m_65536));
+        xFixed = FixDiv((int)(__int64)((double)rect[0] * CGraphics::m_65536),
+                        (int)(__int64)((double)(int)g_pGraphics->resX * CGraphics::m_65536));
+        FormatGapToLeader(*(int *)(g_unk0x00536e00 + car * 0x48 + 0xc), 4, 4, xFixed, yFixed + 0x2e66,
+                          &g_stageHudTextColour, 0x21, NULL, 0);
+    } else {
+        yFixed = FixDiv((int)(__int64)((double)pRect[1] * CGraphics::m_65536),
+                        (int)(__int64)((double)(int)g_pGraphics->resY * CGraphics::m_65536));
+        xFixed = FixDiv((int)(__int64)((double)(pRect[0] + dx) * CGraphics::m_65536),
+                        (int)(__int64)((double)(int)g_pGraphics->resX * CGraphics::m_65536));
+        FormatGapToLeader(*(int *)(g_unk0x00536e00 + car * 0x48 + 0xc), 4, 4, xFixed + 0xaf30, yFixed + 0x2e66,
+                          &g_stageHudTextColour, 0x21, NULL, 0);
+    }
+    FUN_00414700();
+}
+
+int StageTiming_GetSplitDriverIDForPosition(int iPosition, int iSplit);
+int StageTiming_GetSplitTimeForPosition(int iPosition, int iSplit);
+
+// GLOBAL: CMR2 0x00517de0
+char g_strADriver[] = "A. DRIVER";
+// GLOBAL: CMR2 0x00517dec
+char g_strAdr[] = "ADR";
+
+// Split standings panel of the HUD: three rows around the car's position at
+// its last split, each with the position, the driver name (short form in split
+// screen) and the split time.
+// FUNCTION: CMR2 0x00414ed0
+void FUN_00414ed0(int car, short *pRect)
+{
+    short panel[4];
+    int *pPosition;
+    int textY;
+    int rows;
+    int time;
+    int width;
+
+    pPosition = g_unk0x00536c94[car];
+    if (*pPosition == -1 && FUN_004054b0(car) == 0 && CGameInfo::FUN_00404f20() == 0)
+        return;
+    if (RallyData_FUN_00411880() && CGameInfo::FUN_00405dc0() == 0) {
+        panel[1] = (short)((int)(g_pGraphics->resY << 12) >> 16) + pRect[1];
+        textY = ((int)(g_pGraphics->resY * 0x1b32) >> 16) + pRect[1] - 2;
+        rows = 3;
+        do {
+            panel[0] = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + pRect[0];
+            panel[2] = (short)((int)(g_pGraphics->resX * 0x3333) >> 16);
+            panel[3] = (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 2;
+            if (*pPosition == g_stageSplitData[car].position)
+                Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+            else
+                Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+            if (*pPosition != -1 &&
+                (StageTiming_FUN_00455ae0() == 0 ||
+                 StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split) != -1)) {
+                sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
+                Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+                              (int *)&g_stageResultTextColour, 0x22);
+                if (StageTiming_FUN_00455ae0() == 0) {
+                    Font_DrawText(0, g_strAdr, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                                  (int *)&g_stageResultTextColour, 0x21);
+                    time = 3000;
+                } else {
+                    FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
+                    Font_DrawText(0, CFrontend::m_stringDest,
+                                  (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                                  (int *)&g_stageResultTextColour, 0x21);
+                    time = StageTiming_GetSplitTimeForPosition(*pPosition, g_stageSplitData[car].split);
+                }
+                FormatGapToLeader(time, 5, 5,
+                                  FixDiv((int)(__int64)((double)pRect[0] * CGraphics::m_65536),
+                                         (int)(__int64)((double)(int)g_pGraphics->resX * CGraphics::m_65536)) +
+                                      0x3d69,
+                                  FixDiv(textY - 1, g_pGraphics->resY), &g_stageResultTextColour, 0x24, NULL, 0);
+            }
+            pPosition++;
+            panel[1] += panel[3];
+            textY += panel[3];
+        } while (--rows);
+        return;
+    }
+    panel[1] = (short)((int)(g_pGraphics->resY << 12) >> 16) + pRect[1];
+    textY = ((int)(g_pGraphics->resY * 0x1b32) >> 16) + pRect[1] - 2;
+    rows = 3;
+    do {
+        panel[0] = (short)((int)(g_pGraphics->resX * 0xc00) >> 16) + pRect[0];
+        panel[2] = (short)((int)(g_pGraphics->resX * 0x47ae) >> 16);
+        panel[3] = (short)((int)(g_pGraphics->resY * 0xccc) >> 16) - 2;
+        if (*pPosition == g_stageSplitData[car].position)
+            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_unk0x005170d8, 2);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, panel, (BYTE *)&g_stageResultPanelColour, 2);
+        if (*pPosition != -1) {
+            if (StageTiming_FUN_00455ae0())
+                StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split);
+            sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
+            Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+                          (int *)&g_stageResultTextColour, 0x22);
+            FUN_00415750(*pPosition, g_stageSplitData[car].split, 0, 1);
+            width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+            if (width > (int)(g_pGraphics->resX * 0x59) / 640)
+                FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
+            if (StageTiming_FUN_00455ae0() == 0) {
+                Font_DrawText(0, g_strADriver, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                              (int *)&g_stageResultTextColour, 0x21);
+                time = 3000;
+            } else {
+                Font_DrawText(0, CFrontend::m_stringDest, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]),
+                              textY, (int *)&g_stageResultTextColour, 0x21);
+                time = StageTiming_GetSplitTimeForPosition(*pPosition, g_stageSplitData[car].split);
+            }
+            FormatGapToLeader(time, 5, 5,
+                              FixDiv((int)(__int64)((double)pRect[0] * CGraphics::m_65536),
+                                     (int)(__int64)((double)(int)g_pGraphics->resX * CGraphics::m_65536)) +
+                                  0x51e4,
+                              FixDiv(textY - 1, g_pGraphics->resY), &g_stageResultTextColour, 0x24, NULL, 0);
+        }
+        pPosition++;
+        panel[1] += panel[3];
+        textY += panel[3];
+    } while (--rows);
 }

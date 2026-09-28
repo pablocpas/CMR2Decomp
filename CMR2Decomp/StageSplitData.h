@@ -10,6 +10,8 @@ struct StageSplitData {
 	int times[14];         // times[0] is the start, times[n] the time at split n
 };
 
-extern StageSplitData g_stageSplitData[1];
+typedef unsigned char BYTE;
+extern BYTE g_stageSplitBlock[0x94];
+#define g_stageSplitData ((StageSplitData *)g_stageSplitBlock)
 
 #endif
