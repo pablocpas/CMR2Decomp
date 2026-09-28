@@ -10180,3 +10180,141 @@ void FUN_004d7380(Menu *pMenu)
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
+
+// Draws the stage selection screen: the rally name and date, the record car of
+// the selected stage and the list of the stages of the rally.
+// FUNCTION: CMR2 0x004d8480
+void FUN_004d8480(Menu *pMenu)
+{
+    short rect[4];
+    char name[4];
+    char *text[2];
+    int *pColour;
+    int baseY;
+    int x;
+    int i;
+
+    rect[1] = 0;
+    rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[2] = CFrontend::m_pAr640ATexture->width;
+    rect[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
+            (CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
+    strcpy(name, (char *)RallyData_GetRecord(CGameInfo::FUN_00405d70() - 1 - FUN_004f1ba0()));
+    text[0] = g_str0x008188a4;
+    text[1] = name;
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, text, 2);
+    baseY = ((int)(g_pGraphics->resY * 0x38) / 0x1e0 + (int)(g_pGraphics->resY * 0x176) / 0x1e0) / 2 -
+            (((int)(g_pGraphics->resY * 0x24) / 0x1e0) * pMenu->itemCount) / 2;
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[1] = (short)baseY;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourShadowWhite0x00524974, 1);
+    g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourWhite0x00524968, 1);
+    rect[1] = (short)((int)(g_pGraphics->resY * 0x14) / 0x1e0) -
+              CFrontend::m_pAr640ATexture->height / 2 + (short)baseY;
+    Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)rect,
+                 CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, (BYTE *)g_colourWhite0x00524968, 8);
+    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[0].id));
+    x = (int)(g_pGraphics->resX * 0x7a) / 0x280;
+    Font_DrawText(1, CFrontend::m_stringDest, x,
+                  (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1],
+                  (int *)g_colourWhite0x00524968, 0x11);
+    if (pMenu->items[0].min != 0) {
+        i = 0;
+        do {
+            pColour = (int *)g_colourWhite0x00524968;
+            if (i != pMenu->items[0].max)
+                pColour = (int *)g_colourText0x0052496c;
+            x = (int)(g_pGraphics->resX * 10) / 0x280 + x + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+            Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(i + 0x131));
+            i++;
+        } while (i < pMenu->items[0].min);
+    }
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0) + (short)baseY;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourShadowWhite0x00524974, 1);
+    g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourWhite0x00524968, 1);
+    if (CGameInfo::FUN_00405d80() != 4)
+        FrontendDraw_ScrollerRow(FUN_004f2500(), 0);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
+// Text of an empty leaderboard row and of its time column.
+// GLOBAL: CMR2 0x00519fb0
+char g_str0x00519fb0[4] = "0";
+// GLOBAL: CMR2 0x00519fb4
+char g_str0x00519fb4[4] = "---";
+// Arrows of the "1/8" leaderboard pager.
+// GLOBAL: CMR2 0x005250d4
+char g_str0x005250d4[4] = ">";
+// GLOBAL: CMR2 0x005250d8
+char g_str0x005250d8[4] = "<";
+
+extern char g_stageNumberFormat[];
+
+// Draws the leaderboard screen: the pager line, the ten names with their wins
+// and the list of leaderboards.
+// FUNCTION: CMR2 0x004e9990
+void FUN_004e9990(Menu *pMenu)
+{
+    char *text[3];
+    MenuItem *pItem;
+    NetworkLeaderboard *pBoard;
+    NetworkLeaderboardEntry *pEntry;
+    int *pColour;
+    int y;
+    int i;
+
+    text[0] = CFrontend::GetTextString(0x12);
+    text[1] = CFrontend::GetTextString(0x1e9);
+    text[2] = CFrontend::GetTextString(0x1c4);
+    FrontendDraw_PlayTime();
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
+    pColour = (int *)g_colourWhite0x00524968;
+    if (pMenu->items[pMenu->cursor].value != 0)
+        pColour = (int *)g_colourText0x0052496c;
+    if (CNetworkLeaderboards::GetTotalLeaderboards() == 0) {
+        Font_DrawText(1, CFrontend::GetTextString(0x1eb), g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY) / 4, pColour, 0x12);
+    } else {
+        pItem = Menu_GetItem(pMenu, 0);
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea), pItem->max + 1, pItem->min);
+        Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 0x46) / 0x1e0, pColour, 0x12);
+        pBoard = CNetworkLeaderboards::GetLoadedLeaderboard(Menu_GetItem(pMenu, 0)->max);
+        for (i = 0; i < 10; i++) {
+            pEntry = &pBoard->entries[i];
+            if (pEntry->name[0] == 0) {
+                Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x118) / 0x280,
+                              (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
+                                  ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i, pColour, 0x12);
+                y = (int)(g_pGraphics->resY * 0x5a) / 0x1e0 + ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i;
+                Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x154) / 0x280, y, pColour, 0x12);
+            } else {
+                Font_DrawText(0, pEntry->name, (int)(g_pGraphics->resX * 0x118) / 0x280,
+                              (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
+                                  ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i, pColour, 0x12);
+                sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pEntry->wins);
+                y = (int)(g_pGraphics->resY * 0x5a) / 0x1e0 + ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i;
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x154) / 0x280, y,
+                              pColour, 0x12);
+            }
+        }
+        if (Menu_GetItem(pMenu, 0)->min != 0) {
+            Font_DrawText(1, g_str0x005250d8,
+                          (int)(g_pGraphics->resX * 0x118) / 0x280 - (int)(g_pGraphics->resX * 0x32) / 0x280,
+                          (int)(g_pGraphics->resY * 0xa0) / 0x1e0, pColour, 0x12);
+            Font_DrawText(1, g_str0x005250d4,
+                          (int)(g_pGraphics->resX * 0x3c) / 0x280 + (int)(g_pGraphics->resX * 0x154) / 0x280,
+                          (int)(g_pGraphics->resY * 0xa0) / 0x1e0, pColour, 0x12);
+        }
+    }
+    FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 1, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, 0);
+}

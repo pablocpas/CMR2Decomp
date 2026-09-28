@@ -31,9 +31,9 @@ void FUN_004d7db0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004d8480(Menu *pMenu, int param)
-{
-}
+// FUN_004d8480 (0x004d8480) is implemented in FrontendScreens.cpp.
+//
+//
 
 void FUN_004d8950(Menu *pMenu, int param)
 {
@@ -84,9 +84,9 @@ void FUN_004e90f0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004e9990(Menu *pMenu, int param)
-{
-}
+// FUN_004e9990 (0x004e9990) is implemented in FrontendScreens.cpp.
+//
+//
 
 void FUN_004ecaf0(Menu *pMenu, int param)
 {
