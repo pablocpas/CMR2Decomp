@@ -893,3 +893,46 @@ void FUN_00426810(int param_1, int param_2)
     *(int *)(param_1 + 0xb4) +=
         FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
 }
+
+// Aligns a vector of the car with the 2D direction (0x70/0x78 below 0x1999,
+// 0x58/0x60 above), projects it on the normalised direction and accumulates the
+// result into the 0x88/0x8c/0x90 accumulator.
+// FUNCTION: CMR2 0x004263d0
+void FUN_004263d0(unsigned int param_1)
+{
+    FixVector v;
+    FixVector d;
+    int value;
+    int t;
+
+    *(int *)(param_1 + 0x88) = 0;
+    *(int *)(param_1 + 0x8c) = 0;
+    *(int *)(param_1 + 0x90) = 0;
+    if (*(int *)(param_1 + 0x50) < 0x1999) {
+        v = *(FixVector *)(param_1 + 0x70);
+        v.y = 0;
+        if (FixVecLength(&v) > 0) {
+            FIX_NORMALIZE_INTO(v, v);
+        } else {
+            v.x = 0;
+            v.y = 0;
+            v.z = 0;
+        }
+    } else {
+        v = *(FixVector *)(param_1 + 0x58);
+        v.y = 0;
+        FIX_NORMALIZE_INTO(v, v);
+    }
+    value = FixMul(FixVecDot(&v, (FixVector *)(param_1 + 0x70)), *(int *)(param_1 + 0xb0));
+    if (value < 0)
+        value = -FixMul(value, value);
+    else
+        value = FixMul(value, value);
+    if ((value < 0 ? -value : value) > 0x10000)
+        value = ((value < 1) - 1 & 0x20000) - 0x10000;
+    t = -FixMul(FixMul(value, *(int *)(param_1 + 0xac)), 0x11eb);
+    FixVecScale(&d, &v, t);
+    *(int *)(param_1 + 0x88) += d.x;
+    *(int *)(param_1 + 0x8c) += d.y;
+    *(int *)(param_1 + 0x90) += d.z;
+}
