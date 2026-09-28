@@ -5749,3 +5749,317 @@ void FUN_004584d0(char param_1)
         break;
     }
 }
+
+#include "Particle.h"
+
+// Per-particle-kind texture handles for the wheel spray / smoke effects.
+// GLOBAL: CMR2 0x005435c8
+int g_unk0x005435c8;
+// GLOBAL: CMR2 0x00543650
+int g_unk0x00543650;
+// GLOBAL: CMR2 0x00543654
+int g_unk0x00543654;
+// GLOBAL: CMR2 0x00543658
+int g_unk0x00543658;
+// GLOBAL: CMR2 0x0054365c
+int g_unk0x0054365c;
+// GLOBAL: CMR2 0x00543660
+int g_unk0x00543660;
+// GLOBAL: CMR2 0x00543664
+int g_unk0x00543664;
+// GLOBAL: CMR2 0x0054366c
+int g_unk0x0054366c;
+// GLOBAL: CMR2 0x00543670
+int g_unk0x00543670;
+// GLOBAL: CMR2 0x00543674
+int g_unk0x00543674;
+// GLOBAL: CMR2 0x0054367c
+int g_unk0x0054367c;
+// GLOBAL: CMR2 0x00543690
+int g_unk0x00543690;
+// GLOBAL: CMR2 0x00543698
+int g_unk0x00543698;
+// GLOBAL: CMR2 0x005436a0
+int g_unk0x005436a0;
+// GLOBAL: CMR2 0x005436b8
+int g_unk0x005436b8;
+// GLOBAL: CMR2 0x005436d8
+int g_unk0x005436d8;
+// GLOBAL: CMR2 0x00547fb4
+int g_unk0x00547fb4;
+
+void ParticleEdit_Select(int index);
+void ParticleEdit_CopyTemplate(int index);
+void ParticleEdit_SetTextureParams(int a, int b, int c, int d, int e);
+void ParticleEdit_SetExtendedParams(int a, int b, int c, int d, BYTE flag4, BYTE flag8, int e, int f,
+                                    int g, int h);
+void ParticleEdit_SetMotion(int lifetime, int gravity, int drag, int bounce, int friction, char bounces,
+                            BYTE killBelowFloor);
+void ParticleEdit_SetAlphaRamp(BYTE start, BYTE end, char step, BYTE killAtEnd);
+void ParticleEdit_SetColour(BYTE r, BYTE g, BYTE b, BYTE flag);
+void ParticleEdit_SetSizeRamp(int size, int target, int step);
+void ParticleEdit_SetSizeRange(int min, int max);
+void ParticleEdit_SetSpread(int x, int y, int z, BYTE flag);
+void ParticleEdit_SetCallbacks(int field0x5c, void (*update)(void *, ParticleType *, int),
+                               void (*postUpdate)(void *, ParticleType *, int),
+                               void (*callback)(void *, ParticleType *, int), int field0x6c);
+void FUN_004afe80(short param1);
+void FUN_004aff60(void);
+void FUN_004b1140(int count);
+int WheelSpray_Init(int spread, int range);
+void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView);
+void FUN_004994d0(void *pParticle, ParticleType *pType, int param);
+void GlassShard_Draw(Particle *p, ParticleType *pType, int unused);
+void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar);
+void Debris_Init(Particle *p, ParticleType *pType, int *pParam);
+void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView);
+void FUN_0045d250(void *pParticle, ParticleType *pType, int param);
+void FUN_0045d270(void *pParticle, ParticleType *pType, int param);
+void FUN_0045d2d0(void *pParticle, ParticleType *pType, int param);
+void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param);
+void FUN_0045de80(void *pParticle, ParticleType *pType, int param);
+void FUN_0045dea0(void *pParticle, ParticleType *pType, int param);
+
+// Fills the particle-type table of the stage effects (wheel spray, smoke,
+// sparks, glass shards, debris) with their textures, motion and callbacks.
+// FUNCTION: CMR2 0x0045a170
+void __fastcall FUN_0045a170(int param_1)
+{
+    int iVar1;
+    int uVar2;
+
+iVar1 = CGameInfo::FUN_00405cd0();
+  uVar2 = 100;
+  if (iVar1 != 1) {
+    uVar2 = param_1;
+  }
+  iVar1 = CGameInfo::FUN_00405cd0();
+  if (iVar1 == 0) {
+    uVar2 = 400;
+  }
+  iVar1 = CGameInfo::FUN_00405cd0();
+  if (iVar1 == 2) {
+    uVar2 = 0;
+  }
+  FUN_004b1140(uVar2);
+  ParticleEdit_Select(0);
+  ParticleEdit_SetTextureParams(g_unk0x0054365c,0xffff0000,0x10000,0x10000,0xffff0000);
+  ParticleEdit_SetMotion(0xc80000,6,0x10000,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(0x1e,0,3,1);
+  ParticleEdit_SetSizeRamp(0x28f,0x10000,0x5a1);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0x28f,0x28f,0x28f,1);
+  FUN_004aff60();
+  ParticleEdit_Select(1);
+  ParticleEdit_CopyTemplate(0);
+  ParticleEdit_SetTextureParams(g_unk0x00543660,0xffff0000,0x10000,0x10000,0xffff0000);
+  ParticleEdit_SetAlphaRamp(0x50,0,3,1);
+  FUN_004aff60();
+  ParticleEdit_Select(2);
+  ParticleEdit_SetTextureParams(g_unk0x00543664,0xffff0000,0x10000,0x10000,0xffff0000);
+  ParticleEdit_SetMotion(0x12c0000,6,0x10000,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(100,0,1,1);
+  ParticleEdit_SetSizeRamp(0x1999,0x10000,0xb43);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0x28f,0x28f,0x28f,1);
+  FUN_004aff60();
+  ParticleEdit_Select(3);
+  ParticleEdit_CopyTemplate(0);
+  ParticleEdit_SetMotion(0x40000,0,0,0,0,0,0);
+  ParticleEdit_SetSizeRamp(0xccc,0x2147,0xccc);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436d8,4,0,0x10000,0,0,0xffff0000,0x10000,0x10000,0xffff0000);
+  ParticleEdit_SetAlphaRamp(0xfe,0xfe,0,0);
+  ParticleEdit_SetSizeRange(0x1999,0x3333);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d2d0,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(6);
+  ParticleEdit_SetTextureParams(g_unk0x0054366c,0xffff999a,0x6666,0x6666,0xffff999a);
+  ParticleEdit_SetMotion(0x210000,0x20,0,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(0xd2,0,6,1);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x18000,0x7ae);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0x51e,0x28f,0x51e,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d270,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(4);
+  ParticleEdit_CopyTemplate(6);
+  ParticleEdit_SetTextureParams(g_unk0x0054366c,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetMotion(0x780000,0x20,0,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(100,0,2,1);
+  FUN_004aff60();
+  ParticleEdit_Select(7);
+  ParticleEdit_CopyTemplate(6);
+  ParticleEdit_SetTextureParams(g_unk0x0054366c,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x13333,0x147a);
+  ParticleEdit_SetMotion(0x640000,0,0xa0000,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(0xd2,0,6,1);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x18000,0x7ae);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d250,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(10);
+  ParticleEdit_CopyTemplate(6);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,0,0,0xffffb334,0x4ccc,0x4ccc,0xffffb334);
+  ParticleEdit_SetAlphaRamp(100,0,0,0);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d270,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(8);
+  ParticleEdit_CopyTemplate(4);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetColour(0x98,0x7e,0x66,1);
+  FUN_004aff60();
+  ParticleEdit_Select(0xb);
+  ParticleEdit_CopyTemplate(7);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff4ccd,0xb333,0xb333,0xffff4ccd);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x13333,0x147a);
+  ParticleEdit_SetMotion(0x640000,0,0xa0000,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(100,0,0,0);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d250,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(5);
+  ParticleEdit_CopyTemplate(4);
+  ParticleEdit_SetTextureParams(g_unk0x0054366c,0xffff999a,0x6666,0x6666,0xffff999a);
+  ParticleEdit_SetMotion(0x300000,0x20,0x30000,0,0,0,0);
+  ParticleEdit_SetAlphaRamp(100,0,2,1);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x10000,0x1999);
+  FUN_004afe80(0x88);
+  ParticleEdit_SetSpread(0,0,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0xc);
+  ParticleEdit_CopyTemplate(5);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffffc000,0x4000,0x8000,0xffffc000);
+  ParticleEdit_SetAlphaRamp(0x1e,0,4,1);
+  ParticleEdit_SetSizeRamp(0x4ccc,0x5555,0x3332);
+  FUN_004afe80(0);
+  FUN_004aff60();
+  ParticleEdit_Select(0xd);
+  ParticleEdit_CopyTemplate(5);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436b8,8,0,0x20000,1,1,0xffff0000,0x10000,0x20000,0xffff0000);
+  ParticleEdit_SetAlphaRamp(0x46,0,2,1);
+  FUN_004aff60();
+  ParticleEdit_Select(0xe);
+  ParticleEdit_CopyTemplate(5);
+  ParticleEdit_SetMotion(0x1900000,0,0,0,0,0,0);
+  FUN_004afe80(0);
+  ParticleEdit_SetTextureParams(g_unk0x00543674,0,0x20000,0x20000,0);
+  ParticleEdit_SetSizeRamp(0x1999,0x10000,0xa3d);
+  ParticleEdit_SetAlphaRamp(0xff,0,0xf,1);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045dea0,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0xf);
+  ParticleEdit_CopyTemplate(0xe);
+  ParticleEdit_SetTextureParams(g_unk0x00543670,0,0,0x20000,0xfffe0000);
+  FUN_004aff60();
+  ParticleEdit_Select(0x10);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x0054367c,5,0x20000,0x10000,1,1,0xffff3334,0xcccc,0xcccc,0xffff3334);
+  ParticleEdit_SetMotion(0xc80000,0x28f,0,0,0,0,1);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetSizeRange(0x1999,0x147a);
+  FUN_004afe80(0xb);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d3a0,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x11);
+  ParticleEdit_CopyTemplate(0x10);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x12);
+  ParticleEdit_CopyTemplate(0x10);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x00543690,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
+  ParticleEdit_SetMotion(0xc80000,0x28f,0,0,0,0,1);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
+  ParticleEdit_SetColour(0xff,0xff,0xff,1);
+  ParticleEdit_SetSizeRange(0x1999,0x147a);
+  FUN_004afe80(0xb);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045d3a0,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x13);
+  ParticleEdit_CopyTemplate(0x12);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x14);
+  ParticleEdit_CopyTemplate(0x12);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x00543698,2,0x40000,0x40000,1,1,0xfffe8000,0x18000,0x18000,0xfffe8000);
+  FUN_004aff60();
+  ParticleEdit_Select(0x15);
+  ParticleEdit_CopyTemplate(0x14);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x17);
+  ParticleEdit_CopyTemplate(0x13);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  ParticleEdit_SetSizeRange(0x147a,0xa3d);
+  FUN_004aff60();
+  ParticleEdit_Select(0x16);
+  ParticleEdit_CopyTemplate(0x12);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
+  ParticleEdit_SetSizeRange(0x147a,0xa3d);
+  FUN_004aff60();
+  ParticleEdit_Select(0x18);
+  ParticleEdit_SetTextureParams(g_unk0x005435c8,0xffffc000,0x4000,0x4000,0xffffc000);
+  ParticleEdit_SetMotion(0xc80000,0xccc,0,0x1999,0,1,1);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,1);
+  ParticleEdit_SetSizeRamp(0x1999,0x1999,0);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks(0,0,(void (*)(void *, ParticleType *, int))FUN_0045dea0,(void (*)(void *, ParticleType *, int))FUN_0045de80,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x1a);
+  ParticleEdit_SetTextureParams(g_unk0x00543650,0xffffcccd,0x3333,0x3333,0xffffcccd);
+  ParticleEdit_SetMotion(0x140000,0x147,0,0,0,0,1);
+  ParticleEdit_SetAlphaRamp(0xfe,0,0x22,1);
+  ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks((int)Spark_Draw,0,(void (*)(void *, ParticleType *, int))FUN_004994d0,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x1b);
+  ParticleEdit_SetTextureParams(g_unk0x00543654,0xffffcccd,0x3333,0x3333,0xffffcccd);
+  ParticleEdit_SetMotion(0x140000,0x147,0,0,0,0,1);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks((int)GlassShard_Draw,0,0,(void (*)(void *, ParticleType *, int))GlassShard_Init,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x1c);
+  ParticleEdit_SetTextureParams(g_unk0x00543658,0xffffcccd,0x3333,0x3333,0xffffcccd);
+  ParticleEdit_SetMotion(0x640000,0x189,0,0,0,0,1);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  ParticleEdit_SetSizeRamp(0x10000,0x10000,0);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  ParticleEdit_SetCallbacks((int)Debris_Draw,0,0,(void (*)(void *, ParticleType *, int))Debris_Init,0);
+  FUN_004aff60();
+  iVar1 = WheelSpray_Init(0x10000,0x190000);
+  ParticleEdit_Select(0x1d);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff99a,0x666,0x666,0xfffff99a);
+  ParticleEdit_SetMotion(0xf0000,FixMul(iVar1, 0x3333),0,0xb333,0,1,0);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  ParticleEdit_SetColour(0xff,0,0xff,1);
+  ParticleEdit_SetSizeRange(0x10000,0x20000);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x1e);
+  ParticleEdit_SetExtendedParams((int)&g_unk0x005436a0,5,0x20000,0x10000,1,1,0xfffff70b,0x8f5,0x8f5,0xfffff70b);
+  ParticleEdit_SetMotion(0x190000,iVar1,0,0xb333,0,1,0);
+  ParticleEdit_SetAlphaRamp(0xff,0xff,0,0);
+  ParticleEdit_SetColour(0xff,0,0xff,1);
+  ParticleEdit_SetSizeRange(0x10000,0x20000);
+  FUN_004afe80(0);
+  ParticleEdit_SetSpread(0,0,0,0);
+  FUN_004aff60();
+  ParticleEdit_Select(0x1f);
+  ParticleEdit_CopyTemplate(0x1a);
+  ParticleEdit_SetTextureParams(g_unk0x00547fb4,0xffffe667,0x1999,0x1999,0xffffe667);
+  ParticleEdit_SetCallbacks(0,0,0,0,0);
+  FUN_004aff60();
+  return;
+}
