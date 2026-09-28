@@ -467,6 +467,32 @@ int g_unk0x0058cf7c;
 
 struct Menu;
 
+void FUN_00473450(Menu *pMenu, int param);
+void FUN_00473460(Menu *pMenu, int param);
+void FUN_00473d60(Menu *pMenu);
+void FUN_004738f0(Menu *pMenu);
+extern int g_unk0x0058cf6c;
+
+// Builds the two menus of the in-race pause screen: the first one holds the
+// entry 0x63 that opens the second (and 0x72 back), plus the entries whose
+// actions are the patch callbacks.
+// FUNCTION: CMR2 0x00473360
+void FUN_00473360(void)
+{
+    g_pUnk0x0051c97c = g_unk0x0058ca90;
+    Menu_Init((Menu *)g_unk0x0058ca90, 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4((Menu *)g_unk0x0058ca90, 0, 0x13, (int)FUN_00473450, 0);
+    Menu_AddItemType2((Menu *)g_unk0x0058ca90, 0, 0x63, (Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 1);
+    Menu_SetCallbacks((Menu *)g_unk0x0058ca90, NULL, NULL, (MenuCallback)FUN_00473d60, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0058ca90, 0);
+    Menu_Init((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x72, (int)FUN_00473460, 0);
+    Menu_AddItemType2((Menu *)(g_unk0x0058ca90 + 0x1e8), 0, 0x73, (Menu *)g_unk0x0058ca90, 0, 1);
+    Menu_SetCallbacks((Menu *)(g_unk0x0058ca90 + 0x1e8), NULL, NULL, (MenuCallback)FUN_004738f0, NULL);
+    Menu_ValidateCursor((Menu *)(g_unk0x0058ca90 + 0x1e8), 0);
+    g_unk0x0058cf6c = 1;
+}
+
 // Item callbacks of the menu built by 0x473360.
 // FUNCTION: CMR2 0x00473450
 void FUN_00473450(Menu *pMenu, int param)
@@ -778,7 +804,7 @@ void FUN_004734f0(Menu *pMenu)
 
 extern int g_unk0x0058cf7c;
 extern BYTE g_unk0x0058ca90[];
-void FUN_004bc290(void *p, int, int, int, int, int, int);
+void FUN_004bc290(BYTE *p, int, int, int, int, int, BYTE);
 
 // Fade callback of the in-race state machine: releases the scene callbacks and
 // restarts the fade out of the stage objects.

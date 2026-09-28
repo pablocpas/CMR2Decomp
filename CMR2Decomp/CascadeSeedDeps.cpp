@@ -56,8 +56,6 @@ void FUN_0041f560(void) { }
 // STUB: CMR2 0x00455080
 void FUN_00455080(void) { }
 
-// STUB: CMR2 0x00475f00
-void FUN_00475f00(void) { }
 
 // STUB: CMR2 0x00403500
 void FUN_00403500(void) { }
@@ -125,11 +123,16 @@ void FUN_0046c750(int, int, int) { }
 // STUB: CMR2 0x00472a30
 void FUN_00472a30(void) { }
 
-// STUB: CMR2 0x00473360
-void FUN_00473360(void) { }
 
 // STUB: CMR2 0x00478c40
 void FUN_00478c40(void) { }
 
-// STUB: CMR2 0x004bc290
-void FUN_004bc290(void *p, int, int, int, int, int, int) { }
+struct Menu;
+// STUB: CMR2 0x0049bcb0
+void FUN_0049bcb0(Menu *pMenu) { }
+
+// STUB: CMR2 0x00473d60
+void FUN_00473d60(Menu *pMenu) { }
+
+// STUB: CMR2 0x004738f0
+void FUN_004738f0(Menu *pMenu) { }

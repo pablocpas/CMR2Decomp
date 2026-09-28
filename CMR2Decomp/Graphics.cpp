@@ -3640,6 +3640,74 @@ BYTE FUN_004bc0c0(BYTE *p)
     return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
 }
 
+BYTE FUN_004bc3e0(unsigned int index);
+BYTE Timer_FindFree(void);
+
+// When set, Timer_Start collapses the range to its end value (the demo
+// replays use it to freeze the interpolated values).
+// GLOBAL: CMR2 0x00816290
+int g_unk0x00816290;
+
+// Starts the timer whose slot index is stored in *pSlot (the previous owner,
+// if any, sends it to shape 5): the value interpolates from start to end over
+// length steps following one of five shapes, and the slot keeps the
+// interpolation speed, the shape sign and the caller's extra parameters.
+// FUNCTION: CMR2 0x004bc290
+void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7)
+{
+    BYTE *rec;
+    int speed;
+    int tri;
+
+    if (g_unk0x00816290 != 0) {
+        param4 = 0;
+        start = end;
+        param7 = 0;
+    }
+    tri = (length + 1) * length / 2;
+    if (*pSlot < 0x20 && *(BYTE **)(g_unk0x00521138[*pSlot] + 0x20) == pSlot)
+        g_unk0x00521138[*pSlot][0] = 5;
+    *pSlot = Timer_FindFree();
+    rec = g_unk0x00521138[*pSlot];
+    switch (shape) {
+    case 0:
+        *(int *)(rec + 8) = start;
+        *(int *)(rec + 0x1c) = (end - start) * 0x1000 / length;
+        break;
+    case 1:
+        speed = (start - end) * 0x1000 / length;
+        *(int *)(rec + 0x1c) = speed;
+        *(int *)(rec + 8) = end;
+        length += 0x11;
+        break;
+    case 2:
+        *(int *)(rec + 8) = end;
+        *(int *)(rec + 0x1c) = (start - end) * 0x1000 / tri;
+        break;
+    case 3:
+        *(int *)(rec + 8) = start;
+        *(int *)(rec + 0x1c) = (end - start) * 0x1000 / tri;
+        break;
+    case 4:
+        *(int *)(rec + 0x1c) = (start - end) * 0x1000 / tri;
+        *(int *)(rec + 8) = end;
+        length += 0x11;
+        break;
+    default:
+        return;
+    }
+    rec[0] = (BYTE)shape;
+    *(int *)(rec + 4) = length;
+    *(int *)(rec + 0x24) = param4;
+    *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
+    rec[0x14] = param7;
+    *(int *)(rec + 0x10) = start;
+    *(int *)(rec + 0xc) = end;
+    *(BYTE **)(rec + 0x20) = pSlot;
+    *(int *)(rec + 0x28) = 0;
+    rec[0x18] = FUN_004bc3e0(*pSlot);
+}
+
 // FUNCTION: CMR2 0x004bc3e0
 BYTE FUN_004bc3e0(unsigned int index)
 {
@@ -6824,9 +6892,9 @@ void Graphics_ReloadTexture(Texture *pTexture)
     }
 }
 
-// Looks for a free timer slot (shape 5); the result is not used.
+// Looks for a free timer slot (shape 5) and returns its index.
 // FUNCTION: CMR2 0x004bc410
-void Timer_FindFree(void)
+BYTE Timer_FindFree(void)
 {
     int slot;
     int i;
@@ -6834,9 +6902,10 @@ void Timer_FindFree(void)
     slot = 0;
     for (i = 0; i < 32; i++) {
         if (g_unk0x00521138[slot][0] == 5)
-            return;
+            return (BYTE)slot;
         slot = (slot + 1) % 32;
     }
+    return (BYTE)slot;
 }
 
 // Cube-map texture ids reserved for the car reflections (-1 when unused).
