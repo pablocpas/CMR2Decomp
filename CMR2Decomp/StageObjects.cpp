@@ -9169,6 +9169,8 @@ extern const double g_pi;
 // Yaws the stage's main object to `angle` (16.16 degrees; -999 keeps it
 // square) and the sun objects to `sunAngle`, by rewriting the right and
 // forward axes of their matrices.
+// match 33%: same operations and multiply order as the original; MSVC schedules the
+// FixMatrix_SetRight pushes before the fsin there, which throws the diff alignment off.
 // FUNCTION: CMR2 0x004926f0
 void FUN_004926f0(int angle, int unused, int sunAngle)
 {
@@ -9183,7 +9185,7 @@ void FUN_004926f0(int angle, int unused, int sunAngle)
     if (angle != -999 << 16) {
         right.y = 0;
         forward.y = 0;
-        radians = angle * CGraphics::m_oneOver65536 * g_pi * g_oneOver180;
+        radians = angle * g_oneOver180 * g_pi * CGraphics::m_oneOver65536;
         forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
         right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
         forward.x = -right.z;
@@ -9201,7 +9203,7 @@ void FUN_004926f0(int angle, int unused, int sunAngle)
     FUN_0046f4e0(&pSun, &pSun2);
     right.y = 0;
     forward.y = 0;
-    radians = sunAngle * CGraphics::m_oneOver65536 * g_pi * g_oneOver180;
+    radians = sunAngle * g_oneOver180 * g_pi * CGraphics::m_oneOver65536;
     forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
     right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
     forward.x = -right.z;
