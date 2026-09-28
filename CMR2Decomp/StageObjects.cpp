@@ -9606,3 +9606,1429 @@ void FUN_0046afe0(int param_1, int param_2, int param_3)
         } while (i < *(int *)(param_3 + 0x45c));
     }
 }
+
+int FUN_004218d0(unsigned int view);
+void RallyData_FUN_00408760(BYTE index, int value);
+
+// Applies the driver-camera cycle: while the cycle key is held it picks the
+// target driver (either from the current knockout round or by advancing the
+// active one) and hands the resulting view mode to the rally data layer.
+// match 53%: implementada, MSVC6 cachea param_1 en EDI y coloca distinta la tabla del switch
+// FUNCTION: CMR2 0x0047b970
+void FUN_0047b970(unsigned int param_1)
+{
+    unsigned int uVar4;
+    unsigned int uVar5;
+    BYTE *p;
+
+    p = FUN_0041b390();
+    if (**(char **)(p + 4) == 10) {
+        if (FUN_0041f3a0() == 0) {
+            uVar4 = FUN_004218d0(0);
+        } else {
+            if (CGameInfo::FUN_00405d80() == 2)
+                uVar4 = param_1;
+            else
+                uVar4 = FUN_004218d0(1);
+        }
+    } else {
+        uVar4 = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+    }
+
+    p = FUN_0041b390();
+    if ((**(char **)(p + 4) == 8) || (p = FUN_0041b390(), **(char **)(p + 4) == 7)) {
+        uVar5 = FUN_0041b380();
+        switch (uVar5) {
+        case 0:
+        case 1:
+            g_unk0x0058e0a4 = param_1;
+            break;
+        case 2:
+            RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
+            break;
+        case 3:
+            if (param_1 == 0)
+                RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+            else
+                RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+            break;
+        case 4:
+            g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_1;
+            break;
+        }
+        {
+            BYTE bVar2 = CGameInfo::FUN_00405d70();
+            if ((int)g_unk0x0058e0a4 < (int)(unsigned int)bVar2 &&
+                (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
+                RallyData_FUN_00408760((BYTE)g_unk0x0058e0a4, uVar4);
+            }
+        }
+    }
+}
+
+// Builds the bounding box of an object's collision points (8 triples): the
+// object's 2D direction is normalised from its accumulated translation and
+// every point is projected onto it, tracking the box bounds.
+// match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
+// FUNCTION: CMR2 0x004873f0
+void FUN_004873f0(int *param_1, int param_2, int param_3)
+{
+    short *pOut = *(short **)(param_3 + 4);
+    FixVector v;
+    int absY = param_1[1];
+    int dx = 0;
+    int dy = 0;
+    int maxRight = 0;
+    int maxLeft = 0;
+    int len;
+    int *p;
+    int n;
+
+    pOut[3] = 0;
+    pOut[2] = 0;
+
+    if (absY < 0)
+        absY = -absY;
+
+    if (absY > 0xfd70) {
+        v.x = param_1[3];
+        v.y = 0;
+        v.z = param_1[5];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    } else {
+        v.x = param_1[0];
+        v.y = 0;
+        v.z = param_1[2];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    }
+
+    p = (int *)(param_2 + 8);
+    n = 8;
+    do {
+        int c = p[-1];
+        int right = FixMul(dx, p[-2]) + FixMul(dy, p[0]);
+        int left = FixMul(-dx, p[0]) + FixMul(dy, p[-2]);
+        short q = (short)(c >> 9);
+
+        if (right > 0 && maxRight < right)
+            maxRight = right;
+        if (left > 0 && maxLeft < left)
+            maxLeft = left;
+        if ((short)pOut[2] * 0x200 < c)
+            pOut[2] = q;
+        if (c < (short)pOut[3] * 0x200)
+            pOut[3] = q;
+
+        p += 3;
+    } while (--n != 0);
+
+    pOut[0] = (short)(dx >> 9);
+    pOut[4] = (short)(maxRight >> 9);
+    pOut[1] = (short)(dy >> 9);
+    pOut[5] = (short)(maxLeft >> 9);
+}
+
+extern double g_minus65536;
+
+// Chooses the wall-collision response of a car part from its lateral/forward
+// offsets and the wall distances stored in the reference record; returns the
+// facing side (1..4) or a slanted-response code (5/6), 0 when clear.
+// match 54%: implementada, MSVC6 reparte distinto los locales y el modo del muro
+// FUNCTION: CMR2 0x0047c5e0
+unsigned int FUN_0047c5e0(int param_1)
+{
+    int mode;
+    int off;
+    int limit;
+    int blocked;
+    int local10;
+    int isStackC;
+    int iVar4;
+    int iVar7;
+    int iVar8;
+    int iVar5;
+    unsigned int u;
+
+    mode = 0;
+    if (*(int *)(param_1 + 0x5c) < -0xa0000)
+        mode = 1;
+    if (0xa0000 < *(int *)(param_1 + 0x5c))
+        mode = 2;
+
+    iVar7 = *(int *)(param_1 + 0x34);
+    if (iVar7 < 0) {
+        iVar4 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xd) * g_minus65536);
+        iVar8 = iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xe);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            iVar5 = 0;
+            if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
+                iVar5 = iVar7 - local10;
+        }
+        if ((0 < iVar8) && (iVar8 < 0x40000))
+            iVar5 = iVar8;
+        if (0 < iVar5) {
+            if (0x5a0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) - FixMul(-iVar5, 0xf0000) + 0x3c0000 < 0)
+                return 2;
+        }
+        if (iVar8 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 2;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
+            }
+            if (0x6e0000 < iVar7)
+                return 1;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffe) + 5;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xc) * g_minus65536);
+        local10 = *(int *)(param_1 + 0x34) - local10;
+        if ((local10 < 0) && (mode != 2)) {
+            if (0x3c0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) < -0x2d0000)
+                return 2;
+            if (*(int *)(param_1 + 0x38) - FixMul(-local10, 0x50000) < 0)
+                return 3;
+        }
+    } else {
+        iVar5 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 9) * g_minus65536);
+        iVar4 = -iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar5 + 10);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            local10 = -iVar7 - local10;
+            isStackC = 0;
+            if ((local10 < 0x40000) && (cVar1 < 0x11))
+                isStackC = local10;
+        }
+        if ((0 < iVar4) && (iVar4 < 0x40000))
+            isStackC = iVar4;
+        if (0 < isStackC) {
+            if (*(int *)(param_1 + 0x38) < -0x5a0000)
+                return 3;
+            iVar7 = *(int *)(param_1 + 0x38) - FixMul(isStackC, 0xf0000);
+            if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
+                return 4;
+        }
+        if (iVar4 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 3;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
+            }
+            if (0x6e0000 < iVar7)
+                return 4;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffc) + 6;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 8) * g_minus65536);
+        iVar7 = -local10 - *(int *)(param_1 + 0x34);
+        if ((iVar7 < 0) && (mode != 1)) {
+            if (0x2d0000 < *(int *)(param_1 + 0x38))
+                return 4;
+            if (*(int *)(param_1 + 0x38) < -0x3c0000)
+                return 3;
+            u = FixMul(iVar7, 0x50000);
+            if (*(unsigned int *)(param_1 + 0x38) != u &&
+                -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
+                return 1;
+        }
+    }
+    if (0x780000 < *(int *)(param_1 + 0x38))
+        return 4;
+    return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
+}
+
+int RallyData_FUN_00421420(void);
+int RallyData_FUN_00421370(BYTE *p);
+void RallyData_FUN_00421530(int index, int *pOut);
+extern double g_unk0x00511300;
+
+// Picks the closest car ahead of the reference angle among the active cars,
+// rejecting those out of range or outside the angular window, and writes the
+// chosen one's relative state code to *param_2.
+// match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
+// FUNCTION: CMR2 0x0047cd10
+int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
+{
+    Car *cars[6];
+    int flags[6];
+    int maxAng[6];
+    int angles[6];
+    int i, n;
+    int wrap, base, refX, refZ;
+    int outA[3], outB[3];
+    int outIdx;
+    int iVar7, iVar8, iVar9, iVar10;
+    unsigned int uVar2, length;
+
+    *param_2 = 0;
+    for (i = 0; i < 6; i++) {
+        flags[i] = 0;
+        cars[i] = Car_Get(i);
+    }
+    wrap = RallyData_FUN_00421420();
+    refX = *(int *)((BYTE *)cars[param_1] + 0x2d8);
+    refZ = *(int *)((BYTE *)cars[param_1] + 0x2d0);
+    base = param_4[4];
+    n = (int)(signed char)g_unk0x0058e0b0[0];
+
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if ((i != param_1) && (*(int *)((BYTE *)cars[i] + 0x778) < 0xc800))
+                flags[i] = 1;
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
+                                                 *(int *)((BYTE *)cars[i] + 0x360));
+                iVar8 = FUN_00498db0(base - iVar8);
+                if ((iVar8 < -0x5a0000) || (0x5a0000 < iVar8))
+                    maxAng[i] = 10;
+                else
+                    maxAng[i] = 5;
+            }
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = RallyData_FUN_00421370((BYTE *)cars[i]);
+                angles[i] = iVar8;
+                iVar8 = iVar8 - param_3;
+                if (iVar8 < -100)
+                    iVar8 = iVar8 + wrap;
+                if ((iVar8 < 0) || (maxAng[i] < iVar8))
+                    flags[i] = 0;
+            }
+        }
+    }
+    outIdx = 0;
+    if (0 < (signed char)g_unk0x0058e0b0[0]) {
+        do {
+            if (flags[outIdx] != 0) {
+                int dx = *(int *)((BYTE *)cars[outIdx] + 0x2d8) - refX;
+                int dz = *(int *)((BYTE *)cars[outIdx] + 0x2d0) - refZ;
+
+                uVar2 = (unsigned int)FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
+                length = uVar2;
+                iVar7 = StageObject_Atan2Degrees(dx, dz);
+                iVar8 = FUN_00498db0(base - iVar7);
+                if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
+                    iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
+                    if (iVar10 < 0x50001) {
+                        if (iVar10 < 0)
+                            iVar10 = 0;
+                    } else {
+                        iVar10 = 0x50000;
+                    }
+                    length = (unsigned int)FixMul((int)length,
+                        g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
+                    iVar9 = (param_3 + 5) - wrap;
+                    iVar7 = param_3 + 5;
+                    if (-1 < iVar9)
+                        iVar7 = iVar9;
+                    RallyData_FUN_00421530(iVar7, outB);
+                    iVar7 = StageObject_Atan2Degrees(outB[2] - refX, outB[0] - refZ);
+                    FUN_00498db0(base - iVar7);
+                    if (((int)length <= iVar10) && (-iVar10 <= (int)length)) {
+                        iVar8 = FUN_00498db0(iVar8 - iVar7);
+                        if (iVar8 < 0) {
+                            if (0x320000 < *param_4) {
+                                flags[outIdx] = 4;
+                                *param_2 = flags[outIdx];
+                                return outIdx;
+                            }
+                            flags[outIdx] = 2;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        if (0x320000 < *param_4) {
+                            flags[outIdx] = 3;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        flags[outIdx] = 1;
+                        *param_2 = flags[outIdx];
+                        return outIdx;
+                    }
+                    flags[outIdx] = 0;
+                } else {
+                    flags[outIdx] = 0;
+                }
+            }
+            outIdx++;
+        } while (outIdx < (signed char)g_unk0x0058e0b0[0]);
+    }
+    return -1;
+}
+
+// Initialises the per-car stage-object record for one lane: validates it, stores
+// the car index, zeroes the timers and dispatches to the type-specific reset
+// (object list, light list or mesh list) resetting the light buffer too.
+// match 57%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por compatibilidad con las llamadas de Race.cpp)
+// FUNCTION: CMR2 0x0046c750
+void FUN_0046c750(int param_1, int param_2, int param_3)
+{
+    BYTE *p;
+    char cVar1;
+
+    if (param_1 == 0 || *(int *)(param_1 + 0xc) != 0 || *(int *)(param_1 + 4) != 0)
+        return;
+    *(int *)param_1 = 0;
+    if ((BYTE)param_3 < 2)
+        *(int *)param_1 = (int)CInput::FUN_0040be60(param_3 & 0xff);
+    *(BYTE *)(param_1 + 0x20) = (BYTE)param_3;
+    *(int *)(param_1 + 0xc) = 1;
+    *(WORD *)(param_1 + 0x100) = 0;
+    *(int *)(param_1 + 0x10) = 1;
+    *(WORD *)(*(int *)(param_1 + 0x104)) = 0;
+    if (*(int *)(param_1 + 0x1c) != 2)
+        *(BYTE *)(*(int *)(param_1 + 0x3c) + 2) &= 0xc0;
+    if (*(int *)(param_1 + 0x1c) == 0) {
+        p = FUN_0041b390();
+        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1110) =
+            (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
+        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110c) = 0;
+        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110e) = 0;
+        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1148) = 1;
+    } else {
+        p = FUN_0041b390();
+        cVar1 = (char)CGameInfo::FUN_00405e00();
+        if (cVar1 == '\0')
+            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
+                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
+        else
+            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
+                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4)) >> 0x10);
+        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1c) = 0;
+        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1e) = 0;
+        *(BYTE *)(*(int *)(param_1 + 0x30) + 0x58) = 1;
+    }
+    if (*(int *)(param_1 + 0x1c) == 0) {
+        FUN_0046c240((BYTE *)*(int *)(param_1 + 0x24), (BYTE)param_3);
+        *(int *)(param_1 + 0x18) = 0;
+        *(BYTE *)(param_1 + 0xf8) = 0;
+        return;
+    }
+    if (*(int *)(param_1 + 0x1c) == 1) {
+        FUN_0046c320((int *)*(int *)(param_1 + 0x30), (BYTE)param_3);
+        *(int *)(param_1 + 0x18) = 0;
+        *(BYTE *)(param_1 + 0xf8) = 0;
+        return;
+    }
+    cVar1 = (char)CGameInfo::FUN_00405e00();
+    if (cVar1 == '\0' || *(BYTE *)(param_1 + 0x20) != 0) {
+        cVar1 = (char)CGameInfo::FUN_00405e00();
+        if (cVar1 != '\0')
+            goto done;
+    }
+    {
+        Car *pCar = Car_Get((BYTE)*(BYTE *)(param_1 + 0x20));
+        *(int *)((BYTE *)pCar + 0xc18) = 0;
+    }
+done:
+    *(int *)(param_1 + 0x18) = 0;
+    *(BYTE *)(param_1 + 0xf8) = 0;
+}
+
+// Views into the stage object block declared in StageBlock.h, used by the
+// stage object pose code.
+// GLOBAL: CMR2 0x0058d2f8  (per object: 3 int, animated pose offset)
+#define g_unk0x0058d2f8 (g_stageBlock + 0x58)
+// GLOBAL: CMR2 0x0058d368  (per object: 0x24-byte timing record, angle at +0)
+#define g_unk0x0058d368 (g_stageBlock + 0xc8)
+// GLOBAL: CMR2 0x0058d374  (per object: int pose offset, +4/+8 are y/z)
+#define g_unk0x0058d374 (g_stageBlock + 0xd4)
+// GLOBAL: CMR2 0x0058d560  (scratch 4x4 16.16 matrix, 16 int = 0x40 bytes)
+#define g_unk0x0058d560 ((int *)(g_stageBlock + 0x2c0))
+
+// Integrates one stage object's pose: rebuilds the object matrix from the car
+// basis, low-pass filters the object's angles against the car's body axes and
+// moves the object's scene node.
+// match 16%: implementada (logica transliterada del decompilado); la diferencia es de
+// reparto de registros/bloques en los productos escalares y el filtrado de angulos, no de logica
+// FUNCTION: CMR2 0x00476e00
+void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
+{
+    Car *pCar;
+    int index;
+    int *pMatrix;
+    int vx, vy, vz;
+    int dRight, dForward;
+    short angRight, angForward, tableAng;
+    int i, recOff;
+    int offX, offY, offZ;
+    FixVector pos;
+
+    index = param_1[2];
+    pCar = Car_Get(index);
+
+    // Object matrix: rows 0 and 2 swapped (the old row 2 negated), translation
+    // cleared, then rotated about the object's right axis.
+    pMatrix = g_unk0x0058d560;
+    *(ObjectMatrix16 *)pMatrix = *(ObjectMatrix16 *)param_2;
+    pMatrix[0] = -param_2[8];
+    pMatrix[1] = -param_2[9];
+    pMatrix[2] = -param_2[10];
+    pMatrix[8] = param_2[0];
+    pMatrix[9] = param_2[1];
+    pMatrix[10] = param_2[2];
+    pMatrix[12] = 0;
+    pMatrix[13] = 0;
+    pMatrix[14] = 0;
+    FixMatrix_RotateAboutRight((FixMatrix *)pMatrix,
+                               ((unsigned int)param_2[0] & 0xffff0000) |
+                                   (unsigned int)(unsigned short)g_unk0x0051c9b0);
+
+    // Steps this object's 12-bit angle by 3.
+    i = (int)*(short *)(g_unk0x0058d368 + index * 0x24) + 3;
+    i &= 0x80000fff;
+    if (i < 0)
+        i = (i - 1 | 0xfffff000) + 1;
+    *(short *)(g_unk0x0058d368 + index * 0x24) = (short)i;
+
+    // Angle of the car body axes against the car's last acceleration.
+    vx = pCar->velocity.x - pCar->velocityNext.x;
+    vy = pCar->velocity.y - pCar->velocityNext.y;
+    vz = pCar->velocity.z - pCar->velocityNext.z;
+    dRight = ((int)(((__int64)pCar->right.x * vx) >> 16) +
+              (int)(((__int64)pCar->right.y * vy) >> 16)) +
+             (int)(((__int64)pCar->right.z * vz) >> 16);
+    dForward = ((int)(((__int64)pCar->forward.x * vx) >> 16) +
+                (int)(((__int64)pCar->forward.y * vy) >> 16)) +
+               (int)(((__int64)pCar->forward.z * vz) >> 16);
+    angRight = (short)(((__int64)dRight << 16) / 0x1e0000);
+    angForward = (short)(((__int64)dForward << 16) / 0x1e0000);
+
+    // Short from the object's timing record: the target yaw.
+    tableAng = **(short **)(g_unk0x0058d4f0 + index * 0x1c + 0xc);
+
+    // Eases each angle a fifth of the way towards its target.
+    recOff = index * 0x24;
+    i = (int)angForward - (int)*(short *)(g_unk0x0058d368 + recOff + 2);
+    *(short *)(g_unk0x0058d368 + recOff + 2) += (short)(i / 5);
+    i = (int)tableAng - (int)*(short *)(g_unk0x0058d368 + recOff + 4);
+    *(short *)(g_unk0x0058d368 + recOff + 4) += (short)(i / 5);
+    i = (int)angRight - (int)*(short *)(g_unk0x0058d368 + recOff + 6);
+    *(short *)(g_unk0x0058d368 + recOff + 6) += (short)(i / 5);
+
+    // The two dwords written are (x, y) at +2 and (z, pad) at +6.
+    if (g_unk0x0058d3b0[index] != 0) {
+        *(unsigned int *)(g_unk0x0058d368 + recOff + 2) =
+            ((unsigned int)(unsigned short)tableAng << 16) | (unsigned short)angForward;
+        *(unsigned int *)(g_unk0x0058d368 + recOff + 6) = (unsigned short)angRight;
+    }
+
+    SceneNode_SetRotation(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4),
+                          (FixAngles *)(g_unk0x0058d368 + recOff + 2));
+
+    // Pose offset from the body axes, clamped and eased towards its target.
+    offX = (int)(((__int64)(-dRight) << 16) / 0x4ccc);
+    if (offX < -0x28f)
+        offX = -0x28f;
+    else if (offX > 0x1999)
+        offX = 0x1999;
+    offZ = (int)(((__int64)(-dForward) << 16) / 0x4ccc);
+    if (offZ < -0xf5c)
+        offZ = -0xf5c;
+    else if (offZ > 0xf5c)
+        offZ = 0xf5c;
+
+    offY = 0;
+    if (g_unk0x0058d3b0[index] == 0) {
+        offX = FixMul(offX - *(int *)(g_unk0x0058d374 + recOff), 0xa3d);
+        offY = FixMul(-*(int *)(g_unk0x0058d374 + recOff + 4), 0xa3d);
+        offZ = FixMul(offZ - *(int *)(g_unk0x0058d374 + recOff + 8), 0xa3d);
+        *(int *)(g_unk0x0058d374 + recOff) += offX;
+        *(int *)(g_unk0x0058d374 + recOff + 4) += offY;
+        *(int *)(g_unk0x0058d374 + recOff + 8) += offZ;
+    } else {
+        *(int *)(g_unk0x0058d374 + recOff) = offX;
+        *(int *)(g_unk0x0058d374 + recOff + 4) = 0;
+        *(int *)(g_unk0x0058d374 + recOff + 8) = offZ;
+        g_unk0x0058d3b0[index] = 0;
+    }
+
+    pos.x = *(int *)(g_unk0x0058d2f8 + index * 0xc) + *(int *)(g_unk0x0058d374 + recOff);
+    pos.y = *(int *)(g_unk0x0058d2f8 + index * 0xc + 4) + *(int *)(g_unk0x0058d374 + recOff + 4);
+    pos.z = *(int *)(g_unk0x0058d2f8 + index * 0xc + 8) + *(int *)(g_unk0x0058d374 + recOff + 8);
+    if (CGameInfo::FUN_004063f0(6) != 0) {
+        pCar = Car_Get(index);
+        pos.y += FixMul(pCar->field_0xa8c, 0x8000);
+    }
+    SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4), &pos);
+}
+
+
+// ---------------------------------------------------------------------------
+// W151.Impl46a500_46acb0: callees that are not declared in any header used by
+// this translation unit yet.
+// ---------------------------------------------------------------------------
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
+void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
+// g_unk0x00588a80 (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
+// su anotacion // GLOBAL: vive en su fichero de definicion; aqui solo el extern.
+extern int g_unk0x00588a80;
+extern const double g_unk0x00511310;
+
+// Car impact update: checks the four axle travel limits, samples the current
+// suspension extremes per object type and, when one of this car's objects is
+// hit above 0x4ccc units/sec, builds the contact frame (forward / lateral /
+// up) around the hit point, spawns the debris, adds the impact damage to the
+// object record and refreshes the impact sound / force-feedback state.
+// match 60%: implementada (contacto de impacto: marco forward/lateral/up, debris,
+// dano y sonido); difiere el reparto de registros del bloque de normalizacion
+// FUNCTION: CMR2 0x0046a500
+void FUN_0046a500(int param_1)
+{
+    int *pParts;
+    int i;
+    int iBig;
+    int iFlagC;
+    int idx;
+    int dot;
+    int speed;
+    int len;
+    BOOL bVar5;
+    BOOL bVar14;
+    unsigned int uVar15;
+    unsigned int uVar16;
+    FixVector vDir;
+    FixVector vSide;
+    FixVector vUp;
+    FixVector vHit;
+    FixVector *pvAxes;
+
+    iFlagC = 0;
+    pParts = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    bVar5 = FALSE;
+    bVar14 = TRUE;
+    i = 0;
+    do {
+        int limit;
+
+        limit = *(int *)(param_1 + 0x988 + i * 4);
+        if (limit < 0x51e)
+            limit = 0x51e;
+        if (-limit <= *(int *)(param_1 + 0x9d8 + i * 4)) {
+            bVar14 = FALSE;
+            i = 4;
+        }
+        i++;
+    } while (i < 4);
+    iBig = 0;
+    if (bVar14) {
+        int *p;
+        int n;
+
+        bVar5 = TRUE;
+        iBig = 0;
+        p = (int *)(param_1 + 0x9c8);
+        n = 4;
+        do {
+            int v;
+
+            v = *p;
+            if (v < 0)
+                v = -v;
+            if (0xd91 < v)
+                iBig = 1;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    if (*(int *)(param_1 + 0xb74) == 0)
+        return;
+    if (iBig == 0) {
+        if (bVar5)
+            ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+        return;
+    }
+    bVar5 = FALSE;
+    idx = 0;
+    do {
+        if (StageObject_IsEligibleType((short)*(unsigned short *)(param_1 + 0xaae + idx * 2), 0,
+                                       (int)*(unsigned char *)(param_1 + 0xb29)) != 0) {
+            bVar5 = TRUE;
+            idx = 4;
+        }
+        idx++;
+    } while (idx < 4);
+    if (bVar5 && 0x4ccc < *(int *)(param_1 + 0x778)) {
+        iFlagC = 1;
+        pvAxes = (FixVector *)(param_1 + 0x48c);
+        vDir.x = FixMul(*(int *)(param_1 + 0x408), -0x10000);
+        vDir.y = FixMul(*(int *)(param_1 + 0x40c), -0x10000);
+        vDir.z = FixMul(*(int *)(param_1 + 0x410), -0x10000);
+        dot = FixVecDot(pvAxes, &vDir);
+        vSide.x = FixMul(pvAxes->x, dot);
+        vSide.y = FixMul(pvAxes->y, dot);
+        vSide.z = FixMul(pvAxes->z, dot);
+        vDir.x -= vSide.x;
+        vDir.y -= vSide.y;
+        vDir.z -= vSide.z;
+        len = FixVecLength(&vDir);
+        if (len == 0) {
+            vDir.x = 0;
+            vDir.y = 0;
+            vDir.z = 0;
+        } else {
+            FixVecScaleRecip(&vDir, &vDir, len);
+        }
+        FixVecCross(&vSide, &vDir, pvAxes);
+        len = FixVecLength(&vSide);
+        if (len == 0) {
+            vSide.x = 0;
+            vSide.y = 0;
+            vSide.z = 0;
+        } else {
+            FixVecScaleRecip(&vSide, &vSide, len);
+        }
+        FixVecCross(&vUp, &vSide, &vDir);
+        len = FixVecLength(&vUp);
+        if (len == 0) {
+            vUp.x = 0;
+            vUp.y = 0;
+            vUp.z = 0;
+        } else {
+            FixVecScaleRecip(&vUp, &vUp, len);
+        }
+        FixVecScale(&vUp, &vUp, 0x8000);
+        vHit.x = FixMul(*(int *)(param_1 + 0x270) - *(int *)(param_1 + 0x294), 0x8000) +
+                 *(int *)(param_1 + 0x294) - *(int *)(param_1 + 0x2d0);
+        vHit.y = FixMul(*(int *)(param_1 + 0x274) - *(int *)(param_1 + 0x298), 0x8000) +
+                 *(int *)(param_1 + 0x298) - *(int *)(param_1 + 0x2d4);
+        vHit.z = FixMul(*(int *)(param_1 + 0x278) - *(int *)(param_1 + 0x29c), 0x8000) +
+                 *(int *)(param_1 + 0x29c) - *(int *)(param_1 + 0x2d8);
+        Car_SpawnDebris(*(int *)(param_1 + 0x778), &vHit, (Car *)param_1, &vDir, 0x1e0000, 0);
+        speed = *(int *)(param_1 + 0x778);
+        if (speed > 0x10000)
+            speed = 0x10000;
+        *(int *)((BYTE *)pParts + 0x22c) += FixMul(speed, 0x28f);
+        FUN_00468c10((Car *)param_1);
+    }
+    uVar15 = RallyDataState();
+    if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
+        i = (int)*(char *)(param_1 + 0xb1a);
+        uVar16 = CMain::GetFrameDelta();
+        if (0x19 < (unsigned int)(uVar16 - (&g_unk0x00588a80)[i]) && *(int *)(param_1 + 0x778) > 0) {
+            if (*(int *)(param_1 + 0x778) <= 0x10000)
+                uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
+            else
+                uVar15 = 0x5c28;
+            i = (int)*(char *)(param_1 + 0xb1a);
+            FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
+            uVar16 = CMain::GetFrameDelta();
+            (&g_unk0x00588a80)[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+        }
+    }
+    ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+    *(int *)(param_1 + 0x408) = FixMul(*(int *)(param_1 + 0x408), 0xf851);
+    *(int *)(param_1 + 0x40c) = FixMul(*(int *)(param_1 + 0x40c), 0xf851);
+    *(int *)(param_1 + 0x410) = FixMul(*(int *)(param_1 + 0x410), 0xf851);
+}
+
+// Rebuilds the per-part bounding box of a stage object record for one car:
+// converts the packed integer vertices of every part to floats, tracks the
+// per-part min/max in 16.16 units, expands the record's global x/z bounds and
+// stores each part centre at +0xb4 and its half extents at +0xf0.
+// match 11%: implementada (caja envolvente por pieza: vertices a float, min/max
+// 16.16 por pieza, centro en +0xb4 y semiejes en +0xf0); el codegen de la
+// conversion float y del bucle de vertices diverge mucho del original
+// FUNCTION: CMR2 0x0046acb0
+void FUN_0046acb0(int param_1, int param_2, int param_3)
+{
+    int i;
+    int count;
+    int matchIdx;
+    int idx;
+    int key;
+    int n;
+    int rOff;
+    int fOff;
+    int maxX;
+    int maxY;
+    int maxZ;
+    int minX;
+    int minY;
+    int minZ;
+    int fx;
+    int fy;
+    int fz;
+    int *pRec;
+    int *pDst;
+    int *pVertRecs;
+    float *pFloats;
+    FixVector extents;
+
+    if (g_unk0x00588970[param_1] == 0)
+        return;
+    if (g_unk0x00588b9c[param_1] == 0)
+        FUN_0046afe0(param_1, param_2, param_3);
+    i = 0;
+    count = *(int *)(param_3 + 0x45c);
+    if (count > 0) {
+        pDst = (int *)(param_3 + 0xb4);
+        pRec = (int *)(param_3 + 0x78);
+        do {
+            key = *(int *)(*(int *)(param_3 + 0x3c + i * 4) + 0x30) & 0xff;
+            matchIdx = -1;
+            idx = 0;
+            if (count >= 0) {
+                do {
+                    int next;
+
+                    next = idx;
+                    if ((int)((BYTE *)g_unk0x00588ba0[param_1])[idx] == key) {
+                        next = count;
+                        matchIdx = idx;
+                    }
+                    idx = next + 1;
+                } while (idx <= count);
+                if (matchIdx >= 0) {
+                    pRec[0] = ((int *)g_unk0x00588b9c[param_1])[matchIdx];
+                    maxX = -0x640000;
+                    maxY = -0x640000;
+                    maxZ = -0x640000;
+                    minX = 0x640000;
+                    minY = 0x640000;
+                    minZ = 0x640000;
+                    if (pRec[0xea] > 0) {
+                        rOff = 0;
+                        fOff = 0;
+                        n = 0;
+                        do {
+                            pVertRecs = (int *)(rOff + pRec[0]);
+                            pFloats = (float *)(*(int *)(*(int *)(param_3 + i * 4) + 0xc) + fOff);
+                            pFloats[0] = (float)(pVertRecs[0] * g_unk0x00511310);
+                            pFloats[1] = (float)(pVertRecs[1] * g_unk0x00511310);
+                            pFloats[2] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            pVertRecs = (int *)(rOff + 0xc + pRec[0]);
+                            pFloats[3] = (float)(pVertRecs[0] * g_unk0x00511310);
+                            pFloats[4] = (float)(pVertRecs[1] * g_unk0x00511310);
+                            pFloats[5] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            fx = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
+                            fy = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
+                            fz = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
+                            if (maxX < fx)
+                                maxX = fx;
+                            if (fx < minX)
+                                minX = fx;
+                            if (maxY < fy)
+                                maxY = fy;
+                            if (fy < minY)
+                                minY = fy;
+                            if (maxZ < fz)
+                                maxZ = fz;
+                            if (fz < minZ)
+                                minZ = fz;
+                            if (fx < 0) {
+                                if (fx < *(int *)(param_3 + 0x414))
+                                    *(int *)(param_3 + 0x414) = fx;
+                            } else if (*(int *)(param_3 + 0x410) < fx) {
+                                *(int *)(param_3 + 0x410) = fx;
+                            }
+                            if (fz < 0) {
+                                if (fz < *(int *)(param_3 + 0x41c))
+                                    *(int *)(param_3 + 0x41c) = fz;
+                            } else if (*(int *)(param_3 + 0x418) < fz) {
+                                *(int *)(param_3 + 0x418) = fz;
+                            }
+                            n++;
+                            rOff += 0x20;
+                            fOff += 0x30;
+                        } while (n < pRec[0xea]);
+                    }
+                    extents.x = minX - maxX;
+                    extents.y = minY - maxY;
+                    extents.z = minZ - maxZ;
+                    FixVecScale(&extents, &extents, 0x8000);
+                    pDst[0] = extents.x + maxX;
+                    pDst[1] = extents.y + maxY;
+                    pDst[2] = extents.z + maxZ;
+                    pDst[0x2d] = maxX - pDst[0];
+                    pDst[0x2e] = maxY - pDst[1];
+                    pDst[0x2f] = maxZ - pDst[2];
+                }
+            }
+            i++;
+            count = *(int *)(param_3 + 0x45c);
+            pRec++;
+            pDst += 3;
+        } while (i < count);
+    }
+}
+
+// Constantes de cuantizacion de los registros de luz (compartidas con
+// NetRace.cpp). Las de NetRace/Graphics/Car/GameInfo ya tienen su anotacion
+// // GLOBAL: en su fichero de definicion; aqui solo van los extern.
+extern const float g_netZero;
+extern const float g_netElevationScale;
+extern const float g_netByteScale;
+extern const float g_netHeadingScale;
+extern const float g_netSignedShortScale;
+extern const float g_netMinusOne;
+extern const float g_netOne;
+extern float g_65536f;
+extern double g_unk0x00511300;
+// GLOBAL: CMR2 0x00511358
+extern const float g_unk0x00511358;   // defined in NetRace.cpp (single definition)
+// GLOBAL: CMR2 0x0051135c
+extern const float g_unk0x0051135c;   // defined in NetRace.cpp (single definition)
+// GLOBAL: CMR2 0x00511368
+extern const float g_unk0x00511368;   // defined in NetRace.cpp (single definition)
+// GLOBAL: CMR2 0x0051137c
+extern const float g_unk0x0051137c;   // defined in NetRace.cpp (single definition)
+
+// Rebuilds the per-frame light/colour record of a car from its render matrix:
+// the car position relative to the sector it stands in is packed as a signed
+// 16.16 angle pair into param_2[1], the sector index into param_2[2], the two
+// basis vectors (right/forward) are converted with the atan2/acos tables into
+// the two colour bytes of param_2[2] / param_2[3], and the light intensity and
+// entity/flag bits are gathered into param_2[3].
+// match 45%: implementada; difiere el codegen de la conversion a angulo empaquetado
+// (FixAtan2/FixAcos por tablas) y el reparto de registros del bloque de color
+// FUNCTION: CMR2 0x0046d8d0
+void FUN_0046d8d0(int param_1, int *param_2)
+{
+    FixMatrix *pMatrix = *(FixMatrix **)(param_1 + 0x750);
+    FixVector pos;
+    FixVector vec[2];
+    Sector *pSector;
+    float fX;
+    float fZ;
+    int i;
+    int r;
+
+    FixMatrix_GetPosition(&pos, pMatrix);
+    *param_2 = pos.y;
+    param_2[2] = (param_2[2] & 0xffff0000) | (*(unsigned short *)(param_1 + 0xb00) & 0xffff);
+
+    pSector = g_sectors[*(short *)(param_1 + 0xb00)];
+    pos.x -= pSector->x;
+    pos.y -= pSector->y;
+    pos.z -= pSector->z;
+
+    // 0.0078125f is the original constant at 0x00511338, declared as the private
+    // CGraphics member m_oneOver128 (1.0f / 128.0f).
+    fX = (float)((double)pos.x * CGraphics::m_oneOver65536 * 0.0078125f);
+    fZ = (float)((double)pos.z * CGraphics::m_oneOver65536 * 0.0078125f);
+
+    if (fX < g_netOne) {
+        if (fX <= g_netMinusOne) {
+            param_2[1] = (param_2[1] & 0xffff8003) | 0x8003;
+        } else {
+            r = (int)(__int64)(fX * g_netSignedShortScale);
+            param_2[1] = (param_2[1] & 0xffff0000) | (r & 0xffff);
+        }
+    } else {
+        param_2[1] = (param_2[1] & 0xffff7ffd) | 0x7ffd;
+    }
+
+    if (fZ < g_netOne) {
+        if (g_netMinusOne < fZ) {
+            r = (int)(__int64)(fZ * g_netSignedShortScale);
+            param_2[1] = (r << 16) | (param_2[1] & 0xffff);
+        } else {
+            param_2[1] = (param_2[1] & 0xffff) | 0x80030000;
+        }
+    } else {
+        param_2[1] = (param_2[1] & 0xffff) | 0x7ffd0000;
+    }
+
+    FixMatrix_GetRight(&vec[0], pMatrix);
+    FixMatrix_GetForward(&vec[1], pMatrix);
+
+    for (i = 0; i < 2; i++) {
+        int vx = vec[i].x;
+        int vy = vec[i].y;
+        int vz = vec[i].z;
+        int ax = vx < 0 ? -vx : vx;
+        int ay = vy < 0 ? -vy : vy;
+        int az = vz < 0 ? -vz : vz;
+        int ang1;
+        int ang2;
+        int v2;
+        float a1;
+        double a2;
+
+        ang1 = (ax == 0) ? 0 : (int)FixAtan2(az, ax) * 0x1680;
+
+        if (vx < 0) {
+            if (vz < 0)
+                ang1 += 0xb40000;
+            else
+                ang1 = 0xb40000 - ang1;
+        } else if (vz > 0) {
+            if (vx <= 0)
+                ang1 = 0xb40000 - ang1;
+        } else {
+            ang1 = 0x1680000 - ang1;
+        }
+
+        ang2 = FixAcos(ay);
+        v2 = (0x400 - ang2) * 0x1680;
+        if (vy <= 0)
+            v2 = 0xb40000 - v2;
+
+        a1 = (float)ang1 * (float)CGraphics::m_oneOver65536 * g_netHeadingScale * g_netByteScale;
+        a2 = (double)v2 * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
+
+        if (a1 < g_netZero)
+            a1 = 0.0f;
+        else if (a1 > g_netByteScale)
+            a1 = g_netByteScale;
+
+        if (a2 < g_netZero)
+            a2 = 0.0f;
+        else if (a2 > g_netByteScale)
+            a2 = g_netByteScale;
+
+        if (i == 0) {
+            r = ((int)(__int64)a1 & 0xff) | ((int)(__int64)a2 << 8);
+            param_2[2] = (r << 16) | (param_2[2] & 0xffff);
+        } else {
+            param_2[3] = (param_2[3] & 0xffff0000) |
+                         ((((int)(__int64)a2 & 0xff) << 8) | ((int)(__int64)a1 & 0xff));
+        }
+    }
+
+    {
+        int num = *(short *)(param_1 + 0xb10) * 0x1680;
+        int den = *(short *)(param_1 + 0xb16) * 0x1680;
+        int level = FixDiv(num, den) + 0x10000;
+        int flag;
+
+        level = FixMul(level, 0xf8000);
+        if (level < 0)
+            level = 0;
+        else if (level > 0x1f0000)
+            level = 0x1f0000;
+        param_2[3] = (param_2[3] & 0xffe0ffff) | ((level >> 16 & 0x1f) << 16);
+
+        if (*(int *)(param_1 + 0x79c) != 0)
+            param_2[3] |= 0x2000000;
+        else
+            param_2[3] &= 0xfdffffff;
+        param_2[3] = (param_2[3] & 0xfeffffff) | ((*(unsigned int *)(param_1 + 0xb54) & 1) << 0x18);
+        param_2[3] = (param_2[3] & 0xf7ffffff) | ((*(unsigned int *)(param_1 + 0xc14) & 1) << 0x1b);
+        *(int *)(param_1 + 0xc14) = 0;
+        param_2[3] = (param_2[3] & 0xff1fffff) | ((*(unsigned char *)(param_1 + 0xb46) & 7) << 0x15);
+        *(unsigned char *)(param_1 + 0xb46) = 0;
+
+        flag = 0;
+        if (*(int *)(param_1 + 0x724) != 0 && *(char *)(*(int *)(param_1 + 0x724) + 0x17c) != 0)
+            flag = 1;
+        if (*(int *)(param_1 + 0x720) != 0 && *(char *)(*(int *)(param_1 + 0x720) + 0x17c) != 0)
+            flag = 1;
+        param_2[3] = (param_2[3] & 0xfbffffff) | (flag << 0x1a);
+    }
+}
+
+// Builds the world matrix of one light/effect record: the position comes from
+// the record's quantised offset inside its sector, the right/forward basis is
+// decoded from the two packed byte angles (12-bit table sin/cos) and the up
+// vector from their cross product, and the record's flag/intensity word is
+// decoded into the six output pointers.
+// match 29%: implementada; los senos/cosenos de tabla y el armado de la matriz
+// se reparten distinto (mismo resultado funcional)
+// FUNCTION: CMR2 0x0046de20
+void FUN_0046de20(unsigned int *param_1, unsigned int *param_2, unsigned int *param_3, int *param_4,
+                  FixMatrix *param_5, int *param_6, unsigned int *param_7, int *param_8)
+{
+    FixVector pos;
+    FixVector basis[2];
+    FixVector up;
+    Sector *pSector;
+    int i;
+
+    {
+        float offX = (float)(int)(short)(param_8[1] & 0xffff) * g_unk0x0051137c * g_unk0x00511368;
+        float offZ = (float)(int)(short)((unsigned int)param_8[1] >> 16) * g_unk0x0051137c * g_unk0x00511368;
+
+        pos.x = (int)(offX * g_65536f);
+        pos.z = (int)(offZ * g_65536f);
+    }
+    pos.y = param_8[0];
+
+    pSector = g_sectors[(short)param_8[2]];
+    pos.x += pSector->x;
+    pos.z += pSector->z;
+    FixMatrix_SetPosition(&pos, param_5);
+
+    for (i = 0; i < 2; i++) {
+        unsigned int bV = (i == 0) ? ((unsigned int)param_8[2] >> 24)
+                                   : (((unsigned int)param_8[3] >> 8) & 0xff);
+        unsigned int bU = (i == 0) ? (((unsigned int)param_8[2] >> 16) & 0xff)
+                                   : ((unsigned int)param_8[3] & 0xff);
+        float v = (float)bV * g_unk0x0051135c;
+        float u = (float)bU * g_unk0x00511358;
+        short angA = (short)(__int64)((double)(int)(v * g_65536f) * g_unk0x00511300);
+        short angB = (short)(__int64)((double)(int)(u * g_65536f) * g_unk0x00511300);
+
+        basis[i].x = FixMul(FixSin(angB), FixCos(angA));
+        basis[i].y = FixCos(angB);
+        basis[i].z = FixMul(FixSin(angB), FixSin(angA));
+        FIX_NORMALIZE_INTO(basis[i], basis[i]);
+    }
+
+    up.x = FixMul(basis[1].y, basis[0].z) - FixMul(basis[1].z, basis[0].y);
+    up.y = FixMul(basis[1].z, basis[0].x) - FixMul(basis[1].x, basis[0].z);
+    up.z = FixMul(basis[1].x, basis[0].y) - FixMul(basis[1].y, basis[0].x);
+    FIX_NORMALIZE_INTO(up, up);
+
+    FixMatrix_SetRight(&basis[0], param_5);
+    FixMatrix_SetUp(&up, param_5);
+    FixMatrix_SetForward(&basis[1], param_5);
+
+    *param_4 = FixMul((((unsigned int)param_8[3] >> 16) & 0x1f) << 16, 0x1083) - 0x10000;
+    *param_3 = (unsigned int)param_8[3] >> 9 & 0x10000;
+    *param_1 = (unsigned int)param_8[3] >> 0x18 & 1;
+    *param_2 = (unsigned int)param_8[3] >> 0x1b & 1;
+    *param_6 = FixMul((((unsigned int)param_8[3] >> 0x15) & 7) << 16, 0x2000);
+    *param_7 = (unsigned int)param_8[3] >> 0x1a & 1;
+}
+
+void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir);
+void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity);
+void FUN_0045a150(int texture, int side, int car);
+void FUN_0045b530(int texture, int side, int car);
+void FUN_00466870(int *pA, int *pB, Car *pCar);
+int FUN_004789d0(int surface, int t);
+SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition, FixAngles *pAngles,
+                             SceneNode *pParent);
+
+// GLOBAL: CMR2 0x00547ce0
+int g_unk0x00547ce0[8];
+// GLOBAL: CMR2 0x00547d00
+int g_unk0x00547d00[0x28];
+
+// Rebuilds the two light meshes of a car. First a glow light is created for
+// every collision point of the car (the (object, vertex) slot is stored into
+// the point afterwards), then for every object vertex each collision point
+// keeps the object/vertex index of the closest vertex.
+// match 29%: implementada (mallas de luces por punto de colision + asignacion
+// del vertice mas cercano); difiere el codegen de los productos escalares 16.16
+// FUNCTION: CMR2 0x00463fe0
+void FUN_00463fe0(int param_1)
+{
+    int car;
+    int count;
+    int n;
+    int off;
+    int k;
+    int i;
+    int j;
+    int side;
+    int slot;
+    int glow;
+    int node;
+    int projected;
+    int unused1;
+    int minDot[20];
+    int *pRec;
+    int *pObj;
+    int *pPoints;
+    int *pPoint;
+    int *pVertex;
+    int *pMin;
+    FixVector position;
+    FixAngles angles;
+
+    car = *(char *)(param_1 + 0xb1a);
+    unused1 = 0;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0xff1d;
+    angles.pad = 0;
+    if (car == 0) {
+        g_unk0x00547fe0.x = 0x1e0000;
+        g_unk0x00547fe0.y = 0;
+        g_unk0x00547fe0.z = 0;
+        g_unk0x00547fa0.x = 0xf0000;
+        g_unk0x00547fa0.y = 0;
+        g_unk0x00547fa0.z = 0;
+        position.x = 0;
+        position.y = 0;
+        position.z = 0;
+        g_unk0x00547fec = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+                                            (SceneNode *)RallyData_FUN_00411060());
+        g_unk0x00547ff0 = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
+                                            (SceneNode *)RallyData_FUN_00411060());
+    }
+    ((int *)g_carLights)[car] = FUN_00457e10((BYTE *)param_1, 0);
+    side = 0;
+    ((int *)g_carLights)[0x10 + car] = ((int *)g_carLights)[car] + 4;
+    count = *((int *)((int *)g_carLights)[car]);
+    pPoints = (int *)((int *)g_carLights)[0x10 + car];
+    n = 0;
+    if (0 < count) {
+        pMin = minDot;
+        off = 0;
+        do {
+            pPoint = (int *)((BYTE *)pPoints + off);
+            slot = *(BYTE *)((BYTE *)pPoint + 0x21);
+            if (FUN_0046b4c0((BYTE *)param_1) == 0 || *(char *)((BYTE *)pPoint + 0x22) == -1) {
+                node = *(int *)(param_1 + 0x720);
+            } else {
+                node = (int)FUN_00484de0((BYTE *)param_1, (int)*(char *)((BYTE *)pPoint + 0x22));
+                if (node == 0)
+                    node = *(int *)(param_1 + 0x720);
+            }
+            FUN_004a3e20((Unk0x004a3e20 *)((int *)g_carLights)[0xb + slot], 1);
+            FUN_004a3e20((Unk0x004a3e20 *)((int *)g_carLights)[0x1e + slot], 1);
+            unused1 = 0x10000;
+            projected = (*(char *)((BYTE *)pPoint + 0x20) == '\t') ? 0xff : 0;
+            position.x = 0;
+            position.y = 0;
+            position.z = 0;
+            glow = (int)Glow_Add(2, (FixVector *)pPoint, (FixVector *)((BYTE *)pPoint + 0xc),
+                                 (int)&unused1, *(int *)((BYTE *)pPoint + 0x18),
+                                 *(int *)((BYTE *)pPoint + 0x18), ((int *)g_carLights)[0xb + slot],
+                                 ((int *)g_carLights)[0x1e + slot], *(int *)((BYTE *)pPoint + 0x1c),
+                                 node, (BYTE)projected, (int)&position, 0x10000);
+            g_unk0x00547d00[n + car * 0x14] = glow;
+            FUN_004ae3d0((BYTE *)glow, 1);
+            *pMin = 0x3e80000;
+            if (*(char *)((BYTE *)pPoint + 0x20) == '\t') {
+                FUN_0045a150((int)pPoint, side, car);
+                FUN_0045b530(glow, side, car);
+                side++;
+            }
+            pMin++;
+            off += 0x28;
+            n++;
+        } while (n < count);
+    }
+    if (FUN_0046b4c0((BYTE *)param_1) != 0) {
+        pRec = FUN_00469680(car);
+        if (0 < *(int *)((BYTE *)pRec + 0x45c)) {
+            i = 0;
+            pObj = (int *)((BYTE *)pRec + 0x420);
+            do {
+                if (0 < *pObj) {
+                    j = 0;
+                    do {
+                        pMin = minDot;
+                        off = 0;
+                        if (0 < count) {
+                            k = 0;
+                            do {
+                                int dx;
+                                int dy;
+                                int dz;
+                                int dot;
+
+                                pPoint = (int *)((BYTE *)pPoints + off);
+                                pVertex = (int *)(*(int *)((BYTE *)pRec + 0x78 + i * 4) + j * 0x20);
+                                dx = pPoint[0] - pVertex[0];
+                                dy = pPoint[1] - pVertex[1];
+                                dz = pPoint[2] - pVertex[2];
+                                dot = FixMul(dx, dx) + FixMul(dy, dy) + FixMul(dz, dz);
+                                if (dot < *pMin) {
+                                    *pMin = dot;
+                                    *(short *)((BYTE *)pPoint + 0x24) = (short)i;
+                                    *(short *)((BYTE *)pPoint + 0x26) = (short)j;
+                                }
+                                pMin++;
+                                off += 0x28;
+                                k++;
+                            } while (k < count);
+                        }
+                        j++;
+                    } while (j < *pObj);
+                }
+                i++;
+                pObj++;
+            } while (i < *(int *)((BYTE *)pRec + 0x45c));
+        }
+    }
+    g_unk0x00547ff4 = 0xffff0000;
+    for (i = 0; i < 8; i++)
+        g_unk0x00547ce0[i] = 0;
+}
+
+// Drives the two light flag bytes of a car (brake/reverse/hazard/head) and
+// updates the glow light of every collision point: it enables/fades it from
+// the per-lane tuning table, colours it by the point type and hangs it on the
+// car body, or disables every glow when the car is not racing.
+// match 18%: implementada (flags de luces del coche + glow por punto de colision);
+// el codegen de la tabla de ajuste por carril y de las llamadas a FUN_00477c20 difiere
+// FUNCTION: CMR2 0x004643f0
+void FUN_004643f0(int param_1)
+{
+    int car;
+    int n;
+    int off;
+    int glow;
+    int slot;
+    int lights[11];
+    int *pRec;
+    int *pPoint;
+    FixVector planePos;
+
+    car = *(char *)(param_1 + 0xb1a);
+    pRec = FUN_00469680(car);
+    if (*(int *)(param_1 + 0xb70) == 0) {
+        int vA;
+        int vB;
+
+        FUN_00466870(&vA, &vB, (Car *)param_1);
+        if (*(int *)(param_1 + 0xb54) == 0)
+            FUN_00477c20(car, 0, 0, 2);
+        else
+            FUN_00477c20(car, vA == 0, vB == 0, 2);
+        if (*(int *)(param_1 + 0xb5c) == 0)
+            FUN_00477c20(car, 0, 0, 8);
+        else
+            FUN_00477c20(car, vA == 0, vB == 0, 8);
+        if (*(int *)(param_1 + 0xb58) == 0) {
+            FUN_00477c20(car, 0, 0, 1);
+            FUN_00477c20(car, 0, 0, 0x10);
+        } else {
+            FUN_00477c20(car, vA == 0, vB == 0, 1);
+            FUN_00477c20(car, 1, 1, 0x10);
+        }
+        if (0x4ccc < *(int *)((BYTE *)pRec + 0x29c)) {
+            int old = g_unk0x00547ce0[car];
+
+            g_unk0x00547ce0[car] = old + g_unk0x0051bd3c;
+            if (0x140000 < g_unk0x00547ce0[car])
+                g_unk0x00547ce0[car] = 0;
+            if (g_unk0x00547ce0[car] == 0)
+                FUN_00477c20(car, 0, 0, 4);
+            if (old < 0xa0000 && 0x9ffff < g_unk0x00547ce0[car])
+                FUN_00477c20(car, vA == 0, vB == 0, 4);
+        }
+        FUN_00477c80(car, &lights[0], &lights[1], 1);
+        FUN_00477c80(car, &lights[2], &lights[3], 3);
+        FUN_00477c80(car, &lights[4], &lights[5], 2);
+        FUN_00477c80(car, &lights[6], &lights[7], 0);
+        FUN_00477c80(car, &lights[8], &lights[8], 4);
+        lights[10] = 0;
+        lights[9] = 0;
+        planePos.x = *(int *)(param_1 + 0x270);
+        planePos.y = *(int *)(param_1 + 0x8dc);
+        planePos.z = *(int *)(param_1 + 0x278);
+        n = 0;
+        if (0 < *((int *)((int *)g_carLights)[car])) {
+            off = 0;
+            do {
+                pPoint = (int *)((BYTE *)((int *)g_carLights)[0x10 + car] + off);
+                glow = g_unk0x00547d00[n + car * 0x14];
+                if (glow != 0) {
+                    slot = *(BYTE *)((BYTE *)pPoint + 0x20);
+                    if (lights[slot] == 0) {
+                        FUN_004ae3d0((BYTE *)glow, 0);
+                    } else {
+                        int c;
+                        int v0;
+                        int v1;
+                        int v2;
+
+                        FUN_004ae3d0((BYTE *)glow, 1);
+                        c = FixMul(FixMul(*(int *)((BYTE *)pPoint + 0x1c), lights[slot]), 0x8000);
+                        FUN_004ae3f0((BYTE *)glow,
+                                     FixMul(*(int *)((BYTE *)pPoint + 0x1c), lights[slot]));
+                        switch (*(char *)((BYTE *)pPoint + 0x21)) {
+                        case 0:
+                            v0 = 0xe000;
+                            v1 = 0x1c28;
+                            v2 = 0;
+                            break;
+                        case 1:
+                        case 4:
+                            v0 = 0x10000;
+                            v1 = 0x10000;
+                            v2 = 0x10000;
+                            break;
+                        default:
+                            v0 = 0x10000;
+                            v1 = 0x9893;
+                            v2 = 0;
+                            break;
+                        }
+                        v0 = FixMul(v0, c);
+                        v1 = FixMul(v1, c);
+                        v2 = FixMul(v2, c);
+                        FUN_004ae410(glow, v0, v1, v2);
+                    }
+                    {
+                        int idx = 0;
+                        int t;
+
+                        if (*(int *)(glow + 4) < 0)
+                            idx = 2;
+                        if (*(int *)(glow + 0xc) < 0)
+                            idx++;
+                        t = FUN_004789d0(*(short *)(param_1 + 0xaae + idx * 2),
+                                         FUN_00460c80((BYTE *)param_1));
+                        Glow_SetLayerPlane((GlowLight *)glow, &planePos,
+                                           (FixVector *)(param_1 + 0x48c), t);
+                        if (FUN_0046b4c0((BYTE *)param_1) != 0) {
+                            int oi = *(unsigned short *)((BYTE *)pPoint + 0x24);
+                            int ii = *(unsigned short *)((BYTE *)pPoint + 0x26);
+                            int *pVertex =
+                                (int *)(*(int *)((BYTE *)pRec + 0x78 + oi * 4) + ii * 0x20);
+                            int vx = pVertex[0];
+                            int vy = pVertex[1];
+                            int vz = pVertex[2];
+                            int out[3];
+                            FixVector pos;
+
+                            FUN_0046b440((Mesh **)pRec, oi, ii, out);
+                            pos.x = (out[0] - vx) + pPoint[0];
+                            pos.y = (out[1] - vy) + pPoint[1];
+                            pos.z = (out[2] - vz) + pPoint[2];
+                            Glow_SetPosition((GlowLight *)glow, &pos,
+                                             (FixVector *)((BYTE *)pPoint + 0xc));
+                        }
+                    }
+                }
+                n++;
+                off += 0x28;
+            } while (n < *((int *)((int *)g_carLights)[car]));
+        }
+    } else {
+        FUN_00477c20(car, 0, 0, 2);
+        FUN_00477c20(car, 0, 0, 8);
+        n = 0;
+        if (0 < *((int *)((int *)g_carLights)[car])) {
+            do {
+                FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + car * 0x14], 0);
+                n++;
+            } while (n < *((int *)((int *)g_carLights)[car]));
+        }
+    }
+}
