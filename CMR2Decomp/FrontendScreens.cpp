@@ -7548,3 +7548,225 @@ void FUN_004efb70(Menu *pMenu, int param)
         FUN_004f8350()->cursor = FUN_004f8350()->itemCount - 1;
     Menu_SetNextAction((int)FUN_004f8350());
 }
+
+// Buffers the "%d" text of the car page; the breadcrumb name of the screen.
+// GLOBAL: CMR2 0x008188a4
+char g_unk0x008188a4[0x100];
+
+// Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
+// GLOBAL: CMR2 0x005249cc
+int g_unk0x005249cc[23] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 2, 0,
+};
+
+// Source rects (x, y, w, h) of the car picture per palette: 640x480 build.
+// GLOBAL: CMR2 0x00524a28
+short g_unk0x00524a28[22][4] = {
+    0, 0, 112, 62,
+    0, 186, 112, 62,
+    0, 62, 112, 62,
+    0, 124, 112, 62,
+    144, 0, 112, 62,
+    144, 62, 112, 62,
+    144, 186, 112, 62,
+    144, 124, 112, 62,
+    0, 0, 112, 62,
+    0, 186, 112, 62,
+    0, 124, 112, 62,
+    0, 62, 112, 62,
+    144, 186, 112, 62,
+    144, 62, 112, 62,
+    144, 124, 112, 62,
+    0, 0, 112, 62,
+    0, 124, 112, 62,
+    0, 62, 112, 62,
+    144, 0, 112, 62,
+    0, 186, 112, 62,
+    144, 0, 112, 62,
+    144, 62, 112, 62,
+};
+
+// Source rects (x, y, w, h) of the car picture per palette: high resolution.
+// GLOBAL: CMR2 0x00524ad8
+short g_unk0x00524ad8[22][4] = {
+    0, 0, 180, 100,
+    0, 300, 180, 100,
+    0, 100, 180, 100,
+    0, 200, 180, 100,
+    230, 0, 180, 100,
+    230, 100, 180, 100,
+    230, 300, 180, 100,
+    230, 200, 180, 100,
+    0, 0, 180, 100,
+    0, 300, 180, 100,
+    0, 200, 180, 100,
+    0, 100, 180, 100,
+    230, 300, 180, 100,
+    230, 100, 180, 100,
+    230, 200, 180, 100,
+    0, 0, 180, 100,
+    0, 200, 180, 100,
+    0, 100, 180, 100,
+    230, 0, 180, 100,
+    0, 300, 180, 100,
+    230, 0, 180, 100,
+    230, 100, 180, 100,
+};
+
+// Draws the car page: the breadcrumbs, the front and back pictures of the
+// selected car and its three performance bars.
+// match 88%: el unico diff que queda es asignacion de registros (pMenu acaba en
+// EDI en vez de EBX, y la textura al reves) y el orden de algunas cargas; la
+// logica y todos los operandos coinciden.
+// FUNCTION: CMR2 0x004d7db0
+void FUN_004d7db0(Menu *pMenu)
+{
+    short (*pRects)[4];
+    char label[4];
+    char *names[2];
+    Texture *pTexture;
+    SpriteRect src;
+    SpriteRect dst;
+    int speed;
+    int accel;
+    int grip;
+    short height;
+    int x;
+
+    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::FUN_004b7560(0x400) == 0 ||
+        CFrontend::FUN_004b7590(0x400) == 0)
+        pRects = g_unk0x00524a28;
+    else
+        pRects = g_unk0x00524ad8;
+    FrontendDraw_PlayTime();
+    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+    names[0] = g_unk0x008188a4;
+    names[1] = label;
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
+    FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+        height = 0x1ce;
+    else
+        height = 0xe8;
+    pTexture = CFrontend::m_unk0x0081884c[g_unk0x008196e8[pMenu->cursor]];
+    if (pTexture != NULL) {
+        src = *(SpriteRect *)((char *)pTexture + 0x11c);
+        dst = *(SpriteRect *)((char *)pTexture + 0x11c);
+        src.h = height;
+        dst.h = height;
+        dst.x = (int)(g_pGraphics->resX * 0x8e) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.x -= dst.w / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
+    }
+    pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
+    if (pTexture != NULL) {
+        src = *(SpriteRect *)((char *)pTexture + 0x11c);
+        dst = *(SpriteRect *)((char *)pTexture + 0x11c);
+        src.h = height;
+        dst.h = height;
+        dst.x = (int)(g_pGraphics->resX * 445) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 303) / 0x1e0 - height;
+        dst.x -= dst.w / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
+    }
+    pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
+    if (pTexture != NULL) {
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x22c) / 0x280;
+        g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0xab) / 0x1e0;
+        g_unk0x008189a8[2] = pRects[g_unk0x008196e8[pMenu->cursor]][2];
+        g_unk0x008189a8[3] = pRects[g_unk0x008196e8[pMenu->cursor]][3];
+        g_unk0x008189a8[0] -= g_unk0x008189a8[2] / 2;
+        g_unk0x008189a8[1] -= g_unk0x008189a8[3] / 2;
+        Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
+                     g_colourWhite0x00524968, 8);
+    }
+    FUN_004d7c00((int)CFrontend::FUN_0040ee90(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
+                 (int)CFrontend::GetTextString(0x186));
+    x = FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
+                     (int)CFrontend::GetTextString(0x187));
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
+    Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
+                  (int *)g_colourText0x0052496c, 0x14);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
+
+// match 88%: identica a 0x4d7db0 (en el original son byte a byte iguales).
+// FUNCTION: CMR2 0x004d8950
+void FUN_004d8950(Menu *pMenu)
+{
+    short (*pRects)[4];
+    char label[4];
+    char *names[2];
+    Texture *pTexture;
+    SpriteRect src;
+    SpriteRect dst;
+    int speed;
+    int accel;
+    int grip;
+    short height;
+    int x;
+
+    if (CGameInfo::GetScreenWidth() < 0x400 || CFrontend::FUN_004b7560(0x400) == 0 ||
+        CFrontend::FUN_004b7590(0x400) == 0)
+        pRects = g_unk0x00524a28;
+    else
+        pRects = g_unk0x00524ad8;
+    FrontendDraw_PlayTime();
+    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+    names[0] = g_unk0x008188a4;
+    names[1] = label;
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
+    FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+        height = 0x1ce;
+    else
+        height = 0xe8;
+    pTexture = CFrontend::m_unk0x0081884c[g_unk0x008196e8[pMenu->cursor]];
+    if (pTexture != NULL) {
+        src = *(SpriteRect *)((char *)pTexture + 0x11c);
+        dst = *(SpriteRect *)((char *)pTexture + 0x11c);
+        src.h = height;
+        dst.h = height;
+        dst.x = (int)(g_pGraphics->resX * 0x8e) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
+        dst.x -= dst.w / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
+    }
+    pTexture = CFrontend::m_unk0x008182cc[g_unk0x008196e8[pMenu->cursor]];
+    if (pTexture != NULL) {
+        src = *(SpriteRect *)((char *)pTexture + 0x11c);
+        dst = *(SpriteRect *)((char *)pTexture + 0x11c);
+        src.h = height;
+        dst.h = height;
+        dst.x = (int)(g_pGraphics->resX * 445) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 303) / 0x1e0 - height;
+        dst.x -= dst.w / 2;
+        Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
+    }
+    pTexture = CFrontend::m_unk0x00818530[g_unk0x005249cc[g_unk0x008196e8[pMenu->cursor]]];
+    if (pTexture != NULL) {
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x22c) / 0x280;
+        g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0xab) / 0x1e0;
+        g_unk0x008189a8[2] = pRects[g_unk0x008196e8[pMenu->cursor]][2];
+        g_unk0x008189a8[3] = pRects[g_unk0x008196e8[pMenu->cursor]][3];
+        g_unk0x008189a8[0] -= g_unk0x008189a8[2] / 2;
+        g_unk0x008189a8[1] -= g_unk0x008189a8[3] / 2;
+        Sprite_Queue((SpriteRect *)pRects[g_unk0x008196e8[pMenu->cursor]], (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, 0, NULL,
+                     g_colourWhite0x00524968, 8);
+    }
+    FUN_004d7c00((int)CFrontend::FUN_0040ee90(g_unk0x008196e8[pMenu->cursor]), &speed, &accel, &grip);
+    FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 268) / 480, 0xb, speed,
+                 (int)CFrontend::GetTextString(0x186));
+    x = FUN_004d8330((int)(g_pGraphics->resX * 500) / 640, (int)(g_pGraphics->resY * 300) / 480, 0xb, accel,
+                     (int)CFrontend::GetTextString(0x187));
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(grip + 0x183));
+    Font_DrawText(1, CFrontend::m_stringDest, x, (int)(g_pGraphics->resY * 245) / 480,
+                  (int *)g_colourText0x0052496c, 0x14);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
