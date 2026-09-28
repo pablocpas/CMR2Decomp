@@ -5,11 +5,8 @@
 // yet, so that the menu builders have something to point at.
 
 // FUN_004d4cf0 (0x004d4cf0) is implemented in FrontendScreens.cpp.
+// FUN_004d50a0 (0x004d50a0) is implemented in FrontendScreens.cpp.
 //
-//
-void FUN_004d50a0(Menu *pMenu, int param)
-{
-}
 
 // FUN_004d6a60 (0x004d6a60) is implemented in FrontendScreens.cpp.
 //

@@ -10320,3 +10320,152 @@ void FUN_004e9990(Menu *pMenu)
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 1, 1);
     FrontendDraw_Carousel(FUN_004f8410(), 0, 0);
 }
+
+extern unsigned int FUN_004eba60(int param_1, int param_2);
+extern unsigned int FUN_004ebad0(int param_1, int param_2, int param_3);
+extern unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3);
+
+// Draws the multiplayer entry screen: breadcrumb and play time, the three
+// driver columns with their flags, the three car rows and the bottom row of
+// stage options, laying everything out from the current screen size (the flag
+// sprite is 0x12x0xc, 0x1c/0x12 in the 1024 mode).
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004d50a0
+void FUN_004d50a0(Menu *pMenu)
+{
+    SpriteRect src;
+    char *text[4];
+    int i;
+    int j;
+
+    src.x = 0;
+    src.y = 0;
+    src.w = 0x12;
+    src.h = 0xc;
+    if (CGameInfo::GetScreenWidth() > 0x3ff) {
+        if (CFrontend::FUN_004b7560(0x400) != 0) {
+            if (CFrontend::FUN_004b7590(0x400) != 0) {
+                src.w = 0x1c;
+                src.h = 0x12;
+            }
+        }
+    }
+    text[0] = CFrontend::GetTextString(0xb);
+    text[1] = CFrontend::GetTextString(0x59);
+    text[2] = (char *)RallyData_GetRecord(0);
+    text[3] = CFrontend::GetTextString(pMenu->field_0x4);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
+                            (int)(g_pGraphics->resY * 0x26) / 0x1e0, text, 4);
+    FrontendDraw_PlayTime();
+
+    // Driver columns.
+    Font_DrawText(1, CFrontend::GetTextString(0xc), (int)g_pGraphics->resX / 2,
+                  (int)(g_pGraphics->resY * 0x46) / 0x1e0,
+                  (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        FUN_004d4f90(((int)g_pGraphics->resX / 4) * (i + 1),
+                     (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
+                     (int)(g_pGraphics->resY * 0x46) / 0x1e0,
+                     FUN_004eba60(0, i));
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      ((int)g_pGraphics->resX / 4) * (i + 1),
+                      (int)(g_pGraphics->resY * 0x19) / 0x1e0 +
+                      (int)(g_pGraphics->resY * 0x46) / 0x1e0 -
+                      (int)(g_pGraphics->resY * 4) / 0x1e0,
+                      (int *)g_colourText0x0052496c, 0x22);
+    }
+
+    // Car rows.
+    Font_DrawText(1, CFrontend::GetTextString(0xd), (int)g_pGraphics->resX / 2,
+                  (int)(g_pGraphics->resY * 0xa0) / 0x1e0,
+                  (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      (int)(g_pGraphics->resX * 0xb4) / 0x280 -
+                      (int)(g_pGraphics->resX << 5) / 0x280,
+                      (int)(g_pGraphics->resY * 10) / 0x1e0 +
+                      (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                      (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
+                      ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
+                      (int *)g_colourText0x0052496c, 0xc);
+    }
+
+    // Flag of every driver in the race.
+    for (i = 0; i < 8; i++) {
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0xb4) / 0x280 +
+                             ((int)(g_pGraphics->resX * 0x32) / 0x280) * i -
+                             src.w / 2;
+        g_unk0x008189a8[2] = src.w;
+        g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 10) / 0x1e0 +
+                             (int)(g_pGraphics->resY * 0xa0) / 0x1e0;
+        g_unk0x008189a8[3] = src.h;
+        Sprite_Queue(&src, (SpriteRect *)g_unk0x008189a8,
+                     CFrontend::m_pTinyFlags[i], 1, 0, NULL, NULL,
+                     g_colourWhite0x00524968, 8);
+        for (j = 0; j < 3; j++) {
+            FUN_004d4f90((int)(g_pGraphics->resX * 0xb4) / 0x280 +
+                         ((int)(g_pGraphics->resX * 0x32) / 0x280) * i,
+                         (int)(g_pGraphics->resY * 10) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
+                         ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * j,
+                         FUN_004ebad0(0, i, j));
+        }
+    }
+
+    // Stage options.
+    Font_DrawText(1, CFrontend::GetTextString(0xd6), (int)g_pGraphics->resX / 2,
+                  (int)(g_pGraphics->resY * 0x145) / 0x1e0,
+                  (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        if (i == 0) {
+            Font_DrawText(1, CFrontend::GetTextString(0xe9),
+                          (int)(g_pGraphics->resX * 300) / 0x280,
+                          (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                          (int)(g_pGraphics->resY * 0x145) / 0x1e0 -
+                          (int)(g_pGraphics->resY * 4) / 0x1e0,
+                          (int *)g_colourText0x0052496c, 0x22);
+            Font_DrawText(1, CFrontend::GetTextString(0xe8),
+                          (int)(g_pGraphics->resX * 0x17c) / 0x280,
+                          (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                          (int)(g_pGraphics->resY * 0x145) / 0x1e0 -
+                          (int)(g_pGraphics->resY * 4) / 0x1e0,
+                          (int *)g_colourText0x0052496c, 0x22);
+        }
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      (int)(g_pGraphics->resX * 300) / 0x280 -
+                      (int)(g_pGraphics->resX << 5) / 0x280,
+                      (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                      (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                      (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
+                      ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
+                      (int *)g_colourText0x0052496c, 0xc);
+        FUN_004d4f90((int)(g_pGraphics->resX * 300) / 0x280,
+                     (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                     (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                     (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
+                     ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
+                     FUN_004ebcd0(0, 0, i));
+        if (i == 0) {
+            g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x17c) / 0x280 -
+                                 ((int)(g_pGraphics->resX * 0x30) / 0x280) / 2;
+            g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                                 (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                                 (int)(g_pGraphics->resY * 0x145) / 0x1e0;
+            g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x30) / 0x280;
+            g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1c) / 0x1e0;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8,
+                            g_colourDim0x00524970, 4);
+            FUN_004d27e0(g_unk0x008189a8, g_colourText0x0052496c);
+        } else {
+            FUN_004d4f90((int)(g_pGraphics->resX * 0x17c) / 0x280,
+                         (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
+                         ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
+                         FUN_004ebcd0(0, 1, i));
+        }
+    }
+}

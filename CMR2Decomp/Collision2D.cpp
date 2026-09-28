@@ -407,3 +407,98 @@ LABEL_00489f8f:
 LABEL_0048a1e0:
     return (int)(unsigned char)local_5;
 }
+
+// Collision flags published for the rest of the physics step.
+// GLOBAL: CMR2 0x005915dc
+int g_unk0x005915dc;
+// GLOBAL: CMR2 0x00591468
+int g_unk0x00591468;
+
+void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
+
+// Resolves the collision of `car` against the oriented box `pBox`: builds the
+// correction vector from the two box axes and the two factors the sphere test
+// returns, rotates it into world space, picks the face to push along (the
+// direction to the reference object, or one of the two axes) and moves the car
+// and the body of the box by the tangential remainder of the correction.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00489750
+int FUN_00489750(int car, int *pBox, int scale)
+{
+    FixVector a;
+    FixVector b;
+    FixVector v;
+    FixVector along;
+    int factor;
+    int t;
+    int dot;
+    int dx;
+    int dy;
+    int dz;
+    int i;
+    int j;
+    int *p;
+    char side;
+
+    side = (char)FUN_00489b20(pBox, &factor, (unsigned int *)&t, scale);
+    if (side == 0)
+        return 0;
+
+    a.x = FixMul(pBox[4], factor);
+    a.y = FixMul(pBox[5], factor);
+    a.z = FixMul(pBox[6], factor);
+    b.x = FixMul(pBox[7], t);
+    b.y = FixMul(pBox[8], t);
+    b.z = FixMul(pBox[9], t);
+    v.x = a.x + b.x;
+    v.y = a.y + b.y;
+    v.z = a.z + b.z;
+    FixMatrix_InverseRotateVector((FixVector *)(car + 0x5dc), &v,
+                                  *(FixMatrix **)(car + 0x750));
+
+    if (side == 3) {
+        int *pRaw = *(int **)(pBox + 0x94);
+
+        g_unk0x005915e8.x = pRaw[0] + v.x;
+        g_unk0x005915e8.x -= g_unk0x00591498.x;
+        g_unk0x005915e8.y = pRaw[1] + v.y;
+        g_unk0x005915e8.y = 0;
+        g_unk0x005915e8.z = pRaw[2] + v.z;
+        g_unk0x005915e8.z -= g_unk0x00591498.z;
+        FIX_NORMALIZE_INTO(g_unk0x005915e8, g_unk0x005915e8)
+    } else if (side == 1) {
+        g_unk0x005915e8 = *(FixVector *)(pBox + 4);
+    } else {
+        g_unk0x005915e8 = *(FixVector *)(pBox + 7);
+    }
+
+    dot = FixVecDot(&g_unk0x005915e8, &g_unk0x005914a8);
+    FixVecScale(&along, &g_unk0x005915e8, dot);
+    dx = along.x - g_unk0x005914a8.x;
+    dy = along.y - g_unk0x005914a8.y;
+    dz = along.z - g_unk0x005914a8.z;
+
+    if (*(int **)(pBox + 0x94) != NULL && *(int *)(pBox + 0x90) != 0) {
+        p = *(int **)(pBox + 0x94);
+        p[0] += dx;
+        p[1] += dy;
+        p[2] += dz;
+        for (i = 0; i < 0x60; i += 0xc) {
+            *(int *)(*(int *)(pBox + 0x90) + i) += dx;
+            *(int *)(*(int *)(pBox + 0x90) + i + 4) += dy;
+            *(int *)(*(int *)(pBox + 0x90) + i + 8) += dz;
+        }
+        p = pBox + 0xd;
+        for (j = 4; j != 0; j--) {
+            p[-1] += dx;
+            p[0] += dy;
+            p[1] += dz;
+            p += 3;
+        }
+    }
+
+    FUN_0048c870(*(BYTE *)(car + 0xb1a), (BYTE)0xff, (int *)&along, 1);
+    g_unk0x005915dc = 0x8000;
+    g_unk0x00591468 = 0x1578d;
+    return 1;
+}

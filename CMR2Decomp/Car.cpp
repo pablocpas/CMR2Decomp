@@ -6601,6 +6601,7 @@ short g_unk0x0053ca28;
 // before any car starts the next one: body-frame refresh, physics, corner
 // loads, body lean, wheel forces, body axes, integration, accumulated vectors
 // and finally the box-corner sector id and the previous-position copy.
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043f630
 void FUN_0043f630(int carBase, short *pOrder, short count)
 {
