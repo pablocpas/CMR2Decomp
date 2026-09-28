@@ -198,22 +198,21 @@ void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale)
 }
 
 // Clamps the magnitude of each component of v to limit (y only when clampY).
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048c6e0
 void FUN_0048c6e0(int *v, int *limit, int clampY)
 {
     int a;
 
     a = v[0] < 0 ? -v[0] : v[0];
-    if (limit[0] < a)
+    if (a > limit[0])
         v[0] = v[0] < 0 ? -limit[0] : limit[0];
     if (clampY != 0) {
         a = v[1] < 0 ? -v[1] : v[1];
-        if (limit[1] < a)
+        if (a > limit[1])
             v[1] = v[1] < 0 ? -limit[1] : limit[1];
     }
     a = v[2] < 0 ? -v[2] : v[2];
-    if (limit[2] < a)
+    if (a > limit[2])
         v[2] = v[2] < 0 ? -limit[2] : limit[2];
 }
 

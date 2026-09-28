@@ -1977,7 +1977,6 @@ int CGame::FUN_0049c430(void)
 
 // Sets field 0x2c of the mesh triangles whose flags match the group mask
 // (bits 0..6 against flags 0..6, bits 7..13 against flags 9..15).
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c440
 void FUN_0049c440(Mesh *pMesh, int mask, int value)
 {
@@ -1988,9 +1987,9 @@ void FUN_0049c440(Mesh *pMesh, int mask, int value)
 
     if (pMesh != NULL) {
         for (i = 0; i < pMesh->triangleCount; i++) {
-            pTri = &pMesh->pTriangles[i];
-            if ((pTri->flags & low & 0x7f) != 0 || (high & (pTri->flags >> 9)) != 0)
-                pTri->field_0x2c = value;
+            if ((pMesh->pTriangles[i].flags & low & 0x7f) != 0 ||
+                (high & (pMesh->pTriangles[i].flags >> 9)) != 0)
+                pMesh->pTriangles[i].field_0x2c = value;
         }
     }
 }

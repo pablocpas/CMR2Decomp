@@ -206,7 +206,6 @@ void Menu_SetFlags(Menu *pMenu, BYTE bit0, BYTE bit1, BYTE bit2, BYTE bit3)
 
 // Moves the cursor to the next item that is enabled (flags bit0|bit1),
 // starting at defaultCursor when it is valid.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a04a0
 void Menu_ValidateCursor(Menu *pMenu, int unused)
 {
@@ -219,11 +218,11 @@ void Menu_ValidateCursor(Menu *pMenu, int unused)
     if (def >= 0 && def < pMenu->itemCount)
         pMenu->cursor = def;
     count = pMenu->itemCount;
-    tries = 0;
     i = pMenu->cursor;
     for (tries = 0; tries < count; tries++, i++) {
-        if (pMenu->items[i % count].enabled && pMenu->items[i % count].visible) {
-            pMenu->cursor = (char)(i % count);
+        int idx = i % count;
+        if (pMenu->items[idx].enabled && pMenu->items[idx].visible) {
+            pMenu->cursor = (char)idx;
             return;
         }
     }

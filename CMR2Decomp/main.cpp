@@ -29,6 +29,10 @@ char CMain::m_logFileLocation[14] = "c:\\error.txt";
 char CMain::m_gameName[20] = "Colin McRae Rally 2";
 char CMain::m_logFileHeader1[29] = "FILE_PRINT DEBUG INFORMATION";
 char CMain::m_logFileAsterisks[29] = "****************************";
+// Second asterisk banner the log footer prints twice: a separate copy that
+// lives just before the header's one in the original .data.
+// GLOBAL: CMR2 0x00520c14
+char g_logFileFooterAsterisks[30] = "*****************************";
 char CMain::m_logFileBlankLine[1] = "";
 char CMain::m_logFileFinishedNormally[30] = "* Program finished normally *";
 BOOL CMain::m_isShowingCursor = TRUE;
@@ -44,9 +48,8 @@ int WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nS
 	return CMain::Initialize(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }
 
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9720
-unsigned char CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+unsigned int CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	HWND hWnd;
 	BOOL isMessageAvailable;
@@ -92,26 +95,26 @@ unsigned char CMain::Initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LP
 			DispatchMessageA(&m_win32Msg);
 		}
 
-		if (g_pGraphics->isFullscreen == FALSE)
+		if (g_pGraphics->isFullscreen != FALSE)
 		{
-			if (m_isShowingCursor == FALSE)
+			if (m_isShowingCursor != FALSE)
 			{
-				ShowCursor(1);
-				m_isShowingCursor = TRUE;
+				ShowCursor(0);
+				m_isShowingCursor = FALSE;
 			}
 		}
-		else if (m_isShowingCursor != FALSE)
+		else if (m_isShowingCursor == FALSE)
 		{
-			ShowCursor(0);
-			m_isShowingCursor = FALSE;
+			ShowCursor(1);
+			m_isShowingCursor = TRUE;
 		}
 	}
 
 	FUN_0049c130();
 	CLogger::LogToFile(m_logFileBlankLine);
-	CLogger::LogToFile(m_logFileAsterisks);
+	CLogger::LogToFile(g_logFileFooterAsterisks);
 	CLogger::LogToFile(m_logFileFinishedNormally);
-	CLogger::LogToFile(m_logFileAsterisks);
+	CLogger::LogToFile(g_logFileFooterAsterisks);
 	CLogger::CloseLogFile();
 
 	return m_win32Msg.wParam;

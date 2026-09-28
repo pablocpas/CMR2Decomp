@@ -954,8 +954,7 @@ void *g_unk0x00547ac8;
 void *g_unk0x00543ecc;
 // GLOBAL: CMR2 0x00543eb8
 void *g_unk0x00543eb8;
-// GLOBAL: CMR2 0x00547acc
-BYTE g_unk0x00547acc;
+extern BYTE g_unk0x00547acc;
 // Release callback of FUN_0045e5b0.
 // FUNCTION: CMR2 0x0045e560
 int FUN_0045e560(void)

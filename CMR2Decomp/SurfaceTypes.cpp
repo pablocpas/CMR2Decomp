@@ -620,16 +620,18 @@ void FUN_00479310(int player)
 }
 
 // Moves the player's value toward target, at most 20 up or 10 down per call.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047a380
 void FUN_0047a380(int target, int player)
 {
     int cur = g_unk0x0058de00[player];
 
-    if (target - cur > 20)
+    if (target - cur > 20) {
         target = cur + 20;
-    else if (cur - target > 10)
+        g_unk0x0058de00[player] = target;
+    } else if (cur - target > 10) {
         target = cur - 10;
+        g_unk0x0058de00[player] = target;
+    }
     if (target < 0)
         target = 0;
     g_unk0x0058de00[player] = target;

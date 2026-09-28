@@ -89,14 +89,15 @@ void FUN_004583d0(int car, int *pStarts, int *pOut)
 }
 
 // Puts every car back on its stored route position.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00458480
 void FUN_00458480(void)
 {
     int i;
 
-    for (i = 0; i < g_unk0x00542c68; i++)
-        RallyData_FUN_004213d0(Car_Get(i), g_unk0x00542d38[i] >> 16);
+    for (i = 0; i < g_unk0x00542c68; i++) {
+        Car *pCar = Car_Get(i);
+        RallyData_FUN_004213d0(pCar, g_unk0x00542d38[i] >> 16);
+    }
 }
 
 // FUNCTION: CMR2 0x004584c0

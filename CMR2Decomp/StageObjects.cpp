@@ -5001,18 +5001,18 @@ int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer)
 // FUNCTION: CMR2 0x00465e40
 int FUN_00465e40(int car, int wheel)
 {
-    int v;
+    int v, w;
 
     if (*(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4) < 0)
         v = -*(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4);
     else
         v = *(int *)((BYTE *)Car_Get(car) + 0x870 + wheel * 4);
-    v += 0xffffd99a;
-    if (v < 0 || v <= 0)
-        v = 0;
-    else if (v >= 0x10000)
-        v = 0x10000;
-    return v;
+    w = v - 0x2666;
+    if (w < 0 || w <= 0)
+        return 0;
+    if (w >= 0x10000)
+        return 0x10000;
+    return w;
 }
 
 void Scene_GetLightColourBytes(DWORD *pColour);
@@ -5308,7 +5308,8 @@ int FUN_00407270(void);
 void FUN_0047e490(BYTE *pColour);
 
 extern void *g_unk0x00543eb8;
-extern BYTE g_unk0x00547acc;
+// GLOBAL: CMR2 0x00547acc
+BYTE g_unk0x00547acc;
 
 int *RallyData_FUN_004075b0(int index);
 // GLOBAL: CMR2 0x0051b114
@@ -5591,7 +5592,6 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
 }
 
 // Interpolates the two animated values of every 0x2c-byte record by t (16.16).
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00461bb0
 void FUN_00461bb0(int t)
 {
