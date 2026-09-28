@@ -3425,3 +3425,255 @@ void FUN_0041d0c0(int param_1)
     }
 }
 
+int FUN_00407650(void);
+int FUN_00407710(void);
+void RallyData_FUN_00407800(unsigned int param1);
+void FUN_004918d0(void);
+void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary,
+                  BYTE **pSecondary);
+void FUN_00461a70(BYTE *pA, BYTE *pB);
+
+
+// GLOBAL: CMR2 0x005196dc
+char g_str0x005196dc[12] = "0500.hor";
+
+// GLOBAL: CMR2 0x005196d0
+char g_str0x005196d0[12] = "0600.hor";
+
+// GLOBAL: CMR2 0x005196c4
+char g_str0x005196c4[12] = "0800.hor";
+
+// GLOBAL: CMR2 0x005196b8
+char g_str0x005196b8[12] = "1000.hor";
+
+// GLOBAL: CMR2 0x005196ac
+char g_str0x005196ac[12] = "1200.hor";
+
+// GLOBAL: CMR2 0x005196a0
+char g_str0x005196a0[12] = "1500.hor";
+
+// GLOBAL: CMR2 0x00519694
+char g_str0x00519694[12] = "1700.hor";
+
+// GLOBAL: CMR2 0x00519688
+char g_str0x00519688[12] = "1800.hor";
+
+// GLOBAL: CMR2 0x0051967c
+char g_str0x0051967c[12] = "1900.hor";
+
+// GLOBAL: CMR2 0x00519670
+char g_str0x00519670[12] = "2000.hor";
+
+// GLOBAL: CMR2 0x00519664
+char g_str0x00519664[12] = "2200.hor";
+
+// GLOBAL: CMR2 0x00519658
+char g_str0x00519658[12] = "2400.hor";
+
+// GLOBAL: CMR2 0x0051964c
+char g_str0x0051964c[12] = "0500CLO.hor";
+
+// GLOBAL: CMR2 0x00519640
+char g_str0x00519640[12] = "0600CLO.hor";
+
+// GLOBAL: CMR2 0x00519634
+char g_str0x00519634[12] = "0800CLO.hor";
+
+// GLOBAL: CMR2 0x00519628
+char g_str0x00519628[12] = "1000CLO.hor";
+
+// GLOBAL: CMR2 0x0051961c
+char g_str0x0051961c[12] = "1200CLO.hor";
+
+// GLOBAL: CMR2 0x00519610
+char g_str0x00519610[12] = "1500CLO.hor";
+
+// GLOBAL: CMR2 0x00519604
+char g_str0x00519604[12] = "1700CLO.hor";
+
+// GLOBAL: CMR2 0x005195f8
+char g_str0x005195f8[12] = "1800CLO.hor";
+
+// GLOBAL: CMR2 0x005195ec
+char g_str0x005195ec[12] = "1900CLO.hor";
+
+// GLOBAL: CMR2 0x005195e0
+char g_str0x005195e0[12] = "2000CLO.hor";
+
+// GLOBAL: CMR2 0x005195d4
+char g_str0x005195d4[12] = "2200CLO.hor";
+
+// GLOBAL: CMR2 0x005195c8
+char g_str0x005195c8[12] = "2400CLO.hor";
+
+// GLOBAL: CMR2 0x005195bc
+char g_str0x005195bc[12] = "0500STO.hor";
+
+// GLOBAL: CMR2 0x005195b0
+char g_str0x005195b0[12] = "0600STO.hor";
+
+// GLOBAL: CMR2 0x005195a4
+char g_str0x005195a4[12] = "0800STO.hor";
+
+// GLOBAL: CMR2 0x00519598
+char g_str0x00519598[12] = "1000STO.hor";
+
+// GLOBAL: CMR2 0x0051958c
+char g_str0x0051958c[12] = "1200STO.hor";
+
+// GLOBAL: CMR2 0x00519580
+char g_str0x00519580[12] = "1500STO.hor";
+
+// GLOBAL: CMR2 0x00519574
+char g_str0x00519574[12] = "1700STO.hor";
+
+// GLOBAL: CMR2 0x00519568
+char g_str0x00519568[12] = "1800STO.hor";
+
+// GLOBAL: CMR2 0x0051955c
+char g_str0x0051955c[12] = "1900STO.hor";
+
+// GLOBAL: CMR2 0x00519550
+char g_str0x00519550[12] = "2000STO.hor";
+
+// GLOBAL: CMR2 0x00519544
+char g_str0x00519544[12] = "2200STO.hor";
+
+// GLOBAL: CMR2 0x00519538
+char g_str0x00519538[12] = "2400STO.hor";
+
+// GLOBAL: CMR2 0x0051952c
+char g_str0x0051952c[12] = "0500BLI.hor";
+
+// GLOBAL: CMR2 0x00519520
+char g_str0x00519520[12] = "0600BLI.hor";
+
+// GLOBAL: CMR2 0x00519514
+char g_str0x00519514[12] = "0800BLI.hor";
+
+// GLOBAL: CMR2 0x00519508
+char g_str0x00519508[12] = "1000BLI.hor";
+
+// GLOBAL: CMR2 0x005194fc
+char g_str0x005194fc[12] = "1200BLI.hor";
+
+// GLOBAL: CMR2 0x005194f0
+char g_str0x005194f0[12] = "1500BLI.hor";
+
+// GLOBAL: CMR2 0x005194e4
+char g_str0x005194e4[12] = "1700BLI.hor";
+
+// GLOBAL: CMR2 0x005194d8
+char g_str0x005194d8[12] = "1800BLI.hor";
+
+// GLOBAL: CMR2 0x005194cc
+char g_str0x005194cc[12] = "1900BLI.hor";
+
+// GLOBAL: CMR2 0x005194c0
+char g_str0x005194c0[12] = "2000BLI.hor";
+
+// GLOBAL: CMR2 0x005194b4
+char g_str0x005194b4[12] = "2200BLI.hor";
+
+// GLOBAL: CMR2 0x005194a8
+char g_str0x005194a8[12] = "2400BLI.hor";
+
+
+// Handles of the resolved stage texture records.
+// GLOBAL: CMR2 0x00538234
+BYTE *g_unk0x00538234;
+// GLOBAL: CMR2 0x00538238
+BYTE *g_unk0x00538238;
+
+// Resolves the 48 stage texture names through the generic file loader, builds
+// the six palette entries of the stage geometry from the primary/secondary
+// colour records and refreshes the stage colour ramps.
+// FUNCTION: CMR2 0x0041fd30
+void FUN_0041fd30(void)
+{
+    char *pNames[48];
+    int handles[48];
+    BYTE colour[6];
+    BYTE *pPrimary;
+    BYTE *pSecondary;
+    int i;
+    unsigned int avg;
+
+    pNames[0] = g_str0x005196dc;
+    pNames[1] = g_str0x005196d0;
+    pNames[2] = g_str0x005196c4;
+    pNames[3] = g_str0x005196b8;
+    pNames[4] = g_str0x005196ac;
+    pNames[5] = g_str0x005196a0;
+    pNames[6] = g_str0x00519694;
+    pNames[7] = g_str0x00519688;
+    pNames[8] = g_str0x0051967c;
+    pNames[9] = g_str0x00519670;
+    pNames[10] = g_str0x00519664;
+    pNames[11] = g_str0x00519658;
+    pNames[12] = g_str0x0051964c;
+    pNames[13] = g_str0x00519640;
+    pNames[14] = g_str0x00519634;
+    pNames[15] = g_str0x00519628;
+    pNames[16] = g_str0x0051961c;
+    pNames[17] = g_str0x00519610;
+    pNames[18] = g_str0x00519604;
+    pNames[19] = g_str0x005195f8;
+    pNames[20] = g_str0x005195ec;
+    pNames[21] = g_str0x005195e0;
+    pNames[22] = g_str0x005195d4;
+    pNames[23] = g_str0x005195c8;
+    pNames[24] = g_str0x005195bc;
+    pNames[25] = g_str0x005195b0;
+    pNames[26] = g_str0x005195a4;
+    pNames[27] = g_str0x00519598;
+    pNames[28] = g_str0x0051958c;
+    pNames[29] = g_str0x00519580;
+    pNames[30] = g_str0x00519574;
+    pNames[31] = g_str0x00519568;
+    pNames[32] = g_str0x0051955c;
+    pNames[33] = g_str0x00519550;
+    pNames[34] = g_str0x00519544;
+    pNames[35] = g_str0x00519538;
+    pNames[36] = g_str0x0051952c;
+    pNames[37] = g_str0x00519520;
+    pNames[38] = g_str0x00519514;
+    pNames[39] = g_str0x00519508;
+    pNames[40] = g_str0x005194fc;
+    pNames[41] = g_str0x005194f0;
+    pNames[42] = g_str0x005194e4;
+    pNames[43] = g_str0x005194d8;
+    pNames[44] = g_str0x005194cc;
+    pNames[45] = g_str0x005194c0;
+    pNames[46] = g_str0x005194b4;
+    pNames[47] = g_str0x005194a8;
+    for (i = 0; i < 48; i++)
+        handles[i] = (int)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                       pNames[i], NULL, NULL, 0);
+    FUN_00461a30(FUN_00407650(), FUN_00407710(), (BYTE **)handles, &g_unk0x00538238,
+                 &g_unk0x00538234);
+    FUN_00461a70(g_unk0x00538238, g_unk0x00538234);
+    if (g_unk0x00538238 != NULL && g_unk0x00538234 != NULL) {
+        pPrimary = g_unk0x00538234;
+        pSecondary = g_unk0x00538238;
+        for (i = 0; i < 6; i++) {
+            avg = ((unsigned int)pSecondary[0x48 + i] + (unsigned int)pPrimary[0x48 + i]) / 2;
+            if (avg > 0xff)
+                avg = 0xff;
+            colour[i] = (BYTE)avg;
+        }
+        CGraphics::FUN_004a5ff0((BYTE)*(int *)((BYTE *)colour + 0));
+        CGraphics::FUN_004a6010((BYTE)*(int *)((BYTE *)colour + 1));
+        CGraphics::FUN_004a6040((BYTE)*(int *)((BYTE *)colour + 2));
+        CGraphics::FUN_004a6060((BYTE)*(int *)((BYTE *)colour + 3));
+        CGraphics::FUN_004a6080((BYTE)*(int *)((BYTE *)colour + 4));
+        CGraphics::FUN_004a60b0((BYTE)*(int *)((BYTE *)colour + 5));
+        if ((unsigned short)FUN_00407650() < 0x834) {
+            RallyData_FUN_00407800(0);
+            FUN_004918d0();
+            return;
+        }
+        RallyData_FUN_00407800(1);
+        FUN_004918d0();
+    }
+}
