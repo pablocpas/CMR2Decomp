@@ -7181,3 +7181,323 @@ void FUN_004111a0(void)
     g_unk0x00536c30[2] = 0;
     FUN_00411b20();
 }
+
+// ---------------------------------------------------------------------------
+#include "Sector.h"
+#include "Mesh.h"
+
+extern int g_unk0x0058c950;
+extern int g_unk0x0058ca68;
+extern StageObject *g_stageObjects[6000];
+StageObject *StageObject_GetNext(StageObject *pObject);
+void FUN_004873f0(int *param_1, int param_2, int param_3);
+void FUN_0046f550(void);
+void FUN_0046f7e0(void);
+
+// Total number of 8-byte scratch records of the "B" kind of stage objects.
+// GLOBAL: CMR2 0x0058c95c
+int g_unk0x0058c95c;
+
+// Rebuilds the per-sector static object tables after a stage is loaded.
+// Counts the stage objects of the active range (and how many carry a mesh),
+// allocates the per-object scratch area and the two sorted list tables, sizes
+// them, fills them from every sector's object list and finally, for every
+// object record that has a mesh, builds the world matrix of the object, its
+// eight corner points, the length of the box diagonal (through the square-root
+// table) and its right/up/forward axes.
+// match 60%: logica y constantes exactas (incluido FixSqrt por tabla y el
+// barrido del coste por objeto); difiere el reparto de registros, el plegado de
+// los bucles de coste y el orden de los memset/alloc en la cola.
+// FUNCTION: CMR2 0x00471dd0
+void FUN_00471dd0(void)
+{
+    FixMatrix matrix;
+    FixVector corners[8];
+    FixVector basis[3];
+    FixVector v;
+    short listIndexA;
+    short listIndexB;
+    int sectorOffset;
+    int countA;
+    int countB;
+    int totalObjects;
+    int countRecords;
+    int sector;
+    int i;
+    int n;
+    int j;
+    int k;
+    int sumCost;
+    int scratchOffset;
+    int recordOffset;
+    int offsetA;
+    int offsetB;
+    int hx;
+    int hy;
+    int hz;
+    int length;
+    int *pEntry;
+    int *pScratch;
+    int *pRecordScratch;
+    StageObject *pObject;
+    StageObject *pNext;
+    BYTE *pMesh;
+    BYTE *pRecord;
+    StageObject **ppObjects;
+
+    sectorOffset = g_unk0x0058c950 - g_unk0x0058ca68;
+    totalObjects = 0;
+    g_unk0x0058ca70 = NULL;
+    g_sectorListEntriesA = NULL;
+    g_unk0x0058c948 = NULL;
+    g_unk0x0058c958 = NULL;
+    g_unk0x0058c944 = NULL;
+    g_sectorListIndexA = NULL;
+    g_sectorListCountA = NULL;
+    g_sectorListEntriesB = NULL;
+    g_unk0x0058c94c = NULL;
+    g_unk0x0058c938 = NULL;
+    g_sectorListIndexB = NULL;
+    g_sectorListCountB = NULL;
+    countA = 0;
+    if (sectorOffset != 0) {
+        ppObjects = &g_stageObjects[g_unk0x0058ca68];
+        n = sectorOffset;
+        do {
+            pObject = *ppObjects;
+            ppObjects++;
+            totalObjects += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+            n--;
+        } while (n != 0);
+    }
+    if (g_sectorCount != 0) {
+        g_sectorListIndexA = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
+        g_sectorListIndexB = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
+    }
+    for (i = 0; i < g_sectorCount; i++) {
+        g_sectorListIndexA[i] = -1;
+        g_sectorListIndexB[i] = -1;
+    }
+    countB = 0;
+    g_unk0x0058c95c = 0;
+    countA = 0;
+    g_unk0x0058ca6c = 0;
+    countB = 0;
+    countRecords = 0;
+    if (g_sectorCount != 0) {
+        sector = 0;
+        do {
+            int a = countA;
+            int b = countB;
+
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh != NULL &&
+                    (*(BYTE *)((BYTE *)pObject->pMesh + 0x110)) != 0) {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        g_unk0x0058c95c += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                        if (g_sectorListIndexA[sector] == -1) {
+                            g_sectorListIndexA[sector] = (short)a;
+                            a++;
+                        }
+                    } else {
+                        g_unk0x0058ca6c += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                        if (g_sectorListIndexB[sector] == -1) {
+                            g_sectorListIndexB[sector] = (short)b;
+                            b++;
+                        }
+                    }
+                    for (pRecord = *(BYTE **)((BYTE *)pObject->pMesh + 0x10c); pRecord != NULL;
+                         pRecord = *(BYTE **)(pRecord + 0x58)) {
+                        if (*pRecord == 0)
+                            countRecords++;
+                    }
+                }
+            }
+            countA = a;
+            countB = b;
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    if (totalObjects != 0) {
+        g_unk0x0058ca70 = CFileBuffer::AllocateLockedBuffer(totalObjects * 8);
+        memset(g_unk0x0058ca70, 0, totalObjects * 8);
+    }
+    if (countA != 0) {
+        g_sectorListEntriesA = (BYTE *)CFileBuffer::AllocateLockedBuffer(countA * 4);
+        g_sectorListCountA = (unsigned short *)CFileBuffer::AllocateLockedBuffer(countA * 2);
+        memset(g_sectorListEntriesA, 0, countA * 4);
+        memset(g_sectorListCountA, 0, countA * 2);
+    }
+    if (countB != 0) {
+        g_sectorListEntriesB = (BYTE *)CFileBuffer::AllocateLockedBuffer(countB * 4);
+        g_sectorListCountB = (unsigned short *)CFileBuffer::AllocateLockedBuffer(countB * 2);
+    }
+    if (g_unk0x0058c95c != 0) {
+        g_unk0x0058c948 = CFileBuffer::AllocateLockedBuffer(g_unk0x0058c95c * 8);
+    }
+    if (g_unk0x0058ca6c != 0) {
+        g_unk0x0058c94c = (BYTE *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c * 8);
+        g_unk0x0058c938 = (BYTE *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c);
+        g_unk0x0058c958 = (int *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c * 4);
+    }
+    if (countRecords != 0) {
+        g_unk0x0058c944 = CFileBuffer::AllocateLockedBuffer(countRecords * 0xc);
+        memset(g_unk0x0058c944, 0, countRecords * 0xc);
+    }
+    for (i = 0; i < countA; i++) {
+        g_sectorListEntriesA[i] = 0;
+        g_sectorListCountA[i] = 0;
+    }
+    for (i = 0; i < countB; i++) {
+        *(int *)(g_sectorListEntriesB + i * 4) = 0;
+        g_sectorListCountB[i] = 0;
+    }
+    if (g_sectorCount != 0) {
+        sector = 0;
+        do {
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh != NULL &&
+                    (*(BYTE *)((BYTE *)pObject->pMesh + 0x110)) != 0) {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        listIndexA = g_sectorListIndexA[sector];
+                        if (listIndexA != -1)
+                            g_sectorListCountA[listIndexA] +=
+                                *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                    } else {
+                        listIndexB = g_sectorListIndexB[sector];
+                        if (listIndexB != -1)
+                            g_sectorListCountB[listIndexB] +=
+                                *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                    }
+                }
+            }
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    pScratch = (int *)g_unk0x0058c94c;
+    for (i = 0; i < countB; i++) {
+        *(int *)(g_sectorListEntriesB + i * 4) = (int)pScratch;
+        pScratch = (int *)((BYTE *)pScratch + g_sectorListCountB[i] * 8);
+    }
+    pScratch = (int *)g_unk0x0058c948;
+    for (i = 0; i < countA; i++) {
+        *(int *)(g_sectorListEntriesA + i * 4) = (int)pScratch;
+        pScratch = (int *)((BYTE *)pScratch + g_sectorListCountA[i] * 8);
+    }
+    for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
+        g_unk0x0058c938[i] = 0xff;
+        g_unk0x0058c958[i] = 1;
+    }
+    CGame::RegisterCallback((void *)FUN_00472720, NULL);
+    countRecords = 0;
+    sector = 0;
+    if (g_sectorCount != 0) {
+        do {
+            offsetA = 0;
+            offsetB = 0;
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh == NULL)
+                    continue;
+                if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x8000) == 0 &&
+                    (char)RallyDataState() == 2) {
+                    *((BYTE *)pObject + 0x14) = 0;
+                }
+                pMesh = (BYTE *)pObject->pMesh;
+                if (*(char *)(pMesh + 0x110) == 0)
+                    continue;
+                sumCost = 0;
+                for (j = 0; j < sectorOffset; j++) {
+                    if (pObject == g_stageObjects[g_unk0x0058ca68 + j])
+                        break;
+                    sumCost += *(BYTE *)((BYTE *)g_stageObjects[g_unk0x0058ca68 + j]->pMesh + 0x110);
+                }
+                pRecord = *(BYTE **)(pMesh + 0x10c);
+                if (pRecord == NULL)
+                    continue;
+                scratchOffset = sumCost << 3;
+                recordOffset = countRecords * 0xc;
+                do {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        listIndexA = g_sectorListIndexA[sector];
+                        if (listIndexA != -1) {
+                            pEntry = (int *)(*(int *)(g_sectorListEntriesA + listIndexA * 4) +
+                                             offsetA * 8);
+                            offsetA++;
+                        }
+                    } else {
+                        listIndexB = g_sectorListIndexB[sector];
+                        if (listIndexB != -1) {
+                            pEntry = (int *)(*(int *)(g_sectorListEntriesB + listIndexB * 4) +
+                                             offsetB * 8);
+                            offsetB++;
+                        }
+                    }
+                    pEntry[0] = (int)pObject;
+                    pScratch = (int *)((BYTE *)g_unk0x0058ca70 + scratchOffset);
+                    scratchOffset += 8;
+                    pEntry[1] = (int)pScratch;
+                    pRecordScratch = (int *)((BYTE *)g_unk0x0058c944 + recordOffset);
+                    hx = *(int *)(pRecord + 0x44);
+                    hy = *(int *)(pRecord + 0x48);
+                    hz = *(int *)(pRecord + 0x4c);
+                    if (*pRecord == 0) {
+                        recordOffset += 0xc;
+                        *(int *)(pEntry[1] + 4) = (int)pRecordScratch;
+                        countRecords++;
+                        corners[0].x = FixMul(hx, 0x8000);
+                        corners[0].y = 0;
+                        corners[0].z = FixMul(hy, 0x8000);
+                        corners[1].x = FixMul(hx, 0x8000);
+                        corners[1].y = 0;
+                        corners[1].z = -FixMul(hy, 0x8000);
+                        corners[2].x = -FixMul(hx, 0x8000);
+                        corners[2].y = 0;
+                        corners[2].z = -FixMul(hy, 0x8000);
+                        corners[3].x = -FixMul(hx, 0x8000);
+                        corners[3].y = 0;
+                        corners[3].z = FixMul(hy, 0x8000);
+                        corners[4].x = FixMul(hx, 0x8000);
+                        corners[4].y = hz;
+                        corners[4].z = FixMul(hy, 0x8000);
+                        corners[5].x = FixMul(hx, 0x8000);
+                        corners[5].y = hz;
+                        corners[5].z = -FixMul(hy, 0x8000);
+                        corners[6].x = -FixMul(hx, 0x8000);
+                        corners[6].y = hz;
+                        corners[6].z = -FixMul(hy, 0x8000);
+                        corners[7].x = -FixMul(hx, 0x8000);
+                        corners[7].y = hz;
+                        corners[7].z = FixMul(hy, 0x8000);
+                        FixMatrix_Multiply(&matrix, (FixMatrix *)(pRecord + 4),
+                                           (FixMatrix *)((BYTE *)pObject + 0x18));
+                        for (k = 0; k < 8; k++) {
+                            FixMatrix_RotateVector(&v, &corners[k], &matrix);
+                            corners[k] = v;
+                        }
+                        v.x = corners[0].x - corners[6].x;
+                        v.y = corners[0].y - corners[6].y;
+                        v.z = corners[0].z - corners[6].z;
+                        length = FixSqrt(FixMul(v.x, v.x) + FixMul(v.y, v.y) +
+                                         FixMul(v.z, v.z));
+                        *(int *)pEntry[1] = length;
+                        *(int *)pEntry[1] = FixMul(*(int *)pEntry[1], 0x8000);
+                        FixMatrix_GetRight(&basis[0], &matrix);
+                        FixMatrix_GetUp(&basis[1], &matrix);
+                        FixMatrix_GetForward(&basis[2], &matrix);
+                        FUN_004873f0((int *)&basis[0], (int)&corners[0], pEntry[1]);
+                    } else {
+                        *(int *)(pEntry[1] + 4) = 0;
+                        *(int *)pEntry[1] = hx;
+                    }
+                    pRecord = *(BYTE **)(pRecord + 0x58);
+                } while (pRecord != NULL);
+            }
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    FUN_0046f550();
+    FUN_0046f7e0();
+}
