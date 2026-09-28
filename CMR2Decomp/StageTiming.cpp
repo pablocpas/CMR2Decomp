@@ -1007,6 +1007,65 @@ void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
         Mesh_SetVertexColours(pMesh, rgb);
 }
 
+// match 69%: the whole FixMul/FixDiv chain matches; the remaining diff is MSVC6's stack-slot numbering
+// (it spills into the dead parameter homes and adds the two `n` terms separately) plus one store order.
+// Interpolates 16 fixed-point samples per row from the car's 0x7c table into
+// pOut, weighting the two corner rows by the car's 0xa8/0xac offsets.
+// FUNCTION: CMR2 0x004564d0
+void FUN_004564d0(int pCar, int *pOut)
+{
+    int f;
+    int n;
+    int rf;
+    int rn;
+    int rc;
+    int count;
+    int off;
+    int k;
+    int *pIn;
+    int *p;
+    int sum;
+    int t;
+    int v1;
+    int v2;
+    int v3;
+    int v4;
+    int v5;
+    int v6;
+
+    f = *(int *)(pCar + 0xac);
+    n = *(int *)(pCar + 0xa8);
+    rf = f - n;
+    rn = 0x10000 - n;
+    rc = 0x10000 - f;
+    count = GetStageSplitCount();
+    if (count >= 1) {
+        off = 0x310;
+        pIn = (int *)(pCar + 0x7c);
+        do {
+            k = 0x10;
+            p = pOut;
+            do {
+                v1 = FixMul(FixMul(pIn[-0x14], rn), *(int *)(g_unk0x0054241c + off - 0x280));
+                v2 = FixMul(FixMul(pIn[-0x14], n), *(int *)(g_unk0x0054241c + off));
+                v3 = FixMul(FixMul(pIn[0], rc), *(int *)(g_unk0x0054241c + off - 0x280));
+                v4 = FixMul(FixMul(pIn[0], f), *(int *)(g_unk0x0054241c + off));
+                v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));
+                v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));
+                sum = n + FixMul(rf, pIn[-0x1e]) + n + FixMul(rf, pIn[-0x1f]);
+                t = FixDiv(sum, 0x20000);
+                *p = FixMul(0x10000 - t, v6) + FixMul(t, v5) + v4 + v3 + v2 + v1;
+                k--;
+                p++;
+                off += 4;
+            } while (k != 0);
+            pIn++;
+            count--;
+            pOut += 0x10;
+        } while (count != 0);
+    }
+}
+
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456960
 void FUN_00456960(int *pDeltas)
