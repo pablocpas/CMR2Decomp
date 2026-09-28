@@ -9157,3 +9157,85 @@ done:
     value = FixDiv((CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000);
     g_unk0x0082cb44 = value - (value & 0xffff);
 }
+
+// White colour of the option menu's control line.
+// GLOBAL: CMR2 0x00526ffc
+BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
+
+extern short g_controlsLine[4];
+
+// Draws the option menu's control line from the four layout records of the
+// group selected by param_1: each record becomes a 1-pixel bar, the widest
+// span gets a highlight bar in g_unk0x0082ace8 and the shared line is centred
+// on that span.
+// match 77%: implementada; el original separa las subexpresiones con temporales
+// de pila y prueba `i & 1` con el idioma AND/OR de MSVC (nosotros con el
+// ternario), y recalcula resY*0xf5/0x1e0 en cada uso en vez de reutilizarlo.
+// FUNCTION: CMR2 0x00500550
+void FUN_00500550(int param_1)
+{
+    SpriteRect rect;
+    int minX;
+    int maxX;
+    int centre;
+    int i;
+    int layer;
+    int bar;
+
+    g_controlsLine[2] = 1;
+    g_unk0x0082ace8.pad[3] = 1;
+    if (g_unk0x00831674 != 0) {
+        rect.w = *(short *)((BYTE *)g_unk0x00831674 + 0x120);
+        rect.h = *(short *)((BYTE *)g_unk0x00831674 + 0x122);
+    }
+    for (i = 0; i < 4; i++) {
+        g_controlsLine[0] = (short)(g_unk0x0082ac68[i + param_1 * 4][0] >> 16);
+        g_controlsLine[1] = (short)(g_unk0x0082ac68[i + param_1 * 4][1] >> 16);
+        g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0) - g_controlsLine[1];
+        layer = (i & 1) ? 1 : 4;
+        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, layer);
+        if (i == 0) {
+            minX = g_controlsLine[0];
+            maxX = minX;
+        } else if (g_controlsLine[0] < minX) {
+            minX = g_controlsLine[0];
+        } else if (g_controlsLine[0] > maxX) {
+            maxX = g_controlsLine[0];
+        }
+        if (g_unk0x00831674 != 0) {
+            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
+                !CFrontend::FUN_004b7590(0x400)) {
+                rect.x = g_controlsLine[0] - 3;
+                rect.y = g_controlsLine[1] - 3;
+            } else {
+                rect.x = g_controlsLine[0] - 6;
+                rect.y = g_controlsLine[1] - 6;
+            }
+            Sprite_Queue((SpriteRect *)((BYTE *)g_unk0x00831674 + 0x11c), &rect,
+                         (Texture *)g_unk0x00831674, layer, 0, 0, NULL, g_unk0x00526ffc, 8);
+        }
+    }
+    if (maxX != minX) {
+        g_unk0x0082ace8.pad[0] = (short)minX;
+        g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
+        g_unk0x0082ace8.pad[2] = (short)(maxX - minX + 1);
+        Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
+    }
+    centre = (maxX - minX) / 2 + minX;
+    g_controlsLine[0] = (short)centre;
+    g_controlsLine[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
+    if (centre > (int)g_pGraphics->resX * 0xe4 / 0x280) {
+        bar = (int)g_pGraphics->resY * 0xff / 0x1e0;
+        g_controlsLine[3] = (short)(bar - (int)g_pGraphics->resY * 0xf5 / 0x1e0);
+        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
+        return;
+    }
+    g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0 -
+                                (int)g_pGraphics->resY * 0xf5 / 0x1e0);
+    Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
+    bar = (int)g_pGraphics->resX * 0xe5 / 0x280;
+    g_unk0x0082ace8.pad[0] = (short)bar;
+    g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0);
+    g_unk0x0082ace8.pad[2] = (short)(centre - bar + 1);
+    Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
+}
