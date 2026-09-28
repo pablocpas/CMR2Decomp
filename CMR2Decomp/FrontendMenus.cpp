@@ -2897,7 +2897,7 @@ void FUN_004f78c0(void)
     Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f13c0, 0);
     Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f13c0, 1);
     Menu_AddItemType6(&g_menu0x0081d8b8, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f13c0, 2);
-    Menu_SetCallbacks(&g_menu0x0081d8b8, (MenuCallback)FUN_004f1160, (MenuCallback)FUN_004f11d0, FUN_004d7380, FUN_004f0e60);
+    Menu_SetCallbacks(&g_menu0x0081d8b8, (MenuCallback)FUN_004f1160, (MenuCallback)FUN_004f11d0, (MenuCallback)FUN_004d7380, FUN_004f0e60);
     Menu_ValidateCursor(&g_menu0x0081d8b8, 0);
 }
 
