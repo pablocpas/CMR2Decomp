@@ -1123,6 +1123,36 @@ struct ShadowCaster {
     int field_0x10;
 };
 
+int FUN_004b50b0(SceneNode *pNode, int param_2);
+
+// Steps the red channel of the ambient colour of every sector light around
+// 0xf0 and relights the node list of each sector.
+// match 74%: the logic and the instruction sequence follow the original; MSVC
+// keeps the sector-lights pointer in EAX here (the original reused the ECX of
+// the null test), so ours loads it again at the store and the loop header loses
+// the `jmp` that skips that reload on the first iteration.
+// FUNCTION: CMR2 0x004b3f20
+void FUN_004b3f20(void)
+{
+    unsigned int sector;
+    SceneNode *pNode;
+    BYTE colour;
+
+    if (g_sceneSectorLights != NULL) {
+        for (sector = 0; sector < (unsigned int)g_sectorCount; sector++) {
+            if (g_sceneAmbientColour[0] < 0xf0)
+                colour = g_sceneAmbientColour[0] + 10;
+            else
+                colour = g_sceneAmbientColour[0] - 10;
+            ((BYTE *)g_sceneSectorLights)[sector * 4] = colour;
+            for (pNode = g_sectors[sector]->pFirstNode; pNode != NULL;
+                 pNode = pNode->pNextInSector)
+                FUN_004b50b0(pNode, 0xffff0000);
+            Scene_RelightSector(sector);
+        }
+    }
+}
+
 // Marks one mesh part of a registered shadow caster for rebuilding.
 // FUNCTION: CMR2 0x004b4100
 void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
