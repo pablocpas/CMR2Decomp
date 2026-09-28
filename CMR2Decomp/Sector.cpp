@@ -57,6 +57,23 @@ void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int p
 void Mesh_UploadVertices(Mesh *pMesh);
 void Mesh_BuildParts(Mesh *pMesh);
 
+// Magic of a C3D model file.
+// GLOBAL: CMR2 0x0052110c
+char g_strC3dMagic[] = "PP_F";
+
+void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3);
+
+// Builds the scene of a C3D model file, if the data really is one.
+// FUNCTION: CMR2 0x004b9380
+int FUN_004b9380(unsigned int data, unsigned int parent, unsigned int textures)
+{
+    int result = 0;
+
+    if (strncmp((char *)data, g_strC3dMagic, 4) == 0)
+        result = (int)FUN_004b93c0((BYTE *)data, parent, textures);
+    return result;
+}
+
 // Relocates the stage mesh file: turns the offsets stored in the node, mesh,
 // object and sector records into pointers, registers them in the scene node,
 // mesh, stage object and sector tables, loads the textures and re-uploads the

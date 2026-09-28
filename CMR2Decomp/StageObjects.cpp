@@ -12895,3 +12895,93 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     *(int *)(pRecord + 0x5c) = 0x10000;
 }
 #undef SPOT
+
+// GLOBAL: CMR2 0x0051c9b4
+char g_strCarModelC5Bfl[] = "%sc5.bfl";
+// GLOBAL: CMR2 0x0051c9c0
+char g_strCarModelA5Bfl[] = "%sa5.bfl";
+// GLOBAL: CMR2 0x0051c9cc
+char g_strCarModelC5C3d[] = "%sc5.c3d";
+// GLOBAL: CMR2 0x0051c9d8
+char g_strCarModelA5C3d[] = "%sa5.c3d";
+
+char *FUN_004200d0(int car);
+void FUN_00477340(int player);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
+
+// Per-car node row at 0x58d528 (0x1c bytes; g_unk0x0058d530 is the same rows
+// seen from +8): +0 node 0x1a, +4 node 0x1c, +8 new node, +0xc node, +0x10
+// node 0x1b, +0x14 node 0x16, +0x18 node 0x17.
+#define CAR_NODE_ROW(i) ((int *)(g_unk0x0058d530 - 8 + (i) * 0x1c))
+
+// Loads the interior (cockpit) model of a player's car and hooks its nodes
+// (steering wheel, dash, driver) into the car's scene graph.
+// FUNCTION: CMR2 0x004760a0
+void FUN_004760a0(int record, BYTE car)
+{
+    Car *pCar;
+    int ok;
+    int *pRow;
+    int *pOffset;
+
+    ok = 1;
+    if (CGameInfo::FUN_00405e00() && car > 0)
+        return;
+    pCar = Car_Get(car);
+    if ((short)car < Car_GetOrderCount() && *(SceneNode **)((BYTE *)pCar + 0x720) != NULL) {
+        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(*(SceneNode **)((BYTE *)pCar + 0x720), 9);
+        g_stageBlock_58d47c[car] = (int)SceneNode_FindByType(*(SceneNode **)((BYTE *)pCar + 0x720), 5);
+    } else {
+        ok = 0;
+    }
+    if (car >= 2)
+        return;
+    pRow = CAR_NODE_ROW(car);
+    if (pRow[3] != 0)
+        return;
+    if ((char)RallyData_GetFlag24() || ok == 0)
+        return;
+    if (CGameInfo::FUN_00405d10() == 0)
+        sprintf(CFrontend::m_stringDest, g_strCarModelA5C3d,
+                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+    else
+        sprintf(CFrontend::m_stringDest, g_strCarModelC5C3d,
+                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+    g_unk0x0058d6a0[car] = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
+    if (CGameInfo::FUN_00405d10() == 0)
+        sprintf(CFrontend::m_stringDest, g_strCarModelA5Bfl,
+                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+    else
+        sprintf(CFrontend::m_stringDest, g_strCarModelC5Bfl,
+                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)g_unk0x0058d3b8, CFrontend::m_stringDest);
+    FUN_00476540(car);
+    if (g_unk0x0058d6a0[car] == NULL)
+        return;
+    g_unk0x0058d49c[car] = (void *)FUN_004b9380((unsigned int)g_unk0x0058d6a0[car],
+                                                *(unsigned int *)((BYTE *)pCar + 0x720),
+                                                (unsigned int)g_unk0x0058d3b8);
+    pRow[2] = (int)SceneNode_Create((SceneNode *)g_unk0x0058d49c[car]);
+    pRow[0] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1a);
+    pRow[1] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1c);
+    pRow[3] = (int)SceneNode_Create(*(SceneNode **)((BYTE *)pCar + 0x720));
+    pRow[4] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1b);
+    pRow[5] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x16);
+    pRow[6] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x17);
+    memcpy((BYTE *)pRow[2] + 0x98, (BYTE *)pRow[1] + 0x98, 0x40);
+    *(int *)(pRow[2] + 0xc) = 0;
+    *(int *)(pRow[2] + 0x178) = 3;
+    *(int *)(pRow[2] + 0x30) = *(int *)(pRow[1] + 0x30);
+    SceneNode_Reparent((SceneNode *)pRow[1], (SceneNode *)g_unk0x0058d49c[car]);
+    pOffset = *(int **)(g_unk0x0058d4f0 + car * 0x1c + 8);
+    *(int *)(pRow[3] + 0xc8) = *(int *)(pRow[4] + 0xc8) + pOffset[0];
+    *(int *)(pRow[3] + 0xcc) = *(int *)(pRow[4] + 0xcc) + pOffset[1];
+    *(int *)(pRow[3] + 0xd0) = *(int *)(pRow[4] + 0xd0) + pOffset[2];
+    g_unk0x0058d6a8[car] = 1;
+    g_unk0x0058d4d0[(BYTE)record] = *((BYTE *)pCar + 0xb1b);
+    *(int *)(g_unk0x0058d2f8 + car * 12) = *(int *)(pRow[3] + 0xc8);
+    *(int *)(g_unk0x0058d2f8 + car * 12 + 4) = *(int *)(pRow[3] + 0xcc);
+    *(int *)(g_unk0x0058d2f8 + car * 12 + 8) = *(int *)(pRow[3] + 0xd0);
+    FUN_00477340(car);
+}
+#undef CAR_NODE_ROW

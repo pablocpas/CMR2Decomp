@@ -5767,24 +5767,28 @@ int g_unk0x0054365c;
 int g_unk0x00543660;
 // GLOBAL: CMR2 0x00543664
 int g_unk0x00543664;
+// GLOBAL: CMR2 0x00543668
+int g_unk0x00543668;
 // GLOBAL: CMR2 0x0054366c
 int g_unk0x0054366c;
 // GLOBAL: CMR2 0x00543670
 int g_unk0x00543670;
 // GLOBAL: CMR2 0x00543674
 int g_unk0x00543674;
+// GLOBAL: CMR2 0x00543678
+int g_unk0x00543678;
 // GLOBAL: CMR2 0x0054367c
-int g_unk0x0054367c;
+int g_unk0x0054367c[5];
 // GLOBAL: CMR2 0x00543690
-int g_unk0x00543690;
+int g_unk0x00543690[2];
 // GLOBAL: CMR2 0x00543698
-int g_unk0x00543698;
+int g_unk0x00543698[2];
 // GLOBAL: CMR2 0x005436a0
-int g_unk0x005436a0;
+int g_unk0x005436a0[5];
 // GLOBAL: CMR2 0x005436b8
-int g_unk0x005436b8;
+int g_unk0x005436b8[8];
 // GLOBAL: CMR2 0x005436d8
-int g_unk0x005436d8;
+int g_unk0x005436d8[4];
 // GLOBAL: CMR2 0x00547fb4
 int g_unk0x00547fb4;
 
@@ -7254,3 +7258,650 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
         }
     }
 }
+
+// GLOBAL: CMR2 0x0051ac20
+char g_strTexRocksGrav[] = "\\NEWIMAGE\\Rocks\\Grav_";
+// GLOBAL: CMR2 0x0051ac38
+char g_strTexSplashDrop[] = "\\NEWIMAGE\\WSplash\\drop.tga";
+// GLOBAL: CMR2 0x0051ac54
+char g_strTexGrass[] = "\\NEWIMAGE\\GRASS\\GR_";
+// GLOBAL: CMR2 0x0051ac68
+char g_strTexLeaf[] = "\\NEWIMAGE\\Leaf\\leaf_";
+// GLOBAL: CMR2 0x0051ac80
+char g_strTexDetail[] = "\\NewImage\\Det\\13_12\\DE_";
+// GLOBAL: CMR2 0x0051ac98
+char g_strNumberedTga[] = "%s%s%03d.tga";
+// GLOBAL: CMR2 0x0051aca8
+char g_strTexDustCloud[] = "\\NEWIMAGE\\DustCld\\23_5\\D_";
+// GLOBAL: CMR2 0x0051acc4
+char g_strTexSnowSpray[] = "\\NEWIMAGE\\SnowCld\\snow_spray.tga";
+// GLOBAL: CMR2 0x0051ace8
+char g_strTexSplashSpray2f[] = "\\NEWIMAGE\\Wsplash\\spray2f.tga";
+// GLOBAL: CMR2 0x0051ad08
+char g_strTexSplashSpray2[] = "\\NEWIMAGE\\Wsplash\\spray2.tga";
+// GLOBAL: CMR2 0x0051ad28
+char g_strTexWheelSpray[] = "\\NEWIMAGE\\WSpray\\spray2.tga";
+// GLOBAL: CMR2 0x0051ad44
+char g_strTexSnowCloud[] = "\\NEWIMAGE\\SnowCld\\snow_004.tga";
+// GLOBAL: CMR2 0x0051ad64
+char g_strTexExhaust2[] = "\\NEWIMAGE\\Exhaust\\exhst02.tga";
+// GLOBAL: CMR2 0x0051ad84
+char g_strTexExhaust3[] = "\\NEWIMAGE\\Exhaust\\exhst03.tga";
+// GLOBAL: CMR2 0x0051ada4
+char g_strTexGlass[] = "\\NEWIMAGE\\glass.tga";
+// GLOBAL: CMR2 0x0051adb8
+char g_strTexPaint[] = "\\NEWIMAGE\\paint.tga";
+// GLOBAL: CMR2 0x0051adcc
+char g_strTexSpark[] = "\\NEWIMAGE\\spark4.tga";
+
+extern char g_strPathConcat[];
+struct Unk0x004a3e20;
+void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
+void CarEffects_InitUVs(int unused1, int unused2);
+
+#define LOAD_EFFECT_TEXTURE() \
+    (int)CTexture::FindLoadTexture((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest, &loaded, NULL, 0, 0x10)
+
+// Loads the textures of the particle effects (sparks, debris, exhaust, spray,
+// snow, dust, leaves, grass, gravel) from the stage archive.
+// FUNCTION: CMR2 0x00459c80
+void FUN_00459c80(void)
+{
+    bool loaded;
+    int i;
+
+    CMain::GetFrameDelta();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSpark);
+    g_unk0x00543650 = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexPaint);
+    g_unk0x00543654 = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexGlass);
+    g_unk0x00543658 = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexExhaust3);
+    g_unk0x0054365c = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexExhaust2);
+    g_unk0x00543660 = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSnowCloud);
+    g_unk0x0054366c = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexWheelSpray);
+    g_unk0x00543668 = LOAD_EFFECT_TEXTURE();
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSplashSpray2);
+    g_unk0x00543670 = LOAD_EFFECT_TEXTURE();
+    FUN_004a3e20((Unk0x004a3e20 *)g_unk0x00543670, 1);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSplashSpray2f);
+    g_unk0x00543674 = LOAD_EFFECT_TEXTURE();
+    FUN_004a3e20((Unk0x004a3e20 *)g_unk0x00543674, 1);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSnowSpray);
+    g_unk0x00543678 = LOAD_EFFECT_TEXTURE();
+    for (i = 0; i < 8; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexDustCloud, i);
+        g_unk0x005436b8[i] = LOAD_EFFECT_TEXTURE();
+    }
+    for (i = 0; i < 4; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexDetail, i + 1);
+        g_unk0x005436d8[i] = LOAD_EFFECT_TEXTURE();
+        FUN_004a3e20((Unk0x004a3e20 *)g_unk0x005436d8[i], 1);
+    }
+    for (i = 0; i < 5; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexLeaf, i);
+        g_unk0x0054367c[i] = LOAD_EFFECT_TEXTURE();
+    }
+    for (i = 0; i < 2; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexGrass, i + 1);
+        g_unk0x00543690[i] = LOAD_EFFECT_TEXTURE();
+    }
+    for (i = 0; i < 2; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexGrass, i + 3);
+        g_unk0x00543698[i] = LOAD_EFFECT_TEXTURE();
+    }
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CInstallInfo::FUN_0040ed50(), g_strTexSplashDrop);
+    g_unk0x005435c8 = LOAD_EFFECT_TEXTURE();
+    FUN_004a3e20((Unk0x004a3e20 *)g_unk0x005435c8, 1);
+    for (i = 0; i < 5; i++) {
+        sprintf(CFrontend::m_stringDest, g_strNumberedTga, CInstallInfo::FUN_0040ed50(), g_strTexRocksGrav, i);
+        g_unk0x005436a0[i] = LOAD_EFFECT_TEXTURE();
+    }
+    CMain::GetFrameDelta();
+    g_unk0x00543664 = g_unk0x00543660;
+    CarEffects_InitUVs(g_unk0x00543650, g_unk0x00543654);
+}
+#undef LOAD_EFFECT_TEXTURE
+
+
+unsigned int FUN_00456ca0(void);
+void Car_AllocateTable(int count);
+void FUN_004667c0(int count);
+void FUN_00480900(int count);
+void FUN_00494b50(int count);
+void FUN_0045e5b0(int count);
+void FUN_0042b740(int first, int count);
+void FUN_0042b5b0(int first, int count);
+void FUN_00433840(int value);
+void FUN_00466630(int value);
+void FUN_0042b7e0(void);
+unsigned int FUN_00409cb0(int index);
+void FUN_0040aff0(int index, int value);
+void FUN_004584d0(char param_1);
+void FUN_0040b1c0(void);
+unsigned char FUN_00457000(int car);
+void FUN_00420850(Car *pCar);
+void FUN_00458480(void);
+int FUN_00457ed0(void);
+void FUN_0042b660(int count);
+short *Car_GetOrder(void);
+short Car_GetOrderCount(void);
+void FUN_004809e0(short *pList, short count);
+void FUN_00480980(void);
+void FUN_004669b0(int first, int count);
+void FUN_004668d0(void);
+void FUN_004669f0(int, int, short *, short);
+void FUN_0045c610(int a, int b, int count);
+void Particle_KillAll(void);
+void FUN_0042c840(int first, int count);
+void FUN_0043ecd0(Car *pCar);
+void FUN_00465fc0(Car *pCar);
+void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour);
+unsigned int RallyData_GetFlag22(void);
+unsigned int RallyData_GetFlag31(void);
+void FUN_00456d60(SceneNode *pNode, BYTE colour);
+
+// Loads the stage's cars: allocates and clears the car and effect tables,
+// numbers the network players, loads every car, builds the race order and
+// the per-car effects, and sets the cars' model colours. Returns 0 when a car
+// failed to load.
+// FUNCTION: CMR2 0x00456d90
+int FUN_00456d90(void)
+{
+    int count;
+    int i;
+    int number;
+    SceneNode *pNode;
+
+    count = FUN_00456ca0();
+    memset(g_unk0x00542630 + 0x398, 0, 0x20);
+    Car_AllocateTable(count);
+    FUN_004667c0(count);
+    FUN_00480900(count);
+    FUN_00494b50(count);
+    FUN_0045e5b0(count);
+    memset(g_unk0x00542630 + 0x2d4, 0, 0x40);
+    memset(g_unk0x00542630 + 0x294, 0, 0x40);
+    memset(g_unk0x00542630 + 0x254, 0, 0x40);
+    memset(g_unk0x00542630 + 0x314, 0, 0x40);
+    memset(g_unk0x00542630 + 0x354, 0, 0x40);
+    for (i = 0; i < 16; i++) {
+        *(int *)(g_unk0x00542630 + i * 0x24 + 8) = 0;
+        *(int *)(g_unk0x00542630 + i * 0x24 + 4) = 0;
+    }
+    FUN_0042b740(0, count);
+    FUN_0042b5b0(0, count);
+    FUN_00433840(0x190000);
+    FUN_00466630(0x190000);
+    FUN_0042b7e0();
+    if (CGameInfo::FUN_00405e00()) {
+        number = 1;
+        for (i = 0; i < 7; i++) {
+            if ((char)FUN_00409cb0(i)) {
+                FUN_0040aff0(i, number);
+                number++;
+            }
+        }
+    }
+    if ((char)RallyData_GetFlag22() || (char)RallyData_GetFlag31())
+        FUN_004584d0(0);
+    FUN_0040b1c0();
+    for (i = 0; i < count; i++) {
+        if (FUN_00457000(i) == 0)
+            return 0;
+        FUN_00420850(Car_Get(i));
+    }
+    if ((char)RallyData_GetFlag22())
+        FUN_00458480();
+    CGame::RegisterCallback(FUN_00457ed0, NULL);
+    FUN_0042b660(count);
+    FUN_004809e0(Car_GetOrder(), Car_GetOrderCount());
+    FUN_00480980();
+    FUN_004669b0(0, count);
+    FUN_004668d0();
+    FUN_004669f0(0, 0, Car_GetOrder(), Car_GetOrderCount());
+    FUN_0045c610(0, 0, (BYTE)RallyDataState());
+    Particle_KillAll();
+    FUN_0042c840(0, count);
+    for (i = 0; i < count; i++)
+        FUN_0043ecd0(Car_Get(i));
+    if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310())
+        FUN_00465fc0(Car_Get(count - 1));
+    for (i = 0; i < count; i++) {
+        StageTiming_FUN_00456d20(*(SceneNode **)((BYTE *)Car_Get(i) + 0x71c), 0);
+        StageTiming_FUN_00456d20(*(SceneNode **)((BYTE *)Car_Get(i) + 0x720), 0);
+        FUN_00456d60(*(SceneNode **)(*(BYTE **)((BYTE *)Car_Get(i) + 0x71c) + 4), 0);
+        FUN_00456d60(*(SceneNode **)(*(BYTE **)((BYTE *)Car_Get(i) + 0x720) + 4), 0);
+        pNode = SceneNode_FindByType(*(SceneNode **)((BYTE *)Car_Get(i) + 0x720), 0xe);
+        if (pNode != NULL)
+            StageTiming_FUN_00456d20(pNode, 0xff);
+    }
+    return 1;
+}
+
+// Model detail letter of each car, by game mode and slot ('A' = full detail
+// with damage parts, 'C'/'D' = simpler models).
+// GLOBAL: CMR2 0x0051a3d0
+char g_carDetailLetters[] = "CCCCDDDDDCDCDDDDDDDDDD";
+// Team of the previous knockout opponent (-1 = none yet).
+// GLOBAL: CMR2 0x0051a8b8
+int g_unk0x0051a8b8 = -1;
+// GLOBAL: CMR2 0x0051a8c4
+char g_strLightWheelsC3d[] = "L.c3d";
+// GLOBAL: CMR2 0x0051a8cc
+char g_strSnowWheelsC3d[] = "S.c3d";
+// GLOBAL: CMR2 0x0051a8d4
+char g_strCarBflFormat[] = "%s%c%d.bfl";
+// GLOBAL: CMR2 0x0051a8e0
+char g_strCinFormat[] = "%s.cin";
+// GLOBAL: CMR2 0x0051a8e8
+char g_strDamageModelC3d[] = "A1N.c3d";
+// GLOBAL: CMR2 0x0051a8f4
+char g_strCarC3dExt[] = ".C3D";
+// GLOBAL: CMR2 0x0051a8fc
+char g_strCarModelFormat[] = "%s%c%d";
+
+extern char g_strPathConcat[];
+extern char g_strBflFormat[];
+void FUN_00457c50(void);
+int FUN_00407270(void);
+int FUN_0041b380(void);
+unsigned int *RallyData_GetChampionshipState(void);
+int FUN_004660f0(void);
+BYTE FUN_00407fc0(int param1);
+int StageTiming_FUN_00455ab0(int iSplit);
+int RallyTiming_GetStagePositionOfDriver(int iDriver);
+int StageTiming_GetDriverSlot(int iDriver);
+void FUN_0040b200(int index);
+unsigned int FUN_00409d00(int index);
+int RallyData_FUN_00408010(int index);
+void RallyData_FUN_00408600(BYTE index, BYTE value);
+char *FUN_004200d0(int car);
+void FUN_004a3dc0(int param1);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int *FUN_00456c70(int car);
+int FUN_00456c90(int unused);
+int FUN_0042cae0(Car *pCar, int param2);
+BOOL FUN_0042cb50(Car *pCar);
+void FUN_0042cb90(char mode, SceneNode **pWheels);
+void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes);
+void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value);
+void FUN_0046b400(int value, int index);
+void FUN_0045c6b0(int player, int wheel);
+void FUN_00458050(int unused, int slot, int type);
+
+#define CAR_RECORD(i) (g_unk0x00542630 + (i) * 0x24)
+#define MESH_OF(node) (*(int *)((BYTE *)(node) + 0xc))
+
+// Loads car `car` of the stage: picks its model (by game mode: the player's
+// car, the championship/knockout opponents, the network players...), the
+// model's detail letter, then loads the model, its textures and cinematic
+// data, the snow/light wheel set of full-detail cars and, for CPU cars in the
+// rally modes, the damaged body variant. Returns 0 when a file is missing.
+// FUNCTION: CMR2 0x00457000
+BYTE FUN_00457000(int car)
+{
+    char path[260];
+    unsigned int *pSlot;
+    unsigned int *pChamp;
+    unsigned int state;
+    unsigned int slot;
+    unsigned int mode;
+    unsigned int model;
+    int team;
+    int best;
+    int i;
+    int n;
+    int lod;
+    int letterInt;
+    char letter;
+    char variant;
+    char isPlayer;
+    char twoPlayers;
+    char rallyMode;
+    char hasVariant;
+    char knockout;
+    BYTE teamByte;
+    BYTE *pRecord;
+    Unk0x542ae8 *pArchive;
+    void *pData;
+    void *pWheelData;
+    SceneNode *pScene;
+    SceneNode *pBody;
+    SceneNode *pNodes;
+    Car *pCar;
+
+    pSlot = NULL;
+    slot = 0;
+    mode = CGameInfo::FUN_00405d80();
+    isPlayer = car < (int)(BYTE)RallyDataState();
+    if ((BYTE)RallyDataState() > 1 && CGameInfo::FUN_00405da0() == 0)
+        twoPlayers = 1;
+    else
+        twoPlayers = 0;
+    if (mode == 5 || mode == 6 || mode == 7 || mode == 11 || mode == 12)
+        rallyMode = 1;
+    else
+        rallyMode = 0;
+    hasVariant = 0;
+    knockout = mode == 4;
+    variant = 0;
+    FUN_00457c50();
+    switch (FUN_0041b380()) {
+    case 4:
+        slot = FUN_0041b370() + car;
+        break;
+    case 0:
+    case 1:
+        slot = car;
+        break;
+    case 2:
+    case 3:
+        pChamp = RallyData_GetChampionshipState();
+        state = *pChamp;
+        switch ((state >> 3) & 7) {
+        case 1:
+            pSlot = pChamp + ((state >> 12) & 0xf) * 3 + 0x16;
+            break;
+        case 2:
+            pSlot = pChamp + ((state >> 12) & 0xf) * 3 + 10;
+            break;
+        case 3:
+            pSlot = pChamp + ((state >> 12) & 0xf) * 3 + 4;
+            break;
+        case 4:
+            pSlot = pChamp + 1;
+            break;
+        }
+        slot = *pSlot;
+        if (car != 0)
+            slot >>= 5;
+        slot &= 0x1f;
+        break;
+    }
+    if (!knockout) {
+        if ((mode == 3 || mode == 7) && (char)CGameInfo::FUN_00406310() && car == (int)(FUN_00456ca0() - 1)) {
+            i = FUN_004660f0();
+            if (i == -1)
+                i = 0;
+            model = RallyData_FUN_004086b0((BYTE)i);
+        } else if ((char)RallyData_FUN_00407e90() && CGameInfo::FUN_00405e00() == 0) {
+            if (car < (int)(BYTE)RallyDataState())
+                model = RallyData_FUN_004086b0((BYTE)slot);
+            else
+                model = FUN_00407fc0(StageTiming_FUN_00455ab0(FUN_0041b370()));
+        } else if ((char)FUN_00407270()) {
+            best = 99;
+            n = 0;
+            for (i = 0; i < (int)CGameInfo::FUN_00405d70(); i++) {
+                if (RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i)) < best) {
+                    best = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
+                    n = i;
+                }
+            }
+            model = RallyData_FUN_004086b0((BYTE)n);
+        } else {
+            n = 0;
+            if (CGameInfo::FUN_00405e00() && car > 0) {
+                slot = mode;
+                for (i = 0; i < 7; i++) {
+                    if ((char)FUN_00409cb0(i)) {
+                        if (n == car - 1) {
+                            slot = i;
+                            break;
+                        }
+                        n++;
+                    }
+                }
+                FUN_0040b200(slot);
+                model = FUN_00409d00(slot);
+                team = (int)CFrontend::FUN_0040ee90(model);
+                FUN_0040aff0(slot, car);
+                goto classes;
+            }
+            model = RallyData_FUN_004086b0((BYTE)slot);
+        }
+        model &= 0xff;
+        team = (int)CFrontend::FUN_0040ee90(model);
+    } else {
+        if (car == 0) {
+            team = rand() % 6;
+            while (team == g_unk0x0051a8b8)
+                team = rand() % 6;
+            g_unk0x0051a8b8 = team;
+        } else {
+            team = g_unk0x0051a8b8;
+        }
+        model = (unsigned int)CFrontend::FUN_0040eea0(team);
+        RallyData_FUN_00408600((BYTE)car, (BYTE)model);
+    }
+classes:
+    switch (mode) {
+    case 10:
+        letter = g_carDetailLetters[1];
+        lod = 1;
+        break;
+    case 5:
+    case 6:
+    case 8:
+    case 9:
+    case 11:
+    case 12:
+        if (isPlayer) {
+            if (twoPlayers)
+                letter = g_carDetailLetters[0x11];
+            else
+                letter = g_carDetailLetters[4];
+        } else {
+            if (twoPlayers) {
+                letter = g_carDetailLetters[0x12];
+                variant = g_carDetailLetters[0x13];
+            } else {
+                letter = g_carDetailLetters[5];
+                variant = g_carDetailLetters[6];
+            }
+            if (mode == 5 || mode == 6) {
+                model = RallyData_FUN_00408010(car);
+                team = (int)CFrontend::FUN_0040ee90(model);
+            }
+            hasVariant = 1;
+        }
+        lod = letter != 'A' ? 3 : 1;
+        break;
+    case 3:
+    case 7:
+        if ((char)CGameInfo::FUN_00406310()) {
+            if (car == (int)(FUN_00456ca0() - 1)) {
+                if (twoPlayers)
+                    letter = g_carDetailLetters[0xf];
+                else
+                    letter = g_carDetailLetters[3];
+            } else if (twoPlayers) {
+                letter = g_carDetailLetters[0x10];
+            } else {
+                letter = g_carDetailLetters[2];
+            }
+        } else if (twoPlayers) {
+            letter = g_carDetailLetters[0xe];
+        } else {
+            letter = g_carDetailLetters[1];
+        }
+        lod = letter < 'E' ? 1 : 3;
+        break;
+    case 4:
+        if (isPlayer) {
+            if (twoPlayers)
+                letter = g_unk0x00542630[0x394];
+            else
+                letter = g_carDetailLetters[7];
+        } else if (twoPlayers) {
+            letter = g_unk0x00542630[0x395];
+        } else {
+            letter = g_carDetailLetters[8];
+        }
+        lod = 1;
+        break;
+    default:
+        if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0) {
+            if (isPlayer) {
+                if (twoPlayers)
+                    letter = g_carDetailLetters[0x14];
+                else
+                    letter = g_carDetailLetters[9];
+            } else if (twoPlayers) {
+                letter = g_carDetailLetters[0x15];
+            } else {
+                letter = g_carDetailLetters[10];
+            }
+        } else if (twoPlayers) {
+            letter = g_carDetailLetters[0xd];
+        } else if (CGameInfo::FUN_00405e00()) {
+            if (car > 0)
+                letter = g_carDetailLetters[0xc];
+            else
+                letter = g_carDetailLetters[0xb];
+        } else {
+            letter = g_carDetailLetters[0];
+        }
+        lod = 1;
+        break;
+    }
+    if (CGameInfo::FUN_00406410(0x10))
+        lod = 1;
+    pRecord = CAR_RECORD(car);
+    pRecord[0x20] = letter;
+    teamByte = (BYTE)team;
+    g_unk0x0054260c[car] = model;
+    letterInt = letter;
+    sprintf(CFrontend::m_stringDest, g_strCarModelFormat, FUN_004200d0(model), letterInt, lod);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CFrontend::m_stringDest, g_strCarC3dExt);
+    if (pRecord[0x20] == 'A')
+        strncpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 6, g_strDamageModelC3d, 8);
+    pData = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
+    strcpy(path, CFrontend::m_stringDest);
+    *(void **)(g_unk0x00542630 + 0x354 + car * 4) = pData;
+    sprintf(CFrontend::m_stringDest, g_strCinFormat, FUN_004200d0(model));
+    *(void **)(g_unk0x00542630 + 0x398 + car * 4) = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
+    if ((char)RallyData_GetFlag24())
+        FUN_004a3dc0(1);
+    else
+        FUN_004a3dc0(0);
+    sprintf(CFrontend::m_stringDest, g_strCarBflFormat, FUN_004200d0(model), letterInt, lod);
+    pArchive = &g_unk0x00542ae8[car * 2];
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)pArchive, CFrontend::m_stringDest);
+    if (pData == NULL)
+        return 0;
+    pScene = (SceneNode *)FUN_004b9380((unsigned int)pData, RallyData_FUN_00411060(), (unsigned int)pArchive);
+    pBody = SceneNode_FindByType(pScene, 5);
+    *(SceneNode **)(pRecord + 8) = pScene;
+    *(SceneNode **)(pRecord + 4) = pBody;
+    pRecord[0] = (BYTE)team;
+    pRecord[0x20] = letter;
+    if (((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 && twoPlayers == 0 && car == 1) ||
+        (char)FUN_00407270() || CGameInfo::FUN_00405d80() == 4)
+        teamByte = 0;
+    FUN_00457e50(pScene, pBody, car, teamByte, (FixAngles *)FUN_00456c90(car), (FixVector *)FUN_00456c70(car), 0);
+    pWheelData = NULL;
+    if (pRecord[0x20] == 'A') {
+        if (FUN_0042cae0(Car_Get(car), 1)) {
+            strncpy(path + strlen(path) - 5, g_strSnowWheelsC3d, 5);
+            pWheelData = CFileBuffer::GetGenericFileBuffer(path, FALSE);
+        }
+        if (FUN_0042cb50(Car_Get(car))) {
+            strncpy(path + strlen(path) - 5, g_strLightWheelsC3d, 5);
+            pWheelData = CFileBuffer::GetGenericFileBuffer(path, FALSE);
+        }
+        if (pWheelData != NULL) {
+            *(int *)(pRecord + 0xc) = FUN_004b9380((unsigned int)pWheelData, RallyData_FUN_00411060(),
+                                                   (unsigned int)&g_unk0x00542ae8[car * 2]);
+            *(int *)(pRecord + 0x10) = MESH_OF(SceneNode_FindByType(pScene, 1));
+            *(int *)(pRecord + 0x14) = MESH_OF(SceneNode_FindByType(pScene, 2));
+            *(int *)(pRecord + 0x18) = MESH_OF(SceneNode_FindByType(pScene, 3));
+            *(int *)(pRecord + 0x1c) = MESH_OF(SceneNode_FindByType(pScene, 4));
+            MESH_OF(SceneNode_FindByType(pScene, 1)) = MESH_OF(SceneNode_FindByType(*(SceneNode **)(pRecord + 0xc), 1));
+            MESH_OF(SceneNode_FindByType(pScene, 2)) = MESH_OF(SceneNode_FindByType(*(SceneNode **)(pRecord + 0xc), 2));
+            MESH_OF(SceneNode_FindByType(pScene, 3)) = MESH_OF(SceneNode_FindByType(*(SceneNode **)(pRecord + 0xc), 3));
+            MESH_OF(SceneNode_FindByType(pScene, 4)) = MESH_OF(SceneNode_FindByType(*(SceneNode **)(pRecord + 0xc), 4));
+            goto wheelsDone;
+        }
+    }
+    *(int *)(pRecord + 0xc) = 0;
+    *(int *)(pRecord + 0x10) = 0;
+    *(int *)(pRecord + 0x14) = 0;
+    *(int *)(pRecord + 0x18) = 0;
+    *(int *)(pRecord + 0x1c) = 0;
+wheelsDone:
+    *(void **)(g_unk0x00542630 + 0x2d4 + car * 4) = pWheelData;
+    if (CGameInfo::FUN_00405ba0()) {
+        if (pRecord[0x20] == 'A') {
+            Scene_AddShadowCaster(*(SceneNode **)(pRecord + 4), 1);
+            Scene_AddShadowCaster(*(SceneNode **)(pRecord + 8), 1);
+        } else {
+            Scene_AddShadowCaster(*(SceneNode **)(pRecord + 4), 0);
+            Scene_AddShadowCaster(*(SceneNode **)(pRecord + 8), 0);
+        }
+    }
+    SceneNode_SetMeshFlagBits(*(SceneNode **)(pRecord + 4), car);
+    SceneNode_SetMeshFlagBits(*(SceneNode **)(pRecord + 8), car);
+    if (rallyMode || ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310())) {
+        if ((char)RallyData_FUN_00407ea0())
+            CGameInfo::FUN_00406310();
+    } else {
+        FUN_0046b400(1, car);
+    }
+    if (car < (int)(BYTE)RallyDataState() &&
+        ((CGameInfo::FUN_00405d80() != 0 && CGameInfo::FUN_00405d80() != 1) || RallyDataStageIndex() == 0 ||
+         RallyDataStageIndex() == 4 || RallyDataStageIndex() == 8 || RallyDataStageIndex() == 10)) {
+        FUN_0045c6b0(car, 0);
+        FUN_0045c6b0(car, 1);
+        FUN_0045c6b0(car, 2);
+        FUN_0045c6b0(car, 3);
+    }
+    if ((char)RallyData_GetFlag24() == 0 && (letter == 'C' || letter == 'A')) {
+        sprintf(CFrontend::m_stringDest, g_strCarModelFormat, FUN_004200d0(model), letterInt, lod);
+        FUN_00458050((int)CFrontend::m_stringDest, car, teamByte);
+    }
+    if (hasVariant == 0 || CGameInfo::FUN_00406410(0x10)) {
+        pCar = Car_Get(car);
+        *(int *)((BYTE *)pCar + 0x724) = 0;
+        *(int *)((BYTE *)pCar + 0x728) = 0;
+        *(int *)((BYTE *)pCar + 0x72c) = 0;
+        *(int *)((BYTE *)pCar + 0x730) = 0;
+        *(int *)((BYTE *)pCar + 0x734) = 0;
+        return 1;
+    }
+    pRecord[0x21] = variant;
+    sprintf(CFrontend::m_stringDest, g_strCarModelFormat, FUN_004200d0(model), (int)variant, lod);
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, CFrontend::m_stringDest, g_strCarC3dExt);
+    pData = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
+    if (pData == NULL)
+        return 0;
+    *(void **)(g_unk0x00542630 + 0x314 + car * 4) = pData;
+    CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - strlen(g_strCarC3dExt)] = 0;
+    sprintf(CFrontend::m_stringDest, g_strBflFormat, CFrontend::m_stringDest);
+    pArchive = &g_unk0x00542ae8[car * 2 + 1];
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)pArchive, CFrontend::m_stringDest);
+    pCar = Car_Get(car);
+    pNodes = (SceneNode *)FUN_004b9380((unsigned int)pData, RallyData_FUN_00411060(), (unsigned int)pArchive);
+    *(SceneNode **)(g_unk0x00542630 + 0x294 + car * 4) = pNodes;
+    *(SceneNode **)((BYTE *)pCar + 0x724) = SceneNode_FindByType(pNodes, 5);
+    *(SceneNode **)((BYTE *)pCar + 0x728) = SceneNode_FindByType(pNodes, 1);
+    *(SceneNode **)((BYTE *)pCar + 0x72c) = SceneNode_FindByType(pNodes, 2);
+    *(SceneNode **)((BYTE *)pCar + 0x730) = SceneNode_FindByType(pNodes, 3);
+    *(SceneNode **)((BYTE *)pCar + 0x734) = SceneNode_FindByType(pNodes, 4);
+    if (CGameInfo::FUN_00405ba0())
+        Scene_AddShadowCaster(*(SceneNode **)((BYTE *)pCar + 0x724), 0);
+    SceneNode_SetMeshFlagBits(*(SceneNode **)((BYTE *)pCar + 0x724), car);
+    for (i = 0x724; i <= 0x734; i += 4) {
+        if (*(SceneNode **)((BYTE *)pCar + i) != NULL)
+            SceneNode_Reparent(*(SceneNode **)((BYTE *)pCar + i), *(SceneNode **)((BYTE *)pCar + 0x71c));
+    }
+    FUN_0042cb90(pRecord[0x21], (SceneNode **)((BYTE *)pCar + 0x728));
+    return 1;
+}
+#undef CAR_RECORD
+#undef MESH_OF

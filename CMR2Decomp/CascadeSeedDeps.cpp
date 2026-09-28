@@ -7,9 +7,6 @@
 // STUB: CMR2 0x0049d3f0
 void FUN_0049d3f0(int, int, void *, int, int) { }
 
-// STUB: CMR2 0x004b9380
-int FUN_004b9380(unsigned int, unsigned int, unsigned int) { return 0; }
-
 
 
 // STUB: CMR2 0x005062d0
@@ -91,14 +88,9 @@ void FUN_004dbd80(Menu *pMenu) { }
 void FUN_004f8b30(void) { }
 
 
-// STUB: CMR2 0x00459c80
-void FUN_00459c80(void) { }
-
-// STUB: CMR2 0x00456d90
-int FUN_00456d90(void) { return 0; }
 // STUB: CMR2 0x00478f50
 void FUN_00478f50(void) { }
 
 struct FixMatrix;
-// STUB: CMR2 0x004760a0
-void FUN_004760a0(int, unsigned char) { }
+// STUB: CMR2 0x004669f0
+void FUN_004669f0(int, int, short *, short) { }
