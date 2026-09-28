@@ -9566,3 +9566,129 @@ unsigned int FUN_0047c5e0(int param_1)
         return 4;
     return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
 }
+
+int RallyData_FUN_00421420(void);
+int RallyData_FUN_00421370(BYTE *p);
+void RallyData_FUN_00421530(int index, int *pOut);
+extern double g_unk0x00511300;
+
+// Picks the closest car ahead of the reference angle among the active cars,
+// rejecting those out of range or outside the angular window, and writes the
+// chosen one's relative state code to *param_2.
+// match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
+// FUNCTION: CMR2 0x0047cd10
+int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
+{
+    Car *cars[6];
+    int flags[6];
+    int maxAng[6];
+    int angles[6];
+    int i, n;
+    int wrap, base, refX, refZ;
+    int outA[3], outB[3];
+    int outIdx;
+    int iVar7, iVar8, iVar9, iVar10;
+    unsigned int uVar2, length;
+
+    *param_2 = 0;
+    for (i = 0; i < 6; i++) {
+        flags[i] = 0;
+        cars[i] = Car_Get(i);
+    }
+    wrap = RallyData_FUN_00421420();
+    refX = *(int *)((BYTE *)cars[param_1] + 0x2d8);
+    refZ = *(int *)((BYTE *)cars[param_1] + 0x2d0);
+    base = param_4[4];
+    n = (int)(signed char)g_unk0x0058e0b0[0];
+
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if ((i != param_1) && (*(int *)((BYTE *)cars[i] + 0x778) < 0xc800))
+                flags[i] = 1;
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
+                                                 *(int *)((BYTE *)cars[i] + 0x360));
+                iVar8 = FUN_00498db0(base - iVar8);
+                if ((iVar8 < -0x5a0000) || (0x5a0000 < iVar8))
+                    maxAng[i] = 10;
+                else
+                    maxAng[i] = 5;
+            }
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = RallyData_FUN_00421370((BYTE *)cars[i]);
+                angles[i] = iVar8;
+                iVar8 = iVar8 - param_3;
+                if (iVar8 < -100)
+                    iVar8 = iVar8 + wrap;
+                if ((iVar8 < 0) || (maxAng[i] < iVar8))
+                    flags[i] = 0;
+            }
+        }
+    }
+    outIdx = 0;
+    if (0 < (signed char)g_unk0x0058e0b0[0]) {
+        do {
+            if (flags[outIdx] != 0) {
+                int dx = *(int *)((BYTE *)cars[outIdx] + 0x2d8) - refX;
+                int dz = *(int *)((BYTE *)cars[outIdx] + 0x2d0) - refZ;
+
+                uVar2 = (unsigned int)FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
+                length = uVar2;
+                iVar7 = StageObject_Atan2Degrees(dx, dz);
+                iVar8 = FUN_00498db0(base - iVar7);
+                if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
+                    iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
+                    if (iVar10 < 0x50001) {
+                        if (iVar10 < 0)
+                            iVar10 = 0;
+                    } else {
+                        iVar10 = 0x50000;
+                    }
+                    length = (unsigned int)FixMul((int)length,
+                        g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
+                    iVar9 = (param_3 + 5) - wrap;
+                    iVar7 = param_3 + 5;
+                    if (-1 < iVar9)
+                        iVar7 = iVar9;
+                    RallyData_FUN_00421530(iVar7, outB);
+                    iVar7 = StageObject_Atan2Degrees(outB[2] - refX, outB[0] - refZ);
+                    FUN_00498db0(base - iVar7);
+                    if (((int)length <= iVar10) && (-iVar10 <= (int)length)) {
+                        iVar8 = FUN_00498db0(iVar8 - iVar7);
+                        if (iVar8 < 0) {
+                            if (0x320000 < *param_4) {
+                                flags[outIdx] = 4;
+                                *param_2 = flags[outIdx];
+                                return outIdx;
+                            }
+                            flags[outIdx] = 2;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        if (0x320000 < *param_4) {
+                            flags[outIdx] = 3;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        flags[outIdx] = 1;
+                        *param_2 = flags[outIdx];
+                        return outIdx;
+                    }
+                    flags[outIdx] = 0;
+                } else {
+                    flags[outIdx] = 0;
+                }
+            }
+            outIdx++;
+        } while (outIdx < (signed char)g_unk0x0058e0b0[0]);
+    }
+    return -1;
+}
