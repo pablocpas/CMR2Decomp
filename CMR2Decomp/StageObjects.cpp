@@ -9049,3 +9049,163 @@ void FUN_00462d80(int param_1, int param_2)
         Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, NULL, NULL, colour, 8);
     }
 }
+
+void FUN_00486910(BYTE *pObj, int *pSrc);
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+extern BYTE g_unk0x00590d8c[4];
+extern BYTE g_unk0x00590ec0[16];
+
+// Picks the node of one stage object of a car and refreshes the object's
+// local matrix from that node.
+// FUNCTION: CMR2 0x00486740
+void FUN_00486740(BYTE *pObj, int *pSrc, BYTE car, BYTE param4)
+{
+    g_unk0x00590d8c[*pObj] = param4;
+    g_unk0x00590ec0[*pObj] = car;
+    if ((short)car >= Car_GetOrderCount())
+        goto done;
+
+    if (Car_Get(car)->pNode0x720 == NULL)
+        goto done;
+
+    if (FUN_00456be0(car)[0x20] == 'C' || FUN_00456be0(car)[0x20] == 'A')
+        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(Car_Get(car)->pNode0x720, 9);
+    else
+        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(Car_Get(car)->pNode0x720, 5);
+    g_stageBlock_58d47c[car] = (int)SceneNode_FindByType(Car_Get(car)->pNode0x720, 5);
+
+done:
+    FUN_00486910(pObj, pSrc);
+}
+
+// Rebuilds the box axes of a stage object from the car/ground vectors and
+// accumulates the extent of the eight corner points of the object.
+// match 82%: MSVC6 keeps the constant zero in ESI in the original and in EDX here (register
+// allocation only; logic, constants and block layout match)
+// FUNCTION: CMR2 0x00486c30
+void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts)
+{
+    FixVector *p;
+    FixVector d;
+    int len;
+    int dot1;
+    int dot2;
+    int m;
+    int i;
+
+    if (pObj[10] != 0)
+        return;
+
+    pObj[3] = 0;
+    pObj[2] = 0;
+    pObj[1] = 0;
+    pObj[0] = 0;
+    m = param2[1];
+    if (m < 0)
+        m = -m;
+    if (m > 0xfd70) {
+        ((FixVector *)(pObj + 4))->x = param2[3];
+        ((FixVector *)(pObj + 4))->y = param2[4];
+        ((FixVector *)(pObj + 4))->z = param2[5];
+        pObj[5] = 0;
+        len = FixVecLength((FixVector *)(pObj + 4));
+        if (len == 0) {
+            pObj[4] = 0;
+            pObj[5] = 0;
+            pObj[6] = 0;
+        } else {
+            FixVecScaleRecip((FixVector *)(pObj + 4), (FixVector *)(pObj + 4), len);
+        }
+    } else {
+        ((FixVector *)(pObj + 4))->x = param2[0];
+        ((FixVector *)(pObj + 4))->y = param2[1];
+        ((FixVector *)(pObj + 4))->z = param2[2];
+        pObj[5] = 0;
+        len = FixVecLength((FixVector *)(pObj + 4));
+        if (len == 0) {
+            pObj[4] = 0;
+            pObj[5] = 0;
+            pObj[6] = 0;
+        } else {
+            FixVecScaleRecip((FixVector *)(pObj + 4), (FixVector *)(pObj + 4), len);
+        }
+    }
+    pObj[8] = 0;
+    pObj[7] = pObj[6];
+    pObj[9] = -pObj[4];
+
+    p = pVerts;
+    i = 8;
+    do {
+        d.x = p->x - param3[0];
+        d.y = p->y - param3[1];
+        d.z = p->z - param3[2];
+        dot1 = FixVecDot(&d, (FixVector *)(pObj + 4));
+        dot2 = FixVecDot(&d, (FixVector *)(pObj + 7));
+        if (dot1 > 0 && dot1 > pObj[0])
+            pObj[0] = dot1;
+        if (dot2 > 0 && dot2 > pObj[1])
+            pObj[1] = dot2;
+        if (d.y > pObj[2])
+            pObj[2] = d.y;
+        if (d.y < pObj[3])
+            pObj[3] = d.y;
+        p++;
+    } while (--i);
+
+    pObj[2] += param3[1];
+    pObj[3] += param3[1];
+    pObj[0x24] = (int)pVerts;
+    pObj[0x25] = (int)param3;
+    pObj[10] = 1;
+    FUN_00486fc0(pObj, param3);
+}
+
+// Text colour and layer used by the knockout screen header.
+// GLOBAL: CMR2 0x0051c980
+BYTE g_unk0x0051c980 = 3;
+// GLOBAL: CMR2 0x0051c9a4
+BYTE g_unk0x0051c9a4[4] = { 0x61, 0x61, 0x7d, 0xff };
+extern BYTE g_barTextColour[4];
+
+// Draws the two header lines of a knockout match: interpolates the panel
+// rectangle, then prints both driver names with the shared bar colours.
+// match 97%: the original reads the header layer byte straight into AL (its Font_DrawText
+// takes a BYTE index); ours zero-extends it from the BYTE global
+// FUNCTION: CMR2 0x00474fe0
+void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, KnockoutMatch *param6)
+{
+    short rect[4];
+    int x;
+    int y;
+
+    x = (param3 - param1) * g_unk0x0058cc74 / 0x10000 + param1;
+    rect[0] = (short)x;
+    y = (param4 - param2) * g_unk0x0058cc74 / 0x10000 + param2;
+    rect[1] = (short)y;
+    rect[2] = (short)((int)g_pGraphics->resX * 0x56 / 0x280);
+    rect[3] = (short)((int)g_pGraphics->resY * 0x26 / 0x1e0);
+    FUN_00475740(rect, g_unk0x0051c9a4, g_barTextColour, 0);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
+        CFrontend::FUN_004b7590(0x400) != 0) {
+        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param6, param5)),
+                      (int)g_pGraphics->resX * 0x54 / 0x280 + x,
+                      (int)g_pGraphics->resY * 0x10 / 0x1e0 - (int)g_pGraphics->resY * 2 / 0x1e0 + y,
+                      (int *)g_barTextColour, 0x14);
+        Font_DrawText(g_unk0x0051c980,
+                      (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004752f0((int *)param6, param5, 0)),
+                      (int)g_pGraphics->resX * 0x54 / 0x280 + x,
+                      (int)g_pGraphics->resY * 0x1c / 0x1e0 + y + (int)g_pGraphics->resY * 7 / 0x1e0,
+                      (int *)g_barTextColour, 0x14);
+        return;
+    }
+    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param6, param5)),
+                  (int)g_pGraphics->resX * 0x54 / 0x280 + x,
+                  (int)g_pGraphics->resY * 0x10 / 0x1e0 + y,
+                  (int *)g_barTextColour, 0x14);
+    Font_DrawText(g_unk0x0051c980,
+                  (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004752f0((int *)param6, param5, 0)),
+                  (int)g_pGraphics->resX * 0x54 / 0x280 + x,
+                  (int)g_pGraphics->resY * 0x1c / 0x1e0 + y,
+                  (int *)g_barTextColour, 0x14);
+}

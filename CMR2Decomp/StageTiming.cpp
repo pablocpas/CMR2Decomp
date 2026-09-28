@@ -5556,3 +5556,14 @@ void FUN_00458100(int param_1)
         }
     }
 }
+
+void FUN_00469bf0(Car *pCar, int index);
+
+// Clears the low bit of the motion object's flag byte and forwards the
+// resulting upper nibble to the car's timing record setter.
+// FUNCTION: CMR2 0x00483010
+void FUN_00483010(void)
+{
+    g_unk0x00590c20->field_0x150[0] &= 0xfe;
+    FUN_00469bf0((Car *)g_unk0x00590d74, g_unk0x00590c20->field_0x150[0] >> 4);
+}
