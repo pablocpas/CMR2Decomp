@@ -853,6 +853,18 @@ extern short g_unk0x0053d090[4];
 // View offset of a player's camera (HudDash.cpp).
 void FUN_00447ee0(FixVector *pOut, BYTE *pSel);
 
+void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+
+// Caches the reference matrix's up and right basis vectors in the player's
+// camera slots, then builds the view object's matrix from them.
+// FUNCTION: CMR2 0x00447a00
+void FUN_00447a00(BYTE *pObj, FixMatrix *pRef)
+{
+    FixMatrix_GetUp(&g_unk0x0053d048[2 + pObj[0]], pRef);
+    FixMatrix_GetRight(&g_unk0x0053d000[2 + pObj[0]], pRef);
+    FUN_00447a40(pObj, pRef);
+}
+
 // Builds a view object's matrix: the basis comes from the player's camera
 // up/forward vectors, the position from the player's view offset plus the
 // object's own, and then the object's remaining fields are set.

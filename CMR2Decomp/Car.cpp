@@ -4383,11 +4383,47 @@ void FUN_00423fc0(int view)
     FUN_0048df10(VIEW_MODE_RECORD(view));
 }
 
+int FUN_00423970(unsigned int index, int mode);
+void FUN_00421720(unsigned char index, int a, int b, unsigned char c, int d);
+unsigned int FUN_0048d8b0(FixVector *pPos);
+int FUN_00421980(unsigned int view);
+
+// Next free view-mode slot (0..0xa) of a player's view record.
+// FUNCTION: CMR2 0x004218d0
+int FUN_004218d0(unsigned int view)
+{
+    int mode;
+    int found;
+
+    mode = *(int *)(g_unk0x0053901c +
+                    (BYTE)(g_unk0x00538e0c[view & 0xff] + (char)view * 2) * 100);
+    do {
+        mode++;
+        if (mode == 0xb)
+            mode = 0;
+        found = FUN_00423970(view, mode);
+    } while (found == 0);
+    FUN_00421720(view, mode, 0xffff, FUN_00422fb0(view), 1);
+    return mode;
+}
+
+// Moves the view's mode record to the surface the camera target sits on.
+// FUNCTION: CMR2 0x00421930
+void FUN_00421930(unsigned int view)
+{
+    FixVector target;
+    unsigned int surface;
+
+    surface = FUN_0048d8b0(FUN_00423db0(&target, FUN_00422fb0(view)));
+    if (surface != FUN_00421980(view))
+        FUN_00421720(view, 7, surface, FUN_00422fb0(view), 0);
+}
+
 // FUNCTION: CMR2 0x00421980
-void FUN_00421980(unsigned int view)
+int FUN_00421980(unsigned int view)
 {
     view &= 0xff;
-    FUN_0048d930(VIEW_MODE_RECORD(view));
+    return FUN_0048d930(VIEW_MODE_RECORD(view));
 }
 
 // FUNCTION: CMR2 0x00437f90

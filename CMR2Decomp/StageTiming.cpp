@@ -1255,6 +1255,41 @@ void FUN_004246c0(void)
     }
 }
 
+void FUN_00424360(void);
+void FUN_004247a0(void);
+void FUN_004248a0(void);
+void FUN_00424af0(void);
+void FUN_00424c00(void);
+
+extern int g_unk0x00539270[2];
+extern BYTE *g_unk0x0053937c;
+
+// Selects the force-feedback slot and car of a player, copies the car's
+// centring state into the shared road-rumble values and re-applies the slot's
+// forces when it is in use.
+// FUNCTION: CMR2 0x00424710
+void FUN_00424710(int view)
+{
+    g_unk0x00539278 = &g_forceFeedbackSlots[view];
+    g_unk0x0053937c = (BYTE *)Car_Get(view);
+    if (*(int *)(g_unk0x0053937c + 0xb74) != 0) {
+        g_unk0x00539270[0] = *(int *)(g_unk0x0053937c + 0xbac);
+        g_unk0x00539270[1] = *(int *)(g_unk0x0053937c + 0xbb0);
+    } else {
+        g_unk0x00539270[0] = 0;
+        g_unk0x00539270[1] = 0;
+    }
+    if (g_unk0x00539278->field_0x34 != 0) {
+        FUN_004246a0();
+        FUN_004247a0();
+        FUN_00424af0();
+        FUN_00424360();
+        FUN_004248a0();
+        FUN_00424c00();
+        FUN_00424560();
+    }
+}
+
 // Fades the two impulse forces of the current slot out.
 // FUNCTION: CMR2 0x00424c00
 void FUN_00424c00(void)
