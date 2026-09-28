@@ -131,3 +131,10 @@ void FUN_0049bcb0(Menu *pMenu) { }
 // STUB: CMR2 0x00473d60
 void FUN_00473d60(Menu *pMenu) { }
 
+// Scaffolding for the FrontendScreens batch: callees that do not exist yet.
+// STUB: CMR2 0x004dbd80
+void FUN_004dbd80(Menu *pMenu) { }
+
+// STUB: CMR2 0x004f8b30
+void FUN_004f8b30(void) { }
+
