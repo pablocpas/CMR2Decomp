@@ -26,6 +26,7 @@
 #include "Font.h"
 #include "Sprite.h"
 #include "Collision2D.h"
+#include "Menu.h"
 
 struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
@@ -4799,6 +4800,74 @@ void FUN_00480a60(void)
 }
 
 int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+extern BYTE g_barTextColour[4];
+// Panel, text and selection colours of the stage-data screen.
+// GLOBAL: CMR2 0x0051c984
+BYTE g_unk0x0051c984[4] = { 210, 202, 210, 128 };
+// GLOBAL: CMR2 0x0051c994
+BYTE g_unk0x0051c994[4] = { 143, 135, 143, 255 };
+
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+
+// Draws the stage-data panel of the pause screen: its background, the row
+// separators and, for every item, the label and the highlight sprite.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Identical instruction sequence; the original keeps the loop counter in ESI and
+// pushes EBX/EDI inside the loop, our build spills one more register in the prologue,
+// which shifts every stack slot by 4 (register-slot renumbering).
+// FUNCTION: CMR2 0x004738f0
+void FUN_004738f0(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    short rect2[4];
+    int i;
+    int texture;
+    BYTE *pColour;
+
+    rect2[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
+    rect2[1] = (short)((int)(g_pGraphics->resY * 0xd1) / 0x1e0);
+    texture = FUN_004055e0();
+    rect2[2] = *(short *)(texture + 0x120);
+    texture = FUN_004055e0();
+    rect2[3] = *(short *)(texture + 0x122);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+    rect[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
+    rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x26) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x0051c984, 2);
+    pItem = pMenu->items;
+    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+        rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                           + (int)(g_pGraphics->resY * 0xd1) / 0x1e0);
+        if (pMenu->cursor == i) {
+            pColour = g_barTextColour;
+            texture = FUN_004055e0();
+        } else {
+            pColour = g_unk0x0051c994;
+            texture = FUN_004055f0();
+        }
+        Font_DrawText(0, CFrontend::GetTextString(pItem->id),
+                      (int)(g_pGraphics->resX * 0x78) / 0x280,
+                      (int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                          + (int)(g_pGraphics->resY * 0xdd) / 0x1e0,
+                      (int *)pColour, 0x11);
+        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture,
+                     2, 0, NULL, NULL, pColour, 8);
+        if (i == 0 || pMenu->cursor == i) {
+            rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                              + (int)(g_pGraphics->resY * 0xc6) / 0x1e0);
+            rect[3] = 1;
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+        }
+        rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                          + (int)(g_pGraphics->resY * 0xea) / 0x1e0);
+        rect[3] = 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+    }
+}
 
 // Draws the first `fraction` of a text (typing effect; spaces don't count)
 // and the next character on its own.
