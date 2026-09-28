@@ -19,6 +19,7 @@
 #include "main.h"
 #include "NetworkLeaderboards.h"
 #include "NetPlayers.h"
+#include "FileBuffer.h"
 
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 #define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
@@ -1823,6 +1824,120 @@ char FUN_004eca10(void)
     info[0] = FUN_004a1a00();
     info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0) | 0x80;
     return FUN_004a1a10((int)RallyData_GetRecord(0), (int)RallyData_GetRecord(0), (int)info, 0x10);
+}
+
+// The GUID of the session the browser list currently points at.
+int FUN_004a15c0(BYTE index, GUID *pOut);
+// GLOBAL: CMR2 0x00818cf0
+GUID g_unk0x00818cf0;
+// GLOBAL: CMR2 0x00819018
+int g_unk0x00819018;
+
+// Per-frame step of the network session browser: enumerates the sessions,
+// keeps the cursor on the previously selected one (or moves it with the
+// up/down buttons), scrolls the five visible rows and fills the menu.
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the difference is MSVC's basic-block
+// order (the original keeps the -1/-2 exits and the first-time setup after
+// the main return) plus the EAX-only return of CGameInfo::FUN_004a12d0,
+// which here goes through a function-pointer cast because GameInfo.h
+// declares it void.
+// FUNCTION: CMR2 0x004ecaf0
+void FUN_004ecaf0(Menu *pMenu)
+{
+    DeviceInfo *pDevice;
+    GUID guid;
+    int status;
+    int i;
+
+    pDevice = CInput::FUN_0049ead0(0);
+    if (g_unk0x00818ef4 == 0)
+        return;
+    if (g_unk0x00818d04 == 0) {
+        g_pGraphics->pDD7->FlipToGDISurface();
+        ShowCursor(1);
+    }
+    // the original returns the enumeration status in EAX
+    status = ((int (*)(int))CGameInfo::FUN_004a12d0)((int)&g_unk0x00818ef8);
+    if (g_unk0x00818d04 == 0) {
+        ShowCursor(0);
+        ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
+    }
+    if (status == 1) {
+        g_unk0x00818d04 = 1;
+        g_unk0x00819018 = FUN_004a1480();
+        if (g_unk0x00819014 == 0) {
+            g_unk0x00525288 = 0;
+            g_unk0x0052528c = -1;
+            g_unk0x00819024 = 0;
+            Menu_SetFlags(pMenu, 1, 1, 1, 1);
+            goto tail;
+        }
+        if (g_unk0x00819018 <= 0) {
+            g_unk0x00819014 = 0;
+            g_unk0x00525288 = -1;
+            g_unk0x0052528c = -1;
+            g_unk0x00819024 = 0;
+            g_unk0x0081901c = 0;
+        } else {
+            if (g_unk0x0052528c != g_unk0x00819018) {
+                if (g_unk0x00819024 == 0) {
+                    g_unk0x00525288 = -1;
+                } else {
+                    for (i = 0; i < g_unk0x00819018; i++) {
+                        FUN_004a15c0((BYTE)i, &guid);
+                        if (IsEqualGUID(g_unk0x00818cf0, guid)) {
+                            g_unk0x00525288 = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            g_unk0x0052528c = g_unk0x00819018;
+            if (g_unk0x00525288 == -1) {
+                g_unk0x00525288 = 0;
+                FUN_004a15c0(0, &g_unk0x00818cf0);
+                g_unk0x00819024 = 1;
+            } else if ((pDevice->field_0x8 & 0x20) != 0) {
+                g_unk0x00819014 = 0;
+                g_unk0x00525288 = -1;
+                g_unk0x00819024 = 0;
+                CGameInfo::FUN_004a13b0();
+                g_unk0x00818ef4 = 0;
+            } else {
+                Menu_SetFlags(pMenu, 0, 0, 1, 0);
+                if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
+                    g_unk0x00525288--;
+                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                    g_unk0x00819024 = 1;
+                } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
+                    g_unk0x00525288++;
+                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                    g_unk0x00819024 = 1;
+                }
+            }
+        }
+        if (g_unk0x00525288 < g_unk0x0081901c) {
+            g_unk0x0081901c--;
+            if (g_unk0x0081901c < 0)
+                g_unk0x0081901c = 0;
+        }
+        if (g_unk0x00525288 >= g_unk0x0081901c + 5)
+            g_unk0x0081901c++;
+    } else {
+        if (status == -1)
+            return;
+        if (status != -2)
+            return;
+        CGame::FUN_0049c140();
+        Menu_SetNextAction((int)pMenu->pParent);
+        return;
+    }
+tail:
+    if (g_unk0x00819018 > 5)
+        g_unk0x00819020 = 5;
+    else
+        g_unk0x00819020 = g_unk0x00819018;
 }
 
 // FUNCTION: CMR2 0x004eca60
@@ -7551,6 +7666,188 @@ void FUN_004fb370(int param_1, int unused)
     }
     RallyData_FUN_0040d620(3);
     Menu_SetNextAction((int)FUN_004f8330());
+}
+
+void FUN_004ea930(BYTE param1);
+void FUN_004ea8c0(BYTE param1);
+void FUN_004ea950(BYTE param1);
+void FUN_004eadb0(void);
+void FUN_004eb000(BYTE index, char set);
+void FUN_004eb860(int index, int profile);
+void FUN_004ebf20(int index);
+char *FUN_004eb2e0(char *pName);
+void *FUN_004eb4b0(char *param1, int param2);
+BYTE *RallyData_FUN_00408860(int index);
+struct Unk0x0052ebc0 {
+    BYTE field_0x0[0x148];
+};
+Unk0x0052ebc0 *RallyData_FUN_00407610(int index);
+BYTE *RallyData_FUN_00407630(int index);
+BYTE *RallyData_FUN_00408d60(int index);
+BYTE RallyData_FUN_00409010(int index, int bit);
+BYTE *RallyData_FUN_004075d0(int index);
+int *FUN_00407520(int index);
+int *RallyData_FUN_004075e0(int index);
+int *RallyData_FUN_004075b0(int index);
+int *RallyData_FUN_004075c0(int index);
+void FUN_0040cff0(int index, char value);
+void RallyData_FUN_004068e0(BYTE param1);
+void RallyData_FUN_004068d0(char param1);
+void RallyData_FUN_0040e330(char param1);
+
+// Applies a 0x7e0-byte driver profile block to the game state: resets the four
+// players, copies each one's car record (0x148), controller setup (7) and name
+// (0xc) plus the four gear-ratio tables and the 16 key bindings, and raises the
+// per-mode event ratios.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the remaining diff is instruction selection
+// in the bit-field inserts and MSVC's basic-block order.
+// FUNCTION: CMR2 0x004fb400
+unsigned int FUN_004fb400(BYTE *pBlock)
+{
+    BYTE *pName;
+    BYTE *pSetup;
+    BYTE *pDest;
+    BYTE *pSrc;
+    BYTE *pRecord;
+    BYTE *pBuffer;
+    unsigned int *pState;
+    unsigned int *pOut;
+    unsigned int value;
+    unsigned int i;
+
+    if (pBlock == NULL)
+        return 0;
+    FUN_004ea8e0(pBlock[0x30] & 0x7f);
+    FUN_004ea930((*(unsigned int *)(pBlock + 0x30) >> 7) & 7);
+    FUN_004ea8c0((*(unsigned int *)(pBlock + 0x30) >> 0xa) & 0xf);
+    FUN_004ea950((*(unsigned int *)(pBlock + 0x30) >> 0xe) & 1);
+    FUN_004eadb0();
+    i = 0;
+    if (CGameInfo::FUN_00405d70() != 0) {
+        pName = pBlock + 0xc4;
+        pSetup = pBlock + 0x614;
+        pDest = pBlock + 0xf4;
+        pSrc = pBlock + 0xb4;
+        do {
+            FUN_004eb860(i, -1);
+            FUN_004ebf20(i);
+            FUN_004eb000((BYTE)i, 0);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x5c) =
+                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x300 ^
+                *(unsigned int *)(pRecord + 0x5c);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x5c) =
+                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x38 ^
+                *(unsigned int *)(pRecord + 0x5c);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x5c) =
+                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0x1c00 ^
+                *(unsigned int *)(pRecord + 0x5c);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x5c) =
+                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 0xc0 ^
+                *(unsigned int *)(pRecord + 0x5c);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x5c) =
+                (*(unsigned int *)(pRecord + 0x5c) ^ *(unsigned int *)pSrc) & 7 ^
+                *(unsigned int *)(pRecord + 0x5c);
+            pRecord = RallyData_FUN_00408860(i);
+            *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
+            *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
+            *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
+            memcpy(RallyData_FUN_00407610(i), pDest, 0x148);
+            pBuffer = RallyData_FUN_00407630(i);
+            *(unsigned int *)pBuffer = *(unsigned int *)pSetup;
+            *(unsigned short *)(pBuffer + 4) = *(unsigned short *)(pSetup + 4);
+            pBuffer[6] = pSetup[6];
+            if ((*(unsigned int *)(RallyData_FUN_00408860(i) + 0x14) & 0x200000) == 0) {
+                pBuffer = (BYTE *)FUN_004eb4b0(FUN_004eb2e0((char *)pName), 0);
+                if (pBuffer == NULL) {
+                    FUN_004eb000((BYTE)i, 0);
+                } else {
+                    memcpy(RallyData_FUN_00408860(i), pBuffer, 0x650);
+                    pRecord = RallyData_FUN_00408860(i);
+                    *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
+                    *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
+                    *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
+                    CFileBuffer::FreeGenericFileBuffer(pBuffer);
+                }
+            }
+            pDest += 0x148;
+            pSetup += 7;
+            pName += 0xc;
+            i++;
+            pSrc += 4;
+        } while ((int)i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
+    pState = (unsigned int *)(pBlock + 0x34);
+    i = 0;
+    pOut = pState;
+    do {
+        pRecord = RallyData_FUN_00408d60(i);
+        *(unsigned int *)pRecord = (*(unsigned int *)pRecord ^ *pOut) & 0x3f ^ *(unsigned int *)pRecord;
+        pRecord = RallyData_FUN_00408d60(i);
+        *(unsigned int *)pRecord = *pOut >> 1 & 0x1fc0 | *(unsigned int *)pRecord & 0xffffe03f;
+        pRecord = RallyData_FUN_00408d60(i);
+        i++;
+        pOut += 2;
+        *(unsigned int *)(pRecord + 4) = *(pOut - 1);
+    } while ((int)i < 0x10);
+    i = 0;
+    if (CGameInfo::FUN_00405d70() != 0) {
+        do {
+            FUN_004eb0c0((BYTE)i, (BYTE)(*pState >> 6) & 1);
+            pRecord = RallyData_FUN_00408d60(i);
+            RallyData_FUN_00409010(i, *(unsigned int *)pRecord & 0x3f);
+            i++;
+            pState += 2;
+        } while ((int)i < (int)(CGameInfo::FUN_00405d70() & 0xff));
+    }
+    i = 0;
+    do {
+        FUN_0040cff0(i, pBlock[0x7dc + i]);
+        i++;
+    } while ((int)i < 0x10);
+    memcpy(FUN_00407520(0), pBlock + 0x630, 0xa0);
+    memcpy(RallyData_FUN_004075e0(0), pBlock + 0x6d0, 0x50);
+    memcpy(RallyData_FUN_004075d0(0), pBlock + 0x720, 0x14);
+    memcpy(RallyData_FUN_004075b0(0), pBlock + 0x734, 0x50);
+    memcpy(RallyData_FUN_004075c0(0), pBlock + 0x784, 0x50);
+    RallyData_FUN_004068b0(pBlock[0x7d8] & 0x1f);
+    RallyData_FUN_004068e0((*(unsigned int *)(pBlock + 0x7d8) >> 5) & 0x1f);
+    RallyData_FUN_004068d0(pBlock[0x7d4]);
+    FUN_004eb160();
+    pOut = CGameInfo::FUN_00405db0();
+    switch (CGameInfo::FUN_00405d90()) {
+    case 0:
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 8 & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+        break;
+    case 1:
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 8 & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 0xc & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0xc;
+        break;
+    case 2:
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 8 & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 0xc & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0xc;
+        value = RallyDataCountryIndex() & 0xff;
+        if ((*pOut >> 0x10 & 0xf) < value + 1)
+            *pOut = (*pOut & ~0xf0000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0x10;
+        break;
+    }
+    RallyData_FUN_0040e330(0);
+    return 1;
 }
 
 void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char *param_4);
