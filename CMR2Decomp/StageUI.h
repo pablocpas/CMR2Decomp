@@ -36,6 +36,8 @@ struct CarSoundSet {
 };
 
 #define g_carSoundSets ((CarSoundSet *)(g_raceBlock + 0x25c))      // 0x5377c4
+#define g_stageSoundLoaded (*(BYTE *)(g_raceBlock + 0x40))          // 0x5375a8: surface samples loaded so far
+#define g_stageSoundFirst (*(int *)(g_raceBlock + 0x44))           // 0x5375ac: first surface sample slot
 #define g_stageSoundCount (*(unsigned int *)(g_raceBlock + 0x68))  // 0x5375d0
 #define g_stageSoundUsed (g_raceBlock + 0x6c)                      // 0x5375d4: [0x1f] sound groups in use
 #define g_unk0x005375f4 (g_raceBlock + 0x8c)                       // 0x5375f4: surface per car

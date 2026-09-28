@@ -194,6 +194,78 @@ BYTE FUN_00427aa0(void);
 #define STAGE_PLAY_EXTRA() do { STAGE_PLAY_SECONDARY(1); STAGE_PLAY_SECONDARY(2); STAGE_PLAY_SECONDARY(3); } while (0)
 #define STAGE_STOP_EXTRA() do { STAGE_STOP(1); STAGE_STOP(2); STAGE_STOP(3); } while (0)
 
+// GLOBAL: CMR2 0x0051900c
+char g_strSurfSndOut[] = "%s\\SurfSnd\\30_o00.wav";
+// GLOBAL: CMR2 0x00519024
+char g_strSurfSndIn[] = "%s\\SurfSnd\\30_i00.wav";
+// GLOBAL: CMR2 0x0051903c
+char g_strSurfSndSkidOut[] = "%s\\SurfSnd\\%.2d_sko%.2d.wav";
+// GLOBAL: CMR2 0x00519058
+char g_strSurfSndSkidIn[] = "%s\\SurfSnd\\%.2d_ski%.2d.wav";
+// GLOBAL: CMR2 0x00519074
+char g_strSurfSndRollOut[] = "%s\\SurfSnd\\%.2d_o%.2d.wav";
+// GLOBAL: CMR2 0x00519090
+char g_strSurfSndRollIn[] = "%s\\SurfSnd\\%.2d_i%.2d.wav";
+
+extern int g_unk0x00537564;
+int FUN_004b7940(void);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+void StageTiming_FreeStageFile5(void);
+
+// Loads the surface sounds of the stage: for every surface group in use its
+// rolling (inside/outside) and skidding (inside/outside) variations, recording
+// where each set starts; then the two fallback samples.
+// FUNCTION: CMR2 0x00418ff0
+void FUN_00418ff0(void)
+{
+    char *pDir;
+    StageSoundPattern *pPattern;
+    int group;
+    int i;
+
+    pDir = CInstallInfo::GetSoundsDir();
+    g_stageSoundLoaded = 0;
+    g_stageSoundFirst = FUN_004b7940();
+    for (group = 0, pPattern = g_stageSoundPatterns; group < 31; group++, pPattern++) {
+        if (g_stageSoundUsed[group] == 0)
+            continue;
+        pPattern->base[0] = g_stageSoundLoaded + g_stageSoundFirst;
+        pPattern->base[1] = pPattern->base[0] + pPattern->choices[0];
+        pPattern->base[2] = pPattern->base[1] + pPattern->choices[1];
+        pPattern->base[3] = pPattern->choices[2] + pPattern->base[2];
+        for (i = 0; i < pPattern->choices[0]; i++) {
+            sprintf(CFrontend::m_stringDest, g_strSurfSndRollIn, pDir, group, i);
+            Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+            g_stageSoundLoaded++;
+        }
+        for (i = 0; i < pPattern->choices[1]; i++) {
+            sprintf(CFrontend::m_stringDest, g_strSurfSndRollOut, pDir, group, i);
+            Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+            g_stageSoundLoaded++;
+        }
+        for (i = 0; i < pPattern->choices[2]; i++) {
+            sprintf(CFrontend::m_stringDest, g_strSurfSndSkidIn, pDir, group, i);
+            Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+            g_stageSoundLoaded++;
+        }
+        for (i = 0; i < pPattern->choices[3]; i++) {
+            sprintf(CFrontend::m_stringDest, g_strSurfSndSkidOut, pDir, group, i);
+            Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+            g_stageSoundLoaded++;
+        }
+    }
+    g_unk0x00537564 = FUN_004b7940();
+    sprintf(CFrontend::m_stringDest, g_strSurfSndIn, pDir);
+    Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+    g_stageSoundLoaded++;
+    g_unk0x00537dc8 = FUN_004b7940();
+    sprintf(CFrontend::m_stringDest, g_strSurfSndOut, pDir);
+    Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile5());
+    g_stageSoundLoaded++;
+    StageTiming_FreeStageFile5();
+    FUN_00418f20();
+}
+
 // Applies one stage sound state to its active channel.  The switch mirrors
 // the combinations of continuous, secondary and network-gated sound slots.
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)

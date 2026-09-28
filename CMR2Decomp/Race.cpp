@@ -175,6 +175,143 @@ BYTE *FUN_0046d2d0(char *path);
 char *FUN_0041f910(void);
 GenericFile *FUN_0041f500(void);
 
+// Country codes and difficulty letters of the CPU run file names; the second
+// pair of tables is the one FUN_0041c260 uses for the second player.
+// GLOBAL: CMR2 0x00519254
+char g_str0x00519254[4] = "e";
+// GLOBAL: CMR2 0x00519258
+char g_str0x00519258[4] = "i";
+// GLOBAL: CMR2 0x0051925c
+char g_str0x0051925c[4] = "n";
+extern char g_str0x00519260[4];
+extern char g_str0x00519268[4];
+extern char g_str0x0051926c[4];
+extern char g_str0x00519270[4];
+extern char g_str0x00519274[4];
+extern char g_str0x00519278[4];
+extern char g_str0x0051927c[4];
+extern char g_str0x00519280[4];
+// GLOBAL: CMR2 0x005191c8
+char *g_cpuRunCountries[9] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274, g_str0x00519270,
+                               g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK, g_str0x00519260 };
+// GLOBAL: CMR2 0x005191ec
+char *g_cpuRunLevels[3] = { g_str0x0051925c, g_str0x00519258, g_str0x00519254 };
+// GLOBAL: CMR2 0x005191f8
+char *g_cpuRunCountries2[9] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274, g_str0x00519270,
+                                g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK, g_str0x00519260 };
+// GLOBAL: CMR2 0x0051921c
+char *g_cpuRunLevels2[3] = { g_str0x0051925c, g_str0x00519258, g_str0x00519254 };
+// GLOBAL: CMR2 0x00519294
+char g_strCpuRun[] = "%s\\CPU_Runs\\%s%d%d%s.rpl";
+// GLOBAL: CMR2 0x005192b8
+char g_strChampEndRun[] = "%s\\CPU_Runs\\champend.rpl";
+
+int FUN_004584c0(void);
+BYTE *FUN_0046c5a0(short frames, short samples, int type);
+void FUN_00465f90(char *path);
+char *FUN_0041f8e0(void);
+char *FUN_0041f920(void);
+unsigned int FUN_00409cb0(int);
+BYTE FUN_0042b710(int index);
+int FUN_00407270(void);
+unsigned int RallyData_FUN_00407ea0(void);
+
+// Loads the CPU run a player races against: the file is chosen by country,
+// stage, side of the stage and difficulty. Returns whether it was found.
+// FUNCTION: CMR2 0x0041c1b0
+int FUN_0041c1b0(int player)
+{
+    if (player == 0)
+        g_unk0x00537f78[6] = FUN_004584c0() != 0;
+    else
+        g_unk0x00537f78[6] = FUN_004584c0() == 0;
+    sprintf(CFrontend::m_stringDest, g_strCpuRun, FUN_0041f8e0(), g_cpuRunCountries[(BYTE)RallyDataCountryIndex()],
+            (BYTE)RallyDataStageIndex() + 1, g_unk0x00537f78[6],
+            g_cpuRunLevels[CGameInfo::FUN_00405d80() != 4 ? CGameInfo::FUN_00405d90()
+                                                           : CGameInfo::FUN_00405dd0() - 1]);
+    g_unk0x00537f3c[player] = FUN_0046d2d0(CFrontend::m_stringDest);
+    return g_unk0x00537f3c[player] != NULL;
+}
+
+// Sets up the replay buffers of a race: recording buffers for network games,
+// the championship-end run, the CPU runs of a head-to-head or knockout stage,
+// and a recording buffer for every player that has no run loaded.
+// FUNCTION: CMR2 0x0041c260
+void FUN_0041c260(void)
+{
+    int headToHead;
+    int loaded[2];
+    int count;
+    int i;
+
+    count = (BYTE)RallyDataState();
+    loaded[0] = 0;
+    loaded[1] = 0;
+    if (CGameInfo::FUN_00405d80() == 4 || (char)RallyData_GetFlag25())
+        headToHead = 1;
+    else
+        headToHead = 0;
+    for (i = 0; i < 8; i++)
+        g_unk0x00537f3c[i] = NULL;
+    if (CGameInfo::FUN_00405e00()) {
+        g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x1d4c, 2);
+        for (i = 0; i < 7; i++) {
+            g_unk0x00537f3c[i + 1] = NULL;
+            if ((char)FUN_00409cb0(i) && CGameInfo::FUN_00405d80() != 10)
+                g_unk0x00537f3c[i + 1] = FUN_0046c5a0(1, 0x1d4c, 2);
+        }
+        return;
+    }
+    if ((char)FUN_00407270()) {
+        sprintf(CFrontend::m_stringDest, g_strChampEndRun, FUN_0041f8e0());
+        g_unk0x00537f3c[0] = FUN_0046d2d0(CFrontend::m_stringDest);
+        return;
+    }
+    if ((char)RallyData_FUN_00407ea0() == 0) {
+        for (i = 0; i < 2; i++) {
+            if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405da0()) {
+                if (i == 0) {
+                    g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x186a, 0);
+                } else {
+                    sprintf(CFrontend::m_stringDest, g_strCpuRun, FUN_0041f8e0(),
+                            g_cpuRunCountries2[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1,
+                            FUN_004584c0() == 0,
+                            g_cpuRunLevels2[CGameInfo::FUN_00405d80() != 4 ? CGameInfo::FUN_00405d90()
+                                                                           : CGameInfo::FUN_00405dd0() - 1]);
+                    g_unk0x00537f3c[1] = FUN_0046d2d0(CFrontend::m_stringDest);
+                    if (i == 1)
+                        return;
+                }
+            }
+        }
+        for (i = 0; i < 2; i++) {
+            if (((CGameInfo::FUN_00405d80() == 4 && (char)FUN_0042b710(i) == -1) ||
+                 ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 &&
+                  RallyData_FUN_00408500((BYTE)i) != -1)) &&
+                FUN_0041c1b0(i) != 0)
+                loaded[i] = 1;
+        }
+    }
+    for (i = 0; i < count; i++) {
+        if (loaded[i] != 0)
+            continue;
+        if ((char)RallyData_FUN_00407ea0()) {
+            if (count == 1)
+                g_unk0x00537f3c[i] = FUN_0046c5a0(1, 0x1d4c, 0);
+            else
+                g_unk0x00537f3c[i] = FUN_0046c5a0(1, 0x186a, 0);
+        } else if (count == 1 && headToHead == 0) {
+            g_unk0x00537f3c[i] = FUN_0046c5a0(1, 0x1d4c, 0);
+        } else {
+            g_unk0x00537f3c[i] = FUN_0046c5a0(1, 0x186a, 0);
+        }
+    }
+    if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310()) {
+        sprintf(CFrontend::m_stringDest, g_strGrp0x005192b0, FUN_0041f920());
+        FUN_00465f90(CFrontend::m_stringDest);
+    }
+}
+
 // Clears the player replay slots, then builds the replay file name for the
 // current game mode and loads it into slot 0.
 // FUNCTION: CMR2 0x0041c510
@@ -392,6 +529,36 @@ char *FUN_0041f920(void)
 int FUN_00420120(void)
 {
     return g_unk0x00538970;
+}
+
+void FUN_00420130(int value);
+int FUN_004b7940(void);
+void FUN_00456bb0(void);
+void FUN_0046b420(void);
+int FUN_00456d90(void);
+void Sector_RebuildNodeLists(void);
+void FUN_00478f50(void);
+void FUN_0046b710(void);
+
+// Loads the stage geometry; on success rebuilds the sector node lists and the
+// surface tables. Returns whether the stage loaded.
+// FUNCTION: CMR2 0x00420150
+BYTE FUN_00420150(void)
+{
+    BYTE ok;
+
+    FUN_00420130(FUN_004b7940());
+    FUN_00456bb0();
+    FUN_0046b420();
+    if (FUN_00456d90()) {
+        Sector_RebuildNodeLists();
+        FUN_00478f50();
+        ok = 1;
+    } else {
+        ok = 0;
+    }
+    FUN_0046b710();
+    return ok;
 }
 
 // Number of stages of the current event.
@@ -1966,7 +2133,7 @@ int FUN_0046d2a0(int *);
 void FUN_00480380(void);
 BYTE FUN_00422fb0(BYTE);
 int FUN_00407270(void);
-void FUN_0041e220(BYTE);
+void FUN_0041e220(int player);
 extern BYTE g_unk0x0053811f;
 // GLOBAL: CMR2 0x005191a4
 int g_unk0x005191a4 = 0xacb49c;
@@ -2500,6 +2667,49 @@ label4:
     g_unk0x00537f08 = 1;
 }
 
+void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4);
+int FUN_0046d2a0(int *p);
+int FUN_0040b010(int index);
+void FUN_00421d80(int player);
+void FUN_00466080(void);
+void FUN_00466030(int, int);
+
+// Starts the replays of a race: the player's own, every network player's, the
+// knockout opponent's and the CPU runs of a head-to-head stage.
+// FUNCTION: CMR2 0x0041e220
+void FUN_0041e220(int player)
+{
+    int i;
+
+    FUN_0046cce0((int)g_unk0x00537f3c[(BYTE)player], 0, 0, player);
+    if (CGameInfo::FUN_00405e00()) {
+        for (i = 0; i < 7; i++) {
+            FUN_0046d2a0((int *)g_unk0x00537f3c[i + 1]);
+            FUN_0046cce0((int)g_unk0x00537f3c[i + 1], 0, 0, FUN_0040b010(i));
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 4) {
+        for (i = 0; i < 2; i++) {
+            if ((char)FUN_0042b710(i) == -1) {
+                FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
+                FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
+            }
+        }
+    } else if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0) {
+        for (i = 0; i < ((char)RallyData_FUN_00407ea0() ? 1 : 2); i++) {
+            if (RallyData_FUN_00408500((BYTE)i) != -1 || (CGameInfo::FUN_00405da0() && i == 1)) {
+                FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
+                FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
+            }
+        }
+    }
+    FUN_00421d80(player);
+    if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310()) {
+        FUN_00466080();
+        FUN_00466030(0, 0);
+    }
+}
+
 // Waits for the inter-stage fade of a special stage (mode 10) and otherwise
 // re-arms the per-player fade jobs of the in-race menu.
 // FUNCTION: CMR2 0x0041e350
@@ -2571,7 +2781,7 @@ void FUN_0041e350(int param1, unsigned int param2)
                 flag = 2;
                 g_unk0x00537fd8[i] = 0;
             }
-            FUN_00428410(i, 0xc8000, FUN_0041e220, flag, 2, 0, *(unsigned int *)colour, 0);
+            FUN_00428410(i, 0xc8000, (FadeCallback)FUN_0041e220, flag, 2, 0, *(unsigned int *)colour, 0);
             i++;
         } while (i < (BYTE)RallyDataState());
     }
@@ -3166,6 +3376,108 @@ int g_unk0x00537398[4];
 
 int FUN_00427d50(unsigned int view, int listener);
 void FUN_004b79a0(unsigned int handle, int volume);
+
+// GLOBAL: CMR2 0x005189bc
+char g_str0x005189bc[] = "COLLIS6.WAV";
+// GLOBAL: CMR2 0x005189c8
+char g_str0x005189c8[] = "COLLIS5.WAV";
+// GLOBAL: CMR2 0x005189d4
+char g_str0x005189d4[] = "COLLIS4.WAV";
+// GLOBAL: CMR2 0x005189e0
+char g_str0x005189e0[] = "COLLIS3.WAV";
+// GLOBAL: CMR2 0x005189ec
+char g_str0x005189ec[] = "COLLIS2.WAV";
+// GLOBAL: CMR2 0x005189f8
+char g_str0x005189f8[] = "COLLIS1.WAV";
+// GLOBAL: CMR2 0x00518a04
+char g_str0x00518a04[] = "SWIPE4.WAV";
+// GLOBAL: CMR2 0x00518a10
+char g_str0x00518a10[] = "SWIPE3.WAV";
+// GLOBAL: CMR2 0x00518a1c
+char g_str0x00518a1c[] = "SWIPE2.WAV";
+// GLOBAL: CMR2 0x00518a28
+char g_str0x00518a28[] = "SWIPE1.WAV";
+// GLOBAL: CMR2 0x005188e4
+char *g_collisionSounds[10] = {
+    g_str0x00518a28, g_str0x00518a1c, g_str0x00518a10, g_str0x00518a04, g_str0x005189f8, g_str0x005189ec, g_str0x005189e0, g_str0x005189d4, g_str0x005189c8, g_str0x005189bc,
+};
+// GLOBAL: CMR2 0x00518968
+char g_str0x00518968[] = "LAND3.WAV";
+// GLOBAL: CMR2 0x00518974
+char g_str0x00518974[] = "LAND2.WAV";
+// GLOBAL: CMR2 0x00518980
+char g_str0x00518980[] = "LAND1.WAV";
+// GLOBAL: CMR2 0x0051898c
+char g_str0x0051898c[] = "ROLL4.WAV";
+// GLOBAL: CMR2 0x00518998
+char g_str0x00518998[] = "ROLL3.WAV";
+// GLOBAL: CMR2 0x005189a4
+char g_str0x005189a4[] = "ROLL2.WAV";
+// GLOBAL: CMR2 0x005189b0
+char g_str0x005189b0[] = "ROLL1.WAV";
+// GLOBAL: CMR2 0x0051890c
+char *g_rollSounds[7] = {
+    g_str0x005189b0, g_str0x005189a4, g_str0x00518998, g_str0x0051898c, g_str0x00518980, g_str0x00518974, g_str0x00518968,
+};
+// GLOBAL: CMR2 0x00518938
+char g_str0x00518938[] = "MIRROR.WAV";
+// GLOBAL: CMR2 0x00518944
+char g_str0x00518944[] = "SCREEN1.WAV";
+// GLOBAL: CMR2 0x00518950
+char g_str0x00518950[] = "HLIGHT2.WAV";
+// GLOBAL: CMR2 0x0051895c
+char g_str0x0051895c[] = "HLIGHT1.WAV";
+// GLOBAL: CMR2 0x00518928
+char *g_glassSounds[4] = {
+    g_str0x0051895c, g_str0x00518950, g_str0x00518944, g_str0x00518938,
+};
+// GLOBAL: CMR2 0x00518a34
+char g_strCollisionDir[] = "\\collision\\";
+
+int FUN_004b7940(void);
+extern int g_unk0x00537360;
+extern int g_unk0x005373a8;
+extern int g_unk0x005373ac;
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+
+// Loads the collision sound banks of the stage (swipes and impacts, rolls and
+// landings, glass) and resets the per-car sound slots.
+// FUNCTION: CMR2 0x004188c0
+void FUN_004188c0(void)
+{
+    char path[260];
+    char *pDir;
+    GenericFile *pFile;
+    int i;
+
+    pDir = CInstallInfo::GetSoundsDir();
+    pFile = (GenericFile *)StageTiming_GetStageFile0();
+    g_unk0x00537360 = FUN_004b7940();
+    for (i = 0; i < 10; i++) {
+        strcpy(path, pDir);
+        strcat(path, g_strCollisionDir);
+        strcat(path, g_collisionSounds[i]);
+        Sound_LoadSample(path, 0, pFile);
+    }
+    g_unk0x005373ac = FUN_004b7940();
+    for (i = 0; i < 7; i++) {
+        strcpy(path, pDir);
+        strcat(path, g_strCollisionDir);
+        strcat(path, g_rollSounds[i]);
+        Sound_LoadSample(path, 0, pFile);
+    }
+    g_unk0x005373a8 = FUN_004b7940();
+    for (i = 0; i < 4; i++) {
+        strcpy(path, pDir);
+        strcat(path, g_strCollisionDir);
+        strcat(path, g_glassSounds[i]);
+        Sound_LoadSample(path, 0, pFile);
+    }
+    g_carSounds[0] = -1;
+    g_carSounds[1] = -1;
+    g_carSounds[2] = -1;
+    g_carSounds[3] = -1;
+}
 
 // Updates the volume of each player's car sound by distance to its listener.
 // FUNCTION: CMR2 0x00418b00
