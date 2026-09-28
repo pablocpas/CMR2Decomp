@@ -738,6 +738,352 @@ void FUN_004792c0(int player)
     }
 }
 
+
+#include "main.h"
+
+// Engine sound curves (speed range, then pitch and volume tables).
+// GLOBAL: CMR2 0x0051ea60
+int g_unk0x0051ea60[3] = { 0x14, 0x7d0, 0xbb8 };
+// GLOBAL: CMR2 0x0051f290
+int g_unk0x0051f290 = 0xb333;
+// Loop start of the gear-whine sample per car.
+// GLOBAL: CMR2 0x0051f2a0
+int g_unk0x0051f2a0[14] = {
+    0x32a8, 0x42d6, 0, 0x5a08, 0x5a08, 0, 0, 0x880, 0x3af2, 0x21c0, 0, 0x2400, 0x1444, 0xf80,
+};
+// Per-player engine sound state.
+// GLOBAL: CMR2 0x0058dd60
+unsigned int g_unk0x0058dd60[2];
+// GLOBAL: CMR2 0x0058dda0
+unsigned int g_unk0x0058dda0[2];
+// GLOBAL: CMR2 0x0058df28
+unsigned int g_unk0x0058df28[2];
+// GLOBAL: CMR2 0x0058df60
+int g_unk0x0058df60[2];
+// GLOBAL: CMR2 0x0058df68
+int g_unk0x0058df68[2];
+// GLOBAL: CMR2 0x0058df70
+int g_unk0x0058df70[2];
+// GLOBAL: CMR2 0x0058df78
+int g_unk0x0058df78[2];
+// GLOBAL: CMR2 0x0058df80
+int g_unk0x0058df80[2];
+// GLOBAL: CMR2 0x0058df88
+int g_unk0x0058df88[2];
+
+extern int g_unk0x0058dda8;
+extern int g_unk0x0051f274;
+extern int g_unk0x0051f278;
+extern int g_unk0x0051f27c;
+extern int g_unk0x0051f294;
+extern int g_unk0x0051f298;
+extern int g_unk0x0051f29c;
+extern int g_unk0x0058df38;
+extern int g_unk0x0058df3c;
+extern int g_unk0x0058df40;
+extern int g_unk0x0051f2d8[13];
+BYTE FUN_00427aa0(void);
+bool FUN_00427ab0(int value, int *pRange);
+unsigned int FUN_00427ad0(int value, int *pCurve);
+unsigned int FUN_00427b70(int value, int *pCurve);
+int FUN_00427d50(unsigned int view, int listener);
+unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
+int FUN_0041f3d0(BYTE index);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void FUN_004b79a0(unsigned int handle, int volume);
+void Sound_SetPan(unsigned int handle, unsigned short pan);
+void FUN_0045b550(int car, int surface);
+void FUN_0047a380(int target, int player);
+void FUN_00479310(int player);
+void FUN_0047a3d0(int player, int *pState, int listener);
+int FUN_004781c0(int index);
+#define CAR_VOLUME(x, scale) FixMul(FUN_00427d50(player, listener), FixMul(g_unk0x0058dda8, FixMul((x), (scale))))
+
+// Per-frame engine sounds of one player from its state (pitch, alternate
+// pitch, speed, surface level, clutch, ...): the engine pair, the load pair
+// (quieter as the throttle lifts), the idle/backfire pops with their timers,
+// the gear whine and the transmission loop, then the skid and extra loops.
+// FUNCTION: CMR2 0x00479360
+void FUN_00479360(int *pState, int player, int listener)
+{
+    Car *pCar;
+    int inEngine;
+    int inLoad;
+    int inWhine;
+    int pitch;
+    unsigned int now;
+    int backfire;
+    int hi;
+    int lo;
+    int volume;
+    int pct;
+
+    now = CMain::GetFrameDelta();
+    pCar = Car_Get(player);
+    pitch = pState[0];
+    g_unk0x0058df88[player] = pState[3];
+    if (pState[3] > 1)
+        g_unk0x0058df68[player] = 1;
+    if (pitch > 5000)
+        g_unk0x0058df70[player] = 1;
+    inEngine = FUN_00427ab0(pitch, g_unk0x0051ea60);
+    inLoad = FUN_00427ab0(pitch, (int *)(g_unk0x0051ea9e + 0x1a));
+    inWhine = FUN_00427ab0(pitch, (int *)(g_unk0x0051ebca + 0x86));
+    if (!inEngine) {
+        if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
+            Sound_SetPan(g_unk0x0058dde8[player], 0x2b11);
+            FUN_004b79a0(g_unk0x0058dde8[player], 0);
+        }
+        if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
+            Sound_SetPan(g_unk0x0058ddac[player], 0x2b11);
+            FUN_004b79a0(g_unk0x0058ddac[player], 0);
+        }
+        if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
+            Sound_Free(g_unk0x0058dde8[player]);
+            g_unk0x0058dde8[player] = -1;
+        }
+        if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
+            Sound_Free(g_unk0x0058ddac[player]);
+            g_unk0x0058ddac[player] = -1;
+        }
+    } else {
+        if (Sound_IsPlaying(g_unk0x0058dde8[player]) == 0)
+            g_unk0x0058dde8[player] = FUN_004b7790((unsigned short)g_unk0x0058ddb4[player], 0, 0x5622, 0, 1, 0);
+        if (Sound_IsPlaying(g_unk0x0058ddac[player]) == 0)
+            g_unk0x0058ddac[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 1), 0, 0x5622, 0, 1, 0);
+        if (Sound_IsPlaying(g_unk0x0058dde8[player])) {
+            Sound_SetPan(g_unk0x0058dde8[player], (unsigned short)FUN_00427b70(pitch, g_unk0x0051ea60));
+            FUN_004b79a0(g_unk0x0058dde8[player],
+                         CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0058df38));
+        }
+        if (Sound_IsPlaying(g_unk0x0058ddac[player])) {
+            Sound_SetPan(g_unk0x0058ddac[player], (unsigned short)FUN_00427b70(pitch, g_unk0x0051ea60));
+            FUN_004b79a0(g_unk0x0058ddac[player],
+                         CAR_VOLUME((int)(FUN_00427ad0(pitch, g_unk0x0051ea60) << 16) / 100, g_unk0x0051f274));
+        }
+    }
+    if (!inLoad) {
+        if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
+            Sound_SetPan(g_unk0x0058ddf0[player], 0x2b11);
+            FUN_004b79a0(g_unk0x0058ddf0[player], 0);
+        }
+        if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
+            Sound_SetPan(g_unk0x0058dde0[player], 0x2b11);
+            FUN_004b79a0(g_unk0x0058dde0[player], 0);
+        }
+    } else {
+        if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
+            volume = FixMul(0x10000 - FixDiv(pCar->field_0x79c, *(int *)pCar->field_0x788),
+                            CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)(g_unk0x0051ea9e + 0x1a)) << 16) / 100,
+                                       g_unk0x0058df3c));
+            if (FUN_0041f3d0((BYTE)player))
+                Sound_SetPan(g_unk0x0058ddf0[player],
+                             FUN_00427e20(player, player,
+                                          (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ea9e + 0x1a))));
+            else
+                Sound_SetPan(g_unk0x0058ddf0[player],
+                             (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ea9e + 0x1a)));
+            FUN_004b79a0(g_unk0x0058ddf0[player], volume);
+        }
+        if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
+            volume = FixMul(0x10000 - FixDiv(pCar->field_0x79c, *(int *)pCar->field_0x788),
+                            CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)(g_unk0x0051ea9e + 0x1a)) << 16) / 100,
+                                       g_unk0x0051f278));
+            if (FUN_0041f3d0((BYTE)player))
+                Sound_SetPan(g_unk0x0058dde0[player],
+                             FUN_00427e20(player, player,
+                                          (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ea9e + 0x1a))));
+            else
+                Sound_SetPan(g_unk0x0058dde0[player],
+                             (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ea9e + 0x1a)));
+            FUN_004b79a0(g_unk0x0058dde0[player], volume);
+        }
+    }
+    FUN_0047a380(pState[4], player);
+    if (!FUN_00427aa0()) {
+        if (now - g_unk0x0058dd60[player] > g_unk0x0058df28[player]) {
+            if (g_unk0x0058ddf8[player] != 0) {
+                FUN_00479310(player);
+                g_unk0x0058ddf8[player] = 0;
+            }
+            if (g_unk0x0058dd98[player] != 0) {
+                g_unk0x0058dd98[player] = 0;
+                g_unk0x0058dd60[player] = now;
+                g_unk0x0058df28[player] = rand() % 10 + 5;
+            } else if (pState[1] < 4000) {
+                g_unk0x0058dd98[player] = 1;
+                g_unk0x0058dd60[player] = now;
+                if (pState[1] <= 3000)
+                    g_unk0x0058df28[player] = 10;
+                else if (pState[1] < 5000)
+                    g_unk0x0058df28[player] = (3000 - pState[1]) * 10 / 2000 + 10;
+                else
+                    g_unk0x0058df28[player] = 0;
+            } else {
+                g_unk0x0058dd60[player] = now;
+                g_unk0x0058df28[player] = rand() % 10 + 5;
+            }
+        }
+        backfire = 0;
+        if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) != NULL &&
+            g_unk0x0058df88[player] >= 2 && g_unk0x0058df88[player] <= 6 &&
+            g_unk0x0058dd68[player] != g_unk0x0058df88[player] &&
+            g_unk0x0058dd68[player] < g_unk0x0058df88[player]) {
+            switch (g_unk0x0058df88[player]) {
+            case 2:
+                if (rand() % 100 >= 10)
+                    backfire = 1;
+                break;
+            case 3:
+                if (rand() % 100 >= 25)
+                    backfire = 1;
+                break;
+            case 4:
+                if (rand() % 100 >= 50)
+                    backfire = 1;
+                break;
+            case 5:
+                if (rand() % 100 >= 80)
+                    backfire = 1;
+            case 6:
+                if (rand() % 100 >= 90)
+                    backfire = 1;
+                break;
+            }
+        }
+        if (CGameInfo::FUN_004063f0(5) && *(int *)((BYTE *)pCar + 0xa84) > 0)
+            backfire = 1;
+        if (pState[3] == 0) {
+            hi = 3000;
+            lo = 0xaf0;
+        } else {
+            hi = 5000;
+            lo = 3000;
+        }
+        if (g_unk0x0058df78[player] != 0) {
+            if (pState[1] < lo || pState[4] != 0)
+                g_unk0x0058df78[player] = 0;
+        } else if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) == NULL) {
+            g_unk0x0058df78[player] = 0;
+        } else if (pState[4] == 0 && pState[1] > hi) {
+            g_unk0x0058df78[player] = 1;
+            g_unk0x0058dd60[player] = now;
+            g_unk0x0058dda0[player] = now;
+            g_unk0x0058dd98[player] = 0;
+            g_unk0x0058df28[player] = rand() % 10 + 10;
+        }
+        if (g_unk0x0058df78[player] != 0 || backfire) {
+            FUN_004792c0(player);
+            if (backfire) {
+                if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
+                    g_unk0x0058ddc0[player] =
+                        FUN_004b7790((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
+                    g_unk0x0058dd60[player] = now;
+                    g_unk0x0058df20[player] = 1;
+                    g_unk0x0058ddf8[player] = 1;
+                    g_unk0x0058df28[player] = rand() % 10 + 5;
+                    FUN_0045b550(player, g_unk0x0058df28[player] >> 2);
+                }
+                FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
+            } else if (g_unk0x0058dd98[player] != 0) {
+                if (Sound_IsPlaying(g_unk0x0058ddc0[player]))
+                    FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0, g_unk0x0051f294));
+                else
+                    g_unk0x0058ddc0[player] = -1;
+            } else {
+                if (Sound_IsPlaying(g_unk0x0058ddc0[player]) == 0) {
+                    g_unk0x0058ddc0[player] =
+                        FUN_004b7790((unsigned short)(rand() % 4 + g_unk0x0058ddb4[player] + 8), 0, 0x5622, 0, 0, 0);
+                    g_unk0x0058df20[player] = 1;
+                }
+                pct = 100 - (now * 100 - g_unk0x0058dd60[player] * 100) / g_unk0x0058df28[player];
+                FUN_004b79a0(g_unk0x0058ddc0[player], CAR_VOLUME(0x10000, g_unk0x0051f294));
+                if (pct == 100 && rand() % pct < 75)
+                    FUN_0045b550(player, rand() % 2 + 2);
+            }
+        } else if (pState[4] == 0) {
+            FUN_00479310(player);
+            if (pState[1] < lo) {
+                if (g_unk0x0058dd70[player] == 0) {
+                    g_unk0x0058ddc0[player] =
+                        FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xc), 0, 0x5622, 0, 1, 0);
+                    g_unk0x0058dd70[player] = 1;
+                }
+                FUN_004b79a0(g_unk0x0058ddc0[player],
+                             CAR_VOLUME(((0xaf0 - pState[1]) * 100 / 0xaf0 / 2 + 50 << 16) / 100, g_unk0x0051f294));
+            }
+        } else {
+            FUN_004792c0(player);
+        }
+    }
+    if (!inWhine) {
+        if (Sound_IsPlaying(g_unk0x0058dd90[player])) {
+            Sound_Free(g_unk0x0058dd90[player]);
+            g_unk0x0058dd90[player] = -1;
+        }
+        if (Sound_IsPlaying(g_unk0x0058ddd0[player])) {
+            Sound_Free(g_unk0x0058ddd0[player]);
+            g_unk0x0058ddd0[player] = -1;
+        }
+    } else if (g_unk0x0058de08[player] == 0) {
+        if (Sound_IsPlaying(g_unk0x0058dd90[player])) {
+            Sound_Free(g_unk0x0058dd90[player]);
+            g_unk0x0058dd90[player] = -1;
+        }
+        if (Sound_IsPlaying(g_unk0x0058ddd0[player])) {
+            Sound_Free(g_unk0x0058ddd0[player]);
+            g_unk0x0058ddd0[player] = -1;
+        }
+        if (g_unk0x0058df68[player] != 0 && g_unk0x0058df70[player] != 0 && g_unk0x0058df60[player] == 0) {
+            FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 7), CAR_VOLUME(0x10000, g_unk0x0051f290),
+                         0x5622, 0, 0, 0);
+            g_unk0x0058df60[player] = 1;
+            g_unk0x0058df68[player] = 0;
+            g_unk0x0058df70[player] = 0;
+        }
+    } else {
+        volume = g_unk0x0058de08[player] * (int)FUN_00427ad0(pitch, (int *)(g_unk0x0051ebca + 0x86)) / 100;
+        if (g_unk0x0058de10[player] != -1)
+            FUN_004781c0(player);
+        g_unk0x0058df60[player] = 0;
+        if (Sound_IsPlaying(g_unk0x0058dd90[player]) == 0)
+            g_unk0x0058dd90[player] = FUN_004b7790(
+                (unsigned short)(g_unk0x0058ddb4[player] + 5), 0, 0x5622,
+                g_unk0x0051f2a0[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)(FUN_0041b370() + player)))],
+                1, 0);
+        if (FUN_0041f3d0((BYTE)player))
+            Sound_SetPan(g_unk0x0058dd90[player],
+                         FUN_00427e20(player, player,
+                                      (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ebca + 0x86))));
+        else
+            Sound_SetPan(g_unk0x0058dd90[player], (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ebca + 0x86)));
+        volume = (volume << 16) / 100;
+        FUN_004b79a0(g_unk0x0058dd90[player], CAR_VOLUME(volume, g_unk0x0058df40));
+        if (Sound_IsPlaying(g_unk0x0058ddd0[player]) == 0)
+            g_unk0x0058ddd0[player] = FUN_004b7790(
+                (unsigned short)(g_unk0x0058ddb4[player] + 6), 0, 0x5622,
+                g_unk0x0051f2d8[(int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)(FUN_0041b370() + player)))],
+                1, 0);
+        if (FUN_0041f3d0((BYTE)player))
+            Sound_SetPan(g_unk0x0058ddd0[player],
+                         FUN_00427e20(player, player,
+                                      (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ebca + 0x86))));
+        else
+            Sound_SetPan(g_unk0x0058ddd0[player], (unsigned short)FUN_00427b70(pitch, (int *)(g_unk0x0051ebca + 0x86)));
+        FUN_004b79a0(g_unk0x0058ddd0[player], CAR_VOLUME(volume, g_unk0x0051f27c));
+    }
+    FUN_0047a3d0(player, pState, listener);
+    g_unk0x0058dd68[player] = g_unk0x0058df88[player];
+    g_unk0x0058df80[player] = ((BYTE *)pCar)[0x1d2];
+    if (CGameInfo::FUN_00406410(0x13)) {
+        if (Sound_IsPlaying(g_unk0x0058ddd8[player]))
+            FUN_004b79a0(g_unk0x0058ddd8[player], CAR_VOLUME(0x10000, g_unk0x0051f298));
+        if (Sound_IsPlaying(g_unk0x0058df30[player]))
+            FUN_004b79a0(g_unk0x0058df30[player], CAR_VOLUME(0x10000, g_unk0x0051f29c));
+    }
+}
+#undef CAR_VOLUME
+
 // Stops the player's surface sound started by flag g_unk0x0058df20.
 // FUNCTION: CMR2 0x00479310
 void FUN_00479310(int player)
@@ -771,6 +1117,105 @@ int g_unk0x0051f280 = 0xb333;
 int g_unk0x0051f310[23] = {
     30, 20, 10, 20, 50, 90, 100, 50, 10, 30, 60, 30, 10, 40, 70, 20, 5, 20, 50, 30, 20, 10, 5,
 };
+
+
+// Volume scales of the car sound loops, swapped between the outside and the
+// in-car views.
+// GLOBAL: CMR2 0x0051f274
+int g_unk0x0051f274 = 0xcccc;
+// GLOBAL: CMR2 0x0051f278
+int g_unk0x0051f278 = 0xc000;
+// GLOBAL: CMR2 0x0051f294
+int g_unk0x0051f294 = 0x30000;
+// GLOBAL: CMR2 0x0051f298
+int g_unk0x0051f298 = 0x30000;
+// GLOBAL: CMR2 0x0051f29c
+int g_unk0x0051f29c = 0x30000;
+// GLOBAL: CMR2 0x0058df38
+int g_unk0x0058df38;
+// GLOBAL: CMR2 0x0058df3c
+int g_unk0x0058df3c;
+// GLOBAL: CMR2 0x0058df40
+int g_unk0x0058df40;
+extern int g_unk0x0051f27c;
+int FUN_00422f50(BYTE index);
+int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
+void FUN_00479360(int *pState, int player, int listener);
+
+// Per-frame car sounds of one player: picks the volume set of the camera
+// (in-car views 1-3 or outside), makes sure the engine, skid and optional
+// loops are playing, then hands the engine pitch, speed, surface level and
+// wheel-slip state to FUN_00479360.
+// FUNCTION: CMR2 0x0047a710
+void FUN_0047a710(int player, int listener)
+{
+    Car *pCar;
+    int pitch;
+    int speed;
+    int state[7];
+
+    if (FUN_00422f50((BYTE)listener) != 1 && FUN_00422f50((BYTE)listener) != 2 &&
+        FUN_00422f50((BYTE)listener) != 3) {
+        g_unk0x0058df38 = 0x6666;
+        g_unk0x0051f274 = 0xcccc;
+        g_unk0x0058df3c = 0x6000;
+        g_unk0x0051f278 = 0xc000;
+        g_unk0x0058df40 = 0x9999;
+        g_unk0x0051f27c = 0x10000;
+        g_unk0x0051f294 = 0x20000;
+        g_unk0x0051f29c = 0x20000;
+        g_unk0x0051f298 = 0;
+    } else {
+        g_unk0x0058df38 = 0xcccc;
+        g_unk0x0051f274 = 0x6666;
+        g_unk0x0058df3c = 0xc000;
+        g_unk0x0051f278 = 0x6000;
+        g_unk0x0058df40 = 0x10000;
+        g_unk0x0051f27c = 0x9999;
+        g_unk0x0051f294 = 0x10000;
+        g_unk0x0051f29c = 0;
+        g_unk0x0051f298 = 0x20000;
+    }
+    pCar = Car_Get(player);
+    if (Sound_IsPlaying(g_unk0x0058ddf0[player]) == 0)
+        g_unk0x0058ddf0[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 2), 0, 0x5622, 0, 1, 0);
+    if (Sound_IsPlaying(g_unk0x0058dde0[player]) == 0)
+        g_unk0x0058dde0[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 3), 0, 0x5622, 0, 1, 0);
+    if (!FUN_00427aa0()) {
+        if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
+            g_unk0x0058dd80[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 4), 0, 0x5622, 0, 1, 0);
+    }
+    if (CGameInfo::FUN_00406410(0x13)) {
+        if (Sound_IsPlaying(g_unk0x0058ddd8[player]) == 0)
+            g_unk0x0058ddd8[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xd), 0x10000, 0x2b11, 0, 1, 0);
+        if (Sound_IsPlaying(g_unk0x0058df30[player]) == 0)
+            g_unk0x0058df30[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xe), 0x10000, 0x2b11, 0, 1, 0);
+    }
+    pitch = FixMul(FixMul(pCar->field_0x7ac, *(int *)pCar->field_0x798), 0x19640000) >> 16;
+    if (pitch < 2000)
+        state[1] = 2000;
+    else if (pitch > 0x2134)
+        state[1] = 0x2134;
+    else
+        state[1] = pitch;
+    pitch += 2000;
+    if (pitch < 2000)
+        pitch = 2000;
+    else if (pitch > 0x2134)
+        pitch = 0x2134;
+    speed = FixDiv(FixMul(pCar->speed, 0x431168), 0x9ef9) >> 16;
+    if (speed < 0)
+        speed = 0;
+    else if (speed > 0x104)
+        speed = 0x104;
+    state[0] = pitch;
+    state[2] = speed;
+    state[3] = pCar->field_0xb1e;
+    state[4] = (FixDiv(FixMul(pCar->field_0x79c, 0x640000), *(int *)pCar->field_0x788) >= 0x50000 ? 0x640000 : 0) >> 16;
+    state[5] = 0;
+    state[6] = 0;
+    FUN_00479360(state, player, listener);
+}
 
 // Skid sound of one player: when the skid level (+0xc) rises it stops the
 // one-shot surface sounds and restarts the level timer (sometimes 100 ticks
