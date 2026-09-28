@@ -9991,3 +9991,72 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
     }
     return -1;
 }
+
+// Initialises the per-car stage-object record for one lane: validates it, stores
+// the car index, zeroes the timers and dispatches to the type-specific reset
+// (object list, light list or mesh list) resetting the light buffer too.
+// match 57%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por compatibilidad con las llamadas de Race.cpp)
+// FUNCTION: CMR2 0x0046c750
+void FUN_0046c750(int param_1, int param_2, int param_3)
+{
+    BYTE *p;
+    char cVar1;
+
+    if (param_1 == 0 || *(int *)(param_1 + 0xc) != 0 || *(int *)(param_1 + 4) != 0)
+        return;
+    *(int *)param_1 = 0;
+    if ((BYTE)param_3 < 2)
+        *(int *)param_1 = (int)CInput::FUN_0040be60(param_3 & 0xff);
+    *(BYTE *)(param_1 + 0x20) = (BYTE)param_3;
+    *(int *)(param_1 + 0xc) = 1;
+    *(WORD *)(param_1 + 0x100) = 0;
+    *(int *)(param_1 + 0x10) = 1;
+    *(WORD *)(*(int *)(param_1 + 0x104)) = 0;
+    if (*(int *)(param_1 + 0x1c) != 2)
+        *(BYTE *)(*(int *)(param_1 + 0x3c) + 2) &= 0xc0;
+    if (*(int *)(param_1 + 0x1c) == 0) {
+        p = FUN_0041b390();
+        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1110) =
+            (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
+        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110c) = 0;
+        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110e) = 0;
+        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1148) = 1;
+    } else {
+        p = FUN_0041b390();
+        cVar1 = (char)CGameInfo::FUN_00405e00();
+        if (cVar1 == '\0')
+            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
+                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
+        else
+            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
+                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4)) >> 0x10);
+        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1c) = 0;
+        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1e) = 0;
+        *(BYTE *)(*(int *)(param_1 + 0x30) + 0x58) = 1;
+    }
+    if (*(int *)(param_1 + 0x1c) == 0) {
+        FUN_0046c240((BYTE *)*(int *)(param_1 + 0x24), (BYTE)param_3);
+        *(int *)(param_1 + 0x18) = 0;
+        *(BYTE *)(param_1 + 0xf8) = 0;
+        return;
+    }
+    if (*(int *)(param_1 + 0x1c) == 1) {
+        FUN_0046c320((int *)*(int *)(param_1 + 0x30), (BYTE)param_3);
+        *(int *)(param_1 + 0x18) = 0;
+        *(BYTE *)(param_1 + 0xf8) = 0;
+        return;
+    }
+    cVar1 = (char)CGameInfo::FUN_00405e00();
+    if (cVar1 == '\0' || *(BYTE *)(param_1 + 0x20) != 0) {
+        cVar1 = (char)CGameInfo::FUN_00405e00();
+        if (cVar1 != '\0')
+            goto done;
+    }
+    {
+        Car *pCar = Car_Get((BYTE)*(BYTE *)(param_1 + 0x20));
+        *(int *)((BYTE *)pCar + 0xc18) = 0;
+    }
+done:
+    *(int *)(param_1 + 0x18) = 0;
+    *(BYTE *)(param_1 + 0xf8) = 0;
+}
