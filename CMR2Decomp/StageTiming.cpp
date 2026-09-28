@@ -1746,6 +1746,155 @@ void FUN_00475f80(void)
 
 
 
+void FUN_004688b0(BYTE *p);
+
+// match 51%: the whole structure (record pool alloc, list search, FixVecScale colour clamps,
+// FixMulShift32 limit) matches at 294 vs 298 instructions; the diff is MSVC6 stack-slot
+// numbering and load scheduling. Kept as FUNCTION.
+// Allocates a stage-deform record (0x106-byte pool, 0xd-byte slots) for the
+// car's impact, fills it with the clamped offset/normal/impact colours and
+// queues it, or falls back to a scratch record.
+// FUNCTION: CMR2 0x00468520
+void FUN_00468520(void)
+{
+    BYTE *pRec;
+    BYTE *pPrev;
+    BYTE *pCur;
+    BYTE *pWalk;
+    BYTE *pFound;
+    BYTE *pBase;
+    FixVector vA;
+    FixVector vB;
+    BYTE buf[20];
+    int limit;
+    int count;
+    int minv;
+    int v;
+    int scale;
+
+    pRec = NULL;
+    pPrev = NULL;
+    pBase = g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x106;
+    limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
+    if (limit > 0xff)
+        limit = 0xff;
+    if (*(int *)(g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x28c) == 0) {
+        count = *(BYTE *)(pBase + 0x104);
+        if (count < 0x14) {
+            if (count != 0)
+                *(BYTE *)(count * 0xd + pBase - 1) = count;
+            pRec = (BYTE *)(*(BYTE *)(pBase + 0x104) * 0xd + pBase);
+            *(BYTE *)(pBase + 0x104) = *(BYTE *)(pBase + 0x104) + 1;
+        }
+        else {
+            pWalk = (BYTE *)(*(BYTE *)(pBase + 0x105) * 0xd + pBase);
+            minv = 1000;
+            pCur = NULL;
+            pFound = NULL;
+            if (pWalk != NULL) {
+                do {
+                    pFound = pWalk;
+                    v = *pFound;
+                    if (v < minv) {
+                        minv = v;
+                        pRec = pFound;
+                        pPrev = pCur;
+                    }
+                    if (pFound[0xc] == 0xff)
+                        break;
+                    pWalk = (BYTE *)((char)pFound[0xc] * 0xd + pBase);
+                    pCur = pFound;
+                } while (pWalk != NULL);
+            }
+            if (!(pRec != NULL && minv < (limit & 0xff)))
+                pRec = NULL;
+            else if (pRec != pFound) {
+                if (pPrev == NULL) {
+                    pFound[0xc] = *(BYTE *)(pBase + 0x105);
+                    *(BYTE *)(pBase + 0x105) = pRec[0xc];
+                }
+                else {
+                    pFound[0xc] = pPrev[0xc];
+                    pPrev[0xc] = pRec[0xc];
+                }
+                pRec[0xc] = 0xff;
+            }
+        }
+    }
+    if (pRec == NULL) {
+        pRec = buf;
+        if (pRec == NULL)
+            return;
+    }
+    pRec[0] = (BYTE)limit;
+    scale = FixMul(FixDiv(0x10000, 0xa0000), 0x7f0000);
+    FixVecScale(&vA, &g_stageDeformOffset, scale);
+    v = vA.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[9] = (BYTE)v;
+    v = vA.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[0xa] = (BYTE)v;
+    v = vA.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[0xb] = (BYTE)v;
+    FixVecScale(&vB, &g_stageDeformNormal, 0x7f0000);
+    v = vB.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[3] = (BYTE)v;
+    v = vB.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[4] = (BYTE)v;
+    v = vB.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[5] = (BYTE)v;
+    FixVecScale(&vB, &g_stageDeformImpact, 0x7f0000);
+    v = vB.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[6] = (BYTE)v;
+    v = vB.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[7] = (BYTE)v;
+    v = vB.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[8] = (BYTE)v;
+    pRec[1] = (BYTE)g_stageDeformMode;
+    if (g_stageDeformMode == 1) {
+        v = FixMulShift32(g_stageDeformSpeed, FixMul(FixDiv(0x10000, 0xa0000), 0xff0000));
+        if (v > 0xff)
+            v = 0xff;
+        pRec[2] = (BYTE)v;
+    }
+    FUN_004688b0(pRec);
+}
+
 // FUNCTION: CMR2 0x00469680
 int *FUN_00469680(int index)
 {
