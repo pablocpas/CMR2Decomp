@@ -9307,3 +9307,58 @@ done:
         }
     }
 }
+
+int FUN_004218d0(unsigned int view);
+void RallyData_FUN_00408760(BYTE index, int value);
+
+// Driver-view resolver for the cycle/camera keys: picks the target driver
+// (current, best round driver or shifted by the digital control) and applies
+// the view change when the requested view is in range.
+// match 50%: implementada, MSVC6 mantiene param_1 en EDI (el original lo recarga de la pila) y la tabla del switch cae en otra direccion (<OFFSET>)
+// FUNCTION: CMR2 0x0047b970
+void FUN_0047b970(unsigned int param_1)
+{
+    unsigned int target;
+    unsigned int delta;
+
+    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 0xa) {
+        if (FUN_0041f3a0() == 0) {
+            target = FUN_004218d0(0);
+        } else if (CGameInfo::FUN_00405d80() == 2) {
+            target = param_1;
+        } else {
+            target = FUN_004218d0(1);
+        }
+    } else {
+        target = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+    }
+    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 8 ||
+        *(char *)(*(int *)(FUN_0041b390() + 4)) == 7) {
+        switch (FUN_0041b380()) {
+        case 0:
+        case 1:
+            g_unk0x0058e0a4 = param_1;
+            break;
+        case 2:
+            RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
+            break;
+        case 3:
+            if (param_1 == 0)
+                RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+            else
+                RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+            break;
+        case 4:
+            delta = FUN_0041b370();
+            g_unk0x0058e0a4 = (delta & 0xff) + param_1;
+            break;
+        }
+        if ((int)g_unk0x0058e0a4 < (int)CGameInfo::FUN_00405d70() &&
+            (target == 1 || target == 2 || target == 3 || target == 5 || target == 4))
+            RallyData_FUN_00408760(g_unk0x0058e0a4, target);
+    }
+}

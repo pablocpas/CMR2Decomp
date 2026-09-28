@@ -493,3 +493,53 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     g_vehicleMotionState->flags |= 4;
     g_vehicleMotionState->flags &= (BYTE)~2;
 }
+
+void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
+
+// Face-vertex collision test: picks the candidate side, classifies the face
+// vertices and reports whether the selected back side has four vertices.
+// match 44%: implementada, el original guarda el resultado 0 en ESI y prueba los dos contadores en CL antes de ramificar; MSVC6 usa AL y reparte los saltos distinto
+// FUNCTION: CMR2 0x00490b90
+int FUN_00490b90(int param_1)
+{
+    int found;
+
+    if (param_1 != 0)
+        found = FUN_00490570();
+    else
+        found = FUN_00490640();
+    if (found != 0) {
+        FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
+                     (int *)((BYTE *)g_collisionCar + 0x2d0),
+                     (FixVector *)((BYTE *)g_collisionCar + 0x270));
+        Collision_ClassifyFaceVertices();
+        if (g_collisionPositiveCandidateCount != 0) {
+            if (g_collisionNegativeCandidateCount != 0)
+                return 1;
+        } else if (g_collisionNegativeCandidateCount == 0) {
+            return 0;
+        }
+        if (g_collisionPositiveVertexCount == 4 && g_collisionSelectBackSide == 0)
+            return 0;
+        if (g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0)
+            return 1;
+    }
+    return 0;
+}
+
+void FUN_00483010(void);
+
+// Tests whether the length of the motion-state correction vector exceeds the
+// current ground offset; when it does, latches the collision and reports it.
+// FUNCTION: CMR2 0x00482f30
+int FUN_00482f30(void)
+{
+    FixVector *pV = (FixVector *)((BYTE *)g_unk0x00590c20 + 0x144);
+
+    if (FixVecLength(pV) >
+        *(int *)((BYTE *)g_unk0x00590d74 + 0x758) + *(int *)((BYTE *)g_unk0x00590c20 + 0x15c)) {
+        FUN_00483010();
+        return 1;
+    }
+    return 0;
+}

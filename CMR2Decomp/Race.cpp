@@ -3677,3 +3677,33 @@ void FUN_0041fd30(void)
         FUN_004918d0();
     }
 }
+
+void FUN_0042bf70(void);
+void FUN_00484d30(int t);
+void FUN_00471950(int t);
+void FUN_00486500(int scale);
+void FUN_00461bb0(int t);
+void Particle_Interpolate(int t);
+void Dash_Interpolate(int t);
+void StageObject_UpdateDebris(int scale);
+void FUN_0047e1e0(int t);
+
+// Per-frame race update: advances the stage timing, the particle and dash
+// effects and the debris, then refreshes them once the frame gate opens.
+// FUNCTION: CMR2 0x0041d060
+void FUN_0041d060(int param_1)
+{
+    FUN_0042bf70();
+    FUN_00484d30(param_1);
+    FUN_00471950(param_1);
+    FUN_00486500(param_1);
+    Particle_Interpolate(param_1);
+    FUN_00461bb0(param_1);
+    Dash_Interpolate(param_1);
+    if ((BYTE)FUN_00407270()) {
+        StageObject_UpdateDebris(param_1);
+    }
+    if (CGameInfo::FUN_004063f0(0) != 0) {
+        FUN_0047e1e0(param_1);
+    }
+}

@@ -902,3 +902,26 @@ void FUN_00426810(int param_1, int param_2)
     *(int *)(param_1 + 0xb4) +=
         FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
 }
+
+void FUN_004a15b0(BOOL param1);
+void FUN_00402c90(int param);
+void FUN_0044a1b0(int param);
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+
+// Network-device notification: id 5 refreshes the player list of the entry,
+// id 0x101 re-initialises the in-race menu and the HUD.
+// FUNCTION: CMR2 0x00427680
+void FUN_00427680(int param_1, int *param_2)
+{
+    if (*param_2 != 5) {
+        if (*param_2 == 0x101) {
+            FUN_004a15b0(1);
+            FUN_00402c90(1);
+            FUN_0044a1b0(1);
+        }
+        return;
+    }
+    FUN_004a1940((DWORD *)(param_2 + 2));
+    FUN_00409c80(param_2 + 2);
+}
