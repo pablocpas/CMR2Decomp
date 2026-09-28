@@ -43,8 +43,6 @@ void FUN_00422140(unsigned char, int) { }
 void FUN_004877a0(int, short *, short) { }
 // STUB: CMR2 0x00480bb0
 void FUN_00480bb0(int, short *, short) { }
-// STUB: CMR2 0x0046d510
-void FUN_0046d510(void) { }
 // STUB: CMR2 0x0046b4e0
 void FUN_0046b4e0(int) { }
 
