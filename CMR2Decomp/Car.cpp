@@ -4405,6 +4405,8 @@ void FUN_00433890(int base, short *pList, short count)
 {
     FixVector v;
     short out[3];
+    int f;
+    int m;
     int i;
     int k;
 
@@ -4460,8 +4462,9 @@ void FUN_00433890(int base, short *pList, short count)
         memset(&g_pCurrentCar->cornerLoad, 0, 0x60);
         memset(&g_pCurrentCar->cornerForce, 0, 0x60);
         g_pCurrentCar->baseForce.x = 0;
-        g_pCurrentCar->baseForce.y =
-            -FixMul(g_pCurrentCar->field_0x75c, FixMul(0x8000, g_gravityScale));
+        f = FixMul(0x8000, g_gravityScale);
+        m = g_pCurrentCar->field_0x75c;
+        g_pCurrentCar->baseForce.y = -FixMul(m, f);
         g_pCurrentCar->baseForce.z = 0;
         FUN_00432b30();
         Car_UpdateSuspension();
