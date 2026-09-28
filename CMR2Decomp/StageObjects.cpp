@@ -11032,3 +11032,273 @@ void FUN_004643f0(int param_1)
         }
     }
 }
+
+// Dependencias de la cadena de 0x46cce0 (0x46c2a0 / 0x46c410 / 0x469690):
+// prototipos que no estan en ninguna cabecera incluida por esta unidad.
+extern BYTE *g_unk0x00588b98;
+void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5,
+                  int param_6);
+void FUN_004698a0(int pCar);
+void FUN_004692f0(Car *pCar, int param_2);
+void FUN_004688b0(BYTE *p);
+void FUN_00468c10(Car *pCar);
+void FUN_00486630(int list, int index, int value);
+void FUN_00480ac0(BYTE *pCar, int slot, int reset);
+void FUN_00480b40(BYTE *pCar);
+void FUN_004702a0(void);
+void FUN_0045e610(void);
+void FUN_00458480(void);
+void FUN_004584d0(char param_1);
+void FUN_00458100(int param_1);
+void FUN_0047bdc0(char restart);
+void FUN_0042b800(int, int, int);
+int *FUN_00469680(int index);
+void RallyData_FUN_004207a0(int index);
+void RallyData_FUN_004207f0(void);
+RaceRecord *RallyData_FUN_00421510(int index);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00407e90(void);
+unsigned int RallyDataState(void);
+
+// Resets the per-car stage-object block: clears the pose/timing fields, walks
+// the object chain calling the pre-step of every entry, then recomputes the
+// 0x22 light intensities from the stored bytes and mirrors three palette
+// entries and four geometry offsets.
+// match 22%: implementada; difiere el codegen del bucle de la cadena de objetos
+// (indice*0xd + base) y de la division 64-bit de las intensidades
+// FUNCTION: CMR2 0x00469690
+void FUN_00469690(int param_1)
+{
+    BYTE *pBlock;
+    BYTE *pInfo;
+    int saved5dc, saved5e0, saved5e4, saved5c4, saved5c8, saved5cc;
+    int i;
+    int iVar13;
+    unsigned int uVar12;
+    BYTE bVar1;
+
+    pBlock = g_unk0x00588b94 + *(char *)(param_1 + 0xb1a) * 0x4d0;
+    pInfo = g_unk0x00588b98 + *(char *)(param_1 + 0xb1a) * 0x290;
+    FUN_00480b40((BYTE *)param_1);
+    FUN_004698a0(param_1);
+    *(int *)(pBlock + 0x404) = 0x10000;
+    *(int *)(pBlock + 0x3fc) = 0x10000;
+    *(int *)(pBlock + 0x400) = 0x10000;
+    *(int *)(pBlock + 0x3ec) = 0;
+    *(int *)(pBlock + 0x3f0) = 0;
+    *(int *)(pBlock + 0x3f4) = 0;
+    *(int *)(pBlock + 0x3f8) = 0;
+    *(int *)(pBlock + 0x408) = 0;
+    *(int *)(pBlock + 0x3d8) = 0;
+    *(BYTE *)(pBlock + 0x468) = 0;
+    saved5dc = *(int *)(param_1 + 0x5dc);
+    saved5e0 = *(int *)(param_1 + 0x5e0);
+    saved5e4 = *(int *)(param_1 + 0x5e4);
+    saved5c4 = *(int *)(param_1 + 0x5c4);
+    saved5c8 = *(int *)(param_1 + 0x5c8);
+    saved5cc = *(int *)(param_1 + 0x5cc);
+    uVar12 = (unsigned int)*(BYTE *)(pInfo + 0x105);
+    if (*(char *)(pInfo + 0x104) != '\0') {
+        iVar13 = (int)(uVar12 * 0xd) + (int)pInfo;
+        if (iVar13 != 0) {
+            do {
+                FUN_004688b0((BYTE *)iVar13);
+                FUN_00466ef0((Car *)param_1, 0, 0, 0, 0, 1);
+                if (*(char *)(iVar13 + 0xc) == -1)
+                    break;
+                uVar12 = (unsigned int)*(char *)(iVar13 + 0xc);
+                iVar13 = (int)(uVar12 * 0xd) + (int)pInfo;
+            } while (iVar13 != 0);
+        }
+    }
+    *(int *)(param_1 + 0x5dc) = saved5dc;
+    *(int *)(param_1 + 0x5e0) = saved5e0;
+    *(int *)(param_1 + 0x5e4) = saved5e4;
+    *(int *)(param_1 + 0x5c4) = saved5c4;
+    *(int *)(param_1 + 0x5c8) = saved5c8;
+    *(int *)(param_1 + 0x5cc) = saved5cc;
+    for (i = 0; i < 0x22; i++) {
+        int tmp;
+
+        bVar1 = *(BYTE *)(pInfo + 0x20c + i);
+        tmp = (int)((unsigned int)bVar1 << 0x10);
+        *(int *)(pBlock + 0x350 + i * 4) = tmp;
+        *(int *)(pBlock + 0x350 + i * 4) = (int)(((__int64)tmp << 0x10) / 0xff0000);
+    }
+    for (i = 0; i < 3; i++) {
+        int v = *(int *)(pInfo + 0x240 + i * 4);
+
+        *(int *)(pBlock + 0x4c0 + i * 4) = v;
+        FUN_00486630((int)*(char *)(param_1 + 0xb1a), i, v);
+    }
+    for (i = 0; i < 4; i++) {
+        int v = *(int *)(pInfo + 0x230 + i * 4);
+
+        *(int *)(pBlock + 0x4b0 + i * 4) = v;
+        FUN_00480ac0((BYTE *)param_1, i, v);
+    }
+    FUN_00468c10((Car *)param_1);
+    FUN_004692f0((Car *)param_1, 1);
+}
+
+// Initialises the stage-object state of one car (list type 0): resets the car's
+// per-type block, copies it into the stage block, mirrors the road book entry
+// when the car has one, and refreshes the rally-data bookkeeping.
+// FUNCTION: CMR2 0x0046c2a0
+void FUN_0046c2a0(int param_1, BYTE param_2)
+{
+    Car *pCar;
+    RaceRecord *pRecord;
+
+    pCar = Car_Get((int)param_2);
+    FUN_00469690((int)pCar);
+    FUN_0046bfd0((Block0x309 *)(param_1 + 0x4d0), pCar);
+    if (*(int *)((BYTE *)pCar + 0xb50) != 0) {
+        FUN_0046c1a0((Block0x134 *)param_1, (Block0x134 *)FUN_00469680((int)param_2));
+    }
+    pRecord = RallyData_FUN_00421510((int)param_2);
+    FUN_0046c220((Block6 *)(param_1 + 0x10f4), (Block6 *)pRecord);
+    RallyData_FUN_004207a0((int)param_2);
+    FUN_0045e610();
+    FUN_004702a0();
+    RallyData_ValidateIndex((int)param_2);
+}
+
+// Initialises the stage-object state of one car (list type 2): same reset as
+// above but without the per-type block copy or the road book mirror.
+// FUNCTION: CMR2 0x0046c410
+void FUN_0046c410(int param_1, BYTE param_2)
+{
+    Car *pCar;
+
+    pCar = Car_Get((int)param_2);
+    FUN_00469690((int)pCar);
+    RallyData_FUN_004207a0((int)param_2);
+    FUN_0045e610();
+    FUN_004702a0();
+    RallyData_ValidateIndex((int)param_2);
+}
+
+// Selects one lane of one car's stage-object state and initialises it for the
+// given type: validates the record, stores the lane/timer fields, dispatches to
+// the type-specific reset (0x46c2a0 / 0x46c390 / 0x46c410), flushes pending
+// events, copies the light byte and, for type 2, rebuilds the two pose matrices
+// and the car's matrix/mirror state.
+// match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
+// compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
+// FUNCTION: CMR2 0x0046cce0
+void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4)
+{
+    char cVar1;
+    BYTE bVar2;
+    short sVar4;
+    int iVar5;
+    unsigned char uVar3;
+    short lane;
+
+    if (param_1 == 0 || *(int *)(param_1 + 0xc) != 0 || *(int *)(param_1 + 4) != 0)
+        return;
+    lane = (short)param_2;
+    if (*(short *)(param_1 + 0x100) <= lane)
+        return;
+    *(BYTE *)(param_1 + 0x20) = (BYTE)param_4;
+    *(int *)(param_1 + 4) = 1;
+    *(short *)(param_1 + 0x108) = lane;
+    *(int *)(param_1 + 8) = 1;
+    if ((short)param_3 == 0)
+        *(short *)(param_1 + 0x10a) = 0;
+    else
+        *(short *)(param_1 + 0x10a) = (short)(-(short)param_3);
+    *(BYTE *)(param_1 + 0x21) = 0;
+    if (*(int *)(param_1 + 0x1c) == 0) {
+        FUN_0046c2a0(*(int *)(param_1 + 0x24) + lane * 0x114c, (BYTE)param_4);
+    } else if (*(int *)(param_1 + 0x1c) == 1) {
+        FUN_0046c390((int *)(lane * 0x5c + *(int *)(param_1 + 0x30)), (BYTE)param_4);
+    } else {
+        FUN_0046c410(lane * 0x5c + *(int *)(param_1 + 0x30), (BYTE)param_4);
+    }
+    Events_Flush();
+    *(int *)(param_1 + 0x14) = 0;
+    if (*(int *)(param_1 + 0x1c) == 0)
+        *(BYTE *)(param_1 + 0x10c) = *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1110 + lane * 0x114c);
+    else
+        *(BYTE *)(param_1 + 0x10c) = *(BYTE *)(lane * 0x5c + 0x20 + *(int *)(param_1 + 0x30));
+    if ((BYTE)param_4 == 0 &&
+        ((cVar1 = (char)CGameInfo::FUN_00405e00()) != '\0' ||
+         ((cVar1 = (char)RallyData_FUN_00407e90()) != '\0' &&
+          (cVar1 = (char)CGameInfo::FUN_00405e00()) == '\0'))) {
+        RallyData_FUN_004207f0();
+        FUN_004584d0(1);
+        cVar1 = (char)RallyData_FUN_00407e70();
+        if (cVar1 != '\0') {
+            bVar2 = (BYTE)RallyDataState();
+            sVar4 = Car_GetOrderCount();
+            iVar5 = (int)sVar4 - (unsigned int)bVar2;
+            uVar3 = (unsigned char)RallyDataState();
+            FUN_0042b800((int)uVar3, iVar5, 1);
+            FUN_0047bdc0(0);
+        }
+        FUN_00458480();
+        FUN_00458100(0);
+    }
+    *(BYTE *)(param_1 + 0xf8) = 0;
+    if (*(int *)(param_1 + 0x1c) == 2) {
+        FUN_0046de20((unsigned int *)(param_1 + 0xec), (unsigned int *)(param_1 + 0xf0),
+                     (unsigned int *)(param_1 + 0xd8), (int *)(param_1 + 0xd0),
+                     (FixMatrix *)(param_1 + 0x44), (int *)(param_1 + 0xe0),
+                     (unsigned int *)(param_1 + 0xe8), (int *)*(int *)(param_1 + 0x40));
+        FUN_0046de20((unsigned int *)(param_1 + 0xec), (unsigned int *)(param_1 + 0xf4),
+                     (unsigned int *)(param_1 + 0xdc), (int *)(param_1 + 0xd4),
+                     (FixMatrix *)(param_1 + 0x84), (int *)(param_1 + 0xe4),
+                     (unsigned int *)(param_1 + 0xe8), (int *)(*(int *)(param_1 + 0x40) + 0x10));
+        cVar1 = (char)CGameInfo::FUN_00405e00();
+        if ((cVar1 != '\0' && *(BYTE *)(param_1 + 0x20) == 0) ||
+            (cVar1 = (char)CGameInfo::FUN_00405e00()) == '\0') {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0xc18) = 1;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x408) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x40c) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x410) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x414) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x418) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0x41c) = 0;
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            FUN_0046e340((BYTE *)(param_1 + 0x44), (BYTE *)pCar);
+        }
+        {
+            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
+
+            *(int *)((BYTE *)pCar + 0xbf8) = 1;
+        }
+        return;
+    }
+    return;
+}
