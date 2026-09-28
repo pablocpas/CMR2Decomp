@@ -7457,3 +7457,94 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
     }
     param_4[i] = 0;
 }
+
+void FUN_004efe60(int param_1, int param_2, char param_3);
+
+// Item action of the stage-split list: opens the split editor of the selected
+// row, or the next screen of the current game mode.
+// FUNCTION: CMR2 0x004efde0
+void FUN_004efde0(Menu *pMenu, int param)
+{
+    RallyData_FUN_004068e0(pMenu->cursor);
+    if (g_unk0x00819130[pMenu->cursor] == 1) {
+        if (CGameInfo::FUN_00405d80() == 2) {
+            FUN_004efe60((int)pMenu, param, 1);
+            return;
+        }
+        if (CGameInfo::FUN_00405d80() == 6) {
+            if (CGameInfo::FUN_00405d70() == 2) {
+                Menu_SetNextAction((int)FUN_004fa4c0());
+                return;
+            }
+            Menu_SetNextAction((int)FUN_004fa360());
+            return;
+        }
+        Menu_SetNextAction((int)FUN_004f8330());
+    }
+}
+
+// Enables the rally rows of the stage list from the current session flags and
+// selects the first enabled row.
+// FUNCTION: CMR2 0x004efb70
+void FUN_004efb70(Menu *pMenu, int param)
+{
+    unsigned int *pInfo;
+    int limit;
+
+    RallyData_FUN_004068b0(pMenu->cursor);
+    if (CGameInfo::FUN_00405d80() == 2)
+        FUN_004efe60((int)pMenu, param, 0);
+    if (CGameInfo::FUN_00405d80() == 1) {
+        RallyData_FUN_004068e0(0);
+        Menu_SetNextAction((int)FUN_004f8330());
+        FUN_004ea9f0();
+        return;
+    }
+    limit = 1;
+    pInfo = CGameInfo::FUN_00405db0();
+    memset(g_unk0x00819130, 1, 11);
+    if (CGameInfo::FUN_00406410(0xd) != 0) {
+        if ((BYTE)RallyDataCountryIndex() % 2 != 0) {
+            FUN_004f8350()->itemCount = 0xb;
+        } else {
+            g_unk0x00819130[10] = 0xff;
+            FUN_004f8350()->itemCount = 10;
+        }
+    } else {
+        if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 8 & 0xf))
+            limit = 4;
+        if ((BYTE)RallyDataStageIndex() + 1 <= (BYTE)(*pInfo >> 0xc & 0xf))
+            limit = 8;
+        if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 0x10 & 0xf) && (*pInfo & 1) != 0)
+            limit = 10;
+        if (limit < 11)
+            memset(&g_unk0x00819130[limit], 0, 11 - limit);
+        if (CGameInfo::FUN_00405d80() == 2) {
+            switch (CGameInfo::FUN_00405d90()) {
+            case 0:
+                memset(&g_unk0x00819130[4], 0, 6);
+                break;
+            case 1:
+                memset(&g_unk0x00819130[8], 0, 2);
+                break;
+            }
+        }
+        if ((BYTE)RallyDataCountryIndex() % 2 != 0) {
+            if (((1 << ((BYTE)RallyDataCountryIndex() + 1) / 2 - 1) & pInfo[1] & 0x1f) != 0 ||
+                (((pInfo[1] >> 5) & 0x1f) & (1 << ((BYTE)RallyDataCountryIndex() + 1) / 2 - 1)) != 0) {
+                g_unk0x00819130[10] = 1;
+            } else {
+                g_unk0x00819130[10] = 0;
+                if ((((pInfo[1] >> 10) & 0x1f) & (1 << ((BYTE)RallyDataCountryIndex() + 1) / 2 - 1)) != 0)
+                    g_unk0x00819130[10] = 1;
+            }
+            FUN_004f8350()->itemCount = 0xb;
+        } else {
+            g_unk0x00819130[10] = 0xff;
+            FUN_004f8350()->itemCount = 10;
+        }
+    }
+    if (FUN_004f8350()->cursor >= FUN_004f8350()->itemCount)
+        FUN_004f8350()->cursor = FUN_004f8350()->itemCount - 1;
+    Menu_SetNextAction((int)FUN_004f8350());
+}
