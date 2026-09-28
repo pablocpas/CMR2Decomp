@@ -18,9 +18,12 @@ FixMatrix g_carWheelTransforms[8][4];
 short g_carOrderCount;
 short g_carOrder[48];
 int g_carViewScale[15][2];
-SceneNode *g_viewNodes[5];
-// GLOBAL: CMR2 0x00538e40
-BYTE g_unk0x00538e40[0xc0];
+SceneNode *g_viewNodes[3];
+// Previous camera state of each view (two 100-byte records laid out like the
+// view records; the first dword of each is unused). Its matrices start at 0x538e40.
+// GLOBAL: CMR2 0x00538e38
+BYTE g_unk0x00538e38[0xc8];
+#define g_unk0x00538e40 (g_unk0x00538e38 + 8)
 // GLOBAL: CMR2 0x00538e04
 int g_unk0x00538e04[2];
 // GLOBAL: CMR2 0x00538e0c
@@ -7049,3 +7052,470 @@ void FUN_0042fb20(void)
 
 #undef CARF
 #undef CARV
+
+// --- per-view camera control (0x421610-0x423780) ---------------------------
+// Each view has two camera records in g_viewRecords (index view * 2 + the
+// active slot g_unk0x00538e0c[view]): +0 record index, +1 view, +2 car,
+// +4 camera type, +8 matrix, +0x48.. parameters, +0x60 ground clearance.
+// g_unk0x00538d2c - 4 holds the blended state of each view in the same layout.
+
+#define VIEW_RECORD(i) (g_viewRecords[0] + (i) * 100)
+#define VIEW_STATE(v) (g_unk0x00538d2c - 4 + (v) * 100)
+#define VIEW_PREV_STATE(v) (g_unk0x00538e38 + (v) * 100)
+// Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
+#define VIEW_EASE(t)                                                                               \
+    (0x10000 - (FixCos((short)(int)(__int64)((double)(FixDiv((t), 0xc8000) * 180) * g_unk0x00511308)) + \
+                0x10000) / 2)
+
+extern double g_unk0x00511308;
+extern double g_unk0x00511300;
+struct Unk004238e0;
+void FUN_00423810(BYTE *pObject, BYTE *pInfo);
+void FUN_00423860(BYTE *pObject, BYTE *pInfo);
+void FUN_004238e0(Unk004238e0 *param1, int param2);
+void FUN_00423900(BYTE *pObject, BYTE *pInfo);
+void FUN_004239e0(int *p);
+void FUN_004ae410(BYTE a, BYTE b, int c, int d);
+void FUN_00486740(BYTE *pObj, int *pSrc, BYTE index, BYTE value);
+void FUN_00476410(BYTE *p, int *src, int unused, BYTE value);
+void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3);
+void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int param);
+void FUN_00486910(BYTE *pObj, int *pSrc);
+void FUN_00477850(int object, int *src);
+void FUN_00447a00(BYTE *pObj, FixMatrix *pRef);
+void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef);
+void FUN_004869e0(BYTE *pObj, FixMatrix *pRef);
+void FUN_004778b0(BYTE *object, int unused);
+void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef);
+void FUN_00486810(BYTE *pObj, int *pSrc, int param_3);
+void FUN_004765e0(BYTE *pObj, int a, int b);
+void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3);
+void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef);
+int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
+void FUN_004760a0(int record, BYTE car);
+int FUN_00407650(void);
+int FUN_00407710(void);
+void FUN_00475f80(void);
+void FUN_00486700(void);
+void FUN_00459250(BYTE player, unsigned int node, int dir);
+int RallyData_FUN_00411060(void);
+void FUN_00423b20(unsigned int param_1);
+int FUN_004232a0(int index, int mode);
+FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car);
+void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
+
+// Starts the camera of camera type `type` on a view record.
+// FUNCTION: CMR2 0x00423300
+void FUN_00423300(BYTE *pRecord, int type, int param)
+{
+    BYTE car;
+    BYTE view;
+    Car *pCar;
+    FixMatrix body;
+
+    car = pRecord[2];
+    view = pRecord[1];
+    pCar = Car_Get(car);
+    FUN_00423a30(&body, car);
+    switch (type) {
+    case 6:
+        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 3);
+        return;
+    case 4:
+        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 0);
+        return;
+    case 5:
+        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 4);
+        return;
+    case 3:
+        FUN_00476410(pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), *((BYTE *)pCar + 0xb1b));
+        return;
+    case 2:
+        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 0);
+        return;
+    case 10:
+        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 2);
+        return;
+    case 1:
+        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 1);
+        return;
+    case 7:
+        FUN_0048cae0(pRecord, FUN_00423d70(car), param);
+    }
+}
+
+// Per-frame update of a view record's camera, plus its ground clearance
+// (how far the camera sits above the stage, eased towards the new value).
+// FUNCTION: CMR2 0x00423460
+void FUN_00423460(BYTE *pRecord)
+{
+    FixMatrix body;
+    FixVector position;
+    FixVector normal;
+    Car *pCar;
+    BYTE car;
+    int onCar;
+    int clearance;
+    int check;
+    short tri;
+    short surface;
+
+    onCar = 0;
+    if (*(int *)(pRecord + 0x48) != 0 || *(int *)(pRecord + 0x5c) != 0)
+        check = 1;
+    else
+        check = 0;
+    car = pRecord[2];
+    pCar = Car_Get(car);
+    if (*(int *)((BYTE *)pCar + 0xc04) != 0 && g_unk0x00538f00[pRecord[2]] == 0)
+        onCar = 1;
+    FUN_00423a30(&body, car);
+    switch (*(int *)(pRecord + 4)) {
+    case 4:
+    case 5:
+    case 6:
+        FUN_004475f0(pRecord, FUN_00423d70(car), onCar);
+        break;
+    case 3:
+        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
+            FUN_004765e0(pRecord, (int)FUN_00423d70(car), 0);
+        else
+            FUN_004765e0(pRecord, (int)FUN_00423d70(car), 1);
+        break;
+    case 2:
+        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
+            FUN_00486810(pRecord, (int *)&body, 0);
+        else
+            FUN_00486810(pRecord, (int *)&body, 1);
+        break;
+    case 10:
+        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
+            FUN_00486810(pRecord, (int *)&body, 0);
+        else
+            FUN_00486810(pRecord, (int *)&body, 1);
+        break;
+    case 1:
+        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
+            FUN_00486810(pRecord, (int *)&body, 0);
+        else
+            FUN_00486810(pRecord, (int *)&body, 1);
+        break;
+    case 7:
+        FUN_0048cc30(pRecord, FUN_00423d70(car));
+        break;
+    }
+    if (FUN_00445a20() == 0 && check != 0) {
+        FixMatrix_GetPosition(&position, (FixMatrix *)(pRecord + 8));
+        tri = 0;
+        clearance = Track_GetGroundHeight5(&position, &normal, &tri, &surface,
+                                           *(int *)((BYTE *)Car_Get(pRecord[2]) + 0x8e4)) -
+                    position.y + 0x10000;
+        if (clearance < 0)
+            clearance = 0;
+        if (clearance < *(int *)(pRecord + 0x60))
+            clearance += FixMul(*(int *)(pRecord + 0x60) - clearance, 0x10000 - FixMul(0xccc, g_physicsTimeStep));
+        *(int *)(pRecord + 0x60) = clearance;
+        return;
+    }
+    *(int *)(pRecord + 0x60) = 0;
+}
+
+// Restarts the camera of a view record (after a car reset).
+// FUNCTION: CMR2 0x004236b0
+void FUN_004236b0(BYTE *pRecord)
+{
+    FixMatrix body;
+    BYTE car;
+
+    car = pRecord[2];
+    FUN_00423a30(&body, car);
+    switch (*(int *)(pRecord + 4)) {
+    case 4:
+    case 5:
+    case 6:
+        FUN_00447a00(pRecord, FUN_00423d70(car));
+        return;
+    case 3:
+        FUN_00477850((int)pRecord, (int *)FUN_00423d70(car));
+        return;
+    case 2:
+        FUN_00486910(pRecord, (int *)&body);
+        return;
+    case 10:
+        FUN_00486910(pRecord, (int *)&body);
+        return;
+    case 1:
+        FUN_00486910(pRecord, (int *)&body);
+        return;
+    case 7:
+        FUN_0048ce80(pRecord, FUN_00423d70(car));
+    }
+}
+
+// Snaps the camera of a view record to a reference matrix.
+// FUNCTION: CMR2 0x00423780
+void FUN_00423780(BYTE *pRecord, FixMatrix *pRef)
+{
+    switch (*(int *)(pRecord + 4)) {
+    case 5:
+    case 6:
+        FUN_00447a40(pRecord, pRef);
+        return;
+    case 4:
+        FUN_00447a40(pRecord, pRef);
+        return;
+    case 3:
+        FUN_004778b0(pRecord, (int)pRef);
+        return;
+    case 10:
+        FUN_004869e0(pRecord, pRef);
+        return;
+    case 1:
+    case 2:
+        FUN_004869e0(pRecord, pRef);
+        return;
+    case 7:
+        FUN_0048d0f0(pRecord, pRef);
+    }
+}
+
+// Sets up the view cameras of a stage: the four camera records, then for both
+// views a camera scene node and a cleared view state.
+// FUNCTION: CMR2 0x00421610
+void FUN_00421610(void)
+{
+    FixVector position;
+    FixAngles angles;
+    BYTE i;
+    BYTE *pRecord;
+
+    if ((unsigned short)FUN_00407650() < 0x834)
+        FUN_00407710();
+    CGame::RegisterCallback(FUN_00421590, NULL);
+    FUN_00475f80();
+    FUN_00486700();
+    i = 0;
+    pRecord = VIEW_RECORD(0);
+    do {
+        pRecord[0] = i;
+        pRecord[1] = i >> 1;
+        pRecord[2] = i >> 1;
+        *(int *)(pRecord + 0x60) = 0;
+        FUN_004760a0(i, pRecord[2]);
+        pRecord += 100;
+        i++;
+    } while (i < 4);
+    position.x = 0;
+    position.y = 0;
+    position.z = 0;
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    i = 0;
+    do {
+        g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, (SceneNode *)RallyData_FUN_00411060());
+        *(int *)(g_unk0x00538d2c + i * 100) = 0;
+        g_unk0x00538d20[i] = -0x10000;
+        g_unk0x00538e0c[i] = 0;
+        g_unk0x005391b0[i] = 0;
+        g_unk0x005391c4[i] = 0;
+        g_unk0x005391a8[i] = 0;
+        FUN_00459250(0, 0, 1);
+        g_unk0x00538f00[i] = 0;
+        FUN_00447ca0(i);
+        i++;
+    } while (i < 2);
+}
+
+// Switches a view to camera type `type`: the inactive record takes the new
+// camera, and either the view blends into it (timed transition) or swaps to
+// it at once.
+// FUNCTION: CMR2 0x00421720
+void FUN_00421720(BYTE view, int type, int param, BYTE target, int blend)
+{
+    int ok;
+    BYTE active;
+    BYTE next;
+    BYTE *pNext;
+    BYTE *pActive;
+
+    if (FUN_00422f50(view) != 8 && FUN_004232a0(view, type) != 0)
+        ok = 1;
+    else
+        ok = 0;
+    FUN_00423b20(view);
+    if (ok == 0)
+        return;
+    active = g_unk0x00538e0c[view] + view * 2;
+    next = view * 2 - g_unk0x00538e0c[view] + 1;
+    if (blend == 0 || type == 3 || *(int *)(VIEW_RECORD(active) + 4) == 3)
+        blend = 0;
+    else
+        blend = 1;
+    if (type == 7 && param == 0xffff)
+        param = FUN_0048d8b0((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
+    pNext = VIEW_RECORD(next);
+    *(int *)(pNext + 4) = type;
+    if (pNext[2] != target) {
+        FUN_004ae410(pNext[2], pNext[1], 1, 1);
+        FUN_004ae410(target, pNext[1], 1, 1);
+    }
+    pNext[2] = target;
+    pActive = VIEW_RECORD(active);
+    FUN_00423810(pActive, pNext);
+    FUN_00423860(pNext, pActive);
+    FUN_00423300(pNext, type, param);
+    *(int *)(pNext + 0x60) = 0;
+    if (blend) {
+        g_unk0x00538d20[view] = 0xc8000;
+        return;
+    }
+    FUN_004238e0((Unk004238e0 *)pActive, (int)pNext);
+    FUN_00423900(pNext, pActive);
+    FUN_004239e0((int *)pActive);
+    g_unk0x005391b0[view] = 1;
+    g_unk0x00538e0c[view] = 1 - g_unk0x00538e0c[view];
+}
+
+// Per-frame camera of a view: the shake animation, both records' cameras and
+// the blend between them while a transition runs.
+// FUNCTION: CMR2 0x004219b0
+void FUN_004219b0(unsigned int view)
+{
+    BYTE index;
+    BYTE active;
+    BYTE next;
+    int *pTimer;
+    BYTE *pActive;
+    BYTE *pNext;
+    int typeA;
+    int typeB;
+    int activeFree;
+    int activeTracked;
+    int nextFree;
+    int nextTracked;
+    int t;
+
+    index = (BYTE)view;
+    active = g_unk0x00538e0c[index] + (BYTE)view * 2;
+    next = (BYTE)view * 2 - g_unk0x00538e0c[index] + 1;
+    if (g_unk0x00538f00[index] != 0) {
+        if (g_unk0x00538f00[index] == 1) {
+            g_unk0x00538c98[index] += 0xccc;
+            if (g_unk0x00538c98[index] >= 0x10000) {
+                g_unk0x00538f00[index] = 2;
+                g_unk0x00538c98[index] = 0x10000;
+            }
+        } else if (g_unk0x00538f00[index] == 3) {
+            g_unk0x00538c98[index] += -0xccc;
+            if (g_unk0x00538c98[index] <= 0) {
+                g_unk0x00538f00[index] = 0;
+                g_unk0x00538c98[index] = 0;
+            }
+        }
+        g_unk0x00538df8[index] += 0x44;
+        if (g_unk0x00538df8[index] >= 0x1000)
+            g_unk0x00538df8[index] -= 0x1000;
+    }
+    FUN_00423b20(view);
+    pTimer = &g_unk0x00538d20[index];
+    if (g_unk0x00538d20[index] < 0)
+        FUN_00423ee0(VIEW_PREV_STATE(index), VIEW_RECORD(active));
+    else
+        FUN_00423ee0(VIEW_PREV_STATE(index), VIEW_STATE(index));
+    pActive = VIEW_RECORD(active);
+    FUN_00423460(pActive);
+    g_unk0x005391c4[index] = g_unk0x005391b0[index];
+    g_unk0x005391b0[index] = 0;
+    if (*pTimer < 0) {
+        FUN_00423ee0(VIEW_STATE(index), pActive);
+        return;
+    }
+    pNext = VIEW_RECORD(next);
+    FUN_00423460(pNext);
+    if (*pTimer - g_physicsTimeStep > 0) {
+        typeA = *(int *)(pActive + 4);
+        if (typeA == 4 || typeA == 5 || typeA == 10)
+            activeFree = 1;
+        else
+            activeFree = 0;
+        if (typeA == 1 || typeA == 2)
+            activeTracked = 1;
+        else
+            activeTracked = 0;
+        typeB = *(int *)(pNext + 4);
+        if (typeB == 4 || typeB == 5 || typeB == 10)
+            nextFree = 1;
+        else
+            nextFree = 0;
+        if (typeB == 1 || typeB == 2)
+            nextTracked = 1;
+        else
+            nextTracked = 0;
+        t = 0x10000 - FixMul(VIEW_EASE(*pTimer), VIEW_EASE(*pTimer));
+        FUN_00423de0(VIEW_STATE(index), pActive, pNext, t);
+        if ((activeFree && nextTracked) || (activeTracked && nextFree))
+            *(int *)(VIEW_STATE(index) + 0x3c) +=
+                FixMul(g_sinTable[(short)(int)(__int64)((double)(t * 180) * g_unk0x00511300) & 0xfff], 0x10000);
+        *(int *)(g_unk0x00538d2c + index * 100) = 8;
+        *pTimer -= g_physicsTimeStep;
+        return;
+    }
+    FUN_004238e0((Unk004238e0 *)pActive, (int)pNext);
+    FUN_00423900(pNext, pActive);
+    FUN_004239e0((int *)pActive);
+    FUN_00423ee0(VIEW_STATE(index), pNext);
+    g_unk0x00538e0c[index] = 1 - g_unk0x00538e0c[index];
+    *pTimer -= g_physicsTimeStep;
+}
+
+// Resets the cameras of a view to their records (after a restart).
+// FUNCTION: CMR2 0x00421d80
+void FUN_00421d80(int view)
+{
+    BYTE active;
+    BYTE next;
+
+    active = g_unk0x00538e0c[(BYTE)view] + (BYTE)view * 2;
+    next = (BYTE)view * 2 - g_unk0x00538e0c[(BYTE)view] + 1;
+    FUN_00423b20(view);
+    FUN_004236b0(VIEW_RECORD(active));
+    *(int *)(VIEW_RECORD(active) + 0x60) = 0;
+    if (FUN_00422f50(view) == 8) {
+        FUN_004236b0(VIEW_RECORD(next));
+        *(int *)(VIEW_RECORD(next) + 0x60) = 0;
+    }
+    g_unk0x005391b0[(BYTE)view] = 1;
+}
+
+// Snaps a view's cameras to the car's camera placement and refreshes the view
+// state (blending when a transition is running).
+// FUNCTION: CMR2 0x00421e20
+void FUN_00421e20(BYTE view)
+{
+    FixMatrix placement;
+    BYTE index;
+    BYTE active;
+    BYTE next;
+    BYTE *pActive;
+    BYTE *pNext;
+
+    index = view;
+    active = g_unk0x00538e0c[index] + view * 2;
+    next = view * 2 - g_unk0x00538e0c[index] + 1;
+    FUN_00423b20(view);
+    FUN_00423a00(&placement, view);
+    pActive = VIEW_RECORD(active);
+    FUN_00423780(pActive, &placement);
+    if (FUN_00422f50(view) == 8) {
+        pNext = VIEW_RECORD(next);
+        FUN_00423780(pNext, &placement);
+        FUN_00423de0(VIEW_STATE(index), pActive, pNext,
+                     0x10000 - FixMul(VIEW_EASE(g_unk0x00538d20[index]), VIEW_EASE(g_unk0x00538d20[index])));
+        FUN_004219b0(view);
+        return;
+    }
+    FUN_00423ee0(VIEW_STATE(index), pActive);
+    FUN_004219b0(view);
+}

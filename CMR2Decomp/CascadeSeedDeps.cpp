@@ -48,12 +48,6 @@ void FUN_0041e6b0(int, int, int) { }
 // STUB: CMR2 0x0041b460
 void FUN_0041b460(void) { }
 
-// STUB: CMR2 0x00421720
-void FUN_00421720(unsigned char, int, int, unsigned char, int) { }
-
-// STUB: CMR2 0x00421e20
-void FUN_00421e20(unsigned char) { }
-
 // STUB: CMR2 0x00422140
 void FUN_00422140(unsigned char, int) { }
 
@@ -100,9 +94,11 @@ void FUN_004f8b30(void) { }
 // STUB: CMR2 0x00459c80
 void FUN_00459c80(void) { }
 
-// STUB: CMR2 0x00421d80
-void FUN_00421d80(int) { }
 // STUB: CMR2 0x00456d90
 int FUN_00456d90(void) { return 0; }
 // STUB: CMR2 0x00478f50
 void FUN_00478f50(void) { }
+
+struct FixMatrix;
+// STUB: CMR2 0x004760a0
+void FUN_004760a0(int, unsigned char) { }
