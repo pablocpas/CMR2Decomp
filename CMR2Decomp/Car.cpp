@@ -6728,3 +6728,324 @@ void FUN_0043f630(int carBase, short *pOrder, short count)
         *(FixVector *)((BYTE *)g_pCurrentCar + 0x2dc) = g_pCurrentCar->position;
     }
 }
+
+void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
+                  unsigned char param_5, int param_6);
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
+
+// Upright solver of the current car. Derives a damping factor from the angular
+// velocity magnitude (0x50000 per unit, capped at 0xcccc) and from how far the
+// forward speed sits above the roll rate, then projects the velocity on the
+// ground normal (0x48c) to check the three body axes for a sign flip: the dot of
+// the normal with right (0x91c), up (0x920) and forward (0x924) is stored back
+// and a flip makes the body lock out the corresponding angular component. Each
+// locked axis keeps a counter (0xb27 roll, 0xb25 pitch, 0xb26 yaw) that grows
+// with 0xa0000 * physics step while the axis stays beyond its threshold
+// (0xe666 roll, 0xf333 pitch/forward) and flips the lock flag (0xbe4, 0xbdc,
+// 0xbe0) after 100 frames. Timers 0xba0/0xba4/0xba8 hold the "just spun out"
+// state of each axis and clear once the two remaining angular components grow
+// past 0xf5c. When an axis is unlocked and unflipped, the angular velocity is
+// projected off the normal in body space and damped. The three axes are then
+// re-orthonormalized (right, and up/forward rebuilt from it) and, when any axis
+// flipped, the deepest corner against the normal is pushed to the deformation
+// solver.
+// match 32%: implemented from the disassembly; the repeated inlined square-root
+// and reciprocal blocks keep their own stack slots in the original (CONOCIMIENTO 4.t).
+// FUNCTION: CMR2 0x0042fb20
+void FUN_0042fb20(void)
+{
+    FixVector tmp;
+    FixVector corner;
+    FixVector upBody;
+    FixVector out;
+    int flipRoll;
+    int flipPitch;
+    int flipYaw;
+    int damp;
+    int dot;
+    int mag;
+    int i;
+    int r1;
+    int r2;
+    int r3;
+    int *p;
+
+    flipRoll = 0;
+    flipPitch = 0;
+    flipYaw = 0;
+
+    mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x424), CARF(0x424)) +
+                  FixMul(CARF(0x428), CARF(0x428)));
+    mag = FixMul(mag, 0x50000);
+    if (mag > 0xcccc)
+        mag = 0xcccc;
+    damp = FixMul(0x10000 - mag, 0x8000);
+
+    dot = FixMul(CARF(0x408), CARF(0x48c)) + FixMul(CARF(0x40c), CARF(0x490)) +
+          FixMul(CARF(0x410), CARF(0x494));
+    if (dot < 0)
+        dot = -dot;
+    if (CARF(0x778) - dot < 0x8000)
+        damp = 0x8000;
+    damp = FixMul(damp, g_physicsTimeStep);
+    if (damp > 0x10000)
+        damp = 0x10000;
+
+    dot = FixMul(CARF(0x48c), CARF(0x360)) + FixMul(CARF(0x490), CARF(0x364)) +
+          FixMul(CARF(0x494), CARF(0x368));
+    if ((CARF(0x91c) > 0 && dot < 0) || (CARF(0x91c) < 0 && dot > 0))
+        flipRoll = 1;
+    CARF(0x91c) = dot;
+    if (CARF(0xbe4) == 0) {
+        if (dot < -0xe666 || dot > 0xe666)
+            g_pCurrentCar->field_0xb27 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+        else
+            g_pCurrentCar->field_0xb27 = 0;
+        if (g_pCurrentCar->field_0xb27 > 100)
+            CARF(0xbe4) = 1;
+    }
+
+    dot = FixMul(CARF(0x48c), CARF(0x36c)) + FixMul(CARF(0x490), CARF(0x370)) +
+          FixMul(CARF(0x494), CARF(0x374));
+    if ((CARF(0x920) > 0 && dot < 0) || (CARF(0x920) < 0 && dot > 0))
+        flipPitch = 1;
+    CARF(0x920) = dot;
+    if (CARF(0xbdc) == 0) {
+        if (dot < -0xf333)
+            g_pCurrentCar->field_0xb25 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+        else
+            g_pCurrentCar->field_0xb25 = 0;
+        if (g_pCurrentCar->field_0xb25 > 100)
+            CARF(0xbdc) = 1;
+    }
+
+    dot = FixMul(CARF(0x48c), CARF(0x378)) + FixMul(CARF(0x490), CARF(0x37c)) +
+          FixMul(CARF(0x494), CARF(0x380));
+    if ((CARF(0x924) > 0 && dot < 0) || (CARF(0x924) < 0 && dot > 0))
+        flipYaw = 1;
+    CARF(0x924) = dot;
+    if (CARF(0xbe0) == 0) {
+        if (dot < -0xf333 || dot > 0xf333)
+            g_pCurrentCar->field_0xb26 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+        else
+            g_pCurrentCar->field_0xb26 = 0;
+        if (g_pCurrentCar->field_0xb26 > 100)
+            CARF(0xbe0) = 1;
+    }
+
+    if (CARF(0xba0) != 0) {
+        mag = FixSqrt(FixMul(CARF(0x424), CARF(0x424)) + FixMul(CARF(0x428), CARF(0x428)));
+        if (mag >= 0xf5c)
+            CARF(0xba0) = 0;
+    }
+    if (CARF(0xba4) != 0) {
+        mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x428), CARF(0x428)));
+        if (mag >= 0xf5c)
+            CARF(0xba4) = 0;
+    }
+    if (CARF(0xba8) != 0) {
+        mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x424), CARF(0x424)));
+        if (mag >= 0xf5c)
+            CARF(0xba8) = 0;
+    }
+
+    if (flipRoll != 0 && CARF(0xba0) == 0) {
+        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+        dot = FixMul(CARF(0x420), tmp.x) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
+        tmp.y = FixMul(FixMul(tmp.y, dot) - CARF(0x424), damp);
+        tmp.z = FixMul(FixMul(tmp.z, dot) - CARF(0x428), damp);
+        tmp.x = 0;
+        CARF(0x424) += tmp.y;
+        CARF(0x428) += tmp.z;
+        dot = FIX_ABS(dot);
+        if (dot < 0xf5c && CARF(0x778) < 0x8000)
+            CARF(0xba0) = 1;
+    }
+
+    if (flipPitch != 0 && CARF(0xba4) == 0) {
+        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+        dot = FixMul(CARF(0x420), tmp.x) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
+        tmp.x = FixMul(FixMul(tmp.x, dot) - CARF(0x420), damp);
+        tmp.z = FixMul(FixMul(tmp.z, dot) - CARF(0x428), damp);
+        tmp.y = 0;
+        CARF(0x420) += tmp.x;
+        CARF(0x428) += tmp.z;
+    }
+
+    if (flipYaw != 0 && CARF(0xba8) == 0) {
+        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+        dot = FixMul(CARF(0x420), tmp.x) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
+        CARF(0x420) += FixMul(FixMul(tmp.x, dot) - CARF(0x420), damp);
+        CARF(0x424) += FixMul(FixMul(tmp.y, dot) - CARF(0x424), damp);
+        dot = FIX_ABS(dot);
+        if (dot < 0xf5c && CARF(0x778) < 0x8000)
+            CARF(0xba8) = 1;
+    }
+
+    if (CARF(0xba0) != 0 || CARF(0xba4) != 0 || CARF(0xba8) != 0) {
+        if (CARF(0xba0) != 0) {
+            i = CARF(0x91c);
+            r1 = CARF(0x360) - FixMul(CARF(0x48c), i);
+            r2 = CARF(0x364) - FixMul(CARF(0x490), i);
+            r3 = CARF(0x368) - FixMul(CARF(0x494), i);
+            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
+            tmp.x = r1;
+            tmp.y = r2;
+            tmp.z = r3;
+            if (mag == 0) {
+                tmp.x = 0;
+                tmp.y = 0;
+                tmp.z = 0;
+            } else {
+                FixVecScaleRecip(&tmp, &tmp, mag);
+            }
+            CARF(0x360) = tmp.x;
+            CARF(0x364) = tmp.y;
+            CARF(0x368) = tmp.z;
+            CARF(0x424) = FixMul(CARF(0x424), 0xe666);
+            CARF(0x428) = FixMul(CARF(0x428), 0xe666);
+        }
+        if (CARF(0xba4) != 0) {
+            i = CARF(0x920);
+            r1 = CARF(0x36c) - FixMul(CARF(0x48c), i);
+            r2 = CARF(0x370) - FixMul(CARF(0x490), i);
+            r3 = CARF(0x374) - FixMul(CARF(0x494), i);
+            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
+            tmp.x = r1;
+            tmp.y = r2;
+            tmp.z = r3;
+            if (mag == 0) {
+                tmp.x = 0;
+                tmp.y = 0;
+                tmp.z = 0;
+            } else {
+                FixVecScaleRecip(&tmp, &tmp, mag);
+            }
+            CARF(0x36c) = tmp.x;
+            CARF(0x370) = tmp.y;
+            CARF(0x374) = tmp.z;
+            CARF(0x420) = FixMul(CARF(0x420), 0xe666);
+            CARF(0x428) = FixMul(CARF(0x428), 0xe666);
+        }
+        if (CARF(0xba8) != 0) {
+            i = CARF(0x924);
+            r1 = CARF(0x378) - FixMul(CARF(0x48c), i);
+            r2 = CARF(0x37c) - FixMul(CARF(0x490), i);
+            r3 = CARF(0x380) - FixMul(CARF(0x494), i);
+            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
+            tmp.x = r1;
+            tmp.y = r2;
+            tmp.z = r3;
+            if (mag == 0) {
+                tmp.x = 0;
+                tmp.y = 0;
+                tmp.z = 0;
+            } else {
+                FixVecScaleRecip(&tmp, &tmp, mag);
+            }
+            CARF(0x378) = tmp.x;
+            CARF(0x37c) = tmp.y;
+            CARF(0x380) = tmp.z;
+            CARF(0x420) = FixMul(CARF(0x420), 0xe666);
+            CARF(0x424) = FixMul(CARF(0x424), 0xe666);
+        }
+
+        dot = FixMul(CARF(0x36c), CARF(0x360)) + FixMul(CARF(0x370), CARF(0x364)) +
+              FixMul(CARF(0x374), CARF(0x368));
+        r1 = CARF(0x36c) - FixMul(CARF(0x360), dot);
+        r2 = CARF(0x370) - FixMul(CARF(0x364), dot);
+        r3 = CARF(0x374) - FixMul(CARF(0x368), dot);
+        mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
+        tmp.x = r1;
+        tmp.y = r2;
+        tmp.z = r3;
+        if (mag == 0) {
+            tmp.x = 0;
+            tmp.y = 0;
+            tmp.z = 0;
+        } else {
+            FixVecScaleRecip(&tmp, &tmp, mag);
+        }
+        CARF(0x36c) = tmp.x;
+        CARF(0x370) = tmp.y;
+        CARF(0x374) = tmp.z;
+
+        r1 = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
+        r2 = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
+        r3 = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x364), CARF(0x36c));
+        mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
+        if (mag == 0) {
+            CARF(0x378) = 0;
+            CARF(0x37c) = 0;
+            CARF(0x380) = 0;
+        } else {
+            tmp.x = r1;
+            tmp.y = r2;
+            tmp.z = r3;
+            FixVecScaleRecip(&tmp, &tmp, mag);
+            CARF(0x378) = tmp.x;
+            CARF(0x37c) = tmp.y;
+            CARF(0x380) = tmp.z;
+        }
+    }
+
+    if (flipRoll != 0 || flipPitch != 0 || flipYaw != 0) {
+        i = 0x42c;
+        for (;;) {
+            p = (int *)((int)g_pCurrentCar + i);
+            dot = FixMul(CARF(0x48c), p[0]) + FixMul(CARF(0x490), p[1]) +
+                  FixMul(CARF(0x494), p[2]);
+            if (dot < -0x3333)
+                break;
+            i += 0xc;
+            if (i > 0x48b)
+                return;
+        }
+        CARF(0x5c4) = dot;
+        CARF(0x5c8) = 0;
+        CARF(0x5cc) = 0;
+        tmp.x = FixMul(CARF(0x48c), -0x30000);
+        tmp.y = FixMul(CARF(0x490), -0x30000);
+        tmp.z = FixMul(CARF(0x494), -0x30000);
+        FixMatrix_InverseRotateVector(&CARV(0x5dc), &tmp, *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+
+        i = CARF(0x5dc);
+        if (FIX_ABS(i) > CARF(0x204))
+            CARF(0x5dc) = i < 0 ? -CARF(0x204) : CARF(0x204);
+        i = CARF(0x5e0);
+        if (FIX_ABS(i) > CARF(0x208))
+            CARF(0x5e0) = i < 0 ? -CARF(0x208) : CARF(0x208);
+        i = CARF(0x5e4);
+        if (FIX_ABS(i) > CARF(0x20c))
+            CARF(0x5e4) = i < 0 ? -CARF(0x20c) : CARF(0x20c);
+
+        corner.x = 0;
+        corner.y = 0x7d000000;
+        corner.z = 0;
+        upBody.x = 0;
+        upBody.y = 0x10000;
+        upBody.z = 0;
+        p = (int *)((int)g_pCurrentCar + 0x270);
+        for (i = 0; i < 4; i++) {
+            if (p[1] < corner.y) {
+                corner.x = p[0];
+                corner.y = p[1];
+                corner.z = p[2];
+            }
+            p += 3;
+        }
+        if (CARF(0x370) < 0) {
+            dot = FixMul(CARF(0x208), 0x20000);
+            corner.y += FixMul(CARF(0x370), dot);
+            corner.x += FixMul(CARF(0x36c), dot);
+            corner.z += FixMul(CARF(0x374), dot);
+        }
+        FUN_00466ef0(g_pCurrentCar, (int *)&corner, &upBody, 0, 0, 0);
+        FixMatrix_RotateVector(&out, &CARV(0x5dc), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+    }
+}
+
+#undef CARF
+#undef CARV
