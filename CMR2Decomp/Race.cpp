@@ -465,6 +465,7 @@ int FUN_00418580(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int
 // match 21%: register allocation and block order differ from the original
 // (the original homes `prev`/`texture` in the frame and strength-reduces the
 // record loop differently); logic transcribed from the asm.
+// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004174e0
 void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused)
 {
@@ -1103,6 +1104,17 @@ void FUN_00418000(unsigned int id)
 int FUN_004781c0(int index);
 int FUN_004b7790(unsigned short id, int volume, int frequency, int loopStart, int loops, int is3D);
 void Sound_Free(unsigned int handle);
+int Sound_GetVolume(unsigned int handle);
+int FUN_00418e70(int car);
+int FUN_00427d50(unsigned int view, int listener);
+void FUN_004b79a0(unsigned int handle, int volume);
+BYTE FUN_00460bf0(int index);
+int FUN_00460c10(int index);
+void Sound_SetPan(unsigned int handle, unsigned short pan);
+extern int g_unk0x005374c0;
+extern int g_carSlotVolumes[8][4];
+extern int g_carMaxVolume[8];
+extern int g_unk0x00537564;
 
 // GLOBAL: CMR2 0x00537358
 int g_unk0x00537358;
@@ -1335,6 +1347,282 @@ tail:
     *(int *)(g_raceBlock + car * 4) = *(int *)(g_raceBlock + 0x220 + car * 4);
     *(int *)(g_raceBlock + 0x48 + car * 4) = 0;
     *(int *)(g_raceBlock + 0x220 + car * 4) = 0;
+}
+
+// Restarts the stage sound of the slots whose surface changed while their
+// sound is still playing; the new sound reuses the slot's id and volume.
+// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00419cd0
+void FUN_00419cd0(int car, int unused)
+{
+    RaceCarSoundState *pState = &g_carSoundStates[car];
+    StageSoundPattern *pPattern;
+    int i;
+    int old;
+
+    if (pState->state == -1)
+        return;
+    pPattern = &g_stageSoundPatterns[g_stageSoundPatterns[pState->state].redirect];
+    for (i = 0; i < 10; i++) {
+        if (i == 4 && pState->state == 0x19)
+            continue;
+        if (pState->handle[i] == -1)
+            continue;
+        if (Sound_IsPlaying(pState->handle[i]) == 0)
+            continue;
+        if ((unsigned int)FUN_004781c0(car) <= (unsigned int)pState->pitch[i])
+            continue;
+        switch (i) {
+        case 4:
+            if (pPattern->choices[g_unk0x005375f4[car]] > 1 && pState->pattern == 0x19) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 0);
+                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                                               pPattern->choices[g_unk0x005375f4[car]]) +
+                                  pPattern->base[g_unk0x005375f4[car]], i, old, 0);
+            }
+            break;
+        case 5:
+            if (pPattern->choices[g_unk0x005375f4[car]] > 1) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 0);
+                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                                               pPattern->choices[g_unk0x005375f4[car]]) +
+                                  pPattern->base[g_unk0x005375f4[car]], i, old, 0);
+            }
+            break;
+        case 6:
+            if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1 && pState->pattern == 0x19) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 0);
+                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                                               pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                                  pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
+            }
+            break;
+        case 7:
+            if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 0);
+                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                                               pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                                  pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
+            }
+            break;
+        }
+    }
+}
+
+// Restarts the sound of the slots whose surface changed: a slot of the first
+// bank (4/5) uses the choices of the current state, one of the second bank
+// (6/7) the secondary choices, and the sound is re-rolled from the pattern.
+// FUNCTION: CMR2 0x00419ed0
+void FUN_00419ed0(int car, int unused)
+{
+    RaceCarSoundState *pState = &g_carSoundStates[car];
+    StageSoundPattern *pPattern;
+    int i;
+    int old;
+
+    if (pState->state == -1)
+        return;
+    pPattern = &g_stageSoundPatterns[g_stageSoundPatterns[pState->state].redirect];
+    for (i = 0; i < 10; i++) {
+        if (pState->handle[i] == -1)
+            continue;
+        if (Sound_IsPlaying(pState->handle[i]) == 0)
+            continue;
+        if (pState->surface[i] == g_unk0x005375f4[car])
+            continue;
+        switch (i) {
+        case 4:
+            if (pState->pattern == 0x19 && pState->state != 0x19) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 1);
+                FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car]]) +
+                                  pPattern->base[g_unk0x005375f4[car]], i, old, 0);
+            }
+            break;
+        case 5:
+            old = Sound_GetVolume(pState->handle[i]);
+            FUN_00418dd0(car, i, 1);
+            FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car]]) +
+                              pPattern->base[g_unk0x005375f4[car]], i, old, 0);
+            break;
+        case 6:
+            if (pState->pattern == 0x19) {
+                old = Sound_GetVolume(pState->handle[i]);
+                FUN_00418dd0(car, i, 1);
+                FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                                  pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
+            }
+            break;
+        case 7:
+            old = Sound_GetVolume(pState->handle[i]);
+            FUN_00418dd0(car, i, 1);
+            FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                              pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
+            break;
+        }
+    }
+}
+
+// Keeps the car's stage sound independent engine sample in step with the
+// speed of the car: slot 8 is used on the tarmac, slot 9 on the other
+// surfaces, and the other one is stopped when the surface changes.
+// FUNCTION: CMR2 0x0041a0a0
+void FUN_0041a0a0(int car, int param2)
+{
+    BYTE *pRow = g_raceBlock + 0x240 + car * 0xb4;
+    int volume;
+    int engSpeed;
+    int speedVol;
+
+    speedVol = FUN_00418e70(car);
+    engSpeed = FixMulShift32(Car_Get(car)->speed, 0x431168);
+    if (FUN_00460bf0(car) == 1)
+        volume = FixMul(FUN_00460c10(car), 0x13333);
+    else
+        volume = 0;
+    if (g_unk0x005375f4[car] == 0) {
+        if (volume > 0x10000)
+            volume = 0x10000;
+        if (Sound_IsPlaying(*(int *)(pRow + 0x40)))
+            FUN_00418dd0(car, 9, 1);
+        if (engSpeed < 0)
+            speedVol = 0;
+        else if (engSpeed > 0x64)
+            speedVol = 0x8000;
+        else
+            speedVol = 0x10000 - FixMul(0x8000,
+                            FixDiv((int)(__int64)((double)engSpeed * CGraphics::m_65536), 0x640000));
+        volume = FixMul(volume, speedVol);
+        if (engSpeed < 0)
+            engSpeed = 0;
+        else if (engSpeed > 0x64)
+            engSpeed = 11000;
+        else
+            engSpeed = engSpeed * 11000 / 100;
+        if (!Sound_IsPlaying(*(int *)(pRow + 0x3c)))
+            FUN_00418d30(car, g_unk0x00537564, 8,
+                         FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)), 0);
+        FUN_004b79a0(*(int *)(pRow + 0x3c),
+                     FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)));
+        Sound_SetPan(*(int *)(pRow + 0x3c), engSpeed + 0x5622);
+    } else {
+        if (volume > 0x10000)
+            volume = 0x10000;
+        if (Sound_IsPlaying(*(int *)(pRow + 0x3c)))
+            FUN_00418dd0(car, 8, 1);
+        if (!Sound_IsPlaying(*(int *)(pRow + 0x40)))
+            FUN_00418d30(car, g_unk0x00537dc8, 9,
+                         FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)), 0);
+        volume = FixMul(volume, speedVol);
+        FUN_004b79a0(*(int *)(pRow + 0x40),
+                     FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)));
+    }
+}
+
+// Picks the stage sound state of a car from the surfaces under its wheels and
+// the sounds already playing, and applies it when it changed.
+// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x0041a340
+void FUN_0041a340(int car, int unused)
+{
+    int offset = car * 0xb4;
+    RaceCarSoundState *pState = (RaceCarSoundState *)(g_raceBlock + 0x240 + offset);
+    Car *pCar;
+    short value;
+    short v;
+    short *pSrc;
+    int *pFlags;
+    short *pSlot;
+    int *pTime;
+    int counts[4];
+    char allTwo;
+    int bestIndex;
+    int bestCount;
+    int chosen;
+    int minSlack;
+    int slack;
+    int newCount;
+    int i;
+    int j;
+
+    bestIndex = 0;
+    chosen = 0;
+    minSlack = 0xffffffff;
+    pCar = Car_Get(car);
+    pSrc = pCar->wheelSurface;
+    pFlags = pCar->field_0xbac;
+    pSlot = pState->slotState;
+    pTime = pState->slotTime;
+    for (i = 4; i != 0; i--) {
+        value = *pSrc;
+        if (*pFlags == 0 || value > 0x1e || value < 0 || value == 0x10)
+            value = -1;
+        if (*pSlot != value)
+            *pTime = FUN_004781c0(car);
+        *pSlot = value;
+        pSrc++;
+        pFlags++;
+        pSlot++;
+        pTime++;
+    }
+    bestCount = 0;
+    allTwo = 1;
+    for (i = 0; i < 4; i++) {
+        v = pState->slotState[i];
+        counts[i] = 0;
+        for (j = 0; j < 4; j++) {
+            if (v == pState->slotState[j])
+                counts[i]++;
+        }
+        if (v == -1 && counts[i] != 4)
+            counts[i] = 0;
+        if (bestCount < counts[i]) {
+            bestIndex = i;
+            bestCount = counts[i];
+        }
+        if (counts[i] != 2)
+            allTwo = 0;
+    }
+    for (i = 0; i < 4; i++) {
+        if (counts[i] > 2)
+            break;
+        if (counts[i] == 2 && !allTwo)
+            break;
+    }
+    if (i < 4) {
+        chosen = pState->slotState[bestIndex];
+    } else {
+        for (i = 0; i < 4; i++) {
+            slack = FUN_004781c0(car) - pState->slotTime[i];
+            if ((unsigned int)slack < (unsigned int)minSlack) {
+                chosen = pState->slotState[i];
+                minSlack = slack;
+            }
+        }
+    }
+    if (chosen == -1)
+        newCount = 0;
+    else
+        newCount = g_stageSoundPatterns[g_stageSoundPatterns[chosen].redirect].count;
+    if (pState->countOld != newCount || pState->stateOld != chosen) {
+        if (pState->pattern != 0x19)
+            FUN_00419b90(car, (BYTE *)pState);
+        pState->state = (short)chosen;
+        pState->count = newCount;
+        pState->time = FUN_004781c0(car);
+        pState->pattern = *(int *)(g_raceBlock + 0x2e0 + offset) + pState->countOld * 5;
+        StageUI_ApplySoundState(car, (BYTE *)pState);
+        pState->countOld = pState->count;
+        pState->stateOld = pState->state;
+    }
+    if (pState->pattern != 0x19 && (unsigned int)(FUN_004781c0(car) - pState->time) > 0x32) {
+        FUN_00419b90(car, (BYTE *)pState);
+        pState->pattern = 0x19;
+    }
 }
 
 // Switches car's engine sound between its two samples of stage sound group 25
@@ -2041,6 +2329,7 @@ BYTE FUN_004071c0(BYTE flags, char mode);
 // 0 in ~14 call arguments) and materialises the two leaderboard comparisons with
 // setcc instead of the original's branchy 1/0 (and 3/0) selection — a byte register is
 // free here in our build because our function keeps one value less live.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041db10
 void FUN_0041db10(BYTE *param1, unsigned int param2)
 {
@@ -2360,6 +2649,7 @@ void FUN_0041e6b0(int, int, int);
 // param1 in ESI for the whole body and its loop limits in 8-bit registers, while our
 // version keeps param1 in ECX and reloads it from the home slot ([esp+0xc]), which
 // renumbers the registers of the whole 2267-byte function and every relative branch.
+// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041e8d0
 void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 {
@@ -2793,6 +3083,32 @@ void FUN_00418760(char *name)
 // One sound handle per car.
 // GLOBAL: CMR2 0x005373b0
 int g_carSounds[8];
+
+// Per-slot sound volumes of each car and the largest of them, the pitch of the
+// engine sound just restarted (0x5374c0) and the id of the car's engine
+// sample used while a stage sound group is not running.
+// GLOBAL: CMR2 0x005374c0
+int g_unk0x005374c0;
+// GLOBAL: CMR2 0x005374c4
+int g_carSlotVolumes[8][4];
+// GLOBAL: CMR2 0x00537544
+int g_carMaxVolume[8];
+// GLOBAL: CMR2 0x00537564
+int g_unk0x00537564;
+
+// Per-car-class fixed-point offsets used when the transforms of a car are
+// rebuilt (0x42af50): the base one and the extra applied while the class of the
+// car changes.
+// GLOBAL: CMR2 0x005199c8
+int g_unk0x005199c8[14] = {
+    -1310, 1310, -655, -2621, 0, 655, 0, 1310,
+    655, 655, 0, 0, 1310
+};
+// GLOBAL: CMR2 0x00519a00
+int g_unk0x00519a00[14] = {
+    0, -2293, -983, -1638, -3932, -2883, -1638, -2621,
+    -5505, -1769, -12910, -2293, -4718, -4718
+};
 
 // Frees the per-car sound of every car in the race.
 // FUNCTION: CMR2 0x00418780
