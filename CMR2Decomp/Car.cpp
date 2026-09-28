@@ -3528,10 +3528,10 @@ void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4);
 void FUN_00427890(void);
 void FUN_0046c8e0(void);
 void FUN_0046d270(void);
-void FUN_00425950(int base, short *pList, short count);
+void FUN_00425950(Car *pCars, short *pIndices, short count);
 void FUN_004877a0(int base, short *pList, short count);
 void FUN_00470580(void);
-void FUN_00426fc0(int base, short *pList, short count);
+void FUN_00426fc0(Car *pCars, short *pOrder, short count);
 void FUN_0046d5e0(void);
 void FUN_00444c10(int base, short *pList, short count);
 void FUN_0046d510(void);
@@ -3660,13 +3660,13 @@ void FUN_0042baf0(void)
     FUN_0046d270();
     FUN_00433890((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     FUN_0043f630((int)g_carBuffer, (short *)&g_carViewScale[8][0], g_carOrder[26]);
-    FUN_00425950((int)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
+    FUN_00425950((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     FUN_004877a0((int)g_carBuffer, g_unk0x0053a270, g_carOrder[44]);
     FUN_00470580();
     FUN_0042cd00((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     if (g_carOrder[26] > 0)
         FUN_00443bf0((int)g_carBuffer, (short *)&g_carViewScale[8][0], g_carOrder[26]);
-    FUN_00426fc0((int)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
+    FUN_00426fc0((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     FUN_0046d5e0();
     FUN_00444c10((int)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     FUN_0042b4a0(g_unk0x0053a314, g_unk0x0053c9a0);

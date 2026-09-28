@@ -42,20 +42,10 @@ void FUN_0041b460(void) { }
 // STUB: CMR2 0x00422140
 void FUN_00422140(unsigned char, int) { }
 
-// Needed by 0x0042cd00 (Car.cpp batch); the real body lands in Car.cpp.
-// STUB: CMR2 0x0042eae0
-void FUN_0042eae0(void) { }
-
 // Callees of 0x0042baf0 (Car.cpp batch) that no module implements yet; they
 // only keep the batch linkable. DELETE each one when its real body lands.
-// STUB: CMR2 0x00425950
-void FUN_00425950(int, short *, short) { }
 // STUB: CMR2 0x004877a0
 void FUN_004877a0(int, short *, short) { }
-// STUB: CMR2 0x00426fc0
-void FUN_00426fc0(int, short *, short) { }
-// STUB: CMR2 0x00444c10
-void FUN_00444c10(int, short *, short) { }
 // STUB: CMR2 0x00480bb0
 void FUN_00480bb0(int, short *, short) { }
 // STUB: CMR2 0x0046d510
