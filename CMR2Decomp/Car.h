@@ -222,8 +222,8 @@ struct CarTransforms {
 // GLOBAL: CMR2 0x0053b560
 extern CarTransforms g_carTransforms[8];
 // Mirror of the per-car transforms the physics row (0x53a3a8) is restored
-// from, refreshed at the end of the update (0x42af50, 0x42bcd0).
-// GLOBAL: CMR2 0x0053ad10
+// from, refreshed at the end of the update (0x42af50, 0x42bcd0). Defined in
+// Car.cpp with its GLOBAL annotation.
 extern CarTransforms g_carTransformsShadow[8];
 // GLOBAL: CMR2 0x0053bda0
 extern FixMatrix g_carWheelTransforms[8][4];

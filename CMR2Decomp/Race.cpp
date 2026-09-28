@@ -3096,6 +3096,20 @@ int g_carMaxVolume[8];
 // GLOBAL: CMR2 0x00537564
 int g_unk0x00537564;
 
+// Per-car-class fixed-point offsets used when the transforms of a car are
+// rebuilt (0x42af50): the base one and the extra applied while the class of the
+// car changes.
+// GLOBAL: CMR2 0x005199c8
+int g_unk0x005199c8[14] = {
+    -1310, 1310, -655, -2621, 0, 655, 0, 1310,
+    655, 655, 0, 0, 1310
+};
+// GLOBAL: CMR2 0x00519a00
+int g_unk0x00519a00[14] = {
+    0, -2293, -983, -1638, -3932, -2883, -1638, -2621,
+    -5505, -1769, -12910, -2293, -4718, -4718
+};
+
 // Frees the per-car sound of every car in the race.
 // FUNCTION: CMR2 0x00418780
 void FUN_00418780(void)

@@ -2957,6 +2957,114 @@ struct CarShortValues {
 // GLOBAL: CMR2 0x0053a230
 CarShortValues g_unk0x0053a230[8];
 
+extern int g_unk0x005199c8[14];
+extern int g_unk0x00519a00[14];
+int *FUN_00469680(int index);
+
+// Rebuilds the transforms of the cars of a list: the previous rows are
+// restored into the physics rows and moved by the ride height, and the wheel
+// records of each car are refreshed from its setup record.
+// match 41%: below the 90% bar; the logic is complete, MSVC6 keeps a different
+// set of locals in the frame and reuses slots differently (see CONVENCIONES)
+// FUNCTION: CMR2 0x0042af50
+void FUN_0042af50(short *pList, short count)
+{
+    int i;
+    int j;
+    int car;
+    BYTE type;
+    int factor;
+    int sum;
+    int *pRecord;
+    Car *pCar;
+    BYTE *pRow;
+    BYTE *pShadow;
+    FixVector up;
+    FixVector ride;
+    FixVector pos;
+
+    for (i = count - 1; i >= 0; i--) {
+        car = pList[i];
+        pCar = &g_carBuffer[car];
+        pRow = g_unk0x0053a3a8[car];
+        pShadow = (BYTE *)&g_carTransformsShadow[car];
+        type = *FUN_00456be0(pCar->field_0xb1a);
+        memcpy(pRow, pShadow, 0x40);
+        memcpy(pRow + 0x40, pShadow + 0x40, 0x40);
+        for (j = 4; j != 0; j--) {
+            memcpy(pRow + 0x80 + (4 - j) * 0x18, pShadow + 0x80 + (4 - j) * 0x18, 0x18);
+            *(int *)(pRow + 0xec + (4 - j) * 4) = *(int *)(pShadow + 0xec + (4 - j) * 4);
+        }
+        *(FixVector *)(pRow + 0xe0) = *(FixVector *)(pShadow + 0xe0);
+        if (pCar->field_0x958 != 0) {
+            *(int *)((BYTE *)pCar + 0x34) += pCar->field_0x958;
+            *(int *)((BYTE *)pCar + 0x74) += pCar->field_0x958;
+        }
+        FixMatrix_GetUp(&up, (FixMatrix *)pCar);
+        if (type == pCar->field_0xb1b[0])
+            factor = g_unk0x005199c8[pCar->field_0xb1b[0]];
+        else
+            factor = g_unk0x00519a00[type] + g_unk0x005199c8[pCar->field_0xb1b[0]];
+        FixVecScale(&up, &up, factor);
+        if (CGameInfo::FUN_004063f0(6) != 0) {
+            FixMatrix_GetUp(&ride, &pCar->pNode0x71c->current);
+            FixVecScale(&ride, &ride, FixMul(pCar->field_0xa8c, 0x8000));
+            up.x += ride.x;
+            up.y += ride.y;
+            up.z += ride.z;
+        }
+        FixMatrix_CopyRotation((FixMatrix *)pCar, (FixMatrix *)pShadow);
+        FixMatrix_CopyRotation((FixMatrix *)((BYTE *)pCar + 0x40), (FixMatrix *)(pShadow + 0x40));
+        *(FixVector *)(pShadow + 0xe0) = pCar->groundNormal;
+        for (j = 0; j < 4; j++)
+            *(int *)(pShadow + 0xec + j * 4) = pCar->cornerHeight[j];
+        FixMatrix_GetPosition(&pos, (FixMatrix *)pShadow);
+        pos.x += up.x;
+        pos.y += up.y;
+        pos.z += up.z;
+        FixMatrix_SetPosition(&pos, (FixMatrix *)pShadow);
+        FixMatrix_GetPosition(&pos, (FixMatrix *)(pShadow + 0x40));
+        pos.x += up.x;
+        pos.y += up.y;
+        pos.z += up.z;
+        FixMatrix_SetPosition(&pos, (FixMatrix *)(pShadow + 0x40));
+    }
+    for (i = count - 1; i >= 0; i--) {
+        car = pList[i];
+        pCar = &g_carBuffer[car];
+        pShadow = (BYTE *)&g_carTransformsShadow[car];
+        if (*(int *)((BYTE *)pCar + 0xb70) != 0) {
+            for (j = 3; j >= 0; j--)
+                *(FixVector *)(pShadow + 0xc8 - j * 0x18) = pCar->wheelEmitter[j];
+        } else {
+            pRecord = FUN_00469680(car);
+            for (j = 3; j >= 0; j--) {
+                *(int *)(pShadow + 0xd4 - j * 0x18) =
+                    (short)(int)(__int64)((double)FixMul(0x50000,
+                        *(int *)((BYTE *)pRecord + 0x24c - j * 4)) * g_unk0x00511300) * 0x1680;
+                if (j < 2)
+                    *(int *)(pShadow + 0xd8 - j * 0x18) =
+                        *(short *)((BYTE *)pCar + 0xb14) * 0x1680;
+                else
+                    *(int *)(pShadow + 0xd8 - j * 0x18) = 0;
+                *(int *)(pShadow + 0xdc - j * 0x18) =
+                    ((short *)&g_unk0x0053a230[car])[j] * 0x1680;
+                sum = *(int *)((BYTE *)FUN_00469680(pCar->field_0xb1a) + 0x24c - j * 4) +
+                      *(int *)((BYTE *)pCar + 0x984 - j * 4);
+                if (sum > 0x10000)
+                    sum = 0x10000;
+                *(FixVector *)(pShadow + 0xc8 - j * 0x18) =
+                    *(FixVector *)((BYTE *)pCar + 0x3e4 - j * 0xc);
+                *(int *)(pShadow + 0xc8 - j * 0x18) += *(int *)((BYTE *)pCar + 0x714 - j * 8);
+                *(int *)(pShadow + 0xcc - j * 0x18) += *(int *)((BYTE *)pCar + 0x934 - j * 4);
+                *(int *)(pShadow + 0xcc - j * 0x18) +=
+                    FixMul(0x10000 - sum, *(int *)((BYTE *)pCar + 0x944 - j * 4));
+                *(int *)(pShadow + 0xcc - j * 0x18) += *(int *)((BYTE *)pCar + 0x718 - j * 8);
+            }
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x0042b5b0
 void FUN_0042b5b0(int first, int count)
 {
