@@ -9438,3 +9438,215 @@ void FUN_004041e0(Menu *pMenu)
     }
     Font_SetBlendMode(2);
 }
+
+
+// ---------------------------------------------------------------------------
+// Network options and the option screen separators.
+
+void FUN_00411b20(void);
+void Dash_Update(int player);
+// Screen separator scratch rect of the option screens (x, y, width, height),
+// also used by the controls pages; defined in FrontendMenus.cpp.
+extern short g_controlsLine[4];
+
+// White colour the option screen separators and the panel marker sprites use.
+// GLOBAL: CMR2 0x00526ffc
+BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
+
+// Applies the two switches of the network options menu back to the game info,
+// rebuilds the split bar and refreshes the dash of the selected player.
+// match 84%: implementada; la logica y las cuatro llamadas coinciden, solo cambia el
+// registro con el que MSVC6 carga el byte de g_unk0x0052af58[1] para Dash_Update.
+// FUNCTION: CMR2 0x00402f20
+void FUN_00402f20(Menu *pMenu, int param)
+{
+    int index;
+
+    index = Menu_FindItem(pMenu, 2);
+    CGameInfo::FUN_00406340(pMenu->items[index].max);
+    FUN_00411b20();
+    index = Menu_FindItem(pMenu, 4);
+    CGameInfo::FUN_00405ec0(pMenu->items[index].max);
+    Dash_Update(*(BYTE *)&g_unk0x0052af58[1]);
+}
+
+// Draws the separator lines of the option screen: one vertical line per slot of
+// the layout record param1 (always 1 pixel wide, from the slot's row down to
+// the bottom of the option area and alternating between the two sprite layers),
+// then the horizontal line that closes the option area and, under its centre,
+// the lower separator of the option screen.
+// match 42%: implementada; MSVC6 no reserva nuestro marco de pila de 0xc bytes ni mantiene
+// g_pGraphics/el indice en los mismos registros (el original los lleva en EDI/EBP y recicla
+// ESI para los productos 0x88888889), pero las constantes, las cuatro divisiones, el reparto
+// de ramas por GetScreenWidth/FUN_004b7560/FUN_004b7590 y las llamadas a Sprite_* coinciden.
+// FUNCTION: CMR2 0x00500550
+void FUN_00500550(int param1)
+{
+    short rect[4];
+    int minX;
+    int maxX;
+    int centre;
+    int layer;
+    int i;
+
+    g_controlsLine[2] = 1;
+    g_unk0x0082ace8.pad[3] = 1;
+    if (g_unk0x00831674 != 0) {
+        rect[2] = *(short *)(g_unk0x00831674 + 0x120);
+        rect[3] = *(short *)(g_unk0x00831674 + 0x122);
+    }
+    minX = 0;
+    maxX = 0;
+    for (i = 0; i < 4; i++) {
+        // The layout records hold 16.16 pairs: the integer part is the slot.
+        g_controlsLine[0] = (short)(g_unk0x0082ac68[param1 * 4 + i][0] >> 16);
+        g_controlsLine[1] = (short)(g_unk0x0082ac68[param1 * 4 + i][1] >> 16);
+        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0) - g_controlsLine[1];
+        if (i == 0) {
+            minX = g_controlsLine[0];
+            maxX = g_controlsLine[0];
+        } else if (g_controlsLine[0] < minX) {
+            minX = g_controlsLine[0];
+        } else if (g_controlsLine[0] > maxX) {
+            maxX = g_controlsLine[0];
+        }
+        layer = i % 2 == 0 ? 4 : 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, layer);
+        if (g_unk0x00831674 != 0) {
+            if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+                CFrontend::FUN_004b7590(0x400)) {
+                rect[0] = g_controlsLine[0] - 6;
+                rect[1] = g_controlsLine[1] - 6;
+            } else {
+                rect[0] = g_controlsLine[0] - 3;
+                rect[1] = g_controlsLine[1] - 3;
+            }
+            Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
+                         (Texture *)g_unk0x00831674, layer, 0, NULL, NULL,
+                         (BYTE *)&g_unk0x00526ffc, 8);
+        }
+    }
+    if (maxX != minX) {
+        g_unk0x0082ace8.pad[0] = (short)minX;
+        g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
+        g_unk0x0082ace8.pad[2] = (short)(maxX - minX + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
+    }
+    centre = minX + (maxX - minX) / 2;
+    g_controlsLine[0] = (short)centre;
+    g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
+    if ((int)(g_pGraphics->resX * 0xe4) / 0x280 < centre) {
+        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) - g_controlsLine[1];
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+        g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
+        g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
+        g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
+        return;
+    }
+    g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) - g_controlsLine[1];
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+}
+
+// 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
+// and destination rects, the slide ramp, the two fade phases and their start
+// times.
+struct Unk0x0082c6c8Anim {
+    void *texture;          // 0x0
+    short srcX1;            // 0x4
+    short srcY1;            // 0x6
+    short srcX2;            // 0x8
+    short srcY2;            // 0xa
+    short dstX1;            // 0xc
+    short dstY1;            // 0xe
+    short dstX2;            // 0x10
+    short dstY2;            // 0x12
+    int start;              // 0x14
+    int end;                // 0x18
+    int current;            // 0x1c
+    int distance;           // 0x20 duration of the slide ramp
+    int phase1;             // 0x24
+    int phase2;             // 0x28
+    BYTE field_0x2c[0x10];  // 0x2c
+    int startTime;          // 0x3c
+    int startTime2;         // 0x40
+    int startTime3;         // 0x44
+    int field_0x48;         // 0x48
+    int active;             // 0x4c
+};
+
+// Advances the animation of the option panel selected by 0x82ca1c: eases its
+// slide (the ramp is 16.16 and follows the square root of the elapsed
+// fraction), copies the source rect while it has not started or the destination
+// rect when it is over and interpolates the four edges in between, runs the two
+// fade phases of the finished panel and finally rolls the highlight pulse.
+// match 61%: implementada; el original resuelve la raiz cuadrada por g_sqrtTable con el
+// mismo contador de saltos (bl) que nosotros, pero guarda los 16.16 en EBP-4/EBP-8 y reutiliza
+// EAX/EDX en otro orden, asi que las cuatro interpolaciones de borde salen desplazadas.
+// FUNCTION: CMR2 0x00505b40
+void FUN_00505b40(void)
+{
+    Unk0x0082c6c8Anim *pEntry;
+    unsigned int now;
+    int ratio;
+    int index;
+
+    if (g_unk0x0082ca1c == 0xff)
+        return;
+    index = (signed char)g_unk0x0082ca1c;
+    pEntry = (Unk0x0082c6c8Anim *)g_unk0x0082c6c8 + index;
+    if (pEntry->active != 0) {
+        now = CMain::GetFrameDelta();
+        ratio = FixSqrt(FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance));
+        if (ratio < 0x10000) {
+            pEntry->current = FixMul(pEntry->end - pEntry->start, ratio) + pEntry->start;
+        } else {
+            pEntry->active = 0;
+            pEntry->current = pEntry->end;
+            pEntry->startTime2 = CMain::GetFrameDelta();
+        }
+    }
+    if (pEntry->current == 0) {
+        *(int *)&pEntry->dstX1 = *(int *)&pEntry->srcX1;
+        *(int *)&pEntry->dstX2 = *(int *)&pEntry->srcX2;
+        pEntry->phase1 = 0;
+        pEntry->phase2 = 0;
+    } else if (pEntry->current == 0x10000) {
+        pEntry->dstX1 = g_unk0x0082c9ec[0];
+        pEntry->dstY1 = g_unk0x0082c9ec[1];
+        pEntry->dstX2 = g_unk0x0082c9ec[2];
+        pEntry->dstY2 = g_unk0x0082c9ec[3];
+        if (pEntry->active == 0) {
+            if (pEntry->phase1 != 0x10000) {
+                pEntry->phase1 =
+                    FixDiv((int)(CMain::GetFrameDelta() - pEntry->startTime2) << 16, 0x320000);
+                if (pEntry->phase1 >= 0x10000) {
+                    pEntry->phase1 = 0x10000;
+                    pEntry->startTime3 = CMain::GetFrameDelta();
+                }
+            }
+            if (pEntry->phase1 == 0x10000 && pEntry->phase2 != 0x10000) {
+                pEntry->phase2 =
+                    FixDiv((int)(CMain::GetFrameDelta() - pEntry->startTime3) << 16, 0x640000);
+                if (pEntry->phase2 >= 0x10000)
+                    pEntry->phase2 = 0x10000;
+            }
+        } else {
+            pEntry->phase1 = 0;
+            pEntry->phase2 = 0;
+        }
+    } else {
+        pEntry->dstX1 = (short)(FixMulShift32((g_unk0x0082c9ec[0] - pEntry->srcX1) << 16,
+                                              pEntry->current) + pEntry->srcX1);
+        pEntry->dstY1 = (short)(FixMulShift32((g_unk0x0082c9ec[1] - pEntry->srcY1) << 16,
+                                              pEntry->current) + pEntry->srcY1);
+        pEntry->dstX2 = (short)(FixMulShift32((g_unk0x0082c9ec[2] - pEntry->srcX2) << 16,
+                                              pEntry->current) + pEntry->srcX2);
+        pEntry->dstY2 = (short)(FixMulShift32((g_unk0x0082c9ec[3] - pEntry->srcY2) << 16,
+                                              pEntry->current) + pEntry->srcY2);
+        pEntry->phase1 = 0;
+        pEntry->phase2 = 0;
+    }
+    // Sawtooth highlight pulse, restarted when the panel changed (75 frames).
+    g_unk0x0082cb44 = FixDiv((int)(CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000) & 0xffff;
+}
