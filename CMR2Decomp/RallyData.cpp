@@ -6142,3 +6142,213 @@ void FUN_00413e00(short *param_1, int param_2)
     Sprite_Queue(&src, &dst, g_unk0x00537074, 2, 0, 0, 0,
                  FUN_0040b0a0(FUN_00409d20(FUN_0040b020(param_2))), 8);
 }
+
+// One entry of the per-car split-bar geometry table: the divider marker rect
+// (or one of the two highlight rects that follow the 0x14 markers of a car).
+struct SplitMarker {
+    short x;
+    short y;
+    short w;
+    short h;
+};
+
+// Per-car split-bar rects: 0x14 marker rects per car, then the two rectangles
+// the highlighted split is drawn from.
+// GLOBAL: CMR2 0x00536cb8
+SplitMarker g_unk0x00536cb8[0x14 * 8];
+// Per-car index of the split drawn with the highlight rects.
+// GLOBAL: CMR2 0x00536e00
+int g_unk0x00536e00[0x12 * 8];
+// Colour of the one-pixel marker between two middle splits (opaque white).
+// GLOBAL: CMR2 0x005170ac
+unsigned int g_unk0x005170ac = 0xffffffff;
+// Colour the highlighted split is drawn with; the routine rewrites it with the
+// split's own colour (alpha forced to 0xff) before drawing.
+// GLOBAL: CMR2 0x005170cc
+unsigned int g_unk0x005170cc = 0xffb49696;
+
+// Draws one car's split-time bar: every split is a one-pixel horizontal divider
+// in the split's own colour, the split indexed by g_unk0x00536e00 is drawn from
+// the two highlight rects instead, and the dividers between the middle splits
+// get a one-pixel vertical marker.
+// match 55.79%: implementada; MSVC6 elige EBX como contador del bucle donde el original usa EBP
+// (un registro callee-saved mas) y no reutiliza la ranura de pila del color para el marcador.
+// FUNCTION: CMR2 0x004143f0
+void FUN_004143f0(int car, short *pRect)
+{
+    int i;
+    unsigned int colour;
+    SplitMarker marker;
+
+    if ((BYTE)RallyData_FUN_00407ea0() == 0 ||
+        (g_unk0x00536c40 != g_unk0x00537068 && g_unk0x00536c40 != 0)) {
+        if (RallyData_FUN_00411880() != 0)
+            CGameInfo::FUN_00405dc0();
+        for (i = 0; i <= g_unk0x00536c90; i++) {
+            if (i == g_unk0x00536e00[car * 0x12]) {
+                g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
+                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)(g_unk0x00536d14 + car * 0x28 + 13),
+                                (BYTE *)&g_unk0x005170cc, 2);
+                colour = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)(g_unk0x00536d14 + car * 0x28 + 15),
+                                (BYTE *)&colour, 2);
+            } else {
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)&g_unk0x00536cb8[i + car * 0x14],
+                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
+            }
+            if (i > 0 && i < g_unk0x00536c90 - 1) {
+                marker = g_unk0x00536cb8[i + car * 0x14];
+                marker.w = 1;
+                Sprite_FillRect((int)g_pGraphics + 0x150, (short *)&marker,
+                                (BYTE *)&g_unk0x005170ac, 2);
+            }
+        }
+    }
+}
+
+// Same split-bar drawing as FUN_004143f0, plus the leader markers of every car
+// (FUN_00413e00) once the two stage textures are loaded.
+// match 64.75%: implementada; misma diferencia de reparto de registros que 0x4143f0
+// (contador del bucle en EBX en vez de EBP) mas el orden de las cargas de la cola.
+// FUNCTION: CMR2 0x00414550
+void FUN_00414550(int car, short *pRect)
+{
+    int i;
+    int j;
+    unsigned int colour;
+    SplitMarker marker;
+
+    if ((BYTE)RallyData_FUN_00407ea0() == 0 ||
+        (g_unk0x00536c40 != g_unk0x00537068 && g_unk0x00536c40 != 0)) {
+        if (RallyData_FUN_00411880() != 0)
+            CGameInfo::FUN_00405dc0();
+        for (i = 0; i <= g_unk0x00536c90; i++) {
+            if (i == g_unk0x00536e00[car * 0x12]) {
+                g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
+                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)(g_unk0x00536d14 + car * 0x28 + 13),
+                                (BYTE *)&g_unk0x005170cc, 2);
+                colour = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)(g_unk0x00536d14 + car * 0x28 + 15),
+                                (BYTE *)&colour, 2);
+            } else {
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)&g_unk0x00536cb8[i + car * 0x14],
+                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
+            }
+            if (i > 0 && i < g_unk0x00536c90 - 1) {
+                marker = g_unk0x00536cb8[i + car * 0x14];
+                marker.w = 1;
+                Sprite_FillRect((int)g_pGraphics + 0x150, (short *)&marker,
+                                (BYTE *)&g_unk0x005170ac, 2);
+            }
+        }
+        if (g_unk0x00537070 != 0 && g_unk0x00537074 != 0) {
+            for (j = 6; j >= 0; j--) {
+                if ((BYTE)FUN_00409cb0(j) != 0)
+                    FUN_00413e00((short *)&g_unk0x00536cb8[car * 0x14], FUN_0040b010(j));
+            }
+            FUN_00413e00((short *)&g_unk0x00536cb8[car * 0x14], 0);
+        }
+    }
+}
+
+// Draws the four one-pixel edges of a HUD rectangle. When param_3 is non-zero
+// the rectangle is first clipped to the viewport (the 0x82c9ec rect scaled to
+// the current resolution) and only the edges that still touch the visible area
+// are drawn - an edge is skipped only when both of its corners were clipped.
+// match 50.92%: implementada; el original gasta 12 bytes mas de marco (ranura propia para w/h)
+// y usa EBP/EBX/EDI de otra forma; la logica y las divisiones coinciden.
+// FUNCTION: CMR2 0x00504eb0
+void FUN_00504eb0(short *param_1, BYTE *param_2, int param_3)
+{
+    struct ClipPoint {
+        int x;
+        int y;
+    };
+    short rect[4];
+    ClipPoint corner[4];
+    int clipped[4];
+    int left;
+    int top;
+    int right;
+    int bottom;
+    int i;
+    int w;
+    int h;
+
+    if (param_3 != 0) {
+        left = (int)g_unk0x0082c9ec[0] * (int)g_pGraphics->resX / 0x280;
+        top = (int)g_unk0x0082c9ec[1] * (int)g_pGraphics->resY / 0x1e0;
+        right = (int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280 + left;
+        bottom = (int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0 + top;
+
+        corner[0].x = param_1[0];
+        corner[0].y = param_1[1];
+        corner[1].x = param_1[0] + param_1[2];
+        corner[1].y = param_1[1];
+        corner[2].x = param_1[0] + param_1[2];
+        corner[2].y = param_1[1] + param_1[3];
+        corner[3].x = param_1[0];
+        corner[3].y = param_1[1] + param_1[3];
+        for (i = 0; i < 4; i++) {
+            clipped[i] = 0;
+            if (corner[i].x < left) {
+                corner[i].x = left;
+                clipped[i] = 1;
+            } else if (corner[i].x > right) {
+                corner[i].x = right;
+                clipped[i] = 1;
+            }
+            if (corner[i].y < top) {
+                corner[i].y = top;
+                clipped[i] = 1;
+            } else if (corner[i].y > bottom) {
+                corner[i].y = bottom;
+                clipped[i] = 1;
+            }
+        }
+        w = corner[1].x - corner[0].x;
+        h = corner[2].y - corner[1].y;
+
+        rect[0] = (short)corner[0].x;
+        rect[1] = (short)corner[0].y;
+        rect[2] = (short)w;
+        rect[3] = 1;
+        if (clipped[0] == 0 || clipped[1] == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[1] = (short)corner[3].y;
+        if (clipped[2] == 0 || clipped[3] == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[0] = (short)corner[0].x;
+        rect[1] = (short)corner[0].y;
+        rect[2] = 1;
+        rect[3] = (short)h;
+        if (clipped[0] == 0 || clipped[3] == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[0] = (short)(corner[0].x + w - 1);
+        if (clipped[1] == 0 || clipped[2] == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+    } else {
+        rect[0] = param_1[0];
+        rect[1] = param_1[1];
+        rect[2] = param_1[2];
+        rect[3] = 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[1] = (short)(param_1[1] + param_1[3]);
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[0] = param_1[0];
+        rect[1] = param_1[1];
+        rect[2] = 1;
+        rect[3] = param_1[3];
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+        rect[0] = (short)(param_1[0] + param_1[2] - 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
+    }
+}
