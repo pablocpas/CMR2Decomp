@@ -3182,3 +3182,78 @@ void FUN_0044b270(void)
         g_stageResultRecords[best] = record;
     }
 }
+
+// --- 0x00448e70: stage results header fade (layer 0) -------------------------
+unsigned int RallyDataState(void);
+int FUN_00407270(void);
+int FUN_00428740(BYTE index);
+int FUN_00458390(void);
+int FUN_004781c0(int index);
+void FUN_0040bad0(void);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7);
+int Timer_GetValue(BYTE index);
+
+// Timer handle of the results header fade (first byte is the timer slot).
+// GLOBAL: CMR2 0x005418c0
+BYTE g_unk0x005418c0[4];
+// GLOBAL: CMR2 0x00541cf4
+int g_unk0x00541cf4;
+
+// Refreshes the header of the stage results screen: drops any driver record
+// still being played in, snaps the header menu back to its saved parent and
+// starts (or cancels) the fade of the results panel depending on the state of
+// the header menu and the pressed buttons.
+// FUNCTION: CMR2 0x00448e70
+void FUN_00448e70(void)
+{
+    DeviceInfo *pDevice;
+    unsigned int flags;
+    int action;
+    int i;
+
+    for (i = 0; i < (BYTE)RallyDataState(); i++) {
+        if (FUN_00428740(i) != 0)
+            return;
+    }
+    FUN_00448e60();
+    FUN_0040bad0();
+    FUN_0040bd60(0, CInput::FUN_0049ead0(0));
+    pDevice = CInput::FUN_0049ead0(0);
+    flags = pDevice->field_0x8;
+    if ((BYTE)FUN_00407270() != 0)
+        flags &= 0x10;
+    if (g_pHeaderMenu == &g_menu0x0053ea68)
+        flags &= 0xffdf;
+    if (g_pHeaderMenu == &g_menu0x0053f008 || g_pHeaderMenu == &g_menu0x0053e4b8 ||
+        g_pHeaderMenu == &g_menu0x0053e6a0 || g_pHeaderMenu == &g_menu0x00541ae0) {
+        flags &= 0x3c;
+        if ((flags & 4) == 0 || g_pHeaderMenu->items[0].max <= 0) {
+            if ((flags & 8) != 0 &&
+                (int)(BYTE)g_pHeaderMenu->items[0].max < (int)(BYTE)g_pHeaderMenu->items[0].min - 1) {
+                FUN_004bc290(g_unk0x005418c0, 2, 7, 0, 0, 0x10000, 0);
+                g_unk0x0053f5a8 = 1;
+            }
+        } else {
+            FUN_004bc290(g_unk0x005418c0, 2, 7, 0, 0x10000, 0, 0);
+            g_unk0x005413f8 = 1;
+        }
+        if (FUN_004bc0c0(g_unk0x005418c0)) {
+            g_unk0x00541cf4 = Timer_GetValue(g_unk0x005418c0[0]);
+            g_unk0x00540c60 = FixMulShift32((g_pGraphics->resY * 0x34) / 0x1e0 * 0x10000, g_unk0x00541cf4);
+        } else {
+            g_unk0x0053f5a8 = 0;
+            g_unk0x005413f8 = 0;
+            g_unk0x00540c60 = 0;
+        }
+    } else {
+        g_unk0x0053f5a8 = 0;
+        g_unk0x005413f8 = 0;
+        g_unk0x00540c60 = 0;
+    }
+    action = Menu_Update(g_pHeaderMenu, flags);
+    if (action != 0) {
+        g_menuBuildTime = FUN_004781c0(0);
+        g_pSavedHeaderMenu = (Menu *)action;
+    }
+}
