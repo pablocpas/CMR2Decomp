@@ -8800,3 +8800,31 @@ void FUN_004ed100(Menu *pMenu, int param)
     }
     FUN_004ec8d0();
 }
+
+void FUN_004eb700(void);
+
+// Prepares the stage-selection screen before it is shown: reloads the profile
+// list and picks a random starting stage and player.
+// FUNCTION: CMR2 0x004f0580
+void FUN_004f0580(Menu *pMenu, int param)
+{
+    BYTE b;
+    unsigned int u;
+    int count;
+
+    b = FUN_004f1ba0();
+    u = CGameInfo::FUN_00405d70();
+    FUN_004ea480((u & 0xff) - b);
+    FUN_004eb700();
+    pMenu->items[0].max = 0;
+    pMenu->items[0].min = (BYTE)FUN_004eb440();
+    count = FUN_004eb440();
+    pMenu->items[0].enabled = (0 < count);
+    g_unk0x00819868 = 0;
+    g_unk0x00819044 = -1;
+    if (param == 0) {
+        pMenu->cursor = 0;
+        pMenu->items[0].max = 0;
+        g_unk0x00819048--;
+    }
+}
