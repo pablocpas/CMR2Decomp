@@ -872,3 +872,188 @@ void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3)
     FUN_00447a40(param_1, (FixMatrix *)param_2);
 }
 
+void FixMatrix_RebuildBasis(FixMatrix *pOut);
+
+// Rebuilds a cockpit view matrix: an orthonormal basis is built from the
+// player's stored up/right vectors, rolled 45 degrees when the player's camera
+// mode is 3, and then interpolated towards the previous view unless every axis
+// is already within 0x51e of it.
+// FUNCTION: CMR2 0x004475f0
+void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3)
+{
+    FixVector *pUp;
+    FixVector *pRight;
+    FixVector cross;
+    FixMatrix mat;
+    FixMatrix xform;
+    int index;
+
+    index = param_1[0];
+    pUp = &g_unk0x0053d048[2 + index];
+    pRight = &g_unk0x0053d000[2 + index];
+    FixVecCross(&cross, pUp, pRight);
+    FixMatrix_Identity(&mat);
+    FixMatrix_SetRight(&cross, &mat);
+    FixMatrix_SetUp(pUp, &mat);
+    FixMatrix_SetForward(pRight, &mat);
+
+    if (param_3 == 0) {
+        xform = *param_2;
+        xform.forward.x = param_2->right.x;
+        xform.forward.y = param_2->right.y;
+        xform.forward.z = param_2->right.z;
+        xform.right.x = -param_2->forward.x;
+        xform.right.y = -param_2->forward.y;
+        xform.right.z = -param_2->forward.z;
+    } else {
+        xform = mat;
+        FixMatrix_RebuildBasis(&xform);
+    }
+
+    if (g_unk0x0053cff8[index] == 3) {
+        FixVector up;
+
+        up = xform.up;
+        xform.up.x = FixMul(xform.forward.x, g_sinTable[0x600]) + FixMul(up.x, g_sinTable[0x200]);
+        xform.up.y = FixMul(xform.forward.y, g_sinTable[0x600]) + FixMul(up.y, g_sinTable[0x200]);
+        xform.up.z = FixMul(xform.forward.z, g_sinTable[0x600]) + FixMul(up.z, g_sinTable[0x200]);
+        xform.forward.x = FixMul(xform.forward.x, g_sinTable[0x200]) - FixMul(up.x, g_sinTable[0x600]);
+        xform.forward.y = FixMul(xform.forward.y, g_sinTable[0x200]) - FixMul(up.y, g_sinTable[0x600]);
+        xform.forward.z = FixMul(xform.forward.z, g_sinTable[0x200]) - FixMul(up.z, g_sinTable[0x600]);
+    }
+
+    if (FIX_ABS(mat.right.x - xform.right.x) >= 0x51e ||
+        FIX_ABS(mat.right.y - xform.right.y) >= 0x51e ||
+        FIX_ABS(mat.right.z - xform.right.z) >= 0x51e ||
+        FIX_ABS(mat.up.x - xform.up.x) >= 0x51e ||
+        FIX_ABS(mat.up.y - xform.up.y) >= 0x51e ||
+        FIX_ABS(mat.up.z - xform.up.z) >= 0x51e ||
+        FIX_ABS(mat.forward.x - xform.forward.x) >= 0x51e ||
+        FIX_ABS(mat.forward.y - xform.forward.y) >= 0x51e ||
+        FIX_ABS(mat.forward.z - xform.forward.z) >= 0x51e) {
+        int scale;
+        int t;
+
+        if (g_unk0x0053cff8[index] == 4)
+            scale = g_unk0x0053d098[param_1[1]];
+        else
+            scale = 0xe0000;
+        t = FixMul(FixDiv(g_physicsTimeStep, scale),
+                   *(int *)Car_Get(param_1[2])->field_0xa74);
+        FixMatrix_Interpolate(&xform, &mat, &xform, t, t, 0x10000, 0);
+        FixMatrix_GetUp(pUp, &xform);
+        FixMatrix_GetForward(pRight, &xform);
+    }
+    FUN_00447a40(param_1, param_2);
+}
+
+// Mirror of the CarStageTiming layout that StageTiming.cpp owns; the race
+// reset below writes the per-driver timing state directly through it.
+struct CarStageTiming {
+    int startTime;          // 0x00
+    int field_0x4[9];       // 0x04
+    int splits[9];          // 0x28
+    int splitTimes[12];     // 0x4c
+    int lastTime;           // 0x7c
+    char field_0x80;        // 0x80
+    char field_0x81;        // 0x81
+    char field_0x82;        // 0x82
+    BYTE field_0x83;        // 0x83
+    BYTE field_0x84;        // 0x84
+    BYTE pad_0x85[3];
+};
+
+extern char g_unk0x0053ddb0[108];
+extern char g_unk0x0053de1c[108][8];
+extern int g_unk0x0053d1e8[8][12][5];
+extern int g_unk0x0053e190[82];
+extern BYTE g_unk0x0053e18c;
+extern BYTE g_unk0x0053e18d[2];
+extern BYTE g_unk0x0053e18f;
+extern CarStageTiming g_carStageTiming[8];
+extern BYTE g_unk0x0053d1da[8];
+extern BYTE g_unk0x0053d1d8;
+extern BYTE g_unk0x0053d1d9;
+extern int g_unk0x0053d1b4;
+extern char g_unk0x0053d1a4[2];
+extern BYTE g_unk0x0053d1a6;
+extern BYTE g_unk0x0053d1a7;
+extern char g_unk0x0053dda8[8];
+extern unsigned int RallyData_FUN_00407ea0(void);
+extern unsigned int RallyData_FUN_004082e0(void);
+extern int FUN_0040cec0(int index);
+extern int FUN_00458390(void);
+
+// Clears the stage timing state of every driver of the race that is starting:
+// the split-leader tables, the ordering of the driver slots and each car's
+// split/checkpoint times.
+// FUNCTION: CMR2 0x00447f70
+void FUN_00447f70(void)
+{
+    int count;
+    int i;
+    int j;
+
+    count = FUN_00458390();
+    g_unk0x0053d1b4 = 0;
+    if ((BYTE)RallyData_GetFlag24() != 0 || (BYTE)RallyData_GetFlag25() != 0) {
+        g_unk0x0053e18c = 0;
+        for (i = 0; i < 0x1b; i++)
+            ((int *)g_unk0x0053ddb0)[i] = 0;
+        for (i = 0; i < 0x12; i++)
+            ((int *)g_unk0x0053e190)[i] = 0;
+        for (i = 0; i < 2; i++) {
+            g_unk0x0053e18d[i] = 0;
+            g_unk0x0053e18f = 0;
+        }
+        if (count > 0) {
+            for (i = 0; i < count; i++) {
+                BYTE *p = (BYTE *)g_unk0x0053de1c + i;
+
+                for (j = 0; j < 0xc; j++) {
+                    int k;
+
+                    for (k = 0; k < 9; k++) {
+                        *p = 0xff;
+                        p += 8;
+                    }
+                }
+            }
+        }
+        if (count > 0) {
+            for (i = 0; i < count; i++) {
+                CarStageTiming *car = &g_carStageTiming[i];
+
+                car->field_0x81 = (char)(count - i - 1);
+                if ((char)CGameInfo::FUN_00405d80() == 5 && count > 2)
+                    car->field_0x81 = (char)(count - (char)FUN_0040cec0(i) - 1);
+                car->field_0x82 = -1;
+                car->startTime = 0;
+                g_unk0x0053dda8[car->field_0x81] = (char)i;
+                car->lastTime = 0;
+                if (RallyData_GetFlag24() != 0) {
+                    for (j = 0; j < 0x3c; j++)
+                        ((int *)g_unk0x0053d1e8[i])[j] = 0;
+                }
+                for (j = 0; j < 9; j++)
+                    car->field_0x4[j] = 0;
+                car->field_0x80 = -1;
+                car->field_0x83 = 0;
+            }
+        }
+        if (RallyData_FUN_004082e0() != 0) {
+            *(short *)g_unk0x0053d1a4 = 0;
+            g_unk0x0053d1a7 = 0;
+            g_unk0x0053d1a6 = 0;
+        }
+    }
+    if (count > 0) {
+        for (i = 0; i < count; i++)
+            g_unk0x0053d1da[i] = 0;
+    }
+    if (RallyData_GetFlag24() != 0 && RallyData_FUN_00407ea0() != 0)
+        g_unk0x0053d1d9 = 1;
+    else
+        g_unk0x0053d1d9 = 0;
+    g_unk0x0053d1d8 = 0;
+}

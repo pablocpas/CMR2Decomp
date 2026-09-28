@@ -902,3 +902,46 @@ void FUN_00426810(int param_1, int param_2)
     *(int *)(param_1 + 0xb4) +=
         FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
 }
+
+// Advances the accumulator (0x88) of a remotely controlled car by one step:
+// normalises the horizontal part of its direction (the movement base at 0x70,
+// or the forward row 0x58 once the car is above the slow threshold) and adds
+// the speed-derived step along it.
+// FUNCTION: CMR2 0x004263d0
+void FUN_004263d0(int param_1)
+{
+    FixVector v;
+    FixVector step;
+    int t;
+
+    *(int *)(param_1 + 0x88) = 0;
+    *(int *)(param_1 + 0x8c) = 0;
+    *(int *)(param_1 + 0x90) = 0;
+    if (*(int *)(param_1 + 0x50) < 0x1999) {
+        v = *(FixVector *)(param_1 + 0x70);
+        v.y = 0;
+        if (FixVecLength(&v) > 0) {
+            FIX_NORMALIZE_INTO(v, v)
+        } else {
+            v.x = 0;
+            v.y = 0;
+            v.z = 0;
+        }
+    } else {
+        v = *(FixVector *)(param_1 + 0x58);
+        v.y = 0;
+        FIX_NORMALIZE_INTO(v, v)
+    }
+    t = FixMul(FixVecDot((FixVector *)(param_1 + 0x70), &v), *(int *)(param_1 + 0xb0));
+    if (t < 0)
+        t = -FixMul(t, t);
+    else
+        t = FixMul(t, t);
+    if (FIX_ABS(t) > 0x10000)
+        t = (t <= 0) ? -0x10000 : 0x10000;
+    t = -FixMul(FixMul(t, *(int *)(param_1 + 0xac)), 0x11eb);
+    FixVecScale(&step, &v, t);
+    *(int *)(param_1 + 0x88) += step.x;
+    *(int *)(param_1 + 0x8c) += step.y;
+    *(int *)(param_1 + 0x90) += step.z;
+}
