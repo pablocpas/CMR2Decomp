@@ -9083,3 +9083,102 @@ void FUN_005057e0(void)
     }
 }
 
+// Draws the rows of an in-race menu: every visible row shows its label (and,
+// for the value rows, each of its values) with the selected row brighter,
+// plus the sprite behind the block.
+// match 75%: implementada; misma lógica, MSVC elige &item+0xa como base del
+// item (la original usa &item->id) y reordena el prólogo del rect.
+// FUNCTION: CMR2 0x00402000
+void FUN_00402000(Menu *pMenu)
+{
+    MenuItem *pItem;
+    int i;
+    int j;
+    int x;
+    int y;
+    char *str1;
+    char *str2;
+    char *sub[3];
+    char *text;
+    int *pA;
+    int *pB;
+    char single;
+    bool twoLines;
+    int *pColour;
+    int texture;
+
+    g_unk0x0052ad58[0] = 0;
+    g_unk0x0052ad58[1] = 0;
+    g_unk0x0052ad58[2] = (short)g_pGraphics->resX;
+    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
+    g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    g_unk0x0052ad58[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    g_unk0x0052ad58[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                 - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        if (pItem->visible) {
+            str1 = CFrontend::GetTextString(pItem->id);
+            str2 = CFrontend::GetTextString(pItem->id + 1);
+            if (pMenu->cursor == i) {
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
+            } else {
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
+            }
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)g_unk0x0052ad58,
+                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            twoLines = true;
+            switch (pItem->value) {
+            case 1:
+                sub[0] = CFrontend::GetTextString(pItem->id);
+                sub[1] = CFrontend::GetTextString(pItem->id + 1);
+                single = 0;
+                break;
+            case 2:
+                for (j = 0; j < (int)(BYTE)pItem->min; j++)
+                    sub[j] = CFrontend::GetTextString(j + 0xa0);
+                single = 0;
+                break;
+            case 4:
+                for (j = 0; j < (int)(BYTE)pItem->min; j++)
+                    sub[j] = CFrontend::GetTextString(j + 0x9e);
+                /* the original falls through into the case below */
+            case 0:
+                single = 0;
+                break;
+            default:
+                sub[0] = CFrontend::GetTextString(pItem->id);
+                twoLines = false;
+                break;
+            }
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+            x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+            Font_DrawText(1, str1, x, y, pColour, 0x11);
+            if (twoLines)
+                Font_DrawText(0, str2, x, (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, pColour, 0x11);
+            pA = (int *)sub;
+            pB = (int *)sub + 1;
+            for (j = 0; j < (int)(BYTE)pItem->min; j++) {
+                text = single == 0 ? (char *)*pA : (char *)*pB;
+                x = (int)(g_pGraphics->resX * 10) / 0x280 + x
+                    + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, text, x, y,
+                              pItem->max != j ? &g_unk0x00516078 : &g_unk0x00516074, 0x11);
+                strcpy(CFrontend::m_stringDest, text);
+                pA++;
+                pB--;
+            }
+            g_unk0x0052ad58[1] = (short)(g_unk0x0052ad58[1] + (int)(g_pGraphics->resY * 0x36) / 0x1e0);
+            y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
+        }
+    }
+    Font_SetBlendMode(2);
+}
+
