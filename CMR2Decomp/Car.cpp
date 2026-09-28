@@ -5225,3 +5225,109 @@ void FUN_0043e680(int param_1)
 #undef CARF
 #undef CARV
 }
+
+// --- 0x0042e450 (layer 0) ----------------------------------------------------
+void FUN_0042e8e0(void);
+
+// match 47.56%: implementada; misma logica y mismos operandos de memoria, pero
+// MSVC6 elige otros registros/slots en los bucles (la nuestra compila mas corta).
+// Integrates the per-wheel suspension travel of the current car: the vertical
+// span of each wheel is clamped against the ground and the pitch/roll rate, the
+// offsets are normalised against the highest one and the wheel forces of the
+// next frame are rebuilt.
+// FUNCTION: CMR2 0x0042e450
+void FUN_0042e450(void)
+{
+    int v[4];
+    int dot;
+    int sum;
+    int avg;
+    int max;
+    int t;
+    int d;
+    int i;
+    int a;
+    int b;
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+
+    sum = 0;
+    dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x36c),
+                    (FixVector *)((int)g_pCurrentCar + 0x48c));
+    if (dot > 0xcccc) {
+        for (i = 0; i < 4; i++) {
+            t = -FixMul(FixMul(CARF(0x274 + i * 0xc) - CARF(0x8dc + i * 4), CARF(0x490)),
+                        FixDiv(0x10000, dot));
+            sum += t;
+            v[i] = t;
+            d = CARF(0x8dc + i * 4) - CARF(0x274 + i * 0xc) - CARF(0x958);
+            if (d < 0) {
+                if (d < CARF(0xa08))
+                    CARF(0x928 + i * 4) = CARF(0xa08);
+                else
+                    CARF(0x928 + i * 4) = d;
+            } else {
+                CARF(0x928 + i * 4) = 0;
+            }
+        }
+        avg = sum / 4;
+        max = 0;
+        for (i = 0; i < 4; i++) {
+            t = FixMul(v[i] - avg, CARF(0x9c0));
+            CARF(0x808 + i * 4) = t;
+            if (max < FIX_ABS(t))
+                max = FIX_ABS(t);
+        }
+        if (max > 0x10000) {
+            for (i = 0; i < 4; i++)
+                CARF(0x808 + i * 4) = FixMul(CARF(0x808 + i * 4), FixDiv(0x10000, max));
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            CARF(0x928 + i * 4) = 0;
+            CARF(0x808 + i * 4) = 0;
+        }
+    }
+    if (CARF(0xc00) == 0) {
+        for (i = 0; i < 4; i++) {
+            if (CARF(0x9c + i * 0x24) < 1 || *(char *)((int)g_pCurrentCar + 0xb2c + i) != 0 ||
+                CARF(0xb74) == 0) {
+                CARF(0x938 + i * 4) = 0;
+                CARF(0x948 + i * 4) = 0;
+            } else {
+                t = CARF(0x778) - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
+                                            (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
+                if (t >= 0x10001)
+                    t = 0x10000;
+                else if (t < 0xccc)
+                    t = 0;
+                if (CARF(0x948 + i * 4) < 1) {
+                    a = CARF(0x270 + i * 0xc);
+                    b = CARF(0x278 + i * 0xc);
+                    if (CARF(0x938 + i * 4) == 0) {
+                        CARF(0x938 + i * 4) =
+                            FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x401) << 6, t),
+                                   CARF(0x9c + i * 0x24));
+                    } else {
+                        CARF(0x938 + i * 4) = 0;
+                        CARF(0x948 + i * 4) =
+                            FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x201) << 7, 0x320000),
+                                   CARF(0xa0 + i * 0x24));
+                    }
+                } else {
+                    CARF(0x948 + i * 4) -= t;
+                    if (CARF(0x948 + i * 4) < 0)
+                        CARF(0x948 + i * 4) = 0;
+                }
+            }
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            CARF(0x938 + i * 4) = 0;
+            CARF(0x948 + i * 4) = 0;
+        }
+    }
+    FUN_0042e8e0();
+
+#undef CARF
+}
