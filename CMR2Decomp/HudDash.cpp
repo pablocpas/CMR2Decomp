@@ -878,6 +878,8 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut);
 // player's stored up/right vectors, rolled 45 degrees when the player's camera
 // mode is 3, and then interpolated towards the previous view unless every axis
 // is already within 0x51e of it.
+// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; MSVC6 reparte los locales al reves (marco 0xa8 en vez de 0xb0, ESI/EDI invertidos); la logica y el orden de llamadas son exactos.
 // FUNCTION: CMR2 0x004475f0
 void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3)
 {
@@ -987,6 +989,8 @@ extern int FUN_00458390(void);
 // Clears the stage timing state of every driver of the race that is starting:
 // the split-leader tables, the ordering of the driver slots and each car's
 // split/checkpoint times.
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; el original guarda el contador en el slot salvado de EDI (3 pushes), nosotros usamos 4 y otro reparto de registros.
 // FUNCTION: CMR2 0x00447f70
 void FUN_00447f70(void)
 {

@@ -3677,3 +3677,184 @@ void FUN_0041fd30(void)
         FUN_004918d0();
     }
 }
+
+// Route helpers of the per-car update below (no shared header declares them).
+int RallyData_FUN_00421420(void);
+BYTE *RallyData_FUN_00421440(int index);
+int RallyData_FUN_00421470(BYTE *p);
+BYTE FUN_00458270(int index);
+int FUN_00448110(void);
+void FUN_00421570(unsigned int nodeIndex, FixVector *pOut);
+
+// Set while the node scan near the car's position finds a node whose callouts
+// have not been delivered yet.
+// GLOBAL: CMR2 0x00537354
+int g_unk0x00537354;
+
+// Per-car route/timing update. Keeps the tracked route position
+// g_unk0x0053708c[] in sync with the car's node (best, from RallyData), raises
+// the "gate" flag g_unk0x00537248[] while the node direction projected on the
+// front wheel rolling direction points backwards, scans the nodes around the
+// position for pending callouts (FUN_004174e0) and, when the leading call of
+// this car expires, shifts its five call records g_raceCallRecords[car*5].
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; en la cola el original relee un campo redundante de g_raceCallRecords[car*5+4] que no transcribimos, y el reparto de bloques del switch difiere.
+// FUNCTION: CMR2 0x00417090
+void FUN_00417090(int param_1)
+{
+    int cur;
+    int best;
+    int prev;
+    int node;
+    int n;
+    int dot;
+    int i;
+    unsigned int cnt;
+    FixVector dir;
+    Car *pCar;
+    unsigned int flags;
+    BYTE callId;
+    BYTE prevCallId;
+    RaceCallRecord *pRec;
+
+    if (RallyData_FUN_00421420() == 0)
+        return;
+
+    if ((char)RallyData_FUN_00407ea0() != '\0' &&
+        ((char)RallyData_GetFlag25() != '\0' || (char)RallyData_GetFlag24() != '\0') &&
+        (char)FUN_00458270(param_1) != '\0') {
+        g_unk0x0053708c[param_1] = 0;
+    }
+
+    cur = g_unk0x0053708c[param_1];
+    best = RallyData_FUN_00421370((BYTE *)Car_Get(param_1));
+
+    if (g_unk0x005371a0 == 0 && param_1 == 0) {
+        FUN_00463ce0(0);
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xd);
+        g_unk0x005371a0 = 1;
+    }
+
+    if ((char)RallyData_FUN_00407e70() != '\0') {
+        i = FUN_00448110();
+        g_unk0x00537350 = (i < 0x5a) - 1;
+    }
+
+    FUN_004176b0();
+
+    if (best < cur - 0xc)
+        g_unk0x0053708c[param_1] = best;
+
+    if (best < cur - 1 &&
+        ((int)((unsigned int)RallyData_FUN_00421420() >> 1) <= best ||
+         cur <= (int)((unsigned int)RallyData_FUN_00421420() >> 1))) {
+        FUN_00421570(best, &dir);
+        pCar = Car_Get(param_1);
+        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
+              FixMul(dir.y, pCar->wheelDirFront.y) +
+              FixMul(dir.z, pCar->wheelDirFront.z);
+        if (dot < -0x8000) {
+            ((int *)&g_unk0x00537248)[param_1] = 1;
+            g_unk0x00537198[param_1] = best;
+        }
+    }
+
+    if ((int)((unsigned int)RallyData_FUN_00421420() >> 1) < best &&
+        cur < (int)((unsigned int)RallyData_FUN_00421420() >> 1)) {
+        g_unk0x00537198[param_1] = best;
+        g_unk0x0053708c[param_1] = best;
+        cur = best;
+    }
+
+    if (((int *)&g_unk0x00537248)[param_1] != 0) {
+        FUN_00421570(best, &dir);
+        pCar = Car_Get(param_1);
+        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
+              FixMul(dir.y, pCar->wheelDirFront.y) +
+              FixMul(dir.z, pCar->wheelDirFront.z);
+        if (dot > 0x3333)
+            ((int *)&g_unk0x00537248)[param_1] = 0;
+    }
+
+    if (g_unk0x00537198[param_1] < best)
+        ((int *)&g_unk0x00537248)[param_1] = 0;
+
+    g_unk0x00537354 = 0;
+    i = g_unk0x0053708c[param_1] + 1;
+    if (i <= g_unk0x0053708c[param_1] + 6) {
+        do {
+            cnt = (unsigned int)RallyData_FUN_00421420();
+            if ((int)cnt <= i || *(char *)(RallyData_FUN_00421440(i) + 0x19) != -1)
+                g_unk0x00537354 = 1;
+            i++;
+        } while (i <= g_unk0x0053708c[param_1] + 6);
+    }
+
+    if (*(char *)(*(int *)(FUN_0041b390() + 4) + param_1 * 8) == '\t')
+        g_unk0x00537354 = 1;
+
+    if ((g_raceCallRecords[param_1 * 5 + 1].flags & 0x100) != 0)
+        g_unk0x00537354 = 1;
+
+    if (FUN_00417760(param_1) == 0 &&
+        *(char *)(*(int *)(FUN_0041b390() + 4) + param_1 * 8) == '\b') {
+        if (!((char)RallyData_GetFlag25() != '\0' &&
+              RallyData_FUN_00421470((BYTE *)Car_Get(param_1)) >= 0x10000)) {
+            if (g_unk0x0053708c[param_1] < best) {
+                node = cur + 1;
+                if (node <= best) {
+                    prev = cur + 2;
+                    do {
+                        n = (int)RallyData_FUN_00421440(node);
+                        if (*(char *)(n + 0x19) != -1 &&
+                            FUN_004174d0() != 0 && FUN_00417760(param_1) == 0) {
+                            int ok = 1;
+                            if (prev < 2) {
+                                callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
+                                prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
+                            } else {
+                                n = (int)RallyData_FUN_00421440(node - 1);
+                                if (*(char *)(n + 0x19) != -1) {
+                                    ok = 0;
+                                } else {
+                                    callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
+                                    prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
+                                }
+                            }
+                            if (ok)
+                                FUN_004174e0(param_1, callId, prevCallId, (BYTE)node);
+                        }
+                        node++;
+                        prev++;
+                    } while (node <= best);
+                }
+                g_unk0x0053708c[param_1] = best;
+            }
+        }
+    }
+
+    if (best < g_unk0x00537198[param_1])
+        g_unk0x00537198[param_1] = best;
+    if (g_unk0x00537198[param_1] + 6 < best)
+        g_unk0x00537198[param_1] = best - 6;
+
+    if (FUN_004174d0() == 0)
+        return;
+    flags = g_raceCallRecords[param_1 * 5].flags;
+    if ((flags & 0x100) == 0)
+        return;
+    if ((BYTE)flags == 0x19) {
+        if (g_unk0x00537354 != 0)
+            g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
+    } else {
+        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
+    }
+    if ((BYTE)g_raceCallRecords[param_1 * 5].flags == 0) {
+        pRec = &g_raceCallRecords[param_1 * 5];
+        for (i = 0; i < 4; i++)
+            pRec[i] = pRec[i + 1];
+        pRec[4].flags &= 0xfffffc00;
+        pRec[4].field_0x0 = 0;
+        pRec[4].field_0x4 = 0;
+    }
+}
