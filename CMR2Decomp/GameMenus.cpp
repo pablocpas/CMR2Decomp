@@ -2851,10 +2851,135 @@ void FUN_00449ce0(Menu *pMenu)
     }
 }
 
-// Not decompiled yet (0x4541c0 is the draw callback of g_menu0x005416e0).
+BYTE *FUN_0040e8c0(void);
+char *FUN_004d06f0(int index);
+extern char g_str0x00519fb0[];
+extern char g_str0x00519fb4[];
 
+// Format of the chat line while its cursor blinks (every other 20 frames).
+// GLOBAL: CMR2 0x00519fb8
+char g_str0x00519fb8[4] = "%s_";
+
+// Draw callback of the time trial / network results menu (0x005416e0): the
+// separator bars of the results box, the five rows of the current stage, the
+// chat line, the ten rows of the network classification and, at the bottom,
+// the standings rows of the menu items.
+// MSVC6 gives the frame 4 bytes less (sub esp,0x14 vs 0x18) so every local
+// moves one slot down: the original keeps the 10-row pointer p in a stack slot
+// (0x14) and leaves a dead 4-byte slot at 0x24, while here p stays in a
+// register and its (unused) slot ends up last (0x20). Same logic, only stack
+// slot assignment and the loop's register allocation differ.
+// match 85%: stack frame size/slot order and the 10-row loop register allocation
+// FUNCTION: CMR2 0x004541c0
 void FUN_004541c0(Menu *pMenu)
 {
+    BYTE colour[4];
+    char *p;
+    int x;
+    short rect[4];
+    MenuItem *pItem;
+    BYTE *pColour;
+    BYTE *pEntries;
+    int i;
+    int y;
+
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x6c) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280);
+    rect[1] = (short)((int)(g_pGraphics->resY * 0x55) / 0x1e0);
+    rect[2] = (short)((int)(g_pGraphics->resX * 0x1a9) / 0x280);
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x6e) / 0x1e0);
+    x = (int)(g_pGraphics->resX * 0x1e) / 0x280;
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0x20;
+    FUN_0044b760();
+    if (g_unk0x00540e48) {
+        colour[3] = 0x20;
+        pColour = g_menuFrameColour;
+    } else {
+        colour[3] = 0x10;
+        pColour = g_menuTextColour;
+    }
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    rect[1] += (short)((int)(g_pGraphics->resY * 10) / 0x1e0) + rect[3];
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x1e) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x1b3) / 0x280 +
+                      (int)(g_pGraphics->resX * 0x6c) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280);
+    rect[1] = (short)((int)(g_pGraphics->resY * 0x55) / 0x1e0);
+    rect[2] = (short)((int)(g_pGraphics->resX * 0x82) / 0x280);
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x10e) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
+    for (i = 4, y = 0x5a; y < 0xbe; y += 0x14, i--) {
+        Font_DrawText(0, FUN_004d06f0(i),
+                      (int)(g_pGraphics->resX * 0x76) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280,
+                      (int)(g_pGraphics->resY * y) / 0x1e0, (int *)pColour, 9);
+    }
+    if (g_unk0x00540e48) {
+        if (CMain::GetFrameDelta() % 0x14 < 10)
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_chatLine);
+        else
+            sprintf(CFrontend::m_stringDest, g_str0x00519fb8, g_chatLine);
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      (int)(g_pGraphics->resX * 0x76) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280,
+                      (int)(g_pGraphics->resY * 0xd2) / 0x1e0, (int *)g_menuFrameColour, 9);
+    }
+    if (CGameInfo::FUN_00405d80() != 10 && CGameInfo::FUN_00405d80() != 12) {
+        pEntries = FUN_0040e8c0();
+        Font_DrawText(0, CFrontend::GetTextString(0xfe), rect[0] + (int)rect[2] / 2,
+                      (int)(g_pGraphics->resY * 10) / 0x1e0 + (int)(g_pGraphics->resY * 100) / 0x1e0,
+                      (int *)g_menuFrameColour, 0x12);
+        if (pEntries != NULL) {
+            for (p = (char *)pEntries + 4, i = 0; i < 10; i++, p += 8) {
+                if (*p == 0) {
+                    Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                    Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x23a) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                } else {
+                    Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                    sprintf(CFrontend::m_stringDest, g_stageNumberFormat, *(int *)(p + 4));
+                    Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x23a) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                }
+            }
+        } else {
+            Font_DrawText(0, CFrontend::GetTextString(0xfb), rect[0] + (int)rect[2] / 2,
+                          (int)(g_pGraphics->resY * 100) / 0x1e0 + (int)(g_pGraphics->resY * 0x3c) / 0x1e0,
+                          (int *)g_menuFrameColour, 0x12);
+        }
+    }
+    Font_DrawText(2, CFrontend::GetTextString(0x56), x, (int)(g_pGraphics->resY * 0x43) / 0x1e0,
+                  (int *)g_menuFrameColour, 0x11);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->w;
+    rect[3] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->h;
+    i = 1;
+    pItem = pMenu->items + 1;
+    if (pMenu->itemCount > 1) {
+        do {
+            rect[1] = (short)(((int)(g_pGraphics->resY * 0xde) / 0x1e0 +
+                               ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i) -
+                              (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (pMenu->cursor == i) {
+                GAMEMENUS_DRAW_STANDINGS_ROW(g_menuFrameColour, FUN_004055e0)
+            } else {
+                GAMEMENUS_DRAW_STANDINGS_ROW(g_menuTextColour, FUN_004055f0)
+            }
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
+    }
+    Font_SetBlendMode(2);
 }
 
 // Builds the stage results menu: continue (or next stage), the replay and
