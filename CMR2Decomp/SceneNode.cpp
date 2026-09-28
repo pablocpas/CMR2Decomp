@@ -2366,3 +2366,125 @@ void FUN_004b7b20(void)
     }
 }
 
+
+int FloatMatrix_RotateVector(float *pOut, float *pV, float *pM);
+int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM);
+extern const float g_unk0x00511360;    // 0x00511360, 10.0f
+extern const float g_netZero;          // 0x0051131c, 0.0f
+extern const float g_unk0x00511ce8;    // 0x00511ce8, 0.1f
+// Scratch table of emitted vertex indices of the shadow mesh builder (-1 none).
+// GLOBAL: CMR2 0x006e0354
+unsigned short g_unk0x006e0354[0x3f0];
+
+// Emits the shadow mesh of a scene node: transforms the light direction and
+// basis by the node matrix, projects every vertex of the mesh, then walks the
+// faces: a face whose three vertices are behind the light plane is dropped,
+// and the vertices of the others are emitted once with their lit position and
+// their colour, sharing the emitted vertex of duplicated vertices.
+// match 32%: implemented from the disassembly (the logic, the constants and
+// the call order follow the original); the diff is the register allocation and
+// the FPU scheduling of the vertex loop.
+// FUNCTION: CMR2 0x004b4180
+void FUN_004b4180(float *param_1, int param_2)
+{
+    BYTE *p = (BYTE *)param_1;
+    BYTE *pMesh = *(BYTE **)(p + 0x30);
+    BYTE *pLight = *(BYTE **)(p + 0x34);
+    float *pPos = *(float **)(p + 0x38);
+    BYTE *pSrc = *(BYTE **)(p + 0x3c);
+    float *pDst = *(float **)(p + 0x40);
+    BYTE *pOut = *(BYTE **)(p + 0x44);
+    BYTE *pVtx = *(BYTE **)(p + 0x48);
+    BYTE **pEdge = (BYTE **)*(int *)(p + 0x4c);
+    int count;
+    int faces;
+    int k;
+    int v;
+    int s;
+    int index[3];
+    float light[3];
+    float lightOffset[3];
+    float scale;
+    DWORD shadowColour;
+    BYTE baseColour;
+    BYTE colour;
+    BYTE cb0;
+    BYTE cb1;
+    BYTE cb2;
+
+    shadowColour = g_shadowColour;
+    cb0 = (BYTE)shadowColour;
+    cb1 = (BYTE)(shadowColour >> 8);
+    cb2 = (BYTE)(shadowColour >> 16);
+    if (param_2 > 0x10000)
+        param_2 = 0x10000;
+    param_2 = FixMul(g_shadowLevel, param_2);
+    scale = (float)param_2 * (float)CGraphics::m_oneOver65536;
+    baseColour = (BYTE)(__int64)scale;
+    *(short *)(p + 0x50) = 0;
+    *(short *)(p + 0x52) = 0;
+
+    count = *(int *)(pMesh + 0x10);
+    if (count > 0)
+        memset(g_unk0x006e0354, 0xff, count * 2);
+
+    lightOffset[0] = *(float *)(pLight + 0x148);
+    lightOffset[1] = *(float *)(pLight + 0x14c);
+    lightOffset[2] = *(float *)(pLight + 0x150);
+    FloatMatrix_InverseRotateVector(param_1, g_sceneLightDirF, (float *)(pLight + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 3, g_sceneLightBasisF, (float *)(pLight + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 6, g_sceneLightBasisF + 3, (float *)(pLight + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 9, g_sceneLightBasisF + 6, (float *)(pLight + 0x118));
+
+    for (; count > 0; count--) {
+        *pDst = pPos[0] * param_1[0] + pPos[1] * param_1[1] + pPos[2] * param_1[2];
+        pPos += 3;
+        pDst++;
+    }
+
+    faces = *(int *)(pMesh + 0x28);
+    if (faces > 0) {
+        short *pFace = (short *)(*(int *)(pMesh + 0x24) + 0x42);
+        do {
+            index[0] = pFace[-1];
+            index[1] = pFace[0];
+            index[2] = pFace[1];
+            if (pDst[index[0]] >= g_netZero || pDst[index[1]] >= g_netZero ||
+                pDst[index[2]] >= g_netZero) {
+                for (k = 0; k < 3; k++) {
+                    v = index[k];
+                    s = g_unk0x006e0354[v];
+                    if (s == -1) {
+                        *(float *)pOut = *(float *)(pSrc + v * 0xc);
+                        *(float *)(pOut + 4) = *(float *)(pSrc + v * 0xc + 4);
+                        *(float *)(pOut + 8) = *(float *)(pSrc + v * 0xc + 8);
+                        pEdge[k] = (BYTE *)pVtx;
+                        g_unk0x006e0354[v] = *(short *)(p + 0x52);
+                        colour = baseColour;
+                        if (pDst[v] < g_netZero)
+                            colour = 0;
+                        else if (pDst[v] < g_unk0x00511ce8)
+                            colour = (BYTE)(__int64)(pDst[v] * g_unk0x00511360 * scale);
+                        *(DWORD *)(pVtx + 0x18) = ((DWORD)cb2) | ((DWORD)cb1 << 8) |
+                                                  ((DWORD)cb0 << 16) | ((DWORD)colour << 24);
+                        FloatMatrix_RotateVector(light, (float *)pOut, (float *)(pLight + 0x118));
+                        light[0] = light[0] + lightOffset[0];
+                        light[1] = light[1] + lightOffset[1];
+                        light[2] = light[2] + lightOffset[2];
+                        *(float *)pVtx = light[0];
+                        *(float *)(pVtx + 4) = light[1];
+                        *(float *)(pVtx + 8) = light[2];
+                        pOut += 0xc;
+                        pVtx += 0x30;
+                        (*(short *)(p + 0x52))++;
+                    } else {
+                        pEdge[k] = (BYTE *)(pVtx + s * 0x30);
+                    }
+                }
+                pEdge += 3;
+                (*(short *)(p + 0x50))++;
+            }
+            pFace += 0x26;
+        } while (--faces != 0);
+    }
+}

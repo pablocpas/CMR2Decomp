@@ -9083,3 +9083,7 @@ void FUN_005057e0(void)
     }
 }
 
+
+// Steps of the shadow vertex scramble (16.16 -> float): 10.0.
+// GLOBAL: CMR2 0x00511360
+extern const float g_unk0x00511360 = 10.0f;
