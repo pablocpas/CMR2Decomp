@@ -123,6 +123,7 @@ BYTE *FUN_0041b390(void);
 
 // Marks which player camera records are too far from, or face away from, the
 // car. The fourth word is set when every active camera has been rejected.
+// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00428a00
 void FUN_00428a00(Car *pCar)
 {
@@ -2939,8 +2940,12 @@ void Car_UpdateWheelForces(void)
 BYTE g_unk0x0053a3a8[8][0xfc];
 // GLOBAL: CMR2 0x0053acc8
 BYTE g_unk0x0053acc8[16];
+// "drawn" flags of the cars in the order table (0x42c840/0x42c870, indexed by
+// the car index). Eight entries: the transform shadow rows start right after.
 // GLOBAL: CMR2 0x0053acf0
-int g_unk0x0053acf0[16];
+int g_unk0x0053acf0[8];
+// GLOBAL: CMR2 0x0053ad10
+CarTransforms g_carTransformsShadow[8];
 // GLOBAL: CMR2 0x0053c5a0
 BYTE g_unk0x0053c5a0[10][0x60];
 // GLOBAL: CMR2 0x0053c9a8
@@ -2994,7 +2999,7 @@ short g_unk0x0053c9a0;
 
 // Builds the race car order for the given number of cars and clears the
 // per-car "drawn" flags.
-// match 80%: below the 90% bar; the logic is complete, MSVC just keeps the first loop counter in ESI instead of EAX
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042b660
 void FUN_0042b660(int count)
 {
@@ -3044,6 +3049,8 @@ void FUN_0042b720(int index, char value)
     g_unk0x0053acc8[index] = value;
 }
 
+void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4);
+
 // Counts down field 0xb43 of every car in the list.
 // FUNCTION: CMR2 0x0042bc80
 void FUN_0042bc80(short *pList, short count)
@@ -3055,6 +3062,48 @@ void FUN_0042bc80(short *pList, short count)
         pCar = &g_carBuffer[pList[i]];
         if (pCar->field_0xb43[0] != 0)
             pCar->field_0xb43[0]--;
+    }
+}
+
+// Rebuilds the per-car render transforms at the start of an update: takes the
+// body matrices from the scene nodes, clears the wheel records and the ground
+// data, mirrors the row into the shadow copy and hands the car position to the
+// transform record of the renderer.
+// FUNCTION: CMR2 0x0042bcd0
+void FUN_0042bcd0(void)
+{
+    short i;
+    int j;
+    int car;
+    int *pWheel;
+    int *pHeight;
+    FixVector position;
+
+    for (i = g_carOrderCount - 1; i >= 0; i--) {
+        car = g_carOrder[i];
+        FixMatrix_CopyRotation(&g_carBuffer[car].pNode0x720->current, (FixMatrix *)(g_unk0x0053a3a8[car] + 0x40));
+        FixMatrix_CopyRotation(&g_carBuffer[car].pNode0x71c->current, (FixMatrix *)g_unk0x0053a3a8[car]);
+        pWheel = (int *)(g_unk0x0053a3a8[car] + 0x84);
+        pHeight = (int *)(g_unk0x0053a3a8[car] + 0xec);
+        for (j = 4; j != 0; j--) {
+            pWheel[-1] = 0;
+            pWheel[0] = 0;
+            pWheel[1] = 0;
+            pWheel[2] = 0;
+            pWheel[3] = 0;
+            pWheel[4] = 0;
+            *pHeight = 0;
+            pHeight++;
+            pWheel += 6;
+        }
+        *(int *)(g_unk0x0053a3a8[car] + 0xe0) = 0;
+        *(int *)(g_unk0x0053a3a8[car] + 0xe4) = 0x10000;
+        *(int *)(g_unk0x0053a3a8[car] + 0xe8) = 0;
+        memcpy(&g_carTransformsShadow[car], g_unk0x0053a3a8[car], 0xfc);
+        memcpy(&g_carTransforms[car], g_unk0x0053a3a8[car], 0xfc);
+        FixMatrix_GetPosition(&position, (FixMatrix *)g_unk0x0053a3a8[car]);
+        FUN_00487140((int *)g_unk0x0053c5a0[car], (int *)&position, (int *)g_unk0x0053a3a8[car],
+                     (int *)&g_carBuffer[car].halfExtents);
     }
 }
 
@@ -3109,6 +3158,7 @@ int FUN_0041f360(void);
 // (the engine note falloff), writing it to the car and returning the largest.
 // match 51%: same logic, but MSVC6 keeps the original in an EBP frame with
 // memory-resident loop counters; the register allocation does not reproduce.
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042c890
 int FUN_0042c890(int *pOut)
 {
@@ -3406,6 +3456,7 @@ int g_gravityScale;
 // the world matrix) plus the body velocity; the other six copy them.
 // match 76%: same logic; MSVC put pWorld in ESI and pVel in EDI instead of
 // the EDI/ESI the original used (induction/pointer register numbering).
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00443a20
 void Car_UpdateCornerVelocityPair(void)
 {
@@ -4383,6 +4434,7 @@ typedef void (*CarFadeCallback)(BYTE index);
 void FUN_004283e0(BYTE index, CarFadeCallback pfnDone, int param3, int param4, int param5, char force);
 
 // Starts the reset fade for the current car when its reset request is active.
+// match 8%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00431c10
 void FUN_00431c10(void)
 {
@@ -4406,6 +4458,7 @@ FixVector g_unk0x0053ca58;
 FixVector g_unk0x0053cae8;
 // match 69%: same logic; MSVC kept the loop counter in the parameter slot and
 // in EDI in the original, and in ESI here (register numbering).
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00431d80
 int FUN_00431d80(int param_1)
 {
