@@ -9005,8 +9005,8 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
 
 extern int g_unk0x00547ad0;
 
-// GLOBAL: CMR2 0x00547abc
-int g_unk0x00547abc;
+// 0x547abc is g_stageLighting[0x5b] (the lighting block runs to 0x547ac8).
+#define g_unk0x00547abc (g_stageLighting[0x5b])
 
 // Positions a lens flare of the given view node on screen: its brightness
 // follows the sun visibility and the camera's pitch, its colour is scaled by
@@ -13373,3 +13373,157 @@ BYTE *FUN_0047c2f0(void)
 }
 #undef AI_INT
 #undef AI_CHAR
+
+void FUN_0046c2a0(int param_1, BYTE param_2);
+void FUN_0046c390(int *pState, BYTE car);
+int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
+void FUN_0046d610(BYTE *p);
+void FUN_00496e00(Car *pCar);
+void FUN_00477ce0(int car);
+void FUN_004643f0(int param_1);
+void FUN_0045f4a0(void);
+
+// Plays back one frame of a replay stream: at the start of a section it
+// restores the recorded car state, then feeds the recorded controls and picks
+// up the camera event of the current frame. Ends the replay after the last
+// section.
+// FUNCTION: CMR2 0x0046cfa0
+void FUN_0046cfa0(int *pState)
+{
+    BYTE *p;
+    Car *pCar;
+    BYTE *pEvents;
+    BYTE *pEvent;
+    int count;
+    int k;
+    int section;
+    char found;
+
+    p = (BYTE *)pState;
+    if (p == NULL)
+        return;
+    pCar = Car_Get(p[0x20]);
+    if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) == 2 || *((BYTE *)pCar + 0xb43) == 0)
+        return;
+    if (*(int *)(p + 8) == 0) {
+        *(short *)(p + 0x10a) = 0;
+        p[0x21] = 0;
+        *(int *)(p + 0x14) = 1;
+        if (*(int *)(p + 0x1c) != 0) {
+            *(int *)(p + 8) = 1;
+            *(int *)(p + 0x34) = *(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30);
+            return;
+        }
+        *(int *)(p + 8) = 1;
+        *(int *)(p + 0x28) = *(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c;
+        return;
+    }
+    if (*(short *)(p + 0x10a) < 0) {
+        if (*(int *)(p + 0x1c) == 0)
+            FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
+        else
+            FUN_0046c390((int *)(*(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30)), p[0x20]);
+        if (*(short *)(p + 0x10a) != -1) {
+            *(int *)((BYTE *)pCar + 0x860) = 0;
+            *(int *)((BYTE *)pCar + 0x864) = 0;
+            *(int *)((BYTE *)pCar + 0x868) = 0;
+            *(int *)((BYTE *)pCar + 0x86c) = 0;
+        }
+        (*(short *)(p + 0x10a))++;
+    }
+    if (*(short *)(p + 0x10a) < 0)
+        return;
+    section = *(short *)(p + 0x108);
+    if (*(short *)(*(BYTE **)(p + 0x104) + section * 2) != 0) {
+        if (FUN_0046c4b0(pState,
+                         (BYTE *)(*(int *)(p + 0x3c) + (*(short *)(p + 0xfe) * section + *(short *)(p + 0x10a)) * 4),
+                         p[0x20], p + 0x21))
+            (*(short *)(p + 0x10a))++;
+        found = -1;
+        pEvent = NULL;
+        section = *(short *)(p + 0x108);
+        if (*(int *)(p + 0x1c) == 0) {
+            count = *(BYTE *)(*(int *)(p + 0x24) + section * 0x114c + 0x1148);
+            pEvents = (BYTE *)(*(int *)(p + 0x24) + section * 0x114c + 0x110c);
+        } else {
+            count = *(BYTE *)(*(int *)(p + 0x30) + section * 0x5c + 0x58);
+            pEvents = (BYTE *)(*(int *)(p + 0x30) + section * 0x5c + 0x1c);
+        }
+        for (k = 0; k < count; k++) {
+            pEvent = pEvents + k * 6;
+            if (*(short *)(p + 0x10a) < *(short *)pEvent ||
+                (*(short *)(p + 0x10a) == *(short *)pEvent && (short)p[0x21] < *(short *)(pEvent + 2))) {
+                found = (char)k;
+                break;
+            }
+        }
+        if (found == -1)
+            found = (char)count;
+        // the original indexes from the last event examined, not from the table start
+        if ((char)(found - 1) >= 0)
+            p[0x10c] = pEvent[(char)(found - 1) * 6 + 4];
+    }
+    if (*(short *)(p + 0x10a) == *(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2)) {
+        *(int *)(p + 8) = 0;
+        (*(short *)(p + 0x108))++;
+        if (*(short *)(p + 0x108) == *(short *)(p + 0x100))
+            FUN_0046d2a0(pState);
+    }
+}
+
+// Plays back one frame of every replay stream (in single-player time trial
+// only the non-player ones).
+// FUNCTION: CMR2 0x0046d270
+void FUN_0046d270(void)
+{
+    void ***pp;
+
+    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+        if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
+            FUN_0046cfa0(*(int **)*pp);
+    }
+}
+
+// Records one frame of every replay stream (same condition as FUN_0046d270).
+// FUNCTION: CMR2 0x0046d5e0
+void FUN_0046d5e0(void)
+{
+    void ***pp;
+
+    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+        if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
+            FUN_0046d610(*(BYTE **)*pp);
+    }
+}
+
+// Restarts the replay of the ghost car, keeping its controller index.
+// FUNCTION: CMR2 0x00466030
+void FUN_00466030(int a, int b)
+{
+    BYTE index;
+
+    index = g_unk0x0058875c->field_0xb1a;
+    FUN_0046cce0((int)g_unk0x00588758, a, b, index);
+    g_unk0x0058875c->field_0xb1a = index;
+    *(int *)((BYTE *)g_unk0x0058875c + 0xc0c) = 1;
+}
+
+// Per-frame physics of the cars in `pOrder` that are not replayed, then the
+// stage weather.
+// FUNCTION: CMR2 0x004664c0
+void FUN_004664c0(short *pOrder, short count)
+{
+    int i;
+    Car *pCar;
+
+    for (i = 0; i < count; i++, pOrder++) {
+        pCar = Car_Get(*pOrder);
+        if (*(int *)((BYTE *)pCar + 0xc0c) == 0) {
+            if (*(int *)((BYTE *)pCar + 0xb70) == 0)
+                FUN_00496e00(pCar);
+            FUN_00477ce0(i);
+            FUN_004643f0((int)pCar);
+        }
+    }
+    FUN_0045f4a0();
+}

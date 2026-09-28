@@ -29,6 +29,9 @@ int g_unk0x00543da0;
 // GLOBAL: CMR2 0x00547930
 FixVector g_unk0x00547930;
 
+// Wind strength at the last change.
+// GLOBAL: CMR2 0x0054793c
+int g_unk0x0054793c;
 // GLOBAL: CMR2 0x00547940
 int g_unk0x00547940;
 // GLOBAL: CMR2 0x00547944
@@ -8061,3 +8064,120 @@ void FUN_004669f0(int lock, int keep, short *pOrder, short count)
     if (lock != 0)
         FUN_00480a50();
 }
+
+extern int g_stageLighting[];
+// Lightning: the sector lit by the current flash (0x547ac0) and the previous
+// frame's value (0x547ac2), inside the lighting block of StageObjects.cpp.
+#define g_unk0x00547ac0 (*(short *)&g_stageLighting[0x5c])
+#define g_unk0x00547ac2 (*((short *)&g_stageLighting[0x5c] + 1))
+#define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+
+int FUN_00492910(void);
+void FUN_00492b50(void);
+void FUN_0045f530(BYTE *pObject, int view);
+void FUN_0045e8b0(unsigned int *pRecord, int view);
+void FUN_0045f5d0(int pData, int param_2);
+void FUN_0045f9d0(int param_1, int *param_2, int param_3);
+void FUN_00460b60(int *p, int unused);
+
+// Wind: eases the strength towards its target, then after a random pause
+// picks a new target and rate (halved when a view has snow).
+// FUNCTION: CMR2 0x0045f6d0
+void FUN_0045f6d0(void)
+{
+    int snow;
+    unsigned int i;
+
+    if (g_unk0x00547944.z != 0) {
+        g_unk0x00547944.z -= g_unk0x0051bd3c;
+        if (g_unk0x00547944.z < 0)
+            g_unk0x00547944.z = 0;
+        return;
+    }
+    if (g_unk0x00547940 != g_unk0x00547944.x) {
+        if (g_unk0x00547940 > g_unk0x00547944.x) {
+            g_unk0x00547940 -= FixMul(g_unk0x00547944.y, g_unk0x0051bd3c);
+            if (g_unk0x00547940 < g_unk0x00547944.x) {
+                g_unk0x00547940 = g_unk0x00547944.x;
+                goto change;
+            }
+        } else if (g_unk0x00547940 < g_unk0x00547944.x) {
+            g_unk0x00547940 += FixMul(g_unk0x00547944.y, g_unk0x0051bd3c);
+            if (g_unk0x00547940 > g_unk0x00547944.x) {
+                g_unk0x00547940 = g_unk0x00547944.x;
+                goto change;
+            }
+        }
+        if (g_unk0x00547940 != g_unk0x00547944.x)
+            return;
+    }
+change:
+    g_unk0x00547944.z = FixMul(0x4b0000, RAND_FIX()) + 0x190000;
+    g_unk0x00547944.x = FixMul(0x10000, RAND_FIX());
+    g_unk0x00547944.y = FixMul(0x667, RAND_FIX()) + 0x147;
+    g_unk0x0054793c = g_unk0x00547940;
+    snow = 0;
+    for (i = 0; i < g_unk0x00543e98; i++) {
+        if (*(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178) == 2) {
+            snow = 1;
+            break;
+        }
+    }
+    if (snow) {
+        g_unk0x00547944.x = FixMul(g_unk0x00547944.x, 0x8000);
+        g_unk0x00547944.y = FixMul(g_unk0x00547944.y, 0x8000);
+    }
+}
+
+// Lightning: counts down to the next flash (picking the sector it lights), and
+// every frame lights that sector at random while it rains hard.
+// FUNCTION: CMR2 0x0045f890
+void FUN_0045f890(void)
+{
+    int *pWeather;
+
+    pWeather = (int *)g_unk0x00547ac8;
+    if (g_unk0x00543ec0 != 0) {
+        g_unk0x00543ec0 -= g_unk0x0051bd3c;
+        if (g_unk0x00543ec0 < 0) {
+            g_unk0x00543ec8 = (short)FUN_00492910();
+            FUN_00492b50();
+            g_unk0x00543ec0 = 0;
+        }
+    } else {
+        g_unk0x00543ec4 -= g_unk0x0051bd3c;
+        if (g_unk0x00543ec4 < 0) {
+            g_unk0x00543ec0 = FixMul(RAND_FIX(), 0x1770000) + 0x7d0000;
+            g_unk0x00543ec8 = -1;
+            g_unk0x00543ec4 = FixMul(RAND_FIX(), 0x140000) + 0x140000;
+        }
+    }
+    g_unk0x00547ac2 = g_unk0x00547ac0;
+    if (RAND_FIX() < 0x4ccc && pWeather[0x15] > 0xcccc && pWeather[0] == 1)
+        g_unk0x00547ac0 = g_unk0x00543ec8;
+    else
+        g_unk0x00547ac0 = -1;
+}
+
+// Per-frame weather of every view: wind, lightning, then each view's
+// precipitation, particles and sky.
+// FUNCTION: CMR2 0x0045f4a0
+void FUN_0045f4a0(void)
+{
+    int view;
+    int *pWeather;
+    int offset;
+
+    FUN_0045f6d0();
+    FUN_0045f890();
+    for (view = 0, offset = 0; view < (int)g_unk0x00543e98; view++, offset += 0x2c) {
+        pWeather = (int *)((BYTE *)g_unk0x00547ac8 + view * 0x178);
+        FUN_0045f530((BYTE *)pWeather, view);
+        FUN_0045e8b0((unsigned int *)((BYTE *)g_unk0x00543eb8 + offset), view);
+        FUN_0045f5d0((int)((BYTE *)g_unk0x00543eb8 + offset), view);
+        if (pWeather[0] == 1 || pWeather[0] == 2)
+            FUN_0045f9d0(1, pWeather, view);
+        FUN_00460b60(pWeather, view);
+    }
+}
+#undef RAND_FIX
