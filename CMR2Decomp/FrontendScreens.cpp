@@ -9167,3 +9167,168 @@ void FUN_004e4fc0(Menu *pMenu, int param)
     FrontendDraw_ScrollerRow(FUN_004f2550(), 1);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
+
+BYTE *FUN_004f92a0(int row, int column);
+MenuScroller *FUN_004f2560(void);
+
+// Draws the network "records" screen: mode title, the two bars, the column
+// headers and five rows with the player, car, gearbox and two values.
+// FUNCTION: CMR2 0x004e5c90
+void FUN_004e5c90(Menu *pMenu, int param)
+{
+    BYTE *pRow;
+    int mode;
+    int i;
+    int x;
+    int y;
+
+    mode = FUN_004f3a60();
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
+                          (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
+    if (mode == 0) {
+        Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    } else if (mode == 1) {
+        Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    } else if (mode == 2) {
+        Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    }
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0 -
+                                 (int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+                                 ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 +
+        ((int)(g_pGraphics->resY * 0xa0) / 0x1e0 - (int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    Font_DrawText(0, CFrontend::GetTextString(0x16a), (int)(g_pGraphics->resX * 0x96) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16b), (int)(g_pGraphics->resX * 0x122) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16c), (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16e), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 0x1e5) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+                                 ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    for (i = 0; i < 5; i++) {
+        y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
+            ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
+        pRow = (BYTE *)CGameInfo::FUN_00405fe0() + 0xff4 +
+               ((mode + pMenu->cursor * 3) * 5 + i) * 0xc;
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 0x280, y,
+                      (int *)g_colourText0x0052496c, 0x12);
+        Font_DrawText(1, (char *)pRow, (int)(g_pGraphics->resX * 0x96) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
+                      (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, *(unsigned int *)(pRow + 4) >> 10 & 0x3f);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*(unsigned int *)(pRow + 4) >> 7 & 7) + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1e5) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0xa0) / 0x1e0) +
+                                     (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0) * (i + 1));
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+    }
+    FrontendDraw_ScrollerRow(FUN_004f2560(), 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
+}
+
+// Draws the network "car records" screen: mode title, the two bars, the column
+// headers and the selected row with its car, gearbox and two values.
+// FUNCTION: CMR2 0x004e63d0
+void FUN_004e63d0(Menu *pMenu, int param)
+{
+    BYTE *pRow;
+    unsigned int *pFlags;
+    int mode;
+    int x;
+    int y;
+
+    mode = FUN_004f3a60();
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuTitle(pMenu);
+    if (mode == 0) {
+        Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    } else if (mode == 1) {
+        Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    } else if (mode == 2) {
+        Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+    }
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 -
+                                 (int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+                                 ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 +
+        ((int)(g_pGraphics->resY * 200) / 0x1e0 - (int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    Font_DrawText(0, CFrontend::GetTextString(0x16b), (int)(g_pGraphics->resX * 0xbe) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16c), (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16e), (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 0x17c) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
+                  (int *)g_colourTitle0x00524984, 0x12);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+                                 ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
+    pRow = RallyData_FUN_00408cb0(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
+    pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
+                              (pMenu->cursor * 3 + 0x5c + mode) * 0xc);
+    if ((*pFlags & 0x80) == 0) {
+        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+    } else {
+        Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
+                      (int)(g_pGraphics->resX * 0xbe) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((*pFlags & 0x40) == 0)
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, *(unsigned int *)pRow >> 5 & 0x3f);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*(unsigned int *)pRow & 7) + 1);
+        Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x17c) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+        Font_DrawText(0, (char *)FUN_004f92a0(pMenu->cursor, mode),
+                      (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+    }
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 +
+                                 (int)(g_pGraphics->resY * 0x19) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
+    FrontendDraw_ScrollerRow(FUN_004f2560(), 1);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x16f), 1);
+}
