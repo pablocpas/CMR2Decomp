@@ -5478,9 +5478,9 @@ int FUN_00423f30(void)
 }
 
 // FUNCTION: CMR2 0x00423fc0
-void FUN_00423fc0(int view)
+int FUN_00423fc0(int view)
 {
-    FUN_0048df10(VIEW_MODE_RECORD(view));
+    return FUN_0048df10(VIEW_MODE_RECORD(view));
 }
 
 int FUN_00423970(unsigned int index, int mode);

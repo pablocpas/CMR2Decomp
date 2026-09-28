@@ -9088,9 +9088,6 @@ int FUN_004b5320(void *pNode, int value)
     return result;
 }
 
-// STUB: CMR2 0x00485690
-void FUN_00485690(short *pOrder, short count, int view) { }
-
 // STUB: CMR2 0x0047f740
 void FUN_0047f740(void) { }
 
@@ -12496,6 +12493,68 @@ void FUN_00484e00(int param_1, short count)
         pIndex--;
     } while (--count);
 }
+
+int FUN_00423fc0(int view);
+void FUN_00485860(unsigned int index, int *pTarget, int flag);
+extern int g_unk0x00590c58;
+extern int g_unk0x00590c5c;
+#define CURRENT_CAR ((BYTE *)g_unk0x00590d74)
+
+// Draws the light beams of every car in the order list for one view (not the
+// player's own car from the in-car cameras): the beam colour follows the
+// scene light, and each beam is flagged when the car's light node is lit for
+// this view.
+// FUNCTION: CMR2 0x00485690
+void FUN_00485690(short *pOrder, short count, int view)
+{
+    FixVector viewPos;
+    BYTE colour[4];
+    int self;
+    int inCar;
+    int i;
+    int n;
+    int car;
+    int lit;
+    BYTE mask;
+
+    FixMatrix_GetPosition(&viewPos, (FixMatrix *)(g_unk0x00538d2c + 4 + view * 100));
+    inCar = FUN_00423fc0(view);
+    if (inCar == 0 && FUN_00422f50((BYTE)view) == 10)
+        inCar = 1;
+    self = FUN_00422fb0((BYTE)view);
+    for (i = count - 1; i >= 0; i--) {
+        car = pOrder[i];
+        g_unk0x00590d74 = (Unk0x00590d74 *)Car_Get(car);
+        if (*(int *)(CURRENT_CAR + 0xc0c) != 0 || (inCar != 0 && self == car) ||
+            *(int *)(CURRENT_CAR + 0xb68 + view * 4) != 0)
+            continue;
+        Scene_GetLightColour((DWORD *)colour, *(int *)(CURRENT_CAR + 0xa70));
+        g_unk0x00590c54 = FixMul(colour[0] << 16, 0x106);
+        if (g_unk0x00590c54 > 0x10000)
+            g_unk0x00590c54 = 0x10000;
+        g_unk0x00590c58 = FixMul(colour[1] << 16, 0x106);
+        if (g_unk0x00590c58 > 0x10000)
+            g_unk0x00590c58 = 0x10000;
+        g_unk0x00590c5c = FixMul(colour[2] << 16, 0x106);
+        if (g_unk0x00590c5c > 0x10000)
+            g_unk0x00590c5c = 0x10000;
+        mask = (BYTE)(1 << view);
+        lit = 0;
+        if (*(BYTE **)(CURRENT_CAR + 0x724) == NULL) {
+            if ((*(BYTE **)(CURRENT_CAR + 0x738))[0x17c] & mask)
+                lit = 1;
+        } else if ((*(BYTE **)(CURRENT_CAR + 0x724))[0x17c] != 0) {
+            if (mask & (*(BYTE **)(CURRENT_CAR + 0x724))[0x17c])
+                lit = 1;
+        } else if ((*(BYTE **)(CURRENT_CAR + 0x738))[0x17c] & mask) {
+            lit = 1;
+        }
+        for (n = *(int *)g_unk0x00590b30[(signed char)CURRENT_CAR[0xb1a]] - 1; n >= 0; n--)
+            FUN_00485860(n, (int *)&viewPos, lit);
+    }
+}
+#undef CURRENT_CAR
+
 // Draws the dust trail of one stage-object record. When the record's +0x38 flag
 // is clear the record's position and axis are pushed through the car's
 // suspension matrix and five short parabola segments (a curved direction plus a
