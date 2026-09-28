@@ -10048,3 +10048,470 @@ void FUN_0050cc10(int param_1, int param_2)
         break;
     }
 }
+
+// ---------------------------------------------------------------------------
+// Boot/state subsystem and option value list (addresses 0x0050e280-0x0050eba0)
+// ---------------------------------------------------------------------------
+
+// Keyboard labels of the option value rows ("1".."10","SS").
+extern char g_keypad2[];
+extern char g_keypad3[];
+extern char g_keypad4[];
+extern char g_keypad6[];
+extern char g_keypad7[];
+extern char g_keypad8[];
+extern char g_keypad9[];
+extern char g_strNum1[4];
+extern char g_strNum5[4];
+extern char g_strNum10[4];
+extern char g_strFlagSS[4];
+
+// Undocumented batch functions of the option/boot subsystem.
+void FUN_0050a8a0(int, int);
+void FUN_0050a8e0(int);
+void FUN_0050a920(int);
+void FUN_0050bfd0(int);
+void FUN_0050c420(int);
+void FUN_0050cc10(int, int);
+void FUN_0050e6a0(void);
+void FUN_0050b1c0(short, short, short, short, short, int);
+void FUN_0050e280(unsigned int);
+
+// GLOBAL: CMR2 0x00529430
+int g_unk0x00529430;
+
+// Draws the option record values: composes the text of every record row from
+// its value, its unit label and its sub-label, highlights the row currently
+// being edited and finally lays out the value bar of the selected item.
+// FUNCTION: CMR2 0x0050e280
+void FUN_0050e280(unsigned int param_1)
+{
+    char *pLabels[11] = { g_strNum1,  g_keypad2, g_keypad3, g_keypad4, g_strNum5, g_keypad6,
+                          g_keypad7, g_keypad8, g_keypad9, g_strNum10, g_strFlagSS };
+    int *pSel;
+    int *pUnsel;
+    int i;
+
+    if (g_unk0x0082ab44 != 0) {
+        pSel = &g_unk0x0052737c;
+        pUnsel = &g_unk0x0052738c[1];
+    } else {
+        pSel = &g_unk0x0052738c[1];
+        pUnsel = g_unk0x00527380;
+    }
+    if (g_unk0x0082ac48 > 0) {
+        for (i = 0; i < g_unk0x0082ac48; i++) {
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x145),
+                    FUN_004f4de0(g_unk0x0082aa3c + i),
+                    CFrontend::GetTextString(FUN_004f4e00(g_unk0x0082aa3c + i) + 0x93),
+                    pLabels[FUN_004f4e20(g_unk0x0082aa3c + i)]);
+            if (g_unk0x0082a924 == g_unk0x0082aa3c + i) {
+                FUN_00501f80(4, 1, 1, (char *)FUN_004f4e70(g_unk0x0082aa3c + i),
+                             (int)g_pGraphics->resX * 0x32 / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pSel, g_unk0x0052738c, 0x11);
+                FUN_00501f80(4, 1, 1, CFrontend::m_stringDest,
+                             (int)g_pGraphics->resX * 0x9b / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pSel, g_unk0x0052738c, 0x11);
+                FUN_00501f80(4, 1, 1, (char *)FUN_004f4dc0(g_unk0x0082aa3c + i),
+                             (int)g_pGraphics->resX * 0xff / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pSel, g_unk0x0052738c, 0x11);
+            } else {
+                FUN_00501f80(4, 1, 1, (char *)FUN_004f4e70(g_unk0x0082aa3c + i),
+                             (int)g_pGraphics->resX * 0x32 / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pUnsel, g_unk0x0052738c, 0x11);
+                FUN_00501f80(4, 1, 1, CFrontend::m_stringDest,
+                             (int)g_pGraphics->resX * 0x9b / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pUnsel, g_unk0x0052738c, 0x11);
+                FUN_00501f80(4, 1, 1, (char *)FUN_004f4dc0(g_unk0x0082aa3c + i),
+                             (int)g_pGraphics->resX * 0xff / 0x280,
+                             (int)g_pGraphics->resY * 100 / 0x1e0 +
+                                 ((int)g_pGraphics->resY * 0x14) / 0x1e0 * i,
+                             pUnsel, g_unk0x0052738c, 0x11);
+            }
+        }
+    } else {
+        FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x140), (int)g_pGraphics->resX / 2,
+                     (int)g_pGraphics->resY / 2, pUnsel, g_unk0x0052738c, 0x12);
+    }
+    FUN_0050b1c0(2, *(unsigned char *)(param_1 + 0x1f +
+                                       Menu_FindItem((Menu *)param_1, 4) * 0x14),
+                 4, 0x32, 0x17c, 1);
+    if (CGameInfo::FUN_005011b0() == 1)
+        CGameInfo::FUN_00405da0();
+}
+
+// match 67%: el original guarda el indice seleccionado (param_1[7]) en EBP y el contador del bucle
+// en EBX; MSVC6 asigna a nuestro codigo (identico) EBX al indice y EBP al contador, asi que todas las
+// instrucciones del cuerpo del bucle difieren en un registro y el intercalado se desplaza. Semanticamente
+// equivalente; no reproducible desde C sin tocar la asignacion de colores del compilador.
+// FUNCTION: CMR2 0x0050e780
+void FUN_0050e780(unsigned int param_1)
+{
+    short destRect[4];
+    int i;
+    int yBase;
+    int colour;
+    int x0;
+    int sel;
+
+    x0 = (int)g_pGraphics->resX * 0xf0 / 0x280;
+    yBase = (int)g_pGraphics->resY * 0xd7 / 0x1e0;
+    colour = g_unk0x0052737c;
+    destRect[0] = (short)(x0 * (int)g_pGraphics->resX / 0x280);
+    sel = (int)*(signed char *)(param_1 + 7);
+    destRect[1] = 0;
+    destRect[2] = 0;
+    destRect[3] = 0;
+    FUN_00501f80(4, 0, 0, CFrontend::GetTextString(0x13f),
+                 (int)g_pGraphics->resX * 0xf0 / 0x280, (int)g_pGraphics->resY * 200 / 0x1e0,
+                 g_unk0x00527380, g_unk0x0052738c, 0x11);
+    g_unk0x00831660[0] = (short)x0;
+    g_unk0x00831660[1] = (short)yBase;
+    g_unk0x00831660[3] = 1;
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
+    FUN_00501d50(0, g_unk0x00831660, 1, 1);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                    (BYTE *)(sel == 0 ? &colour : &g_unk0x00527380[2]), 1);
+    for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
+        if (g_unk0x0083166c != 0) {
+            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
+                !CFrontend::FUN_004b7590(0x400))
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                              g_unk0x00831660[1] - 6;
+            else
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                              g_unk0x00831660[1] - 0xa;
+        }
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(i + 0x100));
+        if (i == sel) {
+            FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
+                         (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
+                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
+                         &colour, g_unk0x00527380, 0x11);
+            if (g_unk0x0083166c != 0)
+                Sprite_Queue((SpriteRect *)(g_unk0x0083166c + 0x11c), (SpriteRect *)destRect,
+                             (Texture *)g_unk0x0083166c, 1, 0, 0, 0, (BYTE *)&colour, 8);
+        } else {
+            FUN_00501f80(3, 0, 0, CFrontend::m_stringDest,
+                         (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
+                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
+                         g_unk0x00527380, g_unk0x0052738c, 0x11);
+            if (g_unk0x00831670 != 0)
+                Sprite_Queue((SpriteRect *)(g_unk0x00831670 + 0x11c), (SpriteRect *)destRect,
+                             (Texture *)g_unk0x00831670, 1, 0, 0, 0, (BYTE *)g_unk0x00527380, 8);
+        }
+        g_unk0x00831660[1] =
+            (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                        (BYTE *)((i == sel || i + 1 == sel)
+                                     ? (CGameInfo::FUN_005004c0() == 0 ? &colour
+                                                                       : &g_unk0x00527378)
+                                     : &g_unk0x00527380[2]),
+                        1);
+    }
+}
+
+// Boot/state subsystem entry point: dispatches on the frontend state and
+// updates the record tables of the option record being edited.
+// FUNCTION: CMR2 0x0050eba0
+void FUN_0050eba0(unsigned int param_1)
+{
+    FUN_0050c420(0);
+    switch (FUN_004ff550()) {
+    case 1:
+        FUN_0050a3f0();
+        FUN_0050a680();
+        FUN_0050a8a0(param_1, 0);
+        FUN_0050cc10((int)FUN_00502510(), 0);
+        FUN_0050a920(0);
+        FUN_00500550(CGameInfo::FUN_005011b0());
+        if (g_unk0x00529430 !=
+            FUN_004ff4b0(FUN_00502500()[0x1f +
+                                        Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])) {
+            FUN_00506930(CGameInfo::FUN_005011b0(),
+                         (short *)&g_unk0x005273c0[FUN_004ff4b0(
+                             FUN_00502500()[0x1f +
+                                            Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])],
+                         0);
+            FUN_005009c0(CGameInfo::FUN_005011b0(),
+                         &g_unk0x008313c8[FUN_004ff4b0(
+                             FUN_00502500()[0x1f +
+                                            Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14]) *
+                                          8],
+                         0);
+            g_unk0x00529430 = FUN_004ff4b0(FUN_00502500()[0x1f +
+                                                           Menu_FindItem((Menu *)FUN_00502500(),
+                                                                         1) *
+                                                               0x14]);
+            return;
+        }
+        break;
+    case 2:
+        FUN_0050a3f0();
+        FUN_0050a8e0(param_1);
+        FUN_0050a920(1);
+        FUN_00500550(CGameInfo::FUN_005011b0());
+        if (g_unk0x00529430 !=
+            FUN_004ff4d0(FUN_00502500()[0x1f +
+                                        Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])) {
+            FUN_00506930(CGameInfo::FUN_005011b0(),
+                         (short *)&g_unk0x005273c0[FUN_004ff4d0(
+                             FUN_00502500()[0x1f +
+                                            Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])],
+                         0);
+            FUN_005009c0(CGameInfo::FUN_005011b0(),
+                         &g_unk0x008313c8[FUN_004ff4d0(
+                             FUN_00502500()[0x1f +
+                                            Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14]) *
+                                          8],
+                         0);
+            g_unk0x00529430 = FUN_004ff4d0(FUN_00502500()[0x1f +
+                                                           Menu_FindItem((Menu *)FUN_00502500(),
+                                                                         2) *
+                                                               0x14]);
+            return;
+        }
+        break;
+    case 0:
+        FUN_0050bfd0(param_1);
+        return;
+    case 3:
+        FUN_0050e1c0();
+        return;
+    case 4:
+        FUN_0050e280(param_1);
+        return;
+    case 5:
+        FUN_0050e6a0();
+    }
+}
+
+
+// Panel colours used by the rally information screen (amber, blue, green and
+// grey, always opaque).
+// GLOBAL: CMR2 0x005273a8
+BYTE g_colour0x005273a8[8] = { 0xff, 0xff, 0xff, 0xff, 0xfc, 0xf0, 0xcc, 0xff };
+// GLOBAL: CMR2 0x005273b0
+BYTE g_colour0x005273b0[8] = { 0xe7, 0xeb, 0xc6, 0xff, 0xc9, 0xd6, 0xd8, 0xff };
+// Working rectangle shared by the rally information screen (0x831660..0x831667).
+// Stage duration in hundredths of a second, indexed by the stage type.
+// GLOBAL: CMR2 0x005293c0
+int g_unk0x005293c0[7] = { 2, 5, 8, 7, 4, 4, 5 };
+// GLOBAL: CMR2 0x0052960c
+char g_str0x0052960c[] = "Weather Forecast: %s";
+// GLOBAL: CMR2 0x00529624
+char g_str0x00529624[] = "Stage";
+// GLOBAL: CMR2 0x00524e20
+char g_str0x00524e20[] = "100";
+
+extern char g_stageNumberFormat[];
+extern char g_str0x00519fb0[];
+
+
+// stdcall callees that are not implemented yet (ret 8 / ret 0x18).
+void FUN_0050b1c0(short, short, short, short, short, int);
+void FUN_0050a880(int, int);
+
+// Draws the rally information panel of the results screen: the two shaded
+// bars, the stage name, the stage thumbnail and (second mode only) the time
+// bar, the target time and the stage row labels.
+// match 88%: register allocation / block placement only (676 vs 675 instrs, all relocations and magic-division blocks match); MSVC picks different registers across the menu byte loads and the option-row loop, and if-converts the two ternaries where the original branches.
+// FUNCTION: CMR2 0x0050a920
+void FUN_0050a920(int param_1)
+{
+    BYTE col[12] = { 0xae, 0xc9, 0x65, 0xff, 0x57, 0x94, 0xc4, 0xff,
+                     0xc1, 0x61, 0xa0, 0xff };
+    int t;
+    int base;
+    int w;
+    int x;
+    int y;
+    int i;
+    int *pCol;
+    Texture *tex;
+
+    g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0xff / 0x1e0);
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xc9 / 0x280);
+    g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x5d / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0, 3);
+    g_unk0x00831660[0] = g_unk0x00831660[0] + g_unk0x00831660[2];
+    g_unk0x00831660[3] = g_unk0x00831660[3] + g_unk0x00831660[1];
+    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12a / 0x1e0);
+    g_unk0x00831660[3] = g_unk0x00831660[3] - g_unk0x00831660[1];
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x7e / 0x280);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0 + 4, 3);
+    x = g_unk0x00831660[2] / 2 + g_unk0x00831660[0];
+    y = (int)g_pGraphics->resY * 0x124 / 0x1e0;
+    if (param_1 != 0)
+        w = 0x134;
+    else
+        w = 0x135;
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+            CFrontend::GetTextString(w));
+    x = x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
+    Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0x11);
+    if (param_1 != 0) {
+        tex = (Texture *)g_unk0x0083137c[FUN_004ff4d0(
+            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])];
+    } else {
+        tex = (Texture *)g_unk0x0083137c[FUN_004ff4b0(
+            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])];
+    }
+    if (tex != NULL) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x2c / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12d / 0x1e0);
+        g_unk0x00831660[2] = *(short *)((char *)tex + 0x120);
+        g_unk0x00831660[3] = *(short *)((char *)tex + 0x122);
+        g_unk0x00831660[1] = g_unk0x00831660[1] - *(short *)((char *)tex + 0x122) / 2;
+        Sprite_Queue((SpriteRect *)((char *)tex + 0x11c), (SpriteRect *)g_unk0x00831660,
+                     tex, 1, 0, NULL, NULL, g_colour0x005273a8, 8);
+    }
+    if (param_1 != 0) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x147 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
+        FUN_0050ee50(g_unk0x00831660, 1, 0x15, col);
+        sprintf(CFrontend::m_stringDest, g_str0x00519fb0);
+        Font_DrawText(0, CFrontend::m_stringDest, g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
+        sprintf(CFrontend::m_stringDest, g_str0x00524e20);
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      *(int *)&g_unk0x00831660[2] + *(int *)&g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
+        Font_DrawText(1, CFrontend::GetTextString(0xf9),
+                      g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x12);
+        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14];
+        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 1) << 16,
+                   0x640000);
+        if (t < 0)
+            t = 0;
+        else if (t > 0x10000)
+            t = 0x10000;
+        g_unk0x00831660[0] = (short)(((FixMul(t, 0x1350000) + 0x1c0000) >> 16) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 0) << 16,
+                   0x640000);
+        if (t < 0)
+            t = 0;
+        else if (t > 0x10000)
+            t = 0x10000;
+        g_unk0x00831660[0] = (short)(((FixMul(t, 0x1350000) + 0x1c0000) >> 16) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                            (BYTE *)&g_unk0x0052737c, 3);
+        w = FUN_004ff4d0(idx);
+        t = FUN_00503930(w);
+        base = 0xc + w * 4;
+    } else {
+        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+        t = g_unk0x005293c0[idx] * 6000;
+        base = 0xad + idx * 4;
+    }
+    sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
+    if (CGameInfo::FUN_005004c0() != 0)
+        pCol = &g_unk0x00527378;
+    else
+        pCol = &g_unk0x0052737c;
+    Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
+                  (int)g_pGraphics->resY * 0x150 / 0x1e0, pCol, 0x12);
+    x = (int)g_pGraphics->resX * 0x1c / 0x280;
+    for (i = 0; i < 4; i++) {
+        FUN_00501f80(5, 1, 1, CFrontend::GetTextString(base + i), x,
+                     (int)g_pGraphics->resY * (0x19a + i * 0xe) / 0x1e0,
+                     g_unk0x00527380, g_unk0x0052738c, 0x11);
+    }
+}
+
+// Draws the stage selection panel: the country name, its stage list (the
+// current stage highlighted) and the weather forecast, then selects the mode
+// of the active slot.
+// FUNCTION: CMR2 0x0050c130
+void FUN_0050c130(int param_1)
+{
+    int i;
+    int *pRec;
+
+    Font_DrawText(0, CFrontend::GetTextString(0x9c),
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 100 / 0x1e0, &g_unk0x0052737c, 0xc);
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+            CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x93));
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 0x78 / 0x1e0, &g_unk0x0052737c, 0xc);
+    sprintf(CFrontend::m_stringDest, g_str0x00529624);
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 0xa0 / 0x1e0, &g_unk0x0052737c, 0xc);
+    for (i = 0; i < CGameInfo::FUN_00501230(); i++) {
+        int *pCol;
+
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat,
+                (RallyDataStageIndex() & 0xff) + 1 + i);
+        if (i == FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14])
+            pCol = &g_unk0x0052737c;
+        else
+            pCol = g_unk0x00527380;
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      (int)g_pGraphics->resX * 0x25f / 0x280,
+                      (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
+                          (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
+                      pCol, 0xc);
+    }
+    pRec = FUN_00407520(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]);
+    sprintf(CFrontend::m_stringDest, g_str0x0052960c,
+            CFrontend::GetTextString(*pRec + 0x9d));
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 100 / 0x280,
+                  (int)g_pGraphics->resY * 400 / 0x1e0, g_unk0x00527380, 9);
+    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14], 1);
+}
+
+// Draws the bottom panel of the options screen: the animated strip of all the
+// slots and, when the panel texture is loaded, its background sprite with the
+// current slot texture; selects the mode of the active slot afterwards.
+// FUNCTION: CMR2 0x0050bfd0
+void FUN_0050bfd0(int param_1)
+{
+    SpriteRect local;
+
+    FUN_0050b1c0((short)CGameInfo::FUN_00501230(),
+                 FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+                 0, g_unk0x005293a0, 0x124, 0);
+    if (g_unk0x00831668 != 0) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * g_unk0x005293a0 / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x6f / 0x1e0);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
+        local = *(SpriteRect *)g_unk0x00831660;
+        local.x = 0;
+        local.y = 0;
+        FUN_00501de0(2, g_unk0x00831660);
+        Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
+                     1, 0, NULL, NULL, g_colour0x005273a8, 8);
+    }
+    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+                 0);
+}
