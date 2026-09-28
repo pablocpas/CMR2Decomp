@@ -8164,3 +8164,60 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
     }
     param_4[i] = 0;
 }
+
+// Update callback of the palette screen's scroll list: closes the list when
+// the selected entry is refused, otherwise opens the parent (or the next)
+// screen of the current mode.
+// match 87%: the switch layout, the constants, the call order and the branch
+// polarity follow the original; MSVC saves EBX/ESI/EDI at the entry here
+// instead of after the early `return`, and bumps the byte global in place
+// (`inc byte ptr [mem]`) where the original loaded it into BL, so the argument
+// offsets of the early path differ too.
+// FUNCTION: CMR2 0x004f0820
+void FUN_004f0820(Menu *pMenu, int param)
+{
+    Menu *pScreen;
+    unsigned int index;
+    BYTE result;
+
+    if (FUN_004d27d0()) {
+        FUN_004f26f0(pMenu, param);
+        return;
+    }
+    g_unk0x00819048++;
+    switch (CGameInfo::FUN_00405d80()) {
+    case 4:
+        pScreen = FUN_004f8430();
+        break;
+    case 5:
+        pScreen = FUN_004fa300();
+        break;
+    case 6:
+        pScreen = FUN_004fa310();
+        break;
+    case 7:
+        pScreen = FUN_004fa320();
+        break;
+    default:
+        pScreen = FUN_004f83f0();
+    }
+    index = pMenu->items[0].max;
+    if ((int)index < FUN_004eb440() && !FUN_004ebd60(index)) {
+        result = (BYTE)FUN_004eb4c0((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), index);
+        FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
+        if (result != 0) {
+            if (CGameInfo::FUN_00405e00() != 0) {
+                Menu_SetNextAction((int)FUN_004f8440());
+                g_unk0x00819048--;
+                return;
+            }
+            Menu_SetParent(pScreen, FUN_004f83a0());
+            Menu_SetNextAction((int)pScreen);
+            g_unk0x00819048--;
+            return;
+        }
+    } else {
+        Menu_PlaySoundId(3);
+    }
+    g_unk0x00819048--;
+}
