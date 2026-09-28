@@ -118,6 +118,95 @@ void Car_AllocateTable(int count)
     CGame::RegisterCallback(Car_FreeTable, NULL);
 }
 
+int FUN_0040b010(int index);
+BYTE *FUN_0041f350(int index);
+unsigned int FUN_00409cb0(int index);
+void FUN_00428a00(Car *pCar);
+extern short g_unk0x0053a314[8];
+extern short g_unk0x0053bd6c[26];
+extern short g_unk0x0053c9a0;
+
+// GLOBAL: CMR2 0x0053a270
+short g_unk0x0053a270[80];
+// GLOBAL: CMR2 0x0053a310
+short g_unk0x0053a310;
+// GLOBAL: CMR2 0x0053b4f0
+short g_unk0x0053b4f0[8];
+
+// Builds the race car order of the current view: the active players first (and
+// whoever reports itself), then splits them into the on-screen, shadowed and
+// drawn lists and re-applies the view transform of the on-screen ones.
+// FUNCTION: CMR2 0x00428810
+void FUN_00428810(void)
+{
+    short *p;
+    int i;
+    int j;
+    int flag;
+    int pCar;
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 0xb || CGameInfo::FUN_00405d80() == 0xc) {
+        g_carOrder[0] = 0;
+        g_carOrderCount = 1;
+        for (i = 0; i < 7; i++) {
+            flag = 0;
+            pCar = (int)FUN_0041f350(i + 1);
+            if (pCar != 0 && *(int *)(pCar + 4) != 0 && *(int *)(pCar + 0xe8) != 0)
+                flag = 1;
+            if (FUN_00409cb0(i) != 0 || flag) {
+                g_carOrder[g_carOrderCount] = FUN_0040b010(i);
+                g_carOrderCount++;
+            }
+        }
+    }
+    g_carOrder[26] = 0;
+    g_unk0x0053a310 = 0;
+    g_unk0x0053c9a0 = 0;
+    g_carOrder[25] = 0;
+    g_carOrder[44] = 0;
+    j = 0;
+    if (g_carOrderCount > 0) {
+        p = g_carOrder;
+        do {
+            pCar = (int)((BYTE *)g_carBuffer + *p * 0xc24);
+            *(int *)(pCar + 0xb70) = 0;
+            *(int *)(pCar + 0xb6c) = 0;
+            *(int *)(pCar + 0xb68) = 0;
+            if (*(int *)(pCar + 0xc18) == 0) {
+                if (*(BYTE *)(pCar + 0xb43) != 0) {
+                    g_unk0x0053b4f0[g_unk0x0053a310] = *p;
+                    g_unk0x0053a310++;
+                    g_unk0x0053a314[g_unk0x0053c9a0] = *p;
+                    g_unk0x0053c9a0++;
+                    *(int *)(pCar + 0xb64) = 0;
+                    goto nextCar;
+                }
+            } else {
+nextCar:
+                if (*(BYTE *)(pCar + 0xb43) != 0) {
+                    g_unk0x0053a270[g_carOrder[44]] = *p;
+                    g_carOrder[44]++;
+                }
+            }
+            if (*(int *)(pCar + 0xc18) != 0 && *(BYTE *)(pCar + 0xb43) != 0) {
+                g_unk0x0053bd6c[g_carOrder[25]] = *p;
+                g_carOrder[25]++;
+            }
+            j++;
+            p++;
+        } while (j < g_carOrderCount);
+    }
+    i = 0;
+    if (g_unk0x0053a310 > 0) {
+        p = g_unk0x0053b4f0;
+        do {
+            FUN_00428a00((Car *)((BYTE *)g_carBuffer + *p * 0xc24));
+            i++;
+            p++;
+        } while (i < g_unk0x0053a310);
+    }
+}
+
 unsigned int RallyData_FUN_00407e70(void);
 BYTE *FUN_0041b390(void);
 
