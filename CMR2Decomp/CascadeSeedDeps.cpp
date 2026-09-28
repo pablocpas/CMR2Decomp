@@ -78,3 +78,27 @@ void FUN_004f8b30(void) { }
 
 
 struct FixMatrix;
+
+// TEMPORARY (W171 GameInfo batch): these are real batch functions that other
+// agents are implementing in parallel. The stubs only exist so the batch links
+// and can be measured before the real bodies land; DELETE each one when its
+// implementation appears in GameInfo.cpp.
+void FUN_0050b1c0(short, int, short, short, short, int);
+// STUB: CMR2 0x0050b1c0
+void FUN_0050b1c0(short p1, int p2, short p3, short p4, short p5, int p6) { }
+
+// STUB: CMR2 0x0050c420
+void FUN_0050c420(int) { }
+
+// STUB: CMR2 0x0050c130
+void FUN_0050c130(int) { }
+
+// STUB: CMR2 0x0050cc10
+void FUN_0050cc10(int, int) { }
+
+// STUB: CMR2 0x0050a920
+void FUN_0050a920(int) { }
+
+// Real dependency of 0x0050a880 (not part of the batch, keep).
+// STUB: CMR2 0x005043b0
+void FUN_005043b0(void) { }
