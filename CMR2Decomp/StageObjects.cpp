@@ -26,6 +26,7 @@
 #include "Font.h"
 #include "Sprite.h"
 #include "Collision2D.h"
+#include "Menu.h"
 
 struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
@@ -1242,7 +1243,7 @@ void FUN_004285b0(unsigned int player, int t, int check);
 void FUN_00473470(void);
 BYTE FUN_004bc0c0(BYTE *p);
 int Timer_GetValue(BYTE index);
-void FUN_004bc290(void *p, int, int, int, int, int, int);
+void FUN_004bc290(BYTE *p, int, int, int, int, int, BYTE);
 void FUN_004bc440(void);
 void FUN_004bc470(BYTE *p);
 unsigned int *RallyData_GetRoundEntry(void);
@@ -1585,6 +1586,21 @@ char *FUN_004752f0(int *p, int index, int mode)
                 time2 % 100);
     }
     return CFrontend::m_stringDest;
+}
+
+// Builds the in-race menu of two items (returned by FUN_00475f70); both
+// actions are forwarded to CGame (0x49c070 / 0x49c080).
+void FUN_0049c070(Menu *pMenu, int param);
+void FUN_0049c080(Menu *pMenu, int param);
+void FUN_0049bcb0(Menu *pMenu);
+// FUNCTION: CMR2 0x00475f00
+void FUN_00475f00(void)
+{
+    Menu_Init((Menu *)g_unk0x0058cf80, 0, -1, 0, NULL, NULL, 1, 0, 1);
+    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf4, (int)FUN_0049c070, -1);
+    Menu_AddItemType4((Menu *)g_unk0x0058cf80, 0, 0xf5, (int)FUN_0049c080, -1);
+    Menu_SetCallbacks((Menu *)g_unk0x0058cf80, NULL, NULL, (MenuCallback)FUN_0049bcb0, NULL);
+    Menu_ValidateCursor((Menu *)g_unk0x0058cf80, 0);
 }
 
 // FUNCTION: CMR2 0x00475f70

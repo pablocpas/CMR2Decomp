@@ -1,7 +1,9 @@
 #include <windows.h>
+#include <stdlib.h>
 #include "Sector.h"
 #include "SceneNode.h"
 #include "Graphics.h"
+#include "Game.h"
 
 int g_sectorsPerRow;
 Sector *g_sectors[14096];
@@ -15,6 +17,8 @@ int g_sectorCullEnabled;
 int g_sectorCullDisabled;
 int g_sectorOriginX;
 int g_sectorOriginZ;
+int g_unk0x006ed5e8;
+int g_unk0x006ed5ec;
 
 // FUNCTION: CMR2 0x004b9360
 void Sector_GetGridDimensions(int *columns, int *rows)
@@ -689,6 +693,86 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
             }
         }
     }
+}
+
+void Sector_RebuildNodeLists(void);
+void Sector_ComputeBounds(void);
+extern int g_unk0x0067f228;
+extern int g_finCount;
+extern BYTE *g_finData;
+
+// Rebuilds the whole sector grid of the stage that was just loaded: the cell
+// size, the scale used to convert world coordinates to grid coordinates, the
+// grid origin and row count, the stage object list of every sector and the
+// sector indices of the fin.dat records.
+// match 56%: same logic and call order; MSVC6 keeps g_sectors[0] and the two
+// loop counters in different registers than the original, so most of the diff
+// is register renaming
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004b8270
+void FUN_004b8270(void)
+{
+    int i;
+    int n;
+    int minX;
+    int maxZ;
+    Sector **ppSector;
+
+    CGraphics::m_unk0x0072d56c = 1;
+    g_sectorSize = abs(g_sectors[1]->x - g_sectors[0]->x);
+    g_sectorHalfSize = FixMul(g_sectorSize, 0x8000);
+    g_sectorScale = FixDiv(0x10000, g_sectorSize);
+    minX = g_sectors[0]->x;
+    maxZ = g_sectors[0]->z;
+    g_sectorOriginX = minX;
+    g_sectorOriginZ = maxZ;
+    if (g_sectorCount > 1) {
+        n = g_sectorCount - 1;
+        ppSector = &g_sectors[1];
+        do {
+            if (minX > (*ppSector)->x) {
+                minX = (*ppSector)->x;
+                g_sectorOriginX = minX;
+            }
+            if (maxZ < (*ppSector)->z) {
+                maxZ = (*ppSector)->z;
+                g_sectorOriginZ = maxZ;
+            }
+            ppSector++;
+        } while (--n != 0);
+    }
+    g_unk0x006ed5e8 = minX - g_sectorHalfSize;
+    g_unk0x006ed5ec = g_sectorHalfSize + maxZ;
+    g_sectorsPerRow = 1;
+    if (g_sectors[0]->z == g_sectors[1]->z) {
+        i = 1;
+        while (i < g_sectorCount - 1) {
+            g_sectorsPerRow = i + 1;
+            if (g_sectors[i]->z != g_sectors[i + 1]->z)
+                break;
+            i++;
+        }
+    }
+    g_sectorRows = (unsigned int)g_sectorCount / (unsigned int)g_sectorsPerRow;
+    for (i = 0; i < (unsigned int)g_unk0x0067f228; i++) {
+        StageObject *pObject = g_stageObjects[i];
+        short index = (short)Sector_FromPosition((FixVector *)pObject);
+        pObject->pNext = g_sectors[index]->pObjects;
+        g_sectors[index]->pObjects = pObject;
+        g_sectors[index]->field_0x18++;
+    }
+    Sector_RebuildNodeLists();
+    if (g_finData != NULL && g_finCount != 0) {
+        for (i = 0; i < (unsigned int)g_finCount; i++) {
+            Sector *pSector = g_sectors[*(int *)(g_finData + i * 0x30 + 0x28)];
+            *(int *)(g_finData + i * 0x30 + 0x28) = (int)pSector->pFinRecords;
+            pSector->pFinRecords = g_finData + i * 0x30;
+            pSector->finCount++;
+        }
+    }
+    Sector_BuildCorners();
+    Sector_ComputeBounds();
+    CGame::RegisterCallback(FUN_004b8540, NULL);
 }
 
 // Rebuilds the node list of every sector from the positions of the root's children.

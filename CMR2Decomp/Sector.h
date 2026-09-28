@@ -16,7 +16,8 @@ struct Sector {
     int field_0x18;
     SceneNode *pFirstNode;      // 0x1c
     int nodeCount;              // 0x20
-    BYTE field_0x24[8];
+    int finCount;               // 0x24 number of fin.dat records of the sector
+    BYTE *pFinRecords;          // 0x28 head of the sector's fin record list
     FixVector corners[4];       // 0x2c per side: offset of the nearest ground vertex, then corner point
     int bounds[4][2];           // 0x5c x/z of the ground mesh bounding rectangle corners
 };
@@ -63,6 +64,10 @@ extern int g_sectorCount;
 extern int g_sectorCullEnabled;
 // GLOBAL: CMR2 0x0072d578
 extern int g_sectorCullDisabled;
+// GLOBAL: CMR2 0x006ed5e8
+extern int g_unk0x006ed5e8;
+// GLOBAL: CMR2 0x006ed5ec
+extern int g_unk0x006ed5ec;
 // GLOBAL: CMR2 0x006ef5f0
 extern int g_sectorOriginX;
 // GLOBAL: CMR2 0x006ef5f4

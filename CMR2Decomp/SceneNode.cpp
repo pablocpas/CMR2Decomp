@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "SceneNode.h"
@@ -1570,6 +1571,74 @@ FixVector g_sceneShadowDir;
 void *g_sceneZoneList[99];
 // GLOBAL: CMR2 0x006e01c0
 int g_sceneZoneCount;
+
+int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int corner);
+DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel);
+
+// Applies the ground light to every mesh node of the tree hanging from pNode:
+// the light direction is the node's matrix (local when param_2 is -0x10000,
+// world otherwise) applied to the scene shadow direction, normalised, and each
+// triangle corner takes the light of its direction, clamped to the light level
+// of the node.
+// match 75%: same logic; the diff is register allocation (the original keeps
+// the light level and the vector pointers in different registers) and the
+// abs() of the level difference, which MSVC compiles with a branch here
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x004b50b0
+int FUN_004b50b0(SceneNode *pNode, int param_2)
+{
+    SceneNode *p;
+    Mesh *pMesh;
+    MeshTriangle *pTri;
+    FixMatrix *pMatrix;
+    FixVector dir;
+    FixVector pos;
+    int level;
+    int diff;
+    int i;
+    int j;
+
+    p = pNode;
+    if (p != NULL) {
+    do {
+        if (p->type == SCENE_NODE_MESH && p->visible != 0 && (pMesh = (Mesh *)p->pObject) != NULL &&
+            (pMesh->flags & 0x800) != 0) {
+            if (param_2 == -0x10000) {
+                pMatrix = &p->current;
+                FixMatrix_InverseRotateVector(&dir, &g_sceneShadowDir, pMatrix);
+            } else {
+                pMatrix = &p->world;
+                FixMatrix_InverseRotateVector(&dir, &g_sceneShadowDir, pMatrix);
+            }
+            FixMatrix_GetPosition(&pos, pMatrix);
+            i = FixVecLength(&dir);
+            if (i == 0) {
+                dir.x = 0;
+                dir.y = 0;
+                dir.z = 0;
+            } else {
+                FixVecScale(&dir, &dir, FixDiv(0x10000, i));
+            }
+            Scene_GetGroundLight(&pos, &level);
+            if (param_2 != -0x10000) {
+                diff = level - param_2;
+                if (abs(diff) > 0xccc)
+                    level = FixMul(0x8000, diff) + param_2;
+            }
+            for (j = 0; j < pMesh->triangleCount; j++) {
+                pTri = (MeshTriangle *)((BYTE *)pMesh->pTriangles + j * 0x4c);
+                for (i = 0; i < 3; i++) {
+                    pMesh->pLightLevels[pTri->vertexIndex[i]] = Mesh_GetCornerLight(pMesh, pTri, &dir, i);
+                    if (level < pMesh->pLightLevels[pTri->vertexIndex[i]])
+                        pMesh->pLightLevels[pTri->vertexIndex[i]] = level;
+                }
+            }
+        }
+        p = p->pFirstChild;
+    } while (p != NULL);
+    }
+    return level;
+}
 
 // FUNCTION: CMR2 0x004b5340
 void Scene_SetShadowDirection(FixVector *pLightDir)

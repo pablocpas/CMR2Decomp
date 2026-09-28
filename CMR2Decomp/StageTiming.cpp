@@ -2364,6 +2364,86 @@ void FUN_00459790(int param_1, int param_2)
 // STUB: CMR2 0x00459630
 void FUN_00459630(int *param1, int *param2, int *param3) { }
 
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+void Scene_FreeShadowCasters(void);
+void FUN_004866a0(void);
+extern SceneNode *g_unk0x00547fec;
+extern SceneNode *g_unk0x00547ff0;
+
+// Releases every stage timing resource: the scene nodes hanging from the
+// per-car timing records, the four scene node tables and the eight file
+// buffers of the fin table.
+// FUNCTION: CMR2 0x00457ed0
+int FUN_00457ed0(void)
+{
+    int i;
+    BYTE *pRecord;
+    int *pNodeList;
+    void **pBuffer;
+
+    FUN_004866a0();
+    pNodeList = (int *)(g_unk0x00542630 + 0x294);
+    pRecord = g_unk0x00542630;
+    do {
+        if (*(SceneNode **)(pRecord + 8) != NULL) {
+            if (*(int *)(pRecord + 0x10) != 0)
+                SceneNode_FindByType(*(SceneNode **)(pRecord + 8), 1)->pObject = *(void **)(pRecord + 0x10);
+            if (*(int *)(pRecord + 0x14) != 0)
+                SceneNode_FindByType(*(SceneNode **)(pRecord + 8), 2)->pObject = *(void **)(pRecord + 0x14);
+            if (*(int *)(pRecord + 0x18) != 0)
+                SceneNode_FindByType(*(SceneNode **)(pRecord + 8), 3)->pObject = *(void **)(pRecord + 0x18);
+            if (*(int *)(pRecord + 0x1c) != 0)
+                SceneNode_FindByType(*(SceneNode **)(pRecord + 8), 4)->pObject = *(void **)(pRecord + 0x1c);
+            SceneNode_Destroy(*(SceneNode **)(pRecord + 8));
+        }
+        if (*(SceneNode **)(pRecord + 0xc) != NULL)
+            SceneNode_Destroy(*(SceneNode **)(pRecord + 0xc));
+        if (*(SceneNode **)pNodeList != NULL)
+            SceneNode_Destroy(*(SceneNode **)pNodeList);
+        if (*(SceneNode **)(pRecord + 4) != NULL)
+            SceneNode_Destroy(*(SceneNode **)(pRecord + 4));
+        if (g_unk0x00547fec != NULL) {
+            SceneNode_Destroy(g_unk0x00547fec);
+            g_unk0x00547fec = NULL;
+        }
+        if (g_unk0x00547ff0 != NULL) {
+            SceneNode_Destroy(g_unk0x00547ff0);
+            g_unk0x00547ff0 = NULL;
+        }
+        pNodeList++;
+        pRecord += 0x24;
+    } while ((int)pNodeList < (int)(g_unk0x00542630 + 0x2d4));
+    for (i = 0; i < 0x40; i += 4) {
+        if (*(void **)(g_unk0x00542630 + 0x354 + i) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x00542630 + 0x354 + i));
+            *(void **)(g_unk0x00542630 + 0x354 + i) = NULL;
+        }
+        if (*(void **)(g_unk0x00542630 + 0x2d4 + i) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x00542630 + 0x2d4 + i));
+            *(void **)(g_unk0x00542630 + 0x2d4 + i) = NULL;
+        }
+        if (*(void **)(g_unk0x00542630 + 0x314 + i) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x00542630 + 0x314 + i));
+            *(void **)(g_unk0x00542630 + 0x314 + i) = NULL;
+        }
+        if (*(void **)(g_unk0x00542630 + 0x254 + i) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x00542630 + 0x254 + i));
+            *(void **)(g_unk0x00542630 + 0x254 + i) = NULL;
+        }
+    }
+    pBuffer = (void **)(g_unk0x00542630 + 0x398);
+    do {
+        if (*pBuffer != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*pBuffer);
+            *pBuffer = NULL;
+        }
+        pBuffer++;
+    } while ((int)pBuffer < (int)(g_unk0x00542630 + 0x3b8));
+    CGraphics::FUN_004a5ba0();
+    Scene_FreeShadowCasters();
+    return 1;
+}
+
 // Registered callback with nothing to release.
 // FUNCTION: CMR2 0x00458040
 int FUN_00458040(void)
