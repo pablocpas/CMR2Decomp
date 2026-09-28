@@ -3097,7 +3097,8 @@ BYTE g_unk0x0082d14c;
 
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The 1/127 scale runs through FixVecScaleRecip, so the divisor is read as a
+// named global on the original side (reccmp renders it as an array field).
 // FUNCTION: CMR2 0x00507710
 void FUN_00507710(BYTE *pColour)
 {
@@ -3108,13 +3109,13 @@ void FUN_00507710(BYTE *pColour)
     g_unk0x0082d12c.x = (int)(signed char)pColour[3] << 16;
     g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
     g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
-    // The original expands the 1/127 scale as a 64-bit division (its compiler
-    // keeps the constant divisor in a register, like at 0x4689c8).
-    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(0x100000000i64 / 0x7f0000));
+    // The original scales by the reciprocal instead of FixDiv, which is why
+    // the 1/127 constant is divided at run time (see FixVecScaleRecip).
+    FixVecScaleRecip(&g_unk0x0082d12c, &g_unk0x0082d12c, 0x7f0000);
     g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
     g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
     g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
-    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(0x100000000i64 / 0x7f0000));
+    FixVecScaleRecip(&g_unk0x0082d138, &g_unk0x0082d138, 0x7f0000);
     g_unk0x0082d148 = (int)pColour[0] << 16;
     g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
     g_unk0x0082d14c = pColour[1];
@@ -9084,6 +9085,157 @@ void FUN_005057e0(void)
 }
 
 
-// Steps of the shadow vertex scramble (16.16 -> float): 10.0.
-// GLOBAL: CMR2 0x00511360
-extern const float g_unk0x00511360 = 10.0f;
+// Advances the option-menu interpolation entry selected by g_unk0x0082ca1c.
+// Its `current` follows a square-root curve towards `end`, then the four corner
+// shorts at +0xc are interpolated between the entry's own corners, zero and
+// g_unk0x0082c9ec, and the entry's 16.16 fade fraction ends up in
+// g_unk0x0082cb44.
+// match 79%: implementada; el original prueba el flag con `cmp [esi+0x4c],edi`
+// y reutiliza EDI=0, y guarda los temporales de las divisiones en pila.
+// FUNCTION: CMR2 0x00505b40
+void FUN_00505b40(void)
+{
+    FixInterp *p;
+    int value;
+    int t;
+
+    if (g_unk0x0082ca1c == 0xff)
+        return;
+    p = (FixInterp *)&g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+    if (p->active != 0) {
+        t = (CMain::GetFrameDelta() - p->startTime) << 16;
+        value = FixSqrt(FixDiv(t, p->distance));
+        if (value >= 0x10000) {
+            p->active = 0;
+            p->current = p->end;
+            *(int *)((BYTE *)p + 0x40) = CMain::GetFrameDelta();
+        } else {
+            p->current = FixMul(p->end - p->start, value) + p->start;
+        }
+    }
+    if (p->current == 0) {
+        *(int *)((BYTE *)p + 0xc) = *(int *)((BYTE *)p + 0x4);
+        *(int *)((BYTE *)p + 0x10) = *(int *)((BYTE *)p + 0x8);
+    } else if (p->current == 0x10000) {
+        *(int *)((BYTE *)p + 0xc) = *(int *)&g_unk0x0082c9ec[0];
+        *(int *)((BYTE *)p + 0x10) = *(int *)&g_unk0x0082c9ec[2];
+        if (p->active == 0) {
+            if (*(int *)((BYTE *)p + 0x24) != 0x10000) {
+                *(int *)((BYTE *)p + 0x24) =
+                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x40)) << 16, 0x320000);
+                if (*(int *)((BYTE *)p + 0x24) >= 0x10000) {
+                    *(int *)((BYTE *)p + 0x24) = 0x10000;
+                    *(int *)((BYTE *)p + 0x44) = CMain::GetFrameDelta();
+                }
+                if (*(int *)((BYTE *)p + 0x24) != 0x10000)
+                    goto done;
+            }
+            if (*(int *)((BYTE *)p + 0x28) != 0x10000) {
+                *(int *)((BYTE *)p + 0x28) =
+                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x44)) << 16, 0x640000);
+                if (*(int *)((BYTE *)p + 0x28) >= 0x10000)
+                    *(int *)((BYTE *)p + 0x28) = 0x10000;
+            }
+        }
+    } else {
+        *(short *)((BYTE *)p + 0xc) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[0] - *(short *)((BYTE *)p + 0x4)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x4));
+        *(short *)((BYTE *)p + 0xe) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[1] - *(short *)((BYTE *)p + 0x6)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x6));
+        *(short *)((BYTE *)p + 0x10) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[2] - *(short *)((BYTE *)p + 0x8)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x8));
+        *(short *)((BYTE *)p + 0x12) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[3] - *(short *)((BYTE *)p + 0xa)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0xa));
+        *(int *)((BYTE *)p + 0x24) = 0;
+        *(int *)((BYTE *)p + 0x28) = 0;
+    }
+done:
+    value = FixDiv((CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000);
+    g_unk0x0082cb44 = value - (value & 0xffff);
+}
+
+// White colour of the option menu's control line.
+// GLOBAL: CMR2 0x00526ffc
+BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
+
+extern short g_controlsLine[4];
+
+// Draws the option menu's control line from the four layout records of the
+// group selected by param_1: each record becomes a 1-pixel bar, the widest
+// span gets a highlight bar in g_unk0x0082ace8 and the shared line is centred
+// on that span.
+// match 77%: implementada; el original separa las subexpresiones con temporales
+// de pila y prueba `i & 1` con el idioma AND/OR de MSVC (nosotros con el
+// ternario), y recalcula resY*0xf5/0x1e0 en cada uso en vez de reutilizarlo.
+// FUNCTION: CMR2 0x00500550
+void FUN_00500550(int param_1)
+{
+    SpriteRect rect;
+    int minX;
+    int maxX;
+    int centre;
+    int i;
+    int layer;
+    int bar;
+
+    g_controlsLine[2] = 1;
+    g_unk0x0082ace8.pad[3] = 1;
+    if (g_unk0x00831674 != 0) {
+        rect.w = *(short *)((BYTE *)g_unk0x00831674 + 0x120);
+        rect.h = *(short *)((BYTE *)g_unk0x00831674 + 0x122);
+    }
+    for (i = 0; i < 4; i++) {
+        g_controlsLine[0] = (short)(g_unk0x0082ac68[i + param_1 * 4][0] >> 16);
+        g_controlsLine[1] = (short)(g_unk0x0082ac68[i + param_1 * 4][1] >> 16);
+        g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0) - g_controlsLine[1];
+        layer = (i & 1) ? 1 : 4;
+        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, layer);
+        if (i == 0) {
+            minX = g_controlsLine[0];
+            maxX = minX;
+        } else if (g_controlsLine[0] < minX) {
+            minX = g_controlsLine[0];
+        } else if (g_controlsLine[0] > maxX) {
+            maxX = g_controlsLine[0];
+        }
+        if (g_unk0x00831674 != 0) {
+            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
+                !CFrontend::FUN_004b7590(0x400)) {
+                rect.x = g_controlsLine[0] - 3;
+                rect.y = g_controlsLine[1] - 3;
+            } else {
+                rect.x = g_controlsLine[0] - 6;
+                rect.y = g_controlsLine[1] - 6;
+            }
+            Sprite_Queue((SpriteRect *)((BYTE *)g_unk0x00831674 + 0x11c), &rect,
+                         (Texture *)g_unk0x00831674, layer, 0, 0, NULL, g_unk0x00526ffc, 8);
+        }
+    }
+    if (maxX != minX) {
+        g_unk0x0082ace8.pad[0] = (short)minX;
+        g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
+        g_unk0x0082ace8.pad[2] = (short)(maxX - minX + 1);
+        Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
+    }
+    centre = (maxX - minX) / 2 + minX;
+    g_controlsLine[0] = (short)centre;
+    g_controlsLine[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
+    if (centre > (int)g_pGraphics->resX * 0xe4 / 0x280) {
+        bar = (int)g_pGraphics->resY * 0xff / 0x1e0;
+        g_controlsLine[3] = (short)(bar - (int)g_pGraphics->resY * 0xf5 / 0x1e0);
+        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
+        return;
+    }
+    g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0 -
+                                (int)g_pGraphics->resY * 0xf5 / 0x1e0);
+    Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
+    bar = (int)g_pGraphics->resX * 0xe5 / 0x280;
+    g_unk0x0082ace8.pad[0] = (short)bar;
+    g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0);
+    g_unk0x0082ace8.pad[2] = (short)(centre - bar + 1);
+    Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
+}
