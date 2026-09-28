@@ -9303,3 +9303,138 @@ void FUN_00403890(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
+
+// Draws the rows of the car-setup menu (FUN_00404000): each row paints the
+// item's own label and then, for every value placed in the item's min/max
+// bytes, the matching sub-string; the entry equal to max is highlighted and the
+// selected row is drawn brighter with the highlighted row sprite.
+// match 24%: implementada, MSVC6 usa EBX/EDI y un reparto de pila distinto donde el original usa EBP como cero y locales en esp+0x18..0x22
+// FUNCTION: CMR2 0x004041e0
+void FUN_004041e0(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    int i;
+    int j;
+    int k;
+    int x;
+    int y;
+    int width;
+    int index;
+    int *pColour;
+    int *pSubColour;
+    int texture;
+
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 4);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[1] = 0;
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    i = 0;
+    if (pMenu->itemCount > 0) {
+        pItem = pMenu->items;
+        do {
+            pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+            y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+            switch (pItem->value) {
+            case 0:
+            case 1:
+            case 3:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min != 0) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
+                        j++;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 2:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min == 2) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
+                        j++;
+                    } while (j < pItem->min);
+                } else if (pItem->min != 0) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        index = j == 0 ? 0x9c : j + 0xef;
+                        Font_DrawText(1, CFrontend::GetTextString(index), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(index));
+                        j++;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 4:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min != 0) {
+                    k = 0xa4;
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        index = RallyData_FUN_00411880() != 0 ? j + 0x9c : k;
+                        Font_DrawText(1, CFrontend::GetTextString(index), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(index));
+                        j++;
+                        k--;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 5:
+                pSubColour = pItem->max != 0 ? &g_unk0x0051607c : pColour;
+                Font_DrawText(1, CFrontend::GetTextString(0x62),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pSubColour, 0x11);
+                break;
+            default:
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                break;
+            }
+            rect[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                              + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
+                              - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (pMenu->cursor == i) {
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
+            } else {
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
+            }
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect,
+                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
+    }
+    Font_SetBlendMode(2);
+}

@@ -5710,3 +5710,69 @@ void FUN_0042e450(void)
 
 #undef CARF
 }
+
+int FUN_00447ea0(BYTE index);
+void FixMatrix_RebuildBasis(FixMatrix *pOut);
+
+// Places one car's view-camera basis for the given view slot: copies the car
+// rotation, applies the suspension up-offset when the option is on and, for
+// non-zero view records, rotates the basis by the tilt angle before blending.
+// match 26%: implementada, MSVC6 no reproduce el reparto de registros (el original usa EBP/EBX/ESI de otra forma) ni el tamano de pila (0xf0 vs 0xdc)
+// FUNCTION: CMR2 0x00423b20
+void FUN_00423b20(unsigned int param_1)
+{
+    BYTE index = param_1 & 0xff;
+    FixMatrix *pView = (FixMatrix *)((BYTE *)g_unk0x00538ca0 + index * 0x40);
+
+    FixMatrix_CopyRotationFrom(pView, Car_Get(index)->pWorld);
+    if (CGameInfo::FUN_004063f0(6) != 0) {
+        FixVector up;
+        FixVector pos;
+        int scale;
+
+        FixMatrix_GetUp(&up, Car_Get(index)->pWorld);
+        scale = FixMul(Car_Get(index)->field_0xa8c, 0x8000);
+        up.x = FixMul(up.x, scale);
+        up.y = FixMul(up.y, scale);
+        up.z = FixMul(up.z, scale);
+        FixMatrix_GetPosition(&pos, Car_Get(index)->pWorld);
+        pos.x += up.x;
+        pos.y += up.y;
+        pos.z += up.z;
+        FixMatrix_SetPosition(&pos, pView);
+    }
+    if (g_unk0x00538f00[index] != 0) {
+        FixMatrix basis;
+        FixMatrix rot;
+        FixMatrix src;
+        short angle;
+        int blend;
+
+        angle = (short)(__int64)((double)FixMul(
+                    g_sinTable[g_unk0x00538df8[index] & 0xfff],
+                    FixDiv(FUN_00447ea0(index) - 0x80000, 0x100000) * 0x5a + 0x140000) *
+                    g_unk0x00511300);
+        FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
+        basis = *pView;
+        FixMatrix_RebuildBasis(&basis);
+        rot.right.x = g_sinTable[(angle + 0x400) & 0xfff];
+        rot.right.y = 0;
+        rot.right.z = -g_sinTable[angle & 0xfff];
+        rot.rw = 0;
+        rot.up.x = 0;
+        rot.up.y = 0x10000;
+        rot.up.z = 0;
+        rot.uw = 0;
+        rot.forward.x = g_sinTable[angle & 0xfff];
+        rot.forward.y = 0;
+        rot.forward.z = g_sinTable[(angle + 0x400) & 0xfff];
+        rot.fw = 0;
+        rot.position.x = 0;
+        rot.position.y = 0;
+        rot.position.z = 0;
+        rot.pw = 0x10000;
+        FixMatrix_Multiply(&basis, &rot, &basis);
+        blend = g_unk0x00538c98[index];
+        FixMatrix_Interpolate(pView, &src, &basis, blend, blend, blend, 0);
+    }
+}

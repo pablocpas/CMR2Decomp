@@ -6631,3 +6631,135 @@ void FUN_00505590(void)
     Sprite_Queue((SpriteRect *)rect, (SpriteRect *)src, (Texture *)g_unk0x0082c9e8, 3, 0, 0, 0,
                  (BYTE *)&g_unk0x005270e4, 8);
 }
+
+// Marker colour of the split bar, plus the alpha byte of the neighbouring entry
+// of the HUD colour table that is copied into the bar colour.
+// GLOBAL: CMR2 0x005170a7
+BYTE g_unk0x005170a7 = 0x96;
+// GLOBAL: CMR2 0x005170a8
+unsigned int g_unk0x005170a8 = 0x28ddbdbc;
+// GLOBAL: CMR2 0x005170aa
+BYTE g_unk0x005170aa = 0xdd;
+
+// Lays out both players' stage-classification split bars: the bar spans from the
+// start position (mode/graphics dependent) up to the end position, and every
+// split's segment gets its x (interpolated by that split's reference time), its
+// y (centred on the screen), its height and its colour stored in the marker
+// table and in g_unk0x00536d14; a second pass gives every segment the width up
+// to the next split's x.
+// match 53%: implementada, MSVC6 usa pila 0x30 vs 0x2c y ordena algunos temporales distinto; la estructura es identica
+// FUNCTION: CMR2 0x00411b20
+void FUN_00411b20(void)
+{
+    int total;
+    int barStart;
+    int barEnd;
+    int span;
+    int car;
+    int split;
+    int xOff;
+    int yOff;
+    int yPos;
+    int uTime;
+    int other;
+    unsigned int markerColour;
+    unsigned int barColour;
+    int *pTime;
+    int *pRef;
+    int *pColour;
+    short *pGeo;
+    SplitMarker *pSpan;
+
+    total = FUN_00411550();
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 0xb) {
+        barStart = (int)g_pGraphics->resX * 0xc00 >> 16;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
+    } else if (RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0() == 0) {
+        barStart = ((int)g_pGraphics->resX * 0xc934 >> 16) - 10;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
+    } else {
+        barStart = (int)g_pGraphics->resX * 0xab9b >> 16;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
+    }
+    span = (barEnd - barStart) << 16;
+    if (total == 0)
+        total = 1;
+    if (g_unk0x00536c90 != 0) {
+        car = 0;
+        do {
+            split = 0;
+            pRef = &g_unk0x00536e90[1];
+            pColour = &g_unk0x00536d14[car * 0x28 + 1];
+            pTime = &g_unk0x00536ff0[1];
+            // One marker is {short x, y, w, h}; the original walks it through a
+            // short* anchored on y, so x sits at -1 and the height h at +2.
+            pGeo = (short *)&g_unk0x00536cb8[car * 0x14] + 1;
+            do {
+                xOff = 0;
+                yOff = 0;
+                uTime = *pTime;
+                if (RallyData_FUN_00411880() != 0) {
+                    if (CGameInfo::FUN_00405dc0() == 0) {
+                        if (car == 0)
+                            xOff = -((int)g_pGraphics->resX / 2);
+                    } else if (car == 1) {
+                        yOff = (int)g_pGraphics->resY / 2;
+                    }
+                }
+                uTime = FixDiv(uTime, total);
+                pGeo[-1] = (short)(FixMulShift32(uTime, span) + barStart + xOff);
+                if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+                    CGameInfo::FUN_00405d80() == 0xb)
+                    yPos = (int)g_pGraphics->resY * 0x554 >> 16;
+                else
+                    yPos = (int)g_pGraphics->resY << 0xc >> 16;
+                pGeo[0] = (short)(yPos + yOff);
+                markerColour = g_unk0x005170a8;
+                pGeo[2] = (short)((int)g_pGraphics->resY * 0xaac >> 16) + 1;
+                *pColour = markerColour;
+                if (split == g_unk0x00536c90)
+                    pGeo[-1] = (short)(barEnd + xOff);
+                ((BYTE *)pColour)[0] = (BYTE)markerColour;
+                ((BYTE *)pColour)[1] = (BYTE)(markerColour >> 8);
+                ((BYTE *)pColour)[2] = g_unk0x005170aa;
+                ((BYTE *)pColour)[3] = g_unk0x005170a7;
+                if (CGameInfo::FUN_00405d80() == 4) {
+                    if (g_stageSplitData[car].times[split + 1] != 0) {
+                        other = (car + 1) % 2;
+                        barColour = g_unk0x0051709c;
+                        if (g_stageSplitData[other].times[split + 1] == 0 ||
+                            g_stageSplitData[car].times[split + 1] <
+                                g_stageSplitData[other].times[split + 1])
+                            goto storeSplitColour;
+                        pColour[-1] = g_unk0x005170a0;
+                    }
+                } else if (g_stageSplitData[car].times[split + 1] != 0) {
+                    barColour = g_unk0x005170a0;
+                    if (g_stageSplitData[car].times[split + 1] -
+                            g_stageSplitData[car].times[split] <
+                        pRef[0] - pRef[-1])
+                        pColour[-1] = g_unk0x0051709c;
+                    else {
+storeSplitColour:
+                        pColour[-1] = barColour;
+                    }
+                }
+                pTime += 2;
+                split++;
+                pGeo += 4;
+                pRef++;
+                pColour++;
+            } while ((int)pTime < (int)(g_unk0x00536ff0 + 25));
+            // Every split's segment runs up to the next split's x.
+            pSpan = (SplitMarker *)&g_unk0x00536cb8[car * 0x14];
+            split = 0xc;
+            do {
+                split--;
+                pSpan->w = pSpan[1].x - pSpan->x;
+                pSpan++;
+            } while (split != 0);
+            car++;
+        } while (car < 2);
+    }
+}
