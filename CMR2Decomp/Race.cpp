@@ -19,6 +19,7 @@
 #include "main.h"
 #include "Sound.h"
 #include "NetworkLeaderboards.h"
+#include "RegKey.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -499,6 +500,117 @@ BYTE FUN_0041f510(void)
         StageObject_FreeAll();
     g_raceFileCallbackSet = 0;
     return 1;
+}
+
+extern char g_str0x00519348[6];
+extern char g_str0x00519350[6];
+extern char g_str0x00519358[7];
+extern char g_str0x00519360[7];
+extern char g_str0x00519368[7];
+extern char g_str0x00519370[8];
+extern char g_strPathFormat[];
+
+// Long country names (FINLAND..JAPAN) and codes (FIN..JAP) of the rally
+// selection file names.
+// GLOBAL: CMR2 0x005192f8
+char *g_unk0x005192f8[9] = { g_str0x00519370, g_str0x00519368, g_str0x00519360, g_str0x00519358,
+                             g_str0x00519270, g_str0x00519350, g_str0x00519348, CFrontend::m_strUK,
+                             CRegKey::m_skuJapan };
+// GLOBAL: CMR2 0x0051931c
+char *g_unk0x0051931c[9] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+                             g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK,
+                             g_str0x00519260 };
+
+// GLOBAL: CMR2 0x00519378
+char g_str0x00519378[] = "%s\\%s\\%s%st.bfl";
+// GLOBAL: CMR2 0x00519388
+char g_str0x00519388[] = "%s\\replays\\%s-chL";
+// GLOBAL: CMR2 0x0051939c
+char g_str0x0051939c[] = "%s\\replays\\%s-chH";
+// GLOBAL: CMR2 0x005193b0
+char g_str0x005193b0[] = "%s\\Game\\DemoRuns\\%s-ch";
+// GLOBAL: CMR2 0x005193c8
+char g_str0x005193c8[] = "%s\\%s-ch";
+// GLOBAL: CMR2 0x005193d4
+char g_str0x005193d4[] = "%s\\cha%.2d%s";
+// GLOBAL: CMR2 0x005193e4
+char g_str0x005193e4[] = "%s\\chall";
+// GLOBAL: CMR2 0x005193f0
+char g_str0x005193f0[] = "UKi";
+// GLOBAL: CMR2 0x005193f4
+char g_str0x005193f4[] = "%s\\%s%st.bfl";
+// GLOBAL: CMR2 0x00519404
+char g_str0x00519404[] = "%s\\replays\\%s%.2dL";
+// GLOBAL: CMR2 0x00519418
+char g_str0x00519418[] = "%s\\replays\\%s%.2dH";
+// GLOBAL: CMR2 0x0051942c
+char g_str0x0051942c[] = "%s\\Game\\DemoRuns\\%s%.2d";
+// GLOBAL: CMR2 0x00519444
+char g_str0x00519444[] = "%s\\%s%.2d";
+// GLOBAL: CMR2 0x00519450
+char g_str0x00519450[] = "%s\\%s%.2d%s";
+// GLOBAL: CMR2 0x00519464
+char g_str0x00519464[4] = "lo";
+// GLOBAL: CMR2 0x00519468
+char g_str0x00519468[4] = "hi";
+extern BYTE g_unk0x00538130[0x40];
+// GLOBAL: CMR2 0x00538548
+char g_unk0x00538548[MAX_PATH];
+
+// Builds the file names of the current rally selection (the challenge names
+// when the game info flags are 5..0xc, the short "hi"/"lo" variants otherwise).
+// FUNCTION: CMR2 0x0041f560
+void Race_BuildSelectionPaths(void)
+{
+    char buf[4];
+    char name[4];
+    int table[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
+
+    sprintf(buf, CMain::m_logFileBlankLine);
+    if (CGameInfo::FUN_00405d00() == 0) {
+        sprintf(buf, g_str0x00519468);
+    } else {
+        sprintf(buf, g_str0x00519464);
+    }
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xb ||
+        CGameInfo::FUN_00405d80() == 0xc) {
+        int idx = (BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950();
+
+        strcpy(name, g_unk0x0051931c[table[idx]]);
+        if (idx == 7)
+            strcpy(name, g_str0x005193f0);
+        sprintf(g_unk0x0053823c, g_str0x005193e4, CInstallInfo::GetTracksDir());
+        sprintf(g_unk0x00538340, g_str0x005193d4, g_unk0x0053823c, idx + 1, buf);
+        sprintf((char *)g_unk0x00538130, g_str0x005193c8, g_unk0x0053823c, name);
+        sprintf(g_unk0x0053874c, g_str0x005193b0, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[table[idx]]);
+        if (CGameInfo::FUN_00405d00() == 0)
+            sprintf(g_unk0x00538444, g_str0x0051939c, CInstallInfo::GetGameHDPath(),
+                    g_unk0x0051931c[table[idx]]);
+        else
+            sprintf(g_unk0x00538444, g_str0x00519388, CInstallInfo::GetGameHDPath(),
+                    g_unk0x0051931c[table[idx]]);
+        sprintf(g_unk0x00538548, g_str0x00519378, CInstallInfo::GetTracksDir(),
+                g_unk0x005192f8[table[idx]], g_unk0x0051931c[table[idx]], buf);
+        return;
+    }
+    sprintf(g_unk0x0053823c, g_strPathFormat, CInstallInfo::GetTracksDir(),
+            g_unk0x005192f8[(BYTE)RallyDataCountryIndex()]);
+    sprintf(g_unk0x00538340, g_str0x00519450, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1, buf);
+    sprintf((char *)g_unk0x00538130, g_str0x00519444, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    sprintf(g_unk0x0053874c, g_str0x0051942c, CInstallInfo::GetGameHDPath(),
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    if (CGameInfo::FUN_00405d00() == 0)
+        sprintf(g_unk0x00538444, g_str0x00519418, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    else
+        sprintf(g_unk0x00538444, g_str0x00519404, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    sprintf(g_unk0x00538548, g_str0x005193f4, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], buf);
 }
 
 // FUNCTION: CMR2 0x0041f8e0
@@ -1978,7 +2090,7 @@ void FUN_00478b50(void);
 int FUN_00478a20(void);
 void FUN_0040a580(int, int, int);
 void FUN_0040efa0(void);
-void FUN_0041f560(void);
+void Race_BuildSelectionPaths(void);
 void FUN_00455080(void);
 void FUN_00475f00(void);
 // GLOBAL: CMR2 0x00538100
@@ -2033,7 +2145,7 @@ void FUN_0041bf80(int param1, int param2)
         if (CGameInfo::FUN_00405d80() != 4)
             CFrontend::FUN_004cf0f0();
         FUN_00427c10();
-        FUN_0041f560();
+        Race_BuildSelectionPaths();
         CGame::FUN_0041f260();
         FUN_00455080();
         FUN_00478b50();
