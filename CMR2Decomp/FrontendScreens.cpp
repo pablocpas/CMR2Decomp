@@ -7770,3 +7770,103 @@ void FUN_004d8950(Menu *pMenu)
                   (int *)g_colourText0x0052496c, 0x14);
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
+
+// Draws a settings list page: the breadcrumbs, the framed title and one row
+// per menu item (the row sprite, its label and the current value).
+// match 67%: WIP. La estructura y los operandos son los del original pero el
+// reparto de registros/slots del bucle y el orden de las cargas no cuadran
+// todavia; falta afinar la forma del fuente (no hay bug de logica conocido).
+// FUNCTION: CMR2 0x004e8b60
+void FUN_004e8b60(Menu *pMenu)
+{
+    SpriteRect rect;
+    char *text[3];
+    MenuItem *pItem;
+    char *pText;
+    BYTE *pColour;
+    BYTE *pLineColour;
+    BYTE *pLineShadow;
+    int top;
+    int i;
+
+    rect.y = 0;
+    rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.w = CFrontend::m_pAr640ATexture->width;
+    rect.h = CFrontend::m_pAr640ATexture->height;
+    text[0] = CFrontend::GetTextString(0x12);
+    text[1] = CFrontend::GetTextString(0x1d9);
+    text[2] = CFrontend::GetTextString(0xd7);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280, (int)(g_pGraphics->resY * 0x26) / 0x1e0, text, 3);
+    top = ((int)(g_pGraphics->resY * 8) / 0x1e0 + (int)(g_pGraphics->resY * 0x26) / 0x1e0 +
+           (int)(g_pGraphics->resY * 0x180) / 0x1e0) / 2 -
+          ((int)(g_pGraphics->resY * 0x24) / 0x1e0 * pMenu->itemCount) / 2;
+    FrontendDraw_PlayTime();
+    if (pMenu->cursor == 0) {
+        pLineColour = g_colourWhite0x00524968;
+        pLineShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pLineColour = g_colourText0x0052496c;
+        pLineShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[1] = top;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
+    i = 0;
+    pItem = pMenu->items;
+    if (pMenu->itemCount > 0) {
+        do {
+            rect.y = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + top +
+                     ((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i - CFrontend::m_pAr640ATexture->height / 2);
+            if (pMenu->cursor == i) {
+                pColour = g_colourWhite0x00524968;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
+            } else {
+                pColour = g_colourText0x0052496c;
+                if (pItem->enabled == 0)
+                    pColour = g_colourDim0x00524970;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
+            }
+            switch (pItem->value) {
+            case 0:
+                sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
+                        CFrontend::GetTextString(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max] + 0x27));
+                pText = CFrontend::m_stringDest;
+                break;
+            case 1:
+                sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195),
+                        Menu_GetItem(pMenu, 1)->max + 1);
+                pText = CFrontend::m_stringDest;
+                break;
+            case 2:
+            case 3:
+                pText = CFrontend::GetTextString(pItem->id);
+                break;
+            default:
+                goto next;
+            }
+            Font_DrawText(1, pText, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+        next:
+            if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
+                pLineColour = g_colourWhite0x00524968;
+                pLineShadow = g_colourShadowWhite0x00524974;
+            } else {
+                pLineColour = g_colourText0x0052496c;
+                pLineShadow = g_colourShadowText0x00524978;
+            }
+            g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * (i + 1) + top;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+            g_unk0x008189a8[1]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
+            pItem++;
+            i++;
+        } while (i < pMenu->itemCount);
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}

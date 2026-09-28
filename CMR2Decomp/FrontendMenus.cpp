@@ -3069,7 +3069,7 @@ void FUN_004f8730(void)
     Menu_AddItemType3(&g_menu0x0081e998, 0, -1, 0xa, 0, 1, 0, 0, 1);
     Menu_AddItemType4(&g_menu0x0081e998, 0, 0x67, (int)FUN_004ee9b0, 2);
     Menu_AddItemType1(&g_menu0x0081e998, 0, 0x1b, 0, 3);
-    Menu_SetCallbacks(&g_menu0x0081e998, FUN_004ee850, (MenuCallback)FUN_004eec30, FUN_004e8b60, NULL);
+    Menu_SetCallbacks(&g_menu0x0081e998, FUN_004ee850, (MenuCallback)FUN_004eec30, (MenuCallback)FUN_004e8b60, NULL);
     Menu_ValidateCursor(&g_menu0x0081e998, 0);
 }
 
