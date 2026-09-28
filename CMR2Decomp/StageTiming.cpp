@@ -3762,6 +3762,75 @@ done:
 
 extern double g_minus65536;
 
+// match 47%: the whole FixMul/FixDiv chain matches instruction for instruction, but MSVC6 assigns the
+// stack slots in a different order (the original spills into the dead parameter homes, EBP+8/EBP+0xc);
+// only the [ebp-N] numbers and a few load orders differ. Kept as FUNCTION.
+// Bilinear blend of a car's 5-byte-wide paint-decal rows (0x54241c) into 16
+// fixed-point samples, weighted by the car's two paint offsets (0xa8/0xac).
+// FUNCTION: CMR2 0x00455f00
+void FUN_00455f00(int pCar, int *pOut)
+{
+    __int64 v;
+    int t;
+    int a8;
+    int r8;
+    int ac;
+    int rc;
+    int sum;
+    int d0;
+    int d3;
+    int d4;
+    int t1;
+    int t2;
+    int t3;
+    int m1;
+    int m2;
+    int m3;
+    int m4;
+    int m5;
+    int m6;
+    int m7;
+    int m8;
+    int m9;
+    int m10;
+    int m11;
+    int t4;
+    int i;
+
+    v = (unsigned int)RallyData_FUN_00421420();
+    v = (__int64)((double)v * CGraphics::m_65536);
+    t = (int)v;
+    // The original computes this and discards it (inline __asm FixMul is opaque
+    // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.
+    FixMul(0x20000, t);
+    a8 = *(int *)(pCar + 0xa8);
+    ac = *(int *)(pCar + 0xac);
+    r8 = 0x10000 - a8;
+    rc = 0x10000 - ac;
+    sum = r8 + rc;
+    for (i = 0; i < 0x50; i += 5, pOut++) {
+        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);
+        d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);
+        d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);
+        t1 = FixDiv(*(int *)(pCar + 0xa0), t);
+        t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);
+        t3 = 0x10000 - t2 - t1;
+        m1 = FixMul(r8, d3);
+        m2 = FixMul(d4, m1);
+        m3 = FixMul(a8, d4);
+        m4 = FixMul(d4, m3);
+        m5 = FixMul(rc, d3);
+        m6 = FixMul(t2, m5);
+        m7 = FixMul(ac, d4);
+        m8 = FixMul(t2, m7);
+        t4 = FixDiv(sum, 0x20000);
+        m9 = FixMul(t4, d3);
+        m10 = FixMul(t3, m9);
+        m11 = FixMul(0x10000 - t4, d4);
+        *pOut = FixMul(t3, m11) + m10 + m8 + m6 + m4 + m2 + d0;
+    }
+}
+
 // Adds a random spread to the computer drivers' times and sorts them.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456110
