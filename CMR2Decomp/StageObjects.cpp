@@ -5632,6 +5632,8 @@ BYTE g_unk0x00543eb4[4];
 // Set while the object ramps still have to be re-applied.
 // GLOBAL: CMR2 0x00543ef8
 int g_unk0x00543ef8;
+// GLOBAL: CMR2 0x00543f00
+BillboardDef g_unk0x00543f00;
 
 // Rebuilds every lighting colour of the stage from the current weather blend
 // factor and pushes them to the stage meshes: height ramp (low/high/reference),
@@ -13526,4 +13528,145 @@ void FUN_004664c0(short *pOrder, short count)
         }
     }
     FUN_0045f4a0();
+}
+
+// Picks a random point on a random edge of a random triangle of mesh `index`
+// of a car's damage parts (vertices are floats, 0x30 bytes apart). Returns 0
+// when the part has no mesh.
+// FUNCTION: CMR2 0x00469c30
+int FUN_00469c30(FixVector *pOut, int *pParts, int index)
+{
+    BYTE *pTri;
+    float *pA;
+    float *pB;
+    BYTE *pVerts;
+    int t;
+    int edge;
+    FixVector a;
+    FixVector d;
+
+    if (pParts[index] == 0) {
+        pOut->x = 0;
+        pOut->y = 0;
+        pOut->z = 0;
+        return 0;
+    }
+    pTri = (BYTE *)(rand() % *(int *)(pParts[index] + 0x28));
+    edge = rand() % 3;
+    t = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    pTri = *(BYTE **)(pParts[index] + 0x24) + (int)pTri * 0x4c;
+    switch (edge) {
+    case 0:
+        pVerts = *(BYTE **)(pParts[index] + 0xc);
+        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x40) * 0x30);
+        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x42) * 0x30);
+        break;
+    case 1:
+        pVerts = *(BYTE **)(pParts[index] + 0xc);
+        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x42) * 0x30);
+        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x44) * 0x30);
+        break;
+    default:
+        pVerts = *(BYTE **)(pParts[index] + 0xc);
+        pA = (float *)(pVerts + *(unsigned short *)(pTri + 0x44) * 0x30);
+        pB = (float *)(pVerts + *(unsigned short *)(pTri + 0x40) * 0x30);
+        break;
+    }
+    a.x = (int)(__int64)(pA[0] * CGraphics::m_65536);
+    a.y = (int)(__int64)(pA[1] * CGraphics::m_65536);
+    a.z = (int)(__int64)(pA[2] * CGraphics::m_65536);
+    d.x = (int)(__int64)(pB[0] * CGraphics::m_65536) - a.x;
+    d.y = (int)(__int64)(pB[1] * CGraphics::m_65536) - a.y;
+    d.z = (int)(__int64)(pB[2] * CGraphics::m_65536) - a.z;
+    FixVecScale(&d, &d, t);
+    pOut->x = d.x + a.x;
+    pOut->y = d.y + a.y;
+    pOut->z = d.z + a.z;
+    return 1;
+}
+
+// GLOBAL: CMR2 0x00547908
+BillboardDef g_unk0x00547908;
+
+extern int g_unk0x0051bd3c;
+extern int g_unk0x005477f0;
+int *FUN_00469680(int index);
+int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+
+// Sparks and glints thrown off a car's body: `amount` (per second) of random
+// points on its damage parts get a billboard of the spark texture.
+// FUNCTION: CMR2 0x00460ca0
+int FUN_00460ca0(int amount, Car *pCar)
+{
+    int *pParts;
+    int count;
+    int result;
+    int n;
+    int part;
+    FixVector point;
+    FixVector rotated;
+    FixVector origin;
+
+    pParts = FUN_00469680(pCar->field_0xb1a);
+    count = FixMul(0x1e0000, FixMul(g_unk0x0051bd3c, amount)) >> 16;
+    result = count;
+    if (count > 0) {
+        result = rand();
+        n = result % count;
+        result /= count;
+        for (; n > 0; n--) {
+            part = rand() % pParts[0x117];
+            result = FUN_00469c30(&point, pParts, part);
+            if (result != 0) {
+                result = point.y;
+                if (point.y > 0) {
+                    FixMatrix_RotateVector(&rotated, &point, (FixMatrix *)(pParts[0xf + part] + 0xd8));
+                    FixMatrix_GetPosition(&origin, (FixMatrix *)(pParts[0xf + part] + 0xd8));
+                    rotated.x += origin.x;
+                    rotated.y += origin.y;
+                    rotated.z += origin.z;
+                    g_unk0x00547908.pos = rotated;
+                    Billboard_Add(&g_unk0x00547908, (unsigned short *)g_unk0x005477f0);
+                }
+            }
+        }
+    }
+    return result;
+}
+
+void FUN_0046c4e0(int param_1, BYTE index);
+int Replay_StopRecording(BYTE *pBuffer);
+
+// Records the car states of the replay streams of type 2 (every third frame):
+// one 16-byte sample per call into the current section, until it is full.
+// FUNCTION: CMR2 0x0046d510
+void FUN_0046d510(void)
+{
+    void ***pp;
+    BYTE *p;
+    short *pCount;
+    short n;
+
+    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+        if (*pp == NULL)
+            continue;
+        p = (BYTE *)**pp;
+        if (p == NULL || *(int *)(p + 0xc) == 0 || *(int *)(p + 0x1c) != 2)
+            continue;
+        if (*((BYTE *)Car_Get(p[0x20]) + 0xb43) == 0)
+            continue;
+        if (p[0xf8] == 0) {
+            pCount = (short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x100) * 2);
+            n = *pCount;
+            if (n < *(short *)(p + 0xfe)) {
+                FUN_0046c4e0((*(short *)(p + 0xfe) * *(short *)(p + 0x100) + n) * 0x10 + *(int *)(p + 0x40), p[0x20]);
+                (*pCount)++;
+            } else {
+                Replay_StopRecording(p);
+            }
+        }
+        p[0xf8]++;
+        if (p[0xf8] >= 3)
+            p[0xf8] = 0;
+    }
 }

@@ -23,8 +23,11 @@
 #include <math.h>
 #include <string.h>
 
+// Three 0x30-byte particle look records (rain, snow, splash): +0 scale,
+// +0x8 extent, +0x20 colour, +0x28/+0x2c texture v range.
 // GLOBAL: CMR2 0x00543da0
-int g_unk0x00543da0;
+BYTE g_unk0x00543da0Block[0x90];
+#define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
 
 // GLOBAL: CMR2 0x00547930
 FixVector g_unk0x00547930;
@@ -955,6 +958,9 @@ void FUN_00494b50(int count)
 void *g_unk0x00547ac8;
 // GLOBAL: CMR2 0x00543ecc
 void *g_unk0x00543ecc;
+// Billboards of the weather effects.
+// GLOBAL: CMR2 0x00543ed0
+BillboardDef g_unk0x00543ed0;
 // GLOBAL: CMR2 0x00543eb8
 void *g_unk0x00543eb8;
 extern BYTE g_unk0x00547acc;
@@ -8602,3 +8608,216 @@ void FUN_0045af00(int car)
     }
     FUN_0045af90(car);
 }
+
+void FUN_00484e00(int param_1, short count);
+void Car_BreakQueuedWindows(Car *pCar);
+void FUN_00480cb0(void);
+void FUN_00480de0(void);
+
+// Per-frame update of the attached body parts (bonnet, doors, bumpers...) of
+// the cars in `pOrder` (last first): each active part's world transform is
+// rebuilt and its per-part handler runs; then queued windows break.
+// FUNCTION: CMR2 0x00480bb0
+void FUN_00480bb0(BYTE *pCars, short *pOrder, short count)
+{
+    int n;
+    short *pIndex;
+    void **pTable;
+    BYTE *pPart;
+
+    n = count;
+    if (n - 1 >= 0) {
+        pIndex = pOrder + (n - 1);
+        do {
+            g_unk0x00590d74 = (Unk0x00590d74 *)(pCars + *pIndex * 0xc24);
+            g_unk0x00590d78 = (BYTE *)FUN_00469680(((char *)g_unk0x00590d74)[0xb1a]);
+            FUN_00480de0();
+            FUN_00480cb0();
+            pTable = &g_unk0x00590d7c[3];
+            do {
+                pPart = (BYTE *)*pTable + ((char *)g_unk0x00590d74)[0xb1a] * 0x1a0;
+                g_unk0x00590c20 = (Unk0x00590c20 *)pPart;
+                if (*(int *)pPart != 0 && (pPart[0x150] & 1)) {
+                    memcpy(pPart + 0x4c, pPart + 0xc, 0x40);
+                    FixMatrix_Multiply((FixMatrix *)((BYTE *)g_unk0x00590c20 + 0xcc),
+                                       (FixMatrix *)((BYTE *)g_unk0x00590c20 + 0xc),
+                                       *(FixMatrix **)((BYTE *)g_unk0x00590c20 + 0x10c));
+                    if (*(void (**)(void))((BYTE *)g_unk0x00590c20 + 0x110) != NULL)
+                        (*(void (**)(void))((BYTE *)g_unk0x00590c20 + 0x110))();
+                }
+                pTable--;
+            } while (pTable >= g_unk0x00590d7c);
+            Car_BreakQueuedWindows((Car *)g_unk0x00590d74);
+            pIndex--;
+        } while (--n);
+    }
+    FUN_00484e00((int)pOrder, count);
+}
+
+extern int g_unk0x00543d50;
+extern int g_stageLighting[];
+extern FixVector g_stageLightDirection;
+extern BillboardDef g_unk0x00543f00;
+extern BillboardDef g_unk0x00547908;
+extern int g_unk0x00543ef8;
+void FixMatrix_GetForward(FixVector *pOut, FixMatrix *pM);
+void FUN_0045f240(void);
+void FUN_0045f260(void);
+void FUN_00462cb0(BYTE *pColour);
+void StageLights_UpdateDirection(void);
+void FUN_00492e30(FixVector *pLight);
+void FUN_004b5760(FixVector *pLightDir);
+void FUN_004b3f20(void);
+
+#define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+
+// Shares the 400 weather particles between the views and places each view's
+// share in a random box in front of its camera; resets the views' weather
+// state.
+// FUNCTION: CMR2 0x0045eed0
+void FUN_0045eed0(void)
+{
+    int views;
+    int view;
+    int offset;
+    SceneNode **ppNode;
+    BYTE *pView;
+    short *pSlot;
+    int *pValue;
+    int i;
+    int j;
+    int k;
+    short share;
+    FixVector forward;
+    FixVector corner;
+    StageDeformNode *pNode;
+
+    views = g_unk0x00543e98;
+    g_unk0x00543da0 = FixDiv(views << 16, 0x1900000);
+    for (view = 0, offset = 0, ppNode = g_viewNodes; view < views; view++, offset += 0x178, ppNode++) {
+        pView = (BYTE *)g_unk0x00547ac8 + offset;
+        pSlot = (short *)(pView + 0x78);
+        pValue = (int *)(pView + 0x110);
+        for (i = 5; i != 0; i--) {
+            for (j = 5; j != 0; j--) {
+                *pSlot = -1;
+                pValue[-0x19] = 0;
+                *pValue = 0;
+                pSlot++;
+                pValue++;
+            }
+        }
+        share = (short)(400 / views);
+        *(short *)(pView + 0x74) = share;
+        *(short *)(pView + 0x76) = (short)view * share;
+        *(int *)(pView + 0x5c) = *(int *)(pView + 0x58) =
+            FixMul(FixMul(g_unk0x00543d50, *(int *)(pView + 0x54)), *(short *)(pView + 0x74) << 16);
+        *(int *)(pView + 0x174) = 0;
+        *(int *)(pView + 0x60) = 0x10000;
+        *(int *)(pView + 0x64) = 0x10000;
+        *(int *)(pView + 0x68) = 0x10000;
+        *(int *)(pView + 0x2c) = 0;
+        *(int *)(pView + 0x30) = 0;
+        *(int *)(pView + 0x34) = 0;
+        FixMatrix_GetPosition((FixVector *)(pView + 8), &(*ppNode)->current);
+        FixMatrix_GetForward(&forward, &(*ppNode)->current);
+        FixVecScale(&forward, &forward, 0xe0000);
+        ((FixVector *)(pView + 8))->x += forward.x;
+        ((FixVector *)(pView + 8))->y += forward.y;
+        ((FixVector *)(pView + 8))->z += forward.z;
+        corner.x = ((FixVector *)(pView + 8))->x - 0xc0000;
+        corner.y = ((FixVector *)(pView + 8))->y - 0x60000;
+        *(FixVector *)(pView + 0x14) = *(FixVector *)(pView + 8);
+        corner.z = ((FixVector *)(pView + 8))->z - 0xc0000;
+        for (k = 0; k < *(short *)(pView + 0x74); k++) {
+            pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + k];
+            pNode->x = FixMul(RAND_FIX(), 0x180000);
+            pNode->y = FixMul(RAND_FIX(), 0xc0000);
+            i = FixMul(RAND_FIX(), 0x180000);
+            pNode->x += corner.x;
+            pNode->y += corner.y;
+            ((BYTE *)&pNode->field_0x1c)[0] = 0x4b;
+            pNode->z = i + corner.z;
+            pNode->spin = FixMul(RAND_FIX(), 0x40000);
+            pNode->field_0x10 = RAND_FIX();
+            pNode->angle = FixMul(RAND_FIX(), 0x1680000);
+            pNode->scale = RAND_FIX();
+            ((BYTE *)&pNode->field_0x1c)[1] = (BYTE)(rand() % 3);
+        }
+    }
+}
+
+// Sets up the stage weather: particle looks, billboards, the weather
+// particles, then the stage light colour and direction.
+// FUNCTION: CMR2 0x0045eca0
+void FUN_0045eca0(void)
+{
+    BYTE colour[4];
+    FixVector light;
+
+    g_unk0x00543ef8 = 1;
+    FUN_0045f260();
+    switch (CGameInfo::FUN_00405cd0()) {
+    case 0:
+        g_unk0x00543d50 = 0x10000;
+        break;
+    case 1:
+        g_unk0x00543d50 = 0x4000;
+        break;
+    default:
+        g_unk0x00543d50 = 0;
+        break;
+    }
+    *(int *)(g_unk0x00543da0Block + 0x24) = 0xff000000;
+    *(int *)(g_unk0x00543da0Block + 0x84) = 0xff000000;
+    *(int *)(g_unk0x00543da0Block + 0x80) = 0x1e969696;
+    *(int *)(g_unk0x00543da0Block + 0x54) = 0xff000000;
+    *(int *)(g_unk0x00543da0Block + 0x50) = 0x1e969696;
+    *(int *)(g_unk0x00543da0Block + 0x20) = 0x969696;
+    g_unk0x00543f00.top = -0x2666;
+    g_unk0x00543f00.left = 0x2666;
+    g_unk0x00543f00.bottom = 0x2666;
+    g_unk0x00543f00.right = -0x2666;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x28) = 0x3f000000;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x2c) = 0;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x88) = 0x3e000000;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x8c) = 0x3f7fff58;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x58) = 0x3f600000;
+    *(unsigned int *)(g_unk0x00543da0Block + 0x5c) = 0x3f7fff58;
+    g_unk0x00543f00.a = 0xfe;
+    g_unk0x00543f00.r = 0xff;
+    g_unk0x00543f00.g = 0xff;
+    g_unk0x00543f00.b = 0xff;
+    g_unk0x00543ed0.top = -0xa3d;
+    g_unk0x00543ed0.left = 0x11eb;
+    g_unk0x00543ed0.bottom = 0xa3d;
+    g_unk0x00543ed0.right = -0x11eb;
+    g_unk0x00543ed0.r = 0xaa;
+    g_unk0x00543ed0.g = 0xaa;
+    g_unk0x00543ed0.b = 0xaa;
+    g_unk0x00543ed0.a = 0xaa;
+    g_unk0x00547908.top = -0xf5c;
+    g_unk0x00547908.left = 0xf5c;
+    g_unk0x00547908.bottom = 0xf5c;
+    g_unk0x00547908.right = -0xf5c;
+    g_unk0x00547908.a = 0xaa;
+    g_unk0x00547908.r = 0xaa;
+    g_unk0x00547908.g = 0xaa;
+    g_unk0x00547908.b = 0xaa;
+    FUN_0045eea0();
+    FUN_0045eed0();
+    FUN_0045f240();
+    StageLights_UpdateDirection();
+    colour[3] = 0xff;
+    colour[0] = (BYTE)(g_stageLighting[0x12] >> 16);
+    colour[1] = (BYTE)(g_stageLighting[0x13] >> 16);
+    colour[2] = (BYTE)(g_stageLighting[0x14] >> 16);
+    FUN_00462cb0(colour);
+    light.x = g_stageLighting[0x15];
+    light.y = g_stageLighting[0x16];
+    light.z = g_stageLighting[0x17];
+    FUN_00492e30(&light);
+    FUN_004b5760(&g_stageLightDirection);
+    FUN_004b3f20();
+}
+#undef RAND_FIX

@@ -4322,18 +4322,6 @@ void FUN_004b1150(void)
 }
 
 // Camera-facing quad requested by the game (0x24 bytes); 16.16 fixed point.
-struct BillboardDef {
-    FixVector pos;              // 0x0
-    int top;                    // 0xc
-    int left;                   // 0x10
-    int bottom;                 // 0x14
-    int right;                  // 0x18
-    BYTE r, g, b, a;            // 0x1c
-    short field_0x20;           // 0x20 rotation (12-bit angle)
-    BYTE shade;                 // 0x22 0 = fully lit ... 256 = scene dark colour
-    BYTE flags;                 // 0x23 1 mirrored, 2 lit by the scene light
-    int field_0x24;
-};
 
 // Queued billboard in render format (0x58 bytes).
 struct BillboardQuad {
