@@ -3610,6 +3610,98 @@ void FUN_004918d0(void)
     g_stageColourAlpha = 0xff;
 }
 
+extern int g_unk0x00588970[8];
+extern const double g_unk0x00511310;
+
+void FUN_004694a0(int param_1, int param_2, char param_3);
+void Mesh_Rebuild(Mesh *pMesh);
+void RallyData_ValidateIndex(int index);
+void FUN_00477c20(int index, char set0, char set1, BYTE mask);
+
+// Rebuilds the wheel/part meshes of a damaged car from its record's vertex
+// data, then clears the record's damage state.
+// match 18%: logic matches (6 FixMul-style float stores per part, then the record is cleared) but MSVC6
+// splits the six int temporaries across 7 stack slots and allocates EBP/ESI/EDI differently; not reproducible
+// without the original local layout. Kept as FUNCTION so reccmp measures it.
+// FUNCTION: CMR2 0x004698a0
+void FUN_004698a0(int pCar)
+{
+    int i;
+    int j;
+    int n;
+    int m;
+    int record;
+    int *p;
+    int *pSrc;
+    int v0;
+    int v1;
+    int v2;
+    int w0;
+    int w1;
+    int w2;
+    int q;
+    int idx;
+
+    idx = *(char *)(pCar + 0xb1a);
+    if (g_unk0x00588970[idx] != 0) {
+        i = 0;
+        record = idx * 0x4d0 + (int)g_unk0x00588b94;
+        if (0 < *(int *)(record + 0x45c)) {
+            p = (int *)(record + 0x420);
+            do {
+                j = 0;
+                if (0 < *p) {
+                    n = 0;
+                    m = 0;
+                    do {
+                        n += 0x30;
+                        j++;
+                        pSrc = (int *)(*(int *)(record + 0x78) + m);
+                        v0 = pSrc[0];
+                        v1 = pSrc[1];
+                        v2 = pSrc[2];
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x30) = (float)(v0 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x2c) = (float)(v1 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x28) = (float)(v2 * g_unk0x00511310);
+                        pSrc = (int *)(*(int *)(record + 0x78) + m + 0xc);
+                        m += 0x20;
+                        w0 = pSrc[0];
+                        w1 = pSrc[1];
+                        w2 = pSrc[2];
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x24) = (float)(w0 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x20) = (float)(w1 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x1c) = (float)(w2 * g_unk0x00511310);
+                    } while (j < *p);
+                }
+                q = *(int *)(*(int *)(record + 0x3c) + 0xc);
+                if (q != 0) {
+                    Mesh_Rebuild((Mesh *)q);
+                    RallyData_ValidateIndex(q);
+                    Scene_MarkShadowPartDirty(*(SceneNode **)(pCar + 0x720), (Mesh *)q);
+                }
+                i++;
+                p++;
+            } while (i < *(int *)(record + 0x45c));
+        }
+        p = (int *)(record + 0x21c);
+        for (n = 0; n < 9; n++)
+            p[n] = 0;
+        *(BYTE *)(record + 0x469) = 0;
+        *(int *)(record + 0x46c) = 0;
+        p = (int *)(record + 0x350);
+        for (n = 0; n < 0x22; n++)
+            p[n] = 0;
+        p = (int *)(record + 0x470);
+        for (n = 0; n < 8; n++) {
+            p[8] = 0;
+            p[0] = 0;
+            FUN_004694a0(pCar, 0, n);
+            p++;
+        }
+        FUN_00477c20(*(char *)(pCar + 0xb1a), 0, 0, 4);
+    }
+}
+
 // Snapshots a car's replay colours and end values once per stage.
 // FUNCTION: CMR2 0x00469a80
 void FUN_00469a80(int car)
