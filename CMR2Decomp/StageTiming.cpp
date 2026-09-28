@@ -6063,3 +6063,899 @@ iVar1 = CGameInfo::FUN_00405cd0();
   FUN_004aff60();
   return;
 }
+
+void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param_5, int param_6);
+void FUN_0043e680(int param_1);
+void FUN_00483570(void);
+
+// Placeholders for the two per-slot integrators that FUN_00480e50 installs but
+// whose bodies (0x4816f0 and 0x484310) are not decompiled yet. Empty bodies so
+// the function pointers in the wheel records still point at real code.
+// STUB: CMR2 0x004816f0
+void FUN_004816f0(int part) { }
+
+// STUB: CMR2 0x00484310
+void FUN_00484310(int part) { }
+
+// Places the two view nodes of a car at the shared angle/position buffers and
+// rebuilds that car's body state, network-snapshotting it when required.
+// FUNCTION: CMR2 0x00457e50
+void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_4,
+                  FixAngles *pAngles, FixVector *pPosition, int param_7)
+{
+    SceneNode_SetRotation(pNodeA, pAngles);
+    SceneNode_SetRotation(pNodeB, pAngles);
+    SceneNode_SetPosition(pNodeA, pPosition);
+    SceneNode_SetPosition(pNodeB, pPosition);
+    FUN_0043c7f0((int)Car_Get(carIndex), (int)pNodeA, param_4, (int *)pPosition, carIndex, param_7);
+    FUN_0043e680((int)Car_Get(carIndex));
+    if (CGameInfo::FUN_00405e00() != 0)
+        FUN_00424dc0(Car_Get(carIndex));
+}
+
+// Initialises one of a car's four wheel/hub records: points the shared record
+// pointer at the car's slot, picks the static geometry for the wheel type,
+// installs the per-slot integrator and clears the dynamic state.
+// match 13%: implementada; MSVC6 se queda con g_unk0x00590c20 y el puntero base en registro
+// en vez de releerlos del global en cada acceso como hace el original
+// FUNCTION: CMR2 0x00480e50
+void FUN_00480e50(int slot)
+{
+    int carIndex = *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a);
+    unsigned int type = g_unk0x00590c24[slot][carIndex];
+    int local_14 = 0;
+    int rotor = 0;
+    int lateral = 0;
+    BYTE *pc;
+    int base;
+
+    g_unk0x00590c20 = (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + carIndex * 0x1a0);
+    pc = (BYTE *)g_unk0x00590c20;
+    if (FUN_004813b0(slot) == 0)
+        return;
+
+    pc[0x150] = (BYTE)((pc[0x150] & 0xf) | (slot << 4));
+    pc[0x150] |= 1;
+    pc[0x150] &= (BYTE)~2;
+    pc[0x150] &= (BYTE)~4;
+    pc[0x150] &= (BYTE)~8;
+    *(int *)(*(int *)pc + 0x184) = 0;
+
+    base = (int)(g_unk0x00590d78 + type * 0xc);
+
+    switch (slot) {
+    case 0:
+        local_14 = -*(int *)(base + 0x168);
+        rotor = *(int *)(base + 0x16c);
+        *(short *)(pc + 0x158) = 0x288;
+        *(int *)(pc + 0x110) = (int)FUN_004814d0;
+        break;
+    case 1:
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9 ||
+            *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
+            rotor = 0;
+            local_14 = *(int *)(base + 0x168);
+            lateral = -*(int *)(base + 0x170);
+        } else {
+            local_14 = FixMul(*(int *)(base + 0x168), 0x8000);
+            rotor = *(int *)(base + 0x16c);
+        }
+        *(short *)(pc + 0x158) = 0;
+        *(int *)(pc + 0x110) = (int)FUN_004816f0;
+        *(int *)(pc + 0x170) = 0x10e5;
+        *(int *)(pc + 0x174) = 0x1eb8;
+        *(int *)(pc + 0x178) = 0x10e5;
+        goto common;
+    case 2:
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
+            local_14 = 0;
+            rotor = *(int *)(base + 0x16c);
+            lateral = -*(int *)(base + 0x170);
+        } else if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
+            lateral = *(int *)(base + 0x170);
+            local_14 = -*(int *)(base + 0x168);
+            rotor = 0;
+        } else {
+            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
+                local_14 = -*(int *)(base + 0x168);
+                rotor = -*(int *)(base + 0x16c);
+            } else {
+                local_14 = *(int *)(base + 0x168);
+                rotor = *(int *)(base + 0x16c);
+            }
+            lateral = 0;
+        }
+        *(short *)(pc + 0x158) = 0x288;
+        *(int *)(pc + 0x110) = (int)FUN_00484310;
+        break;
+    case 3:
+        pc[0x150] |= 2;
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
+            rotor = *(int *)(base + 0x16c);
+        } else {
+            rotor = *(int *)(base + 0x16c);
+            if (*(int *)(g_unk0x00590d78 + 0x24c) < *(int *)(g_unk0x00590d78 + 0x248)) {
+                lateral = *(int *)(base + 0x170);
+                rotor = -rotor;
+            } else {
+                rotor = -rotor;
+                lateral = -*(int *)(base + 0x170);
+            }
+        }
+        *(short *)(pc + 0x158) = 0;
+        *(int *)(pc + 0x110) = (int)FUN_00483570;
+        break;
+    default:
+        goto common;
+    }
+    *(int *)(pc + 0x170) = 0x10e5;
+    *(int *)(pc + 0x174) = 0x1eb8;
+    *(int *)(pc + 0x178) = 0x6ccc;
+
+common:
+    *(int *)(pc + 0x120) = *(int *)(base + 0xb4) + local_14;
+    *(int *)(pc + 0x124) = *(int *)(base + 0xb8) + rotor;
+    *(int *)(pc + 0x128) = *(int *)(base + 0xbc) + lateral;
+    *(int *)(pc + 0x15c) = FixVecLength((FixVector *)(base + 0x168));
+    *(int *)(pc + 0x12c) = *(int *)(base + 0xb4);
+    *(int *)(pc + 0x130) = *(int *)(base + 0xb8);
+    *(int *)(pc + 0x134) = *(int *)(base + 0xbc);
+    *(int *)(pc + 0x114) = *(int *)(base + 0x168);
+    *(int *)(pc + 0x118) = *(int *)(base + 0x16c);
+    *(int *)(pc + 0x11c) = *(int *)(base + 0x170);
+    *(int *)(pc + 0x138) = 0;
+    *(int *)(pc + 0x13c) = 0;
+    *(int *)(pc + 0x140) = 0;
+    *(int *)(pc + 0x144) = 0;
+    *(int *)(pc + 0x148) = 0;
+    *(int *)(pc + 0x14c) = 0;
+    *(int *)(pc + 0x164) = 0;
+    *(int *)(pc + 0x168) = 0;
+    *(int *)(pc + 0x16c) = 0;
+    *(int *)(pc + 0x154) = 0;
+    *(int *)(pc + 0x160) = 0;
+}
+int StageObject_IsEligibleType(short type, int mode, int category);
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+
+// Aims and fires the debris/particles of a car part: rotates the part's local
+// offset into world space, normalises the part's direction, and spawns debris
+// along the cross product of the two.
+// match 40%: implementada, difiere la extension del argumento short y el reparto de locales/registros
+// FUNCTION: CMR2 0x00483100
+void FUN_00483100(int *param_1, unsigned int param_2)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    BYTE *pc = (BYTE *)g_unk0x00590c20;
+    int bVar8 = g_unk0x00590c24[*(BYTE *)(pc + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
+    int local_48, local_44, local_40;
+    int local_3c, local_38, local_34;
+    int local_30, local_2c, local_28;
+    int local_24, local_20, local_1c;
+    int local_18, local_14, local_10;
+    int iVar4, iVar6, iVar9;
+    int iVar11, iVar12;
+    unsigned int uVar10;
+
+    if (StageObject_IsEligibleType(*(short *)(car + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+        int off = (unsigned int)bVar8 * 0xc;
+        int lVar1 = FixMul(*(int *)(g_unk0x00590d78 + off + 0x16c), 0x20000);
+        int t = FixMul(*(int *)(g_unk0x00590d78 + off + 0x170), 0x1cccc);
+        int s;
+
+        if (*(int *)(pc + 0x128) < 1)
+            s = t;
+        else
+            s = -t;
+        local_24 = FixMul(*(int *)(pc + 0x194), s);
+        local_20 = FixMul(*(int *)(pc + 0x198), s);
+        local_1c = FixMul(*(int *)(pc + 0x19c), s);
+
+        local_18 = *(int *)(pc + 0x120) + local_24;
+        local_14 = (*(int *)(pc + 0x124) - lVar1) + local_20;
+        local_10 = *(int *)(pc + 0x128) + local_1c;
+        FixMatrix_RotateVector((FixVector *)&local_24, (FixVector *)&local_18,
+                               *(FixMatrix **)(car + 0x750));
+
+        uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
+        if ((int)uVar10 > 0) {
+            int inv = (int)(0x100000000i64 / (__int64)(int)-uVar10);
+            local_48 = FixMul(param_1[0], inv);
+            local_44 = FixMul(param_1[1], inv);
+            local_40 = FixMul(param_1[2], inv);
+            param_2 = (unsigned int)FixMul((int)uVar10, 0x50000);
+            if ((int)param_2 < 0x10001) {
+                if ((int)param_2 < 0x3334)
+                    return;
+            } else {
+                param_2 = 0x10000;
+            }
+            local_3c = *(int *)(car + 0x48c);
+            local_38 = *(int *)(car + 0x490);
+            local_34 = *(int *)(car + 0x494);
+            iVar4 = FixMul(local_44, local_34) - FixMul(local_40, local_38);
+            iVar11 = FixMul(local_40, local_3c) - FixMul(local_48, local_34);
+            iVar12 = FixMul(local_48, local_38) - FixMul(local_44, local_3c);
+            {
+                FixVector cross;
+                int len;
+                cross.x = iVar4;
+                cross.y = iVar11;
+                cross.z = iVar12;
+                len = FixVecLength(&cross);
+                if (len == 0) {
+                    local_30 = 0;
+                    local_2c = 0;
+                    local_28 = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)&local_30, &cross, len);
+                }
+            }
+            Car_SpawnDebris(param_2, (FixVector *)&local_24, (Car *)car,
+                            (FixVector *)&local_48, 0x40000, 0x6666);
+        }
+    }
+    return;
+}
+
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
+
+// Places one of a car's four contact points on the ground: rotates the local
+// point into world space, queries the track height, then builds the tangent
+// direction (world axes minus the normal component) and stores the resulting
+// contact plane on the point.
+// match 25%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
+// FUNCTION: CMR2 0x00484f40
+void FUN_00484f40(unsigned int param_1)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    unsigned int local_1c = param_1 & 0xff;
+    int idx = *(char *)(car + 0xb1a) * 4;
+    int *piVar1 = (int *)(*(int *)((BYTE *)g_unk0x00590c6c + idx) + local_1c * 0x3c);
+    int ptr2 = *(int *)((BYTE *)g_unk0x00590c00 + idx) + local_1c * 0x20;
+
+    if (piVar1[0xe] == 0) {
+        int surface = 0;
+        short tri = 0;
+        int local_40, local_3c, local_38;
+        int local_28, local_24, local_20;
+        int local_18 = ptr2;
+        int dot, a1, a2, a3;
+        unsigned int uVar10;
+        int iVar5;
+
+        FixMatrix_RotateVector((FixVector *)piVar1, (FixVector *)ptr2,
+                               *(FixMatrix **)(car + 0x750));
+        piVar1[0] = piVar1[0] + *(int *)(car + 0x2d0);
+        piVar1[1] = piVar1[1] + *(int *)(car + 0x2d4);
+        piVar1[2] = piVar1[2] + *(int *)(car + 0x2d8);
+        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, (FixVector *)&local_40,
+                                          &tri, (unsigned short *)&surface, piVar1[1]);
+        FixMatrix_RotateVector((FixVector *)&local_28, (FixVector *)(ptr2 + 0xc),
+                               *(FixMatrix **)(car + 0x750));
+
+        dot = FixMul(local_38, local_20) + FixMul(local_40, local_28) + FixMul(local_3c, local_24);
+        a1 = local_28 - FixMul(local_40, dot);
+        a2 = local_24 - FixMul(local_3c, dot);
+        a3 = local_20 - FixMul(local_38, dot);
+        uVar10 = (unsigned int)FixSqrt(FixMul(a1, a1) + FixMul(a2, a2) + FixMul(a3, a3));
+
+        if (uVar10 == 0) {
+            unsigned int u = (unsigned int)FixMul(local_40, 0x10000);
+            int f9 = 0x10000 - FixMul(local_40, u);
+            int f2 = -FixMul(local_3c, u);
+            int f3 = -FixMul(local_38, u);
+
+            uVar10 = (unsigned int)FixSqrt(FixMul(f9, f9) + FixMul(f2, f2) + FixMul(f3, f3));
+            if (uVar10 == 0) {
+                local_28 = 0;
+                local_24 = 0;
+                local_20 = 0;
+            } else {
+                iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
+                local_28 = FixMul(f9, iVar5);
+                local_24 = FixMul(f2, iVar5);
+                local_20 = FixMul(f3, iVar5);
+            }
+        } else {
+            iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
+            local_28 = FixMul(a1, iVar5);
+            local_24 = FixMul(a2, iVar5);
+            local_20 = FixMul(a3, iVar5);
+        }
+
+        dot = *(int *)(local_18 + 0x18);
+        piVar1[9] = piVar1[0] + FixMul(local_28, dot);
+        piVar1[10] = piVar1[1] + FixMul(local_24, dot);
+        piVar1[0xb] = piVar1[2] + FixMul(local_20, dot);
+        piVar1[0xe] = 1;
+        *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
+    }
+}
+
+
+void Vehicle_UpdateMotion(FixVector *pInput);
+int FUN_00482f30(void);
+
+// Steps one of a car's four wheel/hub records: derives the suspension strut
+// angle from the steering angle, resolves the ground contact (spring
+// compression plus the body-to-wheel delta), damps and integrates the local
+// motion vector and re-orthonormalises the part basis.
+// match 21%: implementada; difieren el reparto de registros/locales y la fusion de las
+// normalizaciones inline, y el original relee g_unk0x00590c20 en cada acceso
+// FUNCTION: CMR2 0x00483570
+void FUN_00483570(void)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    BYTE *pc;
+    unsigned short angles[3];
+    int v2c[3];
+    int v38[3];
+    int v5c[3];
+    int v74[3];
+    int v50[3];
+    int v44[3];
+    int local_c;
+    int len;
+    int iVar6;
+    int iVar9;
+    int *wb;
+
+    if (*(char *)(car + 0xb1b) == 8) {
+        local_c = 0;
+        angles[0] = 0;
+        angles[1] = 0;
+        angles[2] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000) * -0.00017361111111111112);
+        FUN_00481560(angles);
+    } else {
+        if (FUN_00482f30() != 0)
+            return;
+        pc = (BYTE *)g_unk0x00590c20;
+        local_c = 0;
+        if ((pc[0x150] & 4) == 0) {
+            v5c[0] = 0;
+            v5c[1] = 0;
+            v5c[2] = 0;
+            if (*(int *)(pc + 0x128) < 1) {
+                v2c[0] = *(int *)(pc + 0x194) - g_sinTable[*(unsigned short *)(pc + 0x158) & 0xfff];
+                v2c[1] = *(int *)(pc + 0x198);
+                v2c[2] = *(int *)(pc + 0x19c) - g_sinTable[(*(unsigned short *)(pc + 0x158) + 0x400) & 0xfff];
+            } else {
+                v2c[0] = g_sinTable[*(unsigned short *)(pc + 0x158) & 0xfff] - *(int *)(pc + 0x194);
+                v2c[1] = -*(int *)(pc + 0x198);
+                v2c[2] = g_sinTable[(*(unsigned short *)(pc + 0x158) + 0x400) & 0xfff] - *(int *)(pc + 0x19c);
+            }
+            FixVecLength((FixVector *)v2c);
+            v38[0] = FixMul(*(int *)(car + 0x408) - *(int *)(car + 0x414), -0x50000);
+            v38[1] = FixMul(*(int *)(car + 0x40c) - *(int *)(car + 0x418), -0xa0000);
+            v38[2] = FixMul(*(int *)(car + 0x410) - *(int *)(car + 0x41c), -0x50000);
+            if (FixMul(v38[2], v38[2]) + FixMul(v38[0], v38[0]) <= 0x64000 ||
+                *(int *)(g_unk0x00590d78 + 0x288) <= 0x8000) {
+                v38[1] -= 0x4000;
+            } else {
+                local_c = 1;
+                v74[0] = v38[0];
+                v74[1] = v38[1];
+                v74[2] = v38[2];
+            }
+            iVar9 = 0x10000 - g_physicsTimeStep;
+            if (iVar9 < 0)
+                iVar9 = 0;
+            else if (iVar9 > 0x8000)
+                iVar9 = 0x8000;
+            iVar9 = FixMul(iVar9, 0xc937) + 0x8000;
+            *(int *)(pc + 0x164) = FixMul(*(int *)(pc + 0x164), iVar9);
+            *(int *)(pc + 0x168) = FixMul(*(int *)(pc + 0x168), iVar9);
+            *(int *)(pc + 0x16c) = FixMul(*(int *)(pc + 0x16c), iVar9);
+            FixMatrix_InverseRotateVector((FixVector *)v2c, (FixVector *)v38, *(FixMatrix **)(pc + 8));
+            v38[0] = v2c[0];
+            v38[1] = v2c[1];
+            v38[2] = v2c[2];
+            if (local_c == 0) {
+                v38[0] = v2c[0] + v5c[0];
+                v38[1] = v2c[1] + v5c[1];
+                v38[2] = v2c[2] + v5c[2];
+            } else {
+                *(int *)(pc + 0x164) = 0;
+                *(int *)(pc + 0x168) = 0;
+                *(int *)(pc + 0x16c) = 0;
+            }
+            v2c[0] = *(int *)(pc + 0x12c) - *(int *)(pc + 0x120);
+            v2c[1] = *(int *)(pc + 0x130) - *(int *)(pc + 0x124);
+            v2c[2] = *(int *)(pc + 0x134) - *(int *)(pc + 0x128);
+            v44[0] = -FixMul(FixMul(v38[1], v2c[2]) - FixMul(v38[2], v2c[1]), *(int *)(pc + 0x170));
+            v44[1] = -FixMul(FixMul(v38[2], v2c[0]) - FixMul(v38[0], v2c[2]), *(int *)(pc + 0x174));
+            v44[2] = -FixMul(FixMul(v38[0], v2c[1]) - FixMul(v38[1], v2c[0]), *(int *)(pc + 0x178));
+            *(int *)(pc + 0x164) += v44[0];
+            *(int *)(pc + 0x168) += v44[1];
+            *(int *)(pc + 0x16c) += v44[2];
+            *(int *)(pc + 0x16c) = 0;
+        } else {
+            v44[0] = 0;
+            v44[1] = 0;
+            v44[2] = 0;
+        }
+        pc[0x150] |= 8;
+        if (local_c == 0 && (pc[0x150] & 4) == 0 && ((Unk0x00590d74 *)car)->field_0x778 < 0x7af)
+            pc[0x150] &= (BYTE)~8;
+        if ((pc[0x150] & 8) == 0) {
+            *(int *)(pc + 0x164) = 0;
+            *(int *)(pc + 0x168) = 0;
+            *(int *)(pc + 0x16c) = 0;
+        } else {
+            v50[0] = FixMul(*(int *)(pc + 0x164), g_physicsTimeStep);
+            v50[1] = FixMul(*(int *)(pc + 0x168), g_physicsTimeStep);
+            v50[2] = FixMul(*(int *)(pc + 0x16c), g_physicsTimeStep);
+            v50[0] -= v44[0];
+            v50[1] -= v44[1];
+            v50[2] -= v44[2];
+            angles[0] = (short)((double)v50[0] * 0.009947183943243459);
+            angles[1] = (short)((double)v50[1] * 0.009947183943243459);
+            angles[2] = (short)((double)v50[2] * 0.009947183943243459);
+            FixBasis_Rotate((FixBasis *)(pc + 0x17c), angles);
+        }
+        if (local_c == 0 && (pc[0x150] & 4) == 0) {
+            wb = (int *)g_unk0x00590b5c[*(char *)(car + 0xb1a)];
+            iVar6 = FixMul(wb[0], *(int *)(pc + 0x194)) + FixMul(wb[1], *(int *)(pc + 0x198)) +
+                    FixMul(wb[2], *(int *)(pc + 0x19c));
+            if ((pc[0x150] & 8) != 0 &&
+                ((*(int *)(pc + 0x128) < 0 && iVar6 < 0) ||
+                 (*(int *)(pc + 0x128) > 0 && iVar6 > 0))) {
+                v2c[0] = FixMul(wb[0], iVar6);
+                v2c[1] = FixMul(wb[1], iVar6);
+                v2c[2] = FixMul(wb[2], iVar6);
+                v2c[0] = *(int *)(pc + 0x194) - v2c[0];
+                v2c[1] = *(int *)(pc + 0x198) - v2c[1];
+                v2c[2] = *(int *)(pc + 0x19c) - v2c[2];
+                len = FixVecLength((FixVector *)v2c);
+                if (len == 0) {
+                    *(int *)(pc + 0x194) = 0;
+                    *(int *)(pc + 0x198) = 0;
+                    *(int *)(pc + 0x19c) = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)(pc + 0x194), (FixVector *)v2c, len);
+                }
+                *(int *)(pc + 0x180) = 0;
+                v2c[0] = *(int *)(pc + 0x17c) - v2c[0];
+                v2c[1] = *(int *)(pc + 0x180) - v2c[1];
+                v2c[2] = *(int *)(pc + 0x184) - v2c[2];
+                len = FixVecLength((FixVector *)v2c);
+                if (len == 0) {
+                    *(int *)(pc + 0x17c) = 0;
+                    *(int *)(pc + 0x180) = 0;
+                    *(int *)(pc + 0x184) = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)(pc + 0x17c), (FixVector *)v2c, len);
+                }
+                v2c[0] = FixMul(*(int *)(pc + 0x198), *(int *)(pc + 0x184)) -
+                         FixMul(*(int *)(pc + 0x19c), *(int *)(pc + 0x180));
+                v2c[1] = FixMul(*(int *)(pc + 0x19c), *(int *)(pc + 0x17c)) -
+                         FixMul(*(int *)(pc + 0x194), *(int *)(pc + 0x184));
+                v2c[2] = FixMul(*(int *)(pc + 0x194), *(int *)(pc + 0x180)) -
+                         FixMul(*(int *)(pc + 0x198), *(int *)(pc + 0x17c));
+                len = FixVecLength((FixVector *)v2c);
+                if (len == 0) {
+                    *(int *)(pc + 0x188) = 0;
+                    *(int *)(pc + 0x18c) = 0;
+                    *(int *)(pc + 0x190) = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)(pc + 0x188), (FixVector *)v2c, len);
+                }
+                iVar6 = FixMul(*(int *)(pc + 0x164), wb[0]) + FixMul(*(int *)(pc + 0x168), wb[1]) +
+                        FixMul(*(int *)(pc + 0x16c), wb[2]);
+                *(int *)(pc + 0x164) = FixMul(wb[0], iVar6);
+                *(int *)(pc + 0x168) = FixMul(wb[1], iVar6);
+                *(int *)(pc + 0x16c) = FixMul(wb[2], iVar6);
+            }
+        } else {
+            FixMatrix_SetRight((FixVector *)(pc + 0x17c), *(FixMatrix **)(pc + 4));
+            FixMatrix_SetUp((FixVector *)(pc + 0x188), *(FixMatrix **)(pc + 4));
+            FixMatrix_SetForward((FixVector *)(pc + 0x194), *(FixMatrix **)(pc + 4));
+        }
+        iVar9 = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
+        if (*(int *)(pc + 0x128) < 0)
+            iVar9 = -iVar9;
+        angles[1] = 0;
+        angles[2] = 0;
+        angles[0] = (short)((double)iVar9 * 0.00017361111111111112);
+        FUN_00481560(angles);
+    }
+    VehicleMotion_UpdateWorldPosition();
+    if (local_c != 0)
+        Vehicle_UpdateMotion((FixVector *)v74);
+}
+
+
+extern int g_unk0x00588970[8];
+void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
+void FUN_00418ba0(unsigned int view, int strength, int listener);
+void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
+void FUN_004675c0(Car *pCar, Car *pOther);
+void FUN_00468a80(Car *pCar, int amount);
+void FUN_00468c10(Car *pCar);
+
+// GLOBAL: CMR2 0x0051bf94
+int g_unk0x0051bf94[3] = { 0x1999, 0x1999, 0x1999 };
+// GLOBAL: CMR2 0x0051bfa0
+int g_unk0x0051bfa0[3] = { 0x10000, 0x10000, 0x10000 };
+
+// Applies the deformation impulse of a collision to one car: derives the
+// impact strength from the body displacement, resolves the impact point and
+// normal into the car's deformation frame (mode 0/1/2 choose the projection)
+// and refreshes the deformation radius, falloff and scale.
+// match 74%: implementada; logica identica (los tres modos y las dos pasadas); difieren el
+// reparto de registros y el orden de algunas comparaciones
+// FUNCTION: CMR2 0x00466ef0
+void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
+                  unsigned char param_5, int param_6)
+{
+    BYTE *pc = (BYTE *)pCar;
+    int vecA[3];
+    int V[3];
+    int len;
+    int saved = 0;
+    int carIdx;
+    int dot;
+    int i;
+
+    if (param_6 == 0) {
+        len = FixVecLength((FixVector *)(pc + 0x5c4));
+        if (len > 0x10000)
+            len = 0x10000;
+        else if (len < 0)
+            len = 0;
+        carIdx = *(char *)(pc + 0xb1a);
+        if (carIdx < (int)(RallyDataState() & 0xff)) {
+            if (*(int *)(pc + 0xb74) == 0) {
+                FUN_00418c30(carIdx, len, 0, carIdx);
+            } else if ((unsigned int)(CMain::GetFrameDelta() -
+                                      (unsigned int)(&g_unk0x00588a88)[carIdx]) > 10) {
+                FUN_00418ba0(carIdx, len, carIdx);
+                (&g_unk0x00588a88)[carIdx] = (int)CMain::GetFrameDelta();
+            }
+        }
+        ForceFeedback_UpdateSlot(pc, (FixVector *)(pc + 0x5c4), 1);
+    }
+    carIdx = *(char *)(pc + 0xb1a);
+    if (*(int *)(g_unk0x00588b94 + carIdx * 0x4d0 + 0x45c) != 0 &&
+        g_unk0x00588970[carIdx] != 0) {
+        if (param_6 == 0) {
+            len = FixVecLength((FixVector *)(pc + 0x5c4));
+            if (len > 0x10000)
+                len = 0x10000;
+            else if (len < 0)
+                len = 0;
+            g_stageDeformStrength = len;
+            if (g_stageDeformStrength <= g_unk0x0051bf94[param_5 & 0xff])
+                return;
+            g_stageDeformStrength = FixMul(g_stageDeformStrength, g_unk0x0051bfa0[param_5 & 0xff]);
+            if (g_stageDeformStrength > 0x10000)
+                g_stageDeformStrength = 0x10000;
+            *(BYTE *)&g_stageDeformMode = param_5;
+            g_stageDeformImpact.x = *(int *)(*(int *)(pc + 0x750) + 4);
+            g_stageDeformImpact.y = *(int *)(*(int *)(pc + 0x750) + 0x14);
+            g_stageDeformImpact.z = *(int *)(*(int *)(pc + 0x750) + 0x24);
+            saved = g_stageDeformStrength;
+        }
+        g_stageDeformCar = pCar;
+        switch (g_stageDeformMode & 0xff) {
+        case 0:
+            if (param_6 == 0) {
+                FixMatrix_InverseRotateVector(&g_stageDeformNormal, param_3,
+                                              *(FixMatrix **)(pc + 0x750));
+                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
+                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
+                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                dot = FixMul(param_3->x, V[0]) + FixMul(param_3->y, V[1]) + FixMul(param_3->z, V[2]);
+                V[0] = FixMul(param_3->x, dot);
+                V[1] = FixMul(param_3->y, dot);
+                V[2] = FixMul(param_3->z, dot);
+                FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
+                                              *(FixMatrix **)(pc + 0x750));
+                FUN_00468520();
+            }
+            g_stageDeformRadius = FixMul(g_stageDeformStrength, 0x5999);
+            g_stageDeformFalloff = FixMul(g_stageDeformStrength, 0x9999);
+            g_stageDeformScale = FixMul(g_stageDeformStrength, 0xb333);
+            FUN_004675c0(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            StageDeform_ApplyRadialDent();
+            break;
+        case 1:
+            if (param_4 < 0x4000)
+                param_4 = 0x4000;
+            if (param_6 == 0) {
+                g_stageDeformSpeed = param_4;
+                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
+                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
+                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
+                                              *(FixMatrix **)(pc + 0x750));
+                FixMatrix_InverseRotateVector(&g_stageDeformNormal, param_3,
+                                              *(FixMatrix **)(pc + 0x750));
+                FUN_00468520();
+            }
+            dot = FixMul(g_stageDeformStrength, 0x8000);
+            if (dot > param_4)
+                dot = param_4;
+            g_stageDeformRadius = dot;
+            g_stageDeformFalloff = dot;
+            g_stageDeformScale = dot;
+            FUN_004675c0(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            StageDeform_ApplyPlanarDent();
+            break;
+        default:
+            if (param_6 == 0) {
+                vecA[0] = *(int *)(pc + 0x2d0) - param_2[0];
+                vecA[1] = 0;
+                vecA[2] = *(int *)(pc + 0x2d8) - param_2[2];
+                len = FixVecLength((FixVector *)vecA);
+                if (len == 0) {
+                    vecA[0] = 0;
+                    vecA[1] = 0;
+                    vecA[2] = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)vecA, (FixVector *)vecA, len);
+                }
+                V[0] = param_2[0] - *(int *)(pc + 0x2d0);
+                V[1] = param_2[1] - *(int *)(pc + 0x2d4);
+                V[2] = param_2[2] - *(int *)(pc + 0x2d8);
+                FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
+                                              *(FixMatrix **)(pc + 0x750));
+                FixMatrix_InverseRotateVector(&g_stageDeformNormal, (FixVector *)vecA,
+                                              *(FixMatrix **)(pc + 0x750));
+                FUN_00468520();
+            }
+            g_stageDeformSpeed = 0x4000;
+            dot = FixMul(g_stageDeformStrength, 0x8000);
+            if (dot > 0x4000)
+                dot = 0x4000;
+            g_stageDeformRadius = dot;
+            g_stageDeformFalloff = dot;
+            g_stageDeformScale = dot;
+            FUN_004675c0(pCar, (Car *)(g_unk0x00588b94 + carIdx * 0x4d0));
+            StageDeform_ApplyPlanarDent();
+            break;
+        }
+        if (param_6 == 0) {
+            FUN_00468a80(pCar, saved);
+            FUN_00468c10(pCar);
+            FUN_004692f0(pCar, 0);
+        }
+    }
+}
+
+
+BYTE FUN_00422fb0(BYTE index);
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri,
+                          unsigned short *pSurface, int defaultY);
+
+// Per-view vertical offset table, 25 entries (5x5 contact grid) per view.
+// GLOBAL: CMR2 0x00538d7c
+int g_unk0x00538d7c[44];
+
+// One deformable node of a stage record: position, spin rate, angle and scale
+// (stride 0x24).
+struct StageDeformNode {
+    int x;          // 0x00
+    int y;          // 0x04
+    int z;          // 0x08
+    int spin;       // 0x0c
+    int field_0x10; // 0x10
+    int angle;      // 0x14
+    int scale;      // 0x18
+    int field_0x1c; // 0x1c
+    int wrapped;    // 0x20
+};
+
+// GLOBAL: CMR2 0x00543fb0
+StageDeformNode g_unk0x00543fb0[400];
+
+// Steps the deformation record of one view: advances the record position from
+// the view node's forward vector, resamples the 5x5 contact grid and
+// integrates the per-node heights and angles.
+// match 28%: implementada; el original reutiliza slots de pila (param_3) como temporales y
+// reparte distinto registros y contadores de los dos bucles
+// FUNCTION: CMR2 0x0045f9d0
+void FUN_0045f9d0(int param_1, int *param_2, int param_3)
+{
+    int *rec = param_2;
+    int pos[3];
+    int fwd[3];
+    int pt[3];
+    int normal[3];
+    int gn[3];
+    int dv[3];
+    int sv[3];
+    int corr[3];
+    int minY;
+    int wheelScale = 0;
+    int i, j;
+    int sum;
+    int len;
+    int scale;
+    int n, base;
+    int hx, hy, hz;
+    int tmp2;
+    int gx = 0, gz = 0;
+    int x0, z0, z;
+    int *pHeight;
+    short *pTri;
+    unsigned short surface;
+
+    StageTiming_UpdateEventDisplacement(rec);
+    FUN_0045e9a0((SceneNode *)rec);
+    FixMatrix_GetPosition((FixVector *)pos, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
+    FixMatrix_GetForward((FixVector *)fwd, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
+    sum = 0;
+    {
+        int *p = (int *)((BYTE *)Car_Get(FUN_00422fb0((BYTE)param_3)) + 0x8dc);
+        for (i = 0; i < 4; i++)
+            sum += p[i];
+    }
+    len = FixMul(sum, 0x4000) + 0x6c000;
+    minY = pos[1] + 0x60000;
+    if (len < minY)
+        minY = len;
+    if (rec[0] == 2) {
+        rec[0xe] = fwd[2];
+        rec[0xf] = 0;
+        rec[0x10] = -fwd[0];
+        len = FixVecLength((FixVector *)(rec + 0xe));
+        if (len == 0) {
+            rec[0xe] = 0;
+            rec[0xf] = 0;
+            rec[0x10] = 0;
+        } else {
+            FixVecScaleRecip((FixVector *)(rec + 0xe), (FixVector *)(rec + 0xe), len);
+        }
+        scale = FixMul(g_unk0x00547940, 0x8000);
+        sv[0] = FixMul(g_unk0x00547930.z, scale);
+        sv[1] = 0;
+        sv[2] = FixMul(-g_unk0x00547930.x, scale);
+    }
+    fwd[0] = FixMul(fwd[0], 0xe0000);
+    fwd[1] = FixMul(fwd[1], 0xe0000);
+    fwd[2] = FixMul(fwd[2], 0xe0000);
+    pos[0] += fwd[0];
+    pos[1] += fwd[1];
+    pos[2] += fwd[2];
+    if (pos[1] < minY)
+        pos[1] = minY;
+    dv[0] = FixMul(pos[0] - rec[5], g_unk0x0051bd40);
+    dv[1] = 0;
+    dv[2] = FixMul(pos[2] - rec[7], g_unk0x0051bd40);
+    rec[8] = rec[0xb] - dv[0];
+    rec[9] = rec[0xc] - dv[1];
+    rec[5] = pos[0];
+    rec[6] = pos[1];
+    rec[10] = rec[0xd] - dv[2];
+    rec[7] = pos[2];
+    scale = FixMul(FixDiv(g_unk0x00538d7c[param_3 * 25], 0xa000) - 0x10000, 0x4ccc);
+    gn[0] = FixMul(fwd[0], scale);
+    gn[1] = FixMul(fwd[1], scale);
+    gn[2] = FixMul(fwd[2], scale);
+    pos[0] += gn[0];
+    rec[2] = pos[0];
+    pos[1] += gn[1];
+    rec[3] = pos[1];
+    pos[2] += gn[2];
+    rec[4] = pos[2];
+    corr[0] = FixMul(rec[0xb], g_unk0x0051bd3c);
+    corr[1] = FixMul(rec[0xc], g_unk0x0051bd3c);
+    corr[2] = FixMul(rec[0xd], g_unk0x0051bd3c);
+    rec[0x11] = FixMul(corr[0], -0x10000);
+    rec[0x12] = FixMul(corr[1], -0x10000);
+    rec[0x13] = FixMul(corr[2], -0x10000);
+    if (rec[0x12] == 0)
+        rec[0x14] = 0;
+    else
+        rec[0x14] = FixDiv(0x10000, rec[0x12]);
+    if (rec[0] == 2) {
+        wheelScale = FixMul(rec[0x16], g_unk0x00543da0);
+        if (wheelScale > 0x10000)
+            wheelScale = 0x10000;
+        wheelScale = FixMul(wheelScale, g_unk0x0051bd3c);
+    }
+    if (rec[0] == 1) {
+        x0 = rec[2] + 0x9999a;
+        z0 = rec[4] + 0x9999a;
+        pTri = (short *)((BYTE *)rec + 0x78);
+        pHeight = rec + 0x2b;
+        for (i = 0; i < 5; i++) {
+            z = z0;
+            for (j = 0; j < 5; j++) {
+                pt[2] = z;
+                pt[1] = 0;
+                pt[0] = x0;
+                hz = Track_GetGroundHeight((FixVector *)pt, (FixVector *)normal, pTri, &surface,
+                                           *pHeight);
+                *pHeight = hz;
+                z -= 0x4cccc;
+                pHeight[0x19] = (rec[3] - hz) + -0x61999;
+                pTri++;
+                pHeight++;
+            }
+            x0 -= 0x4cccc;
+        }
+    }
+    n = *(short *)((BYTE *)rec + 0x74);
+    base = *(short *)((BYTE *)rec + 0x76);
+    for (i = 0; i < n; i++) {
+        StageDeformNode *pNode = &g_unk0x00543fb0[base + i];
+        hx = pNode->x + (corr[0] - rec[2]);
+        hy = pNode->y + (corr[1] - rec[3]);
+        hz = pNode->z + (corr[2] - rec[4]);
+        if (rec[0] == 2) {
+            scale = FixMul(wheelScale, pNode->scale);
+            hx += FixMul(sv[0], scale);
+            hy += FixMul(sv[1], scale);
+            hz += FixMul(sv[2], scale);
+        }
+        pNode->wrapped = 0;
+        if (hx < 0xc0001) {
+            if (hx < -0xc0000)
+                hx += ((0xbffff - hx) / 0x180000) * 3 * 0x80000;
+        } else {
+            hx += ((hx + 0xbffff) / 0x180000) * -3 * 0x80000;
+        }
+        if (rec[0] == 1) {
+            gx = 0;
+            if ((int)(0xc0000 - hx) > 0x4cccb)
+                gx = (0xc0000 - hx) / 0x4cccc;
+            gz = 0;
+            if ((int)(0xc0000 - hz) > 0x4cccb)
+                gz = (0xc0000 - hz) / 0x4cccc;
+            if (gx < 5 && gz < 5)
+                hy += rec[gx * 5 + gz + 0x44];
+        }
+        if (hy < 0x60001) {
+            if (hy < -0x60000) {
+                do {
+                    hy += 0xc0000;
+                } while (hy < -0x60000);
+                pNode->wrapped = 1;
+            }
+        } else {
+            do {
+                hy += -0xc0000;
+            } while (0x60000 < hy);
+        }
+        if (rec[0] == 1 && gx < 5 && gz < 5) {
+            hy -= rec[gz + gx * 5 + 0x44];
+            pNode->angle = rec[gz + gx * 5 + 0x2b] + 0x1999;
+        }
+        if (hz < 0xc0001) {
+            while (hz < -0xc0000)
+                hz += 0x180000;
+        } else {
+            do {
+                hz += -0x180000;
+            } while (0xc0000 < hz);
+        }
+        pNode->x = rec[2] + hx;
+        pNode->y = rec[3] + hy;
+        pNode->z = hz + rec[4];
+        if (rec[0] == 2) {
+            pNode->angle += FixMul(pNode->spin, g_unk0x0051bd3c);
+            if (pNode->angle > 0x1680000)
+                pNode->angle -= 0x1680000;
+        }
+    }
+    if (param_1 != 0) {
+        if (rec[0x16] != rec[0x17]) {
+            if (rec[0x16] < rec[0x17]) {
+                tmp2 = rec[0x16] + FixMul(rec[0x18], g_unk0x0051bd3c);
+                rec[0x16] = tmp2;
+                if (rec[0x17] < tmp2) {
+                    rec[0x16] = rec[0x17];
+                    return;
+                }
+            } else {
+                tmp2 = rec[0x16] - FixMul(rec[0x18], g_unk0x0051bd3c);
+                rec[0x16] = tmp2;
+                if (tmp2 < rec[0x17])
+                    rec[0x16] = rec[0x17];
+            }
+        }
+    }
+}
