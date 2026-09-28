@@ -3097,7 +3097,8 @@ BYTE g_unk0x0082d14c;
 
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The 1/127 scale runs through FixVecScaleRecip, so the divisor is read as a
+// named global on the original side (reccmp renders it as an array field).
 // FUNCTION: CMR2 0x00507710
 void FUN_00507710(BYTE *pColour)
 {
@@ -3108,13 +3109,13 @@ void FUN_00507710(BYTE *pColour)
     g_unk0x0082d12c.x = (int)(signed char)pColour[3] << 16;
     g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
     g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
-    // The original expands the 1/127 scale as a 64-bit division (its compiler
-    // keeps the constant divisor in a register, like at 0x4689c8).
-    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(0x100000000i64 / 0x7f0000));
+    // The original scales by the reciprocal instead of FixDiv, which is why
+    // the 1/127 constant is divided at run time (see FixVecScaleRecip).
+    FixVecScaleRecip(&g_unk0x0082d12c, &g_unk0x0082d12c, 0x7f0000);
     g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
     g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
     g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
-    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(0x100000000i64 / 0x7f0000));
+    FixVecScaleRecip(&g_unk0x0082d138, &g_unk0x0082d138, 0x7f0000);
     g_unk0x0082d148 = (int)pColour[0] << 16;
     g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
     g_unk0x0082d14c = pColour[1];

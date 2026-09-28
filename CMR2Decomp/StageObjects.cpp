@@ -3866,8 +3866,8 @@ void FUN_00487e00(FixVector *pPos, int *pInfo)
 
 // Updates a car's stage shadow/light when its position, projected on the two
 // box axes, is inside the light box (with the global tolerance).
-// match 89%: the box limit pBox[0] stays in a different register
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The original hoists both tolerance'd limits before testing the absolute
+// values, which is what the two named locals reproduce.
 // FUNCTION: CMR2 0x00487e50
 void FUN_00487e50(int *pBox, Car *pCar)
 {
@@ -3883,12 +3883,12 @@ void FUN_00487e50(int *pBox, Car *pCar)
     v = FixVecDot(&delta, (FixVector *)(pBox + 7));
     if (FIX_ABS(u) > pBox[0] && FIX_ABS(v) > pBox[1])
         return;
-    u = FIX_ABS(u);
-    v = FIX_ABS(v);
     {
-        int limit0 = pBox[0] + g_unk0x00591490;
-        int limit1 = pBox[1] + g_unk0x00591490;
-        if (u > limit0 || v > limit1)
+        int limit0;
+        int limit1;
+        limit0 = pBox[0] + g_unk0x00591490;
+        limit1 = pBox[1] + g_unk0x00591490;
+        if (FIX_ABS(u) > limit0 || FIX_ABS(v) > limit1)
             return;
     }
     FUN_0048df50(pCar);
