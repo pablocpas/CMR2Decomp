@@ -10188,3 +10188,304 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
     }
     SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4), &pos);
 }
+
+
+// ---------------------------------------------------------------------------
+// W151.Impl46a500_46acb0: callees that are not declared in any header used by
+// this translation unit yet.
+// ---------------------------------------------------------------------------
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
+void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
+// g_unk0x00588a80 (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
+// su anotacion // GLOBAL: vive en su fichero de definicion; aqui solo el extern.
+extern int g_unk0x00588a80;
+extern const double g_unk0x00511310;
+
+// Car impact update: checks the four axle travel limits, samples the current
+// suspension extremes per object type and, when one of this car's objects is
+// hit above 0x4ccc units/sec, builds the contact frame (forward / lateral /
+// up) around the hit point, spawns the debris, adds the impact damage to the
+// object record and refreshes the impact sound / force-feedback state.
+// match 60%: implementada (contacto de impacto: marco forward/lateral/up, debris,
+// dano y sonido); difiere el reparto de registros del bloque de normalizacion
+// FUNCTION: CMR2 0x0046a500
+void FUN_0046a500(int param_1)
+{
+    int *pParts;
+    int i;
+    int iBig;
+    int iFlagC;
+    int idx;
+    int dot;
+    int speed;
+    int len;
+    BOOL bVar5;
+    BOOL bVar14;
+    unsigned int uVar15;
+    unsigned int uVar16;
+    FixVector vDir;
+    FixVector vSide;
+    FixVector vUp;
+    FixVector vHit;
+    FixVector *pvAxes;
+
+    iFlagC = 0;
+    pParts = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    bVar5 = FALSE;
+    bVar14 = TRUE;
+    i = 0;
+    do {
+        int limit;
+
+        limit = *(int *)(param_1 + 0x988 + i * 4);
+        if (limit < 0x51e)
+            limit = 0x51e;
+        if (-limit <= *(int *)(param_1 + 0x9d8 + i * 4)) {
+            bVar14 = FALSE;
+            i = 4;
+        }
+        i++;
+    } while (i < 4);
+    iBig = 0;
+    if (bVar14) {
+        int *p;
+        int n;
+
+        bVar5 = TRUE;
+        iBig = 0;
+        p = (int *)(param_1 + 0x9c8);
+        n = 4;
+        do {
+            int v;
+
+            v = *p;
+            if (v < 0)
+                v = -v;
+            if (0xd91 < v)
+                iBig = 1;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    if (*(int *)(param_1 + 0xb74) == 0)
+        return;
+    if (iBig == 0) {
+        if (bVar5)
+            ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+        return;
+    }
+    bVar5 = FALSE;
+    idx = 0;
+    do {
+        if (StageObject_IsEligibleType((short)*(unsigned short *)(param_1 + 0xaae + idx * 2), 0,
+                                       (int)*(unsigned char *)(param_1 + 0xb29)) != 0) {
+            bVar5 = TRUE;
+            idx = 4;
+        }
+        idx++;
+    } while (idx < 4);
+    if (bVar5 && 0x4ccc < *(int *)(param_1 + 0x778)) {
+        iFlagC = 1;
+        pvAxes = (FixVector *)(param_1 + 0x48c);
+        vDir.x = FixMul(*(int *)(param_1 + 0x408), -0x10000);
+        vDir.y = FixMul(*(int *)(param_1 + 0x40c), -0x10000);
+        vDir.z = FixMul(*(int *)(param_1 + 0x410), -0x10000);
+        dot = FixVecDot(pvAxes, &vDir);
+        vSide.x = FixMul(pvAxes->x, dot);
+        vSide.y = FixMul(pvAxes->y, dot);
+        vSide.z = FixMul(pvAxes->z, dot);
+        vDir.x -= vSide.x;
+        vDir.y -= vSide.y;
+        vDir.z -= vSide.z;
+        len = FixVecLength(&vDir);
+        if (len == 0) {
+            vDir.x = 0;
+            vDir.y = 0;
+            vDir.z = 0;
+        } else {
+            FixVecScaleRecip(&vDir, &vDir, len);
+        }
+        FixVecCross(&vSide, &vDir, pvAxes);
+        len = FixVecLength(&vSide);
+        if (len == 0) {
+            vSide.x = 0;
+            vSide.y = 0;
+            vSide.z = 0;
+        } else {
+            FixVecScaleRecip(&vSide, &vSide, len);
+        }
+        FixVecCross(&vUp, &vSide, &vDir);
+        len = FixVecLength(&vUp);
+        if (len == 0) {
+            vUp.x = 0;
+            vUp.y = 0;
+            vUp.z = 0;
+        } else {
+            FixVecScaleRecip(&vUp, &vUp, len);
+        }
+        FixVecScale(&vUp, &vUp, 0x8000);
+        vHit.x = FixMul(*(int *)(param_1 + 0x270) - *(int *)(param_1 + 0x294), 0x8000) +
+                 *(int *)(param_1 + 0x294) - *(int *)(param_1 + 0x2d0);
+        vHit.y = FixMul(*(int *)(param_1 + 0x274) - *(int *)(param_1 + 0x298), 0x8000) +
+                 *(int *)(param_1 + 0x298) - *(int *)(param_1 + 0x2d4);
+        vHit.z = FixMul(*(int *)(param_1 + 0x278) - *(int *)(param_1 + 0x29c), 0x8000) +
+                 *(int *)(param_1 + 0x29c) - *(int *)(param_1 + 0x2d8);
+        Car_SpawnDebris(*(int *)(param_1 + 0x778), &vHit, (Car *)param_1, &vDir, 0x1e0000, 0);
+        speed = *(int *)(param_1 + 0x778);
+        if (speed > 0x10000)
+            speed = 0x10000;
+        *(int *)((BYTE *)pParts + 0x22c) += FixMul(speed, 0x28f);
+        FUN_00468c10((Car *)param_1);
+    }
+    uVar15 = RallyDataState();
+    if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
+        i = (int)*(char *)(param_1 + 0xb1a);
+        uVar16 = CMain::GetFrameDelta();
+        if (0x19 < (unsigned int)(uVar16 - (&g_unk0x00588a80)[i]) && *(int *)(param_1 + 0x778) > 0) {
+            if (*(int *)(param_1 + 0x778) <= 0x10000)
+                uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
+            else
+                uVar15 = 0x5c28;
+            i = (int)*(char *)(param_1 + 0xb1a);
+            FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
+            uVar16 = CMain::GetFrameDelta();
+            (&g_unk0x00588a80)[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+        }
+    }
+    ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+    *(int *)(param_1 + 0x408) = FixMul(*(int *)(param_1 + 0x408), 0xf851);
+    *(int *)(param_1 + 0x40c) = FixMul(*(int *)(param_1 + 0x40c), 0xf851);
+    *(int *)(param_1 + 0x410) = FixMul(*(int *)(param_1 + 0x410), 0xf851);
+}
+
+// Rebuilds the per-part bounding box of a stage object record for one car:
+// converts the packed integer vertices of every part to floats, tracks the
+// per-part min/max in 16.16 units, expands the record's global x/z bounds and
+// stores each part centre at +0xb4 and its half extents at +0xf0.
+// match 11%: implementada (caja envolvente por pieza: vertices a float, min/max
+// 16.16 por pieza, centro en +0xb4 y semiejes en +0xf0); el codegen de la
+// conversion float y del bucle de vertices diverge mucho del original
+// FUNCTION: CMR2 0x0046acb0
+void FUN_0046acb0(int param_1, int param_2, int param_3)
+{
+    int i;
+    int count;
+    int matchIdx;
+    int idx;
+    int key;
+    int n;
+    int rOff;
+    int fOff;
+    int maxX;
+    int maxY;
+    int maxZ;
+    int minX;
+    int minY;
+    int minZ;
+    int fx;
+    int fy;
+    int fz;
+    int *pRec;
+    int *pDst;
+    int *pVertRecs;
+    float *pFloats;
+    FixVector extents;
+
+    if (g_unk0x00588970[param_1] == 0)
+        return;
+    if (g_unk0x00588b9c[param_1] == 0)
+        FUN_0046afe0(param_1, param_2, param_3);
+    i = 0;
+    count = *(int *)(param_3 + 0x45c);
+    if (count > 0) {
+        pDst = (int *)(param_3 + 0xb4);
+        pRec = (int *)(param_3 + 0x78);
+        do {
+            key = *(int *)(*(int *)(param_3 + 0x3c + i * 4) + 0x30) & 0xff;
+            matchIdx = -1;
+            idx = 0;
+            if (count >= 0) {
+                do {
+                    int next;
+
+                    next = idx;
+                    if ((int)((BYTE *)g_unk0x00588ba0[param_1])[idx] == key) {
+                        next = count;
+                        matchIdx = idx;
+                    }
+                    idx = next + 1;
+                } while (idx <= count);
+                if (matchIdx >= 0) {
+                    pRec[0] = ((int *)g_unk0x00588b9c[param_1])[matchIdx];
+                    maxX = -0x640000;
+                    maxY = -0x640000;
+                    maxZ = -0x640000;
+                    minX = 0x640000;
+                    minY = 0x640000;
+                    minZ = 0x640000;
+                    if (pRec[0xea] > 0) {
+                        rOff = 0;
+                        fOff = 0;
+                        n = 0;
+                        do {
+                            pVertRecs = (int *)(rOff + pRec[0]);
+                            pFloats = (float *)(*(int *)(*(int *)(param_3 + i * 4) + 0xc) + fOff);
+                            pFloats[0] = (float)(pVertRecs[0] * g_unk0x00511310);
+                            pFloats[1] = (float)(pVertRecs[1] * g_unk0x00511310);
+                            pFloats[2] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            pVertRecs = (int *)(rOff + 0xc + pRec[0]);
+                            pFloats[3] = (float)(pVertRecs[0] * g_unk0x00511310);
+                            pFloats[4] = (float)(pVertRecs[1] * g_unk0x00511310);
+                            pFloats[5] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            fx = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
+                            fy = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
+                            fz = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
+                            if (maxX < fx)
+                                maxX = fx;
+                            if (fx < minX)
+                                minX = fx;
+                            if (maxY < fy)
+                                maxY = fy;
+                            if (fy < minY)
+                                minY = fy;
+                            if (maxZ < fz)
+                                maxZ = fz;
+                            if (fz < minZ)
+                                minZ = fz;
+                            if (fx < 0) {
+                                if (fx < *(int *)(param_3 + 0x414))
+                                    *(int *)(param_3 + 0x414) = fx;
+                            } else if (*(int *)(param_3 + 0x410) < fx) {
+                                *(int *)(param_3 + 0x410) = fx;
+                            }
+                            if (fz < 0) {
+                                if (fz < *(int *)(param_3 + 0x41c))
+                                    *(int *)(param_3 + 0x41c) = fz;
+                            } else if (*(int *)(param_3 + 0x418) < fz) {
+                                *(int *)(param_3 + 0x418) = fz;
+                            }
+                            n++;
+                            rOff += 0x20;
+                            fOff += 0x30;
+                        } while (n < pRec[0xea]);
+                    }
+                    extents.x = minX - maxX;
+                    extents.y = minY - maxY;
+                    extents.z = minZ - maxZ;
+                    FixVecScale(&extents, &extents, 0x8000);
+                    pDst[0] = extents.x + maxX;
+                    pDst[1] = extents.y + maxY;
+                    pDst[2] = extents.z + maxZ;
+                    pDst[0x2d] = maxX - pDst[0];
+                    pDst[0x2e] = maxY - pDst[1];
+                    pDst[0x2f] = maxZ - pDst[2];
+                }
+            }
+            i++;
+            count = *(int *)(param_3 + 0x45c);
+            pRec++;
+            pDst += 3;
+        } while (i < count);
+    }
+}
