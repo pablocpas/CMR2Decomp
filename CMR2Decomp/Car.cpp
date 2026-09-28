@@ -7519,3 +7519,12 @@ void FUN_00421e20(BYTE view)
     FUN_00423ee0(VIEW_STATE(index), pActive);
     FUN_004219b0(view);
 }
+
+// Switches a view to camera type `type` (0 = its current one) on `target`.
+// FUNCTION: CMR2 0x00422fe0
+void FUN_00422fe0(int view, int type, int target, int blend)
+{
+    if (type == 0)
+        type = FUN_00422f50(view);
+    FUN_00421720(view, type, 0xffff, target, blend);
+}

@@ -3126,6 +3126,20 @@ BYTE FUN_0044a130(void)
     return g_pHeaderMenu == &g_menu0x0053ea68;
 }
 
+int Timer_GetValue(BYTE index);
+void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int end, BYTE param7);
+
+// Starts the fade timer of the pause overlay if it is not running and has
+// not run yet, and samples its value.
+// FUNCTION: CMR2 0x0044a150
+void FUN_0044a150(void)
+{
+    if (FUN_004bc0c0(g_unk0x0053e880) == 0 && g_unk0x00541cf0 == 0)
+        FUN_004bc290(g_unk0x0053e880, 0, 200, 0, 0, 0x10000, 1);
+    if (FUN_004bc0c0(g_unk0x0053e880))
+        g_unk0x00541cf0 = Timer_GetValue(g_unk0x0053e880[0]);
+}
+
 // GLOBAL: CMR2 0x00541dfc
 Menu *g_unk0x00541dfc;
 // GLOBAL: CMR2 0x00541e00

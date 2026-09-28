@@ -185,6 +185,26 @@ void FUN_004276c0(DWORD *pId, BYTE *pPacket)
     }
 }
 
+int FUN_004a1b90(int param1, void **param2);
+void FUN_00427680(int param_1, int *param_2);
+void FUN_004276c0(DWORD *pId, BYTE *pPacket);
+
+// Drains the pending network messages of a race: system messages (from id 0)
+// and player packets.
+// FUNCTION: CMR2 0x00427890
+void FUN_00427890(void)
+{
+    DWORD from;
+    void *pData;
+
+    while (FUN_004a1b90((int)&from, &pData)) {
+        if (from == 0)
+            FUN_00427680((int)&from, (int *)pData);
+        else
+            FUN_004276c0(&from, (BYTE *)pData);
+    }
+}
+
 // Sends the local car state.
 // FUNCTION: CMR2 0x004278f0
 void FUN_004278f0(NetStats *pStats)

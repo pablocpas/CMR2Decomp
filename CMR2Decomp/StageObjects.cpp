@@ -346,8 +346,10 @@ BYTE g_unk0x0058e0b0[8];
 struct StageObjectValue { int value; BYTE rest[0x2c]; };
 // GLOBAL: CMR2 0x0058e0b8
 StageObjectValue g_unk0x0058e0b8[4];
+// Driving state of the CPU car being updated (0xb8 bytes; FUN_0047bdd0 and the
+// helpers it calls read and write its fields by offset).
 // GLOBAL: CMR2 0x0058e178
-int g_unk0x0058e178;
+int g_unk0x0058e178[0x2e];
 
 // GLOBAL: CMR2 0x005113f8
 double g_radiansToDegrees = 57.295827908797776;
@@ -7112,10 +7114,10 @@ void FUN_0047b870(int index)
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->flag0x1d0[1] = 0;
     g_unk0x0058e0a0->flag0x1d0[0] = 0;
-    if (g_unk0x0058e0a0->field_0xb94 == 0)
-        g_unk0x0058e0a0->flag0x1d0[3] = 1;
-    else
+    if (g_unk0x0058e0a0->field_0xb94 != 0)
         g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    else
+        g_unk0x0058e0a0->flag0x1d0[3] = 1;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->field_0x1d8 = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
@@ -8796,8 +8798,19 @@ int FUN_00476850(int param_1, int param_2)
 // STUB: CMR2 0x004658e0
 void FUN_004658e0(int index) { }
 
-// STUB: CMR2 0x004b5320
-int FUN_004b5320(void *pNode, int value) { return 0; }
+int FUN_004b50b0(SceneNode *pNode, int param_2);
+void FUN_004a3240(int unused);
+
+// Runs FUN_004b50b0 on a node, then FUN_004a3240; returns the first result.
+// FUNCTION: CMR2 0x004b5320
+int FUN_004b5320(void *pNode, int value)
+{
+    int result;
+
+    result = FUN_004b50b0((SceneNode *)pNode, value);
+    FUN_004a3240((int)pNode);
+    return result;
+}
 
 // STUB: CMR2 0x00460330
 void FUN_00460330(int a, int b) { }
@@ -12986,3 +12999,377 @@ void FUN_004760a0(int record, BYTE car)
     FUN_00477340(car);
 }
 #undef CAR_NODE_ROW
+
+// --- CPU driver input (0x47b000-0x47c5ac) -----------------------------------
+
+#define AI_INT(off) (*(int *)((BYTE *)g_unk0x0058e178 + (off)))
+#define AI_CHAR(off) (*(char *)((BYTE *)g_unk0x0058e178 + (off)))
+
+// AI data of the stage: base pointer and the per-car route headers.
+// GLOBAL: CMR2 0x0058e378
+BYTE *g_unk0x0058e378;
+// GLOBAL: CMR2 0x0058e37c
+int *g_unk0x0058e37c[6];
+// GLOBAL: CMR2 0x0051f4c4
+char g_strAi2Format[] = "%s.ai2";
+// GLOBAL: CMR2 0x0051f4cc
+char g_strAi1Format[] = "%s.ai1";
+// GLOBAL: CMR2 0x0051f4d4
+char g_strAi0Format[] = "%s.ai0";
+
+int RallyData_FUN_00421370(BYTE *p);
+void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant);
+BYTE *FUN_00498590(BYTE *p, int unused, int count);
+BYTE FUN_0042b710(int index);
+void FUN_0043f570(Car *pCar);
+void FUN_0047b0e0(int player, int device);
+BYTE *FUN_0041f900(void);
+int StageTiming_FUN_00455460(void);
+unsigned int RallyData_GetFlag22(void);
+
+// Works out the controls of a CPU car from the route data: the route
+// segment's steering hint, the obstacle state (FUN_0047c5e0), the overtaking
+// logic and the driver's errors. `preview` != 0 only updates the AI state.
+// FUNCTION: CMR2 0x0047bdd0
+void FUN_0047bdd0(Car *pCar, int car, int preview)
+{
+    int modes[3];
+    int controls[4];
+    int handbrake;
+    int *pRoute;
+    int table;
+    int node;
+    int variant;
+    int ahead;
+    int behind;
+    int force;
+
+    controls[0] = 0;
+    controls[1] = 0;
+    controls[2] = 0;
+    pRoute = g_unk0x0058e37c[car];
+    controls[3] = 0;
+    AI_CHAR(0xa4) = 0;
+    modes[0] = 0;
+    *((BYTE *)g_unk0x0058e178 + 0xab + car) = 0;
+    modes[1] = 0;
+    handbrake = 0;
+    table = *pRoute;
+    if (table == 0)
+        return;
+    node = RallyData_FUN_00421370((BYTE *)pCar);
+    AI_INT(0x54) = node;
+    FUN_0047cbc0(car, table, node, &variant, &modes[2]);
+    *(unsigned int *)g_unk0x0058e394[table] |= 0xfffffffc;
+    FUN_00498620(pCar, *(unsigned int *)g_unk0x0058e394[table], g_unk0x0058e178, variant);
+    ahead = -AI_INT(0x34) - (int)(__int64)((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xa) * g_minus65536);
+    behind = AI_INT(0x34) - (int)(__int64)((double)*(signed char *)(g_unk0x0058e4a4 + node * 0x10 + 0xe) * g_minus65536);
+    if (ahead < behind)
+        g_unk0x0058e230[car] = ahead;
+    else
+        g_unk0x0058e230[car] = behind;
+    AI_CHAR(0xa4) = (char)FUN_0047c5e0((int)g_unk0x0058e178);
+    if ((char)RallyData_FUN_00406940() == 2 && (char)RallyData_FUN_00406950() == 1 && (unsigned int)node > 0xdd &&
+        (unsigned int)node < 0xe4)
+        AI_CHAR(0xa4) = 0;
+    FUN_0047cd10(car, modes, node, g_unk0x0058e178);
+    if (CGameInfo::FUN_004063f0(3))
+        *((BYTE *)g_unk0x0058e178 + 0xab + car) =
+            (BYTE)FUN_0047d0e0(car, (BYTE *)g_unk0x0058e178 + 0xa5, &modes[1], (BYTE *)g_unk0x0058e178 + 0xb1 + car);
+    if (CGameInfo::FUN_004063f0(0))
+        StageObject_UpdateApproachingCar(car, node);
+    if (AI_CHAR(0xa4) == 0) {
+        FUN_0047c9a0(modes[2], (int)controls, g_unk0x0058e178);
+        switch (modes[0]) {
+        case 1:
+            controls[0] = 0;
+            controls[1] = 0x3f;
+            break;
+        case 2:
+            controls[0] = 0x3f;
+            controls[1] = 0;
+            break;
+        case 3:
+            controls[0] = 0;
+            controls[1] = 0x3f;
+            controls[3] = 0x3f;
+            break;
+        case 4:
+            controls[1] = 0;
+            controls[0] = 0x3f;
+            controls[3] = 0x3f;
+            break;
+        }
+        if (*((char *)g_unk0x0058e178 + 0xb1 + car) == -1) {
+            if (AI_INT(0x78) > -0x140000) {
+                controls[0] = 0;
+                controls[1] = 0x3f;
+            }
+        } else if (*((char *)g_unk0x0058e178 + 0xb1 + car) == 1 && AI_INT(0x78) < 0x140000) {
+            controls[0] = 0x3f;
+            controls[1] = 0;
+        }
+        if (AI_INT(0xc) < -30000 && AI_INT(0) > 0xa0000)
+            controls[2] = 0;
+        if (AI_INT(0x64) > -0xa0000 && AI_INT(8) < -0x7d)
+            controls[0] = 0;
+        if (AI_INT(0x64) < 0xa0000 && AI_INT(8) > 0x7d)
+            controls[1] = 0;
+    } else {
+        switch (AI_CHAR(0xa4)) {
+        case 1:
+            controls[1] = 0x3f;
+            controls[2] = 0x3f;
+            break;
+        case 2:
+            controls[1] = 0x3f;
+            controls[3] = 0x3f;
+            break;
+        case 3:
+            controls[0] = 0x3f;
+            controls[2] = 0x3f;
+            break;
+        case 4:
+            controls[0] = 0x3f;
+            controls[3] = 0x3f;
+            break;
+        case 5:
+            controls[2] = 0x3f;
+            break;
+        case 6:
+            controls[3] = 0x3f;
+            break;
+        case 7:
+            controls[1] = 0x3f;
+            break;
+        case 8:
+            controls[0] = 0x3f;
+            break;
+        }
+        if ((AI_INT(0x38) > 0x2d0000 || AI_INT(0x38) < -0x2d0000) && AI_INT(0) >= 0x190000) {
+            controls[2] = 0;
+            controls[3] = 0;
+        }
+    }
+    if (CGameInfo::FUN_004063f0(0) && FUN_0047cd00(car))
+        force = 1;
+    else
+        force = handbrake;
+    if (preview != 0)
+        return;
+    pCar->flag0x1d0[0] = 0;
+    pCar->flag0x1d0[1] = 0;
+    pCar->flag0x1d0[2] = 0;
+    pCar->flag0x1d0[3] = 0;
+    pCar->field_0x1d8 = 0;
+    if (controls[0] > 0)
+        pCar->flag0x1d0[0] = 0x3f;
+    if (controls[1] > 0)
+        pCar->flag0x1d0[1] = 0x3f;
+    if (controls[2] > 0)
+        pCar->flag0x1d0[2] = 0x3f;
+    if (controls[3] > 0)
+        pCar->flag0x1d0[3] = 0x3f;
+    if (force > 0)
+        pCar->field_0x1d8 = 1;
+}
+
+// CPU driving of the car in race order slot `slot`.
+// FUNCTION: CMR2 0x0047b620
+void FUN_0047b620(int slot)
+{
+    if ((char)RallyData_FUN_00407e70())
+        FUN_0047bdd0(g_unk0x0058e0a0, slot, 0);
+}
+
+// Per-frame input of the car in race order slot `slot`: player cars read their
+// device, CPU cars are driven by the AI; the automatic gearbox is engaged.
+// FUNCTION: CMR2 0x0047b000
+void FUN_0047b000(int slot)
+{
+    char device;
+
+    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
+    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1d8 = 0;
+    *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
+    g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_unk0x0058e0a0->flag0x1d0[2] = 0;
+    g_unk0x0058e0a0->flag0x1d0[1] = 0;
+    g_unk0x0058e0a0->flag0x1d0[0] = 0;
+    if ((char)RallyData_GetFlag22())
+        CGameInfo::FUN_00405d80();
+    device = (char)FUN_0042b710(g_unk0x0058e0a0->field_0xb1a);
+    if (device == -1)
+        FUN_0047b620(slot);
+    else
+        FUN_0047b0e0(slot, device);
+    if (g_unk0x0058e0a0->field_0xb9c == 0) {
+        if (g_unk0x0058e0a0->field_0xb48 != 1)
+            FUN_0043f570(g_unk0x0058e0a0);
+        g_unk0x0058e0a0->field_0xb9c = 1;
+        return;
+    }
+    g_unk0x0058e0a0->field_0xb9c = 1;
+}
+
+// Per-frame input of a car waiting at the start line: players keep their
+// device, CPU cars blip the throttle at random intervals.
+// FUNCTION: CMR2 0x0047b640
+void FUN_0047b640(int slot)
+{
+    char device;
+    char count;
+
+    Car_GetOrderCount();
+    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
+    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e0) = 0;
+    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1d8 = 0;
+    *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
+    g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    g_unk0x0058e0a0->flag0x1d0[2] = 0;
+    g_unk0x0058e0a0->flag0x1d0[1] = 0;
+    g_unk0x0058e0a0->flag0x1d0[0] = 0;
+    device = (char)FUN_0042b710(g_unk0x0058e0a0->field_0xb1a);
+    if (device != -1) {
+        FUN_0047b0e0(slot, device);
+    } else {
+        count = *((char *)g_unk0x0058e0a0 + 0xb47);
+        if (count < 0) {
+            *((char *)g_unk0x0058e0a0 + 0xb47) = count + 1;
+            if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
+                goto reroll;
+        } else if (count < 1) {
+        reroll:
+            *((char *)g_unk0x0058e0a0 + 0xb47) = (char)(rand() % 10) + 5;
+        } else {
+            *((char *)g_unk0x0058e0a0 + 0xb47) = count - 1;
+            if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
+                *((char *)g_unk0x0058e0a0 + 0xb47) = -5 - (char)(rand() % 10);
+        }
+        if (*((char *)g_unk0x0058e0a0 + 0xb47) < 1)
+            g_unk0x0058e0a0->flag0x1d0[2] = 0;
+        else
+            g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
+    }
+    g_unk0x0058e0a0->field_0x1d8 = 1;
+    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0xb9c = 0;
+}
+
+// Input of a car that has finished: driven as usual, then braked to a stop.
+// FUNCTION: CMR2 0x0047b7b0
+void FUN_0047b7b0(int slot)
+{
+    FUN_0047b000(slot);
+    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
+    if (g_unk0x0058e0a0->field_0xb94 != 0)
+        g_unk0x0058e0a0->flag0x1d0[3] = 0;
+    else
+        g_unk0x0058e0a0->flag0x1d0[3] = 1;
+    g_unk0x0058e0a0->flag0x1d0[2] = 0;
+    g_unk0x0058e0a0->field_0x1d8 = 1;
+    g_unk0x0058e0a0->field_0xb9c = 0;
+    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e4) = 0;
+    FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
+}
+
+// Loads the stage's AI route data: the three difficulty files, the one for the
+// current difficulty copied into the stage buffer, and the pointer tables into
+// it (routes, 0x88-byte tables, 0x14-, 0x10- and 0x20-byte records). Returns
+// the end of the data.
+// FUNCTION: CMR2 0x0047c2f0
+BYTE *FUN_0047c2f0(void)
+{
+    BYTE *files[3];
+    DWORD sizes[3];
+    DWORD size;
+    BYTE *pData;
+    BYTE *pEnd;
+    BYTE level;
+    BYTE *p;
+    BYTE *pEntry;
+    int i;
+    int k;
+
+    pData = (BYTE *)StageTiming_FUN_00455460();
+    size = 0;
+    sprintf(CFrontend::m_stringDest, g_strAi0Format, FUN_0041f900());
+    files[0] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest,
+                                                    0, &size, 0);
+    sizes[0] = size;
+    size = 0;
+    sprintf(CFrontend::m_stringDest, g_strAi1Format, FUN_0041f900());
+    files[1] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest,
+                                                    0, &size, 0);
+    sizes[1] = size;
+    size = 0;
+    sprintf(CFrontend::m_stringDest, g_strAi2Format, FUN_0041f900());
+    files[2] = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest,
+                                                    0, &size, 0);
+    sizes[2] = size;
+    if ((char)RallyData_GetFlag24() == 0)
+        return pData;
+    level = CGameInfo::FUN_00405d90();
+    if (pData == NULL) {
+        for (i = 0; i < 3; i++) {
+            if (files[i] != NULL) {
+                pData = files[i];
+                break;
+            }
+        }
+        if (i == 3)
+            pData = pEnd;
+    }
+    if (pData != files[level])
+        memcpy(pData, files[level], sizes[level]);
+    pEnd = pData + sizes[level];
+    if (pData == NULL)
+        return pEnd;
+    g_unk0x0058e378 = pData;
+    p = pData;
+    for (i = 0; i < 6; i++) {
+        g_unk0x0058e37c[i] = (int *)p;
+        p += 4;
+    }
+    *((char *)g_unk0x0058e394 + 0x109) = *p;
+    p += 4;
+    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x109); i++) {
+        g_unk0x0058e394[i] = p;
+        p += 0x88;
+    }
+    *((char *)g_unk0x0058e394 + 0x10a) = *p;
+    p += 4;
+    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10a); i++) {
+        g_unk0x0058e394[6 + i] = p;
+        p += 0x14;
+    }
+    *((char *)g_unk0x0058e394 + 0x108) = *p;
+    p += 4;
+    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x108); i++) {
+        g_unk0x0058e394[0x38 + i] = p;
+        p += 0x10;
+    }
+    *((char *)g_unk0x0058e394 + 0x10b) = *p;
+    p += 4;
+    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10b); i++) {
+        g_unk0x0058e394[0x2e + i] = p;
+        p += 0x20;
+    }
+    for (i = 1; i <= *((char *)g_unk0x0058e394 + 0x10b); i++) {
+        pEntry = g_unk0x0058e394[0x2e + i];
+        if (*(int *)(pEntry + 8) > 1) {
+            for (k = 1; k < *(int *)(pEntry + 8); k++) {
+                *(BYTE **)(pEntry + 0x10 + k * 4) = p;
+                p += ((char)pEntry[0xc + k - 1] + 1) * (char)pEntry[0xc + k] * 4;
+            }
+        }
+    }
+    g_unk0x0058e394[0x43] = p;
+    g_unk0x0058e4a4 = p + 0x100;
+    FUN_00498590(g_unk0x0058e4a4 + 0x1720, (int)&g_unk0x0058e394[0x38], *((char *)g_unk0x0058e394 + 0x108));
+    return pEnd;
+}
+#undef AI_INT
+#undef AI_CHAR

@@ -8,6 +8,7 @@
 #include "Sound.h"
 #include "main.h"
 #include "InstallInfo.h"
+#include "GameInfo.h"
 #include "FileBuffer.h"
 
 SoundSlot *CSound::m_soundSlots[32];
@@ -1535,12 +1536,15 @@ int FUN_004b7ae0(void)
     return 1;
 }
 
-// Not analysed yet: when the slot at 0x5a2734 exists it re-enables the 3D
-// listener (FUN_004a28d0 on the buffer at 0x5a2738), re-applies the volume
-// from FUN_00405e40() through FUN_004a31f0 and calls FUN_004a2bd0(1).
-// Called right after the Direct3D device is created.
-// STUB: CMR2 0x004a2ba0
+// Restarts the music stream after the Direct3D device is created: reopens
+// the file at 0x5a2738, re-applies the music volume and starts playback.
+// FUNCTION: CMR2 0x004a2ba0
 void FUN_004a2ba0(void)
 {
+    if (CSound::m_unk0x005a2734) {
+        CSound::FUN_004a28d0(CSound::m_unk0x005a2738);
+        CSound::FUN_004a31f0(CGameInfo::FUN_00405e40());
+        FUN_004a2bd0(1);
+    }
 }
 
