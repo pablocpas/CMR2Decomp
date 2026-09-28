@@ -169,7 +169,7 @@ Menu *FUN_004f8290(BYTE param1);
 void FUN_004d43e0(Menu *pMenu);
 void FUN_004d4c40(Menu *pMenu);
 void FUN_004d4cf0(Menu *pMenu);
-void FUN_004d50a0(Menu *pMenu, int param);
+void FUN_004d50a0(Menu *pMenu);
 void FUN_004d6290(Menu *pMenu);
 void FUN_004d63e0(Menu *pMenu);
 void FUN_004d6a60(Menu *pMenu);

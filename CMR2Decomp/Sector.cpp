@@ -820,9 +820,9 @@ void Sector_RebuildNodeLists(void)
 
 // Up to three sectors next to the one containing pPos that lie within 4.5
 // units of it (left/right, above/below and the diagonal); -1 when unused.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Returns the sector id of pPos (its callers store it in the car's own field).
 // FUNCTION: CMR2 0x004b8910
-void Sector_GetNeighbours(FixVector *pPos, short *pOut)
+short Sector_GetNeighbours(FixVector *pPos, short *pOut)
 {
     Sector *pSector;
     short index;
@@ -866,7 +866,7 @@ void Sector_GetNeighbours(FixVector *pPos, short *pOut)
         pOut[1] = -1;
     if (pOut[2] >= (short)g_sectorCount || pOut[2] < -1)
         pOut[2] = -1;
-
+    return index;
 }
 
 // Bounding rectangle (x/z) of each sector's ground mesh, or of the sector

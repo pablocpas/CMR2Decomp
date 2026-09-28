@@ -945,3 +945,272 @@ void FUN_004263d0(int param_1)
     *(int *)(param_1 + 0x8c) += step.y;
     *(int *)(param_1 + 0x90) += step.z;
 }
+
+void FUN_004a15b0(BOOL param1);
+void FUN_00402c90(int param);
+void FUN_0044a1b0(int param);
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+
+// Network-device notification: id 5 refreshes the player list of the entry,
+// id 0x101 re-initialises the in-race menu and the HUD.
+// FUNCTION: CMR2 0x00427680
+void FUN_00427680(int param_1, int *param_2)
+{
+    if (*param_2 != 5) {
+        if (*param_2 == 0x101) {
+            FUN_004a15b0(1);
+            FUN_00402c90(1);
+            FUN_0044a1b0(1);
+        }
+        return;
+    }
+    FUN_004a1940((DWORD *)(param_2 + 2));
+    FUN_00409c80(param_2 + 2);
+}
+
+void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
+
+// Returns the 12-bit angle param_3 scaled down by how far the player's view
+// node (matrix at 0x538d30) is from the car's 0x2d0 / 0x408 positions, capped
+// by the angle between the direction to the car and the view delta. param_3
+// is returned unchanged when the view node is 100.0 units away or more, and
+// when those two directions are exactly perpendicular.
+// match 79%: implementada, MSVC6 asigna 0x38 de pila frente a 0x44 y reparte distinto los registros en las llamadas a Car_Get
+// FUNCTION: CMR2 0x00427e20
+unsigned int FUN_00427e20(int param_1, int param_2, unsigned short param_3)
+{
+    FixVector pos;
+    FixVector view;
+    FixVector delta;
+    FixVector dir;
+    FixVector other;
+    int index;
+    int dist;
+    int len;
+    int dot;
+    int t;
+    int value;
+
+    index = param_1;
+    if (FUN_0041f3a0() != 0)
+        index = 1;
+    FixMatrix_GetPosition(&pos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    delta.x = pos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
+    delta.y = pos.y - *(int *)((BYTE *)Car_Get(param_2) + 0x2d4);
+    delta.z = pos.z - *(int *)((BYTE *)Car_Get(param_2) + 0x2d8);
+    dist = FixVec_Length(&delta);
+    if (dist < 0x640000) {
+        Car_GetViewPositionDelta(&view, param_1);
+        view.x -= *(int *)((BYTE *)Car_Get(param_2) + 0x408);
+        view.y -= *(int *)((BYTE *)Car_Get(param_2) + 0x40c);
+        view.z -= *(int *)((BYTE *)Car_Get(param_2) + 0x410);
+        dist = FixVec_Length(&view);
+        if (dist > 0x320000) {
+            len = FixVecLength(&view);
+            if (len == 0) {
+                view.x = 0;
+                view.y = 0;
+                view.z = 0;
+            } else {
+                FixVecScaleRecip(&view, &view, len);
+            }
+            FixVecScale(&view, &view, 0x320000);
+        }
+        other = view;
+        len = FixVecLength(&delta);
+        if (len == 0) {
+            delta.x = 0;
+            delta.y = 0;
+            delta.z = 0;
+        } else {
+            FixVecScaleRecip(&delta, &delta, len);
+        }
+        len = FixVecLength(&view);
+        if (len == 0) {
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+        } else {
+            FixVecScaleRecip(&other, &view, len);
+        }
+        dot = FixVecDot(&other, &delta);
+        FixVecScale(&view, &view, dot);
+        if (dot > 0) {
+            t = FixDiv(FixVec_Length(&view), 0xd3d70) + 0x10000;
+            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            if (t <= 0x8000)
+                return (value >> 16) << 1;
+            return (FixDiv(value, t) >> 16) << 1;
+        }
+        if (dot < 0) {
+            t = 0x10000 - FixDiv(FixVec_Length(&view), 0xd3d70);
+            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            if (t > 0x8000)
+                value = FixDiv(value, t);
+            return (value >> 16) << 1;
+        }
+    }
+    return param_3;
+}
+
+// --- 0x00425c40 (layer 0) ----------------------------------------------------
+// Inverses of the network quantization scales (0x0051137c = 1/32765,
+// 0x00511374 = 1/65530, 0x00511370 = 1/127, 0x00511368 = 128,
+// 0x0051135c = 24/17, 0x00511358 = 12/17). 0x00511360 (10.0) is a file-local
+// constant of SceneNode.cpp, so its value is spelled out below.
+// GLOBAL: CMR2 0x00511358
+extern const float g_unk0x00511358 = 12.0f / 17.0f;
+// GLOBAL: CMR2 0x0051135c
+extern const float g_unk0x0051135c = 24.0f / 17.0f;
+// GLOBAL: CMR2 0x00511368
+extern const float g_unk0x00511368 = 128.0f;
+// GLOBAL: CMR2 0x00511370
+extern const float g_unk0x00511370 = 1.0f / 127.0f;
+// GLOBAL: CMR2 0x00511374
+extern const float g_unk0x00511374 = 1.0f / 65530.0f;
+// GLOBAL: CMR2 0x0051137c
+extern const float g_unk0x0051137c = 1.0f / 32765.0f;
+
+// Sector index of the last packet applied to each player record.
+// GLOBAL: CMR2 0x00539394
+int g_unk0x00539394;
+
+extern const float g_unk0x00511364;
+extern const float g_unk0x0051136c;
+extern const float g_unk0x00511378;
+extern float g_65536f;
+
+// Applies the car state received from a player (g_localCarStats) to that
+// player's record: drops stale and out-of-range packets, converts the quantised
+// position, heading, speed and flags back to 16.16, builds the two body axes
+// from the packed pair of angles plus the third one (cross product) and leaves
+// the steering angle in *pOut.
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00425c40
+int FUN_00425c40(int car, int *pOut)
+{
+    BYTE *packet = (BYTE *)&g_localCarStats;
+    float axis[4];
+    FixVector row;
+    Sector *pSector;
+    short ang1;
+    short ang2;
+    BYTE steer;
+    int engine;
+    int diff;
+    int i;
+
+    diff = (int)(unsigned short)g_localCarStats.seq - (int)*(unsigned short *)(car + 0xca);
+    if (diff <= 0)
+        return 0;
+    if (g_unk0x00539cc8 == 0)
+        return 0;
+    if (diff >= 100)
+        return 0;
+    if (*(unsigned short *)(packet + 0xc) >= (unsigned int)g_sectorCount)
+        return 0;
+
+    *(int *)(car + 0xe0) = 1;
+    *(unsigned short *)(car + 0xc8) = g_localCarStats.seq;
+    *(unsigned short *)(car + 0xca) = g_localCarStats.seq;
+
+    *(int *)(car + 0x70) = (int)((float)(short)*(unsigned short *)(packet + 2) *
+                                 g_unk0x0051137c * g_unk0x00511378 * g_65536f);
+    *(int *)(car + 0x74) = 0;
+    *(int *)(car + 0x78) = (int)((float)(short)*(unsigned short *)(packet + 4) *
+                                 g_unk0x0051137c * g_unk0x00511378 * g_65536f);
+    engine = (int)((float)*(unsigned short *)(packet + 6) * g_unk0x00511374 * g_65536f);
+    *(int *)(car + 0xac) = engine;
+    if (engine == 0)
+        *(int *)(car + 0xb0) = 0;
+    else
+        *(int *)(car + 0xb0) = FixDiv(0x10000, engine);
+    *(int *)(car + 0x7c) = (int)((float)(signed char)packet[0x14] *
+                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
+    *(int *)(car + 0x80) = (int)((float)(signed char)packet[0x15] *
+                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
+    *(int *)(car + 0x84) = (int)((float)(signed char)packet[0x16] *
+                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
+    *(BYTE *)(car + 0xcc) = packet[0x17] & 1;
+    *(int *)(car + 0xd4) = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
+    *(int *)(car + 0x64) = (int)((float)(short)*(unsigned short *)(packet + 8) *
+                                 g_unk0x0051137c * g_unk0x00511368 * g_65536f);
+    *(int *)(car + 0x68) = 0;
+    *(int *)(car + 0x6c) = (int)((float)(short)*(unsigned short *)(packet + 0xa) *
+                                 g_unk0x0051137c * g_unk0x00511368 * g_65536f);
+    pSector = g_sectors[*(short *)(packet + 0xc)];
+    *(int *)(car + 0x64) += pSector->x;
+    *(int *)(car + 0x68) += pSector->y;
+    *(int *)(car + 0x6c) += pSector->z;
+    *(int *)(car + 0xbc) = (int)((float)packet[0xe] * g_unk0x00511364 * 10.0f * g_65536f);
+    *(int *)(car + 0xc0) = (int)((float)(signed char)packet[0xf] *
+                                 g_unk0x00511370 * g_unk0x00511378 * g_65536f);
+
+    // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
+    axis[0] = (float)packet[0x11];
+    axis[1] = (float)packet[0x13];
+    axis[2] = (float)packet[0x10];
+    axis[3] = (float)packet[0x12];
+    for (i = 0; i < 8; i += 4) {
+        float f1 = axis[i + 2] * g_unk0x0051135c;
+        float f2 = axis[i] * g_unk0x00511358;
+        FixVector *pRow = (FixVector *)((BYTE *)car + 0x40 + (i / 4) * 0x18);
+
+        axis[i + 2] = f1;
+        axis[i] = f2;
+        ang1 = (short)((double)(int)(f1 * g_65536f) * CGraphics::m_oneOver65536);
+        ang2 = (short)((double)(int)(f2 * g_65536f) * CGraphics::m_oneOver65536);
+        row.x = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[(ang2 + 0x400) & 0xfff]);
+        row.y = g_sinTable[(ang1 + 0x400) & 0xfff];
+        row.z = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[ang2 & 0xfff]);
+        *pRow = row;
+        {
+            int len = FixVecLength(pRow);
+
+            if (len == 0) {
+                pRow->x = 0;
+                pRow->y = 0;
+                pRow->z = 0;
+            } else {
+                FixVecScaleRecip(pRow, pRow, len);
+            }
+        }
+    }
+    {
+        FixVector *pThird = (FixVector *)((BYTE *)car + 0x4c);
+        int len;
+
+        FixVecCross(pThird, (FixVector *)((BYTE *)car + 0x58),
+                    (FixVector *)((BYTE *)car + 0x40));
+        len = FixVecLength(pThird);
+        if (len == 0) {
+            pThird->x = 0;
+            pThird->y = 0;
+            pThird->z = 0;
+        } else {
+            FixVecScaleRecip(pThird, pThird, len);
+        }
+    }
+
+    steer = packet[0x1a] & 0x7f;
+    if (steer == 0)
+        *pOut = -0x10000;
+    else if (steer == 0x7f)
+        *pOut = 0x10000;
+    else
+        *pOut = FixMul(steer << 16, 0x418) - 0x10000;
+    if (packet[0x1a] & 0x80)
+        *(int *)(car + 0xb8) = 0x10000;
+    else
+        *(int *)(car + 0xb8) = 0;
+    *(unsigned int *)(car + 0xd0) = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
+    if ((*(unsigned short *)(packet + 0x1a) & 0x200) != 0 &&
+        *(short *)(car + 0xc6) == 0) {
+        *(int *)(car + 0xd8) = 1;
+        *(short *)(car + 0xc6) = 100;
+    }
+    *(unsigned int *)(car + 0xe4) = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
+    FUN_004263d0(car);
+    return 1;
+}
