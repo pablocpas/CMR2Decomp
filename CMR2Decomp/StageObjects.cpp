@@ -9215,8 +9215,42 @@ void FUN_004926f0(int angle, int unused, int sunAngle)
     }
 }
 
-// STUB: CMR2 0x00492bd0
-void FUN_00492bd0(int view) { }
+extern SceneNode *g_stageLightNode;
+extern SceneNode *g_stageLightRoot;
+
+// Turns the two stage light nodes to face the view: their right, forward and
+// up axes become the view's right, up and -forward, scaled to 0xbc6.
+// FUNCTION: CMR2 0x00492bd0
+void FUN_00492bd0(int view)
+{
+    FixMatrix *pView;
+    FixVector axis;
+
+    if (g_stageLightNode != NULL) {
+        pView = &g_viewNodes[view]->current;
+        FixMatrix_GetRight(&axis, pView);
+        FixVecScale(&axis, &axis, 0xbc6);
+        FixMatrix_SetRight(&axis, &g_stageLightNode->current);
+        FixMatrix_GetUp(&axis, pView);
+        FixVecScale(&axis, &axis, 0xbc6);
+        FixMatrix_SetForward(&axis, &g_stageLightNode->current);
+        FixMatrix_GetForward(&axis, pView);
+        FixVecScale(&axis, &axis, -0xbc6);
+        FixMatrix_SetUp(&axis, &g_stageLightNode->current);
+    }
+    if (g_stageLightRoot != NULL) {
+        pView = &g_viewNodes[view]->current;
+        FixMatrix_GetRight(&axis, pView);
+        FixVecScale(&axis, &axis, 0xbc6);
+        FixMatrix_SetRight(&axis, &g_stageLightRoot->current);
+        FixMatrix_GetUp(&axis, pView);
+        FixVecScale(&axis, &axis, 0xbc6);
+        FixMatrix_SetForward(&axis, &g_stageLightRoot->current);
+        FixMatrix_GetForward(&axis, pView);
+        FixVecScale(&axis, &axis, -0xbc6);
+        FixMatrix_SetUp(&axis, &g_stageLightRoot->current);
+    }
+}
 
 void FUN_0042b800(int, int, int);
 void FUN_0045e610(void);
