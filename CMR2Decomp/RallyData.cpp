@@ -7501,3 +7501,157 @@ void FUN_00471dd0(void)
     FUN_0046f550();
     FUN_0046f7e0();
 }
+
+// ---------------------------------------------------------------------------
+// Splits of the current car (0x411f70).
+
+short FUN_004589e0(int index);
+int FUN_00448210(int car);
+BYTE FUN_004582b0(int index);
+int FUN_004483c0(int index);
+int FUN_00448110(void);
+void FUN_00415f40(void);
+int FUN_004d0220(int index);
+
+// Last graphics resolution and language the split bar was built for, plus the
+// resolution copy used to detect a mode change.
+// GLOBAL: CMR2 0x0051711c
+int g_unk0x0051711c = -1;
+// GLOBAL: CMR2 0x00537080
+int g_unk0x00537080;
+// Per-car split bar entry: [0] split index, [0xc] current split time.
+// GLOBAL: CMR2 0x00536e00
+BYTE g_unk0x00536e00[0x90];
+
+// Per-frame update of one car's split bar: detects a graphics mode change and
+// rebuilds the split reference table, initialises the per-car split state from
+// the current game state, converts the car's current split time into the bar
+// coordinates and finally redraws the bar.
+// match 71%: logica, constantes y orden de llamadas exactos; difieren el reparto
+// de registros (car*0x48 en EDI vs ESI), el plegado del calculo del indice del
+// marcador y el orden de algunas comparaciones del bloque de estado.
+// FUNCTION: CMR2 0x00411f70
+void FUN_00411f70(int param_1, int param_2)
+{
+    BYTE *pCarEntry;
+    BYTE *pInfo;
+    BYTE *pGi;
+    short splitTime;
+    short marker;
+    SplitMarker *pMarker;
+    short *pBar;
+    int splitIndex;
+    int i;
+    int limit;
+    int first;
+    int range;
+    int fallback;
+
+    pCarEntry = g_unk0x00536e00 + param_1 * 0x48;
+    if (g_pGraphics->resX != g_unk0x00536edc ||
+        g_pGraphics->resY != g_unk0x0051711c ||
+        g_unk0x00537080 != (CGameInfo::FUN_00405dc0() & 0xff)) {
+        FUN_00411b20();
+        g_unk0x00536edc = g_pGraphics->resX;
+        g_unk0x0051711c = g_pGraphics->resY;
+        g_unk0x00537080 = CGameInfo::FUN_00405dc0() & 0xff;
+    }
+    if (g_unk0x00536bfc == 0 &&
+        (CGameInfo::FUN_00405d80() != 7 || g_unk0x00536c20[param_1] == 0)) {
+        if (CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 7) {
+            FUN_004111a0();
+            g_unk0x00536bfc = 1;
+            if (CGameInfo::FUN_00405d80() == 7) {
+                g_unk0x00536c40 = CFrontend::FUN_004cfe50();
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x4c0 +
+                    ((RallyData_FUN_00406940() & 0xff) * 3 +
+                     (RallyData_FUN_00406950() & 0xff)) * 8);
+            }
+            if (CGameInfo::FUN_00405d80() == 3) {
+                pGi = (BYTE *)CGameInfo::FUN_00405fe0();
+                g_unk0x00536c40 = *(unsigned int *)(pGi + 0x658 +
+                    ((RallyDataCountryIndex() & 0xff) * 0xb +
+                     (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x154 +
+                    ((RallyDataStageIndex() & 0xff) +
+                     (RallyDataCountryIndex() & 0xff) * 0xc) * 8);
+            }
+            for (i = 0; i < 12; i++)
+                g_unk0x00536e90[i + 1] = FUN_004d0220(i);
+        } else {
+            if (StageTiming_FUN_00455ae0() != 0) {
+                g_unk0x00536bfc = 1;
+                for (i = 0; i < 12; i++)
+                    g_unk0x00536e90[i + 1] = StageTiming_GetSplitTimeForPosition(0, i);
+            }
+            if (CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 5) {
+                g_unk0x00536c40 = CFrontend::FUN_004cfe50();
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x4c0 +
+                    ((RallyData_FUN_00406940() & 0xff) * 3 +
+                     (RallyData_FUN_00406950() & 0xff)) * 8);
+            }
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 ||
+        (CGameInfo::FUN_00405d80() == 4 || RallyData_GetFlag25() != 0)) {
+        FUN_00415f40();
+    }
+    splitTime = FUN_004589e0(param_1);
+    if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xc ||
+        (CGameInfo::FUN_00405d80() == 3 && RallyData_GetFlag25() != 0)) {
+        *(int *)(pCarEntry + 0xc) = FUN_00448210(param_1);
+        if (CGameInfo::FUN_00405d80() != 3 || FUN_004582b0(param_1) == 0)
+            goto checkParam;
+        if (param_2 == 0) {
+            *(int *)(pCarEntry + 0xc) = FUN_004483c0(param_1);
+            goto bar;
+        }
+    } else {
+        *(int *)(pCarEntry + 0xc) = FUN_00448110();
+        if (FUN_004582b0(param_1) == 0) {
+checkParam:
+            if (param_2 == 0)
+                goto bar;
+        } else if (param_2 == 0) {
+            *(int *)(pCarEntry + 0xc) = FUN_004483c0(param_1);
+            goto bar;
+        }
+    }
+    *(int *)(pCarEntry + 0xc) = 0;
+bar:
+    FUN_00415990(param_1);
+    StageTiming_FUN_00455ae0();
+    splitIndex = *(int *)(g_unk0x00536e00 + param_1 * 0x48);
+    limit = splitIndex + param_1 * 0x14;
+    first = g_unk0x00536ff0[splitIndex * 2];
+    pBar = (short *)(g_unk0x00536d14 + param_1 * 0x28 + 13);
+    pMarker = &g_unk0x00536cb8[limit];
+    pBar[0] = pMarker->x;
+    pBar[1] = pMarker->y;
+    pBar[3] = pMarker->h;
+    marker = pMarker->w;
+    range = g_unk0x00536ff0[splitIndex * 2 + 2] - first;
+    if (range == 0)
+        fallback = 0;
+    else
+        fallback = (short)(((int)splitTime - first) * marker / range);
+    pBar[2] = (short)fallback;
+    pBar[4] = pBar[0] + (short)fallback;
+    pBar[5] = pBar[1];
+    pBar[6] = marker - (short)fallback;
+    pBar[7] = pBar[3];
+    FUN_00413160(param_1);
+    if (RallyData_FUN_00407e70() != 0 && RallyData_FUN_004082e0() != 0)
+        FUN_004118b0(param_1);
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 || RallyData_GetFlag25() != 0)
+        FUN_00415870(param_1);
+    else
+        FUN_00414720(param_1);
+    if (g_unk0x00536c20[param_1] != 0)
+        g_unk0x00536c20[param_1]--;
+}
