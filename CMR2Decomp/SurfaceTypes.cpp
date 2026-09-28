@@ -728,3 +728,106 @@ int FUN_00478a20(void)
     return 1;
 }
 
+
+// Blends the driving parameters of the two surfaces a wheel touches and stores
+// the per-wheel block (grip, noise, effect bytes and the drag-derived value).
+// match 63%: implemented; the two pointer walks use different index registers here
+// FUNCTION: CMR2 0x004786b0
+void FUN_004786b0(BYTE *pWheel, int unused)
+{
+    int *pMix;
+    short *pId;
+    int *pOut;
+    int *pOut2;
+    int total;
+    int i;
+    int id;
+    int blend;
+    int v;
+
+    pMix = (int *)(pWheel + 0x8ac);
+    pId = (short *)(pWheel + 0xab4);
+    pOut = (int *)(pWheel + 0xf8);
+    total = 0;
+    i = 2;
+    do {
+        id = *pId;
+        blend = pMix[-4];
+        if (blend == 0) {
+            pOut[-3] = g_surfaceGrip[id][0];
+            pOut[-1] = g_surfaceGrip2[id][0];
+            pOut[-2] = g_surfaceGrip[id][1];
+            pOut[0] = g_surfaceGrip2[id][1];
+        } else {
+            if (blend > 0x10000)
+                blend = 0x10000;
+            v = FixMul(blend, g_surfaceSoftness[id][0]);
+            pOut[-3] = g_surfaceGrip[id][0] + v;
+            pOut[-1] = g_surfaceGrip2[id][0] + v;
+            pOut[-2] = FixDiv(g_surfaceGrip[id][0] * g_surfaceGrip[id][1], pOut[-3]);
+            pOut[0] = FixDiv(g_surfaceGrip2[id][0] * g_surfaceGrip2[id][1], pOut[-1]);
+        }
+        blend = *pMix;
+        if (blend != 0) {
+            if (blend > 0x10000)
+                blend = 0x10000;
+            v = FixMul(blend, g_surfaceSoftness[id][1]);
+            pOut[-2] += v;
+            pOut[0] += v;
+        }
+        pMix -= 2;
+        pOut[1] = g_surface0x51e678[id];
+        pOut[2] = g_surface0x51e738[id];
+        pOut[3] = g_surface0x51e2b8[id];
+        pOut[4] = g_surface0x51e4f8[id];
+        pOut[5] = g_surface0x51e5b8[id];
+        pOut[-10] = pOut[-1];
+        pOut[-9] = pOut[0];
+        pOut[-12] = pOut[-3];
+        pOut[-11] = pOut[-2];
+        pOut[-8] = pOut[1];
+        pOut[-7] = pOut[2];
+        pOut[-6] = pOut[3];
+        pOut[-5] = pOut[4];
+        pOut[-4] = pOut[5];
+        pOut -= 0x12;
+        pId -= 2;
+    } while (--i);
+
+    pId = (short *)(pWheel + 0xab4);
+    pOut2 = (int *)(pWheel + 0x1c5);
+    i = 2;
+    do {
+        id = *pId;
+        ((BYTE *)pOut2)[-1] = g_surfaceEffect[id][0];
+        ((BYTE *)pOut2)[0] = g_surfaceEffect[id][1];
+        *(int *)((BYTE *)pOut2 + 3) =
+            FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)(pWheel + 0xb29) * 9], 0x51e);
+        *(int *)((BYTE *)pOut2 + 7) = 0;
+        total += g_surfaceNoise[id] * 2;
+        ((BYTE *)pOut2)[-0xd] = ((BYTE *)pOut2)[-1];
+        ((BYTE *)pOut2)[-0xc] = ((BYTE *)pOut2)[0];
+        *(int *)((BYTE *)pOut2 - 9) = *(int *)((BYTE *)pOut2 + 3);
+        *(int *)((BYTE *)pOut2 - 5) = *(int *)((BYTE *)pOut2 + 7);
+        pId -= 2;
+        pOut2 = (int *)((BYTE *)pOut2 - 0x18);
+    } while (--i);
+
+    total = (total & 0xfffffffc) << 14;
+    *(int *)(pWheel + 0xa78) = total;
+    v = FixMul(total, 0x28f);
+    blend = *(int *)(pWheel + 0xa74);
+    *(int *)(pWheel + 0xa78) = v;
+    i = v - blend;
+    if (i < 0)
+        i = -i;
+    if (i <= 0x3333) {
+        *(int *)(pWheel + 0xa74) = v;
+        return;
+    }
+    if (v - blend > 0) {
+        *(int *)(pWheel + 0xa74) = blend + 0x3333;
+        return;
+    }
+    *(int *)(pWheel + 0xa74) = blend - 0x3333;
+}
