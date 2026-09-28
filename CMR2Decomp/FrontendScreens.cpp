@@ -8189,6 +8189,7 @@ extern char g_stageNumberFormat[];
 // Draws the "stage select" screen: breadcrumb title, the four column headers
 // and, when the entry list is open, one row per entry (name, opponent, stage,
 // number and time).
+// match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
 // FUNCTION: CMR2 0x004dc930
 void FUN_004dc930(Menu *pMenu, int param)
 {
@@ -8287,6 +8288,7 @@ BYTE *RallyData_FUN_00408270(void);
 // Draws the network "waiting room" player list: a line per session built from
 // the player name, the car and the control assignment, plus the controller
 // icon; when there is no session it shows the waiting message.
+// match 69%: asignacion de registros en el bucle y orden del sprintf
 // FUNCTION: CMR2 0x004e20e0
 void FUN_004e20e0(Menu *pMenu, int param)
 {
@@ -8362,6 +8364,7 @@ void FUN_004e20e0(Menu *pMenu, int param)
 
 // Clamps the stage-selection item of a network setup menu to the number of
 // stages available for the current car, and builds the "1..N SS" label.
+// match 48%: asignacion de registros en el recuento de niveles (misma logica)
 // FUNCTION: CMR2 0x004ee6e0
 void FUN_004ee6e0(Menu *pMenu)
 {
@@ -8418,6 +8421,7 @@ void FUN_004ee6e0(Menu *pMenu)
 
 // Refreshes the "car setup" network menu: rebuilds the transmission item, its
 // range and the list of available gearbox types.
+// match 57%: asignacion de registros en el recuento y en la tabla de niveles
 // FUNCTION: CMR2 0x004ee170
 void FUN_004ee170(Menu *pMenu)
 {
@@ -8512,6 +8516,7 @@ void FUN_004ee170(Menu *pMenu)
 // Draws one row of the championship standings: the entry name placed at
 // (param_1 + param_2), faded by the distance; returns whether the row lands
 // inside the screen.
+// match 27%: el original carga los colores como dword y los parte en bytes; nosotros byte a byte
 // FUNCTION: CMR2 0x004d6870
 BYTE FUN_004d6870(int param_1, unsigned int param_2)
 {
@@ -8571,6 +8576,7 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
 
 // Draws the display-setup screen: title, the two percentage bars (display and
 // mode) and the list of available modes.
+// match 52%: asignacion de registros en los porcentajes y el bucle de modos
 // FUNCTION: CMR2 0x004e1d70
 void FUN_004e1d70(Menu *pMenu, int param)
 {
@@ -8629,6 +8635,7 @@ void FUN_004e1d70(Menu *pMenu, int param)
 
 // Network car-setup screen callback: keeps the transmission and car items in
 // sync with the devices, and handles the "player name" text entry.
+// match 43%: asignacion de registros; mismo flujo (texto, cursores y dispositivos)
 // FUNCTION: CMR2 0x004ed840
 void FUN_004ed840(Menu *pMenu, int param)
 {
@@ -8739,6 +8746,7 @@ LAB_004edb02:
 
 // Network car-setup screen callback: rebuilds the item ranges and mirrors the
 // edited name string back into the menu entry.
+// match 65%: los strcpy/strlen del original se expanden inline; los nuestros llaman a la CRT
 // FUNCTION: CMR2 0x004ed100
 void FUN_004ed100(Menu *pMenu, int param)
 {
@@ -8805,6 +8813,7 @@ void FUN_004eb700(void);
 
 // Prepares the stage-selection screen before it is shown: reloads the profile
 // list and picks a random starting stage and player.
+// match 57%: idioma de unidad de traduccion de g_unk0x00819048 (CONOCIMIENTO 4.y), no se persigue
 // FUNCTION: CMR2 0x004f0580
 void FUN_004f0580(Menu *pMenu, int param)
 {
@@ -8834,6 +8843,7 @@ char g_strClassRowFormat[20] = "%s  (%s, %s, %s)";
 
 // Draws the network "class" selection screen: one row per class with its name
 // and its two columns of allowed values.
+// match 56%: asignacion de registros en el bucle de filas y en los sprintf de la fila 0/1
 // FUNCTION: CMR2 0x004db850
 void FUN_004db850(Menu *pMenu, int param)
 {
@@ -8930,6 +8940,7 @@ BYTE *FUN_004f9260(int row, int column);
 
 // Draws the network "car" selection screen: one row per car with its name and
 // the value columns, plus the highlight bars.
+// match 58%: asignacion de registros en el bucle de filas
 // FUNCTION: CMR2 0x004e2610
 void FUN_004e2610(Menu *pMenu, int param)
 {
@@ -9011,6 +9022,7 @@ void FUN_004e2610(Menu *pMenu, int param)
 
 // Draws the network "stage times" screen: the three mode titles, the column
 // headers, the per-mode rows with the time of each stage and the help text.
+// match 86%: ranuras de pila de los temporales de las cabeceras
 // FUNCTION: CMR2 0x004e48b0
 void FUN_004e48b0(Menu *pMenu, int param)
 {
@@ -9254,6 +9266,7 @@ void FUN_004e5c90(Menu *pMenu, int param)
 
 // Draws the network "car records" screen: mode title, the two bars, the column
 // headers and the selected row with its car, gearbox and two values.
+// match 84%: ranuras de pila y orden de los dos bloques de barra
 // FUNCTION: CMR2 0x004e63d0
 void FUN_004e63d0(Menu *pMenu, int param)
 {
@@ -9405,6 +9418,7 @@ void FUN_004e6a80(Menu *pMenu, int param)
 
 // Draws the network "championship" screen: the column headers and eight rows
 // with the player, car, gearbox and time.
+// match 85%: ranuras de pila del marco (sub esp) y de los temporales
 // FUNCTION: CMR2 0x004e7120
 void FUN_004e7120(Menu *pMenu, int param)
 {
@@ -9481,6 +9495,7 @@ void FUN_004e7120(Menu *pMenu, int param)
 
 // Draws the "game setup" screen: the breadcrumb title, one row per item with
 // its icon and its label (text, stage list, gearbox or plain text).
+// match 59%: asignacion de registros en el switch y en el bucle de filas
 // FUNCTION: CMR2 0x004e7ed0
 void FUN_004e7ed0(Menu *pMenu, int param)
 {
