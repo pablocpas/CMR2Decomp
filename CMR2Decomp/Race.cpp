@@ -1625,6 +1625,225 @@ void FUN_0041a340(int car, int unused)
     }
 }
 
+int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
+int FUN_00465e40(int car, int wheel);
+
+// Recomputes the volume of the wheel sounds of a car (sound slots 4 to 7)
+// from the load of its wheels and the speed of the car, limiting the change
+// against the previous value, plus the pan of its engine sound. While the car
+// has no stage sound pattern running the volume of the slots 0 to 3 (the ones
+// the stage sounds use) is derived from the wheel slip instead.
+// match 42%: the block order, the constants and the calls follow the original
+// (its diff is the same instruction stream with other stack slots), but MSVC
+// folds/rematerialises the per-car pointers (`g_raceBlock+0x20+car*4` and the
+// like) where the original kept them live in registers and slots; that choice
+// cascades into the register allocation of the whole function. See
+// CONOCIMIENTO 4.ab.
+// FUNCTION: CMR2 0x0041a5c0
+void FUN_0041a5c0(int car, int listener)
+{
+    int carVolume;
+    int fadeIn;
+    unsigned int slot;
+    Car *pCar;
+    int i;
+    int load;
+    int volume;
+    int speedFactor;
+    int *pRef0;
+    int *pRef3;
+    int *pRef1;
+    int wheelFactor[4];
+    int *pFactor;
+    int wheelSum;
+    int loadFactor;
+    int fadeOut;
+    int slotGain;
+    int pan;
+    int *pVol1;
+    int *pVol2;
+    int *pVol3;
+    int *pVol4;
+    int *pRef2;
+    int carRow;
+
+    carVolume = FUN_00418e70(car);
+    carRow = car * 0xb4;
+    pCar = Car_Get(car);
+    wheelSum = 0;
+    pFactor = wheelFactor;
+    i = 4;
+    do {
+        load = pCar->wheelLoad[0];
+        if (load < 0)
+            load = -load;
+        load = FixDiv(load, 0xa0000);
+        *pFactor = load;
+        if (*pFactor > 0x10000)
+            *pFactor = 0x10000;
+        *pFactor = 0x10000 - *pFactor;
+        wheelSum += *pFactor;
+        pFactor++;
+    } while (--i);
+    loadFactor = FixDiv(wheelSum, 0x40000);
+    speedFactor = FixMulShift32(pCar->speed, 0x431168);
+    *(int *)(g_raceBlock + 0xb4) = 0;
+    g_carMaxVolume[car] = 0;
+    for (slot = 0; slot < 4; slot++) {
+        *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4) = StageObject_GetWheelSlip(car, slot);
+        slotGain = FUN_00465e40(car, slot);
+        g_carSlotVolumes[car][slot] = slotGain;
+        if (*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4) > g_carMaxVolume[car])
+            g_carMaxVolume[car] = *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4);
+        if (slotGain > *(int *)(g_raceBlock + 0xb4))
+            *(int *)(g_raceBlock + 0xb4) = slotGain;
+    }
+    if (*(int *)(g_raceBlock + 0x2e8 + carRow) == 0x19) {
+        fadeIn = 0x10000;
+        fadeOut = 0;
+    } else {
+        fadeIn = FixDiv(FUN_004781c0(car) - *(int *)(g_raceBlock + 0x2ec + carRow), 0x320000);
+        fadeOut = 0x10000 - fadeIn;
+    }
+    pVol1 = (int *)(g_raceBlock + 0x20 + car * 4);
+    pVol2 = (int *)(g_raceBlock + 0xb8 + car * 4);
+    pVol3 = (int *)(g_raceBlock + 0x100 + car * 4);
+    pVol4 = (int *)(g_raceBlock + 0xd8 + car * 4);
+    *pVol1 = FixMul(fadeIn, carVolume);
+    *pVol2 = FixMul(fadeOut, carVolume);
+    *pVol3 = FixMul(fadeIn, g_carMaxVolume[car]);
+    volume = FixMul(fadeOut, g_carMaxVolume[car]);
+    *pVol4 = volume;
+    *pVol2 += g_carMaxVolume[car];
+    *pVol1 += g_carMaxVolume[car];
+    pRef0 = (int *)(g_raceBlock + 0x0 + car * 4);
+    if (*pVol3 - *pRef0 > 0xc000)
+        *pVol3 = *pRef0 + 0xc000;
+    else if (*pVol3 - *pRef0 < -0xccc)
+        *pVol3 = *pRef0 - 0xccc;
+    pRef3 = (int *)(g_raceBlock + 0x220 + car * 4);
+    if (volume - *pRef3 > 0xc000)
+        *pVol4 = *pRef3 + 0xc000;
+    else if (volume - *pRef3 < -0xccc)
+        *pVol4 = *pRef3 - 0xccc;
+    pRef2 = (int *)(g_raceBlock + 0x94 + car * 4);
+    if (*pVol1 - *pRef2 > 0xccc)
+        *pVol1 = *pRef2 + 0xccc;
+    else if (*pVol1 - *pRef2 < -0xccc)
+        *pVol1 = *pRef2 - 0xccc;
+    pRef1 = (int *)(g_raceBlock + 0x48 + car * 4);
+    if (*pVol2 - *pRef1 > 0xccc)
+        *pVol2 = *pRef1 + 0xccc;
+    else if (*pVol2 - *pRef1 < -0xccc)
+        *pVol2 = *pRef1 - 0xccc;
+    *(int *)(g_raceBlock + 0xb4) = FixMul(*(int *)(g_raceBlock + 0xb4), 0x20000);
+    if (*(int *)(g_raceBlock + 0xb4) > 0x10000)
+        *(int *)(g_raceBlock + 0xb4) = 0x10000;
+    if (*(short *)(g_raceBlock + 0x258 + carRow) == 0x19) {
+        if (pCar->flag0x1d0[2] != 0 && speedFactor < 0x32) {
+            *pVol1 = *(int *)(g_raceBlock + 0xb4);
+            *pVol2 = *(int *)(g_raceBlock + 0xb4);
+            *pVol3 = *(int *)(g_raceBlock + 0xb4);
+            *pVol4 = *(int *)(g_raceBlock + 0xb4);
+            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) =
+                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0),
+                       0x10000 - *(int *)(g_raceBlock + 0xb4));
+            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) =
+                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4),
+                       0x10000 - *(int *)(g_raceBlock + 0xb4));
+            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) =
+                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8),
+                       0x10000 - *(int *)(g_raceBlock + 0xb4));
+            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc) =
+                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc),
+                       0x10000 - *(int *)(g_raceBlock + 0xb4));
+        } else if (g_raceBlock[0x2f0 + carRow] != 0) {
+            *pVol1 = 0;
+            *pVol2 = 0;
+            *pVol3 = 0;
+            *pVol4 = 0;
+        } else {
+            if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
+                pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
+                (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
+                0x50000 < (FixMul(pCar->speed, 0x431168) & 0xffff0000)) {
+                *pVol1 = 0x20000;
+                *pVol2 = 0x20000;
+                *pVol3 = 0x20000;
+                *pVol4 = 0x20000;
+                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) = 0x10000 - loadFactor;
+                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) = 0x10000 - loadFactor;
+                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) = 0x10000 - loadFactor;
+                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc) = 0x10000 - loadFactor;
+            } else {
+                *pVol1 = 0;
+                *pVol2 = 0;
+                *pVol3 = 0;
+                *pVol4 = 0;
+            }
+            if (speedFactor < 0x32 && speedFactor >= 0)
+                pan = (speedFactor - 0x32) * 0x2b11 / 0x32 + 0x5622;
+            else
+                pan = 0x5622;
+            g_unk0x005374c0 = pan;
+            Sound_SetPan(g_carSoundSets[car].handle[4], pan);
+        }
+    }
+    if (*pVol1 > 0x10000)
+        *pVol1 = 0x10000;
+    if (*pVol2 > 0x10000)
+        *pVol2 = 0x10000;
+    if (Sound_IsPlaying(g_carSoundSets[car].handle[4])) {
+        volume = FixMul(g_unk0x00537664, *pVol1);
+        FUN_004b79a0(g_carSoundSets[car].handle[4], FixMul(FUN_00427d50(car, listener), volume));
+    }
+    if (Sound_IsPlaying(g_carSoundSets[car].handle[5])) {
+        volume = FixMul(g_unk0x00537664, *pVol2);
+        FUN_004b79a0(g_carSoundSets[car].handle[5], FixMul(FUN_00427d50(car, listener), volume));
+    }
+    if (Sound_IsPlaying(g_carSoundSets[car].handle[6])) {
+        volume = FixMul(g_unk0x00537664, *pVol3);
+        FUN_004b79a0(g_carSoundSets[car].handle[6], FixMul(FUN_00427d50(car, listener), volume));
+    }
+    if (Sound_IsPlaying(g_carSoundSets[car].handle[7])) {
+        volume = FixMul(g_unk0x00537664, *pVol4);
+        FUN_004b79a0(g_carSoundSets[car].handle[7], FixMul(FUN_00427d50(car, listener), volume));
+    }
+    if (FUN_00427aa0() == 0) {
+        if (Sound_IsPlaying(g_carSoundSets[car].handle[0])) {
+            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0));
+            FUN_004b79a0(g_carSoundSets[car].handle[0], FixMul(FUN_00427d50(car, listener), volume));
+        }
+        if (Sound_IsPlaying(g_carSoundSets[car].handle[1])) {
+            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4));
+            FUN_004b79a0(g_carSoundSets[car].handle[1], FixMul(FUN_00427d50(car, listener), volume));
+        }
+        if (Sound_IsPlaying(g_carSoundSets[car].handle[2])) {
+            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8));
+            FUN_004b79a0(g_carSoundSets[car].handle[2], FixMul(FUN_00427d50(car, listener), volume));
+        }
+        if (Sound_IsPlaying(g_carSoundSets[car].handle[3])) {
+            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc));
+            FUN_004b79a0(g_carSoundSets[car].handle[3], FixMul(FUN_00427d50(car, listener), volume));
+        }
+    } else {
+        slotGain = *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) +
+                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) +
+                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) +
+                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc);
+        if (slotGain > 0x10000)
+            slotGain = 0x10000;
+        if (Sound_IsPlaying(g_carSoundSets[car].handle[0])) {
+            volume = FixMul(g_unk0x00537664, slotGain);
+            FUN_004b79a0(g_carSoundSets[car].handle[0], FixMul(FUN_00427d50(car, listener), volume));
+        }
+    }
+    *pRef0 = *pVol3;
+    *pRef3 = *pVol4;
+    *pRef2 = *pVol1;
+    *pRef1 = *pVol2;
+}
+
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
