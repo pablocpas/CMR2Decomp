@@ -1108,7 +1108,9 @@ extern float g_65536f;
 // position, heading, speed and flags back to 16.16, builds the two body axes
 // from the packed pair of angles plus the third one (cross product) and leaves
 // the steering angle in *pOut.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 48%: reviewed (W172) - fixed a swapped ang1/ang2 in the body-axis
+// construction (row.x/row.y used the wrong bucket); with that corrected the
+// remaining diff is register allocation and constant strength reduction.
 // FUNCTION: CMR2 0x00425c40
 int FUN_00425c40(int car, int *pOut)
 {
@@ -1183,9 +1185,9 @@ int FUN_00425c40(int car, int *pOut)
         axis[i] = f2;
         ang1 = (short)((double)(int)(f1 * g_65536f) * CGraphics::m_oneOver65536);
         ang2 = (short)((double)(int)(f2 * g_65536f) * CGraphics::m_oneOver65536);
-        row.x = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[(ang2 + 0x400) & 0xfff]);
-        row.y = g_sinTable[(ang1 + 0x400) & 0xfff];
-        row.z = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[ang2 & 0xfff]);
+        row.x = FixMul(g_sinTable[ang2 & 0xfff], g_sinTable[(ang1 + 0x400) & 0xfff]);
+        row.y = g_sinTable[(ang2 + 0x400) & 0xfff];
+        row.z = FixMul(g_sinTable[ang2 & 0xfff], g_sinTable[ang1 & 0xfff]);
         *pRow = row;
         {
             int len = FixVecLength(pRow);
