@@ -1700,17 +1700,76 @@ void Scene_EndShadowBatch(void)
     }
 }
 
-void FUN_004b4490(void *pCaster, int param2);
 void FUN_004b5770(void *pItem, void *pCaster, BYTE param3);
-void Sector_GetGridDimensions(int *columns, int *rows);
-
-// Shadow helpers of FUN_004b5ee0 that are still to be decompiled. Empty bodies
-// with the original stdcall argument count so the call sites can be measured.
-// STUB: CMR2 0x004b4490
-void FUN_004b4490(void *pCaster, int param2) { }
-
 // STUB: CMR2 0x004b5770
 void FUN_004b5770(void *pItem, void *pCaster, BYTE param3) { }
+void Sector_GetGridDimensions(int *columns, int *rows);
+void FUN_004b4180(float *param_1, int param_2);
+
+// Scale of the normal added to the vertex position when a shadow part is
+// projected (0x00511cec, 0.005f).
+// GLOBAL: CMR2 0x00511cec
+extern const float g_unk0x00511cec = 0.005f;
+
+// Projects the shadow parts of a caster that were marked dirty: for every vertex
+// of the part the position and the normal are copied into its two work buffers
+// and the normal scaled by 0x511cec is added to the position, the flag is
+// cleared; then every part whose geometry was still pending is emitted with the
+// shadow mesh builder.
+// match 40%: implemented from the disassembly, instruction by instruction (same
+// constants, same calls, same order of the two stages); the diff is code motion:
+// MSVC rotates the inner-loop pointer increments to the top of the body and uses
+// ECX as the zero constant where the original uses EDI, and our `offset`
+// temporary gets a real stack slot where the original reuses the dead param1
+// slot, so the sequence alignment loses the inner loop. Source-level reordering
+// (separate float temps, an array, a pointer loop, i/offset pairs) does not move
+// MSVC 6's choice.
+// FUNCTION: CMR2 0x004b4490
+void FUN_004b4490(ShadowCaster *pCaster, int param2)
+{
+    ShadowPart *pPart;
+    int i;
+    int j;
+    int offset;
+    float scaled[3];
+
+    if (pCaster->field_0xc != 0 && pCaster->partCount != 0) {
+        for (i = 0, offset = 0; i < pCaster->partCount; i++, offset += 0x58) {
+            pPart = (ShadowPart *)((char *)pCaster->pParts + offset);
+            if (pPart->field_0x54 != 0) {
+                if (pPart->pMesh->field_0x10 > 0) {
+                    float *pSrc = (float *)pPart->pMesh->pVertexData;
+                    float *pWork = (float *)pPart->pVertexWork;
+                    float *pWork2 = (float *)pPart->pVertexWork2;
+                    for (j = 0; j < pPart->pMesh->field_0x10; j++) {
+                        pWork2[0] = pSrc[0];
+                        pWork2[1] = pSrc[1];
+                        pWork2[2] = pSrc[2];
+                        pWork[0] = pSrc[3];
+                        pWork[1] = pSrc[4];
+                        pWork[2] = pSrc[5];
+                        scaled[0] = pWork[0] * g_unk0x00511cec;
+                        scaled[1] = pWork[1] * g_unk0x00511cec;
+                        scaled[2] = pWork[2] * g_unk0x00511cec;
+                        pWork2[0] += scaled[0];
+                        pWork2[1] += scaled[1];
+                        pWork2[2] += scaled[2];
+                        pSrc += 12;
+                        pWork += 3;
+                        pWork2 += 3;
+                    }
+                }
+            }
+            pPart->field_0x54 = 0;
+        }
+    }
+    pCaster->field_0xc = 0;
+    if (pCaster->field_0x10 != 0 && pCaster->partCount != 0) {
+        for (i = 0; i < pCaster->partCount; i++)
+            FUN_004b4180((float *)(pCaster->pParts + i), param2);
+    }
+    pCaster->field_0x10 = 0;
+}
 
 // Marks the node's shadow caster and emits every light zone vertex collected by
 // FUN_004b5f90 through the shadow geometry builder.

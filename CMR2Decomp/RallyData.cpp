@@ -8571,3 +8571,85 @@ void FUN_005043b0(void)
     rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
     FUN_00504eb0(rect, &g_unk0x005270e4[4], 0);
 }
+BYTE *FUN_0041f900(void);
+
+// GLOBAL: CMR2 0x00519704
+char g_str0x00519704[8] = "%s.cat";
+
+// Loads the route node file of the selected rally ("<rally>.cat") into
+// 0x538a9c: stores the node count in 0x538a88 and in 0x538a84 the index of the
+// last node carrying the flag bit, works out whether the route wraps
+// (0x538a94) and its scale (0x538c94), drops the direction cache keys, clears
+// the per-car race records and rebinds the route probe callback.
+// match 78%: implemented from the disassembly; the sequence matches instruction
+// by instruction except the record-clearing loop, where MSVC 6 biases the
+// induction variable by +4 instead of +8 (so three jump displacements and the
+// loop bound operand differ), one sign-fix register (EDX vs ECX), and the loop
+// bound symbol, which reccmp renders with each image's own symbol table
+// (CONOCIMIENTO 6.u: our .bss layout is not the original's).
+// FUNCTION: CMR2 0x00420630
+void FUN_00420630(void)
+{
+    DWORD count;
+    int start[3];
+    int end[3];
+    int index;
+    int dx;
+    int dy;
+    int value;
+    BYTE *pFile;
+    BYTE *pEntry;
+
+    count = 0;
+    sprintf(CFrontend::m_stringDest, g_str0x00519704, FUN_0041f900());
+    pFile = (BYTE *)CGenericFileLoader::FindFile(
+        (GenericFile *)StageTiming_GetStageFile3(), CFrontend::m_stringDest, 0, &count, 0);
+    g_unk0x00538a94 = 0;
+    g_routeDirKey[0] = g_routeDirKey[1] = g_routeDirKey[2] = -1;
+    g_routeDirCount = 0;
+    if (pFile == NULL) {
+        g_routeNodes = NULL;
+        g_unk0x00538a84 = 0;
+        g_unk0x00538a88 = 0;
+    } else {
+        g_routeNodes = pFile;
+        g_unk0x00538a88 = count / 0x2c;
+        g_unk0x00538a84 = g_unk0x00538a88;
+        index = g_unk0x00538a88 - 1;
+        if (index > 0) {
+            pEntry = g_routeNodes + 0x18 + index * 0x2c;
+            do {
+                if ((*pEntry & 1) != 0) {
+                    g_unk0x00538a84 = index + 1;
+                    break;
+                }
+                index--;
+                pEntry -= 0x2c;
+            } while (index > 0);
+        }
+        RallyData_FUN_00421530(0, start);
+        RallyData_FUN_00421530(g_unk0x00538a84 - 1, end);
+        dx = end[0] - start[0];
+        dy = end[2] - start[2];
+        if (dx < 0)
+            dx = -dx;
+        value = g_unk0x00538a84;
+        if (dx < 0x320000) {
+            if (dy < 0)
+                dy = -dy;
+            if (dy < 0x320000) {
+                g_unk0x00538a94 = 1;
+                value = (RallyData_FUN_00406990() & 0xff) * g_unk0x00538a84;
+            }
+        }
+        g_unk0x00538c94 = value << 16;
+    }
+    for (index = 0; index < 8; index++) {
+        g_raceRecords[index].field_0x0 = 0;
+        g_raceRecords[index].field_0x4 = 0;
+        g_raceRecords[index].field_0x8 = 0;
+        g_raceRecords[index].field_0xc = 0;
+    }
+    RallyData_FUN_00420820();
+    CGame::RegisterCallback((void *)FUN_00458040, 0);
+}
