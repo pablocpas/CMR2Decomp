@@ -1007,6 +1007,65 @@ void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
         Mesh_SetVertexColours(pMesh, rgb);
 }
 
+// match 69%: the whole FixMul/FixDiv chain matches; the remaining diff is MSVC6's stack-slot numbering
+// (it spills into the dead parameter homes and adds the two `n` terms separately) plus one store order.
+// Interpolates 16 fixed-point samples per row from the car's 0x7c table into
+// pOut, weighting the two corner rows by the car's 0xa8/0xac offsets.
+// FUNCTION: CMR2 0x004564d0
+void FUN_004564d0(int pCar, int *pOut)
+{
+    int f;
+    int n;
+    int rf;
+    int rn;
+    int rc;
+    int count;
+    int off;
+    int k;
+    int *pIn;
+    int *p;
+    int sum;
+    int t;
+    int v1;
+    int v2;
+    int v3;
+    int v4;
+    int v5;
+    int v6;
+
+    f = *(int *)(pCar + 0xac);
+    n = *(int *)(pCar + 0xa8);
+    rf = f - n;
+    rn = 0x10000 - n;
+    rc = 0x10000 - f;
+    count = GetStageSplitCount();
+    if (count >= 1) {
+        off = 0x310;
+        pIn = (int *)(pCar + 0x7c);
+        do {
+            k = 0x10;
+            p = pOut;
+            do {
+                v1 = FixMul(FixMul(pIn[-0x14], rn), *(int *)(g_unk0x0054241c + off - 0x280));
+                v2 = FixMul(FixMul(pIn[-0x14], n), *(int *)(g_unk0x0054241c + off));
+                v3 = FixMul(FixMul(pIn[0], rc), *(int *)(g_unk0x0054241c + off - 0x280));
+                v4 = FixMul(FixMul(pIn[0], f), *(int *)(g_unk0x0054241c + off));
+                v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));
+                v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));
+                sum = n + FixMul(rf, pIn[-0x1e]) + n + FixMul(rf, pIn[-0x1f]);
+                t = FixDiv(sum, 0x20000);
+                *p = FixMul(0x10000 - t, v6) + FixMul(t, v5) + v4 + v3 + v2 + v1;
+                k--;
+                p++;
+                off += 4;
+            } while (k != 0);
+            pIn++;
+            count--;
+            pOut += 0x10;
+        } while (count != 0);
+    }
+}
+
 // match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456960
 void FUN_00456960(int *pDeltas)
@@ -1686,6 +1745,155 @@ void FUN_00475f80(void)
 
 
 
+
+void FUN_004688b0(BYTE *p);
+
+// match 51%: the whole structure (record pool alloc, list search, FixVecScale colour clamps,
+// FixMulShift32 limit) matches at 294 vs 298 instructions; the diff is MSVC6 stack-slot
+// numbering and load scheduling. Kept as FUNCTION.
+// Allocates a stage-deform record (0x106-byte pool, 0xd-byte slots) for the
+// car's impact, fills it with the clamped offset/normal/impact colours and
+// queues it, or falls back to a scratch record.
+// FUNCTION: CMR2 0x00468520
+void FUN_00468520(void)
+{
+    BYTE *pRec;
+    BYTE *pPrev;
+    BYTE *pCur;
+    BYTE *pWalk;
+    BYTE *pFound;
+    BYTE *pBase;
+    FixVector vA;
+    FixVector vB;
+    BYTE buf[20];
+    int limit;
+    int count;
+    int minv;
+    int v;
+    int scale;
+
+    pRec = NULL;
+    pPrev = NULL;
+    pBase = g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x106;
+    limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
+    if (limit > 0xff)
+        limit = 0xff;
+    if (*(int *)(g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x28c) == 0) {
+        count = *(BYTE *)(pBase + 0x104);
+        if (count < 0x14) {
+            if (count != 0)
+                *(BYTE *)(count * 0xd + pBase - 1) = count;
+            pRec = (BYTE *)(*(BYTE *)(pBase + 0x104) * 0xd + pBase);
+            *(BYTE *)(pBase + 0x104) = *(BYTE *)(pBase + 0x104) + 1;
+        }
+        else {
+            pWalk = (BYTE *)(*(BYTE *)(pBase + 0x105) * 0xd + pBase);
+            minv = 1000;
+            pCur = NULL;
+            pFound = NULL;
+            if (pWalk != NULL) {
+                do {
+                    pFound = pWalk;
+                    v = *pFound;
+                    if (v < minv) {
+                        minv = v;
+                        pRec = pFound;
+                        pPrev = pCur;
+                    }
+                    if (pFound[0xc] == 0xff)
+                        break;
+                    pWalk = (BYTE *)((char)pFound[0xc] * 0xd + pBase);
+                    pCur = pFound;
+                } while (pWalk != NULL);
+            }
+            if (!(pRec != NULL && minv < (limit & 0xff)))
+                pRec = NULL;
+            else if (pRec != pFound) {
+                if (pPrev == NULL) {
+                    pFound[0xc] = *(BYTE *)(pBase + 0x105);
+                    *(BYTE *)(pBase + 0x105) = pRec[0xc];
+                }
+                else {
+                    pFound[0xc] = pPrev[0xc];
+                    pPrev[0xc] = pRec[0xc];
+                }
+                pRec[0xc] = 0xff;
+            }
+        }
+    }
+    if (pRec == NULL) {
+        pRec = buf;
+        if (pRec == NULL)
+            return;
+    }
+    pRec[0] = (BYTE)limit;
+    scale = FixMul(FixDiv(0x10000, 0xa0000), 0x7f0000);
+    FixVecScale(&vA, &g_stageDeformOffset, scale);
+    v = vA.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[9] = (BYTE)v;
+    v = vA.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[0xa] = (BYTE)v;
+    v = vA.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[0xb] = (BYTE)v;
+    FixVecScale(&vB, &g_stageDeformNormal, 0x7f0000);
+    v = vB.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[3] = (BYTE)v;
+    v = vB.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[4] = (BYTE)v;
+    v = vB.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[5] = (BYTE)v;
+    FixVecScale(&vB, &g_stageDeformImpact, 0x7f0000);
+    v = vB.x >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[6] = (BYTE)v;
+    v = vB.y >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[7] = (BYTE)v;
+    v = vB.z >> 16;
+    if (v > 0x7f)
+        v = 0x7f;
+    else if (v < -0x7f)
+        v = -0x7f;
+    pRec[8] = (BYTE)v;
+    pRec[1] = (BYTE)g_stageDeformMode;
+    if (g_stageDeformMode == 1) {
+        v = FixMulShift32(g_stageDeformSpeed, FixMul(FixDiv(0x10000, 0xa0000), 0xff0000));
+        if (v > 0xff)
+            v = 0xff;
+        pRec[2] = (BYTE)v;
+    }
+    FUN_004688b0(pRec);
+}
 
 // FUNCTION: CMR2 0x00469680
 int *FUN_00469680(int index)
@@ -2623,6 +2831,95 @@ void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag)
     }
 }
 
+// Thresholds (first/second-hit window speeds) for the high/front and low/rear
+// halves of a car's eight timing parts.
+// GLOBAL: CMR2 0x0051bfac
+int g_unk0x0051bfac[8] = { 0x3333, 0x3333, 0x3333, 0x3333, 0x1999, 0x1999, 0x1999, 0x1999 };
+// GLOBAL: CMR2 0x0051bfcc
+int g_unk0x0051bfcc[8] = { 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999 };
+
+void FUN_004694a0(int param_1, int param_2, char param_3);
+void FUN_00418cd0(unsigned int view, int kind, int listener);
+void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part);
+
+// Flags window/body breaks for the eight parts of a car's timing record.
+// FUNCTION: CMR2 0x004692f0
+void FUN_004692f0(Car *pCar, int param_2)
+{
+    BYTE *pRecord;
+    BYTE *pByte;
+    int *pFlagA;
+    BYTE i;
+    BYTE part;
+    int carIndex;
+    unsigned int state;
+
+    pRecord = (BYTE *)(pCar->field_0xb1a * 0x4d0 + (int)g_unk0x00588b94);
+    if (*(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'C' ||
+        *(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'A') {
+        i = 0;
+        pByte = pRecord + 0x460;
+        pFlagA = (int *)(pRecord + 0x490);
+        for (; i < 8; i++) {
+            part = *pByte;
+            if (pFlagA[0] == 0 || pFlagA[-8] == 0) {
+                if (pFlagA[-0x7a] > g_unk0x0051bfac[i] && pFlagA[0] == 0) {
+                    FUN_004694a0((int)pCar, 2, i);
+                    pFlagA[0] = 1;
+                    pFlagA[-8] = 1;
+                    if (param_2 == 0) {
+                        Car_QueueWindowBreak(pRecord, pCar, part);
+                        carIndex = pCar->field_0xb1a;
+                        state = RallyDataState();
+                        if (carIndex < (int)(state & 0xff)) {
+                            switch (i) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                                FUN_00418cd0(carIndex, 2, carIndex);
+                                break;
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                                FUN_00418cd0(carIndex, 0, carIndex);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (pFlagA[-0x7a] > g_unk0x0051bfcc[i] && pFlagA[-8] == 0 && pFlagA[0] == 0) {
+                    FUN_004694a0((int)pCar, 1, i);
+                    pFlagA[-8] = 1;
+                    if (param_2 == 0) {
+                        carIndex = pCar->field_0xb1a;
+                        state = RallyDataState();
+                        if (carIndex < (int)(state & 0xff)) {
+                            switch (i) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                                FUN_00418cd0(carIndex, 2, carIndex);
+                                break;
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                                FUN_00418cd0(carIndex, 0, carIndex);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            pByte++;
+            pFlagA++;
+        }
+    }
+}
+
 // Index of the part of a car model whose node type byte is `type` (-1 none).
 // match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004692b0
@@ -2686,6 +2983,103 @@ void FUN_00458b80(void)
 
 unsigned int RallyData_FUN_004082b0(void);
 unsigned int RallyData_FUN_004082e0(void);
+
+extern int g_unk0x00542c6c;
+extern int g_unk0x00542c74;
+extern char g_unk0x00542cad;
+extern int g_unk0x00542cb0;
+extern int g_unk0x00542cb4[8];
+
+int FUN_00459350(int index);
+void RallyData_FUN_004213d0(Car *pCar, int value);
+void FUN_00459250(BYTE player, unsigned int node, int dir);
+
+// Resets one player's timing record (table at 0x542e78, stride 0x1c) to the
+// default state for the current rally and network mode.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00458bd0
+void FUN_00458bd0(int param_1, int param_2, int param_3, char param_4)
+{
+    Car *pCar;
+    short value;
+
+    pCar = Car_Get(param_1);
+    g_unk0x00542e78[param_1].field_0x16 = 0;
+    g_unk0x00542e78[param_1].field_0x17 = 0;
+    g_unk0x00542e78[param_1].field_0x18 = 0;
+    g_unk0x00542e78[param_1].field_0x19 = 0;
+    g_unk0x00542e78[param_1].field_0x1a = 0;
+    g_unk0x00542e78[param_1].field_0x14 = 0;
+    g_unk0x00542e78[param_1].field_0x10 = 0;
+    g_unk0x00542e78[param_1].field_0x12 = 0;
+    if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0) {
+        g_unk0x00542e78[param_1].field_0x0 = (short)RallyData_FUN_00421370((BYTE *)pCar);
+        g_unk0x00542e78[param_1].field_0x2 = 0;
+        g_unk0x00542e78[param_1].field_0x4 = 0;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0x8 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 1;
+        g_unk0x00542e78[param_1].field_0xc = 0;
+        g_unk0x00542e78[param_1].field_0xe = (short)g_unk0x00542c74 - 1;
+        goto end;
+    }
+    g_unk0x00542e78[param_1].field_0x4 = 0;
+    g_unk0x00542e78[param_1].field_0x8 = 0;
+    if (param_4 != 0) {
+        g_unk0x00542e78[param_1].field_0x0 = (short)FUN_00459320(RallyData_FUN_00421370((BYTE *)pCar));
+    }
+    else {
+        value = g_unk0x00542d58[param_1];
+        g_unk0x00542e78[param_1].field_0x0 = value;
+        RallyData_FUN_004213d0(pCar, FUN_00459350((int)value));
+        g_unk0x00542e78[param_1].field_0x12 = g_unk0x00542d68[param_1];
+    }
+    if ((BYTE)RallyData_GetFlag24() != 0) {
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xe = 0;
+        if (g_unk0x00542cad == 0) {
+            g_unk0x00542e78[param_1].field_0xa = 1;
+            g_unk0x00542e78[param_1].field_0xc = g_unk0x00542c6c;
+        }
+        else {
+            g_unk0x00542e78[param_1].field_0xa = 0;
+            g_unk0x00542e78[param_1].field_0xc = 1000;
+        }
+        goto end;
+    }
+    if (g_unk0x00542cad == 0) {
+        if (CGameInfo::FUN_00405e00() != 0) {
+            if (g_unk0x00542cb4[0] != 0 && CGameInfo::FUN_00405d80() != 10)
+                goto d8e;
+        }
+        else {
+            if (param_1 != g_unk0x00542cb0 && CGameInfo::FUN_00405d80() != 3)
+                goto d8e;
+        }
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 1;
+        g_unk0x00542e78[param_1].field_0xc = 1;
+    }
+    else {
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 0;
+        g_unk0x00542e78[param_1].field_0xc = 1000;
+    }
+    g_unk0x00542e78[param_1].field_0xe = 0;
+    goto end;
+d8e:
+    g_unk0x00542e78[param_1].field_0x2 = 0;
+    g_unk0x00542e78[param_1].field_0x6 = 1;
+    g_unk0x00542e78[param_1].field_0xa = 0;
+    g_unk0x00542e78[param_1].field_0x8 = 1;
+    g_unk0x00542e78[param_1].field_0xc = 1;
+    g_unk0x00542e78[param_1].field_0xe = 1;
+end:
+    FUN_00459250((BYTE)param_1, (int)g_unk0x00542e78[param_1].field_0x0, 1);
+}
 
 // Flags the record when its two positions coincide (not in some network modes).
 // FUNCTION: CMR2 0x00459180
@@ -3504,6 +3898,98 @@ void FUN_004918d0(void)
     g_stageColourAlpha = 0xff;
 }
 
+extern int g_unk0x00588970[8];
+extern const double g_unk0x00511310;
+
+void FUN_004694a0(int param_1, int param_2, char param_3);
+void Mesh_Rebuild(Mesh *pMesh);
+void RallyData_ValidateIndex(int index);
+void FUN_00477c20(int index, char set0, char set1, BYTE mask);
+
+// Rebuilds the wheel/part meshes of a damaged car from its record's vertex
+// data, then clears the record's damage state.
+// match 18%: logic matches (6 FixMul-style float stores per part, then the record is cleared) but MSVC6
+// splits the six int temporaries across 7 stack slots and allocates EBP/ESI/EDI differently; not reproducible
+// without the original local layout. Kept as FUNCTION so reccmp measures it.
+// FUNCTION: CMR2 0x004698a0
+void FUN_004698a0(int pCar)
+{
+    int i;
+    int j;
+    int n;
+    int m;
+    int record;
+    int *p;
+    int *pSrc;
+    int v0;
+    int v1;
+    int v2;
+    int w0;
+    int w1;
+    int w2;
+    int q;
+    int idx;
+
+    idx = *(char *)(pCar + 0xb1a);
+    if (g_unk0x00588970[idx] != 0) {
+        i = 0;
+        record = idx * 0x4d0 + (int)g_unk0x00588b94;
+        if (0 < *(int *)(record + 0x45c)) {
+            p = (int *)(record + 0x420);
+            do {
+                j = 0;
+                if (0 < *p) {
+                    n = 0;
+                    m = 0;
+                    do {
+                        n += 0x30;
+                        j++;
+                        pSrc = (int *)(*(int *)(record + 0x78) + m);
+                        v0 = pSrc[0];
+                        v1 = pSrc[1];
+                        v2 = pSrc[2];
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x30) = (float)(v0 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x2c) = (float)(v1 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x28) = (float)(v2 * g_unk0x00511310);
+                        pSrc = (int *)(*(int *)(record + 0x78) + m + 0xc);
+                        m += 0x20;
+                        w0 = pSrc[0];
+                        w1 = pSrc[1];
+                        w2 = pSrc[2];
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x24) = (float)(w0 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x20) = (float)(w1 * g_unk0x00511310);
+                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x1c) = (float)(w2 * g_unk0x00511310);
+                    } while (j < *p);
+                }
+                q = *(int *)(*(int *)(record + 0x3c) + 0xc);
+                if (q != 0) {
+                    Mesh_Rebuild((Mesh *)q);
+                    RallyData_ValidateIndex(q);
+                    Scene_MarkShadowPartDirty(*(SceneNode **)(pCar + 0x720), (Mesh *)q);
+                }
+                i++;
+                p++;
+            } while (i < *(int *)(record + 0x45c));
+        }
+        p = (int *)(record + 0x21c);
+        for (n = 0; n < 9; n++)
+            p[n] = 0;
+        *(BYTE *)(record + 0x469) = 0;
+        *(int *)(record + 0x46c) = 0;
+        p = (int *)(record + 0x350);
+        for (n = 0; n < 0x22; n++)
+            p[n] = 0;
+        p = (int *)(record + 0x470);
+        for (n = 0; n < 8; n++) {
+            p[8] = 0;
+            p[0] = 0;
+            FUN_004694a0(pCar, 0, n);
+            p++;
+        }
+        FUN_00477c20(*(char *)(pCar + 0xb1a), 0, 0, 4);
+    }
+}
+
 // Snapshots a car's replay colours and end values once per stage.
 // FUNCTION: CMR2 0x00469a80
 void FUN_00469a80(int car)
@@ -3563,6 +4049,75 @@ done:
 }
 
 extern double g_minus65536;
+
+// match 47%: the whole FixMul/FixDiv chain matches instruction for instruction, but MSVC6 assigns the
+// stack slots in a different order (the original spills into the dead parameter homes, EBP+8/EBP+0xc);
+// only the [ebp-N] numbers and a few load orders differ. Kept as FUNCTION.
+// Bilinear blend of a car's 5-byte-wide paint-decal rows (0x54241c) into 16
+// fixed-point samples, weighted by the car's two paint offsets (0xa8/0xac).
+// FUNCTION: CMR2 0x00455f00
+void FUN_00455f00(int pCar, int *pOut)
+{
+    __int64 v;
+    int t;
+    int a8;
+    int r8;
+    int ac;
+    int rc;
+    int sum;
+    int d0;
+    int d3;
+    int d4;
+    int t1;
+    int t2;
+    int t3;
+    int m1;
+    int m2;
+    int m3;
+    int m4;
+    int m5;
+    int m6;
+    int m7;
+    int m8;
+    int m9;
+    int m10;
+    int m11;
+    int t4;
+    int i;
+
+    v = (unsigned int)RallyData_FUN_00421420();
+    v = (__int64)((double)v * CGraphics::m_65536);
+    t = (int)v;
+    // The original computes this and discards it (inline __asm FixMul is opaque
+    // to MSVC6, so it cannot be eliminated); reproduced to match the codegen.
+    FixMul(0x20000, t);
+    a8 = *(int *)(pCar + 0xa8);
+    ac = *(int *)(pCar + 0xac);
+    r8 = 0x10000 - a8;
+    rc = 0x10000 - ac;
+    sum = r8 + rc;
+    for (i = 0; i < 0x50; i += 5, pOut++) {
+        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);
+        d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);
+        d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);
+        t1 = FixDiv(*(int *)(pCar + 0xa0), t);
+        t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);
+        t3 = 0x10000 - t2 - t1;
+        m1 = FixMul(r8, d3);
+        m2 = FixMul(d4, m1);
+        m3 = FixMul(a8, d4);
+        m4 = FixMul(d4, m3);
+        m5 = FixMul(rc, d3);
+        m6 = FixMul(t2, m5);
+        m7 = FixMul(ac, d4);
+        m8 = FixMul(t2, m7);
+        t4 = FixDiv(sum, 0x20000);
+        m9 = FixMul(t4, d3);
+        m10 = FixMul(t3, m9);
+        m11 = FixMul(0x10000 - t4, d4);
+        *pOut = FixMul(t3, m11) + m10 + m8 + m6 + m4 + m2 + d0;
+    }
+}
 
 // Adds a random spread to the computer drivers' times and sorts them.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)

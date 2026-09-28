@@ -170,7 +170,7 @@ int g_unk0x0051922c = -1;
 char g_strTempC3D[] = "TEMP.C3D";
 
 int RallyData_FUN_00411060(void);
-void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 BYTE *FUN_0046d2d0(char *path);
 char *FUN_0041f910(void);
 GenericFile *FUN_0041f500(void);

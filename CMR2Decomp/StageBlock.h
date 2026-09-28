@@ -12,12 +12,15 @@ extern BYTE g_stageBlock[0x430];
 #define g_unk0x0058d2a0 ((int *)(g_stageBlock + 0x0))          // int[12]
 #define g_unk0x0058d2d4 ((WORD *)(g_stageBlock + 0x34))        // 2 objects x 7 WORD colours
 #define g_unk0x0058d2f0 ((int *)(g_stageBlock + 0x50))         // int[8]
+// Per object: the 12 ushort fill values of the stage box outline (0x477460).
+#define g_unk0x0058d310 ((unsigned short *)(g_stageBlock + 0x70)) // 2 rows of 12 ushorts
 #define g_stageBlock_58d340 ((int *)(g_stageBlock + 0xa0))     // int[8]
 #define g_stageBlock_58d368 ((int *)(g_stageBlock + 0xc8))     // 6 rows of 3 ints
 #define g_unk0x0058d3b0 ((int *)(g_stageBlock + 0x110))        // int[2]
 #define g_unk0x0058d3b8 (g_stageBlock + 0x118)                 // 16 rows of 12 bytes
 #define g_stageBlock_58d47c ((int *)(g_stageBlock + 0x1dc))    // int[8]
 #define g_unk0x0058d49c ((void **)(g_stageBlock + 0x1fc))      // void *[8]
+#define g_unk0x0058d4c0 ((int *)(g_stageBlock + 0x220))        // per object: first texture
 #define g_unk0x0058d4c4 ((int *)(g_stageBlock + 0x224))        // pairs from 0x58d4c0
 #define g_unk0x0058d4d0 (g_stageBlock + 0x230)                 // BYTE[8]
 #define g_unk0x0058d4d8 ((int *)(g_stageBlock + 0x238))        // per object: fade state, direction

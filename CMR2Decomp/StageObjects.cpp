@@ -32,6 +32,7 @@ struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
                     int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
 void FUN_004ae3d0(BYTE *p, BYTE value);
+void FUN_004ae3f0(BYTE *p, int value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -1074,6 +1075,220 @@ void FUN_0046f4e0(int *pOut1, int *pOut2)
 {
     *pOut1 = g_unk0x00589440;
     *pOut2 = g_unk0x00589444;
+}
+
+// GLOBAL: CMR2 0x0051c6d0
+char g_strTempGro[] = "TEMP.GRO";
+// GLOBAL: CMR2 0x0051c6dc
+char g_strTopC3d[] = "top.c3d";
+// GLOBAL: CMR2 0x0051c6e4
+char g_strC3dExt[] = ".c3d";
+// GLOBAL: CMR2 0x0051c6ec
+char g_strBflExt[] = ".bfl";
+// GLOBAL: CMR2 0x0051c6f4
+char g_strTempSky[] = "TEMP.SKY";
+
+void FUN_004b2e40(BYTE *p, int value);
+void FUN_0046ef50(void);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
+GenericFile *FUN_0041f500(void);
+int RallyData_FUN_00411060(void);
+BYTE FUN_0046f030(void);
+
+// Loads the stage's sky and ground objects: the TEMP.SKY archive (also opened
+// as .bfl, .c3d and top.c3d) and TEMP.GRO, releasing each one's meshes first.
+// FUNCTION: CMR2 0x0046f060
+void FUN_0046f060(void)
+{
+    char buffer[MAX_PATH];
+    GenericFile *pFile;
+    GenericFile *pC3d;
+    int node;
+    BYTE *pMesh;
+
+    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x00589438 = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)FUN_0041f500());
+        if (g_unk0x00589438 != 0) {
+            FUN_004b2e40(*(BYTE **)(g_unk0x00589438 + 0xc), 0);
+            *(int *)(g_unk0x00589438 + 0x180) = 0;
+            node = *(int *)(g_unk0x00589438 + 4);
+            if (node != 0) {
+                pMesh = *(BYTE **)(node + 0xc);
+                *(int *)(node + 0x180) = 0;
+                FUN_004b2e40(pMesh, 0);
+                node = *(int *)(*(int *)(g_unk0x00589438 + 4));
+                if (node != 0) {
+                    pMesh = *(BYTE **)(node + 0xc);
+                    *(int *)(node + 0x180) = 0;
+                    FUN_004b2e40(pMesh, 0);
+                    node = *(int *)(*(int *)(*(int *)(g_unk0x00589438 + 4)));
+                    if (node != 0) {
+                        pMesh = *(BYTE **)(node + 0xc);
+                        *(int *)(node + 0x180) = 0;
+                        FUN_004b2e40(pMesh, 0);
+                    }
+                }
+            }
+        }
+    }
+    FUN_0046ef50();
+    strcpy(buffer, CFrontend::m_stringDest);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strBflExt);
+    CGenericFileLoader::FUN_004a9d70(&g_unk0x00589448, CFrontend::m_stringDest);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strC3dExt);
+    pC3d = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strTopC3d);
+    pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x00589444 = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)&g_unk0x00589448);
+        if (g_unk0x00589444 != 0) {
+            pMesh = *(BYTE **)(g_unk0x00589444 + 0xc);
+            *(int *)(g_unk0x00589444 + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+            *(BYTE *)(g_unk0x00589444 + 0x17c) = 0;
+        }
+    }
+    if (pC3d != NULL) {
+        g_unk0x00589440 = (int)FUN_004b9380((unsigned int)pC3d, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)&g_unk0x00589448);
+        if (g_unk0x00589440 != 0) {
+            pMesh = *(BYTE **)(g_unk0x00589440 + 0xc);
+            *(int *)(g_unk0x00589440 + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+        }
+    }
+    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x0058943c = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)FUN_0041f500());
+        if (g_unk0x0058943c != 0) {
+            pMesh = *(BYTE **)(g_unk0x0058943c + 0xc);
+            *(int *)(g_unk0x0058943c + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+        }
+    }
+    CGame::RegisterCallback((void *)FUN_0046f030, NULL);
+}
+
+int RallyData_FUN_00411060(void);
+void Mesh_ResetCloneCount(void);
+Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource);
+extern double g_minus65536;
+
+// Loads the stage object list, creates a scene node and clones the mesh of
+// every object, then classifies each bounding box as ground or wall.
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The three bounding-box accumulators land in ESI/EDX/ECX instead of the
+// original's EDI/ESI/EDX and MSVC merges the "if (v < 0)" phi without the
+// original's extra jmp; the code itself is identical.
+// FUNCTION: CMR2 0x0046f550
+void FUN_0046f550(void)
+{
+    BYTE *pEntries;
+    int i;
+    int count;
+    BYTE *pEntry;
+    int maxX;
+    int maxY;
+    int maxZ;
+    int mesh;
+    float *pFloats;
+
+    Mesh_ResetCloneCount();
+    pEntry = (BYTE *)g_unk0x005894e0 + 0x114;
+    do {
+        SceneNode *pNode = SceneNode_Create((SceneNode *)RallyData_FUN_00411060());
+        *(int *)(pEntry - 0x110) = (int)pNode;
+        *(int *)((BYTE *)pNode + 0x178) = 3;
+        *(int *)pEntry = -0x10000;
+        pEntry += 0x128;
+    } while ((int)pEntry < (int)((BYTE *)g_unk0x005894e0 + 0x114 + 40 * 0x128));
+
+    count = FUN_00471bd0(&pEntries);
+    g_unk0x0058c92c = CFileBuffer::AllocateLockedBuffer(count * 4);
+    i = 0;
+    if (count > 0) {
+        do {
+            i++;
+            ((int *)g_unk0x0058c92c)[i - 1] = 0;
+        } while (i < count);
+    }
+    g_unk0x0058c928 = 0;
+    if (count > 0) {
+        g_unk0x0058c928 = CFileBuffer::AllocateLockedBuffer(count);
+        i = 0;
+        g_unk0x0058c320 = 0;
+        if (count > 0) {
+            do {
+                mesh = *(int *)(*(int *)(pEntries + i * 8) + 0xc);
+                if ((int)g_unk0x0058c320 < count) {
+                    ((BYTE *)g_unk0x0058c928)[i] = (BYTE)g_unk0x0058c320;
+                    mesh = (int)Mesh_CloneInto((Mesh *)mesh, (BYTE *)*(int *)(pEntries + i * 8));
+                    ((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] = mesh;
+                    if (((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] == 0)
+                        ((BYTE *)g_unk0x0058c928)[i] = 0;
+                    else
+                        g_unk0x0058c320++;
+                } else {
+                    ((BYTE *)g_unk0x0058c928)[i] = 0xff;
+                }
+                i++;
+            } while (i < count);
+        }
+    }
+    g_unk0x0058c930 = 0;
+    if (g_unk0x0058c320 > 0)
+        g_unk0x0058c930 = CFileBuffer::AllocateLockedBuffer((g_unk0x0058c320 & 0xff) << 2);
+    i = 0;
+    if (g_unk0x0058c320 > 0) {
+        do {
+            int pObject = ((int *)g_unk0x0058c92c)[i];
+            int n;
+            int x;
+            int y;
+            int z;
+            maxZ = 0;
+            maxY = 0;
+            maxX = 0;
+            n = *(int *)((BYTE *)pObject + 0x10);
+            if (n > 0) {
+                pFloats = *(float **)((BYTE *)pObject + 0xc);
+                do {
+                    x = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
+                    if (x < 0)
+                        x = (int)(__int64)(pFloats[0] * g_minus65536);
+                    y = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
+                    if (y < 0)
+                        y = (int)(__int64)(pFloats[1] * g_minus65536);
+                    z = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
+                    if (z < 0)
+                        z = (int)(__int64)(pFloats[2] * g_minus65536);
+                    if (x > maxX)
+                        maxX = x;
+                    if (y > maxY)
+                        maxY = y;
+                    if (z > maxZ)
+                        maxZ = z;
+                    pFloats += 0xc;
+                    n--;
+                } while (n != 0);
+            }
+            if (FixDiv(maxZ, maxX) < 0x4ccc)
+                ((int *)g_unk0x0058c930)[i] = 0;
+            else if (FixDiv(maxX, maxY) < 0x4ccc)
+                ((int *)g_unk0x0058c930)[i] = 1;
+            else
+                ((int *)g_unk0x0058c930)[i] = 0;
+            i++;
+        } while (i < (int)(g_unk0x0058c320 & 0xff));
+    }
+    CGame::RegisterCallback((void *)FUN_0046f500, NULL);
 }
 
 // FUNCTION: CMR2 0x00471bd0
@@ -2977,6 +3192,52 @@ BYTE FUN_004729f0(void)
 // GLOBAL: CMR2 0x0058d6d0
 BYTE g_unk0x0058d6d0[8][0x48];
 
+// Fills the 12 outline values of a stage box (11 boundary levels plus the
+// corner colour at +0x16) and repaints its two textures once the cached copy
+// differs from the new values.
+int FUN_00445dd0(int index);
+void FUN_004775f0(Texture *pTexture, int state, int cacheBase, int index);
+// FUNCTION: CMR2 0x00477460
+void FUN_00477460(int index)
+{
+    unsigned short *pNew = g_unk0x0058d310 + index * 0xc;
+    unsigned short *pOld = (unsigned short *)(g_stageBlock + index * 0x18);
+    int changed = 0;
+    int limit;
+    int slot;
+    int i;
+
+    limit = FixMulShift32(FUN_00445dd0(index), 0xb0000);
+    for (i = 0; i <= 0xa; i++)
+        pNew[i] = ((i >= limit) - 1) & 0xff;
+    if (g_unk0x0058d4c4[index * 2] != 0)
+        FUN_004775f0((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->field_0xb1e, 2, index);
+    if (g_unk0x0058d4c0[index * 2] != 0) {
+        slot = index + 8;
+        pNew[0xb] = 0x6c;
+        // the original leaves the scan by setting the counter to 0xc
+        for (i = 0; i < 0xc; i++) {
+            if (pNew[i] != pOld[i]) {
+                changed = 1;
+                i = 0xc;
+            }
+        }
+        if (changed != 0) {
+            CGraphics::BltTexture((Texture *)g_unk0x0058d4c0[index * 2], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xe0, 0xff, 0xd0, pNew[1], 0xc0,
+                                         pNew[2], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xb0, pNew[3], 0xa0, pNew[4], 0x90,
+                                         pNew[5], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x80, pNew[6], 0x70, pNew[7], 0x60,
+                                         pNew[8], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x50, pNew[9], 0x40, pNew[10], 0x30,
+                                         pNew[0xb], slot);
+            for (i = 0; i < 0xc; i++)
+                pOld[i] = pNew[i];
+        }
+    }
+}
+
 // Body colours of the two stage objects for the object's current body state:
 // seven alpha values per object, compared against the ones already applied to
 // the texture so the remap only runs when they change.
@@ -3215,6 +3476,141 @@ int g_unk0x005909b8;
 BYTE g_unk0x005909c0[4];
 // GLOBAL: CMR2 0x005909c4
 BYTE g_unk0x005909c4[4];
+
+// Per car: ticks until the next headlight glow may be spawned.
+// GLOBAL: CMR2 0x0058e4a8
+int g_unk0x0058e4a8[8];
+// Glow record of the stage objects: pRec offsets are relative to this base,
+// i.e. 0x18 bytes below the glow fields that 0x47d510 walks.
+// GLOBAL: CMR2 0x0058e4c8
+BYTE g_unk0x0058e4c8[100][0x5c];
+// Same records as 0x47d5a0 walks, seen from their position field (+0xc): the
+// pointer arithmetic of that view lives in 0x47e1e0.
+// GLOBAL: CMR2 0x0058e4d4
+BYTE g_unk0x0058e4d4[100][0x5c];
+
+// Spawns the headlight glow of one stage object: finds the first free record,
+// places it at the top corner of the car's bounding box, aims it along the
+// body's right axis and drops it onto the ground below.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The instruction sequence is the original's; the residual difference is the
+// register numbering of the vector temporaries.
+// FUNCTION: CMR2 0x0047d5a0
+void FUN_0047d5a0(BYTE car)
+{
+    FixVector dir;
+    FixVector half;
+    Car *pCar;
+    short surface;
+    int *pRec;
+    int i;
+
+    if (g_unk0x0058e4a8[car] <= 0) {
+        pRec = (int *)g_unk0x0058e4c8;
+        i = 0;
+        do {
+            if (pRec[0x15] == 0) {
+                pCar = Car_Get(car);
+                FixVecScale(&dir, &pCar->up, *(int *)&pCar->field_0x770[4]);
+                half.x = pCar->corners[1].x - pCar->corners[0].x;
+                half.y = pCar->corners[1].y - pCar->corners[0].y;
+                half.z = pCar->corners[1].z - pCar->corners[0].z;
+                FixVecScale(&half, &half, 0x8000);
+                pRec[3] = half.x + pCar->corners[0].x + dir.x;
+                pRec[4] = half.y + pCar->corners[0].y + dir.y;
+                pRec[5] = half.z + pCar->corners[0].z + dir.z;
+                FixVecScale((FixVector *)pRec, &pCar->right, 0xcccc);
+                pRec[0] += pCar->velocity.x;
+                pRec[1] += pCar->velocity.y;
+                pRec[2] += pCar->velocity.z;
+                FixVecScale((FixVector *)pRec, &pCar->right, FixVecDot((FixVector *)pRec, &pCar->right));
+                pRec[0x12] = 0x320000;
+                pRec[9] = 0x10000;
+                pRec[0x15] = 1;
+                *(BYTE *)(pRec + 0x16) = car;
+                pRec[0x11] = 0;
+                *(short *)(pRec + 0x13) = -1;
+                pRec[0x11] = Track_GetGroundHeightSurface((FixVector *)(pRec + 3), (FixVector *)(pRec + 6),
+                                                          (short *)(pRec + 0x13), &surface,
+                                                          (unsigned short *)&surface, 0);
+                pRec[4] = pRec[0x11] + 0x8000;
+                *(FixVector *)(pRec + 0xa) = *(FixVector *)(pRec + 3);
+                *(FixVector *)(pRec + 0xd) = *(FixVector *)(pRec + 6);
+                pRec[0x10] = pRec[9];
+                i = 100;
+                g_unk0x0058e4a8[car] = 0x100000;
+            }
+            pRec += 0x17;
+            i++;
+        } while (i < 100);
+    }
+}
+
+void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir);
+void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity);
+
+// Interpolates every headlight glow between its spawn record (the copy at
+// +0x28/+0x34) and the current car state by the fraction t, normalises the
+// direction and moves the light with it.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The addresses are the original's (checked against the emitting disassembly);
+// MSVC materialises the record pointer 4 bytes higher and compensates with -4
+// displacements, so every memory operand reads differently.
+// FUNCTION: CMR2 0x0047e1e0
+void FUN_0047e1e0(int t)
+{
+    FixVector pos;
+    FixVector normal;
+    FixVector delta;
+    FixVector ground;
+    int *pRec;
+    int length;
+    int size;
+    int i;
+
+    pRec = (int *)g_unk0x0058e4d4;
+    i = 100;
+    do {
+        if (pRec[0x12] == 0) {
+            FUN_004ae3d0((BYTE *)pRec[0x11], 0);
+        } else {
+            delta.x = pRec[0] - pRec[7];
+            delta.y = pRec[1] - pRec[8];
+            delta.z = pRec[2] - pRec[9];
+            FixVecScale(&delta, &delta, t);
+            pos.x = delta.x + pRec[7];
+            pos.y = delta.y + pRec[8];
+            pos.z = delta.z + pRec[9];
+            delta.x = pRec[3] - pRec[0xa];
+            delta.y = pRec[4] - pRec[0xb];
+            delta.z = pRec[5] - pRec[0xc];
+            FixVecScale(&delta, &delta, t);
+            normal.x = delta.x + pRec[0xa];
+            normal.y = delta.y + pRec[0xb];
+            normal.z = delta.z + pRec[0xc];
+            length = FixVecLength(&normal);
+            if (length == 0) {
+                normal.x = 0;
+                normal.y = 0;
+                normal.z = 0;
+            } else {
+                FixVecScaleRecip(&normal, &normal, length);
+            }
+            size = FixMul(pRec[6] - pRec[0xd], t) + pRec[0xd];
+            if (size <= 0) {
+                FUN_004ae3d0((BYTE *)pRec[0x11], 0);
+            } else {
+                FUN_004ae3d0((BYTE *)pRec[0x11], 1);
+                FUN_004ae3f0((BYTE *)pRec[0x11], size);
+                Glow_SetPosition((GlowLight *)pRec[0x11], &pos, &pos);
+                ground = pos;
+                ground.y -= 0x8000;
+                Glow_SetLayerPlane((GlowLight *)pRec[0x11], &ground, &normal, 0);
+            }
+        }
+        pRec += 0x17;
+    } while (--i);
+}
 
 // FUNCTION: CMR2 0x0047e490
 void FUN_0047e490(BYTE *pColour)
@@ -4490,6 +4886,74 @@ void FUN_00480a60(void)
 }
 
 int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+
+extern BYTE g_barTextColour[4];
+// Panel, text and selection colours of the stage-data screen.
+// GLOBAL: CMR2 0x0051c984
+BYTE g_unk0x0051c984[4] = { 210, 202, 210, 128 };
+// GLOBAL: CMR2 0x0051c994
+BYTE g_unk0x0051c994[4] = { 143, 135, 143, 255 };
+
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+
+// Draws the stage-data panel of the pause screen: its background, the row
+// separators and, for every item, the label and the highlight sprite.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Identical instruction sequence; the original keeps the loop counter in ESI and
+// pushes EBX/EDI inside the loop, our build spills one more register in the prologue,
+// which shifts every stack slot by 4 (register-slot renumbering).
+// FUNCTION: CMR2 0x004738f0
+void FUN_004738f0(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    short rect2[4];
+    int i;
+    int texture;
+    BYTE *pColour;
+
+    rect2[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
+    rect2[1] = (short)((int)(g_pGraphics->resY * 0xd1) / 0x1e0);
+    texture = FUN_004055e0();
+    rect2[2] = *(short *)(texture + 0x120);
+    texture = FUN_004055e0();
+    rect2[3] = *(short *)(texture + 0x122);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+    rect[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
+    rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    rect[3] = (short)((int)(g_pGraphics->resY * 0x26) / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x0051c984, 2);
+    pItem = pMenu->items;
+    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+        rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                           + (int)(g_pGraphics->resY * 0xd1) / 0x1e0);
+        if (pMenu->cursor == i) {
+            pColour = g_barTextColour;
+            texture = FUN_004055e0();
+        } else {
+            pColour = g_unk0x0051c994;
+            texture = FUN_004055f0();
+        }
+        Font_DrawText(0, CFrontend::GetTextString(pItem->id),
+                      (int)(g_pGraphics->resX * 0x78) / 0x280,
+                      (int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                          + (int)(g_pGraphics->resY * 0xdd) / 0x1e0,
+                      (int *)pColour, 0x11);
+        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture,
+                     2, 0, NULL, NULL, pColour, 8);
+        if (i == 0 || pMenu->cursor == i) {
+            rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                              + (int)(g_pGraphics->resY * 0xc6) / 0x1e0);
+            rect[3] = 1;
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+        }
+        rect[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0
+                          + (int)(g_pGraphics->resY * 0xea) / 0x1e0);
+        rect[3] = 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
+    }
+}
 
 // Draws the first `fraction` of a text (typing effect; spaces don't count)
 // and the next character on its own.
@@ -6419,8 +6883,6 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar)
         FUN_00486b90(pCar, pInfo);
 }
 
-// GLOBAL: CMR2 0x0058e4a8
-int g_unk0x0058e4a8[8];
 // Headlight glows of the stage objects (100 records of 0x5c bytes).
 // GLOBAL: CMR2 0x0058e4e0
 BYTE g_unk0x0058e4e0[100][0x5c];
@@ -7323,7 +7785,7 @@ GenericFile *FUN_0041f500(void);
 BYTE *FUN_00475a40(void);
 void StageUI_DrawChampionshipBar(void);
 void FUN_0049d3f0(int, int, void *, int, int);
-void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 int RallyData_FUN_0040eeb0(void);
 int *FUN_0040f050(int view);
 void FUN_00428680(unsigned int player, short *pRect, int check);

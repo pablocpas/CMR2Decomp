@@ -11,7 +11,7 @@ void FUN_0040dc30(void) { }
 void FUN_0049d3f0(int, int, void *, int, int) { }
 
 // STUB: CMR2 0x004b9380
-void FUN_004b9380(unsigned int, unsigned int, unsigned int) { }
+int FUN_004b9380(unsigned int, unsigned int, unsigned int) { return 0; }
 
 
 
@@ -134,5 +134,3 @@ void FUN_0049bcb0(Menu *pMenu) { }
 // STUB: CMR2 0x00473d60
 void FUN_00473d60(Menu *pMenu) { }
 
-// STUB: CMR2 0x004738f0
-void FUN_004738f0(Menu *pMenu) { }
