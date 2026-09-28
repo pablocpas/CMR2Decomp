@@ -529,6 +529,351 @@ public:
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsigned char param_5, int param_6);
 
+// Collision box of a car while a contact is resolved (0x98 bytes): the two body
+// axes from 0x10, the eight contact points built by FUN_00486c30 and the two
+// pointers at 0x90/0x94 to the point array and to the box vertex.
+struct CollisionBox {
+    BYTE pad_0x00[0x10];
+    FixVector axisA;        // 0x10
+    FixVector axisB;        // 0x1c
+    BYTE pad_0x28[0x8];
+    FixVector points[8];    // 0x30
+    int *pArray;            // 0x90
+    int *pVertex;           // 0x94
+};
+
+extern int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
+
+// Collision bookkeeping shared with the stage object collision code
+// (defined in StageObjects.cpp): the per-car contact list and its length, the
+// last pair result and the two objects that walk the car order.
+// GLOBAL: CMR2 0x005913e0
+int g_unk0x005913e0;
+// GLOBAL: CMR2 0x005913f4
+int g_unk0x005913f4;
+
+extern int g_unk0x00591390;
+extern BYTE g_unk0x005913dc[4];
+extern BYTE g_unk0x005913f8[8][8];
+extern BYTE g_unk0x00590ed0[8][0x98];
+extern BYTE g_unk0x00590ec8[4];
+extern BYTE g_unk0x005914a4[4];
+extern int g_physicsTimeStep;
+
+int FUN_00407270(void);
+unsigned int RallyData_GetFlag24(void);
+unsigned int RallyData_FUN_00407e90(void);
+bool FUN_00487b80(int r1, int r2, int *pA, int *pB);
+void FUN_0047d850(Car *pCar, int *param_2);
+void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
+int FUN_0048a5f0(int param_1, int param_2);
+void FUN_0048ae90(int param_1, int param_2);
+
+// The four corner sector words of a car, copied as a single eight byte block.
+struct CarCornerWords {
+    short w[4];
+};
+
+// Tests every pair of cars of the given order for contact: pairs whose corner
+// sector words share an index are run through the 2D box overlap test
+// (FUN_00487b80) and, for cars that are not locked, through the box collision
+// response (FUN_0048a5f0); the two cars are then linked in each other's contact
+// list and the impact is resolved. Finally the separation timers of every car
+// are decayed and, while the race is being verified, the collision box of each
+// car is rebuilt.
+// match 78%: same logic, calls and constants; MSVC6 countdowns our outer pair loop with induction variables (the original increments the counters), which also shifts the stack slots of the pair count and the pattern index, copies the four sector words as two dwords where the original used word/dword/word, and tests al after FUN_00487b80 because its declaration returns bool.
+// FUNCTION: CMR2 0x0048a1f0
+void FUN_0048a1f0(int param_1, short *param_2, short param_3)
+{
+    short *p1;
+    short *p2;
+    int found;
+    int i;
+    int j;
+    int k;
+    int n;
+    int m;
+    int carA;
+    int carB;
+    CarCornerWords idsB;
+    CarCornerWords idsA;
+    int flags[8];
+
+    for (i = 0; i < 8; i++)
+        flags[i] = 0;
+    *(int *)g_unk0x005913dc = 0;
+    g_unk0x005913e0 = 0;
+    n = (int)param_3 - 1;
+    if (n > 0) {
+        k = 1;
+        p1 = param_2;
+        for (; k < param_3; k++) {
+            p2 = p1 + 1;
+            j = param_3 - k;
+            do {
+                carA = param_1 + p1[0] * 0xc24;
+                carB = param_1 + p2[0] * 0xc24;
+                idsA = *(CarCornerWords *)(carA + 0xb00);
+                idsB = *(CarCornerWords *)(carB + 0xb00);
+                found = 0;
+                for (i = 0; i < 4; i++) {
+                    for (m = 0; m < 4; m++) {
+                        if (idsA.w[m] == idsB.w[i]) {
+                            found = 1;
+                            if (FUN_00487b80(*(int *)(carA + 0x758), *(int *)(carB + 0x758),
+                                             (int *)(carA + 0x2d0), (int *)(carB + 0x2d0))) {
+                                flags[*(char *)(carB + 0xb1a)] = 1;
+                                flags[*(char *)(carA + 0xb1a)] = 1;
+                                if (*(int *)(carA + 0xc08) == 0 && *(int *)(carB + 0xc08) == 0 &&
+                                    *(int *)(carA + 0xc0c) == 0 && *(int *)(carB + 0xc0c) == 0 &&
+                                    (*(int *)(carA + 0xc18) == 0 || *(int *)(carB + 0xc18) == 0)) {
+                                    g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p1[0]];
+                                    g_pContacts0x00591394 = (FixVector *)&g_unk0x00590ed0[p2[0]];
+                                    FUN_00486c30((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
+                                                 (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
+                                    FUN_00486c30((int *)g_pContacts0x00591394, (int *)(carB + 0x360),
+                                                 (int *)(carB + 0x2d0), (FixVector *)(carB + 0x270));
+                                    found = FUN_0048a5f0(carA, carB);
+                                    g_unk0x00591390 = 0;
+                                    if (found != 0) {
+                                        g_unk0x005913f8[*(char *)(carA + 0xb1a)]
+                                                       [g_unk0x005913dc[*(char *)(carA + 0xb1a)]] =
+                                            *(char *)(carB + 0xb1a);
+                                        g_unk0x005913dc[*(char *)(carA + 0xb1a)]++;
+                                        g_unk0x005913f8[*(char *)(carB + 0xb1a)]
+                                                       [g_unk0x005913dc[*(char *)(carB + 0xb1a)]] =
+                                            *(char *)(carA + 0xb1a);
+                                        g_unk0x005913dc[*(char *)(carB + 0xb1a)]++;
+                                        FUN_0048ae90(carA, carB);
+                                        g_unk0x00591390 = 1;
+                                    }
+                                }
+                            }
+                            goto pair_done;
+                        }
+                    }
+                }
+            pair_done:
+                g_unk0x005913f4 = found;
+                p2++;
+            } while (--j);
+            p1++;
+        }
+    }
+    if (n >= 0) {
+        p2 = param_2 + n;
+        j = n + 1;
+        do {
+            carA = param_1 + p2[0] * 0xc24;
+            if (*(int *)(carA + 0xc08) != 0) {
+                if (*(int *)(carA + 0x970) == 0) {
+                    if (flags[*(char *)(carA + 0xb1a)] == 0)
+                        *(int *)(carA + 0xc08) = 0;
+                } else {
+                    i = *(int *)(carA + 0x970) - g_physicsTimeStep;
+                    *(int *)(carA + 0x970) = i;
+                    if (i < 0)
+                        *(int *)(carA + 0x970) = 0;
+                }
+                *(int *)(carA + 0x974) += FixMul(g_physicsTimeStep, 0x4000);
+            } else {
+                *(int *)(carA + 0x974) = 0;
+            }
+            p2--;
+        } while (--j);
+    }
+    if (((BYTE)FUN_00407270() != 0 || (BYTE)RallyData_GetFlag24() != 0 ||
+         (BYTE)RallyData_FUN_00407e90() != 0) &&
+        CGameInfo::FUN_004063f0(0) != 0 && n >= 0) {
+        p2 = param_2 + n;
+        j = n + 1;
+        do {
+            g_pContacts0x005915e0 = (FixVector *)&g_unk0x00590ed0[p2[0]];
+            carA = param_1 + p2[0] * 0xc24;
+            FUN_00486c30((int *)g_pContacts0x005915e0, (int *)(carA + 0x360),
+                         (int *)(carA + 0x2d0), (FixVector *)(carA + 0x270));
+            FUN_0047d850((Car *)carA, (int *)g_pContacts0x005915e0);
+            p2--;
+        } while (--j);
+    }
+}
+
+// Pushes the two cars' collision boxes apart after a contact: adds up the
+// corner offsets of both quads, normalises the result into the contact normal
+// and, when one of the two cars has no contact corner left, moves each box
+// along its own axis by the projection of the normal; the normal is published
+// at 0x5915e8 and each car's contact offset is rotated by the other box's
+// offset. When both cars do have corners the boxes are handed to the
+// deformation solver instead.
+// FUNCTION: CMR2 0x0048a5f0
+int FUN_0048a5f0(int param_1, int param_2)
+{
+    FixVector normal;
+    FixVector sum;
+    FixVector delta;
+    FixVector tmp;
+    int result;
+    int countA;
+    int countB;
+    int total;
+    int len;
+    int dx;
+    int dy;
+    int dz;
+    int i;
+
+    result = FUN_00488640((int *)g_pContacts0x005915e0, (int *)g_pContacts0x00591394,
+                          (FixVector *)(param_1 + 0x2e8), 0x8000);
+    if (result != 0) {
+    sum.x = 0;
+    sum.y = 0;
+    sum.z = 0;
+    normal.x = 0;
+    normal.y = 0;
+    normal.z = 0;
+    countA = 0;
+    if (g_unk0x005915f4 > 0) {
+        for (i = 0; i < g_unk0x005915f4; i++) {
+            delta.x = *(int *)(param_1 + (g_unk0x005914c4[i] * 3 + 0x9c) * 4) -
+                      *(int *)(param_1 + 0x2d0);
+            delta.y = *(int *)(param_1 + g_unk0x005914c4[i] * 0xc + 0x274) -
+                      *(int *)(param_1 + 0x2d4);
+            delta.z = *(int *)(param_1 + g_unk0x005914c4[i] * 0xc + 0x278) -
+                      *(int *)(param_1 + 0x2d8);
+            delta.y = 0;
+            sum.x += delta.x;
+            sum.z += delta.z;
+            if (g_unk0x00590ec8[i] == 0) {
+                if (FixVecDot(&normal, &((CollisionBox *)g_pContacts0x00591394)->axisA) < 0) {
+                    normal.x -= ((CollisionBox *)g_pContacts0x00591394)->axisA.x;
+                    normal.y -= ((CollisionBox *)g_pContacts0x00591394)->axisA.y;
+                    normal.z -= ((CollisionBox *)g_pContacts0x00591394)->axisA.z;
+                } else {
+                    normal.x += ((CollisionBox *)g_pContacts0x00591394)->axisA.x;
+                    normal.y += ((CollisionBox *)g_pContacts0x00591394)->axisA.y;
+                    normal.z += ((CollisionBox *)g_pContacts0x00591394)->axisA.z;
+                }
+            } else {
+                if (FixVecDot(&normal, &((CollisionBox *)g_pContacts0x00591394)->axisB) < 0) {
+                    normal.x -= ((CollisionBox *)g_pContacts0x00591394)->axisB.x;
+                    normal.y -= ((CollisionBox *)g_pContacts0x00591394)->axisB.y;
+                    normal.z -= ((CollisionBox *)g_pContacts0x00591394)->axisB.z;
+                } else {
+                    normal.x += ((CollisionBox *)g_pContacts0x00591394)->axisB.x;
+                    normal.y += ((CollisionBox *)g_pContacts0x00591394)->axisB.y;
+                    normal.z += ((CollisionBox *)g_pContacts0x00591394)->axisB.z;
+                }
+            }
+        }
+        countA = g_unk0x005915f4;
+    }
+    countB = 0;
+    if (g_unk0x005914d4 > 0) {
+        for (i = 0; i < g_unk0x005914d4; i++) {
+            delta.x = *(int *)(param_2 + (g_unk0x00590ecc[i] * 3 + 0x9c) * 4) -
+                      *(int *)(param_1 + 0x2d0);
+            delta.y = *(int *)(param_2 + g_unk0x00590ecc[i] * 0xc + 0x274) -
+                      *(int *)(param_1 + 0x2d4);
+            delta.z = *(int *)(param_2 + g_unk0x00590ecc[i] * 0xc + 0x278) -
+                      *(int *)(param_1 + 0x2d8);
+            delta.y = 0;
+            sum.x += delta.x;
+            sum.z += delta.z;
+            if (g_unk0x005914a4[i] == 0) {
+                if (FixVecDot(&normal, &((CollisionBox *)g_pContacts0x005915e0)->axisA) < 0) {
+                    normal.x -= ((CollisionBox *)g_pContacts0x005915e0)->axisA.x;
+                    normal.y -= ((CollisionBox *)g_pContacts0x005915e0)->axisA.y;
+                    normal.z -= ((CollisionBox *)g_pContacts0x005915e0)->axisA.z;
+                } else {
+                    normal.x += ((CollisionBox *)g_pContacts0x005915e0)->axisA.x;
+                    normal.y += ((CollisionBox *)g_pContacts0x005915e0)->axisA.y;
+                    normal.z += ((CollisionBox *)g_pContacts0x005915e0)->axisA.z;
+                }
+            } else {
+                if (FixVecDot(&normal, &((CollisionBox *)g_pContacts0x005915e0)->axisB) < 0) {
+                    normal.x -= ((CollisionBox *)g_pContacts0x005915e0)->axisB.x;
+                    normal.y -= ((CollisionBox *)g_pContacts0x005915e0)->axisB.y;
+                    normal.z -= ((CollisionBox *)g_pContacts0x005915e0)->axisB.z;
+                } else {
+                    normal.x += ((CollisionBox *)g_pContacts0x005915e0)->axisB.x;
+                    normal.y += ((CollisionBox *)g_pContacts0x005915e0)->axisB.y;
+                    normal.z += ((CollisionBox *)g_pContacts0x005915e0)->axisB.z;
+                }
+            }
+        }
+        countB = g_unk0x005914d4;
+    }
+    total = (countA + countB) << 16;
+    FixVecScaleRecip(&sum, &sum, total);
+    len = FixVecLength(&normal);
+    if (len == 0) {
+        normal.x = 0;
+        normal.y = 0;
+        normal.z = 0;
+    } else {
+        FixVecScaleRecip(&normal, &normal, len);
+    }
+    if (g_unk0x005915f4 == 0 || g_unk0x005914d4 == 0) {
+        FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914a8, &normal));
+        dx = delta.x - g_unk0x005914a8.x;
+        dy = delta.y - g_unk0x005914a8.y;
+        dz = delta.z - g_unk0x005914a8.z;
+        if (((CollisionBox *)g_pContacts0x005915e0)->pVertex != NULL &&
+            ((CollisionBox *)g_pContacts0x005915e0)->pArray != NULL) {
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[0] += dx;
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[1] += dy;
+            ((CollisionBox *)g_pContacts0x005915e0)->pVertex[2] += dz;
+            for (i = 0; i < 0x60; i += 0xc) {
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i) += dx;
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i + 4) += dy;
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x005915e0)->pArray + i + 8) += dz;
+            }
+            for (i = 0; i < 0x30; i += 0xc) {
+                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x30) += dx;
+                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x34) += dy;
+                *(int *)((BYTE *)g_pContacts0x005915e0 + i + 0x38) += dz;
+            }
+        }
+        FUN_0048c870(*(char *)(param_1 + 0xb1a), *(char *)(param_2 + 0xb1a), (int *)&delta, 1);
+        FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914b8, &normal));
+        dx = delta.x - g_unk0x005914b8.x;
+        dy = delta.y - g_unk0x005914b8.y;
+        dz = delta.z - g_unk0x005914b8.z;
+        if (((CollisionBox *)g_pContacts0x00591394)->pVertex != NULL &&
+            ((CollisionBox *)g_pContacts0x00591394)->pArray != NULL) {
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex[0] += dx;
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex[1] += dy;
+            ((CollisionBox *)g_pContacts0x00591394)->pVertex[2] += dz;
+            for (i = 0; i < 0x60; i += 0xc) {
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i) += dx;
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i + 4) += dy;
+                *(int *)((BYTE *)((CollisionBox *)g_pContacts0x00591394)->pArray + i + 8) += dz;
+            }
+            for (i = 0; i < 0x30; i += 0xc) {
+                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x30) += dx;
+                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x34) += dy;
+                *(int *)((BYTE *)g_pContacts0x00591394 + i + 0x38) += dz;
+            }
+        }
+        FUN_0048c870(*(char *)(param_2 + 0xb1a), *(char *)(param_1 + 0xb1a), (int *)&delta, 1);
+    }
+    g_unk0x005915e8.x = normal.x;
+    g_unk0x005915e8.y = normal.y;
+    g_unk0x005915e8.z = normal.z;
+    FixMatrix_InverseRotateVector((FixVector *)(param_1 + 0x5dc), &sum,
+                                  *(FixMatrix **)(param_1 + 0x750));
+    sum.x += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94));
+    sum.y += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94) + 4);
+    sum.z += *(int *)(*(int *)((BYTE *)g_pContacts0x005915e0 + 0x94) + 8);
+    tmp.x = sum.x - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94));
+    tmp.y = sum.y - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94) + 4);
+    tmp.z = sum.z - *(int *)(*(int *)((BYTE *)g_pContacts0x00591394 + 0x94) + 8);
+    FixMatrix_InverseRotateVector((FixVector *)(param_2 + 0x5dc), &tmp,
+                                  *(FixMatrix **)(param_2 + 0x750));
+    }
+    return result;
+}
+
 // Resolves a collision between two cars. Clamps each car's contact offset (the
 // vector at +0x5dc) by its half extents, builds the world-space velocity of
 // that offset out of the angular velocity at that point plus the body velocity,

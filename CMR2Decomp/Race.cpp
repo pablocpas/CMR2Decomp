@@ -19,6 +19,7 @@
 #include "main.h"
 #include "Sound.h"
 #include "NetworkLeaderboards.h"
+#include "RegKey.h"
 
 // Race session state (0x41e210-0x420190)
 
@@ -501,6 +502,117 @@ BYTE FUN_0041f510(void)
     return 1;
 }
 
+extern char g_str0x00519348[6];
+extern char g_str0x00519350[6];
+extern char g_str0x00519358[7];
+extern char g_str0x00519360[7];
+extern char g_str0x00519368[7];
+extern char g_str0x00519370[8];
+extern char g_strPathFormat[];
+
+// Long country names (FINLAND..JAPAN) and codes (FIN..JAP) of the rally
+// selection file names.
+// GLOBAL: CMR2 0x005192f8
+char *g_unk0x005192f8[9] = { g_str0x00519370, g_str0x00519368, g_str0x00519360, g_str0x00519358,
+                             g_str0x00519270, g_str0x00519350, g_str0x00519348, CFrontend::m_strUK,
+                             CRegKey::m_skuJapan };
+// GLOBAL: CMR2 0x0051931c
+char *g_unk0x0051931c[9] = { g_str0x00519280, g_str0x0051927c, g_str0x00519278, g_str0x00519274,
+                             g_str0x00519270, g_str0x0051926c, g_str0x00519268, CFrontend::m_strUK,
+                             g_str0x00519260 };
+
+// GLOBAL: CMR2 0x00519378
+char g_str0x00519378[] = "%s\\%s\\%s%st.bfl";
+// GLOBAL: CMR2 0x00519388
+char g_str0x00519388[] = "%s\\replays\\%s-chL";
+// GLOBAL: CMR2 0x0051939c
+char g_str0x0051939c[] = "%s\\replays\\%s-chH";
+// GLOBAL: CMR2 0x005193b0
+char g_str0x005193b0[] = "%s\\Game\\DemoRuns\\%s-ch";
+// GLOBAL: CMR2 0x005193c8
+char g_str0x005193c8[] = "%s\\%s-ch";
+// GLOBAL: CMR2 0x005193d4
+char g_str0x005193d4[] = "%s\\cha%.2d%s";
+// GLOBAL: CMR2 0x005193e4
+char g_str0x005193e4[] = "%s\\chall";
+// GLOBAL: CMR2 0x005193f0
+char g_str0x005193f0[] = "UKi";
+// GLOBAL: CMR2 0x005193f4
+char g_str0x005193f4[] = "%s\\%s%st.bfl";
+// GLOBAL: CMR2 0x00519404
+char g_str0x00519404[] = "%s\\replays\\%s%.2dL";
+// GLOBAL: CMR2 0x00519418
+char g_str0x00519418[] = "%s\\replays\\%s%.2dH";
+// GLOBAL: CMR2 0x0051942c
+char g_str0x0051942c[] = "%s\\Game\\DemoRuns\\%s%.2d";
+// GLOBAL: CMR2 0x00519444
+char g_str0x00519444[] = "%s\\%s%.2d";
+// GLOBAL: CMR2 0x00519450
+char g_str0x00519450[] = "%s\\%s%.2d%s";
+// GLOBAL: CMR2 0x00519464
+char g_str0x00519464[4] = "lo";
+// GLOBAL: CMR2 0x00519468
+char g_str0x00519468[4] = "hi";
+extern BYTE g_unk0x00538130[0x40];
+// GLOBAL: CMR2 0x00538548
+char g_unk0x00538548[MAX_PATH];
+
+// Builds the file names of the current rally selection (the challenge names
+// when the game info flags are 5..0xc, the short "hi"/"lo" variants otherwise).
+// FUNCTION: CMR2 0x0041f560
+void Race_BuildSelectionPaths(void)
+{
+    char buf[4];
+    char name[4];
+    int table[8] = { 6, 3, 1, 4, 0, 2, 5, 7 };
+
+    sprintf(buf, CMain::m_logFileBlankLine);
+    if (CGameInfo::FUN_00405d00() == 0) {
+        sprintf(buf, g_str0x00519468);
+    } else {
+        sprintf(buf, g_str0x00519464);
+    }
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xb ||
+        CGameInfo::FUN_00405d80() == 0xc) {
+        int idx = (BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950();
+
+        strcpy(name, g_unk0x0051931c[table[idx]]);
+        if (idx == 7)
+            strcpy(name, g_str0x005193f0);
+        sprintf(g_unk0x0053823c, g_str0x005193e4, CInstallInfo::GetTracksDir());
+        sprintf(g_unk0x00538340, g_str0x005193d4, g_unk0x0053823c, idx + 1, buf);
+        sprintf((char *)g_unk0x00538130, g_str0x005193c8, g_unk0x0053823c, name);
+        sprintf(g_unk0x0053874c, g_str0x005193b0, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[table[idx]]);
+        if (CGameInfo::FUN_00405d00() == 0)
+            sprintf(g_unk0x00538444, g_str0x0051939c, CInstallInfo::GetGameHDPath(),
+                    g_unk0x0051931c[table[idx]]);
+        else
+            sprintf(g_unk0x00538444, g_str0x00519388, CInstallInfo::GetGameHDPath(),
+                    g_unk0x0051931c[table[idx]]);
+        sprintf(g_unk0x00538548, g_str0x00519378, CInstallInfo::GetTracksDir(),
+                g_unk0x005192f8[table[idx]], g_unk0x0051931c[table[idx]], buf);
+        return;
+    }
+    sprintf(g_unk0x0053823c, g_strPathFormat, CInstallInfo::GetTracksDir(),
+            g_unk0x005192f8[(BYTE)RallyDataCountryIndex()]);
+    sprintf(g_unk0x00538340, g_str0x00519450, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1, buf);
+    sprintf((char *)g_unk0x00538130, g_str0x00519444, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    sprintf(g_unk0x0053874c, g_str0x0051942c, CInstallInfo::GetGameHDPath(),
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    if (CGameInfo::FUN_00405d00() == 0)
+        sprintf(g_unk0x00538444, g_str0x00519418, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    else
+        sprintf(g_unk0x00538444, g_str0x00519404, CInstallInfo::GetGameHDPath(),
+                g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1);
+    sprintf(g_unk0x00538548, g_str0x005193f4, g_unk0x0053823c,
+            g_unk0x0051931c[(BYTE)RallyDataCountryIndex()], buf);
+}
+
 // FUNCTION: CMR2 0x0041f8e0
 char *FUN_0041f8e0(void)
 {
@@ -523,6 +635,126 @@ char *FUN_0041f910(void)
 char *FUN_0041f920(void)
 {
     return g_unk0x00538444;
+}
+
+void FUN_00411280(void);
+
+BYTE *FUN_0041f900(void);
+int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
+void FUN_00455470(int);
+void Scene_InitLighting(int *pData, int *pHeights);
+void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary);
+void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
+void FUN_0041fd30(void);
+void FUN_00420020(void);
+void FUN_0041fc50(void);
+void FUN_0041fc90(void);
+void FUN_0041fcd0(void);
+void FUN_00490c30(void);
+void FUN_00471af0(void);
+void FUN_00456c10(void);
+void FUN_00420630(void);
+void FUN_00416720(void);
+StageFile *StageTiming_GetStageFile3(void);
+
+int FUN_0048caa0(int *pList);
+void FUN_004b8270(void);
+void FUN_00458090(void);
+void FUN_00411450(int keepName);
+void FUN_00411b20(void);
+void FUN_004d0180(void);
+void FUN_0041c260(void);
+void FUN_0045ea70(void);
+void FUN_00455300(void);
+BYTE *FUN_0047c2f0(void);
+void FUN_00471dd0(void);
+void FUN_004283b0(void);
+extern char g_tgaSuffix[];
+extern BYTE *g_unk0x00538234;
+extern BYTE *g_unk0x00538238;
+
+// GLOBAL: CMR2 0x0051946c
+char g_str0x0051946c[] = "%s.xhi";
+// GLOBAL: CMR2 0x00519474
+char g_str0x00519474[] = "%s.tre";
+// GLOBAL: CMR2 0x0051947c
+char g_str0x0051947c[] = "%s.tsc";
+
+// Loads the race files of the current selection (the .tsc track, the .tre and
+// .xhi lighting files and the .tga of the selection) and initialises the stage.
+// FUNCTION: CMR2 0x0041f930
+BYTE FUN_0041f930(void)
+{
+    BYTE *pTsc;
+    BYTE *pTre;
+    BYTE *pXhi;
+
+    if (g_raceFileCallbackSet == 0) {
+        CGame::RegisterCallback(FUN_0041f510, 0);
+        g_raceFileCallbackSet = 1;
+    }
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)&g_raceFile, g_unk0x00538548);
+    FUN_00411280();
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, FUN_0041f8f0());
+    CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 4] =
+        CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 2];
+    CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 3] =
+        CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1];
+    CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 2] = '\0';
+    strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 1, g_tgaSuffix);
+    if ((char)RallyData_GetFlag24()) {
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_unk0x00538548);
+        strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 5, g_tgaSuffix);
+    }
+    if (CGameInfo::FUN_00406410(0x10))
+        FUN_004b23c0(CFrontend::m_stringDest,
+                     (BYTE)RallyDataState() + (BYTE)RallyData_FUN_004069a0(),
+                     FUN_0041f500(), 0x80);
+    else
+        FUN_004b23c0(CFrontend::m_stringDest, 1, FUN_0041f500(), 0x40);
+    FUN_0040fec0(0xf, 1, 0xff);
+    FUN_0041fd30();
+    FUN_00420020();
+    FUN_0041fc50();
+    FUN_0041fc90();
+    FUN_0040fec0(0x19, 1, 0xff);
+    FUN_0041fcd0();
+    FUN_00490c30();
+    FUN_00471af0();
+    FUN_0040fec0(0x28, 1, 0xff);
+    FUN_00456c10();
+    FUN_00420630();
+    FUN_00416720();
+    sprintf(CFrontend::m_stringDest, g_str0x0051947c, FUN_0041f900());
+    pTsc = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                CFrontend::m_stringDest, 0, 0, 0);
+    FUN_0048caa0((int *)pTsc);
+    FUN_004b8270();
+    sprintf(CFrontend::m_stringDest, g_str0x00519474, FUN_0041f900());
+    pTre = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                CFrontend::m_stringDest, 0, 0, 0);
+    sprintf(CFrontend::m_stringDest, g_str0x0051946c, FUN_0041f900());
+    pXhi = (BYTE *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                CFrontend::m_stringDest, 0, 0, 0);
+    if (pTre != 0 && (char)CGameInfo::FUN_00405ba0() == 0)
+        pTre = 0;
+    Scene_InitLighting((int *)pTre, (int *)pXhi);
+    FUN_00458090();
+    FUN_00411450(0);
+    FUN_00411b20();
+    if (CGameInfo::FUN_00405d80() != 4)
+        FUN_004d0180();
+    if (CGameInfo::FUN_00406320() == 0 && CGameInfo::FUN_00405d80() == 3)
+        FUN_0041c260();
+    FUN_0045ea70();
+    FUN_00455300();
+    FUN_00455470(1);
+    FUN_0047c2f0();
+    FUN_0040fec0(0x3c, 1, 0xff);
+    StageObject_SetLighting(g_unk0x00538234, g_unk0x00538238);
+    FUN_00471dd0();
+    FUN_004283b0();
+    return 1;
 }
 
 // FUNCTION: CMR2 0x00420120
@@ -1978,7 +2210,7 @@ void FUN_00478b50(void);
 int FUN_00478a20(void);
 void FUN_0040a580(int, int, int);
 void FUN_0040efa0(void);
-void FUN_0041f560(void);
+void Race_BuildSelectionPaths(void);
 void FUN_00455080(void);
 void FUN_00475f00(void);
 // GLOBAL: CMR2 0x00538100
@@ -2033,7 +2265,7 @@ void FUN_0041bf80(int param1, int param2)
         if (CGameInfo::FUN_00405d80() != 4)
             CFrontend::FUN_004cf0f0();
         FUN_00427c10();
-        FUN_0041f560();
+        Race_BuildSelectionPaths();
         CGame::FUN_0041f260();
         FUN_00455080();
         FUN_00478b50();
@@ -2848,7 +3080,127 @@ void FUN_004728c0(void);
 BYTE FUN_004729f0(void);
 void FUN_00409ab0(char keepReady, char resetTotal);
 void FUN_004660a0(int **pValue, int slot, char flag);
-void FUN_0041e6b0(int, int, int);
+
+void FUN_00424ed0(void);
+void FUN_00409dd0(void);
+void FUN_00409ab0(char keepReady, char resetTotal);
+void FUN_00416670(void);
+void StageLights_Off(void);
+void RallyData_FUN_004207f0(void);
+unsigned int RallyData_GetFlag31(void);
+void FUN_004584d0(char param_1);
+short Car_GetOrderCount(void);
+void FUN_0042b800(int, int, int);
+Car *Car_Get(int index);
+void FUN_00420850(Car *pCar);
+void FUN_00458480(void);
+void FUN_00421d80(int view);
+void FUN_00455470(int);
+void FUN_00458100(int param_1);
+void FUN_00411450(int keepName);
+void FUN_00465530(void);
+void FUN_004702a0(void);
+void FUN_0047bdc0(char restart);
+void FUN_00447f70(void);
+int FUN_0046d2a0(int *p);
+int Replay_StopRecording(BYTE *pBuffer);
+void FUN_00466080(void);
+void FUN_004660a0(int **pValue, int slot, char flag);
+void FUN_004245e0(void);
+void FUN_004cf140(void);
+void FUN_0041b360(void);
+extern BYTE g_unk0x00538100;
+extern BYTE g_unk0x0053811d;
+extern BYTE g_unk0x0053811e;
+extern BYTE g_unk0x0053811f;
+extern BYTE g_unk0x00538120;
+extern int g_unk0x00537f5c;
+
+// Tears the current stage down: resets the race flags, stops the stage lights,
+// releases the view slots and replays of every car and refreshes the HUD.
+// match 56%: the code is the same but MSVC6's allocator does not materialise the
+// constant 0 in a callee-saved register here: the original keeps the zero in EBX
+// for all of its ~12 uses (so every loop counter lives in ESI/EDI/EBP), while ours
+// folds the zeros into immediates and needs EBX for the loop indices, which
+// renumbers the registers of the whole function. Verified by construction: a
+// variant without the FUN_004660a0 loop does get the EBX zero register (like
+// mini2.cpp: 0s separated by calls), so the trigger is that last loop.
+// FUNCTION: CMR2 0x0041e6b0
+void Race_TeardownStage(int param1, int param2, char flag)
+{
+    BYTE **pp;
+    int n;
+    int i;
+
+    g_unk0x00538100 = 0;
+    FUN_00424ed0();
+    FUN_00409dd0();
+    g_unk0x00538120 = 0;
+    g_unk0x0053811f = 0;
+    g_unk0x0053811e = 0;
+    g_unk0x0053811d = 0;
+    FUN_00409ab0(1, 1);
+    FUN_00416670();
+    StageLights_Off();
+    RallyData_FUN_004207f0();
+    if (RallyData_FUN_00407e70() || RallyData_GetFlag25() || RallyData_GetFlag31())
+        FUN_004584d0(CGameInfo::FUN_00405d80() != 4);
+    FUN_0042b800(0, (int)Car_GetOrderCount(), 0);
+    if (CGameInfo::FUN_00405d80() == 4) {
+        for (i = 0; i < Car_GetOrderCount(); i++)
+            FUN_00420850(Car_Get(i));
+    }
+    FUN_00458480();
+    if (flag != 0) {
+        for (i = 0; i < *(BYTE *)param1; i++) {
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 4, 2);
+            FUN_00421d80(i);
+            RallyData_ValidateIndex(i);
+        }
+    }
+    FUN_00455470(0);
+    FUN_00458100(1);
+    FUN_00411450(g_unk0x0053810c & 0xff);
+    FUN_00465530();
+    FUN_004702a0();
+    if (RallyData_FUN_00407e70())
+        FUN_0047bdc0(1);
+    FUN_00447f70();
+    if (CGameInfo::FUN_00405e00()) {
+        n = 1;
+        pp = g_unk0x00537f3c + 1;
+        do {
+            FUN_0046d2a0((int *)*pp);
+            Replay_StopRecording(*pp);
+            pp++;
+        } while ((int)pp < (int)&g_unk0x00537f5c);
+    } else if (CGameInfo::FUN_00405d80() == 4 || (char)RallyData_GetFlag25()) {
+        n = 2;
+    } else {
+        n = (BYTE)RallyDataState();
+    }
+    if (n > 0) {
+        pp = g_unk0x00537f3c;
+        for (i = 0; i < n; i++) {
+            FUN_0046d2a0((int *)*pp);
+            Replay_StopRecording(*pp);
+            pp++;
+        }
+    }
+    if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310())
+        FUN_00466080();
+    if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310()) {
+        for (i = 0; i < (BYTE)RallyDataState(); i++)
+            FUN_004660a0((int **)g_unk0x00537f3c + i, i, (BYTE)param2 + i);
+    }
+    FUN_004245e0();
+    CGameInfo::FUN_0049ea90(0);
+    if (CGameInfo::FUN_00405d80() != 4) {
+        FUN_004cf140();
+        FUN_0041b360();
+    }
+    g_unk0x0053810c = 0;
+}
 
 // In-race state handler of the mode table (0x5190b0): dispatches the per-mode
 // teardown/replay paths, saves the replay and refreshes the view slots.
@@ -2939,7 +3291,7 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
                 return;
             }
             if (FUN_0041b380() == 4) {
-                FUN_0041e6b0((int)param1, param2, 0);
+                Race_TeardownStage((int)param1, param2, 0);
                 FUN_00420100();
                 Sound_FreeAll();
                 FUN_00418f20();
@@ -2969,7 +3321,7 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
             FUN_0041b300();
             return;
         }
-        FUN_0041e6b0((int)param1, car, 1);
+        Race_TeardownStage((int)param1, car, 1);
         if (CGameInfo::FUN_00405d80() != 4)
             return;
         if (FUN_004728d0() == 0)

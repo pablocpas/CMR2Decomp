@@ -1244,10 +1244,14 @@ int FUN_00425c40(int car, int *pOut)
 
 // Helpers implemented in NetPlayers.cpp / RallyData.cpp.
 extern int FUN_0040b010(int index);
+extern int FUN_0040b020(int value);
 extern BYTE FUN_00409df0(int index);
 extern void FUN_00409e00(int index);
 extern NetStats *FUN_00409e20(int index);
 extern double g_unk0x00511300;
+extern void FUN_0040a580(int param1, int param2, int param3);
+extern void FUN_00425a90(BYTE *pCars);
+extern void FUN_00426d80(Car *pDst, Car *pSrc);
 
 // Network body record of a car (0xec bytes); the array starts at 0x5393d8.
 struct CarNetRecord {
@@ -1265,6 +1269,39 @@ extern CarNetRecord g_unk0x005393d8;
 char g_str0x00519988[38] = "Received %d, gnNetworkFrame[%d] = %d\n";
 // GLOBAL: CMR2 0x0051995c
 char g_str0x0051995c[42] = "Not received any gnNetworkFrame[%d] = %d\n";
+
+// Receives the race state from the network: unpacks every listed car from its
+// packet, refreshes the stage progress readout, integrates the body pose of the
+// cars still in play from their network records and copies those records back
+// into the cars. With networking off it only refreshes the readout.
+// FUNCTION: CMR2 0x00425950
+void FUN_00425950(Car *pCars, short *pIndices, short count)
+{
+    int progress;
+    int i;
+
+    if (g_unk0x00539cc8 == 0) {
+        progress = (RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100) >> 16;
+        FUN_0040a580(FUN_004582f0(0), progress, FUN_004582d0(0));
+        return;
+    }
+    FUN_00425a90((BYTE *)pCars);
+    progress = (RallyData_FUN_004209d0((BYTE *)Car_Get(0)) * 100) >> 16;
+    FUN_0040a580(FUN_004582f0(0), progress, FUN_004582d0(0));
+
+    for (i = (int)count - 1; i >= 0; i--) {
+        int idx = pIndices[i];
+
+        if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
+            FUN_00426810((int)(&g_unk0x005393d8 + idx), g_unk0x005393ac[FUN_0040b020(idx)]);
+    }
+    for (i = (int)count - 1; i >= 0; i--) {
+        int idx = pIndices[i];
+
+        if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
+            FUN_00426d80(pCars + idx, (Car *)(&g_unk0x005393d8 + idx));
+    }
+}
 
 // Polls the seven network players: for every one with a pending packet copies
 // the 30-byte statistics block into the local frame, unpacks it into the

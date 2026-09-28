@@ -20,12 +20,6 @@ void FUN_005062d0(unsigned int) { }
 // STUB: CMR2 0x00416710
 void FUN_00416710(void) { }
 
-// STUB: CMR2 0x0041f930
-unsigned char FUN_0041f930(void) { return 0; }
-
-// STUB: CMR2 0x0041f560
-void FUN_0041f560(void) { }
-
 // STUB: CMR2 0x00455080
 void FUN_00455080(void) { }
 
@@ -36,8 +30,6 @@ void FUN_00424c50(void) { }
 // STUB: CMR2 0x0041c5a0
 void FUN_0041c5a0(unsigned char, int) { }
 
-// STUB: CMR2 0x0041e6b0
-void FUN_0041e6b0(int, int, int) { }
 
 // STUB: CMR2 0x0041b460
 void FUN_0041b460(void) { }
@@ -45,11 +37,16 @@ void FUN_0041b460(void) { }
 // STUB: CMR2 0x00422140
 void FUN_00422140(unsigned char, int) { }
 
-// STUB: CMR2 0x0042b800
-void FUN_0042b800(int, int, int) { }
-
-// STUB: CMR2 0x0044a1b0
-void FUN_0044a1b0(int) { }
+// Callees of 0x0042baf0 (Car.cpp batch) that no module implements yet; they
+// only keep the batch linkable. DELETE each one when its real body lands.
+// STUB: CMR2 0x004877a0
+void FUN_004877a0(int, short *, short) { }
+// STUB: CMR2 0x00480bb0
+void FUN_00480bb0(int, short *, short) { }
+// STUB: CMR2 0x0046d510
+void FUN_0046d510(void) { }
+// STUB: CMR2 0x0046b4e0
+void FUN_0046b4e0(int) { }
 
 // STUB: CMR2 0x00455470
 void FUN_00455470(int) { }
@@ -81,12 +78,6 @@ struct FixMatrix;
 
 // TEMPORARY (W171 GameInfo batch): these are real batch functions that other
 // agents are implementing in parallel. The stubs only exist so the batch links
-// and can be measured before the real bodies land; DELETE each one when its
-// implementation appears in GameInfo.cpp.
-// Real dependency of 0x0050a880 (not part of the batch, keep).
-// STUB: CMR2 0x005043b0
-void FUN_005043b0(void) { }
-
 
 
 // STUB: CMR2 0x0048fb80
