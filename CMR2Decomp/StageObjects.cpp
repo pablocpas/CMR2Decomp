@@ -14441,3 +14441,249 @@ void FUN_0047dd70(void)
     }
 }
 #undef RAND_FIX
+
+// Flash colour of each firework colour index.
+// GLOBAL: CMR2 0x0051f504
+DWORD g_fireworkFlashColours[6] = {
+    0xff3c1955, 0xff551f10, 0xff555514, 0xff1a4155, 0xff0c2355, 0xff0d5535
+};
+
+void Sound_Free(unsigned int handle);
+
+#define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+#define RAND_SIGNED()                                                                              \
+    (RAND_FIX() <= 0x8000 ? RAND_FIX() : (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536))
+
+// Per-frame update of the fireworks. A rocket (0x938 bytes) rises trailing a
+// 20-point spark trail; when its fuse runs out it bursts, either into debris
+// or into 18 sparks thrown along the 3x3 burst directions (mirrored up and
+// down) that then fall under gravity until the burst timer ends.
+// FUNCTION: CMR2 0x0047eab0
+void FUN_0047eab0(void)
+{
+    int rocket;
+    int *p;
+    int i;
+    int j;
+    int k;
+    int n;
+    int vy;
+    int t;
+    int speed;
+    int dot;
+    int *pSpark;
+    FixVector *pDir;
+    FixVector d;
+    FixVector nrm;
+    FixVector s;
+    FixVector r;
+    char idx;
+
+    for (rocket = 0; rocket < g_unk0x00590afc; rocket++) {
+        p = (int *)((BYTE *)g_unk0x00590af8 + rocket * 0x938);
+        p[0x78] = p[0];
+        p[0x79] = p[1];
+        p[0x7a] = p[2];
+        for (k = 0; k < 20; k++) {
+            p[0x7e + k * 3] = p[6 + k * 3];
+            p[0x7f + k * 3] = p[7 + k * 3];
+            p[0x80 + k * 3] = p[8 + k * 3];
+        }
+        for (i = 0; i < 3; i++) {
+            for (j = 0; j < 6; j++) {
+                p[0xf6 + (i * 6 + j) * 3] = p[0x42 + (i * 6 + j) * 3];
+                p[0xf7 + (i * 6 + j) * 3] = p[0x43 + (i * 6 + j) * 3];
+                p[0xf8 + (i * 6 + j) * 3] = p[0x44 + (i * 6 + j) * 3];
+            }
+        }
+        if (p[0x1a5] == 1) {
+            vy = p[4];
+            p[4] = vy - p[0x19b];
+            d.x = p[0];
+            d.y = p[1];
+            d.z = p[2];
+            p[0] += p[3];
+            p[1] += vy - p[0x19b];
+            d.x -= p[0];
+            p[2] += p[5];
+            d.y -= p[1];
+            d.z -= p[2];
+            FIX_NORMALIZE_INTO(nrm, d);
+            for (k = 4; k != 0; k--) {
+                t = RAND_FIX();
+                FixVecScale(&s, &d, t);
+                idx = ((char *)p)[0x691];
+                p[(idx + 2) * 3] = p[0] + s.x;
+                p[idx * 3 + 7] = s.y + p[1];
+                p[idx * 3 + 8] = p[2] + s.z;
+                r.x = RAND_SIGNED();
+                r.y = RAND_SIGNED();
+                r.z = RAND_SIGNED();
+                FixVecScale(&r, &r, 0xccc);
+                dot = FixVecDot(&nrm, &r);
+                FixVecScale(&s, &nrm, dot);
+                r.x -= s.x;
+                r.z -= s.z;
+                r.y -= s.y;
+                idx = ((char *)p)[0x691];
+                p[(idx + 2) * 3] += r.x;
+                p[idx * 3 + 7] += r.y;
+                p[idx * 3 + 8] += r.z;
+                if (RAND_FIX() <= 0x8000)
+                    p[0x1a7 + ((char *)p)[0x691]] = 0;
+                else
+                    p[0x1a7 + ((char *)p)[0x691]] = 1;
+                idx = ((char *)p)[0x691];
+                ((char *)p)[0x691] = idx + 1;
+                if ((char)(idx + 1) > 19)
+                    ((char *)p)[0x691] = idx - 19;
+            }
+            ((char *)p)[0x690] += 4;
+            if (((char *)p)[0x690] > 19)
+                ((char *)p)[0x690] = 19;
+            p[0x199] -= 0x10000;
+            if (p[0x199] < 1) {
+                if (((char *)p)[0x693] != -1 && Sound_IsPlaying(((char *)p)[0x693]))
+                    Sound_Free(((char *)p)[0x693]);
+                p[0x1a5] = 2;
+                g_unk0x005909b8 = 0x10000;
+                *(DWORD *)g_unk0x005909c4 = g_fireworkFlashColours[((BYTE *)p)[0x692]];
+                if (p[0x24b] == 0) {
+                    if (p[0x1a6] == 2) {
+                        for (n = rand() % 4 + 1; n > 0; n--) {
+                            s.x = RAND_SIGNED();
+                            s.y = RAND_SIGNED();
+                            s.z = RAND_SIGNED();
+                            s.x = FixMul(s.x, 0xe666);
+                            s.y = FixMul(s.y, 0xe666);
+                            s.z = FixMul(s.z, 0xe666);
+                            StageObject_SpawnDebris((FixVector *)p, &s, 1);
+                        }
+                    }
+                } else {
+                    p[0x78] = p[0];
+                    p[0x79] = p[1];
+                    p[0x7a] = p[2];
+                    for (k = 0; k < 20; k++) {
+                        p[0x7e + k * 3] = p[6 + k * 3];
+                        p[0x7f + k * 3] = p[7 + k * 3];
+                        p[0x80 + k * 3] = p[8 + k * 3];
+                    }
+                    for (i = 0; i < 3; i++) {
+                        for (j = 0; j < 3; j++) {
+                            pSpark = p + 0x42 + (i * 6 + j) * 3;
+                            pSpark[0] = 0;
+                            pSpark[1] = 0;
+                            pSpark[2] = 0;
+                            pSpark[9] = 0;
+                            pSpark[10] = 0;
+                            pSpark[11] = 0;
+                            pSpark[0xb4] = 0;
+                            pSpark[0xb5] = 0;
+                            pSpark[0xb6] = 0;
+                            pSpark[0xbd] = 0;
+                            pSpark[0xbe] = 0;
+                            pSpark[0xbf] = 0;
+                            speed = FixMul(RAND_FIX(), 0xa3d) + p[0x198];
+                            pDir = (FixVector *)g_unk0x00590b0c[i] + j;
+                            pSpark[0x120] = FixMul(pDir->x, speed);
+                            pSpark[0x121] = FixMul(pDir->y, speed);
+                            pSpark[0x122] = FixMul(pDir->z, speed);
+                            FixVecScale((FixVector *)(pSpark + 0x120), (FixVector *)(pSpark + 0x120), 0x60000);
+                            pSpark[0x129] = pSpark[0x120];
+                            pSpark[0x12a] = pSpark[0x121];
+                            pSpark[0x12b] = pSpark[0x122];
+                            pSpark[0x12a] = -pSpark[0x121];
+                        }
+                    }
+                    FUN_004b7790((unsigned short)(rand() % 6 + 2 + g_unk0x005909bc), 0x10000, 0x5622, 0, 0, 0);
+                }
+            }
+        } else if (p[0x1a5] == 2) {
+            if (((char *)p)[0x690] > 0) {
+                idx = ((char *)p)[0x691];
+                ((char *)p)[0x690] -= 4;
+                ((char *)p)[0x691] = idx + 4;
+                if ((char)(idx + 4) > 19)
+                    ((char *)p)[0x691] = idx - 16;
+            }
+            for (k = 0; k < 18; k++) {
+                p[0x163 + k * 3] -= p[0x19c];
+                p[0x42 + k * 3] += p[0x162 + k * 3];
+                p[0x43 + k * 3] += p[0x163 + k * 3];
+                p[0x44 + k * 3] += p[0x164 + k * 3];
+            }
+            p[0x19a] -= 0x10000;
+            p[0x24d] = p[0x24d] == 0;
+            if (p[0x19a] < 1)
+                p[0x1a5] = 0;
+        }
+    }
+}
+#undef RAND_FIX
+#undef RAND_SIGNED
+
+void CarEffects_InitDebris(void);
+void FUN_00494bb0(void);
+void FUN_0045eca0(void);
+void CarEffects_Init(void);
+void __fastcall FUN_0045a170(int param_1);
+int FUN_00407270(void);
+
+// Sets up the stage objects of a race: object tables, the championship-end
+// fireworks, the headlight glows, the wheel trails and lights of every car,
+// the debris, weather, effects and stage lights.
+// FUNCTION: CMR2 0x00466360
+void FUN_00466360(void)
+{
+    short *pOrder;
+    short count;
+    int i;
+    int car;
+
+    FUN_00466490();
+    g_unk0x0058896c = (char)FUN_00407270() != 0;
+    if (((char)FUN_00407270() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
+        CGameInfo::FUN_004063f0(0))
+        FUN_0047d510();
+    pOrder = Car_GetOrder();
+    count = Car_GetOrderCount();
+    for (i = 0; i < count; i++, pOrder++) {
+        car = *pOrder;
+        FUN_0045a150(0, 0, i);
+        FUN_0045a150(0, 1, i);
+        FUN_0045b530(0, 0, i);
+        FUN_0045b530(0, 1, i);
+        if (*(int *)((BYTE *)Car_Get(car) + 0xc0c) == 0) {
+            FUN_00463fe0((int)Car_Get(car));
+            if (Car_Get(car)->field_0xb1b[0] == 6 || Car_Get(car)->field_0xb1b[0] == 7 ||
+                Car_Get(car)->field_0xb1b[0] == 10)
+                FUN_00477b60(i, 0, 0, 0);
+            else
+                FUN_00477b60(i, 0, 0, 1);
+        }
+    }
+    CarEffects_InitDebris();
+    FUN_00494bb0();
+    FUN_0045eca0();
+    CarEffects_Init();
+    StageLights_Create();
+    FUN_0045a170(0);
+    if (g_unk0x0058896c != 0)
+        FUN_0047e4d0(0x14);
+}
+
+// Per-frame update of the stage objects: stage lights, the attract-mode
+// debris, and the fireworks once they are on.
+// FUNCTION: CMR2 0x00466520
+void FUN_00466520(void)
+{
+    StageLights_Update();
+    if (((char)FUN_00407270() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
+        CGameInfo::FUN_004063f0(0))
+        FUN_0047dd70();
+    if (g_unk0x0058896c != 0) {
+        FUN_0047eab0();
+        FUN_00480220();
+    }
+}
