@@ -20,8 +20,8 @@ void FUN_005062d0(unsigned int) { }
 // STUB: CMR2 0x00416710
 void FUN_00416710(void) { }
 
-// STUB: CMR2 0x0041f930
-unsigned char FUN_0041f930(void) { return 0; }
+// STUB: CMR2 0x00420630
+void FUN_00420630(void) { }
 
 // STUB: CMR2 0x00455080
 void FUN_00455080(void) { }
@@ -33,8 +33,6 @@ void FUN_00424c50(void) { }
 // STUB: CMR2 0x0041c5a0
 void FUN_0041c5a0(unsigned char, int) { }
 
-// STUB: CMR2 0x0041e6b0
-void FUN_0041e6b0(int, int, int) { }
 
 // STUB: CMR2 0x0041b460
 void FUN_0041b460(void) { }
