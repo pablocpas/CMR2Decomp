@@ -9322,12 +9322,13 @@ void FUN_0047b970(unsigned int param_1)
     unsigned int delta;
 
     if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 0xa) {
-        if (FUN_0041f3a0() == 0) {
-            target = FUN_004218d0(0);
-        } else if (CGameInfo::FUN_00405d80() == 2) {
-            target = param_1;
+        if (FUN_0041f3a0() != 0) {
+            if (CGameInfo::FUN_00405d80() == 2)
+                target = param_1;
+            else
+                target = FUN_004218d0(1);
         } else {
-            target = FUN_004218d0(1);
+            target = FUN_004218d0(0);
         }
     } else {
         target = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
