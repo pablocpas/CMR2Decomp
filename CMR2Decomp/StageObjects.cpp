@@ -9307,3 +9307,262 @@ done:
         }
     }
 }
+
+int FUN_004218d0(unsigned int view);
+void RallyData_FUN_00408760(BYTE index, int value);
+
+// Applies the driver-camera cycle: while the cycle key is held it picks the
+// target driver (either from the current knockout round or by advancing the
+// active one) and hands the resulting view mode to the rally data layer.
+// match 53%: implementada, MSVC6 cachea param_1 en EDI y coloca distinta la tabla del switch
+// FUNCTION: CMR2 0x0047b970
+void FUN_0047b970(unsigned int param_1)
+{
+    unsigned int uVar4;
+    unsigned int uVar5;
+    BYTE *p;
+
+    p = FUN_0041b390();
+    if (**(char **)(p + 4) == 10) {
+        if (FUN_0041f3a0() == 0) {
+            uVar4 = FUN_004218d0(0);
+        } else {
+            if (CGameInfo::FUN_00405d80() == 2)
+                uVar4 = param_1;
+            else
+                uVar4 = FUN_004218d0(1);
+        }
+    } else {
+        uVar4 = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+    }
+
+    p = FUN_0041b390();
+    if ((**(char **)(p + 4) == 8) || (p = FUN_0041b390(), **(char **)(p + 4) == 7)) {
+        uVar5 = FUN_0041b380();
+        switch (uVar5) {
+        case 0:
+        case 1:
+            g_unk0x0058e0a4 = param_1;
+            break;
+        case 2:
+            RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
+            break;
+        case 3:
+            if (param_1 == 0)
+                RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+            else
+                RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+            break;
+        case 4:
+            g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_1;
+            break;
+        }
+        {
+            BYTE bVar2 = CGameInfo::FUN_00405d70();
+            if ((int)g_unk0x0058e0a4 < (int)(unsigned int)bVar2 &&
+                (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
+                RallyData_FUN_00408760((BYTE)g_unk0x0058e0a4, uVar4);
+            }
+        }
+    }
+}
+
+// Builds the bounding box of an object's collision points (8 triples): the
+// object's 2D direction is normalised from its accumulated translation and
+// every point is projected onto it, tracking the box bounds.
+// match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
+// FUNCTION: CMR2 0x004873f0
+void FUN_004873f0(int *param_1, int param_2, int param_3)
+{
+    short *pOut = *(short **)(param_3 + 4);
+    FixVector v;
+    int absY = param_1[1];
+    int dx = 0;
+    int dy = 0;
+    int maxRight = 0;
+    int maxLeft = 0;
+    int len;
+    int *p;
+    int n;
+
+    pOut[3] = 0;
+    pOut[2] = 0;
+
+    if (absY < 0)
+        absY = -absY;
+
+    if (absY > 0xfd70) {
+        v.x = param_1[3];
+        v.y = 0;
+        v.z = param_1[5];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    } else {
+        v.x = param_1[0];
+        v.y = 0;
+        v.z = param_1[2];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    }
+
+    p = (int *)(param_2 + 8);
+    n = 8;
+    do {
+        int c = p[-1];
+        int right = FixMul(dx, p[-2]) + FixMul(dy, p[0]);
+        int left = FixMul(-dx, p[0]) + FixMul(dy, p[-2]);
+        short q = (short)(c >> 9);
+
+        if (right > 0 && maxRight < right)
+            maxRight = right;
+        if (left > 0 && maxLeft < left)
+            maxLeft = left;
+        if ((short)pOut[2] * 0x200 < c)
+            pOut[2] = q;
+        if (c < (short)pOut[3] * 0x200)
+            pOut[3] = q;
+
+        p += 3;
+    } while (--n != 0);
+
+    pOut[0] = (short)(dx >> 9);
+    pOut[4] = (short)(maxRight >> 9);
+    pOut[1] = (short)(dy >> 9);
+    pOut[5] = (short)(maxLeft >> 9);
+}
+
+extern double g_minus65536;
+
+// Chooses the wall-collision response of a car part from its lateral/forward
+// offsets and the wall distances stored in the reference record; returns the
+// facing side (1..4) or a slanted-response code (5/6), 0 when clear.
+// match 54%: implementada, MSVC6 reparte distinto los locales y el modo del muro
+// FUNCTION: CMR2 0x0047c5e0
+unsigned int FUN_0047c5e0(int param_1)
+{
+    int mode;
+    int off;
+    int limit;
+    int blocked;
+    int local10;
+    int isStackC;
+    int iVar4;
+    int iVar7;
+    int iVar8;
+    int iVar5;
+    unsigned int u;
+
+    mode = 0;
+    if (*(int *)(param_1 + 0x5c) < -0xa0000)
+        mode = 1;
+    if (0xa0000 < *(int *)(param_1 + 0x5c))
+        mode = 2;
+
+    iVar7 = *(int *)(param_1 + 0x34);
+    if (iVar7 < 0) {
+        iVar4 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xd) * g_minus65536);
+        iVar8 = iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xe);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            iVar5 = 0;
+            if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
+                iVar5 = iVar7 - local10;
+        }
+        if ((0 < iVar8) && (iVar8 < 0x40000))
+            iVar5 = iVar8;
+        if (0 < iVar5) {
+            if (0x5a0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) - FixMul(-iVar5, 0xf0000) + 0x3c0000 < 0)
+                return 2;
+        }
+        if (iVar8 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 2;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
+            }
+            if (0x6e0000 < iVar7)
+                return 1;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffe) + 5;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xc) * g_minus65536);
+        local10 = *(int *)(param_1 + 0x34) - local10;
+        if ((local10 < 0) && (mode != 2)) {
+            if (0x3c0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) < -0x2d0000)
+                return 2;
+            if (*(int *)(param_1 + 0x38) - FixMul(-local10, 0x50000) < 0)
+                return 3;
+        }
+    } else {
+        iVar5 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 9) * g_minus65536);
+        iVar4 = -iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar5 + 10);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            local10 = -iVar7 - local10;
+            isStackC = 0;
+            if ((local10 < 0x40000) && (cVar1 < 0x11))
+                isStackC = local10;
+        }
+        if ((0 < iVar4) && (iVar4 < 0x40000))
+            isStackC = iVar4;
+        if (0 < isStackC) {
+            if (*(int *)(param_1 + 0x38) < -0x5a0000)
+                return 3;
+            iVar7 = *(int *)(param_1 + 0x38) - FixMul(isStackC, 0xf0000);
+            if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
+                return 4;
+        }
+        if (iVar4 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 3;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
+            }
+            if (0x6e0000 < iVar7)
+                return 4;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffc) + 6;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 8) * g_minus65536);
+        iVar7 = -local10 - *(int *)(param_1 + 0x34);
+        if ((iVar7 < 0) && (mode != 1)) {
+            if (0x2d0000 < *(int *)(param_1 + 0x38))
+                return 4;
+            if (*(int *)(param_1 + 0x38) < -0x3c0000)
+                return 3;
+            u = FixMul(iVar7, 0x50000);
+            if (*(unsigned int *)(param_1 + 0x38) != u &&
+                -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
+                return 1;
+        }
+    }
+    if (0x780000 < *(int *)(param_1 + 0x38))
+        return 4;
+    return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
+}

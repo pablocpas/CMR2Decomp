@@ -5566,3 +5566,19 @@ int FUN_0040b1b0(void);
 
 // Resets the timing records of the drivers taking part in the race according
 // to the current mode (rally, split-screen or network).
+
+// Compares the length of the tracked object's accumulated translation with the
+// motion context's speed plus the object's own threshold; when it exceeds it,
+// the object's suspension flag is cleared.
+// FUNCTION: CMR2 0x00482f30
+int FUN_00482f30(void)
+{
+    int length = FixVecLength(&g_unk0x00590c20->field_0x144);
+    int limit = *(int *)((BYTE *)g_unk0x00590d74 + 0x758) + *(int *)((BYTE *)g_unk0x00590c20 + 0x15c);
+
+    if (length > limit) {
+        FUN_00483010();
+        return 1;
+    }
+    return 0;
+}

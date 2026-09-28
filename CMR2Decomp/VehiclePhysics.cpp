@@ -493,3 +493,37 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     g_vehicleMotionState->flags |= 4;
     g_vehicleMotionState->flags &= (BYTE)~2;
 }
+
+void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
+
+// Runs the car's collision test against the current face and, when it hits,
+// rebuilds the collision box and classifies the face vertices to decide
+// whether the contact counts as a collision.
+// match 44%: implementada, MSVC6 coloca el cero del retorno en ESI y elige otra polaridad de rama
+// FUNCTION: CMR2 0x00490b90
+int FUN_00490b90(int param_1)
+{
+    int result;
+
+    if (param_1 != 0)
+        result = FUN_00490570();
+    else
+        result = FUN_00490640();
+    if (result != 0) {
+        FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
+                     (int *)((BYTE *)g_collisionCar + 0x2d0),
+                     (FixVector *)((BYTE *)g_collisionCar + 0x270));
+        Collision_ClassifyFaceVertices();
+        if (g_collisionPositiveCandidateCount != 0) {
+            if (g_collisionNegativeCandidateCount != 0)
+                return 1;
+        } else {
+            if (g_collisionNegativeCandidateCount == 0)
+                return 0;
+        }
+        if (((g_collisionPositiveVertexCount != 4) || (g_collisionSelectBackSide != 0)) &&
+            (g_collisionNegativeVertexCount == 4) && (g_collisionSelectBackSide != 0))
+            return 1;
+    }
+    return 0;
+}
