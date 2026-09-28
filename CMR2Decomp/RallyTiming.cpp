@@ -100,7 +100,6 @@ int FUN_0040ce40(int position);
 // resolves the ties of the overall classification.
 // pPositions: finishing position of each of the eight cars.
 // pPoints: points earned at each position.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040ccd0
 void FUN_0040ccd0(char *pPositions, int *pPoints)
 {
@@ -123,8 +122,15 @@ void FUN_0040ccd0(char *pPositions, int *pPoints)
     RallyTiming_SortOrder(g_unk0x005335b8, g_unk0x00533610, 0, 8, 0);
     for (i = 0; i < 8; i++)
         g_unk0x00533618[g_unk0x00533610[i]] = (char)i;
-    for (i = 0; i < 8; i++)
-        g_unk0x005335f0[i] += pPoints[i];
+    {
+        // The original walks the accumulator table up to the global that follows
+        // it (g_unk0x00533610); writing the bound with that symbol reproduces the
+        // operand the original emits.
+        int *pAcc;
+        int *pPts;
+        for (pAcc = g_unk0x005335f0, pPts = pPoints; (int)pAcc < (int)g_unk0x00533610; pAcc++, pPts++)
+            *pAcc += *pPts;
+    }
     i = 0;
     do {
         for (j = i + 1; j < 8; j++) {

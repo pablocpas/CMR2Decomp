@@ -1054,7 +1054,6 @@ void FUN_00494540(void);
 extern int g_physicsTimeStep;
 
 // Steering torque of the auto-gear car from its steering swing.
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004945d0
 void FUN_004945d0(void)
 {
@@ -1069,17 +1068,18 @@ void FUN_004945d0(void)
     }
     torque = FixMul(g_pAutoGearCar->field_0x824, g_physicsTimeStep);
     if ((g_pAutoGearCar->field_0xb1b[1] & 2) != 0) {
-        a = g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c;
-        torque = FixMul(torque, FixMul(a - 0x10000, a - 0x10000));
+        torque = FixMul(torque, FixMul(
+            (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000,
+            (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000));
     }
     a = g_pAutoGearCar->field_0x818 < 0 ? -g_pAutoGearCar->field_0x818 : g_pAutoGearCar->field_0x818;
     r = FixMul(torque, a);
-    if (g_pAutoGearCar->flag0x1d0[1] == 0) {
-        if (g_pAutoGearCar->flag0x1d0[0] != 0)
-            g_unk0x00592164 = r;
+    if (g_pAutoGearCar->flag0x1d0[1] != 0) {
+        g_unk0x00592164 = -r;
         return;
     }
-    g_unk0x00592164 = -r;
+    if (g_pAutoGearCar->flag0x1d0[0] != 0)
+        g_unk0x00592164 = r;
 }
 
 void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z);

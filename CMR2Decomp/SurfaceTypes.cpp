@@ -327,11 +327,13 @@ char g_fontNames[7][20] = {
     "general\\lcd_640", "general\\ocr_12pt", "general\\ocr_60pt",
 };
 
+// The global that follows g_fontNames; the original uses it as the loop end.
+extern char g_strMenuSoundNames[5][7];
+
 int Font_InitTable(unsigned int count);
 void Font_Load(char *name, GenericFile *pFile, unsigned int index);
 
 // Loads the seven game fonts from stage file 1.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478b50
 void FUN_00478b50(void)
 {
@@ -340,7 +342,8 @@ void FUN_00478b50(void)
 
     Font_InitTable(7);
     i = 0;
-    for (pName = g_fontNames[0]; pName < g_fontNames[7]; pName += 20) {
+    // The original walks the array until it reaches the global that follows it.
+    for (pName = g_fontNames[0]; (int)pName < (int)g_strMenuSoundNames; pName += 20) {
         Font_Load(pName, (GenericFile *)StageTiming_GetStageFile1(), i);
         i++;
     }
