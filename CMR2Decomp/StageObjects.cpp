@@ -822,6 +822,42 @@ void FUN_0046b440(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
     pOut[2] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 8) * CGraphics::m_65536);
 }
 
+
+extern float g_oneOverRandMax;
+
+// Flicker timer of a car's broken light: once the damage (+0x29c) passes
+// half, the light alternates on and off (+0x4cc) for random spans, the off
+// spans getting shorter and the on spans longer the heavier the damage.
+// FUNCTION: CMR2 0x0046b4e0
+void FUN_0046b4e0(BYTE *pCar)
+{
+    int *p;
+    int k;
+
+    p = FUN_00469680((signed char)pCar[0xb1a]);
+    if (p[0xa7] > 0x8000) {
+        k = FixMul(p[0xa7] - 0x8000, 0x20000);
+        if (k < 0)
+            k = 0;
+        else if (k > 0x10000)
+            k = 0x10000;
+        k = FixMul(k, 0xcccc);
+        if (p[0x103] <= 0) {
+            if (p[0x133] != 0) {
+                p[0x133] = 0;
+                p[0x103] = FixMul(0x10000 - k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xfa0000));
+                p[0x103] += FixMul(0x10000 - k, 0x320000);
+            } else {
+                p[0x133] = 1;
+                p[0x103] = FixMul(k, FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0xf0000));
+                p[0x103] += FixMul(k, 0);
+            }
+        } else {
+            p[0x103] -= 0x10000;
+        }
+    }
+}
+
 // FUNCTION: CMR2 0x0046b4c0
 int FUN_0046b4c0(BYTE *pCar)
 {
@@ -1427,6 +1463,8 @@ void FUN_00472cb0(void)
 // Magic value handed to FUN_004283e0 as opaque data, not an address.
 // GLOBAL: CMR2 0x0051c9a8
 int g_unk0x0051c9a8 = 0xacb49c;
+// GLOBAL: CMR2 0x0051c9ac
+char g_strVs0x0051c9ac[] = "vs.";
 // GLOBAL: CMR2 0x0058ca80
 BYTE g_unk0x0058ca80;
 // GLOBAL: CMR2 0x0058ca84
@@ -4960,6 +4998,236 @@ void FUN_004738f0(Menu *pMenu)
         Sprite_FillRect((int)g_pGraphics + 0x150, rect, pColour, 1);
     }
 }
+
+
+extern BYTE g_barTextColour[4];
+extern BYTE g_unk0x0051c9a4[4];
+extern char g_strVs0x0051c9ac[];
+void FUN_00474420(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour, unsigned int flags);
+void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, KnockoutMatch *param6);
+void FUN_00475430(int param1, KnockoutMatch *param2, short *param3, BYTE *param4, BYTE *param5,
+                  int param6, int param7, int *param8, int param9);
+#define KO_X(n) ((int)(g_pGraphics->resX * (n)) / 0x280)
+#define KO_Y(n) ((int)(g_pGraphics->resY * (n)) / 0x1e0)
+
+// Draws the arcade knockout bracket of the current round: the title, then
+// for every match its number, both driver panels (dimmed loser, highlighted
+// player) and "vs." on the match being raced; while the bracket view is up
+// (0x58ca8c) the player's panel instead zooms towards the next round's slot.
+// FUNCTION: CMR2 0x004744f0
+void FUN_004744f0(void)
+{
+    BYTE *pBox2;
+    BYTE *pName1;
+    BYTE *pBox1;
+    BYTE *pName2;
+    BYTE *pText;
+    short rect[4];
+    int vs;
+    KnockoutTable *pTable;
+    int current;
+    unsigned int round;
+    KnockoutMatch *pMatch;
+    int fading;
+    KnockoutMatch *pMatches;
+    int y0;
+    int count;
+    int highlight1;
+    int bracket;
+    int highlight2;
+    int x0;
+    int i;
+    int x2;
+    int y2;
+    int y;
+    int x;
+
+    sprintf(CFrontend::m_stringDest, CFrontend::FUN_0040ede0(RallyData_FUN_004086b0(0)));
+    CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+    Font_DrawText(0, CFrontend::m_stringDest, KO_X(0x1e), Font_GetLineHeight(0) + KO_Y(0x39) + KO_Y(5),
+                  (int *)g_barTextColour, 0x11);
+    pTable = (KnockoutTable *)RallyData_GetChampionshipState();
+    round = (pTable->state >> 3) & 7;
+    bracket = FUN_004bc0c0(g_unk0x0058ca8c);
+    if (FUN_004bc0c0(&g_unk0x0058cc70) || (!FUN_004bc0c0(g_unk0x0058ca8c) && g_unk0x0058cf7c == 6))
+        fading = 1;
+    else
+        fading = 0;
+    switch (round) {
+    case 1:
+        count = 8;
+        x0 = KO_X(0x56);
+        y0 = KO_Y(0x8e);
+        pMatches = pTable->round1;
+        break;
+    case 2:
+        count = 4;
+        x0 = KO_X(0x93);
+        y0 = KO_Y(0x8e);
+        pMatches = pTable->quarters;
+        break;
+    case 3:
+        count = 2;
+        x0 = KO_X(0x93);
+        y0 = KO_Y(0xcf);
+        pMatches = pTable->semis;
+        break;
+    case 4:
+        count = 1;
+        x0 = KO_X(0x115);
+        y0 = KO_Y(0xcf);
+        pMatches = &pTable->final;
+        break;
+    }
+    for (i = 0; i < count; i++) {
+        current = 0;
+        highlight2 = 0;
+        highlight1 = 0;
+        vs = 0;
+        y = 0;
+        x = 0;
+        if (bracket) {
+            switch (round) {
+            case 1:
+                x2 = KO_X(0x93);
+                y2 = KO_Y(0x8e);
+                break;
+            case 2:
+                x2 = KO_X(0x93);
+                y2 = KO_Y(0xcf);
+                break;
+            case 3:
+                x2 = KO_X(0x115);
+                y2 = KO_Y(0xcf);
+                break;
+            }
+        }
+        switch (round) {
+        case 1:
+            if (i == 4 || i == 5 || i == 6 || i == 7)
+                y = KO_Y(0x82);
+            if (i == 2 || i == 3 || i == 6 || i == 7)
+                x = KO_X(0x108);
+            if (bracket) {
+                if (i / 2 == 2 || i / 2 == 3)
+                    y2 += KO_Y(0x82);
+                if (i / 2 == 1 || i / 2 == 3)
+                    x2 += KO_X(0x108);
+            }
+            break;
+        case 2:
+            if (i == 2 || i == 3)
+                y = KO_Y(0x82);
+            if (i == 1 || i == 3)
+                x = KO_X(0x108);
+            if (bracket && i / 2 == 1)
+                x2 += KO_X(0x108);
+            break;
+        case 3:
+            if (i == 1)
+                x = KO_X(0x108);
+            break;
+        }
+        y += y0;
+        x += (round == 1 && i % 2) ? KO_X(0x78) + x0 : x0;
+        if (g_unk0x0058cf7c == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)
+            current = 1;
+        pMatch = &pMatches[i];
+        if ((pMatch->flags & 0x3e0) == 0x3e0)
+            highlight2 = 1;
+        if ((pMatch->flags & 0x1f) == 0x1f)
+            highlight1 = 1;
+        if (((g_unk0x0058cf7c == 2 || g_unk0x0058cf7c == 4 || g_unk0x0058cf7c == 5) &&
+             i == (int)((pTable->state >> 12) & 0xf)) ||
+            (g_unk0x0058cf7c == 3 && i == (int)((pTable->state >> 12) & 0xf) - 1)) {
+            pName1 = NULL;
+            vs = 1;
+            pName2 = NULL;
+            pBox1 = pBox2 = pText = g_barTextColour;
+        } else if (pMatch->flags & 0x400) {
+            if ((pMatch->flags & 0x1800) == 0x800) {
+                highlight2 = 1;
+                pName1 = g_unk0x0051c9a4;
+                pName2 = NULL;
+                pBox1 = pBox2 = pText = g_unk0x0051c994;
+            } else {
+                highlight1 = 1;
+                pName1 = NULL;
+                pName2 = g_unk0x0051c9a4;
+                pBox1 = pBox2 = pText = g_unk0x0051c994;
+            }
+        } else {
+            pName1 = NULL;
+            pBox1 = pBox2 = pText = g_unk0x0051c994;
+            pName2 = NULL;
+        }
+        if (!bracket) {
+            if (!FUN_004bc0c0(&g_unk0x0058ca80) && !fading) {
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x4f), i + 1);
+                Font_DrawText(0, CFrontend::m_stringDest, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5), (int *)pText, 0x11);
+            } else {
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x4f), i + 1);
+                FUN_00474420(CFrontend::m_stringDest, g_unk0x0058cc74, 0, (int)g_pGraphics->resX / 0x280 + x, y - KO_Y(5),
+                             (int *)pText, 0x11);
+            }
+            if (fading && highlight1) {
+                if (pName1 != NULL)
+                    pName1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                if (pBox1 != NULL)
+                    pBox1[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                if (pText != NULL)
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+            } else {
+                if (pName1 != NULL)
+                    pName1[3] = 0xff;
+                if (pBox1 != NULL)
+                    pBox1[3] = 0xff;
+                if (pText != NULL)
+                    pText[3] = 0xff;
+            }
+            rect[0] = (short)x;
+            rect[1] = (short)y;
+            rect[2] = (short)KO_X(0x56);
+            rect[3] = (short)KO_Y(0x26);
+            FUN_00475430(0, pMatch, rect, pName1, pBox1, highlight1, current, (int *)pText, 0);
+        } else if (highlight2) {
+            if (i % 2 == 1)
+                y2 += KO_Y(0x2d);
+            FUN_00474fe0(x, y, x2, y2, 0, pMatch);
+        }
+        if (vs)
+            Font_DrawText(0, g_strVs0x0051c9ac, x - KO_X(2), KO_Y(0x2f) + y, (int *)g_barTextColour, 0x14);
+        if (!bracket) {
+            if (fading && highlight2) {
+                if (pName2 != NULL)
+                    pName2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                if (pBox2 != NULL)
+                    pBox2[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+                if (pText != NULL)
+                    pText[3] = (BYTE)(FixMul(0xff0000, g_unk0x0058cc74) >> 16);
+            } else {
+                if (pName2 != NULL)
+                    pName2[3] = 0xff;
+                if (pBox2 != NULL)
+                    pBox2[3] = 0xff;
+                if (pText != NULL)
+                    pText[3] = 0xff;
+            }
+            rect[0] = (short)x;
+            rect[1] = (short)(KO_Y(0x2d) + y);
+            rect[2] = (short)KO_X(0x56);
+            rect[3] = (short)KO_Y(0x26);
+            FUN_00475430(1, pMatch, rect, pName2, pBox2, highlight2, current, (int *)pText, 0);
+        } else if (highlight1) {
+            if (i % 2 == 1)
+                y2 += KO_Y(0x2d);
+            FUN_00474fe0(x, KO_Y(0x2d) + y, x2, y2, 1, pMatch);
+        }
+        g_barTextColour[3] = 0xff;
+    }
+}
+#undef KO_X
+#undef KO_Y
 
 // Draws the first `fraction` of a text (typing effect; spaces don't count)
 // and the next character on its own.
