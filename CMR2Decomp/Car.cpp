@@ -3366,7 +3366,7 @@ void FUN_0042b800(int first, int count, int param_3)
     FUN_0042c840(first, count);
     for (i = first; i < end; i++)
         FUN_0043ecd0(Car_Get(i));
-    if (RallyData_FUN_00407e70() == 0 && RallyData_FUN_00407e90() == 0) {
+    if ((BYTE)RallyData_FUN_00407e70() == 0 && (BYTE)RallyData_FUN_00407e90() == 0) {
         for (i = first; i < end; i++)
             RallyData_FUN_004207a0(i);
     }
