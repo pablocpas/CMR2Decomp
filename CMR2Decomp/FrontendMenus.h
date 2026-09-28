@@ -166,7 +166,7 @@ void FUN_004fa0b0(void);
 void FUN_004fa1c0(void);
 Menu *FUN_004f8290(BYTE param1);
 
-void FUN_004d43e0(Menu *pMenu, int param);
+void FUN_004d43e0(Menu *pMenu);
 void FUN_004d4c40(Menu *pMenu);
 void FUN_004d4cf0(Menu *pMenu, int param);
 void FUN_004d50a0(Menu *pMenu, int param);
@@ -202,7 +202,7 @@ void FUN_004e2040(Menu *pMenu);
 void FUN_004e20e0(Menu *pMenu, int param);
 void FUN_004e2610(Menu *pMenu, int param);
 void FUN_004e2ab0(Menu *pMenu);
-void FUN_004e2b40(Menu *pMenu, int param);
+void FUN_004e2b40(Menu *pMenu);
 void FUN_004e3230(Menu *pMenu);
 void FUN_004e4130(Menu *pMenu);
 void FUN_004e48b0(Menu *pMenu, int param);

@@ -165,6 +165,25 @@ void FrontendDraw_ItemLabel(char *text, int x, int y, unsigned int flags, int in
     }
 }
 
+// Draw callback (menu callback slot 2, one argument) of the player-profile
+// menu and its siblings: the play time, the menu title and one centred label
+// per item.
+// FUNCTION: CMR2 0x004d43e0
+void FUN_004d43e0(Menu *pMenu)
+{
+    BYTE i;
+    int x;
+
+    x = (int)g_pGraphics->resX / 2;
+    FrontendDraw_PlayTime();
+    Font_DrawText(1, CFrontend::GetTextString(pMenu->field_0x4), x, 10,
+                  (int *)g_colourWhite0x00524968, 10);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        FrontendDraw_ItemLabel(CFrontend::GetTextString(pMenu->items[i].id), x, (i * 5 + 0x19) * 4, 10,
+                               i, pMenu);
+    }
+}
+
 // Help line at the bottom of the screen, its brightness pulsing up and down.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d4460

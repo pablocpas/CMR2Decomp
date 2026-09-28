@@ -4,10 +4,6 @@
 // Empty bodies for the frontend screen callbacks that are not decompiled
 // yet, so that the menu builders have something to point at.
 
-void FUN_004d43e0(Menu *pMenu, int param)
-{
-}
-
 void FUN_004d4cf0(Menu *pMenu, int param)
 {
 }
@@ -91,10 +87,6 @@ void FUN_004e20e0(Menu *pMenu, int param)
 }
 
 void FUN_004e2610(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2b40(Menu *pMenu, int param)
 {
 }
 
@@ -194,18 +186,6 @@ void FUN_004f0e80(Menu *pMenu, int param)
 {
 }
 
-void FUN_004f13c0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f15d0(Menu *pMenu, int param)
-{
-}
-
-
-void FUN_004f3a00(Menu *pMenu, int param)
-{
-}
 
 void FUN_004f3a70(Menu *pMenu, int param)
 {

@@ -914,6 +914,105 @@ char g_matrixMaps[11][0xd8] = {
 
 void FUN_004d28c0(short x0, short y0, char *pMap);
 
+// Text of the network waiting-room screen (0x4e2b40).
+// GLOBAL: CMR2 0x00524e10
+char g_str0x00524e10[8] = "Back";
+// GLOBAL: CMR2 0x00524e18
+char g_str0x00524e18[8] = "Start";
+// GLOBAL: CMR2 0x00524e24
+char g_str0x00524e24[16] = "Waiting Room";
+// GLOBAL: CMR2 0x00524e34
+char g_str0x00524e34[8] = "Network";
+// GLOBAL: CMR2 0x00524e3c
+char g_str0x00524e3c[20] = "Peugeot 205 T16, MT";
+// GLOBAL: CMR2 0x00524e50
+char g_str0x00524e50[8] = "SteppyS";
+// GLOBAL: CMR2 0x00524e58
+char g_str0x00524e58[24] = "Subaru Impreza WRC, AT";
+// GLOBAL: CMR2 0x00524e70
+char g_str0x00524e70[8] = "LeeM";
+// GLOBAL: CMR2 0x00524e78
+char g_str0x00524e78[8] = "Setup";
+// GLOBAL: CMR2 0x00524e80
+char g_str0x00524e80[16] = "Spectator: No";
+// GLOBAL: CMR2 0x00524e90
+char g_str0x00524e90[24] = "Transmission: Automatic";
+// GLOBAL: CMR2 0x00524ea8
+char g_str0x00524ea8[24] = "Car: Ford Focus 2000";
+// GLOBAL: CMR2 0x00524ec0
+char g_str0x00524ec0[16] = "Blah blah blah";
+// GLOBAL: CMR2 0x00524ed0
+char g_str0x00524ed0[24] = "SteppyS: Bimble bomble";
+// GLOBAL: CMR2 0x00524ee8
+char g_str0x00524ee8[24] = "LeeM : Wheeeeeeeeeeeeee";
+// GLOBAL: CMR2 0x00524f00
+char g_str0x00524f00[16] = "JamieL: Bananas";
+
+// Parameter block of FUN_004d39a0: two flag bytes, the entry count, the
+// selected entry and the string pointer array at +0x14.
+struct Unk0x4e2b40 {
+    BYTE field_0x0[6];
+    BYTE field_0x6;
+    BYTE field_0x7;
+    BYTE field_0x8[2];
+    BYTE count;
+    BYTE selected;
+    BYTE field_0xc[8];
+    char *strings[6];
+};
+
+// Draw callback of the network waiting-room screen: the breadcrumb, the play
+// time, the three peer names of the sample room and the player list.
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the remaining diff is the 16-bit coordinate
+// arithmetic the original gets at the Font_DrawText call sites (Font_DrawText
+// is declared with int x/unsigned int y here, the original used narrower
+// parameters) plus a couple of register choices.
+// FUNCTION: CMR2 0x004e2b40
+void FUN_004e2b40(Menu *pMenu)
+{
+    Unk0x4e2b40 list;
+    short rowHeight;
+
+    list.strings[0] = g_str0x00524e34;
+    list.strings[1] = g_str0x00524e24;
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), list.strings, 2);
+    FrontendDraw_PlayTime();
+    g_unk0x008189a8[0] = 0x1e;
+    g_unk0x008189a8[1] = 0x46;
+    g_unk0x008189a8[2] = 0x190;
+    g_unk0x008189a8[3] = 0x96;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    Font_DrawText(1, g_str0x00524f00, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 10,
+                  (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524ee8, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 0x1e,
+                  (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524ed0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 0x32,
+                  (int *)g_colourWhite0x00524968, 9);
+    rowHeight = g_unk0x008189a8[3] + 10;
+    g_unk0x008189a8[2] = 0x190;
+    g_unk0x008189a8[3] = 0x14;
+    g_unk0x008189a8[1] += rowHeight;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    Font_DrawText(1, g_str0x00524ec0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1],
+                  (int *)g_colourWhite0x00524968, 9);
+    list.field_0x6 |= 3;
+    list.field_0x7 = 3;
+    list.count = 6;
+    list.selected = 2;
+    list.strings[0] = g_str0x00524ea8;
+    list.strings[1] = g_str0x00524e90;
+    list.strings[2] = g_str0x00524e80;
+    list.strings[3] = g_str0x00524e18;
+    list.strings[4] = g_str0x00524e78;
+    list.strings[5] = g_str0x00524e10;
+    FUN_004d39a0((BYTE *)&list, NULL, 0x172, list.strings);
+    Font_DrawText(1, g_str0x00524e70, 0x1b8, 0x46, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e58, 0x1b8, 0x5a, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e50, 0x1b8, 0x78, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e3c, 0x1b8, 0x8c, (int *)g_colourWhite0x00524968, 9);
+}
+
 // Draw callback of the main menu: the menu scroller and, behind it, the
 // background matrix picture of the selected entry.
 // FUNCTION: CMR2 0x004e2da0
@@ -3328,6 +3427,107 @@ done:
     strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
 }
 
+void FUN_004ebe80(int index);
+void FUN_004f2bf0(int value);
+int FUN_004f2c20(void);
+BYTE FUN_004eb290(int param_1, BYTE *param_2);
+char FUN_004eb370(int param_1);
+unsigned int FUN_004eb4c0(int param_1, int param_2);
+void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
+BYTE FUN_004085a0(BYTE param1);
+BYTE *FUN_004f4e50(int index);
+unsigned int FUN_004fb400(BYTE *pBlock);
+extern int g_unk0x00819744;
+extern BYTE g_unk0x00819879;
+
+// Item picker of the second name-entry screen: appends the picked character of
+// the three letter rows to the name; the '<' entry deletes the last character
+// and '_' accepts the entry (when its buffer is a known cheat code, the cheat
+// is applied).
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the remaining diff is register assignment (the original frees an
+// extra callee-saved register and materialises the sound id with two pushes instead of a branchless
+// select) and MSVC resolving `m_stringDest - 2` to a different symbol on our side.
+// FUNCTION: CMR2 0x004f13c0
+void FUN_004f13c0(Menu *pMenu, int param)
+{
+    char *chars;
+    char key;
+    int len;
+
+    strcpy(CFrontend::m_stringDest, (char *)FUN_00408470(FUN_004f2be0()));
+    len = strlen(CFrontend::m_stringDest);
+    if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '<') {
+        if (CFrontend::m_stringDest[0] != 0) {
+            *(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 1) = 0;
+            Menu_PlaySoundId(2);
+        }
+    } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {
+        if (FUN_004eb290(FUN_004f2be0(), (BYTE *)&key) != 0) {
+            Menu_PlaySoundId(key != 0 ? 0 : 3);
+            if (FUN_004085a0((BYTE)FUN_004f2be0())) {
+                g_unk0x00819744--;
+                FUN_004eb000(FUN_004f2be0(), 0);
+            }
+            FUN_004ebf20(FUN_004f2be0());
+            FUN_004ebe80(FUN_004f2be0());
+            g_unk0x00819048++;
+            if (FUN_004d27d0())
+                Menu_SetNextAction((int)FUN_004f8480());
+            else
+                Menu_SetNextAction((int)FUN_004f83a0());
+            g_unk0x00819038 = 0;
+            return;
+        }
+        if (len > 0) {
+            Menu_SetNextAction((int)FUN_004f83e0());
+            g_unk0x00819038 = 0;
+        }
+        return;
+    } else if (len < 0x2b) {
+        switch (pMenu->items[pMenu->cursor].value) {
+        case 0:
+            chars = g_nameRow0x00525374;
+            break;
+        case 1:
+            chars = g_nameRow0x00525380;
+            break;
+        case 2:
+            chars = g_nameRow0x0052538c;
+            break;
+        default:
+            // the original uses the menu pointer as the character table
+            chars = (char *)pMenu;
+            break;
+        }
+        CFrontend::m_stringDest[len] = chars[pMenu->items[pMenu->cursor].max];
+        CFrontend::m_stringDest[len + 1] = 0;
+        Menu_PlaySoundId(1);
+    } else {
+        Menu_PlaySoundId(3);
+    }
+    FUN_004eaf90(FUN_004f2be0(), CFrontend::m_stringDest);
+    strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
+}
+
+// Left/right item callback of the name-entry screen: recomputes the column
+// offsets of the three letter rows and steers the next screen when the name is
+// complete.
+// FUNCTION: CMR2 0x004f15d0
+void FUN_004f15d0(Menu *pMenu, int param)
+{
+    FUN_004ebe10(FUN_004f2be0(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
+                 pMenu->items[0].max);
+    if (FUN_004eb370(FUN_004f2be0()) != 0) {
+        Menu_SetNextAction((int)FUN_004f2c20());
+        g_unk0x00819879 = 0;
+        if (FUN_004d27d0()) {
+            FUN_004eb000(FUN_004f2be0(), 0);
+            FUN_004ebe80(FUN_004f2be0());
+        }
+    }
+}
+
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
 // FUNCTION: CMR2 0x004f1640
 void FUN_004f1640(Menu *pMenu)
@@ -4249,6 +4449,20 @@ void FUN_004f39d0(Menu *pMenu)
     FUN_004f37c0(FUN_004f2500());
 }
 
+// Applying the 3D car preview screen: when the preview is up, the block of the
+// selected car is handed to the frontend state machine.
+// FUNCTION: CMR2 0x004f3a00
+void FUN_004f3a00(Menu *pMenu, int param)
+{
+    char ok;
+
+    if (g_unk0x0082aa40 > 0) {
+        ok = FUN_004fb400(FUN_004f4e50(g_unk0x0082a924));
+        if (ok != 0)
+            FUN_004d2070(0, 1, 0);
+    }
+}
+
 // FUNCTION: CMR2 0x004f3a30
 BYTE FUN_004f3a30(void)
 {
@@ -4986,6 +5200,33 @@ BYTE *FUN_004ec110(int n);
 void FUN_004f0c40(Menu *pMenu, int param)
 {
     FUN_004f83b0()->pParent = pMenu;
+}
+
+// Selects the current player-profile slot of the player setup screen: resets
+// the working copy and continues to the profile menu, or plays the error sound
+// when the slot does not exist.
+// FUNCTION: CMR2 0x004f26f0
+void FUN_004f26f0(Menu *pMenu, int param)
+{
+    unsigned int index;
+    int count;
+    char ok;
+
+    FUN_004f2bf0(0);
+    FUN_004eb860(0, -1);
+    FUN_004ebf20(0);
+    FUN_004eb000(0, 0);
+    index = pMenu->items[0].max;
+    count = FUN_004eb440();
+    if ((int)index < count) {
+        ok = FUN_004eb4c0(0, index);
+        if (ok != 0) {
+            Menu_SetNextAction((int)FUN_004f8490());
+            return;
+        }
+    } else {
+        Menu_PlaySoundId(3);
+    }
 }
 
 // Item callback of "new profile": gives player 1 a fresh profile and goes to
