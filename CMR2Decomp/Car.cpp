@@ -1328,6 +1328,280 @@ void Car_UpdateWheelTravel(void)
         }                                                                           \
     }
 
+void FUN_0042f820(void);
+void FUN_0042f9d0(void);
+void FUN_0042fb20(void);
+void FUN_0042e450(void);
+void FUN_004930e0(int param_1, int param_2);
+void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
+                  unsigned char param_5, int param_6);
+int FUN_00428760(BYTE index);
+
+// Scratch vectors of the ground-contact step (referenced only from 0x42eae0).
+// GLOBAL: CMR2 0x0053c9c8
+FixVector g_carContactNormal;
+// GLOBAL: CMR2 0x0053ca08
+FixVector g_carContactWork;
+// GLOBAL: CMR2 0x0053ca40
+FixVector g_carContactWork2;
+// GLOBAL: CMR2 0x0053ca50
+short g_carSurfaceSnapshot[4];
+// GLOBAL: CMR2 0x0053ca68
+FixVector g_carContactWork3;
+// GLOBAL: CMR2 0x0053ca98
+FixVector g_carContactSaved;
+// GLOBAL: CMR2 0x0053caf8
+FixVector g_carContactWork4;
+// GLOBAL: CMR2 0x0053cc08
+FixVector g_carContactPoint;
+
+// Ground contact and roll-over step of the current car: refreshes the corner
+// contact normals from the body axes, decays the roll-over counters, and,
+// when no corner is grounded, finds the corner that supports the body against
+// the ground normal, pushes it into the deformation solver, damps the angular
+// velocity when the deepest corner changes and updates the tumble timers.
+// FUNCTION: CMR2 0x0042eae0
+void FUN_0042eae0(void)
+{
+    int flag;
+    int i;
+    int k;
+    int d;
+    int dot;
+    short prevGrounded;
+    int prevDeepest;
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
+#define CARB(off) (*(char *)((int)g_pCurrentCar + (off)))
+
+    flag = 0;
+    g_pCurrentCar->tipAngle = 0;
+    g_pCurrentCar->tipRatio = 0;
+    g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
+    for (i = 0; i < 8; i++)
+        g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
+
+    if (CARF(0xbfc) != 0) {
+        if (CARF(0xbdc) != 0) {
+            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            if (step > g_pCurrentCar->field_0xb25)
+                g_pCurrentCar->field_0xb25 = 0;
+            else
+                g_pCurrentCar->field_0xb25 -= step;
+            if (g_pCurrentCar->field_0xb25 <= 0)
+                CARF(0xbfc) = 0;
+        } else if (CARF(0xbe0) != 0) {
+            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            if (step > g_pCurrentCar->field_0xb26)
+                g_pCurrentCar->field_0xb26 = 0;
+            else
+                g_pCurrentCar->field_0xb26 -= step;
+            if (g_pCurrentCar->field_0xb26 <= 0)
+                CARF(0xbfc) = 0;
+        } else {
+            BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            if (step > g_pCurrentCar->field_0xb27)
+                g_pCurrentCar->field_0xb27 = 0;
+            else
+                g_pCurrentCar->field_0xb27 -= step;
+            if (g_pCurrentCar->field_0xb27 <= 0)
+                CARF(0xbfc) = 0;
+        }
+        if (CARF(0xbfc) == 0) {
+            CARF(0xbe4) = 0;
+            CARF(0xbe0) = 0;
+            CARF(0xbdc) = 0;
+            g_pCurrentCar->field_0xb27 = 0;
+            g_pCurrentCar->field_0xb25 = 0;
+            g_pCurrentCar->field_0xb26 = 0;
+            CARF(0xbf8) = 1;
+        }
+    } else {
+        if (FUN_00428760(g_pCurrentCar->field_0xb1a) != 0) {
+            memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
+            g_pCurrentCar->position = *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8);
+        } else {
+            for (i = 4; i < 8; i++) {
+                if (g_pCurrentCar->cornerFlags[i] == 0) {
+                    if (CARF(0x95c) < 0x640000)
+                        CARF(0x95c) += g_physicsTimeStep;
+                    else
+                        CARF(0xbf8) = 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    prevGrounded = (char)g_pCurrentCar->field_0xb34;
+    for (i = 3; i >= 0; i--)
+        g_carSurfaceSnapshot[i] = g_pCurrentCar->wheelSurface[i];
+    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_0042f820();
+
+    if (g_pCurrentCar->field_0xb34 != 0) {
+        Car_UpdateGroundNormal();
+        FUN_0042f9d0();
+        FUN_0042f820();
+        if (prevGrounded != 0) {
+            FUN_0042fb20();
+            flag = 1;
+        } else {
+            for (i = 0; i < 8; i++) {
+                if (g_pCurrentCar->cornerFlags[i] == 0) {
+                dot = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->groundNormal);
+                g_carContactSaved = g_pCurrentCar->field_0x5c4;
+                g_pCurrentCar->field_0x5c4.x = dot;
+                g_pCurrentCar->field_0x5c4.y = 0;
+                g_pCurrentCar->field_0x5c4.z = 0;
+
+                FixVecScale(&g_carContactWork, &g_pCurrentCar->groundNormal, -0x20000);
+                FixMatrix_InverseRotateVector((FixVector *)((BYTE *)g_pCurrentCar + 0x5dc),
+                                              &g_carContactWork, g_pCurrentCar->pWorld);
+
+                d = CARF(0x5dc);
+                if (FIX_ABS(d) > g_pCurrentCar->halfExtents.x)
+                    CARF(0x5dc) = d < 0 ? -g_pCurrentCar->halfExtents.x : g_pCurrentCar->halfExtents.x;
+                d = CARF(0x5e0);
+                if (FIX_ABS(d) > g_pCurrentCar->halfExtents.y)
+                    CARF(0x5e0) = d < 0 ? -g_pCurrentCar->halfExtents.y : g_pCurrentCar->halfExtents.y;
+                d = CARF(0x5e4);
+                if (FIX_ABS(d) > g_pCurrentCar->halfExtents.z)
+                    CARF(0x5e4) = d < 0 ? -g_pCurrentCar->halfExtents.z : g_pCurrentCar->halfExtents.z;
+
+                g_carContactPoint.x = 0;
+                g_carContactPoint.y = 0x7d000000;
+                g_carContactPoint.z = 0;
+                g_carContactNormal.x = 0;
+                g_carContactNormal.y = 0x10000;
+                g_carContactNormal.z = 0;
+                for (k = 0; k < 4; k++) {
+                    if (g_pCurrentCar->corners[k].y < g_carContactPoint.y)
+                        g_carContactPoint = g_pCurrentCar->corners[k];
+                }
+                if (CARF(0x370) < 0) {
+                    FixVecScale(&g_carContactWork2, &g_pCurrentCar->up,
+                                FixMul(0x20000, CARF(0x208)));
+                    g_carContactPoint.x += g_carContactWork2.x;
+                    g_carContactPoint.y += g_carContactWork2.y;
+                    g_carContactPoint.z += g_carContactWork2.z;
+                }
+                FUN_00466ef0(g_pCurrentCar, (int *)&g_carContactPoint, &g_carContactNormal, 0, 0, 0);
+                FixMatrix_RotateVector(&g_carContactWork3,
+                                       (FixVector *)((BYTE *)g_pCurrentCar + 0x5dc),
+                                       g_pCurrentCar->pWorld);
+                g_carContactWork3.x += g_pCurrentCar->position.x;
+                g_carContactWork3.y += g_pCurrentCar->position.y;
+                g_carContactWork3.z += g_pCurrentCar->position.z;
+                g_pCurrentCar->field_0x5c4 = g_carContactSaved;
+                break;
+                }
+            }
+        }
+        d = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->velocity);
+        if (d < 0) {
+            FixVecScale(&g_carContactWork4, &g_pCurrentCar->groundNormal, d);
+            g_pCurrentCar->velocity.x -= g_carContactWork4.x;
+            g_pCurrentCar->velocity.y -= g_carContactWork4.y;
+            g_pCurrentCar->velocity.z -= g_carContactWork4.z;
+        }
+        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+        dot = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
+    } else {
+        for (i = 0; i < 8; i++) {
+            d = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
+            if (FIX_ABS(d) < 0x3333) {
+                Car_UpdateGroundNormal();
+                FUN_0042fb20();
+                flag = 1;
+                break;
+            }
+        }
+        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+        dot = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
+    }
+    g_pCurrentCar->field_0x924 = dot;
+
+    if (flag == 0) {
+        CARF(0xba8) = 0;
+        CARF(0xba4) = 0;
+        CARF(0xba0) = 0;
+    }
+
+    CARF(0x958) = 0;
+    prevDeepest = CARB(0xb2b);
+    CARB(0xb2b) = -1;
+    for (i = 0; i < 4; i++) {
+        if (i < 2)
+            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, CARF(0x774));
+        else
+            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, CARF(0x770));
+        g_carContactWork.x += g_pCurrentCar->corners[i].x;
+        g_carContactWork.y += g_pCurrentCar->corners[i].y;
+        g_carContactWork.z += g_pCurrentCar->corners[i].z;
+        d = FixMul(g_pCurrentCar->cornerHeight[i + 4] + g_pCurrentCar->cornerHeight[i], 0x8000) -
+            g_carContactWork.y;
+        if (d > CARF(0x958)) {
+            CARF(0x958) = d;
+            CARB(0xb2b) = (char)i;
+        }
+    }
+    if (CARF(0x958) == 0) {
+        CARF(0x958) = 0x1999;
+        for (i = 0; i < 4; i++) {
+            if (g_pCurrentCar->cornerFlags[i] == 0) {
+                d = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
+                if (d < CARF(0x958))
+                    CARF(0x958) = d > 0 ? d : 0;
+            }
+        }
+        CARF(0x958) = -CARF(0x958);
+    }
+    if (CARB(0xb2b) != -1 && CARB(0xb2b) != prevDeepest) {
+        FixMatrix_InverseRotateVector(&g_carContactWork, &g_pCurrentCar->groundNormal,
+                                      g_pCurrentCar->pWorld);
+        dot = FixVecDot(&g_carContactWork, &g_pCurrentCar->angularVelocity);
+        FixVecScale(&g_carContactWork, &g_carContactWork, dot);
+        g_carContactWork.x = g_pCurrentCar->angularVelocity.x - g_carContactWork.x;
+        g_carContactWork.y = g_pCurrentCar->angularVelocity.y - g_carContactWork.y;
+        g_carContactWork.z = g_pCurrentCar->angularVelocity.z - g_carContactWork.z;
+        FixVecScale(&g_carContactWork, &g_carContactWork, FixMul(0xccc, g_physicsTimeStep));
+        g_pCurrentCar->angularVelocity.x -= g_carContactWork.x;
+        g_pCurrentCar->angularVelocity.y -= g_carContactWork.y;
+        g_pCurrentCar->angularVelocity.z -= g_carContactWork.z;
+    }
+
+    Car_RelaxBodyAxes(1);
+    FUN_0042e450();
+    d = CARF(0x920);
+    if (CARF(0xc04) == 0 && d < 0)
+        CARF(0xc04) = 1;
+    if (d < 0)
+        CARF(0xc10) = 1;
+    CARF(0x96c) -= FixMul(0x1eb8, g_physicsTimeStep);
+    if (CARF(0x96c) < 0)
+        CARF(0x96c) = 0;
+    if (CARF(0x96c) > 0)
+        return;
+    if (d <= 0xfc28)
+        return;
+    if (CARF(0xc10) != 0) {
+        if (FIX_ABS(CARF(0x420)) >= 0x28f)
+            return;
+        if (FIX_ABS(CARF(0x428)) >= 0x28f)
+            return;
+    }
+    if (g_pCurrentCar->field_0xb28 != 0) {
+        CARF(0xc00) = 0;
+        CARF(0x96c) = 0;
+        CARF(0xc04) = 0;
+        CARF(0xc10) = 0;
+    }
+}
+
 // Flags the box corners of the current car that are off the ground and lists
 // (from 0xb36) the ones that touch it.
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
