@@ -100,6 +100,30 @@ int FUN_00427670(void)
     return g_unk0x00539dcc;
 }
 
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+void FUN_004a15b0(BOOL param1);
+void FUN_00402c90(int param);
+void FUN_0044a1b0(int value);
+
+// Handles a race-network message for a player-list entry: on the player-list
+// change it rebuilds the DirectPlay session players, on the select action it
+// dismisses the pending menu.
+// FUNCTION: CMR2 0x00427680
+void FUN_00427680(int param1, int *param2)
+{
+    if (*param2 != 5) {
+        if (*param2 == 0x101) {
+            FUN_004a15b0(1);
+            FUN_00402c90(1);
+            FUN_0044a1b0(1);
+        }
+        return;
+    }
+    FUN_004a1940((DWORD *)(param2 + 2));
+    FUN_00409c80(param2 + 2);
+}
+
 // GLOBAL: CMR2 0x00539ed4
 int g_unk0x00539ed4;
 

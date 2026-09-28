@@ -8825,6 +8825,32 @@ void FUN_0045e610(void);
 void FUN_004702a0(void);
 extern int g_unk0x0067f228;
 
+short Car_GetOrderCount(void);
+SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
+void FUN_00486910(BYTE *pObj, int *pSrc);
+extern BYTE g_unk0x00590d8c[4];
+extern BYTE g_unk0x00590ec0[16];
+
+// Picks the scene node of a car's object payload by the payload type letter
+// ('C' or 'A' select the 9-mode node, anything else the 5-mode one) and stores
+// it in both per-object tables, then copies the payload into the object.
+// FUNCTION: CMR2 0x00486740
+void FUN_00486740(BYTE *pObj, int *pSrc, BYTE index, BYTE value)
+{
+    g_unk0x00590d8c[*pObj] = value;
+    g_unk0x00590ec0[*pObj] = index;
+    if ((short)index < Car_GetOrderCount() && Car_Get(index)->pNode0x720 != NULL) {
+        if (FUN_00456be0(index)[0x20] == 'C' || FUN_00456be0(index)[0x20] == 'A')
+            g_stageBlock_58d340[index] =
+                (int)SceneNode_FindByType(Car_Get(index)->pNode0x720, 9);
+        else
+            g_stageBlock_58d340[index] =
+                (int)SceneNode_FindByType(Car_Get(index)->pNode0x720, 5);
+        g_stageBlock_58d47c[index] = (int)SceneNode_FindByType(Car_Get(index)->pNode0x720, 5);
+    }
+    FUN_00486910(pObj, pSrc);
+}
+
 // Sets the hit flag of one entry of a car's timing record and refreshes the
 // derived record block.
 // FUNCTION: CMR2 0x00469bf0

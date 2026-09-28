@@ -118,6 +118,95 @@ void Car_AllocateTable(int count)
     CGame::RegisterCallback(Car_FreeTable, NULL);
 }
 
+int FUN_0040b010(int index);
+BYTE *FUN_0041f350(int index);
+unsigned int FUN_00409cb0(int index);
+void FUN_00428a00(Car *pCar);
+extern short g_unk0x0053a314[8];
+extern short g_unk0x0053bd6c[26];
+extern short g_unk0x0053c9a0;
+
+// GLOBAL: CMR2 0x0053a270
+short g_unk0x0053a270[80];
+// GLOBAL: CMR2 0x0053a310
+short g_unk0x0053a310;
+// GLOBAL: CMR2 0x0053b4f0
+short g_unk0x0053b4f0[8];
+
+// Builds the race car order of the current view: the active players first (and
+// whoever reports itself), then splits them into the on-screen, shadowed and
+// drawn lists and re-applies the view transform of the on-screen ones.
+// FUNCTION: CMR2 0x00428810
+void FUN_00428810(void)
+{
+    short *p;
+    int i;
+    int j;
+    int flag;
+    int pCar;
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 0xb || CGameInfo::FUN_00405d80() == 0xc) {
+        g_carOrder[0] = 0;
+        g_carOrderCount = 1;
+        for (i = 0; i < 7; i++) {
+            flag = 0;
+            pCar = (int)FUN_0041f350(i + 1);
+            if (pCar != 0 && *(int *)(pCar + 4) != 0 && *(int *)(pCar + 0xe8) != 0)
+                flag = 1;
+            if (FUN_00409cb0(i) != 0 || flag) {
+                g_carOrder[g_carOrderCount] = FUN_0040b010(i);
+                g_carOrderCount++;
+            }
+        }
+    }
+    g_carOrder[26] = 0;
+    g_unk0x0053a310 = 0;
+    g_unk0x0053c9a0 = 0;
+    g_carOrder[25] = 0;
+    g_carOrder[44] = 0;
+    j = 0;
+    if (g_carOrderCount > 0) {
+        p = g_carOrder;
+        do {
+            pCar = (int)((BYTE *)g_carBuffer + *p * 0xc24);
+            *(int *)(pCar + 0xb70) = 0;
+            *(int *)(pCar + 0xb6c) = 0;
+            *(int *)(pCar + 0xb68) = 0;
+            if (*(int *)(pCar + 0xc18) == 0) {
+                if (*(BYTE *)(pCar + 0xb43) != 0) {
+                    g_unk0x0053b4f0[g_unk0x0053a310] = *p;
+                    g_unk0x0053a310++;
+                    g_unk0x0053a314[g_unk0x0053c9a0] = *p;
+                    g_unk0x0053c9a0++;
+                    *(int *)(pCar + 0xb64) = 0;
+                    goto nextCar;
+                }
+            } else {
+nextCar:
+                if (*(BYTE *)(pCar + 0xb43) != 0) {
+                    g_unk0x0053a270[g_carOrder[44]] = *p;
+                    g_carOrder[44]++;
+                }
+            }
+            if (*(int *)(pCar + 0xc18) != 0 && *(BYTE *)(pCar + 0xb43) != 0) {
+                g_unk0x0053bd6c[g_carOrder[25]] = *p;
+                g_carOrder[25]++;
+            }
+            j++;
+            p++;
+        } while (j < g_carOrderCount);
+    }
+    i = 0;
+    if (g_unk0x0053a310 > 0) {
+        p = g_unk0x0053b4f0;
+        do {
+            FUN_00428a00((Car *)((BYTE *)g_carBuffer + *p * 0xc24));
+            i++;
+            p++;
+        } while (i < g_unk0x0053a310);
+    }
+}
+
 unsigned int RallyData_FUN_00407e70(void);
 BYTE *FUN_0041b390(void);
 
@@ -3810,6 +3899,51 @@ void Car_UpdateCornerVelocityPair(void)
     pCorner[7] = pCorner[2];
 }
 
+void Car_FollowGround(void);
+void FUN_00444a70(void);
+
+// Runs the suspension/geometry pass over the listed cars: selects each car,
+// caches its setup, copies the wheel surfaces, rebuilds the body and keeps the
+// smallest corner clearance of the eight body corners.
+// FUNCTION: CMR2 0x00443bf0
+void FUN_00443bf0(int param_1, short *param_2, short param_3)
+{
+    short *p;
+    int n;
+    int i;
+    int j;
+    int v;
+
+    n = param_3 - 1;
+    if (n < 0)
+        return;
+    p = param_2 + n;
+    n++;
+    do {
+        g_pCurrentCar = (Car *)(param_1 + *p * 0xc24);
+        g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)g_pCurrentCar + 0xb1a));
+        Car_UpdateWheelTravel();
+        g_pCurrentCar->field_0xabe[0] = g_pCurrentCar->wheelSurface[0];
+        g_pCurrentCar->field_0xabe[1] = g_pCurrentCar->wheelSurface[1];
+        g_pCurrentCar->field_0xabe[2] = g_pCurrentCar->wheelSurface[2];
+        g_pCurrentCar->field_0xabe[3] = g_pCurrentCar->wheelSurface[3];
+        Car_FollowGround();
+        FUN_00444a70();
+        *(int *)((BYTE *)g_pCurrentCar + 0x960) = 0x3e80000;
+        j = 0;
+        i = 0x8dc;
+        do {
+            v = *(int *)((BYTE *)g_pCurrentCar + j + 0x274) - *(int *)((BYTE *)g_pCurrentCar + i);
+            if (v < *(int *)((BYTE *)g_pCurrentCar + 0x960))
+                *(int *)((BYTE *)g_pCurrentCar + 0x960) = v;
+            i += 4;
+            j += 0xc;
+        } while (i < 0x8fc);
+        *(int *)((BYTE *)g_pCurrentCar + 0x960) += *(int *)((BYTE *)g_pCurrentCar + 0x958);
+        p--;
+    } while (--n);
+}
+
 // FUNCTION: CMR2 0x00443d10
 void Car_FollowGround(void)
 {
@@ -4592,11 +4726,47 @@ void FUN_00423fc0(int view)
     FUN_0048df10(VIEW_MODE_RECORD(view));
 }
 
+int FUN_00423970(unsigned int index, int mode);
+void FUN_00421720(unsigned char index, int a, int b, unsigned char c, int d);
+unsigned int FUN_0048d8b0(FixVector *pPos);
+int FUN_00421980(unsigned int view);
+
+// Next free view-mode slot (0..0xa) of a player's view record.
+// FUNCTION: CMR2 0x004218d0
+int FUN_004218d0(unsigned int view)
+{
+    int mode;
+    int found;
+
+    mode = *(int *)(g_unk0x0053901c +
+                    (BYTE)(g_unk0x00538e0c[view & 0xff] + (char)view * 2) * 100);
+    do {
+        mode++;
+        if (mode == 0xb)
+            mode = 0;
+        found = FUN_00423970(view, mode);
+    } while (found == 0);
+    FUN_00421720(view, mode, 0xffff, FUN_00422fb0(view), 1);
+    return mode;
+}
+
+// Moves the view's mode record to the surface the camera target sits on.
+// FUNCTION: CMR2 0x00421930
+void FUN_00421930(unsigned int view)
+{
+    FixVector target;
+    unsigned int surface;
+
+    surface = FUN_0048d8b0(FUN_00423db0(&target, FUN_00422fb0(view)));
+    if (surface != FUN_00421980(view))
+        FUN_00421720(view, 7, surface, FUN_00422fb0(view), 0);
+}
+
 // FUNCTION: CMR2 0x00421980
-void FUN_00421980(unsigned int view)
+int FUN_00421980(unsigned int view)
 {
     view &= 0xff;
-    FUN_0048d930(VIEW_MODE_RECORD(view));
+    return FUN_0048d930(VIEW_MODE_RECORD(view));
 }
 
 // FUNCTION: CMR2 0x00437f90
