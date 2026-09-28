@@ -6583,8 +6583,9 @@ int g_unk0x0051bfa0[3] = { 0x10000, 0x10000, 0x10000 };
 // impact strength from the body displacement, resolves the impact point and
 // normal into the car's deformation frame (mode 0/1/2 choose the projection)
 // and refreshes the deformation radius, falloff and scale.
-// match 74%: implementada; logica identica (los tres modos y las dos pasadas); difieren el
-// reparto de registros y el orden de algunas comparaciones
+// match 74.95% (auditado W165): logica y constantes identicas; el unico diff de forma era el clamp
+// del modo 2 (se compara contra g_stageDeformSpeed, no contra el literal); el resto es reparto de
+// registros y de slots de pila (param_6 se recarga en eax en vez de vivir en esi)
 // FUNCTION: CMR2 0x00466ef0
 void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                   unsigned char param_5, int param_6)
