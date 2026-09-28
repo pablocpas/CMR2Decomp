@@ -20,8 +20,8 @@ void FUN_005062d0(unsigned int) { }
 // STUB: CMR2 0x00416710
 void FUN_00416710(void) { }
 
-// STUB: CMR2 0x0041f930
-unsigned char FUN_0041f930(void) { return 0; }
+// STUB: CMR2 0x00420630
+void FUN_00420630(void) { }
 
 // STUB: CMR2 0x00455080
 void FUN_00455080(void) { }
