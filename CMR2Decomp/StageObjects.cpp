@@ -8819,3 +8819,233 @@ void FUN_004926f0(int unused1, int unused2, int sunAngle) { }
 
 // STUB: CMR2 0x00492bd0
 void FUN_00492bd0(int view) { }
+
+void FUN_0042b800(int, int, int);
+void FUN_0045e610(void);
+void FUN_004702a0(void);
+extern int g_unk0x0067f228;
+
+// Sets the hit flag of one entry of a car's timing record and refreshes the
+// derived record block.
+// FUNCTION: CMR2 0x00469bf0
+void FUN_00469bf0(Car *pCar, int index)
+{
+    *(int *)(g_unk0x00588b94 + 0x4b0 + (index + pCar->field_0xb1a * 0x134) * 4) = 1;
+    FUN_00468c10(pCar);
+}
+
+// Saves the car's torque state into pState and copies the current race record
+// block into the following slot of pState.
+// FUNCTION: CMR2 0x0046c320
+void FUN_0046c320(int *pState, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+
+    *pState = pCar->field_0x7a4;
+    FUN_0042b800(car, 1, 1);
+    pCar->field_0x7a4 = *pState;
+    if (pCar->field_0xb48 != 1)
+        FUN_0043f570(pCar);
+    pState = pState + 1;
+    pCar->field_0xb9c = 1;
+    FUN_0046c220((Block6 *)RallyData_FUN_00421510(car), (Block6 *)pState);
+    RallyData_FUN_004207a0(car);
+}
+
+// Restores the car's torque state from pState, copies pState's race record
+// block back into the car record and revalidates the stage state.
+// FUNCTION: CMR2 0x0046c390
+void FUN_0046c390(int *pState, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+
+    FUN_0042b800(car, 1, 1);
+    pCar->field_0x7a4 = *pState;
+    if (pCar->field_0xb48 != 1)
+        FUN_0043f570(pCar);
+    pCar->field_0xb9c = 1;
+    FUN_0046c220((Block6 *)(pState + 1), (Block6 *)RallyData_FUN_00421510(car));
+    RallyData_FUN_004207a0(car);
+    FUN_0045e610();
+    FUN_004702a0();
+    RallyData_ValidateIndex(car);
+}
+
+// GLOBAL: CMR2 0x0058ca74
+int g_unk0x0058ca74;
+// GLOBAL: CMR2 0x0058ca68
+int g_unk0x0058ca68;
+// GLOBAL: CMR2 0x0058c934
+int g_unk0x0058c934;
+// GLOBAL: CMR2 0x0058c950
+int g_unk0x0058c950;
+
+// Saves the scene-node and render-object counts around loading the two stage
+// model variants (TEMP.OBJ and TEMP.SHT).
+// FUNCTION: CMR2 0x00471af0
+void FUN_00471af0(void)
+{
+    g_unk0x0058ca74 = g_sceneNodeCount;
+    g_unk0x0058ca68 = g_unk0x0067f228;
+    FUN_00472830();
+    g_unk0x0058c934 = g_sceneNodeCount;
+    g_unk0x0058c950 = g_unk0x0067f228;
+    FUN_00472870();
+    FUN_0046f060();
+}
+
+BYTE *FUN_0041b390(void);
+BYTE FUN_0041b370(void);
+int FUN_0041b380(void);
+int FUN_004232a0(int index, int mode);
+int RallyData_FUN_00408800(BYTE index);
+void FUN_00421720(unsigned char, int, int, unsigned char, int);
+
+// GLOBAL: CMR2 0x0051f4c0
+unsigned int g_unk0x0051f4c0 = 0x100;
+// GLOBAL: CMR2 0x0058df98
+unsigned int g_unk0x0058df98;
+// GLOBAL: CMR2 0x0058df9c
+unsigned int g_unk0x0058df9c;
+// GLOBAL: CMR2 0x0058e0a4
+unsigned int g_unk0x0058e0a4;
+
+// Driver-camera cycle: while the cycle key is held the active driver is
+// advanced (or, on the championship round screen, picked from the round
+// drivers) and the requested view mode is applied to the car.
+// FUNCTION: CMR2 0x0047bad0
+void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
+{
+    int mode;
+
+    if (*(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 7 ||
+        *(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 8) {
+        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) != 0) {
+            if (FUN_00422f50(param_2) != 10)
+                FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 10, 0xffff,
+                             FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+        }
+        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) == 0) {
+            if (FUN_00422f50(g_unk0x0058e0a0->field_0xb1a) == 10) {
+                switch (FUN_0041b380()) {
+                case 4:
+                    g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_2;
+                    break;
+                case 0:
+                case 1:
+                    g_unk0x0058e0a4 = param_2;
+                    break;
+                case 2:
+                    RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+                    if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                        g_unk0x0058e0a4 = g_unk0x0058df98;
+                    else
+                        g_unk0x0058e0a4 = g_unk0x0058df9c;
+                    break;
+                case 3:
+                    if (param_2 == 0)
+                        RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+                    else
+                        RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+                    break;
+                }
+                CGameInfo::FUN_00405d70();
+                mode = RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff);
+                if (FUN_004232a0(g_unk0x0058e0a0->field_0xb1a, mode) != 0) {
+                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a,
+                                 RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff), 0xffff,
+                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                } else {
+                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 4, 0xffff,
+                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                }
+            }
+        }
+    }
+}
+
+extern int g_unk0x00547ad0;
+
+// GLOBAL: CMR2 0x00547abc
+int g_unk0x00547abc;
+
+// Positions a lens flare of the given view node on screen: its brightness
+// follows the sun visibility and the camera's pitch, its colour is scaled by
+// the same factor and the sprite is queued on layer 2.
+// match 61%: same structure, calls and constants; MSVC places the brightness
+// temporaries in the unused parameter homes instead of the original's slots.
+// FUNCTION: CMR2 0x00462d80
+void FUN_00462d80(int param_1, int param_2)
+{
+    short rect[4];
+    SpriteRect uv;
+    SpriteRect dst;
+    FixVector nodePos;
+    FixVector viewPos;
+    int screen[2];
+    int level;
+    int delta;
+    int axis;
+    int scale;
+    int i;
+    BYTE colour[4];
+
+    rect[2] = 0x10;
+    rect[3] = 0x10;
+    rect[0] = 0;
+    rect[1] = 0;
+    if (g_unk0x00547ad0 != 0) {
+        uv.x = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x11c);
+        uv.y = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x11e);
+        uv.w = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x120);
+        uv.h = *(unsigned short *)((BYTE *)g_unk0x00547ad0 + 0x122);
+        FUN_00492890(&nodePos);
+        FUN_0046f4a0(&viewPos);
+        nodePos.x = nodePos.x + viewPos.x;
+        nodePos.y = nodePos.y + viewPos.y;
+        nodePos.z = nodePos.z + viewPos.z;
+        FUN_004bad40(screen, &nodePos, (BYTE *)g_viewNodes[param_2]);
+        screen[0] = screen[0] >> 16;
+        screen[1] = screen[1] >> 16;
+        rect[0] = (short)screen[0] - rect[2] / 2;
+        rect[1] = (short)screen[1] - rect[3] / 2;
+        FUN_00462d10(rect);
+        level = FixMul(0xfffe0000, g_unk0x00547abc) + 0x20000;
+        if (level < 0)
+            level = 0;
+        else if (level > 0x10000)
+            level = 0x10000;
+        axis = FixMul((int)g_sunVisibility << 16, 0x28f);
+        i = param_2 * 0x178;
+        delta = axis - *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68);
+        if (delta < 0)
+            scale = -delta;
+        else
+            scale = delta;
+        if (scale > FixMul(0x4ccc, g_unk0x0051bd3c)) {
+            if (delta <= 0)
+                *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) =
+                    *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) - FixMul(0x4ccc, g_unk0x0051bd3c);
+            else
+                *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) =
+                    *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) + FixMul(0x4ccc, g_unk0x0051bd3c);
+        } else {
+            *(unsigned int *)((BYTE *)g_unk0x00547ac8 + i + 0x68) = axis;
+        }
+        level = level + *(int *)((BYTE *)g_unk0x00547ac8 + i + 0x68);
+        if (level > 0x10000)
+            level = 0x10000;
+        level = FixMul(0x10000 - level, 0x30000);
+        if (level > 0x10000)
+            level = 0x10000;
+        colour[0] = (BYTE)FixMulShift32((g_unk0x00543eb4[0] & 0xff) << 16, level);
+        colour[1] = (BYTE)FixMulShift32(g_unk0x00543eb4[1] << 16, level);
+        colour[2] = (BYTE)FixMulShift32(g_unk0x00543eb4[2] << 16, level);
+        colour[3] = 0xff;
+        dst.w = (short)FixMul(g_unk0x00543d58, g_pGraphics->resX << 16);
+        dst.h = (short)FixMul(g_unk0x00543d5c, g_pGraphics->resY << 16);
+        dst.x = (short)screen[0] - dst.w / 2;
+        dst.y = (short)screen[1] - dst.h / 2;
+        Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, NULL, NULL, colour, 8);
+    }
+}

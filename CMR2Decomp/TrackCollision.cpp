@@ -1115,3 +1115,63 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     position.y += g_unk0x0059212c;
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
 }
+
+int FUN_00407270(void);
+unsigned int RallyDataState(void);
+unsigned int RallyData_GetFlag24(void);
+unsigned int RallyData_FUN_00407e90(void);
+BYTE *FUN_0041b390(void);
+int FUN_0041f3d0(BYTE index);
+BYTE *FUN_0041f350(int index);
+void FUN_0047d5a0(BYTE car);
+
+// Applies the automatic gearbox's mid-shift body nudge: while a shift is in
+// progress the body is pushed along its right axis by an amount derived from
+// the road speed, then the shift flag is cleared.
+// FUNCTION: CMR2 0x004932f0
+void FUN_004932f0(void)
+{
+    int shifted;
+    int speed;
+    FixVector offset;
+
+    shifted = 0;
+    if (CGameInfo::FUN_004063f0(5) != 0) {
+        *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0;
+        if ((int)g_pAutoGearCar->field_0xb1a < (int)(BYTE)RallyDataState() &&
+            FUN_0041f3d0(g_pAutoGearCar->field_0xb1a) != 0 &&
+            *(char *)(FUN_0041f350((int)g_pAutoGearCar->field_0xb1a) + 0x10c) == 8)
+            shifted = 1;
+        if (*(char *)(*(int *)(FUN_0041b390() + 4) + g_pAutoGearCar->field_0xb1a * 8) == 8 ||
+            shifted) {
+            if (g_pAutoGearCar->field_0x1d8 != 0) {
+                speed = g_pAutoGearCar->speed;
+                if (speed <= 0x2c000) {
+                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0x10000;
+                } else if (speed <= 0x30000) {
+                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = speed - 0x2c000;
+                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) =
+                        FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xa84), 0x40000);
+                    if (*(int *)((BYTE *)g_pAutoGearCar + 0xa84) > 0x10000)
+                        *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0x10000;
+                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) =
+                        0x10000 - *(int *)((BYTE *)g_pAutoGearCar + 0xa84);
+                }
+                FixVecScale(&offset, &g_pAutoGearCar->right,
+                            FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xa84), 0x4000));
+                g_pAutoGearCar->field_0x5c4.x += offset.x;
+                g_pAutoGearCar->field_0x5c4.y += offset.y;
+                g_pAutoGearCar->field_0x5c4.z += offset.z;
+            }
+            g_pAutoGearCar->field_0x1d8 = 0;
+        }
+    } else {
+        if (CGameInfo::FUN_004063f0(0) != 0) {
+            if (((char)FUN_00407270() != 0 || (char)RallyData_GetFlag24() != 0 ||
+                 (char)RallyData_FUN_00407e90() != 0) &&
+                (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->field_0x1d8 != 0))
+                FUN_0047d5a0(g_pAutoGearCar->field_0xb1a);
+            g_pAutoGearCar->field_0x1d8 = 0;
+        }
+    }
+}
