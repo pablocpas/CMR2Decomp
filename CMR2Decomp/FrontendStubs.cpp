@@ -74,10 +74,6 @@ void FUN_004e77c0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004e7ed0(Menu *pMenu, int param)
-{
-}
-
 void FUN_004e8500(Menu *pMenu, int param)
 {
 }
