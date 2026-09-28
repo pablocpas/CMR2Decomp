@@ -48,9 +48,6 @@ void FUN_0046d510(void) { }
 // STUB: CMR2 0x0046b4e0
 void FUN_0046b4e0(int) { }
 
-// STUB: CMR2 0x0044a1b0
-void FUN_0044a1b0(int) { }
-
 // STUB: CMR2 0x00455470
 void FUN_00455470(int) { }
 
