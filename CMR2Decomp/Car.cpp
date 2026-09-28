@@ -5120,24 +5120,31 @@ void FUN_00447ca0(unsigned int index);
 int SceneNode_Destroy(SceneNode *pNode);
 
 // Releases both players' view nodes and resets their view state (callback).
-// match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 62%: revisada. El original direcciona los arrays de ints con un
+// desplazamiento EN BYTES sobre el símbolo ([esi + g_viewNodes],
+// [esi + g_unk0x005391b0], ...), no con índice escalado; reproducido con
+// ((BYTE *)array + off). Lo que queda es asignación de registros: el contador
+// en AL (no EAX) y qué arrays strength-reduce MSVC (g_unk0x00538e0c).
 // FUNCTION: CMR2 0x00421590
 int FUN_00421590(void)
 {
     BYTE i;
+    int off;
 
-    for (i = 0; i < 2; i++) {
-        if (g_viewNodes[i] != NULL) {
-            SceneNode_Destroy(g_viewNodes[i]);
-            g_viewNodes[i] = NULL;
+    for (i = 0, off = 0; i < 2; i++, off += 4) {
+        SceneNode **pNode = (SceneNode **)((BYTE *)g_viewNodes + off);
+
+        if (*pNode != NULL) {
+            SceneNode_Destroy(*pNode);
+            *pNode = NULL;
         }
         *(int *)(g_unk0x00538d2c + i * 100) = 0;
-        g_unk0x00538d20[i] = -0x10000;
+        *(int *)((BYTE *)g_unk0x00538d20 + off) = -0x10000;
         g_unk0x00538e0c[i] = 0;
-        g_unk0x005391b0[i] = 0;
-        g_unk0x005391c4[i] = 0;
-        g_unk0x005391a8[i] = 0;
-        g_unk0x00538f00[i] = 0;
+        *(int *)((BYTE *)g_unk0x005391b0 + off) = 0;
+        *(int *)((BYTE *)g_unk0x005391c4 + off) = 0;
+        *(int *)((BYTE *)g_unk0x005391a8 + off) = 0;
+        *(int *)((BYTE *)g_unk0x00538f00 + off) = 0;
         FUN_00447ca0(i);
     }
     return 1;
