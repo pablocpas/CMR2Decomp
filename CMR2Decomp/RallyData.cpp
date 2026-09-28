@@ -6156,9 +6156,6 @@ struct SplitMarker {
 // the highlighted split is drawn from.
 // GLOBAL: CMR2 0x00536cb8
 SplitMarker g_unk0x00536cb8[0x14 * 8];
-// Per-car index of the split drawn with the highlight rects.
-// GLOBAL: CMR2 0x00536e00
-int g_unk0x00536e00[0x12 * 8];
 // Colour of the one-pixel marker between two middle splits (opaque white).
 // GLOBAL: CMR2 0x005170ac
 unsigned int g_unk0x005170ac = 0xffffffff;
@@ -6168,7 +6165,7 @@ unsigned int g_unk0x005170ac = 0xffffffff;
 unsigned int g_unk0x005170cc = 0xffb49696;
 
 // Draws one car's split-time bar: every split is a one-pixel horizontal divider
-// in the split's own colour, the split indexed by g_unk0x00536e00 is drawn from
+// in the split's own colour, the split indexed by g_stageSplitData[car].split is
 // the two highlight rects instead, and the dividers between the middle splits
 // get a one-pixel vertical marker.
 // match 55.79%: implementada; MSVC6 elige EBX como contador del bucle donde el original usa EBP
@@ -6185,7 +6182,7 @@ void FUN_004143f0(int car, short *pRect)
         if (RallyData_FUN_00411880() != 0)
             CGameInfo::FUN_00405dc0();
         for (i = 0; i <= g_unk0x00536c90; i++) {
-            if (i == g_unk0x00536e00[car * 0x12]) {
+            if (i == g_stageSplitData[car].split) {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
@@ -6227,7 +6224,7 @@ void FUN_00414550(int car, short *pRect)
         if (RallyData_FUN_00411880() != 0)
             CGameInfo::FUN_00405dc0();
         for (i = 0; i <= g_unk0x00536c90; i++) {
-            if (i == g_unk0x00536e00[car * 0x12]) {
+            if (i == g_stageSplitData[car].split) {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
