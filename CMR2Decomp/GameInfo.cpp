@@ -10048,3 +10048,224 @@ void FUN_0050cc10(int param_1, int param_2)
         break;
     }
 }
+
+// Draws the game-info option screen of the menu's active item: the shared
+// background panel, the moving highlight bar of the selected row and, per
+// option type, the title and the value strings of the option list; the rows of
+// the list screen (case 0) are laid out in pairs around their centred bar.
+
+
+// Panel colours used by the rally information screen (amber, blue, green and
+// grey, always opaque).
+// GLOBAL: CMR2 0x005273a8
+BYTE g_colour0x005273a8[8] = { 0xff, 0xff, 0xff, 0xff, 0xfc, 0xf0, 0xcc, 0xff };
+// GLOBAL: CMR2 0x005273b0
+BYTE g_colour0x005273b0[8] = { 0xe7, 0xeb, 0xc6, 0xff, 0xc9, 0xd6, 0xd8, 0xff };
+// Working rectangle shared by the rally information screen (0x831660..0x831667).
+// Stage duration in hundredths of a second, indexed by the stage type.
+// GLOBAL: CMR2 0x005293c0
+int g_unk0x005293c0[7] = { 2, 5, 8, 7, 4, 4, 5 };
+// GLOBAL: CMR2 0x0052960c
+char g_str0x0052960c[] = "Weather Forecast: %s";
+// GLOBAL: CMR2 0x00529624
+char g_str0x00529624[] = "Stage";
+// GLOBAL: CMR2 0x00524e20
+char g_str0x00524e20[] = "100";
+
+extern char g_stageNumberFormat[];
+extern char g_str0x00519fb0[];
+
+#include "RegKey.h"
+
+// stdcall callees that are not implemented yet (ret 8 / ret 0x18).
+void FUN_0050b1c0(short, short, short, short, short, int);
+void FUN_0050a880(int, int);
+
+// Draws the rally information panel of the results screen: the two shaded
+// bars, the stage name, the stage thumbnail and (second mode only) the time
+// bar, the target time and the stage row labels.
+// FUNCTION: CMR2 0x0050a920
+void FUN_0050a920(int param_1)
+{
+    BYTE col[12] = { 0xae, 0xc9, 0x65, 0xff, 0x57, 0x94, 0xc4, 0xff,
+                     0xc1, 0x61, 0xa0, 0xff };
+    int t;
+    int base;
+    int w;
+    int x;
+    int y;
+    int i;
+    int *pCol;
+    Texture *tex;
+
+    g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0xff / 0x1e0);
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xc9 / 0x280);
+    g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x5d / 0x1e0);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0, 3);
+    g_unk0x00831660[0] = g_unk0x00831660[0] + g_unk0x00831660[2];
+    g_unk0x00831660[3] = g_unk0x00831660[3] + g_unk0x00831660[1];
+    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12a / 0x1e0);
+    g_unk0x00831660[3] = g_unk0x00831660[3] - g_unk0x00831660[1];
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x7e / 0x280);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, g_colour0x005273b0 + 4, 3);
+    x = g_unk0x00831660[2] / 2 + g_unk0x00831660[0];
+    y = (int)g_pGraphics->resY * 0x124 / 0x1e0;
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+            CFrontend::GetTextString(param_1 != 0 ? 0x134 : 0x135));
+    Font_DrawText(1, CFrontend::m_stringDest,
+                  x - Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2, y,
+                  g_unk0x00527380, 0x11);
+    if (param_1 != 0) {
+        tex = (Texture *)g_unk0x0083137c[FUN_004ff4d0(
+            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14])];
+    } else {
+        tex = (Texture *)g_unk0x0083137c[FUN_004ff4b0(
+            FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14])];
+    }
+    if (tex != NULL) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x2c / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x12d / 0x1e0);
+        g_unk0x00831660[2] = *(short *)((char *)tex + 0x120);
+        g_unk0x00831660[3] = *(short *)((char *)tex + 0x122);
+        g_unk0x00831660[1] = g_unk0x00831660[1] - *(short *)((char *)tex + 0x122) / 2;
+        Sprite_Queue((SpriteRect *)((char *)tex + 0x11c), (SpriteRect *)g_unk0x00831660,
+                     tex, 1, 0, NULL, NULL, g_colour0x005273a8, 8);
+    }
+    if (param_1 != 0) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x147 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
+        FUN_0050ee50(g_unk0x00831660, 1, 0x15, col);
+        sprintf(CFrontend::m_stringDest, g_str0x00519fb0);
+        Font_DrawText(0, CFrontend::m_stringDest, g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x11);
+        sprintf(CFrontend::m_stringDest, g_str0x00524e20);
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      *(int *)&g_unk0x00831660[2] + *(int *)&g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x14);
+        Font_DrawText(1, CFrontend::GetTextString(0xf9),
+                      g_unk0x00831660[2] / 2 + *(int *)&g_unk0x00831660[0],
+                      (int)g_pGraphics->resY * 0x17c / 0x1e0, g_unk0x00527380, 0x12);
+        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 2) * 0x14];
+        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 1) << 16,
+                   0x640000);
+        if (t < 0)
+            t = 0;
+        else if (t > 0x10000)
+            t = 0x10000;
+        g_unk0x00831660[0] = (short)(((FixMul(t, 0x1350000) + 0x1c0000) >> 16) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        t = FixDiv(FUN_00502df0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(idx), 0) << 16,
+                   0x640000);
+        if (t < 0)
+            t = 0;
+        else if (t > 0x10000)
+            t = 0x10000;
+        g_unk0x00831660[0] = (short)(((FixMul(t, 0x1350000) + 0x1c0000) >> 16) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                            (BYTE *)&g_unk0x0052737c, 3);
+        w = FUN_004ff4d0(idx);
+        t = FUN_00503930(w);
+        base = 0xc + w * 4;
+    } else {
+        int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+        t = g_unk0x005293c0[idx] * 6000;
+        base = 0xad + idx * 4;
+    }
+    sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
+    if (CGameInfo::FUN_005004c0() != 0)
+        pCol = &g_unk0x00527378;
+    else
+        pCol = &g_unk0x0052737c;
+    Font_DrawText(3, CFrontend::m_stringDest, (int)g_pGraphics->resX * 0x124 / 0x280,
+                  (int)g_pGraphics->resY * 0x150 / 0x1e0, pCol, 0x12);
+    x = (int)g_pGraphics->resX * 0x1c / 0x280;
+    for (i = 0; i < 4; i++) {
+        FUN_00501f80(5, 1, 1, CFrontend::GetTextString(base + i), x,
+                     (int)g_pGraphics->resY * (0x19a + i * 0xe) / 0x1e0,
+                     g_unk0x00527380, g_unk0x0052738c, 0x11);
+    }
+}
+
+// Draws the stage selection panel: the country name, its stage list (the
+// current stage highlighted) and the weather forecast, then selects the mode
+// of the active slot.
+// FUNCTION: CMR2 0x0050c130
+void FUN_0050c130(int param_1)
+{
+    int i;
+    int *pRec;
+
+    Font_DrawText(0, CFrontend::GetTextString(0x9c),
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 100 / 0x1e0, &g_unk0x0052737c, 0xc);
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+            CFrontend::GetTextString((RallyDataCountryIndex() & 0xff) + 0x93));
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 0x78 / 0x1e0, &g_unk0x0052737c, 0xc);
+    sprintf(CFrontend::m_stringDest, g_str0x00529624);
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 0x25f / 0x280,
+                  (int)g_pGraphics->resY * 0xa0 / 0x1e0, &g_unk0x0052737c, 0xc);
+    for (i = 0; i < CGameInfo::FUN_00501230(); i++) {
+        int *pCol;
+
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat,
+                (RallyDataStageIndex() & 0xff) + 1 + i);
+        if (i == FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14])
+            pCol = &g_unk0x0052737c;
+        else
+            pCol = g_unk0x00527380;
+        Font_DrawText(0, CFrontend::m_stringDest,
+                      (int)g_pGraphics->resX * 0x25f / 0x280,
+                      (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
+                          (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
+                      pCol, 0xc);
+    }
+    pRec = FUN_00407520(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]);
+    sprintf(CFrontend::m_stringDest, g_str0x0052960c,
+            CFrontend::GetTextString(*pRec + 0x9d));
+    Font_DrawText(0, CFrontend::m_stringDest,
+                  (int)g_pGraphics->resX * 100 / 0x280,
+                  (int)g_pGraphics->resY * 400 / 0x1e0, g_unk0x00527380, 9);
+    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14], 1);
+}
+
+// Draws the bottom panel of the options screen: the animated strip of all the
+// slots and, when the panel texture is loaded, its background sprite with the
+// current slot texture; selects the mode of the active slot afterwards.
+// FUNCTION: CMR2 0x0050bfd0
+void FUN_0050bfd0(int param_1)
+{
+    SpriteRect local;
+
+    FUN_0050b1c0((short)CGameInfo::FUN_00501230(),
+                 FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+                 0, g_unk0x005293a0, 0x124, 0);
+    if (g_unk0x00831668 != 0) {
+        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * g_unk0x005293a0 / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x6f / 0x1e0);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
+        local = *(SpriteRect *)g_unk0x00831660;
+        local.x = 0;
+        local.y = 0;
+        FUN_00501de0(2, g_unk0x00831660);
+        Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
+                     1, 0, NULL, NULL, g_colour0x005273a8, 8);
+    }
+    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
+                 0);
+}
