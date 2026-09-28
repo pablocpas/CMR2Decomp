@@ -45,4 +45,19 @@ int FUN_004692b0(unsigned int type, BYTE *pModel);
 void StageDeform_ApplyRadialDent(void);
 void StageDeform_ApplyPlanarDent(void);
 
+// One deformable node of a stage record: position, spin rate, angle and scale
+// (stride 0x24).
+struct StageDeformNode {
+    int x;          // 0x00
+    int y;          // 0x04
+    int z;          // 0x08
+    int spin;       // 0x0c
+    int field_0x10; // 0x10
+    int angle;      // 0x14
+    int scale;      // 0x18
+    int field_0x1c; // 0x1c
+    int wrapped;    // 0x20
+};
+extern StageDeformNode g_unk0x00543fb0[400];
+
 #endif

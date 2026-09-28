@@ -8818,9 +8818,6 @@ int FUN_004b5320(void *pNode, int value)
     return result;
 }
 
-// STUB: CMR2 0x00460330
-void FUN_00460330(int a, int b) { }
-
 // STUB: CMR2 0x00485690
 void FUN_00485690(short *pOrder, short count, int view) { }
 
@@ -13596,6 +13593,146 @@ extern int g_unk0x0051bd3c;
 extern int g_unk0x005477f0;
 int *FUN_00469680(int index);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+
+
+struct Quad2DVertices;
+struct Quad2D;
+void Quad2D_Queue(Quad2DVertices *pVerts, Texture *pTexture, Quad2D *pDest);
+int FUN_00460ca0(int amount, Car *pCar);
+void Scene_GetLightColour(DWORD *pColour, int level);
+extern BYTE g_unk0x00543da0Block[0x90];
+#define g_unk0x00543da0 (*(int *)g_unk0x00543da0Block)
+extern int g_unk0x00543e90;
+extern int g_unk0x00543ea4;
+extern int g_unk0x00543ea8[3];
+extern BillboardDef g_unk0x00543ed0;
+extern BillboardDef g_unk0x00543f00;
+extern double g_unk0x00511300;
+#define WEATHER_QUAD(o) (*(float *)(g_unk0x00543da0Block + (o)))
+
+// Draws the precipitation of one view. Rain: each drop is a streak quad
+// along the wind (+0x20) widened across the view, plus a splash billboard for
+// the drops that hit the ground, then the car throws spray. Snow: each flake
+// is a billboard swaying along +0x38 with the sine of its phase.
+// FUNCTION: CMR2 0x00460390
+void FUN_00460390(int index, int view)
+{
+    BYTE *pView;
+    FixVector *pPos;
+    int count;
+    int i;
+    int fade;
+    int amount;
+    BYTE alpha;
+    FixVector saved;
+    FixVector forward;
+    FixVector side;
+    FixVector trail;
+    FixVector offset;
+    float sideF[3];
+    float trailF[3];
+    StageDeformNode *pNode;
+
+    alpha = 0x1e;
+    pView = (BYTE *)g_unk0x00547ac8 + index * 0x178;
+    pPos = (FixVector *)(pView + 8);
+    count = *(int *)(pView + 0x58) >> 16;
+    saved = *pPos;
+    if (*(int *)pView == 1) {
+        fade = *(int *)(pView + 0x64);
+        if (fade == 0x10000) {
+            g_unk0x00543ed0.a = 0xaa;
+            g_unk0x00547908.a = 0xaa;
+        } else if (fade == 0) {
+            alpha = 0;
+            g_unk0x00543ed0.a = 0;
+            g_unk0x00547908.a = 0;
+        } else {
+            alpha = (BYTE)(FixMul(fade, 0x1e0000) >> 16);
+            g_unk0x00543ed0.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
+            g_unk0x00547908.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
+        }
+        *(DWORD *)(g_unk0x00543da0Block + 0x50) = *(DWORD *)(g_unk0x00543da0Block + 0x80) =
+            (alpha << 24) | 0x969696;
+        FixMatrix_GetForward(&forward, &g_viewNodes[view]->current);
+        FixVecCross(&side, &forward, (FixVector *)(pView + 0x20));
+        FIX_NORMALIZE_INTO(side, side);
+        amount = FixMul(*(int *)(pView + 0x58), g_unk0x00543da0);
+        if (amount > 0x10000)
+            amount = 0x10000;
+        FixVecScale(&side, &side, FixMul(0xccc, FixMul(0xcccd, amount) + 0x13333));
+        sideF[0] = (float)(side.x * CGraphics::m_oneOver65536);
+        sideF[1] = (float)(side.y * CGraphics::m_oneOver65536);
+        sideF[2] = (float)(side.z * CGraphics::m_oneOver65536);
+        FixVecScale(&trail, (FixVector *)(pView + 0x20), 0x20000);
+        trailF[0] = (float)(trail.x * CGraphics::m_oneOver65536);
+        trailF[1] = (float)(trail.y * CGraphics::m_oneOver65536);
+        trailF[2] = (float)(trail.z * CGraphics::m_oneOver65536);
+        for (i = 0; i < count; i++) {
+            pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + i];
+            WEATHER_QUAD(0x68) = (float)(pNode->x * CGraphics::m_oneOver65536);
+            WEATHER_QUAD(0x6c) = (float)(pNode->y * CGraphics::m_oneOver65536);
+            WEATHER_QUAD(0x70) = (float)(pNode->z * CGraphics::m_oneOver65536);
+            WEATHER_QUAD(0x08) = WEATHER_QUAD(0x68) - trailF[0];
+            WEATHER_QUAD(0x0c) = WEATHER_QUAD(0x6c) - trailF[1];
+            WEATHER_QUAD(0x10) = WEATHER_QUAD(0x70) - trailF[2];
+            WEATHER_QUAD(0x38) = WEATHER_QUAD(0x68) + sideF[0];
+            WEATHER_QUAD(0x3c) = WEATHER_QUAD(0x6c) + sideF[1];
+            WEATHER_QUAD(0x40) = WEATHER_QUAD(0x70) + sideF[2];
+            WEATHER_QUAD(0x68) -= sideF[0];
+            WEATHER_QUAD(0x6c) -= sideF[1];
+            WEATHER_QUAD(0x70) -= sideF[2];
+            Quad2D_Queue((Quad2DVertices *)(g_unk0x00543da0Block + 8), (Texture *)g_unk0x00543e90, (Quad2D *)0x16);
+            if (pNode->wrapped != 0) {
+                forward = *(FixVector *)pNode;
+                forward.y -= 0xc0000;
+                FixVecScale(&offset, (FixVector *)(pView + 0x44),
+                            FixMul(pNode->angle - forward.y, *(int *)(pView + 0x50)));
+                g_unk0x00543ed0.pos.x = offset.x + forward.x;
+                g_unk0x00543ed0.pos.y = offset.y + forward.y;
+                g_unk0x00543ed0.pos.z = offset.z + forward.z;
+                Billboard_Add(&g_unk0x00543ed0, (unsigned short *)g_unk0x00543ea4);
+            }
+        }
+        if (CGameInfo::FUN_00404f20() == 0) {
+            amount = FixMul(*(int *)(pView + 0x58), g_unk0x00543da0);
+            if (amount > 0x10000)
+                amount = 0x10000;
+            FUN_00460ca0(amount, Car_Get(FUN_00422fb0((BYTE)view)));
+        }
+    } else {
+        Scene_GetLightColour((DWORD *)&g_unk0x00543f00.r, 0xcccc);
+        for (i = 0; i < count; i++) {
+            pNode = &g_unk0x00543fb0[*(short *)(pView + 0x76) + i];
+            g_unk0x00543f00.pos = *(FixVector *)pNode;
+            FixVecScale(&offset, (FixVector *)(pView + 0x38),
+                        FixMul(g_sinTable[(unsigned short)(__int64)(pNode->angle * g_unk0x00511300) & 0xfff],
+                               pNode->field_0x10));
+            g_unk0x00543f00.pos.x += offset.x;
+            g_unk0x00543f00.pos.y += offset.y;
+            g_unk0x00543f00.pos.z += offset.z;
+            Billboard_Add(&g_unk0x00543f00, (unsigned short *)g_unk0x00543ea8[((BYTE *)&pNode->field_0x1c)[1]]);
+        }
+    }
+    *pPos = saved;
+}
+#undef WEATHER_QUAD
+
+
+// Per-view stage objects draw: the view's precipitation, then the object
+// pass when racing, replaying or in the demo.
+// FUNCTION: CMR2 0x00460330
+void FUN_00460330(int param_1, int view)
+{
+    int *pType;
+
+    pType = (int *)((BYTE *)g_unk0x00547ac8 + view * 0x178);
+    if (*pType == 1 || *pType == 2)
+        FUN_00460390(view, view);
+    if ((char)RallyDataState() != 1 && FUN_0041f3a0() == 0 && CGameInfo::FUN_00405da0() == 0)
+        return;
+    FUN_00462d80(param_1, view);
+}
 
 // Sparks and glints thrown off a car's body: `amount` (per second) of random
 // points on its damage parts get a billboard of the spark texture.
