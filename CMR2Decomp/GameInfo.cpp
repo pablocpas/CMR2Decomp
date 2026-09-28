@@ -9650,3 +9650,27 @@ void FUN_00505b40(void)
     // Sawtooth highlight pulse, restarted when the panel changed (75 frames).
     g_unk0x0082cb44 = FixDiv((int)(CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000) & 0xffff;
 }
+
+// Selects the display mode of a slot: if the entry of the active mode has no
+// pending switch, the new slot index (reduced modulo the slot count) is
+// activated and the flags of the menu panes are set accordingly; otherwise the
+// flags are cleared. Always ends by refreshing the mode animation.
+// FUNCTION: CMR2 0x005059d0
+void FUN_005059d0(int param_1)
+{
+    if (g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c].field_0x4c == 0) {
+        if ((signed char)g_unk0x0082ca1c != param_1) {
+            param_1 = param_1 % g_unk0x0082c694;
+            CGameInfo::FUN_00505a60(param_1);
+        }
+        Menu_SetFlags((Menu *)FUN_00502500(), 1, 1, 1, 1);
+        if ((signed char)g_unk0x0082ca1c != param_1) {
+            CGameInfo::FUN_00505e10((BYTE)(param_1 % g_unk0x0082c694));
+            FUN_00505b40();
+            return;
+        }
+    } else {
+        Menu_SetFlags((Menu *)FUN_00502500(), 0, 0, 0, 0);
+    }
+    FUN_00505b40();
+}

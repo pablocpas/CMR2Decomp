@@ -4089,3 +4089,31 @@ void FUN_0041a5c0(int param_1, int param_2)
     ((int *)(g_raceBlock + 0x94))[param_1] = volA;
     ((int *)(g_raceBlock + 0x48))[param_1] = volB;
 }
+
+// Helper implemented in Car.cpp.
+int FUN_00422f50(BYTE index);
+
+// Sets the surface byte of slot `param_1` from the surface type of the car
+// part `param_2` (1/2/3 keep the original surface, anything else forces
+// gravel) and then rebuilds the slot's visual state.
+// FUNCTION: CMR2 0x0041af60
+void FUN_0041af60(int param_1, int param_2)
+{
+    if (FUN_00422f50(param_2) != 1) {
+        if (FUN_00422f50(param_2) != 2) {
+            if (FUN_00422f50(param_2) != 3) {
+                g_unk0x005375f4[param_1] = 1;
+                goto done;
+            }
+        }
+    }
+    g_unk0x005375f4[param_1] = 0;
+done:
+    FUN_0041a340(param_1, param_2);
+    FUN_0041ae80(param_1, param_2);
+    FUN_0041a5c0(param_1, param_2);
+    if (FUN_00427aa0() == 0)
+        FUN_0041a0a0(param_1, param_2);
+    FUN_00419ed0(param_1, param_2);
+    FUN_00419cd0(param_1, param_2);
+}

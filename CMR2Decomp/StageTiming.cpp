@@ -6959,3 +6959,40 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
         }
     }
 }
+
+// Helpers implemented in other translation units.
+void FUN_0046d8d0(int param_1, int *param_2);
+extern int g_unk0x00590c44;   // first of the four slot clocks 0x590c44..0x590c53
+extern int g_unk0x00590c50;   // last one (0x590c44 + 3 * 4)
+extern BYTE g_unk0x00590c60[4];
+
+// Installs the model geometry of part `index` (byte index into the car table)
+// into car record `param_1`.
+// FUNCTION: CMR2 0x0046c4e0
+void FUN_0046c4e0(int param_1, BYTE index)
+{
+    FUN_0046d8d0((int)Car_Get(index), (int *)param_1);
+}
+
+// Wakes the wheels of the current car whose static slot record has no model
+// installed yet and whose slot clock is still below the load threshold: the
+// slot is empty (0x469bc0 returns 0), the car's slot entry is 0 and the source
+// value of the slot exceeds the per-slot threshold.
+// FUNCTION: CMR2 0x00480de0
+void FUN_00480de0(void)
+{
+    int slot;
+    int offset;
+
+    offset = 0;
+    for (slot = 3; slot >= 0; slot--) {
+        if (FUN_00469bc0(g_unk0x00590d74, slot) == 0 &&
+            *(int *)(*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a) * 0x1a0 +
+                     *(int *)((int)&g_unk0x00590d7c[3] + offset)) == 0 &&
+            *(int *)(g_unk0x00590d78 + 0x240 + g_unk0x00590c60[slot] * 4) >
+                *(int *)((int)&g_unk0x00590c50 + offset)) {
+            FUN_00480e50(slot);
+        }
+        offset -= 4;
+    }
+}
