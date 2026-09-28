@@ -1075,6 +1075,121 @@ void FUN_0046f4e0(int *pOut1, int *pOut2)
     *pOut2 = g_unk0x00589444;
 }
 
+int RallyData_FUN_00411060(void);
+void Mesh_ResetCloneCount(void);
+Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource);
+extern double g_minus65536;
+
+// Loads the stage object list, creates a scene node and clones the mesh of
+// every object, then classifies each bounding box as ground or wall.
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The three bounding-box accumulators land in ESI/EDX/ECX instead of the
+// original's EDI/ESI/EDX and MSVC merges the "if (v < 0)" phi without the
+// original's extra jmp; the code itself is identical.
+// FUNCTION: CMR2 0x0046f550
+void FUN_0046f550(void)
+{
+    BYTE *pEntries;
+    int i;
+    int count;
+    BYTE *pEntry;
+    int maxX;
+    int maxY;
+    int maxZ;
+    int mesh;
+    float *pFloats;
+
+    Mesh_ResetCloneCount();
+    pEntry = (BYTE *)g_unk0x005894e0 + 0x114;
+    do {
+        SceneNode *pNode = SceneNode_Create((SceneNode *)RallyData_FUN_00411060());
+        *(int *)(pEntry - 0x110) = (int)pNode;
+        *(int *)((BYTE *)pNode + 0x178) = 3;
+        *(int *)pEntry = -0x10000;
+        pEntry += 0x128;
+    } while ((int)pEntry < (int)((BYTE *)g_unk0x005894e0 + 0x114 + 40 * 0x128));
+
+    count = FUN_00471bd0(&pEntries);
+    g_unk0x0058c92c = CFileBuffer::AllocateLockedBuffer(count * 4);
+    i = 0;
+    if (count > 0) {
+        do {
+            i++;
+            ((int *)g_unk0x0058c92c)[i - 1] = 0;
+        } while (i < count);
+    }
+    g_unk0x0058c928 = 0;
+    if (count > 0) {
+        g_unk0x0058c928 = CFileBuffer::AllocateLockedBuffer(count);
+        i = 0;
+        g_unk0x0058c320 = 0;
+        if (count > 0) {
+            do {
+                mesh = *(int *)(*(int *)(pEntries + i * 8) + 0xc);
+                if ((int)g_unk0x0058c320 < count) {
+                    ((BYTE *)g_unk0x0058c928)[i] = (BYTE)g_unk0x0058c320;
+                    mesh = (int)Mesh_CloneInto((Mesh *)mesh, (BYTE *)*(int *)(pEntries + i * 8));
+                    ((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] = mesh;
+                    if (((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] == 0)
+                        ((BYTE *)g_unk0x0058c928)[i] = 0;
+                    else
+                        g_unk0x0058c320++;
+                } else {
+                    ((BYTE *)g_unk0x0058c928)[i] = 0xff;
+                }
+                i++;
+            } while (i < count);
+        }
+    }
+    g_unk0x0058c930 = 0;
+    if (g_unk0x0058c320 > 0)
+        g_unk0x0058c930 = CFileBuffer::AllocateLockedBuffer((g_unk0x0058c320 & 0xff) << 2);
+    i = 0;
+    if (g_unk0x0058c320 > 0) {
+        do {
+            int pObject = ((int *)g_unk0x0058c92c)[i];
+            int n;
+            int x;
+            int y;
+            int z;
+            maxZ = 0;
+            maxY = 0;
+            maxX = 0;
+            n = *(int *)((BYTE *)pObject + 0x10);
+            if (n > 0) {
+                pFloats = *(float **)((BYTE *)pObject + 0xc);
+                do {
+                    x = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
+                    if (x < 0)
+                        x = (int)(__int64)(pFloats[0] * g_minus65536);
+                    y = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
+                    if (y < 0)
+                        y = (int)(__int64)(pFloats[1] * g_minus65536);
+                    z = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
+                    if (z < 0)
+                        z = (int)(__int64)(pFloats[2] * g_minus65536);
+                    if (x > maxX)
+                        maxX = x;
+                    if (y > maxY)
+                        maxY = y;
+                    if (z > maxZ)
+                        maxZ = z;
+                    pFloats += 0xc;
+                    n--;
+                } while (n != 0);
+            }
+            if (FixDiv(maxZ, maxX) < 0x4ccc)
+                ((int *)g_unk0x0058c930)[i] = 0;
+            else if (FixDiv(maxX, maxY) < 0x4ccc)
+                ((int *)g_unk0x0058c930)[i] = 1;
+            else
+                ((int *)g_unk0x0058c930)[i] = 0;
+            i++;
+        } while (i < (int)(g_unk0x0058c320 & 0xff));
+    }
+    CGame::RegisterCallback((void *)FUN_0046f500, NULL);
+}
+
 // FUNCTION: CMR2 0x00471bd0
 unsigned int FUN_00471bd0(BYTE **pOut)
 {
