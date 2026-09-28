@@ -9307,3 +9307,78 @@ done:
         }
     }
 }
+
+// Draws the stage icon of one view node: projects its world position to the
+// screen, blends the object ramp into the stage colour and queues the sprite.
+// FUNCTION: CMR2 0x00462d80
+void FUN_00462d80(int param_1, int param_2)
+{
+    SpriteRect uv;
+    SpriteRect dst;
+    SpriteRect icon;
+    FixVector vR;
+    FixVector vP;
+    FixVector vOut;
+    BYTE colour[4];
+    int view;
+    int ramp;
+    int value;
+
+    int diff;
+    int scale;
+    int base;
+
+    icon.w = 0x10;
+    icon.h = 0x10;
+    icon.x = 0;
+    icon.y = 0;
+    if (g_unk0x00547ad0 == 0)
+        return;
+    uv.x = *(short *)(g_unk0x00547ad0 + 0x11c);
+    uv.y = *(short *)(g_unk0x00547ad0 + 0x11e);
+    uv.w = *(short *)(g_unk0x00547ad0 + 0x120);
+    uv.h = *(short *)(g_unk0x00547ad0 + 0x122);
+    view = (int)g_viewNodes[param_2];
+    FUN_00492890(&vR);
+    FUN_0046f4a0(&vP);
+    vR.x += vP.x;
+    vR.y += vP.y;
+    vR.z += vP.z;
+    FUN_004bad40((int *)&vOut, &vR, (BYTE *)view);
+    vOut.x >>= 16;
+    vOut.y >>= 16;
+    icon.x = (short)(vOut.x - icon.w / 2);
+    icon.y = (short)(vOut.y - icon.h / 2);
+    FUN_00462d10((short *)&icon);
+    ramp = FixMul(g_unk0x00547abc, -0x20000) + 0x20000;
+    if (ramp < 0)
+        ramp = 0;
+    else if (ramp > 0x10000)
+        ramp = 0x10000;
+    value = FixMul((int)g_sunVisibility << 16, 0x28f);
+    base = param_2 * 0x178;
+    diff = value - *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    if ((diff < 0 ? -diff : diff) > FixMul(0x4ccc, g_unk0x0051bd3c)) {
+        if (diff > 0)
+            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) += FixMul(0x4ccc, g_unk0x0051bd3c);
+        else
+            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) -= FixMul(0x4ccc, g_unk0x0051bd3c);
+    } else {
+        *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) = value;
+    }
+    ramp += *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    if (ramp > 0x10000)
+        ramp = 0x10000;
+    scale = FixMul(0x10000 - ramp, 0x30000);
+    if (scale > 0x10000)
+        scale = 0x10000;
+    colour[0] = (BYTE)FixMulShift32(g_unk0x00543eb4[0] << 16, scale);
+    colour[1] = (BYTE)FixMulShift32(g_unk0x00543eb4[1] << 16, scale);
+    colour[2] = (BYTE)FixMulShift32(g_unk0x00543eb4[2] << 16, scale);
+    colour[3] = 0xff;
+    dst.w = (short)FixMulShift32(g_unk0x00543d58, *(int *)g_pGraphics << 16);
+    dst.h = (short)FixMulShift32(g_unk0x00543d5c, *((int *)g_pGraphics + 1) << 16);
+    dst.x = (short)(vOut.x - dst.w / 2);
+    dst.y = (short)(vOut.y - dst.h / 2);
+    Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
+}
