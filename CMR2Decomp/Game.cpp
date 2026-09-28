@@ -408,6 +408,12 @@ void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2)
     }
 }
 
+// FUNCTION: CMR2 0x004057a8
+int FUN_004057a8(void)
+{
+    return 0;
+}
+
 // FUNCTION: CMR2 0x004057ab
 void FUN_004057ab(void)
 {
