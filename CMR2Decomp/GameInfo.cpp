@@ -10078,7 +10078,7 @@ void FUN_0050b1c0(short, short, short, short, short, int);
 void FUN_0050e280(unsigned int);
 
 // GLOBAL: CMR2 0x00529430
-int g_unk0x00529430;
+int g_unk0x00529430 = -1;
 
 // Draws the option record values: composes the text of every record row from
 // its value, its unit label and its sub-label, highlights the row currently
