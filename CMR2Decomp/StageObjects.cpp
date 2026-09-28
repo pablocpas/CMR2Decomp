@@ -1,7 +1,4 @@
 #include <windows.h>
-
-// prototype for the restored w143 function
-void RallyData_FUN_00421530(int index, int *pOut);
 #include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
@@ -7624,10 +7621,6 @@ void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t)
 
 #include <stdlib.h>
 
-// prototypes for the restored w143 functions
-int StageObject_IsEligibleType(short type, int mode, int category);
-void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
-
 struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
 
@@ -9315,251 +9308,301 @@ done:
     }
 }
 
-int FUN_004218d0(unsigned int view);
-void RallyData_FUN_00408760(BYTE index, int value);
-
-// Driver-view resolver for the cycle/camera keys: picks the target driver
-// (current, best round driver or shifted by the digital control) and applies
-// the view change when the requested view is in range.
-// match 50%: implementada, MSVC6 mantiene param_1 en EDI (el original lo recarga de la pila) y la tabla del switch cae en otra direccion (<OFFSET>)
-// FUNCTION: CMR2 0x0047b970
-void FUN_0047b970(unsigned int param_1)
+// Draws the stage icon of one view node: projects its world position to the
+// screen, blends the object ramp into the stage colour and queues the sprite.
+// FUNCTION: CMR2 0x00462d80
+void FUN_00462d80(int param_1, int param_2)
 {
-    unsigned int target;
-    unsigned int delta;
+    SpriteRect uv;
+    SpriteRect dst;
+    SpriteRect icon;
+    FixVector vR;
+    FixVector vP;
+    FixVector vOut;
+    BYTE colour[4];
+    int view;
+    int ramp;
+    int value;
 
-    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 0xa) {
-        if (FUN_0041f3a0() != 0) {
-            if (CGameInfo::FUN_00405d80() == 2)
-                target = param_1;
-            else
-                target = FUN_004218d0(1);
-        } else {
-            target = FUN_004218d0(0);
-        }
+    int diff;
+    int scale;
+    int base;
+
+    icon.w = 0x10;
+    icon.h = 0x10;
+    icon.x = 0;
+    icon.y = 0;
+    if (g_unk0x00547ad0 == 0)
+        return;
+    uv.x = *(short *)(g_unk0x00547ad0 + 0x11c);
+    uv.y = *(short *)(g_unk0x00547ad0 + 0x11e);
+    uv.w = *(short *)(g_unk0x00547ad0 + 0x120);
+    uv.h = *(short *)(g_unk0x00547ad0 + 0x122);
+    view = (int)g_viewNodes[param_2];
+    FUN_00492890(&vR);
+    FUN_0046f4a0(&vP);
+    vR.x += vP.x;
+    vR.y += vP.y;
+    vR.z += vP.z;
+    FUN_004bad40((int *)&vOut, &vR, (BYTE *)view);
+    vOut.x >>= 16;
+    vOut.y >>= 16;
+    icon.x = (short)(vOut.x - icon.w / 2);
+    icon.y = (short)(vOut.y - icon.h / 2);
+    FUN_00462d10((short *)&icon);
+    ramp = FixMul(g_unk0x00547abc, -0x20000) + 0x20000;
+    if (ramp < 0)
+        ramp = 0;
+    else if (ramp > 0x10000)
+        ramp = 0x10000;
+    value = FixMul((int)g_sunVisibility << 16, 0x28f);
+    base = param_2 * 0x178;
+    diff = value - *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    if ((diff < 0 ? -diff : diff) > FixMul(0x4ccc, g_unk0x0051bd3c)) {
+        if (diff > 0)
+            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) += FixMul(0x4ccc, g_unk0x0051bd3c);
+        else
+            *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) -= FixMul(0x4ccc, g_unk0x0051bd3c);
     } else {
-        target = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+        *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) = value;
     }
-    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 8 ||
-        *(char *)(*(int *)(FUN_0041b390() + 4)) == 7) {
-        switch (FUN_0041b380()) {
-        case 0:
-        case 1:
-            g_unk0x0058e0a4 = param_1;
-            break;
-        case 2:
-            RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
-            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
-                g_unk0x0058e0a4 = g_unk0x0058df98;
-            else
-                g_unk0x0058e0a4 = g_unk0x0058df9c;
-            break;
-        case 3:
-            if (param_1 == 0)
-                RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
-            else
-                RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
-            break;
-        case 4:
-            delta = FUN_0041b370();
-            g_unk0x0058e0a4 = (delta & 0xff) + param_1;
-            break;
-        }
-        if ((int)g_unk0x0058e0a4 < (int)CGameInfo::FUN_00405d70() &&
-            (target == 1 || target == 2 || target == 3 || target == 5 || target == 4))
-            RallyData_FUN_00408760(g_unk0x0058e0a4, target);
-    }
+    ramp += *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
+    if (ramp > 0x10000)
+        ramp = 0x10000;
+    scale = FixMul(0x10000 - ramp, 0x30000);
+    if (scale > 0x10000)
+        scale = 0x10000;
+    colour[0] = (BYTE)FixMulShift32(g_unk0x00543eb4[0] << 16, scale);
+    colour[1] = (BYTE)FixMulShift32(g_unk0x00543eb4[1] << 16, scale);
+    colour[2] = (BYTE)FixMulShift32(g_unk0x00543eb4[2] << 16, scale);
+    colour[3] = 0xff;
+    dst.w = (short)FixMulShift32(g_unk0x00543d58, *(int *)g_pGraphics << 16);
+    dst.h = (short)FixMulShift32(g_unk0x00543d5c, *((int *)g_pGraphics + 1) << 16);
+    dst.x = (short)(vOut.x - dst.w / 2);
+    dst.y = (short)(vOut.y - dst.h / 2);
+    Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
 }
 
-// match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
-// FUNCTION: CMR2 0x004873f0
-void FUN_004873f0(int *param_1, int param_2, int param_3)
+// GLOBAL: CMR2 0x005894b8
+BYTE g_unk0x005894b8[40];
+// GLOBAL: CMR2 0x0058c424
+int g_unk0x0058c424[320];
+
+int FUN_00471d40(BYTE **pEntry, int bit);
+void FUN_00471d80(BYTE **pp, int bit, int set);
+void FUN_00470240(BYTE **pElement, int car);
+
+// Queues a moving stage object: appends it to the free table, or (when the
+// table is full) evicts the entry whose objects are farthest from the cars.
+// FUNCTION: CMR2 0x0046fe70
+void FUN_0046fe70(int *param_1, int param_2, int param_3)
 {
-    short *pOut = *(short **)(param_3 + 4);
-    FixVector v;
-    int absY = param_1[1];
-    int dx = 0;
-    int dy = 0;
-    int maxRight = 0;
-    int maxLeft = 0;
-    int len;
-    int *p;
-    int n;
+    StageObjectEntry0x128 *entry;
+    FixVector pos;
+    Car *pCar;
+    int dx;
+    int dy;
+    int dz;
+    int d;
+    int inv;
+    int v;
+    int best;
+    int bestIx;
+    int j;
+    int c;
 
-    pOut[3] = 0;
-    pOut[2] = 0;
-
-    if (absY < 0)
-        absY = -absY;
-
-    if (absY > 0xfd70) {
-        v.x = param_1[3];
-        v.y = 0;
-        v.z = param_1[5];
-        len = FixVecLength(&v);
-        if (len == 0) {
-            dx = 0;
-            dy = 0;
-        } else {
-            FixVecScaleRecip(&v, &v, len);
-            dx = v.x;
-            dy = v.z;
-        }
-    } else {
-        v.x = param_1[0];
-        v.y = 0;
-        v.z = param_1[2];
-        len = FixVecLength(&v);
-        if (len == 0) {
-            dx = 0;
-            dy = 0;
-        } else {
-            FixVecScaleRecip(&v, &v, len);
-            dx = v.x;
-            dy = v.z;
+    if (FUN_00471d40((BYTE **)&param_1, param_3) != 0) {
+        FUN_00471d80((BYTE **)&param_1, param_3, 0);
+        pCar = Car_Get(param_3);
+        if (pCar->field_0xc0c == 0 && (char)RallyDataState() == 1) {
+            *(int *)(*param_1 + 4) += -0x3e80000;
+            *(BYTE *)(*param_1 + 0x14) = 0;
         }
     }
-
-    p = (int *)(param_2 + 8);
-    n = 8;
-    do {
-        int c = p[-1];
-        int right = FixMul(dx, p[-2]) + FixMul(dy, p[0]);
-        int left = FixMul(-dx, p[0]) + FixMul(dy, p[-2]);
-        short q = (short)(c >> 9);
-
-        if (right > 0 && maxRight < right)
-            maxRight = right;
-        if (left > 0 && maxLeft < left)
-            maxLeft = left;
-        if ((short)pOut[2] * 0x200 < c)
-            pOut[2] = q;
-        if (c < (short)pOut[3] * 0x200)
-            pOut[3] = q;
-
-        p += 3;
-    } while (--n != 0);
-
-    pOut[0] = (short)(dx >> 9);
-    pOut[4] = (short)(maxRight >> 9);
-    pOut[1] = (short)(dy >> 9);
-    pOut[5] = (short)(maxLeft >> 9);
-}
-
-// match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
-// FUNCTION: CMR2 0x0047cd10
-int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
-{
-    Car *cars[6];
-    int flags[6];
-    int maxAng[6];
-    int angles[6];
-    int i, n;
-    int wrap, base, refX, refZ;
-    int outA[3], outB[3];
-    int outIdx;
-    int iVar7, iVar8, iVar9, iVar10;
-    unsigned int uVar2, length;
-
-    *param_2 = 0;
-    for (i = 0; i < 6; i++) {
-        flags[i] = 0;
-        cars[i] = Car_Get(i);
+    pCar = Car_Get(param_3);
+    if (pCar->field_0xc0c != 0)
+        return;
+    if (g_unk0x0058c924 < 0x28) {
+        entry = &g_unk0x005894e0[g_unk0x0058c924];
+        entry->field_0x0 = (int)param_1;
+        *(int *)((BYTE *)entry + 0x118) = param_2;
+        StageObject_InitMovingObject((int *)entry, param_3);
+        g_unk0x0058c924++;
+        return;
     }
-    wrap = RallyData_FUN_00421420();
-    refX = *(int *)((BYTE *)cars[param_1] + 0x2d8);
-    refZ = *(int *)((BYTE *)cars[param_1] + 0x2d0);
-    base = param_4[4];
-    n = (int)(signed char)g_unk0x0058e0b0[0];
-
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if ((i != param_1) && (*(int *)((BYTE *)cars[i] + 0x778) < 0xc800))
-                flags[i] = 1;
-        }
-    }
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if (flags[i] != 0) {
-                iVar8 = StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
-                                                 *(int *)((BYTE *)cars[i] + 0x360));
-                iVar8 = FUN_00498db0(base - iVar8);
-                if ((iVar8 < -0x5a0000) || (0x5a0000 < iVar8))
-                    maxAng[i] = 10;
-                else
-                    maxAng[i] = 5;
-            }
-        }
-    }
-    if (0 < n) {
-        for (i = 0; i < n; i++) {
-            if (flags[i] != 0) {
-                iVar8 = RallyData_FUN_00421370((BYTE *)cars[i]);
-                angles[i] = iVar8;
-                iVar8 = iVar8 - param_3;
-                if (iVar8 < -100)
-                    iVar8 = iVar8 + wrap;
-                if ((iVar8 < 0) || (maxAng[i] < iVar8))
-                    flags[i] = 0;
-            }
-        }
-    }
-    outIdx = 0;
-    if (0 < (signed char)g_unk0x0058e0b0[0]) {
+    c = 0;
+    if (g_unk0x0058c924 != 0) {
+        entry = &g_unk0x005894e0[0];
         do {
-            if (flags[outIdx] != 0) {
-                int dx = *(int *)((BYTE *)cars[outIdx] + 0x2d8) - refX;
-                int dz = *(int *)((BYTE *)cars[outIdx] + 0x2d0) - refZ;
-
-                uVar2 = (unsigned int)FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
-                length = uVar2;
-                iVar7 = StageObject_Atan2Degrees(dx, dz);
-                iVar8 = FUN_00498db0(base - iVar7);
-                if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
-                    iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
-                    if (iVar10 < 0x50001) {
-                        if (iVar10 < 0)
-                            iVar10 = 0;
-                    } else {
-                        iVar10 = 0x50000;
-                    }
-                    length = (unsigned int)FixMul((int)length,
-                        g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
-                    iVar9 = (param_3 + 5) - wrap;
-                    iVar7 = param_3 + 5;
-                    if (-1 < iVar9)
-                        iVar7 = iVar9;
-                    RallyData_FUN_00421530(iVar7, outB);
-                    iVar7 = StageObject_Atan2Degrees(outB[2] - refX, outB[0] - refZ);
-                    FUN_00498db0(base - iVar7);
-                    if (((int)length <= iVar10) && (-iVar10 <= (int)length)) {
-                        iVar8 = FUN_00498db0(iVar8 - iVar7);
-                        if (iVar8 < 0) {
-                            if (0x320000 < *param_4) {
-                                flags[outIdx] = 4;
-                                *param_2 = flags[outIdx];
-                                return outIdx;
-                            }
-                            flags[outIdx] = 2;
-                            *param_2 = flags[outIdx];
-                            return outIdx;
-                        }
-                        if (0x320000 < *param_4) {
-                            flags[outIdx] = 3;
-                            *param_2 = flags[outIdx];
-                            return outIdx;
-                        }
-                        flags[outIdx] = 1;
-                        *param_2 = flags[outIdx];
-                        return outIdx;
-                    }
-                    flags[outIdx] = 0;
+            RallyData_FUN_00471cc0((int *)&pos, (void **)entry);
+            for (j = 0; j < Car_GetOrderCount(); j++) {
+                pCar = Car_Get(j);
+                dx = pCar->position.x - pos.x;
+                pCar = Car_Get(j);
+                dy = pCar->position.y - pos.y;
+                pCar = Car_Get(j);
+                dz = pCar->position.z - pos.z;
+                d = (abs(dz) < abs(dx)) ? abs(dx) : abs(dz);
+                if (d < 0x290) {
+                    g_unk0x0058c424[j + c * 8] = 0;
                 } else {
-                    flags[outIdx] = 0;
+                    inv = (int)(0x100000000i64 / d);
+                    dx = (int)(((__int64)dx * inv) >> 16);
+                    dz = (int)(((__int64)dz * inv) >> 16);
+                    dy = 0;
+                    v = FixMul(dx, dx) + FixMul(dz, dz);
+                    if (v != 0)
+                        v = FixSqrt(v);
+                    g_unk0x0058c424[j + c * 8] = v;
+                    g_unk0x0058c424[j + c * 8] = FixMul(v, d);
                 }
             }
-            outIdx++;
-        } while (outIdx < (signed char)g_unk0x0058e0b0[0]);
+            g_unk0x005894b8[c] = 0;
+            c++;
+            entry++;
+        } while (c < g_unk0x0058c924);
     }
-    return -1;
+    for (j = 0; j < Car_GetOrderCount(); j++) {
+        best = g_unk0x0058c424[j];
+        bestIx = 0;
+        for (c = 1; c < g_unk0x0058c924; c++) {
+            if (best < g_unk0x0058c424[j + c * 8]) {
+                bestIx = c;
+                best = g_unk0x0058c424[j + c * 8];
+            }
+        }
+        g_unk0x005894b8[bestIx]++;
+    }
+    best = g_unk0x005894b8[0];
+    bestIx = 0;
+    for (c = 1; c < g_unk0x0058c924; c++) {
+        if (best < g_unk0x005894b8[c]) {
+            bestIx = c;
+            best = g_unk0x005894b8[c];
+        }
+    }
+    entry = &g_unk0x005894e0[bestIx];
+    for (j = 0; j < 8; j++)
+        FUN_00470240((BYTE **)entry->field_0x0, j);
+    entry->field_0x0 = (int)param_1;
+    *(int *)((BYTE *)entry + 0x118) = param_2;
+    StageObject_InitMovingObject((int *)entry, param_3);
+}
+
+extern int *g_unk0x00588b9c;
+extern int *g_unk0x00588ba0;
+
+// Builds the vertex buffer of one stage object for one car: converts the
+// float source vertices to 16.16 fixed point and packs the normal bytes.
+// FUNCTION: CMR2 0x0046afe0
+void FUN_0046afe0(int param_1, int param_2, int param_3)
+{
+    int i;
+    int j;
+    int off;
+    int total;
+    int *pRec;
+    int n;
+    int c;
+    int b;
+    FixVector v;
+
+    g_unk0x00588b9c[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c) << 2);
+    total = *(int *)(param_3 + 0x45c) * 4;
+    g_unk0x00588ba0[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c));
+    i = 0;
+    if (*(int *)(param_3 + 0x45c) > 0) {
+        pRec = (int *)(param_3 + 0x420);
+        do {
+            int *pVertices;
+
+            off = i * 4;
+            n = *pRec;
+            pVertices = (int *)((BYTE *)g_unk0x00588b9c[param_1] + off);
+            *pVertices = (int)CFileBuffer::AllocateLockedBuffer(n << 5);
+            total += n * 0x20;
+            ((BYTE *)g_unk0x00588ba0[param_1])[i] = *(BYTE *)(*(int *)(pRec - 0xf9) + 0x30);
+            j = 0;
+            if (n > 0) {
+                c = 0;
+                b = 0;
+                do {
+                    float *pF = (float *)(*(int *)(pRec - 0x108) + 0xc + c);
+                    int *pDst = (int *)(*(int *)((BYTE *)g_unk0x00588b9c[param_1] + off) + b);
+                    DWORD col;
+                    int t;
+
+                    pDst[0] = (int)(__int64)(pF[0] * CGraphics::m_65536);
+                    pDst[1] = (int)(__int64)(pF[1] * CGraphics::m_65536);
+                    pDst[2] = (int)(__int64)(pF[2] * CGraphics::m_65536);
+                    pDst[3] = (int)(__int64)(pF[3] * CGraphics::m_65536);
+                    pDst[4] = (int)(__int64)(pF[4] * CGraphics::m_65536);
+                    pDst[5] = (int)(__int64)(pF[5] * CGraphics::m_65536);
+                    ((BYTE *)pDst)[0x1b] = (pDst[0] < 0) ? 0x7f : 0x81;
+                    ((BYTE *)pDst)[0x1c] = (pDst[1] < 0) ? 0x7f : 0x81;
+                    ((BYTE *)pDst)[0x1d] = (pDst[2] < 0) ? 0x7f : 0x81;
+                    col = *(DWORD *)(*(int *)(pRec - 0x108) + 0xc + 0x18 + c);
+                    t = (int)((col >> 16) & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1b] = (BYTE)t;
+                    t = (int)((col >> 8) & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1c] = (BYTE)t;
+                    t = (int)(col & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1d] = (BYTE)t;
+                    v.x = (int)(signed char)((BYTE *)pDst)[0x1b] * -0x200;
+                    v.y = (int)(signed char)((BYTE *)pDst)[0x1c] * -0x200;
+                    v.z = (int)(signed char)((BYTE *)pDst)[0x1d] * -0x200;
+                    {
+                        int len = FixVecLength(&v);
+
+                        if (len == 0) {
+                            ((BYTE *)pDst)[0x18] = 0;
+                            ((BYTE *)pDst)[0x19] = 0;
+                            ((BYTE *)pDst)[0x1a] = 0;
+                        } else {
+                            int inv = (int)(0x100000000i64 / len);
+
+                            v.x = FixMul(v.x, inv);
+                            v.y = FixMul(v.y, inv);
+                            v.z = FixMul(v.z, inv);
+                            t = v.x >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x18] = (BYTE)t;
+                            t = v.y >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x19] = (BYTE)t;
+                            t = v.z >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x1a] = (BYTE)t;
+                        }
+                    }
+                    j++;
+                    b += 0x20;
+                    c += 0x30;
+                } while (j < n);
+            }
+            i++;
+            pRec++;
+        } while (i < *(int *)(param_3 + 0x45c));
+    }
 }
