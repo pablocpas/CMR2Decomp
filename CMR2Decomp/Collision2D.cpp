@@ -9,11 +9,11 @@ FixVector g_collisionQuad[4];
 // Intersects the ray pDir with the four sides of the collision quad and returns
 // the distance to the closest side (0x7d000000 when it misses), along with the
 // side that was hit.
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// FUNCTION: CMR2 0x00489060
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES).
 // Every expression and branch was traced against the disassembly; what does not
 // match is the frame layout: the original keeps the returned distance in a stack
 // slot (ebp-0x14) while MSVC keeps ours in edi, which shifts every other slot.
+// FUNCTION: CMR2 0x00489060
 int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
 {
     FixVector d3;
@@ -541,8 +541,9 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsi
 // while separated. When the two do not actually touch, the impulse along the
 // contact axis is passed to the body-deformation solver (0x466ef0); otherwise
 // the tangential relative motion is normalized and debris is thrown along it.
-// match 44%: implemented from the disassembly; only the stack-slot allocation
-// and the register numbering of the FPU-dense blocks differ (see CONOCIMIENTO 4.t).
+// match 44%: reviewed (W172) - calls, constants and branch logic match; only the
+// stack-slot allocation and the register numbering of the FPU-dense blocks differ
+// (see CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0048ae90
 void FUN_0048ae90(int param_1, int param_2)
 {
@@ -794,8 +795,9 @@ FixVector g_unk0x00591628[4];
 // impact also raises the pitch velocity 0x40c. The contact slot is recorded in
 // 0xae0 (up to five per step) and the deformation solver gets the contact
 // point when it is new. Returns whether the impact was damped.
-// match 40%: implemented from the disassembly; the FPU-dense blocks and the
-// reused stack slots of the original account for the difference (CONOCIMIENTO 4.t).
+// match 40%: reviewed (W172) - calls, constants and branch logic match; the
+// diff is the FPU-dense block scheduling and the reused stack slots of the
+// original (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0048be20
 int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
 {
