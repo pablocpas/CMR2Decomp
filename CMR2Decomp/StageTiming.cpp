@@ -3588,6 +3588,17 @@ void FUN_00484d30(int t)
 BYTE *g_unk0x00590d78;
 extern BYTE g_unk0x00590c60[4];
 
+void FUN_00469bf0(Car *pCar, int index);
+
+// Clears the low bit of the vehicle's part-state byte and re-selects the part
+// index held in its high nibble.
+// FUNCTION: CMR2 0x00483010
+void FUN_00483010(void)
+{
+    g_unk0x00590c20->field_0x150[0] &= 0xfe;
+    FUN_00469bf0((Car *)g_unk0x00590d74, g_unk0x00590c20->field_0x150[0] >> 4);
+}
+
 // Starts a part's swing when the load on its side exceeds 0.8: the swing
 // speed (+0x11c) is added or removed depending on which wheel is loaded more.
 // match 5%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
