@@ -146,6 +146,25 @@ void FrontendDraw_PlayTime(void)
                       (int *)g_colourText0x0052496c, 0xc);
 }
 
+// Draws the label of item `index` of `pMenu` in white when it is the cursor,
+// in the normal text colour when it is enabled and dimmed when it is not;
+// hidden items draw nothing.
+// FUNCTION: CMR2 0x004d4350
+void FrontendDraw_ItemLabel(char *text, int x, int y, unsigned int flags, int index, Menu *pMenu)
+{
+    if (pMenu->items[index].visible) {
+        if (pMenu->cursor == index) {
+            Font_DrawText(1, text, x, y, (int *)g_colourWhite0x00524968, flags);
+            return;
+        }
+        if (pMenu->items[index].enabled) {
+            Font_DrawText(1, text, x, y, (int *)g_colourText0x0052496c, flags);
+            return;
+        }
+        Font_DrawText(1, text, x, y, (int *)g_colourDim0x00524970, flags);
+    }
+}
+
 // Help line at the bottom of the screen, its brightness pulsing up and down.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d4460
