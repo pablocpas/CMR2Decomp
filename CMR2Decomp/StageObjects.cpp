@@ -9488,3 +9488,121 @@ void FUN_0046fe70(int *param_1, int param_2, int param_3)
     *(int *)((BYTE *)entry + 0x118) = param_2;
     StageObject_InitMovingObject((int *)entry, param_3);
 }
+
+extern int *g_unk0x00588b9c;
+extern int *g_unk0x00588ba0;
+
+// Builds the vertex buffer of one stage object for one car: converts the
+// float source vertices to 16.16 fixed point and packs the normal bytes.
+// FUNCTION: CMR2 0x0046afe0
+void FUN_0046afe0(int param_1, int param_2, int param_3)
+{
+    int i;
+    int j;
+    int off;
+    int total;
+    int *pRec;
+    int n;
+    int c;
+    int b;
+    FixVector v;
+
+    g_unk0x00588b9c[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c) << 2);
+    total = *(int *)(param_3 + 0x45c) * 4;
+    g_unk0x00588ba0[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c));
+    i = 0;
+    if (*(int *)(param_3 + 0x45c) > 0) {
+        pRec = (int *)(param_3 + 0x420);
+        do {
+            int *pVertices;
+
+            off = i * 4;
+            n = *pRec;
+            pVertices = (int *)((BYTE *)g_unk0x00588b9c[param_1] + off);
+            *pVertices = (int)CFileBuffer::AllocateLockedBuffer(n << 5);
+            total += n * 0x20;
+            ((BYTE *)g_unk0x00588ba0[param_1])[i] = *(BYTE *)(*(int *)(pRec - 0xf9) + 0x30);
+            j = 0;
+            if (n > 0) {
+                c = 0;
+                b = 0;
+                do {
+                    float *pF = (float *)(*(int *)(pRec - 0x108) + 0xc + c);
+                    int *pDst = (int *)(*(int *)((BYTE *)g_unk0x00588b9c[param_1] + off) + b);
+                    DWORD col;
+                    int t;
+
+                    pDst[0] = (int)(__int64)(pF[0] * CGraphics::m_65536);
+                    pDst[1] = (int)(__int64)(pF[1] * CGraphics::m_65536);
+                    pDst[2] = (int)(__int64)(pF[2] * CGraphics::m_65536);
+                    pDst[3] = (int)(__int64)(pF[3] * CGraphics::m_65536);
+                    pDst[4] = (int)(__int64)(pF[4] * CGraphics::m_65536);
+                    pDst[5] = (int)(__int64)(pF[5] * CGraphics::m_65536);
+                    ((BYTE *)pDst)[0x1b] = (pDst[0] < 0) ? 0x7f : 0x81;
+                    ((BYTE *)pDst)[0x1c] = (pDst[1] < 0) ? 0x7f : 0x81;
+                    ((BYTE *)pDst)[0x1d] = (pDst[2] < 0) ? 0x7f : 0x81;
+                    col = *(DWORD *)(*(int *)(pRec - 0x108) + 0xc + 0x18 + c);
+                    t = (int)((col >> 16) & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1b] = (BYTE)t;
+                    t = (int)((col >> 8) & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1c] = (BYTE)t;
+                    t = (int)(col & 0xff) - 0x80;
+                    if (t < -0x7f)
+                        t = -0x7f;
+                    else if (t > 0x7f)
+                        t = 0x7f;
+                    ((BYTE *)pDst)[0x1d] = (BYTE)t;
+                    v.x = (int)(signed char)((BYTE *)pDst)[0x1b] * -0x200;
+                    v.y = (int)(signed char)((BYTE *)pDst)[0x1c] * -0x200;
+                    v.z = (int)(signed char)((BYTE *)pDst)[0x1d] * -0x200;
+                    {
+                        int len = FixVecLength(&v);
+
+                        if (len == 0) {
+                            ((BYTE *)pDst)[0x18] = 0;
+                            ((BYTE *)pDst)[0x19] = 0;
+                            ((BYTE *)pDst)[0x1a] = 0;
+                        } else {
+                            int inv = (int)(0x100000000i64 / len);
+
+                            v.x = FixMul(v.x, inv);
+                            v.y = FixMul(v.y, inv);
+                            v.z = FixMul(v.z, inv);
+                            t = v.x >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x18] = (BYTE)t;
+                            t = v.y >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x19] = (BYTE)t;
+                            t = v.z >> 9;
+                            if (t > 0x7f)
+                                t = 0x7f;
+                            else if (t < -0x7f)
+                                t = -0x7f;
+                            ((BYTE *)pDst)[0x1a] = (BYTE)t;
+                        }
+                    }
+                    j++;
+                    b += 0x20;
+                    c += 0x30;
+                } while (j < n);
+            }
+            i++;
+            pRec++;
+        } while (i < *(int *)(param_3 + 0x45c));
+    }
+}
