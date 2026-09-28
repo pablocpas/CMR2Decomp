@@ -751,6 +751,117 @@ void FUN_00479310(int player)
     }
 }
 
+
+BYTE FUN_00427aa0(void);
+bool FUN_00427ab0(int value, int *pRange);
+unsigned int FUN_00427ad0(int value, int *pCurve);
+unsigned int FUN_00427b70(int value, int *pCurve);
+int FUN_00427d50(unsigned int view, int listener);
+unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
+int FUN_0041f3d0(BYTE index);
+void FUN_004b79a0(unsigned int handle, int volume);
+void Sound_SetPan(unsigned int handle, unsigned short pan);
+extern int g_unk0x0058dda8;
+
+// Master scale of the skid loop volume.
+// GLOBAL: CMR2 0x0051f280
+int g_unk0x0051f280 = 0xb333;
+// Volume dip (percent) over the first 100 ticks after the skid level rises.
+// GLOBAL: CMR2 0x0051f310
+int g_unk0x0051f310[23] = {
+    30, 20, 10, 20, 50, 90, 100, 50, 10, 30, 60, 30, 10, 40, 70, 20, 5, 20, 50, 30, 20, 10, 5,
+};
+
+// Skid sound of one player: when the skid level (+0xc) rises it stops the
+// one-shot surface sounds and restarts the level timer (sometimes 100 ticks
+// late), then while the speed (+8) is in range fades the loop in (+0x10 ==
+// 100), sets its pitch from the speed curve and its volume from the curve,
+// the level's fade-in dip, distance and master volume; otherwise silences it.
+// FUNCTION: CMR2 0x0047a3d0
+void FUN_0047a3d0(int player, int *pState, int listener)
+{
+    int speed;
+    int level;
+    int locked;
+    int *pHandle;
+    int volume;
+    int dip;
+    int inRange;
+
+    speed = pState[2];
+    level = pState[3];
+    if (pState[5] != 0 || pState[6] != 0)
+        locked = 1;
+    else
+        locked = 0;
+    if (g_unk0x0058dd68[player] < level) {
+        if (Sound_IsPlaying(g_unk0x0058ddd0[player])) {
+            Sound_Free(g_unk0x0058ddd0[player]);
+            g_unk0x0058ddd0[player] = -1;
+        }
+        if (Sound_IsPlaying(g_unk0x0058dd90[player])) {
+            Sound_Free(g_unk0x0058dd90[player]);
+            g_unk0x0058dd90[player] = -1;
+        }
+        g_unk0x0058de10[player] = FUN_004781c0(player);
+    } else {
+        FUN_004781c0(player);
+        g_unk0x0058de10[player] = -1;
+    }
+    if (level != g_unk0x0058dd68[player] && level > g_unk0x0058dd68[player]) {
+        if (rand() % 4 == 0)
+            g_unk0x0058dd88[player] = FUN_004781c0(player) + 100;
+        else
+            g_unk0x0058dd88[player] = FUN_004781c0(player);
+    }
+    if (level >= 1 && level <= 3) {
+        if ((unsigned int)(FUN_004781c0(player) - g_unk0x0058dd88[player]) < 100)
+            dip = g_unk0x0051f310[(unsigned int)(FUN_004781c0(player) * 23 - g_unk0x0058dd88[player] * 23) / 100];
+        else
+            dip = 0;
+    }
+    if (speed < *(int *)(g_unk0x0051ed62 + 0x8e) && level != 0) {
+        if (pState[4] == 100) {
+            g_unk0x0058dd78[player] += 10;
+            if (g_unk0x0058dd78[player] > 100)
+                g_unk0x0058dd78[player] = 100;
+        } else {
+            g_unk0x0058dd78[player] = 0;
+        }
+        if (!FUN_00427aa0() && (inRange = FUN_00427ab0(speed, (int *)(g_unk0x0051ed62 + 0x86))) != 0) {
+            pHandle = &g_unk0x0058dd80[player];
+            if (Sound_IsPlaying(g_unk0x0058dd80[player]) == 0)
+                return;
+            if (FUN_0041f3d0((BYTE)player))
+                Sound_SetPan(*pHandle, FUN_00427e20(player, player,
+                             (unsigned short)FUN_00427b70(speed, (int *)(g_unk0x0051ed62 + 0x86))));
+            else
+                Sound_SetPan(*pHandle, (unsigned short)FUN_00427b70(speed, (int *)(g_unk0x0051ed62 + 0x86)));
+            volume = FUN_00427ad0(speed, (int *)(g_unk0x0051ed62 + 0x86));
+            if (locked)
+                return;
+            if (level >= 1 && level <= 3)
+                volume -= dip;
+            if (volume < 0)
+                volume = 10;
+            volume = g_unk0x0058dd78[player] * volume / 100;
+            if (g_unk0x0058de10[player] != -1)
+                FUN_004781c0(player);
+            if (volume < 0)
+                volume = 0;
+            else if (volume > 100)
+                volume = 100;
+            FUN_004b79a0(*pHandle, FixMul(FUN_00427d50(player, listener),
+                                          FixMul(g_unk0x0058dda8, FixMul((volume << 16) / 100, g_unk0x0051f280))));
+            return;
+        }
+    }
+    if (Sound_IsPlaying(g_unk0x0058dd80[player])) {
+        FUN_004b79a0(g_unk0x0058dd80[player], 0);
+        Sound_SetPan(g_unk0x0058dd80[player], 0x2b11);
+    }
+}
+
 // Moves the player's value toward target, at most 20 up or 10 down per call.
 // FUNCTION: CMR2 0x0047a380
 void FUN_0047a380(int target, int player)
