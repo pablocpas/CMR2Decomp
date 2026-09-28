@@ -4405,7 +4405,7 @@ void FUN_00418ff0(void);
 void FUN_004188c0(void);
 void FUN_00416710(void);
 void FUN_0041e670(void);
-void FUN_0040fec0(int, int, int);
+void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
 void FUN_00410ea0(BYTE *, unsigned int);
 BYTE FUN_0040eef0(void);
 
@@ -5618,6 +5618,27 @@ void FUN_00403490(void)
     Menu_SetCallbacks(&g_menu0x0052a0c0, (MenuCallback)FUN_00403360, NULL, (MenuCallback)FUN_00401d20,
                       NULL);
     Menu_ValidateCursor(&g_menu0x0052a0c0, 0);
+}
+
+void FUN_00403550(void);
+
+// Resets the pause-menu state and rebuilds all of its menus.
+// FUNCTION: CMR2 0x00403500
+void FUN_00403500(void)
+{
+    CGameInfo::m_unk0x0052af40 = 0;
+    g_unk0x0052af58[0] = 0;
+    g_unk0x0052af58[1] = 0;
+    FUN_00403370();
+    FUN_00403420();
+    FUN_00403490();
+    FUN_00402c90(0);
+    FUN_00402f90();
+    FUN_00403550();
+    FUN_004035e0();
+    FUN_00404000();
+    FUN_004032a0();
+    FUN_00403090();
 }
 
 // Builds the options submenu of the pause menu.

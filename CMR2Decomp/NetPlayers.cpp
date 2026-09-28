@@ -6,6 +6,7 @@
 #include "RallyData.h"
 #include "main.h"
 #include "Game.h"
+#include "FixedPoint.h"
 
 // GLOBAL: CMR2 0x005168b0
 BYTE g_netColours[8][4] = {
@@ -535,6 +536,53 @@ int __cdecl FUN_0040a490(const void *a, const void *b)
             return 1;
     }
     return (unsigned int)p1->id > (unsigned int)p2->id ? -1 : 1;
+}
+
+void FUN_004591e0(int player, int *pCount, int *pFrac);
+BYTE *FUN_0041b390(void);
+int FUN_004483c0(int index);
+
+// Rebuilds the stage results table: one entry per active remote player (speed,
+// sign-extended bits of field_0x1a, finish flag and time) plus the local player
+// at the end, then sorts it with FUN_0040a490.
+// FUNCTION: CMR2 0x0040a580
+void FUN_0040a580(int param1, int param2, int param3)
+{
+    int i;
+
+    for (i = 0; i < 7; i++) {
+        if ((g_netPlayers[i].flags & 0x80) == 0) {
+            g_netResults[i].index = -1;
+            g_netResults[i].field_0x4 = -1;
+        } else {
+            g_netResults[i].index = i;
+            g_netResults[i].field_0x4 = g_netPlayers[i].stats.field_0x18 & 0x3ff;
+            g_netResults[i].field_0x8 = FixMulShift32((g_netPlayers[i].stats.speed >> 10) << 16, 0x19645);
+            if (g_netResults[i].field_0x8 > 99)
+                g_netResults[i].field_0x8 = 99;
+            g_netResults[i].id = g_netPlayers[i].id;
+            g_netResults[i].field_0xc = (g_netPlayers[i].stats.field_0x1a >> 11) & 0xf;
+            if (g_netPlayers[i].stats.field_0x1a & 0x8000)
+                g_netResults[i].field_0xc = -g_netResults[i].field_0xc;
+            g_netResults[i].field_0x14 = (BYTE)(g_netPlayers[i].flags >> 9) & 1;
+            g_netResults[i].field_0x18 = g_netPlayers[i].time;
+            if ((char)RallyData_GetFlag25())
+                FUN_004591e0(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
+        }
+    }
+    g_netResults[i].index = -2;
+    g_netResults[i].field_0x4 = param1;
+    g_netResults[i].field_0x8 = param2;
+    g_netResults[i].field_0xc = param3;
+    g_netResults[i].id = FUN_004a1a00();
+    if ((*(unsigned int *)*(BYTE **)(FUN_0041b390() + 4) & 0xff) > 8)
+        g_netResults[i].field_0x14 = 1;
+    else
+        g_netResults[i].field_0x14 = 0;
+    g_netResults[i].field_0x18 = FUN_004483c0(0);
+    if ((char)RallyData_GetFlag25())
+        FUN_004591e0(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
+    qsort(g_netResults, 8, sizeof(NetResult), FUN_0040a490);
 }
 
 // FUNCTION: CMR2 0x0040a700

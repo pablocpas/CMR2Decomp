@@ -4,9 +4,6 @@
 // empty. DELETE each one as its real implementation lands (layers 0-8 of
 // tools/cascade/README.md).
 
-// STUB: CMR2 0x0040dc30
-void FUN_0040dc30(void) { }
-
 // STUB: CMR2 0x0049d3f0
 void FUN_0049d3f0(int, int, void *, int, int) { }
 
@@ -23,15 +20,6 @@ void FUN_005062d0(unsigned int) { }
 // their own dependencies exist. Argument counts come from the call sites /
 // the original's `ret N`.
 
-// STUB: CMR2 0x0040f8d0
-void FUN_0040f8d0(unsigned char *, int) { }
-
-// STUB: CMR2 0x0040fec0
-void FUN_0040fec0(int, int, int) { }
-
-// STUB: CMR2 0x00412390
-void FUN_00412390(int, int) { }
-
 // STUB: CMR2 0x00416710
 void FUN_00416710(void) { }
 
@@ -44,21 +32,12 @@ void FUN_00418ff0(void) { }
 // STUB: CMR2 0x0041f930
 unsigned char FUN_0041f930(void) { return 0; }
 
-// STUB: CMR2 0x0040a580
-void FUN_0040a580(int, int, int) { }
-
-// STUB: CMR2 0x0040efa0
-void FUN_0040efa0(void) { }
-
 // STUB: CMR2 0x0041f560
 void FUN_0041f560(void) { }
 
 // STUB: CMR2 0x00455080
 void FUN_00455080(void) { }
 
-
-// STUB: CMR2 0x00403500
-void FUN_00403500(void) { }
 
 // STUB: CMR2 0x00422fe0
 void FUN_00422fe0(int, int, int, int) { }
@@ -132,3 +111,6 @@ void FUN_004dbd80(Menu *pMenu) { }
 // STUB: CMR2 0x004f8b30
 void FUN_004f8b30(void) { }
 
+
+// STUB: CMR2 0x00459c80
+void FUN_00459c80(void) { }
