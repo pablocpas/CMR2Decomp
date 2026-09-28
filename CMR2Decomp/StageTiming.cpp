@@ -5582,3 +5582,161 @@ int FUN_00482f30(void)
     }
     return 0;
 }
+
+int StageObject_IsEligibleType(short type, int mode, int category);
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+
+// Aims and fires the debris/particles of a car part: rotates the part's local
+// offset into world space, normalises the part's direction, and spawns debris
+// along the cross product of the two.
+// match 40%: implementada, difiere la extension del argumento short y el reparto de locales/registros
+// FUNCTION: CMR2 0x00483100
+void FUN_00483100(int *param_1, unsigned int param_2)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    BYTE *pc = (BYTE *)g_unk0x00590c20;
+    int bVar8 = g_unk0x00590c24[*(BYTE *)(pc + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
+    int local_48, local_44, local_40;
+    int local_3c, local_38, local_34;
+    int local_30, local_2c, local_28;
+    int local_24, local_20, local_1c;
+    int local_18, local_14, local_10;
+    int iVar4, iVar6, iVar9;
+    int iVar11, iVar12;
+    unsigned int uVar10;
+
+    if (StageObject_IsEligibleType(*(short *)(car + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+        int off = (unsigned int)bVar8 * 0xc;
+        int lVar1 = FixMul(*(int *)(g_unk0x00590d78 + off + 0x16c), 0x20000);
+        int t = FixMul(*(int *)(g_unk0x00590d78 + off + 0x170), 0x1cccc);
+        int s;
+
+        if (*(int *)(pc + 0x128) < 1)
+            s = t;
+        else
+            s = -t;
+        local_24 = FixMul(*(int *)(pc + 0x194), s);
+        local_20 = FixMul(*(int *)(pc + 0x198), s);
+        local_1c = FixMul(*(int *)(pc + 0x19c), s);
+
+        local_18 = *(int *)(pc + 0x120) + local_24;
+        local_14 = (*(int *)(pc + 0x124) - lVar1) + local_20;
+        local_10 = *(int *)(pc + 0x128) + local_1c;
+        FixMatrix_RotateVector((FixVector *)&local_24, (FixVector *)&local_18,
+                               *(FixMatrix **)(car + 0x750));
+
+        uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
+        if ((int)uVar10 > 0) {
+            int inv = (int)(0x100000000i64 / (__int64)(int)-uVar10);
+            local_48 = FixMul(param_1[0], inv);
+            local_44 = FixMul(param_1[1], inv);
+            local_40 = FixMul(param_1[2], inv);
+            param_2 = (unsigned int)FixMul((int)uVar10, 0x50000);
+            if ((int)param_2 < 0x10001) {
+                if ((int)param_2 < 0x3334)
+                    return;
+            } else {
+                param_2 = 0x10000;
+            }
+            local_3c = *(int *)(car + 0x48c);
+            local_38 = *(int *)(car + 0x490);
+            local_34 = *(int *)(car + 0x494);
+            iVar4 = FixMul(local_44, local_34) - FixMul(local_40, local_38);
+            iVar11 = FixMul(local_40, local_3c) - FixMul(local_48, local_34);
+            iVar12 = FixMul(local_48, local_38) - FixMul(local_44, local_3c);
+            {
+                FixVector cross;
+                int len;
+                cross.x = iVar4;
+                cross.y = iVar11;
+                cross.z = iVar12;
+                len = FixVecLength(&cross);
+                if (len == 0) {
+                    local_30 = 0;
+                    local_2c = 0;
+                    local_28 = 0;
+                } else {
+                    FixVecScaleRecip((FixVector *)&local_30, &cross, len);
+                }
+            }
+            Car_SpawnDebris(param_2, (FixVector *)&local_24, (Car *)car,
+                            (FixVector *)&local_48, 0x40000, 0x6666);
+        }
+    }
+    return;
+}
+
+int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
+
+// Places one of a car's four contact points on the ground: rotates the local
+// point into world space, queries the track height, then builds the tangent
+// direction (world axes minus the normal component) and stores the resulting
+// contact plane on the point.
+// match 25%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
+// FUNCTION: CMR2 0x00484f40
+void FUN_00484f40(unsigned int param_1)
+{
+    BYTE *car = (BYTE *)g_unk0x00590d74;
+    unsigned int local_1c = param_1 & 0xff;
+    int idx = *(char *)(car + 0xb1a) * 4;
+    int *piVar1 = (int *)(*(int *)((BYTE *)g_unk0x00590c6c + idx) + local_1c * 0x3c);
+    int ptr2 = *(int *)((BYTE *)g_unk0x00590c00 + idx) + local_1c * 0x20;
+
+    if (piVar1[0xe] == 0) {
+        int surface = 0;
+        short tri = 0;
+        int local_40, local_3c, local_38;
+        int local_28, local_24, local_20;
+        int local_18 = ptr2;
+        int dot, a1, a2, a3;
+        unsigned int uVar10;
+        int iVar5;
+
+        FixMatrix_RotateVector((FixVector *)piVar1, (FixVector *)ptr2,
+                               *(FixMatrix **)(car + 0x750));
+        piVar1[0] = piVar1[0] + *(int *)(car + 0x2d0);
+        piVar1[1] = piVar1[1] + *(int *)(car + 0x2d4);
+        piVar1[2] = piVar1[2] + *(int *)(car + 0x2d8);
+        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, (FixVector *)&local_40,
+                                          &tri, (unsigned short *)&surface, piVar1[1]);
+        FixMatrix_RotateVector((FixVector *)&local_28, (FixVector *)(ptr2 + 0xc),
+                               *(FixMatrix **)(car + 0x750));
+
+        dot = FixMul(local_38, local_20) + FixMul(local_40, local_28) + FixMul(local_3c, local_24);
+        a1 = local_28 - FixMul(local_40, dot);
+        a2 = local_24 - FixMul(local_3c, dot);
+        a3 = local_20 - FixMul(local_38, dot);
+        uVar10 = (unsigned int)FixSqrt(FixMul(a1, a1) + FixMul(a2, a2) + FixMul(a3, a3));
+
+        if (uVar10 == 0) {
+            unsigned int u = (unsigned int)FixMul(local_40, 0x10000);
+            int f9 = 0x10000 - FixMul(local_40, u);
+            int f2 = -FixMul(local_3c, u);
+            int f3 = -FixMul(local_38, u);
+
+            uVar10 = (unsigned int)FixSqrt(FixMul(f9, f9) + FixMul(f2, f2) + FixMul(f3, f3));
+            if (uVar10 == 0) {
+                local_28 = 0;
+                local_24 = 0;
+                local_20 = 0;
+            } else {
+                iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
+                local_28 = FixMul(f9, iVar5);
+                local_24 = FixMul(f2, iVar5);
+                local_20 = FixMul(f3, iVar5);
+            }
+        } else {
+            iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
+            local_28 = FixMul(a1, iVar5);
+            local_24 = FixMul(a2, iVar5);
+            local_20 = FixMul(a3, iVar5);
+        }
+
+        dot = *(int *)(local_18 + 0x18);
+        piVar1[9] = piVar1[0] + FixMul(local_28, dot);
+        piVar1[10] = piVar1[1] + FixMul(local_24, dot);
+        piVar1[0xb] = piVar1[2] + FixMul(local_20, dot);
+        piVar1[0xe] = 1;
+        *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
+    }
+}
