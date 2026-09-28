@@ -8893,3 +8893,73 @@ void FUN_00471af0(void)
     FUN_00472870();
     FUN_0046f060();
 }
+
+BYTE *FUN_0041b390(void);
+BYTE FUN_0041b370(void);
+int FUN_0041b380(void);
+int FUN_004232a0(int index, int mode);
+int RallyData_FUN_00408800(BYTE index);
+void FUN_00421720(unsigned char, int, int, unsigned char, int);
+
+// GLOBAL: CMR2 0x0051f4c0
+unsigned int g_unk0x0051f4c0 = 0x100;
+// GLOBAL: CMR2 0x0058df98
+unsigned int g_unk0x0058df98;
+// GLOBAL: CMR2 0x0058df9c
+unsigned int g_unk0x0058df9c;
+// GLOBAL: CMR2 0x0058e0a4
+unsigned int g_unk0x0058e0a4;
+
+// Driver-camera cycle: while the cycle key is held the active driver is
+// advanced (or, on the championship round screen, picked from the round
+// drivers) and the requested view mode is applied to the car.
+// FUNCTION: CMR2 0x0047bad0
+void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
+{
+    int mode;
+
+    if (*(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 7 ||
+        *(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 8) {
+        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) != 0) {
+            if (FUN_00422f50(param_2) != 10)
+                FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 10, 0xffff,
+                             FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+        }
+        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) == 0) {
+            if (FUN_00422f50(g_unk0x0058e0a0->field_0xb1a) == 10) {
+                switch (FUN_0041b380()) {
+                case 4:
+                    g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_2;
+                    break;
+                case 0:
+                case 1:
+                    g_unk0x0058e0a4 = param_2;
+                    break;
+                case 2:
+                    RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+                    if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                        g_unk0x0058e0a4 = g_unk0x0058df98;
+                    else
+                        g_unk0x0058e0a4 = g_unk0x0058df9c;
+                    break;
+                case 3:
+                    if (param_2 == 0)
+                        RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+                    else
+                        RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+                    break;
+                }
+                CGameInfo::FUN_00405d70();
+                mode = RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff);
+                if (FUN_004232a0(g_unk0x0058e0a0->field_0xb1a, mode) != 0) {
+                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a,
+                                 RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff), 0xffff,
+                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                } else {
+                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 4, 0xffff,
+                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                }
+            }
+        }
+    }
+}
