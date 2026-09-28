@@ -7905,3 +7905,159 @@ wheelsDone:
 }
 #undef CAR_RECORD
 #undef MESH_OF
+
+void FUN_00480a60(void);
+void FUN_00480a50(void);
+void FUN_00480b40(BYTE *pCar);
+void FUN_00466e90(SceneNode *pNode, int *pSlot);
+void FUN_00480af0(BYTE *pCar, BYTE *pObject, BYTE flag);
+void FUN_0046acb0(int param_1, int param_2, int param_3);
+void FUN_00469690(int param_1);
+
+// Sets up the damage parts of the cars in `pOrder` (last first): collects the
+// mesh parts of each car model into its part table (0x4d0 bytes, 15 slots),
+// closes the gaps, resets the per-part damage state and, for the players'
+// cars, restores the saved damage record (`keep` = 0 also refreshes the saved
+// copy).
+// FUNCTION: CMR2 0x004669f0
+void FUN_004669f0(int lock, int keep, short *pOrder, short count)
+{
+    int n;
+    short *pIndex;
+    int car;
+    BYTE *pCar;
+    int *pParts;
+    BYTE *pDamage;
+    SceneNode *pChild;
+    SceneNode *pNode;
+    int j;
+    int k;
+    int moved;
+    int i;
+    BYTE *pSaved;
+    BYTE *p;
+
+    FUN_00480a60();
+    if (lock == 0)
+        FUN_00480a50();
+    n = count;
+    if (n - 1 >= 0) {
+        pIndex = pOrder + (n - 1);
+        do {
+            car = *pIndex;
+            pCar = (BYTE *)Car_Get(car);
+            FUN_00480b40(pCar);
+            pParts = (int *)(g_unk0x00588b94 + car * 0x4d0);
+            pParts[0x117] = 0;
+            pDamage = g_unk0x00588b98 + car * 0x290;
+            if (*(SceneNode **)(pCar + 0x720) != NULL) {
+                pParts[0x107] = 0;
+                pParts[0x106] = 0;
+                pParts[0x105] = 0;
+                pParts[0x104] = 0;
+                if ((BYTE)(*(SceneNode **)(pCar + 0x720))->flags != 0x14)
+                    FUN_00466e90(*(SceneNode **)(pCar + 0x720), pParts);
+                for (pChild = (*(SceneNode **)(pCar + 0x720))->pFirstChild; pChild != NULL; pChild = pChild->pNext) {
+                    for (pNode = pChild; pNode != NULL && (BYTE)pNode->flags != 0x14;
+                         pNode = pNode->pFirstChild)
+                        FUN_00466e90(pNode, pParts);
+                }
+                for (j = 0; j < 15; j++) {
+                    if (pParts[0xf + j] != 0 || j >= 14)
+                        continue;
+                    moved = 0;
+                    for (k = j; k < 14; k++) {
+                        if (pParts[0xf + k] != 0 || pParts[0xf + k + 1] != 0)
+                            moved = 1;
+                        pParts[k] = pParts[k + 1];
+                        pParts[0xf + k] = pParts[0xf + k + 1];
+                        pParts[0x1e + k] = pParts[0x1e + k + 1];
+                        pParts[0x108 + k] = pParts[0x108 + k + 1];
+                        ((FixVector *)(pParts + 0x2d))[k] = ((FixVector *)(pParts + 0x2d))[k + 1];
+                        ((FixVector *)(pParts + 0x5a))[k] = ((FixVector *)(pParts + 0x5a))[k + 1];
+                    }
+                    if (moved)
+                        j--;
+                }
+                for (i = 0; i < pParts[0x117]; i++)
+                    FUN_00480af0(pCar, (BYTE *)pParts[0xf + i], (BYTE)i);
+                *((BYTE *)pParts + 0x460) = 4;
+                *((BYTE *)pParts + 0x461) = 5;
+                *((BYTE *)pParts + 0x462) = 1;
+                *((BYTE *)pParts + 0x463) = 2;
+                *((BYTE *)pParts + 0x464) = 8;
+                *((BYTE *)pParts + 0x465) = 9;
+                memset(pParts + 0x87, 0, 9 * 4);
+                *((BYTE *)pParts + 0x469) = 0;
+                pParts[0x11b] = 0;
+                for (i = 0; i < 0x22; i++) {
+                    pParts[0xd4 + i - 0x44] = 0;
+                    pParts[0xd4 + i] = 0;
+                }
+                for (i = 0; i < 8; i++) {
+                    pParts[0x11c + i + 8] = 0;
+                    pParts[0x11c + i] = 0;
+                }
+                pParts[0xb2] = 0x4ccc;
+                pParts[0xb3] = 0x4ccc;
+                pParts[0xb4] = 0x9999;
+                pParts[0xb5] = 0x9999;
+                pParts[0xb6] = 0x4ccc;
+                pParts[0xb7] = 0x4ccc;
+                pParts[0xb8] = 0x4ccc;
+                pParts[0xb9] = 0x4ccc;
+                pParts[0xba] = 0x9999;
+                pParts[0xbb] = 0x9999;
+                pParts[0xbc] = 0x4ccc;
+                pParts[0xbd] = 0x4ccc;
+                pParts[0xbe] = 0x9999;
+                pParts[0xbf] = 0x9999;
+                pParts[0xc0] = 0x9999;
+                pParts[0xc1] = 0x4ccc;
+                pParts[0xc2] = 0x9999;
+                pParts[0xc3] = 0x9999;
+                pParts[0xc4] = 0x10000;
+                pParts[0xc5] = 0x10000;
+                pParts[0xc6] = 0x10000;
+                pParts[0xc7] = 0x10000;
+                pParts[0xc8] = 0x10000;
+                pParts[0xc9] = 0x6666;
+                pParts[0xca] = 0x9999;
+                pParts[0xcb] = 0x4ccc;
+                pParts[0xcc] = 0x10000;
+                pParts[0xcd] = 0x10000;
+                pParts[0xce] = 0x10000;
+                pParts[0xcf] = 0x10000;
+                pParts[0xd0] = 0x10000;
+                pParts[0xd1] = 0x10000;
+                pParts[0xd2] = 0x10000;
+                pParts[0xd3] = 0x10000;
+                if (keep == 0)
+                    *(int *)(pDamage + 0x28c) = 0;
+                if ((int)(signed char)pCar[0xb1a] < (int)(BYTE)RallyDataState()) {
+                    pSaved = (BYTE *)RallyData_FUN_00407610(FUN_0041b370() + (signed char)pCar[0xb1a]);
+                    if (keep == 0) {
+                        memcpy(pDamage + 0x106, pSaved, 0x106);
+                        memcpy(pDamage + 0x24c, pSaved + 0x108, 0x40);
+                    }
+                    memcpy(pDamage, pSaved, 0x106);
+                    memcpy(pDamage + 0x20c, pSaved + 0x108, 0x40);
+                    if (pDamage[0x104] == 0) {
+                        p = pDamage + 0xc;
+                        for (i = 0x14; i != 0; i--) {
+                            if (keep == 0)
+                                p[0x106] = 0xff;
+                            p[0] = 0xff;
+                            p += 0xd;
+                        }
+                    }
+                }
+                FUN_0046acb0((signed char)pCar[0xb1a], *(int *)(pCar + 0x720), (int)pParts);
+                FUN_00469690((int)pCar);
+            }
+            pIndex--;
+        } while (--n);
+    }
+    if (lock != 0)
+        FUN_00480a50();
+}

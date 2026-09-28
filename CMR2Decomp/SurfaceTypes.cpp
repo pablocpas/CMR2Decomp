@@ -7,6 +7,10 @@
 #include "Game.h"
 #include "GameInfo.h"
 #include "Input.h"
+#include <stdio.h>
+#include "InstallInfo.h"
+#include "RallyData.h"
+#include "Frontend.h"
 
 int g_surfaceDrag[63] = {
     0, 0, -65536, -32768, -65536, -65536, -65536, -131072,
@@ -594,6 +598,131 @@ int FUN_00478f30(void)
 {
     FUN_004b7740(FUN_00420120());
     return 1;
+}
+
+// GLOBAL: CMR2 0x0051f36c
+char g_strRadioOutsideWav[] = "radio_outside.wav";
+// GLOBAL: CMR2 0x0051f380
+char g_strRadioInsideWav[] = "radio_inside.wav";
+// GLOBAL: CMR2 0x0051f394
+char g_strCarDetIdleWav[] = "%s\\car\\%s\\detidle.wav";
+// GLOBAL: CMR2 0x0051f3ac
+char g_strCarDet4Wav[] = "%s\\car\\%s\\det4.wav";
+// GLOBAL: CMR2 0x0051f3c0
+char g_strCarDet3Wav[] = "%s\\car\\%s\\det3.wav";
+// GLOBAL: CMR2 0x0051f3d4
+char g_strCarDet2Wav[] = "%s\\car\\%s\\det2.wav";
+// GLOBAL: CMR2 0x0051f3e8
+char g_strCarDet1Wav[] = "%s\\car\\%s\\det1.wav";
+// GLOBAL: CMR2 0x0051f3fc
+char g_strCarChatterWav[] = "%s\\car\\%s\\chatter.wav";
+// GLOBAL: CMR2 0x0051f414
+char g_strCarRearTurboWav[] = "%s\\car\\%s\\rt-%s.wav";
+// GLOBAL: CMR2 0x0051f428
+char g_strCarFrontTurboWav[] = "%s\\car\\%s\\ft-%s.wav";
+// GLOBAL: CMR2 0x0051f43c
+char g_strCarWhineWav[] = "%s\\car\\%s\\whine.wav";
+// GLOBAL: CMR2 0x0051f450
+char g_strCarRearMidWav[] = "%s\\car\\%s\\rm-%s.wav";
+// GLOBAL: CMR2 0x0051f464
+char g_strCarFrontMidWav[] = "%s\\car\\%s\\fm-%s.wav";
+// GLOBAL: CMR2 0x0051f478
+char g_strCarRearSlowWav[] = "%s\\car\\%s\\rs-%s.wav";
+// GLOBAL: CMR2 0x0051f48c
+char g_strCarFrontSlowWav[] = "%s\\car\\%s\\fs-%s.wav";
+// GLOBAL: CMR2 0x0051f4a0
+char g_strCarSoundBfl[] = "%s\\car\\%s.bfl";
+// Sound archives of the loaded car sound sets.
+// GLOBAL: CMR2 0x0058df48
+BYTE g_unk0x0058df48[2][12];
+
+extern int g_unk0x0058ddb4[2];
+BYTE FUN_00407fc0(int param1);
+BYTE FUN_0041b370(void);
+int StageTiming_FUN_00455ab0(int iSplit);
+int FUN_004b7940(void);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+
+// Loads one sample from an archive.
+// FUNCTION: CMR2 0x004792a0
+void FUN_004792a0(char *name, GenericFile *pFile)
+{
+    Sound_LoadSample(name, 0, pFile);
+}
+
+// Loads the engine sound sets: one per player (plus the opponent's in a
+// single-player head-to-head), each from the car's sound archive.
+// FUNCTION: CMR2 0x00478f50
+void FUN_00478f50(void)
+{
+    char archive[260];
+    char name[260];
+    char *pDir;
+    int opponent;
+    int i;
+    int team;
+    char *pCarName;
+    char *pShortName;
+    BYTE *pFile;
+
+    pDir = CInstallInfo::GetSoundsDir();
+    if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 &&
+        CGameInfo::FUN_00405d80() != 3)
+        opponent = 1;
+    else
+        opponent = 0;
+    for (i = 0, pFile = g_unk0x0058df48[0]; i < (int)(BYTE)RallyDataState() + opponent; i++, pFile += 12) {
+        if (opponent != 0 && i > 0)
+            team = (int)CFrontend::FUN_0040ee90(FUN_00407fc0(StageTiming_FUN_00455ab0(FUN_0041b370())));
+        else
+            team = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(FUN_0041b370() + i));
+        g_unk0x0058ddb4[i] = FUN_004b7940();
+        pCarName = (char *)g_unk0x0051ef80 + 0xc4 + team * 0x14;
+        sprintf(archive, g_strCarSoundBfl, CInstallInfo::GetSoundsDir(), pCarName);
+        CGenericFileLoader::FUN_004a9d70((GenericFile *)pFile, archive);
+        pShortName = (char *)g_unk0x0051ef80 + 0x1dc + team * 0x14;
+        sprintf(name, g_strCarFrontSlowWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarRearSlowWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarFrontMidWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarRearMidWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarWhineWav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarFrontTurboWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarRearTurboWav, pDir, pCarName, pShortName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarChatterWav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarDet1Wav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarDet2Wav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarDet3Wav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarDet4Wav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        sprintf(name, g_strCarDetIdleWav, pDir, pCarName);
+        FUN_004792a0(name, (GenericFile *)pFile);
+        if (CGameInfo::FUN_00406410(0x13)) {
+            sprintf(name, g_strRadioInsideWav);
+            FUN_004792a0(name, (GenericFile *)StageTiming_GetStageFile0());
+            sprintf(name, g_strRadioOutsideWav);
+            FUN_004792a0(name, (GenericFile *)StageTiming_GetStageFile0());
+        }
+    }
+    for (pFile = g_unk0x0058df48[0]; (int)pFile < (int)g_unk0x0058df48[2]; pFile += 12) {
+        if (*(void **)pFile != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)pFile);
+            *(void **)pFile = NULL;
+        }
+        *(int *)(pFile + 4) = 0;
+        *(int *)(pFile + 8) = 0;
+    }
+    FUN_00478dc0();
 }
 
 // Stops the player's surface sound started by flag g_unk0x0058dd70.

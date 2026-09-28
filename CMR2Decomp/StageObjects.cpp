@@ -11398,8 +11398,9 @@ extern BYTE g_unk0x00538d2c[];
 extern BYTE *g_unk0x00590d78;
 extern int g_unk0x0058ddc8;
 // ---- GLOBALS nuevos ----
+// First engine sample slot of each loaded car sound set.
 // GLOBAL: CMR2 0x0058ddb4
-int g_unk0x0058ddb4;
+int g_unk0x0058ddb4[2];
 // GLOBAL: CMR2 0x0051f27c
 int g_unk0x0051f27c = 0x10000;
 // GLOBAL: CMR2 0x0051f2d8
@@ -11701,7 +11702,7 @@ void FUN_0047aa70(void)
             int volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             int dist2 = FUN_00427d50(chosen, 0);
             int idx = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(0));
-            *pHandle = FUN_004b7790((unsigned short)(g_unk0x0058ddb4 + 6),
+            *pHandle = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     FixMul(dist2, volScale), 0x5622,
                                     g_unk0x0051f2d8[idx], 1, 0);
         }
@@ -11799,7 +11800,7 @@ void FUN_0047ad20(void)
             int volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
             int dist2 = FUN_00427d50(chosen, 0);
             int idx = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0(0));
-            *pHandle = FUN_004b7790((unsigned short)(g_unk0x0058ddb4 + 6),
+            *pHandle = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[0] + 6),
                                     FixMul(dist2, volScale), 0x5622,
                                     g_unk0x0051f2d8[idx], 1, 0);
         }

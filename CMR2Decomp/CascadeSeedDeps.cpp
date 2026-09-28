@@ -88,9 +88,5 @@ void FUN_004dbd80(Menu *pMenu) { }
 void FUN_004f8b30(void) { }
 
 
-// STUB: CMR2 0x00478f50
-void FUN_00478f50(void) { }
 
 struct FixMatrix;
-// STUB: CMR2 0x004669f0
-void FUN_004669f0(int, int, short *, short) { }
