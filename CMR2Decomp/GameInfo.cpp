@@ -9084,3 +9084,76 @@ void FUN_005057e0(void)
     }
 }
 
+
+// Advances the option-menu interpolation entry selected by g_unk0x0082ca1c.
+// Its `current` follows a square-root curve towards `end`, then the four corner
+// shorts at +0xc are interpolated between the entry's own corners, zero and
+// g_unk0x0082c9ec, and the entry's 16.16 fade fraction ends up in
+// g_unk0x0082cb44.
+// match 79%: implementada; el original prueba el flag con `cmp [esi+0x4c],edi`
+// y reutiliza EDI=0, y guarda los temporales de las divisiones en pila.
+// FUNCTION: CMR2 0x00505b40
+void FUN_00505b40(void)
+{
+    FixInterp *p;
+    int value;
+    int t;
+
+    if (g_unk0x0082ca1c == 0xff)
+        return;
+    p = (FixInterp *)&g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
+    if (p->active != 0) {
+        t = (CMain::GetFrameDelta() - p->startTime) << 16;
+        value = FixSqrt(FixDiv(t, p->distance));
+        if (value >= 0x10000) {
+            p->active = 0;
+            p->current = p->end;
+            *(int *)((BYTE *)p + 0x40) = CMain::GetFrameDelta();
+        } else {
+            p->current = FixMul(p->end - p->start, value) + p->start;
+        }
+    }
+    if (p->current == 0) {
+        *(int *)((BYTE *)p + 0xc) = *(int *)((BYTE *)p + 0x4);
+        *(int *)((BYTE *)p + 0x10) = *(int *)((BYTE *)p + 0x8);
+    } else if (p->current == 0x10000) {
+        *(int *)((BYTE *)p + 0xc) = *(int *)&g_unk0x0082c9ec[0];
+        *(int *)((BYTE *)p + 0x10) = *(int *)&g_unk0x0082c9ec[2];
+        if (p->active == 0) {
+            if (*(int *)((BYTE *)p + 0x24) != 0x10000) {
+                *(int *)((BYTE *)p + 0x24) =
+                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x40)) << 16, 0x320000);
+                if (*(int *)((BYTE *)p + 0x24) >= 0x10000) {
+                    *(int *)((BYTE *)p + 0x24) = 0x10000;
+                    *(int *)((BYTE *)p + 0x44) = CMain::GetFrameDelta();
+                }
+                if (*(int *)((BYTE *)p + 0x24) != 0x10000)
+                    goto done;
+            }
+            if (*(int *)((BYTE *)p + 0x28) != 0x10000) {
+                *(int *)((BYTE *)p + 0x28) =
+                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x44)) << 16, 0x640000);
+                if (*(int *)((BYTE *)p + 0x28) >= 0x10000)
+                    *(int *)((BYTE *)p + 0x28) = 0x10000;
+            }
+        }
+    } else {
+        *(short *)((BYTE *)p + 0xc) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[0] - *(short *)((BYTE *)p + 0x4)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x4));
+        *(short *)((BYTE *)p + 0xe) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[1] - *(short *)((BYTE *)p + 0x6)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x6));
+        *(short *)((BYTE *)p + 0x10) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[2] - *(short *)((BYTE *)p + 0x8)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0x8));
+        *(short *)((BYTE *)p + 0x12) =
+            (short)(FixMulShift32((g_unk0x0082c9ec[3] - *(short *)((BYTE *)p + 0xa)) << 16, p->current) +
+                    *(short *)((BYTE *)p + 0xa));
+        *(int *)((BYTE *)p + 0x24) = 0;
+        *(int *)((BYTE *)p + 0x28) = 0;
+    }
+done:
+    value = FixDiv((CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000);
+    g_unk0x0082cb44 = value - (value & 0xffff);
+}
