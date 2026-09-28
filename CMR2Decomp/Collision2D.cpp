@@ -776,9 +776,10 @@ void FUN_0048ae90(int param_1, int param_2)
 // Bumped by 0x4878a0 while a car is scraping along a wall.
 // GLOBAL: CMR2 0x005914d8
 int g_unk0x005914d8;
-// Corner copy the wall collision keeps for the other body of the contact.
-// GLOBAL: CMR2 0x00591628
-FixVector g_unk0x00591628[4];
+// Corner copy the wall collision keeps for the other body of the contact:
+// the corners of the object box at 0x5915f8 (StageObjects.cpp), from +0x30.
+extern int g_unk0x005915f8[0x26];
+#define g_unk0x00591628 ((FixVector *)&g_unk0x005915f8[0xc])
 
 // Slides one car along a static obstacle. Zeroes the vertical contact offset,
 // clamps the offset by the half extents (including y this time) and turns the

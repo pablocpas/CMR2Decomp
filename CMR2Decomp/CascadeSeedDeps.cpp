@@ -88,3 +88,9 @@ struct FixMatrix;
 void FUN_005043b0(void) { }
 
 
+
+// STUB: CMR2 0x0048fb80
+int FUN_0048fb80(char, int) { return 0; }
+
+// STUB: CMR2 0x0048a1f0
+void FUN_0048a1f0(unsigned char *, short *, short) { }
