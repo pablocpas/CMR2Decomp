@@ -1075,6 +1075,105 @@ void FUN_0046f4e0(int *pOut1, int *pOut2)
     *pOut2 = g_unk0x00589444;
 }
 
+// GLOBAL: CMR2 0x0051c6d0
+char g_strTempGro[] = "TEMP.GRO";
+// GLOBAL: CMR2 0x0051c6dc
+char g_strTopC3d[] = "top.c3d";
+// GLOBAL: CMR2 0x0051c6e4
+char g_strC3dExt[] = ".c3d";
+// GLOBAL: CMR2 0x0051c6ec
+char g_strBflExt[] = ".bfl";
+// GLOBAL: CMR2 0x0051c6f4
+char g_strTempSky[] = "TEMP.SKY";
+
+void FUN_004b2e40(BYTE *p, int value);
+void FUN_0046ef50(void);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
+GenericFile *FUN_0041f500(void);
+int RallyData_FUN_00411060(void);
+BYTE FUN_0046f030(void);
+
+// Loads the stage's sky and ground objects: the TEMP.SKY archive (also opened
+// as .bfl, .c3d and top.c3d) and TEMP.GRO, releasing each one's meshes first.
+// FUNCTION: CMR2 0x0046f060
+void FUN_0046f060(void)
+{
+    char buffer[MAX_PATH];
+    GenericFile *pFile;
+    GenericFile *pC3d;
+    int node;
+    BYTE *pMesh;
+
+    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempSky, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x00589438 = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)FUN_0041f500());
+        if (g_unk0x00589438 != 0) {
+            FUN_004b2e40(*(BYTE **)(g_unk0x00589438 + 0xc), 0);
+            *(int *)(g_unk0x00589438 + 0x180) = 0;
+            node = *(int *)(g_unk0x00589438 + 4);
+            if (node != 0) {
+                pMesh = *(BYTE **)(node + 0xc);
+                *(int *)(node + 0x180) = 0;
+                FUN_004b2e40(pMesh, 0);
+                node = *(int *)(*(int *)(g_unk0x00589438 + 4));
+                if (node != 0) {
+                    pMesh = *(BYTE **)(node + 0xc);
+                    *(int *)(node + 0x180) = 0;
+                    FUN_004b2e40(pMesh, 0);
+                    node = *(int *)(*(int *)(*(int *)(g_unk0x00589438 + 4)));
+                    if (node != 0) {
+                        pMesh = *(BYTE **)(node + 0xc);
+                        *(int *)(node + 0x180) = 0;
+                        FUN_004b2e40(pMesh, 0);
+                    }
+                }
+            }
+        }
+    }
+    FUN_0046ef50();
+    strcpy(buffer, CFrontend::m_stringDest);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strBflExt);
+    CGenericFileLoader::FUN_004a9d70(&g_unk0x00589448, CFrontend::m_stringDest);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strC3dExt);
+    pC3d = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    strcpy(CFrontend::m_stringDest, buffer);
+    strcat(CFrontend::m_stringDest, g_strTopC3d);
+    pFile = (GenericFile *)CGenericFileLoader::FindFile(&g_unk0x00589448, CFrontend::m_stringDest, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x00589444 = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)&g_unk0x00589448);
+        if (g_unk0x00589444 != 0) {
+            pMesh = *(BYTE **)(g_unk0x00589444 + 0xc);
+            *(int *)(g_unk0x00589444 + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+            *(BYTE *)(g_unk0x00589444 + 0x17c) = 0;
+        }
+    }
+    if (pC3d != NULL) {
+        g_unk0x00589440 = (int)FUN_004b9380((unsigned int)pC3d, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)&g_unk0x00589448);
+        if (g_unk0x00589440 != 0) {
+            pMesh = *(BYTE **)(g_unk0x00589440 + 0xc);
+            *(int *)(g_unk0x00589440 + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+        }
+    }
+    pFile = (GenericFile *)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(), g_strTempGro, NULL, NULL, 0);
+    if (pFile != NULL) {
+        g_unk0x0058943c = (int)FUN_004b9380((unsigned int)pFile, (unsigned int)RallyData_FUN_00411060(),
+                                           (unsigned int)FUN_0041f500());
+        if (g_unk0x0058943c != 0) {
+            pMesh = *(BYTE **)(g_unk0x0058943c + 0xc);
+            *(int *)(g_unk0x0058943c + 0x180) = 0;
+            FUN_004b2e40(pMesh, 0);
+        }
+    }
+    CGame::RegisterCallback((void *)FUN_0046f030, NULL);
+}
+
 int RallyData_FUN_00411060(void);
 void Mesh_ResetCloneCount(void);
 Mesh *Mesh_CloneInto(Mesh *pSrc, BYTE *pSource);
@@ -7422,7 +7521,7 @@ GenericFile *FUN_0041f500(void);
 BYTE *FUN_00475a40(void);
 void StageUI_DrawChampionshipBar(void);
 void FUN_0049d3f0(int, int, void *, int, int);
-void FUN_004b9380(unsigned int, unsigned int, unsigned int);
+int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 int RallyData_FUN_0040eeb0(void);
 int *FUN_0040f050(int view);
 void FUN_00428680(unsigned int player, short *pRect, int check);
