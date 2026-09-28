@@ -1625,225 +1625,6 @@ void FUN_0041a340(int car, int unused)
     }
 }
 
-int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
-int FUN_00465e40(int car, int wheel);
-
-// Recomputes the volume of the wheel sounds of a car (sound slots 4 to 7)
-// from the load of its wheels and the speed of the car, limiting the change
-// against the previous value, plus the pan of its engine sound. While the car
-// has no stage sound pattern running the volume of the slots 0 to 3 (the ones
-// the stage sounds use) is derived from the wheel slip instead.
-// match 42%: the block order, the constants and the calls follow the original
-// (its diff is the same instruction stream with other stack slots), but MSVC
-// folds/rematerialises the per-car pointers (`g_raceBlock+0x20+car*4` and the
-// like) where the original kept them live in registers and slots; that choice
-// cascades into the register allocation of the whole function. See
-// CONOCIMIENTO 4.ab.
-// FUNCTION: CMR2 0x0041a5c0
-void FUN_0041a5c0(int car, int listener)
-{
-    int carVolume;
-    int fadeIn;
-    unsigned int slot;
-    Car *pCar;
-    int i;
-    int load;
-    int volume;
-    int speedFactor;
-    int *pRef0;
-    int *pRef3;
-    int *pRef1;
-    int wheelFactor[4];
-    int *pFactor;
-    int wheelSum;
-    int loadFactor;
-    int fadeOut;
-    int slotGain;
-    int pan;
-    int *pVol1;
-    int *pVol2;
-    int *pVol3;
-    int *pVol4;
-    int *pRef2;
-    int carRow;
-
-    carVolume = FUN_00418e70(car);
-    carRow = car * 0xb4;
-    pCar = Car_Get(car);
-    wheelSum = 0;
-    pFactor = wheelFactor;
-    i = 4;
-    do {
-        load = pCar->wheelLoad[0];
-        if (load < 0)
-            load = -load;
-        load = FixDiv(load, 0xa0000);
-        *pFactor = load;
-        if (*pFactor > 0x10000)
-            *pFactor = 0x10000;
-        *pFactor = 0x10000 - *pFactor;
-        wheelSum += *pFactor;
-        pFactor++;
-    } while (--i);
-    loadFactor = FixDiv(wheelSum, 0x40000);
-    speedFactor = FixMulShift32(pCar->speed, 0x431168);
-    *(int *)(g_raceBlock + 0xb4) = 0;
-    g_carMaxVolume[car] = 0;
-    for (slot = 0; slot < 4; slot++) {
-        *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4) = StageObject_GetWheelSlip(car, slot);
-        slotGain = FUN_00465e40(car, slot);
-        g_carSlotVolumes[car][slot] = slotGain;
-        if (*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4) > g_carMaxVolume[car])
-            g_carMaxVolume[car] = *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + slot * 4);
-        if (slotGain > *(int *)(g_raceBlock + 0xb4))
-            *(int *)(g_raceBlock + 0xb4) = slotGain;
-    }
-    if (*(int *)(g_raceBlock + 0x2e8 + carRow) == 0x19) {
-        fadeIn = 0x10000;
-        fadeOut = 0;
-    } else {
-        fadeIn = FixDiv(FUN_004781c0(car) - *(int *)(g_raceBlock + 0x2ec + carRow), 0x320000);
-        fadeOut = 0x10000 - fadeIn;
-    }
-    pVol1 = (int *)(g_raceBlock + 0x20 + car * 4);
-    pVol2 = (int *)(g_raceBlock + 0xb8 + car * 4);
-    pVol3 = (int *)(g_raceBlock + 0x100 + car * 4);
-    pVol4 = (int *)(g_raceBlock + 0xd8 + car * 4);
-    *pVol1 = FixMul(fadeIn, carVolume);
-    *pVol2 = FixMul(fadeOut, carVolume);
-    *pVol3 = FixMul(fadeIn, g_carMaxVolume[car]);
-    volume = FixMul(fadeOut, g_carMaxVolume[car]);
-    *pVol4 = volume;
-    *pVol2 += g_carMaxVolume[car];
-    *pVol1 += g_carMaxVolume[car];
-    pRef0 = (int *)(g_raceBlock + 0x0 + car * 4);
-    if (*pVol3 - *pRef0 > 0xc000)
-        *pVol3 = *pRef0 + 0xc000;
-    else if (*pVol3 - *pRef0 < -0xccc)
-        *pVol3 = *pRef0 - 0xccc;
-    pRef3 = (int *)(g_raceBlock + 0x220 + car * 4);
-    if (volume - *pRef3 > 0xc000)
-        *pVol4 = *pRef3 + 0xc000;
-    else if (volume - *pRef3 < -0xccc)
-        *pVol4 = *pRef3 - 0xccc;
-    pRef2 = (int *)(g_raceBlock + 0x94 + car * 4);
-    if (*pVol1 - *pRef2 > 0xccc)
-        *pVol1 = *pRef2 + 0xccc;
-    else if (*pVol1 - *pRef2 < -0xccc)
-        *pVol1 = *pRef2 - 0xccc;
-    pRef1 = (int *)(g_raceBlock + 0x48 + car * 4);
-    if (*pVol2 - *pRef1 > 0xccc)
-        *pVol2 = *pRef1 + 0xccc;
-    else if (*pVol2 - *pRef1 < -0xccc)
-        *pVol2 = *pRef1 - 0xccc;
-    *(int *)(g_raceBlock + 0xb4) = FixMul(*(int *)(g_raceBlock + 0xb4), 0x20000);
-    if (*(int *)(g_raceBlock + 0xb4) > 0x10000)
-        *(int *)(g_raceBlock + 0xb4) = 0x10000;
-    if (*(short *)(g_raceBlock + 0x258 + carRow) == 0x19) {
-        if (pCar->flag0x1d0[2] != 0 && speedFactor < 0x32) {
-            *pVol1 = *(int *)(g_raceBlock + 0xb4);
-            *pVol2 = *(int *)(g_raceBlock + 0xb4);
-            *pVol3 = *(int *)(g_raceBlock + 0xb4);
-            *pVol4 = *(int *)(g_raceBlock + 0xb4);
-            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) =
-                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0),
-                       0x10000 - *(int *)(g_raceBlock + 0xb4));
-            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) =
-                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4),
-                       0x10000 - *(int *)(g_raceBlock + 0xb4));
-            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) =
-                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8),
-                       0x10000 - *(int *)(g_raceBlock + 0xb4));
-            *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc) =
-                FixMul(*(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc),
-                       0x10000 - *(int *)(g_raceBlock + 0xb4));
-        } else if (g_raceBlock[0x2f0 + carRow] != 0) {
-            *pVol1 = 0;
-            *pVol2 = 0;
-            *pVol3 = 0;
-            *pVol4 = 0;
-        } else {
-            if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
-                pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
-                (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
-                0x50000 < (FixMul(pCar->speed, 0x431168) & 0xffff0000)) {
-                *pVol1 = 0x20000;
-                *pVol2 = 0x20000;
-                *pVol3 = 0x20000;
-                *pVol4 = 0x20000;
-                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) = 0x10000 - loadFactor;
-                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) = 0x10000 - loadFactor;
-                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) = 0x10000 - loadFactor;
-                *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc) = 0x10000 - loadFactor;
-            } else {
-                *pVol1 = 0;
-                *pVol2 = 0;
-                *pVol3 = 0;
-                *pVol4 = 0;
-            }
-            if (speedFactor < 0x32 && speedFactor >= 0)
-                pan = (speedFactor - 0x32) * 0x2b11 / 0x32 + 0x5622;
-            else
-                pan = 0x5622;
-            g_unk0x005374c0 = pan;
-            Sound_SetPan(g_carSoundSets[car].handle[4], pan);
-        }
-    }
-    if (*pVol1 > 0x10000)
-        *pVol1 = 0x10000;
-    if (*pVol2 > 0x10000)
-        *pVol2 = 0x10000;
-    if (Sound_IsPlaying(g_carSoundSets[car].handle[4])) {
-        volume = FixMul(g_unk0x00537664, *pVol1);
-        FUN_004b79a0(g_carSoundSets[car].handle[4], FixMul(FUN_00427d50(car, listener), volume));
-    }
-    if (Sound_IsPlaying(g_carSoundSets[car].handle[5])) {
-        volume = FixMul(g_unk0x00537664, *pVol2);
-        FUN_004b79a0(g_carSoundSets[car].handle[5], FixMul(FUN_00427d50(car, listener), volume));
-    }
-    if (Sound_IsPlaying(g_carSoundSets[car].handle[6])) {
-        volume = FixMul(g_unk0x00537664, *pVol3);
-        FUN_004b79a0(g_carSoundSets[car].handle[6], FixMul(FUN_00427d50(car, listener), volume));
-    }
-    if (Sound_IsPlaying(g_carSoundSets[car].handle[7])) {
-        volume = FixMul(g_unk0x00537664, *pVol4);
-        FUN_004b79a0(g_carSoundSets[car].handle[7], FixMul(FUN_00427d50(car, listener), volume));
-    }
-    if (FUN_00427aa0() == 0) {
-        if (Sound_IsPlaying(g_carSoundSets[car].handle[0])) {
-            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0));
-            FUN_004b79a0(g_carSoundSets[car].handle[0], FixMul(FUN_00427d50(car, listener), volume));
-        }
-        if (Sound_IsPlaying(g_carSoundSets[car].handle[1])) {
-            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4));
-            FUN_004b79a0(g_carSoundSets[car].handle[1], FixMul(FUN_00427d50(car, listener), volume));
-        }
-        if (Sound_IsPlaying(g_carSoundSets[car].handle[2])) {
-            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8));
-            FUN_004b79a0(g_carSoundSets[car].handle[2], FixMul(FUN_00427d50(car, listener), volume));
-        }
-        if (Sound_IsPlaying(g_carSoundSets[car].handle[3])) {
-            volume = FixMul(g_unk0x00537664, *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc));
-            FUN_004b79a0(g_carSoundSets[car].handle[3], FixMul(FUN_00427d50(car, listener), volume));
-        }
-    } else {
-        slotGain = *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x0) +
-                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x4) +
-                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0x8) +
-                   *(int *)(g_raceBlock + 0x7e0 + car * 0x10 + 0xc);
-        if (slotGain > 0x10000)
-            slotGain = 0x10000;
-        if (Sound_IsPlaying(g_carSoundSets[car].handle[0])) {
-            volume = FixMul(g_unk0x00537664, slotGain);
-            FUN_004b79a0(g_carSoundSets[car].handle[0], FixMul(FUN_00427d50(car, listener), volume));
-        }
-    }
-    *pRef0 = *pVol3;
-    *pRef3 = *pVol4;
-    *pRef2 = *pVol1;
-    *pRef1 = *pVol2;
-}
-
 // Switches car's engine sound between its two samples of stage sound group 25
 // as the rolling direction speed (0x79c) changes sign.
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -3578,163 +3359,321 @@ void FUN_00416f70(int player)
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player)) - 1;
 }
 
+int FUN_00422f50(BYTE index);
+void FUN_004ae410(BYTE a, BYTE b, int c, int d);
 
-// --- 0x00417090 (layer 0) ----------------------------------------------------
-int RallyData_FUN_00421420(void);
-BYTE *RallyData_FUN_00421440(int index);
-int RallyData_FUN_00421470(BYTE *p);
-int RallyData_FUN_00421370(BYTE *p);
-unsigned int RallyData_FUN_00407e70(void);
-unsigned int RallyData_FUN_00407ea0(void);
-BYTE FUN_00458270(int index);
-void FUN_00463ce0(BYTE value);
-void FUN_004176b0(void);
-void FUN_00421570(unsigned int nodeIndex, FixVector *pOut);
-int FUN_00448110(void);
-BYTE *FUN_0041b390(void);
-int FUN_00417760(int index);
-int FUN_004174d0(void);
-void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused);
-
-// match 53.51%: implementada; misma logica y mismos operandos de memoria, pero
-// MSVC6 ordena de otra forma los bloques de los bucles y los saltos.
-// Called when a player advances: keeps the route position of the two players in
-// sync, queues the pending race calls of the player and updates the call record
-// window.
-// GLOBAL: CMR2 0x00537354
-int g_unk0x00537354;
-
-// FUNCTION: CMR2 0x00417090
-void FUN_00417090(int param_1)
+// Advances one player's "menu" cursor when the device that owns it (arg = the
+// player's input slot) pressed the up/down/left/right buttons: the odd modes
+// scroll the mode list, the even ones step the stage index, and the shared
+// tail replays the two beeper sounds.
+// match 66.87%: implementada; MSVC6 genera la guarda del tamano (`test edi,edi`) una sola vez
+// donde el original la repite, y usa setne en vez de sub/neg/sbb para el `x != 7`.
+// FUNCTION: CMR2 0x0041d0c0
+void FUN_0041d0c0(int param_1)
 {
-    Car *pCar;
-    FixVector v;
-    int cur;
-    int next;
-    int half;
+    int flags;
     int i;
-    int t;
-    BYTE *pCalls;
-    BYTE callId;
-    BYTE prevId;
-    int base;
+    BYTE value;
 
-    if (RallyData_FUN_00421420() == 0)
+    if (FUN_0041f3d0((BYTE)param_1) == 0)
         return;
-    if ((BYTE)RallyData_FUN_00407ea0() != 0 &&
-        ((BYTE)RallyData_GetFlag25() != 0 || (BYTE)RallyData_GetFlag24() != 0) &&
-        (BYTE)FUN_00458270(param_1) != 0)
-        g_unk0x0053708c[param_1] = 0;
-    cur = g_unk0x0053708c[param_1];
-    pCar = Car_Get(param_1);
-    next = RallyData_FUN_00421370((BYTE *)pCar);
-    if (g_unk0x005371a0 == 0 && param_1 == 0) {
-        FUN_00463ce0(0);
-        Race_AssignUnusedSlot((int)&g_unk0x0053735c + 0xd);
-        g_unk0x005371a0 = 1;
+    flags = (int)CInput::FUN_0049ead0(param_1)->field_0x8;
+    if (FUN_0041f3a0() != 0) {
+        if (param_1 != 0 && FUN_0041f3d0(0) != 0)
+            return;
+        if (flags & 0x1000) {
+            if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 1 ||
+                CGameInfo::FUN_00405d80() == 0)
+                return;
+            FUN_00421720(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
+        } else if (flags & 0x2000) {
+            value = (BYTE)(FUN_00422fb0(1) + 1);
+            if ((BYTE)FUN_00420190() <= value)
+                value = 0;
+            FUN_00422fe0(1, 0, value, 0);
+        } else {
+            return;
+        }
+        FUN_004ae410(0, 1, 1, 1);
+        FUN_004ae410(1, 1, 1, 1);
+        return;
     }
-    if ((BYTE)RallyData_FUN_00407e70() != 0) {
-        i = FUN_00448110();
-        g_unk0x00537350 = (i < 0x5a) - 1;
+    if (flags & 0x1000) {
+        i = 0;
+        if ((BYTE)FUN_00420190() > 0) {
+            do {
+                FUN_004ae410((BYTE)i, 0, 1, 1);
+                i++;
+            } while (i < (int)((BYTE)FUN_00420190()));
+        }
+        FUN_00421720((BYTE)param_1, (-(FUN_00422f50((BYTE)param_1) != 7) & 3) + 4, 0xffff,
+                     FUN_00422fb0((BYTE)param_1), 0);
+        return;
     }
-    FUN_004176b0();
-    if (next < cur - 0xc)
-        g_unk0x0053708c[param_1] = next;
-    if (next < cur - 1 &&
-        ((int)(RallyData_FUN_00421420() >> 1) <= next ||
-         cur <= (int)(RallyData_FUN_00421420() >> 1))) {
-        FUN_00421570(next, &v);
-        pCar = Car_Get(param_1);
-        if (FixVecDot(&v, (FixVector *)((int)pCar + 0x3f0)) < -0x8000) {
-            *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 1;
-            g_unk0x00537198[param_1] = next;
+    if ((flags & 0x2000) != 0 && (BYTE)FUN_00420190() > 1 && (BYTE)RallyDataState() == 1) {
+        value = (BYTE)(FUN_00422fb0(0) + 1);
+        if ((BYTE)FUN_00420190() <= value)
+            value = 0;
+        FUN_00422fe0(0, 0, value, 0);
+        i = 0;
+        if ((BYTE)FUN_00420190() > 0) {
+            do {
+                FUN_004ae410((BYTE)i, 0, 1, 1);
+                i++;
+            } while (i < (int)((BYTE)FUN_00420190()));
         }
     }
-    if ((int)(RallyData_FUN_00421420() >> 1) < next &&
-        cur < (int)(RallyData_FUN_00421420() >> 1)) {
-        g_unk0x00537198[param_1] = next;
-        g_unk0x0053708c[param_1] = next;
-        cur = next;
-    }
-    if (*(int *)((int)&g_unk0x00537248 + param_1 * 4) != 0) {
-        FUN_00421570(next, &v);
-        pCar = Car_Get(param_1);
-        if (FixVecDot(&v, (FixVector *)((int)pCar + 0x3f0)) > 0x3333)
-            *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 0;
-    }
-    if (g_unk0x00537198[param_1] < next)
-        *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 0;
-    g_unk0x00537354 = 0;
-    for (i = g_unk0x0053708c[param_1] + 1; i <= g_unk0x0053708c[param_1] + 6; i++) {
-        if (RallyData_FUN_00421420() <= i ||
-            *(char *)(RallyData_FUN_00421440(i) + 0x19) != -1)
-            g_unk0x00537354 = 1;
-    }
-    pCalls = FUN_0041b390();
-    if (*(char *)(*(int *)(pCalls + 4) + param_1 * 8) == 0x09)
-        g_unk0x00537354 = 1;
-    base = param_1 * 0x3c;
-    if ((*(int *)((char *)g_raceCallRecords + base + 0x14) & 0x100) != 0)
-        g_unk0x00537354 = 1;
-    if (FUN_00417760(param_1) == 0) {
-        pCalls = FUN_0041b390();
-        if (*(char *)(*(int *)(pCalls + 4) + param_1 * 8) == 0x08) {
-            if ((BYTE)RallyData_GetFlag25() != 0) {
-                t = RallyData_FUN_00421470((BYTE *)Car_Get(param_1));
-                if (t > 0xffff)
-                    goto done;
-            }
-            if (g_unk0x0053708c[param_1] < next) {
-                i = cur + 1;
-                if (i <= next) {
-                    cur = cur + 2;
-                    do {
-                        if (*(char *)(RallyData_FUN_00421440(i) + 0x19) != -1 &&
-                            FUN_004174d0() != 0 && FUN_00417760(param_1) == 0) {
-                            int play = i;
-                            if (cur < 2) {
-                                callId = *(BYTE *)(RallyData_FUN_00421440(cur) + 0x19);
-                                prevId = *(BYTE *)(RallyData_FUN_00421440(i) + 0x19);
-                            } else {
-                                if (*(char *)(RallyData_FUN_00421440(i - 1) + 0x19) != -1)
-                                    goto nextIter;
-                                callId = *(BYTE *)(RallyData_FUN_00421440(cur) + 0x19);
-                                prevId = *(BYTE *)(RallyData_FUN_00421440(i) + 0x19);
-                            }
-                            FUN_004174e0(param_1, prevId, callId, play);
-                        }
-nextIter:
-                        i++;
-                        cur++;
-                    } while (i <= next);
-                    g_unk0x0053708c[param_1] = next;
-                }
-            }
+}
+
+int FUN_00407650(void);
+int FUN_00407710(void);
+void RallyData_FUN_00407800(unsigned int param1);
+void FUN_004918d0(void);
+void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary,
+                  BYTE **pSecondary);
+void FUN_00461a70(BYTE *pA, BYTE *pB);
+
+
+// GLOBAL: CMR2 0x005196dc
+char g_str0x005196dc[12] = "0500.hor";
+
+// GLOBAL: CMR2 0x005196d0
+char g_str0x005196d0[12] = "0600.hor";
+
+// GLOBAL: CMR2 0x005196c4
+char g_str0x005196c4[12] = "0800.hor";
+
+// GLOBAL: CMR2 0x005196b8
+char g_str0x005196b8[12] = "1000.hor";
+
+// GLOBAL: CMR2 0x005196ac
+char g_str0x005196ac[12] = "1200.hor";
+
+// GLOBAL: CMR2 0x005196a0
+char g_str0x005196a0[12] = "1500.hor";
+
+// GLOBAL: CMR2 0x00519694
+char g_str0x00519694[12] = "1700.hor";
+
+// GLOBAL: CMR2 0x00519688
+char g_str0x00519688[12] = "1800.hor";
+
+// GLOBAL: CMR2 0x0051967c
+char g_str0x0051967c[12] = "1900.hor";
+
+// GLOBAL: CMR2 0x00519670
+char g_str0x00519670[12] = "2000.hor";
+
+// GLOBAL: CMR2 0x00519664
+char g_str0x00519664[12] = "2200.hor";
+
+// GLOBAL: CMR2 0x00519658
+char g_str0x00519658[12] = "2400.hor";
+
+// GLOBAL: CMR2 0x0051964c
+char g_str0x0051964c[12] = "0500CLO.hor";
+
+// GLOBAL: CMR2 0x00519640
+char g_str0x00519640[12] = "0600CLO.hor";
+
+// GLOBAL: CMR2 0x00519634
+char g_str0x00519634[12] = "0800CLO.hor";
+
+// GLOBAL: CMR2 0x00519628
+char g_str0x00519628[12] = "1000CLO.hor";
+
+// GLOBAL: CMR2 0x0051961c
+char g_str0x0051961c[12] = "1200CLO.hor";
+
+// GLOBAL: CMR2 0x00519610
+char g_str0x00519610[12] = "1500CLO.hor";
+
+// GLOBAL: CMR2 0x00519604
+char g_str0x00519604[12] = "1700CLO.hor";
+
+// GLOBAL: CMR2 0x005195f8
+char g_str0x005195f8[12] = "1800CLO.hor";
+
+// GLOBAL: CMR2 0x005195ec
+char g_str0x005195ec[12] = "1900CLO.hor";
+
+// GLOBAL: CMR2 0x005195e0
+char g_str0x005195e0[12] = "2000CLO.hor";
+
+// GLOBAL: CMR2 0x005195d4
+char g_str0x005195d4[12] = "2200CLO.hor";
+
+// GLOBAL: CMR2 0x005195c8
+char g_str0x005195c8[12] = "2400CLO.hor";
+
+// GLOBAL: CMR2 0x005195bc
+char g_str0x005195bc[12] = "0500STO.hor";
+
+// GLOBAL: CMR2 0x005195b0
+char g_str0x005195b0[12] = "0600STO.hor";
+
+// GLOBAL: CMR2 0x005195a4
+char g_str0x005195a4[12] = "0800STO.hor";
+
+// GLOBAL: CMR2 0x00519598
+char g_str0x00519598[12] = "1000STO.hor";
+
+// GLOBAL: CMR2 0x0051958c
+char g_str0x0051958c[12] = "1200STO.hor";
+
+// GLOBAL: CMR2 0x00519580
+char g_str0x00519580[12] = "1500STO.hor";
+
+// GLOBAL: CMR2 0x00519574
+char g_str0x00519574[12] = "1700STO.hor";
+
+// GLOBAL: CMR2 0x00519568
+char g_str0x00519568[12] = "1800STO.hor";
+
+// GLOBAL: CMR2 0x0051955c
+char g_str0x0051955c[12] = "1900STO.hor";
+
+// GLOBAL: CMR2 0x00519550
+char g_str0x00519550[12] = "2000STO.hor";
+
+// GLOBAL: CMR2 0x00519544
+char g_str0x00519544[12] = "2200STO.hor";
+
+// GLOBAL: CMR2 0x00519538
+char g_str0x00519538[12] = "2400STO.hor";
+
+// GLOBAL: CMR2 0x0051952c
+char g_str0x0051952c[12] = "0500BLI.hor";
+
+// GLOBAL: CMR2 0x00519520
+char g_str0x00519520[12] = "0600BLI.hor";
+
+// GLOBAL: CMR2 0x00519514
+char g_str0x00519514[12] = "0800BLI.hor";
+
+// GLOBAL: CMR2 0x00519508
+char g_str0x00519508[12] = "1000BLI.hor";
+
+// GLOBAL: CMR2 0x005194fc
+char g_str0x005194fc[12] = "1200BLI.hor";
+
+// GLOBAL: CMR2 0x005194f0
+char g_str0x005194f0[12] = "1500BLI.hor";
+
+// GLOBAL: CMR2 0x005194e4
+char g_str0x005194e4[12] = "1700BLI.hor";
+
+// GLOBAL: CMR2 0x005194d8
+char g_str0x005194d8[12] = "1800BLI.hor";
+
+// GLOBAL: CMR2 0x005194cc
+char g_str0x005194cc[12] = "1900BLI.hor";
+
+// GLOBAL: CMR2 0x005194c0
+char g_str0x005194c0[12] = "2000BLI.hor";
+
+// GLOBAL: CMR2 0x005194b4
+char g_str0x005194b4[12] = "2200BLI.hor";
+
+// GLOBAL: CMR2 0x005194a8
+char g_str0x005194a8[12] = "2400BLI.hor";
+
+
+// Handles of the resolved stage texture records.
+// GLOBAL: CMR2 0x00538234
+BYTE *g_unk0x00538234;
+// GLOBAL: CMR2 0x00538238
+BYTE *g_unk0x00538238;
+
+// Resolves the 48 stage texture names through the generic file loader, builds
+// the six palette entries of the stage geometry from the primary/secondary
+// colour records and refreshes the stage colour ramps.
+// FUNCTION: CMR2 0x0041fd30
+void FUN_0041fd30(void)
+{
+    char *pNames[48];
+    int handles[48];
+    BYTE colour[6];
+    BYTE *pPrimary;
+    BYTE *pSecondary;
+    int i;
+    unsigned int avg;
+
+    pNames[0] = g_str0x005196dc;
+    pNames[1] = g_str0x005196d0;
+    pNames[2] = g_str0x005196c4;
+    pNames[3] = g_str0x005196b8;
+    pNames[4] = g_str0x005196ac;
+    pNames[5] = g_str0x005196a0;
+    pNames[6] = g_str0x00519694;
+    pNames[7] = g_str0x00519688;
+    pNames[8] = g_str0x0051967c;
+    pNames[9] = g_str0x00519670;
+    pNames[10] = g_str0x00519664;
+    pNames[11] = g_str0x00519658;
+    pNames[12] = g_str0x0051964c;
+    pNames[13] = g_str0x00519640;
+    pNames[14] = g_str0x00519634;
+    pNames[15] = g_str0x00519628;
+    pNames[16] = g_str0x0051961c;
+    pNames[17] = g_str0x00519610;
+    pNames[18] = g_str0x00519604;
+    pNames[19] = g_str0x005195f8;
+    pNames[20] = g_str0x005195ec;
+    pNames[21] = g_str0x005195e0;
+    pNames[22] = g_str0x005195d4;
+    pNames[23] = g_str0x005195c8;
+    pNames[24] = g_str0x005195bc;
+    pNames[25] = g_str0x005195b0;
+    pNames[26] = g_str0x005195a4;
+    pNames[27] = g_str0x00519598;
+    pNames[28] = g_str0x0051958c;
+    pNames[29] = g_str0x00519580;
+    pNames[30] = g_str0x00519574;
+    pNames[31] = g_str0x00519568;
+    pNames[32] = g_str0x0051955c;
+    pNames[33] = g_str0x00519550;
+    pNames[34] = g_str0x00519544;
+    pNames[35] = g_str0x00519538;
+    pNames[36] = g_str0x0051952c;
+    pNames[37] = g_str0x00519520;
+    pNames[38] = g_str0x00519514;
+    pNames[39] = g_str0x00519508;
+    pNames[40] = g_str0x005194fc;
+    pNames[41] = g_str0x005194f0;
+    pNames[42] = g_str0x005194e4;
+    pNames[43] = g_str0x005194d8;
+    pNames[44] = g_str0x005194cc;
+    pNames[45] = g_str0x005194c0;
+    pNames[46] = g_str0x005194b4;
+    pNames[47] = g_str0x005194a8;
+    for (i = 0; i < 48; i++)
+        handles[i] = (int)CGenericFileLoader::FindFile((GenericFile *)StageTiming_GetStageFile3(),
+                                                       pNames[i], NULL, NULL, 0);
+    FUN_00461a30(FUN_00407650(), FUN_00407710(), (BYTE **)handles, &g_unk0x00538238,
+                 &g_unk0x00538234);
+    FUN_00461a70(g_unk0x00538238, g_unk0x00538234);
+    if (g_unk0x00538238 != NULL && g_unk0x00538234 != NULL) {
+        pPrimary = g_unk0x00538234;
+        pSecondary = g_unk0x00538238;
+        for (i = 0; i < 6; i++) {
+            avg = ((unsigned int)pSecondary[0x48 + i] + (unsigned int)pPrimary[0x48 + i]) / 2;
+            if (avg > 0xff)
+                avg = 0xff;
+            colour[i] = (BYTE)avg;
         }
-    }
-done:
-    if (next < g_unk0x00537198[param_1])
-        g_unk0x00537198[param_1] = next;
-    if (g_unk0x00537198[param_1] + 6 < next)
-        g_unk0x00537198[param_1] = next - 6;
-    if (FUN_004174d0() != 0) {
-        unsigned int flags = *(unsigned int *)((char *)g_raceCallRecords + base + 0x8);
-        if ((flags & 0x100) != 0) {
-            if ((char)flags == 0x19) {
-                if (g_unk0x00537354 != 0)
-                    *(unsigned int *)((char *)g_raceCallRecords + base + 0x8) =
-                        (flags - 1 ^ flags) & 0xff ^ flags;
-            } else {
-                *(unsigned int *)((char *)g_raceCallRecords + base + 0x8) =
-                    (flags - 1 ^ flags) & 0xff ^ flags;
-            }
-            if (*(char *)((char *)g_raceCallRecords + base + 0x8) == 0) {
-                for (i = 0; i < 4; i++)
-                    g_raceCallRecords[param_1 * 3 + i] = g_raceCallRecords[param_1 * 3 + i + 1];
-                *(unsigned int *)((char *)g_raceCallRecords + base + 0x38) &= 0xfffffc00;
-                *(int *)((char *)g_raceCallRecords + base + 0x30) = 0;
-                *(int *)((char *)g_raceCallRecords + base + 0x34) = 0;
-            }
+        CGraphics::FUN_004a5ff0((BYTE)*(int *)((BYTE *)colour + 0));
+        CGraphics::FUN_004a6010((BYTE)*(int *)((BYTE *)colour + 1));
+        CGraphics::FUN_004a6040((BYTE)*(int *)((BYTE *)colour + 2));
+        CGraphics::FUN_004a6060((BYTE)*(int *)((BYTE *)colour + 3));
+        CGraphics::FUN_004a6080((BYTE)*(int *)((BYTE *)colour + 4));
+        CGraphics::FUN_004a60b0((BYTE)*(int *)((BYTE *)colour + 5));
+        if ((unsigned short)FUN_00407650() < 0x834) {
+            RallyData_FUN_00407800(0);
+            FUN_004918d0();
+            return;
         }
+        RallyData_FUN_00407800(1);
+        FUN_004918d0();
     }
 }
