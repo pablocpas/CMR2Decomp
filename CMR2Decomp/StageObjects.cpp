@@ -10060,3 +10060,131 @@ done:
     *(int *)(param_1 + 0x18) = 0;
     *(BYTE *)(param_1 + 0xf8) = 0;
 }
+
+// Views into the stage object block declared in StageBlock.h, used by the
+// stage object pose code.
+// GLOBAL: CMR2 0x0058d2f8  (per object: 3 int, animated pose offset)
+#define g_unk0x0058d2f8 (g_stageBlock + 0x58)
+// GLOBAL: CMR2 0x0058d368  (per object: 0x24-byte timing record, angle at +0)
+#define g_unk0x0058d368 (g_stageBlock + 0xc8)
+// GLOBAL: CMR2 0x0058d374  (per object: int pose offset, +4/+8 are y/z)
+#define g_unk0x0058d374 (g_stageBlock + 0xd4)
+// GLOBAL: CMR2 0x0058d560  (scratch 4x4 16.16 matrix, 16 int = 0x40 bytes)
+#define g_unk0x0058d560 ((int *)(g_stageBlock + 0x2c0))
+
+// Integrates one stage object's pose: rebuilds the object matrix from the car
+// basis, low-pass filters the object's angles against the car's body axes and
+// moves the object's scene node.
+// match 16%: implementada (logica transliterada del decompilado); la diferencia es de
+// reparto de registros/bloques en los productos escalares y el filtrado de angulos, no de logica
+// FUNCTION: CMR2 0x00476e00
+void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
+{
+    Car *pCar;
+    int index;
+    int *pMatrix;
+    int vx, vy, vz;
+    int dRight, dForward;
+    short angRight, angForward, tableAng;
+    int i, recOff;
+    int offX, offY, offZ;
+    FixVector pos;
+
+    index = param_1[2];
+    pCar = Car_Get(index);
+
+    // Object matrix: rows 0 and 2 swapped (the old row 2 negated), translation
+    // cleared, then rotated about the object's right axis.
+    pMatrix = g_unk0x0058d560;
+    *(ObjectMatrix16 *)pMatrix = *(ObjectMatrix16 *)param_2;
+    pMatrix[0] = -param_2[8];
+    pMatrix[1] = -param_2[9];
+    pMatrix[2] = -param_2[10];
+    pMatrix[8] = param_2[0];
+    pMatrix[9] = param_2[1];
+    pMatrix[10] = param_2[2];
+    pMatrix[12] = 0;
+    pMatrix[13] = 0;
+    pMatrix[14] = 0;
+    FixMatrix_RotateAboutRight((FixMatrix *)pMatrix,
+                               ((unsigned int)param_2[0] & 0xffff0000) |
+                                   (unsigned int)(unsigned short)g_unk0x0051c9b0);
+
+    // Steps this object's 12-bit angle by 3.
+    i = (int)*(short *)(g_unk0x0058d368 + index * 0x24) + 3;
+    i &= 0x80000fff;
+    if (i < 0)
+        i = (i - 1 | 0xfffff000) + 1;
+    *(short *)(g_unk0x0058d368 + index * 0x24) = (short)i;
+
+    // Angle of the car body axes against the car's last acceleration.
+    vx = pCar->velocity.x - pCar->velocityNext.x;
+    vy = pCar->velocity.y - pCar->velocityNext.y;
+    vz = pCar->velocity.z - pCar->velocityNext.z;
+    dRight = ((int)(((__int64)pCar->right.x * vx) >> 16) +
+              (int)(((__int64)pCar->right.y * vy) >> 16)) +
+             (int)(((__int64)pCar->right.z * vz) >> 16);
+    dForward = ((int)(((__int64)pCar->forward.x * vx) >> 16) +
+                (int)(((__int64)pCar->forward.y * vy) >> 16)) +
+               (int)(((__int64)pCar->forward.z * vz) >> 16);
+    angRight = (short)(((__int64)dRight << 16) / 0x1e0000);
+    angForward = (short)(((__int64)dForward << 16) / 0x1e0000);
+
+    // Short from the object's timing record: the target yaw.
+    tableAng = **(short **)(g_unk0x0058d4f0 + index * 0x1c + 0xc);
+
+    // Eases each angle a fifth of the way towards its target.
+    recOff = index * 0x24;
+    i = (int)angForward - (int)*(short *)(g_unk0x0058d368 + recOff + 2);
+    *(short *)(g_unk0x0058d368 + recOff + 2) += (short)(i / 5);
+    i = (int)tableAng - (int)*(short *)(g_unk0x0058d368 + recOff + 4);
+    *(short *)(g_unk0x0058d368 + recOff + 4) += (short)(i / 5);
+    i = (int)angRight - (int)*(short *)(g_unk0x0058d368 + recOff + 6);
+    *(short *)(g_unk0x0058d368 + recOff + 6) += (short)(i / 5);
+
+    // The two dwords written are (x, y) at +2 and (z, pad) at +6.
+    if (g_unk0x0058d3b0[index] != 0) {
+        *(unsigned int *)(g_unk0x0058d368 + recOff + 2) =
+            ((unsigned int)(unsigned short)tableAng << 16) | (unsigned short)angForward;
+        *(unsigned int *)(g_unk0x0058d368 + recOff + 6) = (unsigned short)angRight;
+    }
+
+    SceneNode_SetRotation(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4),
+                          (FixAngles *)(g_unk0x0058d368 + recOff + 2));
+
+    // Pose offset from the body axes, clamped and eased towards its target.
+    offX = (int)(((__int64)(-dRight) << 16) / 0x4ccc);
+    if (offX < -0x28f)
+        offX = -0x28f;
+    else if (offX > 0x1999)
+        offX = 0x1999;
+    offZ = (int)(((__int64)(-dForward) << 16) / 0x4ccc);
+    if (offZ < -0xf5c)
+        offZ = -0xf5c;
+    else if (offZ > 0xf5c)
+        offZ = 0xf5c;
+
+    offY = 0;
+    if (g_unk0x0058d3b0[index] == 0) {
+        offX = FixMul(offX - *(int *)(g_unk0x0058d374 + recOff), 0xa3d);
+        offY = FixMul(-*(int *)(g_unk0x0058d374 + recOff + 4), 0xa3d);
+        offZ = FixMul(offZ - *(int *)(g_unk0x0058d374 + recOff + 8), 0xa3d);
+        *(int *)(g_unk0x0058d374 + recOff) += offX;
+        *(int *)(g_unk0x0058d374 + recOff + 4) += offY;
+        *(int *)(g_unk0x0058d374 + recOff + 8) += offZ;
+    } else {
+        *(int *)(g_unk0x0058d374 + recOff) = offX;
+        *(int *)(g_unk0x0058d374 + recOff + 4) = 0;
+        *(int *)(g_unk0x0058d374 + recOff + 8) = offZ;
+        g_unk0x0058d3b0[index] = 0;
+    }
+
+    pos.x = *(int *)(g_unk0x0058d2f8 + index * 0xc) + *(int *)(g_unk0x0058d374 + recOff);
+    pos.y = *(int *)(g_unk0x0058d2f8 + index * 0xc + 4) + *(int *)(g_unk0x0058d374 + recOff + 4);
+    pos.z = *(int *)(g_unk0x0058d2f8 + index * 0xc + 8) + *(int *)(g_unk0x0058d374 + recOff + 8);
+    if (CGameInfo::FUN_004063f0(6) != 0) {
+        pCar = Car_Get(index);
+        pos.y += FixMul(pCar->field_0xa8c, 0x8000);
+    }
+    SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4), &pos);
+}
