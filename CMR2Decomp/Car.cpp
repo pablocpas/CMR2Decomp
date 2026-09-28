@@ -4864,6 +4864,195 @@ void FUN_00444a70(void)
     g_pCurrentCar->pBodyMatrix->position = tmp;
 }
 
+void FUN_00432b30(void);
+void FUN_004458d0(void);
+void Car_UpdateSurfaceParams(Car *pCar, int blend);
+void FUN_00484e00(int param_1, short count);
+short Sector_GetNeighbours(FixVector *pPos, short *pOut);
+
+// Prepares every car of the order list for a physics step: restores the body
+// frame from the world matrix (or resets the per-step state when the car is
+// not settled), refreshes the velocity magnitude, the corner velocities, the
+// body axes and the wheel loads, lifts the car out of the ground and refreshes
+// its surface parameters and the sector neighbours of its position.
+// FUNCTION: CMR2 0x00444c10
+void FUN_00444c10(int carBase, short *pOrder, short count)
+{
+    short *p;
+    int n;
+    int i;
+    int lift;
+    short nb[3];
+    FixVector v;
+    FixVector *pRight;
+    FixVector *pForward;
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
+#define CARB(off) (*(char *)((int)g_pCurrentCar + (off)))
+
+    n = count - 1;
+    if (n >= 0) {
+        p = &pOrder[n];
+        n++;
+        do {
+            g_pCurrentCar = (Car *)(carBase + *p * 0xc24);
+            lift = CARF(0x960);
+            if (lift < 0)
+                lift = 0;
+
+            if (CARF(0xc20) == 0) {
+                for (i = 0; i < 4; i++) {
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x330 + i * 0xc) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x300 + i * 0xc);
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x300 + i * 0xc) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                    g_pCurrentCar->field_0xabe[i] = g_pCurrentCar->wheelSurface[i];
+                }
+                for (i = 0; i < 8; i++) {
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x504 + i * 0xc) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x4a4 + i * 0xc);
+                    CARF(0xbbc + i * 4) = 0;
+                }
+                CARF(0x7a8) = CARF(0x7a4);
+                CARV(0x2f4) = CARV(0x2e8);
+                CARV(0x2e8) = CARV(0x2d0);
+                CARV(0x498) = CARV(0x48c);
+                memcpy(g_pCurrentCar->field_0x384, &g_pCurrentCar->right, 0x24);
+                FixMatrix_GetPosition(&CARV(0x2d0), g_pCurrentCar->pWorld);
+                FixMatrix_GetRight(&CARV(0x360), g_pCurrentCar->pWorld);
+                FixMatrix_GetUp(&CARV(0x36c), g_pCurrentCar->pWorld);
+                FixMatrix_GetForward(&CARV(0x378), g_pCurrentCar->pWorld);
+                Car_UpdateCorners(g_pCurrentCar);
+            }
+
+            CARF(0x778) = FixVecLength(&CARV(0x408));
+            for (i = 0x42c; i < 0x48c; i += 0xc)
+                *(FixVector *)((BYTE *)g_pCurrentCar + i) = CARV(0x408);
+            *(short *)((BYTE *)g_pCurrentCar + 0xb14) = *(short *)((BYTE *)g_pCurrentCar + 0xb10);
+            *(short *)((BYTE *)g_pCurrentCar + 0xb12) = *(short *)((BYTE *)g_pCurrentCar + 0xb14);
+            CARF(0x958) = 0;
+            CARF(0xb5c) = 0;
+            CARF(0x86c) = FixVecDot(&CARV(0x408), &CARV(0x360)) * 4;
+            CARF(0x868) = CARF(0x86c);
+            CARF(0x864) = CARF(0x868);
+            CARF(0x860) = CARF(0x864);
+            CARF(0x7a4) = 0;
+            CARB(0xb1e) = 0;
+            for (i = 0; i < 8; i++) {
+                int u = FixMul(CARF(0x860), CARF(0x7bc + i * 4));
+                if (u > CARF(0x7a4) && u <= CARF(0x794)) {
+                    CARF(0x7a4) = u;
+                    CARB(0xb1e) = (char)i;
+                }
+            }
+            CARF(0x7ac) = CARF(0x7a4);
+            CARF(0xb60) = 0;
+            FUN_004930e0((int)g_pCurrentCar, 8);
+            FUN_0042f820();
+            FUN_00432b30();
+            Car_UpdateGroundNormal();
+
+            if (CARF(0xc20) != 0) {
+                if (CARF(0xc00) != 0) {
+                    FUN_004458d0();
+                    g_pCurrentCar->position.y += lift;
+                    g_pCurrentCar->corners[0].y += lift;
+                    g_pCurrentCar->corners[1].y += lift;
+                    g_pCurrentCar->corners[2].y += lift;
+                    g_pCurrentCar->corners[3].y += lift;
+                    g_pCurrentCar->corners[4].y += lift;
+                    g_pCurrentCar->corners[5].y += lift;
+                    g_pCurrentCar->corners[6].y += lift;
+                    g_pCurrentCar->corners[7].y += lift;
+                    FUN_0042f820();
+                    FUN_00432b30();
+                } else {
+                    pRight = &CARV(0x360);
+                    pForward = &CARV(0x378);
+                    CARV(0x36c) = CARV(0x48c);
+                    i = FixVecDot(&CARV(0x36c), pRight);
+                    FixVecScale(&v, &CARV(0x36c), i);
+                    v.x = pRight->x - v.x;
+                    v.y = pRight->y - v.y;
+                    v.z = pRight->z - v.z;
+                    FIX_NORMALIZE_INTO(pRight[0], v)
+                    FixVecCross(&v, pRight, &CARV(0x36c));
+                    FIX_NORMALIZE_INTO(pForward[0], v)
+                    FixMatrix_SetRight(pRight, g_pCurrentCar->pWorld);
+                    FixMatrix_SetUp(&CARV(0x36c), g_pCurrentCar->pWorld);
+                    FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
+                    Car_UpdateCorners(g_pCurrentCar);
+                    FUN_004930e0((int)g_pCurrentCar, 8);
+                    FUN_004458d0();
+                    g_pCurrentCar->position.y += lift;
+                    g_pCurrentCar->corners[0].y += lift;
+                    g_pCurrentCar->corners[1].y += lift;
+                    g_pCurrentCar->corners[2].y += lift;
+                    g_pCurrentCar->corners[3].y += lift;
+                    g_pCurrentCar->corners[4].y += lift;
+                    g_pCurrentCar->corners[5].y += lift;
+                    g_pCurrentCar->corners[6].y += lift;
+                    g_pCurrentCar->corners[7].y += lift;
+                    FUN_0042f820();
+                    FUN_00432b30();
+                    Car_UpdateGroundNormal();
+                }
+                FixMatrix_SetPosition(&CARV(0x2d0), g_pCurrentCar->pWorld);
+            }
+
+            if (CARF(0xbf8) != 0) {
+                for (i = 0; i < 4; i++) {
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0xc0) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0x90) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                    g_pCurrentCar->field_0xabe[i] = g_pCurrentCar->wheelSurface[i];
+                }
+                for (i = 0; i < 8; i++) {
+                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x504 + i * 0xc) =
+                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x4a4 + i * 0xc);
+                    CARF(0xbbc + i * 4) = 0;
+                }
+                CARF(0x7a8) = CARF(0x7a4);
+                CARV(0x2f4) = CARV(0x2d0);
+                CARV(0x2e8) = CARV(0x2d0);
+                CARV(0x498) = CARV(0x48c);
+                memcpy(g_pCurrentCar->field_0x384, &g_pCurrentCar->right, 0x24);
+                CARF(0x6e4) = 0;
+                CARF(0x6e8) = 0;
+                CARF(0x6ec) = 0;
+                CARF(0x6f0) = 0;
+                CARF(0x6f4) = 0;
+                CARF(0x6f8) = 0;
+            }
+            CARF(0xbf8) = 0;
+            CARF(0xc20) = 0;
+            CARF(0xb74) = 1;
+            FixMatrix_InverseRotateVector(&v, &CARV(0x48c), g_pCurrentCar->pWorld);
+            if (!(v.y > 0x106 && FIX_ABS(v.x) <= FixMul(FIX_ABS(v.y), 0x93cd) &&
+                  FIX_ABS(v.z) <= FixMul(FIX_ABS(v.y), 0x10000)))
+                CARF(0xb74) = 0;
+            for (i = 0; i < 4; i++) {
+                g_pCurrentCar->field_0x890[i] = 0;
+                g_pCurrentCar->field_0x8a0[i] = 0;
+            }
+            Car_UpdateSurfaceParams(g_pCurrentCar, 0);
+            FUN_0042e450();
+            CARB(0xb1d) = 0;
+            Car_UpdateSuspension();
+            Car_StoreBodyMatrix();
+            *(short *)((BYTE *)g_pCurrentCar + 0xb00) =
+                Sector_GetNeighbours(&g_pCurrentCar->position, nb);
+            *(short *)((BYTE *)g_pCurrentCar + 0xb02) = nb[0];
+            *(short *)((BYTE *)g_pCurrentCar + 0xb04) = nb[1];
+            *(short *)((BYTE *)g_pCurrentCar + 0xb06) = nb[2];
+            p--;
+        } while (--n != 0);
+    }
+    FUN_00484e00((int)pOrder, count);
+}
+
 // Lifts the current car out of the ground by the deepest penetration of any
 // of its eight box corners, rising or sinking as needed.
 // FUNCTION: CMR2 0x004458d0
