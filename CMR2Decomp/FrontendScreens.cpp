@@ -10329,7 +10329,9 @@ extern unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3);
 // driver columns with their flags, the three car rows and the bottom row of
 // stage options, laying everything out from the current screen size (the flag
 // sprite is 0x12x0xc, 0x1c/0x12 in the 1024 mode).
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 71.35% (auditado W165): el unico diff de forma era el umbral (GetScreenWidth() >= 0x400; el
+// original usa cmp eax,0x400 / jb); el resto es reordenado de los bloques de division por constante
+// y reparto de registros, con las mismas llamadas y constantes.
 // FUNCTION: CMR2 0x004d50a0
 void FUN_004d50a0(Menu *pMenu)
 {
@@ -10342,7 +10344,7 @@ void FUN_004d50a0(Menu *pMenu)
     src.y = 0;
     src.w = 0x12;
     src.h = 0xc;
-    if (CGameInfo::GetScreenWidth() > 0x3ff) {
+    if (CGameInfo::GetScreenWidth() >= 0x400) {
         if (CFrontend::FUN_004b7560(0x400) != 0) {
             if (CFrontend::FUN_004b7590(0x400) != 0) {
                 src.w = 0x1c;

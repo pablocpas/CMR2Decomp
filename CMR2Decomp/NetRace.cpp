@@ -976,9 +976,11 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
 // by the angle between the direction to the car and the view delta. param_3
 // is returned unchanged when the view node is 100.0 units away or more, and
 // when those two directions are exactly perpendicular.
-// match 79%: implementada, MSVC6 asigna 0x38 de pila frente a 0x44 y reparte distinto los registros en las llamadas a Car_Get
+// match 79.96% (auditado W165): el tipo de retorno es unsigned short (el original devuelve el valor
+// en AX en 'return param_3' y sus llamadores lo enmascaran con 0xffff); el resto de los diffs es
+// reparto de registros y slots, sin cambio de comportamiento.
 // FUNCTION: CMR2 0x00427e20
-unsigned int FUN_00427e20(int param_1, int param_2, unsigned short param_3)
+unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
 {
     FixVector pos;
     FixVector view;

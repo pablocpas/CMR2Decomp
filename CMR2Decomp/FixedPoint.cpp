@@ -1449,9 +1449,12 @@ extern const double g_unk0x00511380;
 //            placed at the car-relative offset 0xf8;
 // after which the ground-probe octant table is rebuilt and every node of the
 // object's chain is flagged as moved. Any other mode only refreshes the matrix.
-// match 63%: implementada; 1706 instrucciones frente a las 1717 del original, con los mismos
-// inlines (18 shrd / 96 shld / 8 idiv) y las mismas 6 conversiones fild/fmul/fistp, pero MSVC6
-// fusiona los bloques identicos de los dos modos (2 RotateVector y 1 GetPosition frente a 3 y 2).
+// match 62.2% (auditado W165): BUG CORREGIDO - el modo 2 leia 'world' sin inicializar; el original
+// calcula world = RotateVector(pObj+0xf8) + GetPosition(pMatrix) al principio del bloque (se ve en el
+// despacho: 'dec eax; jne' manda el modo 2 a esa secuencia). Al anadirlo la secuencia de llamadas
+// coincide exactamente con la del original (27), pero su planificacion baja el % (63.3 -> 62.2): el
+// resto de los diffs son reparto de registros/slots y el orden de los bloques.
+// inlines (18 shrd / 96 shld / 8 idiv) y las mismas 6 conversiones fild/fmul/fistp.
 // FUNCTION: CMR2 0x00470580
 void FUN_00470580(void)
 {
@@ -1566,6 +1569,11 @@ void FUN_00470580(void)
             FixMatrix_GetRight(&basis.right, pMatrix);
             FixMatrix_GetUp(&basis.up, pMatrix);
             FixMatrix_GetForward(&basis.forward, pMatrix);
+            FixMatrix_RotateVector(&world, (FixVector *)(pObj + 0xf8), pMatrix);
+            FixMatrix_GetPosition(&pos, pMatrix);
+            world.x += pos.x;
+            world.y += pos.y;
+            world.z += pos.z;
 
             FILL_PROBE_TABLE(pObj)
             vecE0 = *(FixVector *)(pObj + 0xe0);

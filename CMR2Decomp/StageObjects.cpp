@@ -11386,7 +11386,9 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3);
 int FUN_00427d50(unsigned int view, int listener);
 bool FUN_00427ab0(int value, int *pRange);
 unsigned int FUN_00427b70(int value, int *pCurve);
-unsigned int FUN_00427e20(int param_1, int param_2, unsigned short param_3);
+// unsigned short, no unsigned int: el original devuelve 16 bits (sus llamadores hacen 'and eax,0xffff').
+// Corregido por la auditoria de W165 en NetRace.cpp; la declaracion tiene que seguir el mismo contrato.
+unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3);
 int Sound_IsPlaying(unsigned int handle);
 void FUN_004b79a0(unsigned int handle, int volume);
 void Sound_SetPan(unsigned int handle, unsigned short pan);
