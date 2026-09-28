@@ -117,6 +117,86 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
     return result;
 }
 
+// GLOBAL: CMR2 0x005914a8
+FixVector g_unk0x005914a8;
+// GLOBAL: CMR2 0x005914b8
+FixVector g_unk0x005914b8;
+// GLOBAL: CMR2 0x005915e8
+FixVector g_unk0x005915e8;
+
+// Splits a movement of `amount` along pDir between the two collision boxes: the
+// scale*amount part goes to pB and the opposite of the remainder to pA.  Both
+// boxes get their four local vectors, their eight-vector array and the vertex
+// at +0x94 moved by the same amount.
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The instruction sequence is the original's; only the register numbering of
+// the induction variables and the base/index order of the two 0x60 loops differ.
+// FUNCTION: CMR2 0x004894b0
+void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale)
+{
+    FixVector v;
+    int t;
+    int rest;
+    int *p;
+    int i;
+    int j;
+
+    g_unk0x005915e8.x = pDir[0];
+    g_unk0x005915e8.y = pDir[1];
+    g_unk0x005915e8.z = pDir[2];
+    if (amount > 0) {
+        t = FixMul(amount, scale);
+        rest = amount - t;
+        if (scale != 0) {
+            FixVecScale(&v, (FixVector *)pDir, t);
+            // the original accumulates y, z and x in this order
+            g_unk0x005914b8.y += v.y;
+            g_unk0x005914b8.z += v.z;
+            g_unk0x005914b8.x += v.x;
+            if ((int *)pB[0x25] != NULL && pB[0x24] != 0) {
+                ((int *)pB[0x25])[0] += v.x;
+                ((int *)pB[0x25])[1] += v.y;
+                ((int *)pB[0x25])[2] += v.z;
+                for (i = 0; i < 0x60; i += 0xc) {
+                    *(int *)(pB[0x24] + i) += v.x;
+                    *(int *)(pB[0x24] + i + 4) += v.y;
+                    *(int *)(pB[0x24] + i + 8) += v.z;
+                }
+                p = pB + 0xd;
+                for (j = 4; j != 0; j--) {
+                    p[-1] += v.x;
+                    p[0] += v.y;
+                    p[1] += v.z;
+                    p += 3;
+                }
+            }
+        }
+        if (scale != 0x10000) {
+            FixVecScale(&v, (FixVector *)pDir, -rest);
+            g_unk0x005914a8.y += v.y;
+            g_unk0x005914a8.z += v.z;
+            g_unk0x005914a8.x += v.x;
+            if ((int *)pA[0x25] != NULL && pA[0x24] != 0) {
+                ((int *)pA[0x25])[0] += v.x;
+                ((int *)pA[0x25])[1] += v.y;
+                ((int *)pA[0x25])[2] += v.z;
+                for (i = 0; i < 0x60; i += 0xc) {
+                    *(int *)(pA[0x24] + i) += v.x;
+                    *(int *)(pA[0x24] + i + 4) += v.y;
+                    *(int *)(pA[0x24] + i + 8) += v.z;
+                }
+                p = pA + 0xd;
+                for (j = 4; j != 0; j--) {
+                    p[-1] += v.x;
+                    p[0] += v.y;
+                    p[1] += v.z;
+                    p += 3;
+                }
+            }
+        }
+    }
+}
+
 // Clamps the magnitude of each component of v to limit (y only when clampY).
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048c6e0
