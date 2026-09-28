@@ -31,6 +31,7 @@ struct GlowLight;
 GlowLight *Glow_Add(int type, FixVector *pos, FixVector *dir, int unused1, int sizeX, int sizeY, int billboardTexture,
                     int layerTexture, int intensity, int node, BYTE projected, int unused2, int field_0x40);
 void FUN_004ae3d0(BYTE *p, BYTE value);
+void FUN_004ae3f0(BYTE *p, int value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -3253,6 +3254,10 @@ int g_unk0x0058e4a8[8];
 // i.e. 0x18 bytes below the glow fields that 0x47d510 walks.
 // GLOBAL: CMR2 0x0058e4c8
 BYTE g_unk0x0058e4c8[100][0x5c];
+// Same records as 0x47d5a0 walks, seen from their position field (+0xc): the
+// pointer arithmetic of that view lives in 0x47e1e0.
+// GLOBAL: CMR2 0x0058e4d4
+BYTE g_unk0x0058e4d4[100][0x5c];
 
 // Spawns the headlight glow of one stage object: finds the first free record,
 // places it at the top corner of the car's bounding box, aims it along the
@@ -3309,6 +3314,72 @@ void FUN_0047d5a0(BYTE car)
             i++;
         } while (i < 100);
     }
+}
+
+void Glow_SetPosition(GlowLight *pLight, FixVector *pPos, FixVector *pDir);
+void Glow_SetLayerPlane(GlowLight *pLight, FixVector *pPoint, FixVector *pNormal, int layerIntensity);
+
+// Interpolates every headlight glow between its spawn record (the copy at
+// +0x28/+0x34) and the current car state by the fraction t, normalises the
+// direction and moves the light with it.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The addresses are the original's (checked against the emitting disassembly);
+// MSVC materialises the record pointer 4 bytes higher and compensates with -4
+// displacements, so every memory operand reads differently.
+// FUNCTION: CMR2 0x0047e1e0
+void FUN_0047e1e0(int t)
+{
+    FixVector pos;
+    FixVector normal;
+    FixVector delta;
+    FixVector ground;
+    int *pRec;
+    int length;
+    int size;
+    int i;
+
+    pRec = (int *)g_unk0x0058e4d4;
+    i = 100;
+    do {
+        if (pRec[0x12] == 0) {
+            FUN_004ae3d0((BYTE *)pRec[0x11], 0);
+        } else {
+            delta.x = pRec[0] - pRec[7];
+            delta.y = pRec[1] - pRec[8];
+            delta.z = pRec[2] - pRec[9];
+            FixVecScale(&delta, &delta, t);
+            pos.x = delta.x + pRec[7];
+            pos.y = delta.y + pRec[8];
+            pos.z = delta.z + pRec[9];
+            delta.x = pRec[3] - pRec[0xa];
+            delta.y = pRec[4] - pRec[0xb];
+            delta.z = pRec[5] - pRec[0xc];
+            FixVecScale(&delta, &delta, t);
+            normal.x = delta.x + pRec[0xa];
+            normal.y = delta.y + pRec[0xb];
+            normal.z = delta.z + pRec[0xc];
+            length = FixVecLength(&normal);
+            if (length == 0) {
+                normal.x = 0;
+                normal.y = 0;
+                normal.z = 0;
+            } else {
+                FixVecScaleRecip(&normal, &normal, length);
+            }
+            size = FixMul(pRec[6] - pRec[0xd], t) + pRec[0xd];
+            if (size <= 0) {
+                FUN_004ae3d0((BYTE *)pRec[0x11], 0);
+            } else {
+                FUN_004ae3d0((BYTE *)pRec[0x11], 1);
+                FUN_004ae3f0((BYTE *)pRec[0x11], size);
+                Glow_SetPosition((GlowLight *)pRec[0x11], &pos, &pos);
+                ground = pos;
+                ground.y -= 0x8000;
+                Glow_SetLayerPlane((GlowLight *)pRec[0x11], &ground, &normal, 0);
+            }
+        }
+        pRec += 0x17;
+    } while (--i);
 }
 
 // FUNCTION: CMR2 0x0047e490
