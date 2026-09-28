@@ -1,5 +1,6 @@
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
+#include "Game.h"
 #include "Graphics.h"
 #include "InstallInfo.h"
 #include "main.h"
@@ -503,5 +504,53 @@ char FUN_004eb6d0(void)
     g_unk0x00531650 = 0;
     g_unk0x00818cd0 = 0;
     return 1;
+}
+
+// GLOBAL: CMR2 0x00525278
+char g_strPpsPattern[8] = "*.pps";
+// GLOBAL: CMR2 0x00525280
+char g_strPpsDirFormat[8] = "%s\\pps\\";
+
+// Rebuilds the player-profile file list: enters <hd>\pps, scans *.pps and
+// appends one 12-byte date block per file (the buffer grows by 12 bytes each time).
+// FUNCTION: CMR2 0x004eb700
+void FUN_004eb700(void)
+{
+    WIN32_FIND_DATAA find;
+    char oldDir[260];
+    char ppsDir[260];
+    HANDLE hFind;
+    char found;
+
+    if (g_unk0x00818cd0 == 0) {
+        g_unk0x00818cd0 = 1;
+        CGame::RegisterCallback((void *)FUN_004eb6d0, NULL);
+    }
+    if (g_unk0x00531764 != NULL) {
+        CFileBuffer::FreeGenericFileBuffer(g_unk0x00531764);
+        g_unk0x00531764 = NULL;
+    }
+    g_unk0x00531650 = 0;
+    GetCurrentDirectoryA(260, oldDir);
+    sprintf(ppsDir, g_strPpsDirFormat, CInstallInfo::GetGameHDPath());
+    if (SetCurrentDirectoryA(ppsDir) != 0 &&
+        (hFind = FindFirstFileA(g_strPpsPattern, &find)) != INVALID_HANDLE_VALUE) {
+        g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
+            g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
+        found = FUN_004ebee0((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+                             find.cFileName);
+        if (found != 0)
+            g_unk0x00531650++;
+        while (FindNextFileA(hFind, &find) != 0) {
+            g_unk0x00531764 = (BYTE *)CFileBuffer::ReallocateLockedBuffer(
+                g_unk0x00531764, (g_unk0x00531650 * 3 + 3) * 4);
+            found = FUN_004ebee0((Unk0x10Block *)(g_unk0x00531764 + g_unk0x00531650 * 0xc),
+                                 find.cFileName);
+            if (found != 0)
+                g_unk0x00531650++;
+        }
+        FindClose(hFind);
+    }
+    SetCurrentDirectoryA(oldDir);
 }
 

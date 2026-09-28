@@ -49,15 +49,7 @@ void FUN_004d9c40(Menu *pMenu)
 {
 }
 
-void FUN_004db850(Menu *pMenu, int param)
-{
-}
-
 void FUN_004dc710(Menu *pMenu, int param)
-{
-}
-
-void FUN_004dc930(Menu *pMenu, int param)
 {
 }
 
@@ -78,47 +70,7 @@ void FUN_004dfe20(Menu *pMenu, int param)
 {
 }
 
-void FUN_004e1d70(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e20e0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e2610(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e48b0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e4fc0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e5c90(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e63d0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e6a80(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e7120(Menu *pMenu, int param)
-{
-}
-
 void FUN_004e77c0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004e7ed0(Menu *pMenu, int param)
 {
 }
 
@@ -142,22 +94,6 @@ void FUN_004ecaf0(Menu *pMenu, int param)
 {
 }
 
-void FUN_004ed100(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ed840(Menu *pMenu, int param)
-{
-}
-
-void FUN_004ee170(Menu *pMenu)
-{
-}
-
-void FUN_004ee6e0(Menu *pMenu)
-{
-}
-
 
 // STUB: CMR2 0x004efb70
 void FUN_004efb70(Menu *pMenu, int param)
@@ -166,10 +102,6 @@ void FUN_004efb70(Menu *pMenu, int param)
 
 // STUB: CMR2 0x004efde0
 void FUN_004efde0(Menu *pMenu, int param)
-{
-}
-
-void FUN_004f0580(Menu *pMenu, int param)
 {
 }
 
