@@ -5309,21 +5309,33 @@ void FUN_00470240(BYTE **pElement, int car)
 }
 
 // Row of the 7-byte table g_unk0x00520128 for the current country.
-// match 18%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00494a70
 BYTE *FUN_00494a70(void)
 {
+    int n;
+
     switch ((BYTE)RallyDataCountryIndex()) {
+    case 1:
+    case 2:
+        n = 0;
+        break;
     case 3:
-        return g_unk0x00520128 + 7;
+        n = 1;
+        break;
     case 5:
-        return g_unk0x00520128 + 14;
+        n = 2;
+        break;
     case 7:
-        return g_unk0x00520128 + 21;
+        n = 3;
+        break;
     case 8:
-        return g_unk0x00520128 + 28;
+        n = 4;
+        break;
+    default:
+        n = 0;
+        break;
     }
-    return g_unk0x00520128;
+    return g_unk0x00520128 + n * 7;
 }
 
 unsigned int FUN_00471bd0(BYTE **pOut);

@@ -4670,17 +4670,15 @@ struct Unk00423ee0Block {
 void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode);
 
 // Interpolates between two state records (matrix and the values at +0x48).
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423de0
 void FUN_00423de0(BYTE *pOut, BYTE *pA, BYTE *pB, int t)
 {
-    int off;
-
     FixMatrix_Interpolate((FixMatrix *)(pOut + 8), (FixMatrix *)(pA + 8), (FixMatrix *)(pB + 8), t, t, t, 1);
     *(int *)(pOut + 0x48) = *(int *)(pA + 0x48) + FixMul(*(int *)(pB + 0x48) - *(int *)(pA + 0x48), t);
     *(int *)(pOut + 0x4c) = *(int *)(pA + 0x4c) + FixMul(*(int *)(pB + 0x4c) - *(int *)(pA + 0x4c), t);
-    for (off = 0x54; off <= 0x5c; off += 4)
-        *(int *)(pOut + off) = *(int *)(pA + off) + FixMul(*(int *)(pB + off) - *(int *)(pA + off), t);
+    *(int *)(pOut + 0x54) = *(int *)(pA + 0x54) + FixMul(*(int *)(pB + 0x54) - *(int *)(pA + 0x54), t);
+    *(int *)(pOut + 0x58) = *(int *)(pA + 0x58) + FixMul(*(int *)(pB + 0x58) - *(int *)(pA + 0x58), t);
+    *(int *)(pOut + 0x5c) = *(int *)(pA + 0x5c) + FixMul(*(int *)(pB + 0x5c) - *(int *)(pA + 0x5c), t);
     *(int *)(pOut + 0x50) = *(int *)(pA + 0x50) + FixMul(*(int *)(pB + 0x50) - *(int *)(pA + 0x50), t);
     *(int *)(pOut + 0x60) = *(int *)(pA + 0x60) + FixMul(*(int *)(pB + 0x60) - *(int *)(pA + 0x60), t);
 }
@@ -5147,7 +5145,10 @@ int FUN_00421590(void)
 
 // Lifts the current car out of the ground by the deepest penetration of a
 // free corner.
-// match 14%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: revisada; lógica, constantes, ramas y el desenrollado de la segunda
+// vuelta (las ocho sumas a corners[i].y) coinciden. El original mantiene el
+// acumulador `deepest` en una ranura de pila ([esp+0x10]) mientras MSVC lo deja
+// en EBX: solo asignación de registros/slots.
 // FUNCTION: CMR2 0x0042f8c0
 void FUN_0042f8c0(void)
 {
@@ -5170,8 +5171,14 @@ void FUN_0042f8c0(void)
     if (found)
         lift = deepest;
     g_pCurrentCar->position.y += lift;
-    for (i = 0; i < 8; i++)
-        g_pCurrentCar->corners[i].y += lift;
+    g_pCurrentCar->corners[0].y += lift;
+    g_pCurrentCar->corners[1].y += lift;
+    g_pCurrentCar->corners[2].y += lift;
+    g_pCurrentCar->corners[3].y += lift;
+    g_pCurrentCar->corners[4].y += lift;
+    g_pCurrentCar->corners[5].y += lift;
+    g_pCurrentCar->corners[6].y += lift;
+    g_pCurrentCar->corners[7].y += lift;
 }
 
 // Lifts the current car out of the ground by the deepest penetration of a
