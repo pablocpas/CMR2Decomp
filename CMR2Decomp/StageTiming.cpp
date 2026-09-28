@@ -2543,6 +2543,95 @@ void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag)
     }
 }
 
+// Thresholds (first/second-hit window speeds) for the high/front and low/rear
+// halves of a car's eight timing parts.
+// GLOBAL: CMR2 0x0051bfac
+int g_unk0x0051bfac[8] = { 0x3333, 0x3333, 0x3333, 0x3333, 0x1999, 0x1999, 0x1999, 0x1999 };
+// GLOBAL: CMR2 0x0051bfcc
+int g_unk0x0051bfcc[8] = { 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999, 0x1999 };
+
+void FUN_004694a0(int param_1, int param_2, char param_3);
+void FUN_00418cd0(unsigned int view, int kind, int listener);
+void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part);
+
+// Flags window/body breaks for the eight parts of a car's timing record.
+// FUNCTION: CMR2 0x004692f0
+void FUN_004692f0(Car *pCar, int param_2)
+{
+    BYTE *pRecord;
+    BYTE *pByte;
+    int *pFlagA;
+    BYTE i;
+    BYTE part;
+    int carIndex;
+    unsigned int state;
+
+    pRecord = (BYTE *)(pCar->field_0xb1a * 0x4d0 + (int)g_unk0x00588b94);
+    if (*(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'C' ||
+        *(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'A') {
+        i = 0;
+        pByte = pRecord + 0x460;
+        pFlagA = (int *)(pRecord + 0x490);
+        for (; i < 8; i++) {
+            part = *pByte;
+            if (pFlagA[0] == 0 || pFlagA[-8] == 0) {
+                if (pFlagA[-0x7a] > g_unk0x0051bfac[i] && pFlagA[0] == 0) {
+                    FUN_004694a0((int)pCar, 2, i);
+                    pFlagA[0] = 1;
+                    pFlagA[-8] = 1;
+                    if (param_2 == 0) {
+                        Car_QueueWindowBreak(pRecord, pCar, part);
+                        carIndex = pCar->field_0xb1a;
+                        state = RallyDataState();
+                        if (carIndex < (int)(state & 0xff)) {
+                            switch (i) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                                FUN_00418cd0(carIndex, 2, carIndex);
+                                break;
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                                FUN_00418cd0(carIndex, 0, carIndex);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (pFlagA[-0x7a] > g_unk0x0051bfcc[i] && pFlagA[-8] == 0 && pFlagA[0] == 0) {
+                    FUN_004694a0((int)pCar, 1, i);
+                    pFlagA[-8] = 1;
+                    if (param_2 == 0) {
+                        carIndex = pCar->field_0xb1a;
+                        state = RallyDataState();
+                        if (carIndex < (int)(state & 0xff)) {
+                            switch (i) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                                FUN_00418cd0(carIndex, 2, carIndex);
+                                break;
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                                FUN_00418cd0(carIndex, 0, carIndex);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            pByte++;
+            pFlagA++;
+        }
+    }
+}
+
 // Index of the part of a car model whose node type byte is `type` (-1 none).
 // match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004692b0
@@ -2606,6 +2695,103 @@ void FUN_00458b80(void)
 
 unsigned int RallyData_FUN_004082b0(void);
 unsigned int RallyData_FUN_004082e0(void);
+
+extern int g_unk0x00542c6c;
+extern int g_unk0x00542c74;
+extern char g_unk0x00542cad;
+extern int g_unk0x00542cb0;
+extern int g_unk0x00542cb4[8];
+
+int FUN_00459350(int index);
+void RallyData_FUN_004213d0(Car *pCar, int value);
+void FUN_00459250(BYTE player, unsigned int node, int dir);
+
+// Resets one player's timing record (table at 0x542e78, stride 0x1c) to the
+// default state for the current rally and network mode.
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x00458bd0
+void FUN_00458bd0(int param_1, int param_2, int param_3, char param_4)
+{
+    Car *pCar;
+    short value;
+
+    pCar = Car_Get(param_1);
+    g_unk0x00542e78[param_1].field_0x16 = 0;
+    g_unk0x00542e78[param_1].field_0x17 = 0;
+    g_unk0x00542e78[param_1].field_0x18 = 0;
+    g_unk0x00542e78[param_1].field_0x19 = 0;
+    g_unk0x00542e78[param_1].field_0x1a = 0;
+    g_unk0x00542e78[param_1].field_0x14 = 0;
+    g_unk0x00542e78[param_1].field_0x10 = 0;
+    g_unk0x00542e78[param_1].field_0x12 = 0;
+    if ((BYTE)RallyData_GetFlag24() == 0 && (BYTE)RallyData_GetFlag25() == 0) {
+        g_unk0x00542e78[param_1].field_0x0 = (short)RallyData_FUN_00421370((BYTE *)pCar);
+        g_unk0x00542e78[param_1].field_0x2 = 0;
+        g_unk0x00542e78[param_1].field_0x4 = 0;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0x8 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 1;
+        g_unk0x00542e78[param_1].field_0xc = 0;
+        g_unk0x00542e78[param_1].field_0xe = (short)g_unk0x00542c74 - 1;
+        goto end;
+    }
+    g_unk0x00542e78[param_1].field_0x4 = 0;
+    g_unk0x00542e78[param_1].field_0x8 = 0;
+    if (param_4 != 0) {
+        g_unk0x00542e78[param_1].field_0x0 = (short)FUN_00459320(RallyData_FUN_00421370((BYTE *)pCar));
+    }
+    else {
+        value = g_unk0x00542d58[param_1];
+        g_unk0x00542e78[param_1].field_0x0 = value;
+        RallyData_FUN_004213d0(pCar, FUN_00459350((int)value));
+        g_unk0x00542e78[param_1].field_0x12 = g_unk0x00542d68[param_1];
+    }
+    if ((BYTE)RallyData_GetFlag24() != 0) {
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xe = 0;
+        if (g_unk0x00542cad == 0) {
+            g_unk0x00542e78[param_1].field_0xa = 1;
+            g_unk0x00542e78[param_1].field_0xc = g_unk0x00542c6c;
+        }
+        else {
+            g_unk0x00542e78[param_1].field_0xa = 0;
+            g_unk0x00542e78[param_1].field_0xc = 1000;
+        }
+        goto end;
+    }
+    if (g_unk0x00542cad == 0) {
+        if (CGameInfo::FUN_00405e00() != 0) {
+            if (g_unk0x00542cb4[0] != 0 && CGameInfo::FUN_00405d80() != 10)
+                goto d8e;
+        }
+        else {
+            if (param_1 != g_unk0x00542cb0 && CGameInfo::FUN_00405d80() != 3)
+                goto d8e;
+        }
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 1;
+        g_unk0x00542e78[param_1].field_0xc = 1;
+    }
+    else {
+        g_unk0x00542e78[param_1].field_0x2 = -1;
+        g_unk0x00542e78[param_1].field_0x6 = 0;
+        g_unk0x00542e78[param_1].field_0xa = 0;
+        g_unk0x00542e78[param_1].field_0xc = 1000;
+    }
+    g_unk0x00542e78[param_1].field_0xe = 0;
+    goto end;
+d8e:
+    g_unk0x00542e78[param_1].field_0x2 = 0;
+    g_unk0x00542e78[param_1].field_0x6 = 1;
+    g_unk0x00542e78[param_1].field_0xa = 0;
+    g_unk0x00542e78[param_1].field_0x8 = 1;
+    g_unk0x00542e78[param_1].field_0xc = 1;
+    g_unk0x00542e78[param_1].field_0xe = 1;
+end:
+    FUN_00459250((BYTE)param_1, (int)g_unk0x00542e78[param_1].field_0x0, 1);
+}
 
 // Flags the record when its two positions coincide (not in some network modes).
 // FUNCTION: CMR2 0x00459180
