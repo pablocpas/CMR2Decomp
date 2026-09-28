@@ -8828,3 +8828,182 @@ void FUN_004f0580(Menu *pMenu, int param)
         g_unk0x00819048--;
     }
 }
+
+// GLOBAL: CMR2 0x00524d4c
+char g_strClassRowFormat[20] = "%s  (%s, %s, %s)";
+
+// Draws the network "class" selection screen: one row per class with its name
+// and its two columns of allowed values.
+// FUNCTION: CMR2 0x004db850
+void FUN_004db850(Menu *pMenu, int param)
+{
+    short rect[4];
+    char *pTexts[2];
+    MenuItem *pItem;
+    Texture *pTexture;
+    int *pColour;
+    int *pLineColour;
+    int *pShadow;
+    int count;
+    int baseY;
+    int y;
+
+    rect[1] = 0;
+    rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[2] = CFrontend::m_pAr640ATexture->width;
+    rect[3] = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    pTexts[0] = CFrontend::GetTextString(0x94);
+    pTexts[1] = CFrontend::GetTextString(0xc);
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
+                          (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 3, pTexts, 2);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+    baseY = ((int)(g_pGraphics->resY * 0x38) / 0x1e0 + (int)(g_pGraphics->resY * 0x176) / 0x1e0) / 2 -
+            (((int)(g_pGraphics->resY * 0x24) / 0x1e0) * pMenu->itemCount) / 2;
+    if (pMenu->cursor == 0) {
+        pColour = (int *)g_colourWhite0x00524968;
+        pShadow = (int *)g_colourShadowWhite0x00524974;
+    } else {
+        pColour = (int *)g_colourText0x0052496c;
+        pShadow = (int *)g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[1] = (short)baseY;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
+    g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pColour, 1);
+    if (0 < pMenu->itemCount) {
+        for (count = 0; count < pMenu->itemCount; count++) {
+            pItem = &pMenu->items[count];
+            y = (int)(g_pGraphics->resY * 0x14) / 0x1e0 + baseY +
+                ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
+                CFrontend::m_pAr640ATexture->height / 2;
+            if (pMenu->cursor == count) {
+                pColour = (int *)g_colourWhite0x00524968;
+                pTexture = CFrontend::m_pAr640ATexture;
+            } else {
+                pColour = (int *)g_colourText0x0052496c;
+                pTexture = CFrontend::m_pAr640DTexture;
+                if ((pItem->enabled & 1) == 0)
+                    pColour = (int *)g_colourDim0x00524970;
+            }
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL,
+                         (BYTE *)pColour, 8);
+            if (pItem->value == 0) {
+                sprintf(CFrontend::m_stringDest, g_strClassRowFormat,
+                        CFrontend::GetTextString(0xe8), CFrontend::GetTextString(0x2b),
+                        CFrontend::GetTextString(0x27), CFrontend::GetTextString(0x29));
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            } else if (pItem->value == 1) {
+                sprintf(CFrontend::m_stringDest, g_strClassRowFormat,
+                        CFrontend::GetTextString(0xe9), CFrontend::GetTextString(0x2d),
+                        CFrontend::GetTextString(0x2a), CFrontend::GetTextString(0x28));
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            } else {
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            }
+            if (pMenu->cursor == count || pMenu->cursor == count + 1) {
+                pLineColour = (int *)g_colourWhite0x00524968;
+                pShadow = (int *)g_colourShadowWhite0x00524974;
+            } else if ((pItem->enabled & 1) == 0 && (pMenu->items[count + 1].enabled & 1) == 0) {
+                pLineColour = (int *)g_colourDim0x00524970;
+                pShadow = (int *)g_colourShadowDim0x0052497c;
+            } else {
+                pLineColour = (int *)g_colourText0x0052496c;
+                pShadow = (int *)g_colourShadowText0x00524978;
+            }
+            g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0x24) / 0x1e0) * (count + 1)) + baseY;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
+            g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
+        }
+    }
+}
+
+extern char g_classRowHeaderFormat[];
+
+// Draws the network "car" selection screen: one row per car with its name and
+// the value columns, plus the highlight bars.
+// FUNCTION: CMR2 0x004e2610
+void FUN_004e2610(Menu *pMenu, int param)
+{
+    short rect[4];
+    MenuItem *pItem;
+    Texture *pTexture;
+    int *pColour;
+    int *pLineColour;
+    int *pShadow;
+    int count;
+    int baseY;
+    int y;
+
+    rect[1] = 0;
+    rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[2] = CFrontend::m_pAr640ATexture->width;
+    rect[3] = CFrontend::m_pAr640ATexture->height;
+    baseY = ((int)(g_pGraphics->resY * 8) / 0x1e0 + (int)(g_pGraphics->resY * 0x26) / 0x1e0 +
+             (int)(g_pGraphics->resY * 0x180) / 0x1e0) / 2 -
+            (((int)(g_pGraphics->resY * 0x24) / 0x1e0) * pMenu->itemCount) / 2;
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
+                          (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
+    if (pMenu->cursor == 0) {
+        pColour = (int *)g_colourWhite0x00524968;
+        pShadow = (int *)g_colourShadowWhite0x00524974;
+    } else {
+        pColour = (int *)g_colourText0x0052496c;
+        pShadow = (int *)g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[1] = (short)baseY;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
+    g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pColour, 1);
+    if (0 < pMenu->itemCount) {
+        for (count = 0; count < pMenu->itemCount; count++) {
+            pItem = &pMenu->items[count];
+            y = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + baseY +
+                ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
+                CFrontend::m_pAr640ATexture->height / 2;
+            if (pMenu->cursor == count) {
+                pColour = (int *)g_colourWhite0x00524968;
+                pTexture = CFrontend::m_pAr640ATexture;
+            } else {
+                pColour = (int *)g_colourText0x0052496c;
+                pTexture = CFrontend::m_pAr640DTexture;
+            }
+            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL,
+                         (BYTE *)pColour, 8);
+            if (pItem->value >= 0) {
+                if (pItem->value < 3) {
+                    sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat,
+                            CFrontend::GetTextString(pItem->id), pItem->max * 10);
+                    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                                  (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+                } else if (pItem->value == 4) {
+                    Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                                  (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+                }
+            }
+            if (pMenu->cursor == count + 1 || pMenu->cursor == count) {
+                pLineColour = (int *)g_colourWhite0x00524968;
+                pShadow = (int *)g_colourShadowWhite0x00524974;
+            } else {
+                pLineColour = (int *)g_colourText0x0052496c;
+                pShadow = (int *)g_colourShadowText0x00524978;
+            }
+            g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0x24) / 0x1e0) * (count + 1)) + baseY;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
+            g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
+        }
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
