@@ -5885,10 +5885,6 @@ BYTE *RallyData_FUN_00407630(int index);
 BYTE *FUN_00494a70(void);
 BYTE FUN_0041b370(void);
 
-// Value the car setup leaves behind for the next frame's ignition logic.
-// GLOBAL: CMR2 0x0053cadc
-int g_unk0x0053cadc;
-
 // Spawns the current car at a stage/restart: picks the car model from the
 // rally selection, sets up its tuning from the per-model table, its body box
 // from the model dimensions and all the per-stage counters.
@@ -6352,7 +6348,7 @@ LAB_0043d703:
     *(short *)((int)g_pCurrentCar + 0xafe) = 0;
     CARF(0xb98) = 1;
     CARB(0xb44) = (char)0xff;
-    g_unk0x0053cadc = 0x9999;
+    g_gravityScale = 0x9999;
     CARF(0x78c) = CARF(0x788);
     CARF(0xa98) = 0x41c80000;
     if (CGameInfo::FUN_00405e00() != 0 && CARB(0xb1a) > 0) {
