@@ -8164,3 +8164,346 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
     }
     param_4[i] = 0;
 }
+
+// ---------------------------------------------------------------------------
+// Cascade layer 0 (W136): forward declarations for cross-module callees.
+// ---------------------------------------------------------------------------
+char *FUN_004a1490(BYTE index);
+int Session_GetListedUserValue(unsigned int session, char index);
+DWORD FUN_004a1720(int index);
+DWORD FUN_004a1740(BYTE index);
+BYTE *FUN_004eb450(int index);
+void RallyData_FUN_00408600(BYTE index, BYTE value);
+unsigned int FUN_0040a470(int index);
+int Font_GetTextWidth(unsigned int index, BYTE *text);
+void FUN_004d0700(char *text);
+unsigned int FUN_004f4e20(int index);
+unsigned int FUN_004f4e00(int index);
+unsigned int FUN_004f4de0(int index);
+void *FUN_004f4e70(int index);
+BYTE *FUN_004f4dc0(int index);
+bool FUN_004f4e80(void);
+extern char g_stageNumberFormat[];
+
+// Draws the "stage select" screen: breadcrumb title, the four column headers
+// and, when the entry list is open, one row per entry (name, opponent, stage,
+// number and time).
+// FUNCTION: CMR2 0x004dc930
+void FUN_004dc930(Menu *pMenu, int param)
+{
+    char *names[2];
+    int *pColour;
+    int *pSelColour;
+    int *pUnselColour;
+    int row;
+    int index;
+    int x;
+    int y;
+
+    FrontendDraw_PlayTime();
+    names[0] = CFrontend::GetTextString(0x12);
+    names[1] = CFrontend::GetTextString(0x35);
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
+                            (int)(g_pGraphics->resY * 0x26) / 0x1e0, names, 2);
+    row = 0;
+    if (g_unk0x00819014 == 0) {
+        pColour = (int *)g_colourText0x0052496c;
+        pSelColour = (int *)g_colourDim0x00524970;
+        pUnselColour = (int *)g_colourDim0x00524970;
+    } else {
+        pColour = (int *)g_colourWhite0x00524968;
+        pUnselColour = (int *)g_colourText0x0052496c;
+        pSelColour = (int *)g_colourWhite0x00524968;
+    }
+    Font_DrawText(1, CFrontend::GetTextString(0x7f), (int)(g_pGraphics->resX * 100) / 0x280,
+                  (int)(g_pGraphics->resY * 0x37) / 0x1e0, pColour, 10);
+    Font_DrawText(1, CFrontend::GetTextString(0x1a3), (int)(g_pGraphics->resX * 300) / 0x280,
+                  (int)(g_pGraphics->resY * 0x37) / 0x1e0, pColour, 10);
+    Font_DrawText(1, CFrontend::GetTextString(0x20e), (int)(g_pGraphics->resX * 0x1c2) / 0x280,
+                  (int)(g_pGraphics->resY * 0x37) / 0x1e0, pColour, 10);
+    Font_DrawText(1, CFrontend::GetTextString(0x20f), (int)(g_pGraphics->resX * 0x226) / 0x280,
+                  (int)(g_pGraphics->resY * 0x37) / 0x1e0, pColour, 10);
+    if (g_unk0x00818ef4 != 0 && g_unk0x0081901c < g_unk0x00819020 + g_unk0x0081901c) {
+        index = g_unk0x0081901c;
+        do {
+            pColour = pSelColour;
+            if (g_unk0x00525288 != index)
+                pColour = pUnselColour;
+            y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row;
+            Font_DrawText(1, FUN_004a1490(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
+            Font_DrawText(1, CFrontend::GetTextString(Session_GetListedUserValue(index, 0) - 8 + 0x1f1),
+                          (int)(g_pGraphics->resX * 300) / 0x280, y, pColour, 10);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1720(index));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, y, pColour, 10);
+            sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1740(index));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x226) / 0x280, y, pColour, 10);
+            row++;
+            index++;
+        } while (index < g_unk0x00819020 + g_unk0x0081901c);
+    }
+    FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 0, 1);
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// ---------------------------------------------------------------------------
+// Globals shared by the cascade-layer-0 screens implemented below.
+// ---------------------------------------------------------------------------
+// GLOBAL: CMR2 0x00524dbc
+char g_strFlagSS[4] = "SS";
+// GLOBAL: CMR2 0x00524dc0
+char g_strNum10[4] = "10";
+// GLOBAL: CMR2 0x00524dc4
+char g_strNum5[4] = "5";
+// GLOBAL: CMR2 0x00524dc8
+char g_strNum1[4] = "1";
+// GLOBAL: CMR2 0x00524e04
+char g_strDisplayModeFormat[12] = "%dx%d:%dbit";
+// GLOBAL: CMR2 0x00525290
+char g_strValidLetters[68] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+// GLOBAL: CMR2 0x005252d4
+char g_strValidChars[92] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ., !\"%&*()-=_+`/?\\:;[]{}'~";
+// GLOBAL: CMR2 0x00818cdc
+char *g_unk0x00818cdc;
+// GLOBAL: CMR2 0x00818d08
+int g_unk0x00818d08[4];
+// GLOBAL: CMR2 0x00818d84
+char g_unk0x00818d84[0x24];
+// GLOBAL: CMR2 0x00819028
+int g_unk0x00819028;
+
+extern char g_keypad2[];
+extern char g_keypad3[];
+extern char g_keypad4[];
+extern char g_keypad6[];
+extern char g_keypad7[];
+extern char g_keypad8[];
+extern char g_keypad9[];
+void RallyData_FUN_004068b0(BYTE param1);
+void FUN_004081d0(void);
+int RallyData_FUN_00408280(void);
+BYTE *RallyData_FUN_00408270(void);
+
+// Draws the network "waiting room" player list: a line per session built from
+// the player name, the car and the control assignment, plus the controller
+// icon; when there is no session it shows the waiting message.
+// FUNCTION: CMR2 0x004e20e0
+void FUN_004e20e0(Menu *pMenu, int param)
+{
+    char *names[11];
+    char *pText[3];
+    char *pName;
+    char *pCar;
+    char *pFormat;
+    int index;
+    int row;
+    int x;
+    int y;
+    int *pColour;
+    unsigned int car;
+    unsigned int pad;
+    unsigned int player;
+
+    names[0] = g_strNum1;
+    names[1] = g_keypad2;
+    names[2] = g_keypad3;
+    names[3] = g_keypad4;
+    names[4] = g_strNum5;
+    names[5] = g_keypad6;
+    names[6] = g_keypad7;
+    names[7] = g_keypad8;
+    names[8] = g_keypad9;
+    names[9] = g_strNum10;
+    names[10] = g_strFlagSS;
+    pText[0] = CFrontend::GetTextString(0xe7);
+    pText[1] = CFrontend::GetTextString(0xc);
+    pText[2] = CFrontend::GetTextString(0x8a);
+    FrontendDraw_PlayTime();
+    FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
+                            (int)(g_pGraphics->resY * 0x26) / 0x1e0, pText, 3);
+    if (g_unk0x0082ac48 < 1) {
+        Font_DrawText(0, CFrontend::GetTextString(0x20d), (int)g_pGraphics->resX / 2,
+                      (int)g_pGraphics->resY / 2, (int *)g_colourText0x0052496c, 0x12);
+    } else {
+        for (index = 0; index < g_unk0x0082ac48; index++) {
+            pad = FUN_004f4e20(g_unk0x0082aa3c + index);
+            pColour = (int *)names[pad];
+            player = FUN_004f4e00(g_unk0x0082aa3c + index);
+            pName = CFrontend::GetTextString(player + 0x27);
+            car = FUN_004f4de0(g_unk0x0082aa3c + index);
+            pFormat = CFrontend::GetTextString(0x210);
+            sprintf(CFrontend::m_stringDest, pFormat, car, pName, pColour);
+            if (g_unk0x0082a924 == g_unk0x0082aa3c + index) {
+                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
+                y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+                Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
+                              (int *)g_colourWhite0x00524968, 0x11);
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
+                              (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                              (int *)g_colourWhite0x00524968, 0x11);
+                pColour = (int *)g_colourWhite0x00524968;
+            } else {
+                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
+                y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+                Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
+                              (int *)g_colourText0x0052496c, 0x11);
+                Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
+                              (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index,
+                              (int *)g_colourText0x0052496c, 0x11);
+                pColour = (int *)g_colourText0x0052496c;
+            }
+            x = (int)(g_pGraphics->resX * 0xff) / 0x280;
+            y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+            Font_DrawText(0, (char *)FUN_004f4dc0(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
+        }
+    }
+    FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
+}
+
+// Clamps the stage-selection item of a network setup menu to the number of
+// stages available for the current car, and builds the "1..N SS" label.
+// FUNCTION: CMR2 0x004ee6e0
+void FUN_004ee6e0(Menu *pMenu)
+{
+    unsigned int *pFlags;
+    BYTE max;
+    unsigned int level;
+    unsigned int mask;
+    BYTE bits;
+    int count;
+    int i;
+    char *pDest;
+
+    pFlags = CGameInfo::FUN_00405db0();
+    max = Menu_GetItem(pMenu, 0)->max;
+    if (CGameInfo::FUN_00406410(0xd) == 0) {
+        level = max + 1;
+        count = 1;
+        if (level <= (*pFlags >> 8 & 0xf))
+            count = 4;
+        if (level <= (*pFlags >> 0xc & 0xf))
+            count = 8;
+        if ((*pFlags & 1) == 0 || (*pFlags >> 0x10 & 0xf) < level)
+            count = 10;
+    } else {
+        count = 10;
+    }
+    i = 0;
+    if (count != 0) {
+        pDest = g_unk0x00818d84;
+        do {
+            i++;
+            sprintf(pDest, g_stageNumberFormat, i);
+            pDest += 3;
+        } while (i < count);
+    }
+    sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
+    if (CGameInfo::FUN_00406410(0xd) == 0) {
+        if ((max & 1) != 0) {
+            mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
+            bits = (BYTE)mask;
+            if ((pFlags[1] & mask & 0x1f) != 0 ||
+                (bits & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
+                (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
+                count++;
+        }
+    } else {
+        count = ((max & 1) != 0) + 10;
+    }
+    Menu_GetItem(pMenu, 1)->min = (char)count;
+    if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
+        Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
+    FUN_004ec8d0();
+}
+
+// Refreshes the "car setup" network menu: rebuilds the transmission item, its
+// range and the list of available gearbox types.
+// FUNCTION: CMR2 0x004ee170
+void FUN_004ee170(Menu *pMenu)
+{
+    unsigned int *pFlags;
+    BYTE max;
+    unsigned int level;
+    unsigned int mask;
+    BYTE bits;
+    int count;
+    int n;
+    int i;
+    char *pDest;
+    int *pList;
+
+    pFlags = CGameInfo::FUN_00405db0();
+    max = Menu_GetItem(pMenu, 0)->max;
+    if (max != (BYTE)g_unk0x00818d70) {
+        Menu_GetItem(pMenu, 2)->max = 0;
+        g_unk0x00818d70 = max;
+    }
+    if (CGameInfo::FUN_00406410(0xd) == 0) {
+        level = max + 1;
+        count = 1;
+        if (level <= (*pFlags >> 8 & 0xf))
+            count = 4;
+        if (level <= (*pFlags >> 0xc & 0xf))
+            count = 8;
+        if ((*pFlags & 1) == 0 || (*pFlags >> 0x10 & 0xf) < level)
+            count = 10;
+    } else {
+        count = 10;
+    }
+    i = 0;
+    if (count != 0) {
+        pDest = g_unk0x00818d84;
+        do {
+            i++;
+            sprintf(pDest, g_stageNumberFormat, i);
+            pDest += 3;
+        } while (i < count);
+    }
+    sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
+    if (CGameInfo::FUN_00406410(0xd) == 0) {
+        if ((max & 1) != 0) {
+            mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
+            bits = (BYTE)mask;
+            if ((pFlags[1] & mask & 0x1f) != 0 ||
+                (bits & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
+                (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
+                count++;
+        }
+    } else {
+        count = ((max & 1) != 0) + 10;
+    }
+    Menu_GetItem(pMenu, 1)->min = (char)count;
+    if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
+        Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
+    if ((Menu_GetItem(pMenu, 1)->min == 5 && Menu_GetItem(pMenu, 1)->max == 4) ||
+        (Menu_GetItem(pMenu, 1)->min == 9 && Menu_GetItem(pMenu, 1)->max == 8) ||
+        (Menu_GetItem(pMenu, 1)->min == 0xb && Menu_GetItem(pMenu, 1)->max == 0xa))
+        Menu_GetItem(pMenu, 2)->enabled = 0;
+    else
+        Menu_GetItem(pMenu, 2)->enabled = 1;
+    RallyData_FUN_004068b0((BYTE)max);
+    FUN_004081d0();
+    n = RallyData_FUN_00408280();
+    pList = (int *)RallyData_FUN_00408270();
+    g_unk0x00818d08[0] = 0x156;
+    g_unk0x00818d74[0] = -1;
+    if (n < 4) {
+        Menu_GetItem(pMenu, 2)->min = (char)n + 1;
+        if (0 < n) {
+            for (i = 1; i <= n; i++) {
+                g_unk0x00818d08[i] = pList[i - 1] + 0x157;
+                g_unk0x00818d74[i] = pList[i - 1];
+            }
+            FUN_004ec8d0();
+            return;
+        }
+    } else {
+        Menu_GetItem(pMenu, 2)->min = 4;
+        g_unk0x00818d08[1] = pList[0] + 0x157;
+        g_unk0x00818d74[1] = pList[0];
+        g_unk0x00818d08[2] = pList[n / 2] + 0x157;
+        g_unk0x00818d74[2] = pList[n / 2];
+        g_unk0x00818d08[3] = pList[n - 1] + 0x157;
+        g_unk0x00818d74[3] = pList[n - 1];
+    }
+    FUN_004ec8d0();
+}
