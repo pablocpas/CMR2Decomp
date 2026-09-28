@@ -2617,8 +2617,63 @@ void FUN_00459790(int param_1, int param_2)
 
 // Vector helper of FUN_00459790 that is still to be decompiled. Empty body with
 // the original stdcall argument count so the call sites can be measured.
-// STUB: CMR2 0x00459630
-void FUN_00459630(int *param1, int *param2, int *param3) { }
+extern const double g_zero0x005113c8;  // defined in StageObjects.cpp
+extern float g_65536f;
+
+// float -> 16.16 with a plain fistp (no _ftol).
+inline int FloatToFix(float f)
+{
+    int i;
+    __asm fld f
+    __asm fmul dword ptr g_65536f
+    __asm fistp i
+    return i;
+}
+
+// Moves pPoint onto the line from pOrigin to it, 10 units from pOrigin
+// (the direction is prescaled by its largest component to keep the doubles
+// small), and writes the result to pOut.
+// match 65%: same code; the original keeps the three converted ints in registers
+// (and reads 10.0 from the shared constant at 0x5113c0).
+// FUNCTION: CMR2 0x00459630
+void FUN_00459630(int *pPoint, int *pOrigin, int *pOut)
+{
+    double v[3];
+    int d[3];
+    double big;
+    double length;
+    int x;
+    int y;
+    int z;
+
+    d[0] = pPoint[0] - pOrigin[0];
+    d[1] = pPoint[1] - pOrigin[1];
+    d[2] = pPoint[2] - pOrigin[2];
+    v[0] = d[0] * CGraphics::m_oneOver65536;
+    v[1] = d[1] * CGraphics::m_oneOver65536;
+    v[2] = d[2] * CGraphics::m_oneOver65536;
+    if (fabs(v[0]) > fabs(v[1]) && fabs(v[0]) > fabs(v[2]))
+        big = fabs(v[0]);
+    else if (fabs(v[1]) > fabs(v[0]) && fabs(v[2]) < fabs(v[1]))
+        big = fabs(v[1]);
+    else
+        big = fabs(v[2]);
+    if (big > g_zero0x005113c8) {
+        v[0] /= big;
+        v[1] /= big;
+        v[2] /= big;
+    }
+    length = sqrt(v[2] * v[2] + v[1] * v[1] + v[0] * v[0]);
+    v[0] = v[0] * 10.0 / length;
+    v[1] = v[1] * 10.0 / length;
+    v[2] = v[2] * 10.0 / length;
+    x = FloatToFix((float)v[0]);
+    y = FloatToFix((float)v[1]);
+    z = FloatToFix((float)v[2]);
+    pOut[0] = pOrigin[0] + x;
+    pOut[1] = pOrigin[1] + y;
+    pOut[2] = pOrigin[2] + z;
+}
 
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 void Scene_FreeShadowCasters(void);

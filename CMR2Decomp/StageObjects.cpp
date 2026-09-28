@@ -3085,6 +3085,8 @@ extern const float g_unk0x005113d0 = 1.0f / 45.0f;
 extern const float g_unk0x005113dc = 480.0f;
 // GLOBAL: CMR2 0x005113e0
 extern const float g_unk0x005113e0 = 640.0f;
+// GLOBAL: CMR2 0x005113c8
+extern const double g_zero0x005113c8 = 0.0;
 
 extern const float g_netZero;
 extern const float g_netByteScale;
