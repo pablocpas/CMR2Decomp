@@ -10529,9 +10529,9 @@ BYTE *FUN_004f8a00(int row, int column);
 BYTE FUN_00407150(BYTE param1, char param2);
 int RallyData_FUN_004077d0(int row, int column, int variant);
 
-// Space width of the menu font; the string that follows it is "SNOW".
-// GLOBAL: CMR2 0x00516870
-char g_str0x00516870[] = " ";
+// Space width of the menu font (0x00516870, inside the rally text table below);
+// the original has no separate symbol for it, so it is a view into the table.
+extern BYTE g_unk0x0051682c[132];
 
 // Run of spaces that separates the two columns of the class table.
 // GLOBAL: CMR2 0x005297bc
@@ -10625,7 +10625,7 @@ void FUN_0050c420(int param_1)
                           x, (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::GetTextString(
                                       *(short *)(FUN_00502500() + i * 0x14 + 0x18)));
-        x += Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+        x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         g_unk0x00831660[0] = (short)x;
         if (i != (signed char)FUN_00502500()[6] - 1) {
             if (a == i || b == i + 1)
@@ -10634,7 +10634,7 @@ void FUN_0050c420(int param_1)
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
                                 (BYTE *)(g_unk0x00527380 + 2), 3);
         }
-        x += 2 + Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+        x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         i++;
     }
     x = g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280;
@@ -10643,10 +10643,10 @@ void FUN_0050c420(int param_1)
     Font_DrawText(0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0x2c / 0x1e0,
                   g_unk0x00527380, 0x11);
     x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-    x += Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+    x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     g_unk0x00831660[0] = (short)x;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)(g_unk0x00527380 + 2), 3);
-    x += 2 + Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+    x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
     Font_DrawText(0, (char *)RallyData_GetRecord((BYTE)CGameInfo::FUN_005011b0()), x,
                   (int)g_pGraphics->resY * 0x2c / 0x1e0, g_unk0x00527380, 0x11);
     if (CGameInfo::FUN_00405e00() == 0)
@@ -10736,10 +10736,10 @@ void FUN_0050f650(int param_1, int param_2)
         FUN_00501f80(3, 0, 0, CFrontend::m_stringDest, x, (int)g_pGraphics->resY * 0xbe / 0x1e0,
                      g_unk0x005297ac, g_unk0x005297ac + 2, 0x11);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-        x += Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+        x += Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         bar[0] = (short)x;
         Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)(g_unk0x005297ac + 3), 3);
-        x += 2 + Font_GetTextWidth(0, (BYTE *)g_str0x00516870);
+        x += 2 + Font_GetTextWidth(0, (BYTE *)((char *)&g_unk0x0051682c[0x44]));
         if (param_2 == 10)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x13c),
                     FUN_00407150(RallyDataCountryIndex(), CGameInfo::FUN_00405d90()) & 0xff,
@@ -11042,7 +11042,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
             }
             break;
         default:
-            sprintf(CFrontend::m_stringDest, g_str0x00516870);
+            sprintf(CFrontend::m_stringDest, ((char *)&g_unk0x0051682c[0x44]));
             break;
         }
         if (i == param2) {
