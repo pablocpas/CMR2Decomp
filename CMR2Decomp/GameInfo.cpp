@@ -9303,224 +9303,138 @@ void FUN_00403890(Menu *pMenu)
     Font_SetBlendMode(2);
 }
 
-extern BYTE g_unk0x0082547c[0x898];
-extern BYTE g_unk0x00825d14[0x258];
-extern BYTE g_unk0x00825398[0x4c];
-extern BYTE g_unk0x008253e4[0x98];
-extern BYTE g_unk0x00825f6c[0x1cc];
-BYTE *RallyData_FUN_00408cb0(int index);
-void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
 
-// Rebuilds the four leaderboard text tables from the saved records:
-// 0x82547c (the 8 row groups of the stage records), 0x825d14 (the rally
-// records, 3 rows of 8), 0x825398 (the 8 special records), 0x8253e4 (the
-// rally records' other column, 0x450-based rows of 2) and 0x825f6c (the last
-// 8 records at 0x4bc). Each entry is packed into a scrambled dword pair and
-// formatted by FUN_004fb8d0; invalid records become an empty string.
-// match 11%: implementada; MSVC reparte los locales y los registros de otra forma (el original
-// reserva 0x1c de marco y recicla EBX/EBP/ESI, nosotros spillamos los punteros a pila) y usa
-// otra forma para el remanente de %3; logica, mascaras y constantes coinciden.
-// FUNCTION: CMR2 0x004f8b30
-void FUN_004f8b30(void)
+// Draws the rows of the car-setup menu (FUN_00404000): each row paints the
+// item's own label and then, for every value placed in the item's min/max
+// bytes, the matching sub-string; the entry equal to max is highlighted and the
+// selected row is drawn brighter with the highlighted row sprite.
+// match 24%: implementada, MSVC6 usa EBX/EDI y un reparto de pila distinto donde el original usa EBP como cero y locales en esp+0x18..0x22
+// FUNCTION: CMR2 0x004041e0
+void FUN_004041e0(Menu *pMenu)
 {
-    unsigned int value;
-    unsigned int key;
-    unsigned int packed;
-    unsigned int time;
-    BYTE b;
-    BYTE *p;
-    BYTE *pNum;
-    BYTE *pFlags;
-    BYTE *pOut;
-    BYTE *pRow;
-    int row;
-    int col;
-    int offRow;
-    int offCol;
-    int baseIdx;
-    int count;
-    int idx;
+    MenuItem *pItem;
+    short rect[4];
+    int i;
     int j;
     int k;
+    int x;
+    int y;
+    int width;
+    int index;
+    int *pColour;
+    int *pSubColour;
+    int texture;
 
-    value = 0;
-    key = 0;
-    row = 0;
-    baseIdx = 0;
-    offRow = 0x150;
-    do {
-        col = 0;
-        count = row % 2 + 10;
-        offCol = offRow;
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 4);
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[1] = 0;
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    i = 0;
+    if (pMenu->itemCount > 0) {
+        pItem = pMenu->items;
         do {
-            pNum = RallyData_FUN_00408cb0(0) + 4 + offCol;
-            pFlags = RallyData_FUN_00408cb0(0) + offCol;
-            if ((*pFlags & 0x80) == 0 || *(unsigned int *)pNum / 6000 > 0xf) {
-                g_unk0x0082547c[(col + baseIdx) * 0x19] = 0;
-            } else {
-                time = *(unsigned int *)pNum;
-                packed = (~*(unsigned int *)pFlags & 0xffffffc0) << 0x19 |
-                         (*(unsigned int *)pFlags & 0x3f) << 0xc |
-                         ((col & 0xf) << 4 | row & 0xf) << 4 | value & 0x7ffc000f;
-                value = time % 100 << 0x18 | time / 100 % 0x3c << 0x12 |
-                        (packed ^ (time / 6000 ^ packed) & 0xf) & 0x8003ffff;
-                b = (BYTE)(*(unsigned int *)pFlags >> 8);
-                key = key & 0xffffff00 | (b << 3) & 0xff;
-                p = (BYTE *)&value;
-                k = 4;
-                do {
-                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
-                    p++;
-                    k--;
-                } while (k != 0);
-                FUN_004fb8d0(0, &value, (char *)&key, (char *)&g_unk0x0082547c[(col + baseIdx) * 0x19]);
-                FUN_004f8a90((char *)&g_unk0x0082547c[(col + baseIdx) * 0x19]);
+            pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
+            y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+            switch (pItem->value) {
+            case 0:
+            case 1:
+            case 3:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min != 0) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
+                        j++;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 2:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min == 2) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
+                        j++;
+                    } while (j < pItem->min);
+                } else if (pItem->min != 0) {
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        index = j == 0 ? 0x9c : j + 0xef;
+                        Font_DrawText(1, CFrontend::GetTextString(index), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(index));
+                        j++;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 4:
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, pColour, 0x11);
+                j = 0;
+                if (pItem->min != 0) {
+                    k = 0xa4;
+                    do {
+                        width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
+                        pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        index = RallyData_FUN_00411880() != 0 ? j + 0x9c : k;
+                        Font_DrawText(1, CFrontend::GetTextString(index), x, y,
+                                      pSubColour, 0x11);
+                        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(index));
+                        j++;
+                        k--;
+                    } while (j < pItem->min);
+                }
+                break;
+            case 5:
+                pSubColour = pItem->max != 0 ? &g_unk0x0051607c : pColour;
+                Font_DrawText(1, CFrontend::GetTextString(0x62),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pSubColour, 0x11);
+                break;
+            default:
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                break;
             }
-            col++;
-            offCol += 8;
-        } while (col < count);
-        offRow += 0x60;
-        row++;
-        baseIdx += 0xb;
-    } while (offRow < 0x450);
-
-    pOut = g_unk0x00825d14;
-    row = 0;
-    offRow = 0;
-    do {
-        col = 0;
-        pRow = pOut;
-        offCol = offRow;
-        do {
-            pNum = RallyData_FUN_00408cb0(0) + 0x34 + offCol;
-            pFlags = RallyData_FUN_00408cb0(0) + 0x30 + offCol;
-            if ((*pFlags & 0x80) == 0 || *(unsigned int *)(pNum + 4) / 6000 > 0x3f) {
-                *pRow = 0;
+            rect[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                              + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
+                              - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (pMenu->cursor == i) {
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
             } else {
-                time = *(unsigned int *)(pNum + 4);
-                packed = (~*(unsigned int *)pFlags & 0x40) << 9 |
-                         (*(unsigned int *)pFlags & 0x3f) << 9 |
-                         (col & 7) << 6 | value & 0xffff003f;
-                value = (time % 100 | (row & 3) << 7) << 0x16 |
-                        time / 100 % 0x3c << 0x10 |
-                        (packed ^ (time / 6000 ^ packed) & 0x3f) & 0x8000ffff;
-                b = (BYTE)(*(unsigned int *)pFlags >> 8);
-                key = key & 0xffffff00 | (b << 3) & 0xff | 1;
-                p = (BYTE *)&value;
-                k = 4;
-                do {
-                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
-                    p++;
-                    k--;
-                } while (k != 0);
-                FUN_004fb8d0(0, &value, (char *)&key, (char *)pRow);
-                FUN_004f8a90((char *)pRow);
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
             }
-            col++;
-            offCol += 0x24;
-            pRow += 0x4b;
-        } while (col < 8);
-        pOut += 0x19;
-        row++;
-        offRow += 0xc;
-    } while ((int)pOut < 0x825d5f);
-
-    pOut = g_unk0x00825398;
-    idx = 0;
-    offCol = 0;
-    do {
-        pNum = RallyData_FUN_00408cb0(0) + 4 + offCol;
-        pFlags = RallyData_FUN_00408cb0(0) + offCol;
-        if ((*pFlags & 0x80) == 0) {
-            *pOut = 0;
-        } else {
-            packed = ((idx & 3) << 0x12 | *(unsigned int *)pNum & 0x1fc0) << 1 |
-                     (*(unsigned int *)pNum & 0xf) << 0xe | value & 0xffe0007f;
-            packed = packed ^ (*(unsigned int *)pFlags ^ packed) & 0x3f;
-            value = packed ^ (~*(unsigned int *)pFlags ^ packed) & 0x40;
-            b = (BYTE)(*(unsigned int *)pFlags >> 8);
-            key = key & 0xffffff00 | (b << 3) & 0xff | 2;
-            p = (BYTE *)&value;
-            k = 4;
-            do {
-                *p = (BYTE)(*p ^ (b & 0x1f) << 1);
-                p++;
-                k--;
-            } while (k != 0);
-            FUN_004fb8d0(0, &value, (char *)&key, (char *)pOut);
-            FUN_004f8a90((char *)pOut);
-        }
-        pOut += 0x19;
-        idx++;
-        offCol += 0x10;
-    } while ((int)pOut < 0x8253e3);
-
-    row = 0;
-    offRow = 0x450;
-    pOut = g_unk0x008253e4;
-    do {
-        col = 0;
-        pRow = pOut;
-        offCol = offRow;
-        do {
-            RallyData_FUN_00408cb0(0);
-            pFlags = RallyData_FUN_00408cb0(0) + offCol;
-            if ((*(unsigned int *)pFlags & 0x80) == 0) {
-                *pRow = 0;
-            } else {
-                packed = ((row & 3) << 0xe | *(unsigned int *)pNum & 0x7c0) << 1 |
-                         (*(unsigned int *)pNum & 7) << 0xc | value & 0xfffe007f;
-                value = (~*(unsigned int *)pFlags & 0x40) | (col & 3) << 0x11 |
-                        (packed ^ (*(unsigned int *)pFlags ^ packed) & 0x3f) & 0xfff9ffbf;
-                b = (BYTE)(*(unsigned int *)pFlags >> 8);
-                key = key & 0xffffff00 | (b << 3) & 0xff | 3;
-                p = (BYTE *)&value;
-                k = 4;
-                do {
-                    *p = (BYTE)(*p ^ (b & 0x1f) << 1);
-                    p++;
-                    k--;
-                } while (k != 0);
-                FUN_004fb8d0(0, &value, (char *)&key, (char *)pRow);
-                FUN_004f8a90((char *)pRow);
-            }
-            col++;
-            offCol += 0x24;
-            pRow += 0x4b;
-        } while (col < 2);
-        offRow += 0xc;
-        row++;
-        pOut += 0x19;
-    } while (offRow < 0x474);
-
-    idx = 0;
-    pOut = g_unk0x00825f6c;
-    do {
-        j = idx / 3 * 3 + idx % 3;
-        pNum = RallyData_FUN_00408cb0(0) + 0x4c0 + j * 8;
-        pFlags = RallyData_FUN_00408cb0(0) + 0x4bc + j * 8;
-        if ((*(unsigned int *)pFlags & 0x80) == 0 ||
-            *(unsigned int *)pNum / 6000 > 0x3f) {
-            *pOut = 0;
-        } else {
-            value = *(unsigned int *)pNum % 100 << 0x10 |
-                    *(unsigned int *)pNum / 100 % 0x3c << 10 |
-                    (*(unsigned int *)pNum / 6000 & 0x3f) << 0x17 |
-                    ~*(unsigned int *)pFlags & 0x40 | (idx & 7) << 7 |
-                    (value ^ (*(unsigned int *)pFlags ^ value) & 0x3f) & 0xe000003f;
-            b = (BYTE)(*(unsigned int *)pFlags >> 8);
-            key = key & 0xffffff00 | (b << 3) & 0xff | 4;
-            p = (BYTE *)&value;
-            k = 4;
-            do {
-                *p = (BYTE)(*p ^ (b & 0x1f) << 1);
-                p++;
-                k--;
-            } while (k != 0);
-            FUN_004fb8d0(0, &value, (char *)&key, (char *)pOut);
-            FUN_004f8a90((char *)pOut);
-        }
-        pOut += 0x19;
-        idx++;
-    } while ((int)pOut < 0x826034);
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect,
+                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
+    }
+    Font_SetBlendMode(2);
 }

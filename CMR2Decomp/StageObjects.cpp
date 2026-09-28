@@ -1,4 +1,7 @@
 #include <windows.h>
+
+// prototype for the restored w143 function
+void RallyData_FUN_00421530(int index, int *pOut);
 #include <stdlib.h>
 #include "StageBlock.h"
 #include <string.h>
@@ -7621,6 +7624,10 @@ void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t)
 
 #include <stdlib.h>
 
+// prototypes for the restored w143 functions
+int StageObject_IsEligibleType(short type, int mode, int category);
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+
 struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
 
@@ -9311,35 +9318,31 @@ done:
 int FUN_004218d0(unsigned int view);
 void RallyData_FUN_00408760(BYTE index, int value);
 
-// Applies the driver-camera cycle: while the cycle key is held it picks the
-// target driver (either from the current knockout round or by advancing the
-// active one) and hands the resulting view mode to the rally data layer.
-// match 53%: implementada, MSVC6 cachea param_1 en EDI y coloca distinta la tabla del switch
+// Driver-view resolver for the cycle/camera keys: picks the target driver
+// (current, best round driver or shifted by the digital control) and applies
+// the view change when the requested view is in range.
+// match 50%: implementada, MSVC6 mantiene param_1 en EDI (el original lo recarga de la pila) y la tabla del switch cae en otra direccion (<OFFSET>)
 // FUNCTION: CMR2 0x0047b970
 void FUN_0047b970(unsigned int param_1)
 {
-    unsigned int uVar4;
-    unsigned int uVar5;
-    BYTE *p;
+    unsigned int target;
+    unsigned int delta;
 
-    p = FUN_0041b390();
-    if (**(char **)(p + 4) == 10) {
-        if (FUN_0041f3a0() == 0) {
-            uVar4 = FUN_004218d0(0);
-        } else {
+    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 0xa) {
+        if (FUN_0041f3a0() != 0) {
             if (CGameInfo::FUN_00405d80() == 2)
-                uVar4 = param_1;
+                target = param_1;
             else
-                uVar4 = FUN_004218d0(1);
+                target = FUN_004218d0(1);
+        } else {
+            target = FUN_004218d0(0);
         }
     } else {
-        uVar4 = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+        target = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
     }
-
-    p = FUN_0041b390();
-    if ((**(char **)(p + 4) == 8) || (p = FUN_0041b390(), **(char **)(p + 4) == 7)) {
-        uVar5 = FUN_0041b380();
-        switch (uVar5) {
+    if (*(char *)(*(int *)(FUN_0041b390() + 4)) == 8 ||
+        *(char *)(*(int *)(FUN_0041b390() + 4)) == 7) {
+        switch (FUN_0041b380()) {
         case 0:
         case 1:
             g_unk0x0058e0a4 = param_1;
@@ -9358,22 +9361,16 @@ void FUN_0047b970(unsigned int param_1)
                 RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
             break;
         case 4:
-            g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_1;
+            delta = FUN_0041b370();
+            g_unk0x0058e0a4 = (delta & 0xff) + param_1;
             break;
         }
-        {
-            BYTE bVar2 = CGameInfo::FUN_00405d70();
-            if ((int)g_unk0x0058e0a4 < (int)(unsigned int)bVar2 &&
-                (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
-                RallyData_FUN_00408760((BYTE)g_unk0x0058e0a4, uVar4);
-            }
-        }
+        if ((int)g_unk0x0058e0a4 < (int)CGameInfo::FUN_00405d70() &&
+            (target == 1 || target == 2 || target == 3 || target == 5 || target == 4))
+            RallyData_FUN_00408760(g_unk0x0058e0a4, target);
     }
 }
 
-// Builds the bounding box of an object's collision points (8 triples): the
-// object's 2D direction is normalised from its accumulated translation and
-// every point is projected onto it, tracking the box bounds.
 // match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
 // FUNCTION: CMR2 0x004873f0
 void FUN_004873f0(int *param_1, int param_2, int param_3)
@@ -9449,132 +9446,6 @@ void FUN_004873f0(int *param_1, int param_2, int param_3)
     pOut[5] = (short)(maxLeft >> 9);
 }
 
-extern double g_minus65536;
-
-// Chooses the wall-collision response of a car part from its lateral/forward
-// offsets and the wall distances stored in the reference record; returns the
-// facing side (1..4) or a slanted-response code (5/6), 0 when clear.
-// match 54%: implementada, MSVC6 reparte distinto los locales y el modo del muro
-// FUNCTION: CMR2 0x0047c5e0
-unsigned int FUN_0047c5e0(int param_1)
-{
-    int mode;
-    int off;
-    int limit;
-    int blocked;
-    int local10;
-    int isStackC;
-    int iVar4;
-    int iVar7;
-    int iVar8;
-    int iVar5;
-    unsigned int u;
-
-    mode = 0;
-    if (*(int *)(param_1 + 0x5c) < -0xa0000)
-        mode = 1;
-    if (0xa0000 < *(int *)(param_1 + 0x5c))
-        mode = 2;
-
-    iVar7 = *(int *)(param_1 + 0x34);
-    if (iVar7 < 0) {
-        iVar4 = *(int *)(param_1 + 0x54) * 0x10;
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xd) * g_minus65536);
-        iVar8 = iVar7 - local10;
-        {
-            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xe);
-            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
-            iVar5 = 0;
-            if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
-                iVar5 = iVar7 - local10;
-        }
-        if ((0 < iVar8) && (iVar8 < 0x40000))
-            iVar5 = iVar8;
-        if (0 < iVar5) {
-            if (0x5a0000 < *(int *)(param_1 + 0x38))
-                return 1;
-            if (*(int *)(param_1 + 0x38) - FixMul(-iVar5, 0xf0000) + 0x3c0000 < 0)
-                return 2;
-        }
-        if (iVar8 < 0) {
-            iVar7 = *(int *)(param_1 + 0x38);
-            if (iVar7 < 1) {
-                if (iVar7 < -0x6e0000)
-                    return 2;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
-            }
-            if (0x6e0000 < iVar7)
-                return 1;
-            return ((0x45ffff < iVar7) - 1 & 0xfffffffe) + 5;
-        }
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xc) * g_minus65536);
-        local10 = *(int *)(param_1 + 0x34) - local10;
-        if ((local10 < 0) && (mode != 2)) {
-            if (0x3c0000 < *(int *)(param_1 + 0x38))
-                return 1;
-            if (*(int *)(param_1 + 0x38) < -0x2d0000)
-                return 2;
-            if (*(int *)(param_1 + 0x38) - FixMul(-local10, 0x50000) < 0)
-                return 3;
-        }
-    } else {
-        iVar5 = *(int *)(param_1 + 0x54) * 0x10;
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 9) * g_minus65536);
-        iVar4 = -iVar7 - local10;
-        {
-            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar5 + 10);
-            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
-            local10 = -iVar7 - local10;
-            isStackC = 0;
-            if ((local10 < 0x40000) && (cVar1 < 0x11))
-                isStackC = local10;
-        }
-        if ((0 < iVar4) && (iVar4 < 0x40000))
-            isStackC = iVar4;
-        if (0 < isStackC) {
-            if (*(int *)(param_1 + 0x38) < -0x5a0000)
-                return 3;
-            iVar7 = *(int *)(param_1 + 0x38) - FixMul(isStackC, 0xf0000);
-            if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
-                return 4;
-        }
-        if (iVar4 < 0) {
-            iVar7 = *(int *)(param_1 + 0x38);
-            if (iVar7 < 1) {
-                if (iVar7 < -0x6e0000)
-                    return 3;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
-            }
-            if (0x6e0000 < iVar7)
-                return 4;
-            return ((0x45ffff < iVar7) - 1 & 0xfffffffc) + 6;
-        }
-        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 8) * g_minus65536);
-        iVar7 = -local10 - *(int *)(param_1 + 0x34);
-        if ((iVar7 < 0) && (mode != 1)) {
-            if (0x2d0000 < *(int *)(param_1 + 0x38))
-                return 4;
-            if (*(int *)(param_1 + 0x38) < -0x3c0000)
-                return 3;
-            u = FixMul(iVar7, 0x50000);
-            if (*(unsigned int *)(param_1 + 0x38) != u &&
-                -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
-                return 1;
-        }
-    }
-    if (0x780000 < *(int *)(param_1 + 0x38))
-        return 4;
-    return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
-}
-
-int RallyData_FUN_00421420(void);
-int RallyData_FUN_00421370(BYTE *p);
-void RallyData_FUN_00421530(int index, int *pOut);
-extern double g_unk0x00511300;
-
-// Picks the closest car ahead of the reference angle among the active cars,
-// rejecting those out of range or outside the angular window, and writes the
-// chosen one's relative state code to *param_2.
 // match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
 // FUNCTION: CMR2 0x0047cd10
 int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)

@@ -4798,6 +4798,10 @@ void FUN_00423ff0(void)
 
 #include "WheelTrail.h"
 
+// prototypes for the restored w143 functions
+int StageObject_IsEligibleType(short type, int mode, int category);
+void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
+
 extern int Car_GetWheelSpeed(Car *, BYTE, int);
 extern int StageObject_GetWheelSlip(int, int);
 extern BYTE FUN_00460bf0(int);
@@ -5566,29 +5570,45 @@ int FUN_0040b1b0(void);
 
 // Resets the timing records of the drivers taking part in the race according
 // to the current mode (rally, split-screen or network).
-
-// Compares the length of the tracked object's accumulated translation with the
-// motion context's speed plus the object's own threshold; when it exceeds it,
-// the object's suspension flag is cleared.
-// FUNCTION: CMR2 0x00482f30
-int FUN_00482f30(void)
+// FUNCTION: CMR2 0x00458100
+void FUN_00458100(int param_1)
 {
-    int length = FixVecLength(&g_unk0x00590c20->field_0x144);
-    int limit = *(int *)((BYTE *)g_unk0x00590d74 + 0x758) + *(int *)((BYTE *)g_unk0x00590c20 + 0x15c);
+    int i;
 
-    if (length > limit) {
-        FUN_00483010();
-        return 1;
+    if ((BYTE)RallyData_FUN_00407e90()) {
+        if (CGameInfo::FUN_00405e00()) {
+            int count;
+
+            if (CGameInfo::FUN_00405d80() == 0xa)
+                count = 1;
+            else
+                count = FUN_0040b1b0();
+            i = 0;
+            if (count > 0) {
+                int *p = g_unk0x00542cb4;
+                do {
+                    switch (*p) {
+                    case 0:
+                        FUN_00458bd0(i, 0, -1, param_1);
+                        break;
+                    case 1:
+                        FUN_00458bd0(i, 2, 0, param_1);
+                        break;
+                    }
+                    i++;
+                    p++;
+                } while (i < count);
+            }
+        } else {
+            FUN_00458bd0(g_unk0x00542cb0, 0, -1, param_1);
+            FUN_00458bd0(1 - g_unk0x00542cb0, 2, 0, param_1);
+        }
+    } else {
+        for (i = 0; i < (BYTE)FUN_00420190(); i++)
+            FUN_00458bd0(i, 0, 0, param_1);
     }
-    return 0;
 }
 
-int StageObject_IsEligibleType(short type, int mode, int category);
-void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
-
-// Aims and fires the debris/particles of a car part: rotates the part's local
-// offset into world space, normalises the part's direction, and spawns debris
-// along the cross product of the two.
 // match 40%: implementada, difiere la extension del argumento short y el reparto de locales/registros
 // FUNCTION: CMR2 0x00483100
 void FUN_00483100(int *param_1, unsigned int param_2)
@@ -5664,79 +5684,4 @@ void FUN_00483100(int *param_1, unsigned int param_2)
         }
     }
     return;
-}
-
-int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
-
-// Places one of a car's four contact points on the ground: rotates the local
-// point into world space, queries the track height, then builds the tangent
-// direction (world axes minus the normal component) and stores the resulting
-// contact plane on the point.
-// match 25%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
-// FUNCTION: CMR2 0x00484f40
-void FUN_00484f40(unsigned int param_1)
-{
-    BYTE *car = (BYTE *)g_unk0x00590d74;
-    unsigned int local_1c = param_1 & 0xff;
-    int idx = *(char *)(car + 0xb1a) * 4;
-    int *piVar1 = (int *)(*(int *)((BYTE *)g_unk0x00590c6c + idx) + local_1c * 0x3c);
-    int ptr2 = *(int *)((BYTE *)g_unk0x00590c00 + idx) + local_1c * 0x20;
-
-    if (piVar1[0xe] == 0) {
-        int surface = 0;
-        short tri = 0;
-        int local_40, local_3c, local_38;
-        int local_28, local_24, local_20;
-        int local_18 = ptr2;
-        int dot, a1, a2, a3;
-        unsigned int uVar10;
-        int iVar5;
-
-        FixMatrix_RotateVector((FixVector *)piVar1, (FixVector *)ptr2,
-                               *(FixMatrix **)(car + 0x750));
-        piVar1[0] = piVar1[0] + *(int *)(car + 0x2d0);
-        piVar1[1] = piVar1[1] + *(int *)(car + 0x2d4);
-        piVar1[2] = piVar1[2] + *(int *)(car + 0x2d8);
-        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, (FixVector *)&local_40,
-                                          &tri, (unsigned short *)&surface, piVar1[1]);
-        FixMatrix_RotateVector((FixVector *)&local_28, (FixVector *)(ptr2 + 0xc),
-                               *(FixMatrix **)(car + 0x750));
-
-        dot = FixMul(local_38, local_20) + FixMul(local_40, local_28) + FixMul(local_3c, local_24);
-        a1 = local_28 - FixMul(local_40, dot);
-        a2 = local_24 - FixMul(local_3c, dot);
-        a3 = local_20 - FixMul(local_38, dot);
-        uVar10 = (unsigned int)FixSqrt(FixMul(a1, a1) + FixMul(a2, a2) + FixMul(a3, a3));
-
-        if (uVar10 == 0) {
-            unsigned int u = (unsigned int)FixMul(local_40, 0x10000);
-            int f9 = 0x10000 - FixMul(local_40, u);
-            int f2 = -FixMul(local_3c, u);
-            int f3 = -FixMul(local_38, u);
-
-            uVar10 = (unsigned int)FixSqrt(FixMul(f9, f9) + FixMul(f2, f2) + FixMul(f3, f3));
-            if (uVar10 == 0) {
-                local_28 = 0;
-                local_24 = 0;
-                local_20 = 0;
-            } else {
-                iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-                local_28 = FixMul(f9, iVar5);
-                local_24 = FixMul(f2, iVar5);
-                local_20 = FixMul(f3, iVar5);
-            }
-        } else {
-            iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-            local_28 = FixMul(a1, iVar5);
-            local_24 = FixMul(a2, iVar5);
-            local_20 = FixMul(a3, iVar5);
-        }
-
-        dot = *(int *)(local_18 + 0x18);
-        piVar1[9] = piVar1[0] + FixMul(local_28, dot);
-        piVar1[10] = piVar1[1] + FixMul(local_24, dot);
-        piVar1[0xb] = piVar1[2] + FixMul(local_20, dot);
-        piVar1[0xe] = 1;
-        *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
-    }
 }

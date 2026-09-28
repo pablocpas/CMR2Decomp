@@ -6632,365 +6632,134 @@ void FUN_00505590(void)
                  (BYTE *)&g_unk0x005270e4, 8);
 }
 
+// Marker colour of the split bar, plus the alpha byte of the neighbouring entry
+// of the HUD colour table that is copied into the bar colour.
+// GLOBAL: CMR2 0x005170a7
+BYTE g_unk0x005170a7 = 0x96;
+// GLOBAL: CMR2 0x005170a8
+unsigned int g_unk0x005170a8 = 0x28ddbdbc;
+// GLOBAL: CMR2 0x005170aa
+BYTE g_unk0x005170aa = 0xdd;
 
-// Two packed colours (blue-ish and red) used as the base of the split panel.
-// GLOBAL: CMR2 0x005270ec
-int g_unk0x005270ec = 0xff005cf3;
-// GLOBAL: CMR2 0x005270f0
-int g_unk0x005270f0 = 0xff0000ff;
-
-// 0x50-byte entry of 0x82c6c8 as seen by the per-car split draw: source and
-// destination rects plus the shared easing value at 0x1c.
-struct Unk0x0082c6c8Src {
-    BYTE field_0x0[4];
-    short srcX1;
-    short srcY1;
-    short srcX2;
-    short srcY2;
-    short dstX1;
-    short dstY1;
-    short dstX2;
-    short dstY2;
-    BYTE field_0x14[8];
-    int current;
-    BYTE field_0x20[0x30];
-};
-
-// Draws the split-time panels of every car of the current rally. The active
-// entry (0x82ca1c) gives the destination rect of each panel and the two scale
-// factors used to map the source rect of the others into it; a white panel
-// fading with 0x82cb44 is drawn over the active one.
-// match 58%: implementada; el original coloca los locales en otro orden (color en
-// -0xc..-0x1, rect en -0x28..-0x22) y reserva 0x30 de marco con un temporal para
-// 0x10000-0x82cb44; la logica, las divisiones 32.16 y las constantes coinciden.
-// FUNCTION: CMR2 0x005051c0
-void FUN_005051c0(void)
+// Lays out both players' stage-classification split bars: the bar spans from the
+// start position (mode/graphics dependent) up to the end position, and every
+// split's segment gets its x (interpolated by that split's reference time), its
+// y (centred on the screen), its height and its colour stored in the marker
+// table and in g_unk0x00536d14; a second pass gives every segment the width up
+// to the next split's x.
+// match 53%: implementada, MSVC6 usa pila 0x30 vs 0x2c y ordena algunos temporales distinto; la estructura es identica
+// FUNCTION: CMR2 0x00411b20
+void FUN_00411b20(void)
 {
-    Unk0x0082c6c8Src *p;
-    Unk0x0082c6c8Src *pEntry;
-    BYTE colour[12];
-    int scaleX;
-    int scaleY;
-    int i;
-    int alpha;
-    int grow;
-    short rect[4];
+    int total;
+    int barStart;
+    int barEnd;
+    int span;
+    int car;
+    int split;
+    int xOff;
+    int yOff;
+    int yPos;
+    int uTime;
+    int other;
+    unsigned int markerColour;
+    unsigned int barColour;
+    int *pTime;
+    int *pRef;
+    int *pColour;
+    short *pGeo;
+    SplitMarker *pSpan;
 
-    if (g_unk0x0082ca1c == 0xff)
-        return;
-    p = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
-    alpha = 0xff0000 - FixMul(p->current, 0xff0000);
-    *(int *)&colour[0] = g_unk0x005270ec;
-    *(int *)&colour[8] = g_unk0x005270f0;
-    *(int *)&colour[4] = g_unk0x005270f0;
-    colour[11] = (BYTE)(alpha >> 16);
-    colour[3] = (BYTE)(alpha >> 16);
-    colour[7] = (BYTE)FixMulShift32(alpha, 0x4000);
-    if (alpha == 0)
-        return;
-    scaleX = FixDiv((int)p->dstX2 << 16, (int)p->srcX2 << 16);
-    scaleY = FixDiv((int)p->dstY2 << 16, (int)p->srcY2 << 16);
-    for (i = 0; i < g_unk0x0082c694; i++) {
-        pEntry = (Unk0x0082c6c8Src *)g_unk0x0082c6c8 + i;
-        if (i == (signed char)g_unk0x0082ca1c)
-            continue;
-        rect[0] = (short)(p->dstX1 + FixMulShift32((pEntry->srcX1 - p->srcX1) << 16, scaleX));
-        rect[1] = (short)(p->dstY1 + FixMulShift32((pEntry->srcY1 - p->srcY1) << 16, scaleY));
-        rect[2] = (short)FixMulShift32(pEntry->srcX2 << 16, scaleX);
-        rect[3] = (short)FixMulShift32(pEntry->srcY2 << 16, scaleY);
-        rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
-        rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
-        rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
-        rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
-        FUN_00504eb0(rect, colour, 1);
+    total = FUN_00411550();
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 0xb) {
+        barStart = (int)g_pGraphics->resX * 0xc00 >> 16;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
+    } else if (RallyData_FUN_00411880() != 0 && CGameInfo::FUN_00405dc0() == 0) {
+        barStart = ((int)g_pGraphics->resX * 0xc934 >> 16) - 10;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
+    } else {
+        barStart = (int)g_pGraphics->resX * 0xab9b >> 16;
+        barEnd = (int)g_pGraphics->resX * 0xf400 >> 16;
     }
-    rect[0] = (short)((int)p->dstX1 * (int)g_pGraphics->resX / 0x280);
-    rect[1] = (short)((int)p->dstY1 * (int)g_pGraphics->resY / 0x1e0);
-    rect[2] = (short)((int)p->dstX2 * (int)g_pGraphics->resX / 0x280);
-    rect[3] = (short)((int)p->dstY2 * (int)g_pGraphics->resY / 0x1e0);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, colour, 1);
-    FUN_00504eb0(rect, &colour[8], 0);
-    *(int *)&rect[0] = *(int *)&p->dstX1;
-    *(int *)&rect[2] = *(int *)&p->dstX2;
-    grow = FixMulShift32(g_unk0x0082cb44, 0x80000);
-    rect[0] = (short)(rect[0] - grow);
-    rect[1] = (short)(rect[1] - grow);
-    rect[2] = (short)(rect[2] + grow * 2);
-    rect[3] = (short)(rect[3] + grow * 2);
-    rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
-    rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
-    rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
-    rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
-    colour[11] = (BYTE)FixMulShift32(alpha, 0x10000 - g_unk0x0082cb44);
-    FUN_00504eb0(rect, &colour[8], 0);
-}
-
-
-extern BYTE g_unk0x0082ca04[0x14];
-extern BYTE g_unk0x0082ca18;
-
-// Two packed HUD colours (grey with alpha) used by the split panel.
-// GLOBAL: CMR2 0x005270fc
-int g_unk0x005270fc = 0xff4f4f4f;
-// GLOBAL: CMR2 0x00527100
-int g_unk0x00527100 = 0x804f4f4f;
-// Per-rally accent colours indexed by RallyDataCountryIndex().
-// GLOBAL: CMR2 0x00527104
-BYTE g_unk0x00527104[0x138] = {
-    0xa4, 0xd3, 0xae, 0xff, 0xb7, 0xa8, 0x76, 0xff, 0xbd, 0xdb, 0xad, 0xff, 0xa7, 0xd1, 0xc1, 0xff,
-    0xbe, 0x8d, 0x65, 0xff, 0xe6, 0xbf, 0x8b, 0xff, 0xc2, 0xc8, 0x8f, 0xff, 0x95, 0xbd, 0x81, 0xff,
-    0xb7, 0xa8, 0x76, 0xff, 0x9c, 0x68, 0x51, 0x00, 0x80, 0x72, 0x52, 0x00, 0x94, 0x68, 0x51, 0x00,
-    0x8c, 0x68, 0x51, 0x00, 0x84, 0x68, 0x51, 0x00, 0x7c, 0x68, 0x51, 0x00, 0x78, 0x72, 0x52, 0x00,
-    0x74, 0x68, 0x51, 0x00, 0xa4, 0x68, 0x51, 0x00, 0x70, 0x93, 0x51, 0x00, 0x68, 0x93, 0x51, 0x00,
-    0x60, 0x93, 0x51, 0x00, 0x58, 0x93, 0x51, 0x00, 0x6c, 0x72, 0x52, 0x00, 0x50, 0x93, 0x51, 0x00,
-    0x48, 0x93, 0x51, 0x00, 0x64, 0x92, 0x51, 0x00, 0x80, 0x92, 0x51, 0x00, 0x7c, 0x92, 0x51, 0x00,
-    0x78, 0x92, 0x51, 0x00, 0x74, 0x92, 0x51, 0x00, 0x70, 0x92, 0x51, 0x00, 0x6c, 0x92, 0x51, 0x00,
-    0x68, 0x92, 0x51, 0x00, 0x64, 0x92, 0x51, 0x00, 0x94, 0x99, 0x91, 0x8b, 0xa0, 0x8e, 0x94, 0x99,
-    0x7d, 0x4c, 0x75, 0x50, 0x6f, 0x44, 0x7d, 0x4c, 0x82, 0x9c, 0x79, 0xa5, 0x00, 0x00, 0x5c, 0x68,
-    0x5d, 0x62, 0x57, 0x68, 0x5b, 0x63, 0x54, 0x57, 0x4f, 0x5f, 0x57, 0x5c, 0x58, 0x56, 0x6e, 0x47,
-    0x73, 0x4b, 0x70, 0x49, 0xcf, 0x86, 0xd8, 0x83, 0xd4, 0x89, 0xdb, 0x87, 0xcd, 0x98, 0xd4, 0x91,
-    0xcf, 0x92, 0xd9, 0x8f, 0xd1, 0x9b, 0xce, 0x90, 0x00, 0x00, 0x6f, 0x59, 0x75, 0x55, 0x7e, 0x51,
-    0x7b, 0x57, 0x76, 0x88, 0x72, 0x82, 0x7b, 0x82, 0x76, 0x7e, 0x74, 0xac, 0x6e, 0xa8, 0x72, 0xaa,
-    0x49, 0x60, 0x4d, 0x59, 0x4f, 0x60, 0x49, 0x64, 0x5c, 0x37, 0x61, 0x38, 0x5d, 0x32, 0x5b, 0x3b,
-    0x25, 0x59, 0x2b, 0x61, 0x00, 0x00, 0x54, 0x7a, 0x57, 0x74, 0x56, 0x7a, 0x57, 0x82, 0x71, 0x6a,
-    0x68, 0x68, 0x68, 0x70, 0x6c, 0x6e, 0x4f, 0x65, 0x54, 0x60, 0x53, 0x63, 0x5b, 0x42, 0x62, 0x3a,
-    0x62, 0x48, 0x64, 0x3f, 0x46, 0x35, 0x4a, 0x39, 0x4b, 0x33, 0x3f, 0x37, 0x87, 0x6b, 0x7f, 0x67,
-    0x00, 0x00, 0x7b, 0x6e, 0x7f, 0x6c, 0x7b, 0x6a, 0x7f, 0x66, 0x7b, 0x88, 0x7e, 0x85, 0x7c, 0x7f,
-    0x7e, 0x7b, 0x6c, 0x91, 0x6e, 0x95, 0x6d, 0x93,
-};
-
-// Marker widths per record slot (narrow / wide layouts).
-// GLOBAL: CMR2 0x0052723c
-BYTE g_unk0x0052723c[12] = { 0x14, 0x16, 0x16, 0x11, 0x11, 0x0d, 0x0e, 0x0b, 0x0b, 0x00, 0x00, 0x00 };
-// GLOBAL: CMR2 0x00527248
-BYTE g_unk0x00527248[12] = { 0x2d, 0x30, 0x31, 0x28, 0x28, 0x21, 0x22, 0x1d, 0x1e, 0x00, 0x00, 0x00 };
-
-// 0x50-byte entry of 0x82c6c8 as seen by the per-car split panel.
-struct Unk0x0082c6c8Panel {
-    void *texture;      // 0x0
-    short srcX1;
-    short srcY1;
-    short srcX2;
-    short srcY2;
-    short dstX1;
-    short dstY1;
-    short dstX2;
-    short dstY2;
-    int start;
-    int end;
-    int current;        // 0x1c
-    int distance;       // 0x20
-    int field_0x24;     // 0x24
-    int field_0x28;     // 0x28
-    BYTE field_0x2c[0x10];
-    int startTime;
-    BYTE field_0x40[0xc];
-    int active;
-};
-
-void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y,
-                  int *pColour1, int *pColour2, unsigned int flags);
-int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY);
-
-// Draws the split-times panel of car slot param1: the animated panel sprite,
-// then one row per opponent (the car marker plus its faded preview rect), then
-// the elapsed/current time markers and, when the panel is fading in, its
-// outline.
-// match 37%: implementada; el original recicla los mismos registros para los cuatro bloques y
-// nosotros usamos ranuras de pila distintas; las divisiones 32.16, las mascaras de color y el
-// reparto de ramas coinciden.
-// FUNCTION: CMR2 0x005044d0
-void FUN_005044d0(int param1)
-{
-    Unk0x0082c6c8Panel *pEntry;
-    void *tex;
-    unsigned int colourIdx;
-    BYTE colour[12];
-    BYTE colour14[4];
-    short r40[4];
-    short r30[4];
-    short r38[4];
-    int v18;
-    int v1c;
-    int v20;
-    int v24;
-    int v28;
-    int q;
-    int percent;
-    int i;
-    int xoff;
-    int marker;
-
-    if (g_unk0x0082c690 == 0 || param1 == -1)
-        return;
-    pEntry = (Unk0x0082c6c8Panel *)g_unk0x0082c6c8 + param1;
-    tex = pEntry->texture;
-    r30[0] = (short)((int)pEntry->dstX1 * (int)g_pGraphics->resX / 0x280);
-    r30[1] = (short)((int)pEntry->dstY1 * (int)g_pGraphics->resY / 0x1e0);
-    r30[2] = (short)((int)pEntry->dstX2 * (int)g_pGraphics->resX / 0x280);
-    r30[3] = (short)((int)pEntry->dstY2 * (int)g_pGraphics->resY / 0x1e0);
-    *(int *)&colour[4] = g_unk0x005270fc;
-    v20 = pEntry->current;
-    *(int *)&colour[0] = g_unk0x00527100;
-    colour[3] = (BYTE)(((__int64)v20 * 0xff0000) >> 0x20);
-    colour[0] = g_unk0x005270e4[0];
-    colour[1] = g_unk0x005270e4[1];
-    colour[2] = g_unk0x005270e4[2];
-    if (pEntry->current == 0)
-        return;
-    *(int *)&r40[0] = *(int *)((char *)tex + 0x11c);
-    r40[2] = *(short *)((char *)tex + 0x120);
-    r40[3] = g_unk0x0082c9fa;
-    if (CGameInfo::GetScreenWidth() > 0x3ff) {
-        if (CFrontend::FUN_004b7560(0x400)) {
-            if (CFrontend::FUN_004b7590(0x400)) {
-                r40[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
-                r40[3] = (short)((int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0);
-            }
-        }
-    }
-    Sprite_Queue((SpriteRect *)r40, (SpriteRect *)r30, (Texture *)tex, 3, 0, NULL, NULL, colour, 8);
-    xoff = 0x3c;
-    r30[3] = 0x28;
-    r30[0] = 0x29;
-    r30[2] = 0x62;
-    r30[1] = (short)(g_unk0x0082ca02 + g_unk0x0082c9fe - 0x28);
-    v20 = r30[1] + 0x14;
-    if (pEntry->current == 0x10000) {
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0x136),
-                     (int)g_pGraphics->resX * 0x29 / 0x280,
-                     (int)g_pGraphics->resY * 0x89 / 0x1e0,
-                     (int *)&colour[4], (int *)&colour[0], 0x11);
-    }
-    r30[0] = (short)((int)(short)(r30[0] + (short)param1 * 0x3c) * (int)g_pGraphics->resX / 0x280);
-    q = (int)r30[2] * (int)g_pGraphics->resX;
-    marker = (int)r30[1] * (int)g_pGraphics->resY;
-    r30[1] = (short)(marker / 0x1e0);
-    marker = (int)r30[3] * (int)g_pGraphics->resY;
-    v18 = (int)(((__int64)pEntry->field_0x28 * 0x20000) >> 16);
-    if (0x10000 < (int)v18)
-        v18 = 0x10000;
-    r30[2] = (short)(((__int64)((int)(short)(q / 0x280) << 16) * v18) >> 32);
-    v24 = (int)(short)(marker / 0x1e0) << 16;
-    r30[3] = (short)(((__int64)v24 * v18) >> 32);
-    colourIdx = g_unk0x00527104[RallyDataCountryIndex() & 0xff];
-    colour[8] = (BYTE)(((BYTE)colourIdx >> 2) * 3);
-    colour[9] = (BYTE)(((BYTE)(colourIdx >> 8) >> 2) * 3);
-    colour[10] = (BYTE)(((BYTE)(colourIdx >> 0x10) >> 2) * 3);
-    colour[11] = (BYTE)(colourIdx >> 0x18);
-    Sprite_FillRect((int)g_pGraphics + 0x150, r30, &colour[8], 1);
-    v18 = FixDiv((int)pEntry->dstX2 << 16, (int)g_unk0x0082c9ec[2] << 16);
-    v24 = pEntry->field_0x24;
-    if (v24 != 0) {
-        v28 = (int)(((__int64)pEntry->current * v24) >> 16);
-        colour[3] = (BYTE)(((__int64)v28 * 0xff0000) >> 32);
-        colour[7] = colour[3];
-        i = 0;
-        if ((char)g_unk0x0082ca18 != 0) {
+    span = (barEnd - barStart) << 16;
+    if (total == 0)
+        total = 1;
+    if (g_unk0x00536c90 != 0) {
+        car = 0;
+        do {
+            split = 0;
+            pRef = &g_unk0x00536e90[1];
+            pColour = &g_unk0x00536d14[car * 0x28 + 1];
+            pTime = &g_unk0x00536ff0[1];
+            // One marker is {short x, y, w, h}; the original walks it through a
+            // short* anchored on y, so x sits at -1 and the height h at +2.
+            pGeo = (short *)&g_unk0x00536cb8[car * 0x14] + 1;
             do {
-                marker = xoff;
-                r30[0] = (short)xoff;
-                r30[1] = (short)v20;
-                FUN_00503b70((Unk0x0082c6c8 *)g_unk0x0082c6c8 + param1, &r30[0], &r30[1]);
-                if (g_unk0x0082ca04[i] == 100) {
-                    if (CGameInfo::GetScreenWidth() < 0x400) {
-lab1:
-                        r30[1] = (short)(r30[1] + 4);
-                    } else if (CFrontend::FUN_004b7560(0x400) == 0) {
-                        goto lab1;
-                    } else if (CFrontend::FUN_004b7590(0x400) == 0) {
-                        goto lab1;
-                    } else {
-                        r30[1] = (short)(r30[1] + 6);
+                xOff = 0;
+                yOff = 0;
+                uTime = *pTime;
+                if (RallyData_FUN_00411880() != 0) {
+                    if (CGameInfo::FUN_00405dc0() == 0) {
+                        if (car == 0)
+                            xOff = -((int)g_pGraphics->resX / 2);
+                    } else if (car == 1) {
+                        yOff = (int)g_pGraphics->resY / 2;
                     }
-                    FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0xfe),
-                                 (int)r30[0], (int)r30[1],
-                                 (int *)&colour[4], (int *)&colour[0], 0x12);
-                } else {
-                    r30[2] = (short)(((__int64)v18 *
-                                      ((int)*(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x120)
-                                       << 16)) >> 32);
-                    r30[3] = (short)(((__int64)v18 *
-                                      ((int)*(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x122)
-                                       << 16)) >> 32);
-                    v28 = (int)r30[2] / 2 << 16;
-                    r30[0] = (short)(r30[0] - (short)(((__int64)v18 * v28) >> 32));
-                    if (CGameInfo::GetScreenWidth() < 0x400) {
-lab2:
-                        v28 = (BYTE)g_unk0x0052723c[g_unk0x0082ca04[i]] << 16;
-                        percent = (short)(((__int64)v18 * v28) >> 32);
-                    } else if (CFrontend::FUN_004b7560(0x400) == 0) {
-                        goto lab2;
-                    } else if (CFrontend::FUN_004b7590(0x400) == 0) {
-                        goto lab2;
-                    } else {
-                        v28 = (BYTE)g_unk0x00527248[g_unk0x0082ca04[i]] << 16;
-                        percent = (short)(((__int64)v18 * v28) >> 32);
+                }
+                uTime = FixDiv(uTime, total);
+                pGeo[-1] = (short)(FixMulShift32(uTime, span) + barStart + xOff);
+                if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+                    CGameInfo::FUN_00405d80() == 0xb)
+                    yPos = (int)g_pGraphics->resY * 0x554 >> 16;
+                else
+                    yPos = (int)g_pGraphics->resY << 0xc >> 16;
+                pGeo[0] = (short)(yPos + yOff);
+                markerColour = g_unk0x005170a8;
+                pGeo[2] = (short)((int)g_pGraphics->resY * 0xaac >> 16) + 1;
+                *pColour = markerColour;
+                if (split == g_unk0x00536c90)
+                    pGeo[-1] = (short)(barEnd + xOff);
+                ((BYTE *)pColour)[0] = (BYTE)markerColour;
+                ((BYTE *)pColour)[1] = (BYTE)(markerColour >> 8);
+                ((BYTE *)pColour)[2] = g_unk0x005170aa;
+                ((BYTE *)pColour)[3] = g_unk0x005170a7;
+                if (CGameInfo::FUN_00405d80() == 4) {
+                    if (g_stageSplitData[car].times[split + 1] != 0) {
+                        other = (car + 1) % 2;
+                        barColour = g_unk0x0051709c;
+                        if (g_stageSplitData[other].times[split + 1] == 0 ||
+                            g_stageSplitData[car].times[split + 1] <
+                                g_stageSplitData[other].times[split + 1])
+                            goto storeSplitColour;
+                        pColour[-1] = g_unk0x005170a0;
                     }
-                    r30[1] = (short)(r30[1] - percent);
-                    Sprite_Queue((SpriteRect *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x11c),
-                                 (SpriteRect *)r30,
-                                 (Texture *)g_unk0x0082ca20[g_unk0x0082ca04[i]],
-                                 1, 0, NULL, NULL, colour, 8);
+                } else if (g_stageSplitData[car].times[split + 1] != 0) {
+                    barColour = g_unk0x005170a0;
+                    if (g_stageSplitData[car].times[split + 1] -
+                            g_stageSplitData[car].times[split] <
+                        pRef[0] - pRef[-1])
+                        pColour[-1] = g_unk0x0051709c;
+                    else {
+storeSplitColour:
+                        pColour[-1] = barColour;
+                    }
                 }
-                xoff = marker + 0x1e;
-                if (i != (g_unk0x0082ca18 & 0xff) - 1) {
-                    r30[0] = (short)xoff;
-                    r30[1] = (short)v20;
-                    FUN_00503b70((Unk0x0082c6c8 *)g_unk0x0082c6c8 + param1, &r30[0], &r30[1]);
-                    r30[2] = (short)(((__int64)v18 *
-                                      ((int)*(short *)((char *)g_unk0x0082c690 + 0x120) << 16)) >> 32);
-                    v28 = (int)*(short *)((char *)g_unk0x0082c690 + 0x122) << 16;
-                    r30[3] = (short)(((__int64)v18 * v28) >> 32);
-                    r30[0] = (short)(r30[0] - r30[2] / 2);
-                    r30[1] = (short)(r30[1] - r30[3] / 2);
-                    Sprite_Queue((SpriteRect *)((char *)g_unk0x0082c690 + 0x11c),
-                                 (SpriteRect *)r30, (Texture *)g_unk0x0082c690,
-                                 1, 0, NULL, NULL, colour, 8);
-                    xoff = marker + 0x3c;
-                }
-                i++;
-            } while (i < (int)(g_unk0x0082ca18 & 0xff));
-        }
-    }
-    if (pEntry->field_0x28 != 0) {
-        v18 = (int)(((__int64)pEntry->field_0x28 * 0x20000) >> 16);
-        v24 = v18 - 0x10000;
-        if (0x10000 < v18)
-            v18 = 0x10000;
-        r30[0] = (short)((int)g_unk0x0082c9fc * (int)g_pGraphics->resX / 0x280);
-        r30[1] = (short)((int)g_unk0x0082c9fe * (int)g_pGraphics->resY / 0x1e0);
-        r30[2] = (short)((int)(((__int64)((int)g_unk0x0082ca00 << 16) * v18) >> 32)
-                         * (int)g_pGraphics->resX / 0x280);
-        r30[3] = (short)((int)(((__int64)((int)g_unk0x0082ca02 << 16) * v18) >> 32)
-                         * (int)g_pGraphics->resY / 0x1e0);
-        if (v24 >= 0) {
-            v28 = (int)(((__int64)v20 * v24) >> 16);
-            colour[3] = (BYTE)(((__int64)v28 * 0xff0000) >> 32);
-            Sprite_Queue((SpriteRect *)&g_unk0x0082c9f4, (SpriteRect *)r30,
-                         (Texture *)g_unk0x0082c9e8, 3, 0, NULL, NULL, colour, 8);
-            v1c = FixDiv((pEntry->srcY1 - (int)g_unk0x0082c9ec[1]) << 16,
-                         (int)g_unk0x0082c9ec[3] << 16);
-            v28 = FixDiv((int)g_unk0x0082ca02 << 16, (int)g_unk0x0082c9ec[3] << 16);
-            v24 = (int)pEntry->srcY2 << 16;
-            r38[2] = (short)((int)(short)(((__int64)((int)pEntry->srcX2 << 16)
-                                           * FixDiv((int)g_unk0x0082ca00 << 16,
-                                                    (int)g_unk0x0082c9ec[2] << 16)) >> 32)
-                             * (int)g_pGraphics->resX * 2 / 0x280);
-            r38[3] = (short)((int)(short)(((__int64)v24 * v28) >> 32)
-                             * (int)g_pGraphics->resY * 2 / 0x1e0);
-            q = FixDiv((pEntry->srcX1 - (int)g_unk0x0082c9ec[0]) << 16,
-                       (int)g_unk0x0082c9ec[2] << 16);
-            r38[0] = (short)(((int)(short)(((__int64)q * ((int)g_unk0x0082ca00 << 16)) >> 32)
-                              + g_unk0x0082c9fc) * (int)g_pGraphics->resX / 0x280);
-            r38[1] = (short)(((int)(short)(((__int64)v1c * ((int)g_unk0x0082ca02 << 16)) >> 32)
-                              + g_unk0x0082c9fe) * (int)g_pGraphics->resY / 0x1e0);
-            colour14[0] = ((BYTE *)&g_unk0x005270ec)[0];
-            colour14[1] = ((BYTE *)&g_unk0x005270ec)[1];
-            colour14[2] = ((BYTE *)&g_unk0x005270ec)[2];
-            colour14[3] = colour[3];
-            Sprite_FillRect((int)g_pGraphics + 0x150, r38, colour14, 1);
-        }
-        FUN_00504eb0(r30, &g_unk0x005270e4[4], 0);
+                pTime += 2;
+                split++;
+                pGeo += 4;
+                pRef++;
+                pColour++;
+            } while ((int)pTime < (int)(g_unk0x00536ff0 + 25));
+            // Every split's segment runs up to the next split's x.
+            pSpan = (SplitMarker *)&g_unk0x00536cb8[car * 0x14];
+            split = 0xc;
+            do {
+                split--;
+                pSpan->w = pSpan[1].x - pSpan->x;
+                pSpan++;
+            } while (split != 0);
+            car++;
+        } while (car < 2);
     }
 }
