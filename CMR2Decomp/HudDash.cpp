@@ -807,3 +807,34 @@ void FUN_00447ca0(unsigned int index)
     FUN_00447ec0(index, 0xe0000);
 }
 
+void RallyData_FUN_00408c20(int *pPos, short *pHeading, int *pValue, int index);
+void FUN_00447a40(BYTE *pObj, FixMatrix *pRef);
+
+// Stores the camera mode of the owner of a HUD slot and, when the slot's delay
+// has elapsed, rebuilds its offset heading (through the shared position helper)
+// and pushes the new height/offset into the dash state.
+// match 29.79%: implementada; MSVC6 mantiene param_1 en ESI (y no en EDI) y el marco es de
+// 12 bytes en vez de 16, asi que todos los desplazamientos de pila difieren; la logica y el
+// orden de llamadas coinciden.
+// FUNCTION: CMR2 0x00447530
+void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3)
+{
+    FixVector offset;
+    BYTE index;
+
+    index = param_1[1];
+    g_unk0x0053cff8[param_1[0]] = (BYTE)param_3;
+    if (param_1[2] >= (BYTE)RallyDataState()) {
+        RallyData_FUN_00408c20((int *)&offset, (short *)&param_2, &param_3, 0);
+        FUN_00447d20(index, &offset);
+        FUN_00447ec0(index, param_3);
+    } else {
+        RallyData_FUN_00408c20((int *)&offset, (short *)&param_2, &param_3,
+                               (int)(BYTE)FUN_0041b370() + param_1[2]);
+        FUN_00447d20(index, &offset);
+        FUN_00447ec0(index, param_3);
+    }
+    FUN_00447e20(index, *(short *)&param_1);
+    FUN_00447a40(param_1, (FixMatrix *)param_2);
+}
+
