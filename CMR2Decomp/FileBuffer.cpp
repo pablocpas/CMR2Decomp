@@ -264,9 +264,75 @@ void FUN_004eb470(void)
 }
 
 // FUNCTION: CMR2 0x004eb4b0
-void FUN_004eb4b0(char *param1, int param2)
+void *FUN_004eb4b0(char *param1, int param2)
 {
-    CFileBuffer::GetGenericFileBuffer(param1, 1);
+    return CFileBuffer::GetGenericFileBuffer(param1, 1);
+}
+
+void RallyData_ValidateIndex(int index);
+void FUN_004eb860(int index, int profile);
+void FUN_004ebf20(int index);
+
+// Loads the .pps profile named by slot `param_2` and, when its name and id
+// dword match one of the four stored player records, copies the record over
+// that profile and links the record to it; otherwise the record is moved to
+// the free category 0xf. Returns 1, or 0 when the file cannot be loaded.
+// FUNCTION: CMR2 0x004eb4c0
+unsigned int FUN_004eb4c0(int param_1, int param_2)
+{
+    BYTE *pFile;
+    BYTE *pBuffer;
+    BYTE *pRecord;
+    unsigned int flags;
+    unsigned int cat;
+    unsigned int category;
+    unsigned int diff;
+    unsigned int i;
+
+    RallyData_ValidateIndex(param_1);
+    pFile = (BYTE *)FUN_004eb2e0((char *)(g_unk0x00531764 + param_2 * 12));
+    pBuffer = (BYTE *)FUN_004eb4b0((char *)pFile, 0);
+    if (pBuffer == NULL)
+        return 0;
+    *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
+    i = 0;
+    pRecord = g_saveData + 0x63c;
+    do {
+        if (strcmp((char *)(pRecord - 4), (char *)(pBuffer + 0x10)) == 0) {
+            diff = *(unsigned int *)(pBuffer + 0x14) ^ *(unsigned int *)pRecord;
+            if ((diff & 0x1f0f00) == 0 && (char)diff == 0 && (diff & 0xfc0f000) == 0) {
+                if (i != 0xffffffff) {
+                    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) =
+                        (i & 0xf) << 0x12 |
+                        *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) & 0xffc3ffff;
+                    goto found;
+                }
+                break;
+            }
+        }
+        pRecord += 0x650;
+        i++;
+    } while ((int)pRecord < (int)(g_saveData + 0x1f7c));
+    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) |= 0x3c0000;
+    FUN_004eb860(param_1, -1);
+    FUN_004ebf20(param_1);
+found:
+    cat = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
+    memcpy(g_saveData + 0x628 + cat * 0x650, pBuffer, 0x650);
+    g_saveData[0x640 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    g_saveData[0x641 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    g_saveData[0x642 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    flags = *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30);
+    category = (flags >> 0x12) & 0xf;
+    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) =
+        ((*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0x40) << 0x13) |
+        (((flags & 0xffffffc0) |
+          (*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0x1f)) & 0xfdffe03f) |
+        0x2000;
+    *(unsigned int *)(g_saveData + 0x1f74 + param_1 * 0x30) = 0;
+    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) &= 0xfe3fffff;
+    CFileBuffer::FreeGenericFileBuffer(pBuffer);
+    return 1;
 }
 
 // Resets record `index` of the 0x531350 table to category 0xf, clearing bit 0x2000.

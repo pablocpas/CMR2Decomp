@@ -146,6 +146,25 @@ void FrontendDraw_PlayTime(void)
                       (int *)g_colourText0x0052496c, 0xc);
 }
 
+// Draws the label of item `index` of `pMenu` in white when it is the cursor,
+// in the normal text colour when it is enabled and dimmed when it is not;
+// hidden items draw nothing.
+// FUNCTION: CMR2 0x004d4350
+void FrontendDraw_ItemLabel(char *text, int x, int y, unsigned int flags, int index, Menu *pMenu)
+{
+    if (pMenu->items[index].visible) {
+        if (pMenu->cursor == index) {
+            Font_DrawText(1, text, x, y, (int *)g_colourWhite0x00524968, flags);
+            return;
+        }
+        if (pMenu->items[index].enabled) {
+            Font_DrawText(1, text, x, y, (int *)g_colourText0x0052496c, flags);
+            return;
+        }
+        Font_DrawText(1, text, x, y, (int *)g_colourDim0x00524970, flags);
+    }
+}
+
 // Help line at the bottom of the screen, its brightness pulsing up and down.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d4460
@@ -416,6 +435,93 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
             g_unk0x008189a8[3] = 1;
             g_unk0x008189a8[1] = ROW_H() + top;
         }
+    }
+}
+
+// Draws the rally-info entry list: an optional title row and one row per
+// entry, each with its 640-wide banner texture (bright for the selected
+// entry) and a highlight line under the selected ones. index -1 picks the
+// vertically centred default row.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; remaining diff is the local layout of the
+// per-row rect and register allocation.
+// FUNCTION: CMR2 0x004d39a0
+void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings)
+{
+    short rect[4];
+    int hasTitle;
+    int top;
+    int i;
+    unsigned int u;
+    Texture *pTexture;
+    BYTE *pColour;
+    BYTE *pShadow;
+    BYTE *pLine;
+    BYTE *pLineShadow;
+
+    hasTitle = (pTitle != NULL);
+    rect[0] = (int)(g_pGraphics->resX * 0x50) / 640 - (int)(g_pGraphics->resX * 0x14) / 640;
+    rect[2] = CFrontend::m_pAr640ATexture->width;
+    rect[3] = CFrontend::m_pAr640ATexture->height;
+    if (index == -1)
+        index = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 0x26) / 480 +
+                 (int)(g_pGraphics->resY * 0x180) / 480) / 2;
+    top = index - ((pList[0xa] + hasTitle) * ((int)(g_pGraphics->resY * 0x1a) / 480)) / 2;
+    if (pList[0xb] == 0) {
+        pColour = g_colourWhite0x00524968;
+        pShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pColour = g_colourText0x0052496c;
+        pShadow = g_colourShadowWhite0x00524974;
+        if (pTitle == NULL)
+            pShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[1] = top;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x2d) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0xe6) / 640;
+    if (pTitle != NULL)
+        g_unk0x008189a8[1] = top + (int)(g_pGraphics->resY * 0x1a) / 480;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
+    for (i = 0; i < pList[0xa] + hasTitle; i++) {
+        rect[1] = (short)(top + (int)(g_pGraphics->resY * 0x10) / 480 +
+                          ((int)(g_pGraphics->resY * 0x1a) / 480) * i -
+                          CFrontend::m_pAr640ATexture->height / 2);
+        if (pTitle != NULL && i == 0) {
+            g_unk0x008189a8[1] = top;
+            g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1a) / 480;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+            Font_DrawText(1, pTitle, (int)(g_pGraphics->resX * 0x50) / 640,
+                          g_unk0x008189a8[1] + (int)(g_pGraphics->resY * 0x14) / 480,
+                          (int *)g_colourTitle0x00524984, 0x11);
+            g_unk0x008189a8[3] = 1;
+            g_unk0x008189a8[1] = top + (int)(g_pGraphics->resY * 0x1a) / 480;
+            continue;
+        }
+        u = i - hasTitle;
+        if (pList[0xb] == u) {
+            pTexture = CFrontend::m_pAr640ATexture;
+            pColour = g_colourWhite0x00524968;
+        } else {
+            pTexture = CFrontend::m_pAr640DTexture;
+            pColour = g_colourText0x0052496c;
+        }
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL, pColour, 8);
+        Font_DrawText(1, ppStrings[u], (int)(g_pGraphics->resX * 0x50) / 640,
+                      g_unk0x008189a8[1] + (int)(g_pGraphics->resY * 0x14) / 480, (int *)pColour, 0x11);
+        if (pList[0xb] == u || pList[0xb] == u + 1) {
+            pLine = g_colourWhite0x00524968;
+            pLineShadow = g_colourShadowWhite0x00524974;
+        } else {
+            pLine = g_colourText0x0052496c;
+            pLineShadow = g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = top + ((int)(g_pGraphics->resY * 0x1a) / 480) * (i + 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+        g_unk0x008189a8[1]++;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLine, 1);
     }
 }
 
