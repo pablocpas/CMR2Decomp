@@ -1351,6 +1351,26 @@ unsigned int g_unk0x00519120[25] = {
 // Entry point of the in-race state machine: on the first frame it builds the
 // callback group of the current in-race mode, on later frames it only
 // dispatches the transition of the current state.
+//
+// The logic is faithful; the remaining gap is codegen shape. Exact differences
+// against the original (643 bytes):
+//  1. switch block layout (the bulk). The original puts the switch epilogue
+//     (`mov [esp+0x14],2; jmp state1`) right after case 1 (0x41b190), so every
+//     `break` reaches it with a short jump and case 2's second FUN_00408500 call
+//     is tail-merged into case 1's (`jmp 0x41b187`). MSVC6 12.00.8804 from any
+//     source shape probed instead keeps an epilogue copy after every case and
+//     duplicates case 2's call. Case 0 keeps its own copy of the epilogue in the
+//     original (0x41b14e), reproduced here with the explicit `goto state1`.
+//  2. stack slots are swapped: original has `state` at [esp+0x10] and `level` at
+//     [esp+0x14]; ours is the reverse (9 operand mismatches). Declaration order
+//     does not move them.
+//  3. the loop's else branch has a dead `mov al,[g_unk0x00537ef4]; test al,al`
+//     before `push 0` that no source form probed reproduces (2 instructions).
+//  4. the loop counter is a dword in the original (`mov ebx,ebp; and ebx,0xff;
+//     dec ebx`); the byte `i` here compiles to `dec bl`.
+//  5. `level` is masked into a copy in the original (`mov ecx,edi; and ecx,0xff`)
+//     keeping the unmasked value in edi for the call argument; ours masks edi.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041b060
 BOOL CGame::FUN_0041b060(void)
 {
@@ -1384,6 +1404,8 @@ BOOL CGame::FUN_0041b060(void)
             if (RallyData_FUN_00408500((BYTE)pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] & 0x1f) == -1) {
                 if (RallyData_FUN_00408500((pState[((*pState >> 0xc) & 0xf) * 3 + 0x16] >> 5) & 0x1f) == -1)
                     goto fail;
+                level = 2;
+                goto state1;
             }
             break;
         case 1:
@@ -1412,7 +1434,7 @@ fail:
         }
         level = 2;
     } else {
-        if (FUN_00407270() == 0 && state > 1) {
+        if ((BYTE)FUN_00407270() == 0 && state > 1) {
             if (CGameInfo::FUN_00405d80() != 3 && 2 >= state && CGameInfo::FUN_00405da0() == 0) {
                 level = 1;
                 state = 2;
@@ -1423,11 +1445,12 @@ fail:
             level = 0;
         }
     }
+state1:
     state = 1;
 done:
     RallyData_FUN_00407500(state);
     g_unk0x00537df0 = level;
-    if (state != 0) {
+    if (state > 0) {
         pSlot = (Unk00817d98 *)&g_unk0x00537dd0[0x10];
         i = state;
         do {
@@ -1452,6 +1475,7 @@ done:
     g_unk0x00537ef8 = 0;
     return FALSE;
 }
+
 
 // FUNCTION: CMR2 0x00501680
 void CGame::FUN_00501680(struct Unk0049c2c0 *, BYTE) { return; }
