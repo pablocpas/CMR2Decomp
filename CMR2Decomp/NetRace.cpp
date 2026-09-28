@@ -821,3 +821,84 @@ void FUN_00426b90(int param_1, int param_2)
         }
     }
 }
+
+extern const double g_unk0x00511380;
+
+// Integrates the remote car's body for one frame: turns the tick delta into a
+// fixed-point step, advances the two position bases (0x64 and 0x70), rotates
+// the reference basis by the resulting velocity angle, then either writes the
+// basis straight into the car or blends it with a copy of the current one.
+// FUNCTION: CMR2 0x00426810
+void FUN_00426810(int param_1, int param_2)
+{
+    FixVector v;
+    short angles[3];
+    BYTE basis[0x40];
+    BYTE blended[0x40];
+    int delta;
+    int magnitude;
+    int scale;
+
+    if (*(unsigned short *)(param_1 + 0xc6) > 0)
+        *(unsigned short *)(param_1 + 0xc6) -= 1;
+    if (*(int *)(param_1 + 0xe8) != 0) {
+        delta = 0;
+        *(int *)(param_1 + 0xe8) = 0;
+    } else {
+        delta = (param_2 - (unsigned int)*(unsigned short *)(param_1 + 0xc8)) * 0x10000;
+    }
+    if (*(int *)(param_1 + 0xe0) != 0)
+        FUN_00426b90(param_1, delta);
+
+    FixVecScale(&v, (FixVector *)(param_1 + 0x70), delta);
+    *(int *)(param_1 + 0x64) += v.x;
+    *(int *)(param_1 + 0x68) += v.y;
+    *(int *)(param_1 + 0x6c) += v.z;
+
+    magnitude = delta;
+    if (magnitude < 0)
+        magnitude = -magnitude;
+    scale = g_triangleNumbers[magnitude >> 16] * 0x10000;
+    if (delta < 0)
+        scale = -scale;
+
+    FixVecScale(&v, (FixVector *)(param_1 + 0x88), scale);
+    *(int *)(param_1 + 0x64) += v.x;
+    *(int *)(param_1 + 0x68) += v.y;
+    *(int *)(param_1 + 0x6c) += v.z;
+
+    FixVecScale(&v, (FixVector *)(param_1 + 0x88), delta);
+    *(int *)(param_1 + 0x70) += v.x;
+    *(int *)(param_1 + 0x74) += v.y;
+    *(int *)(param_1 + 0x78) += v.z;
+
+    FixVecScale(&v, (FixVector *)(param_1 + 0x7c), delta);
+    angles[0] = (short)(__int64)((double)v.x * g_unk0x00511380);
+    angles[1] = (short)(__int64)((double)v.y * g_unk0x00511380);
+    angles[2] = (short)(__int64)((double)v.z * g_unk0x00511380);
+    FixBasis_Rotate((FixBasis *)(param_1 + 0x40), (unsigned short *)angles);
+
+    *(int *)(param_1 + 0xbc) += FixMul(*(int *)(param_1 + 0xc0), delta) -
+                                FixMul(FixMul(delta, delta), 0xc49);
+    *(int *)(param_1 + 0xc0) -= FixMul(FixMul(0x20000, delta), 0xc49);
+    *(unsigned short *)(param_1 + 0xc8) = (unsigned short)param_2;
+
+    if (*(int *)(param_1 + 0xd8) != 0) {
+        FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), (FixMatrix *)param_1);
+        FixMatrix_SetRight((FixVector *)(param_1 + 0x40), (FixMatrix *)param_1);
+        FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), (FixMatrix *)param_1);
+        FixMatrix_SetForward((FixVector *)(param_1 + 0x58), (FixMatrix *)param_1);
+        *(int *)(param_1 + 0xe0) = 0;
+        *(int *)(param_1 + 0xb4) = *(int *)(param_1 + 0xbc);
+        return;
+    }
+    FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), (FixMatrix *)basis);
+    FixMatrix_SetRight((FixVector *)(param_1 + 0x40), (FixMatrix *)basis);
+    FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), (FixMatrix *)basis);
+    FixMatrix_SetForward((FixVector *)(param_1 + 0x58), (FixMatrix *)basis);
+    FixMatrix_Interpolate((FixMatrix *)blended, (FixMatrix *)param_1, (FixMatrix *)basis, 0x8000, 0x8000, 0x8000, 0);
+    FixMatrix_CopyRotation((FixMatrix *)blended, (FixMatrix *)param_1);
+    *(int *)(param_1 + 0xe0) = 0;
+    *(int *)(param_1 + 0xb4) +=
+        FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
+}
