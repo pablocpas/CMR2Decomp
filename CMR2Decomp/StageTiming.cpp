@@ -280,16 +280,7 @@ void FUN_004556f0(void)
             if (left <= 0)
                 break;
             id = RallyTiming_GetOverallPositionDriverID(pos);
-            if (id < g_unk0x00541f98) {
-                if (remaining == left) {
-                    slot = *pSlot;
-                    left--;
-                    used[id] = 1;
-                    pSlot--;
-                    g_stageSplitUnk0x00541f78[slot][1] = (char)id;
-                }
-                remaining--;
-            } else {
+            if (id >= g_unk0x00541f98) {
                 slot = 15 - id;
                 if (g_stageSplitUnk0x00541f78[slot][1] == 16) {
                     k = pos;
@@ -301,6 +292,15 @@ void FUN_004556f0(void)
                     used[id] = 1;
                     pSlot--;
                 }
+            } else {
+                if (remaining == left) {
+                    slot = *pSlot;
+                    left--;
+                    used[id] = 1;
+                    pSlot--;
+                    g_stageSplitUnk0x00541f78[slot][1] = (char)id;
+                }
+                remaining--;
             }
         }
         // The original tests the last slot touched above, not the one being
@@ -352,8 +352,8 @@ void FUN_004556f0(void)
         }
         pOut = &g_stageSplitUnk0x00541f78[0][1];
         for (i = 0; i < count; i++) {
-            hasAi = 0;
             hasPlayer = 0;
+            hasAi = 0;
             switch ((*pState >> 3) & 7) {
             case 1:
                 pMatch = &((KnockoutTable *)pState)->round1[i];
@@ -375,9 +375,8 @@ void FUN_004556f0(void)
                     out[k] = StageTiming_GetDriverSlot(drivers[k]);
                     hasPlayer = 1;
                 } else {
+                    ai = out[k] = drivers[k] - CGameInfo::FUN_00405d70();
                     hasAi = 1;
-                    ai = drivers[k] - CGameInfo::FUN_00405d70();
-                    out[k] = ai;
                 }
             }
             if (hasPlayer) {
