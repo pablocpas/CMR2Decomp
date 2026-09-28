@@ -459,6 +459,78 @@ int g_unk0x00537248;
 // GLOBAL: CMR2 0x0053724c
 int g_unk0x0053724c;
 
+// Queues a race call (radio message) of the given call id and player.
+extern int g_unk0x00537358;
+int FUN_00418580(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int *pFlag, BYTE *pColour);
+// match 21%: register allocation and block order differ from the original
+// (the original homes `prev`/`texture` in the frame and strength-reduces the
+// record loop differently); logic transcribed from the asm.
+// FUNCTION: CMR2 0x004174e0
+void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused)
+{
+    unsigned int id;
+    unsigned int type;
+    unsigned int b1;
+    unsigned int b2;
+    unsigned int b3;
+    int prev = 0;
+    int texture = 0;
+    BYTE colour[4];
+    unsigned int flag;
+    SpriteRect rect;
+    int i;
+    unsigned int recFlags;
+    int *pCalls;
+
+    if (FUN_00417760(player) != 0)
+        return;
+
+    if (callId == 0xff) {
+        id = 0;
+        type = player;
+        b1 = player;
+        b2 = player;
+    } else {
+        pCalls = (int *)g_unk0x00537358;
+        id = pCalls[callId];
+        if (prevCallId != 0xff)
+            prev = pCalls[prevCallId];
+        type = id >> 0x11 & 0xf;
+        b2 = id & 0xf;
+        b1 = id >> 4 & 3;
+        b3 = id >> 0x15 & 3;
+        if (prev == 0) {
+            if ((type == 0xe || type == 2 || type == 1) && b1 != 0) {
+                id -= type * 0x20000;
+                prev = type * 0x20000;
+            } else if (b3 != 0 && b1 != 0) {
+                id -= b3 * 0x200000;
+                prev = b3 * 0x200000;
+            }
+        }
+    }
+
+    if (b2 == 6 && b1 == 0 && type == 0)
+        return;
+
+    for (i = 0; i < 5; i++) {
+        recFlags = g_raceCallRecords[player * 5 + i].flags;
+        if ((recFlags & 0x100) == 0) {
+            g_raceCallRecords[player * 5 + i].flags = (recFlags & 0xfffffd32) | 0x132;
+            g_raceCallRecords[player * 5 + i].field_0x0 = id;
+            if (prev == 0) {
+                g_raceCallRecords[player * 5 + i].field_0x4 = 0;
+            } else {
+                g_raceCallRecords[player * 5 + i].field_0x4 = prev;
+                if (FUN_00418580(prev, &texture, &rect, &flag, colour) != 0)
+                    g_raceCallRecords[player * 5 + i].flags =
+                        (g_raceCallRecords[player * 5 + i].flags & 0xffffff32) | 0x32;
+            }
+            break;
+        }
+    }
+}
+
 // Resets the per-player race state: best values, call records and slots.
 // match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00416670
@@ -1380,6 +1452,9 @@ char g_strPathFormat[] = "%s\\%s";
 char g_strCarC1Format[] = "%s\\%sc1";
 // GLOBAL: CMR2 0x005196f8
 char g_strCarD3Format[] = "%s\\%sd3%d";
+
+// GLOBAL: CMR2 0x005199b0
+int g_unk0x005199b0 = 0xacb49c;
 
 // Path of a car's texture set: "<cars dir>\<car>d3<n>" or "<cars dir>\<car>c1".
 // FUNCTION: CMR2 0x00420060
@@ -2707,6 +2782,14 @@ void FUN_00418ee0(void)
         }
         pSet++;
     } while (pSet < &g_carSoundSets[8]);
+}
+
+// Loads a sound sample by the name held in the caller's buffer, reading it
+// from the current stage file (the same file the stage timing code uses).
+// FUNCTION: CMR2 0x00418760
+void FUN_00418760(char *name)
+{
+    Sound_LoadSample(name, 0, (GenericFile *)StageTiming_GetStageFile2());
 }
 
 // One sound handle per car.

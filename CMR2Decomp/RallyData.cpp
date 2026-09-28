@@ -6082,3 +6082,63 @@ void FUN_00411280(void)
     g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
                                                 0, 0);
 }
+
+DWORD FUN_004a1a00(void);
+int FUN_0040b020(int value);
+int FUN_00409d20(int index);
+BYTE *FUN_0040b0a0(int id);
+
+// Draws the two sprites (shadow and icon) of a race-position marker, clamping
+// the arrow's x span to the marker track width read from the HUD rect.
+// match 44%: same instruction count and logic; only register allocation and
+// load scheduling differ from the original (MSVC6 slot assignment).
+// FUNCTION: CMR2 0x00413e00
+void FUN_00413e00(short *param_1, int param_2)
+{
+    short *pMarker;
+    Texture *pTexture;
+    SpriteRect src;
+    SpriteRect dst;
+    int local_8;
+    short diff;
+    int i;
+
+    pMarker = param_1 + g_unk0x00536c48[param_2][0] * 4;
+    local_8 = (int)pMarker[2] << 16;
+    pTexture = g_unk0x00537070;
+    dst.x = (short)(FixMulShift32(local_8, g_unk0x00536c48[param_2][1]) - pTexture->width / 2);
+    dst.x += pMarker[0];
+    dst.y = pMarker[1];
+    dst.w = pTexture->width;
+    dst.h = pTexture->height;
+    src = *(SpriteRect *)&pTexture->field_0x11c;
+
+    if (0 < (int)*param_1 - (int)dst.x) {
+        diff = (short)((int)*param_1 - (int)dst.x);
+        src.x += diff;
+        dst.x += diff;
+        dst.w -= diff;
+        src.w -= diff;
+    }
+    i = (int)dst.w - (int)param_1[g_unk0x00536c90 * 4 - 4]
+        - (int)param_1[g_unk0x00536c90 * 4 - 2] + (int)dst.x;
+    if (0 < i) {
+        diff = (short)i;
+        dst.w -= diff;
+        src.w -= diff;
+    }
+
+    if (param_2 == 0) {
+        Sprite_Queue(&src, &dst, g_unk0x00537070, 2, 0, 0, 0,
+                     FUN_0040b0a0((int)FUN_004a1a00()), 8);
+        dst.y = (short)((pMarker[3] - g_unk0x00537070->height) + pMarker[1]);
+        Sprite_Queue(&src, &dst, g_unk0x00537074, 2, 0, 0, 0,
+                     FUN_0040b0a0((int)FUN_004a1a00()), 8);
+        return;
+    }
+    Sprite_Queue(&src, &dst, g_unk0x00537070, 2, 0, 0, 0,
+                 FUN_0040b0a0(FUN_00409d20(FUN_0040b020(param_2))), 8);
+    dst.y = (short)((pMarker[3] - g_unk0x00537070->height) + pMarker[1]);
+    Sprite_Queue(&src, &dst, g_unk0x00537074, 2, 0, 0, 0,
+                 FUN_0040b0a0(FUN_00409d20(FUN_0040b020(param_2))), 8);
+}

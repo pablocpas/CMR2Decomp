@@ -6,6 +6,7 @@
 #include "GameInfo.h"
 #include "RallyData.h"
 #include "FixedPoint.h"
+#include "main.h"
 
 // Network messages sent during a race (0x427620-0x428760)
 
@@ -97,6 +98,91 @@ int FUN_00427660(void)
 int FUN_00427670(void)
 {
     return g_unk0x00539dcc;
+}
+
+// GLOBAL: CMR2 0x00539ed4
+int g_unk0x00539ed4;
+
+void FUN_0040ac70(DWORD *pId, unsigned int carClass);
+void FUN_00409e90(DWORD *pId);
+void FUN_00409fd0(DWORD *pId, int split, unsigned int time);
+void FUN_0040a0e0(DWORD *pId, int stage, unsigned int time);
+void FUN_00409f80(DWORD *pId);
+void FUN_00409f00(DWORD *pId, unsigned int time, int value);
+void FUN_00409d50(DWORD *pId, NetStats *pStats);
+void FUN_0040afb0(char valid, BYTE *p);
+void FUN_0040ad20(void);
+void FUN_004d0620(DWORD *pFrom, char *text, char local);
+void FUN_0041f280(void);
+void FUN_0041f290(void);
+void FUN_00449fe0(BYTE index);
+void FUN_00401540(BYTE index);
+void FUN_004014f0(BYTE index);
+void FUN_00449090(BYTE index);
+void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
+extern int g_unk0x00537f34;
+extern int g_unk0x005199b0;
+
+// Dispatches a message of the in-race network stream to its handler.
+// FUNCTION: CMR2 0x004276c0
+void FUN_004276c0(DWORD *pId, BYTE *pPacket)
+{
+    switch (pPacket[0]) {
+    case 0xb:
+        if (g_unk0x00539cc8 != 0) {
+            FUN_00409d50(pId, (NetStats *)(pPacket + 2));
+            return;
+        }
+        break;
+    case 7:
+        FUN_00409e90(pId);
+        return;
+    case 8:
+        FUN_00409fd0(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        return;
+    case 9:
+        FUN_0040a0e0(pId, pPacket[1], *(unsigned int *)(pPacket + 4));
+        return;
+    case 10:
+        FUN_00409f80(pId);
+        FUN_00409f00(pId, *(unsigned int *)(pPacket + 4), *(unsigned int *)(pPacket + 8));
+        return;
+    case 12:
+        FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005199b0, 1);
+        return;
+    case 13:
+        FUN_004283e0(0, FUN_00449fe0, 1, 0, g_unk0x005199b0, 1);
+        return;
+    case 14:
+        FUN_0041f280();
+        if (CGameInfo::FUN_00405d80() == 8) {
+            FUN_0041f290();
+            FUN_004283e0(0, FUN_00401540, 1, 0, g_unk0x005199b0, 1);
+        } else {
+            FUN_004283e0(0, FUN_00401540, 1, 0, g_unk0x00539ed4, 1);
+        }
+        FUN_00409bc0();
+        return;
+    case 15:
+        FUN_0041f280();
+        FUN_0041f290();
+        FUN_004283e0(0, FUN_004014f0, 1, 0, g_unk0x005199b0, 1);
+        return;
+    case 0:
+        FUN_004d0620((DWORD *)pId, (char *)(pPacket + 1), 0);
+        return;
+    case 6:
+        FUN_0040ac70(pId, pPacket[1]);
+        return;
+    case 0x10:
+        g_unk0x00537f34 = CMain::GetFrameDelta();
+        FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005199b0, 1);
+        return;
+    case 0x11:
+        FUN_0040afb0(pPacket[1], pPacket + 4);
+        FUN_0040ad20();
+        return;
+    }
 }
 
 // Sends the local car state.
