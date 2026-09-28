@@ -8476,3 +8476,98 @@ void FUN_00414ed0(int car, short *pRect)
         textY += panel[3];
     } while (--rows);
 }
+
+// 0x50-byte entry of the table at 0x82c6c8 as seen by the panel enter helper:
+// the scoreboard texture slot picked for the panel.
+struct Unk0x0082c6c8Sel {
+    BYTE field_0x0[0x48];
+    BYTE field_0x48;
+    BYTE field_0x49[0x7];
+};
+
+void FUN_0050fd30(int param1);
+void FUN_0050f650(int param1, int param2);
+void FUN_005057e0(void);
+void FUN_005044d0(int param1);
+
+void FUN_0050ee50(short *pRect, int unused, unsigned int count, BYTE *pColours);
+
+// GLOBAL: CMR2 0x00527288
+char g_str0x00527288[8] = "%d\260c";
+
+// Draws the selected rally's temperature over the bottom of the option panel:
+// the label rect is scaled from the current resolution, the alpha ramps from
+// the temperature value and the string is drawn with the panel colour.
+// FUNCTION: CMR2 0x00503c80
+void FUN_00503c80(int param_1)
+{
+    BYTE colour[12];
+    short rect[4];
+    char *pStr;
+    int v;
+    int x;
+    int y;
+
+    rect[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+    rect[1] = (short)((int)g_pGraphics->resY * 0x16f / 0x1e0);
+    rect[2] = (short)((int)g_pGraphics->resX * 0x100 / 0x280);
+    rect[3] = (short)((int)g_pGraphics->resY * 0xc / 0x1e0);
+    colour[0] = 0x97;
+    colour[1] = 0xc2;
+    colour[2] = 0xcd;
+    colour[3] = 0;
+    colour[4] = 0xde;
+    colour[5] = 0xd2;
+    colour[6] = 0x74;
+    colour[7] = 0;
+    colour[8] = 0xff;
+    colour[9] = 0x7f;
+    colour[10] = 0;
+    colour[11] = 0;
+    FUN_0050ee50(rect, 1, 0xb, colour);
+    pStr = (char *)RallyData_FUN_004075d0(param_1);
+    v = *pStr * 0x10000;
+    param_1 = FixMul(v + 0x140000, 0x3a9);
+    if (param_1 < 0)
+        param_1 = 0;
+    else if (param_1 > 0x10000)
+        param_1 = 0x10000;
+    x = FixMulShift32((int)rect[2] << 16, param_1) + rect[0];
+    y = rect[3] + rect[1];
+    sprintf(CFrontend::m_stringDest, g_str0x00527288, v >> 0x10);
+    Font_DrawText(0, CFrontend::m_stringDest, x, y, &g_unk0x005270fc, 0x12);
+}
+
+// Enters the option panel selected by 0x82ca1c: rebinds the panel textures and
+// the scoreboard texture slot, then rescales the segment rect at 0x82c9ec to
+// the current resolution and draws its outline.
+// match 88%: every instruction matches except the frame layout of the rect
+// transform; the original stores the two dwords of 0x82c9ec into its slots
+// (keeping rect[0] in EAX for the first `movsx`) and pushes the call arguments
+// later than we do, so the four ESP+disp operands differ. Source-level
+// reordering (declaration order, separate locals, reading the global directly)
+// does not move MSVC 6's scheduling.
+// FUNCTION: CMR2 0x005043b0
+void FUN_005043b0(void)
+{
+    Unk0x0082c6c8Sel *pEntry;
+    short rect[4];
+
+    FUN_00505590();
+    FUN_005044d0((int)(signed char)g_unk0x0082ca1c);
+    FUN_005051c0();
+    FUN_005057e0();
+    if (g_unk0x0082ca1c != 0xff) {
+        pEntry = (Unk0x0082c6c8Sel *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
+        FUN_0050fd30(RallyDataCountryIndex() & 0xff);
+        FUN_0050f650(RallyDataCountryIndex() & 0xff, pEntry->field_0x48);
+        FUN_00503c80(pEntry->field_0x48);
+    }
+    *(int *)&rect[0] = *(int *)&g_unk0x0082c9ec[0];
+    *(int *)&rect[2] = *(int *)&g_unk0x0082c9ec[2];
+    rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
+    rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
+    rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
+    rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
+    FUN_00504eb0(rect, &g_unk0x005270e4[4], 0);
+}
