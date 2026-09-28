@@ -9307,3 +9307,388 @@ done:
         }
     }
 }
+
+int FUN_004218d0(unsigned int view);
+void RallyData_FUN_00408760(BYTE index, int value);
+
+// Applies the driver-camera cycle: while the cycle key is held it picks the
+// target driver (either from the current knockout round or by advancing the
+// active one) and hands the resulting view mode to the rally data layer.
+// match 53%: implementada, MSVC6 cachea param_1 en EDI y coloca distinta la tabla del switch
+// FUNCTION: CMR2 0x0047b970
+void FUN_0047b970(unsigned int param_1)
+{
+    unsigned int uVar4;
+    unsigned int uVar5;
+    BYTE *p;
+
+    p = FUN_0041b390();
+    if (**(char **)(p + 4) == 10) {
+        if (FUN_0041f3a0() == 0) {
+            uVar4 = FUN_004218d0(0);
+        } else {
+            if (CGameInfo::FUN_00405d80() == 2)
+                uVar4 = param_1;
+            else
+                uVar4 = FUN_004218d0(1);
+        }
+    } else {
+        uVar4 = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+    }
+
+    p = FUN_0041b390();
+    if ((**(char **)(p + 4) == 8) || (p = FUN_0041b390(), **(char **)(p + 4) == 7)) {
+        uVar5 = FUN_0041b380();
+        switch (uVar5) {
+        case 0:
+        case 1:
+            g_unk0x0058e0a4 = param_1;
+            break;
+        case 2:
+            RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
+            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
+                g_unk0x0058e0a4 = g_unk0x0058df98;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df9c;
+            break;
+        case 3:
+            if (param_1 == 0)
+                RallyData_GetRoundDrivers(&g_unk0x0058e0a4, &g_unk0x0058df9c);
+            else
+                RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058e0a4);
+            break;
+        case 4:
+            g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_1;
+            break;
+        }
+        {
+            BYTE bVar2 = CGameInfo::FUN_00405d70();
+            if ((int)g_unk0x0058e0a4 < (int)(unsigned int)bVar2 &&
+                (uVar4 == 1 || uVar4 == 2 || uVar4 == 3 || uVar4 == 5 || uVar4 == 4)) {
+                RallyData_FUN_00408760((BYTE)g_unk0x0058e0a4, uVar4);
+            }
+        }
+    }
+}
+
+// Builds the bounding box of an object's collision points (8 triples): the
+// object's 2D direction is normalised from its accumulated translation and
+// every point is projected onto it, tracking the box bounds.
+// match 59%: implementada, difiere el marco de pila y la fusion de bloques de normalizacion
+// FUNCTION: CMR2 0x004873f0
+void FUN_004873f0(int *param_1, int param_2, int param_3)
+{
+    short *pOut = *(short **)(param_3 + 4);
+    FixVector v;
+    int absY = param_1[1];
+    int dx = 0;
+    int dy = 0;
+    int maxRight = 0;
+    int maxLeft = 0;
+    int len;
+    int *p;
+    int n;
+
+    pOut[3] = 0;
+    pOut[2] = 0;
+
+    if (absY < 0)
+        absY = -absY;
+
+    if (absY > 0xfd70) {
+        v.x = param_1[3];
+        v.y = 0;
+        v.z = param_1[5];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    } else {
+        v.x = param_1[0];
+        v.y = 0;
+        v.z = param_1[2];
+        len = FixVecLength(&v);
+        if (len == 0) {
+            dx = 0;
+            dy = 0;
+        } else {
+            FixVecScaleRecip(&v, &v, len);
+            dx = v.x;
+            dy = v.z;
+        }
+    }
+
+    p = (int *)(param_2 + 8);
+    n = 8;
+    do {
+        int c = p[-1];
+        int right = FixMul(dx, p[-2]) + FixMul(dy, p[0]);
+        int left = FixMul(-dx, p[0]) + FixMul(dy, p[-2]);
+        short q = (short)(c >> 9);
+
+        if (right > 0 && maxRight < right)
+            maxRight = right;
+        if (left > 0 && maxLeft < left)
+            maxLeft = left;
+        if ((short)pOut[2] * 0x200 < c)
+            pOut[2] = q;
+        if (c < (short)pOut[3] * 0x200)
+            pOut[3] = q;
+
+        p += 3;
+    } while (--n != 0);
+
+    pOut[0] = (short)(dx >> 9);
+    pOut[4] = (short)(maxRight >> 9);
+    pOut[1] = (short)(dy >> 9);
+    pOut[5] = (short)(maxLeft >> 9);
+}
+
+extern double g_minus65536;
+
+// Chooses the wall-collision response of a car part from its lateral/forward
+// offsets and the wall distances stored in the reference record; returns the
+// facing side (1..4) or a slanted-response code (5/6), 0 when clear.
+// match 54%: implementada, MSVC6 reparte distinto los locales y el modo del muro
+// FUNCTION: CMR2 0x0047c5e0
+unsigned int FUN_0047c5e0(int param_1)
+{
+    int mode;
+    int off;
+    int limit;
+    int blocked;
+    int local10;
+    int isStackC;
+    int iVar4;
+    int iVar7;
+    int iVar8;
+    int iVar5;
+    unsigned int u;
+
+    mode = 0;
+    if (*(int *)(param_1 + 0x5c) < -0xa0000)
+        mode = 1;
+    if (0xa0000 < *(int *)(param_1 + 0x5c))
+        mode = 2;
+
+    iVar7 = *(int *)(param_1 + 0x34);
+    if (iVar7 < 0) {
+        iVar4 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xd) * g_minus65536);
+        iVar8 = iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xe);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            iVar5 = 0;
+            if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
+                iVar5 = iVar7 - local10;
+        }
+        if ((0 < iVar8) && (iVar8 < 0x40000))
+            iVar5 = iVar8;
+        if (0 < iVar5) {
+            if (0x5a0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) - FixMul(-iVar5, 0xf0000) + 0x3c0000 < 0)
+                return 2;
+        }
+        if (iVar8 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 2;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
+            }
+            if (0x6e0000 < iVar7)
+                return 1;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffe) + 5;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar4 + 0xc) * g_minus65536);
+        local10 = *(int *)(param_1 + 0x34) - local10;
+        if ((local10 < 0) && (mode != 2)) {
+            if (0x3c0000 < *(int *)(param_1 + 0x38))
+                return 1;
+            if (*(int *)(param_1 + 0x38) < -0x2d0000)
+                return 2;
+            if (*(int *)(param_1 + 0x38) - FixMul(-local10, 0x50000) < 0)
+                return 3;
+        }
+    } else {
+        iVar5 = *(int *)(param_1 + 0x54) * 0x10;
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 9) * g_minus65536);
+        iVar4 = -iVar7 - local10;
+        {
+            char cVar1 = *(signed char *)(g_unk0x0058e4a4 + iVar5 + 10);
+            local10 = (int)(__int64)((double)(int)cVar1 * g_minus65536);
+            local10 = -iVar7 - local10;
+            isStackC = 0;
+            if ((local10 < 0x40000) && (cVar1 < 0x11))
+                isStackC = local10;
+        }
+        if ((0 < iVar4) && (iVar4 < 0x40000))
+            isStackC = iVar4;
+        if (0 < isStackC) {
+            if (*(int *)(param_1 + 0x38) < -0x5a0000)
+                return 3;
+            iVar7 = *(int *)(param_1 + 0x38) - FixMul(isStackC, 0xf0000);
+            if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
+                return 4;
+        }
+        if (iVar4 < 0) {
+            iVar7 = *(int *)(param_1 + 0x38);
+            if (iVar7 < 1) {
+                if (iVar7 < -0x6e0000)
+                    return 3;
+                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
+            }
+            if (0x6e0000 < iVar7)
+                return 4;
+            return ((0x45ffff < iVar7) - 1 & 0xfffffffc) + 6;
+        }
+        local10 = (int)(__int64)((double)(int)*(signed char *)(g_unk0x0058e4a4 + iVar5 + 8) * g_minus65536);
+        iVar7 = -local10 - *(int *)(param_1 + 0x34);
+        if ((iVar7 < 0) && (mode != 1)) {
+            if (0x2d0000 < *(int *)(param_1 + 0x38))
+                return 4;
+            if (*(int *)(param_1 + 0x38) < -0x3c0000)
+                return 3;
+            u = FixMul(iVar7, 0x50000);
+            if (*(unsigned int *)(param_1 + 0x38) != u &&
+                -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
+                return 1;
+        }
+    }
+    if (0x780000 < *(int *)(param_1 + 0x38))
+        return 4;
+    return (-0x780001 < *(int *)(param_1 + 0x38)) - 1 & 2;
+}
+
+int RallyData_FUN_00421420(void);
+int RallyData_FUN_00421370(BYTE *p);
+void RallyData_FUN_00421530(int index, int *pOut);
+extern double g_unk0x00511300;
+
+// Picks the closest car ahead of the reference angle among the active cars,
+// rejecting those out of range or outside the angular window, and writes the
+// chosen one's relative state code to *param_2.
+// match 54%: implementada, difiere el reparto de locales/registros y la fusion de bloques
+// FUNCTION: CMR2 0x0047cd10
+int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
+{
+    Car *cars[6];
+    int flags[6];
+    int maxAng[6];
+    int angles[6];
+    int i, n;
+    int wrap, base, refX, refZ;
+    int outA[3], outB[3];
+    int outIdx;
+    int iVar7, iVar8, iVar9, iVar10;
+    unsigned int uVar2, length;
+
+    *param_2 = 0;
+    for (i = 0; i < 6; i++) {
+        flags[i] = 0;
+        cars[i] = Car_Get(i);
+    }
+    wrap = RallyData_FUN_00421420();
+    refX = *(int *)((BYTE *)cars[param_1] + 0x2d8);
+    refZ = *(int *)((BYTE *)cars[param_1] + 0x2d0);
+    base = param_4[4];
+    n = (int)(signed char)g_unk0x0058e0b0[0];
+
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if ((i != param_1) && (*(int *)((BYTE *)cars[i] + 0x778) < 0xc800))
+                flags[i] = 1;
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = StageObject_Atan2Degrees(*(int *)((BYTE *)cars[i] + 0x368),
+                                                 *(int *)((BYTE *)cars[i] + 0x360));
+                iVar8 = FUN_00498db0(base - iVar8);
+                if ((iVar8 < -0x5a0000) || (0x5a0000 < iVar8))
+                    maxAng[i] = 10;
+                else
+                    maxAng[i] = 5;
+            }
+        }
+    }
+    if (0 < n) {
+        for (i = 0; i < n; i++) {
+            if (flags[i] != 0) {
+                iVar8 = RallyData_FUN_00421370((BYTE *)cars[i]);
+                angles[i] = iVar8;
+                iVar8 = iVar8 - param_3;
+                if (iVar8 < -100)
+                    iVar8 = iVar8 + wrap;
+                if ((iVar8 < 0) || (maxAng[i] < iVar8))
+                    flags[i] = 0;
+            }
+        }
+    }
+    outIdx = 0;
+    if (0 < (signed char)g_unk0x0058e0b0[0]) {
+        do {
+            if (flags[outIdx] != 0) {
+                int dx = *(int *)((BYTE *)cars[outIdx] + 0x2d8) - refX;
+                int dz = *(int *)((BYTE *)cars[outIdx] + 0x2d0) - refZ;
+
+                uVar2 = (unsigned int)FixSqrt(FixMul(dx, dx) + FixMul(dz, dz));
+                length = uVar2;
+                iVar7 = StageObject_Atan2Degrees(dx, dz);
+                iVar8 = FUN_00498db0(base - iVar7);
+                if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
+                    iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
+                    if (iVar10 < 0x50001) {
+                        if (iVar10 < 0)
+                            iVar10 = 0;
+                    } else {
+                        iVar10 = 0x50000;
+                    }
+                    length = (unsigned int)FixMul((int)length,
+                        g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
+                    iVar9 = (param_3 + 5) - wrap;
+                    iVar7 = param_3 + 5;
+                    if (-1 < iVar9)
+                        iVar7 = iVar9;
+                    RallyData_FUN_00421530(iVar7, outB);
+                    iVar7 = StageObject_Atan2Degrees(outB[2] - refX, outB[0] - refZ);
+                    FUN_00498db0(base - iVar7);
+                    if (((int)length <= iVar10) && (-iVar10 <= (int)length)) {
+                        iVar8 = FUN_00498db0(iVar8 - iVar7);
+                        if (iVar8 < 0) {
+                            if (0x320000 < *param_4) {
+                                flags[outIdx] = 4;
+                                *param_2 = flags[outIdx];
+                                return outIdx;
+                            }
+                            flags[outIdx] = 2;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        if (0x320000 < *param_4) {
+                            flags[outIdx] = 3;
+                            *param_2 = flags[outIdx];
+                            return outIdx;
+                        }
+                        flags[outIdx] = 1;
+                        *param_2 = flags[outIdx];
+                        return outIdx;
+                    }
+                    flags[outIdx] = 0;
+                } else {
+                    flags[outIdx] = 0;
+                }
+            }
+            outIdx++;
+        } while (outIdx < (signed char)g_unk0x0058e0b0[0]);
+    }
+    return -1;
+}

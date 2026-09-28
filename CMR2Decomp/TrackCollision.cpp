@@ -1338,3 +1338,108 @@ convert:
     else
         *(short *)((BYTE *)g_pAutoGearCar + 0xb10) -= limit;
 }
+
+int *FUN_00469680(int index);
+extern double g_unk0x00511300;
+
+// Applies the automatic-gear state to the car for one frame: rebuilds the body
+// pitch/roll from the setup data, advances the active gear and the shifting
+// hysteresis, and updates the gear ratios written to the car.
+// match 49%: implementada, caching de registros y orden de bloques distinto
+// FUNCTION: CMR2 0x00493520
+void FUN_00493520(Car *pCar)
+{
+    #define PC ((BYTE *)g_pAutoGearCar)
+    char cVar1;
+    int t;
+    int u;
+    int v;
+
+    g_pAutoGearCar = pCar;
+    g_pAutoGearSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)pCar + 0xb1a));
+    FUN_004932f0();
+    if (*(int *)(PC + 0xb8c) == 0) {
+        FUN_004946c0();
+    } else if (*(BYTE *)(PC + 0x1d2) == 0) {
+        *(int *)(PC + 0x79c) = 0;
+    } else {
+        t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d2) << 16), 0x410);
+        if (t > 0x10000)
+            t = 0x10000;
+        *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+    }
+    if (*(int *)(PC + 0x7bc + *(char *)(PC + 0xb1e) * 4) < 0)
+        *(int *)(PC + 0xb5c) = 1;
+    else
+        *(int *)(PC + 0xb5c) = 0;
+    *(int *)(PC + 0xb54) = 0;
+    if (*(int *)(PC + 0xb94) == 0)
+        cVar1 = *(char *)(PC + 0x1d3);
+    else
+        cVar1 = *(char *)(PC + 0x1d2);
+    if (cVar1 != 0)
+        *(int *)(PC + 0xb54) = 1;
+    if (*(char *)(PC + 0xb1f) == 0) {
+        if (*(int *)(PC + 0xb84) == 0) {
+            if ((*(int *)(PC + 0xb48) == 1) && (*(char *)(PC + 0x1d4) != 0))
+                FUN_00493890();
+            else if (*(int *)(PC + 0xb48) == 2)
+                Car_UpdateAutomaticGear();
+        } else if (*(char *)(PC + 0xb24) < 1) {
+            *(int *)(PC + 0xb84) = 0;
+            *(BYTE *)(PC + 0xb1e) = *(BYTE *)(PC + 0xb20);
+        } else {
+            *(char *)(PC + 0xb24) = *(char *)(PC + 0xb24) - 1;
+            *(BYTE *)(PC + 0xb1e) = 0;
+        }
+    }
+    if (*(int *)(PC + 0xb88) == 0)
+        FUN_00494110();
+    else
+        FUN_00493ed0();
+    if (*(int *)(PC + 0xb90) == 0) {
+        FUN_00494880();
+        if ((*(int *)(PC + 0xb8c) != 0) && (*(int *)(PC + 0xb94) != 0)) {
+            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
+            if (t > 0x10000)
+                t = 0x10000;
+            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+        }
+    } else if (*(BYTE *)(PC + 0x1d3) == 0) {
+        *(int *)(PC + 0x838) = 0;
+    } else {
+        t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
+        if (t > 0x10000)
+            t = 0x10000;
+        if (*(int *)(PC + 0xb94) == 0) {
+            int target = FixMul(*(int *)(PC + 0x82c), t);
+            int diff = target - *(int *)(PC + 0x838);
+            int adiff = diff;
+            if (diff < 0)
+                adiff = -diff;
+            if (adiff < FixMul(*(int *)(PC + 0x82c), 0xccc))
+                *(int *)(PC + 0x838) = target;
+            else
+                *(int *)(PC + 0x838) = *(int *)(PC + 0x838) + FixMul(diff, 0x23d7);
+        } else {
+            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+            *(int *)(PC + 0x838) = 0;
+        }
+    }
+    FUN_00494960();
+    if (*(int *)(PC + 0xb48) == 1)
+        FUN_00493a40();
+
+    t = FixMul(*(short *)(PC + 0xb10) * 0x1680, 0x20000);
+    u = t;
+    if (u < 0)
+        u = -u;
+    if (g_unk0x00592160 < u) {
+        v = (t < 1);
+        t = g_unk0x00592160;
+        if (v)
+            t = -g_unk0x00592160;
+    }
+    *(short *)(PC + 0xb14) = (short)(__int64)((double)t * g_unk0x00511300);
+}
+#undef PC

@@ -237,3 +237,173 @@ void FUN_0048c750(int *v)
         v[2] = -FixMul(g_physicsScale, 0x80000);
 }
 
+
+extern int g_unk0x00591490;
+extern FixVector g_unk0x00591498;
+
+// Resolves a collision between a car and the reference object: normalises the
+// offset of the car's centre, projects the car's extent onto it, and either
+// pushes the car out of the sphere or reports the impact side.
+// match 16%: implementada, MSVC6 reutiliza slots de pila y ordena distinto el prologo/cuerpo
+// FUNCTION: CMR2 0x00489b20
+int FUN_00489b20(int *param_1, int *param_2, unsigned int *param_3, int param_4)
+{
+    int *piVar3 = param_1;
+    int local_1c = 0;
+    int local_14 = 0;
+    int local_10 = 0;
+    char local_5 = 0;
+    int iVar4, iVar5, iVar13, iVar14;
+    unsigned int uVar6, uVar7, uVar8, uVar15;
+    unsigned int local_3c, local_34;
+    int tmp;
+
+    iVar13 = g_unk0x00591498.x - *(int *)(param_1[0x25]);
+    iVar14 = g_unk0x00591498.z - *(int *)(param_1[0x25] + 8);
+    uVar15 = (unsigned int)FixSqrt(FixMul(iVar13, iVar13) + FixMul(iVar14, iVar14));
+    if (uVar15 == 0) {
+        local_3c = 0;
+        local_34 = 0;
+    } else {
+        iVar4 = (int)(0x100000000i64 / (__int64)(int)uVar15);
+        local_3c = (unsigned int)FixMul(iVar13, iVar4);
+        local_34 = (unsigned int)FixMul(iVar14, iVar4);
+    }
+    iVar4 = FixMul(param_1[6], local_34) + FixMul(param_1[4], local_3c);
+    iVar5 = FixMul(param_1[9], local_34) + FixMul(param_1[7], local_3c);
+    uVar6 = (unsigned int)(FixMul(param_1[6], iVar14) + FixMul(param_1[4], iVar13));
+    uVar7 = (unsigned int)(FixMul(param_1[9], iVar14) + FixMul(param_1[7], iVar13));
+
+    uVar15 = uVar6;
+    if ((int)uVar6 < 0)
+        uVar15 = -uVar6;
+
+    if (*param_1 < (int)uVar15) {
+        uVar15 = uVar7;
+        if ((int)uVar7 < 0)
+            uVar15 = -uVar7;
+        if ((int)uVar15 > param_1[1])
+            goto LABEL_00489f05;
+
+        if ((int)uVar6 < 1)
+            uVar15 = (unsigned int)((0 < (int)uVar7) + 2);
+        else
+            uVar15 = (unsigned int)(0 < (int)uVar7);
+        uVar8 = (unsigned int)FixMul(g_unk0x00591490, g_unk0x00591490);
+        iVar14 = g_unk0x00591498.x - param_1[uVar15 * 3 + 0xc];
+        iVar4 = g_unk0x00591498.z - param_1[uVar15 * 3 + 0xe];
+        uVar15 = (unsigned int)FixMul(iVar4, iVar4);
+        iVar13 = (int)uVar15 + FixMul(iVar14, iVar14);
+        if ((int)uVar8 < iVar13)
+            goto LABEL_0048a1e0;
+        iVar14 = FixMul(local_34, iVar4) + FixMul(local_3c, iVar14);
+        iVar4 = FixMul(local_34, local_34) + FixMul(local_3c, local_3c);
+        uVar15 = (unsigned int)(FixMul(iVar14, iVar14) - FixMul(iVar4, iVar13 - (int)uVar8));
+        if (-1 < (int)uVar15) {
+            uVar15 = (unsigned int)FixSqrt(uVar15);
+            uVar15 = uVar15 - iVar14;
+            local_10 = FixDiv((int)uVar15, iVar4);
+        }
+        local_5 = 3;
+    } else {
+LABEL_00489f05:
+        iVar14 = *param_1 + g_unk0x00591490;
+        iVar13 = g_unk0x00591490 + param_1[1];
+        uVar15 = uVar6;
+        if ((int)uVar6 < 0)
+            uVar15 = -uVar6;
+        if (iVar14 < (int)uVar15)
+            goto LABEL_0048a1e0;
+        uVar15 = uVar7;
+        if ((int)uVar7 < 0)
+            uVar15 = -uVar7;
+        if (iVar13 < (int)uVar15)
+            goto LABEL_0048a1e0;
+
+        {
+            int bVar16 = 0;
+            int bVar2 = 0;
+            if (iVar4 < 0x42) {
+                if (iVar4 < -0x41) {
+                    uVar15 = (unsigned int)-(uVar6 + iVar14);
+                    tmp = uVar6 + iVar14;
+                    if (-1 < (int)uVar15)
+                        tmp = (int)uVar15;
+                    local_1c = FixDiv(tmp, -iVar4);
+                    goto LABEL_00489f8f;
+                }
+            } else {
+                uVar15 = (unsigned int)(iVar14 - uVar6);
+                local_1c = FixDiv((int)uVar15, iVar4);
+LABEL_00489f8f:
+                bVar2 = 1;
+            }
+            if (iVar5 < 0x42) {
+                if (iVar5 < -0x41) {
+                    uVar15 = (unsigned int)-(iVar13 + uVar7);
+                    tmp = iVar13 + uVar7;
+                    if (-1 < (int)uVar15)
+                        tmp = (int)uVar15;
+                    local_14 = FixDiv(tmp, -iVar5);
+                    bVar16 = 1;
+                }
+            } else {
+                uVar15 = (unsigned int)(iVar13 - uVar7);
+                local_14 = FixDiv((int)uVar15, iVar5);
+                bVar16 = 1;
+            }
+            if (bVar2 && local_1c < 0x7d000000)
+                local_5 = 1;
+            else
+                local_1c = 0x7d000000;
+            if (bVar16 && local_14 < local_1c) {
+                local_5 = 2;
+                local_1c = local_14;
+            }
+            if ((0 < local_1c) && (bVar16 || bVar2))
+                local_10 = local_1c;
+            if (local_5 == 0)
+                goto LABEL_0048a1e0;
+        }
+    }
+
+    g_unk0x005914a8.z = 0;
+    if (local_10 < 1) {
+        g_unk0x005914a8.x = 0;
+    } else {
+        int iVar;
+        int *piVar9;
+        iVar = -FixMul(local_10, param_4);
+        g_unk0x005914a8.x = FixMul(local_3c, iVar);
+        g_unk0x005914a8.z = FixMul(local_34, iVar);
+        piVar9 = (int *)piVar3[0x25];
+        if ((piVar9 != 0) && (piVar3[0x24] != 0)) {
+            *piVar9 = *piVar9 + g_unk0x005914a8.x;
+            *(int *)(piVar3[0x25] + 4) = *(int *)(piVar3[0x25] + 4);
+            *(int *)(piVar3[0x25] + 8) = *(int *)(piVar3[0x25] + 8) + g_unk0x005914a8.z;
+            iVar = 0;
+            do {
+                *(int *)(iVar + piVar3[0x24]) = *(int *)(iVar + piVar3[0x24]) + g_unk0x005914a8.x;
+                *(int *)(iVar + 4 + piVar3[0x24]) = *(int *)(iVar + 4 + piVar3[0x24]);
+                *(int *)(iVar + 8 + piVar3[0x24]) = *(int *)(iVar + 8 + piVar3[0x24]) + g_unk0x005914a8.z;
+                iVar += 0xc;
+            } while (iVar < 0x60);
+            piVar9 = piVar3 + 0xd;
+            iVar = 4;
+            do {
+                piVar9[-1] = piVar9[-1] + g_unk0x005914a8.x;
+                *piVar9 = *piVar9;
+                piVar9[1] = piVar9[1] + g_unk0x005914a8.z;
+                piVar9 += 3;
+                iVar--;
+            } while (iVar != 0);
+        }
+    }
+    g_unk0x005914a8.y = 0;
+    *param_2 = FixDiv(FixMul(uVar6, *piVar3), *piVar3 + g_unk0x00591490);
+    uVar15 = (unsigned int)FixDiv(FixMul(uVar7, piVar3[1]), g_unk0x00591490 + piVar3[1]);
+    *param_3 = uVar15;
+
+LABEL_0048a1e0:
+    return (int)(unsigned char)local_5;
+}
