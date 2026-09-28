@@ -7181,3 +7181,477 @@ void FUN_004111a0(void)
     g_unk0x00536c30[2] = 0;
     FUN_00411b20();
 }
+
+// ---------------------------------------------------------------------------
+#include "Sector.h"
+#include "Mesh.h"
+
+extern int g_unk0x0058c950;
+extern int g_unk0x0058ca68;
+extern StageObject *g_stageObjects[6000];
+StageObject *StageObject_GetNext(StageObject *pObject);
+void FUN_004873f0(int *param_1, int param_2, int param_3);
+void FUN_0046f550(void);
+void FUN_0046f7e0(void);
+
+// Total number of 8-byte scratch records of the "B" kind of stage objects.
+// GLOBAL: CMR2 0x0058c95c
+int g_unk0x0058c95c;
+
+// Rebuilds the per-sector static object tables after a stage is loaded.
+// Counts the stage objects of the active range (and how many carry a mesh),
+// allocates the per-object scratch area and the two sorted list tables, sizes
+// them, fills them from every sector's object list and finally, for every
+// object record that has a mesh, builds the world matrix of the object, its
+// eight corner points, the length of the box diagonal (through the square-root
+// table) and its right/up/forward axes.
+// match 60%: logica y constantes exactas (incluido FixSqrt por tabla y el
+// barrido del coste por objeto); difiere el reparto de registros, el plegado de
+// los bucles de coste y el orden de los memset/alloc en la cola.
+// FUNCTION: CMR2 0x00471dd0
+void FUN_00471dd0(void)
+{
+    FixMatrix matrix;
+    FixVector corners[8];
+    FixVector basis[3];
+    FixVector v;
+    short listIndexA;
+    short listIndexB;
+    int sectorOffset;
+    int countA;
+    int countB;
+    int totalObjects;
+    int countRecords;
+    int sector;
+    int i;
+    int n;
+    int j;
+    int k;
+    int sumCost;
+    int scratchOffset;
+    int recordOffset;
+    int offsetA;
+    int offsetB;
+    int hx;
+    int hy;
+    int hz;
+    int length;
+    int *pEntry;
+    int *pScratch;
+    int *pRecordScratch;
+    StageObject *pObject;
+    StageObject *pNext;
+    BYTE *pMesh;
+    BYTE *pRecord;
+    StageObject **ppObjects;
+
+    sectorOffset = g_unk0x0058c950 - g_unk0x0058ca68;
+    totalObjects = 0;
+    g_unk0x0058ca70 = NULL;
+    g_sectorListEntriesA = NULL;
+    g_unk0x0058c948 = NULL;
+    g_unk0x0058c958 = NULL;
+    g_unk0x0058c944 = NULL;
+    g_sectorListIndexA = NULL;
+    g_sectorListCountA = NULL;
+    g_sectorListEntriesB = NULL;
+    g_unk0x0058c94c = NULL;
+    g_unk0x0058c938 = NULL;
+    g_sectorListIndexB = NULL;
+    g_sectorListCountB = NULL;
+    countA = 0;
+    if (sectorOffset != 0) {
+        ppObjects = &g_stageObjects[g_unk0x0058ca68];
+        n = sectorOffset;
+        do {
+            pObject = *ppObjects;
+            ppObjects++;
+            totalObjects += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+            n--;
+        } while (n != 0);
+    }
+    if (g_sectorCount != 0) {
+        g_sectorListIndexA = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
+        g_sectorListIndexB = (short *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 2);
+    }
+    for (i = 0; i < g_sectorCount; i++) {
+        g_sectorListIndexA[i] = -1;
+        g_sectorListIndexB[i] = -1;
+    }
+    countB = 0;
+    g_unk0x0058c95c = 0;
+    countA = 0;
+    g_unk0x0058ca6c = 0;
+    countB = 0;
+    countRecords = 0;
+    if (g_sectorCount != 0) {
+        sector = 0;
+        do {
+            int a = countA;
+            int b = countB;
+
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh != NULL &&
+                    (*(BYTE *)((BYTE *)pObject->pMesh + 0x110)) != 0) {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        g_unk0x0058c95c += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                        if (g_sectorListIndexA[sector] == -1) {
+                            g_sectorListIndexA[sector] = (short)a;
+                            a++;
+                        }
+                    } else {
+                        g_unk0x0058ca6c += *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                        if (g_sectorListIndexB[sector] == -1) {
+                            g_sectorListIndexB[sector] = (short)b;
+                            b++;
+                        }
+                    }
+                    for (pRecord = *(BYTE **)((BYTE *)pObject->pMesh + 0x10c); pRecord != NULL;
+                         pRecord = *(BYTE **)(pRecord + 0x58)) {
+                        if (*pRecord == 0)
+                            countRecords++;
+                    }
+                }
+            }
+            countA = a;
+            countB = b;
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    if (totalObjects != 0) {
+        g_unk0x0058ca70 = CFileBuffer::AllocateLockedBuffer(totalObjects * 8);
+        memset(g_unk0x0058ca70, 0, totalObjects * 8);
+    }
+    if (countA != 0) {
+        g_sectorListEntriesA = (BYTE *)CFileBuffer::AllocateLockedBuffer(countA * 4);
+        g_sectorListCountA = (unsigned short *)CFileBuffer::AllocateLockedBuffer(countA * 2);
+        memset(g_sectorListEntriesA, 0, countA * 4);
+        memset(g_sectorListCountA, 0, countA * 2);
+    }
+    if (countB != 0) {
+        g_sectorListEntriesB = (BYTE *)CFileBuffer::AllocateLockedBuffer(countB * 4);
+        g_sectorListCountB = (unsigned short *)CFileBuffer::AllocateLockedBuffer(countB * 2);
+    }
+    if (g_unk0x0058c95c != 0) {
+        g_unk0x0058c948 = CFileBuffer::AllocateLockedBuffer(g_unk0x0058c95c * 8);
+    }
+    if (g_unk0x0058ca6c != 0) {
+        g_unk0x0058c94c = (BYTE *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c * 8);
+        g_unk0x0058c938 = (BYTE *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c);
+        g_unk0x0058c958 = (int *)CFileBuffer::AllocateLockedBuffer(g_unk0x0058ca6c * 4);
+    }
+    if (countRecords != 0) {
+        g_unk0x0058c944 = CFileBuffer::AllocateLockedBuffer(countRecords * 0xc);
+        memset(g_unk0x0058c944, 0, countRecords * 0xc);
+    }
+    for (i = 0; i < countA; i++) {
+        g_sectorListEntriesA[i] = 0;
+        g_sectorListCountA[i] = 0;
+    }
+    for (i = 0; i < countB; i++) {
+        *(int *)(g_sectorListEntriesB + i * 4) = 0;
+        g_sectorListCountB[i] = 0;
+    }
+    if (g_sectorCount != 0) {
+        sector = 0;
+        do {
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh != NULL &&
+                    (*(BYTE *)((BYTE *)pObject->pMesh + 0x110)) != 0) {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        listIndexA = g_sectorListIndexA[sector];
+                        if (listIndexA != -1)
+                            g_sectorListCountA[listIndexA] +=
+                                *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                    } else {
+                        listIndexB = g_sectorListIndexB[sector];
+                        if (listIndexB != -1)
+                            g_sectorListCountB[listIndexB] +=
+                                *(BYTE *)((BYTE *)pObject->pMesh + 0x110);
+                    }
+                }
+            }
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    pScratch = (int *)g_unk0x0058c94c;
+    for (i = 0; i < countB; i++) {
+        *(int *)(g_sectorListEntriesB + i * 4) = (int)pScratch;
+        pScratch = (int *)((BYTE *)pScratch + g_sectorListCountB[i] * 8);
+    }
+    pScratch = (int *)g_unk0x0058c948;
+    for (i = 0; i < countA; i++) {
+        *(int *)(g_sectorListEntriesA + i * 4) = (int)pScratch;
+        pScratch = (int *)((BYTE *)pScratch + g_sectorListCountA[i] * 8);
+    }
+    for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
+        g_unk0x0058c938[i] = 0xff;
+        g_unk0x0058c958[i] = 1;
+    }
+    CGame::RegisterCallback((void *)FUN_00472720, NULL);
+    countRecords = 0;
+    sector = 0;
+    if (g_sectorCount != 0) {
+        do {
+            offsetA = 0;
+            offsetB = 0;
+            for (pObject = g_sectors[sector]->pObjects; pObject != NULL;
+                 pObject = StageObject_GetNext(pObject)) {
+                if (pObject->pMesh == NULL)
+                    continue;
+                if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x8000) == 0 &&
+                    (char)RallyDataState() == 2) {
+                    *((BYTE *)pObject + 0x14) = 0;
+                }
+                pMesh = (BYTE *)pObject->pMesh;
+                if (*(char *)(pMesh + 0x110) == 0)
+                    continue;
+                sumCost = 0;
+                for (j = 0; j < sectorOffset; j++) {
+                    if (pObject == g_stageObjects[g_unk0x0058ca68 + j])
+                        break;
+                    sumCost += *(BYTE *)((BYTE *)g_stageObjects[g_unk0x0058ca68 + j]->pMesh + 0x110);
+                }
+                pRecord = *(BYTE **)(pMesh + 0x10c);
+                if (pRecord == NULL)
+                    continue;
+                scratchOffset = sumCost << 3;
+                recordOffset = countRecords * 0xc;
+                do {
+                    if ((*(unsigned int *)((BYTE *)pObject + 0x10) & 0x2001000) == 0) {
+                        listIndexA = g_sectorListIndexA[sector];
+                        if (listIndexA != -1) {
+                            pEntry = (int *)(*(int *)(g_sectorListEntriesA + listIndexA * 4) +
+                                             offsetA * 8);
+                            offsetA++;
+                        }
+                    } else {
+                        listIndexB = g_sectorListIndexB[sector];
+                        if (listIndexB != -1) {
+                            pEntry = (int *)(*(int *)(g_sectorListEntriesB + listIndexB * 4) +
+                                             offsetB * 8);
+                            offsetB++;
+                        }
+                    }
+                    pEntry[0] = (int)pObject;
+                    pScratch = (int *)((BYTE *)g_unk0x0058ca70 + scratchOffset);
+                    scratchOffset += 8;
+                    pEntry[1] = (int)pScratch;
+                    pRecordScratch = (int *)((BYTE *)g_unk0x0058c944 + recordOffset);
+                    hx = *(int *)(pRecord + 0x44);
+                    hy = *(int *)(pRecord + 0x48);
+                    hz = *(int *)(pRecord + 0x4c);
+                    if (*pRecord == 0) {
+                        recordOffset += 0xc;
+                        *(int *)(pEntry[1] + 4) = (int)pRecordScratch;
+                        countRecords++;
+                        corners[0].x = FixMul(hx, 0x8000);
+                        corners[0].y = 0;
+                        corners[0].z = FixMul(hy, 0x8000);
+                        corners[1].x = FixMul(hx, 0x8000);
+                        corners[1].y = 0;
+                        corners[1].z = -FixMul(hy, 0x8000);
+                        corners[2].x = -FixMul(hx, 0x8000);
+                        corners[2].y = 0;
+                        corners[2].z = -FixMul(hy, 0x8000);
+                        corners[3].x = -FixMul(hx, 0x8000);
+                        corners[3].y = 0;
+                        corners[3].z = FixMul(hy, 0x8000);
+                        corners[4].x = FixMul(hx, 0x8000);
+                        corners[4].y = hz;
+                        corners[4].z = FixMul(hy, 0x8000);
+                        corners[5].x = FixMul(hx, 0x8000);
+                        corners[5].y = hz;
+                        corners[5].z = -FixMul(hy, 0x8000);
+                        corners[6].x = -FixMul(hx, 0x8000);
+                        corners[6].y = hz;
+                        corners[6].z = -FixMul(hy, 0x8000);
+                        corners[7].x = -FixMul(hx, 0x8000);
+                        corners[7].y = hz;
+                        corners[7].z = FixMul(hy, 0x8000);
+                        FixMatrix_Multiply(&matrix, (FixMatrix *)(pRecord + 4),
+                                           (FixMatrix *)((BYTE *)pObject + 0x18));
+                        for (k = 0; k < 8; k++) {
+                            FixMatrix_RotateVector(&v, &corners[k], &matrix);
+                            corners[k] = v;
+                        }
+                        v.x = corners[0].x - corners[6].x;
+                        v.y = corners[0].y - corners[6].y;
+                        v.z = corners[0].z - corners[6].z;
+                        length = FixSqrt(FixMul(v.x, v.x) + FixMul(v.y, v.y) +
+                                         FixMul(v.z, v.z));
+                        *(int *)pEntry[1] = length;
+                        *(int *)pEntry[1] = FixMul(*(int *)pEntry[1], 0x8000);
+                        FixMatrix_GetRight(&basis[0], &matrix);
+                        FixMatrix_GetUp(&basis[1], &matrix);
+                        FixMatrix_GetForward(&basis[2], &matrix);
+                        FUN_004873f0((int *)&basis[0], (int)&corners[0], pEntry[1]);
+                    } else {
+                        *(int *)(pEntry[1] + 4) = 0;
+                        *(int *)pEntry[1] = hx;
+                    }
+                    pRecord = *(BYTE **)(pRecord + 0x58);
+                } while (pRecord != NULL);
+            }
+            sector++;
+        } while (sector < g_sectorCount);
+    }
+    FUN_0046f550();
+    FUN_0046f7e0();
+}
+
+// ---------------------------------------------------------------------------
+// Splits of the current car (0x411f70).
+
+short FUN_004589e0(int index);
+int FUN_00448210(int car);
+BYTE FUN_004582b0(int index);
+int FUN_004483c0(int index);
+int FUN_00448110(void);
+void FUN_00415f40(void);
+int FUN_004d0220(int index);
+
+// Last graphics resolution and language the split bar was built for, plus the
+// resolution copy used to detect a mode change.
+// GLOBAL: CMR2 0x0051711c
+int g_unk0x0051711c = -1;
+// GLOBAL: CMR2 0x00537080
+int g_unk0x00537080;
+// Per-car split bar entry: [0] split index, [0xc] current split time.
+// GLOBAL: CMR2 0x00536e00
+BYTE g_unk0x00536e00[0x90];
+
+// Per-frame update of one car's split bar: detects a graphics mode change and
+// rebuilds the split reference table, initialises the per-car split state from
+// the current game state, converts the car's current split time into the bar
+// coordinates and finally redraws the bar.
+// match 71%: logica, constantes y orden de llamadas exactos; difieren el reparto
+// de registros (car*0x48 en EDI vs ESI), el plegado del calculo del indice del
+// marcador y el orden de algunas comparaciones del bloque de estado.
+// FUNCTION: CMR2 0x00411f70
+void FUN_00411f70(int param_1, int param_2)
+{
+    BYTE *pCarEntry;
+    BYTE *pInfo;
+    BYTE *pGi;
+    short splitTime;
+    short marker;
+    SplitMarker *pMarker;
+    short *pBar;
+    int splitIndex;
+    int i;
+    int limit;
+    int first;
+    int range;
+    int fallback;
+
+    pCarEntry = g_unk0x00536e00 + param_1 * 0x48;
+    if (g_pGraphics->resX != g_unk0x00536edc ||
+        g_pGraphics->resY != g_unk0x0051711c ||
+        g_unk0x00537080 != (CGameInfo::FUN_00405dc0() & 0xff)) {
+        FUN_00411b20();
+        g_unk0x00536edc = g_pGraphics->resX;
+        g_unk0x0051711c = g_pGraphics->resY;
+        g_unk0x00537080 = CGameInfo::FUN_00405dc0() & 0xff;
+    }
+    if (g_unk0x00536bfc == 0 &&
+        (CGameInfo::FUN_00405d80() != 7 || g_unk0x00536c20[param_1] == 0)) {
+        if (CGameInfo::FUN_00405d80() == 3 || CGameInfo::FUN_00405d80() == 7) {
+            FUN_004111a0();
+            g_unk0x00536bfc = 1;
+            if (CGameInfo::FUN_00405d80() == 7) {
+                g_unk0x00536c40 = CFrontend::FUN_004cfe50();
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x4c0 +
+                    ((RallyData_FUN_00406940() & 0xff) * 3 +
+                     (RallyData_FUN_00406950() & 0xff)) * 8);
+            }
+            if (CGameInfo::FUN_00405d80() == 3) {
+                pGi = (BYTE *)CGameInfo::FUN_00405fe0();
+                g_unk0x00536c40 = *(unsigned int *)(pGi + 0x658 +
+                    ((RallyDataCountryIndex() & 0xff) * 0xb +
+                     (RallyDataStageIndex() & 0xff)) * 8) >> 7 & 0xffff;
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x154 +
+                    ((RallyDataStageIndex() & 0xff) +
+                     (RallyDataCountryIndex() & 0xff) * 0xc) * 8);
+            }
+            for (i = 0; i < 12; i++)
+                g_unk0x00536e90[i + 1] = FUN_004d0220(i);
+        } else {
+            if (StageTiming_FUN_00455ae0() != 0) {
+                g_unk0x00536bfc = 1;
+                for (i = 0; i < 12; i++)
+                    g_unk0x00536e90[i + 1] = StageTiming_GetSplitTimeForPosition(0, i);
+            }
+            if (CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 5) {
+                g_unk0x00536c40 = CFrontend::FUN_004cfe50();
+                pInfo = RallyData_FUN_00408cb0((FUN_0041b370() & 0xff) + param_1);
+                g_unk0x00536c3c = *(int *)(pInfo + 0x4c0 +
+                    ((RallyData_FUN_00406940() & 0xff) * 3 +
+                     (RallyData_FUN_00406950() & 0xff)) * 8);
+            }
+        }
+    }
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 ||
+        (CGameInfo::FUN_00405d80() == 4 || RallyData_GetFlag25() != 0)) {
+        FUN_00415f40();
+    }
+    splitTime = FUN_004589e0(param_1);
+    if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 0xc ||
+        (CGameInfo::FUN_00405d80() == 3 && RallyData_GetFlag25() != 0)) {
+        *(int *)(pCarEntry + 0xc) = FUN_00448210(param_1);
+        if (CGameInfo::FUN_00405d80() != 3 || FUN_004582b0(param_1) == 0)
+            goto checkParam;
+        if (param_2 == 0) {
+            *(int *)(pCarEntry + 0xc) = FUN_004483c0(param_1);
+            goto bar;
+        }
+    } else {
+        *(int *)(pCarEntry + 0xc) = FUN_00448110();
+        if (FUN_004582b0(param_1) == 0) {
+checkParam:
+            if (param_2 == 0)
+                goto bar;
+        } else if (param_2 == 0) {
+            *(int *)(pCarEntry + 0xc) = FUN_004483c0(param_1);
+            goto bar;
+        }
+    }
+    *(int *)(pCarEntry + 0xc) = 0;
+bar:
+    FUN_00415990(param_1);
+    StageTiming_FUN_00455ae0();
+    splitIndex = *(int *)(g_unk0x00536e00 + param_1 * 0x48);
+    limit = splitIndex + param_1 * 0x14;
+    first = g_unk0x00536ff0[splitIndex * 2];
+    pBar = (short *)(g_unk0x00536d14 + param_1 * 0x28 + 13);
+    pMarker = &g_unk0x00536cb8[limit];
+    pBar[0] = pMarker->x;
+    pBar[1] = pMarker->y;
+    pBar[3] = pMarker->h;
+    marker = pMarker->w;
+    range = g_unk0x00536ff0[splitIndex * 2 + 2] - first;
+    if (range == 0)
+        fallback = 0;
+    else
+        fallback = (short)(((int)splitTime - first) * marker / range);
+    pBar[2] = (short)fallback;
+    pBar[4] = pBar[0] + (short)fallback;
+    pBar[5] = pBar[1];
+    pBar[6] = marker - (short)fallback;
+    pBar[7] = pBar[3];
+    FUN_00413160(param_1);
+    if (RallyData_FUN_00407e70() != 0 && RallyData_FUN_004082e0() != 0)
+        FUN_004118b0(param_1);
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 || RallyData_GetFlag25() != 0)
+        FUN_00415870(param_1);
+    else
+        FUN_00414720(param_1);
+    if (g_unk0x00536c20[param_1] != 0)
+        g_unk0x00536c20[param_1]--;
+}

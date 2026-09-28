@@ -1214,3 +1214,84 @@ int FUN_00425c40(int car, int *pOut)
     FUN_004263d0(car);
     return 1;
 }
+
+#include <stdlib.h>
+#include "Input.h"
+
+// Helpers implemented in NetPlayers.cpp / RallyData.cpp.
+extern int FUN_0040b010(int index);
+extern BYTE FUN_00409df0(int index);
+extern void FUN_00409e00(int index);
+extern NetStats *FUN_00409e20(int index);
+extern double g_unk0x00511300;
+
+// Network body record of a car (0xec bytes); the array starts at 0x5393d8.
+struct CarNetRecord {
+    FixMatrix matrix;       // 0x00
+    FixVector right;        // 0x40
+    FixVector up;           // 0x4c
+    FixVector forward;      // 0x58
+    FixVector position;     // 0x64
+    BYTE pad_0x70[0x7c];
+};
+extern CarNetRecord g_unk0x005393d8;
+
+// Text of the network frame statistics trace.
+// GLOBAL: CMR2 0x00519988
+char g_str0x00519988[38] = "Received %d, gnNetworkFrame[%d] = %d\n";
+// GLOBAL: CMR2 0x0051995c
+char g_str0x0051995c[42] = "Not received any gnNetworkFrame[%d] = %d\n";
+
+// Polls the seven network players: for every one with a pending packet copies
+// the 30-byte statistics block into the local frame, unpacks it into the
+// player's body record (height word, speed, stale counter) and averages the
+// frame counter; players without a packet bump theirs. Slot 0 traces the
+// result.
+// match 89%: logica, constantes y orden exactos; solo difieren el ensanchado del
+// contador (el original carga CX y luego copia/enmascara a EDX) y los
+// desplazamientos de los saltos encadenados.
+// FUNCTION: CMR2 0x00425a90
+void FUN_00425a90(BYTE *pCars)
+{
+    NetStats *pStats;
+    BYTE *pEntry;
+    BYTE *pCar;
+    int local;
+    int value;
+    int i;
+
+    i = 0;
+    do {
+        if ((BYTE)FUN_00409cb0(i) != 0 && FUN_00409df0(i) != 0) {
+            FUN_00409e00(i);
+            pStats = FUN_00409e20(i);
+            g_localCarStats = *pStats;
+            pEntry = (BYTE *)&g_unk0x005393d8 + FUN_0040b010(i) * 0xec;
+            pCar = pCars + FUN_0040b010(i) * 0xc24;
+            if (FUN_00425c40((int)pEntry, &local) != 0) {
+                value = FixMul(local, *(short *)(pCar + 0xb16) * 0x1680);
+                *(unsigned short *)(pEntry + 0xc4) =
+                    (unsigned short)(__int64)((double)value * g_unk0x00511300);
+                *(int *)(pEntry + 0xb8) =
+                    FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
+            }
+            if (abs(g_unk0x005393ac[i] - pStats->seq) < 0x33) {
+                *(int *)(pEntry + 0xe8) = 0;
+            } else {
+                g_unk0x005393ac[i] = pStats->seq;
+                *(int *)(pEntry + 0xe8) = 1;
+            }
+            g_unk0x005393ac[i] = (pStats->seq + g_unk0x005393ac[i]) >> 1;
+            if (i == 0)
+                RallyData_ValidateIndex((int)CInput::FormatString(g_str0x00519988, pStats->seq,
+                                                                 0, g_unk0x005393ac[i]));
+        } else {
+            if (g_unk0x005393ac[i] != 0)
+                g_unk0x005393ac[i]++;
+            if (i == 0)
+                RallyData_ValidateIndex((int)CInput::FormatString(g_str0x0051995c, 0,
+                                                                 g_unk0x005393ac[0]));
+        }
+        i++;
+    } while (i < 7);
+}
