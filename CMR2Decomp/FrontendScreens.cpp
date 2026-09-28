@@ -3328,6 +3328,107 @@ done:
     strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
 }
 
+void FUN_004ebe80(int index);
+void FUN_004f2bf0(int value);
+int FUN_004f2c20(void);
+BYTE FUN_004eb290(int param_1, BYTE *param_2);
+char FUN_004eb370(int param_1);
+unsigned int FUN_004eb4c0(int param_1, int param_2);
+void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
+BYTE FUN_004085a0(BYTE param1);
+BYTE *FUN_004f4e50(int index);
+unsigned int FUN_004fb400(BYTE *pBlock);
+extern int g_unk0x00819744;
+extern BYTE g_unk0x00819879;
+
+// Item picker of the second name-entry screen: appends the picked character of
+// the three letter rows to the name; the '<' entry deletes the last character
+// and '_' accepts the entry (when its buffer is a known cheat code, the cheat
+// is applied).
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the remaining diff is register assignment (the original frees an
+// extra callee-saved register and materialises the sound id with two pushes instead of a branchless
+// select) and MSVC resolving `m_stringDest - 2` to a different symbol on our side.
+// FUNCTION: CMR2 0x004f13c0
+void FUN_004f13c0(Menu *pMenu, int param)
+{
+    char *chars;
+    char key;
+    int len;
+
+    strcpy(CFrontend::m_stringDest, (char *)FUN_00408470(FUN_004f2be0()));
+    len = strlen(CFrontend::m_stringDest);
+    if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '<') {
+        if (CFrontend::m_stringDest[0] != 0) {
+            *(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 1) = 0;
+            Menu_PlaySoundId(2);
+        }
+    } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {
+        if (FUN_004eb290(FUN_004f2be0(), (BYTE *)&key) != 0) {
+            Menu_PlaySoundId(key != 0 ? 0 : 3);
+            if (FUN_004085a0((BYTE)FUN_004f2be0())) {
+                g_unk0x00819744--;
+                FUN_004eb000(FUN_004f2be0(), 0);
+            }
+            FUN_004ebf20(FUN_004f2be0());
+            FUN_004ebe80(FUN_004f2be0());
+            g_unk0x00819048++;
+            if (FUN_004d27d0())
+                Menu_SetNextAction((int)FUN_004f8480());
+            else
+                Menu_SetNextAction((int)FUN_004f83a0());
+            g_unk0x00819038 = 0;
+            return;
+        }
+        if (len > 0) {
+            Menu_SetNextAction((int)FUN_004f83e0());
+            g_unk0x00819038 = 0;
+        }
+        return;
+    } else if (len < 0x2b) {
+        switch (pMenu->items[pMenu->cursor].value) {
+        case 0:
+            chars = g_nameRow0x00525374;
+            break;
+        case 1:
+            chars = g_nameRow0x00525380;
+            break;
+        case 2:
+            chars = g_nameRow0x0052538c;
+            break;
+        default:
+            // the original uses the menu pointer as the character table
+            chars = (char *)pMenu;
+            break;
+        }
+        CFrontend::m_stringDest[len] = chars[pMenu->items[pMenu->cursor].max];
+        CFrontend::m_stringDest[len + 1] = 0;
+        Menu_PlaySoundId(1);
+    } else {
+        Menu_PlaySoundId(3);
+    }
+    FUN_004eaf90(FUN_004f2be0(), CFrontend::m_stringDest);
+    strcpy((char *)g_unk0x008190f4, CFrontend::m_stringDest);
+}
+
+// Left/right item callback of the name-entry screen: recomputes the column
+// offsets of the three letter rows and steers the next screen when the name is
+// complete.
+// FUNCTION: CMR2 0x004f15d0
+void FUN_004f15d0(Menu *pMenu, int param)
+{
+    FUN_004ebe10(FUN_004f2be0(), pMenu->items[2].max + 1, pMenu->items[1].max + 1,
+                 pMenu->items[0].max);
+    if (FUN_004eb370(FUN_004f2be0()) != 0) {
+        Menu_SetNextAction((int)FUN_004f2c20());
+        g_unk0x00819879 = 0;
+        if (FUN_004d27d0()) {
+            FUN_004eb000(FUN_004f2be0(), 0);
+            FUN_004ebe80(FUN_004f2be0());
+        }
+    }
+}
+
 // Days in the month of the date edited by items 0 (year), 1 (month) and 2 (day)
 // FUNCTION: CMR2 0x004f1640
 void FUN_004f1640(Menu *pMenu)
@@ -4249,6 +4350,20 @@ void FUN_004f39d0(Menu *pMenu)
     FUN_004f37c0(FUN_004f2500());
 }
 
+// Applying the 3D car preview screen: when the preview is up, the block of the
+// selected car is handed to the frontend state machine.
+// FUNCTION: CMR2 0x004f3a00
+void FUN_004f3a00(Menu *pMenu, int param)
+{
+    char ok;
+
+    if (g_unk0x0082aa40 > 0) {
+        ok = FUN_004fb400(FUN_004f4e50(g_unk0x0082a924));
+        if (ok != 0)
+            FUN_004d2070(0, 1, 0);
+    }
+}
+
 // FUNCTION: CMR2 0x004f3a30
 BYTE FUN_004f3a30(void)
 {
@@ -4986,6 +5101,33 @@ BYTE *FUN_004ec110(int n);
 void FUN_004f0c40(Menu *pMenu, int param)
 {
     FUN_004f83b0()->pParent = pMenu;
+}
+
+// Selects the current player-profile slot of the player setup screen: resets
+// the working copy and continues to the profile menu, or plays the error sound
+// when the slot does not exist.
+// FUNCTION: CMR2 0x004f26f0
+void FUN_004f26f0(Menu *pMenu, int param)
+{
+    unsigned int index;
+    int count;
+    char ok;
+
+    FUN_004f2bf0(0);
+    FUN_004eb860(0, -1);
+    FUN_004ebf20(0);
+    FUN_004eb000(0, 0);
+    index = pMenu->items[0].max;
+    count = FUN_004eb440();
+    if ((int)index < count) {
+        ok = FUN_004eb4c0(0, index);
+        if (ok != 0) {
+            Menu_SetNextAction((int)FUN_004f8490());
+            return;
+        }
+    } else {
+        Menu_PlaySoundId(3);
+    }
 }
 
 // Item callback of "new profile": gives player 1 a fresh profile and goes to
