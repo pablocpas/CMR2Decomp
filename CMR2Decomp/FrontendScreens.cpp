@@ -914,6 +914,105 @@ char g_matrixMaps[11][0xd8] = {
 
 void FUN_004d28c0(short x0, short y0, char *pMap);
 
+// Text of the network waiting-room screen (0x4e2b40).
+// GLOBAL: CMR2 0x00524e10
+char g_str0x00524e10[8] = "Back";
+// GLOBAL: CMR2 0x00524e18
+char g_str0x00524e18[8] = "Start";
+// GLOBAL: CMR2 0x00524e24
+char g_str0x00524e24[16] = "Waiting Room";
+// GLOBAL: CMR2 0x00524e34
+char g_str0x00524e34[8] = "Network";
+// GLOBAL: CMR2 0x00524e3c
+char g_str0x00524e3c[20] = "Peugeot 205 T16, MT";
+// GLOBAL: CMR2 0x00524e50
+char g_str0x00524e50[8] = "SteppyS";
+// GLOBAL: CMR2 0x00524e58
+char g_str0x00524e58[24] = "Subaru Impreza WRC, AT";
+// GLOBAL: CMR2 0x00524e70
+char g_str0x00524e70[8] = "LeeM";
+// GLOBAL: CMR2 0x00524e78
+char g_str0x00524e78[8] = "Setup";
+// GLOBAL: CMR2 0x00524e80
+char g_str0x00524e80[16] = "Spectator: No";
+// GLOBAL: CMR2 0x00524e90
+char g_str0x00524e90[24] = "Transmission: Automatic";
+// GLOBAL: CMR2 0x00524ea8
+char g_str0x00524ea8[24] = "Car: Ford Focus 2000";
+// GLOBAL: CMR2 0x00524ec0
+char g_str0x00524ec0[16] = "Blah blah blah";
+// GLOBAL: CMR2 0x00524ed0
+char g_str0x00524ed0[24] = "SteppyS: Bimble bomble";
+// GLOBAL: CMR2 0x00524ee8
+char g_str0x00524ee8[24] = "LeeM : Wheeeeeeeeeeeeee";
+// GLOBAL: CMR2 0x00524f00
+char g_str0x00524f00[16] = "JamieL: Bananas";
+
+// Parameter block of FUN_004d39a0: two flag bytes, the entry count, the
+// selected entry and the string pointer array at +0x14.
+struct Unk0x4e2b40 {
+    BYTE field_0x0[6];
+    BYTE field_0x6;
+    BYTE field_0x7;
+    BYTE field_0x8[2];
+    BYTE count;
+    BYTE selected;
+    BYTE field_0xc[8];
+    char *strings[6];
+};
+
+// Draw callback of the network waiting-room screen: the breadcrumb, the play
+// time, the three peer names of the sample room and the player list.
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// logic verified against the dump; the remaining diff is the 16-bit coordinate
+// arithmetic the original gets at the Font_DrawText call sites (Font_DrawText
+// is declared with int x/unsigned int y here, the original used narrower
+// parameters) plus a couple of register choices.
+// FUNCTION: CMR2 0x004e2b40
+void FUN_004e2b40(Menu *pMenu)
+{
+    Unk0x4e2b40 list;
+    short rowHeight;
+
+    list.strings[0] = g_str0x00524e34;
+    list.strings[1] = g_str0x00524e24;
+    FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), list.strings, 2);
+    FrontendDraw_PlayTime();
+    g_unk0x008189a8[0] = 0x1e;
+    g_unk0x008189a8[1] = 0x46;
+    g_unk0x008189a8[2] = 0x190;
+    g_unk0x008189a8[3] = 0x96;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    Font_DrawText(1, g_str0x00524f00, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 10,
+                  (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524ee8, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 0x1e,
+                  (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524ed0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1] + 0x32,
+                  (int *)g_colourWhite0x00524968, 9);
+    rowHeight = g_unk0x008189a8[3] + 10;
+    g_unk0x008189a8[2] = 0x190;
+    g_unk0x008189a8[3] = 0x14;
+    g_unk0x008189a8[1] += rowHeight;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
+    Font_DrawText(1, g_str0x00524ec0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1],
+                  (int *)g_colourWhite0x00524968, 9);
+    list.field_0x6 |= 3;
+    list.field_0x7 = 3;
+    list.count = 6;
+    list.selected = 2;
+    list.strings[0] = g_str0x00524ea8;
+    list.strings[1] = g_str0x00524e90;
+    list.strings[2] = g_str0x00524e80;
+    list.strings[3] = g_str0x00524e18;
+    list.strings[4] = g_str0x00524e78;
+    list.strings[5] = g_str0x00524e10;
+    FUN_004d39a0((BYTE *)&list, NULL, 0x172, list.strings);
+    Font_DrawText(1, g_str0x00524e70, 0x1b8, 0x46, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e58, 0x1b8, 0x5a, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e50, 0x1b8, 0x78, (int *)g_colourWhite0x00524968, 9);
+    Font_DrawText(1, g_str0x00524e3c, 0x1b8, 0x8c, (int *)g_colourWhite0x00524968, 9);
+}
+
 // Draw callback of the main menu: the menu scroller and, behind it, the
 // background matrix picture of the selected entry.
 // FUNCTION: CMR2 0x004e2da0
