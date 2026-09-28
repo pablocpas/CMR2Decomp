@@ -9015,3 +9015,71 @@ void FUN_004ff630(Menu *pMenu)
             FUN_00502790(CGameInfo::FUN_005011b0(), value);
     }
 }
+
+#include "Sprite.h"
+
+extern int g_unk0x0082ca20[9];
+extern int g_unk0x0082c6bc;
+extern int g_unk0x0082c698;
+extern int g_unk0x005270b8[11];
+void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y, int *pColour1,
+                  int *pColour2, unsigned int flags);
+
+// Vertical offsets subtracted from the flag row when the screen is either too
+// narrow for 1024x768 or the row is scrolled (per country).
+// GLOBAL: CMR2 0x00527254
+BYTE g_unk0x00527254[9] = { 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d, 0x1d };
+// GLOBAL: CMR2 0x00527260
+BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c };
+
+// Draws the country flag row of the championship screen: a row of buttons
+// whose width depends on the language and the selected country, holding the
+// country name and clipped to the screen.
+// match 55%: same logic; the original keeps the country pointer and the row
+// scale in registers where we spill them, so most of the diff is stack slot
+// and register numbering
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// FUNCTION: CMR2 0x005057e0
+void FUN_005057e0(void)
+{
+    SpriteRect dest;
+    Texture *pTexture;
+    int *pCountry;
+    int i;
+    int width;
+    int scale;
+    int y;
+
+    if (CGameInfo::GetGameLanguage() == 4)
+        width = (BYTE)RallyDataCountryIndex() != 3 ? 0x139 : 0x148;
+    else if (CGameInfo::GetGameLanguage() == 3)
+        width = 0x140;
+    else if (CGameInfo::GetGameLanguage() == 1 && (BYTE)RallyDataCountryIndex() == 3)
+        width = 0x150;
+    else
+        width = 0x136;
+    width = width * (int)g_pGraphics->resX / 0x280;
+    pTexture = (Texture *)g_unk0x0082ca20[0];
+    dest.x = (short)width - pTexture->width / 2;
+    dest.w = pTexture->width;
+    dest.h = pTexture->height;
+    pCountry = &g_unk0x0082c698;
+    scale = FixDiv(0xea0000, g_unk0x0082c6bc * 0x10000 - 0x10000);
+    for (i = 0; i < g_unk0x0082c6bc; i++) {
+        y = FixMulShift32(i << 16, scale);
+        pTexture = (Texture *)g_unk0x0082ca20[i];
+        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(*pCountry + 0x9d), width,
+                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270b8[17],
+                     (int *)&g_unk0x005270b8[18], 0x22);
+        dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
+        if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
+            !CFrontend::FUN_004b7590(0x400))
+            dest.y = dest.y - g_unk0x00527254[*pCountry];
+        else
+            dest.y = dest.y - g_unk0x00527260[*pCountry];
+        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
+                     (BYTE *)&g_unk0x005270b8[11], 8);
+        pCountry++;
+    }
+}
+
