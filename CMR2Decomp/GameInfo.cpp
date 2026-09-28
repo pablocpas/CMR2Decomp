@@ -3097,8 +3097,7 @@ BYTE g_unk0x0082d14c;
 
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
-// The 1/127 scale runs through FixVecScaleRecip, so the divisor is read as a
-// named global on the original side (reccmp renders it as an array field).
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00507710
 void FUN_00507710(BYTE *pColour)
 {
@@ -3109,13 +3108,13 @@ void FUN_00507710(BYTE *pColour)
     g_unk0x0082d12c.x = (int)(signed char)pColour[3] << 16;
     g_unk0x0082d12c.y = (int)(signed char)pColour[4] << 16;
     g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
-    // The original scales by the reciprocal instead of FixDiv, which is why
-    // the 1/127 constant is divided at run time (see FixVecScaleRecip).
-    FixVecScaleRecip(&g_unk0x0082d12c, &g_unk0x0082d12c, 0x7f0000);
+    // The original expands the 1/127 scale as a 64-bit division (its compiler
+    // keeps the constant divisor in a register, like at 0x4689c8).
+    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(0x100000000i64 / 0x7f0000));
     g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
     g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
     g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
-    FixVecScaleRecip(&g_unk0x0082d138, &g_unk0x0082d138, 0x7f0000);
+    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(0x100000000i64 / 0x7f0000));
     g_unk0x0082d148 = (int)pColour[0] << 16;
     g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
     g_unk0x0082d14c = pColour[1];
@@ -9084,158 +9083,223 @@ void FUN_005057e0(void)
     }
 }
 
-
-// Advances the option-menu interpolation entry selected by g_unk0x0082ca1c.
-// Its `current` follows a square-root curve towards `end`, then the four corner
-// shorts at +0xc are interpolated between the entry's own corners, zero and
-// g_unk0x0082c9ec, and the entry's 16.16 fade fraction ends up in
-// g_unk0x0082cb44.
-// match 79%: implementada; el original prueba el flag con `cmp [esi+0x4c],edi`
-// y reutiliza EDI=0, y guarda los temporales de las divisiones en pila.
-// FUNCTION: CMR2 0x00505b40
-void FUN_00505b40(void)
+// Draws the rows of an in-race menu: every visible row shows its label (and,
+// for the value rows, each of its values) with the selected row brighter,
+// plus the sprite behind the block.
+// match 75%: implementada; misma lógica, MSVC elige &item+0xa como base del
+// item (la original usa &item->id) y reordena el prólogo del rect.
+// FUNCTION: CMR2 0x00402000
+void FUN_00402000(Menu *pMenu)
 {
-    FixInterp *p;
-    int value;
-    int t;
-
-    if (g_unk0x0082ca1c == 0xff)
-        return;
-    p = (FixInterp *)&g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
-    if (p->active != 0) {
-        t = (CMain::GetFrameDelta() - p->startTime) << 16;
-        value = FixSqrt(FixDiv(t, p->distance));
-        if (value >= 0x10000) {
-            p->active = 0;
-            p->current = p->end;
-            *(int *)((BYTE *)p + 0x40) = CMain::GetFrameDelta();
-        } else {
-            p->current = FixMul(p->end - p->start, value) + p->start;
-        }
-    }
-    if (p->current == 0) {
-        *(int *)((BYTE *)p + 0xc) = *(int *)((BYTE *)p + 0x4);
-        *(int *)((BYTE *)p + 0x10) = *(int *)((BYTE *)p + 0x8);
-    } else if (p->current == 0x10000) {
-        *(int *)((BYTE *)p + 0xc) = *(int *)&g_unk0x0082c9ec[0];
-        *(int *)((BYTE *)p + 0x10) = *(int *)&g_unk0x0082c9ec[2];
-        if (p->active == 0) {
-            if (*(int *)((BYTE *)p + 0x24) != 0x10000) {
-                *(int *)((BYTE *)p + 0x24) =
-                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x40)) << 16, 0x320000);
-                if (*(int *)((BYTE *)p + 0x24) >= 0x10000) {
-                    *(int *)((BYTE *)p + 0x24) = 0x10000;
-                    *(int *)((BYTE *)p + 0x44) = CMain::GetFrameDelta();
-                }
-                if (*(int *)((BYTE *)p + 0x24) != 0x10000)
-                    goto done;
-            }
-            if (*(int *)((BYTE *)p + 0x28) != 0x10000) {
-                *(int *)((BYTE *)p + 0x28) =
-                    FixDiv((CMain::GetFrameDelta() - *(int *)((BYTE *)p + 0x44)) << 16, 0x640000);
-                if (*(int *)((BYTE *)p + 0x28) >= 0x10000)
-                    *(int *)((BYTE *)p + 0x28) = 0x10000;
-            }
-        }
-    } else {
-        *(short *)((BYTE *)p + 0xc) =
-            (short)(FixMulShift32((g_unk0x0082c9ec[0] - *(short *)((BYTE *)p + 0x4)) << 16, p->current) +
-                    *(short *)((BYTE *)p + 0x4));
-        *(short *)((BYTE *)p + 0xe) =
-            (short)(FixMulShift32((g_unk0x0082c9ec[1] - *(short *)((BYTE *)p + 0x6)) << 16, p->current) +
-                    *(short *)((BYTE *)p + 0x6));
-        *(short *)((BYTE *)p + 0x10) =
-            (short)(FixMulShift32((g_unk0x0082c9ec[2] - *(short *)((BYTE *)p + 0x8)) << 16, p->current) +
-                    *(short *)((BYTE *)p + 0x8));
-        *(short *)((BYTE *)p + 0x12) =
-            (short)(FixMulShift32((g_unk0x0082c9ec[3] - *(short *)((BYTE *)p + 0xa)) << 16, p->current) +
-                    *(short *)((BYTE *)p + 0xa));
-        *(int *)((BYTE *)p + 0x24) = 0;
-        *(int *)((BYTE *)p + 0x28) = 0;
-    }
-done:
-    value = FixDiv((CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000);
-    g_unk0x0082cb44 = value - (value & 0xffff);
-}
-
-// White colour of the option menu's control line.
-// GLOBAL: CMR2 0x00526ffc
-BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
-
-extern short g_controlsLine[4];
-
-// Draws the option menu's control line from the four layout records of the
-// group selected by param_1: each record becomes a 1-pixel bar, the widest
-// span gets a highlight bar in g_unk0x0082ace8 and the shared line is centred
-// on that span.
-// match 77%: implementada; el original separa las subexpresiones con temporales
-// de pila y prueba `i & 1` con el idioma AND/OR de MSVC (nosotros con el
-// ternario), y recalcula resY*0xf5/0x1e0 en cada uso en vez de reutilizarlo.
-// FUNCTION: CMR2 0x00500550
-void FUN_00500550(int param_1)
-{
-    SpriteRect rect;
-    int minX;
-    int maxX;
-    int centre;
+    MenuItem *pItem;
     int i;
-    int layer;
-    int bar;
+    int j;
+    int x;
+    int y;
+    char *str1;
+    char *str2;
+    char *sub[3];
+    char *text;
+    int *pA;
+    int *pB;
+    char single;
+    bool twoLines;
+    int *pColour;
+    int texture;
 
-    g_controlsLine[2] = 1;
-    g_unk0x0082ace8.pad[3] = 1;
-    if (g_unk0x00831674 != 0) {
-        rect.w = *(short *)((BYTE *)g_unk0x00831674 + 0x120);
-        rect.h = *(short *)((BYTE *)g_unk0x00831674 + 0x122);
-    }
-    for (i = 0; i < 4; i++) {
-        g_controlsLine[0] = (short)(g_unk0x0082ac68[i + param_1 * 4][0] >> 16);
-        g_controlsLine[1] = (short)(g_unk0x0082ac68[i + param_1 * 4][1] >> 16);
-        g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0) - g_controlsLine[1];
-        layer = (i & 1) ? 1 : 4;
-        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, layer);
-        if (i == 0) {
-            minX = g_controlsLine[0];
-            maxX = minX;
-        } else if (g_controlsLine[0] < minX) {
-            minX = g_controlsLine[0];
-        } else if (g_controlsLine[0] > maxX) {
-            maxX = g_controlsLine[0];
-        }
-        if (g_unk0x00831674 != 0) {
-            if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
-                !CFrontend::FUN_004b7590(0x400)) {
-                rect.x = g_controlsLine[0] - 3;
-                rect.y = g_controlsLine[1] - 3;
+    g_unk0x0052ad58[0] = 0;
+    g_unk0x0052ad58[1] = 0;
+    g_unk0x0052ad58[2] = (short)g_pGraphics->resX;
+    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
+    g_unk0x0052ad58[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0052ad58, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    g_unk0x0052ad58[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    g_unk0x0052ad58[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    g_unk0x0052ad58[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    g_unk0x0052ad58[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                 - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+    for (i = 0; i < pMenu->itemCount; i++) {
+        pItem = &pMenu->items[i];
+        if (pItem->visible) {
+            str1 = CFrontend::GetTextString(pItem->id);
+            str2 = CFrontend::GetTextString(pItem->id + 1);
+            if (pMenu->cursor == i) {
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
             } else {
-                rect.x = g_controlsLine[0] - 6;
-                rect.y = g_controlsLine[1] - 6;
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
             }
-            Sprite_Queue((SpriteRect *)((BYTE *)g_unk0x00831674 + 0x11c), &rect,
-                         (Texture *)g_unk0x00831674, layer, 0, 0, NULL, g_unk0x00526ffc, 8);
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)g_unk0x0052ad58,
+                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            twoLines = true;
+            switch (pItem->value) {
+            case 1:
+                sub[0] = CFrontend::GetTextString(pItem->id);
+                sub[1] = CFrontend::GetTextString(pItem->id + 1);
+                single = 0;
+                break;
+            case 2:
+                for (j = 0; j < (int)(BYTE)pItem->min; j++)
+                    sub[j] = CFrontend::GetTextString(j + 0xa0);
+                single = 0;
+                break;
+            case 4:
+                for (j = 0; j < (int)(BYTE)pItem->min; j++)
+                    sub[j] = CFrontend::GetTextString(j + 0x9e);
+                /* the original falls through into the case below */
+            case 0:
+                single = 0;
+                break;
+            default:
+                sub[0] = CFrontend::GetTextString(pItem->id);
+                twoLines = false;
+                break;
+            }
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+            x = (int)(g_pGraphics->resX * 0x86) / 0x280;
+            Font_DrawText(1, str1, x, y, pColour, 0x11);
+            if (twoLines)
+                Font_DrawText(0, str2, x, (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, pColour, 0x11);
+            pA = (int *)sub;
+            pB = (int *)sub + 1;
+            for (j = 0; j < (int)(BYTE)pItem->min; j++) {
+                text = single == 0 ? (char *)*pA : (char *)*pB;
+                x = (int)(g_pGraphics->resX * 10) / 0x280 + x
+                    + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                Font_DrawText(1, text, x, y,
+                              pItem->max != j ? &g_unk0x00516078 : &g_unk0x00516074, 0x11);
+                strcpy(CFrontend::m_stringDest, text);
+                pA++;
+                pB--;
+            }
+            g_unk0x0052ad58[1] = (short)(g_unk0x0052ad58[1] + (int)(g_pGraphics->resY * 0x36) / 0x1e0);
+            y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
         }
     }
-    if (maxX != minX) {
-        g_unk0x0082ace8.pad[0] = (short)minX;
-        g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
-        g_unk0x0082ace8.pad[2] = (short)(maxX - minX + 1);
-        Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
-    }
-    centre = (maxX - minX) / 2 + minX;
-    g_controlsLine[0] = (short)centre;
-    g_controlsLine[1] = (short)((int)g_pGraphics->resY * 0xf5 / 0x1e0);
-    if (centre > (int)g_pGraphics->resX * 0xe4 / 0x280) {
-        bar = (int)g_pGraphics->resY * 0xff / 0x1e0;
-        g_controlsLine[3] = (short)(bar - (int)g_pGraphics->resY * 0xf5 / 0x1e0);
-        Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
-        return;
-    }
-    g_controlsLine[3] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0 -
-                                (int)g_pGraphics->resY * 0xf5 / 0x1e0);
-    Sprite_FillRect((int)(g_pGraphics + 0x150), g_controlsLine, g_unk0x00526ffc, 1);
-    bar = (int)g_pGraphics->resX * 0xe5 / 0x280;
-    g_unk0x0082ace8.pad[0] = (short)bar;
-    g_unk0x0082ace8.pad[1] = (short)((int)g_pGraphics->resY * 0x114 / 0x1e0);
-    g_unk0x0082ace8.pad[2] = (short)(centre - bar + 1);
-    Sprite_FillRect((int)(g_pGraphics + 0x150), (short *)&g_unk0x0082ace8, g_unk0x00526ffc, 1);
+    Font_SetBlendMode(2);
 }
+
+// GLOBAL: CMR2 0x0051607c
+int g_unk0x0051607c = 0x80dbaca7;
+
+// Draws the rows of a value menu: each row shows its label and, for the 0..3
+// value rows, a slider bar (outline plus filled part) whose length is the
+// value; the selected row is drawn brighter.
+// match 46%: implementada; misma logica, MSVC ordena de otro modo el prologo,
+// el maximo de anchos y las divisiones del slider (los dos rects en registros).
+// FUNCTION: CMR2 0x00403890
+void FUN_00403890(Menu *pMenu)
+{
+    MenuItem *pItem;
+    short rect[4];
+    short bar[4];
+    int i;
+    int k;
+    int x;
+    int y;
+    int maxWidth;
+    int width;
+    int *pColour;
+    int texture;
+    char *text;
+
+    k = 0;
+    rect[0] = 0;
+    rect[1] = 0;
+    rect[2] = (short)g_pGraphics->resX;
+    rect[3] = (short)g_pGraphics->resY;
+    Font_SetBlendMode(2);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    FUN_00401b60();
+    maxWidth = 0;
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
+    rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
+    rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
+    if (pMenu->itemCount > 0) {
+        pItem = pMenu->items;
+        do {
+            if (pItem->id == 0x62)
+                break;
+            text = CFrontend::GetTextString(pItem->id);
+            width = Font_GetTextWidth(1, (BYTE *)text);
+            if (maxWidth < width) {
+                text = CFrontend::GetTextString(pItem->id);
+                maxWidth = Font_GetTextWidth(1, (BYTE *)text);
+            }
+            k++;
+            pItem++;
+        } while (k < pMenu->itemCount);
+    }
+    i = 0;
+    if (pMenu->itemCount > 0) {
+        pItem = pMenu->items;
+        do {
+            pColour = &g_unk0x00516074;
+            if (pMenu->cursor != i)
+                pColour = &g_unk0x00516078;
+            if (pItem->value < 0) {
+                y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                    + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+            } else if (pItem->value > 3) {
+                if (pItem->value != 4) {
+                    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                        + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+                    Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                                  (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                } else {
+                    if (pItem->max != 0)
+                        pColour = &g_unk0x0051607c;
+                    y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                        + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+                    Font_DrawText(1, CFrontend::GetTextString(0x62),
+                                  (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                }
+            } else {
+                y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                    + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                              (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
+                bar[0] = (short)((int)(g_pGraphics->resX * 5) / 0x280 + maxWidth
+                                 + (int)(g_pGraphics->resX * 0x86) / 0x280);
+                bar[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                 + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
+                                 - (int)(g_pGraphics->resY * 0xe) / 0x1e0);
+                bar[2] = (short)((int)(g_pGraphics->resX * 0xe) / 0x280
+                                 + ((unsigned int)pItem->min * (unsigned int)g_pGraphics->resX * 10) / 0x280);
+                bar[3] = (short)((int)(g_pGraphics->resY * 0x10) / 0x1e0);
+                DrawRectOutline(bar, (BYTE *)pColour);
+                bar[0] = (short)((int)(g_pGraphics->resX * 2) / 0x280
+                                 + (int)(g_pGraphics->resX * 5) / 0x280 + maxWidth
+                                 + (int)(g_pGraphics->resX * 0x86) / 0x280
+                                 + ((unsigned int)pItem->max * (unsigned int)g_pGraphics->resX * 10) / 0x280);
+                bar[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                 + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
+                                 - (int)(g_pGraphics->resY * 0xc) / 0x1e0);
+                bar[2] = (short)((int)(g_pGraphics->resX * 0x17) / 0x280);
+                bar[3] = (short)((int)(g_pGraphics->resY * 0xe) / 0x1e0);
+                Sprite_FillRect((int)g_pGraphics + 0x150, bar, (BYTE *)pColour, 2);
+            }
+            rect[1] = (short)((int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                              + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i
+                              - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (pMenu->cursor == i) {
+                pColour = &g_unk0x00516074;
+                texture = g_unk0x0052aa60;
+            } else {
+                pColour = &g_unk0x00516078;
+                texture = g_unk0x0052aa68;
+            }
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect,
+                         (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)pColour, 8);
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
+    }
+    Font_SetBlendMode(2);
+}
+

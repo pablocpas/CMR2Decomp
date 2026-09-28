@@ -62,11 +62,15 @@ FixVector g_collisionLineStart;
 // GLOBAL: CMR2 0x00591adc
 int g_collisionDirectionDirty;
 
-// TODO: the same object as g_unk0x00590c20 in StageTiming.cpp; the annotation
-// lives there until both views of the struct are merged into one type.
-VehicleMotionState *g_vehicleMotionState;
-// TODO: the same object as g_unk0x00590d74 in StageTiming.cpp.
-VehicleMotionContext *g_vehicleMotionContext;
+// The tracked object is the one defined (and annotated) in StageTiming.cpp:
+// both struct views are the same memory, so reference that symbol instead of
+// keeping a second definition. The casts preserve this file's field layout.
+struct Unk0x00590c20;
+struct Unk0x00590d74;
+extern Unk0x00590c20 *g_unk0x00590c20;
+extern Unk0x00590d74 *g_unk0x00590d74;
+#define g_vehicleMotionState (((VehicleMotionState *)g_unk0x00590c20))
+#define g_vehicleMotionContext (((VehicleMotionContext *)g_unk0x00590d74))
 
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
 #define COLLISION_INT(offset) (*(int *)((BYTE *)g_collisionCar + (offset)))

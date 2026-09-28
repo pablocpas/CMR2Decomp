@@ -126,14 +126,15 @@ void FUN_00409b60(void)
     g_netNewRecord = 0;
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00409bc0
 void FUN_00409bc0(void)
 {
-    int i;
+    unsigned int *p;
 
-    for (i = 0; i < 8; i++)
-        g_netPlayers[i].flags &= ~0x100;
+    // The original walks the flags byte of each record up to g_netRanks[1],
+    // the global that follows g_netPlayers.
+    for (p = &g_netPlayers[0].flags; (int)p < (int)&g_netRanks[1]; p += 0x20)
+        *p &= ~0x100;
 }
 
 // FUNCTION: CMR2 0x00409be0
@@ -903,14 +904,14 @@ void FUN_0040afb0(char valid, BYTE *p)
         FUN_0040e8a0(p);
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040afd0
 void FUN_0040afd0(void)
 {
-    int i;
+    unsigned int *p;
 
-    for (i = 0; i < 8; i++)
-        g_netPlayers[i].flags |= 0x400000;
+    // Same bound as FUN_00409bc0 (see there).
+    for (p = &g_netPlayers[0].flags; (int)p < (int)&g_netRanks[1]; p += 0x20)
+        *p |= 0x400000;
 }
 
 // FUNCTION: CMR2 0x0040aff0
