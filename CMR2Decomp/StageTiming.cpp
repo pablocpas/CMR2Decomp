@@ -8438,3 +8438,167 @@ void FUN_004561e0(int *pTimes)
     }
     CFileBuffer::FreeGenericFileBuffer(pDeltas);
 }
+
+// Where exhaust sparks leave the car body: pairs of end points of a segment,
+// in car space; a random point on one of them is picked.
+// GLOBAL: CMR2 0x0051ab68
+FixVector g_exhaustSparkLines[4][2] = {
+    { { 0x15d2f, 0x25e3, -0x3db2 }, { 0x15d2f, 0x25e3, 0x3f7c } },
+    { { 0x18a7e, 0x17ce, 0x5c28 }, { 0x17a9f, 0x1604, 0x9439 } },
+    { { 0x19e76, 0x147a, 0x5be7 }, { 0x19168, 0x1333, 0x9333 } },
+    { { 0x18a7e, 0x17ce, -0x5c28 }, { 0x17a9f, 0x1604, -0x9439 } },
+};
+// Frames left of each car's backfire flash.
+// GLOBAL: CMR2 0x005439b0
+BYTE g_unk0x005439b0[8];
+
+extern FixVector g_unk0x00543380[8];
+void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, int field0x40,
+                    BYTE *pColour, BYTE field0x54, int callbackParam, BYTE field0x55);
+int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+void FUN_004ae3f0(BYTE *p, int value);
+void FUN_004ae3d0(BYTE *p, BYTE value);
+
+#define CAR_INT(p, off) (*(int *)((BYTE *)(p) + (off)))
+
+// Exhaust effects of a car: smoke from each exhaust while the engine revs at
+// low speed, sparks under hard acceleration, and the backfire flash.
+// FUNCTION: CMR2 0x0045af90
+void FUN_0045af90(int car)
+{
+    Car *pCar;
+    FixVector velocity;
+    FixVector carVelocity;
+    FixVector spark;
+    FixVector position;
+    FixVector zero;
+    int revs;
+    int speed;
+    int heat;
+    int exhaust;
+    int negRevs;
+    int t;
+    int r;
+    int line;
+    int big;
+
+    if (car >= 8 || g_trailTextureA[car][0] == 0)
+        return;
+    pCar = Car_Get(car);
+    revs = FixMul(0x28f, CAR_INT(pCar, 0x7a4));
+    if (revs < 0)
+        revs = -revs;
+    speed = (CAR_INT(pCar, 0x408) < 0 ? -CAR_INT(pCar, 0x408) : CAR_INT(pCar, 0x408)) +
+            (CAR_INT(pCar, 0x410) < 0 ? -CAR_INT(pCar, 0x410) : CAR_INT(pCar, 0x410));
+    heat = 0x17c - (FixMul(0x15e0000, *(int *)((BYTE *)FUN_00469680(pCar->field_0xb1a) + 0x404)) >> 16);
+    if (heat > 0xff)
+        heat = 0xff;
+    else if (heat < 0)
+        heat = 0;
+    for (exhaust = 0; exhaust < 2; exhaust++) {
+        if (g_trailTextureA[car][exhaust] == 0)
+            continue;
+        if (revs > 0xccc && speed < 0x28f) {
+            FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
+                                   *(FixMatrix **)((BYTE *)pCar + 0x750));
+            g_unk0x00543380[car].x += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x30);
+            g_unk0x00543380[car].y += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x34);
+            g_unk0x00543380[car].z += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x38);
+            carVelocity = *(FixVector *)((BYTE *)pCar + 0x450);
+            big = heat > 0x50;
+            negRevs = -revs;
+            FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x360), negRevs);
+            velocity.y += carVelocity.y;
+            velocity.x += carVelocity.x;
+            velocity.z += carVelocity.z;
+            t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
+            Particle_Spawn(big, &g_unk0x00543380[car], &velocity, g_unk0x00543380[car].y - 0x10000, 0, NULL, 0, 0,
+                           *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+        }
+        if (g_trailForced[car] != 0)
+            g_unk0x005439b0[car] = (BYTE)g_trailForcedSurface[car];
+        if (heat > 0x50 && speed < 0x5cccc) {
+            heat -= rand() % 20;
+            r = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+            line = rand() % 4;
+            spark.x = g_exhaustSparkLines[line][1].x - g_exhaustSparkLines[line][0].x;
+            spark.y = g_exhaustSparkLines[line][1].y - g_exhaustSparkLines[line][0].y;
+            spark.z = g_exhaustSparkLines[line][1].z - g_exhaustSparkLines[line][0].z;
+            FixVecScale(&spark, &spark, r);
+            spark.x += g_exhaustSparkLines[line][0].x;
+            spark.y += g_exhaustSparkLines[line][0].y;
+            spark.z += g_exhaustSparkLines[line][0].z;
+            FixMatrix_RotateVector(&position, &spark, *(FixMatrix **)((BYTE *)pCar + 0x750));
+            revs = 0x1999;
+            position.x += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x30);
+            position.y += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x34) - 0x3333;
+            position.z += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x38);
+            FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x36c), revs);
+            t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
+            if (speed > 0x8000)
+                Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
+                               *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+            else
+                Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
+                               *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+        }
+    }
+    if (g_unk0x005439b0[car] == 0)
+        return;
+    g_unk0x005439b0[car]--;
+    for (exhaust = 0; exhaust < 2; exhaust++) {
+        if (g_trailTextureA[car][exhaust] == 0)
+            continue;
+        FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
+                               *(FixMatrix **)((BYTE *)pCar + 0x750));
+        FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x360), -revs);
+        zero.x = 0;
+        zero.y = 0;
+        zero.z = 0;
+        g_trailForced[car] = 0;
+        Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, (int)&car,
+                       *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+        r = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+        if (g_trailTextureB[car][exhaust] != 0) {
+            FUN_004ae3f0((BYTE *)g_trailTextureB[car][exhaust], r);
+            FUN_004ae3d0((BYTE *)g_trailTextureB[car][exhaust], 1);
+        }
+    }
+}
+#undef CAR_INT
+
+int *FUN_00463270(int i, int j);
+void FUN_0045d1e0(int player, BYTE *pColour);
+void FUN_0045d540(int car);
+void StageTiming_SpawnWheelParticles(int carIndex);
+void WheelSplash_Update(int player);
+void WheelSpray_Update(int player);
+
+// Per-frame effects of a car (not while replaying a stored run): the wheel
+// trails in the colour of the stage light, dust, particles, splashes, spray
+// and the exhaust.
+// FUNCTION: CMR2 0x0045af00
+void FUN_0045af00(int car)
+{
+    BYTE *pColour;
+
+    if (car >= 8)
+        return;
+    if (*(int *)((BYTE *)Car_Get(car) + 0xc0c) != 0 || CGameInfo::FUN_00405cd0() == 2)
+        return;
+    pColour = (BYTE *)FUN_00463270(car, 0);
+    if (pColour != NULL) {
+        ((BYTE *)&car)[0] = pColour[0];
+        ((BYTE *)&car)[1] = pColour[1];
+        ((BYTE *)&car)[2] = pColour[2];
+        ((BYTE *)&car)[3] = 0xff;
+    }
+    FUN_0045d1e0(car, (BYTE *)&car);
+    if (FUN_00422f50(car) != 3) {
+        FUN_0045d540(car);
+        StageTiming_SpawnWheelParticles(car);
+        WheelSplash_Update(car);
+        WheelSpray_Update(car);
+    }
+    FUN_0045af90(car);
+}

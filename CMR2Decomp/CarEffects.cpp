@@ -1453,3 +1453,300 @@ void Debris_Init(Particle *p, ParticleType *pType, int *pParam)
     p->field0x64 = (short)((pParam[1] >> 16) + shape);
     p->size = pParam[0];
 }
+
+// Random earth colours of the plain wheel dust.
+// GLOBAL: CMR2 0x0051abf8
+BYTE g_wheelDustColours[10][4] = {
+    { 0x88, 0x10, 0x0a, 0x00 }, { 0x87, 0x12, 0x0c, 0x00 }, { 0x78, 0x0e, 0x0a, 0x00 }, { 0x56, 0x0d, 0x0a, 0x00 },
+    { 0x56, 0x2c, 0x14, 0x00 }, { 0x49, 0x21, 0x0c, 0x00 }, { 0x35, 0x17, 0x07, 0x00 }, { 0x95, 0x32, 0x09, 0x00 },
+    { 0xb3, 0x41, 0x13, 0x00 }, { 0xcb, 0x61, 0x26, 0x00 },
+};
+
+// Emits one wheel dust/gravel particle: the particle type depends on the
+// kind (plain, dust, debris) and the wheel side, its velocity follows the
+// wheel with a random lift, its colour is random earth or the given colour.
+// FUNCTION: CMR2 0x0045dc00
+void FUN_0045dc00(int car, int wheel, FixVector *pPos, FixVector *pVel, int unused, int side, FixVector *pA,
+                  FixVector *pB, short *pC, int surfaced, int light, int debris, BYTE *pColour)
+{
+    FixVector velocity;
+    int along;
+
+    if (car >= 8)
+        return;
+    if (surfaced == 0) {
+        light = 0x11;
+        if (wheel == 0 || wheel == 2)
+            light = 0x10;
+    } else if (debris == 0) {
+        if (light == 0) {
+            if (wheel == 0 || wheel == 2)
+                light = 0x12;
+            else
+                light = 0x13;
+        } else if (wheel == 0 || wheel == 2) {
+            light = 0x14;
+        } else {
+            light = 0x15;
+        }
+    } else if (wheel == 0 || wheel == 2) {
+        light = 0x16;
+    } else {
+        light = 0x17;
+    }
+    FixAtan2(pB->x, pB->z);
+    along = FixMul(pVel->x, pB->x) + FixMul(pVel->y, pB->y) + FixMul(pVel->z, pB->z);
+    if (along < 0)
+        along = -along;
+    if (along > 0x4ccc)
+        along = 0x4ccc;
+    FixVecScale(&velocity, pB, along);
+    velocity = *pVel;
+    velocity.y = rand() % 0x2666;
+    if (surfaced == 0) {
+        along = rand() % 10;
+        ((BYTE *)&debris)[0] = g_wheelDustColours[along][0];
+        ((BYTE *)&debris)[1] = g_wheelDustColours[along][1];
+        ((BYTE *)&debris)[2] = g_wheelDustColours[along][2];
+    } else {
+        ((BYTE *)&debris)[0] = pColour[0];
+        ((BYTE *)&debris)[1] = pColour[1];
+        ((BYTE *)&debris)[2] = pColour[2];
+    }
+    ((BYTE *)&debris)[3] = 0xff;
+    Particle_Spawn(light, pPos, &velocity, pPos->y, 0, (BYTE *)&debris, g_trailLevel[car][wheel], (int)&car,
+                   *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(car) + 0x720) + 0x17c));
+}
+
+// Wheel dust, gravel and water of a car: the surface under each wheel and the
+// stage's country pick the colours and kinds; the faster the wheel spins, the
+// more particles.
+// FUNCTION: CMR2 0x0045d540
+void FUN_0045d540(int car)
+{
+    BYTE *pCar;
+    BYTE colour[4];
+    int wheel;
+    short surface;
+    int water;
+    int dirt;
+    int gravel;
+    int snow;
+    int ice;
+    int emit;
+    int dark;
+    int light;
+    int count;
+    int spin;
+    int side;
+    int n;
+    int shade;
+    int k;
+    FixVector position;
+    FixVector velocity;
+    int velY;
+    int velX;
+    int velZ;
+
+    count = 0;
+    if (car >= 8)
+        return;
+    pCar = (BYTE *)Car_Get(car);
+    for (wheel = 0; wheel < 4; wheel++) {
+        snow = 0;
+        surface = *(short *)(pCar + 0xac6 + wheel * 2);
+        if (surface == 0x19 || surface == 0x2e || surface == 0x2f || surface == 0x30 || surface == 0x31 ||
+            surface == 0x32 || surface == 0x4f)
+            water = 1;
+        else
+            water = 0;
+        if (surface == 0x15 || surface == 0x1d || surface == 0x20 || surface == 0x21 || surface == 0x22 ||
+            surface == 0x23 || surface == 0x24 || surface == 0x25 || surface == 0x27 || surface == 0x33 ||
+            surface == 0x36 || surface == 0x47 || surface == 0x4f || surface == 0x19)
+            dirt = 1;
+        else
+            dirt = 0;
+        if (surface == 0x16 || surface == 0x26 || surface == 0x28 || surface == 0x2c || surface == 0x34 ||
+            surface == 0x35 || surface == 0x37 || surface == 0x38)
+            gravel = 1;
+        else
+            gravel = 0;
+        if (surface == 0x17 || surface == 0x29)
+            snow = 1;
+        ice = surface == 0x18;
+        if (dirt == 0 && gravel == 0 && snow == 0 && ice == 0) {
+            emit = ice;
+        } else {
+            emit = 1;
+            switch ((BYTE)RallyDataCountryIndex()) {
+            case 0:
+                if (dirt) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x3d;
+                    colour[1] = 0x40;
+                    colour[2] = 0x0e;
+                } else if (gravel) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x66;
+                    colour[1] = 0x63;
+                    colour[2] = 0x4a;
+                }
+                break;
+            case 2:
+                dark = 1;
+                light = 0;
+                colour[0] = 0x50;
+                colour[1] = 0x5b;
+                colour[2] = 0x42;
+                break;
+            case 4:
+                if (dirt) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x20;
+                    colour[1] = 0x34;
+                    colour[2] = 3;
+                } else if (gravel) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x9a;
+                    colour[1] = 0x8e;
+                    colour[2] = 0x20;
+                }
+                break;
+            case 5:
+                if (dirt) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x4f;
+                    colour[1] = 0x49;
+                    colour[2] = 0x33;
+                } else if (gravel) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x50;
+                    colour[1] = 0x40;
+                    colour[2] = 0x1f;
+                }
+                break;
+            case 6:
+                if (dirt) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x49;
+                    colour[1] = 0x58;
+                    colour[2] = 0x3a;
+                } else if (gravel) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x2f;
+                    colour[1] = 0x3b;
+                    colour[2] = 0x21;
+                } else if (snow) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x49;
+                    colour[1] = 0x58;
+                    colour[2] = 0x3a;
+                }
+                break;
+            case 7:
+                if (dirt) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x1f;
+                    colour[1] = 0x29;
+                    colour[2] = 1;
+                } else if (gravel) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x37;
+                    colour[1] = 0x46;
+                    colour[2] = 0x28;
+                } else if (snow) {
+                    light = 1;
+                    dark = 0;
+                    colour[0] = 0x31;
+                    colour[1] = 0x3f;
+                    colour[2] = 0x23;
+                } else if (ice) {
+                    light = 0;
+                    dark = 1;
+                    colour[0] = 0x41;
+                    colour[1] = 0x51;
+                    colour[2] = 0x31;
+                }
+                break;
+            case 1:
+            case 8:
+                light = 1;
+                dark = 0;
+                if (dirt) {
+                    colour[0] = 0x35;
+                    colour[1] = 0x39;
+                    colour[2] = 0x2d;
+                } else if (gravel) {
+                    colour[0] = 0x60;
+                    colour[1] = 0x4f;
+                    colour[2] = 0x40;
+                }
+                break;
+            default:
+                light = 0;
+                dark = 1;
+                colour[0] = 0xf0;
+                colour[1] = 0xf0;
+                colour[2] = 0xf0;
+                break;
+            }
+        }
+        if ((water == 0 && emit == 0) || *(int *)(pCar + 0xbac + wheel * 4) == 0)
+            continue;
+        spin = Car_GetWheelSpeed((Car *)pCar, 2, 0);
+        if (spin < 0)
+            spin = -spin;
+        if (spin > 0xa0000)
+            count = rand() % 4 / 4;
+        if (spin > 0xf0000)
+            count = rand() % 3 / 2;
+        FixVecLength((FixVector *)(pCar + 0x42c + wheel * 0xc));
+        velY = *(int *)(pCar + 0x430 + wheel * 0xc);
+        velX = -(*(int *)(pCar + 0x42c + wheel * 0xc) / 4);
+        velZ = -(*(int *)(pCar + 0x434 + wheel * 0xc) / 4);
+        side = 0x10000;
+        if (wheel == 0 || wheel == 2)
+            side = -0x10000;
+        if (wheel != 3 && wheel != 2)
+            side = FixMul(side, 0x3333);
+        for (k = count; k > 0; k--) {
+            position.x = g_trailPos[car][wheel].x - *(int *)(pCar + 0x2d0);
+            position.y = g_trailPos[car][wheel].y - *(int *)(pCar + 0x2d4);
+            position.z = g_trailPos[car][wheel].z - *(int *)(pCar + 0x2d8);
+            velocity.x = velX;
+            velocity.y = velY;
+            velocity.z = velZ;
+            if (water != 0) {
+                FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                             (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 0, 0, 0, colour);
+                continue;
+            }
+            if (FUN_00460bf0(car) == 1)
+                shade = FixMul(FUN_00460c10(car), 0xff0000) >> 16;
+            else
+                shade = 0;
+            n = (0x100 - shade) / 128 + 1;
+            if (dark != 0 && n > 0) {
+                for (spin = n; spin != 0; spin--)
+                    FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                                 (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 0, 0, colour);
+            }
+            if (light != 0 && n > 0) {
+                for (; n != 0; n--)
+                    FUN_0045dc00(car, wheel, &position, &velocity, 0, side, (FixVector *)(pCar + 0x6d8),
+                                 (FixVector *)(pCar + 0x6c0), (short *)(pCar + 0xa9e + wheel * 2), 1, 1, 0, colour);
+            }
+        }
+    }
+}
