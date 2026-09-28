@@ -9382,3 +9382,109 @@ void FUN_00462d80(int param_1, int param_2)
     dst.y = (short)(vOut.y - dst.h / 2);
     Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
 }
+
+// GLOBAL: CMR2 0x005894b8
+BYTE g_unk0x005894b8[40];
+// GLOBAL: CMR2 0x0058c424
+int g_unk0x0058c424[320];
+
+int FUN_00471d40(BYTE **pEntry, int bit);
+void FUN_00471d80(BYTE **pp, int bit, int set);
+void FUN_00470240(BYTE **pElement, int car);
+
+// Queues a moving stage object: appends it to the free table, or (when the
+// table is full) evicts the entry whose objects are farthest from the cars.
+// FUNCTION: CMR2 0x0046fe70
+void FUN_0046fe70(int *param_1, int param_2, int param_3)
+{
+    StageObjectEntry0x128 *entry;
+    FixVector pos;
+    Car *pCar;
+    int dx;
+    int dy;
+    int dz;
+    int d;
+    int inv;
+    int v;
+    int best;
+    int bestIx;
+    int j;
+    int c;
+
+    if (FUN_00471d40((BYTE **)&param_1, param_3) != 0) {
+        FUN_00471d80((BYTE **)&param_1, param_3, 0);
+        pCar = Car_Get(param_3);
+        if (pCar->field_0xc0c == 0 && (char)RallyDataState() == 1) {
+            *(int *)(*param_1 + 4) += -0x3e80000;
+            *(BYTE *)(*param_1 + 0x14) = 0;
+        }
+    }
+    pCar = Car_Get(param_3);
+    if (pCar->field_0xc0c != 0)
+        return;
+    if (g_unk0x0058c924 < 0x28) {
+        entry = &g_unk0x005894e0[g_unk0x0058c924];
+        entry->field_0x0 = (int)param_1;
+        *(int *)((BYTE *)entry + 0x118) = param_2;
+        StageObject_InitMovingObject((int *)entry, param_3);
+        g_unk0x0058c924++;
+        return;
+    }
+    c = 0;
+    if (g_unk0x0058c924 != 0) {
+        entry = &g_unk0x005894e0[0];
+        do {
+            RallyData_FUN_00471cc0((int *)&pos, (void **)entry);
+            for (j = 0; j < Car_GetOrderCount(); j++) {
+                pCar = Car_Get(j);
+                dx = pCar->position.x - pos.x;
+                pCar = Car_Get(j);
+                dy = pCar->position.y - pos.y;
+                pCar = Car_Get(j);
+                dz = pCar->position.z - pos.z;
+                d = (abs(dz) < abs(dx)) ? abs(dx) : abs(dz);
+                if (d < 0x290) {
+                    g_unk0x0058c424[j + c * 8] = 0;
+                } else {
+                    inv = (int)(0x100000000i64 / d);
+                    dx = (int)(((__int64)dx * inv) >> 16);
+                    dz = (int)(((__int64)dz * inv) >> 16);
+                    dy = 0;
+                    v = FixMul(dx, dx) + FixMul(dz, dz);
+                    if (v != 0)
+                        v = FixSqrt(v);
+                    g_unk0x0058c424[j + c * 8] = v;
+                    g_unk0x0058c424[j + c * 8] = FixMul(v, d);
+                }
+            }
+            g_unk0x005894b8[c] = 0;
+            c++;
+            entry++;
+        } while (c < g_unk0x0058c924);
+    }
+    for (j = 0; j < Car_GetOrderCount(); j++) {
+        best = g_unk0x0058c424[j];
+        bestIx = 0;
+        for (c = 1; c < g_unk0x0058c924; c++) {
+            if (best < g_unk0x0058c424[j + c * 8]) {
+                bestIx = c;
+                best = g_unk0x0058c424[j + c * 8];
+            }
+        }
+        g_unk0x005894b8[bestIx]++;
+    }
+    best = g_unk0x005894b8[0];
+    bestIx = 0;
+    for (c = 1; c < g_unk0x0058c924; c++) {
+        if (best < g_unk0x005894b8[c]) {
+            bestIx = c;
+            best = g_unk0x005894b8[c];
+        }
+    }
+    entry = &g_unk0x005894e0[bestIx];
+    for (j = 0; j < 8; j++)
+        FUN_00470240((BYTE **)entry->field_0x0, j);
+    entry->field_0x0 = (int)param_1;
+    *(int *)((BYTE *)entry + 0x118) = param_2;
+    StageObject_InitMovingObject((int *)entry, param_3);
+}
