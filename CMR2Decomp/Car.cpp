@@ -3529,13 +3529,13 @@ void FUN_00427890(void);
 void FUN_0046c8e0(void);
 void FUN_0046d270(void);
 void FUN_00425950(Car *pCars, short *pIndices, short count);
-void FUN_004877a0(int base, short *pList, short count);
+void FUN_004877a0(BYTE *pCars, short *pOrder, short count);
 void FUN_00470580(void);
 void FUN_00426fc0(Car *pCars, short *pOrder, short count);
 void FUN_0046d5e0(void);
 void FUN_00444c10(int base, short *pList, short count);
 void FUN_0046d510(void);
-void FUN_00480bb0(int base, short *pList, short count);
+void FUN_00480bb0(BYTE *pCars, short *pOrder, short count);
 void FUN_00469e40(int base, short *pList, short count);
 void FUN_00424710(int param_1);
 void FUN_004258e0(int base, short *pList, short count);
@@ -3661,7 +3661,7 @@ void FUN_0042baf0(void)
     FUN_00433890((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     FUN_0043f630((int)g_carBuffer, (short *)&g_carViewScale[8][0], g_carOrder[26]);
     FUN_00425950((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
-    FUN_004877a0((int)g_carBuffer, g_unk0x0053a270, g_carOrder[44]);
+    FUN_004877a0((BYTE *)g_carBuffer, g_unk0x0053a270, g_carOrder[44]);
     FUN_00470580();
     FUN_0042cd00((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     if (g_carOrder[26] > 0)
@@ -3674,7 +3674,7 @@ void FUN_0042baf0(void)
     FUN_0042af50(g_unk0x0053a314, g_unk0x0053c9a0);
     FUN_0042af50(g_unk0x0053bd6c, g_carOrder[25]);
     FUN_0046d510();
-    FUN_00480bb0((int)g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
+    FUN_00480bb0((BYTE *)g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
     FUN_00469e40((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
     FUN_00424710(0);
     FUN_004258e0((int)g_carBuffer, g_carOrder, g_carOrderCount);
@@ -4648,7 +4648,7 @@ int FUN_00458310(int index);
 void FUN_00433e80(BYTE *param_1, short *param_2, short param_3);
 void FUN_0043b020(void);
 void FUN_004340f0(void);
-void FUN_0046b4e0(int pCar);
+void FUN_0046b4e0(BYTE *pCar);
 void FUN_00434070(void);
 void FUN_004348c0(void);
 void FUN_00434140(void);
@@ -4708,7 +4708,7 @@ void FUN_00433890(int base, short *pList, short count)
             FUN_0043b020();
         Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
         FUN_004340f0();
-        FUN_0046b4e0((int)g_pCurrentCar);
+        FUN_0046b4e0((BYTE *)g_pCurrentCar);
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);

@@ -37,14 +37,6 @@ void FUN_0041b460(void) { }
 // STUB: CMR2 0x00422140
 void FUN_00422140(unsigned char, int) { }
 
-// Callees of 0x0042baf0 (Car.cpp batch) that no module implements yet; they
-// only keep the batch linkable. DELETE each one when its real body lands.
-// STUB: CMR2 0x004877a0
-void FUN_004877a0(int, short *, short) { }
-// STUB: CMR2 0x00480bb0
-void FUN_00480bb0(int, short *, short) { }
-// STUB: CMR2 0x0046b4e0
-void FUN_0046b4e0(int) { }
 
 // STUB: CMR2 0x00455470
 void FUN_00455470(int) { }
@@ -81,5 +73,3 @@ struct FixMatrix;
 // STUB: CMR2 0x0048fb80
 int FUN_0048fb80(char, int) { return 0; }
 
-// STUB: CMR2 0x0048a1f0
-void FUN_0048a1f0(unsigned char *, short *, short) { }

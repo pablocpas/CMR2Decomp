@@ -2464,6 +2464,11 @@ const float g_unk0x005113d8 = 0.04f;
 extern const float g_unk0x005113dc;  // defined in StageObjects.cpp (single definition)
 // GLOBAL: CMR2 0x005113e0
 extern const float g_unk0x005113e0;  // defined in StageObjects.cpp (single definition)
+// Degrees -> radians factors of the object yaw angles (FUN_004926f0).
+// GLOBAL: CMR2 0x005113e8
+extern const double g_oneOver180 = 1.0 / 180.0;
+// GLOBAL: CMR2 0x005113f0
+extern const double g_pi = 3.14159265359;
 // GLOBAL: CMR2 0x0051a910
 char g_str0x0051a910[] = "%s (%s)";
 

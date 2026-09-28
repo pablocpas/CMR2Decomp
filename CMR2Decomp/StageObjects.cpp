@@ -5883,7 +5883,7 @@ void FUN_00492220(DWORD *pColour, DWORD *pReference);
 void FUN_004923d0(DWORD *pColour);
 void FUN_00492470(DWORD *pColour);
 void FUN_00492520(DWORD *pColour);
-void FUN_004926f0(int unused1, int unused2, int sunAngle);
+void FUN_004926f0(int angle, int unused, int sunAngle);
 void FUN_00492bd0(int view);
 void FUN_00492f10(void);
 void FUN_00492fe0(DWORD *pColour, int start, int end);
@@ -9163,8 +9163,55 @@ void FUN_00492220(DWORD *pColour, DWORD *pReference)
     g_stageColourStep = 1;
 }
 
-// STUB: CMR2 0x004926f0
-void FUN_004926f0(int unused1, int unused2, int sunAngle) { }
+extern const double g_oneOver180;  // defined in StageTiming.cpp
+extern const double g_pi;
+
+// Yaws the stage's main object to `angle` (16.16 degrees; -999 keeps it
+// square) and the sun objects to `sunAngle`, by rewriting the right and
+// forward axes of their matrices.
+// FUNCTION: CMR2 0x004926f0
+void FUN_004926f0(int angle, int unused, int sunAngle)
+{
+    int pObject;
+    int pSun;
+    int pSun2;
+    FixVector right;
+    FixVector forward;
+    double radians;
+
+    FUN_0046f4c0(&pObject);
+    if (angle != -999 << 16) {
+        right.y = 0;
+        forward.y = 0;
+        radians = angle * CGraphics::m_oneOver65536 * g_pi * g_oneOver180;
+        forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
+        right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
+        forward.x = -right.z;
+        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
+    } else {
+        right.x = 0x10000;
+        forward.z = 0x10000;
+        right.y = 0;
+        right.z = 0;
+        forward.x = 0;
+        forward.y = 0;
+        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
+    }
+    FixMatrix_SetForward(&forward, (FixMatrix *)(pObject + 0x98));
+    FUN_0046f4e0(&pSun, &pSun2);
+    right.y = 0;
+    forward.y = 0;
+    radians = sunAngle * CGraphics::m_oneOver65536 * g_pi * g_oneOver180;
+    forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
+    right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
+    forward.x = -right.z;
+    FixMatrix_SetRight(&right, (FixMatrix *)(pSun + 0x98));
+    FixMatrix_SetForward(&forward, (FixMatrix *)(pSun + 0x98));
+    if (pSun2 != 0) {
+        FixMatrix_SetRight(&right, (FixMatrix *)(pSun2 + 0x98));
+        FixMatrix_SetForward(&forward, (FixMatrix *)(pSun2 + 0x98));
+    }
+}
 
 // STUB: CMR2 0x00492bd0
 void FUN_00492bd0(int view) { }
@@ -14538,7 +14585,7 @@ void FUN_0048e0a0(Car *pCar, int param)
 }
 
 int StageObject_UsesExtendedMode(void);
-void FUN_0048a1f0(BYTE *pCars, short *pOrder, short count);
+void FUN_0048a1f0(int param_1, short *param_2, short param_3);
 int FUN_0047c5b0(int index);
 
 // Collisions of the cars in `pOrder` for the frame: car against car (when the
@@ -14564,7 +14611,7 @@ void FUN_004877a0(BYTE *pCars, short *pOrder, short count)
         } while (--n);
     }
     if (StageObject_UsesExtendedMode())
-        FUN_0048a1f0(pCars, pOrder, count);
+        FUN_0048a1f0((int)pCars, pOrder, count);
     if (i >= 0) {
         pIndex = pOrder + i;
         n = i + 1;
