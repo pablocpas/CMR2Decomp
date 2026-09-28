@@ -3601,6 +3601,51 @@ void Car_UpdateCornerVelocityPair(void)
     pCorner[7] = pCorner[2];
 }
 
+void Car_FollowGround(void);
+void FUN_00444a70(void);
+
+// Runs the suspension/geometry pass over the listed cars: selects each car,
+// caches its setup, copies the wheel surfaces, rebuilds the body and keeps the
+// smallest corner clearance of the eight body corners.
+// FUNCTION: CMR2 0x00443bf0
+void FUN_00443bf0(int param_1, short *param_2, short param_3)
+{
+    short *p;
+    int n;
+    int i;
+    int j;
+    int v;
+
+    n = param_3 - 1;
+    if (n < 0)
+        return;
+    p = param_2 + n;
+    n++;
+    do {
+        g_pCurrentCar = (Car *)(param_1 + *p * 0xc24);
+        g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)g_pCurrentCar + 0xb1a));
+        Car_UpdateWheelTravel();
+        g_pCurrentCar->field_0xabe[0] = g_pCurrentCar->wheelSurface[0];
+        g_pCurrentCar->field_0xabe[1] = g_pCurrentCar->wheelSurface[1];
+        g_pCurrentCar->field_0xabe[2] = g_pCurrentCar->wheelSurface[2];
+        g_pCurrentCar->field_0xabe[3] = g_pCurrentCar->wheelSurface[3];
+        Car_FollowGround();
+        FUN_00444a70();
+        *(int *)((BYTE *)g_pCurrentCar + 0x960) = 0x3e80000;
+        j = 0;
+        i = 0x8dc;
+        do {
+            v = *(int *)((BYTE *)g_pCurrentCar + j + 0x274) - *(int *)((BYTE *)g_pCurrentCar + i);
+            if (v < *(int *)((BYTE *)g_pCurrentCar + 0x960))
+                *(int *)((BYTE *)g_pCurrentCar + 0x960) = v;
+            i += 4;
+            j += 0xc;
+        } while (i < 0x8fc);
+        *(int *)((BYTE *)g_pCurrentCar + 0x960) += *(int *)((BYTE *)g_pCurrentCar + 0x958);
+        p--;
+    } while (--n);
+}
+
 // FUNCTION: CMR2 0x00443d10
 void Car_FollowGround(void)
 {
