@@ -721,6 +721,204 @@ void RallyData_FUN_00408fc0(int index)
     }
 }
 
+// Raises the level (0..3) of one of the eight per-profile items of a category
+// and marks that category as used. `level` is stored inverted: the stored value
+// is 3 - level, and only ever raised.
+// FUNCTION: CMR2 0x00409150
+void FUN_00409150(int index, int item, int level)
+{
+    unsigned int *pFlags;
+    unsigned int flags;
+    unsigned int limit;
+    int category;
+
+    RallyData_ValidateIndex(index);
+    category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
+    pFlags = (unsigned int *)(g_saveData + 0xc54 + category * 0x650);
+    limit = 3 - level;
+    switch (CGameInfo::FUN_00405d90()) {
+    case 0:
+        switch (item) {
+        case 0:
+            if (limit > (pFlags[0] >> 0x10 & 3)) {
+                pFlags[0] = (limit & 3) << 0x10 | (pFlags[0] & 0xfffcffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 1:
+            if (limit > (pFlags[0] >> 0x12 & 3)) {
+                pFlags[0] = (limit & 3) << 0x12 | (pFlags[0] & 0xfff3ffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 2:
+            if (limit > (pFlags[0] >> 0x14 & 3)) {
+                pFlags[0] = (limit & 3) << 0x14 | (pFlags[0] & 0xffcfffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 3:
+            if (limit > (pFlags[0] >> 0x16 & 3)) {
+                pFlags[0] = (limit & 3) << 0x16 | (pFlags[0] & 0xff3fffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 4:
+            if (limit > (pFlags[0] >> 0x18 & 3)) {
+                pFlags[0] = (limit & 3) << 0x18 | (pFlags[0] & 0xfcffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 5:
+            if (limit > (pFlags[0] >> 0x1a & 3)) {
+                pFlags[0] = (limit & 3) << 0x1a | (pFlags[0] & 0xf3ffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 6:
+            if (limit > (pFlags[0] >> 0x1c & 3)) {
+                pFlags[0] = (limit & 3) << 0x1c | (pFlags[0] & 0xcfffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 7:
+            if (limit > (pFlags[0] >> 0x1e)) {
+                pFlags[0] = (pFlags[0] & 0x3fffffff) | limit * 0x40000000;
+                RallyData_IncrementCategoryUse(index);
+            }
+            break;
+        }
+        break;
+    case 1:
+        switch (item) {
+        case 0:
+            flags = pFlags[1];
+            if (limit > (flags & 3)) {
+                pFlags[1] = (flags ^ limit) & 3 ^ flags;
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 1:
+            if (limit > (pFlags[1] >> 2 & 3)) {
+                pFlags[1] = (limit & 3) << 2 | (pFlags[1] & 0xfffffff3);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 2:
+            if (limit > (pFlags[1] >> 4 & 3)) {
+                pFlags[1] = (limit & 3) << 4 | (pFlags[1] & 0xffffffcf);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 3:
+            if (limit > (pFlags[1] >> 6 & 3)) {
+                pFlags[1] = (limit & 3) << 6 | (pFlags[1] & 0xffffff3f);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 4:
+            if (limit > (pFlags[1] >> 8 & 3)) {
+                pFlags[1] = (limit & 3) << 8 | (pFlags[1] & 0xfffffcff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 5:
+            if (limit > (pFlags[1] >> 0xa & 3)) {
+                pFlags[1] = (limit & 3) << 0xa | (pFlags[1] & 0xfffff3ff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 6:
+            if (limit > (pFlags[1] >> 0xc & 3)) {
+                pFlags[1] = (limit & 3) << 0xc | (pFlags[1] & 0xffffcfff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 7:
+            if (limit > (pFlags[1] >> 0xe & 3)) {
+                pFlags[1] = (limit & 3) << 0xe | (pFlags[1] & 0xffff3fff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        }
+        break;
+    case 2:
+        switch (item) {
+        case 0:
+            if (limit > (pFlags[1] >> 0x10 & 3)) {
+                pFlags[1] = (limit & 3) << 0x10 | (pFlags[1] & 0xfffcffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 1:
+            if (limit > (pFlags[1] >> 0x12 & 3)) {
+                pFlags[1] = (limit & 3) << 0x12 | (pFlags[1] & 0xfff3ffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 2:
+            if (limit > (pFlags[1] >> 0x14 & 3)) {
+                pFlags[1] = (limit & 3) << 0x14 | (pFlags[1] & 0xffcfffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 3:
+            if (limit > (pFlags[1] >> 0x16 & 3)) {
+                pFlags[1] = (limit & 3) << 0x16 | (pFlags[1] & 0xff3fffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 4:
+            if (limit > (pFlags[1] >> 0x18 & 3)) {
+                pFlags[1] = (limit & 3) << 0x18 | (pFlags[1] & 0xfcffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 5:
+            if (limit > (pFlags[1] >> 0x1a & 3)) {
+                pFlags[1] = (limit & 3) << 0x1a | (pFlags[1] & 0xf3ffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 6:
+            if (limit > (pFlags[1] >> 0x1c & 3)) {
+                pFlags[1] = (limit & 3) << 0x1c | (pFlags[1] & 0xcfffffff);
+                RallyData_IncrementCategoryUse(index);
+                return;
+            }
+            break;
+        case 7:
+            if (limit > (pFlags[1] >> 0x1e)) {
+                pFlags[1] = (pFlags[1] & 0x3fffffff) | limit * 0x40000000;
+                RallyData_IncrementCategoryUse(index);
+            }
+            break;
+        }
+        break;
+    }
+}
+
 // True when every packed 2-bit field of the two setup words of the category
 // profile of the unassigned-checked record has the "10" pattern.
 // FUNCTION: CMR2 0x004097b0
