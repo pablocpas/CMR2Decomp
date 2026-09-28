@@ -8221,3 +8221,129 @@ void FUN_004f0820(Menu *pMenu, int param)
     }
     g_unk0x00819048--;
 }
+
+unsigned int FUN_004eba60(int param_1, int param_2);
+unsigned int FUN_004ebad0(int param_1, int param_2, int param_3);
+unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3);
+extern short g_unk0x008189a8[4];            // 0x008189a8, defined in Frontend.cpp
+extern BYTE g_colourWhite0x00524968[4];     // 0x00524968
+extern BYTE g_colourText0x0052496c[4];      // 0x0052496c
+extern BYTE g_colourDim0x00524970[4];       // 0x00524970
+// Texture pointers of the option icons (0x818348-0x818367), set at load time.
+// GLOBAL: CMR2 0x00818348
+int g_unk0x00818348[8];
+
+// Draws the options screen: breadcrumb and play time, the icon title and its
+// three option columns with their icons, then the two lower panels.
+// match 23%: transcribed from the disassembly (the layout arithmetic, the
+// constants, the call order and the loops follow the original); the gap is the
+// register allocation and the order MSVC6 emits the address computations in.
+// FUNCTION: CMR2 0x004d50a0
+void FUN_004d50a0(int *param_1)
+{
+    short src[2];
+    char *texts[4];
+    int w;
+    int h;
+    int i;
+    int j;
+    int x;
+    int y;
+    int *pTexture;
+
+    src[0] = 0;
+    src[1] = 0;
+    w = 0x12;
+    h = 0xc;
+    if (CGameInfo::GetScreenWidth() > 0x3ff) {
+        if (CFrontend::FUN_004b7560(0x400) != 0 && CFrontend::FUN_004b7590(0x400) != 0) {
+            w = 0x1c;
+            h = 0x12;
+        }
+    }
+    texts[0] = CFrontend::GetTextString(0xb);
+    texts[1] = CFrontend::GetTextString(0x59);
+    texts[2] = (char *)RallyData_GetRecord(0);
+    texts[3] = CFrontend::GetTextString(*(short *)((BYTE *)param_1 + 4));
+    FrontendDraw_Breadcrumb(g_pGraphics->resX * 0x18 / 0x280,
+                            g_pGraphics->resY * 0x26 / 0x1e0, texts, 4);
+    FrontendDraw_PlayTime();
+
+    Font_DrawText(1, CFrontend::GetTextString(0xc), g_pGraphics->resX / 2,
+                  g_pGraphics->resY * 0x46 / 0x1e0, (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        unsigned int icon = FUN_004eba60(0, i);
+        FUN_004d4f90((i + 1) * (g_pGraphics->resX / 4),
+                     g_pGraphics->resY * 0x19 / 0x1e0 + g_pGraphics->resY * 0x46 / 0x1e0, icon);
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      (g_pGraphics->resX / 4) * (i + 1),
+                      g_pGraphics->resY * 0x19 / 0x1e0 + g_pGraphics->resY * 0x46 / 0x1e0 -
+                          g_pGraphics->resY * 4 / 0x1e0,
+                      (int *)g_colourText0x0052496c, 0x22);
+    }
+
+    Font_DrawText(1, CFrontend::GetTextString(0xd), g_pGraphics->resX / 2,
+                  g_pGraphics->resY * 0xa0 / 0x1e0, (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      g_pGraphics->resX * 0xb4 / 0x280 - g_pGraphics->resX * 0x20 / 0x280,
+                      g_pGraphics->resY * 10 / 0x1e0 + g_pGraphics->resY * 0x18 / 0x1e0 +
+                          g_pGraphics->resY * 0xa0 / 0x1e0 +
+                          (g_pGraphics->resY * 0x1e / 0x1e0) * i,
+                      (int *)g_colourText0x0052496c, 0xc);
+    }
+
+    pTexture = g_unk0x00818348;
+    for (i = 0; i < 8; i++) {
+        g_unk0x008189a8[0] = (short)(g_pGraphics->resX * 0xb4 / 0x280 +
+                                     (g_pGraphics->resX * 0x32 / 0x280) * i - w / 2);
+        g_unk0x008189a8[1] = (short)(g_pGraphics->resY * 10 / 0x1e0 +
+                                     g_pGraphics->resY * 0xa0 / 0x1e0);
+        g_unk0x008189a8[2] = (short)w;
+        g_unk0x008189a8[3] = (short)h;
+        Sprite_Queue((SpriteRect *)src, (SpriteRect *)g_unk0x008189a8, (Texture *)*pTexture, 1, 0,
+                     NULL, NULL, g_colourWhite0x00524968, 8);
+        for (j = 0; j < 3; j++) {
+            unsigned int tile = FUN_004ebad0(0, i, j);
+            FUN_004d4f90(g_pGraphics->resX * 0xb4 / 0x280 +
+                             (g_pGraphics->resX * 0x32 / 0x280) * i,
+                         g_pGraphics->resY * 10 / 0x1e0 + g_pGraphics->resY * 0x18 / 0x1e0 +
+                             g_pGraphics->resY * 0xa0 / 0x1e0 +
+                             (g_pGraphics->resY * 0x1e / 0x1e0) * j,
+                         tile);
+        }
+        pTexture++;
+    }
+
+    Font_DrawText(1, CFrontend::GetTextString(0xd6), g_pGraphics->resX / 2,
+                  g_pGraphics->resY * 0x145 / 0x1e0, (int *)g_colourWhite0x00524968, 0x12);
+    for (i = 0; i < 3; i++) {
+        if (i == 0) {
+            y = g_pGraphics->resY * 5 / 0x1e0 + g_pGraphics->resY * 0x18 / 0x1e0 +
+                g_pGraphics->resY * 0x145 / 0x1e0 - g_pGraphics->resY * 4 / 0x1e0;
+            Font_DrawText(1, CFrontend::GetTextString(0xe9),
+                          g_pGraphics->resX * 300 / 0x280, y, (int *)g_colourText0x0052496c, 0x22);
+            Font_DrawText(1, CFrontend::GetTextString(0xe8),
+                          g_pGraphics->resX * 0x17c / 0x280, y, (int *)g_colourText0x0052496c, 0x22);
+        }
+        y = g_pGraphics->resY * 5 / 0x1e0 + g_pGraphics->resY * 0x18 / 0x1e0 +
+            g_pGraphics->resY * 0x145 / 0x1e0 + (g_pGraphics->resY * 0x1e / 0x1e0) * i;
+        Font_DrawText(1, CFrontend::GetTextString(i + 0xd0),
+                      g_pGraphics->resX * 300 / 0x280 - g_pGraphics->resX * 0x20 / 0x280, y,
+                      (int *)g_colourText0x0052496c, 0xc);
+        FUN_004d4f90(g_pGraphics->resX * 300 / 0x280, y, FUN_004ebcd0(0, 0, i));
+        if (i == 0) {
+            g_unk0x008189a8[0] = (short)(g_pGraphics->resX * 0x17c / 0x280 -
+                                         g_pGraphics->resX * 0x30 / 0x500);
+            g_unk0x008189a8[1] = (short)(g_pGraphics->resY * 5 / 0x1e0 +
+                                         g_pGraphics->resY * 0x18 / 0x1e0 +
+                                         g_pGraphics->resY * 0x145 / 0x1e0);
+            g_unk0x008189a8[2] = (short)(g_pGraphics->resX * 0x30 / 0x280);
+            g_unk0x008189a8[3] = (short)(g_pGraphics->resY * 0x1c / 0x1e0);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourDim0x00524970, 4);
+            FUN_004d27e0(g_unk0x008189a8, g_colourText0x0052496c);
+        } else {
+            FUN_004d4f90(g_pGraphics->resX * 0x17c / 0x280, y, FUN_004ebcd0(0, 1, i));
+        }
+    }
+}
