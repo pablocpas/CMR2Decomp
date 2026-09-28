@@ -9209,3 +9209,179 @@ void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, Kn
                   (int)g_pGraphics->resY * 0x1c / 0x1e0 + y,
                   (int *)g_barTextColour, 0x14);
 }
+
+BYTE FUN_004bc0c0(BYTE *p);
+
+// Draws one pair of text lines at a stage-object rectangle, scaling the
+// rectangle vertically when the panel is animating in.
+// match 81%: the original's Font_DrawText takes 16-bit x/y (it adds them as words and
+// pushes the register unextended); our Font.h declares them 32-bit, so every coordinate
+// costs one movsx. Logic and constants are exact.
+// FUNCTION: CMR2 0x00475430
+void FUN_00475430(int param1, KnockoutMatch *param2, short *param3, BYTE *param4, BYTE *param5,
+                  int param6, int param7, int *param8, int param9)
+{
+    short rect[4];
+
+    if (FUN_004bc0c0(&g_unk0x0058ca80) != 0 || param9 != 0) {
+        rect[0] = param3[0];
+        rect[1] = param3[1];
+        rect[2] = (short)FixMulShift32(param3[2] << 16, g_unk0x0058cc74);
+        rect[3] = (short)FixMulShift32(param3[3] << 16, g_unk0x0058cc74);
+        FUN_00475740(rect, param4, param5, param6);
+        return;
+    }
+    rect[0] = param3[0];
+    rect[1] = param3[1];
+    rect[2] = param3[2];
+    rect[3] = param3[3];
+    FUN_00475740(rect, param4, param5, param6);
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
+        CFrontend::FUN_004b7590(0x400) != 0) {
+        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param2, param1)),
+                      (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
+                      (short)((short)((int)g_pGraphics->resY * 0x10 / 0x1e0 - (int)g_pGraphics->resY * 2 / 0x1e0) + param3[1]),
+                      param8, 0x14);
+        Font_DrawText(g_unk0x0051c980,
+                      (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004752f0((int *)param2, param1, param7)),
+                      (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
+                      (short)((short)((int)g_pGraphics->resY * 7 / 0x1e0 + (int)g_pGraphics->resY * 0x1c / 0x1e0) + param3[1]),
+                      param8, 0x14);
+        return;
+    }
+    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param2, param1)),
+                  (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
+                  (short)((short)((int)g_pGraphics->resY * 0x10 / 0x1e0) + param3[1]),
+                  param8, 0x14);
+    Font_DrawText(g_unk0x0051c980,
+                  (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004752f0((int *)param2, param1, param7)),
+                  (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
+                  (short)((short)((int)g_pGraphics->resY * 0x1c / 0x1e0) + param3[1]),
+                  param8, 0x14);
+}
+
+BYTE *FUN_0041b390(void);
+
+// Steps every live replay object: advances the frame counter of the current
+// record and appends the next one, rebuilding the lookup row when the current
+// frame is exhausted.
+// match 38%: the original keeps the constant zero in EBX and a separate `flag`/`valid`
+// pair that MSVC folds here, which moves the loop's register allocation; the replay
+// stepping logic and constants are otherwise transcribed from the dump
+// FUNCTION: CMR2 0x0046c8e0
+void FUN_0046c8e0(void)
+{
+    void ***pp;
+    void **pObj;
+    int *pRec;
+    short *pIndex;
+    int state;
+    int flag;
+    int valid;
+    int slot;
+    int offset;
+    BYTE *pEnt;
+    int base;
+    char c;
+    BYTE b;
+
+    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 16; pp++) {
+        pObj = *pp;
+        if (pObj == NULL)
+            continue;
+        pRec = (int *)*pObj;
+        if (pRec == NULL)
+            continue;
+        if (pRec[3] == 0)
+            continue;
+        if (pRec[7] == 2)
+            continue;
+        if (*(BYTE *)((BYTE *)Car_Get(*(BYTE *)((BYTE *)pRec + 0x20)) + 0xb43) <= 0)
+            continue;
+
+        state = pRec[4];
+        pIndex = (short *)(pRec[0x41] + *(short *)((BYTE *)pRec + 0x100) * 2);
+        flag = 0;
+        valid = 0;
+        if (state != 0)
+            valid = 1;
+        else
+            flag = 1;
+        if (valid == 0)
+            goto done;
+        if (state == 0)
+            goto done;
+
+        slot = *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) + *pIndex;
+        offset = pRec[0xf] + slot * 4;
+        if (FUN_0046cbe0((BYTE *)offset, *(BYTE *)((BYTE *)pRec + 0x20)) == 0) {
+            *pIndex += 1;
+            if (*pIndex == *(short *)((BYTE *)pRec + 0xfe)) {
+                pRec[4] = 0;
+                *pIndex += 1;
+                *(short *)((BYTE *)pRec + 0x100) += 1;
+                if (*(short *)((BYTE *)pRec + 0x100) == *(short *)((BYTE *)pRec + 0xfc))
+                    Replay_StopRecording((BYTE *)pRec);
+                goto done;
+            }
+            slot = *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) + *pIndex;
+            offset = pRec[0xf] + slot * 4;
+            *(BYTE *)(offset + 2) = *(BYTE *)(pRec[0xf] + 2 + slot * 4) & 0xc0;
+        }
+        FUN_0046c450((BYTE *)offset, *(BYTE *)((BYTE *)pRec + 0x20));
+
+        base = (int)FUN_0041b390();
+        c = CGameInfo::FUN_00405e00();
+        if (c == '\0')
+            c = *(char *)(*(int *)(base + 4) + (DWORD)*(BYTE *)((BYTE *)pRec + 0x20) * 8);
+        else
+            c = **(char **)(base + 4);
+
+        if (pRec[7] == 0) {
+            base = pRec[9] + *(short *)((BYTE *)pRec + 0x100) * 0x114c;
+            pEnt = (BYTE *)(base + 0x110c + (DWORD)*(BYTE *)(base + 0x1148) * 6);
+            if (c != *(char *)(pEnt - 2)) {
+                *(char *)(pEnt + 4) = c;
+                *(short *)pEnt = *pIndex;
+                *(unsigned short *)(pEnt + 2) = *(BYTE *)(offset + 2) & 0x3f;
+                *(BYTE *)(base + 0x1148) += 1;
+                if (*(short *)(pEnt + 2) == 0) {
+                    b = *(BYTE *)(pRec[0xf] - 2 + slot * 4);
+                    *(short *)pEnt -= 1;
+                    *(unsigned short *)(pEnt + 2) = b & 0x3f;
+                } else {
+                    *(short *)(pEnt + 2) -= 1;
+                }
+            }
+        } else {
+            base = *(short *)((BYTE *)pRec + 0x100) * 0x5c + pRec[0xc];
+            pEnt = (BYTE *)(base + (DWORD)*(BYTE *)(base + 0x58) * 6);
+            if (c != *(char *)(pEnt + 0x1a)) {
+                *(char *)(pEnt + 0x20) = c;
+                *(short *)(pEnt + 0x1c) = *pIndex;
+                *(unsigned short *)(pEnt + 0x1e) = *(BYTE *)(offset + 2) & 0x3f;
+                *(BYTE *)(base + 0x58) += 1;
+                if (*(short *)(pEnt + 0x1e) == 0) {
+                    b = *(BYTE *)(pRec[0xf] - 2 + slot * 4);
+                    *(short *)(pEnt + 0x1c) -= 1;
+                    *(unsigned short *)(pEnt + 0x1e) = b & 0x3f;
+                } else {
+                    *(short *)(pEnt + 0x1e) -= 1;
+                }
+            }
+        }
+
+done:
+        if (flag != 0) {
+            offset = pRec[0xf] + *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) * 4;
+            *(short *)(pRec[0x41] + *(short *)((BYTE *)pRec + 0x100) * 2) = 0;
+            *(BYTE *)(offset + 2) &= 0xc0;
+            pRec[6] = 1;
+            if (pRec[7] == 0)
+                pRec[0xb] = pRec[9] + *(short *)((BYTE *)pRec + 0x100) * 0x114c;
+            else
+                pRec[0xe] = *(short *)((BYTE *)pRec + 0x100) * 0x5c + pRec[0xc];
+            pRec[4] = 1;
+        }
+    }
+}
