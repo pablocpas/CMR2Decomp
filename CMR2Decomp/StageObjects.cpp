@@ -3076,6 +3076,52 @@ BYTE FUN_004729f0(void)
 // GLOBAL: CMR2 0x0058d6d0
 BYTE g_unk0x0058d6d0[8][0x48];
 
+// Fills the 12 outline values of a stage box (11 boundary levels plus the
+// corner colour at +0x16) and repaints its two textures once the cached copy
+// differs from the new values.
+int FUN_00445dd0(int index);
+void FUN_004775f0(Texture *pTexture, int state, int cacheBase, int index);
+// FUNCTION: CMR2 0x00477460
+void FUN_00477460(int index)
+{
+    unsigned short *pNew = g_unk0x0058d310 + index * 0xc;
+    unsigned short *pOld = (unsigned short *)(g_stageBlock + index * 0x18);
+    int changed = 0;
+    int limit;
+    int slot;
+    int i;
+
+    limit = FixMulShift32(FUN_00445dd0(index), 0xb0000);
+    for (i = 0; i <= 0xa; i++)
+        pNew[i] = ((i >= limit) - 1) & 0xff;
+    if (g_unk0x0058d4c4[index * 2] != 0)
+        FUN_004775f0((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->field_0xb1e, 2, index);
+    if (g_unk0x0058d4c0[index * 2] != 0) {
+        slot = index + 8;
+        pNew[0xb] = 0x6c;
+        // the original leaves the scan by setting the counter to 0xc
+        for (i = 0; i < 0xc; i++) {
+            if (pNew[i] != pOld[i]) {
+                changed = 1;
+                i = 0xc;
+            }
+        }
+        if (changed != 0) {
+            CGraphics::BltTexture((Texture *)g_unk0x0058d4c0[index * 2], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xe0, 0xff, 0xd0, pNew[1], 0xc0,
+                                         pNew[2], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0xb0, pNew[3], 0xa0, pNew[4], 0x90,
+                                         pNew[5], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x80, pNew[6], 0x70, pNew[7], 0x60,
+                                         pNew[8], slot);
+            CGraphics::RemapTextureAlpha((Texture *)g_unk0x0058d4c0[index * 2], 0x50, pNew[9], 0x40, pNew[10], 0x30,
+                                         pNew[0xb], slot);
+            for (i = 0; i < 0xc; i++)
+                pOld[i] = pNew[i];
+        }
+    }
+}
+
 // Body colours of the two stage objects for the object's current body state:
 // seven alpha values per object, compared against the ones already applied to
 // the texture so the remap only runs when they change.
@@ -3314,6 +3360,71 @@ int g_unk0x005909b8;
 BYTE g_unk0x005909c0[4];
 // GLOBAL: CMR2 0x005909c4
 BYTE g_unk0x005909c4[4];
+
+// Per car: ticks until the next headlight glow may be spawned.
+// GLOBAL: CMR2 0x0058e4a8
+int g_unk0x0058e4a8[8];
+// Glow record of the stage objects: pRec offsets are relative to this base,
+// i.e. 0x18 bytes below the glow fields that 0x47d510 walks.
+// GLOBAL: CMR2 0x0058e4c8
+BYTE g_unk0x0058e4c8[100][0x5c];
+
+// Spawns the headlight glow of one stage object: finds the first free record,
+// places it at the top corner of the car's bounding box, aims it along the
+// body's right axis and drops it onto the ground below.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The instruction sequence is the original's; the residual difference is the
+// register numbering of the vector temporaries.
+// FUNCTION: CMR2 0x0047d5a0
+void FUN_0047d5a0(BYTE car)
+{
+    FixVector dir;
+    FixVector half;
+    Car *pCar;
+    short surface;
+    int *pRec;
+    int i;
+
+    if (g_unk0x0058e4a8[car] <= 0) {
+        pRec = (int *)g_unk0x0058e4c8;
+        i = 0;
+        do {
+            if (pRec[0x15] == 0) {
+                pCar = Car_Get(car);
+                FixVecScale(&dir, &pCar->up, *(int *)&pCar->field_0x770[4]);
+                half.x = pCar->corners[1].x - pCar->corners[0].x;
+                half.y = pCar->corners[1].y - pCar->corners[0].y;
+                half.z = pCar->corners[1].z - pCar->corners[0].z;
+                FixVecScale(&half, &half, 0x8000);
+                pRec[3] = half.x + pCar->corners[0].x + dir.x;
+                pRec[4] = half.y + pCar->corners[0].y + dir.y;
+                pRec[5] = half.z + pCar->corners[0].z + dir.z;
+                FixVecScale((FixVector *)pRec, &pCar->right, 0xcccc);
+                pRec[0] += pCar->velocity.x;
+                pRec[1] += pCar->velocity.y;
+                pRec[2] += pCar->velocity.z;
+                FixVecScale((FixVector *)pRec, &pCar->right, FixVecDot((FixVector *)pRec, &pCar->right));
+                pRec[0x12] = 0x320000;
+                pRec[9] = 0x10000;
+                pRec[0x15] = 1;
+                *(BYTE *)(pRec + 0x16) = car;
+                pRec[0x11] = 0;
+                *(short *)(pRec + 0x13) = -1;
+                pRec[0x11] = Track_GetGroundHeightSurface((FixVector *)(pRec + 3), (FixVector *)(pRec + 6),
+                                                          (short *)(pRec + 0x13), &surface,
+                                                          (unsigned short *)&surface, 0);
+                pRec[4] = pRec[0x11] + 0x8000;
+                *(FixVector *)(pRec + 0xa) = *(FixVector *)(pRec + 3);
+                *(FixVector *)(pRec + 0xd) = *(FixVector *)(pRec + 6);
+                pRec[0x10] = pRec[9];
+                i = 100;
+                g_unk0x0058e4a8[car] = 0x100000;
+            }
+            pRec += 0x17;
+            i++;
+        } while (i < 100);
+    }
+}
 
 // FUNCTION: CMR2 0x0047e490
 void FUN_0047e490(BYTE *pColour)
@@ -6518,8 +6629,6 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar)
         FUN_00486b90(pCar, pInfo);
 }
 
-// GLOBAL: CMR2 0x0058e4a8
-int g_unk0x0058e4a8[8];
 // Headlight glows of the stage objects (100 records of 0x5c bytes).
 // GLOBAL: CMR2 0x0058e4e0
 BYTE g_unk0x0058e4e0[100][0x5c];

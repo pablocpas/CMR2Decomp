@@ -932,6 +932,43 @@ void FUN_00492fe0(DWORD *pColour, int start, int end)
     g_stageColourAlpha = 0;
 }
 
+// Tracks how fast the rolling direction of the auto-gear car follows its
+// body (field 0x79c) from the phase in field 0x7a0, and latches flag 2 when
+// the car starts rolling while the shift is unlocked.
+// FUNCTION: CMR2 0x004946c0
+void FUN_004946c0(void)
+{
+    unsigned short angle;
+
+    if (g_pAutoGearCar->flag0x1d0[2] == 0 &&
+        (g_pAutoGearCar->field_0xb94 == 0 || g_pAutoGearCar->flag0x1d0[3] == 0)) {
+        *(int *)g_pAutoGearCar->field_0x7a0 =
+            *(int *)g_pAutoGearCar->field_0x7a0 - FixMul(g_pAutoGearCar->field_0x790, 0x20000);
+        if (*(int *)g_pAutoGearCar->field_0x7a0 < 0) {
+            *(int *)g_pAutoGearCar->field_0x7a0 = 0;
+            g_pAutoGearCar->field_0x79c = 0;
+        } else {
+            angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+                                              g_unk0x00511300);
+            g_pAutoGearCar->field_0x79c = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+        }
+        if (g_pAutoGearCar->field_0x79c != 0 && g_pAutoGearCar->field_0xb94 == 0) {
+            g_pAutoGearCar->flag0x1d0[2] = 0x3f;
+            return;
+        }
+    } else {
+        *(int *)g_pAutoGearCar->field_0x7a0 = *(int *)g_pAutoGearCar->field_0x7a0 + g_pAutoGearCar->field_0x790;
+        if (*(int *)g_pAutoGearCar->field_0x7a0 > 0x10000) {
+            *(int *)g_pAutoGearCar->field_0x7a0 = 0x10000;
+            g_pAutoGearCar->field_0x79c = *(int *)g_pAutoGearCar->field_0x788;
+            return;
+        }
+        angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+                                          g_unk0x00511300);
+        g_pAutoGearCar->field_0x79c = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+    }
+}
+
 // Swings field 0x838 of the auto-gear car toward 0x82c over time while its
 // flag 3 is set and the shift is unlocked; else resets it.
 // FUNCTION: CMR2 0x00494880
