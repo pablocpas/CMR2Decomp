@@ -6370,7 +6370,8 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut);
 // Places one car's view-camera basis for the given view slot: copies the car
 // rotation, applies the suspension up-offset when the option is on and, for
 // non-zero view records, rotates the basis by the tilt angle before blending.
-// match 26%: implementada, MSVC6 no reproduce el reparto de registros (el original usa EBP/EBX/ESI de otra forma) ni el tamano de pila (0xf0 vs 0xdc)
+// match 26%: reviewed (W172) - calls and constants match; the diff is register
+// allocation and stack frame size (original 0xf0 vs ours 0xdc).
 // FUNCTION: CMR2 0x00423b20
 void FUN_00423b20(unsigned int param_1)
 {
@@ -6754,8 +6755,9 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
 // re-orthonormalized (right, and up/forward rebuilt from it) and, when any axis
 // flipped, the deepest corner against the normal is pushed to the deformation
 // solver.
-// match 32%: implemented from the disassembly; the repeated inlined square-root
-// and reciprocal blocks keep their own stack slots in the original (CONOCIMIENTO 4.t).
+// match 32%: reviewed (W172) - calls and constants match; the repeated inlined
+// square-root and reciprocal blocks keep their own stack slots in the original
+// (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0042fb20
 void FUN_0042fb20(void)
 {
