@@ -14114,3 +14114,330 @@ void FUN_004877a0(BYTE *pCars, short *pOrder, short count)
         } while (--n);
     }
 }
+
+// Where the fireworks go off, relative to the stage origin.
+// GLOBAL: CMR2 0x0051f4e0
+FixVector g_fireworksOrigin = { -0xcc0000, 0, 0x3d0000 };
+// GLOBAL: CMR2 0x0051f51c
+char g_strFireworksLaunch3[] = "\\Fireworks\\Launch_3.wav";
+// GLOBAL: CMR2 0x0051f534
+char g_strFireworksLaunch2[] = "\\Fireworks\\Launch_2.wav";
+// GLOBAL: CMR2 0x0051f54c
+char g_strFireworksLaunch1[] = "\\Fireworks\\Launch_1.wav";
+// GLOBAL: CMR2 0x0051f564
+char g_strFireworksBang3[] = "\\Fireworks\\Bang_3.wav";
+// GLOBAL: CMR2 0x0051f57c
+char g_strFireworksBang2[] = "\\Fireworks\\Bang_2.wav";
+// GLOBAL: CMR2 0x0051f594
+char g_strFireworksBang1[] = "\\Fireworks\\Bang_1.wav";
+// GLOBAL: CMR2 0x0051f5ac
+char g_strFireworksLoudBang3[] = "\\Fireworks\\Loud_Bang_3.wav";
+// GLOBAL: CMR2 0x0051f5c8
+char g_strFireworksLoudBang2[] = "\\Fireworks\\Loud_Bang_2.wav";
+// GLOBAL: CMR2 0x0051f5e4
+char g_strFireworksLoudBang1[] = "\\Fireworks\\Loud_Bang_1.wav";
+// GLOBAL: CMR2 0x0051f600
+char g_strFireworksFalling2[] = "\\Fireworks\\Falling_2.wav";
+// GLOBAL: CMR2 0x0051f61c
+char g_strFireworksFalling1[] = "\\Fireworks\\Falling_1.wav";
+
+extern char g_strPathConcat[];
+extern double g_unk0x00511308;
+void FUN_004805f0(int value);
+int FUN_004b7940(void);
+BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
+
+#define LOAD_FIREWORK_SOUND(str)                                                  \
+    sprintf(CFrontend::m_stringDest, g_strPathConcat, pDir, str);                 \
+    Sound_LoadSample(CFrontend::m_stringDest, 0, (GenericFile *)StageTiming_GetStageFile4())
+
+// Sets up the fireworks of the end-of-rally show: `count` rockets (0x938-byte
+// records), the two spark billboards, the 3x3 table of burst directions
+// (every 30 degrees), the four launch points and the sounds.
+// FUNCTION: CMR2 0x0047e4d0
+void FUN_0047e4d0(BYTE count)
+{
+    int i;
+    int k;
+    int step;
+    int a;
+    int b;
+    int start;
+    int *pDirs;
+    FixVector *p;
+    char *pDir;
+    int sinA;
+    int cosA;
+
+    g_unk0x00590afc = count;
+    if (count != 0) {
+        g_unk0x00590af8 = CFileBuffer::AllocateLockedBuffer(count * 0x938);
+        g_unk0x00590b04 = CFileBuffer::AllocateLockedBuffer(0x28);
+        g_unk0x00590b08 = CFileBuffer::AllocateLockedBuffer(0x28);
+        g_unk0x00590b0c = (void **)CFileBuffer::AllocateLockedBuffer(0xc);
+        for (i = 0; i < 3; i++)
+            g_unk0x00590b0c[i] = CFileBuffer::AllocateLockedBuffer(0x24);
+        for (i = 0; i < g_unk0x00590afc; i++) {
+            *(int *)((BYTE *)g_unk0x00590af8 + i * 0x938 + 0x694) = 0;
+            *((BYTE *)g_unk0x00590af8 + i * 0x938 + 0x690) = 0;
+        }
+        ((int *)g_unk0x00590b04)[3] = -0x8000;
+        ((int *)g_unk0x00590b04)[4] = 0x8000;
+        ((int *)g_unk0x00590b04)[5] = 0x8000;
+        ((int *)g_unk0x00590b04)[6] = -0x8000;
+        ((short *)g_unk0x00590b04)[0x10] = 0;
+        ((BYTE *)g_unk0x00590b04)[0x23] &= 0xfe;
+        ((BYTE *)g_unk0x00590b04)[0x23] &= 0xfd;
+        memcpy(g_unk0x00590b08, g_unk0x00590b04, 0x28);
+        ((int *)g_unk0x00590b08)[3] = -0x6000;
+        ((int *)g_unk0x00590b08)[4] = 0x6000;
+        ((int *)g_unk0x00590b08)[5] = 0x6000;
+        ((int *)g_unk0x00590b08)[6] = -0x6000;
+        step = FixDiv(0x5a0000, 0x30000);
+        k = FixDiv(0x5a0000, 0x30000);
+        start = FixMul(k, 0x8000);
+        a = FixMul(step, 0x8000);
+        for (i = 0; i < 3; i++) {
+            sinA = g_sinTable[(unsigned short)(int)(__int64)((double)a * g_unk0x00511300) & 0xfff];
+            cosA = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((double)a * g_unk0x00511308)) & 0xfff];
+            pDirs = (int *)g_unk0x00590b0c[i];
+            for (b = start, p = (FixVector *)pDirs; (int *)p < pDirs + 9; p++, b += k) {
+                p->x = FixMul(sinA, g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                p->y = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((float)b * g_unk0x00511308)) & 0xfff];
+                p->z = FixMul(cosA, g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+            }
+            a += step;
+            start = FixMul(k, 0x8000);
+        }
+    }
+    g_unk0x00590b00 = (int)g_carLights[0].pReverse;
+    g_unk0x005909c8[0].x = 0x5b50000;
+    g_unk0x005909c8[0].y = 0x20000;
+    g_unk0x005909c8[1].x = 0x5b50000;
+    g_unk0x005909c8[1].y = 0x20000;
+    g_unk0x005909c8[2].x = 0x5b50000;
+    g_unk0x005909c8[2].y = 0x20000;
+    g_unk0x005909c8[3].x = 0x5b50000;
+    g_unk0x005909c8[3].y = 0x20000;
+    g_unk0x005909c8[0].z = 0xc20000;
+    g_unk0x005909c8[1].z = 0xce0000;
+    g_unk0x005909c8[2].z = 0xda0000;
+    g_unk0x005909c8[3].z = 0xe60000;
+    for (p = g_unk0x005909c8; p < g_unk0x005909c8 + 4; p++) {
+        p->x += g_fireworksOrigin.x;
+        p->y += g_fireworksOrigin.y;
+        p->z += g_fireworksOrigin.z;
+    }
+    pDir = CInstallInfo::GetSoundsDir();
+    FUN_004805f0(FUN_004b7940());
+    LOAD_FIREWORK_SOUND(g_strFireworksFalling1);
+    LOAD_FIREWORK_SOUND(g_strFireworksFalling2);
+    LOAD_FIREWORK_SOUND(g_strFireworksLoudBang1);
+    LOAD_FIREWORK_SOUND(g_strFireworksLoudBang2);
+    LOAD_FIREWORK_SOUND(g_strFireworksLoudBang3);
+    LOAD_FIREWORK_SOUND(g_strFireworksBang1);
+    LOAD_FIREWORK_SOUND(g_strFireworksBang2);
+    LOAD_FIREWORK_SOUND(g_strFireworksBang3);
+    LOAD_FIREWORK_SOUND(g_strFireworksLaunch1);
+    LOAD_FIREWORK_SOUND(g_strFireworksLaunch2);
+    LOAD_FIREWORK_SOUND(g_strFireworksLaunch3);
+    CGame::RegisterCallback(FUN_0047ea20, NULL);
+}
+#undef LOAD_FIREWORK_SOUND
+
+short RallyData_FUN_004213a0(BYTE *p);
+int RallyData_FUN_00421430(void);
+
+// Simple CPU driving used near the end of the route (the demo/attract drive):
+// keeps the speed between two limits, steers back towards the route and
+// brakes on a sharp heading error. Returns 0 when the route is about to end.
+// `preview` != 0 only computes.
+// FUNCTION: CMR2 0x0047d330
+int FUN_0047d330(int car, int preview)
+{
+    Car *pCar;
+    int state[0x2e];
+    unsigned int node;
+    int left;
+    int right;
+    int throttle;
+    int brake;
+    int handbrake;
+    int mode;
+
+    pCar = Car_Get(car);
+    node = (unsigned short)RallyData_FUN_004213a0((BYTE *)pCar);
+    if (node + 5 > (unsigned int)RallyData_FUN_00421430())
+        return 0;
+    state[0x15] = node;
+    FUN_00498620(pCar, 0x342, state, 0);
+    handbrake = 0;
+    left = 0;
+    right = 0;
+    throttle = 0;
+    brake = 0;
+    if (state[0] < 0x320000)
+        throttle = 0x3f;
+    if (state[0] > 0x460000)
+        brake = 0x3f;
+    if (state[7] > 0x50000)
+        right = 0x3f;
+    if (state[7] < -0x50000)
+        left = 0x3f;
+    mode = 0;
+    if (state[0xd] < 0) {
+        if (state[0xe] > 0x5a0000)
+            mode = 4;
+    } else if (state[0xe] > 0x5a0000) {
+        mode = 4;
+    }
+    if (state[0xe] < -0x5a0000)
+        mode = 2;
+    else if (mode == 0)
+        goto apply;
+    switch (mode) {
+    case 1:
+        throttle = 0x3f;
+        right = throttle;
+        break;
+    case 2:
+        brake = 0x3f;
+        right = brake;
+        break;
+    case 3:
+        left = 0x3f;
+        throttle = left;
+        break;
+    case 4:
+        left = 0x3f;
+        brake = left;
+        break;
+    case 5:
+        left = 0x3f;
+        throttle = 0;
+        brake = left;
+        break;
+    case 6:
+        brake = 0x3f;
+        throttle = 0;
+        right = brake;
+        break;
+    case 7:
+        left = 0x3f;
+        break;
+    case 8:
+        right = 0x3f;
+        break;
+    }
+    if (state[0] >= 0x190000)
+        throttle = 0;
+apply:
+    if (preview != 0)
+        return 1;
+    pCar->flag0x1d0[0] = 0;
+    pCar->flag0x1d0[1] = 0;
+    pCar->flag0x1d0[2] = 0;
+    pCar->flag0x1d0[3] = 0;
+    pCar->field_0x1d8 = 0;
+    if (left > 0)
+        pCar->flag0x1d0[0] = 0x3f;
+    if (right > 0)
+        pCar->flag0x1d0[1] = 0x3f;
+    if (throttle > 0)
+        pCar->flag0x1d0[2] = 0x3f;
+    if (brake > 0)
+        pCar->flag0x1d0[3] = 0x3f;
+    if (handbrake > 0)
+        pCar->field_0x1d8 = 1;
+    return 1;
+}
+
+void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition, int field0x48, int field0x40,
+                    BYTE *pColour, BYTE field0x54, int callbackParam, BYTE field0x55);
+#define RAND_FIX() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
+
+// Per-frame update of the flying debris (100 records of 0x5c bytes): ages
+// each piece, moves it along its velocity over the ground and trails a dust
+// particle off it, fading the last seconds; also counts down the 8 debris
+// timers.
+// FUNCTION: CMR2 0x0047dd70
+void FUN_0047dd70(void)
+{
+    int *pTimer;
+    BYTE *q;
+    int left;
+    short tri;
+    FixVector old;
+    FixVector d;
+    FixVector n;
+    FixVector r;
+    FixVector m;
+    int dot;
+    int fade;
+    int ground;
+
+    for (pTimer = g_unk0x0058e4a8; pTimer < g_unk0x0058e4a8 + 8; pTimer++) {
+        if (*pTimer > 0) {
+            *pTimer -= g_physicsTimeStep;
+            if (*pTimer < 0)
+                *pTimer = 0;
+        }
+    }
+    q = g_unk0x0058e4e0[0] + 0x1c;
+    for (left = 100; left != 0; left--, q += 0x5c) {
+        if (*(int *)(q + 0x20) == 0)
+            continue;
+        *(FixVector *)(q - 0xc) = *(FixVector *)(q - 0x28);
+        *(FixVector *)q = *(FixVector *)(q - 0x1c);
+        *(int *)(q + 0xc) = *(int *)(q - 0x10);
+        *(int *)(q + 0x14) -= g_physicsTimeStep;
+        if (*(int *)(q + 0x14) <= 0) {
+            *(int *)(q + 0x20) = 0;
+            continue;
+        }
+        old = *(FixVector *)(q - 0x28);
+        *(int *)(q - 0x28) += *(int *)(q - 0x34);
+        *(int *)(q - 0x24) += *(int *)(q - 0x30);
+        *(int *)(q - 0x20) += *(int *)(q - 0x2c);
+        ground = Track_GetGroundHeightSurface((FixVector *)(q - 0x28), (FixVector *)(q - 0x1c), (short *)(q + 0x18),
+                                              &tri, (unsigned short *)&tri, *(int *)(q + 0x10));
+        *(int *)(q + 0x10) = ground;
+        *(int *)(q - 0x24) = ground + 0x8000;
+        d.x = *(int *)(q - 0x28) - old.x;
+        d.y = *(int *)(q - 0x24) - old.y;
+        d.z = *(int *)(q - 0x20) - old.z;
+        FIX_NORMALIZE_INTO(n, d);
+        r.x = 0x8000 - RAND_FIX();
+        r.y = 0x8000 - RAND_FIX();
+        r.z = 0x8000 - RAND_FIX();
+        dot = FixVecDot(&n, &r);
+        FixVecScale(&m, &n, dot);
+        r.x -= m.x;
+        r.y -= m.y;
+        r.z -= m.z;
+        FixVecScale(&n, &n, -0x8000);
+        r.x += n.x;
+        r.y += n.y;
+        r.z += n.z;
+        FixVecScale(&r, &r, 0x4ccc);
+        r.x += d.x;
+        r.y += d.y;
+        r.z += d.z;
+        m.x = *(int *)(q - 0x28) - r.x;
+        m.y = *(int *)(q - 0x24) - r.y;
+        m.z = *(int *)(q - 0x20) - r.z;
+        Particle_Spawn(0x1f, &m, &r, *(int *)(q - 0x24) - 0x50000, 0, NULL, 0, 0,
+                       *(BYTE *)(*(BYTE **)((BYTE *)Car_Get(q[0x24]) + 0x720) + 0x17c));
+        if (*(int *)(q + 0x14) > 0x50000) {
+            *(int *)(q - 0x10) = 0x10000;
+        } else {
+            fade = FixMul(*(int *)(q + 0x14), 0x3333);
+            if (fade > 0x10000)
+                fade = 0x10000;
+            else if (fade < 0)
+                fade = 0;
+            *(int *)(q - 0x10) = fade;
+        }
+    }
+}
+#undef RAND_FIX
