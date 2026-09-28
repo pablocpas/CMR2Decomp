@@ -5566,3 +5566,186 @@ int FUN_0040b1b0(void);
 
 // Resets the timing records of the drivers taking part in the race according
 // to the current mode (rally, split-screen or network).
+// FUNCTION: CMR2 0x00458100
+void FUN_00458100(int param_1)
+{
+    int i;
+    int count;
+
+    if ((char)RallyData_FUN_00407e90() != 0) {
+        if (CGameInfo::FUN_00405e00() != 0) {
+            if (CGameInfo::FUN_00405d80() == 10)
+                count = 1;
+            else
+                count = FUN_0040b1b0();
+            for (i = 0; i < count; i++) {
+                switch (g_unk0x00542cb4[i]) {
+                case 0:
+                    FUN_00458bd0(i, 0, -1, param_1);
+                    break;
+                case 1:
+                    FUN_00458bd0(i, 2, 0, param_1);
+                    break;
+                }
+            }
+        } else {
+            FUN_00458bd0(g_unk0x00542cb0, 0, -1, param_1);
+            FUN_00458bd0(1 - g_unk0x00542cb0, 2, 0, param_1);
+        }
+        return;
+    }
+    i = 0;
+    if ((BYTE)FUN_00420190() > 0) {
+        do {
+            FUN_00458bd0(i, 0, 0, param_1);
+            i++;
+        } while (i < (int)(BYTE)FUN_00420190());
+    }
+}
+
+#include <stdlib.h>
+
+extern double g_unk0x00511300;
+unsigned int RallyData_GetFlag31(void);
+unsigned char RallyDataStageIndex(void);
+unsigned int RallyData_GetFlag24(void);
+extern int g_unk0x00542cd4;
+extern int g_unk0x00542d38[8];
+extern int g_unk0x00542cd8[8][3];
+int StageObject_Atan2Degrees(int y, int x);
+int FUN_0040cec0(int index);
+int FUN_0040b1a0(int index);
+unsigned long FUN_004a1a00(void);
+
+// Places every car on the starting grid of the current event: stores its
+// route position and derives its start x/z from the grid origin, the grid
+// heading and the car's slot.
+// FUNCTION: CMR2 0x004584d0
+void FUN_004584d0(char param_1)
+{
+    int state = 0;
+    int i;
+    int slot;
+    int count;
+    int n;
+    int t;
+    int angle;
+    short a;
+    int p0[3];
+    int p1[3];
+
+    if ((char)RallyData_GetFlag31() != 0) {
+        state = 2;
+    } else {
+        if (CGameInfo::FUN_00405e00() != 0) {
+            if ((char)RallyDataStageIndex() == '\n' && CGameInfo::FUN_00405d80() != '\n')
+                state = 3;
+        }
+        if (state == 0) {
+            if (g_unk0x00542c68 == 1 || CGameInfo::FUN_00405d80() == '\n')
+                return;
+            if ((char)RallyData_GetFlag24() == 0 && g_unk0x00542c68 == 2) {
+                if ((char)RallyData_FUN_00407e90() == 0)
+                    return;
+                state = 1;
+            }
+        }
+    }
+
+    switch (state) {
+    case 0:
+    {
+        int sinA;
+        int cosA;
+
+        RallyData_FUN_00421530(RallyData_FUN_00421420() - 1, p0);
+        RallyData_FUN_00421530(0, p1);
+        angle = StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]);
+        a = (short)(int)(__int64)((double)angle * g_unk0x00511300);
+        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
+        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        n = 1;
+        for (i = 0; i < g_unk0x00542c68; i++, n--) {
+            slot = i;
+            if (CGameInfo::FUN_00405d80() == 5 && g_unk0x00542c68 > 2)
+                slot = FUN_0040cec0(i);
+            if ((char)RallyDataState() == 2)
+                slot = n;
+            g_unk0x00542d38[slot] = RallyData_FUN_00421420() - 1;
+            if (g_unk0x00542c68 > 2)
+                t = FixMul((int)(__int64)((double)slot * CGraphics::m_65536), 0x50000) -
+                    (int)(__int64)((double)(g_unk0x00542c68 * 5) * CGraphics::m_65536);
+            else
+                t = 0xfff60000;
+            if (slot % 2 == 0) {
+                g_unk0x00542cd8[i][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) - sinA + p1[0];
+                g_unk0x00542cd8[i][2] = FixMul(t, g_sinTable[a & 0xfff]) + cosA + p1[2];
+            } else {
+                g_unk0x00542cd8[i][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) + sinA + p1[0];
+                g_unk0x00542cd8[i][2] = FixMul(t, g_sinTable[a & 0xfff]) - cosA + p1[2];
+            }
+        }
+        break;
+    }
+    case 1:
+        if (param_1 == 0) {
+            srand(CMain::GetFrameTime());
+            g_unk0x00542cd4 = (rand() <= 0x3fff);
+        }
+        g_unk0x00542cb0 = g_unk0x00542cd4;
+        for (i = 0; i < 2; i++)
+            g_unk0x00542d38[i] = ((g_unk0x00542cb0 + i) % 2) ? g_unk0x00542c7c[1] : 0;
+        break;
+    case 2:
+    {
+        int sinA;
+        int cosA;
+
+        RallyData_FUN_00421530(RallyData_FUN_00421420() - 1, p0);
+        RallyData_FUN_00421530(0, p1);
+        angle = StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]);
+        a = (short)(int)(__int64)((double)angle * g_unk0x00511300);
+        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
+        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        count = (char)FUN_0040b1b0();
+        for (i = 0; i < count; i++) {
+            slot = FUN_0040b1a0(i);
+            if (slot == (int)FUN_004a1a00())
+                slot = 0;
+            else
+                slot = FUN_0040b010(FUN_0040a7a0(FUN_0040b1a0(i)));
+            g_unk0x00542d38[slot] = RallyData_FUN_00421420() - 1;
+            if ((char)count > 2)
+                t = FixMul((int)(__int64)((double)i * CGraphics::m_65536), 0x50000) -
+                    (int)(__int64)((double)(count * 5) * CGraphics::m_65536);
+            else
+                t = 0xfff60000;
+            if (i % 2 == 0) {
+                g_unk0x00542cd8[slot][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) - sinA + p1[0];
+                g_unk0x00542cd8[slot][2] = FixMul(t, g_sinTable[a & 0xfff]) + cosA + p1[2];
+            } else {
+                g_unk0x00542cd8[slot][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) + sinA + p1[0];
+                g_unk0x00542cd8[slot][2] = FixMul(t, g_sinTable[a & 0xfff]) - cosA + p1[2];
+            }
+        }
+        break;
+    }
+    case 3:
+        count = (char)FUN_0040b1b0();
+        for (i = 0; i < count; i++) {
+            slot = FUN_0040b1a0(i);
+            if (slot == (int)FUN_004a1a00())
+                slot = 0;
+            else
+                slot = FUN_0040b010(FUN_0040a7a0(FUN_0040b1a0(i)));
+            if (i % 2 != 0) {
+                g_unk0x00542d38[slot] = g_unk0x00542c7c[1];
+                g_unk0x00542cb4[slot] = 1;
+            } else {
+                g_unk0x00542d38[slot] = 0;
+                g_unk0x00542cb4[slot] = 0;
+            }
+        }
+        break;
+    }
+}

@@ -131,3 +131,7 @@ int FUN_00459350(int index)
     return index;
 }
 
+
+// Start-grid side flag used by the stage start layout (0/1).
+// GLOBAL: CMR2 0x00542cd4
+int g_unk0x00542cd4;
