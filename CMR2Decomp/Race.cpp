@@ -3678,233 +3678,183 @@ void FUN_0041fd30(void)
     }
 }
 
-void FUN_0042bf70(void);
-void FUN_00484d30(int t);
-void FUN_00471950(int t);
-void FUN_00486500(int scale);
-void FUN_00461bb0(int t);
-void Particle_Interpolate(int t);
-void Dash_Interpolate(int t);
-void StageObject_UpdateDebris(int scale);
-void FUN_0047e1e0(int t);
+// Route helpers of the per-car update below (no shared header declares them).
+int RallyData_FUN_00421420(void);
+BYTE *RallyData_FUN_00421440(int index);
+int RallyData_FUN_00421470(BYTE *p);
+BYTE FUN_00458270(int index);
+int FUN_00448110(void);
+void FUN_00421570(unsigned int nodeIndex, FixVector *pOut);
 
-// Per-frame race update: advances the stage timing, the particle and dash
-// effects and the debris, then refreshes them once the frame gate opens.
-// FUNCTION: CMR2 0x0041d060
-void FUN_0041d060(int param_1)
+// Set while the node scan near the car's position finds a node whose callouts
+// have not been delivered yet.
+// GLOBAL: CMR2 0x00537354
+int g_unk0x00537354;
+
+// Per-car route/timing update. Keeps the tracked route position
+// g_unk0x0053708c[] in sync with the car's node (best, from RallyData), raises
+// the "gate" flag g_unk0x00537248[] while the node direction projected on the
+// front wheel rolling direction points backwards, scans the nodes around the
+// position for pending callouts (FUN_004174e0) and, when the leading call of
+// this car expires, shifts its five call records g_raceCallRecords[car*5].
+// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; en la cola el original relee un campo redundante de g_raceCallRecords[car*5+4] que no transcribimos, y el reparto de bloques del switch difiere.
+// FUNCTION: CMR2 0x00417090
+void FUN_00417090(int param_1)
 {
-    FUN_0042bf70();
-    FUN_00484d30(param_1);
-    FUN_00471950(param_1);
-    FUN_00486500(param_1);
-    Particle_Interpolate(param_1);
-    FUN_00461bb0(param_1);
-    Dash_Interpolate(param_1);
-    if ((BYTE)FUN_00407270()) {
-        StageObject_UpdateDebris(param_1);
-    }
-    if (CGameInfo::FUN_004063f0(0) != 0) {
-        FUN_0047e1e0(param_1);
-    }
-}
-
-int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
-int FUN_00465e40(int car, int wheel);
-
-// Recomputes one car's stage sound levels. The four wheel-slip values are read
-// and scaled, the level of each of the four stage sound slots is derived from
-// the engine volume and the largest slip and then eased towards the value of
-// the previous frame (the 0x05xxx4xx volume/previous tables live inside
-// g_raceBlock), and the result is pushed into the slot handles. The shared
-// engine sample gets its pan from the engine speed when the current pattern has
-// run out, and the slot levels are muted, faded out or restored depending on
-// the surface the wheels are on.
-// match 32%: implementada, MSVC6 no reproduce el reparto de registros ni el tamano de pila del original en las tablas de g_raceBlock
-// FUNCTION: CMR2 0x0041a5c0
-void FUN_0041a5c0(int param_1, int param_2)
-{
-    Car *pCar;
-    CarSoundSet *pSet;
-    RaceCarSoundState *pState;
-    int ownVolume[4];
-    int ownVolumeSum;
-    int speedVolume;
-    int weight;
-    int weightInv;
-    int speedFrac;
-    int slip;
-    int slotVolume;
-    int volA;
-    int volB;
-    int volC;
-    int volD;
+    int cur;
+    int best;
     int prev;
-    int total;
+    int node;
+    int n;
+    int dot;
     int i;
+    unsigned int cnt;
+    FixVector dir;
+    Car *pCar;
+    unsigned int flags;
+    BYTE callId;
+    BYTE prevCallId;
+    RaceCallRecord *pRec;
 
-    speedVolume = FUN_00418e70(param_1);
-    pCar = Car_Get(param_1);
-    pSet = &g_carSoundSets[param_1];
-    pState = &g_carSoundStates[param_1];
+    if (RallyData_FUN_00421420() == 0)
+        return;
 
-    total = 0;
-    for (i = 0; i < 4; i++) {
-        int load = pCar->wheelLoad[0];
-
-        if (load < 0)
-            load = -load;
-        ownVolume[i] = FixDiv(load, 0xa0000);
-        if (ownVolume[i] > 0x10000)
-            ownVolume[i] = 0x10000;
-        ownVolume[i] = 0x10000 - ownVolume[i];
-        total += ownVolume[i];
-    }
-    ownVolumeSum = FixDiv(total, 0x40000);
-    speedFrac = FixMulShift32(pCar->speed, 0x431168);
-
-    *(int *)(g_raceBlock + 0xb4) = 0;
-    g_carMaxVolume[param_1] = 0;
-    for (i = 0; i < 4; i++) {
-        slip = StageObject_GetWheelSlip(param_1, i);
-        ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = slip;
-        slotVolume = FUN_00465e40(param_1, i);
-        g_carSlotVolumes[param_1][i] = slotVolume;
-        if (g_carMaxVolume[param_1] < slip)
-            g_carMaxVolume[param_1] = slip;
-        if (*(int *)(g_raceBlock + 0xb4) < slotVolume)
-            *(int *)(g_raceBlock + 0xb4) = slotVolume;
+    if ((char)RallyData_FUN_00407ea0() != '\0' &&
+        ((char)RallyData_GetFlag25() != '\0' || (char)RallyData_GetFlag24() != '\0') &&
+        (char)FUN_00458270(param_1) != '\0') {
+        g_unk0x0053708c[param_1] = 0;
     }
 
-    if (pState->pattern == 0x19) {
-        weight = 0x10000;
-        weightInv = 0;
-    } else {
-        weightInv = FixDiv(FUN_004781c0(param_1) - pState->time, 0x320000);
-        weight = 0x10000 - weightInv;
+    cur = g_unk0x0053708c[param_1];
+    best = RallyData_FUN_00421370((BYTE *)Car_Get(param_1));
+
+    if (g_unk0x005371a0 == 0 && param_1 == 0) {
+        FUN_00463ce0(0);
+        Race_AssignUnusedSlot(g_unk0x0053735c + 0xd);
+        g_unk0x005371a0 = 1;
     }
 
-    volA = FixMul(weight, speedVolume);
-    volB = FixMul(weightInv, speedVolume);
-    volD = FixMul(weight, g_carMaxVolume[param_1]);
-    volC = FixMul(weightInv, g_carMaxVolume[param_1]);
-    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
-    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
-    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
-    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
-    volA += g_carMaxVolume[param_1];
-    volB += g_carMaxVolume[param_1];
+    if ((char)RallyData_FUN_00407e70() != '\0') {
+        i = FUN_00448110();
+        g_unk0x00537350 = (i < 0x5a) - 1;
+    }
 
-    prev = ((int *)(g_raceBlock + 0x00))[param_1];
-    if (volD - prev > 0xc000)
-        volD = prev + 0xc000;
-    else if (volD - prev < -0xccc)
-        volD = prev - 0xccc;
-    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
+    FUN_004176b0();
 
-    prev = ((int *)(g_raceBlock + 0x220))[param_1];
-    if (volC - prev > 0xc000)
-        volC = prev + 0xc000;
-    else if (volC - prev < -0xccc)
-        volC = prev - 0xccc;
-    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
+    if (best < cur - 0xc)
+        g_unk0x0053708c[param_1] = best;
 
-    prev = ((int *)(g_raceBlock + 0x94))[param_1];
-    if (volA - prev > 0xccc)
-        volA = prev + 0xccc;
-    else if (volA - prev < -0xccc)
-        volA = prev - 0xccc;
-    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
+    if (best < cur - 1 &&
+        ((int)((unsigned int)RallyData_FUN_00421420() >> 1) <= best ||
+         cur <= (int)((unsigned int)RallyData_FUN_00421420() >> 1))) {
+        FUN_00421570(best, &dir);
+        pCar = Car_Get(param_1);
+        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
+              FixMul(dir.y, pCar->wheelDirFront.y) +
+              FixMul(dir.z, pCar->wheelDirFront.z);
+        if (dot < -0x8000) {
+            ((int *)&g_unk0x00537248)[param_1] = 1;
+            g_unk0x00537198[param_1] = best;
+        }
+    }
 
-    prev = ((int *)(g_raceBlock + 0x48))[param_1];
-    if (volB - prev > 0xccc)
-        volB = prev + 0xccc;
-    else if (volB - prev < -0xccc)
-        volB = prev - 0xccc;
-    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
+    if ((int)((unsigned int)RallyData_FUN_00421420() >> 1) < best &&
+        cur < (int)((unsigned int)RallyData_FUN_00421420() >> 1)) {
+        g_unk0x00537198[param_1] = best;
+        g_unk0x0053708c[param_1] = best;
+        cur = best;
+    }
 
-    *(int *)(g_raceBlock + 0xb4) = FixMul(*(int *)(g_raceBlock + 0xb4), 0x20000);
-    if (*(int *)(g_raceBlock + 0xb4) > 0x10000)
-        *(int *)(g_raceBlock + 0xb4) = 0x10000;
+    if (((int *)&g_unk0x00537248)[param_1] != 0) {
+        FUN_00421570(best, &dir);
+        pCar = Car_Get(param_1);
+        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
+              FixMul(dir.y, pCar->wheelDirFront.y) +
+              FixMul(dir.z, pCar->wheelDirFront.z);
+        if (dot > 0x3333)
+            ((int *)&g_unk0x00537248)[param_1] = 0;
+    }
 
-    if (pState->state == 0x19) {
-        if (pCar->flag0x1d0[2] != 0 && speedFrac < 0x32) {
-            volA = *(int *)(g_raceBlock + 0xb4);
-            volB = volA;
-            volC = volA;
-            volD = volA;
-            for (i = 0; i < 4; i++)
-                ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] =
-                    FixMul(((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i],
-                           0x10000 - *(int *)(g_raceBlock + 0xb4));
-        } else if (pState->field_0xb0[0] != 0) {
-            volA = 0;
-            volB = 0;
-            volC = 0;
-            volD = 0;
-        } else {
-            if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
-                pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
-                (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
-                ((int)(FixMul(pCar->speed, 0x431168) & 0xffff0000) > 0x50000)) {
-                volA = 0x20000;
-                volB = volA;
-                volC = volA;
-                volD = volA;
-                for (i = 0; i < 4; i++)
-                    ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = 0x10000 - ownVolumeSum;
-            } else {
-                volA = 0;
-                volB = 0;
-                volC = 0;
-                volD = 0;
+    if (g_unk0x00537198[param_1] < best)
+        ((int *)&g_unk0x00537248)[param_1] = 0;
+
+    g_unk0x00537354 = 0;
+    i = g_unk0x0053708c[param_1] + 1;
+    if (i <= g_unk0x0053708c[param_1] + 6) {
+        do {
+            cnt = (unsigned int)RallyData_FUN_00421420();
+            if ((int)cnt <= i || *(char *)(RallyData_FUN_00421440(i) + 0x19) != -1)
+                g_unk0x00537354 = 1;
+            i++;
+        } while (i <= g_unk0x0053708c[param_1] + 6);
+    }
+
+    if (*(char *)(*(int *)(FUN_0041b390() + 4) + param_1 * 8) == '\t')
+        g_unk0x00537354 = 1;
+
+    if ((g_raceCallRecords[param_1 * 5 + 1].flags & 0x100) != 0)
+        g_unk0x00537354 = 1;
+
+    if (FUN_00417760(param_1) == 0 &&
+        *(char *)(*(int *)(FUN_0041b390() + 4) + param_1 * 8) == '\b') {
+        if (!((char)RallyData_GetFlag25() != '\0' &&
+              RallyData_FUN_00421470((BYTE *)Car_Get(param_1)) >= 0x10000)) {
+            if (g_unk0x0053708c[param_1] < best) {
+                node = cur + 1;
+                if (node <= best) {
+                    prev = cur + 2;
+                    do {
+                        n = (int)RallyData_FUN_00421440(node);
+                        if (*(char *)(n + 0x19) != -1 &&
+                            FUN_004174d0() != 0 && FUN_00417760(param_1) == 0) {
+                            int ok = 1;
+                            if (prev < 2) {
+                                callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
+                                prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
+                            } else {
+                                n = (int)RallyData_FUN_00421440(node - 1);
+                                if (*(char *)(n + 0x19) != -1) {
+                                    ok = 0;
+                                } else {
+                                    callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
+                                    prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
+                                }
+                            }
+                            if (ok)
+                                FUN_004174e0(param_1, callId, prevCallId, (BYTE)node);
+                        }
+                        node++;
+                        prev++;
+                    } while (node <= best);
+                }
+                g_unk0x0053708c[param_1] = best;
             }
-            if (speedFrac < 0x32 && speedFrac >= 0)
-                g_unk0x005374c0 = ((speedFrac - 0x32) * 11025) / 50 + 0x5622;
-            else
-                g_unk0x005374c0 = 0x5622;
-            Sound_SetPan(pSet->handle[4], g_unk0x005374c0);
         }
     }
 
-    if (volA > 0x10000)
-        volA = 0x10000;
-    if (volB > 0x10000)
-        volB = 0x10000;
+    if (best < g_unk0x00537198[param_1])
+        g_unk0x00537198[param_1] = best;
+    if (g_unk0x00537198[param_1] + 6 < best)
+        g_unk0x00537198[param_1] = best - 6;
 
-    if (Sound_IsPlaying(pSet->handle[4]))
-        FUN_004b79a0(pSet->handle[4],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volA)));
-    if (Sound_IsPlaying(pSet->handle[5]))
-        FUN_004b79a0(pSet->handle[5],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volB)));
-    if (Sound_IsPlaying(pSet->handle[6]))
-        FUN_004b79a0(pSet->handle[6],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volD)));
-    if (Sound_IsPlaying(pSet->handle[7]))
-        FUN_004b79a0(pSet->handle[7],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volC)));
-
-    if (FUN_00427aa0() != 0) {
-        total = 0;
-        for (i = 0; i < 4; i++)
-            total += ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i];
-        if (total > 0x10000)
-            total = 0x10000;
-        if (Sound_IsPlaying(pSet->handle[0]))
-            FUN_004b79a0(pSet->handle[0],
-                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, total)));
+    if (FUN_004174d0() == 0)
+        return;
+    flags = g_raceCallRecords[param_1 * 5].flags;
+    if ((flags & 0x100) == 0)
+        return;
+    if ((BYTE)flags == 0x19) {
+        if (g_unk0x00537354 != 0)
+            g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
     } else {
-        for (i = 0; i < 4; i++) {
-            if (Sound_IsPlaying(pSet->handle[i]))
-                FUN_004b79a0(pSet->handle[i],
-                             FixMul(FUN_00427d50(param_1, param_2),
-                                    FixMul(g_unk0x00537664,
-                                           ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i])));
-        }
+        g_raceCallRecords[param_1 * 5].flags = (flags - 1 ^ flags) & 0xff ^ flags;
     }
-
-    ((int *)(g_raceBlock + 0x00))[param_1] = volD;
-    ((int *)(g_raceBlock + 0x220))[param_1] = volC;
-    ((int *)(g_raceBlock + 0x94))[param_1] = volA;
-    ((int *)(g_raceBlock + 0x48))[param_1] = volB;
+    if ((BYTE)g_raceCallRecords[param_1 * 5].flags == 0) {
+        pRec = &g_raceCallRecords[param_1 * 5];
+        for (i = 0; i < 4; i++)
+            pRec[i] = pRec[i + 1];
+        pRec[4].flags &= 0xfffffc00;
+        pRec[4].field_0x0 = 0;
+        pRec[4].field_0x4 = 0;
+    }
 }

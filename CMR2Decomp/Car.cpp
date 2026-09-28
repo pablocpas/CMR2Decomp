@@ -5711,223 +5711,652 @@ void FUN_0042e450(void)
 #undef CARF
 }
 
-int FUN_00447ea0(BYTE index);
-void FixMatrix_RebuildBasis(FixMatrix *pOut);
+// --- 0x00431ff0 / 0x0043c7f0 ------------------------------------------------
 
-// Places one car's view-camera basis for the given view slot: copies the car
-// rotation, applies the suspension up-offset when the option is on and, for
-// non-zero view records, rotates the basis by the tilt angle before blending.
-// match 26%: implementada, MSVC6 no reproduce el reparto de registros (el original usa EBP/EBX/ESI de otra forma) ni el tamano de pila (0xf0 vs 0xdc)
-// FUNCTION: CMR2 0x00423b20
-void FUN_00423b20(unsigned int param_1)
+// Places the current car at a stage start: rebuilds the body frame from the
+// heading vector param_2 (only x and z are used) and the position param_1,
+// orthonormalises it against the ground normal the corner update produced,
+// writes the resulting matrix into the car and into the scene node matrices,
+// and clears the whole per-stage state.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; las 13 llamadas y los offsets de campo coinciden, difiere el reparto de registros/espacios de pila (MSVC6 reutiliza ADDs donde nosotros usamos desplazamientos).
+// FUNCTION: CMR2 0x00431ff0
+void FUN_00431ff0(int *param_1, int *param_2)
 {
-    BYTE index = param_1 & 0xff;
-    FixMatrix *pView = (FixMatrix *)((BYTE *)g_unk0x00538ca0 + index * 0x40);
+    FixVector v;
+    int l;
+    int dot;
+    int i;
 
-    FixMatrix_CopyRotationFrom(pView, Car_Get(index)->pWorld);
-    if (CGameInfo::FUN_004063f0(6) != 0) {
-        FixVector up;
-        FixVector pos;
-        int scale;
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
 
-        FixMatrix_GetUp(&up, Car_Get(index)->pWorld);
-        scale = FixMul(Car_Get(index)->field_0xa8c, 0x8000);
-        up.x = FixMul(up.x, scale);
-        up.y = FixMul(up.y, scale);
-        up.z = FixMul(up.z, scale);
-        FixMatrix_GetPosition(&pos, Car_Get(index)->pWorld);
-        pos.x += up.x;
-        pos.y += up.y;
-        pos.z += up.z;
-        FixMatrix_SetPosition(&pos, pView);
+    v.x = param_2[0];
+    v.y = 0;
+    v.z = param_2[2];
+    l = FixSqrt(FixMul(v.x, v.x) + FixMul(v.z, v.z));
+    if (l == 0) {
+        CARV(0x360).x = 0;
+        CARV(0x360).y = 0;
+        CARV(0x360).z = 0;
+    } else {
+        FixVecScaleRecip(&CARV(0x360), &v, l);
     }
-    if (g_unk0x00538f00[index] != 0) {
-        FixMatrix basis;
-        FixMatrix rot;
-        FixMatrix src;
-        short angle;
-        int blend;
-
-        angle = (short)(__int64)((double)FixMul(
-                    g_sinTable[g_unk0x00538df8[index] & 0xfff],
-                    FixDiv(FUN_00447ea0(index) - 0x80000, 0x100000) * 0x5a + 0x140000) *
-                    g_unk0x00511300);
-        FixMatrix_CopyRotationFrom(&src, Car_Get(index)->pBodyMatrix);
-        basis = *pView;
-        FixMatrix_RebuildBasis(&basis);
-        rot.right.x = g_sinTable[(angle + 0x400) & 0xfff];
-        rot.right.y = 0;
-        rot.right.z = -g_sinTable[angle & 0xfff];
-        rot.rw = 0;
-        rot.up.x = 0;
-        rot.up.y = 0x10000;
-        rot.up.z = 0;
-        rot.uw = 0;
-        rot.forward.x = g_sinTable[angle & 0xfff];
-        rot.forward.y = 0;
-        rot.forward.z = g_sinTable[(angle + 0x400) & 0xfff];
-        rot.fw = 0;
-        rot.position.x = 0;
-        rot.position.y = 0;
-        rot.position.z = 0;
-        rot.pw = 0x10000;
-        FixMatrix_Multiply(&basis, &rot, &basis);
-        blend = g_unk0x00538c98[index];
-        FixMatrix_Interpolate(pView, &src, &basis, blend, blend, blend, 0);
+    CARF(0x36c) = 0;
+    CARF(0x370) = 0x10000;
+    CARF(0x374) = 0;
+    CARF(0x378) = CARF(0x368);
+    CARF(0x37c) = 0;
+    CARF(0x380) = -CARF(0x360);
+    CARF(0x2d0) = param_1[0];
+    CARF(0x2d4) = param_1[1] - 0x640000;
+    CARF(0x2d8) = param_1[2];
+    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
+    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
+    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    Car_UpdateCorners(g_pCurrentCar);
+    FUN_004930e0((int)g_pCurrentCar, 8);
+    Car_UpdateGroundNormal();
+    CARV(0x36c) = CARV(0x48c);
+    dot = FixVecDot(&CARV(0x360), &CARV(0x36c));
+    FixVecScale(&v, &CARV(0x36c), dot);
+    v.x = CARF(0x360) - v.x;
+    v.y = CARF(0x364) - v.y;
+    v.z = CARF(0x368) - v.z;
+    FIX_NORMALIZE_INTO(CARV(0x360), v);
+    FixVecCross(&v, &CARV(0x360), &CARV(0x36c));
+    FIX_NORMALIZE_INTO(CARV(0x378), v);
+    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
+    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
+    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    Car_UpdateCorners(g_pCurrentCar);
+    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_0042f820();
+    FUN_0042f8c0();
+    FUN_0042f820();
+    FUN_00432b30();
+    *(FixVector *)(CARF(0x750) + 0x30) = CARV(0x2d0);
+    *(FixMatrix *)CARF(0x754) = *(FixMatrix *)CARF(0x750);
+    CARF(0x91c) = 0;
+    CARF(0x920) = 0x10000;
+    CARF(0x924) = 0;
+    CARF(0xba8) = 0;
+    CARF(0xba4) = 0;
+    CARF(0xba0) = 0;
+    CARF(0x408) = 0;
+    CARF(0x40c) = 0;
+    CARF(0x410) = 0;
+    CARF(0x414) = 0;
+    CARF(0x418) = 0;
+    CARF(0x41c) = 0;
+    CARF(0x778) = 0;
+    CARF(0x420) = 0;
+    CARF(0x424) = 0;
+    CARF(0x428) = 0;
+    for (i = 0; i < 9; i++)
+        CARF(900 + i * 4) = CARF(0x360 + i * 4);
+    CARV(0x498) = CARV(0x48c);
+    for (i = 0x504; i < 0x564; i += 0xc)
+        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x60);
+    CARF(0x5c4) = 0;
+    CARF(0x5c8) = 0;
+    CARF(0x5cc) = 0;
+    CARF(0x5d0) = 0;
+    CARF(0x5d4) = 0;
+    CARF(0x5d8) = 0;
+    CARV(0x2dc) = CARV(0x2d0);
+    CARV(0x2f4) = CARV(0x2d0);
+    CARV(0x2e8) = CARV(0x2d0);
+    for (i = 0x330; i < 0x360; i += 0xc) {
+        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0xc0);
+        *(FixVector *)((int)g_pCurrentCar + i - 0x30) = *(FixVector *)((int)g_pCurrentCar + i);
     }
+    CARV(0x3a8) = CARV(0x378);
+    CARV(0x3f0) = CARV(0x360);
+    CARV(0x3b4) = CARV(0x3f0);
+    CARF(0xc00) = 0;
+    CARF(0xc10) = 0;
+    CARF(0x96c) = 0;
+    CARF(0xc04) = 0;
+    *(short *)((int)g_pCurrentCar + 0xa9c) = 0;
+    CARF(0x95c) = 0;
+    *(short *)((int)g_pCurrentCar + 0xb18) = 0;
+    CARF(0x77c) = 0;
+    *(BYTE *)((int)g_pCurrentCar + 0xb45) = 3;
+    CARF(0x6e4) = 0;
+    CARF(0x6e8) = 0;
+    CARF(0x6ec) = 0;
+    CARF(0x6f0) = 0;
+    CARF(0x6f4) = 0;
+    CARF(0x6f8) = 0;
+    for (i = 0x860; i < 0x870; i += 4)
+        CARF(i) = 0;
+    CARF(0x79c) = 0;
+    CARF(0x7a0) = 0;
+    CARF(0x7a4) = 0;
+    CARF(0x7ac) = 0;
+    CARF(0x838) = 0;
+    CARF(0x83c) = 0;
+    CARF(0x848) = 0;
+    CARF(0x84c) = 0;
+    CARF(0x81c) = 0;
+    for (i = 0xa9e; i < 0xaae; i += 2)
+        *(short *)((int)g_pCurrentCar + i) = 0;
+    *(short *)((int)g_pCurrentCar + 0xb10) = 0;
+    *(short *)((int)g_pCurrentCar + 0xb12) = 0;
+    CARF(0xbfc) = 0;
+    CARF(0xbe4) = 0;
+    CARF(0xbe0) = 0;
+    CARF(0xbdc) = 0;
+    CARF(0xb94) = 0;
+    *(BYTE *)((int)g_pCurrentCar + 0xb1e) = 1;
+    CARF(0xb78) = 0;
+    CARF(0x960) = 0;
+    CARF(0x964) = CARF(0x960);
+    CARF(0x968) = CARF(0x960);
+    FUN_0042c870((int)*(char *)((int)g_pCurrentCar + 0xb1a));
+    CARF(0xc08) = 1;
+    CARF(0x970) = 0x320000;
+    CARF(0xc14) = 1;
+    l = FUN_00460c80((BYTE *)g_pCurrentCar);
+    Car_UpdateSurfaceParams(g_pCurrentCar, l);
+    FUN_004789b0((BYTE *)g_pCurrentCar);
+
+#undef CARF
+#undef CARV
 }
 
-// --- 0x0042ce60 (layer 0) ----------------------------------------------------
-// Per-step ground-contact update of the current car. Publishes the car to the
-// renderer, then either integrates the change of the ground normal into the
-// body torque (field_0x5d0) when the car is moving fast along the normal, or
-// rebuilds the body basis from the ground normal so the car keeps standing on
-// its wheels. The body matrix is finally written with the optional tip
-// rotation (tipAngle) and the sink depth (field_0x958) is recomputed from the
-// first four box corners.
-// match 57%: implementada, MSVC6 no reproduce el reparto de registros ni el tamano de pila del original
-// FUNCTION: CMR2 0x0042ce60
-void FUN_0042ce60(void)
+// Mirror of the CFrontend statics used here (espejo de Frontend.h).
+class CFrontend
 {
-    FixVector prevNormal;
-    FixVector delta;
-    FixVector vOut;
-    FixVector tv;
-    FixVector rotVec;
-    FixMatrix rotMat;
-    int len;
-    int dot;
-    int groundSpeed;
-    int t;
+public:
+    static void *FUN_0040ee70(int index);
+    static void *FUN_0040ee80(int index);
+    static void *FUN_0040ee90(int index);
+};
+
+unsigned int RallyData_FUN_00407ea0(void);
+unsigned int FUN_00456ca0(void);
+int FUN_004660f0(void);
+BYTE FUN_004086f0(BYTE param1);
+char *RallyData_FUN_00406890(void);
+char *RallyData_FUN_00494a40(void);
+BYTE *RallyData_FUN_00407630(int index);
+BYTE *FUN_00494a70(void);
+BYTE FUN_0041b370(void);
+
+// Spawns the current car at a stage/restart: picks the car model from the
+// rally selection, sets up its tuning from the per-model table, its body box
+// from the model dimensions and all the per-stage counters.
+// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Implementada; las 68 llamadas coinciden en simbolo y frecuencia y no hay offsets inventados; difieren el reparto de registros y algunas expresiones reasociadas por el optimizador.
+// FUNCTION: CMR2 0x0043c7f0
+void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param_5,
+                  int param_6)
+{
+    FixVector v;
     int i;
-    char gotNormal;
+    int limit;
+    int bVar6;
+    int flag8;
+    int flagC;
+    int a;
+    int b;
+    int c;
+    int hx;
+    int hy;
+    int hz;
+    char *pcVar13;
 
-    gotNormal = 0;
-    g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
-    for (i = 0; i < 8; i++)
-        g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
-    *(int *)(g_pCurrentCar->field_0xba0 + 0) = 0;
-    *(int *)(g_pCurrentCar->field_0xba0 + 4) = 0;
-    *(int *)(g_pCurrentCar->field_0xba0 + 8) = 0;
-    FUN_004930e0((int)g_pCurrentCar, 4);
-    if (g_pCurrentCar->field_0xb35[0] == 1)
-        FUN_0042f820();
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
+#define CARB(off) (*(char *)((int)g_pCurrentCar + (off)))
 
-    if (g_pCurrentCar->field_0xb35[0] == 0) {
-        prevNormal = g_pCurrentCar->groundNormal;
-        Car_UpdateGroundNormal();
-        groundSpeed = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->groundNormal);
-
-        t = g_pCurrentCar->speed;
-        if (t > 0x1570a)
-            t = 0x1570a;
-        t = FixMul(t, 0x8000);
-        if (t > 0x10000)
-            t = 0x10000;
-
-        if (FixMul(0x10000 - t, 0x1999) < groundSpeed) {
-            // Fast along the normal: turn the change of the ground normal
-            // into a body torque perpendicular to it.
-            FixVector worldUp = { 0, 0x10000, 0 };
-
-            delta.x = g_pCurrentCar->groundNormal.x - prevNormal.x;
-            delta.y = g_pCurrentCar->groundNormal.y - prevNormal.y;
-            delta.z = g_pCurrentCar->groundNormal.z - prevNormal.z;
-            len = FixVecLength(&delta);
-            if (len > 0) {
-                FixVecScaleRecip(&delta, &delta, len);
-                FixMatrix_InverseRotateVector(&vOut, &delta, g_pCurrentCar->pWorld);
-                tv.x = FixMul(FixMul(vOut.y, worldUp.z) - FixMul(vOut.z, worldUp.y), 0x14ccc);
-                tv.y = 0;
-                tv.z = FixMul(FixMul(vOut.x, worldUp.y) - FixMul(vOut.y, worldUp.x), 0xe666);
-                g_pCurrentCar->field_0x5d0.x += tv.x;
-                g_pCurrentCar->field_0x5d0.y += tv.y;
-                g_pCurrentCar->field_0x5d0.z += tv.z;
-            }
-            g_pCurrentCar->groundNormal = prevNormal;
+    g_pCurrentCar = (Car *)param_1;
+    limit = 0;
+    flag8 = 0;
+    flagC = 0;
+    if (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0 &&
+        param_5 == (int)FUN_00456ca0() - 1) {
+        if (FUN_004660f0() == -1) {
+            param_3 = 0;
+            flag8 = 1;
         } else {
-            // Slow: re-orthogonalise the body axes against the ground normal.
-            dot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
-            if (dot < 0xb334) {
-                g_pCurrentCar->field_0xc00 = 1;
-                g_pCurrentCar->field_0x96c = 0x10000;
-                g_pCurrentCar->field_0xc04[0] = 1;
-            } else if (g_pCurrentCar->field_0xb60 == 0 || dot < 0xfd70) {
-                if (g_pCurrentCar->field_0xb2a[0] == 0) {
-                    delta.x = g_pCurrentCar->groundNormal.x - g_pCurrentCar->up.x;
-                    delta.y = g_pCurrentCar->groundNormal.y - g_pCurrentCar->up.y;
-                    delta.z = g_pCurrentCar->groundNormal.z - g_pCurrentCar->up.z;
-                    FixVecScale(&delta, &delta, 0x8000);
-                    delta.x += g_pCurrentCar->up.x;
-                    delta.y += g_pCurrentCar->up.y;
-                    delta.z += g_pCurrentCar->up.z;
-                    FIX_NORMALIZE_INTO(g_pCurrentCar->up, delta)
-                } else {
-                    g_pCurrentCar->up = g_pCurrentCar->groundNormal;
-                }
-                gotNormal = 1;
-                dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
-                FixVecScale(&delta, &g_pCurrentCar->up, dot);
-                delta.x = g_pCurrentCar->right.x - delta.x;
-                delta.y = g_pCurrentCar->right.y - delta.y;
-                delta.z = g_pCurrentCar->right.z - delta.z;
-                FIX_NORMALIZE_INTO(g_pCurrentCar->right, delta)
-                FixVecCross(&delta, &g_pCurrentCar->right, &g_pCurrentCar->up);
-                FIX_NORMALIZE_INTO(g_pCurrentCar->forward, delta)
-            } else {
-                memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
-            }
-            g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->right);
-            g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
-            g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward);
-            g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
-            g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
-            g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
-            g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
-            Car_UpdateCorners(g_pCurrentCar);
-            if (g_pCurrentCar->field_0xc00 == 0)
-                FUN_004930e0((int)g_pCurrentCar, 4);
-            else
-                FUN_004930e0((int)g_pCurrentCar, 8);
-        }
-        FUN_0042f8c0();
-        FUN_0042f820();
-        if (g_pCurrentCar->field_0xb35[0] == 0) {
-            t = FixMul(g_physicsTimeStep, 0x1eb8);
-            if (groundSpeed < 0) {
-                FixVecScale(&delta, &g_pCurrentCar->groundNormal, groundSpeed);
-                g_pCurrentCar->velocity.x -= delta.x;
-                g_pCurrentCar->velocity.y -= delta.y;
-                g_pCurrentCar->velocity.z -= delta.z;
-            }
-            g_pCurrentCar->angularVelocity.x = FixMul(g_pCurrentCar->angularVelocity.x, t);
-            g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, t);
+            param_3 = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)FUN_004660f0()));
+            flagC = 1;
         }
     }
-
-    FUN_0042e450();
-    g_pCurrentCar->field_0xb2a[0] = gotNormal;
-    if (g_pCurrentCar->tipAngle == 0) {
-        g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
-        g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
-        g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
-    } else {
-        g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
-        FixMatrix_FromAxisAngle(&rotMat, &g_pCurrentCar->right, g_pCurrentCar->tipAngle);
-        FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->up, &rotMat);
-        FIX_NORMALIZE_INTO(rotVec, rotVec)
-        g_pCurrentCar->pWorld->up = rotVec;
-        FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->forward, &rotMat);
-        FIX_NORMALIZE_INTO(rotVec, rotVec)
-        g_pCurrentCar->pWorld->forward = rotVec;
-    }
-    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
-
-    g_pCurrentCar->field_0x958 = 0x1999;
+    CARB(0xb1a) = (char)param_5;
+    CARB(0xb1b) = (char)param_3;
+    if (param_6 == 0)
+        FUN_0043e5a0(param_5, (Car *)param_1);
+    CARF(0xa88) = 0xb332;
+    CARF(0xa8c) = CARF(0xa88) + 0x8665;
     for (i = 0; i < 4; i++) {
-        int d = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
-        if (g_pCurrentCar->cornerFlags[i] == 0 && d < g_pCurrentCar->field_0x958)
-            g_pCurrentCar->field_0x958 = d > 0 ? d : 0;
+        FixMatrix_GetPosition((FixVector *)((int)g_pCurrentCar + 0x3c0 + i * 0xc),
+                              (FixMatrix *)(*(int *)((int)g_pCurrentCar + 0x738 + i * 4) + 0x58));
+        if (CGameInfo::FUN_004063f0(6) != 0)
+            *(int *)((int)g_pCurrentCar + 0x3c4 + i * 0xc) -= CARF(0xa88);
     }
-    g_pCurrentCar->field_0x958 = -g_pCurrentCar->field_0x958;
+    CARF(0x2d0) = param_4[0];
+    CARF(0x2d4) = param_4[1];
+    CARF(0x2d8) = param_4[2];
+    CARB(0xb1e) = 0;
+    param_2 += 0x98;
+    CARF(0x750) = (int)g_pCurrentCar;
+    FixMatrix_GetRight(&CARV(0x360), (FixMatrix *)param_2);
+    FixMatrix_GetUp(&CARV(0x36c), (FixMatrix *)param_2);
+    FixMatrix_GetForward(&CARV(0x378), (FixMatrix *)param_2);
+    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
+    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
+    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    CARF(0x754) = (int)g_pCurrentCar + 0x40;
+    FixMatrix_GetRight(&v, (FixMatrix *)(CARF(0x720) + 0x98));
+    *(FixVector *)(CARF(0x750) + 0x00) = v;
+    FixMatrix_GetUp(&v, (FixMatrix *)(CARF(0x720) + 0x98));
+    *(FixVector *)(CARF(0x750) + 0x10) = v;
+    FixMatrix_GetForward(&v, (FixMatrix *)(CARF(0x720) + 0x98));
+    *(FixVector *)(CARF(0x750) + 0x20) = v;
+    switch (param_3) {
+    case 0:
+        CARF(0x1f8) = 0x426e9;
+        CARF(0x1fc) = 0x16b85;
+        CARF(0x200) = 0x1c51e;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0x8000;
+        CARF(0x76c) = 0x3d70;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0x10ccc;
+        limit = 0x3e80000;
+        break;
+    case 1:
+        limit = 0x4000000;
+        CARF(0x1f8) = 0x4451e;
+        CARF(0x1fc) = 0x15999;
+        CARF(0x200) = 0x1d70a;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0xf851;
+        CARF(0x76c) = 0x570a;
+        goto LAB_0043ce65;
+    case 2:
+        limit = 0x3e80000;
+        CARF(0x1f8) = 0x40f5c;
+        CARF(0x1fc) = 0x163d7;
+        CARF(0x200) = 0x1c51e;
+        CARF(0x788) = 0x5687;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0x451e;
+        CARF(0x76c) = 0x4ccc;
+LAB_0043ce65:
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0x1147a;
+        break;
+    case 3:
+        CARF(0x1f8) = 0x44560;
+        CARF(0x1fc) = 0x15eb8;
+        CARF(0x200) = 0x1cfdf;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0x14ccc;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xb0a3;
+        CARF(0x770) = 0xfa9f;
+        limit = 0x3e80000;
+        break;
+    case 4:
+        CARF(0x1f8) = 0x40312;
+        CARF(0x1fc) = 0x14ccc;
+        CARF(0x200) = 0x1c51e;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1c000;
+        CARF(0x768) = 0xcccc;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0x12dd2;
+        limit = 0x3e80000;
+        break;
+    case 5:
+        CARF(0x1f8) = 0x41c28;
+        CARF(0x1fc) = 0x154bc;
+        CARF(0x200) = 0x1d47a;
+        CARF(0x788) = 0x5c28;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1c000;
+        CARF(0x768) = 0x10000;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0x12dd2;
+        limit = 0x3e80000;
+        break;
+    case 6:
+        CARF(0x1f8) = 0x3e3d7;
+        CARF(0x1fc) = 0x15eb8;
+        CARF(0x200) = 0x1c28f;
+        CARF(0x788) = 0x63d7;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1ae14;
+        CARF(0x768) = 0x9c28;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0xfae1;
+        limit = 0x3a60000;
+        break;
+    case 7:
+        CARF(0x1f8) = 0x475c2;
+        CARF(0x1fc) = 0x1570a;
+        CARF(0x200) = 0x1c28f;
+        CARF(0x788) = 0x4a3d;
+        CARF(0x794) = 0x88b02;
+        CARF(0x764) = 0x1e147;
+        CARF(0x768) = 0x1028f;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0xfae1;
+        limit = 0x3c70000;
+        break;
+    case 8:
+        CARF(0x1f8) = 0x30083;
+        CARF(0x1fc) = 0x14041;
+        CARF(0x200) = 0x18000;
+        CARF(0x788) = 0x3ae1;
+        CARF(0x794) = 0x88b02;
+        CARF(0x764) = 0x13333;
+        CARF(0x768) = 0x4ccc;
+        CARF(0x76c) = 0x2666;
+        CARF(0x774) = 0xb5c2;
+        CARF(0x770) = 0xfa9f;
+        limit = 0x1bf0000;
+        break;
+    case 9:
+        limit = 0x3450000;
+        CARF(0x1f8) = 0x3b958;
+        CARF(0x1fc) = 0x15db2;
+        CARF(0x200) = 0x1e041;
+        CARF(0x788) = 0x6666;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1a666;
+        CARF(0x768) = 0x9999;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        goto LAB_0043d235;
+    case 10:
+        limit = 0x2dc0000;
+        CARF(0x1f8) = 0x3b333;
+        CARF(0x1fc) = 0x106a7;
+        CARF(0x200) = 0x1cf5c;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1a666;
+        CARF(0x768) = 0x13333;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xca3d;
+LAB_0043d235:
+        CARF(0x770) = 0xe106;
+        break;
+    case 0xb:
+        CARF(0x1f8) = 0x3d333;
+        CARF(0x1fc) = 0x15999;
+        CARF(0x200) = 0x1c312;
+        CARF(0x788) = 0x75c2;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1a666;
+        CARF(0x768) = 0x9999;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0xe106;
+        limit = 0x2fc0000;
+        break;
+    case 0xc:
+        CARF(0x1f8) = 0x3ec49;
+        CARF(0x1fc) = 0x146a7;
+        CARF(0x200) = 0x1c28f;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1a666;
+        CARF(0x768) = 0x13333;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xca3d;
+        CARF(0x770) = 0xe106;
+        limit = 0x34e0000;
+        break;
+    case 0xd:
+        CARF(0x1f8) = 0x41687;
+        CARF(0x1fc) = 0x16147;
+        CARF(0x200) = 0x1bb22;
+        CARF(0x788) = 0x3ae1;
+        CARF(0x794) = 0x88b02;
+        CARF(0x764) = 0x1ae14;
+        CARF(0x768) = 0xfd70;
+        CARF(0x76c) = 0x428f;
+        CARF(0x774) = 0xd70a;
+        CARF(0x770) = 0xf581;
+        limit = 0x1bf0000;
+    }
+    bVar6 = 0;
+    if (RallyData_FUN_00407e70() != 0 && RallyDataState() == 1 && CARB(0xb1a) != 0) {
+        switch (CARB(0xb1b)) {
+        case 6:
+        case 7:
+        case 9:
+        case 10:
+        case 0xb:
+        case 0xd:
+            CARF(0x788) = 0x570a;
+            limit = 0x3e80000;
+            bVar6 = 1;
+            CARF(0x794) = 0x98b02;
+        }
+    }
+    if (CGameInfo::FUN_004063f0(6) != 0) {
+        CARF(0x1fc) += CARF(0xa8c);
+        CARF(0x774) += CARF(0xa8c);
+        CARF(0x770) += CARF(0xa8c);
+    }
+    CARF(0x7dc) = 0;
+    CARF(0x7e0) = 0x5555;
+    CARF(0x7e4) = 0x7878;
+    CARF(0x7e8) = 0x9ee5;
+    CARF(0x7ec) = 0xc28f;
+    CARF(0x7f0) = 0xe50d;
+    CARF(0x7f4) = 0x10aaa;
+    CARF(0x7f8) = -0x5555;
+    CARF(0x788) += -0x51e;
+    if (CGameInfo::FUN_004063f0(7) != 0) {
+        CARF(0x788) <<= 1;
+        CARF(0x794) = FixMul(CARF(0x794), 0x14ccc);
+    }
+    CARF(0x75c) = limit + 0x780000;
+    CARF(0x760) = FixDiv(0x10000, CARF(0x75c));
+    CARF(0x824) = 0x1333;
+    CARF(0x828) = 0x5555;
+    CARF(0xb7c) = (int)CFrontend::FUN_0040ee80((int)CARB(0xb1b));
+    CARF(0xb80) = (int)CFrontend::FUN_0040ee70((int)CARB(0xb1b));
+    if (flagC != 0) {
+        pcVar13 = (char *)RallyData_FUN_00407630(FUN_004660f0());
+        goto LAB_0043d703;
+    }
+    if (RallyData_GetFlag24() != 0) {
+        pcVar13 = (char *)RallyData_FUN_00494a40();
+        goto LAB_0043d703;
+    }
+    if (CGameInfo::FUN_00405d80() == 4 ||
+        (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
+         RallyData_FUN_00408500((BYTE)CARB(0xb1a)) != -1) ||
+        (RallyData_GetFlag25() != 0 && flag8 != 0 && CGameInfo::FUN_00405e00() == 0)) {
+LAB_0043d6fe:
+        pcVar13 = (char *)FUN_00494a70();
+        goto LAB_0043d703;
+    }
+    if (CGameInfo::FUN_00405da0() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0) {
+        if (limit != 0)
+            goto LAB_0043d6f7;
+    } else {
+        if (limit != 0) {
+LAB_0043d6f7:
+            pcVar13 = (char *)RallyData_FUN_00406890();
+            goto LAB_0043d703;
+        }
+        if (CGameInfo::FUN_00405e00() == 0)
+            goto LAB_0043d6fe;
+    }
+    pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)CARB(0xb1a));
+LAB_0043d703:
+    FUN_0043dff0(FixMul((int)pcVar13[2] << 0x10, 0x28f));
+    if (pcVar13[4] == '2') {
+        i = 0x8000;
+    } else {
+        i = FixMul((int)pcVar13[4] << 0x10, 0x28f);
+    }
+    FUN_0043e190(i);
+    if (CARF(0xb80) == 0) {
+        switch (CARB(0xb1b)) {
+        case 7:
+        case 0xd:
+            i = 0;
+            break;
+        case 8:
+            i = 0x10000;
+            break;
+        default:
+            i = 0x8000;
+            break;
+        case 10:
+            i = 0x1999;
+        }
+    } else {
+        if (pcVar13[3] == '2') {
+            i = 0x8000;
+        } else {
+            i = FixMul((int)pcVar13[3] << 0x10, 0x83) + 0x6666;
+        }
+        if (CARB(0xb1b) == 9)
+            i += -0x2666;
+    }
+    FUN_0043e1b0(i);
+    FUN_0043e160(FixMul((int)pcVar13[5] << 0x10, 0x28f));
+    FUN_0043e1d0((BYTE)*pcVar13);
+    FUN_0043e1f0((unsigned int)pcVar13[1]);
+    FUN_0043e530(FixMul((int)pcVar13[6] << 0x10, 0x28f));
+    if (bVar6)
+        CARF(0x7b4) = 0x8000;
+    CARF(0x784) = 0x83;
+    CARF(0x790) = 0xccc;
+    CARF(0x798) = FixDiv(0x10000, CARF(0x794));
+    CARF(0x834) = 0xccc;
+    CARF(0x840) = 0x1999;
+    CARF(0x844) = 0x8000;
+    CARB(0xb1c) = 3;
+    *(short *)((int)g_pCurrentCar + 0xb16) = 0x2aa;
+    CARF(0x820) = 0x3333;
+    CARF(0x7bc) = 0;
+    CARF(0x7c0) = FixDiv(0x10000, CARF(0x7e0));
+    CARF(0x7c4) = FixDiv(0x10000, CARF(0x7e4));
+    CARF(0x7c8) = FixDiv(0x10000, CARF(0x7e8));
+    CARF(0x7cc) = FixDiv(0x10000, CARF(0x7ec));
+    CARF(0x7d0) = FixDiv(0x10000, CARF(0x7f0));
+    CARF(0x7d4) = FixDiv(0x10000, CARF(0x7f4));
+    CARF(0x7d8) = FixDiv(0x10000, CARF(0x7f8));
+    CARF(0x7b8) = CARF(0x7b4);
+    a = FixMul(CARF(0x1f8), 0x8000);
+    b = FixMul(CARF(0x1fc), 0x8000);
+    c = FixMul(CARF(0x200), 0x8000);
+    CARF(0x758) = FixSqrt(FixMul(a, a) + FixMul(b, b) + FixMul(c, c));
+    CARF(0x3fc) = 1;
+    CARF(0x400) = 2;
+    CARF(0x404) = 1;
+    hx = CARF(0x1f8) / 2;
+    hy = CARF(0x1fc) / 2;
+    hz = CARF(0x200) / 2;
+    CARF(0x204) = hx;
+    CARF(0x208) = hy;
+    CARF(0x20c) = hz;
+    CARF(0x21c) = hx;
+    CARF(0x220) = -hy;
+    CARF(0x224) = -hz;
+    CARF(0x210) = hx;
+    CARF(0x214) = -hy;
+    CARF(0x218) = hz;
+    CARF(0x228) = -hx;
+    CARF(0x22c) = -hy;
+    CARF(0x230) = hz;
+    CARF(0x234) = -hx;
+    CARF(0x238) = -hy;
+    CARF(0x23c) = -hz;
+    CARF(0x24c) = hx;
+    CARF(0x250) = hy;
+    CARF(0x254) = -hz;
+    CARF(0x240) = hx;
+    CARF(0x244) = hy;
+    CARF(0x248) = hz;
+    CARF(0x258) = -hx;
+    CARF(0x25c) = hy;
+    CARF(0x260) = hz;
+    CARF(0x264) = -hx;
+    CARF(0x268) = hy;
+    CARF(0x26c) = -hz;
+    for (i = 0; i < 0x60; i += 0xc)
+        ;
+    CARF(0x21c) = CARF(0x21c);
+    CARF(0x210) = CARF(0x210);
+    CARF(0x218) = CARF(0x218);
+    CARF(0x230) = CARF(0x230);
+    Car_UpdateCorners(g_pCurrentCar);
+    g_gravityDir.x = 0;
+    g_gravityDir.y = -0x8000;
+    g_gravityDir.z = 0;
+    CARF(0x91c) = 0;
+    CARF(0x920) = 0x10000;
+    CARF(0x924) = 0;
+    if (flagC == 0) {
+        if (flag8 == 0 && (int)CARB(0xb1a) < (int)(unsigned int)RallyDataState()) {
+            if (FUN_004086f0((BYTE)(FUN_0041b370() + CARB(0xb1a))) == 0)
+                CARF(0xb48) = 1;
+            else
+                CARF(0xb48) = 2;
+        } else {
+            CARF(0xb48) = 2;
+        }
+    } else {
+        if (FUN_004086f0((BYTE)FUN_004660f0()) == 0)
+            CARF(0xb48) = 1;
+        else
+            CARF(0xb48) = 2;
+    }
+    CARF(0xb50) = 1;
+    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+        CGameInfo::FUN_00405d80() == 7 ||
+        (CGameInfo::FUN_00405d80() == 4 && CARB(0xb1a) != 0) ||
+        (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
+         RallyData_FUN_00408500((BYTE)CARB(0xb1a)) != -1) ||
+        (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0) ||
+        CGameInfo::FUN_00406320() != 0 || CGameInfo::FUN_00405d80() == 0xb ||
+        CGameInfo::FUN_00405d80() == 0xc) {
+        CARF(0xb50) = 0;
+    }
+    if (CGameInfo::FUN_00405da0() != 0 && param_5 == 1 && RallyData_GetFlag25() != 0)
+        CARF(0xb50) = 0;
+    if (CGameInfo::FUN_00405d80() == 4)
+        CARF(0xb50) = 0;
+    CARF(0xb4c) = 0;
+    *(short *)((int)g_pCurrentCar + 0xafe) = 0;
+    CARF(0xb98) = 1;
+    CARB(0xb44) = (char)0xff;
+    g_gravityScale = 0x9999;
+    CARF(0x78c) = CARF(0x788);
+    CARF(0xa98) = 0x41c80000;
+    if (CGameInfo::FUN_00405e00() != 0 && CARB(0xb1a) > 0) {
+        CARF(0xc18) = 1;
+        CARF(0xc1c) = 1;
+    }
+
+#undef CARF
+#undef CARV
+#undef CARB
 }
