@@ -3,6 +3,7 @@
 #include "Graphics.h"
 #include "Input.h"
 #include "Frontend.h"
+#include "RegKey.h"
 #include "InstallInfo.h"
 #include "FileBuffer.h"
 #include "GenericFileLoader.h"
@@ -9700,7 +9701,7 @@ void FUN_005059d0(int param_1)
 // W171 batch: game-info state/menu functions (0x50a880-0x50ee10)
 // ---------------------------------------------------------------------------
 void FUN_005043b0(void);
-void FUN_0050b1c0(short param1, int param2, short param3, short param4, short param5, int param6);
+void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6);
 void FUN_0050c130(int param1);
 void FUN_0050c420(int param1);
 void FUN_0050cc10(int param1, int param2);
@@ -9796,4 +9797,254 @@ void *type_info::FUN_005105a0(BYTE param_1)
     if (param_1 & 1)
         ::operator delete(this);
     return this;
+}
+
+// Screen-space rectangle (x, y, w, h) the game-info option screens draw into.
+// GLOBAL: CMR2 0x00831660
+short g_unk0x00831660[4];
+// Background colour of the game-info option screens.
+// GLOBAL: CMR2 0x005273b8
+int g_unk0x005273b8 = -2832441;
+
+// Draws the game-info option screen of the menu's active item: the shared
+// background panel, the moving highlight bar of the selected row and, per
+// option type, the title and the value strings of the option list; the rows of
+// the list screen (case 0) are laid out in pairs around their centred bar.
+// FUNCTION: CMR2 0x0050cc10
+void FUN_0050cc10(int param_1, int param_2)
+{
+    int *pColour;
+    int index;
+    int count;
+    int x;
+    int y;
+    int centre;
+    int i;
+    int width;
+
+    index = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
+    pColour = &g_unk0x0052737c;
+    g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x1c / 0x280);
+    g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0);
+    g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x147 / 0x280);
+    g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0);
+    if (!(char)param_2)
+        pColour = &g_unk0x00527380[2];
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x005273b8, 3);
+    if ((char)param_2 != '\0' && (CMain::GetFrameDelta() / 0x14 & 1) == 0) {
+        g_unk0x00831660[0] -= 3;
+        g_unk0x00831660[2] += 6;
+        g_unk0x00831660[1] -= 3;
+        if (index == 0)
+            g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x18e / 0x1e0) -
+                                 g_unk0x00831660[1];
+        else
+            g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x181 / 0x1e0) -
+                                 g_unk0x00831660[1];
+        FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x0052737c);
+    }
+    count = FUN_00502c60(CGameInfo::FUN_005011b0(), index);
+    switch (index) {
+    case 0:
+        if (count == 6)
+            g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
+        else
+            g_unk0x00831660[0] = (short)((count * 0x1824 / 0x78 + 0x1c) *
+                                         (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        if (FUN_00502510()[0x1f] == 6)
+            g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
+        else
+            g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x1824 / 0x78 + 0x1c) *
+                                         (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        g_unk0x00831660[2] = 1;
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x1a / 0x1e0);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x16f / 0x1e0);
+        for (i = 0; i < 7; i++) {
+            if (i == 0) {
+                x = (int)g_pGraphics->resX * 0x1c / 0x280;
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                        CFrontend::GetTextString(0x41));
+                y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 9);
+            } else if (i == 6) {
+                x = (int)g_pGraphics->resX * 0x163 / 0x280;
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                        CFrontend::GetTextString(0x40));
+                y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 0xc);
+            } else {
+                x = ((i * 0x1824) / 0x78 + 0x25) * (int)g_pGraphics->resX / 0x280;
+                sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                        CFrontend::GetTextString(i % 2 + 0x41));
+                y = (int)g_pGraphics->resY * 0x16c / 0x1e0;
+                Font_DrawText(1, CFrontend::m_stringDest, x, y, g_unk0x00527380, 10);
+            }
+            if (i % 2 == 1) {
+                if (i > 0)
+                    centre = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2 + x;
+                x += (int)g_pGraphics->resX * -0x1a / 0x280;
+                Font_DrawText(1, CFrontend::GetTextString(i / 2 + 0x3d), x,
+                              (int)g_pGraphics->resY * 0x179 / 0x1e0,
+                              g_unk0x00527380, 10);
+            }
+            if (i % 2 == 0 && i > 0) {
+                if (i == 6)
+                    x -= Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                else
+                    x -= Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest) / 2;
+                g_unk0x00831660[0] = (short)((centre + x) / 2);
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
+                                (BYTE *)&g_unk0x00527380[2], 3);
+            }
+        }
+        return;
+    case 1:
+        if (count == 4)
+            g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
+        else
+            g_unk0x00831660[0] = (short)((count * 0x1e2d / 100 + 0x1c) *
+                                         (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        if (FUN_00502510()[0x1f] == 4)
+            g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * 0x151 / 0x280);
+        else
+            g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x1e2d / 100 + 0x1c) *
+                                         (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xc9),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xca),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        return;
+    case 2:
+        g_unk0x00831660[0] = (short)((count * 0x135 / 100 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xcb),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xcc),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        return;
+    case 3:
+        g_unk0x00831660[0] = (short)((count * 0x135 / 100 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xce),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xcd),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        return;
+    case 4:
+        g_unk0x00831660[0] = (short)((count * 0x135 / 100 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xce),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xcd),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        return;
+    case 6:
+        g_unk0x00831660[0] = (short)((count * 0x135 / 100 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xd2),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xd1),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        return;
+    case 5:
+        g_unk0x00831660[0] = (short)((count * 0x135 / 100 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 != '\0')
+            FUN_0050cb30(g_unk0x00831660, (BYTE *)&g_unk0x00527380[2]);
+        g_unk0x00831660[0] = (short)((FUN_00502510()[0x1f] * 0x135 / 10 + 0x1c) *
+                                     (int)g_pGraphics->resX / 0x280);
+        g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x160 / 0x1e0 + 1);
+        g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0x12 / 0x280);
+        g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0xd / 0x1e0 - 2);
+        if ((char)param_2 == '\0' || (CMain::GetFrameDelta() / 0x14 & 1) == 0)
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)pColour, 3);
+        Font_DrawText(1, CFrontend::GetTextString(0xcf),
+                      (int)g_pGraphics->resX * 0x1c / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 9);
+        Font_DrawText(1, CFrontend::GetTextString(0xd0),
+                      (int)g_pGraphics->resX * 0x163 / 0x280,
+                      (int)g_pGraphics->resY * 0x16c / 0x1e0, g_unk0x00527380, 0xc);
+        break;
+    }
 }
