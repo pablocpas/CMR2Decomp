@@ -6707,8 +6707,8 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
             }
             g_stageDeformSpeed = 0x4000;
             dot = FixMul(g_stageDeformStrength, 0x8000);
-            if (dot > 0x4000)
-                dot = 0x4000;
+            if (dot > g_stageDeformSpeed)
+                dot = g_stageDeformSpeed;
             g_stageDeformRadius = dot;
             g_stageDeformFalloff = dot;
             g_stageDeformScale = dot;

@@ -978,7 +978,7 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
 // when those two directions are exactly perpendicular.
 // match 79%: implementada, MSVC6 asigna 0x38 de pila frente a 0x44 y reparte distinto los registros en las llamadas a Car_Get
 // FUNCTION: CMR2 0x00427e20
-unsigned int FUN_00427e20(int param_1, int param_2, unsigned short param_3)
+unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
 {
     FixVector pos;
     FixVector view;

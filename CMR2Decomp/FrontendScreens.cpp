@@ -10342,7 +10342,7 @@ void FUN_004d50a0(Menu *pMenu)
     src.y = 0;
     src.w = 0x12;
     src.h = 0xc;
-    if (CGameInfo::GetScreenWidth() > 0x3ff) {
+    if (CGameInfo::GetScreenWidth() >= 0x400) {
         if (CFrontend::FUN_004b7560(0x400) != 0) {
             if (CFrontend::FUN_004b7590(0x400) != 0) {
                 src.w = 0x1c;
