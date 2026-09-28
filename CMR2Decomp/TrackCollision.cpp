@@ -875,25 +875,24 @@ extern double g_unk0x00511300;
 
 // Swings field 0x848 of the auto-gear car toward its target over time (a
 // quarter sine), or resets it when the swing is off.
-// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00494960
 void FUN_00494960(void)
 {
     unsigned short angle;
 
-    if (g_pAutoGearCar->field_0x1d8 == 0) {
+    if (g_pAutoGearCar->field_0x1d8 != 0) {
+        g_pAutoGearCar->field_0x84c += g_pAutoGearCar->field_0x840;
+        if (g_pAutoGearCar->field_0x84c > 0x10000) {
+            g_pAutoGearCar->field_0x84c = 0x10000;
+            g_pAutoGearCar->field_0x848 = g_pAutoGearCar->field_0x844;
+            return;
+        }
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x84c, 0x5a0000) * g_unk0x00511300);
+        g_pAutoGearCar->field_0x848 = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
+    } else {
         g_pAutoGearCar->field_0x84c = 0;
         g_pAutoGearCar->field_0x848 = 0;
-        return;
     }
-    g_pAutoGearCar->field_0x84c += g_pAutoGearCar->field_0x840;
-    if (g_pAutoGearCar->field_0x84c > 0x10000) {
-        g_pAutoGearCar->field_0x84c = 0x10000;
-        g_pAutoGearCar->field_0x848 = g_pAutoGearCar->field_0x844;
-        return;
-    }
-    angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x84c, 0x5a0000) * g_unk0x00511300);
-    g_pAutoGearCar->field_0x848 = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
 }
 
 void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
