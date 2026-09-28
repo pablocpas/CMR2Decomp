@@ -5524,3 +5524,189 @@ void Car_IntegrateContacts(void)
     g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
     Car_UpdateCorners(g_pCurrentCar);
 }
+
+// --- 0x0043e680 (layer 0) ----------------------------------------------------
+void FUN_004930e0(int param_1, int param_2);
+int FUN_00460c80(BYTE *pCar);
+void FUN_004789b0(BYTE *pCar);
+void Car_UpdateSurfaceParams(Car *pCar, int blend);
+
+// match 65.48%: implementada; logica identica (normalizacion de los 3 ejes +
+// copias), pero MSVC6 asigna otros registros/slots en los bloques FixVec*.
+// Rebuilds the body basis of the car from the ground normal and the previous
+// right vector, copies it into the render node, updates the corners and
+// resets the per-stage state.
+// FUNCTION: CMR2 0x0043e680
+void FUN_0043e680(int param_1)
+{
+    FixVector v;
+    int dot;
+    int i;
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+#define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
+
+    g_pCurrentCar = (Car *)param_1;
+    FUN_004930e0(param_1, 8);
+    Car_UpdateGroundNormal();
+    CARV(0x36c) = CARV(0x48c);
+    dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x360),
+                    (FixVector *)((int)g_pCurrentCar + 0x48c));
+    FixVecScale(&v, (FixVector *)((int)g_pCurrentCar + 0x48c), dot);
+    v.x = CARF(0x360) - v.x;
+    v.y = CARF(0x364) - v.y;
+    v.z = CARF(0x368) - v.z;
+    FIX_NORMALIZE_INTO(CARV(0x360), v);
+    v.x = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
+    v.y = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
+    v.z = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x364), CARF(0x36c));
+    FIX_NORMALIZE_INTO(CARV(0x36c), v);
+    v.x = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x364), CARF(0x36c));
+    v.y = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
+    v.z = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
+    FIX_NORMALIZE_INTO(CARV(0x378), v);
+    *(FixVector *)(CARF(0x750) + 0x0) = CARV(0x360);
+    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
+    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    Car_UpdateCorners(g_pCurrentCar);
+    CARF(0x2d4) += CARF(0x8dc) - CARF(0x274);
+    *(FixVector *)(CARF(0x750) + 0x30) = CARV(0x2d0);
+    SceneNode_SetPosition((SceneNode *)CARF(0x720), (FixVector *)((int)g_pCurrentCar + 0x2d0));
+    Car_UpdateCorners(g_pCurrentCar);
+    FUN_0042f820();
+    CARV(0x3f0) = CARV(0x360);
+    Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
+    FUN_004789b0((BYTE *)g_pCurrentCar);
+    for (i = 0x300; i < 0x330; i += 0xc) {
+        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x90);
+        *(FixVector *)((int)g_pCurrentCar + i + 0x30) = *(FixVector *)((int)g_pCurrentCar + i);
+    }
+    for (i = 0x504; i < 0x564; i += 0xc)
+        *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x60);
+    CARV(0x498) = CARV(0x48c);
+    CARV(0x2e8) = CARV(0x2d0);
+    CARV(0x2f4) = CARV(0x2d0);
+    CARV(0x2dc) = CARV(0x2d0);
+    for (i = 0; i < 9; i++)
+        *(int *)((int)g_pCurrentCar + 900 + i * 4) = *(int *)((int)g_pCurrentCar + 0x360 + i * 4);
+    CARF(0x960) = 0;
+    CARF(0x968) = CARF(0x960);
+    CARF(0x964) = CARF(0x960);
+    *(BYTE *)((int)g_pCurrentCar + 0xb45) = 3;
+    CARF(0xbb8) = 1;
+    CARF(0xbb4) = 1;
+    CARF(0xbb0) = 1;
+    CARF(0xbac) = 1;
+    *(BYTE *)((int)g_pCurrentCar + 0xb28) = 4;
+    CARF(0xb74) = 1;
+    CARF(0xb60) = 1;
+
+#undef CARF
+#undef CARV
+}
+
+// --- 0x0042e450 (layer 0) ----------------------------------------------------
+void FUN_0042e8e0(void);
+
+// match 47.56%: implementada; misma logica y mismos operandos de memoria, pero
+// MSVC6 elige otros registros/slots en los bucles (la nuestra compila mas corta).
+// Integrates the per-wheel suspension travel of the current car: the vertical
+// span of each wheel is clamped against the ground and the pitch/roll rate, the
+// offsets are normalised against the highest one and the wheel forces of the
+// next frame are rebuilt.
+// FUNCTION: CMR2 0x0042e450
+void FUN_0042e450(void)
+{
+    int v[4];
+    int dot;
+    int sum;
+    int avg;
+    int max;
+    int t;
+    int d;
+    int i;
+    int a;
+    int b;
+
+#define CARF(off) (*(int *)((int)g_pCurrentCar + (off)))
+
+    sum = 0;
+    dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x36c),
+                    (FixVector *)((int)g_pCurrentCar + 0x48c));
+    if (dot > 0xcccc) {
+        for (i = 0; i < 4; i++) {
+            t = -FixMul(FixMul(CARF(0x274 + i * 0xc) - CARF(0x8dc + i * 4), CARF(0x490)),
+                        FixDiv(0x10000, dot));
+            sum += t;
+            v[i] = t;
+            d = CARF(0x8dc + i * 4) - CARF(0x274 + i * 0xc) - CARF(0x958);
+            if (d < 0) {
+                if (d < CARF(0xa08))
+                    CARF(0x928 + i * 4) = CARF(0xa08);
+                else
+                    CARF(0x928 + i * 4) = d;
+            } else {
+                CARF(0x928 + i * 4) = 0;
+            }
+        }
+        avg = sum / 4;
+        max = 0;
+        for (i = 0; i < 4; i++) {
+            t = FixMul(v[i] - avg, CARF(0x9c0));
+            CARF(0x808 + i * 4) = t;
+            if (max < FIX_ABS(t))
+                max = FIX_ABS(t);
+        }
+        if (max > 0x10000) {
+            for (i = 0; i < 4; i++)
+                CARF(0x808 + i * 4) = FixMul(CARF(0x808 + i * 4), FixDiv(0x10000, max));
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            CARF(0x928 + i * 4) = 0;
+            CARF(0x808 + i * 4) = 0;
+        }
+    }
+    if (CARF(0xc00) == 0) {
+        for (i = 0; i < 4; i++) {
+            if (CARF(0x9c + i * 0x24) < 1 || *(char *)((int)g_pCurrentCar + 0xb2c + i) != 0 ||
+                CARF(0xb74) == 0) {
+                CARF(0x938 + i * 4) = 0;
+                CARF(0x948 + i * 4) = 0;
+            } else {
+                t = CARF(0x778) - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
+                                            (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
+                if (t >= 0x10001)
+                    t = 0x10000;
+                else if (t < 0xccc)
+                    t = 0;
+                if (CARF(0x948 + i * 4) < 1) {
+                    a = CARF(0x270 + i * 0xc);
+                    b = CARF(0x278 + i * 0xc);
+                    if (CARF(0x938 + i * 4) == 0) {
+                        CARF(0x938 + i * 4) =
+                            FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x401) << 6, t),
+                                   CARF(0x9c + i * 0x24));
+                    } else {
+                        CARF(0x938 + i * 4) = 0;
+                        CARF(0x948 + i * 4) =
+                            FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x201) << 7, 0x320000),
+                                   CARF(0xa0 + i * 0x24));
+                    }
+                } else {
+                    CARF(0x948 + i * 4) -= t;
+                    if (CARF(0x948 + i * 4) < 0)
+                        CARF(0x948 + i * 4) = 0;
+                }
+            }
+        }
+    } else {
+        for (i = 0; i < 4; i++) {
+            CARF(0x938 + i * 4) = 0;
+            CARF(0x948 + i * 4) = 0;
+        }
+    }
+    FUN_0042e8e0();
+
+#undef CARF
+}

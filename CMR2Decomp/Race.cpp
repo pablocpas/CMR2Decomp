@@ -3578,3 +3578,163 @@ void FUN_00416f70(int player)
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player)) - 1;
 }
 
+
+// --- 0x00417090 (layer 0) ----------------------------------------------------
+int RallyData_FUN_00421420(void);
+BYTE *RallyData_FUN_00421440(int index);
+int RallyData_FUN_00421470(BYTE *p);
+int RallyData_FUN_00421370(BYTE *p);
+unsigned int RallyData_FUN_00407e70(void);
+unsigned int RallyData_FUN_00407ea0(void);
+BYTE FUN_00458270(int index);
+void FUN_00463ce0(BYTE value);
+void FUN_004176b0(void);
+void FUN_00421570(unsigned int nodeIndex, FixVector *pOut);
+int FUN_00448110(void);
+BYTE *FUN_0041b390(void);
+int FUN_00417760(int index);
+int FUN_004174d0(void);
+void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused);
+
+// match 53.51%: implementada; misma logica y mismos operandos de memoria, pero
+// MSVC6 ordena de otra forma los bloques de los bucles y los saltos.
+// Called when a player advances: keeps the route position of the two players in
+// sync, queues the pending race calls of the player and updates the call record
+// window.
+// GLOBAL: CMR2 0x00537354
+int g_unk0x00537354;
+
+// FUNCTION: CMR2 0x00417090
+void FUN_00417090(int param_1)
+{
+    Car *pCar;
+    FixVector v;
+    int cur;
+    int next;
+    int half;
+    int i;
+    int t;
+    BYTE *pCalls;
+    BYTE callId;
+    BYTE prevId;
+    int base;
+
+    if (RallyData_FUN_00421420() == 0)
+        return;
+    if ((BYTE)RallyData_FUN_00407ea0() != 0 &&
+        ((BYTE)RallyData_GetFlag25() != 0 || (BYTE)RallyData_GetFlag24() != 0) &&
+        (BYTE)FUN_00458270(param_1) != 0)
+        g_unk0x0053708c[param_1] = 0;
+    cur = g_unk0x0053708c[param_1];
+    pCar = Car_Get(param_1);
+    next = RallyData_FUN_00421370((BYTE *)pCar);
+    if (g_unk0x005371a0 == 0 && param_1 == 0) {
+        FUN_00463ce0(0);
+        Race_AssignUnusedSlot((int)&g_unk0x0053735c + 0xd);
+        g_unk0x005371a0 = 1;
+    }
+    if ((BYTE)RallyData_FUN_00407e70() != 0) {
+        i = FUN_00448110();
+        g_unk0x00537350 = (i < 0x5a) - 1;
+    }
+    FUN_004176b0();
+    if (next < cur - 0xc)
+        g_unk0x0053708c[param_1] = next;
+    if (next < cur - 1 &&
+        ((int)(RallyData_FUN_00421420() >> 1) <= next ||
+         cur <= (int)(RallyData_FUN_00421420() >> 1))) {
+        FUN_00421570(next, &v);
+        pCar = Car_Get(param_1);
+        if (FixVecDot(&v, (FixVector *)((int)pCar + 0x3f0)) < -0x8000) {
+            *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 1;
+            g_unk0x00537198[param_1] = next;
+        }
+    }
+    if ((int)(RallyData_FUN_00421420() >> 1) < next &&
+        cur < (int)(RallyData_FUN_00421420() >> 1)) {
+        g_unk0x00537198[param_1] = next;
+        g_unk0x0053708c[param_1] = next;
+        cur = next;
+    }
+    if (*(int *)((int)&g_unk0x00537248 + param_1 * 4) != 0) {
+        FUN_00421570(next, &v);
+        pCar = Car_Get(param_1);
+        if (FixVecDot(&v, (FixVector *)((int)pCar + 0x3f0)) > 0x3333)
+            *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 0;
+    }
+    if (g_unk0x00537198[param_1] < next)
+        *(int *)((int)&g_unk0x00537248 + param_1 * 4) = 0;
+    g_unk0x00537354 = 0;
+    for (i = g_unk0x0053708c[param_1] + 1; i <= g_unk0x0053708c[param_1] + 6; i++) {
+        if (RallyData_FUN_00421420() <= i ||
+            *(char *)(RallyData_FUN_00421440(i) + 0x19) != -1)
+            g_unk0x00537354 = 1;
+    }
+    pCalls = FUN_0041b390();
+    if (*(char *)(*(int *)(pCalls + 4) + param_1 * 8) == 0x09)
+        g_unk0x00537354 = 1;
+    base = param_1 * 0x3c;
+    if ((*(int *)((char *)g_raceCallRecords + base + 0x14) & 0x100) != 0)
+        g_unk0x00537354 = 1;
+    if (FUN_00417760(param_1) == 0) {
+        pCalls = FUN_0041b390();
+        if (*(char *)(*(int *)(pCalls + 4) + param_1 * 8) == 0x08) {
+            if ((BYTE)RallyData_GetFlag25() != 0) {
+                t = RallyData_FUN_00421470((BYTE *)Car_Get(param_1));
+                if (t > 0xffff)
+                    goto done;
+            }
+            if (g_unk0x0053708c[param_1] < next) {
+                i = cur + 1;
+                if (i <= next) {
+                    cur = cur + 2;
+                    do {
+                        if (*(char *)(RallyData_FUN_00421440(i) + 0x19) != -1 &&
+                            FUN_004174d0() != 0 && FUN_00417760(param_1) == 0) {
+                            int play = i;
+                            if (cur < 2) {
+                                callId = *(BYTE *)(RallyData_FUN_00421440(cur) + 0x19);
+                                prevId = *(BYTE *)(RallyData_FUN_00421440(i) + 0x19);
+                            } else {
+                                if (*(char *)(RallyData_FUN_00421440(i - 1) + 0x19) != -1)
+                                    goto nextIter;
+                                callId = *(BYTE *)(RallyData_FUN_00421440(cur) + 0x19);
+                                prevId = *(BYTE *)(RallyData_FUN_00421440(i) + 0x19);
+                            }
+                            FUN_004174e0(param_1, prevId, callId, play);
+                        }
+nextIter:
+                        i++;
+                        cur++;
+                    } while (i <= next);
+                    g_unk0x0053708c[param_1] = next;
+                }
+            }
+        }
+    }
+done:
+    if (next < g_unk0x00537198[param_1])
+        g_unk0x00537198[param_1] = next;
+    if (g_unk0x00537198[param_1] + 6 < next)
+        g_unk0x00537198[param_1] = next - 6;
+    if (FUN_004174d0() != 0) {
+        unsigned int flags = *(unsigned int *)((char *)g_raceCallRecords + base + 0x8);
+        if ((flags & 0x100) != 0) {
+            if ((char)flags == 0x19) {
+                if (g_unk0x00537354 != 0)
+                    *(unsigned int *)((char *)g_raceCallRecords + base + 0x8) =
+                        (flags - 1 ^ flags) & 0xff ^ flags;
+            } else {
+                *(unsigned int *)((char *)g_raceCallRecords + base + 0x8) =
+                    (flags - 1 ^ flags) & 0xff ^ flags;
+            }
+            if (*(char *)((char *)g_raceCallRecords + base + 0x8) == 0) {
+                for (i = 0; i < 4; i++)
+                    g_raceCallRecords[param_1 * 3 + i] = g_raceCallRecords[param_1 * 3 + i + 1];
+                *(unsigned int *)((char *)g_raceCallRecords + base + 0x38) &= 0xfffffc00;
+                *(int *)((char *)g_raceCallRecords + base + 0x30) = 0;
+                *(int *)((char *)g_raceCallRecords + base + 0x34) = 0;
+            }
+        }
+    }
+}

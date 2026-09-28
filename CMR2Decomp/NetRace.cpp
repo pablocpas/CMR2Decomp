@@ -845,3 +845,118 @@ void FUN_00426b90(int param_1, int param_2)
         }
     }
 }
+
+// --- 0x00426810 (layer 0) ----------------------------------------------------
+extern const double g_unk0x00511380;
+
+// match 88.93%: implementada; identica instruccion a instruccion salvo que MSVC6
+// asigna 4 bytes menos de marco (sus desplazamientos de pila van 4 arriba).
+// Clamps the object's displacement towards its target, integrates the position
+// and the basis, and rebuilds the world matrix (interpolated unless the object
+// is in the snap mode).
+// FUNCTION: CMR2 0x00426810
+void FUN_00426810(int param_1, int param_2)
+{
+    int step;
+    int scale;
+    FixMatrix m;
+    FixMatrix mOut;
+    FixAngles angles;
+    FixVector v;
+
+    if (*(unsigned short *)(param_1 + 0xc6) > 0)
+        *(unsigned short *)(param_1 + 0xc6) -= 1;
+    if (*(int *)(param_1 + 0xe8) != 0) {
+        step = 0;
+        *(int *)(param_1 + 0xe8) = 0;
+    } else {
+        step = (param_2 - *(unsigned short *)(param_1 + 0xc8)) * 0x10000;
+    }
+    if (*(int *)(param_1 + 0xe0) != 0)
+        FUN_00426b90(param_1, step);
+    FixVecScale(&v, (FixVector *)(param_1 + 0x70), step);
+    *(int *)(param_1 + 0x64) += v.x;
+    *(int *)(param_1 + 0x68) += v.y;
+    *(int *)(param_1 + 0x6c) += v.z;
+    scale = g_triangleNumbers[(step < 0 ? -step : step) >> 16] * 0x10000;
+    if (step < 0)
+        scale = -scale;
+    FixVecScale(&v, (FixVector *)(param_1 + 0x88), scale);
+    *(int *)(param_1 + 0x64) += v.x;
+    *(int *)(param_1 + 0x68) += v.y;
+    *(int *)(param_1 + 0x6c) += v.z;
+    FixVecScale(&v, (FixVector *)(param_1 + 0x88), step);
+    *(int *)(param_1 + 0x70) += v.x;
+    *(int *)(param_1 + 0x74) += v.y;
+    *(int *)(param_1 + 0x78) += v.z;
+    FixVecScale(&v, (FixVector *)(param_1 + 0x7c), step);
+    angles.x = (unsigned short)(int)(__int64)((double)v.x * g_unk0x00511380);
+    angles.y = (unsigned short)(int)(__int64)((double)v.y * g_unk0x00511380);
+    angles.z = (unsigned short)(int)(__int64)((double)v.z * g_unk0x00511380);
+    FixBasis_Rotate((FixBasis *)(param_1 + 0x40), (unsigned short *)&angles);
+    *(int *)(param_1 + 0xbc) +=
+        FixMul(*(int *)(param_1 + 0xc0), step) - FixMul(FixMul(step, step), 0xc49);
+    *(int *)(param_1 + 0xc0) -= FixMul(FixMul(0x20000, step), 0xc49);
+    *(unsigned short *)(param_1 + 0xc8) = (unsigned short)step;
+    if (*(int *)(param_1 + 0xd8) != 0) {
+        FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), (FixMatrix *)param_1);
+        FixMatrix_SetRight((FixVector *)(param_1 + 0x40), (FixMatrix *)param_1);
+        FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), (FixMatrix *)param_1);
+        FixMatrix_SetForward((FixVector *)(param_1 + 0x58), (FixMatrix *)param_1);
+        *(int *)(param_1 + 0xe0) = 0;
+        *(int *)(param_1 + 0xb4) = *(int *)(param_1 + 0xbc);
+        return;
+    }
+    FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), &m);
+    FixMatrix_SetRight((FixVector *)(param_1 + 0x40), &m);
+    FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), &m);
+    FixMatrix_SetForward((FixVector *)(param_1 + 0x58), &m);
+    FixMatrix_Interpolate(&mOut, (FixMatrix *)param_1, &m, 0x8000, 0x8000, 0x8000, 0);
+    FixMatrix_CopyRotation(&mOut, (FixMatrix *)param_1);
+    *(int *)(param_1 + 0xe0) = 0;
+    *(int *)(param_1 + 0xb4) +=
+        FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
+}
+
+// Aligns a vector of the car with the 2D direction (0x70/0x78 below 0x1999,
+// 0x58/0x60 above), projects it on the normalised direction and accumulates the
+// result into the 0x88/0x8c/0x90 accumulator.
+// FUNCTION: CMR2 0x004263d0
+void FUN_004263d0(unsigned int param_1)
+{
+    FixVector v;
+    FixVector d;
+    int value;
+    int t;
+
+    *(int *)(param_1 + 0x88) = 0;
+    *(int *)(param_1 + 0x8c) = 0;
+    *(int *)(param_1 + 0x90) = 0;
+    if (*(int *)(param_1 + 0x50) < 0x1999) {
+        v = *(FixVector *)(param_1 + 0x70);
+        v.y = 0;
+        if (FixVecLength(&v) > 0) {
+            FIX_NORMALIZE_INTO(v, v);
+        } else {
+            v.x = 0;
+            v.y = 0;
+            v.z = 0;
+        }
+    } else {
+        v = *(FixVector *)(param_1 + 0x58);
+        v.y = 0;
+        FIX_NORMALIZE_INTO(v, v);
+    }
+    value = FixMul(FixVecDot(&v, (FixVector *)(param_1 + 0x70)), *(int *)(param_1 + 0xb0));
+    if (value < 0)
+        value = -FixMul(value, value);
+    else
+        value = FixMul(value, value);
+    if ((value < 0 ? -value : value) > 0x10000)
+        value = ((value < 1) - 1 & 0x20000) - 0x10000;
+    t = -FixMul(FixMul(value, *(int *)(param_1 + 0xac)), 0x11eb);
+    FixVecScale(&d, &v, t);
+    *(int *)(param_1 + 0x88) += d.x;
+    *(int *)(param_1 + 0x8c) += d.y;
+    *(int *)(param_1 + 0x90) += d.z;
+}
