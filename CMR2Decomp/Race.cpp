@@ -3359,3 +3359,69 @@ void FUN_00416f70(int player)
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player)) - 1;
 }
 
+int FUN_00422f50(BYTE index);
+void FUN_004ae410(BYTE a, BYTE b, int c, int d);
+
+// Advances one player's "menu" cursor when the device that owns it (arg = the
+// player's input slot) pressed the up/down/left/right buttons: the odd modes
+// scroll the mode list, the even ones step the stage index, and the shared
+// tail replays the two beeper sounds.
+// match 66.87%: implementada; MSVC6 genera la guarda del tamano (`test edi,edi`) una sola vez
+// donde el original la repite, y usa setne en vez de sub/neg/sbb para el `x != 7`.
+// FUNCTION: CMR2 0x0041d0c0
+void FUN_0041d0c0(int param_1)
+{
+    int flags;
+    int i;
+    BYTE value;
+
+    if (FUN_0041f3d0((BYTE)param_1) == 0)
+        return;
+    flags = (int)CInput::FUN_0049ead0(param_1)->field_0x8;
+    if (FUN_0041f3a0() != 0) {
+        if (param_1 != 0 && FUN_0041f3d0(0) != 0)
+            return;
+        if (flags & 0x1000) {
+            if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 1 ||
+                CGameInfo::FUN_00405d80() == 0)
+                return;
+            FUN_00421720(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
+        } else if (flags & 0x2000) {
+            value = (BYTE)(FUN_00422fb0(1) + 1);
+            if ((BYTE)FUN_00420190() <= value)
+                value = 0;
+            FUN_00422fe0(1, 0, value, 0);
+        } else {
+            return;
+        }
+        FUN_004ae410(0, 1, 1, 1);
+        FUN_004ae410(1, 1, 1, 1);
+        return;
+    }
+    if (flags & 0x1000) {
+        i = 0;
+        if ((BYTE)FUN_00420190() > 0) {
+            do {
+                FUN_004ae410((BYTE)i, 0, 1, 1);
+                i++;
+            } while (i < (int)((BYTE)FUN_00420190()));
+        }
+        FUN_00421720((BYTE)param_1, (-(FUN_00422f50((BYTE)param_1) != 7) & 3) + 4, 0xffff,
+                     FUN_00422fb0((BYTE)param_1), 0);
+        return;
+    }
+    if ((flags & 0x2000) != 0 && (BYTE)FUN_00420190() > 1 && (BYTE)RallyDataState() == 1) {
+        value = (BYTE)(FUN_00422fb0(0) + 1);
+        if ((BYTE)FUN_00420190() <= value)
+            value = 0;
+        FUN_00422fe0(0, 0, value, 0);
+        i = 0;
+        if ((BYTE)FUN_00420190() > 0) {
+            do {
+                FUN_004ae410((BYTE)i, 0, 1, 1);
+                i++;
+            } while (i < (int)((BYTE)FUN_00420190()));
+        }
+    }
+}
+

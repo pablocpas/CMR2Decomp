@@ -6352,3 +6352,87 @@ void FUN_00504eb0(short *param_1, BYTE *param_2, int param_3)
         Sprite_FillRect((int)g_pGraphics + 0x150, rect, param_2, 1);
     }
 }
+
+// Same 0x50-byte entry as Unk0x0082c6c8, seen with the fields the split-bar
+// texture mapping uses.
+struct Unk0x0082c6c8Split {
+    BYTE pad0[0xc];
+    short field_0xc;
+    short field_0xe;
+    short field_0x10;
+    short field_0x12;
+    BYTE pad1[0x18];
+    int field_0x2c;
+    int field_0x30;
+    int field_0x34;
+    int field_0x38;
+    BYTE pad2[0x14];
+};
+
+// Gradients the split-time texture is mapped through.
+// GLOBAL: CMR2 0x005270e4
+BYTE g_unk0x005270e4[8] = { 0xff, 0xff, 0xff, 0xff, 0x57, 0x57, 0x57, 0xff };
+
+// Queues the split-time panel: builds the source rect from the current car's
+// entry in the 0x82c6c8 table (or the two texture fields when no car is
+// selected) and the destination rect from the segment rect at 0x82c9ec scaled
+// to the current resolution.
+// match 26.20%: implementada; el original usa un marco EBP con tres ranuras para los
+// productos intermedios y nosotros las resolvemos en registros/ESP; la aritmetica y las
+// divisiones 32.16 coinciden (idiv/sar 0x10).
+// FUNCTION: CMR2 0x00505590
+void FUN_00505590(void)
+{
+    struct Unk0x0082c6c8Split *pEntry;
+    short rect[4];
+    short src[4];
+    int a;
+    int b;
+    int c;
+    int d;
+    int f0e;
+    int f0c;
+    int f10;
+    int f12;
+    int q1;
+    int q2;
+    int q3;
+    int prod;
+
+    if (g_unk0x0082ca1c == 0xff) {
+        *(int *)&rect[0] = g_unk0x0082c9f4;
+        *(int *)&rect[2] = g_unk0x0082c9f8;
+
+    } else {
+        pEntry = (struct Unk0x0082c6c8Split *)g_unk0x0082c6c8 + g_unk0x0082ca1c;
+        a = g_unk0x0082c9ec[0];
+        c = g_unk0x0082c9ec[2];
+        f0c = pEntry->field_0xc;
+        f10 = pEntry->field_0x10;
+        q1 = (int)(((__int64)((f0c - a) << 16) << 16) / (__int64)(c << 16));
+        q2 = (int)(((__int64)((f10 + f0c - a) << 16) << 16) / (__int64)(c << 16));
+        q3 = (int)(((__int64)(pEntry->field_0x2c - pEntry->field_0x30) << 16) /
+                   (__int64)(q1 - q2));
+        prod = (int)(((__int64)q1 * q3) >> 16);
+        rect[0] = (short)((pEntry->field_0x2c - prod) >> 16);
+        rect[2] = (short)(q3 >> 16);
+
+        b = g_unk0x0082c9ec[1];
+        d = g_unk0x0082c9ec[3];
+        f0e = pEntry->field_0xe;
+        f12 = pEntry->field_0x12;
+        q1 = (int)(((__int64)((f0e - b) << 16) << 16) / (__int64)(d << 16));
+        q2 = (int)(((__int64)((f12 + f0e - b) << 16) << 16) / (__int64)(d << 16));
+        q3 = (int)(((__int64)(pEntry->field_0x34 - pEntry->field_0x38) << 16) /
+                   (__int64)(q1 - q2));
+        prod = (int)(((__int64)q1 * q3) >> 16);
+        rect[1] = (short)((pEntry->field_0x34 - prod) >> 16);
+        rect[3] = (short)(q3 >> 16);
+    }
+    src[0] = (short)((int)g_unk0x0082c9ec[0] * (int)g_pGraphics->resX / 0x280);
+    src[1] = (short)((int)g_unk0x0082c9ec[1] * (int)g_pGraphics->resY / 0x1e0);
+    src[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
+    src[3] = (short)((int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0);
+    Sprite_Queue((SpriteRect *)rect, (SpriteRect *)src, (Texture *)g_unk0x0082c9e8, 3, 0, 0, 0,
+                 (BYTE *)&g_unk0x005270e4, 8);
+}
