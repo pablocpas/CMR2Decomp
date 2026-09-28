@@ -945,3 +945,111 @@ void FUN_004263d0(int param_1)
     *(int *)(param_1 + 0x8c) += step.y;
     *(int *)(param_1 + 0x90) += step.z;
 }
+
+void FUN_004a15b0(BOOL param1);
+void FUN_00402c90(int param);
+void FUN_0044a1b0(int param);
+void FUN_004a1940(DWORD *pId);
+void FUN_00409c80(int *pId);
+
+// Network-device notification: id 5 refreshes the player list of the entry,
+// id 0x101 re-initialises the in-race menu and the HUD.
+// FUNCTION: CMR2 0x00427680
+void FUN_00427680(int param_1, int *param_2)
+{
+    if (*param_2 != 5) {
+        if (*param_2 == 0x101) {
+            FUN_004a15b0(1);
+            FUN_00402c90(1);
+            FUN_0044a1b0(1);
+        }
+        return;
+    }
+    FUN_004a1940((DWORD *)(param_2 + 2));
+    FUN_00409c80(param_2 + 2);
+}
+
+void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view);
+
+// Returns the 12-bit angle param_3 scaled down by how far the player's view
+// node (matrix at 0x538d30) is from the car's 0x2d0 / 0x408 positions, capped
+// by the angle between the direction to the car and the view delta. param_3
+// is returned unchanged when the view node is 100.0 units away or more, and
+// when those two directions are exactly perpendicular.
+// match 79%: implementada, MSVC6 asigna 0x38 de pila frente a 0x44 y reparte distinto los registros en las llamadas a Car_Get
+// FUNCTION: CMR2 0x00427e20
+unsigned int FUN_00427e20(int param_1, int param_2, unsigned short param_3)
+{
+    FixVector pos;
+    FixVector view;
+    FixVector delta;
+    FixVector dir;
+    FixVector other;
+    int index;
+    int dist;
+    int len;
+    int dot;
+    int t;
+    int value;
+
+    index = param_1;
+    if (FUN_0041f3a0() != 0)
+        index = 1;
+    FixMatrix_GetPosition(&pos, (FixMatrix *)(g_unk0x00538d2c + 4 + index * 100));
+    delta.x = pos.x - *(int *)((BYTE *)Car_Get(param_2) + 0x2d0);
+    delta.y = pos.y - *(int *)((BYTE *)Car_Get(param_2) + 0x2d4);
+    delta.z = pos.z - *(int *)((BYTE *)Car_Get(param_2) + 0x2d8);
+    dist = FixVec_Length(&delta);
+    if (dist < 0x640000) {
+        Car_GetViewPositionDelta(&view, param_1);
+        view.x -= *(int *)((BYTE *)Car_Get(param_2) + 0x408);
+        view.y -= *(int *)((BYTE *)Car_Get(param_2) + 0x40c);
+        view.z -= *(int *)((BYTE *)Car_Get(param_2) + 0x410);
+        dist = FixVec_Length(&view);
+        if (dist > 0x320000) {
+            len = FixVecLength(&view);
+            if (len == 0) {
+                view.x = 0;
+                view.y = 0;
+                view.z = 0;
+            } else {
+                FixVecScaleRecip(&view, &view, len);
+            }
+            FixVecScale(&view, &view, 0x320000);
+        }
+        other = view;
+        len = FixVecLength(&delta);
+        if (len == 0) {
+            delta.x = 0;
+            delta.y = 0;
+            delta.z = 0;
+        } else {
+            FixVecScaleRecip(&delta, &delta, len);
+        }
+        len = FixVecLength(&view);
+        if (len == 0) {
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+        } else {
+            FixVecScaleRecip(&other, &view, len);
+        }
+        dot = FixVecDot(&other, &delta);
+        FixVecScale(&view, &view, dot);
+        if (dot > 0) {
+            t = FixDiv(FixVec_Length(&view), 0xd3d70) + 0x10000;
+            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            if (t <= 0x8000)
+                return (value >> 16) << 1;
+            return (FixDiv(value, t) >> 16) << 1;
+        }
+        if (dot < 0) {
+            t = 0x10000 - FixDiv(FixVec_Length(&view), 0xd3d70);
+            value = (int)(__int64)((double)(param_3 >> 1) * CGraphics::m_65536);
+            if (t > 0x8000)
+                value = FixDiv(value, t);
+            return (value >> 16) << 1;
+        }
+    }
+    return param_3;
+}

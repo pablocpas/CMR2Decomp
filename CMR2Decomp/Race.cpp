@@ -3858,3 +3858,234 @@ void FUN_00417090(int param_1)
         pRec[4].field_0x4 = 0;
     }
 }
+
+void FUN_0042bf70(void);
+void FUN_00484d30(int t);
+void FUN_00471950(int t);
+void FUN_00486500(int scale);
+void FUN_00461bb0(int t);
+void Particle_Interpolate(int t);
+void Dash_Interpolate(int t);
+void StageObject_UpdateDebris(int scale);
+void FUN_0047e1e0(int t);
+
+// Per-frame race update: advances the stage timing, the particle and dash
+// effects and the debris, then refreshes them once the frame gate opens.
+// FUNCTION: CMR2 0x0041d060
+void FUN_0041d060(int param_1)
+{
+    FUN_0042bf70();
+    FUN_00484d30(param_1);
+    FUN_00471950(param_1);
+    FUN_00486500(param_1);
+    Particle_Interpolate(param_1);
+    FUN_00461bb0(param_1);
+    Dash_Interpolate(param_1);
+    if ((BYTE)FUN_00407270()) {
+        StageObject_UpdateDebris(param_1);
+    }
+    if (CGameInfo::FUN_004063f0(0) != 0) {
+        FUN_0047e1e0(param_1);
+    }
+}
+
+int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
+int FUN_00465e40(int car, int wheel);
+
+// Recomputes one car's stage sound levels. The four wheel-slip values are read
+// and scaled, the level of each of the four stage sound slots is derived from
+// the engine volume and the largest slip and then eased towards the value of
+// the previous frame (the 0x05xxx4xx volume/previous tables live inside
+// g_raceBlock), and the result is pushed into the slot handles. The shared
+// engine sample gets its pan from the engine speed when the current pattern has
+// run out, and the slot levels are muted, faded out or restored depending on
+// the surface the wheels are on.
+// match 32%: implementada, MSVC6 no reproduce el reparto de registros ni el tamano de pila del original en las tablas de g_raceBlock
+// FUNCTION: CMR2 0x0041a5c0
+void FUN_0041a5c0(int param_1, int param_2)
+{
+    Car *pCar;
+    CarSoundSet *pSet;
+    RaceCarSoundState *pState;
+    int ownVolume[4];
+    int ownVolumeSum;
+    int speedVolume;
+    int weight;
+    int weightInv;
+    int speedFrac;
+    int slip;
+    int slotVolume;
+    int volA;
+    int volB;
+    int volC;
+    int volD;
+    int prev;
+    int total;
+    int i;
+
+    speedVolume = FUN_00418e70(param_1);
+    pCar = Car_Get(param_1);
+    pSet = &g_carSoundSets[param_1];
+    pState = &g_carSoundStates[param_1];
+
+    total = 0;
+    for (i = 0; i < 4; i++) {
+        int load = pCar->wheelLoad[0];
+
+        if (load < 0)
+            load = -load;
+        ownVolume[i] = FixDiv(load, 0xa0000);
+        if (ownVolume[i] > 0x10000)
+            ownVolume[i] = 0x10000;
+        ownVolume[i] = 0x10000 - ownVolume[i];
+        total += ownVolume[i];
+    }
+    ownVolumeSum = FixDiv(total, 0x40000);
+    speedFrac = FixMulShift32(pCar->speed, 0x431168);
+
+    *(int *)(g_raceBlock + 0xb4) = 0;
+    g_carMaxVolume[param_1] = 0;
+    for (i = 0; i < 4; i++) {
+        slip = StageObject_GetWheelSlip(param_1, i);
+        ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = slip;
+        slotVolume = FUN_00465e40(param_1, i);
+        g_carSlotVolumes[param_1][i] = slotVolume;
+        if (g_carMaxVolume[param_1] < slip)
+            g_carMaxVolume[param_1] = slip;
+        if (*(int *)(g_raceBlock + 0xb4) < slotVolume)
+            *(int *)(g_raceBlock + 0xb4) = slotVolume;
+    }
+
+    if (pState->pattern == 0x19) {
+        weight = 0x10000;
+        weightInv = 0;
+    } else {
+        weightInv = FixDiv(FUN_004781c0(param_1) - pState->time, 0x320000);
+        weight = 0x10000 - weightInv;
+    }
+
+    volA = FixMul(weight, speedVolume);
+    volB = FixMul(weightInv, speedVolume);
+    volD = FixMul(weight, g_carMaxVolume[param_1]);
+    volC = FixMul(weightInv, g_carMaxVolume[param_1]);
+    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
+    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
+    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
+    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
+    volA += g_carMaxVolume[param_1];
+    volB += g_carMaxVolume[param_1];
+
+    prev = ((int *)(g_raceBlock + 0x00))[param_1];
+    if (volD - prev > 0xc000)
+        volD = prev + 0xc000;
+    else if (volD - prev < -0xccc)
+        volD = prev - 0xccc;
+    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
+
+    prev = ((int *)(g_raceBlock + 0x220))[param_1];
+    if (volC - prev > 0xc000)
+        volC = prev + 0xc000;
+    else if (volC - prev < -0xccc)
+        volC = prev - 0xccc;
+    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
+
+    prev = ((int *)(g_raceBlock + 0x94))[param_1];
+    if (volA - prev > 0xccc)
+        volA = prev + 0xccc;
+    else if (volA - prev < -0xccc)
+        volA = prev - 0xccc;
+    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
+
+    prev = ((int *)(g_raceBlock + 0x48))[param_1];
+    if (volB - prev > 0xccc)
+        volB = prev + 0xccc;
+    else if (volB - prev < -0xccc)
+        volB = prev - 0xccc;
+    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
+
+    *(int *)(g_raceBlock + 0xb4) = FixMul(*(int *)(g_raceBlock + 0xb4), 0x20000);
+    if (*(int *)(g_raceBlock + 0xb4) > 0x10000)
+        *(int *)(g_raceBlock + 0xb4) = 0x10000;
+
+    if (pState->state == 0x19) {
+        if (pCar->flag0x1d0[2] != 0 && speedFrac < 0x32) {
+            volA = *(int *)(g_raceBlock + 0xb4);
+            volB = volA;
+            volC = volA;
+            volD = volA;
+            for (i = 0; i < 4; i++)
+                ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] =
+                    FixMul(((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i],
+                           0x10000 - *(int *)(g_raceBlock + 0xb4));
+        } else if (pState->field_0xb0[0] != 0) {
+            volA = 0;
+            volB = 0;
+            volC = 0;
+            volD = 0;
+        } else {
+            if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
+                pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
+                (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
+                ((int)(FixMul(pCar->speed, 0x431168) & 0xffff0000) > 0x50000)) {
+                volA = 0x20000;
+                volB = volA;
+                volC = volA;
+                volD = volA;
+                for (i = 0; i < 4; i++)
+                    ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = 0x10000 - ownVolumeSum;
+            } else {
+                volA = 0;
+                volB = 0;
+                volC = 0;
+                volD = 0;
+            }
+            if (speedFrac < 0x32 && speedFrac >= 0)
+                g_unk0x005374c0 = ((speedFrac - 0x32) * 11025) / 50 + 0x5622;
+            else
+                g_unk0x005374c0 = 0x5622;
+            Sound_SetPan(pSet->handle[4], g_unk0x005374c0);
+        }
+    }
+
+    if (volA > 0x10000)
+        volA = 0x10000;
+    if (volB > 0x10000)
+        volB = 0x10000;
+
+    if (Sound_IsPlaying(pSet->handle[4]))
+        FUN_004b79a0(pSet->handle[4],
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volA)));
+    if (Sound_IsPlaying(pSet->handle[5]))
+        FUN_004b79a0(pSet->handle[5],
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volB)));
+    if (Sound_IsPlaying(pSet->handle[6]))
+        FUN_004b79a0(pSet->handle[6],
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volD)));
+    if (Sound_IsPlaying(pSet->handle[7]))
+        FUN_004b79a0(pSet->handle[7],
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volC)));
+
+    if (FUN_00427aa0() != 0) {
+        total = 0;
+        for (i = 0; i < 4; i++)
+            total += ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i];
+        if (total > 0x10000)
+            total = 0x10000;
+        if (Sound_IsPlaying(pSet->handle[0]))
+            FUN_004b79a0(pSet->handle[0],
+                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, total)));
+    } else {
+        for (i = 0; i < 4; i++) {
+            if (Sound_IsPlaying(pSet->handle[i]))
+                FUN_004b79a0(pSet->handle[i],
+                             FixMul(FUN_00427d50(param_1, param_2),
+                                    FixMul(g_unk0x00537664,
+                                           ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i])));
+        }
+    }
+
+    ((int *)(g_raceBlock + 0x00))[param_1] = volD;
+    ((int *)(g_raceBlock + 0x220))[param_1] = volC;
+    ((int *)(g_raceBlock + 0x94))[param_1] = volA;
+    ((int *)(g_raceBlock + 0x48))[param_1] = volB;
+}
