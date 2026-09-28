@@ -8819,3 +8819,77 @@ void FUN_004926f0(int unused1, int unused2, int sunAngle) { }
 
 // STUB: CMR2 0x00492bd0
 void FUN_00492bd0(int view) { }
+
+void FUN_0042b800(int, int, int);
+void FUN_0045e610(void);
+void FUN_004702a0(void);
+extern int g_unk0x0067f228;
+
+// Sets the hit flag of one entry of a car's timing record and refreshes the
+// derived record block.
+// FUNCTION: CMR2 0x00469bf0
+void FUN_00469bf0(Car *pCar, int index)
+{
+    *(int *)(g_unk0x00588b94 + 0x4b0 + (index + pCar->field_0xb1a * 0x134) * 4) = 1;
+    FUN_00468c10(pCar);
+}
+
+// Saves the car's torque state into pState and copies the current race record
+// block into the following slot of pState.
+// FUNCTION: CMR2 0x0046c320
+void FUN_0046c320(int *pState, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+
+    *pState = pCar->field_0x7a4;
+    FUN_0042b800(car, 1, 1);
+    pCar->field_0x7a4 = *pState;
+    if (pCar->field_0xb48 != 1)
+        FUN_0043f570(pCar);
+    pState = pState + 1;
+    pCar->field_0xb9c = 1;
+    FUN_0046c220((Block6 *)RallyData_FUN_00421510(car), (Block6 *)pState);
+    RallyData_FUN_004207a0(car);
+}
+
+// Restores the car's torque state from pState, copies pState's race record
+// block back into the car record and revalidates the stage state.
+// FUNCTION: CMR2 0x0046c390
+void FUN_0046c390(int *pState, BYTE car)
+{
+    Car *pCar = Car_Get(car);
+
+    FUN_0042b800(car, 1, 1);
+    pCar->field_0x7a4 = *pState;
+    if (pCar->field_0xb48 != 1)
+        FUN_0043f570(pCar);
+    pCar->field_0xb9c = 1;
+    FUN_0046c220((Block6 *)(pState + 1), (Block6 *)RallyData_FUN_00421510(car));
+    RallyData_FUN_004207a0(car);
+    FUN_0045e610();
+    FUN_004702a0();
+    RallyData_ValidateIndex(car);
+}
+
+// GLOBAL: CMR2 0x0058ca74
+int g_unk0x0058ca74;
+// GLOBAL: CMR2 0x0058ca68
+int g_unk0x0058ca68;
+// GLOBAL: CMR2 0x0058c934
+int g_unk0x0058c934;
+// GLOBAL: CMR2 0x0058c950
+int g_unk0x0058c950;
+
+// Saves the scene-node and render-object counts around loading the two stage
+// model variants (TEMP.OBJ and TEMP.SHT).
+// FUNCTION: CMR2 0x00471af0
+void FUN_00471af0(void)
+{
+    g_unk0x0058ca74 = g_sceneNodeCount;
+    g_unk0x0058ca68 = g_unk0x0067f228;
+    FUN_00472830();
+    g_unk0x0058c934 = g_sceneNodeCount;
+    g_unk0x0058c950 = g_unk0x0067f228;
+    FUN_00472870();
+    FUN_0046f060();
+}

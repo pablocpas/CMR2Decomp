@@ -5505,3 +5505,55 @@ void FUN_004487a0(int car)
     if ((int)prev == count - 1)
         g_carStageTiming[car].field_0x80 = (char)0xff;
 }
+
+// Refreshes the paint-decal samples of one car and applies the resulting time
+// spread to the current timing record.
+// FUNCTION: CMR2 0x00455ed0
+void FUN_00455ed0(int pCar)
+{
+    int samples[16];
+
+    FUN_00455f00(pCar, samples);
+    FUN_00456110(samples);
+}
+
+int FUN_0040b1b0(void);
+
+// Resets the timing records of the drivers taking part in the race according
+// to the current mode (rally, split-screen or network).
+// FUNCTION: CMR2 0x00458100
+void FUN_00458100(int param_1)
+{
+    int i;
+    int count;
+
+    if ((char)RallyData_FUN_00407e90() != 0) {
+        if ((char)CGameInfo::FUN_00405e00() != 0) {
+            if ((char)CGameInfo::FUN_00405d80() == 10)
+                count = 1;
+            else
+                count = FUN_0040b1b0();
+            for (i = 0; i < count; i++) {
+                switch (g_unk0x00542cb4[i]) {
+                case 1:
+                    FUN_00458bd0(i, 2, 0, (char)param_1);
+                    break;
+                case 0:
+                    FUN_00458bd0(i, 0, -1, (char)param_1);
+                    break;
+                }
+            }
+        } else {
+            FUN_00458bd0(g_unk0x00542cb0, 0, -1, (char)param_1);
+            FUN_00458bd0(1 - g_unk0x00542cb0, 2, 0, (char)param_1);
+        }
+    } else {
+        i = 0;
+        if ((BYTE)FUN_00420190() != 0) {
+            do {
+                FUN_00458bd0(i, 0, 0, (char)param_1);
+                i = i + 1;
+            } while (i < (int)(BYTE)FUN_00420190());
+        }
+    }
+}

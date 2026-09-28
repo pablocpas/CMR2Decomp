@@ -1152,3 +1152,82 @@ int FUN_004702f0(BYTE *pObj, FixVector *pPoint)
     v.z = pPoint->z - v.z;
     return FixDiv(FixVecDot(&v, (FixVector *)(pObj + 0xd4)), *(int *)(pObj + 0xd8));
 }
+
+extern double g_unk0x00511300;
+
+// Rebuilds an object's local matrix from a reference matrix: mirrors it about
+// the object's split axis and applies the car's tilt rotation.
+// match 44%: same structure and calls; MSVC6 picks a different index register (EAX vs ESI)
+// and emits setne instead of the original's neg/sbb for the angle mask.
+// FUNCTION: CMR2 0x00486910
+void FUN_00486910(BYTE *pObj, int *pSrc)
+{
+    BYTE *pMat = pObj + 8;
+    int idx;
+    int angle;
+    int v;
+
+    memcpy(pMat, pSrc, 0x40);
+    idx = *pObj;
+    if (g_unk0x00590d8c[idx] == 2) {
+        *(int *)pMat = pSrc[8];
+        *(int *)(pObj + 0xc) = pSrc[9];
+        *(int *)(pObj + 0x10) = pSrc[10];
+        *(int *)(pObj + 0x28) = -pSrc[0];
+        *(int *)(pObj + 0x2c) = -pSrc[1];
+        angle = -pSrc[2];
+    } else {
+        *(int *)pMat = -pSrc[8];
+        *(int *)(pObj + 0xc) = -pSrc[9];
+        *(int *)(pObj + 0x10) = -pSrc[10];
+        *(int *)(pObj + 0x28) = pSrc[0];
+        *(int *)(pObj + 0x2c) = pSrc[1];
+        angle = pSrc[2];
+    }
+    *(int *)(pObj + 0x30) = angle;
+    angle = (-(g_unk0x00590d8c[idx] != 0) & 0xfffffff6) + 10;
+    v = (int)(__int64)((double)angle * CGraphics::m_65536);
+    FixMatrix_RotateAboutRight((FixMatrix *)pMat,
+                               (unsigned short)(__int64)((double)v * g_unk0x00511300));
+    FUN_004869e0(pObj, (FixMatrix *)pSrc);
+}
+
+// Rebuilds an object's local matrix from a reference matrix and interpolates
+// it against the previous one (mode 0 keeps the third axis).
+// match 65%: same structure and calls; register allocation of the source loads differs
+// (setne vs the original's neg/sbb mask for the angle).
+// FUNCTION: CMR2 0x00486810
+void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
+{
+    int m[16];
+    int angle;
+    int tAxis;
+    __int64 v;
+
+    memcpy(m, pSrc, 0x40);
+    m[0] = pSrc[8];
+    if (g_unk0x00590d8c[*pObj] == 2) {
+        m[1] = pSrc[9];
+        m[2] = pSrc[10];
+        m[8] = -pSrc[0];
+        m[9] = -pSrc[1];
+        m[10] = -pSrc[2];
+    } else {
+        m[0] = -m[0];
+        m[1] = -pSrc[9];
+        m[2] = -pSrc[10];
+        m[8] = pSrc[0];
+        m[9] = pSrc[1];
+        m[10] = pSrc[2];
+    }
+    angle = (-(g_unk0x00590d8c[*pObj] != 0) & 0xfffffff6) + 10;
+    v = (int)(__int64)((double)angle * CGraphics::m_65536);
+    FixMatrix_RotateAboutRight((FixMatrix *)m,
+                               (unsigned short)(__int64)((double)(int)v * g_unk0x00511300));
+    tAxis = 0x10000;
+    if (param_3 == 0)
+        tAxis = FixMul(0x4ccc, g_physicsTimeStep);
+    FixMatrix_Interpolate((FixMatrix *)(pObj + 8), (FixMatrix *)(pObj + 8), (FixMatrix *)m,
+                          0x10000, tAxis, 0x10000, 0);
+    FUN_004869e0(pObj, (FixMatrix *)pSrc);
+}
