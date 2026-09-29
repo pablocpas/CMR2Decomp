@@ -11842,3 +11842,243 @@ void FUN_004ffab0(Menu *pMenu)
     else
         g_unk0x00526f40 = 0;
 }
+
+// ---------------------------------------------------------------------------
+// Identifier tables of the profile screens (defined in FrontendMenus.cpp).
+// ---------------------------------------------------------------------------
+extern BYTE g_unk0x00825398[0x4c];
+extern BYTE g_unk0x008253e4[0x98];
+extern BYTE g_unk0x0082547c[0x898];
+extern BYTE g_unk0x00825d14[0x258];
+extern BYTE g_unk0x00825f6c[0x1cc];
+
+BYTE *RallyData_FUN_00408cb0(int index);
+void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char *pOut);
+
+// Rewrites every best-time record of the selected rally as a scrambled
+// identifier string (see FUN_004fb8d0/FUN_004f8a90) into the five tables the
+// profile screens display.
+// FUNCTION: CMR2 0x004f8b30
+int FUN_004f8b30(void)
+{
+    BYTE bVar1;
+    int iVar2;
+    int iVar3;
+    int iVar4;
+    unsigned int uVar5;
+    unsigned int uVar6;
+    unsigned int uVar8;
+    unsigned int *puVar10;
+    BYTE *puVar9;
+    unsigned int *puVar7;
+    int local_1c;
+    BYTE *local_18;
+    int local_14;
+    BYTE *local_10;
+    int local_c;
+    unsigned int local_8;
+    unsigned int local_4;
+
+    local_8 = 0;
+    local_4 = 0;
+    local_10 = 0;
+    local_18 = 0;
+    local_14 = 0x150;
+    do {
+        uVar8 = 0;
+        local_c = ((int)local_10 % 2) + 10;
+        if (0 < local_c) {
+            local_1c = local_14;
+            do {
+                iVar2 = (int)RallyData_FUN_00408cb0(0);
+                puVar7 = (unsigned int *)(iVar2 + 4 + local_1c);
+                iVar2 = (int)RallyData_FUN_00408cb0(0);
+                puVar10 = (unsigned int *)(iVar2 + local_1c);
+                if (((*puVar10 & 0x80) == 0) || (0xf < *puVar7 / 6000)) {
+                    g_unk0x0082547c[((int)local_18 + uVar8) * 0x19] = 0;
+                } else {
+                    local_8 = (local_8 & 0xfffff00f) |
+                              (((uVar8 & 0xf) << 4 | (unsigned int)local_10 & 0xf) << 4);
+                    local_8 = (local_8 & 0xfffc0fff) | (*puVar10 & 0x3f) << 0xc;
+                    local_8 = (local_8 & 0x7fffffff) | (~*puVar10 & 0xffffffc0) << 0x19;
+                    local_8 = local_8 ^ ((*puVar7 / 6000 ^ local_8) & 0xf);
+                    local_8 = (local_8 & 0xff03ffff) | ((*puVar7 / 100) % 0x3c & 0x3f) << 0x12;
+                    local_8 = (local_8 & 0x80ffffff) | (*puVar7 % 100 & 0x7f) << 0x18;
+                    bVar1 = (BYTE)(*puVar10 >> 8);
+                    ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xf8);
+                    ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
+                    puVar7 = &local_8;
+                    iVar2 = 4;
+                    do {
+                        *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                        puVar7 = (unsigned int *)((int)puVar7 + 1);
+                        iVar2--;
+                    } while (iVar2 != 0);
+                    FUN_004fb8d0(0, &local_8, (char *)&local_4,
+                                 (char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
+                    FUN_004f8a90((char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
+                }
+                uVar8++;
+                local_1c += 8;
+            } while ((int)uVar8 < local_c);
+        }
+        local_14 += 0x60;
+        local_10 = (BYTE *)((int)local_10 + 1);
+        local_18 = (BYTE *)((int)local_18 + 0xb);
+    } while (local_14 < 0x450);
+
+    local_10 = g_unk0x00825d14;
+    local_1c = 0;
+    local_14 = 0;
+    do {
+        uVar5 = 0;
+        local_18 = local_10;
+        local_c = local_14;
+        do {
+            iVar3 = (int)RallyData_FUN_00408cb0(0);
+            iVar3 = iVar3 + 0x34 + local_c;
+            iVar4 = (int)RallyData_FUN_00408cb0(0);
+            puVar7 = (unsigned int *)(iVar4 + 0x30 + local_c);
+            if (((*(BYTE *)(iVar4 + 0x30 + local_c) & 0x80) == 0) || (0x3f < *(unsigned int *)(iVar3 + 4) / 6000)) {
+                *local_18 = 0;
+            } else {
+                local_8 = (local_8 & 0xfffffe3f) | (uVar5 & 7) << 6;
+                local_8 = (local_8 & 0xffff81ff) | (*puVar7 & 0x3f) << 9;
+                local_8 = (local_8 & 0xffff7fff) | (~*puVar7 & 0x40) << 9;
+                local_8 = local_8 ^ ((*(unsigned int *)(iVar3 + 4) / 6000 ^ local_8) & 0x3f);
+                local_8 = (local_8 & 0xffc0ffff) |
+                          ((*(unsigned int *)(iVar3 + 4) / 100) % 0x3c & 0x3f) << 0x10;
+                local_8 = (local_8 & 0x803fffff) |
+                          (*(unsigned int *)(iVar3 + 4) % 100 | (local_1c & 3) << 7) << 0x16;
+                bVar1 = (BYTE)(*puVar7 >> 8);
+                puVar7 = &local_8;
+                ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xf9 | 1);
+                ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
+                iVar3 = 4;
+                do {
+                    *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                    puVar7 = (unsigned int *)((int)puVar7 + 1);
+                    iVar3--;
+                } while (iVar3 != 0);
+                FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_18);
+                FUN_004f8a90((char *)local_18);
+            }
+            uVar5++;
+            local_c += 0x24;
+            local_18 += 0x4b;
+        } while ((int)uVar5 < 8);
+        local_10 += 0x19;
+        local_1c++;
+        local_14 += 0xc;
+    } while ((int)local_10 < 0x825d5f);
+
+    uVar5 = 0;
+    local_c = 0;
+    puVar9 = g_unk0x00825398;
+    do {
+        iVar2 = (int)RallyData_FUN_00408cb0(0);
+        puVar7 = (unsigned int *)(iVar2 + 4 + local_c);
+        iVar2 = (int)RallyData_FUN_00408cb0(0);
+        puVar10 = (unsigned int *)(iVar2 + local_c);
+        if ((*(BYTE *)(iVar2 + local_c) & 0x80) == 0) {
+            *puVar9 = 0;
+        } else {
+            local_8 = (local_8 & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
+            local_8 = (local_8 & 0xffe7c07f) |
+                      ((uVar5 & 3) << 0x12 | *puVar7 & 0x1fc0) << 1;
+            local_8 = local_8 ^ ((*puVar10 ^ local_8) & 0x3f);
+            local_8 = local_8 ^ ((~*puVar10 ^ local_8) & 0x40);
+            bVar1 = (BYTE)(*puVar10 >> 8);
+            puVar10 = &local_8;
+            ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xfa | 2);
+            ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
+            iVar2 = 4;
+            do {
+                *(BYTE *)puVar10 = *(BYTE *)puVar10 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                puVar10 = (unsigned int *)((int)puVar10 + 1);
+                iVar2--;
+            } while (iVar2 != 0);
+            FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)puVar9);
+            FUN_004f8a90((char *)puVar9);
+        }
+        puVar9 += 0x19;
+        uVar5++;
+        local_c += 0x10;
+    } while ((int)puVar9 < 0x8253e3);
+
+    uVar5 = 0;
+    local_14 = 0x450;
+    local_18 = g_unk0x008253e4;
+    do {
+        uVar8 = 0;
+        local_10 = (BYTE *)local_14;
+        local_c = (int)local_18;
+        do {
+            RallyData_FUN_00408cb0(0);
+            iVar2 = (int)RallyData_FUN_00408cb0(0);
+            puVar10 = (unsigned int *)(iVar2 + (int)local_10);
+            if ((*puVar10 & 0x80) == 0) {
+                *(BYTE *)local_c = 0;
+            } else {
+                local_8 = (local_8 & 0xffff8fff) | (*puVar7 & 7) << 0xc;
+                local_8 = (local_8 & 0xfffe707f) |
+                          ((uVar5 & 3) << 0xe | *puVar7 & 0x7c0) << 1;
+                local_8 = local_8 ^ ((*puVar10 ^ local_8) & 0x3f);
+                local_8 = (local_8 & 0xfff9ffbf) | (~*puVar10 & 0x40) | (uVar8 & 3) << 0x11;
+                iVar2 = 4;
+                bVar1 = (BYTE)(*puVar10 >> 8);
+                puVar10 = &local_8;
+                ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xfb | 3);
+                ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
+                do {
+                    *(BYTE *)puVar10 = *(BYTE *)puVar10 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                    puVar10 = (unsigned int *)((int)puVar10 + 1);
+                    iVar2--;
+                } while (iVar2 != 0);
+                FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_c);
+                FUN_004f8a90((char *)local_c);
+            }
+            uVar8++;
+            local_10 = (BYTE *)((int)local_10 + 0x24);
+            local_c += 0x4b;
+        } while ((int)uVar8 < 2);
+        local_14 += 0xc;
+        uVar5++;
+        local_18 += 0x19;
+    } while (local_14 < 0x474);
+
+    uVar5 = 0;
+    local_10 = g_unk0x00825f6c;
+    do {
+        iVar2 = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
+        iVar3 = (int)RallyData_FUN_00408cb0(0);
+        puVar7 = (unsigned int *)(iVar3 + 0x4c0 + iVar2 * 8);
+        iVar3 = (int)RallyData_FUN_00408cb0(0);
+        uVar8 = *(unsigned int *)(iVar3 + 0x4bc + iVar2 * 8);
+        puVar10 = (unsigned int *)(iVar3 + 0x4bc + iVar2 * 8);
+        if (((uVar8 & 0x80) == 0) || (0x3f < *puVar7 / 6000)) {
+            *local_10 = 0;
+        } else {
+            local_8 = local_8 ^ ((uVar8 ^ local_8) & 0x3f);
+            local_8 = (local_8 & 0xfffffc3f) | (~*puVar10 & 0x40) | (uVar5 & 7) << 7;
+            local_8 = (local_8 & 0xe07fffff) | (*puVar7 / 6000 & 0x3f) << 0x17;
+            local_8 = (local_8 & 0xffff03ff) | ((*puVar7 / 100) % 0x3c & 0x3f) << 10;
+            local_8 = (local_8 & 0xff80ffff) | (*puVar7 % 100 & 0x7f) << 0x10;
+            iVar2 = 4;
+            bVar1 = (BYTE)(*puVar10 >> 8);
+            puVar7 = &local_8;
+            ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xfc | 4);
+            ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
+            do {
+                *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                puVar7 = (unsigned int *)((int)puVar7 + 1);
+                iVar2--;
+            } while (iVar2 != 0);
+            FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_10);
+            iVar3 = ((int (*)(char *))FUN_004f8a90)((char *)local_10);
+        }
+        local_10 += 0x19;
+        uVar5++;
+    } while ((int)local_10 < 0x826034);
+    return iVar3;
+}
