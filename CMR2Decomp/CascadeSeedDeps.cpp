@@ -27,8 +27,6 @@ struct Menu;
 
 
 
-// STUB: CMR2 0x0041b460
-void FUN_0041b460(void) { }
 
 
 
