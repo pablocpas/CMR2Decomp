@@ -4034,17 +4034,26 @@ FixVector g_unk0x00591498;
 
 // True when two spheres (radii r1, r2) overlap.
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// True when two spheres (radii r1, r2) overlap. The 32-bit EAX result is
+// tested by the callers (0x48a1f0), so the helper returns int, not bool.
+// match 84%: identical instruction stream and stack layout except that the
+// original kept the radius sum in a register with no home slot (its FixMul
+// operands spill into the dead r1/r2 argument slots) while MSVC6 here homes
+// it at [ebp-4], shifting the frame by four bytes.
 // FUNCTION: CMR2 0x00487b80
-bool FUN_00487b80(int r1, int r2, int *pA, int *pB)
+int FUN_00487b80(int r1, int r2, int *pA, int *pB)
 {
     int r = r1 + r2;
-    int dx = pA[0] - pB[0];
-    int dy = pA[1] - pB[1];
-    int dz = pA[2] - pB[2];
+    FixVector delta;
 
-    if ((dx < 0 ? -dx : dx) <= r && (dy < 0 ? -dy : dy) <= r && (dz < 0 ? -dz : dz) <= r)
-        return FixMul(dz, dz) + FixMul(dx, dx) + FixMul(dy, dy) < FixMul(r, r);
-    return false;
+    delta.x = pA[0] - pB[0];
+    delta.y = pA[1] - pB[1];
+    delta.z = pA[2] - pB[2];
+
+    if ((delta.x < 0 ? -delta.x : delta.x) <= r && (delta.y < 0 ? -delta.y : delta.y) <= r &&
+        (delta.z < 0 ? -delta.z : delta.z) <= r)
+        return FixVecDot(&delta, &delta) < FixMul(r, r);
+    return 0;
 }
 
 // FUNCTION: CMR2 0x00487e00

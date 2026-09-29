@@ -563,7 +563,7 @@ extern int g_physicsTimeStep;
 int FUN_00407270(void);
 unsigned int RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
-bool FUN_00487b80(int r1, int r2, int *pA, int *pB);
+int FUN_00487b80(int r1, int r2, int *pA, int *pB);
 void FUN_0047d850(Car *pCar, int *param_2);
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
 int FUN_0048a5f0(int param_1, int param_2);
@@ -581,7 +581,7 @@ struct CarCornerWords {
 // list and the impact is resolved. Finally the separation timers of every car
 // are decayed and, while the race is being verified, the collision box of each
 // car is rebuilt.
-// match 78%: same logic, calls and constants; MSVC6 countdowns our outer pair loop with induction variables (the original increments the counters), which also shifts the stack slots of the pair count and the pattern index, copies the four sector words as two dwords where the original used word/dword/word, and tests al after FUN_00487b80 because its declaration returns bool.
+// match 78%: same logic, calls and constants; MSVC6 countdowns our outer pair loop with induction variables (the original increments the counters), which also shifts the stack slots of the pair count and the pattern index, and copies the four sector words as two dwords where the original used word/dword/word.
 // FUNCTION: CMR2 0x0048a1f0
 void FUN_0048a1f0(int param_1, short *param_2, short param_3)
 {
