@@ -8424,10 +8424,10 @@ void FUN_00422140(BYTE view, int t)
     g_unk0x00538df0[view] = *(int *)(state + 0x4c);
     g_unk0x005391cc[view] = *(int *)(state + 0x54);
     matrix = *(FixMatrix *)(state + 8);
-    f58 = *(int *)(state + 0x58);
-    f60 = *(int *)(state + 0x60);
     f48 = *(int *)(state + 0x48);
+    f58 = *(int *)(state + 0x58);
     f5c = *(int *)(state + 0x5c);
+    f60 = *(int *)(state + 0x60);
     if (f60 != 0) {
         Car *car = Car_Get(view);
         int *pY;
