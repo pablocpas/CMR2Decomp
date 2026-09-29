@@ -66,6 +66,4 @@ struct FixMatrix;
 // agents are implementing in parallel. The stubs only exist so the batch links
 
 
-// STUB: CMR2 0x0048fb80
-int FUN_0048fb80(char, int) { return 0; }
 
