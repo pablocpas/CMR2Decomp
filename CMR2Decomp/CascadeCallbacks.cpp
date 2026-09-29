@@ -8,8 +8,8 @@
 // delete this file. Do not add new entries without recording them in
 // tools/cascade/README.md.
 
-// STUB: CMR2 0x004ffab0
-void FUN_004ffab0(unsigned int) { }
+// 0x004ffab0 implemented in GameInfo.cpp (W194).
+
 
 // 0x004ffed0 implemented in GameInfo.cpp (W194).
 

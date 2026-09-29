@@ -5183,7 +5183,7 @@ void FUN_00402460(Menu *pMenu);
 short g_unk0x0052ad58[4];
 extern char g_classRowHeaderFormat[];
 void FUN_004ffa70(int unused, int unused2);
-void FUN_004ffab0(unsigned int);
+void FUN_004ffab0(Menu *);
 void FUN_004ffed0(Menu *, MenuItem *);
 void FUN_004fffe0(Menu *, MenuItem *);
 void FUN_005000b0(int unused, int unused2);
@@ -11133,6 +11133,16 @@ extern unsigned char RallyDataStageIndex(void);
 extern BYTE RallyData_FUN_00406920(void);
 extern void FUN_00500270(Menu *, MenuItem *);
 extern void FUN_00503010(int param_1, int param_2);
+extern void FUN_00500130(void);
+extern void FUN_005001c0(char param1);
+extern void FUN_00501d00(int index);
+extern void FUN_00500520(void);
+extern void FUN_00500530(void);
+extern void FUN_00506b20(int index, char visible);
+extern void FUN_004ff5b0(void);
+extern void FUN_004ff630(Menu *pMenu);
+extern int FUN_00501280(int mode, int index);
+extern int FUN_004ff4b0(int index);
 extern int FUN_005011f0(int index);
 extern void FUN_00501210(int index, int value);
 extern unsigned int FUN_00502df0(int index, int type, int dynamic);
@@ -11713,4 +11723,122 @@ BYTE FUN_00505f10(void)
     }
     g_unk0x00831318 = 0;
     return 1;
+}
+
+// Per-frame callback of the option menu: ages the two message timers, resets the
+// option rows when the highlighted entry changes, animates the row states and
+// normalises the country and stage selections of the session.
+// FUNCTION: CMR2 0x004ffab0
+void FUN_004ffab0(Menu *pMenu)
+{
+    int i;
+    int value;
+    int old;
+
+    if (g_unk0x0082ac4c > 0) {
+        g_unk0x0082ac4c--;
+        if (g_unk0x0082ac4c == 0)
+            FUN_00500130();
+    }
+    if (g_unk0x0082ac50 > 0) {
+        g_unk0x0082ac50--;
+        if (g_unk0x0082ac50 == 0)
+            FUN_005001c0(0);
+    }
+    g_unk0x0082a928 = CMain::GetFrameDelta();
+    if (pMenu->cursor != g_unk0x00526f44) {
+        FUN_00501d00(0);
+        FUN_00501d00(1);
+        FUN_00501d00(3);
+        FUN_00501d00(2);
+        FUN_00501d00(5);
+        FUN_00501d00(6);
+        FUN_00501d00(7);
+        if ((pMenu->cursor != 2 || g_unk0x00526f44 != 1) &&
+            (pMenu->cursor != 1 || g_unk0x00526f44 != 2))
+            FUN_00501d00(4);
+        g_unk0x0082a90c[g_unk0x00526f44] = 2;
+        g_unk0x0082a930 = g_unk0x0082a928;
+        g_unk0x00526f44 = pMenu->cursor;
+        FUN_00500520();
+    }
+    for (i = 0; i < 6; i++) {
+        switch (g_unk0x0082a90c[i]) {
+        case 0:
+            if (i == pMenu->cursor)
+                Menu_SetFlags(pMenu, 0, 0, 0, 0);
+            if ((unsigned int)(g_unk0x0082a928 - g_unk0x0082a930) > 1)
+                g_unk0x0082a90c[i] = 1;
+            break;
+        case 1:
+            if (i == pMenu->cursor && pMenu->cursor != Menu_FindItem(pMenu, 4))
+                Menu_SetFlags(pMenu, 1, 1, 1, 1);
+            break;
+        case 2:
+            if (i == pMenu->cursor)
+                Menu_SetFlags(pMenu, 0, 0, 0, 0);
+            if ((unsigned int)(g_unk0x0082a928 - g_unk0x0082a930) > 1) {
+                g_unk0x0082a930 = g_unk0x0082a928;
+                g_unk0x0082a90c[i] = 3;
+                g_unk0x0082a90c[pMenu->cursor] = 0;
+            }
+            break;
+        case 3:
+            if (i == pMenu->cursor)
+                Menu_SetFlags(pMenu, 0, 0, 0, 0);
+            break;
+        }
+    }
+    if (pMenu->cursor != Menu_FindItem(pMenu, 2) && pMenu->cursor != Menu_FindItem(pMenu, 1)) {
+        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
+            FUN_00506b20(i, 0);
+    } else {
+        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
+            FUN_00506b20(i, i == CGameInfo::FUN_005011b0());
+    }
+    if (pMenu->cursor != Menu_FindItem(pMenu, 5))
+        ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 5)].max = 1;
+    FUN_004ff630(pMenu);
+    value = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max;
+    while (FUN_00501280(FUN_004ff4b0(value),
+                        (int)CFrontend::FUN_0040ee90(
+                            RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0) {
+        if (g_unk0x00526f48 < value)
+            value++;
+        else
+            value--;
+    }
+    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 1)].max = (BYTE)value;
+    if (g_unk0x00526f48 != value) {
+        FUN_00500520();
+        FUN_00501d00(5);
+        FUN_00501d00(7);
+    }
+    g_unk0x00526f48 = value;
+    value = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max;
+    while (FUN_00501280(FUN_004ff4d0(value),
+                        (int)CFrontend::FUN_0040ee90(
+                            RallyData_FUN_004086b0(CGameInfo::FUN_005011b0()) & 0xff)) == 0) {
+        if (g_unk0x00526f4c < value)
+            value++;
+        else
+            value--;
+    }
+    ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 2)].max = (BYTE)value;
+    if (g_unk0x00526f4c != value) {
+        FUN_00500520();
+        FUN_00501d00(5);
+        FUN_00501d00(7);
+    }
+    g_unk0x00526f4c = value;
+    old = ((Menu *)FUN_00502500())->items[Menu_FindItem((Menu *)FUN_00502500(), 0)].max;
+    if (g_unk0x00526f50 != old)
+        FUN_00501d00(7);
+    g_unk0x00526f50 = old;
+    FUN_00500530();
+    FUN_004ff5b0();
+    if (pMenu->cursor == Menu_FindItem(pMenu, 4))
+        FUN_004ff720(pMenu);
+    else
+        g_unk0x00526f40 = 0;
 }
