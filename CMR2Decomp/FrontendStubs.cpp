@@ -28,10 +28,6 @@
 //
 //
 
-void FUN_004d8ed0(Menu *pMenu)
-{
-}
-
 // STUB: CMR2 0x004d9c40
 void FUN_004d9c40(Menu *pMenu)
 {

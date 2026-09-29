@@ -10883,3 +10883,96 @@ void FUN_004e8b60(Menu *pMenu)
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
+// Draws the stage list screen: the breadcrumbs, the separator bar and one row
+// per item (the row sprite, its label and the value strings of the item).
+// FUNCTION: CMR2 0x004d8ed0
+void FUN_004d8ed0(Menu *pMenu)
+{
+    SpriteRect rect;
+    char label[4];
+    char *names[2];
+    MenuItem *pItem;
+    BYTE *pColour;
+    BYTE *pLineColour;
+    BYTE *pLineShadow;
+    int y;
+    int x;
+    int i;
+    int j;
+
+    rect.y = 0;
+    rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.w = CFrontend::m_pAr640ATexture->width;
+    rect.h = CFrontend::m_pAr640ATexture->height;
+    FrontendDraw_PlayTime();
+    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+            (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
+    strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
+    names[0] = g_unk0x008188a4;
+    names[1] = label;
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
+    y = ((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2 -
+        ((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount) / 2;
+    if (pMenu->cursor == 0) {
+        pLineColour = g_colourWhite0x00524968;
+        pLineShadow = g_colourShadowWhite0x00524974;
+    } else {
+        pLineColour = g_colourText0x0052496c;
+        pLineShadow = g_colourShadowText0x00524978;
+    }
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[1] = y;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+    g_unk0x008189a8[1]++;
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
+    i = 0;
+    pItem = pMenu->items;
+    if (pMenu->itemCount > 0) {
+        do {
+            rect.y = (int)(g_pGraphics->resY * 20) / 480 + y +
+                     ((int)(g_pGraphics->resY * 36) / 480 * i - CFrontend::m_pAr640ATexture->height / 2);
+            if (pMenu->cursor == i) {
+                pColour = g_colourWhite0x00524968;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
+            } else {
+                pColour = g_colourText0x0052496c;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
+            }
+            if (pItem->value == 0x88) {
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
+                x = (int)(g_pGraphics->resX * 0x7a) / 0x280;
+                Font_DrawText(1, CFrontend::m_stringDest, x,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                for (j = 0; j < pItem->min; j++) {
+                    if (j == pItem->max)
+                        pColour = g_colourWhite0x00524968;
+                    else
+                        pColour = g_colourText0x0052496c;
+                    x += (int)(g_pGraphics->resX * 10) / 640 + Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::GetTextString(j + 0x131), x,
+                                  (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x131));
+                }
+            }
+            if (pMenu->cursor == i || pMenu->cursor == i + 1) {
+                pLineColour = g_colourWhite0x00524968;
+                pLineShadow = g_colourShadowWhite0x00524974;
+            } else {
+                pLineColour = g_colourText0x0052496c;
+                pLineShadow = g_colourShadowText0x00524978;
+            }
+            g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * (i + 1) + y;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
+            g_unk0x008189a8[1]++;
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
+            pItem++;
+            i++;
+        } while (i < pMenu->itemCount);
+    }
+    FrontendDraw_ScrollerRow(FUN_004f2500(), 0);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
