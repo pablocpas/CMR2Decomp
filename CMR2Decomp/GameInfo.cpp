@@ -11624,3 +11624,93 @@ void FUN_004ff720(Menu *pMenu)
         Menu_SetFlags(pMenu, 1, 1, 1, 1);
     }
 }
+
+// Per-slot number of converted mesh blocks in g_unk0x00831198 (stride 0x2ac).
+// GLOBAL: CMR2 0x0082d48a
+BYTE g_unk0x0082d48a[16 * 0x2ac];
+// GLOBAL: CMR2 0x0082d19c
+BYTE *g_unk0x0082d19c[16];
+// GLOBAL: CMR2 0x008311d8
+BYTE *g_unk0x008311d8[16];
+// GLOBAL: CMR2 0x00831158
+BYTE *g_unk0x00831158[16];
+
+// 0xc-byte per-slot entry of the table at 0x831088.
+struct Unk0x00831088 {
+    void *pUnk0x0;              // 0x0
+    void *pUnk0x4;              // 0x4
+    void *pUnk0x8;              // 0x8
+};
+// GLOBAL: CMR2 0x00831088
+Unk0x00831088 g_unk0x00831088[16];
+// GLOBAL: CMR2 0x00831318
+BYTE g_unk0x00831318;
+
+// Releases every resource of the rally session: the scene nodes and converted
+// mesh buffers of every slot, its textures and scene nodes, and clears the
+// session flag.
+// FUNCTION: CMR2 0x00505f10
+BYTE FUN_00505f10(void)
+{
+    int i;
+    int j;
+
+    if (CGameInfo::FUN_00405d10() == 0) {
+        for (i = 0; i < 16; i++) {
+            for (j = 0; j < 4; j++) {
+                if (g_unk0x0082cb78[i].field_0x24[j] != 0)
+                    *(int *)((char *)g_unk0x0082cb78[i].pWheels[j] + 0xc) =
+                        g_unk0x0082cb78[i].field_0x24[j];
+            }
+        }
+    }
+    for (i = 0; i < 16; i++) {
+        if (g_unk0x00831198[i] != NULL) {
+            for (j = 0; j < g_unk0x0082d48a[i * 0x2ac]; j++) {
+                if (g_unk0x00831198[i][j] != NULL) {
+                    CFileBuffer::FreeGenericFileBuffer(g_unk0x00831198[i][j]);
+                    g_unk0x00831198[i][j] = NULL;
+                }
+            }
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831198[i]);
+            g_unk0x00831198[i] = NULL;
+        }
+    }
+    for (i = 0; i < 16; i++) {
+        if (g_unk0x0082d1dc[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0082d1dc[i]);
+            g_unk0x0082d1dc[i] = NULL;
+        }
+    }
+    for (i = 0; i < 16; i++) {
+        if (g_unk0x00831088[i].pUnk0x0 != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831088[i].pUnk0x0);
+            g_unk0x00831088[i].pUnk0x0 = NULL;
+        }
+        g_unk0x00831088[i].pUnk0x0 = NULL;
+        g_unk0x00831088[i].pUnk0x8 = NULL;
+        g_unk0x00831088[i].pUnk0x4 = NULL;
+    }
+    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+        if (g_unk0x0082cb78[i].pNode != NULL)
+            SceneNode_Destroy(g_unk0x0082cb78[i].pNode);
+        if (g_unk0x0082cb78[i].field_0x0c != 0)
+            SceneNode_Destroy((SceneNode *)g_unk0x0082cb78[i].field_0x0c);
+        if (g_unk0x0082cb78[i].field_0x10 != 0)
+            SceneNode_Destroy((SceneNode *)g_unk0x0082cb78[i].field_0x10);
+        if (g_unk0x0082d19c[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0082d19c[i]);
+            g_unk0x0082d19c[i] = NULL;
+        }
+        if (g_unk0x008311d8[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x008311d8[i]);
+            g_unk0x008311d8[i] = NULL;
+        }
+        if (g_unk0x00831158[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x00831158[i]);
+            g_unk0x00831158[i] = NULL;
+        }
+    }
+    g_unk0x00831318 = 0;
+    return 1;
+}

@@ -20,7 +20,7 @@ void FUN_004ffab0(unsigned int) { }
 // 0x00500020 implemented in GameInfo.cpp (W194).
 
 
-// STUB: CMR2 0x00505f10
-void FUN_00505f10(void) { }
+// 0x00505f10 implemented in GameInfo.cpp (W194).
+
 
 
