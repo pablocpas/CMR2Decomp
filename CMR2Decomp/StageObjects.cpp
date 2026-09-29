@@ -12211,16 +12211,14 @@ void FUN_0046d610(BYTE *p)
 }
 // Dispatches one stage object's per-frame update when its stage-block slot is
 // active, refreshing the car's order, light and mesh state.
-// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004765e0
 void FUN_004765e0(BYTE *pObj, int a, int b)
 {
-    BYTE index = pObj[2];
-    if (g_unk0x0058d6a8[index] != 0) {
+    if (g_unk0x0058d6a8[pObj[2]] != 0) {
         FUN_00476e00(pObj, (int *)a, b);
-        FUN_00476640((int)index);
-        FUN_00476a40((int)index);
-        FUN_00477460((int)index);
+        FUN_00476640(pObj[2]);
+        FUN_00476a40(pObj[2]);
+        FUN_00477460(pObj[2]);
         FUN_004778b0(pObj, a);
     }
 }

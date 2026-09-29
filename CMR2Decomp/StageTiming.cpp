@@ -3637,24 +3637,25 @@ void FUN_00448de0(void)
 int FUN_0041b380(void);
 
 // Copies the driver slots into the split display table for the current view mode.
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455620
 void FUN_00455620(void)
 {
-    BYTE count = CGameInfo::FUN_00405d70();
+    int count = (BYTE)CGameInfo::FUN_00405d70();
     int mode = FUN_0041b380();
     int i;
 
     if (mode >= 0) {
-        if (mode < 2) {
-            g_unk0x00542528[0xc0] = count;
-            if (count != 0)
-                memcpy(g_unk0x00542528 + 0xc8, g_stageDriverSlot, count);
-        } else if (mode == 4) {
-            for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
-                g_unk0x00542528[0xc0 + i] = 1;
-                g_unk0x00542528[0xc8 + i * 2] = g_stageDriverSlot[i];
+        if (mode > 1) {
+            if (mode == 4) {
+                for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+                    g_unk0x00542528[0xc0 + i] = 1;
+                    g_unk0x00542528[0xc8 + i * 2] = g_stageDriverSlot[i];
+                }
             }
+        } else {
+            g_unk0x00542528[0xc0] = count;
+            if (count > 0)
+                memcpy(g_unk0x00542528 + 0xc8, g_stageDriverSlot, count);
         }
     }
 }
@@ -9249,26 +9250,27 @@ void WheelSpray_Update(int player);
 void FUN_0045af00(int car)
 {
     BYTE *pColour;
+    int index = car;
 
-    if (car >= 8)
+    if (index >= 8)
         return;
-    if (*(int *)((BYTE *)Car_Get(car) + 0xc0c) != 0 || CGameInfo::FUN_00405cd0() == 2)
+    if (*(int *)((BYTE *)Car_Get(index) + 0xc0c) != 0 || CGameInfo::FUN_00405cd0() == 2)
         return;
-    pColour = (BYTE *)FUN_00463270(car, 0);
+    pColour = (BYTE *)FUN_00463270(index, 0);
     if (pColour != NULL) {
         ((BYTE *)&car)[0] = pColour[0];
         ((BYTE *)&car)[1] = pColour[1];
         ((BYTE *)&car)[2] = pColour[2];
         ((BYTE *)&car)[3] = 0xff;
     }
-    FUN_0045d1e0(car, (BYTE *)&car);
-    if (FUN_00422f50(car) != 3) {
-        FUN_0045d540(car);
-        StageTiming_SpawnWheelParticles(car);
-        WheelSplash_Update(car);
-        WheelSpray_Update(car);
+    FUN_0045d1e0(index, (BYTE *)&car);
+    if (FUN_00422f50(index) != 3) {
+        FUN_0045d540(index);
+        StageTiming_SpawnWheelParticles(index);
+        WheelSplash_Update(index);
+        WheelSpray_Update(index);
     }
-    FUN_0045af90(car);
+    FUN_0045af90(index);
 }
 
 void FUN_00484e00(int param_1, short count);

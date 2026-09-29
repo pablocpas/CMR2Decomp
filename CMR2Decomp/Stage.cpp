@@ -107,18 +107,19 @@ int FUN_004584c0(void)
 }
 
 // Previous checkpoint, wrapping round on looped stages.
-// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459320
 int FUN_00459320(int index)
 {
-    index--;
-    if (index == -1) {
-        if (g_stageLooped != 0)
-            index = g_stageCheckpointCount - 1;
-        else
-            index = 0;
+    int result = index - 1;
+    if (result == -1) {
+        if (g_stageLooped != 0) {
+            index = g_stageCheckpointCount;
+            result = index - 1;
+        } else {
+            result = 0;
+        }
     }
-    return index;
+    return result;
 }
 
 // Next checkpoint, wrapping round on looped stages.

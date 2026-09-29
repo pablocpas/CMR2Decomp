@@ -303,3 +303,48 @@ python3 tests/differential_tables.py /tmp/cmr2-tables-final.json \
 
 La partida completa sigue sin validarse en esta rama. El hito de menos de 700
 funciones inferiores al 100 % permanece pendiente.
+
+## Lote de llamadas, índices y control de flujo
+
+Base `c1cbbe6`. Medición completa con el campo estricto `matching`:
+**3364 funciones, 2149 al 100 %, 1215 por debajo del 100 %, 824 por debajo
+ del 90 %**. Se ganan seis exactas en este lote y 41 desde la base del hito
+(`c11fb4d`, 1256 pendientes). Faltan 516 mejoras netas para llegar a 699.
+
+| Función | Antes | Después | Cambio confirmado |
+|---|---:|---:|---|
+| `0x4765e0` | 39,34 % | 100 % | Releer el slot del objeto después de cada llamada |
+| `0x45af00` | 40,37 % | 100 % | Conservar el índice del coche al empaquetar el color |
+| `0x455620` | 42,42 % | 100 % | Contador entero extendido desde BYTE y orden original de ramas |
+| `0x408bd0` | 44 % | 100 % | Índice int; actualizar también declaración y llamador |
+| `0x419b50` | 53,33 % | 100 % | Conservar el módulo de rand y devolverlo sin recalcular |
+| `0x459320` | 60,87 % | 100 % | Separar índice y resultado del checkpoint anterior |
+| `0x423900` | 52,78 % | 63,89 % | Orden original de los cuerpos del switch; registros pendientes |
+
+El bug más relevante del lote estaba en `0x45af00`: escribía cuatro bytes de
+color sobre `car` y luego lo usaba como índice en todas las llamadas siguientes.
+El original conserva el índice en ESI y usa la pila para el color. La corrección
+reproduce exactamente esa separación, incluido el camino sin color disponible.
+
+Validación del lote:
+
+- Build completo MSVC6 correcto. No desaparecen funciones; ninguna exacta
+  anterior pasa a parcial. Las siete variaciones del informe son las previstas.
+- `tests/differential_effect_calls.py`: 6000 ejecuciones del código máquina
+  original y recompilado con callees simulados. Mismos argumentos y orden de
+  llamadas; datos del coche y guardas intactos. El código anterior guardado
+  antes del build produce 480 diferencias: la prueba detecta el bug corregido.
+- `reccmp-datacmp`: 3189 variables y cero incidencias.
+- `check_dupes.py`: limpio; `git diff --check`: correcto.
+
+Informes privados: `/tmp/cmr2-calls-final.json` y
+`/tmp/cmr2-calls-final-entities.json`. Reproducir:
+
+```bash
+python3 tests/differential_effect_calls.py /tmp/cmr2-calls-final.json \
+  /tmp/cmr2-calls-final-entities.json
+```
+
+La prueba verifica este dispatcher, no toda la física de las funciones que
+llama ni una partida completa. Las técnicas confirmadas quedan recogidas en
+`tools/CONOCIMIENTO.md`, apartado 12.4. El hito de menos de 700 sigue pendiente.

@@ -4757,7 +4757,7 @@ short g_unk0x0052a48c;
 void FUN_00447d20(BYTE index, FixVector *pOffset);
 void FUN_00447e20(BYTE index, short value);
 void FUN_00447ec0(BYTE index, int value);
-void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index);
+void RallyData_FUN_00408bd0(int *pPos, short heading, int value, int index);
 
 // Callback 1 of the camera options menu: applies the chosen offset (and
 // stores it for the driver), or restores the old one when cancelled.
@@ -4776,7 +4776,7 @@ void FUN_004037c0(Menu *pMenu, char cancel)
     CGameInfo::FUN_00405fa0((DWORD *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c);
     int id = (FUN_0041b370() & 0xff) + g_unk0x0052af58[1];
 
-    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c, (BYTE)id);
+    RallyData_FUN_00408bd0((int *)&g_unk0x0052aa50, g_unk0x0052a86c, g_unk0x0052aa5c, id);
 }
 
 // FUNCTION: CMR2 0x00404ea0

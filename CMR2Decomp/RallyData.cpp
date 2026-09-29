@@ -2091,10 +2091,9 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
         *pValue = colour & 0xff;
 }
 
-// Stores a driver's position (x/z of pPos), heading and value.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Stores a driver's camera offsets (y/z of pPos), heading and value.
 // FUNCTION: CMR2 0x00408bd0
-void RallyData_FUN_00408bd0(int *pPos, short heading, int value, BYTE index)
+void RallyData_FUN_00408bd0(int *pPos, short heading, int value, int index)
 {
     int record[5];
 

@@ -2794,20 +2794,20 @@ void FUN_00476500(void *param1);
 void FUN_0048d850(BYTE *pCar, BYTE *pInfo);
 
 // Dispatches by the object type stored at +4.
-// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423900
 void FUN_00423900(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
-    case 1:
-    case 10:
-        FUN_00486c00(pObject, pInfo);
+    case 3:
+        FUN_00476500(pObject);
         return;
     case 2:
         FUN_00486be0(pObject, (int)pInfo);
         return;
-    case 3:
-        FUN_00476500(pObject);
+    case 1:
+    case 10:
+        FUN_00486c00(pObject, pInfo);
         return;
     case 7:
         FUN_0048d850(pObject, pInfo);

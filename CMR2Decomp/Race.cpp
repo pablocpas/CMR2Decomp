@@ -1672,7 +1672,6 @@ void FUN_00418dd0(int param1, int param2, char param3)
 }
 
 // Returns a random value in [0, param2) that is not param1.
-// match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00419b50
 int FUN_00419b50(int param1, int param2)
 {
@@ -1680,11 +1679,11 @@ int FUN_00419b50(int param1, int param2)
 
     if (param2 == 1)
         return 0;
-    value = rand();
-    while (value % param2 == param1) {
-        value = rand();
+    value = rand() % param2;
+    while (value == param1) {
+        value = rand() % param2;
     }
-    return value % param2;
+    return value;
 }
 
 void FUN_00418d30(int param1, int param2, int param3, int param4, int param5);
