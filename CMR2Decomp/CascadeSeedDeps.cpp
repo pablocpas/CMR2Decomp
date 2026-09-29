@@ -56,8 +56,7 @@ void FUN_0049bcb0(Menu *pMenu) { }
 void FUN_00473d60(Menu *pMenu) { }
 
 // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
-// STUB: CMR2 0x004dbd80
-void FUN_004dbd80(Menu *pMenu) { }
+// FUN_004dbd80 (0x004dbd80) is implemented in FrontendScreens.cpp.
 
 // STUB: CMR2 0x004f8b30
 void FUN_004f8b30(void) { }

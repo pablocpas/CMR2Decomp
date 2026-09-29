@@ -28,22 +28,9 @@
 //
 //
 
-void FUN_004d8ed0(Menu *pMenu)
-{
-}
-
-// STUB: CMR2 0x004d9c40
-void FUN_004d9c40(Menu *pMenu)
-{
-}
-
 // FUN_004dc710 (0x004dc710) is implemented in FrontendScreens.cpp.
 //
 //
-void FUN_004dce00(Menu *pMenu)
-{
-}
-
 void FUN_004dd4b0(Menu *pMenu)
 {
 }
@@ -52,22 +39,6 @@ void FUN_004de1d0(Menu *pMenu, int param)
 {
 }
 
-
-void FUN_004dfe20(Menu *pMenu)
-{
-}
-
-void FUN_004e77c0(Menu *pMenu)
-{
-}
-
-void FUN_004e8500(Menu *pMenu)
-{
-}
-
-void FUN_004e90f0(Menu *pMenu)
-{
-}
 
 // FUN_004e9990 (0x004e9990) is implemented in FrontendScreens.cpp.
 //
