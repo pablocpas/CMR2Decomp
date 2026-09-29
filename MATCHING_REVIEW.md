@@ -348,3 +348,51 @@ python3 tests/differential_effect_calls.py /tmp/cmr2-calls-final.json \
 La prueba verifica este dispatcher, no toda la física de las funciones que
 llama ni una partida completa. Las técnicas confirmadas quedan recogidas en
 `tools/CONOCIMIENTO.md`, apartado 12.4. El hito de menos de 700 sigue pendiente.
+
+## Lote de dispatchers y activación de billboards
+
+Base `90f69b6`. Informe completo estricto: **3364 funciones, 2152 al 100 %,
+1212 por debajo del 100 % y 821 por debajo del 90 %**. Tres exactas nuevas,
+ninguna desaparecida y ninguna exacta anterior regresada. Son 44 mejoras
+netas desde `c11fb4d`; faltan 513 para alcanzar 699 pendientes.
+
+| Función | Antes | Después | Cambio |
+|---|---:|---:|---|
+| `0x486b90` | 51,28 % | 100 % | Asignar el valor en ambas ramas y compartir el store en el fuente |
+| `0x476540` | 62,86 % | 100 % | Siete stores sobre el global e incrementos acumulados del puntero |
+| `0x486b20` | 68,35 % | 100 % | El mismo patrón del dispatcher de tipos |
+| `0x4b1150` | 44,90 % | 75,86 % | Activar billboards y recuperar la estructura del generador de índices |
+
+`0x4b1150` omitía el store `g_billboardsEnabled = 1` que el original hace
+antes de registrar el callback. Sin él, `Billboard_Add` seguía rechazando
+solicitudes porque el sistema figuraba como desactivado. Se conserva la
+capacidad de 800 quads y los 4800 índices, y se restauran el contador
+descendente y los incrementos de vértice. La diferencia restante corresponde
+al punto elegido por el compilador para el cursor dentro de cada grupo.
+
+Validación:
+
+- Build completo MSVC6 correcto; reccmp mide las 3364 funciones. Solo cambian
+  las cuatro funciones previstas; las tres coincidencias exactas se confirman
+  en el ejecutable completo, además de la compilación aislada.
+- `tests/differential_billboard_init.py`: 6000 inicializaciones con código
+  máquina real de ambas imágenes, conservando las distancias entre globals.
+  Todos los índices y los tres flags/contadores tienen los valores esperados;
+  la identidad del callback y los valores visibles al registrarlo coinciden.
+  Guardas intactas, incluidos los huecos entre globals. Una mutación que quita
+  el store de activación falla en 4000 casos.
+- `reccmp-datacmp`: **3189 variables, cero incidencias**.
+- `check_dupes.py` y `git diff --check`: correctos.
+
+Informes: `/tmp/cmr2-dispatch-final.json` y
+`/tmp/cmr2-dispatch-final-entities.json`. El volcado detallado de diferencias
+`/tmp/cmr2-dispatch-final-scan.json` permite buscar causas compartidas sin
+volver a usar el antiguo scan de `c11fb4d` como si fuese el estado actual.
+
+```bash
+python3 tests/differential_billboard_init.py /tmp/cmr2-dispatch-final.json \
+  /tmp/cmr2-dispatch-final-entities.json
+```
+
+Técnicas y variantes descartadas: `tools/CONOCIMIENTO.md`, apartado 12.5.
+La presentación gráfica completa sigue sin validarse y el hito permanece activo.

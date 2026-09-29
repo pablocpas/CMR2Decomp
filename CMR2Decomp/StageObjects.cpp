@@ -2051,28 +2051,31 @@ int FUN_00476520(BYTE index)
 
 // Caches, for a car, whether its class is special and pointers into its
 // timing record.
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00476540
 void FUN_00476540(int index)
 {
     Car *pCar = Car_Get(index);
     char type = pCar->field_0xb1b[0];
     int p;
-    int *pRow;
 
     if (type == 8 || type == 7 || type == 9 || type == 13)
         g_unk0x0058d2f0[index] = 1;
     else
         g_unk0x0058d2f0[index] = 0;
     p = FUN_00457e10((BYTE *)pCar, 5);
-    pRow = (int *)(g_unk0x0058d4f0 + index * 0x1c);
-    pRow[0] = p;
-    pRow[1] = p + 8;
-    pRow[2] = p + 0xc;
-    pRow[3] = p + 0x18;
-    pRow[4] = p + 0x1c;
-    pRow[5] = p + 0x24;
-    pRow[6] = p + 0x2c;
+    ((int *)g_unk0x0058d4f0)[index * 7] = p;
+    p += 8;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 1] = p;
+    p += 4;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 2] = p;
+    p += 0xc;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 3] = p;
+    p += 4;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 4] = p;
+    p += 8;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 5] = p;
+    p += 8;
+    ((int *)g_unk0x0058d4f0)[index * 7 + 6] = p;
 }
 
 // Draws a stage box: a filled rectangle, its one pixel outline and, optionally,
@@ -3961,18 +3964,18 @@ int FUN_0048df10(BYTE *pCar)
     return 0;
 }
 
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00486b90
 void FUN_00486b90(BYTE *pCar, BYTE *pInfo)
 {
     int kind;
+    int value;
 
     kind = *(int *)(pInfo + 4);
-    if (kind != 2 && kind != 1 && kind != 10) {
-        g_unk0x00590db0[*pCar] = 0;
-        return;
-    }
-    g_unk0x00590db0[*pCar] = 0x10000;
+    if (kind != 2 && kind != 1 && kind != 10)
+        value = 0;
+    else
+        value = 0x10000;
+    g_unk0x00590db0[*pCar] = value;
 }
 
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -5704,7 +5707,6 @@ int FUN_0048f400(void)
 
 void FUN_004ae410(BYTE a, BYTE b, int c, int d);
 
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00486b20
 void FUN_00486b20(BYTE *pCar, BYTE *pInfo)
 {
@@ -5715,11 +5717,12 @@ void FUN_00486b20(BYTE *pCar, BYTE *pInfo)
     else
         FUN_004ae410(pCar[2], pCar[1], 1, 1);
     kind = *(int *)(pInfo + 4);
-    if (kind != 2 && kind != 1 && kind != 10) {
-        g_unk0x00590db0[*pCar] = 0;
-        return;
-    }
-    g_unk0x00590db0[*pCar] = 0x10000;
+    int value;
+    if (kind != 2 && kind != 1 && kind != 10)
+        value = 0;
+    else
+        value = 0x10000;
+    g_unk0x00590db0[*pCar] = value;
 }
 
 extern void **g_unk0x00590c6c;

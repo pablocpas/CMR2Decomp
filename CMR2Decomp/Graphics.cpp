@@ -4294,30 +4294,33 @@ unsigned short g_unk0x006db200[800 * 6];
 int g_unk0x006dd784;
 // GLOBAL: CMR2 0x006dd788
 int g_unk0x006dd788;
+extern int g_billboardsEnabled;
 void Billboard_Reset(void);
 
 // Builds the 800-entry triangle-strip index table.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1150
 void FUN_004b1150(void)
 {
-    int i;
-    unsigned short *pIndex;
-
     g_unk0x006dd784 = 0;
     g_unk0x006dd788 = 0;
-    pIndex = g_unk0x006db200;
-    for (i = 0; i < 800; i++) {
-        int v = i * 4 + 3;
-
-        pIndex[0] = v - 3;
-        pIndex[1] = v;
-        pIndex[2] = v - 1;
-        pIndex[3] = v - 3;
-        pIndex[4] = v - 2;
-        pIndex[5] = v;
+    int vertex = 3;
+    WORD *pIndex = g_unk0x006db200 + 1;
+    int remaining = 800;
+    do {
+        int previous = vertex - 2;
+        WORD first = vertex - 3;
+        pIndex[-1] = first;
+        pIndex[0] = vertex;
+        int second = previous + 1;
+        pIndex[1] = second;
+        pIndex[2] = first;
+        pIndex[3] = previous;
+        pIndex[4] = vertex;
         pIndex += 6;
-    }
+        vertex += 4;
+    } while (--remaining);
+    g_billboardsEnabled = 1;
     CGame::RegisterCallback(Billboard_Reset, NULL);
 }
 
