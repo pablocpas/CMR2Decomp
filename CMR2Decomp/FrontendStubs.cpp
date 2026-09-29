@@ -31,10 +31,6 @@
 // FUN_004dc710 (0x004dc710) is implemented in FrontendScreens.cpp.
 //
 //
-void FUN_004dd4b0(Menu *pMenu)
-{
-}
-
 void FUN_004de1d0(Menu *pMenu, int param)
 {
 }
