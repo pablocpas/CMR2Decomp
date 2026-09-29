@@ -7,8 +7,6 @@
 
 
 
-// STUB: CMR2 0x005062d0
-void FUN_005062d0(unsigned int) { }
 
 // --- scaffolding for the FUN_0041b060 entry chain (0x401000-0x472e00) -------
 // Same idea as above: the game-state machine and its callees are written before
