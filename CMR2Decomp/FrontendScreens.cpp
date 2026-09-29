@@ -10985,11 +10985,14 @@ void FUN_004e77c0(Menu *pMenu)
             }
             switch (pItem->value) {
             case 0:
+            {
+                char **pName;
+
                 pColour = g_colourWhite0x00524968;
                 if (pMenu->cursor != i)
                     pColour = g_colourText0x0052496c;
                 Font_DrawText(1, CFrontend::GetTextString(0x1f7), x,
-                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]), (int *)pColour, 0x11);
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 x = x + (int)(g_pGraphics->resX * 10) / 0x280
                     + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x1f7));
                 pName = names;
@@ -11008,24 +11011,22 @@ void FUN_004e77c0(Menu *pMenu)
                         pColour = ((flags & 1) != 0) ? g_colourText0x0052496c : g_colourDim0x00524970;
                     }
                     Font_DrawText(1, names[index], x,
-                                  (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
-                                  (int *)pColour, 0x11);
+                                  (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                     x += Font_GetTextWidth(1, (BYTE *)*pName);
                     pName++;
                 }
                 break;
+            }
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
                         CFrontend::GetTextString(Menu_GetItem(pMenu, 1)->max + 0x27));
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
-                              (int *)pColour, 0x11);
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 2:
             case 3:
                 Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1]),
-                              (int *)pColour, 0x11);
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             }
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
