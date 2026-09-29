@@ -1153,3 +1153,313 @@ void FUN_00415f50(int car, short *pRect)
 #undef MAP_X
 #undef MAP_Y
 
+BYTE FUN_004085a0(BYTE param1);
+BYTE FUN_00407150(BYTE param1, char param2);
+BYTE RallyData_FUN_00409010(int index, int bit);
+void RallyData_FUN_00409090(int index, int place);
+void FUN_00409150(int index, int item, int level);
+void FUN_00409680(int index, int player, int difficulty);
+char FUN_004097b0(int param_1);
+bool RallyData_FUN_00408e30(int index, int bit, char check);
+int FUN_0040ceb0(int index);
+int FUN_004483b0(int index);
+int RallyTiming_GetStagePositionOfDriver(int iDriver);
+int RallyTiming_GetOverallPositionOfDriver(int iDriver);
+extern int g_unk0x00537f68[];
+extern int g_unk0x00537f78[];
+extern int g_unk0x00537f0c[];
+
+// Bit `(country + 1) / 2` of each of the three event groups of the second game
+// info flag word, indexed by [stage * 4 + country / 2].
+// GLOBAL: CMR2 0x00519198
+int g_unk0x00519198[12] = {
+    0x516034, 0x960000, 0xff, 0xacb49c, 7, 0x10, 0xf, 0x14, 0xc, 0x11, 0x13, 0x12
+};
+
+// Per-driver event progress: clears the flags of every driver slot, sets the
+// stage and award bits of the current event, stores the place-based awards and
+// finally updates the game callback group when a driver completed an event.
+// FUNCTION: CMR2 0x0041b460
+void FUN_0041b460(void)
+{
+    unsigned int *pFlags;
+    BYTE flag;
+    BYTE bAward;
+    int stage;
+    unsigned int bit;
+    int pos;
+    int i;
+
+    flag = 0;
+    pFlags = CGameInfo::FUN_00405db0();
+    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+        g_unk0x00537f68[i] = 0;
+        g_unk0x00537f78[i] = 0;
+        bAward = FUN_004085a0((BYTE)i);
+        pos = StageTiming_GetDriverSlot(i);
+        switch (CGameInfo::FUN_00405d80()) {
+        case 0:
+        case 1:
+            if (CGameInfo::FUN_00405d80() == 0) {
+                if ((BYTE)RallyDataCountryIndex() == 7 && RallyDataStageIndex() == 0xa &&
+                    RallyTiming_GetStagePositionOfDriver(pos) <= 2)
+                    RallyData_FUN_00409090(i, RallyTiming_GetStagePositionOfDriver(pos));
+                if (CGameInfo::FUN_00405d90() == 1 && (BYTE)RallyDataCountryIndex() == 7 &&
+                    RallyDataStageIndex() == 0xa && pos == 0 && (pFlags[0] & 1) == 0) {
+                    pFlags[0] |= 1;
+                    g_unk0x00537f68[i] |= 1;
+                    CGame::FUN_004057c0();
+                }
+                if (CGameInfo::FUN_00405d90() == 0 && (BYTE)RallyDataCountryIndex() == 7 &&
+                    RallyDataStageIndex() == 0xa && pos == 0 && bAward == 0 &&
+                    RallyData_FUN_00409010(i, 0x15)) {
+                    g_unk0x00537f78[i] = 0x15;
+                    g_unk0x00537f68[i] |= 0x80;
+                }
+            }
+            stage = (BYTE)FUN_00407150((BYTE)RallyDataCountryIndex(),
+                                       (char)CGameInfo::FUN_00405d90()) - 1;
+            if (RallyDataStageIndex() == stage || RallyDataStageIndex() == 0xa) {
+                if (RallyTiming_GetOverallPositionOfDriver(pos) <= 2)
+                    FUN_00409150(i, RallyDataCountryIndex() & 0xff,
+                                 RallyTiming_GetOverallPositionOfDriver(pos));
+            }
+            stage = (BYTE)FUN_00407150((BYTE)RallyDataCountryIndex(),
+                                       (char)CGameInfo::FUN_00405d90()) - 1;
+            if (RallyDataStageIndex() == stage || RallyDataStageIndex() == 0xa) {
+                if (RallyTiming_GetOverallPositionOfDriver(pos) <= 5) {
+                    switch (CGameInfo::FUN_00405d90()) {
+                    case 2:
+                        if (CGameInfo::FUN_00405d80() == 0) {
+                            if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 0x10 & 0xf) &&
+                                (BYTE)RallyDataCountryIndex() != 7) {
+                                pFlags[0] = (pFlags[0] & 0xfff0ffff) | 0x10000;
+                                g_unk0x00537f68[i] |= 8;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
+                            bit = 1 << (((BYTE)RallyDataCountryIndex() + 1) / 2);
+                            if ((pFlags[1] >> 10 & bit & 0x1f) == 0) {
+                                pFlags[1] |= (bit & 0x1f) | ((bit & 0x1f) << 5) | ((bit & 0x1f) << 10);
+                                g_unk0x00537f68[i] |= 0x40;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        if (pos != 0)
+                            break;
+                        if ((BYTE)RallyDataCountryIndex() % 2 == 0)
+                            goto setflag;
+                    award:
+                        if (bAward == 0 &&
+                            RallyData_FUN_00409010(i, g_unk0x00519198[
+                                ((BYTE)RallyDataCountryIndex() >> 1) +
+                                CGameInfo::FUN_00405d90() * 4])) {
+                            g_unk0x00537f68[i] |= 0x80;
+                            g_unk0x00537f78[i] = g_unk0x00519198[
+                                ((BYTE)RallyDataCountryIndex() >> 1) +
+                                CGameInfo::FUN_00405d90() * 4];
+                        }
+                        break;
+                    case 1:
+                        if (CGameInfo::FUN_00405d80() == 0) {
+                            if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 12 & 0xf) &&
+                                (BYTE)RallyDataCountryIndex() != 7) {
+                                pFlags[0] = (pFlags[0] & 0xfff0ffff) | 0x1000;
+                                if ((pFlags[0] & 0xf00) < (pFlags[0] & 0xf000) >> 4)
+                                    pFlags[0] = (pFlags[0] & 0xfffff0ff) | ((pFlags[0] & 0xf000) >> 4);
+                                g_unk0x00537f68[i] |= 4;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
+                            bit = 1 << (((BYTE)RallyDataCountryIndex() + 1) / 2);
+                            if ((pFlags[1] >> 5 & bit & 0x1f) == 0) {
+                                pFlags[1] |= (bit & 0x1f) | ((bit & 0x1f) << 5);
+                                g_unk0x00537f68[i] |= 0x20;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        if (pos != 0)
+                            break;
+                        if ((BYTE)RallyDataCountryIndex() % 2 != 0)
+                            goto award;
+                    setflag:
+                        flag = 1;
+                        break;
+                    case 0:
+                        if (CGameInfo::FUN_00405d80() == 0) {
+                            if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 8 & 0xf) &&
+                                (BYTE)RallyDataCountryIndex() != 7) {
+                                pFlags[0] = (pFlags[0] & 0xfffff0ff) | 0x100;
+                                g_unk0x00537f68[i] |= 2;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        if (((BYTE)RallyDataCountryIndex() + 1) % 2 != 0) {
+                            bit = 1 << (((BYTE)RallyDataCountryIndex() + 1) / 2);
+                            if ((pFlags[1] & bit & 0x1f) == 0) {
+                                pFlags[1] |= bit & 0x1f;
+                                g_unk0x00537f68[i] |= 0x10;
+                                CGame::FUN_004057c0();
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        case 2:
+        case 3:
+        case 4:
+            break;
+        case 5:
+            if ((BYTE)RallyData_FUN_00406950() == 2 && FUN_0040ceb0(i) <= 2)
+                FUN_00409680(i, (BYTE)RallyData_FUN_00406940(), FUN_0040ceb0(i));
+            if (RallyData_FUN_004086b0((BYTE)i) < 0xc && (BYTE)RallyData_FUN_00406950() == 2 &&
+                FUN_0040ceb0(i) == 0) {
+                if ((BYTE)RallyData_FUN_00406940() == 0) {
+                    switch (CGameInfo::FUN_00405d90()) {
+                    case 2:
+                        if ((pFlags[0] & 0xc0) == 0x40) {
+                            pFlags[0] = (pFlags[0] & 0xffffff3f) | 0x40;
+                            g_unk0x00537f68[i] |= 0x200;
+                            CGame::FUN_004057c0();
+                        }
+                        if (stage == 0 && RallyData_FUN_00409010(i, 2)) {
+                            g_unk0x00537f78[i] = 2;
+                            g_unk0x00537f68[i] |= 0x80;
+                        }
+                        break;
+                    case 1:
+                        if ((pFlags[0] & 0x30) == 0x10) {
+                            pFlags[0] = (pFlags[0] & 0xffffffcf) | 0x10;
+                            g_unk0x00537f68[i] |= 0x100;
+                            CGame::FUN_004057c0();
+                        }
+                        if (stage == 0 && RallyData_FUN_00409010(i, 5)) {
+                            g_unk0x00537f78[i] = 5;
+                            g_unk0x00537f68[i] |= 0x80;
+                        }
+                        break;
+                    }
+                } else {
+                    switch (CGameInfo::FUN_00405d90()) {
+                    case 2:
+                        if (stage == 0 && RallyData_FUN_00409010(i, 3)) {
+                            g_unk0x00537f78[i] = 3;
+                            g_unk0x00537f68[i] |= 0x80;
+                        }
+                        if ((pFlags[0] & 0x200000) == 0) {
+                            pFlags[0] |= 0x200000;
+                            g_unk0x00537f68[i] |= 0x1000;
+                        }
+                        break;
+                    case 1:
+                        if ((pFlags[0] & 2) == 0) {
+                            pFlags[0] |= 2;
+                            g_unk0x00537f68[i] |= 0x400;
+                            CGame::FUN_004057c0();
+                        }
+                        if ((pFlags[0] & 0x100000) == 0) {
+                            pFlags[0] |= 0x100000;
+                            g_unk0x00537f68[i] |= 0x800;
+                            CGame::FUN_004057c0();
+                        }
+                        if (stage == 0 && RallyData_FUN_00409010(i, 6)) {
+                            g_unk0x00537f78[i] = 6;
+                            g_unk0x00537f68[i] |= 0x80;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        case 6:
+            if (RallyData_FUN_004086b0((BYTE)i) < 0xc && stage == 0 &&
+                (BYTE)RallyData_FUN_00406940() == 2 && FUN_004483b0(i) == 0) {
+                if ((BYTE)RallyData_FUN_00406950() == 0) {
+                    if (RallyData_FUN_00408e30(i, 0xc, 0) && RallyData_FUN_00409010(i, 0xd)) {
+                        g_unk0x00537f78[i] = 0xd;
+                        g_unk0x00537f68[i] |= 0x80;
+                    }
+                } else {
+                    if (RallyData_FUN_00408e30(i, 0xc, 0) && RallyData_FUN_00409010(i, 0xe)) {
+                        g_unk0x00537f78[i] = 0xe;
+                        g_unk0x00537f68[i] |= 0x80;
+                    }
+                }
+            }
+            break;
+        }
+        if (flag) {
+            if (CGameInfo::FUN_00405d90() == 1) {
+                switch ((BYTE)RallyDataCountryIndex()) {
+                case 0:
+                    if (CGameInfo::FUN_00406360(0) == 0)
+                        CGameInfo::FUN_00406380(0, 1);
+                    g_unk0x00537f0c[i] = 1;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 2:
+                    if (CGameInfo::FUN_00406360(2) == 0)
+                        CGameInfo::FUN_00406380(2, 1);
+                    g_unk0x00537f0c[i] = 3;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 4:
+                    if (CGameInfo::FUN_00406360(4) == 0)
+                        CGameInfo::FUN_00406380(4, 1);
+                    g_unk0x00537f0c[i] = 5;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 6:
+                    if (CGameInfo::FUN_00406360(6) == 0)
+                        CGameInfo::FUN_00406380(6, 1);
+                    g_unk0x00537f0c[i] = 7;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                }
+            }
+            if (CGameInfo::FUN_00405d90() == 2) {
+                switch ((BYTE)RallyDataCountryIndex()) {
+                case 0:
+                    if (CGameInfo::FUN_00406360(1) == 0)
+                        CGameInfo::FUN_00406380(1, 1);
+                    g_unk0x00537f0c[i] = 2;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 2:
+                    if (CGameInfo::FUN_00406360(3) == 0)
+                        CGameInfo::FUN_00406380(3, 1);
+                    g_unk0x00537f0c[i] = 4;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 4:
+                    if (CGameInfo::FUN_00406360(5) == 0)
+                        CGameInfo::FUN_00406380(5, 1);
+                    g_unk0x00537f0c[i] = 6;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                case 6:
+                    if (CGameInfo::FUN_00406360(7) == 0)
+                        CGameInfo::FUN_00406380(7, 1);
+                    g_unk0x00537f0c[i] = 8;
+                    g_unk0x00537f68[i] |= 0x2000;
+                    break;
+                }
+            }
+        }
+        if (bAward == 0 && FUN_004097b0(i) && RallyData_FUN_00409010(i, 1)) {
+            g_unk0x00537f78[i] = 1;
+            g_unk0x00537f68[i] |= 0x80;
+        }
+    }
+    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+        if (g_unk0x00537f68[i] & 0x2000) {
+            CGame::FUN_004057c0();
+            break;
+        }
+    }
+}
+
