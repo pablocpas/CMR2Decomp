@@ -15466,6 +15466,9 @@ BYTE FUN_0041f380(void);
 // the two drivers (or the fallback order when a driver is unknown), clears or
 // marks the match entry, flags the loser, advances the round index of the
 // championship state and re-propagates the bracket.
+// match 96%: the only remaining differences are the stack slots of the four
+// locals (the original keeps the two times in the two lower slots, this build
+// puts them in the middle); every instruction and operand value is identical.
 // Bit layout of KnockoutMatch::flags as the original manipulates it: two
 // five-bit driver indices, the completion bit of the match and the two-bit
 // winner flag (1 second driver faster, 2 first driver faster).
