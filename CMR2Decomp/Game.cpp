@@ -1949,8 +1949,11 @@ void FUN_0049bcb0(Menu *pMenu)
     short rect[4];
     MenuItem *pItem;
     int cursor;
+    int x;
     int i;
 
+    colourText[3] = 0xff;
+    colourDim[3] = 0xff;
     colourWhite[0] = 0xff;
     colourWhite[1] = 0xff;
     colourWhite[2] = 0xff;
@@ -1958,25 +1961,24 @@ void FUN_0049bcb0(Menu *pMenu)
     colourText[0] = 0x4f;
     colourText[1] = 0x4f;
     colourText[2] = 0x4f;
-    colourText[3] = 0xff;
     colourDim[0] = 0x4f;
     colourDim[1] = 0x4f;
     colourDim[2] = 0x4f;
-    colourDim[3] = 0xff;
 
     cursor = pMenu->cursor;
     Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
                   (int)(g_pGraphics->resY * 0xc8) / 0x1e0, (int *)colourText, 0x11);
-    line[0] = (short)((int)(g_pGraphics->resX * 0xf0) / 0x280);
-    line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
-    line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
-    line[3] = 1;
-    rect[0] = (short)((int)(g_pGraphics->resX * 0xf0) / 0x280);
+    x = (int)(g_pGraphics->resX * 0xf0) / 0x280;
     rect[1] = 0;
+    rect[0] = (short)x;
     if (FUN_004055e0() != 0) {
         rect[2] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->w;
         rect[3] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->h;
     }
+    line[0] = (short)x;
+    line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+    line[3] = 1;
+    line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
     if (cursor == 0)
         Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
     else
