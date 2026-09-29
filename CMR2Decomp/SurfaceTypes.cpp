@@ -1519,3 +1519,43 @@ void FUN_004786b0(BYTE *pWheel, int unused)
     }
     *(int *)(pWheel + 0xa74) = blend - 0x3333;
 }
+
+// Stops the surface sounds of every active player (the per-player handles set
+// up by 0x478dc0) and frees the two shared surface sound handles.
+// FUNCTION: CMR2 0x00478c40
+void FUN_00478c40(void)
+{
+    int flag;
+    int i;
+    int *pHandle;
+
+    if ((BYTE)RallyDataState() == 1 && (BYTE)RallyData_GetFlag25() != 0 &&
+        CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405d80() != 3)
+        flag = 1;
+    else
+        flag = 0;
+    for (i = 0; i < (int)((RallyDataState() & 0xff) + flag); i = i + 1) {
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058ddf0[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058ddf0[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058dde0[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058dde0[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058dde8[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058dde8[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058ddac[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058ddac[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058dd80[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058dd80[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058ddc0[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058ddc0[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058dd90[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058dd90[i], 0);
+        if (Sound_IsPlaying((unsigned int)g_unk0x0058ddd0[i]) != 0)
+            FUN_004b79a0((unsigned int)g_unk0x0058ddd0[i], 0);
+    }
+    pHandle = &g_unk0x0058ddc8;
+    while ((int)pHandle < (int)&g_unk0x0058ddd0) {
+        if (*pHandle != -1)
+            Sound_Free((unsigned int)*pHandle);
+        pHandle++;
+    }
+}

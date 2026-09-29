@@ -4034,17 +4034,26 @@ FixVector g_unk0x00591498;
 
 // True when two spheres (radii r1, r2) overlap.
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// True when two spheres (radii r1, r2) overlap. The 32-bit EAX result is
+// tested by the callers (0x48a1f0), so the helper returns int, not bool.
+// match 84%: identical instruction stream and stack layout except that the
+// original kept the radius sum in a register with no home slot (its FixMul
+// operands spill into the dead r1/r2 argument slots) while MSVC6 here homes
+// it at [ebp-4], shifting the frame by four bytes.
 // FUNCTION: CMR2 0x00487b80
-bool FUN_00487b80(int r1, int r2, int *pA, int *pB)
+int FUN_00487b80(int r1, int r2, int *pA, int *pB)
 {
     int r = r1 + r2;
-    int dx = pA[0] - pB[0];
-    int dy = pA[1] - pB[1];
-    int dz = pA[2] - pB[2];
+    FixVector delta;
 
-    if ((dx < 0 ? -dx : dx) <= r && (dy < 0 ? -dy : dy) <= r && (dz < 0 ? -dz : dz) <= r)
-        return FixMul(dz, dz) + FixMul(dx, dx) + FixMul(dy, dy) < FixMul(r, r);
-    return false;
+    delta.x = pA[0] - pB[0];
+    delta.y = pA[1] - pB[1];
+    delta.z = pA[2] - pB[2];
+
+    if ((delta.x < 0 ? -delta.x : delta.x) <= r && (delta.y < 0 ? -delta.y : delta.y) <= r &&
+        (delta.z < 0 ? -delta.z : delta.z) <= r)
+        return FixVecDot(&delta, &delta) < FixMul(r, r);
+    return 0;
 }
 
 // FUNCTION: CMR2 0x00487e00
@@ -15446,4 +15455,235 @@ void FUN_00466520(void)
         FUN_0047eab0();
         FUN_00480220();
     }
+}
+
+int FUN_004483c0(int index);
+void FUN_00407940(unsigned int first, unsigned int second);
+void FUN_00407b10(void);
+BYTE FUN_0041f380(void);
+
+// Finishes the knockout match of the current round: stores the split times of
+// the two drivers (or the fallback order when a driver is unknown), clears or
+// marks the match entry, flags the loser, advances the round index of the
+// championship state and re-propagates the bracket.
+// match 96%: the only remaining differences are the stack slots of the four
+// locals (the original keeps the two times in the two lower slots, this build
+// puts them in the middle); every instruction and operand value is identical.
+// Bit layout of KnockoutMatch::flags as the original manipulates it: two
+// five-bit driver indices, the completion bit of the match and the two-bit
+// winner flag (1 second driver faster, 2 first driver faster).
+struct KnockoutMatchBits {
+    unsigned int driver1 : 5;
+    unsigned int driver2 : 5;
+    unsigned int played : 1;
+    unsigned int winner : 2;
+    unsigned int pad : 19;
+};
+
+// Bit layout of KnockoutTable::state: the kind of bracket (1..4) at bits 3-5
+// and the index of the round within that kind at bits 12-15.
+struct KnockoutStateBits {
+    unsigned int pad0 : 3;
+    unsigned int kind : 3;
+    unsigned int pad1 : 6;
+    unsigned int round : 4;
+    unsigned int pad2 : 16;
+};
+
+// FUNCTION: CMR2 0x00472a30
+void FUN_00472a30(void)
+{
+    int time1;
+    int time2;
+    unsigned int first;
+    unsigned int second;
+    KnockoutTable *pState;
+    unsigned int state;
+    int round;
+    char t;
+
+    pState = (KnockoutTable *)RallyData_GetChampionshipState();
+    RallyData_GetRoundDrivers(&first, &second);
+    if (RallyData_FUN_00408500((BYTE)first) != -1 && RallyData_FUN_00408500((BYTE)second) != -1) {
+        StageTiming_GetSplitTimesForPositions(first, second, &time1, &time2);
+    } else if (RallyData_FUN_00408500((BYTE)first) == -1) {
+        time1 = FUN_004483c0(0);
+        time2 = FUN_004483c0(1);
+    } else {
+        time2 = FUN_004483c0(0);
+        time1 = FUN_004483c0(1);
+    }
+    if (FUN_00473680(RallyData_GetRoundEntry()) != 0) {
+        ((KnockoutMatch *)RallyData_GetRoundEntry())->time1 = 0;
+        ((KnockoutMatch *)RallyData_GetRoundEntry())->time2 = 0;
+        if ((((KnockoutMatch *)RallyData_GetRoundEntry())->flags & 0x1f) == 0x1f)
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 2;
+        else
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
+    } else {
+        FUN_00407940(time1, time2);
+    }
+    if (FUN_0041f380() != 0xff) {
+        if ((BYTE)RallyDataState() == 2) {
+            t = (char)FUN_0041f380();
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = -2 - t;
+        } else if (RallyData_FUN_00408500(
+                       (BYTE)((KnockoutMatch *)RallyData_GetRoundEntry())->flags & 0x1f) == -1) {
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 2;
+        } else {
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
+        }
+    }
+    state = pState->state;
+    round = (state >> 12) & 0xf;
+    ((KnockoutStateBits *)pState)->round++;
+    switch ((pState->state >> 3) & 7) {
+    case 1:
+        pState->round1[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x7000)
+            pState->state |= 0x400000;
+        break;
+    case 2:
+        pState->quarters[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x3000)
+            pState->state |= 0x400000;
+        break;
+    case 3:
+        pState->semis[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x1000)
+            pState->state |= 0x400000;
+        break;
+    case 4:
+        pState->state |= 0x400000;
+        pState->final.flags |= 0x400;
+        break;
+    }
+    FUN_00407b10();
+}
+
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+void FUN_00474420(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour,
+                  unsigned int flags);
+int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer);
+
+// Draws the in-race pause menu: for every entry the background of the selected
+// row, its label (the stage name with the round number in the knockout modes,
+// the entry name otherwise) and the row separators, then the knockout bracket
+// of the current round. The rows move down by KO_Y(6) on screens at least
+// 1024 pixels wide whose texture limits accept that size.
+// match 58%: the prologue, the constants, the call arguments and the control
+// flow are identical; the residual diff is register/slot allocation inside the
+// loop body (the original keeps the row height, the loop counter and the two
+// rectangles in different registers than this build does). Kept as FUNCTION on
+// purpose so reccmp measures it (see CONVENCIONES).
+// FUNCTION: CMR2 0x00473d60
+void FUN_00473d60(Menu *pMenu)
+{
+    int i;
+    short rect[4];
+    short rect2[4];
+    int texture;
+    int y0;
+    int y;
+    int halfHeight;
+    BYTE *pColour;
+    unsigned int *pState;
+
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
+    rect[1] = 0;
+    texture = FUN_004055e0();
+    rect[2] = *(short *)(texture + 0x120);
+    texture = FUN_004055e0();
+    rect[3] = *(short *)(texture + 0x122);
+    y0 = (int)(g_pGraphics->resY * 0x17c) / 0x1e0;
+    pState = RallyData_GetChampionshipState();
+    for (i = 0; i < pMenu->itemCount; i++) {
+        texture = FUN_004055e0();
+        halfHeight = *(short *)(texture + 0x122) / 2;
+        rect[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i +
+                          (int)(g_pGraphics->resY * 0x14) / 0x1e0 - halfHeight + y0);
+        y = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * i
+            - (int)(g_pGraphics->resY * halfHeight) / 0x1e0
+            + (int)(g_pGraphics->resY * 0x14) / 0x1e0 + y0
+            + (int)(g_pGraphics->resY * 0xe) / 0x1e0;
+        if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+            CFrontend::FUN_004b7590(0x400))
+            y += (int)(g_pGraphics->resY * 6) / 0x1e0;
+        if (pMenu->cursor == i) {
+            pColour = g_barTextColour;
+            texture = FUN_004055e0();
+        } else {
+            pColour = g_unk0x0051c994;
+            texture = FUN_004055f0();
+        }
+        switch (g_unk0x0058cf7c) {
+        case 1:
+            if (i == 0)
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77));
+            else
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x78));
+            break;
+        case 2:
+            if (i == 0)
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x79),
+                        ((*pState >> 12) & 0xf) + 1);
+            else
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x78));
+            break;
+        case 5:
+            if (i == 0)
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x7a),
+                        ((*pState >> 12) & 0xf) + 1);
+            else
+                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x78));
+            if ((*pState & 0x400000) == 0 && (*pState & 0x38) != 0x20)
+                continue;
+            break;
+        default:
+            continue;
+        }
+        if (i == 0 || pMenu->cursor == i) {
+            if (FUN_004bc0c0(&g_unk0x0058cf60)) {
+                rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+                rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
+                rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+                rect2[3] = 1;
+                FUN_00475970(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 1);
+            } else {
+                rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+                rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
+                rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+                rect2[3] = 1;
+                Sprite_FillRect((int)g_pGraphics + 0x150, rect2, pColour, 1);
+            }
+        }
+        rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+        rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 + y0);
+        rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+        rect2[3] = 1;
+        if (FUN_004bc0c0(&g_unk0x0058cf60)) {
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
+                         0, NULL, NULL, pColour, 8);
+            FUN_00474420(CFrontend::m_stringDest, g_unk0x0058ce58, 0,
+                         (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                         y, (int *)pColour, 0x21);
+        } else {
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
+                         0, NULL, NULL, pColour, 8);
+            Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                          y, (int *)pColour, 0x21);
+        }
+        rect2[0] = (short)((int)(g_pGraphics->resX * 0x63) / 0x280);
+        rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0 +
+                           (int)(g_pGraphics->resY * 0x24) / 0x1e0 + y0);
+        rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+        rect2[3] = 1;
+        if (FUN_004bc0c0(&g_unk0x0058cf60))
+            FUN_00475970(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 2);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, rect2, pColour, 2);
+    }
+    Font_SetBlendMode(2);
+    FUN_004744f0();
 }

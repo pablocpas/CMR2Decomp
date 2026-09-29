@@ -31,19 +31,10 @@ void FUN_0041b460(void) { }
 void FUN_00422140(unsigned char, int) { }
 
 
-// STUB: CMR2 0x00472a30
-void FUN_00472a30(void) { }
-
-
-// STUB: CMR2 0x00478c40
-void FUN_00478c40(void) { }
 
 struct Menu;
 // STUB: CMR2 0x0049bcb0
 void FUN_0049bcb0(Menu *pMenu) { }
-
-// STUB: CMR2 0x00473d60
-void FUN_00473d60(Menu *pMenu) { }
 
 // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
 // FUN_004dbd80 (0x004dbd80) is implemented in FrontendScreens.cpp.
