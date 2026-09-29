@@ -45,9 +45,6 @@ struct Menu;
 // STUB: CMR2 0x0049bcb0
 void FUN_0049bcb0(Menu *pMenu) { }
 
-// STUB: CMR2 0x00473d60
-void FUN_00473d60(Menu *pMenu) { }
-
 // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
 // STUB: CMR2 0x004dbd80
 void FUN_004dbd80(Menu *pMenu) { }
