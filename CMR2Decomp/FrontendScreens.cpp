@@ -10903,7 +10903,6 @@ void FUN_004dce00(Menu *pMenu)
 {
     SpriteRect rect;
     MenuItem *pItem;
-    char *pText;
     BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
@@ -10957,12 +10956,14 @@ void FUN_004dce00(Menu *pMenu)
                         g_unk0x00818ebc);
                 if (pMenu->cursor == i && (int)CMain::GetFrameDelta() % 20 > 9)
                     strcat(CFrontend::m_stringDest, "_");
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strItemTextFmt, CFrontend::GetTextString(0x1c0),
                         ((char *(__stdcall *)(int))CGameInfo::FUN_004f8a70)(Menu_GetItem(pMenu, 1)->max));
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 2:
                 if (Menu_GetItem(pMenu, 2)->max <= 0) {
@@ -10971,29 +10972,32 @@ void FUN_004dce00(Menu *pMenu)
                     sprintf(CFrontend::m_stringDest, g_strItemSecondsFmt, CFrontend::GetTextString(0x1c1),
                             Menu_GetItem(pMenu, 2)->max - 1);
                 }
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 3:
                 sprintf(CFrontend::m_stringDest, g_strItemValueFmt, CFrontend::GetTextString(0x1c2),
                         Menu_GetItem(pMenu, 3)->max + 2);
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 4:
                 sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3),
                         g_unk0x00818ef8);
                 if (pMenu->cursor == i && (int)CMain::GetFrameDelta() % 20 > 9)
                     strcat(CFrontend::m_stringDest, "_");
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 5:
-                pText = CFrontend::GetTextString(0x1c4);
+                Font_DrawText(1, CFrontend::GetTextString(0x1c4), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             default:
-                pText = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             }
-            Font_DrawText(1, pText, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
                 pLineColour = g_colourWhite0x00524968;
                 pLineShadow = g_colourShadowWhite0x00524974;
