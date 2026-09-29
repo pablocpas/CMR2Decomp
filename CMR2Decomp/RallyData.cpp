@@ -4603,7 +4603,7 @@ void FUN_00412390(int, int);
 void FUN_004054a0(void);
 int RallyData_FUN_00411060(void);
 int Game_PrepareScene(SceneNode *, SceneNode *, int, int);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 float FUN_004b23a0(void);
 void FUN_0044b330(void);
@@ -4849,7 +4849,7 @@ int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha)
 
 int FUN_004100a0(void);
 int RallyData_FUN_00411060(void);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // Draws the loading bar: eleven blocks, lit up to the given progress (0-99, 100
@@ -5976,7 +5976,7 @@ void Menu_CallCallback2(Menu *pMenu);
 int FUN_0041f4b0(void);
 BYTE *FUN_00475f70(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // Sets up the projection, clears the targets and draws the challenge scene.

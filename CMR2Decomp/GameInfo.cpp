@@ -6909,7 +6909,7 @@ void FUN_00501350(int param1, int unused)
 int g_unk0x0052704c = 0x00acb49c;
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // Clears the screen to a colour fading from the stored menu colour to grey over
@@ -6923,7 +6923,7 @@ void FUN_0049de40(void);
 void FUN_00506b20(int index, char visible);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 void FUN_0050f230(void);
-int FUN_0049d3f0(int a, int b, void *c, int d, int e);
+int FUN_0049d3f0(int a, int b, void *c, int d, BYTE e);
 
 
 // FUNCTION: CMR2 0x005010a0

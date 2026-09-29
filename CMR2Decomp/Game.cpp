@@ -237,7 +237,7 @@ int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
 void FUN_004ea5b0(void);
 float FUN_004b23a0(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
@@ -505,7 +505,7 @@ void FUN_004ea510(void);
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 float FUN_004b23a0(void);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // FPS overlay format string ("FPS: %.2f").
@@ -818,7 +818,7 @@ void FUN_004d1e90(Unk0049c2c0 *p1, BYTE unused)
 }
 
 float FUN_004b23a0(void);
-int FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 
@@ -2567,11 +2567,14 @@ void Game_DrawDeferredObjects(void);
 extern FixMatrix g_unk0x0059bd28;
 D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
 
+// match 94%: the residual diff is register allocation (the relight loop walks
+// the sector list from a register where the original keeps the pointer in the
+// argument slot, and the inlined fixed point normalisation uses different
+// scratch slots), plus the 0.0f store which the original materialises as an
+// immediate.
 // FUNCTION: CMR2 0x0049d3f0
-int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
+int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
 {
-    SceneNode *pCamera;
-    short *pRect;
     D3DVIEWPORT7 viewport;
     FixVector cameraPosition;
     FixVector forward;
@@ -2579,9 +2582,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
     unsigned int i;
     unsigned short *pIndex;
 
-    pCamera = (SceneNode *)param2;
-    pRect = (short *)param3;
-    g_unk0x0059be6c = pCamera;
+    g_unk0x0059be6c = (SceneNode *)param2;
     CGame::m_unk0x0059ce18 = 0;
     CGame::m_unk0x0059ce1c = 0;
     CGame::m_unk0x0059ce20 = 0;
@@ -2590,10 +2591,10 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
     memset(&viewport, 0, sizeof(viewport));
     viewport.dvMinZ = 0.0f;
     viewport.dvMaxZ = 1.0f;
-    viewport.dwX = pRect[0];
-    viewport.dwY = pRect[1];
-    viewport.dwWidth = pRect[2];
-    viewport.dwHeight = pRect[3];
+    viewport.dwX = ((short *)param3)[0];
+    viewport.dwY = ((short *)param3)[1];
+    viewport.dwWidth = ((short *)param3)[2];
+    viewport.dwHeight = ((short *)param3)[3];
     CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
     FUN_0049dcc0(1);
     CGraphics::SetCullMode(3);
@@ -2605,17 +2606,17 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
         if (CGraphics::m_unk0x0072d56c != 0) {
             CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
                                                              &g_unk0x005207b8);
-            FUN_004b7de0(pCamera, (int)pRect);
-            for (pIndex = (unsigned short *)g_unk0x006ed5f0, i = 0;
-                 i < (unsigned int)g_sectorCullEnabled; i++, pIndex++)
+            FUN_004b7de0((SceneNode *)param2, (int)param3);
+            pIndex = (unsigned short *)g_unk0x006ed5f0;
+            for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++)
                 Scene_RelightSector(*pIndex);
         }
         CGraphics::SetCullMode(CGame::FUN_0049dcb0());
-        FixMatrix_GetPosition(&cameraPosition, &pCamera->world);
-        Particle_DrawAll((int)pCamera, (BYTE)bit);
-        forward.x = pCamera->world.forward.x;
+        FixMatrix_GetPosition(&cameraPosition, &((SceneNode *)param2)->world);
+        Particle_DrawAll(param2, (BYTE)bit);
+        forward.x = g_unk0x0059be6c->world.forward.x;
         forward.y = 0;
-        forward.z = pCamera->world.forward.z;
+        forward.z = g_unk0x0059be6c->world.forward.z;
         FIX_NORMALIZE_INTO(forward, forward);
         g_unk0x0059bd28.right.x = forward.z;
         g_unk0x0059bd28.right.y = 0;
@@ -2649,7 +2650,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
             Graphics_SetLightingMode(5);
             FUN_0049cf80();
             FUN_0049dcc0(1);
-            Glow_Draw(pCamera, (BYTE)bit);
+            Glow_Draw((SceneNode *)param2, (BYTE)bit);
             Quad2D_DrawLayer(8);
             Graphics_SetLightingMode(4);
             Quad2D_DrawLayer(0x20);
@@ -2665,7 +2666,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
                 Graphics_SetLightingMode(5);
                 Quad2D_DrawLayer(0x10);
                 Line2D_Draw();
-                Billboard_Draw(pCamera);
+                Billboard_Draw((SceneNode *)param2);
                 Graphics_SetLightingMode(1);
                 FUN_0049d290(bit);
                 Game_DrawSortedNodes(bit);
@@ -2688,7 +2689,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
         Quad2D_DrawLayer(0x40);
         Graphics_SetLightingMode(5);
         Line2D_Draw();
-        Billboard_Draw(pCamera);
+        Billboard_Draw((SceneNode *)param2);
         Scene_DrawShadowBatches((BYTE)bit);
     }
     Flare_SampleVisibility(NULL, NULL, 0);
