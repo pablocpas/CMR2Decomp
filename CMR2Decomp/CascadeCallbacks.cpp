@@ -11,14 +11,14 @@
 // STUB: CMR2 0x004ffab0
 void FUN_004ffab0(unsigned int) { }
 
-// STUB: CMR2 0x004ffed0
-void FUN_004ffed0(unsigned int, unsigned int) { }
+// 0x004ffed0 implemented in GameInfo.cpp (W194).
 
-// STUB: CMR2 0x004fffe0
-void FUN_004fffe0(unsigned int, unsigned int) { }
 
-// STUB: CMR2 0x00500020
-void FUN_00500020(unsigned int, unsigned int) { }
+// 0x004fffe0 implemented in GameInfo.cpp (W194).
+
+
+// 0x00500020 implemented in GameInfo.cpp (W194).
+
 
 // STUB: CMR2 0x00505f10
 void FUN_00505f10(void) { }

@@ -5184,8 +5184,8 @@ short g_unk0x0052ad58[4];
 extern char g_classRowHeaderFormat[];
 void FUN_004ffa70(int unused, int unused2);
 void FUN_004ffab0(unsigned int);
-void FUN_004ffed0(unsigned int, unsigned int);
-void FUN_004fffe0(unsigned int, unsigned int);
+void FUN_004ffed0(Menu *, MenuItem *);
+void FUN_004fffe0(Menu *, MenuItem *);
 void FUN_005000b0(int unused, int unused2);
 void FUN_00500100(int param1, int param2);
 void FUN_00500110(int unused, int unused2);
@@ -11113,5 +11113,381 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
         } else {
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
         }
+    }
+}
+/* ===== W194: saved-game image + option menu callbacks (0x4f5190-0x5004xx) ===== */
+
+extern void RallyData_FUN_00408d80(void);
+extern BYTE FUN_004086f0(BYTE param1);
+extern BYTE *RallyData_FUN_00408d60(int index);
+extern int FUN_0040cfe0(int index);
+extern BYTE *RallyData_FUN_00408860(int index);
+extern BYTE *RallyData_FUN_00407630(int index);
+extern int *FUN_00407520(int index);
+extern int *RallyData_FUN_004075e0(int index);
+extern BYTE *RallyData_FUN_004075d0(int index);
+extern int *RallyData_FUN_004075b0(int index);
+extern int *RallyData_FUN_004075c0(int index);
+extern unsigned int RallyDataCountryIndex(void);
+extern unsigned char RallyDataStageIndex(void);
+extern BYTE RallyData_FUN_00406920(void);
+extern void FUN_00500270(Menu *, MenuItem *);
+extern void FUN_00503010(int param_1, int param_2);
+extern int FUN_005011f0(int index);
+extern void FUN_00501210(int index, int value);
+extern unsigned int FUN_00502df0(int index, int type, int dynamic);
+extern void FUN_005074d0(int index);
+extern int g_unk0x005270b8[11];
+
+// Session image rebuilt before a game is saved. The bytes also form the 0x7f4
+// byte record written to <install>\gamesave\*.rcs.
+// GLOBAL: CMR2 0x0081a858
+BYTE g_unk0x0081a858[0x34];
+// GLOBAL: CMR2 0x0081a868
+char g_unk0x0081a868[0x20];
+// GLOBAL: CMR2 0x0081a888
+int g_unk0x0081a888;
+// GLOBAL: CMR2 0x0081a88c
+int g_unk0x0081a88c[0x20];
+// GLOBAL: CMR2 0x0081a90c
+int g_unk0x0081a90c[4];
+// GLOBAL: CMR2 0x0081a91c
+BYTE g_unk0x0081a91c[0x30];
+// GLOBAL: CMR2 0x0081a94c
+BYTE g_unk0x0081a94c[0x520];
+// GLOBAL: CMR2 0x0081ae6c
+BYTE g_unk0x0081ae6c[0x1c];
+// GLOBAL: CMR2 0x0081ae88
+BYTE g_unk0x0081ae88[0xa0];
+// GLOBAL: CMR2 0x0081af28
+BYTE g_unk0x0081af28[0x50];
+// GLOBAL: CMR2 0x0081af78
+BYTE g_unk0x0081af78[0x14];
+// GLOBAL: CMR2 0x0081af8c
+BYTE g_unk0x0081af8c[0x50];
+// GLOBAL: CMR2 0x0081afdc
+BYTE g_unk0x0081afdc[0x50];
+// GLOBAL: CMR2 0x0081b02c
+BYTE g_unk0x0081b02c;
+// GLOBAL: CMR2 0x0081b030
+int g_unk0x0081b030;
+// GLOBAL: CMR2 0x0081b034
+BYTE g_unk0x0081b034[16];
+// GLOBAL: CMR2 0x00525c20
+char g_str0x00525c20[] = "%s\\gamesave\\%s";
+
+// Builds the session image that is written as a saved game. When a format
+// string is given it is used for the file name; otherwise the name of the
+// saved game selected by index is read back from the loaded records.
+// FUNCTION: CMR2 0x004f5190
+BYTE FUN_004f5190(int index, char *fmt)
+{
+    int i;
+    BYTE *pCar;
+    int *pRec;
+    BYTE *pSlot;
+
+    RallyData_FUN_00408d80();
+
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffff80) | (CGameInfo::FUN_00405d80() & 0x7f);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xfffffc7f) | ((CGameInfo::FUN_00405d90() & 7) << 7);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffc3ff) | ((CGameInfo::FUN_00405d70() & 0xf) << 0xa);
+    g_unk0x0081a888 = (g_unk0x0081a888 & 0xffffbfff) | ((CGameInfo::FUN_00405da0() & 1) << 0xe);
+
+    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++)
+        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffbf) |
+                                 ((FUN_004086f0((BYTE)i) & 1) << 6);
+
+    for (i = 0; i < 16; i++) {
+        pCar = RallyData_FUN_00408d60(i);
+        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffffc0) | (*(int *)pCar & 0x3f);
+        pCar = RallyData_FUN_00408d60(i);
+        g_unk0x0081a88c[i * 2] = (g_unk0x0081a88c[i * 2] & 0xffffc07f) |
+                                 ((*(int *)pCar & 0x1fc0) << 1);
+        pCar = RallyData_FUN_00408d60(i);
+        g_unk0x0081a88c[i * 2 + 1] = *(int *)(pCar + 4);
+    }
+
+    for (i = 0; i < 16; i++)
+        g_unk0x0081b034[i] = (BYTE)FUN_0040cfe0(i);
+
+    pSlot = g_unk0x0081a91c;
+    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
+        pRec = g_unk0x0081a90c;
+        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+            pRec[i] = (pRec[i] & 0xfffffcff) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x300);
+            pRec[i] = (pRec[i] & 0xffffffc7) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x38);
+            pRec[i] = (pRec[i] & 0xffffe3ff) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x1c00);
+            pRec[i] = (pRec[i] & 0xffffff3f) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0xc0);
+            pRec[i] = (pRec[i] & 0xfffffff8) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 7);
+            *(int *)(&g_unk0x0081a94c[i * 0x148]) = *(int *)(RallyData_FUN_00408860(i) + 0x10);
+            *(int *)(&g_unk0x0081a94c[i * 0x148 + 4]) = *(int *)(RallyData_FUN_00408860(i) + 0x14);
+            *(int *)(&g_unk0x0081a94c[i * 0x148 + 8]) = *(int *)(RallyData_FUN_00408860(i) + 0x18);
+            memcpy(&g_unk0x0081a94c[i * 0x148], RallyData_FUN_00407610(i), 0x148);
+            memcpy(&g_unk0x0081ae6c[i * 7], RallyData_FUN_00407630(i), 7);
+            pSlot += 0xc;
+        }
+    }
+    (void)pSlot;
+
+    memcpy(g_unk0x0081ae88, FUN_00407520(0), 0xa0);
+    memcpy(g_unk0x0081af28, RallyData_FUN_004075e0(0), 0x50);
+    memcpy(g_unk0x0081af78, RallyData_FUN_004075d0(0), 0x14);
+    memcpy(g_unk0x0081af8c, RallyData_FUN_004075b0(0), 0x50);
+    memcpy(g_unk0x0081afdc, RallyData_FUN_004075c0(0), 0x50);
+
+    g_unk0x0081b030 = (g_unk0x0081b030 & 0xffffffe0) | (RallyDataCountryIndex() & 0x1f);
+    g_unk0x0081b030 = (g_unk0x0081b030 & 0xfffffc1f) | ((RallyDataStageIndex() & 0x1f) << 5);
+    g_unk0x0081b02c = RallyData_FUN_00406920();
+
+    if (fmt != NULL) {
+        sprintf(g_unk0x0081a868, fmt);
+        FUN_004f5150(CFrontend::m_stringDest);
+    } else if (index > -1) {
+        strcpy(g_unk0x0081a868, (char *)((BYTE *)g_unk0x0081b14c + index * 0x7f4 + 0x10));
+        sprintf(CFrontend::m_stringDest, g_str0x00525c20, CInstallInfo::GetGameHDPath(),
+                (char *)g_unk0x0081b150[index]);
+    } else {
+        return 0;
+    }
+    CInstallInfo::WriteFileToDisk(CFrontend::m_stringDest, 0, g_unk0x0081a858, 0x7f4);
+    return 1;
+}
+
+// Loads the highlighted saved game into the frontend and moves to the game
+// screen; if the slot is empty it only reports the failure.
+// FUNCTION: CMR2 0x00500020
+void FUN_00500020(unsigned int param1, unsigned int param2)
+{
+    if (FUN_004f5190(g_unk0x0082a924, NULL)) {
+        strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x143));
+        Menu_SetNextAction((int)FUN_00502210());
+        FUN_004f4ef0();
+    } else {
+        strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x144));
+        Menu_SetNextAction((int)FUN_00502210());
+    }
+}
+
+// "Load game" entry of the option menu: arms the load request and, once the
+// records were re-read, starts the frontend on the selected saved game.
+// FUNCTION: CMR2 0x004ffed0
+void FUN_004ffed0(Menu *pMenu, MenuItem *pItem)
+{
+    if (g_unk0x0082ab44 != 0) {
+        Menu_SetNextAction((int)FUN_00502220());
+        return;
+    }
+    if (pMenu->items[4].max == 0 && FUN_004f4db0() > 0) {
+        g_unk0x0082ab44 = 1;
+        Menu_SetFlags(pMenu, 0, 0, 0, 0);
+        return;
+    }
+    if (pMenu->items[4].max == 1) {
+        if (FUN_004f5190(-1, g_unk0x0082aa44) != 0) {
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+            strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x143));
+            Menu_SetNextAction((int)FUN_00502210());
+            FUN_004f4ef0();
+            g_unk0x0082a924 = FUN_004f4db0() - 1;
+        } else {
+            strcpy(g_unk0x0082a93c, CFrontend::GetTextString(0x144));
+            Menu_SetNextAction((int)FUN_00502210());
+        }
+    }
+}
+
+// Applies the value of the highlighted entry of the option menu when it was
+// confirmed: only stores it when it is a valid change for this slot.
+// FUNCTION: CMR2 0x004fffe0
+void FUN_004fffe0(Menu *pMenu, MenuItem *pItem)
+{
+    if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(pItem->max)) != 0)
+        FUN_00500360(pMenu, (int)pItem);
+    else
+        FUN_00500270(pMenu, pItem);
+}
+
+// Confirms the value of the highlighted entry of the option menu: applies it
+// when the slot still had a different one, or reverts the highlighted row.
+// FUNCTION: CMR2 0x00500270
+void FUN_00500270(Menu *pMenu, MenuItem *pItem)
+{
+    int index;
+    int value;
+
+    index = Menu_FindItem((Menu *)FUN_00502500(), 2);
+    value = FUN_004ff4d0(((Menu *)FUN_00502500())->items[index].max);
+    if (FUN_005011f0(CGameInfo::FUN_005011b0()) - FUN_00503930(value) < 0) {
+        if (FUN_00503940(CGameInfo::FUN_005011b0(), value) == 0) {
+            if (FUN_00502df0(CGameInfo::FUN_005011b0(), value, 0) > 0) {
+                CGameInfo::FUN_00500500();
+                return;
+            }
+            return;
+        }
+    }
+    if (FUN_00503940(CGameInfo::FUN_005011b0(), value) == 0)
+        FUN_00503010(CGameInfo::FUN_005011b0(), value);
+    Menu_SetNextAction((int)pMenu->pParent);
+}
+
+// Reverts one option group of the current slot: clears the group's "changed"
+// flags and subtracts the group's weight from the slot value.
+// (Not listed in functions.tsv; it is the counter part of FUN_005034f0.)
+// FUNCTION: CMR2 0x00503010
+void FUN_00503010(int param_1, int param_2)
+{
+    BYTE *pDest = g_unk0x0082c070 + param_1 * 0x148;
+    int value;
+    int i;
+
+    switch (param_2) {
+    case 1:
+        if (pDest[0x116] == 0)
+            return;
+        pDest[0x116] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[0]);
+        g_unk0x0082c040[param_1][1] = 1;
+        return;
+    case 2:
+        if (pDest[0x117] == 0)
+            return;
+        pDest[0x117] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[1]);
+        g_unk0x0082c040[param_1][2] = 1;
+        return;
+    case 3:
+        if (pDest[0x10e] == 0 && pDest[0x10f] == 0 && pDest[0x110] == 0 && pDest[0x111] == 0)
+            return;
+        pDest[0x10e] = 0;
+        pDest[0x10f] = 0;
+        pDest[0x110] = 0;
+        pDest[0x111] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[2]);
+        FUN_00509d00(param_1);
+        g_unk0x0082c040[param_1][3] = 1;
+        return;
+    case 4:
+        if (pDest[0x118] == 0)
+            return;
+        pDest[0x118] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[3]);
+        g_unk0x0082c040[param_1][4] = 1;
+        return;
+    case 5:
+        if (pDest[0x112] == 0 && pDest[0x113] == 0 && pDest[0x114] == 0 && pDest[0x115] == 0)
+            return;
+        pDest[0x112] = 0;
+        pDest[0x113] = 0;
+        pDest[0x114] = 0;
+        pDest[0x115] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[4]);
+        g_unk0x0082c040[param_1][5] = 1;
+        return;
+    case 6:
+        {
+            int changed = 0;
+            int any = 0;
+
+            if (pDest[0x119] != 0 || pDest[0x11a] != 0 || pDest[0x11b] != 0 ||
+                pDest[0x11c] != 0 || pDest[0x11d] != 0 || pDest[0x11e] != 0 ||
+                pDest[0x122] != 0 || pDest[0x123] != 0 || pDest[0x124] != 0 ||
+                pDest[0x125] != 0 || pDest[0x126] != 0 || pDest[0x127] != 0 ||
+                pDest[0x128] != 0 || pDest[0x129] != 0)
+                any = 1;
+            for (i = 0; i < 3; i++)
+                if (*(int *)(pDest + 0x13c + i * 4) != 0)
+                    changed = 1;
+            for (i = 0; i < 4; i++)
+                if (*(int *)(pDest + 0x12c + i * 4) != 0)
+                    changed = 1;
+            if (pDest[0x104] != 0)
+                changed = 1;
+            if (any != 0 || changed != 0) {
+                pDest[0x119] = 0;
+                pDest[0x11a] = 0;
+                pDest[0x11b] = 0;
+                pDest[0x11c] = 0;
+                pDest[0x11d] = 0;
+                pDest[0x11e] = 0;
+                pDest[0x122] = 0;
+                pDest[0x123] = 0;
+                pDest[0x124] = 0;
+                pDest[0x125] = 0;
+                pDest[0x126] = 0;
+                pDest[0x127] = 0;
+                pDest[0x128] = 0;
+                pDest[0x129] = 0;
+                *(int *)(pDest + 0x13c) = 0;
+                *(int *)(pDest + 0x140) = 0;
+                *(int *)(pDest + 0x144) = 0;
+                *(int *)(pDest + 0x12c) = 0;
+                *(int *)(pDest + 0x130) = 0;
+                *(int *)(pDest + 0x134) = 0;
+                *(int *)(pDest + 0x138) = 0;
+                pDest[0x104] = 0;
+                pDest[0x105] = 0;
+                for (i = 0; i < 20; i++) {
+                    memset(pDest + i * 0xd, 0, 0xc);
+                    pDest[i * 0xd + 0xc] = 0xff;
+                }
+                value = FUN_005011f0(param_1);
+                FUN_00501210(param_1, value - g_unk0x005270b8[5]);
+                g_unk0x0082c040[param_1][6] = 1;
+            }
+            FUN_005074d0(param_1);
+            return;
+        }
+    case 7:
+        if (pDest[0x10c] == 0 && pDest[0x10d] == 0)
+            return;
+        pDest[0x10c] = 0;
+        pDest[0x10d] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[6]);
+        g_unk0x0082c040[param_1][7] = 1;
+        return;
+    case 8:
+        if (pDest[0x11f] == 0)
+            return;
+        pDest[0x11f] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[7]);
+        g_unk0x0082c040[param_1][8] = 1;
+        return;
+    case 9:
+        if (pDest[0x120] == 0)
+            return;
+        pDest[0x120] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[8]);
+        g_unk0x0082c040[param_1][9] = 1;
+        return;
+    case 10:
+        if (pDest[0x121] == 0)
+            return;
+        pDest[0x121] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[9]);
+        g_unk0x0082c040[param_1][10] = 1;
+        return;
+    case 11:
+        if (pDest[0x108] == 0 && pDest[0x109] == 0 && pDest[0x10a] == 0 && pDest[0x10b] == 0)
+            return;
+        pDest[0x108] = 0;
+        pDest[0x109] = 0;
+        pDest[0x10a] = 0;
+        pDest[0x10b] = 0;
+        value = FUN_005011f0(param_1);
+        FUN_00501210(param_1, value - g_unk0x005270b8[10]);
+        FUN_00509d90(param_1);
+        g_unk0x0082c040[param_1][11] = 1;
+        return;
     }
 }
