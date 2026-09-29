@@ -1,5 +1,6 @@
 #include "StageBlock.h"
 #include "Game.h"
+#include "Menu.h"
 #include "main.h"
 #include "RegKey.h"
 #include "GameInfo.h"
@@ -1929,6 +1930,88 @@ void FUN_0049c080(Menu *pMenu, int param)
 {
     FUN_0041f4c0();
     FUN_0041f4d0();
+}
+
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+
+// Draws the in-race menu built by 0x475f00: the title, then one row per item
+// with its banner sprite, the item text and the separator line above the list
+// and under every row. The selected row and the lines around it are drawn in
+// the bright colour, the rest in the dim one.
+// FUNCTION: CMR2 0x0049bcb0
+void FUN_0049bcb0(Menu *pMenu)
+{
+    BYTE colourWhite[4];
+    BYTE colourText[4];
+    BYTE colourDim[4];
+    short line[4];
+    short rect[4];
+    MenuItem *pItem;
+    int cursor;
+    int i;
+
+    colourWhite[0] = 0xff;
+    colourWhite[1] = 0xff;
+    colourWhite[2] = 0xff;
+    colourWhite[3] = 0xff;
+    colourText[0] = 0x4f;
+    colourText[1] = 0x4f;
+    colourText[2] = 0x4f;
+    colourText[3] = 0xff;
+    colourDim[0] = 0x4f;
+    colourDim[1] = 0x4f;
+    colourDim[2] = 0x4f;
+    colourDim[3] = 0xff;
+
+    cursor = pMenu->cursor;
+    Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
+                  (int)(g_pGraphics->resY * 0xc8) / 0x1e0, (int *)colourText, 0x11);
+    line[0] = (short)((int)(g_pGraphics->resX * 0xf0) / 0x280);
+    line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+    line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
+    line[3] = 1;
+    rect[0] = (short)((int)(g_pGraphics->resX * 0xf0) / 0x280);
+    rect[1] = 0;
+    if (FUN_004055e0() != 0) {
+        rect[2] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->w;
+        rect[3] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->h;
+    }
+    if (cursor == 0)
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+    else
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    pItem = pMenu->items;
+    for (i = 0; i < 2; i++, pItem++) {
+        if (FUN_004055e0() != 0)
+            rect[1] = (short)(line[1] + (int)(g_pGraphics->resY * 0xe) / 0x1e0 -
+                              ((SpriteRect *)(FUN_004055e0() + 0x11c))->h / 2);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(pItem->id));
+        if (i == cursor) {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourWhite, 0x11);
+            if (FUN_004055f0() != 0)
+                Sprite_Queue((SpriteRect *)(FUN_004055f0() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)FUN_004055f0(), 1, 0, NULL, NULL, colourWhite, 8);
+        } else {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourText, 0x11);
+            if (FUN_004055f0() != 0)
+                Sprite_Queue((SpriteRect *)(FUN_004055f0() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)FUN_004055f0(), 1, 0, NULL, NULL, colourText, 8);
+        }
+        line[1] = (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 * (i + 1) +
+                          (int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+        if (i == cursor || i + 1 == cursor)
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    }
 }
 
 // FUNCTION: CMR2 0x0049c090
