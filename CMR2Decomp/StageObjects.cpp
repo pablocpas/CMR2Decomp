@@ -15561,6 +15561,10 @@ void FUN_00472a30(void)
 // Draws the fireworks every frame: the rising rocket as a single billboard, or
 // for a burst the 18 spark clusters (each up to four mirrored billboards) plus
 // the fading 20-point trail. See FUN_0047eab0 for the record layout.
+// match 38%: the logic, calls, constants and loop bounds are identical; the
+// residual is MSVC's register allocation, stack-slot placement (the original
+// spills the spark Y to [ebp-0x44] and keeps the frame at 0x48) and its choice
+// of cursor/induction-variable base (0x4b0 vs 0x4b8) in the 18-spark loop.
 // FUNCTION: CMR2 0x0047f740
 void FUN_0047f740(void)
 {
@@ -15573,11 +15577,11 @@ void FUN_0047f740(void)
     int j;
     int n;
     int fade;
+    FixVector spark;
     int sparkX;
     int sparkY;
     int sparkZ;
-    int *pPos;
-    int *pBit;
+    int *pSpark;
     int *pFlag;
     int *pTrail;
     int baseR;
@@ -15610,9 +15614,10 @@ void FUN_0047f740(void)
             if (*(int *)(pSlot + 0x92c) != 0) {
                 for (k = 0; k < 3; k++) {
                     for (j = 0; j < 6; j++) {
-                        sparkX = *(int *)(pSlot + 0x4b0 + (k * 6 + j) * 12);
-                        sparkY = *(int *)(pSlot + 0x4b4 + (k * 6 + j) * 12);
-                        sparkZ = *(int *)(pSlot + 0x4b8 + (k * 6 + j) * 12);
+                        spark = *(FixVector *)(pSlot + 0x4b0 + (k * 6 + j) * 12);
+                        sparkX = spark.x;
+                        sparkY = spark.y;
+                        sparkZ = spark.z;
                         if (*(int *)(pSlot + 0x6ec + (k * 6 + j) * 16) != 0) {
                             *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
                             *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
