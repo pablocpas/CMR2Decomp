@@ -927,7 +927,7 @@ void FUN_0043ecd0(Car *pCar)
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)(pCar + 0xb1a));
+    g_pCarSetup = (BYTE *)FUN_00469680((int)pCar->field_0xb1a);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
     g_pCurrentCar->pNode0x720->current.right = v;

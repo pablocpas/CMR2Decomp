@@ -4245,6 +4245,11 @@ void FUN_00402f80(Menu *pMenu)
     Menu_SetNextAction((int)&g_menu0x0052ad60);
 }
 
+void FUN_00402f20(Menu *pMenu, int param);
+void FUN_00402000(Menu *pMenu);
+void FUN_00403890(Menu *pMenu);
+void FUN_004041e0(Menu *pMenu);
+
 // Builds the network options menu and disables the two-state entries when
 // the current rally mode does not support them.
 // FUNCTION: CMR2 0x00402f90
@@ -4263,9 +4268,9 @@ void FUN_00402f90(void)
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 2, 0);
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 4, 0);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
-                      (int)(MenuCallback)0x00402f20, -1);
+                      (int)(MenuCallback)FUN_00402f20, -1);
     Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)FUN_00402eb0, NULL,
-                      (MenuCallback)0x00402000, NULL);
+                      (MenuCallback)FUN_00402000, NULL);
     Menu_ValidateCursor(&g_menu0x00529ed8, 0);
     if (RallyData_FUN_00411880() == 0) {
         for (i = 0; i < g_menu0x00529ed8.itemCount; i++) {
@@ -4306,7 +4311,7 @@ void FUN_004035e0(void)
     Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)FUN_004036c0, 4);
     Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
     Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)FUN_00403700,
-                      (MenuCallback)FUN_00403880, (MenuCallback)0x00403890,
+                      (MenuCallback)FUN_00403880, (MenuCallback)FUN_00403890,
                       (MenuCallback)FUN_004037c0);
     Menu_ValidateCursor(&g_menu0x0052a870, 0);
 }
@@ -4581,6 +4586,7 @@ void FUN_00404c50(Menu *pMenu, char cancel);
 void FUN_00404d00(Menu *pMenu);
 
 // Builds the car-setup menu used from the in-race network menu.
+// match 80%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x00404000
 void FUN_00404000(void)
 {
@@ -4607,7 +4613,7 @@ void FUN_00404130(Menu *pMenu, int param);
     Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)FUN_00404130, 5);
     Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
     Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)FUN_00404b80,
-                      (MenuCallback)FUN_00404d00, (MenuCallback)0x004041e0,
+                      (MenuCallback)FUN_00404d00, (MenuCallback)FUN_004041e0,
                       (MenuCallback)FUN_00404c50);
     Menu_ValidateCursor(&g_menu0x0052aa70, 0);
 }
@@ -4822,8 +4828,7 @@ short g_unk0x0052a2a0;
 int g_unk0x0052aa64;
 // GLOBAL: CMR2 0x0052aa6c
 short g_unk0x0052aa6c;
-// GLOBAL: CMR2 0x00537f34
-int g_unk0x00537f34;
+extern int g_unk0x00537f34[2];
 
 extern BYTE g_unk0x0053811e;
 extern BYTE g_unk0x0053811f;
@@ -5002,7 +5007,7 @@ playerExit:
     if (g_unk0x0053811e != 0 || g_unk0x0053811f != 0) {
         if (CGameInfo::FUN_00405e00() != 0)
             FUN_0040ac40(3);
-        g_unk0x00537f34 = CMain::GetFrameDelta();
+        g_unk0x00537f34[0] = CMain::GetFrameDelta();
     }
     CGameInfo::FUN_00405d80();
     FUN_0041c5a0(*(BYTE *)param1->unk, 0);
@@ -7102,7 +7107,7 @@ void FUN_005029b0(void)
         i++;
         pDst[0] = pSrc[-5];
         pSrc += 7;
-    } while ((int)pSrc < 0x82bf09);
+    } while ((BYTE *)pSrc < (BYTE *)g_unk0x0082bee8 + 0x21);
 }
 
 // Applies the selected option: advances the menu when its value is set, or
@@ -11998,11 +12003,11 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
 // Rewrites every best-time record of the selected rally as a scrambled
 // identifier string (see FUN_004fb8d0/FUN_004f8a90) into the five tables the
 // profile screens display.
-// match 60.6%: the logic and the instruction sequence follow the reference; the
 // residue is the local-variable slot assignment (MSVC 6 picked a different
 // variable -> frame offset mapping, so every instruction with a stack operand
 // differs) plus the byte-level tag handling, which the reference reloads from
 // its slot where we keep it in a register.
+// match 61%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x004f8b30
 int FUN_004f8b30(void)
 {
@@ -12107,7 +12112,7 @@ int FUN_004f8b30(void)
         local_10 += 0x19;
         local_1c++;
         local_14 += 0xc;
-    } while ((int)local_10 < 0x825d5f);
+    } while (local_10 < g_unk0x00825d14 + 0x4b);
 
     uVar5 = 0;
     local_c = 0;
@@ -12139,7 +12144,7 @@ int FUN_004f8b30(void)
         puVar9 += 0x19;
         uVar5++;
         local_c += 0x10;
-    } while ((int)puVar9 < 0x8253e3);
+    } while (puVar9 < g_unk0x00825398 + 0x4b);
 
     uVar5 = 0;
     local_14 = 0x450;
@@ -12213,6 +12218,6 @@ int FUN_004f8b30(void)
         }
         local_10 += 0x19;
         uVar5++;
-    } while ((int)local_10 < 0x826034);
+    } while (local_10 < g_unk0x00825f6c + 0xc8);
     return iVar3;
 }

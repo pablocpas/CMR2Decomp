@@ -8763,8 +8763,7 @@ void FUN_00476c70(int index)
 }
 
 // Updates per-wheel slip tables and damps the car's velocity.
-// match 42%: per-wheel tables and FixMul block differ from the original
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 82%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x0048df50
 void FUN_0048df50(Car *param_1)
 {
@@ -8776,33 +8775,31 @@ void FUN_0048df50(Car *param_1)
     i = 0;
     off = 0xbbc;
     do {
-        int a, b, d, aa, bb, u;
+        int a, b, d, u;
 
-        v = *(int *)(g_collisionCar + 0x778);
+        v = *(int *)((BYTE *)g_collisionCar + 0x778);
         if (v > 0x10000)
             v = 0x10000;
         v = FixMul(v, 0x6666);
-        a = *(int *)(g_collisionCar + i + 0x270);
-        b = *(int *)(g_collisionCar + i + 0x278);
-        aa = a < 0 ? -a : a;
-        bb = b < 0 ? -b : b;
-        if (aa - bb < 0)
-            d = bb - aa;
+        a = *(int *)((BYTE *)g_collisionCar + i + 0x270);
+        b = *(int *)((BYTE *)g_collisionCar + i + 0x278);
+        if ((a < 0 ? -a : a) - (b < 0 ? -b : b) < 0)
+            d = (b < 0 ? -b : b) - (a < 0 ? -a : a);
         else
-            d = aa - bb;
+            d = (a < 0 ? -a : a) - (b < 0 ? -b : b);
         u = FixMul((d % 0x401) << 6, v);
-        if (*(int *)(g_collisionCar + off) == 0 ||
-            *(int *)(g_collisionCar + off - 0x2c0) <= u) {
-            *(int *)(g_collisionCar + off - 0x2c0) = u;
-            *(int *)(g_collisionCar + off) = 1;
-            *(int *)(g_collisionCar + i + 0x564) = 0;
-            *(int *)(g_collisionCar + i + 0x568) = 0x10000;
-            *(int *)(g_collisionCar + i + 0x56c) = 0;
+        if (*(int *)((BYTE *)g_collisionCar + off) == 0 ||
+            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) <= u) {
+            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) = u;
+            *(int *)((BYTE *)g_collisionCar + off) = 1;
+            *(int *)((BYTE *)g_collisionCar + i + 0x564) = 0;
+            *(int *)((BYTE *)g_collisionCar + i + 0x568) = 0x10000;
+            *(int *)((BYTE *)g_collisionCar + i + 0x56c) = 0;
         }
         off += 4;
         i += 0xc;
     } while (off < 0xbcc);
-    FixVecScale((FixVector *)(g_collisionCar + 0x408), (FixVector *)(g_collisionCar + 0x408),
+    FixVecScale((FixVector *)((BYTE *)g_collisionCar + 0x408), (FixVector *)((BYTE *)g_collisionCar + 0x408),
                 0xf851);
 }
 
@@ -11089,13 +11086,9 @@ extern const float g_netMinusOne;
 extern const float g_netOne;
 extern float g_65536f;
 extern double g_unk0x00511300;
-// GLOBAL: CMR2 0x00511358
 extern const float g_unk0x00511358;   // defined in NetRace.cpp (single definition)
-// GLOBAL: CMR2 0x0051135c
 extern const float g_unk0x0051135c;   // defined in NetRace.cpp (single definition)
-// GLOBAL: CMR2 0x00511368
 extern const float g_unk0x00511368;   // defined in NetRace.cpp (single definition)
-// GLOBAL: CMR2 0x0051137c
 extern const float g_unk0x0051137c;   // defined in NetRace.cpp (single definition)
 
 // Rebuilds the per-frame light/colour record of a car from its render matrix:

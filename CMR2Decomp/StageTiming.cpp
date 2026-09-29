@@ -2642,7 +2642,6 @@ const float g_unk0x005113d4 = 220.0f;
 // GLOBAL: CMR2 0x005113d8
 const float g_unk0x005113d8 = 0.04f;
 extern const float g_unk0x005113dc;  // defined in StageObjects.cpp (single definition)
-// GLOBAL: CMR2 0x005113e0
 extern const float g_unk0x005113e0;  // defined in StageObjects.cpp (single definition)
 // Degrees -> radians factors of the object yaw angles (FUN_004926f0).
 // GLOBAL: CMR2 0x005113e8
@@ -6740,7 +6739,7 @@ LAB_00482a98:
         Vehicle_UpdateMotion(&v88);
 }
 
-// FUNCTION: CMR2 0x00484310 (cuerpo en StageObjects.cpp; FUN_00480e50 instala su direccion)
+// Defined in StageObjects.cpp; FUN_00480e50 installs this callback.
 void FUN_00484310(void);
 
 // Places the two view nodes of a car at the shared angle/position buffers and
@@ -8134,8 +8133,7 @@ int FUN_00456d90(void)
 
 // Model detail letter of each car, by game mode and slot ('A' = full detail
 // with damage parts, 'C'/'D' = simpler models).
-// GLOBAL: CMR2 0x0051a3d0
-char g_carDetailLetters[] = "CCCCDDDDDCDCDDDDDDDDDD";
+// Uses the shared detail settings updated by Graphics.cpp.
 // Team of the previous knockout opponent (-1 = none yet).
 // GLOBAL: CMR2 0x0051a8b8
 int g_unk0x0051a8b8 = -1;
@@ -8331,7 +8329,7 @@ BYTE FUN_00457000(int car)
 classes:
     switch (mode) {
     case 10:
-        letter = g_carDetailLetters[1];
+        letter = g_stageQualityCodes[1];
         lod = 1;
         break;
     case 5:
@@ -8342,16 +8340,16 @@ classes:
     case 12:
         if (isPlayer) {
             if (twoPlayers)
-                letter = g_carDetailLetters[0x11];
+                letter = g_stageQualityCodes[0x11];
             else
-                letter = g_carDetailLetters[4];
+                letter = g_stageQualityCodes[4];
         } else {
             if (twoPlayers) {
-                letter = g_carDetailLetters[0x12];
-                variant = g_carDetailLetters[0x13];
+                letter = g_stageQualityCodes[0x12];
+                variant = g_stageQualityCodes[0x13];
             } else {
-                letter = g_carDetailLetters[5];
-                variant = g_carDetailLetters[6];
+                letter = g_stageQualityCodes[5];
+                variant = g_stageQualityCodes[6];
             }
             if (mode == 5 || mode == 6) {
                 model = RallyData_FUN_00408010(car);
@@ -8366,18 +8364,18 @@ classes:
         if ((char)CGameInfo::FUN_00406310()) {
             if (car == (int)(FUN_00456ca0() - 1)) {
                 if (twoPlayers)
-                    letter = g_carDetailLetters[0xf];
+                    letter = g_stageQualityCodes[0xf];
                 else
-                    letter = g_carDetailLetters[3];
+                    letter = g_stageQualityCodes[3];
             } else if (twoPlayers) {
-                letter = g_carDetailLetters[0x10];
+                letter = g_stageQualityCodes[0x10];
             } else {
-                letter = g_carDetailLetters[2];
+                letter = g_stageQualityCodes[2];
             }
         } else if (twoPlayers) {
-            letter = g_carDetailLetters[0xe];
+            letter = g_stageQualityCodes[0xe];
         } else {
-            letter = g_carDetailLetters[1];
+            letter = g_stageQualityCodes[1];
         }
         lod = letter < 'E' ? 1 : 3;
         break;
@@ -8386,11 +8384,11 @@ classes:
             if (twoPlayers)
                 letter = g_unk0x00542630[0x394];
             else
-                letter = g_carDetailLetters[7];
+                letter = g_stageQualityCodes[7];
         } else if (twoPlayers) {
             letter = g_unk0x00542630[0x395];
         } else {
-            letter = g_carDetailLetters[8];
+            letter = g_stageQualityCodes[8];
         }
         lod = 1;
         break;
@@ -8398,23 +8396,23 @@ classes:
         if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0) {
             if (isPlayer) {
                 if (twoPlayers)
-                    letter = g_carDetailLetters[0x14];
+                    letter = g_stageQualityCodes[0x14];
                 else
-                    letter = g_carDetailLetters[9];
+                    letter = g_stageQualityCodes[9];
             } else if (twoPlayers) {
-                letter = g_carDetailLetters[0x15];
+                letter = g_stageQualityCodes[0x15];
             } else {
-                letter = g_carDetailLetters[10];
+                letter = g_stageQualityCodes[10];
             }
         } else if (twoPlayers) {
-            letter = g_carDetailLetters[0xd];
+            letter = g_stageQualityCodes[0xd];
         } else if (CGameInfo::FUN_00405e00()) {
             if (car > 0)
-                letter = g_carDetailLetters[0xc];
+                letter = g_stageQualityCodes[0xc];
             else
-                letter = g_carDetailLetters[0xb];
+                letter = g_stageQualityCodes[0xb];
         } else {
-            letter = g_carDetailLetters[0];
+            letter = g_stageQualityCodes[0];
         }
         lod = 1;
         break;

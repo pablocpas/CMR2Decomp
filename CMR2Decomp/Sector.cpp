@@ -123,7 +123,7 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
                 k--;
             } while (k != 0);
             count++;
-            pField += 0x13;
+            pField += 0x13 - 10; // Ten of the triangle's 19 dwords were consumed above.
         } while (count < *(unsigned int *)(pData + 0x20));
     }
     FUN_004b9910((int)(pRecords + recordSize * 0x5c), textureRecords,

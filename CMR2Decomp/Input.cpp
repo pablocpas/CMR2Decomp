@@ -647,20 +647,20 @@ void CInput::DInputReleaseDevices(void) {
     LPDIRECTINPUTDEVICEA *pDevices = m_unk0x0059f6b0;
 
     do {
-        if (pDevices[iVar2] != NULL) {
-            hr = pDevices[iVar2]->Unacquire();
+        if (*pDevices != NULL) {
+            hr = (*pDevices)->Unacquire();
             if (SUCCEEDED(hr) && iVar2 < m_unk0x0059f8cc.field_0x3) {
-                pDevices[iVar2] = pDevices[iVar2];
-                if (pDevices[iVar2] != NULL) {
-                    result = pDevices[iVar2]->Release();
+                if (*pDevices != NULL) {
+                    result = (*pDevices)->Release();
                     if (result == 0)
-                        pDevices[iVar2] = NULL;
+                        *pDevices = NULL;
                 }
             }
         }
 
+        pDevices++;
         iVar2++;
-    } while (pDevices < pDevices + 4);
+    } while ((int)pDevices < (int)(m_unk0x0059f6b0 + 4));
 }
 
 // FUNCTION: CMR2 0x0049ef90
