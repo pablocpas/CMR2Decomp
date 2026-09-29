@@ -11513,13 +11513,13 @@ extern void FUN_004b7c80(void);
 
 // Name of a saved game being edited (0x526fb8 is the accepted character set).
 // GLOBAL: CMR2 0x00526fb8
-char g_str0x00526fb8[] = "abcdefghijklmnop";
+char g_str0x00526fb8[] = "abcdefghijklmnopqrstuvwxyz. ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // Buffer whose contents the name editor is editing.
 // GLOBAL: CMR2 0x0082a934
 char *g_unk0x0082a934;
 // Set when the name editor was opened this frame.
 // GLOBAL: CMR2 0x00526f40
-BYTE g_unk0x00526f40;
+BYTE g_unk0x00526f40 = 1;
 
 // Callback of the load-game screen of the option menu: scrolls the saved-games
 // list while it is armed, and feeds the name editor (append/backspace, width and
