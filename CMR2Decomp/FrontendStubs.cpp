@@ -44,9 +44,9 @@ void FUN_004dce00(Menu *pMenu)
 {
 }
 
-void FUN_004dd4b0(Menu *pMenu)
-{
-}
+// FUN_004dd4b0 (0x004dd4b0) is implemented in FrontendScreens.cpp.
+//
+//
 
 void FUN_004de1d0(Menu *pMenu, int param)
 {
