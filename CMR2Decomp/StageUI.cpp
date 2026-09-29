@@ -1179,6 +1179,11 @@ int g_unk0x00519198[12] = {
 // Per-driver event progress: clears the flags of every driver slot, sets the
 // stage and award bits of the current event, stores the place-based awards and
 // finally updates the game callback group when a driver completed an event.
+// The logic is faithful; the residual diff is codegen shape: the original
+// addresses the two game-info flag words as a bitfield struct (its masked
+// xor/carry read-modify-writes for the 1/2/4-bit fields) and keeps the loop
+// counter in edi (ours lands in ebx), which shifts many operand encodings.
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0041b460
 void FUN_0041b460(void)
 {
