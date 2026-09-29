@@ -27,6 +27,8 @@ BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
 int CGame::m_unk0x0059ce14;
 int CGame::m_unk0x0059ce18;
+// GLOBAL: CMR2 0x0059ce1c
+int CGame::m_unk0x0059ce1c;
 int CGame::m_unk0x0059ce20;
 int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
@@ -235,7 +237,7 @@ int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
 void FUN_004ea5b0(void);
 float FUN_004b23a0(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, int);
 void FUN_0049de40(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
@@ -503,7 +505,7 @@ void FUN_004ea510(void);
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 float FUN_004b23a0(void);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, int);
 void FUN_0049de40(void);
 
 // FPS overlay format string ("FPS: %.2f").
@@ -816,7 +818,7 @@ void FUN_004d1e90(Unk0049c2c0 *p1, BYTE unused)
 }
 
 float FUN_004b23a0(void);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, int);
 void FUN_0049de40(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 
@@ -2529,6 +2531,192 @@ void FUN_0049d290(int param1)
             pNode = pNode->pNextInSector;
         }
     }
+}
+
+// Draws one frame of the race view: sets the viewport and the render states of
+// the 3D pass and of the 2D layers, draws the world (relit sectors, static and
+// deferred objects, ground and shadow meshes, view masked nodes) with the given
+// view bit, then restores the full screen viewport and flushes the remaining 2D
+// layers. Returns 1 (also when the device refuses to start a scene).
+void Graphics_SetLightingMode(int mode);
+void Graphics_EnableFog(void);
+void Graphics_DisableFog(void);
+void Graphics_SetRenderTarget(Texture *pTexture);
+void ScreenLine2D_Draw(int layer);
+void Tri2D_DrawLayer(int layer);
+void Line2D_Draw(void);
+void Quad2D_DrawLayer(unsigned int layer);
+void Billboard_Draw(SceneNode *pCamera);
+void Glow_Draw(SceneNode *pCamera, BYTE view);
+void Particle_DrawAll(int param, BYTE view);
+void Scene_DrawShadowBatches(BYTE view);
+void Scene_RelightSector(int sector);
+BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
+void FUN_004b7de0(SceneNode *pNode, int unused);
+void FUN_004b21e0(void);
+int FUN_004bcae0(void);
+void FUN_0049dcc0(int enable);
+void FUN_0049d040(void);
+void FUN_0049cd90(void);
+void FUN_0049cec0(void);
+void FUN_0049cf80(void);
+void Game_DrawUnsortedNodes(int bit);
+void Game_DrawSortedNodes(int bit);
+void FUN_0049d290(int param1);
+void Game_DrawDeferredObjects(void);
+extern FixMatrix g_unk0x0059bd28;
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+
+// FUNCTION: CMR2 0x0049d3f0
+int FUN_0049d3f0(int param1, int param2, void *param3, int bit, int flag)
+{
+    SceneNode *pCamera;
+    short *pRect;
+    D3DVIEWPORT7 viewport;
+    FixVector cameraPosition;
+    FixVector forward;
+    int farPlane;
+    unsigned int i;
+    unsigned short *pIndex;
+
+    pCamera = (SceneNode *)param2;
+    pRect = (short *)param3;
+    g_unk0x0059be6c = pCamera;
+    CGame::m_unk0x0059ce18 = 0;
+    CGame::m_unk0x0059ce1c = 0;
+    CGame::m_unk0x0059ce20 = 0;
+    if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
+        return 1;
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    viewport.dwX = pRect[0];
+    viewport.dwY = pRect[1];
+    viewport.dwWidth = pRect[2];
+    viewport.dwHeight = pRect[3];
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    FUN_0049dcc0(1);
+    CGraphics::SetCullMode(3);
+    Graphics_SetLightingMode(5);
+    ScreenLine2D_Draw(4);
+    Tri2D_DrawLayer(4);
+    Sprite_DrawLayer(4);
+    if (flag != 0) {
+        if (CGraphics::m_unk0x0072d56c != 0) {
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                             &g_unk0x005207b8);
+            FUN_004b7de0(pCamera, (int)pRect);
+            for (pIndex = (unsigned short *)g_unk0x006ed5f0, i = 0;
+                 i < (unsigned int)g_sectorCullEnabled; i++, pIndex++)
+                Scene_RelightSector(*pIndex);
+        }
+        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+        FixMatrix_GetPosition(&cameraPosition, &pCamera->world);
+        Particle_DrawAll((int)pCamera, (BYTE)bit);
+        forward.x = pCamera->world.forward.x;
+        forward.y = 0;
+        forward.z = pCamera->world.forward.z;
+        FIX_NORMALIZE_INTO(forward, forward);
+        g_unk0x0059bd28.right.x = forward.z;
+        g_unk0x0059bd28.right.y = 0;
+        g_unk0x0059bd28.right.z = -forward.x;
+        g_unk0x0059bd28.rw = 0;
+        g_unk0x0059bd28.up.x = 0;
+        g_unk0x0059bd28.up.y = 0x10000;
+        g_unk0x0059bd28.up.z = 0;
+        g_unk0x0059bd28.uw = 0;
+        g_unk0x0059bd28.forward.x = forward.x;
+        g_unk0x0059bd28.forward.y = 0;
+        g_unk0x0059bd28.forward.z = forward.z;
+        g_unk0x0059bd28.fw = 0;
+        g_unk0x0059bd28.position.x = 0;
+        g_unk0x0059bd28.position.y = 0;
+        g_unk0x0059bd28.position.z = 0;
+        g_unk0x0059bd28.pw = 0x10000;
+        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
+        if ((unsigned int)g_sectorCount > 0) {
+            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c,
+                                                               FUN_004bcae0());
+            Graphics_DisableFog();
+            Graphics_SetLightingMode(5);
+            farPlane = CGraphics::m_farPlaneFixed;
+            CGraphics::SetProjection(0, 0, 0x960000, 0);
+            Game_DrawUnsortedNodes(bit);
+            CGraphics::SetProjection(0, 0, farPlane, 0);
+            Graphics_EnableFog();
+            Graphics_SetLightingMode(0);
+            FUN_0049cec0();
+            Graphics_SetLightingMode(5);
+            FUN_0049cf80();
+            FUN_0049dcc0(1);
+            Glow_Draw(pCamera, (BYTE)bit);
+            Quad2D_DrawLayer(8);
+            Graphics_SetLightingMode(4);
+            Quad2D_DrawLayer(0x20);
+            Graphics_SetLightingMode(1);
+            if (CGame::m_unk0x0059ce14 != 0) {
+                FUN_0049d040();
+                Game_DrawDeferredObjects();
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                 &g_unk0x005207b8);
+                FUN_0049dcc0(1);
+                CGraphics::FUN_004a3e40(5, 6);
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+                Graphics_SetLightingMode(5);
+                Quad2D_DrawLayer(0x10);
+                Line2D_Draw();
+                Billboard_Draw(pCamera);
+                Graphics_SetLightingMode(1);
+                FUN_0049d290(bit);
+                Game_DrawSortedNodes(bit);
+            } else {
+                FUN_0049d040();
+                FUN_0049d290(bit);
+                Game_DrawSortedNodes(bit);
+                Game_DrawDeferredObjects();
+            }
+        } else {
+            FUN_0049cd90();
+        }
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+        FUN_0049dcc0(1);
+        CGraphics::FUN_004a3e40(5, 6);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+        Graphics_SetLightingMode(5);
+        Quad2D_DrawLayer(0x10);
+        Graphics_SetLightingMode(4);
+        Quad2D_DrawLayer(0x40);
+        Graphics_SetLightingMode(5);
+        Line2D_Draw();
+        Billboard_Draw(pCamera);
+        Scene_DrawShadowBatches((BYTE)bit);
+    }
+    Flare_SampleVisibility(NULL, NULL, 0);
+    CGraphics::SetZWriteEnable(0);
+    CGraphics::SetZEnable(0);
+    CGraphics::FUN_004a3e40(5, 6);
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dwX = 0;
+    viewport.dwY = 0;
+    viewport.dwWidth = g_pGraphics->resX;
+    viewport.dwHeight = g_pGraphics->resY;
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    CGraphics::SetCullMode(3);
+    ScreenLine2D_Draw(3);
+    Tri2D_DrawLayer(3);
+    Sprite_DrawLayer(3);
+    ScreenLine2D_Draw(2);
+    Tri2D_DrawLayer(2);
+    Sprite_DrawLayer(2);
+    ScreenLine2D_Draw(1);
+    Tri2D_DrawLayer(1);
+    Sprite_DrawLayer(1);
+    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+    FUN_004b21e0();
+    CGraphics::m_pTextureManager->pD3D->EndScene();
+    return 1;
 }
 
 // FUNCTION: CMR2 0x0049dca0

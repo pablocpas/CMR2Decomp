@@ -4,9 +4,6 @@
 // empty. DELETE each one as its real implementation lands (layers 0-8 of
 // tools/cascade/README.md).
 
-// STUB: CMR2 0x0049d3f0
-void FUN_0049d3f0(int, int, void *, int, int) { }
-
 
 
 // STUB: CMR2 0x005062d0
