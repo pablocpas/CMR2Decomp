@@ -4,9 +4,6 @@
 // empty. DELETE each one as its real implementation lands (layers 0-8 of
 // tools/cascade/README.md).
 
-// STUB: CMR2 0x0049d3f0
-void FUN_0049d3f0(int, int, void *, int, int) { }
-
 
 
 // STUB: CMR2 0x005062d0
@@ -49,9 +46,6 @@ void FUN_00472a30(void) { }
 void FUN_00478c40(void) { }
 
 struct Menu;
-// STUB: CMR2 0x0049bcb0
-void FUN_0049bcb0(Menu *pMenu) { }
-
 // STUB: CMR2 0x00473d60
 void FUN_00473d60(Menu *pMenu) { }
 

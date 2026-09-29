@@ -1,5 +1,6 @@
 #include "StageBlock.h"
 #include "Game.h"
+#include "Menu.h"
 #include "main.h"
 #include "RegKey.h"
 #include "GameInfo.h"
@@ -20,11 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <float.h>
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
 int CGame::m_unk0x0059ce14;
 int CGame::m_unk0x0059ce18;
+// GLOBAL: CMR2 0x0059ce1c
+int CGame::m_unk0x0059ce1c;
 int CGame::m_unk0x0059ce20;
 int CGame::m_unk0x0059ce28;
 int CGame::m_unk0x0059ce2c;
@@ -233,7 +237,7 @@ int g_unk0x00523c64[5] = { -1, 120, 120, 120, 120 };
 void FUN_004ea5b0(void);
 float FUN_004b23a0(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
@@ -408,6 +412,18 @@ void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2)
     }
 }
 
+// Sets the FPU control word to 53-bit precision (the CRT's default for the
+// x87 unit before the game changes it). This is CRT startup code, which the
+// original built with /Os: the size optimisation is what turns the cdecl
+// cleanup into `pop ecx / pop ecx`.
+#pragma optimize("s", on)
+// FUNCTION: CMR2 0x00405796
+void FUN_00405796(void)
+{
+    _controlfp(_PC_53, _MCW_PC);
+}
+#pragma optimize("s", off)
+
 // FUNCTION: CMR2 0x004057a8
 int FUN_004057a8(void)
 {
@@ -489,7 +505,7 @@ void FUN_004ea510(void);
 
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 float FUN_004b23a0(void);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 
 // FPS overlay format string ("FPS: %.2f").
@@ -802,7 +818,7 @@ void FUN_004d1e90(Unk0049c2c0 *p1, BYTE unused)
 }
 
 float FUN_004b23a0(void);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 void FUN_0049de40(void);
 int Game_PrepareScene(SceneNode *pRoot, SceneNode *pCamera, int unused, int param);
 
@@ -1931,6 +1947,90 @@ void FUN_0049c080(Menu *pMenu, int param)
     FUN_0041f4d0();
 }
 
+int FUN_004055e0(void);
+int FUN_004055f0(void);
+
+// Draws the in-race menu built by 0x475f00: the title, then one row per item
+// with its banner sprite, the item text and the separator line above the list
+// and under every row. The selected row and the lines around it are drawn in
+// the bright colour, the rest in the dim one.
+// FUNCTION: CMR2 0x0049bcb0
+void FUN_0049bcb0(Menu *pMenu)
+{
+    BYTE colourWhite[4];
+    BYTE colourText[4];
+    BYTE colourDim[4];
+    short line[4];
+    short rect[4];
+    MenuItem *pItem;
+    int cursor;
+    int x;
+    int i;
+
+    colourText[3] = 0xff;
+    colourDim[3] = 0xff;
+    colourWhite[0] = 0xff;
+    colourWhite[1] = 0xff;
+    colourWhite[2] = 0xff;
+    colourWhite[3] = 0xff;
+    colourText[0] = 0x4f;
+    colourText[1] = 0x4f;
+    colourText[2] = 0x4f;
+    colourDim[0] = 0x4f;
+    colourDim[1] = 0x4f;
+    colourDim[2] = 0x4f;
+
+    cursor = pMenu->cursor;
+    Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
+                  (int)(g_pGraphics->resY * 0xc8) / 0x1e0, (int *)colourText, 0x11);
+    x = (int)(g_pGraphics->resX * 0xf0) / 0x280;
+    rect[1] = 0;
+    rect[0] = (short)x;
+    if (FUN_004055e0() != 0) {
+        rect[2] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->w;
+        rect[3] = ((SpriteRect *)(FUN_004055e0() + 0x11c))->h;
+    }
+    line[0] = (short)x;
+    line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+    line[3] = 1;
+    line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
+    if (cursor == 0)
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+    else
+        Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    pItem = pMenu->items;
+    for (i = 0; i < 2; i++, pItem++) {
+        if (FUN_004055e0() != 0)
+            rect[1] = (short)(line[1] + (int)(g_pGraphics->resY * 0xe) / 0x1e0 -
+                              ((SpriteRect *)(FUN_004055e0() + 0x11c))->h / 2);
+        sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                CFrontend::GetTextString(pItem->id));
+        if (i == cursor) {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourWhite, 0x11);
+            if (FUN_004055f0() != 0)
+                Sprite_Queue((SpriteRect *)(FUN_004055f0() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)FUN_004055f0(), 1, 0, NULL, NULL, colourWhite, 8);
+        } else {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0xf0) / 0x280 +
+                              (int)(g_pGraphics->resX * 0x14) / 0x280,
+                          line[1] + (int)(g_pGraphics->resY * 0x12) / 0x1e0, (int *)colourText, 0x11);
+            if (FUN_004055f0() != 0)
+                Sprite_Queue((SpriteRect *)(FUN_004055f0() + 0x11c), (SpriteRect *)rect,
+                             (Texture *)FUN_004055f0(), 1, 0, NULL, NULL, colourText, 8);
+        }
+        line[1] = (short)((int)(g_pGraphics->resY * 0x18) / 0x1e0 * (i + 1) +
+                          (int)(g_pGraphics->resY * 0xd7) / 0x1e0);
+        if (i == cursor || i + 1 == cursor)
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
+        else
+            Sprite_FillRect((int)g_pGraphics + 0x150, line, colourDim, 1);
+    }
+}
+
 // FUNCTION: CMR2 0x0049c090
 int CGame::GetCallbackCount(void)
 {
@@ -2431,6 +2531,193 @@ void FUN_0049d290(int param1)
             pNode = pNode->pNextInSector;
         }
     }
+}
+
+// Draws one frame of the race view: sets the viewport and the render states of
+// the 3D pass and of the 2D layers, draws the world (relit sectors, static and
+// deferred objects, ground and shadow meshes, view masked nodes) with the given
+// view bit, then restores the full screen viewport and flushes the remaining 2D
+// layers. Returns 1 (also when the device refuses to start a scene).
+void Graphics_SetLightingMode(int mode);
+void Graphics_EnableFog(void);
+void Graphics_DisableFog(void);
+void Graphics_SetRenderTarget(Texture *pTexture);
+void ScreenLine2D_Draw(int layer);
+void Tri2D_DrawLayer(int layer);
+void Line2D_Draw(void);
+void Quad2D_DrawLayer(unsigned int layer);
+void Billboard_Draw(SceneNode *pCamera);
+void Glow_Draw(SceneNode *pCamera, BYTE view);
+void Particle_DrawAll(int param, BYTE view);
+void Scene_DrawShadowBatches(BYTE view);
+void Scene_RelightSector(int sector);
+BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
+void FUN_004b7de0(SceneNode *pNode, int unused);
+void FUN_004b21e0(void);
+int FUN_004bcae0(void);
+void FUN_0049dcc0(int enable);
+void FUN_0049d040(void);
+void FUN_0049cd90(void);
+void FUN_0049cec0(void);
+void FUN_0049cf80(void);
+void Game_DrawUnsortedNodes(int bit);
+void Game_DrawSortedNodes(int bit);
+void FUN_0049d290(int param1);
+void Game_DrawDeferredObjects(void);
+extern FixMatrix g_unk0x0059bd28;
+D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn);
+
+// match 94%: the residual diff is register allocation (the relight loop walks
+// the sector list from a register where the original keeps the pointer in the
+// argument slot, and the inlined fixed point normalisation uses different
+// scratch slots), plus the 0.0f store which the original materialises as an
+// immediate.
+// FUNCTION: CMR2 0x0049d3f0
+int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
+{
+    D3DVIEWPORT7 viewport;
+    FixVector cameraPosition;
+    FixVector forward;
+    int farPlane;
+    unsigned int i;
+    unsigned short *pIndex;
+
+    g_unk0x0059be6c = (SceneNode *)param2;
+    CGame::m_unk0x0059ce18 = 0;
+    CGame::m_unk0x0059ce1c = 0;
+    CGame::m_unk0x0059ce20 = 0;
+    if (CGraphics::m_pTextureManager->pD3D->BeginScene() != D3D_OK)
+        return 1;
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    viewport.dwX = ((short *)param3)[0];
+    viewport.dwY = ((short *)param3)[1];
+    viewport.dwWidth = ((short *)param3)[2];
+    viewport.dwHeight = ((short *)param3)[3];
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    FUN_0049dcc0(1);
+    CGraphics::SetCullMode(3);
+    Graphics_SetLightingMode(5);
+    ScreenLine2D_Draw(4);
+    Tri2D_DrawLayer(4);
+    Sprite_DrawLayer(4);
+    if (flag != 0) {
+        if (CGraphics::m_unk0x0072d56c != 0) {
+            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                             &g_unk0x005207b8);
+            FUN_004b7de0((SceneNode *)param2, (int)param3);
+            pIndex = (unsigned short *)g_unk0x006ed5f0;
+            for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++)
+                Scene_RelightSector(*pIndex);
+        }
+        CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+        FixMatrix_GetPosition(&cameraPosition, &((SceneNode *)param2)->world);
+        Particle_DrawAll(param2, (BYTE)bit);
+        forward.x = g_unk0x0059be6c->world.forward.x;
+        forward.y = 0;
+        forward.z = g_unk0x0059be6c->world.forward.z;
+        FIX_NORMALIZE_INTO(forward, forward);
+        g_unk0x0059bd28.right.x = forward.z;
+        g_unk0x0059bd28.right.y = 0;
+        g_unk0x0059bd28.right.z = -forward.x;
+        g_unk0x0059bd28.rw = 0;
+        g_unk0x0059bd28.up.x = 0;
+        g_unk0x0059bd28.up.y = 0x10000;
+        g_unk0x0059bd28.up.z = 0;
+        g_unk0x0059bd28.uw = 0;
+        g_unk0x0059bd28.forward.x = forward.x;
+        g_unk0x0059bd28.forward.y = 0;
+        g_unk0x0059bd28.forward.z = forward.z;
+        g_unk0x0059bd28.fw = 0;
+        g_unk0x0059bd28.position.x = 0;
+        g_unk0x0059bd28.position.y = 0;
+        g_unk0x0059bd28.position.z = 0;
+        g_unk0x0059bd28.pw = 0x10000;
+        FixMatrix_ToFloat(&g_unk0x00597cc0, &g_unk0x0059bd28);
+        if ((unsigned int)g_sectorCount > 0) {
+            CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c,
+                                                               FUN_004bcae0());
+            Graphics_DisableFog();
+            Graphics_SetLightingMode(5);
+            farPlane = CGraphics::m_farPlaneFixed;
+            CGraphics::SetProjection(0, 0, 0x960000, 0);
+            Game_DrawUnsortedNodes(bit);
+            CGraphics::SetProjection(0, 0, farPlane, 0);
+            Graphics_EnableFog();
+            Graphics_SetLightingMode(0);
+            FUN_0049cec0();
+            Graphics_SetLightingMode(5);
+            FUN_0049cf80();
+            FUN_0049dcc0(1);
+            Glow_Draw((SceneNode *)param2, (BYTE)bit);
+            Quad2D_DrawLayer(8);
+            Graphics_SetLightingMode(4);
+            Quad2D_DrawLayer(0x20);
+            Graphics_SetLightingMode(1);
+            if (CGame::m_unk0x0059ce14 != 0) {
+                FUN_0049d040();
+                Game_DrawDeferredObjects();
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                 &g_unk0x005207b8);
+                FUN_0049dcc0(1);
+                CGraphics::FUN_004a3e40(5, 6);
+                CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+                Graphics_SetLightingMode(5);
+                Quad2D_DrawLayer(0x10);
+                Line2D_Draw();
+                Billboard_Draw((SceneNode *)param2);
+                Graphics_SetLightingMode(1);
+                FUN_0049d290(bit);
+                Game_DrawSortedNodes(bit);
+            } else {
+                FUN_0049d040();
+                FUN_0049d290(bit);
+                Game_DrawSortedNodes(bit);
+                Game_DrawDeferredObjects();
+            }
+        } else {
+            FUN_0049cd90();
+        }
+        CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
+        FUN_0049dcc0(1);
+        CGraphics::FUN_004a3e40(5, 6);
+        CGraphics::m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x1c, 0);
+        Graphics_SetLightingMode(5);
+        Quad2D_DrawLayer(0x10);
+        Graphics_SetLightingMode(4);
+        Quad2D_DrawLayer(0x40);
+        Graphics_SetLightingMode(5);
+        Line2D_Draw();
+        Billboard_Draw((SceneNode *)param2);
+        Scene_DrawShadowBatches((BYTE)bit);
+    }
+    Flare_SampleVisibility(NULL, NULL, 0);
+    CGraphics::SetZWriteEnable(0);
+    CGraphics::SetZEnable(0);
+    CGraphics::FUN_004a3e40(5, 6);
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.dwX = 0;
+    viewport.dwY = 0;
+    viewport.dwWidth = g_pGraphics->resX;
+    viewport.dwHeight = g_pGraphics->resY;
+    viewport.dvMinZ = 0.0f;
+    viewport.dvMaxZ = 1.0f;
+    CGraphics::m_pTextureManager->pD3D->SetViewport(&viewport);
+    CGraphics::SetCullMode(3);
+    ScreenLine2D_Draw(3);
+    Tri2D_DrawLayer(3);
+    Sprite_DrawLayer(3);
+    ScreenLine2D_Draw(2);
+    Tri2D_DrawLayer(2);
+    Sprite_DrawLayer(2);
+    ScreenLine2D_Draw(1);
+    Tri2D_DrawLayer(1);
+    Sprite_DrawLayer(1);
+    CGraphics::SetCullMode(CGame::FUN_0049dcb0());
+    FUN_004b21e0();
+    CGraphics::m_pTextureManager->pD3D->EndScene();
+    return 1;
 }
 
 // FUNCTION: CMR2 0x0049dca0
