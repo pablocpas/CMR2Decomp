@@ -10893,10 +10893,10 @@ void FUN_004e8500(Menu *pMenu)
     char *texts[3];
     char buffer[100];
     MenuItem *pItem;
-    char *pText;
     BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
+    int textX;
 
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
     rect[1] = 0;
@@ -10929,6 +10929,7 @@ void FUN_004e8500(Menu *pMenu)
     pItem = pMenu->items;
     if (pMenu->itemCount > 0) {
         do {
+            textX = (int)(g_pGraphics->resX * 0x7a) / 0x280;
             rect[1] = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + top +
                       ((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i - CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == i) {
@@ -10943,34 +10944,34 @@ void FUN_004e8500(Menu *pMenu)
                              CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
             }
             switch (pItem->value) {
-            case 0:
-                sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
-                        CFrontend::GetTextString(Menu_GetItem(pMenu, 0)->max + 0x27));
-                pText = CFrontend::m_stringDest;
-                break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x31),
                         &g_unk0x00818d84[Menu_GetItem(pMenu, 1)->max * 3]);
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, textX,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+                break;
+            case 0:
+                sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
+                        CFrontend::GetTextString(Menu_GetItem(pMenu, 0)->max + 0x27));
+                Font_DrawText(1, CFrontend::m_stringDest, textX,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 2:
-                if (Menu_GetItem(pMenu, 2)->max == 0) {
-                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
-                } else {
+                if (Menu_GetItem(pMenu, 2)->max != 0) {
                     sprintf(buffer, CFrontend::GetTextString(0x1e0), Menu_GetItem(pMenu, 2)->max + 4);
                     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1de), buffer);
+                } else {
+                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
                 }
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, textX,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 3:
             case 4:
-                pText = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id), textX,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
-            default:
-                goto next;
             }
-            Font_DrawText(1, pText, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
         next:
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
                 pLineColour = g_colourWhite0x00524968;
