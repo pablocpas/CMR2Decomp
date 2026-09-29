@@ -738,6 +738,155 @@ BYTE *FUN_00464af0(int index)
     return g_unk0x00548110[index];
 }
 
+
+extern Texture *g_unk0x00588740;
+extern Texture *g_unk0x00588744;
+extern Texture *g_unk0x00588748;
+extern int g_unk0x00549ba0[8][4];
+int FUN_00465ea0(int value);
+#define TRAIL_POINT(i) (&g_trailPoints[0][0][0][0] + (i) * 0x28)
+#define TRAIL_FADE(p, b) ((p)[b] - (p)[b] * *(int *)(p) * 0x7c / 0x4d8)
+
+// Draws the tyre marks of one car: for every wheel it walks its ring of 200
+// trail points backwards in steps of g_stageSurfaceInfo[8].flags, joins each
+// point to the previous consecutive one with a textured quad (two triangles)
+// whose alpha fades with the points' age, and picks the mark texture from the
+// surface the point was laid on.
+// FUNCTION: CMR2 0x004658e0
+void FUN_004658e0(int index)
+{
+    BYTE curColour[4] = { 0, 0, 0, 25 };
+    BYTE prevColour[4] = { 0, 0, 0, 25 };
+    Quad2DInputVertex a;
+    Quad2DInputVertex b;
+    Quad2DInputVertex c;
+    Quad2DInputVertex d;
+    int *pHead;
+    int base;
+    int wheel;
+    int j;
+    int step;
+    int cur;
+    int k;
+    int found;
+    BYTE *pCur;
+    BYTE *pPrev;
+    int alpha0;
+    int alpha1;
+    int alpha2;
+    int alpha3;
+    Texture *pTexture;
+
+    if (index >= 8 || CGameInfo::FUN_00405cd0() == 2)
+        return;
+    pHead = g_unk0x00549ba0[index];
+    base = index * 800;
+    a.u = 0;
+    a.v = 0;
+    b.u = 0x10000;
+    b.v = 0;
+    d.u = 0x10000;
+    d.v = 0x10000;
+    c.u = 0;
+    c.v = 0x10000;
+    for (wheel = 4; wheel != 0; wheel--, pHead++, base += 200) {
+        j = 0;
+        do {
+            found = 0;
+            step = g_stageSurfaceInfo[8].flags;
+            cur = (*pHead - j + 200) % 200;
+            if (step > 1) {
+                k = cur - step + 200;
+                do {
+                    if (found)
+                        break;
+                    step--;
+                    k++;
+                    if ((&g_trailPointUsed[0][0][0])[base + cur] == 0 ||
+                        (&g_trailPointUsed[0][0][0])[base + k % 200] == 0)
+                        continue;
+                    pPrev = TRAIL_POINT(k % 200 + base);
+                    pCur = TRAIL_POINT(base + cur);
+                    found = *(int *)(pCur + 4) == *(int *)(pPrev + 4) + step;
+                    if (found != 1)
+                        continue;
+                    if (pPrev[0x20] <= 200 && *(int *)pPrev <= 0x4d8) {
+                        alpha3 = pPrev[0x25];
+                        alpha2 = pPrev[0x24];
+                        alpha0 = pCur[0x24];
+                        alpha1 = pCur[0x25];
+                    } else {
+                        alpha2 = TRAIL_FADE(pPrev, 0x24);
+                        alpha3 = TRAIL_FADE(pPrev, 0x25);
+                        alpha0 = TRAIL_FADE(pCur, 0x24);
+                        alpha1 = TRAIL_FADE(pCur, 0x25);
+                    }
+                    alpha0 = FUN_00465ea0(alpha0);
+                    alpha1 = FUN_00465ea0(alpha1);
+                    alpha2 = FUN_00465ea0(alpha2);
+                    alpha3 = FUN_00465ea0(alpha3);
+                    if (alpha0 <= 1 && alpha1 <= 1 && alpha2 <= 1 && alpha3 <= 1)
+                        continue;
+                    curColour[0] = pCur[0x20];
+                    curColour[1] = pCur[0x21];
+                    curColour[2] = pCur[0x22];
+                    prevColour[0] = pPrev[0x20];
+                    prevColour[1] = pPrev[0x21];
+                    prevColour[2] = pPrev[0x22];
+                    a.x = *(int *)(pCur + 8);
+                    a.y = *(int *)(pCur + 0xc);
+                    a.z = *(int *)(pCur + 0x10);
+                    *(DWORD *)a.colour = *(DWORD *)curColour;
+                    a.colour[3] = (BYTE)alpha0;
+                    b.x = *(int *)(pCur + 0x14);
+                    b.y = *(int *)(pCur + 0x18);
+                    b.z = *(int *)(pCur + 0x1c);
+                    *(DWORD *)b.colour = *(DWORD *)curColour;
+                    b.colour[3] = (BYTE)alpha1;
+                    c.x = *(int *)(pPrev + 8);
+                    c.y = *(int *)(pPrev + 0xc);
+                    c.z = *(int *)(pPrev + 0x10);
+                    *(DWORD *)c.colour = *(DWORD *)prevColour;
+                    c.colour[3] = (BYTE)alpha2;
+                    d.x = *(int *)(pPrev + 0x14);
+                    d.y = *(int *)(pPrev + 0x18);
+                    d.z = *(int *)(pPrev + 0x1c);
+                    *(DWORD *)d.colour = *(DWORD *)prevColour;
+                    d.colour[3] = (BYTE)alpha3;
+                    if (*(int *)(pPrev + 8) == *(int *)(pPrev + 0x14) && *(int *)(pPrev + 0xc) == *(int *)(pPrev + 0x18))
+                        continue;
+                    switch ((g_stageSurfaceInfo[pCur[0x26] & 0xf].flags >> 2) & 3) {
+                    case 1:
+                        pTexture = g_unk0x00588744;
+                        break;
+                    case 2:
+                        a.colour[0] = 0;
+                        a.colour[1] = 0;
+                        a.colour[2] = 0;
+                        a.colour[3] = (BYTE)(alpha0 / 3);
+                        *(DWORD *)c.colour = *(DWORD *)a.colour;
+                        b.colour[0] = 0;
+                        b.colour[1] = 0;
+                        b.colour[2] = 0;
+                        b.colour[3] = (BYTE)(alpha1 / 3);
+                        *(DWORD *)d.colour = *(DWORD *)b.colour;
+                        pTexture = g_unk0x00588748;
+                        break;
+                    default:
+                        pTexture = g_unk0x00588740;
+                        break;
+                    }
+                    Quad2D_QueueFixedTriangle(0, &b, &a, &c, pTexture, (Quad2D *)0x26);
+                    Quad2D_QueueFixedTriangle(0, &d, &b, &c, pTexture, (Quad2D *)0x26);
+                } while (step > 1);
+            }
+            j += step;
+        } while (j < 200);
+    }
+}
+#undef TRAIL_POINT
+#undef TRAIL_FADE
+
 // FUNCTION: CMR2 0x00465ea0
 int FUN_00465ea0(int value)
 {
@@ -9071,9 +9220,6 @@ int FUN_00476850(int param_1, int param_2)
 // TEMPORARY link scaffolding: callees that are not decompiled yet. Their
 // signatures come from the original's `ret N`; the bodies are empty so the
 // calls sites compile and reccmp can measure the callers.
-// STUB: CMR2 0x004658e0
-void FUN_004658e0(int index) { }
-
 int FUN_004b50b0(SceneNode *pNode, int param_2);
 void FUN_004a3240(int unused);
 
