@@ -3689,7 +3689,7 @@ void FUN_0042bc80(short *pList, short count)
 
     for (i = count - 1; i >= 0; i--) {
         pCar = &g_carBuffer[pList[i]];
-        if (pCar->field_0xb43[0] != 0)
+        if (pCar->field_0xb43[0] > 0)
             pCar->field_0xb43[0]--;
     }
 }

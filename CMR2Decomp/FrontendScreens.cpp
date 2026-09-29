@@ -2183,7 +2183,7 @@ void FUN_004ecfd0(Menu *pMenu, char param)
 {
     FUN_004b7c80();
     Session_SetOpen(0);
-    if ((int)FUN_004a1720(-1) < 7)
+    if ((int)FUN_004a1720(-1) <= 6)
         Menu_GetItem(pMenu, 1)->min = 5;
     else
         Menu_GetItem(pMenu, 1)->min = 3;
@@ -6129,7 +6129,7 @@ void FUN_004eb160(void)
     BYTE *pRecord;
 
     count = 0;
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if ((unsigned int)CGameInfo::FUN_00405d70() > 0) {
         pRecord = g_saveData + 0x1f74;
         i = 0xf;
         do {
@@ -8151,7 +8151,7 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
         param_2 ^= param_1;
         param_3 ^= (BYTE)param_1;
     }
-    while (param_2 != 0) {
+    while (param_2 > 0) {
         param_4[i] = (char)(param_2 % 10) + '0';
         i++;
         param_2 /= 10;

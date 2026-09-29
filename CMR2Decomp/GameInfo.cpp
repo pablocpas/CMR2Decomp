@@ -3389,7 +3389,7 @@ void FUN_004f4d80(void)
         Font_Reload(pName, CGenericFileLoader::GetGenericFile(), i);
         pName += 20;
         i++;
-    } while (pName < g_frontendFontNames[4]);
+    } while ((int)pName < (int)g_frontendFontNames[4]);
 }
 
 // FUNCTION: CMR2 0x004f48b0
@@ -4431,7 +4431,7 @@ void FUN_00401000(BYTE *param1, int param2)
     if ((char)param2 == 0) {
         if ((BYTE)FUN_0041f930() == 0) {
             i = 0;
-            if (*param1 != 0) {
+            if (*param1 > 0) {
                 do {
                     CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
                     i++;
@@ -4464,7 +4464,7 @@ void FUN_004010a0(BYTE *param1, int param2)
         RallyData_FUN_004207f0();
         if ((BYTE)FUN_00420150() == 0) {
             i = 0;
-            if (*param1 != 0) {
+            if (*param1 > 0) {
                 do {
                     CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 1, 3);
                     i++;
@@ -8601,7 +8601,7 @@ void FUN_0050a3c0(void)
 {
     int i = 0;
 
-    if (CGameInfo::FUN_00405d70() != 0) {
+    if ((unsigned int)CGameInfo::FUN_00405d70() > 0) {
         do {
             FUN_005062d0(i);
             i++;

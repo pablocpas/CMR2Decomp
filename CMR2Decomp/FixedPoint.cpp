@@ -834,7 +834,8 @@ void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero)
                 g_unk0x00539278->field_0x30 = 1;
         }
     }
-    x = (unsigned int)FixVecLength(&v) - 0x1999;
+    x = (unsigned int)FixVecLength(&v);
+    x -= 0x1999;
     x = FixMul(x, 0x28000);
     if (x < 0)
         x = 0;

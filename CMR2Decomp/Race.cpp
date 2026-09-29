@@ -2980,7 +2980,7 @@ void FUN_0041e350(int param1, unsigned int param2)
     if ((char)param2 != 0)
         return;
     anyAlive = 1;
-    if (FUN_00407270() != 0 && g_unk0x00537f3c[0] != 0) {
+    if ((BYTE)FUN_00407270() != 0 && g_unk0x00537f3c[0] != 0) {
         if (g_unk0x00538118 == 0) {
             if (*(int *)(g_unk0x00537f3c[0] + 4) != 0)
                 goto done;
@@ -3631,7 +3631,7 @@ void FUN_00418ee0(void)
             pHandle++;
         }
         pSet++;
-    } while (pSet < &g_carSoundSets[8]);
+    } while ((int)pSet < (int)&g_carSoundSets[8]);
 }
 
 // Loads a sound sample by the name held in the caller's buffer, reading it
@@ -3680,7 +3680,7 @@ void FUN_00418780(void)
     int i;
 
     i = 0;
-    if ((char)RallyDataState() != 0) {
+    if ((BYTE)RallyDataState() > 0) {
         p = g_carSounds;
         do {
             if (Sound_IsPlaying(*p) != 0) {

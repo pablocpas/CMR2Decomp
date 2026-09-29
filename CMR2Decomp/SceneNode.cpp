@@ -1562,7 +1562,7 @@ void Scene_InitLighting(int *pData, int *pHeights)
     g_sceneShadowTableD3D = (DWORD *)CFileBuffer::AllocateLockedBuffer(200);
     g_sceneSectorFlags = (int *)CFileBuffer::AllocateLockedBuffer(g_sectorCount * 4);
     k = 0;
-    if (g_sectorCount != 0) {
+    if ((unsigned int)g_sectorCount > 0) {
         do {
             k++;
             g_sceneSectorFlags[k - 1] = 0;

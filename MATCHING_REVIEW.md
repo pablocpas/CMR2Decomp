@@ -141,3 +141,26 @@ reccmp-datacmp --target CMR2
 python3 /home/pablo/colin_mcrae_linux/tools/check_dupes.py
 python3 tests/differential_slip.py /tmp/cmr2-review.json
 ```
+
+## Hito: menos de 700 funciones por debajo del 100 %
+
+Se cuenta `matching < 1.0` en **todas** las 3364 funciones del informe de
+reccmp, sin excluir rutinas ni aceptar `effective_accuracy` como coincidencia
+exacta. Este recuento es distinto del inventario inferior al 90 % de arriba.
+
+| Lote | Inferiores al 100 % | Nuevas al 100 % | Regresiones |
+|---|---:|---:|---:|
+| Inicio del hito (`c11fb4d`) | 1256 | — | — |
+| Condiciones y campos de menús | 1233 | 23 | 0 |
+
+El primer lote reproduce las condiciones con signo y sin signo, el ancho del
+retorno de `0x407270`, la resta posterior al cálculo de longitud y el límite
+de siete jugadores. En seis constructores (`0x4f6e50`, `0x4f6f10`, `0x4f6fd0`,
+`0x4f7090`, `0x4f7150`, `0x4f9490`), el original escribe la selección en
+`Menu::items[0].max` (offset `0x1f`), mientras el fuente escribía en `cursor`
+(offset `7`). Todos llegan al 100 % con la corrección.
+
+Por indicación del usuario, los lotes siguientes priorizan las funciones de
+porcentaje bajo y errores funcionales, conservando el criterio estricto del
+hito. Compilación completa correcta; informe propio en
+`/tmp/cmr2-milestone-batch1.json`; ninguna función desaparece.

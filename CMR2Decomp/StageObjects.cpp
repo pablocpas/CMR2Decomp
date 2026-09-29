@@ -7839,7 +7839,7 @@ void FUN_00471a60(int param_1)
     BYTE *p;
 
     i = 0;
-    if (g_unk0x0058c924 != 0) {
+    if (g_unk0x0058c924 > 0) {
         p = (BYTE *)g_unk0x005894e0;
         do {
             *(FixMatrix *)(*(int *)(p + 4) + 0x98) = *(FixMatrix *)(p + 0x88);
@@ -8293,7 +8293,7 @@ void FUN_004759d0(int unused1, int unused2)
     StageUI_DrawChampionshipBar();
     Menu_CallCallback2((Menu *)FUN_00475a40());
     i = 0;
-    if ((BYTE)RallyDataState() != 0) {
+    if ((BYTE)RallyDataState() > 0) {
         do {
             FUN_00428680(i, (short *)FUN_00464b10(i), 0);
             i++;

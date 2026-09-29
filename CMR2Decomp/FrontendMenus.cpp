@@ -2062,7 +2062,7 @@ void FUN_004f63b0(void)
 
     Menu_Init(&g_menu0x0081c7d8, 0, 0x14, 0, &g_menu0x008210f8, NULL, 1, 0, 1);
     i = 0;
-    if (CGraphics::FUN_004a8be0() != 0) {
+    if ((unsigned int)CGraphics::FUN_004a8be0() > 0) {
         do {
             Menu_AddItemType4(&g_menu0x0081c7d8, 0, -1, (int)FUN_004f2210, 0);
             i++;
@@ -2146,7 +2146,7 @@ void FUN_004f6e50(char difficulty)
     Menu_AddItemType4(&g_menu0x0081d318, 0, 0xc8, (int)FUN_004ef7c0, -1);
     Menu_SetCallbacks(&g_menu0x0081d318, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x0081d318, 0);
-    g_menu0x0081d318.cursor = difficulty - 1;
+    g_menu0x0081d318.items[0].max = difficulty - 1;
 }
 
 // Difficulty page (4 levels).
@@ -2160,7 +2160,7 @@ void FUN_004f6f10(char difficulty)
     Menu_AddItemType4(&g_menu0x00820978, 0, 0xc8, (int)FUN_004ef7c0, -1);
     Menu_SetCallbacks(&g_menu0x00820978, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x00820978, 0);
-    g_menu0x00820978.cursor = difficulty - 1;
+    g_menu0x00820978.items[0].max = difficulty - 1;
 }
 
 // Difficulty page (4 levels).
@@ -2174,7 +2174,7 @@ void FUN_004f6fd0(char difficulty)
     Menu_AddItemType4(&g_menu0x0081f2f8, 0, 0xc8, (int)FUN_004ef7c0, -1);
     Menu_SetCallbacks(&g_menu0x0081f2f8, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x0081f2f8, 0);
-    g_menu0x0081f2f8.cursor = difficulty - 1;
+    g_menu0x0081f2f8.items[0].max = difficulty - 1;
 }
 
 // Difficulty page (4 levels).
@@ -2188,7 +2188,7 @@ void FUN_004f7090(char difficulty)
     Menu_AddItemType4(&g_menu0x00824678, 0, 0xc8, (int)FUN_004ef7c0, -1);
     Menu_SetCallbacks(&g_menu0x00824678, (MenuCallback)FUN_004f3610, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x00824678, 0);
-    g_menu0x00824678.cursor = difficulty - 1;
+    g_menu0x00824678.items[0].max = difficulty - 1;
 }
 
 // Difficulty page (8 levels).
@@ -2206,7 +2206,7 @@ void FUN_004f7150(char difficulty)
     Menu_AddItemType4(&g_menu0x0081e5d8, 0, 0xcc, (int)FUN_004ef7c0, -1);
     Menu_SetCallbacks(&g_menu0x0081e5d8, (MenuCallback)FUN_004f3530, (MenuCallback)FUN_004f39f0, (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x0081e5d8, 0);
-    g_menu0x0081e5d8.cursor = difficulty - 1;
+    g_menu0x0081e5d8.items[0].max = difficulty - 1;
 }
 
 void FUN_004d6460(Menu *pMenu);
@@ -2419,7 +2419,7 @@ void FUN_004f9490(char players)
     Menu_SetCallbacks(&g_menu0x008276e0, (MenuCallback)FUN_004fa890, (MenuCallback)FUN_004f9520,
                       (MenuCallback)FUN_004d5fb0, NULL);
     Menu_ValidateCursor(&g_menu0x008276e0, 0);
-    g_menu0x008276e0.cursor = players - 1;
+    g_menu0x008276e0.items[0].max = players - 1;
 }
 
 // Sets up a one-player arcade game.

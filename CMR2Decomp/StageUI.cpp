@@ -886,7 +886,7 @@ void FUN_00473540(BYTE index)
     int i;
 
     i = 0;
-    if (*g_unk0x0058ca88 != 0) {
+    if (*g_unk0x0058ca88 > 0) {
         do {
             CGame::FUN_0049c1c0((Unk0049c2c0 *)g_unk0x0058ca88, i, 0, 2);
             i++;
