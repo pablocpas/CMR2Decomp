@@ -549,11 +549,6 @@ void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
 int FUN_0048e580(char type);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 
-// Physics scale used by the impact response (identical to g_physicsScale but a
-// distinct variable in the original).
-// GLOBAL: CMR2 0x00519c8c
-int g_unk0x00519c8c = 0x10000;
-
 extern int *g_unk0x0059190c;
 extern FixVector g_unk0x005918e0;
 extern int g_unk0x00591930;
@@ -568,6 +563,14 @@ extern int g_unk0x0051fb00[27];
 // picks the contact vertex of the face tracked in g_collisionFace, slides the
 // car, its eight corners and the face's four vertices out of the surface,
 // applies the impact impulse and spawns the impact debris.
+// match 75%: no es un bug. La funcion entera (803 instrucciones) coincide en
+// llamadas, constantes (0xd8f00000/0x27100000/0x27100000, 0x8000, 0x10000,
+// 0xcccc, 0x90000, 0x6666), en los dos FixSqrt/FixVecScaleRecip en linea y en
+// los dos bucles de candidatos y de vertices. Lo que queda es asignacion de
+// registros (el original lleva el contador en EDI y g_unk0x0059190c en EBX,
+// nosotros al reves) y una ranura de 12 B que el original reserva a una copia
+// muerta de g_collisionDirection (-0x54, 3 stores que MSVC6 no elimina) y que
+// nosotros no conseguimos materializar con ninguna forma de fuente.
 // FUNCTION: CMR2 0x0048fb80
 int FUN_0048fb80(char type, int param)
 {
@@ -707,7 +710,7 @@ noSlide:
         velDiff.z = *(int *)((BYTE *)g_collisionCar + 0x410) - slide.z;
         index = type;
         FixVecScale(&velDiff, &velDiff,
-                    -FixMul(g_unk0x00519c8c, g_unk0x0051fb00[26 + index]));
+                    -FixMul(g_physicsTimeStep, g_unk0x0051fb00[26 + index]));
         FixVecScale(&perp, &slide, -g_unk0x0051fb00[index]);
         slide.x = perp.x - slide.x + velDiff.x;
         slide.y = perp.y - slide.y + velDiff.y;
