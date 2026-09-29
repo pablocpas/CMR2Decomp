@@ -6358,28 +6358,32 @@ extern double g_unk0x00511308;
 // +0x110): swings the hub about its axis, resolves the ground contact of the
 // part against the three contact planes, re-orthogonalises the part's basis
 // and finally integrates the motion offset into the world position.
+// match 44%: implementada y completa; el residuo es el reparto de registros y
+// de slots de pila de MSVC6 (reccmp no normaliza los desplazamientos de [ebp]),
+// no la estructura: el flujo, las condiciones y las constantes 16.16 siguen el
+// original instruccion a instruccion.
 // FUNCTION: CMR2 0x004816f0
 void FUN_004816f0(int part)
 {
-    FixVector v58;      // swing offset accumulator
+    BYTE idx;
+    unsigned short angles[3];
+    FixVector v24;      // scratch vector
     FixVector v30;      // contact offset
-    FixVector v70;      // normalised swing direction, scaled
-    FixVector v64;      // scaled swing offset
     FixVector v3c;      // part clearance point
     FixVector v4c;      // ground offset
-    FixVector v88;      // collision displacement handed to FUN_00482ac0
-    FixVector v24;      // scratch vector
+    FixVector v58;      // swing offset accumulator
+    FixVector v64;      // scaled swing offset
+    FixVector v70;      // normalised swing direction, scaled
+    FixVector v88;      // collision displacement handed to Vehicle_UpdateMotion
     FixVector vTmp;     // scratch vector (up - v24)
-    unsigned short angles[3];
-    int angle;
     int len;
     int i;
     int j;
     int k;
     int scale;
+    int angle;
     bool flip;
     bool bVar5;
-    BYTE idx;
 
     (void)part;
 
@@ -6589,74 +6593,71 @@ void FUN_004816f0(int part)
     }
 
     if ((PARTSTATE->field_0x150 & 2) != 0 && (PARTSTATE->field_0x150 & 8) != 0 && !bVar5) {
-        {
-            int zeroY = 0;
-            int normalize = 0;
-            if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
-                i = PARTSTATE->field_0x17c.forward.x;
-                if (PARTSTATE->field_0x120.z < 1) {
-                    if (i > 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
-                    }
-                    flip = (i > 0);
-                    if (PARTSTATE->field_0x17c.forward.y < 1)
-                        normalize = flip;
-                    else
-                        zeroY = 1;
-                } else {
-                    flip = (i < 0);
-                    if (flip) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
-                    }
-                    if (PARTSTATE->field_0x17c.forward.y >= 0)
-                        normalize = flip;
-                    else
-                        zeroY = 1;
+        flip = false;
+        if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
+            i = PARTSTATE->field_0x17c.forward.x;
+            if (PARTSTATE->field_0x120.z < 1) {
+                if (i > 0) {
+                    PARTSTATE->field_0x17c.forward.x = 0;
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
                 }
-            } else {
-                i = PARTSTATE->field_0x17c.forward.x;
-                if (PARTSTATE->field_0x120.z < 1) {
-                    flip = (i < 0);
-                    if (flip) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
-                    }
-                    if (PARTSTATE->field_0x17c.forward.y > 0)
-                        zeroY = 1;
-                    else
-                        normalize = flip;
-                } else {
-                    if (i > 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
-                    }
-                    flip = (i > 0);
-                    if (PARTSTATE->field_0x17c.forward.y < 0)
-                        zeroY = 1;
-                    else
-                        normalize = flip;
-                }
-            }
-            if (zeroY) {
+                if (PARTSTATE->field_0x17c.forward.y < 1)
+                    goto LAB_00482478;
                 PARTSTATE->field_0x17c.forward.y = 0;
                 PARTSTATE->field_0x164.y = 0;
-                normalize = 1;
-            }
-            if (normalize) {
-                len = FixVecLength(&PARTSTATE->field_0x17c.forward);
-                if (len == 0) {
+                goto LAB_00482480;
+            } else {
+                if (i < 0) {
                     PARTSTATE->field_0x17c.forward.x = 0;
-                    PARTSTATE->field_0x17c.forward.y = 0;
-                    PARTSTATE->field_0x17c.forward.z = 0;
-                } else {
-                    FixVecScaleRecip(&PARTSTATE->field_0x17c.forward,
-                                     &PARTSTATE->field_0x17c.forward, len);
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
                 }
-                PARTSTATE->field_0x17c.up.x = 0;
+                if (PARTSTATE->field_0x17c.forward.y >= 0)
+                    goto LAB_00482478;
+            LAB_00482460:
+                PARTSTATE->field_0x17c.forward.y = 0;
+                PARTSTATE->field_0x164.y = 0;
+                goto LAB_00482480;
+            }
+        } else {
+            i = PARTSTATE->field_0x17c.forward.x;
+            if (PARTSTATE->field_0x120.z < 1) {
+                if (i < 0) {
+                    PARTSTATE->field_0x17c.forward.x = 0;
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
+                }
+                if (PARTSTATE->field_0x17c.forward.y > 0)
+                    goto LAB_00482460;
+            } else {
+                if (i > 0) {
+                    PARTSTATE->field_0x17c.forward.x = 0;
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
+                }
+                if (PARTSTATE->field_0x17c.forward.y < 0) {
+                    PARTSTATE->field_0x17c.forward.y = 0;
+                    PARTSTATE->field_0x164.y = 0;
+                    goto LAB_00482480;
+                }
             }
         }
+    LAB_00482478:
+        if (!flip)
+            goto LAB_00482584;
+    LAB_00482480:
+        len = FixVecLength(&PARTSTATE->field_0x17c.forward);
+        if (len == 0) {
+            PARTSTATE->field_0x17c.forward.x = 0;
+            PARTSTATE->field_0x17c.forward.y = 0;
+            PARTSTATE->field_0x17c.forward.z = 0;
+        } else {
+            FixVecScaleRecip(&PARTSTATE->field_0x17c.forward,
+                             &PARTSTATE->field_0x17c.forward, len);
+        }
+        PARTSTATE->field_0x17c.up.x = 0;
+    LAB_00482584:
 
         vTmp.x = PARTSTATE->field_0x17c.up.x - v24.x;
         vTmp.y = PARTSTATE->field_0x17c.up.y - v24.y;
