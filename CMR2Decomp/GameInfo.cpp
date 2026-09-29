@@ -11179,13 +11179,19 @@ char g_str0x00525c20[] = "%s\\gamesave\\%s";
 // Builds the session image that is written as a saved game. When a format
 // string is given it is used for the file name; otherwise the name of the
 // saved game selected by index is read back from the loaded records.
+// match 86%: every block, constant and call of the original is reproduced; the
+// residual diff is MSVC6 stack-slot allocation (it spills the three destination
+// pointers and keeps the loop bound as the next global's address, which our .bss
+// does not lay out adjacently) - see CONOCIMIENTO 6.u/4.u.
 // FUNCTION: CMR2 0x004f5190
 BYTE FUN_004f5190(int index, char *fmt)
 {
     int i;
     BYTE *pCar;
+    BYTE *p1;
+    BYTE *p2;
+    BYTE *p3;
     int *pRec;
-    BYTE *pSlot;
 
     RallyData_FUN_00408d80();
 
@@ -11211,24 +11217,32 @@ BYTE FUN_004f5190(int index, char *fmt)
     for (i = 0; i < 16; i++)
         g_unk0x0081b034[i] = (BYTE)FUN_0040cfe0(i);
 
-    pSlot = g_unk0x0081a91c;
-    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
-        pRec = g_unk0x0081a90c;
-        for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
-            pRec[i] = (pRec[i] & 0xfffffcff) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x300);
-            pRec[i] = (pRec[i] & 0xffffffc7) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x38);
-            pRec[i] = (pRec[i] & 0xffffe3ff) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0x1c00);
-            pRec[i] = (pRec[i] & 0xffffff3f) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 0xc0);
-            pRec[i] = (pRec[i] & 0xfffffff8) | (*(int *)(RallyData_FUN_00408860(i) + 0x5c) & 7);
-            *(int *)(&g_unk0x0081a94c[i * 0x148]) = *(int *)(RallyData_FUN_00408860(i) + 0x10);
-            *(int *)(&g_unk0x0081a94c[i * 0x148 + 4]) = *(int *)(RallyData_FUN_00408860(i) + 0x14);
-            *(int *)(&g_unk0x0081a94c[i * 0x148 + 8]) = *(int *)(RallyData_FUN_00408860(i) + 0x18);
-            memcpy(&g_unk0x0081a94c[i * 0x148], RallyData_FUN_00407610(i), 0x148);
-            memcpy(&g_unk0x0081ae6c[i * 7], RallyData_FUN_00407630(i), 7);
-            pSlot += 0xc;
-        }
+    p1 = g_unk0x0081a91c;
+    p2 = g_unk0x0081a94c;
+    p3 = g_unk0x0081ae6c;
+    pRec = g_unk0x0081a90c;
+    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
+        BYTE *p = RallyData_FUN_00408860(i);
+        *pRec = (*pRec & 0xfffffcff) | (*(int *)(p + 0x5c) & 0x300);
+        p = RallyData_FUN_00408860(i);
+        *pRec = (*pRec & 0xffffffc7) | (*(int *)(p + 0x5c) & 0x38);
+        p = RallyData_FUN_00408860(i);
+        *pRec = (*pRec & 0xffffe3ff) | (*(int *)(p + 0x5c) & 0x1c00);
+        p = RallyData_FUN_00408860(i);
+        *pRec = (*pRec & 0xffffff3f) | (*(int *)(p + 0x5c) & 0xc0);
+        p = RallyData_FUN_00408860(i);
+        *pRec = (*pRec & 0xfffffff8) | (*(int *)(p + 0x5c) & 7);
+        p = RallyData_FUN_00408860(i);
+        *(int *)p2 = *(int *)(p + 0x10);
+        *(int *)(p2 + 4) = *(int *)(p + 0x14);
+        *(int *)(p2 + 8) = *(int *)(p + 0x18);
+        memcpy(p2, RallyData_FUN_00407610(i), 0x148);
+        memcpy(p3, RallyData_FUN_00407630(i), 7);
+        pRec++;
+        p2 += 0x148;
+        p3 += 7;
+        p1 += 0xc;
     }
-    (void)pSlot;
 
     memcpy(g_unk0x0081ae88, FUN_00407520(0), 0xa0);
     memcpy(g_unk0x0081af28, RallyData_FUN_004075e0(0), 0x50);
@@ -11489,5 +11503,124 @@ void FUN_00503010(int param_1, int param_2)
         FUN_00509d90(param_1);
         g_unk0x0082c040[param_1][11] = 1;
         return;
+    }
+}
+
+extern void FUN_004ff720(Menu *pMenu);
+extern void FUN_004ffab0(unsigned int param1);
+extern bool FUN_004b7cd0(int *pOut);
+extern void FUN_004b7c80(void);
+
+// Name of a saved game being edited (0x526fb8 is the accepted character set).
+// GLOBAL: CMR2 0x00526fb8
+char g_str0x00526fb8[] = "abcdefghijklmnop";
+// Buffer whose contents the name editor is editing.
+// GLOBAL: CMR2 0x0082a934
+char *g_unk0x0082a934;
+// Set when the name editor was opened this frame.
+// GLOBAL: CMR2 0x00526f40
+BYTE g_unk0x00526f40;
+
+// Callback of the load-game screen of the option menu: scrolls the saved-games
+// list while it is armed, and feeds the name editor (append/backspace, width and
+// character-set checks) while the highlighted row is being edited.
+// FUNCTION: CMR2 0x004ff720
+void FUN_004ff720(Menu *pMenu)
+{
+    int value;
+    DeviceInfo *pDevice;
+    int index;
+    int length;
+
+    g_unk0x0082aa40 = FUN_004f4db0();
+    if (g_unk0x0082ab44 != 0) {
+        Menu_SetFlags(pMenu, 0, 0, 1, 1);
+        pDevice = CInput::FUN_0049ead0(0);
+        if (g_unk0x0082aa40 > 0) {
+            if (g_unk0x0082a924 == -1) {
+                g_unk0x0082a924 = 0;
+            } else if ((pDevice->field_0x8 & 0x20) != 0) {
+                g_unk0x0082ab44 = 0;
+                g_unk0x0082ac60 = 1;
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
+                g_unk0x0082a924--;
+            } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
+                g_unk0x0082a924++;
+            }
+        } else {
+            g_unk0x0082a924 = -1;
+            g_unk0x0082ab44 = 0;
+            g_unk0x0082aa3c = 0;
+        }
+        if (g_unk0x0082a924 < g_unk0x0082aa3c) {
+            g_unk0x0082aa3c--;
+            if (g_unk0x0082aa3c < 0)
+                g_unk0x0082aa3c = 0;
+        }
+        if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
+            g_unk0x0082aa3c++;
+        if (g_unk0x0082aa40 <= 13)
+            g_unk0x0082ac48 = g_unk0x0082aa40;
+        else
+            g_unk0x0082ac48 = 13;
+        return;
+    }
+
+    if (g_unk0x0082a924 < g_unk0x0082aa3c) {
+        g_unk0x0082aa3c--;
+        if (g_unk0x0082aa3c < 0)
+            g_unk0x0082aa3c = 0;
+    }
+    if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
+        g_unk0x0082aa3c++;
+    if (g_unk0x0082aa40 > 13)
+        g_unk0x0082ac48 = 13;
+    else
+        g_unk0x0082ac48 = g_unk0x0082aa40;
+
+    index = Menu_FindItem(pMenu, 4);
+    if (pMenu->items[index].max == 1) {
+        Menu_SetFlags(pMenu, 0, 0, 1, 0);
+        pDevice = CInput::FUN_0049ead0(0);
+        if (pDevice->field_0x8 == 0) {
+            g_unk0x00526f40 = 1;
+        } else if (g_unk0x00526f40 != 0) {
+            if ((pDevice->field_0x8 & 4) != 0) {
+                index = Menu_FindItem(pMenu, 4);
+                pMenu->items[index].max = 0;
+                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+            } else if ((pDevice->field_0x8 & 1) != 0) {
+                pMenu->cursor--;
+                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+            } else if ((pDevice->field_0x8 & 2) != 0) {
+                pMenu->cursor++;
+                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+            }
+        }
+        g_unk0x0082a934 = g_unk0x0082aa44;
+        strcpy(CFrontend::m_stringDest, g_unk0x0082aa44);
+        if (FUN_004b7cd0(&value)) {
+            if (value != 8) {
+                length = strlen(CFrontend::m_stringDest);
+                if (length < 0x1e && strchr(g_str0x00526fb8, (char)value) != NULL &&
+                    Font_GetTextWidth(0, (BYTE *)g_unk0x0082a934) <
+                        (int)g_pGraphics->resX * 0xdc / 0x280) {
+                    CFrontend::m_stringDest[length] = (char)value;
+                    CFrontend::m_stringDest[length + 1] = 0;
+                    Menu_PlaySoundId(1);
+                }
+            } else {
+                if (CFrontend::m_stringDest[0] != 0) {
+                    CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
+                    Menu_PlaySoundId(2);
+                }
+            }
+            strcpy(g_unk0x0082a934, CFrontend::m_stringDest);
+        }
+    } else {
+        FUN_004b7c80();
+        strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        g_unk0x00526f40 = 0;
+        Menu_SetFlags(pMenu, 1, 1, 1, 1);
     }
 }
