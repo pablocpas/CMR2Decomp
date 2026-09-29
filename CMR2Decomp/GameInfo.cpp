@@ -11866,18 +11866,17 @@ int FUN_004f8b30(void)
     int iVar3;
     int iVar4;
     unsigned int uVar5;
-    unsigned int uVar6;
     unsigned int uVar8;
     unsigned int *puVar10;
     BYTE *puVar9;
     unsigned int *puVar7;
-    int local_1c;
-    BYTE *local_18;
-    int local_14;
-    BYTE *local_10;
-    int local_c;
-    unsigned int local_8;
     unsigned int local_4;
+    unsigned int local_8;
+    int local_c;
+    BYTE *local_10;
+    int local_14;
+    BYTE *local_18;
+    int local_1c;
 
     local_8 = 0;
     local_4 = 0;
@@ -11885,15 +11884,12 @@ int FUN_004f8b30(void)
     local_18 = 0;
     local_14 = 0x150;
     do {
-        uVar8 = 0;
         local_c = ((int)local_10 % 2) + 10;
-        if (0 < local_c) {
-            local_1c = local_14;
-            do {
-                iVar2 = (int)RallyData_FUN_00408cb0(0);
-                puVar7 = (unsigned int *)(iVar2 + 4 + local_1c);
-                iVar2 = (int)RallyData_FUN_00408cb0(0);
-                puVar10 = (unsigned int *)(iVar2 + local_1c);
+        local_1c = local_14;
+        for (uVar8 = 0; (int)uVar8 < local_c; uVar8++) {
+            {
+                puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_1c);
+                puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_1c);
                 if (((*puVar10 & 0x80) == 0) || (0xf < *puVar7 / 6000)) {
                     g_unk0x0082547c[((int)local_18 + uVar8) * 0x19] = 0;
                 } else {
@@ -11910,7 +11906,7 @@ int FUN_004f8b30(void)
                     puVar7 = &local_8;
                     iVar2 = 4;
                     do {
-                        *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                        *(BYTE *)puVar7 ^= (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
                         puVar7 = (unsigned int *)((int)puVar7 + 1);
                         iVar2--;
                     } while (iVar2 != 0);
@@ -11918,9 +11914,8 @@ int FUN_004f8b30(void)
                                  (char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
                     FUN_004f8a90((char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
                 }
-                uVar8++;
                 local_1c += 8;
-            } while ((int)uVar8 < local_c);
+            }
         }
         local_14 += 0x60;
         local_10 = (BYTE *)((int)local_10 + 1);
@@ -11935,11 +11930,10 @@ int FUN_004f8b30(void)
         local_18 = local_10;
         local_c = local_14;
         do {
-            iVar3 = (int)RallyData_FUN_00408cb0(0);
-            iVar3 = iVar3 + 0x34 + local_c;
-            iVar4 = (int)RallyData_FUN_00408cb0(0);
-            puVar7 = (unsigned int *)(iVar4 + 0x30 + local_c);
-            if (((*(BYTE *)(iVar4 + 0x30 + local_c) & 0x80) == 0) || (0x3f < *(unsigned int *)(iVar3 + 4) / 6000)) {
+            iVar3 = (int)(RallyData_FUN_00408cb0(0) + 0x34 + local_c);
+            iVar4 = (int)(RallyData_FUN_00408cb0(0) + 0x30 + local_c);
+            puVar7 = (unsigned int *)iVar4;
+            if (((*(BYTE *)iVar4 & 0x80) == 0) || (0x3f < *(unsigned int *)(iVar3 + 4) / 6000)) {
                 *local_18 = 0;
             } else {
                 local_8 = (local_8 & 0xfffffe3f) | (uVar5 & 7) << 6;
@@ -11956,7 +11950,7 @@ int FUN_004f8b30(void)
                 ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
                 iVar3 = 4;
                 do {
-                    *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                    *(BYTE *)puVar7 ^= (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
                     puVar7 = (unsigned int *)((int)puVar7 + 1);
                     iVar3--;
                 } while (iVar3 != 0);
@@ -11976,11 +11970,9 @@ int FUN_004f8b30(void)
     local_c = 0;
     puVar9 = g_unk0x00825398;
     do {
-        iVar2 = (int)RallyData_FUN_00408cb0(0);
-        puVar7 = (unsigned int *)(iVar2 + 4 + local_c);
-        iVar2 = (int)RallyData_FUN_00408cb0(0);
-        puVar10 = (unsigned int *)(iVar2 + local_c);
-        if ((*(BYTE *)(iVar2 + local_c) & 0x80) == 0) {
+        puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_c);
+        puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_c);
+        if ((*(BYTE *)puVar10 & 0x80) == 0) {
             *puVar9 = 0;
         } else {
             local_8 = (local_8 & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
@@ -11994,7 +11986,7 @@ int FUN_004f8b30(void)
             ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
             iVar2 = 4;
             do {
-                *(BYTE *)puVar10 = *(BYTE *)puVar10 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                *(BYTE *)puVar10 ^= (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
                 puVar10 = (unsigned int *)((int)puVar10 + 1);
                 iVar2--;
             } while (iVar2 != 0);
@@ -12031,7 +12023,7 @@ int FUN_004f8b30(void)
                 ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xfb | 3);
                 ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
                 do {
-                    *(BYTE *)puVar10 = *(BYTE *)puVar10 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                    *(BYTE *)puVar10 ^= (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
                     puVar10 = (unsigned int *)((int)puVar10 + 1);
                     iVar2--;
                 } while (iVar2 != 0);
@@ -12051,11 +12043,10 @@ int FUN_004f8b30(void)
     local_10 = g_unk0x00825f6c;
     do {
         iVar2 = ((int)uVar5 / 3) * 3 + (int)uVar5 % 3;
-        iVar3 = (int)RallyData_FUN_00408cb0(0);
-        puVar7 = (unsigned int *)(iVar3 + 0x4c0 + iVar2 * 8);
-        iVar3 = (int)RallyData_FUN_00408cb0(0);
-        uVar8 = *(unsigned int *)(iVar3 + 0x4bc + iVar2 * 8);
-        puVar10 = (unsigned int *)(iVar3 + 0x4bc + iVar2 * 8);
+        puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x4c0 + iVar2 * 8);
+        iVar3 = (int)(RallyData_FUN_00408cb0(0) + 0x4bc + iVar2 * 8);
+        uVar8 = *(unsigned int *)iVar3;
+        puVar10 = (unsigned int *)iVar3;
         if (((uVar8 & 0x80) == 0) || (0x3f < *puVar7 / 6000)) {
             *local_10 = 0;
         } else {
@@ -12070,7 +12061,7 @@ int FUN_004f8b30(void)
             ((BYTE *)&local_4)[0] = (BYTE)(((BYTE *)&local_4)[0] & 0xfc | 4);
             ((BYTE *)&local_4)[0] = (BYTE)(bVar1 << 3) | (BYTE)(((BYTE *)&local_4)[0] & 7);
             do {
-                *(BYTE *)puVar7 = *(BYTE *)puVar7 ^ (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
+                *(BYTE *)puVar7 ^= (BYTE)(((BYTE *)&local_4)[0] >> 3 << 1);
                 puVar7 = (unsigned int *)((int)puVar7 + 1);
                 iVar2--;
             } while (iVar2 != 0);
