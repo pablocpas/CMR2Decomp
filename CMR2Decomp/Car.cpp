@@ -5679,13 +5679,14 @@ void FUN_004283e0(BYTE index, CarFadeCallback pfnDone, int param3, int param4, i
 
 // Starts the reset fade for the current car when its reset request is active.
 // match 8%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+void FUN_00431c50(unsigned int param_1);
 // FUNCTION: CMR2 0x00431c10
 void FUN_00431c10(void)
 {
     int zero = 0;
 
     if (g_pCurrentCar->field_0xbf8 != 0)
-        FUN_004283e0((BYTE)g_pCurrentCar->field_0xb1a, (CarFadeCallback)0x431c50, 2, 1, zero, (char)zero);
+        FUN_004283e0((BYTE)g_pCurrentCar->field_0xb1a, (CarFadeCallback)FUN_00431c50, 2, 1, zero, (char)zero);
 }
 
 // Relative position of the current car against every other car in the race

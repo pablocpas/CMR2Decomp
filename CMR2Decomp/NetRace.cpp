@@ -120,7 +120,7 @@ void FUN_00401540(BYTE index);
 void FUN_004014f0(BYTE index);
 void FUN_00449090(BYTE index);
 void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
-extern int g_unk0x00537f34;
+extern int g_unk0x00537f34[2];
 extern int g_unk0x005199b0;
 
 // Dispatches a message of the in-race network stream to its handler.
@@ -175,7 +175,7 @@ void FUN_004276c0(DWORD *pId, BYTE *pPacket)
         FUN_0040ac70(pId, pPacket[1]);
         return;
     case 0x10:
-        g_unk0x00537f34 = CMain::GetFrameDelta();
+        g_unk0x00537f34[0] = CMain::GetFrameDelta();
         FUN_004283e0(0, FUN_00449090, 1, 0, g_unk0x005199b0, 1);
         return;
     case 0x11:

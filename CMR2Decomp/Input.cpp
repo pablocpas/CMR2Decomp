@@ -660,7 +660,7 @@ void CInput::DInputReleaseDevices(void) {
         }
 
         iVar2++;
-    } while (pDevices < pDevices + 4);
+    } while (iVar2 < 4); // the first four joystick slots (0x59f6b0..0x59f6c0)
 }
 
 // FUNCTION: CMR2 0x0049ef90

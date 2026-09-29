@@ -3501,8 +3501,11 @@ void FUN_004814d0(void)
     VehicleMotion_UpdateWorldPosition();
 }
 
-// GLOBAL: CMR2 0x00592748
-int g_unk0x00592748[8];
+// One table: 0x592744 is slot 0 and the eight per-variant entries follow
+// (callers index it with a 1-based variant).
+// GLOBAL: CMR2 0x00592744
+int g_unk0x00592744[9];
+#define g_unk0x00592748 (g_unk0x00592744 + 1)
 
 void RallyData_FUN_00421530(int index, int *pOut);
 int RallyData_FUN_00421420(void);
@@ -3876,14 +3879,13 @@ void FUN_00483050(void)
     }
 }
 
+// Per-car timestamps, indexed by car: two int[2] tables.
 // GLOBAL: CMR2 0x00588a80
-int g_unk0x00588a80;
-// GLOBAL: CMR2 0x00588a84
-int g_unk0x00588a84;
+int g_unk0x00588a80[2];
+#define g_unk0x00588a84 (g_unk0x00588a80[1])
 // GLOBAL: CMR2 0x00588a88
-int g_unk0x00588a88;
-// GLOBAL: CMR2 0x00588a8c
-int g_unk0x00588a8c;
+int g_unk0x00588a88[2];
+#define g_unk0x00588a8c (g_unk0x00588a88[1])
 
 // Resets every car's replay recording record.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -3894,8 +3896,8 @@ void FUN_004668d0(void)
 
     for (i = g_unk0x00588a90 - 1; i >= 0; i--)
         FUN_00466920(g_unk0x00588b98 + i * 0x290);
-    g_unk0x00588a88 = 0;
-    g_unk0x00588a80 = 0;
+    g_unk0x00588a88[0] = 0;
+    g_unk0x00588a80[0] = 0;
     g_unk0x00588a8c = 0;
     g_unk0x00588a84 = 0;
 }
@@ -6894,11 +6896,24 @@ void FUN_00483100(int *param_1, unsigned int param_2)
     BYTE *car = (BYTE *)g_unk0x00590d74;
     BYTE *pc = (BYTE *)g_unk0x00590c20;
     int bVar8 = g_unk0x00590c24[*(BYTE *)(pc + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
-    int local_48, local_44, local_40;
-    int local_3c, local_38, local_34;
-    int local_30, local_2c, local_28;
-    int local_24, local_20, local_1c;
-    int local_18, local_14, local_10;
+    // Contiguous: these triples are passed as FixVector* (loose ints are not
+    // guaranteed to be adjacent, and a 12-byte write through them overruns).
+    FixVector v48, v3c, v30, v24, v18;
+#define local_48 v48.x
+#define local_44 v48.y
+#define local_40 v48.z
+#define local_3c v3c.x
+#define local_38 v3c.y
+#define local_34 v3c.z
+#define local_30 v30.x
+#define local_2c v30.y
+#define local_28 v30.z
+#define local_24 v24.x
+#define local_20 v24.y
+#define local_1c v24.z
+#define local_18 v18.x
+#define local_14 v18.y
+#define local_10 v18.z
     int iVar4, iVar6, iVar9;
     int iVar11, iVar12;
     unsigned int uVar10;
@@ -6962,6 +6977,21 @@ void FUN_00483100(int *param_1, unsigned int param_2)
         }
     }
     return;
+#undef local_48
+#undef local_44
+#undef local_40
+#undef local_3c
+#undef local_38
+#undef local_34
+#undef local_30
+#undef local_2c
+#undef local_28
+#undef local_24
+#undef local_20
+#undef local_1c
+#undef local_18
+#undef local_14
+#undef local_10
 }
 
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
@@ -6983,8 +7013,15 @@ void FUN_00484f40(unsigned int param_1)
     if (piVar1[0xe] == 0) {
         int surface = 0;
         short tri = 0;
-        int local_40, local_3c, local_38;
-        int local_28, local_24, local_20;
+        // Contiguous: these triples are passed as FixVector* (loose ints are not
+        // guaranteed to be adjacent, and a 12-byte write through them overruns).
+        FixVector v40, v28;
+#define local_40 v40.x
+#define local_3c v40.y
+#define local_38 v40.z
+#define local_28 v28.x
+#define local_24 v28.y
+#define local_20 v28.z
         int local_18 = ptr2;
         int dot, a1, a2, a3;
         unsigned int uVar10;
@@ -7037,6 +7074,12 @@ void FUN_00484f40(unsigned int param_1)
         piVar1[0xe] = 1;
         *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
     }
+#undef local_40
+#undef local_3c
+#undef local_38
+#undef local_28
+#undef local_24
+#undef local_20
 }
 
 
@@ -7276,9 +7319,9 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
             if (*(int *)(pc + 0xb74) == 0) {
                 FUN_00418c30(carIdx, len, 0, carIdx);
             } else if ((unsigned int)(CMain::GetFrameDelta() -
-                                      (unsigned int)(&g_unk0x00588a88)[carIdx]) > 10) {
+                                      (unsigned int)g_unk0x00588a88[carIdx]) > 10) {
                 FUN_00418ba0(carIdx, len, carIdx);
-                (&g_unk0x00588a88)[carIdx] = (int)CMain::GetFrameDelta();
+                g_unk0x00588a88[carIdx] = (int)CMain::GetFrameDelta();
             }
         }
         ForceFeedback_UpdateSlot(pc, (FixVector *)(pc + 0x5c4), 1);
@@ -7661,8 +7704,6 @@ extern double g_unk0x00511300;
 
 // Base of the per-variant split reference table; the code indexes it with a
 // 1-based variant number, so entry `v` lives at 0x592744 + v * 4.
-// GLOBAL: CMR2 0x00592744
-int g_unk0x00592744[1];
 
 // Recomputes one car's split-bar angles and times from the current route node
 // of the output record: normalises the six neighbouring node indices, measures

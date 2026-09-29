@@ -1578,7 +1578,10 @@ BYTE g_unk0x0082bf20[16][7];
 BYTE g_unk0x0082c040[4][12];
 // Option records, copied from RallyData_FUN_00407610 by FUN_00502d50; each
 // entry is 0x148 bytes and the block runs up to the globals at 0x82c698.
-#define g_unk0x0082c070 ((BYTE *)&g_unk0x0082c040[4][0])
+// A real array: as a view past the end of g_unk0x0082c040 it wrote over
+// whatever the linker placed next.
+// GLOBAL: CMR2 0x0082c070
+BYTE g_unk0x0082c070[0x620];
 struct Unk0x0082d220Vec {
     int v[4];
 };
@@ -4247,6 +4250,10 @@ void FUN_00402f80(Menu *pMenu)
 
 // Builds the network options menu and disables the two-state entries when
 // the current rally mode does not support them.
+void FUN_00402f20(Menu *pMenu, int param);
+void FUN_00402000(Menu *pMenu);
+void FUN_00403890(Menu *pMenu);
+void FUN_004041e0(Menu *pMenu);
 // FUNCTION: CMR2 0x00402f90
 void FUN_00402f90(void)
 {
@@ -4263,9 +4270,9 @@ void FUN_00402f90(void)
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 2, 0);
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 4, 0);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
-                      (int)(MenuCallback)0x00402f20, -1);
+                      (int)(MenuCallback)FUN_00402f20, -1);
     Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)FUN_00402eb0, NULL,
-                      (MenuCallback)0x00402000, NULL);
+                      (MenuCallback)FUN_00402000, NULL);
     Menu_ValidateCursor(&g_menu0x00529ed8, 0);
     if (RallyData_FUN_00411880() == 0) {
         for (i = 0; i < g_menu0x00529ed8.itemCount; i++) {
@@ -4306,7 +4313,7 @@ void FUN_004035e0(void)
     Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)FUN_004036c0, 4);
     Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
     Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)FUN_00403700,
-                      (MenuCallback)FUN_00403880, (MenuCallback)0x00403890,
+                      (MenuCallback)FUN_00403880, (MenuCallback)FUN_00403890,
                       (MenuCallback)FUN_004037c0);
     Menu_ValidateCursor(&g_menu0x0052a870, 0);
 }
@@ -4607,7 +4614,7 @@ void FUN_00404130(Menu *pMenu, int param);
     Menu_AddItemType4(&g_menu0x0052aa70, 0, 0x62, (int)FUN_00404130, 5);
     Menu_AddItemType2(&g_menu0x0052aa70, 0, 0x3b, &g_menu0x00529ed8, 0, 6);
     Menu_SetCallbacks(&g_menu0x0052aa70, (MenuCallback)FUN_00404b80,
-                      (MenuCallback)FUN_00404d00, (MenuCallback)0x004041e0,
+                      (MenuCallback)FUN_00404d00, (MenuCallback)FUN_004041e0,
                       (MenuCallback)FUN_00404c50);
     Menu_ValidateCursor(&g_menu0x0052aa70, 0);
 }
@@ -4822,8 +4829,7 @@ short g_unk0x0052a2a0;
 int g_unk0x0052aa64;
 // GLOBAL: CMR2 0x0052aa6c
 short g_unk0x0052aa6c;
-// GLOBAL: CMR2 0x00537f34
-int g_unk0x00537f34;
+extern int g_unk0x00537f34[2]; // defined in Race.cpp
 
 extern BYTE g_unk0x0053811e;
 extern BYTE g_unk0x0053811f;
@@ -5002,7 +5008,7 @@ playerExit:
     if (g_unk0x0053811e != 0 || g_unk0x0053811f != 0) {
         if (CGameInfo::FUN_00405e00() != 0)
             FUN_0040ac40(3);
-        g_unk0x00537f34 = CMain::GetFrameDelta();
+        g_unk0x00537f34[0] = CMain::GetFrameDelta();
     }
     CGameInfo::FUN_00405d80();
     FUN_0041c5a0(*(BYTE *)param1->unk, 0);
@@ -7102,7 +7108,7 @@ void FUN_005029b0(void)
         i++;
         pDst[0] = pSrc[-5];
         pSrc += 7;
-    } while ((int)pSrc < 0x82bf09);
+    } while ((BYTE *)pSrc < (BYTE *)g_unk0x0082bee8 + 0x21); // 0x82bf09 in the original
 }
 
 // Applies the selected option: advances the menu when its value is set, or
@@ -9061,6 +9067,10 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // scale in registers where we spill them, so most of the diff is stack slot
 // and register numbering
 // match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+extern BYTE g_unk0x005270e4[8];
+extern int g_unk0x005270fc;
+extern int g_unk0x00527100;
+
 // FUNCTION: CMR2 0x005057e0
 void FUN_005057e0(void)
 {
@@ -9091,8 +9101,8 @@ void FUN_005057e0(void)
         y = FixMulShift32(i << 16, scale);
         pTexture = (Texture *)g_unk0x0082ca20[i];
         FUN_00501f80(3, 1, 1, CFrontend::GetTextString(*pCountry + 0x9d), width,
-                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270b8[17],
-                     (int *)&g_unk0x005270b8[18], 0x22);
+                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270fc,
+                     (int *)&g_unk0x00527100, 0x22);
         dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
@@ -9100,7 +9110,7 @@ void FUN_005057e0(void)
         else
             dest.y = dest.y - g_unk0x00527260[*pCountry];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
-                     (BYTE *)&g_unk0x005270b8[11], 8);
+                     (BYTE *)g_unk0x005270e4, 8);
         pCountry++;
     }
 }
@@ -10893,7 +10903,7 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
         else
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
     } else {
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     }
 
     for (i = 0; i < param1; i++) {
@@ -10921,7 +10931,7 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
                 FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_unk0x00527380[1], 8);
                             } else {                                        if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -10933,7 +10943,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                 if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -10945,7 +10955,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                 } else if (FUN_00502fc0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
@@ -11005,7 +11015,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
             if (!flag) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_unk0x00527380[1], 8);
                             } else {                                        if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -11017,7 +11027,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                 if ((BYTE)FUN_00502b10(CGameInfo::FUN_005011b0(), i) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -11029,7 +11039,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                 } else if (FUN_00502630(CGameInfo::FUN_005011b0(), FUN_004ff4c0(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
@@ -11111,7 +11121,7 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
             else
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
         } else {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
         }
     }
 }
@@ -11873,8 +11883,10 @@ int FUN_005062d0(int index)
     unsigned int stage;
     unsigned char model;
     unsigned char variant;
-    int mesh;
-    int other;
+    int *pRecord;
+    int root;
+    int nodeL;
+    int nodeS;
     int i;
 
     stage = FUN_00501510();
@@ -11882,14 +11894,10 @@ int FUN_005062d0(int index)
     if (g_unk0x00831318 == 0) {
         CGame::RegisterCallback((void *)FUN_00505f10, 0);
         g_unk0x00831318 = 1;
-        {
-            int *p = (int *)0x00831088;
-            do {
-                p[-2] = 0;
-                p[0] = 0;
-                p[-1] = 0;
-                p += 3;
-            } while ((int)p < 0x831150);
+        for (i = 0; i < 16; i++) {
+            g_unk0x00831088[i].pUnk0x0 = NULL;
+            g_unk0x00831088[i].pUnk0x8 = NULL;
+            g_unk0x00831088[i].pUnk0x4 = NULL;
         }
     }
     model = (BYTE)(int)RallyData_FUN_004086b0(index);
@@ -11924,48 +11932,44 @@ int FUN_005062d0(int index)
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
 
     pEntry = &g_unk0x0082cb78[index];
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)pEntry, g_unk0x00663b60);
+    // the .bfl and the geometry relocations go to the 12-byte loader record of
+    // this entry (0x831088, cleared on the first call above), not to pEntry
+    pRecord = (int *)&g_unk0x00831088[index];
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)pRecord, g_unk0x00663b60);
     if (hC3D == 0)
         return 0;
 
-    other = 0;
-    mesh = 0;
-    hL = FUN_004b9380(hC3D, stage, (unsigned int)pEntry);
+    nodeL = 0;
+    nodeS = 0;
+    root = FUN_004b9380(hC3D, stage, (unsigned int)pRecord);
     if (CGameInfo::FUN_00405d10() == 0) {
         int *p = (int *)&pEntry->field_0x24[0];
-        for (i = 1; i < 4; i++) {
-            int h = (int)(int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)i);
-            *p++ = *(int *)(h + 0xc);
-        }
-        if (hS != 0) {          /* el segundo recurso (L) */
-            int h2 = FUN_004b9380(hS, stage, (unsigned int)pEntry);
+        for (i = 1; i < 4; i++)
+            *p++ = *(int *)((int)SceneNode_FindByType((SceneNode *)root, (unsigned int)i) + 0xc);
+        if (hL != 0) {
             int *q = (int *)&pEntry->field_0x34[0];
-            for (i = 1; i < 4; i++) {
-                int h = (int)SceneNode_FindByType((SceneNode *)h2, (unsigned int)i);
-                *q++ = *(int *)(h + 0xc);
-            }
-            SceneNode_SetViewMaskTree((SceneNode *)h2, 0);
-            mesh = h2;
+            nodeL = FUN_004b9380(hL, stage, (unsigned int)pRecord);
+            for (i = 1; i < 4; i++)
+                *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i) + 0xc);
+            SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
         }
-        if (other != 0) {
-            int h3 = FUN_004b9380(other, stage, (unsigned int)pEntry);
+        if (hS != 0) {
             int *q = (int *)&pEntry->field_0x44[0];
-            for (i = 1; i < 4; i++) {
-                int h = (int)SceneNode_FindByType((SceneNode *)h3, (unsigned int)i);
-                *q++ = *(int *)(h + 0xc);
-            }
-            SceneNode_SetViewMaskTree((SceneNode *)h3, 0);
+            nodeS = FUN_004b9380(hS, stage, (unsigned int)pRecord);
+            for (i = 1; i < 4; i++)
+                *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i) + 0xc);
+            SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
         }
     }
-    *(int *)((BYTE *)pEntry + 0xc) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)1);
-    *(int *)((BYTE *)pEntry + 0x10) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)2);
-    *(int *)((BYTE *)pEntry + 0x1c) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)3);
-    *(int *)((BYTE *)pEntry + 0x20) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)4);
-    *(int *)((BYTE *)pEntry + 0x0) = variant;
-    *(int *)((BYTE *)pEntry + 0x8) = hL;
-    *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)5);
-    *(int *)((BYTE *)pEntry + 0x14) = mesh;
-    *(int *)((BYTE *)pEntry + 0x18) = 0;
+    *(int *)((BYTE *)pEntry + 0x14) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)1);
+    *(int *)((BYTE *)pEntry + 0x18) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)2);
+    *(int *)((BYTE *)pEntry + 0x1c) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)3);
+    *(int *)((BYTE *)pEntry + 0x20) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)4);
+    *(BYTE *)pEntry = variant;
+    *(int *)((BYTE *)pEntry + 0x8) = root;
+    *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)5);
+    *(int *)((BYTE *)pEntry + 0xc) = nodeL;
+    *(int *)((BYTE *)pEntry + 0x10) = nodeS;
     FUN_00507080(index);
     FUN_00507a10(&g_unk0x0082d220[index], index);
     {
@@ -12107,7 +12111,7 @@ int FUN_004f8b30(void)
         local_10 += 0x19;
         local_1c++;
         local_14 += 0xc;
-    } while ((int)local_10 < 0x825d5f);
+    } while (local_10 < g_unk0x00825d14 + 0x4b); // 0x825d5f in the original
 
     uVar5 = 0;
     local_c = 0;
@@ -12139,7 +12143,7 @@ int FUN_004f8b30(void)
         puVar9 += 0x19;
         uVar5++;
         local_c += 0x10;
-    } while ((int)puVar9 < 0x8253e3);
+    } while (puVar9 < g_unk0x00825398 + 0x4b); // 0x8253e3 in the original
 
     uVar5 = 0;
     local_14 = 0x450;
@@ -12213,6 +12217,6 @@ int FUN_004f8b30(void)
         }
         local_10 += 0x19;
         uVar5++;
-    } while ((int)local_10 < 0x826034);
+    } while (local_10 < g_unk0x00825f6c + 0xc8); // 0x826034 in the original
     return iVar3;
 }

@@ -853,10 +853,10 @@ struct RaceCallRecord {
 };
 // GLOBAL: CMR2 0x005371d0
 RaceCallRecord g_raceCallRecords[10];
+// Per-player gate flag (two players).
 // GLOBAL: CMR2 0x00537248
-int g_unk0x00537248;
-// GLOBAL: CMR2 0x0053724c
-int g_unk0x0053724c;
+int g_unk0x00537248[2];
+#define g_unk0x0053724c (g_unk0x00537248[1])
 
 // Queues a race call (radio message) of the given call id and player.
 extern int g_unk0x00537358;
@@ -941,7 +941,7 @@ void FUN_00416670(void)
     int i;
 
     g_unk0x00537198[0] = 9999;
-    g_unk0x00537248 = 0;
+    g_unk0x00537248[0] = 0;
     g_unk0x00537198[1] = 9999;
     g_unk0x0053724c = 0;
     g_unk0x0053708c[0] = -1;
@@ -1066,7 +1066,7 @@ void FUN_004177d0(unsigned int player, int param2)
     }
     yText = ((int)g_pGraphics->resY << 12 >> 16) + extra;
 
-    pCallFlag = &g_unk0x00537248;
+    pCallFlag = g_unk0x00537248;
     if (pCallFlag[player] != 0 || FUN_004054b0(player) != 0) {
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x57));
         FUN_00417e70(CFrontend::m_stringDest, &g_unk0x00517e24, player, 1, -1, -1);
@@ -4006,7 +4006,8 @@ void FUN_00416f70(int player)
     }
     FUN_004176b0();
     slot = block + player * 5;
-    if (player > 0 && (&g_unk0x00537190)[slot] != 0) {
+    // the original reads [slot*4 + 0x537190], i.e. this same table one player back
+    if (player > 0 && g_unk0x005371a4[slot - 5] != 0) {
         g_unk0x005371a4[slot] = 1;
         return;
     }
@@ -4418,7 +4419,7 @@ void FUN_00417090(int param_1)
               FixMul(dir.y, pCar->wheelDirFront.y) +
               FixMul(dir.z, pCar->wheelDirFront.z);
         if (dot < -0x8000) {
-            ((int *)&g_unk0x00537248)[param_1] = 1;
+            g_unk0x00537248[param_1] = 1;
             g_unk0x00537198[param_1] = best;
         }
     }
@@ -4430,18 +4431,18 @@ void FUN_00417090(int param_1)
         cur = best;
     }
 
-    if (((int *)&g_unk0x00537248)[param_1] != 0) {
+    if (g_unk0x00537248[param_1] != 0) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
         dot = FixMul(dir.x, pCar->wheelDirFront.x) +
               FixMul(dir.y, pCar->wheelDirFront.y) +
               FixMul(dir.z, pCar->wheelDirFront.z);
         if (dot > 0x3333)
-            ((int *)&g_unk0x00537248)[param_1] = 0;
+            g_unk0x00537248[param_1] = 0;
     }
 
     if (g_unk0x00537198[param_1] < best)
-        ((int *)&g_unk0x00537248)[param_1] = 0;
+        g_unk0x00537248[param_1] = 0;
 
     g_unk0x00537354 = 0;
     i = g_unk0x0053708c[param_1] + 1;
