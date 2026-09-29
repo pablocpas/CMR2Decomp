@@ -4905,6 +4905,15 @@ char g_str0x00517f04[] = "\\Speech\\English\\Wavs\\COUNTDOWN_2.WAV";
 // GLOBAL: CMR2 0x00517edc
 char g_str0x00517edc[] = "\\Speech\\English\\Wavs\\COUNTDOWN_1.WAV";
 
+void FUN_00416770(void);
+
+// Initializes the co-driver sound samples through the original tail-call entry.
+// FUNCTION: CMR2 0x00416710
+void FUN_00416710(void)
+{
+    FUN_00416770();
+}
+
 // FUNCTION: CMR2 0x00416770
 void FUN_00416770(void)
 {

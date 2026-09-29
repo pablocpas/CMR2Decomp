@@ -71,15 +71,20 @@ int g_unk0x00541f98;
 // GLOBAL: CMR2 0x00541f9c
 char g_stageDriverSlot[16];
 
-// 10 - split id, 16 - drivers
+// Ten split rows of sixteen drivers. The removal loop addresses the three
+// adjacent tables through one base, so their storage must stay contiguous.
+struct StageSplitRankings {
+    char indices[10][16];   // 0x000
+    char positions[10][16]; // 0x0a0
+    char timeIndices[10][16]; // 0x140
+    char count[12];         // 0x1e0
+};
 // GLOBAL: CMR2 0x00541fac
-char g_stageSplitDriverIndices[10][16];
-
-// GLOBAL: CMR2 0x0054204c
-char g_stageSplitPositions[10][16];
-
-// GLOBAL: CMR2 0x0054218c
-char g_stageSplitDriverCount[12];
+StageSplitRankings g_stageSplitRankings;
+#define g_stageSplitDriverIndices (g_stageSplitRankings.indices)
+#define g_stageSplitPositions (g_stageSplitRankings.positions)
+#define g_stageSplitTimesRawDriverIx (g_stageSplitRankings.timeIndices)
+#define g_stageSplitDriverCount (g_stageSplitRankings.count)
 
 // GLOBAL: CMR2 0x00542418
 short g_unk0x00542418;
@@ -98,8 +103,7 @@ BYTE g_unk0x00542604;
 
 // GLOBAL: CMR2 0x00542198
 int g_stageSplitTimesRaw[10][16];
-// GLOBAL: CMR2 0x005420ec
-char g_stageSplitTimesRawDriverIx[10][16];
+
 
 // FUNCTION: CMR2 0x00455cf0
 int StageTiming_GetDriverIDForPosition(int positionIx)
@@ -416,21 +420,26 @@ BYTE StageTiming_FUN_00455ae0(void)
 
 // Removes a driver from every split ranking, remembering in slot the
 // driver's old rank index of the last split.
-// match 10%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 11%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455bc0
 void FUN_00455bc0(int slot, int driver)
 {
     int splits = FUN_004583a0();
     int split;
     int pos;
+    char *pTimes;
+    char *pNext;
+    char *pRanks = (char *)&g_stageSplitRankings;
 
     for (split = 1; split <= splits; split++) {
-        pos = g_stageSplitPositions[split][driver];
-        g_unk0x00541f90[slot] = g_stageSplitTimesRawDriverIx[split][pos];
+        pTimes = pRanks + 0x140 + split * 16;
+        pos = pTimes[driver - 0xa0];
+        pNext = pTimes + 1;
+        g_unk0x00541f90[slot] = pTimes[pos];
         for (; pos < g_stageSplitDriverCount[split] - 1; pos++) {
-            g_stageSplitTimesRawDriverIx[split][pos] = g_stageSplitTimesRawDriverIx[split][pos + 1];
-            g_stageSplitDriverIndices[split][pos] = g_stageSplitDriverIndices[split][pos + 1];
-            g_stageSplitPositions[split][g_stageSplitDriverIndices[split][pos]] = (char)pos;
+            pTimes[pos] = pNext[pos];
+            pTimes[pos - 0x140] = pTimes[pos - 0x13f];
+            g_stageSplitPositions[split][pTimes[pos - 0x140]] = (char)pos;
         }
         g_stageSplitDriverCount[split]--;
     }
@@ -489,7 +498,7 @@ int StageTiming_GetDriverSlot(int iDriver)
     return g_stageDriverSlot[iDriver];
 }
 
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455e60
 void StageTiming_Reset(void)
 {
@@ -534,7 +543,7 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
     *piTime2 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot2], iSplit);
 }
 
-// match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456250
 void StageTiming_RebuildSplitPositions(void)
 {
@@ -2426,17 +2435,22 @@ void FUN_00469b50(int index)
 BYTE g_unk0x00542630[0x24 * 32];
 
 // Clears the stage file table and registers its release callback.
-// match 16%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456bb0
 void FUN_00456bb0(void)
 {
-    int i;
+    Unk0x542ae8 *p = g_unk0x00542ae8;
+    int count;
 
-    for (i = 0; i < 32; i++) {
-        g_unk0x00542ae8[i].pBuffer = NULL;
-        g_unk0x00542ae8[i].field_0x4 = NULL;
-        g_unk0x00542ae8[i].field_0x8 = NULL;
-    }
+    do {
+        count = 2;
+        do {
+            p->pBuffer = NULL;
+            p->field_0x4 = NULL;
+            p->field_0x8 = NULL;
+            p++;
+        } while (--count);
+    } while ((int)p < (int)(g_unk0x00542ae8 + 32));
     CGame::RegisterCallback(FUN_00456b70, 0);
 }
 
@@ -2449,7 +2463,8 @@ BYTE *FUN_00456be0(int index)
 struct Unk0x00590c20 {
     int field_0x0;
     FixMatrix *field_0x4;      // pointer to the world matrix
-    BYTE field_0x8[0x118];
+    BYTE field_0x8[0x114];
+    int field_0x11c;
     FixVector field_0x120;     // body offset, accumulated below
     BYTE field_0x12c[0xc];
     FixVector field_0x138;     // body axes source
@@ -3479,23 +3494,29 @@ int g_unk0x00590c68;
 
 // Turns the vehicle about its vertical axis by the per-frame rate, toward the
 // side given by its orientation.
-// match 13%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004814d0
 void FUN_004814d0(void)
 {
     unsigned short angles[3];
 
     if ((g_unk0x00590c20->field_0x150[0] & 0xf0) == 0x20) {
-        angles[2] = (unsigned short)g_unk0x00590c68;
-        if (*(int *)&g_unk0x00590c20->field_0x17c >= 0)
-            angles[2] = (unsigned short)-(short)g_unk0x00590c68;
-    } else if (*(int *)&g_unk0x00590c20->field_0x17c < 1) {
-        angles[2] = (unsigned short)-(short)g_unk0x00590c68;
+        int direction = *(int *)&g_unk0x00590c20->field_0x17c;
+        angles[0] = 0;
+        angles[1] = 0;
+        if (direction < 0)
+            angles[2] = (unsigned short)g_unk0x00590c68;
+        else
+            angles[2] = (unsigned short)-g_unk0x00590c68;
     } else {
-        angles[2] = (unsigned short)g_unk0x00590c68;
+        int direction = *(int *)&g_unk0x00590c20->field_0x17c;
+        angles[0] = 0;
+        angles[1] = 0;
+        if (direction > 0)
+            angles[2] = (unsigned short)g_unk0x00590c68;
+        else
+            angles[2] = (unsigned short)-g_unk0x00590c68;
     }
-    angles[1] = 0;
-    angles[0] = 0;
     FUN_00481560(angles);
     VehicleMotion_UpdateWorldPosition();
 }
@@ -3849,29 +3870,31 @@ void FUN_00483010(void)
 
 // Starts a part's swing when the load on its side exceeds 0.8: the swing
 // speed (+0x11c) is added or removed depending on which wheel is loaded more.
-// match 5%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00483050
 void FUN_00483050(void)
 {
-    BYTE *pPart = (BYTE *)g_unk0x00590c20;
-    int *pLoad = (int *)(g_unk0x00590d78 + 0x240);
+    Unk0x00590c20 *pPart = g_unk0x00590c20;
     int a;
     int b;
+    int swing;
 
-    if (pLoad[g_unk0x00590c60[pPart[0x150] >> 4]] > 0xcccc) {
-        if ((pPart[0x150] & 0xf0) == 0x10) {
+    if (*(int *)(g_unk0x00590d78 + 0x240 + g_unk0x00590c60[pPart->field_0x150[0] >> 4] * 4) > 0xcccc) {
+        if ((pPart->field_0x150[0] & 0xf0) == 0x10) {
             a = 2;
             b = 3;
         } else {
             a = 0;
             b = 1;
         }
-        if (pLoad[b] < pLoad[a])
-            *(int *)(pPart + 0x128) = *(int *)(pPart + 0x128) - *(int *)(pPart + 0x11c);
+        if (*(int *)(g_unk0x00590d78 + a * 4 + 0x240) >
+                *(int *)(g_unk0x00590d78 + b * 4 + 0x240))
+            swing = pPart->field_0x120.z - pPart->field_0x11c;
         else
-            *(int *)(pPart + 0x128) = *(int *)(pPart + 0x128) + *(int *)(pPart + 0x11c);
-        pPart[0x150] |= 2;
-        *(short *)(pPart + 0x158) = 0;
+            swing = pPart->field_0x120.z + pPart->field_0x11c;
+        pPart->field_0x120.z = swing;
+        g_unk0x00590c20->field_0x150[0] |= 2;
+        *(short *)((BYTE *)g_unk0x00590c20 + 0x158) = 0;
     }
 }
 
@@ -4309,7 +4332,7 @@ void FUN_00469a80(int car)
 }
 
 // Inserts a driver's split time into the ranking of a split.
-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455af0
 void FUN_00455af0(int driver, int hundredths, int split)
 {
@@ -6886,18 +6909,16 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // Aims and fires the debris/particles of a car part: rotates the part's local
 // offset into world space, normalises the part's direction, and spawns debris
 // along the cross product of the two.
-// match 40%: implementada, difiere la extension del argumento short y el reparto de locales/registros
+// match 44%: implementada, difiere la extension del argumento short y el reparto de locales/registros
 // FUNCTION: CMR2 0x00483100
 void FUN_00483100(int *param_1, unsigned int param_2)
 {
     BYTE *car = (BYTE *)g_unk0x00590d74;
     BYTE *pc = (BYTE *)g_unk0x00590c20;
     int bVar8 = g_unk0x00590c24[*(BYTE *)(pc + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
-    int local_48, local_44, local_40;
-    int local_3c, local_38, local_34;
-    int local_30, local_2c, local_28;
-    int local_24, local_20, local_1c;
-    int local_18, local_14, local_10;
+    // Contiguous: these triples are passed as FixVector* (loose ints are not
+    // guaranteed to be adjacent, and a 12-byte write through them overruns).
+    FixVector v48, v3c, v30, v24, v18;
     int iVar4, iVar6, iVar9;
     int iVar11, iVar12;
     unsigned int uVar10;
@@ -6912,22 +6933,22 @@ void FUN_00483100(int *param_1, unsigned int param_2)
             s = t;
         else
             s = -t;
-        local_24 = FixMul(*(int *)(pc + 0x194), s);
-        local_20 = FixMul(*(int *)(pc + 0x198), s);
-        local_1c = FixMul(*(int *)(pc + 0x19c), s);
+        v24.x = FixMul(*(int *)(pc + 0x194), s);
+        v24.y = FixMul(*(int *)(pc + 0x198), s);
+        v24.z = FixMul(*(int *)(pc + 0x19c), s);
 
-        local_18 = *(int *)(pc + 0x120) + local_24;
-        local_14 = (*(int *)(pc + 0x124) - lVar1) + local_20;
-        local_10 = *(int *)(pc + 0x128) + local_1c;
-        FixMatrix_RotateVector((FixVector *)&local_24, (FixVector *)&local_18,
+        v18.x = *(int *)(pc + 0x120) + v24.x;
+        v18.y = (*(int *)(pc + 0x124) - lVar1) + v24.y;
+        v18.z = *(int *)(pc + 0x128) + v24.z;
+        FixMatrix_RotateVector(&v24, &v18,
                                *(FixMatrix **)(car + 0x750));
 
         uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
         if ((int)uVar10 > 0) {
             int inv = (int)(0x100000000i64 / (__int64)(int)-uVar10);
-            local_48 = FixMul(param_1[0], inv);
-            local_44 = FixMul(param_1[1], inv);
-            local_40 = FixMul(param_1[2], inv);
+            v48.x = FixMul(param_1[0], inv);
+            v48.y = FixMul(param_1[1], inv);
+            v48.z = FixMul(param_1[2], inv);
             param_2 = (unsigned int)FixMul((int)uVar10, 0x50000);
             if ((int)param_2 < 0x10001) {
                 if ((int)param_2 < 0x3334)
@@ -6935,12 +6956,12 @@ void FUN_00483100(int *param_1, unsigned int param_2)
             } else {
                 param_2 = 0x10000;
             }
-            local_3c = *(int *)(car + 0x48c);
-            local_38 = *(int *)(car + 0x490);
-            local_34 = *(int *)(car + 0x494);
-            iVar4 = FixMul(local_44, local_34) - FixMul(local_40, local_38);
-            iVar11 = FixMul(local_40, local_3c) - FixMul(local_48, local_34);
-            iVar12 = FixMul(local_48, local_38) - FixMul(local_44, local_3c);
+            v3c.x = *(int *)(car + 0x48c);
+            v3c.y = *(int *)(car + 0x490);
+            v3c.z = *(int *)(car + 0x494);
+            iVar4 = FixMul(v48.y, v3c.z) - FixMul(v48.z, v3c.y);
+            iVar11 = FixMul(v48.z, v3c.x) - FixMul(v48.x, v3c.z);
+            iVar12 = FixMul(v48.x, v3c.y) - FixMul(v48.y, v3c.x);
             {
                 FixVector cross;
                 int len;
@@ -6949,15 +6970,15 @@ void FUN_00483100(int *param_1, unsigned int param_2)
                 cross.z = iVar12;
                 len = FixVecLength(&cross);
                 if (len == 0) {
-                    local_30 = 0;
-                    local_2c = 0;
-                    local_28 = 0;
+                    v30.x = 0;
+                    v30.y = 0;
+                    v30.z = 0;
                 } else {
-                    FixVecScaleRecip((FixVector *)&local_30, &cross, len);
+                    FixVecScaleRecip(&v30, &cross, len);
                 }
             }
-            Car_SpawnDebris(param_2, (FixVector *)&local_24, (Car *)car,
-                            (FixVector *)&local_48, 0x40000, 0x6666);
+            Car_SpawnDebris(param_2, &v24, (Car *)car,
+                            &v48, 0x40000, 0x6666);
         }
     }
     return;
@@ -6969,7 +6990,7 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, un
 // point into world space, queries the track height, then builds the tangent
 // direction (world axes minus the normal component) and stores the resulting
 // contact plane on the point.
-// match 25%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
+// match 26%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
 // FUNCTION: CMR2 0x00484f40
 void FUN_00484f40(unsigned int param_1)
 {
@@ -6982,8 +7003,9 @@ void FUN_00484f40(unsigned int param_1)
     if (piVar1[0xe] == 0) {
         int surface = 0;
         short tri = 0;
-        int local_40, local_3c, local_38;
-        int local_28, local_24, local_20;
+        // Contiguous: these triples are passed as FixVector* (loose ints are not
+        // guaranteed to be adjacent, and a 12-byte write through them overruns).
+        FixVector v40, v28;
         int local_18 = ptr2;
         int dot, a1, a2, a3;
         unsigned int uVar10;
@@ -6994,45 +7016,45 @@ void FUN_00484f40(unsigned int param_1)
         piVar1[0] = piVar1[0] + *(int *)(car + 0x2d0);
         piVar1[1] = piVar1[1] + *(int *)(car + 0x2d4);
         piVar1[2] = piVar1[2] + *(int *)(car + 0x2d8);
-        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, (FixVector *)&local_40,
+        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, &v40,
                                           &tri, (unsigned short *)&surface, piVar1[1]);
-        FixMatrix_RotateVector((FixVector *)&local_28, (FixVector *)(ptr2 + 0xc),
+        FixMatrix_RotateVector(&v28, (FixVector *)(ptr2 + 0xc),
                                *(FixMatrix **)(car + 0x750));
 
-        dot = FixMul(local_38, local_20) + FixMul(local_40, local_28) + FixMul(local_3c, local_24);
-        a1 = local_28 - FixMul(local_40, dot);
-        a2 = local_24 - FixMul(local_3c, dot);
-        a3 = local_20 - FixMul(local_38, dot);
+        dot = FixMul(v40.z, v28.z) + FixMul(v40.x, v28.x) + FixMul(v40.y, v28.y);
+        a1 = v28.x - FixMul(v40.x, dot);
+        a2 = v28.y - FixMul(v40.y, dot);
+        a3 = v28.z - FixMul(v40.z, dot);
         uVar10 = (unsigned int)FixSqrt(FixMul(a1, a1) + FixMul(a2, a2) + FixMul(a3, a3));
 
         if (uVar10 == 0) {
-            unsigned int u = (unsigned int)FixMul(local_40, 0x10000);
-            int f9 = 0x10000 - FixMul(local_40, u);
-            int f2 = -FixMul(local_3c, u);
-            int f3 = -FixMul(local_38, u);
+            unsigned int u = (unsigned int)FixMul(v40.x, 0x10000);
+            int f9 = 0x10000 - FixMul(v40.x, u);
+            int f2 = -FixMul(v40.y, u);
+            int f3 = -FixMul(v40.z, u);
 
             uVar10 = (unsigned int)FixSqrt(FixMul(f9, f9) + FixMul(f2, f2) + FixMul(f3, f3));
             if (uVar10 == 0) {
-                local_28 = 0;
-                local_24 = 0;
-                local_20 = 0;
+                v28.x = 0;
+                v28.y = 0;
+                v28.z = 0;
             } else {
                 iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-                local_28 = FixMul(f9, iVar5);
-                local_24 = FixMul(f2, iVar5);
-                local_20 = FixMul(f3, iVar5);
+                v28.x = FixMul(f9, iVar5);
+                v28.y = FixMul(f2, iVar5);
+                v28.z = FixMul(f3, iVar5);
             }
         } else {
             iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-            local_28 = FixMul(a1, iVar5);
-            local_24 = FixMul(a2, iVar5);
-            local_20 = FixMul(a3, iVar5);
+            v28.x = FixMul(a1, iVar5);
+            v28.y = FixMul(a2, iVar5);
+            v28.z = FixMul(a3, iVar5);
         }
 
         dot = *(int *)(local_18 + 0x18);
-        piVar1[9] = piVar1[0] + FixMul(local_28, dot);
-        piVar1[10] = piVar1[1] + FixMul(local_24, dot);
-        piVar1[0xb] = piVar1[2] + FixMul(local_20, dot);
+        piVar1[9] = piVar1[0] + FixMul(v28.x, dot);
+        piVar1[10] = piVar1[1] + FixMul(v28.y, dot);
+        piVar1[0xb] = piVar1[2] + FixMul(v28.z, dot);
         piVar1[0xe] = 1;
         *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
     }

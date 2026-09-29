@@ -3850,21 +3850,21 @@ void FUN_00480220(void)
 }
 
 // Selects a list of 0x6c-byte records (count first); returns whether it is non-empty.
-// match 17%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048caa0
 int FUN_0048caa0(int *pList)
 {
-    int count;
+    unsigned int count = 0;
 
     if (pList != NULL) {
         count = *pList;
         g_unk0x00591750 = (BYTE *)(pList + 1);
         g_unk0x005918c8 = count;
-        return count != 0;
+    } else {
+        g_unk0x005918c8 = count;
+        g_unk0x00591750 = NULL;
     }
-    g_unk0x005918c8 = 0;
-    g_unk0x00591750 = NULL;
-    return 0;
+    return count > 0;
 }
 
 // Whether a car's wheel sits on a surface of kind 0, 3, 12, 13 or 26 while FUN_00460c80 > 0.
@@ -4917,19 +4917,41 @@ void FUN_00480af0(BYTE *pCar, BYTE *pObject, BYTE flag)
 }
 
 // Clears record `index` of the 0x48-byte table at 0x58d6d0.
-// match 18%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477ac0
 void FUN_00477ac0(int index)
 {
     BYTE *p = g_unk0x0058d6d0[index];
-    int i;
 
-    for (i = 0; i < 10; i++)
-        ((short *)(p + 8))[i] = 0;
-    for (i = 0; i < 10; i++)
-        ((short *)(p + 0x30))[i] = 0;
-    for (i = 0; i < 10; i++)
-        ((short *)(p + 0x1c))[i] = -1;
+    *(short *)(p + 0x8) = 0;
+    *(short *)(p + 0xa) = 0;
+    *(short *)(p + 0xc) = 0;
+    *(short *)(p + 0xe) = 0;
+    *(short *)(p + 0x10) = 0;
+    *(short *)(p + 0x12) = 0;
+    *(short *)(p + 0x14) = 0;
+    *(short *)(p + 0x16) = 0;
+    *(short *)(p + 0x18) = 0;
+    *(short *)(p + 0x1a) = 0;
+    *(short *)(p + 0x30) = 0;
+    *(short *)(p + 0x32) = 0;
+    *(short *)(p + 0x34) = 0;
+    *(short *)(p + 0x36) = 0;
+    *(short *)(p + 0x38) = 0;
+    *(short *)(p + 0x3a) = 0;
+    *(short *)(p + 0x3c) = 0;
+    *(short *)(p + 0x3e) = 0;
+    *(short *)(p + 0x40) = 0;
+    *(short *)(p + 0x42) = 0;
+    *(short *)(p + 0x1c) = -1;
+    *(short *)(p + 0x1e) = -1;
+    *(short *)(p + 0x20) = -1;
+    *(short *)(p + 0x22) = -1;
+    *(short *)(p + 0x24) = -1;
+    *(short *)(p + 0x26) = -1;
+    *(short *)(p + 0x28) = -1;
+    *(short *)(p + 0x2a) = -1;
+    *(short *)(p + 0x2c) = -1;
+    *(short *)(p + 0x2e) = -1;
     p[0x44] = 0;
     p[0x45] = 0;
 }
@@ -7936,7 +7958,7 @@ BYTE *FUN_00498570(int index);
 FixVector g_unk0x00549c20[8][4];
 
 // Rebuilds a car's four exhaust points halfway between its body path points.
-// match 9%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004657d0
 void FUN_004657d0(int car)
 {
@@ -7948,22 +7970,19 @@ void FUN_004657d0(int car)
 
     if (car < 8 && FUN_00498570(car) != NULL) {
         pOut = &g_unk0x00549c20[car][0].y;
-        for (off = 0x1c8; off < 0x1f8; off += 0xc, pOut += 3) {
+        for (off = 0x1c8; off < 0x1f8; off += 0xc) {
             pA = (int *)(FUN_00498570(car) - 0x30 + off);
             pB = (int *)(FUN_00498570(car) + off);
             d.x = pA[0] - pB[0];
             d.y = pA[1] - pB[1];
             d.z = pA[2] - pB[2];
-            d.x = FixMul(d.x, 0x8000);
-            d.y = FixMul(d.y, 0x8000);
-            d.z = FixMul(d.z, 0x8000);
+            FixVecScale(&d, &d, 0x8000);
             d.x += pB[0];
             d.y += pB[1];
             d.z += pB[2];
-            pOut[-1] = d.x;
-            pOut[0] = d.y;
-            pOut[1] = d.z;
-            pOut[0] += 0xccc;
+            *(FixVector *)(pOut - 1) = d;
+            pOut += 3;
+            pOut[-3] += 0xccc;
         }
     }
 }

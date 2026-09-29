@@ -151,7 +151,8 @@ exacta. Este recuento es distinto del inventario inferior al 90 % de arriba.
 | Lote | Inferiores al 100 % | Nuevas al 100 % | Regresiones |
 |---|---:|---:|---:|
 | Inicio del hito (`c11fb4d`) | 1256 | — | — |
-| Condiciones y campos de menús | 1233 | 23 | 0 |
+| Condiciones y campos de menús (`a9247e9`) | 1233 | 23 | 0 |
+| Funciones bajas, vectores y cargador | 1227 | 6 | 2 parciales, verificadas diferencialmente |
 
 El primer lote reproduce las condiciones con signo y sin signo, el ancho del
 retorno de `0x407270`, la resta posterior al cálculo de longitud y el límite
@@ -164,3 +165,71 @@ Por indicación del usuario, los lotes siguientes priorizan las funciones de
 porcentaje bajo y errores funcionales, conservando el criterio estricto del
 hito. Compilación completa correcta; informe propio en
 `/tmp/cmr2-milestone-batch1.json`; ninguna función desaparece.
+
+### Lote de funciones bajas
+
+| Dirección | Antes | Después | Cambio |
+|---|---:|---:|---|
+| `0x416710` | 0 % (stub) | 100 % | Recuperar el salto a la inicialización de sonidos del copiloto |
+| `0x477ac0` | 18,18 % | 100 % | Treinta escrituras de palabras desenrolladas como en el original |
+| `0x4923d0` | 14,71 % | 100 % | Color empaquetado con una vista de bytes |
+| `0x492470` | 13,33 % | 100 % | Vista de bytes y estado de iluminación externo |
+| `0x492520` | 13,89 % | 100 % | Vista de bytes y estado de iluminación externo |
+| `0x4aacf0` | 22,22 % | 100 % | Cargar externamente el contador de conexiones como byte |
+| `0x4657d0` | 9,09 % | 67,36 % | `FixVecScale` y copia de vector en los puntos de escape |
+| `0x4814d0` | 13,11 % | 76,47 % | Inicialización y ramas de los tres ángulos |
+| `0x483050` | 5,41 % | 36,59 % | Bases, comparación y escritura compartida de la oscilación |
+| `0x456bb0` | 16,67 % | 80 % | Limpiar la tabla en grupos de dos registros |
+| `0x40d520` | 18,84 % | 37,04 % | Bucle exterior por puntero y switch de dirección |
+| `0x5062d0` | 46,21 % | 56,01 % | Recuperar el cargador, los recursos L/S y los slots correctos |
+| `0x483100` | 40,19 % | 44,84 % | Vectores contiguos en los cálculos de piezas del coche |
+| `0x484f40` | 25,37 % | 26,87 % | Vectores contiguos para la normal y la tangente |
+
+`TrackLighting.cpp` contiene las tres rutinas de color; `GameNetwork.cpp`, el
+acceso al contador de conexiones. Las definiciones de datos siguen compartidas
+con sus módulos. Separar estos consumidores reproduce las lecturas de byte
+externo de MSVC6; ambos ficheros están registrados en el proyecto y sus filtros.
+
+`StageSplitRankings` modela las cuatro tablas adyacentes en `0x541fac..0x542197`.
+La eliminación de un piloto (`0x455bc0`) utiliza el bloque común como el original.
+La reconstrucción (`0x456250`) cambia de 25,61 % a 22,36 % por el código generado
+con el almacenamiento compartido. `SceneNode_Rotate` (`0x4ac820`) pasa de 65,69 %
+a 65,32 % al sustituir los enteros sueltos por vectores contiguos. Estas dos
+bajadas **no se ocultan**: las pruebas ejecutan el código máquina original y
+recompilado con las mismas entradas y comparan la memoria completa.
+
+Pruebas diferenciales de este lote:
+
+- `tests/differential_rotation.py`: 6000 rotaciones, ángulos límite, seis bases y
+  cadenas de uno a tres padres; compara nodos enteros, entradas, guardas y globals
+  de trabajo. Cero diferencias.
+- `tests/differential_rankings.py`: 6000 eliminaciones y 6000 reconstrucciones,
+  tablas permutadas, 0–9 splits y tamaños límite; cero diferencias y guardas
+  intactas. El único callee simulado devuelve el número de splits elegido.
+- `tests/differential_sort.py`: 6000 ordenaciones con empates, direcciones válidas
+  e inválidas y tamaños -2..16; cero diferencias, tiempos y guardas intactos.
+
+Validación final: compilación completa correcta, `reccmp-datacmp` con cero
+incidencias, `check_dupes.py` limpio (3362 funciones y cero stubs). Las pruebas
+diferenciales del build final suman 24.000 casos, todos sin diferencias.
+
+Informes separados de los compartidos: `/tmp/cmr2-low-final.json`,
+`/tmp/cmr2-low-final-entities.json`. Todas las 3364 funciones siguen medidas;
+1227 inferiores al 100 %, 837 inferiores al 90 %. El hito de menos de 700 al
+100 % sigue pendiente: faltan al menos **528** mejoras netas al 100 %.
+
+La corrección del cargador se recuperó de `4d59d62` y se contrastó con el
+ensamblado. No se ha ejecutado una partida completa en esta rama. Las pruebas
+de rotación y rankings validan sus rutinas concretas; no certifican todo el motor.
+
+Reproducir las pruebas desde esta carpeta después de compilar y medir:
+
+```bash
+python3 tests/differential_rotation.py /tmp/cmr2-low-final.json
+python3 tests/differential_rankings.py /tmp/cmr2-low-final.json
+python3 tests/differential_sort.py /tmp/cmr2-low-final.json
+```
+
+Los dos primeros scripts resuelven los símbolos del build actual; opcionalmente
+aceptan un mapa JSON como segundo argumento. Rechazan un mapa cuya dirección de
+la función no coincida con el informe.

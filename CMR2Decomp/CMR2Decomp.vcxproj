@@ -136,6 +136,7 @@
     <ClCompile Include="HudDash.cpp" />
     <ClCompile Include="CarEffects.cpp" />
     <ClCompile Include="TrackCollision.cpp" />
+    <ClCompile Include="TrackLighting.cpp" />
     <ClCompile Include="ZlibAdler32.cpp" />
     <ClCompile Include="ZlibCrc32.cpp" />
     <ClCompile Include="ZlibDeflate.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="FrontendScreens.cpp" />
     <ClCompile Include="FrontendStubs.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameNetwork.cpp" />
     <ClCompile Include="GameMenus.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="GameInfo.cpp" />

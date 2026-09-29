@@ -420,12 +420,13 @@ int RallyTiming_GetPointsForPosition(int iPosition)
 	}
 }
 
-// match 18%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d520
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise)
 {
 	int i;
-	int j;
+	int remaining;
+	char *pCurrent;
 	char a;
 	char b;
 
@@ -435,24 +436,29 @@ void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCou
 			pcOrder[i] = i;
 	}
 
-	for (i = 0; i < iCount; i++)
+	pCurrent = pcOrder;
+	for (remaining = iCount; remaining > 0; remaining--, pCurrent++)
 	{
-		for (j = i + 1; j < iCount; j++)
+		for (i = pCurrent - pcOrder + 1; i < iCount; i++)
 		{
-			a = pcOrder[i];
-			b = pcOrder[j];
-			if (iDirection == 0)
+			a = *pCurrent;
+			b = pcOrder[i];
+			switch (iDirection)
 			{
+			case 1:
+				if (piTimes[a] > piTimes[b])
+				{
+					*pCurrent = b;
+					pcOrder[i] = a;
+				}
+				break;
+			case 0:
 				if (piTimes[a] < piTimes[b])
 				{
-					pcOrder[i] = b;
-					pcOrder[j] = a;
+					*pCurrent = b;
+					pcOrder[i] = a;
 				}
-			}
-			else if (iDirection == 1 && piTimes[b] < piTimes[a])
-			{
-				pcOrder[i] = b;
-				pcOrder[j] = a;
+				break;
 			}
 		}
 	}

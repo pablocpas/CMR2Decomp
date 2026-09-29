@@ -11878,8 +11878,10 @@ int FUN_005062d0(int index)
     unsigned int stage;
     unsigned char model;
     unsigned char variant;
-    int mesh;
-    int other;
+    int *pRecord;
+    int root;
+    int nodeL;
+    int nodeS;
     int i;
 
     stage = FUN_00501510();
@@ -11887,14 +11889,10 @@ int FUN_005062d0(int index)
     if (g_unk0x00831318 == 0) {
         CGame::RegisterCallback((void *)FUN_00505f10, 0);
         g_unk0x00831318 = 1;
-        {
-            int *p = (int *)0x00831088;
-            do {
-                p[-2] = 0;
-                p[0] = 0;
-                p[-1] = 0;
-                p += 3;
-            } while ((int)p < 0x831150);
+        for (i = 0; i < 16; i++) {
+            g_unk0x00831088[i].pUnk0x0 = NULL;
+            g_unk0x00831088[i].pUnk0x8 = NULL;
+            g_unk0x00831088[i].pUnk0x4 = NULL;
         }
     }
     model = (BYTE)(int)RallyData_FUN_004086b0(index);
@@ -11929,48 +11927,44 @@ int FUN_005062d0(int index)
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
 
     pEntry = &g_unk0x0082cb78[index];
-    CGenericFileLoader::FUN_004a9d70((GenericFile *)pEntry, g_unk0x00663b60);
+    // the .bfl and the geometry relocations go to the 12-byte loader record of
+    // this entry (0x831088, cleared on the first call above), not to pEntry
+    pRecord = (int *)&g_unk0x00831088[index];
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)pRecord, g_unk0x00663b60);
     if (hC3D == 0)
         return 0;
 
-    other = 0;
-    mesh = 0;
-    hL = FUN_004b9380(hC3D, stage, (unsigned int)pEntry);
+    nodeL = 0;
+    nodeS = 0;
+    root = FUN_004b9380(hC3D, stage, (unsigned int)pRecord);
     if (CGameInfo::FUN_00405d10() == 0) {
         int *p = (int *)&pEntry->field_0x24[0];
-        for (i = 1; i < 4; i++) {
-            int h = (int)(int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)i);
-            *p++ = *(int *)(h + 0xc);
-        }
-        if (hS != 0) {          /* el segundo recurso (L) */
-            int h2 = FUN_004b9380(hS, stage, (unsigned int)pEntry);
+        for (i = 1; i < 4; i++)
+            *p++ = *(int *)((int)SceneNode_FindByType((SceneNode *)root, (unsigned int)i) + 0xc);
+        if (hL != 0) {
             int *q = (int *)&pEntry->field_0x34[0];
-            for (i = 1; i < 4; i++) {
-                int h = (int)SceneNode_FindByType((SceneNode *)h2, (unsigned int)i);
-                *q++ = *(int *)(h + 0xc);
-            }
-            SceneNode_SetViewMaskTree((SceneNode *)h2, 0);
-            mesh = h2;
+            nodeL = FUN_004b9380(hL, stage, (unsigned int)pRecord);
+            for (i = 1; i < 4; i++)
+                *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i) + 0xc);
+            SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
         }
-        if (other != 0) {
-            int h3 = FUN_004b9380(other, stage, (unsigned int)pEntry);
+        if (hS != 0) {
             int *q = (int *)&pEntry->field_0x44[0];
-            for (i = 1; i < 4; i++) {
-                int h = (int)SceneNode_FindByType((SceneNode *)h3, (unsigned int)i);
-                *q++ = *(int *)(h + 0xc);
-            }
-            SceneNode_SetViewMaskTree((SceneNode *)h3, 0);
+            nodeS = FUN_004b9380(hS, stage, (unsigned int)pRecord);
+            for (i = 1; i < 4; i++)
+                *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i) + 0xc);
+            SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
         }
     }
-    *(int *)((BYTE *)pEntry + 0xc) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)1);
-    *(int *)((BYTE *)pEntry + 0x10) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)2);
-    *(int *)((BYTE *)pEntry + 0x1c) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)3);
-    *(int *)((BYTE *)pEntry + 0x20) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)4);
-    *(int *)((BYTE *)pEntry + 0x0) = variant;
-    *(int *)((BYTE *)pEntry + 0x8) = hL;
-    *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)5);
-    *(int *)((BYTE *)pEntry + 0x14) = mesh;
-    *(int *)((BYTE *)pEntry + 0x18) = 0;
+    *(int *)((BYTE *)pEntry + 0x14) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)1);
+    *(int *)((BYTE *)pEntry + 0x18) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)2);
+    *(int *)((BYTE *)pEntry + 0x1c) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)3);
+    *(int *)((BYTE *)pEntry + 0x20) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)4);
+    *(BYTE *)pEntry = variant;
+    *(int *)((BYTE *)pEntry + 0x8) = root;
+    *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)5);
+    *(int *)((BYTE *)pEntry + 0xc) = nodeL;
+    *(int *)((BYTE *)pEntry + 0x10) = nodeS;
     FUN_00507080(index);
     FUN_00507a10(&g_unk0x0082d220[index], index);
     {

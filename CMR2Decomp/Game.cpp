@@ -1906,14 +1906,7 @@ void CGame::AddConnection(char *name, void *pConnection, unsigned int size, GUID
 }
 
 // match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// FUNCTION: CMR2 0x004aacf0
-unsigned int CGame::GetConnectionCount(void)
-{
-    unsigned int count = 0;
 
-    count = m_connectionCount;
-    return count;
-}
 
 // FUNCTION: CMR2 0x004aad00
 DPlayConnection *CGame::GetConnection(BYTE index)

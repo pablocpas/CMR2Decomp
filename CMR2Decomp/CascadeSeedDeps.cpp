@@ -13,8 +13,7 @@
 // their own dependencies exist. Argument counts come from the call sites /
 // the original's `ret N`.
 
-// STUB: CMR2 0x00416710
-void FUN_00416710(void) { }
+
 
 
 
