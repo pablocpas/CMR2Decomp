@@ -10526,7 +10526,7 @@ void FUN_004efb70(Menu *pMenu, int param)
     } else {
         if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 8 & 0xf))
             limit = 4;
-        if ((BYTE)RallyDataStageIndex() + 1 <= (BYTE)(*pInfo >> 0xc & 0xf))
+        if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 0xc & 0xf))
             limit = 8;
         if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 0x10 & 0xf) && (*pInfo & 1) != 0)
             limit = 10;
