@@ -10896,8 +10896,8 @@ void FUN_004d8ed0(Menu *pMenu)
     int i;
     int j;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
