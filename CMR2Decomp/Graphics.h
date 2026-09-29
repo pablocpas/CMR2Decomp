@@ -1495,6 +1495,7 @@ private:
     friend void Game_DrawViewMaskNode(SceneNode *pNode, int bit);
     friend void Game_DrawDeferredObjects(void);
     friend int FUN_0049e1f0(SceneNode *pNode, int bit);
+    friend int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag);
 };
 
 // A camera-facing sprite queued by Billboard_Add.

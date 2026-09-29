@@ -8220,7 +8220,7 @@ void FUN_004778b0(BYTE *object, int unused)
 GenericFile *FUN_0041f500(void);
 BYTE *FUN_00475a40(void);
 void StageUI_DrawChampionshipBar(void);
-void FUN_0049d3f0(int, int, void *, int, int);
+int FUN_0049d3f0(int, int, void *, int, BYTE);
 int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 int RallyData_FUN_0040eeb0(void);
 int *FUN_0040f050(int view);

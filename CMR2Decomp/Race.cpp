@@ -245,7 +245,7 @@ void FUN_0041c260(void)
     int count;
     int i;
 
-    count = (BYTE)RallyDataState();
+    count = RallyDataState() & 0xff;
     loaded[0] = 0;
     loaded[1] = 0;
     if (CGameInfo::FUN_00405d80() == 4 || (char)RallyData_GetFlag25())
@@ -4780,4 +4780,637 @@ done:
         FUN_0041a0a0(param_1, param_2);
     FUN_00419ed0(param_1, param_2);
     FUN_00419cd0(param_1, param_2);
+}
+
+extern char g_strPathConcat[];
+// Co-driver speech sample table loader: the installer sound directory is
+// prepended to every .WAV name and the concatenation is loaded as a stage
+// sample through the sound slot of the current stage file.
+// GLOBAL: CMR2 0x00518674
+char g_str0x00518674[] = "\\Speech\\English\\Wavs\\ONE.WAV";
+// GLOBAL: CMR2 0x00518654
+char g_str0x00518654[] = "\\Speech\\English\\Wavs\\TWO.WAV";
+// GLOBAL: CMR2 0x00518634
+char g_str0x00518634[] = "\\Speech\\English\\Wavs\\THREE.WAV";
+// GLOBAL: CMR2 0x00518614
+char g_str0x00518614[] = "\\Speech\\English\\Wavs\\FOUR.WAV";
+// GLOBAL: CMR2 0x005185f4
+char g_str0x005185f4[] = "\\Speech\\English\\Wavs\\FIVE.WAV";
+// GLOBAL: CMR2 0x005185d4
+char g_str0x005185d4[] = "\\Speech\\English\\Wavs\\SIX.WAV";
+// GLOBAL: CMR2 0x005185ac
+char g_str0x005185ac[] = "\\Speech\\English\\Wavs\\OPENHAIRPIN.WAV";
+// GLOBAL: CMR2 0x00518588
+char g_str0x00518588[] = "\\Speech\\English\\Wavs\\HAIRPIN.WAV";
+// GLOBAL: CMR2 0x00518568
+char g_str0x00518568[] = "\\Speech\\English\\Wavs\\LEFT.WAV";
+// GLOBAL: CMR2 0x00518548
+char g_str0x00518548[] = "\\Speech\\English\\Wavs\\RIGHT.WAV";
+// GLOBAL: CMR2 0x00518528
+char g_str0x00518528[] = "\\Speech\\English\\Wavs\\LONG.WAV";
+// GLOBAL: CMR2 0x00518508
+char g_str0x00518508[] = "\\Speech\\English\\Wavs\\OPENS.WAV";
+// GLOBAL: CMR2 0x005184e4
+char g_str0x005184e4[] = "\\Speech\\English\\Wavs\\TIGHTENS.WAV";
+// GLOBAL: CMR2 0x005184c8
+char g_str0x005184c8[] = "\\Speech\\English\\Wavs\\GO.WAV";
+// GLOBAL: CMR2 0x005184a8
+char g_str0x005184a8[] = "\\Speech\\English\\Wavs\\AND.WAV";
+// GLOBAL: CMR2 0x00518488
+char g_str0x00518488[] = "\\Speech\\English\\Wavs\\INTO.WAV";
+// GLOBAL: CMR2 0x0051846c
+char g_str0x0051846c[] = "\\Speech\\English\\Wavs\\30.WAV";
+// GLOBAL: CMR2 0x00518450
+char g_str0x00518450[] = "\\Speech\\English\\Wavs\\50.WAV";
+// GLOBAL: CMR2 0x00518434
+char g_str0x00518434[] = "\\Speech\\English\\Wavs\\70.WAV";
+// GLOBAL: CMR2 0x00518414
+char g_str0x00518414[] = "\\Speech\\English\\Wavs\\100.WAV";
+// GLOBAL: CMR2 0x005183f4
+char g_str0x005183f4[] = "\\Speech\\English\\Wavs\\120.WAV";
+// GLOBAL: CMR2 0x005183d4
+char g_str0x005183d4[] = "\\Speech\\English\\Wavs\\150.WAV";
+// GLOBAL: CMR2 0x005183b4
+char g_str0x005183b4[] = "\\Speech\\English\\Wavs\\200.WAV";
+// GLOBAL: CMR2 0x00518394
+char g_str0x00518394[] = "\\Speech\\English\\Wavs\\OVER.WAV";
+// GLOBAL: CMR2 0x00518374
+char g_str0x00518374[] = "\\Speech\\English\\Wavs\\CREST.WAV";
+// GLOBAL: CMR2 0x00518354
+char g_str0x00518354[] = "\\Speech\\English\\Wavs\\JUMP.WAV";
+// GLOBAL: CMR2 0x00518334
+char g_str0x00518334[] = "\\Speech\\English\\Wavs\\CARE.WAV";
+// GLOBAL: CMR2 0x00518310
+char g_str0x00518310[] = "\\Speech\\English\\Wavs\\CAUTION.WAV";
+// GLOBAL: CMR2 0x005182ec
+char g_str0x005182ec[] = "\\Speech\\English\\Wavs\\VERYLONG.WAV";
+// GLOBAL: CMR2 0x005182cc
+char g_str0x005182cc[] = "\\Speech\\English\\Wavs\\TURN.WAV";
+// GLOBAL: CMR2 0x005182a8
+char g_str0x005182a8[] = "\\Speech\\English\\Wavs\\NARROWS.WAV";
+// GLOBAL: CMR2 0x00518284
+char g_str0x00518284[] = "\\Speech\\English\\Wavs\\THROUGH.WAV";
+// GLOBAL: CMR2 0x00518264
+char g_str0x00518264[] = "\\Speech\\English\\Wavs\\LOGS.WAV";
+// GLOBAL: CMR2 0x00518244
+char g_str0x00518244[] = "\\Speech\\English\\Wavs\\GATE.WAV";
+// GLOBAL: CMR2 0x00518224
+char g_str0x00518224[] = "\\Speech\\English\\Wavs\\BRIDGE.WAV";
+// GLOBAL: CMR2 0x00518204
+char g_str0x00518204[] = "\\Speech\\English\\Wavs\\ROCKS.WAV";
+// GLOBAL: CMR2 0x005181e4
+char g_str0x005181e4[] = "\\Speech\\English\\Wavs\\POST.WAV";
+// GLOBAL: CMR2 0x005181c4
+char g_str0x005181c4[] = "\\Speech\\English\\Wavs\\DITCH.WAV";
+// GLOBAL: CMR2 0x005181a4
+char g_str0x005181a4[] = "\\Speech\\English\\Wavs\\MUD.WAV";
+// GLOBAL: CMR2 0x00518184
+char g_str0x00518184[] = "\\Speech\\English\\Wavs\\RUTS.WAV";
+// GLOBAL: CMR2 0x00518164
+char g_str0x00518164[] = "\\Speech\\English\\Wavs\\ICE.WAV";
+// GLOBAL: CMR2 0x00518140
+char g_str0x00518140[] = "\\Speech\\English\\Wavs\\BADCAMBER.WAV";
+// GLOBAL: CMR2 0x00518120
+char g_str0x00518120[] = "\\Speech\\English\\Wavs\\ROUGH.WAV";
+// GLOBAL: CMR2 0x00518100
+char g_str0x00518100[] = "\\Speech\\English\\Wavs\\SLIPPY.WAV";
+// GLOBAL: CMR2 0x005180e0
+char g_str0x005180e0[] = "\\Speech\\English\\Wavs\\INSIDE.WAV";
+// GLOBAL: CMR2 0x005180bc
+char g_str0x005180bc[] = "\\Speech\\English\\Wavs\\OUTSIDE.WAV";
+// GLOBAL: CMR2 0x00518098
+char g_str0x00518098[] = "\\Speech\\English\\Wavs\\DONTCUT.WAV";
+// GLOBAL: CMR2 0x0051807c
+char g_str0x0051807c[] = "\\Speech\\English\\Wavs\\OK.WAV";
+// GLOBAL: CMR2 0x00518058
+char g_str0x00518058[] = "\\Speech\\English\\Wavs\\STOP_DITCH.WAV";
+// GLOBAL: CMR2 0x00518030
+char g_str0x00518030[] = "\\Speech\\English\\Wavs\\ONTO_TARMAC.WAV";
+// GLOBAL: CMR2 0x0051800c
+char g_str0x0051800c[] = "\\Speech\\English\\Wavs\\ONTO_SNOW.WAV";
+// GLOBAL: CMR2 0x00517fe4
+char g_str0x00517fe4[] = "\\Speech\\English\\Wavs\\ONTO_GRAVEL.WAV";
+// GLOBAL: CMR2 0x00517fc0
+char g_str0x00517fc0[] = "\\Speech\\English\\Wavs\\ONTO_MUD.WAV";
+// GLOBAL: CMR2 0x00517f9c
+char g_str0x00517f9c[] = "\\Speech\\English\\Wavs\\ONTO_ICE.WAV";
+// GLOBAL: CMR2 0x00517f78
+char g_str0x00517f78[] = "\\Speech\\English\\Wavs\\JUMP_MAYBE.WAV";
+// GLOBAL: CMR2 0x00517f54
+char g_str0x00517f54[] = "\\Speech\\English\\Wavs\\STRAIGHT.WAV";
+// GLOBAL: CMR2 0x00517f2c
+char g_str0x00517f2c[] = "\\Speech\\English\\Wavs\\COUNTDOWN_3.WAV";
+// GLOBAL: CMR2 0x00517f04
+char g_str0x00517f04[] = "\\Speech\\English\\Wavs\\COUNTDOWN_2.WAV";
+// GLOBAL: CMR2 0x00517edc
+char g_str0x00517edc[] = "\\Speech\\English\\Wavs\\COUNTDOWN_1.WAV";
+
+// FUNCTION: CMR2 0x00416770
+void FUN_00416770(void)
+{
+    char buf[260];
+    char *pDir;
+
+    pDir = CInstallInfo::GetSoundsDir();
+    g_unk0x0053735c = FUN_004b7940();
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518674);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518654);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518634);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518614);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185f4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185d4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185ac);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518588);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518568);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518548);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518528);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518508);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184e4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184c8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184a8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518488);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051846c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518450);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518434);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518414);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183f4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183d4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183b4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518394);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518374);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518354);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518334);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518310);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182ec);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182cc);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182a8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518284);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518264);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518244);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518224);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518204);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181e4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181c4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181a4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518184);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518164);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518140);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518120);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518100);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005180e0);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005180bc);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518098);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051807c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518058);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518030);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051800c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517fe4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517fc0);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f9c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f78);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f54);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f2c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f04);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517edc);
+    FUN_00418760(buf);
+    StageTiming_FreeStageFile2();
+}
+
+// ---- Race frame update (0x41c5a0) -------------------------------------------
+// Scratch globals shared by the per-frame race update.
+// GLOBAL: CMR2 0x00538124
+int g_unk0x00538124;
+// GLOBAL: CMR2 0x00538104
+int g_unk0x00538104;
+// GLOBAL: CMR2 0x00537f04
+int g_unk0x00537f04;
+// GLOBAL: CMR2 0x00537f8c
+int g_unk0x00537f8c;
+// GLOBAL: CMR2 0x00537fc8
+int g_unk0x00537fc8;
+// GLOBAL: CMR2 0x00537f28
+int g_unk0x00537f28;
+// GLOBAL: CMR2 0x00537fb8
+BYTE g_unk0x00537fb8;
+// GLOBAL: CMR2 0x00537fd0
+short *g_unk0x00537fd0;
+// GLOBAL: CMR2 0x00537fc4
+short g_unk0x00537fc4;
+
+unsigned int RallyData_GetFlag21(void);
+void FUN_0042bc80(short *pList, short count);
+short *Car_GetOrder(void);
+void FUN_00411f00(void);
+int FUN_00407270(void);
+int FUN_004481f0(int car, int index);
+int FUN_0041b380(void);
+int FUN_00445a20(void);
+int FUN_00445a40(void);
+void FUN_0042b790(void);
+int FUN_0042c890(int *pOut);
+void FUN_0042baf0(void);
+void FUN_00448e70(void);
+int FUN_0041f3f0(BYTE index);
+void FUN_0047a710(int player, int listener);
+void FUN_0047aa70(void);
+void FUN_0047ad20(void);
+void FUN_0047b000(int slot);
+void FUN_0047b640(int slot);
+void FUN_0047b7b0(int slot);
+void FUN_0047b870(int index);
+int FUN_0047d330(int car, int preview);
+void FUN_004209f0(void);
+void FUN_00466520(void);
+void FUN_004581d0(void);
+void FUN_00448120(void);
+void FUN_00455590(int group);
+void FUN_0045e7f0(void);
+void FUN_004664c0(short *pOrder, short count);
+void FUN_004285b0(unsigned int player, int t, int check);
+void FUN_004284d0(unsigned int player, int check);
+BYTE FUN_00458290(int index);
+BYTE FUN_004582b0(int index);
+int FUN_00458330(int index);
+void FUN_00427890(void);
+void FUN_004a2fe0(void);
+void FUN_00478c40(void);
+void FUN_00418ee0(void);
+void FUN_00418780(void);
+int FUN_00404e10(unsigned short slot);
+void FUN_00404ea0(BYTE param1);
+void FUN_00464c60(int car);
+void FUN_0045af00(int car);
+void FUN_00422140(unsigned char param1, int param2);
+int FUN_00422f50(BYTE index);
+BYTE FUN_00422fb0(BYTE index);
+int FUN_00428740(BYTE index);
+void FUN_00411f70(int param_1, int param_2);
+void FUN_00416f70(int player);
+void FUN_00417090(int param_1);
+void FUN_0041af60(int param_1, int param_2);
+void FUN_0041d060(int param_1);
+void FUN_0041d0c0(int param_1);
+void FUN_00421930(unsigned int view);
+void FUN_004219b0(unsigned int view);
+unsigned int FUN_0049e940(void);
+bool FUN_004b7cd0(int *pOut);
+void FUN_004b7c80(void);
+void Sound_FreeAll(void);
+void Particle_UpdateAll(int param);
+void FUN_004660e0(BYTE value);
+int FUN_00466090(void);
+void FUN_00466030(int a, int b);
+int Replay_StopRecording(BYTE *pBuffer);
+void WheelTrail_Update(int carIndex);
+void Dash_Update(int player);
+
+// Per-frame update of one player's race view: advances the race, the car
+// order, the dashboards and the replay recording. The car loop walks the whole
+// order but only the entrants below the player count are driven; each car's
+// call state selects its co-driver handling in the switch below.
+// match 68%: below the 90% bar; the remaining diff is dominated by register
+// allocation, not logic. MSVC6 keeps the register-allocated constant 0 in EDI
+// and `first` in EBP here, while the original has the constant in EBP and
+// `first` in EDI; that swap flips the operand order of every zero comparison
+// (cmp edi,ebp vs cmp ebp,edi), the zero-argument pushes, and permutes the
+// spill slots (S-0x14/S-0x10/S-0xc), which in turn moves the branch/block
+// layout of the switch and of the car-loop tail. Calls, constants, statement
+// order and control flow were checked instruction by instruction against the
+// original; the layout of GameInfo0xa4.rallyStageRecordTimes (0x1214 in the
+// original vs 0x654 in our struct) is a separate data-model gap reported to the
+// integrator.
+// FUNCTION: CMR2 0x0041c5a0
+void FUN_0041c5a0(BYTE param1, int param2)
+{
+    int first;
+    int second;
+    int count;
+    int player;
+    int flag;
+    int key;
+    int k;
+    int value;
+    int index;
+    BYTE b1;
+    BYTE b2;
+    BYTE b3;
+
+    first = 0;
+    count = RallyDataState() & 0xff;
+    if (FUN_00445a20())
+        first = 1;
+    second = FUN_00445a40();
+    FUN_0042b790();
+    g_unk0x00538124 = FUN_0042c890(&g_unk0x00537f60);
+    g_unk0x00537f0c[4] = 0;
+    for (; g_unk0x00537f0c[4] < g_unk0x00538124; g_unk0x00537f0c[4]++) {
+        player = Car_Get(0)->field_0xb43[0] > 0;
+        CInput::FUN_0049eab0();
+        if (player != 0) {
+            g_unk0x00537f24++;
+            if (param2 != 0 && param1 == 10)
+                FUN_00448e70();
+        }
+        for (g_unk0x00538104 = 0; g_unk0x00538104 < Car_GetOrderCount(); g_unk0x00538104++) {
+            if (Car_Get(g_unk0x00538104)->field_0xb43[0] > 0) {
+                if (g_unk0x00538104 < (BYTE)RallyDataState()) {
+                    g_unk0x00537fb8 = *(char *)(*(int *)(FUN_0041b390() + 4) + g_unk0x00538104 * 8);
+                    if (FUN_0041f3d0(g_unk0x00538104) != 0)
+                        g_unk0x00537fb8 = *(char *)(g_unk0x00537f3c[g_unk0x00538104] + 0x10c);
+                } else {
+                    if ((BYTE)(*(int *)(*(int *)(FUN_0041b390() + 4))) <= 7) {
+                        g_unk0x00537fb8 = 7;
+                    } else {
+                        g_unk0x00537fb8 = 8;
+                        if ((char)RallyData_FUN_00407ea0() != 0 && (char)CGameInfo::FUN_00406310() != 0) {
+                            if (FUN_00466090() == 0)
+                                g_unk0x00537fb8 = 9;
+                        } else if ((char)RallyData_FUN_00407e90() != 0 &&
+                                   (char)CGameInfo::FUN_00405e00() == 0 &&
+                                   FUN_004582b0(g_unk0x00538104) != 0) {
+                            g_unk0x00537fb8 = 9;
+                        }
+                    }
+                }
+                switch (g_unk0x00537fb8) {
+                case 13:
+                    FUN_0047b000(g_unk0x00538104);
+                    break;
+                case 5:
+                case 7:
+                    g_unk0x0053811c = 0;
+                    FUN_0047b640(g_unk0x00538104);
+                    break;
+                case 10:
+                    if ((char)RallyData_FUN_00407e70() != 0 && g_unk0x00538104 < count) {
+                        if (FUN_0041f3d0(g_unk0x00538104) == 0) {
+                            FUN_0047d330(g_unk0x00538104, 0);
+                            break;
+                        }
+                    }
+                    if (FUN_0041f3d0(g_unk0x00538104) == 0)
+                        FUN_0047b870(g_unk0x00538104);
+                    else if (first == 0)
+                        FUN_0047b000(g_unk0x00538104);
+                    break;
+                case 8:
+                    if (first == 0)
+                        FUN_0047b000(g_unk0x00538104);
+                    break;
+                case 9:
+                    if ((char)RallyData_FUN_00407e70() != 0) {
+                        if (g_unk0x00538104 < count)
+                            FUN_0047d330(g_unk0x00538104, 0);
+                        else
+                            FUN_0047b000(g_unk0x00538104);
+                    } else {
+                        if (g_unk0x00537f98[g_unk0x00538104] != 0) {
+                            if (FUN_0041f3f0(g_unk0x00538104) != 0 ||
+                                FUN_0041f3d0(g_unk0x00538104) != 0)
+                                FUN_0047b7b0(g_unk0x00538104);
+                            else
+                                FUN_0047b870(g_unk0x00538104);
+                        } else {
+                            FUN_0047b870(g_unk0x00538104);
+                        }
+                    }
+                    break;
+                }
+                if (g_unk0x00538104 < count) {
+                    Dash_Update(g_unk0x00538104);
+                    if (g_unk0x00537fb8 == 5 || g_unk0x00537fb8 == 7)
+                        FUN_00411f70(g_unk0x00538104, 1);
+                    else if (g_unk0x00537fb8 == 8 || g_unk0x00537fb8 == 9)
+                        FUN_00411f70(g_unk0x00538104, 0);
+                    if (param1 == 8 || param1 == 9)
+                        FUN_00417090(g_unk0x00538104);
+                    else if (param1 == 7)
+                        FUN_00416f70(g_unk0x00538104);
+                    if (g_unk0x00537fb8 == 8 || g_unk0x00537fb8 == 5 ||
+                        (g_unk0x00537fb8 == 7 && (char)CGameInfo::FUN_00405e00() == 0)) {
+                        b1 = FUN_00404e10(g_unk0x00538104);
+                        b2 = FUN_0041f3d0(g_unk0x00538104);
+                        b3 = FUN_00428740(g_unk0x00538104);
+                        if (b1 != 0 && b2 == 0 && b3 == 0 &&
+                            (char)CGameInfo::FUN_00406320() == 0) {
+                            FUN_00404ea0(g_unk0x00538104);
+                            if ((char)RallyData_FUN_00407e70() != 0)
+                                CSound::FUN_004a3160();
+                            FUN_00478c40();
+                            FUN_00418ee0();
+                            FUN_00418780();
+                        }
+                    }
+                }
+            }
+        }
+        if ((char)CGameInfo::FUN_00406320() != 0 && player != 0 &&
+            **(char **)(FUN_0041b390() + 4) == 13) {
+            if (g_unk0x00537f8c != 0) {
+                FUN_004b7c80();
+                g_unk0x00537f8c = 0;
+            }
+            if (FUN_0049e940() != 0 || FUN_004b7cd0(&key) != 0) {
+                FUN_0046d2a0((int *)g_unk0x00537f3c[0]);
+                g_unk0x00537fc8 = 0;
+                for (; g_unk0x00537fc8 < *FUN_0041b390(); g_unk0x00537fc8++)
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)FUN_0041b390(), g_unk0x00537fc8, 1, 3);
+                FUN_0041f2a0();
+            }
+        }
+        for (g_unk0x00537f04 = 0; g_unk0x00537f04 < count; g_unk0x00537f04++) {
+            if (Car_Get(g_unk0x00537f04)->field_0xb43[0] > 0) {
+                if (param2 != 0)
+                    FUN_0041d0c0(g_unk0x00537f04);
+                if (FUN_00422f50((BYTE)g_unk0x00537f04) == 7)
+                    FUN_00421930((BYTE)g_unk0x00537f04);
+            }
+        }
+        if (first == 0 || second != 0)
+            FUN_0042baf0();
+        if (player != 0)
+            FUN_00466520();
+        for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++) {
+            if (Car_Get(g_unk0x00537f04)->field_0xb43[0] > 0)
+                FUN_004284d0((BYTE)g_unk0x00537f04, 0);
+        }
+        if (player != 0) {
+            FUN_004209f0();
+            FUN_004581d0();
+            FUN_00448120();
+            if ((char)RallyData_GetFlag21() != 0) {
+                if (FUN_0041b380() == 4)
+                    FUN_00455590(FUN_0041b370() & 0xff);
+                else
+                    FUN_00455590(0);
+            }
+            FUN_0045e7f0();
+        }
+        for (g_unk0x00537f04 = 0; g_unk0x00537f04 < count; g_unk0x00537f04++) {
+            if (Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xb43[0] > 0)
+                FUN_004219b0((BYTE)g_unk0x00537f04);
+        }
+        if (player != 0) {
+            if (first == 0 || second != 0)
+                Particle_UpdateAll((int)g_viewNodes[g_unk0x00537f04]);
+            if (CGameInfo::FUN_00405d80() == 0xc && FUN_00458290(0) != 0) {
+                FUN_00427950(FUN_004481f0(0, FUN_00458330(0)));
+                FUN_0040af00(FUN_004481f0(0, FUN_00458330(0)));
+            }
+            if ((char)RallyData_GetFlag24() != 0 && (char)RallyData_FUN_00407ea0() != 0 &&
+                FUN_00458290(0) != 0) {
+                FUN_0046d2a0((int *)g_unk0x00537f3c[0]);
+                Replay_StopRecording(g_unk0x00537f3c[0]);
+                if (CGameInfo::FUN_00406310() != 0)
+                    FUN_00466080();
+                flag = CGameInfo::FUN_00405d00() == 0;
+                value = FUN_004481f0(0, FUN_00458330(0));
+                index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+                if (value <= (int)((CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[index].value
+                                    >> 7) & 0xffff)) {
+                    index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+                    CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[index].value =
+                        (value & 0xffff) << 7 |
+                        CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[index].value & 0xff80007f;
+                    k = RallyData_FUN_004086b0(0);
+                    index = (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff);
+                    CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[index].value =
+                        k & 0x3f |
+                        CGameInfo::FUN_00405ff0(flag)->rallyStageRecordTimes[index].value & 0xffffffc0;
+                    sprintf(CFrontend::m_stringDest, g_strGrp0x005192b0, FUN_0041f920());
+                    if (g_unk0x00537f3c[0] != NULL)
+                        Replay_Save(g_unk0x00537f3c[0], CFrontend::m_stringDest);
+                }
+                FUN_0046c750((int)g_unk0x00537f3c[0], 0, 0);
+                if (CGameInfo::FUN_00406310() != 0)
+                    FUN_00466030(0, 0);
+            }
+        }
+        if (CGameInfo::FUN_00404f20() == 0 && param1 >= 7) {
+            if (FUN_00407270() != 0 && FUN_0041f3d0(0) == 0) {
+                if (g_unk0x00537f2c == 0) {
+                    Sound_FreeAll();
+                    g_unk0x00537f2c = 1;
+                }
+            } else {
+                k = ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() != 0 &&
+                     (char)CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405d80() != 3);
+                for (g_unk0x00537f04 = 0;
+                     g_unk0x00537f04 < (BYTE)RallyDataState() + k;
+                     g_unk0x00537f04++) {
+                    if (k == 1) {
+                        FUN_0047a710(g_unk0x00537f04, 0);
+                        FUN_0041af60(g_unk0x00537f04, 0);
+                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, 0);
+                    } else {
+                        FUN_0047a710(g_unk0x00537f04, g_unk0x00537f04);
+                        FUN_0041af60(g_unk0x00537f04, g_unk0x00537f04);
+                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, g_unk0x00537f04);
+                    }
+                }
+            }
+        }
+        if ((char)CGameInfo::FUN_00405e00() != 0) {
+            if (CGameInfo::FUN_00405d80() == 0xb || CGameInfo::FUN_00405d80() == 0xc)
+                FUN_0047ad20();
+        } else if ((CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6) &&
+                   (BYTE)RallyDataState() == 1) {
+            FUN_0047aa70();
+        }
+        if (param2 == 0) {
+            for (g_unk0x00537f04 = 0; g_unk0x00537f04 < (BYTE)RallyDataState(); g_unk0x00537f04++) {
+            }
+        }
+        FUN_0042bc80(Car_GetOrder(), Car_GetOrderCount());
+    }
+    if (CGameInfo::FUN_00405d80() == 8 || CGameInfo::FUN_00405d80() == 9 ||
+        CGameInfo::FUN_00405d80() == 0xb)
+        FUN_00411f00();
+    g_unk0x00537f28 = FUN_0041f270();
+    if (first != 0)
+        g_unk0x00537f28 = 0x10000;
+    FUN_0041d060(g_unk0x00537f28);
+    for (g_unk0x00537f04 = 0; g_unk0x00537f04 < (BYTE)RallyDataState(); g_unk0x00537f04++) {
+        FUN_00422140((BYTE)g_unk0x00537f04,
+                     *(int *)Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xa90);
+    }
+    g_unk0x00537fd0 = Car_GetOrder();
+    g_unk0x00537fc4 = Car_GetOrderCount();
+    FUN_004664c0(g_unk0x00537fd0, g_unk0x00537fc4);
+    for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++)
+        FUN_004285b0(g_unk0x00537f04, g_unk0x00537f28, 0);
+    if (first == 0 || second != 0) {
+        if (CGameInfo::FUN_00404f20() == 0) {
+            g_unk0x00537fc4 = Car_GetOrderCount();
+            for (g_unk0x00537fc8 = 0; g_unk0x00537fc8 < g_unk0x00537fc4; g_unk0x00537fc8++) {
+                FUN_00464c60(g_unk0x00537fc8);
+                WheelTrail_Update(g_unk0x00537fc8);
+                if ((char)RallyData_FUN_00407e70() == 0 &&
+                    CGameInfo::FUN_00405d80() != 0xc && CGameInfo::FUN_00405d80() != 0xb)
+                    FUN_0045af00(g_unk0x00537fc8);
+            }
+        }
+    }
+    if ((char)CGameInfo::FUN_00405e00() != 0)
+        FUN_00427890();
+    if ((char)RallyData_FUN_00407e70() != 0)
+        FUN_004a2fe0();
 }

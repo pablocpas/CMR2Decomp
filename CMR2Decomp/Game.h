@@ -76,6 +76,8 @@ public:
     static int m_unk0x0059ce14;
     // GLOBAL: CMR2 0x0059ce18
     static int m_unk0x0059ce18;
+    // GLOBAL: CMR2 0x0059ce1c
+    static int m_unk0x0059ce1c;
     // GLOBAL: CMR2 0x0059ce20
     static int m_unk0x0059ce20;
     // GLOBAL: CMR2 0x0059ce28

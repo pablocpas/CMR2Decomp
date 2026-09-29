@@ -4,9 +4,6 @@
 // empty. DELETE each one as its real implementation lands (layers 0-8 of
 // tools/cascade/README.md).
 
-// STUB: CMR2 0x0049d3f0
-void FUN_0049d3f0(int, int, void *, int, int) { }
-
 
 
 // STUB: CMR2 0x005062d0
@@ -20,21 +17,24 @@ void FUN_005062d0(unsigned int) { }
 // STUB: CMR2 0x00416710
 void FUN_00416710(void) { }
 
-// STUB: CMR2 0x0041c5a0
-void FUN_0041c5a0(unsigned char, int) { }
+
+
+
+
+
+
+struct Menu;
+
 
 
 // STUB: CMR2 0x0041b460
 void FUN_0041b460(void) { }
 
-// STUB: CMR2 0x00422140
-void FUN_00422140(unsigned char, int) { }
+
 
 
 
 struct Menu;
-// STUB: CMR2 0x0049bcb0
-void FUN_0049bcb0(Menu *pMenu) { }
 
 // Scaffolding for the FrontendScreens batch: callees that do not exist yet.
 // FUN_004dbd80 (0x004dbd80) is implemented in FrontendScreens.cpp.
@@ -50,6 +50,4 @@ struct FixMatrix;
 // agents are implementing in parallel. The stubs only exist so the batch links
 
 
-// STUB: CMR2 0x0048fb80
-int FUN_0048fb80(char, int) { return 0; }
 
