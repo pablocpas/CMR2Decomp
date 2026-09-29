@@ -15576,9 +15576,8 @@ void FUN_0047f740(void)
     int sparkX;
     int sparkY;
     int sparkZ;
-    int *pOn;
-    int *pBit;
     int *pPos;
+    int *pBit;
     int *pFlag;
     int *pTrail;
     int baseR;
@@ -15609,84 +15608,80 @@ void FUN_0047f740(void)
             FUN_0047f510((int)pSlot, colourA, pSlot + 0x680, pSlot + 0x684);
             FUN_0047f510((int)pSlot, colourB, pSlot + 0x688, pSlot + 0x68c);
             if (*(int *)(pSlot + 0x92c) != 0) {
-                pOn = (int *)(pSlot + 0x6ec);
-                pBit = (int *)(pSlot + 0x80c);
-                pPos = (int *)(pSlot + 0x4b0);
-                for (k = 0; k < 0x12; k++) {
-                    sparkX = pPos[0];
-                    sparkY = pPos[1];
-                    sparkZ = pPos[2];
-                    if (pOn[0] != 0) {
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
-                        if (pBit[0] != 0) {
-                            if (*(int *)(pSlot + 0x934) == 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                        } else {
-                            if (*(int *)(pSlot + 0x934) != 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                for (k = 0; k < 3; k++) {
+                    for (j = 0; j < 6; j++) {
+                        sparkX = *(int *)(pSlot + 0x4b0 + (k * 6 + j) * 12);
+                        sparkY = *(int *)(pSlot + 0x4b4 + (k * 6 + j) * 12);
+                        sparkZ = *(int *)(pSlot + 0x4b8 + (k * 6 + j) * 12);
+                        if (*(int *)(pSlot + 0x6ec + (k * 6 + j) * 16) != 0) {
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
+                            if (*(int *)(pSlot + 0x80c + (k * 6 + j) * 16) != 0) {
+                                if (*(int *)(pSlot + 0x934) == 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            } else {
+                                if (*(int *)(pSlot + 0x934) != 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            }
+                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                         }
-                        Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
-                    }
-                    if (pOn[1] != 0) {
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
-                        if (pBit[1] != 0) {
-                            if (*(int *)(pSlot + 0x934) == 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                        } else {
-                            if (*(int *)(pSlot + 0x934) != 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                        if (*(int *)(pSlot + 0x6f0 + (k * 6 + j) * 16) != 0) {
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
+                            if (*(int *)(pSlot + 0x810 + (k * 6 + j) * 16) != 0) {
+                                if (*(int *)(pSlot + 0x934) == 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            } else {
+                                if (*(int *)(pSlot + 0x934) != 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            }
+                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                         }
-                        Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
-                    }
-                    if (pOn[2] != 0) {
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
-                        if (pBit[2] != 0) {
-                            if (*(int *)(pSlot + 0x934) == 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                        } else {
-                            if (*(int *)(pSlot + 0x934) != 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                        if (*(int *)(pSlot + 0x6f4 + (k * 6 + j) * 16) != 0) {
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
+                            if (*(int *)(pSlot + 0x814 + (k * 6 + j) * 16) != 0) {
+                                if (*(int *)(pSlot + 0x934) == 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            } else {
+                                if (*(int *)(pSlot + 0x934) != 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            }
+                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                         }
-                        Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
-                    }
-                    if (pOn[3] != 0) {
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
-                        if (pBit[3] != 0) {
-                            if (*(int *)(pSlot + 0x934) == 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                        } else {
-                            if (*(int *)(pSlot + 0x934) != 0)
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                            else
-                                *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                        if (*(int *)(pSlot + 0x6f8 + (k * 6 + j) * 16) != 0) {
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
+                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
+                            if (*(int *)(pSlot + 0x818 + (k * 6 + j) * 16) != 0) {
+                                if (*(int *)(pSlot + 0x934) == 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            } else {
+                                if (*(int *)(pSlot + 0x934) != 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                            }
+                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                         }
-                        Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                     }
-                    pOn += 4;
-                    pBit += 4;
-                    pPos += 3;
                 }
             }
             colourIndex = 0x14 - *(signed char *)(pSlot + 0x690);
