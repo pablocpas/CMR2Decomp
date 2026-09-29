@@ -32,10 +32,6 @@ void FUN_004d8ed0(Menu *pMenu)
 {
 }
 
-// STUB: CMR2 0x004d9c40
-void FUN_004d9c40(Menu *pMenu)
-{
-}
 
 // FUN_004dc710 (0x004dc710) is implemented in FrontendScreens.cpp.
 //

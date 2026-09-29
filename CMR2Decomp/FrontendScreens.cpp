@@ -10883,3 +10883,156 @@ void FUN_004e8b60(Menu *pMenu)
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
+
+extern char g_str0x00524d0c[];  // "%d%% %s"   (GameInfo.cpp)
+extern char g_str0x00524d14[];  // "%s: "      (GameInfo.cpp)
+extern char g_str0x00524d20[];  // "%s: %d.%d" (GameInfo.cpp)
+extern char g_str0x00524d2c[];  // "%s: %d.0"  (GameInfo.cpp)
+BYTE FUN_004f89b0(BYTE **out, int row, int column);
+const char *FUN_004f89e0(int row, int column);
+BYTE *FUN_004f8a00(int row, int column);
+
+// Placeholder shown in the stage rows of the rally summary when the stage has
+// no recorded time yet.
+// GLOBAL: CMR2 0x00516e30
+extern char g_noTimeText[];
+// Distance unit appended to the distance of the stage.
+// GLOBAL: CMR2 0x00524d1c
+extern char g_str0x00524d1c[];
+
+// Draws the rally summary screen: the event banner and the menu path, the
+// stage name with its distance, surface and severity, the record time of the
+// selected stage and one row per stage of the rally with its record time.
+// FUNCTION: CMR2 0x004d9c40
+void FUN_004d9c40(Menu *pMenu)
+{
+    char *text[2];
+    BYTE *table;
+    unsigned int country;
+    unsigned int time;
+    BYTE whole;
+    BYTE frac;
+    int column;
+    int x;
+    int y;
+    int width;
+    int count;
+    int limit;
+    int i;
+    int n;
+
+    country = RallyDataCountryIndex() & 0xff;
+    column = pMenu->cursor;
+    switch (CGameInfo::FUN_00405d80()) {
+    case 2:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0xf);
+        break;
+    case 3:
+        text[0] = CFrontend::GetTextString(0xe7);
+        text[1] = CFrontend::GetTextString(0x10);
+        break;
+    }
+    FrontendDraw_ScrollerRow(FUN_004f2570(), 1);
+    FrontendDraw_PlayTime();
+    FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
+                          (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 3, text, 2);
+    if (CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff] != NULL) {
+        g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x19f) / 0x280);
+        g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x4b) / 0x1e0);
+        g_unk0x008189a8[2] = CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff]->width;
+        g_unk0x008189a8[3] = CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff]->height;
+        Sprite_Queue((SpriteRect *)&CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff]->field_0x11c,
+                     (SpriteRect *)g_unk0x008189a8,
+                     CFrontend::m_pSetupRepBanners[RallyDataCountryIndex() & 0xff],
+                     1, 0, NULL, NULL, g_colourWhite0x00524968, 8);
+    }
+    FUN_004d5de0(pMenu->cursor, 0);
+    x = (int)(g_pGraphics->resX * 0x19f) / 0x280;
+    y = (int)(g_pGraphics->resY * 0x4b) / 0x1e0 + (int)(g_pGraphics->resY * 0x50) / 0x1e0;
+    sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x18b),
+            FUN_004f89e0(country, column));
+    Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
+    y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
+    whole = FUN_004f8a00(country, column)[0];
+    frac = FUN_004f8a00(country, column)[1];
+    if (frac == 0)
+        sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), whole);
+    else
+        sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0x18c), whole, frac);
+    strcat(CFrontend::m_stringDest, g_str0x00524d1c);
+    Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
+    y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
+    sprintf(CFrontend::m_stringDest, g_str0x00524d14, CFrontend::GetTextString(0x18d));
+    Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
+    y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
+    width = 0;
+    limit = FUN_004f89b0(&table, country, column) & 0xff;
+    if (limit > 1)
+        limit = 2;
+    for (i = 0; i < limit; i++) {
+        sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
+                CFrontend::GetTextString(*(int *)(table + i * 8) + 0x18e));
+        Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
+        y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
+        n = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+        if (width < n)
+            width = n;
+    }
+    time = *(unsigned int *)((char *)CGameInfo::FUN_00405fe0() + 0x658 +
+                             ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8) >> 7 & 0xffff;
+    sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
+            (int)((time / 100) % 0x3c), time % 100);
+    Font_DrawText(1, CFrontend::m_stringDest,
+                  (int)(g_pGraphics->resX * 0x3a) / 0x280 + (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                  (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                      ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24,
+                  (int *)g_colourText0x0052496c, 0x21);
+    sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+            (char *)CGameInfo::FUN_00405fe0() + 0x654 +
+                ((RallyDataCountryIndex() & 0xff) * 0xb + pMenu->cursor) * 8);
+    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                  (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                      ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24,
+                  (int *)g_colourText0x0052496c, 0x21);
+    Font_DrawText(1, CFrontend::GetTextString(0x193), (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                  (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                      ((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24 -
+                      (int)(g_pGraphics->resY * 0x10) / 0x1e0,
+                  (int *)g_colourText0x0052496c, 0x21);
+    count = 0;
+    width = 0;
+    for (n = 0; n < (CGameInfo::FUN_00405d70() & 0xff); n++) {
+        if (FUN_004085a0(n) == 0) {
+            count++;
+            if ((RallyData_FUN_00408cb0(n)[0x150 + (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8] & 0x80) == 0) {
+                sprintf(CFrontend::m_stringDest, g_noTimeText);
+            } else {
+                time = *(unsigned int *)(RallyData_FUN_00408cb0(n) + 0x154 +
+                                         (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8);
+                sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
+                        (int)((time / 100) % 0x3c), time % 100);
+            }
+            Font_DrawText(1, CFrontend::m_stringDest,
+                          (int)(g_pGraphics->resX * 0x3a) / 0x280 + (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                          (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                              (((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24 -
+                               ((int)(g_pGraphics->resY * 0x10) / 0x1e0) * (count + 2)),
+                          (int *)g_colourText0x0052496c, 0x21);
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
+                    (char *)RallyData_GetRecord((BYTE)n));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                          (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                              (((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24 -
+                               ((int)(g_pGraphics->resY * 0x10) / 0x1e0) * (count + 2)),
+                          (int *)g_colourText0x0052496c, 0x21);
+        }
+    }
+    if (count > 0)
+        Font_DrawText(1, CFrontend::GetTextString(0x194), (int)(g_pGraphics->resX * 0x19f) / 0x280,
+                      (int)(g_pGraphics->resY * 0x4b) / 0x1e0 +
+                          (((int)(g_pGraphics->resY * 8) / 0x1e0) * 0x24 -
+                           ((int)(g_pGraphics->resY * 0x10) / 0x1e0) * (count + 3)),
+                      (int *)g_colourText0x0052496c, 0x21);
+    FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
+}
