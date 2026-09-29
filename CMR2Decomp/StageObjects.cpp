@@ -1657,7 +1657,7 @@ int FUN_00473310(void);
 int FUN_00473290(void);
 void FUN_0041b310(void);
 int FUN_0041b320(void);
-void FUN_00455470(int);
+void FUN_00455470(char);
 void FUN_00472a30(void);
 BOOL FUN_0046c500(void);
 void FUN_0041c260(void);
