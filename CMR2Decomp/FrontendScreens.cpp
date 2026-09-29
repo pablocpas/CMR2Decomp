@@ -10562,10 +10562,6 @@ void FUN_004efb70(Menu *pMenu, int param)
     Menu_SetNextAction((int)FUN_004f8350());
 }
 
-// Buffers the "%d" text of the car page; the breadcrumb name of the screen.
-// GLOBAL: CMR2 0x008188a4
-char g_unk0x008188a4[0x100];
-
 // Palette index (g_unk0x008196e8) -> livery index of m_unk0x00818530.
 // GLOBAL: CMR2 0x005249cc
 int g_unk0x005249cc[23] = {
@@ -10652,10 +10648,10 @@ void FUN_004d7db0(Menu *pMenu)
     else
         pRects = g_unk0x00524ad8;
     FrontendDraw_PlayTime();
-    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+    sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
             (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
     strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
-    names[0] = g_unk0x008188a4;
+    names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
@@ -10729,10 +10725,10 @@ void FUN_004d8950(Menu *pMenu)
     else
         pRects = g_unk0x00524ad8;
     FrontendDraw_PlayTime();
-    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+    sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
             (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
     strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
-    names[0] = g_unk0x008188a4;
+    names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
@@ -10905,10 +10901,10 @@ void FUN_004d8ed0(Menu *pMenu)
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
-    sprintf(g_unk0x008188a4, CFrontend::GetTextString(0xdc),
+    sprintf(g_str0x008188a4, CFrontend::GetTextString(0xdc),
             (BYTE)CGameInfo::FUN_00405d70() - (BYTE)FUN_004f1ba0());
     strcpy(label, (char *)RallyData_GetRecord((BYTE)(0xff - (BYTE)FUN_004f1ba0() + (BYTE)CGameInfo::FUN_00405d70())));
-    names[0] = g_unk0x008188a4;
+    names[0] = g_str0x008188a4;
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     y = ((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2 -
@@ -10948,7 +10944,7 @@ void FUN_004d8ed0(Menu *pMenu)
                 Font_DrawText(1, CFrontend::m_stringDest, x,
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 for (j = 0; j < pItem->min; j++) {
-                    if (j == pItem->max)
+                    if (pItem->max == j)
                         pColour = g_colourWhite0x00524968;
                     else
                         pColour = g_colourText0x0052496c;
