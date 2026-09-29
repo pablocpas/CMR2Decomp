@@ -688,32 +688,6 @@ void FUN_00447e20(BYTE index, short value);
 void FUN_00447ec0(BYTE index, int value);
 extern BYTE g_unk0x0053cff8[8];
 
-// Reads a player's stored position, heading and value for a camera mode and
-// copies them into the view offset and the gauge values of that player.
-// match 56%: the original duplicates the three calls in each branch while this
-// build merges their common tail (same block layout, different code), and it
-// keeps the byte local in the frame instead of the first argument's home slot.
-// FUNCTION: CMR2 0x00447530
-void FUN_00447530(BYTE *pObj, FixMatrix *pRef, int value)
-{
-    BYTE sel;
-    short heading;
-    int pos[3];
-
-    sel = pObj[1];
-    g_unk0x0053cff8[*pObj] = (BYTE)value;
-    if (pObj[2] >= (BYTE)RallyDataState()) {
-        RallyData_FUN_00408c20(pos, &heading, &value, 0);
-        FUN_00447d20(sel, (FixVector *)pos);
-        FUN_00447ec0(sel, value);
-    } else {
-        RallyData_FUN_00408c20(pos, &heading, &value, (FUN_0041b370() & 0xff) + pObj[2]);
-        FUN_00447d20(sel, (FixVector *)pos);
-        FUN_00447ec0(sel, value);
-    }
-    FUN_00447e20(sel, heading);
-    FUN_00447a40(pObj, pRef);
-}
 
 // GLOBAL: CMR2 0x0053d090
 short g_unk0x0053d090[4];
