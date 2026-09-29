@@ -61,10 +61,6 @@ void FUN_004e77c0(Menu *pMenu)
 {
 }
 
-void FUN_004e8500(Menu *pMenu)
-{
-}
-
 void FUN_004e90f0(Menu *pMenu)
 {
 }
