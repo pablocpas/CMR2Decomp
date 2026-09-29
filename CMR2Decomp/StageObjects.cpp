@@ -15560,3 +15560,159 @@ void FUN_00472a30(void)
     }
     FUN_00407b10();
 }
+
+// ---------------------------------------------------------------------------
+// Per-frame integrator of the wheel/hub record that FUN_00480e50 installs for
+// slot 2.  Builds the body-to-wheel contact offset, scales and converts it into
+// the record frame, uses the body offset to decide the contact flag, damps and
+// integrates the strut travel, then re-orthonormalises the part basis
+// (right, forward, up = forward x right) before the shared basis and position
+// update.  The states 9 and 0xb skip all of that and only turn the basis about
+// Y respectively X by the steering angle.
+void FUN_00481560(unsigned short *pAngles);
+void VehicleMotion_UpdateWorldPosition(void);
+struct Unk0x00590c20;
+extern Unk0x00590c20 *g_unk0x00590c20;
+extern int g_unk0x00590c68;
+extern const double g_unk0x00511380;
+
+// FUNCTION: CMR2 0x00484310
+void FUN_00484310(void)
+{
+    unsigned short angles[3];
+    FixVector scratch;
+    FixVector motion;
+    FixVector cross;
+    FixVector local;
+    int modified;
+    int type;
+    int t;
+
+    if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 9 &&
+        *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 0xb) {
+        motion.x = 0;
+        motion.y = 0;
+        motion.z = 0;
+        scratch.x = *(int *)((BYTE *)g_unk0x00590d74 + 0x408) -
+                    *(int *)((BYTE *)g_unk0x00590d74 + 0x414);
+        scratch.y = *(int *)((BYTE *)g_unk0x00590d74 + 0x40c) -
+                    *(int *)((BYTE *)g_unk0x00590d74 + 0x418);
+        scratch.z = *(int *)((BYTE *)g_unk0x00590d74 + 0x410) -
+                    *(int *)((BYTE *)g_unk0x00590d74 + 0x41c);
+        FixVecLength(&scratch);
+        FixVecScale(&scratch, &scratch, -0x60000);
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 8) {
+            type = g_unk0x00590c24[2][*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)];
+            if (*(BYTE *)(*(int *)(g_unk0x00590d78 + 0x3c + type * 4) + 0x30) == 0xc)
+                scratch.x = -scratch.x;
+        }
+        motion.x += scratch.x;
+        motion.y += scratch.y;
+        motion.z += scratch.z;
+        motion.y -= 0x53f7;
+        FixMatrix_InverseRotateVector(&local, &motion,
+                                      *(FixMatrix **)((BYTE *)g_unk0x00590c20 + 8));
+        scratch.x = *(int *)((BYTE *)g_unk0x00590c20 + 0x12c) -
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x120);
+        scratch.y = *(int *)((BYTE *)g_unk0x00590c20 + 0x130) -
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x124);
+        scratch.z = *(int *)((BYTE *)g_unk0x00590c20 + 0x134) -
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x128);
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8)
+            scratch.x = 0;
+        scratch.y = 0x3333;
+        FixVecCross(&cross, &local, &scratch);
+        if ((*(BYTE *)((BYTE *)g_unk0x00590c20 + 0x150) & 8) == 0 && cross.z > 0)
+            *(BYTE *)((BYTE *)g_unk0x00590c20 + 0x150) |= 8;
+        if ((*(BYTE *)((BYTE *)g_unk0x00590c20 + 0x150) & 8) != 0) {
+            FixVecScale((FixVector *)((BYTE *)g_unk0x00590c20 + 0x164),
+                        (FixVector *)((BYTE *)g_unk0x00590c20 + 0x164), 0xe49b);
+            t = -FixMul(cross.z, *(int *)((BYTE *)g_unk0x00590c20 + 0x178));
+            t = FixMul(t, g_physicsTimeStep);
+            *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) += t;
+            angles[0] = 0;
+            angles[1] = 0;
+            angles[2] = (short)((double)(FixMul(*(int *)((BYTE *)g_unk0x00590c20 + 0x16c),
+                                                g_physicsTimeStep) -
+                                          FixMul(t, g_physicsTimeStep / 2)) *
+                                g_unk0x00511380);
+            FixBasis_Rotate((FixBasis *)((BYTE *)g_unk0x00590c20 + 0x17c), angles);
+            modified = 0;
+            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x180) < 0) {
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x180) = 0;
+                    modified = 1;
+                    if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) < 0) {
+                        if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) < -0xf5c)
+                            *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) =
+                                -FixMul(0x9999, *(int *)((BYTE *)g_unk0x00590c20 + 0x16c));
+                        else {
+                            *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
+                            *(BYTE *)((BYTE *)g_unk0x00590c20 + 0x150) &= 0xf7;
+                        }
+                    }
+                }
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) < 0x6666) {
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0x6666;
+                    if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0)
+                        *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
+                } else if (modified == 0) {
+                    goto anglesZ;
+                }
+            } else {
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x180) > 0) {
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x180) = 0;
+                    modified = 1;
+                    if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0) {
+                        if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0xf5c)
+                            *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) =
+                                -FixMul(0x9999, *(int *)((BYTE *)g_unk0x00590c20 + 0x16c));
+                        else {
+                            *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
+                            *(BYTE *)((BYTE *)g_unk0x00590c20 + 0x150) &= 0xf7;
+                        }
+                    }
+                }
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) < 0xcccc) {
+                    *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0xcccc;
+                    if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) < 0)
+                        *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
+                } else if (modified == 0) {
+                    goto anglesZ;
+                }
+            }
+            FIX_NORMALIZE_INTO((*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c)),
+                               (*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c)));
+            FixVecScale(&scratch, (FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c),
+                        FixVecDot((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c),
+                                  (FixVector *)((BYTE *)g_unk0x00590c20 + 0x194)));
+            *(int *)((BYTE *)g_unk0x00590c20 + 0x194) -= scratch.x;
+            *(int *)((BYTE *)g_unk0x00590c20 + 0x198) -= scratch.y;
+            *(int *)((BYTE *)g_unk0x00590c20 + 0x19c) -= scratch.z;
+            FIX_NORMALIZE_INTO((*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x194)),
+                               (*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x194)));
+            FixVecCross(&scratch, (FixVector *)((BYTE *)g_unk0x00590c20 + 0x194),
+                        (FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c));
+            FIX_NORMALIZE_INTO((*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x188)), scratch);
+        }
+    anglesZ:
+        angles[0] = 0;
+        angles[1] = 0;
+        angles[2] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
+                            g_unk0x00511308);
+    } else {
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
+            angles[0] = 0;
+            angles[2] = 0;
+            angles[1] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
+                                g_unk0x00511308);
+        } else {
+            angles[1] = 0;
+            angles[2] = 0;
+            angles[0] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000) *
+                                g_unk0x00511308);
+        }
+    }
+    FUN_00481560(angles);
+    VehicleMotion_UpdateWorldPosition();
+}

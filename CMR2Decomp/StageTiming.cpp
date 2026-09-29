@@ -6327,8 +6327,8 @@ void FUN_00483570(void);
 // STUB: CMR2 0x004816f0
 void FUN_004816f0(int part) { }
 
-// STUB: CMR2 0x00484310
-void FUN_00484310(int part) { }
+// FUNCTION: CMR2 0x00484310 (body in StageObjects.cpp)
+void FUN_00484310(void);
 
 // Places the two view nodes of a car at the shared angle/position buffers and
 // rebuilds that car's body state, network-snapshotting it when required.
