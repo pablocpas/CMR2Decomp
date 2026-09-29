@@ -4781,3 +4781,255 @@ done:
     FUN_00419ed0(param_1, param_2);
     FUN_00419cd0(param_1, param_2);
 }
+
+extern char g_strPathConcat[];
+// Co-driver speech sample table loader: the installer sound directory is
+// prepended to every .WAV name and the concatenation is loaded as a stage
+// sample through the sound slot of the current stage file.
+// GLOBAL: CMR2 0x00518674
+char g_str0x00518674[] = "\\Speech\\English\\Wavs\\ONE.WAV";
+// GLOBAL: CMR2 0x00518654
+char g_str0x00518654[] = "\\Speech\\English\\Wavs\\TWO.WAV";
+// GLOBAL: CMR2 0x00518634
+char g_str0x00518634[] = "\\Speech\\English\\Wavs\\THREE.WAV";
+// GLOBAL: CMR2 0x00518614
+char g_str0x00518614[] = "\\Speech\\English\\Wavs\\FOUR.WAV";
+// GLOBAL: CMR2 0x005185f4
+char g_str0x005185f4[] = "\\Speech\\English\\Wavs\\FIVE.WAV";
+// GLOBAL: CMR2 0x005185d4
+char g_str0x005185d4[] = "\\Speech\\English\\Wavs\\SIX.WAV";
+// GLOBAL: CMR2 0x005185ac
+char g_str0x005185ac[] = "\\Speech\\English\\Wavs\\OPENHAIRPIN.WAV";
+// GLOBAL: CMR2 0x00518588
+char g_str0x00518588[] = "\\Speech\\English\\Wavs\\HAIRPIN.WAV";
+// GLOBAL: CMR2 0x00518568
+char g_str0x00518568[] = "\\Speech\\English\\Wavs\\LEFT.WAV";
+// GLOBAL: CMR2 0x00518548
+char g_str0x00518548[] = "\\Speech\\English\\Wavs\\RIGHT.WAV";
+// GLOBAL: CMR2 0x00518528
+char g_str0x00518528[] = "\\Speech\\English\\Wavs\\LONG.WAV";
+// GLOBAL: CMR2 0x00518508
+char g_str0x00518508[] = "\\Speech\\English\\Wavs\\OPENS.WAV";
+// GLOBAL: CMR2 0x005184e4
+char g_str0x005184e4[] = "\\Speech\\English\\Wavs\\TIGHTENS.WAV";
+// GLOBAL: CMR2 0x005184c8
+char g_str0x005184c8[] = "\\Speech\\English\\Wavs\\GO.WAV";
+// GLOBAL: CMR2 0x005184a8
+char g_str0x005184a8[] = "\\Speech\\English\\Wavs\\AND.WAV";
+// GLOBAL: CMR2 0x00518488
+char g_str0x00518488[] = "\\Speech\\English\\Wavs\\INTO.WAV";
+// GLOBAL: CMR2 0x0051846c
+char g_str0x0051846c[] = "\\Speech\\English\\Wavs\\30.WAV";
+// GLOBAL: CMR2 0x00518450
+char g_str0x00518450[] = "\\Speech\\English\\Wavs\\50.WAV";
+// GLOBAL: CMR2 0x00518434
+char g_str0x00518434[] = "\\Speech\\English\\Wavs\\70.WAV";
+// GLOBAL: CMR2 0x00518414
+char g_str0x00518414[] = "\\Speech\\English\\Wavs\\100.WAV";
+// GLOBAL: CMR2 0x005183f4
+char g_str0x005183f4[] = "\\Speech\\English\\Wavs\\120.WAV";
+// GLOBAL: CMR2 0x005183d4
+char g_str0x005183d4[] = "\\Speech\\English\\Wavs\\150.WAV";
+// GLOBAL: CMR2 0x005183b4
+char g_str0x005183b4[] = "\\Speech\\English\\Wavs\\200.WAV";
+// GLOBAL: CMR2 0x00518394
+char g_str0x00518394[] = "\\Speech\\English\\Wavs\\OVER.WAV";
+// GLOBAL: CMR2 0x00518374
+char g_str0x00518374[] = "\\Speech\\English\\Wavs\\CREST.WAV";
+// GLOBAL: CMR2 0x00518354
+char g_str0x00518354[] = "\\Speech\\English\\Wavs\\JUMP.WAV";
+// GLOBAL: CMR2 0x00518334
+char g_str0x00518334[] = "\\Speech\\English\\Wavs\\CARE.WAV";
+// GLOBAL: CMR2 0x00518310
+char g_str0x00518310[] = "\\Speech\\English\\Wavs\\CAUTION.WAV";
+// GLOBAL: CMR2 0x005182ec
+char g_str0x005182ec[] = "\\Speech\\English\\Wavs\\VERYLONG.WAV";
+// GLOBAL: CMR2 0x005182cc
+char g_str0x005182cc[] = "\\Speech\\English\\Wavs\\TURN.WAV";
+// GLOBAL: CMR2 0x005182a8
+char g_str0x005182a8[] = "\\Speech\\English\\Wavs\\NARROWS.WAV";
+// GLOBAL: CMR2 0x00518284
+char g_str0x00518284[] = "\\Speech\\English\\Wavs\\THROUGH.WAV";
+// GLOBAL: CMR2 0x00518264
+char g_str0x00518264[] = "\\Speech\\English\\Wavs\\LOGS.WAV";
+// GLOBAL: CMR2 0x00518244
+char g_str0x00518244[] = "\\Speech\\English\\Wavs\\GATE.WAV";
+// GLOBAL: CMR2 0x00518224
+char g_str0x00518224[] = "\\Speech\\English\\Wavs\\BRIDGE.WAV";
+// GLOBAL: CMR2 0x00518204
+char g_str0x00518204[] = "\\Speech\\English\\Wavs\\ROCKS.WAV";
+// GLOBAL: CMR2 0x005181e4
+char g_str0x005181e4[] = "\\Speech\\English\\Wavs\\POST.WAV";
+// GLOBAL: CMR2 0x005181c4
+char g_str0x005181c4[] = "\\Speech\\English\\Wavs\\DITCH.WAV";
+// GLOBAL: CMR2 0x005181a4
+char g_str0x005181a4[] = "\\Speech\\English\\Wavs\\MUD.WAV";
+// GLOBAL: CMR2 0x00518184
+char g_str0x00518184[] = "\\Speech\\English\\Wavs\\RUTS.WAV";
+// GLOBAL: CMR2 0x00518164
+char g_str0x00518164[] = "\\Speech\\English\\Wavs\\ICE.WAV";
+// GLOBAL: CMR2 0x00518140
+char g_str0x00518140[] = "\\Speech\\English\\Wavs\\BADCAMBER.WAV";
+// GLOBAL: CMR2 0x00518120
+char g_str0x00518120[] = "\\Speech\\English\\Wavs\\ROUGH.WAV";
+// GLOBAL: CMR2 0x00518100
+char g_str0x00518100[] = "\\Speech\\English\\Wavs\\SLIPPY.WAV";
+// GLOBAL: CMR2 0x005180e0
+char g_str0x005180e0[] = "\\Speech\\English\\Wavs\\INSIDE.WAV";
+// GLOBAL: CMR2 0x005180bc
+char g_str0x005180bc[] = "\\Speech\\English\\Wavs\\OUTSIDE.WAV";
+// GLOBAL: CMR2 0x00518098
+char g_str0x00518098[] = "\\Speech\\English\\Wavs\\DONTCUT.WAV";
+// GLOBAL: CMR2 0x0051807c
+char g_str0x0051807c[] = "\\Speech\\English\\Wavs\\OK.WAV";
+// GLOBAL: CMR2 0x00518058
+char g_str0x00518058[] = "\\Speech\\English\\Wavs\\STOP_DITCH.WAV";
+// GLOBAL: CMR2 0x00518030
+char g_str0x00518030[] = "\\Speech\\English\\Wavs\\ONTO_TARMAC.WAV";
+// GLOBAL: CMR2 0x0051800c
+char g_str0x0051800c[] = "\\Speech\\English\\Wavs\\ONTO_SNOW.WAV";
+// GLOBAL: CMR2 0x00517fe4
+char g_str0x00517fe4[] = "\\Speech\\English\\Wavs\\ONTO_GRAVEL.WAV";
+// GLOBAL: CMR2 0x00517fc0
+char g_str0x00517fc0[] = "\\Speech\\English\\Wavs\\ONTO_MUD.WAV";
+// GLOBAL: CMR2 0x00517f9c
+char g_str0x00517f9c[] = "\\Speech\\English\\Wavs\\ONTO_ICE.WAV";
+// GLOBAL: CMR2 0x00517f78
+char g_str0x00517f78[] = "\\Speech\\English\\Wavs\\JUMP_MAYBE.WAV";
+// GLOBAL: CMR2 0x00517f54
+char g_str0x00517f54[] = "\\Speech\\English\\Wavs\\STRAIGHT.WAV";
+// GLOBAL: CMR2 0x00517f2c
+char g_str0x00517f2c[] = "\\Speech\\English\\Wavs\\COUNTDOWN_3.WAV";
+// GLOBAL: CMR2 0x00517f04
+char g_str0x00517f04[] = "\\Speech\\English\\Wavs\\COUNTDOWN_2.WAV";
+// GLOBAL: CMR2 0x00517edc
+char g_str0x00517edc[] = "\\Speech\\English\\Wavs\\COUNTDOWN_1.WAV";
+
+// FUNCTION: CMR2 0x00416770
+void FUN_00416770(void)
+{
+    char buf[260];
+    char *pDir;
+
+    pDir = CInstallInfo::GetSoundsDir();
+    g_unk0x0053735c = FUN_004b7940();
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518674);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518654);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518634);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518614);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185f4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185d4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005185ac);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518588);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518568);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518548);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518528);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518508);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184e4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184c8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005184a8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518488);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051846c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518450);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518434);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518414);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183f4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183d4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005183b4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518394);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518374);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518354);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518334);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518310);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182ec);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182cc);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005182a8);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518284);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518264);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518244);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518224);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518204);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181e4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181c4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005181a4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518184);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518164);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518140);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518120);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518100);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005180e0);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x005180bc);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518098);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051807c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518058);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00518030);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x0051800c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517fe4);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517fc0);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f9c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f78);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f54);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f2c);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517f04);
+    FUN_00418760(buf);
+    sprintf(buf, g_strPathConcat, pDir, g_str0x00517edc);
+    FUN_00418760(buf);
+    StageTiming_FreeStageFile2();
+}
