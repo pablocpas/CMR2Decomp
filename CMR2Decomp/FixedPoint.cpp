@@ -31,38 +31,27 @@ D3DMATRIX *FixMatrix_ToFloat(D3DMATRIX *pOut, FixMatrix *pIn)
 }
 
 // Float 4x4 matrix product out = a * b (row vectors), through local copies.
-// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b9ff0
-void FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
+D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB)
 {
-    float result[16];
-    float b[16];
-    float a[16];
+    float a[4][4];
+    float b[4][4];
+    float result[4][4];
     int i, j, k;
-    float *pR;
-    float *pA2;
-    float *pB2;
-    float *pCol;
 
     *(D3DMATRIX *)a = *pA;
     *(D3DMATRIX *)b = *pB;
-    for (i = 0; i < 16; i += 4) {
-        pB2 = b;
-        pR = &result[i];
-        for (j = 4; j != 0; j--) {
-            *pR = 0.0f;
-            pA2 = &a[i];
-            pCol = pB2;
-            for (k = 4; k != 0; k--) {
-                *pR += *pCol * *pA2;
-                pCol += 4;
-                pA2++;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            result[i][j] = 0.0f;
+            for (k = 0; k < 4; k++) {
+                float value = b[k][j];
+                result[i][j] += value * a[i][k];
             }
-            pR++;
-            pB2++;
         }
     }
     *pOut = *(D3DMATRIX *)result;
+    return pOut;
 }
 
 // Converts a Direct3D float matrix into 16.16.

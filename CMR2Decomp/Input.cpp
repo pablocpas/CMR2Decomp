@@ -2171,10 +2171,15 @@ void CInput::FUN_0040c050(void)
     m_hasLoadedControllerInfo = TRUE;
 }
 
+struct InputQueues {
+    int characters[30];
+    int keys[30];
+};
+
 // GLOBAL: CMR2 0x006ed3f4
-int g_unk0x006ed3f4[30];
-// GLOBAL: CMR2 0x006ed46c
-int g_unk0x006ed46c[30];
+InputQueues g_inputQueues;
+#define g_unk0x006ed3f4 (g_inputQueues.characters)
+#define g_unk0x006ed46c (g_inputQueues.keys)
 
 // FUNCTION: CMR2 0x004b7c80
 void FUN_004b7c80(void)
@@ -2186,7 +2191,6 @@ void FUN_004b7c80(void)
 }
 
 // Queues one character for the input ring buffer.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7ca0
 void CInput::FUN_004b7ca0(int param1)
 {
@@ -2195,15 +2199,14 @@ void CInput::FUN_004b7ca0(int param1)
 
     i = 0;
     p = g_unk0x006ed3f4;
-    while (1) {
-        if (*p == 0)
-            break;
+    while ((int)p < (int)(g_unk0x006ed3f4 + 30)) {
+        if (*p == 0) {
+            g_unk0x006ed3f4[i] = param1;
+            return;
+        }
         p++;
         i++;
-        if ((int)p >= (int)g_unk0x006ed46c)
-            return;
     }
-    g_unk0x006ed3f4[i] = param1;
 }
 
 // Pops the oldest character of the input ring buffer.
@@ -2227,7 +2230,6 @@ bool FUN_004b7cd0(int *pOut)
 }
 
 // Queues one key press (only when the scan code carries a virtual key).
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7d10
 void CInput::FUN_004b7d10(unsigned int param1)
 {
@@ -2237,15 +2239,14 @@ void CInput::FUN_004b7d10(unsigned int param1)
     if ((param1 & 0xff0000) != 0) {
         i = 0;
         p = g_unk0x006ed46c;
-        while (1) {
-            if (*p == 0)
-                break;
+        while ((int)p < (int)(g_unk0x006ed46c + 30)) {
+            if (*p == 0) {
+                g_unk0x006ed46c[i] = param1;
+                return;
+            }
             p++;
             i++;
-            if ((int)p >= (int)(g_unk0x006ed46c + 30))
-                return;
         }
-        g_unk0x006ed46c[i] = param1;
     }
 }
 

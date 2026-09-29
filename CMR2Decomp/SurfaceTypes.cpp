@@ -354,12 +354,14 @@ void FUN_00478b50(void)
 }
 
 // Blend rate between a surface and its "next" surface, at t.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004789d0
 int FUN_004789d0(int surface, int t)
 {
-    return FixMul(g_surfaceBlendRate[g_surfaceNext[surface]] - g_surfaceBlendRate[surface], t) +
-           g_surfaceBlendRate[surface];
+    int base = g_surfaceBlendRate[surface];
+    int next = g_surfaceNext[surface];
+    int delta = g_surfaceBlendRate[next] - base;
+
+    return FixMul(delta, t) + base;
 }
 
 // Per-player surface sound state (two entries each).

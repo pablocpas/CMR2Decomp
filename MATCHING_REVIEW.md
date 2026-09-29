@@ -3,7 +3,7 @@
 Base: `decomp/callbacks`, commit `adfc56d`. Trabajo de esta revisión:
 `decomp/matching-review`, en `/home/pablo/colin_mcrae_linux/matching-review`.
 
-## Estado medido
+## Estado medido del lote inicial
 
 Se compiló la base con MSVC6 y las opciones de `tools/build.sh`. Las medidas se
 compararon contra ese HEAD, usando informes separados de los JSON compartidos.
@@ -153,6 +153,7 @@ exacta. Este recuento es distinto del inventario inferior al 90 % de arriba.
 | Inicio del hito (`c11fb4d`) | 1256 | — | — |
 | Condiciones y campos de menús (`a9247e9`) | 1233 | 23 | 0 |
 | Funciones bajas, vectores y cargador | 1227 | 6 | 2 parciales, verificadas diferencialmente |
+| Tablas, colas y funciones bajas | 1221 | 6 | 1 parcial, verificada diferencialmente |
 
 El primer lote reproduce las condiciones con signo y sin signo, el ancho del
 retorno de `0x407270`, la resta posterior al cálculo de longitud y el límite
@@ -233,3 +234,72 @@ python3 tests/differential_sort.py /tmp/cmr2-low-final.json
 Los dos primeros scripts resuelven los símbolos del build actual; opcionalmente
 aceptan un mapa JSON como segundo argumento. Rechazan un mapa cuya dirección de
 la función no coincida con el informe.
+
+### Tablas, colas y funciones bajas
+
+Última medida completa: **3364 funciones**, **2143 al 100 %**, **1221 por debajo
+del 100 %** y **830 por debajo del 90 %**. Son 35 coincidencias exactas más
+desde el inicio del hito; quedan 522 adicionales para llegar a 699.
+
+| Dirección | Antes de este lote | Después | Cambio |
+|---|---:|---:|---|
+| `0x4b9ff0` | 39,25 % | 100 % | Matrices locales 4×4, índices, operando B materializado y retorno del puntero de salida |
+| `0x4eb340` | 43,48 % | 100 % | Obtener la ruta del perfil antes de preparar la escritura |
+| `0x4789d0` | 43,48 % | 100 % | Conservar base, siguiente superficie y diferencia antes de `FixMul` |
+| `0x46c4e0` | 52,63 % | 100 % | Obtener el coche antes de preparar el buffer de replay |
+| `0x46ed40` | 41,38 % | 100 % | Retorno BYTE, comparación con `0x100` y una sola tabla de eventos |
+| `0x4b7ca0` | 69,57 % | 100 % | Límite propio de 30 casillas, forma del bucle y bloque contiguo de colas |
+| `0x4b7d10` | 59,26 % | 92,86 % | Misma forma de inserción para las teclas |
+| `0x46e530` | 66,67 % | 71,79 % | Eliminar los alias independientes de la tabla |
+| `0x46e6a0` | 96,20 % | 98,73 % | La misma tabla compartida; queda un orden de instrucciones distinto |
+| `0x46ea80` | 45,12 % | 48,68 % | Leer ancho y alto de los eventos que realmente se inicializan |
+| `0x40cc60` | 44,44 % | 24,14 % | Limpiar los ocho registros y tablas reales, sin depender del objeto vecino |
+
+Bugs corregidos:
+
+- La cola de caracteres usaba el array de teclas como límite. En el build
+  anterior ese array estaba **antes** del de caracteres (`0x544f60` frente a
+  `0x546654`): una casilla ocupada bastaba para abandonar la inserción. Las dos
+  colas de 30 enteros se almacenan ahora en `InputQueues`, como su región
+  contigua original, y cada bucle respeta su límite propio.
+- El reset del campeonato hacía `p[-14]` desde la tabla de tiempos y terminaba
+  en la dirección de una tabla de posiciones independiente. En el build anterior
+  los tiempos empezaban en `0x5c5764`, pero la tabla que se quería limpiar estaba
+  en `0x5c579c`; el límite `0x5c58a0` tampoco equivalía a ocho registros.
+  Se accede por nombre a la tabla correcta y se recorren ocho posiciones.
+  Su bajada de porcentaje se conserva: el nuevo código pasa la comparación
+  diferencial y respeta todos los buffers y guardas.
+- `0x588edc` y `0x588f16` eran arrays separados que duplicaban los campos de
+  `g_eventRecords`. Polvo y derrapes leían dimensiones distintas de las que
+  escribe `Events_Add`. Ahora se usan `EventRec::a` y `EventRec::b` en la tabla
+  compartida. La capacidad real es 11 registros de `0x1c` bytes, que terminan
+  antes de `g_eventDraws` (`0x589010`), no 29 registros que se solapan con ella.
+- Las dos texturas y las dos escalas de eventos estaban declaradas como
+  escalares y se indexaban a través de su dirección. Ahora tienen arrays de
+  dos elementos, que respaldan los accesos por slot del original.
+
+`Font_GetTextWidth` se detiene en el primer separador también en el original.
+Se corrigió el comentario que prometía calcular la línea más ancha.
+
+Validación:
+
+- Build completo con MSVC6 correcto, ninguna función desaparece y ningún
+  matching exacto anterior pasa a parcial.
+- `reccmp-datacmp`: **3189 variables, cero incidencias**. Eliminar variables
+  duplicadas no altera el denominador de funciones del hito.
+- `tests/differential_tables.py`: 6000 resets, 6000 secuencias de colas y 6000
+  avances de eventos; código máquina original y recompilado, conservando las
+  distancias entre globals de cada build. Cero diferencias y guardas intactas.
+  Dos mutaciones que reintroducen direcciones erróneas sí se detectan.
+- `check_dupes.py` y `git diff --check`: correctos.
+
+Informes privados: `/tmp/cmr2-tables-final.json` y
+`/tmp/cmr2-tables-final-entities.json`. Para reproducir la prueba:
+
+```bash
+python3 tests/differential_tables.py /tmp/cmr2-tables-final.json \
+  /tmp/cmr2-tables-final-entities.json
+```
+
+La partida completa sigue sin validarse en esta rama. El hito de menos de 700
+funciones inferiores al 100 % permanece pendiente.

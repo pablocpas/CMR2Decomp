@@ -7646,7 +7646,9 @@ extern BYTE g_unk0x00590c60[4];
 // FUNCTION: CMR2 0x0046c4e0
 void FUN_0046c4e0(int param_1, BYTE index)
 {
-    FUN_0046d8d0((int)Car_Get(index), (int *)param_1);
+    Car *pCar = Car_Get(index);
+
+    FUN_0046d8d0((int)pCar, (int *)param_1);
 }
 
 // Wakes the wheels of the current car whose static slot record has no model

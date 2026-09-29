@@ -6925,7 +6925,7 @@ int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
     return 0;
 }
 
-void FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB);
+D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB);
 extern const float g_netOne;
 
 // Scale applied to the shadow vertex positions (0.5).

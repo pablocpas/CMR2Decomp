@@ -141,7 +141,7 @@ void Font_Select(unsigned int index, int *pColour)
     g_fontColour[0] = *pColour;
 }
 
-// Width in pixels of the widest line of text (lines end at '\n' or '^').
+// Width in pixels up to the first line separator ('\n' or '^').
 // match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b5b0
 int Font_GetTextWidth(unsigned int index, BYTE *text)

@@ -53,7 +53,7 @@ char g_unk0x00533620[8];
 // GLOBAL: CMR2 0x00533628
 char g_unk0x00533628[8];
 
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040cc60
 void FUN_0040cc60(void)
 {
@@ -66,7 +66,7 @@ void FUN_0040cc60(void)
     q = g_unk0x005335d8;
     p = g_unk0x005335f0;
     do {
-        p[-14] = 0;
+        g_unk0x005335b8[i] = 0;
         *p = 0;
         g_unk0x00533628[i] = 0;
         g_unk0x00533610[i] = i;
@@ -78,7 +78,7 @@ void FUN_0040cc60(void)
         i++;
         q++;
         r->field_0x2 = 0;
-    } while ((int)p < (int)g_unk0x00533610);
+    } while ((int)p < (int)(g_unk0x005335f0 + 8));
 }
 
 // FUNCTION: CMR2 0x0040ccb0

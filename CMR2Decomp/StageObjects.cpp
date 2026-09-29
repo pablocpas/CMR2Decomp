@@ -6965,9 +6965,10 @@ struct EventRec {
 };
 
 // GLOBAL: CMR2 0x00588ed8
-EventRec g_eventRecords[29];
+EventRec g_eventRecords[11];
 // GLOBAL: CMR2 0x00589210
-int g_eventScale;
+int g_eventScales[2];
+#define g_eventScale (g_eventScales[0])
 // GLOBAL: CMR2 0x00589318
 int g_unk0x00589318;
 // GLOBAL: CMR2 0x0058931c
@@ -6977,7 +6978,8 @@ int g_unk0x00589320[4];
 // GLOBAL: CMR2 0x00589330
 BYTE g_eventsDirty;
 // GLOBAL: CMR2 0x00588ed0
-Texture *g_eventTexture;
+Texture *g_eventTextures[2];
+#define g_eventTexture (g_eventTextures[0])
 
 // Scales the event steps by their share of the largest a*b product.
 // FUNCTION: CMR2 0x0046e6a0
@@ -7146,7 +7148,7 @@ void Events_Add(EventRec *pArea, int unused)
     Events_ComputeSteps();
 }
 
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046e530
 void Events_Reset(void)
 {
@@ -7170,16 +7172,15 @@ void Events_Reset(void)
 }
 
 // Advances an event's counter; returns 1 when it wraps past 255.
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046ed40
-int Events_Tick(int index)
+BYTE Events_Tick(int index)
 {
-    int wrapped;
+    BYTE wrapped;
 
     wrapped = 0;
     if (g_eventRecords[index].paused == 0) {
         g_eventRecords[index].counter += g_eventRecords[index].step;
-        if (g_eventRecords[index].counter > 0xff) {
+        if (g_eventRecords[index].counter >= 0x100) {
             g_eventRecords[index].counter = 0;
             wrapped = 1;
         }
@@ -7756,11 +7757,11 @@ void FUN_0046e780(void)
     g_unk0x00589318 = 0;
 }
 
-int Events_Tick(int index);
+BYTE Events_Tick(int index);
 
 // Queues a draw of event `index` at (x, y) when it ticks and is on the area;
 // pauses it once it has been drawn `range` times.
-// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 32%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046ec40
 void FUN_0046ec40(int index, int x, int y)
 {
@@ -8903,11 +8904,6 @@ void FUN_00498ca0(char *pDesc, int *pValues, int *pOut);
 void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6,
                   int param_7, int param_8);
 
-// GLOBAL: CMR2 0x00588edc
-short g_unk0x00588edc[28];
-// GLOBAL: CMR2 0x00588f16
-short g_unk0x00588f16[125];
-
 // Spawns a dust/smoke puff at a randomised position relative to a wheel.
 // match 48%: randomised offset evaluation order differs from the original
 // match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -8938,8 +8934,7 @@ void FUN_0046ed80(int param_1, int param_2, int param_3, int param_4, int param_
 }
 
 // Emits skid/dust effects for the wheels that are slipping.
-// match 44%: dust/skid table indexing differs from the original
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046ea80
 void FUN_0046ea80(int param_1, int param_2)
 {
@@ -8947,22 +8942,22 @@ void FUN_0046ea80(int param_1, int param_2)
 
     i = 2;
     if (param_1 == 2 || param_1 == 3) {
-        short *p;
+        EventRec *p;
         if (g_eventCount > 2) {
-            p = g_unk0x00588f16;
+            p = &g_eventRecords[2];
             do {
                 int r1 = rand();
-                short s = p[-1];
+                short s = p->a;
                 int r2 = rand();
-                FUN_0046ec40(i, (r1 * s) / 0x7fff, (r2 * *p) / 0x7fff);
+                FUN_0046ec40(i, (r1 * s) / 0x7fff, (r2 * p->b) / 0x7fff);
                 i++;
-                p += 0xe;
+                p++;
             } while (i < g_eventCount);
         }
     } else {
-        int e = (param_1 != 0) ? 0xe : 0;
-        int va = (short)g_unk0x00588edc[e];
-        int vb = (short)g_unk0x00588edc[e + 1];
+        int e = (param_1 != 0) ? 1 : 0;
+        int va = g_eventRecords[e].a;
+        int vb = g_eventRecords[e].b;
         int vd = va / 5;
         int vf = va - vd;
         int vg = vb - 8;

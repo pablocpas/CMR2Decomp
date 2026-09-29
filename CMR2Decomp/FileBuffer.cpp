@@ -196,11 +196,12 @@ char *FUN_004eb2e0(char *pName)
 }
 
 // Writes a 0x650-byte player profile to its .pps file.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb340
 BYTE FUN_004eb340(int unused, BYTE *pProfile)
 {
-    CInstallInfo::WriteFileToDisk(FUN_004eb2e0((char *)pProfile + 0x10), 0, pProfile, 0x650);
+    char *path = FUN_004eb2e0((char *)pProfile + 0x10);
+
+    CInstallInfo::WriteFileToDisk(path, 0, pProfile, 0x650);
     return 1;
 }
 
