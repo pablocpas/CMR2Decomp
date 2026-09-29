@@ -9889,10 +9889,12 @@ void FUN_004d7750(Menu *pMenu)
 
 // Two string views the name entry screen puts in its menu path: the record
 // name and the "enter name" prompt.
+// They must be contiguous: the pair is passed to FrontendDraw_MenuPath as a
+// two-entry name array.
 // GLOBAL: CMR2 0x0081854c
-char *g_unk0x0081854c;
-// GLOBAL: CMR2 0x00818550
-char *g_unk0x00818550;
+char *g_nameEntryPath0x0081854c[2];
+#define g_unk0x0081854c (g_nameEntryPath0x0081854c[0])
+#define g_unk0x00818550 (g_nameEntryPath0x0081854c[1])
 
 // The 30 keys of the name entry keyboard, three rows of ten.
 // GLOBAL: CMR2 0x005249a8
@@ -9924,7 +9926,7 @@ void FUN_004d6f10(Menu *pMenu)
     g_unk0x0081854c = g_unk0x00818274;
     if (g_unk0x008189a4 != 0)
         g_unk0x00818550 = CFrontend::GetTextString(FUN_004085a0((BYTE)FUN_004f2be0()) ? 0xe5 : 0x17b);
-    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, &g_unk0x0081854c, 2);
+    FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, g_nameEntryPath0x0081854c, 2);
     FrontendDraw_PlayTime();
     for (row = 0; row < 3; row++) {
         for (col = 0; col < 10; col++) {
