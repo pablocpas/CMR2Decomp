@@ -11842,3 +11842,144 @@ void FUN_004ffab0(Menu *pMenu)
     else
         g_unk0x00526f40 = 0;
 }
+
+// GLOBAL: CMR2 0x00663b60
+char g_unk0x00663b60[0x100];
+SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
+// Dependencias de FUN_005062d0: las funciones de clase se toman de sus cabeceras.
+#include "Game.h"
+#include "Graphics.h"
+#include "FileBuffer.h"
+#include "SceneNode.h"
+int  FUN_004b9380(unsigned int, unsigned int, unsigned int);
+char *FUN_00420060(int, int, int);
+int  FUN_0050a020(int, int);
+int  FUN_0050a050(int, int);
+void FUN_00507a10(Unk0x0082d220 *, int);
+void FUN_0050f120(int);
+int  FUN_00501510(void);
+
+
+// Compone el nombre de la geometria del stage (base .c3d con los sufijos A1N/L/S y su .bfl), registra y
+// carga los recursos, rellena el registro del stage (matrices de las ruedas, mallas y contadores) y libera
+// lo temporal. Devuelve 1 si el stage se cargo.
+// FUNCTION: CMR2 0x005062d0
+int FUN_005062d0(int index)
+{
+    Unk0x0082cb78 *pEntry;
+    int hC3D;
+    int hL;
+    int hS;
+    unsigned int stage;
+    unsigned char model;
+    unsigned char variant;
+    int mesh;
+    int other;
+    int i;
+
+    stage = FUN_00501510();
+    CGameInfo::FUN_00405d80();
+    if (g_unk0x00831318 == 0) {
+        CGame::RegisterCallback((void *)FUN_00505f10, 0);
+        g_unk0x00831318 = 1;
+        {
+            int *p = (int *)0x00831088;
+            do {
+                p[-2] = 0;
+                p[0] = 0;
+                p[-1] = 0;
+                p += 3;
+            } while ((int)p < 0x831150);
+        }
+    }
+    model = (BYTE)(int)RallyData_FUN_004086b0(index);
+    variant = (BYTE)(int)CFrontend::FUN_0040ee90(model);
+    sprintf(g_unk0x00663b60, "%s.c3d", FUN_00420060(model, 0, 0));
+    if (CGameInfo::FUN_00405d10() == 0) {
+        strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
+        hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        if (FUN_0050a050(variant, 1) == 0) {
+            hL = 0;
+        } else {
+            strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
+            hL = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        }
+        if (FUN_0050a020(variant, 6) == 0) {
+            hS = 0;
+        } else {
+            strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);
+            hS = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        }
+    } else {
+        hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        hL = 0;
+        hS = 0;
+    }
+    g_unk0x0082d19c[index] = (BYTE *)hC3D;
+    g_unk0x008311d8[index] = (BYTE *)hL;
+    g_unk0x00831158[index] = (BYTE *)hS;
+
+    sprintf(g_unk0x00663b60, "%s.bfl", FUN_00420060(model, 0, 0));
+    if (CGameInfo::FUN_00405d10() == 0)
+        strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
+
+    pEntry = &g_unk0x0082cb78[index];
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)pEntry, g_unk0x00663b60);
+    if (hC3D == 0)
+        return 0;
+
+    other = 0;
+    mesh = 0;
+    hL = FUN_004b9380(hC3D, stage, (unsigned int)pEntry);
+    if (CGameInfo::FUN_00405d10() == 0) {
+        int *p = (int *)&pEntry->field_0x24[0];
+        for (i = 1; i < 4; i++) {
+            int h = (int)(int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)i);
+            *p++ = *(int *)(h + 0xc);
+        }
+        if (hS != 0) {          /* el segundo recurso (L) */
+            int h2 = FUN_004b9380(hS, stage, (unsigned int)pEntry);
+            int *q = (int *)&pEntry->field_0x34[0];
+            for (i = 1; i < 4; i++) {
+                int h = (int)SceneNode_FindByType((SceneNode *)h2, (unsigned int)i);
+                *q++ = *(int *)(h + 0xc);
+            }
+            SceneNode_SetViewMaskTree((SceneNode *)h2, 0);
+            mesh = h2;
+        }
+        if (other != 0) {
+            int h3 = FUN_004b9380(other, stage, (unsigned int)pEntry);
+            int *q = (int *)&pEntry->field_0x44[0];
+            for (i = 1; i < 4; i++) {
+                int h = (int)SceneNode_FindByType((SceneNode *)h3, (unsigned int)i);
+                *q++ = *(int *)(h + 0xc);
+            }
+            SceneNode_SetViewMaskTree((SceneNode *)h3, 0);
+        }
+    }
+    *(int *)((BYTE *)pEntry + 0xc) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)1);
+    *(int *)((BYTE *)pEntry + 0x10) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)2);
+    *(int *)((BYTE *)pEntry + 0x1c) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)3);
+    *(int *)((BYTE *)pEntry + 0x20) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)4);
+    *(int *)((BYTE *)pEntry + 0x0) = variant;
+    *(int *)((BYTE *)pEntry + 0x8) = hL;
+    *(int *)((BYTE *)pEntry + 0x4) = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)5);
+    *(int *)((BYTE *)pEntry + 0x14) = mesh;
+    *(int *)((BYTE *)pEntry + 0x18) = 0;
+    FUN_00507080(index);
+    FUN_00507a10(&g_unk0x0082d220[index], index);
+    {
+        int h = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)0xe);
+        if (h != 0) {
+            int tex = *(int *)((char *)CGraphics::m_pTextureManager + *(int *)(*(int *)(*(int *)(h + 0xc) + 0x24) + 4) * 4 + 900);
+            CGraphics::RemapTextureAlpha((Texture *)tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);
+            CGraphics::RemapTextureAlpha((Texture *)tex, 0xe0, 0, 0xe0, 0, 0xe0, 0, index);
+        }
+    }
+    g_unk0x0082d118 = 0;
+    FUN_00507650(index);
+    g_unk0x0082d15c[index] = -1;
+    FUN_0050f120(variant);
+    return 1;
+}
+
