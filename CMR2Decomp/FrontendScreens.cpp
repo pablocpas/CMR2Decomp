@@ -9659,7 +9659,7 @@ void FUN_004f0820(Menu *pMenu, int param)
 // file so the file:line of the functions above does not move.
 
 void FUN_004dbd80(Menu *pMenu);
-void FUN_004f8b30(void);
+int FUN_004f8b30(void);
 
 // GLOBAL: CMR2 0x00524c78
 char g_strDate[16] = "%.2d.%.2d.%.4d";
