@@ -641,7 +641,7 @@ void FUN_00411280(void);
 
 BYTE *FUN_0041f900(void);
 int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
-void FUN_00455470(int);
+void FUN_00455470(char);
 void Scene_InitLighting(int *pData, int *pHeights);
 void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary);
 void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
@@ -3095,7 +3095,7 @@ Car *Car_Get(int index);
 void FUN_00420850(Car *pCar);
 void FUN_00458480(void);
 void FUN_00421d80(int view);
-void FUN_00455470(int);
+void FUN_00455470(char);
 void FUN_00458100(int param_1);
 void FUN_00411450(int keepName);
 void FUN_00465530(void);

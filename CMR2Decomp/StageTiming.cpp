@@ -9048,3 +9048,241 @@ void FUN_0045eca0(void)
     FUN_004b3f20();
 }
 #undef RAND_FIX
+
+void FUN_004ae260(void);
+void FUN_00421610(void);
+void FUN_00465600(void);
+void FUN_00466360(void);
+void FUN_00472cb0(void);
+void FUN_0042b720(int index, char value);
+void FUN_0041c510(void);
+void FUN_0041c260(void);
+void FUN_0048ca70(void);
+void FUN_00447f70(void);
+void FUN_00411450(int keepName);
+void FUN_00411b20(void);
+void FUN_00416670(void);
+
+// Pushes the stage state to the graphics layer after a device reset: updates
+// every subsystem, then re-uploads each live texture with a dummy triangle.
+// FUNCTION: CMR2 0x00424c50
+void FUN_00424c50(void)
+{
+    D3DTLVERTEX verts[3];
+    int i;
+
+    FUN_004ae260();
+    FUN_00421610();
+    FUN_00423ff0();
+    FUN_00465600();
+    FUN_00466360();
+    if (CGameInfo::FUN_00406320() != 0) {
+        FUN_0041c510();
+    } else {
+        if (CGameInfo::FUN_00405d80() == 4) {
+            FUN_00472cb0();
+        } else {
+            for (i = 0; i < 2; i++) {
+                if ((BYTE)RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
+                    i >= (int)(RallyDataState() & 0xff))
+                    FUN_0042b720(i, -1);
+            }
+        }
+        if (CGameInfo::FUN_00405d80() != 3)
+            FUN_0041c260();
+    }
+    if ((BYTE)RallyData_FUN_00407e70() != 0)
+        FUN_0048ca70();
+    FUN_00447f70();
+    FUN_00458100(1);
+    StageTiming_FUN_00455610();
+    FUN_00411450(1);
+    FUN_00411b20();
+    FUN_00416670();
+
+    CGraphics::m_pTextureManager->pD3D->BeginScene();
+
+    verts[0].color = 0xff000000;
+    verts[1].color = 0xff000000;
+    verts[2].color = 0xff000000;
+    verts[0].sx = 0.0f;
+    verts[0].sy = 0.0f;
+    verts[1].sx = 10.0f;
+    verts[1].sy = 0.0f;
+    verts[2].sx = 0.0f;
+    verts[2].sy = 10.0f;
+
+    for (i = 0; i < CGraphics::m_textureCount; i++) {
+        Texture *pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
+        if (pTexture != NULL && pTexture->pSurface != NULL) {
+            CGraphics::FUN_004a4850(0, (int)pTexture);
+            CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, 0x1c4, verts, 3, 0);
+        }
+    }
+
+    CGraphics::m_pTextureManager->pD3D->EndScene();
+}
+
+// Random seed for the stage timing shuffles.
+// GLOBAL: CMR2 0x00541f88
+unsigned int g_unk0x00541f88;
+
+// Per-driver timing block: 0xa0 bytes of split samples followed by the four
+// spread parameters of the stage (the two fixed-point ones first).
+struct StageTimingSpread {
+    BYTE field_0x0[0xa0];
+    int field_0xa0;
+    int field_0xa4;
+    int field_0xa8;
+    int field_0xac;
+};
+
+// Rebuilds the stage's timing records when a stage starts: resets the split
+// tables, seeds the RNG, lays out the driver slots and pairs the split
+// rankings.
+// FUNCTION: CMR2 0x00455470
+void FUN_00455470(char param_1)
+{
+    StageTimingSpread local;
+    int *p;
+
+    if (g_unk0x00542604 == 0)
+        return;
+    StageTiming_Reset();
+    FUN_0045e6b0(&local.field_0xa8, &local.field_0xac, &local.field_0xa0, &local.field_0xa4);
+    if ((char)RallyDataCountryIndex() == 3) {
+        local.field_0xa8 = 0;
+        local.field_0xac = 0;
+    }
+    if (param_1 != 0)
+        g_unk0x00541f88 = CMain::GetFrameTime();
+    srand(g_unk0x00541f88);
+    FUN_004556a0(CGameInfo::FUN_00405d70());
+    FUN_00455ed0((int)&local);
+    FUN_004561e0((int *)&local);
+    StageTiming_RebuildSplitPositions();
+    if ((char)RallyData_FUN_00407e90() != 0) {
+        p = (int *)(g_unk0x00542528 + 0x10);
+        do {
+            p[-3] = 0;
+            p[0] = 0;
+            p += 6;
+        } while ((int)p < (int)(g_unk0x00542528 + 0xd0));
+        g_unk0x00542420[0] = ConvertRawTimeToCentiseconds(*(int *)(g_unk0x0054241c + 0x2d0));
+        g_unk0x00542420[1] = ConvertRawTimeToCentiseconds(*(int *)(g_unk0x0054241c + 0x310));
+        FUN_004556f0();
+        StageTiming_FUN_00455610();
+        return;
+    }
+    FUN_00455620();
+    StageTiming_FUN_00455610();
+}
+
+// Directory-name tables of the stage speech and text archives, one per game
+// region (region 0: five languages, region 1: three, regions 2/3: one).
+extern char g_str0x0051a00c[12];
+extern char g_str0x0051a018[12];
+extern char g_str0x0051a024[12];
+extern char g_str0x0051a030[12];
+extern char g_str0x0051a03c[12];
+extern char g_str0x0051a048[12];
+extern char g_str0x0051a054[12];
+extern char g_str0x0051a100[12];
+
+// GLOBAL: CMR2 0x0051a060
+char g_str0x0051a060[16] = "polishspeech";
+// GLOBAL: CMR2 0x0051a070
+char g_str0x0051a070[16] = "engusaspeech";
+// GLOBAL: CMR2 0x0051a080
+char g_str0x0051a080[16] = "germanspeech";
+// GLOBAL: CMR2 0x0051a090
+char g_str0x0051a090[16] = "italianspeech";
+// GLOBAL: CMR2 0x0051a0a0
+char g_str0x0051a0a0[16] = "spanishspeech";
+// GLOBAL: CMR2 0x0051a0b0
+char g_str0x0051a0b0[16] = "frenchspeech";
+// GLOBAL: CMR2 0x0051a0c0
+char g_str0x0051a0c0[16] = "englishspeech";
+
+// GLOBAL: CMR2 0x00519fbc
+char *g_speechRegion0[5] = {g_str0x0051a0c0, g_str0x0051a0b0, g_str0x0051a0a0,
+                            g_str0x0051a090, g_str0x0051a080};
+// GLOBAL: CMR2 0x00519fd0
+char *g_speechRegion1[3] = {g_str0x0051a070, g_str0x0051a0b0, g_str0x0051a0a0};
+// GLOBAL: CMR2 0x00519fdc
+char *g_speechRegion2[1] = {g_str0x0051a0c0};
+// GLOBAL: CMR2 0x00519fe0
+char *g_speechRegion3[1] = {g_str0x0051a060};
+// GLOBAL: CMR2 0x00519fe4
+char *g_textRegion0[5] = {g_str0x0051a054, g_str0x0051a048, g_str0x0051a03c,
+                          g_str0x0051a030, g_str0x0051a024};
+// GLOBAL: CMR2 0x00519ff8
+char *g_textRegion1[3] = {g_str0x0051a018, g_str0x0051a048, g_str0x0051a03c};
+// GLOBAL: CMR2 0x0051a004
+char *g_textRegion2[1] = {g_str0x0051a054};
+// GLOBAL: CMR2 0x0051a008
+char *g_textRegion3[1] = {g_str0x0051a00c};
+
+// GLOBAL: CMR2 0x0051a0d0
+char g_str0x0051a0d0[16] = "%s\\FireWork.bfl";
+// GLOBAL: CMR2 0x0051a0e0
+char g_str0x0051a0e0[16] = "%s\\surface.bfl";
+// GLOBAL: CMR2 0x0051a10c
+char g_str0x0051a10c[16] = "%s\\Com%d.bfl";
+// GLOBAL: CMR2 0x0051a11c
+char g_str0x0051a11c[16] = "%s\\Com%dC.bfl";
+
+// Opens the stage archives of the current region: the common one, the day file
+// and the speech/text variants of the current language, then registers the
+// release callback.
+// FUNCTION: CMR2 0x00455080
+void FUN_00455080(void)
+{
+    char **ppSpeech;
+    char **ppText;
+    unsigned int resolution;
+
+    switch (CGameInfo::GetGameRegion()) {
+    case 0:
+        ppSpeech = g_speechRegion0;
+        ppText = g_textRegion0;
+        break;
+    case 1:
+        ppSpeech = g_speechRegion1;
+        ppText = g_textRegion1;
+        break;
+    case 2:
+        ppSpeech = g_speechRegion2;
+        ppText = g_textRegion2;
+        break;
+    case 3:
+        ppSpeech = g_speechRegion3;
+        ppText = g_textRegion3;
+        break;
+    }
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
+        CFrontend::FUN_004b7590(0x400) != 0)
+        resolution = 0x400;
+    else
+        resolution = 0x280;
+    if (CFrontend::FUN_004a9700() != 0)
+        sprintf(CFrontend::m_stringDest, g_str0x0051a11c, CInstallInfo::GetBigFilesDir(), resolution);
+    else
+        sprintf(CFrontend::m_stringDest, g_str0x0051a10c, CInstallInfo::GetBigFilesDir(), resolution);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile1(), CFrontend::m_stringDest);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
+            CGameInfo::GetGameRegionDirectory(), ppSpeech[CGameInfo::GetGameLanguage() & 0xff]);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile2(), CFrontend::m_stringDest);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a100, CInstallInfo::GetCountrySpecificDir(),
+            CGameInfo::GetGameRegionDirectory(), ppText[CGameInfo::GetGameLanguage() & 0xff]);
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile6(), CFrontend::m_stringDest);
+    sprintf(CFrontend::m_stringDest, CFrontend::m_strCommonBfl, CInstallInfo::GetBigFilesDir());
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile0(), CFrontend::m_stringDest);
+    sprintf(CFrontend::m_stringDest, g_str0x0051a0e0, CInstallInfo::GetSoundsDir());
+    CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile5(), CFrontend::m_stringDest);
+    if ((BYTE)FUN_00407270() != 0) {
+        sprintf(CFrontend::m_stringDest, g_str0x0051a0d0, CInstallInfo::GetBigFilesDir());
+        CGenericFileLoader::FUN_004a9d70((GenericFile *)StageTiming_GetStageFile4(), CFrontend::m_stringDest);
+    }
+    CGame::RegisterCallback(FUN_00454f20, NULL);
+}

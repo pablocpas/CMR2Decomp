@@ -1376,6 +1376,7 @@ private:
     friend void FUN_0049c680(Mesh *pMesh);
     friend int FUN_0050ff90(char *fileName, unsigned int trackIndex);
     friend void FUN_0049c510(Mesh *pMesh);
+    friend void FUN_00424c50(void);
 
     // GLOBAL: CMR2 0x00520b78
     static D3DTextureManager* m_pTextureManager;
