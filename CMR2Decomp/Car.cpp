@@ -8397,3 +8397,77 @@ void FUN_00422fe0(int view, int type, int target, int blend)
         type = FUN_00422f50(view);
     FUN_00421720(view, type, 0xffff, target, blend);
 }
+
+// Blends a view's two stored camera states, carries the blended record's
+// shake into the player's camera nodes, rebuilds the view node's matrix
+// (pitching the forward axis and re-orthogonalising the basis) and marks the
+// node and its ancestors dirty.
+// FUNCTION: CMR2 0x00422140
+void FUN_00422140(BYTE view, int t)
+{
+    BYTE state[100];
+    FixMatrix matrix;
+    FixVector pitch;
+    FixVector right;
+    FixVector flat;
+    FixVector forward;
+    SceneNode *node;
+    int len;
+    int f48;
+    int f58;
+    int f5c;
+    int f60;
+    int shake;
+
+    FUN_00423de0(state, VIEW_PREV_STATE(view), VIEW_STATE(view), t);
+    g_unk0x005391a8[view] = *(int *)(state + 0x50);
+    g_unk0x00538df0[view] = *(int *)(state + 0x4c);
+    g_unk0x005391cc[view] = *(int *)(state + 0x54);
+    matrix = *(FixMatrix *)(state + 8);
+    f58 = *(int *)(state + 0x58);
+    f60 = *(int *)(state + 0x60);
+    f48 = *(int *)(state + 0x48);
+    f5c = *(int *)(state + 0x5c);
+    if (f60 != 0) {
+        Car *car = Car_Get(view);
+        int *pY;
+
+        shake = FixMul(f48, f60);
+        pY = &car->pNode0x71c->current.position.y;
+        *pY += shake;
+        pY = &car->pNode0x720->current.position.y;
+        *pY += shake;
+        matrix.position.y += f60;
+        shake = FixMul(f60, f58);
+        if (f5c != 0 && shake != 0) {
+            FixMatrix_GetForward(&forward, &matrix);
+            flat = forward;
+            flat.y = 0;
+            len = FixVec_Length(&flat);
+            FixVecScale(&flat, &flat, forward.y);
+            flat.y = -len;
+            FixVecScale(&pitch, &forward, f5c);
+            FixVecScale(&flat, &flat, shake);
+            forward.x = flat.x + pitch.x;
+            forward.y = flat.y + pitch.y;
+            forward.z = flat.z + pitch.z;
+            FixVec_Normalize(&forward, &forward);
+            FixMatrix_SetForward(&forward, &matrix);
+            FixMatrix_GetRight(&right, &matrix);
+            FixVecScale(&pitch, &forward, FixVecDot(&right, &forward));
+            right.x -= pitch.x;
+            right.y -= pitch.y;
+            right.z -= pitch.z;
+            FixVec_Normalize(&right, &right);
+            FixMatrix_SetRight(&right, &matrix);
+            FixVecCross(&pitch, &forward, &right);
+            FixMatrix_SetUp(&pitch, &matrix);
+        }
+    }
+    node = g_viewNodes[view];
+    FixMatrix_CopyRotation(&matrix, &node->current);
+    while (node != NULL) {
+        node->dirty = 1;
+        node = node->pParent;
+    }
+}
