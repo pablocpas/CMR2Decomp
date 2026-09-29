@@ -45,9 +45,6 @@ void FUN_00455470(int) { }
 void FUN_00472a30(void) { }
 
 
-// STUB: CMR2 0x00478c40
-void FUN_00478c40(void) { }
-
 struct Menu;
 // STUB: CMR2 0x0049bcb0
 void FUN_0049bcb0(Menu *pMenu) { }
