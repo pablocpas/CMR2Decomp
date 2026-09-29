@@ -11858,6 +11858,11 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
 // Rewrites every best-time record of the selected rally as a scrambled
 // identifier string (see FUN_004fb8d0/FUN_004f8a90) into the five tables the
 // profile screens display.
+// match 60.6%: the logic and the instruction sequence follow the reference; the
+// residue is the local-variable slot assignment (MSVC 6 picked a different
+// variable -> frame offset mapping, so every instruction with a stack operand
+// differs) plus the byte-level tag handling, which the reference reloads from
+// its slot where we keep it in a register.
 // FUNCTION: CMR2 0x004f8b30
 int FUN_004f8b30(void)
 {
@@ -11881,7 +11886,6 @@ int FUN_004f8b30(void)
     local_8 = 0;
     local_4 = 0;
     local_10 = 0;
-    local_18 = 0;
     local_14 = 0x150;
     do {
         local_c = ((int)local_10 % 2) + 10;
@@ -11891,7 +11895,7 @@ int FUN_004f8b30(void)
                 puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_1c);
                 puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_1c);
                 if (((*puVar10 & 0x80) == 0) || (0xf < *puVar7 / 6000)) {
-                    g_unk0x0082547c[((int)local_18 + uVar8) * 0x19] = 0;
+                    g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19] = 0;
                 } else {
                     local_8 = (local_8 & 0xfffff00f) |
                               (((uVar8 & 0xf) << 4 | (unsigned int)local_10 & 0xf) << 4);
@@ -11911,15 +11915,14 @@ int FUN_004f8b30(void)
                         iVar2--;
                     } while (iVar2 != 0);
                     FUN_004fb8d0(0, &local_8, (char *)&local_4,
-                                 (char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
-                    FUN_004f8a90((char *)&g_unk0x0082547c[((int)local_18 + uVar8) * 0x19]);
+                                 (char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
+                    FUN_004f8a90((char *)&g_unk0x0082547c[((int)local_10 * 11 + uVar8) * 0x19]);
                 }
                 local_1c += 8;
             }
         }
         local_14 += 0x60;
         local_10 = (BYTE *)((int)local_10 + 1);
-        local_18 = (BYTE *)((int)local_18 + 0xb);
     } while (local_14 < 0x450);
 
     local_10 = g_unk0x00825d14;
