@@ -15656,8 +15656,7 @@ void FUN_00484310(void)
                     *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0x6666;
                     if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0)
                         *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
-                } else if (modified == 0) {
-                    goto anglesZ;
+                    goto renormalise;
                 }
             } else {
                 if (*(int *)((BYTE *)g_unk0x00590c20 + 0x180) > 0) {
@@ -15677,10 +15676,13 @@ void FUN_00484310(void)
                     *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0xcccc;
                     if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) < 0)
                         *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;
-                } else if (modified == 0) {
-                    goto anglesZ;
+                    goto renormalise;
                 }
             }
+            if (modified == 0) {
+                goto anglesZ;
+            }
+        renormalise:
             FIX_NORMALIZE_INTO((*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c)),
                                (*(FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c)));
             FixVecScale(&scratch, (FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c),
