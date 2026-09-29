@@ -15456,3 +15456,104 @@ void FUN_00466520(void)
         FUN_00480220();
     }
 }
+
+int FUN_004483c0(int index);
+void FUN_00407940(unsigned int first, unsigned int second);
+void FUN_00407b10(void);
+BYTE FUN_0041f380(void);
+
+// Finishes the knockout match of the current round: stores the split times of
+// the two drivers (or the fallback order when a driver is unknown), clears or
+// marks the match entry, flags the loser, advances the round index of the
+// championship state and re-propagates the bracket.
+// Bit layout of KnockoutMatch::flags as the original manipulates it: two
+// five-bit driver indices, the completion bit of the match and the two-bit
+// winner flag (1 second driver faster, 2 first driver faster).
+struct KnockoutMatchBits {
+    unsigned int driver1 : 5;
+    unsigned int driver2 : 5;
+    unsigned int played : 1;
+    unsigned int winner : 2;
+    unsigned int pad : 19;
+};
+
+// Bit layout of KnockoutTable::state: the kind of bracket (1..4) at bits 3-5
+// and the index of the round within that kind at bits 12-15.
+struct KnockoutStateBits {
+    unsigned int pad0 : 3;
+    unsigned int kind : 3;
+    unsigned int pad1 : 6;
+    unsigned int round : 4;
+    unsigned int pad2 : 16;
+};
+
+// FUNCTION: CMR2 0x00472a30
+void FUN_00472a30(void)
+{
+    int time1;
+    int time2;
+    unsigned int first;
+    unsigned int second;
+    KnockoutTable *pState;
+    unsigned int state;
+    int round;
+    char t;
+
+    pState = (KnockoutTable *)RallyData_GetChampionshipState();
+    RallyData_GetRoundDrivers(&first, &second);
+    if (RallyData_FUN_00408500((BYTE)first) != -1 && RallyData_FUN_00408500((BYTE)second) != -1) {
+        StageTiming_GetSplitTimesForPositions(first, second, &time1, &time2);
+    } else if (RallyData_FUN_00408500((BYTE)first) == -1) {
+        time1 = FUN_004483c0(0);
+        time2 = FUN_004483c0(1);
+    } else {
+        time2 = FUN_004483c0(0);
+        time1 = FUN_004483c0(1);
+    }
+    if (FUN_00473680(RallyData_GetRoundEntry()) != 0) {
+        ((KnockoutMatch *)RallyData_GetRoundEntry())->time1 = 0;
+        ((KnockoutMatch *)RallyData_GetRoundEntry())->time2 = 0;
+        if ((((KnockoutMatch *)RallyData_GetRoundEntry())->flags & 0x1f) == 0x1f)
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 2;
+        else
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
+    } else {
+        FUN_00407940(time1, time2);
+    }
+    if (FUN_0041f380() != 0xff) {
+        if ((BYTE)RallyDataState() == 2) {
+            t = (char)FUN_0041f380();
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = -2 - t;
+        } else if (RallyData_FUN_00408500(
+                       (BYTE)((KnockoutMatch *)RallyData_GetRoundEntry())->flags & 0x1f) == -1) {
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 2;
+        } else {
+            ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
+        }
+    }
+    state = pState->state;
+    round = (state >> 12) & 0xf;
+    ((KnockoutStateBits *)pState)->round++;
+    switch ((pState->state >> 3) & 7) {
+    case 1:
+        pState->round1[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x7000)
+            pState->state |= 0x400000;
+        break;
+    case 2:
+        pState->quarters[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x3000)
+            pState->state |= 0x400000;
+        break;
+    case 3:
+        pState->semis[round].flags |= 0x400;
+        if ((pState->state & 0xf000) > 0x1000)
+            pState->state |= 0x400000;
+        break;
+    case 4:
+        pState->state |= 0x400000;
+        pState->final.flags |= 0x400;
+        break;
+    }
+    FUN_00407b10();
+}
