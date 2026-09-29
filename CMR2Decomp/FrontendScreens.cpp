@@ -10894,7 +10894,6 @@ void FUN_004e90f0(Menu *pMenu)
     BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
-    Texture *pTexture;
     MenuItem *pItem;
     char buffer[100];
     int top;
@@ -10933,15 +10932,16 @@ void FUN_004e90f0(Menu *pMenu)
             rect.y = (int)(g_pGraphics->resY * 2) / 0x1e0 + (int)(g_pGraphics->resY * 0x12) / 0x1e0 + top +
                      ((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i - CFrontend::m_pAr640ATexture->height / 2);
             if (pMenu->cursor == i) {
-                pTexture = CFrontend::m_pAr640ATexture;
                 pColour = g_colourWhite0x00524968;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, pColour, 8);
             } else {
-                pTexture = CFrontend::m_pAr640DTexture;
                 pColour = g_colourText0x0052496c;
                 if (pItem->enabled == 0)
                     pColour = g_colourDim0x00524970;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &rect,
+                             CFrontend::m_pAr640DTexture, 1, 0, 0, NULL, pColour, 8);
             }
-            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &rect, pTexture, 1, 0, 0, NULL, pColour, 8);
             switch (pItem->value) {
             case 0:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
@@ -10950,11 +10950,11 @@ void FUN_004e90f0(Menu *pMenu)
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 1:
-                if (Menu_GetItem(pMenu, 1)->max == 0) {
-                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
-                } else {
+                if (Menu_GetItem(pMenu, 1)->max != 0) {
                     sprintf(buffer, CFrontend::GetTextString(0x1e0), Menu_GetItem(pMenu, 1)->max + 4);
                     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1de), buffer);
+                } else {
+                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
                 }
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
