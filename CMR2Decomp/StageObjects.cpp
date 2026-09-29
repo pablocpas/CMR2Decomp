@@ -15580,9 +15580,8 @@ int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer);
 // FUNCTION: CMR2 0x00473d60
 void FUN_00473d60(Menu *pMenu)
 {
-    MenuItem *pItem;
-    short rect2[4];
     int i;
+    short rect2[4];
     int texture;
     int y0;
     int y;
@@ -15598,8 +15597,7 @@ void FUN_00473d60(Menu *pMenu)
     rect2[3] = *(short *)(texture + 0x122);
     y0 = (int)(g_pGraphics->resY * 0x17c) / 0x1e0;
     pState = RallyData_GetChampionshipState();
-    pItem = pMenu->items;
-    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
+    for (i = 0; i < pMenu->itemCount; i++) {
         texture = FUN_004055e0();
         halfHeight = *(short *)(texture + 0x122) / 2;
         y = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * i
