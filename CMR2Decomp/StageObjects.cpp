@@ -15576,6 +15576,10 @@ extern Unk0x00590c20 *g_unk0x00590c20;
 extern int g_unk0x00590c68;
 extern const double g_unk0x00511380;
 
+// match 88%: logica, llamadas y constantes identicas al original; el residuo es
+// reparto de registros y de slots de pila temporales (el original cachea el puntero
+// del vector en esi para los tres stores del caso len==0 y materializa los dos
+// operandos del FixMul del rotor) y el orden de los stores de angles[].
 // FUNCTION: CMR2 0x00484310
 void FUN_00484310(void)
 {
