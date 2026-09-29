@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <float.h>
 
 BOOL CGame::m_shouldExit = FALSE;
 BOOL CGame::m_isActive = FALSE;
@@ -408,6 +409,18 @@ void FUN_004d0ba0(Unk0049c2c0 *p1, BYTE p2)
             FUN_0049de40();
     }
 }
+
+// Sets the FPU control word to 53-bit precision (the CRT's default for the
+// x87 unit before the game changes it). This is CRT startup code, which the
+// original built with /Os: the size optimisation is what turns the cdecl
+// cleanup into `pop ecx / pop ecx`.
+#pragma optimize("s", on)
+// FUNCTION: CMR2 0x00405796
+void FUN_00405796(void)
+{
+    _controlfp(_PC_53, _MCW_PC);
+}
+#pragma optimize("s", off)
 
 // FUNCTION: CMR2 0x004057a8
 int FUN_004057a8(void)
