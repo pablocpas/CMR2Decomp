@@ -5126,6 +5126,17 @@ void Dash_Update(int player);
 // order, the dashboards and the replay recording. The car loop walks the whole
 // order but only the entrants below the player count are driven; each car's
 // call state selects its co-driver handling in the switch below.
+// match 68%: below the 90% bar; the remaining diff is dominated by register
+// allocation, not logic. MSVC6 keeps the register-allocated constant 0 in EDI
+// and `first` in EBP here, while the original has the constant in EBP and
+// `first` in EDI; that swap flips the operand order of every zero comparison
+// (cmp edi,ebp vs cmp ebp,edi), the zero-argument pushes, and permutes the
+// spill slots (S-0x14/S-0x10/S-0xc), which in turn moves the branch/block
+// layout of the switch and of the car-loop tail. Calls, constants, statement
+// order and control flow were checked instruction by instruction against the
+// original; the layout of GameInfo0xa4.rallyStageRecordTimes (0x1214 in the
+// original vs 0x654 in our struct) is a separate data-model gap reported to the
+// integrator.
 // FUNCTION: CMR2 0x0041c5a0
 void FUN_0041c5a0(BYTE param1, int param2)
 {
@@ -5348,7 +5359,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
                     if (k == 1) {
                         FUN_0047a710(g_unk0x00537f04, 0);
                         FUN_0041af60(g_unk0x00537f04, 0);
-                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, g_unk0x00537f04);
+                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, 0);
                     } else {
                         FUN_0047a710(g_unk0x00537f04, g_unk0x00537f04);
                         FUN_0041af60(g_unk0x00537f04, g_unk0x00537f04);
