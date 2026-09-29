@@ -15572,15 +15572,16 @@ int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer);
 // the entry name otherwise) and the row separators, then the knockout bracket
 // of the current round. The rows move down by KO_Y(6) on screens at least
 // 1024 pixels wide whose texture limits accept that size.
-// match 59%: same instruction sequence, constants, call arguments and control
-// flow; MSVC6 here keeps the loop counter, the colour pointer and the rect
-// values in different registers and allocates a 0x10 byte local frame where the
-// original uses 0x20, which shifts every stack slot by 0x10. Kept as FUNCTION
-// on purpose so reccmp measures it (see CONVENCIONES).
+// match 58%: the prologue, the constants, the call arguments and the control
+// flow are identical; the residual diff is register/slot allocation inside the
+// loop body (the original keeps the row height, the loop counter and the two
+// rectangles in different registers than this build does). Kept as FUNCTION on
+// purpose so reccmp measures it (see CONVENCIONES).
 // FUNCTION: CMR2 0x00473d60
 void FUN_00473d60(Menu *pMenu)
 {
     int i;
+    short rect[4];
     short rect2[4];
     int texture;
     int y0;
@@ -15589,17 +15590,19 @@ void FUN_00473d60(Menu *pMenu)
     BYTE *pColour;
     unsigned int *pState;
 
-    rect2[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
-    rect2[1] = 0;
+    rect[0] = (short)((int)(g_pGraphics->resX * 0x64) / 0x280);
+    rect[1] = 0;
     texture = FUN_004055e0();
-    rect2[2] = *(short *)(texture + 0x120);
+    rect[2] = *(short *)(texture + 0x120);
     texture = FUN_004055e0();
-    rect2[3] = *(short *)(texture + 0x122);
+    rect[3] = *(short *)(texture + 0x122);
     y0 = (int)(g_pGraphics->resY * 0x17c) / 0x1e0;
     pState = RallyData_GetChampionshipState();
     for (i = 0; i < pMenu->itemCount; i++) {
         texture = FUN_004055e0();
         halfHeight = *(short *)(texture + 0x122) / 2;
+        rect[1] = (short)((int)(g_pGraphics->resY * 0x24) / 0x1e0 * i +
+                          (int)(g_pGraphics->resY * 0x14) / 0x1e0 - halfHeight + y0);
         y = (int)(g_pGraphics->resY * 0x24) / 0x1e0 * i
             - (int)(g_pGraphics->resY * halfHeight) / 0x1e0
             + (int)(g_pGraphics->resY * 0x14) / 0x1e0 + y0
@@ -15607,7 +15610,6 @@ void FUN_00473d60(Menu *pMenu)
         if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
             CFrontend::FUN_004b7590(0x400))
             y += (int)(g_pGraphics->resY * 6) / 0x1e0;
-        rect2[1] = (short)y;
         if (pMenu->cursor == i) {
             pColour = g_barTextColour;
             texture = FUN_004055e0();
@@ -15661,13 +15663,13 @@ void FUN_00473d60(Menu *pMenu)
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
         if (FUN_004bc0c0(&g_unk0x0058cf60)) {
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture, 2,
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
                          0, NULL, NULL, pColour, 8);
             FUN_00474420(CFrontend::m_stringDest, g_unk0x0058ce58, 0,
                          (int)(g_pGraphics->resX * 0x7a) / 0x280,
                          y, (int *)pColour, 0x21);
         } else {
-            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect2, (Texture *)texture, 2,
+            Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture, 2,
                          0, NULL, NULL, pColour, 8);
             Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
                           y, (int *)pColour, 0x21);
