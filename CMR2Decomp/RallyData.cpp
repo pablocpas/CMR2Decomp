@@ -28,6 +28,18 @@ BYTE g_saveProfiles[4 * 0x650];
 BYTE g_unk0x00531348[8];
 // GLOBAL: CMR2 0x00531350
 BYTE g_saveSlots[16 * 0x30];
+
+// A save slot (g_saveSlots, 0x30 bytes): packed first word and a time.
+struct SaveSlot {
+    unsigned car : 6;
+    unsigned seconds : 7;
+    unsigned bit13 : 1;
+    unsigned level : 4;
+    unsigned category : 4;
+    unsigned rest : 10;
+    int time;
+    BYTE pad[0x28];
+};
 #define g_unk0x0052f3e0 (g_saveCarRecords)
 #define g_unk0x0052f3e8 (g_saveCarRecords + 0x8)
 #define g_unk0x0052f3ec (g_saveCarRecords + 0xc)
@@ -4127,17 +4139,6 @@ void FUN_005040f0(void)
 // Copies the per-driver stage times into the 0x30-byte records, first for the
 // used drivers (in reverse) and then for the unused ones.
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// A save slot (g_saveSlots, 0x30 bytes): packed first word and a time.
-struct SaveSlot {
-    unsigned car : 6;
-    unsigned seconds : 7;
-    unsigned bit13 : 1;
-    unsigned level : 4;
-    unsigned category : 4;
-    unsigned rest : 10;
-    int time;
-    BYTE pad[0x28];
-};
 
 // FUNCTION: CMR2 0x00408d80
 void RallyData_FUN_00408d80(void)
