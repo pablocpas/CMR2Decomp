@@ -2066,8 +2066,8 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
     case 1:
         if (g_unk0x0058cf64 != 0) {
             FUN_00455470(1);
-            g_unk0x0058cf64 = 0;
             g_unk0x0058cf7c = 2;
+            g_unk0x0058cf64 = 0;
             return;
         }
         break;

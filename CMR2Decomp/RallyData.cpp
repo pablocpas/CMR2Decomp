@@ -1387,8 +1387,7 @@ void FUN_004eaf90(BYTE index, char *name)
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     strcpy((char *)(g_unk0x0052fa24 + category * 0x650), name);
-    // 0x52fa00: per-category "name edited" flags, inside the oversized g_unk0x0052f3e8.
-    g_unk0x0052f3e8[0x618 + category] = 1;
+    g_saveDirty[category] = 1;
 }
 
 // Cheat-code names (last match wins) and the block of strings they point at.
@@ -1469,7 +1468,7 @@ char FUN_004eb370(int param_1)
         g_saveDirty[ + category] != 0) {
         result = FUN_004eb340(0, g_saveProfiles + category * 0x650);
         if (result != 0)
-            g_saveDirty[ + ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
+            g_saveDirty[((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
     }
     return result;
 }
@@ -1965,10 +1964,10 @@ void RallyData_FUN_00408760(BYTE index, int value)
     }
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf) {
-        if ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650) & 0x200000) != 0)
+        if ((*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0x200000) != 0)
             CGameInfo::FUN_00405fd0(value);
-        *(int *)(g_unk0x0052f3e8 + 0x678 + category * 0x650) = value;
-        g_unk0x0052f3e8[0x618 + category] = 1;
+        *(int *)(g_saveProfiles + 0x58 + category * 0x650) = value;
+        g_saveDirty[category] = 1;
     }
 }
 
@@ -1983,7 +1982,7 @@ int RallyData_FUN_00408800(BYTE index)
         return *(int *)(g_unk0x0052f3e0 + 4 + index * 0xc4);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        return *(int *)(g_unk0x0052f3e8 + 0x678 + category * 0x650);
+        return *(int *)(g_saveProfiles + 0x58 + category * 0x650);
     return 0;
 }
 
@@ -1994,7 +1993,7 @@ BYTE *RallyData_FUN_00408860(int index)
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        return g_unk0x0052f3e8 + category * 0x650 + 0x620;
+        return g_saveProfiles + category * 0x650;
     return NULL;
 }
 
@@ -2013,7 +2012,7 @@ void RallyData_FUN_004088a0(BYTE index, int *pValues)
     }
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf) {
-        memcpy(g_unk0x0052f3e8 + 0xc54 + category * 0x650, pValues, 5 * sizeof(int));
+        memcpy(g_saveProfiles + 0x634 + category * 0x650, pValues, 5 * sizeof(int));
         RallyData_MarkTyresChanged(index);
     }
 }
@@ -2028,7 +2027,7 @@ BYTE *RallyData_FUN_00408930(BYTE index)
         return g_unk0x0052f3e8 + 0xa8 + index * 0xc4;
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        return g_unk0x0052f3e8 + 0xc54 + category * 0x650;
+        return g_saveProfiles + 0x634 + category * 0x650;
     return NULL;
 }
 
@@ -2045,7 +2044,7 @@ void RallyData_FUN_00408990(BYTE index, BYTE *pValue)
     }
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        g_unk0x0052f3e8[0xba8 + category * 0x650] = *pValue;
+        g_saveProfiles[0x588 + category * 0x650] = *pValue;
 }
 
 // Driver record of a car: its knockout entry, or its team's record.
@@ -2059,7 +2058,7 @@ BYTE *RallyData_FUN_00408a00(BYTE index)
         return g_unk0x0052f3e8 + 5 + index * 0xc4;
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        return g_unk0x0052f3e8 + 0xba8 + category * 0x650;
+        return g_saveProfiles + 0x588 + category * 0x650;
     return NULL;
 }
 
@@ -2079,7 +2078,7 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        return g_unk0x0052f3e8 + 0xbac + category * 0x650;
+        return g_saveProfiles + 0x58c + category * 0x650;
     return NULL;
 }
 
@@ -2095,11 +2094,11 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf) {
     if (pHue != NULL)
-        *pHue = ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) >> 16) & 0x1f;
+        *pHue = ((*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650)) >> 16) & 0x1f;
     if (pShade != NULL)
-        *pShade = ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) >> 8) & 0xf;
+        *pShade = ((*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650)) >> 8) & 0xf;
     if (pValue != NULL)
-        *pValue = (*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) & 0xff;
+        *pValue = (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650)) & 0xff;
     } else {
 
         if (pHue != NULL)
@@ -2167,7 +2166,7 @@ void RallyData_MarkTyresChanged(int index)
     }
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf)
-        g_unk0x0052f3e8[0x618 + category] = 1;
+        g_saveDirty[category] = 1;
 }
 
 // FUNCTION: CMR2 0x00408d60
@@ -2509,10 +2508,10 @@ void RallyData_FUN_00408600(BYTE index, BYTE value)
     record = *(unsigned int *)(g_unk0x00531350 + index * 0x30);
     category = (record >> 0x12) & 0xf;
     if (category != 0xf) {
-        g_unk0x0052f3e8[0x618 + category] = 1;
+        g_saveDirty[category] = 1;
         *(unsigned int *)(g_unk0x00531350 + index * 0x30) = ((value ^ record) & 0x3f) ^ record;
-        *(unsigned int *)(g_unk0x0052f3e8 + 0x674 + category * 0x650) ^=
-            (*(unsigned int *)(g_unk0x0052f3e8 + 0x674 + category * 0x650) ^ value) & 0x1f;
+        *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) ^=
+            (*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) ^ value) & 0x1f;
     }
 }
 
@@ -5391,10 +5390,10 @@ BYTE RallyData_FUN_00409010(int index, int bit)
         return 0;
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
     mask = 1 << bit;
-    if ((mask & *(unsigned int *)(g_unk0x0052f3e8 + 0x66c + category * 0x650)) != 0)
+    if ((mask & *(unsigned int *)(g_saveProfiles + 0x4c + category * 0x650)) != 0)
         return 0;
-    *(unsigned int *)(g_unk0x0052f3e8 + 0x66c + category * 0x650) |= mask;
-    g_unk0x0052f3e8[0x618 + category] = 1;
+    *(unsigned int *)(g_saveProfiles + 0x4c + category * 0x650) |= mask;
+    g_saveDirty[category] = 1;
     RallyData_FUN_00408f20(index);
     return 1;
 }
@@ -5408,7 +5407,7 @@ void RallyData_FUN_00409090(int index, int place)
     unsigned int value;
 
     RallyData_ValidateIndex(index);
-    pBest = (unsigned int *)(g_unk0x0052f3e8 + 0xc4c +
+    pBest = (unsigned int *)(g_saveProfiles + 0x62c +
                              ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650);
     value = 3 - place;
     switch (CGameInfo::FUN_00405d90()) {
@@ -5605,7 +5604,7 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
                 return true;
         }
     }
-    return (*(unsigned int *)(g_unk0x0052f3e8 + 0x66c +
+    return (*(unsigned int *)(g_saveProfiles + 0x4c +
                               ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650) &
             (1 << bit)) != 0;
 }
@@ -5921,7 +5920,7 @@ void FUN_00409680(int index, int player, int difficulty)
     unsigned int level;
 
     RallyData_ValidateIndex(index);
-    pRecord = (unsigned int *)(g_unk0x0052f3e8 + 0xc4c +
+    pRecord = (unsigned int *)(g_saveProfiles + 0x62c +
         ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650);
     level = 3 - difficulty;
     mode = CGameInfo::FUN_00405d90();

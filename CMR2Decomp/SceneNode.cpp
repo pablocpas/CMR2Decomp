@@ -755,7 +755,7 @@ void Scene_BuildLightTables(void)
     DWORD *pShadow;
     int level;
     int step;
-    int offset;
+    int i;
     int v;
     BYTE alpha;
 
@@ -763,12 +763,12 @@ void Scene_BuildLightTables(void)
         step = FixDiv(0x10000, 0x310000);
         level = 0;
         p = g_sceneLightTable;
-        offset = 0;
+        i = 0;
         pShadow = g_sceneShadowTable;
         do {
             FixVecScale(&c, &g_sceneLightColour, level);
-            c.y += g_sceneAmbient.y;
             c.x += g_sceneAmbient.x;
+            c.y += g_sceneAmbient.y;
             c.z += g_sceneAmbient.z;
             v = c.x >> 16;
             if (v < 0)
@@ -789,17 +789,17 @@ void Scene_BuildLightTables(void)
                 v = 0xff;
             p[2] = (BYTE)v;
             p[3] = 0xff;
-            *(DWORD *)((BYTE *)g_sceneLightTableD3D + offset) = ((p[0] | 0xffffff00) << 8 | p[1]) << 8 | (v & 0xff);
+            g_sceneLightTableD3D[i] = ((p[0] | 0xffffff00) << 8 | p[1]) << 8 | (v & 0xff);
             *pShadow = g_shadowColour;
             alpha = (BYTE)FixMulShift32(g_shadowLevel, level);
             ((BYTE *)pShadow)[3] = alpha;
-            *(DWORD *)((BYTE *)g_sceneShadowTableD3D + offset) =
+            g_sceneShadowTableD3D[i] =
                 ((((DWORD)alpha << 8 | ((BYTE *)pShadow)[0]) << 8) | ((BYTE *)pShadow)[1]) << 8 | ((BYTE *)pShadow)[2];
-            offset += 4;
-            p += 4;
-            pShadow++;
             level += step;
-        } while (offset < 200);
+            p += 4;
+            i++;
+            pShadow++;
+        } while (i < 50);
     }
 }
 
