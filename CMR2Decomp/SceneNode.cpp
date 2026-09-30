@@ -2353,6 +2353,8 @@ void Scene_FreeShadowCasters(void)
     } while ((int)p < (int)&g_sceneLightState2[10]);
     g_sceneLightFlag = 0;
     g_sceneLightFlag2 = 0;
+    g_shadowVertexCount = 0;
+    g_shadowBatchCount = 0;
 }
 
 struct Unk0x004a3e20;
