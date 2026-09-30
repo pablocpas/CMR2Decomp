@@ -145,6 +145,7 @@ void Menu_SetParent(Menu *pMenu, Menu *pParent)
     pMenu->pParent = pParent;
 }
 
+// Searches the item tag stored at +8, as in the original lookup.
 // FUNCTION: CMR2 0x004a0380
 int Menu_FindItem(Menu *pMenu, int id)
 {
@@ -153,7 +154,7 @@ int Menu_FindItem(Menu *pMenu, int id)
 
     count = pMenu->itemCount;
     for (i = 0; i < count; i++) {
-        if (pMenu->items[i].id == id)
+        if (pMenu->items[i].value == id)
             return i;
     }
     return -1;

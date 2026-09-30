@@ -6789,11 +6789,10 @@ extern int g_unk0x00588d3c;
 extern int g_unk0x00588d14;
 extern void *g_unk0x00588e80[8];
 
-// Second set of eight buffers and the per-slot pointers into both sets.
+// Both sets share a sixteen-entry slot table, traversed as a single array.
 // GLOBAL: CMR2 0x00588d40
-void **g_unk0x00588d40[8];
-// GLOBAL: CMR2 0x00588d60
-void **g_unk0x00588d60[8];
+void **g_unk0x00588d40[16];
+#define g_unk0x00588d60 (g_unk0x00588d40 + 8)
 // GLOBAL: CMR2 0x00588ea0
 void *g_unk0x00588ea0[8];
 
@@ -7515,7 +7514,7 @@ void FUN_0046e440(void)
     BYTE *pBuffer;
     Car *pCar;
 
-    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+    for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         pBuffer = (BYTE *)**pp;
         if (pBuffer != NULL && *(int *)(pBuffer + 4) != 0 && *(int *)(pBuffer + 0x1c) == 2 &&
             *(int *)(pBuffer + 0xe8) == 0) {
@@ -7793,39 +7792,41 @@ void FUN_0046ec40(int index, int x, int y)
 
 // Sets the screen rectangles of the views from the screen size (full, top,
 // bottom, left and right halves).
-// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00464b60
 void FUN_00464b60(void)
 {
     short *pFull = (short *)g_unk0x00548110[0];
     short *p = (short *)g_unk0x0051b9f0;
-    int w = *(int *)g_pGraphics;
-    int h = *(int *)((BYTE *)g_pGraphics + 4);
+    int *pSize = (int *)g_pGraphics;
+    int half;
 
     pFull[0] = 0;
     pFull[1] = 0;
-    pFull[2] = (short)w;
-    pFull[3] = (short)h;
+    pFull[2] = (short)pSize[0];
+    pFull[3] = (short)pSize[1];
     p[0] = 0;
     p[1] = 0;
-    p[2] = (short)w;
-    p[3] = (short)h;
+    p[2] = (short)pSize[0];
+    p[3] = (short)pSize[1];
     p[4] = 0;
     p[5] = 0;
-    p[6] = (short)w;
+    p[6] = (short)pSize[0];
+    half = pSize[1] / 2;
     p[8] = 0;
-    p[7] = (short)(h / 2);
-    p[9] = (short)(h / 2);
-    p[10] = (short)w;
+    p[7] = (short)half;
+    p[9] = (short)(pSize[1] / 2);
+    p[10] = (short)pSize[0];
+    half = pSize[1] / 2;
     p[12] = 0;
-    p[11] = (short)(h / 2);
+    p[11] = (short)half;
     p[13] = 0;
-    p[14] = (short)(w / 2);
-    p[15] = (short)h;
+    p[14] = (short)(pSize[0] / 2);
+    p[15] = (short)pSize[1];
+    half = pSize[0] / 2;
     p[17] = 0;
-    p[16] = (short)(w / 2);
-    p[18] = (short)(w / 2);
-    p[19] = (short)h;
+    p[16] = (short)half;
+    p[18] = (short)(pSize[0] / 2);
+    p[19] = (short)pSize[1];
 }
 
 #define FIXVEC_EQ(a, b) ((a).x == (b).x && (a).y == (b).y && (a).z == (b).z)
@@ -9808,7 +9809,7 @@ void FUN_0046c8e0(void)
     char c;
     BYTE b;
 
-    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 16; pp++) {
+    for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         pObj = *pp;
         if (pObj == NULL)
             continue;
@@ -14122,7 +14123,7 @@ void FUN_0046d270(void)
 {
     void ***pp;
 
-    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+    for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
             FUN_0046cfa0(*(int **)*pp);
     }
@@ -14134,7 +14135,7 @@ void FUN_0046d5e0(void)
 {
     void ***pp;
 
-    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+    for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
             FUN_0046d610(*(BYTE **)*pp);
     }
@@ -14429,13 +14430,13 @@ void FUN_0046d510(void)
     short *pCount;
     short n;
 
-    for (pp = g_unk0x00588d40; pp < g_unk0x00588d40 + 8; pp++) {
+    for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         if (*pp == NULL)
             continue;
         p = (BYTE *)**pp;
         if (p == NULL || *(int *)(p + 0xc) == 0 || *(int *)(p + 0x1c) != 2)
             continue;
-        if (*((BYTE *)Car_Get(p[0x20]) + 0xb43) == 0)
+        if (*((BYTE *)Car_Get(p[0x20]) + 0xb43) <= 0u)
             continue;
         if (p[0xf8] == 0) {
             pCount = (short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x100) * 2);

@@ -246,7 +246,7 @@ void Sector_RemoveNode(SceneNode *pNode)
 int Sector_IsVisible(int iSector)
 {
     if (g_sectorCullDisabled == 0 &&
-        (g_sectorVisibleBits[iSector >> 5] & (1 << (iSector & 0x1f))) == 0 &&
+        (g_sectorVisibleBits[iSector >> 5] & (1 << (iSector & 0x1f))) <= 0u &&
         g_sectorCullEnabled != 0)
         return 0;
     return 1;

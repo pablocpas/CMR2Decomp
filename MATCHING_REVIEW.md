@@ -396,3 +396,74 @@ python3 tests/differential_billboard_init.py /tmp/cmr2-dispatch-final.json \
 
 Técnicas y variantes descartadas: `tools/CONOCIMIENTO.md`, apartado 12.5.
 La presentación gráfica completa sigue sin validarse y el hito permanece activo.
+
+## Lote de búsqueda de menú, slots de replay y rectángulos de pantalla
+
+Base `d1736c6`. Medida completa: **3364 funciones, 2159 al 100 %, 1205
+por debajo del 100 % y 816 por debajo del 90 %**. Siete exactas nuevas,
+sin funciones desaparecidas ni regresiones de exactas anteriores. Son **51
+mejoras netas desde `c11fb4d`**; faltan 506 para alcanzar 699 pendientes.
+
+| Función | Antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x464b60` | 20,93 % | 100 % | Releer dimensiones y calcular las mitades antes de los stores de cero |
+| `0x4d0820` | 70,59 % | 100 % | Retorno BYTE del callback de destrucción del splash |
+| `0x4ebee0` | 81,82 % | 100 % | Retorno BYTE y bloque de copia/liberación en la rama no nula |
+| `0x4a1610` | 91,53 % | 100 % | Índice BYTE, incluida la declaración del llamador |
+| `0x502b10` | 91,49 % | 100 % | Resultado BYTE de la comparación de opciones |
+| `0x4b7da0` | 94,44 % | 100 % | Comparación unsigned que conserva el salto del original |
+| `0x4a0380` | 95 % | 100 % | Buscar en el campo del item situado en +8 |
+| `0x46d270` | 88,24 % | 94,12 % | Recorrer los dieciséis slots, con límite y comparación con signo |
+| `0x46d5e0` | 88,24 % | 94,12 % | El mismo arreglo del dispatcher de grabación |
+| `0x46d510` | 95,24 % | 98,41 % | Dieciséis slots y comparación unsigned del flag BYTE |
+| `0x46e440` | 97,14 % | 98,57 % | Recorrer también el segundo grupo de slots |
+
+Dos causas de bugs quedan corregidas:
+
+- `Menu_FindItem` buscaba en +4, aunque el original busca en +8. Los seis
+  constructores ya coincidían y escribían correctamente ambos campos; no se
+  cambia el tamaño del item ni se intercambian los campos de sus constructores.
+- Los slots de replay de `0x588d40` y `0x588d60` eran arrays independientes de
+  ocho entradas. Cuatro recorridos solo procesaban el primer grupo, mientras
+  `0x46c8e0` recorría dieciséis sobre un array de ocho. Ahora existe un único
+  array de dieciséis, con una vista del segundo grupo en +8, y los cinco
+  recorridos usan su límite real. El inicializador conserva el 100 %. El
+  stepping `0x46c8e0` mantiene su matching parcial, con el acceso fuera del
+  array eliminado.
+
+Los cuatro replays mejorados siguen pendientes: el límite one-past del array
+coincide en la imagen recompilada con otro símbolo global, y reccmp muestra
+ese nombre en lugar del límite original sin símbolo. No se cuentan como
+exactos ni se modifica el comparador para ocultar esa diferencia.
+
+Validación:
+
+- Build completo MSVC6 correcto. El informe completo solo cambia las once
+  funciones de la tabla; las 3364 entradas originales siguen medidas.
+- `tests/differential_menu_lookup.py`: 6000 búsquedas con campos +4/+8
+  distintos, tags repetidos, WORD con signo y consultas ausentes. Cero
+  diferencias; datos y guardas intactos. Restaurar el acceso a +4 produce
+  **1692** diferencias.
+- `tests/differential_replay_slots.py`: 6000 inicializaciones y 6000 llamadas
+  a cada dispatcher con código máquina real. Verifica los dieciséis punteros,
+  resets, orden/argumentos de llamadas y memoria protegida, conservando las
+  distancias entre globals de cada imagen. Cero diferencias. Reducir el límite
+  a ocho falla en **6000 casos de playback y 6000 de grabación**. Sus callees
+  están simulados; no verifica la decodificación ni la física del replay.
+- `reccmp-datacmp`: **3188 variables, cero incidencias**. La segunda mitad
+  del array deja de anotarse como un objeto independiente; los 64 bytes se
+  comprueban en el objeto único.
+- `check_dupes.py` limpio; `git diff --check` correcto.
+
+Informes privados completos: `/tmp/cmr2-menu-replay-view-final.json`,
+`/tmp/cmr2-menu-replay-view-final-entities.json` y
+`/tmp/cmr2-menu-replay-view-final-scan.json`. Reproducir las pruebas:
+
+```bash
+python3 tests/differential_menu_lookup.py /tmp/cmr2-menu-replay-view-final.json
+python3 tests/differential_replay_slots.py /tmp/cmr2-menu-replay-view-final.json \
+  /tmp/cmr2-menu-replay-view-final-entities.json
+```
+
+Técnicas y variantes descartadas: `tools/CONOCIMIENTO.md`, apartado 12.6.
+El hito de menos de 700 funciones sin matching exacto sigue activo.

@@ -6176,9 +6176,9 @@ int FUN_00502630(int index, int type)
     return g_unk0x0082bf20[index][type] != 0;
 }
 
-// Whether the option slot value differs from its default, per column.
+// Whether the option slot value equals its default, per column.
 // FUNCTION: CMR2 0x00502b10
-int FUN_00502b10(int index, int type)
+BYTE FUN_00502b10(int index, int type)
 {
     switch (type) {
     case 0: return g_unk0x0082bf04[index * 7] == (char)g_unk0x0082bee8[index][0];
@@ -10834,9 +10834,9 @@ char g_str0x00529600[] = "%s %d (%s)";
 // placement the compiler will not reproduce from source: it keeps the param5 load in
 // EDI across the three FUN_00501f00 calls, merges the Sprite_Queue/colour-select tails
 // at different points (push offset vs mov+push) and lays the switch bodies out with a
-// different instruction schedule. FUN_00502df0/FUN_00502b10 are declared unsigned/int in
-// the tree while the original compared/tests them signed/byte, so (int)/(BYTE) casts are
-// used at the call sites to reproduce the original jg/test al encodings.
+// different instruction schedule. FUN_00502df0 is declared unsigned in the tree
+// while the original compares it signed; the call site casts to int for jg.
+// FUN_00502b10 returns BYTE, matching the original test al.
 // FUNCTION: CMR2 0x0050b1c0
 void FUN_0050b1c0(short param1, short param2, short param3, short param4, short param5, int param6)
 {

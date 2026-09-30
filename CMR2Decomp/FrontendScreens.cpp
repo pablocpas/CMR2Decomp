@@ -8169,7 +8169,7 @@ void FUN_004fb9c0(unsigned int param_1, unsigned int param_2, BYTE param_3, char
 // Cascade layer 0 (W136): forward declarations for cross-module callees.
 // ---------------------------------------------------------------------------
 char *FUN_004a1490(BYTE index);
-int Session_GetListedUserValue(unsigned int session, char index);
+int Session_GetListedUserValue(unsigned int session, BYTE index);
 DWORD FUN_004a1720(int index);
 DWORD FUN_004a1740(BYTE index);
 BYTE *FUN_004eb450(int index);

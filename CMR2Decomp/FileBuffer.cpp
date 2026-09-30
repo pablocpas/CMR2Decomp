@@ -479,18 +479,18 @@ struct Unk0x10Block {
 };
 
 // Reads the file and copies the 12 bytes at offset 0x10 into *pOut.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ebee0
-BOOL FUN_004ebee0(Unk0x10Block *pOut, char *param2)
+BYTE FUN_004ebee0(Unk0x10Block *pOut, char *param2)
 {
     void *pBuffer;
 
     pBuffer = CFileBuffer::GetGenericFileBuffer(param2, 1);
-    if (pBuffer == NULL)
-        return FALSE;
-    *pOut = *(Unk0x10Block *)((char *)pBuffer + 0x10);
-    CFileBuffer::FreeGenericFileBuffer(pBuffer);
-    return TRUE;
+    if (pBuffer != NULL) {
+        *pOut = *(Unk0x10Block *)((char *)pBuffer + 0x10);
+        CFileBuffer::FreeGenericFileBuffer(pBuffer);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -554,4 +554,3 @@ void FUN_004eb700(void)
     }
     SetCurrentDirectoryA(oldDir);
 }
-

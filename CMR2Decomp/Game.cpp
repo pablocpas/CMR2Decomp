@@ -188,9 +188,8 @@ SceneNode *g_unk0x00817fc4;
 SceneNode *g_unk0x00817fc8;
 
 // Destroys the splash screen scene (registered as a callback by FUN_004d0840).
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0820
-BOOL FUN_004d0820(void)
+BYTE FUN_004d0820(void)
 {
     if (g_unk0x00817fc8 != NULL)
         SceneNode_Destroy(g_unk0x00817fc8);
@@ -3465,7 +3464,7 @@ void FUN_004a1940(DPID *pId)
 
 // One of the four user values of a listed session.
 // FUNCTION: CMR2 0x004a1610
-int Session_GetListedUserValue(unsigned int session, char index)
+int Session_GetListedUserValue(unsigned int session, BYTE index)
 {
     switch (index) {
     case 0:
