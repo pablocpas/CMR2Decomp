@@ -1010,7 +1010,7 @@ char FUN_004097b0(int param_1)
 }
 
 BYTE *FUN_0041b390(void);
-int FUN_004232a0(int index, int mode);
+int FUN_004232a0(BYTE index, int mode);
 
 // match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423970

@@ -4521,7 +4521,7 @@ int RallyData_FUN_00408800(BYTE);
 int FUN_00407270(void);
 void FUN_00406820(void);
 void RallyData_FUN_00408290(void);
-int FUN_004232a0(int, int);
+int FUN_004232a0(BYTE, int);
 extern BYTE g_unk0x00537fd4;
 // GLOBAL: CMR2 0x0053811d
 BYTE g_unk0x0053811d;
