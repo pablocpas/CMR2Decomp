@@ -339,7 +339,7 @@ FixVector g_unk0x00539ef0;
 // GLOBAL: CMR2 0x00539f00
 FixVector g_unk0x00539f00;
 
-FixMatrix *FUN_00423d70(unsigned int index);
+FixMatrix *FUN_00423d70(BYTE index);
 int FUN_0041f3a0(void);
 unsigned int FixVec_Length(FixVector *pV);
 extern BYTE g_unk0x00538d2c[0xc8];

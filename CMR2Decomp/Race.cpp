@@ -2184,7 +2184,7 @@ void FUN_00455260(void);
 BYTE FUN_00478b80(void);
 void FUN_00478be0(void);
 void Replay_InitSlots(void);
-void FUN_00422fe0(int, int, int, int);
+void FUN_00422fe0(int, int, BYTE, int);
 BOOL Sound_Init(int, int, int, int);
 // GLOBAL: CMR2 0x00519284
 char g_strArcadeAdp0x00519284[] = "%s\\arcade%d.adp";
@@ -5115,7 +5115,7 @@ void FUN_0041af60(int param_1, int param_2);
 void FUN_0041d060(int param_1);
 void FUN_0041d0c0(int param_1);
 void FUN_00421930(unsigned int view);
-void FUN_004219b0(unsigned int view);
+void FUN_004219b0(BYTE view);
 unsigned int FUN_0049e940(void);
 bool FUN_004b7cd0(int *pOut);
 void FUN_004b7c80(void);

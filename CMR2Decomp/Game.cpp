@@ -2846,7 +2846,7 @@ void FUN_00423900(BYTE *pObject, BYTE *pInfo)
 
 void FUN_00486b90(BYTE *pCar, BYTE *pInfo);
 void FUN_004764e0(BYTE *p);
-FixMatrix *FUN_00423d70(unsigned int index);
+FixMatrix *FUN_00423d70(BYTE index);
 void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
 void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
 

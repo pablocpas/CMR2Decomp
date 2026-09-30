@@ -83,7 +83,7 @@ BYTE FUN_00422fb0(BYTE index)
 
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423d70
-FixMatrix *FUN_00423d70(unsigned int index)
+FixMatrix *FUN_00423d70(BYTE index)
 {
     BYTE state = (BYTE)RallyDataState();
     if ((BYTE)index < state)
@@ -8255,7 +8255,7 @@ void FUN_00421720(BYTE view, int type, int param, BYTE target, int blend)
 // Per-frame camera of a view: the shake animation, both records' cameras and
 // the blend between them while a transition runs.
 // FUNCTION: CMR2 0x004219b0
-void FUN_004219b0(unsigned int view)
+void FUN_004219b0(BYTE view)
 {
     BYTE index;
     BYTE active;
@@ -8392,7 +8392,7 @@ void FUN_00421e20(BYTE view)
 
 // Switches a view to camera type `type` (0 = its current one) on `target`.
 // FUNCTION: CMR2 0x00422fe0
-void FUN_00422fe0(int view, int type, int target, int blend)
+void FUN_00422fe0(int view, int type, BYTE target, int blend)
 {
     if (type == 0)
         type = FUN_00422f50(view);
