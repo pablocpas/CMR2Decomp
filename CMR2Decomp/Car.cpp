@@ -4836,7 +4836,7 @@ void FUN_00433fd0(void)
 {
     int target = g_pCurrentCar->field_0x794 - FixMul(g_pCurrentCar->field_0xb1d << 16, 0x3333);
 
-    if (g_pCurrentCar->field_0x7a4 - target > -0x290) {
+    if (g_pCurrentCar->field_0x7a4 - target >= -0x28f) {
         g_pCurrentCar->field_0x7a4 = target;
         if (g_pCurrentCar->field_0xb1d == 0)
             g_pCurrentCar->field_0xb1d = 3;

@@ -3,6 +3,10 @@
 #include "Input.h"
 #include "Sound.h"
 
+// Shared byte state is defined apart from its callers to preserve byte loads.
+// GLOBAL: CMR2 0x0052af58
+BYTE g_unk0x0052af58[2];
+
 // GLOBAL: CMR2 0x0059f8fc
 char g_unk0x0059f8fc;
 // GLOBAL: CMR2 0x0059f908

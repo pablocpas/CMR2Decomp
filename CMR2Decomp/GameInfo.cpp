@@ -2833,13 +2833,12 @@ int CGameInfo::FUN_005012c0(void)
     return result;
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a420
 int CGameInfo::FUN_0040a420(int index)
 {
     if (FUN_00405d80() == 0xc)
         return g_netStageBest[0];
-    return g_netStageBest[index - 1];
+    return g_netTables.words[0x51c / 4 + index];
 }
 
 // FUNCTION: CMR2 0x00501cc0
@@ -4132,8 +4131,7 @@ Menu *g_pMenu0x0052af44;
 int g_unk0x0052af4c;
 // GLOBAL: CMR2 0x0052af50
 int g_unk0x0052af50;
-// GLOBAL: CMR2 0x0052af58
-BYTE g_unk0x0052af58[2];
+extern BYTE g_unk0x0052af58[2];
 
 // In-race network menus (built by 0x402c40..0x404000).
 // GLOBAL: CMR2 0x00529918
@@ -4221,10 +4219,10 @@ void FUN_00402c40(void)
 void FUN_00402eb0(Menu *pMenu, char param)
 {
     if (param == 0) {
-        if (CGameInfo::FUN_00405dc0() == 0)
-            pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
-        else
+        if (CGameInfo::FUN_00405dc0() != 0)
             pMenu->items[Menu_FindItem(pMenu, 2)].max = 1;
+        else
+            pMenu->items[Menu_FindItem(pMenu, 2)].max = 0;
         if ((BYTE)CGameInfo::FUN_00405eb0()) {
             pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
             return;
@@ -4627,11 +4625,11 @@ void FUN_00404130(Menu *pMenu, int param)
     pMenu->items[1].max = (g_unk0x005298f8 >> 3) & 1;
     pMenu->items[2].max = (g_unk0x005298f8 >> 4) & 1;
     pMenu->items[3].max = (g_unk0x005298f8 >> 5) & 1;
-    if (RallyData_FUN_00411880() == 0) {
+    if (RallyData_FUN_00411880() != 0) {
         if (FUN_004174d0())
-            pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
+            pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
     } else if (FUN_004174d0()) {
-        pMenu->items[Menu_FindItem(pMenu, 4)].max = 1;
+        pMenu->items[Menu_FindItem(pMenu, 4)].max = 2;
     }
 }
 
@@ -5058,7 +5056,6 @@ void FUN_004054a0(void)
     Menu_CallCallback2(g_pMenu0x0052af44);
 }
 
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004054b0
 int FUN_004054b0(unsigned int param1)
 {
@@ -5673,11 +5670,11 @@ void FUN_0040dc30(void);
 // FUNCTION: CMR2 0x00500c00
 void FUN_00500c00(void)
 {
-    unsigned short b;
+    short b;
     short c;
 
-    b = (unsigned short)RallyDataCountryIndex();
-    c = (short)RallyData_FUN_00406920();
+    b = (BYTE)RallyDataCountryIndex();
+    c = (char)RallyData_FUN_00406920();
     if (b != c) {
         puts(g_strNeedReinitWeather);
         if (CGameInfo::FUN_00405d80() != 2 && CGameInfo::FUN_00405d80() != 8 &&
@@ -5727,7 +5724,6 @@ void FUN_0050f180(void)
 }
 
 
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00404ef0
 void FUN_00404ef0(void)
 {
@@ -6072,8 +6068,8 @@ void FUN_00501f00(int index, short *pBar)
     Unk0x0082b2c0 *p = &g_unk0x0082b2c0[index];
 
     if (p->field_0xc == 1) {
-        pBar[2] = (short)FixMulShift32(pBar[2] << 16, p->field_0x0);
-        pBar[3] = (short)FixMulShift32(pBar[3] << 16, p->field_0x0);
+        pBar[2] = (short)(FixMul(pBar[2] << 16, p->field_0x0) >> 16);
+        pBar[3] = (short)(FixMul(pBar[3] << 16, p->field_0x0) >> 16);
         return;
     }
     if (p->field_0xc == 0) {
@@ -6212,7 +6208,7 @@ int FUN_00508f60(unsigned int id, int param2)
     int count;
     int i;
 
-    count = *(char *)(param2 + 0x26a);
+    count = *(BYTE *)(param2 + 0x26a);
     i = 0;
     while (i < count) {
         if ((*(unsigned int *)(*(int *)(param2 + 0x3c + i * 4) + 0x30) & 0xff) == id)
@@ -7003,7 +6999,7 @@ void FUN_005015d0(Unk0049c2c0 *p1, BYTE state)
     CGraphics::SetProjection(0x30978, 0x4326e, 0xfa0000, 0x10000);
     FUN_0050f230();
     Game_PrepareScene((SceneNode *)g_unk0x0082b1b4, (SceneNode *)g_unk0x0082b1b0, (int)&rect[0], 0);
-    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[2], 0, 1);
+    FUN_0049d3f0(g_unk0x0082b1b4, g_unk0x0082b1b0, &rect[0], 0, 1);
     FUN_0049de40();
 }
 
@@ -9482,8 +9478,6 @@ BYTE g_unk0x00526ffc[4] = { 0xff, 0xff, 0xff, 0xff };
 
 // Applies the two switches of the network options menu back to the game info,
 // rebuilds the split bar and refreshes the dash of the selected player.
-// match 84%: implementada; la logica y las cuatro llamadas coinciden, solo cambia el
-// registro con el que MSVC6 carga el byte de g_unk0x0052af58[1] para Dash_Update.
 // FUNCTION: CMR2 0x00402f20
 void FUN_00402f20(Menu *pMenu, int param)
 {
@@ -10511,8 +10505,8 @@ void FUN_0050bfd0(int param_1)
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
         local = *(SpriteRect *)g_unk0x00831660;
-        local.x = 0;
         local.y = 0;
+        local.x = 0;
         FUN_00501de0(2, g_unk0x00831660);
         Sprite_Queue(&local, (SpriteRect *)g_unk0x00831660, (Texture *)g_unk0x00831668,
                      1, 0, NULL, NULL, g_colour0x005273a8, 8);

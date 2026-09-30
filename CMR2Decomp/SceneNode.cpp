@@ -914,9 +914,9 @@ void Scene_SetLight(FixVector *pLight, int boost)
     g_sceneLight.x = pLight->x;
     g_sceneLight.y = pLight->y;
     g_sceneLight.z = pLight->z;
-    g_sceneLightColourBytes[0] = (BYTE)((unsigned int)g_sceneLight.x >> 16);
-    g_sceneLightColourBytes[1] = (BYTE)((unsigned int)g_sceneLight.y >> 16);
-    g_sceneLightColourBytes[2] = (BYTE)((unsigned int)g_sceneLight.z >> 16);
+    g_sceneLightColourBytes[0] = (BYTE)(g_sceneLight.x >> 16);
+    g_sceneLightColourBytes[1] = (BYTE)(g_sceneLight.y >> 16);
+    g_sceneLightColourBytes[2] = (BYTE)(g_sceneLight.z >> 16);
     g_sceneLightColour.x = g_sceneLight.x - g_sceneAmbient.x;
     g_sceneLightColour.y = g_sceneLight.y - g_sceneAmbient.y;
     g_sceneLightColour.z = g_sceneLight.z - g_sceneAmbient.z;

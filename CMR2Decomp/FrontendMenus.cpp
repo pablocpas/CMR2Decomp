@@ -15,6 +15,20 @@
 #include "Game.h"
 #include "RallyData.h"
 
+extern BYTE g_unk0x00819048;
+BYTE FUN_004086f0(BYTE index);
+
+// Change callback of the championship entry screens. Its external byte state
+// preserves the original byte loads without changing the other screen callbacks.
+// FUNCTION: CMR2 0x004fac70
+void FUN_004fac70(Menu *pMenu, char param)
+{
+    pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));
+    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
+    if (param != 0)
+        FUN_004faa50(FUN_004f2500()->pMenu, 0);
+}
+
 // GLOBAL: CMR2 0x00525c30
 BYTE g_eventEntries[288] = {
     0x01, 0x07, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00,
@@ -538,12 +552,15 @@ unsigned short FUN_0040bba0(void);
 // Separator line under the rows of the controls pages.
 // GLOBAL: CMR2 0x0082af70
 short g_controlsLine[4];
-// Controller configuration used by each of the 8 player slots.
+// Player device slots and the adjacent device last shown by the settings page.
+struct ControlsDeviceSelection {
+    unsigned short slots[8];
+    unsigned short lastDevice;
+};
 // GLOBAL: CMR2 0x0082a7c8
-unsigned short g_unk0x0082a7c8[8];
-// Configuration the device settings page was last showing.
-// GLOBAL: CMR2 0x0082a7d8
-unsigned short g_unk0x0082a7d8;
+ControlsDeviceSelection g_controlsDeviceSelection;
+#define g_unk0x0082a7c8 (g_controlsDeviceSelection.slots)
+#define g_unk0x0082a7d8 (g_controlsDeviceSelection.lastDevice)
 // Set when the devices must be re-read (the game lost the focus).
 // GLOBAL: CMR2 0x0082a7dc
 int g_unk0x0082a7dc;
@@ -908,7 +925,7 @@ void FUN_004fc970(Menu *pMenu, char back)
             FUN_0040bbe0(i, *pSlot);
             pSlot++;
             i++;
-        } while (pSlot < &g_unk0x0082a7c8[8]);
+        } while ((int)pSlot < (int)&g_unk0x0082a7d8);
         memcpy(FUN_0040bbb0(), g_controlsCopy, sizeof(g_controlsCopy));
     }
 }
@@ -960,7 +977,7 @@ void FUN_004fc9b0(Menu *pMenu, int param)
         *pSlot = FUN_0040bbc0(i);
         pSlot++;
         i++;
-    } while (pSlot < &g_unk0x0082a7c8[8]);
+    } while ((int)pSlot < (int)&g_unk0x0082a7d8);
     memcpy(g_controlsCopy, FUN_0040bbb0(), sizeof(g_controlsCopy));
     FUN_004fcb30();
 }
@@ -2371,12 +2388,14 @@ void FUN_004fa890(Menu *pMenu, int param)
 }
 
 // Item callback of the arcade player-count page.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fa910
 void FUN_004fa910(Menu *pMenu, int param)
 {
     FUN_004ea8c0(pMenu->cursor + 1);
-    RallyData_FUN_0040d640(CGameInfo::FUN_00405d70() == 1 ? 5 : 0);
+    if (CGameInfo::FUN_00405d70() == 1)
+        RallyData_FUN_0040d640(5);
+    else
+        RallyData_FUN_0040d640(0);
     FUN_004f1bb0(CGameInfo::FUN_00405d70());
     FUN_004ea950(0);
     Menu_SetParent(FUN_004f83a0(), pMenu);

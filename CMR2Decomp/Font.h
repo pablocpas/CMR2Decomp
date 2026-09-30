@@ -72,7 +72,7 @@ int Font_GetTextWidth(unsigned int index, BYTE *text);
 int Font_GetTextHeight(unsigned int index, char *text);
 int Font_GetLineHeight(unsigned int index);
 void Font_DrawChar(unsigned int ch, short x, short y);
-void Font_DrawText(unsigned int index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
+void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
 void Font_SetBlendMode(int mode);
 int Font_Unused(int unused1, int unused2);
 

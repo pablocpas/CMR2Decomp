@@ -69,8 +69,54 @@ struct NetClassification {
     int id;                     // 0xc
 };
 
-extern NetPlayer g_netPlayers[8];
-extern unsigned int g_netStageBest[10];
+// The network tables occupy one continuous region in the original. The word
+// view also covers the result immediately before the stage-best array.
+struct NetTableFields {
+    NetPlayer players[8];
+    int ranks[8];
+    int idsUnsorted[8];
+    NetResult results[8];
+    unsigned int stageBest[10];
+    int ids[8];
+    unsigned int previousBest;
+    int newRecord;
+    int total;
+    int standingCount;
+    char recordName[0xe8];
+    int ranks2[8];
+    unsigned int bestTime;
+};
+union NetTables {
+    NetTableFields fields;
+    unsigned int words[0x684 / 4];
+};
+typedef char NetTableSizeCheck[sizeof(NetTableFields) == 0x684 ? 1 : -1];
+extern NetTables g_netTables;
+#define g_netPlayers (g_netTables.fields.players)
+#define g_netRanks (g_netTables.fields.ranks)
+#define g_netIdsUnsorted (g_netTables.fields.idsUnsorted)
+#define g_netResults (g_netTables.fields.results)
+#define g_netStageBest (g_netTables.fields.stageBest)
+#define g_netIds (g_netTables.fields.ids)
+#define g_netPrevBest (g_netTables.fields.previousBest)
+#define g_netNewRecord (g_netTables.fields.newRecord)
+#define g_netTotal (g_netTables.fields.total)
+#define g_netStandingCount (g_netTables.fields.standingCount)
+#define g_netRecordName (g_netTables.fields.recordName)
+#define g_netRanks2 (g_netTables.fields.ranks2)
+#define g_netBestTime (g_netTables.fields.bestTime)
+
+struct NetSplitFields {
+    int classCount;
+    unsigned int best[8];
+};
+union NetSplitRecords {
+    NetSplitFields fields;
+    unsigned int words[9];
+};
+extern NetSplitRecords g_netSplitRecords;
+#define g_netClassCount (g_netSplitRecords.fields.classCount)
+#define g_netSplitBest (g_netSplitRecords.fields.best)
 
 void FUN_00409a30(void);
 void FUN_00409ab0(char keepReady, char resetTotal);

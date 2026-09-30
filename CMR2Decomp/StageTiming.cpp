@@ -482,14 +482,14 @@ int StageTiming_GetSplitTimeForPosition(int iPosition, int iSplit)
     return ConvertRawTimeToCentiseconds(g_stageSplitTimesRaw[iSplit][g_stageSplitTimesRawDriverIx[iSplit][iPosition]]);
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455db0
 int StageTiming_GetCurrentSplitTimeForDriver(int iDriver)
 {
     int iSplit;
 
     iSplit = GetStageSplitCount();
-    return ConvertRawTimeToCentiseconds(g_stageSplitTimesRaw[iSplit][g_stageSplitTimesRawDriverIx[iSplit][g_stageSplitPositions[iSplit][iDriver]]]);
+    int value = g_stageSplitTimesRaw[iSplit][g_stageSplitTimesRawDriverIx[iSplit][g_stageSplitPositions[iSplit][iDriver]]];
+    return ConvertRawTimeToCentiseconds(value);
 }
 
 // FUNCTION: CMR2 0x00455de0
@@ -528,7 +528,6 @@ void StageTiming_AddToOverall(void)
     RallyTiming_AddStageTimes(g_stageSplitDriverIndices[iSplit], g_stageSplitTimesRawDriverIx[iSplit], g_stageSplitTimesRaw[iSplit]);
 }
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455df0
 void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2)
 {
@@ -539,8 +538,12 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
     iSplit = GetStageSplitCount();
     iSlot1 = iPosition1 - CGameInfo::FUN_00405d70();
     iSlot2 = iPosition2 - CGameInfo::FUN_00405d70();
-    *piTime1 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot1], iSplit);
-    *piTime2 = StageTiming_GetSplitTimeForPosition(g_stageSplitPositions[iSplit][iSlot2], iSplit);
+    int position = g_stageSplitPositions[iSplit][iSlot1];
+    int time = StageTiming_GetSplitTimeForPosition(position, iSplit);
+    *piTime1 = time;
+    position = g_stageSplitPositions[iSplit][iSlot2];
+    time = StageTiming_GetSplitTimeForPosition(position, iSplit);
+    *piTime2 = time;
 }
 
 // match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -1004,7 +1007,7 @@ void StageTiming_QueueDriverSlot(int index);
 void FUN_00448bf0(int slot)
 {
     if (RallyData_FUN_004082b0() == 1 && g_unk0x0053d1a6 != 0 && slot != g_unk0x0053d1a8) {
-        if ((int)(RallyData_FUN_004082d0() * 100) < g_unk0x0053d1a2) {
+        if (g_unk0x0053d1a2 > (int)(RallyData_FUN_004082d0() * 100)) {
             g_unk0x0053d1a7 = 1;
             StageTiming_QueueDriverSlot(g_unk0x0053d1a8);
             StageTiming_QueueDriverSlot(1 - g_unk0x0053d1a8);
@@ -1611,12 +1614,16 @@ void FUN_004667c0(int count)
     g_unk0x00588b9c = (int *)CFileBuffer::AllocateLockedBuffer(count * 4);
     g_unk0x00588ba0 = (int *)CFileBuffer::AllocateLockedBuffer(count * 4);
     g_unk0x00588a90 = count;
-    offset = 0;
-    for (i = 0; i < g_unk0x00588a90; i++) {
-        g_unk0x00588ba0[i] = 0;
-        g_unk0x00588b9c[i] = 0;
-        g_unk0x00588990[i] = (int *)(g_unk0x00588b94 + offset);
-        offset += 0x4d0;
+    i = 0;
+    if (i < g_unk0x00588a90) {
+        offset = 0;
+        do {
+            g_unk0x00588ba0[i] = 0;
+            g_unk0x00588b9c[i] = 0;
+            g_unk0x00588990[i] = (int *)(g_unk0x00588b94 + offset);
+            offset += 0x4d0;
+            i++;
+        } while (i < g_unk0x00588a90);
     }
     CGame::RegisterCallback(FUN_00466680, NULL);
 }

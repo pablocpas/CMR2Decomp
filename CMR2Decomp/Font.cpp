@@ -280,7 +280,7 @@ void Font_DrawChar(unsigned int ch, short x, short y)
 // 0x10 = y is the vertical middle of the first line, 0x20 = y is its bottom.
 // match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b880
-void Font_DrawText(unsigned int index, char *text, int x, unsigned int y, int *pColour, unsigned int flags)
+void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags)
 {
     FontSlot *pFont;
     int length;

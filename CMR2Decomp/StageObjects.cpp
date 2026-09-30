@@ -5449,7 +5449,7 @@ int FUN_00475970(int scale, int unused, short *pRect, BYTE *pColour, int layer)
 
     rect[0] = pRect[0];
     rect[1] = pRect[1];
-    rect[2] = (short)FixMulShift32((int)pRect[2] << 16, scale);
+    rect[2] = (short)(FixMul((int)pRect[2] << 16, scale) >> 16);
     rect[3] = pRect[3];
     return Sprite_FillRect(unused, rect, pColour, layer);
 }
@@ -5484,7 +5484,7 @@ int FUN_004648f0(void)
     int v;
 
     Scene_GetLightColourBytes((DWORD *)c);
-    v = FixDiv((c[2] + c[1] + c[0] - 0x46) << 16, 0x2260000);
+    v = FixDiv((c[0] + c[1] + c[2] - 0x46) << 16, 0x2260000);
     if (v < 0)
         return 0;
     if (v > 0x10000)
@@ -9694,8 +9694,6 @@ extern BYTE g_barTextColour[4];
 
 // Draws the two header lines of a knockout match: interpolates the panel
 // rectangle, then prints both driver names with the shared bar colours.
-// match 97%: the original reads the header layer byte straight into AL (its Font_DrawText
-// takes a BYTE index); ours zero-extends it from the BYTE global
 // FUNCTION: CMR2 0x00474fe0
 void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, KnockoutMatch *param6)
 {

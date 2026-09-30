@@ -2323,7 +2323,7 @@ int g_unk0x005334f4[8][2];
 // FUNCTION: CMR2 0x0040bad0
 void FUN_0040bad0(void)
 {
-    int i;
+    unsigned int i;
     DeviceInfo *pDev;
 
     for (i = 0; i < 8; i++) {

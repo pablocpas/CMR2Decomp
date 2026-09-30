@@ -278,14 +278,11 @@ int RallyTiming_GetOverallPositionDriverID(int iPosition)
 	return g_rallyOverallOrderDriverID[iPosition];
 }
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d3b0
 int RallyTiming_GetOverallTimeForPosition(int iPosition)
 {
-	int iTime;
-
-	iTime = g_rallyOverallTimesRaw[g_rallyOverallOrderDriverID[iPosition]];
-	return ConvertRawTimeToCentiseconds(iTime);
+	iPosition = g_rallyOverallOrderDriverID[iPosition];
+	return ConvertRawTimeToCentiseconds(g_rallyOverallTimesRaw[iPosition]);
 }
 
 // FUNCTION: CMR2 0x0040d100

@@ -18,39 +18,13 @@ BYTE g_netRandomColour[4] = { 0xff, 0xff, 0xff, 0xff };
 // GLOBAL: CMR2 0x00531770
 int g_netIdCount;
 // GLOBAL: CMR2 0x00531778
-NetPlayer g_netPlayers[8];
-// GLOBAL: CMR2 0x00531b78
-int g_netRanks[8];
-// GLOBAL: CMR2 0x00531b98
-int g_netIdsUnsorted[8];
-// GLOBAL: CMR2 0x00531bb8
-NetResult g_netResults[8];
-// GLOBAL: CMR2 0x00531c98
-unsigned int g_netStageBest[10];
-// GLOBAL: CMR2 0x00531cc0
-int g_netIds[8];
-// GLOBAL: CMR2 0x00531ce0
-unsigned int g_netPrevBest;
-// GLOBAL: CMR2 0x00531ce4
-int g_netNewRecord;
-// GLOBAL: CMR2 0x00531ce8
-int g_netTotal;
-// GLOBAL: CMR2 0x00531cec
-int g_netStandingCount;
-// GLOBAL: CMR2 0x00531cf0
-char g_netRecordName[0xe8];
-// GLOBAL: CMR2 0x00531dd8
-int g_netRanks2[8];
-// GLOBAL: CMR2 0x00531df8
-unsigned int g_netBestTime;
+NetTables g_netTables;
 // GLOBAL: CMR2 0x00531e00
 NetStanding g_netStandings[8];
 // GLOBAL: CMR2 0x00531ec0
 NetStanding g_netStandings2[8];
 // GLOBAL: CMR2 0x00531f80
-int g_netClassCount;
-// GLOBAL: CMR2 0x00531f84
-unsigned int g_netSplitBest[8];
+NetSplitRecords g_netSplitRecords;
 extern BYTE g_unk0x00539cc8;
 // GLOBAL: CMR2 0x005320a8
 unsigned int g_netLapBest;
@@ -445,8 +419,8 @@ void FUN_0040a330(unsigned int time, int stage)
         g_netNewRecord = 0;
         return;
     }
-    if (time < g_netStageBest[stage - 1] || g_netStageBest[stage - 1] == 0)
-        g_netStageBest[stage - 1] = time;
+    if (time < g_netTables.words[0x51c / 4 + stage] || g_netTables.words[0x51c / 4 + stage] == 0)
+        g_netTables.words[0x51c / 4 + stage] = time;
 }
 
 // FUNCTION: CMR2 0x0040a3c0
@@ -474,11 +448,10 @@ char *FUN_0040a400(void)
     return g_netRecordName;
 }
 
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a410
 unsigned int FUN_0040a410(int split)
 {
-    return g_netSplitBest[split - 1];
+    return g_netSplitRecords.words[split];
 }
 
 // FUNCTION: CMR2 0x0040a440
@@ -545,6 +518,7 @@ int FUN_004483c0(int index);
 // Rebuilds the stage results table: one entry per active remote player (speed,
 // sign-extended bits of field_0x1a, finish flag and time) plus the local player
 // at the end, then sorts it with FUN_0040a490.
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a580
 void FUN_0040a580(int param1, int param2, int param3)
 {
@@ -825,7 +799,7 @@ int __cdecl FUN_0040acd0(const void *a, const void *b)
         return 1;
     if (p1->time < p2->time)
         return -1;
-    return (unsigned int)p2->id < (unsigned int)p1->id ? 1 : -1;
+    return (unsigned int)p1->id > (unsigned int)p2->id ? 1 : -1;
 }
 
 // Final classification: best time of every player plus the local one.
@@ -1027,11 +1001,11 @@ void FUN_0040b120(void)
     int i;
 
     g_netIdCount = 0;
-    g_netIds[g_netIdCount] = g_netIdsUnsorted[g_netIdCount] = FUN_004a1a00();
+    g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = FUN_004a1a00();
     g_netIdCount++;
     for (i = 0; i < 7; i++) {
-        if (FUN_00409cb0(i)) {
-            g_netIds[g_netIdCount] = g_netIdsUnsorted[g_netIdCount] = FUN_00409d20(i);
+        if ((BYTE)FUN_00409cb0(i)) {
+            g_netIdsUnsorted[g_netIdCount] = g_netIds[g_netIdCount] = FUN_00409d20(i);
             g_netIdCount++;
         }
     }
@@ -1071,4 +1045,3 @@ void FUN_0040b200(int index)
 {
     g_netPlayers[index].flags |= 0x800000;
 }
-

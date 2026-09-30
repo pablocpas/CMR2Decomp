@@ -467,3 +467,59 @@ python3 tests/differential_replay_slots.py /tmp/cmr2-menu-replay-view-final.json
 
 Técnicas y variantes descartadas: `tools/CONOCIMIENTO.md`, apartado 12.6.
 El hito de menos de 700 funciones sin matching exacto sigue activo.
+
+## Segundo lote de 50 exactas — 30 de septiembre de 2026
+
+Base: `d19e7a9`, misma rama `decomp/matching-review`. Medición completa de
+ambas imágenes, con informes privados para no confundir la base del lote con
+el baseline compartido de check.sh.
+
+| Medida | Base | Final |
+|---|---:|---:|
+| Funciones medidas | 3364 | 3364 |
+| Al 100 % | 2159 | **2209** |
+| Por debajo del 100 % | 1205 | **1155** |
+| Por debajo del 90 % | 816 | **803** |
+| Exactas previas que dejan de serlo | — | **0** |
+| Funciones desaparecidas | — | **0** |
+| Incidencias de datos iniciales | 0 | **0** |
+
+Son **50 nuevas exactas**, trece desde menos del 90 %. El detalle completo,
+con dirección, nombre y porcentaje inicial, está en
+[tests/matching_next50.tsv](tests/matching_next50.tsv).
+
+Se corrigen accesos de índice cero a tablas de red que habían quedado
+independientes, un flag de Race duplicado dentro de un array, el return de
+«atrás» que faltaba y el puntero a medio rectángulo de una pantalla. También
+se ajustan bytes, comparaciones, máscaras, registros y orden de stores.
+Las técnicas y variantes descartadas se documentan en `tools/CONOCIMIENTO.md`
+§12.7 (ruta compartida `/home/pablo/colin_mcrae_linux/tools/CONOCIMIENTO.md`).
+
+Validación:
+
+- Compilación completa y `tools/check.sh` correctos. Los avisos de regresión
+  de su baseline antiguo no son el delta de este lote; el informe completo
+  contra d19e7a9 confirma 50 nuevas, cero exactas perdidas y cero desaparecidas.
+- `reccmp-datacmp`: **3173 variables, cero incidencias**. Persisten avisos de
+  aliases GLOBAL que ya estaban en la base.
+- `check_dupes.py`: 3362 FUNCTION, cero STUB, 3174 globals; limpio según el
+  criterio del script. `overlap.py`: **28 -> 27**, ningún solapamiento nuevo.
+- **6000** casos de getters/actualizaciones de red: cero diferencias en
+  ambas regiones completas y guardas; mutaciones detectadas en 6000 y 5571.
+- **6000** ensamblados de resultados de red: cero diferencias; comparadores
+  nativos, qsort real, contenido completo, llamadas y guardas comprobados.
+- **6000** callbacks de atrás: cero diferencias; la mutación sin return
+  produce llamadas adicionales en 4800 casos.
+- `git diff --check`: correcto.
+
+Hay cuatro descensos entre funciones que ya eran parciales: `0x40a580`,
+89,57 -> 82,46 %; `0x40b880`, 27,13 -> 26,53 %; `0x4d6f10`, 60,11 -> 56,71 %;
+`0x4d7380`, 62,79 -> 59,52 %. La prueba nueva de resultados cubre 0x40a580.
+Los otros son llamadores afectados por el layout de red y el índice BYTE de
+Font_DrawText y continúan pendientes. Las pruebas no validan transporte de
+red, todos los renderers ni una partida completa. El 100 % aquí es el matching
+normalizado de reccmp; no igualdad literal de dos archivos PE reubicados.
+
+Informes finales: `/tmp/cmr2-next50-final.json`,
+`/tmp/cmr2-next50-final-scan.json` y `/tmp/cmr2-next50-final-entities.json`.
+Logs con el mismo prefijo: check, data, tables-test, results-test y back-test.

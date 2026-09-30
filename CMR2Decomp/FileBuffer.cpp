@@ -338,13 +338,11 @@ found:
 }
 
 // Resets record `index` of the 0x531350 table to category 0xf, clearing bit 0x2000.
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ebe80
 void FUN_004ebe80(int index)
 {
+    unsigned int value = *(unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
     unsigned int *pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
-    unsigned int value = *pRecord;
-
     if ((value & 0x3c0000) != 0x3c0000)
         *pRecord = value & 0xffffdfff | 0x3c0000;
 }

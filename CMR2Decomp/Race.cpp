@@ -40,21 +40,19 @@ struct RaceSlotState {
 RaceSlotState g_raceSlotState[20];
 
 // Assigns an unused race slot and marks its owner for refresh.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00417660
 void Race_AssignUnusedSlot(int owner)
 {
     int i = 0;
     do {
-        int next = i;
         if ((g_raceSlotState[i].flags & 2) == 0) {
-            next = 20;
             g_raceSlotState[i].flags |= 2;
             g_raceSlotState[i].owner = owner;
             g_raceSlotState[i].flags &= 0xfe;
             g_raceSlotState[i].pending = -1;
+            i = 20;
         }
-        i = next + 1;
+        i++;
     } while (i < 20);
 }
 
@@ -106,6 +104,8 @@ int g_unk0x00537f60;
 int g_unk0x00537f68[4];
 // GLOBAL: CMR2 0x00537f78
 int g_unk0x00537f78[7];
+// The frame callback flag is the sixth dword of the same race state block.
+#define g_unk0x00537f8c (g_unk0x00537f78[5])
 // GLOBAL: CMR2 0x00537f94
 int g_unk0x00537f94;
 // GLOBAL: CMR2 0x00537ffa
@@ -1211,7 +1211,7 @@ void FUN_00417e60(void)
 BYTE *FUN_00464b10(int view);
 int Font_GetTextWidth(unsigned int index, BYTE *text);
 int Font_GetTextHeight(unsigned int index, char *text);
-void Font_DrawText(unsigned int index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
+void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
 
 // Shadow colour of the race call text (black).
 // GLOBAL: CMR2 0x00517e28
@@ -3838,11 +3838,11 @@ void FUN_00418b00(Unk0049c2c0 *p, BYTE index)
 
     for (i = 0; i < (BYTE)RallyDataState(); i++) {
         if (g_carSounds[i] != -1) {
-            if (Sound_IsPlaying(g_carSounds[i]) == 0)
-                g_carSounds[i] = -1;
-            else
+            if (Sound_IsPlaying(g_carSounds[i]) != 0)
                 FUN_004b79a0(g_carSounds[i], FixMul(FUN_00427d50(g_unk0x00537398[i], g_unk0x00537364[i]),
                                                     FixMul(g_unk0x00537394, g_unk0x00537384[i])));
+            else
+                g_carSounds[i] = -1;
         }
     }
 }
@@ -3964,16 +3964,15 @@ void FUN_00418ba0(unsigned int view, int strength, int listener)
 }
 
 // Plays one of the three horn sounds (random for kind 0).
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418cd0
 void FUN_00418cd0(unsigned int view, int kind, int listener)
 {
     int sound = 0;
 
-    if (kind == 0)
-        sound = rand() % 2;
-    else if (kind == 2)
-        sound = 2;
+    switch (kind) {
+    case 0: sound = rand() % 2; break;
+    case 2: sound = 2; break;
+    }
     FUN_004187d0(view, (unsigned short)(g_unk0x005373a8 + sound), 0x10000, listener);
 }
 
@@ -4260,7 +4259,7 @@ void FUN_0041fd30(void)
     BYTE *pPrimary;
     BYTE *pSecondary;
     int i;
-    unsigned int avg;
+    int avg;
 
     pNames[0] = g_str0x005196dc;
     pNames[1] = g_str0x005196d0;
@@ -4320,7 +4319,7 @@ void FUN_0041fd30(void)
         pPrimary = g_unk0x00538234;
         pSecondary = g_unk0x00538238;
         for (i = 0; i < 6; i++) {
-            avg = ((unsigned int)pSecondary[0x48 + i] + (unsigned int)pPrimary[0x48 + i]) / 2;
+            avg = ((int)pSecondary[0x48 + i] + (int)pPrimary[0x48 + i]) / 2;
             if (avg > 0xff)
                 avg = 0xff;
             colour[i] = (BYTE)avg;
@@ -4331,12 +4330,12 @@ void FUN_0041fd30(void)
         CGraphics::FUN_004a6060((BYTE)*(int *)((BYTE *)colour + 3));
         CGraphics::FUN_004a6080((BYTE)*(int *)((BYTE *)colour + 4));
         CGraphics::FUN_004a60b0((BYTE)*(int *)((BYTE *)colour + 5));
-        if ((unsigned short)FUN_00407650() < 0x834) {
-            RallyData_FUN_00407800(0);
+        if ((unsigned short)FUN_00407650() >= 0x834) {
+            RallyData_FUN_00407800(1);
             FUN_004918d0();
             return;
         }
-        RallyData_FUN_00407800(1);
+        RallyData_FUN_00407800(0);
         FUN_004918d0();
     }
 }
@@ -5050,8 +5049,6 @@ int g_unk0x00538124;
 int g_unk0x00538104;
 // GLOBAL: CMR2 0x00537f04
 int g_unk0x00537f04;
-// GLOBAL: CMR2 0x00537f8c
-int g_unk0x00537f8c;
 // GLOBAL: CMR2 0x00537fc8
 int g_unk0x00537fc8;
 // GLOBAL: CMR2 0x00537f28

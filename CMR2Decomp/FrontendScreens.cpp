@@ -5407,8 +5407,10 @@ void FUN_004f2970(Menu *pMenu, char back)
 {
     int i;
 
-    if (back != 0)
+    if (back != 0) {
         FUN_004eaba0();
+        return;
+    }
     for (i = 0; i < 8; i++)
         FUN_004eab40(i, pMenu->items[i].max);
 }
@@ -7396,14 +7398,15 @@ void FUN_004f3220(Menu *pMenu, int param)
         pMenu->items[1].value = 2;
         pMenu->items[1].max = 0;
         pMenu->items[1].min = 2;
-        pMenu->items[1].max = CGameInfo::FUN_00406440() != 0;
+        pMenu->items[1].max = (BYTE)CGameInfo::FUN_00406440() != 0;
         pMenu->cursor = 2;
         return;
     }
     pMenu->items[1].value = 1;
     pMenu->items[1].min = 5;
+    BYTE max = FUN_004eaa80() - 1;
     pMenu->cursor = 2;
-    pMenu->items[1].max = FUN_004eaa80() - 1;
+    pMenu->items[1].max = max;
 }
 
 // Setting row of the game type chosen in entry 0 of the second quick race
@@ -7635,18 +7638,6 @@ void FUN_004faa50(Menu *pMenu, int param)
         CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
         pScroller->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
     }
-}
-
-// Change callback of the championship entry screens: stores the new entry
-// value, resets the mode's selection and re-lays the entry list on request.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// FUNCTION: CMR2 0x004fac70
-void FUN_004fac70(Menu *pMenu, char param)
-{
-    pMenu->items[0].max = FUN_004086f0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048));
-    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
-    if (param != 0)
-        FUN_004faa50(FUN_004f2500()->pMenu, 0);
 }
 
 // Item callback of the entry value screens: stores the value selected for the

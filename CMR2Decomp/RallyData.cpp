@@ -3491,7 +3491,7 @@ int FUN_004100a0(void)
 {
     unsigned int *pState = RallyData_GetChampionshipState();
 
-    if (CGameInfo::FUN_00405d80() == 4 && (int)(5 - (*pState & 7)) < (int)((*pState >> 3) & 7))
+    if (CGameInfo::FUN_00405d80() == 4 && ((*pState >> 3) & 7) > 5u - (*pState & 7))
         return 1;
     if (CGameInfo::FUN_00405da0() && FUN_0041b370()) {
         CGraphics::ClearTarget();
@@ -5391,19 +5391,19 @@ void RallyData_FUN_00409090(int index, int place)
     value = 3 - place;
     switch (CGameInfo::FUN_00405d90()) {
     case 0:
-        if ((*pBest & 3) < value) {
+        if (value > (*pBest & 3)) {
             *pBest = ((*pBest ^ value) & 3) ^ *pBest;
             RallyData_IncrementCategoryUse(index);
         }
         break;
     case 1:
-        if (((*pBest >> 2) & 3) < value) {
+        if (value > ((*pBest >> 2) & 3)) {
             *pBest = ((value & 3) << 2) | (*pBest & 0xfffffff3);
             RallyData_IncrementCategoryUse(index);
         }
         break;
     case 2:
-        if (((*pBest >> 4) & 3) < value) {
+        if (value > ((*pBest >> 4) & 3)) {
             *pBest = ((value & 3) << 4) | (*pBest & 0xffffffcf);
             RallyData_IncrementCategoryUse(index);
         }

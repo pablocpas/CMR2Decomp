@@ -556,7 +556,7 @@ void Tri2D_DrawLayer(int layer)
     CGraphics::FUN_004a3e40(5, 6);
     switch (layer) {
     case 2:
-        if (g_tri2DCount2 != 0) {
+        if (g_tri2DCount2 > 0u) {
             CGraphics::FUN_004a4850(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer2,
                                                               g_tri2DCount2 * 3, 0);
@@ -565,7 +565,7 @@ void Tri2D_DrawLayer(int layer)
         }
         break;
     case 3:
-        if (g_tri2DCount3 != 0) {
+        if (g_tri2DCount3 > 0u) {
             CGraphics::FUN_004a4850(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer3,
                                                               g_tri2DCount3 * 3, 0);
@@ -574,7 +574,7 @@ void Tri2D_DrawLayer(int layer)
         }
         break;
     case 4:
-        if (g_tri2DCount4 != 0) {
+        if (g_tri2DCount4 > 0u) {
             CGraphics::FUN_004a4850(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer4,
                                                               g_tri2DCount4 * 3, 0);
@@ -583,7 +583,7 @@ void Tri2D_DrawLayer(int layer)
         }
         break;
     default:
-        if (g_tri2DCount1 != 0) {
+        if (g_tri2DCount1 > 0u) {
             CGraphics::FUN_004a4850(0, 0);
             CGraphics::m_pTextureManager->pD3D->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX, g_tri2DLayer1,
                                                               g_tri2DCount1 * 3, 0);

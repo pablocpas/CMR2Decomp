@@ -815,7 +815,7 @@ DWORD CGraphics::FUN_004bdd00(DWORD caps) {
 BOOL CGraphics::FUN_004a8f60(int width, int height, int colourDepth)
 {
     for (int i = 0; i < m_displayCount; i++) {
-        if (m_displays[i].width == width && m_displays[i].height == height && m_displays[i].colourDepth == colourDepth)
+        if (width == m_displays[i].width && height == m_displays[i].height && colourDepth == m_displays[i].colourDepth)
             return TRUE;
     }
 
@@ -6190,7 +6190,7 @@ int CGraphics::m_unk0x0065fa38;
 // FUNCTION: CMR2 0x004a3e40
 void CGraphics::FUN_004a3e40(int param1, int param2)
 {
-    if (m_unk0x00520b1c == param1 && m_unk0x00520b20 == param2)
+    if (param1 == m_unk0x00520b1c && param2 == m_unk0x00520b20)
         return;
     m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x13, param1);
     m_pTextureManager->pD3D->SetRenderState((D3DRENDERSTATETYPE)0x14, param2);
