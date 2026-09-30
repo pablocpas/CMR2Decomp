@@ -678,9 +678,8 @@ del permuter sí se revisan antes de aplicarlas.
 
 | Medida | Inicio (`4c421e7`) | Ahora |
 |---|---:|---:|
-| Byte a byte exactas (`fastcmp`) | 2391 | **2423** |
-| reccmp estricto (`matching == 1`) | 2333 | **2354** |
-| reccmp por debajo del 90 % | 759 | 747 |
+| Byte a byte exactas (`fastcmp`) | 2391 | **2458** |
+| Byte a byte por debajo del 90 % | 803 | 764 |
 | `reccmp-datacmp` | 0 incidencias | 0 incidencias |
 
 ### Reglas de MSVC6 confirmadas con TUs mínimos
@@ -729,3 +728,40 @@ Funciones exactas nuevas en esta tanda: `0x409150`, `0x40d4b0`, `0x4188c0`,
 `0x4b4910`, `0x4b5ee0`, `0x4bae10`, `0x4cf740`, `0x4cf8e0`, `0x4cfa10`,
 `0x4e3340`, `0x4eb0c0`, `0x4ec2b0`, `0x4f02e0`, `0x505e70`. Las variantes
 descartadas de las que se resisten están en `tools/fastcmp/work/hard.txt`.
+
+### Segunda tanda: barridos automáticos y más reglas
+
+| Paso | Exactas byte a byte |
+|---|---:|
+| Tras la primera tanda | 2423 |
+| Bucles indexados, signo del límite, helpers anidados | 2434 |
+| Barrido de un paso con todas las mutaciones (`mutscan.py`, solo EXACT) | 2448 |
+| Bucles indexados, registros de guardado, parámetros `BYTE` | **2458** |
+
+Reglas añadidas:
+
+9. **Bucles indexados.** Casi todos los bucles de punteros sobre arrays
+   globales eran bucles con índice en el original: MSVC6 los reduce a un
+   puntero, pero conserva la comparación con signo (`jl`) y su propia
+   elección de variable de inducción. Con límite `sizeof(a)/sizeof(a[0])` la
+   comparación es sin signo (`jb`). `signscan.py` y la mutación `idxloop`.
+10. **Tablas por índice.** Los registros se acceden como `tabla[i].campo`
+    en cada uso, no a través de un puntero local.
+11. **Parámetros `BYTE`.** Si el llamador original empuja el registro sin
+    `and 0xff`, el parámetro es `BYTE` (`bytearg.py`, `paramtype.py`, que
+    solo aplica un cambio si no se pierde ninguna exacta).
+12. **Stores muertos a globals.** El original conserva asignaciones a
+    globals que se sobrescriben enseguida (`storediff.py`).
+
+Bugs corregidos en esta tanda (todos visibles en el original):
+
+- `0x4779e0`: las 16 filas de `0x58d3b8` son buffers de fichero; se
+  liberaban como nodos de escena.
+- `0x4cfff0`: dos máscaras borraban el bit de cambio manual y el nivel recién
+  escritos (mismo fallo que `0x4cfb30`).
+- `0x4f1040`: la tecla de borrar del editor de nombre eliminaba el
+  penúltimo carácter (`strlen - 2`) en vez del último.
+
+Un permuter multi-paso sobre 35 funciones de 85–99 % no encontró nada más
+tras el barrido de un paso: lo que queda en esa franja necesita cambios
+estructurales o está en la planificación de la FPU.
