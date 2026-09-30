@@ -9251,6 +9251,7 @@ void FUN_00403890(Menu *pMenu)
     int *pColour;
     int texture;
     char *text;
+    BYTE fade[4];
 
     k = 0;
     rect[0] = 0;
@@ -9258,7 +9259,9 @@ void FUN_00403890(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    *(DWORD *)fade = g_unk0x0051608c;
+    fade[3] = 0x73;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, fade, 2);
     FUN_00401b60();
     maxWidth = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);
