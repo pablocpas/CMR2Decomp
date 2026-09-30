@@ -5730,24 +5730,20 @@ extern void **g_unk0x00590c6c;
 // FUNCTION: CMR2 0x00486630
 void FUN_00486630(int list, int index, int value)
 {
-    int *p;
+    FixVector *p;
 
-    p = (int *)((BYTE *)g_unk0x00590c6c[list] + index * 0x3c);
-    p[0] = 0;
-    p[1] = 0;
-    p[2] = 0;
-    p[9] = 0;
-    p[10] = 0;
-    p[11] = 0;
-    p[3] = p[0];
-    p[12] = 0;
-    p[13] = 0;
-    p[4] = p[1];
-    p[5] = p[2];
-    p[14] = value;
-    p[6] = p[0];
-    p[7] = p[1];
-    p[8] = p[2];
+    p = (FixVector *)((BYTE *)g_unk0x00590c6c[list] + index * 0x3c);
+    p[0].x = 0;
+    p[0].y = 0;
+    p[0].z = 0;
+    p[3].x = 0;
+    p[3].y = 0;
+    p[3].z = 0;
+    p[1] = p[0];
+    p[4].x = 0;
+    p[4].y = 0;
+    p[4].z = value;
+    p[2] = p[0];
 }
 
 // Sun visibility (0..100) from the lens flare sample.
@@ -10678,7 +10674,7 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
     Car *pCar;
     int index;
     int *pMatrix;
-    int vx, vy, vz;
+    FixVector acc;
     int dRight, dForward;
     short angRight, angForward, tableAng;
     int i, recOff;
@@ -10713,17 +10709,16 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
     *(short *)(g_unk0x0058d368 + index * 0x24) = (short)i;
 
     // Angle of the car body axes against the car's last acceleration.
-    vx = pCar->velocity.x - pCar->velocityNext.x;
-    vy = pCar->velocity.y - pCar->velocityNext.y;
-    vz = pCar->velocity.z - pCar->velocityNext.z;
-    dRight = ((int)(((__int64)pCar->right.x * vx) >> 16) +
-              (int)(((__int64)pCar->right.y * vy) >> 16)) +
-             (int)(((__int64)pCar->right.z * vz) >> 16);
-    dForward = ((int)(((__int64)pCar->forward.x * vx) >> 16) +
-                (int)(((__int64)pCar->forward.y * vy) >> 16)) +
-               (int)(((__int64)pCar->forward.z * vz) >> 16);
-    angRight = (short)(((__int64)dRight << 16) / 0x1e0000);
-    angForward = (short)(((__int64)dForward << 16) / 0x1e0000);
+    acc.x = pCar->velocity.x - pCar->velocityNext.x;
+    acc.y = pCar->velocity.y - pCar->velocityNext.y;
+    acc.z = pCar->velocity.z - pCar->velocityNext.z;
+    dRight = FixVecDot(&acc, &pCar->right);
+    angRight = (short)FixDiv(dRight, 0x1e0000);
+    acc.x = pCar->velocity.x - pCar->velocityNext.x;
+    acc.y = pCar->velocity.y - pCar->velocityNext.y;
+    acc.z = pCar->velocity.z - pCar->velocityNext.z;
+    dForward = FixVecDot(&acc, &pCar->forward);
+    angForward = (short)FixDiv(dForward, 0x1e0000);
 
     // Short from the object's timing record: the target yaw.
     tableAng = **(short **)(g_unk0x0058d4f0 + index * 0x1c + 0xc);
@@ -10748,12 +10743,12 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
                           (FixAngles *)(g_unk0x0058d368 + recOff + 2));
 
     // Pose offset from the body axes, clamped and eased towards its target.
-    offX = (int)(((__int64)(-dRight) << 16) / 0x4ccc);
+    offX = FixDiv(-dRight, 0x4ccc);
     if (offX < -0x28f)
         offX = -0x28f;
     else if (offX > 0x1999)
         offX = 0x1999;
-    offZ = (int)(((__int64)(-dForward) << 16) / 0x4ccc);
+    offZ = FixDiv(-dForward, 0x4ccc);
     if (offZ < -0xf5c)
         offZ = -0xf5c;
     else if (offZ > 0xf5c)

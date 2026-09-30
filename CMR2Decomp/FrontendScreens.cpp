@@ -8155,7 +8155,7 @@ extern char g_stageNumberFormat[];
 // number and time).
 // match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
 // FUNCTION: CMR2 0x004dc930
-void FUN_004dc930(Menu *pMenu, int param)
+void FUN_004dc930(Menu *pMenu)
 {
     char *names[2];
     int *pColour;
@@ -8254,7 +8254,7 @@ BYTE *RallyData_FUN_00408270(void);
 // icon; when there is no session it shows the waiting message.
 // match 69%: asignacion de registros en el bucle y orden del sprintf
 // FUNCTION: CMR2 0x004e20e0
-void FUN_004e20e0(Menu *pMenu, int param)
+void FUN_004e20e0(Menu *pMenu)
 {
     char *names[11];
     char *pText[3];
@@ -8543,7 +8543,7 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
 // match 52%: asignacion de registros en los porcentajes y el bucle de modos
 // match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1d70
-void FUN_004e1d70(Menu *pMenu, int param)
+void FUN_004e1d70(Menu *pMenu)
 {
     BYTE colourTop[4];
     BYTE colourBottom[4];
@@ -8602,8 +8602,9 @@ void FUN_004e1d70(Menu *pMenu, int param)
 // sync with the devices, and handles the "player name" text entry.
 // match 43%: asignacion de registros; mismo flujo (texto, cursores y dispositivos)
 // FUNCTION: CMR2 0x004ed840
-void FUN_004ed840(Menu *pMenu, int param)
+void FUN_004ed840(Menu *pMenu)
 {
+    int key;
     BYTE b;
     char c;
     int i;
@@ -8649,31 +8650,31 @@ void FUN_004ed840(Menu *pMenu, int param)
         g_unk0x00818d00 = pMenu->cursor;
     }
     FUN_004a1af0();
-    if (g_unk0x00818ed0 != 0 && FUN_004b7cd0(&param)) {
-        if (param == 8) {
+    if (g_unk0x00818ed0 != 0 && FUN_004b7cd0(&key)) {
+        if (key == 8) {
             len = strlen((char *)g_unk0x00818f14);
             if (0 < (int)len) {
                 g_unk0x00818f14[len - 1] = 0;
                 g_unk0x00819028--;
             }
-        } else if (param == 0xd) {
+        } else if (key == 0xd) {
             if (g_unk0x00818f14[0] != 0) {
                 FUN_004d0700((char *)g_unk0x00818f14);
                 g_unk0x00819028 = 0;
                 g_unk0x00818f14[0] = 0;
             }
-        } else if (param == 0x1b) {
+        } else if (key == 0x1b) {
             g_unk0x00818ed0 = 0;
             FUN_004ea5c0(0);
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
             pMenu->cursor = 1;
         } else {
-            pc = strchr(g_strValidChars, param);
+            pc = strchr(g_strValidChars, key);
             if (pc != NULL) {
                 i = Font_GetTextWidth(1, g_unk0x00818f14);
                 if (g_unk0x00819028 < 0xff &&
                     i < (int)(((g_pGraphics->resX < 0x400) - 1 & 0xc6) + 0x14a)) {
-                    g_unk0x00818f14[g_unk0x00819028] = param;
+                    g_unk0x00818f14[g_unk0x00819028] = key;
                     g_unk0x00818f14[g_unk0x00819028 + 1] = 0;
                     g_unk0x00819028++;
                 }
@@ -8713,8 +8714,9 @@ LAB_004edb02:
 // edited name string back into the menu entry.
 // match 65%: los strcpy/strlen del original se expanden inline; los nuestros llaman a la CRT
 // FUNCTION: CMR2 0x004ed100
-void FUN_004ed100(Menu *pMenu, int param)
+void FUN_004ed100(Menu *pMenu)
 {
+    int key;
     char c;
     int i;
     int n;
@@ -8747,8 +8749,8 @@ void FUN_004ed100(Menu *pMenu, int param)
         g_unk0x00818cdc = (char *)g_unk0x00818ef8;
     if (value == 0 || value == 4) {
         strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
-        if (FUN_004b7cd0(&param) != 0) {
-            if (param == 8) {
+        if (FUN_004b7cd0(&key) != 0) {
+            if (key == 8) {
                 if (CFrontend::m_stringDest[0] != 0) {
                     n = 2;
                     len = strlen(CFrontend::m_stringDest);
@@ -8760,9 +8762,9 @@ void FUN_004ed100(Menu *pMenu, int param)
                 len = strlen(CFrontend::m_stringDest);
                 if ((int)(len - 1) < 0x13 &&
                     i < (int)(((g_pGraphics->resX < 0x400) - 1 & 0x54) + 0x8c)) {
-                    pc = strchr(g_strValidLetters, param);
+                    pc = strchr(g_strValidLetters, key);
                     if (pc != NULL) {
-                        CFrontend::m_stringDest[len] = (char)param;
+                        CFrontend::m_stringDest[len] = (char)key;
                         CFrontend::m_stringDest[len + 1] = 0;
                         Menu_PlaySoundId(1);
                     }
@@ -8811,7 +8813,7 @@ char g_strClassRowFormat[20] = "%s  (%s, %s, %s)";
 // match 56%: asignacion de registros en el bucle de filas y en los sprintf de la fila 0/1
 // match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004db850
-void FUN_004db850(Menu *pMenu, int param)
+void FUN_004db850(Menu *pMenu)
 {
     short rect[4];
     char *pTexts[2];
@@ -8909,7 +8911,7 @@ BYTE *FUN_004f9260(int row, int column);
 // match 58%: asignacion de registros en el bucle de filas
 // match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2610
-void FUN_004e2610(Menu *pMenu, int param)
+void FUN_004e2610(Menu *pMenu)
 {
     short rect[4];
     MenuItem *pItem;
@@ -8991,7 +8993,7 @@ void FUN_004e2610(Menu *pMenu, int param)
 // headers, the per-mode rows with the time of each stage and the help text.
 // match 86%: ranuras de pila de los temporales de las cabeceras
 // FUNCTION: CMR2 0x004e48b0
-void FUN_004e48b0(Menu *pMenu, int param)
+void FUN_004e48b0(Menu *pMenu)
 {
     BYTE *pBase;
     BYTE *pEntry;
@@ -9079,7 +9081,7 @@ void FUN_004e48b0(Menu *pMenu, int param)
 // Draws the network "best times" screen: the mode headers, the two highlight
 // bars and one row per stage with its time.
 // FUNCTION: CMR2 0x004e4fc0
-void FUN_004e4fc0(Menu *pMenu, int param)
+void FUN_004e4fc0(Menu *pMenu)
 {
     BYTE *pRow;
     unsigned int time;
@@ -9153,7 +9155,7 @@ MenuScroller *FUN_004f2560(void);
 // Draws the network "records" screen: mode title, the two bars, the column
 // headers and five rows with the player, car, gearbox and two values.
 // FUNCTION: CMR2 0x004e5c90
-void FUN_004e5c90(Menu *pMenu, int param)
+void FUN_004e5c90(Menu *pMenu)
 {
     BYTE *pRow;
     int mode;
@@ -9235,7 +9237,7 @@ void FUN_004e5c90(Menu *pMenu, int param)
 // headers and the selected row with its car, gearbox and two values.
 // match 84%: ranuras de pila y orden de los dos bloques de barra
 // FUNCTION: CMR2 0x004e63d0
-void FUN_004e63d0(Menu *pMenu, int param)
+void FUN_004e63d0(Menu *pMenu)
 {
     BYTE *pRow;
     unsigned int *pFlags;
@@ -9318,7 +9320,7 @@ BYTE *FUN_004f92c0(int index);
 // Draws the network "championship standings" screen: the column headers and
 // eight rows with the player, car, gearbox and time.
 // FUNCTION: CMR2 0x004e6a80
-void FUN_004e6a80(Menu *pMenu, int param)
+void FUN_004e6a80(Menu *pMenu)
 {
     int order[8] = {6, 3, 1, 4, 0, 2, 5, 7};
     BYTE *pRow;
@@ -9387,7 +9389,7 @@ void FUN_004e6a80(Menu *pMenu, int param)
 // with the player, car, gearbox and time.
 // match 85%: ranuras de pila del marco (sub esp) y de los temporales
 // FUNCTION: CMR2 0x004e7120
-void FUN_004e7120(Menu *pMenu, int param)
+void FUN_004e7120(Menu *pMenu)
 {
     int order[8] = {6, 3, 1, 4, 0, 2, 5, 7};
     BYTE *pBase;
@@ -9465,7 +9467,7 @@ void FUN_004e7120(Menu *pMenu, int param)
 // match 59%: asignacion de registros en el switch y en el bucle de filas
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7ed0
-void FUN_004e7ed0(Menu *pMenu, int param)
+void FUN_004e7ed0(Menu *pMenu)
 {
     short rect[4];
     char *pTexts[3];

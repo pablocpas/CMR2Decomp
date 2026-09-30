@@ -6433,7 +6433,7 @@ extern double g_unk0x00511308;
 // no la estructura: el flujo, las condiciones y las constantes 16.16 siguen el
 // original instruccion a instruccion.
 // FUNCTION: CMR2 0x004816f0
-void FUN_004816f0(int part)
+void FUN_004816f0(void)
 {
     BYTE idx;
     unsigned short angles[3];
@@ -6455,7 +6455,6 @@ void FUN_004816f0(int part)
     bool flip;
     bool bVar5;
 
-    (void)part;
 
     if (FUN_00482f30() != 0)
         return;
