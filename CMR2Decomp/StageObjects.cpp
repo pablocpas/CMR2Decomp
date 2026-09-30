@@ -141,7 +141,7 @@ void FUN_0046c750(int param_1, int param_2, int param_3);
 void FUN_0046c8e0(void);
 int FUN_0046cbe0(BYTE *packet, BYTE car);
 int Replay_StopRecording(BYTE *pBuffer);
-void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4);
+void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
 void FUN_0046cfa0(int *pState);
 void FUN_0046d270(void);
 int FUN_0046d2a0(int *p);
@@ -3988,22 +3988,20 @@ void FUN_00477ce0(int car)
 // FUNCTION: CMR2 0x00477f30
 void FUN_00477f30(void)
 {
-    short *p;
+    int i;
 
-    p = (short *)&g_unk0x0058d6d0[0][0x1e];
-    do {
-        p[-1] = -1;
-        p[0] = -1;
-        p[1] = -1;
-        p[2] = -1;
-        p[3] = -1;
-        p[4] = -1;
-        p[5] = -1;
-        p[6] = -1;
-        p[7] = -1;
-        p[8] = -1;
-        p += 0x24;
-    } while ((int)p < (int)&g_unk0x0058d6d0[8][0x1e]);
+    for (i = 0; i < 8; i++) {
+        ((short *)g_unk0x0058d6d0[i])[0xe] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0xf] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x10] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x11] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x12] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x13] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x14] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x15] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x16] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x17] = -1;
+    }
 }
 
 int FUN_00460c80(BYTE *pCar);
@@ -4249,8 +4247,7 @@ void FUN_0048dca0(BYTE *pCar, int amount)
 
     if (amount > 0) {
         car = *pCar;
-        v = g_unk0x00591730[car] + amount;
-        g_unk0x00591730[car] = v;
+        v = g_unk0x00591730[car] += amount;
         if (v > 0x10000)
             g_unk0x00591730[car] = 0x10000;
     }
@@ -12108,7 +12105,7 @@ void FUN_0046c410(int param_1, BYTE param_2)
 // match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
 // compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
 // FUNCTION: CMR2 0x0046cce0
-void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4)
+void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
 {
     char cVar1;
     BYTE bVar2;
@@ -14468,7 +14465,7 @@ void FUN_0046d5e0(void)
 // FUNCTION: CMR2 0x00466030
 void FUN_00466030(int a, int b)
 {
-    BYTE index;
+    int index;
 
     index = g_unk0x0058875c->field_0xb1a;
     FUN_0046cce0((int)g_unk0x00588758, a, b, index);

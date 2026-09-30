@@ -2176,7 +2176,7 @@ void Sound_FreeAll(void);
 
 void FUN_0042b720(int, char);
 void FUN_0041c5a0(BYTE, int);
-void FUN_0046cce0(int, int, int, int);
+void FUN_0046cce0(int, int, int, BYTE);
 void FUN_00403500(void);
 void FUN_00424640(void);
 int FUN_004582d0(int);
@@ -2901,7 +2901,7 @@ label4:
     g_unk0x00537f08 = 1;
 }
 
-void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4);
+void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
 int FUN_0046d2a0(int *p);
 int FUN_0040b010(int index);
 void FUN_00421d80(int player);

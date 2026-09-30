@@ -3256,17 +3256,10 @@ void FUN_004692f0(Car *pCar, int param_2)
 int FUN_004692b0(unsigned int type, BYTE *pModel)
 {
     int i;
-    SceneNode **ppNode;
 
-    i = 0;
-    if (*(int *)(pModel + 0x45c) > 0) {
-        ppNode = (SceneNode **)(pModel + 0x3c);
-        do {
-            if (((*ppNode)->flags & 0xff) == type)
-                return i;
-            i++;
-            ppNode++;
-        } while (i < *(int *)(pModel + 0x45c));
+    for (i = 0; i < *(int *)(pModel + 0x45c); i++) {
+        if ((((SceneNode **)(pModel + 0x3c))[i]->flags & 0xff) == type)
+            return i;
     }
     return -1;
 }
