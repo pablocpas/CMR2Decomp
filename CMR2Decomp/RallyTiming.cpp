@@ -491,14 +491,8 @@ void FUN_0040d090(int index, int seconds)
 // FUNCTION: CMR2 0x0040d010
 void FUN_0040d010(void)
 {
-    int *p;
     int i;
 
-    i = 0;
-    p = g_stageTimesRaw;
-    do {
-        *p += (int)(__int64)((double)g_stagePenalty[i] * g_minus65536);
-        i++;
-        p++;
-    } while ((int)p < (int)&g_stageTimesRaw[16]);
+    for (i = 0; i < 16; i++)
+        g_stageTimesRaw[i] += (int)(__int64)((double)g_stagePenalty[i] * g_minus65536);
 }
