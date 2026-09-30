@@ -244,7 +244,7 @@ void FUN_004d5ca0(void)
     void **ppFile;
     int count;
     int i;
-    int j;
+    int k;
 
     // the original builds this path and never uses it
     sprintf(CFrontend::m_stringDest, g_strDmdBfl, CInstallInfo::GetGameCDPath());
@@ -252,16 +252,15 @@ void FUN_004d5ca0(void)
         count = counts[i];
         if (count > 0) {
             ppFile = g_dmdFiles[i];
-            j = 1;
-            do {
+            for (k = 0; k < count; k++) {
                 *ppFile = NULL;
                 if (i == 8)
-                    sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, j);
+                    sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, k + 1);
                 else
-                    sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], j);
+                    sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], k + 1);
                 *ppFile = CGenericFileLoader::FindFile(CFrontend::FUN_004d2190(), CFrontend::m_stringDest, NULL, NULL, 0);
                 ppFile++;
-            } while (j++ < count);
+            }
         }
     }
     CGame::RegisterCallback((void *)FUN_004eaa30, NULL);
