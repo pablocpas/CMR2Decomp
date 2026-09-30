@@ -41,7 +41,6 @@ char CRegKey::m_rkv_installNetworkOnly[13] = "Network Only";
 // FUNCTION: CMR2 0x004aa720
 char *CRegKey::GetValueFromKey(char *key)
 {
-    LONG regOpenKeyStatus;
     HKEY regKeyResult;
     HKEY regKeySoftwareResult;
     HKEY regKeyCodemastersResult;
@@ -53,29 +52,16 @@ char *CRegKey::GetValueFromKey(char *key)
     regKeyFinalResult = 100;
 
     strcpy(CFrontend::m_stringDest, key);
-    regOpenKeyStatus = RegOpenKeyExA(HKEY_LOCAL_MACHINE, NULL, 0, KEY_EXECUTE, &regKeyResult);
-    if (regOpenKeyStatus == ERROR_SUCCESS)
-    {
-        sprintf(regKeySubValue, m_regKeyPathSoftware);
-        regOpenKeyStatus = RegOpenKeyExA(regKeyResult, regKeySubValue, 0, KEY_EXECUTE, &regKeySoftwareResult);
-        if (regOpenKeyStatus == ERROR_SUCCESS)
-        {
-            sprintf(regKeySubValue, m_regKeyPathCodemasters);
-            regOpenKeyStatus = RegOpenKeyExA(regKeySoftwareResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCodemastersResult);
-            if (regOpenKeyStatus == ERROR_SUCCESS)
-            {
-                sprintf(regKeySubValue, m_regKeyPathCMR2);
-                regOpenKeyStatus = RegOpenKeyExA(regKeyCodemastersResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCMR2Result);
-                if (regOpenKeyStatus == ERROR_SUCCESS)
-                {
-                    sprintf(regKeySubValue, m_regKeyPathFormatValue, CFrontend::m_stringDest);
-                    regOpenKeyStatus = RegQueryValueExA(regKeyCMR2Result, regKeySubValue, NULL, &regKeyType, m_regKeyReadData, &regKeyFinalResult);
-                    if (regOpenKeyStatus != ERROR_SUCCESS)
-                        m_regKeyReadData[0] = 0x0;
-                }
-            }
-        }
-    }
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NULL, 0, KEY_EXECUTE, &regKeyResult) != ERROR_SUCCESS
+        || (sprintf(regKeySubValue, m_regKeyPathSoftware),
+            RegOpenKeyExA(regKeyResult, regKeySubValue, 0, KEY_EXECUTE, &regKeySoftwareResult) != ERROR_SUCCESS)
+        || (sprintf(regKeySubValue, m_regKeyPathCodemasters),
+            RegOpenKeyExA(regKeySoftwareResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCodemastersResult) != ERROR_SUCCESS)
+        || (sprintf(regKeySubValue, m_regKeyPathCMR2),
+            RegOpenKeyExA(regKeyCodemastersResult, regKeySubValue, 0, KEY_EXECUTE, &regKeyCMR2Result) != ERROR_SUCCESS)
+        || (sprintf(regKeySubValue, m_regKeyPathFormatValue, CFrontend::m_stringDest),
+            RegQueryValueExA(regKeyCMR2Result, regKeySubValue, NULL, &regKeyType, m_regKeyReadData, &regKeyFinalResult) != ERROR_SUCCESS))
+        m_regKeyReadData[0] = 0x0;
 
     RegCloseKey(regKeyCMR2Result);
     RegCloseKey(regKeyCodemastersResult);
