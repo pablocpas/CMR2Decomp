@@ -2,58 +2,41 @@
 #include "TimingUtils.h"
 #include "GameInfo.h"
 #include "Graphics.h"
+extern double g_minus65536;
 
 // GLOBAL: CMR2 0x00533638
-char g_rallyOverallOrderDriverID[16];
-
-// GLOBAL: CMR2 0x00533658
-int g_rallyOverallTimesRaw[16];
-
-// GLOBAL: CMR2 0x00533698
-int g_unk0x00533698;
-
-// GLOBAL: CMR2 0x00533648
-char g_rallyOverallPositionOfDriver[16];
+RallyOverallTables g_rallyOverallTables;
 
 // GLOBAL: CMR2 0x00533538
-char g_stageOrderDriverID[16];
+RallyStageTables g_rallyStageTables;
 
-// GLOBAL: CMR2 0x00533548
-char g_stagePositionOfDriver[16];
-
-// GLOBAL: CMR2 0x00533558
-int g_stageTimesRaw[16];
-
-// GLOBAL: CMR2 0x00533598
-char g_stagePenalty[16];
-
-// GLOBAL: CMR2 0x005335a8
-char g_stageTieBreak[16];
-
-// Per car tables of the championship (8 cars)
-// GLOBAL: CMR2 0x005335b8
-int g_unk0x005335b8[8];
 #pragma pack(push, 1)
 struct Unk0x005335d8 {
     short field_0x0;
     BYTE field_0x2;
 };
 #pragma pack(pop)
+struct ChampionshipTables {
+    int totals[8];
+    Unk0x005335d8 rounds[8];
+    int points[8];
+    char order[8];
+    char positions[8];
+    char tieBreak[8];
+    char wins[8];
+};
+typedef char ChampionshipTablesSize[sizeof(ChampionshipTables) == 0x78 ? 1 : -1];
+// GLOBAL: CMR2 0x005335b8
+ChampionshipTables g_championshipTables;
+#define g_unk0x005335b8 (g_championshipTables.totals)
+#define g_unk0x005335d8 (g_championshipTables.rounds)
+#define g_unk0x005335f0 (g_championshipTables.points)
+#define g_unk0x00533610 (g_championshipTables.order)
+#define g_unk0x00533618 (g_championshipTables.positions)
+#define g_unk0x00533620 (g_championshipTables.tieBreak)
+#define g_unk0x00533628 (g_championshipTables.wins)
 
-// GLOBAL: CMR2 0x005335d8
-Unk0x005335d8 g_unk0x005335d8[8];
-// GLOBAL: CMR2 0x005335f0
-int g_unk0x005335f0[8];
-// GLOBAL: CMR2 0x00533610
-char g_unk0x00533610[8];
-// GLOBAL: CMR2 0x00533618
-char g_unk0x00533618[8];
-// GLOBAL: CMR2 0x00533620
-char g_unk0x00533620[8];
-// GLOBAL: CMR2 0x00533628
-char g_unk0x00533628[8];
-
-// match 24%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040cc60
 void FUN_0040cc60(void)
 {
@@ -176,6 +159,7 @@ int FUN_0040ce40(int position)
     case 4:
         return 1;
     case 5:
+        return 0;
     default:
         return 0;
     }
@@ -501,7 +485,7 @@ void FUN_0040d090(int index, int seconds)
 }
 
 // Adds each stage's penalty seconds to its raw time.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d010
 void FUN_0040d010(void)
 {
@@ -511,8 +495,8 @@ void FUN_0040d010(void)
     i = 0;
     p = g_stageTimesRaw;
     do {
-        *p += (int)(__int64)((double)g_stagePenalty[i] * CGraphics::m_65536);
+        *p += (int)(__int64)((double)g_stagePenalty[i] * g_minus65536);
         i++;
         p++;
-    } while (p < &g_stageTimesRaw[16]);
+    } while ((int)p < (int)&g_stageTimesRaw[16]);
 }

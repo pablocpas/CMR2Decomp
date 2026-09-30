@@ -13,6 +13,9 @@
 
 #include "zlib/zutil.h"
 
+// GLOBAL: CMR2 0x00521748
+static const char gz_header_format[] = "%c%c%c%c%c%c%c%c%c%c";
+
 struct internal_state {int dummy;}; /* for buggy compilers */
 
 /* The original was linked against the static CRT, where errno is a plain
@@ -137,8 +140,9 @@ local gzFile gz_open(const char *path, const char *mode, int fd)
 #ifdef NO_DEFLATE
         err = Z_STREAM_ERROR;
 #else
-        err = deflateInit2(&(s->stream), level,
-                           Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, strategy);
+        err = deflateInit2_(&(s->stream), level,
+                           Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, strategy,
+                           z_cmr2_version, sizeof(z_stream));
         /* windowBits is passed < 0 to suppress zlib header */
 
         s->stream.next_out = s->outbuf = (Byte*)ALLOC(Z_BUFSIZE);
@@ -149,7 +153,7 @@ local gzFile gz_open(const char *path, const char *mode, int fd)
     } else {
         s->stream.next_in  = s->inbuf = (Byte*)ALLOC(Z_BUFSIZE);
 
-        err = inflateInit2(&(s->stream), -MAX_WBITS);
+        err = inflateInit2_(&(s->stream), -MAX_WBITS, z_cmr2_version, sizeof(z_stream));
         /* windowBits is passed < 0 to tell that there is no zlib header.
          * Note that in this case inflate *requires* an extra "dummy" byte
          * after the compressed stream in order to complete decompression and
@@ -171,7 +175,7 @@ local gzFile gz_open(const char *path, const char *mode, int fd)
     if (s->mode == 'w') {
         /* Write a very simple .gz header:
          */
-        fprintf(s->file, "%c%c%c%c%c%c%c%c%c%c", gz_magic[0], gz_magic[1],
+        fprintf(s->file, gz_header_format, gz_magic[0], gz_magic[1],
              Z_DEFLATED, 0 /*flags*/, 0,0,0,0 /*time*/, 0 /*xflags*/, OS_CODE);
 	s->startpos = 10L;
 	/* We use 10L instead of ftell(s->file) to because ftell causes an

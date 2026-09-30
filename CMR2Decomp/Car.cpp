@@ -3712,8 +3712,8 @@ void FUN_0042bcd0(void)
         car = g_carOrder[i];
         FixMatrix_CopyRotation(&g_carBuffer[car].pNode0x720->current, (FixMatrix *)(g_unk0x0053a3a8[car] + 0x40));
         FixMatrix_CopyRotation(&g_carBuffer[car].pNode0x71c->current, (FixMatrix *)g_unk0x0053a3a8[car]);
-        pWheel = (int *)(g_unk0x0053a3a8[car] + 0x84);
         pHeight = (int *)(g_unk0x0053a3a8[car] + 0xec);
+        pWheel = (int *)(g_unk0x0053a3a8[car] + 0x84);
         for (j = 4; j != 0; j--) {
             pWheel[-1] = 0;
             pWheel[0] = 0;
@@ -4269,13 +4269,13 @@ void FUN_0042cb90(char mode, SceneNode **pWheels)
                 pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[t])[k + 1]];
                 if (pTex == NULL)
                     continue;
-                if (!FUN_0042cb50(g_pCurrentCar)) {
-                    if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
-                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                if (FUN_0042cb50(g_pCurrentCar)) {
+                    if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
                         Graphics_ReloadTexture(pTex);
                     }
-                } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
-                    strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                    strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
                     Graphics_ReloadTexture(pTex);
                 }
             }
@@ -5352,8 +5352,8 @@ void FUN_00444c10(int carBase, short *pOrder, short count)
 void FUN_004458d0(void)
 {
     int maxDrop = 0;
-    int maxRise = -0x3e80000;
     int foundDrop = 0;
+    int maxRise = -0x3e80000;
     int foundRise = 0;
     int i;
     int d;
@@ -6016,8 +6016,8 @@ void FUN_0042f9d0(void)
 {
     int lift = 0;
     int maxDrop = 0;
-    int maxRise = -0x3e80000;
     int foundDrop = 0;
+    int maxRise = -0x3e80000;
     int foundRise = 0;
     int i;
     int d;

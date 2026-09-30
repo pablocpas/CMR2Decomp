@@ -267,12 +267,17 @@ BYTE FUN_004b8540(void)
     for (i = 0; i < g_sectorCount; i++) {
         pModel = (BYTE *)g_sectors[i]->pMesh;
         if (pModel != NULL) {
-            ppPart = (BYTE **)(pModel + 0x38);
-            for (j = 0; j < *(int *)(pModel + 0x100); j++, ppPart++) {
-                CFileBuffer::FreeGenericFileBuffer(*(void **)(*ppPart + 0x14));
-                *(void **)(*ppPart + 0x14) = NULL;
-                CFileBuffer::FreeGenericFileBuffer(*ppPart);
-                *ppPart = NULL;
+            j = 0;
+            if (*(int *)(pModel + 0x100) > 0) {
+                ppPart = (BYTE **)(pModel + 0x38);
+                do {
+                    CFileBuffer::FreeGenericFileBuffer(*(void **)(*ppPart + 0x14));
+                    *(void **)(*ppPart + 0x14) = NULL;
+                    CFileBuffer::FreeGenericFileBuffer(*ppPart);
+                    *ppPart = NULL;
+                    j++;
+                    ppPart++;
+                } while (j < *(int *)(pModel + 0x100));
             }
         }
     }

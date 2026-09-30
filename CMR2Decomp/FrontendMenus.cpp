@@ -16,6 +16,51 @@
 #include "RallyData.h"
 
 extern BYTE g_unk0x00819048;
+extern int g_unk0x008196e8[23];
+
+#define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
+bool RallyData_FUN_00408e30(int index, int bit, char check);
+
+// Lays out the route scroller and measures the available entries.
+// FUNCTION: CMR2 0x004faa50
+void FUN_004faa50(Menu *pMenu, int param)
+{
+    MenuScroller *pScroller;
+    int i;
+    int count;
+
+    count = 0;
+    i = 0;
+    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
+    FUN_004f2500()->pMenu = pMenu;
+    pMenu->cursor = 0;
+    for (; i < 0x16; i++) {
+        if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6) {
+            if (RallyData_FUN_00408e30(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1, i, 1)) {
+                g_unk0x008196e8[count] = i;
+                pMenu->items[count].id = i + 0x98;
+                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString((short)(i + 0x98)));
+                CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+                FUN_004f2500()->widths[count] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+                if (i == RallyData_FUN_004086b0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048)))
+                    pMenu->cursor = count;
+                count++;
+            }
+        }
+    }
+    pMenu->itemCount = count;
+    pScroller = FUN_004f2500();
+    pScroller->spacing = PATH_X();
+    pScroller->count = pMenu->itemCount;
+    pScroller->offset = 0;
+    pScroller->startOffset = 0;
+    for (i = 0; i < pMenu->itemCount; i++) {
+        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
+        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
+        pScroller->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
+    }
+}
+
 BYTE FUN_004086f0(BYTE index);
 
 // Change callback of the championship entry screens. Its external byte state
@@ -1160,7 +1205,7 @@ int FUN_004fc610(void)
 
 // Draw callback of the controls menu: title, one row (icon + name) per
 // visible entry, separators around the selected row, and the carousel.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fccb0
 void FUN_004fccb0(Menu *pMenu)
 {
@@ -1357,7 +1402,7 @@ inline int FrontendMenus_DrawLabel(char *text, int x, int y, BYTE *pColour)
 
 // Draw callback of the calibration page: one row per axis ("axis N" and its
 // calibration bar), "back", and the key help at the bottom.
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fd480
 void FUN_004fd480(Menu *pMenu)
 {
@@ -2595,7 +2640,7 @@ void FUN_004f5c00(void)
     Menu_AddItemType4(&g_menu0x00824c18, 0, 0x1ec, (int)FUN_004ecd60, 0);
     Menu_AddItemType4(&g_menu0x00824c18, 0, 0x3d, (int)FUN_004ecea0, 0);
     Menu_AddItemType1(&g_menu0x00824c18, 0, 0x1b, 0, 0);
-    Menu_SetCallbacks(&g_menu0x00824c18, (MenuCallback)FUN_004eca60, FUN_004ecaf0, FUN_004dc930, (MenuCallback)FUN_004ecfa0);
+    Menu_SetCallbacks(&g_menu0x00824c18, (MenuCallback)FUN_004eca60, (MenuCallback)FUN_004ecaf0, FUN_004dc930, (MenuCallback)FUN_004ecfa0);
     Menu_ValidateCursor(&g_menu0x00824c18, 0);
 }
 
@@ -2633,7 +2678,7 @@ void FUN_004f5e50(void)
 {
     Menu_Init(&g_menu0x00824df8, 0, -1, 0, NULL, NULL, 1, 0, 1);
     Menu_AddItemType2(&g_menu0x00824df8, 0, -1, &g_menu0x0081e218, 0, -1);
-    Menu_SetCallbacks(&g_menu0x00824df8, NULL, (MenuCallback)FUN_004edb60, FUN_004de1d0, NULL);
+    Menu_SetCallbacks(&g_menu0x00824df8, NULL, (MenuCallback)FUN_004edb60, (MenuCallback)FUN_004de1d0, NULL);
     Menu_ValidateCursor(&g_menu0x00824df8, 0);
 }
 
@@ -2905,7 +2950,7 @@ void FUN_004f7820(void)
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 0);
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 1);
     Menu_AddItemType6(&g_menu0x00824a38, 0, -1, 0xa, 0, 1, 0, (int)FUN_004f1040, 2);
-    Menu_SetCallbacks(&g_menu0x00824a38, (MenuCallback)FUN_004f0d30, (MenuCallback)FUN_004f0e80, (MenuCallback)FUN_004d6f10, FUN_004f0da0);
+    Menu_SetCallbacks(&g_menu0x00824a38, (MenuCallback)FUN_004f0d30, (MenuCallback)FUN_004f0e80, (MenuCallback)FUN_004d6f10, (MenuCallback)FUN_004f0da0);
     Menu_ValidateCursor(&g_menu0x00824a38, 0);
 }
 

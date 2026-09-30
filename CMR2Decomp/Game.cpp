@@ -474,6 +474,7 @@ bool FUN_004f4e80(void);
 // Globals the return-to-frontend path of InitializeGame resets.
 // GLOBAL: CMR2 0x00819744
 int g_unk0x00819744;
+
 // GLOBAL: CMR2 0x00818ce4
 BYTE g_unk0x00818ce4;
 
@@ -1190,13 +1191,14 @@ void CGame::FUN_0049c370(Unk0049c2c0 *param1)
     }
 }
 
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c150
 void CGame::FUN_0049c150(Unk00817d98 *param1, int param2, int param3)
 {
     param1->field0x2 = 0;
-    param1->field0x1 =
-        (param1->field0x1 & 0xfc000000) | (param2 & 0xffU) | ((param3 & 0xffU) << 8);
+    param1->bits.state = (BYTE)param2;
+    param1->bits.value = (BYTE)param3;
+    param1->bits.rule = 0;
+    param1->bits.level = 0;
 }
 
 // FUNCTION: CMR2 0x0049c190
@@ -1857,9 +1859,9 @@ bool CGame::CreateDirectPlayLobby(void)
 // FUNCTION: CMR2 0x004aa8e0
 int __cdecl CGame::CompareConnections(const void *a, const void *b)
 {
-    if (((DPlayConnection *)a)->guidSP == DPSPGUID_TCPIP)
+    if (((DPlayConnection *)a)->guidSP == DPSPGUID_IPX)
         return -1;
-    return ((DPlayConnection *)b)->guidSP == DPSPGUID_TCPIP;
+    return ((DPlayConnection *)b)->guidSP == DPSPGUID_IPX;
 }
 
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -2451,18 +2453,36 @@ void Game_DrawUnsortedNodes(int bit)
 
 // Advances the pulse effect by the frame delta and draws the ground mesh of
 // every culled sector in world space.
+// The two render passes have independent lazy frame stamps.
+// GLOBAL: CMR2 0x00597d00
+BYTE g_sectorFrameInit;
+// GLOBAL: CMR2 0x00597d01
+BYTE g_shadowFrameInit;
+// GLOBAL: CMR2 0x0059bd68
+unsigned int g_sectorFrameStart;
+// GLOBAL: CMR2 0x00597cb0
+unsigned int g_sectorFramePrevious;
+// GLOBAL: CMR2 0x00597cb4
+unsigned int g_shadowFrameStart;
+// GLOBAL: CMR2 0x0059be70
+unsigned int g_shadowFramePrevious;
+
 // FUNCTION: CMR2 0x0049cec0
 void FUN_0049cec0(void)
 {
-    // The original keeps a second frame stamp that it initializes but never
-    // reads; MSVC6 guards both with the same one-time-init byte.
-    static unsigned int s_start = CMain::GetFrameDelta();
-    static unsigned int s_prev = CMain::GetFrameDelta();
     Mesh *pMesh;
     unsigned int i;
 
-    Pulse_Update(CMain::GetFrameDelta() - s_prev);
-    s_prev = CMain::GetFrameDelta();
+    if ((g_sectorFrameInit & 1) == 0) {
+        g_sectorFrameInit |= 1;
+        g_sectorFrameStart = CMain::GetFrameDelta();
+    }
+    if ((g_sectorFrameInit & 2) == 0) {
+        g_sectorFrameInit |= 2;
+        g_sectorFramePrevious = CMain::GetFrameDelta();
+    }
+    Pulse_Update(CMain::GetFrameDelta() - g_sectorFramePrevious);
+    g_sectorFramePrevious = CMain::GetFrameDelta();
     CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
     for (i = 0; i < (unsigned int)g_sectorCullEnabled; i++) {
         pMesh = (Mesh *)g_sectors[g_unk0x006ed5f0[i]]->pMesh;
@@ -2480,14 +2500,19 @@ void FUN_0049cec0(void)
 // FUNCTION: CMR2 0x0049cf80
 void FUN_0049cf80(void)
 {
-    // Same two frame stamps as FUN_0049cec0 (the first one is never read).
-    static unsigned int s_start = CMain::GetFrameDelta();
-    static unsigned int s_prev = CMain::GetFrameDelta();
     Mesh *pMesh;
     unsigned int i;
 
-    Pulse_Update(CMain::GetFrameDelta() - s_prev);
-    s_prev = CMain::GetFrameDelta();
+    if ((g_shadowFrameInit & 1) == 0) {
+        g_shadowFrameInit |= 1;
+        g_shadowFrameStart = CMain::GetFrameDelta();
+    }
+    if ((g_shadowFrameInit & 2) == 0) {
+        g_shadowFrameInit |= 2;
+        g_shadowFramePrevious = CMain::GetFrameDelta();
+    }
+    Pulse_Update(CMain::GetFrameDelta() - g_shadowFramePrevious);
+    g_shadowFramePrevious = CMain::GetFrameDelta();
     CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, &g_unk0x005207b8);
     if (g_sceneShadowMeshes != NULL) {
         CGraphics::SetZWriteEnable(0);
@@ -2510,18 +2535,24 @@ void FUN_0049d290(int param1)
     unsigned short *pIndex;
     unsigned int i;
 
-    for (pIndex = (unsigned short *)g_unk0x006ed5f0, i = 0; i < (unsigned int)g_sectorCullEnabled; i++, pIndex++) {
-        pNode = g_sectors[*pIndex]->pFirstNode;
-        while (pNode != NULL) {
-            if (pNode->visible != 0) {
-                delta.x = g_unk0x0059be6c->world.position.x - pNode->world.position.x;
-                delta.y = 0;
-                delta.z = g_unk0x0059be6c->world.position.z - pNode->world.position.z;
-                *(int *)((BYTE *)pNode + 0x16c) = FixVecLength(&delta);
-                CGame::FUN_0049cb70(pNode);
+    i = 0;
+    if ((unsigned int)g_sectorCullEnabled > 0) {
+        pIndex = (unsigned short *)g_unk0x006ed5f0;
+        do {
+            pNode = g_sectors[*pIndex]->pFirstNode;
+            while (pNode != NULL) {
+                if (pNode->visible != 0) {
+                    delta.x = g_unk0x0059be6c->world.position.x - pNode->world.position.x;
+                    delta.y = 0;
+                    delta.z = g_unk0x0059be6c->world.position.z - pNode->world.position.z;
+                    *(int *)((BYTE *)pNode + 0x16c) = FixVecLength(&delta);
+                    CGame::FUN_0049cb70(pNode);
+                }
+                pNode = pNode->pNextInSector;
             }
-            pNode = pNode->pNextInSector;
-        }
+            i++;
+            pIndex++;
+        } while (i < (unsigned int)g_sectorCullEnabled);
     }
 }
 
@@ -3225,7 +3256,6 @@ BOOL __stdcall FUN_004aabd0(LPCGUID lpguidSP, LPVOID lpConnection, DWORD dwConne
     return TRUE;
 }
 
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac00
 bool FUN_004aac00(void)
 {
@@ -3235,7 +3265,9 @@ bool FUN_004aac00(void)
     hr = ((DPMethod4)(*(void ***)CGame::m_pDirectPlay4A)[0x8c / 4])(CGame::m_pDirectPlay4A, 0, (DWORD)FUN_004aabd0, 0, 0);
     if (hr == (HRESULT)0x80070057 || hr == (HRESULT)0x88770078)
         return false;
-    return hr == 0;
+    if (hr == 0)
+        return true;
+    return false;
 }
 
 // Sets the local player data (guaranteed).
@@ -3280,32 +3312,22 @@ typedef HRESULT (__stdcall *DPMethod5)(void *pThis, DWORD a1, DWORD a2, DWORD a3
 typedef HRESULT (__stdcall *DPMethod6)(void *pThis, DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6);
 
 // GLOBAL: CMR2 0x005a1fa8
-int g_unk0x005a1fa8;
-// GLOBAL: CMR2 0x005a1fac
-int g_unk0x005a1fac;
-// GLOBAL: CMR2 0x005a1fb0
-int g_unk0x005a1fb0;
-// GLOBAL: CMR2 0x005a1fb4
-int g_unk0x005a1fb4;
-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+DPNAME g_networkPlayerName;
 // FUNCTION: CMR2 0x004a1a10
 int FUN_004a1a10(int param1, int param2, int param3, int param4)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
-    g_unk0x005a1fa8 = 0;
-    g_unk0x005a1fa8 = 0x10;
-    g_unk0x005a1fac = 0;
-    g_unk0x005a1fb0 = 0;
-    g_unk0x005a1fb0 = param1;
-    g_unk0x005a1fb4 = 0;
-    g_unk0x005a1fb4 = param2;
+    memset(&g_networkPlayerName, 0, sizeof(g_networkPlayerName));
+    g_networkPlayerName.dwSize = sizeof(g_networkPlayerName);
+    g_networkPlayerName.lpszShortNameA = (char *)param1;
+    g_networkPlayerName.lpszLongNameA = (char *)param2;
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod6)(*(void ***)pDP)[0x18 / 4])(pDP, CGame::m_unk0x005a1ea0, (DWORD)&g_unk0x005a1fa8,
-                                                0, param3, param4, 0);
+    hr = pDP->CreatePlayer(&CGame::m_unk0x005a1ea0, &g_networkPlayerName, NULL,
+                          (void *)param3, param4, 0);
     if (hr <= (HRESULT)0x88770078 || hr == (HRESULT)0x887700aa || hr != 0)
         return 0;
     CGame::m_unk0x005a1fc0 = 1;

@@ -305,7 +305,7 @@ BYTE g_unk0x00588ba4[16];
 // GLOBAL: CMR2 0x00588bb4
 int g_unk0x00588bb4[16];
 // GLOBAL: CMR2 0x00588cd4
-int g_unk0x00588cd4[8 * 2];
+ReplayLevelState g_replayLevelState;
 // GLOBAL: CMR2 0x00588d38
 int g_unk0x00588d38;
 // GLOBAL: CMR2 0x00589438
@@ -697,19 +697,15 @@ int FUN_00460c10(int index)
 int g_unk0x00543d50;
 
 // Sets an object's scalar and derives its fixed-point scaled component.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00460c30
 void StageObject_SetScaledValue(int value, int index)
 {
-    BYTE *entry;
-    int scaled;
-    int factor;
-
-    entry = (BYTE *)g_unk0x00547ac8 + index * 0x178;
+    BYTE *entry = (BYTE *)g_unk0x00547ac8 + index * 0x178;
+    index = value;
     *(int *)(entry + 0x54) = value;
-    scaled = FixMul(g_unk0x00543d50, value);
-    factor = (int)*(short *)(entry + 0x74) << 16;
-    *(int *)(entry + 0x5c) = FixMul(scaled, factor);
+    value = FixMul(g_unk0x00543d50, index);
+    index = (int)*(short *)(entry + 0x74) << 16;
+    *(int *)(entry + 0x5c) = FixMul(value, index);
 }
 
 // FUNCTION: CMR2 0x00460c80
@@ -1017,13 +1013,14 @@ int FUN_0046b4c0(BYTE *pCar)
 // FUNCTION: CMR2 0x0046b710
 void FUN_0046b710(void)
 {
-    int i;
-
+    int *p;
     memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
-    for (i = 0; i < 8; i++) {
-        g_unk0x00588cd4[i * 2] = 0;
-        g_unk0x00588cd4[i * 2 + 1] = 0;
-    }
+    p = &g_unk0x00588cd4[1];
+    do {
+        p[-1] = 0;
+        *p = 0;
+        p += 2;
+    } while ((int)p < (int)g_unk0x00588d18);
 }
 
 // FUNCTION: CMR2 0x0046b740
@@ -1084,10 +1081,10 @@ int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
     else
         *(int *)(p + 0xb90) = 0;
     if ((pIn[3] & 0x80) != 0) {
-        if (*pState == 0)
-            *(int *)(p + 0xb88) = 2;
-        else
+        if (*pState != 0)
             *(int *)(p + 0xb88) = 1;
+        else
+            *(int *)(p + 0xb88) = 2;
     } else
         *(int *)(p + 0xb88) = 0;
     if ((BYTE)++*pCounter < (pIn[2] & 0x3f))
@@ -2811,7 +2808,6 @@ int FUN_0048ca90(void)
 }
 
 // Index of the 0x6c-byte record whose position (+0x34) is nearest to pPos.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048d8b0
 unsigned int FUN_0048d8b0(FixVector *pPos)
 {
@@ -2827,8 +2823,8 @@ unsigned int FUN_0048d8b0(FixVector *pPos)
         d.z = *(int *)(g_unk0x00591750 + i * 0x6c + 0x3c) - pPos->z;
         distance = FixVec_Length(&d);
         if (distance < bestDistance) {
-            bestDistance = distance;
             best = i;
+            bestDistance = distance;
         }
     }
     return best;
@@ -5038,7 +5034,7 @@ void FUN_00492b50(void)
 }
 
 extern int g_unk0x00590c64;
-extern void *g_unk0x00590d7c[4];
+
 int RallyData_FUN_00411060(void);
 
 // Destroys, in the four node tables, the nodes of every car that belong to
@@ -6786,7 +6782,6 @@ void StageLights_Create(void)
 // Replay buffers and stage event records.
 
 extern int g_unk0x00588d3c;
-extern int g_unk0x00588d14;
 extern void *g_unk0x00588e80[8];
 
 // Both sets share a sixteen-entry slot table, traversed as a single array.
@@ -6811,8 +6806,7 @@ void Replay_InitSlots(void)
         g_unk0x00588d60[i] = &g_unk0x00588ea0[i];
 }
 
-// GLOBAL: CMR2 0x00588d18
-int g_unk0x00588d18[8];
+
 // GLOBAL: CMR2 0x00588ec8
 int g_unk0x00588ec8;
 
@@ -7911,18 +7905,18 @@ void FUN_0047c1e0(char replay, char restart)
             v = r + 0x8000;
             break;
         case 2:
-            if (i >= 3)
-                v = r + 0x8000;
-            else
+            if (i < 3)
                 v = 0x10000;
+            else
+                v = r + 0x8000;
             break;
         default:
             v = 0;
         }
-        if (r <= 0x4ccc)
-            start = 0x10000 - v % 10;
-        else
+        if (r > 0x4ccc)
             start = 0;
+        else
+            start = 0x10000 - v % 10;
         if (i >= (int)(RallyDataState() & 0xff)) {
             pCar = Car_Get(i);
             pCar->field_0x7a4 = FixMul(start, pCar->field_0x794);
@@ -9430,7 +9424,7 @@ extern int g_unk0x0067f228;
 short Car_GetOrderCount(void);
 SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 void FUN_00486910(BYTE *pObj, int *pSrc);
-extern BYTE g_unk0x00590d8c[4];
+
 extern BYTE g_unk0x00590ec0[16];
 
 // Picks the scene node of a car's object payload by the payload type letter
@@ -9748,8 +9742,8 @@ void FUN_00475430(int param1, KnockoutMatch *param2, short *param3, BYTE *param4
     if (FUN_004bc0c0(&g_unk0x0058ca80) != 0 || param9 != 0) {
         rect[0] = param3[0];
         rect[1] = param3[1];
-        rect[2] = (short)FixMulShift32(param3[2] << 16, g_unk0x0058cc74);
-        rect[3] = (short)FixMulShift32(param3[3] << 16, g_unk0x0058cc74);
+        rect[2] = (short)(FixMul(param3[2] << 16, g_unk0x0058cc74) >> 16);
+        rect[3] = (short)(FixMul(param3[3] << 16, g_unk0x0058cc74) >> 16);
         FUN_00475740(rect, param4, param5, param6);
         return;
     }
@@ -15501,25 +15495,22 @@ struct KnockoutStateBits {
 // FUNCTION: CMR2 0x00472a30
 void FUN_00472a30(void)
 {
-    int time1;
-    int time2;
-    unsigned int first;
-    unsigned int second;
+    struct { int times[2]; unsigned int drivers[2]; } results;
     KnockoutTable *pState;
     unsigned int state;
     int round;
     char t;
 
     pState = (KnockoutTable *)RallyData_GetChampionshipState();
-    RallyData_GetRoundDrivers(&first, &second);
-    if (RallyData_FUN_00408500((BYTE)first) != -1 && RallyData_FUN_00408500((BYTE)second) != -1) {
-        StageTiming_GetSplitTimesForPositions(first, second, &time1, &time2);
-    } else if (RallyData_FUN_00408500((BYTE)first) == -1) {
-        time1 = FUN_004483c0(0);
-        time2 = FUN_004483c0(1);
+    RallyData_GetRoundDrivers(&results.drivers[0], &results.drivers[1]);
+    if (RallyData_FUN_00408500((BYTE)results.drivers[0]) != -1 && RallyData_FUN_00408500((BYTE)results.drivers[1]) != -1) {
+        StageTiming_GetSplitTimesForPositions(results.drivers[0], results.drivers[1], &results.times[0], &results.times[1]);
+    } else if (RallyData_FUN_00408500((BYTE)results.drivers[0]) == -1) {
+        results.times[0] = FUN_004483c0(0);
+        results.times[1] = FUN_004483c0(1);
     } else {
-        time2 = FUN_004483c0(0);
-        time1 = FUN_004483c0(1);
+        results.times[1] = FUN_004483c0(0);
+        results.times[0] = FUN_004483c0(1);
     }
     if (FUN_00473680(RallyData_GetRoundEntry()) != 0) {
         ((KnockoutMatch *)RallyData_GetRoundEntry())->time1 = 0;
@@ -15529,7 +15520,7 @@ void FUN_00472a30(void)
         else
             ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
     } else {
-        FUN_00407940(time1, time2);
+        FUN_00407940(results.times[0], results.times[1]);
     }
     if (FUN_0041f380() != 0xff) {
         if ((BYTE)RallyDataState() == 2) {

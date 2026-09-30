@@ -15,6 +15,8 @@ import subprocess
 import sys
 import tempfile
 
+from matching_entities import entity_address
+
 import capstone
 import pefile
 
@@ -195,7 +197,8 @@ def main():
     source = '#include <windows.h>\n'
     for n, name in enumerate(['original', 'rebuilt', 'mutation']):
         rebuilt = name == 'rebuilt'
-        globals_ = [(entities[hex(a)][0], size) for a, size in GLOBALS] if rebuilt else GLOBALS
+        globals_ = [(entity_address(entities, a, 0x531e00 if a == 0x531f80 else None), size)
+                            for a, size in GLOBALS] if rebuilt else GLOBALS
         low = min(a for a, _ in globals_)
         high = max(a + size for a, size in globals_)
         base = 0x21000000 + n * 0x1000000

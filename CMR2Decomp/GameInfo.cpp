@@ -451,7 +451,7 @@ void CGameInfo::FUN_00406380(int param1, int param2)
 }
 
 // FUNCTION: CMR2 0x004063d0
-bool CGameInfo::FUN_004063d0(int param1)
+int CGameInfo::FUN_004063d0(int param1)
 {
     return ((BYTE)(m_gameInfo.field_0x20 >> 8) & (BYTE)(1 << param1)) != 0;
 }
@@ -1574,11 +1574,17 @@ BYTE g_unk0x0082bee8[8][7];
 BYTE g_unk0x0082bf20[16][7];
 // Same table as g_unk0x0082bee8, viewed from its 4th row.
 #define g_unk0x0082bf04 ((char *)&g_unk0x0082bee8[4][0])
+// The four cached option records follow the 48 dirty flags. The copy/update
+// routines address both regions; a pointer past the flags alone has no storage.
+struct PlayerOptionCache {
+    BYTE dirty[4][12];
+    BYTE records[4][0x148];
+};
+typedef char PlayerOptionCacheSize[sizeof(PlayerOptionCache) == 0x550 ? 1 : -1];
 // GLOBAL: CMR2 0x0082c040
-BYTE g_unk0x0082c040[4][12];
-// Option records, copied from RallyData_FUN_00407610 by FUN_00502d50; each
-// entry is 0x148 bytes and the block runs up to the globals at 0x82c698.
-#define g_unk0x0082c070 ((BYTE *)&g_unk0x0082c040[4][0])
+PlayerOptionCache g_playerOptionCache;
+#define g_unk0x0082c040 (g_playerOptionCache.dirty)
+#define g_unk0x0082c070 ((BYTE *)g_playerOptionCache.records)
 struct Unk0x0082d220Vec {
     int v[4];
 };
@@ -2168,8 +2174,8 @@ void FUN_00502d50(void)
 
     i = 0;
     if (CGameInfo::FUN_00405d70() > 0) {
-        pDst = (int *)g_unk0x0082c070;
         pDirty = (int *)g_unk0x0082c040;
+        pDst = (int *)g_unk0x0082c070;
         do {
             pSrc = (int *)RallyData_FUN_00407610(i);
             i++;
@@ -2606,9 +2612,9 @@ void FUN_0050f120(int param1)
     FixVector local;
     int k;
 
-    pVec = &g_unk0x00527420[param1 * 48];
     pOut = g_unk0x008313c8;
     pAngles = g_unk0x005273c0;
+    pVec = &g_unk0x00527420[param1 * 48];
     do {
         for (k = 0; k < 4; k++) {
             FUN_005068b0(0, pVec, &local, pAngles);
@@ -2854,7 +2860,7 @@ void CGameInfo::FUN_00501cc0(int index, int param2, int param3)
     pEntry->field_0x10 = param3;
 }
 
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005004c0
 int CGameInfo::FUN_005004c0(void)
 {
@@ -2862,7 +2868,7 @@ int CGameInfo::FUN_005004c0(void)
 
     if (g_unk0x0082ac58 != 0) {
         delta = CMain::GetFrameDelta() - g_unk0x0082ac5c;
-        return (unsigned char)~(delta / 10);
+        return (unsigned char)~(delta / 10) & 1;
     }
     return 0;
 }
@@ -3216,9 +3222,7 @@ void FUN_004f4910(char registerRelease)
 
     g_unk0x0081a734 = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 8);
     g_unk0x0081a72c = CFileBuffer::AllocateLockedBuffer(g_unk0x0081a728 * 4);
-    if (g_unk0x0081a734 == NULL) {
-        g_unk0x0081a728 = 0;
-    } else {
+    if (g_unk0x0081a734 != NULL) {
         p = (char *)g_unk0x0081a730;
         for (i = 0; i < g_unk0x0081a728; i++) {
             p = strchr(p, '"') + 1;
@@ -3235,6 +3239,8 @@ void FUN_004f4910(char registerRelease)
             *p = '\0';
             p++;
         }
+    } else {
+        g_unk0x0081a728 = 0;
     }
 
     if (registerRelease)
@@ -3311,7 +3317,6 @@ BYTE FUN_004f4cc0(void)
 
 // Loads the text file of every frontend language of this region from its
 // language archive and hands them to the frontend text tables.
-// match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4b90
 BYTE FUN_004f4b90(void)
 {
@@ -4001,7 +4006,6 @@ void CGameInfo::FUN_004a12d0(int param1)
 
 // Cambia el modo activo 0x82ca1c (intercambiando 0x3c con el modo anterior) y
 // reinicia el temporizador.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00505a60
 void CGameInfo::FUN_00505a60(int param1)
 {
@@ -4016,9 +4020,37 @@ void CGameInfo::FUN_00505a60(int param1)
     if (g_unk0x0082ca1c != 0xff && param1 != -1) {
         pOld = (int *)((char *)g_unk0x0082c6c8 + current * 0x50);
         pNew = (int *)((char *)g_unk0x0082c6c8 + param1 * 0x50);
-        tmp = *(int *)((char *)pNew + 0x3c);
-        *(int *)((char *)pNew + 0x3c) = *(int *)((char *)pOld + 0x3c);
-        *(int *)((char *)pOld + 0x3c) = tmp;
+        tmp = *(int *)((char *)pOld + 0x4c);
+        *(int *)((char *)pOld + 0x4c) = *(int *)((char *)pNew + 0x4c);
+        *(int *)((char *)pNew + 0x4c) = tmp;
+        tmp = *(int *)((char *)pOld + 0x1c);
+        *(int *)((char *)pOld + 0x1c) = *(int *)((char *)pNew + 0x1c);
+        *(int *)((char *)pNew + 0x1c) = tmp;
+        tmp = *(int *)((char *)pOld + 0x18);
+        *(int *)((char *)pOld + 0x18) = *(int *)((char *)pNew + 0x18);
+        *(int *)((char *)pNew + 0x18) = tmp;
+        tmp = *(int *)((char *)pOld + 0x28);
+        *(int *)((char *)pOld + 0x28) = *(int *)((char *)pNew + 0x28);
+        *(int *)((char *)pNew + 0x28) = tmp;
+        tmp = *(int *)((char *)pOld + 0x14);
+        *(int *)((char *)pOld + 0x14) = *(int *)((char *)pNew + 0x14);
+        *(int *)((char *)pNew + 0x14) = tmp;
+        tmp = *(int *)((char *)pOld + 0x20);
+        *(int *)((char *)pOld + 0x20) = *(int *)((char *)pNew + 0x20);
+        *(int *)((char *)pNew + 0x20) = tmp;
+        tmp = *(int *)((char *)pOld + 0x24);
+        *(int *)((char *)pOld + 0x24) = *(int *)((char *)pNew + 0x24);
+        *(int *)((char *)pNew + 0x24) = tmp;
+        tmp = *(int *)((char *)pOld + 0x44);
+        *(int *)((char *)pOld + 0x44) = *(int *)((char *)pNew + 0x44);
+        *(int *)((char *)pNew + 0x44) = tmp;
+        tmp = *(int *)((char *)pOld + 0x40);
+        *(int *)((char *)pOld + 0x40) = *(int *)((char *)pNew + 0x40);
+        *(int *)((char *)pNew + 0x40) = tmp;
+        tmp = *(int *)((char *)pOld + 0x3c);
+        *(int *)((char *)pOld + 0x3c) = *(int *)((char *)pNew + 0x3c);
+        *(int *)((char *)pNew + 0x3c) = tmp;
+
     }
     g_unk0x0082c6c0 = (int)CMain::GetFrameDelta();
     g_unk0x0082cb44 = 0;
@@ -4303,9 +4335,9 @@ void FUN_004035e0(void)
 {
     Menu_Init(&g_menu0x0052a870, 0, 0, 0, &g_menu0x00529ed8, NULL, 1, 0, 1);
     Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5e, 0x15, 10, 0, 0, 0, 0);
-    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5f, 0x15, 10, 0, 0, 1, 0);
-    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x60, 0x15, 10, 0, 0, 2, 0);
-    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x61, 0x15, 10, 0, 0, 3, 0);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x5f, 0x15, 10, 0, 0, 0, 1);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x60, 0x15, 10, 0, 0, 0, 2);
+    Menu_AddItemType3(&g_menu0x0052a870, 0, 0x61, 0x15, 10, 0, 0, 0, 3);
     Menu_AddItemType4(&g_menu0x0052a870, 0, 0x62, (int)FUN_004036c0, 4);
     Menu_AddItemType2(&g_menu0x0052a870, 0, 0x3b, &g_menu0x00529ed8, 0, 5);
     Menu_SetCallbacks(&g_menu0x0052a870, (MenuCallback)FUN_00403700,
@@ -4533,10 +4565,10 @@ void FUN_00401150(int param1, int param2)
             do {
                 if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)FUN_00407270() != 0) {
                     FUN_00422fe0(i, 7, i, 0);
-                } else if (FUN_004232a0(i, RallyData_FUN_00408800(FUN_0041b370() + i)) == 0) {
-                    FUN_00422fe0(i, 4, i, 0);
-                } else {
+                } else if (FUN_004232a0(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
                     FUN_00422fe0(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
+                } else {
+                    FUN_00422fe0(i, 4, i, 0);
                 }
                 i++;
             } while (i < (BYTE)RallyDataState());
@@ -4544,7 +4576,7 @@ void FUN_00401150(int param1, int param2)
         g_unk0x005298f4--;
         FUN_0041c5a0(**(BYTE **)(param1 + 4), 0);
     }
-    if (g_unk0x005298f4 < 1) {
+    if (g_unk0x005298f4 <= 0) {
         if ((BYTE)CGameInfo::FUN_00406320() != 0) {
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 6, 2);
             return;
@@ -5141,8 +5173,8 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
     edge[0] = pRect[2] + pRect[0];
     edge[1] = pRect[1];
-    edge[3] = pRect[3] + 1;
     edge[2] = 1;
+    edge[3] = pRect[3] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
     edge[0] = pRect[0];
     edge[1] = pRect[3] + pRect[1];
@@ -5151,8 +5183,8 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
     edge[0] = pRect[0];
     edge[1] = pRect[1];
-    edge[3] = pRect[3];
     edge[2] = 1;
+    edge[3] = pRect[3];
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
 }
 
@@ -5253,34 +5285,39 @@ void FUN_00401870(Menu *pMenu)
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
     y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0;
-    pItem = pMenu->items;
-    for (i = 0; i < pMenu->itemCount; i++, pItem++) {
-        rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
-        if (i != 2) {
-            string1 = pItem->stringId;
-            if (string1 != 0) {
-                string2 = string1;
-            } else {
-                string1 = (int)CFrontend::GetTextString(pItem->id);
-                string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+    i = 0;
+    if (pMenu->itemCount > 0) {
+        pItem = pMenu->items;
+        do {
+            rect[1] = (short)(y - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
+            if (i != 2) {
+                string1 = pItem->stringId;
+                if (string1 != 0) {
+                    string2 = string1;
+                } else {
+                    string1 = (int)CFrontend::GetTextString(pItem->id);
+                    string2 = (int)CFrontend::GetTextString(pItem->id + 1);
+                }
+                if (pMenu->cursor == i) {
+                    Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                                  &g_unk0x00516074, 0x11);
+                    Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
+                    Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
+                                 (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
+                } else {
+                    Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
+                                  &g_unk0x00516078, 0x11);
+                    Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                                  (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
+                    Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
+                                 (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
+                }
+                y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
             }
-            if (pMenu->cursor == i) {
-                Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                              &g_unk0x00516074, 0x11);
-                Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                              (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516074, 0x11);
-                Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
-                             (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
-            } else {
-                Font_DrawText(1, (char *)string1, (int)(g_pGraphics->resX * 0x86) / 0x280, y,
-                              &g_unk0x00516078, 0x11);
-                Font_DrawText(0, (char *)string2, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                              (int)(g_pGraphics->resY * 0xf) / 0x1e0 + y, &g_unk0x00516078, 0x11);
-                Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
-                             (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
-            }
-            y = y + (int)(g_pGraphics->resY * 0x36) / 0x1e0;
-        }
+            i++;
+            pItem++;
+        } while (i < pMenu->itemCount);
     }
     Font_SetBlendMode(2);
 }
@@ -6592,17 +6629,17 @@ int g_unk0x00831880;
 // GLOBAL: CMR2 0x00831884
 BYTE g_unk0x00831884;
 
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff5b0
 void FUN_004ff5b0(void)
 {
     BYTE *pMode;
     int index;
-    BYTE value;
+    unsigned int value;
 
     index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    index *= 5;
     pMode = FUN_00502500();
-    value = pMode[0x1f + index * 0x14];
+    value = pMode[0x1f + index * 4];
     switch (value) {
     case 0:
         FUN_00502510()[0x1e] = 7;
@@ -7070,7 +7107,7 @@ void FUN_00502db0(void)
     int j;
 
     i = 0;
-    if ((char)CGameInfo::FUN_00405d70() != 0) {
+    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
         pSrc = (int *)g_unk0x0082c070;
         do {
             pDst = (int *)RallyData_FUN_00407610(i);
@@ -7108,19 +7145,17 @@ void FUN_005029b0(void)
 
 // Applies the selected option: advances the menu when its value is set, or
 // starts the fade otherwise.
-// match 60%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005000b0
 void FUN_005000b0(int unused, int unused2)
 {
     BYTE *pMode;
     int index;
-    BYTE value;
 
     FUN_004ff5b0();
     index = Menu_FindItem((Menu *)FUN_00502500(), 1);
+    index *= 5;
     pMode = FUN_00502500();
-    value = pMode[0x1f + index * 0x14];
-    if (FUN_00502630(CGameInfo::FUN_005011b0(), value) != 0) {
+    if (FUN_00502630(CGameInfo::FUN_005011b0(), pMode[0x1f + index * 4]) != 0) {
         Menu_SetNextAction((int)FUN_00502510());
         return;
     }
@@ -8879,7 +8914,7 @@ int g_unk0x005270b8[11] = { 0x17700, 0xbb80, 0xbb80, 0x11940, 0xea60, 0xea60,
 // Copies one group of fields of a rally data record into the working option
 // record of the given index and adds the group's weight to its value; clears the
 // group's "already applied" flag.
-// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005034f0
 void FUN_005034f0(int param_1, int param_2)
 {
@@ -10326,6 +10361,7 @@ void FUN_0050a880(int, int);
 // bars, the stage name, the stage thumbnail and (second mode only) the time
 // bar, the target time and the stage row labels.
 // match 88%: register allocation / block placement only (676 vs 675 instrs, all relocations and magic-division blocks match); MSVC picks different registers across the menu byte loads and the option-row loop, and if-converts the two ternaries where the original branches.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0050a920
 void FUN_0050a920(int param_1)
 {
@@ -11358,6 +11394,7 @@ void FUN_00500270(Menu *pMenu, MenuItem *pItem)
 // Reverts one option group of the current slot: clears the group's "changed"
 // flags and subtracts the group's weight from the slot value.
 // (Not listed in functions.tsv; it is the counter part of FUN_005034f0.)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00503010
 void FUN_00503010(int param_1, int param_2)
 {

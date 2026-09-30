@@ -60,15 +60,19 @@
 #define REPZ_11_138  18
 /* repeat a zero length 11-138 times  (7 bits of repeat count) */
 
+// GLOBAL: CMR2 0x00512224
 local const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */
    = {0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0};
 
+// GLOBAL: CMR2 0x00512298
 local const int extra_dbits[D_CODES] /* extra bits for each distance code */
    = {0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13};
 
+// GLOBAL: CMR2 0x00512310
 local const int extra_blbits[BL_CODES]/* extra bits for each bit length code */
    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7};
 
+// GLOBAL: CMR2 0x0051235c
 local const uch bl_order[BL_CODES]
    = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
 /* The lengths of the bit length codes are sent in order of decreasing
@@ -128,12 +132,15 @@ struct static_tree_desc_s {
     int     max_length;          /* max bit length for the codes */
 };
 
+// GLOBAL: CMR2 0x005218e8
 local static_tree_desc  static_l_desc =
 {static_ltree, extra_lbits, LITERALS+1, L_CODES, MAX_BITS};
 
+// GLOBAL: CMR2 0x00521900
 local static_tree_desc  static_d_desc =
 {static_dtree, extra_dbits, 0,          D_CODES, MAX_BITS};
 
+// GLOBAL: CMR2 0x00521918
 local static_tree_desc  static_bl_desc =
 {(const ct_data *)0, extra_blbits, 0,   BL_CODES, MAX_BL_BITS};
 
@@ -674,7 +681,7 @@ local void build_tree(deflate_state *s, tree_desc *desc)
 
         /* Create a new node father of n and m */
         tree[node].Freq = tree[n].Freq + tree[m].Freq;
-        s->depth[node] = (uch) (MAX(s->depth[n], s->depth[m]) + 1);
+        s->depth[node] = (uch) (MAX((unsigned)s->depth[n], (unsigned)s->depth[m]) + 1);
         tree[n].Dad = tree[m].Dad = (ush)node;
 #ifdef DUMP_BL_TREE
         if (tree == s->bl_tree) {

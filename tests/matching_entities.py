@@ -26,3 +26,17 @@ def load_entities(path=None):
                 if e.orig_addr is not None and e.recomp_addr is not None}
     finally:
         os.chdir(previous)
+
+
+def entity_address(entities, address, owner=None):
+    """Resolve a named entity or an explicitly identified member of a real block.
+
+    Member views are used only by harness relocation; they do not add entities
+    to the matching report or alter measured function accuracy.
+    """
+    key = hex(address)
+    if key in entities:
+        return entities[key][0]
+    if owner is None:
+        raise KeyError(key)
+    return entities[hex(owner)][0] + address - owner

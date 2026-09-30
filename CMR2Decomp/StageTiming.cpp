@@ -710,8 +710,7 @@ void *g_unk0x00588e80[8];
 extern void *g_unk0x00588ea0[8];
 // GLOBAL: CMR2 0x00588d3c
 int g_unk0x00588d3c;
-// GLOBAL: CMR2 0x00588d14
-int g_unk0x00588d14;
+
 
 // Releases the eight stage buffers.
 // FUNCTION: CMR2 0x0046c500
@@ -732,16 +731,8 @@ BOOL FUN_0046c500(void)
     return TRUE;
 }
 
-// 12-byte entry of the table released by FUN_00456b70.
-struct Unk0x542ae8 {
-    void *pBuffer;
-    void *field_0x4;
-    void *field_0x8;
-};
-
 // GLOBAL: CMR2 0x00542ae8
-Unk0x542ae8 g_unk0x00542ae8[32];
-extern int g_unk0x00542c68;
+StageArchiveTables g_stageArchiveTables;
 
 // match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456b70
@@ -1289,7 +1280,7 @@ void FUN_00456960(int *pDeltas)
 }
 
 // GLOBAL: CMR2 0x00590d7c
-void *g_unk0x00590d7c[4];
+StageNodeTables g_stageNodeTables;
 // GLOBAL: CMR2 0x00590c64
 int g_unk0x00590c64;
 // GLOBAL: CMR2 0x00590c6c
@@ -2442,22 +2433,20 @@ void FUN_00469b50(int index)
 BYTE g_unk0x00542630[0x24 * 32];
 
 // Clears the stage file table and registers its release callback.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456bb0
 void FUN_00456bb0(void)
 {
-    Unk0x542ae8 *p = g_unk0x00542ae8;
+    void **p = &g_unk0x00542ae8[0].field_0x4;
     int count;
-
     do {
         count = 2;
         do {
-            p->pBuffer = NULL;
-            p->field_0x4 = NULL;
-            p->field_0x8 = NULL;
-            p++;
+            p[-1] = NULL;
+            p[0] = NULL;
+            p[1] = NULL;
+            p += 3;
         } while (--count);
-    } while ((int)p < (int)(g_unk0x00542ae8 + 32));
+    } while ((int)p < (int)&g_unk0x00542c6c);
     CGame::RegisterCallback(FUN_00456b70, 0);
 }
 
@@ -2698,7 +2687,7 @@ void FUN_00459630(int *param1, int *param2, int *param3);
 // marker (driver name or rally record) at the projected position, then updates
 // the light level of the car's shadow meshes from the distance to the view
 // centre.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459790
 void FUN_00459790(int param_1, int param_2)
 {
@@ -3263,7 +3252,6 @@ void FUN_004669b0(int first, int count)
         memset(g_unk0x00588b94 + i * 0x4d0, 0, 0x4d0);
 }
 
-extern int g_unk0x00542c68;
 // GLOBAL: CMR2 0x00542d58
 short g_unk0x00542d58[8];
 // GLOBAL: CMR2 0x00542d68
@@ -3288,7 +3276,6 @@ void FUN_00458b80(void)
 unsigned int RallyData_FUN_004082b0(void);
 unsigned int RallyData_FUN_004082e0(void);
 
-extern int g_unk0x00542c6c;
 extern int g_unk0x00542c74;
 extern char g_unk0x00542cad;
 extern int g_unk0x00542cb0;
@@ -3407,7 +3394,7 @@ extern BYTE *g_unk0x00590b7c[4][8];
 extern BYTE g_unk0x00590c24[4][8];
 
 // Clears every car's four 0x1a0-byte record arrays and the slot tables.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00480980
 void FUN_00480980(void)
 {
@@ -3565,53 +3552,58 @@ void FUN_00498ca0(char *pDesc, int *pValues, int *pOut)
     int i;
     int value;
 
-    int *p = pOut + 1;
-
-    for (i = 1; i <= pDesc[0xc]; i++) {
-        switch (pDesc[i]) {
-        case 0:
-            value = pValues[6];
-            break;
-        case 1:
-            value = pValues[7];
-            break;
-        case 3:
-            value = pValues[3];
-            break;
-        case 4:
-            value = pValues[0x28];
-            break;
-        case 6:
-            value = pValues[0];
-            break;
-        case 8:
-            value = pValues[0xd];
-            break;
-        case 9:
-            value = pValues[0xe];
-            break;
-        case 10:
-            value = pValues[1];
-            break;
-        case 11:
-            value = pValues[2];
-            break;
-        case 12:
-            value = pValues[0x18];
-            break;
-        case 14:
-            value = pValues[0x19];
-            break;
-        case 18:
-            value = pValues[0x1e];
-            break;
-        case 20:
-            value = pValues[0x20];
-            break;
-        default:
-            exit(0);
-        }
-        *p++ = value;
+    int *p;
+    i = 1;
+    if (pDesc[0xc] >= 1) {
+        p = pOut + 1;
+        do {
+            switch (pDesc[i]) {
+            case 0:
+                value = pValues[6];
+                break;
+            case 1:
+                value = pValues[7];
+                break;
+            case 3:
+                value = pValues[3];
+                break;
+            case 4:
+                value = pValues[0x28];
+                break;
+            case 6:
+                value = pValues[0];
+                break;
+            case 8:
+                value = pValues[0xd];
+                break;
+            case 9:
+                value = pValues[0xe];
+                break;
+            case 10:
+                value = pValues[1];
+                break;
+            case 11:
+                value = pValues[2];
+                break;
+            case 12:
+                value = pValues[0x18];
+                break;
+            case 14:
+                value = pValues[0x19];
+                break;
+            case 18:
+                value = pValues[0x1e];
+                break;
+            case 20:
+                value = pValues[0x20];
+                break;
+            default:
+                exit(0);
+            }
+            *p = value;
+            i++;
+            p++;
+        } while (i <= pDesc[0xc]);
     }
 }
 
@@ -4882,7 +4874,7 @@ void FUN_00455590(int group)
     int i;
 
     if ((BYTE)RallyData_FUN_00407e90()) {
-        for (i = 1; i >= 0; i--) {
+        for (i = 1; i > -1; i--) {
             if (((BYTE *)&g_unk0x00542418)[i] == 0)
                 FUN_004569c0(i, g_stageSplitUnk0x00541f78[group][i]);
         }
@@ -5716,10 +5708,8 @@ void FUN_00458a00(void)
         g_stageSplitCount = (char)g_unk0x00542c74 - 1;
 }
 
-// GLOBAL: CMR2 0x00542c6c
-int g_unk0x00542c6c;
 
-extern int g_unk0x00542c68;
+
 extern char g_unk0x00542cad;
 char FUN_00420190(void);
 unsigned int RallyData_FUN_004082e0(void);
@@ -7669,8 +7659,9 @@ void FUN_00480de0(void)
     int slot;
     int offset;
 
+    slot = 3;
     offset = 0;
-    for (slot = 3; slot >= 0; slot--) {
+    for (; offset >= -0xc; slot--) {
         if (FUN_00469bc0(g_unk0x00590d74, slot) == 0 &&
             *(int *)(*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a) * 0x1a0 +
                      *(int *)((int)&g_unk0x00590d7c[3] + offset)) == 0 &&

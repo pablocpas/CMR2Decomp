@@ -12,8 +12,6 @@ char g_stageLooped;
 int g_unk0x00542cb0;
 // GLOBAL: CMR2 0x00542cb4
 int g_unk0x00542cb4[8];     // per player: finished
-// GLOBAL: CMR2 0x00542c68
-int g_unk0x00542c68;
 // GLOBAL: CMR2 0x00542c70
 int g_stageCheckpointCount;
 // GLOBAL: CMR2 0x00542c74

@@ -132,8 +132,19 @@ unsigned int g_unk0x0051627c[9][30] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     }
 };
-// GLOBAL: CMR2 0x0052f1a0
-int g_unk0x0052f1a0[20];
+struct RallyPairingTables {
+    int pairs[20][2];
+    int skills[20];
+    int flags[20];
+    int otherFlags[20];
+};
+typedef char RallyPairingTablesSize[sizeof(RallyPairingTables) == 0x190 ? 1 : -1];
+// GLOBAL: CMR2 0x0052f100
+RallyPairingTables g_rallyPairingTables;
+#define g_unk0x0052f100 (g_rallyPairingTables.pairs)
+#define g_unk0x0052f1a0 (g_rallyPairingTables.skills)
+#define g_unk0x0052f1f0 (g_rallyPairingTables.flags)
+#define g_unk0x0052f240 (g_rallyPairingTables.otherFlags)
 
 // Picks the AI skill of the four opponents of a slot: for each opponent a
 // random window around its rating (pRatings[1], [3], [5], [7]) is spread over
@@ -196,12 +207,7 @@ void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
     }
 }
 
-// GLOBAL: CMR2 0x0052f100
-int g_unk0x0052f100[20][2];
-// GLOBAL: CMR2 0x0052f1f0
-int g_unk0x0052f1f0[20];
-// GLOBAL: CMR2 0x0052f240
-int g_unk0x0052f240[20];
+
 
 void FUN_0040d9e0(int group);
 
@@ -212,21 +218,21 @@ void FUN_0040d9e0(int group);
 // displacements in the original (they are contiguous in its .bss); our tables
 // are not adjacent, so the compiler picks another induction variable and the
 // opcodes differ.
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040dbe0
 void FUN_0040dbe0(int value)
 {
-    int i;
-
-    i = 20;
+    int *pPair = &g_unk0x0052f100[0][1];
+    int *pFlag = g_unk0x0052f1f0;
     do {
-        i--;
-        g_unk0x0052f100[i][0] = value;
-        g_unk0x0052f100[i][1] = value;
-        g_unk0x0052f1a0[i] = value;
-        g_unk0x0052f1f0[i] = 0;
-        g_unk0x0052f240[i] = 0;
-    } while (i);
+        pPair[-1] = value;
+        *pPair = value;
+        pFlag[-20] = value;
+        *pFlag = 0;
+        pFlag[20] = 0;
+        pPair += 2;
+        pFlag++;
+    } while ((int)pPair < (int)&g_unk0x0052f1a0[1]);
     FUN_0040d9e0(0);
     FUN_0040d9e0(1);
     FUN_0040d9e0(2);
@@ -2179,7 +2185,7 @@ extern float g_oneOverRandMax;
 // Draws the wet/dry share of every stage of the current rally: the flag of a
 // stage is set when its track value passes 80 and the share of the range above
 // 80 is stored per stage.
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d820
 void FUN_0040d820(void)
 {
@@ -2671,6 +2677,7 @@ char g_strOneDigit[] = "%1d";
 
 // Network race standings panel: one row per player in result order, with the
 // local player highlighted, the player's colour square and the position.
+// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00415480
 void FUN_00415480(short *pRect)
 {
@@ -2799,7 +2806,7 @@ void FUN_004125f0(int car, short *pRect)
 }
 
 // Draws a car's stage gap, stage number and position in the on-stage HUD.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004129d0
 void FUN_004129d0(int car, short *pRect)
 {
@@ -3762,23 +3769,20 @@ void FUN_00471bf0(BYTE car)
 
 // Copies the 12-byte vector and, when the entry is not already flagged,
 // raises the destination's Y component by 0x3e80000.
-// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00471cc0
 void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
 {
     int *pSrc;
     int **pp;
-    unsigned int index;
+    int index;
 
     pp = (int **)*pParam1;
     pSrc = *pp;
-    pDest[0] = pSrc[0];
-    pDest[1] = pSrc[1];
-    pDest[2] = pSrc[2];
-    index = (unsigned int)((BYTE *)pParam1[0] - g_unk0x0058c94c) / 8;
-    if (index >= g_unk0x0058ca6c)
+    *(FixVector *)pDest = *(FixVector *)pSrc;
+    index = (int)((unsigned int)((BYTE *)pParam1[0] - g_unk0x0058c94c) / 8);
+    if (index >= (int)g_unk0x0058ca6c || index < 0)
         return;
-    if (RallyDataState() > 1) {
+    if ((BYTE)RallyDataState() > 1) {
         if (g_unk0x0058c958[index] != 0)
             return;
         pDest[1] = pDest[1] + 0x3e80000;
@@ -4800,7 +4804,6 @@ BYTE g_unk0x00516cd8[4] = { 0x00, 0x00, 0x00, 0xff };
 BYTE g_loadBarColour[4] = { 0xff, 0xff, 0xff, 0xff };
 
 // Builds the frontend scene: root node, camera node and projection.
-// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040ef10
 void FUN_0040ef10(void)
 {
@@ -4811,7 +4814,10 @@ void FUN_0040ef10(void)
     position.x = 0;
     position.y = 0;
     position.z = -0xa0000;
-    memset(&angles, 0, sizeof(angles));
+    angles.x = 0;
+    angles.y = 0;
+    angles.z = 0;
+    angles.pad = 0;
     g_unk0x00536be0 = (int)SceneNode_CreateRoot();
     g_unk0x00536be4 = (int)SceneType2_Create(&position, &angles, NULL, (SceneNode *)g_unk0x00536be0);
     for (pNode = (SceneNode *)g_unk0x00536be0; pNode != NULL; pNode = *(SceneNode **)((BYTE *)pNode + 8))
@@ -8392,6 +8398,7 @@ char g_strAdr[] = "ADR";
 // Split standings panel of the HUD: three rows around the car's position at
 // its last split, each with the position, the driver name (short form in split
 // screen) and the split time.
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00414ed0
 void FUN_00414ed0(int car, short *pRect)
 {
@@ -8543,7 +8550,7 @@ void FUN_00503c80(int param_1)
         param_1 = 0;
     else if (param_1 > 0x10000)
         param_1 = 0x10000;
-    x = FixMulShift32((int)rect[2] << 16, param_1) + rect[0];
+    x = (FixMul((int)rect[2] << 16, param_1) >> 16) + rect[0];
     y = rect[3] + rect[1];
     sprintf(CFrontend::m_stringDest, g_str0x00527288, v >> 0x10);
     Font_DrawText(0, CFrontend::m_stringDest, x, y, &g_unk0x005270fc, 0x12);

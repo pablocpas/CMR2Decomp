@@ -39,18 +39,37 @@ local int huft_build OF((
     uInt *,             /* hufts used in space */
     uIntf * ));         /* space for values */
 
+// GLOBAL: CMR2 0x00522a8c
+local const char g_zlibMessage00522a8c[] = "oversubscribed dynamic bit lengths tree";
+// GLOBAL: CMR2 0x00522a68
+local const char g_zlibMessage00522a68[] = "incomplete dynamic bit lengths tree";
+// GLOBAL: CMR2 0x00522b38
+local const char g_zlibMessage00522b38[] = "oversubscribed distance tree";
+// GLOBAL: CMR2 0x00522b1c
+local const char g_zlibMessage00522b1c[] = "incomplete distance tree";
+// GLOBAL: CMR2 0x00522af8
+local const char g_zlibMessage00522af8[] = "empty distance tree with lengths";
+// GLOBAL: CMR2 0x00522ad4
+local const char g_zlibMessage00522ad4[] = "oversubscribed literal/length tree";
+// GLOBAL: CMR2 0x00522ab4
+local const char g_zlibMessage00522ab4[] = "incomplete literal/length tree";
+
 /* Tables for deflate from PKZIP's appnote.txt. */
+// GLOBAL: CMR2 0x00512c84
 local const uInt cplens[31] = { /* Copy lengths for literal codes 257..285 */
         3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
         35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0};
         /* see note #13 above about 258 */
+// GLOBAL: CMR2 0x00512d00
 local const uInt cplext[31] = { /* Extra bits for literal codes 257..285 */
         0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
         3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112}; /* 112==invalid */
+// GLOBAL: CMR2 0x00512d7c
 local const uInt cpdist[30] = { /* Copy offsets for distance codes 0..29 */
         1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
         257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
         8193, 12289, 16385, 24577};
+// GLOBAL: CMR2 0x00512df4
 local const uInt cpdext[30] = { /* Extra bits for distance codes */
         0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
         7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
@@ -312,10 +331,10 @@ int inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb, inflate_huft
   r = huft_build(c, 19, 19, (uIntf*)Z_NULL, (uIntf*)Z_NULL,
                  tb, bb, hp, &hn, v);
   if (r == Z_DATA_ERROR)
-    z->msg = (char*)"oversubscribed dynamic bit lengths tree";
+    z->msg = (char*)g_zlibMessage00522a8c;
   else if (r == Z_BUF_ERROR || *bb == 0)
   {
-    z->msg = (char*)"incomplete dynamic bit lengths tree";
+    z->msg = (char*)g_zlibMessage00522a68;
     r = Z_DATA_ERROR;
   }
   ZFREE(z, v);
@@ -349,10 +368,10 @@ int inflate_trees_dynamic(uInt nl, uInt nd, uIntf *c, uIntf *bl, uIntf *bd, infl
   if (r != Z_OK || *bl == 0)
   {
     if (r == Z_DATA_ERROR)
-      z->msg = (char*)"oversubscribed literal/length tree";
+      z->msg = (char*)g_zlibMessage00522ad4;
     else if (r != Z_MEM_ERROR)
     {
-      z->msg = (char*)"incomplete literal/length tree";
+      z->msg = (char*)g_zlibMessage00522ab4;
       r = Z_DATA_ERROR;
     }
     ZFREE(z, v);
@@ -364,18 +383,18 @@ int inflate_trees_dynamic(uInt nl, uInt nd, uIntf *c, uIntf *bl, uIntf *bd, infl
   if (r != Z_OK || (*bd == 0 && nl > 257))
   {
     if (r == Z_DATA_ERROR)
-      z->msg = (char*)"oversubscribed distance tree";
+      z->msg = (char*)g_zlibMessage00522b38;
     else if (r == Z_BUF_ERROR) {
 #ifdef PKZIP_BUG_WORKAROUND
       r = Z_OK;
     }
 #else
-      z->msg = (char*)"incomplete distance tree";
+      z->msg = (char*)g_zlibMessage00522b1c;
       r = Z_DATA_ERROR;
     }
     else if (r != Z_MEM_ERROR)
     {
-      z->msg = (char*)"empty distance tree with lengths";
+      z->msg = (char*)g_zlibMessage00522af8;
       r = Z_DATA_ERROR;
     }
     ZFREE(z, v);

@@ -83,7 +83,7 @@ int ZEXPORT inflateEnd(z_streamp z)
 
 int ZEXPORT inflateInit2_(z_streamp z, int w, const char *version, int stream_size)
 {
-  if (version == Z_NULL || version[0] != ZLIB_VERSION[0] ||
+  if (version == Z_NULL || version[0] != z_cmr2_version[0] ||
       stream_size != sizeof(z_stream))
       return Z_VERSION_ERROR;
 
@@ -160,14 +160,14 @@ int ZEXPORT inflate(z_streamp z, int f)
       if (((z->state->sub.method = NEXTBYTE) & 0xf) != Z_DEFLATED)
       {
         z->state->mode = BAD;
-        z->msg = (char*)"unknown compression method";
+        z->msg = (char*)z_msg_unknown_compression_method;
         z->state->sub.marker = 5;       /* can't try inflateSync */
         break;
       }
       if ((z->state->sub.method >> 4) + 8 > z->state->wbits)
       {
         z->state->mode = BAD;
-        z->msg = (char*)"invalid window size";
+        z->msg = (char*)z_msg_invalid_window_size;
         z->state->sub.marker = 5;       /* can't try inflateSync */
         break;
       }
@@ -178,7 +178,7 @@ int ZEXPORT inflate(z_streamp z, int f)
       if (((z->state->sub.method << 8) + b) % 31)
       {
         z->state->mode = BAD;
-        z->msg = (char*)"incorrect header check";
+        z->msg = (char*)z_msg_incorrect_header_check;
         z->state->sub.marker = 5;       /* can't try inflateSync */
         break;
       }
@@ -209,7 +209,7 @@ int ZEXPORT inflate(z_streamp z, int f)
       return Z_NEED_DICT;
     case DICT0:
       z->state->mode = BAD;
-      z->msg = (char*)"need dictionary";
+      z->msg = (char*)z_msg_need_dictionary;
       z->state->sub.marker = 0;       /* can try inflateSync */
       return Z_STREAM_ERROR;
     case BLOCKS:
@@ -251,7 +251,7 @@ int ZEXPORT inflate(z_streamp z, int f)
       if (z->state->sub.check.was != z->state->sub.check.need)
       {
         z->state->mode = BAD;
-        z->msg = (char*)"incorrect data check";
+        z->msg = (char*)z_msg_incorrect_data_check;
         z->state->sub.marker = 5;       /* can't try inflateSync */
         break;
       }

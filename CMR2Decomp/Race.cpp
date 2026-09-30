@@ -1209,9 +1209,9 @@ void FUN_00417e60(void)
 }
 
 BYTE *FUN_00464b10(int view);
-int Font_GetTextWidth(unsigned int index, BYTE *text);
-int Font_GetTextHeight(unsigned int index, char *text);
-void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
+int Font_GetTextWidth(BYTE index, BYTE *text);
+int Font_GetTextHeight(BYTE index, char *text);
+void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsigned int flags);
 
 // Shadow colour of the race call text (black).
 // GLOBAL: CMR2 0x00517e28
@@ -2324,12 +2324,14 @@ void FUN_0041e5c0(int param1, char param2)
         return;
     FUN_00424640();
     if (CGameInfo::FUN_00405d80() == 6) {
-        if (FUN_004582d0(0) < 1)
-            goto done;
+        if (FUN_004582d0(0) >= 1)
+            goto available;
+        goto done;
     } else {
         if (FUN_0041f3d0(0) != 0)
             goto done;
     }
+available:
     p = FUN_0041b390();
     if (*p > 0) {
         do {

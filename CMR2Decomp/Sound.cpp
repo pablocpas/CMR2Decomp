@@ -130,7 +130,7 @@ BOOL __fastcall CSound::FUN_004a2ac0(void) {
 
 // Converts one 16 KB block of the compressed music stream into pDst.
 // FUNCTION: CMR2 0x004bd1b0
-bool FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
+BOOL FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
 {
     ACMSTREAMHEADER header;
 
@@ -141,7 +141,7 @@ bool FUN_004bd1b0(BYTE *pSrc, BYTE *pDst)
     header.pbDst = pDst;
     header.cbDstLength = 0xfe80;
     if (acmStreamPrepareHeader(CSound::m_unk0x00816a7c, &header, 0) != 0)
-        return false;
+        return FALSE;
     return acmStreamConvert(CSound::m_unk0x00816a7c, &header, 0) == 0;
 }
 
@@ -925,7 +925,7 @@ BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD 
 // Loads a .wav from pFile into the next free sample slot: creates its buffer
 // (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
 // The file buffer is freed unless it lives inside the archive.
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1f50
 BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 {
@@ -1166,7 +1166,7 @@ void FUN_004a26f0(SoundSlot *pSlot)
         }
     }
     CSound::FUN_004a3250(pSlot->pBuffer->Stop());
-    pSlot->pBuffer->SetCurrentPosition(0);
+    CSound::FUN_004a3250(pSlot->pBuffer->SetCurrentPosition(0));
     if (pSlot->field_0x2c != 0 && pSlot->pBuffer != NULL) {
         if (pSlot->pBuffer->Release() == 0)
             pSlot->pBuffer = NULL;

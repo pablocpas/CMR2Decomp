@@ -21,6 +21,8 @@
 #include "NetPlayers.h"
 #include "FileBuffer.h"
 
+extern int g_unk0x00819744;
+
 #define PATH_X() ((int)(g_pGraphics->resX * 24) / 640)
 #define PATH_Y() ((int)(g_pGraphics->resY * 38) / 480)
 
@@ -60,8 +62,14 @@ int g_menuSoundBase;
 // GLOBAL: CMR2 0x0081988c
 int g_unk0x0081988c;
 // The four "dot" textures of the frontend (dot00..dot03)
+struct MenuDotTrail {
+    Texture *textures[4];
+    int positions[15];
+};
 // GLOBAL: CMR2 0x00819e94
-Texture *g_menuDotTextures[4];
+MenuDotTrail g_menuDotTrail;
+#define g_menuDotTextures (g_menuDotTrail.textures)
+#define g_menuTrailPos (g_menuDotTrail.positions)
 // GLOBAL: CMR2 0x0081987c
 int g_unk0x0081987c;
 // GLOBAL: CMR2 0x0082a924
@@ -390,6 +398,7 @@ char g_unk0x00818554[32];
 
 // Draws the header of the rally-info screen: the framed title rect, the
 // "event: date" lines and the list of stages, all scaled to the screen.
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d65c0
 void FUN_004d65c0(void)
 {
@@ -416,7 +425,7 @@ void FUN_004d65c0(void)
 // Time-attack style screen: menu path, the title taken from the id of the
 // first item and the list of strings selected by that item, plus the
 // underline of the highlighted row.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d9450
 void FUN_004d9450(Menu *pMenu)
 {
@@ -551,7 +560,7 @@ void FUN_004dc7b0(Menu *pMenu)
 
 // Draws a settings screen: one row per item (title plus the strings of the
 // current value) with a separator line under each, coloured by the cursor.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e0770
 void FUN_004e0770(Menu *pMenu)
 {
@@ -723,7 +732,7 @@ int FUN_004f1bf0(void);
 
 // Draws the two columns of text of the scrolling credits screen; when every
 // line has scrolled past the top the screen finishes.
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dec30
 void FUN_004dec30(Menu *pMenu)
 {
@@ -968,6 +977,7 @@ struct Unk0x4e2b40 {
 // arithmetic the original gets at the Font_DrawText call sites (Font_DrawText
 // is declared with int x/unsigned int y here, the original used narrower
 // parameters) plus a couple of register choices.
+// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2b40
 void FUN_004e2b40(Menu *pMenu)
 {
@@ -1138,6 +1148,9 @@ void FUN_004e77b0(BYTE value)
 }
 
 // Network game: the name being typed, with a blinking cursor.
+extern char g_strLabelSpacedText[];
+extern char g_strTextCursor[];
+
 // FUNCTION: CMR2 0x004e9820
 void FUN_004e9820(Menu *pMenu)
 {
@@ -1150,9 +1163,9 @@ void FUN_004e9820(Menu *pMenu)
     FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 3);
     Font_DrawText(1, CFrontend::GetTextString(0x1e8), (int)g_pGraphics->resX / 2, (int)g_pGraphics->resY / 4,
                   (int *)g_colourWhite0x00524968, 0x12);
-    sprintf(CFrontend::m_stringDest, "%s : %s", CFrontend::GetTextString(0x1c3), g_unk0x00818da8);
+    sprintf(CFrontend::m_stringDest, g_strLabelSpacedText, CFrontend::GetTextString(0x1c3), g_unk0x00818da8);
     if ((int)CMain::GetFrameDelta() % 20 > 9)
-        strcat(CFrontend::m_stringDest, "_");
+        strcat(CFrontend::m_stringDest, g_strTextCursor);
     Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 260) / 640, (int)g_pGraphics->resY / 2,
                   (int *)g_colourWhite0x00524968, 0x11);
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
@@ -2638,7 +2651,6 @@ void FUN_004ee850(Menu *pMenu, int param)
     unsigned int n;
     int i;
 
-    i = 0;
     order[0] = 6;
     order[1] = 3;
     order[2] = 1;
@@ -2647,6 +2659,7 @@ void FUN_004ee850(Menu *pMenu, int param)
     order[5] = 2;
     order[6] = 5;
     order[7] = 7;
+    i = 0;
     pFlags = CGameInfo::FUN_00405db0();
     count = 6;
     if (!CGameInfo::FUN_00406410(0xd)) {
@@ -2718,7 +2731,6 @@ void FUN_004eeab0(Menu *pMenu, char param)
     unsigned int n;
     int i;
 
-    i = 0;
     order[0] = 6;
     order[1] = 3;
     order[2] = 1;
@@ -2727,6 +2739,7 @@ void FUN_004eeab0(Menu *pMenu, char param)
     order[5] = 2;
     order[6] = 5;
     order[7] = 7;
+    i = 0;
     pFlags = CGameInfo::FUN_00405db0();
     count = 6;
     if (!CGameInfo::FUN_00406410(0xd)) {
@@ -3437,7 +3450,7 @@ void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsig
 BYTE FUN_004085a0(BYTE param1);
 BYTE *FUN_004f4e50(int index);
 unsigned int FUN_004fb400(BYTE *pBlock);
-extern int g_unk0x00819744;
+
 extern BYTE g_unk0x00819879;
 
 // Item picker of the second name-entry screen: appends the picked character of
@@ -4643,9 +4656,6 @@ int g_menuStreamSpeed[6];
 int g_menuPathMorph[19][2];
 // GLOBAL: CMR2 0x00819e90
 int g_menuPathInit;
-// The trail of 15 dots (head first).
-// GLOBAL: CMR2 0x00819ea4
-int g_menuTrailPos[15];
 // GLOBAL: CMR2 0x0081a620
 short g_menuDotRect[4];
 
@@ -4927,7 +4937,7 @@ void FUN_004f45a0(void)
                       (int)(g_pGraphics->resY * point[1]) / 480);
         pPos++;
         i++;
-    } while (pPos < &g_menuLetterPos[200]);
+    } while ((int)pPos < (int)&g_menuPathMode);
 }
 
 // Draws the trail of 15 dots, fading out towards the tail.
@@ -5834,7 +5844,7 @@ char g_dotIconMap[216] = {
 // Ripple phase of the dot icons.
 // GLOBAL: CMR2 0x008189b4
 short g_dotIconPhase;
-extern int g_unk0x00819744;
+
 
 void FUN_004eae40(void);
 int FUN_004d2bd0(int *pCentre, int x, int y, int phase, int wavelength);
@@ -6034,7 +6044,7 @@ void FUN_004d7c00(int param_1, int *param_2, int *param_3, int *param_4)
         iVar3 = iVar3 % 3;
     }
     param_1 = FixDiv(param_1, scale);
-    *param_2 = FixMulShift32(param_1, 0xb0000);
+    *param_2 = (FixMul(param_1, 0xb0000) >> 16);
     *param_3 = iVar2 * 11 / 1024;
     *param_4 = iVar3;
 }
@@ -6458,9 +6468,9 @@ void FUN_004d9880(Menu *pMenu)
     text[2] = CFrontend::m_stringDest;
     text[3] = CFrontend::GetTextString(pMenu->field_0x4);
     if (CGameInfo::FUN_00405e00() != 0) {
+        text[0] = CFrontend::GetTextString(0x12);
         text[1] = NULL;
         text[2] = NULL;
-        text[0] = CFrontend::GetTextString(0x12);
     } else {
         switch (CGameInfo::FUN_00405d80()) {
         case 0:
@@ -6676,6 +6686,8 @@ void FUN_004f0da0(int param_1, char param_2)
 char g_strLabelText[8] = "%s: %s";
 // GLOBAL: CMR2 0x00524d40
 char g_strLabelNumber[8] = "%s: %d";
+// GLOBAL: CMR2 0x00524d60
+char g_strTextCursor[] = "_";
 // GLOBAL: CMR2 0x00524d64
 char g_strLabelSpacedText[8] = "%s : %s";
 
@@ -6749,7 +6761,7 @@ void FUN_004ef970(Menu *pMenu, int param)
     pMenu->items[1].max = RallyData_FUN_004069b0() - 1;
     if (pMenu->items[1].max >= pMenu->items[1].min)
         pMenu->items[1].max = pMenu->items[1].min - 1;
-    switch (RallyData_FUN_004070e0()) {
+    switch ((BYTE)RallyData_FUN_004070e0()) {
     case 1:
         pMenu->items[2].max = 1;
         break;
@@ -6758,6 +6770,9 @@ void FUN_004ef970(Menu *pMenu, int param)
         break;
     case 5:
         pMenu->items[2].max = 3;
+        break;
+    case 8:
+        pMenu->items[2].max = 0;
         break;
     case 7:
         pMenu->items[2].max = 4;
@@ -6830,7 +6845,6 @@ void FUN_004f0250(Menu *pMenu)
 // Draw callback of the rally menu: one row per rally, drawn in the layout of
 // its item value (title only, or with the stage names of the rally), over the
 // strip of the selected rows, plus the carousel.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004df410
 void FUN_004df410(Menu *pMenu)
 {
@@ -6964,7 +6978,7 @@ void FUN_004df410(Menu *pMenu)
 }
 
 // Draw callback of the multiplayer race settings page.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1230
 void FUN_004e1230(Menu *pMenu)
 {
@@ -7599,47 +7613,6 @@ void FUN_004faa00(Menu *pMenu, int param)
         pMenu->cursor = pMenu->itemCount - 1;
 }
 
-// Lays out the scroller of the route list screens: marks the entries the
-// current mode makes available and measures their text.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// FUNCTION: CMR2 0x004faa50
-void FUN_004faa50(Menu *pMenu, int param)
-{
-    MenuScroller *pScroller;
-    int i;
-    int count;
-
-    FUN_004ea480(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1);
-    FUN_004f2500()->pMenu = pMenu;
-    pMenu->cursor = 0;
-    count = 0;
-    for (i = 0; i < 0x16; i++) {
-        if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6) {
-            if (RallyData_FUN_00408e30(CGameInfo::FUN_00405d70() - g_unk0x00819048 - 1, i, 1)) {
-                g_unk0x008196e8[count] = i;
-                pMenu->items[count].id = i + 0x98;
-                strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(i + 0x98));
-                CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
-                FUN_004f2500()->widths[count] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
-                if (i == RallyData_FUN_004086b0(CGameInfo::FUN_00405d70() + (0xff - g_unk0x00819048)))
-                    pMenu->cursor = count;
-                count++;
-            }
-        }
-    }
-    pMenu->itemCount = count;
-    pScroller = FUN_004f2500();
-    pScroller->spacing = PATH_X();
-    pScroller->count = pMenu->itemCount;
-    pScroller->offset = 0;
-    pScroller->startOffset = 0;
-    for (i = 0; i < pMenu->itemCount; i++) {
-        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[i].id));
-        CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest);
-        pScroller->widths[i] = Font_GetTextWidth(2, (BYTE *)CFrontend::m_stringDest);
-    }
-}
-
 // Item callback of the entry value screens: stores the value selected for the
 // entry and moves to the next or the parent menu.
 // FUNCTION: CMR2 0x004facd0
@@ -8166,7 +8139,7 @@ DWORD FUN_004a1740(BYTE index);
 BYTE *FUN_004eb450(int index);
 void RallyData_FUN_00408600(BYTE index, BYTE value);
 unsigned int FUN_0040a470(int index);
-int Font_GetTextWidth(unsigned int index, BYTE *text);
+int Font_GetTextWidth(BYTE index, BYTE *text);
 void FUN_004d0700(char *text);
 unsigned int FUN_004f4e20(int index);
 unsigned int FUN_004f4e00(int index);
@@ -8568,6 +8541,7 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
 // Draws the display-setup screen: title, the two percentage bars (display and
 // mode) and the list of available modes.
 // match 52%: asignacion de registros en los porcentajes y el bucle de modos
+// match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e1d70
 void FUN_004e1d70(Menu *pMenu, int param)
 {
@@ -8835,6 +8809,7 @@ char g_strClassRowFormat[20] = "%s  (%s, %s, %s)";
 // Draws the network "class" selection screen: one row per class with its name
 // and its two columns of allowed values.
 // match 56%: asignacion de registros en el bucle de filas y en los sprintf de la fila 0/1
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004db850
 void FUN_004db850(Menu *pMenu, int param)
 {
@@ -8932,6 +8907,7 @@ BYTE *FUN_004f9260(int row, int column);
 // Draws the network "car" selection screen: one row per car with its name and
 // the value columns, plus the highlight bars.
 // match 58%: asignacion de registros en el bucle de filas
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e2610
 void FUN_004e2610(Menu *pMenu, int param)
 {
@@ -9487,6 +9463,7 @@ void FUN_004e7120(Menu *pMenu, int param)
 // Draws the "game setup" screen: the breadcrumb title, one row per item with
 // its icon and its label (text, stage list, gearbox or plain text).
 // match 59%: asignacion de registros en el switch y en el bucle de filas
+// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7ed0
 void FUN_004e7ed0(Menu *pMenu, int param)
 {
@@ -9791,6 +9768,7 @@ void FUN_004f0e80(Menu *pMenu)
 // Draws the car setup screen: one banner per item with the value of the
 // selected column, plus the highlight bars.
 // match 62%: asignacion de registros y ranuras de pila del bucle de filas
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d7750
 void FUN_004d7750(Menu *pMenu)
 {
@@ -9898,6 +9876,7 @@ char g_strCharFormat0x00524d08[3] = "%c";
 // Draws the name entry keyboard: the three rows of keys with the selected one
 // highlighted and the name typed so far centred under them.
 // match 59%: reparto de registros y ranuras de pila del bucle 3x10
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d6f10
 void FUN_004d6f10(Menu *pMenu)
 {
@@ -10104,6 +10083,7 @@ void FUN_004d6a60(Menu *pMenu)
 // Draws the championship name entry screen: the keyboard grid, and under it
 // the name of the current record with the characters not typed yet scrambled.
 // match 59%: reparto de registros y ranuras de pila del bucle 3x10
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d7380
 void FUN_004d7380(Menu *pMenu)
 {
@@ -10323,6 +10303,7 @@ extern unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3);
 // match 71.35% (auditado W165): el unico diff de forma era el umbral (GetScreenWidth() >= 0x400; el
 // original usa cmp eax,0x400 / jb); el resto es reordenado de los bloques de division por constante
 // y reparto de registros, con las mismas llamadas y constantes.
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d50a0
 void FUN_004d50a0(Menu *pMenu)
 {
@@ -10776,6 +10757,7 @@ void FUN_004d8950(Menu *pMenu)
 // match 67%: WIP. La estructura y los operandos son los del original pero el
 // reparto de registros/slots del bucle y el orden de las cargas no cuadran
 // todavia; falta afinar la forma del fuente (no hay bug de logica conocido).
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8b60
 void FUN_004e8b60(Menu *pMenu)
 {
@@ -11162,6 +11144,7 @@ char g_strEllipsisFormat[8] = "%s...";
 
 // Draw callback of the video options screen: one row per item, the content of
 // each row depending on the item value (driver list, resolution, device...).
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dfe20
 void FUN_004dfe20(Menu *pMenu)
 {
@@ -11348,6 +11331,7 @@ char g_strItemTextFmt[12] = "%s < %s >";
 // Draws a settings list page: the menu path, the framed title and one row per
 // menu item with the label built from the item value and the separator line
 // under the row.
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dce00
 void FUN_004dce00(Menu *pMenu)
 {
@@ -11627,6 +11611,7 @@ void FUN_004e77c0(Menu *pMenu)
 }
 
 
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8500
 void FUN_004e8500(Menu *pMenu)
 {
@@ -11736,6 +11721,7 @@ void FUN_004e8500(Menu *pMenu)
 
 // Draws the race-settings list: breadcrumb, framed title, one row per item
 // (row sprite plus its label/value) and the carousel arrows.
+// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e90f0
 void FUN_004e90f0(Menu *pMenu)
 {
@@ -11947,6 +11933,7 @@ char g_str0x00524d9c[12] = "%s: < %s >";
 // GLOBAL: CMR2 0x00524da8
 char g_str0x00524da8[12] = "%s\n%s, %s";
 
+// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dd4b0
 void FUN_004dd4b0(Menu *pMenu)
 {

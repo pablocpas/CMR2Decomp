@@ -15,6 +15,8 @@ import subprocess
 import sys
 import tempfile
 
+from matching_entities import entity_address
+
 import capstone
 import pefile
 
@@ -187,7 +189,8 @@ def main():
     entities = json.loads(Path(sys.argv[2]).read_text())
     addresses = {int(e['address'], 16): int(e['recomp'], 16)
                  for e in report['data'] if e.get('recomp')}
-    rebuilt_globals = [(entities[hex(a)][0], size) for a, size in GLOBALS]
+    rebuilt_globals = [(entity_address(entities, a, 0x588cd4 if a == 0x588d14 else None), size)
+                            for a, size in GLOBALS]
     source = '#include <windows.h>\n'
     for i, name in enumerate(['original', 'rebuilt', 'mutation']):
         rebuilt = name == 'rebuilt'

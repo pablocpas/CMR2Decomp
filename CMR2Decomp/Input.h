@@ -194,17 +194,34 @@ struct ControllerInfo {
 // GLOBAL: CMR2 0x00512ea0
 // c_dfDIJoystick2
 
+struct InputDeviceState {
+    DeviceInfo availableDevices[8];
+    LPDIRECTINPUTDEVICEA keyboard;
+};
+typedef char InputDeviceStateSize[sizeof(InputDeviceState) == 0x2864 ? 1 : -1];
+
+struct InputFeedbackState {
+    ForceFeedbackDevice devices[8];
+    DWORD gains[8];
+};
+typedef char InputFeedbackStateSize[sizeof(InputFeedbackState) == 0x1c0 ? 1 : -1];
+
+#define m_availableDevices m_deviceState.availableDevices
+#define m_pDirectInputKeyboard m_deviceState.keyboard
+#define m_forceFeedbackDevices m_feedbackState.devices
+#define m_unk0x00666ec8 m_feedbackState.gains
+
 class CInput {
 public:
     static IDirectInput7A *m_lpDirectInput7;
     static Unk0x0059f8cc m_unk0x0059f8cc;
     static char m_strKeyboard[12];
-    static DeviceInfo m_availableDevices[8];
+    static InputDeviceState m_deviceState;
     static PVOID m_keyboardDelay;
     static DWORD m_mouseGranularity;
     static PVOID m_keyboardSpeed;
 
-    static LPDIRECTINPUTDEVICEA m_pDirectInputKeyboard;
+
     static LPDIRECTINPUTDEVICEA m_pDirectInputMouse;
     
 
@@ -215,10 +232,9 @@ public:
     static CHAR m_strU[4];
     static CHAR m_strR[4];
     static CHAR m_strL[4];
-    static ForceFeedbackDevice m_forceFeedbackDevices[8];
+    static InputFeedbackState m_feedbackState;
     static BOOL m_unk0x00666ee8;
-    // GLOBAL: CMR2 0x00666ec8
-    static DWORD m_unk0x00666ec8[8];
+
     // GLOBAL: CMR2 0x00667000
     static char m_formatBuffer[512];
     // GLOBAL: CMR2 0x0059f7c8

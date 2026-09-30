@@ -37,6 +37,18 @@ typedef unsigned short ush;
 typedef ush FAR ushf;
 typedef unsigned long  ulg;
 
+extern const char z_msg_unknown_compression_method[];
+extern const char z_msg_invalid_window_size[];
+extern const char z_msg_incorrect_header_check[];
+extern const char z_msg_incorrect_data_check[];
+extern const char z_msg_need_dictionary[];
+extern const char z_msg_invalid_literal_length_code[];
+extern const char z_msg_invalid_distance_code[];
+extern const char z_msg_invalid_block_type[];
+extern const char z_msg_invalid_stored_block_lengths[];
+extern const char z_msg_too_many_length_or_distance_symbols[];
+extern const char z_msg_invalid_bit_length_repeat[];
+extern const char z_cmr2_version[];
 extern const char *z_errmsg[10]; /* indexed by 2-zlib_error */
 /* (size given to avoid silly warnings with Visual C++) */
 

@@ -123,7 +123,7 @@ int inflate_fast(uInt bl, uInt bd, inflate_huft *tl, inflate_huft *td, inflate_b
           }
           else
           {
-            z->msg = (char*)"invalid distance code";
+            z->msg = (char*)z_msg_invalid_distance_code;
             UNGRAB
             UPDATE
             return Z_DATA_ERROR;
@@ -154,7 +154,7 @@ int inflate_fast(uInt bl, uInt bd, inflate_huft *tl, inflate_huft *td, inflate_b
       }
       else
       {
-        z->msg = (char*)"invalid literal/length code";
+        z->msg = (char*)z_msg_invalid_literal_length_code;
         UNGRAB
         UPDATE
         return Z_DATA_ERROR;

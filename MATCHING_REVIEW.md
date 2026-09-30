@@ -523,3 +523,132 @@ normalizado de reccmp; no igualdad literal de dos archivos PE reubicados.
 Informes finales: `/tmp/cmr2-next50-final.json`,
 `/tmp/cmr2-next50-final-scan.json` y `/tmp/cmr2-next50-final-entities.json`.
 Logs con el mismo prefijo: check, data, tables-test, results-test y back-test.
+
+## Lote de 100 exactas — 30 de septiembre de 2026
+
+Base **`0ec1923`**, rama `decomp/matching-review`. El cierre añade **101
+funciones al 100 % estricto**: cien del lote y el retorno del diálogo de CD.
+Catorce partían de menos del 90 %. La lista completa está en
+[tests/matching_next100.tsv](tests/matching_next100.tsv).
+
+| Medida | Base | Final |
+|---|---:|---:|
+| Funciones medidas | 3364 | 3364 |
+| Al 100 % estricto | 2209 | **2310** |
+| Por debajo del 100 % | 1155 | **1054** |
+| Por debajo del 90 % | 803 | **782** |
+| Exactas anteriores perdidas | — | **0** |
+| Funciones desaparecidas | — | **0** |
+| Incidencias de datos iniciales | 0 | **0** |
+
+La estrategia fue agrupar causas compartidas: tipos BYTE/WORD y ABI de los
+llamadores, bloques de datos realmente contiguos, salidas de APIs COM,
+callbacks con sus firmas reales y tablas de zlib. Se probaron variantes por
+unidad de compilación y se aceptaron tras una comparación completa de las
+imágenes enlazadas. No se modificó el criterio del comparador ni se retiraron
+funciones parciales de la medición.
+
+### Correcciones de comportamiento
+
+- La caché de opciones tenía solo los 48 bytes de flags, pero copiaba cuatro
+  fichas de 0x148 bytes detrás. `PlayerOptionCache` proporciona sus **0x550
+  bytes reales**. Backup y restore también quedan exactos.
+- `0x505a60` intercambiaba solo un campo entre jugadores. Ahora intercambia
+  los **diez** del original, conservando el orden de stores y el sentinel -1.
+- `0x40d010` usaba +65536 al aplicar penalizaciones. El original usa el
+  DOUBLE **-65536** y penalizaciones char con signo; la prueba nativa cubre
+  los valores -128..127. La función sigue parcialmente emparejada.
+- El parpadeo `0x5004c0` devuelve solo el **bit 0**; faltaba `& 1`. Su matching
+  baja por instrucciones redundantes del original, pero la lógica ya coincide.
+- Tres constructores de menús apuntaban a sobrecargas vacías. Se eliminan
+  esas copias y se usan `0x4ecaf0`, `0x4de1d0` y `0x4f0da0` con sus firmas
+  reales. Se verifican los destinos en el PE final y sus RET 4/4/8.
+- DirectPlay recibe un `DPNAME` real y **la dirección** del DPID de salida,
+  en vez de su valor. La ordenación de proveedores compara **IPX**, cuyo
+  GUID original está en 0x511a38, en lugar de TCP/IP. Solo anotar el GUID
+  equivocado daba 100 % de instrucciones: datacmp detectó la diferencia.
+- Se restablece el paso del HRESULT de `SetCurrentPosition(0)` por el helper
+  de sonido, se limpian los **100** contadores al liberar vertex buffers y
+  el filtro de modo gráfico lee `dwRGBBitCount`, en vez de `dwFlags`.
+- La propiedad de joystick usa `sizeof(DIPROPHEADER)` (**16**), no el tamaño
+  completo de DIPROPRANGE (24). Los valores iniciales 1/2/3 del menú 0x4035e0
+  van al argumento `value`, no a `param`.
+- El diálogo de CD solo devuelve TRUE para **IDRETRY**; Cancel cierra y sale,
+  y cualquier otro resultado devuelve FALSE. Queda al 100 %.
+- Se elimina el segundo borrado de Y del eje de partículas `0x498370`, que
+  anulaba el resultado de la normalización y no existe en el original.
+
+Los bloques de standings/splits, clasificación de ocho entradas, archivos de
+stage, nodos/flags, replay, dispositivos/gains, rankings, rastro de puntos y
+timers conservan sus campos vecinos reales. zlib conserva sus tablas CRC,
+Huffman, longitudes, distancias, configuración, máscaras y mensajes; se
+emparejan sus datos originales y sus promociones enteras, sin añadir asm.
+
+### Validación
+
+- Build MSVC6 y `tools/check.sh`: correctos. El conteo anterior usa
+  `Compare.compare_all().accuracy`, no el progreso agregado ni la precisión
+  efectiva que acepta algunos cambios de registros.
+- `reccmp-datacmp`: **3201 variables, cero incidencias**. Persisten los
+  aliases GLOBAL que ya avisaban en la base.
+- `check_dupes.py`: **3362 FUNCTION, cero STUB, 3195 globals**, limpio según
+  el criterio del script. También se revisaron las anotaciones de las tablas
+  dentro de `zlib/trees.h`, que el script no recorre.
+- `overlap.py`: **27 -> 27**, listado idéntico al de la base, sin nuevos
+  solapamientos. `git diff --check`: correcto.
+
+| Prueba nativa | Casos | Resultado |
+|---|---:|---|
+| Texto y coordenadas | 6000 | Cero diferencias, 134013 dibujos de glyphs |
+| DirectPlay, sonido, vertex buffers | 18000 | Cero diferencias en outputs, HRESULTs, llamadas y guardas |
+| Caché, intercambio, penalizaciones, parpadeo | 30000 | Cero diferencias y modelo independiente de memoria |
+| Getters/updates de tablas de red | 6000 | Cero diferencias; mutaciones detectadas en 6000/5571 |
+| Resultados de red y comparador nativo | 6000 | Cero diferencias; qsort, bloque completo y guardas |
+| Replay | 6000 por rutina | Inicializador y dos dispatchers correctos en los 16 slots; mutaciones fallan 6000/6000 |
+
+Las pruebas ejecutan los cuerpos de ambas imágenes. Simulan proveedores de
+estado, métodos COM y operaciones de rasterización; no validan una partida
+completa ni transporte de red. La prueba de intercambio cubre los **cuatro
+jugadores configurables** y -1; la declaración antigua de 16 records sigue
+solapándose con controles en slots superiores, y no se da por validada esa
+zona. Las coordenadas de DrawText son WORD con signo; un llamador conserva
+sus slots DWORD del ABI x86, consumidos por sus 16 bits bajos.
+
+### Funciones parciales cuyo porcentaje baja
+
+No se pierde ninguna exacta. Estas diez parciales siguen pendientes, y no se
+ocultan de la medición:
+
+| Dirección | Base | Final |
+|---|---:|---:|
+| `0x40a820` | 96.33 % | 87.27 % |
+| `0x40d820` | 64.16 % | 62.46 % |
+| `0x452be0` | 92.48 % | 91.02 % |
+| `0x4d3360` | 73.61 % | 71.62 % |
+| `0x4dfe20` | 51.67 % | 49.70 % |
+| `0x4e1d70` | 51.67 % | 35.71 % |
+| `0x4e7ed0` | 59.34 % | 58.96 % |
+| `0x4e8500` | 65.64 % | 64.92 % |
+| `0x4fccb0` | 57.19 % | 56.95 % |
+| `0x5004c0` | 83.87 % | 75.86 % |
+
+Las variaciones proceden de los layouts y firmas corregidos; el parpadeo
+incluye una corrección de lógica probada. Los renderers afectados aún no
+tienen prueba completa de sus llamadores.
+
+Informes reproducibles y base inmutable en `tools/matching-next100-base*` y
+`tools/matching-next100-final*` (JSON completo, entidades y scan). Logs de
+verificación con el prefijo `tools/matching-next100-final-`. La copia de
+trabajo de esos informes también está en `/tmp/cmr2-next100-final*`.
+
+```bash
+python3 tests/differential_font_coordinates.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+python3 tests/differential_com_outputs.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+python3 tests/differential_option_cache.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+python3 tests/differential_network_tables.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+python3 tests/differential_network_results.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+python3 tests/differential_replay_slots.py /tmp/cmr2-next100-final.json /tmp/cmr2-next100-final-entities.json
+```
+
+Técnicas, variantes descartadas y próximos candidatos: `tools/CONOCIMIENTO.md`
+**§12.8**, en la carpeta compartida del proyecto.

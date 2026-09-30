@@ -175,14 +175,18 @@ BOOL CInstallInfo::ShowNoCDErrorMessage(void)
         }
     }
 
-    if (MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_noCDMessages[languageID][0], m_noCDMessages[languageID][1], MB_RETRYCANCEL) == IDCANCEL)
+    int reply = MessageBoxA(CMain::m_hWndList[CMain::m_hWndIx], m_noCDMessages[languageID][0], m_noCDMessages[languageID][1], MB_RETRYCANCEL);
+    if (reply == IDCANCEL)
     {
         CMain::FUN_0049c130();
         CLogger::CloseLogFile();
         ExitProcess(CMain::m_win32Msg.wParam);
     }
-
-    return TRUE;
+    else if (reply == IDRETRY)
+    {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 // FUNCTION: CMR2 0x040e8d0

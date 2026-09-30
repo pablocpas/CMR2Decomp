@@ -8,6 +8,64 @@
 /* @(#) $Id$ */
 
 #include "zlib/zutil.h"
+#include "main.h"
+
+// GLOBAL: CMR2 0x005217bc
+const char z_msg_unknown_compression_method[] = "unknown compression method";
+
+// GLOBAL: CMR2 0x005217a8
+const char z_msg_invalid_window_size[] = "invalid window size";
+
+// GLOBAL: CMR2 0x00521790
+const char z_msg_incorrect_header_check[] = "incorrect header check";
+
+// GLOBAL: CMR2 0x00521778
+const char z_msg_incorrect_data_check[] = "incorrect data check";
+
+// GLOBAL: CMR2 0x00521768
+const char z_msg_need_dictionary[] = "need dictionary";
+
+// GLOBAL: CMR2 0x00521944
+const char z_msg_invalid_literal_length_code[] = "invalid literal/length code";
+
+// GLOBAL: CMR2 0x0052192c
+const char z_msg_invalid_distance_code[] = "invalid distance code";
+
+// GLOBAL: CMR2 0x005218d4
+const char z_msg_invalid_block_type[] = "invalid block type";
+
+// GLOBAL: CMR2 0x005218b4
+const char z_msg_invalid_stored_block_lengths[] = "invalid stored block lengths";
+
+// GLOBAL: CMR2 0x00521890
+const char z_msg_too_many_length_or_distance_symbols[] = "too many length or distance symbols";
+
+// GLOBAL: CMR2 0x00521874
+const char z_msg_invalid_bit_length_repeat[] = "invalid bit length repeat";
+
+// GLOBAL: CMR2 0x00521868
+const char z_msg_stream_end[] = "stream end";
+
+// GLOBAL: CMR2 0x0052185c
+const char z_msg_file_error[] = "file error";
+
+// GLOBAL: CMR2 0x0052184c
+const char z_msg_stream_error[] = "stream error";
+
+// GLOBAL: CMR2 0x00521840
+const char z_msg_data_error[] = "data error";
+
+// GLOBAL: CMR2 0x0052182c
+const char z_msg_insufficient_memory[] = "insufficient memory";
+
+// GLOBAL: CMR2 0x0052181c
+const char z_msg_buffer_error[] = "buffer error";
+
+// GLOBAL: CMR2 0x00521804
+const char z_msg_incompatible_version[] = "incompatible version";
+
+// GLOBAL: CMR2 0x00521760
+const char z_cmr2_version[] = ZLIB_VERSION;
 
 struct internal_state      {int dummy;}; /* for buggy compilers */
 
@@ -15,17 +73,18 @@ struct internal_state      {int dummy;}; /* for buggy compilers */
 extern void exit OF((int));
 #endif
 
+// GLOBAL: CMR2 0x005217dc
 const char *z_errmsg[10] = {
-"need dictionary",     /* Z_NEED_DICT       2  */
-"stream end",          /* Z_STREAM_END      1  */
-"",                    /* Z_OK              0  */
-"file error",          /* Z_ERRNO         (-1) */
-"stream error",        /* Z_STREAM_ERROR  (-2) */
-"data error",          /* Z_DATA_ERROR    (-3) */
-"insufficient memory", /* Z_MEM_ERROR     (-4) */
-"buffer error",        /* Z_BUF_ERROR     (-5) */
-"incompatible version",/* Z_VERSION_ERROR (-6) */
-""};
+z_msg_need_dictionary,     /* Z_NEED_DICT       2  */
+z_msg_stream_end,          /* Z_STREAM_END      1  */
+CMain::m_logFileBlankLine, /* Z_OK              0  */
+z_msg_file_error,          /* Z_ERRNO         (-1) */
+z_msg_stream_error,        /* Z_STREAM_ERROR  (-2) */
+z_msg_data_error,          /* Z_DATA_ERROR    (-3) */
+z_msg_insufficient_memory, /* Z_MEM_ERROR     (-4) */
+z_msg_buffer_error,        /* Z_BUF_ERROR     (-5) */
+z_msg_incompatible_version,/* Z_VERSION_ERROR (-6) */
+CMain::m_logFileBlankLine};
 
 
 const char * ZEXPORT zlibVersion(void)

@@ -135,7 +135,7 @@ void Font_Reload(char *name, GenericFile *pFile, unsigned int index)
 }
 
 // FUNCTION: CMR2 0x0040b580
-void Font_Select(unsigned int index, int *pColour)
+void Font_Select(BYTE index, int *pColour)
 {
     g_pCurrentFont = &g_fonts[index & 0xff];
     g_fontColour[0] = *pColour;
@@ -144,7 +144,7 @@ void Font_Select(unsigned int index, int *pColour)
 // Width in pixels up to the first line separator ('\n' or '^').
 // match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b5b0
-int Font_GetTextWidth(unsigned int index, BYTE *text)
+int Font_GetTextWidth(BYTE index, BYTE *text)
 {
     short maxWidth;
     int charSpacing;
@@ -222,7 +222,7 @@ int Font_GetTextWidth(unsigned int index, BYTE *text)
 
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b730
-int Font_GetTextHeight(unsigned int index, char *text)
+int Font_GetTextHeight(BYTE index, char *text)
 {
     int height;
     int lines;
@@ -243,7 +243,7 @@ int Font_GetTextHeight(unsigned int index, char *text)
 }
 
 // FUNCTION: CMR2 0x0040b790
-int Font_GetLineHeight(unsigned int index)
+int Font_GetLineHeight(BYTE index)
 {
     FontSlot *pFont;
 
@@ -254,7 +254,7 @@ int Font_GetLineHeight(unsigned int index)
 }
 
 // FUNCTION: CMR2 0x0040b7c0
-void Font_DrawChar(unsigned int ch, short x, short y)
+void Font_DrawChar(BYTE ch, short x, short y)
 {
     FontSlot *pFont;
     FontGlyph *pGlyph;
@@ -278,9 +278,9 @@ void Font_DrawChar(unsigned int ch, short x, short y)
 
 // Draws text at (x, y). flags: 2 = centre, 4 = right-align (both per line),
 // 0x10 = y is the vertical middle of the first line, 0x20 = y is its bottom.
-// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b880
-void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags)
+void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsigned int flags)
 {
     FontSlot *pFont;
     int length;

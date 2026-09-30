@@ -382,7 +382,11 @@ GenericFile* CFrontend::FUN_004d21c0(int language) {
 // LoadLanguageFiles opens, so they are looked up by name in those files.
 // FUNCTION: CMR2 0x004d08d0
 bool CFrontend::LoadSplashScreens(bool param1) {
-    DWORD colour = 0xffffffff;
+    BYTE colour[4];
+    colour[0] = 0xff;
+    colour[1] = 0xff;
+    colour[2] = 0xff;
+    colour[3] = 0xff;
     int screenCount;
     int i;
 
@@ -399,11 +403,10 @@ bool CFrontend::LoadSplashScreens(bool param1) {
     FUN_004d20c0();
     LoadLanguageFiles();
 
-    screenCount = 3;
-    if (CGameInfo::GetScreenWidth() >= 0x400) {
-        if (FUN_004b7560(0x400) != 0 && FUN_004b7590(0x400) != 0)
-            screenCount = 4;
-    }
+    if (CGameInfo::GetScreenWidth() >= 0x400 && FUN_004b7560(0x400) != 0 && FUN_004b7590(0x400) != 0)
+        screenCount = 4;
+    else
+        screenCount = 3;
 
     FUN_004d0840();
     CGame::FUN_0049dca0(3);

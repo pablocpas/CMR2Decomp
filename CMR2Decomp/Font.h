@@ -67,12 +67,12 @@ void Font_Release(BYTE index);
 void Font_Setup(void *pData, Texture *pTexture, unsigned int index, char bInArchive);
 void Font_Load(char *name, GenericFile *pFile, unsigned int index);
 void Font_Reload(char *name, GenericFile *pFile, unsigned int index);
-void Font_Select(unsigned int index, int *pColour);
-int Font_GetTextWidth(unsigned int index, BYTE *text);
-int Font_GetTextHeight(unsigned int index, char *text);
-int Font_GetLineHeight(unsigned int index);
-void Font_DrawChar(unsigned int ch, short x, short y);
-void Font_DrawText(BYTE index, char *text, int x, unsigned int y, int *pColour, unsigned int flags);
+void Font_Select(BYTE index, int *pColour);
+int Font_GetTextWidth(BYTE index, BYTE *text);
+int Font_GetTextHeight(BYTE index, char *text);
+int Font_GetLineHeight(BYTE index);
+void Font_DrawChar(BYTE ch, short x, short y);
+void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsigned int flags);
 void Font_SetBlendMode(int mode);
 int Font_Unused(int unused1, int unused2);
 

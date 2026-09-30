@@ -331,7 +331,7 @@ void Dash_Update(int player)
 
 // Digital rev counter: the lit part of the bar texture (or plain
 // rectangles), the gear letter and the speed.
-// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 27%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00446270
 void Dash_DrawBar(int player, int layer)
 {

@@ -125,6 +125,7 @@ typedef struct config_s {
    compress_func func;
 } config;
 
+// GLOBAL: CMR2 0x00511d60
 local const config configuration_table[10] = {
 /*      good lazy nice chain */
 /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
@@ -197,13 +198,15 @@ int ZEXPORT deflateInit_(z_streamp strm, int level, const char *version, int str
 }
 
 /* ========================================================================= */
+// GLOBAL: CMR2 0x005217d8
+static const char* my_version = z_cmr2_version;
+
 // FUNCTION: CMR2 0x004bf340
 int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy,
                           const char *version, int stream_size)
 {
     deflate_state *s;
     int noheader = 0;
-    static const char* my_version = ZLIB_VERSION;
 
     ushf *overlay;
     /* We overlay pending_buf and d_buf+l_buf. This works since the average

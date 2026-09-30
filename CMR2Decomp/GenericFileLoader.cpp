@@ -70,7 +70,6 @@ void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWOR
     return NULL;
 }
 
-// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9da0
 void CGenericFileLoader::GetFileNameFromPath(char *path, char *out)
 {
@@ -80,9 +79,11 @@ void CGenericFileLoader::GetFileNameFromPath(char *path, char *out)
     pName = strrchr(path, '/');
     if (pName == NULL) {
         pSlash = strrchr(path, '\\');
-        pName = path;
-        if (pSlash != NULL)
-            pName = pSlash + 1;
+        if (pSlash == NULL)
+            pSlash = path;
+        else
+            pSlash++;
+        pName = pSlash;
     }
     strcpy(out, pName);
 }

@@ -151,7 +151,7 @@ int inflate_codes(inflate_blocks_statef *s, z_streamp z, int r)
         break;
       }
       c->mode = BADCODE;        /* invalid code */
-      z->msg = (char*)"invalid literal/length code";
+      z->msg = (char*)z_msg_invalid_literal_length_code;
       r = Z_DATA_ERROR;
       LEAVE
     case LENEXT:        /* i: getting length extra (have base) */
@@ -183,7 +183,7 @@ int inflate_codes(inflate_blocks_statef *s, z_streamp z, int r)
         break;
       }
       c->mode = BADCODE;        /* invalid code */
-      z->msg = (char*)"invalid distance code";
+      z->msg = (char*)z_msg_invalid_distance_code;
       r = Z_DATA_ERROR;
       LEAVE
     case DISTEXT:       /* i: getting distance extra */

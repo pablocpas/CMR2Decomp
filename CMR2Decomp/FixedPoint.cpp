@@ -3,6 +3,7 @@
 #include "Graphics.h"
 #include "GameInfo.h"
 #include "Car.h"
+#include "StageTiming.h"
 
 // GLOBAL: CMR2 0x0072d67c
 int g_fixMatrixMultiplyCount;
@@ -79,6 +80,8 @@ FixMatrix *FloatMatrix_ToFix(FixMatrix *pOut, D3DMATRIX *pIn)
 
 // Projects a point through a 16.16 view-projection matrix to screen offsets
 // from the centre (16.16 pixels, y up). The z row is computed but unused.
+extern const float g_unk0x00511424;
+
 // FUNCTION: CMR2 0x004ba870
 void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
 {
@@ -89,8 +92,8 @@ void FixMatrix_ProjectToScreen(int *pOut, FixVector *pV, int *pM)
     float w;
     int z;
 
-    halfH = (float)(int)g_pGraphics->resY * 0.5f;
-    halfW = (float)(int)g_pGraphics->resX * 0.5f;
+    halfH = (float)(int)g_pGraphics->resY * g_unk0x00511424;
+    halfW = (float)(int)g_pGraphics->resX * g_unk0x00511424;
     x = (float)(FixMul(pM[0], pV->x) + FixMul(pM[4], pV->y) + FixMul(pM[8], pV->z) + pM[12]) *
         CGraphics::m_oneOver65536;
     y = (float)(FixMul(pM[1], pV->x) + FixMul(pM[5], pV->y) + FixMul(pM[9], pV->z) + pM[13]) *
@@ -1044,8 +1047,7 @@ void FUN_0042e8e0(void)
 
 // Per-object tables of the stage object payload (see StageObjects.cpp for the
 // tables at 0x590d90 and 0x590db0 they index).
-// GLOBAL: CMR2 0x00590d8c
-BYTE g_unk0x00590d8c[4];
+
 // GLOBAL: CMR2 0x00590ec0
 BYTE g_unk0x00590ec0[16];
 extern int g_carSplitValues[8];

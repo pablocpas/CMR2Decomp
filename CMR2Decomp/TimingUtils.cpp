@@ -67,6 +67,7 @@ BYTE *FUN_0040e8c0(void);
 // original spills the leaderboard-row pointer (E-0x28) and our build keeps it in
 // a register, so every local access shifts by 4 (all the other differences are
 // that shift; the call sequence, constants and branches are identical).
+// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004de1d0
 void FUN_004de1d0(int unused)
 {

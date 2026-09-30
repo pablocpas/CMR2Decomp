@@ -491,7 +491,7 @@ char CInput::m_strKeyboard[12] = "Keyboard";
 Unk0x0059f8cc CInput::m_unk0x0059f8cc; // device count or something
 
 // GLOBAL: CMR2 0x0059ce48
-DeviceInfo CInput::m_availableDevices[8];
+InputDeviceState CInput::m_deviceState;
 
 // GLOBAL: CMR2 0x0059f8d4
 DWORD CInput::m_mouseGranularity;
@@ -502,8 +502,7 @@ PVOID CInput::m_keyboardDelay;
 // GLOBAL: CMR2 0x0059f8dc
 PVOID CInput::m_keyboardSpeed;
 
-// GLOBAL: CMR2 0x0059f6a8
-LPDIRECTINPUTDEVICEA CInput::m_pDirectInputKeyboard = NULL;
+
 // GLOBAL: CMR2 0x0059f7c4
 LPDIRECTINPUTDEVICEA CInput::m_pDirectInputMouse = NULL;
 
@@ -523,11 +522,11 @@ CHAR CInput::m_strR[4] = " R";
 CHAR CInput::m_strL[4] = " L";
 
 // GLOBAL: CMR2 0x00666d28
-ForceFeedbackDevice CInput::m_forceFeedbackDevices[8];
+InputFeedbackState CInput::m_feedbackState;
 
 // GLOBAL: CMR2 0x00666ee8
 BOOL CInput::m_unk0x00666ee8 = FALSE;
-DWORD CInput::m_unk0x00666ec8[8];
+
 char CInput::m_formatBuffer[512];
 BYTE CInput::m_keyboardState[256];
 DWORD CInput::m_buttonMasks[24] = {
@@ -948,7 +947,7 @@ void CInput::SetupJoystickDeviceInfo(DeviceInfo *deviceInfo) {
 
     DIPROPRANGE dipd;
     dipd.diph.dwSize = 0x18;
-    dipd.diph.dwHeaderSize = sizeof(DIPROPRANGE);
+    dipd.diph.dwHeaderSize = sizeof(DIPROPHEADER);
     dipd.diph.dwHow = DIPH_BYOFFSET;
 
     deviceInfo->joystick.controlCount = 0;

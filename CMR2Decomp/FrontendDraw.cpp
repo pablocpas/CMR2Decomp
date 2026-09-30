@@ -126,6 +126,10 @@ int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char 
     return FrontendDraw_BreadcrumbItem(x, y, pColour, last, CFrontend::m_stringDest);
 }
 
+extern char g_loadRecordTimeFormat[];
+// GLOBAL: CMR2 0x00524c6c
+char g_strAutomode[] = "Automode";
+
 // Total play time and the title of the current section, top right.
 // FUNCTION: CMR2 0x004d41e0
 void FrontendDraw_PlayTime(void)
@@ -136,13 +140,13 @@ void FrontendDraw_PlayTime(void)
 
     ms = CFrontend::FUN_004d20d0();
     minutes = ms / 1000 / 60;
-    sprintf(text, "%.2d:%.2d.%.2d", minutes / 60, minutes % 60, ms / 1000 % 60);
+    sprintf(text, g_loadRecordTimeFormat, minutes / 60, minutes % 60, ms / 1000 % 60);
     Font_DrawText(3, text, (int)(g_pGraphics->resX * 539) / 640, (int)(g_pGraphics->resY * 38) / 480,
                   (int *)g_colourText0x0052496c, 0x11);
     Font_DrawText(1, CFrontend::GetTextString(0x4e), (int)(g_pGraphics->resX * 535) / 640,
                   (int)(g_pGraphics->resY * 38) / 480, (int *)g_colourText0x0052496c, 0x14);
     if (CGameInfo::FUN_00406410(0x11))
-        Font_DrawText(1, "Automode", (int)(g_pGraphics->resX * 635) / 640, (int)(g_pGraphics->resY * 5) / 480,
+        Font_DrawText(1, g_strAutomode, (int)(g_pGraphics->resX * 635) / 640, (int)(g_pGraphics->resY * 5) / 480,
                       (int *)g_colourText0x0052496c, 0xc);
 }
 
@@ -349,7 +353,7 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
 
 // Vertical menu: an optional title row and the visible items from "first"
 // on, each with its background sprite and a separator line below.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d3360
 void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active)
 {

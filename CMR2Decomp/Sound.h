@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// GLOBAL: CMR2 0x00511c38
+// IID_IDirectSound3DBuffer
+
 // Wave file reader, modelled on wave.c / CWaveFile from the DirectX SDK samples
 struct MMIOData {
     WAVEFORMATEX *pBuffer;  // Offset 0x0

@@ -110,7 +110,7 @@ int __cdecl FUN_0040e790(const void *a, const void *b)
         return 1;
     if (strcmp(e1->name, e2->name) > 0)
         return -1;
-    return strcmp(e1->name, e2->name) >= 0 ? -1 : 1;
+    return strcmp(e1->name, e2->name) < 0 ? 1 : -1;
 }
 
 // FUNCTION: CMR2 0x0040e850

@@ -914,9 +914,9 @@ void Tyre_AddWear(int car, int wheel, int damage, int wear)
         ((int *)(pRecord + 0x80))[wheel] += damage;
     if (((int *)(pRecord + 0x60))[wheel] < 1000)
         ((int *)(pRecord + 0x60))[wheel] += wear;
-    if (((int *)(pRecord + 0x20))[wheel] < ((int *)(pRecord + 0x80))[wheel])
+    if (((int *)(pRecord + 0x80))[wheel] > ((int *)(pRecord + 0x20))[wheel])
         ((int *)(pRecord + 0x20))[wheel] = ((int *)(pRecord + 0x80))[wheel];
-    if (((int *)pRecord)[wheel] < ((int *)(pRecord + 0x60))[wheel])
+    if (((int *)(pRecord + 0x60))[wheel] > ((int *)pRecord)[wheel])
         ((int *)pRecord)[wheel] = ((int *)(pRecord + 0x60))[wheel];
     ((int *)(pRecord + 0x90))[wheel] = 0;
     pState = (int *)(pRecord + 0x90);

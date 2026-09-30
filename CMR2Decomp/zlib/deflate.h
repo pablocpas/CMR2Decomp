@@ -275,7 +275,7 @@ void _tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
                           int eof));
 
 #define d_code(dist) \
-   ((dist) < 256 ? _dist_code[dist] : _dist_code[256+((dist)>>7)])
+   ((dist) < 256 ? (unsigned)_dist_code[dist] : (unsigned)_dist_code[256+((dist)>>7)])
 /* Mapping from a distance to a distance code. dist is the distance - 1 and
  * must not have side effects. _dist_code[256] and _dist_code[257] are never
  * used.

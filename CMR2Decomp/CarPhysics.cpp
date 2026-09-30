@@ -868,7 +868,6 @@ void FUN_00498370(FixVector *v)
     len = FixVecLength(&g_physTrailAxis);
     if (len > 0)
         FixVecScaleRecip(&g_physTrailAxis, &g_physTrailAxis, -len);
-    g_physTrailAxis.y = 0;
     g_physTrailScale = FixMul(0x10000 - v->y, 0x20000);
 }
 

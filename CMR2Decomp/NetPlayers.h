@@ -114,7 +114,17 @@ union NetSplitRecords {
     NetSplitFields fields;
     unsigned int words[9];
 };
-extern NetSplitRecords g_netSplitRecords;
+// Standings and split records are adjacent in the original network state.
+struct NetStandingsTables {
+    NetStanding standings[8];
+    NetStanding stageStandings[8];
+    NetSplitRecords splits;
+};
+typedef char NetStandingsSizeCheck[sizeof(NetStandingsTables) == 0x1a4 ? 1 : -1];
+extern NetStandingsTables g_netStandingsTables;
+#define g_netStandings (g_netStandingsTables.standings)
+#define g_netStandings2 (g_netStandingsTables.stageStandings)
+#define g_netSplitRecords (g_netStandingsTables.splits)
 #define g_netClassCount (g_netSplitRecords.fields.classCount)
 #define g_netSplitBest (g_netSplitRecords.fields.best)
 
@@ -127,5 +137,17 @@ char *FUN_00409cd0(int index);
 unsigned int FUN_00409d00(int index);
 int FUN_00409d20(int index);
 int FUN_0040a7a0(int id);
+
+
+
+// Triangular distance table and the adjacent network enable flag.
+struct NetTriangleState {
+    int values[100];
+    BYTE enabled;
+};
+typedef char NetTriangleStateSize[sizeof(NetTriangleState) == 0x194 ? 1 : -1];
+extern NetTriangleState g_netTriangleState;
+#define g_triangleNumbers (g_netTriangleState.values)
+#define g_unk0x00539cc8 (g_netTriangleState.enabled)
 
 #endif

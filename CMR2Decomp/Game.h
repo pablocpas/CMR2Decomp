@@ -10,7 +10,16 @@ typedef void (*OtherFuncTableEntry)(struct Unk0049c2c0 *, BYTE);
 
 struct Unk00817d98
 {
-    int field0x1;
+    union {
+        int field0x1;
+        struct {
+            unsigned int state : 8;
+            unsigned int value : 8;
+            unsigned int rule : 8;
+            unsigned int level : 2;
+            unsigned int reserved : 6;
+        } bits;
+    };
     int field0x2;
 };
 
@@ -55,6 +64,9 @@ struct DPlayConnection {
 };
 
 extern BYTE g_unk0x005a0068[0x50];
+
+// GLOBAL: CMR2 0x00511a38
+// DPSPGUID_IPX
 
 class CGame
 {
@@ -155,8 +167,6 @@ public:
     static int m_unk0x00523c58;
     // GLOBAL: CMR2 0x00523c5c
     static int m_unk0x00523c5c;
-    // GLOBAL: CMR2 0x00511a38
-// DPSPGUID_TCPIP
 
 // GLOBAL: CMR2 0x0052ea4c
     static int m_unk0x0052ea4c;

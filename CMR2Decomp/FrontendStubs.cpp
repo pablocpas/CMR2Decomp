@@ -31,23 +31,17 @@
 // FUN_004dc710 (0x004dc710) is implemented in FrontendScreens.cpp.
 //
 //
-void FUN_004de1d0(Menu *pMenu, int param)
-{
-}
+// FUN_004de1d0 is implemented with its original callback signature.
 
 
 // FUN_004e9990 (0x004e9990) is implemented in FrontendScreens.cpp.
 //
 //
 
-void FUN_004ecaf0(Menu *pMenu, int param)
-{
-}
+// FUN_004ecaf0 is implemented with its original callback signature.
 
 
-void FUN_004f0da0(Menu *pMenu, int param)
-{
-}
+// FUN_004f0da0 is implemented with its original callback signature.
 
 // FUN_004f0e80 (0x004f0e80) is implemented in FrontendScreens.cpp.
 //

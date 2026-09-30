@@ -3,6 +3,26 @@
 
 #include <windows.h>
 
+struct StageNodeTables {
+    void *nodes[4];
+    BYTE flags[4];
+};
+typedef char StageNodeTablesSize[sizeof(StageNodeTables) == 0x14 ? 1 : -1];
+extern StageNodeTables g_stageNodeTables;
+#define g_unk0x00590d7c (g_stageNodeTables.nodes)
+#define g_unk0x00590d8c (g_stageNodeTables.flags)
+
+struct ReplayLevelState {
+    int levels[16];
+    int bufferCount;
+    int pending[8];
+};
+typedef char ReplayLevelSizeCheck[sizeof(ReplayLevelState) == 0x64 ? 1 : -1];
+extern ReplayLevelState g_replayLevelState;
+#define g_unk0x00588cd4 (g_replayLevelState.levels)
+#define g_unk0x00588d14 (g_replayLevelState.bufferCount)
+#define g_unk0x00588d18 (g_replayLevelState.pending)
+
 int StageTiming_GetDriverIDForPosition(int positionIx);
 int StageTiming_GetTimeForPosition(int iPosition);
 

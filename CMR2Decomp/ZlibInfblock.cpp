@@ -18,6 +18,7 @@ struct inflate_codes_state {int dummy;}; /* for buggy compilers */
 #define bits word.what.Bits
 
 /* Table for deflate from PKZIP's appnote.txt. */
+// GLOBAL: CMR2 0x005121d8
 local const uInt border[] = { /* Order of the bit length code lengths */
         16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 
@@ -173,7 +174,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
         case 3:                         /* illegal */
           DUMPBITS(3)
           s->mode = BAD;
-          z->msg = (char*)"invalid block type";
+          z->msg = (char*)z_msg_invalid_block_type;
           r = Z_DATA_ERROR;
           LEAVE
       }
@@ -183,7 +184,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
       if ((((~b) >> 16) & 0xffff) != (b & 0xffff))
       {
         s->mode = BAD;
-        z->msg = (char*)"invalid stored block lengths";
+        z->msg = (char*)z_msg_invalid_stored_block_lengths;
         r = Z_DATA_ERROR;
         LEAVE
       }
@@ -216,7 +217,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
       if ((t & 0x1f) > 29 || ((t >> 5) & 0x1f) > 29)
       {
         s->mode = BAD;
-        z->msg = (char*)"too many length or distance symbols";
+        z->msg = (char*)z_msg_too_many_length_or_distance_symbols;
         r = Z_DATA_ERROR;
         LEAVE
       }
@@ -286,7 +287,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
           {
             ZFREE(z, s->sub.trees.blens);
             s->mode = BAD;
-            z->msg = (char*)"invalid bit length repeat";
+            z->msg = (char*)z_msg_invalid_bit_length_repeat;
             r = Z_DATA_ERROR;
             LEAVE
           }

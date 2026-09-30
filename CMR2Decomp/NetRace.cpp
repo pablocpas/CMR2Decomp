@@ -14,8 +14,7 @@ char FUN_004a1c50(int to, int guaranteed, int data, int size);
 int FUN_0040ac30(void);
 void FUN_0040afd0(void);
 
-// GLOBAL: CMR2 0x00539cc8
-BYTE g_unk0x00539cc8;
+
 // GLOBAL: CMR2 0x00539dcc
 int g_unk0x00539dcc;
 // GLOBAL: CMR2 0x00539ed0
@@ -594,10 +593,10 @@ int g_unk0x005393cc;
 int g_unk0x005393d0;
 // Triangular numbers 0, 1, 3, 6, ... (100 entries).
 // GLOBAL: CMR2 0x00539b38
-int g_triangleNumbers[100];
+NetTriangleState g_netTriangleState;
 
 // Resets the network race state and builds the triangle number table.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424ed0
 void FUN_00424ed0(void)
 {

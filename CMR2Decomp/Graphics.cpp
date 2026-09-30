@@ -142,7 +142,7 @@ bool CGraphics::InitializeDirectX(void) {
     lpDD->QueryInterface(IID_IDirectDraw7, (LPVOID*)&lpDD7);
     lpDD7->GetDeviceIdentifier(&lpDDIdenitifer, 0);
 
-    if (strcmp(lpDDIdenitifer.szDescription, CGameInfo::m_gameInfo.graphicsCardName) == 0) {
+    if (strcmp(CGameInfo::m_gameInfo.graphicsCardName, lpDDIdenitifer.szDescription) == 0) {
         if (g_pGraphics->pDD7 != NULL) {
             if (g_pGraphics->pDD7->Release() == 0)
                 g_pGraphics->pDD7 = NULL;
@@ -320,11 +320,11 @@ void CGraphics::ReleaseVertexBuffers(void) {
     if (m_pTextureManager->pVertexBuffer1 != NULL && m_pTextureManager->pVertexBuffer1->Release() == 0)
         m_pTextureManager->pVertexBuffer1 = NULL;
 
-    // not sure if this loop is fully correct or not
     do {
         if (m_pTextureManager->pVertexBuffers[index] != NULL && m_pTextureManager->pVertexBuffers[index]->Release() == 0)
             m_pTextureManager->pVertexBuffers[index] = NULL;
 
+        m_pTextureManager->vertexBufferFill[index] = 0;
         index--;
     } while (index >= 0);
 
@@ -774,7 +774,7 @@ HRESULT CGraphics::FUN_004a8da0(DDSURFACEDESC2* lpDDSurfaceDesc2, void* lpContex
     canRender16Bit = FUN_004a8bc0();
     canRender16Bit = DeviceCanRender16Bit(canRender16Bit);
 
-    if (((canRender16Bit != 0 || bpp != 0x20) &&  (g_pGraphics->isFullscreen != 0 || ddsd.ddpfPixelFormat.dwFlags == bpp)) && (width >= 0x280 && height >= 0x1e0) && (bpp == 0x10 || bpp == 0x20)) {
+    if (((canRender16Bit != 0 || bpp != 0x20) &&  (g_pGraphics->isFullscreen != 0 || ddsd.ddpfPixelFormat.dwRGBBitCount == bpp)) && (width >= 0x280 && height >= 0x1e0) && (bpp == 0x10 || bpp == 0x20)) {
         dwTextureMem = FUN_004bdd00(DDSCAPS_TEXTURE);
         dwVidMem = FUN_004bdd00(DDSCAPS_LOCALVIDMEM);
         if (dwTextureMem < dwVidMem) {
@@ -1508,8 +1508,8 @@ RenderTexture *CGraphics::CreateCubeMapSurfaces(RenderTexture *pTexture)
     int i;
 
     memset(&desc, 0, sizeof(desc));
-    desc.dwHeight = m_cubeMapSize;
     desc.dwWidth = m_cubeMapSize;
+    desc.dwHeight = m_cubeMapSize;
     desc.dwSize = sizeof(DDSURFACEDESC2);
     desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
     desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_3DDEVICE | DDSCAPS_COMPLEX;
@@ -3067,8 +3067,14 @@ int g_unk0x005210bc = 1;
 int g_unk0x005210c0 = 1;
 // GLOBAL: CMR2 0x005210c4
 int g_unk0x005210c4 = 5;
+struct TimerPulseState {
+    BYTE timers[32][0x30];
+    int rising;
+    float maximum;
+};
+typedef char TimerPulseStateSize[sizeof(TimerPulseState) == 0x608 ? 1 : -1];
 // GLOBAL: CMR2 0x00521138
-BYTE g_unk0x00521138[32][0x30] = {
+TimerPulseState g_timerPulseState = { {
     { 5 },
     { 5 },
     { 5 },
@@ -3101,7 +3107,10 @@ BYTE g_unk0x00521138[32][0x30] = {
     { 5 },
     { 5 },
     { 5 }
-};
+}, 1, 0.3f };
+#define g_unk0x00521138 (g_timerPulseState.timers)
+#define g_pulseRising (g_timerPulseState.rising)
+#define g_pulseMax (g_timerPulseState.maximum)
 
 // FUNCTION: CMR2 0x004b2970
 void FUN_004b2970(int value)
@@ -3763,10 +3772,7 @@ int g_pulseFrozen;
 float g_pulseMin;
 // GLOBAL: CMR2 0x0081681c
 float g_pulseSpeed;
-// GLOBAL: CMR2 0x00521738
-int g_pulseRising = 1;
-// GLOBAL: CMR2 0x0052173c
-float g_pulseMax = 0.3f;
+
 
 // Level thresholds and the phase step, taken from the original's constant block.
 // GLOBAL: CMR2 0x00511ce8
@@ -5127,7 +5133,8 @@ int QuadVB_Release(void)
 // FUNCTION: CMR2 0x004ae0a0
 void FUN_004ae0a0(void)
 {
-    D3DVERTEXBUFFERDESC desc = {0};
+    D3DVERTEXBUFFERDESC desc;
+    memset(&desc, 0, sizeof(desc));
 
     desc.dwSize = 0x10;
     desc.dwCaps = 0x10000;
@@ -5605,8 +5612,8 @@ void FUN_004affe0(void)
     if (g_particleTypeCount > 0) {
         p = &g_particleTypes->flags;
         do {
-            i++;
             *p &= ~1;
+            i++;
             p += sizeof(ParticleType);
         } while (i < g_particleTypeCount);
     }
@@ -6920,12 +6927,13 @@ int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size)
         } while (--count != 0);
     }
     pTexture = (unsigned short *)CTexture::FindLoadTexture(pFile, name, NULL, 0, 0, 0x8000);
-    if (pTexture != NULL) {
+    if (pTexture == NULL)
+        return (int)pTexture;
+    {
         g_unk0x005210b8 = *pTexture;
         FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[g_unk0x005210b8], 4);
         return 1;
     }
-    return 0;
 }
 
 D3DMATRIX *FloatMatrix_Multiply(D3DMATRIX *pOut, D3DMATRIX *pA, D3DMATRIX *pB);
@@ -7153,14 +7161,20 @@ void FUN_0049c880(Mesh *pMesh)
     MeshPart **ppPart;
     MeshPart *pPart;
 
-    for (i = 0, ppPart = pMesh->pParts; i < pMesh->partCount; i++, ppPart++) {
-        pPart = *ppPart;
-        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
-        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
-            D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
-            pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
-            pPart->indexCount, 0);
-        CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+    i = 0;
+    if (pMesh->partCount > 0) {
+        ppPart = pMesh->pParts;
+        do {
+            pPart = *ppPart;
+            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
+                pPart->indexCount, 0);
+            CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+            i++;
+            ppPart++;
+        } while (i < pMesh->partCount);
     }
 }
 
@@ -7172,15 +7186,21 @@ void FUN_0049c7b0(Mesh *pMesh)
     MeshPart **ppPart;
     MeshPart *pPart;
 
-    for (i = 0, ppPart = pMesh->pParts; i < pMesh->partCount; i++, ppPart++) {
-        pPart = *ppPart;
-        FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
-        CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
-        CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
-            D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
-            pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
-            pPart->indexCount, 0);
-        CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+    i = 0;
+    if (pMesh->partCount > 0) {
+        ppPart = pMesh->pParts;
+        do {
+            pPart = *ppPart;
+            FUN_004a3e20((Unk0x004a3e20 *)CGraphics::m_pTextureManager->textureBuffer[pPart->texture], 10);
+            CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[pPart->texture]);
+            CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
+                D3DPT_TRIANGLELIST, CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
+                pMesh->vertexOffset + pPart->minIndex, pMesh->field_0x10 - pPart->minIndex, pPart->pData,
+                pPart->indexCount, 0);
+            CGame::m_unk0x0059ce18 += pPart->indexCount / 3;
+            i++;
+            ppPart++;
+        } while (i < pMesh->partCount);
     }
 }
 

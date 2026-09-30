@@ -611,6 +611,9 @@ extern char g_minSecMSECFormatString[];
 // FUNCTION: CMR2 0x0044cdb0
 void FUN_0044cdb0(void)
 {
+    // This caller uses full DWORD coordinate slots. DrawText consumes their
+    // low signed WORDs; the x86 stdcall stack layout is identical.
+    typedef void (WINAPI *DrawText32)(BYTE, char *, int, unsigned int, int *, unsigned int);
     char names[2][20];
     int car;
     int x;
@@ -630,13 +633,13 @@ void FUN_0044cdb0(void)
     }
     for (car = 0; car < 2; car++) {
         x = (int)(g_pGraphics->resX * 30) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
-        Font_DrawText(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
+        ((DrawText32)Font_DrawText)(1, CFrontend::GetTextString(0x89), x, (int)(g_pGraphics->resY * 0xe6) / 480,
                       (int *)g_menuFrameColour, 0x11);
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x9b), names[car]);
-        Font_DrawText(1, CFrontend::m_stringDest, x,
+        ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
                       (int)(g_pGraphics->resY * 0xe6) / 480 - (int)(g_pGraphics->resY * 0x1e) / 480,
                       (int *)g_menuFrameColour, 0x11);
-        Font_DrawText(1, CFrontend::GetTextString(0x8a), x,
+        ((DrawText32)Font_DrawText)(1, CFrontend::GetTextString(0x8a), x,
                       (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
                           (int)(GetStageSplitCount() * g_pGraphics->resY * 0x1e) / 480,
                       (int *)g_menuFrameColour, 0x11);
@@ -644,14 +647,14 @@ void FUN_0044cdb0(void)
         for (split = 0; split < GetStageSplitCount(); split++) {
             FormatCentisecondsAsMinSecMSec(FUN_00448680(car, split + 1) - FUN_00448680(car, split),
                                            CFrontend::m_stringDest);
-            Font_DrawText(1, CFrontend::m_stringDest, x,
+            ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
                           (int)(g_pGraphics->resY * 0xe6) / 480 + ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                           (int *)g_menuFrameColour, 0x11);
         }
         time = FUN_004483c0(car);
         sprintf(CFrontend::m_stringDest, g_minSecMSECFormatString, FUN_004483c0(car) / 6000,
                 (FUN_004483c0(car) / 100) % 60, time % 100);
-        Font_DrawText(1, CFrontend::m_stringDest, x,
+        ((DrawText32)Font_DrawText)(1, CFrontend::m_stringDest, x,
                       (int)(g_pGraphics->resY * 0x19) / 480 + (int)(g_pGraphics->resY * 0xe6) / 480 +
                           ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
                       (int *)g_menuFrameColour, 0x11);
@@ -683,7 +686,7 @@ int g_ghostSplits[10];
 // then per car the name, the time of every split and the total; in arcade
 // mode the record holder and record time head the list, in the knockout mode
 // FUN_0044cdb0 draws the two drivers of the match.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044bcd0
 void FUN_0044bcd0(Menu *pMenu)
 {
@@ -1640,7 +1643,7 @@ void FUN_00450ef0(Menu *pMenu)
 }
 
 // Draw callback of the final championship standings (header menu) screen.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00451690
 void FUN_00451690(Menu *pMenu)
 {
@@ -3557,7 +3560,6 @@ char g_nameSeparator0x00519f44[] = " - ";
 // Stage end banner: the event title, a separator bar and the result text
 // appear one after the other, then one line per driver with its category
 // record name (or the driver name) and position.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044b3a0
 void FUN_0044b3a0(void)
 {
@@ -3670,8 +3672,8 @@ void GameMenus_DrawRowSeparator(short row)
                     (short)((resY * 0x82) / 0x1e0) +
                     (short)((resY * 0x34) / 0x1e0) * row -
                     (short)g_unk0x00540c60;
-    g_menuRect[3] = 1;
     g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x240) / 0x280);
+    g_menuRect[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
 }
 
@@ -3881,7 +3883,7 @@ void FUN_00448e70(void)
         }
         if (FUN_004bc0c0(g_unk0x005418c0)) {
             g_unk0x00541cf4 = Timer_GetValue(g_unk0x005418c0[0]);
-            g_unk0x00540c60 = FixMulShift32((g_pGraphics->resY * 0x34) / 0x1e0 * 0x10000, g_unk0x00541cf4);
+            g_unk0x00540c60 = (FixMul(((int)g_pGraphics->resY * 0x34) / 0x1e0 * 0x10000, g_unk0x00541cf4) >> 16);
         } else {
             g_unk0x0053f5a8 = 0;
             g_unk0x005413f8 = 0;

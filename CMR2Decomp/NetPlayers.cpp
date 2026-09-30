@@ -20,16 +20,12 @@ int g_netIdCount;
 // GLOBAL: CMR2 0x00531778
 NetTables g_netTables;
 // GLOBAL: CMR2 0x00531e00
-NetStanding g_netStandings[8];
-// GLOBAL: CMR2 0x00531ec0
-NetStanding g_netStandings2[8];
-// GLOBAL: CMR2 0x00531f80
-NetSplitRecords g_netSplitRecords;
-extern BYTE g_unk0x00539cc8;
+NetStandingsTables g_netStandingsTables;
+
 // GLOBAL: CMR2 0x005320a8
 unsigned int g_netLapBest;
 // GLOBAL: CMR2 0x005320b0
-NetClassification g_netClassification[7];
+NetClassification g_netClassification[8];
 
 extern int g_unk0x005320a4;
 
@@ -56,7 +52,7 @@ void FUN_00409a30(void)
         g_netStandings[i].id = 0;
         g_netStandings[i].time = -1;
     }
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < 7; i++)
         g_netPlayers[i].bestTime = -1;
     g_netTotal = 0;
     g_netBestTime = -1;
@@ -620,6 +616,7 @@ int __cdecl FUN_0040a7d0(const void *a, const void *b)
 }
 
 // Stage standings of all players, sorted by time, plus their ranks.
+// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a820
 void FUN_0040a820(unsigned int localTime)
 {
@@ -867,7 +864,7 @@ int FUN_0040aed0(void)
 {
     int i;
 
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < 8; i++) {
         if (g_netClassification[i].id == FUN_004a1a00())
             return i;
     }

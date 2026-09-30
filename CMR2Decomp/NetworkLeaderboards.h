@@ -12,7 +12,8 @@ struct NetworkLeaderboardEntry {
 };
 
 struct NetworkLeaderboard {
-    BOOL isLoaded;
+    BYTE isLoaded;
+    BYTE reserved[3];
     NetworkLeaderboardEntry entries[MAX_LEADERBOARD_PLAYERS];
 };
 
