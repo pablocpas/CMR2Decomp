@@ -678,9 +678,8 @@ del permuter sí se revisan antes de aplicarlas.
 
 | Medida | Inicio (`4c421e7`) | Ahora |
 |---|---:|---:|
-| Byte a byte exactas (`fastcmp`) | 2391 | **2423** |
-| reccmp estricto (`matching == 1`) | 2333 | **2354** |
-| reccmp por debajo del 90 % | 759 | 747 |
+| Byte a byte exactas (`fastcmp`) | 2391 | **2458** |
+| Byte a byte por debajo del 90 % | 803 | 764 |
 | `reccmp-datacmp` | 0 incidencias | 0 incidencias |
 
 ### Reglas de MSVC6 confirmadas con TUs mínimos
@@ -729,6 +728,43 @@ Funciones exactas nuevas en esta tanda: `0x409150`, `0x40d4b0`, `0x4188c0`,
 `0x4b4910`, `0x4b5ee0`, `0x4bae10`, `0x4cf740`, `0x4cf8e0`, `0x4cfa10`,
 `0x4e3340`, `0x4eb0c0`, `0x4ec2b0`, `0x4f02e0`, `0x505e70`. Las variantes
 descartadas de las que se resisten están en `tools/fastcmp/work/hard.txt`.
+
+### Segunda tanda: barridos automáticos y más reglas
+
+| Paso | Exactas byte a byte |
+|---|---:|
+| Tras la primera tanda | 2423 |
+| Bucles indexados, signo del límite, helpers anidados | 2434 |
+| Barrido de un paso con todas las mutaciones (`mutscan.py`, solo EXACT) | 2448 |
+| Bucles indexados, registros de guardado, parámetros `BYTE` | **2458** |
+
+Reglas añadidas:
+
+9. **Bucles indexados.** Casi todos los bucles de punteros sobre arrays
+   globales eran bucles con índice en el original: MSVC6 los reduce a un
+   puntero, pero conserva la comparación con signo (`jl`) y su propia
+   elección de variable de inducción. Con límite `sizeof(a)/sizeof(a[0])` la
+   comparación es sin signo (`jb`). `signscan.py` y la mutación `idxloop`.
+10. **Tablas por índice.** Los registros se acceden como `tabla[i].campo`
+    en cada uso, no a través de un puntero local.
+11. **Parámetros `BYTE`.** Si el llamador original empuja el registro sin
+    `and 0xff`, el parámetro es `BYTE` (`bytearg.py`, `paramtype.py`, que
+    solo aplica un cambio si no se pierde ninguna exacta).
+12. **Stores muertos a globals.** El original conserva asignaciones a
+    globals que se sobrescriben enseguida (`storediff.py`).
+
+Bugs corregidos en esta tanda (todos visibles en el original):
+
+- `0x4779e0`: las 16 filas de `0x58d3b8` son buffers de fichero; se
+  liberaban como nodos de escena.
+- `0x4cfff0`: dos máscaras borraban el bit de cambio manual y el nivel recién
+  escritos (mismo fallo que `0x4cfb30`).
+- `0x4f1040`: la tecla de borrar del editor de nombre eliminaba el
+  penúltimo carácter (`strlen - 2`) en vez del último.
+
+Un permuter multi-paso sobre 35 funciones de 85–99 % no encontró nada más
+tras el barrido de un paso: lo que queda en esa franja necesita cambios
+estructurales o está en la planificación de la FPU.
 
 ## Continuación desde la auditoría del otro agente: primer lote bajo 700
 
@@ -1102,4 +1138,82 @@ antes/después congelados en **tools/matching-below700-07/**. El hito sigue abie
 ```sh
 python3 tests/differential_camera_clip.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
 python3 tests/differential_name_entry.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
+```
+
+## Octavo lote bajo 700: firmas, registro y recuento completo
+
+Desde **a156108**, merge de los seis commits guardados hasta **d8a6d7b**.
+No se incluyen los cambios sin confirmar del otro worktree. Su documentación
+se integra antes de nuestros lotes, conservando los informes históricos.
+
+**2489/3362 exactas por bytes**, **873 pendientes**, **174** para llegar a
+699. reccmp **2398/3364** estrictas (+4 sin pérdidas), **701** bajo90.
+Hay **cuatro mejoras de código** y **seis correcciones de medición**; esas
+seis ya eran exactas en el PE anterior y no son trabajo nuevo de descompilación.
+
+| Función | reccmp antes | Después | Cambio integrado |
+|---|---:|---:|---|
+| `0x4236b0` | 65.84% | 100% | Las funciones de cámara reciben BYTE donde el original pasa la parte baja del índice. |
+| `0x40e660` | 97.17% | 100% | Publicar la nueva entrada de clasificación dentro del bucle de búsqueda. |
+| `0x4692f0` | 96.55% | 100% | Acceder por índice a las tablas de partes y flags de rotura. |
+| `0x4aa720` | 96.49% | 100% | Vaciar el resultado ante un fallo en cualquier apertura o consulta del registro. |
+
+Las firmas de 423d70,4219b0,422fe0 y sus declaraciones son coherentes en
+Car, Game, NetRace, Race y GameInfo. 421590 retorna BYTE y 4aad30 lo recibe;
+la cabecera **Game.h** y todos sus consumidores se recompilan. Se sincronizan
+las notas de los parciales: 421590 **61.54%**,4219b0 **56.36%**,423460
+**48.41%**,4aac40 **63.33%**. No se cuentan como exactas. 423300 llega a
+**96.97%**, pero tampoco es exacta.
+
+### Registro: fallo de apertura también vacía la salida
+
+La versión anterior sólo limpiaba m_regKeyReadData si fallaba la consulta
+final. Si una de las cuatro aperturas fallaba, se podía devolver el contenido
+de la lectura anterior. El original limpia el primer byte en cualquiera de
+los cinco pasos fallidos. El nuevo camino común conserva las mismas APIs,
+paths, tamaño inicial100 y las cuatro llamadas a RegCloseKey.
+
+`tests/differential_registry_value.py`: **6000 casos nativos / cero diferencias**
+con un modelo independiente, fallos en cada apertura y en la consulta,
+éxito, datos parciales de consulta, retorno, paths, número de llamadas y
+arena completa de64KiB. Las APIs están simuladas. El PE anterior falla en
+case0: el byte inicial de salida no se limpia al fallar la apertura de HKLM.
+El original cierra los cuatro handles incluso después de fallos; la prueba
+no compara el valor de los argumentos de cierre que nunca se inicializaron.
+
+### Medición reproducible sin nombres ambiguos ni caché ajena
+
+Se añade `audit_byte_matching.py`. Usa el PE y mapa de entidades de la
+compilación indicada, con metadatos privados; resuelve los nombres CRT
+ambiguos por su identificador de fuente y los constructores por su símbolo
+MSVC real, requiriendo un candidato único. No cambia los informes ni el
+comparador compartidos. Se congela una versión de fastcmp y se usa el mismo
+SHA256 en ambas auditorías. Los errores de resolución pasan de cinco a cero.
+
+| Dirección | Identificador verificado | Resultado en base y actual |
+|---|---|---|
+| `0x50fdc0` | FUN_0050fdc0 | 5bytes exactos |
+| `0x4b2e20` | FUN_004b2e20 | 19bytes exactos |
+| `0x456b40` | StageQuality_InitCode7 | 11bytes exactos |
+| `0x456b60` | StageQuality_InitCode8 | 11bytes exactos |
+| `0x4bd8b0` | MMIOData::MMIOData | 9bytes exactos |
+| `0x4a2d90` | FUN_004a2d90 | Código completo exacto, sin operandos pendientes |
+
+La última tenía pendientes __chkstk y un literal FLOAT; ahora se resuelven
+con el comparador congelado y los símbolos del PE correcto. Las seis se
+verifican en la compilación07 congelada, sin cambiar una línea de su código.
+Por ello su base corregida es **2485**, frente a **2479** reportadas antes;
+**2485 ->2489** son las cuatro mejoras nuevas. No se altera el informe07.
+`measurement-corrections.tsv` distingue estas seis de `gains.tsv`.
+
+Build correcto, datacmp **3203variables /0incidencias**, check_dupes
+**3362funciones /0STUB /3197globals**,27overlaps heredados idénticos;
+ninguna función retirada y ninguna exacta perdida. Las auditorías completas
+usan las3362funciones y no tienen errores de resolución. Artefactos, PE/PDB/
+objetos antes y después, informes, hashes y versión de comparador en
+**tools/matching-below700-08/**. El hito sigue abierto.
+
+```sh
+CMR2_FASTCMP_PATH=../tools/matching-below700-08/fastcmp.py python3 audit_byte_matching.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build /tmp/matching-08-verified.json
+python3 tests/differential_registry_value.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build/CMR2.exe
 ```

@@ -4524,7 +4524,7 @@ void FUN_0041e210(void);
 void FUN_00424ed0(void);
 void FUN_00424c50(void);
 void FUN_004245e0(void);
-void FUN_00422fe0(int, int, int, int);
+void FUN_00422fe0(int, int, BYTE, int);
 BYTE FUN_0041b370(void);
 int RallyData_FUN_00408800(BYTE);
 int FUN_00407270(void);

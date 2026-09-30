@@ -3177,8 +3177,6 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part);
 void FUN_004692f0(Car *pCar, int param_2)
 {
     BYTE *pRecord;
-    BYTE *pByte;
-    int *pFlagA;
     BYTE i;
     BYTE part;
     int carIndex;
@@ -3188,15 +3186,13 @@ void FUN_004692f0(Car *pCar, int param_2)
     if (*(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'C' ||
         *(char *)((int)FUN_00456be0(pCar->field_0xb1a) + 0x20) == 'A') {
         i = 0;
-        pByte = pRecord + 0x460;
-        pFlagA = (int *)(pRecord + 0x490);
         for (; i < 8; i++) {
-            part = *pByte;
-            if (pFlagA[0] == 0 || pFlagA[-8] == 0) {
-                if (pFlagA[-0x7a] > g_unk0x0051bfac[i] && pFlagA[0] == 0) {
+            part = pRecord[0x460 + i];
+            if (((int *)(pRecord + 0x490))[i] == 0 || ((int *)(pRecord + 0x490))[i + (-8)] == 0) {
+                if (((int *)(pRecord + 0x490))[i + (-0x7a)] > g_unk0x0051bfac[i] && ((int *)(pRecord + 0x490))[i] == 0) {
                     FUN_004694a0((int)pCar, 2, i);
-                    pFlagA[0] = 1;
-                    pFlagA[-8] = 1;
+                    ((int *)(pRecord + 0x490))[i] = 1;
+                    ((int *)(pRecord + 0x490))[i + (-8)] = 1;
                     if (param_2 == 0) {
                         Car_QueueWindowBreak(pRecord, pCar, part);
                         carIndex = pCar->field_0xb1a;
@@ -3219,9 +3215,9 @@ void FUN_004692f0(Car *pCar, int param_2)
                         }
                     }
                 }
-                else if (pFlagA[-0x7a] > g_unk0x0051bfcc[i] && pFlagA[-8] == 0 && pFlagA[0] == 0) {
+                else if (((int *)(pRecord + 0x490))[i + (-0x7a)] > g_unk0x0051bfcc[i] && ((int *)(pRecord + 0x490))[i + (-8)] == 0 && ((int *)(pRecord + 0x490))[i] == 0) {
                     FUN_004694a0((int)pCar, 1, i);
-                    pFlagA[-8] = 1;
+                    ((int *)(pRecord + 0x490))[i + (-8)] = 1;
                     if (param_2 == 0) {
                         carIndex = pCar->field_0xb1a;
                         state = RallyDataState();
@@ -3244,8 +3240,6 @@ void FUN_004692f0(Car *pCar, int param_2)
                     }
                 }
             }
-            pByte++;
-            pFlagA++;
         }
     }
 }

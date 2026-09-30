@@ -113,7 +113,7 @@ public:
     static int __cdecl CompareConnections(const void *a, const void *b);
     static unsigned int GetConnectionCount(void);
     static DPlayConnection *GetConnection(BYTE index);
-    static bool FUN_004aad30(int param1, int param2, int param3);
+    static bool FUN_004aad30(BYTE param1, int param2, int param3);
 
     // GLOBAL: CMR2 0x00663dc4
     static int m_unk0x00663dc4;

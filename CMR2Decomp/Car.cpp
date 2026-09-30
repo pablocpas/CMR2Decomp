@@ -81,9 +81,9 @@ BYTE FUN_00422fb0(BYTE index)
     return g_unk0x0053901a[((unsigned int)g_unk0x00538e0c[index] + index * 2) * 100];
 }
 
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423d70
-FixMatrix *FUN_00423d70(unsigned int index)
+FixMatrix *FUN_00423d70(BYTE index)
 {
     BYTE state = (BYTE)RallyDataState();
     if ((BYTE)index < state)
@@ -5939,8 +5939,9 @@ int SceneNode_Destroy(SceneNode *pNode);
 // [esi + g_unk0x005391b0], ...), no con índice escalado; reproducido con
 // ((BYTE *)array + off). Lo que queda es asignación de registros: el contador
 // en AL (no EAX) y qué arrays strength-reduce MSVC (g_unk0x00538e0c).
+// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421590
-int FUN_00421590(void)
+BYTE FUN_00421590(void)
 {
     BYTE i;
     int off;
@@ -8019,6 +8020,7 @@ void FUN_00423300(BYTE *pRecord, int type, int param)
 
 // Per-frame update of a view record's camera, plus its ground clearance
 // (how far the camera sits above the stage, eased towards the new value).
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423460
 void FUN_00423460(BYTE *pRecord)
 {
@@ -8248,8 +8250,9 @@ void FUN_00421720(BYTE view, int type, int param, BYTE target, int blend)
 
 // Per-frame camera of a view: the shake animation, both records' cameras and
 // the blend between them while a transition runs.
+// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004219b0
-void FUN_004219b0(unsigned int view)
+void FUN_004219b0(BYTE view)
 {
     BYTE index;
     BYTE active;
@@ -8387,7 +8390,7 @@ void FUN_00421e20(BYTE view)
 
 // Switches a view to camera type `type` (0 = its current one) on `target`.
 // FUNCTION: CMR2 0x00422fe0
-void FUN_00422fe0(int view, int type, int target, int blend)
+void FUN_00422fe0(int view, int type, BYTE target, int blend)
 {
     if (type == 0)
         type = FUN_00422f50(view);

@@ -1916,7 +1916,7 @@ DPlayConnection *CGame::GetConnection(BYTE index)
 }
 
 // FUNCTION: CMR2 0x004aad30
-bool CGame::FUN_004aad30(int param1, int param2, int param3)
+bool CGame::FUN_004aad30(BYTE param1, int param2, int param3)
 {
     return false;
 }
@@ -2845,7 +2845,7 @@ void FUN_00423900(BYTE *pObject, BYTE *pInfo)
 
 void FUN_00486b90(BYTE *pCar, BYTE *pInfo);
 void FUN_004764e0(BYTE *p);
-FixMatrix *FUN_00423d70(unsigned int index);
+FixMatrix *FUN_00423d70(BYTE index);
 void FUN_00447be0(BYTE *pDst, BYTE *pSrc, FixMatrix *pM);
 void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
 
@@ -3375,7 +3375,7 @@ BOOL FUN_004779e0(void)
 }
 
 // Adds the player slot to the DirectPlay session.
-// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac40
 bool FUN_004aac40(BYTE param1)
 {

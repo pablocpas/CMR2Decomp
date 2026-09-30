@@ -169,12 +169,11 @@ void FUN_0040e660(int index, char *name, int wins)
         }
     }
     for (i = 0; i < 0x20; i++) {
-        if (strcmp(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, CMain::m_logFileBlankLine) == 0)
+        if (strcmp(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, CMain::m_logFileBlankLine) == 0) {
+            strcpy(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, name);
+            CNetworkLeaderboards::m_leaderboards[index].entries[i].wins = wins;
             break;
-    }
-    if (i < 0x20) {
-        strcpy(CNetworkLeaderboards::m_leaderboards[index].entries[i].name, name);
-        CNetworkLeaderboards::m_leaderboards[index].entries[i].wins = wins;
+        }
     }
     FUN_0040e850(index);
 }
