@@ -5947,7 +5947,7 @@ int SceneNode_Destroy(SceneNode *pNode);
 // ((BYTE *)array + off). Lo que queda es asignación de registros: el contador
 // en AL (no EAX) y qué arrays strength-reduce MSVC (g_unk0x00538e0c).
 // FUNCTION: CMR2 0x00421590
-int FUN_00421590(void)
+BYTE FUN_00421590(void)
 {
     BYTE i;
     int off;

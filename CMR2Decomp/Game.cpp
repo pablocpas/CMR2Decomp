@@ -1918,7 +1918,7 @@ DPlayConnection *CGame::GetConnection(BYTE index)
 }
 
 // FUNCTION: CMR2 0x004aad30
-bool CGame::FUN_004aad30(int param1, int param2, int param3)
+bool CGame::FUN_004aad30(BYTE param1, int param2, int param3)
 {
     return false;
 }
