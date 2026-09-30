@@ -3149,6 +3149,13 @@ BYTE *FUN_0048ca40(int index)
     return g_unk0x00590ed0[index];
 }
 
+// A plain forward to FUN_0047c2f0 (compiled as a tail jump).
+// FUNCTION: CMR2 0x0048ca60
+void FUN_0048ca60(void)
+{
+    FUN_0047c2f0();
+}
+
 // FUNCTION: CMR2 0x0048ca90
 int FUN_0048ca90(void)
 {
@@ -12089,6 +12096,7 @@ void FUN_0046c410(int param_1, BYTE param_2)
 // and the car's matrix/mirror state.
 // match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
 // compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046cce0
 void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
 {
@@ -12127,7 +12135,7 @@ void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
     else
         *(BYTE *)(param_1 + 0x10c) = *(BYTE *)(lane * 0x5c + 0x20 + *(int *)(param_1 + 0x30));
     if ((BYTE)param_4 == 0 &&
-        ((cVar1 = (char)CGameInfo::FUN_00405e00()) != '\0' ||
+        ((cVar1 = (char)RallyData_FUN_00407e70()) != '\0' ||
          ((cVar1 = (char)RallyData_FUN_00407e90()) != '\0' &&
           (cVar1 = (char)CGameInfo::FUN_00405e00()) == '\0'))) {
         RallyData_FUN_004207f0();

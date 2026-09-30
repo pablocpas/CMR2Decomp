@@ -1217,3 +1217,84 @@ objetos antes y después, informes, hashes y versión de comparador en
 CMR2_FASTCMP_PATH=../tools/matching-below700-08/fastcmp.py python3 audit_byte_matching.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build /tmp/matching-08-verified.json
 python3 tests/differential_registry_value.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build/CMR2.exe
 ```
+
+
+## Hito bajo 700 — lote 09: sesiones, copia de opciones y reinicio de sombras
+
+Desde **24d1af5**, merge de los siete commits guardados hasta **40b24f2**.
+Se conservan las exactas propias y los cambios sin confirmar del otro árbol.
+
+**2501/3363 exactas por bytes**, **862 pendientes**, **163** para llegar a
+699. Son **nueve ganancias de código sobre funciones ya medidas**: cinco
+integradas y cuatro propias. Se recupera además el forward **48ca60**, que
+amplía el denominador y las exactas en uno; no reduce los pendientes. Dos
+callbacks DirectX ya eran exactos y ahora se resuelven correctamente: son
+correcciones de medición, verificadas también en el PE08 congelado.
+
+| Función | reccmp antes | Después | Recuperación |
+|---|---:|---:|---|
+| 4ecaf0 | 57.95% | 100% | Flujo completo de la página de sesiones, guardas positivas y selección. |
+| 4d0a80 | 75.52% | 100% | La llamada 49de40 omitida después del render cuando el flag está a cero. |
+| 4d5ca0 | 85.88% | 91.01% | Bucle desde cero, impresión k+1; bytes completos al 100%. |
+| 4e4fc0 | 98.72% | 100% | Rama del cambio automático primero y orden de campos del rectángulo. |
+| 4e6a80 | 98.92% | 100% | Rama y rectángulo; inicializar order después de la llamada de preparación. |
+| 5029b0 | 55.17% | 100% | Copiar las cuatro filas de siete bytes mediante índices, en el orden original. |
+| 447a40 | 97.95% | 100% | Poner a cero la traslación desde pObj+38/3c/40, conservando la base de escritura. |
+| 4cf4d0 | 96.67% | 100% | Publicar el campo empaquetado antes de enmascarar y aplicar las opciones. |
+| 4cf550 | 96.77% | 100% | El mismo patrón para el segundo campo del registro. |
+
+### Lógica integrada que sigue parcial
+
+- Scene_FreeShadowCasters pone a cero también g_shadowVertexCount y
+  g_shadowBatchCount. Antes podían sobrevivir los contadores de la escena
+  anterior. Mantiene las seis liberaciones por parte y las de ambos buffers
+  de cada cilindro, con su orden y sus NULL posteriores. Sigue al **49.07%**.
+- 46cce0 llama primero a RallyData_FUN407e70, como el original, en lugar
+  de GameInfo405e00. 41f930 llama al forward48ca60, no directamente a47c2f0.
+- GameInfo4f8a70 devuelve char*, como el texto que obtiene; sus consumidores
+  usan la firma real y desaparece el cast de puntero de función en4dce00.
+  Se recompilan la cabecera GameInfo.h y todos sus consumidores.
+- Backdrop403890 copia el color y fija alpha=0x73 antes del fill, sin alterar
+  el color global. Sigue al48.90%. 5057e0 llega64.13%,40c2a0=76.11% y
+  416670=48.19%. No copiar los porcentajes de otros commits.
+- Las dos flags de wrong-way siguen en su array real; el bucle nuevo de
+  slots no pierde el reinicio del segundo jugador. No se renombra ningún
+  owner ni se introducen direcciones originales como constantes ejecutables.
+
+### Pruebas y medición
+
+`tests/differential_shadow_cleanup.py`: **6000 casos nativos / cero diferencias**,
+modelo de propiedad de30casters/10cilindros, partes0..4, buffers nulos y vivos,
+orden de liberación, NULL de los punteros, cuatro contadores y arena64KiB.
+FreeGenericFileBuffer se simula sin destruir los bloques para revisar todos
+los campos. El PE08 falla en case0/offset4276: conserva shadowVertexCount.
+No es una prueba de partida real ni de proveedores que sustituyan los objetos.
+El harness existente de carrera pasa otros **6000 / cero diferencias** en el
+PE final, incluidos ambos jugadores, diez registros y cinco slots.
+
+Los símbolos de SDK `_D3DXInitialize@0` y `_D3DXUninitialize@0` corresponden
+respectivamente a4c6794/4c686d. Las cadenas internas del original identifican
+las dos APIs. Se anotan LIBRARY, con sus símbolos reales del PDB, sin cuerpos
+inventados. Los propios helpers de biblioteca no se cuentan como funciones
+FUNCTION exactas: sus cuerpos SDK siguen distintos. Los callbacks4a9b30/50
+sí son exactos una vez que sus llamadas se resuelven. El PDB08 confirma sus
+símbolos en50349a/503573; se añaden sólo esos dos callees al mapa de la base.
+
+Base08 reportada2489; base08 resuelta2491; nueve mejoras + un forward nuevo
+=>2501. `gains.tsv`, `newly-annotated.tsv` y `measurement-corrections.tsv`
+distinguen los tres casos. No se alteran los informes08 ni los current/baseline
+compartidos. Comparador08 fijado por SHA256 en ambas auditorías.
+
+Build correcto; datacmp **3203 /0**, dupes **3363funciones /0STUB /3197globals**;
+27overlaps heredados idénticos. Ninguna función retirada ni exacta perdida;
+auditorías completas sin errores de resolución. reccmp **2409/3367** estrictas,
+697bajo90; su universo incluye cuatro librerías y difiere del de bytes.
+Artefactos completos antes/después, hashes, informes y scripts de reproducción
+se guardan en **tools/matching-below700-09/**. El hito sigue abierto.
+
+Variantes no aplicadas: mipmaps4bd9d0 init/orden/walker57..77%;
+423970 helper e intlocal74%;4581d0walker56%;46d470 captura mode/pData64%;
+4a17f0 orden original con índices94.55% (limpieza esp8+8 frente a16);
+4f0580 widening/BYTEparam91.67%;46e6a0 pointer-before-counter98.85%;
+4b5380 count vivo54.49%;4b2090 dato capturado98.04%. Los prototipos aislados
+no se presentan como mejoras exactas.

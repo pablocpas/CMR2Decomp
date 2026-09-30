@@ -2804,9 +2804,9 @@ void CGameInfo::FUN_005011a0(void)
 }
 
 // FUNCTION: CMR2 0x004f8a70
-void CGameInfo::FUN_004f8a70(int index)
+char *CGameInfo::FUN_004f8a70(int index)
 {
-    CFrontend::GetTextString(index + 0x1f1);
+    return CFrontend::GetTextString(index + 0x1f1);
 }
 
 // FUNCTION: CMR2 0x005011b0
@@ -7120,28 +7120,21 @@ void FUN_00502db0(void)
 }
 
 // Copies the default option values from the global table into each record.
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005029b0
 void FUN_005029b0(void)
 {
-    BYTE *pDst;
-    char *pSrc;
     int i;
-
-    i = 0;
-    pSrc = (char *)&g_unk0x0082bee8[0][5];
-    do {
-        pDst = (BYTE *)RallyData_FUN_00407630(i);
-        pDst[4] = pSrc[-1];
-        pDst[5] = pSrc[0];
-        pDst[1] = pSrc[-4];
-        pDst[6] = pSrc[1];
-        pDst[3] = pSrc[-2];
-        pDst[2] = pSrc[-3];
-        i++;
-        pDst[0] = pSrc[-5];
-        pSrc += 7;
-    } while ((BYTE *)pSrc < (BYTE *)g_unk0x0082bee8 + 0x21);
+    BYTE *pDst;
+    for (i = 0; i < 4; i++) {
+        pDst = RallyData_FUN_00407630(i);
+        pDst[4] = g_unk0x0082bee8[i][4];
+        pDst[5] = g_unk0x0082bee8[i][5];
+        pDst[1] = g_unk0x0082bee8[i][1];
+        pDst[6] = g_unk0x0082bee8[i][6];
+        pDst[3] = g_unk0x0082bee8[i][3];
+        pDst[2] = g_unk0x0082bee8[i][2];
+        pDst[0] = g_unk0x0082bee8[i][0];
+    }
 }
 
 // Applies the selected option: advances the menu when its value is set, or
@@ -9096,13 +9089,12 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // match 55%: same logic; the original keeps the country pointer and the row
 // scale in registers where we spill them, so most of the diff is stack slot
 // and register numbering
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005057e0
 void FUN_005057e0(void)
 {
     SpriteRect dest;
     Texture *pTexture;
-    int *pCountry;
     int i;
     int width;
     int scale;
@@ -9121,23 +9113,21 @@ void FUN_005057e0(void)
     dest.x = (short)width - pTexture->width / 2;
     dest.w = pTexture->width;
     dest.h = pTexture->height;
-    pCountry = &g_unk0x0082c698;
     scale = FixDiv(0xea0000, g_unk0x0082c6bc * 0x10000 - 0x10000);
     for (i = 0; i < g_unk0x0082c6bc; i++) {
         y = FixMulShift32(i << 16, scale);
         pTexture = (Texture *)g_unk0x0082ca20[i];
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(*pCountry + 0x9d), width,
+        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(((int *)(&g_unk0x0082c698))[i] + 0x9d), width,
                      (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270b8[17],
                      (int *)&g_unk0x005270b8[18], 0x22);
         dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
-            dest.y = dest.y - g_unk0x00527254[*pCountry];
+            dest.y = dest.y - g_unk0x00527254[((int *)(&g_unk0x0082c698))[i]];
         else
-            dest.y = dest.y - g_unk0x00527260[*pCountry];
+            dest.y = dest.y - g_unk0x00527260[((int *)(&g_unk0x0082c698))[i]];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
                      (BYTE *)&g_unk0x005270b8[11], 8);
-        pCountry++;
     }
 }
 
@@ -9248,6 +9238,7 @@ int g_unk0x0051607c = 0x80dbaca7;
 // value; the selected row is drawn brighter.
 // match 46%: implementada; misma logica, MSVC ordena de otro modo el prologo,
 // el maximo de anchos y las divisiones del slider (los dos rects en registros).
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403890
 void FUN_00403890(Menu *pMenu)
 {
@@ -9263,6 +9254,7 @@ void FUN_00403890(Menu *pMenu)
     int *pColour;
     int texture;
     char *text;
+    BYTE fade[4];
 
     k = 0;
     rect[0] = 0;
@@ -9270,7 +9262,9 @@ void FUN_00403890(Menu *pMenu)
     rect[2] = (short)g_pGraphics->resX;
     rect[3] = (short)g_pGraphics->resY;
     Font_SetBlendMode(2);
-    Sprite_FillRect((int)g_pGraphics + 0x150, rect, (BYTE *)&g_unk0x0051608c, 2);
+    *(DWORD *)fade = g_unk0x0051608c;
+    fade[3] = 0x73;
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, fade, 2);
     FUN_00401b60();
     maxWidth = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 0x70) / 0x280);

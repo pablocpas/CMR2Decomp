@@ -667,6 +667,7 @@ void FUN_0041c260(void);
 void FUN_0045ea70(void);
 void FUN_00455300(void);
 BYTE *FUN_0047c2f0(void);
+void FUN_0048ca60(void);
 void FUN_00471dd0(void);
 void FUN_004283b0(void);
 extern char g_tgaSuffix[];
@@ -749,7 +750,7 @@ BYTE FUN_0041f930(void)
     FUN_0045ea70();
     FUN_00455300();
     FUN_00455470(1);
-    FUN_0047c2f0();
+    FUN_0048ca60();
     FUN_0040fec0(0x3c, 1, 0xff);
     StageObject_SetLighting(g_unk0x00538234, g_unk0x00538238);
     FUN_00471dd0();
@@ -929,12 +930,11 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
 }
 
 // Resets the per-player race state: best values, call records and slots.
-// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00416670
 void FUN_00416670(void)
 {
     RaceCallRecord *p;
-    RaceSlotState *pSlot;
     int i;
 
     g_unk0x00537198[0] = 9999;
@@ -953,10 +953,10 @@ void FUN_00416670(void)
         }
         g_unk0x005371a0 = 0;
     } while (p < g_raceCallRecords + 10);
-    for (pSlot = g_raceSlotState; pSlot < g_raceSlotState + 5; pSlot++) {
-        pSlot->flags &= 0xfc;
-        pSlot->pending = -1;
-        pSlot->owner = -1;
+    for (i = 0; i < 5; i++) {
+        g_raceSlotState[i].flags &= 0xfc;
+        g_raceSlotState[i].pending = -1;
+        g_raceSlotState[i].owner = -1;
     }
 }
 

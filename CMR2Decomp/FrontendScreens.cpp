@@ -235,7 +235,6 @@ void *g_dmdFiles[9][11];
 char FUN_004eaa30(void);
 
 // Finds the stage map files of every rally in the common frontend archive.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d5ca0
 void FUN_004d5ca0(void)
 {
@@ -244,7 +243,7 @@ void FUN_004d5ca0(void)
     void **ppFile;
     int count;
     int i;
-    int j;
+    int k;
 
     // the original builds this path and never uses it
     sprintf(CFrontend::m_stringDest, g_strDmdBfl, CInstallInfo::GetGameCDPath());
@@ -252,16 +251,15 @@ void FUN_004d5ca0(void)
         count = counts[i];
         if (count > 0) {
             ppFile = g_dmdFiles[i];
-            j = 1;
-            do {
+            for (k = 0; k < count; k++) {
                 *ppFile = NULL;
                 if (i == 8)
-                    sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, j);
+                    sprintf(CFrontend::m_stringDest, g_strChaDmdFormat, k + 1);
                 else
-                    sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], j);
+                    sprintf(CFrontend::m_stringDest, g_strDmdFormat, names[i], k + 1);
                 *ppFile = CGenericFileLoader::FindFile(CFrontend::FUN_004d2190(), CFrontend::m_stringDest, NULL, NULL, 0);
                 ppFile++;
-            } while (j++ < count);
+            }
         }
     }
     CGame::RegisterCallback((void *)FUN_004eaa30, NULL);
@@ -1976,79 +1974,74 @@ void FUN_004ecaf0(Menu *pMenu)
     if (status == 1) {
         g_unk0x00818d04 = 1;
         g_unk0x00819018 = FUN_004a1480();
-        if (g_unk0x00819014 == 0) {
+        if (g_unk0x00819014 != 0) {
+            if (g_unk0x00819018 > 0) {
+                if (g_unk0x0052528c != g_unk0x00819018) {
+                    if (g_unk0x00819024 != 0) {
+                        for (i = 0; i < g_unk0x00819018; i++) {
+                            FUN_004a15c0((BYTE)i, &guid);
+                            if (IsEqualGUID(guid, g_unk0x00818cf0)) {
+                                g_unk0x00525288 = i;
+                                break;
+                            }
+                        }
+                    } else {
+                        g_unk0x00525288 = -1;
+                    }
+                }
+                g_unk0x0052528c = g_unk0x00819018;
+                if (g_unk0x00525288 == -1) {
+                    g_unk0x00525288 = 0;
+                    FUN_004a15c0(0, &g_unk0x00818cf0);
+                    g_unk0x00819024 = 1;
+                } else if ((pDevice->field_0x8 & 0x20) != 0) {
+                    g_unk0x00819014 = 0;
+                    g_unk0x00525288 = -1;
+                    g_unk0x00819024 = 0;
+                    CGameInfo::FUN_004a13b0();
+                    g_unk0x00818ef4 = 0;
+                } else {
+                    Menu_SetFlags(pMenu, 0, 0, 1, 0);
+                    if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
+                        g_unk0x00525288--;
+                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        g_unk0x00819024 = 1;
+                    } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
+                        g_unk0x00525288++;
+                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        g_unk0x00819024 = 1;
+                    }
+                }
+            } else {
+                g_unk0x00819014 = 0;
+                g_unk0x00525288 = -1;
+                g_unk0x0052528c = -1;
+                g_unk0x00819024 = 0;
+                g_unk0x0081901c = 0;
+            }
+            if (g_unk0x00525288 < g_unk0x0081901c) {
+                g_unk0x0081901c--;
+                if (g_unk0x0081901c < 0)
+                    g_unk0x0081901c = 0;
+            }
+            if (g_unk0x00525288 >= g_unk0x0081901c + 5)
+                g_unk0x0081901c++;
+        } else {
             g_unk0x00525288 = 0;
             g_unk0x0052528c = -1;
             g_unk0x00819024 = 0;
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
-            goto tail;
         }
-        if (g_unk0x00819018 <= 0) {
-            g_unk0x00819014 = 0;
-            g_unk0x00525288 = -1;
-            g_unk0x0052528c = -1;
-            g_unk0x00819024 = 0;
-            g_unk0x0081901c = 0;
-        } else {
-            if (g_unk0x0052528c != g_unk0x00819018) {
-                if (g_unk0x00819024 == 0) {
-                    g_unk0x00525288 = -1;
-                } else {
-                    for (i = 0; i < g_unk0x00819018; i++) {
-                        FUN_004a15c0((BYTE)i, &guid);
-                        if (IsEqualGUID(g_unk0x00818cf0, guid)) {
-                            g_unk0x00525288 = i;
-                            break;
-                        }
-                    }
-                }
-            }
-            g_unk0x0052528c = g_unk0x00819018;
-            if (g_unk0x00525288 == -1) {
-                g_unk0x00525288 = 0;
-                FUN_004a15c0(0, &g_unk0x00818cf0);
-                g_unk0x00819024 = 1;
-            } else if ((pDevice->field_0x8 & 0x20) != 0) {
-                g_unk0x00819014 = 0;
-                g_unk0x00525288 = -1;
-                g_unk0x00819024 = 0;
-                CGameInfo::FUN_004a13b0();
-                g_unk0x00818ef4 = 0;
-            } else {
-                Menu_SetFlags(pMenu, 0, 0, 1, 0);
-                if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
-                    g_unk0x00525288--;
-                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
-                    g_unk0x00819024 = 1;
-                } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
-                    g_unk0x00525288++;
-                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
-                    g_unk0x00819024 = 1;
-                }
-            }
-        }
-        if (g_unk0x00525288 < g_unk0x0081901c) {
-            g_unk0x0081901c--;
-            if (g_unk0x0081901c < 0)
-                g_unk0x0081901c = 0;
-        }
-        if (g_unk0x00525288 >= g_unk0x0081901c + 5)
-            g_unk0x0081901c++;
-    } else {
-        if (status == -1)
-            return;
-        if (status != -2)
-            return;
+        if (g_unk0x00819018 > 5)
+            g_unk0x00819020 = 5;
+        else
+            g_unk0x00819020 = g_unk0x00819018;
+    } else if (status != -1 && status == -2) {
         CGame::FUN_0049c140();
         Menu_SetNextAction((int)pMenu->pParent);
-        return;
     }
-tail:
-    if (g_unk0x00819018 > 5)
-        g_unk0x00819020 = 5;
-    else
-        g_unk0x00819020 = g_unk0x00819018;
 }
+
 
 // FUNCTION: CMR2 0x004eca60
 void FUN_004eca60(Menu *pMenu, char param)
@@ -6865,8 +6858,9 @@ void FUN_004df410(Menu *pMenu)
     }
     g_unk0x008189a8[1] = top;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -8143,6 +8137,7 @@ extern char g_stageNumberFormat[];
 // and, when the entry list is open, one row per entry (name, opponent, stage,
 // number and time).
 // match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dc930
 void FUN_004dc930(Menu *pMenu)
 {
@@ -8186,7 +8181,7 @@ void FUN_004dc930(Menu *pMenu)
                 pColour = pUnselColour;
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row;
             Font_DrawText(1, FUN_004a1490(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
-            Font_DrawText(1, CFrontend::GetTextString(Session_GetListedUserValue(index, 0) - 8 + 0x1f1),
+            Font_DrawText(1, CGameInfo::FUN_004f8a70(Session_GetListedUserValue(index, 0) - 8),
                           (int)(g_pGraphics->resX * 300) / 0x280, y, pColour, 10);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1720(index));
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, y, pColour, 10);
@@ -8930,8 +8925,9 @@ void FUN_004e2610(Menu *pMenu)
         pShadow = (int *)g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+
+    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
@@ -8981,6 +8977,7 @@ void FUN_004e2610(Menu *pMenu)
 // Draws the network "stage times" screen: the three mode titles, the column
 // headers, the per-mode rows with the time of each stage and the help text.
 // match 86%: ranuras de pila de los temporales de las cabeceras
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e48b0
 void FUN_004e48b0(Menu *pMenu)
 {
@@ -9027,9 +9024,10 @@ void FUN_004e48b0(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
     pBase = RallyData_FUN_00408cb0(0);
     if ((pBase[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) == 0) {
@@ -9105,9 +9103,9 @@ void FUN_004e4fc0(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x5a) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < count; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9119,11 +9117,11 @@ void FUN_004e4fc0(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
+        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         time = *(unsigned int *)(pRow + 4) >> 7 & 0xffff;
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
@@ -9187,9 +9185,10 @@ void FUN_004e5c90(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 5; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9225,6 +9224,7 @@ void FUN_004e5c90(Menu *pMenu)
 // Draws the network "car records" screen: mode title, the two bars, the column
 // headers and the selected row with its car, gearbox and two values.
 // match 84%: ranuras de pila y orden de los dos bloques de barra
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e63d0
 void FUN_004e63d0(Menu *pMenu)
 {
@@ -9268,9 +9268,10 @@ void FUN_004e63d0(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
     pRow = RallyData_FUN_00408cb0(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
     pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
@@ -9311,7 +9312,7 @@ BYTE *FUN_004f92c0(int index);
 // FUNCTION: CMR2 0x004e6a80
 void FUN_004e6a80(Menu *pMenu)
 {
-    int order[8] = {6, 3, 1, 4, 0, 2, 5, 7};
+    int order[8];
     BYTE *pRow;
     unsigned int time;
     int i;
@@ -9319,6 +9320,14 @@ void FUN_004e6a80(Menu *pMenu)
     int y;
 
     FUN_004f3a60();
+    order[0] = 6;
+    order[1] = 3;
+    order[2] = 1;
+    order[3] = 4;
+    order[4] = 0;
+    order[5] = 2;
+    order[6] = 5;
+    order[7] = 7;
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
@@ -9343,9 +9352,9 @@ void FUN_004e6a80(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9356,11 +9365,11 @@ void FUN_004e6a80(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x159) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
+        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         time = *(unsigned int *)(pRow + 4) >> 7 & 0xffff;
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
@@ -9377,6 +9386,7 @@ void FUN_004e6a80(Menu *pMenu)
 // Draws the network "championship" screen: the column headers and eight rows
 // with the player, car, gearbox and time.
 // match 85%: ranuras de pila del marco (sub esp) y de los temporales
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7120
 void FUN_004e7120(Menu *pMenu)
 {
@@ -9413,9 +9423,10 @@ void FUN_004e7120(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9454,7 +9465,7 @@ void FUN_004e7120(Menu *pMenu)
 // Draws the "game setup" screen: the breadcrumb title, one row per item with
 // its icon and its label (text, stage list, gearbox or plain text).
 // match 59%: asignacion de registros en el switch y en el bucle de filas
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7ed0
 void FUN_004e7ed0(Menu *pMenu)
 {
@@ -9491,8 +9502,9 @@ void FUN_004e7ed0(Menu *pMenu)
         pShadow = (int *)g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+
+    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
@@ -11171,8 +11183,9 @@ void FUN_004dfe20(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+
+    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = y0;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
@@ -11352,8 +11365,9 @@ void FUN_004dce00(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+
+    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = top;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
@@ -11386,7 +11400,7 @@ void FUN_004dce00(Menu *pMenu)
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strItemTextFmt, CFrontend::GetTextString(0x1c0),
-                        ((char *(__stdcall *)(int))CGameInfo::FUN_004f8a70)(Menu_GetItem(pMenu, 1)->max));
+                        CGameInfo::FUN_004f8a70(Menu_GetItem(pMenu, 1)->max));
                 pText = CFrontend::m_stringDest;
                 break;
             case 2:
@@ -11602,7 +11616,7 @@ void FUN_004e77c0(Menu *pMenu)
 }
 
 
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8500
 void FUN_004e8500(Menu *pMenu)
 {
@@ -11639,8 +11653,9 @@ void FUN_004e8500(Menu *pMenu)
     }
     g_unk0x008189a8[1] = top;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -11924,7 +11939,7 @@ char g_str0x00524d9c[12] = "%s: < %s >";
 // GLOBAL: CMR2 0x00524da8
 char g_str0x00524da8[12] = "%s\n%s, %s";
 
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dd4b0
 void FUN_004dd4b0(Menu *pMenu)
 {
@@ -11978,7 +11993,7 @@ void FUN_004dd4b0(Menu *pMenu)
     order[7] = 7;
 
     texts[0] = CFrontend::GetTextString(0x12);
-    texts[1] = CFrontend::GetTextString((CGameInfo::FUN_00405d80() & 0xff) - 8 + 0x1f1);
+    texts[1] = CGameInfo::FUN_004f8a70((CGameInfo::FUN_00405d80() & 0xff) - 8);
     switch (CGameInfo::FUN_00405d80() & 0xff) {
     case 8:
         sprintf(buf, CRegKey::m_regKeyPathFormatValue,
@@ -12067,8 +12082,9 @@ void FUN_004dd4b0(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 640);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 640);
+
+    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)top;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;

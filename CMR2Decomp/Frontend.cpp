@@ -1165,7 +1165,8 @@ void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
     unsigned int word;
 
     if (pValue != NULL) {
-        word = (*pValue & 0xffffc03f) + ((field & 0xff) << 6);
+        word = (*pValue & 0xffffc03f) | ((field & 0xff) << 6);
+        *pValue = word;
         word &= 0xffffffc0;
         word ^= value & 0xf;
         word |= (value & 3) << 4;
@@ -1203,7 +1204,8 @@ void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 
     if (pValue != NULL) {
         pValue[1] = extra;
-        word = (*pValue & 0xfffff81f) + ((field & 0x3f) << 5);
+        word = (*pValue & 0xfffff81f) | ((field & 0x3f) << 5);
+        *pValue = word;
         word &= 0xffffffe0;
         word ^= value & 7;
         word |= (value & 3) << 3;

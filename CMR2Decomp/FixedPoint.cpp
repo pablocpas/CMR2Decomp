@@ -886,9 +886,9 @@ void FUN_00447a40(BYTE *pObj, FixMatrix *pRef)
     FixMatrix_SetRight(&right, pM);
     FixMatrix_SetUp(&g_unk0x0053d048[2 + index], pM);
     FixMatrix_SetForward(&g_unk0x0053d000[2 + index], pM);
-    pM->position.x = 0;
-    pM->position.y = 0;
-    pM->position.z = 0;
+    *(int *)(pObj + 0x38) = 0;
+    *(int *)(pObj + 0x3c) = 0;
+    *(int *)(pObj + 0x40) = 0;
     FixMatrix_Multiply(pM, &identity, pM);
     FixMatrix_GetPosition(&pos, pM);
     FixMatrix_GetPosition(&off, pRef);

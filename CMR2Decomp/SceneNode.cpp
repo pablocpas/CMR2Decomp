@@ -2284,7 +2284,7 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 
 // Frees every shadow caster (with its per-part buffers) and every cached
 // shadow cylinder.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b5380
 void Scene_FreeShadowCasters(void)
 {
@@ -2353,6 +2353,8 @@ void Scene_FreeShadowCasters(void)
     } while ((int)p < (int)&g_sceneLightState2[10]);
     g_sceneLightFlag = 0;
     g_sceneLightFlag2 = 0;
+    g_shadowVertexCount = 0;
+    g_shadowBatchCount = 0;
 }
 
 struct Unk0x004a3e20;

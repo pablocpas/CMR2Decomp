@@ -383,3 +383,9 @@ unsigned int CMain::GetFrameDelta(void)
 // The game's statically linked CRT sprintf (ours comes from the import library).
 // LIBRARY: CMR2 0x00405620
 // _sprintf
+
+// Statically linked DirectX helpers called by the startup/shutdown callbacks.
+// LIBRARY: CMR2 0x004c6794
+// _D3DXInitialize@0
+// LIBRARY: CMR2 0x004c686d
+// _D3DXUninitialize@0
