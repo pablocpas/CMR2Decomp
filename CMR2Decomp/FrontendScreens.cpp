@@ -6861,9 +6861,9 @@ void FUN_004df410(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[1] = top;
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -8926,9 +8926,9 @@ void FUN_004e2610(Menu *pMenu)
         pColour = (int *)g_colourText0x0052496c;
         pShadow = (int *)g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     g_unk0x008189a8[1] = (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
@@ -9023,10 +9023,10 @@ void FUN_004e48b0(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x212) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
     pBase = RallyData_FUN_00408cb0(0);
     if ((pBase[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) == 0) {
@@ -9102,9 +9102,9 @@ void FUN_004e4fc0(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x5a) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < count; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9116,11 +9116,11 @@ void FUN_004e4fc0(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
+        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         time = *(unsigned int *)(pRow + 4) >> 7 & 0xffff;
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
@@ -9183,10 +9183,10 @@ void FUN_004e5c90(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 0x1e5) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 5; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9264,10 +9264,10 @@ void FUN_004e63d0(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
     pRow = RallyData_FUN_00408cb0(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
     pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
@@ -9308,7 +9308,7 @@ BYTE *FUN_004f92c0(int index);
 // FUNCTION: CMR2 0x004e6a80
 void FUN_004e6a80(Menu *pMenu)
 {
-    int order[8] = {6, 3, 1, 4, 0, 2, 5, 7};
+    int order[8];
     BYTE *pRow;
     unsigned int time;
     int i;
@@ -9316,6 +9316,14 @@ void FUN_004e6a80(Menu *pMenu)
     int y;
 
     FUN_004f3a60();
+    order[0] = 6;
+    order[1] = 3;
+    order[2] = 1;
+    order[3] = 4;
+    order[4] = 0;
+    order[5] = 2;
+    order[6] = 5;
+    order[7] = 7;
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
@@ -9340,9 +9348,9 @@ void FUN_004e6a80(Menu *pMenu)
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9353,11 +9361,11 @@ void FUN_004e6a80(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x159) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
+        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1d6) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         time = *(unsigned int *)(pRow + 4) >> 7 & 0xffff;
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
@@ -9409,10 +9417,10 @@ void FUN_004e7120(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
+
+    g_unk0x008189a8[3] = 1;
     for (i = 0; i < 8; i++) {
         y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 0xa0) / 0x1e0 +
             ((int)(g_pGraphics->resY * 0x19) / 0x1e0) * i;
@@ -9487,9 +9495,9 @@ void FUN_004e7ed0(Menu *pMenu)
         pColour = (int *)g_colourText0x0052496c;
         pShadow = (int *)g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     g_unk0x008189a8[1] = (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
@@ -11167,9 +11175,9 @@ void FUN_004dfe20(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y0;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
@@ -11348,9 +11356,9 @@ void FUN_004dce00(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
     g_unk0x008189a8[1] = top;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
@@ -11635,9 +11643,9 @@ void FUN_004e8500(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[1] = top;
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -12063,9 +12071,9 @@ void FUN_004dd4b0(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 640);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 640);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 640);
+
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 640);
     g_unk0x008189a8[1] = (short)top;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
