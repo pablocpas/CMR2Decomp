@@ -1817,16 +1817,16 @@ short CInput::GetButtonMapping(unsigned short controller, int button)
     index = m_unk0x005168f4[controller];
     pController = &m_controllerInfo[index];
     switch (button) {
-    case 0: mapping = pController->field_0x128; break;
-    case 1: mapping = pController->field_0x12a; break;
-    case 2: mapping = pController->field_0x12c; break;
-    case 3: mapping = pController->field_0x12e; break;
-    case 4: mapping = pController->field_0x130; break;
-    case 5: mapping = pController->field_0x132; break;
-    case 6: mapping = pController->field_0x134; break;
-    case 7: mapping = pController->field_0x136; break;
-    case 8: mapping = pController->field_0x138; break;
-    case 9: mapping = pController->field_0x13a; break;
+    case 0: mapping = m_controllerInfo[index].field_0x128; break;
+    case 1: mapping = m_controllerInfo[index].field_0x12a; break;
+    case 2: mapping = m_controllerInfo[index].field_0x12c; break;
+    case 3: mapping = m_controllerInfo[index].field_0x12e; break;
+    case 4: mapping = m_controllerInfo[index].field_0x130; break;
+    case 5: mapping = m_controllerInfo[index].field_0x132; break;
+    case 6: mapping = m_controllerInfo[index].field_0x134; break;
+    case 7: mapping = m_controllerInfo[index].field_0x136; break;
+    case 8: mapping = m_controllerInfo[index].field_0x138; break;
+    case 9: mapping = m_controllerInfo[index].field_0x13a; break;
     default: goto defaults;
     }
 

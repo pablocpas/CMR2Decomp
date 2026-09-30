@@ -273,6 +273,8 @@ void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2)
         Font_DrawText(0, CFrontend::m_stringDest, 0, 0, g_unk0x00523c64, 9);
     }
     FUN_0049d3f0((int)g_unk0x00817fc8, (int)g_unk0x00817fc4, rect, 0, 1);
+    if (g_unk0x00817fcc == 0)
+        FUN_0049de40();
 }
 
 // Shared with the other boot renders of Game.cpp (0x4d0a80, 0x4d1370).
