@@ -1391,8 +1391,8 @@ void FUN_00424560(void)
 // FUNCTION: CMR2 0x004245e0
 void FUN_004245e0(void)
 {
-    int slot;
     int i;
+    int slot;
 
     for (slot = 0; slot < 2; slot++) {
         g_unk0x00539278 = &g_forceFeedbackSlots[slot];
@@ -1944,7 +1944,7 @@ void FUN_0045e9a0(SceneNode *pNode)
     }
 }
 
-bool FUN_004779e0(void);
+BOOL FUN_004779e0(void);
 
 // Reinicia las tablas de escena 0x58d2xx/0x58d3xx/0x58d4xx y registra el
 // callback 0x4779e0.

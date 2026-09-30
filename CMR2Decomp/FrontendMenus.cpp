@@ -677,14 +677,10 @@ void FUN_004fbec0(Menu *pMenu, int param)
     for (i = 0; i < 8; i++)
         g_unk0x00829428[i] = 0;
     if (*(int *)pDevice == 3 || *(int *)pDevice == 2) {
-        pOut = g_unk0x00829428;
-        pDevice += 0x47c;
-        do {
-            if (*(int *)(pDevice - 0x10) != 0)
-                *pOut = *(int *)pDevice;
-            pOut++;
-            pDevice += 0x14;
-        } while (pOut < &g_unk0x00829428[8]);
+        for (i = 0; i < 8; i++) {
+            if (*(int *)(pDevice + 0x46c + i * 0x14) != 0)
+                g_unk0x00829428[i] = *(int *)(pDevice + 0x47c + i * 0x14);
+        }
     }
 }
 

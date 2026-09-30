@@ -3203,15 +3203,14 @@ void FUN_004a1850(char *shortName, char *longName, DPID dpId)
 
     if (CGame::m_unk0x005a1ea0 == dpId)
         return;
-    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++) {
-        if (pPlayer->field_0xc8 == dpId)
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == dpId)
             return;
     }
     if (CGame::m_unk0x005a1818 >= 7)
         return;
-    i = 0;
-    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++, i++) {
-        if (pPlayer->field_0xcc == 0) {
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xcc == 0) {
             if (shortName != NULL)
                 strcpy(CGame::m_unk0x005a1820[i].field_0x0, shortName);
             if (longName != NULL)
@@ -3335,58 +3334,45 @@ int FUN_004a1a10(int param1, int param2, int param3, int param4)
 }
 
 
-// Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Releases the scene resources held by the 0x58d3xx/0x58d5xx/0x58d6xx blocks
+// (the 16 rows at 0x58d3b8 hold file buffers, not scene nodes).
 // FUNCTION: CMR2 0x004779e0
-bool FUN_004779e0(void)
+BOOL FUN_004779e0(void)
 {
-    void **pA;
-    BYTE *pB;
-    void **pC;
-    int *pD;
+    int i;
 
-    pA = g_unk0x0058d49c;
-    pB = g_unk0x0058d530;
-    while (pA < &g_unk0x0058d49c[2]) {
-        if (*pA != NULL) {
-            if (*(int *)pB != 0)
-                SceneNode_Destroy((SceneNode *)*(int *)pB);
-            SceneNode_Destroy((SceneNode *)*pA);
-            *(int *)(pB + 0x0) = 0;
-            *(int *)(pB + 0x4) = 0;
-            *(int *)(pB + 0x8) = 0;
-            *(int *)(pB + 0xc) = 0;
-            *(int *)(pB + 0x10) = 0;
+    for (i = 0; i < 2; i++) {
+        if (g_unk0x0058d49c[i] != NULL) {
+            if (*(int *)(g_unk0x0058d530 + i * 0x1c) != 0)
+                SceneNode_Destroy((SceneNode *)*(int *)(g_unk0x0058d530 + i * 0x1c));
+            SceneNode_Destroy((SceneNode *)g_unk0x0058d49c[i]);
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x0) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x4) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x8) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0xc) = 0;
+            *(int *)(g_unk0x0058d530 + i * 0x1c + 0x10) = 0;
         }
-        pA++;
-        pB += 0x1c;
     }
-    pC = g_unk0x0058d6a0;
-    while (pC < &g_unk0x0058d6a0[2]) {
-        if (*pC != NULL) {
-            CFileBuffer::FreeGenericFileBuffer(*pC);
-            *pC = NULL;
+    for (i = 0; i < 2; i++) {
+        if (g_unk0x0058d6a0[i] != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(g_unk0x0058d6a0[i]);
+            g_unk0x0058d6a0[i] = NULL;
         }
-        pC++;
     }
-    pD = g_unk0x0058d4c4;
-    do {
-        pD[-1] = 0;
-        pD[0] = 0;
-        pD += 2;
-    } while (pD < &g_unk0x0058d4c4[4]);
-    pB = g_unk0x0058d3b8;
-    while (pB < &g_unk0x0058d3b8[0xc0]) {
-        if (*(void **)pB != NULL) {
-            SceneNode_Destroy((SceneNode *)*(void **)pB);
-            *(void **)pB = NULL;
+    for (i = 0; i < 2; i++) {
+        g_unk0x0058d4c0[i * 2] = 0;
+        g_unk0x0058d4c0[i * 2 + 1] = 0;
+    }
+    for (i = 0; i < 16; i++) {
+        if (*(void **)(g_unk0x0058d3b8 + i * 0xc) != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(*(void **)(g_unk0x0058d3b8 + i * 0xc));
+            *(void **)(g_unk0x0058d3b8 + i * 0xc) = NULL;
         }
-        *(int *)(pB + 0x0) = 0;
-        *(int *)(pB + 0x4) = 0;
-        *(int *)(pB + 0x8) = 0;
-        pB += 0xc;
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x0) = 0;
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x4) = 0;
+        *(int *)(g_unk0x0058d3b8 + i * 0xc + 0x8) = 0;
     }
-    return true;
+    return TRUE;
 }
 
 // Adds the player slot to the DirectPlay session.

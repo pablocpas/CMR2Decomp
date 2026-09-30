@@ -5295,23 +5295,17 @@ void FUN_004f2620(Menu *pMenu, char back)
     g_unk0x00819048 = 1;
     g_unk0x00819870 = (int)pMenu->pParent;
     CSound::FUN_004a28c0();
-    i = 0;
-    pText = g_profileEntryTexts[0];
-    pItem = &pMenu->items[2];
-    do {
+    for (i = 0; i < 4; i++) {
         if (i < FUN_004ec020()) {
-            sprintf(pText, CFrontend::GetTextString(0x17f), FUN_004ec110(i));
-            pItem->enabled = 1;
-            pItem->visible = 1;
-            pItem->stringId = (int)pText;
+            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17f), FUN_004ec110(i));
+            pMenu->items[i + 2].enabled = 1;
+            pMenu->items[i + 2].visible = 1;
+            pMenu->items[i + 2].stringId = (int)g_profileEntryTexts[i];
         } else {
-            pItem->enabled = 0;
-            pItem->visible = 0;
+            pMenu->items[i + 2].enabled = 0;
+            pMenu->items[i + 2].visible = 0;
         }
-        pText += 40;
-        i++;
-        pItem++;
-    } while (pText < g_profileEntryTexts[4]);
+    }
     if (FUN_004ec020() > 0) {
         pMenu->cursor = 2;
         return;

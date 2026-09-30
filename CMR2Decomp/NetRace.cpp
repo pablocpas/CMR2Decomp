@@ -600,17 +600,13 @@ NetTriangleState g_netTriangleState;
 // FUNCTION: CMR2 0x00424ed0
 void FUN_00424ed0(void)
 {
-    int *p;
     int sum;
     int n;
 
     memset(g_unk0x005393ac, 0, sizeof(g_unk0x005393ac));
-    sum = 0;
-    n = 0;
-    for (p = g_triangleNumbers; p < g_triangleNumbers + 100; p++) {
+    for (n = 0, sum = 0; n < 100; n++) {
         sum += n;
-        n++;
-        *p = sum;
+        g_triangleNumbers[n] = sum;
     }
     FUN_00427580(20000, 1000000, 2);
     g_unk0x005393a8 = -1;
