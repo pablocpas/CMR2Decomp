@@ -1277,6 +1277,36 @@ BYTE FUN_004cf660(int index, int pBlock)
     return 0;
 }
 
+// Best-result records of the frontend: a header word (car, flags, a random
+// tag) followed by the result, compared field by field.
+struct RecordHeader {
+    unsigned car : 6;
+    unsigned bit6 : 1;
+    unsigned used : 1;
+    unsigned tag : 5;
+    unsigned rest : 19;
+};
+
+struct DeviceResult {
+    unsigned level : 4;
+    unsigned bits4 : 2;
+    unsigned score : 8;
+    unsigned rest : 18;
+};
+
+struct RecordResult {
+    unsigned level : 3;
+    unsigned bits3 : 2;
+    unsigned score : 6;
+    unsigned rest : 21;
+};
+
+struct RecordEntry {
+    RecordHeader header;
+    RecordResult result;
+    int field_0x8;
+};
+
 // Same as FUN_004cf5b0 for the per-player word of the second dword, using the
 // two 4-bit fields merge of FUN_004d0370.
 // match 59%: register allocation of the device pointer and of the "better" flag
@@ -1285,28 +1315,24 @@ BYTE FUN_004cf660(int index, int pBlock)
 // FUNCTION: CMR2 0x004cf740
 BYTE FUN_004cf740(int index, int pBlock)
 {
-    unsigned int *pDevice;
-    unsigned int *pEntry;
-    unsigned int *pValue;
-    unsigned int value;
+    DeviceResult *pDevice;
+    RecordHeader *pEntry;
+    DeviceResult *pValue;
     BOOL better;
 
-    pDevice = (unsigned int *)RallyData_FUN_00408c70(index);
-    better = FALSE;
+    pDevice = (DeviceResult *)RallyData_FUN_00408c70(index);
     if (pDevice != NULL) {
-        pEntry = (unsigned int *)(g_unk0x00817400 * 0x10 + pBlock);
-        pValue = pEntry + 1;
-        value = *pValue;
-        if ((*pDevice & 0xf) < (value & 0xf))
+        pEntry = (RecordHeader *)(g_unk0x00817400 * 0x10 + pBlock);
+        pValue = (DeviceResult *)(pEntry + 1);
+        better = FALSE;
+        if (pDevice->level < pValue->level)
             better = TRUE;
-        if ((((*pDevice ^ value) & 0xf) == 0 && (*pDevice & 0x3fc0) > (*pValue & 0x3fc0)) ||
-            better || (*pEntry & 0x80) == 0) {
-            *pEntry |= 0x80;
-            value = rand();
-            *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
+        if ((pDevice->level == pValue->level && pDevice->score > pValue->score) || better || !pEntry->used) {
+            pEntry->used = 1;
+            pEntry->tag = rand();
             FUN_004d0370((int *)pValue, (int *)pDevice);
-            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+            pEntry->car = RallyData_FUN_004086b0((BYTE)index);
+            pEntry->bit6 = FUN_004086f0((BYTE)index);
             RallyData_MarkTyresChanged(index);
             g_unk0x00817420[index * 0xa + 2] = 1;
             return 1;
@@ -1348,26 +1374,23 @@ BYTE FUN_004cf830(int index)
 // FUNCTION: CMR2 0x004cf8e0
 BYTE FUN_004cf8e0(int index, int pBlock)
 {
-    unsigned int *pValue;
-    unsigned int *pEntry;
-    unsigned int value;
+    RecordResult *pValue;
+    RecordEntry *pEntry;
     BOOL better;
 
-    pValue = (unsigned int *)(RallyData_FUN_00408c70(index) + 0x18);
-    pEntry = (unsigned int *)(pBlock + (g_unk0x00817404 * 3 + 0x5c + g_unk0x00817400) * 0xc);
+    pValue = (RecordResult *)(RallyData_FUN_00408c70(index) + 0x18);
+    pEntry = (RecordEntry *)(pBlock + (g_unk0x00817404 * 3 + 0x5c + g_unk0x00817400) * 0xc);
+    better = FALSE;
     if (pValue != NULL) {
-        value = pEntry[1];
-        better = FALSE;
-        if ((*pValue & 7) < (value & 7))
+        if (pValue->level < pEntry->result.level)
             better = TRUE;
-        if ((((*pValue ^ value) & 7) == 0 && (*pValue & 0x7e0) > (pEntry[1] & 0x7e0)) || better ||
-            (*pEntry & 0x80) == 0) {
-            *pEntry |= 0x80;
-            value = rand();
-            *pEntry = (value & 0x1f) << 8 | (*pEntry & 0xffffe0ff);
-            FUN_004d03b0((int *)(pEntry + 1), (int *)pValue);
-            *pEntry = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (*pEntry & 0xffffffc0);
-            *pEntry = (FUN_004086f0((BYTE)index) & 1) << 6 | (*pEntry & 0xffffffbf);
+        if ((pValue->level == pEntry->result.level && pValue->score > pEntry->result.score) || better ||
+            !pEntry->header.used) {
+            pEntry->header.used = 1;
+            pEntry->header.tag = rand();
+            FUN_004d03b0((int *)&pEntry->result, (int *)pValue);
+            pEntry->header.car = RallyData_FUN_004086b0((BYTE)index);
+            pEntry->header.bit6 = FUN_004086f0((BYTE)index);
             RallyData_MarkTyresChanged(index);
             g_unk0x00817420[index * 0xa + 3] = 1;
             return 1;
@@ -1397,7 +1420,7 @@ int FUN_004cf9d0(int param_1, int param_2)
 // push ecx where we allocate two slots); the code is the same.
 // match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfa10
-BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
+int FUN_004cfa10(int param_1, int param_2, char *pName)
 {
     GameInfo0xa4 *pInfo;
     GameInfo0xa4SubStruct8 *pRecord;
@@ -1410,27 +1433,18 @@ BYTE FUN_004cfa10(int param_1, int param_2, char *pName)
     pOption = (unsigned int *)FUN_004d0280(param_2);
     pInfo = CGameInfo::FUN_00405fe0();
     index = g_unk0x008173fc + g_unk0x008173f8 * 0xb;
-    pRecord = &pInfo->rallyStageRecordTimes[index];
     pSplits = pInfo->rallyStageRecordSplits[index];
-    if (pOption == NULL || *pOption >= ((pRecord->value >> 7) & 0xffff))
+    pRecord = &pInfo->rallyStageRecordTimes[index];
+    if (pOption == NULL || *pOption >= pRecord->bits.time)
         return 0;
     strcpy(pRecord->ident, pName);
-    pRecord->value = (RallyData_FUN_004086b0((BYTE)param_2) & 0x3f) | (pRecord->value & 0xffffffc0);
-    pRecord->value = (FUN_004086f0((BYTE)param_2) & 1) << 6 | (pRecord->value & 0xffffffbf);
-    pRecord->value = (*pOption & 0xffff) << 7 | (pRecord->value & 0xff80007f);
-    {
-        int *pMirror = g_unk0x00817448;
-        short *pSplit = pSplits;
-
-        i = 0;
-        do {
-            unsigned short value = (unsigned short)FUN_00448680(param_1, i);
-            *pSplit = value;
-            *pMirror = value;
-            pSplit++;
-            pMirror++;
-            i++;
-        } while ((int)pMirror < (int)&g_unk0x00817448[10]);
+    pRecord->bits.car = RallyData_FUN_004086b0((BYTE)param_2);
+    pRecord->bits.manual = FUN_004086f0((BYTE)param_2);
+    pRecord->bits.time = *pOption;
+    for (i = 0; i < 10; i++) {
+        unsigned short value = (unsigned short)FUN_00448680(param_1, i);
+        pSplits[i] = value;
+        g_unk0x00817448[i] = value;
     }
     g_unk0x00817410 = 1;
     return 1;
@@ -1447,23 +1461,21 @@ char FUN_004cfb30(int param1, int index, char *pName)
     unsigned char *pInfo;
     unsigned int *pDevice;
     GameInfo0xa4SubStruct12 *pRecord;
-    bool better;
+    BOOL better;
     int slot;
     int i;
 
     RallyData_FUN_00408c70(index);
     pDevice = (unsigned int *)FUN_004d02d0(index);
     pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
-    better = false;
-    slot = 0;
+    better = FALSE;
     pInfo += (g_unk0x00817400 + g_unk0x008173f8 * 3) * 0x3c;
     pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xb4);
-    for (;;) {
+    for (slot = 0; slot < 5; slot++, pRecord++) {
         if (pDevice != NULL) {
-            if ((*pDevice & 0xf) < ((pRecord->flags >> 7) & 0xf))
-                better = true;
-            if (((((pRecord->flags >> 7) ^ *pDevice) & 0xf) == 0 && pDevice[1] < pRecord->value) ||
-                better) {
+            if ((*pDevice & 0xf) < pRecord->bits.level)
+                better = TRUE;
+            if ((pRecord->bits.level == (*pDevice & 0xf) && pDevice[1] < pRecord->value) || better) {
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *p = (GameInfo0xa4SubStruct12 *)(pInfo + 0xe4);
 
@@ -1473,21 +1485,19 @@ char FUN_004cfb30(int param1, int index, char *pName)
                     }
                 }
                 strcpy(pRecord->ident, pName);
-                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
-                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
-                pRecord->flags = ((*pDevice & 0xf) << 7) | (pRecord->flags & 0xfffff87f);
+                pRecord->bits.car = RallyData_FUN_004086b0((BYTE)index);
+                pRecord->bits.manual = FUN_004086f0((BYTE)index);
+                pRecord->bits.level = *pDevice;
                 pRecord->value = pDevice[1];
-                pRecord->flags = ((*pDevice & 0x3c00) << 1) | (pRecord->flags & 0xffff803f);
+                pRecord->bits.extra = (*pDevice & 0x3c00) >> 10;
                 g_unk0x00817413 = 1;
                 return (slot != 0) + 1;
             }
         }
-        slot++;
-        pRecord++;
-        if (slot > 4)
-            return 0;
     }
+    return 0;
 }
+
 
 // Inserts a device name and its option word into the five-entry record list of
 // the current car group, keeping the list sorted by the option value.

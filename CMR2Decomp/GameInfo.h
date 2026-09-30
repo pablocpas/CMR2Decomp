@@ -4,14 +4,36 @@
 #include "FixedPoint.h"
 #include <windows.h>
 
+// Record words as the original's bitfields (it merges adjacent field stores).
+struct RecordTimeBits {
+	unsigned car : 6;
+	unsigned manual : 1;
+	unsigned time : 16;
+	unsigned rest : 9;
+};
+
+struct RecordFlagBits {
+	unsigned car : 6;
+	unsigned manual : 1;
+	unsigned level : 4;
+	unsigned extra : 4;
+	unsigned rest : 17;
+};
+
 struct GameInfo0xa4SubStruct8 {
 	char ident[4];
-	unsigned int value;
+	union {
+		unsigned int value;
+		RecordTimeBits bits;
+	};
 };
 
 struct GameInfo0xa4SubStruct12 {
 	char ident[4];
-	unsigned int flags;
+	union {
+		unsigned int flags;
+		RecordFlagBits bits;
+	};
 	unsigned int value;
 };
 

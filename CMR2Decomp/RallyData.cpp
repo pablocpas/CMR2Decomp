@@ -744,74 +744,83 @@ void RallyData_FUN_00408fc0(int index)
 // Raises the level (0..3) of one of the eight per-profile items of a category
 // and marks that category as used. `level` is stored inverted: the stored value
 // is 3 - level, and only ever raised.
+// Best result per event of a category record (profile + 0x62c): 2 bits per
+// event, 8 events for each of the three difficulties.
+struct CategoryMedals {
+    unsigned other : 16;
+    unsigned d0i0 : 2, d0i1 : 2, d0i2 : 2, d0i3 : 2, d0i4 : 2, d0i5 : 2, d0i6 : 2, d0i7 : 2;
+    unsigned d1i0 : 2, d1i1 : 2, d1i2 : 2, d1i3 : 2, d1i4 : 2, d1i5 : 2, d1i6 : 2, d1i7 : 2;
+    unsigned d2i0 : 2, d2i1 : 2, d2i2 : 2, d2i3 : 2, d2i4 : 2, d2i5 : 2, d2i6 : 2, d2i7 : 2;
+};
+
 // FUNCTION: CMR2 0x00409150
 void FUN_00409150(int index, int item, int level)
 {
-    unsigned int *pFlags;
-    unsigned int flags;
+    CategoryMedals *pMedals;
     unsigned int limit;
     int category;
 
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
-    pFlags = (unsigned int *)(g_saveProfiles + 0x62c + category * 0x650);
+    pMedals = (CategoryMedals *)(g_saveProfiles + 0x62c + category * 0x650);
     limit = 3 - level;
     switch (CGameInfo::FUN_00405d90()) {
     case 0:
         switch (item) {
         case 0:
-            if (limit > (pFlags[0] >> 0x10 & 3)) {
-                pFlags[0] = (limit & 3) << 0x10 | (pFlags[0] & 0xfffcffff);
+            if (limit > pMedals->d0i0) {
+                pMedals->d0i0 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > (pFlags[0] >> 0x12 & 3)) {
-                pFlags[0] = (limit & 3) << 0x12 | (pFlags[0] & 0xfff3ffff);
+            if (limit > pMedals->d0i1) {
+                pMedals->d0i1 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > (pFlags[0] >> 0x14 & 3)) {
-                pFlags[0] = (limit & 3) << 0x14 | (pFlags[0] & 0xffcfffff);
+            if (limit > pMedals->d0i2) {
+                pMedals->d0i2 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > (pFlags[0] >> 0x16 & 3)) {
-                pFlags[0] = (limit & 3) << 0x16 | (pFlags[0] & 0xff3fffff);
+            if (limit > pMedals->d0i3) {
+                pMedals->d0i3 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > (pFlags[0] >> 0x18 & 3)) {
-                pFlags[0] = (limit & 3) << 0x18 | (pFlags[0] & 0xfcffffff);
+            if (limit > pMedals->d0i4) {
+                pMedals->d0i4 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > (pFlags[0] >> 0x1a & 3)) {
-                pFlags[0] = (limit & 3) << 0x1a | (pFlags[0] & 0xf3ffffff);
+            if (limit > pMedals->d0i5) {
+                pMedals->d0i5 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > (pFlags[0] >> 0x1c & 3)) {
-                pFlags[0] = (limit & 3) << 0x1c | (pFlags[0] & 0xcfffffff);
+            if (limit > pMedals->d0i6) {
+                pMedals->d0i6 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > (pFlags[0] >> 0x1e)) {
-                pFlags[0] = (pFlags[0] & 0x3fffffff) | limit * 0x40000000;
+            if (limit > pMedals->d0i7) {
+                pMedals->d0i7 = limit;
                 RallyData_IncrementCategoryUse(index);
+                return;
             }
             break;
         }
@@ -819,58 +828,57 @@ void FUN_00409150(int index, int item, int level)
     case 1:
         switch (item) {
         case 0:
-            flags = pFlags[1];
-            if (limit > (flags & 3)) {
-                pFlags[1] = (flags ^ limit) & 3 ^ flags;
+            if (limit > pMedals->d1i0) {
+                pMedals->d1i0 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > (pFlags[1] >> 2 & 3)) {
-                pFlags[1] = (limit & 3) << 2 | (pFlags[1] & 0xfffffff3);
+            if (limit > pMedals->d1i1) {
+                pMedals->d1i1 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > (pFlags[1] >> 4 & 3)) {
-                pFlags[1] = (limit & 3) << 4 | (pFlags[1] & 0xffffffcf);
+            if (limit > pMedals->d1i2) {
+                pMedals->d1i2 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > (pFlags[1] >> 6 & 3)) {
-                pFlags[1] = (limit & 3) << 6 | (pFlags[1] & 0xffffff3f);
+            if (limit > pMedals->d1i3) {
+                pMedals->d1i3 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > (pFlags[1] >> 8 & 3)) {
-                pFlags[1] = (limit & 3) << 8 | (pFlags[1] & 0xfffffcff);
+            if (limit > pMedals->d1i4) {
+                pMedals->d1i4 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > (pFlags[1] >> 0xa & 3)) {
-                pFlags[1] = (limit & 3) << 0xa | (pFlags[1] & 0xfffff3ff);
+            if (limit > pMedals->d1i5) {
+                pMedals->d1i5 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > (pFlags[1] >> 0xc & 3)) {
-                pFlags[1] = (limit & 3) << 0xc | (pFlags[1] & 0xffffcfff);
+            if (limit > pMedals->d1i6) {
+                pMedals->d1i6 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > (pFlags[1] >> 0xe & 3)) {
-                pFlags[1] = (limit & 3) << 0xe | (pFlags[1] & 0xffff3fff);
+            if (limit > pMedals->d1i7) {
+                pMedals->d1i7 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
@@ -880,58 +888,59 @@ void FUN_00409150(int index, int item, int level)
     case 2:
         switch (item) {
         case 0:
-            if (limit > (pFlags[1] >> 0x10 & 3)) {
-                pFlags[1] = (limit & 3) << 0x10 | (pFlags[1] & 0xfffcffff);
+            if (limit > pMedals->d2i0) {
+                pMedals->d2i0 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 1:
-            if (limit > (pFlags[1] >> 0x12 & 3)) {
-                pFlags[1] = (limit & 3) << 0x12 | (pFlags[1] & 0xfff3ffff);
+            if (limit > pMedals->d2i1) {
+                pMedals->d2i1 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 2:
-            if (limit > (pFlags[1] >> 0x14 & 3)) {
-                pFlags[1] = (limit & 3) << 0x14 | (pFlags[1] & 0xffcfffff);
+            if (limit > pMedals->d2i2) {
+                pMedals->d2i2 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 3:
-            if (limit > (pFlags[1] >> 0x16 & 3)) {
-                pFlags[1] = (limit & 3) << 0x16 | (pFlags[1] & 0xff3fffff);
+            if (limit > pMedals->d2i3) {
+                pMedals->d2i3 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 4:
-            if (limit > (pFlags[1] >> 0x18 & 3)) {
-                pFlags[1] = (limit & 3) << 0x18 | (pFlags[1] & 0xfcffffff);
+            if (limit > pMedals->d2i4) {
+                pMedals->d2i4 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 5:
-            if (limit > (pFlags[1] >> 0x1a & 3)) {
-                pFlags[1] = (limit & 3) << 0x1a | (pFlags[1] & 0xf3ffffff);
+            if (limit > pMedals->d2i5) {
+                pMedals->d2i5 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 6:
-            if (limit > (pFlags[1] >> 0x1c & 3)) {
-                pFlags[1] = (limit & 3) << 0x1c | (pFlags[1] & 0xcfffffff);
+            if (limit > pMedals->d2i6) {
+                pMedals->d2i6 = limit;
                 RallyData_IncrementCategoryUse(index);
                 return;
             }
             break;
         case 7:
-            if (limit > (pFlags[1] >> 0x1e)) {
-                pFlags[1] = (pFlags[1] & 0x3fffffff) | limit * 0x40000000;
+            if (limit > pMedals->d2i7) {
+                pMedals->d2i7 = limit;
                 RallyData_IncrementCategoryUse(index);
+                return;
             }
             break;
         }

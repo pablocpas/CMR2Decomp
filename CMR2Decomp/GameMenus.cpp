@@ -3034,7 +3034,7 @@ BYTE FUN_004cf660(int index, int pBlock);
 BYTE FUN_004cf740(int index, int pBlock);
 BYTE FUN_004cf8e0(int index, int pBlock);
 int FUN_004cf9d0(int param_1, int param_2);
-BYTE FUN_004cfa10(int param_1, int param_2, char *pName);
+int FUN_004cfa10(int param_1, int param_2, char *pName);
 char FUN_004cfb30(int param1, int index, char *pName);
 char FUN_004cfc90(int param1, int index, char *pName);
 char FUN_004cfff0(int param1, int index, char *pName);
