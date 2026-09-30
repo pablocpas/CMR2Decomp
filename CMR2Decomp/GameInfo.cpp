@@ -9093,7 +9093,6 @@ void FUN_005057e0(void)
 {
     SpriteRect dest;
     Texture *pTexture;
-    int *pCountry;
     int i;
     int width;
     int scale;
@@ -9112,23 +9111,21 @@ void FUN_005057e0(void)
     dest.x = (short)width - pTexture->width / 2;
     dest.w = pTexture->width;
     dest.h = pTexture->height;
-    pCountry = &g_unk0x0082c698;
     scale = FixDiv(0xea0000, g_unk0x0082c6bc * 0x10000 - 0x10000);
     for (i = 0; i < g_unk0x0082c6bc; i++) {
         y = FixMulShift32(i << 16, scale);
         pTexture = (Texture *)g_unk0x0082ca20[i];
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(*pCountry + 0x9d), width,
+        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(((int *)(&g_unk0x0082c698))[i] + 0x9d), width,
                      (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270b8[17],
                      (int *)&g_unk0x005270b8[18], 0x22);
         dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
-            dest.y = dest.y - g_unk0x00527254[*pCountry];
+            dest.y = dest.y - g_unk0x00527254[((int *)(&g_unk0x0082c698))[i]];
         else
-            dest.y = dest.y - g_unk0x00527260[*pCountry];
+            dest.y = dest.y - g_unk0x00527260[((int *)(&g_unk0x0082c698))[i]];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
                      (BYTE *)&g_unk0x005270b8[11], 8);
-        pCountry++;
     }
 }
 

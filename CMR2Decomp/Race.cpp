@@ -937,7 +937,6 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
 void FUN_00416670(void)
 {
     RaceCallRecord *p;
-    RaceSlotState *pSlot;
     int i;
 
     g_unk0x00537198[0] = 9999;
@@ -956,10 +955,10 @@ void FUN_00416670(void)
         }
         g_unk0x005371a0 = 0;
     } while (p < g_raceCallRecords + 10);
-    for (pSlot = g_raceSlotState; pSlot < g_raceSlotState + 5; pSlot++) {
-        pSlot->flags &= 0xfc;
-        pSlot->pending = -1;
-        pSlot->owner = -1;
+    for (i = 0; i < 5; i++) {
+        g_raceSlotState[i].flags &= 0xfc;
+        g_raceSlotState[i].pending = -1;
+        g_raceSlotState[i].owner = -1;
     }
 }
 
