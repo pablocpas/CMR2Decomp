@@ -987,3 +987,49 @@ heredados idénticos. Progreso de ruta y reset de carrera pasan **12000 casos
 nativos / cero diferencias** con el PE integrado. No hay cambios de cabeceras
 ni owners; el cuarto argumento BYTE de 46cce0 queda consistente en ambos TUs.
 Informes y compilaciones completas congeladas en **tools/matching-below700-05/**.
+
+## Sexto lote bajo 700: ordenación y precisión del mínimo de escala
+
+Base **0181991**, rama aislada `decomp/matching-low-review`. Resultado completo:
+**2474/3362 exactas por bytes**, **888 pendientes**; +2 y ninguna pérdida.
+Faltan **189** para bajar a 699. reccmp **2390/3364** estrictas, +2 sin
+pérdidas, **708** bajo 90%. El hito sigue abierto.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x40d520` | 37.04% | 100% | Índices de coche int, guard positivo y sesgo del siguiente índice capturado después del cursor. |
+| `0x427580` | 68.89% | 100% | Mínimo con scaleY como operando izquierdo; constantes FLOAT reales del HUD. |
+
+La ordenación conserva count, inicialización opcional, direcciones 0/1,
+comparaciones estrictas y stores BYTE del orden. Sus **154 bytes** son
+exactos; no hay cambios de firma ni del número de argumentos (ret20).
+
+### Comparación de escalas sin redondeo anticipado
+
+El original compara scaleY vivo en x87 con scaleX ya guardado en float.
+`if (scaleY < scaleX) ... else ...` recupera esa comparación. Antes se
+comparaba scaleX con una copia de scaleY redondeada a float; dos valores
+distintos podían parecer iguales y seleccionar el mínimo equivocado.
+
+Se recuperan tres constantes observadas directamente en el PE original:
+**0x511388=40.0f**, **0x51138c=1000.0f**, **0x511390=30.0f**. Cada owner
+ocupa cuatro bytes y se inicializa con esos valores. One y Zero usan los
+globals existentes. Los **145 bytes** completos de 427580 coinciden.
+
+`tests/differential_network_font.py`: **6000 casos nativos / cero diferencias**,
+modelo entero independiente del umbral, vecinos exactos, counts 1..128 y
+64 KiB completos. El control negativo falla en el PE anterior con
+width=494000, height=49399999, players=100: scaleX=25 y scaleY ligeramente
+menor. Al redondear Y antes de decidir, la fuente anterior escogía 25 y
+la fuente grande; original y corregida escogen la pequeña. El count ampliado
+sirve para distinguir ambas precisiones; no afirma que una carrera tenga
+100 jugadores ni valida una partida real.
+
+Build correcto; datacmp **3203 variables / cero incidencias**; check_dupes
+**3362 funciones / cero STUB / 3197 globals**, tres constantes reales nuevas;
+los 27 overlaps heredados idénticos y git diff --check limpio. No cabeceras.
+Informes, hashes y compilaciones completas en **tools/matching-below700-06/**.
+
+```sh
+python3 tests/differential_network_font.py ../tools/matching-below700-06/current.json ../tools/matching-below700-06/current-entities.json ../tools/matching-below700-06/current-build/CMR2.exe
+```

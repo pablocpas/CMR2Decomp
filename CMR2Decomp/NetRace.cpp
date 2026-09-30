@@ -7,6 +7,11 @@
 #include "RallyData.h"
 #include "FixedPoint.h"
 #include "main.h"
+extern const float g_netOne;
+extern const float g_netZero;
+extern const float g_netFontOffset;
+extern const float g_netFontInverseScale;
+extern const float g_netFontMaximumScale;
 
 // Network messages sent during a race (0x427620-0x428760)
 
@@ -49,7 +54,6 @@ BYTE g_unk0x005394bc[7][0xec];  // 7 rows up to the triangle table at 0x539b38
 int g_unk0x005393d4;
 
 // Chooses the HUD font from the screen size and the number of players shown.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00427580
 void FUN_00427580(int width, int height, int players)
 {
@@ -58,13 +62,14 @@ void FUN_00427580(int width, int height, int players)
     float scaleY = (float)height / ((float)players * rowWidth);
     float scale;
 
-    scale = scaleY;
-    if (scaleX <= scaleY)
+    if (scaleY < scaleX)
+        scale = scaleY;
+    else
         scale = scaleX;
-    if (scale > 30.0f)
-        scale = 30.0f;
+    if (scale > g_netFontMaximumScale)
+        scale = g_netFontMaximumScale;
     g_unk0x005393d4 = 0x28;
-    if ((1.0f / scale) * 1000.0f - 40.0f > 0.0f)
+    if ((g_netOne / scale) * g_netFontInverseScale - g_netFontOffset > g_netZero)
         g_unk0x005393d4 = 0x29;
 }
 
@@ -652,6 +657,14 @@ extern const float g_netMinusOne = -1.0f;
 extern const float g_netOne = 1.0f;
 // GLOBAL: CMR2 0x00511354
 extern const float g_netDeltaScale = 0.2f;
+
+// HUD font size thresholds used by the network view layout.
+// GLOBAL: CMR2 0x00511388
+extern const float g_netFontOffset = 40.0f;
+// GLOBAL: CMR2 0x0051138c
+extern const float g_netFontInverseScale = 1000.0f;
+// GLOBAL: CMR2 0x00511390
+extern const float g_netFontMaximumScale = 30.0f;
 
 // Packs the local car into the network state, preserving unrelated flag bits.
 // match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
