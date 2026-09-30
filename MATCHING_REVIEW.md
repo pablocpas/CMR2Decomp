@@ -652,3 +652,80 @@ python3 tests/differential_replay_slots.py /tmp/cmr2-next100-final.json /tmp/cmr
 
 Técnicas, variantes descartadas y próximos candidatos: `tools/CONOCIMIENTO.md`
 **§12.8**, en la carpeta compartida del proyecto.
+
+## Comparación byte a byte y permuter — 30 de septiembre de 2026
+
+Se adopta el flujo de trabajo de las descompilaciones de referencia (objdiff /
+asm-differ para iterar por unidad de compilación, decomp-permuter para las
+diferencias de registros y orden) adaptado a MSVC6. Las herramientas viven en
+`tools/fastcmp/`, fuera del repositorio, como el resto del entorno local.
+
+| Herramienta | Uso |
+|---|---|
+| `fastcmp.py 0xADDR [--diff]` | Compila **solo** el TU (~0,7 s, mismos flags que `build.sh`), extrae la función del `.obj`, traduce sus relocaciones a direcciones del original y compara **bytes**. |
+| `bytecount.py OUT.json [BASE.json]` | Las 3362 funciones en ~10 s, en paralelo, con diferencias frente a una base. |
+| `tryv.py 0xADDR v.py` | Compila N variantes del fuente en paralelo y las puntúa (`--pick N` aplica una). |
+| `permute.py 0xADDR [--apply-exact]` | Permuter: mover sentencias, conmutar operandos, invertir `if/else`, separar variables, sustituir temporales; hill climbing. |
+| `rollscan.py`, `origrefs.py`, `tiebreak.py`, `classify.py`, `callorder.py` | Barridos de patrones concretos (ver abajo). |
+
+`fastcmp` coincide con reccmp en 3288 de 3357 funciones y descubrió **67
+funciones idénticas byte a byte que reccmp puntúa por debajo del 100 %**:
+reccmp nombra cada operando con la tabla de símbolos de su propia imagen
+(la constante `0x800000` coincide con otro símbolo, un puntero de fin de array
+cae en el global vecino). Un resultado EXACT de `fastcmp` es código idéntico
+al original, así que no requiere revisión semántica; las mejoras parciales
+del permuter sí se revisan antes de aplicarlas.
+
+| Medida | Inicio (`4c421e7`) | Ahora |
+|---|---:|---:|
+| Byte a byte exactas (`fastcmp`) | 2391 | **2423** |
+| reccmp estricto (`matching == 1`) | 2333 | **2354** |
+| reccmp por debajo del 90 % | 759 | 747 |
+| `reccmp-datacmp` | 0 incidencias | 0 incidencias |
+
+### Reglas de MSVC6 confirmadas con TUs mínimos
+
+1. **Orden de declaración.** Con dos llamadas en una misma expresión binaria
+   (también `-` o `<`), se evalúa primero la función *declarada después*
+   (cuenta la primera declaración). Las cabeceras deben listar las funciones
+   en orden de dirección, como el original: `RallyData.h`.
+2. **Bucles pequeños.** Un bucle constante de 2–4 iteraciones se desenrolla y
+   su constante va a otro registro; `a[0]=0; a[1]=0;` no genera lo mismo.
+3. **`memset` en línea.** Un store de cero escrito *antes* del `memset` obtiene
+   su propio `xor` y se retrasa tras el `rep stosd`.
+4. **Símbolos distintos.** MSVC6 solo reordena stores que sabe disjuntos, es
+   decir, a *símbolos distintos*; dentro de un blob o de un struct global no.
+   `g_saveData` eran cinco globals: registros de coche (8×0xc4), flags de
+   edición, categorías (4×0x650), 8 bytes y slots (16×0x30). Tras separarlos,
+   los accesos que llegaban a flags y categorías a través del alias de los
+   registros de coche se corrigieron: en nuestra imagen ya no son contiguos.
+5. **Campos de bits.** `(x & M) | (v << n)`, `((a ^ b) & m) ^ a` y
+   `((a ^ b) & m) == 0` son stores y comparaciones de *bitfields*. Solo los
+   bitfields reales reproducen el orden. Se añaden vistas en uniones anónimas
+   (mismo layout) a `NetPlayerInfo` y a los registros de `GameInfo0xa4`.
+6. **Variables y huecos de pila.** Reutilizar una variable para dos vidas
+   independientes cambia los huecos; y los índices de array deben escribirse
+   como tales (el compilador crea los desplazamientos en bytes).
+7. **Flags por TU.** El original no llama nunca a `_ftol`: `Race.cpp`,
+   `StageUI.cpp` y `TimingUtils.cpp` también llevan `/QIfist` (`build.sh`).
+   `/Ob2`, `/Op`, `/Oa` y `/Ow` empeoran en todos los TUs.
+8. **Desempates.** Añadir un tipo a una cabecera puede cambiar la asignación
+   de registros de funciones no relacionadas; un barrido de 0–15
+   declaraciones ficticias por TU no vuelve exacta ninguna, así que no es lo
+   que falta en las restantes.
+
+### Bugs encontrados por el matching
+
+- `0x4cfb30`: la escritura de nivel y extra usaba la máscara `0xffff803f`,
+  que borraba el coche, el cambio y el nivel recién escritos. El original solo
+  limpia los bits 11–14 (`and ch, 0x87`). Corregido con bitfields.
+- El split de `g_saveData` habría dejado accesos fuera de `g_saveCarRecords`;
+  todos nombran ahora su global real.
+
+Funciones exactas nuevas en esta tanda: `0x409150`, `0x40d4b0`, `0x4188c0`,
+`0x418e70`, `0x41a0a0`, `0x420190`, `0x420820`, `0x420850`, `0x4246a0`,
+`0x445db0`, `0x456ca0`, `0x45f890`, `0x46e530`, `0x472e00`, `0x480380`,
+`0x4a0c60`, `0x4a8040`, `0x4b1500`, `0x4b2610`, `0x4b3940`, `0x4b4100`,
+`0x4b4910`, `0x4b5ee0`, `0x4bae10`, `0x4cf740`, `0x4cf8e0`, `0x4cfa10`,
+`0x4e3340`, `0x4eb0c0`, `0x4ec2b0`, `0x4f02e0`, `0x505e70`. Las variantes
+descartadas de las que se resisten están en `tools/fastcmp/work/hard.txt`.
