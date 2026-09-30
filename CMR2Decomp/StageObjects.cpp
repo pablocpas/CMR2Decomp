@@ -141,7 +141,7 @@ void FUN_0046c750(int param_1, int param_2, int param_3);
 void FUN_0046c8e0(void);
 int FUN_0046cbe0(BYTE *packet, BYTE car);
 int Replay_StopRecording(BYTE *pBuffer);
-void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4);
+void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
 void FUN_0046cfa0(int *pState);
 void FUN_0046d270(void);
 int FUN_0046d2a0(int *p);
@@ -1358,13 +1358,12 @@ int FUN_0046b4c0(BYTE *pCar)
     return g_unk0x00588970[(signed char)pCar[0xb1a]];
 }
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046b710
 void FUN_0046b710(void)
 {
     int *p;
-    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
     p = &g_unk0x00588cd4[1];
+    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
     do {
         p[-1] = 0;
         *p = 0;
@@ -3785,8 +3784,8 @@ void FUN_004775f0(Texture *pTexture, int state, int cacheBase, int index)
 {
     WORD *pColours = g_unk0x0058d2d4 + index * 7;
     WORD *pApplied = (WORD *)g_unk0x0058d6b0 + index * 7;
-    int cacheSlot = index + cacheBase * 8;
     int changed = 0;
+    int cacheSlot = index + cacheBase * 8;
     int i;
 
     switch (state) {
@@ -3984,26 +3983,23 @@ void FUN_00477ce0(int car)
     }
 }
 
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477f30
 void FUN_00477f30(void)
 {
-    short *p;
+    int i;
 
-    p = (short *)&g_unk0x0058d6d0[0][0x1e];
-    do {
-        p[-1] = -1;
-        p[0] = -1;
-        p[1] = -1;
-        p[2] = -1;
-        p[3] = -1;
-        p[4] = -1;
-        p[5] = -1;
-        p[6] = -1;
-        p[7] = -1;
-        p[8] = -1;
-        p += 0x24;
-    } while ((int)p < (int)&g_unk0x0058d6d0[8][0x1e]);
+    for (i = 0; i < 8; i++) {
+        ((short *)g_unk0x0058d6d0[i])[0xe] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0xf] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x10] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x11] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x12] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x13] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x14] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x15] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x16] = -1;
+        ((short *)g_unk0x0058d6d0[i])[0x17] = -1;
+    }
 }
 
 int FUN_00460c80(BYTE *pCar);
@@ -6050,7 +6046,6 @@ extern void **g_unk0x00590c6c;
 
 // Resets record `index` (0x3c bytes) of list `list`: its three vectors to the
 // origin and its final int to `value`.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00486630
 void FUN_00486630(int list, int index, int value)
 {
@@ -6064,10 +6059,10 @@ void FUN_00486630(int list, int index, int value)
     p[3].y = 0;
     p[3].z = 0;
     p[1] = p[0];
+    p[2] = p[0];
     p[4].x = 0;
     p[4].y = 0;
     p[4].z = value;
-    p[2] = p[0];
 }
 
 // Sun visibility (0..100) from the lens flare sample.
@@ -7427,8 +7422,8 @@ void Events_Init(int unused, int slot, char animate)
     Texture *pTexture;
 
     Events_Reset();
-    g_unk0x00589331 = animate == 0;
     g_eventCount = 0;
+    g_unk0x00589331 = animate == 0;
     for (i = 0; i < 2048; i++) {
         pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture != NULL &&
@@ -12095,7 +12090,7 @@ void FUN_0046c410(int param_1, BYTE param_2)
 // match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
 // compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
 // FUNCTION: CMR2 0x0046cce0
-void FUN_0046cce0(int param_1, int param_2, int param_3, int param_4)
+void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
 {
     char cVar1;
     BYTE bVar2;
@@ -14455,7 +14450,7 @@ void FUN_0046d5e0(void)
 // FUNCTION: CMR2 0x00466030
 void FUN_00466030(int a, int b)
 {
-    BYTE index;
+    int index;
 
     index = g_unk0x0058875c->field_0xb1a;
     FUN_0046cce0((int)g_unk0x00588758, a, b, index);

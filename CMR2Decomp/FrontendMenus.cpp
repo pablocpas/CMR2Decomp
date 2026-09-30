@@ -687,7 +687,6 @@ void FUN_004fbec0(Menu *pMenu, int param)
 // Menu callback of the device page: shows the entries the selected device
 // supports (no calibration entry for keyboard/mouse or fewer than 4 axes, no
 // axis entries for the mouse).
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fbf60
 void FUN_004fbf60(Menu *pMenu, char param)
 {
@@ -695,10 +694,10 @@ void FUN_004fbf60(Menu *pMenu, char param)
 
     if (param == 0) {
         pDevice = CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
-        pMenu->items[1].enabled = 1;
         pMenu->items[1].visible = 1;
         pMenu->items[0].enabled = 1;
         pMenu->items[0].visible = 1;
+        pMenu->items[1].enabled = 1;
         pMenu->items[9].enabled = 1;
         pMenu->items[9].visible = 1;
         if (pDevice->field_0x0 == 1 || pDevice->field_0x0 == 2 || pDevice->field_0x14 < 4) {

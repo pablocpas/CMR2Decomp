@@ -7230,6 +7230,11 @@ MenuScroller *FUN_004f2590(void);
     FrontendDraw_PlayTime();                                                                                \
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 24) / 640, (int)(g_pGraphics->resY * 38) / 480, 1, 3, text, 2); \
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);                                               \
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 440) / 640;                                              \
+    g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 100) / 480;                                              \
+    g_unk0x008189a8[1] = ((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2   \
+                         - g_unk0x008189a8[3] / 2;                                                          \
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 160) / 640;                                              \
     y0 = (short)(((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2)           \
          - (short)((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount / 2);                              \
     if (pMenu->cursor == 0) {                                                                               \
@@ -7239,10 +7244,10 @@ MenuScroller *FUN_004f2590(void);
         pColour = g_colourText0x0052496c;                                                                   \
         pShadow = g_colourShadowText0x00524978;                                                             \
     }                                                                                                       \
+    g_unk0x008189a8[1] = y0;                                                                                \
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;                                               \
     g_unk0x008189a8[3] = 1;                                                                                 \
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;                                              \
-    g_unk0x008189a8[1] = y0;                                                                                \
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);                                 \
     g_unk0x008189a8[1]++;                                                                                   \
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -7277,7 +7282,7 @@ MenuScroller *FUN_004f2590(void);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
 
 // Draw callback of the first quick race page (stages, cars, ...).
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004da710
 void FUN_004da710(Menu *pMenu)
 {
@@ -7286,7 +7291,6 @@ void FUN_004da710(Menu *pMenu)
     BYTE *pShadow;
     BYTE *pColour;
     Texture *pTexture;
-    MenuItem *pItem;
     short y0;
     int x0;
     int y;
@@ -7294,27 +7298,25 @@ void FUN_004da710(Menu *pMenu)
 
     QUICKRACE_FRAME()
     for (i = 0; i < pMenu->itemCount; i++) {
-        pItem = &pMenu->items[i];
         QUICKRACE_ROW_ICON(i)
-        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
-        switch (pItem->value) {
+        switch (pMenu->items[i].value) {
         case 0:
             sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pMenu->items[0].max + 1);
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             break;
         case 1:
             sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x196), pMenu->items[1].max + 1);
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             break;
         case 2:
             sprintf(CFrontend::m_stringDest, g_strLabelColon, CFrontend::GetTextString(0x19e));
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
-            QUICKRACE_DRAW_CHOICE(pItem->max, y)
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            QUICKRACE_DRAW_CHOICE(pMenu->items[i].max, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1])
             break;
         default:
-            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pItem->id),
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pMenu->items[i].id),
                     pMenu->items[1].max + 1);
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             break;
         }
         QUICKRACE_ROW_LINE(i)
@@ -7324,7 +7326,7 @@ void FUN_004da710(Menu *pMenu)
 }
 
 // Draw callback of the second quick race page (game type and its settings).
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004daf90
 void FUN_004daf90(Menu *pMenu)
 {
@@ -7333,7 +7335,6 @@ void FUN_004daf90(Menu *pMenu)
     BYTE *pShadow;
     BYTE *pColour;
     Texture *pTexture;
-    MenuItem *pItem;
     short y0;
     int x0;
     int y;
@@ -7341,34 +7342,32 @@ void FUN_004daf90(Menu *pMenu)
 
     QUICKRACE_FRAME()
     for (i = 0; i < pMenu->itemCount; i++) {
-        pItem = &pMenu->items[i];
         QUICKRACE_ROW_ICON(i)
-        y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
-        switch (pItem->value) {
+        switch (pMenu->items[i].value) {
         case 2:
             sprintf(CFrontend::m_stringDest, g_strLabelColon, CFrontend::GetTextString(0x19e));
-            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
-            QUICKRACE_DRAW_CHOICE(pItem->max, y)
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
+            QUICKRACE_DRAW_CHOICE(pMenu->items[i].max, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1])
             goto line;
         case 3:
             sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1a3),
-                    CFrontend::GetTextString(pItem->max + 0x1a4));
+                    CFrontend::GetTextString(pMenu->items[i].max + 0x1a4));
             break;
         case 4:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pItem->max + 1);
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195), pMenu->items[i].max + 1);
             break;
         case 5:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a2), pItem->max + 1);
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a2), pMenu->items[i].max + 1);
             break;
         case 6:
-            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a1), pItem->max + 1);
+            sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x1a1), pMenu->items[i].max + 1);
             break;
         default:
-            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pItem->id),
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, CFrontend::GetTextString(pMenu->items[i].id),
                     pMenu->items[1].max + 1);
             break;
         }
-        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, y, (int *)pColour, 0x11);
+        Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640, (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
     line:
         QUICKRACE_ROW_LINE(i)
     }
@@ -9706,16 +9705,7 @@ void FUN_004f0e80(Menu *pMenu)
 
     strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
     if (FUN_004b7cd0(&key)) {
-        if (key == 8) {
-            if (CFrontend::m_stringDest[0] != 0) {
-                CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
-                Menu_PlaySoundId(2);
-            }
-            pMenu->cursor = 2;
-            pMenu->items[2].max = 8;
-            g_unk0x00819040 = CMain::GetFrameDelta();
-            g_unk0x0081986c = 1;
-        } else {
+        if (key != 8) {
             len = strlen(CFrontend::m_stringDest);
             if (len < 3 && strchr(g_strKeyChars0x005253a0, (char)key) != NULL) {
                 if (strchr(g_strUpperChars0x005253d8, (char)key) != NULL)
@@ -9746,6 +9736,15 @@ void FUN_004f0e80(Menu *pMenu)
                 g_unk0x0081986c = 1;
                 Menu_PlaySoundId(1);
             }
+        } else {
+            if (CFrontend::m_stringDest[0] != 0) {
+                CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
+                Menu_PlaySoundId(2);
+            }
+            pMenu->cursor = 2;
+            pMenu->items[2].max = 8;
+            g_unk0x00819040 = CMain::GetFrameDelta();
+            g_unk0x0081986c = 1;
         }
     } else if (g_unk0x0081986c != 0 && CMain::GetFrameDelta() - g_unk0x00819040 > 10) {
         g_unk0x00819040 = -1;

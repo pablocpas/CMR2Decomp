@@ -925,7 +925,6 @@ BOOL FUN_004a2210(IDirectSoundBuffer *pBuffer, DWORD offset, void *pData, DWORD 
 // Loads a .wav from pFile into the next free sample slot: creates its buffer
 // (a 3D one when flags & 1 and 3D sound is on) and copies the PCM data.
 // The file buffer is freed unless it lives inside the archive.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1f50
 BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
 {
@@ -954,8 +953,7 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
             if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 1,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
-            slot = FUN_004b7780();
-            if (CSound::FUN_004a3250(g_soundBuffers[slot]->QueryInterface(IID_IDirectSound3DBuffer,
+            if (CSound::FUN_004a3250(g_soundBuffers[FUN_004b7780()]->QueryInterface(IID_IDirectSound3DBuffer,
                                                                             (LPVOID *)&g_sound3DBuffers[FUN_004b7780()]))) {
                 if (!FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28)))
                     return FALSE;
@@ -1499,17 +1497,16 @@ void FUN_004a2830(void)
 }
 
 // Creates the shared 16-bit stereo 44.1 kHz streaming buffer.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a2a20
 BOOL FUN_004a2a20(void)
 {
     WAVEFORMATEX format;
     DSBUFFERDESC desc;
 
+    g_unk0x005a271c = 0x7f400;
     memset(&desc, 0, sizeof(desc));
     format.cbSize = 0;
     desc.lpwfxFormat = &format;
-    g_unk0x005a271c = 0x7f400;
     desc.dwBufferBytes = 0x7f400;
     desc.dwSize = sizeof(desc);
     desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLVOLUME;

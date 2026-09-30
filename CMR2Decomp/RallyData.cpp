@@ -228,21 +228,18 @@ void FUN_0040d9e0(int group);
 // displacements in the original (they are contiguous in its .bss); our tables
 // are not adjacent, so the compiler picks another induction variable and the
 // opcodes differ.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040dbe0
 void FUN_0040dbe0(int value)
 {
-    int *pPair = &g_unk0x0052f100[0][1];
-    int *pFlag = g_unk0x0052f1f0;
-    do {
-        pPair[-1] = value;
-        *pPair = value;
-        pFlag[-20] = value;
-        *pFlag = 0;
-        pFlag[20] = 0;
-        pPair += 2;
-        pFlag++;
-    } while ((int)pPair < (int)&g_unk0x0052f1a0[1]);
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        g_unk0x0052f100[i][0] = value;
+        g_unk0x0052f100[i][1] = value;
+        g_unk0x0052f1a0[i] = value;
+        g_unk0x0052f1f0[i] = 0;
+        g_unk0x0052f240[i] = 0;
+    }
     FUN_0040d9e0(0);
     FUN_0040d9e0(1);
     FUN_0040d9e0(2);
@@ -1293,24 +1290,17 @@ void RallyData_FUN_00408390(void)
     }
 }
 
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408340
 BYTE RallyData_FUN_00408340(void)
 {
     unsigned int i;
-    BYTE *p;
 
-    i = ((g_selectedRallyData >> 5) & 0x1f) + 1;
-    if (i >= 0xb)
-        return 1;
-    p = &g_unk0x0052ea68[i];
-    do {
-        if ((*p & 1) != 0 &&
-            ((*p & 2) == 0 || CGameInfo::FUN_00406410(0xd)) &&
-            (*p & 4) == 0)
+    for (i = ((g_selectedRallyData >> 5) & 0x1f) + 1; i < 0xb; i++) {
+        if ((g_unk0x0052ea68[i] & 1) != 0 &&
+            ((g_unk0x0052ea68[i] & 2) == 0 || CGameInfo::FUN_00406410(0xd)) &&
+            (g_unk0x0052ea68[i] & 4) == 0)
             return 0;
-        p++;
-    } while (p < &g_unk0x0052ea68[0xb]);
+    }
     return 1;
 }
 

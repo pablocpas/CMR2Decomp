@@ -2034,8 +2034,8 @@ void FUN_00453830(Menu *pMenu)
             g_menuRect[0] = (short)x;
             resY = *pResY;
             lineHeight = Font_GetLineHeight(2);
-            g_menuRect[2] = 2;
             g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
+            g_menuRect[2] = 2;
             g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
             Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
             x += (int)(g_pGraphics->resX * 8) / 640;
@@ -3586,8 +3586,8 @@ void FUN_0044b3a0(void)
         g_menuRect[0] = (short)x;
         resY = *pResY;
         lineHeight = Font_GetLineHeight(2);
-        g_menuRect[2] = 2;
         g_menuRect[1] = (short)(resY * 242 / 480 + resY * 4 / 480 - lineHeight);
+        g_menuRect[2] = 2;
         g_menuRect[3] = (short)((int)(*pResY * 41) / 480);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);
         x += (int)(g_pGraphics->resX * 8) / 640;

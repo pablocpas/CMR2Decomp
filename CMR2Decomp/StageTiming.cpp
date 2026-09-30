@@ -4959,29 +4959,28 @@ void FUN_00424af0(void)
 }
 
 // Attaches a stage object to the current car and copies its matrices.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004813b0
 int FUN_004813b0(int slot)
 {
     BYTE *object;
 
-    if (*(int *)g_unk0x00590c20 != 0)
-        return 0;
-    object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_unk0x00590d74)[0xb1a]];
-    if (object == NULL)
-        return 0;
-
-    *(BYTE **)g_unk0x00590c20 = object;
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 4) = (BYTE *)g_unk0x00590c20 + 0xc;
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 8) = (BYTE *)g_unk0x00590c20 + 0xcc;
-    memcpy((BYTE *)g_unk0x00590c20 + 0xc, object + 0x98, 0x40);
-    memcpy((BYTE *)g_unk0x00590c20 + 0xcc, object + 0xd8, 0x40);
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 0x10c) = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x71c) + 0x98;
-    memcpy(*(BYTE **)((BYTE *)g_unk0x00590c20 + 8), *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8, 0x40);
-    FixMatrix_GetRight((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c), (FixMatrix *)(object + 0x98));
-    FixMatrix_GetUp((FixVector *)((BYTE *)g_unk0x00590c20 + 0x188), (FixMatrix *)(object + 0x98));
-    FixMatrix_GetForward((FixVector *)((BYTE *)g_unk0x00590c20 + 0x194), (FixMatrix *)(object + 0x98));
-    return 1;
+    if (*(int *)g_unk0x00590c20 == 0) {
+        object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_unk0x00590d74)[0xb1a]];
+        if (object != NULL) {
+            *(BYTE **)g_unk0x00590c20 = object;
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 4) = (BYTE *)g_unk0x00590c20 + 0xc;
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 8) = (BYTE *)g_unk0x00590c20 + 0xcc;
+            memcpy((BYTE *)g_unk0x00590c20 + 0xc, (*(BYTE **)g_unk0x00590c20) + 0x98, 0x40);
+            memcpy((BYTE *)g_unk0x00590c20 + 0xcc, (*(BYTE **)g_unk0x00590c20) + 0xd8, 0x40);
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 0x10c) = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x71c) + 0x98;
+            memcpy(*(BYTE **)((BYTE *)g_unk0x00590c20 + 8), *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8, 0x40);
+            FixMatrix_GetRight((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            FixMatrix_GetUp((FixVector *)((BYTE *)g_unk0x00590c20 + 0x188), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            FixMatrix_GetForward((FixVector *)((BYTE *)g_unk0x00590c20 + 0x194), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            return 1;
+        }
+    }
+    return 0;
 }
 
 extern char g_stageLooped;

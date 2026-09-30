@@ -1337,15 +1337,13 @@ void FUN_004a0c40(char param1);
 
 // Menu setup of the surface screen: input repeat from the options and the
 // button mapping stored in g_unk0x0058dc58.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478be0
 void FUN_00478be0(void)
 {
     int rate;
 
     g_unk0x0058dc5c = -1;
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
     CInput::FUN_0049ff80(g_unk0x0058dc58, g_unk0x0058dc58 + 1, g_unk0x0058dc58 + 2, g_unk0x0058dc58 + 3,
                          g_unk0x0058dc58 + 4);
     FUN_004a0c40(1);

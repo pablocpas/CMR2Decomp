@@ -953,3 +953,37 @@ ganancias y logs: `tools/matching-below700-04/`.
 ```sh
 python3 tests/differential_route_progress.py ../tools/matching-below700-04/current.json ../tools/matching-below700-04/current-entities.json ../tools/matching-below700-04/current-build/CMR2.exe
 ```
+
+## Quinto lote bajo 700: integrar el avance del otro agente y matrices vivas
+
+Merge local de **c7422b2** sobre **de55abe**, conservando los commits de ambas
+ramas. No se modifica matching-review ni sus cambios pendientes. Sus cuatro
+commits desde a6ff60a aportan **16 nuevas exactas únicas**; 417780, 4692b0 y
+48dca0 ya estaban exactas aquí y no se cuentan de nuevo. Dos conflictos de
+fuente (4692b0 y 48dca0) se resuelven conservando nuestros cuerpos exactos.
+
+Se añade además **0x4813b0**, 50% -> 100%: guardas positivas anidadas y
+lecturas de la matriz desde el objeto publicado en g_unk0x00590c20.
+Las llamadas GetRight/GetUp/GetForward pueden cambiar el contexto: conservar
+un puntero local de la primera lectura ocultaba esos cambios. Los **279
+bytes completos** coinciden, incluidas ambas salidas y las tres llamadas.
+
+Auditoría de las 3362 funciones: **2472 exactas por bytes**, **890 pendientes**,
+**17 ganancias y ninguna pérdida**. Faltan **191** para bajar a 699. reccmp:
+**2388/3364** estrictas, +14 sin pérdidas, **710** por debajo del 90%.
+El hito sigue abierto. Las ganancias y sus porcentajes individuales están
+en `tools/matching-below700-05/gains.tsv`.
+
+No se heredan los porcentajes declarados en los mensajes de otros commits:
+4a1940 queda en **88.24%** en nuestra compilación, 466030 en **91.43%**,
+4da710/4daf90 en **69.54%/57.36%**; ninguna cuenta como nueva exacta. Tres
+nuevas exactas por bytes tampoco llegan al 100% normalizado: 408340 **96.43%**,
+477f30 **93.75%**, 4f0e80 **99.26%**, por nombres de límites/operandos.
+Las cinco resoluciones fallidas heredadas siguen contándose como pendientes.
+
+Build MSVC6 correcto, datacmp **3200 variables / cero incidencias**,
+check_dupes **3362 funciones / cero STUB / 3194 globals**, los 27 overlaps
+heredados idénticos. Progreso de ruta y reset de carrera pasan **12000 casos
+nativos / cero diferencias** con el PE integrado. No hay cambios de cabeceras
+ni owners; el cuarto argumento BYTE de 46cce0 queda consistente en ambos TUs.
+Informes y compilaciones completas congeladas en **tools/matching-below700-05/**.
