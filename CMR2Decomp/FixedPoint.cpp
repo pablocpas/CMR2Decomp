@@ -596,6 +596,7 @@ void FixVec_Normalize(FixVector *pOut, FixVector *pIn)
 {
     FixVector scaled;
     int len;
+    int scaledLen;
 
     if (pIn->x <= 0x640000 && pIn->x >= -0x640000 && pIn->y <= 0x640000 && pIn->y >= -0x640000 && pIn->z <= 0x640000 && pIn->z >= -0x640000) {
         len = FixVecLength(pIn);
@@ -611,14 +612,14 @@ void FixVec_Normalize(FixVector *pOut, FixVector *pIn)
     scaled.x = pIn->x / 512;
     scaled.y = pIn->y / 512;
     scaled.z = pIn->z / 512;
-    len = FixVecLength(&scaled);
-    if (len == 0) {
+    scaledLen = FixVecLength(&scaled);
+    if (scaledLen == 0) {
         pOut->x = 0;
         pOut->y = 0;
         pOut->z = 0;
         return;
     }
-    FixVecScaleRecip(pOut, &scaled, len);
+    FixVecScaleRecip(pOut, &scaled, scaledLen);
 }
 
 // Scratch vectors of FixMatrix_Interpolate

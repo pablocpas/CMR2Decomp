@@ -7671,8 +7671,8 @@ void FUN_00505e70(void)
     else
         g_unk0x0082ca04[0] = pPairs[slot * 8];
     if (slot <= count) {
-        pDest = &g_unk0x0082ca04[1];
         i = slot;
+        pDest = &g_unk0x0082ca04[1];
         do {
             pEntry = RallyData_FUN_004075c0(slot);
             if (*pEntry != 0)

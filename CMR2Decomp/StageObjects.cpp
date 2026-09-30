@@ -2488,6 +2488,7 @@ void FUN_00480380(void)
     FixVector *pPosition;
     unsigned short angle;
     int randomFixed;
+    int randomSpread;
 
     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
     angle = (unsigned short)(__int64)((double)FixMul(randomFixed, 0x1680000) * g_unk0x00511300);
@@ -2497,14 +2498,13 @@ void FUN_00480380(void)
     velocity.y = 0;
     velocity.z = g_sinTable[(angle + 0x400) & 0xfff];
 
-    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    FixVecScale(&velocity, &velocity, randomFixed);
+    FixVecScale(&velocity, &velocity, (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536));
     velocity.y = 0x40000;
 
     FIX_NORMALIZE_INTO(velocity, velocity)
 
-    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    FixVecScale(&velocity, &velocity, FixMul(0x10000, randomFixed) + 0x18000);
+    randomSpread = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
+    FixVecScale(&velocity, &velocity, FixMul(0x10000, randomSpread) + 0x18000);
 
     StageObject_SpawnDebris(pPosition, &velocity, 0);
 }

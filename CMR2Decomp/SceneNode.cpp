@@ -856,9 +856,9 @@ void Scene_UpdateShadowColour(int boost)
         if (g_shadowLevel > 0xff0000)
             g_shadowLevel = 0xff0000;
         FixVecScale(&c, &c, 0x2aac);
-        r = c.x;
-        g = c.y;
         b = c.z;
+        g = c.y;
+        r = c.x;
     } else {
         r = c.x;
         g = c.y;
@@ -1163,8 +1163,8 @@ void Scene_MarkShadowPartDirty(SceneNode *pNode, Mesh *pMesh)
     int i;
     int count;
     if (g_sceneShadowMeshes != NULL) {
-        count = g_sceneLightFlag & 0xff;
         i = 0;
+        count = g_sceneLightFlag & 0xff;
         if (count > 0) {
             do {
                 ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
@@ -2007,8 +2007,8 @@ void FUN_004b5ee0(SceneNode *pNode, int param2, BYTE param3)
     pCaster = NULL;
     if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL &&
         (unsigned short)g_sceneZoneCount > 0) {
-        count = g_sceneLightFlag & 0xff;
         i = 0;
+        count = g_sceneLightFlag & 0xff;
         if (count > 0) {
             do {
                 ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];

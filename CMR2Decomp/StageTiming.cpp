@@ -1356,12 +1356,9 @@ Unk0x00539278 *g_unk0x00539278;
 // FUNCTION: CMR2 0x004246a0
 void FUN_004246a0(void)
 {
-    int i = 0;
-    do {
-        *(int *)(i + (int)g_unk0x00539278) =
-            *(int *)(i + (int)g_unk0x00539278 + 0xc);
-        i += 4;
-    } while (i < 0xc);
+    int i;
+    for (i = 0; i < 3; i++)
+        (&g_unk0x00539278->field_0x0)[i] = (&g_unk0x00539278->field_0xc)[i];
 }
 
 // Re-applies the stored force-feedback values to the selected device.
@@ -1744,10 +1741,11 @@ extern int g_dashRev[2];
 // FUNCTION: CMR2 0x00445db0
 void FUN_00445db0(void)
 {
-    g_dashIdle[0] = 0;
-    g_dashGearMarker[0] = -1;
-    g_dashIdle[1] = 0;
-    g_dashGearMarker[1] = -1;
+    int i;
+    for (i = 0; i < 2; i++) {
+        g_dashGearMarker[i] = -1;
+        g_dashIdle[i] = 0;
+    }
 }
 
 // FUNCTION: CMR2 0x00445dd0
@@ -8864,8 +8862,8 @@ void FUN_0045f890(void)
         g_unk0x00543ec4 -= g_unk0x0051bd3c;
         if (g_unk0x00543ec4 < 0) {
             g_unk0x00543ec0 = FixMul(RAND_FIX(), 0x1770000) + 0x7d0000;
-            g_unk0x00543ec8 = -1;
             g_unk0x00543ec4 = FixMul(RAND_FIX(), 0x140000) + 0x140000;
+            g_unk0x00543ec8 = -1;
         }
     }
     g_unk0x00547ac2 = g_unk0x00547ac0;
