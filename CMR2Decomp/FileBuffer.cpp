@@ -227,10 +227,10 @@ bool FUN_004eb3e0(void)
 
     do {
         if ((*(unsigned int *)(pProfile + 4) & 0x200000) == 0 && *pProfile != 0 &&
-            g_saveDirty[ + i] != 0) {
+            g_saveDirty[i] != 0) {
             BYTE result = FUN_004eb340(0, pProfile - 0x10);
             if (result != 0)
-                g_saveDirty[ + i] = 0;
+                g_saveDirty[i] = 0;
             if (saved && result != 0)
                 saved = true;
             else
@@ -256,16 +256,12 @@ void FUN_004eb470(void)
     BYTE *pProfile;
     int i;
 
-    i = 0;
-    pProfile = g_saveProfiles;
-    do {
-        if ((*(unsigned int *)(pProfile + 0x14) & 0x200000) == 0 && g_saveDirty[ + i] != 0) {
-            FUN_004eb340(0, pProfile);
-            g_saveDirty[ + i] = 0;
+    for (i = 0; i < 4; i++) {
+        if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 && g_saveDirty[i] != 0) {
+            FUN_004eb340(0, g_saveProfiles + i * 0x650);
+            g_saveDirty[i] = 0;
         }
-        pProfile += 0x650;
-        i++;
-    } while (pProfile < g_saveProfiles + 0x1940);
+    }
 }
 
 // FUNCTION: CMR2 0x004eb4b0
@@ -469,7 +465,7 @@ void FUN_004ebf20(int index)
     *(int *)(g_saveProfiles + 0x4c + category * 0x650) = 0xf11;
     g_saveProfiles[0x588 + category * 0x650] = (g_saveProfiles[0x588 + category * 0x650] & 0xfc) | 0x3c;
     FUN_004ec260(index);
-    g_saveDirty[ + (*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf)] = 0;
+    g_saveDirty[(*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf)] = 0;
 }
 
 // 12-byte block read from the file buffer (at offset 0x10).

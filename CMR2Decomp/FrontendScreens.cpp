@@ -6119,7 +6119,7 @@ void FUN_004eb0c0(BYTE index, BYTE flag)
     if (category != 0xf) {
         *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) =
             (*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) & 0xffffffdf) | (flag & 1) << 5;
-        g_saveDirty[ + category] = 1;
+        g_saveDirty[category] = 1;
     }
 }
 

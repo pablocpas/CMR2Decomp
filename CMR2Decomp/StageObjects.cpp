@@ -5393,26 +5393,17 @@ int RallyData_FUN_00411060(void);
 void FUN_004866a0(void)
 {
     int car;
-    int offset;
-    void **pTable;
+    int i;
     SceneNode *pNode;
 
-    car = 0;
-    if (g_unk0x00590c64 > 0) {
-        offset = 0;
-        do {
-            pTable = g_unk0x00590d7c;
-            do {
-                if (*(SceneNode **)((BYTE *)*pTable + offset) != NULL) {
-                    pNode = *(SceneNode **)((BYTE *)*pTable + offset);
-                    if ((int)pNode->pParent == RallyData_FUN_00411060())
-                        SceneNode_Destroy(pNode);
-                }
-                pTable++;
-            } while (pTable < &g_unk0x00590d7c[4]);
-            car++;
-            offset += 0x1a0;
-        } while (car < g_unk0x00590c64);
+    for (car = 0; car < g_unk0x00590c64; car++) {
+        for (i = 0; i < 4; i++) {
+            if (*(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0) != NULL) {
+                pNode = *(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + car * 0x1a0);
+                if ((int)pNode->pParent == RallyData_FUN_00411060())
+                    SceneNode_Destroy(pNode);
+            }
+        }
     }
 }
 

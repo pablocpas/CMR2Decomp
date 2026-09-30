@@ -885,18 +885,14 @@ void FUN_004fc620(Menu *pMenu)
         pKeys = CInput::FUN_0049ead0(0);
         if (pKeys->field_0x8 & 0x10) {
             pData = &FUN_0040bbb0()[CONTROLS_SEL];
-            pBinding = g_axisBindings;
-            axis = 0;
-            do {
-                CInput::SetJoystickAxisSaturation(CONTROLS_SEL, axis, pBinding->saturation);
-                CInput::SetJoystickAxisDeadzone(CONTROLS_SEL, axis, pBinding->deadzone);
+            for (axis = 0; axis < 8; axis++) {
+                CInput::SetJoystickAxisSaturation(CONTROLS_SEL, axis, g_axisBindings[axis].saturation);
+                CInput::SetJoystickAxisDeadzone(CONTROLS_SEL, axis, g_axisBindings[axis].deadzone);
                 for (j = 0; j < 10; j++) {
                     if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
-                        pData->field_0x210[j] = *(ControllerDataUnk0x210 *)pBinding;
+                        pData->field_0x210[j] = *(ControllerDataUnk0x210 *)&g_axisBindings[axis];
                 }
-                pBinding++;
-                axis++;
-            } while (pBinding < &g_axisBindings[8]);
+            }
             g_unk0x0082a7e8 = 0;
         }
         if (pKeys->field_0x8 & 0x20) {

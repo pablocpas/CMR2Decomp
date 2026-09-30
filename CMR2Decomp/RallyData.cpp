@@ -1338,7 +1338,7 @@ void FUN_004eadb0(void)
     for (i = 0; i < 4; i++) {
         BYTE *pPlayer = g_saveProfiles + 0x14 + i * 0x650;
         *(int *)(pPlayer + 0x44) = 4;
-        g_saveDirty[ + i] = 0;
+        g_saveDirty[i] = 0;
         *(unsigned int *)pPlayer = (*(unsigned int *)pPlayer & 0xffe1f17e) | 0x1017e;
         g_unk0x00531654[i] = 0;
         *(unsigned int *)(pPlayer + 0x40) |= 0x20;
@@ -1369,7 +1369,7 @@ void FUN_004eae90(unsigned int slot, char *pName)
     if (category == 0xf)
         return;
     strcpy((char *)(g_unk0x0052fa18 + category * 0x650), pName);
-    g_saveDirty[ + category] = 1;
+    g_saveDirty[category] = 1;
     *(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) =
         (rand() & 0xf) << 0xc |
         (*(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) & 0xffff0fffU);
@@ -1465,7 +1465,7 @@ char FUN_004eb370(int param_1)
     result = 1;
     category = (*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf;
     if ((*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0x200000) == 0 &&
-        g_saveDirty[ + category] != 0) {
+        g_saveDirty[category] != 0) {
         result = FUN_004eb340(0, g_saveProfiles + category * 0x650);
         if (result != 0)
             g_saveDirty[((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
