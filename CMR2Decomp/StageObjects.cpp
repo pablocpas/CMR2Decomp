@@ -9833,7 +9833,7 @@ void FUN_00471af0(void)
 BYTE *FUN_0041b390(void);
 BYTE FUN_0041b370(void);
 int FUN_0041b380(void);
-int FUN_004232a0(int index, int mode);
+int FUN_004232a0(BYTE index, int mode);
 int RallyData_FUN_00408800(BYTE index);
 void FUN_00421720(unsigned char, int, int, unsigned char, int);
 

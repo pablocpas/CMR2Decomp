@@ -4149,13 +4149,12 @@ int FUN_00448550(void)
 }
 
 BYTE *RallyData_FUN_00421440(int index);
-void FUN_00422f90(unsigned int index, int value);
+void FUN_00422f90(BYTE index, int value);
 int FUN_00423f30(void);
 int FUN_0041f3a0(void);
 
 // Sets the player's view distance from the route node's limits (forward or
 // backward direction).
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459250
 void FUN_00459250(BYTE player, unsigned int node, int dir)
 {
@@ -4163,13 +4162,11 @@ void FUN_00459250(BYTE player, unsigned int node, int dir)
     int nearDist;
     int farDist;
     int distance;
-    int *pFar = (int *)((BYTE *)g_pGraphics + 0x3c8);
-    int *pNear = (int *)((BYTE *)g_pGraphics + 0x3c4);
 
     if (player < (BYTE)RallyDataState()) {
         if (dir < 0) {
             node++;
-            if ((unsigned int)RallyData_FUN_00421420() <= node)
+            if (node >= (unsigned int)RallyData_FUN_00421420())
                 node = RallyData_FUN_00421420() - 1;
         }
         if ((BYTE)RallyDataState() > 1 && FUN_0041f3a0() == 0)
@@ -4177,23 +4174,25 @@ void FUN_00459250(BYTE player, unsigned int node, int dir)
         pNode = RallyData_FUN_00421440(node);
         if (dir < 0) {
             nearDist = *(int *)(pNode + 0x1c);
-            farDist = *(int *)(pNode + 0x20);
         } else {
             nearDist = *(int *)(pNode + 0x24);
-            farDist = *(int *)(pNode + 0x28);
         }
+        if (dir < 0)
+            farDist = *(int *)(pNode + 0x20);
+        else
+            farDist = *(int *)(pNode + 0x28);
         if (farDist > 0) {
-            *pFar = farDist;
+            *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;
             distance = FUN_00423f30();
-            if (*pFar < distance)
-                distance = *pFar;
+            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
+                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
         }
         if (nearDist > 0) {
-            *pNear = nearDist;
+            *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;
             distance = FUN_00423f30();
-            if (*pFar < distance)
-                distance = *pFar;
+            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
+                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
         }
     }
@@ -5781,27 +5780,25 @@ void FUN_00460a30(FixVector *pOut);
 
 // Integrates the terrain slope under a car into its body pitch, wrapping at a
 // full turn.
-// match 44%: registers and frame layout differ (the original keeps the base pointer in edi)
 // FUNCTION: CMR2 0x0045f5d0
 void FUN_0045f5d0(int pData, int param_2)
 {
     FixVector vec;
-    int cosA;
-    int negSinA;
-    int zero;
+    FixVector direction;
+    unsigned short orientation;
     int *p = (int *)pData;
     int value;
     int angle;
 
     p[8] = p[5];
-    FUN_00421fe0((short *)&pData, param_2);
-    zero = 0;
-    cosA = g_sinTable[(pData + 0x400) & 0xfff];
-    negSinA = -g_sinTable[pData & 0xfff];
+    FUN_00421fe0((short *)&orientation, param_2);
+    direction.y = 0;
+    direction.x = -g_sinTable[orientation & 0xfff];
+    direction.z = g_sinTable[(orientation + 0x400) & 0xfff];
     FUN_00460a30(&vec);
-    value = FixMul(vec.x, negSinA) + FixMul(vec.y, zero) + FixMul(vec.z, cosA);
-    angle = p[5] + FixMul(0xf5c, value);
-    p[5] = angle;
+    value = FixVecDot(&direction, &vec);
+    p[5] += FixMul(0xf5c, value);
+    angle = p[5];
     if (angle > 0x1680000) {
         p[5] = angle - 0x1680000;
         p[8] += -0x1680000;

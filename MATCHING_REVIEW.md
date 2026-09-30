@@ -1033,3 +1033,73 @@ Informes, hashes y compilaciones completas en **tools/matching-below700-06/**.
 ```sh
 python3 tests/differential_network_font.py ../tools/matching-below700-06/current.json ../tools/matching-below700-06/current-entities.json ../tools/matching-below700-06/current-build/CMR2.exe
 ```
+
+## Séptimo lote bajo 700: integración, cámara y orientación
+
+Base **423365c**, merge de los cinco commits hasta **5c90390** del otro
+worktree, sin incluir sus cambios sin confirmar. Se conserva nuestra copia
+exacta de tiempos **408d80** al resolver el conflicto; su vista SaveSlot
+queda junto a los globals de guardado. No se suma una función ya exacta.
+
+Auditoría completa: **2479/3362 exactas por bytes**, **883 pendientes**,
+**5 ganancias y ninguna pérdida**. Faltan **184** para llegar a 699.
+reccmp: **2394/3364** estrictas (+4, sin pérdidas), **703** bajo 90%.
+Las cinco resoluciones fallidas heredadas siguen contándose pendientes.
+
+| Función | reccmp antes | Después | Procedencia y cambio |
+|---|---:|---:|---|
+| `0x421720` | 63.60% | 100% | Otro agente: accesos indexados a cada record de cámara. |
+| `0x4eb3e0` | 58.82% | 97.22% | Otro agente: perfiles indexados directamente, sin puntero local. Bytes exactos. |
+| `0x40d010` | 82.05% | 100% | Otro agente: índices de tiempos y penalizaciones. |
+| `0x459250` | 55.07% | 100% | Recargar el objeto gráfico después de proveedores, ramas independientes y argumento BYTE. |
+| `0x45f5d0` | 44.74% | 100% | Orientación WORD, dirección completa, FixVecDot y actualización del pitch en el record. |
+
+La cámara **459250** reproduce los **200 bytes / 67 instrucciones** completos.
+El original vuelve a leer g_pGraphics antes de los stores y después de
+FUN_00423f30; los punteros pNear/pFar capturados antes de la primera llamada
+escribían y limitaban en un objeto anterior si un proveedor cambiaba el global.
+Se conserva el clamp de distancia **far** incluso tras publicar **near**,
+tal como hace el original. La firma BYTE del setter 422f90 y su declaración
+son coherentes; sigue siendo exacto y conserva ret8.
+
+La orientación **45f5d0** reproduce **242 bytes / 84 instrucciones**, incluidas
+ambas ramas de envoltura. La salida de 421fe0 ocupa un WORD: una variable
+unsigned short permite que MSVC reutilice el argumento sin ampliar el signo
+antes de las máscaras de 12 bits. Se inicializa direction.y, luego x y z;
+FixVecDot recibe la dirección primero y vec segundo. Publicar p[5] con += y
+leer después el ángulo recupera el acceso al record. No se usa el local int
+parcialmente escrito que había dado 100% preliminar: leer sus bytes altos
+sin inicialización no era una solución válida.
+
+### Corrección parcial de entrada de nombres
+
+El commit 99bb7a2 cambia **4f1040** de strlen-2 a **strlen-1**. El original
+cuenta también el terminador y usa base-2: eso equivale a strlen-1. Con un
+nombre de un carácter, la fuente anterior escribía antes del buffer. Esta
+función queda **76.68%**; es una corrección de lógica y no cuenta entre las
+cinco exactas. Las otras parciales de cámara no se presentan como exactas:
+421e20 queda **68.86%**, 423b20 **26.47%**, 47bad0 **96.77%**. Se sincronizan
+las notas bajo90 de las funciones editadas, manteniendo FUNCTION.
+
+### Verificación
+
+- `tests/differential_camera_clip.py`: **6000 casos nativos / 0 diferencias**.
+  Proveedores reemplazan el objeto gráfico durante las llamadas; modelo
+  independiente de memoria y trazas, límites con signo, clamp de nodo sin
+  signo y arena completa de 64 KiB. El PE anterior falla en caso1 en la traza.
+- `tests/differential_name_entry.py`: **6000 casos nativos / 0 diferencias**.
+  Longitudes 0..3, todas las columnas de las tres filas, borrar y confirmar,
+  cursor y arena de 64 KiB. El PE anterior falla en caso1, nombre de un
+  carácter, escribiendo el byte anterior al buffer (offset16383).
+- Build MSVC6 correcto; datacmp **3203 variables / 0 incidencias**;
+  check_dupes **3362 funciones / 0 STUB / 3197 globals**; los **27 overlaps
+  heredados** son idénticos. Git diff --check limpio. No nuevas cabeceras.
+
+Los proveedores de estos harnesses están simulados; estas pruebas no validan
+una partida completa. Informes, hashes, gains.tsv y compilaciones completas
+antes/después congelados en **tools/matching-below700-07/**. El hito sigue abierto.
+
+```sh
+python3 tests/differential_camera_clip.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
+python3 tests/differential_name_entry.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
+```

@@ -3297,7 +3297,7 @@ char g_nameRow0x0052538c[12] = "uvwxyz. <_";
 // Item picker of the name entry screens: appends the character of the picked
 // column to the name; the '<' entry deletes the last character and '_'
 // accepts the name.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f1040
 void FUN_004f1040(Menu *pMenu, int param)
 {
@@ -3308,7 +3308,7 @@ void FUN_004f1040(Menu *pMenu, int param)
     len = strlen(CFrontend::m_stringDest);
     if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '<') {
         if (CFrontend::m_stringDest[0] != 0) {
-            *(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 2) = 0;
+            CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
             Menu_PlaySoundId(2);
         }
     } else if (pMenu->items[pMenu->cursor].value == 2 && g_nameRow0x0052538c[pMenu->items[2].max] == '_') {

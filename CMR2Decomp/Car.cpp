@@ -62,9 +62,9 @@ void Car_GetViewPositionDelta(FixVector *pOut, unsigned int view)
 }
 
 // FUNCTION: CMR2 0x00422f90
-void FUN_00422f90(unsigned int index, int value)
+void FUN_00422f90(BYTE index, int value)
 {
-    g_unk0x00538e04[index & 0xff] = value;
+    g_unk0x00538e04[index] = value;
 }
 
 // FUNCTION: CMR2 0x00422f50
@@ -5537,7 +5537,7 @@ int FUN_0048ca90(void);
 
 // Whether view mode `mode` is available for car `index`.
 // FUNCTION: CMR2 0x004232a0
-int FUN_004232a0(int index, int mode)
+int FUN_004232a0(BYTE index, int mode)
 {
     int result;
 
@@ -7200,8 +7200,9 @@ void FixMatrix_RebuildBasis(FixMatrix *pOut);
 // non-zero view records, rotates the basis by the tilt angle before blending.
 // match 26%: reviewed (W172) - calls and constants match; the diff is register
 // allocation and stack frame size (original 0xf0 vs ours 0xdc).
+// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423b20
-void FUN_00423b20(unsigned int param_1)
+void FUN_00423b20(BYTE param_1)
 {
     BYTE index = param_1 & 0xff;
     FixMatrix *pView = (FixMatrix *)((BYTE *)g_unk0x00538ca0 + index * 0x40);
@@ -7971,8 +7972,8 @@ void FUN_00475f80(void);
 void FUN_00486700(void);
 void FUN_00459250(BYTE player, unsigned int node, int dir);
 int RallyData_FUN_00411060(void);
-void FUN_00423b20(unsigned int param_1);
-int FUN_004232a0(int index, int mode);
+void FUN_00423b20(BYTE param_1);
+int FUN_004232a0(BYTE index, int mode);
 FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car);
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
 
@@ -8208,8 +8209,6 @@ void FUN_00421720(BYTE view, int type, int param, BYTE target, int blend)
     int ok;
     BYTE active;
     BYTE next;
-    BYTE *pNext;
-    BYTE *pActive;
 
     if (FUN_00422f50(view) != 8 && FUN_004232a0(view, type) != 0)
         ok = 1;
@@ -8226,25 +8225,23 @@ void FUN_00421720(BYTE view, int type, int param, BYTE target, int blend)
         blend = 1;
     if (type == 7 && param == 0xffff)
         param = FUN_0048d8b0((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
-    pNext = VIEW_RECORD(next);
-    *(int *)(pNext + 4) = type;
-    if (pNext[2] != target) {
-        FUN_004ae410(pNext[2], pNext[1], 1, 1);
-        FUN_004ae410(target, pNext[1], 1, 1);
+    *(int *)(VIEW_RECORD(next) + 4) = type;
+    if (VIEW_RECORD(next)[2] != target) {
+        FUN_004ae410(VIEW_RECORD(next)[2], VIEW_RECORD(next)[1], 1, 1);
+        FUN_004ae410(target, VIEW_RECORD(next)[1], 1, 1);
     }
-    pNext[2] = target;
-    pActive = VIEW_RECORD(active);
-    FUN_00423810(pActive, pNext);
-    FUN_00423860(pNext, pActive);
-    FUN_00423300(pNext, type, param);
-    *(int *)(pNext + 0x60) = 0;
+    VIEW_RECORD(next)[2] = target;
+    FUN_00423810(VIEW_RECORD(active), VIEW_RECORD(next));
+    FUN_00423860(VIEW_RECORD(next), VIEW_RECORD(active));
+    FUN_00423300(VIEW_RECORD(next), type, param);
+    *(int *)(VIEW_RECORD(next) + 0x60) = 0;
     if (blend) {
         g_unk0x00538d20[view] = 0xc8000;
         return;
     }
-    FUN_004238e0((Unk004238e0 *)pActive, (int)pNext);
-    FUN_00423900(pNext, pActive);
-    FUN_004239e0((int *)pActive);
+    FUN_004238e0((Unk004238e0 *)VIEW_RECORD(active), (int)VIEW_RECORD(next));
+    FUN_00423900(VIEW_RECORD(next), VIEW_RECORD(active));
+    FUN_004239e0((int *)VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
     g_unk0x00538e0c[view] = 1 - g_unk0x00538e0c[view];
 }
@@ -8362,6 +8359,7 @@ void FUN_00421d80(int view)
 
 // Snaps a view's cameras to the car's camera placement and refreshes the view
 // state (blending when a transition is running).
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421e20
 void FUN_00421e20(BYTE view)
 {
@@ -8369,25 +8367,21 @@ void FUN_00421e20(BYTE view)
     BYTE index;
     BYTE active;
     BYTE next;
-    BYTE *pActive;
-    BYTE *pNext;
 
     index = view;
     active = g_unk0x00538e0c[index] + view * 2;
     next = view * 2 - g_unk0x00538e0c[index] + 1;
     FUN_00423b20(view);
     FUN_00423a00(&placement, view);
-    pActive = VIEW_RECORD(active);
-    FUN_00423780(pActive, &placement);
+    FUN_00423780(VIEW_RECORD(active), &placement);
     if (FUN_00422f50(view) == 8) {
-        pNext = VIEW_RECORD(next);
-        FUN_00423780(pNext, &placement);
-        FUN_00423de0(VIEW_STATE(index), pActive, pNext,
+            FUN_00423780(VIEW_RECORD(next), &placement);
+        FUN_00423de0(VIEW_STATE(index), VIEW_RECORD(active), VIEW_RECORD(next),
                      0x10000 - FixMul(VIEW_EASE(g_unk0x00538d20[index]), VIEW_EASE(g_unk0x00538d20[index])));
         FUN_004219b0(view);
         return;
     }
-    FUN_00423ee0(VIEW_STATE(index), pActive);
+    FUN_00423ee0(VIEW_STATE(index), VIEW_RECORD(active));
     FUN_004219b0(view);
 }
 
