@@ -11,20 +11,30 @@ void FUN_00417e70(char *text, int *pColour, int car, int param4, int x, int y);
 #include "main.h"
 #include "Frontend.h"
 
-// Championship save data, one contiguous block as in the original:
+// Championship save data, contiguous in memory:
 //   0x52f3e0  8 driver records of 0xc4 bytes
 //   0x52fa00  per-category "name edited" flags
-//   0x52fa10  4 category records of 0x650 bytes (counters at +0x10, name at +0x14)
+//   0x52fa08  4 category records of 0x650 bytes
 //   0x531350  16 index records of 0x30 bytes (category in bits 18..21 of +0)
+// These were five separate globals in the original, not one blob: MSVC6 only
+// reorders stores it can prove disjoint, i.e. to different symbols.
 // GLOBAL: CMR2 0x0052f3e0
-BYTE g_saveData[0x2270];
-#define g_unk0x0052f3e0 (g_saveData)
-#define g_unk0x0052f3e8 (g_saveData + 0x8)
-#define g_unk0x0052f3ec (g_saveData + 0xc)
-#define g_unk0x0052fa18 (g_saveData + 0x638)
-#define g_unk0x0052fa24 (g_saveData + 0x644)
-#define g_unk0x0052fa5c (g_saveData + 0x67c)
-#define g_unk0x00531350 (g_saveData + 0x1f70)
+BYTE g_saveCarRecords[8 * 0xc4];
+// GLOBAL: CMR2 0x0052fa00
+BYTE g_saveDirty[8];
+// GLOBAL: CMR2 0x0052fa08
+BYTE g_saveProfiles[4 * 0x650];
+// GLOBAL: CMR2 0x00531348
+BYTE g_unk0x00531348[8];
+// GLOBAL: CMR2 0x00531350
+BYTE g_saveSlots[16 * 0x30];
+#define g_unk0x0052f3e0 (g_saveCarRecords)
+#define g_unk0x0052f3e8 (g_saveCarRecords + 0x8)
+#define g_unk0x0052f3ec (g_saveCarRecords + 0xc)
+#define g_unk0x0052fa18 (g_saveProfiles + 0x10)
+#define g_unk0x0052fa24 (g_saveProfiles + 0x1c)
+#define g_unk0x0052fa5c (g_saveProfiles + 0x54)
+#define g_unk0x00531350 (g_saveSlots)
 #include "AIHelper.h"
 #include "RegKey.h"
 #include "Font.h"
@@ -744,7 +754,7 @@ void FUN_00409150(int index, int item, int level)
 
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
-    pFlags = (unsigned int *)(g_saveData + 0xc54 + category * 0x650);
+    pFlags = (unsigned int *)(g_saveProfiles + 0x62c + category * 0x650);
     limit = 3 - level;
     switch (CGameInfo::FUN_00405d90()) {
     case 0:
@@ -942,7 +952,7 @@ char FUN_004097b0(int param_1)
     record = *(unsigned int *)(g_unk0x00531350 + param_1 * 0x30);
     if ((record & 0x3c0000) == 0x3c0000)
         return 0;
-    pSetup = (unsigned int *)(g_saveData + 0xc54 + ((record >> 0x12) & 0xf) * 0x650);
+    pSetup = (unsigned int *)(g_saveProfiles + 0x62c + ((record >> 0x12) & 0xf) * 0x650);
     value = *pSetup;
     if ((value & 0x3) == 2 &&
         (value & 0xc) == 8 &&
@@ -1313,13 +1323,13 @@ void FUN_004eadb0(void)
 {
     int i;
 
-    memset(g_saveData + 0x628, 0, 0x650 * 4);
+    memset(g_saveProfiles, 0, 0x650 * 4);
     memset(g_unk0x00531350, 0, 0xc0 * 4);
     g_unk0x00531650 = 0;
     for (i = 0; i < 4; i++) {
-        BYTE *pPlayer = g_saveData + 0x63c + i * 0x650;
+        BYTE *pPlayer = g_saveProfiles + 0x14 + i * 0x650;
         *(int *)(pPlayer + 0x44) = 4;
-        g_saveData[0x620 + i] = 0;
+        g_saveDirty[ + i] = 0;
         *(unsigned int *)pPlayer = (*(unsigned int *)pPlayer & 0xffe1f17e) | 0x1017e;
         g_unk0x00531654[i] = 0;
         *(unsigned int *)(pPlayer + 0x40) |= 0x20;
@@ -1350,7 +1360,7 @@ void FUN_004eae90(unsigned int slot, char *pName)
     if (category == 0xf)
         return;
     strcpy((char *)(g_unk0x0052fa18 + category * 0x650), pName);
-    g_saveData[0x620 + category] = 1;
+    g_saveDirty[ + category] = 1;
     *(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) =
         (rand() & 0xf) << 0xc |
         (*(unsigned int *)(g_unk0x0052fa18 + category * 0x650 + 4) & 0xffff0fffU);
@@ -1446,11 +1456,11 @@ char FUN_004eb370(int param_1)
     RallyData_ValidateIndex(param_1);
     result = 1;
     category = (*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf;
-    if ((*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0x200000) == 0 &&
-        g_saveData[0x620 + category] != 0) {
-        result = FUN_004eb340(0, g_saveData + 0x628 + category * 0x650);
+    if ((*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0x200000) == 0 &&
+        g_saveDirty[ + category] != 0) {
+        result = FUN_004eb340(0, g_saveProfiles + category * 0x650);
         if (result != 0)
-            g_saveData[0x620 + ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
+            g_saveDirty[ + ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf)] = 0;
     }
     return result;
 }
@@ -1463,7 +1473,7 @@ unsigned int FUN_004eba60(int param_1, int param_2)
     unsigned int *pSetup;
 
     RallyData_ValidateIndex(param_1);
-    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+    pSetup = (unsigned int *)(g_saveProfiles + 0x62c +
         ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
     switch (param_2) {
     case 0: return *pSetup & 3;
@@ -1481,7 +1491,7 @@ unsigned int FUN_004ebad0(int param_1, int param_2, int param_3)
     unsigned int *pSetup;
 
     RallyData_ValidateIndex(param_1);
-    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+    pSetup = (unsigned int *)(g_saveProfiles + 0x62c +
         ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
     switch (param_3) {
     case 0:
@@ -1532,7 +1542,7 @@ unsigned int FUN_004ebcd0(int param_1, int param_2, int param_3)
     unsigned int *pSetup;
 
     RallyData_ValidateIndex(param_1);
-    pSetup = (unsigned int *)(g_saveData + 0xc54 +
+    pSetup = (unsigned int *)(g_saveProfiles + 0x62c +
         ((*(unsigned int *)(g_unk0x00531350 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650);
     switch (param_3) {
     case 0:
@@ -1584,16 +1594,16 @@ void FUN_004eb000(BYTE index, char set)
     if (category != 0xf) {
         bit = set & 1;
         record = (record & 0xfbffffff) | bit << 0x1a;
-        *(unsigned int *)(g_saveData + 0x63c + category * 0x650) =
-            (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffdfffff) | bit << 0x15;
+        *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) =
+            (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0xffdfffff) | bit << 0x15;
         record |= 0x2000;
         *(unsigned int *)(g_unk0x00531350 + i * 0x30) = record;
         if (set != 0) {
             *(unsigned int *)(g_unk0x00531350 + i * 0x30) = record & 0xffffe000;
             *(unsigned int *)(g_unk0x00531350 + i * 0x30 + 4) = 0;
             FUN_004ec210(i);
-            *(int *)(g_saveData + 0x680 + i * 0x650) = FUN_004eaca0();
-            *(int *)(g_saveData + 0x680 + category * 0x650) = FUN_004eaca0();
+            *(int *)(g_saveProfiles + 0x58 + i * 0x650) = FUN_004eaca0();
+            *(int *)(g_saveProfiles + 0x58 + category * 0x650) = FUN_004eaca0();
         }
     }
 }
@@ -1625,7 +1635,7 @@ int FUN_004ec020(void)
     count = 0;
     RALLYDATA_USED_PROFILES(used)
     i = 0;
-    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+    for (pProfile = g_saveProfiles + 0x14; pProfile < g_saveProfiles + 0x1954; pProfile += 0x650, i++) {
         if (!used[i] && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0)
             count++;
     }
@@ -1646,7 +1656,7 @@ int FUN_004ec090(int n)
     count = 0;
     RALLYDATA_USED_PROFILES(used)
     i = 0;
-    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+    for (pProfile = g_saveProfiles + 0x14; pProfile < g_saveProfiles + 0x1954; pProfile += 0x650, i++) {
         if (used[i] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0) {
             if (count == n)
                 return i;
@@ -1670,10 +1680,10 @@ BYTE *FUN_004ec110(int n)
     count = 0;
     RALLYDATA_USED_PROFILES(used)
     i = 0;
-    for (pProfile = g_saveData + 0x63c; pProfile < g_saveData + 0x1f7c; pProfile += 0x650, i++) {
+    for (pProfile = g_saveProfiles + 0x14; pProfile < g_saveProfiles + 0x1954; pProfile += 0x650, i++) {
         if (used[i] == 0 && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0) {
             if (count == n)
-                return g_saveData + 0x638 + i * 0x650;
+                return g_saveProfiles + 0x10 + i * 0x650;
             count++;
         }
     }

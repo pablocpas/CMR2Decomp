@@ -5828,7 +5828,10 @@ void FUN_004e5630(Menu *pMenu)
     FrontendDraw_HelpText(CFrontend::GetTextString(0x172), 1);
 }
 
-extern BYTE g_saveData[];
+extern BYTE g_saveCarRecords[8 * 0xc4];
+extern BYTE g_saveDirty[8];
+extern BYTE g_saveProfiles[4 * 0x650];
+extern BYTE g_saveSlots[16 * 0x30];
 int FUN_004eaca0(void);
 void FUN_004ec260(int player);
 
@@ -6088,9 +6091,9 @@ void FUN_004eae40(void)
     BYTE *pEntry;
     int i;
 
-    memset(g_saveData, 0, 0x188 * 4);
+    memset(g_saveCarRecords, 0, sizeof(g_saveCarRecords));
     i = 0;
-    pEntry = g_saveData + 0xc;
+    pEntry = g_saveCarRecords + 0xc;
     do {
         *pEntry = (*pEntry & 0xfd) | 1;
         *(int *)(pEntry - 8) = FUN_004eaca0();
@@ -6098,7 +6101,7 @@ void FUN_004eae40(void)
         pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
         i++;
         pEntry += 0xc4;
-    } while ((int)pEntry < (int)g_saveData + 0x62c);
+    } while ((int)pEntry < (int)g_saveProfiles + 0x4);
 }
 
 extern BYTE *g_unk0x00531764;
@@ -6113,15 +6116,15 @@ void FUN_004eb0c0(BYTE index, BYTE flag)
 
     RallyData_ValidateIndex(index);
     if (CGameInfo::FUN_00405d80() == 4) {
-        pEntry = g_saveData + 0xc + index * 0xc4;
+        pEntry = g_saveCarRecords + 0xc + index * 0xc4;
         *pEntry = ((*pEntry ^ flag) & 1) ^ *pEntry | 2;
         return;
     }
-    category = (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12) & 0xf;
+    category = (*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12) & 0xf;
     if (category != 0xf) {
-        *(unsigned int *)(g_saveData + 0x67c + category * 0x650) =
-            (*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0xffffffdf) | (flag & 1) << 5;
-        g_saveData[0x620 + category] = 1;
+        *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) =
+            (*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) & 0xffffffdf) | (flag & 1) << 5;
+        g_saveDirty[ + category] = 1;
     }
 }
 
@@ -6142,7 +6145,7 @@ void FUN_004eb160(void)
 
     count = 0;
     if ((unsigned int)CGameInfo::FUN_00405d70() > 0) {
-        pRecord = g_saveData + 0x1f74;
+        pRecord = g_saveSlots + 0x4;
         i = 0xf;
         do {
             FUN_0040d090(i, (*(unsigned int *)(pRecord - 4) >> 6) & 0x7f);
@@ -6156,8 +6159,8 @@ void FUN_004eb160(void)
     i = 0;
     while (i < n) {
         index = (CGameInfo::FUN_00405d70() & 0xff) + i;
-        FUN_0040d090(i, (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 6) & 0x7f);
-        RallyTiming_SetOverallTimeRaw(i, *(int *)(g_saveData + 0x1f74 + index * 0x30));
+        FUN_0040d090(i, (*(unsigned int *)(g_saveSlots + index * 0x30) >> 6) & 0x7f);
+        RallyTiming_SetOverallTimeRaw(i, *(int *)(g_saveSlots + 0x4 + index * 0x30));
         i++;
     }
     RallyTiming_FUN_0040d0c0();
@@ -6173,8 +6176,8 @@ bool FUN_004eb200(int param_1, BYTE *param_2)
     char *pName;
 
     RallyData_ValidateIndex(param_1);
-    category = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
-    pName = (char *)(g_saveData + 0x628 + category * 0x650);
+    category = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
+    pName = (char *)(g_saveProfiles + category * 0x650);
     CGenericFileLoader::StrLowerPolish((char *)param_2);
     return strcmp((char *)param_2, pName + 0x1c) == 0;
 }
@@ -6191,11 +6194,11 @@ bool FUN_004ebd60(int index)
     unsigned int diff;
 
     pProfile = g_unk0x00531764 + index * 12;
-    for (pRecord = g_saveData + 0x1f70; (int)pRecord < (int)(g_saveData + 0x2270); pRecord += 0x30) {
+    for (pRecord = g_saveSlots; (int)pRecord < (int)(g_saveSlots + 0x300); pRecord += 0x30) {
         category = (*(unsigned int *)pRecord >> 0x12) & 0xf;
         if (category == 0xf)
             continue;
-        pCategory = g_saveData + 0x638 + category * 0x650;
+        pCategory = g_saveProfiles + 0x10 + category * 0x650;
         diff = *(unsigned int *)(pProfile + 4) ^ *(unsigned int *)(pCategory + 4);
         if ((diff & 0x1f0f00) != 0 || (char)diff != 0 || (diff & 0xfc0f000) != 0)
             continue;
@@ -6214,10 +6217,10 @@ void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsig
     unsigned int colour;
 
     RallyData_ValidateIndex(param_1);
-    category = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
+    category = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
     colour = ((((param_2 & 0x1f) << 8) | (param_3 & 0xf)) << 8) |
-             (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffe0f0ff);
-    *(unsigned int *)(g_saveData + 0x63c + category * 0x650) = ((colour ^ param_4) & 0xff) ^ colour;
+             (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0xffe0f0ff);
+    *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) = ((colour ^ param_4) & 0xff) ^ colour;
 }
 
 // Next player: gives the player a profile and goes to the name entry (or
@@ -6522,7 +6525,8 @@ void FUN_004d9880(Menu *pMenu)
 void FUN_004f02e0(void)
 {
     unsigned int *pInfo = CGameInfo::FUN_00405db0();
-    int values[2];
+    int value0;
+    int value1;
     unsigned int count;
     int i;
 
@@ -6547,15 +6551,15 @@ void FUN_004f02e0(void)
             break;
         }
     }
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 8u; i++) {
         if (i < count || (CGameInfo::FUN_00405d80() != 1 && i < 4))
             FUN_004f8340()->items[i].enabled = 1;
         else
             FUN_004f8340()->items[i].enabled = 0;
     }
-    FUN_004ea990(&values[0], &values[1]);
-    FUN_004f8340()->cursor = (char)values[0];
-    FUN_004f8350()->cursor = (char)values[1];
+    FUN_004ea990(&value0, &value1);
+    FUN_004f8340()->cursor = (char)value0;
+    FUN_004f8350()->cursor = (char)value1;
 }
 
 // Entering the player profile menu (back: undoes the previous player's

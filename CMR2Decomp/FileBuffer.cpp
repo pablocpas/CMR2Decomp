@@ -179,7 +179,10 @@ char g_strPpsPathFormat[32] = "%s\\pps\\%s%.2d%.2d%.2d%.2d.pps";
 // GLOBAL: CMR2 0x00818acc
 char g_ppsPath[260];
 
-extern BYTE g_saveData[];
+extern BYTE g_saveCarRecords[8 * 0xc4];
+extern BYTE g_saveDirty[8];
+extern BYTE g_saveProfiles[4 * 0x650];
+extern BYTE g_saveSlots[16 * 0x30];
 
 // Builds the path of a player profile save: <hd>\pps\<name><date>.pps.
 // The packed dword after the 4-byte name holds the date fields.
@@ -220,14 +223,14 @@ bool FUN_004eb3e0(void)
 {
     bool saved = true;
     int i = 0;
-    BYTE *pProfile = g_saveData + 0x638;
+    BYTE *pProfile = g_saveProfiles + 0x10;
 
     do {
         if ((*(unsigned int *)(pProfile + 4) & 0x200000) == 0 && *pProfile != 0 &&
-            g_saveData[0x620 + i] != 0) {
+            g_saveDirty[ + i] != 0) {
             BYTE result = FUN_004eb340(0, pProfile - 0x10);
             if (result != 0)
-                g_saveData[0x620 + i] = 0;
+                g_saveDirty[ + i] = 0;
             if (saved && result != 0)
                 saved = true;
             else
@@ -235,7 +238,7 @@ bool FUN_004eb3e0(void)
         }
         pProfile += 0x650;
         i++;
-    } while ((int)pProfile < (int)(g_saveData + 0x1f78));
+    } while ((int)pProfile < (int)(g_saveProfiles + 0x1950));
     return saved;
 }
 
@@ -254,15 +257,15 @@ void FUN_004eb470(void)
     int i;
 
     i = 0;
-    pProfile = g_saveData + 0x628;
+    pProfile = g_saveProfiles;
     do {
-        if ((*(unsigned int *)(pProfile + 0x14) & 0x200000) == 0 && g_saveData[0x620 + i] != 0) {
+        if ((*(unsigned int *)(pProfile + 0x14) & 0x200000) == 0 && g_saveDirty[ + i] != 0) {
             FUN_004eb340(0, pProfile);
-            g_saveData[0x620 + i] = 0;
+            g_saveDirty[ + i] = 0;
         }
         pProfile += 0x650;
         i++;
-    } while (pProfile < g_saveData + 0x1f68);
+    } while (pProfile < g_saveProfiles + 0x1940);
 }
 
 // FUNCTION: CMR2 0x004eb4b0
@@ -298,15 +301,15 @@ unsigned int FUN_004eb4c0(int param_1, int param_2)
         return 0;
     *(unsigned int *)(pBuffer + 0x54) &= 0xffff807f;
     i = 0;
-    pRecord = g_saveData + 0x63c;
+    pRecord = g_saveProfiles + 0x14;
     do {
         if (strcmp((char *)(pRecord - 4), (char *)(pBuffer + 0x10)) == 0) {
             diff = *(unsigned int *)(pBuffer + 0x14) ^ *(unsigned int *)pRecord;
             if ((diff & 0x1f0f00) == 0 && (char)diff == 0 && (diff & 0xfc0f000) == 0) {
                 if (i != 0xffffffff) {
-                    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) =
+                    *(unsigned int *)(g_saveSlots + param_1 * 0x30) =
                         (i & 0xf) << 0x12 |
-                        *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) & 0xffc3ffff;
+                        *(unsigned int *)(g_saveSlots + param_1 * 0x30) & 0xffc3ffff;
                     goto found;
                 }
                 break;
@@ -314,25 +317,25 @@ unsigned int FUN_004eb4c0(int param_1, int param_2)
         }
         pRecord += 0x650;
         i++;
-    } while ((int)pRecord < (int)(g_saveData + 0x1f7c));
-    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) |= 0x3c0000;
+    } while ((int)pRecord < (int)(g_saveProfiles + 0x1954));
+    *(unsigned int *)(g_saveSlots + param_1 * 0x30) |= 0x3c0000;
     FUN_004eb860(param_1, -1);
     FUN_004ebf20(param_1);
 found:
-    cat = (*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf;
-    memcpy(g_saveData + 0x628 + cat * 0x650, pBuffer, 0x650);
-    g_saveData[0x640 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
-    g_saveData[0x641 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
-    g_saveData[0x642 + ((*(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
-    flags = *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30);
+    cat = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
+    memcpy(g_saveProfiles + cat * 0x650, pBuffer, 0x650);
+    g_saveProfiles[0x18 + ((*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    g_saveProfiles[0x19 + ((*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    g_saveProfiles[0x1a + ((*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf) * 0x650] = 0;
+    flags = *(unsigned int *)(g_saveSlots + param_1 * 0x30);
     category = (flags >> 0x12) & 0xf;
-    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) =
-        ((*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0x40) << 0x13) |
+    *(unsigned int *)(g_saveSlots + param_1 * 0x30) =
+        ((*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) & 0x40) << 0x13) |
         (((flags & 0xffffffc0) |
-          (*(unsigned int *)(g_saveData + 0x67c + category * 0x650) & 0x1f)) & 0xfdffe03f) |
+          (*(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) & 0x1f)) & 0xfdffe03f) |
         0x2000;
-    *(unsigned int *)(g_saveData + 0x1f74 + param_1 * 0x30) = 0;
-    *(unsigned int *)(g_saveData + 0x1f70 + param_1 * 0x30) &= 0xfe3fffff;
+    *(unsigned int *)(g_saveSlots + 0x4 + param_1 * 0x30) = 0;
+    *(unsigned int *)(g_saveSlots + param_1 * 0x30) &= 0xfe3fffff;
     CFileBuffer::FreeGenericFileBuffer(pBuffer);
     return 1;
 }
@@ -341,8 +344,8 @@ found:
 // FUNCTION: CMR2 0x004ebe80
 void FUN_004ebe80(int index)
 {
-    unsigned int value = *(unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
-    unsigned int *pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
+    unsigned int value = *(unsigned int *)(g_saveSlots + index * 0x30);
+    unsigned int *pRecord = (unsigned int *)(g_saveSlots + index * 0x30);
     if ((value & 0x3c0000) != 0x3c0000)
         *pRecord = value & 0xffffdfff | 0x3c0000;
 }
@@ -387,22 +390,22 @@ void FUN_004eb860(int index, int profile)
     char allSame;
 
     RallyData_ValidateIndex(index);
-    pRecord = (unsigned int *)(g_saveData + 0x1f70 + index * 0x30);
+    pRecord = (unsigned int *)(g_saveSlots + index * 0x30);
     if ((*pRecord & 0x3c0000) != 0x3c0000)
         return;
     if (profile != -1) {
-        flags = *(unsigned int *)(g_saveData + 0x67c + profile * 0x650);
+        flags = *(unsigned int *)(g_saveProfiles + 0x54 + profile * 0x650);
         *pRecord = ((flags & 0x40) << 1 | profile & 0xf) << 0x12 | *pRecord & 0xfdc3ffc0 | flags & 0x1f;
         return;
     }
     c = 0;
-    for (p = g_saveData + 0x63c; p < g_saveData + 0x1f7c; p += 0x650, c++) {
+    for (p = g_saveProfiles + 0x14; p < g_saveProfiles + 0x1954; p += 0x650, c++) {
         if (p[-4] == 0 || (*(unsigned int *)p & 0x200000))
             break;
     }
-    if (p < g_saveData + 0x1f7c && c != -1) {
+    if (p < g_saveProfiles + 0x1954 && c != -1) {
         for (i = 0; i < index; i++) {
-            if ((*(unsigned int *)(g_saveData + 0x1f70 + i * 0x30) >> 0x12 & 0xf) == (unsigned int)c)
+            if ((*(unsigned int *)(g_saveSlots + i * 0x30) >> 0x12 & 0xf) == (unsigned int)c)
                 c = -1;
         }
         if (c != -1) {
@@ -413,21 +416,21 @@ void FUN_004eb860(int index, int profile)
     count = 0;
     for (c = 0; c < 4; c++) {
         free[count] = -1;
-        for (pRec = g_saveData + 0x1f70; pRec < g_saveData + 0x2270; pRec += 0x30) {
+        for (pRec = g_saveSlots; pRec < g_saveSlots + 0x300; pRec += 0x30) {
             if ((*(unsigned int *)pRec >> 0x12 & 0xf) == (unsigned int)c)
                 break;
         }
-        if (pRec >= g_saveData + 0x2270) {
+        if (pRec >= g_saveSlots + 0x300) {
             free[count] = c;
             count++;
         }
     }
     minAge = 0xff;
     allSame = 1;
-    firstAge = *(unsigned int *)(g_saveData + 0x67c + free[0] * 0x650) >> 7 & 0xff;
+    firstAge = *(unsigned int *)(g_saveProfiles + 0x54 + free[0] * 0x650) >> 7 & 0xff;
     chosen = index;
     for (i = 0; i < count; i++) {
-        age = *(unsigned int *)(g_saveData + 0x67c + free[i] * 0x650) >> 7 & 0xff;
+        age = *(unsigned int *)(g_saveProfiles + 0x54 + free[i] * 0x650) >> 7 & 0xff;
         if (firstAge != age)
             allSame = 0;
         if (age <= minAge) {
@@ -457,16 +460,16 @@ void FUN_004ebf20(int index)
     unsigned int category;
 
     RallyData_ValidateIndex(index);
-    category = *(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12 & 0xf;
-    memset(g_saveData + 0x628 + category * 0x650, 0, 0x650);
-    *(int *)(g_saveData + 0x680 + category * 0x650) = 4;
-    *(unsigned int *)(g_saveData + 0x63c + category * 0x650) =
-        (*(unsigned int *)(g_saveData + 0x63c + category * 0x650) & 0xffe1f17e) | 0x1017e;
-    *(unsigned int *)(g_saveData + 0x67c + category * 0x650) |= 0x20;
-    *(int *)(g_saveData + 0x674 + category * 0x650) = 0xf11;
-    g_saveData[0xbb0 + category * 0x650] = (g_saveData[0xbb0 + category * 0x650] & 0xfc) | 0x3c;
+    category = *(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf;
+    memset(g_saveProfiles + category * 0x650, 0, 0x650);
+    *(int *)(g_saveProfiles + 0x58 + category * 0x650) = 4;
+    *(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) =
+        (*(unsigned int *)(g_saveProfiles + 0x14 + category * 0x650) & 0xffe1f17e) | 0x1017e;
+    *(unsigned int *)(g_saveProfiles + 0x54 + category * 0x650) |= 0x20;
+    *(int *)(g_saveProfiles + 0x4c + category * 0x650) = 0xf11;
+    g_saveProfiles[0x588 + category * 0x650] = (g_saveProfiles[0x588 + category * 0x650] & 0xfc) | 0x3c;
     FUN_004ec260(index);
-    g_saveData[0x620 + (*(unsigned int *)(g_saveData + 0x1f70 + index * 0x30) >> 0x12 & 0xf)] = 0;
+    g_saveDirty[ + (*(unsigned int *)(g_saveSlots + index * 0x30) >> 0x12 & 0xf)] = 0;
 }
 
 // 12-byte block read from the file buffer (at offset 0x10).

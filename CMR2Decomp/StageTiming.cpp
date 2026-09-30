@@ -267,9 +267,10 @@ void FUN_004556f0(void)
             g_stageSplitUnk0x00541f78[0][1] = (char)StageTiming_GetDriverSlot(1);
             return;
         }
+        i = 0;
         memset(used, 0, sizeof(used));
         pSlot = slots;
-        for (i = 0; i < 16; i++) {
+        for (; i < 16; i++) {
             id = RallyTiming_GetOverallPositionDriverID(i);
             if (id >= g_unk0x00541f98) {
                 slot = 15 - id;
@@ -280,8 +281,9 @@ void FUN_004556f0(void)
         }
         remaining = g_unk0x00541f98;
         left = players;
+        pos = 15;
         pSlot = &slots[players - 1];
-        for (pos = 15; pos >= 0; pos--) {
+        for (; pos >= 0; pos--) {
             if (left <= 0)
                 break;
             id = RallyTiming_GetOverallPositionDriverID(pos);
@@ -310,11 +312,11 @@ void FUN_004556f0(void)
         }
         // The original tests the last slot touched above, not the one being
         // filled.
-        for (i = players, pOut = &g_stageSplitUnk0x00541f78[0][1]; i > 0; i--, pOut += 2) {
+        for (i = 0; i < players; i++) {
             if (g_stageSplitUnk0x00541f78[slot][1] == 16) {
                 for (k = 15; k >= 0; k--) {
                     if (used[k] == 0) {
-                        *pOut = (char)k;
+                        g_stageSplitUnk0x00541f78[i][1] = (char)k;
                         used[k] = 1;
                     }
                 }
@@ -355,8 +357,11 @@ void FUN_004556f0(void)
             count = 1;
             break;
         }
-        pOut = &g_stageSplitUnk0x00541f78[0][1];
-        for (i = 0; i < count; i++) {
+        i = 0;
+        if (count > 0) {
+            pOut = &g_stageSplitUnk0x00541f78[0][1];
+        }
+        for (; i < count; i++) {
             hasPlayer = 0;
             hasAi = 0;
             switch ((*pState >> 3) & 7) {
