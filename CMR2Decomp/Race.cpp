@@ -1901,12 +1901,13 @@ void FUN_0041a0a0(int car, int param2)
             engSpeed = 11000;
         else
             engSpeed = engSpeed * 11000 / 100;
+        engSpeed += 0x5622;
         if (!Sound_IsPlaying(*(int *)(pRow + 0x3c)))
             FUN_00418d30(car, g_unk0x00537564, 8,
                          FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)), 0);
         FUN_004b79a0(*(int *)(pRow + 0x3c),
                      FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)));
-        Sound_SetPan(*(int *)(pRow + 0x3c), engSpeed + 0x5622);
+        Sound_SetPan(*(int *)(pRow + 0x3c), engSpeed);
     } else {
         if (volume > 0x10000)
             volume = 0x10000;
