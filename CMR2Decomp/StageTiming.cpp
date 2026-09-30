@@ -3819,7 +3819,6 @@ void FUN_0045c610(int a, int b, int count)
 }
 
 // Resets a car's replay recording record.
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00466920
 void FUN_00466920(BYTE *p)
 {
@@ -3830,7 +3829,10 @@ void FUN_00466920(BYTE *p)
     for (i = 0; i < 20; i++)
         p[0x112 + i * 0xd] = 0xff;
     memset(p + 0x24c, 0, 0x22);
-    memset(p + 0x270, 0, 7 * sizeof(int));
+    for (i = 0; i < 4; i++)
+        ((int *)(p + 0x270))[i] = 0;
+    for (i = 0; i < 3; i++)
+        ((int *)(p + 0x280))[i] = 0;
     memcpy(p, p + 0x106, 0x106);
     memcpy(p + 0x20c, p + 0x24c, 0x40);
 }
@@ -3942,17 +3944,13 @@ void FUN_00483050(void)
     }
 }
 
+// Cooldown timestamps for the two local players.
 // GLOBAL: CMR2 0x00588a80
-int g_unk0x00588a80;
-// GLOBAL: CMR2 0x00588a84
-int g_unk0x00588a84;
+int g_deformImpactTicks[2];
 // GLOBAL: CMR2 0x00588a88
-int g_unk0x00588a88;
-// GLOBAL: CMR2 0x00588a8c
-int g_unk0x00588a8c;
+int g_deformPulseTicks[2];
 
 // Resets every car's replay recording record.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004668d0
 void FUN_004668d0(void)
 {
@@ -3960,10 +3958,10 @@ void FUN_004668d0(void)
 
     for (i = g_unk0x00588a90 - 1; i >= 0; i--)
         FUN_00466920(g_unk0x00588b98 + i * 0x290);
-    g_unk0x00588a88 = 0;
-    g_unk0x00588a80 = 0;
-    g_unk0x00588a8c = 0;
-    g_unk0x00588a84 = 0;
+    for (i = 0; i < 2; i++)
+        g_deformPulseTicks[i] = 0;
+    for (i = 0; i < 2; i++)
+        g_deformImpactTicks[i] = 0;
 }
 
 void Events_Init(int unused, int slot, char animate);
@@ -7347,9 +7345,9 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
             if (*(int *)(pc + 0xb74) == 0) {
                 FUN_00418c30(carIdx, len, 0, carIdx);
             } else if ((unsigned int)(CMain::GetFrameDelta() -
-                                      (unsigned int)(&g_unk0x00588a88)[carIdx]) > 10) {
+                                      (unsigned int)g_deformPulseTicks[carIdx]) > 10) {
                 FUN_00418ba0(carIdx, len, carIdx);
-                (&g_unk0x00588a88)[carIdx] = (int)CMain::GetFrameDelta();
+                g_deformPulseTicks[carIdx] = (int)CMain::GetFrameDelta();
             }
         }
         ForceFeedback_UpdateSlot(pc, (FixVector *)(pc + 0x5c4), 1);

@@ -1952,9 +1952,7 @@ int g_unk0x00819018;
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // logic verified against the dump; the difference is MSVC's basic-block
 // order (the original keeps the -1/-2 exits and the first-time setup after
-// the main return) plus the EAX-only return of CGameInfo::FUN_004a12d0,
-// which here goes through a function-pointer cast because GameInfo.h
-// declares it void.
+// the main return).
 // FUNCTION: CMR2 0x004ecaf0
 void FUN_004ecaf0(Menu *pMenu)
 {
@@ -1970,8 +1968,7 @@ void FUN_004ecaf0(Menu *pMenu)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    // the original returns the enumeration status in EAX
-    status = ((int (*)(int))CGameInfo::FUN_004a12d0)((int)&g_unk0x00818ef8);
+    status = CGameInfo::FUN_004a12d0((int)&g_unk0x00818ef8);
     if (g_unk0x00818d04 == 0) {
         ShowCursor(0);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);

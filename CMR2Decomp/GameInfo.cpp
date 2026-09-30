@@ -3919,55 +3919,58 @@ BOOL FAR PASCAL Session_EnumCallback(LPCDPSESSIONDESC2 pDesc, LPDWORD pTimeOut, 
 }
 
 
-// Prepara el descriptor de sesion 0x5a0068 y crea la sesion de DirectPlay.
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Enumerates sessions: 1 on completion, -1 while connecting, -2 on cancellation.
+// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a13b0
-void CGameInfo::FUN_004a13b0(void)
+int CGameInfo::FUN_004a13b0(void)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
     if (m_unk0x005a1814 != 0)
-        return;
+        return 0;
     FUN_004a0c60();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068) = 0x50;
-    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[2];
-    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[1];
-    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
     g_sessionNamePtr = (LPVOID *)&m_unk0x005a00b8;
+    *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
+    *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
+    *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
-        return;
+        return 0;
     hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
                                                 (DWORD)Session_EnumCallback, 0, 0x20);
-    if (hr > (HRESULT)0x887700aa) {
-        if (hr == (HRESULT)0x8877015e)
-            return;
-        if (hr == (HRESULT)0x887700cb)
-            return;
+    if (hr <= DPERR_NOCONNECTION) {
+        if (hr == DPERR_NOCONNECTION || hr <= DPERR_EXCEPTION || hr == DPERR_INVALIDOBJECT)
+            goto done;
+    } else if (hr <= DPERR_CONNECTING) {
+        if (hr == DPERR_CONNECTING)
+            return -1;
+        if (hr == DPERR_USERCANCEL)
+            return -2;
+        if (hr == DPERR_UNINITIALIZED)
+            goto done;
+    } else {
         if (hr != 0)
-            return;
-        m_unk0x005a1814 = 1;
-        return;
+            goto done;
+        return 1;
     }
-    if (hr == (HRESULT)0x887700aa || hr <= (HRESULT)0x8877005a ||
-        hr == (HRESULT)0x88770082)
-        return;
+done:
+    return 0;
 }
 
-// Variante de FUN_004a13b0 que ademas guarda el parametro en 0x5a009c y usa
-// 0x51 como tamano inicial.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Enumerates sessions with a password and the asynchronous enumeration flags.
+// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a12d0
-void CGameInfo::FUN_004a12d0(int param1)
+int CGameInfo::FUN_004a12d0(int param1)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
 
     if (m_unk0x005a1814 != 0)
-        return;
+        return 0;
     FUN_004a0c60();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x34) = param1;
@@ -3979,20 +3982,26 @@ void CGameInfo::FUN_004a12d0(int param1)
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
     pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
-        return;
+        return 0;
     hr = ((DPMethod5GI)(*(void ***)pDP)[0x34 / 4])(pDP, (DWORD)g_unk0x005a0068, 0,
                                                   (DWORD)Session_EnumCallback, 0, 0x51);
-    if (hr > (HRESULT)0x887700aa) {
-        if (hr == (HRESULT)0x8877015e)
-            return;
+    if (hr <= DPERR_NOCONNECTION) {
+        if (hr == DPERR_NOCONNECTION || hr <= DPERR_EXCEPTION || hr == DPERR_INVALIDOBJECT)
+            goto done;
+    } else if (hr <= DPERR_CONNECTING) {
+        if (hr == DPERR_CONNECTING)
+            return -1;
+        if (hr == DPERR_USERCANCEL)
+            return -2;
+        if (hr == DPERR_UNINITIALIZED)
+            goto done;
+    } else {
         if (hr != 0)
-            return;
-        m_unk0x005a1814 = 1;
-        return;
+            goto done;
+        return 1;
     }
-    if (hr == (HRESULT)0x887700aa || hr <= (HRESULT)0x8877005a ||
-        hr == (HRESULT)0x88770082)
-        return;
+done:
+    return 0;
 }
 
 

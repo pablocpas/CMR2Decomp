@@ -63,24 +63,24 @@ extern int g_unk0x00537194;
 
 // Plays the queued co-driver calls one after another: starts the first slot's
 // sample, and when it has finished moves the queue up.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004176b0
 void FUN_004176b0(void)
 {
-    RaceSlotState *p;
-
     if ((g_raceSlotState[0].flags & 2) != 0 && FUN_00417760(0) == 0) {
         FUN_00417760(0);
-        if ((g_raceSlotState[0].flags & 1) == 0) {
+        if ((g_raceSlotState[0].flags & 1) != 0) {
+            if (Sound_IsPlaying(g_raceSlotState[0].pending) == 0) {
+                for (int i = 1; i < 20; i++) {
+                    g_raceSlotState[i - 1] = g_raceSlotState[i];
+                }
+                g_raceSlotState[19].flags &= 0xfc;
+                g_raceSlotState[19].pending = -1;
+                g_raceSlotState[19].owner = -1;
+            }
+        } else {
             g_raceSlotState[0].pending =
                 FUN_004b7790((unsigned short)g_raceSlotState[0].owner, g_unk0x00537194, 0x2b11, 0, 0, 0);
             g_raceSlotState[0].flags |= 1;
-        } else if (Sound_IsPlaying(g_raceSlotState[0].pending) == 0) {
-            for (p = g_raceSlotState; p < g_raceSlotState + 19; p++)
-                *p = p[1];
-            g_raceSlotState[19].flags &= 0xfc;
-            g_raceSlotState[19].pending = -1;
-            g_raceSlotState[19].owner = -1;
         }
     }
 }

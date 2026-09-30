@@ -729,3 +729,68 @@ Funciones exactas nuevas en esta tanda: `0x409150`, `0x40d4b0`, `0x4188c0`,
 `0x4b4910`, `0x4b5ee0`, `0x4bae10`, `0x4cf740`, `0x4cf8e0`, `0x4cfa10`,
 `0x4e3340`, `0x4eb0c0`, `0x4ec2b0`, `0x4f02e0`, `0x505e70`. Las variantes
 descartadas de las que se resisten están en `tools/fastcmp/work/hard.txt`.
+
+## Continuación desde la auditoría del otro agente: primer lote bajo 700
+
+Rama aislada `decomp/matching-low-review`, base **a6ff60a**. El trabajo de
+`matching-review` ya incluía los cambios anteriores; no se vuelven a contar.
+El hito de menos de 700 funciones pendientes **sigue sin alcanzarse**.
+
+| Medida | Base auditada | Este lote |
+|---|---:|---:|
+| Funciones en reccmp | 3364 | 3364 |
+| 100% estricto reccmp | 2357 | **2362** |
+| Pendientes según reccmp | 1007 | **1002** |
+| Exactas por bytes reubicados | 2435 | **2441** |
+| Pendientes de las 3362 anotadas por el comparador | 927 | **921** |
+| Variables / incidencias de datacmp | 3203 / 0 | **3201 / 0** |
+
+**Seis nuevas exactas por bytes, cinco al 100% en reccmp, ninguna pérdida:**
+
+| Función | reccmp base | Cambio |
+|---|---:|---|
+| `0x411e40` | 41.10% | Ajuste porcentual antes de buscar; salida por el contador; outputs tras FixDiv. |
+| `0x4176b0` | 34.09% | Rama de sample activo primero y desplazamiento por índices de los 20 slots. |
+| `0x431d80` | 71.88% | Ayudantes existentes FixVecScaleRecip/FixVecLength y salida por el contador. |
+| `0x4668d0` | 71.70% | Dos arrays de timestamps para los dos jugadores locales. |
+| `0x466920` | 67.69% | Dos grupos reales de 4 y 3 DWORDs; bucles pequeños desenrollados. |
+| `0x48dca0` | 25.00% | Incremento con clamp usando la expresión de asignación. |
+
+`0x4176b0` queda al 98% en reccmp porque el puntero de fin del array se
+nombra como un global vecino distinto. La comparación independiente verifica
+los **170 bytes completos**, incluidos ambos caminos. Se mantienen los cinco
+errores de resolución de símbolos del comparador, excluidos de las exactas.
+
+### Bugs corregidos que todavía no son matches completos
+
+- Los timestamps de `0x588a80` y `0x588a88` se indexaban como arrays, pero
+  estaban declarados como escalares independientes. Ahora cada uno posee sus
+  **8 bytes** reales; ambos llamadores usan el array correspondiente.
+- `0x4a12d0` y `0x4a13b0` eran `void`, aunque el original devuelve **0, 1,
+  -1 o -2**. La firma y el llamador de `0x4ecaf0` ya conservan ese resultado.
+  Se elimina la escritura de busy=1 que no existe en el original y se
+  corrige el GUID de `0x4a13b0`, que tenía dos palabras intercambiadas.
+  Sus porcentajes reccmp pasan de 79.52/67.47 a **67.96/66.67**; siguen
+  pendientes y no se cuentan como nuevas exactas.
+
+### Verificación y artefactos
+
+Build MSVC6 correcto; datacmp **3201 variables / cero incidencias**;
+check_dupes **3362 FUNCTION / cero STUB / 3195 GLOBAL**;
+overlap idéntico a la base y diff --check limpio. Las dos anotaciones GLOBAL
+menos son miembros de los arrays recuperados, no funciones eliminadas.
+
+- Reset de replay: **12000** casos nativos, cero diferencias; record completo,
+  timestamps, guardas, orden inverso y proveedor que cambia el puntero y count.
+- Enumeración de sesiones: **12000**, cero diferencias; resultados HRESULT,
+  GUID, descriptor, llamadas COM, rutas busy/null y guardas.
+- Lógica previa: **42000**, cero diferencias. El harness ahora reubica por
+  separado los cinco globals reales del save, conservando su modelo de memoria.
+- Control negativo: la prueba de enumeración falla con el PE de la base
+  auditada, detectando el retorno indefinido en el primer caso.
+
+Los mocks de proveedores no validan transporte de red ni una partida completa.
+Informes inmutables, entidades, scans, lista de ganancias y logs en
+`tools/matching-below700-01/`. Las pruebas nuevas son reproducibles con
+`tests/differential_replay_reset.py` y `tests/differential_session_enumeration.py`,
+pasando `current.json` y `current-entities.json` de esa carpeta.

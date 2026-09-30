@@ -2569,7 +2569,6 @@ int FUN_004583b0(int index);
 
 // Finds the checkpoint before distance (whole units, plus percent/100) and
 // the 16.16 fraction of the way to the next one.
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00411e40
 void FUN_00411e40(int *pOut, int distance, int percent)
 {
@@ -2577,18 +2576,20 @@ void FUN_00411e40(int *pOut, int distance, int percent)
     int i;
     int next;
     int current;
+    int adjustment = (percent << 16) / 100;
 
     for (i = FUN_004583a0() - 1; i >= 0; i--) {
         if ((FUN_004583b0(i) >> 16) <= distance) {
             found = i;
-            break;
+            i = 0;
         }
     }
     if (found != -1 && found != FUN_004583a0() - 1) {
         next = FUN_004583b0(found + 1);
         current = FUN_004583b0(found);
+        int fraction = FixDiv(distance * 0x10000 - current + adjustment, next - current);
         pOut[0] = found;
-        pOut[1] = FixDiv(distance * 0x10000 - current + (percent << 16) / 100, next - current);
+        pOut[1] = fraction;
         return;
     }
     pOut[0] = FUN_004583a0() - 1;

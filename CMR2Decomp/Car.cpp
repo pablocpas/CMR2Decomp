@@ -5765,9 +5765,7 @@ void FUN_00431c50(unsigned int param_1)
     *(int *)g_pCurrentCar->field_0xa80 = 0;
 }
 
-// match 69%: same logic; MSVC kept the loop counter in the parameter slot and
-// in EDI in the original, and in ESI here (register numbering).
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Checks whether the current car overlaps another car in extended mode.
 // FUNCTION: CMR2 0x00431d80
 int FUN_00431d80(int param_1)
 {
@@ -5776,7 +5774,6 @@ int FUN_00431d80(int param_1)
     short i;
     int result;
     Car *pOther;
-    int inv;
 
     result = 0;
     if (param_1 == 0 && RallyData_FUN_00421500() == 0)
@@ -5799,18 +5796,14 @@ int FUN_00431d80(int param_1)
             else
                 g_unk0x0053ca24 = FIX_ABS(g_unk0x0053ca58.z);
             if (g_unk0x0053ca24 != 0) {
-                inv = (int)(0x100000000 / (__int64)g_unk0x0053ca24);
-                g_unk0x0053ca58.x = FixMul(g_unk0x0053ca58.x, inv);
-                g_unk0x0053ca58.y = FixMul(g_unk0x0053ca58.y, inv);
-                g_unk0x0053ca58.z = FixMul(g_unk0x0053ca58.z, inv);
+                int length = g_unk0x0053ca24;
+                FixVecScaleRecip(&g_unk0x0053ca58, &g_unk0x0053ca58, length);
             }
-            g_unk0x0053c9c4 = FixSqrt(FixMul(g_unk0x0053ca58.x, g_unk0x0053ca58.x) +
-                                      FixMul(g_unk0x0053ca58.y, g_unk0x0053ca58.y) +
-                                      FixMul(g_unk0x0053ca58.z, g_unk0x0053ca58.z));
+            g_unk0x0053c9c4 = FixVecLength(&g_unk0x0053ca58);
             g_unk0x0053c9c4 = FixMul(g_unk0x0053c9c4, g_unk0x0053ca24);
             if (g_unk0x0053c9c4 < *(int *)pOther->field_0x758 + *(int *)g_pCurrentCar->field_0x758) {
                 result = 1;
-                break;
+                i = count;
             }
         }
     }

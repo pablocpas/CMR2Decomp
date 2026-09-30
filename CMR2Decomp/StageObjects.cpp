@@ -4240,18 +4240,14 @@ BYTE FUN_0046eeb0(int index, int wheel)
 int g_unk0x00591730[4];
 
 // Adds to a car's level (clamped to 1.0).
-// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048dca0
 void FUN_0048dca0(BYTE *pCar, int amount)
 {
     BYTE car;
-    int v;
 
     if (amount > 0) {
         car = *pCar;
-        v = g_unk0x00591730[car] + amount;
-        g_unk0x00591730[car] = v;
-        if (v > 0x10000)
+        if ((g_unk0x00591730[car] += amount) > 0x10000)
             g_unk0x00591730[car] = 0x10000;
     }
 }
@@ -11122,9 +11118,9 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
-// g_unk0x00588a80 (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
+// g_deformImpactTicks (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
 // su anotacion // GLOBAL: vive en su fichero de definicion; aqui solo el extern.
-extern int g_unk0x00588a80;
+extern int g_deformImpactTicks[2];
 extern const double g_unk0x00511310;
 
 // Car impact update: checks the four axle travel limits, samples the current
@@ -11267,7 +11263,7 @@ void FUN_0046a500(int param_1)
     if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
         i = (int)*(char *)(param_1 + 0xb1a);
         uVar16 = CMain::GetFrameDelta();
-        if (0x19 < (unsigned int)(uVar16 - (&g_unk0x00588a80)[i]) && *(int *)(param_1 + 0x778) > 0) {
+        if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && *(int *)(param_1 + 0x778) > 0) {
             if (*(int *)(param_1 + 0x778) <= 0x10000)
                 uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
             else
@@ -11275,7 +11271,7 @@ void FUN_0046a500(int param_1)
             i = (int)*(char *)(param_1 + 0xb1a);
             FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
             uVar16 = CMain::GetFrameDelta();
-            (&g_unk0x00588a80)[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+            g_deformImpactTicks[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
         }
     }
     ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
