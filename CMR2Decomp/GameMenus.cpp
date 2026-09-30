@@ -2018,7 +2018,7 @@ void FUN_00453830(Menu *pMenu)
     int i;
     int resY;
     int lineHeight;
-    unsigned int *pResY;
+    int *pResY;
 
     shown = FALSE;
     x = (int)(g_pGraphics->resX * 30) / 640;
@@ -3568,7 +3568,7 @@ void FUN_0044b3a0(void)
     int resY;
     int i;
     int position;
-    unsigned int *pResY;
+    int *pResY;
     int lineHeight;
 
     x = (int)(g_pGraphics->resX * 30) / 640;

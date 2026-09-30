@@ -11,8 +11,8 @@
 
 struct Graphics
 {
-    unsigned int resX;
-    unsigned int resY;
+    int resX;
+    int resY;
     unsigned int depth;
     unsigned char field3_0xc;
     unsigned char field4_0xd;
