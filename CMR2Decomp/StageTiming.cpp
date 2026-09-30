@@ -1391,11 +1391,11 @@ void FUN_00424560(void)
 // FUNCTION: CMR2 0x004245e0
 void FUN_004245e0(void)
 {
-    Unk0x00539278 *p;
+    int slot;
     int i;
 
-    for (p = g_forceFeedbackSlots; &p->field_0x2c < &g_forceFeedbackSlots[2].field_0x2c; p++) {
-        g_unk0x00539278 = p;
+    for (slot = 0; slot < 2; slot++) {
+        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
         if (g_unk0x00539278->field_0x34 == 0) {
             if (g_unk0x00539278->field_0x2c >= 0) {
                 g_unk0x00539278->field_0x28 = 0;
@@ -1414,11 +1414,11 @@ void FUN_004245e0(void)
 // FUNCTION: CMR2 0x00424640
 void FUN_00424640(void)
 {
-    Unk0x00539278 *p;
+    int slot;
     int i;
 
-    for (p = g_forceFeedbackSlots; &p->field_0x2c < &g_forceFeedbackSlots[2].field_0x2c; p++) {
-        g_unk0x00539278 = p;
+    for (slot = 0; slot < 2; slot++) {
+        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
         if (g_unk0x00539278->field_0x34 != 0) {
             if (g_unk0x00539278->field_0x2c >= 0) {
                 FUN_004246a0();
@@ -1435,11 +1435,11 @@ void FUN_00424640(void)
 // FUNCTION: CMR2 0x004246c0
 void FUN_004246c0(void)
 {
-    Unk0x00539278 *p;
+    int slot;
     int i;
 
-    for (p = g_forceFeedbackSlots; &p->field_0x2c < &g_forceFeedbackSlots[2].field_0x2c; p++) {
-        g_unk0x00539278 = p;
+    for (slot = 0; slot < 2; slot++) {
+        g_unk0x00539278 = &g_forceFeedbackSlots[slot];
         if (g_unk0x00539278->field_0x34 != 0 && g_unk0x00539278->field_0x2c >= 0) {
             FUN_004246a0();
             for (i = 0; i < 3; i++)

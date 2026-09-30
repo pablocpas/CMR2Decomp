@@ -4619,7 +4619,7 @@ void Car_UpdateRollover(void)
             limit = -limit;
         tip = FixMul(slide + limit, k);
         if (FIX_ABS(tip) > 0x10000)
-            tip = tip < 1 ? -0x10000 : 0x10000;
+            tip = tip > 0 ? 0x10000 : -0x10000;
     }
     target = FixMul(tip, 0x10000);
     diff = target - g_pCurrentCar->tipRatio;

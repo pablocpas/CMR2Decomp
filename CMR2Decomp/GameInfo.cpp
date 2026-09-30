@@ -1195,14 +1195,10 @@ DWORD CGameInfo::SetupInputs(int unused) {
         CInput::m_unk0x0059f8cc.field_0x1 = 2;
         CInput::m_unk0x0059f8cc.field_0x2 = 0;
         
-        int* pField18 = &CInput::m_availableDevices[0].field_0x18;
-        int initVal = -1;
-        
-        do {
-            *(pField18 - 6) = initVal;  // -24 bytes = field_0x0
-            *pField18 = initVal;         // field_0x18
-            pField18 = (int*)((BYTE*)pField18 + 0x50C);
-        } while (pField18 < &CInput::m_availableDevices[8].field_0x18); // TODO: is this correct?
+        for (int i = 0; i < 8; i++) {
+            CInput::m_availableDevices[i].field_0x0 = -1;
+            CInput::m_availableDevices[i].field_0x18 = -1;
+        }
         
         CInput::SetupKeyboard();
         CInput::SetupMouse();
@@ -9701,7 +9697,10 @@ void FUN_00505b40(void)
         pEntry->phase2 = 0;
     }
     // Sawtooth highlight pulse, restarted when the panel changed (75 frames).
-    g_unk0x0082cb44 = FixDiv((int)(CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000) & 0xffff;
+    {
+        int t = FixDiv((int)(CMain::GetFrameDelta() - g_unk0x0082c6c0) << 16, 0x4b0000);
+        g_unk0x0082cb44 = t - (t & 0xffff0000);
+    }
 }
 
 // Selects the display mode of a slot: if the entry of the active mode has no

@@ -47,7 +47,7 @@ Mesh *Mesh_Alloc(void)
 {
     int i;
 
-    for (i = 0; i < 4096; i++) {
+    for (i = 0; i < sizeof(g_meshes) / sizeof(g_meshes[0]); i++) {
         if (g_meshes[i] == NULL) {
             g_meshes[i] = (Mesh *)CFileBuffer::AllocateLockedBuffer(sizeof(Mesh));
             g_meshes[i]->field_0x118 = 0;

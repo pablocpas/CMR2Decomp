@@ -5909,22 +5909,20 @@ extern Unk0x00590d74 *g_unk0x00590d74;
 // FUNCTION: CMR2 0x00480b40
 void FUN_00480b40(BYTE *pCar)
 {
-    void **pTable;
     SceneNode *pNode;
     int offset;
+    int i;
 
     srand(400);
     g_unk0x00590d74 = (Unk0x00590d74 *)pCar;
-    pTable = &g_unk0x00590d7c[3];
     offset = (char)pCar[0xb1a] * 0x1a0;
-    do {
-        pNode = *(SceneNode **)((BYTE *)*pTable + offset);
+    for (i = 3; i >= 0; i--) {
+        pNode = *(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + offset);
         if (pNode != NULL) {
             pNode->current = pNode->local;
-            *(SceneNode **)((BYTE *)*pTable + offset) = NULL;
+            *(SceneNode **)((BYTE *)g_unk0x00590d7c[i] + offset) = NULL;
         }
-        pTable--;
-    } while (pTable >= g_unk0x00590d7c);
+    }
 }
 
 // Per-car values eased towards their targets (0x591710) by a step.

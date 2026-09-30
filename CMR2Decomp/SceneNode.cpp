@@ -411,7 +411,7 @@ SceneNode *SceneNode_Create(SceneNode *pParent)
     SceneNode *pNode;
     int i;
 
-    for (i = 0; i < 4096; i++) {
+    for (i = 0; i < sizeof(g_sceneNodes) / sizeof(g_sceneNodes[0]); i++) {
         if (g_sceneNodes[i] == NULL) {
             pNode = (SceneNode *)CFileBuffer::AllocateLockedBuffer(sizeof(SceneNode));
             if (pNode == NULL)

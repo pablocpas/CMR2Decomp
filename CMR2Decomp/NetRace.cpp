@@ -951,15 +951,15 @@ void FUN_004263d0(int param_1)
         v.y = 0;
         FIX_NORMALIZE_INTO(v, v)
     }
-    t = FixMul(FixVecDot((FixVector *)(param_1 + 0x70), &v), *(int *)(param_1 + 0xb0));
+    t = FixVecDot((FixVector *)(param_1 + 0x70), &v);
+    t = FixMul(t, *(int *)(param_1 + 0xb0));
     if (t < 0)
         t = -FixMul(t, t);
     else
         t = FixMul(t, t);
     if (FIX_ABS(t) > 0x10000)
-        t = (t <= 0) ? -0x10000 : 0x10000;
-    t = -FixMul(FixMul(t, *(int *)(param_1 + 0xac)), 0x11eb);
-    FixVecScale(&step, &v, t);
+        t = (t > 0) ? 0x10000 : -0x10000;
+    FixVecScale(&step, &v, (-FixMul(FixMul(t, *(int *)(param_1 + 0xac)), 0x11eb)));
     *(int *)(param_1 + 0x88) += step.x;
     *(int *)(param_1 + 0x8c) += step.y;
     *(int *)(param_1 + 0x90) += step.z;

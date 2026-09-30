@@ -314,8 +314,8 @@ void Dash_Update(int player)
     y = FixMul(g_pGraphics->resY << 16, g_dashGear[player] * -0xae1 + 0xbe66) >> 16;
     if (g_dashGearMarker[player] == -1)
         g_dashGearMarker[player] = y;
-    d = y - g_dashGearMarker[player];
     g_dashGearMarkerY[player] = g_dashGearMarker[player];
+    d = y - g_dashGearMarker[player];
     lim = FixMul(g_pGraphics->resY << 16, 0x2d7) >> 16;
     if (d > lim)
         d = lim;
