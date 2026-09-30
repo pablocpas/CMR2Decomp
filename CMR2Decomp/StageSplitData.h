@@ -11,7 +11,27 @@ struct StageSplitData {
 };
 
 typedef unsigned char BYTE;
-extern BYTE g_stageSplitBlock[0x94];
+// The reset routine also clears the DWORD immediately before the records.
+// Keep that observed field in the same allocation as the two records and flags.
+struct StageSplitState {
+    int resetPrefix;
+    BYTE recordBlock[0x94];
+    int referenceTimes[13];
+};
+// The final colour DWORD at 0x536df8 is also the reset prefix. These are
+// overlapping views in the original, followed by the two records and references.
+union StageSplitRuntime {
+    int colourWords[0x3a];
+    struct {
+        int colourPrefix[0x39];
+        StageSplitState state;
+    } split;
+};
+extern StageSplitRuntime g_stageSplitRuntime;
+#define g_stageSplitState (g_stageSplitRuntime.split.state)
+#define g_unk0x00536d14 (g_stageSplitRuntime.colourWords)
+#define g_unk0x00536e90 (g_stageSplitState.referenceTimes)
+#define g_stageSplitBlock (g_stageSplitState.recordBlock)
 #define g_stageSplitData ((StageSplitData *)g_stageSplitBlock)
 
 #endif

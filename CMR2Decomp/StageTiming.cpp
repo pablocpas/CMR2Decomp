@@ -1,3 +1,4 @@
+#include "StageObjectCount.h"
 #include "StageBlock.h"
 #include "StageTiming.h"
 #include <stdio.h>
@@ -1146,7 +1147,6 @@ void *g_unk0x00543ecc;
 BillboardDef g_unk0x00543ed0;
 // GLOBAL: CMR2 0x00543eb8
 void *g_unk0x00543eb8;
-extern BYTE g_unk0x00547acc;
 // Release callback of FUN_0045e5b0.
 // FUNCTION: CMR2 0x0045e560
 int FUN_0045e560(void)
@@ -1949,7 +1949,10 @@ bool FUN_004779e0(void);
 // FUNCTION: CMR2 0x00475f80
 void FUN_00475f80(void)
 {
-    int i;
+    BYTE *pTiming;
+    int *pState;
+    int *pTexture;
+    int *pPosition;
     int *p;
 
     g_unk0x0058d6a8[0] = 0;
@@ -1959,16 +1962,47 @@ void FUN_00475f80(void)
     g_unk0x0058d6a8[1] = 0;
     memset(g_unk0x0058d6b0, 0xff, 0x1c);
     memset(g_unk0x0058d2a0, 0xff, 0x30);
-    for (p = g_stageBlock_58d368 + 1; p < (int *)g_unk0x0058d3b8; p += 3) {
-        p[-1] = -1;
-        p[0] = -1;
-        p[1] = -1;
-    }
-    for (p = (int *)g_unk0x0058d3b8 + 1; p < g_stageBlock_58d47c; p += 3) {
+    *(int *)(g_stageBlock + 0xc0) = 1;
+    g_unk0x0058d6a0[0] = NULL;
+    *(int *)(g_stageBlock + 0xc4) = 1;
+    g_unk0x0058d3b0[0] = 1;
+    g_unk0x0058d3b0[1] = 1;
+    g_unk0x0058d6a0[1] = NULL;
+    *(short *)(g_stageBlock + 0x30) = 0;
+    *(short *)(g_stageBlock + 0x1d8) = 0x303;
+    pTiming = g_stageBlock + 0xcc;
+    pState = (int *)(g_stageBlock + 0x23c);
+    pTexture = (int *)(g_stageBlock + 0x224);
+    pPosition = (int *)(g_stageBlock + 0x298);
+    do {
+        *(short *)(pTiming - 2) = 0;
+        pPosition[-1] = 0;
+        *(short *)pTiming = 0;
+        pPosition[0] = 0;
+        *(short *)((BYTE *)pState + 4) = 0;
+        *(short *)(pTiming + 2) = 0;
+        pPosition[1] = 0;
+        *pState = 1;
+        *(int *)(pTiming + 0x14) = 0;
+        pPosition[2] = 0;
+        pTexture[-1] = 0;
+        *(short *)((BYTE *)pState + 6) = 0;
+        *(int *)(pTiming + 0x18) = 0x3333;
+        pTexture[0] = 0;
+        pState[-1] = 0;
+        *(int *)(pTiming + 0x1c) = 0;
+        pPosition += 7;
+        pTexture += 2;
+        pState += 3;
+        pTiming += 0x24;
+    } while ((int)pPosition < (int)(g_stageBlock + 0x2d0));
+    p = (int *)g_unk0x0058d3b8 + 1;
+    do {
         p[-1] = 0;
         p[0] = 0;
         p[1] = 0;
-    }
+        p += 3;
+    } while ((int)p < (int)g_stageBlock_58d47c);
     CGame::RegisterCallback(FUN_004779e0, NULL);
 }
 
@@ -3835,22 +3869,29 @@ void FUN_00484d30(int t)
     int count = Car_GetOrderCount();
     short *pOrder = Car_GetOrder();
     short *p;
-    char index;
+    int index;
     void **pp;
     BYTE *pPart;
 
-    for (p = pOrder + count - 1; count > 0; count--, p--) {
-        index = Car_Get(*p)->field_0xb1a;
-        for (pp = &g_unk0x00590d7c[3]; pp >= g_unk0x00590d7c; pp--) {
+    count--;
+    if (count < 0)
+        return;
+    p = pOrder + count;
+    count++;
+    do {
+        index = (signed char)Car_Get(*p)->field_0xb1a;
+        for (pp = &g_unk0x00590d7c[3]; (int)pp >= (int)g_unk0x00590d7c; pp--) {
             pPart = (BYTE *)*pp + index * 0x1a0;
             g_unk0x00590c20 = (Unk0x00590c20 *)pPart;
             if (*(int *)pPart != 0 && (pPart[0x150] & 1) != 0) {
                 FixMatrix_Interpolate((FixMatrix *)(pPart + 0x8c), (FixMatrix *)(pPart + 0x4c), (FixMatrix *)(pPart + 0xc),
                                       t, t, t, 0);
-                FixMatrix_CopyRotation((FixMatrix *)(pPart + 0x8c), (FixMatrix *)(*(BYTE **)pPart + 0x98));
+                FixMatrix_CopyRotation((FixMatrix *)((BYTE *)g_unk0x00590c20 + 0x8c), (FixMatrix *)(*(BYTE **)g_unk0x00590c20 + 0x98));
             }
         }
-    }
+        p--;
+        count--;
+    } while (count != 0);
 }
 
 // GLOBAL: CMR2 0x00590d78
@@ -4003,11 +4044,11 @@ void FUN_0045f300(int v1, int v2, int from, int to, int initial)
     g_unk0x00543d60 = v1;
     g_unk0x00543d64 = v2;
     g_unk0x00543d70 = to;
-    g_unk0x00543d68 = (to - from) << 16;
     g_unk0x00543d6c = from;
+    g_unk0x00543d68 = (to - from) << 16;
     if (g_unk0x00543d68 > 0)
         g_unk0x00543d68 = FixDiv(0x10000, g_unk0x00543d68);
-    g_unk0x00543d68 = FixMul(g_unk0x00543d68, v2 - v1);
+    g_unk0x00543d68 = FixMul(g_unk0x00543d68, g_unk0x00543d64 - g_unk0x00543d60);
     g_unk0x00543e98 = (BYTE)RallyDataState();
     for (i = 0; i < g_unk0x00543e98; i++) {
         p = (int *)((BYTE *)g_unk0x00547ac8 + i * 0x178);
@@ -4029,21 +4070,26 @@ void FUN_0045f3d0(int v1, int v2, int from, int to)
 
     g_unk0x00543d88 = v1;
     g_unk0x00543d98 = to;
-    g_unk0x00543d90 = (to - from) << 16;
     g_unk0x00543d8c = v2;
     g_unk0x00543d94 = from;
+    g_unk0x00543d90 = (to - from) << 16;
     if (g_unk0x00543d90 > 0)
         g_unk0x00543d90 = FixDiv(0x10000, g_unk0x00543d90);
-    g_unk0x00543d90 = FixMul(g_unk0x00543d90, v2 - v1);
-    for (i = 0; i < g_unk0x00547acc; i++) {
+    g_unk0x00543d90 = FixMul(g_unk0x00543d90, g_unk0x00543d8c - g_unk0x00543d88);
+    i = 0;
+    if (g_unk0x00547acc > 0) {
+    do {
         p = (int *)((BYTE *)g_unk0x00543eb8 + i * 0x2c);
         p[1] = 0;
         p[0] = 0;
-        p[2] = g_unk0x00543d88;
+        int lower = g_unk0x00543d88;
+        p[2] = lower;
         p[3] = 0;
-        p[4] = g_unk0x00543d88;
-        p[6] = g_unk0x00543d88;
+        p[4] = lower;
+        p[6] = lower;
         p[10] = 1;
+        i++;
+    } while (i < (int)(g_stageObjectCount.packed & 0xff));
     }
 }
 
@@ -4552,18 +4598,22 @@ void FUN_0045e710(int v1, int v2, int from, int to)
     g_unk0x00543d74 = v1;
     g_unk0x00543d78 = v2;
     g_unk0x00543d84 = to;
-    g_unk0x00543d7c = (to - from) << 16;
     g_unk0x00543d80 = from;
+    g_unk0x00543d7c = (to - from) << 16;
     if (g_unk0x00543d7c > 0)
         g_unk0x00543d7c = FixDiv(0x10000, g_unk0x00543d7c);
-    g_unk0x00543d7c = FixMul(g_unk0x00543d7c, v2 - v1);
-    for (i = 0; i < g_unk0x00547acc; i++) {
+    g_unk0x00543d7c = FixMul(g_unk0x00543d7c, g_unk0x00543d78 - g_unk0x00543d74);
+    i = 0;
+    if (g_unk0x00547acc > 0) {
+    do {
         p = (int *)((BYTE *)g_unk0x00543ecc + i * 0xc);
         p[1] = 0;
         p[0] = 0;
         p[2] = g_unk0x00543d74;
         Car_UpdateSurfaceParams(Car_Get(i), FUN_00460c80((BYTE *)Car_Get(i)));
         FUN_004789b0((BYTE *)Car_Get(i));
+        i++;
+    } while (i < (int)(g_stageObjectCount.packed & 0xff));
     }
 }
 
@@ -8980,8 +9030,14 @@ void FUN_00448120(void)
     count = FUN_00458390();
     FUN_00448de0();
     if ((char)RallyData_GetFlag24() || (char)RallyData_GetFlag25()) {
-        for (i = count, p = &g_carStageTiming[0].field_0x83; i > 0; i--, p += sizeof(CarStageTiming))
-            *p = 0;
+        if (count > 0) {
+            p = &g_carStageTiming[0].field_0x83;
+            i = count;
+            do {
+                *p = 0;
+                p += sizeof(CarStageTiming);
+            } while (--i != 0);
+        }
         for (i = 0; i < count; i++) {
             if (g_unk0x0053d1da[i] == 0 && FUN_00458230(i))
                 FUN_00448780(i);
@@ -9287,9 +9343,10 @@ void FUN_00480bb0(BYTE *pCars, short *pOrder, short count)
     void **pTable;
     BYTE *pPart;
 
-    n = count;
-    if (n - 1 >= 0) {
-        pIndex = pOrder + (n - 1);
+    n = count - 1;
+    if (n >= 0) {
+        pIndex = pOrder + n;
+        int remaining = n + 1;
         do {
             g_unk0x00590d74 = (Unk0x00590d74 *)(pCars + *pIndex * 0xc24);
             g_unk0x00590d78 = (BYTE *)FUN_00469680(((char *)g_unk0x00590d74)[0xb1a]);
@@ -9308,10 +9365,10 @@ void FUN_00480bb0(BYTE *pCars, short *pOrder, short count)
                         (*(void (**)(void))((BYTE *)g_unk0x00590c20 + 0x110))();
                 }
                 pTable--;
-            } while (pTable >= g_unk0x00590d7c);
+            } while ((int)pTable >= (int)g_unk0x00590d7c);
             Car_BreakQueuedWindows((Car *)g_unk0x00590d74);
             pIndex--;
-        } while (--n);
+        } while (--remaining);
     }
     FUN_00484e00((int)pOrder, count);
 }

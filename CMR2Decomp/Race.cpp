@@ -23,7 +23,7 @@
 
 // Race session state (0x41e210-0x420190)
 
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 unsigned int RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_00407e90(void);
 
@@ -2660,7 +2660,7 @@ fade:
         CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 0, 2);
     }
     index = RallyDataState();
-    cond = (g_unk0x00537f78[4] == (index & 0xff));
+    cond = (g_unk0x00537f78[4] == index);
     if (CGameInfo::FUN_00405e00() != 0 && CGameInfo::FUN_00405d80() == 10)
         cond = (unsigned char)flag;
     if ((char)param2 == 0) {

@@ -1,3 +1,4 @@
+#include "StageObjectCount.h"
 #include <windows.h>
 #include <stdlib.h>
 #include "StageBlock.h"
@@ -5616,7 +5617,7 @@ void FUN_0048db00(BYTE *p, int step)
 // FUNCTION: CMR2 0x0048dc30
 void FUN_0048dc30(BYTE *pCar, int step)
 {
-    unsigned int car;
+    BYTE car;
     int cur;
     int d;
 
@@ -5758,13 +5759,13 @@ void FUN_00492bb0(int *pOut);
 
 void Scene_GetAmbientColour(DWORD *pColour);
 void Scene_SetAmbient(BYTE *pColour, int boost);
-unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataCountryIndex(void);
 int FUN_00407270(void);
 void FUN_0047e490(BYTE *pColour);
 
 extern void *g_unk0x00543eb8;
 // GLOBAL: CMR2 0x00547acc
-BYTE g_unk0x00547acc;
+StageObjectCount g_stageObjectCount;
 
 int *RallyData_FUN_004075b0(int index);
 // GLOBAL: CMR2 0x0051b114
@@ -6808,7 +6809,7 @@ void Replay_InitSlots(void)
 
 
 // GLOBAL: CMR2 0x00588ec8
-int g_unk0x00588ec8;
+BYTE g_unk0x00588ec8;
 
 // Frees the replay buffers (the second set only when not needed any more).
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -8191,7 +8192,7 @@ BYTE *FUN_0046d2d0(char *path)
     return buffer;
 }
 
-void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned int angle);
+void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned short angle);
 
 // GLOBAL: CMR2 0x0051c9b0
 short g_unk0x0051c9b0 = 0x71;
@@ -11648,7 +11649,7 @@ void RallyData_FUN_004207f0(void);
 RaceRecord *RallyData_FUN_00421510(int index);
 unsigned int RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_00407e90(void);
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 
 // Resets the per-car stage-object block: clears the pose/timing fields, walks
 // the object chain calling the pre-step of every entry, then recomputes the

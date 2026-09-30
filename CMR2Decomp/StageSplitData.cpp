@@ -1,6 +1,6 @@
 #include "StageSplitData.h"
 
-// Two 0x48-byte StageSplitData entries (one per car); the second one's last
-// dword and the dword after it are also the per-car flags g_unk0x00536e88[2].
-// GLOBAL: CMR2 0x00536dfc
-BYTE g_stageSplitBlock[0x94];
+// Colour views overlap the reset prefix, followed by two 0x48-byte records,
+// their per-car flags and the reference split times. All share one allocation.
+// GLOBAL: CMR2 0x00536d14
+StageSplitRuntime g_stageSplitRuntime;

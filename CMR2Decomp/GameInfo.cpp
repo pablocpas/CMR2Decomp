@@ -3547,18 +3547,17 @@ void FUN_004f5150(char *pName)
 // FUNCTION: CMR2 0x004f8a90
 void FUN_004f8a90(char *pText)
 {
-    int len;
-    int i;
-    int out;
-
+    int out = 0;
     strcpy(CFrontend::m_stringDest, pText);
-    len = (int)strlen(CFrontend::m_stringDest) - 1;
-    i = 1;
-    out = 0;
-    for (; i - 1 < len; i++) {
-        pText[out++] = CFrontend::m_stringDest[i - 1];
-        if ((i & 3) == 0)
-            pText[out++] = ' ';
+    if ((int)strlen(CFrontend::m_stringDest) > 0) {
+        int i = 1;
+        char *source = CFrontend::m_stringDest - 1;
+        do {
+            pText[out++] = source[i];
+            if (i % 4 == 0)
+                pText[out++] = ' ';
+            i++;
+        } while (i - 1 < (int)strlen(CFrontend::m_stringDest));
     }
     pText[out] = 0;
 }
@@ -11163,7 +11162,7 @@ extern int *RallyData_FUN_004075e0(int index);
 extern BYTE *RallyData_FUN_004075d0(int index);
 extern int *RallyData_FUN_004075b0(int index);
 extern int *RallyData_FUN_004075c0(int index);
-extern unsigned int RallyDataCountryIndex(void);
+extern unsigned char RallyDataCountryIndex(void);
 extern unsigned char RallyDataStageIndex(void);
 extern BYTE RallyData_FUN_00406920(void);
 extern void FUN_00500270(Menu *, MenuItem *);

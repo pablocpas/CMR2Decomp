@@ -539,7 +539,7 @@ int g_unk0x0058ddcc;
 #pragma data_seg()
 
 void Sound_SetMasterVolume(int volume);
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 unsigned int RallyData_GetFlag25(void);
 int FUN_004781c0(int index);
 int FUN_00478f30(void);

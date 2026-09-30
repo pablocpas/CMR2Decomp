@@ -299,15 +299,15 @@ int Sector_FromPosition(FixVector *pPos)
 
     // the subtrahend order matters: MSVC evaluates these two subtractions
     // right to left, and the original binary has (z - halfSize) - originZ.
-    offset = pPos->z - g_sectorOriginZ - g_sectorHalfSize;
-    if (offset < 0)
-        offset = g_sectorOriginZ - pPos->z + g_sectorHalfSize;
-    row = FixMulShift32(offset, g_sectorScale);
+    offset = (pPos->z - g_sectorOriginZ - g_sectorHalfSize < 0) ?
+             g_sectorOriginZ - pPos->z + g_sectorHalfSize :
+             pPos->z - g_sectorOriginZ - g_sectorHalfSize;
+    row = (FixMul(offset, g_sectorScale) >> 16);
 
-    offset = pPos->x - g_sectorOriginX + g_sectorHalfSize;
-    if (offset < 0)
-        offset = g_sectorOriginX - pPos->x - g_sectorHalfSize;
-    col = FixMulShift32(offset, g_sectorScale);
+    offset = (pPos->x - g_sectorOriginX + g_sectorHalfSize < 0) ?
+             g_sectorOriginX - pPos->x - g_sectorHalfSize :
+             pPos->x - g_sectorOriginX + g_sectorHalfSize;
+    col = (FixMul(offset, g_sectorScale) >> 16);
 
     iSector = g_sectorsPerRow * row + col;
     if ((short)iSector < 0 || (short)iSector >= (short)g_sectorCount)

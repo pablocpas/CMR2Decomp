@@ -829,21 +829,22 @@ void FUN_00447530(BYTE *param_1, BYTE *param_2, int param_3)
 {
     FixVector offset;
     BYTE index;
+    BYTE *pSettings = param_1;
 
-    index = param_1[1];
-    g_unk0x0053cff8[param_1[0]] = (BYTE)param_3;
-    if (param_1[2] >= (BYTE)RallyDataState()) {
-        RallyData_FUN_00408c20((int *)&offset, (short *)&param_2, &param_3, 0);
+    index = pSettings[1];
+    g_unk0x0053cff8[pSettings[0]] = (BYTE)param_3;
+    if (pSettings[2] >= (BYTE)RallyDataState()) {
+        RallyData_FUN_00408c20((int *)&offset, (short *)&param_1, &param_3, 0);
         FUN_00447d20(index, &offset);
         FUN_00447ec0(index, param_3);
     } else {
-        RallyData_FUN_00408c20((int *)&offset, (short *)&param_2, &param_3,
-                               (int)(BYTE)FUN_0041b370() + param_1[2]);
+        RallyData_FUN_00408c20((int *)&offset, (short *)&param_1, &param_3,
+                               (int)(BYTE)FUN_0041b370() + pSettings[2]);
         FUN_00447d20(index, &offset);
         FUN_00447ec0(index, param_3);
     }
     FUN_00447e20(index, *(short *)&param_1);
-    FUN_00447a40(param_1, (FixMatrix *)param_2);
+    FUN_00447a40(pSettings, (FixMatrix *)param_2);
 }
 
 void FixMatrix_RebuildBasis(FixMatrix *pOut);

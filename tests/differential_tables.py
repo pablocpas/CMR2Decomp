@@ -18,7 +18,7 @@ import tempfile
 import capstone
 import pefile
 
-from matching_entities import load_entities
+from matching_entities import load_entities, entity_address
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT.parent / 'tools'
@@ -87,6 +87,7 @@ def mutate(data, address, old, new):
                 assert size == 4
                 struct.pack_into('<I', output, ins.address - address + offset, new)
                 changes += 1
+    assert old != new, 'Mutation must change the target'
     assert changes, 'Mutation did not replace any address'
     return output
 
@@ -227,9 +228,9 @@ int main(void) {
     result=tick_cases(tick_a,tick_b);
     if(result){printf("event tick differs at case %d\n",result-1);return 1;}
     if(!reset_cases(reset_a,reset_bad,20)||!queue_cases(aa,pa,ab,pb,bad,qa,bb,qb,40)) {
-        printf("old-address mutation was not detected\n");return 1;
+        printf("wrong-address mutation was not detected\n");return 1;
     }
-    printf("6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both old-address mutations detected\n");
+    printf("6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected\n");
     return 0;
 }
 '''
@@ -238,6 +239,11 @@ int main(void) {
 def main():
     report = {int(r['address'], 16): r for r in json.loads(Path(sys.argv[1]).read_text())['data']}
     entities = load_entities(sys.argv[2] if len(sys.argv) > 2 else None)
+    # Championship fields are member views of the contiguous owner introduced
+    # in the previous matching batch; resolve them only for native relocation.
+    for address, _ in RESET:
+        entities.setdefault(hex(address), [entity_address(entities, address, 0x5335b8),
+                                           'ChampionshipTables member'])
     if '0x6ed46c' not in entities:
         queues = entities['0x6ed3f4'][0]
         entities['0x6ed46c'] = [queues + 120, 'g_inputQueues.keys']
@@ -263,9 +269,12 @@ def main():
             raw = extract(pes[side], address)
             code[model, original] = relocate(raw, address, low, high, destination)
         if model == 1:
+            # A one-DWORD error in the first column must affect a buffer or its
+            # guard. The old gap-based mutation equals the correct address now
+            # that these fields belong to one contiguous ChampionshipTables.
             code['reset_bad'] = mutate(code[model, 0x40cc60], entities['0x40cc60'][0],
                                       destination + addresses[0] - low,
-                                      destination + addresses[2] - low - 14 * 4)
+                                      destination + addresses[0] - low + 4)
         if model == 3:
             code['queue_bad'] = mutate(code[model, 0x4b7ca0], entities['0x4b7ca0'][0],
                                       destination + addresses[0] - low + 120,

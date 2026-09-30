@@ -118,7 +118,7 @@ void FixMatrix_Identity(FixMatrix *pOut)
 
 // Applies a rotation about the matrix's right axis while preserving position.
 // FUNCTION: CMR2 0x00422e70
-void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned int angle)
+void FixMatrix_RotateAboutRight(FixMatrix *pOut, unsigned short angle)
 {
     FixVector position;
     FixMatrix rotation;
@@ -1209,27 +1209,28 @@ void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
     __int64 v;
 
     memcpy(m, pSrc, 0x40);
-    m[0] = pSrc[8];
     if (g_unk0x00590d8c[*pObj] == 2) {
+        m[0] = pSrc[8];
         m[1] = pSrc[9];
         m[2] = pSrc[10];
         m[8] = -pSrc[0];
         m[9] = -pSrc[1];
         m[10] = -pSrc[2];
     } else {
-        m[0] = -m[0];
+        m[0] = -pSrc[8];
         m[1] = -pSrc[9];
         m[2] = -pSrc[10];
         m[8] = pSrc[0];
         m[9] = pSrc[1];
         m[10] = pSrc[2];
     }
-    angle = (-(g_unk0x00590d8c[*pObj] != 0) & 0xfffffff6) + 10;
+    angle = g_unk0x00590d8c[*pObj] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)m,
                                (unsigned short)(__int64)((double)(int)v * g_unk0x00511300));
-    tAxis = 0x10000;
-    if (param_3 == 0)
+    if (param_3 != 0)
+        tAxis = 0x10000;
+    else
         tAxis = FixMul(0x4ccc, g_physicsTimeStep);
     FixMatrix_Interpolate((FixMatrix *)(pObj + 8), (FixMatrix *)(pObj + 8), (FixMatrix *)m,
                           0x10000, tAxis, 0x10000, 0);

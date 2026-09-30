@@ -2213,15 +2213,15 @@ void CInput::FUN_004b7ca0(int param1)
 // FUNCTION: CMR2 0x004b7cd0
 bool FUN_004b7cd0(int *pOut)
 {
-    int *p;
+    int i;
 
     if (g_unk0x006ed3f4[0] != 0) {
         *pOut = g_unk0x006ed3f4[0];
-        p = g_unk0x006ed3f4;
+        i = 0;
         do {
-            p[0] = p[1];
-            p++;
-        } while ((int)p < (int)&g_unk0x006ed3f4[29]);
+            g_unk0x006ed3f4[i] = g_unk0x006ed3f4[i + 1];
+            i++;
+        } while (i < 29);
         g_unk0x006ed3f4[29] = 0;
         return true;
     }
@@ -2298,15 +2298,15 @@ void FUN_004b7d40(void)
 // FUNCTION: CMR2 0x004b7d60
 int FUN_004b7d60(int *pOut)
 {
-    int *p;
+    int i;
 
     if (g_unk0x006ed46c[0] != 0) {
         *pOut = g_unk0x006ed46c[0];
-        p = g_unk0x006ed46c;
+        i = 0;
         do {
-            p[0] = p[1];
-            p++;
-        } while ((int)p < (int)&g_unk0x006ed46c[29]);
+            g_unk0x006ed46c[i] = g_unk0x006ed46c[i + 1];
+            i++;
+        } while (i < 29);
         g_unk0x006ed46c[29] = 0;
         return 1;
     }

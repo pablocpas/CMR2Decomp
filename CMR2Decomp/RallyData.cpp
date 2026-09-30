@@ -643,7 +643,7 @@ int RallyData_FUN_00411880(void)
 }
 
 // FUNCTION: CMR2 0x00406910
-unsigned int RallyDataCountryIndex(void)
+unsigned char RallyDataCountryIndex(void)
 {
 	return g_selectedRallyData & 0x1f;
 }
@@ -661,7 +661,7 @@ unsigned char RallyDataStageIndex(void)
 }
 
 // FUNCTION: CMR2 0x004074f0
-unsigned int RallyDataState(void)
+unsigned char RallyDataState(void)
 {
 	return g_selectedRallyData >> 0xe & 3;
 }
@@ -1561,11 +1561,7 @@ void FUN_004ec210(int index)
     int values[5];
 
     RallyData_ValidateIndex(index);
-    values[0] = 0;
-    values[1] = 0;
-    values[2] = 0;
-    values[3] = 0;
-    values[4] = 0;
+    memset(values, 0, sizeof(values));
     FUN_004eaae0(values, (short *)&values[3], &values[4]);
     RallyData_FUN_004088a0(index, values);
 }
@@ -2075,11 +2071,18 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
 void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue)
 {
     unsigned int category;
-    unsigned int colour;
 
     RallyData_ValidateIndex(index);
     category = (*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf;
-    if (category == 0xf) {
+    if (category != 0xf) {
+    if (pHue != NULL)
+        *pHue = ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) >> 16) & 0x1f;
+    if (pShade != NULL)
+        *pShade = ((*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) >> 8) & 0xf;
+    if (pValue != NULL)
+        *pValue = (*(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650)) & 0xff;
+    } else {
+
         if (pHue != NULL)
             *pHue = 0x45;
         if (pShade != NULL)
@@ -2087,14 +2090,8 @@ void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade,
         if (pValue != NULL)
             *pValue = 0x45;
         return;
+
     }
-    colour = *(unsigned int *)(g_unk0x0052f3e8 + 0x634 + category * 0x650);
-    if (pHue != NULL)
-        *pHue = (colour >> 16) & 0x1f;
-    if (pShade != NULL)
-        *pShade = (colour >> 8) & 0xf;
-    if (pValue != NULL)
-        *pValue = colour & 0xff;
 }
 
 // Stores a driver's camera offsets (y/z of pPos), heading and value.
@@ -2352,8 +2349,7 @@ BYTE FUN_00407150(BYTE param1, char param2);
 // FUNCTION: CMR2 0x004071c0
 BYTE FUN_004071c0(BYTE flags, char mode)
 {
-    BYTE result = 0;
-    int last = 0;
+    int result = 0;
     int count;
     int i;
 
@@ -2362,20 +2358,18 @@ BYTE FUN_004071c0(BYTE flags, char mode)
         for (i = 0; i < count; i++) {
             if ((g_unk0x0052ea68[i] & 1) != 0 && ((g_unk0x0052ea68[i] & 2) == 0 || CGameInfo::FUN_00406410(0xd)) &&
                 (g_unk0x0052ea68[i] & 4) == 0)
-                last = i;
-            result = (BYTE)last;
+                result = i;
         }
         return result;
     }
-    if (flags & 1)
+    if (((int)(BYTE)flags % 2) != 0)
         return 10;
-    if (mode == 0)
-        return 3;
-    if (mode == 1)
-        return 7;
-    if (mode == 2)
-        return 9;
-    return 0;
+    switch ((BYTE)mode) {
+    case 0: return 3;
+    case 1: return 7;
+    case 2: return 9;
+    default: return 0;
+    }
 }
 
 // Whether the championship has just finished its last rally (rally 8, stage 11).
@@ -3045,11 +3039,9 @@ BYTE g_unk0x00536c20[4];
 // GLOBAL: CMR2 0x00536c40
 int g_unk0x00536c40;
 // Split time colours, 0x28 entries per car.
-// GLOBAL: CMR2 0x00536d14
-int g_unk0x00536d14[0x3a];
+// Storage and overlapping views are declared in StageSplitData.h.
 // Reference split times, g_unk0x00536e90[0] doubles as a "no reference" flag; cleared as [1..12].
-// GLOBAL: CMR2 0x00536e90
-int g_unk0x00536e90[13];
+// g_unk0x00536e90 is the referenceTimes member of the shared split block.
 // GLOBAL: CMR2 0x00537064
 int g_unk0x00537064;
 // GLOBAL: CMR2 0x00537068
@@ -3799,18 +3791,19 @@ void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
 // FUNCTION: CMR2 0x004ec1a0
 void RallyData_FUN_004ec1a0(void)
 {
-    unsigned int *pEntry;
-    unsigned int i;
-
-    i = 0;
-    if (CGameInfo::FUN_00405d70() == 0)
+    struct ProgressFlags { unsigned int low : 7; unsigned int progress : 8; unsigned int rest : 17; };
+    ProgressFlags *pEntry;
+    int i = 0;
+    if (CGameInfo::FUN_00405d70() <= i)
         return;
     do {
-        pEntry = (unsigned int *)(g_unk0x0052fa5c +
+        unsigned int offset =
+                 (((*(unsigned int *)(g_unk0x00531350 + i * 0x30) >> 0x12) & 0xf) * 0x650);
+        unsigned int value = *(unsigned int *)(g_unk0x0052fa5c + offset);
+        pEntry = (ProgressFlags *)(g_unk0x0052fa5c +
                  (((*(unsigned int *)(g_unk0x00531350 + i * 0x30) >> 0x12) & 0xf) * 0x650));
-        if ((*pEntry & 0x7f80) != 0x7f80)
-            *pEntry = (*pEntry & 0xffffff80) |
-                      (((*pEntry & 0x7f80) + 0x80) & 0x7f80);
+        if ((value & 0x7f80) < 0x7f80)
+            *(unsigned int *)pEntry = value ^ ((value ^ ((value & 0xffffff80) + 0x80)) & 0x7f80);
         i++;
     } while (i < CGameInfo::FUN_00405d70());
 }
@@ -4186,10 +4179,11 @@ int g_routeProbeCycles[2];
 // FUNCTION: CMR2 0x004207a0
 void RallyData_FUN_004207a0(int index)
 {
-    g_raceRecords[index].field_0x0 = g_raceRecords[index].field_0x4;
-    g_raceRecords[index].field_0x8 = 0;
-    g_raceRecords[index].field_0x14 = 0;
-    g_raceRecords[index].field_0xc = 0;
+    RaceRecord *pRecord = &g_raceRecords[index];
+    pRecord->field_0x0 = pRecord->field_0x4;
+    pRecord->field_0x8 = 0;
+    pRecord->field_0x14 = 0;
+    pRecord->field_0xc = 0;
     if (index < 2) {
         g_routeProbeCycles[index] = 0;
         g_routeProbeBestDistance[index] = 0;
@@ -5254,14 +5248,15 @@ void FUN_004209f0(void)
     int i;
 
     pOrder = Car_GetOrder();
-    i = Car_GetOrderCount();
-    if (i - 1 >= 0) {
-        pOrder += i - 1;
+    i = Car_GetOrderCount() - 1;
+    if (i >= 0) {
+        pOrder += i;
+        int remaining = i + 1;
         do {
             RallyData_UpdateCarRoute(Car_Get(*pOrder));
             pOrder--;
-            i--;
-        } while (i != 0);
+            remaining--;
+        } while (remaining != 0);
     }
 }
 
@@ -5297,7 +5292,7 @@ void FUN_00471d80(BYTE **pp, int bit, int set)
     }
 }
 
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 
 // Marks the element as reached by the car; the first time, in single player,
 // pushes its object out of the way.

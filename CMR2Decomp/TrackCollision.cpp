@@ -731,26 +731,20 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
 // FUNCTION: CMR2 0x00494540
 void FUN_00494540(void)
 {
-    int value = 0;
-
-    if (g_pAutoGearCar->flag0x1d0[0] == 0) {
-        if (g_pAutoGearCar->flag0x1d0[1] != 0) {
-            if (g_pAutoGearCar->field_0x818 > 0)
-                g_pAutoGearCar->field_0x818 = 0;
-            value = -0x10000;
-            g_pAutoGearCar->field_0x818 -= 0x10000;
-            if (g_pAutoGearCar->field_0x818 > -0x10001)
-                return;
-        }
-        g_pAutoGearCar->field_0x818 = value;
-    } else {
+    if (g_pAutoGearCar->flag0x1d0[0] != 0) {
         if (g_pAutoGearCar->field_0x818 < 0)
             g_pAutoGearCar->field_0x818 = 0;
         g_pAutoGearCar->field_0x818 += 0x10000;
-        if (g_pAutoGearCar->field_0x818 > 0x10000) {
+        if (g_pAutoGearCar->field_0x818 > 0x10000)
             g_pAutoGearCar->field_0x818 = 0x10000;
-            return;
-        }
+    } else if (g_pAutoGearCar->flag0x1d0[1] != 0) {
+        if (g_pAutoGearCar->field_0x818 > 0)
+            g_pAutoGearCar->field_0x818 = 0;
+        g_pAutoGearCar->field_0x818 -= 0x10000;
+        if (g_pAutoGearCar->field_0x818 < -0x10000)
+            g_pAutoGearCar->field_0x818 = -0x10000;
+    } else {
+        g_pAutoGearCar->field_0x818 = 0;
     }
 }
 
@@ -1067,7 +1061,7 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
 }
 
 int FUN_00407270(void);
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 unsigned int RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
 BYTE *FUN_0041b390(void);

@@ -131,7 +131,7 @@ int FUN_0046d2a0(int *p);
 void FUN_00466080(void);
 void FUN_004728b0(void);
 unsigned int *RallyData_GetChampionshipState(void);
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 unsigned int RallyData_FUN_00407ea0(void);
 extern int g_unk0x00537f0c[6];
 extern BYTE *g_unk0x00537f3c[8];
@@ -3827,7 +3827,7 @@ void FUN_0044b270(void)
 }
 
 // --- 0x00448e70: stage results header fade (layer 0) -------------------------
-unsigned int RallyDataState(void);
+unsigned char RallyDataState(void);
 int FUN_00407270(void);
 int FUN_00428740(BYTE index);
 int FUN_00458390(void);

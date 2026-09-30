@@ -365,7 +365,7 @@ void FUN_004d1080(Unk0049c2c0 *p1, BYTE p2)
 }
 
 int FUN_004d0d30(int, int, char *, char);
-unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataCountryIndex(void);
 
 // Boot render state shown while the country data loads: draws the country name
 // with the current championship position, centred on the screen.
@@ -662,7 +662,7 @@ int FUN_004d0d30(int x, int y, char *pText, char flag)
 }
 
 // Prototypes for this boot state (defined in other modules or still stubs).
-unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataCountryIndex(void);
 unsigned char RallyDataStageIndex(void);
 int FUN_0050fdf0(char *path, Texture *pTexture, short *pRect, unsigned int flags, unsigned int track);
 
@@ -732,7 +732,7 @@ void RallyData_FUN_004068d0(char param1);
 void FUN_0040dc30(void);
 bool FUN_004eb3e0(void);
 void RallyData_FUN_004ec1a0(void);
-unsigned int RallyDataCountryIndex(void);
+unsigned char RallyDataCountryIndex(void);
 unsigned char RallyDataStageIndex(void);
 extern int g_unk0x00817fe8;
 
@@ -3428,37 +3428,31 @@ bool FUN_004aac40(BYTE param1)
 // FUNCTION: CMR2 0x004a1b90
 int FUN_004a1b90(int param1, void **param2)
 {
-    IDirectPlay4A *pDP;
-    HRESULT hr;
-    BOOL local1;
-    int local2;
-    void *pBuffer;
-
-    local1 = CGame::m_unk0x005a1fbc;
-    local2 = 0;
-    pDP = CGame::GetDirectPlay();
+    DWORD bufferSize = CGame::m_unk0x005a1fbc;
+    DPID receiver;
+    IDirectPlay4A *pDP = CGame::GetDirectPlay();
     if (pDP == NULL)
         return 0;
-    hr = ((DPMethod5)(*(void ***)pDP)[0x64 / 4])(pDP, (DWORD)CGame::m_unk0x005a1fb8, 1,
-                                                (DWORD)&local2, (DWORD)param1, (DWORD)&local1);
-    if (hr > (HRESULT)0x88770082) {
-        if (hr == (HRESULT)0x88770096 || hr == (HRESULT)0x887700be || hr != 0)
-            return 0;
+    HRESULT hr = pDP->Receive((LPDPID)param1, &receiver, DPRECEIVE_ALL,
+                             CGame::m_unk0x005a1fb8, &bufferSize);
+    if (hr <= DPERR_INVALIDOBJECT) {
+        if (hr == DPERR_INVALIDOBJECT || hr == DPERR_GENERIC || hr == DPERR_INVALIDPARAMS ||
+            hr != DPERR_BUFFERTOOSMALL)
+            goto done;
+        if (CGame::m_unk0x005a1fb8 != NULL) {
+            CFileBuffer::FreeGenericFileBuffer(CGame::m_unk0x005a1fb8);
+            CGame::m_unk0x005a1fb8 = NULL;
+        }
+        CGame::m_unk0x005a1fb8 = CFileBuffer::AllocateLockedBuffer(bufferSize);
+        if (CGame::m_unk0x005a1fb8 != NULL)
+            CGame::m_unk0x005a1fbc = bufferSize;
+    } else {
+        if (hr == DPERR_INVALIDPLAYER || hr == DPERR_NOMESSAGES || hr != 0)
+            goto done;
         *param2 = CGame::m_unk0x005a1fb8;
         return 1;
     }
-    if (hr == (HRESULT)0x88770082 || hr == (HRESULT)0x80004005 ||
-        hr == (HRESULT)0x80070057 || hr != (HRESULT)0x8877001e)
-        return 0;
-    if (CGame::m_unk0x005a1fb8 != NULL) {
-        CFileBuffer::FreeGenericFileBuffer(CGame::m_unk0x005a1fb8);
-        CGame::m_unk0x005a1fb8 = NULL;
-    }
-    pBuffer = CFileBuffer::AllocateLockedBuffer(local2);
-    CGame::m_unk0x005a1fb8 = pBuffer;
-    if (pBuffer == NULL)
-        return 0;
-    CGame::m_unk0x005a1fbc = local2;
+done:
     return 0;
 }
 
