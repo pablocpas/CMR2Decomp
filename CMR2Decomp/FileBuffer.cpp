@@ -222,13 +222,12 @@ BYTE *FUN_004eb450(int index)
 bool FUN_004eb3e0(void)
 {
     bool saved = true;
-    int i = 0;
-    BYTE *pProfile = g_saveProfiles + 0x10;
+    int i;
 
-    do {
-        if ((*(unsigned int *)(pProfile + 4) & 0x200000) == 0 && *pProfile != 0 &&
-            g_saveDirty[i] != 0) {
-            BYTE result = FUN_004eb340(0, pProfile - 0x10);
+    for (i = 0; i < 4; i++) {
+        if ((*(unsigned int *)(g_saveProfiles + i * 0x650 + 0x14) & 0x200000) == 0 &&
+            g_saveProfiles[i * 0x650 + 0x10] != 0 && g_saveDirty[i] != 0) {
+            BYTE result = FUN_004eb340(0, g_saveProfiles + i * 0x650);
             if (result != 0)
                 g_saveDirty[i] = 0;
             if (saved && result != 0)
@@ -236,9 +235,7 @@ bool FUN_004eb3e0(void)
             else
                 saved = false;
         }
-        pProfile += 0x650;
-        i++;
-    } while ((int)pProfile < (int)(g_saveProfiles + 0x1950));
+    }
     return saved;
 }
 

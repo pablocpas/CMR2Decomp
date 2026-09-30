@@ -4127,32 +4127,37 @@ void FUN_005040f0(void)
 // Copies the per-driver stage times into the 0x30-byte records, first for the
 // used drivers (in reverse) and then for the unused ones.
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// A save slot (g_saveSlots, 0x30 bytes): packed first word and a time.
+struct SaveSlot {
+    unsigned car : 6;
+    unsigned seconds : 7;
+    unsigned bit13 : 1;
+    unsigned level : 4;
+    unsigned category : 4;
+    unsigned rest : 10;
+    int time;
+    BYTE pad[0x28];
+};
+
 // FUNCTION: CMR2 0x00408d80
 void RallyData_FUN_00408d80(void)
 {
-    unsigned int *pRec;
-    int count;
+    int slot;
     int limit;
     int i;
 
-    count = CGameInfo::FUN_00405d70() & 0xff;
-    for (i = 0; i < count; i++) {
-        pRec = (unsigned int *)(g_unk0x00531350 + i * 0x30);
-        *pRec = (*pRec & 0xffffe03f) |
-                ((RallyTiming_GetStageTimeSeconds(0xf - i) & 0x7f) << 6);
-        *(int *)(g_unk0x00531350 + i * 0x30 + 4) = RallyTiming_FUN_0040d3d0(0xf - i);
+    for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
+        ((SaveSlot *)g_unk0x00531350)[i].seconds = RallyTiming_GetStageTimeSeconds(0xf - i);
+        ((SaveSlot *)g_unk0x00531350)[i].time = RallyTiming_FUN_0040d3d0(0xf - i);
     }
-    limit = 0x10 - (CGameInfo::FUN_00405d70() & 0xff);
+    limit = 0x10 - CGameInfo::FUN_00405d70();
     for (i = 0; i < limit; i++) {
-        pRec = (unsigned int *)(g_unk0x00531350 +
-                                ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30);
-        *pRec = (*pRec & 0xffffe03f) |
-                ((RallyTiming_GetStageTimeSeconds(i) & 0x7f) << 6);
-        *(int *)(g_unk0x00531350 +
-                 ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30 + 4) =
-            RallyTiming_FUN_0040d3d0(i);
+        slot = CGameInfo::FUN_00405d70() + i;
+        ((SaveSlot *)g_unk0x00531350)[slot].seconds = RallyTiming_GetStageTimeSeconds(i);
+        ((SaveSlot *)g_unk0x00531350)[slot].time = RallyTiming_FUN_0040d3d0(i);
     }
 }
+
 
 void RallyData_FUN_00420820(void);
 
