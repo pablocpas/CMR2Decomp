@@ -1632,24 +1632,23 @@ int FUN_004cfe80(int param_1, int param_2)
 char FUN_004cfff0(int param1, int index, char *pName)
 {
     unsigned char *pInfo;
-    unsigned int *pDevice;
+    RecordResult *pDevice;
     GameInfo0xa4SubStruct12 *pRecord;
-    int better;
+    BOOL better;
     int slot;
     int i;
 
-    pDevice = (unsigned int *)((char *)RallyData_FUN_00408c70(index) + 0x18);
+    pDevice = (RecordResult *)((char *)RallyData_FUN_00408c70(index) + 0x18);
     pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
-    better = 0;
+    better = FALSE;
     slot = 0;
     pInfo += (g_unk0x00817400 + g_unk0x00817404 * 3) * 0x3c;
-    pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xff4);
-    for (;;) {
+    while (slot < 5) {
+        pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xff4) + slot;
         if (pDevice != NULL) {
-            if ((*pDevice & 7) < ((pRecord->flags >> 7) & 7))
-                better = 1;
-            if (((((pRecord->flags >> 7) ^ *pDevice) & 7) == 0 &&
-                 (*pDevice & 0x7e0) < ((pRecord->flags >> 5) & 0x7e0)) || better) {
+            if (pDevice->level < pRecord->scoreBits.level)
+                better = TRUE;
+            if ((pRecord->scoreBits.level == pDevice->level && pDevice->score < pRecord->scoreBits.score) || better) {
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x1024);
 
@@ -1659,21 +1658,20 @@ char FUN_004cfff0(int param1, int index, char *pName)
                     }
                 }
                 strcpy(pRecord->ident, pName);
-                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
-                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
-                pRecord->flags = ((*pDevice & 7) << 7) | (pRecord->flags & 0xfffffc3f);
-                pRecord->flags = ((*pDevice & 0x7e0) << 5) | (pRecord->flags & 0xffff003f);
-                pRecord->value = pDevice[1];
+                pRecord->scoreBits.car = RallyData_FUN_004086b0((BYTE)index);
+                pRecord->scoreBits.manual = FUN_004086f0((BYTE)index);
+                pRecord->scoreBits.level = pDevice->level;
+                pRecord->scoreBits.score = pDevice->score;
+                pRecord->value = ((unsigned int *)pDevice)[1];
                 g_unk0x00817413 = 1;
                 return (slot != 0) + 1;
             }
         }
-        pRecord++;
         slot++;
-        if (slot > 4)
-            return 0;
     }
+    return 0;
 }
+
 
 // Loads the current set of split times (rally or arcade) into the mirror array
 // and resets the running minimum to a whole stage length.
