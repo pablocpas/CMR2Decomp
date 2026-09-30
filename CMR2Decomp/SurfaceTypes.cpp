@@ -1344,8 +1344,7 @@ void FUN_00478be0(void)
     int rate;
 
     g_unk0x0058dc5c = -1;
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
     CInput::FUN_0049ff80(g_unk0x0058dc58, g_unk0x0058dc58 + 1, g_unk0x0058dc58 + 2, g_unk0x0058dc58 + 3,
                          g_unk0x0058dc58 + 4);
     FUN_004a0c40(1);

@@ -9709,16 +9709,7 @@ void FUN_004f0e80(Menu *pMenu)
 
     strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
     if (FUN_004b7cd0(&key)) {
-        if (key == 8) {
-            if (CFrontend::m_stringDest[0] != 0) {
-                CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
-                Menu_PlaySoundId(2);
-            }
-            pMenu->cursor = 2;
-            pMenu->items[2].max = 8;
-            g_unk0x00819040 = CMain::GetFrameDelta();
-            g_unk0x0081986c = 1;
-        } else {
+        if (key != 8) {
             len = strlen(CFrontend::m_stringDest);
             if (len < 3 && strchr(g_strKeyChars0x005253a0, (char)key) != NULL) {
                 if (strchr(g_strUpperChars0x005253d8, (char)key) != NULL)
@@ -9749,6 +9740,15 @@ void FUN_004f0e80(Menu *pMenu)
                 g_unk0x0081986c = 1;
                 Menu_PlaySoundId(1);
             }
+        } else {
+            if (CFrontend::m_stringDest[0] != 0) {
+                CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1] = 0;
+                Menu_PlaySoundId(2);
+            }
+            pMenu->cursor = 2;
+            pMenu->items[2].max = 8;
+            g_unk0x00819040 = CMain::GetFrameDelta();
+            g_unk0x0081986c = 1;
         }
     } else if (g_unk0x0081986c != 0 && CMain::GetFrameDelta() - g_unk0x00819040 > 10) {
         g_unk0x00819040 = -1;

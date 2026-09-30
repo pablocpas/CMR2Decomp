@@ -1363,8 +1363,8 @@ int FUN_0046b4c0(BYTE *pCar)
 void FUN_0046b710(void)
 {
     int *p;
-    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
     p = &g_unk0x00588cd4[1];
+    memset(g_unk0x00588bb4, 0, 8 * sizeof(int));
     do {
         p[-1] = 0;
         *p = 0;
@@ -3785,8 +3785,8 @@ void FUN_004775f0(Texture *pTexture, int state, int cacheBase, int index)
 {
     WORD *pColours = g_unk0x0058d2d4 + index * 7;
     WORD *pApplied = (WORD *)g_unk0x0058d6b0 + index * 7;
-    int cacheSlot = index + cacheBase * 8;
     int changed = 0;
+    int cacheSlot = index + cacheBase * 8;
     int i;
 
     switch (state) {
@@ -6077,10 +6077,10 @@ void FUN_00486630(int list, int index, int value)
     p[3].y = 0;
     p[3].z = 0;
     p[1] = p[0];
+    p[2] = p[0];
     p[4].x = 0;
     p[4].y = 0;
     p[4].z = value;
-    p[2] = p[0];
 }
 
 // Sun visibility (0..100) from the lens flare sample.
@@ -7440,8 +7440,8 @@ void Events_Init(int unused, int slot, char animate)
     Texture *pTexture;
 
     Events_Reset();
-    g_unk0x00589331 = animate == 0;
     g_eventCount = 0;
+    g_unk0x00589331 = animate == 0;
     for (i = 0; i < 2048; i++) {
         pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture != NULL &&

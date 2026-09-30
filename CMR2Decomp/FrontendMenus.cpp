@@ -695,10 +695,10 @@ void FUN_004fbf60(Menu *pMenu, char param)
 
     if (param == 0) {
         pDevice = CInput::FUN_0049ead0(g_unk0x0082a7c8[g_unk0x0082a7ec & 0xffff]);
-        pMenu->items[1].enabled = 1;
         pMenu->items[1].visible = 1;
         pMenu->items[0].enabled = 1;
         pMenu->items[0].visible = 1;
+        pMenu->items[1].enabled = 1;
         pMenu->items[9].enabled = 1;
         pMenu->items[9].visible = 1;
         if (pDevice->field_0x0 == 1 || pDevice->field_0x0 == 2 || pDevice->field_0x14 < 4) {

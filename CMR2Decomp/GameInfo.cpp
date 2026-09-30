@@ -4398,8 +4398,7 @@ void FUN_00401380(Menu *pMenu)
     CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
     if (FUN_004174d0())
         CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
 }
 
 // Values the in-race option menus started with (restored on cancel).
@@ -8587,8 +8586,7 @@ void FUN_00502790(int param_1, int param_2)
         g_unk0x0082bee8[param_1][5] = g_unk0x0082bf04[param_1 * 7 + 5];
         break;
     }
-    distance = FUN_005011f0(param_1);
-    FUN_00501210(param_1, distance + g_unk0x00527098[param_2]);
+    FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x00527098[param_2]);
     g_unk0x0082bf20[param_1][param_2] = 0;
 }
 

@@ -954,8 +954,7 @@ BOOL Sound_LoadWave(char *name, BYTE flags, GenericFile *pFile)
             if (!FUN_004a20c0(g_unk0x005a2844, &g_soundBuffers[FUN_004b7780()], rate, bits, channels, 1,
                               *(DWORD *)(pWave + 0x28)))
                 return FALSE;
-            slot = FUN_004b7780();
-            if (CSound::FUN_004a3250(g_soundBuffers[slot]->QueryInterface(IID_IDirectSound3DBuffer,
+            if (CSound::FUN_004a3250(g_soundBuffers[FUN_004b7780()]->QueryInterface(IID_IDirectSound3DBuffer,
                                                                             (LPVOID *)&g_sound3DBuffers[FUN_004b7780()]))) {
                 if (!FUN_004a2210(g_soundBuffers[FUN_004b7780()], 0, pData, *(DWORD *)(pWave + 0x28)))
                     return FALSE;
@@ -1506,10 +1505,10 @@ BOOL FUN_004a2a20(void)
     WAVEFORMATEX format;
     DSBUFFERDESC desc;
 
+    g_unk0x005a271c = 0x7f400;
     memset(&desc, 0, sizeof(desc));
     format.cbSize = 0;
     desc.lpwfxFormat = &format;
-    g_unk0x005a271c = 0x7f400;
     desc.dwBufferBytes = 0x7f400;
     desc.dwSize = sizeof(desc);
     desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLVOLUME;
