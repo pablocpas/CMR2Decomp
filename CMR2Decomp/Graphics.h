@@ -1110,7 +1110,7 @@ public:
     static BOOL FUN_004a5be0(void);
     static BOOL ReleaseDirect3D(void);
     static void ReleaseVertexBuffers(void);
-    static void ReleaseSurfaces(void);
+    static int ReleaseSurfaces(void);
     static void FUN_004a8bd0(int param1);
     static void FUN_004a8d90(int param1);
     static BOOL FUN_004a7910(int screenWidth, int screenHeight, int colourDepth);

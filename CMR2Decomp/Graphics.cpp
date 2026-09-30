@@ -332,7 +332,7 @@ void CGraphics::ReleaseVertexBuffers(void) {
 }
 
 // FUNCTION: CMR2 0x004a8040
-void CGraphics::ReleaseSurfaces(void) {
+int CGraphics::ReleaseSurfaces(void) {
     if (g_pGraphics->pSurface3 != NULL && g_pGraphics->pSurface3->Release() == 0)
         g_pGraphics->pSurface3 = NULL;
 
@@ -356,6 +356,7 @@ void CGraphics::ReleaseSurfaces(void) {
     if (g_pGraphics->pDD7 != NULL && g_pGraphics->pDD7->Release() == 0) {
         g_pGraphics->pDD7 = NULL;
     }
+    return 1;
 }
 
 // FUNCTION: CMR2 0x004a8bd0
@@ -6999,8 +7000,8 @@ void FUN_004b2610(Mesh *pMesh)
     int texture;
 
     FUN_004b2460(pMesh);
-    triangleCount = pMesh->triangleCount;
     count = 0;
+    triangleCount = pMesh->triangleCount;
     currentTexture = -1;
     FUN_0049dcc0(1);
     CGraphics::SetTextureAddressClamp(0);

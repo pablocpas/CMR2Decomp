@@ -286,25 +286,25 @@ extern FixVector g_carAccel;
 extern FixBasis g_leanBasis;
 
 void Car_AllocateTable(int count);
-Car *Car_Get(int index);
-void Car_UpdateCorners(Car *pCar);
-void Car_ApplyCornerOffsets(void);
 void Car_ApplyViewTransforms(int viewIndex);
 void Car_UpdateViewNodes(int viewIndex);
-void Car_UpdateBodyAxes(void);
-void Car_UpdateBodyAxesNoDamping(void);
+Car *Car_Get(int index);
+void Car_UpdateGroundNormal(void);
+void Car_RelaxBodyAxes(int bFast);
 void Car_StoreBodyMatrix(void);
 void Car_UpdateBodyMatrix(void);
-void Car_RelaxBodyAxes(int bFast);
 void Car_UpdateCornerVelocities(void);
-void Car_UpdateGroundNormal(void);
-void Car_UpdateBodyLean(void);
-void Car_BalanceWheelPairs(void);
+void Car_UpdateBodyAxes(void);
+void Car_UpdateEngineSpeed(void);
 void Car_ApplyCornerFriction(int grip);
+void Car_BalanceWheelPairs(void);
 void Car_UpdateWheelTorques(void);
+void Car_UpdateCorners(Car *pCar);
+void Car_ApplyCornerOffsets(void);
+void Car_UpdateBodyAxesNoDamping(void);
 void Car_Integrate(void);
 void Car_UpdateWheelForces(void);
-void Car_UpdateEngineSpeed(void);
+void Car_UpdateBodyLean(void);
 void Car_UpdateAutomaticGear(void);
 
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h

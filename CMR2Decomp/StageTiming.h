@@ -51,19 +51,19 @@ int StageTiming_GetSplitDriverCount(int iSplit);
 int StageTiming_GetSplitPositionOfDriver(int iDriver, int iSplit);
 int StageTiming_GetCurrentSplitPositionOfDriver(int iDriver);
 int StageTiming_GetSplitDriverIDForPosition(int iPosition, int iSplit);
+void StageTiming_AddToOverall(void);
 int StageTiming_GetSplitTimeForPosition(int iPosition, int iSplit);
 int StageTiming_GetCurrentSplitTimeForDriver(int iDriver);
 int StageTiming_GetDriverSlot(int iDriver);
-void StageTiming_Reset(void);
-void StageTiming_AddToOverall(void);
 void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *piTime1, int *piTime2);
+void StageTiming_Reset(void);
 void StageTiming_RebuildSplitPositions(void);
 
-int *FUN_00469680(int index);
 BYTE *FUN_00456be0(int index);
-int FUN_004692b0(unsigned int type, BYTE *pModel);
 void StageDeform_ApplyRadialDent(void);
 void StageDeform_ApplyPlanarDent(void);
+int FUN_004692b0(unsigned int type, BYTE *pModel);
+int *FUN_00469680(int index);
 
 // One deformable node of a stage record: position, spin rate, angle and scale
 // (stride 0x24).

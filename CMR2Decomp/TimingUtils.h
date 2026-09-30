@@ -3,7 +3,7 @@
 
 extern char g_minSecMSECFormatString[];
 
-void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime);
 int ConvertRawTimeToCentiseconds(int iTime);
+void FormatCentisecondsAsMinSecMSec(int iTime, char *pcFormattedTime);
 
 #endif

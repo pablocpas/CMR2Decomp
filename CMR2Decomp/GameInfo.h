@@ -98,9 +98,9 @@ struct FixInterp {
     int active;             // 0x4c
 };
 
+BYTE *FUN_00502500(void);
 void FixInterp_StartToOne(FixInterp *p);
 void FixInterp_StartToZero(FixInterp *p);
-BYTE *FUN_00502500(void);
 
 class CGameInfo
 {

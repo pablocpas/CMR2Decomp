@@ -61,8 +61,8 @@ struct Menu {
     MenuItemCallbacks *pItemCallbacks;  // 0x1dc
 };
 
+void Menu_PlaySound(int id);
 void Menu_Init(Menu *pMenu, int stringId, short param3, int param4, Menu *pParent, MenuItemCallbacks *pItemCallbacks, BYTE flag4, BYTE defaultCursor, BYTE layout);
-int Menu_Update(Menu *pMenu, unsigned int input);
 void Menu_ClearNextItem(Menu *pMenu);
 void Menu_AddItemType3(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, int param, short value);
 void Menu_AddItemType6(Menu *pMenu, int stringId, short id, BYTE min, BYTE max, BYTE flag2, int unused, int param, short value);
@@ -81,9 +81,9 @@ void Menu_ValidateCursor(Menu *pMenu, int unused);
 void Menu_CallCallback0(Menu *pMenu);
 void Menu_CallCallback3(Menu *pMenu);
 void Menu_CallCallback2(Menu *pMenu);
-void Menu_GoBack(Menu *pMenu);
+int Menu_Update(Menu *pMenu, unsigned int input);
 void Menu_SetNextAction(int action);
-void Menu_PlaySound(int id);
+void Menu_GoBack(Menu *pMenu);
 void Menu_PlaySoundId(int id);
 void FUN_004a0c40(char param1);
 void FUN_004a0c50(char param1);

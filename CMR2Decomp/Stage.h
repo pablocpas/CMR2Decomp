@@ -17,7 +17,7 @@ extern StageArchiveTables g_stageArchiveTables;
 #define g_unk0x00542c68 (g_stageArchiveTables.driverCount)
 #define g_unk0x00542c6c (g_stageArchiveTables.secondaryCount)
 
-int GetStageSplitCount(void);
 int FUN_004583b0(int index);
+int GetStageSplitCount(void);
 
 #endif

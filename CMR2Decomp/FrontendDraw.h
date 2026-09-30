@@ -14,16 +14,16 @@ extern BYTE g_colourShadowText0x00524978[4];
 extern BYTE g_colourShadowDim0x0052497c[4];
 extern short g_unk0x008189a8[4];
 
+void FrontendDraw_ScrollerRow(MenuScroller *p, char active);
+void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active);
+void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings);
 int FrontendDraw_BreadcrumbItem(int x, int y, BYTE *pColour, char last, char *text);
 void FrontendDraw_Breadcrumb(int x, int y, char **ppText, int count);
 void FrontendDraw_MenuTitle(Menu *pMenu);
 int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char **ppNames, int nameCount);
 void FrontendDraw_PlayTime(void);
 void FrontendDraw_ItemLabel(char *text, int x, int y, unsigned int flags, int index, Menu *pMenu);
-void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings);
 void FrontendDraw_HelpText(char *text, int reset);
-void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int first, int active);
-void FrontendDraw_ScrollerRow(MenuScroller *p, char active);
 void FrontendDraw_Carousel(Menu *pMenu, char active, char *help);
 
 #endif

@@ -84,16 +84,16 @@ extern unsigned int g_tri2DCount3;
 // GLOBAL: CMR2 0x00816188
 extern unsigned int g_tri2DCount4;
 
-void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour);
-void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer);
-void Line2D_Init(void);
-int Line2D_Shutdown(void);
-void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB);
 void Sprite_Init(void);
-int Sprite_Shutdown(void);
-void Tri2D_Init(void);
-int Tri2D_Shutdown(void);
-int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
 void Sprite_Queue(SpriteRect *pSrc, SpriteRect *pDst, Texture *pTexture, int layer, short angleDeg, int *pCentre, SpriteRect *pUv2, BYTE *pColour, int param);
+int Sprite_Shutdown(void);
+int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer);
+void Line2D_Init(void);
+void Line2D_Queue(int *pA, int *pB, BYTE *pColourA, BYTE *pColourB);
+int Line2D_Shutdown(void);
+void Tri2D_Init(void);
+void Tri2D_Queue(int *pA, int *pB, int *pC, BYTE *pColour, int layer);
+void Tri2D_SetVertex(D3DTLVERTEX *pVertex, int *pPos, BYTE *pColour);
+int Tri2D_Shutdown(void);
 
 #endif

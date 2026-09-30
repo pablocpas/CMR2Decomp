@@ -86,20 +86,18 @@ extern int g_rotAxisXY;
 extern int g_rotAxisXZ;
 extern int g_rotAxisYZ;
 
-void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle);
-void FixMatrix_Identity(FixMatrix *pOut);
-void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn);
-void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle);
-void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM);
-void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM);
-void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
-unsigned int FixVec_Length(FixVector *pV);
-void FixVec_Normalize(FixVector *pOut, FixVector *pIn);
 void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tRight, int tAxis, int tPos, int mode);
-void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
+void FixMatrix_FromAxisAngle(FixMatrix *pOut, FixVector *pAxis, int angle);
 int FixMatrix_RotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
+void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB);
+void FixMatrix_Identity(FixMatrix *pOut);
+void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle);
+void FixMatrix_TransformAboutPivot(FixVector *pOut, FixVector *pIn, FixVector *pPivot, FixMatrix *pM);
+void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn);
+void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM);
 void FixMatrix_CopyRotation(FixMatrix *pSrc, FixMatrix *pDst);
+void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
 void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
 void FixMatrix_GetRight(FixVector *pOut, FixMatrix *pM);
 void FixMatrix_GetUp(FixVector *pOut, FixMatrix *pM);
@@ -108,6 +106,8 @@ void FixMatrix_SetPosition(FixVector *pV, FixMatrix *pM);
 void FixMatrix_SetRight(FixVector *pV, FixMatrix *pM);
 void FixMatrix_SetUp(FixVector *pV, FixMatrix *pM);
 void FixMatrix_SetForward(FixVector *pV, FixMatrix *pM);
+void FixVec_Normalize(FixVector *pOut, FixVector *pIn);
+unsigned int FixVec_Length(FixVector *pV);
 
 // Angles are 12-bit (0x1000 = 360 degrees)
 #define FixSin(a) g_sinTable[(unsigned short)(a) & 0xfff]

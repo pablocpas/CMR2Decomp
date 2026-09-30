@@ -16,9 +16,9 @@ extern RallyStageTables g_rallyStageTables;
 #define g_stagePenalty (g_rallyStageTables.penalties)
 #define g_stageTieBreak (g_rallyStageTables.tieBreak)
 
+void RallyTiming_ResetOverallPlayerTimes(void);
 int RallyTiming_GetOverallPositionDriverID(int iPosition);
 int RallyTiming_GetOverallTimeForPosition(int iPosition);
-void RallyTiming_ResetOverallPlayerTimes(void);
 void RallyTiming_SetOverallTimeRaw(int iDriver, int iCentiseconds);
 
 struct RallyOverallTables {
@@ -34,17 +34,17 @@ extern RallyOverallTables g_rallyOverallTables;
 #define g_rallyOverallTimesRaw (g_rallyOverallTables.times)
 #define g_unk0x00533698 (g_rallyOverallTables.count)
 
+void FUN_0040ccd0(char *pPositions, int *pPoints);
 int RallyTiming_GetStageOrderDriverID(int iPosition);
 int RallyTiming_GetStagePositionOfDriver(int iDriver);
 int RallyTiming_GetStageTimeSeconds(int iDriver);
-int RallyTiming_FUN_0040d3d0(int index);
-int RallyTiming_GetOverallPositionOfDriver(int iDriver);
-int RallyTiming_GetStagePenalty(int iDriver, int iUnused);
+void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piTimesRaw);
 void RallyTiming_SortOverallOrder(void);
 void RallyTiming_SortStageOrder(void);
+int RallyTiming_GetOverallPositionOfDriver(int iDriver);
+int RallyTiming_FUN_0040d3d0(int index);
+int RallyTiming_GetStagePenalty(int iDriver, int iUnused);
 int RallyTiming_GetPointsForPosition(int iPosition);
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise);
-void RallyTiming_AddStageTimes(char *pcDriverIDs, char *pcTimeDriverIx, int *piTimesRaw);
-void FUN_0040ccd0(char *pPositions, int *pPoints);
 
 #endif

@@ -5657,8 +5657,8 @@ header:
     g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 200) / 480;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 640) / 640 + (int)(g_pGraphics->resX * 30) / 640 * -2;
     g_unk0x008189a8[3] = 1;
-    offset = table * 0x3c;
     i = 0;
+    offset = table * 0x3c;
     do {
         y = (int)(g_pGraphics->resY * 19) / 480 + (int)(g_pGraphics->resY * 200) / 480 + (int)(g_pGraphics->resY * 25) / 480 * i;
         pEntry = (GameInfo0xa4SubStruct12 *)((BYTE *)CGameInfo::FUN_00405fe0() + offset);
