@@ -3826,10 +3826,8 @@ void FUN_004188c0(void)
         strcat(path, g_glassSounds[i]);
         Sound_LoadSample(path, 0, pFile);
     }
-    g_carSounds[0] = -1;
-    g_carSounds[1] = -1;
-    g_carSounds[2] = -1;
-    g_carSounds[3] = -1;
+    for (i = 0; i < 4; i++)
+        g_carSounds[i] = -1;
 }
 
 // Updates the volume of each player's car sound by distance to its listener.

@@ -7506,10 +7506,8 @@ void Events_Reset(void)
         }
     }
     g_eventsDirty = 0;
-    g_unk0x00589320[0] = 0;
-    g_unk0x00589320[1] = 0;
-    g_unk0x00589320[2] = 0;
-    g_unk0x00589320[3] = 0;
+    for (i = 0; i < 4; i++)
+        g_unk0x00589320[i] = 0;
 }
 
 // Advances an event's counter; returns 1 when it wraps past 255.

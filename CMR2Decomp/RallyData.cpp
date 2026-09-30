@@ -6335,11 +6335,7 @@ void FUN_00420850(Car *pCar)
             dz = pos.z - pCar->position.z;
             d.y = 0;
             d.z = dz;
-            if (dx < 0)
-                dx = -dx;
-            if (dz < 0)
-                dz = -dz;
-            if (dx < 0x640000 && dz < 0x640000) {
+            if (FIX_ABS(dx) < 0x640000 && FIX_ABS(dz) < 0x640000) {
                 int len = FixVecLength(&d);
                 if (len < best) {
                     best = len;
