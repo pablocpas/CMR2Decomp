@@ -1496,12 +1496,10 @@ bool CGameInfo::FUN_004d05a0(void) {
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0c60
 void CGameInfo::FUN_004a0c60(void) {
-    memset(m_unk0x0059fa20, 0, sizeof(m_unk0x0059fa20));
-
     g_sessionNamePtr = (LPVOID *)m_unk0x005a00b8;
     g_sessionPasswordPtr = (LPVOID *)m_unk0x005a02c0;
-
     m_unk0x005a0060 = FALSE;
+    memset(m_unk0x0059fa20, 0, sizeof(m_unk0x0059fa20));
     m_unk0x005a1814 = FALSE;
     m_unk0x005a01bc = false;
 }

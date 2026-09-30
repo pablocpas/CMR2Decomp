@@ -4223,12 +4223,14 @@ void RallyData_FUN_004207f0(void)
 // FUNCTION: CMR2 0x00420820
 void RallyData_FUN_00420820(void)
 {
+    int i;
+
     *(int *)g_routeProbeIndex = 0;
     *(int *)g_routeProbeBestIndex = 0;
-    g_routeProbeBestDistance[0] = 0;
-    g_routeProbeCycles[0] = 0;
-    g_routeProbeBestDistance[1] = 0;
-    g_routeProbeCycles[1] = 0;
+    for (i = 0; i < 2; i++) {
+        g_routeProbeCycles[i] = 0;
+        g_routeProbeBestDistance[i] = 0;
+    }
 }
 
 void RallyData_FUN_00421530(int index, int *pOut);

@@ -4444,8 +4444,10 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 // FUNCTION: CMR2 0x004b1500
 void Billboard_Reset(void)
 {
+    g_unk0x006dd784 = 0;
     memset(g_billboards, 0, sizeof(g_billboards));
-    g_billboardsEnabled = g_unk0x006dd788 = g_unk0x006dd784 = 0;
+    g_unk0x006dd788 = 0;
+    g_billboardsEnabled = 0;
 }
 
 // Vertex of a billboard (D3DFVF_XYZ | NORMAL | DIFFUSE | SPECULAR | TEX2).
