@@ -1622,16 +1622,17 @@ void FUN_00409be0(int param);
 // FUNCTION: CMR2 0x004ec2b0
 void FUN_004ec2b0(void)
 {
-    DWORD info[4];
+    NetPlayerInfo info;
 
-    info[0] = 0;
-    info[1] = 0;
-    info[2] = 0;
-    info[3] = 0;
-    info[0] = FUN_004a1a00();
-    info[1] = (RallyData_FUN_004086b0(0) & 0x1f) | (info[1] & 0xffffffe0);
-    info[1] = ((((g_unk0x00818ce4 & 1) | 2) << 1 | (FUN_004086f0(0) & 1)) << 5) | (info[1] & 0xfffffc9f);
-    FUN_00409be0((int)info);
+    memset(&info, 0, sizeof(info));
+    info.id = FUN_004a1a00();
+    info.bits.car = RallyData_FUN_004086b0(0);
+    info.bits.bit5 = FUN_004086f0(0);
+    info.bits.bit6 = g_unk0x00818ce4;
+    info.bits.active = 1;
+    info.bits.ready = 0;
+    info.bits.finished = 0;
+    FUN_00409be0((int)&info);
 }
 
 void FUN_0040dc30(void);

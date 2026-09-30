@@ -17,9 +17,24 @@ struct NetStats {
 };
 
 // First 16 bytes of a NetPlayer, as sent over the network
+// NetPlayer::flags as the original's bitfields (it merges adjacent constant
+// field stores into one and/or).
+struct NetPlayerFlags {
+    unsigned car : 5;       // bits 0-4
+    unsigned bit5 : 1;
+    unsigned bit6 : 1;
+    unsigned active : 1;    // bit 7
+    unsigned ready : 1;     // bit 8
+    unsigned finished : 1;  // bit 9
+    unsigned rest : 22;
+};
+
 struct NetPlayerInfo {
     int id;
-    unsigned int flags;
+    union {
+        unsigned int flags;
+        NetPlayerFlags bits;
+    };
     int field_0x8;
     int field_0xc;
 };
