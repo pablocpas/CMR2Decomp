@@ -6567,7 +6567,6 @@ void FUN_004f03f0(Menu *pMenu, char back)
     char *pText;
     int i;
 
-    i = 0;
     if (back != 0) {
         if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048)) || g_unk0x00819879 != 0) {
             if (FUN_004085a0(CGameInfo::FUN_00405d70() + (-1 - g_unk0x00819048))) {
@@ -6583,22 +6582,17 @@ void FUN_004f03f0(Menu *pMenu, char back)
     FUN_004e7770((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0() + 1);
     FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
     CSound::FUN_004a28c0();
-    pText = g_profileEntryTexts[0];
-    pItem = &pMenu->items[3];
-    do {
+    for (i = 0; i < 4; i++) {
         if (i < FUN_004ec020()) {
-            sprintf(pText, CFrontend::GetTextString(0x17e), FUN_004ec110(i));
-            pItem->enabled = 1;
-            pItem->visible = 1;
-            pItem->stringId = (int)pText;
+            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17e), FUN_004ec110(i));
+            pMenu->items[i + 3].enabled = 1;
+            pMenu->items[i + 3].visible = 1;
+            pMenu->items[i + 3].stringId = (int)g_profileEntryTexts[i];
         } else {
-            pItem->enabled = 0;
-            pItem->visible = 0;
+            pMenu->items[i + 3].enabled = 0;
+            pMenu->items[i + 3].visible = 0;
         }
-        pText += 40;
-        i++;
-        pItem++;
-    } while (pText < g_profileEntryTexts[4]);
+    }
     if (FUN_004ec020() > 0) {
         pMenu->cursor = 3;
         return;
