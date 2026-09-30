@@ -667,6 +667,7 @@ void FUN_0041c260(void);
 void FUN_0045ea70(void);
 void FUN_00455300(void);
 BYTE *FUN_0047c2f0(void);
+void FUN_0048ca60(void);
 void FUN_00471dd0(void);
 void FUN_004283b0(void);
 extern char g_tgaSuffix[];
@@ -749,7 +750,7 @@ BYTE FUN_0041f930(void)
     FUN_0045ea70();
     FUN_00455300();
     FUN_00455470(1);
-    FUN_0047c2f0();
+    FUN_0048ca60();
     FUN_0040fec0(0x3c, 1, 0xff);
     StageObject_SetLighting(g_unk0x00538234, g_unk0x00538238);
     FUN_00471dd0();

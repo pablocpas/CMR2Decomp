@@ -143,7 +143,7 @@ public:
     static unsigned char FUN_00405d80(void);
     static unsigned char FUN_00405d90(void);
     static unsigned char FUN_00405d70(void);
-    static void FUN_004f8a70(int index);
+    static char *FUN_004f8a70(int index);
     static void FUN_005011a0(void);
     static int FUN_005011b0(void);
     static void FUN_00500500(void);

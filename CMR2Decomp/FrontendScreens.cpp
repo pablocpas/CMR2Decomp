@@ -1979,79 +1979,74 @@ void FUN_004ecaf0(Menu *pMenu)
     if (status == 1) {
         g_unk0x00818d04 = 1;
         g_unk0x00819018 = FUN_004a1480();
-        if (g_unk0x00819014 == 0) {
+        if (g_unk0x00819014 != 0) {
+            if (g_unk0x00819018 > 0) {
+                if (g_unk0x0052528c != g_unk0x00819018) {
+                    if (g_unk0x00819024 != 0) {
+                        for (i = 0; i < g_unk0x00819018; i++) {
+                            FUN_004a15c0((BYTE)i, &guid);
+                            if (IsEqualGUID(guid, g_unk0x00818cf0)) {
+                                g_unk0x00525288 = i;
+                                break;
+                            }
+                        }
+                    } else {
+                        g_unk0x00525288 = -1;
+                    }
+                }
+                g_unk0x0052528c = g_unk0x00819018;
+                if (g_unk0x00525288 == -1) {
+                    g_unk0x00525288 = 0;
+                    FUN_004a15c0(0, &g_unk0x00818cf0);
+                    g_unk0x00819024 = 1;
+                } else if ((pDevice->field_0x8 & 0x20) != 0) {
+                    g_unk0x00819014 = 0;
+                    g_unk0x00525288 = -1;
+                    g_unk0x00819024 = 0;
+                    CGameInfo::FUN_004a13b0();
+                    g_unk0x00818ef4 = 0;
+                } else {
+                    Menu_SetFlags(pMenu, 0, 0, 1, 0);
+                    if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
+                        g_unk0x00525288--;
+                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        g_unk0x00819024 = 1;
+                    } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
+                        g_unk0x00525288++;
+                        FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
+                        g_unk0x00819024 = 1;
+                    }
+                }
+            } else {
+                g_unk0x00819014 = 0;
+                g_unk0x00525288 = -1;
+                g_unk0x0052528c = -1;
+                g_unk0x00819024 = 0;
+                g_unk0x0081901c = 0;
+            }
+            if (g_unk0x00525288 < g_unk0x0081901c) {
+                g_unk0x0081901c--;
+                if (g_unk0x0081901c < 0)
+                    g_unk0x0081901c = 0;
+            }
+            if (g_unk0x00525288 >= g_unk0x0081901c + 5)
+                g_unk0x0081901c++;
+        } else {
             g_unk0x00525288 = 0;
             g_unk0x0052528c = -1;
             g_unk0x00819024 = 0;
             Menu_SetFlags(pMenu, 1, 1, 1, 1);
-            goto tail;
         }
-        if (g_unk0x00819018 <= 0) {
-            g_unk0x00819014 = 0;
-            g_unk0x00525288 = -1;
-            g_unk0x0052528c = -1;
-            g_unk0x00819024 = 0;
-            g_unk0x0081901c = 0;
-        } else {
-            if (g_unk0x0052528c != g_unk0x00819018) {
-                if (g_unk0x00819024 == 0) {
-                    g_unk0x00525288 = -1;
-                } else {
-                    for (i = 0; i < g_unk0x00819018; i++) {
-                        FUN_004a15c0((BYTE)i, &guid);
-                        if (IsEqualGUID(g_unk0x00818cf0, guid)) {
-                            g_unk0x00525288 = i;
-                            break;
-                        }
-                    }
-                }
-            }
-            g_unk0x0052528c = g_unk0x00819018;
-            if (g_unk0x00525288 == -1) {
-                g_unk0x00525288 = 0;
-                FUN_004a15c0(0, &g_unk0x00818cf0);
-                g_unk0x00819024 = 1;
-            } else if ((pDevice->field_0x8 & 0x20) != 0) {
-                g_unk0x00819014 = 0;
-                g_unk0x00525288 = -1;
-                g_unk0x00819024 = 0;
-                CGameInfo::FUN_004a13b0();
-                g_unk0x00818ef4 = 0;
-            } else {
-                Menu_SetFlags(pMenu, 0, 0, 1, 0);
-                if ((pDevice->field_0x8 & 4) != 0 && g_unk0x00525288 > 0) {
-                    g_unk0x00525288--;
-                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
-                    g_unk0x00819024 = 1;
-                } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x00525288 < g_unk0x00819018 - 1) {
-                    g_unk0x00525288++;
-                    FUN_004a15c0((BYTE)g_unk0x00525288, &g_unk0x00818cf0);
-                    g_unk0x00819024 = 1;
-                }
-            }
-        }
-        if (g_unk0x00525288 < g_unk0x0081901c) {
-            g_unk0x0081901c--;
-            if (g_unk0x0081901c < 0)
-                g_unk0x0081901c = 0;
-        }
-        if (g_unk0x00525288 >= g_unk0x0081901c + 5)
-            g_unk0x0081901c++;
-    } else {
-        if (status == -1)
-            return;
-        if (status != -2)
-            return;
+        if (g_unk0x00819018 > 5)
+            g_unk0x00819020 = 5;
+        else
+            g_unk0x00819020 = g_unk0x00819018;
+    } else if (status != -1 && status == -2) {
         CGame::FUN_0049c140();
         Menu_SetNextAction((int)pMenu->pParent);
-        return;
     }
-tail:
-    if (g_unk0x00819018 > 5)
-        g_unk0x00819020 = 5;
-    else
-        g_unk0x00819020 = g_unk0x00819018;
 }
+
 
 // FUNCTION: CMR2 0x004eca60
 void FUN_004eca60(Menu *pMenu, char param)
@@ -8189,7 +8184,7 @@ void FUN_004dc930(Menu *pMenu)
                 pColour = pUnselColour;
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * row;
             Font_DrawText(1, FUN_004a1490(index), (int)(g_pGraphics->resX * 100) / 0x280, y, pColour, 10);
-            Font_DrawText(1, CFrontend::GetTextString(Session_GetListedUserValue(index, 0) - 8 + 0x1f1),
+            Font_DrawText(1, CGameInfo::FUN_004f8a70(Session_GetListedUserValue(index, 0) - 8),
                           (int)(g_pGraphics->resX * 300) / 0x280, y, pColour, 10);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_004a1720(index));
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1c2) / 0x280, y, pColour, 10);
@@ -11389,7 +11384,7 @@ void FUN_004dce00(Menu *pMenu)
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strItemTextFmt, CFrontend::GetTextString(0x1c0),
-                        ((char *(__stdcall *)(int))CGameInfo::FUN_004f8a70)(Menu_GetItem(pMenu, 1)->max));
+                        CGameInfo::FUN_004f8a70(Menu_GetItem(pMenu, 1)->max));
                 pText = CFrontend::m_stringDest;
                 break;
             case 2:
@@ -11981,7 +11976,7 @@ void FUN_004dd4b0(Menu *pMenu)
     order[7] = 7;
 
     texts[0] = CFrontend::GetTextString(0x12);
-    texts[1] = CFrontend::GetTextString((CGameInfo::FUN_00405d80() & 0xff) - 8 + 0x1f1);
+    texts[1] = CGameInfo::FUN_004f8a70((CGameInfo::FUN_00405d80() & 0xff) - 8);
     switch (CGameInfo::FUN_00405d80() & 0xff) {
     case 8:
         sprintf(buf, CRegKey::m_regKeyPathFormatValue,

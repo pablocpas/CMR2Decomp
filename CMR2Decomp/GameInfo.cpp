@@ -2804,9 +2804,9 @@ void CGameInfo::FUN_005011a0(void)
 }
 
 // FUNCTION: CMR2 0x004f8a70
-void CGameInfo::FUN_004f8a70(int index)
+char *CGameInfo::FUN_004f8a70(int index)
 {
-    CFrontend::GetTextString(index + 0x1f1);
+    return CFrontend::GetTextString(index + 0x1f1);
 }
 
 // FUNCTION: CMR2 0x005011b0
