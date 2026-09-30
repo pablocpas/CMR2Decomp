@@ -232,17 +232,15 @@ void FUN_0040d9e0(int group);
 // FUNCTION: CMR2 0x0040dbe0
 void FUN_0040dbe0(int value)
 {
-    int *pPair = &g_unk0x0052f100[0][1];
-    int *pFlag = g_unk0x0052f1f0;
-    do {
-        pPair[-1] = value;
-        *pPair = value;
-        pFlag[-20] = value;
-        *pFlag = 0;
-        pFlag[20] = 0;
-        pPair += 2;
-        pFlag++;
-    } while ((int)pPair < (int)&g_unk0x0052f1a0[1]);
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        g_unk0x0052f100[i][0] = value;
+        g_unk0x0052f100[i][1] = value;
+        g_unk0x0052f1a0[i] = value;
+        g_unk0x0052f1f0[i] = 0;
+        g_unk0x0052f240[i] = 0;
+    }
     FUN_0040d9e0(0);
     FUN_0040d9e0(1);
     FUN_0040d9e0(2);

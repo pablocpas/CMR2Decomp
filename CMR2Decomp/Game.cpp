@@ -3449,11 +3449,9 @@ done:
 void FUN_004a1940(DPID *pId)
 {
     int i;
-    Unk0x005a1820 *pPlayer;
 
-    i = 0;
-    for (pPlayer = CGame::m_unk0x005a1820; pPlayer < CGame::m_unk0x005a1820 + 7; pPlayer++, i++) {
-        if (pPlayer->field_0xc8 == *pId) {
+    for (i = 0; i < 7; i++) {
+        if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
             sprintf(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
             sprintf(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
             CGame::m_unk0x005a1820[i].field_0xc8 = 0;

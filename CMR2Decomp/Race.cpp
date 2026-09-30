@@ -831,14 +831,14 @@ int RallyData_FUN_00421370(BYTE *p);
 // FUNCTION: CMR2 0x00417780
 void FUN_00417780(int player)
 {
-    RaceSlotState *p;
+    int i;
 
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
     g_unk0x00537198[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
-    for (p = g_raceSlotState; p < g_raceSlotState + 5; p++) {
-        p->flags &= 0xfc;
-        p->pending = -1;
-        p->owner = -1;
+    for (i = 0; i < 5; i++) {
+        g_raceSlotState[i].flags &= 0xfc;
+        g_raceSlotState[i].pending = -1;
+        g_raceSlotState[i].owner = -1;
     }
 }
 
