@@ -794,3 +794,64 @@ Informes inmutables, entidades, scans, lista de ganancias y logs en
 `tools/matching-below700-01/`. Las pruebas nuevas son reproducibles con
 `tests/differential_replay_reset.py` y `tests/differential_session_enumeration.py`,
 pasando `current.json` y `current-entities.json` de esa carpeta.
+
+## Segundo lote aislado bajo 700: clasificación, viento y sonido de etapa
+
+Base **9ff8098**, rama `decomp/matching-low-review`. Se han comparado las
+3362 funciones anotadas por bytes: **2447 exactas**, **915 pendientes**,
+**seis ganancias y ninguna pérdida**. Faltan **216** para llegar a 699.
+El hito sigue abierto. reccmp mide 3364 funciones: **2367** al 100%, cinco
+ganancias estrictas y ninguna pérdida; 730 quedan por debajo del 90%.
+
+| Función | reccmp antes | reccmp después | Corrección |
+|---|---:|---:|---|
+| `0x40e5e0` | 25.88% | 100% | Desplazamiento de leaderboards por índice, conservando la copia de cada registro. |
+| `0x417780` | 72.00% | 100% | Reinicio de los cinco slots por índice. |
+| `0x45f6d0` | 83.98% | 100% | Contador con signo; terminar la búsqueda de nieve asignándole el count. |
+| `0x493a40` | 36.62% | 100% | Par base calculado una vez; mejor marcha BYTE; orden original de guardas y asignaciones. |
+| `0x4b8b10` | 70.27% | 100% | Capturar el primer nodo del sector antes de decidir si hay lista. |
+| `0x4ec020` | 86.84% | 97.44% | Recorrido de perfiles con índice unsigned. Los 103 bytes son exactos. |
+
+La diferencia normalizada de `0x4ec020` afecta al nombre del final de un
+array. Se verifica por separado el código completo; no se cambian los
+owners para alterar la puntuación. Los cinco símbolos que el comparador
+no resuelve siguen contándose como pendientes.
+
+### Reinicio de sonido: corrección funcional que sigue parcial
+
+En `0x418f20`, el original avanza el puntero **0xb4 bytes antes** de escribir
+los estados WORD y el índice de patrón. La fuente anterior usaba el puntero
+sin avanzar para los offsets `-0x140`, `-0x13e` y `-0xb0`: dejaba estados sin
+reiniciar y escribía 25 en otro campo. Ahora usa los ocho registros existentes
+`RaceCarSoundState`: `state/stateOld=-1`, `pattern=25`, contadores a cero,
+handles/ids y los primeros cuatro slotState a -1. El recorrido cabe completo
+en g_raceBlock; conserva el registro único del callback.
+
+reccmp pasa de **56.00% a 56.86%**. Esta corrección **no** cuenta entre las
+seis exactas. El harness nativo compara todo el arena de 64 KiB con el
+original y un modelo independiente: **6000 casos, cero diferencias**,
+incluidos los ocho registros, campos vecinos y callback que modifica memoria
+antes de la asignación final del flag. El control negativo falla en la
+compilación anterior, caso 0, por el patrón incorrecto antes del callback.
+
+### Verificación y reproducción
+
+Build MSVC6 correcto; datacmp **3201 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3195 globals**; overlap idéntico
+al primer lote y `git diff --check` limpio. No se han cambiado cabeceras,
+owners globales ni firmas públicas.
+
+Informes, scans, entidades, bytes, ganancias, logs y compilaciones congeladas
+en `tools/matching-below700-02/`. Prueba:
+
+```sh
+python3 tests/differential_stage_sound_reset.py ../tools/matching-below700-02/current.json ../tools/matching-below700-02/current-entities.json
+```
+
+El tercer argumento opcional permite comprobar el PE anterior usando sus
+informes y entidades. Los mocks no validan una partida completa.
+
+Siguiente grupo identificado: `g_unk0x00537248/4c` se usan como un array de
+dos jugadores en el HUD y el detector de sentido contrario, pero aún son
+dos escalares independientes. Revisar su ownership y el reset `0x416670`
+antes de continuar con variantes de registros. No está corregido en este lote.

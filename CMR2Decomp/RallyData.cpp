@@ -1629,7 +1629,6 @@ void FUN_004eb000(BYTE index, char set)
     }
 
 // Number of saved profiles (named, not hidden) no record is using.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec020
 int FUN_004ec020(void)
 {
@@ -1638,12 +1637,13 @@ int FUN_004ec020(void)
     BYTE *pProfile;
     unsigned int p;
     int count;
-    int i;
+    unsigned int i;
 
     count = 0;
     RALLYDATA_USED_PROFILES(used)
     i = 0;
-    for (pProfile = g_saveProfiles + 0x14; pProfile < g_saveProfiles + 0x1954; pProfile += 0x650, i++) {
+    for (i = 0; i < 4; i++) {
+        pProfile = g_saveProfiles + 0x14 + i * 0x650;
         if (!used[i] && pProfile[-4] != 0 && (*(unsigned int *)pProfile & 0x200000) == 0)
             count++;
     }

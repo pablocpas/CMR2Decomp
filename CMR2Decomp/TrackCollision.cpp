@@ -937,34 +937,34 @@ void FUN_00494880(void)
 
 // Flags whether the auto-gear car is at or below its best gear for the
 // current revs (gear with the most torque below 98% of the limit).
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00493a40
 void FUN_00493a40(void)
 {
-    int best;
+    BYTE best;
     int bestTorque;
     int torque;
     int gear;
 
-    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] < 1) {
-        best = 7;
-    } else {
+    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] > 0) {
+        int baseTorque;
         bestTorque = 0xd8f00000;
+        baseTorque = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[g_pAutoGearCar->field_0xb1e]);
         best = 0;
         for (gear = 1; gear < 7; gear++) {
-            torque = FixMul(FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[g_pAutoGearCar->field_0xb1e]),
-                            g_pAutoGearCar->field_0x7bc[gear]);
-            if (bestTorque < torque && (torque < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || gear == 6)) {
-                best = gear;
+            torque = FixMul(baseTorque, g_pAutoGearCar->field_0x7bc[gear]);
+            if (torque > bestTorque && (torque < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || gear == 6)) {
                 bestTorque = torque;
+                best = gear;
             }
         }
+    } else {
+        best = 7;
     }
-    if (g_pAutoGearCar->field_0xb1e <= best) {
-        g_pAutoGearCar->field_0xb98 = 1;
+    if (g_pAutoGearCar->field_0xb1e > best) {
+        g_pAutoGearCar->field_0xb98 = 0;
         return;
     }
-    g_pAutoGearCar->field_0xb98 = 0;
+    g_pAutoGearCar->field_0xb98 = 1;
 }
 
 // GLOBAL: CMR2 0x00592164

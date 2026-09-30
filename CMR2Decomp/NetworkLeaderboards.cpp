@@ -138,18 +138,17 @@ void CNetworkLeaderboards::AddLeaderboard(void)
 }
 
 // Removes a leaderboard, moving the following ones down.
-// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e5e0
 void CNetworkLeaderboards::RemoveLeaderboard(int index)
 {
-    NetworkLeaderboard *p;
+    int i;
 
-    if (index <= m_leaderboardId)
+    if (m_leaderboardId >= index)
         m_leaderboardId--;
     *(BYTE *)&m_leaderboards[m_totalLeaderboards].isLoaded = 1;
     if (index < MAX_LEADERBOARDS - 1) {
-        for (p = &m_leaderboards[index]; p < &m_leaderboards[MAX_LEADERBOARDS - 1]; p++)
-            *p = p[1];
+        for (i = index; i < MAX_LEADERBOARDS - 1; i++)
+            m_leaderboards[i] = m_leaderboards[i + 1];
     }
     m_leaderboards[MAX_LEADERBOARDS - 1].isLoaded = 0;
     m_totalLeaderboards--;

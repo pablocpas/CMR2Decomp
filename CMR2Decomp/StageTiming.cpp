@@ -8803,7 +8803,7 @@ void FUN_00460b60(int *p, int unused);
 void FUN_0045f6d0(void)
 {
     int snow;
-    unsigned int i;
+    int i;
 
     if (g_unk0x00547944.z != 0) {
         g_unk0x00547944.z -= g_unk0x0051bd3c;
@@ -8834,10 +8834,10 @@ change:
     g_unk0x00547944.y = FixMul(0x667, RAND_FIX()) + 0x147;
     g_unk0x0054793c = g_unk0x00547940;
     snow = 0;
-    for (i = 0; i < g_unk0x00543e98; i++) {
+    for (i = 0; i < (int)g_unk0x00543e98; i++) {
         if (*(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178) == 2) {
             snow = 1;
-            break;
+            i = g_unk0x00543e98;
         }
     }
     if (snow) {
