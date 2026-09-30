@@ -853,9 +853,7 @@ struct RaceCallRecord {
 // GLOBAL: CMR2 0x005371d0
 RaceCallRecord g_raceCallRecords[10];
 // GLOBAL: CMR2 0x00537248
-int g_unk0x00537248;
-// GLOBAL: CMR2 0x0053724c
-int g_unk0x0053724c;
+int g_raceWrongWayFlags[2];
 
 // Queues a race call (radio message) of the given call id and player.
 extern int g_unk0x00537358;
@@ -940,9 +938,9 @@ void FUN_00416670(void)
     int i;
 
     g_unk0x00537198[0] = 9999;
-    g_unk0x00537248 = 0;
+    g_raceWrongWayFlags[0] = 0;
     g_unk0x00537198[1] = 9999;
-    g_unk0x0053724c = 0;
+    g_raceWrongWayFlags[1] = 0;
     g_unk0x0053708c[0] = -1;
     g_unk0x0053708c[1] = -1;
     memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
@@ -1065,7 +1063,7 @@ void FUN_004177d0(unsigned int player, int param2)
     }
     yText = ((int)g_pGraphics->resY << 12 >> 16) + extra;
 
-    pCallFlag = &g_unk0x00537248;
+    pCallFlag = g_raceWrongWayFlags;
     if (pCallFlag[player] != 0 || FUN_004054b0(player) != 0) {
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x57));
         FUN_00417e70(CFrontend::m_stringDest, &g_unk0x00517e24, player, 1, -1, -1);
@@ -4355,7 +4353,7 @@ int g_unk0x00537354;
 
 // Per-car route/timing update. Keeps the tracked route position
 // g_unk0x0053708c[] in sync with the car's node (best, from RallyData), raises
-// the "gate" flag g_unk0x00537248[] while the node direction projected on the
+// the wrong-way flag while the node direction projected on the
 // front wheel rolling direction points backwards, scans the nodes around the
 // position for pending callouts (FUN_004174e0) and, when the leading call of
 // this car expires, shifts its five call records g_raceCallRecords[car*5].
@@ -4416,7 +4414,7 @@ void FUN_00417090(int param_1)
               FixMul(dir.y, pCar->wheelDirFront.y) +
               FixMul(dir.z, pCar->wheelDirFront.z);
         if (dot < -0x8000) {
-            ((int *)&g_unk0x00537248)[param_1] = 1;
+            g_raceWrongWayFlags[param_1] = 1;
             g_unk0x00537198[param_1] = best;
         }
     }
@@ -4428,18 +4426,18 @@ void FUN_00417090(int param_1)
         cur = best;
     }
 
-    if (((int *)&g_unk0x00537248)[param_1] != 0) {
+    if (g_raceWrongWayFlags[param_1] != 0) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
         dot = FixMul(dir.x, pCar->wheelDirFront.x) +
               FixMul(dir.y, pCar->wheelDirFront.y) +
               FixMul(dir.z, pCar->wheelDirFront.z);
         if (dot > 0x3333)
-            ((int *)&g_unk0x00537248)[param_1] = 0;
+            g_raceWrongWayFlags[param_1] = 0;
     }
 
     if (g_unk0x00537198[param_1] < best)
-        ((int *)&g_unk0x00537248)[param_1] = 0;
+        g_raceWrongWayFlags[param_1] = 0;
 
     g_unk0x00537354 = 0;
     i = g_unk0x0053708c[param_1] + 1;

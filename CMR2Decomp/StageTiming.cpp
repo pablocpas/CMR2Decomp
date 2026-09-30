@@ -3251,22 +3251,16 @@ void FUN_004692f0(Car *pCar, int param_2)
 }
 
 // Index of the part of a car model whose node type byte is `type` (-1 none).
-// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004692b0
 int FUN_004692b0(unsigned int type, BYTE *pModel)
 {
     int i;
     SceneNode **ppNode;
 
-    i = 0;
-    if (*(int *)(pModel + 0x45c) > 0) {
-        ppNode = (SceneNode **)(pModel + 0x3c);
-        do {
-            if (((*ppNode)->flags & 0xff) == type)
-                return i;
-            i++;
-            ppNode++;
-        } while (i < *(int *)(pModel + 0x45c));
+    for (i = 0; i < *(int *)(pModel + 0x45c); i++) {
+        ppNode = (SceneNode **)(pModel + 0x3c) + i;
+        if (((*ppNode)->flags & 0xff) == type)
+            return i;
     }
     return -1;
 }

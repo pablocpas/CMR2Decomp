@@ -4198,16 +4198,15 @@ void FUN_00480220(void)
 }
 
 // Selects a list of 0x6c-byte records (count first); returns whether it is non-empty.
-// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048caa0
 int FUN_0048caa0(int *pList)
 {
     unsigned int count = 0;
 
     if (pList != NULL) {
-        count = *pList;
+        g_unk0x005918c8 = *pList;
+        count = g_unk0x005918c8;
         g_unk0x00591750 = (BYTE *)(pList + 1);
-        g_unk0x005918c8 = count;
     } else {
         g_unk0x005918c8 = count;
         g_unk0x00591750 = NULL;
@@ -5355,7 +5354,6 @@ extern unsigned short *g_stageRandomTextures[3];
 extern Mesh *g_stageMesh4Copy;
 
 // Gives every triangle of the stage mesh one of the three random textures.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00492b50
 void FUN_00492b50(void)
 {
@@ -5365,15 +5363,10 @@ void FUN_00492b50(void)
 
     r = rand() % 3;
     if (g_stageRandomTextures[r] != NULL) {
-        n = g_stageMesh4Copy->triangleCount;
-        if (n - 1 >= 0) {
-            offset = (n - 1) * 0x4c;
-            do {
-                offset -= 0x4c;
-                n--;
-                // +0x50 from the previous triangle: the texture word (+4) of this one
-                *(unsigned int *)((BYTE *)g_stageMesh4Copy->pTriangles + 0x50 + offset) = *g_stageRandomTextures[r];
-            } while (n != 0);
+        for (n = g_stageMesh4Copy->triangleCount - 1; n >= 0; n--) {
+            offset = n * 0x4c - 0x4c;
+            // The biased offset addresses the texture word (+4) of triangle n.
+            *(unsigned int *)((BYTE *)g_stageMesh4Copy->pTriangles + (0x50 + offset)) = *g_stageRandomTextures[r];
         }
     }
 }
@@ -6006,33 +5999,31 @@ extern FixVector g_collisionLineStart;
 
 // 1 when no corner of the collision car lies strictly between the heights of
 // the line start and the target.
-// match 17%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048f400
 int FUN_0048f400(void)
 {
-    int *pY;
+    int start = g_collisionLineStart.y;
+    int target = g_collisionTarget.y;
+    int result = 1;
     int i;
-
-    if (g_collisionTarget.y > g_collisionLineStart.y) {
-        i = 0;
-        pY = &g_collisionCar->corners[0].y;
-        while (*pY >= g_collisionTarget.y || *pY <= g_collisionLineStart.y) {
-            i++;
-            pY += 3;
-            if (i >= 8)
-                return 1;
+    if (target > start) {
+        for (i = 0; i < 8; i++) {
+            int y = g_collisionCar->corners[i].y;
+            if (y < target && y > start) {
+                result = 0;
+                break;
+            }
         }
     } else {
-        i = 0;
-        pY = &g_collisionCar->corners[0].y;
-        while (*pY <= g_collisionTarget.y || *pY >= g_collisionLineStart.y) {
-            i++;
-            pY += 3;
-            if (i >= 8)
-                return 1;
+        for (i = 0; i < 8; i++) {
+            int y = g_collisionCar->corners[i].y;
+            if (y > target && y < start) {
+                result = 0;
+                break;
+            }
         }
     }
-    return 0;
+    return result;
 }
 
 void FUN_004ae410(BYTE a, BYTE b, int c, int d);

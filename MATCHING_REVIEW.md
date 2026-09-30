@@ -855,3 +855,54 @@ Siguiente grupo identificado: `g_unk0x00537248/4c` se usan como un array de
 dos jugadores en el HUD y el detector de sentido contrario, pero aún son
 dos escalares independientes. Revisar su ownership y el reset `0x416670`
 antes de continuar con variantes de registros. No está corregido en este lote.
+
+## Tercer lote aislado bajo 700: intervalos, nodos y flags de dos jugadores
+
+Base **f4db191**, rama `decomp/matching-low-review`. Auditoría completa:
+**2453/3362 exactas por bytes**, **909 pendientes**, seis ganancias y ninguna
+pérdida. Faltan **210** para llegar a 699; el hito sigue abierto. reccmp:
+**2372/3364** estrictas, cinco ganancias y ninguna pérdida; **725** bajo 90%.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x4692b0` | 50.00% | 100% | Buscar el tipo del nodo por índice, sin pelar la primera iteración. |
+| `0x48caa0` | 30.77% | 100% | Publicar el count antes de capturarlo y guardar el puntero de la lista. |
+| `0x48f400` | 27.85% | 100% | Capturar ambos extremos; dos loops indexados y una salida común. |
+| `0x492b50` | 50.00% | 100% | Recorrer los triángulos por índice inverso; conservar la textura leída en cada vuelta. |
+| `0x49cd90` | 95.83% | 100% | Capturar pObject antes de comprobar el flag de dibujo. |
+| `0x4aa880` | 77.19% | 96.77% | memset del Data4 del GUID: los 96 bytes completos son exactos. |
+
+La diferencia normalizada en ClearConnections es el nombre del puntero final
+de un array, que coincide con otro símbolo en la imagen recompilada. No se
+modifican owners para cambiar la puntuación. Los cinco errores de resolución
+heredados del comparador siguen contándose como pendientes.
+
+### Flag de sentido contrario del segundo jugador
+
+`g_unk0x00537248/4c` eran dos escalares, separados **368 bytes** en el PE
+anterior. El HUD y el detector accedían al segundo mediante `[player]` desde
+el primero, fuera de ese objeto, mientras el reset limpiaba el otro scalar.
+Se recupera el owner real **g_raceWrongWayFlags[2]**, de ocho bytes, y sus
+usuarios nombran el array. Se elimina la anotación redundante del miembro
++4. No hay cambios de cabeceras ni de firmas públicas.
+
+El reset `0x416670` sigue parcial (37.21%); este arreglo no cuenta entre las
+seis exactas. `tests/differential_race_state_reset.py` ejecuta original y
+recompilado con un modelo independiente del arena completo: **6000 casos,
+cero diferencias**, dos flags, diez call records, cinco slots y guardas.
+El control negativo con el PE anterior preserva la distancia real de los
+escalares y falla en el caso 0 por el flag del segundo jugador (offset 4544).
+Reubicar ambos escalares juntos en un harness habría ocultado este bug.
+
+Build MSVC6 correcto; datacmp **3200 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3194 globals**; los 27 overlaps
+heredados son idénticos al segundo lote; `git diff --check` limpio.
+Artefactos inmutables, informes, entidades, scans, ganancias, hashes, logs y
+ambas compilaciones completas: `tools/matching-below700-03/`.
+
+```sh
+python3 tests/differential_race_state_reset.py ../tools/matching-below700-03/current.json ../tools/matching-below700-03/current-entities.json ../tools/matching-below700-03/current-build/CMR2.exe
+```
+
+El tercer argumento permite comprobar otro PE con sus informes y entidades.
+La prueba cubre el reset; no valida una partida completa.

@@ -1864,7 +1864,6 @@ int __cdecl CGame::CompareConnections(const void *a, const void *b)
     return ((DPlayConnection *)b)->guidSP == DPSPGUID_IPX;
 }
 
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa880
 void CGame::ClearConnections(void)
 {
@@ -1880,8 +1879,7 @@ void CGame::ClearConnections(void)
         m_connections[i].guidSP.Data1 = 0;
         m_connections[i].guidSP.Data2 = 0;
         m_connections[i].guidSP.Data3 = 0;
-        *(DWORD *)&m_connections[i].guidSP.Data4[0] = 0;
-        *(DWORD *)&m_connections[i].guidSP.Data4[4] = 0;
+        memset(m_connections[i].guidSP.Data4, 0, sizeof(m_connections[i].guidSP.Data4));
     }
     m_connectionCount = 0;
     m_maxConnections = 10;
@@ -2418,11 +2416,12 @@ void FUN_0049cd90(void)
     CGraphics::SetZWriteEnable(1);
     for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
         pNode = g_sceneNodes[i];
-        if (pNode != NULL && pNode->type == SCENE_NODE_MESH && pNode->field_0x17c != 0 &&
-            pNode->pObject != NULL) {
+        if (pNode != NULL && pNode->type == SCENE_NODE_MESH) {
             pMesh = (Mesh *)pNode->pObject;
-            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
-            Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            if (pNode->field_0x17c != 0 && pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
         }
     }
     Quad2D_DrawLayer(0x10);
