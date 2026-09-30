@@ -1382,6 +1382,24 @@ char g_strSlashFormat[8] = "%s / %s";
 // GLOBAL: CMR2 0x00526ed8
 char g_strAngleFormat[8] = "< %s >";
 
+// Settings rows: a label at x, then the two choices of the entry, the active
+// one bright; every position is rescaled from 640x480 at each use.
+#define FM_SX(v) (g_pGraphics->resX * (v) / 640)
+#define FM_SY(v) (g_pGraphics->resY * (v) / 480)
+#define FM_LABEL(text)                                                                     \
+    Font_DrawText(1, text, x, FM_SY(24) + line[1], (int *)pLabel, 0x11);                  \
+    x = Font_GetTextWidth(1, (BYTE *)(text)) + FM_SX(10) + x;
+#define FM_CHOICE(idA, idB)                                                                \
+    if (pItem->max == 0) {                                                                 \
+        Font_DrawText(1, CFrontend::GetTextString(idA), x, FM_SY(24) + line[1], (int *)pBright, 0x11); \
+        x = FM_SX(10) + x + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(idA));   \
+        Font_DrawText(1, CFrontend::GetTextString(idB), x, FM_SY(24) + line[1], (int *)pDim, 0x11); \
+    } else {                                                                               \
+        Font_DrawText(1, CFrontend::GetTextString(idA), x, FM_SY(24) + line[1], (int *)pDim, 0x11); \
+        x = FM_SX(10) + x + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(idA));   \
+        Font_DrawText(1, CFrontend::GetTextString(idB), x, FM_SY(24) + line[1], (int *)pBright, 0x11); \
+    }
+
 // Draws the two choices of an entry after its label at x: the active one
 // (A when value is 0) in pBright, the other one in pDim.
 inline void FrontendMenus_DrawChoice(int x, int y, BYTE value, int idA, int idB, BYTE *pBright, BYTE *pDim)
@@ -1618,7 +1636,6 @@ void FUN_004fe240(Menu *pMenu)
     MenuItem *pItem;
     short y0;
     int x;
-    int y;
     int i;
 
     icon[1] = 0;
@@ -1654,34 +1671,40 @@ void FUN_004fe240(Menu *pMenu)
                   - CFrontend::m_pAr640ATexture->height / 2;
         CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
-        x = (int)(g_pGraphics->resX * 0x7a) / 640;
-        y = (int)(g_pGraphics->resY * 24) / 480 + line[1];
         switch (pItem->value) {
         case 0:
             sprintf(CFrontend::m_stringDest, g_strAngleFormat, FUN_004fbab0());
-            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, FM_SX(0x7a), FM_SY(24) + line[1], (int *)pLabel, 0x11);
             break;
         case 1:
-            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(0x197), x, y, pLabel);
-            FrontendMenus_DrawChoice(x, y, pItem->max, 0x69, 0x68, pBright, pDim);
+            x = FM_SX(0x7a);
+            FM_LABEL(CFrontend::GetTextString(0x197));
+            FM_CHOICE(0x69, 0x68);
             break;
         case 2:
             sprintf(CFrontend::m_stringDest, g_strSlashFormat, CFrontend::GetTextString(0x6d), CFrontend::GetTextString(0x6e));
-            x = FrontendMenus_DrawLabel(CFrontend::m_stringDest, x, y, pLabel);
-            FrontendMenus_DrawChoice(x, y, pItem->max, 0x69, 0x68, pBright, pDim);
+            x = FM_SX(0x7a);
+            FM_LABEL(CFrontend::m_stringDest);
+            FM_CHOICE(0x69, 0x68);
             break;
         case 3:
-            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
-            FrontendMenus_DrawChoice(x, y, pItem->max, 0x134, 0x133, pBright, pDim);
+            x = FM_SX(0x7a);
+            FM_LABEL(CFrontend::GetTextString(pItem->id));
+            FM_CHOICE(0x134, 0x133);
             break;
         case 4:
+            x = FM_SX(0x7a);
+            FM_LABEL(CFrontend::GetTextString(pItem->id));
+            FM_CHOICE(5, 4);
+            break;
         case 5:
-            x = FrontendMenus_DrawLabel(CFrontend::GetTextString(pItem->id), x, y, pLabel);
-            FrontendMenus_DrawChoice(x, y, pItem->max, 5, 4, pBright, pDim);
+            x = FM_SX(0x7a);
+            FM_LABEL(CFrontend::GetTextString(pItem->id));
+            FM_CHOICE(5, 4);
             break;
         case 6:
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
-            Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)pLabel, 0x11);
+            Font_DrawText(1, CFrontend::m_stringDest, FM_SX(0x7a), FM_SY(24) + line[1], (int *)pLabel, 0x11);
             break;
         }
         if (pMenu->cursor == i || pMenu->cursor == i + 1) {
