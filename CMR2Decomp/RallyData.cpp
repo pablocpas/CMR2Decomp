@@ -4135,31 +4135,36 @@ void FUN_005040f0(void)
 
 // Copies the per-driver stage times into the 0x30-byte records, first for the
 // used drivers (in reverse) and then for the unused ones.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408d80
 void RallyData_FUN_00408d80(void)
 {
     unsigned int *pRec;
-    int count;
+    int target;
+    unsigned int seconds;
     int limit;
     int i;
+    int order;
 
-    count = CGameInfo::FUN_00405d70() & 0xff;
-    for (i = 0; i < count; i++) {
-        pRec = (unsigned int *)(g_unk0x00531350 + i * 0x30);
-        *pRec = (*pRec & 0xffffe03f) |
-                ((RallyTiming_GetStageTimeSeconds(0xf - i) & 0x7f) << 6);
-        *(int *)(g_unk0x00531350 + i * 0x30 + 4) = RallyTiming_FUN_0040d3d0(0xf - i);
+    i = 0;
+    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
+        pRec = (unsigned int *)g_unk0x00531350;
+        order = 15;
+        do {
+            *pRec = (*pRec & 0xffffe03f) |
+                    ((RallyTiming_GetStageTimeSeconds(order) & 0x7f) << 6);
+            pRec[1] = RallyTiming_FUN_0040d3d0(order);
+            i++;
+            order--;
+            pRec += 12;
+        } while (i < (CGameInfo::FUN_00405d70() & 0xff));
     }
     limit = 0x10 - (CGameInfo::FUN_00405d70() & 0xff);
     for (i = 0; i < limit; i++) {
-        pRec = (unsigned int *)(g_unk0x00531350 +
-                                ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30);
-        *pRec = (*pRec & 0xffffe03f) |
-                ((RallyTiming_GetStageTimeSeconds(i) & 0x7f) << 6);
-        *(int *)(g_unk0x00531350 +
-                 ((CGameInfo::FUN_00405d70() & 0xff) + i) * 0x30 + 4) =
-            RallyTiming_FUN_0040d3d0(i);
+        target = (CGameInfo::FUN_00405d70() & 0xff) + i;
+        seconds = RallyTiming_GetStageTimeSeconds(i);
+        pRec = (unsigned int *)(g_unk0x00531350 + target * 0x30);
+        *pRec = (*pRec & 0xffffe03f) | ((seconds & 0x7f) << 6);
+        *(int *)(g_unk0x00531350 + target * 0x30 + 4) = RallyTiming_FUN_0040d3d0(i);
     }
 }
 
@@ -4496,7 +4501,6 @@ int RallyData_FUN_004209d0(BYTE *p)
 }
 
 // Scales the per-record value at p[0xb1a] to a 0..0x10000 ratio.
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421470
 int RallyData_FUN_00421470(BYTE *p)
 {
@@ -4505,11 +4509,12 @@ int RallyData_FUN_00421470(BYTE *p)
 
     if (g_unk0x00538a84 == 0)
         return 0;
-    value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
     if (g_unk0x00538a94 != 0) {
-        if (value >= (RallyData_FUN_00406990() & 0xff) * g_unk0x00538a84)
+        value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
+        if (value >= (int)(RallyData_FUN_00406990() & 0xff) * g_unk0x00538a84)
             return 0x10000;
     } else {
+        value = g_raceRecords[(signed char)p[0xb1a]].field_0x8;
         if (value >= g_unk0x00538a84)
             return 0x10000;
     }

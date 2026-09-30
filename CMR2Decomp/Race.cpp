@@ -3926,27 +3926,23 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
         int level = (FixMul(strength, 0x70000) >> 16) + 1;                \
         if (level > 8)                                                    \
             level = 8;                                                    \
-        if (Car_Get(view)->field_0xb43[3] < level)                        \
+        if (level > Car_Get(view)->field_0xb43[3])                        \
             Car_Get(view)->field_0xb43[3] = (BYTE)level;                  \
     } while (0)
 
 // Plays a random impact sound (light or heavy set) and shakes the car.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418c30
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 {
-    int sound;
-
-    if (heavy == 0)
-        sound = rand() % 4 + g_unk0x005373ac;
+    if (heavy != 0)
+        FUN_004187d0(view, (unsigned short)(rand() % 3 + 4 + g_unk0x005373ac), volume, listener);
     else
-        sound = rand() % 3 + 4 + g_unk0x005373ac;
-    FUN_004187d0(view, (unsigned short)sound, volume, listener);
+        FUN_004187d0(view, (unsigned short)(rand() % 4 + g_unk0x005373ac), volume, listener);
     CAR_SHAKE(view, volume);
 }
 
 // Plays the scrape sound for its strength (10 levels) and shakes the car.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418ba0
 void FUN_00418ba0(unsigned int view, int strength, int listener)
 {

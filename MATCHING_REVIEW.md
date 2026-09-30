@@ -906,3 +906,50 @@ python3 tests/differential_race_state_reset.py ../tools/matching-below700-03/cur
 
 El tercer argumento permite comprobar otro PE con sus informes y entidades.
 La prueba cubre el reset; no valida una partida completa.
+
+## Cuarto lote aislado bajo 700: clasificación viva y progreso con signo
+
+Base **76c0a6a**, rama `decomp/matching-low-review`. Auditoría completa:
+**2455/3362 exactas por bytes**, **907 pendientes**; dos ganancias y ninguna
+pérdida. Faltan **208** para bajar a 699. reccmp: **2374/3364** estrictas,
+dos ganancias sin pérdidas, **722** bajo 90%. El hito sigue abierto.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x408d80` | 56.91% | 100% | Consultar count en cada vuelta; recorrer los usados en orden inverso y capturar el destino de los demás antes del proveedor. |
+| `0x418c30` | 57.69% | 100% | Llamadas de sonido dentro de cada rama, heavy primero; nivel de shake como operando izquierdo de la comparación. |
+
+Los **172 bytes** de clasificación y los **152 bytes** de sonido son exactos.
+En clasificación, la fuente previa capturaba una vez el count del primer
+bucle y calculaba dos veces el destino del segundo, con llamadas a proveedores
+entre ambas consultas. El original consulta el count durante el primer bucle
+y usa el mismo destino capturado para ambos campos del segundo.
+La macro de shake tiene otro usuario `0x418ba0`: mejora a **84.78%**, todavía
+parcial; la auditoría completa confirma que no se pierde ninguna exacta.
+
+### Progreso negativo interpretado como recorrido completo
+
+`0x421470` comparaba un valor int con un producto unsigned porque
+RallyData_FUN_00406990 devuelve unsigned. El original usa **cmp/jl con signo**.
+Se convierte el count en int antes de multiplicar y se captura el valor del
+registro dentro de la rama correspondiente, después de consultar el modo.
+reccmp pasa de **63.16% a 94.25%**; sigue parcial y no cuenta como ganancia
+exacta. La diferencia restante incluye el save/restore adelantado de ESI.
+
+`tests/differential_route_progress.py`: **6000 casos nativos / cero
+diferencias** con original, recompilado y modelo independiente. Comprueba
+los ocho registros, umbrales con signo, clamps, retorno, número de llamadas,
+64 KiB completos y proveedor que cambia el límite, denominador, registro e
+índice del coche después de capturar el progreso. El control negativo con el
+PE anterior falla en el caso 1: devuelve **65536** para progreso **-1**, con
+umbral positivo, cuando el original devuelve cero. No prueba una partida.
+
+Build MSVC6 correcto; datacmp **3200 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3194 globals**; los 27 overlaps
+heredados siguen idénticos y `git diff --check` limpio. No cabeceras, firmas
+públicas ni owners modificados. Informes, compilaciones completas, hashes,
+ganancias y logs: `tools/matching-below700-04/`.
+
+```sh
+python3 tests/differential_route_progress.py ../tools/matching-below700-04/current.json ../tools/matching-below700-04/current-entities.json ../tools/matching-below700-04/current-build/CMR2.exe
+```
