@@ -1580,41 +1580,36 @@ int FUN_004cfe20(int param_1, int param_2)
 // same.
 // match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfe80
-BYTE FUN_004cfe80(int param_1, int param_2)
+int FUN_004cfe80(int param_1, int param_2)
 {
     GameInfo0xa4 *pInfo;
     GameInfo0xa4SubStruct8 *pRecord;
     short *pSplits;
     unsigned int *pOption;
+    unsigned int *pTime;
     char placeholder[16];
-    int index;
+    int stage;
+    int group;
     int i;
 
     pOption = (unsigned int *)RallyData_FUN_00408c70(param_2);
     pInfo = CGameInfo::FUN_00405fe0();
-    index = g_unk0x008173fc + g_unk0x00817404 * 3;
+    stage = g_unk0x008173fc;
+    group = g_unk0x00817404;
     FUN_004582d0(param_1);
     strcpy(placeholder, g_str0x00523bb4);
-    pRecord = &pInfo->arcadeRecordTimes[index];
-    pSplits = pInfo->arcadeRecordSplits[index];
-    if ((unsigned int *)((int)pOption + 0x20) != NULL) {
-        unsigned int value = *(unsigned int *)((int)pOption + 0x20);
+    pSplits = pInfo->arcadeRecordSplits[stage + group * 3];
+    pTime = (unsigned int *)((int)pOption + 0x20);
+    pRecord = &pInfo->arcadeRecordTimes[stage + group * 3];
+    if (pTime != NULL) {
+        unsigned int value = *pTime;
 
         if (value < ((pRecord->value >> 7) & 0xffff)) {
             pRecord->value = (value & 0xffff) << 7 | (pRecord->value & 0xff80007f);
-            {
-                int *pMirror = g_unk0x00817448;
-                short *pSplit = pSplits;
-
-                i = 0;
-                do {
-                    unsigned short split = (unsigned short)FUN_00448240(param_1, i);
-                    *pSplit = split;
-                    *pMirror = split;
-                    pSplit++;
-                    pMirror++;
-                    i++;
-                } while ((int)pMirror < (int)&g_unk0x00817448[6]);
+            for (i = 0; i < 6; i++) {
+                unsigned short split = (unsigned short)FUN_00448240(param_1, i);
+                pSplits[i] = split;
+                g_unk0x00817448[i] = split;
             }
             value = (pRecord->value >> 7) & 0xffff;
             i = FUN_004583a0();

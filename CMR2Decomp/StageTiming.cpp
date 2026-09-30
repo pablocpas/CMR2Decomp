@@ -8906,7 +8906,7 @@ void FUN_0040a3e0(unsigned int time);
 void FUN_0040a330(unsigned int time, int stage);
 void FUN_004cf530(int index, int value);
 BYTE FUN_004cf830(int index);
-BYTE FUN_004cfe80(int param_1, int param_2);
+int FUN_004cfe80(int param_1, int param_2);
 int FUN_004cfe20(int param_1, int param_2);
 int FUN_004481c0(int car);
 unsigned int RallyData_FUN_004082c0(void);
