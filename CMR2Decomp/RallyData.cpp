@@ -3956,12 +3956,9 @@ extern int g_unk0x0082c694;
 int g_unk0x0082ca20[9];
 // GLOBAL: CMR2 0x0082c9e8
 void *g_unk0x0082c9e8;
+// Source rectangle of the map texture (x, y, w, h).
 // GLOBAL: CMR2 0x0082c9f4
-int g_unk0x0082c9f4;
-// GLOBAL: CMR2 0x0082c9f8
-int g_unk0x0082c9f8;
-// GLOBAL: CMR2 0x0082c9fa
-short g_unk0x0082c9fa;
+short g_mapSrcRect[4];
 // GLOBAL: CMR2 0x0082c9fc
 short g_unk0x0082c9fc;
 // GLOBAL: CMR2 0x0082c9fe
@@ -3993,6 +3990,35 @@ struct Unk0x0082c6c8 {
 };
 extern Unk0x0082c6c8 g_unk0x0082c6c8[16];
 extern short g_unk0x0082c9ec[4];
+
+// 0x50-byte entry of 0x82c6c8 as seen by the per-car split panel.
+struct Unk0x0082c6c8Panel {
+    void *texture;      // 0x0
+    short srcX1;
+    short srcY1;
+    short srcX2;
+    short srcY2;
+    short dstX1;
+    short dstY1;
+    short dstX2;
+    short dstY2;
+    int start;
+    int end;
+    int current;        // 0x1c
+    int distance;       // 0x20
+    int field_0x24;     // 0x24
+    int field_0x28;     // 0x28
+    int u0;             // 0x2c texture coordinates in the map texture (16.16)
+    int u1;
+    int v0;
+    int v1;
+    int startTime;      // 0x3c
+    int field_0x40;
+    int field_0x44;
+    BYTE field_0x48;
+    BYTE pad_0x49[3];
+    int active;         // 0x4c
+};
 extern BYTE g_unk0x0082ca1c;
 extern int g_unk0x0082c6c0;
 extern int g_unk0x0082cb44;
@@ -4067,70 +4093,59 @@ void FUN_00503ea0(void)
 
 // Sets up the weather entries of the stage: their texture, screen rectangle and
 // the fixed texture coordinates.
-// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005040f0
 void FUN_005040f0(void)
 {
-    BYTE *pEntry;
-    BYTE *pTex;
-    int count;
-    int i;
+    Unk0x0082c6c8Panel *pEntry;
     int index;
-    int x;
-    int y;
+    int i;
 
-    pTex = (BYTE *)g_unk0x0082cb4c;
     g_unk0x0082c9e8 = g_unk0x0082cb4c;
     g_unk0x0082c9ec[0] = 0x1c;
     g_unk0x0082c9ec[1] = 0x72;
     g_unk0x0082c9ec[2] = 0x100;
     g_unk0x0082c9ec[3] = 0xf6;
-    g_unk0x0082c9f4 = *(int *)(pTex + 0x11c);
-    g_unk0x0082c9f8 = *(int *)(pTex + 0x120);
-    g_unk0x0082c9fa = 0xf6;
+    *(int *)&g_mapSrcRect[0] = *(int *)((BYTE *)g_unk0x0082cb4c + 0x11c);
+    *(int *)&g_mapSrcRect[2] = *(int *)((BYTE *)g_unk0x0082cb4c + 0x120);
+    g_mapSrcRect[3] = 0xf6;
     g_unk0x0082c9fc = 0xd8;
     g_unk0x0082c9fe = 0x7c;
     g_unk0x0082ca00 = 0x3b;
     g_unk0x0082ca02 = 0x39;
-    count = CGameInfo::FUN_00501230();
-    g_unk0x0082c694 = count;
-    if (count > 0) {
-        for (i = 0; i < count; i++) {
-            pEntry = (BYTE *)g_unk0x0082c6c8 + i * 0x50;
-            *(int *)(pEntry + 0x18) = 0;
-            *(int *)(pEntry + 0x14) = 0;
-            *(int *)(pEntry + 0x1c) = 0;
-            *(int *)(pEntry + 0x24) = 0;
-            *(int *)(pEntry + 0x28) = 0;
-            *(int *)(pEntry + 0x4c) = 0;
-            *(int *)(pEntry + 0x20) = 0;
-            *(int *)(pEntry + 0x44) = 0;
-            *(int *)(pEntry + 0x40) = 0;
-            *(int *)(pEntry + 0x3c) = 0;
-            index = (RallyDataStageIndex() & 3) + i;
-            *(BYTE *)(pEntry + 0x48) = g_unk0x0082cb70[index];
-            *(int *)pEntry = g_unk0x0082cb50[index];
-            x = g_unk0x0082cb60[index * 2] + g_unk0x0082c9ec[0];
-            y = g_unk0x0082cb60[index * 2 + 1] + g_unk0x0082c9ec[1];
-            *(short *)(pEntry + 0x04) = (short)x;
-            *(short *)(pEntry + 0x06) = (short)y;
-            *(short *)(pEntry + 0x08) = 10;
-            *(short *)(pEntry + 0x0a) = 9;
-            *(int *)(pEntry + 0x2c) = (short)g_unk0x0082c9f4 * 0x10000 +
-                FixMul(FixDiv((x - g_unk0x0082c9ec[0]) << 16, (short)g_unk0x0082c9ec[2] << 16),
-                       (short)g_unk0x0082c9f8 << 16);
-            *(int *)(pEntry + 0x30) = (short)g_unk0x0082c9f4 * 0x10000 +
-                FixMul(FixDiv(((short)x - g_unk0x0082c9ec[0] + 10) << 16,
-                              (short)g_unk0x0082c9ec[2] << 16),
-                       (short)g_unk0x0082c9f8 << 16);
-            *(int *)(pEntry + 0x34) = (short)(g_unk0x0082c9f4 >> 16) * 0x10000 +
-                FixMul(FixDiv((y - g_unk0x0082c9ec[1]) << 16, (short)g_unk0x0082c9ec[3] << 16),
-                       (short)g_unk0x0082c9fa << 16);
-            *(int *)(pEntry + 0x38) = (short)(g_unk0x0082c9f4 >> 16) * 0x10000 +
-                FixMul(FixDiv(((short)y - g_unk0x0082c9ec[1] + 9) << 16,
-                              (short)g_unk0x0082c9ec[3] << 16),
-                       (short)g_unk0x0082c9fa << 16);
-        }
+    g_unk0x0082c694 = CGameInfo::FUN_00501230();
+    for (i = 0; i < g_unk0x0082c694; i++) {
+        pEntry = (Unk0x0082c6c8Panel *)g_unk0x0082c6c8 + i;
+        pEntry->end = 0;
+        pEntry->start = 0;
+        pEntry->current = 0;
+        pEntry->field_0x24 = 0;
+        pEntry->field_0x28 = 0;
+        pEntry->active = 0;
+        pEntry->distance = 0;
+        pEntry->field_0x44 = 0;
+        pEntry->field_0x40 = 0;
+        pEntry->startTime = 0;
+        index = (RallyDataStageIndex() & 0xff) % 4 + i;
+        pEntry->texture = (void *)g_unk0x0082cb50[index];
+        pEntry->field_0x48 = g_unk0x0082cb70[index];
+        pEntry->srcX1 = g_unk0x0082cb60[index * 2] + g_unk0x0082c9ec[0];
+        pEntry->srcY1 = g_unk0x0082cb60[index * 2 + 1] + g_unk0x0082c9ec[1];
+        pEntry->srcX2 = 10;
+        pEntry->srcY2 = 9;
+        pEntry->u0 = (g_mapSrcRect[0] << 16) +
+                     FixMul(FixDiv((pEntry->srcX1 - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
+                            g_mapSrcRect[2] << 16);
+        pEntry->u1 = (g_mapSrcRect[0] << 16) +
+                     FixMul(FixDiv((pEntry->srcX1 - g_unk0x0082c9ec[0] + pEntry->srcX2) << 16,
+                                   g_unk0x0082c9ec[2] << 16),
+                            g_mapSrcRect[2] << 16);
+        pEntry->v0 = (g_mapSrcRect[1] << 16) +
+                     FixMul(FixDiv((pEntry->srcY1 - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
+                            g_mapSrcRect[3] << 16);
+        pEntry->v1 = (g_mapSrcRect[1] << 16) +
+                     FixMul(FixDiv((pEntry->srcY1 - g_unk0x0082c9ec[1] + pEntry->srcY2) << 16,
+                                   g_unk0x0082c9ec[3] << 16),
+                            g_mapSrcRect[3] << 16);
     }
     g_unk0x0082ca1c = 0;
     g_unk0x0082c6c0 = CMain::GetFrameDelta();
@@ -6741,8 +6756,8 @@ void FUN_00505590(void)
     int prod;
 
     if (g_unk0x0082ca1c == 0xff) {
-        *(int *)&rect[0] = g_unk0x0082c9f4;
-        *(int *)&rect[2] = g_unk0x0082c9f8;
+        *(int *)&rect[0] = *(int *)&g_mapSrcRect[0];
+        *(int *)&rect[2] = *(int *)&g_mapSrcRect[2];
 
     } else {
         pEntry = (struct Unk0x0082c6c8Split *)g_unk0x0082c6c8 + g_unk0x0082ca1c;
@@ -7043,28 +7058,6 @@ BYTE g_unk0x0052723c[12] = { 0x14, 0x16, 0x16, 0x11, 0x11, 0x0d, 0x0e, 0x0b, 0x0
 // GLOBAL: CMR2 0x00527248
 BYTE g_unk0x00527248[12] = { 0x2d, 0x30, 0x31, 0x28, 0x28, 0x21, 0x22, 0x1d, 0x1e, 0x00, 0x00, 0x00 };
 
-// 0x50-byte entry of 0x82c6c8 as seen by the per-car split panel.
-struct Unk0x0082c6c8Panel {
-    void *texture;      // 0x0
-    short srcX1;
-    short srcY1;
-    short srcX2;
-    short srcY2;
-    short dstX1;
-    short dstY1;
-    short dstX2;
-    short dstY2;
-    int start;
-    int end;
-    int current;        // 0x1c
-    int distance;       // 0x20
-    int field_0x24;     // 0x24
-    int field_0x28;     // 0x28
-    BYTE field_0x2c[0x10];
-    int startTime;
-    BYTE field_0x40[0xc];
-    int active;
-};
 
 void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags);
@@ -7108,7 +7101,7 @@ void FUN_005044d0(int param1)
         return;
     *(int *)&src[0] = *(int *)((BYTE *)pEntry->texture + 0x11c);
     *(int *)&src[2] = *(int *)((BYTE *)pEntry->texture + 0x120);
-    src[3] = g_unk0x0082c9fa;
+    src[3] = g_mapSrcRect[3];
     if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
         CFrontend::FUN_004b7590(0x400)) {
         src[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
@@ -7195,7 +7188,7 @@ void FUN_005044d0(int param1)
         rect[3] = (short)((FixMul(g_unk0x0082ca02 << 16, scale) >> 16) * (int)g_pGraphics->resY / 0x1e0);
         if (over >= 0) {
             colour[3] = (BYTE)(FixMul(FixMul(pEntry->current, over), 0xff0000) >> 16);
-            Sprite_Queue((SpriteRect *)&g_unk0x0082c9f4, (SpriteRect *)rect, (Texture *)g_unk0x0082c9e8, 3, 0,
+            Sprite_Queue((SpriteRect *)g_mapSrcRect, (SpriteRect *)rect, (Texture *)g_unk0x0082c9e8, 3, 0,
                          NULL, NULL, colour, 8);
             x = FixDiv((pEntry->srcX1 - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16);
             outline[0] = (short)((FixMul(x, g_unk0x0082ca00 << 16) >> 16) + g_unk0x0082c9fc);
