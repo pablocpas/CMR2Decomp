@@ -3558,7 +3558,6 @@ void FUN_004f8a90(char *pText)
 
 // Reads every saved game (<install>\gamesave\*.rcs) into the saved games
 // list: one 0x7f4-byte record per file plus its file name.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4ef0
 void FUN_004f4ef0(void)
 {
@@ -3574,7 +3573,17 @@ void FUN_004f4ef0(void)
     sprintf(saveDir, g_strSaveGameDirFormat, CInstallInfo::GetGameHDPath());
     if (SetCurrentDirectoryA(saveDir) != 0 &&
         (hFind = FindFirstFileA(g_strSaveGamePattern, &find)) != INVALID_HANDLE_VALUE) {
-        do {
+        pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
+        if (pRecord != NULL) {
+            g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
+            memcpy((BYTE *)g_unk0x0081b14c + g_unk0x0081b154 * 0x7f4, pRecord, 0x7f4);
+            g_unk0x0081b150 = (void **)CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b150, g_unk0x0081b154 * 4 + 4);
+            g_unk0x0081b150[g_unk0x0081b154] = CFileBuffer::AllocateLockedBuffer(0x100);
+            strcpy((char *)g_unk0x0081b150[g_unk0x0081b154], find.cFileName);
+            g_unk0x0081b154++;
+            CFileBuffer::FreeGenericFileBuffer(pRecord);
+        }
+        while (FindNextFileA(hFind, &find) != 0) {
             pRecord = CFileBuffer::GetGenericFileBuffer(find.cFileName, TRUE);
             if (pRecord != NULL) {
                 g_unk0x0081b14c = CFileBuffer::ReallocateLockedBuffer(g_unk0x0081b14c, (g_unk0x0081b154 + 1) * 0x7f4);
@@ -3585,7 +3594,7 @@ void FUN_004f4ef0(void)
                 g_unk0x0081b154++;
                 CFileBuffer::FreeGenericFileBuffer(pRecord);
             }
-        } while (FindNextFileA(hFind, &find) != 0);
+        }
         FindClose(hFind);
     }
     SetCurrentDirectoryA(oldDir);
