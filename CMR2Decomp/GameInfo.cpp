@@ -9646,7 +9646,7 @@ void FUN_00505b40(void)
         now = CMain::GetFrameDelta();
         ratio = FixSqrt(FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance));
         if (ratio < 0x10000) {
-            pEntry->current = FixMul(pEntry->end - pEntry->start, ratio) + pEntry->start;
+            pEntry->current = FixMul(ratio, pEntry->end - pEntry->start) + pEntry->start;
         } else {
             pEntry->active = 0;
             pEntry->current = pEntry->end;
@@ -10623,18 +10623,18 @@ void FUN_0050c420(int param_1)
         FixMul((int)(__int64)((double)(colour >> 8 & 0xff) * CGraphics::m_65536), f);
         FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
         FixMul((int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536), f);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul(0x10000 - f, (int)(__int64)((double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536));
         break;
     case 1:
         break;
     case 2:
         f = 0x10000 - FixDiv(0x10000 - (int)(__int64)((double)(unsigned)frames * CGraphics::m_65536), 0x10000);
-        FixMul((int)(__int64)((double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536), f);
+        FixMul(f, (int)(__int64)((double)(g_unk0x00527380[0] & 0xff) * CGraphics::m_65536));
         FixMul((int)(__int64)((double)(colour & 0xff) * CGraphics::m_65536), 0x10000 - f);
         FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 8 & 0xff) * CGraphics::m_65536), f);
         FixMul((int)(__int64)((double)(colour >> 8 & 0xff) * CGraphics::m_65536), 0x10000 - f);
         FixMul((int)(__int64)((double)(g_unk0x00527380[0] >> 16 & 0xff) * CGraphics::m_65536), f);
-        FixMul((int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536), 0x10000 - f);
+        FixMul(0x10000 - f, (int)(__int64)((double)(colour >> 16 & 0xff) * CGraphics::m_65536));
         break;
     }
     while (i < (signed char)FUN_00502500()[6]) {

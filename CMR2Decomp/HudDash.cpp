@@ -358,7 +358,7 @@ void Dash_DrawBar(int player, int layer)
     dx = 0;
     dy = 0;
     if (g_dashSimple == 0) {
-        pos = FixMul(g_dashRev[player], 0x250000) - 0xa0000;
+        pos = FixMul(0x250000, g_dashRev[player]) - 0xa0000;
         index = pos >> 16;
         if (index >= 0) {
             frac = pos - (index << 16);
@@ -661,7 +661,7 @@ void Dash_DrawDial(int player, int layer)
     k = 0xc553;
     do {
         sprintf(letter, g_strDashChar, gears.c[i]);
-        Font_DrawText(0, letter, (FixMul(g_pGraphics->resX << 16, 0xf78d) >> 16) - 5,
+        Font_DrawText(0, letter, (FixMul(0xf78d, g_pGraphics->resX << 16) >> 16) - 5,
                       FixMul(g_pGraphics->resY << 16, k) >> 16, (int *)g_dashWhite, 0x12);
         k -= 0xae1;
         i++;

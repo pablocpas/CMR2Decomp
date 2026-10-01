@@ -163,23 +163,23 @@ void FixMatrix_Invert(FixMatrix *pOut, FixMatrix *pIn)
 
     m = (int *)pIn;
     p0 = FixMul(m[5], m[10]);
-    p1 = FixMul(m[9], m[6]);
+    p1 = FixMul(m[6], m[9]);
     p2 = FixMul(m[4], m[10]);
-    p3 = FixMul(m[8], m[6]);
+    p3 = FixMul(m[6], m[8]);
     p4 = FixMul(m[4], m[9]);
-    p5 = FixMul(m[8], m[5]);
+    p5 = FixMul(m[5], m[8]);
     p6 = FixMul(m[1], m[10]);
-    p7 = FixMul(m[9], m[2]);
+    p7 = FixMul(m[2], m[9]);
     p8 = FixMul(m[0], m[10]);
-    p9 = FixMul(m[8], m[2]);
+    p9 = FixMul(m[2], m[8]);
     p10 = FixMul(m[0], m[9]);
-    p11 = FixMul(m[8], m[1]);
+    p11 = FixMul(m[1], m[8]);
     p12 = FixMul(m[1], m[6]);
-    p13 = FixMul(m[5], m[2]);
+    p13 = FixMul(m[2], m[5]);
     p14 = FixMul(m[0], m[6]);
-    p15 = FixMul(m[4], m[2]);
+    p15 = FixMul(m[2], m[4]);
     p16 = FixMul(m[0], m[5]);
-    p17 = FixMul(m[4], m[1]);
+    p17 = FixMul(m[1], m[4]);
     c0 = p0 - p1;
     c1 = p7 - p6;
     c2 = p12 - p13;
@@ -242,7 +242,7 @@ void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
             for (k = 4; k != 0; k--) {
                 ai = *pA2;
                 bi = *pB2;
-                *pR += FixMul(ai, bi);
+                *pR += FixMul(bi, ai);
                 pA2++;
                 pB2 += 4;
             }
@@ -727,8 +727,8 @@ void FUN_00422d40(unsigned int player)
     int i = player & 0xff;
     int base = FixMul(g_unk0x005391cc[i], 0x275c2);
     int ratio = (int)(__int64)(((double)g_pGraphics->resX / (double)g_pGraphics->resY) * CGraphics::m_65536);
-    int fovX = FixMul(FixMul(base, ratio), 0x123d7);
-    int fovY = FixMul(base, 0x2147a);
+    int fovX = FixMul(0x123d7, FixMul(base, ratio));
+    int fovY = FixMul(0x2147a, base);
 
     if (FUN_0041f3a0() == 0 && RallyData_FUN_00411880()) {
         if (CGameInfo::FUN_00405dc0())

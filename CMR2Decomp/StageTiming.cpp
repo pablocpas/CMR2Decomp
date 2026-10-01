@@ -1250,7 +1250,7 @@ void FUN_004564d0(int pCar, int *pOut)
                 v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));
                 sum = n + FixMul(rf, pIn[-0x1e]) + n + FixMul(rf, pIn[-0x1f]);
                 t = FixDiv(sum, 0x20000);
-                *p = FixMul(0x10000 - t, v6) + FixMul(t, v5) + v4 + v3 + v2 + v1;
+                *p = FixMul(0x10000 - t, v6) + FixMul(v5, t) + v4 + v3 + v2 + v1;
                 k--;
                 p++;
                 off += 4;
@@ -4465,12 +4465,12 @@ void FUN_00455f00(int pCar, int *pOut)
         m4 = FixMul(d4, m3);
         m5 = FixMul(rc, d3);
         m6 = FixMul(t2, m5);
-        m7 = FixMul(ac, d4);
+        m7 = FixMul(d4, ac);
         m8 = FixMul(t2, m7);
         t4 = FixDiv(sum, 0x20000);
         m9 = FixMul(t4, d3);
         m10 = FixMul(t3, m9);
-        m11 = FixMul(0x10000 - t4, d4);
+        m11 = FixMul(d4, 0x10000 - t4);
         *pOut = FixMul(t3, m11) + m10 + m8 + m6 + m4 + m2 + d0;
     }
 }
@@ -4790,7 +4790,7 @@ void FUN_00424360(void)
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
 
-    speed = FixMul(g_unk0x00539278->field_0x18, 0x40000);
+    speed = FixMul(0x40000, g_unk0x00539278->field_0x18);
     force = FixMul(force, speed);
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
@@ -4813,7 +4813,7 @@ void FUN_004247a0(void)
         } else {
             v = *(int *)(p + 0x1a8 + i * 0xc) + *(int *)(p + 0x8c + i * 0x24);
             g_unk0x005391f8[i] = v;
-            v = FixMul(v, *(int *)(p + 0x1a4 + i * 0xc) + *(int *)(p + 0x88 + i * 0x24));
+            v = FixMul(*(int *)(p + 0x1a4 + i * 0xc) + *(int *)(p + 0x88 + i * 0x24), v);
             g_unk0x005391f8[i] = v;
             v = FixMul(v, 0x16e14);
             g_unk0x005391f8[i] = v;
@@ -4871,11 +4871,11 @@ void FUN_004248a0(void)
         }
     }
 
-    speed = FixMul(g_unk0x00539278->field_0x1c, 0x40000);
+    speed = FixMul(0x40000, g_unk0x00539278->field_0x1c);
     spring = FixMul(spring, speed);
     if (FIX_ABS(spring) > 0x10000)
         spring = spring > 0 ? 0x10000 : -0x10000;
-    speed = FixMul(g_unk0x00539278->field_0x1c, 0x40000);
+    speed = FixMul(0x40000, g_unk0x00539278->field_0x1c);
     damper = FixMul(damper, speed);
     if (FIX_ABS(damper) > 0x10000)
         damper = damper > 0 ? 0x10000 : -0x10000;
@@ -4948,7 +4948,7 @@ void FUN_00424af0(void)
     speed = FixMul(*(int *)(g_unk0x0053937c + 0x778), 0x10000);
     if (speed > 0x10000)
         speed = 0x10000;
-    k = FixMul(*(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c), speed) + g_unk0x00539278->field_0x28;
+    k = FixMul(speed, *(int *)(g_unk0x0053937c + 0xc0) + *(int *)(g_unk0x0053937c + 0x9c)) + g_unk0x00539278->field_0x28;
     if (k > 0x10000)
         k = 0x10000;
     g_unk0x00539278->field_0x20 = FixMul(g_unk0x00539278->field_0x20, k);
@@ -5970,8 +5970,8 @@ void FUN_004584d0(char param_1)
         RallyData_FUN_00421530(0, p1);
         angle = StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]);
         a = (short)(int)(__int64)((double)angle * g_unk0x00511300);
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         n = 1;
         for (i = 0; i < g_unk0x00542c68; i++, n--) {
             slot = i;
@@ -5981,13 +5981,13 @@ void FUN_004584d0(char param_1)
                 slot = n;
             g_unk0x00542d38[slot] = RallyData_FUN_00421420() - 1;
             if (g_unk0x00542c68 > 2)
-                t = FixMul((int)(__int64)((double)slot * CGraphics::m_65536), 0x50000) -
+                t = FixMul(0x50000, (int)(__int64)((double)slot * CGraphics::m_65536)) -
                     (int)(__int64)((double)(g_unk0x00542c68 * 5) * CGraphics::m_65536);
             else
                 t = 0xfff60000;
             if (slot % 2 == 0) {
-                g_unk0x00542cd8[i][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) - sinA + p1[0];
-                g_unk0x00542cd8[i][2] = FixMul(t, g_sinTable[a & 0xfff]) + cosA + p1[2];
+                g_unk0x00542cd8[i][0] = FixMul(g_sinTable[(a + 0x400) & 0xfff], t) - sinA + p1[0];
+                g_unk0x00542cd8[i][2] = FixMul(g_sinTable[a & 0xfff], t) + cosA + p1[2];
             } else {
                 g_unk0x00542cd8[i][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) + sinA + p1[0];
                 g_unk0x00542cd8[i][2] = FixMul(t, g_sinTable[a & 0xfff]) - cosA + p1[2];
@@ -6013,8 +6013,8 @@ void FUN_004584d0(char param_1)
         RallyData_FUN_00421530(0, p1);
         angle = StageObject_Atan2Degrees(p1[2] - p0[2], p1[0] - p0[0]);
         a = (short)(int)(__int64)((double)angle * g_unk0x00511300);
-        sinA = FixMul(0x40000, g_sinTable[a & 0xfff]);
-        cosA = FixMul(0x40000, g_sinTable[(a + 0x400) & 0xfff]);
+        sinA = FixMul(g_sinTable[a & 0xfff], 0x40000);
+        cosA = FixMul(g_sinTable[(a + 0x400) & 0xfff], 0x40000);
         count = (char)FUN_0040b1b0();
         for (i = 0; i < count; i++) {
             slot = FUN_0040b1a0(i);
@@ -6024,7 +6024,7 @@ void FUN_004584d0(char param_1)
                 slot = FUN_0040b010(FUN_0040a7a0(FUN_0040b1a0(i)));
             g_unk0x00542d38[slot] = RallyData_FUN_00421420() - 1;
             if ((char)count > 2)
-                t = FixMul((int)(__int64)((double)i * CGraphics::m_65536), 0x50000) -
+                t = FixMul(0x50000, (int)(__int64)((double)i * CGraphics::m_65536)) -
                     (int)(__int64)((double)(count * 5) * CGraphics::m_65536);
             else
                 t = 0xfff60000;
@@ -6613,8 +6613,8 @@ void FUN_004816f0(void)
         i = FixMul(v30.x, v24.y) - FixMul(v30.y, v24.x);
         if (!bVar5)
             i = 0;
-        v58.x = -FixMul(FixMul(v30.y, v24.z) - FixMul(v30.z, v24.y), PARTSTATE->field_0x170.x);
-        v58.y = -FixMul(FixMul(v30.z, v24.x) - FixMul(v30.x, v24.z), PARTSTATE->field_0x170.y);
+        v58.x = -FixMul(PARTSTATE->field_0x170.x, FixMul(v30.y, v24.z) - FixMul(v30.z, v24.y));
+        v58.y = -FixMul(PARTSTATE->field_0x170.y, FixMul(v30.z, v24.x) - FixMul(v30.x, v24.z));
         v58.z = -FixMul(i, PARTSTATE->field_0x170.z);
         PARTSTATE->field_0x164.x += v58.x;
         PARTSTATE->field_0x164.y += v58.y;
@@ -7204,7 +7204,7 @@ void FUN_00483570(void)
         if (local_c == 0 && (pc[0x150] & 4) == 0) {
             wb = (int *)g_unk0x00590b5c[*(char *)(car + 0xb1a)];
             iVar6 = FixMul(wb[0], *(int *)(pc + 0x194)) + FixMul(wb[1], *(int *)(pc + 0x198)) +
-                    FixMul(wb[2], *(int *)(pc + 0x19c));
+                    FixMul(*(int *)(pc + 0x19c), wb[2]);
             if ((pc[0x150] & 8) != 0 &&
                 ((*(int *)(pc + 0x128) < 0 && iVar6 < 0) ||
                  (*(int *)(pc + 0x128) > 0 && iVar6 > 0))) {
@@ -7246,8 +7246,8 @@ void FUN_00483570(void)
                 } else {
                     FixVecScaleRecip((FixVector *)(pc + 0x188), (FixVector *)v2c, len);
                 }
-                iVar6 = FixMul(*(int *)(pc + 0x164), wb[0]) + FixMul(*(int *)(pc + 0x168), wb[1]) +
-                        FixMul(*(int *)(pc + 0x16c), wb[2]);
+                iVar6 = FixMul(*(int *)(pc + 0x164), wb[0]) + FixMul(wb[1], *(int *)(pc + 0x168)) +
+                        FixMul(wb[2], *(int *)(pc + 0x16c));
                 *(int *)(pc + 0x164) = FixMul(wb[0], iVar6);
                 *(int *)(pc + 0x168) = FixMul(wb[1], iVar6);
                 *(int *)(pc + 0x16c) = FixMul(wb[2], iVar6);
@@ -7531,7 +7531,7 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
     rec[4] = pos[2];
     corr[0] = FixMul(rec[0xb], g_unk0x0051bd3c);
     corr[1] = FixMul(rec[0xc], g_unk0x0051bd3c);
-    corr[2] = FixMul(rec[0xd], g_unk0x0051bd3c);
+    corr[2] = FixMul(g_unk0x0051bd3c, rec[0xd]);
     rec[0x11] = FixMul(corr[0], -0x10000);
     rec[0x12] = FixMul(corr[1], -0x10000);
     rec[0x13] = FixMul(corr[2], -0x10000);
@@ -9065,8 +9065,7 @@ void FUN_00456710(int *pDeltas)
         if (splits > 2) {
             step = (int)(__int64)((double)(splits - 1) * CGraphics::m_65536);
             for (k = 2; k < splits; k++)
-                limits[k] = limits[1] - FixMul((int)(__int64)((double)(k - 1) * CGraphics::m_65536),
-                                               FixDiv(limits[1] - scale, step));
+                limits[k] = limits[1] - FixMul(FixDiv(limits[1] - scale, step), (int)(__int64)((double)(k - 1) * CGraphics::m_65536));
         }
     } else {
         amplitude = FixMul(scale, 0x8000);

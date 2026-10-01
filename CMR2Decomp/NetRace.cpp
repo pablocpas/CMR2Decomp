@@ -437,7 +437,7 @@ void FUN_004285b0(unsigned int player, int t, int check)
     if (FUN_00428740((BYTE)player) != 0) {
         player &= 0xff;
         if (g_unk0x0053a0cc[player] == 0 || check == 0) {
-            value = FixMul(0x10000 - t, g_unk0x0053a02c[player]) + FixMul(t, g_unk0x0053a04c[player]);
+            value = FixMul(0x10000 - t, g_unk0x0053a02c[player]) + FixMul(g_unk0x0053a04c[player], t);
             if (value < 0) {
                 g_unk0x0053a06c[player] = FixDiv(-value, g_unk0x0053a0ec[player]);
                 return;
@@ -680,7 +680,7 @@ void NetRace_PackCarState(Car *car)
     if (value >= g_netOne) *(short *)(packet + 4) = 0x7ffd;
     else if (value <= g_netMinusOne) *(short *)(packet + 4) = (short)0x8003;
     else *(short *)(packet + 4) = (short)(int)(__int64)((double)value * g_netSignedShortScale);
-    double product = (double)FixMul(average.x, average.z) * CGraphics::m_oneOver65536;
+    double product = (double)FixMul(average.z, average.x) * CGraphics::m_oneOver65536;
     if (product >= g_netOne) *(unsigned short *)(packet + 6) = 0xfffa;
     else *(unsigned short *)(packet + 6) = (unsigned short)(int)(__int64)(product * g_netUnsignedShortScale);
     value = (float)((double)car->angularVelocity.x * CGraphics::m_oneOver65536 * g_netAngularScale);
@@ -894,7 +894,7 @@ void FUN_00426810(int param_1, int param_2)
     FixBasis_Rotate((FixBasis *)(param_1 + 0x40), (unsigned short *)angles);
 
     *(int *)(param_1 + 0xbc) += FixMul(*(int *)(param_1 + 0xc0), delta) -
-                                FixMul(FixMul(delta, delta), 0xc49);
+                                FixMul(0xc49, FixMul(delta, delta));
     *(int *)(param_1 + 0xc0) -= FixMul(FixMul(0x20000, delta), 0xc49);
     *(unsigned short *)(param_1 + 0xc8) = (unsigned short)param_2;
 
@@ -1180,7 +1180,7 @@ int FUN_00425c40(int car, int *pOut)
         ang2 = (short)((double)(int)(f2 * g_65536f) * CGraphics::m_oneOver65536);
         // ang1 sale de f1 (axis[i+2]*24/17) y ang2 de f2 (axis[i]*12/17). El original (asm 0x425ff5-0x42606a)
         // usa ang2 en el primer argumento de row.x y en row.y; row.z es un producto conmutativo y no cambia.
-        row.x = FixMul(g_sinTable[ang2 & 0xfff], g_sinTable[(ang1 + 0x400) & 0xfff]);
+        row.x = FixMul(g_sinTable[(ang1 + 0x400) & 0xfff], g_sinTable[ang2 & 0xfff]);
         row.y = g_sinTable[(ang2 + 0x400) & 0xfff];
         row.z = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[ang2 & 0xfff]);
         *pRow = row;

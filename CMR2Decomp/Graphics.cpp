@@ -2594,8 +2594,8 @@ int Tri2D_Contains(int *pPoint, int *pTri)
     py1 = FixMul(pPoint[1] - pTri[3], 0x28f);
     px2 = FixMul(pPoint[0] - pTri[4], 0x28f);
     py2 = FixMul(pPoint[1] - pTri[5], 0x28f);
-    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(py1, -ex1) + FixMul(px1, ey1) >= 0 &&
-        FixMul(py2, -ex2) + FixMul(px2, ey2) >= 0)
+    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(py1, -ex1) + FixMul(ey1, px1) >= 0 &&
+        FixMul(py2, -ex2) + FixMul(ey2, px2) >= 0)
         return 1;
     return 0;
 }
@@ -4846,7 +4846,7 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     fade = FixMul(fade, 0x20000);
     if (fade > 0x10000)
         fade = 0x10000;
-    intensity = (BYTE)FixMulShift32(FixMul(0x10000 - fade, *(int *)(pSurface + 0x44)),
+    intensity = (BYTE)FixMulShift32(FixMul(*(int *)(pSurface + 0x44), 0x10000 - fade),
                                     (int)g_glowDef.r << 16);
     colour = 0xff000000 | ((int)intensity << 16) | ((int)intensity << 8) | intensity;
     for (i = 0; i < 4; i++)
@@ -5871,7 +5871,7 @@ void Particle_DrawAll(int param, BYTE view)
             def.bottom = pType->field0x44;
             def.right = pType->field0x48;
         } else {
-            def.top = FixMul(pType->field0x3c, p->size);
+            def.top = FixMul(p->size, pType->field0x3c);
             def.left = FixMul(pType->field0x40, p->size);
             def.bottom = FixMul(pType->field0x44, p->size);
             def.right = FixMul(pType->field0x48, p->size);

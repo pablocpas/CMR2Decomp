@@ -203,7 +203,7 @@ void FUN_00497db0(Car *pCar)
             travel = pos.y - t;
             pos.y = t;
             if (travel >= 1) {
-                t = FixMul(travel, FixDiv(0x10000, 0x4000));
+                t = FixMul(FixDiv(0x10000, 0x4000), travel);
                 if (t > 0x10000)
                     t = 0x10000;
                 pContact->wheelGrip[wheel] = 0x10000 - t;
@@ -495,7 +495,7 @@ void FUN_00494db0(Car *pCar, int view)
             if (*(int *)((BYTE *)pCar->pWheelNodes[i] + 8) == RallyData_FUN_00411060() ||
                 g_physContactView.wheelGrip[i] == 0)
                 continue;
-            alpha = FixMul(g_physContactView.wheelGrip[i], 0xe60000);
+            alpha = FixMul(0xe60000, g_physContactView.wheelGrip[i]);
             pSrc = CAR_CONTACT(pCar->field_0xb1a)->wheelCorners[i];
             FIX_MIDPOINT(d, pSrc[0], pSrc[2]);
             FIX_MIDPOINT(centre, pSrc[1], pSrc[3]);
@@ -681,7 +681,7 @@ void FUN_00496e00(Car *pCar)
     FixMatrix_GetPosition(&g_physPos, &g_physBody->body);
     g_physGroundPoint = (FixVector *)FUN_0042cac0(pCar->field_0xb1a);
     if (pCar->field_0xb64 != 0) {
-        h = FixMul(g_physBody->cornerHeight[0] - g_physPos.y, g_physBody->groundNormal.y);
+        h = FixMul(g_physBody->groundNormal.y, g_physBody->cornerHeight[0] - g_physPos.y);
     } else {
         g_physGroundPos = *g_physGroundPoint;
         g_physGroundPos.x -= g_physPos.x;
@@ -717,7 +717,7 @@ void FUN_00496e00(Car *pCar)
         }
         fwd = FixMul(cosA, g_physTrailScale);
         side = FixMul(FixMul(flat.x, g_physTrailAxis.z) + FixMul(-flat.z, g_physTrailAxis.x), g_physTrailScale);
-        bend = FixMul(side, grip);
+        bend = FixMul(grip, side);
         if (fwd < 0)
             a = pProfile[*g_physSkidCount[pCar->field_0xb1a] * 2 - 1];
         else

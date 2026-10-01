@@ -2325,10 +2325,10 @@ void FUN_0040d9e0(int group)
             g_unk0x0052f294[index] = (BYTE)(n >> 16);
         } else if (track < 0x4b0) {
             g_unk0x0052f294[index] =
-                (BYTE)((FixMul(m - n, FixDiv((track / 100 - 5) << 16, 0x70000)) + n) >> 16);
+                (BYTE)((FixMul(FixDiv((track / 100 - 5) << 16, 0x70000), m - n) + n) >> 16);
         } else if (track > 0x640) {
             g_unk0x0052f294[index] =
-                (BYTE)((FixMul(n - m, FixDiv((track / 100 - 0x10) << 16, 0x50000)) + m) >> 16);
+                (BYTE)((FixMul(FixDiv((track / 100 - 0x10) << 16, 0x50000), n - m) + m) >> 16);
         } else {
             g_unk0x0052f294[index] = (BYTE)(m >> 16);
         }

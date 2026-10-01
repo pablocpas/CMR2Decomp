@@ -44,23 +44,23 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
     cz = g_collisionQuad[2].z - g_collisionQuad[1].z;
     dx = g_collisionQuad[0].x - g_collisionQuad[3].x;
 
-    cross = FixMul(d0.z, d3.x) - FixMul(d0.x, d3.z);
+    cross = FixMul(d3.x, d0.z) - FixMul(d0.x, d3.z);
     if (FIX_ABS(cross) > 0x28f) {
         recip = FixDiv(0x10000, cross);
         t = FixMul(FixMul(d0.z, ax) + FixMul(d0.x, az), recip);
         if (t >= 0 && t <= 0x10000) {
-            t = FixMul(FixMul(d3.z, ax) + FixMul(d3.x, az), recip);
+            t = FixMul(recip, FixMul(d3.z, ax) + FixMul(d3.x, az));
             if (t >= 0 && t <= 0x10000) {
                 cross = FixMul(d3.x, pDir->z) - FixMul(d3.z, pDir->x);
                 if (FIX_ABS(cross) < 0x290) {
                     result = 0x7d000000;
                 } else {
                     recip = FixDiv(0x10000, cross);
-                    t = FixMul(FixMul(pDir->z, ax) + FixMul(pDir->x, az), recip);
+                    t = FixMul(recip, FixMul(pDir->z, ax) + FixMul(pDir->x, az));
                     if (t < 0 || t > 0x10000) {
                         result = 0x7d000000;
                     } else {
-                        t = -FixMul(FixMul(d3.z, ax) + FixMul(d3.x, az), recip);
+                        t = -FixMul(recip, FixMul(ax, d3.z) + FixMul(az, d3.x));
                         if (t < 0 || t > 0x7cffffff) {
                             result = 0x7d000000;
                         } else {
@@ -69,9 +69,9 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                             result = t;
                         }
                     }
-                    u = FixMul(FixMul(pDir->z, cx) + FixMul(pDir->x, cz), recip);
+                    u = FixMul(recip, FixMul(pDir->z, cx) + FixMul(pDir->x, cz));
                     if (u >= 0 && u <= 0x10000) {
-                        u = -FixMul(FixMul(d3.z, cx) + FixMul(d3.x, cz), recip);
+                        u = -FixMul(recip, FixMul(d3.z, cx) + FixMul(d3.x, cz));
                         if (u >= 0 && u < result) {
                             *pEdge = 0;
                             *pCorner = 1;
@@ -80,7 +80,7 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                     }
                 }
 
-                cross = FixMul(d0.z, pDir->x) - FixMul(d0.x, pDir->z);
+                cross = FixMul(pDir->x, d0.z) - FixMul(d0.x, pDir->z);
                 if (FIX_ABS(cross) < 0x290) {
                     return result;
                 }
@@ -223,18 +223,18 @@ extern int g_physicsScale;
 // FUNCTION: CMR2 0x0048c750
 void FUN_0048c750(int *v)
 {
-    if (v[0] > FixMul(g_physicsScale, 0x80000))
-        v[0] = FixMul(g_physicsScale, 0x80000);
-    else if (v[0] < -FixMul(g_physicsScale, 0x80000))
-        v[0] = -FixMul(g_physicsScale, 0x80000);
-    if (v[1] > FixMul(g_physicsScale, 0x40000))
-        v[1] = FixMul(g_physicsScale, 0x40000);
-    else if (v[1] < -FixMul(g_physicsScale, 0x40000))
-        v[1] = -FixMul(g_physicsScale, 0x40000);
-    if (v[2] > FixMul(g_physicsScale, 0x80000))
-        v[2] = FixMul(g_physicsScale, 0x80000);
-    else if (v[2] < -FixMul(g_physicsScale, 0x80000))
-        v[2] = -FixMul(g_physicsScale, 0x80000);
+    if (v[0] > FixMul(0x80000, g_physicsScale))
+        v[0] = FixMul(0x80000, g_physicsScale);
+    else if (v[0] < -FixMul(0x80000, g_physicsScale))
+        v[0] = -FixMul(0x80000, g_physicsScale);
+    if (v[1] > FixMul(0x40000, g_physicsScale))
+        v[1] = FixMul(0x40000, g_physicsScale);
+    else if (v[1] < -FixMul(0x40000, g_physicsScale))
+        v[1] = -FixMul(0x40000, g_physicsScale);
+    if (v[2] > FixMul(0x80000, g_physicsScale))
+        v[2] = FixMul(0x80000, g_physicsScale);
+    else if (v[2] < -FixMul(0x80000, g_physicsScale))
+        v[2] = -FixMul(0x80000, g_physicsScale);
 }
 
 

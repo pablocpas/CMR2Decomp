@@ -174,11 +174,11 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
     i = 0;
     pRow = g_windowGrid[0];
     do {
-        FixVecScale(&pRow[0], &top, FixMul(i << 16, 0x1999));
+        FixVecScale(&pRow[0], &top, FixMul(0x1999, i << 16));
         pRow[0].x += pQuad[0].x;
         pRow[0].y += pQuad[0].y;
         pRow[0].z += pQuad[0].z;
-        FixVecScale(&pRow[7], &bottom, FixMul(i << 16, 0x1999));
+        FixVecScale(&pRow[7], &bottom, FixMul(0x1999, i << 16));
         pRow[7].x += pQuad[3].x;
         pRow[7].y += pQuad[3].y;
         i++;
@@ -191,7 +191,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
         d.y = pRow[7].y - pRow[0].y;
         d.z = pRow[7].z - pRow[0].z;
         for (j = 1; j < 7; j++) {
-            FixVecScale(&pRow[j], &d, FixMul(j << 16, 0x249b));
+            FixVecScale(&pRow[j], &d, FixMul(0x249b, j << 16));
             pRow[j].x += pRow[0].x;
             pRow[j].y += pRow[0].y;
             pRow[j].z += pRow[0].z;
@@ -249,7 +249,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             len = FixMul(len, recip);
             if (len > 0xcccc)
                 len = 0xcccc;
-            r = FixMul(0x10000 - len, EFFECT_RAND());
+            r = FixMul(EFFECT_RAND(), 0x10000 - len);
             a = FixMul(r, FixMul(facing, 0x1999));
             b = FixMul(0x10000 - r, FixMul(facing, 0x1999));
             FixVecScale(&t, &t, b);
@@ -1252,8 +1252,8 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
         angle = (unsigned short)p->field0x50;
     else
         angle = (unsigned short)(0x1000 - p->field0x50);
-    x = FixMul(scale, g_sinTable[(angle + 0x400) & 0xfff]);
-    z = FixMul(scale, g_sinTable[angle & 0xfff]);
+    x = FixMul(g_sinTable[(angle + 0x400) & 0xfff], scale);
+    z = FixMul(g_sinTable[angle & 0xfff], scale);
     car = p->field0x64;
     if (car < 8) {
         p->vector0x28.x += x;

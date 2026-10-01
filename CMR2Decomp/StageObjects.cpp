@@ -953,9 +953,9 @@ void StageObject_InitMovingObject(int *pState, int carIndex)
             axis.z = -FixMul(localVelocity.x, 0x10000);
             if (pState[0x34] == 0)
                 axis.z = 0;
-            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
-            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
-            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x41] = FixMul(0x8000, *(int *)(pParams + 0x44));
+            pState[0x42] = FixMul(0x8000, *(int *)(pParams + 0x4c));
+            pState[0x43] = FixMul(0x8000, *(int *)(pParams + 0x48));
             pState[0x3e] = 0;
             pState[0x3f] = pState[0x42];
             pState[0x40] = 0;
@@ -969,9 +969,9 @@ void StageObject_InitMovingObject(int *pState, int carIndex)
             FixVecScale((FixVector *)(pState + 0x38), &axis, g_physicsTimeStep);
             FixVecScale((FixVector *)(pState + 0x3b), &velocity, 0xcccc);
             pState[0x3c] = FixMul(FixVecLength(&velocity), 0x4ccc);
-            pState[0x41] = FixMul(*(int *)(pParams + 0x44), 0x8000);
-            pState[0x42] = FixMul(*(int *)(pParams + 0x4c), 0x8000);
-            pState[0x43] = FixMul(*(int *)(pParams + 0x48), 0x8000);
+            pState[0x41] = FixMul(0x8000, *(int *)(pParams + 0x44));
+            pState[0x42] = FixMul(0x8000, *(int *)(pParams + 0x4c));
+            pState[0x43] = FixMul(0x8000, *(int *)(pParams + 0x48));
             pState[0x3e] = 0;
             pState[0x3f] = pState[0x42];
             pState[0x40] = 0;
@@ -2804,9 +2804,9 @@ void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVeloc
             }
         }
         int density = FixDiv(enabled << 16, 0x480000);
-        *(int *)(pSlot + 0x668) = FixMul(density, 0xf0000) + 0xa0000;
+        *(int *)(pSlot + 0x668) = FixMul(0xf0000, density) + 0xa0000;
         *(int *)(pSlot + 0x92c) = 1;
-        *(int *)(pSlot + 0x660) = FixMul(0x10000 - density, 0xccc) + 0x11eb;
+        *(int *)(pSlot + 0x660) = FixMul(0xccc, 0x10000 - density) + 0x11eb;
         if (*(int *)(pSlot + 0x930) != 0) {
             *(int *)(pSlot + 0x674) = *(int *)(pSlot + 0x668);
             *(int *)(pSlot + 0x668) = FixMul(*(int *)(pSlot + 0x668), 0x20000);
@@ -2822,7 +2822,7 @@ void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVeloc
     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
     if (randomFixed > 0x1999) {
         randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-        int volume = FixMul(randomFixed, 0x4000) + 0x4000;
+        int volume = FixMul(0x4000, randomFixed) + 0x4000;
         pSlot[0x693] = (BYTE)FUN_004b7790((unsigned short)(g_unk0x005909bc + rand() % 2),
                                             volume, 0x5622, 0, 0, 0);
     } else {
@@ -4300,7 +4300,7 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
     pOut->x = right.x - direction.x;
     pOut->y = right.y - direction.y;
     pOut->z = right.z - direction.z;
-    scale = FixMul(*(int *)(g_unk0x00591750 + g_unk0x00591740[*pSurface] * 0x6c + 0x48), pCar->speed);
+    scale = FixMul(pCar->speed, *(int *)(g_unk0x00591750 + g_unk0x00591740[*pSurface] * 0x6c + 0x48));
     FixVecScale(pOut, pOut, scale);
 }
 
@@ -4748,14 +4748,14 @@ void FUN_00468c10(Car *pCar)
         p[i] = FixMul(p[i - 0x6b], 0xccc);
     }
     if (*(int *)pCar->field_0x7b8 != 0x10000 && *(int *)pCar->field_0x7b8 != 0) {
-        value = FixMul(*(int *)(pRecord + 0x280), 0x8000) + *(int *)pCar->field_0x7b8;
+        value = FixMul(0x8000, *(int *)(pRecord + 0x280)) + *(int *)pCar->field_0x7b8;
         pCar->field_0x7b4 = value;
         if (value > 0x10000)
             pCar->field_0x7b4 = 0x10000;
     }
     *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
     value = FUN_00469100(pCar, pRecord);
-    *(int *)(pRecord + 0x408) = FixMul(value, 0x4000);
+    *(int *)(pRecord + 0x408) = FixMul(0x4000, value);
     if (FUN_00469bc0(pCar, 3) != 0)
         *(int *)(pRecord + 0x408) = *(int *)(pRecord + 0x408) + -0x3333;
     *(int *)(pRecord + 0x284) = value;
@@ -5869,7 +5869,7 @@ void FUN_00464960(unsigned int param_1)
         *(int *)((BYTE *)pCar + 0xb58) = 0;
     else
         *(int *)((BYTE *)pCar + 0xb58) = 1;
-    value = FixMul(level, 0x4c0000);
+    value = FixMul(0x4c0000, level);
     FUN_00477c80(car, (int *)&param_1, (int *)&param_1, 4);
     if (param_1 == 0)
         value = 0x3e80000;
@@ -7828,7 +7828,7 @@ void FUN_004853c0(FixVector *pImpulse)
 
     FixMatrix_InverseRotateVector(&g_unk0x00590b50, (FixVector *)(pVehicle + 0x408), *(FixMatrix **)(pVehicle + 0x750));
     random = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
-    scale = FixMul(random, 0x4ccc) + 0xb333;
+    scale = FixMul(0x4ccc, random) + 0xb333;
     FixVecScale(&scaled, pImpulse, scale);
     FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(pVehicle + 0x750));
     g_unk0x00590b50.y -= local.y;
@@ -10283,7 +10283,7 @@ void FUN_00462d80(int param_1, int param_2)
     icon.x = (short)(vOut.x - icon.w / 2);
     icon.y = (short)(vOut.y - icon.h / 2);
     FUN_00462d10((short *)&icon);
-    ramp = FixMul(g_unk0x00547abc, -0x20000) + 0x20000;
+    ramp = FixMul(-0x20000, g_unk0x00547abc) + 0x20000;
     if (ramp < 0)
         ramp = 0;
     else if (ramp > 0x10000)
@@ -10705,7 +10705,7 @@ unsigned int FUN_0047c5e0(int param_1)
         if (0 < iVar5) {
             if (0x5a0000 < *(int *)(param_1 + 0x38))
                 return 1;
-            if (*(int *)(param_1 + 0x38) - FixMul(-iVar5, 0xf0000) + 0x3c0000 < 0)
+            if (*(int *)(param_1 + 0x38) - FixMul(0xf0000, -iVar5) + 0x3c0000 < 0)
                 return 2;
         }
         if (iVar8 < 0) {
@@ -10726,7 +10726,7 @@ unsigned int FUN_0047c5e0(int param_1)
                 return 1;
             if (*(int *)(param_1 + 0x38) < -0x2d0000)
                 return 2;
-            if (*(int *)(param_1 + 0x38) - FixMul(-local10, 0x50000) < 0)
+            if (*(int *)(param_1 + 0x38) - FixMul(0x50000, -local10) < 0)
                 return 3;
         }
     } else {
@@ -10746,7 +10746,7 @@ unsigned int FUN_0047c5e0(int param_1)
         if (0 < isStackC) {
             if (*(int *)(param_1 + 0x38) < -0x5a0000)
                 return 3;
-            iVar7 = *(int *)(param_1 + 0x38) - FixMul(isStackC, 0xf0000);
+            iVar7 = *(int *)(param_1 + 0x38) - FixMul(0xf0000, isStackC);
             if (iVar7 != 0x3c0000 && -1 < iVar7 + -0x3c0000)
                 return 4;
         }
@@ -10768,7 +10768,7 @@ unsigned int FUN_0047c5e0(int param_1)
                 return 4;
             if (*(int *)(param_1 + 0x38) < -0x3c0000)
                 return 3;
-            u = FixMul(iVar7, 0x50000);
+            u = FixMul(0x50000, iVar7);
             if (*(unsigned int *)(param_1 + 0x38) != u &&
                 -1 < (int)(*(unsigned int *)(param_1 + 0x38) - u))
                 return 1;
@@ -12501,7 +12501,7 @@ void FUN_0046d610(BYTE *p)
             : 0;
     FixMatrix_Interpolate(pCar->pWorld, (FixMatrix *)(p + 0x44), (FixMatrix *)(p + 0x84),
                           t, t, t, 1);
-    value = FixMul(FixMul(*(int *)(p + 0xd4) - *(int *)(p + 0xd0), t) + *(int *)(p + 0xd0),
+    value = FixMul(FixMul(t, *(int *)(p + 0xd4) - *(int *)(p + 0xd0)) + *(int *)(p + 0xd0),
                    (int)pCar->field_0xb16 * 0x1680);
     pCar->field_0x7a4 = 0;
     pCar->heading = (unsigned short)(__int64)((double)value * g_unk0x00511300);
@@ -12687,7 +12687,7 @@ void FUN_0047ad20(void)
         {
             Car *pCar = Car_Get(chosen);
             int car798 = *(int *)((BYTE *)pCar + 0x798);
-            scale = FixMul(*(int *)((BYTE *)pCar + 0x7ac), car798);
+            scale = FixMul(car798, *(int *)((BYTE *)pCar + 0x7ac));
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12708,7 +12708,7 @@ void FUN_0047ad20(void)
             int volScale;
             int dist2;
             Sound_SetPan((unsigned int)*pHandle, pan2);
-            volScale = FixMul(g_unk0x0058dda8, FixMul(dist, g_unk0x0051f27c));
+            volScale = FixMul(FixMul(dist, g_unk0x0051f27c), g_unk0x0058dda8);
             dist2 = FUN_00427d50(chosen, 0);
             FUN_004b79a0((unsigned int)*pHandle, FixMul(dist2, volScale));
         } else {
@@ -14590,7 +14590,7 @@ void FUN_00460390(int index, int view)
             g_unk0x00543ed0.a = 0;
             g_unk0x00547908.a = 0;
         } else {
-            alpha = (BYTE)(FixMul(fade, 0x1e0000) >> 16);
+            alpha = (BYTE)(FixMul(0x1e0000, fade) >> 16);
             g_unk0x00543ed0.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
             g_unk0x00547908.a = (BYTE)(FixMul(*(int *)(pView + 0x64), 0xaa0000) >> 16);
         }
@@ -15281,9 +15281,9 @@ void FUN_0047e4d0(BYTE count)
             cosA = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((double)a * g_unk0x00511308)) & 0xfff];
             pDirs = (int *)g_unk0x00590b0c[i];
             for (b = start, p = (FixVector *)pDirs; (int *)p < pDirs + 9; p++, b += k) {
-                p->x = FixMul(sinA, g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                p->x = FixMul(g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff], sinA);
                 p->y = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((float)b * g_unk0x00511308)) & 0xfff];
-                p->z = FixMul(cosA, g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                p->z = FixMul(g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff], cosA);
             }
             a += step;
             start = FixMul(k, 0x8000);

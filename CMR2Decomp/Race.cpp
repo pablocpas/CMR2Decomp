@@ -4623,8 +4623,8 @@ void FUN_0041a5c0(int param_1, int param_2)
         weight = 0x10000 - weightInv;
     }
 
-    volA = FixMul(weight, speedVolume);
-    volB = FixMul(weightInv, speedVolume);
+    volA = FixMul(speedVolume, weight);
+    volB = FixMul(speedVolume, weightInv);
     volD = FixMul(weight, g_carMaxVolume[param_1]);
     volC = FixMul(weightInv, g_carMaxVolume[param_1]);
     ((int *)(g_raceBlock + 0x20))[param_1] = volA;
@@ -4716,7 +4716,7 @@ void FUN_0041a5c0(int param_1, int param_2)
                      FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volA)));
     if (Sound_IsPlaying(pSet->handle[5]))
         FUN_004b79a0(pSet->handle[5],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volB)));
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(volB, g_unk0x00537664)));
     if (Sound_IsPlaying(pSet->handle[6]))
         FUN_004b79a0(pSet->handle[6],
                      FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volD)));

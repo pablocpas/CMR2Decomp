@@ -384,9 +384,9 @@ void Car_UpdateAutomaticGear(void)
         best = (int)0xd8f00000;
         selected = 0;
         gear = g_pAutoGearCar->field_0xb1e;
-        engine = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[gear]);
+        engine = FixMul(g_pAutoGearCar->field_0x7dc[gear], g_pAutoGearCar->field_0x7a4);
         for (i = 1; i <= 6; i++) {
-            candidate = FixMul(engine, g_pAutoGearCar->field_0x7bc[i]);
+            candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
             if (candidate > best &&
                 (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
                 best = candidate;
@@ -1170,9 +1170,9 @@ void FUN_00493ed0(void)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
         else if (current < 1) {
             if (delta < 1)
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(scaleLeft, delta * 0x1680) * g_unk0x00511300);
             else
-                delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
+                delta = (short)(__int64)((double)FixMul(scaleRight, delta * 0x1680) * g_unk0x00511300);
         } else if (delta < 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
         else
@@ -1216,7 +1216,7 @@ void FUN_00494110(void)
     v = 0x10000 - FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xb8) +
                          *(int *)((BYTE *)g_pAutoGearCar + 0x94), 0x8000);
     g_unk0x00592164 = FixMul(FixMul(g_unk0x00592164, v), *(int *)((BYTE *)g_pAutoGearCar + 0x804));
-    g_unk0x00592168 = FixMul(FixMul(g_unk0x00592168, v), *(int *)((BYTE *)g_pAutoGearCar + 0x804));
+    g_unk0x00592168 = FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0x804), FixMul(v, g_unk0x00592168));
 
     if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0) {
         if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0)
