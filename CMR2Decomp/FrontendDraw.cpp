@@ -366,7 +366,6 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     SpriteRect dst;
     BYTE *pColour;
     BYTE *pShadow;
-    Texture *pTexture;
 
     count = 0;
     hasTitle = 0;
@@ -418,15 +417,14 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
             if (pMenu->items[first].visible) {
                 if (pMenu->cursor == first && active != 0) {
                     pColour = g_colourWhite0x00524968;
-                    pTexture = CFrontend::m_pAr640ATexture;
+                    Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, &dst, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8);
                 } else {
-                    pTexture = CFrontend::m_pAr640DTexture;
                     if (pMenu->items[first].enabled && active != 0)
                         pColour = g_colourText0x0052496c;
                     else
                         pColour = g_colourDim0x00524970;
+                    Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, &dst, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
                 }
-                Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dst, pTexture, 1, 0, NULL, NULL, pColour, 8);
                 if (pMenu->items[first].id == -1)
                     Font_DrawText(1, (char *)pMenu->items[first].stringId, x,
                                   (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]), (int *)pColour, 0x11);

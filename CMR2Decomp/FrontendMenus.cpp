@@ -1292,7 +1292,6 @@ void FUN_004fd080(Menu *pMenu)
     BYTE *pLineColour;
     BYTE *pShadow;
     BYTE *pColour;
-    Texture *pTexture;
     MenuItem *pItem;
     int resX;
     short y0;
@@ -1336,13 +1335,12 @@ void FUN_004fd080(Menu *pMenu)
             if (pMenu->cursor == i) {
                 pShadow = g_colourWhite0x00524968;
                 pColour = g_colourWhite0x00524968;
-                pTexture = CFrontend::m_pAr640ATexture;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8);
             } else {
                 pShadow = g_colourText0x0052496c;
                 pColour = g_colourText0x0052496c;
-                pTexture = CFrontend::m_pAr640DTexture;
+                Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
             }
-            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
             if (i < 10 && (FUN_004fc060() == 0 || pMenu->cursor != i))
                 sprintf(CFrontend::m_stringDest, g_standingsRowFormat, CFrontend::GetTextString(pItem->id), FUN_004fbae0(i));
             else
@@ -1420,7 +1418,6 @@ void FUN_004fd480(Menu *pMenu)
     char *text[2];
     BYTE *pShadow;
     BYTE *pColour;
-    Texture *pTexture;
     int resX;
     int maxWidth;
     int width;
@@ -1464,14 +1461,13 @@ void FUN_004fd480(Menu *pMenu)
                   + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
         if (pMenu->cursor == i) {
             pColour = g_colourWhite0x00524968;
-            pTexture = CFrontend::m_pAr640ATexture;
+            Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, pColour, 8);
         } else {
             pColour = g_colourText0x0052496c;
-            pTexture = CFrontend::m_pAr640DTexture;
             if (!pMenu->items[i].enabled)
                 pColour = g_colourDim0x00524970;
+            Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pColour, 8);
         }
-        Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pColour, 8);
         if (i < pMenu->itemCount - 1) {
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x77), i);
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 640,
