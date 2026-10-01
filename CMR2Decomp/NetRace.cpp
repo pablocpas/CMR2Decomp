@@ -1111,140 +1111,135 @@ extern const float g_unk0x0051136c;
 extern const float g_unk0x00511378;
 extern float g_65536f;
 
+inline int NetRace_FloatToFix(float f)
+{
+    int i;
+    __asm fld f
+    __asm fmul dword ptr g_65536f
+    __asm fistp i
+    return i;
+}
+
+inline void NetRace_NormalizeInto(FixVector *out, FixVector *v)
+{
+    int len = FixVecLength(v);
+
+    if (len == 0) {
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+    } else {
+        FixVecScaleRecip(out, v, len);
+    }
+}
+
+extern double g_unk0x00511300;
+
 // Applies the car state received from a player (g_localCarStats) to that
 // player's record: drops stale and out-of-range packets, converts the quantised
 // position, heading, speed and flags back to 16.16, builds the two body axes
 // from the packed pair of angles plus the third one (cross product) and leaves
-// the steering angle in *pOut.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// the steering angle in *pOut. The packed axis angles are 16.16 degrees and go
+// through g_unk0x00511300 (4096/360/65536) to sine-table units.
 // FUNCTION: CMR2 0x00425c40
 int FUN_00425c40(int car, int *pOut)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;
     float axis[4];
-    FixVector row;
+    FixVector *pRow;
+    short ang1[2];
+    short ang2[2];
     Sector *pSector;
-    short ang1;
-    short ang2;
     BYTE steer;
     int engine;
     int diff;
     int i;
 
     diff = (int)(unsigned short)g_localCarStats.seq - (int)*(unsigned short *)(car + 0xca);
-    if (diff <= 0)
-        return 0;
-    if (g_unk0x00539cc8 == 0)
-        return 0;
-    if (diff >= 100)
-        return 0;
-    if (*(unsigned short *)(packet + 0xc) >= (unsigned int)g_sectorCount)
-        return 0;
+    if (diff > 0 && g_unk0x00539cc8 != 0 && diff < 100 &&
+        *(unsigned short *)(packet + 0xc) < (unsigned int)g_sectorCount) {
+        *(int *)(car + 0xe0) = 1;
+        *(unsigned short *)(car + 0xc8) = g_localCarStats.seq;
+        *(unsigned short *)(car + 0xca) = g_localCarStats.seq;
 
-    *(int *)(car + 0xe0) = 1;
-    *(unsigned short *)(car + 0xc8) = g_localCarStats.seq;
-    *(unsigned short *)(car + 0xca) = g_localCarStats.seq;
+        *(int *)(car + 0x70) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 2) * g_unk0x00511378 * g_unk0x0051137c);
+        *(int *)(car + 0x74) = 0;
+        *(int *)(car + 0x78) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 4) * g_unk0x00511378 * g_unk0x0051137c);
+        engine = NetRace_FloatToFix((float)*(unsigned short *)(packet + 6) * g_unk0x00511374);
+        *(int *)(car + 0xac) = engine;
+        if (engine != 0)
+            *(int *)(car + 0xb0) = FixDiv(0x10000, engine);
+        else
+            *(int *)(car + 0xb0) = 0;
+        *(int *)(car + 0x7c) = NetRace_FloatToFix((float)(signed char)packet[0x14] * g_unk0x0051136c * g_unk0x00511370);
+        *(int *)(car + 0x80) = NetRace_FloatToFix((float)(signed char)packet[0x15] * g_unk0x0051136c * g_unk0x00511370);
+        *(int *)(car + 0x84) = NetRace_FloatToFix((float)(signed char)packet[0x16] * g_unk0x0051136c * g_unk0x00511370);
+        *(BYTE *)(car + 0xcc) = packet[0x17] & 1;
+        *(int *)(car + 0xd4) = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
+        *(int *)(car + 0x64) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 8) * g_unk0x00511368 * g_unk0x0051137c);
+        *(int *)(car + 0x68) = 0;
+        *(int *)(car + 0x6c) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 0xa) * g_unk0x00511368 * g_unk0x0051137c);
+        pSector = g_sectors[*(short *)(packet + 0xc)];
+        *(int *)(car + 0x64) += pSector->x;
+        *(int *)(car + 0x68) += pSector->y;
+        *(int *)(car + 0x6c) += pSector->z;
+        *(int *)(car + 0xbc) = NetRace_FloatToFix((float)packet[0xe] * 10.0f * g_unk0x00511364);
+        *(int *)(car + 0xc0) = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
 
-    *(int *)(car + 0x70) = (int)((float)(short)*(unsigned short *)(packet + 2) *
-                                 g_unk0x0051137c * g_unk0x00511378 * g_65536f);
-    *(int *)(car + 0x74) = 0;
-    *(int *)(car + 0x78) = (int)((float)(short)*(unsigned short *)(packet + 4) *
-                                 g_unk0x0051137c * g_unk0x00511378 * g_65536f);
-    engine = (int)((float)*(unsigned short *)(packet + 6) * g_unk0x00511374 * g_65536f);
-    *(int *)(car + 0xac) = engine;
-    if (engine != 0)
-        *(int *)(car + 0xb0) = FixDiv(0x10000, engine);
-    else
-        *(int *)(car + 0xb0) = 0;
-    *(int *)(car + 0x7c) = (int)((float)(signed char)packet[0x14] *
-                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
-    *(int *)(car + 0x80) = (int)((float)(signed char)packet[0x15] *
-                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
-    *(int *)(car + 0x84) = (int)((float)(signed char)packet[0x16] *
-                                 g_unk0x00511370 * g_unk0x0051136c * g_65536f);
-    *(BYTE *)(car + 0xcc) = packet[0x17] & 1;
-    *(int *)(car + 0xd4) = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
-    *(int *)(car + 0x64) = (int)((float)(short)*(unsigned short *)(packet + 8) *
-                                 g_unk0x0051137c * g_unk0x00511368 * g_65536f);
-    *(int *)(car + 0x68) = 0;
-    *(int *)(car + 0x6c) = (int)((float)(short)*(unsigned short *)(packet + 0xa) *
-                                 g_unk0x0051137c * g_unk0x00511368 * g_65536f);
-    pSector = g_sectors[*(short *)(packet + 0xc)];
-    *(int *)(car + 0x64) += pSector->x;
-    *(int *)(car + 0x68) += pSector->y;
-    *(int *)(car + 0x6c) += pSector->z;
-    *(int *)(car + 0xbc) = (int)((float)packet[0xe] * g_unk0x00511364 * 10.0f * g_65536f);
-    *(int *)(car + 0xc0) = (int)((float)(signed char)packet[0xf] *
-                                 g_unk0x00511370 * g_unk0x00511378 * g_65536f);
-
-    // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
-    axis[0] = (float)packet[0x11];
-    axis[1] = (float)packet[0x13];
-    axis[2] = (float)packet[0x10];
-    axis[3] = (float)packet[0x12];
-    for (i = 0; i < 8; i += 4) {
-        float f1 = axis[i + 2] * g_unk0x0051135c;
-        float f2 = axis[i] * g_unk0x00511358;
-        FixVector *pRow = (FixVector *)((BYTE *)car + 0x40 + (i / 4) * 0x18);
-
-        axis[i + 2] = f1;
-        axis[i] = f2;
-        ang1 = (short)((double)(int)(f1 * g_65536f) * CGraphics::m_oneOver65536);
-        ang2 = (short)((double)(int)(f2 * g_65536f) * CGraphics::m_oneOver65536);
-        // ang1 sale de f1 (axis[i+2]*24/17) y ang2 de f2 (axis[i]*12/17). El original (asm 0x425ff5-0x42606a)
-        // usa ang2 en el primer argumento de row.x y en row.y; row.z es un producto conmutativo y no cambia.
-        row.x = FixMul(g_sinTable[(ang1 + 0x400) & 0xfff], g_sinTable[ang2 & 0xfff]);
-        row.y = g_sinTable[(ang2 + 0x400) & 0xfff];
-        row.z = FixMul(g_sinTable[ang1 & 0xfff], g_sinTable[ang2 & 0xfff]);
-        *pRow = row;
+        // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
+        axis[0] = (float)packet[0x11];
+        axis[1] = (float)packet[0x13];
+        axis[2] = (float)packet[0x10];
+        axis[3] = (float)packet[0x12];
+        for (i = 0; i < 2; i++) {
+            axis[i + 2] *= g_unk0x0051135c;
+            axis[i] *= g_unk0x00511358;
+            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(axis[i + 2]) * g_unk0x00511300);
+            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(axis[i]) * g_unk0x00511300);
+            pRow = (FixVector *)((BYTE *)car + 0x40 + i * 0x18);
+            pRow->x = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[(ang1[i] + 0x400) & 0xfff]);
+            pRow->y = g_sinTable[(ang2[i] + 0x400) & 0xfff];
+            pRow->z = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[ang1[i] & 0xfff]);
+            NetRace_NormalizeInto(pRow, pRow);
+        }
         {
-            int len = FixVecLength(pRow);
+            FixVector *pThird = (FixVector *)((BYTE *)car + 0x4c);
+            int len;
 
-            if (len != 0) {
-                FixVecScaleRecip(pRow, pRow, len);
+            FixVecCross(pThird, (FixVector *)((BYTE *)car + 0x58),
+                        (FixVector *)((BYTE *)car + 0x40));
+            len = FixVecLength(pThird);
+            if (len == 0) {
+                pThird->x = 0;
+                pThird->y = 0;
+                pThird->z = 0;
             } else {
-                pRow->x = 0;
-                pRow->y = 0;
-                pRow->z = 0;
+                FixVecScaleRecip(pThird, pThird, len);
             }
         }
-    }
-    {
-        FixVector *pThird = (FixVector *)((BYTE *)car + 0x4c);
-        int len;
 
-        FixVecCross(pThird, (FixVector *)((BYTE *)car + 0x58),
-                    (FixVector *)((BYTE *)car + 0x40));
-        len = FixVecLength(pThird);
-        if (len == 0) {
-            pThird->x = 0;
-            pThird->y = 0;
-            pThird->z = 0;
-        } else {
-            FixVecScaleRecip(pThird, pThird, len);
+        steer = packet[0x1a] & 0x7f;
+        if (steer == 0)
+            *pOut = -0x10000;
+        else if (steer == 0x7f)
+            *pOut = 0x10000;
+        else
+            *pOut = FixMul(steer << 16, 0x418) - 0x10000;
+        if (packet[0x1a] & 0x80)
+            *(int *)(car + 0xb8) = 0x10000;
+        else
+            *(int *)(car + 0xb8) = 0;
+        *(unsigned int *)(car + 0xd0) = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
+        if ((*(unsigned short *)(packet + 0x1a) & 0x200) != 0 &&
+            *(short *)(car + 0xc6) == 0) {
+            *(int *)(car + 0xd8) = 1;
+            *(short *)(car + 0xc6) = 100;
         }
+        *(unsigned int *)(car + 0xe4) = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
+        FUN_004263d0(car);
+        return 1;
     }
-
-    steer = packet[0x1a] & 0x7f;
-    if (steer == 0)
-        *pOut = -0x10000;
-    else if (steer == 0x7f)
-        *pOut = 0x10000;
-    else
-        *pOut = FixMul(steer << 16, 0x418) - 0x10000;
-    if (packet[0x1a] & 0x80)
-        *(int *)(car + 0xb8) = 0x10000;
-    else
-        *(int *)(car + 0xb8) = 0;
-    *(unsigned int *)(car + 0xd0) = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
-    if ((*(unsigned short *)(packet + 0x1a) & 0x200) != 0 &&
-        *(short *)(car + 0xc6) == 0) {
-        *(int *)(car + 0xd8) = 1;
-        *(short *)(car + 0xc6) = 100;
-    }
-    *(unsigned int *)(car + 0xe4) = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
-    FUN_004263d0(car);
-    return 1;
+    return 0;
 }
 
 #include <stdlib.h>

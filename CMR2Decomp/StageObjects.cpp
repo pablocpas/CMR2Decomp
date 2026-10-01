@@ -14215,9 +14215,9 @@ void FUN_0046cfa0(int *pState)
     Car *pCar;
     BYTE *pEvents;
     BYTE *pEvent;
+    BYTE *pEvent2;
     int count;
     int k;
-    int section;
     char found;
 
     p = (BYTE *)pState;
@@ -14226,69 +14226,79 @@ void FUN_0046cfa0(int *pState)
     pCar = Car_Get(p[0x20]);
     if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) == 2 || *((BYTE *)pCar + 0xb43) == 0)
         return;
-    if (*(int *)(p + 8) == 0) {
+    if (*(int *)(p + 8) != 0) {
+        if (*(short *)(p + 0x10a) < 0) {
+            if (*(int *)(p + 0x1c) == 0)
+                FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
+            else
+                FUN_0046c390((int *)(*(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30)), p[0x20]);
+            if (*(short *)(p + 0x10a) != -1) {
+                for (k = 0; k < 4; k++)
+                    pCar->wheelLoad[k] = 0;
+            }
+            (*(short *)(p + 0x10a))++;
+        }
+        if (*(short *)(p + 0x10a) < 0)
+            return;
+        if (*(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2) != 0) {
+            if (FUN_0046c4b0(pState,
+                             (BYTE *)(*(int *)(p + 0x3c) +
+                                      (*(short *)(p + 0xfe) * *(short *)(p + 0x108) + *(short *)(p + 0x10a)) * 4),
+                             p[0x20], p + 0x21))
+                (*(short *)(p + 0x10a))++;
+            found = -1;
+            if (*(int *)(p + 0x1c) == 0) {
+                count = *(BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x1148);
+                pEvents = (BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x110c);
+                for (k = 0; k < count; k++) {
+                    pEvent = pEvents + k * 6;
+                    if (*(short *)(p + 0x10a) < *(short *)pEvent ||
+                        (*(short *)(p + 0x10a) == *(short *)pEvent && (short)p[0x21] < *(short *)(pEvent + 2))) {
+                        found = (char)k;
+                        k = count;
+                    }
+                }
+            } else {
+                count = *(BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x58);
+                pEvents = (BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x1c);
+                for (k = 0; k < count; k++) {
+                    pEvent2 = pEvents + k * 6;
+                    if (*(short *)(p + 0x10a) < *(short *)pEvent2 ||
+                        (*(short *)(p + 0x10a) == *(short *)pEvent2 && (short)p[0x21] < *(short *)(pEvent2 + 2))) {
+                        found = (char)k;
+                        k = count;
+                    }
+                }
+            }
+            if (found == -1) {
+                if (*(int *)(p + 0x1c) == 0)
+                    found = *(BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x1148);
+                else
+                    found = *(BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x58);
+            }
+            // The original indexes from the last event examined by the first
+            // loop; for the second table that pointer is stale.
+            found--;
+            if (found >= 0)
+                p[0x10c] = pEvent[found * 6 + 4];
+        }
+        if (*(short *)(p + 0x10a) == *(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2)) {
+            *(int *)(p + 8) = 0;
+            (*(short *)(p + 0x108))++;
+            if (*(short *)(p + 0x108) == *(short *)(p + 0x100))
+                FUN_0046d2a0(pState);
+        }
+    } else {
         *(short *)(p + 0x10a) = 0;
         p[0x21] = 0;
         *(int *)(p + 0x14) = 1;
-        if (*(int *)(p + 0x1c) != 0) {
+        if (*(int *)(p + 0x1c) == 0) {
+            *(int *)(p + 8) = 1;
+            *(int *)(p + 0x28) = *(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c;
+        } else {
             *(int *)(p + 8) = 1;
             *(int *)(p + 0x34) = *(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30);
-            return;
         }
-        *(int *)(p + 8) = 1;
-        *(int *)(p + 0x28) = *(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c;
-        return;
-    }
-    if (*(short *)(p + 0x10a) < 0) {
-        if (*(int *)(p + 0x1c) != 0)
-            FUN_0046c390((int *)(*(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30)), p[0x20]);
-        else
-            FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
-        if (*(short *)(p + 0x10a) != -1) {
-            *(int *)((BYTE *)pCar + 0x860) = 0;
-            *(int *)((BYTE *)pCar + 0x864) = 0;
-            *(int *)((BYTE *)pCar + 0x868) = 0;
-            *(int *)((BYTE *)pCar + 0x86c) = 0;
-        }
-        (*(short *)(p + 0x10a))++;
-    }
-    if (*(short *)(p + 0x10a) < 0)
-        return;
-    section = *(short *)(p + 0x108);
-    if (*(short *)(*(BYTE **)(p + 0x104) + section * 2) != 0) {
-        if (FUN_0046c4b0(pState,
-                         (BYTE *)(*(int *)(p + 0x3c) + (*(short *)(p + 0xfe) * section + *(short *)(p + 0x10a)) * 4),
-                         p[0x20], p + 0x21))
-            (*(short *)(p + 0x10a))++;
-        found = -1;
-        pEvent = NULL;
-        section = *(short *)(p + 0x108);
-        if (*(int *)(p + 0x1c) == 0) {
-            count = *(BYTE *)(*(int *)(p + 0x24) + section * 0x114c + 0x1148);
-            pEvents = (BYTE *)(*(int *)(p + 0x24) + section * 0x114c + 0x110c);
-        } else {
-            count = *(BYTE *)(*(int *)(p + 0x30) + section * 0x5c + 0x58);
-            pEvents = (BYTE *)(*(int *)(p + 0x30) + section * 0x5c + 0x1c);
-        }
-        for (k = 0; k < count; k++) {
-            pEvent = pEvents + k * 6;
-            if (*(short *)(p + 0x10a) < *(short *)pEvent ||
-                (*(short *)(p + 0x10a) == *(short *)pEvent && (short)p[0x21] < *(short *)(pEvent + 2))) {
-                found = (char)k;
-                break;
-            }
-        }
-        if (found == -1)
-            found = (char)count;
-        // the original indexes from the last event examined, not from the table start
-        if ((char)(found - 1) >= 0)
-            p[0x10c] = pEvent[(char)(found - 1) * 6 + 4];
-    }
-    if (*(short *)(p + 0x10a) == *(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2)) {
-        *(int *)(p + 8) = 0;
-        (*(short *)(p + 0x108))++;
-        if (*(short *)(p + 0x108) == *(short *)(p + 0x100))
-            FUN_0046d2a0(pState);
     }
 }
 
