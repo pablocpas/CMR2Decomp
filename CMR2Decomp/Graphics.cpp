@@ -957,7 +957,6 @@ void CGraphics::BltTexture(Texture *pTexture, int surfaceIndex)
 // FUNCTION: CMR2 0x004a52d0
 void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BYTE *pColour)
 {
-    LockedTexture *pLocked;
     unsigned int i;
     int stride;
     int r, g, b;
@@ -978,27 +977,26 @@ void CGraphics::BlendPixel(Texture *pTexture, unsigned int x, unsigned int y, BY
     }
     if (i == m_lockedTextureCount)
         return;
-    pLocked = &m_lockedTextures[i];
-    stride = pLocked->desc.lPitch - ((pLocked->desc.dwWidth * pLocked->desc.ddpfPixelFormat.dwRGBBitCount) >> 3);
-    if (pLocked->desc.ddpfPixelFormat.dwRGBBitCount == 16) {
-        p16 = (WORD *)pLocked->desc.lpSurface + ((pLocked->desc.dwWidth + stride) * y + x);
+    stride = m_lockedTextures[i].desc.lPitch - ((m_lockedTextures[i].desc.dwWidth * m_lockedTextures[i].desc.ddpfPixelFormat.dwRGBBitCount) >> 3);
+    if (m_lockedTextures[i].desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+        p16 = (WORD *)m_lockedTextures[i].desc.lpSurface + ((m_lockedTextures[i].desc.dwWidth + stride) * y + x);
         if (pColour[3] != 0xff) {
             px = *(BYTE *)p16;
-            dst[0] = (BYTE)((BYTE)pLocked->masks[0] & px) >> (BYTE)pLocked->depths[0];
-            dst[1] = (BYTE)((BYTE)pLocked->masks[1] & px) << (BYTE)pLocked->depths[1];
-            dst[2] = (BYTE)((BYTE)pLocked->masks[2] & px) << (BYTE)-pLocked->depths[2];
+            dst[0] = (BYTE)((BYTE)m_lockedTextures[i].masks[0] & px) >> (BYTE)m_lockedTextures[i].depths[0];
+            dst[1] = (BYTE)((BYTE)m_lockedTextures[i].masks[1] & px) << (BYTE)m_lockedTextures[i].depths[1];
+            dst[2] = (BYTE)((BYTE)m_lockedTextures[i].masks[2] & px) << (BYTE)-m_lockedTextures[i].depths[2];
             f = (float)pColour[3] * (1.0f / 255.0f);
             inv = 1.0f - f;
             r = (int)(__int64)((float)r * f + (float)dst[0] * inv);
             g = (int)(__int64)((float)g * f + (float)dst[1] * inv);
             b = (int)(__int64)((float)b * f + (float)dst[2] * inv);
         }
-        *p16 = (WORD)(PACK_CHANNEL(pLocked->masks[3], (short)pLocked->depths[3], 0xff) |
-                      PACK_CHANNEL(pLocked->masks[0], (short)pLocked->depths[0], r) |
-                      PACK_CHANNEL(pLocked->masks[1], (short)pLocked->depths[1], g) |
-                      PACK_CHANNEL(pLocked->masks[2], (short)pLocked->depths[2], b));
-    } else if (pLocked->desc.ddpfPixelFormat.dwRGBBitCount == 32) {
-        p32 = (DWORD *)pLocked->desc.lpSurface + ((pLocked->desc.dwWidth + stride) * y + x);
+        *p16 = (WORD)(PACK_CHANNEL(m_lockedTextures[i].masks[3], (short)m_lockedTextures[i].depths[3], 0xff) |
+                      PACK_CHANNEL(m_lockedTextures[i].masks[0], (short)m_lockedTextures[i].depths[0], r) |
+                      PACK_CHANNEL(m_lockedTextures[i].masks[1], (short)m_lockedTextures[i].depths[1], g) |
+                      PACK_CHANNEL(m_lockedTextures[i].masks[2], (short)m_lockedTextures[i].depths[2], b));
+    } else if (m_lockedTextures[i].desc.ddpfPixelFormat.dwRGBBitCount == 32) {
+        p32 = (DWORD *)m_lockedTextures[i].desc.lpSurface + ((m_lockedTextures[i].desc.dwWidth + stride) * y + x);
         if (pColour[3] != 0xff) {
             dst[0] = 0;
             dst[1] = 0;
