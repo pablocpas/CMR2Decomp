@@ -3036,7 +3036,7 @@ BYTE FUN_004cf8e0(int index, int pBlock);
 int FUN_004cf9d0(int param_1, int param_2);
 int FUN_004cfa10(int param_1, int param_2, char *pName);
 char FUN_004cfb30(int param1, int index, char *pName);
-char FUN_004cfc90(int param1, int index, char *pName);
+int FUN_004cfc90(int param1, int index, char *pName);
 char FUN_004cfff0(int param1, int index, char *pName);
 unsigned char FUN_004d0580(void);
 void FUN_0044af70(char param1, Menu *pParent);

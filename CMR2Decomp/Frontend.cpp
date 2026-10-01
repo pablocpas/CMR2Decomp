@@ -50,7 +50,7 @@ void FUN_004d0470(int *pDest, int *pSource);
 void FUN_004d0500(int *pDest, int *pSource);
 
 char FUN_004cfb30(int param1, int index, char *pName);
-char FUN_004cfc90(int param1, int index, char *pName);
+int FUN_004cfc90(int param1, int index, char *pName);
 char FUN_004cfff0(int param1, int index, char *pName);
 
 char CFrontend::m_stringDest[MAX_PATH];
@@ -1492,58 +1492,54 @@ char FUN_004cfb30(int param1, int index, char *pName)
 
 // Inserts a device name and its option word into the five-entry record list of
 // the current car group, keeping the list sorted by the option value.
-// match 55%: same code as the original; MSVC allocates the loop counter, the
-// base and `better` to different places.
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The flags word with a 7-bit score and a 4-bit level (0x4cfc90).
+struct RecordLevelBits {
+    unsigned car : 6;
+    unsigned manual : 1;
+    unsigned score : 7;
+    unsigned level : 4;
+    unsigned rest : 14;
+};
+#define LEVEL_BITS(pRecord) (*(RecordLevelBits *)&(pRecord)->flags)
+
 // FUNCTION: CMR2 0x004cfc90
-char FUN_004cfc90(int param1, int index, char *pName)
+int FUN_004cfc90(int param1, int index, char *pName)
 {
-    unsigned char *pInfo;
     unsigned int *pDevice;
-    GameInfo0xa4SubStruct12 *pRecord;
+    GameInfo0xa4SubStruct12 *pRecords;
     int better;
     int slot;
+    GameInfo0xa4SubStruct12 *pRecord;
+    int k;
     int i;
 
     pDevice = (unsigned int *)RallyData_FUN_00408c70(index);
-    pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
+    pRecords = (GameInfo0xa4SubStruct12 *)CGameInfo::FUN_00405fe0();
     better = 0;
     slot = 0;
-    pInfo += g_unk0x00817400 * 0x3c;
-    pRecord = (GameInfo0xa4SubStruct12 *)pInfo;
+    pRecords = (GameInfo0xa4SubStruct12 *)((BYTE *)pRecords + g_unk0x00817400 * 0x3c);
     for (;;) {
+        pRecord = &pRecords[slot];
         if (pDevice != NULL) {
-            if ((*pDevice & 0xf) < ((pRecord->flags >> 0xe) & 0xf))
+            if ((*pDevice & 0xf) < LEVEL_BITS(pRecord).level)
                 better = 1;
-            if (((((pRecord->flags >> 0xe) ^ *pDevice) & 0xf) == 0 &&
+            if ((LEVEL_BITS(pRecord).level == (*pDevice & 0xf) &&
                  (*pDevice & 0x3fc0) < ((pRecord->flags >> 1) & 0x1fc0)) || better) {
-                char *p;
-
-                if (slot < 4) {
-                    GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x30);
-
-                    for (i = 4 - slot; i != 0; i--) {
-                        FUN_004d0470((int *)pMove, (int *)(pMove - 1));
-                        pMove--;
-                    }
-                }
+                for (i = 4; i > slot; i--)
+                    FUN_004d0470((int *)&pRecords[i], (int *)&pRecords[i - 1]);
                 strcpy(pRecord->ident, pName);
-                pRecord->flags = (RallyData_FUN_004086b0((BYTE)index) & 0x3f) | (pRecord->flags & 0xffffffc0);
-                pRecord->flags = ((FUN_004086f0((BYTE)index) & 1) << 6) | (pRecord->flags & 0xffffffbf);
-                pRecord->flags = ((*pDevice & 0xf) << 0xe) | (pRecord->flags & 0xfffc3fff);
-                pRecord->flags = ((*pDevice & 0x1fc0) << 1) | (pRecord->flags & 0xffffc07f);
-                p = (char *)pRecord + 8;
-                do {
-                    *p = p[(char *)pDevice - (char *)pRecord];
-                    p++;
-                } while ((int)(p + (-8 - (int)pRecord)) < 3);
+                LEVEL_BITS(pRecord).car = RallyData_FUN_004086b0((BYTE)index);
+                LEVEL_BITS(pRecord).manual = FUN_004086f0((BYTE)index);
+                LEVEL_BITS(pRecord).level = *pDevice;
+                LEVEL_BITS(pRecord).score = *pDevice >> 6;
+                for (k = 0; k < 3; k++)
+                    ((char *)&pRecord->value)[k] = ((char *)pDevice)[8 + k];
                 g_unk0x00817412 = 1;
                 return (slot != 0) + 1;
             }
         }
-        pRecord++;
         slot++;
-        if (slot > 4)
+        if (slot >= 5)
             return 0;
     }
 }
