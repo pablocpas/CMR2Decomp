@@ -10501,11 +10501,7 @@ void FUN_0046afe0(int param_1, int param_2, int param_3)
                             ((BYTE *)pDst)[0x19] = 0;
                             ((BYTE *)pDst)[0x1a] = 0;
                         } else {
-                            int inv = (int)(0x100000000i64 / len);
-
-                            v.x = FixMul(v.x, inv);
-                            v.y = FixMul(v.y, inv);
-                            v.z = FixMul(v.z, inv);
+                            FixVecScaleRecip(&v, &v, len);
                             t = v.x >> 9;
                             if (t > 0x7f)
                                 t = 0x7f;

@@ -6486,10 +6486,7 @@ void FUN_004816f0(void)
         }
         len = FixVecLength(&v24);
         if (len > 0) {
-            i = (int)(0x100000000i64 / (__int64)len);
-            v24.x = FixMul(v24.x, i);
-            v24.y = FixMul(v24.y, i);
-            v24.z = FixMul(v24.z, i);
+            FixVecScaleRecip(&v24, &v24, len);
             i = -FixMul(len, 0x40000);
             v70.x = FixMul(v24.x, i);
             v70.y = FixMul(v24.y, i);
@@ -6575,10 +6572,7 @@ void FUN_004816f0(void)
                 if (i > 0xe3)
                     bVar5 = true;
             }
-            i = (int)(0x100000000i64 / (__int64)len);
-            v24.x = FixMul(v24.x, i);
-            v24.y = FixMul(v24.y, i);
-            v24.z = FixMul(v24.z, i);
+            FixVecScaleRecip(&v24, &v24, len);
             if (!bVar5)
                 goto LAB_00481da0;
             FixVecScale(&v4c, &v4c, 0xfff60000);
@@ -6982,10 +6976,7 @@ void FUN_00483100(int *param_1, unsigned int param_2)
 
         uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
         if ((int)uVar10 > 0) {
-            int inv = (int)(0x100000000i64 / (__int64)(int)-uVar10);
-            v48.x = FixMul(param_1[0], inv);
-            v48.y = FixMul(param_1[1], inv);
-            v48.z = FixMul(param_1[2], inv);
+            FixVecScaleRecip(&v48, (FixVector *)param_1, -(int)uVar10);
             param_2 = (unsigned int)FixMul((int)uVar10, 0x50000);
             if ((int)param_2 < 0x10001) {
                 if ((int)param_2 < 0x3334)
