@@ -1387,8 +1387,14 @@ struct StageObjectEntry0x128 {
     int *pObject;               // 0x04  head of the object's node chain
     BYTE rest[0x120];           // 0x08
 };
-extern StageObjectEntry0x128 g_unk0x005894e0[40];
-extern BYTE g_unk0x0058c924;
+struct MovingObjects {
+    StageObjectEntry0x128 entries[40];
+    BYTE meshCount;
+    BYTE field_0x2e41[0x103];
+    int carDistance[40 * 8];
+    BYTE count;
+};
+extern MovingObjects g_movingObjects;
 
 // 16.16 -> 12-bit angle of a turn rate (its negated twin is 0x511398 in Car.cpp);
 // defined in StageTiming.cpp, which owns the GLOBAL annotation.
@@ -1434,7 +1440,7 @@ extern const double g_unk0x00511380;
     }
 
 // Per-frame update of the moving stage objects. Each active object of
-// g_unk0x005894e0 (count in g_unk0x0058c924) gets its result matrix refreshed
+// g_movingObjects.entries (count in g_movingObjects.count) gets its result matrix refreshed
 // from its source matrix and then:
 //   mode 1 - the turn rate at 0xe0 is applied to the object basis, the basis is
 //            re-orthonormalised and the object is dropped onto the ground;
@@ -1470,12 +1476,12 @@ void FUN_00470580(void)
     int height;
     int i;
 
-    if (g_unk0x0058c924 == 0)
+    if (g_movingObjects.count == 0)
         return;
 
-    pObj = (BYTE *)g_unk0x005894e0;
+    pObj = (BYTE *)g_movingObjects.entries;
 
-    for (i = 0; i < (int)(g_unk0x0058c924 & 0xff); i++) {
+    for (i = 0; i < (int)(g_movingObjects.count & 0xff); i++) {
         pMatrix = *(FixMatrix **)(pObj + 0xc8);
         vecD4 = *(FixVector *)(pObj + 0xd4);
 

@@ -3439,7 +3439,7 @@ void FUN_004f2bf0(int value);
 int FUN_004f2c20(void);
 BYTE FUN_004eb290(int param_1, BYTE *param_2);
 char FUN_004eb370(int param_1);
-unsigned int FUN_004eb4c0(int param_1, int param_2);
+BYTE FUN_004eb4c0(int param_1, int param_2);
 void FUN_004ebe10(int param_1, unsigned int param_2, unsigned int param_3, unsigned int param_4);
 BYTE FUN_004085a0(BYTE param1);
 BYTE *FUN_004f4e50(int index);

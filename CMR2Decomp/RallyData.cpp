@@ -36,7 +36,9 @@ struct SaveSlot {
     unsigned bit13 : 1;
     unsigned level : 4;
     unsigned category : 4;
-    unsigned rest : 10;
+    unsigned bits22 : 3;
+    unsigned bit25 : 1;
+    unsigned rest : 6;
     int time;
     BYTE pad[0x28];
 };

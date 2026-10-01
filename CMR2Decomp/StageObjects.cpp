@@ -850,27 +850,32 @@ void FUN_0046b6e0(SceneNode *pNode, BYTE threshold)
 }
 
 struct StageObjectEntry0x128 { int field_0x0; int *pObject; BYTE rest[0x120]; };
+// Moving stage objects (debris and the like): one object in the original, so a
+// store into entries[] makes MSVC re-read count.
+// GLOBAL: CMR2 0x005894b8
+BYTE g_farVotes[40];    // per entry: cars for which it is the farthest
+struct MovingObjects {
+    StageObjectEntry0x128 entries[40];    // 0x0000
+    BYTE meshCount;                       // 0x2e40
+    BYTE field_0x2e41[0x103];
+    int carDistance[40 * 8];              // 0x2f44 [entry * 8 + car]
+    BYTE count;                           // 0x3444 entries in use
+};
 // GLOBAL: CMR2 0x005894e0
-StageObjectEntry0x128 g_unk0x005894e0[40];
-// GLOBAL: CMR2 0x0058c320
-BYTE g_unk0x0058c320;
-// GLOBAL: CMR2 0x0058c324
-int g_unk0x0058c324;
-// GLOBAL: CMR2 0x0058c924
-BYTE g_unk0x0058c924;
+MovingObjects g_movingObjects;
 
 // FUNCTION: CMR2 0x0046f7e0
 void FUN_0046f7e0(void)
 {
     int **pp;
 
-    g_unk0x0058c924 = 0;
-    pp = &g_unk0x005894e0[0].pObject;
+    g_movingObjects.count = 0;
+    pp = &g_movingObjects.entries[0].pObject;
     do {
         if (*pp != NULL)
             (*pp)[0xcc / 4] += 0xd8f00000U;
         pp = (int **)((BYTE *)pp + sizeof(StageObjectEntry0x128));
-    } while ((int)pp < (int)&g_unk0x005894e0[40].pObject);
+    } while ((int)pp < (int)&g_movingObjects.entries[40].pObject);
 }
 
 // Initializes a moving stage object from its route entry and the car's motion.
@@ -1599,7 +1604,7 @@ int FUN_0046f500(void)
         CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c92c);
         g_unk0x0058c92c = NULL;
     }
-    g_unk0x0058c320 = 0;
+    g_movingObjects.meshCount = 0;
     return 1;
 }
 
@@ -1734,14 +1739,14 @@ void FUN_0046f550(void)
     float *pFloats;
 
     Mesh_ResetCloneCount();
-    pEntry = (BYTE *)g_unk0x005894e0 + 0x114;
+    pEntry = (BYTE *)g_movingObjects.entries + 0x114;
     do {
         SceneNode *pNode = SceneNode_Create((SceneNode *)RallyData_FUN_00411060());
         *(int *)(pEntry - 0x110) = (int)pNode;
         *(int *)((BYTE *)pNode + 0x178) = 3;
         *(int *)pEntry = -0x10000;
         pEntry += 0x128;
-    } while ((int)pEntry < (int)((BYTE *)g_unk0x005894e0 + 0x114 + 40 * 0x128));
+    } while ((int)pEntry < (int)((BYTE *)g_movingObjects.entries + 0x114 + 40 * 0x128));
 
     count = FUN_00471bd0(&pEntries);
     g_unk0x0058c92c = CFileBuffer::AllocateLockedBuffer(count * 4);
@@ -1756,18 +1761,18 @@ void FUN_0046f550(void)
     if (count > 0) {
         g_unk0x0058c928 = CFileBuffer::AllocateLockedBuffer(count);
         i = 0;
-        g_unk0x0058c320 = 0;
+        g_movingObjects.meshCount = 0;
         if (count > 0) {
             do {
                 mesh = *(int *)(*(int *)(pEntries + i * 8) + 0xc);
-                if ((int)g_unk0x0058c320 < count) {
-                    ((BYTE *)g_unk0x0058c928)[i] = (BYTE)g_unk0x0058c320;
+                if ((int)g_movingObjects.meshCount < count) {
+                    ((BYTE *)g_unk0x0058c928)[i] = (BYTE)g_movingObjects.meshCount;
                     mesh = (int)Mesh_CloneInto((Mesh *)mesh, (BYTE *)*(int *)(pEntries + i * 8));
-                    ((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] = mesh;
-                    if (((int *)g_unk0x0058c92c)[(BYTE)g_unk0x0058c320] == 0)
+                    ((int *)g_unk0x0058c92c)[(BYTE)g_movingObjects.meshCount] = mesh;
+                    if (((int *)g_unk0x0058c92c)[(BYTE)g_movingObjects.meshCount] == 0)
                         ((BYTE *)g_unk0x0058c928)[i] = 0;
                     else
-                        g_unk0x0058c320++;
+                        g_movingObjects.meshCount++;
                 } else {
                     ((BYTE *)g_unk0x0058c928)[i] = 0xff;
                 }
@@ -1776,10 +1781,10 @@ void FUN_0046f550(void)
         }
     }
     g_unk0x0058c930 = 0;
-    if (g_unk0x0058c320 > 0)
-        g_unk0x0058c930 = CFileBuffer::AllocateLockedBuffer((g_unk0x0058c320 & 0xff) << 2);
+    if (g_movingObjects.meshCount > 0)
+        g_unk0x0058c930 = CFileBuffer::AllocateLockedBuffer((g_movingObjects.meshCount & 0xff) << 2);
     i = 0;
-    if (g_unk0x0058c320 > 0) {
+    if (g_movingObjects.meshCount > 0) {
         do {
             int pObject = ((int *)g_unk0x0058c92c)[i];
             int n;
@@ -1819,7 +1824,7 @@ void FUN_0046f550(void)
             else
                 ((int *)g_unk0x0058c930)[i] = 0;
             i++;
-        } while (i < (int)(g_unk0x0058c320 & 0xff));
+        } while (i < (int)(g_movingObjects.meshCount & 0xff));
     }
     CGame::RegisterCallback((void *)FUN_0046f500, NULL);
 }
@@ -8172,8 +8177,8 @@ void FUN_00471950(int t)
     FixMatrix old;
     FixMatrix *pCurrent;
 
-    for (i = 0; i < g_unk0x0058c924; i++) {
-        p = (BYTE *)&g_unk0x005894e0[i];
+    for (i = 0; i < g_movingObjects.count; i++) {
+        p = (BYTE *)&g_movingObjects.entries[i];
         pCurrent = (FixMatrix *)(p + 0x88);
         old = *pCurrent;
         FixMatrix_Interpolate(pCurrent, (FixMatrix *)(p + 0x48), (FixMatrix *)(p + 8), t, t, t, 1);
@@ -8196,8 +8201,8 @@ void FUN_00471a60(int param_1)
     BYTE *p;
 
     i = 0;
-    if (g_unk0x0058c924 > 0) {
-        p = (BYTE *)g_unk0x005894e0;
+    if (g_movingObjects.count > 0) {
+        p = (BYTE *)g_movingObjects.entries;
         do {
             *(FixMatrix *)(*(int *)(p + 4) + 0x98) = *(FixMatrix *)(p + 0x88);
             if (*(int *)(p + 0x124) != 0) {
@@ -8207,7 +8212,7 @@ void FUN_00471a60(int param_1)
             }
             i = i + 1;
             p = p + 0x128;
-        } while (i < (int)(g_unk0x0058c924 & 0xff));
+        } while (i < (int)(g_movingObjects.count & 0xff));
     }
 }
 
@@ -10313,10 +10318,6 @@ void FUN_00462d80(int param_1, int param_2)
     Sprite_Queue(&uv, &dst, (Texture *)g_unk0x00547ad0, 2, 0, 0, 0, colour, 8);
 }
 
-// GLOBAL: CMR2 0x005894b8
-BYTE g_unk0x005894b8[40];
-// GLOBAL: CMR2 0x0058c424
-int g_unk0x0058c424[320];
 
 int FUN_00471d40(BYTE **pEntry, int bit);
 void FUN_00471d80(BYTE **pp, int bit, int set);
@@ -10329,15 +10330,13 @@ void FUN_0046fe70(int *param_1, int param_2, int param_3)
 {
     StageObjectEntry0x128 *entry;
     FixVector pos;
+    FixVector delta;
     Car *pCar;
-    int dx;
-    int dy;
-    int dz;
     int d;
-    int inv;
     int v;
     int best;
-    int bestIx;
+    BYTE bestCount;
+    BYTE bestIx;
     int j;
     int c;
 
@@ -10352,66 +10351,58 @@ void FUN_0046fe70(int *param_1, int param_2, int param_3)
     pCar = Car_Get(param_3);
     if (pCar->field_0xc0c != 0)
         return;
-    if (g_unk0x0058c924 < 0x28) {
-        entry = &g_unk0x005894e0[g_unk0x0058c924];
-        entry->field_0x0 = (int)param_1;
-        *(int *)((BYTE *)entry + 0x118) = param_2;
-        StageObject_InitMovingObject((int *)entry, param_3);
-        g_unk0x0058c924++;
+    if (g_movingObjects.count < 0x28) {
+        g_movingObjects.entries[g_movingObjects.count].field_0x0 = (int)param_1;
+        *(int *)((BYTE *)&g_movingObjects.entries[g_movingObjects.count] + 0x118) = param_2;
+        StageObject_InitMovingObject((int *)&g_movingObjects.entries[g_movingObjects.count], param_3);
+        g_movingObjects.count++;
         return;
     }
     c = 0;
-    if (g_unk0x0058c924 != 0) {
-        entry = &g_unk0x005894e0[0];
+    if (g_movingObjects.count != 0) {
+        entry = &g_movingObjects.entries[0];
         do {
             RallyData_FUN_00471cc0((int *)&pos, (void **)entry);
             for (j = 0; j < Car_GetOrderCount(); j++) {
-                pCar = Car_Get(j);
-                dx = pCar->position.x - pos.x;
-                pCar = Car_Get(j);
-                dy = pCar->position.y - pos.y;
-                pCar = Car_Get(j);
-                dz = pCar->position.z - pos.z;
-                d = (abs(dz) < abs(dx)) ? abs(dx) : abs(dz);
-                if (d < 0x290) {
-                    g_unk0x0058c424[j + c * 8] = 0;
+                delta.x = Car_Get(j)->position.x - pos.x;
+                delta.y = Car_Get(j)->position.y - pos.y;
+                delta.z = Car_Get(j)->position.z - pos.z;
+                d = (FIX_ABS(delta.x) > FIX_ABS(delta.z)) ? FIX_ABS(delta.x) : FIX_ABS(delta.z);
+                if (d > 0x28f) {
+                    FixVecScaleRecip(&delta, &delta, d);
+                    delta.y = 0;
+                    v = FixVecLength(&delta);
+                    g_movingObjects.carDistance[j + c * 8] = v;
+                    g_movingObjects.carDistance[j + c * 8] = FixMul(v, d);
                 } else {
-                    inv = (int)(0x100000000i64 / d);
-                    dx = (int)(((__int64)dx * inv) >> 16);
-                    dz = (int)(((__int64)dz * inv) >> 16);
-                    dy = 0;
-                    v = FixMul(dx, dx) + FixMul(dz, dz);
-                    if (v != 0)
-                        v = FixSqrt(v);
-                    g_unk0x0058c424[j + c * 8] = v;
-                    g_unk0x0058c424[j + c * 8] = FixMul(v, d);
+                    g_movingObjects.carDistance[j + c * 8] = 0;
                 }
             }
-            g_unk0x005894b8[c] = 0;
+            g_farVotes[c] = 0;
             c++;
             entry++;
-        } while (c < g_unk0x0058c924);
+        } while (c < g_movingObjects.count);
     }
     for (j = 0; j < Car_GetOrderCount(); j++) {
-        best = g_unk0x0058c424[j];
+        best = g_movingObjects.carDistance[j];
         bestIx = 0;
-        for (c = 1; c < g_unk0x0058c924; c++) {
-            if (best < g_unk0x0058c424[j + c * 8]) {
+        for (c = 1; c < g_movingObjects.count; c++) {
+            if (g_movingObjects.carDistance[j + c * 8] > best) {
+                best = g_movingObjects.carDistance[j + c * 8];
                 bestIx = c;
-                best = g_unk0x0058c424[j + c * 8];
             }
         }
-        g_unk0x005894b8[bestIx]++;
+        g_farVotes[bestIx]++;
     }
-    best = g_unk0x005894b8[0];
+    bestCount = g_farVotes[0];
     bestIx = 0;
-    for (c = 1; c < g_unk0x0058c924; c++) {
-        if (best < g_unk0x005894b8[c]) {
+    for (c = 1; c < g_movingObjects.count; c++) {
+        if (g_farVotes[c] > bestCount) {
+            bestCount = g_farVotes[c];
             bestIx = c;
-            best = g_unk0x005894b8[c];
         }
     }
-    entry = &g_unk0x005894e0[bestIx];
+    entry = &g_movingObjects.entries[bestIx];
     for (j = 0; j < 8; j++)
         FUN_00470240((BYTE **)entry->field_0x0, j);
     entry->field_0x0 = (int)param_1;
