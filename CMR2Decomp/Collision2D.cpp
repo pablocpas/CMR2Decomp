@@ -52,7 +52,7 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
             t = FixMul(recip, FixMul(d3.z, ax) + FixMul(d3.x, az));
             if (t >= 0 && t <= 0x10000) {
                 cross = FixMul(d3.x, pDir->z) - FixMul(d3.z, pDir->x);
-                if (FIX_ABS(cross) < 0x290) {
+                if (FIX_ABS(cross) <= 0x28f) {
                     result = 0x7d000000;
                 } else {
                     recip = FixDiv(0x10000, cross);
@@ -285,7 +285,7 @@ int FUN_00489b20(int *param_1, int *param_2, unsigned int *param_3, int param_4)
         if ((int)uVar15 > param_1[1])
             goto LABEL_00489f05;
 
-        if ((int)uVar6 >= 1)
+        if ((int)uVar6 > 0)
             uVar15 = (unsigned int)(0 < (int)uVar7);
         else
             uVar15 = (unsigned int)((0 < (int)uVar7) + 2);
@@ -732,7 +732,7 @@ int FUN_0048a5f0(int param_1, int param_2)
     normal.y = 0;
     normal.z = 0;
     countA = 0;
-    if (g_unk0x005915f4 > 0) {
+    if (g_unk0x005915f4 >= 1) {
         for (i = 0; i < g_unk0x005915f4; i++) {
             delta.x = *(int *)(param_1 + (g_unk0x005914c4[i] * 3 + 0x9c) * 4) -
                       *(int *)(param_1 + 0x2d0);

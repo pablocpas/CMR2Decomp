@@ -459,7 +459,7 @@ void FUN_00428680(unsigned int player, short *pRect, int check)
 
     if ((FUN_0041f3a0() == 0 || index != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
         view = FUN_00422fb0(player);
-        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
+        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] >= 1) {
             alpha = (unsigned int)(g_unk0x0053a06c[view] * 0xff >> 16);
             if (alpha > 0xff)
                 alpha = 0xff;
@@ -734,7 +734,7 @@ void NetRace_PackCarState(Car *car)
             if (axis->z >= 0) heading = 0xb40000 - heading;
             else heading += 0xb40000;
         }
-        if (axis->y <= 0) elevation = 0xb40000 - elevation;
+        if (axis->y < 1) elevation = 0xb40000 - elevation;
         value = (float)((double)heading * CGraphics::m_oneOver65536 * g_netHeadingScale * g_netByteScale);
         double vertical = (double)elevation * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
         if (value < g_netZero) value = g_netZero;
@@ -1331,7 +1331,7 @@ void FUN_00425a90(BYTE *pCars)
                 *(int *)(pEntry + 0xb8) =
                     FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) >= 0x33) {
+            if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;
                 *(int *)(pEntry + 0xe8) = 1;
             } else {

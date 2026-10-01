@@ -45,7 +45,7 @@ void WheelTrail_Update(int carIndex)
                 delta.x = g_trailLastPos[carIndex][i].x - g_trailPos[carIndex][i].x;
                 delta.y = 0;
                 delta.z = g_trailLastPos[carIndex][i].z - g_trailPos[carIndex][i].z;
-                if (FIX_ABS(FixVecLength(&delta)) >= 0x14ccd) {
+                if (FIX_ABS(FixVecLength(&delta)) > 0x14ccc) {
                     g_trailLastPos[carIndex][i].x = g_trailPos[carIndex][i].x;
                     g_trailLastPos[carIndex][i].y = g_trailPos[carIndex][i].y;
                     g_trailLastPos[carIndex][i].z = g_trailPos[carIndex][i].z;

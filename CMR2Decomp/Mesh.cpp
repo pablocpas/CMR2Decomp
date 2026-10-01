@@ -144,7 +144,7 @@ void Mesh_BuildParts(Mesh *pMesh)
     int hi;
     unsigned short *pIndex;
 
-    if (pMesh->partCount >= 1)
+    if (pMesh->partCount > 0)
         return;
     count = 0;
     last = -99;

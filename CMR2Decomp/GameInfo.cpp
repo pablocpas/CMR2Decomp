@@ -7851,7 +7851,7 @@ void FUN_00506930(int param1, short *param2, int param3)
     if (a[0] < 0)
         abs = -a[0];
     if (abs > 0xb40000) {
-        if (a[0] > 0)
+        if (a[0] >= 1)
             a[0] = 0x1680000 - a[0];
         else
             a[0] += 0x1680000;
@@ -7977,7 +7977,7 @@ void FUN_00506bb0(int param1, int param2, int param3)
                 } else {
                     FixVecScale(&normal, &normal, (int)(((__int64)0x10000 << 16) / length));
                     v = normal.x >> 9;
-                    if (v > 0x7f)
+                    if (v >= 0x80)
                         v = 0x7f;
                     else if (v < -0x7f)
                         v = -0x7f;
@@ -9292,7 +9292,7 @@ void FUN_00403890(Menu *pMenu)
         } while (k < pMenu->itemCount);
     }
     i = 0;
-    if (pMenu->itemCount > 0) {
+    if (pMenu->itemCount >= 1) {
         pItem = pMenu->items;
         do {
             pColour = &g_unk0x00516074;
@@ -9394,7 +9394,7 @@ void FUN_004041e0(Menu *pMenu)
     rect[2] = *(short *)(g_unk0x0052aa60 + 0x120);
     rect[3] = *(short *)(g_unk0x0052aa60 + 0x122);
     i = 0;
-    if (pMenu->itemCount > 0) {
+    if (pMenu->itemCount >= 1) {
         pItem = pMenu->items;
         do {
             pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
@@ -11589,7 +11589,7 @@ void FUN_004ff720(Menu *pMenu)
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 >= 1) {
                 g_unk0x0082a924--;
             } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
                 g_unk0x0082a924++;

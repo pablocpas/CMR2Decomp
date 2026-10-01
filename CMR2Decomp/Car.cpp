@@ -381,7 +381,7 @@ void FUN_00428bf0(unsigned int view, short *pRect)
     for (k = 0; k < 3; k++) {
         bestIdx = -1;
         bestDist = 0x7fff0000;
-        if (g_carOrderCount > 0) {
+        if (g_carOrderCount >= 1) {
             for (i = 0; i < g_carOrderCount; i++) {
                 car = g_carOrder[i];
                 if (visible[car] == 0) {
@@ -1652,7 +1652,7 @@ void Car_RelaxBodyAxes(int bFast)
         diff.y = g_pCurrentCar->up.y - g_pCurrentCar->targetUp.y;
         diff.z = g_pCurrentCar->up.z - g_pCurrentCar->targetUp.z;
         len = FixVecLength(&diff);
-        if (len > 0) {
+        if (len >= 1) {
             t = FixMul(len, gain);
             if (t > 0x10000)
                 t = 0x10000;
@@ -2127,7 +2127,7 @@ void Car_ApplyCornerFriction(int grip)
             i++;
         } while (i < cornerCount);
 
-        if (count > 0) {
+        if (count >= 1) {
             int share = FixDiv(0x140000, count << 16);
             i = 0;
             do {
@@ -2504,7 +2504,7 @@ void Car_UpdateTyreForces(void)
         if (axisValid[i] != 0) {
             speed = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
             g_pCurrentCar->field_0x880[i] = speed;
-            if (FIX_ABS(speed) < 0x10000)
+            if (FIX_ABS(speed) <= 0xffff)
                 latAssist = -FixVecDot(&axis[i], &g_carStepAccel);
             latForce = -FixMul(speed, g_tyreGripScale);
         }
@@ -3154,7 +3154,7 @@ void Car_UpdateWheelForces(void)
         torqueLimit = FIX_ABS(torqueLimit);
         if (g_pCurrentCar->field_0xb1e == 0 || g_pCurrentCar->field_0xb84 != 0 ||
             g_pCurrentCar->field_0x7b4 == (i > 1 ? 0x10000 : 0x0)) {
-            if ((load >= 1 && g_pCurrentCar->wheelLoad[i] < 0) ||
+            if ((load > 0 && g_pCurrentCar->wheelLoad[i] < 0) ||
                 (load < 0 && g_pCurrentCar->wheelLoad[i] > 0)) {
                 g_pCurrentCar->wheelLoad[i] = 0;
             }
@@ -4015,7 +4015,7 @@ int FUN_0042c890(int *pOut)
     max = 0;
     for (i = 0; i < g_carOrderCount; i++) {
         pCar = &g_carBuffer[g_carOrder[i]];
-        if (g_carOrder[i] >= 1 &&
+        if (g_carOrder[i] > 0 &&
             *(float *)(pCar->field_0xa90 + 8) == *(float *)(g_carBuffer->field_0xa90 + 8)) {
             *(int *)pCar->field_0xa90 = *(int *)g_carBuffer->field_0xa90;
             offset = g_carBuffer->field_0xb43[0];
@@ -4613,7 +4613,7 @@ void Car_UpdateRollover(void)
     if (FIX_ABS(diff) < rate) {
         g_pCurrentCar->tipRatio = target;
     } else {
-        if (diff < 1)
+        if (diff <= 0)
             rate = -rate;
         g_pCurrentCar->tipRatio += rate;
     }
@@ -5022,7 +5022,7 @@ void Car_UpdateCornerLoads(void)
         f.z = g_pCurrentCar->baseForce.z - f.z;
         FixVecScale(&f, &f, 0x10000 - g_unk0x0053c9d4);
         if (g_pCurrentCar->field_0xb74 == 0) {
-            if (g_pCurrentCar->field_0xb34 > 0)
+            if (g_pCurrentCar->field_0xb34 >= 1)
                 FixVecScaleRecip(&g_carStepAccel, &f,
                                  (int)(__int64)((double)g_pCurrentCar->field_0xb34 * CGraphics::m_65536));
             else
@@ -5812,21 +5812,16 @@ void FUN_00432b30(void)
             g_pCurrentCar->field_0xbac[i] = 0;
         }
     }
-    switch (g_pCurrentCar->field_0xb28) {
-    case 0:
+    if (g_pCurrentCar->field_0xb28 == 0)
         g_pCurrentCar->field_0x8b4 = 0;
-        return;
-    case 4:
+    else if (g_pCurrentCar->field_0xb28 == 4)
         g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / 4;
-        return;
-    case 2:
+    else if (g_pCurrentCar->field_0xb28 == 2)
         g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / 2;
-        return;
-    case 1:
+    else if (g_pCurrentCar->field_0xb28 == 1)
         g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c;
-        return;
-    }
-    g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / g_pCurrentCar->field_0xb28;
+    else
+        g_pCurrentCar->field_0x8b4 = g_pCurrentCar->field_0x75c / g_pCurrentCar->field_0xb28;
 }
 
 void FUN_00437fd0(void);
@@ -6243,9 +6238,9 @@ void Car_IntegrateContacts(void)
         g_pCurrentCar->field_0xc00 = 1;
         g_pCurrentCar->field_0x96c = 0x10000;
         *(int *)g_pCurrentCar->field_0xc04 = 1;
-        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->right);
-        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
-        g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->forward);
+        g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+        g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
     }
     drag = FixMul(FIX_ABS(g_pCurrentCar->speed), *(int *)(g_pCarSetup + 0x408) + g_dragBase);
     FixVecScale(&tmp, &g_pCurrentCar->velocity, drag);
@@ -6301,7 +6296,7 @@ void Car_IntegrateContacts(void)
         angles[2] = (short)(__int64)((double)FixMul(g_pCurrentCar->angularVelocity.z, g_physicsTimeStep) * g_unk0x00511380);
     }
     if (g_pCurrentCar->field_0xb34 > 0) {
-        int upDot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
+        int upDot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
         if (FIX_ABS(angles[0]) < 10 && FIX_ABS(upDot) > 0xcccc) angles[0] = 0;
         if ((g_pCurrentCar->flag0x1d0[0] == 0 && g_pCurrentCar->flag0x1d0[1] == 0) ||
             FIX_ABS(g_pCurrentCar->speed) < 0x28f || g_pCurrentCar->field_0xb74 == 0) {
@@ -6493,7 +6488,7 @@ void FUN_0042e450(void)
             } else {
                 t = CARF(0x778) - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
                                             (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
-                if (t >= 0x10001)
+                if (t > 0x10000)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;

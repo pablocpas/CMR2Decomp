@@ -3344,7 +3344,7 @@ Mesh *Mesh_GetShadowCylinder(Mesh *pMesh)
         ((MeshVertexF *)pCyl->pVertexData)[0].x = 0.0f;
         ((MeshVertexF *)pCyl->pVertexData)[0].y = 0.0f;
         angle = 0;
-        for (i = 1; i < 11; i++) {
+        for (i = 1; i <= 10; i++) {
             idx = (unsigned short)(__int64)((double)angle * g_unk0x00511300);
             ((MeshVertexF *)pCyl->pVertexData)[i].x =
                 (float)g_sinTable[idx & 0xfff] * CGraphics::m_oneOver65536 * radius;
@@ -3623,7 +3623,7 @@ int Timer_GetValue(BYTE index)
     }
     if (pos < dur + 3) {
         now = CMain::GetFrameTime();
-        if (abs(now - *(int *)(t + 0x2c)) > 16) {
+        if (abs(now - *(int *)(t + 0x2c)) >= 17) {
             (*(unsigned int *)(t + 0x28))++;
             *(int *)(t + 0x2c) = CMain::GetFrameTime();
         }
@@ -7221,7 +7221,7 @@ void FUN_0049c680(Mesh *pMesh)
     for (n = pMesh->triangleCount; n != 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
-            if (count > 0) {
+            if (count >= 1) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                     D3DPT_TRIANGLELIST,
                     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],

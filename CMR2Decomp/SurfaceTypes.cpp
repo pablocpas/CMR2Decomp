@@ -311,7 +311,7 @@ store_grip2B:
             previous = *(int *)((BYTE *)pCar + 0xa74);
             diff = level - previous;
             *(int *)((BYTE *)pCar + 0xa78) = level;
-            if (FIX_ABS(diff) < 0x3334) {
+            if (FIX_ABS(diff) <= 0x3333) {
                 *(int *)((BYTE *)pCar + 0xa74) = level;
                 return;
             }

@@ -356,20 +356,20 @@ unsigned int CMain::GetFrameDelta(void)
 {
     unsigned int now;
 
-    now = GetFrameTime() / 10;
+    now = (unsigned int)GetFrameTime() / 10;
     if (m_frameDeltaInitialised == 0) {
+        m_frameDeltaStart = now;
+        m_frameDeltaLast = now;
         m_frameDelta = 0;
         m_frameDeltaMax = 0;
         m_frameDeltaInitialised = TRUE;
-        m_frameDeltaStart = now;
-        m_frameDeltaLast = now;
         CGame::RegisterCallback(ResetFrameDelta, NULL);
     }
     if (now - m_frameDeltaLast != 0) {
         m_frameDelta += now - m_frameDeltaLast;
         if (m_frameDelta < m_frameDeltaMax) {
-            m_frameDeltaLast = now;
             m_frameDelta = m_frameDeltaMax;
+            m_frameDeltaLast = now;
             return m_frameDeltaMax;
         }
         m_frameDeltaLast = now;

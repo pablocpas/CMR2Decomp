@@ -928,7 +928,7 @@ void StageObject_InitMovingObject(int *pState, int carIndex)
     memcpy(pState + 0x12, pNodeMatrix, 0x40);
 
     int objectType = pState[0x34];
-    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed <= 0xc000);
+    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed < 0xc001);
     int airbornePath = objectType == 0 && pCar->speed > 0xc000;
     pState[0x44] = 0;
     *(short *)(pState + 0x47) = -1;
@@ -1231,7 +1231,7 @@ void FUN_004658e0(int index)
                 } while (step > 1);
             }
             j += step;
-        } while (j < 200);
+        } while (j <= 199);
     }
 }
 #undef TRAIL_POINT
@@ -1758,7 +1758,7 @@ void FUN_0046f550(void)
         } while (i < count);
     }
     g_unk0x0058c928 = 0;
-    if (count > 0) {
+    if (count >= 1) {
         g_unk0x0058c928 = CFileBuffer::AllocateLockedBuffer(count);
         i = 0;
         g_movingObjects.meshCount = 0;
@@ -2799,7 +2799,7 @@ void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVeloc
                     *(int *)(pSlot + 0x6ec + offset * 4) = on;
                     enabled += on;
                     randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-                    *(int *)(pSlot + 0x80c + offset * 4) = randomFixed >= 0x8001;
+                    *(int *)(pSlot + 0x80c + offset * 4) = randomFixed > 0x8000;
                 }
             }
         }
@@ -5142,7 +5142,7 @@ void StageObject_UpdateSkidTrails(int carIndex)
     int baseColor = 0x00ffff00;
     int wheel;
     int pointIndex;
-    for (wheel = 0; wheel < 4; ++wheel) {
+    for (wheel = 0; wheel <= 3; ++wheel) {
         int *pBaseColor = FUN_00463270(carIndex, wheel);
         baseColor = pBaseColor != NULL ? *pBaseColor : 0x00ffff00;
         for (pointIndex = 0; pointIndex < 200; ++pointIndex) {
@@ -5875,7 +5875,7 @@ void FUN_00464960(unsigned int param_1)
         value = 0x3e80000;
     FUN_004b6ef0(param_1 != 0);
     param_1 = 0x10000 - param_1;
-    if ((int)param_1 >= 0x10001) {
+    if ((int)param_1 > 0x10000) {
         param_1 = 0x10000;
     } else {
         if ((int)param_1 < 0)
@@ -8013,7 +8013,7 @@ void FUN_0046e780(void)
     BYTE c;
     BYTE colour[4];
 
-    if (g_eventCount < 1)
+    if (g_eventCount <= 0)
         return;
     if (g_unk0x00589318 < 1)
         return;
@@ -8108,7 +8108,7 @@ void FUN_0046ec40(int index, int x, int y)
         g_eventDraws[g_unk0x00589318].x = (char)x;
         over = y - p->b + 4;
         g_eventDraws[g_unk0x00589318].y = (char)y;
-        if (over >= 1)
+        if (over > 0)
             g_eventDraws[g_unk0x00589318].rows = 4 - (char)over;
         else
             g_eventDraws[g_unk0x00589318].rows = 4;
@@ -9300,7 +9300,7 @@ void FUN_0046ea80(int param_1, int param_2)
         int x, y;
         if (param_2 < 0x8000)
             param_2 = 0;
-        else if (param_2 > 0x18000)
+        else if (param_2 >= 0x18001)
             param_2 = 0x18000;
         x = (param_2 * (vf - vd)) / 0xb333;
         y = (param_2 * vg) / 0xb333;
@@ -9371,7 +9371,7 @@ void FUN_0047ca30(int param_1)
         row = 0xc;
         do {
             int j = 1;
-            if (pRow[1] > 0) {
+            if (pRow[1] >= 1) {
                 do {
                     int *pData;
                     int *pTable;
@@ -10699,7 +10699,7 @@ unsigned int FUN_0047c5e0(int param_1)
             if ((iVar7 - local10 < 0x40000) && (cVar1 < 0x11))
                 iVar5 = iVar7 - local10;
         }
-        if ((0 < iVar8) && (iVar8 < 0x40000))
+        if ((0 < iVar8) && (iVar8 <= 0x3ffff))
             iVar5 = iVar8;
         if (0 < iVar5) {
             if (0x5a0000 < *(int *)(param_1 + 0x38))
@@ -10857,7 +10857,7 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
                 iVar8 = FUN_00498db0(base - iVar7);
                 if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
                     iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
-                    if (iVar10 >= 0x50001) {
+                    if (iVar10 > 0x50000) {
                         iVar10 = 0x50000;
                     } else {
                         if (iVar10 < 0)
@@ -12468,7 +12468,7 @@ void FUN_0046d610(BYTE *p)
     pCar = Car_Get((int)p[0x20]);
     if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) != 2 || pCar->field_0xb43[0] == 0)
         return;
-    if (p[0xf8] > 2) {
+    if (p[0xf8] >= 3) {
         int i;
         for (i = 0; i < 16; i++)
             ((int *)(p + 0x44))[i] = ((int *)(p + 0x84))[i];
@@ -12664,7 +12664,7 @@ void FUN_0047ad20(void)
         delta.z = pos.z - viewPos.z;
         distances[i] = (int)FixVec_Length(&delta);
     }
-    if (slots <= 0)
+    if (slots < 1)
         return;
     pHandle = &g_unk0x0058ddc8;
     limit = slots;
@@ -13064,7 +13064,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         if (fade <= 0)
             return;
         i = FixMulShift32(colour[3] << 16, fade);
-        if (i >= 0x100)
+        if (i > 0xff)
             i = 0xff;
         else if (i < 0)
             i = 0;
@@ -14100,7 +14100,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     pCar->flag0x1d0[2] = 0;
     pCar->flag0x1d0[3] = 0;
     pCar->field_0x1d8 = 0;
-    if (controls[0] > 0)
+    if (controls[0] >= 1)
         pCar->flag0x1d0[0] = 0x3f;
     if (controls[1] > 0)
         pCar->flag0x1d0[1] = 0x3f;
@@ -14186,7 +14186,7 @@ void FUN_0047b640(int slot)
             if (*((char *)g_unk0x0058e0a0 + 0xb47) == 0)
                 *((char *)g_unk0x0058e0a0 + 0xb47) = -5 - (char)(rand() % 10);
         }
-        if (*((char *)g_unk0x0058e0a0 + 0xb47) < 1)
+        if (*((char *)g_unk0x0058e0a0 + 0xb47) <= 0)
             g_unk0x0058e0a0->flag0x1d0[2] = 0;
         else
             g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
@@ -15611,7 +15611,7 @@ void FUN_0047eab0(void)
                     ((char *)p)[0x691] = idx - 19;
             }
             ((char *)p)[0x690] += 4;
-            if (((char *)p)[0x690] > 19)
+            if (((char *)p)[0x690] >= 20)
                 ((char *)p)[0x690] = 19;
             p[0x199] -= 0x10000;
             if (p[0x199] < 1) {
@@ -15699,7 +15699,7 @@ void CarEffects_InitDebris(void);
 void FUN_00494bb0(void);
 void FUN_0045eca0(void);
 void CarEffects_Init(void);
-void __fastcall FUN_0045a170(int param_1);
+void FUN_0045a170(void);
 int FUN_00407270(void);
 
 // Sets up the stage objects of a race: object tables, the championship-end
@@ -15740,7 +15740,7 @@ void FUN_00466360(void)
     FUN_0045eca0();
     CarEffects_Init();
     StageLights_Create();
-    FUN_0045a170(0);
+    FUN_0045a170();
     if (g_unk0x0058896c != 0)
         FUN_0047e4d0(0x14);
 }
@@ -16076,7 +16076,7 @@ void FUN_00484310(void)
                         }
                     }
                 }
-                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) < 0x6666) {
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) <= 0x6665) {
                     *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0x6666;
                     if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0)
                         *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;

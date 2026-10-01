@@ -288,7 +288,7 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
         if (pCar->field_0xb64 == 0) {
             pNormal = &g_physBody->groundNormal;
             t = FixVecDot(&g_physRight, pNormal);
-            if (FIX_ABS(t) >= 0xfd71) {
+            if (FIX_ABS(t) > 0xfd70) {
                 t = FixVecDot(&g_physUp, pNormal);
                 FixVecScale(&d, pNormal, t);
                 d.x = g_physUp.x - d.x;
@@ -562,7 +562,7 @@ void FUN_00494db0(Car *pCar, int view)
             if (pCar->corners[i].y - pCar->cornerHeight[i] < t)
                 t = pCar->corners[i].y - pCar->cornerHeight[i];
         }
-        if (t < 1) {
+        if (t <= 0) {
             t = 0x10000;
         } else {
             t = FixMul(t, 0x20000);
@@ -851,7 +851,7 @@ void FUN_00496e00(Car *pCar)
         pContact->pointGroundY[c] = h;
         h -= pContact->points[c].y;
         if (FIX_ABS(h) > 0x8000)
-            h = h < 1 ? -0x8000 : 0x8000;
+            h = h > 0 ? 0x8000 : -0x8000;
         pContact->points[c].y += h;
     }
 }

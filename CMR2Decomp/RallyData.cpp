@@ -3156,7 +3156,7 @@ void FUN_00413610(int car)
             FUN_004279d0(g_unk0x00537064, g_stageSplitData[car].times[0]);
             g_unk0x00536c14 = 1;
         } else {
-            if (g_unk0x00537064 > 0 && g_unk0x00537064 < 10) {
+            if (g_unk0x00537064 >= 1 && g_unk0x00537064 < 10) {
                 g_stageSplitData[car].times[g_unk0x00537064 + 1] = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].split = g_unk0x00537064;
@@ -3361,7 +3361,7 @@ void FUN_004147f0(int car, short *position)
 
         panelColour = g_stageResultPanelColour;
         if (highlight) {
-            if (fade >= 4) {
+            if (fade > 3) {
                 panelColour = (g_gapTextColour[3] << 24) | 0x00ffffff;
             } else {
                 BYTE *from = (BYTE *)&g_stageResultPanelColour;
@@ -3763,7 +3763,7 @@ void FUN_00471bf0(BYTE car)
     BYTE bit;
     BYTE *pObject;
 
-    if ((BYTE)RallyDataState() < 2) {
+    if ((BYTE)RallyDataState() <= 1) {
         RallyData_ValidateIndex(car);
         return;
     }
@@ -5494,7 +5494,7 @@ void FUN_00414720(int car)
         return;
     if (!(!StageTiming_FUN_00455ae0())) {
         position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
-        if (position < 1) {
+        if (position <= 0) {
             g_unk0x00536c94[car][0] = position;
             g_unk0x00536c94[car][1] = position + 1;
             g_unk0x00536c94[car][2] = position + 2;
@@ -6921,7 +6921,7 @@ storeSplitColour:
                 pSpan++;
             } while (split != 0);
             car++;
-        } while (car < 2);
+        } while (car <= 1);
     }
 }
 

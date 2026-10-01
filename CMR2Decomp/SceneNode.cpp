@@ -1409,7 +1409,7 @@ void Scene_LoadLighting(int *pData)
                     if (done)
                         break;
                     d = pObj[0] - pItem[0];
-                    if (FIX_ABS(d) < 0x28f) {
+                    if (FIX_ABS(d) <= 0x28e) {
                         d = pObj[2] - pItem[1];
                         if (FIX_ABS(d) < 0x28f) {
                             pItem[0xb] = (int)pObj;
@@ -2711,7 +2711,7 @@ void FUN_004b4180(float *param_1, int param_2)
     *(short *)(p + 0x52) = 0;
 
     count = *(int *)(pMesh + 0x10);
-    if (count > 0)
+    if (count >= 1)
         memset(g_unk0x006e0354, 0xff, count * 2);
 
     lightOffset[0] = *(float *)(pLight + 0x148);

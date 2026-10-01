@@ -98,7 +98,7 @@ BYTE *CGenericFileLoader::StrUpperPolish(BYTE *str)
     c = *str;
     p = str;
     while (c != 0) {
-        if (((char)c > '`' && (char)c < '{') || ((char)c > -33 && c > 0x7f))
+        if (((char)c > '`' && (char)c < '{') || ((char)c >= -32 && c > 0x7f))
             *p = c - 0x20;
         switch (c) {
         case 0xa3: *p = 0x7e; break;
@@ -126,7 +126,7 @@ char *CGenericFileLoader::StrLowerPolish(char *str)
     c = *str;
     p = str;
     while (c != '\0') {
-        if ((c > '@' && c < '[') || (c > -65 && c < -32))
+        if ((c > '@' && c < '[') || (c >= -64 && c < -32))
             *p = c + ' ';
         switch (c) {
         case '$': *p = -0x57; break;

@@ -2034,7 +2034,7 @@ void FUN_0041ae80(int car, int unused)
     int *pHandle = (int *)(pSet + 0x26c);
 
     if (*(short *)(pSet + 0x258) == 0x19) {
-        if (Car_Get(car)->field_0x79c < 1) {
+        if (Car_Get(car)->field_0x79c <= 0) {
             if (pSet[0x2f0] != 0) {
                 if (Sound_IsPlaying(*pHandle)) {
                     Sound_Free(*pHandle);
@@ -3227,7 +3227,7 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 
     count = *param1;
     i = 0;
-    if (count > 0) {
+    if (count >= 1) {
         p = *(BYTE **)(param1 + 4);
         do {
             if (*p != 11)
@@ -3957,7 +3957,7 @@ void FUN_00418ba0(unsigned int view, int strength, int listener)
 
     if (strength > 0xccc) {
         level = FixMul(strength, 0xa0000) >> 16;
-        if (level > 9)
+        if (level >= 10)
             level = 9;
         FUN_004187d0(view, (unsigned short)(g_unk0x00537360 + level), 0x10000, listener);
         CAR_SHAKE(view, strength);
@@ -3998,7 +3998,7 @@ void FUN_00416f70(int player)
     if ((BYTE)RallyData_FUN_00407e70()) {
         if (remaining % 100 < 20)
             g_unk0x00537350 = 6;
-        else if (block < 5)
+        else if (block <= 4)
             g_unk0x00537350 = block + 1;
         else
             g_unk0x00537350 = -1;

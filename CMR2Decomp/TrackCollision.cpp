@@ -157,7 +157,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     bestIndex = 0;
     i = 0;
     first = TRUE;
-    if (count > 0) {
+    if (count >= 1) {
         do {
             if (Track_GetTriangle(t, pList[i]) && Track_PointInTriangle(pPoint, pList[i], t)) {
                 h = (t[2].y + t[1].y + t[0].y) / 3;
@@ -385,7 +385,7 @@ void Car_UpdateAutomaticGear(void)
         selected = 0;
         gear = g_pAutoGearCar->field_0xb1e;
         engine = FixMul(g_pAutoGearCar->field_0x7dc[gear], g_pAutoGearCar->field_0x7a4);
-        for (i = 1; i <= 6; i++) {
+        for (i = 1; i < 7; i++) {
             candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
             if (candidate > best &&
                 (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
@@ -946,7 +946,7 @@ void FUN_00493a40(void)
     int torque;
     int gear;
 
-    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] < 1) {
+    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] <= 0) {
         best = 7;
     } else {
         bestTorque = 0xd8f00000;
@@ -1167,7 +1167,7 @@ void FUN_00493ed0(void)
     if (delta > 0x1f || delta < -0x1f) {
         if (current == 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
-        else if (current < 1) {
+        else if (current <= 0) {
             if (delta < 1)
                 delta = (short)(__int64)((double)FixMul(scaleLeft, delta * 0x1680) * g_unk0x00511300);
             else
@@ -1327,7 +1327,7 @@ void FUN_00493520(Car *pCar)
                 FUN_00493890();
             else if (*(int *)(PC + 0xb48) == 2)
                 Car_UpdateAutomaticGear();
-        } else if (*(char *)(PC + 0xb24) < 1) {
+        } else if (*(char *)(PC + 0xb24) <= 0) {
             *(int *)(PC + 0xb84) = 0;
             *(BYTE *)(PC + 0xb1e) = *(BYTE *)(PC + 0xb20);
         } else {
