@@ -7568,8 +7568,7 @@ void FUN_00471dd0(void)
                         v.x = corners[0].x - corners[6].x;
                         v.y = corners[0].y - corners[6].y;
                         v.z = corners[0].z - corners[6].z;
-                        length = FixSqrt(FixMul(v.x, v.x) + FixMul(v.y, v.y) +
-                                         FixMul(v.z, v.z));
+                        length = FixVecLength(&v);
                         *(int *)pEntry[1] = length;
                         *(int *)pEntry[1] = FixMul(*(int *)pEntry[1], 0x8000);
                         FixMatrix_GetRight(&basis[0], &matrix);

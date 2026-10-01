@@ -1067,11 +1067,11 @@ void FUN_0048ae90(int param_1, int param_2)
         *(int *)(param_2 + 0x410) += impB.z * 2;
     }
 
-    len = FixSqrt(FixMul(sep.x, sep.x) + FixMul(sep.y, sep.y) + FixMul(sep.z, sep.z));
+    len = FixVecLength(&sep);
     if (len > 0x3333) {
         FixVecScaleRecip(&sep, &sep, -len);
         FixVecCross(&axis, &sep, &g_unk0x005915e8);
-        len2 = FixSqrt(FixMul(axis.x, axis.x) + FixMul(axis.y, axis.y) + FixMul(axis.z, axis.z));
+        len2 = FixVecLength(&axis);
         if (len2 == 0) {
             axis.x = 0;
             axis.y = 0;
