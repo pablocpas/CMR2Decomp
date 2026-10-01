@@ -5340,6 +5340,10 @@ void FUN_0041c5a0(BYTE param1, int param2)
                     sprintf(CFrontend::m_stringDest, g_strGrp0x005192b0, FUN_0041f920());
                     if (g_unk0x00537f3c[0] != NULL)
                         Replay_Save(g_unk0x00537f3c[0], CFrontend::m_stringDest);
+                    if (CGameInfo::FUN_00406310() != 0) {
+                        FUN_004660e0(0);
+                        FUN_004660a0((int **)g_unk0x00537f3c, 0, 0);
+                    }
                 }
                 FUN_0046c750((int)g_unk0x00537f3c[0], 0, 0);
                 if (CGameInfo::FUN_00406310() != 0)
