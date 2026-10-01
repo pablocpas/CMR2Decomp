@@ -1637,11 +1637,12 @@ int FUN_004b50b0(SceneNode *pNode, int param_2)
             if (param_2 == -0x10000) {
                 pMatrix = &p->current;
                 FixMatrix_InverseRotateVector(&dir, &g_sceneShadowDir, pMatrix);
+                FixMatrix_GetPosition(&pos, pMatrix);
             } else {
                 pMatrix = &p->world;
                 FixMatrix_InverseRotateVector(&dir, &g_sceneShadowDir, pMatrix);
+                FixMatrix_GetPosition(&pos, pMatrix);
             }
-            FixMatrix_GetPosition(&pos, pMatrix);
             i = FixVecLength(&dir);
             if (i == 0) {
                 dir.x = 0;
@@ -1653,7 +1654,7 @@ int FUN_004b50b0(SceneNode *pNode, int param_2)
             Scene_GetGroundLight(&pos, &level);
             if (param_2 != -0x10000) {
                 diff = level - param_2;
-                if (abs(diff) > 0xccc)
+                if (FIX_ABS(diff) > 0xccc)
                     level = FixMul(0x8000, diff) + param_2;
             }
             for (j = 0; j < pMesh->triangleCount; j++) {
