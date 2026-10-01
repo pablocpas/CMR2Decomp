@@ -7829,9 +7829,7 @@ void FUN_004853c0(FixVector *pImpulse)
     FixMatrix_InverseRotateVector(&g_unk0x00590b50, (FixVector *)(pVehicle + 0x408), *(FixMatrix **)(pVehicle + 0x750));
     random = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
     scale = FixMul(random, 0x4ccc) + 0xb333;
-    scaled.x = FixMul(pImpulse->x, scale);
-    scaled.y = FixMul(pImpulse->y, scale);
-    scaled.z = FixMul(pImpulse->z, scale);
+    FixVecScale(&scaled, pImpulse, scale);
     FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(pVehicle + 0x750));
     g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.x -= local.x;
@@ -11206,9 +11204,7 @@ void FUN_0046a500(int param_1)
         vDir.y = FixMul(*(int *)(param_1 + 0x40c), -0x10000);
         vDir.z = FixMul(*(int *)(param_1 + 0x410), -0x10000);
         dot = FixVecDot(pvAxes, &vDir);
-        vSide.x = FixMul(pvAxes->x, dot);
-        vSide.y = FixMul(pvAxes->y, dot);
-        vSide.z = FixMul(pvAxes->z, dot);
+        FixVecScale(&vSide, pvAxes, dot);
         vDir.x -= vSide.x;
         vDir.y -= vSide.y;
         vDir.z -= vSide.z;

@@ -4847,8 +4847,7 @@ void FUN_004248a0(void)
     if (g_unk0x00539270[0] != 0 && g_unk0x00539270[1] != 0) {
         pForward = (FixVector *)(g_unk0x0053937c + 0x378);
         pVelocity = (FixVector *)(g_unk0x0053937c + 0x408);
-        contact = FixMul(pForward->x, pVelocity->x) + FixMul(pForward->y, pVelocity->y) +
-                  FixMul(pForward->z, pVelocity->z);
+        contact = FixVecDot(pForward, pVelocity);
         if (contact < 0)
             contact = -contact;
         contact = FixMul(contact - 0x1999, 0x28000);
@@ -7353,10 +7352,8 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                 V[0] = param_2[0] - *(int *)(pc + 0x2d0);
                 V[1] = param_2[1] - *(int *)(pc + 0x2d4);
                 V[2] = param_2[2] - *(int *)(pc + 0x2d8);
-                dot = FixMul(param_3->x, V[0]) + FixMul(param_3->y, V[1]) + FixMul(param_3->z, V[2]);
-                V[0] = FixMul(param_3->x, dot);
-                V[1] = FixMul(param_3->y, dot);
-                V[2] = FixMul(param_3->z, dot);
+                dot = FixVecDot((FixVector *)V, param_3);
+                FixVecScale((FixVector *)V, param_3, dot);
                 FixMatrix_InverseRotateVector(&g_stageDeformOffset, (FixVector *)V,
                                               *(FixMatrix **)(pc + 0x750));
                 FUN_00468520();
