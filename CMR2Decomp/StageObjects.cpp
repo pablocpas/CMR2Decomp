@@ -11613,9 +11613,7 @@ void FUN_0046de20(unsigned int *param_1, unsigned int *param_2, unsigned int *pa
         FIX_NORMALIZE_INTO(basis[i], basis[i]);
     }
 
-    up.x = FixMul(basis[1].y, basis[0].z) - FixMul(basis[1].z, basis[0].y);
-    up.y = FixMul(basis[1].z, basis[0].x) - FixMul(basis[1].x, basis[0].z);
-    up.z = FixMul(basis[1].x, basis[0].y) - FixMul(basis[1].y, basis[0].x);
+    FixVecCross(&up, &basis[1], &basis[0]);
     FIX_NORMALIZE_INTO(up, up);
 
     FixMatrix_SetRight(&basis[0], param_5);
