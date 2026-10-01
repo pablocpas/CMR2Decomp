@@ -268,126 +268,123 @@ void FUN_00497db0(Car *pCar)
 void FUN_004962c0(Car *pCar, CarContact *pContact)
 {
     BYTE stage;
-    FixVector *pNormal;
     FixVector d;
     FixVector mid;
     FixVector fwd;
     FixVector side;
-    FixVector rel;
     int t;
     int u;
+    int along;
     int i;
-    BYTE *pEdge;
-    FixVector *pA;
-    FixVector *pB;
 
     stage = *FUN_00456be0(pCar->field_0xb1a);
     g_physPatchWidth = 0;
     g_physPatchLength = 0;
-    if (pContact->field_0x294 == 0 || pCar->field_0xc00 != 0) {
+    if (pContact->field_0x294 != 0 && pCar->field_0xc00 == 0) {
+        pContact->points[1] = g_physGroundPoint[0];
+        pContact->points[0] = g_physGroundPoint[1];
+        pContact->points[3] = g_physGroundPoint[3];
+        pContact->points[2] = g_physGroundPoint[2];
         if (pCar->field_0xb64 == 0) {
-            pNormal = &g_physBody->groundNormal;
-            t = FixVecDot(&g_physRight, pNormal);
-            if (FIX_ABS(t) >= 0xfd71) {
-                t = FixVecDot(&g_physUp, pNormal);
-                FixVecScale(&d, pNormal, t);
-                d.x = g_physUp.x - d.x;
-                d.y = g_physUp.y - d.y;
-                d.z = g_physUp.z - d.z;
-                FIX_NORMALIZE_INTO(g_physPatchDir, d);
-                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
-            } else {
-                FixVecScale(&d, pNormal, t);
-                d.x = g_physRight.x - d.x;
-                d.y = g_physRight.y - d.y;
-                d.z = g_physRight.z - d.z;
-                FIX_NORMALIZE_INTO(g_physPatchDir, d);
-                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
-            }
-            for (i = 0; i < 8; i++) {
-                rel.x = g_physGroundPoint[i].x - g_physPos.x;
-                rel.y = g_physGroundPoint[i].y - g_physPos.y;
-                rel.z = g_physGroundPoint[i].z - g_physPos.z;
-                t = FixVecDot(&g_physPatchDir, &rel);
-                u = FixVecDot(&g_physPatchSide, &rel);
-                if (t > 0 && t > g_physPatchLength)
-                    g_physPatchLength = t;
-                if (u > 0 && u > g_physPatchWidth)
-                    g_physPatchWidth = u;
-            }
-            FixVecScale(&fwd, &g_physPatchDir, g_physPatchLength);
-            FixVecScale(&side, &g_physPatchSide, g_physPatchWidth);
-            pContact->points[1].x = side.x + fwd.x;
-            pContact->points[0].x = fwd.x - side.x;
-            pContact->points[1].y = side.y + fwd.y;
-            pContact->points[0].y = fwd.y - side.y;
-            pContact->points[1].z = side.z + fwd.z;
-            pContact->points[0].z = fwd.z - side.z;
-            FixVecScale(&fwd, &fwd, -0x10000);
-            pContact->points[2].x = side.x + fwd.x;
-            pContact->points[3].x = fwd.x - side.x;
-            pContact->points[2].y = side.y + fwd.y;
-            pContact->points[3].y = fwd.y - side.y;
-            pContact->points[2].z = side.z + fwd.z;
-            pContact->points[3].z = fwd.z - side.z;
-            for (i = 0; i < 4; i++) {
-                pContact->points[i].x += g_physGroundPos.x;
-                pContact->points[i].y += g_physGroundPos.y;
-                pContact->points[i].z += g_physGroundPos.z;
-            }
+            pContact->points[1].y = g_physBody->cornerHeight[0];
+            pContact->points[0].y = g_physBody->cornerHeight[1];
+            pContact->points[3].y = g_physBody->cornerHeight[3];
+            pContact->points[2].y = g_physBody->cornerHeight[2];
+        }
+        if (stage == (char)pCar->field_0xb1b[0])
             return;
-        }
-        g_physPatchDir = pCar->right;
-        g_physPatchSide = pCar->forward;
-        g_physPatchLength = pCar->halfExtents.x;
-        g_physPatchWidth = pCar->halfExtents.z;
-        rel.x = g_physGroundPos.x - pCar->position.x;
-        rel.y = g_physGroundPos.y - pCar->position.y;
-        rel.z = g_physGroundPos.z - pCar->position.z;
-        FixVecScale(&d, &pCar->up, pCar->halfExtents.y);
         for (i = 0; i < 4; i++) {
-            pContact->points[i].x = pCar->corners[i].x + rel.x + d.x;
-            pContact->points[i].y = rel.y + d.y + pCar->corners[i].y;
-            pContact->points[i].z = pCar->corners[i].z + rel.z + d.z;
+            d.x = pContact->points[g_physPatchEdges[i][0]].x - pContact->points[g_physPatchEdges[i][1]].x;
+            d.y = pContact->points[g_physPatchEdges[i][0]].y - pContact->points[g_physPatchEdges[i][1]].y;
+            d.z = pContact->points[g_physPatchEdges[i][0]].z - pContact->points[g_physPatchEdges[i][1]].z;
+            FixVecScale(&d, &d, 0x8000);
+            mid.x = pContact->points[g_physPatchEdges[i][1]].x + d.x;
+            mid.y = pContact->points[g_physPatchEdges[i][1]].y + d.y;
+            mid.z = pContact->points[g_physPatchEdges[i][1]].z + d.z;
+            if (i < 2)
+                FixVecScale(&d, &d, g_physPatchScaleA[stage]);
+            else
+                FixVecScale(&d, &d, g_physPatchScaleB[stage]);
+            pContact->points[g_physPatchEdges[i][0]].x = d.x + mid.x;
+            pContact->points[g_physPatchEdges[i][0]].y = d.y + mid.y;
+            pContact->points[g_physPatchEdges[i][0]].z = d.z + mid.z;
+            pContact->points[g_physPatchEdges[i][1]].x = mid.x - d.x;
+            pContact->points[g_physPatchEdges[i][1]].y = mid.y - d.y;
+            pContact->points[g_physPatchEdges[i][1]].z = mid.z - d.z;
         }
-        d = pContact->points[2];
-        pContact->points[2] = pContact->points[3];
-        pContact->points[3] = d;
         return;
     }
-    pContact->points[1] = g_physGroundPoint[0];
-    pContact->points[0] = g_physGroundPoint[1];
-    pContact->points[3] = g_physGroundPoint[3];
-    pContact->points[2] = g_physGroundPoint[2];
     if (pCar->field_0xb64 == 0) {
-        pContact->points[1].y = g_physBody->cornerHeight[0];
-        pContact->points[0].y = g_physBody->cornerHeight[1];
-        pContact->points[3].y = g_physBody->cornerHeight[3];
-        pContact->points[2].y = g_physBody->cornerHeight[2];
-    }
-    if (stage == (char)pCar->field_0xb1b[0])
+        t = FixVecDot(&g_physBody->groundNormal, &g_physRight);
+        if (FIX_ABS(t) > 0xfd70) {
+            FixVector *pUp = &g_physUp;
+            t = FixVecDot(&g_physBody->groundNormal, pUp);
+            FixVecScale(&d, &g_physBody->groundNormal, t);
+            g_physPatchDir.x = pUp->x - d.x;
+            g_physPatchDir.y = pUp->y - d.y;
+            g_physPatchDir.z = pUp->z - d.z;
+            FIX_NORMALIZE_INTO(g_physPatchDir, g_physPatchDir);
+            FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
+        } else {
+            FixVecScale(&d, &g_physBody->groundNormal, t);
+            g_physPatchDir.x = g_physRight.x - d.x;
+            g_physPatchDir.y = g_physRight.y - d.y;
+            g_physPatchDir.z = g_physRight.z - d.z;
+            FIX_NORMALIZE_INTO(g_physPatchDir, g_physPatchDir);
+            FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
+        }
+        for (i = 0; i < 8; i++) {
+            d.x = g_physGroundPoint[i].x - g_physPos.x;
+            d.y = g_physGroundPoint[i].y - g_physPos.y;
+            d.z = g_physGroundPoint[i].z - g_physPos.z;
+            along = FixVecDot(&d, &g_physPatchDir);
+            u = FixVecDot(&d, &g_physPatchSide);
+            if (along > 0 && along > g_physPatchLength)
+                g_physPatchLength = along;
+            if (u > 0 && u > g_physPatchWidth)
+                g_physPatchWidth = u;
+        }
+        FixVecScale(&fwd, &g_physPatchDir, g_physPatchLength);
+        FixVecScale(&side, &g_physPatchSide, g_physPatchWidth);
+        pContact->points[1].x = side.x + fwd.x;
+        pContact->points[0].x = fwd.x - side.x;
+        pContact->points[1].y = side.y + fwd.y;
+        pContact->points[0].y = fwd.y - side.y;
+        pContact->points[1].z = side.z + fwd.z;
+        pContact->points[0].z = fwd.z - side.z;
+        FixVecScale(&fwd, &fwd, -0x10000);
+        pContact->points[2].x = side.x + fwd.x;
+        pContact->points[3].x = fwd.x - side.x;
+        pContact->points[2].y = side.y + fwd.y;
+        pContact->points[3].y = fwd.y - side.y;
+        pContact->points[2].z = side.z + fwd.z;
+        pContact->points[3].z = fwd.z - side.z;
+        for (i = 0; i < 4; i++) {
+            pContact->points[i].x += g_physGroundPos.x;
+            pContact->points[i].y += g_physGroundPos.y;
+            pContact->points[i].z += g_physGroundPos.z;
+        }
         return;
-    for (pEdge = g_physPatchEdges[0]; pEdge < g_physPatchEdges[4]; pEdge += 2) {
-        pA = &pContact->points[pEdge[0]];
-        pB = &pContact->points[pEdge[1]];
-        d.x = pA->x - pB->x;
-        d.y = pA->y - pB->y;
-        d.z = pA->z - pB->z;
-        FixVecScale(&d, &d, 0x8000);
-        mid.x = pB->x + d.x;
-        mid.y = pB->y + d.y;
-        mid.z = pB->z + d.z;
-        if (pEdge < g_physPatchEdges[2])
-            FixVecScale(&d, &d, g_physPatchScaleA[stage]);
-        else
-            FixVecScale(&d, &d, g_physPatchScaleB[stage]);
-        pA->x = d.x + mid.x;
-        pA->y = d.y + mid.y;
-        pA->z = d.z + mid.z;
-        pB->x = mid.x - d.x;
-        pB->y = mid.y - d.y;
-        pB->z = mid.z - d.z;
     }
+    g_physPatchDir = pCar->right;
+    g_physPatchSide = pCar->forward;
+    g_physPatchLength = pCar->halfExtents.x;
+    g_physPatchWidth = pCar->halfExtents.z;
+    d.x = g_physGroundPos.x - pCar->position.x;
+    d.y = g_physGroundPos.y - pCar->position.y;
+    d.z = g_physGroundPos.z - pCar->position.z;
+    FixVecScale(&mid, &pCar->up, pCar->halfExtents.y);
+    d.x += mid.x;
+    d.y += mid.y;
+    d.z += mid.z;
+    for (i = 0; i < 4; i++) {
+        pContact->points[i].x = pCar->corners[i].x + d.x;
+        pContact->points[i].y = d.y + pCar->corners[i].y;
+        pContact->points[i].z = pCar->corners[i].z + d.z;
+    }
+    d = pContact->points[2];
+    pContact->points[2] = pContact->points[3];
+    pContact->points[3] = d;
 }
 
 #define FIX_MIDPOINT(out, a, b) \

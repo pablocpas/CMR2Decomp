@@ -885,29 +885,30 @@ int FUN_0048a5f0(int param_1, int param_2)
 // while separated. When the two do not actually touch, the impulse along the
 // contact axis is passed to the body-deformation solver (0x466ef0); otherwise
 // the tangential relative motion is normalized and debris is thrown along it.
-// match 44%: reviewed (W172) - calls, constants and branch logic match; only the
-// stack-slot allocation and the register numbering of the FPU-dense blocks differ
-// (see CONOCIMIENTO 4.t).
+// match 72%: equivalent; written from the original's helper sequence (zero
+// restitution term, FixVecScale impulses). The rest is the frame-slot packing
+// of the inline-asm temporaries.
 // FUNCTION: CMR2 0x0048ae90
 void FUN_0048ae90(int param_1, int param_2)
 {
     FixVector tmp;
     FixVector vA;
     FixVector vB;
-    FixVector dv;
-    FixVector sep;
-    FixVector axis;
     FixVector impA;
     FixVector impB;
-    FixVector *pContact;
+    FixVector axis;
+    FixVector tangent;
+    FixVector side;
+    FixVector normal;
     int dotA;
     int dotB;
-    int num;
+    int bounce;
     int x;
+    int newB;
     int dA;
     int dB;
+    int d;
     int len;
-    int len2;
     int size;
     int bSepA;
     int bSepB;
@@ -927,56 +928,56 @@ void FUN_0048ae90(int param_1, int param_2)
     vB.y += *(int *)(param_2 + 0x40c);
     vB.z += *(int *)(param_2 + 0x410);
 
-    dotA = FixVecDot(&g_unk0x005915e8, &vA);
-    dotB = FixVecDot(&g_unk0x005915e8, &vB);
-    num = FixMul(dotA, *(int *)(param_1 + 0x75c)) + FixMul(dotB, *(int *)(param_2 + 0x75c));
-    x = FixDiv(num, *(int *)(param_1 + 0x75c) + *(int *)(param_2 + 0x75c));
+    // Mass-weighted common velocity along the normal; the restitution term
+    // is zero in the shipped game.
+    dotA = FixVecDot(&vA, &g_unk0x005915e8);
+    dotB = FixVecDot(&vB, &g_unk0x005915e8);
+    bounce = FixMul(dotA - dotB, 0);
+    x = FixDiv(FixMul(dotA, *(int *)(param_1 + 0x75c)) +
+                   (FixMul(dotB, *(int *)(param_2 + 0x75c)) -
+                    FixMul(bounce, *(int *)(param_2 + 0x75c))),
+               *(int *)(param_1 + 0x75c) + *(int *)(param_2 + 0x75c));
+    newB = x + bounce;
+
     dA = x - dotA;
-    dB = x - dotB;
-
-    impA.x = FixMul(g_unk0x005915e8.x, dA);
-    impA.y = FixMul(g_unk0x005915e8.y, dA);
-    impA.z = FixMul(g_unk0x005915e8.z, dA);
-
-    bSepA = 0;
-    if (*(int *)(param_1 + 0xc00) == 0) {
-        if (FIX_ABS(dA) > 0x9999 &&
-            !(*(int *)(param_1 + 0xb64) != 0 && *(int *)(param_2 + 0xb64) != 0)) {
-            bSepA = 1;
-            tmp.x = FixMul(-*(int *)(param_1 + 0x364), 0x40000);
-            tmp.y = FixMul(-*(int *)(param_1 + 0x370), 0x40000);
-            tmp.z = FixMul(-*(int *)(param_1 + 0x37c), 0x40000);
-            *(int *)(param_1 + 0x5dc) += tmp.x;
-            *(int *)(param_1 + 0x5e0) += tmp.y;
-            *(int *)(param_1 + 0x5e4) += tmp.z;
-        }
+    FixVecScale(&impA, &g_unk0x005915e8, dA);
+    if (*(int *)(param_1 + 0xc00) == 0 && FIX_ABS(dA) > 0x9999 &&
+        (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
+        bSepA = 1;
+        tmp.x = -*(int *)(param_1 + 0x364);
+        tmp.y = -*(int *)(param_1 + 0x370);
+        tmp.z = -*(int *)(param_1 + 0x37c);
+        FixVecScale(&tmp, &tmp, 0x40000);
+        *(int *)(param_1 + 0x5dc) += tmp.x;
+        *(int *)(param_1 + 0x5e0) += tmp.y;
+        *(int *)(param_1 + 0x5e4) += tmp.z;
+    } else {
+        bSepA = 0;
     }
 
+    dB = newB - dotB;
     FixVecScale(&impB, &g_unk0x005915e8, dB);
-
-    bSepB = 0;
-    if (*(int *)(param_2 + 0xc00) == 0) {
-        if (FIX_ABS(dB) > 0x9999 &&
-            !(*(int *)(param_1 + 0xb64) != 0 && *(int *)(param_2 + 0xb64) != 0)) {
-            bSepB = 1;
-            tmp.x = FixMul(-*(int *)(param_2 + 0x364), 0x40000);
-            tmp.y = FixMul(-*(int *)(param_2 + 0x370), 0x40000);
-            tmp.z = FixMul(-*(int *)(param_2 + 0x37c), 0x40000);
-            *(int *)(param_2 + 0x5dc) += tmp.x;
-            *(int *)(param_2 + 0x5e0) += tmp.y;
-            *(int *)(param_2 + 0x5e4) += tmp.z;
-        }
+    if (*(int *)(param_2 + 0xc00) == 0 && FIX_ABS(dB) > 0x9999 &&
+        (*(int *)(param_1 + 0xb64) == 0 || *(int *)(param_2 + 0xb64) == 0)) {
+        bSepB = 1;
+        tmp.x = -*(int *)(param_2 + 0x364);
+        tmp.y = -*(int *)(param_2 + 0x370);
+        tmp.z = -*(int *)(param_2 + 0x37c);
+        FixVecScale(&tmp, &tmp, 0x40000);
+        *(int *)(param_2 + 0x5dc) += tmp.x;
+        *(int *)(param_2 + 0x5e0) += tmp.y;
+        *(int *)(param_2 + 0x5e4) += tmp.z;
+    } else {
+        bSepB = 0;
     }
 
     if (*(char *)(param_1 + 0xb35) != 1 && impA.y < 0) {
-        int oldY = impA.y;
+        impB.y -= impA.y;
         impA.y = 0;
-        impB.y -= oldY;
     }
     if (*(char *)(param_2 + 0xb35) != 1 && impB.y < 0) {
-        int oldY = impB.y;
+        impA.y -= impB.y;
         impB.y = 0;
-        impA.y -= oldY;
     }
 
     FixVecScale(&impA, &impA, g_physicsScale);
@@ -984,7 +985,6 @@ void FUN_0048ae90(int param_1, int param_2)
     *(int *)(param_1 + 0x5c4) += impA.x;
     *(int *)(param_1 + 0x5c8) += impA.y;
     *(int *)(param_1 + 0x5cc) += impA.z;
-
     FixVecCross(&axis, &tmp, (FixVector *)(param_1 + 0x5dc));
     if (bSepA) {
         FixVecScale(&axis, &axis, 0x40000);
@@ -1003,7 +1003,6 @@ void FUN_0048ae90(int param_1, int param_2)
     *(int *)(param_2 + 0x5c4) += impB.x;
     *(int *)(param_2 + 0x5c8) += impB.y;
     *(int *)(param_2 + 0x5cc) += impB.z;
-
     FixVecCross(&axis, &tmp, (FixVector *)(param_2 + 0x5dc));
     if (bSepB) {
         FixVecScale(&axis, &axis, 0x40000);
@@ -1018,24 +1017,26 @@ void FUN_0048ae90(int param_1, int param_2)
     FUN_0048c750((int *)(param_2 + 0x5d0));
 
     if (g_unk0x005915f4 != 0) {
-        pContact = g_pContacts0x005915e0 + (g_unk0x005914c4[0] + 4);
-        FUN_00466ef0((Car *)param_1, (int *)pContact, &g_unk0x005915e8, 0, 0, 0);
-        FUN_00466ef0((Car *)param_2, (int *)pContact, &g_unk0x005915e8, 0, 2, 0);
+        FUN_00466ef0((Car *)param_1, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+                     &g_unk0x005915e8, 0, 0, 0);
+        FUN_00466ef0((Car *)param_2, (int *)&g_pContacts0x005915e0[g_unk0x005914c4[0] + 4],
+                     &g_unk0x005915e8, 0, 2, 0);
     } else if (g_unk0x005914d4 != 0) {
-        pContact = g_pContacts0x00591394 + (g_unk0x00590ecc[0] + 4);
-        FUN_00466ef0((Car *)param_1, (int *)pContact, &g_unk0x005915e8, 0, 2, 0);
-        FUN_00466ef0((Car *)param_2, (int *)pContact, &g_unk0x005915e8, 0, 0, 0);
+        FUN_00466ef0((Car *)param_1, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+                     &g_unk0x005915e8, 0, 2, 0);
+        FUN_00466ef0((Car *)param_2, (int *)&g_pContacts0x00591394[g_unk0x00590ecc[0] + 4],
+                     &g_unk0x005915e8, 0, 0, 0);
     }
 
-    dv.x = vA.x - vB.x;
-    dv.y = vA.y - vB.y;
-    dv.z = vA.z - vB.z;
-    {
-        int d = FixVecDot(&g_unk0x005915e8, &dv);
-        sep.x = dv.x - FixMul(g_unk0x005915e8.x, d);
-        sep.y = dv.y - FixMul(g_unk0x005915e8.y, d);
-        sep.z = dv.z - FixMul(g_unk0x005915e8.z, d);
-    }
+    // Tangential relative velocity.
+    tmp.x = vA.x - vB.x;
+    tmp.y = vA.y - vB.y;
+    tmp.z = vA.z - vB.z;
+    d = FixVecDot(&tmp, &g_unk0x005915e8);
+    FixVecScale(&tangent, &g_unk0x005915e8, d);
+    tangent.x = tmp.x - tangent.x;
+    tangent.y = tmp.y - tangent.y;
+    tangent.z = tmp.z - tangent.z;
 
     if (CGameInfo::FUN_004063f0(4) != 0) {
         *(int *)(param_1 + 0x5c4) -= impA.x;
@@ -1052,35 +1053,36 @@ void FUN_0048ae90(int param_1, int param_2)
         *(int *)(param_2 + 0x410) += impB.z * 2;
     }
 
-    len = FixVecLength(&sep);
-    if (len > 0x3333) {
-        FixVecScaleRecip(&sep, &sep, -len);
-        FixVecCross(&axis, &sep, &g_unk0x005915e8);
-        len2 = FixVecLength(&axis);
-        if (len2 == 0) {
-            axis.x = 0;
-            axis.y = 0;
-            axis.z = 0;
+    d = FixVecLength(&tangent);
+    if (d > 0x3333) {
+        FixVecScaleRecip(&tangent, &tangent, -d);
+        FixVecCross(&side, &tangent, &g_unk0x005915e8);
+        len = FixVecLength(&side);
+        if (len == 0) {
+            side.x = 0;
+            side.y = 0;
+            side.z = 0;
         } else {
-            FixVecScaleRecip(&axis, &axis, len2);
+            FixVecScaleRecip(&side, &side, len);
         }
+        normal = g_unk0x005915e8;
 
         if (g_unk0x005915f4 != 0) {
-            pContact = g_pContacts0x005915e0 + (g_unk0x005914c4[0] + 4);
+            FixVector *pContact = &g_pContacts0x005915e0[g_unk0x005914c4[0] + 4];
             impA.x = pContact->x - *(int *)(param_1 + 0x2d0);
-            impA.y = pContact->y - *(int *)(param_1 + 0x2d4);
-            impA.z = pContact->z - *(int *)(param_1 + 0x2d8);
+            impA.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - *(int *)(param_1 + 0x2d4);
+            impA.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - *(int *)(param_1 + 0x2d8);
             impB.x = pContact->x - *(int *)(param_2 + 0x2d0);
-            impB.y = pContact->y - *(int *)(param_2 + 0x2d4);
-            impB.z = pContact->z - *(int *)(param_2 + 0x2d8);
+            impB.y = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].y - *(int *)(param_2 + 0x2d4);
+            impB.z = g_pContacts0x005915e0[g_unk0x005914c4[0] + 4].z - *(int *)(param_2 + 0x2d8);
         } else if (g_unk0x005914d4 != 0) {
-            pContact = g_pContacts0x00591394 + (g_unk0x00590ecc[0] + 4);
+            FixVector *pContact = &g_pContacts0x00591394[g_unk0x00590ecc[0] + 4];
             impA.x = pContact->x - *(int *)(param_1 + 0x2d0);
-            impA.y = pContact->y - *(int *)(param_1 + 0x2d4);
-            impA.z = pContact->z - *(int *)(param_1 + 0x2d8);
+            impA.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - *(int *)(param_1 + 0x2d4);
+            impA.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - *(int *)(param_1 + 0x2d8);
             impB.x = pContact->x - *(int *)(param_2 + 0x2d0);
-            impB.y = pContact->y - *(int *)(param_2 + 0x2d4);
-            impB.z = pContact->z - *(int *)(param_2 + 0x2d8);
+            impB.y = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].y - *(int *)(param_2 + 0x2d4);
+            impB.z = g_pContacts0x00591394[g_unk0x00590ecc[0] + 4].z - *(int *)(param_2 + 0x2d8);
         }
 
         impA.y = 0;
@@ -1088,13 +1090,12 @@ void FUN_0048ae90(int param_1, int param_2)
         impB.y = 0;
         FixVecScale(&impB, &impB, 0xcccc);
 
-        size = FixMul(len, 0x20000);
+        size = FixMul(d, 0x20000);
         if (size > 0x10000)
             size = 0x10000;
-
         if (*(int *)(param_1 + 0xb70) == 0 && *(int *)(param_2 + 0xb70) == 0) {
-            Car_SpawnDebris(size, &impA, (Car *)param_1, &sep, 0x90000, 0x6666);
-            Car_SpawnDebris(size, &impB, (Car *)param_2, &sep, 0x90000, 0x6666);
+            Car_SpawnDebris(size, &impA, (Car *)param_1, &tangent, 0x90000, 0x6666);
+            Car_SpawnDebris(size, &impB, (Car *)param_2, &tangent, 0x90000, 0x6666);
         }
     }
 }
@@ -1134,15 +1135,12 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
     FixVector off;
     FixVector spin;
     FixVector vPos;
-    FixVector vAxis;
     int flagA;
     int flagB;
     int flagC;
     int impulse;
     int dot;
-    int found;
     int i;
-    short *pSlot;
 
     flagA = 0;
     flagB = 0;
@@ -1157,20 +1155,19 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
     vA.z += *(int *)(param_1 + 0x410);
 
     if (*(int *)(param_1 + 0xb64) == 0 && *(int *)(param_1 + 0xc00) == 0) {
-        dot = FixVecDot(&g_unk0x005915e8, &vA);
-        if (dot < 0)
-            dot = -dot;
-        if (g_unk0x00591468 < dot) {
+        dot = FIX_ABS(FixVecDot(&vA, &g_unk0x005915e8));
+        if (dot > g_unk0x00591468) {
             flagA = 1;
             flagB = 1;
-        } else if (g_unk0x005915dc < dot) {
+        } else if (dot > g_unk0x005915dc) {
             flagA = 1;
             flagB = 0;
         }
     }
 
-    impulse = -FixVecDot(&g_unk0x005915e8, &vA);
-    if ((*(unsigned int *)(*param_2 + 0x10) & 0x2001000) != 0 && impulse != 0) {
+    dot = FixVecDot(&vA, &g_unk0x005915e8);
+    impulse = FixMul(dot, 0) - dot;
+    if ((*(unsigned int *)(*param_2 + 0x10) & 0x2001000) != 0 && FIX_ABS(impulse) > 0) {
         flagC = 1;
         flagB = 0;
         impulse = FixMul(impulse, 0x28f);
@@ -1184,24 +1181,12 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
     *(int *)(param_1 + 0x5c8) += imp.y;
     *(int *)(param_1 + 0x5cc) += imp.z;
 
-    found = 0;
-    if (*(char *)(param_1 + 0xb3e) > 0) {
-        pSlot = (short *)(param_1 + 0xad6);
-        i = 0;
-        do {
-            if (*pSlot == param_4) {
-                found = 1;
-                break;
-            }
-            i++;
-            pSlot++;
-        } while (i < *(char *)(param_1 + 0xb3e));
+    for (i = 0; i < *(char *)(param_1 + 0xb3e); i++) {
+        if (((short *)(param_1 + 0xad6))[i] == param_4)
+            goto known;
     }
-    if (!found) {
-        if (g_unk0x005914d8 == 0) {
-            FUN_00466ef0((Car *)param_1, (int *)&g_unk0x00591498, &g_unk0x005915e8,
-                         g_unk0x00591490, 1, 0);
-        } else if (g_unk0x005915f4 != 0) {
+    if (g_unk0x005914d8 != 0) {
+        if (g_unk0x005915f4 != 0) {
             FUN_00466ef0((Car *)param_1,
                          (int *)(param_1 + (g_unk0x005914c4[0] + 0x34) * 0xc),
                          &g_unk0x005915e8, 0, 0, 0);
@@ -1210,7 +1195,11 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
                          (int *)&g_unk0x00591628[g_unk0x00590ecc[0]],
                          &g_unk0x005915e8, 0, 2, 0);
         }
+    } else {
+        FUN_00466ef0((Car *)param_1, (int *)&g_unk0x00591498, &g_unk0x005915e8,
+                     g_unk0x00591490, 1, 0);
     }
+known:
 
     FixMatrix_RotateVector(&vPos, (FixVector *)(param_1 + 0x5dc), *(FixMatrix **)(param_1 + 0x750));
     vPos.x += *(int *)(param_1 + 0x2d0);
@@ -1226,38 +1215,40 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
 
     if (flagA == 0) {
         FixVecCross(&spin, &tmp, (FixVector *)(param_1 + 0x5dc));
-        if (g_unk0x005914d8 == 0) {
+        if (g_unk0x005914d8 != 0)
+            FixVecScale(&spin, &spin, 0x18000);
+        else
             FixVecScale(&spin, &spin, 0x30000);
-        } else {
-            spin.x = FixMul(spin.x, 0x18000);
-            spin.y = FixMul(spin.y, 0x18000);
-            spin.z = FixMul(spin.z, 0x18000);
-        }
-    } else if (flagB != 0) {
-        vAxis.x = FixMul(-*(int *)(param_1 + 0x364), 0x40000);
-        vAxis.y = FixMul(-*(int *)(param_1 + 0x370), 0x40000);
-        vAxis.z = FixMul(-*(int *)(param_1 + 0x37c), 0x40000);
-        off.x = vAxis.x + *(int *)(param_1 + 0x5dc);
-        off.y = vAxis.y + *(int *)(param_1 + 0x5e0);
-        off.z = vAxis.z + *(int *)(param_1 + 0x5e4);
-        FixVecCross(&spin, &tmp, &off);
-        FixVecScale(&spin, &spin, 0x40000);
-        *(int *)(param_1 + 0x40c) += 0x4000;
+        *(int *)(param_1 + 0x5d0) += spin.x;
+        *(int *)(param_1 + 0x5d4) += spin.y;
+        *(int *)(param_1 + 0x5d8) += spin.z;
     } else {
-        vAxis.x = FixMul(-*(int *)(param_1 + 0x364), 0x10000);
-        vAxis.y = FixMul(-*(int *)(param_1 + 0x370), 0x10000);
-        vAxis.z = FixMul(-*(int *)(param_1 + 0x37c), 0x10000);
-        off.x = vAxis.x + *(int *)(param_1 + 0x5dc);
-        off.y = vAxis.y + *(int *)(param_1 + 0x5e0);
-        off.z = vAxis.z + *(int *)(param_1 + 0x5e4);
-        FixVecCross(&spin, &tmp, &off);
-        spin.x = FixMul(spin.x, 0x40000);
-        spin.y = FixMul(spin.y, 0x40000);
-        spin.z = FixMul(spin.z, 0x40000);
+        if (flagB != 0) {
+            off.x = -*(int *)(param_1 + 0x364);
+            off.y = -*(int *)(param_1 + 0x370);
+            off.z = -*(int *)(param_1 + 0x37c);
+            FixVecScale(&off, &off, 0x40000);
+            off.x += *(int *)(param_1 + 0x5dc);
+            off.y += *(int *)(param_1 + 0x5e0);
+            off.z += *(int *)(param_1 + 0x5e4);
+            FixVecCross(&spin, &tmp, &off);
+            FixVecScale(&spin, &spin, 0x40000);
+            *(int *)(param_1 + 0x40c) += 0x4000;
+        } else {
+            off.x = -*(int *)(param_1 + 0x364);
+            off.y = -*(int *)(param_1 + 0x370);
+            off.z = -*(int *)(param_1 + 0x37c);
+            FixVecScale(&off, &off, 0x10000);
+            off.x += *(int *)(param_1 + 0x5dc);
+            off.y += *(int *)(param_1 + 0x5e0);
+            off.z += *(int *)(param_1 + 0x5e4);
+            FixVecCross(&spin, &tmp, &off);
+            FixVecScale(&spin, &spin, 0x40000);
+        }
+        *(int *)(param_1 + 0x5d0) += spin.x;
+        *(int *)(param_1 + 0x5d4) += spin.y;
+        *(int *)(param_1 + 0x5d8) += spin.z;
     }
-    *(int *)(param_1 + 0x5d0) += spin.x;
-    *(int *)(param_1 + 0x5d4) += spin.y;
-    *(int *)(param_1 + 0x5d8) += spin.z;
     FUN_0048c750((int *)(param_1 + 0x5d0));
 
     if (*(char *)(param_1 + 0xb3f) < 5) {

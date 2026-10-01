@@ -12916,17 +12916,18 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
     FixVector back;
     FixVector right;
     FixVector axis;
+    FixVector start;
     int car;
     int fade;
     int len;
     int i;
+    int s;
     car = *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a);
     pDesc = (BYTE *)g_unk0x00590c00[car] + (index & 0xff) * 0x20;
     pEntry = (int *)((BYTE *)g_unk0x00590c6c[car] + (index & 0xff) * 0x3c);
-    pAxis = (FixVector *)(pDesc + 0xc);
-    colour[0] = (BYTE)FixMul(g_unk0x00590c54, *(BYTE *)(pDesc + 0x1c));
-    colour[1] = (BYTE)FixMul(g_unk0x00590c58, *(BYTE *)(pDesc + 0x1d));
-    colour[2] = (BYTE)FixMul(g_unk0x00590c5c, *(BYTE *)(pDesc + 0x1e));
+    colour[0] = (BYTE)FixMulShift32(g_unk0x00590c54, *(BYTE *)(pDesc + 0x1c) << 16);
+    colour[1] = (BYTE)FixMulShift32(g_unk0x00590c58, *(BYTE *)(pDesc + 0x1d) << 16);
+    colour[2] = (BYTE)FixMulShift32(g_unk0x00590c5c, *(BYTE *)(pDesc + 0x1e) << 16);
     colour[3] = *(BYTE *)(pDesc + 0x1f);
     if (pEntry[0xe] != 0) {
         // Flag set: one straight segment from +0x0 to +0x9, each end nudged at
@@ -12943,9 +12944,12 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         else if (i < 0)
             i = 0;
         colour[3] = (BYTE)i;
+        delta.x = pTarget[0] - pEntry[0];
+        delta.y = pTarget[1] - pEntry[1];
+        delta.z = pTarget[2] - pEntry[2];
         len = FixVecLength(&delta);
         if (len > 0x10000)
-            FixVecScaleRecip(&delta, &delta, len);
+            FixVecScale(&delta, &delta, FixDiv(0x10000, len));
         base.x = pEntry[0] + delta.x;
         base.y = pEntry[1] + delta.y;
         base.z = pEntry[2] + delta.z;
@@ -12954,7 +12958,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         delta.z = pTarget[2] - pEntry[0xb];
         len = FixVecLength(&delta);
         if (len > 0x10000)
-            FixVecScaleRecip(&delta, &delta, len);
+            FixVecScale(&delta, &delta, FixDiv(0x10000, len));
         end.x = pEntry[9] + delta.x;
         end.y = pEntry[10] + delta.y;
         end.z = pEntry[0xb] + delta.z;
@@ -12967,16 +12971,17 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         // Suspension matrix: the car's active wheel matrix (or the fallback one
         // when it is absent or inactive), past its 0xd8-byte header.
         BYTE *pObj = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x724);
-        if (pObj == NULL)
-            pObj = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720);
-        else if (pObj[0x17c] == 0)
-            pObj = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720);
-        pMatrix = (FixMatrix *)(pObj + 0xd8);
+        if (pObj == NULL) {
+            pMatrix = (FixMatrix *)(*(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8);
+        } else {
+            if (pObj[0x17c] == 0)
+                pObj = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720);
+            pMatrix = (FixMatrix *)(pObj + 0xd8);
+        }
     }
     // Record velocity (+0x18/+0x1c/+0x20) becomes this segment's direction.
-    dir.x = pEntry[6];
-    dir.y = pEntry[7];
-    dir.z = pEntry[8];
+    dir = *(FixVector *)(pEntry + 6);
+    pAxis = (FixVector *)(pDesc + 0xc);
     // Contact point: the record's local offset rotated into the matrix frame.
     FixMatrix_GetPosition(&pos, pMatrix);
     FixMatrix_RotateVector(&base, (FixVector *)pDesc, pMatrix);
@@ -13018,9 +13023,13 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         back.y = 0;
         back.z = 0;
     } else {
-        back.x = 0x10000 - FixMul(pAxis->x, pAxis->x);
-        back.y = -FixMul(pAxis->y, pAxis->x);
-        back.z = -FixMul(pAxis->z, pAxis->x);
+        delta.x = 0x10000;
+        delta.y = 0;
+        delta.z = 0;
+        FixVecScale(&back, pAxis, pAxis->x);
+        back.x = delta.x - back.x;
+        back.y = delta.y - back.y;
+        back.z = delta.z - back.z;
         len = FixVecLength(&back);
         if (len == 0) {
             back.x = 0;
@@ -13035,9 +13044,13 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
         right.y = 0;
         right.z = 0x10000;
     } else {
-        right.x = -FixMul(pAxis->x, pAxis->z);
-        right.y = -FixMul(pAxis->y, pAxis->z);
-        right.z = 0x10000 - FixMul(pAxis->z, pAxis->z);
+        delta.x = 0;
+        delta.y = 0;
+        delta.z = 0x10000;
+        FixVecScale(&right, pAxis, pAxis->z);
+        right.x = delta.x - right.x;
+        right.y = delta.y - right.y;
+        right.z = delta.z - right.z;
         len = FixVecLength(&right);
         if (len == 0) {
             right.x = 0;
@@ -13055,29 +13068,22 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
     delta.y = right.y + back.y;
     delta.z = right.z + back.z;
     FixMatrix_RotateVector(&axis, &delta, pMatrix);
-    {
-        FixVector step;
-        FixVector off;
-        int bx = base.x;
-        int by = base.y;
-        int bz = base.z;
-        // Five segments along a parabola (t^2 * axis) swept by t * side; every
-        // segment starts where the previous one ended.
-        for (i = 1; i < 6; i++) {
-            int t = i << 16;
-            int s = FixMul(t, FixDiv(0x10000, 0x50000));
-            s = FixMul(s, s);
-            step.x = FixMul(axis.x, s);
-            step.y = FixMul(axis.y, s);
-            step.z = FixMul(axis.z, s);
-            FixVecScale(&off, &side, t);
-            end.x = bx + step.x + off.x;
-            end.y = by + step.y + off.y;
-            end.z = bz + step.z + off.z;
-            Line2D_Queue((int *)&base, (int *)&end, colour, colour);
-            base = end;
-        }
+    start = base;
+    for (i = 1; i < 6; i++) {
+        s = FixMul(FixDiv(0x10000, 0x50000), i << 16);
+        s = FixMul(s, s);
+        FixVecScale(&right, &axis, s);
+        end.x = start.x + right.x;
+        end.y = start.y + right.y;
+        end.z = start.z + right.z;
+        FixVecScale(&back, &side, i << 16);
+        end.x += back.x;
+        end.y += back.y;
+        end.z += back.z;
+        Line2D_Queue((int *)&base, (int *)&end, colour, colour);
+        base = end;
     }
+
 }
 // Overlap test between two oriented 2D collision boxes: the four corners of each
 // box are checked against the other box's half extents in that box's own frame,
