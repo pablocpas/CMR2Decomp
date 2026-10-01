@@ -673,7 +673,7 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
         dir.y = 0;
         dir.z = 0;
     } else {
-        FixVecScale(&dir, &dir, FixDiv(0x10000, len));
+        FixVecScaleRecip(&dir, &dir, len);
     }
     tri[0] = pNode->world.position.x;
     tri[1] = pNode->world.position.z;

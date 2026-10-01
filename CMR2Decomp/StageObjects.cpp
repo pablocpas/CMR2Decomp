@@ -13273,7 +13273,7 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         dir.y = 0;
         dir.z = 0;
     } else {
-        FixVecScale(&dir, &delta, FixDiv(0x10000, length));
+        FixVecScaleRecip(&dir, &delta, length);
     }
     // Projections of box A's two axes on the direction.
     projAxis0 = FixVecDot((FixVector *)(pBoxA + 4), &dir);

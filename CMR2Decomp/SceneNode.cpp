@@ -1648,7 +1648,7 @@ int FUN_004b50b0(SceneNode *pNode, int param_2)
                 dir.y = 0;
                 dir.z = 0;
             } else {
-                FixVecScale(&dir, &dir, FixDiv(0x10000, i));
+                FixVecScaleRecip(&dir, &dir, i);
             }
             Scene_GetGroundLight(&pos, &level);
             if (param_2 != -0x10000) {
