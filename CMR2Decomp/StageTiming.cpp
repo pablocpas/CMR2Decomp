@@ -4757,24 +4757,22 @@ void FUN_00424360(void)
     int force;
     int speed;
 
-    if (g_unk0x00539270[0] == 0) {
-        left = 0;
-    } else {
+    force = g_unk0x005391f8[1] - g_unk0x005391f8[0];
+    if (g_unk0x00539270[0] != 0) {
         pAxis = (FixVector *)(g_unk0x0053937c + 0x4a4);
         pForward = (FixVector *)(g_unk0x0053937c + 0x378);
-        left = FixMul(pAxis->x, pForward->x) + FixMul(pAxis->y, pForward->y) +
-               FixMul(pAxis->z, pForward->z);
-    }
-    if (g_unk0x00539270[1] == 0) {
-        right = 0;
+        left = FixVecDot(pForward, pAxis);
     } else {
+        left = 0;
+    }
+    if (g_unk0x00539270[1] != 0) {
         pAxis = (FixVector *)(g_unk0x0053937c + 0x4b0);
         pForward = (FixVector *)(g_unk0x0053937c + 0x378);
-        right = FixMul(pAxis->x, pForward->x) + FixMul(pAxis->y, pForward->y) +
-                FixMul(pAxis->z, pForward->z);
+        right = FixVecDot(pForward, pAxis);
+    } else {
+        right = 0;
     }
-
-    force = g_unk0x005391f8[1] - g_unk0x005391f8[0] - right - left;
+    force = force - right - left;
     if (FIX_ABS(force) > 0x10000)
         force = force > 0 ? 0x10000 : -0x10000;
 
