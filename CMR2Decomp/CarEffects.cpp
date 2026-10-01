@@ -634,9 +634,7 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
         len = FixVecLength(&d);
         if (len > 0x18000) {
             k = FixDiv(0x18000, len);
-            d.x = FixMul(d.x, k);
-            d.y = FixMul(d.y, k);
-            d.z = FixMul(d.z, k);
+            FixVecScale(&d, &d, k);
         }
         pV->x += d.x;
         pV->y += d.y;

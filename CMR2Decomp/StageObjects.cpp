@@ -12405,13 +12405,9 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
             // Contact frame: axis 0 is the velocity put square to the corner
             // axis, axis 2 the cross of the two and axis 1 the cross of the
             // others.
-            vDir.x = FixMul(pCar->velocity.x, -0x10000);
-            vDir.y = FixMul(pCar->velocity.y, -0x10000);
-            vDir.z = FixMul(pCar->velocity.z, -0x10000);
+            FixVecScale(&vDir, &pCar->velocity, -0x10000);
             dot = FixVecDot(&pCar->cornerAxis[idx], &vDir);
-            vProj.x = FixMul(pCar->cornerAxis[idx].x, dot);
-            vProj.y = FixMul(pCar->cornerAxis[idx].y, dot);
-            vProj.z = FixMul(pCar->cornerAxis[idx].z, dot);
+            FixVecScale(&vProj, &pCar->cornerAxis[idx], dot);
             vDir.x -= vProj.x;
             vDir.y -= vProj.y;
             vDir.z -= vProj.z;
@@ -13209,9 +13205,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
             step.x = FixMul(axis.x, s);
             step.y = FixMul(axis.y, s);
             step.z = FixMul(axis.z, s);
-            off.x = FixMul(side.x, t);
-            off.y = FixMul(side.y, t);
-            off.z = FixMul(side.z, t);
+            FixVecScale(&off, &side, t);
             end.x = bx + step.x + off.x;
             end.y = by + step.y + off.y;
             end.z = bz + step.z + off.z;

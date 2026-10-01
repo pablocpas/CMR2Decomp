@@ -421,9 +421,7 @@ void Car_UpdateAutomaticGear(void)
         }
     }
 
-    dot = FixMul(g_pAutoGearCar->right.x, g_pAutoGearCar->velocity.x) +
-          FixMul(g_pAutoGearCar->right.y, g_pAutoGearCar->velocity.y) +
-          FixMul(g_pAutoGearCar->right.z, g_pAutoGearCar->velocity.z);
+    dot = FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right);
     if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->field_0xb1e == 1 &&
         g_pAutoGearCar->flag0x1d0[2] == 0 && g_pAutoGearCar->field_0x7a4 < 0x1999 && dot < 0x1999) {
         g_pAutoGearCar->field_0xb20 = 7;
@@ -982,9 +980,7 @@ void FUN_004943d0(void)
     int amount;
 
     if ((g_pAutoGearCar->field_0xb1b[1] & 1) != 0) {
-        alignment = FixMul(g_pAutoGearCar->right.x, g_pAutoGearCar->velocity.x) +
-                    FixMul(g_pAutoGearCar->right.y, g_pAutoGearCar->velocity.y) +
-                    FixMul(g_pAutoGearCar->right.z, g_pAutoGearCar->velocity.z);
+        alignment = FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right);
         alignment = FIX_ABS(alignment);
         amount = FixMul(alignment, g_pAutoGearCar->field_0x828);
         if (amount >= 0xb333)

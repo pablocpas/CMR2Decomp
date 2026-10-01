@@ -5297,9 +5297,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             speed = FIX_ABS(Car_GetWheelSpeed(car, 2, 0));
             if (speed > speedLimit) {
                 int scale = FixDiv(speedLimit, speed);
-                particleVelocity.x = FixMul(particleVelocity.x, scale);
-                particleVelocity.y = FixMul(particleVelocity.y, scale);
-                particleVelocity.z = FixMul(particleVelocity.z, scale);
+                FixVecScale(&particleVelocity, &particleVelocity, scale);
             } else {
                 FixVector offset;
                 offset.x = velocity.x - cornerVelocity->x;
@@ -6594,9 +6592,7 @@ void FUN_004816f0(void)
         else if (scale > 0x8000)
             scale = 0x8000;
         scale = FixMul(scale, 0xc937) + 0x8000;
-        PARTSTATE->field_0x164.x = FixMul(PARTSTATE->field_0x164.x, scale);
-        PARTSTATE->field_0x164.y = FixMul(PARTSTATE->field_0x164.y, scale);
-        PARTSTATE->field_0x164.z = FixMul(PARTSTATE->field_0x164.z, scale);
+        FixVecScale(&PARTSTATE->field_0x164, &PARTSTATE->field_0x164, scale);
         FixMatrix_InverseRotateVector(&v24, &v30, PARTSTATE->field_0x4);
         v30.x = v24.x;
         v30.y = v24.y;

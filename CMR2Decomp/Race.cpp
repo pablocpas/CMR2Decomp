@@ -4413,9 +4413,7 @@ void FUN_00417090(int param_1)
          cur <= (int)((unsigned int)RallyData_FUN_00421420() >> 1))) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
-        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
-              FixMul(dir.y, pCar->wheelDirFront.y) +
-              FixMul(dir.z, pCar->wheelDirFront.z);
+        dot = FixVecDot(&pCar->wheelDirFront, &dir);
         if (dot < -0x8000) {
             ((int *)&g_unk0x00537248)[param_1] = 1;
             g_unk0x00537198[param_1] = best;
@@ -4432,9 +4430,7 @@ void FUN_00417090(int param_1)
     if (((int *)&g_unk0x00537248)[param_1] != 0) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
-        dot = FixMul(dir.x, pCar->wheelDirFront.x) +
-              FixMul(dir.y, pCar->wheelDirFront.y) +
-              FixMul(dir.z, pCar->wheelDirFront.z);
+        dot = FixVecDot(&pCar->wheelDirFront, &dir);
         if (dot > 0x3333)
             ((int *)&g_unk0x00537248)[param_1] = 0;
     }

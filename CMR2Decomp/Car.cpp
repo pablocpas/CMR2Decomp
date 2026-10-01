@@ -246,11 +246,9 @@ void FUN_00428a00(Car *pCar)
                 delta.z = pCar->position.z - position.z;
                 if (FIX_ABS(delta.x) > 0x3c0000 || FIX_ABS(delta.y) > 0x3c0000 ||
                     FIX_ABS(delta.z) > 0x3c0000 ||
-                    FixMul(delta.x, delta.x) + FixMul(delta.y, delta.y) +
-                            FixMul(delta.z, delta.z) >
+                    FixVecDot(&delta, &delta) >
                         0xe100000 ||
-                    FixMul(forward.x, delta.x) + FixMul(forward.y, delta.y) +
-                            FixMul(forward.z, delta.z) <
+                    FixVecDot(&forward, &delta) <
                         0)
                     *pRejected = 1;
             }
@@ -332,7 +330,7 @@ void FUN_00428bf0(unsigned int view, short *pRect)
             delta.y = pos.y - otherPos.y;
             delta.z = pos.z - otherPos.z;
             if (FIX_ABS(delta.x) <= 0x960000 && FIX_ABS(delta.y) <= 0x960000 && FIX_ABS(delta.z) <= 0x960000)
-                distTable[g_carOrder[i]] = FixMul(delta.x, delta.x) + FixMul(delta.y, delta.y) + FixMul(delta.z, delta.z);
+                distTable[g_carOrder[i]] = FixVecDot(&delta, &delta);
             else
                 distTable[g_carOrder[i]] = 0x7fbc0000;
             i++;
@@ -968,9 +966,7 @@ void Car_UpdateBodyAxes(void)
                     if (s > 0x10000)
                         s = 0x10000;
                     s = 0x10000 - s;
-                    g_pCurrentCar->velocity.x = FixMul(g_pCurrentCar->velocity.x, s);
-                    g_pCurrentCar->velocity.y = FixMul(g_pCurrentCar->velocity.y, s);
-                    g_pCurrentCar->velocity.z = FixMul(g_pCurrentCar->velocity.z, s);
+                    FixVecScale(&g_pCurrentCar->velocity, &g_pCurrentCar->velocity, s);
                 }
             }
         }
@@ -3819,9 +3815,7 @@ void FUN_0042bf70(void)
                 v.x = pWheel[-1] - pExtra[-2];
                 v.y = pWheel[0] - *(int *)((BYTE *)pWheel + rowDelta);
                 v.z = pWheel[1] - pExtra[0];
-                v.x = FixMul(v.x, scale);
-                v.y = FixMul(v.y, scale);
-                v.z = FixMul(v.z, scale);
+                FixVecScale(&v, &v, scale);
                 pOut[0] = pExtra[-2] + v.x;
                 *(int *)((BYTE *)pWheel + shadowDelta) = *(int *)((BYTE *)pWheel + rowDelta) + v.y;
                 *(int *)((BYTE *)pExtra + outDelta) = pExtra[0] + v.z;
@@ -3829,9 +3823,7 @@ void FUN_0042bf70(void)
                 v.x = pWheel[2] - pExtra[1];
                 v.y = pWheel[3] - pExtra[2];
                 v.z = pWheel[4] - pExtra[3];
-                v.x = FixMul(v.x, scale);
-                v.y = FixMul(v.y, scale);
-                v.z = FixMul(v.z, scale);
+                FixVecScale(&v, &v, scale);
                 result[0] = pExtra[1] + v.x;
                 result[1] = pExtra[2] + v.y;
                 result[2] = pExtra[3] + v.z;
@@ -3878,9 +3870,7 @@ void FUN_0042bf70(void)
                 }
 
                 if (FUN_0042cae0(pCar, 0) != 0) {
-                    basis.forward.x = FixMul(basis.forward.x, 0x9999);
-                    basis.forward.y = FixMul(basis.forward.y, 0x9999);
-                    basis.forward.z = FixMul(basis.forward.z, 0x9999);
+                    FixVecScale(&basis.forward, &basis.forward, 0x9999);
                 }
                 if (CGameInfo::FUN_004063f0(6) != 0) {
                     p = &basis.right;
@@ -5658,9 +5648,7 @@ FixMatrix *FUN_00423a30(FixMatrix *pOut, BYTE car)
     if (CGameInfo::FUN_004063f0(6)) {
         FixMatrix_GetUp(&up, Car_Get(car)->pWorld);
         shake = FixMul(Car_Get(car)->field_0xa8c, 0x8000);
-        up.x = FixMul(up.x, shake);
-        up.y = FixMul(up.y, shake);
-        up.z = FixMul(up.z, shake);
+        FixVecScale(&up, &up, shake);
         FixMatrix_GetPosition(&position, pOut);
         position.y += up.y;
         position.x += up.x;
@@ -7212,9 +7200,7 @@ void FUN_00423b20(BYTE param_1)
 
         FixMatrix_GetUp(&up, Car_Get(index)->pWorld);
         scale = FixMul(Car_Get(index)->field_0xa8c, 0x8000);
-        up.x = FixMul(up.x, scale);
-        up.y = FixMul(up.y, scale);
-        up.z = FixMul(up.z, scale);
+        FixVecScale(&up, &up, scale);
         FixMatrix_GetPosition(&pos, Car_Get(index)->pWorld);
         pos.x += up.x;
         pos.y += up.y;

@@ -953,9 +953,7 @@ void FUN_0048ae90(int param_1, int param_2)
         }
     }
 
-    impB.x = FixMul(g_unk0x005915e8.x, dB);
-    impB.y = FixMul(g_unk0x005915e8.y, dB);
-    impB.z = FixMul(g_unk0x005915e8.z, dB);
+    FixVecScale(&impB, &g_unk0x005915e8, dB);
 
     bSepB = 0;
     if (*(int *)(param_2 + 0xc00) == 0) {
@@ -982,9 +980,7 @@ void FUN_0048ae90(int param_1, int param_2)
         impA.y -= oldY;
     }
 
-    impA.x = FixMul(impA.x, g_physicsScale);
-    impA.y = FixMul(impA.y, g_physicsScale);
-    impA.z = FixMul(impA.z, g_physicsScale);
+    FixVecScale(&impA, &impA, g_physicsScale);
     FixMatrix_InverseRotateVector(&tmp, &impA, *(FixMatrix **)(param_1 + 0x750));
     *(int *)(param_1 + 0x5c4) += impA.x;
     *(int *)(param_1 + 0x5c8) += impA.y;
@@ -992,24 +988,18 @@ void FUN_0048ae90(int param_1, int param_2)
 
     FixVecCross(&axis, &tmp, (FixVector *)(param_1 + 0x5dc));
     if (bSepA) {
-        axis.x = FixMul(axis.x, 0x40000);
-        axis.y = FixMul(axis.y, 0x40000);
-        axis.z = FixMul(axis.z, 0x40000);
+        FixVecScale(&axis, &axis, 0x40000);
         *(int *)(param_1 + 0xc00) = 1;
         *(int *)(param_1 + 0x96c) = 0x10000;
     } else {
-        axis.x = FixMul(axis.x, 0x20000);
-        axis.y = FixMul(axis.y, 0x20000);
-        axis.z = FixMul(axis.z, 0x20000);
+        FixVecScale(&axis, &axis, 0x20000);
     }
     *(int *)(param_1 + 0x5d0) += axis.x;
     *(int *)(param_1 + 0x5d4) += axis.y;
     *(int *)(param_1 + 0x5d8) += axis.z;
     FUN_0048c750((int *)(param_1 + 0x5d0));
 
-    impB.x = FixMul(impB.x, g_physicsScale);
-    impB.y = FixMul(impB.y, g_physicsScale);
-    impB.z = FixMul(impB.z, g_physicsScale);
+    FixVecScale(&impB, &impB, g_physicsScale);
     FixMatrix_InverseRotateVector(&tmp, &impB, *(FixMatrix **)(param_2 + 0x750));
     *(int *)(param_2 + 0x5c4) += impB.x;
     *(int *)(param_2 + 0x5c8) += impB.y;
@@ -1017,15 +1007,11 @@ void FUN_0048ae90(int param_1, int param_2)
 
     FixVecCross(&axis, &tmp, (FixVector *)(param_2 + 0x5dc));
     if (bSepB) {
-        axis.x = FixMul(axis.x, 0x40000);
-        axis.y = FixMul(axis.y, 0x40000);
-        axis.z = FixMul(axis.z, 0x40000);
+        FixVecScale(&axis, &axis, 0x40000);
         *(int *)(param_2 + 0xc00) = 1;
         *(int *)(param_2 + 0x96c) = 0x10000;
     } else {
-        axis.x = FixMul(axis.x, 0x20000);
-        axis.y = FixMul(axis.y, 0x20000);
-        axis.z = FixMul(axis.z, 0x20000);
+        FixVecScale(&axis, &axis, 0x20000);
     }
     *(int *)(param_2 + 0x5d0) += axis.x;
     *(int *)(param_2 + 0x5d4) += axis.y;
@@ -1099,13 +1085,9 @@ void FUN_0048ae90(int param_1, int param_2)
         }
 
         impA.y = 0;
-        impA.x = FixMul(impA.x, 0xcccc);
-        impA.y = FixMul(impA.y, 0xcccc);
-        impA.z = FixMul(impA.z, 0xcccc);
+        FixVecScale(&impA, &impA, 0xcccc);
         impB.y = 0;
-        impB.x = FixMul(impB.x, 0xcccc);
-        impB.y = FixMul(impB.y, 0xcccc);
-        impB.z = FixMul(impB.z, 0xcccc);
+        FixVecScale(&impB, &impB, 0xcccc);
 
         size = FixMul(len, 0x20000);
         if (size > 0x10000)
@@ -1195,12 +1177,8 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
         impulse = FixMul(impulse, 0x28f);
     }
 
-    imp.x = FixMul(g_unk0x005915e8.x, impulse);
-    imp.y = FixMul(g_unk0x005915e8.y, impulse);
-    imp.z = FixMul(g_unk0x005915e8.z, impulse);
-    imp.x = FixMul(imp.x, g_physicsScale);
-    imp.y = FixMul(imp.y, g_physicsScale);
-    imp.z = FixMul(imp.z, g_physicsScale);
+    FixVecScale(&imp, &g_unk0x005915e8, impulse);
+    FixVecScale(&imp, &imp, g_physicsScale);
 
     FixMatrix_InverseRotateVector(&tmp, &imp, *(FixMatrix **)(param_1 + 0x750));
     *(int *)(param_1 + 0x5c4) += imp.x;
@@ -1250,9 +1228,7 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
     if (flagA == 0) {
         FixVecCross(&spin, &tmp, (FixVector *)(param_1 + 0x5dc));
         if (g_unk0x005914d8 == 0) {
-            spin.x = FixMul(spin.x, 0x30000);
-            spin.y = FixMul(spin.y, 0x30000);
-            spin.z = FixMul(spin.z, 0x30000);
+            FixVecScale(&spin, &spin, 0x30000);
         } else {
             spin.x = FixMul(spin.x, 0x18000);
             spin.y = FixMul(spin.y, 0x18000);
@@ -1266,9 +1242,7 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
         off.y = vAxis.y + *(int *)(param_1 + 0x5e0);
         off.z = vAxis.z + *(int *)(param_1 + 0x5e4);
         FixVecCross(&spin, &tmp, &off);
-        spin.x = FixMul(spin.x, 0x40000);
-        spin.y = FixMul(spin.y, 0x40000);
-        spin.z = FixMul(spin.z, 0x40000);
+        FixVecScale(&spin, &spin, 0x40000);
         *(int *)(param_1 + 0x40c) += 0x4000;
     } else {
         vAxis.x = FixMul(-*(int *)(param_1 + 0x364), 0x10000);
