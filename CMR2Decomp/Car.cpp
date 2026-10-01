@@ -2231,7 +2231,7 @@ inline int FixVecNormalizeLen(FixVector *pOut, FixVector *pV)
     old = g_pCurrentCar->wheelLoad[i];                                                      \
     g_pCurrentCar->wheelLoad[i] += FixMul(g_pCurrentCar->wheelTorque[i], g_wheelSpinStep);  \
     if (g_pCurrentCar->field_0xb1e == 0 || g_pCurrentCar->field_0xb84 != 0 ||               \
-        g_pCurrentCar->field_0x7b4 == ((i) > 1 ? 0x10000 : 0)) {                            \
+        g_pCurrentCar->field_0x7b4 == ((i) < 2 ? 0 : 0x10000)) {                           \
         if ((old >= 1 && g_pCurrentCar->wheelLoad[i] < 0) ||                               \
             (old < 0 && g_pCurrentCar->wheelLoad[i] > 0))                                   \
             g_pCurrentCar->wheelLoad[i] = 0;                                                \
@@ -2585,9 +2585,9 @@ extern double g_unk0x00511300;
 #define LEAN_BASIS(lean)                                                     \
     t = (lean);                                                              \
     if (FIX_ABS(t.x) > 0x170a)                                               \
-        t.x = t.x < 1 ? -0x170a : 0x170a;                                    \
+        t.x = t.x > 0 ? 0x170a : -0x170a;                                    \
     if (FIX_ABS(t.z) > 0x170a)                                               \
-        t.z = t.z < 1 ? -0x170a : 0x170a;                                    \
+        t.z = t.z > 0 ? 0x170a : -0x170a;                                    \
     t.y = 0x10000;                                                           \
     FIX_NORMALIZE_INTO(up, t);                                               \
     xAxis.x = 0x10000;                                                       \
@@ -3154,7 +3154,7 @@ void Car_UpdateWheelForces(void)
         }
         torqueLimit = FIX_ABS(torqueLimit);
         if (g_pCurrentCar->field_0xb1e == 0 || g_pCurrentCar->field_0xb84 != 0 ||
-            g_pCurrentCar->field_0x7b4 == (i > 1 ? 0x10000 : 0x0)) {
+            g_pCurrentCar->field_0x7b4 == (i < 2 ? 0 : 0x10000)) {
             if ((load >= 1 && g_pCurrentCar->wheelLoad[i] < 0) ||
                 (load < 0 && g_pCurrentCar->wheelLoad[i] > 0)) {
                 g_pCurrentCar->wheelLoad[i] = 0;

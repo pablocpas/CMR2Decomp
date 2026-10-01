@@ -1213,7 +1213,7 @@ void FUN_0047a710(int player, int listener)
     state[0] = pitch;
     state[2] = speed;
     state[3] = pCar->field_0xb1e;
-    state[4] = (FixDiv(FixMul(pCar->field_0x79c, 0x640000), *(int *)pCar->field_0x788) >= 0x50000 ? 0x640000 : 0) >> 16;
+    state[4] = (FixDiv(FixMul(pCar->field_0x79c, 0x640000), *(int *)pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
     state[5] = 0;
     state[6] = 0;
     FUN_00479360(state, player, listener);
