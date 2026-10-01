@@ -3909,29 +3909,26 @@ void FUN_00483010(void)
 
 // Starts a part's swing when the load on its side exceeds 0.8: the swing
 // speed (+0x11c) is added or removed depending on which wheel is loaded more.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00483050
 void FUN_00483050(void)
 {
-    Unk0x00590c20 *pPart = g_unk0x00590c20;
+    int idx;
     int a;
     int b;
-    int swing;
 
-    if (*(int *)(g_unk0x00590d78 + 0x240 + g_unk0x00590c60[pPart->field_0x150[0] >> 4] * 4) > 0xcccc) {
-        if ((pPart->field_0x150[0] & 0xf0) == 0x10) {
+    idx = g_unk0x00590c60[g_unk0x00590c20->field_0x150[0] >> 4];
+    if (*(int *)(g_unk0x00590d78 + 0x240 + idx * 4) > 0xcccc) {
+        if ((g_unk0x00590c20->field_0x150[0] & 0xf0) == 0x10) {
             a = 2;
             b = 3;
         } else {
             a = 0;
             b = 1;
         }
-        if (*(int *)(g_unk0x00590d78 + a * 4 + 0x240) >
-                *(int *)(g_unk0x00590d78 + b * 4 + 0x240))
-            swing = pPart->field_0x120.z - pPart->field_0x11c;
+        if (*(int *)(g_unk0x00590d78 + a * 4 + 0x240) > *(int *)(g_unk0x00590d78 + b * 4 + 0x240))
+            g_unk0x00590c20->field_0x120.z -= g_unk0x00590c20->field_0x11c;
         else
-            swing = pPart->field_0x120.z + pPart->field_0x11c;
-        pPart->field_0x120.z = swing;
+            g_unk0x00590c20->field_0x120.z += g_unk0x00590c20->field_0x11c;
         g_unk0x00590c20->field_0x150[0] |= 2;
         *(short *)((BYTE *)g_unk0x00590c20 + 0x158) = 0;
     }
@@ -6386,6 +6383,7 @@ struct PartState {
 };
 
 #define PARTSTATE ((PartState *)g_unk0x00590c20)
+#define PARTSET   ((CarPartSet *)g_unk0x00590d78)
 #define CARBYTES  ((BYTE *)g_unk0x00590d74)
 
 int FUN_00482f30(void);
@@ -6743,115 +6741,110 @@ void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_
 // FUNCTION: CMR2 0x00480e50
 void FUN_00480e50(int slot)
 {
-    int carIndex = *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a);
-    unsigned int type = g_unk0x00590c24[slot][carIndex];
-    int local_14 = 0;
-    int rotor = 0;
-    int lateral = 0;
+    int type = g_unk0x00590c24[slot][*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)];
+    int offZ = 0;
+    int offX = 0;
+    int offY = 0;
 
-    g_unk0x00590c20 = (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + carIndex * 0x1a0);
+    g_unk0x00590c20 =
+        (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a) * 0x1a0);
     if (FUN_004813b0(slot) == 0)
         return;
-
-    ((BYTE *)g_unk0x00590c20)[0x150] = (BYTE)((((BYTE *)g_unk0x00590c20)[0x150] & 0xf) | (slot << 4));
-    ((BYTE *)g_unk0x00590c20)[0x150] |= 1;
-    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~2;
-    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~4;
-    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~8;
-    *(int *)(*(int *)((BYTE *)g_unk0x00590c20) + 0x184) = 0;
-
-
+    PARTSTATE->field_0x150 = (PARTSTATE->field_0x150 & 0xf) | (slot << 4);
+    PARTSTATE->field_0x150 |= 1;
+    PARTSTATE->field_0x150 &= ~2;
+    PARTSTATE->field_0x150 &= ~4;
+    PARTSTATE->field_0x150 &= ~8;
+    *(int *)(PARTSTATE->field_0x0 + 0x184) = 0;
     switch (slot) {
     case 0:
-        local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-        rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0x288;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004814d0;
+        offX = -PARTSET->halfExtents[type].x;
+        offY = PARTSET->halfExtents[type].y;
+        offZ = 0;
+        PARTSTATE->field_0x158 = 0x288;
+        PARTSTATE->field_0x110 = (int)FUN_004814d0;
         break;
-    case 1:
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9 ||
-            *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
-            rotor = 0;
-            local_14 = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-            lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
-        } else {
-            local_14 = FixMul(*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168), 0x8000);
-            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-        }
-        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004816f0;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x170) = 0x10e5;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x174) = 0x1eb8;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x178) = 0x10e5;
-        goto common;
     case 2:
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
-            local_14 = 0;
-            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-            lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
+            offX = 0;
+            offY = PARTSET->halfExtents[type].y;
+            offZ = -PARTSET->halfExtents[type].z;
         } else if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
-            lateral = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
-            local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-            rotor = 0;
+            offX = -PARTSET->halfExtents[type].x;
+            offZ = PARTSET->halfExtents[type].z;
+            offY = 0;
         } else {
-            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 8) {
-                local_14 = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-                rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
+                offX = -PARTSET->halfExtents[type].x;
+                offY = -PARTSET->halfExtents[type].y;
             } else {
-                local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-                rotor = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+                offX = PARTSET->halfExtents[type].x;
+                offY = PARTSET->halfExtents[type].y;
             }
-            lateral = 0;
+            offZ = 0;
         }
-        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0x288;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_00484310;
+        PARTSTATE->field_0x158 = 0x288;
+        PARTSTATE->field_0x110 = (int)FUN_00484310;
         break;
-    case 3:
-        ((BYTE *)g_unk0x00590c20)[0x150] |= 2;
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+    case 1:
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 9 && *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 11) {
+            offX = FixMul(PARTSET->halfExtents[type].x, 0x8000);
+            offY = PARTSET->halfExtents[type].y;
+            offZ = 0;
         } else {
-            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-            if (*(int *)(g_unk0x00590d78 + 0x24c) < *(int *)(g_unk0x00590d78 + 0x248)) {
-                lateral = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
-                rotor = -rotor;
+            offY = 0;
+            offX = PARTSET->halfExtents[type].x;
+            offZ = -PARTSET->halfExtents[type].z;
+        }
+        PARTSTATE->field_0x158 = 0;
+        PARTSTATE->field_0x110 = (int)FUN_004816f0;
+        PARTSTATE->field_0x170.x = 0x10e5;
+        PARTSTATE->field_0x170.y = 0x1eb8;
+        PARTSTATE->field_0x170.z = 0x10e5;
+        goto common;
+    case 3:
+        PARTSTATE->field_0x150 |= 2;
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
+            offX = 0;
+            offZ = 0;
+            offY = PARTSET->halfExtents[type].y;
+        } else {
+            offX = 0;
+            if (*(int *)(g_unk0x00590d78 + 0x248) > *(int *)(g_unk0x00590d78 + 0x24c)) {
+                offZ = PARTSET->halfExtents[type].z;
+                offY = -PARTSET->halfExtents[type].y;
             } else {
-                rotor = -rotor;
-                lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
+                offY = -PARTSET->halfExtents[type].y;
+                offZ = -PARTSET->halfExtents[type].z;
             }
         }
-        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
-        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_00483570;
+        PARTSTATE->field_0x158 = 0;
+        PARTSTATE->field_0x110 = (int)FUN_00483570;
         break;
     default:
         goto common;
     }
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x170) = 0x10e5;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x174) = 0x1eb8;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x178) = 0x6ccc;
-
+    PARTSTATE->field_0x170.x = 0x10e5;
+    PARTSTATE->field_0x170.y = 0x1eb8;
+    PARTSTATE->field_0x170.z = 0x6ccc;
 common:
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb4) + local_14;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x124) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb8) + rotor;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xbc) + lateral;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x15c) = FixVecLength((FixVector *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168));
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb4);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb8);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xbc);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x114) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x118) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x11c) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x138) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x13c) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x140) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x144) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x148) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x14c) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x154) = 0;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x160) = 0;
+    PARTSTATE->field_0x120.x = PARTSET->centres[type].x + offX;
+    PARTSTATE->field_0x120.y = PARTSET->centres[type].y + offY;
+    PARTSTATE->field_0x120.z = PARTSET->centres[type].z + offZ;
+    PARTSTATE->field_0x15c = FixVecLength(&PARTSET->halfExtents[type]);
+    PARTSTATE->field_0x12c = PARTSET->centres[type];
+    PARTSTATE->field_0x114 = PARTSET->halfExtents[type];
+    PARTSTATE->field_0x138.x = 0;
+    PARTSTATE->field_0x138.y = 0;
+    PARTSTATE->field_0x138.z = 0;
+    PARTSTATE->field_0x144.x = 0;
+    PARTSTATE->field_0x144.y = 0;
+    PARTSTATE->field_0x144.z = 0;
+    PARTSTATE->field_0x164.x = 0;
+    PARTSTATE->field_0x164.y = 0;
+    PARTSTATE->field_0x164.z = 0;
+    PARTSTATE->field_0x154 = 0;
+    PARTSTATE->field_0x160 = 0;
 }
 int StageObject_IsEligibleType(short type, int mode, int category);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
@@ -6863,70 +6856,41 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00483100
 void FUN_00483100(int *param_1, unsigned int param_2)
 {
-    int bVar8 = g_unk0x00590c24[*(BYTE *)(((BYTE *)g_unk0x00590c20) + 0x150) >> 4][(int)*(char *)(((BYTE *)g_unk0x00590d74) + 0xb1a)];
-    // Contiguous: these triples are passed as FixVector* (loose ints are not
-    // guaranteed to be adjacent, and a 12-byte write through them overruns).
-    FixVector v48, v3c, v30, v24, v18;
-    int iVar4, iVar6, iVar9;
-    int iVar11, iVar12;
-    unsigned int uVar10;
+    int sel = g_unk0x00590c24[PARTSTATE->field_0x150 >> 4][*(char *)(CARBYTES + 0xb1a)];
+    FixVector pos;
+    FixVector offset;
+    FixVector axis;
+    FixVector normal;
+    FixVector dir;
+    int len;
 
-    if (StageObject_IsEligibleType(*(short *)(((BYTE *)g_unk0x00590d74) + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
-        int off = (unsigned int)bVar8 * 0xc;
-        int lVar1 = FixMul(*(int *)(g_unk0x00590d78 + off + 0x16c), 0x20000);
-        int t = FixMul(*(int *)(g_unk0x00590d78 + off + 0x170), 0x1cccc);
-        int s;
-
-        if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 1)
-            s = t;
+    if (StageObject_IsEligibleType(*(short *)(CARBYTES + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+        pos = PARTSTATE->field_0x120;
+        pos.y -= FixMul(0x20000, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x16c));
+        if (PARTSTATE->field_0x120.z > 0)
+            FixVecScale(&offset, &PARTSTATE->field_0x17c.forward,
+                        -FixMul(0x1cccc, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x170)));
         else
-            s = -t;
-        v24.x = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), s);
-        v24.y = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), s);
-        v24.z = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), s);
-
-        v18.x = *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) + v24.x;
-        v18.y = (*(int *)(((BYTE *)g_unk0x00590c20) + 0x124) - lVar1) + v24.y;
-        v18.z = *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) + v24.z;
-        FixMatrix_RotateVector(&v24, &v18,
-                               *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
-
-        uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
-        if ((int)uVar10 > 0) {
-            FixVecScaleRecip(&v48, (FixVector *)param_1, -(int)uVar10);
-            param_2 = (unsigned int)FixMul((int)uVar10, 0x50000);
-            if ((int)param_2 < 0x10001) {
-                if ((int)param_2 < 0x3334)
-                    return;
-            } else {
-                param_2 = 0x10000;
-            }
-            v3c.x = *(int *)(((BYTE *)g_unk0x00590d74) + 0x48c);
-            v3c.y = *(int *)(((BYTE *)g_unk0x00590d74) + 0x490);
-            v3c.z = *(int *)(((BYTE *)g_unk0x00590d74) + 0x494);
-            iVar4 = FixMul(v48.y, v3c.z) - FixMul(v48.z, v3c.y);
-            iVar11 = FixMul(v48.z, v3c.x) - FixMul(v48.x, v3c.z);
-            iVar12 = FixMul(v48.x, v3c.y) - FixMul(v48.y, v3c.x);
-            {
-                FixVector cross;
-                int len;
-                cross.x = iVar4;
-                cross.y = iVar11;
-                cross.z = iVar12;
-                len = FixVecLength(&cross);
-                if (len == 0) {
-                    v30.x = 0;
-                    v30.y = 0;
-                    v30.z = 0;
-                } else {
-                    FixVecScaleRecip(&v30, &cross, len);
-                }
-            }
-            Car_SpawnDebris(param_2, &v24, (Car *)((BYTE *)g_unk0x00590d74),
-                            &v48, 0x40000, 0x6666);
+            FixVecScale(&offset, &PARTSTATE->field_0x17c.forward,
+                        FixMul(0x1cccc, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x170)));
+        pos.x += offset.x;
+        pos.y += offset.y;
+        pos.z += offset.z;
+        FixMatrix_RotateVector(&offset, &pos, *(FixMatrix **)(CARBYTES + 0x750));
+        len = FixVecLength((FixVector *)param_1);
+        if (len > 0) {
+            FixVecScaleRecip(&dir, (FixVector *)param_1, -len);
+            len = FixMul(len, 0x50000);
+            if (len > 0x10000)
+                len = 0x10000;
+            else if (len <= 0x3333)
+                return;
+            normal = *(FixVector *)(CARBYTES + 0x48c);
+            FixVecCross(&axis, &dir, &normal);
+            Motion_NormalizeInto(&axis, &axis);
+            Car_SpawnDebris(len, &offset, (Car *)CARBYTES, &dir, 0x40000, 0x6666);
         }
     }
-    return;
 }
 
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
