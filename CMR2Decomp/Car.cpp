@@ -7601,300 +7601,219 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
 // re-orthonormalized (right, and up/forward rebuilt from it) and, when any axis
 // flipped, the deepest corner against the normal is pushed to the deformation
 // solver.
-// match 32%: reviewed (W172) - calls and constants match; the repeated inlined
-// square-root and reciprocal blocks keep their own stack slots in the original
-// (CONOCIMIENTO 4.t).
 // FUNCTION: CMR2 0x0042fb20
 void FUN_0042fb20(void)
 {
     FixVector tmp;
     FixVector corner;
+    FixVector scaled;
     FixVector upBody;
     FixVector out;
     int flipRoll;
     int flipPitch;
     int flipYaw;
     int damp;
-    int dot;
     int mag;
+    int dot;
     int i;
-    int r1;
-    int r2;
-    int r3;
-    int *p;
 
     flipRoll = 0;
     flipPitch = 0;
     flipYaw = 0;
-
-    mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x424), CARF(0x424)) +
-                  FixMul(CARF(0x428), CARF(0x428)));
-    mag = FixMul(mag, 0x50000);
+    mag = FixMul(FixVecLength(&g_pCurrentCar->angularVelocity), 0x50000);
     if (mag > 0xcccc)
         mag = 0xcccc;
     damp = FixMul(0x8000, 0x10000 - mag);
-
-    dot = FixMul(CARF(0x408), CARF(0x48c)) + FixMul(CARF(0x40c), CARF(0x490)) +
-          FixMul(CARF(0x410), CARF(0x494));
-    if (dot < 0)
-        dot = -dot;
-    if (CARF(0x778) - dot < 0x8000)
+    dot = FIX_ABS(FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->velocity));
+    if (g_pCurrentCar->speed - dot < 0x8000)
         damp = 0x8000;
     damp = FixMul(damp, g_physicsTimeStep);
     if (damp > 0x10000)
         damp = 0x10000;
 
-    dot = FixMul(CARF(0x48c), CARF(0x360)) + FixMul(CARF(0x490), CARF(0x364)) +
-          FixMul(CARF(0x494), CARF(0x368));
-    if ((CARF(0x91c) > 0 && dot < 0) || (CARF(0x91c) < 0 && dot > 0))
+    dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
+    if ((g_pCurrentCar->field_0x91c > 0 && dot < 0) || (g_pCurrentCar->field_0x91c < 0 && dot > 0))
         flipRoll = 1;
-    CARF(0x91c) = dot;
-    if (CARF(0xbe4) == 0) {
-        if (dot < -0xe666 || dot > 0xe666)
-            g_pCurrentCar->field_0xb27 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
-        else
+    g_pCurrentCar->field_0x91c = dot;
+    if (g_pCurrentCar->field_0xbe4 == 0) {
+        if (dot >= -0xe666 && dot <= 0xe666)
             g_pCurrentCar->field_0xb27 = 0;
+        else
+            g_pCurrentCar->field_0xb27 += FixMul(0xa0000, g_physicsTimeStep) >> 16;
         if (g_pCurrentCar->field_0xb27 > 100)
-            CARF(0xbe4) = 1;
+            g_pCurrentCar->field_0xbe4 = 1;
     }
 
-    dot = FixMul(CARF(0x48c), CARF(0x36c)) + FixMul(CARF(0x490), CARF(0x370)) +
-          FixMul(CARF(0x494), CARF(0x374));
-    if ((CARF(0x920) > 0 && dot < 0) || (CARF(0x920) < 0 && dot > 0))
+    dot = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
+    if ((g_pCurrentCar->field_0x920 > 0 && dot < 0) || (g_pCurrentCar->field_0x920 < 0 && dot > 0))
         flipPitch = 1;
-    CARF(0x920) = dot;
-    if (CARF(0xbdc) == 0) {
+    g_pCurrentCar->field_0x920 = dot;
+    if (g_pCurrentCar->field_0xbdc == 0) {
         if (dot < -0xf333)
-            g_pCurrentCar->field_0xb25 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
+            g_pCurrentCar->field_0xb25 += FixMul(0xa0000, g_physicsTimeStep) >> 16;
         else
             g_pCurrentCar->field_0xb25 = 0;
         if (g_pCurrentCar->field_0xb25 > 100)
-            CARF(0xbdc) = 1;
+            g_pCurrentCar->field_0xbdc = 1;
     }
 
-    dot = FixMul(CARF(0x48c), CARF(0x378)) + FixMul(CARF(0x490), CARF(0x37c)) +
-          FixMul(CARF(0x494), CARF(0x380));
-    if ((CARF(0x924) > 0 && dot < 0) || (CARF(0x924) < 0 && dot > 0))
+    dot = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
+    if ((g_pCurrentCar->field_0x924 > 0 && dot < 0) || (g_pCurrentCar->field_0x924 < 0 && dot > 0))
         flipYaw = 1;
-    CARF(0x924) = dot;
-    if (CARF(0xbe0) == 0) {
-        if (dot < -0xf333 || dot > 0xf333)
-            g_pCurrentCar->field_0xb26 += (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
-        else
+    g_pCurrentCar->field_0x924 = dot;
+    if (g_pCurrentCar->field_0xbe0 == 0) {
+        if (dot >= -0xf333 && dot <= 0xf333)
             g_pCurrentCar->field_0xb26 = 0;
+        else
+            g_pCurrentCar->field_0xb26 += FixMul(0xa0000, g_physicsTimeStep) >> 16;
         if (g_pCurrentCar->field_0xb26 > 100)
-            CARF(0xbe0) = 1;
+            g_pCurrentCar->field_0xbe0 = 1;
     }
 
     if (CARF(0xba0) != 0) {
-        mag = FixSqrt(FixMul(CARF(0x424), CARF(0x424)) + FixMul(CARF(0x428), CARF(0x428)));
-        if (mag >= 0xf5c)
+        if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.y, g_pCurrentCar->angularVelocity.y) +
+                    FixMul(g_pCurrentCar->angularVelocity.z, g_pCurrentCar->angularVelocity.z)) >= 0xf5c)
             CARF(0xba0) = 0;
     }
     if (CARF(0xba4) != 0) {
-        mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x428), CARF(0x428)));
-        if (mag >= 0xf5c)
+        if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.x, g_pCurrentCar->angularVelocity.x) +
+                    FixMul(g_pCurrentCar->angularVelocity.z, g_pCurrentCar->angularVelocity.z)) >= 0xf5c)
             CARF(0xba4) = 0;
     }
     if (CARF(0xba8) != 0) {
-        mag = FixSqrt(FixMul(CARF(0x420), CARF(0x420)) + FixMul(CARF(0x424), CARF(0x424)));
-        if (mag >= 0xf5c)
+        if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.x, g_pCurrentCar->angularVelocity.x) +
+                    FixMul(g_pCurrentCar->angularVelocity.y, g_pCurrentCar->angularVelocity.y)) >= 0xf5c)
             CARF(0xba8) = 0;
     }
 
     if (flipRoll != 0 && CARF(0xba0) == 0) {
-        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
-        dot = FixMul(tmp.x, CARF(0x420)) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
-        tmp.y = FixMul(FixMul(dot, tmp.y) - CARF(0x424), damp);
-        tmp.z = FixMul(FixMul(tmp.z, dot) - CARF(0x428), damp);
+        FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
+        dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
+        FixVecScale(&tmp, &tmp, dot);
+        tmp.x -= g_pCurrentCar->angularVelocity.x;
+        tmp.y -= g_pCurrentCar->angularVelocity.y;
+        tmp.z -= g_pCurrentCar->angularVelocity.z;
+        FixVecScale(&tmp, &tmp, damp);
         tmp.x = 0;
-        CARF(0x424) += tmp.y;
-        CARF(0x428) += tmp.z;
-        dot = FIX_ABS(dot);
-        if (dot < 0xf5c && CARF(0x778) < 0x8000)
+        g_pCurrentCar->angularVelocity.y += tmp.y;
+        g_pCurrentCar->angularVelocity.z += tmp.z;
+        if (dot < 0)
+            dot = -dot;
+        if (dot < 0xf5c && g_pCurrentCar->speed < 0x8000)
             CARF(0xba0) = 1;
     }
-
     if (flipPitch != 0 && CARF(0xba4) == 0) {
-        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
-        dot = FixMul(CARF(0x420), tmp.x) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
-        tmp.x = FixMul(FixMul(tmp.x, dot) - CARF(0x420), damp);
-        tmp.z = FixMul(FixMul(tmp.z, dot) - CARF(0x428), damp);
+        FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
+        dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
+        FixVecScale(&tmp, &tmp, dot);
+        tmp.x -= g_pCurrentCar->angularVelocity.x;
+        tmp.y -= g_pCurrentCar->angularVelocity.y;
+        tmp.z -= g_pCurrentCar->angularVelocity.z;
+        FixVecScale(&tmp, &tmp, damp);
         tmp.y = 0;
-        CARF(0x420) += tmp.x;
-        CARF(0x428) += tmp.z;
+        g_pCurrentCar->angularVelocity.x += tmp.x;
+        g_pCurrentCar->angularVelocity.y += tmp.y;
+        g_pCurrentCar->angularVelocity.z += tmp.z;
     }
-
     if (flipYaw != 0 && CARF(0xba8) == 0) {
-        FixMatrix_InverseRotateVector(&tmp, &CARV(0x48c), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
-        dot = FixMul(CARF(0x420), tmp.x) + FixMul(CARF(0x424), tmp.y) + FixMul(CARF(0x428), tmp.z);
-        CARF(0x420) += FixMul(FixMul(tmp.x, dot) - CARF(0x420), damp);
-        CARF(0x424) += FixMul(FixMul(tmp.y, dot) - CARF(0x424), damp);
-        dot = FIX_ABS(dot);
-        if (dot < 0xf5c && CARF(0x778) < 0x8000)
+        FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
+        dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
+        FixVecScale(&tmp, &tmp, dot);
+        tmp.x -= g_pCurrentCar->angularVelocity.x;
+        tmp.y -= g_pCurrentCar->angularVelocity.y;
+        tmp.z -= g_pCurrentCar->angularVelocity.z;
+        FixVecScale(&tmp, &tmp, damp);
+        tmp.z = 0;
+        g_pCurrentCar->angularVelocity.x += tmp.x;
+        g_pCurrentCar->angularVelocity.y += tmp.y;
+        g_pCurrentCar->angularVelocity.z += tmp.z;
+        if (dot < 0)
+            dot = -dot;
+        if (dot < 0xf5c && g_pCurrentCar->speed < 0x8000)
             CARF(0xba8) = 1;
     }
 
     if (CARF(0xba0) != 0 || CARF(0xba4) != 0 || CARF(0xba8) != 0) {
         if (CARF(0xba0) != 0) {
-            i = CARF(0x91c);
-            r1 = CARF(0x360) - FixMul(CARF(0x48c), i);
-            r2 = CARF(0x364) - FixMul(CARF(0x490), i);
-            r3 = CARF(0x368) - FixMul(CARF(0x494), i);
-            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
-            tmp.x = r1;
-            tmp.y = r2;
-            tmp.z = r3;
-            if (mag == 0) {
-                tmp.x = 0;
-                tmp.y = 0;
-                tmp.z = 0;
-            } else {
-                FixVecScaleRecip(&tmp, &tmp, mag);
-            }
-            CARF(0x360) = tmp.x;
-            CARF(0x364) = tmp.y;
-            CARF(0x368) = tmp.z;
-            CARF(0x424) = FixMul(CARF(0x424), 0xe666);
-            CARF(0x428) = FixMul(CARF(0x428), 0xe666);
+            FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x91c);
+            tmp.x = g_pCurrentCar->right.x - tmp.x;
+            tmp.y = g_pCurrentCar->right.y - tmp.y;
+            tmp.z = g_pCurrentCar->right.z - tmp.z;
+            FIX_NORMALIZE_INTO(tmp, tmp);
+            g_pCurrentCar->right = tmp;
+            g_pCurrentCar->angularVelocity.y = FixMul(g_pCurrentCar->angularVelocity.y, 0xe666);
+            g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, 0xe666);
         }
         if (CARF(0xba4) != 0) {
-            i = CARF(0x920);
-            r1 = CARF(0x36c) - FixMul(CARF(0x48c), i);
-            r2 = CARF(0x370) - FixMul(CARF(0x490), i);
-            r3 = CARF(0x374) - FixMul(CARF(0x494), i);
-            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
-            tmp.x = r1;
-            tmp.y = r2;
-            tmp.z = r3;
-            if (mag == 0) {
-                tmp.x = 0;
-                tmp.y = 0;
-                tmp.z = 0;
-            } else {
-                FixVecScaleRecip(&tmp, &tmp, mag);
-            }
-            CARF(0x36c) = tmp.x;
-            CARF(0x370) = tmp.y;
-            CARF(0x374) = tmp.z;
-            CARF(0x420) = FixMul(CARF(0x420), 0xe666);
-            CARF(0x428) = FixMul(CARF(0x428), 0xe666);
+            FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x920);
+            tmp.x = g_pCurrentCar->up.x - tmp.x;
+            tmp.y = g_pCurrentCar->up.y - tmp.y;
+            tmp.z = g_pCurrentCar->up.z - tmp.z;
+            FIX_NORMALIZE_INTO(tmp, tmp);
+            g_pCurrentCar->up = tmp;
+            g_pCurrentCar->angularVelocity.x = FixMul(g_pCurrentCar->angularVelocity.x, 0xe666);
+            g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, 0xe666);
         }
         if (CARF(0xba8) != 0) {
-            i = CARF(0x924);
-            r1 = CARF(0x378) - FixMul(CARF(0x48c), i);
-            r2 = CARF(0x37c) - FixMul(CARF(0x490), i);
-            r3 = CARF(0x380) - FixMul(CARF(0x494), i);
-            mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
-            tmp.x = r1;
-            tmp.y = r2;
-            tmp.z = r3;
-            if (mag == 0) {
-                tmp.x = 0;
-                tmp.y = 0;
-                tmp.z = 0;
-            } else {
-                FixVecScaleRecip(&tmp, &tmp, mag);
-            }
-            CARF(0x378) = tmp.x;
-            CARF(0x37c) = tmp.y;
-            CARF(0x380) = tmp.z;
-            CARF(0x420) = FixMul(CARF(0x420), 0xe666);
-            CARF(0x424) = FixMul(CARF(0x424), 0xe666);
+            FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x924);
+            tmp.x = g_pCurrentCar->forward.x - tmp.x;
+            tmp.y = g_pCurrentCar->forward.y - tmp.y;
+            tmp.z = g_pCurrentCar->forward.z - tmp.z;
+            FIX_NORMALIZE_INTO(tmp, tmp);
+            g_pCurrentCar->forward = tmp;
+            g_pCurrentCar->angularVelocity.x = FixMul(g_pCurrentCar->angularVelocity.x, 0xe666);
+            g_pCurrentCar->angularVelocity.y = FixMul(g_pCurrentCar->angularVelocity.y, 0xe666);
         }
-
-        dot = FixMul(CARF(0x36c), CARF(0x360)) + FixMul(CARF(0x370), CARF(0x364)) +
-              FixMul(CARF(0x374), CARF(0x368));
-        r1 = CARF(0x36c) - FixMul(CARF(0x360), dot);
-        r2 = CARF(0x370) - FixMul(CARF(0x364), dot);
-        r3 = CARF(0x374) - FixMul(CARF(0x368), dot);
-        mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
-        tmp.x = r1;
-        tmp.y = r2;
-        tmp.z = r3;
-        if (mag == 0) {
-            tmp.x = 0;
-            tmp.y = 0;
-            tmp.z = 0;
-        } else {
-            FixVecScaleRecip(&tmp, &tmp, mag);
-        }
-        CARF(0x36c) = tmp.x;
-        CARF(0x370) = tmp.y;
-        CARF(0x374) = tmp.z;
-
-        r1 = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
-        r2 = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
-        r3 = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x36c), CARF(0x364));
-        mag = FixSqrt(FixMul(r1, r1) + FixMul(r2, r2) + FixMul(r3, r3));
-        if (mag == 0) {
-            CARF(0x378) = 0;
-            CARF(0x37c) = 0;
-            CARF(0x380) = 0;
-        } else {
-            tmp.x = r1;
-            tmp.y = r2;
-            tmp.z = r3;
-            FixVecScaleRecip(&tmp, &tmp, mag);
-            CARF(0x378) = tmp.x;
-            CARF(0x37c) = tmp.y;
-            CARF(0x380) = tmp.z;
-        }
+        dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
+        FixVecScale(&tmp, &g_pCurrentCar->right, dot);
+        tmp.x = g_pCurrentCar->up.x - tmp.x;
+        tmp.y = g_pCurrentCar->up.y - tmp.y;
+        tmp.z = g_pCurrentCar->up.z - tmp.z;
+        FixVecNormalizeLen(&g_pCurrentCar->up, &tmp);
+        FixVecCross(&tmp, &g_pCurrentCar->right, &g_pCurrentCar->up);
+        FixVecNormalizeLen(&g_pCurrentCar->forward, &tmp);
     }
 
     if (flipRoll != 0 || flipPitch != 0 || flipYaw != 0) {
-        i = 0x42c;
-        for (;;) {
-            p = (int *)((int)g_pCurrentCar + i);
-            dot = FixMul(CARF(0x48c), p[0]) + FixMul(CARF(0x490), p[1]) +
-                  FixMul(CARF(0x494), p[2]);
+        for (i = 0; i < 8; i++) {
+            dot = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->groundNormal);
             if (dot < -0x3333)
-                break;
-            i += 0xc;
-            if (i > 0x48b)
-                return;
+                goto found;
         }
-        CARF(0x5c4) = dot;
-        CARF(0x5c8) = 0;
-        CARF(0x5cc) = 0;
-        tmp.x = FixMul(CARF(0x48c), -0x30000);
-        tmp.y = FixMul(CARF(0x490), -0x30000);
-        tmp.z = FixMul(CARF(0x494), -0x30000);
-        FixMatrix_InverseRotateVector(&CARV(0x5dc), &tmp, *(FixMatrix **)((int)g_pCurrentCar + 0x750));
-
-        i = CARF(0x5dc);
-        if (FIX_ABS(i) > CARF(0x204))
-            CARF(0x5dc) = i < 0 ? -CARF(0x204) : CARF(0x204);
-        i = CARF(0x5e0);
-        if (FIX_ABS(i) > CARF(0x208))
-            CARF(0x5e0) = i < 0 ? -CARF(0x208) : CARF(0x208);
-        i = CARF(0x5e4);
-        if (FIX_ABS(i) > CARF(0x20c))
-            CARF(0x5e4) = i < 0 ? -CARF(0x20c) : CARF(0x20c);
-
+        return;
+found:
+        g_pCurrentCar->field_0x5c4.x = dot;
+        g_pCurrentCar->field_0x5c4.y = 0;
+        g_pCurrentCar->field_0x5c4.z = 0;
+        FixVecScale(&tmp, &g_pCurrentCar->groundNormal, -0x30000);
+        FixMatrix_InverseRotateVector(&g_pCurrentCar->field_0x5dc, &tmp, g_pCurrentCar->pWorld);
+        i = g_pCurrentCar->field_0x5dc.x;
+        if (FIX_ABS(i) > g_pCurrentCar->halfExtents.x)
+            g_pCurrentCar->field_0x5dc.x = i < 0 ? -g_pCurrentCar->halfExtents.x : g_pCurrentCar->halfExtents.x;
+        i = g_pCurrentCar->field_0x5dc.y;
+        if (FIX_ABS(i) > g_pCurrentCar->halfExtents.y)
+            g_pCurrentCar->field_0x5dc.y = i < 0 ? -g_pCurrentCar->halfExtents.y : g_pCurrentCar->halfExtents.y;
+        i = g_pCurrentCar->field_0x5dc.z;
+        if (FIX_ABS(i) > g_pCurrentCar->halfExtents.z)
+            g_pCurrentCar->field_0x5dc.z = i < 0 ? -g_pCurrentCar->halfExtents.z : g_pCurrentCar->halfExtents.z;
         corner.x = 0;
         corner.y = 0x7d000000;
         corner.z = 0;
         upBody.x = 0;
         upBody.y = 0x10000;
         upBody.z = 0;
-        p = (int *)((int)g_pCurrentCar + 0x270);
         for (i = 0; i < 4; i++) {
-            if (p[1] < corner.y) {
-                corner.x = p[0];
-                corner.y = p[1];
-                corner.z = p[2];
-            }
-            p += 3;
+            if (g_pCurrentCar->corners[i].y < corner.y)
+                corner = g_pCurrentCar->corners[i];
         }
-        if (CARF(0x370) < 0) {
-            dot = FixMul(0x20000, CARF(0x208));
-            corner.y += FixMul(CARF(0x370), dot);
-            corner.x += FixMul(CARF(0x36c), dot);
-            corner.z += FixMul(CARF(0x374), dot);
+        if (g_pCurrentCar->up.y < 0) {
+            FixVecScale(&scaled, &g_pCurrentCar->up, FixMul(0x20000, g_pCurrentCar->halfExtents.y));
+            corner.x += scaled.x;
+            corner.y += scaled.y;
+            corner.z += scaled.z;
         }
         FUN_00466ef0(g_pCurrentCar, (int *)&corner, &upBody, 0, 0, 0);
-        FixMatrix_RotateVector(&out, &CARV(0x5dc), *(FixMatrix **)((int)g_pCurrentCar + 0x750));
+        FixMatrix_RotateVector(&out, &g_pCurrentCar->field_0x5dc, g_pCurrentCar->pWorld);
     }
 }
 

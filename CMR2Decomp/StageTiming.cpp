@@ -7393,97 +7393,83 @@ StageDeformNode g_unk0x00543fb0[400];
 // Steps the deformation record of one view: advances the record position from
 // the view node's forward vector, resamples the 5x5 contact grid and
 // integrates the per-node heights and angles.
-// match 28%: implementada; el original reutiliza slots de pila (param_3) como temporales y
-// reparte distinto registros y contadores de los dos bucles
+// match 70%: logic checked against the original; only stack slots and the
+// zero register differ.
 // FUNCTION: CMR2 0x0045f9d0
-void FUN_0045f9d0(int param_1, int *param_2, int param_3)
+void FUN_0045f9d0(int param_1, int *rec, int param_3)
 {
-    int *rec = param_2;
-    int pos[3];
-    int fwd[3];
-    int pt[3];
-    int normal[3];
-    int gn[3];
-    int dv[3];
-    int sv[3];
-    int corr[3];
-    int minY;
     int wheelScale = 0;
-    int i, j;
-    int sum;
-    int len;
-    int scale;
-    int n, base;
-    int hx, hy, hz;
-    int tmp2;
-    int gx = 0, gz = 0;
-    int x0, z0, z;
+    int gx = 0;
+    int gz = 0;
+    FixVector pos;
+    FixVector fwd;
+    FixVector corr;
+    FixVector gn;
+    FixVector dv;
+    FixVector sv;
+    FixVector pt;
+    FixVector normal;
+    FixVector h;
+    FixVector *p;
+    StageDeformNode *pNode;
+    int minY;
+    int t;
+    int i;
+    int x0;
+    int z0;
+    int z;
+    int d;
     int *pHeight;
     short *pTri;
     unsigned short surface;
 
     StageTiming_UpdateEventDisplacement(rec);
     FUN_0045e9a0((SceneNode *)rec);
-    FixMatrix_GetPosition((FixVector *)pos, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
-    FixMatrix_GetForward((FixVector *)fwd, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
-    sum = 0;
-    {
-        int *p = (int *)((BYTE *)Car_Get(FUN_00422fb0((BYTE)param_3)) + 0x8dc);
-        for (i = 0; i < 4; i++)
-            sum += p[i];
-    }
-    len = FixMul(sum, 0x4000) + 0x6c000;
-    minY = pos[1] + 0x60000;
-    if (len < minY)
-        minY = len;
+    FixMatrix_GetPosition(&pos, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
+    FixMatrix_GetForward(&fwd, (FixMatrix *)((BYTE *)g_viewNodes[param_3] + 0x98));
+    pHeight = Car_Get(FUN_00422fb0((BYTE)param_3))->cornerHeight;
+    minY = 0;
+    for (i = 0; i < 4; i++)
+        minY += *pHeight++;
+    t = FixMul(minY, 0x4000) + 0x6c000;
+    minY = pos.y + 0x60000;
+    if (t < minY)
+        minY = t;
     if (rec[0] == 2) {
-        rec[0xe] = fwd[2];
+        p = (FixVector *)(rec + 0xe);
+        p->x = fwd.z;
         rec[0xf] = 0;
-        rec[0x10] = -fwd[0];
-        len = FixVecLength((FixVector *)(rec + 0xe));
-        if (len == 0) {
-            rec[0xe] = 0;
-            rec[0xf] = 0;
-            rec[0x10] = 0;
-        } else {
-            FixVecScaleRecip((FixVector *)(rec + 0xe), (FixVector *)(rec + 0xe), len);
-        }
-        scale = FixMul(g_unk0x00547940, 0x8000);
-        sv[0] = FixMul(g_unk0x00547930.z, scale);
-        sv[1] = 0;
-        sv[2] = FixMul(-g_unk0x00547930.x, scale);
+        rec[0x10] = -fwd.x;
+        Motion_NormalizeInto(p, p);
+        sv.x = g_unk0x00547930.z;
+        sv.y = 0;
+        sv.z = -g_unk0x00547930.x;
+        FixVecScale(&sv, &sv, FixMul(g_unk0x00547940, 0x8000));
     }
-    fwd[0] = FixMul(fwd[0], 0xe0000);
-    fwd[1] = FixMul(fwd[1], 0xe0000);
-    fwd[2] = FixMul(fwd[2], 0xe0000);
-    pos[0] += fwd[0];
-    pos[1] += fwd[1];
-    pos[2] += fwd[2];
-    if (pos[1] < minY)
-        pos[1] = minY;
-    dv[0] = FixMul(pos[0] - rec[5], g_unk0x0051bd40);
-    dv[1] = 0;
-    dv[2] = FixMul(pos[2] - rec[7], g_unk0x0051bd40);
-    rec[8] = rec[0xb] - dv[0];
-    rec[9] = rec[0xc] - dv[1];
-    rec[5] = pos[0];
-    rec[6] = pos[1];
-    rec[10] = rec[0xd] - dv[2];
-    rec[7] = pos[2];
-    scale = FixMul(FixDiv(g_unk0x00538d7c[param_3 * 25], 0xa000) - 0x10000, 0x4ccc);
-    FixVecScale((FixVector *)gn, (FixVector *)fwd, scale);
-    pos[0] += gn[0];
-    rec[2] = pos[0];
-    pos[1] += gn[1];
-    rec[3] = pos[1];
-    pos[2] += gn[2];
-    rec[4] = pos[2];
-    corr[0] = FixMul(rec[0xb], g_unk0x0051bd3c);
-    corr[1] = FixMul(rec[0xc], g_unk0x0051bd3c);
-    corr[2] = FixMul(g_unk0x0051bd3c, rec[0xd]);
-    rec[0x11] = FixMul(corr[0], -0x10000);
-    rec[0x12] = FixMul(corr[1], -0x10000);
-    rec[0x13] = FixMul(corr[2], -0x10000);
+    FixVecScale(&fwd, &fwd, 0xe0000);
+    pos.x += fwd.x;
+    pos.y += fwd.y;
+    pos.z += fwd.z;
+    if (pos.y < minY)
+        pos.y = minY;
+    dv.x = pos.x - rec[5];
+    dv.y = 0;
+    dv.z = pos.z - rec[7];
+    FixVecScale(&dv, &dv, g_unk0x0051bd40);
+    rec[8] = rec[0xb] - dv.x;
+    rec[9] = rec[0xc] - dv.y;
+    rec[5] = pos.x;
+    rec[6] = pos.y;
+    rec[10] = rec[0xd] - dv.z;
+    rec[7] = pos.z;
+    t = FixMul(FixDiv(g_unk0x00538d7c[param_3 * 25], 0xa000) - 0x10000, 0x4ccc);
+    FixVecScale(&gn, &fwd, t);
+    pos.x += gn.x;
+    pos.y += gn.y;
+    pos.z += gn.z;
+    *(FixVector *)(rec + 2) = pos;
+    FixVecScale(&corr, (FixVector *)(rec + 0xb), g_unk0x0051bd3c);
+    FixVecScale((FixVector *)(rec + 0x11), &corr, -0x10000);
     if (rec[0x12] != 0)
         rec[0x14] = FixDiv(0x10000, rec[0x12]);
     else
@@ -7495,105 +7481,97 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
         wheelScale = FixMul(wheelScale, g_unk0x0051bd3c);
     }
     if (rec[0] == 1) {
-        x0 = rec[2] + 0x9999a;
-        z0 = rec[4] + 0x9999a;
-        pTri = (short *)((BYTE *)rec + 0x78);
+        x0 = rec[2] - FixMul(0x4cccc, 0x8000) + 0xc0000;
+        z0 = rec[4] - FixMul(0x4cccc, 0x8000) + 0xc0000;
+        pTri = (short *)(rec + 0x1e);
         pHeight = rec + 0x2b;
         for (i = 0; i < 5; i++) {
             z = z0;
-            for (j = 0; j < 5; j++) {
-                pt[2] = z;
-                pt[1] = 0;
-                pt[0] = x0;
-                hz = Track_GetGroundHeight((FixVector *)pt, (FixVector *)normal, pTri, &surface,
-                                           *pHeight);
-                *pHeight = hz;
+            for (gz = 0; gz < 5; gz++) {
+                pt.x = x0;
+                pt.y = 0;
+                pt.z = z;
+                *pHeight = Track_GetGroundHeight(&pt, &normal, pTri, &surface, *pHeight);
                 z -= 0x4cccc;
-                pHeight[0x19] = (rec[3] - hz) + -0x61999;
+                pHeight[0x19] = rec[3] - *pHeight - 0x61999;
                 pTri++;
                 pHeight++;
             }
             x0 -= 0x4cccc;
         }
     }
-    n = *(short *)((BYTE *)rec + 0x74);
-    base = *(short *)((BYTE *)rec + 0x76);
-    for (i = 0; i < n; i++) {
-        StageDeformNode *pNode = &g_unk0x00543fb0[base + i];
-        hx = pNode->x + (corr[0] - rec[2]);
-        hy = pNode->y + (corr[1] - rec[3]);
-        hz = pNode->z + (corr[2] - rec[4]);
+    corr.x -= rec[2];
+    corr.y -= rec[3];
+    corr.z -= rec[4];
+    for (i = 0; i < *(short *)(rec + 0x1d); i++) {
+        pNode = &g_unk0x00543fb0[*(short *)((BYTE *)rec + 0x76) + i];
+        h.x = pNode->x + corr.x;
+        h.y = pNode->y + corr.y;
+        h.z = pNode->z + corr.z;
         if (rec[0] == 2) {
-            scale = FixMul(wheelScale, pNode->scale);
-            hx += FixMul(sv[0], scale);
-            hy += FixMul(sv[1], scale);
-            hz += FixMul(sv[2], scale);
+            FixVecScale(&gn, &sv, FixMul(wheelScale, pNode->scale));
+            h.x += gn.x;
+            h.y += gn.y;
+            h.z += gn.z;
         }
         pNode->wrapped = 0;
-        if (hx < 0xc0001) {
-            if (hx < -0xc0000)
-                hx += ((0xbffff - hx) / 0x180000) * 3 * 0x80000;
-        } else {
-            hx += ((hx + 0xbffff) / 0x180000) * -3 * 0x80000;
-        }
+        if (h.x > 0xc0000)
+            h.x -= (unsigned int)(h.x + 0xbffff) / 0x180000 * 0x180000;
+        else if (h.x < -0xc0000)
+            h.x += (unsigned int)(0xbffff - h.x) / 0x180000 * 0x180000;
         if (rec[0] == 1) {
             gx = 0;
-            if ((int)(0xc0000 - hx) > 0x4cccb)
-                gx = (0xc0000 - hx) / 0x4cccc;
+            d = 0xc0000 - h.x;
+            if (d >= 0x4cccc)
+                gx = (unsigned int)d / 0x4cccc;
             gz = 0;
-            if ((int)(0xc0000 - hz) > 0x4cccb)
-                gz = (0xc0000 - hz) / 0x4cccc;
+            d = 0xc0000 - h.z;
+            if (d >= 0x4cccc)
+                gz = (unsigned int)d / 0x4cccc;
             if (gx < 5 && gz < 5)
-                hy += rec[gx * 5 + gz + 0x44];
+                h.y += rec[gx * 5 + gz + 0x44];
         }
-        if (hy < 0x60001) {
-            if (hy < -0x60000) {
-                do {
-                    hy += 0xc0000;
-                } while (hy < -0x60000);
-                pNode->wrapped = 1;
-            }
-        } else {
+        if (h.y > 0x60000) {
             do {
-                hy += -0xc0000;
-            } while (0x60000 < hy);
+                h.y -= 0xc0000;
+            } while (h.y > 0x60000);
+        } else if (h.y < -0x60000) {
+            do {
+                h.y += 0xc0000;
+            } while (h.y < -0x60000);
+            pNode->wrapped = 1;
         }
         if (rec[0] == 1 && gx < 5 && gz < 5) {
-            hy -= rec[gz + gx * 5 + 0x44];
-            pNode->angle = rec[gz + gx * 5 + 0x2b] + 0x1999;
+            h.y -= rec[gx * 5 + gz + 0x44];
+            pNode->angle = rec[gx * 5 + gz + 0x2b] + 0x1999;
         }
-        if (hz >= 0xc0001) {
+        if (h.z > 0xc0000) {
             do {
-                hz += -0x180000;
-            } while (0xc0000 < hz);
-        } else {
-            while (hz < -0xc0000)
-                hz += 0x180000;
+                h.z -= 0x180000;
+            } while (h.z > 0xc0000);
+        } else if (h.z < -0xc0000) {
+            do {
+                h.z += 0x180000;
+            } while (h.z < -0xc0000);
         }
-        pNode->x = rec[2] + hx;
-        pNode->y = rec[3] + hy;
-        pNode->z = hz + rec[4];
+        pNode->x = rec[2] + h.x;
+        pNode->y = rec[3] + h.y;
+        pNode->z = h.z + rec[4];
         if (rec[0] == 2) {
             pNode->angle += FixMul(pNode->spin, g_unk0x0051bd3c);
             if (pNode->angle > 0x1680000)
                 pNode->angle -= 0x1680000;
         }
     }
-    if (param_1 != 0) {
-        if (rec[0x16] != rec[0x17]) {
-            if (rec[0x16] < rec[0x17]) {
-                tmp2 = rec[0x16] + FixMul(rec[0x18], g_unk0x0051bd3c);
-                rec[0x16] = tmp2;
-                if (rec[0x17] < tmp2) {
-                    rec[0x16] = rec[0x17];
-                    return;
-                }
-            } else {
-                tmp2 = rec[0x16] - FixMul(rec[0x18], g_unk0x0051bd3c);
-                rec[0x16] = tmp2;
-                if (tmp2 < rec[0x17])
-                    rec[0x16] = rec[0x17];
-            }
+    if (param_1 != 0 && rec[0x16] != rec[0x17]) {
+        if (rec[0x16] < rec[0x17]) {
+            rec[0x16] += FixMul(rec[0x18], g_unk0x0051bd3c);
+            if (rec[0x16] > rec[0x17])
+                rec[0x16] = rec[0x17];
+        } else if (rec[0x16] > rec[0x17]) {
+            rec[0x16] -= FixMul(rec[0x18], g_unk0x0051bd3c);
+            if (rec[0x16] < rec[0x17])
+                rec[0x16] = rec[0x17];
         }
     }
 }
