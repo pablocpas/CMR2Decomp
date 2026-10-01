@@ -2164,7 +2164,7 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
                 yn = 0;
             h2 = GetPixelRed(&srcDesc, x, yn);
             du = abs(h - h1);
-            dv = abs(h - h2);
+            dv = ((h - h2) < 0 ? -(h - h2) : (h - h2));
             lum = GetPixelAlpha(&srcDesc, x, y);
             if (dstDesc.ddpfPixelFormat.dwBumpBitCount == 16) {
                 *pOut16++ = (WORD)((lum >> lumDrop) << lumShift) | (WORD)((dv >> dvDrop) << dvShift) | (WORD)((du >> duDrop) << duShift);
@@ -6400,7 +6400,7 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
                 else
                     a = 0xff;
                 if (aDepth >= 0)
-                    a = ((aMask >> abs(aDepth)) & a) << abs(aDepth);
+                    a = ((aMask >> ((aDepth) < 0 ? -(aDepth) : (aDepth))) & a) << abs(aDepth);
                 else
                     a = ((aMask << abs(aDepth)) & a) >> abs(aDepth);
                 if (rDepth >= 0)
