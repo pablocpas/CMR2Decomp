@@ -2350,8 +2350,7 @@ void StageDeform_ApplyRadialDent(void)
 // FUNCTION: CMR2 0x00467e90
 void StageDeform_ApplyPlanarDent(void)
 {
-    Car *pCar = g_stageDeformCar;
-    int *pRecord = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
+    int *pRecord = (int *)(g_unk0x00588b94 + ((Car *)g_stageDeformCar)->field_0xb1a * 0x4d0);
     if (FixVecDot(&g_stageDeformNormal, &g_stageDeformOffset) >= 0)
         FixVecScale(&g_stageDeformNormal, &g_stageDeformNormal, -0x10000);
 
@@ -2445,7 +2444,7 @@ void StageDeform_ApplyPlanarDent(void)
             if (pMesh != NULL) {
                 Mesh_RefreshVertices(pMesh);
                 RallyData_ValidateIndex((int)pMesh);
-                Scene_MarkShadowPartDirty(pCar->pNode0x720, pMesh);
+                Scene_MarkShadowPartDirty(((Car *)g_stageDeformCar)->pNode0x720, pMesh);
             }
         }
     }
@@ -6822,20 +6821,18 @@ void FUN_00480e50(int slot)
     int local_14 = 0;
     int rotor = 0;
     int lateral = 0;
-    BYTE *pc;
     int base;
 
     g_unk0x00590c20 = (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + carIndex * 0x1a0);
-    pc = (BYTE *)g_unk0x00590c20;
     if (FUN_004813b0(slot) == 0)
         return;
 
-    pc[0x150] = (BYTE)((pc[0x150] & 0xf) | (slot << 4));
-    pc[0x150] |= 1;
-    pc[0x150] &= (BYTE)~2;
-    pc[0x150] &= (BYTE)~4;
-    pc[0x150] &= (BYTE)~8;
-    *(int *)(*(int *)pc + 0x184) = 0;
+    ((BYTE *)g_unk0x00590c20)[0x150] = (BYTE)((((BYTE *)g_unk0x00590c20)[0x150] & 0xf) | (slot << 4));
+    ((BYTE *)g_unk0x00590c20)[0x150] |= 1;
+    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~2;
+    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~4;
+    ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~8;
+    *(int *)(*(int *)((BYTE *)g_unk0x00590c20) + 0x184) = 0;
 
     base = (int)(g_unk0x00590d78 + type * 0xc);
 
@@ -6843,8 +6840,8 @@ void FUN_00480e50(int slot)
     case 0:
         local_14 = -*(int *)(base + 0x168);
         rotor = *(int *)(base + 0x16c);
-        *(short *)(pc + 0x158) = 0x288;
-        *(int *)(pc + 0x110) = (int)FUN_004814d0;
+        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0x288;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004814d0;
         break;
     case 1:
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9 ||
@@ -6856,11 +6853,11 @@ void FUN_00480e50(int slot)
             local_14 = FixMul(*(int *)(base + 0x168), 0x8000);
             rotor = *(int *)(base + 0x16c);
         }
-        *(short *)(pc + 0x158) = 0;
-        *(int *)(pc + 0x110) = (int)FUN_004816f0;
-        *(int *)(pc + 0x170) = 0x10e5;
-        *(int *)(pc + 0x174) = 0x1eb8;
-        *(int *)(pc + 0x178) = 0x10e5;
+        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004816f0;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x170) = 0x10e5;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x174) = 0x1eb8;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x178) = 0x10e5;
         goto common;
     case 2:
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
@@ -6881,11 +6878,11 @@ void FUN_00480e50(int slot)
             }
             lateral = 0;
         }
-        *(short *)(pc + 0x158) = 0x288;
-        *(int *)(pc + 0x110) = (int)FUN_00484310;
+        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0x288;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_00484310;
         break;
     case 3:
-        pc[0x150] |= 2;
+        ((BYTE *)g_unk0x00590c20)[0x150] |= 2;
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
             rotor = *(int *)(base + 0x16c);
         } else {
@@ -6898,38 +6895,38 @@ void FUN_00480e50(int slot)
                 lateral = -*(int *)(base + 0x170);
             }
         }
-        *(short *)(pc + 0x158) = 0;
-        *(int *)(pc + 0x110) = (int)FUN_00483570;
+        *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
+        *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_00483570;
         break;
     default:
         goto common;
     }
-    *(int *)(pc + 0x170) = 0x10e5;
-    *(int *)(pc + 0x174) = 0x1eb8;
-    *(int *)(pc + 0x178) = 0x6ccc;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x170) = 0x10e5;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x174) = 0x1eb8;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x178) = 0x6ccc;
 
 common:
-    *(int *)(pc + 0x120) = *(int *)(base + 0xb4) + local_14;
-    *(int *)(pc + 0x124) = *(int *)(base + 0xb8) + rotor;
-    *(int *)(pc + 0x128) = *(int *)(base + 0xbc) + lateral;
-    *(int *)(pc + 0x15c) = FixVecLength((FixVector *)(base + 0x168));
-    *(int *)(pc + 0x12c) = *(int *)(base + 0xb4);
-    *(int *)(pc + 0x130) = *(int *)(base + 0xb8);
-    *(int *)(pc + 0x134) = *(int *)(base + 0xbc);
-    *(int *)(pc + 0x114) = *(int *)(base + 0x168);
-    *(int *)(pc + 0x118) = *(int *)(base + 0x16c);
-    *(int *)(pc + 0x11c) = *(int *)(base + 0x170);
-    *(int *)(pc + 0x138) = 0;
-    *(int *)(pc + 0x13c) = 0;
-    *(int *)(pc + 0x140) = 0;
-    *(int *)(pc + 0x144) = 0;
-    *(int *)(pc + 0x148) = 0;
-    *(int *)(pc + 0x14c) = 0;
-    *(int *)(pc + 0x164) = 0;
-    *(int *)(pc + 0x168) = 0;
-    *(int *)(pc + 0x16c) = 0;
-    *(int *)(pc + 0x154) = 0;
-    *(int *)(pc + 0x160) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) = *(int *)(base + 0xb4) + local_14;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x124) = *(int *)(base + 0xb8) + rotor;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) = *(int *)(base + 0xbc) + lateral;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x15c) = FixVecLength((FixVector *)(base + 0x168));
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) = *(int *)(base + 0xb4);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) = *(int *)(base + 0xb8);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) = *(int *)(base + 0xbc);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x114) = *(int *)(base + 0x168);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x118) = *(int *)(base + 0x16c);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x11c) = *(int *)(base + 0x170);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x138) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x13c) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x140) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x144) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x148) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x14c) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x154) = 0;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x160) = 0;
 }
 int StageObject_IsEligibleType(short type, int mode, int category);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
@@ -6942,8 +6939,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 void FUN_00483100(int *param_1, unsigned int param_2)
 {
     BYTE *car = (BYTE *)g_unk0x00590d74;
-    BYTE *pc = (BYTE *)g_unk0x00590c20;
-    int bVar8 = g_unk0x00590c24[*(BYTE *)(pc + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
+    int bVar8 = g_unk0x00590c24[*(BYTE *)(((BYTE *)g_unk0x00590c20) + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
     // Contiguous: these triples are passed as FixVector* (loose ints are not
     // guaranteed to be adjacent, and a 12-byte write through them overruns).
     FixVector v48, v3c, v30, v24, v18;
@@ -6957,17 +6953,17 @@ void FUN_00483100(int *param_1, unsigned int param_2)
         int t = FixMul(*(int *)(g_unk0x00590d78 + off + 0x170), 0x1cccc);
         int s;
 
-        if (*(int *)(pc + 0x128) < 1)
+        if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 1)
             s = t;
         else
             s = -t;
-        v24.x = FixMul(*(int *)(pc + 0x194), s);
-        v24.y = FixMul(*(int *)(pc + 0x198), s);
-        v24.z = FixMul(*(int *)(pc + 0x19c), s);
+        v24.x = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), s);
+        v24.y = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), s);
+        v24.z = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), s);
 
-        v18.x = *(int *)(pc + 0x120) + v24.x;
-        v18.y = (*(int *)(pc + 0x124) - lVar1) + v24.y;
-        v18.z = *(int *)(pc + 0x128) + v24.z;
+        v18.x = *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) + v24.x;
+        v18.y = (*(int *)(((BYTE *)g_unk0x00590c20) + 0x124) - lVar1) + v24.y;
+        v18.z = *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) + v24.z;
         FixMatrix_RotateVector(&v24, &v18,
                                *(FixMatrix **)(car + 0x750));
 
@@ -7094,7 +7090,6 @@ int FUN_00482f30(void);
 void FUN_00483570(void)
 {
     BYTE *car = (BYTE *)g_unk0x00590d74;
-    BYTE *pc;
     unsigned short angles[3];
     int v2c[3];
     int v38[3];
@@ -7117,20 +7112,19 @@ void FUN_00483570(void)
     } else {
         if (FUN_00482f30() != 0)
             return;
-        pc = (BYTE *)g_unk0x00590c20;
         local_c = 0;
-        if ((pc[0x150] & 4) == 0) {
+        if ((((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0) {
             v5c[0] = 0;
             v5c[1] = 0;
             v5c[2] = 0;
-            if (*(int *)(pc + 0x128) < 1) {
-                v2c[0] = *(int *)(pc + 0x194) - g_sinTable[*(unsigned short *)(pc + 0x158) & 0xfff];
-                v2c[1] = *(int *)(pc + 0x198);
-                v2c[2] = *(int *)(pc + 0x19c) - g_sinTable[(*(unsigned short *)(pc + 0x158) + 0x400) & 0xfff];
+            if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 1) {
+                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff];
+                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
+                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff];
             } else {
-                v2c[0] = g_sinTable[*(unsigned short *)(pc + 0x158) & 0xfff] - *(int *)(pc + 0x194);
-                v2c[1] = -*(int *)(pc + 0x198);
-                v2c[2] = g_sinTable[(*(unsigned short *)(pc + 0x158) + 0x400) & 0xfff] - *(int *)(pc + 0x19c);
+                v2c[0] = g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x194);
+                v2c[1] = -*(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
+                v2c[2] = g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c);
             }
             FixVecLength((FixVector *)v2c);
             v38[0] = FixMul(*(int *)(car + 0x408) - *(int *)(car + 0x414), -0x50000);
@@ -7151,10 +7145,10 @@ void FUN_00483570(void)
             else if (iVar9 > 0x8000)
                 iVar9 = 0x8000;
             iVar9 = FixMul(iVar9, 0xc937) + 0x8000;
-            *(int *)(pc + 0x164) = FixMul(*(int *)(pc + 0x164), iVar9);
-            *(int *)(pc + 0x168) = FixMul(*(int *)(pc + 0x168), iVar9);
-            *(int *)(pc + 0x16c) = FixMul(*(int *)(pc + 0x16c), iVar9);
-            FixMatrix_InverseRotateVector((FixVector *)v2c, (FixVector *)v38, *(FixMatrix **)(pc + 8));
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), iVar9);
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x168), iVar9);
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x16c), iVar9);
+            FixMatrix_InverseRotateVector((FixVector *)v2c, (FixVector *)v38, *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 8));
             v38[0] = v2c[0];
             v38[1] = v2c[1];
             v38[2] = v2c[2];
@@ -7163,102 +7157,102 @@ void FUN_00483570(void)
                 v38[1] = v2c[1] + v5c[1];
                 v38[2] = v2c[2] + v5c[2];
             } else {
-                *(int *)(pc + 0x164) = 0;
-                *(int *)(pc + 0x168) = 0;
-                *(int *)(pc + 0x16c) = 0;
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
             }
-            v2c[0] = *(int *)(pc + 0x12c) - *(int *)(pc + 0x120);
-            v2c[1] = *(int *)(pc + 0x130) - *(int *)(pc + 0x124);
-            v2c[2] = *(int *)(pc + 0x134) - *(int *)(pc + 0x128);
-            v44[0] = -FixMul(FixMul(v38[1], v2c[2]) - FixMul(v38[2], v2c[1]), *(int *)(pc + 0x170));
-            v44[1] = -FixMul(FixMul(v38[2], v2c[0]) - FixMul(v38[0], v2c[2]), *(int *)(pc + 0x174));
-            v44[2] = -FixMul(FixMul(v38[0], v2c[1]) - FixMul(v38[1], v2c[0]), *(int *)(pc + 0x178));
-            *(int *)(pc + 0x164) += v44[0];
-            *(int *)(pc + 0x168) += v44[1];
-            *(int *)(pc + 0x16c) += v44[2];
-            *(int *)(pc + 0x16c) = 0;
+            v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x120);
+            v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x124);
+            v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x128);
+            v44[0] = -FixMul(FixMul(v38[1], v2c[2]) - FixMul(v38[2], v2c[1]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x170));
+            v44[1] = -FixMul(FixMul(v38[2], v2c[0]) - FixMul(v38[0], v2c[2]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x174));
+            v44[2] = -FixMul(FixMul(v38[0], v2c[1]) - FixMul(v38[1], v2c[0]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x178));
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) += v44[0];
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) += v44[1];
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) += v44[2];
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
         } else {
             v44[0] = 0;
             v44[1] = 0;
             v44[2] = 0;
         }
-        pc[0x150] |= 8;
-        if (local_c == 0 && (pc[0x150] & 4) == 0 && ((Unk0x00590d74 *)car)->field_0x778 < 0x7af)
-            pc[0x150] &= (BYTE)~8;
-        if ((pc[0x150] & 8) == 0) {
-            *(int *)(pc + 0x164) = 0;
-            *(int *)(pc + 0x168) = 0;
-            *(int *)(pc + 0x16c) = 0;
+        ((BYTE *)g_unk0x00590c20)[0x150] |= 8;
+        if (local_c == 0 && (((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0 && ((Unk0x00590d74 *)car)->field_0x778 < 0x7af)
+            ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~8;
+        if ((((BYTE *)g_unk0x00590c20)[0x150] & 8) == 0) {
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
+            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
         } else {
-            v50[0] = FixMul(*(int *)(pc + 0x164), g_physicsTimeStep);
-            v50[1] = FixMul(*(int *)(pc + 0x168), g_physicsTimeStep);
-            v50[2] = FixMul(*(int *)(pc + 0x16c), g_physicsTimeStep);
+            v50[0] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), g_physicsTimeStep);
+            v50[1] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x168), g_physicsTimeStep);
+            v50[2] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x16c), g_physicsTimeStep);
             v50[0] -= v44[0];
             v50[1] -= v44[1];
             v50[2] -= v44[2];
             angles[0] = (short)((double)v50[0] * 0.009947183943243459);
             angles[1] = (short)((double)v50[1] * 0.009947183943243459);
             angles[2] = (short)((double)v50[2] * 0.009947183943243459);
-            FixBasis_Rotate((FixBasis *)(pc + 0x17c), angles);
+            FixBasis_Rotate((FixBasis *)(((BYTE *)g_unk0x00590c20) + 0x17c), angles);
         }
-        if (local_c == 0 && (pc[0x150] & 4) == 0) {
+        if (local_c == 0 && (((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0) {
             wb = (int *)g_unk0x00590b5c[*(char *)(car + 0xb1a)];
-            iVar6 = FixMul(wb[0], *(int *)(pc + 0x194)) + FixMul(wb[1], *(int *)(pc + 0x198)) +
-                    FixMul(*(int *)(pc + 0x19c), wb[2]);
-            if ((pc[0x150] & 8) != 0 &&
-                ((*(int *)(pc + 0x128) < 0 && iVar6 < 0) ||
-                 (*(int *)(pc + 0x128) > 0 && iVar6 > 0))) {
+            iVar6 = FixMul(wb[0], *(int *)(((BYTE *)g_unk0x00590c20) + 0x194)) + FixMul(wb[1], *(int *)(((BYTE *)g_unk0x00590c20) + 0x198)) +
+                    FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), wb[2]);
+            if ((((BYTE *)g_unk0x00590c20)[0x150] & 8) != 0 &&
+                ((*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 0 && iVar6 < 0) ||
+                 (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) > 0 && iVar6 > 0))) {
                 FixVecScale((FixVector *)v2c, (FixVector *)wb, iVar6);
-                v2c[0] = *(int *)(pc + 0x194) - v2c[0];
-                v2c[1] = *(int *)(pc + 0x198) - v2c[1];
-                v2c[2] = *(int *)(pc + 0x19c) - v2c[2];
+                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - v2c[0];
+                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198) - v2c[1];
+                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - v2c[2];
                 len = FixVecLength((FixVector *)v2c);
                 if (len == 0) {
-                    *(int *)(pc + 0x194) = 0;
-                    *(int *)(pc + 0x198) = 0;
-                    *(int *)(pc + 0x19c) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x198) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) = 0;
                 } else {
-                    FixVecScaleRecip((FixVector *)(pc + 0x194), (FixVector *)v2c, len);
+                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x194), (FixVector *)v2c, len);
                 }
-                *(int *)(pc + 0x180) = 0;
-                v2c[0] = *(int *)(pc + 0x17c) - v2c[0];
-                v2c[1] = *(int *)(pc + 0x180) - v2c[1];
-                v2c[2] = *(int *)(pc + 0x184) - v2c[2];
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) = 0;
+                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c) - v2c[0];
+                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) - v2c[1];
+                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) - v2c[2];
                 len = FixVecLength((FixVector *)v2c);
                 if (len == 0) {
-                    *(int *)(pc + 0x17c) = 0;
-                    *(int *)(pc + 0x180) = 0;
-                    *(int *)(pc + 0x184) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) = 0;
                 } else {
-                    FixVecScaleRecip((FixVector *)(pc + 0x17c), (FixVector *)v2c, len);
+                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), (FixVector *)v2c, len);
                 }
-                v2c[0] = FixMul(*(int *)(pc + 0x198), *(int *)(pc + 0x184)) -
-                         FixMul(*(int *)(pc + 0x19c), *(int *)(pc + 0x180));
-                v2c[1] = FixMul(*(int *)(pc + 0x19c), *(int *)(pc + 0x17c)) -
-                         FixMul(*(int *)(pc + 0x194), *(int *)(pc + 0x184));
-                v2c[2] = FixMul(*(int *)(pc + 0x194), *(int *)(pc + 0x180)) -
-                         FixMul(*(int *)(pc + 0x198), *(int *)(pc + 0x17c));
+                v2c[0] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), *(int *)(((BYTE *)g_unk0x00590c20) + 0x184)) -
+                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), *(int *)(((BYTE *)g_unk0x00590c20) + 0x180));
+                v2c[1] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c)) -
+                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), *(int *)(((BYTE *)g_unk0x00590c20) + 0x184));
+                v2c[2] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), *(int *)(((BYTE *)g_unk0x00590c20) + 0x180)) -
+                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c));
                 len = FixVecLength((FixVector *)v2c);
                 if (len == 0) {
-                    *(int *)(pc + 0x188) = 0;
-                    *(int *)(pc + 0x18c) = 0;
-                    *(int *)(pc + 0x190) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x188) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x18c) = 0;
+                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x190) = 0;
                 } else {
-                    FixVecScaleRecip((FixVector *)(pc + 0x188), (FixVector *)v2c, len);
+                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x188), (FixVector *)v2c, len);
                 }
-                iVar6 = FixMul(*(int *)(pc + 0x164), wb[0]) + FixMul(wb[1], *(int *)(pc + 0x168)) +
-                        FixMul(wb[2], *(int *)(pc + 0x16c));
-                *(int *)(pc + 0x164) = FixMul(wb[0], iVar6);
-                *(int *)(pc + 0x168) = FixMul(wb[1], iVar6);
-                *(int *)(pc + 0x16c) = FixMul(wb[2], iVar6);
+                iVar6 = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), wb[0]) + FixMul(wb[1], *(int *)(((BYTE *)g_unk0x00590c20) + 0x168)) +
+                        FixMul(wb[2], *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c));
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = FixMul(wb[0], iVar6);
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = FixMul(wb[1], iVar6);
+                *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = FixMul(wb[2], iVar6);
             }
         } else {
-            FixMatrix_SetRight((FixVector *)(pc + 0x17c), *(FixMatrix **)(pc + 4));
-            FixMatrix_SetUp((FixVector *)(pc + 0x188), *(FixMatrix **)(pc + 4));
-            FixMatrix_SetForward((FixVector *)(pc + 0x194), *(FixMatrix **)(pc + 4));
+            FixMatrix_SetRight((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
+            FixMatrix_SetUp((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x188), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
+            FixMatrix_SetForward((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x194), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
         }
         iVar9 = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
-        if (*(int *)(pc + 0x128) < 0)
+        if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 0)
             iVar9 = -iVar9;
         angles[1] = 0;
         angles[2] = 0;

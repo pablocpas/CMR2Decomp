@@ -285,16 +285,15 @@ int g_unk0x005919b8;
 int FUN_00490570(void)
 {
     int d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
-    BYTE *pCar = (BYTE *)g_collisionCar;
 
     if (d < 0)
         d = -d;
     if (g_unk0x005919b8 < d)
         return 0;
     g_collisionSelectBackSide =
-        FixMul(g_collisionTarget.z - *(int *)(pCar + 0x2f0), g_collisionDirection.z) +
-        FixMul(g_collisionTarget.x - *(int *)(pCar + 0x2e8), g_collisionDirection.x) +
-        FixMul(g_collisionTarget.y - *(int *)(pCar + 0x2ec), g_collisionDirection.y) >= 0;
+        FixMul(g_collisionTarget.z - *(int *)(((BYTE *)g_collisionCar) + 0x2f0), g_collisionDirection.z) +
+        FixMul(g_collisionTarget.x - *(int *)(((BYTE *)g_collisionCar) + 0x2e8), g_collisionDirection.x) +
+        FixMul(g_collisionTarget.y - *(int *)(((BYTE *)g_collisionCar) + 0x2ec), g_collisionDirection.y) >= 0;
     return 1;
 }
 

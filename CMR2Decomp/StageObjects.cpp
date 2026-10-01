@@ -7820,17 +7820,16 @@ extern float g_oneOverRandMax;
 // FUNCTION: CMR2 0x004853c0
 void FUN_004853c0(FixVector *pImpulse)
 {
-    BYTE *pVehicle = (BYTE *)g_unk0x00590d74;
     FixVector scaled;
     FixVector local;
     int random;
     int scale;
 
-    FixMatrix_InverseRotateVector(&g_unk0x00590b50, (FixVector *)(pVehicle + 0x408), *(FixMatrix **)(pVehicle + 0x750));
+    FixMatrix_InverseRotateVector(&g_unk0x00590b50, (FixVector *)(((BYTE *)g_unk0x00590d74) + 0x408), *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
     random = (int)(__int64)(rand() * g_oneOverRandMax * CGraphics::m_65536);
     scale = FixMul(0x4ccc, random) + 0xb333;
     FixVecScale(&scaled, pImpulse, scale);
-    FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(pVehicle + 0x750));
+    FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
     g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.x -= local.x;
     g_unk0x00590b50.z -= local.z;
@@ -12726,7 +12725,6 @@ void FUN_0047b0e0(int player, int device)
 {
     DeviceInfo *pDev;
     DeviceInfo *pSrc;
-    Car *pCar;
     BYTE *p;
     int axisSteer;
     int axisThrottle;
@@ -12770,7 +12768,6 @@ void FUN_0047b0e0(int player, int device)
     if (FUN_0041f3d0((BYTE)player) == 0) {
         if ((pDev->field_0x8 & g_carButtonMasks[7]) == 0 && FUN_00422f50((BYTE)player) != 8)
             FUN_0047bad0(pDev->field_0x4, player);
-        pCar = g_unk0x0058e0a0;
         if (pDev->field_0x0 == 3 || pDev->field_0x0 == 2) {
             axisSteer = g_unk0x0058e0a8[0] ? (int)CInput::FUN_0040c210(player, 0) : -1;
             if (g_unk0x0058e0a8[1]) {
@@ -12781,44 +12778,44 @@ void FUN_0047b0e0(int player, int device)
                 axisBrake = -1;
             }
             if (axisSteer != -1) {
-                *(int *)((BYTE *)pCar + 0xb88) = CInput::FUN_0040be60((short)pCar->field_0xb1a) ? 1 : 2;
+                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = CInput::FUN_0040be60((short)((Car *)g_unk0x0058e0a0)->field_0xb1a) ? 1 : 2;
                 raw = ((int *)pDev)[axisSteer * 5 + 0x11f];
                 half = raw < 0 ? -raw : raw;
                 if (raw < 0)
-                    pCar->flag0x1d0[0] = (char)FixMulShift32(half, 0x3f0000);
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = (char)FixMulShift32(half, 0x3f0000);
                 else
-                    pCar->flag0x1d0[1] = (char)FixMulShift32(half, 0x3f0000);
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = (char)FixMulShift32(half, 0x3f0000);
             } else if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0) {
-                pCar->flag0x1d0[0] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
             } else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0) {
-                pCar->flag0x1d0[1] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = 0x3f;
             }
             if (axisThrottle != -1) {
-                *(int *)((BYTE *)pCar + 0xb8c) = 1;
+                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 1;
                 raw = ((int *)pDev)[axisThrottle * 5 + 0x11f];
                 half = raw < 0 ? -raw : raw;
                 if (axisBrake == axisThrottle) {
                     if ((raw > 0) == (CInput::FUN_0040be30(device) != 0)) {
-                        pCar->flag0x1d0[2] = (char)FixMulShift32(half, 0x3f0000);
+                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)FixMulShift32(half, 0x3f0000);
                     } else {
-                        *(int *)((BYTE *)pCar + 0xb90) = 1;
-                        pCar->flag0x1d0[3] = (char)FixMulShift32(half, 0x3f0000);
+                        *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
+                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = (char)FixMulShift32(half, 0x3f0000);
                     }
                 } else {
                     half = raw / 2;
                     idx = half + 0x8000;
                     if (idx < 0)
                         idx = -0x8000 - half;
-                    pCar->flag0x1d0[2] = (char)(0x3f - FixMulShift32(idx, 0x3f0000));
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = (char)(0x3f - FixMulShift32(idx, 0x3f0000));
                 }
             } else {
-                *(int *)((BYTE *)pCar + 0xb8c) = 0;
+                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 0;
                 if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
-                    pCar->flag0x1d0[2] = 0x3f;
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = 0x3f;
             }
             if (axisBrake != -1) {
                 if (axisBrake != axisThrottle) {
-                    *(int *)((BYTE *)pCar + 0xb90) = 1;
+                    *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 1;
                     raw = ((int *)pDev)[axisBrake * 5 + 0x11f];
                     half = raw / 2;
                     idx = half + 0x8000;
@@ -12826,33 +12823,33 @@ void FUN_0047b0e0(int player, int device)
                         idx = -0x8000 - half;
                     c = (char)(0x3f - FixMulShift32(idx, 0x3f0000));
                     if (c != 0)
-                        pCar->flag0x1d0[3] = c;
+                        ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = c;
                 }
             } else {
-                *(int *)((BYTE *)pCar + 0xb90) = 0;
+                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 0;
                 if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
-                    pCar->flag0x1d0[3] = 0x3f;
+                    ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = 0x3f;
             }
         } else {
-            *(int *)((BYTE *)pCar + 0xb8c) = 0;
-            *(int *)((BYTE *)pCar + 0xb90) = 0;
-            *(int *)((BYTE *)pCar + 0xb88) = 0;
+            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb8c) = 0;
+            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb90) = 0;
+            *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = 0;
             if ((pDev->field_0x4 & g_carButtonMasks[2]) != 0)
-                pCar->flag0x1d0[2] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[2] = 0x3f;
             if ((pDev->field_0x4 & g_carButtonMasks[3]) != 0)
-                pCar->flag0x1d0[3] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[3] = 0x3f;
             if ((pDev->field_0x4 & g_carButtonMasks[0]) != 0)
-                pCar->flag0x1d0[0] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[0] = 0x3f;
             else if ((pDev->field_0x4 & g_carButtonMasks[1]) != 0)
-                pCar->flag0x1d0[1] = 0x3f;
+                ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = 0x3f;
         }
         if ((pDev->field_0x4 & g_carButtonMasks[4]) != 0)
-            pCar->field_0x1d8 = 1;
-        if (*(int *)((BYTE *)pCar + 0xb9c) != 0) {
+            ((Car *)g_unk0x0058e0a0)->field_0x1d8 = 1;
+        if (*(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb9c) != 0) {
             if ((pDev->field_0x8 & g_carButtonMasks[5]) != 0)
-                pCar->field_0x1d4[0] = 1;
+                ((Car *)g_unk0x0058e0a0)->field_0x1d4[0] = 1;
             if ((pDev->field_0x8 & g_carButtonMasks[6]) != 0)
-                pCar->field_0x1d4[0] = 0xff;
+                ((Car *)g_unk0x0058e0a0)->field_0x1d4[0] = 0xff;
         }
     }
     if (CGameInfo::FUN_004063f0(2) != 0) {
