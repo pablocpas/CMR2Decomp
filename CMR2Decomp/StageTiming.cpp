@@ -6936,8 +6936,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00483100
 void FUN_00483100(int *param_1, unsigned int param_2)
 {
-    BYTE *car = (BYTE *)g_unk0x00590d74;
-    int bVar8 = g_unk0x00590c24[*(BYTE *)(((BYTE *)g_unk0x00590c20) + 0x150) >> 4][(int)*(char *)(car + 0xb1a)];
+    int bVar8 = g_unk0x00590c24[*(BYTE *)(((BYTE *)g_unk0x00590c20) + 0x150) >> 4][(int)*(char *)(((BYTE *)g_unk0x00590d74) + 0xb1a)];
     // Contiguous: these triples are passed as FixVector* (loose ints are not
     // guaranteed to be adjacent, and a 12-byte write through them overruns).
     FixVector v48, v3c, v30, v24, v18;
@@ -6945,7 +6944,7 @@ void FUN_00483100(int *param_1, unsigned int param_2)
     int iVar11, iVar12;
     unsigned int uVar10;
 
-    if (StageObject_IsEligibleType(*(short *)(car + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+    if (StageObject_IsEligibleType(*(short *)(((BYTE *)g_unk0x00590d74) + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
         int off = (unsigned int)bVar8 * 0xc;
         int lVar1 = FixMul(*(int *)(g_unk0x00590d78 + off + 0x16c), 0x20000);
         int t = FixMul(*(int *)(g_unk0x00590d78 + off + 0x170), 0x1cccc);
@@ -6963,7 +6962,7 @@ void FUN_00483100(int *param_1, unsigned int param_2)
         v18.y = (*(int *)(((BYTE *)g_unk0x00590c20) + 0x124) - lVar1) + v24.y;
         v18.z = *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) + v24.z;
         FixMatrix_RotateVector(&v24, &v18,
-                               *(FixMatrix **)(car + 0x750));
+                               *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
 
         uVar10 = (unsigned int)FixVecLength((FixVector *)param_1);
         if ((int)uVar10 > 0) {
@@ -6975,9 +6974,9 @@ void FUN_00483100(int *param_1, unsigned int param_2)
             } else {
                 param_2 = 0x10000;
             }
-            v3c.x = *(int *)(car + 0x48c);
-            v3c.y = *(int *)(car + 0x490);
-            v3c.z = *(int *)(car + 0x494);
+            v3c.x = *(int *)(((BYTE *)g_unk0x00590d74) + 0x48c);
+            v3c.y = *(int *)(((BYTE *)g_unk0x00590d74) + 0x490);
+            v3c.z = *(int *)(((BYTE *)g_unk0x00590d74) + 0x494);
             iVar4 = FixMul(v48.y, v3c.z) - FixMul(v48.z, v3c.y);
             iVar11 = FixMul(v48.z, v3c.x) - FixMul(v48.x, v3c.z);
             iVar12 = FixMul(v48.x, v3c.y) - FixMul(v48.y, v3c.x);
@@ -6996,7 +6995,7 @@ void FUN_00483100(int *param_1, unsigned int param_2)
                     FixVecScaleRecip(&v30, &cross, len);
                 }
             }
-            Car_SpawnDebris(param_2, &v24, (Car *)car,
+            Car_SpawnDebris(param_2, &v24, (Car *)((BYTE *)g_unk0x00590d74),
                             &v48, 0x40000, 0x6666);
         }
     }

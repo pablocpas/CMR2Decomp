@@ -13384,8 +13384,6 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
 // FUNCTION: CMR2 0x0048e730
 int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
 {
-    int *pFace;
-    FixVector *pFaceVerts;
     int xRatio;
     int yRatio;
     int axis;
@@ -13400,12 +13398,10 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
     int i;
     BYTE surface;
     unsigned short angle;
-    pFace = (int *)g_collisionFace;
-    pFaceVerts = (FixVector *)((BYTE *)g_collisionFace + 0x30);
     xRatio = 0;
     yRatio = 0;
     axis = -1;
-    FUN_00486c30(pFace, (int *)((BYTE *)g_collisionCar + 0x360),
+    FUN_00486c30(((int *)g_collisionFace), (int *)((BYTE *)g_collisionCar + 0x360),
                  (int *)((BYTE *)g_collisionCar + 0x2d0),
                  (FixVector *)((BYTE *)g_collisionCar + 0x270));
     // Offset of the tracked point from the car, flattened to the ground plane.
@@ -13413,11 +13409,11 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
     g_unk0x00591968.y = param_1[1] - g_collisionCar->position.y;
     g_unk0x00591968.z = param_1[2] - g_collisionCar->position.z;
     g_unk0x00591968.y = 0;
-    dot0 = FixVecDot((FixVector *)(pFace + 4), &g_unk0x00591968);
-    dot1 = FixVecDot((FixVector *)(pFace + 7), &g_unk0x00591968);
-    if (pFace[0] < FIX_ABS(dot0))
+    dot0 = FixVecDot((FixVector *)(((int *)g_collisionFace) + 4), &g_unk0x00591968);
+    dot1 = FixVecDot((FixVector *)(((int *)g_collisionFace) + 7), &g_unk0x00591968);
+    if (((int *)g_collisionFace)[0] < FIX_ABS(dot0))
         return 0;
-    if (pFace[1] < FIX_ABS(dot1))
+    if (((int *)g_collisionFace)[1] < FIX_ABS(dot1))
         return 0;
     g_unk0x00591950.x = param_1[0] - *(int *)((BYTE *)g_collisionCar + 0x2e8);
     g_unk0x00591950.y = param_1[1] - *(int *)((BYTE *)g_collisionCar + 0x2ec);
@@ -13429,23 +13425,23 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
     FixVecScaleRecip(&g_unk0x00591920, &g_unk0x00591950, len);
     // Fraction of the move left before the car's box leaves each face axis; the
     // smallest of the two is the axis the car is pushed back along.
-    dot0 = FixVecDot(&g_unk0x00591920, (FixVector *)(pFace + 4));
-    dot1 = FixVecDot(&g_unk0x00591920, (FixVector *)(pFace + 7));
+    dot0 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 4));
+    dot1 = FixVecDot(&g_unk0x00591920, (FixVector *)(((int *)g_collisionFace) + 7));
     haveX = 0;
     haveY = 0;
     bestRatio = 0x7d000000;
     if (dot0 > 0x41) {
-        xRatio = FixDiv(pFace[0] - dot0, dot0);
+        xRatio = FixDiv(((int *)g_collisionFace)[0] - dot0, dot0);
         haveX = 1;
     } else if (dot0 < -0x40) {
-        xRatio = FixDiv(FIX_ABS(pFace[0] + dot0), -dot0);
+        xRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[0] + dot0), -dot0);
         haveX = 1;
     }
     if (dot1 > 0x41) {
-        yRatio = FixDiv(pFace[1] - dot1, dot1);
+        yRatio = FixDiv(((int *)g_collisionFace)[1] - dot1, dot1);
         haveY = 1;
     } else if (dot1 < -0x40) {
-        yRatio = FixDiv(FIX_ABS(pFace[1] + dot1), -dot1);
+        yRatio = FixDiv(FIX_ABS(((int *)g_collisionFace)[1] + dot1), -dot1);
         haveY = 1;
     }
     if (haveX && xRatio < bestRatio) {
@@ -13467,9 +13463,9 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
         g_collisionCar->corners[i].z += g_unk0x00591900.z;
     }
     for (i = 0; i < 4; i++) {
-        pFaceVerts[i].x += g_unk0x00591900.x;
-        pFaceVerts[i].y += g_unk0x00591900.y;
-        pFaceVerts[i].z += g_unk0x00591900.z;
+        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].x += g_unk0x00591900.x;
+        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].y += g_unk0x00591900.y;
+        ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].z += g_unk0x00591900.z;
     }
     FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), 0xff, (int *)&g_unk0x00591900, 0);
     // Surface descriptor of the tracked point: 0xff means there is no contact
