@@ -7992,8 +7992,8 @@ void FUN_00423300(BYTE *pRecord, int type, int param)
     Car *pCar;
     FixMatrix body;
 
-    car = pRecord[2];
     view = pRecord[1];
+    car = pRecord[2];
     pCar = Car_Get(car);
     FUN_00423a30(&body, car);
     switch (type) {

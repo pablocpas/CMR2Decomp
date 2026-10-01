@@ -211,8 +211,8 @@ void FUN_004d4f90(int param_1, int param_2, int param_3)
     FUN_004d27e0(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
     if (param_3 >= 1 && param_3 <= 3) {
         pTexture = (&CFrontend::m_pLgMatrixTexture)[param_3];
-        g_unk0x008189a8[1] = param_2;
         g_unk0x008189a8[0] = param_1 - pTexture->width / 2;
+        g_unk0x008189a8[1] = param_2;
         g_unk0x008189a8[2] = pTexture->width;
         g_unk0x008189a8[3] = pTexture->height;
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)g_unk0x008189a8, pTexture, 1, 0, NULL, NULL,
