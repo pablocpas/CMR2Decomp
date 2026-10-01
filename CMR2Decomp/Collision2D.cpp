@@ -285,10 +285,10 @@ int FUN_00489b20(int *param_1, int *param_2, unsigned int *param_3, int param_4)
         if ((int)uVar15 > param_1[1])
             goto LABEL_00489f05;
 
-        if ((int)uVar6 < 1)
-            uVar15 = (unsigned int)((0 < (int)uVar7) + 2);
-        else
+        if ((int)uVar6 >= 1)
             uVar15 = (unsigned int)(0 < (int)uVar7);
+        else
+            uVar15 = (unsigned int)((0 < (int)uVar7) + 2);
         uVar8 = (unsigned int)FixMul(g_unk0x00591490, g_unk0x00591490);
         iVar14 = g_unk0x00591498.x - param_1[uVar15 * 3 + 0xc];
         iVar4 = g_unk0x00591498.z - param_1[uVar15 * 3 + 0xe];
@@ -338,7 +338,11 @@ LABEL_00489f05:
 LABEL_00489f8f:
                 bVar2 = 1;
             }
-            if (iVar5 < 0x42) {
+            if (iVar5 >= 0x42) {
+                uVar15 = (unsigned int)(iVar13 - uVar7);
+                local_14 = FixDiv((int)uVar15, iVar5);
+                bVar16 = 1;
+            } else {
                 if (iVar5 < -0x41) {
                     uVar15 = (unsigned int)-(iVar13 + uVar7);
                     tmp = iVar13 + uVar7;
@@ -347,10 +351,6 @@ LABEL_00489f8f:
                     local_14 = FixDiv(tmp, -iVar5);
                     bVar16 = 1;
                 }
-            } else {
-                uVar15 = (unsigned int)(iVar13 - uVar7);
-                local_14 = FixDiv((int)uVar15, iVar5);
-                bVar16 = 1;
             }
             if (bVar2 && local_1c < 0x7d000000)
                 local_5 = 1;

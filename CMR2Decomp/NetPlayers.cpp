@@ -343,10 +343,10 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
                     g_netStageBest[0] = time;
                     g_netNewRecord = 0;
                     name = FUN_00409cd0(FUN_0040a7a0(*pId));
-                    if (name == NULL)
-                        strcpy(g_netRecordName, CMain::m_logFileBlankLine);
-                    else
+                    if (name != NULL)
                         strcpy(g_netRecordName, name);
+                    else
+                        strcpy(g_netRecordName, CMain::m_logFileBlankLine);
                     return;
                 }
                 if (time < g_netPrevBest || g_netPrevBest == 0)
@@ -521,10 +521,7 @@ void FUN_0040a580(int param1, int param2, int param3)
     int i;
 
     for (i = 0; i < 7; i++) {
-        if ((g_netPlayers[i].flags & 0x80) == 0) {
-            g_netResults[i].index = -1;
-            g_netResults[i].field_0x4 = -1;
-        } else {
+        if ((g_netPlayers[i].flags & 0x80) != 0) {
             g_netResults[i].index = i;
             g_netResults[i].field_0x4 = g_netPlayers[i].stats.field_0x18 & 0x3ff;
             g_netResults[i].field_0x8 = FixMulShift32((g_netPlayers[i].stats.speed >> 10) << 16, 0x19645);
@@ -538,6 +535,9 @@ void FUN_0040a580(int param1, int param2, int param3)
             g_netResults[i].field_0x18 = g_netPlayers[i].time;
             if ((char)RallyData_GetFlag25())
                 FUN_004591e0(g_netResults[i].index, &g_netResults[i].field_0xc, &g_netResults[i].field_0x4);
+        } else {
+            g_netResults[i].index = -1;
+            g_netResults[i].field_0x4 = -1;
         }
     }
     g_netResults[i].index = -2;

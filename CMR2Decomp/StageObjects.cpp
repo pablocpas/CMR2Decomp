@@ -3641,13 +3641,13 @@ void FUN_00466100(int param_1)
             if (f1 <= g_unk0x00511378)
                 return;
             f1 = g_netOne - (f1 - g_unk0x00511378) * g_unk0x005113d0;
-            if (f1 < g_netOne) {
-                if (g_netZero < f1)
-                    alpha = (int)(__int64)(f1 * g_netByteScale);
-                else
-                    alpha = 0;
-            } else {
+            if (f1 >= g_netOne) {
                 alpha = 0xff;
+            } else {
+                if (g_netZero >= f1)
+                    alpha = 0;
+                else
+                    alpha = (int)(__int64)(f1 * g_netByteScale);
             }
             if (FUN_00422f50(param_1) == 7)
                 alpha = 0x80;
@@ -3955,10 +3955,7 @@ void FUN_00477ce0(int car)
         *(short *)(pRecord + 0x3a + i * 2) = (BYTE)value;
         *(short *)(pRecord + 0x12 + i * 2) = (BYTE)value;
     }
-    if (pRecord[0x46] == 0) {
-        *(short *)(pRecord + 0x8) = (short)((*(short *)(pRecord + 0x8) / 3) * 2);
-        *(short *)(pRecord + 0x12) = (short)((*(short *)(pRecord + 0x12) / 3) * 2);
-    } else {
+    if (pRecord[0x46] != 0) {
         value = *(short *)(pRecord + 0xa) + (*(short *)(pRecord + 0x8) / 3) * 2;
         if (value > 0xff)
             value = 0xff;
@@ -3967,15 +3964,18 @@ void FUN_00477ce0(int car)
         if (value > 0xff)
             value = 0xff;
         *(short *)(pRecord + 0x14) = (BYTE)value;
+    } else {
+        *(short *)(pRecord + 0x8) = (short)((*(short *)(pRecord + 0x8) / 3) * 2);
+        *(short *)(pRecord + 0x12) = (short)((*(short *)(pRecord + 0x12) / 3) * 2);
     }
     for (i = 0; i < 5; i++) {
         if (*(short *)(pRecord + 0x12 + i * 2) != *(short *)(pRecord + 0x26 + i * 2) ||
             *(short *)(pRecord + 0x8 + i * 2) != *(short *)(pRecord + 0x1c + i * 2))
             changed = 1;
-        if (*(short *)(pRecord + 0x8 + i * 2) > *(short *)(pRecord + 0x12 + i * 2))
-            values[i] = *(short *)(pRecord + 0x8 + i * 2);
-        else
+        if (*(short *)(pRecord + 0x8 + i * 2) <= *(short *)(pRecord + 0x12 + i * 2))
             values[i] = *(short *)(pRecord + 0x12 + i * 2);
+        else
+            values[i] = *(short *)(pRecord + 0x8 + i * 2);
     }
     if (changed != 0) {
         Texture **ppTextures = (Texture **)pRecord;
@@ -4120,9 +4120,7 @@ void FUN_0047e1e0(int t)
     pRec = (int *)g_unk0x0058e4d4;
     i = 100;
     do {
-        if (pRec[0x12] == 0) {
-            FUN_004ae3d0((BYTE *)pRec[0x11], 0);
-        } else {
+        if (pRec[0x12] != 0) {
             delta.x = pRec[0] - pRec[7];
             delta.y = pRec[1] - pRec[8];
             delta.z = pRec[2] - pRec[9];
@@ -4146,16 +4144,18 @@ void FUN_0047e1e0(int t)
                 FixVecScaleRecip(&normal, &normal, length);
             }
             size = FixMul(pRec[6] - pRec[0xd], t) + pRec[0xd];
-            if (size <= 0) {
-                FUN_004ae3d0((BYTE *)pRec[0x11], 0);
-            } else {
+            if (size > 0) {
                 FUN_004ae3d0((BYTE *)pRec[0x11], 1);
                 FUN_004ae3f0((BYTE *)pRec[0x11], size);
                 Glow_SetPosition((GlowLight *)pRec[0x11], &pos, &pos);
                 ground = pos;
                 ground.y -= 0x8000;
                 Glow_SetLayerPlane((GlowLight *)pRec[0x11], &ground, &normal, 0);
+            } else {
+                FUN_004ae3d0((BYTE *)pRec[0x11], 0);
             }
+        } else {
+            FUN_004ae3d0((BYTE *)pRec[0x11], 0);
         }
         pRec += 0x17;
     } while (--i);
@@ -4214,13 +4214,13 @@ int FUN_0048caa0(int *pList)
 {
     unsigned int count = 0;
 
-    if (pList != NULL) {
+    if (pList == NULL) {
+        g_unk0x005918c8 = count;
+        g_unk0x00591750 = NULL;
+    } else {
         count = *pList;
         g_unk0x00591750 = (BYTE *)(pList + 1);
         g_unk0x005918c8 = count;
-    } else {
-        g_unk0x005918c8 = count;
-        g_unk0x00591750 = NULL;
     }
     return count > 0;
 }
@@ -5200,11 +5200,11 @@ void StageObject_UpdateSkidTrails(int carIndex)
                 }
                 FixVecScale(&side, &side, 0x1eb8);
 
-                if (CGameInfo::FUN_004063f0(6) == 0) {
+                if (!(CGameInfo::FUN_004063f0(6) == 0)) {
+                    FixVecScale(&side, &side, 0x28000);
+                } else {
                     if (FUN_0042cae0(pCar, 1) != 0)
                         FixVecScale(&side, &side, 0x9999);
-                } else {
-                    FixVecScale(&side, &side, 0x28000);
                 }
 
                 FixVector *pPosition = &g_unk0x00549c20[carIndex][wheel];
@@ -5875,11 +5875,11 @@ void FUN_00464960(unsigned int param_1)
         value = 0x3e80000;
     FUN_004b6ef0(param_1 != 0);
     param_1 = 0x10000 - param_1;
-    if ((int)param_1 < 0x10001) {
+    if ((int)param_1 >= 0x10001) {
+        param_1 = 0x10000;
+    } else {
         if ((int)param_1 < 0)
             param_1 = 0;
-    } else {
-        param_1 = 0x10000;
     }
     param_1 = FixMul((int)param_1, 0x190000);
     level = value + param_1;
@@ -6641,14 +6641,14 @@ void FUN_00461c30(int index)
                 groundColour[0] = (BYTE)(groundColour[0] + 0x14);
             else
                 groundColour[0] = 0xff;
-            if (groundColour[1] <= 0xeb)
-                groundColour[1] = (BYTE)(groundColour[1] + 0x14);
-            else
+            if (groundColour[1] > 0xeb)
                 groundColour[1] = 0xff;
-            if (groundColour[2] <= 0xeb)
-                groundColour[2] = (BYTE)(groundColour[2] + 0x14);
             else
+                groundColour[1] = (BYTE)(groundColour[1] + 0x14);
+            if (groundColour[2] > 0xeb)
                 groundColour[2] = 0xff;
+            else
+                groundColour[2] = (BYTE)(groundColour[2] + 0x14);
         }
 
         colour.x = g_stageLighting[0x45] - g_stageLighting[0x18];
@@ -8108,10 +8108,10 @@ void FUN_0046ec40(int index, int x, int y)
         g_eventDraws[g_unk0x00589318].x = (char)x;
         over = y - p->b + 4;
         g_eventDraws[g_unk0x00589318].y = (char)y;
-        if (over < 1)
-            g_eventDraws[g_unk0x00589318].rows = 4;
-        else
+        if (over >= 1)
             g_eventDraws[g_unk0x00589318].rows = 4 - (char)over;
+        else
+            g_eventDraws[g_unk0x00589318].rows = 4;
         if ((unsigned short)p->range <= (unsigned short)p->field_0x16) {
             p->paused = 1;
             g_unk0x00589318++;
@@ -9502,10 +9502,10 @@ void FUN_004930e0(int param_1, int param_2)
             pDst++;
         } while (n != 0);
     }
-    if (local_8 != param_2)
-        *(int *)(param_1 + 0xa80) = 0;
-    else
+    if (local_8 == param_2)
         *(int *)(param_1 + 0xa80) = *(int *)(param_1 + 0xa80) + 0x10000;
+    else
+        *(int *)(param_1 + 0xa80) = 0;
 }
 
 // Views into g_stageBlock for the object fade tables at 0x58d2d0/0x58d360/0x58d478.
@@ -9684,21 +9684,21 @@ void FUN_004926f0(int angle, int unused, int sunAngle)
     double radians;
 
     FUN_0046f4c0(&pObject);
-    if (angle != -999 << 16) {
-        right.y = 0;
-        forward.y = 0;
-        radians = angle * g_oneOver180 * g_pi * CGraphics::m_oneOver65536;
-        forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
-        right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
-        forward.x = -right.z;
-        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
-    } else {
+    if (angle == -999 << 16) {
         right.x = 0x10000;
         forward.z = 0x10000;
         right.y = 0;
         right.z = 0;
         forward.x = 0;
         forward.y = 0;
+        FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
+    } else {
+        right.y = 0;
+        forward.y = 0;
+        radians = angle * g_oneOver180 * g_pi * CGraphics::m_oneOver65536;
+        forward.z = right.x = (int)(__int64)(cos(radians) * CGraphics::m_65536);
+        right.z = (int)(__int64)(sin(radians) * CGraphics::m_65536);
+        forward.x = -right.z;
         FixMatrix_SetRight(&right, (FixMatrix *)(pObject + 0x98));
     }
     FixMatrix_SetForward(&forward, (FixMatrix *)(pObject + 0x98));
@@ -10290,13 +10290,13 @@ void FUN_00462d80(int param_1, int param_2)
     value = FixMul((int)g_sunVisibility << 16, 0x28f);
     base = param_2 * 0x178;
     diff = value - *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
-    if ((diff < 0 ? -diff : diff) > FixMul(0x4ccc, g_unk0x0051bd3c)) {
+    if ((diff < 0 ? -diff : diff) <= FixMul(0x4ccc, g_unk0x0051bd3c)) {
+        *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) = value;
+    } else {
         if (diff > 0)
             *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) += FixMul(0x4ccc, g_unk0x0051bd3c);
         else
             *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) -= FixMul(0x4ccc, g_unk0x0051bd3c);
-    } else {
-        *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68) = value;
     }
     ramp += *(int *)((BYTE *)g_unk0x00547ac8 + base + 0x68);
     if (ramp > 0x10000)
@@ -10559,10 +10559,10 @@ void FUN_0047b970(unsigned int param_1)
             break;
         case 2:
             RallyData_GetRoundDrivers(&g_unk0x0058df98, &g_unk0x0058df9c);
-            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) == -1)
-                g_unk0x0058e0a4 = g_unk0x0058df98;
-            else
+            if (RallyData_FUN_00408500(g_unk0x0058df98 & 0xff) != -1)
                 g_unk0x0058e0a4 = g_unk0x0058df9c;
+            else
+                g_unk0x0058e0a4 = g_unk0x0058df98;
             break;
         case 3:
             if (param_1 == 0)
@@ -10857,11 +10857,11 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
                 iVar8 = FUN_00498db0(base - iVar7);
                 if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
                     iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
-                    if (iVar10 < 0x50001) {
+                    if (iVar10 >= 0x50001) {
+                        iVar10 = 0x50000;
+                    } else {
                         if (iVar10 < 0)
                             iVar10 = 0;
-                    } else {
-                        iVar10 = 0x50000;
                     }
                     length = (unsigned int)FixMul((int)length,
                         g_sinTable[(int)(__int64)((double)iVar8 * g_unk0x00511300) & 0xfff]);
@@ -11450,26 +11450,26 @@ void FUN_0046d8d0(int param_1, int *param_2)
     fX = (float)((double)pos.x * CGraphics::m_oneOver65536 * 0.0078125f);
     fZ = (float)((double)pos.z * CGraphics::m_oneOver65536 * 0.0078125f);
 
-    if (fX < g_netOne) {
+    if (fX >= g_netOne) {
+        param_2[1] = (param_2[1] & 0xffff7ffd) | 0x7ffd;
+    } else {
         if (fX <= g_netMinusOne) {
             param_2[1] = (param_2[1] & 0xffff8003) | 0x8003;
         } else {
             r = (int)(__int64)(fX * g_netSignedShortScale);
             param_2[1] = (param_2[1] & 0xffff0000) | (r & 0xffff);
         }
-    } else {
-        param_2[1] = (param_2[1] & 0xffff7ffd) | 0x7ffd;
     }
 
-    if (fZ < g_netOne) {
+    if (fZ >= g_netOne) {
+        param_2[1] = (param_2[1] & 0xffff) | 0x7ffd0000;
+    } else {
         if (g_netMinusOne < fZ) {
             r = (int)(__int64)(fZ * g_netSignedShortScale);
             param_2[1] = (r << 16) | (param_2[1] & 0xffff);
         } else {
             param_2[1] = (param_2[1] & 0xffff) | 0x80030000;
         }
-    } else {
-        param_2[1] = (param_2[1] & 0xffff) | 0x7ffd0000;
     }
 
     FixMatrix_GetRight(&vec[0], pMatrix);
@@ -11803,7 +11803,17 @@ void FUN_004643f0(int param_1)
 
     car = *(char *)(param_1 + 0xb1a);
     pRec = FUN_00469680(car);
-    if (*(int *)(param_1 + 0xb70) == 0) {
+    if (*(int *)(param_1 + 0xb70) != 0) {
+        FUN_00477c20(car, 0, 0, 2);
+        FUN_00477c20(car, 0, 0, 8);
+        n = 0;
+        if (0 < *((int *)((int *)g_carLights)[car])) {
+            do {
+                FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + car * 0x14], 0);
+                n++;
+            } while (n < *((int *)((int *)g_carLights)[car]));
+        }
+    } else {
         int vA;
         int vB;
 
@@ -11816,12 +11826,12 @@ void FUN_004643f0(int param_1)
             FUN_00477c20(car, 0, 0, 8);
         else
             FUN_00477c20(car, vA == 0, vB == 0, 8);
-        if (*(int *)(param_1 + 0xb58) == 0) {
-            FUN_00477c20(car, 0, 0, 1);
-            FUN_00477c20(car, 0, 0, 0x10);
-        } else {
+        if (*(int *)(param_1 + 0xb58) != 0) {
             FUN_00477c20(car, vA == 0, vB == 0, 1);
             FUN_00477c20(car, 1, 1, 0x10);
+        } else {
+            FUN_00477c20(car, 0, 0, 1);
+            FUN_00477c20(car, 0, 0, 0x10);
         }
         if (0x4ccc < *(int *)((BYTE *)pRec + 0x29c)) {
             int old = g_unk0x00547ce0[car];
@@ -11921,16 +11931,6 @@ void FUN_004643f0(int param_1)
                 }
                 n++;
                 off += 0x28;
-            } while (n < *((int *)((int *)g_carLights)[car]));
-        }
-    } else {
-        FUN_00477c20(car, 0, 0, 2);
-        FUN_00477c20(car, 0, 0, 8);
-        n = 0;
-        if (0 < *((int *)((int *)g_carLights)[car])) {
-            do {
-                FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + car * 0x14], 0);
-                n++;
             } while (n < *((int *)((int *)g_carLights)[car]));
         }
     }
@@ -12701,7 +12701,9 @@ void FUN_0047ad20(void)
                                     FixMul(dist2, volScale), 0x5622,
                                     g_unk0x0051f2d8[idx], 1, 0);
         }
-        if (FUN_00427ab0(pitch, (int *)&g_unk0x0051ebca[0x86])) {
+        if (!(FUN_00427ab0(pitch, (int *)&g_unk0x0051ebca[0x86]))) {
+            FUN_004b79a0((unsigned int)*pHandle, 0);
+        } else {
             unsigned int pan = FUN_00427b70(pitch, (int *)&g_unk0x0051ebca[0x86]);
             unsigned short pan2 = (unsigned short)FUN_00427e20(0, (int)chosen, (unsigned short)pan);
             int volScale;
@@ -12710,8 +12712,6 @@ void FUN_0047ad20(void)
             volScale = FixMul(FixMul(dist, g_unk0x0051f27c), g_unk0x0058dda8);
             dist2 = FUN_00427d50(chosen, 0);
             FUN_004b79a0((unsigned int)*pHandle, FixMul(dist2, volScale));
-        } else {
-            FUN_004b79a0((unsigned int)*pHandle, 0);
         }
         pHandle++;
     } while (--limit);
@@ -13661,12 +13661,12 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
     d.z = *(int *)(pSpot + 0x30) - position.z;
     distance = FixVec_Length(&d);
     if (g_unk0x005916d0[index] != 0) {
-        if (distance < g_unk0x005916e0[index]) {
-            zoom = *(int *)(pSpot + 0x4c);
-            shake = *(int *)(pSpot + 0x64);
-        } else {
+        if (distance >= g_unk0x005916e0[index]) {
             zoom = *(int *)(pSpot + 0x50);
             shake = *(int *)(pSpot + 0x68);
+        } else {
+            zoom = *(int *)(pSpot + 0x4c);
+            shake = *(int *)(pSpot + 0x64);
         }
         g_unk0x00591754[index] = FixMul(g_unk0x00591754[index], 0xcccc) + FixMul(zoom, 0x3333);
         g_unk0x00591720[index] = FixMul(g_unk0x00591720[index], 0xcccc) + FixMul(shake, 0x3333);
@@ -14357,10 +14357,10 @@ void FUN_0046cfa0(int *pState)
         return;
     }
     if (*(short *)(p + 0x10a) < 0) {
-        if (*(int *)(p + 0x1c) == 0)
-            FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
-        else
+        if (*(int *)(p + 0x1c) != 0)
             FUN_0046c390((int *)(*(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30)), p[0x20]);
+        else
+            FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
         if (*(short *)(p + 0x10a) != -1) {
             *(int *)((BYTE *)pCar + 0x860) = 0;
             *(int *)((BYTE *)pCar + 0x864) = 0;
@@ -15620,19 +15620,7 @@ void FUN_0047eab0(void)
                 p[0x1a5] = 2;
                 g_unk0x005909b8 = 0x10000;
                 *(DWORD *)g_unk0x005909c4 = g_fireworkFlashColours[((BYTE *)p)[0x692]];
-                if (p[0x24b] == 0) {
-                    if (p[0x1a6] == 2) {
-                        for (n = rand() % 4 + 1; n > 0; n--) {
-                            s.x = RAND_SIGNED();
-                            s.y = RAND_SIGNED();
-                            s.z = RAND_SIGNED();
-                            s.x = FixMul(s.x, 0xe666);
-                            s.y = FixMul(s.y, 0xe666);
-                            s.z = FixMul(s.z, 0xe666);
-                            StageObject_SpawnDebris((FixVector *)p, &s, 1);
-                        }
-                    }
-                } else {
+                if (p[0x24b] != 0) {
                     p[0x78] = p[0];
                     p[0x79] = p[1];
                     p[0x7a] = p[2];
@@ -15669,6 +15657,18 @@ void FUN_0047eab0(void)
                         }
                     }
                     FUN_004b7790((unsigned short)(rand() % 6 + 2 + g_unk0x005909bc), 0x10000, 0x5622, 0, 0, 0);
+                } else {
+                    if (p[0x1a6] == 2) {
+                        for (n = rand() % 4 + 1; n > 0; n--) {
+                            s.x = RAND_SIGNED();
+                            s.y = RAND_SIGNED();
+                            s.z = RAND_SIGNED();
+                            s.x = FixMul(s.x, 0xe666);
+                            s.y = FixMul(s.y, 0xe666);
+                            s.z = FixMul(s.z, 0xe666);
+                            StageObject_SpawnDebris((FixVector *)p, &s, 1);
+                        }
+                    }
                 }
             }
         } else if (p[0x1a5] == 2) {
@@ -15979,10 +15979,10 @@ void FUN_00473d60(Menu *pMenu)
                            (int)(g_pGraphics->resY * 0x24) / 0x1e0 + y0);
         rect2[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
         rect2[3] = 1;
-        if (FUN_004bc0c0(&g_unk0x0058cf60))
-            FUN_00475970(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 2);
-        else
+        if (!(FUN_004bc0c0(&g_unk0x0058cf60)))
             Sprite_FillRect((int)g_pGraphics + 0x150, rect2, pColour, 2);
+        else
+            FUN_00475970(g_unk0x0058ce58, (int)g_pGraphics + 0x150, rect2, pColour, 2);
     }
     Font_SetBlendMode(2);
     FUN_004744f0();
@@ -16127,15 +16127,15 @@ void FUN_00484310(void)
         angles[2] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
                             g_unk0x00511308);
     } else {
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
-            angles[0] = 0;
-            angles[2] = 0;
-            angles[1] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
-                                g_unk0x00511308);
-        } else {
+        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 9) {
             angles[1] = 0;
             angles[2] = 0;
             angles[0] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x30000) *
+                                g_unk0x00511308);
+        } else {
+            angles[0] = 0;
+            angles[2] = 0;
+            angles[1] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) *
                                 g_unk0x00511308);
         }
     }
@@ -16258,15 +16258,15 @@ void FUN_0047f740(void)
                             *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
                             *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
                             if (*(int *)(pSlot + 0x818 + (k * 6 + j) * 16) != 0) {
-                                if (*(int *)(pSlot + 0x934) == 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                                else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                            } else {
                                 if (*(int *)(pSlot + 0x934) != 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                                else
                                     *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                            } else {
+                                if (*(int *)(pSlot + 0x934) == 0)
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                else
+                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
                             }
                             Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
                         }

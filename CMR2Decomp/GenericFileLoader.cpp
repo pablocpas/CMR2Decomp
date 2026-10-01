@@ -62,10 +62,10 @@ void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWOR
         if (strcmp(entryName, name) == 0)
             return (BYTE *)pFile->buffer + offset;
         pad = (int)nameLen % 4;
-        if (pad == 0)
-            pEntry += nameLen + 12;
-        else
+        if (pad != 0)
             pEntry += nameLen - pad + 16;
+        else
+            pEntry += nameLen + 12;
     }
     return NULL;
 }

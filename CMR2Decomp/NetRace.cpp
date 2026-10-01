@@ -1139,10 +1139,10 @@ int FUN_00425c40(int car, int *pOut)
                                  g_unk0x0051137c * g_unk0x00511378 * g_65536f);
     engine = (int)((float)*(unsigned short *)(packet + 6) * g_unk0x00511374 * g_65536f);
     *(int *)(car + 0xac) = engine;
-    if (engine == 0)
-        *(int *)(car + 0xb0) = 0;
-    else
+    if (engine != 0)
         *(int *)(car + 0xb0) = FixDiv(0x10000, engine);
+    else
+        *(int *)(car + 0xb0) = 0;
     *(int *)(car + 0x7c) = (int)((float)(signed char)packet[0x14] *
                                  g_unk0x00511370 * g_unk0x0051136c * g_65536f);
     *(int *)(car + 0x80) = (int)((float)(signed char)packet[0x15] *
@@ -1187,12 +1187,12 @@ int FUN_00425c40(int car, int *pOut)
         {
             int len = FixVecLength(pRow);
 
-            if (len == 0) {
+            if (len != 0) {
+                FixVecScaleRecip(pRow, pRow, len);
+            } else {
                 pRow->x = 0;
                 pRow->y = 0;
                 pRow->z = 0;
-            } else {
-                FixVecScaleRecip(pRow, pRow, len);
             }
         }
     }
@@ -1331,11 +1331,11 @@ void FUN_00425a90(BYTE *pCars)
                 *(int *)(pEntry + 0xb8) =
                     FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) < 0x33) {
-                *(int *)(pEntry + 0xe8) = 0;
-            } else {
+            if (abs(g_unk0x005393ac[i] - pStats->seq) >= 0x33) {
                 g_unk0x005393ac[i] = pStats->seq;
                 *(int *)(pEntry + 0xe8) = 1;
+            } else {
+                *(int *)(pEntry + 0xe8) = 0;
             }
             g_unk0x005393ac[i] = (pStats->seq + g_unk0x005393ac[i]) >> 1;
             if (i == 0)

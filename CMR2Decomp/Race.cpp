@@ -271,9 +271,7 @@ void FUN_0041c260(void)
     if ((char)RallyData_FUN_00407ea0() == 0) {
         for (i = 0; i < 2; i++) {
             if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405da0()) {
-                if (i == 0) {
-                    g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x186a, 0);
-                } else {
+                if (i != 0) {
                     sprintf(CFrontend::m_stringDest, g_strCpuRun, FUN_0041f8e0(),
                             g_cpuRunCountries2[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1,
                             FUN_004584c0() == 0,
@@ -282,6 +280,8 @@ void FUN_0041c260(void)
                     g_unk0x00537f3c[1] = FUN_0046d2d0(CFrontend::m_stringDest);
                     if (i == 1)
                         return;
+                } else {
+                    g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x186a, 0);
                 }
             }
         }
@@ -919,13 +919,13 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
         if ((recFlags & 0x100) == 0) {
             g_raceCallRecords[player * 5 + i].flags = (recFlags & 0xfffffd32) | 0x132;
             g_raceCallRecords[player * 5 + i].field_0x0 = id;
-            if (prev == 0) {
-                g_raceCallRecords[player * 5 + i].field_0x4 = 0;
-            } else {
+            if (prev != 0) {
                 g_raceCallRecords[player * 5 + i].field_0x4 = prev;
                 if (FUN_00418580(prev, &texture, &rect, &flag, colour) != 0)
                     g_raceCallRecords[player * 5 + i].flags =
                         (g_raceCallRecords[player * 5 + i].flags & 0xffffff32) | 0x32;
+            } else {
+                g_raceCallRecords[player * 5 + i].field_0x4 = 0;
             }
             break;
         }
@@ -1182,19 +1182,19 @@ void FUN_004177d0(unsigned int player, int param2)
             rectSecond.w = 0;
             rectMain.x = (short)((((int)g_pGraphics->resX << 15) >> 16) - (short)value / 2 + xOff);
             if (found != 0) {
-                if (flagA == 0)
-                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
-                else
+                if (flagA != 0)
                     Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 1);
+                else
+                    Sprite_Queue(&rectIcon, &rectMain, (Texture *)texA, 2, 0, NULL, NULL, colB, 8);
             }
         }
 
         rectSecond.x = (short)(rectMain.x + rectMain.w);
         if (second != 0 && rectSecond.w != 0) {
-            if (flagB != 0)
-                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 1);
-            else
+            if (flagB == 0)
                 Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 8);
+            else
+                Sprite_Queue(&rectTex, &rectSecond, (Texture *)texB, 2, 0, NULL, NULL, colA, 1);
         }
 
 next:
@@ -1236,10 +1236,7 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
     g_unk0x00537190 = 1;
     pos = 0;
     pViewRect = (short *)FUN_00464b10(player);
-    if (RallyData_FUN_00411880() == 0) {
-        race = 0;
-        pos = 0;
-    } else {
+    if (RallyData_FUN_00411880() != 0) {
         if (CGameInfo::FUN_00405dc0()) {
             if (player == 1)
                 pos = (int)g_pGraphics->resY / 2;
@@ -1247,6 +1244,9 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
         } else {
             pos = (int)g_pGraphics->resY * 9011 >> 16;
         }
+    } else {
+        race = 0;
+        pos = 0;
     }
     textY = pos + ((int)g_pGraphics->resY << 14 >> 16);
     if (race == 0) {
@@ -1258,12 +1258,12 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
     Font_GetTextHeight(2, pText);
 
     pos = (int)pViewRect[2] / 2 + (int)pViewRect[0];
-    if (x == -1) {
-        flags = 0x12;
-    } else {
+    if (x != -1) {
         flags = 9;
         pos = x;
         textY = y;
+    } else {
+        flags = 0x12;
     }
     if (shadow != 0)
         Font_DrawText(2, pText, pos + 1, (int)g_pGraphics->resY / 0x60 + 1 + textY, &g_unk0x00517e28, flags);
@@ -1402,10 +1402,10 @@ void FUN_00418000(unsigned int id)
             slot = g_unk0x0053735c + 9;
         Race_AssignUnusedSlot(slot);
     } else if (f3 == 2) {
-        if (CGameInfo::FUN_004063f0(2) != 0)
-            slot = g_unk0x0053735c + 8;
-        else
+        if (!(CGameInfo::FUN_004063f0(2) != 0))
             slot = g_unk0x0053735c + 9;
+        else
+            slot = g_unk0x0053735c + 8;
         Race_AssignUnusedSlot(slot);
     }
 
@@ -1992,9 +1992,7 @@ void FUN_0041a340(int car, int unused)
         if (counts[i] == 2 && !allTwo)
             break;
     }
-    if (i < 4) {
-        chosen = pState->slotState[bestIndex];
-    } else {
+    if (i >= 4) {
         for (i = 0; i < 4; i++) {
             slack = FUN_004781c0(car) - pState->slotTime[i];
             if ((unsigned int)slack < (unsigned int)minSlack) {
@@ -2002,6 +2000,8 @@ void FUN_0041a340(int car, int unused)
                 minSlack = slack;
             }
         }
+    } else {
+        chosen = pState->slotState[bestIndex];
     }
     if (chosen == -1)
         newCount = 0;
@@ -2548,11 +2548,11 @@ big:
         } else if ((char)RallyData_GetFlag25() != 0) {
             for (i = 0; i < ((char)RallyData_FUN_00407ea0() != 0 ? 1 : 2); i++) {
                 if (CGameInfo::FUN_00405da0() != 0) {
-                    if (i == 0) {
-                        FUN_0046c750((int)g_unk0x00537f3c[i], 0, param2);
-                    } else {
+                    if (i != 0) {
                         FUN_0046d2a0((int *)g_unk0x00537f3c[1]);
                         FUN_0046cce0((int)g_unk0x00537f3c[1], 0, 0, i);
+                    } else {
+                        FUN_0046c750((int)g_unk0x00537f3c[i], 0, param2);
                     }
                 } else if ((char)RallyData_FUN_00408500(i) == -1) {
                     FUN_0046c750((int)g_unk0x00537f3c[i], 0, param2);
@@ -3940,10 +3940,10 @@ void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 {
     int sound;
 
-    if (heavy == 0)
-        sound = rand() % 4 + g_unk0x005373ac;
-    else
+    if (heavy != 0)
         sound = rand() % 3 + 4 + g_unk0x005373ac;
+    else
+        sound = rand() % 4 + g_unk0x005373ac;
     FUN_004187d0(view, (unsigned short)sound, volume, listener);
     CAR_SHAKE(view, volume);
 }
@@ -4468,10 +4468,7 @@ void FUN_00417090(int param_1)
                         if (*(char *)(n + 0x19) != -1 &&
                             FUN_004174d0() != 0 && FUN_00417760(param_1) == 0) {
                             int ok = 1;
-                            if (prev < 2) {
-                                callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
-                                prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
-                            } else {
+                            if (prev >= 2) {
                                 n = (int)RallyData_FUN_00421440(node - 1);
                                 if (*(char *)(n + 0x19) != -1) {
                                     ok = 0;
@@ -4479,6 +4476,9 @@ void FUN_00417090(int param_1)
                                     callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
                                     prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
                                 }
+                            } else {
+                                callId = *(BYTE *)(RallyData_FUN_00421440(node) + 0x19);
+                                prevCallId = *(BYTE *)(RallyData_FUN_00421440(prev) + 0x19);
                             }
                             if (ok)
                                 FUN_004174e0(param_1, callId, prevCallId, (BYTE)node);
@@ -4724,7 +4724,15 @@ void FUN_0041a5c0(int param_1, int param_2)
         FUN_004b79a0(pSet->handle[7],
                      FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volC)));
 
-    if (FUN_00427aa0() != 0) {
+    if (FUN_00427aa0() == 0) {
+        for (i = 0; i < 4; i++) {
+            if (Sound_IsPlaying(pSet->handle[i]))
+                FUN_004b79a0(pSet->handle[i],
+                             FixMul(FUN_00427d50(param_1, param_2),
+                                    FixMul(g_unk0x00537664,
+                                           ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i])));
+        }
+    } else {
         total = 0;
         for (i = 0; i < 4; i++)
             total += ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i];
@@ -4733,14 +4741,6 @@ void FUN_0041a5c0(int param_1, int param_2)
         if (Sound_IsPlaying(pSet->handle[0]))
             FUN_004b79a0(pSet->handle[0],
                          FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, total)));
-    } else {
-        for (i = 0; i < 4; i++) {
-            if (Sound_IsPlaying(pSet->handle[i]))
-                FUN_004b79a0(pSet->handle[i],
-                             FixMul(FUN_00427d50(param_1, param_2),
-                                    FixMul(g_unk0x00537664,
-                                           ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i])));
-        }
     }
 
     ((int *)(g_raceBlock + 0x00))[param_1] = volD;
@@ -5224,14 +5224,14 @@ void FUN_0041c5a0(BYTE param1, int param2)
                         else
                             FUN_0047b000(g_unk0x00538104);
                     } else {
-                        if (g_unk0x00537f98[g_unk0x00538104] != 0) {
+                        if (g_unk0x00537f98[g_unk0x00538104] == 0) {
+                            FUN_0047b870(g_unk0x00538104);
+                        } else {
                             if (FUN_0041f3f0(g_unk0x00538104) != 0 ||
                                 FUN_0041f3d0(g_unk0x00538104) != 0)
                                 FUN_0047b7b0(g_unk0x00538104);
                             else
                                 FUN_0047b870(g_unk0x00538104);
-                        } else {
-                            FUN_0047b870(g_unk0x00538104);
                         }
                     }
                     break;
@@ -5358,14 +5358,14 @@ void FUN_0041c5a0(BYTE param1, int param2)
                 for (g_unk0x00537f04 = 0;
                      g_unk0x00537f04 < (BYTE)RallyDataState() + k;
                      g_unk0x00537f04++) {
-                    if (k == 1) {
-                        FUN_0047a710(g_unk0x00537f04, 0);
-                        FUN_0041af60(g_unk0x00537f04, 0);
-                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, 0);
-                    } else {
+                    if (k != 1) {
                         FUN_0047a710(g_unk0x00537f04, g_unk0x00537f04);
                         FUN_0041af60(g_unk0x00537f04, g_unk0x00537f04);
                         FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, g_unk0x00537f04);
+                    } else {
+                        FUN_0047a710(g_unk0x00537f04, 0);
+                        FUN_0041af60(g_unk0x00537f04, 0);
+                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, 0);
                     }
                 }
             }

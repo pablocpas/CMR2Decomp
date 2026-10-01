@@ -773,16 +773,7 @@ void FUN_0044bcd0(Menu *pMenu)
                           (int *)g_menuFrameColour, 0x11);
             total = 0;
             x = (int)(g_pGraphics->resX * 0xb1) / 640 + ((int)(g_pGraphics->resX * 0x166) / 640) * car;
-            if (!CGameInfo::FUN_00405e00()) {
-                for (split = 1; split < (int)(RallyData_FUN_00406990() & 0xff) + 1; split++) {
-                    FormatCentisecondsAsMinSecMSec(FUN_004481f0(car, split), CFrontend::m_stringDest);
-                    Font_DrawText(1, CFrontend::m_stringDest, x,
-                                  (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
-                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
-                                  (int *)g_menuFrameColour, 0x11);
-                    total += FUN_004481f0(car, split);
-                }
-            } else {
+            if (!(!CGameInfo::FUN_00405e00())) {
                 for (split = 1; split <= FUN_00427670(); split++) {
                     FormatCentisecondsAsMinSecMSec(FUN_004481f0(0, split), CFrontend::m_stringDest);
                     Font_DrawText(1, CFrontend::m_stringDest, x,
@@ -800,6 +791,15 @@ void FUN_0044bcd0(Menu *pMenu)
                     }
                 }
                 total = FUN_004483c0(0);
+            } else {
+                for (split = 1; split < (int)(RallyData_FUN_00406990() & 0xff) + 1; split++) {
+                    FormatCentisecondsAsMinSecMSec(FUN_004481f0(car, split), CFrontend::m_stringDest);
+                    Font_DrawText(1, CFrontend::m_stringDest, x,
+                                  (int)(g_pGraphics->resY * 0x91) / 480 + yOffset +
+                                      ((int)(g_pGraphics->resY * 0x1e) / 480) * split,
+                                  (int *)g_menuFrameColour, 0x11);
+                    total += FUN_004481f0(car, split);
+                }
             }
             FormatCentisecondsAsMinSecMSec(total, CFrontend::m_stringDest);
             Font_DrawText(1, CFrontend::m_stringDest, x,
@@ -1040,10 +1040,10 @@ void FUN_0044d960(Menu *pMenu)
                       ((int)(g_pGraphics->resY * 0xa3) / 480 + ((int)(g_pGraphics->resY * 0x34) / 480) * row) -
                           g_unk0x00540c60,
                       (int *)g_menuFrameColour, 0x21);
-        if (StageTiming_GetTimeForPosition(pos) == StageTiming_GetTimeForPosition(pos - 1))
-            sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
-        else
+        if (StageTiming_GetTimeForPosition(pos) != StageTiming_GetTimeForPosition(pos - 1))
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, pos + 1);
+        else
+            sprintf(CFrontend::m_stringDest, g_stageResultSameTime);
         Font_DrawText(1, CFrontend::m_stringDest,
                       ((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640) / 2 +
                           (int)(g_pGraphics->resX * 0x20) / 640,
@@ -2919,10 +2919,10 @@ void FUN_004541c0(Menu *pMenu)
                       (int)(g_pGraphics->resY * y) / 0x1e0, (int *)pColour, 9);
     }
     if (g_unk0x00540e48) {
-        if (CMain::GetFrameDelta() % 0x14 < 10)
-            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_chatLine);
-        else
+        if (!(CMain::GetFrameDelta() % 0x14 < 10))
             sprintf(CFrontend::m_stringDest, g_str0x00519fb8, g_chatLine);
+        else
+            sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_chatLine);
         Font_DrawText(0, CFrontend::m_stringDest,
                       (int)(g_pGraphics->resX * 0x76) / 0x280 - (int)(g_pGraphics->resX * 0x46) / 0x280,
                       (int)(g_pGraphics->resY * 0xd2) / 0x1e0, (int *)g_menuFrameColour, 9);
@@ -2934,22 +2934,22 @@ void FUN_004541c0(Menu *pMenu)
                       (int *)g_menuFrameColour, 0x12);
         if (pEntries != NULL) {
             for (p = (char *)pEntries + 4, i = 0; i < 10; i++, p += 8) {
-                if (*p == 0) {
-                    Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
-                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
-                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
-                                  (int *)g_menuFrameColour, 0x12);
-                    Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x23a) / 0x280,
-                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
-                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
-                                  (int *)g_menuFrameColour, 0x12);
-                } else {
+                if (*p != 0) {
                     Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
                                   (int)(g_pGraphics->resY * 100) / 0x1e0 +
                                       ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
                                   (int *)g_menuFrameColour, 0x12);
                     sprintf(CFrontend::m_stringDest, g_stageNumberFormat, *(int *)(p + 4));
                     Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x23a) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                } else {
+                    Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1fe) / 0x280,
+                                  (int)(g_pGraphics->resY * 100) / 0x1e0 +
+                                      ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
+                                  (int *)g_menuFrameColour, 0x12);
+                    Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x23a) / 0x280,
                                   (int)(g_pGraphics->resY * 100) / 0x1e0 +
                                       ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * (i + 3),
                                   (int *)g_menuFrameColour, 0x12);
@@ -3367,12 +3367,12 @@ void FUN_0044a1b0(int param_1)
             result = 0x23;
             break;
         }
-        if (g_menu0x00541218.items[0].pSubMenu == &g_menu0x0053f5b0) {
-            g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x00541400;
-            FUN_0044af70(1, &g_menu0x0053f5b0);
-        } else {
+        if (!(g_menu0x00541218.items[0].pSubMenu == &g_menu0x0053f5b0)) {
             g_menu0x00541218.items[0].pSubMenu = &g_menu0x00541400;
             FUN_0044af70(1, &g_menu0x00541218);
+        } else {
+            g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x00541400;
+            FUN_0044af70(1, &g_menu0x0053f5b0);
         }
         result = 0x23;
         break;
@@ -3482,10 +3482,10 @@ void FUN_0044a1b0(int param_1)
         g_pSavedHeaderMenu = &g_menu0x005404d8;
     } else {
         g_pHeaderMenu = NULL;
-        if (param_1 != 0)
-            g_pSavedHeaderMenu = &g_menu0x0053ea68;
-        else
+        if (param_1 == 0)
             g_pSavedHeaderMenu = &g_menu0x0053ff38;
+        else
+            g_pSavedHeaderMenu = &g_menu0x0053ea68;
     }
 }
 

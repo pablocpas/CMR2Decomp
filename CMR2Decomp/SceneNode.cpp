@@ -1041,12 +1041,12 @@ void Scene_RelightSector(int sector)
             }
             for (pObject = pSector->pObjects; pObject != NULL; pObject = pObject->pNext) {
                 pMesh = pObject->pMesh;
-                if ((pMesh->flags & 0x80) == 0) {
-                    Scene_GetLightColourD3D(&colour, pObject->lightLevel);
-                    Mesh_SetColourAndRefresh(pMesh, colour);
-                } else {
+                if ((pMesh->flags & 0x80) != 0) {
                     MESH_LIGHT_VERTICES(pMesh);
                     Mesh_RefreshVertices(pMesh);
+                } else {
+                    Scene_GetLightColourD3D(&colour, pObject->lightLevel);
+                    Mesh_SetColourAndRefresh(pMesh, colour);
                 }
             }
             for (pNode = pSector->pFirstNode; pNode != NULL; pNode = pNode->pNextInSector)
@@ -1389,10 +1389,10 @@ void Scene_LoadLighting(int *pData)
             }
             s = next + 1;
         } while (s < (unsigned int)g_sectorCount);
-        if ((int)found < 0)
-            *(short *)(g_sceneLightZones + off) = -1;
-        else
+        if ((int)found >= 0)
             *(short *)(g_sceneLightZones + off) = (short)found;
+        else
+            *(short *)(g_sceneLightZones + off) = -1;
     }
 
     // Scene object under each item.

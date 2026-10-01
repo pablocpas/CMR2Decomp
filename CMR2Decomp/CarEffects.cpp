@@ -391,12 +391,12 @@ void Spark_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     FixVecCross(&side, &d, &p->position);
     FIX_NORMALIZE_INTO(side, side);
     len = FixVecLength(&p->position);
-    if (len <= 0x5999) {
-        dir = p->position;
-    } else {
+    if (len > 0x5999) {
         FixVecScaleRecip(&dir, &p->position, len);
         FixVecScale(&dir, &dir, 0x5999);
         len = 0x5999;
+    } else {
+        dir = p->position;
     }
     FixVecScale(&side, &side, FixMul(len, 0x4000));
     g_sparkTri[0].x = FixMul(dir.x, 0x20000) + pos.x;
@@ -539,23 +539,23 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
             pExt++;
             pOff++;
         }
-        if (EFFECT_RAND() > 0x7fff) {
-            off[0].y -= off[1].y;
-            off[0].x -= off[1].x;
-            off[0].z -= off[1].z;
-        } else {
+        if (EFFECT_RAND() <= 0x7fff) {
             off[0].y += off[1].y;
             off[0].x += off[1].x;
             off[0].z += off[1].z;
-        }
-        if (EFFECT_RAND() > 0x7fff) {
-            vel.y = off[0].y - off[2].y;
-            vel.x = off[0].x - off[2].x;
-            vel.z = off[0].z - off[2].z;
         } else {
+            off[0].y -= off[1].y;
+            off[0].x -= off[1].x;
+            off[0].z -= off[1].z;
+        }
+        if (EFFECT_RAND() <= 0x7fff) {
             vel.y = off[2].y + off[0].y;
             vel.x = off[2].x + off[0].x;
             vel.z = off[2].z + off[0].z;
+        } else {
+            vel.y = off[0].y - off[2].y;
+            vel.x = off[0].x - off[2].x;
+            vel.z = off[0].z - off[2].z;
         }
         if (EFFECT_RAND() < glassChance) {
             light = *((BYTE *)pCar->pNode0x720 + 0x17c);
@@ -1000,10 +1000,10 @@ void WheelSpray_Update(int player)
                 g_sprayCountdown[pCar->field_0xb1a][wheel] =
                     (char)FixMulShift32((g_sprayInterval[effect][1] - g_sprayInterval[effect][0]) << 16, wet) +
                     g_sprayInterval[effect][0];
-                if (pSlip[0xde] == 0)
-                    slip = FixMul(*pSlip, 0x4ccc);
-                else
+                if (pSlip[0xde] != 0)
                     slip = *pSlip;
+                else
+                    slip = FixMul(*pSlip, 0x4ccc);
                 lat = pSlip[4];
                 if (pSlip[0xde] != 0 && FIX_ABS(lat) + FIX_ABS(slip) > 0x5999) {
                     if (wheel < 2) {
@@ -1417,15 +1417,15 @@ void WheelSplash_Update(int player)
                     vel.y = FixMul(vel.y, k);
                     vel.z = FixMul(vel.z, k);
                 }
-                if (type == 0xd) {
+                if (type != 0xd) {
+                    pPos = &rel;
+                    f48 = rel.y - 0x10000;
+                } else {
                     vel.x = pVel->x / 3;
                     vel.y = pVel->y / 3;
                     vel.z = pVel->z / 3;
                     pPos = &pos;
                     f48 = pos.y - 0x630000;
-                } else {
-                    pPos = &rel;
-                    f48 = rel.y - 0x10000;
                 }
                 Particle_Spawn(type, pPos, &vel, f48, 0, colour, g_trailLevel[player][wheel], (int)&player,
                                *((BYTE *)pCar->pNode0x720 + 0x17c));

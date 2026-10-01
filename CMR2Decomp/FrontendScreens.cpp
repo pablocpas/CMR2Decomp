@@ -292,10 +292,10 @@ void FUN_004d5de0(unsigned int param_1, BYTE param_2)
 
     g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
     g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
-    if (param_2 == 0)
-        which = RallyDataCountryIndex() & 0xff;
-    else
+    if (param_2 != 0)
         which = 8;
+    else
+        which = RallyDataCountryIndex() & 0xff;
     pMap = (BYTE *)g_dmdFiles[which][param_1];
     if (pMap != NULL) {
         rows = 0x24;
@@ -3229,12 +3229,12 @@ void FUN_004f0620(Menu *pMenu)
     index = pMenu->items[0].max;
     if (index != old) {
         if (old != -1) {
-            if (index > old) {
-                other = index - old;
-                steps = pMenu->items[0].min - index + old;
-            } else {
+            if (index <= old) {
                 steps = old - index;
                 other = pMenu->items[0].min - old + index;
+            } else {
+                other = index - old;
+                steps = pMenu->items[0].min - index + old;
             }
             if (steps < other) {
                 while (steps > 0) {
@@ -3247,10 +3247,10 @@ void FUN_004f0620(Menu *pMenu)
                     other--;
                 }
             } else {
-                if (pMenu->moveFlags & 2)
-                    other = g_pGraphics->resX * -5;
-                else
+                if (!(pMenu->moveFlags & 2))
                     other = g_pGraphics->resX * 5;
+                else
+                    other = g_pGraphics->resX * -5;
                 g_unk0x00819868 += (other << 4) / 640;
             }
             g_unk0x00819884 = g_unk0x00819868;
@@ -4373,12 +4373,12 @@ void FUN_004f37c0(MenuScroller *p)
             }
             target = pMenu->cursor;
             cur = p->current;
-            if (target > cur) {
-                back = pMenu->itemCount - target + cur;
-                fwd = target - cur;
-            } else {
+            if (target <= cur) {
                 fwd = pMenu->itemCount - cur + target;
                 back = cur - target;
+            } else {
+                back = pMenu->itemCount - target + cur;
+                fwd = target - cur;
             }
             if (back < fwd) {
                 while (back-- > 0) {
@@ -5378,15 +5378,15 @@ void FUN_004f28c0(Menu *pMenu, int param)
         pItem->enabled = 0;
         pItem->visible = 1;
         pItem->max = 0;
-        if (i % 2 == 0) {
-            cheat = CGameInfo::FUN_00406410(i / 2 + 4);
+        if (i % 2 != 0) {
+            cheat = CGameInfo::FUN_00406410(i / 2 + 8);
             if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
                 pItem->enabled = 1;
                 if (CGameInfo::FUN_004063d0(i))
                     pItem->max = 1;
             }
         } else {
-            cheat = CGameInfo::FUN_00406410(i / 2 + 8);
+            cheat = CGameInfo::FUN_00406410(i / 2 + 4);
             if (CGameInfo::FUN_00406360(i) != 0 || cheat) {
                 pItem->enabled = 1;
                 if (CGameInfo::FUN_004063d0(i))
@@ -5494,9 +5494,7 @@ void FUN_004ded80(Menu *pMenu)
             Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)icon, CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, pRow, 8);
         }
         y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1]);
-        if (!pItem->enabled) {
-            Font_DrawText(1, g_strLockedCheat, x0, y, (int *)pRow, 0x11);
-        } else {
+        if (!(!pItem->enabled)) {
             Font_DrawText(1, CFrontend::GetTextString(pItem->id), x0, y, (int *)pRow, 0x11);
             x = (int)(g_pGraphics->resX * 15) / 640 + maxWidth + x0;
             Font_DrawText(1, CFrontend::GetTextString(0x133), x, y,
@@ -5504,6 +5502,8 @@ void FUN_004ded80(Menu *pMenu)
             x = (int)(g_pGraphics->resX * 25) / 640 + maxWidth + Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(0x133)) + x0;
             Font_DrawText(1, CFrontend::GetTextString(0x134), x, y,
                           (int *)(pItem->max == 0 ? g_colourText0x0052496c : g_colourWhite0x00524968), 0x11);
+        } else {
+            Font_DrawText(1, g_strLockedCheat, x0, y, (int *)pRow, 0x11);
         }
         if (pMenu->cursor == i || pMenu->cursor == i + 1) {
             pColour = g_colourWhite0x00524968;
@@ -5793,9 +5793,7 @@ void FUN_004e5630(Menu *pMenu)
         pRecord = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x150 + (i + pMenu->cursor * 12) * 8);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, i + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 100) / 640, y, (int *)g_colourText0x0052496c, 0x12);
-        if ((*pRecord & 0x80) == 0) {
-            Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
-        } else {
+        if ((*pRecord & 0x80) != 0) {
             Font_DrawText(1, CFrontend::FUN_0040ede0(*pRecord & 0x3f), (int)(g_pGraphics->resX * 230) / 640, y,
                           (int *)g_colourWhite0x00524968, 0x12);
             Font_DrawText(1, (*pRecord & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
@@ -5805,6 +5803,8 @@ void FUN_004e5630(Menu *pMenu)
             Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 415) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
             Font_DrawText(0, (char *)FUN_004f9240(pMenu->cursor, i), (int)(g_pGraphics->resX * 520) / 640, y,
                           (int *)g_colourWhite0x00524968, 0x12);
+        } else {
+            Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y, (int *)g_colourWhite0x00524968, 0x12);
         }
         g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 90) / 480) + (short)((int)(g_pGraphics->resY * 25) / 480) * ((short)i + 1);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourText0x0052496c, 1);
@@ -7949,15 +7949,15 @@ unsigned int FUN_004fb400(BYTE *pBlock)
             pBuffer[6] = pSetup[6];
             if ((*(unsigned int *)(RallyData_FUN_00408860(i) + 0x14) & 0x200000) == 0) {
                 pBuffer = (BYTE *)FUN_004eb4b0(FUN_004eb2e0((char *)pName), 0);
-                if (pBuffer == NULL) {
-                    FUN_004eb000((BYTE)i, 0);
-                } else {
+                if (pBuffer != NULL) {
                     memcpy(RallyData_FUN_00408860(i), pBuffer, 0x650);
                     pRecord = RallyData_FUN_00408860(i);
                     *(unsigned int *)(pRecord + 0x10) = *(unsigned int *)pName;
                     *(unsigned int *)(pRecord + 0x14) = *((unsigned int *)pName + 1);
                     *(unsigned int *)(pRecord + 0x18) = *((unsigned int *)pName + 2);
                     CFileBuffer::FreeGenericFileBuffer(pBuffer);
+                } else {
+                    FUN_004eb000((BYTE)i, 0);
                 }
             }
             pDest += 0x148;
@@ -8152,14 +8152,14 @@ void FUN_004dc930(Menu *pMenu)
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
                             (int)(g_pGraphics->resY * 0x26) / 0x1e0, names, 2);
     row = 0;
-    if (g_unk0x00819014 == 0) {
-        pColour = (int *)g_colourText0x0052496c;
-        pSelColour = (int *)g_colourDim0x00524970;
-        pUnselColour = (int *)g_colourDim0x00524970;
-    } else {
+    if (g_unk0x00819014 != 0) {
         pColour = (int *)g_colourWhite0x00524968;
         pUnselColour = (int *)g_colourText0x0052496c;
         pSelColour = (int *)g_colourWhite0x00524968;
+    } else {
+        pColour = (int *)g_colourText0x0052496c;
+        pSelColour = (int *)g_colourDim0x00524970;
+        pUnselColour = (int *)g_colourDim0x00524970;
     }
     Font_DrawText(1, CFrontend::GetTextString(0x7f), (int)(g_pGraphics->resX * 100) / 0x280,
                   (int)(g_pGraphics->resY * 0x37) / 0x1e0, pColour, 10);
@@ -8267,10 +8267,7 @@ void FUN_004e20e0(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
                             (int)(g_pGraphics->resY * 0x26) / 0x1e0, pText, 3);
-    if (g_unk0x0082ac48 < 1) {
-        Font_DrawText(0, CFrontend::GetTextString(0x20d), (int)g_pGraphics->resX / 2,
-                      (int)g_pGraphics->resY / 2, (int *)g_colourText0x0052496c, 0x12);
-    } else {
+    if (g_unk0x0082ac48 >= 1) {
         for (index = 0; index < g_unk0x0082ac48; index++) {
             pad = FUN_004f4e20(g_unk0x0082aa3c + index);
             pColour = (int *)names[pad];
@@ -8302,6 +8299,9 @@ void FUN_004e20e0(Menu *pMenu)
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
             Font_DrawText(0, (char *)FUN_004f4dc0(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
         }
+    } else {
+        Font_DrawText(0, CFrontend::GetTextString(0x20d), (int)g_pGraphics->resX / 2,
+                      (int)g_pGraphics->resY / 2, (int *)g_colourText0x0052496c, 0x12);
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
 }
@@ -8345,7 +8345,9 @@ void FUN_004ee6e0(Menu *pMenu)
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (CGameInfo::FUN_00406410(0xd) == 0) {
+    if (!(CGameInfo::FUN_00406410(0xd) == 0)) {
+        count = ((max & 1) != 0) + 10;
+    } else {
         if ((max & 1) != 0) {
             mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
             bits = (BYTE)mask;
@@ -8354,8 +8356,6 @@ void FUN_004ee6e0(Menu *pMenu)
                 (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
                 count++;
         }
-    } else {
-        count = ((max & 1) != 0) + 10;
     }
     Menu_GetItem(pMenu, 1)->min = (char)count;
     if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
@@ -8408,7 +8408,9 @@ void FUN_004ee170(Menu *pMenu)
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (CGameInfo::FUN_00406410(0xd) == 0) {
+    if (!(CGameInfo::FUN_00406410(0xd) == 0)) {
+        count = ((max & 1) != 0) + 10;
+    } else {
         if ((max & 1) != 0) {
             mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
             bits = (BYTE)mask;
@@ -8417,8 +8419,6 @@ void FUN_004ee170(Menu *pMenu)
                 (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
                 count++;
         }
-    } else {
-        count = ((max & 1) != 0) + 10;
     }
     Menu_GetItem(pMenu, 1)->min = (char)count;
     if (Menu_GetItem(pMenu, 1)->max >= Menu_GetItem(pMenu, 1)->min)
@@ -8493,7 +8493,12 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
         index += FUN_004eb440();
     pName = (char *)FUN_004eb450(index);
     sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, pName);
-    if (!FUN_004ebd60(index)) {
+    if (!(!FUN_004ebd60(index))) {
+        pColour = (int *)colourShadow;
+        x = (int)g_pGraphics->resX;
+        y = (int)g_pGraphics->resY;
+        x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
+    } else {
         if (param_2 == 0) {
             pColour = (int *)g_colourWhite0x00524968;
             y = (int)g_pGraphics->resY;
@@ -8504,11 +8509,6 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
             y = (int)g_pGraphics->resY;
             x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
         }
-    } else {
-        pColour = (int *)colourShadow;
-        x = (int)g_pGraphics->resX;
-        y = (int)g_pGraphics->resY;
-        x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
     }
     Font_DrawText(2, CFrontend::m_stringDest, x, (y * 0x118) / 0x1e0, pColour, 0x12);
     count = (int)g_pGraphics->resX;
@@ -8613,19 +8613,19 @@ void FUN_004ed840(Menu *pMenu)
         g_unk0x00818ce0 = Menu_GetItem(pMenu, 2)->max;
     }
     if (g_unk0x00818d00 != pMenu->cursor) {
-        if (pMenu->items[pMenu->cursor].value == 0) {
+        if (pMenu->items[pMenu->cursor].value != 0) {
+            if (pMenu->items[g_unk0x00818d00].value == 0) {
+                FUN_004ea5c0(0);
+                Menu_SetFlags(pMenu, 1, 1, 1, 1);
+            }
+            g_unk0x00818ed0 = 0;
+        } else {
             FUN_004b7c80();
             g_unk0x00818f14[0] = 0;
             g_unk0x00819028 = 0;
             g_unk0x00818ed0 = 1;
             FUN_004ea5c0(1);
             Menu_SetFlags(pMenu, 0, 0, 0, 0);
-        } else {
-            if (pMenu->items[g_unk0x00818d00].value == 0) {
-                FUN_004ea5c0(0);
-                Menu_SetFlags(pMenu, 1, 1, 1, 1);
-            }
-            g_unk0x00818ed0 = 0;
         }
         g_unk0x00818d00 = pMenu->cursor;
     }
@@ -8661,7 +8661,17 @@ void FUN_004ed840(Menu *pMenu)
             }
         }
     }
-    if (FUN_004a15a0() == 0) {
+    if (FUN_004a15a0() != 0) {
+        i = 0;
+        do {
+            c = (char)FUN_00409cb0(i);
+            if (c != 0 && FUN_0040a470(i) == 0) {
+                b = 0;
+                break;
+            }
+            i++;
+        } while (i < 7);
+    } else {
         if (g_unk0x00818ce4 != 0) {
             if (Menu_GetItem(pMenu, 3)->max == 1) {
                 g_unk0x00818ce4 = 0;
@@ -8674,16 +8684,6 @@ void FUN_004ed840(Menu *pMenu)
             g_unk0x00818ce4 = 1;
             FUN_004ec2b0();
         }
-    } else {
-        i = 0;
-        do {
-            c = (char)FUN_00409cb0(i);
-            if (c != 0 && FUN_0040a470(i) == 0) {
-                b = 0;
-                break;
-            }
-            i++;
-        } while (i < 7);
     }
 LAB_004edb02:
     Menu_GetItem(pMenu, 3)->enabled ^= b;
@@ -8716,10 +8716,10 @@ void FUN_004ed100(Menu *pMenu)
         Menu_GetItem(pMenu, 1)->min = 3;
     if (Menu_GetItem(pMenu, 1)->min <= Menu_GetItem(pMenu, 1)->max)
         Menu_GetItem(pMenu, 1)->max = Menu_GetItem(pMenu, 1)->min - 1;
-    if (Menu_GetItem(pMenu, 1)->max < 3)
-        Menu_GetItem(pMenu, 3)->min = 7;
-    else
+    if (Menu_GetItem(pMenu, 1)->max >= 3)
         Menu_GetItem(pMenu, 3)->min = 5;
+    else
+        Menu_GetItem(pMenu, 3)->min = 7;
     if (Menu_GetItem(pMenu, 3)->min <= Menu_GetItem(pMenu, 3)->max)
         Menu_GetItem(pMenu, 3)->max = Menu_GetItem(pMenu, 3)->min - 1;
     value = pMenu->items[pMenu->cursor].value;
@@ -8730,14 +8730,7 @@ void FUN_004ed100(Menu *pMenu)
     if (value == 0 || value == 4) {
         strcpy(CFrontend::m_stringDest, g_unk0x00818cdc);
         if (FUN_004b7cd0(&key) != 0) {
-            if (key == 8) {
-                if (CFrontend::m_stringDest[0] != 0) {
-                    n = 2;
-                    len = strlen(CFrontend::m_stringDest);
-                    CFrontend::m_stringDest[len - 1] = 0;
-                    Menu_PlaySoundId(n);
-                }
-            } else {
+            if (key != 8) {
                 i = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
                 len = strlen(CFrontend::m_stringDest);
                 if ((int)(len - 1) < 0x13 &&
@@ -8748,6 +8741,13 @@ void FUN_004ed100(Menu *pMenu)
                         CFrontend::m_stringDest[len + 1] = 0;
                         Menu_PlaySoundId(1);
                     }
+                }
+            } else {
+                if (CFrontend::m_stringDest[0] != 0) {
+                    n = 2;
+                    len = strlen(CFrontend::m_stringDest);
+                    CFrontend::m_stringDest[len - 1] = 0;
+                    Menu_PlaySoundId(n);
                 }
             }
         }
@@ -9022,10 +9022,7 @@ void FUN_004e48b0(Menu *pMenu)
     g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
     pBase = RallyData_FUN_00408cb0(0);
-    if ((pBase[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) == 0) {
-        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
-                      (int *)g_colourWhite0x00524968, 0x12);
-    } else {
+    if ((pBase[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) != 0) {
         pEntry = RallyData_FUN_00408cb0(0) + 0x34 + (mode + pMenu->cursor * 3) * 0xc;
         pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
                                   (pMenu->cursor * 3 + 4 + mode) * 0xc);
@@ -9048,6 +9045,9 @@ void FUN_004e48b0(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(0, (char *)FUN_004f9260(pMenu->cursor, mode),
                       (int)(g_pGraphics->resX * 0x212) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
                       (int *)g_colourWhite0x00524968, 0x12);
     }
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0x19) / 0x1e0 +
@@ -9265,10 +9265,7 @@ void FUN_004e63d0(Menu *pMenu)
     pRow = RallyData_FUN_00408cb0(0) + 0x454 + (mode + pMenu->cursor * 3) * 0xc;
     pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
                               (pMenu->cursor * 3 + 0x5c + mode) * 0xc);
-    if ((*pFlags & 0x80) == 0) {
-        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
-                      (int *)g_colourWhite0x00524968, 0x12);
-    } else {
+    if ((*pFlags & 0x80) != 0) {
         Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xbe) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
         if ((*pFlags & 0x40) == 0)
@@ -9285,6 +9282,9 @@ void FUN_004e63d0(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(0, (char *)FUN_004f92a0(pMenu->cursor, mode),
                       (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
+                      (int *)g_colourWhite0x00524968, 0x12);
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
                       (int *)g_colourWhite0x00524968, 0x12);
     }
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 +
@@ -9422,10 +9422,7 @@ void FUN_004e7120(Menu *pMenu)
         pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) + 0x4bc + n * 8);
         Font_DrawText(1, CFrontend::GetTextString(order[i] + 0x27), (int)(g_pGraphics->resX * 100) / 0x280,
                       y, (int *)g_colourText0x0052496c, 0x12);
-        if ((*pFlags & 0x80) == 0) {
-            Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
-                          (int *)g_colourWhite0x00524968, 0x12);
-        } else {
+        if ((*pFlags & 0x80) != 0) {
             Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
                           (int)(g_pGraphics->resX * 0x109) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
             if ((*pFlags & 0x40) == 0)
@@ -9440,6 +9437,9 @@ void FUN_004e7120(Menu *pMenu)
             Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1b8) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
             Font_DrawText(0, (char *)FUN_004f92c0(i), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        } else {
+            Font_DrawText(1, CFrontend::GetTextString(0x171), (int)g_pGraphics->resX / 2, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         }
         g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0xa0) / 0x1e0) +
@@ -9920,12 +9920,12 @@ void FUN_004d6f10(Menu *pMenu)
                           (g_pGraphics->resY * (row + 4)) / 8, pColour, 0x12);
         }
     }
-    if (g_unk0x008189a4 == 0) {
-        sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
-        sprintf(name, CMain::m_logFileBlankLine);
-    } else {
+    if (g_unk0x008189a4 != 0) {
         strcpy(CFrontend::m_stringDest, (char *)RallyData_GetRecord(FUN_004f2be0()));
         strcpy(name, (char *)RallyData_GetRecord(FUN_004f2be0()));
+    } else {
+        sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
+        sprintf(name, CMain::m_logFileBlankLine);
     }
     while (strlen(CFrontend::m_stringDest) < 3) {
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) + 1] = 0;
@@ -10023,10 +10023,7 @@ void FUN_004d6a60(Menu *pMenu)
         FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 4);
     }
     count = FUN_004eb440();
-    if (count < 1) {
-        Font_DrawText(2, CFrontend::GetTextString(0x1be), g_pGraphics->resX / 2,
-                      (int)(g_pGraphics->resY * 0x118) / 0x1e0, (int *)g_colourText0x0052496c, 0x12);
-    } else {
+    if (count >= 1) {
         // the two counts are kept in the original but the result is discarded
         value = pMenu->items[0].max;
         FUN_004d6870(value, 0);
@@ -10036,6 +10033,9 @@ void FUN_004d6a60(Menu *pMenu)
         i = -1;
         while (FUN_004d6870(value, i))
             i--;
+    } else {
+        Font_DrawText(2, CFrontend::GetTextString(0x1be), g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY * 0x118) / 0x1e0, (int *)g_colourText0x0052496c, 0x12);
     }
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x184) / 0x1e0, -1, 1, 1);
     if (pMenu->cursor == 0) {
@@ -10241,10 +10241,7 @@ void FUN_004e9990(Menu *pMenu)
     pColour = (int *)g_colourWhite0x00524968;
     if (pMenu->items[pMenu->cursor].value != 0)
         pColour = (int *)g_colourText0x0052496c;
-    if (CNetworkLeaderboards::GetTotalLeaderboards() == 0) {
-        Font_DrawText(1, CFrontend::GetTextString(0x1eb), g_pGraphics->resX / 2,
-                      (int)(g_pGraphics->resY) / 4, pColour, 0x12);
-    } else {
+    if (!(CNetworkLeaderboards::GetTotalLeaderboards() == 0)) {
         pItem = Menu_GetItem(pMenu, 0);
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea), pItem->max + 1, pItem->min);
         Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX / 2,
@@ -10252,13 +10249,7 @@ void FUN_004e9990(Menu *pMenu)
         pBoard = CNetworkLeaderboards::GetLoadedLeaderboard(Menu_GetItem(pMenu, 0)->max);
         for (i = 0; i < 10; i++) {
             pEntry = &pBoard->entries[i];
-            if (pEntry->name[0] == 0) {
-                Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x118) / 0x280,
-                              (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
-                                  ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i, pColour, 0x12);
-                y = (int)(g_pGraphics->resY * 0x5a) / 0x1e0 + ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i;
-                Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x154) / 0x280, y, pColour, 0x12);
-            } else {
+            if (pEntry->name[0] != 0) {
                 Font_DrawText(0, pEntry->name, (int)(g_pGraphics->resX * 0x118) / 0x280,
                               (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
                                   ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i, pColour, 0x12);
@@ -10266,6 +10257,12 @@ void FUN_004e9990(Menu *pMenu)
                 y = (int)(g_pGraphics->resY * 0x5a) / 0x1e0 + ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i;
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x154) / 0x280, y,
                               pColour, 0x12);
+            } else {
+                Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x118) / 0x280,
+                              (int)(g_pGraphics->resY * 0x5a) / 0x1e0 +
+                                  ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i, pColour, 0x12);
+                y = (int)(g_pGraphics->resY * 0x5a) / 0x1e0 + ((int)(g_pGraphics->resY * 0xf) / 0x1e0) * i;
+                Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x154) / 0x280, y, pColour, 0x12);
             }
         }
         if (Menu_GetItem(pMenu, 0)->min != 0) {
@@ -10276,6 +10273,9 @@ void FUN_004e9990(Menu *pMenu)
                           (int)(g_pGraphics->resX * 0x3c) / 0x280 + (int)(g_pGraphics->resX * 0x154) / 0x280,
                           (int)(g_pGraphics->resY * 0xa0) / 0x1e0, pColour, 0x12);
         }
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x1eb), g_pGraphics->resX / 2,
+                      (int)(g_pGraphics->resY) / 4, pColour, 0x12);
     }
     FrontendDraw_MenuList(pMenu, NULL, (int)(g_pGraphics->resY * 0x140) / 0x1e0, -1, 1, 1);
     FrontendDraw_Carousel(FUN_004f8410(), 0, 0);
@@ -10411,7 +10411,14 @@ void FUN_004d50a0(Menu *pMenu)
                      (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
                      ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
                      FUN_004ebcd0(0, 0, i));
-        if (i == 0) {
+        if (i != 0) {
+            FUN_004d4f90((int)(g_pGraphics->resX * 0x17c) / 0x280,
+                         (int)(g_pGraphics->resY * 5) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
+                         (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
+                         ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
+                         FUN_004ebcd0(0, 1, i));
+        } else {
             g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x17c) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x30) / 0x280) / 2;
             g_unk0x008189a8[1] = (int)(g_pGraphics->resY * 5) / 0x1e0 +
@@ -10422,13 +10429,6 @@ void FUN_004d50a0(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8,
                             g_colourDim0x00524970, 4);
             FUN_004d27e0(g_unk0x008189a8, g_colourText0x0052496c);
-        } else {
-            FUN_004d4f90((int)(g_pGraphics->resX * 0x17c) / 0x280,
-                         (int)(g_pGraphics->resY * 5) / 0x1e0 +
-                         (int)(g_pGraphics->resY * 0x18) / 0x1e0 +
-                         (int)(g_pGraphics->resY * 0x145) / 0x1e0 +
-                         ((int)(g_pGraphics->resY * 0x1e) / 0x1e0) * i,
-                         FUN_004ebcd0(0, 1, i));
         }
     }
 }
@@ -11387,11 +11387,11 @@ void FUN_004dce00(Menu *pMenu)
                 pText = CFrontend::m_stringDest;
                 break;
             case 2:
-                if (Menu_GetItem(pMenu, 2)->max <= 0) {
-                    sprintf(CFrontend::m_stringDest, g_strItemOffFmt, CFrontend::GetTextString(0x1c1));
-                } else {
+                if (Menu_GetItem(pMenu, 2)->max > 0) {
                     sprintf(CFrontend::m_stringDest, g_strItemSecondsFmt, CFrontend::GetTextString(0x1c1),
                             Menu_GetItem(pMenu, 2)->max - 1);
+                } else {
+                    sprintf(CFrontend::m_stringDest, g_strItemOffFmt, CFrontend::GetTextString(0x1c1));
                 }
                 pText = CFrontend::m_stringDest;
                 break;
@@ -11670,11 +11670,11 @@ void FUN_004e8500(Menu *pMenu)
                 pText = CFrontend::m_stringDest;
                 break;
             case 2:
-                if (Menu_GetItem(pMenu, 2)->max == 0) {
-                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
-                } else {
+                if (Menu_GetItem(pMenu, 2)->max != 0) {
                     sprintf(buffer, CFrontend::GetTextString(0x1e0), Menu_GetItem(pMenu, 2)->max + 4);
                     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1de), buffer);
+                } else {
+                    sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
                 }
                 pText = CFrontend::m_stringDest;
                 break;
@@ -11772,11 +11772,11 @@ void FUN_004e90f0(Menu *pMenu)
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 1:
-                if (Menu_GetItem(pMenu, 1)->max == 0) {
-                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
-                } else {
+                if (Menu_GetItem(pMenu, 1)->max != 0) {
                     sprintf(buffer, CFrontend::GetTextString(0x1e0), Menu_GetItem(pMenu, 1)->max + 4);
                     sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x1de), buffer);
+                } else {
+                    strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x1e1));
                 }
                 Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);

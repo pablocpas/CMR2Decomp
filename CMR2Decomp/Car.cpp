@@ -2284,10 +2284,10 @@ void Car_UpdateCornerFriction(void)
             if (len < 0x10000)
                 force -= FixVecLength(&g_carStepAccel);
             if (((force) < 0 ? -(force) : (force)) > g_pCurrentCar->cornerGripB[i]) {
-                if (force > 0)
-                    force = g_pCurrentCar->cornerGripA[i];
-                else
+                if (force <= 0)
                     force = -g_pCurrentCar->cornerGripA[i];
+                else
+                    force = g_pCurrentCar->cornerGripA[i];
             }
             FixVecScale(&g_pCurrentCar->cornerForce[i], &dir, force);
         }
@@ -2439,7 +2439,10 @@ void Car_UpdateTyreForces(void)
                 } else if (speed * 4 < g_pCurrentCar->wheelLoad[i] || g_pCurrentCar->wheelLoad[i] < -0x1999) {
                     g_pCurrentCar->wheelSlipping[i] = 1;
                 }
-                if (i < 2 || g_pCurrentCar->field_0x1d8 == 0 || crossing) {
+                if (i >= 2 && g_pCurrentCar->field_0x1d8 != 0 && !crossing) {
+                    g_pCurrentCar->wheelTorque[i] = 0;
+                    WHEEL_BRAKE(i, resist);
+                } else {
                     longForce = FixMul(slip, g_tyreSlipScale) * 4;
                     if (g_pCurrentCar->flag0x1d0[2] == 0 && g_pCurrentCar->flag0x1d0[3] == 0) {
                         grip = g_pCurrentCar->field_0xa5c[i];
@@ -2467,9 +2470,6 @@ void Car_UpdateTyreForces(void)
                     if (g_pCurrentCar->field_0xb1f != 0)
                         slip = FixMul(slip, 0x1999);
                     g_pCurrentCar->wheelTorque[i] += slip;
-                } else {
-                    g_pCurrentCar->wheelTorque[i] = 0;
-                    WHEEL_BRAKE(i, resist);
                 }
             }
         }
@@ -2532,12 +2532,12 @@ void Car_UpdateTyreForces(void)
             longForce = -longForce;
         if (latForce < 0)
             latForce = -latForce;
-        if (i < 2) {
-            a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
-            b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
-        } else {
+        if (i >= 2) {
             a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24) - 0x4ccc + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
             b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) - 0x4ccc + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
+        } else {
+            a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
+            b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
         }
         if (longForce < 0x6666) {
             limB = FixMul(g_pCurrentCar->field_0xa5c[i], b);
@@ -3061,12 +3061,12 @@ void Car_UpdateWheelForces(void)
 
         FixVecCross(&cross, &g_pCurrentCar->wheelDirFront, &g_pCurrentCar->up);
         len = FixVecLength(&cross);
-        if (len == 0) {
+        if (len != 0) {
+            FixVecScaleRecip(&axis[1], &cross, len);
+        } else {
             axis[1].x = 0;
             axis[1].y = 0;
             axis[1].z = 0;
-        } else {
-            FixVecScaleRecip(&axis[1], &cross, len);
         }
     }
 
@@ -5088,14 +5088,14 @@ void Car_UpdateEngineSpeed(void)
         g_pCurrentCar->field_0x7a4 = 0;
     } else if (g_pCurrentCar->field_0x7a4 > g_pCurrentCar->field_0x794) {
         excess = g_pCurrentCar->field_0x7a4 - g_pCurrentCar->field_0x794;
-        if (excess <= 0xcccc) {
-            g_pCurrentCar->field_0xb78 = 0;
-        } else {
+        if (excess > 0xcccc) {
             excess = FixMul(excess - 0xcccc, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;
             g_pCurrentCar->field_0x7b0 = FixMul(excess, 0x51eb);
             g_pCurrentCar->field_0xb78 = 1;
+        } else {
+            g_pCurrentCar->field_0xb78 = 0;
         }
         g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
         return;
@@ -6052,10 +6052,10 @@ void FUN_0042b4a0(short *pList, short count)
                 (&g_unk0x0053a230[index].a)[w] += (short)(__int64)(v * -0.009947183943243459);
             if (v < 0)
                 v = -v;
-            if (v <= 0x8000)
-                g_unk0x0053ac48[index][w] = 0;
-            else
+            if (v > 0x8000)
                 g_unk0x0053ac48[index][w] = 1;
+            else
+                g_unk0x0053ac48[index][w] = 0;
         }
     }
 }
@@ -6479,7 +6479,12 @@ void FUN_0042e450(void)
             CARF(0x808 + i * 4) = 0;
         }
     }
-    if (CARF(0xc00) == 0) {
+    if (CARF(0xc00) != 0) {
+        for (i = 0; i < 4; i++) {
+            CARF(0x938 + i * 4) = 0;
+            CARF(0x948 + i * 4) = 0;
+        }
+    } else {
         for (i = 0; i < 4; i++) {
             if (CARF(0x9c + i * 0x24) < 1 || *(char *)((int)g_pCurrentCar + 0xb2c + i) != 0 ||
                 CARF(0xb74) == 0) {
@@ -6492,7 +6497,11 @@ void FUN_0042e450(void)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;
-                if (CARF(0x948 + i * 4) < 1) {
+                if (CARF(0x948 + i * 4) >= 1) {
+                    CARF(0x948 + i * 4) -= t;
+                    if (CARF(0x948 + i * 4) < 0)
+                        CARF(0x948 + i * 4) = 0;
+                } else {
                     a = CARF(0x270 + i * 0xc);
                     b = CARF(0x278 + i * 0xc);
                     if (CARF(0x938 + i * 4) == 0) {
@@ -6505,17 +6514,8 @@ void FUN_0042e450(void)
                             FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x201) << 7, 0x320000),
                                    CARF(0xa0 + i * 0x24));
                     }
-                } else {
-                    CARF(0x948 + i * 4) -= t;
-                    if (CARF(0x948 + i * 4) < 0)
-                        CARF(0x948 + i * 4) = 0;
                 }
             }
-        }
-    } else {
-        for (i = 0; i < 4; i++) {
-            CARF(0x938 + i * 4) = 0;
-            CARF(0x948 + i * 4) = 0;
         }
     }
     FUN_0042e8e0();
@@ -6547,12 +6547,12 @@ void FUN_00431ff0(int *param_1, int *param_2)
     v.y = 0;
     v.z = param_2[2];
     l = FixSqrt(FixMul(v.x, v.x) + FixMul(v.z, v.z));
-    if (l == 0) {
+    if (l != 0) {
+        FixVecScaleRecip(&CARV(0x360), &v, l);
+    } else {
         CARV(0x360).x = 0;
         CARV(0x360).y = 0;
         CARV(0x360).z = 0;
-    } else {
-        FixVecScaleRecip(&CARV(0x360), &v, l);
     }
     CARF(0x36c) = 0;
     CARF(0x370) = 0x10000;
@@ -7006,10 +7006,7 @@ LAB_0043d6fe:
         pcVar13 = (char *)FUN_00494a70();
         goto LAB_0043d703;
     }
-    if (CGameInfo::FUN_00405da0() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0) {
-        if (limit != 0)
-            goto LAB_0043d6f7;
-    } else {
+    if (!(CGameInfo::FUN_00405da0() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0)) {
         if (limit != 0) {
 LAB_0043d6f7:
             pcVar13 = (char *)RallyData_FUN_00406890();
@@ -7017,6 +7014,9 @@ LAB_0043d6f7:
         }
         if (CGameInfo::FUN_00405e00() == 0)
             goto LAB_0043d6fe;
+    } else {
+        if (limit != 0)
+            goto LAB_0043d6f7;
     }
     pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)CARB(0xb1a));
 LAB_0043d703:
@@ -7126,7 +7126,12 @@ LAB_0043d703:
     CARF(0x91c) = 0;
     CARF(0x920) = 0x10000;
     CARF(0x924) = 0;
-    if (flagC == 0) {
+    if (flagC != 0) {
+        if (FUN_004086f0((BYTE)FUN_004660f0()) == 0)
+            CARF(0xb48) = 1;
+        else
+            CARF(0xb48) = 2;
+    } else {
         if (flag8 == 0 && (int)CARB(0xb1a) < (int)(unsigned int)RallyDataState()) {
             if (FUN_004086f0((BYTE)(FUN_0041b370() + CARB(0xb1a))) == 0)
                 CARF(0xb48) = 1;
@@ -7135,11 +7140,6 @@ LAB_0043d703:
         } else {
             CARF(0xb48) = 2;
         }
-    } else {
-        if (FUN_004086f0((BYTE)FUN_004660f0()) == 0)
-            CARF(0xb48) = 1;
-        else
-            CARF(0xb48) = 2;
     }
     CARF(0xb50) = 1;
     if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
@@ -7327,27 +7327,7 @@ void FUN_0042ce60(void)
         if (t > 0x10000)
             t = 0x10000;
 
-        if (FixMul(0x10000 - t, 0x1999) < groundSpeed) {
-            // Fast along the normal: turn the change of the ground normal
-            // into a body torque perpendicular to it.
-            FixVector worldUp = { 0, 0x10000, 0 };
-
-            delta.x = g_pCurrentCar->groundNormal.x - prevNormal.x;
-            delta.y = g_pCurrentCar->groundNormal.y - prevNormal.y;
-            delta.z = g_pCurrentCar->groundNormal.z - prevNormal.z;
-            len = FixVecLength(&delta);
-            if (len > 0) {
-                FixVecScaleRecip(&delta, &delta, len);
-                FixMatrix_InverseRotateVector(&vOut, &delta, g_pCurrentCar->pWorld);
-                tv.x = FixMul(FixMul(vOut.y, worldUp.z) - FixMul(vOut.z, worldUp.y), 0x14ccc);
-                tv.y = 0;
-                tv.z = FixMul(FixMul(vOut.x, worldUp.y) - FixMul(vOut.y, worldUp.x), 0xe666);
-                g_pCurrentCar->field_0x5d0.x += tv.x;
-                g_pCurrentCar->field_0x5d0.y += tv.y;
-                g_pCurrentCar->field_0x5d0.z += tv.z;
-            }
-            g_pCurrentCar->groundNormal = prevNormal;
-        } else {
+        if (FixMul(0x10000 - t, 0x1999) >= groundSpeed) {
             // Slow: re-orthogonalise the body axes against the ground normal.
             dot = FixVecDot(&g_pCurrentCar->groundNormal, &g_pCurrentCar->up);
             if (dot < 0xb334) {
@@ -7391,6 +7371,26 @@ void FUN_0042ce60(void)
                 FUN_004930e0((int)g_pCurrentCar, 4);
             else
                 FUN_004930e0((int)g_pCurrentCar, 8);
+        } else {
+            // Fast along the normal: turn the change of the ground normal
+            // into a body torque perpendicular to it.
+            FixVector worldUp = { 0, 0x10000, 0 };
+
+            delta.x = g_pCurrentCar->groundNormal.x - prevNormal.x;
+            delta.y = g_pCurrentCar->groundNormal.y - prevNormal.y;
+            delta.z = g_pCurrentCar->groundNormal.z - prevNormal.z;
+            len = FixVecLength(&delta);
+            if (len > 0) {
+                FixVecScaleRecip(&delta, &delta, len);
+                FixMatrix_InverseRotateVector(&vOut, &delta, g_pCurrentCar->pWorld);
+                tv.x = FixMul(FixMul(vOut.y, worldUp.z) - FixMul(vOut.z, worldUp.y), 0x14ccc);
+                tv.y = 0;
+                tv.z = FixMul(FixMul(vOut.x, worldUp.y) - FixMul(vOut.y, worldUp.x), 0xe666);
+                g_pCurrentCar->field_0x5d0.x += tv.x;
+                g_pCurrentCar->field_0x5d0.y += tv.y;
+                g_pCurrentCar->field_0x5d0.z += tv.z;
+            }
+            g_pCurrentCar->groundNormal = prevNormal;
         }
         FUN_0042f8c0();
         FUN_0042f820();
@@ -7409,11 +7409,7 @@ void FUN_0042ce60(void)
 
     FUN_0042e450();
     g_pCurrentCar->field_0xb2a[0] = gotNormal;
-    if (g_pCurrentCar->tipAngle == 0) {
-        g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
-        g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
-        g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
-    } else {
+    if (g_pCurrentCar->tipAngle != 0) {
         g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
         FixMatrix_FromAxisAngle(&rotMat, &g_pCurrentCar->right, g_pCurrentCar->tipAngle);
         FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->up, &rotMat);
@@ -7422,6 +7418,10 @@ void FUN_0042ce60(void)
         FixMatrix_RotateVector(&rotVec, &g_pCurrentCar->forward, &rotMat);
         FIX_NORMALIZE_INTO(rotVec, rotVec)
         g_pCurrentCar->pWorld->forward = rotVec;
+    } else {
+        g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+        g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+        g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     }
     g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
 
@@ -8266,10 +8266,10 @@ void FUN_004219b0(BYTE view)
     }
     FUN_00423b20(view);
     pTimer = &g_unk0x00538d20[index];
-    if (g_unk0x00538d20[index] < 0)
-        FUN_00423ee0(VIEW_PREV_STATE(index), VIEW_RECORD(active));
-    else
+    if (g_unk0x00538d20[index] >= 0)
         FUN_00423ee0(VIEW_PREV_STATE(index), VIEW_STATE(index));
+    else
+        FUN_00423ee0(VIEW_PREV_STATE(index), VIEW_RECORD(active));
     pActive = VIEW_RECORD(active);
     FUN_00423460(pActive);
     g_unk0x005391c4[index] = g_unk0x005391b0[index];

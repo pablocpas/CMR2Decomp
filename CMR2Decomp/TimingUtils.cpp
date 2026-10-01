@@ -154,16 +154,16 @@ void FUN_004de1d0(int unused)
     }
     p = (char *)(pBoard + 4);
     for (i = 0; i < 10; i++, p += 8) {
-        if (*p == '\0') {
-            Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-            Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
-                          (int *)g_colourText0x0052496c, 10);
-        } else {
+        if (*p != '\0') {
             Font_DrawText(0, p, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
                           (int *)g_colourText0x0052496c, 10);
             sprintf(CFrontend::m_stringDest, g_stageNumberFormat, *(int *)(p + 4));
             Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
+                          (int *)g_colourText0x0052496c, 10);
+        } else {
+            Font_DrawText(0, g_str0x00519fb4, (int)(g_pGraphics->resX * 0x1c2) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
+                          (int *)g_colourText0x0052496c, 10);
+            Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x1fe) / 0x280, (int)(g_pGraphics->resY * 0x82) / 0x1e0 * (i + 1) + (int)(g_pGraphics->resY * 0x14) / 0x1e0,
                           (int *)g_colourText0x0052496c, 10);
         }
     }

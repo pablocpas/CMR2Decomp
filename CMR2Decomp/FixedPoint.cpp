@@ -1607,7 +1607,19 @@ void FUN_00470580(void)
             world.y += step.y;
             world.z += step.z;
 
-            if (*(int *)(pObj + 0x120) != 0) {
+            if (*(int *)(pObj + 0x120) == 0) {
+                FixMatrix_SetRight(&basis.right, pMatrix);
+                FixMatrix_SetUp(&basis.up, pMatrix);
+                FixMatrix_SetForward(&basis.forward, pMatrix);
+
+                if (*(int *)(pObj + 4) < 0) {
+                    height = FUN_004702f0(pObj, &world);
+                    if (height > -0xccc) {
+                        *(int *)(pObj + 0xcc) = 1;
+                        world.y += height;
+                    }
+                }
+            } else {
                 // Airborne: the spin is damped twice and, while it is slow
                 // enough, the basis is rebuilt from the fallen-over up axis.
                 FixVecScale(&vecE0, &vecE0, 0xcccc);
@@ -1681,18 +1693,6 @@ void FUN_00470580(void)
                 FixMatrix_SetUp(&basis.up, pMatrix);
                 FixMatrix_SetForward(&basis.forward, pMatrix);
                 world.y += FUN_004702f0(pObj, &world);
-            } else {
-                FixMatrix_SetRight(&basis.right, pMatrix);
-                FixMatrix_SetUp(&basis.up, pMatrix);
-                FixMatrix_SetForward(&basis.forward, pMatrix);
-
-                if (*(int *)(pObj + 4) < 0) {
-                    height = FUN_004702f0(pObj, &world);
-                    if (height > -0xccc) {
-                        *(int *)(pObj + 0xcc) = 1;
-                        world.y += height;
-                    }
-                }
             }
 
             FixMatrix_RotateVector(&pos, (FixVector *)(pObj + 0xf8), pMatrix);

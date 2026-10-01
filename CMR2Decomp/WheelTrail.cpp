@@ -87,12 +87,12 @@ void WheelTrail_Update(int carIndex)
                 g_trailPos[carIndex][i].y = g_trailOffset[carIndex][i].y + pCar->position.y;
                 g_trailPos[carIndex][i].z = g_trailOffset[carIndex][i].z + pCar->position.z;
                 level = 0xff00 - pCar->field_0xa70;
-                if (level < 0xff01) {
+                if (level >= 0xff01) {
+                    level = 0xff00;
+                } else {
                     if (level < 0) {
                         level = 0;
                     }
-                } else {
-                    level = 0xff00;
                 }
                 pLevel[i] = (char)(level / 256);
             }

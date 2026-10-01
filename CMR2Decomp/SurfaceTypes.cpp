@@ -229,13 +229,7 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
         diff = g_surface0x51e678[s1] - g_surface0x51e678[s0];
         v678 = FixMul(diff, blend) + g_surface0x51e678[s0];
 
-        if (i >= 4) {
-            pOut[0] = gripB;
-            pOut[-1] = gripA;
-            pOut[1] = grip2A;
-store_grip2B:
-            pOut[2] = grip2B;
-        } else {
+        if (i < 4) {
             int comp = pComp[-4];
 
             if (comp != 0) {
@@ -267,6 +261,12 @@ store_grip2B:
                 pOut[0] = pOut[0] + soft;
                 goto store_grip2B;
             }
+        } else {
+            pOut[0] = gripB;
+            pOut[-1] = gripA;
+            pOut[1] = grip2A;
+store_grip2B:
+            pOut[2] = grip2B;
         }
 
         pOut[5] = v2b8;

@@ -1639,21 +1639,7 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
         }
 
         if (bBits + aBits + gBits + rBits <= 16) {
-            if (aBits == 0) {
-                if (rBits == 5 && (gBits == 5 || gBits == 6) && bBits == 5 && m_texFormat16.bits[2] != 6) {
-                    m_texFormat16.desc.ddpfPixelFormat = *pddpf;
-                    m_texFormat16.bits[2] = (BYTE)gBits;
-                    m_texFormat16.bits[1] = (BYTE)bBits;
-                    m_texFormat16.shifts[2] = (BYTE)gShift;
-                    m_texFormat16.shifts[1] = (BYTE)bShift;
-                    m_texFormat16.bits[0] = 5;
-                    m_texFormat16.bits[3] = 0;
-                    m_texFormat16.shifts[0] = (BYTE)rShift;
-                    m_texFormat16.shifts[3] = (BYTE)aShift;
-                    m_hasTexFormat16 = TRUE;
-                    return result;
-                }
-            } else {
+            if (aBits != 0) {
                 if (rBits == 5) {
                     if (gBits != 5)
                         return result;
@@ -1682,6 +1668,20 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
             m_texFormat16Alpha.shifts[2] = (BYTE)gShift;
             m_texFormat16Alpha.shifts[3] = (BYTE)aShift;
                 m_hasTexFormat16Alpha = TRUE;
+                    return result;
+                }
+            } else {
+                if (rBits == 5 && (gBits == 5 || gBits == 6) && bBits == 5 && m_texFormat16.bits[2] != 6) {
+                    m_texFormat16.desc.ddpfPixelFormat = *pddpf;
+                    m_texFormat16.bits[2] = (BYTE)gBits;
+                    m_texFormat16.bits[1] = (BYTE)bBits;
+                    m_texFormat16.shifts[2] = (BYTE)gShift;
+                    m_texFormat16.shifts[1] = (BYTE)bShift;
+                    m_texFormat16.bits[0] = 5;
+                    m_texFormat16.bits[3] = 0;
+                    m_texFormat16.shifts[0] = (BYTE)rShift;
+                    m_texFormat16.shifts[3] = (BYTE)aShift;
+                    m_hasTexFormat16 = TRUE;
                     return result;
                 }
             }
@@ -2909,10 +2909,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
                 Graphics_DrawMeshLOD(pMesh, 1, 0, 0);
                 while (pObject != NULL) {
                     if (*(int *)((BYTE *)pObject->pMesh + 0x114) < 0x140000) {
-                        if ((pObject->pMesh->flags & 2) == 0) {
-                            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
-                                                                            &g_unk0x005207b8);
-                        } else {
+                        if ((pObject->pMesh->flags & 2) != 0) {
                             float scale;
 
                             *(D3DMATRIX *)pObject->matrix = g_unk0x00597cc0;
@@ -2936,6 +2933,9 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
                             pObject->matrix[14] = (float)pObject->offsetZ * CGraphics::m_oneOver65536;
                             CGraphics::m_pTextureManager->pD3D->SetTransform(
                                 D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pObject->matrix);
+                        } else {
+                            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD,
+                                                                            &g_unk0x005207b8);
                         }
                         Graphics_DrawMeshLOD(pObject->pMesh, 1, 0, 0);
                     }
@@ -2986,7 +2986,9 @@ Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
     g_pGraphics->pDD7->CreateSurface(&desc, &pTemp, NULL);
     pTemp->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
     pSrc = pDDS->data;
-    if (!(desc.dwFlags & DDSD_LINEARSIZE)) {
+    if (desc.dwFlags & DDSD_LINEARSIZE) {
+        memcpy(desc.lpSurface, pSrc, desc.dwLinearSize);
+    } else {
         rowBytes = desc.ddpfPixelFormat.dwRGBBitCount * desc.dwWidth >> 3;
         pDst = (BYTE *)desc.lpSurface;
         for (y = 0; y < desc.dwHeight; y++) {
@@ -2994,8 +2996,6 @@ Texture *CGraphics::LoadDDSTexture(DDSFile *pDDS, Texture *pTexture)
             pDst += desc.lPitch;
             pSrc += desc.dwHeight;
         }
-    } else {
-        memcpy(desc.lpSurface, pSrc, desc.dwLinearSize);
     }
     pTemp->Unlock(NULL);
 
@@ -3609,12 +3609,12 @@ int Timer_GetValue(BYTE index)
         v = ((step + 1) * (unsigned int)step) / 2;
         break;
     case 4:
-        if (dur - 0x11 < step) {
+        if (dur - 0x11 >= step) {
+            v = (int)((dur - step - 0x10) * (dur - step - 0x11)) / 2;
+        } else {
         wobble:
             v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
             *(int *)(t + 0x1c) = 0x1000;
-        } else {
-            v = (int)((dur - step - 0x10) * (dur - step - 0x11)) / 2;
         }
         break;
     case 5:
@@ -3795,7 +3795,7 @@ void Pulse_Update(unsigned int dt)
     if (g_pulseFrozen != 0)
         return;
     g_pulsePhase = (float)dt * g_unk0x00511d1c + g_pulsePhase;
-    if (g_pulseRising == 0) {
+    if (g_pulseRising != 0) {
         if (g_pulseLevel <= g_unk0x00511d18)
             g_pulseSpeed = 0.0007f;
         else if (g_pulseLevel <= g_unk0x00511ce8)
@@ -4056,7 +4056,10 @@ void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int p
             strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
             sprintf(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
                     strchr(pName, '\\') + 1);
-            if (param4 == 6) {
+            if (param4 != 6) {
+                CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0,
+                                          param4 != 10 ? 0x90 : 0);
+            } else {
                 if (FUN_004b9b80(fileName) == 0) {
                     if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
                         strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
@@ -4064,9 +4067,6 @@ void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int p
                         flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x140 : 0x100;
                     CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0, flags);
                 }
-            } else {
-                CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0,
-                                          param4 != 10 ? 0x90 : 0);
             }
             pEntry += 4;
         }
@@ -4502,9 +4502,7 @@ void Billboard_Draw(SceneNode *pCamera)
             c3 = pQuad->corner[3];
             angle = pQuad->field_0x54;
             colour = pQuad->colour;
-            if (angle == 0) {
-                axes = view;
-            } else {
+            if (angle != 0) {
                 c = (float)g_sinTable[(angle + 0x400) & 0xfff] * CGraphics::m_oneOver65536;
                 s = (float)g_sinTable[angle & 0xfff] * CGraphics::m_oneOver65536;
                 axes._11 = view._11 * c + view._21 * s;
@@ -4513,6 +4511,8 @@ void Billboard_Draw(SceneNode *pCamera)
                 axes._21 = view._21 * c - view._11 * s;
                 axes._22 = view._22 * c - view._12 * s;
                 axes._23 = view._23 * c - view._13 * s;
+            } else {
+                axes = view;
             }
             pVert[0].x = c0.z * axes._21 + c0.y * axes._11 + pos.x;
             pVert[0].y = c0.z * axes._22 + c0.y * axes._12 + pos.y;
@@ -5767,7 +5767,11 @@ void Particle_UpdateAll(int param)
             }
             if (pType->flags & 0x80) {
                 keep = 0x10000 - pType->friction;
-                if (p->field0x58 == 0) {
+                if (p->field0x58 != 0) {
+                    p->vector0x1c.y = p->field0x48;
+                    p->position.x = FixMul(p->position.x, keep);
+                    p->position.z = FixMul(p->position.z, keep);
+                } else {
                     if (p->vector0x1c.y < p->field0x48) {
                         p->position.y = -FixMul(p->position.y, pType->bounce);
                         p->vector0x1c.y = p->field0x48;
@@ -5778,10 +5782,6 @@ void Particle_UpdateAll(int param)
                             p->field0x58 = 1;
                         }
                     }
-                } else {
-                    p->vector0x1c.y = p->field0x48;
-                    p->position.x = FixMul(p->position.x, keep);
-                    p->position.z = FixMul(p->position.z, keep);
                 }
             }
             p->vector0x28 = p->vector0x1c;
@@ -5845,9 +5845,7 @@ void Particle_DrawAll(int param, BYTE view)
             continue;
         }
         pFrames = (int *)pType->field0x4c;
-        if (pFrames == NULL) {
-            texture = p->field0x60;
-        } else {
+        if (pFrames != NULL) {
             frame = 0;
             elapsed = pType->lifetime - p->age;
             if (pType->field0x54 < elapsed && pType->field0x58 > 0) {
@@ -5861,6 +5859,8 @@ void Particle_DrawAll(int param, BYTE view)
                 frame %= pType->field0x50;
             }
             texture = pFrames[frame];
+        } else {
+            texture = p->field0x60;
         }
     draw:
         if (texture == 0)
@@ -5876,10 +5876,10 @@ void Particle_DrawAll(int param, BYTE view)
             def.bottom = FixMul(pType->field0x44, p->size);
             def.right = FixMul(pType->field0x48, p->size);
         }
-        if ((pType->flags & 0x20) == 0)
-            def.field_0x20 = 0;
-        else
+        if ((pType->flags & 0x20) != 0)
             def.field_0x20 = p->field0x50;
+        else
+            def.field_0x20 = 0;
         def.pos = p->vector0x1c;
         if (p->field0x40 != 0) {
             def.pos.x += *(int *)(p->field0x40 + 0x30);
@@ -6265,11 +6265,11 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
     pExtension = name + strlen(name) - 4;
     strncpy(pExtension, m_ddsExtension, 4);
     pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
-    if (pData != NULL) {
-        isDDS = TRUE;
-    } else {
+    if (pData == NULL) {
         strncpy(pExtension, m_tgaExtension, 4);
         pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
+    } else {
+        isDDS = TRUE;
     }
     for (i = 0; i < 0x800; i++) {
         if (m_pTextureManager->textureBuffer[i] == NULL) {
@@ -6644,13 +6644,13 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
             du = abs((int)(height - right));
             dv = abs((int)(height - down));
             l = SampleTGAPixel(x, y, pInfo, 0)[3];
-            if (desc.ddpfPixelFormat.dwRGBBitCount == 16) {
-                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
-            } else {
+            if (desc.ddpfPixelFormat.dwRGBBitCount != 16) {
                 pDst24[0] = (BYTE)du;
                 pDst24[1] = (BYTE)dv;
                 pDst24[2] = l;
                 pDst24 += 3;
+            } else {
+                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
             }
         }
     }

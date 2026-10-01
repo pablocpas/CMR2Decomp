@@ -4667,14 +4667,14 @@ void FUN_00404d00(Menu *pMenu)
     g_unk0x005298f8 = (g_unk0x005298f8 & ~0x20) | ((pMenu->items[3].max & 1) << 5);
 
     if (FUN_004174d0()) {
-        if (RallyData_FUN_00411880()) {
-            if (pMenu->items[Menu_FindItem(pMenu, 4)].max == 0)
-                g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
-            else
-                g_unk0x005298f8 &= ~3;
-        } else {
+        if (!RallyData_FUN_00411880()) {
             BYTE bits = 0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max;
             g_unk0x005298f8 ^= (bits ^ g_unk0x005298f8) & 3;
+        } else {
+            if (pMenu->items[Menu_FindItem(pMenu, 4)].max != 0)
+                g_unk0x005298f8 &= ~3;
+            else
+                g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
         }
     }
 
@@ -4727,15 +4727,15 @@ void FUN_00401420(Menu *pMenu, char cancel)
 {
     int rate;
 
-    if (cancel == 0) {
+    if (cancel != 0) {
+        CGameInfo::FUN_00405e10(g_unk0x00529ecc);
+        CGameInfo::FUN_00405e50(g_unk0x0052a488);
+        CGameInfo::FUN_00405e80(g_unk0x0052ad50);
+    } else {
         CGameInfo::FUN_00405e10(pMenu->items[Menu_FindItem(pMenu, 0)].max * 10);
         CGameInfo::FUN_00405e50(pMenu->items[Menu_FindItem(pMenu, 1)].max * 10);
         if (FUN_004174d0())
             CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
-    } else {
-        CGameInfo::FUN_00405e10(g_unk0x00529ecc);
-        CGameInfo::FUN_00405e50(g_unk0x0052a488);
-        CGameInfo::FUN_00405e80(g_unk0x0052ad50);
     }
     rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
     CInput::FUN_0049ffc0(rate / 4);
@@ -5418,13 +5418,13 @@ void FUN_00402460(Menu *pMenu)
             Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)g_unk0x0052ad58,
                          (Texture *)texture, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
             twoLines = true;
-            if (pItem->value == 0) {
+            if (pItem->value != 0) {
+                sub[0] = CFrontend::GetTextString(pItem->id);
+                twoLines = false;
+            } else {
                 for (j = 0; j < (int)(BYTE)pItem->min; j++)
                     sub[j] = CFrontend::GetTextString(j + 0x9c);
                 single = 0;
-            } else {
-                sub[0] = CFrontend::GetTextString(pItem->id);
-                twoLines = false;
             }
             strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pItem->id));
             x = (int)(g_pGraphics->resX * 0x86) / 0x280;
@@ -9645,12 +9645,12 @@ void FUN_00505b40(void)
     if (pEntry->active != 0) {
         now = CMain::GetFrameDelta();
         ratio = FixSqrt(FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance));
-        if (ratio < 0x10000) {
-            pEntry->current = FixMul(ratio, pEntry->end - pEntry->start) + pEntry->start;
-        } else {
+        if (ratio >= 0x10000) {
             pEntry->active = 0;
             pEntry->current = pEntry->end;
             pEntry->startTime2 = CMain::GetFrameDelta();
+        } else {
+            pEntry->current = FixMul(ratio, pEntry->end - pEntry->start) + pEntry->start;
         }
     }
     if (pEntry->current == 0) {
@@ -10690,10 +10690,10 @@ void FUN_0050c420(int param_1)
             return;
         delta = CMain::GetFrameDelta() - FUN_0040af30();
         limit = (unsigned int)(FUN_00406710() * 6000);
-        if (delta < limit)
-            remaining = limit - delta;
-        else
+        if (delta >= limit)
             remaining = 0;
+        else
+            remaining = limit - delta;
     } else {
         remaining = (unsigned int)CGameInfo::FUN_005012c0();
     }
@@ -11135,10 +11135,10 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
-            if (CGameInfo::FUN_005004c0() != 0)
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
-            else
+            if (!(CGameInfo::FUN_005004c0() != 0))
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
+            else
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
         } else {
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
         }
@@ -11597,10 +11597,10 @@ void FUN_004ff720(Menu *pMenu)
         }
         if (g_unk0x0082a924 >= g_unk0x0082aa3c + 13)
             g_unk0x0082aa3c++;
-        if (g_unk0x0082aa40 <= 13)
-            g_unk0x0082ac48 = g_unk0x0082aa40;
-        else
+        if (g_unk0x0082aa40 > 13)
             g_unk0x0082ac48 = 13;
+        else
+            g_unk0x0082ac48 = g_unk0x0082aa40;
         return;
     }
 
@@ -11930,11 +11930,11 @@ int FUN_005062d0(int index)
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "L.c3d", 5);
             hL = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
         }
-        if (FUN_0050a020(variant, 6) == 0) {
-            hS = 0;
-        } else {
+        if (FUN_0050a020(variant, 6) != 0) {
             strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 5, "S.c3d", 5);
             hS = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
+        } else {
+            hS = 0;
         }
     } else {
         hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
@@ -12137,9 +12137,7 @@ int FUN_004f8b30(void)
     do {
         puVar7 = (unsigned int *)(RallyData_FUN_00408cb0(0) + 4 + local_c);
         puVar10 = (unsigned int *)(RallyData_FUN_00408cb0(0) + local_c);
-        if ((*(BYTE *)puVar10 & 0x80) == 0) {
-            *puVar9 = 0;
-        } else {
+        if ((*(BYTE *)puVar10 & 0x80) != 0) {
             local_8 = (local_8 & 0xfff83fff) | (*puVar7 & 0xf) << 0xe;
             local_8 = (local_8 & 0xffe7c07f) |
                       ((uVar5 & 3) << 0x12 | *puVar7 & 0x1fc0) << 1;
@@ -12157,6 +12155,8 @@ int FUN_004f8b30(void)
             } while (iVar2 != 0);
             FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)puVar9);
             FUN_004f8a90((char *)puVar9);
+        } else {
+            *puVar9 = 0;
         }
         puVar9 += 0x19;
         uVar5++;
@@ -12174,9 +12174,7 @@ int FUN_004f8b30(void)
             RallyData_FUN_00408cb0(0);
             iVar2 = (int)RallyData_FUN_00408cb0(0);
             puVar10 = (unsigned int *)(iVar2 + (int)local_10);
-            if ((*puVar10 & 0x80) == 0) {
-                *(BYTE *)local_c = 0;
-            } else {
+            if ((*puVar10 & 0x80) != 0) {
                 local_8 = (local_8 & 0xffff8fff) | (*puVar7 & 7) << 0xc;
                 local_8 = (local_8 & 0xfffe707f) |
                           ((uVar5 & 3) << 0xe | *puVar7 & 0x7c0) << 1;
@@ -12194,6 +12192,8 @@ int FUN_004f8b30(void)
                 } while (iVar2 != 0);
                 FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_c);
                 FUN_004f8a90((char *)local_c);
+            } else {
+                *(BYTE *)local_c = 0;
             }
             uVar8++;
             local_10 = (BYTE *)((int)local_10 + 0x24);

@@ -172,15 +172,15 @@ void FUN_00497db0(Car *pCar)
     short surfaceClass;
 
     pContact = CAR_CONTACT(pCar->field_0xb1a);
-    if (pCar->field_0xb64 == 0) {
+    if (pCar->field_0xb64 != 0) {
+        blend = 0x10000;
+    } else {
         blend = FixVecDot(&g_physUp, &g_physBody->groundNormal) - 0xcccc;
         if (blend < 0)
             blend = 0;
         blend = FixMul(blend, 0x50000);
         if (blend > 0x10000)
             blend = 0x10000;
-    } else {
-        blend = 0x10000;
     }
     FixVecScale(&offset, &g_physUp, -0x5999);
     if (CGameInfo::FUN_004063f0(6))
@@ -288,19 +288,19 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
         if (pCar->field_0xb64 == 0) {
             pNormal = &g_physBody->groundNormal;
             t = FixVecDot(&g_physRight, pNormal);
-            if (FIX_ABS(t) < 0xfd71) {
-                FixVecScale(&d, pNormal, t);
-                d.x = g_physRight.x - d.x;
-                d.y = g_physRight.y - d.y;
-                d.z = g_physRight.z - d.z;
-                FIX_NORMALIZE_INTO(g_physPatchDir, d);
-                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
-            } else {
+            if (FIX_ABS(t) >= 0xfd71) {
                 t = FixVecDot(&g_physUp, pNormal);
                 FixVecScale(&d, pNormal, t);
                 d.x = g_physUp.x - d.x;
                 d.y = g_physUp.y - d.y;
                 d.z = g_physUp.z - d.z;
+                FIX_NORMALIZE_INTO(g_physPatchDir, d);
+                FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
+            } else {
+                FixVecScale(&d, pNormal, t);
+                d.x = g_physRight.x - d.x;
+                d.y = g_physRight.y - d.y;
+                d.z = g_physRight.z - d.z;
                 FIX_NORMALIZE_INTO(g_physPatchDir, d);
                 FixVecCross(&g_physPatchSide, &g_physPatchDir, &g_physBody->groundNormal);
             }
@@ -552,7 +552,10 @@ void FUN_00494db0(Car *pCar, int view)
     }
 
     // Body: fades out as the car leaves the ground.
-    if (g_physContactView.field_0x294 == 0) {
+    if (g_physContactView.field_0x294 != 0) {
+        SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
+        colour[3] = 0xff;
+    } else {
         SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
         t = pCar->corners[0].y - pCar->cornerHeight[0];
         for (i = 1; i < 8; i++) {
@@ -568,9 +571,6 @@ void FUN_00494db0(Car *pCar, int view)
             t = 0x10000 - t;
         }
         colour[3] = FixMulShift32(t, 0xff0000);
-    } else {
-        SHADOW_OCTAGON(g_physContactView.points, ring, outline, centre);
-        colour[3] = 0xff;
     }
     for (i = 1; i <= 8; i++) {
         j = i % 8;
@@ -718,10 +718,10 @@ void FUN_00496e00(Car *pCar)
         fwd = FixMul(cosA, g_physTrailScale);
         side = FixMul(FixMul(flat.x, g_physTrailAxis.z) + FixMul(-flat.z, g_physTrailAxis.x), g_physTrailScale);
         bend = FixMul(grip, side);
-        if (fwd < 0)
-            a = pProfile[*g_physSkidCount[pCar->field_0xb1a] * 2 - 1];
-        else
+        if (fwd >= 0)
             a = pProfile[1];
+        else
+            a = pProfile[*g_physSkidCount[pCar->field_0xb1a] * 2 - 1];
         base = FixMul(a + *g_physSkidOffset[pCar->field_0xb1a], fwd);
         lateral = g_physPatchWidth;
         if (side < 0)
@@ -767,10 +767,10 @@ void FUN_00496e00(Car *pCar)
             p.y += v.y;
             p.x += v.x;
             p.z += v.z;
-            if (side < 0)
-                k = *g_physSkidCount[pCar->field_0xb1a] - c + 3;
-            else
+            if (side >= 0)
                 k = c + 4;
+            else
+                k = *g_physSkidCount[pCar->field_0xb1a] - c + 3;
             if (skip)
                 k++;
             if ((c == 0 && side >= 0) || (c == *g_physSkidCount[pCar->field_0xb1a] - 1 && side < 0))

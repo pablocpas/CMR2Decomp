@@ -843,10 +843,7 @@ void FUN_004fc500(Menu *pMenu, int param)
     pBinding = g_axisBindings;
     pItem = pMenu->items;
     do {
-        if (*pFlag == 0) {
-            pItem->enabled = 0;
-            pItem->visible = 0;
-        } else {
+        if (*pFlag != 0) {
             pData = &FUN_0040bbb0()[dev];
             pItem->enabled = 1;
             pItem->visible = 1;
@@ -854,16 +851,19 @@ void FUN_004fc500(Menu *pMenu, int param)
                 if (pData->field_0x2d8[j] == axis && pData->field_0x210[j].field_0x0 != 0)
                     *(ControllerDataUnk0x210 *)pBinding = pData->field_0x210[j];
             }
+        } else {
+            pItem->enabled = 0;
+            pItem->visible = 0;
         }
         pBinding++;
         axis++;
         pFlag += 5;
         pItem++;
     } while (pBinding < &g_axisBindings[8]);
-    if (g_controlsCopy[dev].field_0x118 == 0)
-        pMenu->items[axis].pSubMenu = FUN_004fa4f0();
-    else
+    if (g_controlsCopy[dev].field_0x118 != 0)
         pMenu->items[axis].pSubMenu = FUN_004fa520();
+    else
+        pMenu->items[axis].pSubMenu = FUN_004fa4f0();
 }
 
 // Menu callback while calibrating an axis: left/right (shift: saturation)
@@ -1490,16 +1490,16 @@ void FUN_004fd480(Menu *pMenu)
         g_controlsLine[1]++;
         Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, pColour, 1);
     }
-    if (FUN_004fc610() == 0) {
-        Font_DrawText(1, CFrontend::GetTextString(0x20a), (int)(g_pGraphics->resX * 24) / 640,
-                      (int)(g_pGraphics->resY * 420) / 480, (int *)g_colourText0x0052496c, 9);
-    } else {
+    if (FUN_004fc610() != 0) {
         Font_DrawText(1, CFrontend::GetTextString(0x207), (int)(g_pGraphics->resX * 24) / 640,
                       (int)(g_pGraphics->resY * 420) / 480, (int *)g_colourText0x0052496c, 9);
         Font_DrawText(1, CFrontend::GetTextString(0x208), (int)(g_pGraphics->resX * 24) / 640,
                       (int)(g_pGraphics->resY * 440) / 480, (int *)g_colourText0x0052496c, 9);
         Font_DrawText(1, CFrontend::GetTextString(0x209), (int)(g_pGraphics->resX * 24) / 640,
                       (int)(g_pGraphics->resY * 460) / 480, (int *)g_colourText0x0052496c, 9);
+    } else {
+        Font_DrawText(1, CFrontend::GetTextString(0x20a), (int)(g_pGraphics->resX * 24) / 640,
+                      (int)(g_pGraphics->resY * 420) / 480, (int *)g_colourText0x0052496c, 9);
     }
 }
 

@@ -1336,10 +1336,10 @@ void FUN_00493520(Car *pCar)
             *(BYTE *)(PC + 0xb1e) = 0;
         }
     }
-    if (*(int *)(PC + 0xb88) == 0)
-        FUN_00494110();
-    else
+    if (*(int *)(PC + 0xb88) != 0)
         FUN_00493ed0();
+    else
+        FUN_00494110();
     if (*(int *)(PC + 0xb90) == 0) {
         FUN_00494880();
         if ((*(int *)(PC + 0xb8c) != 0) && (*(int *)(PC + 0xb94) != 0)) {
@@ -1354,7 +1354,10 @@ void FUN_00493520(Car *pCar)
         t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
         if (t > 0x10000)
             t = 0x10000;
-        if (*(int *)(PC + 0xb94) == 0) {
+        if (*(int *)(PC + 0xb94) != 0) {
+            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+            *(int *)(PC + 0x838) = 0;
+        } else {
             int target = FixMul(*(int *)(PC + 0x82c), t);
             int diff = target - *(int *)(PC + 0x838);
             int adiff = diff;
@@ -1364,9 +1367,6 @@ void FUN_00493520(Car *pCar)
                 *(int *)(PC + 0x838) = target;
             else
                 *(int *)(PC + 0x838) = *(int *)(PC + 0x838) + FixMul(diff, 0x23d7);
-        } else {
-            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
-            *(int *)(PC + 0x838) = 0;
         }
     }
     FUN_00494960();

@@ -602,15 +602,15 @@ int FUN_00411550(void)
     totalA = 0;
     totalB = 0;
     g_unk0x00536c90 = 0;
-    if ((char)RallyData_FUN_00406990() == 1) {
-        if ((BYTE)RallyData_GetFlag25() == 0)
-            g_unk0x00536c90 = FUN_004583a0();
-        else
-            g_unk0x00536c90 = FUN_004583a0() + 1;
-    } else {
+    if ((char)RallyData_FUN_00406990() != 1) {
         g_unk0x00536c90 = FUN_004583a0();
         if (g_unk0x00536c90 > 0xc)
             g_unk0x00536c90 = 0xc;
+    } else {
+        if ((BYTE)RallyData_GetFlag25() != 0)
+            g_unk0x00536c90 = FUN_004583a0() + 1;
+        else
+            g_unk0x00536c90 = FUN_004583a0();
     }
     for (i = 0; i < RallyData_FUN_00421420(); i++) {
         if (i > 0) {
@@ -2892,7 +2892,23 @@ void FUN_004129d0(int car, short *pRect)
             mode = 2;
     }
 
-    if (mode != 2) {
+    if (mode == 2) {
+        sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0xbc));
+        x = rect[0] + marginX;
+        y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_00448c60(car));
+        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                      (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(5, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageSlashFormat);
+        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
+        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
+        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, RallyData_FUN_004082c0());
+        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
+                      (int *)&g_stageHudTextColour, 9);
+    } else {
         if (CGameInfo::FUN_00405d80() == 7 || CGameInfo::FUN_00405d80() == 12 || mode == 1) {
             if (stage < 0)
                 stage = 0;
@@ -2925,22 +2941,6 @@ void FUN_004129d0(int car, short *pRect)
             Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
                           (int *)&g_stageHudTextColour, 9);
         }
-    } else {
-        sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0xbc));
-        x = rect[0] + marginX;
-        y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
-        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
-        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_00448c60(car));
-        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
-                      (int *)&g_stageHudTextColour, 9);
-        x += Font_GetTextWidth(5, (BYTE *)CFrontend::m_stringDest);
-        sprintf(CFrontend::m_stringDest, g_stageSlashFormat);
-        Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
-        x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
-        sprintf(CFrontend::m_stringDest, g_stageNumberFormat, RallyData_FUN_004082c0());
-        Font_DrawText(5, CFrontend::m_stringDest, x, rect[1] + topMarginY,
-                      (int *)&g_stageHudTextColour, 9);
     }
 
     if (CGameInfo::FUN_00405d80() != 7 && CGameInfo::FUN_00405d80() != 12 &&
@@ -3110,10 +3110,10 @@ void FUN_00413330(int car)
         g_unk0x00536bfc = 0;
     if (g_unk0x00536c40 != g_unk0x00537068) {
         time = g_stageSplitData[car].times[split + 1];
-        if (g_unk0x00536e90[split + 1] - g_unk0x00536e90[split] > time - g_stageSplitData[car].times[split])
-            g_unk0x00536d14[car * 0x28 + split] = g_unk0x0051709c;
-        else
+        if (g_unk0x00536e90[split + 1] - g_unk0x00536e90[split] <= time - g_stageSplitData[car].times[split])
             g_unk0x00536d14[car * 0x28 + split] = g_unk0x005170a0;
+        else
+            g_unk0x00536d14[car * 0x28 + split] = g_unk0x0051709c;
         if (split != 0) {
             if (time < g_stageSplitData[car].targetTime)
                 FUN_00411ab0(car, 1);
@@ -5492,9 +5492,7 @@ void FUN_00414720(int car)
 
     if (g_stageSplitData[car].split == 0)
         return;
-    if (!StageTiming_FUN_00455ae0()) {
-        position = 15;
-    } else {
+    if (!(!StageTiming_FUN_00455ae0())) {
         position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
         if (position < 1) {
             g_unk0x00536c94[car][0] = position;
@@ -5502,6 +5500,8 @@ void FUN_00414720(int car)
             g_unk0x00536c94[car][2] = position + 2;
             return;
         }
+    } else {
+        position = 15;
     }
     if (StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1 <= position) {
         g_unk0x00536c94[car][0] = position - 2;
@@ -5707,11 +5707,7 @@ void FUN_00415870(int car)
             if (g_unk0x00536c30[i] > 0)
                 g_unk0x00536c30[i]--;
         }
-        if (g_unk0x00536fe0 == 0) {
-            for (i = 0; i < 3; i++)
-                g_unk0x00536c94[car][i] = i;
-            g_stageSplitData[car].position = FUN_004481c0(car);
-        } else {
+        if (g_unk0x00536fe0 != 0) {
             for (i = 0; i < 3; i++)
                 g_unk0x00536c94[car][i] = -1;
             position = FUN_00448330(car);
@@ -5731,6 +5727,10 @@ void FUN_00415870(int car)
                     g_unk0x00536c94[car][2] = position;
                 }
             }
+        } else {
+            for (i = 0; i < 3; i++)
+                g_unk0x00536c94[car][i] = i;
+            g_stageSplitData[car].position = FUN_004481c0(car);
         }
     }
     if ((BYTE)CGameInfo::FUN_00405d80() == 5 || (BYTE)CGameInfo::FUN_00405d80() == 6)
@@ -5794,10 +5794,10 @@ void FUN_00415750(int driver, int split, int useLongName, int useSplit)
     char *name;
 
     sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
-    if (useSplit == 0)
-        entry = StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_004481e0(driver));
-    else
+    if (useSplit != 0)
         entry = StageTiming_GetSplitDriverIDForPosition(driver, split);
+    else
+        entry = StageTiming_FUN_00455ac0(FUN_0041b370(), FUN_004481e0(driver));
     if (entry == -1) {
         sprintf(CFrontend::m_stringDest, CMain::m_logFileBlankLine);
         return;
@@ -5805,10 +5805,10 @@ void FUN_00415750(int driver, int split, int useLongName, int useSplit)
     for (row = 0; row < CGameInfo::FUN_00405d70(); row++) {
         int candidate = useSplit == 0 ? FUN_004481c0(row) : StageTiming_GetSplitPositionOfDriver(row, split);
         if (candidate == driver) {
-            if (CGameInfo::FUN_00405d80() == 4)
-                name = (char *)RallyData_GetRecord((BYTE)FUN_004735a0((unsigned int *)entry));
-            else
+            if (!(CGameInfo::FUN_00405d80() == 4))
                 name = (char *)RallyData_GetRecord((BYTE)row);
+            else
+                name = (char *)RallyData_GetRecord((BYTE)FUN_004735a0((unsigned int *)entry));
             sprintf(CFrontend::m_stringDest, name);
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
             return;
@@ -6541,7 +6541,11 @@ void FUN_004143f0(int car, short *pRect)
         if (RallyData_FUN_00411880() != 0)
             CGameInfo::FUN_00405dc0();
         for (i = 0; i <= g_unk0x00536c90; i++) {
-            if (i == g_stageSplitData[car].split) {
+            if (i != g_stageSplitData[car].split) {
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)&g_unk0x00536cb8[i + car * 0x14],
+                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
+            } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
@@ -6551,10 +6555,6 @@ void FUN_004143f0(int car, short *pRect)
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 15),
                                 (BYTE *)&colour, 2);
-            } else {
-                Sprite_FillRect((int)g_pGraphics + 0x150,
-                                (short *)&g_unk0x00536cb8[i + car * 0x14],
-                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             }
             if (i > 0 && i < g_unk0x00536c90 - 1) {
                 marker = g_unk0x00536cb8[i + car * 0x14];
@@ -6583,7 +6583,11 @@ void FUN_00414550(int car, short *pRect)
         if (RallyData_FUN_00411880() != 0)
             CGameInfo::FUN_00405dc0();
         for (i = 0; i <= g_unk0x00536c90; i++) {
-            if (i == g_stageSplitData[car].split) {
+            if (i != g_stageSplitData[car].split) {
+                Sprite_FillRect((int)g_pGraphics + 0x150,
+                                (short *)&g_unk0x00536cb8[i + car * 0x14],
+                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
+            } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
                 g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
@@ -6593,10 +6597,6 @@ void FUN_00414550(int car, short *pRect)
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 15),
                                 (BYTE *)&colour, 2);
-            } else {
-                Sprite_FillRect((int)g_pGraphics + 0x150,
-                                (short *)&g_unk0x00536cb8[i + car * 0x14],
-                                (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             }
             if (i > 0 && i < g_unk0x00536c90 - 1) {
                 marker = g_unk0x00536cb8[i + car * 0x14];
@@ -7713,10 +7713,10 @@ bar:
     pBar[3] = pMarker->h;
     marker = pMarker->w;
     range = g_unk0x00536ff0[splitIndex * 2 + 2] - first;
-    if (range == 0)
-        fallback = 0;
-    else
+    if (range != 0)
         fallback = (short)(((int)splitTime - first) * marker / range);
+    else
+        fallback = 0;
     pBar[2] = (short)fallback;
     pBar[4] = pBar[0] + (short)fallback;
     pBar[5] = pBar[1];
@@ -8375,16 +8375,16 @@ void FUN_00414ed0(int car, short *pRect)
                 sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
                 Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                               (int *)&g_stageResultTextColour, 0x22);
-                if (StageTiming_FUN_00455ae0() == 0) {
-                    Font_DrawText(0, g_strAdr, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
-                                  (int *)&g_stageResultTextColour, 0x21);
-                    time = 3000;
-                } else {
+                if (StageTiming_FUN_00455ae0() != 0) {
                     FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
                     Font_DrawText(0, CFrontend::m_stringDest,
                                   (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
                                   (int *)&g_stageResultTextColour, 0x21);
                     time = StageTiming_GetSplitTimeForPosition(*pPosition, g_stageSplitData[car].split);
+                } else {
+                    Font_DrawText(0, g_strAdr, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                                  (int *)&g_stageResultTextColour, 0x21);
+                    time = 3000;
                 }
                 FormatGapToLeader(time, 5, 5,
                                   FixDiv((int)(__int64)((double)pRect[0] * CGraphics::m_65536),
@@ -8419,14 +8419,14 @@ void FUN_00414ed0(int car, short *pRect)
             width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
             if (width > (int)(g_pGraphics->resX * 0x59) / 640)
                 FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
-            if (StageTiming_FUN_00455ae0() == 0) {
-                Font_DrawText(0, g_strADriver, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
-                              (int *)&g_stageResultTextColour, 0x21);
-                time = 3000;
-            } else {
+            if (StageTiming_FUN_00455ae0() != 0) {
                 Font_DrawText(0, CFrontend::m_stringDest, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]),
                               textY, (int *)&g_stageResultTextColour, 0x21);
                 time = StageTiming_GetSplitTimeForPosition(*pPosition, g_stageSplitData[car].split);
+            } else {
+                Font_DrawText(0, g_strADriver, (short)(((int)(g_pGraphics->resX * 0x132a) >> 16) + pRect[0]), textY,
+                              (int *)&g_stageResultTextColour, 0x21);
+                time = 3000;
             }
             FormatGapToLeader(time, 5, 5,
                               FixDiv((int)(__int64)((double)pRect[0] * CGraphics::m_65536),

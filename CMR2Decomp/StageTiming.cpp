@@ -2392,7 +2392,11 @@ void StageDeform_ApplyPlanarDent(void)
             int distanceSquare = FixVecDot(&distance, &distance);
             if (distanceSquare <= outerSquare) {
                 FixVector displacement;
-                if (radiusSquare < distanceSquare) {
+                if (radiusSquare >= distanceSquare) {
+                    int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
+                                                                  distanceSquare);
+                    FixVecScale(&displacement, &g_stageDeformNormal, penetration);
+                } else {
                     int length = FixSqrt(distanceSquare);
                     int shellWeight = FixMul(FixMul(length - g_stageDeformSpeed,
                                                     reciprocalFalloff), shellScale);
@@ -2409,10 +2413,6 @@ void StageDeform_ApplyPlanarDent(void)
                     direction.y = (int)pLimits[0x19] << 9;
                     direction.z = (int)pLimits[0x1a] << 9;
                     FixVecScale(&distance, &direction, push);
-                } else {
-                    int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
-                                                                  distanceSquare);
-                    FixVecScale(&displacement, &g_stageDeformNormal, penetration);
                 }
 
                 FixVector position;
@@ -4108,13 +4108,13 @@ void FUN_0045e7f0(void)
             pRec[0] = position;
             if (position != pRec[1]) {
                 pRec[1] = position;
-                if (g_unk0x00543d80 < position) {
-                    if (position < g_unk0x00543d84)
-                        pRec[2] = FixMul((position - g_unk0x00543d80) << 16, g_unk0x00543d7c) + g_unk0x00543d74;
-                    else
-                        pRec[2] = g_unk0x00543d78;
-                } else {
+                if (g_unk0x00543d80 >= position) {
                     pRec[2] = g_unk0x00543d74;
+                } else {
+                    if (position >= g_unk0x00543d84)
+                        pRec[2] = g_unk0x00543d78;
+                    else
+                        pRec[2] = FixMul((position - g_unk0x00543d80) << 16, g_unk0x00543d7c) + g_unk0x00543d74;
                 }
             }
         }
@@ -5013,10 +5013,10 @@ void FUN_00458e00(int car, int target)
             next = 0;
         if (g_stageLooped)
             FUN_00458f30(car, current, next);
-        if (g_unk0x00542cad == 0)
-            FUN_00458fd0(car, next);
-        else
+        if (g_unk0x00542cad != 0)
             FUN_004590a0(car, next);
+        else
+            FUN_00458fd0(car, next);
         FUN_00459180(car);
         FUN_00459250(car, next, step);
         current = next;
@@ -5679,12 +5679,12 @@ void FUN_004483e0(void)
             pSlot++;
             g_unk0x0053d1da[k] = 1;
             value = FixDiv((FUN_004589e0(k) & 0xffff) << 16, total);
-            if (value < 1) {
-                g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
-            } else {
+            if (value >= 1) {
                 g_unk0x0053d1b8[k] =
                     ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value),
                                                         FUN_0040d4b0(g_unk0x0053d1b0)));
+            } else {
+                g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
             }
             if ((char)RallyData_FUN_00407e90() != 0)
                 g_unk0x0053e190[11] = g_unk0x0053d1b8[k];
@@ -5828,16 +5828,16 @@ void FUN_004487a0(int car)
     count = FUN_00458390();
     group = FUN_00458330(car);
     index = FUN_00458350(car);
-    if ((char)RallyData_GetFlag24() == 0)
-        g_carStageTiming[car].field_0x4[split] = g_unk0x0053d1b0;
-    else
+    if ((char)RallyData_GetFlag24() != 0)
         g_unk0x0053d1e8[car][group][split] = g_unk0x0053d1b0;
+    else
+        g_carStageTiming[car].field_0x4[split] = g_unk0x0053d1b0;
     if (car < (int)((BYTE)RallyDataState()) || (char)RallyData_FUN_00407e90() != 0) {
         g_carStageTiming[car].field_0x84 = 0;
-        if ((char)RallyData_GetFlag24() == 0)
-            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
-        else
+        if ((char)RallyData_GetFlag24() != 0)
             g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0 - g_unk0x0053d1e8[car][group][0];
+        else
+            g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
     }
     if ((char)RallyData_FUN_00407e90() != 0) {
         group = 0;
@@ -6027,12 +6027,12 @@ void FUN_004584d0(char param_1)
                     (int)(__int64)((double)(count * 5) * CGraphics::m_65536);
             else
                 t = 0xfff60000;
-            if (i % 2 == 0) {
-                g_unk0x00542cd8[slot][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) - sinA + p1[0];
-                g_unk0x00542cd8[slot][2] = FixMul(t, g_sinTable[a & 0xfff]) + cosA + p1[2];
-            } else {
+            if (i % 2 != 0) {
                 g_unk0x00542cd8[slot][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) + sinA + p1[0];
                 g_unk0x00542cd8[slot][2] = FixMul(t, g_sinTable[a & 0xfff]) - cosA + p1[2];
+            } else {
+                g_unk0x00542cd8[slot][0] = FixMul(t, g_sinTable[(a + 0x400) & 0xfff]) - sinA + p1[0];
+                g_unk0x00542cd8[slot][2] = FixMul(t, g_sinTable[a & 0xfff]) + cosA + p1[2];
             }
         }
         break;
@@ -6045,12 +6045,12 @@ void FUN_004584d0(char param_1)
                 slot = 0;
             else
                 slot = FUN_0040b010(FUN_0040a7a0(FUN_0040b1a0(i)));
-            if (i % 2 != 0) {
-                g_unk0x00542d38[slot] = g_unk0x00542c7c[1];
-                g_unk0x00542cb4[slot] = 1;
-            } else {
+            if (i % 2 == 0) {
                 g_unk0x00542d38[slot] = 0;
                 g_unk0x00542cb4[slot] = 0;
+            } else {
+                g_unk0x00542d38[slot] = g_unk0x00542c7c[1];
+                g_unk0x00542cb4[slot] = 1;
             }
         }
         break;
@@ -6597,14 +6597,14 @@ void FUN_004816f0(void)
         v30.x = v24.x;
         v30.y = v24.y;
         v30.z = v24.z;
-        if (bVar5) {
-            PARTSTATE->field_0x164.x = 0;
-            PARTSTATE->field_0x164.y = 0;
-            PARTSTATE->field_0x164.z = 0;
-        } else {
+        if (!bVar5) {
             v30.x = v24.x + v70.x;
             v30.y = v24.y + v70.y;
             v30.z = v24.z + v70.z;
+        } else {
+            PARTSTATE->field_0x164.x = 0;
+            PARTSTATE->field_0x164.y = 0;
+            PARTSTATE->field_0x164.z = 0;
         }
         v24.x = PARTSTATE->field_0x12c.x - PARTSTATE->field_0x120.x;
         v24.y = PARTSTATE->field_0x12c.y - PARTSTATE->field_0x120.y;
@@ -6643,7 +6643,29 @@ void FUN_004816f0(void)
 
     if ((PARTSTATE->field_0x150 & 2) != 0 && (PARTSTATE->field_0x150 & 8) != 0 && !bVar5) {
         flip = false;
-        if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
+        if ((PARTSTATE->field_0x150 & 0xf0) != 0x10) {
+            i = PARTSTATE->field_0x17c.forward.x;
+            if (PARTSTATE->field_0x120.z < 1) {
+                if (i < 0) {
+                    PARTSTATE->field_0x17c.forward.x = 0;
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
+                }
+                if (PARTSTATE->field_0x17c.forward.y > 0)
+                    goto LAB_00482460;
+            } else {
+                if (i > 0) {
+                    PARTSTATE->field_0x17c.forward.x = 0;
+                    PARTSTATE->field_0x164.x = 0;
+                    flip = true;
+                }
+                if (PARTSTATE->field_0x17c.forward.y < 0) {
+                    PARTSTATE->field_0x17c.forward.y = 0;
+                    PARTSTATE->field_0x164.y = 0;
+                    goto LAB_00482480;
+                }
+            }
+        } else {
             i = PARTSTATE->field_0x17c.forward.x;
             if (PARTSTATE->field_0x120.z < 1) {
                 if (i > 0) {
@@ -6668,28 +6690,6 @@ void FUN_004816f0(void)
                 PARTSTATE->field_0x17c.forward.y = 0;
                 PARTSTATE->field_0x164.y = 0;
                 goto LAB_00482480;
-            }
-        } else {
-            i = PARTSTATE->field_0x17c.forward.x;
-            if (PARTSTATE->field_0x120.z < 1) {
-                if (i < 0) {
-                    PARTSTATE->field_0x17c.forward.x = 0;
-                    PARTSTATE->field_0x164.x = 0;
-                    flip = true;
-                }
-                if (PARTSTATE->field_0x17c.forward.y > 0)
-                    goto LAB_00482460;
-            } else {
-                if (i > 0) {
-                    PARTSTATE->field_0x17c.forward.x = 0;
-                    PARTSTATE->field_0x164.x = 0;
-                    flip = true;
-                }
-                if (PARTSTATE->field_0x17c.forward.y < 0) {
-                    PARTSTATE->field_0x17c.forward.y = 0;
-                    PARTSTATE->field_0x164.y = 0;
-                    goto LAB_00482480;
-                }
             }
         }
     LAB_00482478:
@@ -6867,12 +6867,12 @@ void FUN_00480e50(int slot)
             local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
             rotor = 0;
         } else {
-            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-                local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
-                rotor = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
-            } else {
+            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 8) {
                 local_14 = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
                 rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+            } else {
+                local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+                rotor = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
             }
             lateral = 0;
         }
@@ -7114,14 +7114,14 @@ void FUN_00483570(void)
             v5c[0] = 0;
             v5c[1] = 0;
             v5c[2] = 0;
-            if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 1) {
-                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff];
-                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
-                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff];
-            } else {
+            if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) >= 1) {
                 v2c[0] = g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x194);
                 v2c[1] = -*(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
                 v2c[2] = g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c);
+            } else {
+                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff];
+                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
+                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff];
             }
             FixVecLength((FixVector *)v2c);
             v38[0] = FixMul(*(int *)(car + 0x408) - *(int *)(car + 0x414), -0x50000);
@@ -7216,12 +7216,12 @@ void FUN_00483570(void)
                 v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) - v2c[1];
                 v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) - v2c[2];
                 len = FixVecLength((FixVector *)v2c);
-                if (len == 0) {
+                if (len != 0) {
+                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), (FixVector *)v2c, len);
+                } else {
                     *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c) = 0;
                     *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) = 0;
                     *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) = 0;
-                } else {
-                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), (FixVector *)v2c, len);
                 }
                 v2c[0] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), *(int *)(((BYTE *)g_unk0x00590c20) + 0x184)) -
                          FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), *(int *)(((BYTE *)g_unk0x00590c20) + 0x180));
@@ -7526,10 +7526,10 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
     rec[0x11] = FixMul(corr[0], -0x10000);
     rec[0x12] = FixMul(corr[1], -0x10000);
     rec[0x13] = FixMul(corr[2], -0x10000);
-    if (rec[0x12] == 0)
-        rec[0x14] = 0;
-    else
+    if (rec[0x12] != 0)
         rec[0x14] = FixDiv(0x10000, rec[0x12]);
+    else
+        rec[0x14] = 0;
     if (rec[0] == 2) {
         wheelScale = FixMul(rec[0x16], g_unk0x00543da0);
         if (wheelScale > 0x10000)
@@ -7604,13 +7604,13 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
             hy -= rec[gz + gx * 5 + 0x44];
             pNode->angle = rec[gz + gx * 5 + 0x2b] + 0x1999;
         }
-        if (hz < 0xc0001) {
-            while (hz < -0xc0000)
-                hz += 0x180000;
-        } else {
+        if (hz >= 0xc0001) {
             do {
                 hz += -0x180000;
             } while (0xc0000 < hz);
+        } else {
+            while (hz < -0xc0000)
+                hz += 0x180000;
         }
         pNode->x = rec[2] + hx;
         pNode->y = rec[3] + hy;
@@ -7812,12 +7812,12 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
             switch (i) {
             case 0:
                 tmp = frontAngle - d4;
-                if (tmp < 0xb40000) {
+                if (tmp >= 0xb40000) {
+                    pOut[6] = tmp - 0x1680000;
+                } else {
                     if (tmp < -0xb40000)
                         tmp += 0x1680000;
                     pOut[6] = tmp;
-                } else {
-                    pOut[6] = tmp - 0x1680000;
                 }
                 break;
             case 1:
@@ -7914,12 +7914,12 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
                 break;
             case 0x12:
                 tmp = frontAngle - refAngle;
-                if (tmp < 0xb40000) {
+                if (tmp >= 0xb40000) {
+                    pOut[0x1e] = tmp - 0x1680000;
+                } else {
                     if (tmp < -0xb40000)
                         tmp += 0x1680000;
                     pOut[0x1e] = tmp;
-                } else {
-                    pOut[0x1e] = tmp - 0x1680000;
                 }
                 break;
             case 0x14:
@@ -8888,15 +8888,7 @@ void FUN_00448920(int car)
     if ((char)RallyData_FUN_00407e90() == 0) {
         pRecord = g_unk0x0053d1e8[car][group];
         pRecord[0] = g_unk0x0053d1b0;
-        if ((char)RallyData_FUN_00407ea0() == 0 && CGameInfo::FUN_00405d80() != 12) {
-            pPrev = pRecord - 5;
-            base = pPrev[0];
-            pTime = &g_carStageTiming[car].splitTimes[group];
-            *pTime = pRecord[0] - base;
-            pOut = g_carStageTiming[car].splits;
-            for (i = 5; i != 0; i--)
-                *pOut++ = *pPrev++ - base;
-        } else {
+        if (!((char)RallyData_FUN_00407ea0() == 0 && CGameInfo::FUN_00405d80() != 12)) {
             pTime = &g_carStageTiming[car].splitTimes[group];
             *pTime = g_unk0x0053d1b0 - g_carStageTiming[car].lastTime;
             if (*pTime > 359999)
@@ -8911,6 +8903,14 @@ void FUN_00448920(int car)
                 pPrev++;
                 pOut++;
             }
+        } else {
+            pPrev = pRecord - 5;
+            base = pPrev[0];
+            pTime = &g_carStageTiming[car].splitTimes[group];
+            *pTime = pRecord[0] - base;
+            pOut = g_carStageTiming[car].splits;
+            for (i = 5; i != 0; i--)
+                *pOut++ = *pPrev++ - base;
         }
         if (CGameInfo::FUN_00405d80() == 12) {
             FUN_0040a3e0(*pTime);
