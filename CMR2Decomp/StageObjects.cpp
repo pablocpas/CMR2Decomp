@@ -23,6 +23,7 @@
 #include "GenericFileLoader.h"
 #include "FileBuffer.h"
 #include "Mesh.h"
+#include "CarParts.h"
 #include "Graphics.h"
 #include "Font.h"
 #include "Sprite.h"
@@ -98,16 +99,16 @@ void FUN_004675c0(Car *pCar, Car *pOther);
 void FUN_004688b0(BYTE *p);
 void FUN_00468a80(Car *pCar, int amount);
 void FUN_00468c10(Car *pCar);
-int FUN_00469100(Car *pCar, BYTE *pRecord);
+int FUN_00469100(Car *pCar, CarPartSet *set);
 void FUN_004694a0(int param_1, int param_2, char param_3);
-void FUN_00469690(int param_1);
+void FUN_00469690(Car *pCar);
 void FUN_00469bf0(Car *pCar, int index);
 int FUN_00469c30(FixVector *pOut, int *pParts, int index);
 int StageObject_IsEligibleType(short type, int mode, int category);
 void FUN_00469e40(int param_1, short *param_2, short param_3);
 void FUN_0046a500(int param_1);
 void FUN_0046acb0(int param_1, int param_2, int param_3);
-void FUN_0046afe0(int param_1, int param_2, int param_3);
+void FUN_0046afe0(int param_1, int param_2, CarPartSet *set);
 void FUN_0046b400(int value, int index);
 void FUN_0046b420(void);
 void FUN_0046b440(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
@@ -4657,7 +4658,7 @@ void FUN_004688b0(BYTE *p)
 
 extern BYTE *g_unk0x00588b94;
 
-int FUN_00469100(Car *pCar, BYTE *pRecord);
+int FUN_00469100(Car *pCar, CarPartSet *set);
 
 // Rebuilds the per-wheel/gear block (0x240..0x2c4) of the car's 0x4d0-byte
 // record from its source block (0x21c..), scales it, then recomputes the
@@ -4748,7 +4749,7 @@ void FUN_00468c10(Car *pCar)
             pCar->field_0x7b4 = 0x10000;
     }
     *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
-    value = FUN_00469100(pCar, pRecord);
+    value = FUN_00469100(pCar, (CarPartSet *)pRecord);
     *(int *)(pRecord + 0x408) = FixMul(0x4000, value);
     if (FUN_00469bc0(pCar, 3) != 0)
         *(int *)(pRecord + 0x408) = *(int *)(pRecord + 0x408) + -0x3333;
@@ -4812,71 +4813,50 @@ void FUN_00468a80(Car *pCar, int amount)
 // vertex data and its fixed-point copy, skipping parts 1 and 3 when the record
 // flag is set (their object count still feeds the divisor).
 // FUNCTION: CMR2 0x00469100
-int FUN_00469100(Car *pCar, BYTE *pRecord)
+int FUN_00469100(Car *pCar, CarPartSet *set)
 {
     int partA;
     int partB;
     int total;
     int sum;
-    int entry;
-    int *pCounts;
     int i;
-    int offsetDst;
-    int offsetSrc;
+    int j;
+    int dx;
+    int dy;
+    int dz;
+    int dist;
 
     if (g_unk0x00588970[pCar->field_0xb1a] == 0)
         return 0;
     partA = FUN_00484d10(1, pCar->field_0xb1a);
     partB = FUN_00484d10(3, pCar->field_0xb1a);
-    total = 0;
     sum = 0;
-    entry = 0;
-    pCounts = (int *)(pRecord + 0x420);
-    if (*(int *)(pRecord + 0x45c) > 0) {
-        do {
-            if (entry == partA) {
-                if (FUN_00469bc0(pCar, 1) != 0) {
-                    total += *pCounts;
-                    goto next;
-                }
-            } else if (entry == partB) {
-                if (FUN_00469bc0(pCar, 3) != 0) {
-                    total += *pCounts;
-                    goto next;
-                }
+    total = 0;
+    for (i = 0; i < set->count; i++) {
+        if (i == partA) {
+            if (FUN_00469bc0(pCar, 1) != 0)
+                goto skip;
+        } else if (i == partB && FUN_00469bc0(pCar, 3) != 0) {
+skip:
+            total += set->vertexCount[i];
+            continue;
+        }
+        {
+            for (j = 0; j < set->vertexCount[i]; j++) {
+                dx = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536) -
+                     set->vertices[i][j].pos.x;
+                dy = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536) -
+                     set->vertices[i][j].pos.y;
+                dz = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536) -
+                     set->vertices[i][j].pos.z;
+                dist = FIX_ABS(dx) + FIX_ABS(dy) + FIX_ABS(dz);
+                dist = FixMul(dist, 0x50000);
+                if (dist > 0x10000)
+                    dist = 0x10000;
+                sum += dist;
+                total++;
             }
-            i = 0;
-            if (*pCounts > 0) {
-                offsetDst = 0;
-                offsetSrc = 0;
-                do {
-                    int *pDst = (int *)(*(int *)(pRecord + 0x78 + entry * 4) + offsetDst);
-                    float *pSrc = (float *)(*(int *)(*(int *)(pRecord + entry * 4) + 0xc) + offsetSrc);
-                    int dx = (int)(__int64)((double)pSrc[0] * CGraphics::m_65536) - pDst[0];
-                    int dy = (int)(__int64)((double)pSrc[1] * CGraphics::m_65536) - pDst[1];
-                    int dz = (int)(__int64)((double)pSrc[2] * CGraphics::m_65536) - pDst[2];
-                    int v;
-
-                    if (dx < 0)
-                        dx = -dx;
-                    if (dy < 0)
-                        dy = -dy;
-                    if (dz < 0)
-                        dz = -dz;
-                    v = FixMul(dz + dy + dx, 0x50000);
-                    if (v > 0x10000)
-                        v = 0x10000;
-                    offsetSrc += 0x30;
-                    sum += v;
-                    total++;
-                    i++;
-                    offsetDst += 0x20;
-                } while (i < *pCounts);
-            }
-next:
-            entry++;
-            pCounts++;
-        } while (entry < *(int *)(pRecord + 0x45c));
+        }
     }
     return FixDiv(sum, total << 16);
 }
@@ -10385,111 +10365,100 @@ extern int *g_unk0x00588ba0;
 // Builds the vertex buffer of one stage object for one car: converts the
 // float source vertices to 16.16 fixed point and packs the normal bytes.
 // FUNCTION: CMR2 0x0046afe0
-void FUN_0046afe0(int param_1, int param_2, int param_3)
+void FUN_0046afe0(int param_1, int param_2, CarPartSet *set)
 {
     int i;
     int j;
-    int off;
     int total;
-    int *pRec;
-    int n;
-    int c;
-    int b;
+    int t;
+    int len;
+    BYTE rgb[3];
     FixVector v;
+    CarPartVertex *pDst;
+    FixVector *pPos;
+    FixVector p;
 
-    g_unk0x00588b9c[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c) << 2);
-    total = *(int *)(param_3 + 0x45c) * 4;
-    g_unk0x00588ba0[param_1] = (int)CFileBuffer::AllocateLockedBuffer(*(int *)(param_3 + 0x45c));
-    i = 0;
-    if (*(int *)(param_3 + 0x45c) > 0) {
-        pRec = (int *)(param_3 + 0x420);
-        do {
-            int *pVertices;
-
-            off = i * 4;
-            n = *pRec;
-            pVertices = (int *)((BYTE *)g_unk0x00588b9c[param_1] + off);
-            *pVertices = (int)CFileBuffer::AllocateLockedBuffer(n << 5);
-            total += n * 0x20;
-            ((BYTE *)g_unk0x00588ba0[param_1])[i] = *(BYTE *)(*(int *)(pRec - 0xf9) + 0x30);
-            j = 0;
-            if (n > 0) {
-                c = 0;
-                b = 0;
-                do {
-                    float *pF = (float *)(*(int *)(pRec - 0x108) + 0xc + c);
-                    int *pDst = (int *)(*(int *)((BYTE *)g_unk0x00588b9c[param_1] + off) + b);
-                    DWORD col;
-                    int t;
-
-                    pDst[0] = (int)(__int64)(pF[0] * CGraphics::m_65536);
-                    pDst[1] = (int)(__int64)(pF[1] * CGraphics::m_65536);
-                    pDst[2] = (int)(__int64)(pF[2] * CGraphics::m_65536);
-                    pDst[3] = (int)(__int64)(pF[3] * CGraphics::m_65536);
-                    pDst[4] = (int)(__int64)(pF[4] * CGraphics::m_65536);
-                    pDst[5] = (int)(__int64)(pF[5] * CGraphics::m_65536);
-                    ((BYTE *)pDst)[0x1b] = (pDst[0] < 0) ? 0x7f : 0x81;
-                    ((BYTE *)pDst)[0x1c] = (pDst[1] < 0) ? 0x7f : 0x81;
-                    ((BYTE *)pDst)[0x1d] = (pDst[2] < 0) ? 0x7f : 0x81;
-                    col = *(DWORD *)(*(int *)(pRec - 0x108) + 0xc + 0x18 + c);
-                    t = (int)((col >> 16) & 0xff) - 0x80;
-                    if (t < -0x7f)
-                        t = -0x7f;
-                    else if (t > 0x7f)
-                        t = 0x7f;
-                    ((BYTE *)pDst)[0x1b] = (BYTE)t;
-                    t = (int)((col >> 8) & 0xff) - 0x80;
-                    if (t < -0x7f)
-                        t = -0x7f;
-                    else if (t > 0x7f)
-                        t = 0x7f;
-                    ((BYTE *)pDst)[0x1c] = (BYTE)t;
-                    t = (int)(col & 0xff) - 0x80;
-                    if (t < -0x7f)
-                        t = -0x7f;
-                    else if (t > 0x7f)
-                        t = 0x7f;
-                    ((BYTE *)pDst)[0x1d] = (BYTE)t;
-                    v.x = (int)(signed char)((BYTE *)pDst)[0x1b] * -0x200;
-                    v.y = (int)(signed char)((BYTE *)pDst)[0x1c] * -0x200;
-                    v.z = (int)(signed char)((BYTE *)pDst)[0x1d] * -0x200;
-                    {
-                        int len = FixVecLength(&v);
-
-                        if (len == 0) {
-                            ((BYTE *)pDst)[0x18] = 0;
-                            ((BYTE *)pDst)[0x19] = 0;
-                            ((BYTE *)pDst)[0x1a] = 0;
-                        } else {
-                            FixVecScaleRecip(&v, &v, len);
-                            t = v.x >> 9;
-                            if (t > 0x7f)
-                                t = 0x7f;
-                            else if (t < -0x7f)
-                                t = -0x7f;
-                            ((BYTE *)pDst)[0x18] = (BYTE)t;
-                            t = v.y >> 9;
-                            if (t > 0x7f)
-                                t = 0x7f;
-                            else if (t < -0x7f)
-                                t = -0x7f;
-                            ((BYTE *)pDst)[0x19] = (BYTE)t;
-                            t = v.z >> 9;
-                            if (t > 0x7f)
-                                t = 0x7f;
-                            else if (t < -0x7f)
-                                t = -0x7f;
-                            ((BYTE *)pDst)[0x1a] = (BYTE)t;
-                        }
-                    }
-                    j++;
-                    b += 0x20;
-                    c += 0x30;
-                } while (j < n);
+    g_unk0x00588b9c[param_1] = (int)CFileBuffer::AllocateLockedBuffer(set->count << 2);
+    total = set->count * 4;
+    g_unk0x00588ba0[param_1] = (int)CFileBuffer::AllocateLockedBuffer(set->count);
+    for (i = 0; i < set->count; i++) {
+        ((CarPartVertex **)g_unk0x00588b9c[param_1])[i] =
+            (CarPartVertex *)CFileBuffer::AllocateLockedBuffer(set->vertexCount[i] << 5);
+        total += set->vertexCount[i] << 5;
+        ((BYTE *)g_unk0x00588ba0[param_1])[i] = (BYTE)set->nodes[i]->key;
+        for (j = 0; j < set->vertexCount[i]; j++) {
+            pDst = &((CarPartVertex **)g_unk0x00588b9c[param_1])[i][j];
+            pPos = &pDst->pos;
+            pDst->pos.x = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
+            pDst->pos.y = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
+            pDst->pos.z = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
+            pDst->normal.x = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[0] * CGraphics::m_65536);
+            pDst->normal.y = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[1] * CGraphics::m_65536);
+            pDst->normal.z = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[2] * CGraphics::m_65536);
+            p = *pPos;
+            if (p.x >= 0)
+                pDst->rawNormal[0] = 0x81;
+            else
+                pDst->rawNormal[0] = 0x7f;
+            if (p.y >= 0)
+                pDst->rawNormal[1] = 0x81;
+            else
+                pDst->rawNormal[1] = 0x7f;
+            if (p.z >= 0)
+                pDst->rawNormal[2] = 0x81;
+            else
+                pDst->rawNormal[2] = 0x7f;
+            rgb[0] = (BYTE)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour >> 16);
+            rgb[1] = (BYTE)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour >> 8);
+            rgb[2] = (BYTE)((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].colour;
+            t = rgb[0] - 0x80;
+            if (t < -0x7f)
+                t = -0x7f;
+            else if (t > 0x7f)
+                t = 0x7f;
+            pDst->rawNormal[0] = (signed char)t;
+            t = rgb[1] - 0x80;
+            if (t < -0x7f)
+                t = -0x7f;
+            else if (t > 0x7f)
+                t = 0x7f;
+            pDst->rawNormal[1] = (signed char)t;
+            t = rgb[2] - 0x80;
+            if (t < -0x7f)
+                t = -0x7f;
+            else if (t > 0x7f)
+                t = 0x7f;
+            pDst->rawNormal[2] = (signed char)t;
+            v.x = -pDst->rawNormal[0] << 9;
+            v.y = -pDst->rawNormal[1] << 9;
+            v.z = -pDst->rawNormal[2] << 9;
+            len = FixVecLength(&v);
+            if (len == 0) {
+                pDst->normal8[0] = 0;
+                pDst->normal8[1] = 0;
+                pDst->normal8[2] = 0;
+            } else {
+                FixVecScaleRecip(&v, &v, len);
+                t = v.x >> 9;
+                if (t > 0x7f)
+                    t = 0x7f;
+                else if (t < -0x7f)
+                    t = -0x7f;
+                pDst->normal8[0] = (signed char)t;
+                t = v.y >> 9;
+                if (t > 0x7f)
+                    t = 0x7f;
+                else if (t < -0x7f)
+                    t = -0x7f;
+                pDst->normal8[1] = (signed char)t;
+                t = v.z >> 9;
+                if (t > 0x7f)
+                    t = 0x7f;
+                else if (t < -0x7f)
+                    t = -0x7f;
+                pDst->normal8[2] = (signed char)t;
             }
-            i++;
-            pRec++;
-        } while (i < *(int *)(param_3 + 0x45c));
+        }
     }
 }
 
@@ -11238,41 +11207,6 @@ void FUN_0046a500(int param_1)
     *(int *)(param_1 + 0x410) = FixMul(*(int *)(param_1 + 0x410), 0xf851);
 }
 
-// Packed 16.16 copy of one part vertex (built by FUN_0046afe0).
-struct CarPartVertex {
-    FixVector pos;    // 0x00
-    FixVector normal; // 0x0c
-    BYTE pad[8];      // 0x18
-};
-
-// Float vertex of a part's render buffer.
-struct CarPartFloatVertex {
-    float pos[3];    // 0x00
-    float normal[3]; // 0x0c
-    BYTE pad[0x18];  // 0x18
-};
-
-struct CarPartMesh {
-    BYTE pad[0xc];
-    CarPartFloatVertex *vertices; // 0x0c
-};
-
-// Parts of a car body: render meshes, materials, packed vertices and boxes.
-struct CarPartSet {
-    CarPartMesh *meshes[15];         // 0x000
-    BYTE *materials[15];             // 0x03c  (+0x30 = material key)
-    CarPartVertex *vertices[15];     // 0x078
-    FixVector centres[15];           // 0x0b4
-    FixVector halfExtents[15];       // 0x168
-    BYTE pad21c[0x410 - 0x21c];
-    int maxX;                        // 0x410
-    int minX;                        // 0x414
-    int maxZ;                        // 0x418
-    int minZ;                        // 0x41c
-    int vertexCount[15];             // 0x420
-    int count;                       // 0x45c
-};
-
 // Rebuilds the per-part bounding box of a stage object record for one car:
 // converts the packed integer vertices of every part to floats, tracks the
 // per-part min/max in 16.16 units, expands the record's global x/z bounds and
@@ -11301,9 +11235,9 @@ void FUN_0046acb0(int param_1, int param_2, int param_3)
     if (g_unk0x00588970[param_1] == 0)
         return;
     if (g_unk0x00588b9c[param_1] == 0)
-        FUN_0046afe0(param_1, param_2, param_3);
+        FUN_0046afe0(param_1, param_2, (CarPartSet *)param_3);
     for (i = 0; i < set->count; i++) {
-        key = *(int *)(set->materials[i] + 0x30) & 0xff;
+        key = set->nodes[i]->key & 0xff;
         match = -1;
         for (j = 0; j <= set->count; j++) {
             if (((BYTE *)g_unk0x00588ba0[param_1])[j] == key) {
@@ -11317,16 +11251,16 @@ void FUN_0046acb0(int param_1, int param_2, int param_3)
             minX = minY = minZ = 0x640000;
             for (j = 0; j < set->vertexCount[i]; j++) {
                 pos = set->vertices[i][j].pos;
-                set->meshes[i]->vertices[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
-                set->meshes[i]->vertices[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
-                set->meshes[i]->vertices[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
                 normal = set->vertices[i][j].normal;
-                set->meshes[i]->vertices[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
-                set->meshes[i]->vertices[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
-                set->meshes[i]->vertices[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
-                fx = (int)(__int64)(set->meshes[i]->vertices[j].pos[0] * CGraphics::m_65536);
-                fy = (int)(__int64)(set->meshes[i]->vertices[j].pos[1] * CGraphics::m_65536);
-                fz = (int)(__int64)(set->meshes[i]->vertices[j].pos[2] * CGraphics::m_65536);
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
+                fx = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] * CGraphics::m_65536);
+                fy = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] * CGraphics::m_65536);
+                fz = (int)(__int64)(((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] * CGraphics::m_65536);
                 if (fx > maxX)
                     maxX = fx;
                 if (fx < minX)
@@ -11937,78 +11871,57 @@ unsigned char RallyDataState(void);
 // match 22%: implementada; difiere el codegen del bucle de la cadena de objetos
 // (indice*0xd + base) y de la division 64-bit de las intensidades
 // FUNCTION: CMR2 0x00469690
-void FUN_00469690(int param_1)
+void FUN_00469690(Car *pCar)
 {
-    BYTE *pBlock;
-    BYTE *pInfo;
-    int saved5dc, saved5e0, saved5e4, saved5c4, saved5c8, saved5cc;
+    CarPartSet *set;
+    CarDamageRecord *pRecord;
+    CarDamageLink *pLink;
+    FixVector saved5dc;
+    FixVector saved5c4;
     int i;
-    int iVar13;
-    unsigned int uVar12;
-    BYTE bVar1;
 
-    pBlock = g_unk0x00588b94 + *(char *)(param_1 + 0xb1a) * 0x4d0;
-    pInfo = g_unk0x00588b98 + *(char *)(param_1 + 0xb1a) * 0x290;
-    FUN_00480b40((BYTE *)param_1);
-    FUN_004698a0(param_1);
-    *(int *)(pBlock + 0x404) = 0x10000;
-    *(int *)(pBlock + 0x3fc) = 0x10000;
-    *(int *)(pBlock + 0x400) = 0x10000;
-    *(int *)(pBlock + 0x3ec) = 0;
-    *(int *)(pBlock + 0x3f0) = 0;
-    *(int *)(pBlock + 0x3f4) = 0;
-    *(int *)(pBlock + 0x3f8) = 0;
-    *(int *)(pBlock + 0x408) = 0;
-    *(int *)(pBlock + 0x3d8) = 0;
-    *(BYTE *)(pBlock + 0x468) = 0;
-    saved5dc = *(int *)(param_1 + 0x5dc);
-    saved5e0 = *(int *)(param_1 + 0x5e0);
-    saved5e4 = *(int *)(param_1 + 0x5e4);
-    saved5c4 = *(int *)(param_1 + 0x5c4);
-    saved5c8 = *(int *)(param_1 + 0x5c8);
-    saved5cc = *(int *)(param_1 + 0x5cc);
-    uVar12 = (unsigned int)*(BYTE *)(pInfo + 0x105);
-    if (*(char *)(pInfo + 0x104) != '\0') {
-        iVar13 = (int)(uVar12 * 0xd) + (int)pInfo;
-        if (iVar13 != 0) {
-            do {
-                FUN_004688b0((BYTE *)iVar13);
-                FUN_00466ef0((Car *)param_1, 0, 0, 0, 0, 1);
-                if (*(char *)(iVar13 + 0xc) == -1)
-                    break;
-                uVar12 = (unsigned int)*(char *)(iVar13 + 0xc);
-                iVar13 = (int)(uVar12 * 0xd) + (int)pInfo;
-            } while (iVar13 != 0);
+    set = (CarPartSet *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
+    pRecord = (CarDamageRecord *)(g_unk0x00588b98 + pCar->field_0xb1a * 0x290);
+    FUN_00480b40((BYTE *)pCar);
+    FUN_004698a0((int)pCar);
+    set->field_0x3fc[2] = 0x10000;
+    set->field_0x3fc[0] = 0x10000;
+    set->field_0x3fc[1] = 0x10000;
+    set->field_0x3ec[0] = 0;
+    set->field_0x3ec[1] = 0;
+    set->field_0x3ec[2] = 0;
+    set->field_0x3ec[3] = 0;
+    set->field_0x408 = 0;
+    set->field_0x3d8 = 0;
+    set->field_0x468 = 0;
+    saved5dc = pCar->field_0x5dc;
+    saved5c4 = pCar->field_0x5c4;
+    pLink = &pRecord->links[pRecord->firstLink];
+    if (pRecord->hasLinks) {
+        while (pLink != NULL) {
+            FUN_004688b0((BYTE *)pLink);
+            FUN_00466ef0(pCar, 0, 0, 0, 0, 1);
+            if (pLink->next == -1)
+                break;
+            pLink = &pRecord->links[pLink->next];
         }
     }
-    *(int *)(param_1 + 0x5dc) = saved5dc;
-    *(int *)(param_1 + 0x5e0) = saved5e0;
-    *(int *)(param_1 + 0x5e4) = saved5e4;
-    *(int *)(param_1 + 0x5c4) = saved5c4;
-    *(int *)(param_1 + 0x5c8) = saved5c8;
-    *(int *)(param_1 + 0x5cc) = saved5cc;
+    pCar->field_0x5dc = saved5dc;
+    pCar->field_0x5c4 = saved5c4;
     for (i = 0; i < 0x22; i++) {
-        int tmp;
-
-        bVar1 = *(BYTE *)(pInfo + 0x20c + i);
-        tmp = (int)((unsigned int)bVar1 << 0x10);
-        *(int *)(pBlock + 0x350 + i * 4) = tmp;
-        *(int *)(pBlock + 0x350 + i * 4) = (int)(((__int64)tmp << 0x10) / 0xff0000);
+        set->field_0x350[i] = pRecord->intensity[i] << 16;
+        set->field_0x350[i] = FixDiv(set->field_0x350[i], 0xff0000);
     }
     for (i = 0; i < 3; i++) {
-        int v = *(int *)(pInfo + 0x240 + i * 4);
-
-        *(int *)(pBlock + 0x4c0 + i * 4) = v;
-        FUN_00486630((int)*(char *)(param_1 + 0xb1a), i, v);
+        set->field_0x4c0[i] = pRecord->field_0x240[i];
+        FUN_00486630(pCar->field_0xb1a, i, set->field_0x4c0[i]);
     }
     for (i = 0; i < 4; i++) {
-        int v = *(int *)(pInfo + 0x230 + i * 4);
-
-        *(int *)(pBlock + 0x4b0 + i * 4) = v;
-        FUN_00480ac0((BYTE *)param_1, i, v);
+        set->field_0x4b0[i] = pRecord->field_0x230[i];
+        FUN_00480ac0((BYTE *)pCar, i, set->field_0x4b0[i]);
     }
-    FUN_00468c10((Car *)param_1);
-    FUN_004692f0((Car *)param_1, 1);
+    FUN_00468c10(pCar);
+    FUN_004692f0(pCar, 1);
 }
 
 // Initialises the stage-object state of one car (list type 0): resets the car's
@@ -12021,7 +11934,7 @@ void FUN_0046c2a0(int param_1, BYTE param_2)
     RaceRecord *pRecord;
 
     pCar = Car_Get((int)param_2);
-    FUN_00469690((int)pCar);
+    FUN_00469690(pCar);
     FUN_0046bfd0((Block0x309 *)(param_1 + 0x4d0), pCar);
     if (*(int *)((BYTE *)pCar + 0xb50) != 0) {
         FUN_0046c1a0((Block0x134 *)param_1, (Block0x134 *)FUN_00469680((int)param_2));
@@ -12042,7 +11955,7 @@ void FUN_0046c410(int param_1, BYTE param_2)
     Car *pCar;
 
     pCar = Car_Get((int)param_2);
-    FUN_00469690((int)pCar);
+    FUN_00469690(pCar);
     RallyData_FUN_004207a0((int)param_2);
     FUN_0045e610();
     FUN_004702a0();

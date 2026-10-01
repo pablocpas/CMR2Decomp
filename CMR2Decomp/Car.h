@@ -42,7 +42,7 @@ struct Car {
     BYTE field_0x570[0x54];
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
-    BYTE field_0x5dc[0xc];
+    FixVector field_0x5dc;            // 0x5dc
     FixVector cornerLoad[8];          // 0x5e8  normal force of the ground at each corner
     FixVector cornerForce[8];         // 0x648  force accumulated at each corner
     FixVector baseForce;              // 0x6a8  constant force applied every step

@@ -18,6 +18,7 @@
 #include "StageUI.h"
 #include "NetPlayers.h"
 #include "Mesh.h"
+#include "CarParts.h"
 #include "Graphics.h"
 #include "Font.h"
 #include "main.h"
@@ -66,26 +67,25 @@ int g_unk0x00541f8c;
 
 // GLOBAL: CMR2 0x00541f90
 char g_unk0x00541f90[8];
-// GLOBAL: CMR2 0x00541f98
-int g_unk0x00541f98;
-
-// GLOBAL: CMR2 0x00541f9c
-char g_stageDriverSlot[16];
-
-// Ten split rows of sixteen drivers. The removal loop addresses the three
-// adjacent tables through one base, so their storage must stay contiguous.
-struct StageSplitRankings {
-    char indices[10][16];   // 0x000
-    char positions[10][16]; // 0x0a0
-    char timeIndices[10][16]; // 0x140
-    char count[12];         // 0x1e0
+// Split ranking state: drivers in the stage, their slots and ten split rows
+// of sixteen drivers. One object: the original re-reads the driver count
+// after every byte store into the tables.
+struct StageSplitState {
+    int driverCount;           // 0x000
+    char driverSlot[16];       // 0x004
+    char indices[10][16];      // 0x014
+    char positions[10][16];    // 0x0b4
+    char timeIndices[10][16];  // 0x154
+    char count[12];            // 0x1f4
 };
-// GLOBAL: CMR2 0x00541fac
-StageSplitRankings g_stageSplitRankings;
-#define g_stageSplitDriverIndices (g_stageSplitRankings.indices)
-#define g_stageSplitPositions (g_stageSplitRankings.positions)
-#define g_stageSplitTimesRawDriverIx (g_stageSplitRankings.timeIndices)
-#define g_stageSplitDriverCount (g_stageSplitRankings.count)
+// GLOBAL: CMR2 0x00541f98
+StageSplitState g_stageSplit;
+#define g_unk0x00541f98 (g_stageSplit.driverCount)
+#define g_stageDriverSlot (g_stageSplit.driverSlot)
+#define g_stageSplitDriverIndices (g_stageSplit.indices)
+#define g_stageSplitPositions (g_stageSplit.positions)
+#define g_stageSplitTimesRawDriverIx (g_stageSplit.timeIndices)
+#define g_stageSplitDriverCount (g_stageSplit.count)
 
 // GLOBAL: CMR2 0x00542418
 short g_unk0x00542418;
@@ -551,37 +551,33 @@ void StageTiming_GetSplitTimesForPositions(int iPosition1, int iPosition2, int *
 void StageTiming_RebuildSplitPositions(void)
 {
     int aiDriverForSlot[16];
-    char *pIndices;
     int iSplit;
     int s;
     int i;
+    char *p;
     int d;
+    int t;
 
     iSplit = GetStageSplitCount();
-    for (i = 0; i < g_unk0x00541f98; i++)
-    {
-        pIndices = g_stageSplitDriverIndices[iSplit];
-        d = pIndices[i];
+    for (i = 0; i < g_unk0x00541f98; i++) {
+        d = g_stageSplitDriverIndices[iSplit][i];
         aiDriverForSlot[g_stageSplitTimesRawDriverIx[iSplit][i]] = d;
         g_stageSplitPositions[iSplit][d] = i;
     }
-    for (i = g_unk0x00541f98; i < 16; i++)
-    {
+    for (i = g_unk0x00541f98; i < 16; i++) {
         g_stageSplitDriverIndices[iSplit][i] = i;
         g_stageSplitPositions[iSplit][i] = i;
     }
-    for (s = 1; s < iSplit; s++)
-    {
-        pIndices = g_stageSplitDriverIndices[s];
-        for (i = 0; i < g_unk0x00541f98; i++)
-        {
+
+    for (s = 1; s < iSplit; s++) {
+        p = g_stageSplitDriverIndices[s];
+        for (i = 0; i < g_unk0x00541f98; i++) {
             d = aiDriverForSlot[g_stageSplitTimesRawDriverIx[s][i]];
-            pIndices[i] = d;
+            p[i] = d;
             g_stageSplitPositions[s][d] = i;
         }
-        for (i = g_unk0x00541f98; i < 16; i++)
-        {
-            pIndices[i] = i;
+        for (i = g_unk0x00541f98; i < 16; i++) {
+            p[i] = i;
             g_stageSplitPositions[s][i] = i;
         }
     }
@@ -4254,85 +4250,48 @@ void Mesh_Rebuild(Mesh *pMesh);
 void RallyData_ValidateIndex(int index);
 void FUN_00477c20(int index, char set0, char set1, BYTE mask);
 
-// Rebuilds the wheel/part meshes of a damaged car from its record's vertex
-// data, then clears the record's damage state.
-// match 18%: logic matches (6 FixMul-style float stores per part, then the record is cleared) but MSVC6
-// splits the six int temporaries across 7 stack slots and allocates EBP/ESI/EDI differently; not reproducible
-// without the original local layout. Kept as FUNCTION so reccmp measures it.
+// Rebuilds the part meshes of a damaged car from its packed vertices, then
+// clears the part set's damage state.
 // FUNCTION: CMR2 0x004698a0
 void FUN_004698a0(int pCar)
 {
+    CarPartSet *set;
     int i;
     int j;
-    int n;
-    int m;
-    int record;
-    int *p;
-    int *pSrc;
-    int v0;
-    int v1;
-    int v2;
-    int w0;
-    int w1;
-    int w2;
-    int q;
-    int idx;
+    Mesh *pMesh;
+    FixVector pos;
+    FixVector normal;
 
-    idx = *(char *)(pCar + 0xb1a);
-    if (g_unk0x00588970[idx] != 0) {
-        i = 0;
-        record = idx * 0x4d0 + (int)g_unk0x00588b94;
-        if (0 < *(int *)(record + 0x45c)) {
-            p = (int *)(record + 0x420);
-            do {
-                j = 0;
-                if (0 < *p) {
-                    n = 0;
-                    m = 0;
-                    do {
-                        n += 0x30;
-                        j++;
-                        pSrc = (int *)(*(int *)(record + 0x78) + m);
-                        v0 = pSrc[0];
-                        v1 = pSrc[1];
-                        v2 = pSrc[2];
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x30) = (float)(v0 * CGraphics::m_oneOver65536);
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x2c) = (float)(v1 * CGraphics::m_oneOver65536);
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x28) = (float)(v2 * CGraphics::m_oneOver65536);
-                        pSrc = (int *)(*(int *)(record + 0x78) + m + 0xc);
-                        m += 0x20;
-                        w0 = pSrc[0];
-                        w1 = pSrc[1];
-                        w2 = pSrc[2];
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x24) = (float)(w0 * CGraphics::m_oneOver65536);
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x20) = (float)(w1 * CGraphics::m_oneOver65536);
-                        *(float *)(*(int *)(*(int *)(record) + 0xc) + n - 0x1c) = (float)(w2 * CGraphics::m_oneOver65536);
-                    } while (j < *p);
-                }
-                q = *(int *)(*(int *)(record + 0x3c) + 0xc);
-                if (q != 0) {
-                    Mesh_Rebuild((Mesh *)q);
-                    RallyData_ValidateIndex(q);
-                    Scene_MarkShadowPartDirty(*(SceneNode **)(pCar + 0x720), (Mesh *)q);
-                }
-                i++;
-                p++;
-            } while (i < *(int *)(record + 0x45c));
+    if (g_unk0x00588970[*(char *)(pCar + 0xb1a)] != 0) {
+        set = (CarPartSet *)(g_unk0x00588b94 + *(char *)(pCar + 0xb1a) * 0x4d0);
+        for (i = 0; i < set->count; i++) {
+            for (j = 0; j < set->vertexCount[i]; j++) {
+                pos = set->vertices[i][j].pos;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
+                normal = set->vertices[i][j].normal;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
+                ((CarPartFloatVertex *)set->meshes[i]->pVertexData)[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
+            }
+            pMesh = set->nodes[i]->pMesh;
+            if (pMesh != NULL) {
+                Mesh_Rebuild(pMesh);
+                RallyData_ValidateIndex((int)pMesh);
+                Scene_MarkShadowPartDirty(*(SceneNode **)(pCar + 0x720), pMesh);
+            }
         }
-        p = (int *)(record + 0x21c);
-        for (n = 0; n < 9; n++)
-            p[n] = 0;
-        *(BYTE *)(record + 0x469) = 0;
-        *(int *)(record + 0x46c) = 0;
-        p = (int *)(record + 0x350);
-        for (n = 0; n < 0x22; n++)
-            p[n] = 0;
-        p = (int *)(record + 0x470);
-        for (n = 0; n < 8; n++) {
-            p[8] = 0;
-            p[0] = 0;
-            FUN_004694a0(pCar, 0, n);
-            p++;
+        for (i = 0; i < 9; i++)
+            set->field_0x21c[i] = 0;
+        set->field_0x469 = 0;
+        set->field_0x46c = 0;
+        for (i = 0; i < 0x22; i++)
+            set->field_0x350[i] = 0;
+        for (i = 0; i < 8; i++) {
+            set->field_0x490[i] = 0;
+            set->field_0x470[i] = 0;
+            FUN_004694a0(pCar, 0, i);
         }
         FUN_00477c20(*(char *)(pCar + 0xb1a), 0, 0, 4);
     }
@@ -8589,7 +8548,7 @@ void FUN_00480b40(BYTE *pCar);
 void FUN_00466e90(SceneNode *pNode, int *pSlot);
 void FUN_00480af0(BYTE *pCar, BYTE *pObject, BYTE flag);
 void FUN_0046acb0(int param_1, int param_2, int param_3);
-void FUN_00469690(int param_1);
+void FUN_00469690(Car *pCar);
 
 // Sets up the damage parts of the cars in `pOrder` (last first): collects the
 // mesh parts of each car model into its part table (0x4d0 bytes, 15 slots),
@@ -8730,7 +8689,7 @@ void FUN_004669f0(int lock, int keep, short *pOrder, short count)
                     }
                 }
                 FUN_0046acb0((signed char)pCar[0xb1a], *(int *)(pCar + 0x720), (int)pParts);
-                FUN_00469690((int)pCar);
+                FUN_00469690((Car *)pCar);
             }
             pIndex--;
         } while (--n);

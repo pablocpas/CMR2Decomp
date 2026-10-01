@@ -3828,29 +3828,31 @@ unsigned int *RallyData_GetRoundEntry(void)
 // reached flags (multi-player only).
 // match 29%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00471bf0
-void FUN_00471bf0(BYTE car)
+void FUN_00471bf0(int car)
 {
     int i;
     BYTE bit;
+    BYTE mask;
     BYTE *pObject;
 
-    if ((BYTE)RallyDataState() < 2) {
-        RallyData_ValidateIndex(car);
-        return;
-    }
-    for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
-        bit = g_unk0x0058c938[i] & (1 << car);
-        if (bit != 0 && g_unk0x0058c958[i] == 0) {
-            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-            *(int *)(pObject + 4) += 0x3e80000;
-            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
-            g_unk0x0058c958[i] = 1;
-        } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+    if ((BYTE)RallyDataState() > 1) {
+        mask = 1 << car;
+        for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
+            bit = g_unk0x0058c938[i] & mask;
+            if (bit == 0 && g_unk0x0058c958[i] != 0) {
             pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
             *(int *)(pObject + 4) -= 0x3e80000;
             (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
             g_unk0x0058c958[i] = 0;
+            } else if (bit != 0 && g_unk0x0058c958[i] == 0) {
+            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+            *(int *)(pObject + 4) += 0x3e80000;
+            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
+            g_unk0x0058c958[i] = 1;
+            }
         }
+    } else {
+        RallyData_ValidateIndex(car);
     }
 }
 

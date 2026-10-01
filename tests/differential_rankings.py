@@ -157,7 +157,12 @@ def main():
     original_ranges = [(0x541fac, 0x1ec, BASE + 0x40),
                        (0x541f90, 8, BASE + 0x230),
                        (0x541f98, 4, BASE + 0x248)]
-    rebuilt_ranges = [(entities[hex(start)][0], size, target)
+    # 0x541fac lies inside the split state object that starts at 0x541f98
+    def rebuilt_address(start):
+        if hex(start) in entities:
+            return entities[hex(start)][0]
+        return entities["0x541f98"][0] + start - 0x541f98
+    rebuilt_ranges = [(rebuilt_address(start), size, target)
                       for start, size, target in original_ranges]
     original = extract(ROOT / "cmr2bin/CMR2.exe", 0x455bc0, BASE + 0x2000,
                        original_ranges, 0x4583a0, "8")
