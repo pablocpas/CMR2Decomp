@@ -142,8 +142,8 @@ public:
     static int FUN_005004c0(void);
     static int FUN_00501230(void);
     static int FUN_00505e10(BYTE param1);
-    static void FUN_004a13b0(void);
-    static void FUN_004a12d0(int param1);
+    static int FUN_004a13b0(void);
+    static int FUN_004a12d0(int param1);
     static void FUN_00505a60(int param1);
     static int FUN_0040a420(int index);
     static unsigned char FUN_00405da0(void);

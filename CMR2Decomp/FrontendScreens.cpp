@@ -1968,8 +1968,7 @@ void FUN_004ecaf0(Menu *pMenu)
         g_pGraphics->pDD7->FlipToGDISurface();
         ShowCursor(1);
     }
-    // the original returns the enumeration status in EAX
-    status = ((int (*)(int))CGameInfo::FUN_004a12d0)((int)&g_unk0x00818ef8);
+    status = CGameInfo::FUN_004a12d0((int)&g_unk0x00818ef8);
     if (g_unk0x00818d04 == 0) {
         ShowCursor(0);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_RESTORE);
