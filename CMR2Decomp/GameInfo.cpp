@@ -11218,10 +11218,6 @@ char g_str0x00525c20[] = "%s\\gamesave\\%s";
 // Builds the session image that is written as a saved game. When a format
 // string is given it is used for the file name; otherwise the name of the
 // saved game selected by index is read back from the loaded records.
-// match 86%: every block, constant and call of the original is reproduced; the
-// residual diff is MSVC6 stack-slot allocation (it spills the three destination
-// pointers and keeps the loop bound as the next global's address, which our .bss
-// does not lay out adjacently) - see CONOCIMIENTO 6.u/4.u.
 // FUNCTION: CMR2 0x004f5190
 BYTE FUN_004f5190(int index, char *fmt)
 {
@@ -11256,31 +11252,33 @@ BYTE FUN_004f5190(int index, char *fmt)
     for (i = 0; i < 16; i++)
         g_unk0x0081b034[i] = (BYTE)FUN_0040cfe0(i);
 
-    p1 = g_unk0x0081a91c;
-    p2 = g_unk0x0081a94c;
-    p3 = g_unk0x0081ae6c;
-    pRec = g_unk0x0081a90c;
-    for (i = 0; i < (BYTE)CGameInfo::FUN_00405d70(); i++) {
-        BYTE *p = RallyData_FUN_00408860(i);
-        *pRec = (*pRec & 0xfffffcff) | (*(int *)(p + 0x5c) & 0x300);
-        p = RallyData_FUN_00408860(i);
-        *pRec = (*pRec & 0xffffffc7) | (*(int *)(p + 0x5c) & 0x38);
-        p = RallyData_FUN_00408860(i);
-        *pRec = (*pRec & 0xffffe3ff) | (*(int *)(p + 0x5c) & 0x1c00);
-        p = RallyData_FUN_00408860(i);
-        *pRec = (*pRec & 0xffffff3f) | (*(int *)(p + 0x5c) & 0xc0);
-        p = RallyData_FUN_00408860(i);
-        *pRec = (*pRec & 0xfffffff8) | (*(int *)(p + 0x5c) & 7);
-        p = RallyData_FUN_00408860(i);
-        *(int *)p2 = *(int *)(p + 0x10);
-        *(int *)(p2 + 4) = *(int *)(p + 0x14);
-        *(int *)(p2 + 8) = *(int *)(p + 0x18);
-        memcpy(p2, RallyData_FUN_00407610(i), 0x148);
-        memcpy(p3, RallyData_FUN_00407630(i), 7);
-        pRec++;
-        p2 += 0x148;
-        p3 += 7;
-        p1 += 0xc;
+    i = 0;
+    if ((BYTE)CGameInfo::FUN_00405d70() > 0) {
+        p3 = g_unk0x0081ae6c;
+        p2 = g_unk0x0081a94c;
+        p1 = g_unk0x0081a91c;
+        pRec = g_unk0x0081a90c;
+        do {
+            BYTE *p = RallyData_FUN_00408860(i);
+            *pRec = (*pRec & 0xfffffcff) | (*(int *)(p + 0x5c) & 0x300);
+            p = RallyData_FUN_00408860(i);
+            *pRec = (*pRec & 0xffffffc7) | (*(int *)(p + 0x5c) & 0x38);
+            p = RallyData_FUN_00408860(i);
+            *pRec = (*pRec & 0xffffe3ff) | (*(int *)(p + 0x5c) & 0x1c00);
+            p = RallyData_FUN_00408860(i);
+            *pRec = (*pRec & 0xffffff3f) | (*(int *)(p + 0x5c) & 0xc0);
+            p = RallyData_FUN_00408860(i);
+            *pRec = (*pRec & 0xfffffff8) | (*(int *)(p + 0x5c) & 7);
+            p = RallyData_FUN_00408860(i);
+            *(FixVector *)p1 = *(FixVector *)(p + 0x10);
+            memcpy(p2, RallyData_FUN_00407610(i), 0x148);
+            memcpy(p3, RallyData_FUN_00407630(i), 7);
+            i++;
+            pRec++;
+            p1 += 0xc;
+            p2 += 0x148;
+            p3 += 7;
+        } while (i < (BYTE)CGameInfo::FUN_00405d70());
     }
 
     memcpy(g_unk0x0081ae88, FUN_00407520(0), 0xa0);
