@@ -449,8 +449,8 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
     best.z = g_sectors[index]->corners[side].z - cz;
     pMesh = &((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex];
     pVert = pMesh->pVertices;
-    best.y = 0;
     best.x = -cx - (int)(__int64)(pVert[0] * -65536.0);
+    best.y = 0;
     best.z = -cz - (int)(__int64)(pVert[2] * -65536.0);
     for (i = 1; i < ((SectorMesh *)g_sectors[index]->pMesh)[g_sectors[index]->pMesh->lodIndex].vertexCount; i++) {
         d.x = -cx - (int)(__int64)(pVert[0] * -65536.0);

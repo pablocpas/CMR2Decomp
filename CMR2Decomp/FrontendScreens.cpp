@@ -434,8 +434,8 @@ void FUN_004d9450(Menu *pMenu)
     int x;
     BYTE *pColour;
 
-    rect[1] = 0;
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -576,8 +576,8 @@ void FUN_004e0770(Menu *pMenu)
     int j;
     int index;
 
-    rect[1] = 0;
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     y = ((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 +
@@ -6840,8 +6840,8 @@ void FUN_004df410(Menu *pMenu)
     int i;
     int j;
 
-    dst.y = 0;
     dst.x = (int)(g_pGraphics->resX * 100) / 640;
+    dst.y = 0;
     dst.w = CFrontend::m_pAr640ATexture->width;
     dst.h = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -6972,8 +6972,8 @@ void FUN_004e1230(Menu *pMenu)
     int id;
     int i;
 
-    icon[1] = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 440) / 640;
@@ -7211,8 +7211,8 @@ MenuScroller *FUN_004f2590(void);
 // Draws the frame of a quick race page: path, help, header line; returns the
 // y of the first row.
 #define QUICKRACE_FRAME()                                                                                   \
-    icon[1] = 0;                                                                                            \
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;                                                         \
+    icon[1] = 0;                                                                                            \
     icon[2] = CFrontend::m_pAr640ATexture->width;                                                           \
     icon[3] = CFrontend::m_pAr640ATexture->height;                                                          \
     text[0] = CFrontend::GetTextString(0x94);                                                               \
@@ -7511,8 +7511,8 @@ void FUN_004e1920(Menu *pMenu)
     short y0;
     int i;
 
-    icon[1] = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     y0 = (short)(((int)(g_pGraphics->resY * 8) / 480 + (int)(g_pGraphics->resY * 38) / 480 + (int)(g_pGraphics->resY * 384) / 480) / 2)
@@ -8805,8 +8805,8 @@ void FUN_004db850(Menu *pMenu)
     int baseY;
     int y;
 
-    rect[1] = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -8902,8 +8902,8 @@ void FUN_004e2610(Menu *pMenu)
     int baseY;
     int y;
 
-    rect[1] = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     baseY = ((int)(g_pGraphics->resY * 8) / 0x1e0 + (int)(g_pGraphics->resY * 0x26) / 0x1e0 +
@@ -9468,8 +9468,8 @@ void FUN_004e7ed0(Menu *pMenu)
     int baseY;
     int y;
 
-    rect[1] = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     pTexts[0] = CFrontend::GetTextString(0x12);
@@ -9773,8 +9773,8 @@ void FUN_004d7750(Menu *pMenu)
     int baseY;
     int y;
 
-    rect[1] = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     text[0] = g_unk0x00818274;
@@ -10155,8 +10155,8 @@ void FUN_004d8480(Menu *pMenu)
     int x;
     int i;
 
-    rect[1] = 0;
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
+    rect[1] = 0;
     rect[2] = CFrontend::m_pAr640ATexture->width;
     rect[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -10760,8 +10760,8 @@ void FUN_004e8b60(Menu *pMenu)
     int top;
     int i;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     text[0] = CFrontend::GetTextString(0x12);
@@ -11333,8 +11333,8 @@ void FUN_004dce00(Menu *pMenu)
     int top;
     int i;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     top = ((int)(g_pGraphics->resY * 8) / 0x1e0 + (int)(g_pGraphics->resY * 0x26) / 0x1e0 +
@@ -11480,8 +11480,8 @@ void FUN_004e77c0(Menu *pMenu)
     int top;
     int i;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     names[0] = g_strSessionPlayers1;
@@ -11724,8 +11724,8 @@ void FUN_004e90f0(Menu *pMenu)
     int top;
     int i;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     text[0] = CFrontend::GetTextString(0x12);
@@ -11826,8 +11826,8 @@ void FUN_004d8ed0(Menu *pMenu)
     int i;
     int j;
 
-    rect.y = 0;
     rect.x = (int)(g_pGraphics->resX * 100) / 640;
+    rect.y = 0;
     rect.w = CFrontend::m_pAr640ATexture->width;
     rect.h = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();

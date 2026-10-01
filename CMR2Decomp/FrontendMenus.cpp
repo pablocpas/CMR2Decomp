@@ -1298,8 +1298,8 @@ void FUN_004fd080(Menu *pMenu)
     short row;
     int i;
 
-    icon[1] = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -1424,8 +1424,8 @@ void FUN_004fd480(Menu *pMenu)
     short y0;
     int i;
 
-    icon[1] = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
@@ -1544,8 +1544,8 @@ void FUN_004fdb10(Menu *pMenu)
     int y;
     int i;
 
-    icon[1] = 0;
     icon[0] = (int)(g_pGraphics->resX * 100) / 640;
+    icon[1] = 0;
     icon[2] = CFrontend::m_pAr640ATexture->width;
     icon[3] = CFrontend::m_pAr640ATexture->height;
     FrontendDraw_PlayTime();
