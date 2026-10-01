@@ -5760,9 +5760,9 @@ int FUN_0040e210(int exclude1, int exclude2)
             g_unk0x00533758[5 + exclude1] = 1;
         if (exclude2 >= 0)
             g_unk0x00533758[5 + exclude2] = 1;
-        do {
+        g_unk0x005337cc = rand() % 4;
+        while (choices[g_unk0x005337cc] == 1)
             g_unk0x005337cc = rand() % 4;
-        } while (choices[g_unk0x005337cc] == 1);
         return g_unk0x005337cc + 12;
     }
     choices[0] = 0;
@@ -5772,9 +5772,9 @@ int FUN_0040e210(int exclude1, int exclude2)
         g_unk0x00533758[exclude1] = 1;
     if (exclude2 >= 0)
         g_unk0x00533758[exclude2] = 1;
-    do {
+    g_unk0x005337cc = rand() % 3;
+    while (choices[g_unk0x005337cc] == 1)
         g_unk0x005337cc = rand() % 3;
-    } while (choices[g_unk0x005337cc] == 1);
     return g_unk0x005337cc + 0x11;
 }
 
