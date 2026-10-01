@@ -113,8 +113,8 @@ BOOL __fastcall CSound::FUN_004a2ac0(void) {
 
         CloseMMIO(m_pMMIO);
 
-        pvVar1 = m_pMMIO;
         if (m_pMMIO != NULL) {
+            pvVar1 = m_pMMIO;
             CloseAndCleanupMMIO(m_pMMIO);
             delete pvVar1;
         }
