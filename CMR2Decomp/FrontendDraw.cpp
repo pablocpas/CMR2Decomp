@@ -106,24 +106,30 @@ void FrontendDraw_MenuTitle(Menu *pMenu)
 int FrontendDraw_MenuPath(Menu *pMenu, int x, int y, char last, int depth, char **ppNames, int nameCount)
 {
     BYTE *pColour;
-    int n;
+    int pos = x;
+    int n = nameCount;
 
-    if (depth < 1 && depth != -1)
-        return x;
-    if (pMenu->pParent != NULL && pMenu != FUN_004f8410()) {
-        x = FrontendDraw_MenuPath(pMenu->pParent, x, y, 0, depth == -1 ? -1 : depth - 1, ppNames,
-                                  last == 0 ? nameCount - 1 : nameCount);
+    if (depth > 0 || depth == -1) {
+        if (pMenu->pParent != NULL && pMenu != FUN_004f8410()) {
+            if (last == 0)
+                n = nameCount - 1;
+            if (depth == -1)
+                pos = FrontendDraw_MenuPath(pMenu->pParent, pos, y, 0, -1, ppNames, n);
+            else
+                pos = FrontendDraw_MenuPath(pMenu->pParent, pos, y, 0, depth - 1, ppNames, n);
+        }
+        pColour = g_colourWhite0x00524968;
+        if (last == 0)
+            pColour = g_colourText0x0052496c;
+        if (ppNames != NULL && nameCount > 0 && last == 0)
+            strcpy(CFrontend::m_stringDest, ppNames[nameCount - 1]);
+        else if (pMenu->stringId != 0)
+            strcpy(CFrontend::m_stringDest, (char *)pMenu->stringId);
+        else
+            strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->field_0x4));
+        pos = FrontendDraw_BreadcrumbItem(pos, y, pColour, last, CFrontend::m_stringDest);
     }
-    pColour = g_colourWhite0x00524968;
-    if (last == 0)
-        pColour = g_colourText0x0052496c;
-    if (ppNames != NULL && nameCount > 0 && last == 0)
-        strcpy(CFrontend::m_stringDest, ppNames[nameCount - 1]);
-    else if (pMenu->stringId != 0)
-        strcpy(CFrontend::m_stringDest, (char *)pMenu->stringId);
-    else
-        strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->field_0x4));
-    return FrontendDraw_BreadcrumbItem(x, y, pColour, last, CFrontend::m_stringDest);
+    return pos;
 }
 
 extern char g_loadRecordTimeFormat[];
