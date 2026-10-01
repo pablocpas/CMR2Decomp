@@ -6821,7 +6821,6 @@ void FUN_00480e50(int slot)
     int local_14 = 0;
     int rotor = 0;
     int lateral = 0;
-    int base;
 
     g_unk0x00590c20 = (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + carIndex * 0x1a0);
     if (FUN_004813b0(slot) == 0)
@@ -6834,12 +6833,11 @@ void FUN_00480e50(int slot)
     ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~8;
     *(int *)(*(int *)((BYTE *)g_unk0x00590c20) + 0x184) = 0;
 
-    base = (int)(g_unk0x00590d78 + type * 0xc);
 
     switch (slot) {
     case 0:
-        local_14 = -*(int *)(base + 0x168);
-        rotor = *(int *)(base + 0x16c);
+        local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+        rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
         *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0x288;
         *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004814d0;
         break;
@@ -6847,11 +6845,11 @@ void FUN_00480e50(int slot)
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9 ||
             *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
             rotor = 0;
-            local_14 = *(int *)(base + 0x168);
-            lateral = -*(int *)(base + 0x170);
+            local_14 = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+            lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
         } else {
-            local_14 = FixMul(*(int *)(base + 0x168), 0x8000);
-            rotor = *(int *)(base + 0x16c);
+            local_14 = FixMul(*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168), 0x8000);
+            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
         }
         *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
         *(int *)(((BYTE *)g_unk0x00590c20) + 0x110) = (int)FUN_004816f0;
@@ -6862,19 +6860,19 @@ void FUN_00480e50(int slot)
     case 2:
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
             local_14 = 0;
-            rotor = *(int *)(base + 0x16c);
-            lateral = -*(int *)(base + 0x170);
+            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+            lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
         } else if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
-            lateral = *(int *)(base + 0x170);
-            local_14 = -*(int *)(base + 0x168);
+            lateral = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
+            local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
             rotor = 0;
         } else {
             if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-                local_14 = -*(int *)(base + 0x168);
-                rotor = -*(int *)(base + 0x16c);
+                local_14 = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+                rotor = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
             } else {
-                local_14 = *(int *)(base + 0x168);
-                rotor = *(int *)(base + 0x16c);
+                local_14 = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+                rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
             }
             lateral = 0;
         }
@@ -6884,15 +6882,15 @@ void FUN_00480e50(int slot)
     case 3:
         ((BYTE *)g_unk0x00590c20)[0x150] |= 2;
         if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-            rotor = *(int *)(base + 0x16c);
+            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
         } else {
-            rotor = *(int *)(base + 0x16c);
+            rotor = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
             if (*(int *)(g_unk0x00590d78 + 0x24c) < *(int *)(g_unk0x00590d78 + 0x248)) {
-                lateral = *(int *)(base + 0x170);
+                lateral = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
                 rotor = -rotor;
             } else {
                 rotor = -rotor;
-                lateral = -*(int *)(base + 0x170);
+                lateral = -*(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
             }
         }
         *(short *)(((BYTE *)g_unk0x00590c20) + 0x158) = 0;
@@ -6906,16 +6904,16 @@ void FUN_00480e50(int slot)
     *(int *)(((BYTE *)g_unk0x00590c20) + 0x178) = 0x6ccc;
 
 common:
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) = *(int *)(base + 0xb4) + local_14;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x124) = *(int *)(base + 0xb8) + rotor;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) = *(int *)(base + 0xbc) + lateral;
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x15c) = FixVecLength((FixVector *)(base + 0x168));
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) = *(int *)(base + 0xb4);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) = *(int *)(base + 0xb8);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) = *(int *)(base + 0xbc);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x114) = *(int *)(base + 0x168);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x118) = *(int *)(base + 0x16c);
-    *(int *)(((BYTE *)g_unk0x00590c20) + 0x11c) = *(int *)(base + 0x170);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x120) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb4) + local_14;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x124) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb8) + rotor;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x128) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xbc) + lateral;
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x15c) = FixVecLength((FixVector *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168));
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb4);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xb8);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0xbc);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x114) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x168);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x118) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x16c);
+    *(int *)(((BYTE *)g_unk0x00590c20) + 0x11c) = *(int *)((int)(g_unk0x00590d78 + type * 0xc) + 0x170);
     *(int *)(((BYTE *)g_unk0x00590c20) + 0x138) = 0;
     *(int *)(((BYTE *)g_unk0x00590c20) + 0x13c) = 0;
     *(int *)(((BYTE *)g_unk0x00590c20) + 0x140) = 0;
