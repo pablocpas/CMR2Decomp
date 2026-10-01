@@ -10866,8 +10866,7 @@ void FUN_004d9c40(Menu *pMenu)
     BYTE *table;
     unsigned int country;
     unsigned int time;
-    BYTE whole;
-    BYTE frac;
+    BYTE rating[2];
     int column;
     int x;
     int y;
@@ -10910,12 +10909,12 @@ void FUN_004d9c40(Menu *pMenu)
             FUN_004f89e0(country, column));
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
-    whole = FUN_004f8a00(country, column)[0];
-    frac = FUN_004f8a00(country, column)[1];
-    if (frac == 0)
-        sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), whole);
+    rating[0] = FUN_004f8a00(country, column)[0];
+    rating[1] = FUN_004f8a00(country, column)[1];
+    if (rating[1] == 0)
+        sprintf(CFrontend::m_stringDest, g_str0x00524d2c, CFrontend::GetTextString(0x18c), rating[0]);
     else
-        sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0x18c), whole, frac);
+        sprintf(CFrontend::m_stringDest, g_str0x00524d20, CFrontend::GetTextString(0x18c), rating[0], rating[1]);
     strcat(CFrontend::m_stringDest, g_str0x00524d1c);
     Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
@@ -10924,7 +10923,7 @@ void FUN_004d9c40(Menu *pMenu)
     y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
     width = 0;
     limit = FUN_004f89b0(&table, country, column) & 0xff;
-    if (limit > 1)
+    if (limit >= 2)
         limit = 2;
     for (i = 0; i < limit; i++) {
         sprintf(CFrontend::m_stringDest, g_str0x00524d0c, table[i * 8 + 4],
@@ -10932,7 +10931,7 @@ void FUN_004d9c40(Menu *pMenu)
         Font_DrawText(1, CFrontend::m_stringDest, x, y, (int *)g_colourText0x0052496c, 0x21);
         y += (int)(g_pGraphics->resY * 0x10) / 0x1e0;
         n = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        if (width < n)
+        if (n > width)
             width = n;
     }
     time = *(unsigned int *)((char *)CGameInfo::FUN_00405fe0() + 0x658 +
@@ -10961,13 +10960,13 @@ void FUN_004d9c40(Menu *pMenu)
     for (n = 0; n < (CGameInfo::FUN_00405d70() & 0xff); n++) {
         if (FUN_004085a0(n) == 0) {
             count++;
-            if ((RallyData_FUN_00408cb0(n)[0x150 + (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8] & 0x80) == 0) {
-                sprintf(CFrontend::m_stringDest, g_noTimeText);
-            } else {
+            if ((RallyData_FUN_00408cb0(n)[0x150 + (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8] & 0x80) != 0) {
                 time = *(unsigned int *)(RallyData_FUN_00408cb0(n) + 0x154 +
                                          (RallyDataCountryIndex() * 0xc + pMenu->cursor) * 8);
                 sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
                         (int)((time / 100) % 0x3c), time % 100);
+            } else {
+                sprintf(CFrontend::m_stringDest, g_noTimeText);
             }
             Font_DrawText(1, CFrontend::m_stringDest,
                           (int)(g_pGraphics->resX * 0x3a) / 0x280 + (int)(g_pGraphics->resX * 0x19f) / 0x280,
@@ -11874,7 +11873,7 @@ void FUN_004d8ed0(Menu *pMenu)
                 Font_DrawText(1, CFrontend::m_stringDest, x,
                               (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 for (j = 0; j < pItem->min; j++) {
-                    if (j == pItem->max)
+                    if (pItem->max == j)
                         pColour = g_colourWhite0x00524968;
                     else
                         pColour = g_colourText0x0052496c;
@@ -11895,8 +11894,8 @@ void FUN_004d8ed0(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
             g_unk0x008189a8[1]++;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
-            pItem++;
             i++;
+            pItem++;
         } while (i < pMenu->itemCount);
     }
     FrontendDraw_ScrollerRow(FUN_004f2500(), 0);
