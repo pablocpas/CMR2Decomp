@@ -3110,11 +3110,11 @@ void FUN_00507710(BYTE *pColour)
     g_unk0x0082d12c.z = (int)(signed char)pColour[5] << 16;
     // The original expands the 1/127 scale as a 64-bit division (its compiler
     // keeps the constant divisor in a register, like at 0x4689c8).
-    FixVecScale(&g_unk0x0082d12c, &g_unk0x0082d12c, (int)(0x100000000i64 / 0x7f0000));
+    FixVecScaleRecip(&g_unk0x0082d12c, &g_unk0x0082d12c, 0x7f0000);
     g_unk0x0082d138.x = (int)(signed char)pColour[6] << 16;
     g_unk0x0082d138.y = (int)(signed char)pColour[7] << 16;
     g_unk0x0082d138.z = (int)(signed char)pColour[8] << 16;
-    FixVecScale(&g_unk0x0082d138, &g_unk0x0082d138, (int)(0x100000000i64 / 0x7f0000));
+    FixVecScaleRecip(&g_unk0x0082d138, &g_unk0x0082d138, 0x7f0000);
     g_unk0x0082d148 = (int)pColour[0] << 16;
     g_unk0x0082d148 = FixDiv(g_unk0x0082d148, 0xff0000);
     g_unk0x0082d14c = pColour[1];
