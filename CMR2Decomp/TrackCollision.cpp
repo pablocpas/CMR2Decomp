@@ -98,30 +98,33 @@ int Track_PointInTriangle(FixVector *pPoint, short tri, FixVector *pTri)
 // Height of the point on the triangle's plane; pNormal receives the plane
 // normal and pSurface the triangle's surface type.
 // match 78%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// 8-byte record of the triangle table at g_unk0x00591af0.
+struct TrackTriangle {
+    short v[3];
+    unsigned short surface : 7;
+    unsigned short flags : 9;
+};
+
 // FUNCTION: CMR2 0x004910f0
 int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNormal, unsigned short *pSurface)
 {
     FixVector t[3];
     FixVector e1;
     FixVector e2;
-    FixVector n1;
-    FixVector n2;
     int len;
 
     if (!Track_GetTriangle(t, tri))
         return 0;
-    *pSurface = *(BYTE *)(g_unk0x00591af0 + 6 + tri * 8) & 0x7f;
+    *pSurface = ((TrackTriangle *)g_unk0x00591af0)[tri].surface;
     e1.x = t[1].x - t[0].x;
     e1.y = t[1].y - t[0].y;
     e1.z = t[1].z - t[0].z;
     e2.x = t[2].x - t[0].x;
     e2.y = t[2].y - t[0].y;
     e2.z = t[2].z - t[0].z;
-    FIX_NORMALIZE_INTO(n1, e1);
-    FIX_NORMALIZE_INTO(n2, e2);
-    pNormal->x = FixMul(n1.y, n2.z) - FixMul(n1.z, n2.y);
-    pNormal->y = FixMul(n1.z, n2.x) - FixMul(n1.x, n2.z);
-    pNormal->z = FixMul(n1.x, n2.y) - FixMul(n1.y, n2.x);
+    FIX_NORMALIZE_INTO(e1, e1);
+    FIX_NORMALIZE_INTO(e2, e2);
+    FixVecCross(pNormal, &e1, &e2);
     len = FixVecLength(pNormal);
     if (len == 0) {
         pNormal->x = 0;
@@ -130,10 +133,9 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
     } else {
         FixVecScaleRecip(pNormal, pNormal, len);
     }
+    len = FixVecDot(&t[0], pNormal);
     if (pNormal->y != 0)
-        return FixDiv(FixMul(pNormal->z, t[0].z) + FixMul(pNormal->x, t[0].x) + FixMul(pNormal->y, t[0].y) -
-                          FixMul(pPoint->z, pNormal->z) - FixMul(pPoint->x, pNormal->x),
-                      pNormal->y);
+        return FixDiv(len - FixMul(pPoint->x, pNormal->x) - FixMul(pPoint->z, pNormal->z), pNormal->y);
     return defaultY;
 }
 

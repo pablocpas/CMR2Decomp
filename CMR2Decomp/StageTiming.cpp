@@ -1663,17 +1663,21 @@ int g_unk0x00591b30;
 int g_unk0x00591b34;
 // GLOBAL: CMR2 0x00591b38
 int g_unk0x00591b38[5];
+// 8-byte record of the triangle table at g_unk0x00591af0.
+struct TrackTriangle {
+    short v[3];
+    unsigned short surface : 7;
+    unsigned short flags : 9;
+};
+
 // Reads entry index of the 8-byte table at g_unk0x00591af0.
-// match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00491790
 void FUN_00491790(short index, short *pA, short *pB, short *pC, short *pD, unsigned short *pFlags)
 {
-    int offset = index * 8;
-
-    *pA = *(short *)(offset + g_unk0x00591af0);
-    *pB = *(short *)(offset + 2 + g_unk0x00591af0);
-    *pC = *(short *)(offset + 4 + g_unk0x00591af0);
-    *pFlags = *(BYTE *)(offset + 6 + g_unk0x00591af0) & 0x7f;
+    *pA = ((TrackTriangle *)g_unk0x00591af0)[index].v[0];
+    *pB = ((TrackTriangle *)g_unk0x00591af0)[index].v[1];
+    *pC = ((TrackTriangle *)g_unk0x00591af0)[index].v[2];
+    *pFlags = ((TrackTriangle *)g_unk0x00591af0)[index].surface;
     *pD = 0;
 }
 
