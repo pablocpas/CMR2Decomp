@@ -6620,9 +6620,9 @@ void FUN_00461c30(int index)
         rampColour[3] = (BYTE)((g_stageLighting[0x2a] +
                                 FixMul(g_stageLighting[0x57] - g_stageLighting[0x2a], g_stageLighting[0x5a])) >> 16);
 
-        colour.x = g_stageLighting[0x2b] - g_stageLighting[0x15];
-        colour.y = g_stageLighting[0x2c] - g_stageLighting[0x16];
-        colour.z = g_stageLighting[0x2d] - g_stageLighting[0x17];
+        colour.x = g_stageLighting[0x42] - g_stageLighting[0x15];
+        colour.y = g_stageLighting[0x43] - g_stageLighting[0x16];
+        colour.z = g_stageLighting[0x44] - g_stageLighting[0x17];
         FixVecScale(&colour, &colour, g_stageLighting[0x5a]);
         colour.x += g_stageLighting[0x15];
         colour.y += g_stageLighting[0x16];
