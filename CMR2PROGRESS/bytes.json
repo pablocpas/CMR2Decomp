@@ -2125,8 +2125,8 @@
   },
   "0x40b730": {
     "n": "Font_GetTextHeight",
-    "s": 0.3235294117647059,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Font.cpp",
     "symbol_name": "Font_GetTextHeight"
@@ -8799,7 +8799,7 @@
   },
   "0x406010": {
     "n": "CGameInfo::FUN_00406010",
-    "s": 0.13432835820895522,
+    "s": 0.573170731707317,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -9591,7 +9591,7 @@
   },
   "0x4f4b90": {
     "n": "FUN_004f4b90",
-    "s": 0.7672955974842768,
+    "s": 0.9487179487179487,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -22645,8 +22645,8 @@
   },
   "0x47b870": {
     "n": "FUN_0047b870",
-    "s": 0.21428571428571427,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0047b870"

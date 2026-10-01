@@ -1,9 +1,9 @@
 {
-  "build_exe_sha256": "f8d8321cb967633864784eb0661ff0347159448c5401131e1f9ad8ada8de481e",
-  "build_pdb_sha256": "fd94f874c3ea02fa3c72e760857b8601fd29379930435e1201e3cf1d7678c42a",
-  "source_manifest_sha256": "aaab9d6be4240d0a80c7384bc398e0d4fe160f0edf49a3e6c5d5161c4343e320",
+  "build_exe_sha256": "c6dea5f6e4af4f6700f6d88ce6c70378112b4c5dff10677189421845221404ff",
+  "build_pdb_sha256": "2fd5c71fb3e7cb96afe1b62fb2cf5a3bfb657d1bee526f09b301751527626434",
+  "source_manifest_sha256": "983b8d208814ca6987a6eab482c2800e4d81ec17d2c276d666aed689a34389f6",
   "reference_commit": "16527f689810e513afb316c374d875977e81e2ea",
-  "relocated_byte_exact": 2529,
+  "relocated_byte_exact": 2531,
   "exact_gains": [
     "0x447a40",
     "0x4ff060",
@@ -36,10 +36,12 @@
     "0x45f6d0",
     "0x493a40",
     "0x4a9b50",
-    "0x4a9b30"
+    "0x4a9b30",
+    "0x40b730",
+    "0x47b870"
   ],
   "exact_losses": [],
-  "native_harnesses_passed": 32,
+  "native_harnesses_passed": 33,
   "native_results": [
     {
       "test": "differential_axis_colours.py",
@@ -142,6 +144,11 @@
       "output": "6000 ranking removals and 6000 rebuilds: 0 differences; data guards intact"
     },
     {
+      "test": "differential_record_reset.py",
+      "exit_code": 0,
+      "output": "6000 native record reset cases: 0 differences; all record tables, bitfields, split overflow, variable labels and memory guards checked"
+    },
+    {
       "test": "differential_registry_value.py",
       "exit_code": 0,
       "output": "6000 native registry cases: 0 differences; each failed open/query, success, paths, output buffer, API counts and full arena checked"
@@ -201,5 +208,24 @@
       "exit_code": 0,
       "output": "6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected"
     }
-  ]
+  ],
+  "nonmatching_source_functions": 832,
+  "data_issues": 0,
+  "source_manifest_path": "build/manifest.json",
+  "last_batch": {
+    "reference_commit": "ee73b09fa359835589c553debdef74db033f1d4c",
+    "exact_gains": [
+      "0x40b730",
+      "0x47b870"
+    ],
+    "exact_losses": [],
+    "negative_control": {
+      "test": "differential_record_reset.py",
+      "previous_implementation": "ee73b09",
+      "exit_code": 3,
+      "output": "record model mismatch case=0 image=1 offset=1009 got=a4 expected=00"
+    },
+    "goal_remaining_functions": 700,
+    "additional_exact_gains_required": 132
+  }
 }

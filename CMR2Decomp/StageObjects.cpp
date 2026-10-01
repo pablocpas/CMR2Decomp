@@ -7876,17 +7876,14 @@ short *Car_GetOrder(void);
 
 // Resets a car's controls for the start of the stage (automatic box on,
 // velocity damped).
-// match 23%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047b870
 void FUN_0047b870(int index)
 {
-    BYTE *p;
-
-    g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[index]);
-    p = (BYTE *)g_unk0x0058e0a0;
-    *(int *)(p + 0x1dc) = 0;
+    int driver = Car_GetOrder()[index];
+    g_unk0x0058e0a0 = Car_Get(driver);
+    *(int *)g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->field_0x1d8 = 0;
-    p[0x1d4] = 0;
+    g_unk0x0058e0a0->field_0x1d4[0] = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->flag0x1d0[1] = 0;
@@ -7898,11 +7895,8 @@ void FUN_0047b870(int index)
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->field_0x1d8 = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
-    *(int *)(p + 0x1e4) = 0;
-    p = (BYTE *)g_unk0x0058e0a0;
-    g_unk0x0058e0a0->velocity.x = FixMul(g_unk0x0058e0a0->velocity.x, 0xf851);
-    ((Car *)p)->velocity.y = FixMul(((Car *)p)->velocity.y, 0xf851);
-    ((Car *)p)->velocity.z = FixMul(((Car *)p)->velocity.z, 0xf851);
+    *(int *)(g_unk0x0058e0a0->field_0x1dc + 8) = 0;
+    FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
 }
 
 DWORD FUN_0040bdd0(unsigned short slot);

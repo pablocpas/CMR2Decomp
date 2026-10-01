@@ -220,23 +220,22 @@ int Font_GetTextWidth(BYTE index, BYTE *text)
     return 0;
 }
 
-// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Counts line separators and includes the font's final line gap.
 // FUNCTION: CMR2 0x0040b730
 int Font_GetTextHeight(BYTE index, char *text)
 {
-    int height;
-    int lines;
+    int height = 0;
+    int lines = 1;
+    char *pText = text;
     char ch;
-    FontHeader *pHeader;
-
-    height = 0;
-    lines = 1;
-    if (g_fonts[index & 0xff].loaded != 0) {
-        for (ch = *text; ch != 0; ch = *++text) {
-            if (ch == '\n' || ch == '^')
-                lines++;
+    FontSlot *pFont;
+    BYTE loaded = g_fonts[index & 0xff].loaded;
+    pFont = &g_fonts[index & 0xff];
+    if (loaded) {
+        for (ch = *pText; ch != 0; ch = *++pText) {
+            if (ch == '\n' || ch == '^') lines++;
         }
-        pHeader = g_fonts[index & 0xff].pHeader;
+        FontHeader *pHeader = pFont->pHeader;
         height = (pHeader->lineHeight + 1) * lines - 1 + pHeader->lineGap;
     }
     return height;

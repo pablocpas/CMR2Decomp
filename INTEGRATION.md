@@ -85,3 +85,21 @@ allocation. Keep all implemented functions annotated, including low scores.
 A later lot must preserve existing exact functions, global data, and the
 differential tests relevant to its behavior. Rebuild before measuring; never
 compare reports from unrelated branches or an earlier executable.
+
+## Handoff closure
+
+The subsequent low-score batch adds two exact functions: `Font_GetTextHeight`
+(`0x0040b730`, 89 bytes) and the stage-start control reset `FUN_0047b870`
+(`0x0047b870`, 254 bytes). `CGameInfo::FUN_00406010` improves from 16.95% to
+58.70% reccmp similarity and corrects record labels, three-byte clearing and
+car/manual bits; it remains non-exact. The new differential record reset harness
+checks 6000 cases against the original and an independent complete-memory model.
+The previous implementation fails case 0, providing a negative control.
+
+The current reports supersede the integration snapshot above: 2531 of 3363
+source functions are byte-exact after relocation, 832 remain (including the
+14 unresolved functions), and global data has zero issues. This is 34 exact
+gains over frozen `16527f6`, with no exact losses. The goal of 700 remaining
+functions is pending; 132 additional exact gains are required. All 33 native differential harnesses pass on the final build. Work stops here
+at the user's request for a clean handoff. See `HANDOFF.md` and
+`CMR2PROGRESS/validation.json` for the current verification and next steps.
