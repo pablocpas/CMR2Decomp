@@ -765,3 +765,62 @@ Bugs corregidos en esta tanda (todos visibles en el original):
 Un permuter multi-paso sobre 35 funciones de 85–99 % no encontró nada más
 tras el barrido de un paso: lo que queda en esa franja necesita cambios
 estructurales o está en la planificación de la FPU.
+
+### Tercera tanda: helpers de vectores, objetos globales y bitfields — 1 de octubre de 2026
+
+| Paso | Exactas byte a byte |
+|---|---:|
+| Tras la segunda tanda (marcos y colas de las páginas del frontend) | 2470 |
+| Orden de sentencias y operandos (`0x4d4f90`, `0x423300`) | 2472 |
+| Helpers de vectores, structs globales y bitfields | **2479** |
+
+Funciones por debajo del 90 %: 764 → 747. Nuevas exactas: `0x423300`,
+`0x431d80`, `0x490640`, `0x4910f0`, `0x491790`, `0x4d4f90`, `0x4eb4c0`,
+`0x5044d0` (2,5 KB, desde el 36 %) y `0x507710`.
+
+Reglas añadidas:
+
+13. **Helpers en línea.** El código de Ghidra expande los helpers `__asm`
+    de `FixedPoint.h`: productos `((__int64)a * b) >> 16`, recíprocos
+    pre-plegados `0x100000000i64 / len`, `FixVecScale(v, v, FixDiv(0x10000,
+    len))`, `FixSqrt(x·x + y·y + z·z)`, sumas de tres `FixMul`. En el
+    original son `FixMul`, `FixVecScaleRecip`, `FixVecLength`, `FixVecDot`,
+    `FixVecScale` y `FixVecCross`. `helperscan.py` cuenta la firma de cada
+    helper en el original y en nuestra build; `vecscan.py`, `lenscan.py` y
+    `absscan.py` reescriben los casos mecánicos (son equivalencias exactas)
+    y solo conservan las mejoras. `FixMul(..) >> 16` (el `sar` se planifica
+    aparte) no es `FixMulShift32` (el `sar` va pegado).
+14. **`abs` con saltos.** El original calcula el valor absoluto con
+    `test/jge/neg` (un ternario), no con el intrínseco `cdq/xor/sub`.
+15. **Relecturas = aliasing.** MSVC6 solo vuelve a leer un global tras un
+    store si pueden solaparse: mismo objeto o palabra de bitfield. La tabla
+    de objetos móviles (`0x5894e0`), su contador de mallas, las distancias y
+    el contador de entradas son **un único global** (`g_movingObjects`); los
+    votos (`0x5894b8`) son otro, porque su lectura sí se adelanta. Los slots
+    de guardado se actualizan a través de `SaveSlot` (bitfields), que
+    también fuerza las relecturas de `0x4eb4c0`.
+16. **Lectura de bitfield estrecho.** `mov al, [m]` seguido de
+    `and eax, 0x7f` es un bitfield de 7 bits: el registro de triángulo de
+    pista (8 bytes) es `short v[3]` + `surface : 7` (`bfscan.py`).
+17. **Tipos en cabeceras.** Hasta un tipo *sin usar* en una cabecera muy
+    incluida mueve desempates de registros: `RecordScoreBits` en
+    `GameInfo.h` costaba 18 puntos a `0x4f4b90`. Los tipos de un solo
+    usuario viven en su `.cpp`.
+
+Herramientas nuevas: `profile.py` (similitud de mnemónicos frente a la
+puntuación y tamaño de marco: un marco distinto indica un vector o struct
+local de más o de menos), `oldcmp.py COMMIT FICHERO 0xADDR` (puntúa una
+función compilada desde una revisión antigua, para bisecar regresiones; las
+caídas de reccmp frente a `base.json` suelen ser solo de nombres) y la
+variable `FASTCMP_SYMS` para probar globals nuevos antes de una build
+completa.
+
+Regresiones corregidas: `0x4eb4c0` (66 % → 58 % al separar `g_saveData`,
+ahora exacta) y `0x4f4b90` (94,9 % → 76,7 % por un tipo en `GameInfo.h`,
+recuperada).
+
+Bugs corregidos (visibles en el original):
+
+- `0x5044d0`: el alfa del contorno del panel de tiempos usaba la `y` de la
+  fila en lugar de `pEntry->current`, y el color de acento del rally leía un
+  byte en lugar del RGBA de 4 bytes.
