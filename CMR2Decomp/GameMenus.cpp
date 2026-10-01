@@ -3174,53 +3174,55 @@ void FUN_0044a1b0(int param_1)
                                     ((RallyDataCountryIndex() & 0xff) * 0xb +
                                      (RallyDataStageIndex() & 0xff)) * 8);
     }
-    if ((state & 1) == 0) {
+    if ((state & 1) != 0) {
+        g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053f5b0;
         if ((BYTE)RallyData_GetFlag24() != 0) {
-            if (CGameInfo::FUN_00405e00() == 0) {
-                g_menu0x0053e4b8.items[0].pSubMenu = &g_menu0x0053f5b0;
-            } else if (CGameInfo::FUN_00405d80() == 10) {
-                g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x005406b8;
-                g_menu0x005406b8.pParent = &g_menu0x0053f5b0;
-            } else {
-                g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x00540c68;
-                g_menu0x00540c68.pParent = &g_menu0x0053f5b0;
-            }
-        } else if (CGameInfo::FUN_00405e00() != 0) {
-            if ((BYTE)RallyData_FUN_004082e0() != 0 &&
-                (RallyData_FUN_004082b0() == 1 || RallyData_FUN_004082b0() == 2)) {
+            if (CGameInfo::FUN_00405e00() != 0) {
+                g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x0053e2d8;
+                g_menu0x0053e2d8.pParent = &g_menu0x0053f5b0;
+            } else if ((BYTE)RallyData_FUN_004082e0() != 0 &&
+                       (RallyData_FUN_004082b0() == 1 || RallyData_FUN_004082b0() == 2)) {
                 g_menu0x0053ea68.items[0].pSubMenu = &g_menu0x0053fb70;
                 g_menu0x0053fb70.pParent = &g_menu0x0053ea68;
             } else {
                 g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x0053fb70;
                 g_menu0x0053fb70.pParent = &g_menu0x0053f5b0;
             }
+        } else if (CGameInfo::FUN_00405e00() != 0) {
+            if (CGameInfo::FUN_00405d80() == 10) {
+                g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x005406b8;
+                g_menu0x005406b8.pParent = &g_menu0x0053f5b0;
+            } else {
+                g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x00540c68;
+                g_menu0x00540c68.pParent = &g_menu0x0053f5b0;
+            }
         } else {
-            g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x0053e2d8;
-            g_menu0x0053e2d8.pParent = &g_menu0x0053f5b0;
+            g_menu0x0053f5b0.items[0].pSubMenu = &g_menu0x0053e4b8;
+            g_menu0x0053e4b8.pParent = &g_menu0x0053f5b0;
         }
     } else {
-        g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053f5b0;
         if ((BYTE)RallyData_GetFlag24() != 0) {
-            if (CGameInfo::FUN_00405e00() == 0) {
-                g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053f5b0;
-            } else if (CGameInfo::FUN_00405d80() == 10) {
-                g_menu0x00541218.items[0].pSubMenu = &g_menu0x005406b8;
-                g_menu0x005406b8.pParent = &g_menu0x00541218;
-            } else {
-                g_menu0x00541218.items[0].pSubMenu = &g_menu0x00540c68;
-                g_menu0x00540c68.pParent = &g_menu0x00541218;
-            }
-        } else if (CGameInfo::FUN_00405e00() != 0) {
-            if (RallyData_FUN_004082b0() == 1 || RallyData_FUN_004082b0() == 2) {
+            if (CGameInfo::FUN_00405e00() != 0) {
+                g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053e2d8;
+                g_menu0x0053e2d8.pParent = &g_menu0x00541218;
+            } else if (RallyData_FUN_004082b0() == 1 || RallyData_FUN_004082b0() == 2) {
                 g_menu0x0053ea68.items[0].pSubMenu = &g_menu0x0053fb70;
                 g_menu0x0053fb70.pParent = &g_menu0x0053ea68;
             } else {
                 g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053fb70;
                 g_menu0x0053fb70.pParent = &g_menu0x00541218;
             }
+        } else if (CGameInfo::FUN_00405e00() != 0) {
+            if (CGameInfo::FUN_00405d80() == 10) {
+                g_menu0x00541218.items[0].pSubMenu = &g_menu0x005406b8;
+                g_menu0x005406b8.pParent = &g_menu0x00541218;
+            } else {
+                g_menu0x00541218.items[0].pSubMenu = &g_menu0x00540c68;
+                g_menu0x00540c68.pParent = &g_menu0x00541218;
+            }
         } else {
-            g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053e2d8;
-            g_menu0x0053e2d8.pParent = &g_menu0x00541218;
+            g_menu0x00541218.items[0].pSubMenu = &g_menu0x0053e4b8;
+            g_menu0x0053e4b8.pParent = &g_menu0x00541218;
         }
     }
     if ((BYTE)RallyData_FUN_00407ea0() != 0 && (BYTE)CGameInfo::FUN_00406310() != 0 && stageFlag != 0)
@@ -3240,7 +3242,7 @@ void FUN_0044a1b0(int param_1)
             goto label_4a840;
         if (CGameInfo::FUN_00405d80() == 0) {
             pMenu->items[0].pSubMenu = &g_menu0x0053e6a0;
-            g_menu0x0053e6a0.pParent = &g_menu0x00540118;
+            g_menu0x0053e6a0.items[0].pSubMenu = &g_menu0x00540118;
             goto label_4a8d9;
         }
         minPos = 99;
@@ -3403,7 +3405,7 @@ void FUN_0044a1b0(int param_1)
     case 5:
         if ((BYTE)RallyData_FUN_00406940() != 2) {
             g_menu0x0053fb70.items[0].pSubMenu = &g_menu0x0053ec48;
-            g_menu0x0053ec48.pParent = &g_menu0x0053e888;
+            g_menu0x0053ec48.items[0].pSubMenu = &g_menu0x0053e888;
             if ((BYTE)RallyData_FUN_00406950() == 2) {
                 g_menu0x0053e888.items[0].pSubMenu = &g_menu0x0053ee28;
                 g_menu0x00541400.pParent = &g_menu0x0053ee28;
