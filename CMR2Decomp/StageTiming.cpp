@@ -7018,75 +7018,70 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, un
 // point into world space, queries the track height, then builds the tangent
 // direction (world axes minus the normal component) and stores the resulting
 // contact plane on the point.
-// match 26%: implementada, MSVC6 fusiona distinto las normalizaciones y el prologo
+#define CAR_0x590d74 ((BYTE *)g_unk0x00590d74)
+
 // FUNCTION: CMR2 0x00484f40
 void FUN_00484f40(unsigned int param_1)
 {
-    BYTE *car = (BYTE *)g_unk0x00590d74;
-    unsigned int local_1c = param_1 & 0xff;
-    int idx = *(char *)(car + 0xb1a) * 4;
-    int *piVar1 = (int *)(*(int *)((BYTE *)g_unk0x00590c6c + idx) + local_1c * 0x3c);
-    int ptr2 = *(int *)((BYTE *)g_unk0x00590c00 + idx) + local_1c * 0x20;
+    unsigned int index = param_1 & 0xff;
+    int idx = *(char *)(CAR_0x590d74 + 0xb1a) * 4;
+    int *pPoint = (int *)(*(int *)((BYTE *)g_unk0x00590c6c + idx) + index * 0x3c);
+    BYTE *pLocal = (BYTE *)(*(int *)((BYTE *)g_unk0x00590c00 + idx) + index * 0x20);
+    FixVector normal;
+    FixVector proj;
+    FixVector dir;
+    short tri;
+    int surface;
+    int len;
+    int len2;
 
-    if (piVar1[0xe] == 0) {
-        int surface = 0;
-        short tri = 0;
-        // Contiguous: these triples are passed as FixVector* (loose ints are not
-        // guaranteed to be adjacent, and a 12-byte write through them overruns).
-        FixVector v40, v28;
-        int local_18 = ptr2;
-        int dot, a1, a2, a3;
-        unsigned int uVar10;
-        int iVar5;
+    if (pPoint[0xe] != 0)
+        return;
+    surface = 0;
+    tri = 0;
+    FixMatrix_RotateVector((FixVector *)pPoint, (FixVector *)pLocal, *(FixMatrix **)(CAR_0x590d74 + 0x750));
+    pPoint[0] = pPoint[0] + *(int *)(CAR_0x590d74 + 0x2d0);
+    pPoint[1] = pPoint[1] + *(int *)(CAR_0x590d74 + 0x2d4);
+    pPoint[2] = pPoint[2] + *(int *)(CAR_0x590d74 + 0x2d8);
+    pPoint[1] = Track_GetGroundHeight((FixVector *)pPoint, &normal, &tri, (unsigned short *)&surface, pPoint[1]);
+    FixMatrix_RotateVector(&dir, (FixVector *)(pLocal + 0xc), *(FixMatrix **)(CAR_0x590d74 + 0x750));
 
-        FixMatrix_RotateVector((FixVector *)piVar1, (FixVector *)ptr2,
-                               *(FixMatrix **)(car + 0x750));
-        piVar1[0] = piVar1[0] + *(int *)(car + 0x2d0);
-        piVar1[1] = piVar1[1] + *(int *)(car + 0x2d4);
-        piVar1[2] = piVar1[2] + *(int *)(car + 0x2d8);
-        piVar1[1] = Track_GetGroundHeight((FixVector *)piVar1, &v40,
-                                          &tri, (unsigned short *)&surface, piVar1[1]);
-        FixMatrix_RotateVector(&v28, (FixVector *)(ptr2 + 0xc),
-                               *(FixMatrix **)(car + 0x750));
-
-        dot = FixMul(v40.z, v28.z) + FixMul(v40.x, v28.x) + FixMul(v40.y, v28.y);
-        a1 = v28.x - FixMul(v40.x, dot);
-        a2 = v28.y - FixMul(v40.y, dot);
-        a3 = v28.z - FixMul(v40.z, dot);
-        uVar10 = (unsigned int)FixSqrt(FixMul(a1, a1) + FixMul(a2, a2) + FixMul(a3, a3));
-
-        if (uVar10 == 0) {
-            unsigned int u = (unsigned int)FixMul(v40.x, 0x10000);
-            int f9 = 0x10000 - FixMul(v40.x, u);
-            int f2 = -FixMul(v40.y, u);
-            int f3 = -FixMul(v40.z, u);
-
-            uVar10 = (unsigned int)FixSqrt(FixMul(f9, f9) + FixMul(f2, f2) + FixMul(f3, f3));
-            if (uVar10 == 0) {
-                v28.x = 0;
-                v28.y = 0;
-                v28.z = 0;
-            } else {
-                iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-                v28.x = FixMul(f9, iVar5);
-                v28.y = FixMul(f2, iVar5);
-                v28.z = FixMul(f3, iVar5);
-            }
+    // tangent = dir minus its normal component, normalised; falls back to the x axis
+    len = FixVecDot(&dir, &normal);
+    FixVecScale(&proj, &normal, len);
+    dir.x = dir.x - proj.x;
+    dir.y = dir.y - proj.y;
+    dir.z = dir.z - proj.z;
+    len = FixVecLength(&dir);
+    if (len == 0) {
+        dir.x = 0x10000;
+        dir.y = 0;
+        dir.z = 0;
+        len = FixVecDot(&dir, &normal);
+        FixVecScale(&proj, &normal, len);
+        dir.x = dir.x - proj.x;
+        dir.y = dir.y - proj.y;
+        dir.z = dir.z - proj.z;
+        len2 = FixVecLength(&dir);
+        if (len2 == 0) {
+            dir.x = 0;
+            dir.y = 0;
+            dir.z = 0;
         } else {
-            iVar5 = (int)(0x100000000i64 / (__int64)(int)uVar10);
-            v28.x = FixMul(a1, iVar5);
-            v28.y = FixMul(a2, iVar5);
-            v28.z = FixMul(a3, iVar5);
+            FixVecScaleRecip(&dir, &dir, len2);
         }
-
-        dot = *(int *)(local_18 + 0x18);
-        piVar1[9] = piVar1[0] + FixMul(v28.x, dot);
-        piVar1[10] = piVar1[1] + FixMul(v28.y, dot);
-        piVar1[0xb] = piVar1[2] + FixMul(v28.z, dot);
-        piVar1[0xe] = 1;
-        *(int *)((BYTE *)g_unk0x00590d78 + 0x4c0 + local_1c * 4) = 1;
+    } else {
+        FixVecScaleRecip(&dir, &dir, len);
     }
+    FixVecScale(&dir, &dir, *(int *)(pLocal + 0x18));
+    pPoint[9] = pPoint[0] + dir.x;
+    pPoint[10] = pPoint[1] + dir.y;
+    pPoint[0xb] = pPoint[2] + dir.z;
+    pPoint[0xe] = 1;
+    *(int *)(g_unk0x00590d78 + 0x4c0 + index * 4) = 1;
 }
+
+#undef CAR_0x590d74
 
 
 void Vehicle_UpdateMotion(FixVector *pInput);
