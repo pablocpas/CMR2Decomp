@@ -7064,7 +7064,7 @@ struct Unk0x0082c6c8Panel {
     int active;
 };
 
-void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y,
+void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags);
 int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY);
 
@@ -7079,195 +7079,140 @@ int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY);
 void FUN_005044d0(int param1)
 {
     Unk0x0082c6c8Panel *pEntry;
-    void *tex;
-    unsigned int colourIdx;
-    BYTE colour[12];
-    BYTE colour14[4];
-    short r40[4];
-    short r30[4];
-    short r38[4];
-    int v18;
-    int v1c;
-    int v20;
-    int v24;
-    int v28;
-    int q;
-    int percent;
+    short src[4];
+    short outline[4];
+    short rect[4];
+    BYTE colour[4];
+    BYTE textColour[4];
+    BYTE shadowColour[4];
+    BYTE accent[4];
+    BYTE outlineColour[4];
+    int scale;
+    int over;
+    int t;
+    int x;
+    int y;
     int i;
-    int xoff;
-    int marker;
 
-    if (g_unk0x0082c690 == 0 || param1 == -1)
+    if (g_unk0x0082c690 == NULL || param1 == -1)
         return;
     pEntry = (Unk0x0082c6c8Panel *)g_unk0x0082c6c8 + param1;
-    tex = pEntry->texture;
-    r30[0] = (short)((int)pEntry->dstX1 * (int)g_pGraphics->resX / 0x280);
-    r30[1] = (short)((int)pEntry->dstY1 * (int)g_pGraphics->resY / 0x1e0);
-    r30[2] = (short)((int)pEntry->dstX2 * (int)g_pGraphics->resX / 0x280);
-    r30[3] = (short)((int)pEntry->dstY2 * (int)g_pGraphics->resY / 0x1e0);
-    *(int *)&colour[4] = g_unk0x005270fc;
-    v20 = pEntry->current;
-    *(int *)&colour[0] = g_unk0x00527100;
-    colour[3] = (BYTE)(((__int64)v20 * 0xff0000) >> 0x20);
-    colour[0] = g_unk0x005270e4[0];
-    colour[1] = g_unk0x005270e4[1];
-    colour[2] = g_unk0x005270e4[2];
+    rect[0] = (short)((int)pEntry->dstX1 * (int)g_pGraphics->resX / 0x280);
+    rect[1] = (short)((int)pEntry->dstY1 * (int)g_pGraphics->resY / 0x1e0);
+    rect[2] = (short)((int)pEntry->dstX2 * (int)g_pGraphics->resX / 0x280);
+    rect[3] = (short)((int)pEntry->dstY2 * (int)g_pGraphics->resY / 0x1e0);
+    *(int *)colour = *(int *)g_unk0x005270e4;
+    *(int *)textColour = g_unk0x005270fc;
+    *(int *)shadowColour = g_unk0x00527100;
+    colour[3] = (BYTE)(FixMul(pEntry->current, 0xff0000) >> 16);
     if (pEntry->current == 0)
         return;
-    *(int *)&r40[0] = *(int *)((char *)tex + 0x11c);
-    r40[2] = *(short *)((char *)tex + 0x120);
-    r40[3] = g_unk0x0082c9fa;
-    if (CGameInfo::GetScreenWidth() > 0x3ff) {
-        if (CFrontend::FUN_004b7560(0x400)) {
-            if (CFrontend::FUN_004b7590(0x400)) {
-                r40[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
-                r40[3] = (short)((int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0);
+    *(int *)&src[0] = *(int *)((BYTE *)pEntry->texture + 0x11c);
+    *(int *)&src[2] = *(int *)((BYTE *)pEntry->texture + 0x120);
+    src[3] = g_unk0x0082c9fa;
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+        CFrontend::FUN_004b7590(0x400)) {
+        src[2] = (short)((int)g_unk0x0082c9ec[2] * (int)g_pGraphics->resX / 0x280);
+        src[3] = (short)((int)g_unk0x0082c9ec[3] * (int)g_pGraphics->resY / 0x1e0);
+    }
+    Sprite_Queue((SpriteRect *)src, (SpriteRect *)rect, (Texture *)pEntry->texture, 3, 0, NULL, NULL, colour, 8);
+    x = 0x3c;
+    rect[3] = 0x28;
+    rect[0] = 0x29;
+    rect[2] = 0x62;
+    rect[1] = (short)(g_unk0x0082c9fe + g_unk0x0082ca02 - 0x28);
+    y = rect[1] + 0x14;
+    if (pEntry->current == 0x10000)
+        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0x136), (int)g_pGraphics->resX * 0x29 / 0x280,
+                     (int)g_pGraphics->resY * 0x89 / 0x1e0, (int *)textColour, (int *)shadowColour, 0x11);
+    rect[0] = (short)(rect[0] + (short)param1 * 0x3c);
+    rect[0] = (short)((int)rect[0] * (int)g_pGraphics->resX / 0x280);
+    rect[2] = (short)((int)rect[2] * (int)g_pGraphics->resX / 0x280);
+    rect[1] = (short)((int)rect[1] * (int)g_pGraphics->resY / 0x1e0);
+    rect[3] = (short)((int)rect[3] * (int)g_pGraphics->resY / 0x1e0);
+    scale = FixMul(pEntry->field_0x28, 0x20000);
+    if (scale > 0x10000)
+        scale = 0x10000;
+    rect[2] = (short)(FixMul(rect[2] << 16, scale) >> 16);
+    rect[3] = (short)(FixMul(rect[3] << 16, scale) >> 16);
+    *(int *)accent = *(int *)&g_unk0x00527104[(RallyDataCountryIndex() & 0xff) * 4];
+    accent[0] = (BYTE)((accent[0] >> 2) * 3);
+    accent[1] = (BYTE)((accent[1] >> 2) * 3);
+    accent[2] = (BYTE)((accent[2] >> 2) * 3);
+    Sprite_FillRect((int)g_pGraphics + 0x150, rect, accent, 1);
+    scale = FixDiv(pEntry->dstX2 << 16, g_unk0x0082c9ec[2] << 16);
+    if (pEntry->field_0x24 != 0) {
+        t = FixMul(pEntry->current, pEntry->field_0x24);
+        colour[3] = textColour[3] = (BYTE)(FixMul(t, 0xff0000) >> 16);
+        for (i = 0; i < (g_unk0x0082ca18 & 0xff); i++) {
+            rect[0] = (short)x;
+            rect[1] = (short)y;
+            FUN_00503b70((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
+            if (g_unk0x0082ca04[i] == 100) {
+                if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+                    CFrontend::FUN_004b7590(0x400))
+                    rect[1] += 6;
+                else
+                    rect[1] += 4;
+                FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0xfe), rect[0], rect[1],
+                             (int *)textColour, (int *)shadowColour, 0x12);
+            } else {
+                rect[2] = (short)(FixMul(scale, *(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x120) << 16) >> 16);
+                rect[3] = (short)(FixMul(scale, *(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x122) << 16) >> 16);
+                rect[0] -= (short)(FixMul(scale, rect[2] / 2 << 16) >> 16);
+                if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+                    CFrontend::FUN_004b7590(0x400))
+                    t = FixMul(scale, g_unk0x00527248[g_unk0x0082ca04[i]] << 16);
+                else
+                    t = FixMul(scale, g_unk0x0052723c[g_unk0x0082ca04[i]] << 16);
+                rect[1] -= (short)(t >> 16);
+                Sprite_Queue((SpriteRect *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0082ca20[g_unk0x0082ca04[i]], 1, 0, NULL, NULL, colour, 8);
+            }
+            x += 0x1e;
+            if (i != (g_unk0x0082ca18 & 0xff) - 1) {
+                rect[0] = (short)x;
+                rect[1] = (short)y;
+                FUN_00503b70((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
+                rect[2] = (short)(FixMul(scale, *(short *)((BYTE *)g_unk0x0082c690 + 0x120) << 16) >> 16);
+                rect[3] = (short)(FixMul(scale, *(short *)((BYTE *)g_unk0x0082c690 + 0x122) << 16) >> 16);
+                rect[0] += -(rect[2] / 2);
+                rect[1] += -(rect[3] / 2);
+                Sprite_Queue((SpriteRect *)((BYTE *)g_unk0x0082c690 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x0082c690, 1, 0, NULL, NULL, colour, 8);
+                x += 0x1e;
             }
         }
     }
-    Sprite_Queue((SpriteRect *)r40, (SpriteRect *)r30, (Texture *)tex, 3, 0, NULL, NULL, colour, 8);
-    xoff = 0x3c;
-    r30[3] = 0x28;
-    r30[0] = 0x29;
-    r30[2] = 0x62;
-    r30[1] = (short)(g_unk0x0082ca02 + g_unk0x0082c9fe - 0x28);
-    v20 = r30[1] + 0x14;
-    if (pEntry->current == 0x10000) {
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0x136),
-                     (int)g_pGraphics->resX * 0x29 / 0x280,
-                     (int)g_pGraphics->resY * 0x89 / 0x1e0,
-                     (int *)&colour[4], (int *)&colour[0], 0x11);
-    }
-    r30[0] = (short)((int)(short)(r30[0] + (short)param1 * 0x3c) * (int)g_pGraphics->resX / 0x280);
-    q = (int)r30[2] * (int)g_pGraphics->resX;
-    marker = (int)r30[1] * (int)g_pGraphics->resY;
-    r30[1] = (short)(marker / 0x1e0);
-    marker = (int)r30[3] * (int)g_pGraphics->resY;
-    v18 = (int)(((__int64)pEntry->field_0x28 * 0x20000) >> 16);
-    if (0x10000 < (int)v18)
-        v18 = 0x10000;
-    r30[2] = (short)(((__int64)((int)(short)(q / 0x280) << 16) * v18) >> 32);
-    v24 = (int)(short)(marker / 0x1e0) << 16;
-    r30[3] = (short)(((__int64)v24 * v18) >> 32);
-    colourIdx = g_unk0x00527104[RallyDataCountryIndex() & 0xff];
-    colour[8] = (BYTE)(((BYTE)colourIdx >> 2) * 3);
-    colour[9] = (BYTE)(((BYTE)(colourIdx >> 8) >> 2) * 3);
-    colour[10] = (BYTE)(((BYTE)(colourIdx >> 0x10) >> 2) * 3);
-    colour[11] = (BYTE)(colourIdx >> 0x18);
-    Sprite_FillRect((int)g_pGraphics + 0x150, r30, &colour[8], 1);
-    v18 = FixDiv((int)pEntry->dstX2 << 16, (int)g_unk0x0082c9ec[2] << 16);
-    v24 = pEntry->field_0x24;
-    if (v24 != 0) {
-        v28 = (int)(((__int64)pEntry->current * v24) >> 16);
-        colour[3] = (BYTE)(((__int64)v28 * 0xff0000) >> 32);
-        colour[7] = colour[3];
-        i = 0;
-        if ((char)g_unk0x0082ca18 != 0) {
-            do {
-                marker = xoff;
-                r30[0] = (short)xoff;
-                r30[1] = (short)v20;
-                FUN_00503b70((Unk0x0082c6c8 *)g_unk0x0082c6c8 + param1, &r30[0], &r30[1]);
-                if (g_unk0x0082ca04[i] == 100) {
-                    if (CGameInfo::GetScreenWidth() < 0x400) {
-lab1:
-                        r30[1] = (short)(r30[1] + 4);
-                    } else if (CFrontend::FUN_004b7560(0x400) == 0) {
-                        goto lab1;
-                    } else if (CFrontend::FUN_004b7590(0x400) == 0) {
-                        goto lab1;
-                    } else {
-                        r30[1] = (short)(r30[1] + 6);
-                    }
-                    FUN_00501f80(3, 1, 1, CFrontend::GetTextString(0xfe),
-                                 (int)r30[0], (int)r30[1],
-                                 (int *)&colour[4], (int *)&colour[0], 0x12);
-                } else {
-                    r30[2] = (short)(((__int64)v18 *
-                                      ((int)*(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x120)
-                                       << 16)) >> 32);
-                    r30[3] = (short)(((__int64)v18 *
-                                      ((int)*(short *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x122)
-                                       << 16)) >> 32);
-                    v28 = (int)r30[2] / 2 << 16;
-                    r30[0] = (short)(r30[0] - (short)(((__int64)v18 * v28) >> 32));
-                    if (CGameInfo::GetScreenWidth() < 0x400) {
-lab2:
-                        v28 = (BYTE)g_unk0x0052723c[g_unk0x0082ca04[i]] << 16;
-                        percent = (short)(((__int64)v18 * v28) >> 32);
-                    } else if (CFrontend::FUN_004b7560(0x400) == 0) {
-                        goto lab2;
-                    } else if (CFrontend::FUN_004b7590(0x400) == 0) {
-                        goto lab2;
-                    } else {
-                        v28 = (BYTE)g_unk0x00527248[g_unk0x0082ca04[i]] << 16;
-                        percent = (short)(((__int64)v18 * v28) >> 32);
-                    }
-                    r30[1] = (short)(r30[1] - percent);
-                    Sprite_Queue((SpriteRect *)(g_unk0x0082ca20[g_unk0x0082ca04[i]] + 0x11c),
-                                 (SpriteRect *)r30,
-                                 (Texture *)g_unk0x0082ca20[g_unk0x0082ca04[i]],
-                                 1, 0, NULL, NULL, colour, 8);
-                }
-                xoff = marker + 0x1e;
-                if (i != (g_unk0x0082ca18 & 0xff) - 1) {
-                    r30[0] = (short)xoff;
-                    r30[1] = (short)v20;
-                    FUN_00503b70((Unk0x0082c6c8 *)g_unk0x0082c6c8 + param1, &r30[0], &r30[1]);
-                    r30[2] = (short)(((__int64)v18 *
-                                      ((int)*(short *)((char *)g_unk0x0082c690 + 0x120) << 16)) >> 32);
-                    v28 = (int)*(short *)((char *)g_unk0x0082c690 + 0x122) << 16;
-                    r30[3] = (short)(((__int64)v18 * v28) >> 32);
-                    r30[0] = (short)(r30[0] - r30[2] / 2);
-                    r30[1] = (short)(r30[1] - r30[3] / 2);
-                    Sprite_Queue((SpriteRect *)((char *)g_unk0x0082c690 + 0x11c),
-                                 (SpriteRect *)r30, (Texture *)g_unk0x0082c690,
-                                 1, 0, NULL, NULL, colour, 8);
-                    xoff = marker + 0x3c;
-                }
-                i++;
-            } while (i < (int)(g_unk0x0082ca18 & 0xff));
-        }
-    }
     if (pEntry->field_0x28 != 0) {
-        v18 = (int)(((__int64)pEntry->field_0x28 * 0x20000) >> 16);
-        v24 = v18 - 0x10000;
-        if (0x10000 < v18)
-            v18 = 0x10000;
-        r30[0] = (short)((int)g_unk0x0082c9fc * (int)g_pGraphics->resX / 0x280);
-        r30[1] = (short)((int)g_unk0x0082c9fe * (int)g_pGraphics->resY / 0x1e0);
-        r30[2] = (short)((int)(((__int64)((int)g_unk0x0082ca00 << 16) * v18) >> 32)
-                         * (int)g_pGraphics->resX / 0x280);
-        r30[3] = (short)((int)(((__int64)((int)g_unk0x0082ca02 << 16) * v18) >> 32)
-                         * (int)g_pGraphics->resY / 0x1e0);
-        if (v24 >= 0) {
-            v28 = (int)(((__int64)v20 * v24) >> 16);
-            colour[3] = (BYTE)(((__int64)v28 * 0xff0000) >> 32);
-            Sprite_Queue((SpriteRect *)&g_unk0x0082c9f4, (SpriteRect *)r30,
-                         (Texture *)g_unk0x0082c9e8, 3, 0, NULL, NULL, colour, 8);
-            v1c = FixDiv((pEntry->srcY1 - (int)g_unk0x0082c9ec[1]) << 16,
-                         (int)g_unk0x0082c9ec[3] << 16);
-            v28 = FixDiv((int)g_unk0x0082ca02 << 16, (int)g_unk0x0082c9ec[3] << 16);
-            v24 = (int)pEntry->srcY2 << 16;
-            r38[2] = (short)((int)(short)(((__int64)((int)pEntry->srcX2 << 16)
-                                           * FixDiv((int)g_unk0x0082ca00 << 16,
-                                                    (int)g_unk0x0082c9ec[2] << 16)) >> 32)
-                             * (int)g_pGraphics->resX * 2 / 0x280);
-            r38[3] = (short)((int)(short)(((__int64)v24 * v28) >> 32)
-                             * (int)g_pGraphics->resY * 2 / 0x1e0);
-            q = FixDiv((pEntry->srcX1 - (int)g_unk0x0082c9ec[0]) << 16,
-                       (int)g_unk0x0082c9ec[2] << 16);
-            r38[0] = (short)(((int)(short)(((__int64)q * ((int)g_unk0x0082ca00 << 16)) >> 32)
-                              + g_unk0x0082c9fc) * (int)g_pGraphics->resX / 0x280);
-            r38[1] = (short)(((int)(short)(((__int64)v1c * ((int)g_unk0x0082ca02 << 16)) >> 32)
-                              + g_unk0x0082c9fe) * (int)g_pGraphics->resY / 0x1e0);
-            colour14[0] = ((BYTE *)&g_unk0x005270ec)[0];
-            colour14[1] = ((BYTE *)&g_unk0x005270ec)[1];
-            colour14[2] = ((BYTE *)&g_unk0x005270ec)[2];
-            colour14[3] = colour[3];
-            Sprite_FillRect((int)g_pGraphics + 0x150, r38, colour14, 1);
+        scale = FixMul(pEntry->field_0x28, 0x20000);
+        over = scale - 0x10000;
+        if (scale > 0x10000)
+            scale = 0x10000;
+        rect[0] = (short)((int)g_unk0x0082c9fc * (int)g_pGraphics->resX / 0x280);
+        rect[1] = (short)((int)g_unk0x0082c9fe * (int)g_pGraphics->resY / 0x1e0);
+        rect[2] = (short)((FixMul(g_unk0x0082ca00 << 16, scale) >> 16) * (int)g_pGraphics->resX / 0x280);
+        rect[3] = (short)((FixMul(g_unk0x0082ca02 << 16, scale) >> 16) * (int)g_pGraphics->resY / 0x1e0);
+        if (over >= 0) {
+            t = FixMul(pEntry->current, over);
+            colour[3] = (BYTE)(FixMul(t, 0xff0000) >> 16);
+            Sprite_Queue((SpriteRect *)&g_unk0x0082c9f4, (SpriteRect *)rect, (Texture *)g_unk0x0082c9e8, 3, 0,
+                         NULL, NULL, colour, 8);
+            x = FixDiv((pEntry->srcX1 - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16);
+            outline[0] = (short)((FixMul(x, g_unk0x0082ca00 << 16) >> 16) + g_unk0x0082c9fc);
+            x = FixDiv((pEntry->srcY1 - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16);
+            outline[1] = (short)((FixMul(x, g_unk0x0082ca02 << 16) >> 16) + g_unk0x0082c9fe);
+            outline[2] = (short)(FixMul(pEntry->srcX2 << 16, FixDiv(g_unk0x0082ca00 << 16, g_unk0x0082c9ec[2] << 16)) >> 16);
+            outline[3] = (short)(FixMul(pEntry->srcY2 << 16, FixDiv(g_unk0x0082ca02 << 16, g_unk0x0082c9ec[3] << 16)) >> 16);
+            outline[2] = (short)((int)outline[2] * (int)g_pGraphics->resX * 2 / 0x280);
+            outline[3] = (short)((int)outline[3] * (int)g_pGraphics->resY * 2 / 0x1e0);
+            outline[0] = (short)((int)outline[0] * (int)g_pGraphics->resX / 0x280);
+            outline[1] = (short)((int)outline[1] * (int)g_pGraphics->resY / 0x1e0);
+            *(int *)outlineColour = g_unk0x005270ec;
+            outlineColour[3] = colour[3];
+            Sprite_FillRect((int)g_pGraphics + 0x150, outline, outlineColour, 1);
         }
-        FUN_00504eb0(r30, &g_unk0x005270e4[4], 0);
+        FUN_00504eb0(rect, &g_unk0x005270e4[4], 0);
     }
 }
 

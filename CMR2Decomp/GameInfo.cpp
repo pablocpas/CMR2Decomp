@@ -5119,7 +5119,7 @@ char g_unk0x0082b1c0[0x100];
 // Draws the record's text; in mode 1 it truncates the string at the 16.16
 // fraction of its length and draws the remainder separately.
 // FUNCTION: CMR2 0x00501f80
-void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y,
+void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
                   int *pColour1, int *pColour2, unsigned int flags)
 {
     Unk0x0082b2c0 *pRec;
@@ -9071,7 +9071,7 @@ extern int g_unk0x0082ca20[9];
 extern int g_unk0x0082c6bc;
 extern int g_unk0x0082c698;
 extern int g_unk0x005270b8[11];
-void FUN_00501f80(int index, int font1, int font2, char *text, int x, int y, int *pColour1,
+void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y, int *pColour1,
                   int *pColour2, unsigned int flags);
 
 // Vertical offsets subtracted from the flag row when the screen is either too
