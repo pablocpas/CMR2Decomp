@@ -7072,9 +7072,6 @@ int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY);
 // then one row per opponent (the car marker plus its faded preview rect), then
 // the elapsed/current time markers and, when the panel is fading in, its
 // outline.
-// match 37%: implementada; el original recicla los mismos registros para los cuatro bloques y
-// nosotros usamos ranuras de pila distintas; las divisiones 32.16, las mascaras de color y el
-// reparto de ramas coinciden.
 // FUNCTION: CMR2 0x005044d0
 void FUN_005044d0(int param1)
 {
@@ -7170,7 +7167,8 @@ void FUN_005044d0(int param1)
                              (Texture *)g_unk0x0082ca20[g_unk0x0082ca04[i]], 1, 0, NULL, NULL, colour, 8);
             }
             x += 0x1e;
-            if (i != (g_unk0x0082ca18 & 0xff) - 1) {
+            // the original reads the count as a masked dword here (byte everywhere else)
+            if (i != (*(int *)&g_unk0x0082ca18 & 0xff) - 1) {
                 rect[0] = (short)x;
                 rect[1] = (short)y;
                 FUN_00503b70((Unk0x0082c6c8 *)pEntry, &rect[0], &rect[1]);
@@ -7194,8 +7192,7 @@ void FUN_005044d0(int param1)
         rect[2] = (short)((FixMul(g_unk0x0082ca00 << 16, scale) >> 16) * (int)g_pGraphics->resX / 0x280);
         rect[3] = (short)((FixMul(g_unk0x0082ca02 << 16, scale) >> 16) * (int)g_pGraphics->resY / 0x1e0);
         if (over >= 0) {
-            t = FixMul(pEntry->current, over);
-            colour[3] = (BYTE)(FixMul(t, 0xff0000) >> 16);
+            colour[3] = (BYTE)(FixMul(FixMul(pEntry->current, over), 0xff0000) >> 16);
             Sprite_Queue((SpriteRect *)&g_unk0x0082c9f4, (SpriteRect *)rect, (Texture *)g_unk0x0082c9e8, 3, 0,
                          NULL, NULL, colour, 8);
             x = FixDiv((pEntry->srcX1 - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16);
