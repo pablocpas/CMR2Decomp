@@ -7211,9 +7211,7 @@ void FUN_00483570(void)
             if ((pc[0x150] & 8) != 0 &&
                 ((*(int *)(pc + 0x128) < 0 && iVar6 < 0) ||
                  (*(int *)(pc + 0x128) > 0 && iVar6 > 0))) {
-                v2c[0] = FixMul(wb[0], iVar6);
-                v2c[1] = FixMul(wb[1], iVar6);
-                v2c[2] = FixMul(wb[2], iVar6);
+                FixVecScale((FixVector *)v2c, (FixVector *)wb, iVar6);
                 v2c[0] = *(int *)(pc + 0x194) - v2c[0];
                 v2c[1] = *(int *)(pc + 0x198) - v2c[1];
                 v2c[2] = *(int *)(pc + 0x19c) - v2c[2];
@@ -7529,9 +7527,7 @@ void FUN_0045f9d0(int param_1, int *param_2, int param_3)
     rec[10] = rec[0xd] - dv[2];
     rec[7] = pos[2];
     scale = FixMul(FixDiv(g_unk0x00538d7c[param_3 * 25], 0xa000) - 0x10000, 0x4ccc);
-    gn[0] = FixMul(fwd[0], scale);
-    gn[1] = FixMul(fwd[1], scale);
-    gn[2] = FixMul(fwd[2], scale);
+    FixVecScale((FixVector *)gn, (FixVector *)fwd, scale);
     pos[0] += gn[0];
     rec[2] = pos[0];
     pos[1] += gn[1];
