@@ -210,7 +210,7 @@ nextCar:
     }
 }
 
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 BYTE *FUN_0041b390(void);
 
 // Marks which player camera records are too far from, or face away from, the
@@ -261,7 +261,7 @@ void FUN_00428a00(Car *pCar)
     }
 }
 
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 int FUN_004054b0(unsigned int param1);
 void FUN_0046b760(int index, int reset);
 extern float g_65536f;
@@ -4130,9 +4130,9 @@ void FUN_0043e1b0(int value)
 }
 
 // FUNCTION: CMR2 0x0043e1d0
-void FUN_0043e1d0(BYTE value)
+void FUN_0043e1d0(int value)
 {
-    g_pCurrentCar->field_0xb29 = value;
+    g_pCurrentCar->field_0xb29 = (BYTE)value;
 }
 
 int FUN_00437f90(void);
@@ -6687,7 +6687,7 @@ public:
     static void *FUN_0040ee90(int index);
 };
 
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 unsigned int FUN_00456ca0(void);
 int FUN_004660f0(void);
 BYTE FUN_004086f0(BYTE param1);
@@ -6708,6 +6708,7 @@ void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param
 {
     FixVector v;
     int i;
+    int carType;
     int limit;
     int bVar6;
     int flag8;
@@ -6731,28 +6732,28 @@ void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param
     if (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0 &&
         param_5 == (int)FUN_00456ca0() - 1) {
         if (FUN_004660f0() == -1) {
-            param_3 = 0;
+            carType = 0;
             flag8 = 1;
         } else {
-            param_3 = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)FUN_004660f0()));
+            carType = (int)CFrontend::FUN_0040ee90(RallyData_FUN_004086b0((BYTE)FUN_004660f0()));
             flagC = 1;
         }
+    } else {
+        carType = param_3;
     }
     CARB(0xb1a) = (char)param_5;
-    CARB(0xb1b) = (char)param_3;
+    CARB(0xb1b) = (char)carType;
     if (param_6 == 0)
         FUN_0043e5a0(param_5, (Car *)param_1);
-    CARF(0xa88) = 0xb332;
-    CARF(0xa8c) = CARF(0xa88) + 0x8665;
+    CARF(0xa88) = FixMul(0x5999, 0x20000);
+    CARF(0xa8c) = CARF(0xa88) + FixMul(0x5999, 0x18000);
     for (i = 0; i < 4; i++) {
         FixMatrix_GetPosition((FixVector *)((int)g_pCurrentCar + 0x3c0 + i * 0xc),
                               (FixMatrix *)(*(int *)((int)g_pCurrentCar + 0x738 + i * 4) + 0x58));
         if (CGameInfo::FUN_004063f0(6) != 0)
             *(int *)((int)g_pCurrentCar + 0x3c4 + i * 0xc) -= CARF(0xa88);
     }
-    CARF(0x2d0) = param_4[0];
-    CARF(0x2d4) = param_4[1];
-    CARF(0x2d8) = param_4[2];
+    CARV(0x2d0) = *(FixVector *)param_4;
     CARB(0xb1e) = 0;
     param_2 += 0x98;
     CARF(0x750) = (int)g_pCurrentCar;
@@ -6769,8 +6770,22 @@ void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param
     *(FixVector *)(CARF(0x750) + 0x10) = v;
     FixMatrix_GetForward(&v, (FixMatrix *)(CARF(0x720) + 0x98));
     *(FixVector *)(CARF(0x750) + 0x20) = v;
-    switch (param_3) {
+    switch (carType) {
+    case 3:
+        limit = 0x3e80000;
+        CARF(0x1f8) = 0x44560;
+        CARF(0x1fc) = 0x15eb8;
+        CARF(0x200) = 0x1cfdf;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0x14ccc;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xb0a3;
+        CARF(0x770) = 0xfa9f;
+        break;
     case 0:
+        limit = 0x3e80000;
         CARF(0x1f8) = 0x426e9;
         CARF(0x1fc) = 0x16b85;
         CARF(0x200) = 0x1c51e;
@@ -6781,7 +6796,45 @@ void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param
         CARF(0x76c) = 0x3d70;
         CARF(0x774) = 0xcf5c;
         CARF(0x770) = 0x10ccc;
+        break;
+    case 6:
+        limit = 0x3a60000;
+        CARF(0x1f8) = 0x3e3d7;
+        CARF(0x1fc) = 0x15eb8;
+        CARF(0x200) = 0x1c28f;
+        CARF(0x788) = 0x63d7;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1ae14;
+        CARF(0x768) = 0x9c28;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0xfae1;
+        break;
+    case 7:
+        limit = 0x3c70000;
+        CARF(0x1f8) = 0x475c2;
+        CARF(0x1fc) = 0x1570a;
+        CARF(0x200) = 0x1c28f;
+        CARF(0x788) = 0x4a3d;
+        CARF(0x794) = 0x88b02;
+        CARF(0x764) = 0x1e147;
+        CARF(0x768) = 0x1028f;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0xfae1;
+        break;
+    case 2:
         limit = 0x3e80000;
+        CARF(0x1f8) = 0x40f5c;
+        CARF(0x1fc) = 0x163d7;
+        CARF(0x200) = 0x1c51e;
+        CARF(0x788) = 0x5687;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1cccc;
+        CARF(0x768) = 0x451e;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xcf5c;
+        CARF(0x770) = 0x1147a;
         break;
     case 1:
         limit = 0x4000000;
@@ -6793,87 +6846,11 @@ void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param
         CARF(0x764) = 0x1cccc;
         CARF(0x768) = 0xf851;
         CARF(0x76c) = 0x570a;
-        goto LAB_0043ce65;
-    case 2:
-        limit = 0x3e80000;
-        CARF(0x1f8) = 0x40f5c;
-        CARF(0x1fc) = 0x163d7;
-        CARF(0x200) = 0x1c51e;
-        CARF(0x788) = 0x5687;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0x451e;
-        CARF(0x76c) = 0x4ccc;
-LAB_0043ce65:
         CARF(0x774) = 0xcf5c;
         CARF(0x770) = 0x1147a;
         break;
-    case 3:
-        CARF(0x1f8) = 0x44560;
-        CARF(0x1fc) = 0x15eb8;
-        CARF(0x200) = 0x1cfdf;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0x14ccc;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xb0a3;
-        CARF(0x770) = 0xfa9f;
-        limit = 0x3e80000;
-        break;
-    case 4:
-        CARF(0x1f8) = 0x40312;
-        CARF(0x1fc) = 0x14ccc;
-        CARF(0x200) = 0x1c51e;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1c000;
-        CARF(0x768) = 0xcccc;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0x12dd2;
-        limit = 0x3e80000;
-        break;
-    case 5:
-        CARF(0x1f8) = 0x41c28;
-        CARF(0x1fc) = 0x154bc;
-        CARF(0x200) = 0x1d47a;
-        CARF(0x788) = 0x5c28;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1c000;
-        CARF(0x768) = 0x10000;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0x12dd2;
-        limit = 0x3e80000;
-        break;
-    case 6:
-        CARF(0x1f8) = 0x3e3d7;
-        CARF(0x1fc) = 0x15eb8;
-        CARF(0x200) = 0x1c28f;
-        CARF(0x788) = 0x63d7;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1ae14;
-        CARF(0x768) = 0x9c28;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0xfae1;
-        limit = 0x3a60000;
-        break;
-    case 7:
-        CARF(0x1f8) = 0x475c2;
-        CARF(0x1fc) = 0x1570a;
-        CARF(0x200) = 0x1c28f;
-        CARF(0x788) = 0x4a3d;
-        CARF(0x794) = 0x88b02;
-        CARF(0x764) = 0x1e147;
-        CARF(0x768) = 0x1028f;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0xfae1;
-        limit = 0x3c70000;
-        break;
     case 8:
+        limit = 0x1bf0000;
         CARF(0x1f8) = 0x30083;
         CARF(0x1fc) = 0x14041;
         CARF(0x200) = 0x18000;
@@ -6884,7 +6861,32 @@ LAB_0043ce65:
         CARF(0x76c) = 0x2666;
         CARF(0x774) = 0xb5c2;
         CARF(0x770) = 0xfa9f;
-        limit = 0x1bf0000;
+        break;
+    case 5:
+        limit = 0x3e80000;
+        CARF(0x1f8) = 0x41c28;
+        CARF(0x1fc) = 0x154bc;
+        CARF(0x200) = 0x1d47a;
+        CARF(0x788) = 0x5c28;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1c000;
+        CARF(0x768) = 0x10000;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0x12dd2;
+        break;
+    case 4:
+        limit = 0x3e80000;
+        CARF(0x1f8) = 0x40312;
+        CARF(0x1fc) = 0x14ccc;
+        CARF(0x200) = 0x1c51e;
+        CARF(0x788) = 0x570a;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1c000;
+        CARF(0x768) = 0xcccc;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0x12dd2;
         break;
     case 9:
         limit = 0x3450000;
@@ -6897,7 +6899,21 @@ LAB_0043ce65:
         CARF(0x768) = 0x9999;
         CARF(0x76c) = 0x4ccc;
         CARF(0x774) = 0xe3d7;
-        goto LAB_0043d235;
+        CARF(0x770) = 0xe106;
+        break;
+    case 11:
+        limit = 0x2fc0000;
+        CARF(0x1f8) = 0x3d333;
+        CARF(0x1fc) = 0x15999;
+        CARF(0x200) = 0x1c312;
+        CARF(0x788) = 0x75c2;
+        CARF(0x794) = 0x98b02;
+        CARF(0x764) = 0x1a666;
+        CARF(0x768) = 0x9999;
+        CARF(0x76c) = 0x4ccc;
+        CARF(0x774) = 0xe3d7;
+        CARF(0x770) = 0xe106;
+        break;
     case 10:
         limit = 0x2dc0000;
         CARF(0x1f8) = 0x3b333;
@@ -6909,23 +6925,10 @@ LAB_0043ce65:
         CARF(0x768) = 0x13333;
         CARF(0x76c) = 0x4ccc;
         CARF(0x774) = 0xca3d;
-LAB_0043d235:
         CARF(0x770) = 0xe106;
         break;
-    case 0xb:
-        CARF(0x1f8) = 0x3d333;
-        CARF(0x1fc) = 0x15999;
-        CARF(0x200) = 0x1c312;
-        CARF(0x788) = 0x75c2;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1a666;
-        CARF(0x768) = 0x9999;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0xe106;
-        limit = 0x2fc0000;
-        break;
-    case 0xc:
+    case 12:
+        limit = 0x34e0000;
         CARF(0x1f8) = 0x3ec49;
         CARF(0x1fc) = 0x146a7;
         CARF(0x200) = 0x1c28f;
@@ -6936,9 +6939,9 @@ LAB_0043d235:
         CARF(0x76c) = 0x4ccc;
         CARF(0x774) = 0xca3d;
         CARF(0x770) = 0xe106;
-        limit = 0x34e0000;
         break;
-    case 0xd:
+    case 13:
+        limit = 0x1bf0000;
         CARF(0x1f8) = 0x41687;
         CARF(0x1fc) = 0x16147;
         CARF(0x200) = 0x1bb22;
@@ -6949,7 +6952,7 @@ LAB_0043d235:
         CARF(0x76c) = 0x428f;
         CARF(0x774) = 0xd70a;
         CARF(0x770) = 0xf581;
-        limit = 0x1bf0000;
+        break;
     }
     bVar6 = 0;
     if (RallyData_FUN_00407e70() != 0 && RallyDataState() == 1 && CARB(0xb1a) != 0) {
@@ -6972,22 +6975,23 @@ LAB_0043d235:
         CARF(0x770) += CARF(0xa8c);
     }
     CARF(0x7dc) = 0;
-    CARF(0x7e0) = 0x5555;
-    CARF(0x7e4) = 0x7878;
-    CARF(0x7e8) = 0x9ee5;
-    CARF(0x7ec) = 0xc28f;
-    CARF(0x7f0) = 0xe50d;
-    CARF(0x7f4) = 0x10aaa;
-    CARF(0x7f8) = -0x5555;
+    CARF(0x7e0) = FixDiv(0xc0000, 0x240000);
+    CARF(0x7e4) = FixDiv(0x100000, 0x220000);
+    CARF(0x7e8) = FixDiv(0x120000, 0x1d0000);
+    CARF(0x7ec) = FixDiv(0x130000, 0x190000);
+    CARF(0x7f0) = FixDiv(0x110000, 0x130000);
+    CARF(0x7f4) = FixDiv(0x190000, 0x180000);
+    CARF(0x7f8) = -FixDiv(0xc0000, 0x240000);
     CARF(0x788) += -0x51e;
     if (CGameInfo::FUN_004063f0(7) != 0) {
         CARF(0x788) <<= 1;
         CARF(0x794) = FixMul(CARF(0x794), 0x14ccc);
     }
-    CARF(0x75c) = limit + 0x780000;
+    limit += 0x780000;
+    CARF(0x75c) = limit;
     CARF(0x760) = FixDiv(0x10000, CARF(0x75c));
     CARF(0x824) = 0x1333;
-    CARF(0x828) = 0x5555;
+    CARF(0x828) = FixDiv(0x10000, 0x30000);
     CARF(0xb7c) = (int)CFrontend::FUN_0040ee80((int)CARB(0xb1b));
     CARF(0xb80) = (int)CFrontend::FUN_0040ee70((int)CARB(0xb1b));
     if (flagC != 0) {
@@ -7027,22 +7031,7 @@ LAB_0043d703:
         i = FixMul((int)pcVar13[4] << 0x10, 0x28f);
     }
     FUN_0043e190(i);
-    if (CARF(0xb80) == 0) {
-        switch (CARB(0xb1b)) {
-        case 7:
-        case 0xd:
-            i = 0;
-            break;
-        case 8:
-            i = 0x10000;
-            break;
-        default:
-            i = 0x8000;
-            break;
-        case 10:
-            i = 0x1999;
-        }
-    } else {
+    if (CARF(0xb80) != 0) {
         if (pcVar13[3] == '2') {
             i = 0x8000;
         } else {
@@ -7050,10 +7039,25 @@ LAB_0043d703:
         }
         if (CARB(0xb1b) == 9)
             i += -0x2666;
+        FUN_0043e1b0(i);
+    } else {
+        switch (CARB(0xb1b)) {
+        case 8:
+            FUN_0043e1b0(0x10000);
+            break;
+        case 7:
+        case 0xd:
+            FUN_0043e1b0(0);
+            break;
+        case 10:
+            FUN_0043e1b0(0x1999);
+            break;
+        default:
+            FUN_0043e1b0(0x8000);
+        }
     }
-    FUN_0043e1b0(i);
     FUN_0043e160(FixMul((int)pcVar13[5] << 0x10, 0x28f));
-    FUN_0043e1d0((BYTE)*pcVar13);
+    FUN_0043e1d0(*pcVar13);
     FUN_0043e1f0((unsigned int)pcVar13[1]);
     FUN_0043e530(FixMul((int)pcVar13[6] << 0x10, 0x28f));
     if (bVar6)
@@ -7076,10 +7080,8 @@ LAB_0043d703:
     CARF(0x7d4) = FixDiv(0x10000, CARF(0x7f4));
     CARF(0x7d8) = FixDiv(0x10000, CARF(0x7f8));
     CARF(0x7b8) = CARF(0x7b4);
-    a = FixMul(CARF(0x1f8), 0x8000);
-    b = FixMul(CARF(0x1fc), 0x8000);
-    c = FixMul(CARF(0x200), 0x8000);
-    CARF(0x758) = FixSqrt(FixMul(a, a) + FixMul(b, b) + FixMul(c, c));
+    FixVecScale(&v, &CARV(0x1f8), 0x8000);
+    CARF(0x758) = FixVecLength(&v);
     CARF(0x3fc) = 1;
     CARF(0x400) = 2;
     CARF(0x404) = 1;
@@ -7113,12 +7115,15 @@ LAB_0043d703:
     CARF(0x264) = -hx;
     CARF(0x268) = hy;
     CARF(0x26c) = -hz;
+    // Leftover of an extreme-corner search: the loop and the copies are no-ops,
+    // but the original kept them (the indices only fold after the copy check).
     for (i = 0; i < 0x60; i += 0xc)
-        ;
-    CARF(0x21c) = CARF(0x21c);
-    CARF(0x210) = CARF(0x210);
-    CARF(0x218) = CARF(0x218);
-    CARF(0x230) = CARF(0x230);
+        CARF(0x210 + i) = CARF(0x210 + i);
+    i = 1;
+    CARF(0x21c) = CARF(0x210 + i * 0xc);
+    CARF(0x210) = CARF(0x210 + (i - 1) * 0xc);
+    CARF(0x218) = CARF(0x218 + (i - 1) * 0xc);
+    CARF(0x230) = CARF(0x224 + i * 0xc);
     Car_UpdateCorners(g_pCurrentCar);
     g_gravityDir.x = 0;
     g_gravityDir.y = -0x8000;
@@ -7127,19 +7132,19 @@ LAB_0043d703:
     CARF(0x920) = 0x10000;
     CARF(0x924) = 0;
     if (flagC != 0) {
-        if (FUN_004086f0((BYTE)FUN_004660f0()) == 0)
-            CARF(0xb48) = 1;
+        if (FUN_004086f0((BYTE)FUN_004660f0()) != 0)
+            CARF(0xb48) = 2;
         else
+            CARF(0xb48) = 1;
+    } else if (flag8 != 0) {
+        CARF(0xb48) = 2;
+    } else if ((int)CARB(0xb1a) < (int)(unsigned int)RallyDataState()) {
+        if (FUN_004086f0((BYTE)(FUN_0041b370() + CARB(0xb1a))) != 0)
             CARF(0xb48) = 2;
+        else
+            CARF(0xb48) = 1;
     } else {
-        if (flag8 == 0 && (int)CARB(0xb1a) < (int)(unsigned int)RallyDataState()) {
-            if (FUN_004086f0((BYTE)(FUN_0041b370() + CARB(0xb1a))) == 0)
-                CARF(0xb48) = 1;
-            else
-                CARF(0xb48) = 2;
-        } else {
-            CARF(0xb48) = 2;
-        }
+        CARF(0xb48) = 2;
     }
     CARF(0xb50) = 1;
     if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||

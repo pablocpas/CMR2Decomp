@@ -408,7 +408,7 @@ void CGameInfo::FUN_00405d40(unsigned int param1)
 }
 
 // FUNCTION: CMR2 0x00406310
-unsigned int CGameInfo::FUN_00406310(void)
+unsigned char CGameInfo::FUN_00406310(void)
 {
     return m_gameInfo.field_0x18 >> 30 & 1;
 }
@@ -3998,8 +3998,8 @@ int g_unk0x0052af6c;
 void FUN_00404ef0(void);
 void FUN_004a0ba0(void);
 void FUN_004a3180(void);
-unsigned int RallyData_FUN_00407e70(void);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407ea0(void);
 int RallyData_FUN_00411880(void);
 
 // FUNCTION: CMR2 0x00401850

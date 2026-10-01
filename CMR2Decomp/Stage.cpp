@@ -53,7 +53,7 @@ void RallyData_FUN_004213d0(Car *pCar, int value);
 // GLOBAL: CMR2 0x00542cd8
 int g_unk0x00542cd8[8][3];
 
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 unsigned int RallyData_GetFlag31(void);
 unsigned int RallyData_FUN_00407e90(void);
 

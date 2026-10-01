@@ -584,9 +584,9 @@ void StageTiming_RebuildSplitPositions(void)
 }
 
 BYTE RallyData_FUN_004069a0(void);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 char FUN_00420190(void);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 unsigned int FUN_00409cb0(int index);
 
 // Builds the per-split interpolation factors between the first and last split
@@ -5868,7 +5868,7 @@ void FUN_00458100(int param_1)
 extern double g_unk0x00511300;
 unsigned int RallyData_GetFlag31(void);
 unsigned char RallyDataStageIndex(void);
-unsigned int RallyData_GetFlag24(void);
+unsigned char RallyData_GetFlag24(void);
 extern int g_unk0x00542cd4;
 extern int g_unk0x00542d38[8];
 extern int g_unk0x00542cd8[8][3];

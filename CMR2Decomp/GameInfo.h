@@ -214,7 +214,7 @@ public:
     static void FUN_004a0c60(void);
     static unsigned int FUN_00405bd0(void);
     static unsigned int FUN_00405c00(void);
-    static unsigned int FUN_00406310(void);
+    static unsigned char FUN_00406310(void);
     static BYTE FUN_00406320(void);
     static void FUN_00406330(BYTE param1);
     static void FUN_00406340(BYTE param1);

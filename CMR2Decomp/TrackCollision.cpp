@@ -1058,7 +1058,7 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
 
 int FUN_00407270(void);
 unsigned char RallyDataState(void);
-unsigned int RallyData_GetFlag24(void);
+unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
 BYTE *FUN_0041b390(void);
 int FUN_0041f3d0(BYTE index);

@@ -1029,7 +1029,7 @@ struct Car *Car_Get(int index);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00411880(void);
 unsigned char RallyDataState(void);
-unsigned int RallyData_GetFlag25(void);
+unsigned char RallyData_GetFlag25(void);
 
 // Dot colour of each car on the stage map, in race order.
 // GLOBAL: CMR2 0x005170fc

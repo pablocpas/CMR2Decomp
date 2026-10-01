@@ -956,7 +956,7 @@ extern char g_unk0x0053d1a4[2];
 extern BYTE g_unk0x0053d1a6;
 extern BYTE g_unk0x0053d1a7;
 extern char g_unk0x0053dda8[8];
-extern unsigned int RallyData_FUN_00407ea0(void);
+extern unsigned char RallyData_FUN_00407ea0(void);
 extern unsigned int RallyData_FUN_004082e0(void);
 extern int FUN_0040cec0(int index);
 extern int FUN_00458390(void);

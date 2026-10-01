@@ -775,13 +775,13 @@ unsigned char RallyDataState(void)
 }
 
 // FUNCTION: CMR2 0x00407e50
-unsigned int RallyData_GetFlag24(void)
+unsigned char RallyData_GetFlag24(void)
 {
 	return g_selectedRallyData >> 0x18 & 1;
 }
 
 // FUNCTION: CMR2 0x00407e60
-unsigned int RallyData_GetFlag25(void)
+unsigned char RallyData_GetFlag25(void)
 {
 	return g_selectedRallyData >> 0x19 & 1;
 }
@@ -1909,7 +1909,7 @@ int g_unk0x0052ea60;
 int g_unk0x0052ea64;
 
 unsigned int RallyData_FUN_00406940(void);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_00406950(void);
 
 // Setting pair of a driver; in the rally modes it comes from the current
@@ -1992,7 +1992,7 @@ BYTE g_rallyScoreScale[27] = {
 
 unsigned int RallyData_FUN_00406940(void);
 unsigned int RallyData_FUN_00406950(void);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 int FUN_00407270(void);
 
 #define STAGE_SCORE_SCALE(variant)                                                                  \
@@ -3281,7 +3281,7 @@ extern BYTE g_itemColour[4];
 extern char g_classRowHeaderFormat[];
 int RallyData_DrawListItem(int x, int y, char *pText, char last, BYTE alpha);
 BYTE *RallyData_FUN_00408cb0(int index);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_004082e0(void);
 
 // GLOBAL: CMR2 0x00536c00
@@ -4655,7 +4655,7 @@ char RallyData_FUN_00408500(BYTE param1)
 
 // Returns bit 26 of the selected rally data (a per-rally flag).
 // FUNCTION: CMR2 0x00407e70
-unsigned int RallyData_FUN_00407e70(void)
+unsigned char RallyData_FUN_00407e70(void)
 {
     return (g_selectedRallyData >> 26) & 1;
 }
@@ -4681,7 +4681,7 @@ unsigned int RallyData_FUN_00407e90(void)
 }
 
 // FUNCTION: CMR2 0x00407ea0
-unsigned int RallyData_FUN_00407ea0(void)
+unsigned char RallyData_FUN_00407ea0(void)
 {
     return (g_selectedRallyData >> 28) & 1;
 }

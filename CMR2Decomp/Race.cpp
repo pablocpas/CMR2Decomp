@@ -24,7 +24,7 @@
 // Race session state (0x41e210-0x420190)
 
 unsigned char RallyDataState(void);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_00407e90(void);
 
 // GLOBAL: CMR2 0x005191a0
@@ -215,7 +215,7 @@ char *FUN_0041f920(void);
 unsigned int FUN_00409cb0(int);
 BYTE FUN_0042b710(int index);
 int FUN_00407270(void);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 
 // Loads the CPU run a player races against: the file is chosen by country,
 // stage, side of the stage and difficulty. Returns whether it was found.
@@ -2396,7 +2396,7 @@ void FUN_00478130(int index);
 void FUN_00478170(int index);
 int FUN_004781c0(int index);
 unsigned int FUN_00409ee0(int index);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 unsigned int RallyData_GetFlag22(void);
 short Car_GetOrderCount(void);
 void FUN_0042b800(int, int, int);
@@ -2687,7 +2687,7 @@ done:
 }
 
 unsigned int RallyData_GetFlag22(void);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 int Replay_StopRecording(BYTE *pBuffer);
 void FUN_00424640(void);
 int FUN_00428740(BYTE index);

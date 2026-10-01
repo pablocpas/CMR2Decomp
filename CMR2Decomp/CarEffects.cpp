@@ -10,7 +10,7 @@
 // Particle effects of the cars: breaking windows, glass shards and debris.
 
 void Scene_GetLightColour(DWORD *pColour, int level);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 int FUN_00457e10(BYTE *pCar, int offset);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);

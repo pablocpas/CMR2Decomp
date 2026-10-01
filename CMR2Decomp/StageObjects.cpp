@@ -473,7 +473,7 @@ int FUN_0046d2a0(int *p);
 int RallyData_FUN_00421370(BYTE *p);
 int RallyData_FUN_00421420(void);
 unsigned int RallyData_FUN_00407e90(void);
-unsigned int RallyData_FUN_00407ea0(void);
+unsigned char RallyData_FUN_00407ea0(void);
 float FUN_00456ae0(void);
 
 // Chooses the stage object path for the current game mode and rally state.
@@ -3533,7 +3533,7 @@ void FUN_00466490(void)
 // GLOBAL: CMR2 0x0058896c
 int g_unk0x0058896c;
 
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 BYTE FUN_00422fb0(BYTE index);
 int FUN_0041f3a0(void);
 void FUN_00494db0(Car *pCar, int view);
@@ -11853,7 +11853,7 @@ int *FUN_00469680(int index);
 void RallyData_FUN_004207a0(int index);
 void RallyData_FUN_004207f0(void);
 RaceRecord *RallyData_FUN_00421510(int index);
-unsigned int RallyData_FUN_00407e70(void);
+unsigned char RallyData_FUN_00407e70(void);
 unsigned int RallyData_FUN_00407e90(void);
 unsigned char RallyDataState(void);
 

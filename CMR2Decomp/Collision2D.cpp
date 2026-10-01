@@ -560,7 +560,7 @@ extern BYTE g_unk0x005914a4[4];
 extern int g_physicsTimeStep;
 
 int FUN_00407270(void);
-unsigned int RallyData_GetFlag24(void);
+unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
 int FUN_00487b80(int r1, int r2, int *pA, int *pB);
 void FUN_0047d850(Car *pCar, int *param_2);
