@@ -4554,41 +4554,43 @@ int FUN_00465e40(int car, int wheel);
 // engine sample gets its pan from the engine speed when the current pattern has
 // run out, and the slot levels are muted, faded out or restored depending on
 // the surface the wheels are on.
-// match 32%: implementada, MSVC6 no reproduce el reparto de registros ni el tamano de pila del original en las tablas de g_raceBlock
+// The volumes live in the per-car tables below: the original updates them in
+// place, so other readers see the muted/clamped values of this frame.
+// Per-car surface sound volumes (8 cars each) inside g_raceBlock.
+#define g_surfacePrevD ((int *)(g_raceBlock + 0x000))  // 0x537568
+#define g_surfaceVolA ((int *)(g_raceBlock + 0x020))   // 0x537588
+#define g_surfacePrevB ((int *)(g_raceBlock + 0x048))  // 0x5375b0
+#define g_surfacePrevA ((int *)(g_raceBlock + 0x094))  // 0x5375fc
+#define g_surfaceSlotMax (*(int *)(g_raceBlock + 0x0b4)) // 0x53761c
+#define g_surfaceVolB ((int *)(g_raceBlock + 0x0b8))   // 0x537620
+#define g_surfaceVolC ((int *)(g_raceBlock + 0x0d8))   // 0x537640
+#define g_surfaceVolD ((int *)(g_raceBlock + 0x100))   // 0x537668
+#define g_surfacePrevC ((int *)(g_raceBlock + 0x220))  // 0x537788
+#define g_wheelSlipVolume ((int (*)[4])(g_raceBlock + 0x7e0)) // 0x537d48
+
 // FUNCTION: CMR2 0x0041a5c0
 void FUN_0041a5c0(int param_1, int param_2)
 {
+    int ownVolume[4];
     Car *pCar;
     CarSoundSet *pSet;
     RaceCarSoundState *pState;
-    int ownVolume[4];
-    int ownVolumeSum;
     int speedVolume;
+    int ownVolumeSum;
+    int speedFrac;
     int weight;
     int weightInv;
-    int speedFrac;
-    int slip;
-    int slotVolume;
-    int volA;
-    int volB;
-    int volC;
-    int volD;
-    int prev;
     int total;
-    int i;
+    unsigned int i;
+    int slotVolume;
 
     speedVolume = FUN_00418e70(param_1);
-    pCar = Car_Get(param_1);
     pSet = &g_carSoundSets[param_1];
     pState = &g_carSoundStates[param_1];
-
+    pCar = Car_Get(param_1);
     total = 0;
     for (i = 0; i < 4; i++) {
-        int load = pCar->wheelLoad[0];
-
-        if (load < 0)
-            load = -load;
-        ownVolume[i] = FixDiv(load, 0xa0000);
+        ownVolume[i] = FixDiv(FIX_ABS(pCar->wheelLoad[0]), 0xa0000);
         if (ownVolume[i] > 0x10000)
             ownVolume[i] = 0x10000;
         ownVolume[i] = 0x10000 - ownVolume[i];
@@ -4596,152 +4598,134 @@ void FUN_0041a5c0(int param_1, int param_2)
     }
     ownVolumeSum = FixDiv(total, 0x40000);
     speedFrac = FixMulShift32(pCar->speed, 0x431168);
-
-    *(int *)(g_raceBlock + 0xb4) = 0;
+    g_surfaceSlotMax = 0;
     g_carMaxVolume[param_1] = 0;
     for (i = 0; i < 4; i++) {
-        slip = StageObject_GetWheelSlip(param_1, i);
-        ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = slip;
+        g_wheelSlipVolume[param_1][i] = StageObject_GetWheelSlip(param_1, i);
         slotVolume = FUN_00465e40(param_1, i);
         g_carSlotVolumes[param_1][i] = slotVolume;
-        if (g_carMaxVolume[param_1] < slip)
-            g_carMaxVolume[param_1] = slip;
-        if (*(int *)(g_raceBlock + 0xb4) < slotVolume)
-            *(int *)(g_raceBlock + 0xb4) = slotVolume;
+        if (g_wheelSlipVolume[param_1][i] > g_carMaxVolume[param_1])
+            g_carMaxVolume[param_1] = g_wheelSlipVolume[param_1][i];
+        if (slotVolume > g_surfaceSlotMax)
+            g_surfaceSlotMax = slotVolume;
     }
-
-    if (pState->pattern == 0x19) {
-        weight = 0x10000;
-        weightInv = 0;
-    } else {
+    if (pState->pattern != 0x19) {
         weightInv = FixDiv(FUN_004781c0(param_1) - pState->time, 0x320000);
         weight = 0x10000 - weightInv;
+    } else {
+        weight = 0x10000;
+        weightInv = 0;
     }
-
-    volA = FixMul(speedVolume, weight);
-    volB = FixMul(speedVolume, weightInv);
-    volD = FixMul(weight, g_carMaxVolume[param_1]);
-    volC = FixMul(weightInv, g_carMaxVolume[param_1]);
-    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
-    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
-    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
-    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
-    volA += g_carMaxVolume[param_1];
-    volB += g_carMaxVolume[param_1];
-
-    prev = ((int *)(g_raceBlock + 0x00))[param_1];
-    if (volD - prev > 0xc000)
-        volD = prev + 0xc000;
-    else if (volD - prev < -0xccc)
-        volD = prev - 0xccc;
-    ((int *)(g_raceBlock + 0x100))[param_1] = volD;
-
-    prev = ((int *)(g_raceBlock + 0x220))[param_1];
-    if (volC - prev > 0xc000)
-        volC = prev + 0xc000;
-    else if (volC - prev < -0xccc)
-        volC = prev - 0xccc;
-    ((int *)(g_raceBlock + 0xd8))[param_1] = volC;
-
-    prev = ((int *)(g_raceBlock + 0x94))[param_1];
-    if (volA - prev > 0xccc)
-        volA = prev + 0xccc;
-    else if (volA - prev < -0xccc)
-        volA = prev - 0xccc;
-    ((int *)(g_raceBlock + 0x20))[param_1] = volA;
-
-    prev = ((int *)(g_raceBlock + 0x48))[param_1];
-    if (volB - prev > 0xccc)
-        volB = prev + 0xccc;
-    else if (volB - prev < -0xccc)
-        volB = prev - 0xccc;
-    ((int *)(g_raceBlock + 0xb8))[param_1] = volB;
-
-    *(int *)(g_raceBlock + 0xb4) = FixMul(*(int *)(g_raceBlock + 0xb4), 0x20000);
-    if (*(int *)(g_raceBlock + 0xb4) > 0x10000)
-        *(int *)(g_raceBlock + 0xb4) = 0x10000;
-
+    g_surfaceVolA[param_1] = FixMul(weight, speedVolume);
+    g_surfaceVolB[param_1] = FixMul(weightInv, speedVolume);
+    g_surfaceVolD[param_1] = FixMul(weight, g_carMaxVolume[param_1]);
+    g_surfaceVolC[param_1] = FixMul(weightInv, g_carMaxVolume[param_1]);
+    g_surfaceVolB[param_1] += g_carMaxVolume[param_1];
+    g_surfaceVolA[param_1] += g_carMaxVolume[param_1];
+    if (g_surfaceVolD[param_1] - g_surfacePrevD[param_1] > 0xc000)
+        g_surfaceVolD[param_1] = g_surfacePrevD[param_1] + 0xc000;
+    else if (g_surfaceVolD[param_1] - g_surfacePrevD[param_1] < -0xccc)
+        g_surfaceVolD[param_1] = g_surfacePrevD[param_1] - 0xccc;
+    if (g_surfaceVolC[param_1] - g_surfacePrevC[param_1] > 0xc000)
+        g_surfaceVolC[param_1] = g_surfacePrevC[param_1] + 0xc000;
+    else if (g_surfaceVolC[param_1] - g_surfacePrevC[param_1] < -0xccc)
+        g_surfaceVolC[param_1] = g_surfacePrevC[param_1] - 0xccc;
+    if (g_surfaceVolA[param_1] - g_surfacePrevA[param_1] > 0xccc)
+        g_surfaceVolA[param_1] = g_surfacePrevA[param_1] + 0xccc;
+    else if (g_surfaceVolA[param_1] - g_surfacePrevA[param_1] < -0xccc)
+        g_surfaceVolA[param_1] = g_surfacePrevA[param_1] - 0xccc;
+    if (g_surfaceVolB[param_1] - g_surfacePrevB[param_1] > 0xccc)
+        g_surfaceVolB[param_1] = g_surfacePrevB[param_1] + 0xccc;
+    else if (g_surfaceVolB[param_1] - g_surfacePrevB[param_1] < -0xccc)
+        g_surfaceVolB[param_1] = g_surfacePrevB[param_1] - 0xccc;
+    g_surfaceSlotMax = FixMul(g_surfaceSlotMax, 0x20000);
+    if (g_surfaceSlotMax > 0x10000)
+        g_surfaceSlotMax = 0x10000;
     if (pState->state == 0x19) {
         if (pCar->flag0x1d0[2] != 0 && speedFrac < 0x32) {
-            volA = *(int *)(g_raceBlock + 0xb4);
-            volB = volA;
-            volC = volA;
-            volD = volA;
-            for (i = 0; i < 4; i++)
-                ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] =
-                    FixMul(((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i],
-                           0x10000 - *(int *)(g_raceBlock + 0xb4));
+            g_surfaceVolA[param_1] = g_surfaceSlotMax;
+            g_surfaceVolB[param_1] = g_surfaceSlotMax;
+            g_surfaceVolD[param_1] = g_surfaceSlotMax;
+            g_surfaceVolC[param_1] = g_surfaceSlotMax;
+            g_wheelSlipVolume[param_1][0] = FixMul(g_wheelSlipVolume[param_1][0], 0x10000 - g_surfaceSlotMax);
+            g_wheelSlipVolume[param_1][1] = FixMul(g_wheelSlipVolume[param_1][1], 0x10000 - g_surfaceSlotMax);
+            g_wheelSlipVolume[param_1][2] = FixMul(g_wheelSlipVolume[param_1][2], 0x10000 - g_surfaceSlotMax);
+            g_wheelSlipVolume[param_1][3] = FixMul(g_wheelSlipVolume[param_1][3], 0x10000 - g_surfaceSlotMax);
         } else if (pState->field_0xb0[0] != 0) {
-            volA = 0;
-            volB = 0;
-            volC = 0;
-            volD = 0;
+            g_surfaceVolA[param_1] = 0;
+            g_surfaceVolB[param_1] = 0;
+            g_surfaceVolD[param_1] = 0;
+            g_surfaceVolC[param_1] = 0;
         } else {
             if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
                 pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
                 (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
-                ((int)(FixMul(pCar->speed, 0x431168) & 0xffff0000) > 0x50000)) {
-                volA = 0x20000;
-                volB = volA;
-                volC = volA;
-                volD = volA;
-                for (i = 0; i < 4; i++)
-                    ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i] = 0x10000 - ownVolumeSum;
+                (FixMul(pCar->speed, 0x431168) & 0xffff0000) > 0x50000) {
+                g_surfaceVolB[param_1] = 0x20000;
+                g_surfaceVolD[param_1] = 0x20000;
+                g_surfaceVolC[param_1] = 0x20000;
+                g_surfaceVolA[param_1] = 0x20000;
+                g_wheelSlipVolume[param_1][0] = 0x10000 - ownVolumeSum;
+                g_wheelSlipVolume[param_1][1] = 0x10000 - ownVolumeSum;
+                g_wheelSlipVolume[param_1][2] = 0x10000 - ownVolumeSum;
+                g_wheelSlipVolume[param_1][3] = 0x10000 - ownVolumeSum;
             } else {
-                volA = 0;
-                volB = 0;
-                volC = 0;
-                volD = 0;
+                g_surfaceVolB[param_1] = 0;
+                g_surfaceVolA[param_1] = 0;
+                g_surfaceVolD[param_1] = 0;
+                g_surfaceVolC[param_1] = 0;
             }
+            speedFrac = FixMulShift32(pCar->speed, 0x431168);
             if (speedFrac < 0x32 && speedFrac >= 0)
-                g_unk0x005374c0 = ((speedFrac - 0x32) * 11025) / 50 + 0x5622;
+                g_unk0x005374c0 = (speedFrac - 0x32) * 11025 / 50 + 0x5622;
             else
                 g_unk0x005374c0 = 0x5622;
             Sound_SetPan(pSet->handle[4], g_unk0x005374c0);
         }
     }
-
-    if (volA > 0x10000)
-        volA = 0x10000;
-    if (volB > 0x10000)
-        volB = 0x10000;
-
+    if (g_surfaceVolA[param_1] > 0x10000)
+        g_surfaceVolA[param_1] = 0x10000;
+    if (g_surfaceVolB[param_1] > 0x10000)
+        g_surfaceVolB[param_1] = 0x10000;
     if (Sound_IsPlaying(pSet->handle[4]))
         FUN_004b79a0(pSet->handle[4],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volA)));
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolA[param_1])));
     if (Sound_IsPlaying(pSet->handle[5]))
         FUN_004b79a0(pSet->handle[5],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(volB, g_unk0x00537664)));
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolB[param_1])));
     if (Sound_IsPlaying(pSet->handle[6]))
         FUN_004b79a0(pSet->handle[6],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volD)));
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolD[param_1])));
     if (Sound_IsPlaying(pSet->handle[7]))
         FUN_004b79a0(pSet->handle[7],
-                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, volC)));
-
-    if (FUN_00427aa0() == 0) {
-        for (i = 0; i < 4; i++) {
-            if (Sound_IsPlaying(pSet->handle[i]))
-                FUN_004b79a0(pSet->handle[i],
-                             FixMul(FUN_00427d50(param_1, param_2),
-                                    FixMul(g_unk0x00537664,
-                                           ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i])));
-        }
-    } else {
+                     FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_surfaceVolC[param_1])));
+    if (FUN_00427aa0()) {
         total = 0;
         for (i = 0; i < 4; i++)
-            total += ((int *)(g_raceBlock + 0x7e0))[param_1 * 4 + i];
+            total += g_wheelSlipVolume[param_1][i];
         if (total > 0x10000)
             total = 0x10000;
         if (Sound_IsPlaying(pSet->handle[0]))
             FUN_004b79a0(pSet->handle[0],
                          FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, total)));
+    } else {
+        if (Sound_IsPlaying(pSet->handle[0]))
+            FUN_004b79a0(pSet->handle[0],
+                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_wheelSlipVolume[param_1][0])));
+        if (Sound_IsPlaying(pSet->handle[1]))
+            FUN_004b79a0(pSet->handle[1],
+                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_wheelSlipVolume[param_1][1])));
+        if (Sound_IsPlaying(pSet->handle[2]))
+            FUN_004b79a0(pSet->handle[2],
+                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_wheelSlipVolume[param_1][2])));
+        if (Sound_IsPlaying(pSet->handle[3]))
+            FUN_004b79a0(pSet->handle[3],
+                         FixMul(FUN_00427d50(param_1, param_2), FixMul(g_unk0x00537664, g_wheelSlipVolume[param_1][3])));
     }
-
-    ((int *)(g_raceBlock + 0x00))[param_1] = volD;
-    ((int *)(g_raceBlock + 0x220))[param_1] = volC;
-    ((int *)(g_raceBlock + 0x94))[param_1] = volA;
-    ((int *)(g_raceBlock + 0x48))[param_1] = volB;
+    g_surfacePrevD[param_1] = g_surfaceVolD[param_1];
+    g_surfacePrevC[param_1] = g_surfaceVolC[param_1];
+    g_surfacePrevA[param_1] = g_surfaceVolA[param_1];
+    g_surfacePrevB[param_1] = g_surfaceVolB[param_1];
 }
 
 // Helper implemented in Car.cpp.

@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "f4d24c945fbf2ba23a8e77f0f58665f46c3c8a8e",
+    "commit": "cb1d3aa52b360f5f9b18a25bf02a7c689cedcfff",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -72,7 +72,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "92c200e2ff471cd5060282fb099b0842e13bdf53d65eff86f05a7b0c889e5441",
       "CMR2Decomp/Game.cpp": "130a43f665d0a761b643aed9290239eb165e27842561eaae11caf17186d5bfe9",
       "CMR2Decomp/Game.h": "de2be1a67d879e2dbae70974b58e3d50cfc854807d952319e207ff72553b506f",
-      "CMR2Decomp/GameInfo.cpp": "5a69b084cb944255aedd4c9e8ea40460a8b7b101e8d4b0c8cd348974bf7fd5fd",
+      "CMR2Decomp/GameInfo.cpp": "2fabe581fad10ccc28c58d4391d686adcb8376160112c1760cc2e4ffe6d20a48",
       "CMR2Decomp/GameInfo.h": "58b4342d6866b45f83c3a8b0a52ca9d95cd0a65a44c2b6a27784a66dab76d031",
       "CMR2Decomp/GameMenus.cpp": "dac159fe6c262d81384ce5cebd49905292443340ce0168b52c855a1a7bdece59",
       "CMR2Decomp/GameMenus.h": "0a86e832ea18165b383d487fd7d20168b157e55020162ec475fa05e01c4a9afa",
@@ -98,7 +98,7 @@
       "CMR2Decomp/NetworkLeaderboards.cpp": "d899fba03986b2a3b78d5ee6435b3af52f552d2eb47ef299e3565ed63383d4cb",
       "CMR2Decomp/NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
       "CMR2Decomp/Particle.h": "c75d63dc579fe500e63b50468407282ee08ad412d60a590ee4403496f16cae17",
-      "CMR2Decomp/Race.cpp": "d534db3da0f50321eb7ee6c5c2d1d1ae631ba869a96032657e6b4cf86a8f2402",
+      "CMR2Decomp/Race.cpp": "c460a6501633511a2ef887747bd11fbe234036684478bec368e8ff0d88e0437e",
       "CMR2Decomp/RallyData.cpp": "1e341382d9f5ef33400d5e5aff3eaa831498e3c00c0c8d37566896ba31454eab",
       "CMR2Decomp/RallyData.h": "b11baa4d3229285f6ab91821a68ae2639f0ff328717e13b87e47c548b5c7663f",
       "CMR2Decomp/RallyRoute.cpp": "9ba4bcae0e76c4b3cd5bdd204a2bc2257ed8ebd82d7f3886c4b74e9ce004e0b1",
@@ -164,8 +164,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "79b5bb926509f1310bd681bcf75b2eef4a91348b4ae1ed02ba33c2618893e503",
-    "pdb_sha256": "1f2842d3416d2feca922111d61d9efe82785493f666198450120c1844efd78c6"
+    "exe_sha256": "318d69db651dd0d82ad8f56bf1ae2aeb04872cbbdb03eb8482e4b0680c74254f",
+    "pdb_sha256": "e78283b7c17a8e73395e2959f8e32511b56f78968ab386abc493981b12cbb7b9"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
