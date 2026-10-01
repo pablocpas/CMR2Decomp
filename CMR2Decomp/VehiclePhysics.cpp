@@ -284,16 +284,18 @@ int g_unk0x005919b8;
 // FUNCTION: CMR2 0x00490570
 int FUN_00490570(void)
 {
-    int d = FixMul(g_unk0x0059195c, g_collisionDirection.z) + FixMul(g_unk0x005918d0, g_collisionDirection.x);
+    FixVector delta;
+    int d;
 
+    d = FixMul(g_unk0x005918d0, g_collisionDirection.x) + FixMul(g_unk0x0059195c, g_collisionDirection.z);
     if (d < 0)
         d = -d;
-    if (g_unk0x005919b8 < d)
+    if (d > g_unk0x005919b8)
         return 0;
-    g_collisionSelectBackSide =
-        FixMul(g_collisionTarget.z - *(int *)(((BYTE *)g_collisionCar) + 0x2f0), g_collisionDirection.z) +
-        FixMul(g_collisionTarget.x - *(int *)(((BYTE *)g_collisionCar) + 0x2e8), g_collisionDirection.x) +
-        FixMul(g_collisionTarget.y - *(int *)(((BYTE *)g_collisionCar) + 0x2ec), g_collisionDirection.y) >= 0;
+    delta.x = g_collisionTarget.x - *(int *)((BYTE *)g_collisionCar + 0x2e8);
+    delta.y = g_collisionTarget.y - *(int *)((BYTE *)g_collisionCar + 0x2ec);
+    delta.z = g_collisionTarget.z - *(int *)((BYTE *)g_collisionCar + 0x2f0);
+    g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
     return 1;
 }
 
