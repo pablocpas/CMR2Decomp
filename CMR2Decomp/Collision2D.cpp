@@ -732,7 +732,7 @@ int FUN_0048a5f0(int param_1, int param_2)
     normal.y = 0;
     normal.z = 0;
     countA = 0;
-    if (g_unk0x005915f4 > 0) {
+    if (g_unk0x005915f4 >= 1) {
         for (i = 0; i < g_unk0x005915f4; i++) {
             delta.x = *(int *)(param_1 + (g_unk0x005914c4[i] * 3 + 0x9c) * 4) -
                       *(int *)(param_1 + 0x2d0);

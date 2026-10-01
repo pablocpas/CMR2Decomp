@@ -19,7 +19,7 @@ import pefile
 from matching_entities import entity_address
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / "tools"
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 
 
 def extract(pe, address, regions, sprintf_address):
@@ -157,7 +157,7 @@ def main():
         source += "static BYTE code%d[]={%s};\n" % (image, ",".join(map(str, code)))
         source += "static int calls%d[]={%s};\n" % (image, ",".join(map(str, calls)))
         loads += "    fns[%d]=(RegistryFn)load(code%d,sizeof(code%d),calls%d,%d);\n" % (image, image, image, image, len(calls))
-    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=str(TOOLS / "wineprefix"))
+    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=os.environ.get("WINEPREFIX", str(TOOLS / "wineprefix")))
     def win(path):
         return "Z:"+str(path).replace("/", "\\")
     env["INCLUDE"] = win(TOOLS / "msvc600/VC98/Include")

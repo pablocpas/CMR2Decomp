@@ -1344,7 +1344,7 @@ void FUN_00425a90(BYTE *pCars)
                 *(int *)(pEntry + 0xb8) =
                     FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) >= 0x33) {
+            if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;
                 *(int *)(pEntry + 0xe8) = 1;
             } else {

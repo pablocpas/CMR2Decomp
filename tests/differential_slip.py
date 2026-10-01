@@ -21,7 +21,7 @@ import pefile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / "tools"
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 GLOBAL_SLOT = 0x21000000
 
 
@@ -121,7 +121,7 @@ def main():
     rebuilt, mutation = extract(ROOT / "build/CMR2.exe", int(entry["recomp"], 16))
     mutant = bytearray(rebuilt)
     struct.pack_into("<I", mutant, mutation, 0xf850)
-    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=str(TOOLS / "wineprefix"))
+    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=os.environ.get("WINEPREFIX", str(TOOLS / "wineprefix")))
 
     def win(path):
         return subprocess.check_output(["winepath", "-w", str(path)], env=env, text=True).strip()

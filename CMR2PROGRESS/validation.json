@@ -1,0 +1,205 @@
+{
+  "build_exe_sha256": "f8d8321cb967633864784eb0661ff0347159448c5401131e1f9ad8ada8de481e",
+  "build_pdb_sha256": "fd94f874c3ea02fa3c72e760857b8601fd29379930435e1201e3cf1d7678c42a",
+  "source_manifest_sha256": "aaab9d6be4240d0a80c7384bc398e0d4fe160f0edf49a3e6c5d5161c4343e320",
+  "reference_commit": "16527f689810e513afb316c374d875977e81e2ea",
+  "relocated_byte_exact": 2529,
+  "exact_gains": [
+    "0x447a40",
+    "0x4ff060",
+    "0x49c370",
+    "0x4aa880",
+    "0x49cd90",
+    "0x5029b0",
+    "0x427580",
+    "0x40e5e0",
+    "0x4176b0",
+    "0x4ec020",
+    "0x411e40",
+    "0x408d80",
+    "0x40d520",
+    "0x4b6240",
+    "0x4b8b10",
+    "0x492b50",
+    "0x4735a0",
+    "0x48f400",
+    "0x462d10",
+    "0x463290",
+    "0x480980",
+    "0x4591e0",
+    "0x466920",
+    "0x4668d0",
+    "0x459250",
+    "0x4813b0",
+    "0x45f5d0",
+    "0x45a170",
+    "0x45f6d0",
+    "0x493a40",
+    "0x4a9b50",
+    "0x4a9b30"
+  ],
+  "exact_losses": [],
+  "native_harnesses_passed": 32,
+  "native_results": [
+    {
+      "test": "differential_axis_colours.py",
+      "exit_code": 0,
+      "output": "6000 native axis colour cases: 0 differences; visibility, selection, live colours, provider order, draw arguments and all guards checked"
+    },
+    {
+      "test": "differential_billboard_init.py",
+      "exit_code": 0,
+      "output": "6000 billboard initializations: original failures 0, rebuilt failures 0; guards intact; missing-enable mutation failures 4000"
+    },
+    {
+      "test": "differential_callback_cursor.py",
+      "exit_code": 0,
+      "output": "6000 native callback cursor cases: 0 differences; counts0..255, transitions, preserved upper bytes, published record and all guards checked"
+    },
+    {
+      "test": "differential_camera_clip.py",
+      "exit_code": 0,
+      "output": "6000 native camera clip cases: 0 differences; live graphics replacements, signed clips, unsigned node clamp, call traces and full arena checked"
+    },
+    {
+      "test": "differential_collision_checkpoint.py",
+      "exit_code": 0,
+      "output": "12000 native collision/checkpoint cases: 0 differences; fixed point wrap model, guards, lookup traces, aliases and four x87 rounding modes checked"
+    },
+    {
+      "test": "differential_com_outputs.py",
+      "exit_code": 0,
+      "output": "com.c\n18000 native COM cases: 0 differences; player output/name, sound HRESULT order, 100 fill counts and guards checked"
+    },
+    {
+      "test": "differential_effect_calls.py",
+      "exit_code": 0,
+      "output": "6000 effect dispatches: 0 differences; car data and guards intact; mutation differences: 0"
+    },
+    {
+      "test": "differential_font_coordinates.py",
+      "exit_code": 0,
+      "output": "6000 native font cases: 0 differences, 134013 glyph draws; BYTE characters, signed coordinates, breaks, flags, kerning, missing glyphs and guards checked"
+    },
+    {
+      "test": "differential_knockout_bracket.py",
+      "exit_code": 0,
+      "output": "6000 knockout cases: 0 differences; all four modes, AI choices, random draws, call order, bitfields and guards checked\n6000 current-round selector cases: 0 differences; both fields, four rounds, fallback and all guards checked"
+    },
+    {
+      "test": "differential_low_callbacks.py",
+      "exit_code": 0,
+      "output": "12000 native cases: 0 differences; full text, COM arguments, outputs, allocation failures, error paths and memory guards checked"
+    },
+    {
+      "test": "differential_low_logic.py",
+      "exit_code": 0,
+      "output": "42000 native cases: 0 differences; complete memory, scene writes, progress saturation, aliased outputs, gear/step boundaries HUD call traces and owned split prefix checked"
+    },
+    {
+      "test": "differential_menu_back.py",
+      "exit_code": 0,
+      "output": "6000 menu back callbacks: original 0 differences, rebuilt 0; calls, unsigned values and input guards checked; missing-return mutation 4800"
+    },
+    {
+      "test": "differential_menu_lookup.py",
+      "exit_code": 0,
+      "output": "6000 menu lookups: original differences 0, rebuilt differences 0; input and guards intact; old-field mutation differences 1692"
+    },
+    {
+      "test": "differential_name_entry.py",
+      "exit_code": 0,
+      "output": "6000 native name entry cases: 0 differences; lengths 0..3, deletion/confirmation, all columns, cursor, call traces and full arena checked"
+    },
+    {
+      "test": "differential_network_font.py",
+      "exit_code": 0,
+      "output": "6000 native network font cases: 0 differences; integer threshold oracle, x87 boundary neighbours and full arena checked"
+    },
+    {
+      "test": "differential_network_results.py",
+      "exit_code": 0,
+      "output": "6000 network result assemblies: 0 differences; native sorting, complete region, call order and guards checked"
+    },
+    {
+      "test": "differential_network_tables.py",
+      "exit_code": 0,
+      "output": "6000 network table cases: 0 differences; full table regions and guards intact; wrong-cell mutations split 6000, stage 5571"
+    },
+    {
+      "test": "differential_option_cache.py",
+      "exit_code": 0,
+      "output": "30000 native cases: 0 differences; four option records, ten-field swaps for four players, signed penalties, blink parity, provider order and guards checked"
+    },
+    {
+      "test": "differential_race_state_reset.py",
+      "exit_code": 0,
+      "output": "6000 native race reset cases: 0 differences; both player flags, ten call records, five slots and all guards checked"
+    },
+    {
+      "test": "differential_rankings.py",
+      "exit_code": 0,
+      "output": "6000 ranking removals and 6000 rebuilds: 0 differences; data guards intact"
+    },
+    {
+      "test": "differential_registry_value.py",
+      "exit_code": 0,
+      "output": "6000 native registry cases: 0 differences; each failed open/query, success, paths, output buffer, API counts and full arena checked"
+    },
+    {
+      "test": "differential_replay_reset.py",
+      "exit_code": 0,
+      "output": "12000 native replay reset cases: 0 differences; record bytes, two timestamp arrays, guards and changing providers checked"
+    },
+    {
+      "test": "differential_replay_slots.py",
+      "exit_code": 0,
+      "output": "6000 replay initializations and dispatches: play differences 0, record differences 0; all 16 slots and guards checked; eight-slot mutation differences 6000/6000"
+    },
+    {
+      "test": "differential_rotation.py",
+      "exit_code": 0,
+      "output": "6000 rotations: 0 differences; node guards and input buffers intact"
+    },
+    {
+      "test": "differential_route_progress.py",
+      "exit_code": 0,
+      "output": "6000 native route progress cases: 0 differences; signed thresholds, clamps, provider capture and full arena checked"
+    },
+    {
+      "test": "differential_scene_reparent.py",
+      "exit_code": 0,
+      "output": "12000 native scene reparent cases: 0 differences; first/middle/last siblings, ancestor chains, failures, return values and all guards checked"
+    },
+    {
+      "test": "differential_session_enumeration.py",
+      "exit_code": 0,
+      "output": "12000 native session enumeration cases: 0 differences; HRESULTs, GUID/descriptor, busy/null paths, COM calls and guards checked"
+    },
+    {
+      "test": "differential_shadow_cleanup.py",
+      "exit_code": 0,
+      "output": "6000 native shadow cleanup cases: 0 differences; nested releases, pointer clears, four counters and all guards checked"
+    },
+    {
+      "test": "differential_slip.py",
+      "exit_code": 0,
+      "output": "6000 cases: 0 differences; mutation detected in 5917 cases"
+    },
+    {
+      "test": "differential_sort.py",
+      "exit_code": 0,
+      "output": "6000 sorts: 0 differences; times and guards intact"
+    },
+    {
+      "test": "differential_stage_sound_reset.py",
+      "exit_code": 0,
+      "output": "6000 native stage sound reset cases: 0 differences; eight records, state words, pattern, guards and callback order checked"
+    },
+    {
+      "test": "differential_tables.py",
+      "exit_code": 0,
+      "output": "6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected"
+    }
+  ]
+}

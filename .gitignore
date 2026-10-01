@@ -434,3 +434,7 @@ reccmp-build.yml
 
 # original binary for local reccmp
 cmr2bin/
+
+# Local Python caches and matching scratch files
+scripts/work/
+scripts/wineprefix/

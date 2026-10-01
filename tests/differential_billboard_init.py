@@ -19,7 +19,7 @@ import pefile
 from differential_tables import relocate
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / 'tools'
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 GLOBALS = [0x6db200, 0x6dd780, 0x6dd784, 0x6dd788]
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 MD.detail = True
@@ -154,7 +154,7 @@ def main():
     source += 'static int sizes[3]={%s};\n' % ','.join(map(str, sizes))
     source += 'static unsigned int offsets[3][4]={%s}, bases[3]={%s};\n' % (
         ','.join('{%s}' % ','.join(map(str, row)) for row in offsets), ','.join(map(str, bases)))
-    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=str(TOOLS / 'wineprefix'))
+    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=os.environ.get('WINEPREFIX', str(TOOLS / 'wineprefix')))
     def win(path):
         return subprocess.check_output(['winepath', '-w', str(path)], env=env, text=True).strip()
     env['INCLUDE'] = win(TOOLS / 'msvc600/VC98/Include')

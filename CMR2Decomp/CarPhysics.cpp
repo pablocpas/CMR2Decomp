@@ -851,7 +851,7 @@ void FUN_00496e00(Car *pCar)
         pContact->pointGroundY[c] = h;
         h -= pContact->points[c].y;
         if (FIX_ABS(h) > 0x8000)
-            h = h < 1 ? -0x8000 : 0x8000;
+            h = h > 0 ? 0x8000 : -0x8000;
         pContact->points[c].y += h;
     }
 }

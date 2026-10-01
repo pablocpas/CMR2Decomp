@@ -1090,9 +1090,7 @@ void FUN_004cf3b0(int index, int mode)
 }
 
 // Resets the value and the three stat counters of a device record.
-// match 50%: MSVC keeps the zero in a register (xor ecx / cmp eax,ecx) instead of an
-// immediate store plus test; the code is the same.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 91%: the address increment and zero-register initialization are reversed.
 // FUNCTION: CMR2 0x004cf3f0
 void FUN_004cf3f0(int index)
 {
@@ -1100,9 +1098,7 @@ void FUN_004cf3f0(int index)
 
     if (pDevice != NULL) {
         *(int *)(pDevice + 4) = 0;
-        pDevice += 8;
-        *(short *)pDevice = 0;
-        *(pDevice + 2) = 0;
+        memset(pDevice + 8, 0, 3);
     }
 }
 

@@ -35,14 +35,13 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: itsmattkc/msvc600
+          ref: 001c4bafdcf2ef4b474d693acccd35a91e848f40
           path: msvc600
 
       - name: Build
         shell: cmd
         run: |
-          mkdir build
-          call .\msvc600\VC98\bin\VCVARS32.BAT x86
-          call .\msvc600\VC98\bin\cl.exe .\CMR2Decomp\*.cpp /Fe"build/CMR2.exe" /O2 /DNDEBUG /Zi /Gz /MD /link user32.lib gdi32.lib advapi32.lib ole32.lib msacm32.lib winmm.lib third_party/dx7sdk-7001/lib/dxguid.lib third_party/dx7sdk-7001/lib/dinput.lib third_party/dx7sdk-7001/lib/ddraw.lib third_party/bink-sdk-1.0p/lib/binkw32.lib /DEBUG /PDB:"build\CMR2.pdb" /SUBSYSTEM:WINDOWS
+          python scripts/build.py --msvc-root msvc600/VC98
 
       - name: Upload Build
         uses: actions/upload-artifact@main
@@ -51,6 +50,7 @@ jobs:
           path: |
             build/CMR2.exe
             build/CMR2.pdb
+            build/manifest.json
 
   verify:
     name: Verify decomp
@@ -81,7 +81,7 @@ jobs:
       - name: Install reccmp
         shell: bash
         run: |
-          pip install git+https://github.com/isledecomp/reccmp
+          pip install -r scripts/requirements.txt
 
       - name: Detect binary
         run: |
@@ -110,11 +110,10 @@ jobs:
       #   run: |
       #     reccmp-vtable --target CMR2
 
-      # Skip for now until i understand these errors better
-      # - name: Check Variables
-      #   shell: bash
-      #   run: |
-      #     reccmp-datacmp --target CMR2
+      - name: Check Variables
+        shell: bash
+        run: |
+          reccmp-datacmp --target CMR2
 
       - name: Upsert PR Accuracy Report
         if: github.event_name == 'pull_request'

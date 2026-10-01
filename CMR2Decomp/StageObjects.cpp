@@ -5970,33 +5970,33 @@ void FUN_0048dc30(BYTE *pCar, int step)
 }
 
 // Five-bit field of the current round entry (bits 0..4, or 5..9 with pHigh).
-// match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004735a0
-unsigned int FUN_004735a0(unsigned int *pHigh)
+unsigned int FUN_004735a0(unsigned int *volatile pHigh)
 {
     unsigned int *pState;
-    unsigned int *pEntry;
     unsigned int state;
 
     pState = RallyData_GetChampionshipState();
     state = *pState;
-    pEntry = pHigh;
+
     switch ((state >> 3) & 7) {
     case 1:
-        pEntry = pState + ((state >> 12) & 0xf) * 3 + 0x16;
+        pState = pState + ((state >> 12) & 0xf) * 3 + 0x16;
         break;
     case 2:
-        pEntry = pState + ((state >> 12) & 0xf) * 3 + 10;
+        pState = pState + ((state >> 12) & 0xf) * 3 + 10;
         break;
     case 3:
-        pEntry = pState + ((state >> 12) & 0xf) * 3 + 4;
+        pState = pState + ((state >> 12) & 0xf) * 3 + 4;
         break;
     case 4:
-        pEntry = pState + 1;
+        pState = pState + 1;
         break;
+    default: pState = pHigh; break;
     }
-    state = *pEntry;
-    if (pHigh != NULL)
+    unsigned int *which = pHigh;
+    state = *pState;
+    if (which != NULL)
         state >>= 5;
     return state & 0x1f;
 }
@@ -6719,17 +6719,16 @@ void FUN_00462cb0(BYTE *pColour)
         FUN_0047e490(pColour);
 }
 
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00462d10
 void FUN_00462d10(short *pRect)
 {
     BYTE colour[4];
-    int c;
+    union { int value; BYTE bytes[4]; } c;
 
-    FUN_00492bb0(&c);
-    colour[0] = (BYTE)c;
-    colour[1] = (BYTE)(c >> 8);
-    colour[2] = (BYTE)(c >> 16);
+    FUN_00492bb0(&c.value);
+    colour[0] = c.bytes[0];
+    colour[1] = c.bytes[1];
+    colour[2] = c.bytes[2];
     g_sunVisibility = 100 - Flare_SampleVisibility(pRect, colour, 0x28);
     if (g_sunVisibility < 0) {
         g_sunVisibility = 0;
@@ -6866,24 +6865,26 @@ extern char g_strPathConcat[];
 
 // Places the lights: rows of the given 4x3 vectors are the right, up,
 // forward axes and the position (NULL: no transform).
-// match 47%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00463290
 void StageLights_SetTransform(FixVector *pAxes)
 {
     FixVector v;
+    FixVector *pNext;
 
     if (pAxes == NULL) {
         g_stageLightHasMatrix = (int)pAxes;
         return;
     }
     g_stageLightHasMatrix = 1;
-    v = pAxes[0];
+    v = *pAxes;
+    pNext = pAxes + 1;
     FixMatrix_SetRight(&v, &g_stageLightMatrix);
-    v = pAxes[1];
+    v = *pNext++;
     FixMatrix_SetUp(&v, &g_stageLightMatrix);
-    v = pAxes[2];
+    v = *pNext;
     FixMatrix_SetForward(&v, &g_stageLightMatrix);
-    v = pAxes[3];
+    pNext++;
+    v = *pNext;
     FixMatrix_SetPosition(&v, &g_stageLightMatrix);
 }
 
@@ -11093,10 +11094,8 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
-// g_deformImpactTicks (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
-// su anotacion // GLOBAL: vive en su fichero de definicion; aqui solo el extern.
+// Shared cooldown timestamps are defined and annotated in StageTiming.cpp.
 extern int g_deformImpactTicks[2];
-extern const double g_unk0x00511310;
 
 // Car impact update: checks the four axle travel limits, samples the current
 // suspension extremes per object type and, when one of this car's objects is
@@ -11325,13 +11324,13 @@ void FUN_0046acb0(int param_1, int param_2, int param_3)
                         do {
                             pVertRecs = (int *)(rOff + pRec[0]);
                             pFloats = (float *)(*(int *)(*(int *)(param_3 + i * 4) + 0xc) + fOff);
-                            pFloats[0] = (float)(pVertRecs[0] * g_unk0x00511310);
-                            pFloats[1] = (float)(pVertRecs[1] * g_unk0x00511310);
-                            pFloats[2] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            pFloats[0] = (float)(pVertRecs[0] * CGraphics::m_oneOver65536);
+                            pFloats[1] = (float)(pVertRecs[1] * CGraphics::m_oneOver65536);
+                            pFloats[2] = (float)(pVertRecs[2] * CGraphics::m_oneOver65536);
                             pVertRecs = (int *)(rOff + 0xc + pRec[0]);
-                            pFloats[3] = (float)(pVertRecs[0] * g_unk0x00511310);
-                            pFloats[4] = (float)(pVertRecs[1] * g_unk0x00511310);
-                            pFloats[5] = (float)(pVertRecs[2] * g_unk0x00511310);
+                            pFloats[3] = (float)(pVertRecs[0] * CGraphics::m_oneOver65536);
+                            pFloats[4] = (float)(pVertRecs[1] * CGraphics::m_oneOver65536);
+                            pFloats[5] = (float)(pVertRecs[2] * CGraphics::m_oneOver65536);
                             fx = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
                             fy = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
                             fz = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
@@ -15685,7 +15684,7 @@ void CarEffects_InitDebris(void);
 void FUN_00494bb0(void);
 void FUN_0045eca0(void);
 void CarEffects_Init(void);
-void __fastcall FUN_0045a170(int param_1);
+void FUN_0045a170(void);
 int FUN_00407270(void);
 
 // Sets up the stage objects of a race: object tables, the championship-end
@@ -15726,7 +15725,7 @@ void FUN_00466360(void)
     FUN_0045eca0();
     CarEffects_Init();
     StageLights_Create();
-    FUN_0045a170(0);
+    FUN_0045a170();
     if (g_unk0x0058896c != 0)
         FUN_0047e4d0(0x14);
 }
@@ -16062,7 +16061,7 @@ void FUN_00484310(void)
                         }
                     }
                 }
-                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) < 0x6666) {
+                if (*(int *)((BYTE *)g_unk0x00590c20 + 0x17c) <= 0x6665) {
                     *(int *)((BYTE *)g_unk0x00590c20 + 0x17c) = 0x6666;
                     if (*(int *)((BYTE *)g_unk0x00590c20 + 0x16c) > 0)
                         *(int *)((BYTE *)g_unk0x00590c20 + 0x16c) = 0;

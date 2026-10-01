@@ -776,56 +776,29 @@ int WheelSpray_GetEffect(int surface)
         g_sprayEffect = -1;
         switch ((BYTE)RallyDataCountryIndex()) {
         case 0:
-            if (surface == 0xd) {
+            switch (surface) {
+            case 0xd:
                 g_sprayEffect = 2;
-                g_spraySurface = surface;
-                return 2;
-            }
-            if (surface == 0x13) {
-                g_spraySurface = surface;
+                break;
+            case 0x13:
                 g_sprayEffect = 1;
-                return 1;
-            }
-            if (surface == 0x1a) {
+                break;
+            case 0x1a:
                 g_sprayEffect = 0;
-                g_spraySurface = surface;
-                return 0;
+                break;
             }
             break;
-        case 1:
+        case 4:
             switch (surface) {
-            case 3:
-                g_sprayEffect = 6;
-                g_spraySurface = surface;
-                return 6;
-            case 4:
-            case 6:
-                g_spraySurface = surface;
-                g_sprayEffect = 7;
-                return 7;
-            case 5:
-            case 7:
-                g_sprayEffect = 8;
-                g_spraySurface = surface;
-                return 8;
-            case 8:
-                g_sprayEffect = 2;
-                g_spraySurface = surface;
-                return 2;
-            case 9:
-            case 0xb:
-                g_sprayEffect = 9;
-                g_spraySurface = surface;
-                return 9;
-            case 10:
-            case 0xc:
-                g_sprayEffect = 10;
-                g_spraySurface = surface;
-                return 10;
-            case 0x1b:
-                g_sprayEffect = 1;
-                g_spraySurface = surface;
-                return 1;
+            case 2:
+                g_sprayEffect = 3;
+                break;
+            case 0x47:
+                g_sprayEffect = 5;
+                break;
+            case 0x53:
+                g_sprayEffect = 4;
+                break;
             }
             break;
         case 2:
@@ -833,30 +806,40 @@ int WheelSpray_GetEffect(int surface)
             case 0x1a:
             case 0x22:
                 g_sprayEffect = 0;
-                g_spraySurface = surface;
-                return 0;
+                break;
             case 0x1c:
             case 0x1d:
                 g_sprayEffect = 1;
-                g_spraySurface = surface;
-                return 1;
+                break;
             }
             break;
-        case 4:
-            if (surface == 2) {
-                g_sprayEffect = 3;
-                g_spraySurface = surface;
-                return 3;
-            }
-            if (surface == 0x47) {
-                g_sprayEffect = 5;
-                g_spraySurface = surface;
-                return 5;
-            }
-            if (surface == 0x53) {
-                g_sprayEffect = 4;
-                g_spraySurface = surface;
-                return 4;
+        case 1:
+            switch (surface) {
+            case 3:
+                g_sprayEffect = 6;
+                break;
+            case 4:
+            case 6:
+                g_sprayEffect = 7;
+                break;
+            case 5:
+            case 7:
+                g_sprayEffect = 8;
+                break;
+            case 8:
+                g_sprayEffect = 2;
+                break;
+            case 9:
+            case 0xb:
+                g_sprayEffect = 9;
+                break;
+            case 10:
+            case 0xc:
+                g_sprayEffect = 10;
+                break;
+            case 0x1b:
+                g_sprayEffect = 1;
+                break;
             }
             break;
         case 5:
@@ -871,30 +854,30 @@ int WheelSpray_GetEffect(int surface)
             case 0x1b:
             case 0x1c:
                 g_sprayEffect = 3;
-                g_spraySurface = surface;
-                return 3;
+                break;
             }
             break;
         case 7:
             switch (surface) {
             case 0xf:
                 g_sprayEffect = 9;
-                g_spraySurface = surface;
-                return 9;
+                break;
             case 0x13:
             case 0x14:
                 g_sprayEffect = 0xb;
-                g_spraySurface = surface;
-                return 0xb;
+                break;
             case 0x1a:
             case 0x1f:
                 g_sprayEffect = 0xc;
+                break;
             }
+            break;
         }
     }
     g_spraySurface = surface;
     return g_sprayEffect;
 }
+
 
 // Adds wear to a tyre of a driver and updates its state (1 worn, 2 badly
 // worn, 3 damaged).

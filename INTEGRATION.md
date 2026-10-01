@@ -1,0 +1,87 @@
+# Main integration — 2026-10-01
+
+## Sources
+
+- Main advanced from `0e18a20` to the matching review at `16527f6`.
+- Both matching reviews were merged in `4d75801`, preserving the newer
+  bitfield implementations and validating the conflicting session helpers.
+- Working changes were copied from frozen patches of matching-review and
+  matching-low-review. The original working directories were not committed,
+  reset or cleaned. Their patches are preserved in `/tmp/cmr2-main-integration`.
+- Wine/window rendering support was recovered from port/silentpatch-window.
+  Its earlier gameplay fixes were compared with the newer implementations;
+  older versions were not substituted over the matching review. The replay
+  table correction in its working directory already exists in main.
+- The old frontend and wave branches were checked for newly annotated
+  functions missing from main: none were missing. Their branches remain
+  available as historical references.
+- SDK paths are the original pinned Git submodules again, replacing the
+  review worktrees' absolute links, which pointed back into this checkout.
+
+## Verified snapshots
+
+| Metric | Frozen 16527f6 | Both reviews | Recovered working changes | Low-score matching batch |
+|---|---:|---:|---:|---:|
+| Measured reccmp functions | 3365 | 3367 | 3367 | 3367 |
+| Reccmp score exactly 1.0 | 2406 | 2429 | 2433 | 2434 |
+| Source functions audited by bytes | 3363 | 3363 | 3363 | 3363 |
+| Exact after relocation | 2497 | 2523 | 2528 | 2529 |
+
+Every snapshot was built with MSVC6 using the same translation-unit flags.
+No originally exact function was lost in these comparisons. The final portable
+build has 2529 exact functions, 32 more than the frozen reference;
+834 source functions remain non-exact. Reccmp accuracy is 92.59%, a similarity
+score distinct from the count of byte-exact functions. There are
+14 functions with unresolved operands, which are included in those 834 and
+are never counted as exact. Global data: 3197 variables, zero issues.
+
+Thirty-two native differential harnesses passed on the portable build, including
+collision/checkpoints under all four x87 rounding modes, session enumeration,
+camera replacements, shadows, rotations, rankings, queues, replay slots,
+registry failures, text coordinates, callbacks, network tables and knockout
+seeding/round selection and scene reparenting. The final logs are retained in
+`/tmp/cmr2-main-integration/clean-final`; the portable results and build hashes
+are saved in `CMR2PROGRESS/validation.json`.
+
+The final build unifies the loader/frontend scratch buffer and the shared
+1/65536 constant at their actual original addresses, and removes duplicate
+annotations from declarations. It also uses the same build command in CI
+and locally. Only Wine/MSVC6 execution was run here; Windows CI and a full
+interactive race were not run during this integration.
+
+## Low-score matching work
+
+| Original address | Function | Reccmp before | Reccmp after | Byte-exact |
+|---|---|---:|---:|---|
+| 0x004069c0 | RallyData_InitKnockoutBracket | 11.17% | 66.24% | No |
+| 0x00505e10 | CGameInfo::FUN_00505e10 | 22.73% | 79.17% | No |
+| 0x004cf3f0 | FUN_004cf3f0 | 50.00% | 90.91% | No |
+| 0x004735a0 | FUN_004735a0 | 41.03% | 100.00% | Yes |
+| 0x004ac7a0 | SceneNode_Reparent | 38.46% | 94.44% | No |
+
+The bracket initializer now preserves the original bitfields, four constant
+random-divisor branches, AI call ordering, human separation and final ordering.
+It also corrects the two-driver draw: the original uses even draws for the
+second driver, unlike the other rounds. The native harness checks 6000 bracket
+cases and 6000 round-selector cases against the original machine code, including
+random values, call arguments/order and memory guards. The old reference build
+fails bracket case 4, providing a negative control for this behavior correction.
+
+The selector's original 101 bytes are reproduced after relocation. Its fallback
+and switch-table paths are also checked by the native harness. The other three
+functions and scene reparenting remain explicitly pending despite their improved
+similarity scores. Reparenting differs only in its return instruction (98.08%
+under the byte auditor, 94.44% under reccmp); 12000 native cases confirm return
+values, sibling rewiring, ancestor flags, failure paths and memory guards.
+
+## Next matching work
+
+Use `CMR2PROGRESS/nonmatching.tsv`, sorted by increasing matching score, and
+the matching report from main. Group
+functions by common structural problems and inspect original calls, field
+widths, branch conditions and fixed-point helpers before adjusting register
+allocation. Keep all implemented functions annotated, including low scores.
+
+A later lot must preserve existing exact functions, global data, and the
+differential tests relevant to its behavior. Rebuild before measuring; never
+compare reports from unrelated branches or an earlier executable.

@@ -158,6 +158,9 @@ BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowNam
 	wndClass.style = 3;
 
 	dwStyle = 0x81cf0000;
+#ifdef CMR2_WINDOWED
+	dwStyle = WS_POPUP; // SilentPatchCMR2 borderless window (0x4a81b2)
+#endif
 	if (!g_pGraphics->isFullscreen)
 		wndClass.hCursor = LoadCursorA(NULL, (const char *)0x7f00);
 	else

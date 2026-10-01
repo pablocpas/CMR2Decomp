@@ -280,23 +280,23 @@ int g_unk0x005919b8;
 
 // Accepts the collision direction when it is nearly parallel to the face and
 // picks the side of the car the target is on.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00490570
 int FUN_00490570(void)
 {
+    int d = FixMul(g_unk0x005918d0, g_collisionDirection.x) + FixMul(g_unk0x0059195c, g_collisionDirection.z);
     FixVector delta;
-    int d;
 
-    d = FixMul(g_unk0x005918d0, g_collisionDirection.x) + FixMul(g_unk0x0059195c, g_collisionDirection.z);
     if (d < 0)
         d = -d;
     if (d > g_unk0x005919b8)
         return 0;
-    delta.x = g_collisionTarget.x - *(int *)((BYTE *)g_collisionCar + 0x2e8);
-    delta.y = g_collisionTarget.y - *(int *)((BYTE *)g_collisionCar + 0x2ec);
-    delta.z = g_collisionTarget.z - *(int *)((BYTE *)g_collisionCar + 0x2f0);
-    g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
-    return 1;
+    {
+        delta.x = g_collisionTarget.x - COLLISION_VECTOR(0x2e8).x;
+        delta.y = g_collisionTarget.y - COLLISION_VECTOR(0x2e8).y;
+        delta.z = g_collisionTarget.z - COLLISION_VECTOR(0x2e8).z;
+        g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
+        return 1;
+    }
 }
 
 // Accepts the collision when the target is behind the face and the direction

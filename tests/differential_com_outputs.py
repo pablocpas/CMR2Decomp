@@ -17,7 +17,7 @@ import capstone
 import pefile
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / 'tools'
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 MD.detail = True
 
@@ -174,7 +174,7 @@ def main():
             code, calls = extract(pe, addresses[a] if rebuilt else a, globals_, callees, cleanup)
             source += 'static BYTE code_%s_%s[]={%s};\n' % (tag, name, ','.join(map(str, code)))
             source += 'static int calls_%s_%s[][2]={%s};\n' % (tag, name, ','.join('{%d,%d}' % c for c in calls) or '{0,0}')
-    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=str(TOOLS / 'wineprefix'))
+    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=os.environ.get('WINEPREFIX', str(TOOLS / 'wineprefix')))
     def win(path):
         return subprocess.check_output(['winepath', '-w', str(path)], env=env, text=True).strip()
     env['INCLUDE'] = win(TOOLS / 'msvc600/VC98/Include')

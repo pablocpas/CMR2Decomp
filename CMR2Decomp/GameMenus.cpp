@@ -1234,7 +1234,7 @@ void FUN_0044efa0(Menu *pMenu)
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
             Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
-            if (pos < 6)
+            if (pos <= 5)
                 GameMenus_DrawRowHighlight(row);
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(id)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -1329,7 +1329,7 @@ void FUN_0044fea0(Menu *pMenu)
             g_menuRect[2] = (short)((int)(g_pGraphics->resX * 0x41) / 640 - (int)(g_pGraphics->resX * 0x20) / 640);
             Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuRowFillColour, 2);
         } else {
-            if (pos < 6)
+            if (pos <= 5)
                 GameMenus_DrawRowHighlight(row);
             strcpy(CFrontend::m_stringDest, (char *)CFrontend::FUN_0040ede0(FUN_00407fc0(id)));
             CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
@@ -2919,7 +2919,7 @@ void FUN_004541c0(Menu *pMenu)
                       (int)(g_pGraphics->resY * y) / 0x1e0, (int *)pColour, 9);
     }
     if (g_unk0x00540e48) {
-        if (!(CMain::GetFrameDelta() % 0x14 < 10))
+        if (!(CMain::GetFrameDelta() % 0x14 <= 9))
             sprintf(CFrontend::m_stringDest, g_str0x00519fb8, g_chatLine);
         else
             sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_chatLine);

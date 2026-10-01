@@ -428,7 +428,7 @@ SceneNode *SceneNode_Create(SceneNode *pParent)
 }
 
 // Moves pNode (and its subtree) under pNewParent.
-// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 98%: the original returns the dirty value from ECX without reloading it.
 // FUNCTION: CMR2 0x004ac7a0
 int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
 {
@@ -463,7 +463,7 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
         pNode->dirty = 1;
         pNode = pNode->pParent;
     } while (pNode != NULL);
-    return 1;
+    return pNewParent->dirty;
 }
 
 // Type 1 / type 2 scene objects: fixed pointer tables, released by lookup.
@@ -2607,8 +2607,6 @@ extern const double g_unk0x00511cf8 = 0.0019569471624266144;
 extern const double g_unk0x00511d00 = 0.0002442002442002442;
 // GLOBAL: CMR2 0x00511d08
 extern const double g_unk0x00511d08 = 0.0015339807878856412;
-// GLOBAL: CMR2 0x00511310
-extern const double g_unk0x00511310 = 1.52587890625e-05;
 
 extern short g_acosTable[4096];
 extern const double g_unk0x00511380;
@@ -2639,7 +2637,7 @@ void FUN_004b7b20(void)
     g_tanTable[1024] = 0x7fffffff;
 
     for (i = 0; i < 4096; i++) {
-        g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * g_unk0x00511310) * CGraphics::m_65536);
+        g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * CGraphics::m_oneOver65536) * CGraphics::m_65536);
     }
 
     for (i = 0; i < 4096; i++) {

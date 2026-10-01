@@ -3953,7 +3953,7 @@ void FUN_00418ba0(unsigned int view, int strength, int listener)
 
     if (strength > 0xccc) {
         level = FixMul(strength, 0xa0000) >> 16;
-        if (level > 9)
+        if (level >= 10)
             level = 9;
         FUN_004187d0(view, (unsigned short)(g_unk0x00537360 + level), 0x10000, listener);
         CAR_SHAKE(view, strength);

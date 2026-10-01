@@ -17,7 +17,7 @@ from differential_com_outputs import extract
 from matching_entities import entity_address
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / "tools"
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 DRIVER = r'''
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,7 +116,7 @@ def main():
         assert not calls
         source += "static BYTE code%d[]={%s};\n" % (image, ",".join(map(str, code)))
         loads += "    fns[%d]=(ResetFn)load(code%d,sizeof(code%d));\n" % (image, image, image)
-    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=str(TOOLS / "wineprefix"))
+    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=os.environ.get("WINEPREFIX", str(TOOLS / "wineprefix")))
 
     def win(path):
         return "Z:" + str(path).replace("/", "\\")

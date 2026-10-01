@@ -1167,7 +1167,7 @@ void FUN_00493ed0(void)
     if (delta > 0x1f || delta < -0x1f) {
         if (current == 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
-        else if (current < 1) {
+        else if (current <= 0) {
             if (delta < 1)
                 delta = (short)(__int64)((double)FixMul(scaleLeft, delta * 0x1680) * g_unk0x00511300);
             else

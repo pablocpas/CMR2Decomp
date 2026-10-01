@@ -421,6 +421,7 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
 
     tier = FUN_004a8bc0();
     tier = FUN_004a96e0(tier);
+#ifndef CMR2_WINDOWED
     if (tier == 0) {
         g_pGraphics->isFullscreen = 1;
         FUN_004a8d90(0);
@@ -428,18 +429,34 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
     }
 
     g_pGraphics->isFullscreen = 1;
+#else
+    // SilentPatchCMR2 port (0x4a7a6f jne->jmp, 0x4a7a98 esi->edi): skip the
+    // fullscreen fallback and run the game in a window.
+    g_pGraphics->isFullscreen = 0;
+#endif
     
     if (g_pGraphics->isFullscreen == 0) {
         g_pGraphics->pDD7->SetCooperativeLevel(CMain::m_hWndList[CMain::m_hWndIx], DDSCL_NORMAL);
         GetWindowRect(CMain::m_hWndList[CMain::m_hWndIx], &s.lpWindowRect);
         GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], &s.lpClientRect);
 
+#ifndef CMR2_WINDOWED
         SetWindowPos(CMain::m_hWndList[CMain::m_hWndIx], NULL,
             GetSystemMetrics(SM_CXSCREEN) / 2 - 0x140,
             GetSystemMetrics(SM_CYSCREEN) / 2 - 0xf0,
             s.lpWindowRect.right + 0x280 - s.lpWindowRect.left + s.lpClientRect.left - s.lpClientRect.right,
             s.lpWindowRect.bottom + 0x1e0 - s.lpWindowRect.top + s.lpClientRect.top - s.lpClientRect.bottom,
             4);
+#else
+        // SilentPatchCMR2 FullSizeWindow: the original always sizes the
+        // window for 640x480; use the real game resolution instead.
+        SetWindowPos(CMain::m_hWndList[CMain::m_hWndIx], NULL,
+            GetSystemMetrics(SM_CXSCREEN) / 2 - g_pGraphics->resX / 2,
+            GetSystemMetrics(SM_CYSCREEN) / 2 - g_pGraphics->resY / 2,
+            s.lpWindowRect.right + g_pGraphics->resX - s.lpWindowRect.left + s.lpClientRect.left - s.lpClientRect.right,
+            s.lpWindowRect.bottom + g_pGraphics->resY - s.lpWindowRect.top + s.lpClientRect.top - s.lpClientRect.bottom,
+            4);
+#endif
         UpdateWindow(CMain::m_hWndList[CMain::m_hWndIx]);
         ShowWindow(CMain::m_hWndList[CMain::m_hWndIx], SW_SHOWNORMAL);
     } else {
@@ -480,8 +497,9 @@ BOOL CGraphics::FUN_004a7910(int screenWidth, int screenHeight, int colourDepth)
 
     textureManager->deviceGUID = deviceEntry->guid;
 
-    if (g_pGraphics->isFullscreen != 0) {
+    if (g_pGraphics->isFullscreen != 0)
         g_pGraphics->pDD7->SetDisplayMode(g_pGraphics->resX, g_pGraphics->resY, g_pGraphics->depth, 0, 0);
+    {
         DWORD isFullScreen = g_pGraphics->isFullscreen;
         if (isFullScreen == 0) {
             memset(&s.ddsd, 0, sizeof(DDSURFACEDESC2));
@@ -2707,10 +2725,25 @@ void FUN_0049de40(void)
         GetClientRect(CMain::m_hWndList[CMain::m_hWndIx], (LPRECT)corners);
         ClientToScreen(CMain::m_hWndList[CMain::m_hWndIx], corners);
         ClientToScreen(CMain::m_hWndList[CMain::m_hWndIx], corners + 1);
+#ifndef CMR2_WINDOWED
         if (Args_Has(g_str0x005207fc) == 0)
             g_pGraphics->pDD7->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
         g_pGraphics->pPrimarySurface->Blt((LPRECT)corners, g_pGraphics->pBackBufferSurface,
                                           NULL, DDBLT_WAIT, NULL);
+#else
+        // Port: Wine never shows a windowed DirectDraw primary once Direct3D
+        // is attached, so copy the back buffer to the window with GDI.
+        {
+            HDC hdcSrc;
+            if (g_pGraphics->pBackBufferSurface->GetDC(&hdcSrc) == DD_OK) {
+                HDC hdcDst = GetDC(CMain::m_hWndList[CMain::m_hWndIx]);
+                StretchBlt(hdcDst, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+                           hdcSrc, 0, 0, g_pGraphics->resX, g_pGraphics->resY, SRCCOPY);
+                ReleaseDC(CMain::m_hWndList[CMain::m_hWndIx], hdcDst);
+                g_pGraphics->pBackBufferSurface->ReleaseDC(hdcSrc);
+            }
+        }
+#endif
         return;
     }
     if (Args_Has(g_str0x005207fc) != 0) {

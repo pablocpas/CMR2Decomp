@@ -6,13 +6,32 @@
 // driver indices (bits 0-4 and 5-9), the winner (bit 11 second, bit 12 first)
 // and the two times.
 struct KnockoutMatch {
-    unsigned int flags;
+    union {
+        unsigned int flags;
+        struct {
+            unsigned int first : 5;
+            unsigned int second : 5;
+            unsigned int played : 1;
+            unsigned int winner : 2;
+            unsigned int reserved : 19;
+        } bits;
+    };
     unsigned int time1;
     unsigned int time2;
 };
 
 struct KnockoutTable {
-    unsigned int state;         // 0x52f2b4
+    union {
+        unsigned int state;     // 0x52f2b4
+        struct {
+            unsigned int mode : 3;
+            unsigned int round : 3;
+            unsigned int unknown6 : 3;
+            unsigned int active : 1;
+            unsigned int progress : 6;
+            unsigned int reserved : 16;
+        } bits;
+    };
     KnockoutMatch final;        // 0x52f2b8
     KnockoutMatch semis[2];     // 0x52f2c4
     KnockoutMatch quarters[4];  // 0x52f2dc

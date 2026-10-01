@@ -4829,7 +4829,7 @@ void FUN_004f4050(void)
         } else if (FUN_004f8410()->items[FUN_004f8410()->cursor].value == 4
                    && (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) > 250) {
             g_menuPathPrevMode = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3 + 3;
-            if (g_menuPathPrevMode < 4)
+            if (g_menuPathPrevMode <= 3)
                 g_menuPathPrevMode = 6;
         } else {
             switch (FUN_004f8410()->items[FUN_004f25b0()].value) {
@@ -8005,26 +8005,26 @@ unsigned int FUN_004fb400(BYTE *pBlock)
     case 0:
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
         break;
     case 1:
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 0xc & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0xc;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0xc) ^ *pOut) & 0xf000 ^ *pOut;
         break;
     case 2:
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 8 & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf00) | ((RallyDataCountryIndex() & 0xff) + 1) << 8;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 8) ^ *pOut) & 0xf00 ^ *pOut;
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 0xc & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0xc;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0xc) ^ *pOut) & 0xf000 ^ *pOut;
         value = RallyDataCountryIndex() & 0xff;
         if ((*pOut >> 0x10 & 0xf) < value + 1)
-            *pOut = (*pOut & ~0xf0000) | ((RallyDataCountryIndex() & 0xff) + 1) << 0x10;
+            *pOut = ((((RallyDataCountryIndex() & 0xff) + 1) << 0x10) ^ *pOut) & 0xf0000 ^ *pOut;
         break;
     }
     RallyData_FUN_0040e330(0);
@@ -8264,7 +8264,7 @@ void FUN_004e20e0(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_Breadcrumb((int)(g_pGraphics->resX * 0x18) / 0x280,
                             (int)(g_pGraphics->resY * 0x26) / 0x1e0, pText, 3);
-    if (g_unk0x0082ac48 >= 1) {
+    if (g_unk0x0082ac48 > 0) {
         for (index = 0; index < g_unk0x0082ac48; index++) {
             pad = FUN_004f4e20(g_unk0x0082aa3c + index);
             pColour = (int *)names[pad];
@@ -8707,7 +8707,7 @@ void FUN_004ed100(Menu *pMenu)
         Menu_GetItem(pMenu, 2)->enabled = 0;
     else
         Menu_GetItem(pMenu, 2)->enabled = 1;
-    if ((int)FUN_004a1720(-1) < 7)
+    if ((int)FUN_004a1720(-1) <= 6)
         Menu_GetItem(pMenu, 1)->min = 5;
     else
         Menu_GetItem(pMenu, 1)->min = 3;
@@ -9937,7 +9937,7 @@ void FUN_004d6f10(Menu *pMenu)
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) + 1] = 0;
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest)] = (char)(rand() % 0x1a) + 'a';
     }
-    for (i = -1; i < 2; i++) {
+    for (i = -1; i <= 1; i++) {
         text[0] = CFrontend::m_stringDest[i + 1];
         text[1] = 0;
         len = (int)strlen(name);
@@ -10029,7 +10029,7 @@ void FUN_004d6a60(Menu *pMenu)
         FrontendDraw_Breadcrumb(PATH_X(), PATH_Y(), text, 4);
     }
     count = FUN_004eb440();
-    if (count >= 1) {
+    if (count > 0) {
         // the two counts are kept in the original but the result is discarded
         value = pMenu->items[0].max;
         FUN_004d6870(value, 0);
@@ -10622,7 +10622,7 @@ void FUN_004d7db0(Menu *pMenu)
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    if (CGameInfo::GetScreenWidth() > 0x3ff && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
         height = 0x1ce;
     else
         height = 0xe8;
@@ -10699,7 +10699,7 @@ void FUN_004d8950(Menu *pMenu)
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    if (CGameInfo::GetScreenWidth() > 0x3ff && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
         height = 0x1ce;
     else
         height = 0xe8;

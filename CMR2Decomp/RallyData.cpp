@@ -272,115 +272,202 @@ KnockoutTable g_knockout;
 
 // Seeds the knockout bracket, separates human drivers where possible and
 // puts the lower human driver index first in each all-human pairing.
-// match 11%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 66%: bitfield access ordering and stack/register allocation still differ.
 // FUNCTION: CMR2 0x004069c0
 void RallyData_InitKnockoutBracket(void)
 {
-    unsigned int state;
-    unsigned int players;
-    unsigned int flags;
-    unsigned int first;
-    unsigned int second;
-    KnockoutMatch *round;
-    int matchCount = 0;
-    int participantCount;
-    int roundIndex;
+    int participants;
+    int matches = 0;
     int i;
     int j;
     int pick;
     BYTE aiIndex = 0;
+    KnockoutMatch *p;
+    KnockoutMatch *q;
+    unsigned int oldFirst;
+    unsigned int oldSecond;
 
-    state = (g_knockout.state & 0xffff03ffU) | 0x200;
-    switch (g_knockout.state & 7) {
-    case 1: matchCount = 1; state = (g_knockout.state & 0xffff03e7U) | 0x220; break;
-    case 2: matchCount = 2; state = (g_knockout.state & 0xffff03dfU) | 0x218; break;
-    case 3: matchCount = 4; state = (g_knockout.state & 0xffff03d7U) | 0x210; break;
-    case 4: matchCount = 8; state = (g_knockout.state & 0xffff03cfU) | 0x208; break;
+    g_knockout.bits.progress = 0;
+    g_knockout.bits.active = 1;
+    switch (g_knockout.bits.mode) {
+    case 4: matches = 8; g_knockout.bits.round = 1; break;
+    case 3: matches = 4; g_knockout.bits.round = 2; break;
+    case 2: matches = 2; g_knockout.bits.round = 3; break;
+    case 1: matches = 1; g_knockout.bits.round = 4; break;
     }
-    g_knockout.state = state;
-    players = CGameInfo::FUN_00405d70() & 0xff;
-
-    for (i = 0; i < 8; i++) {
-        g_knockout.round1[i].flags &= 0xfffffbffU;
-        g_knockout.round1[i].time1 = 0;
-        g_knockout.round1[i].time2 = 0;
-        g_knockout.round1[i].flags = (g_knockout.round1[i].flags & 0xffffe7ffU) | 0x3ff;
-    }
-    for (i = 0; i < 4; i++) {
-        g_knockout.quarters[i].flags &= 0xfffffbffU;
-        g_knockout.quarters[i].time1 = 0;
-        g_knockout.quarters[i].time2 = 0;
-        g_knockout.quarters[i].flags = (g_knockout.quarters[i].flags & 0xffffe7ffU) | 0x3ff;
-    }
-    for (i = 0; i < 2; i++) {
-        g_knockout.semis[i].flags &= 0xfffffbffU;
-        g_knockout.semis[i].time1 = 0;
-        g_knockout.semis[i].time2 = 0;
-        g_knockout.semis[i].flags = (g_knockout.semis[i].flags & 0xffffe7ffU) | 0x3ff;
-    }
+    participants = CGameInfo::FUN_00405d70() & 0xff;
+    p = g_knockout.round1;
+    do {
+        p->bits.played = 0;
+        p->time1 = 0;
+        p->time2 = 0;
+        p->bits.winner = 0;
+        p->bits.first = 31;
+        p->bits.second = 31;
+        p++;
+    } while ((int)p < (int)&g_knockout.round1[8]);
+    p = g_knockout.quarters;
+    do {
+        p->bits.played = 0;
+        p->time1 = 0;
+        p->time2 = 0;
+        p->bits.winner = 0;
+        p->bits.first = 31;
+        p->bits.second = 31;
+        p++;
+    } while ((int)p < (int)&g_knockout.quarters[4]);
+    p = g_knockout.semis;
+    do {
+        p->bits.played = 0;
+        p->time1 = 0;
+        p->time2 = 0;
+        p->bits.winner = 0;
+        p->bits.first = 31;
+        p->bits.second = 31;
+        p++;
+    } while ((int)p < (int)&g_knockout.semis[2]);
+    g_knockout.final.bits.played = 0;
     g_knockout.final.time1 = 0;
     g_knockout.final.time2 = 0;
-    g_knockout.final.flags = (g_knockout.final.flags & 0xffffe3ffU) | 0x3ff;
-
-    switch (g_knockout.state & 7) {
-    case 1: round = &g_knockout.final; break;
-    case 2: round = g_knockout.semis; break;
-    case 3: round = g_knockout.quarters; break;
-    case 4: round = g_knockout.round1; break;
-    default: round = NULL; break;
-    }
-    if (round != NULL) {
-        participantCount = CGameInfo::FUN_00405dd0() ? matchCount * 2 : players;
-        for (i = 0; i < participantCount; i++) {
-            if ((CGameInfo::FUN_00405d70() & 0xff) <= (unsigned int)i)
+    g_knockout.final.bits.winner = 0;
+    g_knockout.final.bits.first = 31;
+    g_knockout.final.bits.second = 31;
+    switch (g_knockout.bits.mode) {
+    case 4:
+        if (CGameInfo::FUN_00405dd0() != 0) participants = 16;
+        for (i = 0; i < participants; i++) {
+            if (i >= (CGameInfo::FUN_00405d70() & 0xff))
                 RallyData_FUN_004084c0((BYTE)i, aiIndex++);
             for (;;) {
-                pick = rand() & (matchCount * 2 - 1);
-                flags = round[pick >> 1].flags;
-                if (pick & 1) {
-                    if ((flags & 0x3e0) != 0x3e0)
-                        continue;
-                    round[pick >> 1].flags = (flags & 0xfffffc1fU) | ((i & 0x1f) << 5);
+                pick = rand() % 16;
+                if (pick % 2 != 0) {
+                    if (g_knockout.round1[pick / 2].bits.second == 31) {
+                        g_knockout.round1[pick / 2].bits.second = i;
+                        break;
+                    }
+                } else if (g_knockout.round1[pick / 2].bits.first == 31) {
+                    g_knockout.round1[pick / 2].bits.first = i;
                     break;
                 }
-                if ((flags & 0x1f) != 0x1f)
-                    continue;
-                round[pick >> 1].flags = (flags & 0xffffffe0U) | (i & 0x1f);
-                break;
             }
         }
-    }
-
-    for (i = 0; i < matchCount; i++) {
-        flags = g_knockout.round1[i].flags;
-        if ((flags & 0x1f) < (CGameInfo::FUN_00405d70() & 0xff) &&
-            ((flags >> 5) & 0x1f) < (CGameInfo::FUN_00405d70() & 0xff) && i + 1 < matchCount) {
-            for (j = i + 1; j < matchCount; j++) {
-                if ((CGameInfo::FUN_00405d70() & 0xff) <= (g_knockout.round1[j].flags & 0x1f)) {
-                    flags = g_knockout.round1[j].flags;
-                    if ((CGameInfo::FUN_00405d70() & 0xff) <= ((flags >> 5) & 0x1f)) {
-                        second = (g_knockout.round1[i].flags >> 5) & 0x1f;
-                        g_knockout.round1[j].flags = (flags & 0xffffffe0U) | second;
-                        g_knockout.round1[i].flags =
-                            (g_knockout.round1[i].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+        break;
+    case 3:
+        if (CGameInfo::FUN_00405dd0() != 0) participants = 8;
+        for (i = 0; i < participants; i++) {
+            if (i >= (CGameInfo::FUN_00405d70() & 0xff))
+                RallyData_FUN_004084c0((BYTE)i, aiIndex++);
+            for (;;) {
+                pick = rand() % 8;
+                if (pick % 2 != 0) {
+                    if (g_knockout.quarters[pick / 2].bits.second == 31) {
+                        g_knockout.quarters[pick / 2].bits.second = i;
+                        break;
                     }
+                } else if (g_knockout.quarters[pick / 2].bits.first == 31) {
+                    g_knockout.quarters[pick / 2].bits.first = i;
+                    break;
+                }
+            }
+        }
+        break;
+    case 2:
+        if (CGameInfo::FUN_00405dd0() != 0) participants = 4;
+        for (i = 0; i < participants; i++) {
+            if (i >= (CGameInfo::FUN_00405d70() & 0xff))
+                RallyData_FUN_004084c0((BYTE)i, aiIndex++);
+            for (;;) {
+                pick = rand() % 4;
+                if (pick % 2 != 0) {
+                    if (g_knockout.semis[pick / 2].bits.second == 31) {
+                        g_knockout.semis[pick / 2].bits.second = i;
+                        break;
+                    }
+                } else if (g_knockout.semis[pick / 2].bits.first == 31) {
+                    g_knockout.semis[pick / 2].bits.first = i;
+                    break;
+                }
+            }
+        }
+        break;
+    case 1:
+        if (CGameInfo::FUN_00405dd0() != 0) participants = 2;
+        for (i = 0; i < participants; i++) {
+            if (i >= (CGameInfo::FUN_00405d70() & 0xff))
+                RallyData_FUN_004084c0((BYTE)i, aiIndex++);
+            for (;;) {
+                pick = rand() % 2;
+                // The original assigns even draws to the second driver in this round.
+                if (pick == 0) {
+                    if (g_knockout.final.bits.second == 31) {
+                        g_knockout.final.bits.second = i;
+                        break;
+                    }
+                } else if (g_knockout.final.bits.first == 31) {
+                    g_knockout.final.bits.first = i;
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    p = g_knockout.round1;
+    for (i = 1; i <= matches; i++, p++) {
+        if ((CGameInfo::FUN_00405d70() & 0xff) > p->bits.first &&
+            (CGameInfo::FUN_00405d70() & 0xff) > p->bits.second && i < matches) {
+            q = p + 1;
+            for (j = matches - i; j != 0; j--, q++) {
+                if ((CGameInfo::FUN_00405d70() & 0xff) <= q->bits.first &&
+                    (CGameInfo::FUN_00405d70() & 0xff) <= q->bits.second) {
+                    oldFirst = q->bits.first;
+                    q->bits.first = p->bits.second;
+                    p->bits.second = oldFirst;
                 }
             }
         }
     }
-
-    for (roundIndex = 0; roundIndex < 4; roundIndex++) {
-        if (roundIndex == 0) { round = g_knockout.round1; matchCount = 8; }
-        else if (roundIndex == 1) { round = g_knockout.quarters; matchCount = 4; }
-        else if (roundIndex == 2) { round = g_knockout.semis; matchCount = 2; }
-        else { round = &g_knockout.final; matchCount = 1; }
-        for (i = 0; i < matchCount; i++) {
-            first = round[i].flags & 0x1f;
-            if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-                second = (round[i].flags >> 5) & 0x1f;
-                if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-                    round[i].flags = (round[i].flags & 0xfffffc00U) | second | (first << 5);
+    p = g_knockout.round1;
+    do {
+        if ((CGameInfo::FUN_00405d70() & 0xff) > p->bits.first) {
+            oldFirst = p->bits.first;
+            oldSecond = p->bits.second;
+            if ((CGameInfo::FUN_00405d70() & 0xff) > oldSecond && oldSecond < oldFirst) {
+                p->bits.first = oldSecond;
+                p->bits.second = oldFirst;
             }
+        }
+        p++;
+    } while ((int)p < (int)&g_knockout.round1[8]);
+    p = g_knockout.quarters;
+    do {
+        if ((CGameInfo::FUN_00405d70() & 0xff) > p->bits.first) {
+            oldFirst = p->bits.first;
+            oldSecond = p->bits.second;
+            if ((CGameInfo::FUN_00405d70() & 0xff) > oldSecond && oldSecond < oldFirst) {
+                p->bits.first = oldSecond;
+                p->bits.second = oldFirst;
+            }
+        }
+        p++;
+    } while ((int)p < (int)&g_knockout.quarters[4]);
+    p = g_knockout.semis;
+    do {
+        if ((CGameInfo::FUN_00405d70() & 0xff) > p->bits.first) {
+            oldFirst = p->bits.first;
+            oldSecond = p->bits.second;
+            if ((CGameInfo::FUN_00405d70() & 0xff) > oldSecond && oldSecond < oldFirst) {
+                p->bits.first = oldSecond;
+                p->bits.second = oldFirst;
+            }
+        }
+        p++;
+    } while ((int)p < (int)&g_knockout.semis[2]);
+    if ((CGameInfo::FUN_00405d70() & 0xff) > g_knockout.final.bits.first) {
+        oldSecond = g_knockout.final.bits.second;
+        if ((CGameInfo::FUN_00405d70() & 0xff) > oldSecond && oldSecond < g_knockout.final.bits.first) {
+            oldFirst = g_knockout.final.bits.first;
+            g_knockout.final.bits.first = oldSecond;
+            g_knockout.final.bits.second = oldFirst;
         }
     }
 }
@@ -5505,7 +5592,7 @@ void FUN_00414720(int car)
         return;
     if (!(!StageTiming_FUN_00455ae0())) {
         position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
-        if (position < 1) {
+        if (position <= 0) {
             g_unk0x00536c94[car][0] = position;
             g_unk0x00536c94[car][1] = position + 1;
             g_unk0x00536c94[car][2] = position + 2;

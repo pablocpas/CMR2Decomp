@@ -613,16 +613,16 @@ void Dash_DrawDial(int player, int layer)
     flash = g_dashGearFlash[player];
     *(DWORD *)colour = c;
     if (flash > 0) {
-        if (flash < 4) {
-            colour[0] += (BYTE)(((0xff - (c & 0xff)) * flash) / 3);
-            colour[1] += (BYTE)(((0xff - (c >> 8 & 0xff)) * flash) / 3);
-            colour[2] += (BYTE)(((0xff - (c >> 16 & 0xff)) * flash) / 3);
-            colour[3] += (BYTE)((((*(DWORD *)g_dashFlashAlpha & 0xff) - colour[3]) * flash) / 3);
-        } else {
+        if (flash > 3) {
             colour[0] = 0xff;
             colour[1] = 0xff;
             colour[2] = 0xff;
             colour[3] = g_dashFlashAlpha[0];
+        } else {
+            colour[0] += ((0xff - colour[0]) * flash) / 3;
+            colour[1] += ((0xff - colour[1]) * flash) / 3;
+            colour[2] += ((0xff - colour[2]) * flash) / 3;
+            colour[3] += ((g_dashFlashAlpha[0] - colour[3]) * flash) / 3;
         }
     }
     rect[1] = (short)g_dashGearMarkerY[player];

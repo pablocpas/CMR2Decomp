@@ -126,7 +126,7 @@ char *CGenericFileLoader::StrLowerPolish(char *str)
     c = *str;
     p = str;
     while (c != '\0') {
-        if ((c > '@' && c < '[') || (c > -65 && c < -32))
+        if ((c > '@' && c < '[') || (c >= -64 && c < -32))
             *p = c + ' ';
         switch (c) {
         case '$': *p = -0x57; break;

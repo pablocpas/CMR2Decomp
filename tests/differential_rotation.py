@@ -21,7 +21,7 @@ import pefile
 from matching_entities import load_entities
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / "tools"
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 BASE = 0x21000000
 SIN = BASE
 SQRT = BASE + 0x4000
@@ -181,7 +181,7 @@ def main():
                      for name, code in (("original", original), ("rebuilt", rebuilt)))
     arrays += "static int sin_values[] = {%s};\n" % ",".join(map(str, sin_values))
     arrays += "static unsigned short sqrt_values[] = {%s};\n" % ",".join(map(str, sqrt_values))
-    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=str(TOOLS / "wineprefix"))
+    env = dict(os.environ, WINEDEBUG="-all", WINEPREFIX=os.environ.get("WINEPREFIX", str(TOOLS / "wineprefix")))
     def win(path):
         return subprocess.check_output(["winepath", "-w", str(path)], env=env, text=True).strip()
     env["INCLUDE"] = win(TOOLS / "msvc600/VC98/Include")

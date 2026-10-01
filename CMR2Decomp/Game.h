@@ -94,7 +94,6 @@ public:
     static int m_unk0x0059ce14;
     // GLOBAL: CMR2 0x0059ce18
     static int m_unk0x0059ce18;
-    // GLOBAL: CMR2 0x0059ce1c
     static int m_unk0x0059ce1c;
     // GLOBAL: CMR2 0x0059ce20
     static int m_unk0x0059ce20;
@@ -215,7 +214,6 @@ public:
     // GLOBAL: CMR2 0x0052ea59
     static BYTE m_unk0x0052ea59;
 
-    // GLOBAL: CMR2 0x005939a0
     static void *m_callbacks[64];
     static int m_unk0x00593ba0;
 

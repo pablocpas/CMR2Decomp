@@ -237,7 +237,6 @@ extern int g_carViewScale[15][2];
 extern SceneNode *g_viewNodes[3];
 
 // arccos as a 12-bit angle: 4096 entries for a dot product in [-1, 1]
-// GLOBAL: CMR2 0x006e6ef4
 extern short g_acosTable[4096];
 
 inline short FixAcos(int x)

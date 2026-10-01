@@ -21,7 +21,7 @@ import pefile
 from matching_entities import load_entities, entity_address
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / 'tools'
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 MD.detail = True
 RESET = [(0x5335b8, 32), (0x5335d8, 24), (0x5335f0, 32),
@@ -288,7 +288,7 @@ def main():
                 name, suffix, ','.join(str(b) for b in code[model, original]))
     for key, name in [('reset_bad', 'reset_mutated'), ('queue_bad', 'append_a_mutated')]:
         c += 'static const BYTE %s[] = {%s};\n' % (name, ','.join(str(b) for b in code[key]))
-    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=str(TOOLS / 'wineprefix'))
+    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=os.environ.get('WINEPREFIX', str(TOOLS / 'wineprefix')))
     def win(path):
         return subprocess.check_output(['winepath', '-w', str(path)], env=env, text=True).strip()
     env['INCLUDE'] = win(TOOLS / 'msvc600/VC98/Include')

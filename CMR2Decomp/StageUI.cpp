@@ -1236,7 +1236,7 @@ void FUN_0041b460(void)
                         if (CGameInfo::FUN_00405d80() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 0x10 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
-                                pFlags[0] = (pFlags[0] & 0xfff0ffff) | 0x10000;
+                                pFlags[0] = ((pFlags[0] & 0xffff0000) + 0x10000 ^ pFlags[0]) & 0xf0000 ^ pFlags[0]; // field++
                                 g_unk0x00537f68[i] |= 8;
                                 CGame::FUN_004057c0();
                             }
@@ -1268,7 +1268,7 @@ void FUN_0041b460(void)
                         if (CGameInfo::FUN_00405d80() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 12 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
-                                pFlags[0] = (pFlags[0] & 0xfff0ffff) | 0x1000;
+                                pFlags[0] = ((pFlags[0] & 0xfffff000) + 0x1000 ^ pFlags[0]) & 0xf000 ^ pFlags[0]; // field++
                                 if ((pFlags[0] & 0xf00) < (pFlags[0] & 0xf000) >> 4)
                                     pFlags[0] = (pFlags[0] & 0xfffff0ff) | ((pFlags[0] & 0xf000) >> 4);
                                 g_unk0x00537f68[i] |= 4;
@@ -1294,7 +1294,7 @@ void FUN_0041b460(void)
                         if (CGameInfo::FUN_00405d80() == 0) {
                             if ((BYTE)RallyDataCountryIndex() + 1 == (pFlags[0] >> 8 & 0xf) &&
                                 (BYTE)RallyDataCountryIndex() != 7) {
-                                pFlags[0] = (pFlags[0] & 0xfffff0ff) | 0x100;
+                                pFlags[0] = ((pFlags[0] & 0xffffff00) + 0x100 ^ pFlags[0]) & 0xf00 ^ pFlags[0]; // field++
                                 g_unk0x00537f68[i] |= 2;
                                 CGame::FUN_004057c0();
                             }

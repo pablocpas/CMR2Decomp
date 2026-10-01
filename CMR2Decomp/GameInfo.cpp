@@ -2897,22 +2897,22 @@ int g_unk0x0082c6c0;
 // GLOBAL: CMR2 0x0082cb44
 int g_unk0x0082cb44;
 
-// match below 90%; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Selects a new entry only when the current entry has no pending activity.
+// match 79%: the original preserves the result in ESI across the timer call.
 // FUNCTION: CMR2 0x00505e10
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
+    int result = 0;
     Unk0x0082c6c8 *pEntry;
-
-    if (g_unk0x0082ca1c != 0xff) {
-        pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c];
-        if (pEntry->field_0x4c != 0 || pEntry->field_0x1c != 0)
-            return 0;
+    if (g_unk0x0082ca1c == 0xff ||
+        ((pEntry = &g_unk0x0082c6c8[(signed char)g_unk0x0082ca1c])->field_0x4c == 0 &&
+         pEntry->field_0x1c == 0)) {
+        result = 1;
+        g_unk0x0082ca1c = param1;
+        g_unk0x0082c6c0 = CMain::GetFrameDelta();
+        g_unk0x0082cb44 = 0;
     }
-    g_unk0x0082ca1c = param1;
-    g_unk0x0082c6c0 = CMain::GetFrameDelta();
-    g_unk0x0082cb44 = 0;
-    return 1;
+    return result;
 }
 
 // Adds the mesh of a scene node to a stage mesh record (g_unk0x0082d220): stores
@@ -11583,7 +11583,7 @@ void FUN_004ff720(Menu *pMenu)
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 >= 1) {
                 g_unk0x0082a924--;
             } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
                 g_unk0x0082a924++;
@@ -11874,8 +11874,8 @@ void FUN_004ffab0(Menu *pMenu)
         g_unk0x00526f40 = 0;
 }
 
-// GLOBAL: CMR2 0x00663b60
-char g_unk0x00663b60[0x100];
+// The frontend and geometry loader use the same scratch buffer in the original.
+#define g_unk0x00663b60 CFrontend::m_stringDest
 SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 // Dependencias de FUN_005062d0: las funciones de clase se toman de sus cabeceras.
 #include "Game.h"

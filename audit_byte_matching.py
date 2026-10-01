@@ -18,7 +18,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parent
-TOOLS = ROOT.parent / "tools"
+TOOLS = ROOT / "scripts"
 
 
 def source_identifier(source, marker):
@@ -37,7 +37,7 @@ def main():
     entities = json.loads(entity_path.read_text())
     rows = [{"o": int(a, 16), "r": v[0], "n": v[1]} for a, v in entities.items()]
     os.environ["CMR2_REPO"] = str(ROOT)
-    module_path = Path(os.environ.get("CMR2_FASTCMP_PATH", TOOLS / "fastcmp/fastcmp.py"))
+    module_path = Path(os.environ.get("CMR2_FASTCMP_PATH", TOOLS / "fastcmp.py"))
     spec = importlib.util.spec_from_file_location("cmr2_snapshot_fastcmp", module_path)
     f = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(f)

@@ -21,7 +21,7 @@ import capstone
 import pefile
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT.parent / 'tools'
+TOOLS = Path(os.environ.get("CMR2_TOOLS", ROOT.parent / "tools"))
 GLOBALS = [(0x531778, 0x684), (0x531f80, 36)]
 FUNCTIONS = [0x40a410, 0x40a420, 0x40a330]
 CALLEES = [0x405d80, 0x408400]
@@ -215,7 +215,7 @@ def main():
             assert len(calls) == f
             source += 'static BYTE code_%s_%d[]={%s};\n' % (name, f, ','.join(map(str, code)))
             source += 'static int calls_%s_%d[][2]={%s};\n' % (name, f, ','.join('{%d,%d}' % tuple(c) for c in calls) or '{0,0}')
-    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=str(TOOLS / 'wineprefix'))
+    env = dict(os.environ, WINEDEBUG='-all', WINEPREFIX=os.environ.get('WINEPREFIX', str(TOOLS / 'wineprefix')))
     def win(path):
         return subprocess.check_output(['winepath', '-w', str(path)], env=env, text=True).strip()
     env['INCLUDE'] = win(TOOLS / 'msvc600/VC98/Include')
