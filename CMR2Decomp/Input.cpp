@@ -1870,7 +1870,7 @@ HRESULT CInput::SetEffectGain(int effectIndex, DWORD gain, int deviceIndex)
     if (pDevice->field_0x0 != 0 && (pEffect = pDevice->effects[effectIndex]) != NULL) {
         DIEFFECT effect = { sizeof(DIEFFECT) };
         effect.dwGain = gain;
-        return pEffect->SetParameters(&effect, flags);
+        return pDevice->effects[effectIndex]->SetParameters(&effect, flags);
     }
     return E_INVALIDARG;
 }
@@ -1892,11 +1892,11 @@ HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG dire
         LONG lDirection[2];
         effect.dwFlags = DIEFF_POLAR | DIEFF_OBJECTOFFSETS;
         effect.cAxes = 2;
-        effect.rgdwAxes = NULL;
         effect.dwGain = gain;
+        effect.rgdwAxes = NULL;
         effect.rglDirection = lDirection;
         lDirection[0] = direction;
-        return pEffect->SetParameters(&effect, flags);
+        return pDevice->effects[effectIndex]->SetParameters(&effect, flags);
     }
     return E_INVALIDARG;
 }
@@ -1907,7 +1907,6 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
 {
     ForceFeedbackDevice *pDevice;
     int i;
-    DIENVELOPE envelope;
     LONG lDirection[2];
     DWORD dwAxes[2];
     DICONSTANTFORCE constantForce;
@@ -1924,16 +1923,15 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
     }
 
     constantForce.lMagnitude = magnitude;
-    memset(&envelope, 0, sizeof(envelope));
+    DIENVELOPE envelope = { sizeof(DIENVELOPE) };
     envelope.dwAttackTime = attackTime;
-    envelope.dwFadeTime = fadeTime;
     envelope.dwAttackLevel = attackLevel;
+    envelope.dwFadeTime = fadeTime;
     envelope.dwFadeLevel = fadeLevel;
     lDirection[0] = direction;
     DIEFFECT effect = { sizeof(DIEFFECT) };
     effect.dwSamplePeriod = 10000;
     effect.dwGain = 10000;
-    envelope.dwSize = sizeof(DIENVELOPE);
     dwAxes[0] = DIJOFS_X;
     dwAxes[1] = DIJOFS_Y;
     lDirection[1] = 0;
@@ -1946,10 +1944,10 @@ int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magni
     effect.rgdwAxes = dwAxes;
     effect.rglDirection = lDirection;
     effect.lpEnvelope = &envelope;
-    effect.lpvTypeSpecificParams = &constantForce;
     effect.dwTriggerRepeatInterval = 0;
     effect.cAxes = 2;
     effect.cbTypeSpecificParams = sizeof(DICONSTANTFORCE);
+    effect.lpvTypeSpecificParams = &constantForce;
 
     FUN_004ab5f0(pDevice->device->CreateEffect(GUID_ConstantForce, &effect, &pDevice->effects[i], NULL));
     return i;
