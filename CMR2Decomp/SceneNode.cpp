@@ -47,15 +47,25 @@ int g_rotAxisXZ;
 // GLOBAL: CMR2 0x0067f24c
 int g_rotAxisYZ;
 
+inline void SceneNode_NormalizeInto(FixVector *out, FixVector *v)
+{
+    int len = FixVecLength(v);
+
+    if (len == 0) {
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+    } else {
+        FixVecScaleRecip(out, v, len);
+    }
+}
+
 // Rotates vectors A and B about the unit axis K by angle (Rodrigues) and
 // renormalises them. The original expands this three times over locals, so
-// it is a macro rather than a function.
+// it is a macro rather than a function; the rotation is built as a full
+// 4x4 matrix.
 #define ROTATE_ABOUT_AXIS(kx, ky, kz, a, b, angle)                                    \
     {                                                                                 \
-        int r00, r01, r02, r10, r11, r12, r20, r21, r22;                              \
-        FixVector v;                                                                  \
-        int len;                                                                      \
-                                                                                      \
         g_rotSin = FixSin(-(angle));                                                  \
         g_rotCos = FixCos(angle);                                                     \
         g_rotOneMinusCos = 0x10000 - g_rotCos;                                        \
@@ -65,78 +75,63 @@ int g_rotAxisYZ;
         g_rotAxisXY = FixMul(FixMul(kx, ky), g_rotOneMinusCos);                       \
         g_rotAxisXZ = FixMul(FixMul(kx, kz), g_rotOneMinusCos);                       \
         g_rotAxisYZ = FixMul(FixMul(kz, ky), g_rotOneMinusCos);                       \
-                                                                                      \
-        r00 = FixMul(g_rotCos, 0x10000 - g_rotAxisXX) + g_rotAxisXX;                  \
-        r01 = g_rotAxisXY - FixMul(kz, g_rotSin);                                     \
-        r02 = FixMul(ky, g_rotSin) + g_rotAxisXZ;                                     \
-        r10 = FixMul(kz, g_rotSin) + g_rotAxisXY;                                     \
-        r11 = FixMul(g_rotCos, 0x10000 - g_rotAxisYY) + g_rotAxisYY;                  \
-        r12 = g_rotAxisYZ - FixMul(kx, g_rotSin);                                     \
-        r20 = g_rotAxisXZ - FixMul(ky, g_rotSin);                                     \
-        r21 = FixMul(kx, g_rotSin) + g_rotAxisYZ;                                     \
-        r22 = FixMul(g_rotCos, 0x10000 - g_rotAxisZZ) + g_rotAxisZZ;                  \
-                                                                                      \
-        v.x = FixMul(r20, a.z) + FixMul(r10, a.y) + FixMul(r00, a.x);                    \
-        v.y = FixMul(r21, a.z) + FixMul(r11, a.y) + FixMul(r01, a.x);                    \
-        v.z = FixMul(r22, a.z) + FixMul(r12, a.y) + FixMul(r02, a.x);                    \
-        len = FixVecLength(&v);                                                       \
-        if (len == 0) {                                                               \
-            a.x = 0;                                                                   \
-            a.y = 0;                                                                   \
-            a.z = 0;                                                                   \
-        } else {                                                                      \
-            FixVecScaleRecip(&a, &v, len);                                         \
-        }                                                                             \
-                                                                                      \
-        v.x = FixMul(r20, b.z) + FixMul(r10, b.y) + FixMul(r00, b.x);                    \
-        v.y = FixMul(r21, b.z) + FixMul(r11, b.y) + FixMul(r01, b.x);                    \
-        v.z = FixMul(r22, b.z) + FixMul(r12, b.y) + FixMul(r02, b.x);                    \
-        len = FixVecLength(&v);                                                       \
-        if (len == 0) {                                                               \
-            b.x = 0;                                                                   \
-            b.y = 0;                                                                   \
-            b.z = 0;                                                                   \
-        } else {                                                                      \
-            FixVecScaleRecip(&b, &v, len);                                         \
-        }                                                                             \
+        m.right.x = FixMul(g_rotCos, 0x10000 - g_rotAxisXX) + g_rotAxisXX;            \
+        m.right.y = g_rotAxisXY - FixMul(kz, g_rotSin);                               \
+        m.right.z = FixMul(ky, g_rotSin) + g_rotAxisXZ;                               \
+        m.up.x = FixMul(kz, g_rotSin) + g_rotAxisXY;                                  \
+        m.up.y = FixMul(g_rotCos, 0x10000 - g_rotAxisYY) + g_rotAxisYY;               \
+        m.up.z = g_rotAxisYZ - FixMul(kx, g_rotSin);                                  \
+        m.forward.x = g_rotAxisXZ - FixMul(ky, g_rotSin);                             \
+        m.forward.y = FixMul(kx, g_rotSin) + g_rotAxisYZ;                             \
+        m.forward.z = FixMul(g_rotCos, 0x10000 - g_rotAxisZZ) + g_rotAxisZZ;          \
+        m.position.x = 0;                                                             \
+        m.position.y = 0;                                                             \
+        m.position.z = 0;                                                             \
+        m.rw = 0;                                                                     \
+        m.uw = 0;                                                                     \
+        m.fw = 0;                                                                     \
+        m.pw = 0x10000;                                                               \
+        v.x = FixMul(m.right.x, a.x) + FixMul(m.up.x, a.y) + FixMul(m.forward.x, a.z); \
+        v.y = FixMul(m.right.y, a.x) + FixMul(m.up.y, a.y) + FixMul(m.forward.y, a.z); \
+        v.z = FixMul(m.right.z, a.x) + FixMul(m.up.z, a.y) + FixMul(m.forward.z, a.z); \
+        FIX_NORMALIZE_INTO(a, v);                                                     \
+        v.x = FixMul(m.right.x, b.x) + FixMul(m.up.x, b.y) + FixMul(m.forward.x, b.z); \
+        v.y = FixMul(m.right.y, b.x) + FixMul(m.up.y, b.y) + FixMul(m.forward.y, b.z); \
+        v.z = FixMul(m.right.z, b.x) + FixMul(m.up.z, b.y) + FixMul(m.forward.z, b.z); \
+        SceneNode_NormalizeInto(&b, &v);                                              \
     }
 
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ac820
 void SceneNode_Rotate(SceneNode *pNode, FixVector *pTranslation, FixAngles *pAngles)
 {
     // The axes are rescaled in place through a FixVector pointer, so they must
     // be real vectors: three loose ints are not guaranteed to be contiguous
     // (writing 12 bytes from &rx overwrote the return address).
-    FixVector r, u, f;
+    FixBasis basis;
+    FixMatrix m;
+    FixVector v;
     SceneNode *p;
 
-    r.y = pNode->current.right.y;
-    r.x = pNode->current.right.x;
-    r.z = pNode->current.right.z;
-    u.y = pNode->current.up.y;
-    u.x = pNode->current.up.x;
-    f.y = pNode->current.forward.y;
-    f.x = pNode->current.forward.x;
-    u.z = pNode->current.up.z;
-    f.z = pNode->current.forward.z;
+    basis.right.y = pNode->current.right.y;
+    basis.right.x = pNode->current.right.x;
+    basis.right.z = pNode->current.right.z;
+    basis.up.y = pNode->current.up.y;
+    basis.up.x = pNode->current.up.x;
+    basis.forward.y = pNode->current.forward.y;
+    basis.forward.x = pNode->current.forward.x;
+    basis.up.z = pNode->current.up.z;
+    basis.forward.z = pNode->current.forward.z;
 
     if (pAngles->y != 0)
-        ROTATE_ABOUT_AXIS(u.x, u.y, u.z, r, f, pAngles->y)
+        ROTATE_ABOUT_AXIS(basis.up.x, basis.up.y, basis.up.z, basis.right, basis.forward, pAngles->y)
     if (pAngles->z != 0)
-        ROTATE_ABOUT_AXIS(f.x, f.y, f.z, r, u, pAngles->z)
+        ROTATE_ABOUT_AXIS(basis.forward.x, basis.forward.y, basis.forward.z, basis.right, basis.up, pAngles->z)
     if (pAngles->x != 0)
-        ROTATE_ABOUT_AXIS(r.x, r.y, r.z, u, f, pAngles->x)
+        ROTATE_ABOUT_AXIS(basis.right.x, basis.right.y, basis.right.z, basis.up, basis.forward, pAngles->x)
 
-    pNode->current.right.y = r.y;
-    pNode->current.right.x = r.x;
-    pNode->current.right.z = r.z;
-    pNode->current.up.y = u.y;
-    pNode->current.up.x = u.x;
-    pNode->current.up.z = u.z;
-    pNode->current.forward.y = f.y;
-    pNode->current.forward.x = f.x;
-    pNode->current.forward.z = f.z;
+    pNode->current.right = basis.right;
+    pNode->current.up = basis.up;
+    pNode->current.forward = basis.forward;
     pNode->current.position.x += pTranslation->x;
     pNode->current.position.y += pTranslation->y;
     pNode->current.position.z += pTranslation->z;

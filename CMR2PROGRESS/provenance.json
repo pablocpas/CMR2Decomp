@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "cb1d3aa52b360f5f9b18a25bf02a7c689cedcfff",
+    "commit": "bc5d2876686790a2cafd6355a1521f35aafff1dd",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -46,7 +46,7 @@
       "CMR2Decomp/AIHelper.cpp": "6e5cfa0e19f248e62a9cdae0bf4a1ea1bdd11fdfdb416cfe9b5858b5a66d601d",
       "CMR2Decomp/AIHelper.h": "13051ccfca8a4f56324c532ac582bfc616c601affd96a4f484e7400b64e1f88e",
       "CMR2Decomp/BFL.h": "950defe875ffe734f13dce73dda42d7bc1b5369a7def6a53f9e0ba27ed047a7d",
-      "CMR2Decomp/Car.cpp": "b7cc3021124a735794add5c03dac880645d06dbbd709d809eaa07188996da033",
+      "CMR2Decomp/Car.cpp": "d1983c5692aff5a5d385ad29c723e56b276b715ccccecaefe97d5e2f08cc4a71",
       "CMR2Decomp/Car.h": "331a90f7d65fc64efee4f1ca31a66b74aab3f37b66846129738d423e1ab4e1f6",
       "CMR2Decomp/CarEffects.cpp": "c0ac0394271a7cce0155d28abf7107e52e137e4e6c99f6613617844f22d76944",
       "CMR2Decomp/CarParts.h": "fdd0ff115d2b17af6e775a4617f1c92f54f86a8a332da38d1f26210ca6fee129",
@@ -107,7 +107,7 @@
       "CMR2Decomp/RallyTiming.h": "c9d63855aea9939e2105bd377b510b0b0aa1a995bcb7af3fb94d0182b1a6b742",
       "CMR2Decomp/RegKey.cpp": "80d7d2b84d958f007807a48186dbbe67190b231fd21b059eb9dbea4f26a8b80c",
       "CMR2Decomp/RegKey.h": "cb2934244f3e58e032b9644f58ea83230965ed366c7000fb4690ef50d5bb62c4",
-      "CMR2Decomp/SceneNode.cpp": "7b000bc73b93ce70b403ffdef33de8cf9490070880f3b98bd2bfad0e8847fe4d",
+      "CMR2Decomp/SceneNode.cpp": "1442d04a52834f7fd1f75591f5804795fa9d4ab95bba8de8570e19dcb69edd6e",
       "CMR2Decomp/SceneNode.h": "4b957986f2d03e4bf589403de2f89b384817c9a97650fcfe255133029cf89a44",
       "CMR2Decomp/Sector.cpp": "e8d5cc1e04158caac9f4e5347a9329a2185b26130182c76afa5978c2990d5110",
       "CMR2Decomp/Sector.h": "a2289419006caae16b3a6690c115af713ae03e7383e898727cd9f6ca1a3018f1",
@@ -164,8 +164,8 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "318d69db651dd0d82ad8f56bf1ae2aeb04872cbbdb03eb8482e4b0680c74254f",
-    "pdb_sha256": "e78283b7c17a8e73395e2959f8e32511b56f78968ab386abc493981b12cbb7b9"
+    "exe_sha256": "69311023b1c6bdeb093b9075c9b5ec03a7b4cde66b8e0f7929f4271f3ff60962",
+    "pdb_sha256": "43097c7632e4ecc40c8031fe10c05db5cd5c2829b34acdf246de6a685e814856"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,

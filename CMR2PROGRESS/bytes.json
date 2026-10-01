@@ -361,7 +361,7 @@
   },
   "0x441500": {
     "n": "Car_UpdateWheelForces",
-    "s": 0.5571735497732155,
+    "s": 0.5815637065637066,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -19383,7 +19383,7 @@
   },
   "0x4ac820": {
     "n": "SceneNode_Rotate",
-    "s": 0.5951762523191094,
+    "s": 0.930780559646539,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",

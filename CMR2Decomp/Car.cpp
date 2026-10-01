@@ -3022,7 +3022,8 @@ void Car_Integrate(void)
 // itself, combining the rolling and the lateral slip and capping it with the
 // tyre's friction ellipse. Only the right hand wheels are solved; the left
 // hand ones are mirrored from them. See also Car_UpdateTyreForces.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 58%: logic checked against the original (including its read of the
+// uninitialised axis[3] in the first loop); the stack frame differs.
 // FUNCTION: CMR2 0x00441500
 void Car_UpdateWheelForces(void)
 {
@@ -3169,6 +3170,8 @@ void Car_UpdateWheelForces(void)
         i -= 2;
     } while (i >= 0);
 
+    dot[0] = dot[1];
+    dot[2] = dot[3];
     g_pCurrentCar->wheelTorque[0] = g_pCurrentCar->wheelTorque[1];
     g_pCurrentCar->wheelTorque[2] = g_pCurrentCar->wheelTorque[3];
     g_pCurrentCar->wheelLoad[0] = g_pCurrentCar->wheelLoad[1];
@@ -3184,11 +3187,11 @@ void Car_UpdateWheelForces(void)
         int combined;
 
         dir = i > 1 ? dirFront : dirRear;
-        axis[i] = i > 1 ? axis[1] : axis[0];
+        axis[3] = i > 1 ? axis[1] : axis[0];
         susp = dot[i] * 4 - g_pCurrentCar->wheelLoad[i];
         g_pCurrentCar->field_0x870[i] = susp;
         fLong = -FixMul(FixMul(susp, 0x4000), scale);
-        lateral = FixVecDot(&axis[i], &g_pCurrentCar->cornerVelocity[i]);
+        lateral = FixVecDot(&axis[3], &g_pCurrentCar->cornerVelocity[i]);
         g_pCurrentCar->field_0x880[i] = lateral;
         fLat = -FixMul(lateral, scale);
 
@@ -3198,14 +3201,14 @@ void Car_UpdateWheelForces(void)
                 int nLong = FixMul(fLong, recip);
                 int nLat = FixMul(fLat, recip);
 
-                force.x = FixMul(axis[i].x, nLat) + FixMul(dir.x, nLong);
-                force.y = FixMul(axis[i].y, nLat) + FixMul(dir.y, nLong);
-                force.z = FixMul(axis[i].z, nLat) + FixMul(dir.z, nLong);
+                force.x = FixMul(axis[3].x, nLat) + FixMul(dir.x, nLong);
+                force.y = FixMul(axis[3].y, nLat) + FixMul(dir.y, nLong);
+                force.z = FixMul(axis[3].z, nLat) + FixMul(dir.z, nLong);
                 combined = FixMul(FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force)), FIX_ABS(fLat));
             } else {
-                force.x = FixMul(axis[i].x, fLat) + FixMul(dir.x, fLong);
-                force.y = FixMul(axis[i].y, fLat) + FixMul(dir.y, fLong);
-                force.z = FixMul(axis[i].z, fLat) + FixMul(dir.z, fLong);
+                force.x = FixMul(axis[3].x, fLat) + FixMul(dir.x, fLong);
+                force.y = FixMul(axis[3].y, fLat) + FixMul(dir.y, fLong);
+                force.z = FixMul(axis[3].z, fLat) + FixMul(dir.z, fLong);
                 combined = FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force));
             }
         } else {
@@ -3213,9 +3216,9 @@ void Car_UpdateWheelForces(void)
             int nLong = FixMul(fLong, recip);
             int nLat = FixMul(fLat, recip);
 
-            force.x = FixMul(axis[i].x, nLat) + FixMul(dir.x, nLong);
-            force.y = FixMul(axis[i].y, nLat) + FixMul(dir.y, nLong);
-            force.z = FixMul(axis[i].z, nLat) + FixMul(dir.z, nLong);
+            force.x = FixMul(axis[3].x, nLat) + FixMul(dir.x, nLong);
+            force.y = FixMul(axis[3].y, nLat) + FixMul(dir.y, nLong);
+            force.z = FixMul(axis[3].z, nLat) + FixMul(dir.z, nLong);
             combined = FixMul(FIX_SQR(FixVecNormalizeLen(&g_pCurrentCar->cornerForce[i], &force)), FIX_ABS(fLong));
         }
 
