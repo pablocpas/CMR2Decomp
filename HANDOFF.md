@@ -1,22 +1,46 @@
 # Traspaso — 2026-10-01
 
-El usuario ha pedido cerrar el trabajo y dejar `main` limpio para otro agente.
-Se detiene aquí la descompilación. El objetivo pendiente es bajar a 700 funciones
-no exactas, empezando por las de menor porcentaje; después, continuar hasta
-byte matching completo. La integración y los cambios verificados están en `main`.
+Tras el cierre limpio de `8f2727c`, se ha retomado el objetivo de bajar a
+700 funciones no exactas, empezando por las de menor porcentaje. El objetivo
+sigue pendiente. La integración y los lotes verificados están en `main`.
 
 ## Punto de partida
 
-- 2531 de 3363 funciones de fuente exactas después de resolver relocaciones.
-- 832 pendientes, incluidas 14 con operandos todavía sin resolver.
-- 34 funciones exactas más que la referencia `16527f6`; ninguna exacta perdida.
+- 2534 de 3363 funciones de fuente exactas después de resolver relocaciones.
+- 829 pendientes, incluidas 14 con operandos todavía sin resolver.
+- 37 funciones exactas más que la referencia `16527f6`; ninguna exacta perdida.
 - Los porcentajes de reccmp son similitud; `Implemented: 100%` no significa
   byte matching completo. La prueba estricta está en `CMR2PROGRESS/bytes.json`.
 - `INTEGRATION.md` recoge los orígenes de los cambios, las métricas y las pruebas.
 - Las ramas y worktrees anteriores se conservan. Sus cambios recuperados están
   incorporados en main; no borrar ni resetear sus árboles de trabajo.
 
-## Último lote cerrado
+## Último lote de matching
+
+| Dirección | Función | Reccmp antes | Resultado |
+|---|---|---:|---|
+| 0x00505590 | FUN_00505590, rectángulo del panel de splits | 26,20% | 588 bytes exactos |
+| 0x004207f0 | RallyData_FUN_004207f0, reinicio de registros de carrera | 45,45% | 37 bytes exactos |
+| 0x00403110 | FUN_00403110, sliders de cámara | 45,83% | 239 bytes exactos |
+
+Se recuperan las divisiones/multiplicaciones de fijo mediante los helpers
+existentes, el orden original de cálculo y escritura y el recorrido relativo
+al campo de los registros. Compilación completa, auditoría de todas las funciones,
+datacmp sin incidencias y las 33 pruebas diferenciales nativas pasan en el binario
+actual. No hay funciones exactas perdidas. Quedan **129** ganancias exactas por
+conseguir para alcanzar las 700 pendientes.
+
+Las opciones `/G5`, `/G6`, `/Op`, `/Oa` y `/Ow` se comprobaron en copias temporales
+de varias unidades. No hay una mejora común sin pérdidas: no se cambiaron los
+flags del build. `/Ow` cierra `FUN_004556f0` en la copia de StageTiming pero pierde
+28 funciones antes exactas; recuperar la diferencia de su orden de instrucciones
+mediante fuente, sin aplicar ese flag a la unidad.
+
+Los logs actuales están en `/tmp/cmr2-goal700/wave2-tests`,
+`wave2-build.log`, `wave2-measure.log`, `wave2-cpu.log` y `wave2-flags.log`.
+El resumen versionado es `CMR2PROGRESS/validation.json`.
+
+## Lote del cierre anterior
 
 - `Font_GetTextHeight` (`0x0040b730`): del 40% a los 89 bytes originales exactos.
 - `FUN_0047b870` (`0x0047b870`, controles al comenzar la etapa): del 25% a los
@@ -30,7 +54,7 @@ byte matching completo. La integración y los cambios verificados están en `mai
   falla el caso 0: deja sucio el byte intermedio que debe limpiar.
 - Las 33 pruebas diferenciales nativas pasan en el binario final. Ninguna
   función anteriormente exacta se ha perdido. Datos: cero incidencias.
-- Quedan 132 funciones por convertir a exactas para llegar al objetivo de 700.
+
 
 ## Continuación
 
@@ -79,7 +103,7 @@ compilación `--windowed` como si correspondiera al original.
 
 ## Evidencias y experimentos
 
-Los logs del último cierre están en `/tmp/cmr2-goal700/clean-final`; la
+Los logs del cierre anterior están en `/tmp/cmr2-goal700/clean-final`; la
 compilación y la medición están en `/tmp/cmr2-goal700/*-final.log`. Los logs de
 la integración previa siguen en `/tmp/cmr2-main-integration/clean-final`. El resumen
 de pruebas se guarda en `CMR2PROGRESS/validation.json`. Se ha ejecutado MSVC6
@@ -87,8 +111,7 @@ con Wine y los harnesses diferenciales; no una carrera interactiva completa ni
 el CI de Windows.
 
 En `/tmp/cmr2-goal700` y `/tmp/cmr2-main-integration/matching-lows` quedan
-variantes temporales y sus
-diffs, muchas descartadas. No incorporarlas en bloque: algunas empeoran el
+variantes temporales y sus diffs, muchas descartadas. No incorporarlas en bloque: algunas empeoran el
 matching, cambian las opciones de optimización o sirven sólo para investigar.
 Las variantes con contadores sin inicializar no están en main. La cola de
 entrada `0x004b7d60` ya era exacta: su antiguo comentario del 45% estaba obsoleto
@@ -109,3 +132,8 @@ ese patrón permitió cerrar `0x0047b870`. Comprobar cada caso contra el origina
 Los archivos de `/tmp` son auxiliares locales: el traspaso reproducible está
 versionado en este documento, los informes y las pruebas. No incorporar las
 variantes temporales sin recompilar y verificar pérdida cero de funciones exactas.
+
+En las variantes `wave2-*`, `FixBasis_Integrate` llega al 97,47% de la auditoría
+pero sigue sin bytes exactos: dos escrituras de la parte final quedan en distinto
+orden. Las variantes de cursor, color de splash, blink, limpieza de vectores y
+flags de etapa tampoco cerraron funciones. No están aplicadas en main.

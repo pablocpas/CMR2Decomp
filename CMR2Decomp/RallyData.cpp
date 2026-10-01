@@ -4335,18 +4335,18 @@ void RallyData_FUN_004213d0(Car *pCar, int value)
     }
 }
 
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Restores the eight cars' race records before reinitializing their routes.
 // FUNCTION: CMR2 0x004207f0
 void RallyData_FUN_004207f0(void)
 {
-    int i;
-
-    for (i = 0; i < 8; i++) {
-        g_raceRecords[i].field_0x8 = 0;
-        g_raceRecords[i].field_0x0 = g_raceRecords[i].field_0x4;
-        g_raceRecords[i].field_0x14 = 0;
-        g_raceRecords[i].field_0xc = 0;
-    }
+    unsigned int recordAddress = (unsigned int)&g_raceRecords[0].field_0x8;
+    do {
+        *(int *)recordAddress = 0;
+        *(int *)(recordAddress - 8) = *(int *)(recordAddress - 4);
+        *(short *)(recordAddress + 12) = 0;
+        *(int *)(recordAddress + 4) = 0;
+        recordAddress += sizeof(g_raceRecords[0]);
+    } while ((int)recordAddress < (int)&g_raceRecords[8].field_0x8);
     RallyData_FUN_00420820();
 }
 
@@ -6831,57 +6831,30 @@ BYTE g_unk0x005270e4[8] = { 0xff, 0xff, 0xff, 0xff, 0x57, 0x57, 0x57, 0xff };
 // entry in the 0x82c6c8 table (or the two texture fields when no car is
 // selected) and the destination rect from the segment rect at 0x82c9ec scaled
 // to the current resolution.
-// match 26.20%: implementada; el original usa un marco EBP con tres ranuras para los
-// productos intermedios y nosotros las resolvemos en registros/ESP; la aritmetica y las
-// divisiones 32.16 coinciden (idiv/sar 0x10).
 // FUNCTION: CMR2 0x00505590
 void FUN_00505590(void)
 {
-    struct Unk0x0082c6c8Split *pEntry;
     short rect[4];
     short src[4];
-    int a;
-    int b;
-    int c;
-    int d;
-    int f0e;
-    int f0c;
-    int f10;
-    int f12;
-    int q1;
-    int q2;
-    int q3;
-    int prod;
-
-    if (g_unk0x0082ca1c == 0xff) {
+    if (g_unk0x0082ca1c != 0xff) {
+        Unk0x0082c6c8Split *pEntry = (Unk0x0082c6c8Split *)g_unk0x0082c6c8 + (signed char)g_unk0x0082ca1c;
+        int start = pEntry->field_0xc << 16;
+        int end = (pEntry->field_0x10 + pEntry->field_0xc) << 16;
+        int first = FixDiv(start - (g_unk0x0082c9ec[0] << 16), g_unk0x0082c9ec[2] << 16);
+        int second = FixDiv(end - (g_unk0x0082c9ec[0] << 16), g_unk0x0082c9ec[2] << 16);
+        int scale = FixDiv(pEntry->field_0x2c - pEntry->field_0x30, first - second);
+        rect[0] = (short)((pEntry->field_0x2c - FixMul(first, scale)) >> 16);
+        rect[2] = (short)(scale >> 16);
+        start = pEntry->field_0xe << 16;
+        end = (pEntry->field_0x12 + pEntry->field_0xe) << 16;
+        first = FixDiv(start - (g_unk0x0082c9ec[1] << 16), g_unk0x0082c9ec[3] << 16);
+        second = FixDiv(end - (g_unk0x0082c9ec[1] << 16), g_unk0x0082c9ec[3] << 16);
+        scale = FixDiv(pEntry->field_0x34 - pEntry->field_0x38, first - second);
+        rect[1] = (short)((pEntry->field_0x34 - FixMul(first, scale)) >> 16);
+        rect[3] = (short)(scale >> 16);
+    } else {
         *(int *)&rect[0] = *(int *)&g_mapSrcRect[0];
         *(int *)&rect[2] = *(int *)&g_mapSrcRect[2];
-
-    } else {
-        pEntry = (struct Unk0x0082c6c8Split *)g_unk0x0082c6c8 + g_unk0x0082ca1c;
-        a = g_unk0x0082c9ec[0];
-        c = g_unk0x0082c9ec[2];
-        f0c = pEntry->field_0xc;
-        f10 = pEntry->field_0x10;
-        q1 = (int)(((__int64)((f0c - a) << 16) << 16) / (__int64)(c << 16));
-        q2 = (int)(((__int64)((f10 + f0c - a) << 16) << 16) / (__int64)(c << 16));
-        q3 = (int)(((__int64)(pEntry->field_0x2c - pEntry->field_0x30) << 16) /
-                   (__int64)(q1 - q2));
-        prod = (int)(((__int64)q1 * q3) >> 16);
-        rect[0] = (short)((pEntry->field_0x2c - prod) >> 16);
-        rect[2] = (short)(q3 >> 16);
-
-        b = g_unk0x0082c9ec[1];
-        d = g_unk0x0082c9ec[3];
-        f0e = pEntry->field_0xe;
-        f12 = pEntry->field_0x12;
-        q1 = (int)(((__int64)((f0e - b) << 16) << 16) / (__int64)(d << 16));
-        q2 = (int)(((__int64)((f12 + f0e - b) << 16) << 16) / (__int64)(d << 16));
-        q3 = (int)(((__int64)(pEntry->field_0x34 - pEntry->field_0x38) << 16) /
-                   (__int64)(q1 - q2));
-        prod = (int)(((__int64)q1 * q3) >> 16);
-        rect[1] = (short)((pEntry->field_0x34 - prod) >> 16);
-        rect[3] = (short)(q3 >> 16);
     }
     src[0] = (short)((int)g_unk0x0082c9ec[0] * (int)g_pGraphics->resX / 0x280);
     src[1] = (short)((int)g_unk0x0082c9ec[1] * (int)g_pGraphics->resY / 0x1e0);

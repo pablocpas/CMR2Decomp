@@ -5575,19 +5575,17 @@ void FUN_00404ef0(void)
 
 // Callback 0 of the camera options menu: turns the current values into the
 // four slider positions.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403110
 void FUN_00403110(Menu *pMenu)
 {
-    int distance = (pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000);
-    int angle = (pMenu->items[3].min - 1) * g_unk0x0052a86c;
-    int height = (pMenu->items[0].min - 1) * (g_unk0x0052aa54 - 0x13333);
-    int depth = (pMenu->items[1].min - 1) * (g_unk0x0052aa58 - 0x50000);
-
-    pMenu->items[2].max = (BYTE)((unsigned int)(FixDiv(distance, 0x80000) + 0x8000) >> 16);
-    pMenu->items[3].max = (BYTE)((unsigned int)(FixDiv(angle, 0x11c) + 0x8000) >> 16);
-    pMenu->items[0].max = (BYTE)((unsigned int)(FixDiv(height, 0xcccd) + 0x8000) >> 16);
-    pMenu->items[1].max = (BYTE)((unsigned int)(FixDiv(depth, 0x50000) + 0x8000) >> 16);
+    int distance = FixDiv((pMenu->items[2].min - 1) * (g_unk0x0052aa5c - 0x80000), 0x80000);
+    int angle = FixDiv((pMenu->items[3].min - 1) * g_unk0x0052a86c, 0x11c);
+    int height = FixDiv((pMenu->items[0].min - 1) * (g_unk0x0052aa54 - 0x13333), 0xcccd);
+    int depth = FixDiv((pMenu->items[1].min - 1) * (g_unk0x0052aa58 - 0x50000), 0x50000);
+    pMenu->items[2].max = (BYTE)((distance + 0x8000) >> 16);
+    pMenu->items[3].max = (BYTE)((angle + 0x8000) >> 16);
+    pMenu->items[0].max = (BYTE)((height + 0x8000) >> 16);
+    pMenu->items[1].max = (BYTE)((depth + 0x8000) >> 16);
 }
 
 // GLOBAL: CMR2 0x005160a0

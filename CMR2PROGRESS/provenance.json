@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "ee73b09fa359835589c553debdef74db033f1d4c",
+    "commit": "8f2727c51c413ec5dc3febf9f72c77e7747184e9",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -71,7 +71,7 @@
       "CMR2Decomp/FrontendStubs.cpp": "92c200e2ff471cd5060282fb099b0842e13bdf53d65eff86f05a7b0c889e5441",
       "CMR2Decomp/Game.cpp": "f4265dd6ceb84df7f5524eaac2c36f80092f9ac3bda3c46cda9cc844ea6c0598",
       "CMR2Decomp/Game.h": "de2be1a67d879e2dbae70974b58e3d50cfc854807d952319e207ff72553b506f",
-      "CMR2Decomp/GameInfo.cpp": "6f17a67899bfeb25c1d22e31f753af21e827993a4128750fd41638978ac0dade",
+      "CMR2Decomp/GameInfo.cpp": "ac192fc5d66f8371f8ea7a8404642d8e4d8ecfd6ad39927fcf56b42f6d6c00d7",
       "CMR2Decomp/GameInfo.h": "58b4342d6866b45f83c3a8b0a52ca9d95cd0a65a44c2b6a27784a66dab76d031",
       "CMR2Decomp/GameMenus.cpp": "7fbfadcee44135b14f9710d958ccdbdaa13de7bf40b8f339117c55e63a2860b8",
       "CMR2Decomp/GameMenus.h": "0a86e832ea18165b383d487fd7d20168b157e55020162ec475fa05e01c4a9afa",
@@ -98,7 +98,7 @@
       "CMR2Decomp/NetworkLeaderboards.h": "a969a489a37b53194c8e4831df13fa3217ae6ee475cb82b08887bebfe57237fb",
       "CMR2Decomp/Particle.h": "c75d63dc579fe500e63b50468407282ee08ad412d60a590ee4403496f16cae17",
       "CMR2Decomp/Race.cpp": "7d384462770fe028b22d03c5dc99c939f99c5d694c34cc1f868597ae8a6061b5",
-      "CMR2Decomp/RallyData.cpp": "7cc03ce64376b9fe922755342ba8a5b09eda0028d034f4592e8c9e0f5d9011b2",
+      "CMR2Decomp/RallyData.cpp": "04decd15e150f2eb4fc7004226d65c0063a028763bdf16a7576e4bd928d18e87",
       "CMR2Decomp/RallyData.h": "b11baa4d3229285f6ab91821a68ae2639f0ff328717e13b87e47c548b5c7663f",
       "CMR2Decomp/RallyRoute.cpp": "9ba4bcae0e76c4b3cd5bdd204a2bc2257ed8ebd82d7f3886c4b74e9ce004e0b1",
       "CMR2Decomp/RallyRoute.h": "5eda732597706920da93ca7181af9320dc4b3a85e19342aeb68b19e92e10ce43",
@@ -163,16 +163,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "c6dea5f6e4af4f6700f6d88ce6c70378112b4c5dff10677189421845221404ff",
-    "pdb_sha256": "2fd5c71fb3e7cb96afe1b62fb2cf5a3bfb657d1bee526f09b301751527626434"
+    "exe_sha256": "b5353f2a2af0690db6a6772f4513522396c9d392e44b52bd54e05fef31c2af90",
+    "pdb_sha256": "71cddf8a76867b365ad6209bf2faff0168ac07ef17dfcf3b295bd0eb693735be"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2436,
+  "reccmp_exact": 2438,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2531,
-  "nonmatching_source_functions": 832,
+  "relocated_byte_exact": 2534,
+  "nonmatching_source_functions": 829,
   "unresolved_source_functions": [
     "0x496e00",
     "0x4dce00",

@@ -103,3 +103,18 @@ gains over frozen `16527f6`, with no exact losses. The goal of 700 remaining
 functions is pending; 132 additional exact gains are required. All 33 native differential harnesses pass on the final build. Work stops here
 at the user's request for a clean handoff. See `HANDOFF.md` and
 `CMR2PROGRESS/validation.json` for the current verification and next steps.
+
+## Resumed matching batch
+
+After the clean handoff at `8f2727c`, the 700-remaining goal was resumed.
+Three functions now reproduce their original bytes after relocation:
+`FUN_00505590` (26.20% reccmp to 588 exact bytes), `RallyData_FUN_004207f0`
+(45.45% to 37 exact bytes), and `FUN_00403110` (45.83% to 239 exact bytes).
+The changes recover fixed-point helpers, calculation/store order and the
+original field-relative record walk without changing shared headers or flags.
+
+Current audit: 2534/3363 exact, 829 remaining, zero data issues, no exact losses.
+All 33 native differential harnesses pass on this executable. The cumulative
+exact gain over `16527f6` is 37. The goal is still active: 129 additional exact
+gains are required to reach 700 remaining. See `HANDOFF.md` for the current
+commands, evidence and useful remaining differences.

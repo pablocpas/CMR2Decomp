@@ -10551,8 +10551,8 @@
   },
   "0x403110": {
     "n": "FUN_00403110",
-    "s": 0.5,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00403110"
@@ -18175,8 +18175,8 @@
   },
   "0x4207f0": {
     "n": "RallyData_FUN_004207f0",
-    "s": 0.45454545454545453,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "RallyData_FUN_004207f0"
@@ -18959,8 +18959,8 @@
   },
   "0x505590": {
     "n": "FUN_00505590",
-    "s": 0.2549019607843137,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_00505590"
