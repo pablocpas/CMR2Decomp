@@ -63,24 +63,24 @@ extern int g_unk0x00537194;
 
 // Plays the queued co-driver calls one after another: starts the first slot's
 // sample, and when it has finished moves the queue up.
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004176b0
 void FUN_004176b0(void)
 {
-    RaceSlotState *p;
-
     if ((g_raceSlotState[0].flags & 2) != 0 && FUN_00417760(0) == 0) {
         FUN_00417760(0);
-        if ((g_raceSlotState[0].flags & 1) == 0) {
+        if ((g_raceSlotState[0].flags & 1) != 0) {
+            if (Sound_IsPlaying(g_raceSlotState[0].pending) == 0) {
+                for (int i = 1; i < 20; i++) {
+                    g_raceSlotState[i - 1] = g_raceSlotState[i];
+                }
+                g_raceSlotState[19].flags &= 0xfc;
+                g_raceSlotState[19].pending = -1;
+                g_raceSlotState[19].owner = -1;
+            }
+        } else {
             g_raceSlotState[0].pending =
                 FUN_004b7790((unsigned short)g_raceSlotState[0].owner, g_unk0x00537194, 0x2b11, 0, 0, 0);
             g_raceSlotState[0].flags |= 1;
-        } else if (Sound_IsPlaying(g_raceSlotState[0].pending) == 0) {
-            for (p = g_raceSlotState; p < g_raceSlotState + 19; p++)
-                *p = p[1];
-            g_raceSlotState[19].flags &= 0xfc;
-            g_raceSlotState[19].pending = -1;
-            g_raceSlotState[19].owner = -1;
         }
     }
 }
@@ -828,7 +828,6 @@ int g_unk0x00537198[2];
 int RallyData_FUN_00421370(BYTE *p);
 
 // Stores the player's route position twice and frees the first five race slots.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00417780
 void FUN_00417780(int player)
 {
@@ -855,9 +854,7 @@ struct RaceCallRecord {
 // GLOBAL: CMR2 0x005371d0
 RaceCallRecord g_raceCallRecords[10];
 // GLOBAL: CMR2 0x00537248
-int g_unk0x00537248;
-// GLOBAL: CMR2 0x0053724c
-int g_unk0x0053724c;
+int g_raceWrongWayFlags[2];
 
 // Queues a race call (radio message) of the given call id and player.
 extern int g_unk0x00537358;
@@ -933,7 +930,7 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
 }
 
 // Resets the per-player race state: best values, call records and slots.
-// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00416670
 void FUN_00416670(void)
 {
@@ -941,9 +938,9 @@ void FUN_00416670(void)
     int i;
 
     g_unk0x00537198[0] = 9999;
-    g_unk0x00537248 = 0;
+    g_raceWrongWayFlags[0] = 0;
     g_unk0x00537198[1] = 9999;
-    g_unk0x0053724c = 0;
+    g_raceWrongWayFlags[1] = 0;
     g_unk0x0053708c[0] = -1;
     g_unk0x0053708c[1] = -1;
     memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
@@ -1066,7 +1063,7 @@ void FUN_004177d0(unsigned int player, int param2)
     }
     yText = ((int)g_pGraphics->resY << 12 >> 16) + extra;
 
-    pCallFlag = &g_unk0x00537248;
+    pCallFlag = g_raceWrongWayFlags;
     if (pCallFlag[player] != 0 || FUN_004054b0(player) != 0) {
         sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x57));
         FUN_00417e70(CFrontend::m_stringDest, &g_unk0x00517e24, player, 1, -1, -1);
@@ -3929,12 +3926,11 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
         int level = (FixMul(strength, 0x70000) >> 16) + 1;                \
         if (level > 8)                                                    \
             level = 8;                                                    \
-        if (Car_Get(view)->field_0xb43[3] < level)                        \
+        if (level > Car_Get(view)->field_0xb43[3])                        \
             Car_Get(view)->field_0xb43[3] = (BYTE)level;                  \
     } while (0)
 
 // Plays a random impact sound (light or heavy set) and shakes the car.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418c30
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 {
@@ -3949,7 +3945,7 @@ void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 }
 
 // Plays the scrape sound for its strength (10 levels) and shakes the car.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418ba0
 void FUN_00418ba0(unsigned int view, int strength, int listener)
 {
@@ -4356,7 +4352,7 @@ int g_unk0x00537354;
 
 // Per-car route/timing update. Keeps the tracked route position
 // g_unk0x0053708c[] in sync with the car's node (best, from RallyData), raises
-// the "gate" flag g_unk0x00537248[] while the node direction projected on the
+// the wrong-way flag while the node direction projected on the
 // front wheel rolling direction points backwards, scans the nodes around the
 // position for pending callouts (FUN_004174e0) and, when the leading call of
 // this car expires, shifts its five call records g_raceCallRecords[car*5].
@@ -4415,7 +4411,7 @@ void FUN_00417090(int param_1)
         pCar = Car_Get(param_1);
         dot = FixVecDot(&pCar->wheelDirFront, &dir);
         if (dot < -0x8000) {
-            ((int *)&g_unk0x00537248)[param_1] = 1;
+            g_raceWrongWayFlags[param_1] = 1;
             g_unk0x00537198[param_1] = best;
         }
     }
@@ -4427,16 +4423,16 @@ void FUN_00417090(int param_1)
         cur = best;
     }
 
-    if (((int *)&g_unk0x00537248)[param_1] != 0) {
+    if (g_raceWrongWayFlags[param_1] != 0) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
         dot = FixVecDot(&pCar->wheelDirFront, &dir);
         if (dot > 0x3333)
-            ((int *)&g_unk0x00537248)[param_1] = 0;
+            g_raceWrongWayFlags[param_1] = 0;
     }
 
     if (g_unk0x00537198[param_1] < best)
-        ((int *)&g_unk0x00537248)[param_1] = 0;
+        g_raceWrongWayFlags[param_1] = 0;
 
     g_unk0x00537354 = 0;
     i = g_unk0x0053708c[param_1] + 1;

@@ -3248,14 +3248,15 @@ void FUN_004692f0(Car *pCar, int param_2)
 }
 
 // Index of the part of a car model whose node type byte is `type` (-1 none).
-// match 46%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004692b0
 int FUN_004692b0(unsigned int type, BYTE *pModel)
 {
     int i;
+    SceneNode **ppNode;
 
     for (i = 0; i < *(int *)(pModel + 0x45c); i++) {
-        if ((((SceneNode **)(pModel + 0x3c))[i]->flags & 0xff) == type)
+        ppNode = (SceneNode **)(pModel + 0x3c) + i;
+        if (((*ppNode)->flags & 0xff) == type)
             return i;
     }
     return -1;
@@ -3809,7 +3810,6 @@ void FUN_0045c610(int a, int b, int count)
 }
 
 // Resets a car's replay recording record.
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00466920
 void FUN_00466920(BYTE *p)
 {
@@ -3820,7 +3820,10 @@ void FUN_00466920(BYTE *p)
     for (i = 0; i < 20; i++)
         p[0x112 + i * 0xd] = 0xff;
     memset(p + 0x24c, 0, 0x22);
-    memset(p + 0x270, 0, 7 * sizeof(int));
+    for (i = 0; i < 4; i++)
+        ((int *)(p + 0x270))[i] = 0;
+    for (i = 0; i < 3; i++)
+        ((int *)(p + 0x280))[i] = 0;
     memcpy(p, p + 0x106, 0x106);
     memcpy(p + 0x20c, p + 0x24c, 0x40);
 }
@@ -3932,17 +3935,13 @@ void FUN_00483050(void)
     }
 }
 
+// Cooldown timestamps for the two local players.
 // GLOBAL: CMR2 0x00588a80
-int g_unk0x00588a80;
-// GLOBAL: CMR2 0x00588a84
-int g_unk0x00588a84;
+int g_deformImpactTicks[2];
 // GLOBAL: CMR2 0x00588a88
-int g_unk0x00588a88;
-// GLOBAL: CMR2 0x00588a8c
-int g_unk0x00588a8c;
+int g_deformPulseTicks[2];
 
 // Resets every car's replay recording record.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004668d0
 void FUN_004668d0(void)
 {
@@ -3950,10 +3949,10 @@ void FUN_004668d0(void)
 
     for (i = g_unk0x00588a90 - 1; i >= 0; i--)
         FUN_00466920(g_unk0x00588b98 + i * 0x290);
-    g_unk0x00588a88 = 0;
-    g_unk0x00588a80 = 0;
-    g_unk0x00588a8c = 0;
-    g_unk0x00588a84 = 0;
+    for (i = 0; i < 2; i++)
+        g_deformPulseTicks[i] = 0;
+    for (i = 0; i < 2; i++)
+        g_deformImpactTicks[i] = 0;
 }
 
 void Events_Init(int unused, int slot, char animate);
@@ -4147,13 +4146,12 @@ int FUN_00448550(void)
 }
 
 BYTE *RallyData_FUN_00421440(int index);
-void FUN_00422f90(unsigned int index, int value);
+void FUN_00422f90(BYTE index, int value);
 int FUN_00423f30(void);
 int FUN_0041f3a0(void);
 
 // Sets the player's view distance from the route node's limits (forward or
 // backward direction).
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00459250
 void FUN_00459250(BYTE player, unsigned int node, int dir)
 {
@@ -4161,13 +4159,11 @@ void FUN_00459250(BYTE player, unsigned int node, int dir)
     int nearDist;
     int farDist;
     int distance;
-    int *pFar = (int *)((BYTE *)g_pGraphics + 0x3c8);
-    int *pNear = (int *)((BYTE *)g_pGraphics + 0x3c4);
 
     if (player < (BYTE)RallyDataState()) {
         if (dir < 0) {
             node++;
-            if ((unsigned int)RallyData_FUN_00421420() <= node)
+            if (node >= (unsigned int)RallyData_FUN_00421420())
                 node = RallyData_FUN_00421420() - 1;
         }
         if ((BYTE)RallyDataState() > 1 && FUN_0041f3a0() == 0)
@@ -4175,23 +4171,25 @@ void FUN_00459250(BYTE player, unsigned int node, int dir)
         pNode = RallyData_FUN_00421440(node);
         if (dir < 0) {
             nearDist = *(int *)(pNode + 0x1c);
-            farDist = *(int *)(pNode + 0x20);
         } else {
             nearDist = *(int *)(pNode + 0x24);
-            farDist = *(int *)(pNode + 0x28);
         }
+        if (dir < 0)
+            farDist = *(int *)(pNode + 0x20);
+        else
+            farDist = *(int *)(pNode + 0x28);
         if (farDist > 0) {
-            *pFar = farDist;
+            *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;
             distance = FUN_00423f30();
-            if (*pFar < distance)
-                distance = *pFar;
+            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
+                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
         }
         if (nearDist > 0) {
-            *pNear = nearDist;
+            *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;
             distance = FUN_00423f30();
-            if (*pFar < distance)
-                distance = *pFar;
+            if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
+                distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
         }
     }
@@ -4954,29 +4952,28 @@ void FUN_00424af0(void)
 }
 
 // Attaches a stage object to the current car and copies its matrices.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004813b0
 int FUN_004813b0(int slot)
 {
     BYTE *object;
 
-    if (*(int *)g_unk0x00590c20 != 0)
-        return 0;
-    object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_unk0x00590d74)[0xb1a]];
-    if (object == NULL)
-        return 0;
-
-    *(BYTE **)g_unk0x00590c20 = object;
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 4) = (BYTE *)g_unk0x00590c20 + 0xc;
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 8) = (BYTE *)g_unk0x00590c20 + 0xcc;
-    memcpy((BYTE *)g_unk0x00590c20 + 0xc, object + 0x98, 0x40);
-    memcpy((BYTE *)g_unk0x00590c20 + 0xcc, object + 0xd8, 0x40);
-    *(BYTE **)((BYTE *)g_unk0x00590c20 + 0x10c) = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x71c) + 0x98;
-    memcpy(*(BYTE **)((BYTE *)g_unk0x00590c20 + 8), *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8, 0x40);
-    FixMatrix_GetRight((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c), (FixMatrix *)(object + 0x98));
-    FixMatrix_GetUp((FixVector *)((BYTE *)g_unk0x00590c20 + 0x188), (FixMatrix *)(object + 0x98));
-    FixMatrix_GetForward((FixVector *)((BYTE *)g_unk0x00590c20 + 0x194), (FixMatrix *)(object + 0x98));
-    return 1;
+    if (*(int *)g_unk0x00590c20 == 0) {
+        object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_unk0x00590d74)[0xb1a]];
+        if (object != NULL) {
+            *(BYTE **)g_unk0x00590c20 = object;
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 4) = (BYTE *)g_unk0x00590c20 + 0xc;
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 8) = (BYTE *)g_unk0x00590c20 + 0xcc;
+            memcpy((BYTE *)g_unk0x00590c20 + 0xc, (*(BYTE **)g_unk0x00590c20) + 0x98, 0x40);
+            memcpy((BYTE *)g_unk0x00590c20 + 0xcc, (*(BYTE **)g_unk0x00590c20) + 0xd8, 0x40);
+            *(BYTE **)((BYTE *)g_unk0x00590c20 + 0x10c) = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x71c) + 0x98;
+            memcpy(*(BYTE **)((BYTE *)g_unk0x00590c20 + 8), *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8, 0x40);
+            FixMatrix_GetRight((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            FixMatrix_GetUp((FixVector *)((BYTE *)g_unk0x00590c20 + 0x188), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            FixMatrix_GetForward((FixVector *)((BYTE *)g_unk0x00590c20 + 0x194), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            return 1;
+        }
+    }
+    return 0;
 }
 
 extern char g_stageLooped;
@@ -5775,27 +5772,25 @@ void FUN_00460a30(FixVector *pOut);
 
 // Integrates the terrain slope under a car into its body pitch, wrapping at a
 // full turn.
-// match 44%: registers and frame layout differ (the original keeps the base pointer in edi)
 // FUNCTION: CMR2 0x0045f5d0
 void FUN_0045f5d0(int pData, int param_2)
 {
     FixVector vec;
-    int cosA;
-    int negSinA;
-    int zero;
+    FixVector direction;
+    unsigned short orientation;
     int *p = (int *)pData;
     int value;
     int angle;
 
     p[8] = p[5];
-    FUN_00421fe0((short *)&pData, param_2);
-    zero = 0;
-    cosA = g_sinTable[(pData + 0x400) & 0xfff];
-    negSinA = -g_sinTable[pData & 0xfff];
+    FUN_00421fe0((short *)&orientation, param_2);
+    direction.y = 0;
+    direction.x = -g_sinTable[orientation & 0xfff];
+    direction.z = g_sinTable[(orientation + 0x400) & 0xfff];
     FUN_00460a30(&vec);
-    value = FixMul(vec.x, negSinA) + FixMul(vec.y, zero) + FixMul(vec.z, cosA);
-    angle = p[5] + FixMul(0xf5c, value);
-    p[5] = angle;
+    value = FixVecDot(&direction, &vec);
+    p[5] += FixMul(0xf5c, value);
+    angle = p[5];
     if (angle > 0x1680000) {
         p[5] = angle - 0x1680000;
         p[8] += -0x1680000;
@@ -7306,9 +7301,9 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
             if (*(int *)(pc + 0xb74) == 0) {
                 FUN_00418c30(carIdx, len, 0, carIdx);
             } else if ((unsigned int)(CMain::GetFrameDelta() -
-                                      (unsigned int)(&g_unk0x00588a88)[carIdx]) > 10) {
+                                      (unsigned int)g_deformPulseTicks[carIdx]) > 10) {
                 FUN_00418ba0(carIdx, len, carIdx);
-                (&g_unk0x00588a88)[carIdx] = (int)CMain::GetFrameDelta();
+                g_deformPulseTicks[carIdx] = (int)CMain::GetFrameDelta();
             }
         }
         ForceFeedback_UpdateSlot(pc, (FixVector *)(pc + 0x5c4), 1);
@@ -8760,7 +8755,7 @@ void FUN_00460b60(int *p, int unused);
 void FUN_0045f6d0(void)
 {
     int snow;
-    unsigned int i;
+    int i;
 
     if (g_unk0x00547944.z != 0) {
         g_unk0x00547944.z -= g_unk0x0051bd3c;
@@ -8791,10 +8786,10 @@ change:
     g_unk0x00547944.y = FixMul(0x667, RAND_FIX()) + 0x147;
     g_unk0x0054793c = g_unk0x00547940;
     snow = 0;
-    for (i = 0; i < g_unk0x00543e98; i++) {
+    for (i = 0; i < (int)g_unk0x00543e98; i++) {
         if (*(int *)((BYTE *)g_unk0x00547ac8 + i * 0x178) == 2) {
             snow = 1;
-            break;
+            i = g_unk0x00543e98;
         }
     }
     if (snow) {

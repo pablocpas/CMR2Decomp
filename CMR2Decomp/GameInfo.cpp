@@ -7120,28 +7120,21 @@ void FUN_00502db0(void)
 }
 
 // Copies the default option values from the global table into each record.
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005029b0
 void FUN_005029b0(void)
 {
-    BYTE *pDst;
-    char *pSrc;
     int i;
-
-    i = 0;
-    pSrc = (char *)&g_unk0x0082bee8[0][5];
-    do {
-        pDst = (BYTE *)RallyData_FUN_00407630(i);
-        pDst[4] = pSrc[-1];
-        pDst[5] = pSrc[0];
-        pDst[1] = pSrc[-4];
-        pDst[6] = pSrc[1];
-        pDst[3] = pSrc[-2];
-        pDst[2] = pSrc[-3];
-        i++;
-        pDst[0] = pSrc[-5];
-        pSrc += 7;
-    } while ((BYTE *)pSrc < (BYTE *)g_unk0x0082bee8 + 0x21);
+    BYTE *pDst;
+    for (i = 0; i < 4; i++) {
+        pDst = RallyData_FUN_00407630(i);
+        pDst[4] = g_unk0x0082bee8[i][4];
+        pDst[5] = g_unk0x0082bee8[i][5];
+        pDst[1] = g_unk0x0082bee8[i][1];
+        pDst[6] = g_unk0x0082bee8[i][6];
+        pDst[3] = g_unk0x0082bee8[i][3];
+        pDst[2] = g_unk0x0082bee8[i][2];
+        pDst[0] = g_unk0x0082bee8[i][0];
+    }
 }
 
 // Applies the selected option: advances the menu when its value is set, or
@@ -9096,7 +9089,7 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // match 55%: same logic; the original keeps the country pointer and the row
 // scale in registers where we spill them, so most of the diff is stack slot
 // and register numbering
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005057e0
 void FUN_005057e0(void)
 {
@@ -9245,6 +9238,7 @@ int g_unk0x0051607c = 0x80dbaca7;
 // value; the selected row is drawn brighter.
 // match 46%: implementada; misma logica, MSVC ordena de otro modo el prologo,
 // el maximo de anchos y las divisiones del slider (los dos rects en registros).
+// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00403890
 void FUN_00403890(Menu *pMenu)
 {

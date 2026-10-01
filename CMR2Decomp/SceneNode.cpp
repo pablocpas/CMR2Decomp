@@ -2285,7 +2285,7 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 
 // Frees every shadow caster (with its per-part buffers) and every cached
 // shadow cylinder.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b5380
 void Scene_FreeShadowCasters(void)
 {
@@ -2364,30 +2364,31 @@ void FUN_004a3dd0(void);
 
 // Draws the shadow batches visible in view `view` (bit of each batch mask),
 // with the batch texture forced to blend mode 10.
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b6240
-void Scene_DrawShadowBatches(BYTE view)
+void Scene_DrawShadowBatches(unsigned int view)
 {
     Texture *pTexture;
     Texture *pLast;
     int blend;
     int i;
+    BYTE mask;
 
-    if (g_shadowVertexCount == 0)
+    if ((unsigned int)g_shadowVertexCount <= 0)
         return;
     CGraphics::SetZWriteEnable(0);
     CGraphics::SetCullMode(1);
-    pLast = NULL;
     g_shadowBatch = g_shadowBatches[0];
+    mask = (BYTE)(1u << view);
+    pLast = NULL;
     for (i = 0; i < g_shadowBatchCount; i++) {
-        if (g_shadowBatch[1] != 0 && (*(BYTE *)&g_shadowBatch[3] & (1 << view)) != 0) {
+        if ((unsigned int)g_shadowBatch[1] > 0 && (*(BYTE *)&g_shadowBatch[3] & mask) != 0) {
             pTexture = CGraphics::m_pTextureManager->textureBuffer[g_shadowBatch[2]];
             if (pTexture != pLast) {
+                pLast = pTexture;
                 blend = pTexture->blendMode;
                 FUN_004a3e20((Unk0x004a3e20 *)pTexture, 10);
                 CGraphics::FUN_004a4850(0, (int)pTexture);
                 FUN_004a3e20((Unk0x004a3e20 *)pTexture, blend);
-                pLast = pTexture;
             }
             CGraphics::m_pTextureManager->pD3D->DrawPrimitiveVB(D3DPT_TRIANGLELIST,
                                                                 CGraphics::m_pTextureManager->pVertexBuffer2,

@@ -1805,7 +1805,7 @@ int CInput::CreateDamperEffect(DWORD duration, LONG coefficient, LONG offset, in
     return CreateForceFeedbackEffect(0xd, duration, coefficient, offset, triggerButton, deviceIndex);
 }
 
-// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 76%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040c2a0
 short CInput::GetButtonMapping(unsigned short controller, int button)
 {

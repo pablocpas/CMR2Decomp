@@ -574,7 +574,6 @@ void Sector_BuildCorners(void)
 }
 
 // Appends the node to the sector its world position falls in.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8b10
 void FUN_004b8b10(SceneNode *pNode)
 {
@@ -590,10 +589,11 @@ void FUN_004b8b10(SceneNode *pNode)
     pos.z = pNode->world.position.z;
     index = (short)Sector_FromPosition(&pos);
     pSector = g_sectors[index];
-    if (pSector->pFirstNode == NULL)
+    pLast = pSector->pFirstNode;
+    if (pLast == NULL)
         pSector->pFirstNode = pNode;
     else {
-        for (pLast = pSector->pFirstNode; pLast->pNextInSector != NULL;
+        for (; pLast->pNextInSector != NULL;
              pLast = pLast->pNextInSector)
             ;
         pLast->pNextInSector = pNode;

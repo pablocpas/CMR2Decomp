@@ -52,7 +52,7 @@ unsigned int CGame::m_unk0x00523c18[16] = {
     0x0900ff08, 0x0900ff07, 0x0000ff09, 0xffffffff,
 };
 BYTE CGame::m_unk0x00593cac;
-BYTE CGame::m_unk0x00593ba8;
+CallbackIndex CGame::m_unk0x00593ba8;
 Unk00817d98 *CGame::m_unk0x00593ba4;
 
 BYTE CGame::m_unk0x00523d68 = 1;
@@ -241,7 +241,6 @@ void FUN_0049de40(void);
 
 // Boot render state: places the splash-scene camera, clears the target and
 // prints the FPS counter while the graphics debug flag (bit 2) is set.
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d0a80
 void FUN_004d0a80(Unk0049c2c0 *p1, BYTE p2)
 {
@@ -1165,18 +1164,17 @@ void CGame::FUN_0049c310(Unk0049c2c0 *param1)
         m_unk0x00593cac = 0;
 }
 
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c370
 void CGame::FUN_0049c370(Unk0049c2c0 *param1)
 {
     unsigned int tVar1;
 
-    m_unk0x00593ba8 = m_unk0x00593ba8 & 0xffffff00;
+    m_unk0x00593ba8.index = 0;
     if (param1->count > 0)
     {
         do
         {
-            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8];
+            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8.packed & 0xff];
             tVar1 = m_unk0x00593ba4->field0x1;
             if (tVar1 & 0x3000000)
             {
@@ -1188,8 +1186,8 @@ void CGame::FUN_0049c370(Unk0049c2c0 *param1)
             else
                 m_unk0x00593ba4->field0x2 = m_unk0x00593ba4->field0x2 + 1;
 
-            m_unk0x00593ba8++;
-        } while (m_unk0x00593ba8 < param1->count);
+            m_unk0x00593ba8.index++;
+        } while (m_unk0x00593ba8.index < param1->count);
     }
 }
 
@@ -1866,7 +1864,6 @@ int __cdecl CGame::CompareConnections(const void *a, const void *b)
     return ((DPlayConnection *)b)->guidSP == DPSPGUID_IPX;
 }
 
-// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aa880
 void CGame::ClearConnections(void)
 {
@@ -1882,8 +1879,7 @@ void CGame::ClearConnections(void)
         m_connections[i].guidSP.Data1 = 0;
         m_connections[i].guidSP.Data2 = 0;
         m_connections[i].guidSP.Data3 = 0;
-        *(DWORD *)&m_connections[i].guidSP.Data4[0] = 0;
-        *(DWORD *)&m_connections[i].guidSP.Data4[4] = 0;
+        memset(m_connections[i].guidSP.Data4, 0, sizeof(m_connections[i].guidSP.Data4));
     }
     m_connectionCount = 0;
     m_maxConnections = 10;
@@ -2420,11 +2416,12 @@ void FUN_0049cd90(void)
     CGraphics::SetZWriteEnable(1);
     for (i = 0; i < (unsigned int)g_sceneNodeCount; i++) {
         pNode = g_sceneNodes[i];
-        if (pNode != NULL && pNode->type == SCENE_NODE_MESH && pNode->field_0x17c != 0 &&
-            pNode->pObject != NULL) {
+        if (pNode != NULL && pNode->type == SCENE_NODE_MESH) {
             pMesh = (Mesh *)pNode->pObject;
-            CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
-            Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            if (pNode->field_0x17c != 0 && pMesh != NULL) {
+                CGraphics::m_pTextureManager->pD3D->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX *)pNode->worldF);
+                Graphics_DrawMeshLOD(pMesh, 0, 0, 0);
+            }
         }
     }
     Quad2D_DrawLayer(0x10);
@@ -2574,7 +2571,7 @@ void Quad2D_DrawLayer(unsigned int layer);
 void Billboard_Draw(SceneNode *pCamera);
 void Glow_Draw(SceneNode *pCamera, BYTE view);
 void Particle_DrawAll(int param, BYTE view);
-void Scene_DrawShadowBatches(BYTE view);
+void Scene_DrawShadowBatches(unsigned int view);
 void Scene_RelightSector(int sector);
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
 void FUN_004b7de0(SceneNode *pNode, int unused);
@@ -2715,7 +2712,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
         Graphics_SetLightingMode(5);
         Line2D_Draw();
         Billboard_Draw((SceneNode *)param2);
-        Scene_DrawShadowBatches((BYTE)bit);
+        Scene_DrawShadowBatches(bit);
     }
     Flare_SampleVisibility(NULL, NULL, 0);
     CGraphics::SetZWriteEnable(0);
@@ -3378,7 +3375,7 @@ BOOL FUN_004779e0(void)
 }
 
 // Adds the player slot to the DirectPlay session.
-// match 39%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004aac40
 bool FUN_004aac40(BYTE param1)
 {
@@ -3446,7 +3443,7 @@ done:
 
 
 // Removes a player (by DirectPlay id) from the session player table.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 88%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1940
 void FUN_004a1940(DPID *pId)
 {

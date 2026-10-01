@@ -235,7 +235,6 @@ void *g_dmdFiles[9][11];
 char FUN_004eaa30(void);
 
 // Finds the stage map files of every rally in the common frontend archive.
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d5ca0
 void FUN_004d5ca0(void)
 {
@@ -1950,9 +1949,7 @@ int g_unk0x00819018;
 // match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // logic verified against the dump; the difference is MSVC's basic-block
 // order (the original keeps the -1/-2 exits and the first-time setup after
-// the main return) plus the EAX-only return of CGameInfo::FUN_004a12d0,
-// which here goes through a function-pointer cast because GameInfo.h
-// declares it void.
+// the main return).
 // FUNCTION: CMR2 0x004ecaf0
 void FUN_004ecaf0(Menu *pMenu)
 {
@@ -3292,7 +3289,7 @@ char g_nameRow0x0052538c[12] = "uvwxyz. <_";
 // Item picker of the name entry screens: appends the character of the picked
 // column to the name; the '<' entry deletes the last character and '_'
 // accepts the name.
-// match 73%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f1040
 void FUN_004f1040(Menu *pMenu, int param)
 {
@@ -7271,7 +7268,7 @@ MenuScroller *FUN_004f2590(void);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
 
 // Draw callback of the first quick race page (stages, cars, ...).
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004da710
 void FUN_004da710(Menu *pMenu)
 {
@@ -7315,7 +7312,7 @@ void FUN_004da710(Menu *pMenu)
 }
 
 // Draw callback of the second quick race page (game type and its settings).
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004daf90
 void FUN_004daf90(Menu *pMenu)
 {
@@ -8133,6 +8130,7 @@ extern char g_stageNumberFormat[];
 // and, when the entry list is open, one row per entry (name, opponent, stage,
 // number and time).
 // match 69%: reparto de bloques y ranuras (nuestro no reserva marco; el original usa sub esp,0x10)
+// match 69%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dc930
 void FUN_004dc930(Menu *pMenu)
 {
@@ -8918,7 +8916,8 @@ void FUN_004e2610(Menu *pMenu)
         pColour = (int *)g_colourText0x0052496c;
         pShadow = (int *)g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
 
     g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)baseY;
@@ -8970,6 +8969,7 @@ void FUN_004e2610(Menu *pMenu)
 // Draws the network "stage times" screen: the three mode titles, the column
 // headers, the per-mode rows with the time of each stage and the help text.
 // match 86%: ranuras de pila de los temporales de las cabeceras
+// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e48b0
 void FUN_004e48b0(Menu *pMenu)
 {
@@ -9015,7 +9015,8 @@ void FUN_004e48b0(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x212) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
 
     g_unk0x008189a8[3] = 1;
@@ -9175,7 +9176,8 @@ void FUN_004e5c90(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x16d), (int)(g_pGraphics->resX * 0x1e5) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
 
     g_unk0x008189a8[3] = 1;
@@ -9214,6 +9216,7 @@ void FUN_004e5c90(Menu *pMenu)
 // Draws the network "car records" screen: mode title, the two bars, the column
 // headers and the selected row with its car, gearbox and two values.
 // match 84%: ranuras de pila y orden de los dos bloques de barra
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e63d0
 void FUN_004e63d0(Menu *pMenu)
 {
@@ -9256,7 +9259,8 @@ void FUN_004e63d0(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x1fe) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
 
     g_unk0x008189a8[3] = 1;
@@ -9374,6 +9378,7 @@ void FUN_004e6a80(Menu *pMenu)
 // Draws the network "championship" screen: the column headers and eight rows
 // with the player, car, gearbox and time.
 // match 85%: ranuras de pila del marco (sub esp) y de los temporales
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7120
 void FUN_004e7120(Menu *pMenu)
 {
@@ -9409,7 +9414,8 @@ void FUN_004e7120(Menu *pMenu)
     Font_DrawText(0, CFrontend::GetTextString(0x170), (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
                   (int *)g_colourTitle0x00524984, 0x12);
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
-    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
+    g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x280) / 0x280 -
                                  ((int)(g_pGraphics->resX * 0x1e) / 0x280) * 2);
 
     g_unk0x008189a8[3] = 1;
@@ -9451,7 +9457,7 @@ void FUN_004e7120(Menu *pMenu)
 // Draws the "game setup" screen: the breadcrumb title, one row per item with
 // its icon and its label (text, stage list, gearbox or plain text).
 // match 59%: asignacion de registros en el switch y en el bucle de filas
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e7ed0
 void FUN_004e7ed0(Menu *pMenu)
 {
@@ -9487,7 +9493,8 @@ void FUN_004e7ed0(Menu *pMenu)
         pColour = (int *)g_colourText0x0052496c;
         pShadow = (int *)g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
 
     g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)baseY;
@@ -11166,7 +11173,8 @@ void FUN_004dfe20(Menu *pMenu)
         pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
 
     g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = y0;
@@ -11347,7 +11355,8 @@ void FUN_004dce00(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
 
     g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = top;
@@ -11598,7 +11607,7 @@ void FUN_004e77c0(Menu *pMenu)
 }
 
 
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8500
 void FUN_004e8500(Menu *pMenu)
 {
@@ -11634,7 +11643,8 @@ void FUN_004e8500(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[1] = top;
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
 
     g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
@@ -11918,7 +11928,7 @@ char g_str0x00524d9c[12] = "%s: < %s >";
 // GLOBAL: CMR2 0x00524da8
 char g_str0x00524da8[12] = "%s\n%s, %s";
 
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004dd4b0
 void FUN_004dd4b0(Menu *pMenu)
 {
@@ -12060,7 +12070,8 @@ void FUN_004dd4b0(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 640);    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 640);
+    g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 640);
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 640);
 
     g_unk0x008189a8[3] = 1;
     g_unk0x008189a8[1] = (short)top;

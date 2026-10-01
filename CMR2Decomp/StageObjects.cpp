@@ -1363,7 +1363,6 @@ int FUN_0046b4c0(BYTE *pCar)
     return g_unk0x00588970[(signed char)pCar[0xb1a]];
 }
 
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046b710
 void FUN_0046b710(void)
 {
@@ -3996,7 +3995,6 @@ void FUN_00477ce0(int car)
     }
 }
 
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00477f30
 void FUN_00477f30(void)
 {
@@ -4208,7 +4206,6 @@ void FUN_00480220(void)
 }
 
 // Selects a list of 0x6c-byte records (count first); returns whether it is non-empty.
-// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048caa0
 int FUN_0048caa0(int *pList)
 {
@@ -4250,17 +4247,14 @@ BYTE FUN_0046eeb0(int index, int wheel)
 int g_unk0x00591730[4];
 
 // Adds to a car's level (clamped to 1.0).
-// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048dca0
 void FUN_0048dca0(BYTE *pCar, int amount)
 {
     BYTE car;
-    int v;
 
     if (amount > 0) {
         car = *pCar;
-        v = g_unk0x00591730[car] += amount;
-        if (v > 0x10000)
+        if ((g_unk0x00591730[car] += amount) > 0x10000)
             g_unk0x00591730[car] = 0x10000;
     }
 }
@@ -5368,7 +5362,6 @@ extern unsigned short *g_stageRandomTextures[3];
 extern Mesh *g_stageMesh4Copy;
 
 // Gives every triangle of the stage mesh one of the three random textures.
-// match 50%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00492b50
 void FUN_00492b50(void)
 {
@@ -5378,15 +5371,10 @@ void FUN_00492b50(void)
 
     r = rand() % 3;
     if (g_stageRandomTextures[r] != NULL) {
-        n = g_stageMesh4Copy->triangleCount;
-        if (n - 1 >= 0) {
-            offset = (n - 1) * 0x4c;
-            do {
-                offset -= 0x4c;
-                n--;
-                // +0x50 from the previous triangle: the texture word (+4) of this one
-                *(unsigned int *)((BYTE *)g_stageMesh4Copy->pTriangles + 0x50 + offset) = *g_stageRandomTextures[r];
-            } while (n != 0);
+        for (n = g_stageMesh4Copy->triangleCount - 1; n >= 0; n--) {
+            offset = n * 0x4c - 0x4c;
+            // The biased offset addresses the texture word (+4) of triangle n.
+            *(unsigned int *)((BYTE *)g_stageMesh4Copy->pTriangles + (0x50 + offset)) = *g_stageRandomTextures[r];
         }
     }
 }
@@ -6019,33 +6007,31 @@ extern FixVector g_collisionLineStart;
 
 // 1 when no corner of the collision car lies strictly between the heights of
 // the line start and the target.
-// match 17%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048f400
 int FUN_0048f400(void)
 {
-    int *pY;
+    int start = g_collisionLineStart.y;
+    int target = g_collisionTarget.y;
+    int result = 1;
     int i;
-
-    if (g_collisionTarget.y > g_collisionLineStart.y) {
-        i = 0;
-        pY = &g_collisionCar->corners[0].y;
-        while (*pY >= g_collisionTarget.y || *pY <= g_collisionLineStart.y) {
-            i++;
-            pY += 3;
-            if (i >= 8)
-                return 1;
+    if (target > start) {
+        for (i = 0; i < 8; i++) {
+            int y = g_collisionCar->corners[i].y;
+            if (y < target && y > start) {
+                result = 0;
+                break;
+            }
         }
     } else {
-        i = 0;
-        pY = &g_collisionCar->corners[0].y;
-        while (*pY <= g_collisionTarget.y || *pY >= g_collisionLineStart.y) {
-            i++;
-            pY += 3;
-            if (i >= 8)
-                return 1;
+        for (i = 0; i < 8; i++) {
+            int y = g_collisionCar->corners[i].y;
+            if (y > target && y < start) {
+                result = 0;
+                break;
+            }
         }
     }
-    return 0;
+    return result;
 }
 
 void FUN_004ae410(BYTE a, BYTE b, int c, int d);
@@ -6072,7 +6058,6 @@ extern void **g_unk0x00590c6c;
 
 // Resets record `index` (0x3c bytes) of list `list`: its three vectors to the
 // origin and its final int to `value`.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00486630
 void FUN_00486630(int list, int index, int value)
 {
@@ -11108,9 +11093,9 @@ void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
-// g_unk0x00588a80 (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
+// g_deformImpactTicks (definida en StageTiming.cpp) y g_unk0x00511310 (SceneNode.cpp):
 // su anotacion // GLOBAL: vive en su fichero de definicion; aqui solo el extern.
-extern int g_unk0x00588a80;
+extern int g_deformImpactTicks[2];
 extern const double g_unk0x00511310;
 
 // Car impact update: checks the four axle travel limits, samples the current
@@ -11251,7 +11236,7 @@ void FUN_0046a500(int param_1)
     if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
         i = (int)*(char *)(param_1 + 0xb1a);
         uVar16 = CMain::GetFrameDelta();
-        if (0x19 < (unsigned int)(uVar16 - (&g_unk0x00588a80)[i]) && *(int *)(param_1 + 0x778) > 0) {
+        if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && *(int *)(param_1 + 0x778) > 0) {
             if (*(int *)(param_1 + 0x778) <= 0x10000)
                 uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
             else
@@ -11259,7 +11244,7 @@ void FUN_0046a500(int param_1)
             i = (int)*(char *)(param_1 + 0xb1a);
             FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
             uVar16 = CMain::GetFrameDelta();
-            (&g_unk0x00588a80)[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+            g_deformImpactTicks[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
         }
     }
     ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
@@ -12089,6 +12074,7 @@ void FUN_0046c410(int param_1, BYTE param_2)
 // and the car's matrix/mirror state.
 // match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
 // compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
+// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046cce0
 void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
 {

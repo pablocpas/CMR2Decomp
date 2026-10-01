@@ -1337,7 +1337,6 @@ void FUN_004a0c40(char param1);
 
 // Menu setup of the surface screen: input repeat from the options and the
 // button mapping stored in g_unk0x0058dc58.
-// match 70%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478be0
 void FUN_00478be0(void)
 {

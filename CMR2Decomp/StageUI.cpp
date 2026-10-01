@@ -101,12 +101,11 @@ int FUN_00418fe0(void)
     return 1;
 }
 
-// Reinicia las tablas de la interfaz de etapa y registra su callback una vez.
+// Resets the eight stage sound records and registers their callback once.
 // match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418f20
 void FUN_00418f20(void)
 {
-    BYTE *p;
     int i;
 
     g_unk0x00537660 = 0;
@@ -114,18 +113,17 @@ void FUN_00418f20(void)
     memset(g_raceBlock + 0x94, 0, 0x20);       // 0x5375fc
     memset(g_raceBlock + 0x220, 0, 0x20);      // 0x537788
     memset(g_raceBlock + 0x0, 0, 0x20);        // 0x537568
-    for (p = g_raceBlock + 0x2e4; p < g_raceBlock + 0x884; p += 0xb4) {   // 0x53784c..0x537dec
+    for (RaceCarSoundState *pState = g_carSoundStates; pState < g_carSoundStates + 8; pState++) {
         for (i = 0; i < 10; i++) {
-            *(int *)(p - 0x88 + i * 4) = -1;
-            *(int *)(p - 0x60 + i * 4) = -1;
+            pState->handle[i] = -1;
+            pState->id[i] = -1;
         }
-        *(int *)p = 0;
-        *(int *)(p - 4) = 0;
-        *(int *)(p - 0xa4) = -1;
-        *(int *)(p - 0xa0) = -1;
-        *(unsigned short *)(p - 0x140) = 0xffff;
-        *(unsigned short *)(p - 0x13e) = 0xffff;
-        *(int *)(p - 0xb0) = 0x19;
+        pState->countOld = 0;
+        pState->count = 0;
+        memset(pState->slotState, 0xff, sizeof(pState->slotState));
+        pState->stateOld = -1;
+        pState->state = -1;
+        pState->pattern = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
         CGame::RegisterCallback(FUN_00418fe0, NULL);

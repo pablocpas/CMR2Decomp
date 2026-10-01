@@ -403,15 +403,15 @@ int RallyTiming_GetPointsForPosition(int iPosition)
 	}
 }
 
-// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d520
 void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCount, char bInitialise)
 {
 	int i;
 	int remaining;
+	int offset;
 	char *pCurrent;
-	char a;
-	char b;
+	int a;
+	int b;
 
 	if (bInitialise)
 	{
@@ -419,29 +419,33 @@ void RallyTiming_SortOrder(int *piTimes, char *pcOrder, int iDirection, int iCou
 			pcOrder[i] = i;
 	}
 
-	pCurrent = pcOrder;
-	for (remaining = iCount; remaining > 0; remaining--, pCurrent++)
+	if (iCount > 0)
 	{
-		for (i = pCurrent - pcOrder + 1; i < iCount; i++)
+		pCurrent = pcOrder;
+		offset = 1 - (int)pcOrder;
+		for (remaining = iCount; remaining > 0; remaining--, pCurrent++)
 		{
-			a = *pCurrent;
-			b = pcOrder[i];
-			switch (iDirection)
+			for (i = offset + (int)pCurrent; i < iCount; i++)
 			{
-			case 1:
-				if (piTimes[a] > piTimes[b])
+				a = *pCurrent;
+				b = pcOrder[i];
+				switch (iDirection)
 				{
-					*pCurrent = b;
-					pcOrder[i] = a;
+				case 1:
+					if (piTimes[a] > piTimes[b])
+					{
+						*pCurrent = b;
+						pcOrder[i] = a;
+					}
+					break;
+				case 0:
+					if (piTimes[a] < piTimes[b])
+					{
+						*pCurrent = b;
+						pcOrder[i] = a;
+					}
+					break;
 				}
-				break;
-			case 0:
-				if (piTimes[a] < piTimes[b])
-				{
-					*pCurrent = b;
-					pcOrder[i] = a;
-				}
-				break;
 			}
 		}
 	}
@@ -487,7 +491,6 @@ void FUN_0040d090(int index, int seconds)
 }
 
 // Adds each stage's penalty seconds to its raw time.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040d010
 void FUN_0040d010(void)
 {

@@ -504,7 +504,8 @@ void FUN_004d39a0(BYTE *pList, char *pTitle, int index, char **ppStrings)
             pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[1] = top;
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x2d) / 640;    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0xe6) / 640;
+    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x2d) / 640;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0xe6) / 640;
 
     g_unk0x008189a8[3] = 1;
     if (pTitle != NULL)

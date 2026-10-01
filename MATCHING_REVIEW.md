@@ -824,3 +824,595 @@ Bugs corregidos (visibles en el original):
 - `0x5044d0`: el alfa del contorno del panel de tiempos usaba la `y` de la
   fila en lugar de `pEntry->current`, y el color de acento del rally leía un
   byte en lugar del RGBA de 4 bytes.
+
+## Continuación desde la auditoría del otro agente: primer lote bajo 700
+
+Rama aislada `decomp/matching-low-review`, base **a6ff60a**. El trabajo de
+`matching-review` ya incluía los cambios anteriores; no se vuelven a contar.
+El hito de menos de 700 funciones pendientes **sigue sin alcanzarse**.
+
+| Medida | Base auditada | Este lote |
+|---|---:|---:|
+| Funciones en reccmp | 3364 | 3364 |
+| 100% estricto reccmp | 2357 | **2362** |
+| Pendientes según reccmp | 1007 | **1002** |
+| Exactas por bytes reubicados | 2435 | **2441** |
+| Pendientes de las 3362 anotadas por el comparador | 927 | **921** |
+| Variables / incidencias de datacmp | 3203 / 0 | **3201 / 0** |
+
+**Seis nuevas exactas por bytes, cinco al 100% en reccmp, ninguna pérdida:**
+
+| Función | reccmp base | Cambio |
+|---|---:|---|
+| `0x411e40` | 41.10% | Ajuste porcentual antes de buscar; salida por el contador; outputs tras FixDiv. |
+| `0x4176b0` | 34.09% | Rama de sample activo primero y desplazamiento por índices de los 20 slots. |
+| `0x431d80` | 71.88% | Ayudantes existentes FixVecScaleRecip/FixVecLength y salida por el contador. |
+| `0x4668d0` | 71.70% | Dos arrays de timestamps para los dos jugadores locales. |
+| `0x466920` | 67.69% | Dos grupos reales de 4 y 3 DWORDs; bucles pequeños desenrollados. |
+| `0x48dca0` | 25.00% | Incremento con clamp usando la expresión de asignación. |
+
+`0x4176b0` queda al 98% en reccmp porque el puntero de fin del array se
+nombra como un global vecino distinto. La comparación independiente verifica
+los **170 bytes completos**, incluidos ambos caminos. Se mantienen los cinco
+errores de resolución de símbolos del comparador, excluidos de las exactas.
+
+### Bugs corregidos que todavía no son matches completos
+
+- Los timestamps de `0x588a80` y `0x588a88` se indexaban como arrays, pero
+  estaban declarados como escalares independientes. Ahora cada uno posee sus
+  **8 bytes** reales; ambos llamadores usan el array correspondiente.
+- `0x4a12d0` y `0x4a13b0` eran `void`, aunque el original devuelve **0, 1,
+  -1 o -2**. La firma y el llamador de `0x4ecaf0` ya conservan ese resultado.
+  Se elimina la escritura de busy=1 que no existe en el original y se
+  corrige el GUID de `0x4a13b0`, que tenía dos palabras intercambiadas.
+  Sus porcentajes reccmp pasan de 79.52/67.47 a **67.96/66.67**; siguen
+  pendientes y no se cuentan como nuevas exactas.
+
+### Verificación y artefactos
+
+Build MSVC6 correcto; datacmp **3201 variables / cero incidencias**;
+check_dupes **3362 FUNCTION / cero STUB / 3195 GLOBAL**;
+overlap idéntico a la base y diff --check limpio. Las dos anotaciones GLOBAL
+menos son miembros de los arrays recuperados, no funciones eliminadas.
+
+- Reset de replay: **12000** casos nativos, cero diferencias; record completo,
+  timestamps, guardas, orden inverso y proveedor que cambia el puntero y count.
+- Enumeración de sesiones: **12000**, cero diferencias; resultados HRESULT,
+  GUID, descriptor, llamadas COM, rutas busy/null y guardas.
+- Lógica previa: **42000**, cero diferencias. El harness ahora reubica por
+  separado los cinco globals reales del save, conservando su modelo de memoria.
+- Control negativo: la prueba de enumeración falla con el PE de la base
+  auditada, detectando el retorno indefinido en el primer caso.
+
+Los mocks de proveedores no validan transporte de red ni una partida completa.
+Informes inmutables, entidades, scans, lista de ganancias y logs en
+`tools/matching-below700-01/`. Las pruebas nuevas son reproducibles con
+`tests/differential_replay_reset.py` y `tests/differential_session_enumeration.py`,
+pasando `current.json` y `current-entities.json` de esa carpeta.
+
+## Segundo lote aislado bajo 700: clasificación, viento y sonido de etapa
+
+Base **9ff8098**, rama `decomp/matching-low-review`. Se han comparado las
+3362 funciones anotadas por bytes: **2447 exactas**, **915 pendientes**,
+**seis ganancias y ninguna pérdida**. Faltan **216** para llegar a 699.
+El hito sigue abierto. reccmp mide 3364 funciones: **2367** al 100%, cinco
+ganancias estrictas y ninguna pérdida; 730 quedan por debajo del 90%.
+
+| Función | reccmp antes | reccmp después | Corrección |
+|---|---:|---:|---|
+| `0x40e5e0` | 25.88% | 100% | Desplazamiento de leaderboards por índice, conservando la copia de cada registro. |
+| `0x417780` | 72.00% | 100% | Reinicio de los cinco slots por índice. |
+| `0x45f6d0` | 83.98% | 100% | Contador con signo; terminar la búsqueda de nieve asignándole el count. |
+| `0x493a40` | 36.62% | 100% | Par base calculado una vez; mejor marcha BYTE; orden original de guardas y asignaciones. |
+| `0x4b8b10` | 70.27% | 100% | Capturar el primer nodo del sector antes de decidir si hay lista. |
+| `0x4ec020` | 86.84% | 97.44% | Recorrido de perfiles con índice unsigned. Los 103 bytes son exactos. |
+
+La diferencia normalizada de `0x4ec020` afecta al nombre del final de un
+array. Se verifica por separado el código completo; no se cambian los
+owners para alterar la puntuación. Los cinco símbolos que el comparador
+no resuelve siguen contándose como pendientes.
+
+### Reinicio de sonido: corrección funcional que sigue parcial
+
+En `0x418f20`, el original avanza el puntero **0xb4 bytes antes** de escribir
+los estados WORD y el índice de patrón. La fuente anterior usaba el puntero
+sin avanzar para los offsets `-0x140`, `-0x13e` y `-0xb0`: dejaba estados sin
+reiniciar y escribía 25 en otro campo. Ahora usa los ocho registros existentes
+`RaceCarSoundState`: `state/stateOld=-1`, `pattern=25`, contadores a cero,
+handles/ids y los primeros cuatro slotState a -1. El recorrido cabe completo
+en g_raceBlock; conserva el registro único del callback.
+
+reccmp pasa de **56.00% a 56.86%**. Esta corrección **no** cuenta entre las
+seis exactas. El harness nativo compara todo el arena de 64 KiB con el
+original y un modelo independiente: **6000 casos, cero diferencias**,
+incluidos los ocho registros, campos vecinos y callback que modifica memoria
+antes de la asignación final del flag. El control negativo falla en la
+compilación anterior, caso 0, por el patrón incorrecto antes del callback.
+
+### Verificación y reproducción
+
+Build MSVC6 correcto; datacmp **3201 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3195 globals**; overlap idéntico
+al primer lote y `git diff --check` limpio. No se han cambiado cabeceras,
+owners globales ni firmas públicas.
+
+Informes, scans, entidades, bytes, ganancias, logs y compilaciones congeladas
+en `tools/matching-below700-02/`. Prueba:
+
+```sh
+python3 tests/differential_stage_sound_reset.py ../tools/matching-below700-02/current.json ../tools/matching-below700-02/current-entities.json
+```
+
+El tercer argumento opcional permite comprobar el PE anterior usando sus
+informes y entidades. Los mocks no validan una partida completa.
+
+Siguiente grupo identificado: `g_unk0x00537248/4c` se usan como un array de
+dos jugadores en el HUD y el detector de sentido contrario, pero aún son
+dos escalares independientes. Revisar su ownership y el reset `0x416670`
+antes de continuar con variantes de registros. No está corregido en este lote.
+
+## Tercer lote aislado bajo 700: intervalos, nodos y flags de dos jugadores
+
+Base **f4db191**, rama `decomp/matching-low-review`. Auditoría completa:
+**2453/3362 exactas por bytes**, **909 pendientes**, seis ganancias y ninguna
+pérdida. Faltan **210** para llegar a 699; el hito sigue abierto. reccmp:
+**2372/3364** estrictas, cinco ganancias y ninguna pérdida; **725** bajo 90%.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x4692b0` | 50.00% | 100% | Buscar el tipo del nodo por índice, sin pelar la primera iteración. |
+| `0x48caa0` | 30.77% | 100% | Publicar el count antes de capturarlo y guardar el puntero de la lista. |
+| `0x48f400` | 27.85% | 100% | Capturar ambos extremos; dos loops indexados y una salida común. |
+| `0x492b50` | 50.00% | 100% | Recorrer los triángulos por índice inverso; conservar la textura leída en cada vuelta. |
+| `0x49cd90` | 95.83% | 100% | Capturar pObject antes de comprobar el flag de dibujo. |
+| `0x4aa880` | 77.19% | 96.77% | memset del Data4 del GUID: los 96 bytes completos son exactos. |
+
+La diferencia normalizada en ClearConnections es el nombre del puntero final
+de un array, que coincide con otro símbolo en la imagen recompilada. No se
+modifican owners para cambiar la puntuación. Los cinco errores de resolución
+heredados del comparador siguen contándose como pendientes.
+
+### Flag de sentido contrario del segundo jugador
+
+`g_unk0x00537248/4c` eran dos escalares, separados **368 bytes** en el PE
+anterior. El HUD y el detector accedían al segundo mediante `[player]` desde
+el primero, fuera de ese objeto, mientras el reset limpiaba el otro scalar.
+Se recupera el owner real **g_raceWrongWayFlags[2]**, de ocho bytes, y sus
+usuarios nombran el array. Se elimina la anotación redundante del miembro
++4. No hay cambios de cabeceras ni de firmas públicas.
+
+El reset `0x416670` sigue parcial (37.21%); este arreglo no cuenta entre las
+seis exactas. `tests/differential_race_state_reset.py` ejecuta original y
+recompilado con un modelo independiente del arena completo: **6000 casos,
+cero diferencias**, dos flags, diez call records, cinco slots y guardas.
+El control negativo con el PE anterior preserva la distancia real de los
+escalares y falla en el caso 0 por el flag del segundo jugador (offset 4544).
+Reubicar ambos escalares juntos en un harness habría ocultado este bug.
+
+Build MSVC6 correcto; datacmp **3200 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3194 globals**; los 27 overlaps
+heredados son idénticos al segundo lote; `git diff --check` limpio.
+Artefactos inmutables, informes, entidades, scans, ganancias, hashes, logs y
+ambas compilaciones completas: `tools/matching-below700-03/`.
+
+```sh
+python3 tests/differential_race_state_reset.py ../tools/matching-below700-03/current.json ../tools/matching-below700-03/current-entities.json ../tools/matching-below700-03/current-build/CMR2.exe
+```
+
+El tercer argumento permite comprobar otro PE con sus informes y entidades.
+La prueba cubre el reset; no valida una partida completa.
+
+## Cuarto lote aislado bajo 700: clasificación viva y progreso con signo
+
+Base **76c0a6a**, rama `decomp/matching-low-review`. Auditoría completa:
+**2455/3362 exactas por bytes**, **907 pendientes**; dos ganancias y ninguna
+pérdida. Faltan **208** para bajar a 699. reccmp: **2374/3364** estrictas,
+dos ganancias sin pérdidas, **722** bajo 90%. El hito sigue abierto.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x408d80` | 56.91% | 100% | Consultar count en cada vuelta; recorrer los usados en orden inverso y capturar el destino de los demás antes del proveedor. |
+| `0x418c30` | 57.69% | 100% | Llamadas de sonido dentro de cada rama, heavy primero; nivel de shake como operando izquierdo de la comparación. |
+
+Los **172 bytes** de clasificación y los **152 bytes** de sonido son exactos.
+En clasificación, la fuente previa capturaba una vez el count del primer
+bucle y calculaba dos veces el destino del segundo, con llamadas a proveedores
+entre ambas consultas. El original consulta el count durante el primer bucle
+y usa el mismo destino capturado para ambos campos del segundo.
+La macro de shake tiene otro usuario `0x418ba0`: mejora a **84.78%**, todavía
+parcial; la auditoría completa confirma que no se pierde ninguna exacta.
+
+### Progreso negativo interpretado como recorrido completo
+
+`0x421470` comparaba un valor int con un producto unsigned porque
+RallyData_FUN_00406990 devuelve unsigned. El original usa **cmp/jl con signo**.
+Se convierte el count en int antes de multiplicar y se captura el valor del
+registro dentro de la rama correspondiente, después de consultar el modo.
+reccmp pasa de **63.16% a 94.25%**; sigue parcial y no cuenta como ganancia
+exacta. La diferencia restante incluye el save/restore adelantado de ESI.
+
+`tests/differential_route_progress.py`: **6000 casos nativos / cero
+diferencias** con original, recompilado y modelo independiente. Comprueba
+los ocho registros, umbrales con signo, clamps, retorno, número de llamadas,
+64 KiB completos y proveedor que cambia el límite, denominador, registro e
+índice del coche después de capturar el progreso. El control negativo con el
+PE anterior falla en el caso 1: devuelve **65536** para progreso **-1**, con
+umbral positivo, cuando el original devuelve cero. No prueba una partida.
+
+Build MSVC6 correcto; datacmp **3200 variables / cero incidencias**;
+check_dupes **3362 funciones / cero STUB / 3194 globals**; los 27 overlaps
+heredados siguen idénticos y `git diff --check` limpio. No cabeceras, firmas
+públicas ni owners modificados. Informes, compilaciones completas, hashes,
+ganancias y logs: `tools/matching-below700-04/`.
+
+```sh
+python3 tests/differential_route_progress.py ../tools/matching-below700-04/current.json ../tools/matching-below700-04/current-entities.json ../tools/matching-below700-04/current-build/CMR2.exe
+```
+
+## Quinto lote bajo 700: integrar el avance del otro agente y matrices vivas
+
+Merge local de **c7422b2** sobre **de55abe**, conservando los commits de ambas
+ramas. No se modifica matching-review ni sus cambios pendientes. Sus cuatro
+commits desde a6ff60a aportan **16 nuevas exactas únicas**; 417780, 4692b0 y
+48dca0 ya estaban exactas aquí y no se cuentan de nuevo. Dos conflictos de
+fuente (4692b0 y 48dca0) se resuelven conservando nuestros cuerpos exactos.
+
+Se añade además **0x4813b0**, 50% -> 100%: guardas positivas anidadas y
+lecturas de la matriz desde el objeto publicado en g_unk0x00590c20.
+Las llamadas GetRight/GetUp/GetForward pueden cambiar el contexto: conservar
+un puntero local de la primera lectura ocultaba esos cambios. Los **279
+bytes completos** coinciden, incluidas ambas salidas y las tres llamadas.
+
+Auditoría de las 3362 funciones: **2472 exactas por bytes**, **890 pendientes**,
+**17 ganancias y ninguna pérdida**. Faltan **191** para bajar a 699. reccmp:
+**2388/3364** estrictas, +14 sin pérdidas, **710** por debajo del 90%.
+El hito sigue abierto. Las ganancias y sus porcentajes individuales están
+en `tools/matching-below700-05/gains.tsv`.
+
+No se heredan los porcentajes declarados en los mensajes de otros commits:
+4a1940 queda en **88.24%** en nuestra compilación, 466030 en **91.43%**,
+4da710/4daf90 en **69.54%/57.36%**; ninguna cuenta como nueva exacta. Tres
+nuevas exactas por bytes tampoco llegan al 100% normalizado: 408340 **96.43%**,
+477f30 **93.75%**, 4f0e80 **99.26%**, por nombres de límites/operandos.
+Las cinco resoluciones fallidas heredadas siguen contándose como pendientes.
+
+Build MSVC6 correcto, datacmp **3200 variables / cero incidencias**,
+check_dupes **3362 funciones / cero STUB / 3194 globals**, los 27 overlaps
+heredados idénticos. Progreso de ruta y reset de carrera pasan **12000 casos
+nativos / cero diferencias** con el PE integrado. No hay cambios de cabeceras
+ni owners; el cuarto argumento BYTE de 46cce0 queda consistente en ambos TUs.
+Informes y compilaciones completas congeladas en **tools/matching-below700-05/**.
+
+## Sexto lote bajo 700: ordenación y precisión del mínimo de escala
+
+Base **0181991**, rama aislada `decomp/matching-low-review`. Resultado completo:
+**2474/3362 exactas por bytes**, **888 pendientes**; +2 y ninguna pérdida.
+Faltan **189** para bajar a 699. reccmp **2390/3364** estrictas, +2 sin
+pérdidas, **708** bajo 90%. El hito sigue abierto.
+
+| Función | reccmp antes | Después | Corrección |
+|---|---:|---:|---|
+| `0x40d520` | 37.04% | 100% | Índices de coche int, guard positivo y sesgo del siguiente índice capturado después del cursor. |
+| `0x427580` | 68.89% | 100% | Mínimo con scaleY como operando izquierdo; constantes FLOAT reales del HUD. |
+
+La ordenación conserva count, inicialización opcional, direcciones 0/1,
+comparaciones estrictas y stores BYTE del orden. Sus **154 bytes** son
+exactos; no hay cambios de firma ni del número de argumentos (ret20).
+
+### Comparación de escalas sin redondeo anticipado
+
+El original compara scaleY vivo en x87 con scaleX ya guardado en float.
+`if (scaleY < scaleX) ... else ...` recupera esa comparación. Antes se
+comparaba scaleX con una copia de scaleY redondeada a float; dos valores
+distintos podían parecer iguales y seleccionar el mínimo equivocado.
+
+Se recuperan tres constantes observadas directamente en el PE original:
+**0x511388=40.0f**, **0x51138c=1000.0f**, **0x511390=30.0f**. Cada owner
+ocupa cuatro bytes y se inicializa con esos valores. One y Zero usan los
+globals existentes. Los **145 bytes** completos de 427580 coinciden.
+
+`tests/differential_network_font.py`: **6000 casos nativos / cero diferencias**,
+modelo entero independiente del umbral, vecinos exactos, counts 1..128 y
+64 KiB completos. El control negativo falla en el PE anterior con
+width=494000, height=49399999, players=100: scaleX=25 y scaleY ligeramente
+menor. Al redondear Y antes de decidir, la fuente anterior escogía 25 y
+la fuente grande; original y corregida escogen la pequeña. El count ampliado
+sirve para distinguir ambas precisiones; no afirma que una carrera tenga
+100 jugadores ni valida una partida real.
+
+Build correcto; datacmp **3203 variables / cero incidencias**; check_dupes
+**3362 funciones / cero STUB / 3197 globals**, tres constantes reales nuevas;
+los 27 overlaps heredados idénticos y git diff --check limpio. No cabeceras.
+Informes, hashes y compilaciones completas en **tools/matching-below700-06/**.
+
+```sh
+python3 tests/differential_network_font.py ../tools/matching-below700-06/current.json ../tools/matching-below700-06/current-entities.json ../tools/matching-below700-06/current-build/CMR2.exe
+```
+
+## Séptimo lote bajo 700: integración, cámara y orientación
+
+Base **423365c**, merge de los cinco commits hasta **5c90390** del otro
+worktree, sin incluir sus cambios sin confirmar. Se conserva nuestra copia
+exacta de tiempos **408d80** al resolver el conflicto; su vista SaveSlot
+queda junto a los globals de guardado. No se suma una función ya exacta.
+
+Auditoría completa: **2479/3362 exactas por bytes**, **883 pendientes**,
+**5 ganancias y ninguna pérdida**. Faltan **184** para llegar a 699.
+reccmp: **2394/3364** estrictas (+4, sin pérdidas), **703** bajo 90%.
+Las cinco resoluciones fallidas heredadas siguen contándose pendientes.
+
+| Función | reccmp antes | Después | Procedencia y cambio |
+|---|---:|---:|---|
+| `0x421720` | 63.60% | 100% | Otro agente: accesos indexados a cada record de cámara. |
+| `0x4eb3e0` | 58.82% | 97.22% | Otro agente: perfiles indexados directamente, sin puntero local. Bytes exactos. |
+| `0x40d010` | 82.05% | 100% | Otro agente: índices de tiempos y penalizaciones. |
+| `0x459250` | 55.07% | 100% | Recargar el objeto gráfico después de proveedores, ramas independientes y argumento BYTE. |
+| `0x45f5d0` | 44.74% | 100% | Orientación WORD, dirección completa, FixVecDot y actualización del pitch en el record. |
+
+La cámara **459250** reproduce los **200 bytes / 67 instrucciones** completos.
+El original vuelve a leer g_pGraphics antes de los stores y después de
+FUN_00423f30; los punteros pNear/pFar capturados antes de la primera llamada
+escribían y limitaban en un objeto anterior si un proveedor cambiaba el global.
+Se conserva el clamp de distancia **far** incluso tras publicar **near**,
+tal como hace el original. La firma BYTE del setter 422f90 y su declaración
+son coherentes; sigue siendo exacto y conserva ret8.
+
+La orientación **45f5d0** reproduce **242 bytes / 84 instrucciones**, incluidas
+ambas ramas de envoltura. La salida de 421fe0 ocupa un WORD: una variable
+unsigned short permite que MSVC reutilice el argumento sin ampliar el signo
+antes de las máscaras de 12 bits. Se inicializa direction.y, luego x y z;
+FixVecDot recibe la dirección primero y vec segundo. Publicar p[5] con += y
+leer después el ángulo recupera el acceso al record. No se usa el local int
+parcialmente escrito que había dado 100% preliminar: leer sus bytes altos
+sin inicialización no era una solución válida.
+
+### Corrección parcial de entrada de nombres
+
+El commit 99bb7a2 cambia **4f1040** de strlen-2 a **strlen-1**. El original
+cuenta también el terminador y usa base-2: eso equivale a strlen-1. Con un
+nombre de un carácter, la fuente anterior escribía antes del buffer. Esta
+función queda **76.68%**; es una corrección de lógica y no cuenta entre las
+cinco exactas. Las otras parciales de cámara no se presentan como exactas:
+421e20 queda **68.86%**, 423b20 **26.47%**, 47bad0 **96.77%**. Se sincronizan
+las notas bajo90 de las funciones editadas, manteniendo FUNCTION.
+
+### Verificación
+
+- `tests/differential_camera_clip.py`: **6000 casos nativos / 0 diferencias**.
+  Proveedores reemplazan el objeto gráfico durante las llamadas; modelo
+  independiente de memoria y trazas, límites con signo, clamp de nodo sin
+  signo y arena completa de 64 KiB. El PE anterior falla en caso1 en la traza.
+- `tests/differential_name_entry.py`: **6000 casos nativos / 0 diferencias**.
+  Longitudes 0..3, todas las columnas de las tres filas, borrar y confirmar,
+  cursor y arena de 64 KiB. El PE anterior falla en caso1, nombre de un
+  carácter, escribiendo el byte anterior al buffer (offset16383).
+- Build MSVC6 correcto; datacmp **3203 variables / 0 incidencias**;
+  check_dupes **3362 funciones / 0 STUB / 3197 globals**; los **27 overlaps
+  heredados** son idénticos. Git diff --check limpio. No nuevas cabeceras.
+
+Los proveedores de estos harnesses están simulados; estas pruebas no validan
+una partida completa. Informes, hashes, gains.tsv y compilaciones completas
+antes/después congelados en **tools/matching-below700-07/**. El hito sigue abierto.
+
+```sh
+python3 tests/differential_camera_clip.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
+python3 tests/differential_name_entry.py ../tools/matching-below700-07/current.json ../tools/matching-below700-07/current-entities.json ../tools/matching-below700-07/current-build/CMR2.exe
+```
+
+## Octavo lote bajo 700: firmas, registro y recuento completo
+
+Desde **a156108**, merge de los seis commits guardados hasta **d8a6d7b**.
+No se incluyen los cambios sin confirmar del otro worktree. Su documentación
+se integra antes de nuestros lotes, conservando los informes históricos.
+
+**2489/3362 exactas por bytes**, **873 pendientes**, **174** para llegar a
+699. reccmp **2398/3364** estrictas (+4 sin pérdidas), **701** bajo90.
+Hay **cuatro mejoras de código** y **seis correcciones de medición**; esas
+seis ya eran exactas en el PE anterior y no son trabajo nuevo de descompilación.
+
+| Función | reccmp antes | Después | Cambio integrado |
+|---|---:|---:|---|
+| `0x4236b0` | 65.84% | 100% | Las funciones de cámara reciben BYTE donde el original pasa la parte baja del índice. |
+| `0x40e660` | 97.17% | 100% | Publicar la nueva entrada de clasificación dentro del bucle de búsqueda. |
+| `0x4692f0` | 96.55% | 100% | Acceder por índice a las tablas de partes y flags de rotura. |
+| `0x4aa720` | 96.49% | 100% | Vaciar el resultado ante un fallo en cualquier apertura o consulta del registro. |
+
+Las firmas de 423d70,4219b0,422fe0 y sus declaraciones son coherentes en
+Car, Game, NetRace, Race y GameInfo. 421590 retorna BYTE y 4aad30 lo recibe;
+la cabecera **Game.h** y todos sus consumidores se recompilan. Se sincronizan
+las notas de los parciales: 421590 **61.54%**,4219b0 **56.36%**,423460
+**48.41%**,4aac40 **63.33%**. No se cuentan como exactas. 423300 llega a
+**96.97%**, pero tampoco es exacta.
+
+### Registro: fallo de apertura también vacía la salida
+
+La versión anterior sólo limpiaba m_regKeyReadData si fallaba la consulta
+final. Si una de las cuatro aperturas fallaba, se podía devolver el contenido
+de la lectura anterior. El original limpia el primer byte en cualquiera de
+los cinco pasos fallidos. El nuevo camino común conserva las mismas APIs,
+paths, tamaño inicial100 y las cuatro llamadas a RegCloseKey.
+
+`tests/differential_registry_value.py`: **6000 casos nativos / cero diferencias**
+con un modelo independiente, fallos en cada apertura y en la consulta,
+éxito, datos parciales de consulta, retorno, paths, número de llamadas y
+arena completa de64KiB. Las APIs están simuladas. El PE anterior falla en
+case0: el byte inicial de salida no se limpia al fallar la apertura de HKLM.
+El original cierra los cuatro handles incluso después de fallos; la prueba
+no compara el valor de los argumentos de cierre que nunca se inicializaron.
+
+### Medición reproducible sin nombres ambiguos ni caché ajena
+
+Se añade `audit_byte_matching.py`. Usa el PE y mapa de entidades de la
+compilación indicada, con metadatos privados; resuelve los nombres CRT
+ambiguos por su identificador de fuente y los constructores por su símbolo
+MSVC real, requiriendo un candidato único. No cambia los informes ni el
+comparador compartidos. Se congela una versión de fastcmp y se usa el mismo
+SHA256 en ambas auditorías. Los errores de resolución pasan de cinco a cero.
+
+| Dirección | Identificador verificado | Resultado en base y actual |
+|---|---|---|
+| `0x50fdc0` | FUN_0050fdc0 | 5bytes exactos |
+| `0x4b2e20` | FUN_004b2e20 | 19bytes exactos |
+| `0x456b40` | StageQuality_InitCode7 | 11bytes exactos |
+| `0x456b60` | StageQuality_InitCode8 | 11bytes exactos |
+| `0x4bd8b0` | MMIOData::MMIOData | 9bytes exactos |
+| `0x4a2d90` | FUN_004a2d90 | Código completo exacto, sin operandos pendientes |
+
+La última tenía pendientes __chkstk y un literal FLOAT; ahora se resuelven
+con el comparador congelado y los símbolos del PE correcto. Las seis se
+verifican en la compilación07 congelada, sin cambiar una línea de su código.
+Por ello su base corregida es **2485**, frente a **2479** reportadas antes;
+**2485 ->2489** son las cuatro mejoras nuevas. No se altera el informe07.
+`measurement-corrections.tsv` distingue estas seis de `gains.tsv`.
+
+Build correcto, datacmp **3203variables /0incidencias**, check_dupes
+**3362funciones /0STUB /3197globals**,27overlaps heredados idénticos;
+ninguna función retirada y ninguna exacta perdida. Las auditorías completas
+usan las3362funciones y no tienen errores de resolución. Artefactos, PE/PDB/
+objetos antes y después, informes, hashes y versión de comparador en
+**tools/matching-below700-08/**. El hito sigue abierto.
+
+```sh
+CMR2_FASTCMP_PATH=../tools/matching-below700-08/fastcmp.py python3 audit_byte_matching.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build /tmp/matching-08-verified.json
+python3 tests/differential_registry_value.py ../tools/matching-below700-08/current.json ../tools/matching-below700-08/current-entities.json ../tools/matching-below700-08/current-build/CMR2.exe
+```
+
+
+## Hito bajo 700 — lote 09: sesiones, copia de opciones y reinicio de sombras
+
+Desde **24d1af5**, merge de los siete commits guardados hasta **40b24f2**.
+Se conservan las exactas propias y los cambios sin confirmar del otro árbol.
+
+**2501/3363 exactas por bytes**, **862 pendientes**, **163** para llegar a
+699. Son **nueve ganancias de código sobre funciones ya medidas**: cinco
+integradas y cuatro propias. Se recupera además el forward **48ca60**, que
+amplía el denominador y las exactas en uno; no reduce los pendientes. Dos
+callbacks DirectX ya eran exactos y ahora se resuelven correctamente: son
+correcciones de medición, verificadas también en el PE08 congelado.
+
+| Función | reccmp antes | Después | Recuperación |
+|---|---:|---:|---|
+| 4ecaf0 | 57.95% | 100% | Flujo completo de la página de sesiones, guardas positivas y selección. |
+| 4d0a80 | 75.52% | 100% | La llamada 49de40 omitida después del render cuando el flag está a cero. |
+| 4d5ca0 | 85.88% | 91.01% | Bucle desde cero, impresión k+1; bytes completos al 100%. |
+| 4e4fc0 | 98.72% | 100% | Rama del cambio automático primero y orden de campos del rectángulo. |
+| 4e6a80 | 98.92% | 100% | Rama y rectángulo; inicializar order después de la llamada de preparación. |
+| 5029b0 | 55.17% | 100% | Copiar las cuatro filas de siete bytes mediante índices, en el orden original. |
+| 447a40 | 97.95% | 100% | Poner a cero la traslación desde pObj+38/3c/40, conservando la base de escritura. |
+| 4cf4d0 | 96.67% | 100% | Publicar el campo empaquetado antes de enmascarar y aplicar las opciones. |
+| 4cf550 | 96.77% | 100% | El mismo patrón para el segundo campo del registro. |
+
+### Lógica integrada que sigue parcial
+
+- Scene_FreeShadowCasters pone a cero también g_shadowVertexCount y
+  g_shadowBatchCount. Antes podían sobrevivir los contadores de la escena
+  anterior. Mantiene las seis liberaciones por parte y las de ambos buffers
+  de cada cilindro, con su orden y sus NULL posteriores. Sigue al **49.07%**.
+- 46cce0 llama primero a RallyData_FUN407e70, como el original, en lugar
+  de GameInfo405e00. 41f930 llama al forward48ca60, no directamente a47c2f0.
+- GameInfo4f8a70 devuelve char*, como el texto que obtiene; sus consumidores
+  usan la firma real y desaparece el cast de puntero de función en4dce00.
+  Se recompilan la cabecera GameInfo.h y todos sus consumidores.
+- Backdrop403890 copia el color y fija alpha=0x73 antes del fill, sin alterar
+  el color global. Sigue al48.90%. 5057e0 llega64.13%,40c2a0=76.11% y
+  416670=48.19%. No copiar los porcentajes de otros commits.
+- Las dos flags de wrong-way siguen en su array real; el bucle nuevo de
+  slots no pierde el reinicio del segundo jugador. No se renombra ningún
+  owner ni se introducen direcciones originales como constantes ejecutables.
+
+### Pruebas y medición
+
+`tests/differential_shadow_cleanup.py`: **6000 casos nativos / cero diferencias**,
+modelo de propiedad de30casters/10cilindros, partes0..4, buffers nulos y vivos,
+orden de liberación, NULL de los punteros, cuatro contadores y arena64KiB.
+FreeGenericFileBuffer se simula sin destruir los bloques para revisar todos
+los campos. El PE08 falla en case0/offset4276: conserva shadowVertexCount.
+No es una prueba de partida real ni de proveedores que sustituyan los objetos.
+El harness existente de carrera pasa otros **6000 / cero diferencias** en el
+PE final, incluidos ambos jugadores, diez registros y cinco slots.
+
+Los símbolos de SDK `_D3DXInitialize@0` y `_D3DXUninitialize@0` corresponden
+respectivamente a4c6794/4c686d. Las cadenas internas del original identifican
+las dos APIs. Se anotan LIBRARY, con sus símbolos reales del PDB, sin cuerpos
+inventados. Los propios helpers de biblioteca no se cuentan como funciones
+FUNCTION exactas: sus cuerpos SDK siguen distintos. Los callbacks4a9b30/50
+sí son exactos una vez que sus llamadas se resuelven. El PDB08 confirma sus
+símbolos en50349a/503573; se añaden sólo esos dos callees al mapa de la base.
+
+Base08 reportada2489; base08 resuelta2491; nueve mejoras + un forward nuevo
+=>2501. `gains.tsv`, `newly-annotated.tsv` y `measurement-corrections.tsv`
+distinguen los tres casos. No se alteran los informes08 ni los current/baseline
+compartidos. Comparador08 fijado por SHA256 en ambas auditorías.
+
+Build correcto; datacmp **3203 /0**, dupes **3363funciones /0STUB /3197globals**;
+27overlaps heredados idénticos. Ninguna función retirada ni exacta perdida;
+auditorías completas sin errores de resolución. reccmp **2409/3367** estrictas,
+697bajo90; su universo incluye cuatro librerías y difiere del de bytes.
+Artefactos completos antes/después, hashes, informes y scripts de reproducción
+se guardan en **tools/matching-below700-09/**. El hito sigue abierto.
+
+Variantes no aplicadas: mipmaps4bd9d0 init/orden/walker57..77%;
+423970 helper e intlocal74%;4581d0walker56%;46d470 captura mode/pData64%;
+4a17f0 orden original con índices94.55% (limpieza esp8+8 frente a16);
+4f0580 widening/BYTEparam91.67%;46e6a0 pointer-before-counter98.85%;
+4b5380 count vivo54.49%;4b2090 dato capturado98.04%. Los prototipos aislados
+no se presentan como mejoras exactas.
+
+
+## Hito bajo 700 — lote 10: cursor, colores de ejes y dibujo de sombras
+
+Desde **81f052f**, sin merge ni cambios en el árbol del otro agente.
+**2504/3363 exactas por bytes**, **859 pendientes**, **160 para llegar a 699**.
+Son tres mejoras nuevas de código; ninguna corrección de medición, función
+retirada ni exacta perdida. reccmp: **2412/3367** estrictas y **694 bajo 90**.
+
+| Función | reccmp antes | Después | Recuperación |
+|---|---:|---:|---|
+| 49c370 | 68.24% | 100% | Cursor con lectura DWORD y escritura BYTE, mediante dos vistas de un owner real de cuatro bytes. |
+| 4ff060 | 65.31% | 100% | Cuatro llamadas de dibujo explícitas y colores leídos después del proveedor de selección. |
+| 4b6240 | 72.61% | 100% | Parámetro DWORD, máscara BYTE calculada una vez y pLast publicado antes de las llamadas de textura. |
+
+CallbackIndex es una union BYTE/DWORD en Game.h; su owner sigue en593ba8.
+El cursor sólo modifica el byte bajo y conserva los tres superiores. Un
+bitfield8+24 provocaba stores DWORD y no coincidía. Se recompilan todos los
+consumidores de Game.h. No se añaden owners ni padding ficticio.
+
+La fila de ejes conserva visibilidad, enabled y selección, con cuatro sitios
+de llamada. El blanco se lee después de FUN4fc610, como en el original.
+Ese proveedor actualmente consulta un global: la prueba simula cambios de
+paleta para detectar el orden, sin afirmar un fallo visual observado en juego.
+
+Scene_DrawShadowBatches recibe unsigned int también en Graphics.h y en el
+forward de Game.cpp. El llamador49d3f0 conserva sus instrucciones de llamada
+y su porcentaje93.617%; no se cuenta como una mejora. La máscara corresponde
+a los bits de vista0..7 (el renderer usa0/1). No se atribuye semántica C++
+definida a shifts fuera del dominio. Inicializar pLast antes de las llamadas
+de textura y mantener la máscara fuera del bucle recupera los86instructions.
+
+### Pruebas y trazabilidad
+
+- differential_callback_cursor.py: **6000 casos nativos / cero diferencias**,
+  todos los counts0..255, transiciones de flags y edad, publicación del registro,
+  preservación de los bytes altos y comparación de toda una arena64KiB.
+  Código original y recompilado ejecutados; sin proveedores simulados.
+- differential_axis_colours.py: **6000 casos nativos / cero diferencias**,
+  visibilidad, selección, enabled, NULL axis, límites short, argumentos, orden
+  de llamadas, paletas vivas y arena64KiB. Lookup/highlight/draw simulados.
+  El PE09 falla en case1/offset3 al capturar el blanco antes de highlight.
+- Sombras verificadas por auditoría completa de sus bytes; no se añade una
+  prueba nativa de esta función ni se afirma haber probado una partida real.
+
+Build completo correcto; datacmp **3203variables /0incidencias**;
+dupes **3363funciones /0STUB /3197globals**;27overlaps heredados idénticos.
+Auditoría canónica:3363funciones, ceroerrores de resolución. El comparador
+congelado es el mismo de09. Se retiran notas antiguas de4a9b30/50, ya exactas
+en09; no se cuentan nuevamente. Artefactos, PE/PDB/objetos antes/después,
+informes, scripts, hashes y reproducción en **tools/matching-below700-10/**.
+El hito sigue abierto.
+
+Variantes descartadas:509d00/90 helpers87% y memset35%;5004c0BYTE97.14%;
+502570copias57..74%;423d70temps80%;4cf470publicación63%;4d0780tail67%.
+45f4a0 mejora aislada98.28% capturando el registro de efectos antes de las
+llamadas; resta LEA[edx+ecx] frente a[ecx+edx]. No aplicada ni contada.
+En sombras BYTEview dejaba ANDff o MOVcl; unsigned view y máscara expresión
+coinciden, mientras que (view&31) queda97.11%. No repetir esas variantes.

@@ -1351,7 +1351,7 @@ private:
     friend void Scene_EndShadowBatch(void);
     friend void Scene_SetLightAttenuation(SceneNode *pNode, int attenuation);
     friend void Scene_SetLightColour(SceneNode *pNode, int r, int g, int b);
-    friend void Scene_DrawShadowBatches(BYTE view);
+    friend void Scene_DrawShadowBatches(unsigned int view);
     friend void Graphics_SetFog(int start, int end, int a, int b, DWORD colour);
     friend void Graphics_EnableFog(void);
     friend void Graphics_DisableFog(void);

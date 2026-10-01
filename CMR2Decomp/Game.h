@@ -29,6 +29,12 @@ struct FuncTableGroup
     OtherFuncTableEntry func2;
 };
 
+// The callback cursor is read as a DWORD and updated through its low byte.
+union CallbackIndex {
+    BYTE index;
+    DWORD packed;
+};
+
 struct Unk0049c2c0
 {
     BYTE count;
@@ -189,7 +195,7 @@ public:
     // GLOBAL: CMR2 0x00593ba4
     static Unk00817d98 *m_unk0x00593ba4;
     // GLOBAL: CMR2 0x00593ba8
-    static BYTE m_unk0x00593ba8;
+    static CallbackIndex m_unk0x00593ba8;
 
     // GLOBAL: CMR2 0x00523bc8
     static FuncTableGroup m_initializeGameGroupedFuncTable[10];

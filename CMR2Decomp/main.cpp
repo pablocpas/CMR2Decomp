@@ -314,7 +314,6 @@ extern "C" HRESULT WINAPI D3DXInitialize(void);
 extern "C" HRESULT WINAPI D3DXUninitialize(void);
 
 // Shuts D3DX down (registered as a callback by FUN_004a9b30).
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9b50
 BYTE FUN_004a9b50(void)
 {
@@ -323,7 +322,6 @@ BYTE FUN_004a9b50(void)
 }
 
 // Starts D3DX and registers its shutdown.
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a9b30
 void FUN_004a9b30(void)
 {
@@ -383,3 +381,9 @@ unsigned int CMain::GetFrameDelta(void)
 // The game's statically linked CRT sprintf (ours comes from the import library).
 // LIBRARY: CMR2 0x00405620
 // _sprintf
+
+// Statically linked DirectX helpers called by the startup/shutdown callbacks.
+// LIBRARY: CMR2 0x004c6794
+// _D3DXInitialize@0
+// LIBRARY: CMR2 0x004c686d
+// _D3DXUninitialize@0

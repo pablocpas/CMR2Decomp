@@ -232,7 +232,6 @@ BYTE *FUN_004eb450(int index)
 // Saves the profiles whose name has just been edited, clearing the dirty flag
 // of the ones written; returns whether all of them were saved. Profiles with
 // bit 0x200000 set are left alone.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb3e0
 bool FUN_004eb3e0(void)
 {
