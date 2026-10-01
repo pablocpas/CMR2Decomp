@@ -204,8 +204,8 @@ void FUN_004d4f90(int param_1, int param_2, int param_3)
 {
     Texture *pTexture;
 
-    g_unk0x008189a8[1] = param_2;
     g_unk0x008189a8[0] = param_1 - (int)(g_pGraphics->resX * 0x30) / 0x280 / 2;
+    g_unk0x008189a8[1] = param_2;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x30) / 640;
     g_unk0x008189a8[3] = (int)(g_pGraphics->resY * 0x1c) / 480;
     FUN_004d27e0(g_unk0x008189a8, (BYTE *)g_colourText0x0052496c);
@@ -443,9 +443,9 @@ void FUN_004d9450(Menu *pMenu)
     y = ((int)(g_pGraphics->resY * 56) / 480 + (int)(g_pGraphics->resY * 374) / 480) / 2 -
         ((int)(g_pGraphics->resY * 36) / 480 * pMenu->itemCount) / 2;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowWhite0x00524974, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourWhite0x00524968, 1);
@@ -593,9 +593,9 @@ void FUN_004e0770(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -5474,9 +5474,9 @@ void FUN_004ded80(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y0;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -6996,9 +6996,9 @@ void FUN_004e1230(Menu *pMenu)
         pShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y0;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pColour, 1);
@@ -8825,9 +8825,9 @@ void FUN_004db850(Menu *pMenu)
         pShadow = (int *)g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     g_unk0x008189a8[1] = (short)baseY;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pColour, 1);
@@ -9792,9 +9792,9 @@ void FUN_004d7750(Menu *pMenu)
         pShadow = (int *)g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     g_unk0x008189a8[1] = (short)baseY;
+    g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pColour, 1);
@@ -10169,9 +10169,9 @@ void FUN_004d8480(Menu *pMenu)
     baseY = ((int)(g_pGraphics->resY * 0x38) / 0x1e0 + (int)(g_pGraphics->resY * 0x176) / 0x1e0) / 2 -
             (((int)(g_pGraphics->resY * 0x24) / 0x1e0) * pMenu->itemCount) / 2;
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 99) / 0x280);
+    g_unk0x008189a8[1] = (short)baseY;
     g_unk0x008189a8[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[1] = (short)baseY;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourShadowWhite0x00524974, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)g_colourWhite0x00524968, 1);
@@ -10779,10 +10779,10 @@ void FUN_004e8b60(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[1] = top;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[1] = top;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -11511,9 +11511,9 @@ void FUN_004e77c0(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
     g_unk0x008189a8[1] = top;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -11743,10 +11743,10 @@ void FUN_004e90f0(Menu *pMenu)
         pLineColour = g_colourText0x0052496c;
         pLineShadow = g_colourShadowText0x00524978;
     }
-    g_unk0x008189a8[1] = top;
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
+    g_unk0x008189a8[1] = top;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 0x11a) / 0x280;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
@@ -11847,9 +11847,9 @@ void FUN_004d8ed0(Menu *pMenu)
         pLineShadow = g_colourShadowText0x00524978;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
-    g_unk0x008189a8[3] = 1;
-    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[1] = y;
+    g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
+    g_unk0x008189a8[3] = 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
     g_unk0x008189a8[1]++;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
