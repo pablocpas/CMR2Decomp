@@ -10608,12 +10608,14 @@ void FUN_0047b970(unsigned int param_1)
 void FUN_004873f0(int *param_1, int param_2, int param_3)
 {
     short *pOut = *(short **)(param_3 + 4);
-    FixVector v;
-    int absY = param_1[1];
-    int dx = 0;
-    int dy = 0;
-    int maxRight = 0;
+    FixVector dir;
+    FixVector perp;
+    FixVector pt;
     int maxLeft = 0;
+    int maxRight = 0;
+    int absY = param_1[1];
+    int right;
+    int left;
     int len;
     int *p;
     int n;
@@ -10625,56 +10627,52 @@ void FUN_004873f0(int *param_1, int param_2, int param_3)
         absY = -absY;
 
     if (absY > 0xfd70) {
-        v.x = param_1[3];
-        v.y = 0;
-        v.z = param_1[5];
-        len = FixVecLength(&v);
+        dir = *(FixVector *)&param_1[3];
+        dir.y = 0;
+        len = FixVecLength(&dir);
         if (len == 0) {
-            dx = 0;
-            dy = 0;
+            dir.x = 0;
+            dir.y = 0;
+            dir.z = 0;
         } else {
-            FixVecScaleRecip(&v, &v, len);
-            dx = v.x;
-            dy = v.z;
+            FixVecScaleRecip(&dir, &dir, len);
         }
     } else {
-        v.x = param_1[0];
-        v.y = 0;
-        v.z = param_1[2];
-        len = FixVecLength(&v);
+        dir = *(FixVector *)param_1;
+        dir.y = 0;
+        len = FixVecLength(&dir);
         if (len == 0) {
-            dx = 0;
-            dy = 0;
+            dir.x = 0;
+            dir.y = 0;
+            dir.z = 0;
         } else {
-            FixVecScaleRecip(&v, &v, len);
-            dx = v.x;
-            dy = v.z;
+            FixVecScaleRecip(&dir, &dir, len);
         }
     }
+    perp.x = dir.z;
+    perp.y = 0;
+    perp.z = -dir.x;
 
     p = (int *)(param_2 + 8);
     n = 8;
     do {
-        int c = p[-1];
-        int right = FixMul(dx, p[-2]) + FixMul(dy, p[0]);
-        int left = FixMul(-dx, p[0]) + FixMul(dy, p[-2]);
-        short q = (short)(c >> 9);
-
-        if (right > 0 && maxRight < right)
+        pt = *(FixVector *)(p - 2);
+        right = FixVecDot(&pt, &dir);
+        left = FixVecDot(&pt, &perp);
+        if (right > 0 && right > maxRight)
             maxRight = right;
-        if (left > 0 && maxLeft < left)
+        if (left > 0 && left > maxLeft)
             maxLeft = left;
-        if ((short)pOut[2] * 0x200 < c)
-            pOut[2] = q;
-        if (c < (short)pOut[3] * 0x200)
-            pOut[3] = q;
-
+        if (pt.y > pOut[2] * 0x200)
+            pOut[2] = (short)(pt.y >> 9);
+        if (pt.y < pOut[3] * 0x200)
+            pOut[3] = (short)(pt.y >> 9);
         p += 3;
     } while (--n != 0);
 
-    pOut[0] = (short)(dx >> 9);
+    pOut[0] = (short)(dir.x >> 9);
+    pOut[1] = (short)(dir.z >> 9);
     pOut[4] = (short)(maxRight >> 9);
-    pOut[1] = (short)(dy >> 9);
     pOut[5] = (short)(maxLeft >> 9);
 }
 
