@@ -1298,3 +1298,62 @@ Variantes no aplicadas: mipmaps4bd9d0 init/orden/walker57..77%;
 4f0580 widening/BYTEparam91.67%;46e6a0 pointer-before-counter98.85%;
 4b5380 count vivo54.49%;4b2090 dato capturado98.04%. Los prototipos aislados
 no se presentan como mejoras exactas.
+
+
+## Hito bajo 700 — lote 10: cursor, colores de ejes y dibujo de sombras
+
+Desde **81f052f**, sin merge ni cambios en el árbol del otro agente.
+**2504/3363 exactas por bytes**, **859 pendientes**, **160 para llegar a 699**.
+Son tres mejoras nuevas de código; ninguna corrección de medición, función
+retirada ni exacta perdida. reccmp: **2412/3367** estrictas y **694 bajo 90**.
+
+| Función | reccmp antes | Después | Recuperación |
+|---|---:|---:|---|
+| 49c370 | 68.24% | 100% | Cursor con lectura DWORD y escritura BYTE, mediante dos vistas de un owner real de cuatro bytes. |
+| 4ff060 | 65.31% | 100% | Cuatro llamadas de dibujo explícitas y colores leídos después del proveedor de selección. |
+| 4b6240 | 72.61% | 100% | Parámetro DWORD, máscara BYTE calculada una vez y pLast publicado antes de las llamadas de textura. |
+
+CallbackIndex es una union BYTE/DWORD en Game.h; su owner sigue en593ba8.
+El cursor sólo modifica el byte bajo y conserva los tres superiores. Un
+bitfield8+24 provocaba stores DWORD y no coincidía. Se recompilan todos los
+consumidores de Game.h. No se añaden owners ni padding ficticio.
+
+La fila de ejes conserva visibilidad, enabled y selección, con cuatro sitios
+de llamada. El blanco se lee después de FUN4fc610, como en el original.
+Ese proveedor actualmente consulta un global: la prueba simula cambios de
+paleta para detectar el orden, sin afirmar un fallo visual observado en juego.
+
+Scene_DrawShadowBatches recibe unsigned int también en Graphics.h y en el
+forward de Game.cpp. El llamador49d3f0 conserva sus instrucciones de llamada
+y su porcentaje93.617%; no se cuenta como una mejora. La máscara corresponde
+a los bits de vista0..7 (el renderer usa0/1). No se atribuye semántica C++
+definida a shifts fuera del dominio. Inicializar pLast antes de las llamadas
+de textura y mantener la máscara fuera del bucle recupera los86instructions.
+
+### Pruebas y trazabilidad
+
+- differential_callback_cursor.py: **6000 casos nativos / cero diferencias**,
+  todos los counts0..255, transiciones de flags y edad, publicación del registro,
+  preservación de los bytes altos y comparación de toda una arena64KiB.
+  Código original y recompilado ejecutados; sin proveedores simulados.
+- differential_axis_colours.py: **6000 casos nativos / cero diferencias**,
+  visibilidad, selección, enabled, NULL axis, límites short, argumentos, orden
+  de llamadas, paletas vivas y arena64KiB. Lookup/highlight/draw simulados.
+  El PE09 falla en case1/offset3 al capturar el blanco antes de highlight.
+- Sombras verificadas por auditoría completa de sus bytes; no se añade una
+  prueba nativa de esta función ni se afirma haber probado una partida real.
+
+Build completo correcto; datacmp **3203variables /0incidencias**;
+dupes **3363funciones /0STUB /3197globals**;27overlaps heredados idénticos.
+Auditoría canónica:3363funciones, ceroerrores de resolución. El comparador
+congelado es el mismo de09. Se retiran notas antiguas de4a9b30/50, ya exactas
+en09; no se cuentan nuevamente. Artefactos, PE/PDB/objetos antes/después,
+informes, scripts, hashes y reproducción en **tools/matching-below700-10/**.
+El hito sigue abierto.
+
+Variantes descartadas:509d00/90 helpers87% y memset35%;5004c0BYTE97.14%;
+502570copias57..74%;423d70temps80%;4cf470publicación63%;4d0780tail67%.
+45f4a0 mejora aislada98.28% capturando el registro de efectos antes de las
+llamadas; resta LEA[edx+ecx] frente a[ecx+edx]. No aplicada ni contada.
+En sombras BYTEview dejaba ANDff o MOVcl; unsigned view y máscara expresión
+coinciden, mientras que (view&31) queda97.11%. No repetir esas variantes.

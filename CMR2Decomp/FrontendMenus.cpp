@@ -1762,34 +1762,28 @@ void FUN_004ff0f0(short x, short y, DWORD colour, AxisBinding *pAxis)
 
 // Draws row `index` of the calibration page: the axis bar in white when
 // selected (red while calibrating), dim when the entry is hidden.
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ff060
 void FUN_004ff060(short x, short y, Menu *pMenu, int index)
 {
     AxisBinding *pAxis;
-    DWORD colour;
     BYTE red[4];
-
     red[1] = 0x14;
     red[2] = 0x14;
     red[0] = 0xf0;
     red[3] = 0xff;
-    if (!pMenu->items[index].visible) {
-        pAxis = NULL;
-        colour = *(DWORD *)g_colourDim0x00524970;
-    } else {
+    if (pMenu->items[index].visible) {
         pAxis = FUN_004fbe60(index);
         if (pMenu->cursor == index) {
-            colour = *(DWORD *)g_colourWhite0x00524968;
             if (FUN_004fc610() != 0)
-                colour = *(DWORD *)red;
-        } else {
-            colour = *(DWORD *)g_colourText0x0052496c;
-            if (!pMenu->items[index].enabled)
-                return;
+                FUN_004ff0f0(x, y, *(DWORD *)red, pAxis);
+            else
+                FUN_004ff0f0(x, y, *(DWORD *)g_colourWhite0x00524968, pAxis);
+        } else if (pMenu->items[index].enabled) {
+            FUN_004ff0f0(x, y, *(DWORD *)g_colourText0x0052496c, pAxis);
         }
+    } else {
+        FUN_004ff0f0(x, y, *(DWORD *)g_colourDim0x00524970, NULL);
     }
-    FUN_004ff0f0(x, y, colour, pAxis);
 }
 
 // FUNCTION: CMR2 0x004ff420

@@ -52,7 +52,7 @@ unsigned int CGame::m_unk0x00523c18[16] = {
     0x0900ff08, 0x0900ff07, 0x0000ff09, 0xffffffff,
 };
 BYTE CGame::m_unk0x00593cac;
-BYTE CGame::m_unk0x00593ba8;
+CallbackIndex CGame::m_unk0x00593ba8;
 Unk00817d98 *CGame::m_unk0x00593ba4;
 
 BYTE CGame::m_unk0x00523d68 = 1;
@@ -1164,18 +1164,17 @@ void CGame::FUN_0049c310(Unk0049c2c0 *param1)
         m_unk0x00593cac = 0;
 }
 
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049c370
 void CGame::FUN_0049c370(Unk0049c2c0 *param1)
 {
     unsigned int tVar1;
 
-    m_unk0x00593ba8 = m_unk0x00593ba8 & 0xffffff00;
+    m_unk0x00593ba8.index = 0;
     if (param1->count > 0)
     {
         do
         {
-            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8];
+            m_unk0x00593ba4 = &param1->unk[m_unk0x00593ba8.packed & 0xff];
             tVar1 = m_unk0x00593ba4->field0x1;
             if (tVar1 & 0x3000000)
             {
@@ -1187,8 +1186,8 @@ void CGame::FUN_0049c370(Unk0049c2c0 *param1)
             else
                 m_unk0x00593ba4->field0x2 = m_unk0x00593ba4->field0x2 + 1;
 
-            m_unk0x00593ba8++;
-        } while (m_unk0x00593ba8 < param1->count);
+            m_unk0x00593ba8.index++;
+        } while (m_unk0x00593ba8.index < param1->count);
     }
 }
 
@@ -2572,7 +2571,7 @@ void Quad2D_DrawLayer(unsigned int layer);
 void Billboard_Draw(SceneNode *pCamera);
 void Glow_Draw(SceneNode *pCamera, BYTE view);
 void Particle_DrawAll(int param, BYTE view);
-void Scene_DrawShadowBatches(BYTE view);
+void Scene_DrawShadowBatches(unsigned int view);
 void Scene_RelightSector(int sector);
 BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance);
 void FUN_004b7de0(SceneNode *pNode, int unused);
@@ -2713,7 +2712,7 @@ int FUN_0049d3f0(int param1, int param2, void *param3, int bit, BYTE flag)
         Graphics_SetLightingMode(5);
         Line2D_Draw();
         Billboard_Draw((SceneNode *)param2);
-        Scene_DrawShadowBatches((BYTE)bit);
+        Scene_DrawShadowBatches(bit);
     }
     Flare_SampleVisibility(NULL, NULL, 0);
     CGraphics::SetZWriteEnable(0);
