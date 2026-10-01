@@ -21581,7 +21581,7 @@
   },
   "0x480600": {
     "n": "StageObject_UpdateDebris",
-    "s": 0.28287841191067,
+    "s": 0.888268156424581,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",

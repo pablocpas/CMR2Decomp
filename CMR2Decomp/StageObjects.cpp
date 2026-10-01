@@ -2870,75 +2870,66 @@ void FUN_004805f0(int value)
 
 // Interpolates every active debris slot's derived position arrays one step
 // toward their targets by `scale` (16.16 fixed point).
+// One debris piece (0x938 bytes): current, previous and interpolated copies
+// of its position, its 20 outline points and its 3x6 shard vertices.
+struct DebrisSlot {
+    FixVector pos;               // 0x000
+    BYTE field_0xc[0xc];
+    FixVector points[20];        // 0x018
+    FixVector shards[3][6];      // 0x108
+    FixVector prevPos;           // 0x1e0
+    FixVector lerpPos;           // 0x1ec
+    FixVector prevPoints[20];    // 0x1f8
+    FixVector lerpPoints[20];    // 0x2e8
+    FixVector prevShards[3][6];  // 0x3d8
+    FixVector lerpShards[3][6];  // 0x4b0
+    BYTE field_0x588[0x10c];
+    int active;                  // 0x694
+    BYTE field_0x698[0x2a0];
+};
+
 // FUNCTION: CMR2 0x00480600
 void StageObject_UpdateDebris(int scale)
 {
-    BYTE *pSlot;
+    DebrisSlot *pSlot;
     FixVector delta;
-    int *p;
-    int *q;
-    int *d;
-    int index;
-    int offset;
-    int count;
-    int row;
-    int column;
+    int i;
+    int k;
+    int r;
+    int c;
 
-    index = 0;
-    if (g_unk0x00590afc == 0)
-        return;
-    offset = 0;
-    do {
-        pSlot = (BYTE *)g_unk0x00590af8 + offset;
-        if (*(int *)(pSlot + 0x694) != 0) {
-            delta.x = *(int *)pSlot - *(int *)(pSlot + 0x1e0);
-            delta.y = *(int *)(pSlot + 4) - *(int *)(pSlot + 0x1e4);
-            delta.z = *(int *)(pSlot + 8) - *(int *)(pSlot + 0x1e8);
+    for (i = 0; i < (int)(g_unk0x00590afc & 0xff); i++) {
+        pSlot = &((DebrisSlot *)g_unk0x00590af8)[i];
+        if (pSlot->active != 0) {
+            delta.x = pSlot->pos.x - pSlot->prevPos.x;
+            delta.y = pSlot->pos.y - pSlot->prevPos.y;
+            delta.z = pSlot->pos.z - pSlot->prevPos.z;
             FixVecScale(&delta, &delta, scale);
-            *(int *)(pSlot + 0x1ec) = *(int *)(pSlot + 0x1e0) + delta.x;
-            *(int *)(pSlot + 0x1f0) = *(int *)(pSlot + 0x1e4) + delta.y;
-            *(int *)(pSlot + 0x1f4) = *(int *)(pSlot + 0x1e8) + delta.z;
-
-            p = (int *)(pSlot + 0x18);
-            q = (int *)(pSlot + 0x1f8);
-            d = (int *)(pSlot + 0x2e8);
-            count = 20;
-            do {
-                delta.x = p[0] - q[0];
-                delta.y = p[1] - q[1];
-                delta.z = p[2] - q[2];
+            pSlot->lerpPos.x = pSlot->prevPos.x + delta.x;
+            pSlot->lerpPos.y = pSlot->prevPos.y + delta.y;
+            pSlot->lerpPos.z = pSlot->prevPos.z + delta.z;
+            for (k = 0; k < 20; k++) {
+                delta.x = pSlot->points[k].x - pSlot->prevPoints[k].x;
+                delta.y = pSlot->points[k].y - pSlot->prevPoints[k].y;
+                delta.z = pSlot->points[k].z - pSlot->prevPoints[k].z;
                 FixVecScale(&delta, &delta, scale);
-                d[0] = q[0] + delta.x;
-                d[1] = q[1] + delta.y;
-                d[2] = q[2] + delta.z;
-                p += 3;
-                q += 3;
-                d += 3;
-            } while (--count);
-
-            p = (int *)(pSlot + 0x108);
-            q = (int *)(pSlot + 0x3d8);
-            d = (int *)(pSlot + 0x4b0);
-            row = 3;
-            do {
-                column = 6;
-                do {
-                    delta.x = p[0] - q[0];
-                    delta.y = p[1] - q[1];
-                    delta.z = p[2] - q[2];
+                pSlot->lerpPoints[k].x = pSlot->prevPoints[k].x + delta.x;
+                pSlot->lerpPoints[k].y = pSlot->prevPoints[k].y + delta.y;
+                pSlot->lerpPoints[k].z = pSlot->prevPoints[k].z + delta.z;
+            }
+            for (r = 0; r < 3; r++) {
+                for (c = 0; c < 6; c++) {
+                    delta.x = pSlot->shards[r][c].x - pSlot->prevShards[r][c].x;
+                    delta.y = pSlot->shards[r][c].y - pSlot->prevShards[r][c].y;
+                    delta.z = pSlot->shards[r][c].z - pSlot->prevShards[r][c].z;
                     FixVecScale(&delta, &delta, scale);
-                    d[0] = q[0] + delta.x;
-                    d[1] = q[1] + delta.y;
-                    d[2] = q[2] + delta.z;
-                    p += 3;
-                    q += 3;
-                    d += 3;
-                } while (--column);
-            } while (--row);
+                    pSlot->lerpShards[r][c].x = pSlot->prevShards[r][c].x + delta.x;
+                    pSlot->lerpShards[r][c].y = pSlot->prevShards[r][c].y + delta.y;
+                    pSlot->lerpShards[r][c].z = pSlot->prevShards[r][c].z + delta.z;
+                }
+            }
         }
-        index++;
-        offset += 0x938;
-    } while (index < (int)(g_unk0x00590afc & 0xff));
+    }
 }
 // FUNCTION: CMR2 0x00480a50
 void FUN_00480a50(void)
