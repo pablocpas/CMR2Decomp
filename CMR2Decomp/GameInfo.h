@@ -28,21 +28,11 @@ struct GameInfo0xa4SubStruct8 {
 	};
 };
 
-// The same word in the records with a 3-bit level and a 6-bit score.
-struct RecordScoreBits {
-	unsigned car : 6;
-	unsigned manual : 1;
-	unsigned level : 3;
-	unsigned score : 6;
-	unsigned rest : 16;
-};
-
 struct GameInfo0xa4SubStruct12 {
 	char ident[4];
 	union {
 		unsigned int flags;
 		RecordFlagBits bits;
-		RecordScoreBits scoreBits;
 	};
 	unsigned int value;
 };

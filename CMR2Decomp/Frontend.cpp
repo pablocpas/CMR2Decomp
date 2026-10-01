@@ -1279,6 +1279,18 @@ BYTE FUN_004cf660(int index, int pBlock)
 
 // Best-result records of the frontend: a header word (car, flags, a random
 // tag) followed by the result, compared field by field.
+// The flags word of a GameInfo0xa4SubStruct12 record with a 3-bit level and a 6-bit score.
+struct RecordScoreBits {
+    unsigned car : 6;
+    unsigned manual : 1;
+    unsigned level : 3;
+    unsigned score : 6;
+    unsigned rest : 16;
+};
+// Kept out of GameInfo.h: one more type there changes MSVC6's register ties in
+// GameInfo.cpp (0x4f4b90 drops from 94.9% to 76.7%).
+#define SCORE_BITS(pRecord) (*(RecordScoreBits *)&(pRecord)->flags)
+
 struct RecordHeader {
     unsigned car : 6;
     unsigned bit6 : 1;
@@ -1646,9 +1658,9 @@ char FUN_004cfff0(int param1, int index, char *pName)
     while (slot < 5) {
         pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xff4) + slot;
         if (pDevice != NULL) {
-            if (pDevice->level < pRecord->scoreBits.level)
+            if (pDevice->level < SCORE_BITS(pRecord).level)
                 better = TRUE;
-            if ((pRecord->scoreBits.level == pDevice->level && pDevice->score < pRecord->scoreBits.score) || better) {
+            if ((SCORE_BITS(pRecord).level == pDevice->level && pDevice->score < SCORE_BITS(pRecord).score) || better) {
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x1024);
 
@@ -1658,10 +1670,10 @@ char FUN_004cfff0(int param1, int index, char *pName)
                     }
                 }
                 strcpy(pRecord->ident, pName);
-                pRecord->scoreBits.car = RallyData_FUN_004086b0((BYTE)index);
-                pRecord->scoreBits.manual = FUN_004086f0((BYTE)index);
-                pRecord->scoreBits.level = pDevice->level;
-                pRecord->scoreBits.score = pDevice->score;
+                SCORE_BITS(pRecord).car = RallyData_FUN_004086b0((BYTE)index);
+                SCORE_BITS(pRecord).manual = FUN_004086f0((BYTE)index);
+                SCORE_BITS(pRecord).level = pDevice->level;
+                SCORE_BITS(pRecord).score = pDevice->score;
                 pRecord->value = ((unsigned int *)pDevice)[1];
                 g_unk0x00817413 = 1;
                 return (slot != 0) + 1;
