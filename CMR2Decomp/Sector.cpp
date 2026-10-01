@@ -288,7 +288,6 @@ BYTE FUN_004b8540(void)
     return 1;
 }
 
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b85f0
 int Sector_FromPosition(FixVector *pPos)
 {

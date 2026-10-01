@@ -534,7 +534,6 @@ extern KnockoutMatch *g_pKnockoutMatch;
 
 // Draw callback of the in-race pause header: "PAUSED" followed by a separator
 // bar and the name of the driver (or car) the pause menu belongs to.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0044b7b0
 void FUN_0044b7b0(Menu *pMenu)
 {

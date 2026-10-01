@@ -92,7 +92,7 @@ Menu *FUN_004f8360(void);
 Menu *FUN_004f8330(void);
 void Menu_SetNextAction(int action);
 void FUN_004a0c40(char param1);
-int FUN_00407650(void);
+unsigned short FUN_00407650(void);
 void FUN_004081d0(void);
 BYTE *RallyData_FUN_00408270(void);
 int RallyData_FUN_00408280(void);
@@ -1297,7 +1297,6 @@ void FUN_00406820(void)
     }
 }
 
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00406890
 char *RallyData_FUN_00406890(void)
 {
@@ -1348,13 +1347,14 @@ char *RallyData_FUN_00494a40(void)
 
 // GLOBAL: CMR2 0x0052ea68
 BYTE g_unk0x0052ea68[11];
-// Sorted distinct values (9), the 8 per-slot values and the count: one block,
-// because 0x4081d0 can append past the 9 sorted entries as the original does.
+// Sorted distinct values (9 slots; 0x4081d0 can append past them into the
+// next table, as the original does), the 8 per-slot values and the count.
 // GLOBAL: CMR2 0x0052ea74
-int g_unk0x0052ea74Block[18];
-#define g_unk0x0052ea74 ((BYTE *)g_unk0x0052ea74Block)
-#define g_unk0x0052ea98 (g_unk0x0052ea74Block + 9)
-#define g_unk0x0052eab8 (g_unk0x0052ea74Block[17])
+int g_unk0x0052ea74[9];
+// GLOBAL: CMR2 0x0052ea98
+int g_unk0x0052ea98[8];
+// GLOBAL: CMR2 0x0052eab8
+int g_unk0x0052eab8;
 
 // FUNCTION: CMR2 0x00408300
 BYTE RallyData_FUN_00408300(void)
@@ -1663,7 +1663,6 @@ int FUN_004eaca0(void);
 void RallyData_FUN_004088a0(BYTE index, int *pValues);
 
 // Resets the settings of record `index` to the defaults of the options.
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec210
 void FUN_004ec210(int index)
 {
@@ -1997,39 +1996,27 @@ unsigned int RallyData_FUN_00407e70(void);
 int FUN_00407270(void);
 
 #define STAGE_SCORE_SCALE(variant)                                                                  \
-    do {                                                                                            \
-        unsigned int championship;                                                                  \
-        unsigned int rally;                                                                         \
-        unsigned int difficulty;                                                                    \
-        if (!(BYTE)RallyData_GetFlag24()) {                                                         \
-            if ((BYTE)FUN_00407270())                                                               \
-                return 2000;                                                                        \
-            return g_stageScoreScale[(((g_selectedRallyData >> 5) & 0x1f) + (g_selectedRallyData & 0x1f) * 12) * 2 + \
-                                     (variant)] * 100;                                              \
-        }                                                                                           \
-        if ((BYTE)RallyData_FUN_00407e70()) {                                                       \
-            championship = RallyData_FUN_00406940();                                                \
-            rally = RallyData_FUN_00406950();                                                       \
-            difficulty = CGameInfo::FUN_00405d90();                                                 \
-            return g_rallyScoreScale[(difficulty & 0xff) + ((championship & 0xff) * 3 + (rally & 0xff)) * 3] * 100; \
-        }                                                                                           \
-        championship = RallyData_FUN_00406940();                                                    \
-        rally = RallyData_FUN_00406950();                                                           \
-        return g_rallyScoreScale[((championship & 0xff) * 3 + (rally & 0xff)) * 3] * 100;           \
-    } while (0)
+    if ((BYTE)RallyData_GetFlag24()) {                                                              \
+        if ((BYTE)RallyData_FUN_00407e70())                                                         \
+            return g_rallyScoreScale[((BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950()) * 3 + \
+                                     (BYTE)CGameInfo::FUN_00405d90()] * 100;                        \
+        return g_rallyScoreScale[((BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950()) * 3] * 100; \
+    }                                                                                               \
+    if ((BYTE)FUN_00407270())                                                                       \
+        return 2000;                                                                                \
+    return g_stageScoreScale[((g_selectedRallyData & 0x1f) * 12 + ((g_selectedRallyData >> 5) & 0x1f)) * 2 + \
+                             (variant)] * 100
 
 // Score scale of the current stage (first column).
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00407650
-int FUN_00407650(void)
+unsigned short FUN_00407650(void)
 {
     STAGE_SCORE_SCALE(0);
 }
 
 // Score scale of the current stage (second column).
-// match 34%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00407710
-int FUN_00407710(void)
+unsigned short FUN_00407710(void)
 {
     STAGE_SCORE_SCALE(1);
 }
@@ -2175,7 +2162,6 @@ BYTE *RallyData_GetTyreRecord(BYTE index)
 
 // Category colour of a driver's car: hue (5 bits), shade (4 bits) and value
 // byte, or 0x45 each when the driver has no category.
-// match 28%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00408b10
 void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue)
 {
@@ -2454,7 +2440,6 @@ BYTE FUN_00407150(BYTE param1, char param2)
 BYTE FUN_00407150(BYTE param1, char param2);
 
 // Stage group of a mode: in network games the last available one.
-// match 53%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004071c0
 BYTE FUN_004071c0(BYTE flags, char mode)
 {
@@ -3897,7 +3882,6 @@ void RallyData_FUN_00471cc0(int *pDest, void **pParam1)
 
 
 // Bumps the 0x7f80-masked field of the entry selected by each 0x30-byte record.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec1a0
 void RallyData_FUN_004ec1a0(void)
 {
@@ -4306,7 +4290,6 @@ RaceRecord g_raceRecords[8];
 int g_routeProbeCycles[2];
 
 // Restarts race record index; the two players also reset their route probe.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004207a0
 void RallyData_FUN_004207a0(int index)
 {
@@ -4350,7 +4333,6 @@ void RallyData_FUN_004207f0(void)
     RallyData_FUN_00420820();
 }
 
-// match 66%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00420820
 void RallyData_FUN_00420820(void)
 {
@@ -5293,43 +5275,35 @@ int RallyData_FUN_00408010(int index)
 
 // Builds the sorted list of distinct values from the 30 entries of the table
 // at 0x4075f0 (shifting at most the first 9).
-// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004081d0
 void FUN_004081d0(void)
 {
     int *pValues;
-    int *pSorted = g_unk0x0052ea74Block;
-    int count;
     int remaining;
     int value;
     int pos;
     int i;
 
     pValues = (int *)RallyData_FUN_004075f0();
-    count = 1;
     g_unk0x0052eab8 = 1;
-    pSorted[0] = *pValues;
-    for (remaining = 30; remaining != 0; remaining--, pValues++) {
-        value = *pValues;
+    g_unk0x0052ea74[0] = *pValues;
+    for (remaining = 0; remaining < 30; remaining++) {
+        value = pValues[remaining];
         pos = -1;
-        for (i = 0; i < count; i++) {
-            if (value <= pSorted[i]) {
+        for (i = 0; i < g_unk0x0052eab8; i++) {
+            if (value <= g_unk0x0052ea74[i]) {
                 pos = i;
-                break;
+                i = g_unk0x0052eab8;
             }
         }
         if (pos == -1) {
-            pSorted[count] = value;
-            count++;
-            g_unk0x0052eab8 = count;
-        } else if (pSorted[pos] != value) {
-            if (pos < 8) {
-                for (i = 8; i > pos; i--)
-                    pSorted[i] = pSorted[i - 1];
-            }
-            pSorted[pos] = value;
-            count++;
-            g_unk0x0052eab8 = count;
+            g_unk0x0052ea74[g_unk0x0052eab8] = value;
+            g_unk0x0052eab8++;
+        } else if (g_unk0x0052ea74[pos] != value) {
+            for (i = 7; i >= pos; i--)
+                g_unk0x0052ea74[i + 1] = g_unk0x0052ea74[i];
+            g_unk0x0052ea74[pos] = value;
+            g_unk0x0052eab8++;
         }
     }
 }
@@ -5337,7 +5311,7 @@ void FUN_004081d0(void)
 // FUNCTION: CMR2 0x00408270
 BYTE *RallyData_FUN_00408270(void)
 {
-    return g_unk0x0052ea74;
+    return (BYTE *)g_unk0x0052ea74;
 }
 
 // FUNCTION: CMR2 0x00408280
@@ -5373,7 +5347,6 @@ short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 
 // Updates the route of every car, last in the race order first.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004209f0
 void FUN_004209f0(void)
 {

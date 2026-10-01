@@ -219,7 +219,6 @@ void FUN_0048c6e0(int *v, int *limit, int clampY)
 extern int g_physicsScale;
 
 // Clamps a vector to the scaled limits: eight units on X/Z, four on Y.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048c750
 void FUN_0048c750(int *v)
 {

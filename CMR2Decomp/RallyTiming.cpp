@@ -218,7 +218,6 @@ unsigned char RallyDataCountryIndex(void);
 
 // Awards the stage points (by position, ties sharing) to the rally totals and
 // re-sorts the stage order.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040cf30
 void FUN_0040cf30(void)
 {

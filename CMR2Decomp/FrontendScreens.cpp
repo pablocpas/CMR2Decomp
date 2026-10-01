@@ -1615,7 +1615,6 @@ void FUN_00409be0(int param);
 
 // Sends this machine's player description (id, car, flags) to the network
 // player list.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ec2b0
 void FUN_004ec2b0(void)
 {

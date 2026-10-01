@@ -1036,7 +1036,6 @@ unsigned int FUN_0040b1e0(int index)
     return g_netPlayers[index].flags >> 23 & 1;
 }
 
-// match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040b200
 void FUN_0040b200(int index)
 {

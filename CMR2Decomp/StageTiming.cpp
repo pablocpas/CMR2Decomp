@@ -426,26 +426,20 @@ BYTE StageTiming_FUN_00455ae0(void)
 
 // Removes a driver from every split ranking, remembering in slot the
 // driver's old rank index of the last split.
-// match 11%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00455bc0
 void FUN_00455bc0(int slot, int driver)
 {
     int splits = FUN_004583a0();
     int split;
     int pos;
-    char *pTimes;
-    char *pNext;
-    char *pRanks = (char *)&g_stageSplitRankings;
 
     for (split = 1; split <= splits; split++) {
-        pTimes = pRanks + 0x140 + split * 16;
-        pos = pTimes[driver - 0xa0];
-        pNext = pTimes + 1;
-        g_unk0x00541f90[slot] = pTimes[pos];
+        pos = g_stageSplitPositions[split][driver];
+        g_unk0x00541f90[slot] = g_stageSplitTimesRawDriverIx[split][pos];
         for (; pos < g_stageSplitDriverCount[split] - 1; pos++) {
-            pTimes[pos] = pNext[pos];
-            pTimes[pos - 0x140] = pTimes[pos - 0x13f];
-            g_stageSplitPositions[split][pTimes[pos - 0x140]] = (char)pos;
+            g_stageSplitTimesRawDriverIx[split][pos] = g_stageSplitTimesRawDriverIx[split][pos + 1];
+            g_stageSplitDriverIndices[split][pos] = g_stageSplitDriverIndices[split][pos + 1];
+            g_stageSplitPositions[split][g_stageSplitDriverIndices[split][pos]] = (char)pos;
         }
         g_stageSplitDriverCount[split]--;
     }
@@ -1357,7 +1351,6 @@ Unk0x00539278 g_forceFeedbackSlots[2];
 // GLOBAL: CMR2 0x00539278
 Unk0x00539278 *g_unk0x00539278;
 
-// match 75%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004246a0
 void FUN_004246a0(void)
 {
@@ -1746,7 +1739,6 @@ extern int g_dashGearMarker[2];
 extern int g_dashIdle[2];
 extern int g_dashRev[2];
 
-// match 14%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00445db0
 void FUN_00445db0(void)
 {
@@ -3865,7 +3857,6 @@ short *Car_GetOrder(void);
 
 // Interpolates, for every car and each of its four moving parts, the part's
 // matrix between its two keys and applies it to the part's node.
-// match 29%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00484d30
 void FUN_00484d30(int t)
 {
@@ -4033,7 +4024,6 @@ int g_unk0x00543d98;
 
 // Sets the object value ramp (v1 at route position `from` to v2 at `to`)
 // and resets every view's object state.
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045f300
 void FUN_0045f300(int v1, int v2, int from, int to, int initial)
 {
@@ -4060,7 +4050,6 @@ void FUN_0045f300(int v1, int v2, int from, int to, int initial)
 }
 
 // Sets the second ramp (records of 0x2c bytes at g_unk0x00543eb8).
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045f3d0
 void FUN_0045f3d0(int v1, int v2, int from, int to)
 {
@@ -4585,7 +4574,6 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend);
 void FUN_004789b0(BYTE *pCar);
 
 // Sets the third object ramp and resets every car's record and surface.
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045e710
 void FUN_0045e710(int v1, int v2, int from, int to)
 {
@@ -4697,8 +4685,8 @@ void FUN_00456a00(int car, int driver)
         FUN_00455af0(driver, FUN_00448110(), split);
 }
 
-int FUN_00407710(void);
-int FUN_00407650(void);
+unsigned short FUN_00407710(void);
+unsigned short FUN_00407650(void);
 
 // Sets up the three object ramps of the stage from its weather change.
 // match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)

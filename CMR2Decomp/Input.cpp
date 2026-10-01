@@ -1901,7 +1901,6 @@ HRESULT CInput::SetEffectGainAndDirection(int effectIndex, DWORD gain, LONG dire
     return E_INVALIDARG;
 }
 
-// match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004ab150
 int CInput::CreateConstantForceEffect(DWORD duration, LONG direction, LONG magnitude, DWORD attackTime, DWORD attackLevel, DWORD fadeTime, DWORD fadeLevel, int triggerButton, int deviceIndex)
 {
@@ -2207,7 +2206,6 @@ void CInput::FUN_004b7ca0(int param1)
 }
 
 // Pops the oldest character of the input ring buffer.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7cd0
 bool FUN_004b7cd0(int *pOut)
 {
@@ -2292,7 +2290,6 @@ void FUN_004b7d40(void)
 }
 
 // Pops the oldest key of the key press queue.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b7d60
 int FUN_004b7d60(int *pOut)
 {

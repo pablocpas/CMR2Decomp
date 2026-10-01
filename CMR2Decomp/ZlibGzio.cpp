@@ -84,7 +84,6 @@ local uLong  getLong      OF((gz_stream *s));
    can be checked to distinguish the two cases (if errno is zero, the
    zlib error is Z_MEM_ERROR).
 */
-// match 95%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004bdf00
 local gzFile gz_open(const char *path, const char *mode, int fd)
 {
@@ -241,7 +240,6 @@ int ZEXPORT gzsetparams(gzFile file, int level, int strategy)
    for end of file.
    IN assertion: the stream s has been sucessfully opened for reading.
 */
-// match 93%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004be520
 local int get_byte(gz_stream *s)
 {
@@ -324,7 +322,6 @@ local void check_header(gz_stream *s)
  * Cleanup then free the given gz_stream. Return a zlib error code.
    Try freeing in the reverse order of allocations.
  */
-// match 94%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004be5a0
 local int destroy(gz_stream *s)
 {
@@ -364,7 +361,6 @@ local int destroy(gz_stream *s)
      Reads the given number of uncompressed bytes from the compressed file.
    gzread returns the number of bytes actually read (0 for end of file).
 */
-// match 66%, zlib 1.1.3 built with different inlining; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004be660
 int ZEXPORT gzread(gzFile file, voidp buf, unsigned len)
 {

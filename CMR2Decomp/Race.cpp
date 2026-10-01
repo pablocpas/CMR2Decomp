@@ -3600,7 +3600,6 @@ void FUN_00418e20(int set, int dst, int src)
 }
 
 // Car speed as a 16.16 fraction of 120 (speed units clamped to 0..120).
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418e70
 int FUN_00418e70(int car)
 {
@@ -4084,11 +4083,11 @@ void FUN_0041d0c0(int param_1)
     }
 }
 
-int FUN_00407650(void);
-int FUN_00407710(void);
+unsigned short FUN_00407650(void);
+unsigned short FUN_00407710(void);
 void RallyData_FUN_00407800(unsigned int param1);
 void FUN_004918d0(void);
-void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary,
+void FUN_00461a30(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary,
                   BYTE **pSecondary);
 void FUN_00461a70(BYTE *pA, BYTE *pB);
 

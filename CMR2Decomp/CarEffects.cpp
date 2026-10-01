@@ -1101,28 +1101,32 @@ extern BYTE g_unk0x00538d2c[0xc8];
 extern double g_minus65536;
 
 // Colour of the wheel splashes and its brightened copy.
+struct SplashColour {
+    BYTE c0;
+    BYTE c1;
+    BYTE c2;
+    BYTE c3;
+};
 // GLOBAL: CMR2 0x005435c0
-BYTE g_unk0x005435c0[4];
+SplashColour g_unk0x005435c0;
 // GLOBAL: CMR2 0x005435cc
-BYTE g_unk0x005435cc[4];
+SplashColour g_unk0x005435cc;
 // GLOBAL: CMR2 0x00543808
 BYTE g_unk0x00543808;
 
 // Sets the splash colour of a player's car (and its average brightness).
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0045d1e0
 void FUN_0045d1e0(int player, BYTE *pColour)
 {
     if (player < 8) {
-        *(DWORD *)g_unk0x005435c0 = *(DWORD *)pColour;
-        g_unk0x005435cc[1] = (g_unk0x005435c0[1] >> 1) + 0x7f;
-        g_unk0x005435cc[0] = (g_unk0x005435c0[0] >> 1) + 0x7f;
-        g_unk0x005435cc[2] = (g_unk0x005435c0[2] >> 1) + 0x7f;
-        g_unk0x005435cc[3] = g_unk0x005435c0[3];
-        g_unk0x00543808 = (BYTE)((pColour[2] + pColour[1] + pColour[0]) / 3);
+        g_unk0x005435c0 = *(SplashColour *)pColour;
+        g_unk0x005435cc.c0 = (g_unk0x005435c0.c0 >> 1) + 0x7f;
+        g_unk0x005435cc.c1 = (g_unk0x005435c0.c1 >> 1) + 0x7f;
+        g_unk0x005435cc.c2 = (g_unk0x005435c0.c2 >> 1) + 0x7f;
+        g_unk0x005435cc.c3 = g_unk0x005435c0.c3;
+        g_unk0x00543808 = (BYTE)((pColour[0] + pColour[1] + pColour[2]) / 3);
     }
 }
-
 // Update callback: lifts the particle by half its size.
 // FUNCTION: CMR2 0x0045d250
 void FUN_0045d250(void *pParticle, ParticleType *pType, int param)

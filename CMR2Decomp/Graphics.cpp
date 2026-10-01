@@ -4471,7 +4471,6 @@ void Billboard_Add(BillboardDef *pDef, unsigned short *pTexture)
 }
 
 // Release callback: empties the billboard queue and disables it.
-// match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1500
 void Billboard_Reset(void)
 {

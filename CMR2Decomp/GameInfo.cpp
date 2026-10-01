@@ -1292,7 +1292,6 @@ bool CGameInfo::FUN_004d05a0(void) {
     return true;
 }
 
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a0c60
 void CGameInfo::FUN_004a0c60(void) {
     g_sessionNamePtr = (LPVOID *)m_unk0x005a00b8;
@@ -2900,7 +2899,6 @@ BYTE g_unk0x0082d14c;
 
 // Loads a 13-byte car colour record into the globals the stage sky uses: three
 // 16.16 vectors scaled by 10/127 and 1/127 and two 16.16 scalars.
-// match 89%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00507710
 void FUN_00507710(BYTE *pColour)
 {
@@ -3340,7 +3338,6 @@ void FUN_004f5150(char *pName)
 // Copies the string into CFrontend::m_stringDest and writes it back into the
 // buffer in groups of four characters, one space between groups (the last
 // character is dropped).
-// match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f8a90
 void FUN_004f8a90(char *pText)
 {
@@ -4024,16 +4021,11 @@ void FUN_00402bb0(Menu *pMenu, char param)
     g_unk0x0052af6c = pMenu->cursor;
 }
 
-// match 19%, registers only; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// match 19%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00402bf0
 void FUN_00402bf0(Menu *pMenu)
 {
-    if (pMenu->cursor == 2) {
-        pMenu->cursor = ((g_unk0x0052af6c >= 2) - 1 & 2) + 1;
-        g_unk0x0052af6c = pMenu->cursor;
-        return;
-    }
+    if (pMenu->cursor == 2)
+        pMenu->cursor = g_unk0x0052af6c < 2 ? 3 : 1;
     g_unk0x0052af6c = pMenu->cursor;
 }
 

@@ -1298,7 +1298,6 @@ struct RecordEntry {
 // two 4-bit fields merge of FUN_004d0370.
 // match 59%: register allocation of the device pointer and of the "better" flag
 // differs (the original keeps more values on the stack).
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cf740
 BYTE FUN_004cf740(int index, int pBlock)
 {
@@ -1405,7 +1404,6 @@ int FUN_004cf9d0(int param_1, int param_2)
 // when the option value beats the stored one.
 // match 70%: register allocation and the stack frame differ (the original uses
 // push ecx where we allocate two slots); the code is the same.
-// match 71%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004cfa10
 int FUN_004cfa10(int param_1, int param_2, char *pName)
 {

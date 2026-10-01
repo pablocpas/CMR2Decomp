@@ -659,7 +659,6 @@ void FUN_004b7d40(void);
 
 // Starts redefining a control: freezes the menu, waits for the keys to be
 // released and snapshots the axes of the selected joystick/mouse.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fbec0
 void FUN_004fbec0(Menu *pMenu, int param)
 {

@@ -1297,8 +1297,8 @@
   },
   "0x45d1e0": {
     "n": "FUN_0045d1e0",
-    "s": 0.26865671641791045,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "CarEffects.cpp",
     "symbol_name": "FUN_0045d1e0"
@@ -10103,8 +10103,8 @@
   },
   "0x402bf0": {
     "n": "FUN_00402bf0",
-    "s": 0.3125,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00402bf0"
@@ -17703,16 +17703,16 @@
   },
   "0x407650": {
     "n": "FUN_00407650",
-    "s": 0.3357664233576642,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_00407650"
   },
   "0x407710": {
     "n": "FUN_00407710",
-    "s": 0.3382352941176471,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_00407710"
@@ -18671,8 +18671,8 @@
   },
   "0x4081d0": {
     "n": "FUN_004081d0",
-    "s": 0.2459016393442623,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_004081d0"
@@ -23205,7 +23205,7 @@
   },
   "0x46acb0": {
     "n": "FUN_0046acb0",
-    "s": 0.14227642276422764,
+    "s": 0.984313725490196,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23833,8 +23833,8 @@
   },
   "0x455bc0": {
     "n": "FUN_00455bc0",
-    "s": 0.10606060606060606,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00455bc0"

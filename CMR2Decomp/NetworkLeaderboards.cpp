@@ -12,7 +12,6 @@ int CNetworkLeaderboards::m_totalLeaderboards;
 NetworkLeaderboard CNetworkLeaderboards::m_leaderboards[32];
 char CNetworkLeaderboards::m_strNetworkLeaderboardsDir[40] = "%s\\NetworkLeaderboards\\leaderboards.nlb";
 
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040e3c0
 void CNetworkLeaderboards::Reset() {
     m_leaderboardId = -1;

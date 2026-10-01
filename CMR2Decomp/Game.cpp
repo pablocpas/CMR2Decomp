@@ -3193,7 +3193,6 @@ BYTE FUN_004a1790(BYTE index)
 
 // Adds a remote player to the session player table (at most 7 players,
 // ignoring the local player and players already listed).
-// match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1850
 void FUN_004a1850(char *shortName, char *longName, DPID dpId)
 {
@@ -3409,7 +3408,6 @@ bool FUN_004aac40(BYTE param1)
 }
 
 // Enumera las sesiones o vuelca el buffer recibido en *param2.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004a1b90
 int FUN_004a1b90(int param1, void **param2)
 {

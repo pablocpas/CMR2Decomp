@@ -301,7 +301,6 @@ int FUN_00490570(void)
 
 // Accepts the collision when the target is behind the face and the direction
 // is nearly parallel to it.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00490640
 int FUN_00490640(void)
 {

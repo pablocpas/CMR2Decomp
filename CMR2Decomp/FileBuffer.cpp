@@ -260,7 +260,6 @@ int FUN_004eb440(void)
 }
 
 // Saves every player profile marked dirty (unless it has flag 0x200000).
-// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eb470
 void FUN_004eb470(void)
 {

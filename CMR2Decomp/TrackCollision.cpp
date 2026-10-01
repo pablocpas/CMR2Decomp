@@ -727,7 +727,6 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
 }
 
 // Ramps field 0x818 of the auto-gear car toward +1 or -1 by its two flags.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00494540
 void FUN_00494540(void)
 {

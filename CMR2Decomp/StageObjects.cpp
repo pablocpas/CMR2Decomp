@@ -42,7 +42,7 @@ void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary);
 int FUN_004616c0(BYTE a, BYTE b, int t);
 void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t);
 BYTE *FUN_00461830(unsigned short timeOfDay, int slot, BYTE **records);
-void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary);
+void FUN_00461a30(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary);
 void FUN_00461a70(BYTE *pA, BYTE *pB);
 void FUN_00461b30(BYTE *pObject, int type);
 void FUN_00461bb0(int t);
@@ -5086,7 +5086,6 @@ void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary)
 }
 
 // Blends two byte values: b + (a - b) * t, clamped to 255.
-// match 83%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004616c0
 int FUN_004616c0(BYTE a, BYTE b, int t)
 {
@@ -5947,7 +5946,6 @@ void FUN_0048db00(BYTE *p, int step)
     g_unk0x00591898[index] = g_unk0x005916a0[index];
 }
 
-// match 35%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0048dc30
 void FUN_0048dc30(BYTE *pCar, int step)
 {
@@ -6237,7 +6235,7 @@ BYTE *FUN_00461830(unsigned short timeOfDay, int slot, BYTE **records)
 // pointers: the primary from the first setting's time of day, the secondary
 // from the second one.
 // FUNCTION: CMR2 0x00461a30
-void FUN_00461a30(int timePrimary, int timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary)
+void FUN_00461a30(unsigned short timePrimary, unsigned short timeSecondary, BYTE **records, BYTE **pPrimary, BYTE **pSecondary)
 {
     BYTE *pObjectPrimary;
     BYTE *pObjectSecondary;
@@ -7140,7 +7138,6 @@ void Replay_InitSlots(void)
 BYTE g_unk0x00588ec8;
 
 // Frees the replay buffers (the second set only when not needed any more).
-// match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046c6d0
 int Replay_FreeBuffers(void)
 {
@@ -7469,7 +7466,6 @@ void Events_Add(EventRec *pArea, int unused)
     Events_ComputeSteps();
 }
 
-// match 72%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046e530
 void Events_Reset(void)
 {
@@ -11242,24 +11238,53 @@ void FUN_0046a500(int param_1)
     *(int *)(param_1 + 0x410) = FixMul(*(int *)(param_1 + 0x410), 0xf851);
 }
 
+// Packed 16.16 copy of one part vertex (built by FUN_0046afe0).
+struct CarPartVertex {
+    FixVector pos;    // 0x00
+    FixVector normal; // 0x0c
+    BYTE pad[8];      // 0x18
+};
+
+// Float vertex of a part's render buffer.
+struct CarPartFloatVertex {
+    float pos[3];    // 0x00
+    float normal[3]; // 0x0c
+    BYTE pad[0x18];  // 0x18
+};
+
+struct CarPartMesh {
+    BYTE pad[0xc];
+    CarPartFloatVertex *vertices; // 0x0c
+};
+
+// Parts of a car body: render meshes, materials, packed vertices and boxes.
+struct CarPartSet {
+    CarPartMesh *meshes[15];         // 0x000
+    BYTE *materials[15];             // 0x03c  (+0x30 = material key)
+    CarPartVertex *vertices[15];     // 0x078
+    FixVector centres[15];           // 0x0b4
+    FixVector halfExtents[15];       // 0x168
+    BYTE pad21c[0x410 - 0x21c];
+    int maxX;                        // 0x410
+    int minX;                        // 0x414
+    int maxZ;                        // 0x418
+    int minZ;                        // 0x41c
+    int vertexCount[15];             // 0x420
+    int count;                       // 0x45c
+};
+
 // Rebuilds the per-part bounding box of a stage object record for one car:
 // converts the packed integer vertices of every part to floats, tracks the
 // per-part min/max in 16.16 units, expands the record's global x/z bounds and
-// stores each part centre at +0xb4 and its half extents at +0xf0.
-// match 11%: implementada (caja envolvente por pieza: vertices a float, min/max
-// 16.16 por pieza, centro en +0xb4 y semiejes en +0xf0); el codegen de la
-// conversion float y del bucle de vertices diverge mucho del original
+// stores each part centre and its half extents.
 // FUNCTION: CMR2 0x0046acb0
 void FUN_0046acb0(int param_1, int param_2, int param_3)
 {
+    CarPartSet *set = (CarPartSet *)param_3;
     int i;
-    int count;
-    int matchIdx;
-    int idx;
+    int j;
+    int match;
     int key;
-    int n;
-    int rOff;
-    int fOff;
     int maxX;
     int maxY;
     int maxZ;
@@ -11269,107 +11294,75 @@ void FUN_0046acb0(int param_1, int param_2, int param_3)
     int fx;
     int fy;
     int fz;
-    int *pRec;
-    int *pDst;
-    int *pVertRecs;
-    float *pFloats;
+    FixVector pos;
+    FixVector normal;
     FixVector extents;
 
     if (g_unk0x00588970[param_1] == 0)
         return;
     if (g_unk0x00588b9c[param_1] == 0)
         FUN_0046afe0(param_1, param_2, param_3);
-    i = 0;
-    count = *(int *)(param_3 + 0x45c);
-    if (count > 0) {
-        pDst = (int *)(param_3 + 0xb4);
-        pRec = (int *)(param_3 + 0x78);
-        do {
-            key = *(int *)(*(int *)(param_3 + 0x3c + i * 4) + 0x30) & 0xff;
-            matchIdx = -1;
-            idx = 0;
-            if (count >= 0) {
-                do {
-                    int next;
-
-                    next = idx;
-                    if ((int)((BYTE *)g_unk0x00588ba0[param_1])[idx] == key) {
-                        next = count;
-                        matchIdx = idx;
-                    }
-                    idx = next + 1;
-                } while (idx <= count);
-                if (matchIdx >= 0) {
-                    pRec[0] = ((int *)g_unk0x00588b9c[param_1])[matchIdx];
-                    maxX = -0x640000;
-                    maxY = -0x640000;
-                    maxZ = -0x640000;
-                    minX = 0x640000;
-                    minY = 0x640000;
-                    minZ = 0x640000;
-                    if (pRec[0xea] > 0) {
-                        rOff = 0;
-                        fOff = 0;
-                        n = 0;
-                        do {
-                            pVertRecs = (int *)(rOff + pRec[0]);
-                            pFloats = (float *)(*(int *)(*(int *)(param_3 + i * 4) + 0xc) + fOff);
-                            pFloats[0] = (float)(pVertRecs[0] * CGraphics::m_oneOver65536);
-                            pFloats[1] = (float)(pVertRecs[1] * CGraphics::m_oneOver65536);
-                            pFloats[2] = (float)(pVertRecs[2] * CGraphics::m_oneOver65536);
-                            pVertRecs = (int *)(rOff + 0xc + pRec[0]);
-                            pFloats[3] = (float)(pVertRecs[0] * CGraphics::m_oneOver65536);
-                            pFloats[4] = (float)(pVertRecs[1] * CGraphics::m_oneOver65536);
-                            pFloats[5] = (float)(pVertRecs[2] * CGraphics::m_oneOver65536);
-                            fx = (int)(__int64)(pFloats[0] * CGraphics::m_65536);
-                            fy = (int)(__int64)(pFloats[1] * CGraphics::m_65536);
-                            fz = (int)(__int64)(pFloats[2] * CGraphics::m_65536);
-                            if (maxX < fx)
-                                maxX = fx;
-                            if (fx < minX)
-                                minX = fx;
-                            if (maxY < fy)
-                                maxY = fy;
-                            if (fy < minY)
-                                minY = fy;
-                            if (maxZ < fz)
-                                maxZ = fz;
-                            if (fz < minZ)
-                                minZ = fz;
-                            if (fx < 0) {
-                                if (fx < *(int *)(param_3 + 0x414))
-                                    *(int *)(param_3 + 0x414) = fx;
-                            } else if (*(int *)(param_3 + 0x410) < fx) {
-                                *(int *)(param_3 + 0x410) = fx;
-                            }
-                            if (fz < 0) {
-                                if (fz < *(int *)(param_3 + 0x41c))
-                                    *(int *)(param_3 + 0x41c) = fz;
-                            } else if (*(int *)(param_3 + 0x418) < fz) {
-                                *(int *)(param_3 + 0x418) = fz;
-                            }
-                            n++;
-                            rOff += 0x20;
-                            fOff += 0x30;
-                        } while (n < pRec[0xea]);
-                    }
-                    extents.x = minX - maxX;
-                    extents.y = minY - maxY;
-                    extents.z = minZ - maxZ;
-                    FixVecScale(&extents, &extents, 0x8000);
-                    pDst[0] = extents.x + maxX;
-                    pDst[1] = extents.y + maxY;
-                    pDst[2] = extents.z + maxZ;
-                    pDst[0x2d] = maxX - pDst[0];
-                    pDst[0x2e] = maxY - pDst[1];
-                    pDst[0x2f] = maxZ - pDst[2];
+    for (i = 0; i < set->count; i++) {
+        key = *(int *)(set->materials[i] + 0x30) & 0xff;
+        match = -1;
+        for (j = 0; j <= set->count; j++) {
+            if (((BYTE *)g_unk0x00588ba0[param_1])[j] == key) {
+                match = j;
+                j = set->count;
+            }
+        }
+        if (match >= 0) {
+            set->vertices[i] = ((CarPartVertex **)g_unk0x00588b9c[param_1])[match];
+            maxX = maxY = maxZ = -0x640000;
+            minX = minY = minZ = 0x640000;
+            for (j = 0; j < set->vertexCount[i]; j++) {
+                pos = set->vertices[i][j].pos;
+                set->meshes[i]->vertices[j].pos[0] = pos.x * CGraphics::m_oneOver65536;
+                set->meshes[i]->vertices[j].pos[1] = pos.y * CGraphics::m_oneOver65536;
+                set->meshes[i]->vertices[j].pos[2] = pos.z * CGraphics::m_oneOver65536;
+                normal = set->vertices[i][j].normal;
+                set->meshes[i]->vertices[j].normal[0] = normal.x * CGraphics::m_oneOver65536;
+                set->meshes[i]->vertices[j].normal[1] = normal.y * CGraphics::m_oneOver65536;
+                set->meshes[i]->vertices[j].normal[2] = normal.z * CGraphics::m_oneOver65536;
+                fx = (int)(__int64)(set->meshes[i]->vertices[j].pos[0] * CGraphics::m_65536);
+                fy = (int)(__int64)(set->meshes[i]->vertices[j].pos[1] * CGraphics::m_65536);
+                fz = (int)(__int64)(set->meshes[i]->vertices[j].pos[2] * CGraphics::m_65536);
+                if (fx > maxX)
+                    maxX = fx;
+                if (fx < minX)
+                    minX = fx;
+                if (fy > maxY)
+                    maxY = fy;
+                if (fy < minY)
+                    minY = fy;
+                if (fz > maxZ)
+                    maxZ = fz;
+                if (fz < minZ)
+                    minZ = fz;
+                if (fx >= 0) {
+                    if (fx > set->maxX)
+                        set->maxX = fx;
+                } else if (fx < set->minX) {
+                    set->minX = fx;
+                }
+                if (fz >= 0) {
+                    if (fz > set->maxZ)
+                        set->maxZ = fz;
+                } else if (fz < set->minZ) {
+                    set->minZ = fz;
                 }
             }
-            i++;
-            count = *(int *)(param_3 + 0x45c);
-            pRec++;
-            pDst += 3;
-        } while (i < count);
+            extents.x = minX - maxX;
+            extents.y = minY - maxY;
+            extents.z = minZ - maxZ;
+            FixVecScale(&extents, &extents, 0x8000);
+            set->centres[i].x = extents.x + maxX;
+            set->centres[i].y = extents.y + maxY;
+            set->centres[i].z = extents.z + maxZ;
+            set->halfExtents[i].x = maxX - set->centres[i].x;
+            set->halfExtents[i].y = maxY - set->centres[i].y;
+            set->halfExtents[i].z = maxZ - set->centres[i].z;
+        }
     }
 }
 

@@ -746,7 +746,6 @@ DWORD *g_sceneShadowTable;          // shadow colour at each level
 DWORD *g_sceneShadowTableD3D;
 
 // Rebuilds the light and shadow colour tables.
-// match 82%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3940
 void Scene_BuildLightTables(void)
 {
