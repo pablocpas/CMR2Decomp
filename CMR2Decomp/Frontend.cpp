@@ -1133,48 +1133,35 @@ void FUN_004cf450(int index, int arg, int value)
 
 // Writes a device option word: the option index in the low nibble, a 2-bit and
 // a 4-bit field above it, and the value in the following dword.
-// match 56%: MSVC schedules the *pValue load after the stores and allocates
-// different registers for option/field; the code is the same.
-// match 52%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+struct DeviceBits4cf470 { unsigned a : 4; unsigned f : 4; unsigned b : 2; unsigned rest : 22; int value; };
 // FUNCTION: CMR2 0x004cf470
 void FUN_004cf470(int index, int value, unsigned int option, unsigned int field)
 {
-    unsigned int *pValue = (unsigned int *)FUN_004d02d0(index);
-    unsigned int word;
-
-    if (pValue != NULL) {
-        word = (*pValue & 0xfffffc00) ^ (option & 0xf);
-        pValue[1] = value;
-        word |= (((option & 3) << 4) | (field & 0xf)) << 4;
-        *pValue = word;
-        if (0x300 < (word & 0x300)) {
-            word &= 0xfffffcff;
-            *pValue = word;
-        }
+    DeviceBits4cf470 *p = (DeviceBits4cf470 *)FUN_004d02d0(index);
+    if (p != NULL) {
+        p->a = option;
+        p->f = field;
+        p->value = value;
+        p->b = option;
+        if (p->b > 3)
+            p->b = 0;
     }
 }
 
 // Writes the two 6-bit fields of a device record and clears its second dword.
-// match 96.7%: merging with `+` keeps the original's two AND masks; with `|`
-// MSVC folds them into 0xffffc000 and drops to 83%. Only `add` vs `or` differs
-// (the merged operands are disjoint).
+struct DeviceBits4cf4d0 { unsigned a : 4; unsigned b : 2; unsigned f : 8; unsigned rest : 18; int extra; };
 // FUNCTION: CMR2 0x004cf4d0
 void FUN_004cf4d0(int index, unsigned int value, unsigned int field)
 {
-    unsigned int *pValue = (unsigned int *)RallyData_FUN_00408c70(index);
-    unsigned int word;
+    DeviceBits4cf4d0 *p = (DeviceBits4cf4d0 *)RallyData_FUN_00408c70(index);
 
-    if (pValue != NULL) {
-        word = (*pValue & 0xffffc03f) + ((field & 0xff) << 6);
-        word &= 0xffffffc0;
-        word ^= value & 0xf;
-        word |= (value & 3) << 4;
-        pValue[1] = 0;
-        *pValue = word;
-        if (0x30 < (word & 0x30)) {
-            word &= 0xffffffcf;
-            *pValue = word;
-        }
+    if (p != NULL) {
+        p->f = field;
+        p->a = value;
+        p->b = value;
+        p->extra = 0;
+        if (p->b > 3)
+            p->b = 0;
     }
 }
 
@@ -1192,26 +1179,18 @@ void FUN_004cf530(int index, int value)
 
 // Writes the 6-bit, 2-bit and 3-bit fields of a device record and its extra
 // dword.
-// match 96.8%: merging with `+` keeps the original's two AND masks; with `|`
-// MSVC folds (*p & 0xfffff81f) & 0xffffffe0 into 0xfffff800 and drops to 87%.
-// The remaining diff is the position of the `pop esi`.
+struct DeviceBits4cf550 { unsigned a : 3; unsigned b : 2; unsigned f : 6; unsigned rest : 21; int extra; };
 // FUNCTION: CMR2 0x004cf550
 void FUN_004cf550(int index, unsigned int value, unsigned int field, int extra)
 {
-    unsigned int *pValue = (unsigned int *)(RallyData_FUN_00408c70(index) + 0x18);
-    unsigned int word;
-
-    if (pValue != NULL) {
-        pValue[1] = extra;
-        word = (*pValue & 0xfffff81f) + ((field & 0x3f) << 5);
-        word &= 0xffffffe0;
-        word ^= value & 7;
-        word |= (value & 3) << 3;
-        *pValue = word;
-        if (0x18 < (word & 0x18)) {
-            word &= 0xffffffe7;
-            *pValue = word;
-        }
+    DeviceBits4cf550 *p = (DeviceBits4cf550 *)(RallyData_FUN_00408c70(index) + 0x18);
+    if (p != NULL) {
+        p->extra = extra;
+        p->f = field;
+        p->a = value;
+        p->b = value;
+        if (p->b > 3)
+            p->b = 0;
     }
 }
 
