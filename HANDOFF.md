@@ -1,14 +1,14 @@
 # Traspaso — 2026-10-01
 
-Tras el cierre limpio de `8f2727c`, se ha retomado el objetivo de bajar a
-700 funciones no exactas, empezando por las de menor porcentaje. El objetivo
-sigue pendiente. La integración y los lotes verificados están en `main`.
+Trabajo cerrado por petición del usuario para pasarlo a otro agente. La
+integración y los lotes verificados están en `main`. El objetivo de bajar a
+700 funciones no exactas sigue pendiente; queda pausado en este traspaso.
 
 ## Punto de partida
 
-- 2534 de 3363 funciones de fuente exactas después de resolver relocaciones.
-- 829 pendientes, incluidas 14 con operandos todavía sin resolver.
-- 37 funciones exactas más que la referencia `16527f6`; ninguna exacta perdida.
+- 2535 de 3363 funciones de fuente exactas después de resolver relocaciones.
+- 828 pendientes, incluidas 14 con operandos todavía sin resolver.
+- 38 funciones exactas más que la referencia `16527f6`; ninguna exacta perdida.
 - Los porcentajes de reccmp son similitud; `Implemented: 100%` no significa
   byte matching completo. La prueba estricta está en `CMR2PROGRESS/bytes.json`.
 - `INTEGRATION.md` recoge los orígenes de los cambios, las métricas y las pruebas.
@@ -16,6 +16,18 @@ sigue pendiente. La integración y los lotes verificados están en `main`.
   incorporados en main; no borrar ni resetear sus árboles de trabajo.
 
 ## Último lote de matching
+
+`Events_Add` (`0x0046e620`) pasa del 20% a los **121 bytes originales exactos**.
+Se recupera el acceso mediante el índice global mientras se inicializa el
+registro. La auditoría completa confirma una ganancia y cero pérdidas frente
+a `34dd8e3`. No se cambiaron flags, estructuras ni declaraciones compartidas.
+Quedan **128** ganancias exactas para alcanzar las 700 pendientes.
+
+Los logs del cierre están en `/tmp/cmr2-goal700/handoff-build.log`,
+`handoff-measure.log`, `handoff-native.log` y `handoff-tests/`.
+El resumen versionado es `CMR2PROGRESS/validation.json`.
+
+## Lote anterior: tres funciones de bajo porcentaje
 
 | Dirección | Función | Reccmp antes | Resultado |
 |---|---|---:|---|
@@ -26,9 +38,8 @@ sigue pendiente. La integración y los lotes verificados están en `main`.
 Se recuperan las divisiones/multiplicaciones de fijo mediante los helpers
 existentes, el orden original de cálculo y escritura y el recorrido relativo
 al campo de los registros. Compilación completa, auditoría de todas las funciones,
-datacmp sin incidencias y las 33 pruebas diferenciales nativas pasan en el binario
-actual. No hay funciones exactas perdidas. Quedan **129** ganancias exactas por
-conseguir para alcanzar las 700 pendientes.
+datacmp sin incidencias y las 33 pruebas diferenciales nativas pasaron en ese
+binario. No hubo funciones exactas perdidas. Ese lote dejó 829 pendientes.
 
 Las opciones `/G5`, `/G6`, `/Op`, `/Oa` y `/Ow` se comprobaron en copias temporales
 de varias unidades. No hay una mejora común sin pérdidas: no se cambiaron los
@@ -36,7 +47,7 @@ flags del build. `/Ow` cierra `FUN_004556f0` en la copia de StageTiming pero pie
 28 funciones antes exactas; recuperar la diferencia de su orden de instrucciones
 mediante fuente, sin aplicar ese flag a la unidad.
 
-Los logs actuales están en `/tmp/cmr2-goal700/wave2-tests`,
+Los logs de ese lote están en `/tmp/cmr2-goal700/wave2-tests`,
 `wave2-build.log`, `wave2-measure.log`, `wave2-cpu.log` y `wave2-flags.log`.
 El resumen versionado es `CMR2PROGRESS/validation.json`.
 
@@ -125,7 +136,7 @@ del ejecutable original ni ensamblador artificial para aumentar el porcentaje.
 
 ## Pistas pendientes del último lote
 
-No se han aplicado las variantes de rankings, cursor, eventos ni ancho de texto:
+No se han aplicado las variantes de rankings, cursor ni ancho de texto:
 ninguna consiguió bytes exactos. El siguiente agente puede agrupar funciones
 que aún usan tres `FixMul` escalares y comprobar si el original usa `FixVecScale`;
 ese patrón permitió cerrar `0x0047b870`. Comprobar cada caso contra el original.
@@ -137,3 +148,28 @@ En las variantes `wave2-*`, `FixBasis_Integrate` llega al 97,47% de la auditorí
 pero sigue sin bytes exactos: dos escrituras de la parte final quedan en distinto
 orden. Las variantes de cursor, color de splash, blink, limpieza de vectores y
 flags de etapa tampoco cerraron funciones. No están aplicadas en main.
+
+## Investigación posterior para evitar repetir intentos
+
+Los experimentos `wave3-*` están en `/tmp/cmr2-goal700`. Sólo se incorpora
+la variante exacta de `Events_Add`; las restantes no están en las fuentes.
+
+- `Events_Add` (`0x0046e620`): el acceso directo
+  `g_eventRecords[g_eventCount]` y el incremento `g_eventCount++` recuperan la
+  promoción del contador global y sus registros originales. Conservar también
+  la comprobación de `g_eventTextures` presente en el original. Un puntero local
+  al registro o asignar `g_eventCount = count + 1` no da el mismo código.
+- `CInput::FUN_0040bc90`: reutilizar el parámetro llega al 66,67% de la auditoría;
+  los casts aislados y tipos alternativos no cierran la función.
+- `FUN_004698a0`: el original accede a los datos de cada parte relativos al
+  puntero de sus contadores. Las variantes corrigen las bases, pero sólo llegan
+  al 33,85%; requieren reconstrucción completa y verificación de comportamiento
+  antes de integrarse.
+- `FUN_00455bc0`: los recorridos con direcciones enteras y offsets negativos
+  quedan en el 37,5%; siguen faltando la estructura del desplazamiento de filas
+  y la vida de los registros. No aplicar esos experimentos.
+- `FUN_0045d1e0`: externizar globals, structs/unions y cambios de tipos de canales
+  no cierran el color de splash. No se cambiaron las declaraciones compartidas.
+
+Las cifras de experimentos aislados no se suman al progreso. La referencia para
+continuar es exclusivamente la auditoría completa versionada en `main`.

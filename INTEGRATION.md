@@ -96,7 +96,7 @@ car/manual bits; it remains non-exact. The new differential record reset harness
 checks 6000 cases against the original and an independent complete-memory model.
 The previous implementation fails case 0, providing a negative control.
 
-The current reports supersede the integration snapshot above: 2531 of 3363
+At that closure, the reports superseded the integration snapshot above: 2531 of 3363
 source functions are byte-exact after relocation, 832 remain (including the
 14 unresolved functions), and global data has zero issues. This is 34 exact
 gains over frozen `16527f6`, with no exact losses. The goal of 700 remaining
@@ -113,8 +113,25 @@ Three functions now reproduce their original bytes after relocation:
 The changes recover fixed-point helpers, calculation/store order and the
 original field-relative record walk without changing shared headers or flags.
 
-Current audit: 2534/3363 exact, 829 remaining, zero data issues, no exact losses.
+Audit for this batch: 2534/3363 exact, 829 remaining, zero data issues, no exact losses.
 All 33 native differential harnesses pass on this executable. The cumulative
-exact gain over `16527f6` is 37. The goal is still active: 129 additional exact
+exact gain over `16527f6` was 37. After this batch, 129 additional exact
 gains are required to reach 700 remaining. See `HANDOFF.md` for the current
 commands, evidence and useful remaining differences.
+
+## Final handoff
+
+The final in-progress improvement, `Events_Add` (`0x0046e620`), moves from
+20% reccmp similarity to its original 121 bytes exactly after relocation.
+Direct indexing by the global event count recovers the original register
+lifetimes and store order. Compiler flags and shared declarations are unchanged.
+
+The complete audit now confirms **2535/3363 exact, 828 remaining**, zero global
+data issues, and no exact losses against `34dd8e3`. The cumulative gain against
+`16527f6` is 38 exact functions. All 33 native differential harnesses pass on
+this final executable. Source, EXE and PDB hashes agree with the build manifest.
+
+Work stops at the user's request for a clean handoff. The goal of 700 remaining
+is paused and needs 128 more exact gains. `HANDOFF.md` records the reproduction
+commands, remaining differences and discarded experiments; versioned reports
+and `CMR2PROGRESS/validation.json` identify the verified build.

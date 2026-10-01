@@ -7451,22 +7451,18 @@ void Events_Init(int unused, int slot, char animate)
 
 // Adds a stage event (up to 11) for the texture area pArea (packed position,
 // width, height) and recomputes the event steps.
-// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046e620
 void Events_Add(EventRec *pArea, int unused)
 {
-    EventRec *p;
-
-    if (g_eventCount < 11) {
-        p = &g_eventRecords[g_eventCount];
-        p->active = 0;
-        p->paused = 0;
-        p->step = 0;
-        p->counter = 0;
+    if (g_eventCount < 11 && g_eventTextures != NULL) {
+        g_eventRecords[g_eventCount].active = 0;
+        g_eventRecords[g_eventCount].paused = 0;
+        g_eventRecords[g_eventCount].step = 0;
+        g_eventRecords[g_eventCount].counter = 0;
         if (pArea != NULL && pArea->a > 0 && pArea->b > 0) {
-            p->pos = pArea->pos;
-            *(int *)&p->a = *(int *)&pArea->a;
-            p->active = 1;
+            g_eventRecords[g_eventCount].pos = pArea->pos;
+            *(int *)&g_eventRecords[g_eventCount].a = *(int *)&pArea->a;
+            g_eventRecords[g_eventCount].active = 1;
         }
         g_eventCount++;
     }

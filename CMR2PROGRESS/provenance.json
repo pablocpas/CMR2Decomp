@@ -1,6 +1,6 @@
 {
   "build": {
-    "commit": "8f2727c51c413ec5dc3febf9f72c77e7747184e9",
+    "commit": "34dd8e3f791c0853df861ce098d5be3c0a758aad",
     "source_changed": true,
     "windowed": false,
     "flags": [
@@ -118,7 +118,7 @@
       "CMR2Decomp/Stage.h": "107a79414f14e291f22815c89d3cecfe25adc9c4df95bd2e21c63f4b17b104bf",
       "CMR2Decomp/StageBlock.h": "f4891437fb2f09962048a220796091acc5431172a654aada4990f16c19ed270b",
       "CMR2Decomp/StageObjectCount.h": "541514d4da5e984bc83597c9b0839bebc67ac87ef78d2fe76fc2f3841c08010e",
-      "CMR2Decomp/StageObjects.cpp": "3188e2e7103f7b9e33cbe3e5be6beed7f3457be0eefcb0ed4c9b419f12ae8679",
+      "CMR2Decomp/StageObjects.cpp": "4af57903d0b3e0cc025a7f0318c6e6178039b2b4578ada2e2f9e20ad6bbb614c",
       "CMR2Decomp/StageSplitData.cpp": "25556b3af4ffce5f620ae4009be429ab700c0e0df61618cf5c33a7025fb879e0",
       "CMR2Decomp/StageSplitData.h": "f887ccf055880e9de3ba89b2f2619307c8d85a6679930039097444cd1044c020",
       "CMR2Decomp/StageTiming.cpp": "6725e0582c3aa455ea4a89a91b025b1140abf4b49caa598f3d457f8d666fa5b2",
@@ -163,16 +163,16 @@
       "CMR2Decomp/zlib/zlib.h": "56ff7663df8470fddf2e64a4a57da1d4e17d041f0b895a53ae5fab0d492d7e0b",
       "CMR2Decomp/zlib/zutil.h": "f23f90f430cfb102be7b12af1b3ca41d7042bd5c6936abd2ad470359a5b673b3"
     },
-    "exe_sha256": "b5353f2a2af0690db6a6772f4513522396c9d392e44b52bd54e05fef31c2af90",
-    "pdb_sha256": "71cddf8a76867b365ad6209bf2faff0168ac07ef17dfcf3b295bd0eb693735be"
+    "exe_sha256": "32fe14d6a93c775ed5d28a0d8258ed57afad14437ee33febf35ad9bf7a1e6cdc",
+    "pdb_sha256": "b55514276d85aa880e8b5c357d482ed0b44e2326feec25d8ed4e400792fcaae2"
   },
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
   "inventory_entries": 3646,
   "measured_functions": 3367,
-  "reccmp_exact": 2438,
+  "reccmp_exact": 2439,
   "audited_source_functions": 3363,
-  "relocated_byte_exact": 2534,
-  "nonmatching_source_functions": 829,
+  "relocated_byte_exact": 2535,
+  "nonmatching_source_functions": 828,
   "unresolved_source_functions": [
     "0x496e00",
     "0x4dce00",

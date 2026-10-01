@@ -1,9 +1,9 @@
 {
-  "build_exe_sha256": "b5353f2a2af0690db6a6772f4513522396c9d392e44b52bd54e05fef31c2af90",
-  "build_pdb_sha256": "71cddf8a76867b365ad6209bf2faff0168ac07ef17dfcf3b295bd0eb693735be",
-  "source_manifest_sha256": "62d211a47ed02137119e659e567e3e54640965d26d8ffa333eee173a6a598b9f",
+  "build_exe_sha256": "32fe14d6a93c775ed5d28a0d8258ed57afad14437ee33febf35ad9bf7a1e6cdc",
+  "build_pdb_sha256": "b55514276d85aa880e8b5c357d482ed0b44e2326feec25d8ed4e400792fcaae2",
+  "source_manifest_sha256": "d9c674c7edd21d536fd0c5459ac99c47944953ac150788f9e550529d1f685694",
   "reference_commit": "16527f689810e513afb316c374d875977e81e2ea",
-  "relocated_byte_exact": 2534,
+  "relocated_byte_exact": 2535,
   "exact_gains": [
     "0x447a40",
     "0x4ff060",
@@ -41,7 +41,8 @@
     "0x47b870",
     "0x403110",
     "0x4207f0",
-    "0x505590"
+    "0x505590",
+    "0x46e620"
   ],
   "exact_losses": [],
   "native_harnesses_passed": 33,
@@ -212,20 +213,18 @@
       "output": "6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected"
     }
   ],
-  "nonmatching_source_functions": 829,
+  "nonmatching_source_functions": 828,
   "data_issues": 0,
   "source_manifest_path": "build/manifest.json",
   "last_batch": {
-    "reference_commit": "8f2727c51c413ec5dc3febf9f72c77e7747184e9",
+    "reference_commit": "34dd8e3f791c0853df861ce098d5be3c0a758aad",
     "exact_gains": [
-      "0x403110",
-      "0x4207f0",
-      "0x505590"
+      "0x46e620"
     ],
     "exact_losses": [],
     "goal_remaining_functions": 700,
-    "additional_exact_gains_required": 129,
-    "logs": "/tmp/cmr2-goal700/wave2-tests",
+    "additional_exact_gains_required": 128,
+    "logs": "/tmp/cmr2-goal700/handoff-tests",
     "compiler_options_changed": false
   },
   "previous_batches": [
@@ -244,6 +243,25 @@
       },
       "goal_remaining_functions": 700,
       "additional_exact_gains_required": 132
+    },
+    {
+      "reference_commit": "8f2727c51c413ec5dc3febf9f72c77e7747184e9",
+      "exact_gains": [
+        "0x403110",
+        "0x4207f0",
+        "0x505590"
+      ],
+      "exact_losses": [],
+      "goal_remaining_functions": 700,
+      "additional_exact_gains_required": 129,
+      "logs": "/tmp/cmr2-goal700/wave2-tests",
+      "compiler_options_changed": false
     }
-  ]
+  ],
+  "handoff": {
+    "date": "2026-10-01",
+    "goal_status": "paused",
+    "reason": "User requested a clean handoff to another agent",
+    "document": "HANDOFF.md"
+  }
 }
