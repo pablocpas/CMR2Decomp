@@ -6278,16 +6278,16 @@ void FUN_00461a70(BYTE *pA, BYTE *pB)
         a = pPair[0];
         b = pPair[1];
         if (a == 1) {
-            if (b == 0 || b == 1)
-                pA[0x2f] = 200;
-            else
+            if (b != 0 && b != 1)
                 pA[0x2f] = 0x32;
+            else
+                pA[0x2f] = 200;
         }
         if (b == 1) {
-            if (a == 0 || a == 1)
-                pB[0x2f] = 200;
-            else
+            if (a != 0 && a != 1)
                 pB[0x2f] = 0x32;
+            else
+                pB[0x2f] = 200;
         }
         FUN_00461b30(pA, a);
         FUN_00461b30(pB, b);
