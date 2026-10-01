@@ -982,8 +982,7 @@ void FUN_004943d0(void)
     int amount;
 
     if ((g_pAutoGearCar->field_0xb1b[1] & 1) != 0) {
-        alignment = FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right);
-        alignment = FIX_ABS(alignment);
+        alignment = FIX_ABS(FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right));
         amount = FixMul(alignment, g_pAutoGearCar->field_0x828);
         if (amount >= 0xb333)
             amount = 0xb333;
