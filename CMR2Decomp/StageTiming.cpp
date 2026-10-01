@@ -2487,13 +2487,21 @@ BYTE *FUN_00456be0(int index)
 struct Unk0x00590c20 {
     int field_0x0;
     FixMatrix *field_0x4;      // pointer to the world matrix
-    BYTE field_0x8[0x114];
+    FixMatrix *field_0x8;      // matrix that brings forces into body space
+    BYTE field_0xc[0x110];
     int field_0x11c;
     FixVector field_0x120;     // body offset, accumulated below
-    BYTE field_0x12c[0xc];
+    FixVector field_0x12c;
     FixVector field_0x138;     // body axes source
     FixVector field_0x144;     // accumulated translation
-    BYTE field_0x150[0x2c];
+    BYTE field_0x150[4];
+    BYTE field_0x154[4];
+    unsigned short field_0x158; // heading of the rest direction
+    BYTE field_0x15a[2];
+    int field_0x15c;
+    int field_0x160;
+    FixVector field_0x164;     // angular velocity
+    FixVector field_0x170;     // angular stiffness
     FixBasis field_0x17c;
 };
 
@@ -4283,7 +4291,7 @@ void FUN_004698a0(int pCar)
             }
         }
         for (i = 0; i < 9; i++)
-            set->field_0x21c[i] = 0;
+            ((int *)set->damageGrid)[i] = 0;
         set->field_0x469 = 0;
         set->field_0x46c = 0;
         for (i = 0; i < 0x22; i++)
@@ -7036,188 +7044,179 @@ void FUN_00484f40(unsigned int param_1)
 void Vehicle_UpdateMotion(FixVector *pInput);
 int FUN_00482f30(void);
 
-// Steps one of a car's four wheel/hub records: derives the suspension strut
-// angle from the steering angle, resolves the ground contact (spring
-// compression plus the body-to-wheel delta), damps and integrates the local
-// motion vector and re-orthonormalises the part basis.
-// match 21%: implementada; difieren el reparto de registros/locales y la fusion de las
-// normalizaciones inline, y el original relee g_unk0x00590c20 en cada acceso
+inline void Motion_NormalizeInto(FixVector *out, FixVector *v)
+{
+    int len = FixVecLength(v);
+
+    if (len == 0) {
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+    } else {
+        FixVecScaleRecip(out, v, len);
+    }
+}
+
+// Steps the motion state at g_unk0x00590c20 for the current car: a spring
+// pulls its forward axis toward the rest heading (0x158), the car's
+// acceleration (brought into its space) adds a torque that is integrated into
+// the angular velocity (0x164) and rotates the basis at 0x17c, which is then
+// re-orthonormalised against the car's axis. A hard hit hands the impulse to
+// Vehicle_UpdateMotion instead.
 // FUNCTION: CMR2 0x00483570
 void FUN_00483570(void)
 {
-    BYTE *car = (BYTE *)g_unk0x00590d74;
+    FixVector saved;
+    FixVector cross;
+    FixVector spring;
+    FixVector turn;
+    FixVector torque;
+    FixVector force;
+    FixVector v;
     unsigned short angles[3];
-    int v2c[3];
-    int v38[3];
-    int v5c[3];
-    int v74[3];
-    int v50[3];
-    int v44[3];
-    int local_c;
-    int len;
-    int iVar6;
-    int iVar9;
-    int *wb;
+    int detached;
+    int t;
+    int s;
+    int c;
 
-    if (*(char *)(car + 0xb1b) == 8) {
-        local_c = 0;
-        angles[0] = 0;
-        angles[1] = 0;
-        angles[2] = (short)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000) * -0.00017361111111111112);
-        FUN_00481560(angles);
-    } else {
+    if (((Car *)g_unk0x00590d74)->field_0xb1b[0] != 8) {
         if (FUN_00482f30() != 0)
             return;
-        local_c = 0;
-        if ((((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0) {
-            v5c[0] = 0;
-            v5c[1] = 0;
-            v5c[2] = 0;
-            if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) >= 1) {
-                v2c[0] = g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x194);
-                v2c[1] = -*(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
-                v2c[2] = g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff] - *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c);
+        detached = 0;
+        if ((g_unk0x00590c20->field_0x150[0] & 4) == 0) {
+            s = g_sinTable[g_unk0x00590c20->field_0x158 & 0xfff];
+            c = g_sinTable[(g_unk0x00590c20->field_0x158 + 0x400) & 0xfff];
+            spring.x = 0;
+            spring.y = 0;
+            spring.z = 0;
+            if (g_unk0x00590c20->field_0x120.z > 0) {
+                v.x = s - g_unk0x00590c20->field_0x17c.forward.x;
+                v.y = -g_unk0x00590c20->field_0x17c.forward.y;
+                v.z = c - g_unk0x00590c20->field_0x17c.forward.z;
             } else {
-                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - g_sinTable[*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) & 0xfff];
-                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198);
-                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - g_sinTable[(*(unsigned short *)(((BYTE *)g_unk0x00590c20) + 0x158) + 0x400) & 0xfff];
+                v.x = g_unk0x00590c20->field_0x17c.forward.x - s;
+                v.y = g_unk0x00590c20->field_0x17c.forward.y;
+                v.z = g_unk0x00590c20->field_0x17c.forward.z - c;
             }
-            FixVecLength((FixVector *)v2c);
-            v38[0] = FixMul(*(int *)(car + 0x408) - *(int *)(car + 0x414), -0x50000);
-            v38[1] = FixMul(*(int *)(car + 0x40c) - *(int *)(car + 0x418), -0xa0000);
-            v38[2] = FixMul(*(int *)(car + 0x410) - *(int *)(car + 0x41c), -0x50000);
-            if (FixMul(v38[2], v38[2]) + FixMul(v38[0], v38[0]) <= 0x64000 ||
-                *(int *)(g_unk0x00590d78 + 0x288) <= 0x8000) {
-                v38[1] -= 0x4000;
+            t = FixVecLength(&v);
+            if (t > 0) {
+                FixVecScaleRecip(&v, &v, t);
+                t = -FixMul(t, 0x40000);
+                FixVecScale(&spring, &v, t);
+            }
+            force.x = ((Car *)g_unk0x00590d74)->velocity.x - ((Car *)g_unk0x00590d74)->velocityNext.x;
+            force.y = ((Car *)g_unk0x00590d74)->velocity.y - ((Car *)g_unk0x00590d74)->velocityNext.y;
+            force.z = ((Car *)g_unk0x00590d74)->velocity.z - ((Car *)g_unk0x00590d74)->velocityNext.z;
+            force.x = FixMul(force.x, -0x50000);
+            force.y = FixMul(force.y, -0xa0000);
+            force.z = FixMul(force.z, -0x50000);
+            if (FixMul(force.x, force.x) + FixMul(force.z, force.z) > 0x64000 &&
+                *(int *)(g_unk0x00590d78 + 0x288) > 0x8000) {
+                saved = force;
+                detached = 1;
             } else {
-                local_c = 1;
-                v74[0] = v38[0];
-                v74[1] = v38[1];
-                v74[2] = v38[2];
+                force.y -= 0x4000;
             }
-            iVar9 = 0x10000 - g_physicsTimeStep;
-            if (iVar9 < 0)
-                iVar9 = 0;
-            else if (iVar9 > 0x8000)
-                iVar9 = 0x8000;
-            iVar9 = FixMul(iVar9, 0xc937) + 0x8000;
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), iVar9);
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x168), iVar9);
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x16c), iVar9);
-            FixMatrix_InverseRotateVector((FixVector *)v2c, (FixVector *)v38, *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 8));
-            v38[0] = v2c[0];
-            v38[1] = v2c[1];
-            v38[2] = v2c[2];
-            if (local_c == 0) {
-                v38[0] = v2c[0] + v5c[0];
-                v38[1] = v2c[1] + v5c[1];
-                v38[2] = v2c[2] + v5c[2];
+            t = 0x10000 - g_physicsTimeStep;
+            if (t < 0)
+                t = 0;
+            else if (t > 0x8000)
+                t = 0x8000;
+            t = FixMul(t, 0xc937);
+            t += 0x8000;
+            FixVecScale(&g_unk0x00590c20->field_0x164, &g_unk0x00590c20->field_0x164, t);
+            FixMatrix_InverseRotateVector(&v, &force, g_unk0x00590c20->field_0x8);
+            force = v;
+            if (detached == 0) {
+                force.x += spring.x;
+                force.y += spring.y;
+                force.z += spring.z;
             } else {
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
+                g_unk0x00590c20->field_0x164.x = 0;
+                g_unk0x00590c20->field_0x164.y = 0;
+                g_unk0x00590c20->field_0x164.z = 0;
             }
-            v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x12c) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x120);
-            v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x130) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x124);
-            v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x134) - *(int *)(((BYTE *)g_unk0x00590c20) + 0x128);
-            v44[0] = -FixMul(FixMul(v38[1], v2c[2]) - FixMul(v38[2], v2c[1]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x170));
-            v44[1] = -FixMul(FixMul(v38[2], v2c[0]) - FixMul(v38[0], v2c[2]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x174));
-            v44[2] = -FixMul(FixMul(v38[0], v2c[1]) - FixMul(v38[1], v2c[0]), *(int *)(((BYTE *)g_unk0x00590c20) + 0x178));
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) += v44[0];
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) += v44[1];
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) += v44[2];
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
+            v.x = g_unk0x00590c20->field_0x12c.x - g_unk0x00590c20->field_0x120.x;
+            v.y = g_unk0x00590c20->field_0x12c.y - g_unk0x00590c20->field_0x120.y;
+            v.z = g_unk0x00590c20->field_0x12c.z - g_unk0x00590c20->field_0x120.z;
+            FixVecCross(&cross, &force, &v);
+            torque.x = -FixMul(cross.x, g_unk0x00590c20->field_0x170.x);
+            torque.y = -FixMul(cross.y, g_unk0x00590c20->field_0x170.y);
+            torque.z = -FixMul(cross.z, g_unk0x00590c20->field_0x170.z);
+            FixVecScale(&torque, &torque, g_physicsTimeStep);
+            g_unk0x00590c20->field_0x164.x += torque.x;
+            g_unk0x00590c20->field_0x164.y += torque.y;
+            g_unk0x00590c20->field_0x164.z += torque.z;
+            g_unk0x00590c20->field_0x164.z = 0;
         } else {
-            v44[0] = 0;
-            v44[1] = 0;
-            v44[2] = 0;
+            torque.x = 0;
+            torque.y = 0;
+            torque.z = 0;
         }
-        ((BYTE *)g_unk0x00590c20)[0x150] |= 8;
-        if (local_c == 0 && (((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0 && ((Unk0x00590d74 *)car)->field_0x778 < 0x7af)
-            ((BYTE *)g_unk0x00590c20)[0x150] &= (BYTE)~8;
-        if ((((BYTE *)g_unk0x00590c20)[0x150] & 8) == 0) {
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = 0;
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = 0;
-            *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = 0;
+        g_unk0x00590c20->field_0x150[0] |= 8;
+        if (detached == 0 && (g_unk0x00590c20->field_0x150[0] & 4) == 0 && ((Car *)g_unk0x00590d74)->speed <= 0x7ae)
+            g_unk0x00590c20->field_0x150[0] &= ~8;
+        if (g_unk0x00590c20->field_0x150[0] & 8) {
+            FixVecScale(&turn, &g_unk0x00590c20->field_0x164, g_physicsTimeStep);
+            FixVecScale(&torque, &torque, g_physicsTimeStep / 2);
+            turn.x -= torque.x;
+            turn.y -= torque.y;
+            turn.z -= torque.z;
+            angles[0] = (short)(__int64)((double)turn.x * g_unk0x00511380);
+            angles[1] = (short)(__int64)((double)turn.y * g_unk0x00511380);
+            angles[2] = (short)(__int64)((double)turn.z * g_unk0x00511380);
+            FixBasis_Rotate(&g_unk0x00590c20->field_0x17c, angles);
         } else {
-            v50[0] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), g_physicsTimeStep);
-            v50[1] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x168), g_physicsTimeStep);
-            v50[2] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x16c), g_physicsTimeStep);
-            v50[0] -= v44[0];
-            v50[1] -= v44[1];
-            v50[2] -= v44[2];
-            angles[0] = (short)((double)v50[0] * 0.009947183943243459);
-            angles[1] = (short)((double)v50[1] * 0.009947183943243459);
-            angles[2] = (short)((double)v50[2] * 0.009947183943243459);
-            FixBasis_Rotate((FixBasis *)(((BYTE *)g_unk0x00590c20) + 0x17c), angles);
+            g_unk0x00590c20->field_0x164.x = 0;
+            g_unk0x00590c20->field_0x164.y = 0;
+            g_unk0x00590c20->field_0x164.z = 0;
         }
-        if (local_c == 0 && (((BYTE *)g_unk0x00590c20)[0x150] & 4) == 0) {
-            wb = (int *)g_unk0x00590b5c[*(char *)(car + 0xb1a)];
-            iVar6 = FixMul(wb[0], *(int *)(((BYTE *)g_unk0x00590c20) + 0x194)) + FixMul(wb[1], *(int *)(((BYTE *)g_unk0x00590c20) + 0x198)) +
-                    FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), wb[2]);
-            if ((((BYTE *)g_unk0x00590c20)[0x150] & 8) != 0 &&
-                ((*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 0 && iVar6 < 0) ||
-                 (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) > 0 && iVar6 > 0))) {
-                FixVecScale((FixVector *)v2c, (FixVector *)wb, iVar6);
-                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) - v2c[0];
-                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x198) - v2c[1];
-                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) - v2c[2];
-                len = FixVecLength((FixVector *)v2c);
-                if (len == 0) {
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x194) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x198) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x19c) = 0;
-                } else {
-                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x194), (FixVector *)v2c, len);
-                }
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) = 0;
-                v2c[0] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c) - v2c[0];
-                v2c[1] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) - v2c[1];
-                v2c[2] = *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) - v2c[2];
-                len = FixVecLength((FixVector *)v2c);
-                if (len != 0) {
-                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), (FixVector *)v2c, len);
-                } else {
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x180) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x184) = 0;
-                }
-                v2c[0] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), *(int *)(((BYTE *)g_unk0x00590c20) + 0x184)) -
-                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), *(int *)(((BYTE *)g_unk0x00590c20) + 0x180));
-                v2c[1] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x19c), *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c)) -
-                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), *(int *)(((BYTE *)g_unk0x00590c20) + 0x184));
-                v2c[2] = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x194), *(int *)(((BYTE *)g_unk0x00590c20) + 0x180)) -
-                         FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x198), *(int *)(((BYTE *)g_unk0x00590c20) + 0x17c));
-                len = FixVecLength((FixVector *)v2c);
-                if (len == 0) {
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x188) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x18c) = 0;
-                    *(int *)(((BYTE *)g_unk0x00590c20) + 0x190) = 0;
-                } else {
-                    FixVecScaleRecip((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x188), (FixVector *)v2c, len);
-                }
-                iVar6 = FixMul(*(int *)(((BYTE *)g_unk0x00590c20) + 0x164), wb[0]) + FixMul(wb[1], *(int *)(((BYTE *)g_unk0x00590c20) + 0x168)) +
-                        FixMul(wb[2], *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c));
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x164) = FixMul(wb[0], iVar6);
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x168) = FixMul(wb[1], iVar6);
-                *(int *)(((BYTE *)g_unk0x00590c20) + 0x16c) = FixMul(wb[2], iVar6);
+        if (detached == 0 && (g_unk0x00590c20->field_0x150[0] & 4) == 0) {
+            t = FixVecDot(&g_unk0x00590c20->field_0x17c.forward,
+                          (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->field_0xb1a]);
+            if ((g_unk0x00590c20->field_0x150[0] & 8) &&
+                ((g_unk0x00590c20->field_0x120.z < 0 && t < 0) || (g_unk0x00590c20->field_0x120.z > 0 && t > 0))) {
+                FixVecScale(&v, (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->field_0xb1a], t);
+                v.x = g_unk0x00590c20->field_0x17c.forward.x - v.x;
+                v.y = g_unk0x00590c20->field_0x17c.forward.y - v.y;
+                v.z = g_unk0x00590c20->field_0x17c.forward.z - v.z;
+                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.forward, &v);
+                g_unk0x00590c20->field_0x17c.right.y = 0;
+                t = FixVecDot(&g_unk0x00590c20->field_0x17c.forward, &g_unk0x00590c20->field_0x17c.right);
+                FixVecScale(&v, &g_unk0x00590c20->field_0x17c.forward, t);
+                v.x = g_unk0x00590c20->field_0x17c.right.x - v.x;
+                v.y = g_unk0x00590c20->field_0x17c.right.y - v.y;
+                v.z = g_unk0x00590c20->field_0x17c.right.z - v.z;
+                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.right, &v);
+                FixVecCross(&v, &g_unk0x00590c20->field_0x17c.forward, &g_unk0x00590c20->field_0x17c.right);
+                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.up, &v);
+                t = FixVecDot((FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->field_0xb1a],
+                              &g_unk0x00590c20->field_0x164);
+                FixVecScale(&g_unk0x00590c20->field_0x164,
+                            (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->field_0xb1a], t);
             }
+                t = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
+            if (g_unk0x00590c20->field_0x120.z < 0)
+                t = -t;
+            angles[1] = 0;
+            angles[2] = 0;
+            angles[0] = (short)(__int64)((double)t * g_unk0x00511300);
+            FUN_00481560(angles);
         } else {
-            FixMatrix_SetRight((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x17c), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
-            FixMatrix_SetUp((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x188), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
-            FixMatrix_SetForward((FixVector *)(((BYTE *)g_unk0x00590c20) + 0x194), *(FixMatrix **)(((BYTE *)g_unk0x00590c20) + 4));
+            FixMatrix_SetRight(&g_unk0x00590c20->field_0x17c.right, g_unk0x00590c20->field_0x4);
+            FixMatrix_SetUp(&g_unk0x00590c20->field_0x17c.up, g_unk0x00590c20->field_0x4);
+            FixMatrix_SetForward(&g_unk0x00590c20->field_0x17c.forward, g_unk0x00590c20->field_0x4);
         }
-        iVar9 = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
-        if (*(int *)(((BYTE *)g_unk0x00590c20) + 0x128) < 0)
-            iVar9 = -iVar9;
+    } else {
+        detached = 0;
+        angles[0] = 0;
         angles[1] = 0;
-        angles[2] = 0;
-        angles[0] = (short)((double)iVar9 * 0.00017361111111111112);
+        angles[2] = (short)(__int64)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x50000) * g_unk0x00511308);
         FUN_00481560(angles);
     }
     VehicleMotion_UpdateWorldPosition();
-    if (local_c != 0)
-        Vehicle_UpdateMotion((FixVector *)v74);
+    if (detached != 0)
+        Vehicle_UpdateMotion(&saved);
 }
 
 

@@ -22085,8 +22085,8 @@
   },
   "0x4688b0": {
     "n": "FUN_004688b0",
-    "s": 0.9550173010380623,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_004688b0"
@@ -22101,7 +22101,7 @@
   },
   "0x468a80": {
     "n": "FUN_00468a80",
-    "s": 0.496,
+    "s": 0.9920634920634921,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25491,13 +25491,9 @@
   },
   "0x483570": {
     "n": "FUN_00483570",
-    "s": 0.24613899613899615,
-    "x": false,
-    "unknown": [
-      "__real@8@3ff2b60b60b60b60b800",
-      "__real@8@3ff8a2f9836e4e441800",
-      "__real@8@bff2b60b60b60b60b800"
-    ],
+    "s": 1.0,
+    "x": true,
+    "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00483570"
   },

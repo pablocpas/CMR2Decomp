@@ -37,7 +37,7 @@ struct CarPartSet {
     CarPartVertex *vertices[15];     // 0x078
     FixVector centres[15];           // 0x0b4
     FixVector halfExtents[15];       // 0x168
-    int field_0x21c[9];              // 0x21c
+    int damageGrid[3][3];            // 0x21c dent depth per body cell
     BYTE field_0x240[0x110];
     int field_0x350[0x22];           // 0x350
     int field_0x3d8;                 // 0x3d8

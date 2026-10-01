@@ -4649,7 +4649,7 @@ void FUN_004688b0(BYTE *p)
     FixVecScaleRecip(&g_stageDeformImpact, &g_stageDeformImpact, 0x7f0000);
     g_stageDeformStrength = (BYTE)p[0] << 16;
     g_stageDeformStrength = FixDiv(g_stageDeformStrength, 0xff0000);
-    g_stageDeformMode = p[1];
+    *(BYTE *)&g_stageDeformMode = p[1];
     if (p[1] == 1) {
         g_stageDeformSpeed = (BYTE)p[2] << 16;
         g_stageDeformSpeed = FixMul(g_stageDeformSpeed, FixMul(0xa0000, FixDiv(0x10000, 0xff0000)));
@@ -4766,14 +4766,14 @@ void FUN_00468c10(Car *pCar)
 // FUNCTION: CMR2 0x00468a80
 void FUN_00468a80(Car *pCar, int amount)
 {
+    CarPartSet *set;
     int *pGrid;
     int *pElem;
     int row;
-    int i;
+    int col;
     int xOff;
     int yOff;
     int halfAmount;
-    int gridStep;
     int xStep;
     int yStep;
     int xLimit;
@@ -4781,31 +4781,33 @@ void FUN_00468a80(Car *pCar, int amount)
     int yLimit1;
     int colLimit;
 
-    pGrid = (int *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0 + 0x21c);
+    set = (CarPartSet *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
     halfAmount = FixMul(amount, 0x8000);
-    gridStep = FixMul(amount, 0x3333);
+    amount = FixMul(amount, 0x3333);
     xStep = FixMul(pCar->halfExtents.x, 0xaac0);
     yStep = FixMul(pCar->halfExtents.z, 0xc000);
     xLimit = FixMul(pCar->halfExtents.x, 0x553f) + halfAmount;
     yLimit0 = FixMul(pCar->halfExtents.z, 0x4000) + halfAmount;
     yLimit1 = FixMul(pCar->halfExtents.z, 0x8000) + halfAmount;
-    row = 0;
     yOff = -yStep;
+    pGrid = &set->damageGrid[0][0];
     for (row = 0; row < 3; row++) {
-        colLimit = row == 1 ? yLimit1 : yLimit0;
+        if (row == 1)
+            colLimit = yLimit1;
+        else
+            colLimit = yLimit0;
         xOff = xStep;
         pElem = pGrid;
-        for (i = 0; i < 3; i++) {
-            if (FIX_ABS(*(int *)((BYTE *)pCar + 0x5dc) - xOff) <= xLimit &&
-                FIX_ABS(*(int *)((BYTE *)pCar + 0x5e4) - yOff) <= colLimit) {
-                *pElem += gridStep;
+        pGrid += 3;
+        for (col = 0; col < 3; col++) {
+            if (FIX_ABS(pCar->field_0x5dc.x - xOff) <= xLimit && FIX_ABS(pCar->field_0x5dc.z - yOff) <= colLimit) {
+                *pElem += amount;
                 if (*pElem > 0x640000)
                     *pElem = 0x640000;
             }
             xOff -= xStep;
             pElem++;
         }
-        pGrid += 3;
         yOff += yStep;
     }
 }
