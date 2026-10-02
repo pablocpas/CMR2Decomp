@@ -1309,6 +1309,7 @@ void Scene_LoadLighting(int *pData)
     int zoneOff;
     int d;
     int i;
+    unsigned int flags;
     BOOL done;
 
     if (pData == NULL)
@@ -1316,15 +1317,14 @@ void Scene_LoadLighting(int *pData)
     g_sceneLightDir.x = pData[0];
     g_sceneLightDir.y = pData[1];
     g_sceneLightDir.z = pData[2];
-    g_sceneLightData = (unsigned short *)(pData + 3);
+    pCursor = (unsigned short *)(pData + 3);
     pBasis = g_sceneLightBasis;
     do {
-        pCursor = g_sceneLightData;
-        g_sceneLightData = pCursor + 6;
         pBasis->x = *(int *)pCursor;
         pBasis->y = *(int *)(pCursor + 2);
         pBasis->z = *(int *)(pCursor + 4);
         pBasis++;
+        pCursor += 6;
     } while (pBasis < &g_sceneLightBasis[3]);
     g_sceneLightRight.x = g_sceneLightBasis[0].x;
     g_sceneLightDirF[0] = (float)g_sceneLightDir.x * (float)CGraphics::m_oneOver65536;
@@ -1335,12 +1335,20 @@ void Scene_LoadLighting(int *pData)
     g_sceneLightForward.z = g_sceneLightBasis[2].z;
     g_sceneLightDirF[1] = (float)g_sceneLightDir.y * (float)CGraphics::m_oneOver65536;
     g_sceneLightDirF[2] = (float)g_sceneLightDir.z * (float)CGraphics::m_oneOver65536;
-    for (i = 0; i < 9; i++)
-        g_sceneLightBasisF[i] = (float)(&g_sceneLightBasis[0].x)[i] * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[0] = (float)g_sceneLightBasis[0].x * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[1] = (float)g_sceneLightBasis[0].y * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[2] = (float)g_sceneLightBasis[0].z * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[3] = (float)g_sceneLightBasis[1].x * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[4] = (float)g_sceneLightBasis[1].y * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[5] = (float)g_sceneLightBasis[1].z * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[6] = (float)g_sceneLightBasis[2].x * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[7] = (float)g_sceneLightBasis[2].y * (float)CGraphics::m_oneOver65536;
+    g_sceneLightBasisF[8] = (float)g_sceneLightBasis[2].z * (float)CGraphics::m_oneOver65536;
 
     // Zones, followed by their items, headers, vertices, triangles and
     // vertex heights.
-    g_sceneLightZones = (BYTE *)(pCursor + 7);
+    g_sceneLightData = pCursor;
+    g_sceneLightZones = (BYTE *)(pCursor + 1);
     p = g_sceneLightZones + *g_sceneLightData * 0x14;
     for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
         *(BYTE **)(g_sceneLightZones + off + 0xc) = p;
@@ -1440,6 +1448,9 @@ void Scene_LoadLighting(int *pData)
             g_sceneSectorZone[s - 1] = -1;
         } while (s < (unsigned int)g_sectorCount);
     }
+    // The original builds the flags from an uninitialised local that shares its
+    // stack slot with zoneOff of the item loop above (zone count * 0x14).
+    flags = (zoneOff & 0xffffe02d) | 0x402d;
     for (zone = 0, off = 0; zone < *g_sceneLightData; zone++, off += 0x14) {
         if (*(short *)(g_sceneLightZones + off) == -1)
             continue;
@@ -1461,7 +1472,7 @@ void Scene_LoadLighting(int *pData)
         *(int *)((BYTE *)pMesh + 0x20) = 0;
         ((BYTE *)pMesh)[0x104] = 0;
         *(int *)((BYTE *)pMesh + 0x34) = pHeader[4];
-        *(unsigned int *)((BYTE *)pMesh + 0x30) = (itemOff & 0xffffe02d) | 0x402d;
+        *(unsigned int *)((BYTE *)pMesh + 0x30) = flags;
         *(int *)((BYTE *)pMesh + 0x2c) = 0;
         Mesh_BuildParts(pMesh);
         Mesh_UploadVertices(pMesh);

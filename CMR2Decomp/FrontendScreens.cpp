@@ -8986,15 +8986,19 @@ void FUN_004e48b0(Menu *pMenu)
     mode = FUN_004f3a60();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
-    if (mode == 0) {
+    switch (mode) {
+    case 0:
         Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 1) {
+        break;
+    case 1:
         Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 2) {
+        break;
+    case 2:
         Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+        break;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 -
@@ -9147,15 +9151,19 @@ void FUN_004e5c90(Menu *pMenu)
     FrontendDraw_PlayTime();
     FrontendDraw_MenuPath(pMenu, (int)(g_pGraphics->resX * 0x18) / 0x280,
                           (int)(g_pGraphics->resY * 0x26) / 0x1e0, 1, 2, NULL, -1);
-    if (mode == 0) {
+    switch (mode) {
+    case 0:
         Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 1) {
+        break;
+    case 1:
         Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 2) {
+        break;
+    case 2:
         Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 0x4b) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+        break;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 0xa0) / 0x1e0 -
@@ -9230,15 +9238,19 @@ void FUN_004e63d0(Menu *pMenu)
     mode = FUN_004f3a60();
     FrontendDraw_PlayTime();
     FrontendDraw_MenuTitle(pMenu);
-    if (mode == 0) {
+    switch (mode) {
+    case 0:
         Font_DrawText(2, CFrontend::GetTextString(0x167), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 1) {
+        break;
+    case 1:
         Font_DrawText(2, CFrontend::GetTextString(0x168), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
-    } else if (mode == 2) {
+        break;
+    case 2:
         Font_DrawText(2, CFrontend::GetTextString(0x169), (int)g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 100) / 0x1e0, (int *)g_colourWhite0x00524968, 10);
+        break;
     }
     g_unk0x008189a8[0] = (short)((int)(g_pGraphics->resX * 0x1e) / 0x280);
     g_unk0x008189a8[1] = (short)((int)(g_pGraphics->resY * 200) / 0x1e0 -
