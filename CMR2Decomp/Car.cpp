@@ -3322,6 +3322,13 @@ extern int g_unk0x005199c8[14];
 extern int g_unk0x00519a00[14];
 int *FUN_00469680(int index);
 
+// Per-wheel record of CarTransforms (+0x80): hub position and the three
+// wheel angles (x spin, y steering, z camber), 16.16 degrees.
+struct CarWheelRecord {
+    FixVector pos;
+    int angle[3];
+};
+
 // Rebuilds the transforms of the cars of a list: the previous rows are
 // restored into the physics rows and moved by the ride height, and the wheel
 // records of each car are refreshed from its setup record.
@@ -3340,6 +3347,7 @@ void FUN_0042af50(short *pList, short count)
     Car *pCar;
     BYTE *pRow;
     BYTE *pShadow;
+    CarWheelRecord *pWheels;
     FixVector up;
     FixVector ride;
     FixVector pos;
@@ -3394,33 +3402,34 @@ void FUN_0042af50(short *pList, short count)
         car = pList[i];
         pCar = &g_carBuffer[car];
         pShadow = (BYTE *)&g_carTransformsShadow[car];
+        // One 0x18-byte record per wheel at +0x80: hub position, then the
+        // three wheel angles. The original walks wheels 3..0 with every
+        // pointer going down, so record j always belongs to wheel j (the
+        // steering angle goes to the front wheels 0 and 1).
+        pWheels = (CarWheelRecord *)(pShadow + 0x80);
         if (*(int *)((BYTE *)pCar + 0xb70) != 0) {
             for (j = 3; j >= 0; j--)
-                *(FixVector *)(pShadow + 0xc8 - j * 0x18) = pCar->wheelEmitter[j];
+                pWheels[j].pos = pCar->wheelEmitter[j];
         } else {
             pRecord = FUN_00469680(car);
             for (j = 3; j >= 0; j--) {
-                *(int *)(pShadow + 0xd4 - j * 0x18) =
+                pWheels[j].angle[0] =
                     (short)(int)(__int64)((double)FixMul(0x50000,
-                        *(int *)((BYTE *)pRecord + 0x24c - j * 4)) * g_unk0x00511300) * 0x1680;
+                        *(int *)((BYTE *)pRecord + 0x240 + j * 4)) * g_unk0x00511300) * 0x1680;
                 if (j < 2)
-                    *(int *)(pShadow + 0xd8 - j * 0x18) =
-                        *(short *)((BYTE *)pCar + 0xb14) * 0x1680;
+                    pWheels[j].angle[1] = *(short *)((BYTE *)pCar + 0xb14) * 0x1680;
                 else
-                    *(int *)(pShadow + 0xd8 - j * 0x18) = 0;
-                *(int *)(pShadow + 0xdc - j * 0x18) =
-                    ((short *)&g_unk0x0053a230[car])[j] * 0x1680;
-                sum = *(int *)((BYTE *)FUN_00469680(pCar->field_0xb1a) + 0x24c - j * 4) +
-                      *(int *)((BYTE *)pCar + 0x984 - j * 4);
+                    pWheels[j].angle[1] = 0;
+                pWheels[j].angle[2] = ((short *)&g_unk0x0053a230[car])[j] * 0x1680;
+                sum = *(int *)((BYTE *)FUN_00469680(pCar->field_0xb1a) + 0x240 + j * 4) +
+                      *(int *)((BYTE *)pCar + 0x978 + j * 4);
                 if (sum > 0x10000)
                     sum = 0x10000;
-                *(FixVector *)(pShadow + 0xc8 - j * 0x18) =
-                    *(FixVector *)((BYTE *)pCar + 0x3e4 - j * 0xc);
-                *(int *)(pShadow + 0xc8 - j * 0x18) += *(int *)((BYTE *)pCar + 0x714 - j * 8);
-                *(int *)(pShadow + 0xcc - j * 0x18) += *(int *)((BYTE *)pCar + 0x934 - j * 4);
-                *(int *)(pShadow + 0xcc - j * 0x18) +=
-                    FixMul(0x10000 - sum, *(int *)((BYTE *)pCar + 0x944 - j * 4));
-                *(int *)(pShadow + 0xcc - j * 0x18) += *(int *)((BYTE *)pCar + 0x718 - j * 8);
+                pWheels[j].pos = pCar->wheelEmitter[j];
+                pWheels[j].pos.x += *(int *)((BYTE *)pCar + 0x6fc + j * 8);
+                pWheels[j].pos.y += *(int *)((BYTE *)pCar + 0x928 + j * 4);
+                pWheels[j].pos.y += FixMul(0x10000 - sum, *(int *)((BYTE *)pCar + 0x938 + j * 4));
+                pWheels[j].pos.y += *(int *)((BYTE *)pCar + 0x700 + j * 8);
             }
         }
     }
@@ -4886,57 +4895,50 @@ void Car_UpdateSteering(void)
     FixMatrix m;
     FixVector right;
     FixVector t;
-    FixVector d;
     short angle;
-    int x;
-    int z;
-    int diff;
     int w;
-    int k;
 
     if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
         angle = 0;
     } else {
         angle = g_pCurrentCar->heading;
         if (*(int *)(g_pCarSetup + 0x3d8) > 0) {
-            x = g_pCurrentCar->position.x;
-            z = g_pCurrentCar->position.z;
-            if (FIX_ABS(x) - FIX_ABS(z) < 0)
-                diff = FIX_ABS(z) - FIX_ABS(x);
+            if (FIX_ABS(g_pCurrentCar->position.x) - FIX_ABS(g_pCurrentCar->position.z) < 0)
+                w = -FIX_ABS(g_pCurrentCar->position.x) + FIX_ABS(g_pCurrentCar->position.z);
             else
-                diff = FIX_ABS(x) - FIX_ABS(z);
-            w = FixMul(0x20000, (diff % 0x401 - 0x200) * 0x40);
+                w = FIX_ABS(g_pCurrentCar->position.x) - FIX_ABS(g_pCurrentCar->position.z);
+            w = FixMul(0x20000, (w % 0x401 - 0x200) * 0x40);
             if (g_pCurrentCar->speed < 0x10000)
                 w = FixMul(w, g_pCurrentCar->speed);
             angle += (short)(__int64)((double)FixMul(w, *(int *)(g_pCarSetup + 0x3d8)) * g_unk0x00511300);
         }
     }
     right = g_pCurrentCar->right;
-    FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->wheelDirFront));
+    FixVecScale(&t, &g_pCurrentCar->up, FixVecDot(&g_pCurrentCar->wheelDirFront, &g_pCurrentCar->up));
     t.x = g_pCurrentCar->wheelDirFront.x - t.x;
     t.y = g_pCurrentCar->wheelDirFront.y - t.y;
     t.z = g_pCurrentCar->wheelDirFront.z - t.z;
-    FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirFront, t);
-    d.x = right.x - g_pCurrentCar->wheelDirFront.x;
-    d.y = right.y - g_pCurrentCar->wheelDirFront.y;
-    d.z = right.z - g_pCurrentCar->wheelDirFront.z;
-    k = FixMul(FixMul(FixVecLength(&d), 0x13333),
-               FixMul(FixMul(g_pCurrentCar->field_0x79c, 0xcccd) + 0x3333, g_physicsTimeStep));
-    if (k >= 0x10000) {
+    FixVecNormalizeLen(&g_pCurrentCar->wheelDirFront, &t);
+    t.x = right.x - g_pCurrentCar->wheelDirFront.x;
+    t.y = right.y - g_pCurrentCar->wheelDirFront.y;
+    t.z = right.z - g_pCurrentCar->wheelDirFront.z;
+    w = FixMul(FixVecLength(&t), 0x13333);
+    w = FixMul(w, FixMul(FixMul(0xcccd, g_pCurrentCar->field_0x79c) + 0x3333, g_physicsTimeStep));
+    if (w >= 0x10000) {
         g_pCurrentCar->wheelDirFront = right;
     } else {
-        FixVecScale(&d, &d, k);
-        g_pCurrentCar->wheelDirFront.x += d.x;
-        g_pCurrentCar->wheelDirFront.y += d.y;
-        g_pCurrentCar->wheelDirFront.z += d.z;
-        FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirFront, g_pCurrentCar->wheelDirFront);
+        FixVecScale(&t, &t, w);
+        g_pCurrentCar->wheelDirFront.x += t.x;
+        g_pCurrentCar->wheelDirFront.y += t.y;
+        g_pCurrentCar->wheelDirFront.z += t.z;
+        FixVecNormalizeLen(&g_pCurrentCar->wheelDirFront, &g_pCurrentCar->wheelDirFront);
     }
     if (angle == 0) {
         g_pCurrentCar->wheelDirRear = g_pCurrentCar->wheelDirFront;
     } else {
         FixMatrix_FromAxisAngle(&m, &g_pCurrentCar->up, angle);
         FixMatrix_RotateVector(&t, &g_pCurrentCar->wheelDirFront, &m);
-        FIX_NORMALIZE_INTO(g_pCurrentCar->wheelDirRear, t);
+        FixVecNormalizeLen(&g_pCurrentCar->wheelDirRear, &t);
     }
     FixVecCross(&g_pCurrentCar->wheelAxisRear, &g_pCurrentCar->wheelDirRear, &g_pCurrentCar->up);
 }
