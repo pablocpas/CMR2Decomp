@@ -3682,14 +3682,13 @@ void FUN_004eabc0(void)
 
 // GLOBAL: CMR2 0x00511300
 double g_unk0x00511300 = 4096.0 / (360.0 * 65536.0);   // 16.16 degrees -> sine table index
+// One RGBA colour: FUN_00501ab0 returns all four bytes, which callers
+// read as a dword. Independent globals do not preserve this layout.
 // GLOBAL: CMR2 0x0082b1b8
-BYTE g_unk0x0082b1b8;
-// GLOBAL: CMR2 0x0082b1b9
-BYTE g_unk0x0082b1b9;
-// GLOBAL: CMR2 0x0082b1ba
-BYTE g_unk0x0082b1ba;
-// GLOBAL: CMR2 0x0082b1bb
-BYTE g_unk0x0082b1bb;
+BYTE g_unk0x0082b1b8[4];
+#define g_unk0x0082b1b9 g_unk0x0082b1b8[1]
+#define g_unk0x0082b1ba g_unk0x0082b1b8[2]
+#define g_unk0x0082b1bb g_unk0x0082b1b8[3]
 
 
 // GLOBAL: CMR2 0x00511cd8
@@ -3887,7 +3886,7 @@ void FixInterp_StartToZero(FixInterp *p)
 }
 
 // GLOBAL: CMR2 0x0082b668
-BYTE g_unk0x0082b668[0x40];
+BYTE g_unk0x0082b668[sizeof(Menu)];
 
 // FUNCTION: CMR2 0x00502500
 BYTE *FUN_00502500(void)
@@ -3896,7 +3895,7 @@ BYTE *FUN_00502500(void)
 }
 
 // GLOBAL: CMR2 0x0082b848
-BYTE g_unk0x0082b848[0x40];
+BYTE g_unk0x0082b848[sizeof(Menu)];
 
 // FUNCTION: CMR2 0x00502510
 BYTE *FUN_00502510(void)
@@ -5917,7 +5916,7 @@ void FUN_00501f00(int index, short *pBar)
 // FUNCTION: CMR2 0x00501ab0
 BYTE *FUN_00501ab0(void)
 {
-    return &g_unk0x0082b1b8;
+    return g_unk0x0082b1b8;
 }
 
 // Advances the option menu's overlay pulse: a sine running over a minute is
@@ -5941,7 +5940,7 @@ void FUN_00501ac0(void)
     g_unk0x0082b1bb = 0xff;
     g_unk0x0082b1ba = shade;
     g_unk0x0082b1b9 = shade;
-    g_unk0x0082b1b8 = shade;
+    g_unk0x0082b1b8[0] = shade;
 }
 
 // Advances the 16.16 transition value of every option record: records that

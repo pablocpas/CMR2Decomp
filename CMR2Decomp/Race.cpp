@@ -702,7 +702,9 @@ BYTE FUN_0041f930(void)
     CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 3] =
         CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 1];
     CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 2] = '\0';
-    strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 1, g_tgaSuffix);
+    // 0x41fa0e decrements the post-SCAS pointer to the NUL itself,
+    // appending the suffix without deleting the final hi/lo character.
+    strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), g_tgaSuffix);
     if ((char)RallyData_GetFlag24()) {
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_unk0x00538548);
         strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 5, g_tgaSuffix);

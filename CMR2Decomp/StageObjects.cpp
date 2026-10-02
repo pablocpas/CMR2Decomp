@@ -2598,8 +2598,10 @@ BYTE g_unk0x00590ed0[8][0x98];
 int g_unk0x00591390;
 // GLOBAL: CMR2 0x005913d8
 int g_unk0x005913d8;
+// Eight per-car contact counts. The original clears them with two dword
+// stores at 0x5913dc and 0x5913e0; the latter is the array's second half.
 // GLOBAL: CMR2 0x005913dc
-BYTE g_unk0x005913dc[4];
+BYTE g_unk0x005913dc[8];
 // GLOBAL: CMR2 0x005913f8
 BYTE g_unk0x005913f8[8][8];
 // GLOBAL: CMR2 0x0059146c
@@ -9316,15 +9318,16 @@ void FUN_0047ca30(int param_1)
         row = 0xc;
         do {
             int j = 1;
+            // Weights are consecutive for every output of this layer. The
+            // original advances this cursor across neurons, not just inputs.
+            int *pData = *ppData;
             if (pRow[1] > 0) {
                 do {
-                    int *pData;
                     int *pTable;
                     int sum;
                     int cols;
                     sum = 0;
                     pTable = pDst;
-                    pData = *ppData;
                     cols = *pRow + 1;
                     if (cols > 0) {
                         do {
@@ -9378,9 +9381,12 @@ void FUN_0047c9a0(int param_1, int param_2, int *param_3)
                 FUN_00498ca0(g_unk0x0058e44c[v], param_3, (int *)g_unk0x0058e0b8);
                 FUN_0047ca30((int)g_unk0x0058e44c[v]);
             }
+            // The original addresses the projection rows through 0x58e088,
+            // 0x30 bytes before 0x58e0b8. These globals need not be adjacent
+            // after linking, so address the actual row storage directly.
             *(int *)(i + param_2) =
-                *(int *)(&g_unk0x0058e088[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
-                                          *(int *)(g_unk0x0058e44c[v] + 8) * 0xc]);
+                ((int *)g_unk0x0058e0b8)[(int)*(char *)(g_unk0x0058e3ac[param_1] + i) +
+                                       (*(int *)(g_unk0x0058e44c[v] + 8) - 1) * 0xc];
         }
         i += 4;
     } while (i < 0x14);
@@ -12153,9 +12159,15 @@ int g_unk0x005919a0;
 // GLOBAL: CMR2 0x00591ad0
 FixVector g_unk0x00591ad0;
 // GLOBAL: CMR2 0x0051fb00
-int g_unk0x0051fb00[27] = {
+// Twenty-six restitution coefficients followed by twenty-six friction
+// coefficients (the original's second lookup starts at 0x51fb68).
+int g_unk0x0051fb00[52] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0x4ccc, 0, 0, 0, 0, 0, 0, 0, 0, 0x28f
+    0x4ccc, 0, 0, 0, 0, 0, 0, 0, 0,
+    0x28f, 0x28f, 0x28f, 0x28f, 0x28f, 0x28f, 0x28f, 0x28f,
+    0x28f, 0x28f, 0x28f, 0x28f, 0xa3d, 0xccc, 0x51e, 0xccc,
+    0x28f, 0x7ae, 0xb85, 0x51e, 0x51e, 0x28f, 0x28f, 0x28f,
+    0x28f, 0xccc
 };
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 void FUN_00418ba0(unsigned int view, int strength, int listener);
@@ -13853,8 +13865,8 @@ unsigned int RallyData_GetFlag22(void);
 void FUN_0047bdd0(Car *pCar, int car, int preview)
 {
     int modes[3];
-    int controls[4];
-    int handbrake;
+    // FUN_0047c9a0 writes five channels; the last is the handbrake.
+    int controls[5];
     int *pRoute;
     int table;
     int node;
@@ -13872,7 +13884,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     modes[0] = 0;
     *((BYTE *)g_unk0x0058e178 + 0xab + car) = 0;
     modes[1] = 0;
-    handbrake = 0;
+    controls[4] = 0;
     table = *pRoute;
     if (table == 0)
         return;
@@ -13973,7 +13985,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     if (CGameInfo::FUN_004063f0(0) && FUN_0047cd00(car))
         force = 1;
     else
-        force = handbrake;
+        force = controls[4];
     if (preview != 0)
         return;
     pCar->flag0x1d0[0] = 0;
@@ -14868,7 +14880,7 @@ extern int g_unk0x005918d0;
 extern int g_unk0x0059195c;
 extern int g_unk0x005919b8;
 extern struct CollisionFaceVertices *g_collisionFace;
-extern int g_unk0x0051fb00[27];
+extern int g_unk0x0051fb00[52];
 int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4);
 int FUN_0048f400(void);
 int FUN_0048fb80(char type, int param);

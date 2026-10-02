@@ -529,13 +529,11 @@ extern int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
 // Collision bookkeeping shared with the stage object collision code
 // (defined in StageObjects.cpp): the per-car contact list and its length, the
 // last pair result and the two objects that walk the car order.
-// GLOBAL: CMR2 0x005913e0
-int g_unk0x005913e0;
 // GLOBAL: CMR2 0x005913f4
 int g_unk0x005913f4;
 
 extern int g_unk0x00591390;
-extern BYTE g_unk0x005913dc[4];
+extern BYTE g_unk0x005913dc[8];
 extern BYTE g_unk0x005913f8[8][8];
 extern BYTE g_unk0x00590ed0[8][0x98];
 extern BYTE g_unk0x00590ec8[4];
@@ -584,7 +582,7 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
     for (i = 0; i < 8; i++)
         flags[i] = 0;
     *(int *)g_unk0x005913dc = 0;
-    g_unk0x005913e0 = 0;
+    *(int *)(g_unk0x005913dc + 4) = 0;
     n = (int)param_3 - 1;
     if (n > 0) {
         k = 1;

@@ -559,20 +559,12 @@ extern BYTE g_unk0x0059199c;
 extern int g_unk0x005919a0;
 extern FixVector g_unk0x00591ad0;
 extern int g_unk0x00591948;
-extern int g_unk0x0051fb00[27];
+extern int g_unk0x0051fb00[52];
 
 // Resolves the car's contact with the sector edge tracked in g_unk0x0059190c:
 // picks the contact vertex of the face tracked in g_collisionFace, slides the
 // car, its eight corners and the face's four vertices out of the surface,
 // applies the impact impulse and spawns the impact debris.
-// match 75%: no es un bug. La funcion entera (803 instrucciones) coincide en
-// llamadas, constantes (0xd8f00000/0x27100000/0x27100000, 0x8000, 0x10000,
-// 0xcccc, 0x90000, 0x6666), en los dos FixSqrt/FixVecScaleRecip en linea y en
-// los dos bucles de candidatos y de vertices. Lo que queda es asignacion de
-// registros (el original lleva el contador en EDI y g_unk0x0059190c en EBX,
-// nosotros al reves) y una ranura de 12 B que el original reserva a una copia
-// muerta de g_collisionDirection (-0x54, 3 stores que MSVC6 no elimina) y que
-// nosotros no conseguimos materializar con ninguna forma de fuente.
 // FUNCTION: CMR2 0x0048fb80
 int FUN_0048fb80(char type, int param)
 {
@@ -589,6 +581,7 @@ int FUN_0048fb80(char type, int param)
     int found;
     int index;
     int len;
+    int tangentLen;
     int i;
     int result;
     int dot;
@@ -742,6 +735,7 @@ skipReflect:
     len = FixVecLength(&planeDir);
     if (len <= 0x8000)
         return 1;
+    tangentLen = len;
     FixVecScaleRecip(&planeDir, &planeDir, -len);
     FixVecCross(&normal, &planeDir, &g_collisionDirection);
     len = FixVecLength(&normal);
@@ -762,10 +756,10 @@ skipReflect:
               g_collisionCar->position.z;
     delta.y = 0;
     FixVecScale(&delta, &delta, 0xcccc);
-    if (len > 0x10000)
-        len = 0x10000;
+    if (tangentLen > 0x10000)
+        tangentLen = 0x10000;
     if (*(int *)((BYTE *)g_collisionCar + 0xb70) == 0)
-        Car_SpawnDebris(len, &delta, g_collisionCar, &planeDir, 0x90000, 0x6666);
+        Car_SpawnDebris(tangentLen, &delta, g_collisionCar, &planeDir, 0x90000, 0x6666);
     return 1;
 finish:
     return result;

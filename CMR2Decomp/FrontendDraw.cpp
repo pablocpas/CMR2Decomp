@@ -406,8 +406,8 @@ void FrontendDraw_MenuList(Menu *pMenu, char *title, int y, int xOffset, int fir
     if (xOffset == -1)
         g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
     else
-        g_unk0x008189a8[1] = top;
-    g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640 - (int)(g_pGraphics->resX * 24) / 640 + xOffset;
+        g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640 - (int)(g_pGraphics->resX * 24) / 640 + xOffset;
+    g_unk0x008189a8[1] = top;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
     g_unk0x008189a8[3] = 1;
     if (title != NULL)

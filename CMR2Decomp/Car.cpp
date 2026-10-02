@@ -6329,8 +6329,8 @@ int FUN_00460c80(BYTE *pCar);
 void FUN_004789b0(BYTE *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
 
-// match 65.48%: implementada; logica identica (normalizacion de los 3 ejes +
-// copias), pero MSVC6 asigna otros registros/slots en los bloques FixVec*.
+// The original preserves the ground normal as up and normalises only right
+// and right-cross-up (forward).
 // Rebuilds the body basis of the car from the ground normal and the previous
 // right vector, copies it into the render node, updates the corners and
 // resets the per-stage state.
@@ -6355,13 +6355,7 @@ void Car_ResetBodyBasis(int param_1)
     v.y = CARF(0x364) - v.y;
     v.z = CARF(0x368) - v.z;
     FIX_NORMALIZE_INTO(CARV(0x360), v);
-    v.x = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
-    v.y = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
-    v.z = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x364), CARF(0x36c));
-    FIX_NORMALIZE_INTO(CARV(0x36c), v);
-    v.x = FixMul(CARF(0x360), CARF(0x370)) - FixMul(CARF(0x364), CARF(0x36c));
-    v.y = FixMul(CARF(0x368), CARF(0x36c)) - FixMul(CARF(0x360), CARF(0x374));
-    v.z = FixMul(CARF(0x364), CARF(0x374)) - FixMul(CARF(0x368), CARF(0x370));
+    FixVecCross(&v, &CARV(0x360), &CARV(0x36c));
     FIX_NORMALIZE_INTO(CARV(0x378), v);
     *(FixVector *)(CARF(0x750) + 0x0) = CARV(0x360);
     *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
@@ -6997,7 +6991,7 @@ LAB_0043d6fe:
         goto LAB_0043d703;
     }
     if (!(CGameInfo::FUN_00405da0() == 0 || param_5 != 1 || RallyData_GetFlag25() == 0)) {
-        if (limit != 0) {
+        if (flag8 != 0) {
 LAB_0043d6f7:
             pcVar13 = (char *)RallyData_FUN_00406890();
             goto LAB_0043d703;
@@ -7005,7 +6999,7 @@ LAB_0043d6f7:
         if (CGameInfo::FUN_00405e00() == 0)
             goto LAB_0043d6fe;
     } else {
-        if (limit != 0)
+        if (flag8 != 0)
             goto LAB_0043d6f7;
     }
     pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)CARB(0xb1a));

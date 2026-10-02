@@ -7578,6 +7578,7 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     int pz;
     int nx;
     int nz;
+    int lookaheadZ;
     int bx;
     int speed;
     int i;
@@ -7613,6 +7614,7 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     pz = *(int *)(pc + 0x2d8);
     RallyData_FUN_00421530(angles[2], (int *)&node);
     nz = node.z;
+    lookaheadZ = nz;
     bx = node.x;
     if ((mask & 1) != 0)
         d4 = StageObject_Atan2Degrees(nz - pz, bx - px);
@@ -7632,15 +7634,16 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     nx = node.x;
     nz = node.z;
     RallyData_FUN_00421530(angles[0], (int *)&node);
-    curAngle = StageObject_Atan2Degrees(nx - node.x, nz - node.z);
-    if (curAngle < 0xb40000) {
-        if (curAngle < -0xb40000)
-            curAngle += 0x1680000;
+    curAngle = StageObject_Atan2Degrees(nz - node.z, nx - node.x);
+    tmp = curAngle;
+    if (tmp < 0xb40000) {
+        if (tmp < -0xb40000)
+            tmp += 0x1680000;
     } else {
-        curAngle -= 0x1680000;
+        tmp -= 0x1680000;
     }
-    pOut[0x13] = curAngle;
-    pOut[0x14] = StageObject_Atan2Degrees(nx - pz, nz - px);
+    pOut[0x13] = tmp;
+    pOut[0x14] = StageObject_Atan2Degrees(nz - pz, nx - px);
     a = px - nx;
     b = pz - nz;
     sum = FixMul(a, a) + FixMul(b, b);
@@ -7654,7 +7657,7 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
             *(int *)(pRef + 0x1158 + angles[1] * 4) - *(int *)(pRef + 0x1158 + angles[0] * 4),
             *(int *)(pRef + 0xb90 + angles[1] * 4) - *(int *)(pRef + 0xb90 + angles[0] * 4));
     }
-    tmp = StageObject_Atan2Degrees(node.z - nz, bx - nx);
+    tmp = StageObject_Atan2Degrees(lookaheadZ - nz, bx - nx);
     tmp = curAngle - tmp;
     if (tmp < 0xb40000) {
         if (tmp < -0xb40000)
