@@ -7571,48 +7571,57 @@ extern double g_unk0x00511300;
 // FUNCTION: CMR2 0x00498620
 void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
 {
+// Angle difference wrapped to (-180, 180] degrees (16.16).
+#define WRAP_STORE(dst, t)              \
+    if ((t) >= 0xb40000) {              \
+        (dst) = (t) - 0x1680000;        \
+    } else {                            \
+        if ((t) < -0xb40000)            \
+            (t) += 0x1680000;           \
+        (dst) = (t);                    \
+    }
+#define WRAP(t)                         \
+    if ((t) >= 0xb40000)                \
+        (t) -= 0x1680000;               \
+    else if ((t) < -0xb40000)           \
+        (t) += 0x1680000;
+#define REF_TRACK ((BYTE *)*(int *)((int *)&g_unk0x00592744 + variant))
     BYTE *pc;
-    BYTE *pRef;
-    FixVector node;
+    int nodeZ[20];
+    int nodeX[20];
+    int result[32];
     int angles[6];
-    int d4;
-    int d0;
-    int cc;
-    int refAngle;
-    unsigned int len;
-    int curAngle;
+    FixVector node;
+    int idxCount;
     int frontAngle;
     int sideAngle;
-    int baseAngle;
     int px;
     int pz;
     int nx;
     int nz;
-    int lookaheadZ;
-    int bx;
-    int speed;
-    int i;
+    int baseAngle;
+    int curAngle;
+    int len;
+    int refAngle;
     int tmp;
     int t;
     int a;
     int b;
-    int idxCount;
-    int nodeIndex;
-    unsigned int sum;
-    unsigned int uVar7;
-    unsigned int uVar8;
+    int slack;
+    int scale;
+    int i;
 
     pc = (BYTE *)pCar;
     idxCount = RallyData_FUN_00421430();
-    nodeIndex = pOut[0x15];
-    angles[1] = nodeIndex;
-    angles[0] = nodeIndex - 1;
-    angles[4] = nodeIndex + 2;
-    angles[3] = nodeIndex + 2;
-    angles[5] = nodeIndex + 1;
-    angles[2] = nodeIndex + 5;
+    i = pOut[0x15];
+    angles[1] = i;
+    angles[0] = i - 1;
+    angles[4] = i + 2;
+    angles[3] = i + 2;
+    angles[5] = i + 1;
+    angles[2] = i + 5;
     for (i = 0; i < 6; i++) {
-        if (angles[i] >= idxCount)
+        if (angles[i] - idxCount >= 0)
             angles[i] -= idxCount;
         if (angles[i] < 0)
             angles[i] = idxCount - 1;
@@ -7623,187 +7632,120 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     px = *(int *)(pc + 0x2d0);
     pz = *(int *)(pc + 0x2d8);
     RallyData_FUN_00421530(angles[2], (int *)&node);
-    nz = node.z;
-    lookaheadZ = nz;
-    bx = node.x;
-    if ((mask & 1) != 0)
-        d4 = StageObject_Atan2Degrees(nz - pz, bx - px);
-    if (variant != 0) {
-        pRef = (BYTE *)*(int *)((int *)&g_unk0x00592744 + variant);
-        cc = StageObject_Atan2Degrees(
-            *(int *)(pRef + 0x1158 + angles[4] * 4) - pz,
-            *(int *)(pRef + 0xb90 + angles[4] * 4) - px);
-    }
-    if ((mask & 2) != 0) {
+    nodeZ[0] = node.z;
+    nodeX[0] = node.x;
+    if (mask & 1)
+        result[0] = StageObject_Atan2Degrees(nodeZ[0] - pz, nodeX[0] - px);
+    if (variant != 0)
+        result[2] = StageObject_Atan2Degrees(*(int *)(REF_TRACK + 0x1158 + angles[4] * 4) - pz,
+                                             *(int *)(REF_TRACK + 0xb90 + angles[4] * 4) - px);
+    if (mask & 2) {
         RallyData_FUN_00421530(angles[3], (int *)&node);
-        d0 = StageObject_Atan2Degrees(node.z - pz, node.x - px);
+        nodeZ[1] = node.z;
+        nodeX[1] = node.x;
     }
-    speed = *(unsigned int *)(pc + 0x778);
-    baseAngle = (int)((double)(int)(((__int64)speed << 16) / 0x4000000) * CGraphics::m_65536);
+    if (mask & 2)
+        result[1] = StageObject_Atan2Degrees(nodeZ[1] - pz, nodeX[1] - px);
+    baseAngle = FixDiv(*(int *)(pc + 0x778), 0x4000000);
+    baseAngle = (int)(__int64)((double)baseAngle * CGraphics::m_65536);
     RallyData_FUN_00421530(angles[1], (int *)&node);
-    nx = node.x;
     nz = node.z;
+    nx = node.x;
     RallyData_FUN_00421530(angles[0], (int *)&node);
     curAngle = StageObject_Atan2Degrees(nz - node.z, nx - node.x);
     tmp = curAngle;
-    if (tmp < 0xb40000) {
-        if (tmp < -0xb40000)
-            tmp += 0x1680000;
-    } else {
-        tmp -= 0x1680000;
-    }
+    WRAP(tmp)
     pOut[0x13] = tmp;
     pOut[0x14] = StageObject_Atan2Degrees(nz - pz, nx - px);
-    a = px - nx;
-    b = pz - nz;
-    sum = FixMul(a, a) + FixMul(b, b);
-    if (sum == 0)
-        len = 0;
-    else
-        len = (unsigned int)FixSqrt(sum);
-    if (variant != 0) {
-        pRef = (BYTE *)*(int *)((int *)&g_unk0x00592744 + variant);
+    px -= nx;
+    len = FixMul(px, px);
+    pz -= nz;
+    len = FixMul(pz, pz) + len;
+    len = FixSqrt(len);
+    if (variant != 0)
         refAngle = StageObject_Atan2Degrees(
-            *(int *)(pRef + 0x1158 + angles[1] * 4) - *(int *)(pRef + 0x1158 + angles[0] * 4),
-            *(int *)(pRef + 0xb90 + angles[1] * 4) - *(int *)(pRef + 0xb90 + angles[0] * 4));
-    }
-    tmp = StageObject_Atan2Degrees(lookaheadZ - nz, bx - nx);
-    tmp = curAngle - tmp;
-    if (tmp < 0xb40000) {
-        if (tmp < -0xb40000)
-            tmp += 0x1680000;
-    } else {
-        tmp -= 0x1680000;
-    }
+            *(int *)(REF_TRACK + 0x1158 + angles[1] * 4) - *(int *)(REF_TRACK + 0x1158 + angles[0] * 4),
+            *(int *)(REF_TRACK + 0xb90 + angles[1] * 4) - *(int *)(REF_TRACK + 0xb90 + angles[0] * 4));
+    tmp = curAngle - StageObject_Atan2Degrees(nodeZ[0] - nz, nodeX[0] - nx);
+    WRAP(tmp)
     pOut[0x17] = tmp;
     for (i = 0; i < 0x20; i++) {
-        if ((mask & (1 << i)) != 0) {
-            switch (i) {
-            case 0:
-                tmp = frontAngle - d4;
-                if (tmp >= 0xb40000) {
-                    pOut[6] = tmp - 0x1680000;
-                } else {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[6] = tmp;
-                }
-                break;
-            case 1:
-                tmp = frontAngle - d0;
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[7] = tmp;
-                } else {
-                    pOut[7] = tmp - 0x1680000;
-                }
-                break;
-            case 3:
-                pOut[3] = *(int *)(pc + 0x870);
-                break;
-            case 4:
-                pRef = (BYTE *)*(int *)((int *)&g_unk0x00592744 + variant);
-                pOut[0x28] = baseAngle - *(int *)(pRef + 0x5c8 + angles[5] * 4);
-                break;
-            case 6:
-                *pOut = baseAngle;
-                break;
-            case 8:
-                tmp = curAngle - pOut[0x14];
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                } else {
-                    tmp -= 0x1680000;
-                }
-                pOut[0xd] = FixMul((int)len,
-                                   g_sinTable[(unsigned short)(int)((double)tmp * g_unk0x00511300) & 0xfff]);
-                break;
-            case 9:
-                tmp = frontAngle - curAngle;
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[0xe] = tmp;
-                } else {
-                    pOut[0xe] = tmp - 0x1680000;
-                }
-                break;
-            case 0xa:
-                tmp = frontAngle - sideAngle;
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[1] = tmp;
-                } else {
-                    pOut[1] = tmp - 0x1680000;
-                }
-                break;
-            case 0xb:
-                pOut[2] = (int)*(short *)(pc + 0xb10);
-                break;
-            case 0xc:
-                pRef = (BYTE *)*(int *)((int *)&g_unk0x00592744 + variant);
-                pOut[0x18] = baseAngle - *(int *)(pRef + 0x5c8 + angles[1] * 4);
-                break;
-            case 0xe:
-                pRef = (BYTE *)*(int *)((int *)&g_unk0x00592744 + variant);
-                a = *(int *)(pRef + angles[1] * 4);
-                b = *(int *)(pRef + 0x5c8 + angles[1] * 4);
-                t = a;
-                if (0x3c0000 < b) {
+        if ((mask & (1 << i)) == 0)
+            continue;
+        switch (i) {
+        case 0:
+            tmp = frontAngle - result[0];
+            WRAP_STORE(pOut[6], tmp)
+            break;
+        case 1:
+            tmp = frontAngle - result[1];
+            WRAP_STORE(pOut[7], tmp)
+            break;
+        case 3:
+            pOut[3] = *(int *)(pc + 0x870);
+            break;
+        case 4:
+            pOut[0x28] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[5] * 4);
+            break;
+        case 6:
+            *pOut = baseAngle;
+            break;
+        case 8:
+            tmp = curAngle - pOut[0x14];
+            WRAP(tmp)
+            pOut[0xd] = FixMul(len,
+                               g_sinTable[(unsigned short)(int)((double)tmp * g_unk0x00511300) & 0xfff]);
+            break;
+        case 9:
+            tmp = frontAngle - curAngle;
+            WRAP_STORE(pOut[0xe], tmp)
+            break;
+        case 0xa:
+            tmp = frontAngle - sideAngle;
+            WRAP_STORE(pOut[1], tmp)
+            break;
+        case 0xb:
+            pOut[2] = (int)*(short *)(pc + 0xb10);
+            break;
+        case 0xc:
+            pOut[0x18] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
+            break;
+        case 0xe:
+            t = *(int *)(REF_TRACK + angles[1] * 4);
+            b = *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
+            if (b > 0x3c0000) {
+                if (baseAngle < 0x280000) {
                     t = curAngle;
-                    if (0x27ffff < baseAngle) {
-                        t = a;
-                        if (0 < b - baseAngle) {
-                            uVar7 = FixMul(b - 0x280000, 0xb333);
-                            uVar8 = (uVar7 - (b - 0x280000)) + (b - baseAngle);
-                            if (0 < (int)uVar8) {
-                                tmp = a - curAngle;
-                                if (tmp < 0xb40000) {
-                                    if (tmp < -0xb40000)
-                                        tmp += 0x1680000;
-                                } else {
-                                    tmp -= 0x1680000;
-                                }
-                                t = a - FixMul((int)(((__int64)(int)uVar8 << 16) / (int)uVar7), tmp);
-                            }
+                } else {
+                    a = b - baseAngle;
+                    if (a > 0) {
+                        scale = FixMul(0xb333, b - 0x280000);
+                        slack = scale - (b - 0x280000) + a;
+                        if (slack > 0) {
+                            tmp = t - curAngle;
+                            WRAP(tmp)
+                            t -= FixMul(FixDiv(slack, scale), tmp);
                         }
                     }
                 }
-                tmp = frontAngle - t;
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[0x19] = tmp;
-                } else {
-                    pOut[0x19] = tmp - 0x1680000;
-                }
-                break;
-            case 0x12:
-                tmp = frontAngle - refAngle;
-                if (tmp >= 0xb40000) {
-                    pOut[0x1e] = tmp - 0x1680000;
-                } else {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                    pOut[0x1e] = tmp;
-                }
-                break;
-            case 0x14:
-                tmp = frontAngle - cc;
-                if (tmp < 0xb40000) {
-                    if (tmp < -0xb40000)
-                        tmp += 0x1680000;
-                } else {
-                    tmp -= 0x1680000;
-                }
-                pOut[0x20] = tmp;
-                break;
             }
+            tmp = frontAngle - t;
+            WRAP_STORE(pOut[0x19], tmp)
+            break;
+        case 0x12:
+            tmp = frontAngle - refAngle;
+            WRAP_STORE(pOut[0x1e], tmp)
+            break;
+        case 0x14:
+            tmp = frontAngle - result[2];
+            WRAP(tmp)
+            pOut[0x20] = tmp;
+            break;
         }
     }
+#undef WRAP_STORE
+#undef WRAP
+#undef REF_TRACK
 }
 
 // GLOBAL: CMR2 0x0051ac20
