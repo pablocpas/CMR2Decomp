@@ -118,7 +118,7 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
 }
 
 // GLOBAL: CMR2 0x005914a8
-FixVector g_unk0x005914a8;
+FixVector g_collisionPush;
 // GLOBAL: CMR2 0x005914b8
 FixVector g_unk0x005914b8;
 // GLOBAL: CMR2 0x005915e8
@@ -173,9 +173,9 @@ void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale)
         }
         if (scale != 0x10000) {
             FixVecScale(&v, (FixVector *)pDir, -rest);
-            g_unk0x005914a8.y += v.y;
-            g_unk0x005914a8.z += v.z;
-            g_unk0x005914a8.x += v.x;
+            g_collisionPush.y += v.y;
+            g_collisionPush.z += v.z;
+            g_collisionPush.x += v.x;
             if ((int *)pA[0x25] != NULL && pA[0x24] != 0) {
                 ((int *)pA[0x25])[0] += v.x;
                 ((int *)pA[0x25])[1] += v.y;
@@ -237,174 +237,166 @@ void FUN_0048c750(int *v)
 }
 
 
-extern int g_unk0x00591490;
-extern FixVector g_unk0x00591498;
+extern int g_collisionSphereRadius;
+extern FixVector g_collisionSphereCentre;
 
-// Resolves a collision between a car and the reference object: normalises the
-// offset of the car's centre, projects the car's extent onto it, and either
-// pushes the car out of the sphere or reports the impact side.
-// match 16%: implementada, MSVC6 reutiliza slots de pila y ordena distinto el prologo/cuerpo
+// Oriented box of a stage object: the half extents along its two horizontal
+// axes, the axes, the eight box points (the first four are its footprint) and
+// the object's own corners and centre, which a push moves along.
+struct CollisionBox {
+    int halfWidth;          // 0x0   extent along axisA
+    int halfLength;         // 0x4   extent along axisB
+    BYTE pad_0x08[0x8];
+    FixVector axisA;        // 0x10
+    FixVector axisB;        // 0x1c
+    BYTE pad_0x28[0x8];
+    FixVector points[8];    // 0x30
+    int *pArray;            // 0x90  eight corners of the object (FixVector)
+    int *pVertex;           // 0x94  centre of the object (FixVector)
+};
+typedef char CollisionBoxSize[sizeof(CollisionBox) == 0x98 ? 1 : -1];
+
+// Tests the car's bounding sphere (centre g_collisionSphereCentre, radius
+// g_collisionSphereRadius) against an oriented box. When the sphere is diagonally
+// outside the box it is tested against the nearest corner (side 3), otherwise
+// against the faces (side 1 for axis 0, 2 for axis 1). The sphere's push out
+// of the box, scaled by `scale`, also moves the object when it can move, and
+// is published in g_collisionPush. pAlong0/pAlong1 receive the sphere's
+// position along both axes relative to the reach of the box.
 // FUNCTION: CMR2 0x00489b20
-int FUN_00489b20(int *param_1, int *param_2, unsigned int *param_3, int param_4)
+int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int scale)
 {
-    int *piVar3 = param_1;
-    int local_1c = 0;
-    int local_14 = 0;
-    int local_10 = 0;
-    char local_5 = 0;
-    int iVar4, iVar5, iVar13, iVar14;
-    unsigned int uVar6, uVar7, uVar8, uVar15;
-    unsigned int local_3c, local_34;
-    int tmp;
+    CollisionBox *pBox = (CollisionBox *)param_1;
+    FixVector delta;
+    FixVector dir;
+    int dirAlong0;
+    int dirAlong1;
+    int along0;
+    int along1;
+    int t0;
+    int t1;
+    int best;
+    int push;
+    int hit0;
+    int hit1;
+    int reach0;
+    int reach1;
+    int radius2;
+    int dist2;
+    int a;
+    int b;
+    int corner;
+    int i;
+    FixVector *p;
+    char side;
 
-    iVar13 = g_unk0x00591498.x - *(int *)(param_1[0x25]);
-    iVar14 = g_unk0x00591498.z - *(int *)(param_1[0x25] + 8);
-    uVar15 = (unsigned int)FixSqrt(FixMul(iVar13, iVar13) + FixMul(iVar14, iVar14));
-    if (uVar15 == 0) {
-        local_3c = 0;
-        local_34 = 0;
-    } else {
-        iVar4 = (int)(0x100000000i64 / (__int64)(int)uVar15);
-        local_3c = (unsigned int)FixMul(iVar13, iVar4);
-        local_34 = (unsigned int)FixMul(iVar14, iVar4);
-    }
-    iVar4 = FixMul(param_1[6], local_34) + FixMul(param_1[4], local_3c);
-    iVar5 = FixMul(param_1[9], local_34) + FixMul(param_1[7], local_3c);
-    uVar6 = (unsigned int)(FixMul(param_1[6], iVar14) + FixMul(param_1[4], iVar13));
-    uVar7 = (unsigned int)(FixMul(param_1[9], iVar14) + FixMul(param_1[7], iVar13));
-
-    uVar15 = uVar6;
-    if ((int)uVar6 < 0)
-        uVar15 = -uVar6;
-
-    if (*param_1 < (int)uVar15) {
-        uVar15 = uVar7;
-        if ((int)uVar7 < 0)
-            uVar15 = -uVar7;
-        if ((int)uVar15 > param_1[1])
-            goto LABEL_00489f05;
-
-        if ((int)uVar6 >= 1)
-            uVar15 = (unsigned int)(0 < (int)uVar7);
+    t0 = 0;
+    t1 = 0;
+    side = 0;
+    push = 0;
+    delta.x = g_collisionSphereCentre.x - ((FixVector *)pBox->pVertex)->x;
+    delta.y = g_collisionSphereCentre.y - ((FixVector *)pBox->pVertex)->y;
+    delta.z = g_collisionSphereCentre.z - ((FixVector *)pBox->pVertex)->z;
+    delta.y = 0;
+    FIX_NORMALIZE_INTO(dir, delta);
+    dirAlong0 = FixVecDot(&dir, &pBox->axisA);
+    dirAlong1 = FixVecDot(&dir, &pBox->axisB);
+    along0 = FixVecDot(&delta, &pBox->axisA);
+    along1 = FixVecDot(&delta, &pBox->axisB);
+    if (FIX_ABS(along0) > pBox->halfWidth && FIX_ABS(along1) > pBox->halfLength) {
+        // Diagonally outside the box: the sphere against the nearest corner.
+        if (along0 > 0)
+            corner = along1 > 0;
         else
-            uVar15 = (unsigned int)((0 < (int)uVar7) + 2);
-        uVar8 = (unsigned int)FixMul(g_unk0x00591490, g_unk0x00591490);
-        iVar14 = g_unk0x00591498.x - param_1[uVar15 * 3 + 0xc];
-        iVar4 = g_unk0x00591498.z - param_1[uVar15 * 3 + 0xe];
-        uVar15 = (unsigned int)FixMul(iVar4, iVar4);
-        iVar13 = (int)uVar15 + FixMul(iVar14, iVar14);
-        if ((int)uVar8 < iVar13)
-            goto LABEL_0048a1e0;
-        iVar14 = FixMul(local_34, iVar4) + FixMul(local_3c, iVar14);
-        iVar4 = FixMul(local_34, local_34) + FixMul(local_3c, local_3c);
-        uVar15 = (unsigned int)(FixMul(iVar14, iVar14) - FixMul(iVar4, iVar13 - (int)uVar8));
-        if (-1 < (int)uVar15) {
-            uVar15 = (unsigned int)FixSqrt(uVar15);
-            uVar15 = uVar15 - iVar14;
-            local_10 = FixDiv((int)uVar15, iVar4);
-        }
-        local_5 = 3;
+            corner = (along1 > 0) + 2;
+        radius2 = FixMul(g_collisionSphereRadius, g_collisionSphereRadius);
+        delta.x = g_collisionSphereCentre.x - pBox->points[corner].x;
+        delta.y = g_collisionSphereCentre.y - pBox->points[corner].y;
+        delta.z = g_collisionSphereCentre.z - pBox->points[corner].z;
+        dist2 = FixMul(delta.x, delta.x) + FixMul(delta.z, delta.z);
+        if (dist2 > radius2)
+            goto done;
+        b = FixMul(dir.x, delta.x) + FixMul(dir.z, delta.z);
+        a = FixMul(dir.x, dir.x) + FixMul(dir.z, dir.z);
+        dist2 = FixMul(b, b) - FixMul(a, dist2 - radius2);
+        if (dist2 >= 0)
+            push = FixDiv(FixSqrt(dist2) - b, a);
+        side = 3;
     } else {
-LABEL_00489f05:
-        iVar14 = *param_1 + g_unk0x00591490;
-        iVar13 = g_unk0x00591490 + param_1[1];
-        uVar15 = uVar6;
-        if ((int)uVar6 < 0)
-            uVar15 = -uVar6;
-        if (iVar14 < (int)uVar15)
-            goto LABEL_0048a1e0;
-        uVar15 = uVar7;
-        if ((int)uVar7 < 0)
-            uVar15 = -uVar7;
-        if (iVar13 < (int)uVar15)
-            goto LABEL_0048a1e0;
-
-        {
-            int bVar16 = 0;
-            int bVar2 = 0;
-            if (iVar4 < 0x42) {
-                if (iVar4 < -0x41) {
-                    uVar15 = (unsigned int)-(uVar6 + iVar14);
-                    tmp = uVar6 + iVar14;
-                    if (-1 < (int)uVar15)
-                        tmp = (int)uVar15;
-                    local_1c = FixDiv(tmp, -iVar4);
-                    goto LABEL_00489f8f;
-                }
-            } else {
-                uVar15 = (unsigned int)(iVar14 - uVar6);
-                local_1c = FixDiv((int)uVar15, iVar4);
-LABEL_00489f8f:
-                bVar2 = 1;
-            }
-            if (iVar5 >= 0x42) {
-                uVar15 = (unsigned int)(iVar13 - uVar7);
-                local_14 = FixDiv((int)uVar15, iVar5);
-                bVar16 = 1;
-            } else {
-                if (iVar5 < -0x41) {
-                    uVar15 = (unsigned int)-(iVar13 + uVar7);
-                    tmp = iVar13 + uVar7;
-                    if (-1 < (int)uVar15)
-                        tmp = (int)uVar15;
-                    local_14 = FixDiv(tmp, -iVar5);
-                    bVar16 = 1;
-                }
-            }
-            if (bVar2 && local_1c < 0x7d000000)
-                local_5 = 1;
-            else
-                local_1c = 0x7d000000;
-            if (bVar16 && local_14 < local_1c) {
-                local_5 = 2;
-                local_1c = local_14;
-            }
-            if ((0 < local_1c) && (bVar16 || bVar2))
-                local_10 = local_1c;
-            if (local_5 == 0)
-                goto LABEL_0048a1e0;
+        // Against the faces: how far the sphere must move along `dir` to leave
+        // the box through each pair of faces.
+        reach0 = pBox->halfWidth + g_collisionSphereRadius;
+        reach1 = g_collisionSphereRadius + pBox->halfLength;
+        if (FIX_ABS(along0) > reach0)
+            goto done;
+        if (FIX_ABS(along1) > reach1)
+            goto done;
+        hit1 = 0;
+        hit0 = 0;
+        best = 0x7d000000;
+        if (dirAlong0 > 0x41) {
+            t0 = FixDiv(reach0 - along0, dirAlong0);
+            hit0 = 1;
+        } else if (dirAlong0 < -0x41) {
+            a = along0 + reach0;
+            if (-a >= 0)
+                a = -a;
+            t0 = FixDiv(a, -dirAlong0);
+            hit0 = 1;
         }
+        if (dirAlong1 > 0x41) {
+            t1 = FixDiv(reach1 - along1, dirAlong1);
+            hit1 = 1;
+        } else if (dirAlong1 < -0x41) {
+            a = reach1 + along1;
+            if (-a >= 0)
+                a = -a;
+            t1 = FixDiv(a, -dirAlong1);
+            hit1 = 1;
+        }
+        if (hit0 && t0 < best) {
+            side = 1;
+            best = t0;
+        }
+        if (hit1 && t1 < best) {
+            best = t1;
+            side = 2;
+        }
+        if (best > 0 && (hit1 || hit0))
+            push = best;
+        if (side == 0)
+            goto done;
     }
 
-    g_unk0x005914a8.z = 0;
-    if (local_10 < 1) {
-        g_unk0x005914a8.x = 0;
-    } else {
-        int iVar;
-        int *piVar9;
-        iVar = -FixMul(local_10, param_4);
-        g_unk0x005914a8.x = FixMul(local_3c, iVar);
-        g_unk0x005914a8.z = FixMul(local_34, iVar);
-        piVar9 = (int *)piVar3[0x25];
-        if ((piVar9 != 0) && (piVar3[0x24] != 0)) {
-            *piVar9 = *piVar9 + g_unk0x005914a8.x;
-            *(int *)(piVar3[0x25] + 4) = *(int *)(piVar3[0x25] + 4);
-            *(int *)(piVar3[0x25] + 8) = *(int *)(piVar3[0x25] + 8) + g_unk0x005914a8.z;
-            iVar = 0;
-            do {
-                *(int *)(iVar + piVar3[0x24]) = *(int *)(iVar + piVar3[0x24]) + g_unk0x005914a8.x;
-                *(int *)(iVar + 4 + piVar3[0x24]) = *(int *)(iVar + 4 + piVar3[0x24]);
-                *(int *)(iVar + 8 + piVar3[0x24]) = *(int *)(iVar + 8 + piVar3[0x24]) + g_unk0x005914a8.z;
-                iVar += 0xc;
-            } while (iVar < 0x60);
-            piVar9 = piVar3 + 0xd;
-            iVar = 4;
-            do {
-                piVar9[-1] = piVar9[-1] + g_unk0x005914a8.x;
-                *piVar9 = *piVar9;
-                piVar9[1] = piVar9[1] + g_unk0x005914a8.z;
-                piVar9 += 3;
-                iVar--;
-            } while (iVar != 0);
+    if (push > 0) {
+        FixVecScale(&dir, &dir, -FixMul(push, scale));
+        if (pBox->pVertex != NULL && pBox->pArray != NULL) {
+            ((FixVector *)pBox->pVertex)->x += dir.x;
+            ((FixVector *)pBox->pVertex)->y += dir.y;
+            ((FixVector *)pBox->pVertex)->z += dir.z;
+            for (i = 0; i < 8; i++) {
+                ((FixVector *)pBox->pArray)[i].x += dir.x;
+                ((FixVector *)pBox->pArray)[i].y += dir.y;
+                ((FixVector *)pBox->pArray)[i].z += dir.z;
+            }
+            p = pBox->points;
+            for (i = 4; i != 0; i--) {
+                p->x += dir.x;
+                p->y += dir.y;
+                p->z += dir.z;
+                p++;
+            }
         }
+        g_collisionPush = dir;
+    } else {
+        g_collisionPush.x = 0;
+        g_collisionPush.y = 0;
+        g_collisionPush.z = 0;
     }
-    g_unk0x005914a8.y = 0;
-    *param_2 = FixDiv(FixMul(uVar6, *piVar3), *piVar3 + g_unk0x00591490);
-    uVar15 = (unsigned int)FixDiv(FixMul(uVar7, piVar3[1]), g_unk0x00591490 + piVar3[1]);
-    *param_3 = uVar15;
-
-LABEL_0048a1e0:
-    return (int)(unsigned char)local_5;
+    *pAlong0 = FixDiv(FixMul(along0, pBox->halfWidth), pBox->halfWidth + g_collisionSphereRadius);
+    *pAlong1 = FixDiv(FixMul(along1, pBox->halfLength), g_collisionSphereRadius + pBox->halfLength);
+done:
+    return side;
 }
 
 // Collision flags published for the rest of the physics step.
@@ -422,7 +414,7 @@ void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
 // and the body of the box by the tangential remainder of the correction.
 // match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00489750
-int FUN_00489750(int car, int *pBox, int scale)
+int Collision_CarVsBox(int car, int *pBox, int scale)
 {
     FixVector a;
     FixVector b;
@@ -439,7 +431,7 @@ int FUN_00489750(int car, int *pBox, int scale)
     int *p;
     char side;
 
-    side = (char)FUN_00489b20(pBox, &factor, (unsigned int *)&t, scale);
+    side = (char)Collision_SphereVsBox(pBox, &factor, (unsigned int *)&t, scale);
     if (side == 0)
         return 0;
 
@@ -459,11 +451,11 @@ int FUN_00489750(int car, int *pBox, int scale)
         int *pRaw = *(int **)(pBox + 0x94);
 
         g_unk0x005915e8.x = pRaw[0] + v.x;
-        g_unk0x005915e8.x -= g_unk0x00591498.x;
+        g_unk0x005915e8.x -= g_collisionSphereCentre.x;
         g_unk0x005915e8.y = pRaw[1] + v.y;
         g_unk0x005915e8.y = 0;
         g_unk0x005915e8.z = pRaw[2] + v.z;
-        g_unk0x005915e8.z -= g_unk0x00591498.z;
+        g_unk0x005915e8.z -= g_collisionSphereCentre.z;
         FIX_NORMALIZE_INTO(g_unk0x005915e8, g_unk0x005915e8)
     } else if (side == 1) {
         g_unk0x005915e8 = *(FixVector *)(pBox + 4);
@@ -471,11 +463,11 @@ int FUN_00489750(int car, int *pBox, int scale)
         g_unk0x005915e8 = *(FixVector *)(pBox + 7);
     }
 
-    dot = FixVecDot(&g_unk0x005915e8, &g_unk0x005914a8);
+    dot = FixVecDot(&g_unk0x005915e8, &g_collisionPush);
     FixVecScale(&along, &g_unk0x005915e8, dot);
-    dx = along.x - g_unk0x005914a8.x;
-    dy = along.y - g_unk0x005914a8.y;
-    dz = along.z - g_unk0x005914a8.z;
+    dx = along.x - g_collisionPush.x;
+    dy = along.y - g_collisionPush.y;
+    dz = along.z - g_collisionPush.z;
 
     if (*(int **)(pBox + 0x94) != NULL && *(int *)(pBox + 0x90) != 0) {
         p = *(int **)(pBox + 0x94);
@@ -531,15 +523,6 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsi
 // Collision box of a car while a contact is resolved (0x98 bytes): the two body
 // axes from 0x10, the eight contact points built by FUN_00486c30 and the two
 // pointers at 0x90/0x94 to the point array and to the box vertex.
-struct CollisionBox {
-    BYTE pad_0x00[0x10];
-    FixVector axisA;        // 0x10
-    FixVector axisB;        // 0x1c
-    BYTE pad_0x28[0x8];
-    FixVector points[8];    // 0x30
-    int *pArray;            // 0x90
-    int *pVertex;           // 0x94
-};
 
 extern int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
 
@@ -813,10 +796,10 @@ int FUN_0048a5f0(int param_1, int param_2)
         FixVecScaleRecip(&normal, &normal, len);
     }
     if (g_unk0x005915f4 == 0 || g_unk0x005914d4 == 0) {
-        FixVecScale(&delta, &normal, FixVecDot(&g_unk0x005914a8, &normal));
-        dx = delta.x - g_unk0x005914a8.x;
-        dy = delta.y - g_unk0x005914a8.y;
-        dz = delta.z - g_unk0x005914a8.z;
+        FixVecScale(&delta, &normal, FixVecDot(&g_collisionPush, &normal));
+        dx = delta.x - g_collisionPush.x;
+        dy = delta.y - g_collisionPush.y;
+        dz = delta.z - g_collisionPush.z;
         if (((CollisionBox *)g_pContacts0x005915e0)->pVertex != NULL &&
             ((CollisionBox *)g_pContacts0x005915e0)->pArray != NULL) {
             ((CollisionBox *)g_pContacts0x005915e0)->pVertex[0] += dx;
@@ -1196,8 +1179,8 @@ int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4)
                          &g_unk0x005915e8, 0, 2, 0);
         }
     } else {
-        FUN_00466ef0((Car *)param_1, (int *)&g_unk0x00591498, &g_unk0x005915e8,
-                     g_unk0x00591490, 1, 0);
+        FUN_00466ef0((Car *)param_1, (int *)&g_collisionSphereCentre, &g_unk0x005915e8,
+                     g_collisionSphereRadius, 1, 0);
     }
 known:
 

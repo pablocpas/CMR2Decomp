@@ -4369,11 +4369,11 @@ int FUN_00473310(void)
 }
 
 // GLOBAL: CMR2 0x00591490
-int g_unk0x00591490;
+int g_collisionSphereRadius;
 // GLOBAL: CMR2 0x00591494
 int g_unk0x00591494;
 // GLOBAL: CMR2 0x00591498
-FixVector g_unk0x00591498;
+FixVector g_collisionSphereCentre;
 
 // True when two spheres (radii r1, r2) overlap.
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -4402,8 +4402,8 @@ int FUN_00487b80(int r1, int r2, int *pA, int *pB)
 // FUNCTION: CMR2 0x00487e00
 void FUN_00487e00(FixVector *pPos, int *pInfo)
 {
-    g_unk0x00591498 = *pPos;
-    g_unk0x00591490 = *(int *)pInfo[1];
+    g_collisionSphereCentre = *pPos;
+    g_collisionSphereRadius = *(int *)pInfo[1];
     g_unk0x00591494 = *(int *)(*(int *)(*(int *)(pInfo[0] + 0xc) + 0x10c) + 0x4c);
 }
 
@@ -4418,9 +4418,9 @@ void FUN_00487e50(int *pBox, Car *pCar)
     int u;
     int v;
 
-    delta.x = g_unk0x00591498.x - ((int *)pBox[0x25])[0];
-    delta.y = g_unk0x00591498.y - ((int *)pBox[0x25])[1];
-    delta.z = g_unk0x00591498.z - ((int *)pBox[0x25])[2];
+    delta.x = g_collisionSphereCentre.x - ((int *)pBox[0x25])[0];
+    delta.y = g_collisionSphereCentre.y - ((int *)pBox[0x25])[1];
+    delta.z = g_collisionSphereCentre.z - ((int *)pBox[0x25])[2];
     delta.y = 0;
     u = FixVecDot(&delta, (FixVector *)(pBox + 4));
     v = FixVecDot(&delta, (FixVector *)(pBox + 7));
@@ -4429,8 +4429,8 @@ void FUN_00487e50(int *pBox, Car *pCar)
     {
         int limit0;
         int limit1;
-        limit0 = pBox[0] + g_unk0x00591490;
-        limit1 = pBox[1] + g_unk0x00591490;
+        limit0 = pBox[0] + g_collisionSphereRadius;
+        limit1 = pBox[1] + g_collisionSphereRadius;
         if (FIX_ABS(u) > limit0 || FIX_ABS(v) > limit1)
             return;
     }
@@ -12112,7 +12112,7 @@ int g_unk0x00590c58;
 // GLOBAL: CMR2 0x00590c5c
 int g_unk0x00590c5c;
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
-extern FixVector g_unk0x005914a8;
+extern FixVector g_collisionPush;
 extern FixVector g_unk0x005914b8;
 void FUN_004894b0(int *pA, int *pB, int *pDir, int amount, int scale);
 int FUN_00488de0(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
@@ -13120,9 +13120,9 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         return 0;
     g_unk0x005914d4 = 0;
     g_unk0x005915f4 = 0;
-    g_unk0x005914a8.x = 0;
-    g_unk0x005914a8.y = 0;
-    g_unk0x005914a8.z = 0;
+    g_collisionPush.x = 0;
+    g_collisionPush.y = 0;
+    g_collisionPush.z = 0;
     g_unk0x005914b8.x = 0;
     g_unk0x005914b8.y = 0;
     g_unk0x005914b8.z = 0;
@@ -14638,7 +14638,7 @@ void FUN_0046d510(void)
     }
 }
 
-extern FixVector g_unk0x005914a8;
+extern FixVector g_collisionPush;
 extern FixVector g_unk0x005915e8;
 extern int g_unk0x005915dc;
 extern int g_unk0x00591468;
@@ -14733,11 +14733,11 @@ int FUN_00487f60(Car *pCar, int *pEntry, int *pBox, int *pObject)
     FixVecScaleRecip(&sum, &sum, count << 16);
     FIX_NORMALIZE_INTO(dir, dir);
     if (solid == 0 && (g_unk0x005915f4 == 0 || g_unk0x005914d4 == 0)) {
-        d = FixVecDot(&dir, &g_unk0x005914a8);
+        d = FixVecDot(&dir, &g_collisionPush);
         FixVecScale(&point, &dir, d);
-        point.x -= g_unk0x005914a8.x;
-        point.y -= g_unk0x005914a8.y;
-        point.z -= g_unk0x005914a8.z;
+        point.x -= g_collisionPush.x;
+        point.y -= g_collisionPush.y;
+        point.z -= g_collisionPush.z;
         if (*(int **)(pBox + 0x25) != NULL && pBox[0x24] != 0) {
             (*(int **)(pBox + 0x25))[0] += point.x;
             (*(int **)(pBox + 0x25))[1] += point.y;
@@ -14766,7 +14766,7 @@ BYTE *Sector_GetListA(unsigned int sector, unsigned int *pCount);
 BYTE *Sector_GetListB(unsigned int sector, unsigned int *pCount);
 void RallyData_FUN_00471cc0(int *pDest, void **pParam1);
 int FUN_00471d40(BYTE **pEntry, int bit);
-int FUN_00489750(int car, int *pBox, int scale);
+int Collision_CarVsBox(int car, int *pBox, int scale);
 int FUN_0048be20(int param_1, int *param_2, int param_3, int param_4);
 
 // Collides a car with the stage objects of the four sectors it touches
@@ -14838,7 +14838,7 @@ int FUN_004878a0(Car *pCar)
                             FUN_00487e50((int *)pBox, pCar);
                         continue;
                     }
-                    result = FUN_00489750((int)pCar, (int *)pBox, (pObject[4] & 0x2001000) != 0 ? 0 : 0x10000);
+                    result = Collision_CarVsBox((int)pCar, (int *)pBox, (pObject[4] & 0x2001000) != 0 ? 0 : 0x10000);
                 }
                 if (result != 0 && FUN_0048be20((int)pCar, pEntry, (int)&position, 0) != 0)
                     FUN_0046fe70(pEntry, sector, pCar->index);
