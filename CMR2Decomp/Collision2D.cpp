@@ -448,7 +448,9 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
                                   *(FixMatrix **)(car + 0x750));
 
     if (side == 3) {
-        int *pRaw = *(int **)(pBox + 0x94);
+        // +0x94/+0x90 are BYTE offsets in the original (pBox[0x25]/[0x24]); the
+        // int-pointer arithmetic read 0x250/0x240 and crashed on rally impacts.
+        int *pRaw = (int *)pBox[0x25];
 
         g_unk0x005915e8.x = pRaw[0] + v.x;
         g_unk0x005915e8.x -= g_collisionSphereCentre.x;
@@ -469,15 +471,15 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
     dy = along.y - g_collisionPush.y;
     dz = along.z - g_collisionPush.z;
 
-    if (*(int **)(pBox + 0x94) != NULL && *(int *)(pBox + 0x90) != 0) {
-        p = *(int **)(pBox + 0x94);
+    if ((int *)pBox[0x25] != NULL && pBox[0x24] != 0) {
+        p = (int *)pBox[0x25];
         p[0] += dx;
         p[1] += dy;
         p[2] += dz;
         for (i = 0; i < 0x60; i += 0xc) {
-            *(int *)(*(int *)(pBox + 0x90) + i) += dx;
-            *(int *)(*(int *)(pBox + 0x90) + i + 4) += dy;
-            *(int *)(*(int *)(pBox + 0x90) + i + 8) += dz;
+            *(int *)(pBox[0x24] + i) += dx;
+            *(int *)(pBox[0x24] + i + 4) += dy;
+            *(int *)(pBox[0x24] + i + 8) += dz;
         }
         p = pBox + 0xd;
         for (j = 4; j != 0; j--) {
