@@ -762,7 +762,7 @@ void NetRace_PackCarState(Car *car)
                              (int)*(short *)(raw + 0xb16) * 0x1680) + 0x10000, 0x3f0000) + 0x1999;
     if (steer > 0x7e8000) steer = 0x7e8000;
     g_localCarStats.field_0x1a = (g_localCarStats.field_0x1a & 0xff80) | ((steer >> 16) & 0x7f);
-    if (car->field_0x79c) g_localCarStats.field_0x1a |= 0x80;
+    if (car->steerFollowRate) g_localCarStats.field_0x1a |= 0x80;
     else g_localCarStats.field_0x1a &= 0xff7f;
     g_localCarStats.speed = (g_localCarStats.speed & 0xfdff) | ((raw[0xb54] & 1) << 9);
     value = (float)((double)*(int *)(raw + 0x960) * CGraphics::m_oneOver65536 * g_netHeightScale);
@@ -779,11 +779,11 @@ void NetRace_PackCarState(Car *car)
     } else g_localCarStats.field_0x1a &= 0xfdff;
     if (CGameInfo::FUN_00404f20()) g_localCarStats.field_0x1a |= 0x400;
     else g_localCarStats.field_0x1a &= 0xfbff;
-    int node = FUN_004582f0(car->field_0xb1a);
+    int node = FUN_004582f0(car->index);
     if (node < 0) node = 0;
     else if (node > 0x400) node = 0x400;
     g_localCarStats.field_0x18 = (g_localCarStats.field_0x18 & 0xfc00) | (node & 0x3ff);
-    int stage = FUN_004582d0(car->field_0xb1a);
+    int stage = FUN_004582d0(car->index);
     if (stage < 0) {
         stage = -stage;
         g_localCarStats.field_0x1a |= 0x8000;

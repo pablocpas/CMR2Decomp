@@ -28,7 +28,7 @@ void WheelTrail_Update(int carIndex)
         Car *pCar = Car_Get(carIndex);
         int *pCount = &g_trailCount[carIndex];
         FixVector *pEmitter = pCar->wheelEmitter;
-        int *pState = pCar->field_0xbac;
+        int *pState = pCar->cornerOnGround;
         short *pSurface = pCar->wheelSurface;
         char *pLevel = g_trailLevel[carIndex];
         int i = 0;

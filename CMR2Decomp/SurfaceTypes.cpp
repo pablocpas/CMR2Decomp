@@ -898,7 +898,7 @@ void FUN_00479360(int *pState, int player, int listener)
         }
     } else {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->field_0x79c, *(int *)pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, *(int *)pCar->field_0x788),
                             CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0058df3c));
             if (FUN_0041f3d0((BYTE)player))
@@ -911,7 +911,7 @@ void FUN_00479360(int *pState, int player, int listener)
             FUN_004b79a0(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->field_0x79c, *(int *)pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, *(int *)pCar->field_0x788),
                             CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0051f278));
             if (FUN_0041f3d0((BYTE)player))
@@ -1235,8 +1235,8 @@ void FUN_0047a710(int player, int listener)
         speed = 0x104;
     state[0] = pitch;
     state[2] = speed;
-    state[3] = pCar->field_0xb1e;
-    state[4] = (FixDiv(FixMul(pCar->field_0x79c, 0x640000), *(int *)pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
+    state[3] = pCar->gear;
+    state[4] = (FixDiv(FixMul(pCar->steerFollowRate, 0x640000), *(int *)pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
     state[5] = 0;
     state[6] = 0;
     FUN_00479360(state, player, listener);

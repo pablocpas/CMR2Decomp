@@ -709,19 +709,19 @@ double g_radiansToDegrees = 57.295827908797776;
 int StageObject_GetWheelSlip(int carIndex, int wheelIndex)
 {
     if (carIndex < 8) {
-        int slip = Car_Get(carIndex)->field_0x880[wheelIndex];
+        int slip = Car_Get(carIndex)->wheelSlipLateral[wheelIndex];
         if (slip < 0)
-            slip = -Car_Get(carIndex)->field_0x880[wheelIndex];
+            slip = -Car_Get(carIndex)->wheelSlipLateral[wheelIndex];
         else
-            slip = Car_Get(carIndex)->field_0x880[wheelIndex];
+            slip = Car_Get(carIndex)->wheelSlipLateral[wheelIndex];
         slip -= 0xccc;
         if (slip < 0) slip = 0;
 
-        int lateral = Car_Get(carIndex)->field_0x870[wheelIndex];
+        int lateral = Car_Get(carIndex)->wheelSlip[wheelIndex];
         if (lateral < 0)
-            lateral = -Car_Get(carIndex)->field_0x870[wheelIndex];
+            lateral = -Car_Get(carIndex)->wheelSlip[wheelIndex];
         else
-            lateral = Car_Get(carIndex)->field_0x870[wheelIndex];
+            lateral = Car_Get(carIndex)->wheelSlip[wheelIndex];
         lateral -= 0x2666;
         if (lateral < 0) lateral = 0;
         if (slip < lateral) slip = lateral;
@@ -1468,7 +1468,7 @@ void FUN_0046bfd0(Block0x309 *pSrc, Car *pDst)
     FixMatrix *pWorld = pDst->pWorld;
     FixMatrix *pBodyMatrix = pDst->pBodyMatrix;
     FixVector wheelEmitter[4];
-    char carIndex = pDst->field_0xb1a;
+    char carIndex = pDst->index;
     int i;
 
     for (i = 0; i < 4; i++) {
@@ -1491,11 +1491,11 @@ void FUN_0046bfd0(Block0x309 *pSrc, Car *pDst)
         pDst->pWheelNodes[i] = pWheelNodes[i];
         pDst->wheelEmitter[i] = wheelEmitter[i];
     }
-    pDst->field_0xb1a = carIndex;
+    pDst->index = carIndex;
 
     if ((BYTE)RallyData_FUN_00407ea0() != 0)
         *(float *)(pDst->field_0xa90 + 8) = 25.0f;
-    if (pDst->field_0xb1a > 0 && (BYTE)RallyData_FUN_00407e90() != 0 &&
+    if (pDst->index > 0 && (BYTE)RallyData_FUN_00407e90() != 0 &&
         (BYTE)CGameInfo::FUN_00405e00() == 0 && (BYTE)RallyDataState() == 1)
         *(float *)(pDst->field_0xa90 + 8) = FUN_00456ae0();
 }
@@ -3753,7 +3753,7 @@ void FUN_00477460(int index)
     for (i = 0; i <= 0xa; i++)
         pNew[i] = ((i >= limit) - 1) & 0xff;
     if (g_unk0x0058d4c4[index * 2] != 0)
-        FUN_004775f0((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->field_0xb1e, 2, index);
+        FUN_004775f0((Texture *)g_unk0x0058d4c4[index * 2], (int)Car_Get(index)->gear, 2, index);
     if (g_unk0x0058d4c0[index * 2] != 0) {
         slot = index + 8;
         pNew[0xb] = 0x6c;
@@ -4666,7 +4666,7 @@ void FUN_00468c10(Car *pCar)
     int b;
     int value;
 
-    pRecord = g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0;
+    pRecord = g_unk0x00588b94 + pCar->index * 0x4d0;
     if (*(int *)pCar->field_0xb50 == 0)
         return;
     p = (int *)(pRecord + 0x240);
@@ -4735,9 +4735,9 @@ void FUN_00468c10(Car *pCar)
     }
     if (*(int *)pCar->field_0x7b8 != 0x10000 && *(int *)pCar->field_0x7b8 != 0) {
         value = FixMul(0x8000, *(int *)(pRecord + 0x280)) + *(int *)pCar->field_0x7b8;
-        pCar->field_0x7b4 = value;
+        pCar->driveSplit = value;
         if (value > 0x10000)
-            pCar->field_0x7b4 = 0x10000;
+            pCar->driveSplit = 0x10000;
     }
     *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
     value = FUN_00469100(pCar, (CarPartSet *)pRecord);
@@ -4772,7 +4772,7 @@ void FUN_00468a80(Car *pCar, int amount)
     int yLimit1;
     int colLimit;
 
-    set = (CarPartSet *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
+    set = (CarPartSet *)(g_unk0x00588b94 + pCar->index * 0x4d0);
     halfAmount = FixMul(amount, 0x8000);
     amount = FixMul(amount, 0x3333);
     xStep = FixMul(pCar->halfExtents.x, 0xaac0);
@@ -4819,10 +4819,10 @@ int FUN_00469100(Car *pCar, CarPartSet *set)
     int dz;
     int dist;
 
-    if (g_unk0x00588970[pCar->field_0xb1a] == 0)
+    if (g_unk0x00588970[pCar->index] == 0)
         return 0;
-    partA = FUN_00484d10(1, pCar->field_0xb1a);
-    partB = FUN_00484d10(3, pCar->field_0xb1a);
+    partA = FUN_00484d10(1, pCar->index);
+    partB = FUN_00484d10(3, pCar->index);
     sum = 0;
     total = 0;
     for (i = 0; i < set->count; i++) {
@@ -5137,9 +5137,9 @@ void StageObject_UpdateSkidTrails(int carIndex)
                             (pPrevious->flags & 1) != 0;
         int dualSurface = (pCurrent->flags & 2) != 0 && (pPrevious->flags & 2) != 0;
 
-        if (pCar->field_0xbac[wheel] == 1 && (activeSurface || dualSurface)) {
+        if (pCar->cornerOnGround[wheel] == 1 && (activeSurface || dualSurface)) {
             int slip = StageObject_GetWheelSlip(carIndex, wheel);
-            if ((pCurrent->flags & 2) == 0 || pCar->field_0xbac[wheel ^ 2] == 0) {
+            if ((pCurrent->flags & 2) == 0 || pCar->cornerOnGround[wheel ^ 2] == 0) {
                 if (slip <= 0)
                     continue;
             } else {
@@ -6311,9 +6311,9 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
                 sum = sum + h;
                 count = count + 1;
                 Scene_GetLightColour((DWORD *)light, h);
-                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4] = light[0];
-                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4 + 1] = light[1];
-                ((BYTE *)g_unk0x00543f28)[(i + pCar->field_0xb1a * 4) * 4 + 2] = light[2];
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->index * 4) * 4] = light[0];
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->index * 4) * 4 + 1] = light[1];
+                ((BYTE *)g_unk0x00543f28)[(i + pCar->index * 4) * 4 + 2] = light[2];
             }
         }
         i = i + 1;
@@ -7847,7 +7847,7 @@ void FUN_0047b870(int index)
     int driver = Car_GetOrder()[index];
     g_unk0x0058e0a0 = Car_Get(driver);
     *(int *)g_unk0x0058e0a0->field_0x1dc = 0;
-    g_unk0x0058e0a0->field_0x1d8 = 0;
+    g_unk0x0058e0a0->handbrake = 0;
     g_unk0x0058e0a0->field_0x1d4[0] = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
@@ -7858,7 +7858,7 @@ void FUN_0047b870(int index)
     else
         g_unk0x0058e0a0->flag0x1d0[3] = 1;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->field_0x1d8 = 1;
+    g_unk0x0058e0a0->handbrake = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
     *(int *)(g_unk0x0058e0a0->field_0x1dc + 8) = 0;
     FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
@@ -8277,7 +8277,7 @@ void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, 
 void FUN_0046c450(BYTE *pOut, BYTE car)
 {
     Car *pCar = Car_Get(car);
-    DeviceInfo *pDev = CInput::FUN_0049ead0((char)Car_GetDrawnFlag(pCar->field_0xb1a));
+    DeviceInfo *pDev = CInput::FUN_0049ead0((char)Car_GetDrawnFlag(pCar->index));
 
     FUN_0046bdc0((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, *(int *)((BYTE *)pCar + 0xb88),
                  *(int *)((BYTE *)pCar + 0xb8c), *(int *)((BYTE *)pCar + 0xb90));
@@ -8822,9 +8822,9 @@ void FUN_0046b8f0(Car *pCar)
     *(int *)(g_unk0x00588ba4 + 8) = 0;
     *(short *)(g_unk0x00588ba4 + 12) = 0;
     g_unk0x00588ba4[14] = 0;
-    g_unk0x00588ba4[pCar->field_0xb1a] = 0;
-    FUN_0046b790(g_unk0x00588cd4[pCar->field_0xb1a * 2], 0, pCar->field_0xb1a);
-    FUN_0046b790(g_unk0x00588cd4[pCar->field_0xb1a * 2 + 1], 1, pCar->field_0xb1a);
+    g_unk0x00588ba4[pCar->index] = 0;
+    FUN_0046b790(g_unk0x00588cd4[pCar->index * 2], 0, pCar->index);
+    FUN_0046b790(g_unk0x00588cd4[pCar->index * 2 + 1], 1, pCar->index);
     pCar->pNode0x71c->field_0x17c = 0xff;
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[0], g_unk0x00588ba4[9]);
     SceneNode_SetViewMaskTree(pCar->pWheelNodes[1], g_unk0x00588ba4[9]);
@@ -8854,13 +8854,13 @@ void FUN_0046b8f0(Car *pCar)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], g_unk0x00588ba4[12]);
     if (pCar->pExtraNodes[3] != NULL)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], g_unk0x00588ba4[12]);
-    if (*(int *)(g_stageBlock + 0x1fc + pCar->field_0xb1a * 4) != 0)
-        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x1fc + pCar->field_0xb1a * 4),
+    if (*(int *)(g_stageBlock + 0x1fc + pCar->index * 4) != 0)
+        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x1fc + pCar->index * 4),
                                   g_unk0x00588ba4[11]);
-    if (*(int *)(g_stageBlock + 0xa0 + pCar->field_0xb1a * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0xa0 + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
-    if (*(int *)(g_stageBlock + 0x1dc + pCar->field_0xb1a * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x1dc + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0xa0 + pCar->index * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0xa0 + pCar->index * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0x1dc + pCar->index * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x1dc + pCar->index * 4) + 0x17c) = g_unk0x00588ba4[8];
     FUN_0046b6b0(pCar->pNode0x71c, 10);
     FUN_0046b6e0(pCar->pNode0x71c->pFirstChild, 10);
     FUN_0046b6b0(pCar->pNode0x720, 10);
@@ -8916,10 +8916,10 @@ void FUN_0046bb40(void)
                     0x12) & 1;
             i = 0;
             do {
-                if ((FUN_00422fb0(i) & 0xff) == (unsigned int)pCar->field_0xb1a) {
+                if ((FUN_00422fb0(i) & 0xff) == (unsigned int)pCar->index) {
                     v = flags[i];
                     if (v == 1) {
-                        if (g_unk0x00588bb4[pCar->field_0xb1a] == 0) {
+                        if (g_unk0x00588bb4[pCar->index] == 0) {
                             if (swap != 0)
                                 v = 2;
                         } else if (swap == 0) {
@@ -8930,7 +8930,7 @@ void FUN_0046bb40(void)
                     }
                 } else {
                     if ((BYTE)RallyDataState() <= 1 || StageObject_UsesExtendedMode() != 0) {
-                        if (g_unk0x00588bb4[pCar->field_0xb1a] == 0) {
+                        if (g_unk0x00588bb4[pCar->index] == 0) {
                             if (swap == 0)
                                 v = 1;
                             else
@@ -8944,7 +8944,7 @@ void FUN_0046bb40(void)
                         v = 7;
                     }
                 }
-                FUN_0046b740(pCar->field_0xb1a, v, i);
+                FUN_0046b740(pCar->index, v, i);
                 i++;
             } while (i < 2);
             pOrder--;
@@ -9735,7 +9735,7 @@ void FUN_00486740(BYTE *pObj, int *pSrc, BYTE index, BYTE value)
 // FUNCTION: CMR2 0x00469bf0
 void FUN_00469bf0(Car *pCar, int index)
 {
-    *(int *)(g_unk0x00588b94 + 0x4b0 + (index + pCar->field_0xb1a * 0x134) * 4) = 1;
+    *(int *)(g_unk0x00588b94 + 0x4b0 + (index + pCar->index * 0x134) * 4) = 1;
     FUN_00468c10(pCar);
 }
 
@@ -9827,11 +9827,11 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
         *(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 8) {
         if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) != 0) {
             if (FUN_00422f50(param_2) != 10)
-                View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a, 10, 0xffff,
-                             FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                View_SwitchCamera(g_unk0x0058e0a0->index, 10, 0xffff,
+                             FUN_00422fb0(g_unk0x0058e0a0->index), 0);
         }
         if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) == 0) {
-            if (FUN_00422f50(g_unk0x0058e0a0->field_0xb1a) == 10) {
+            if (FUN_00422f50(g_unk0x0058e0a0->index) == 10) {
                 switch (FUN_0041b380()) {
                 case 4:
                     g_unk0x0058e0a4 = (FUN_0041b370() & 0xff) + param_2;
@@ -9856,13 +9856,13 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
                 }
                 CGameInfo::FUN_00405d70();
                 mode = RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff);
-                if (View_IsModeAvailable(g_unk0x0058e0a0->field_0xb1a, mode) != 0) {
-                    View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a,
+                if (View_IsModeAvailable(g_unk0x0058e0a0->index, mode) != 0) {
+                    View_SwitchCamera(g_unk0x0058e0a0->index,
                                  RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff), 0xffff,
-                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                                 FUN_00422fb0(g_unk0x0058e0a0->index), 0);
                 } else {
-                    View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a, 4, 0xffff,
-                                 FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
+                    View_SwitchCamera(g_unk0x0058e0a0->index, 4, 0xffff,
+                                 FUN_00422fb0(g_unk0x0058e0a0->index), 0);
                 }
             }
         }
@@ -11873,8 +11873,8 @@ void FUN_00469690(Car *pCar)
     FixVector saved5c4;
     int i;
 
-    set = (CarPartSet *)(g_unk0x00588b94 + pCar->field_0xb1a * 0x4d0);
-    pRecord = (CarDamageRecord *)(g_unk0x00588b98 + pCar->field_0xb1a * 0x290);
+    set = (CarPartSet *)(g_unk0x00588b94 + pCar->index * 0x4d0);
+    pRecord = (CarDamageRecord *)(g_unk0x00588b98 + pCar->index * 0x290);
     FUN_00480b40((BYTE *)pCar);
     FUN_004698a0((int)pCar);
     set->field_0x3fc[2] = 0x10000;
@@ -11907,7 +11907,7 @@ void FUN_00469690(Car *pCar)
     }
     for (i = 0; i < 3; i++) {
         set->field_0x4c0[i] = pRecord->field_0x240[i];
-        FUN_00486630(pCar->field_0xb1a, i, set->field_0x4c0[i]);
+        FUN_00486630(pCar->index, i, set->field_0x4c0[i]);
     }
     for (i = 0; i < 4; i++) {
         set->field_0x4b0[i] = pRecord->field_0x230[i];
@@ -12254,10 +12254,10 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
             if (idx < 4 && pCar->field_0xb74 != 0) {
                 int travelA;
                 int travelB;
-                travelA = pCar->field_0x870[idx];
+                travelA = pCar->wheelSlip[idx];
                 if (travelA < 0)
                     travelA = -travelA;
-                travelB = pCar->field_0x880[idx];
+                travelB = pCar->wheelSlipLateral[idx];
                 if (travelB < 0)
                     travelB = -travelB;
                 size = FixMul(travelB + travelA, 0x10000);
@@ -12353,7 +12353,7 @@ void FUN_0046d610(BYTE *p)
         *(int *)(p + 0xe0) = n;
         *(int *)(p + 0xf0) = *(int *)(p + 0xf4);
         if (n > 0)
-            FUN_00418ba0((unsigned int)pCar->field_0xb1a, n, pCar->field_0xb1a);
+            FUN_00418ba0((unsigned int)pCar->index, n, pCar->index);
         *(short *)(p + 0x10a) = *(short *)(p + 0x10a) + 1;
         if (*(short *)(p + 0x10a) <
             *(short *)(*(int *)(p + 0x104) + *(short *)(p + 0x108) * 2))
@@ -12379,7 +12379,7 @@ void FUN_0046d610(BYTE *p)
                    (int)pCar->field_0xb16 * 0x1680);
     pCar->field_0x7a4 = 0;
     pCar->heading = (unsigned short)(__int64)((double)value * g_unk0x00511300);
-    pCar->field_0x79c =
+    pCar->steerFollowRate =
         FixMul(*(int *)((BYTE *)pCar + 0x788),
                FixMul(*(int *)(p + 0xdc) - *(int *)(p + 0xd8), t) + *(int *)(p + 0xd8));
     pCar->velocityNext = pCar->velocity;
@@ -12653,7 +12653,7 @@ void FUN_0047b0e0(int player, int device)
                 axisBrake = -1;
             }
             if (axisSteer != -1) {
-                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = CInput::FUN_0040be60((short)((Car *)g_unk0x0058e0a0)->field_0xb1a) ? 1 : 2;
+                *(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb88) = CInput::FUN_0040be60((short)((Car *)g_unk0x0058e0a0)->index) ? 1 : 2;
                 raw = ((int *)pDev)[axisSteer * 5 + 0x11f];
                 half = raw < 0 ? -raw : raw;
                 if (raw < 0)
@@ -12719,7 +12719,7 @@ void FUN_0047b0e0(int player, int device)
                 ((Car *)g_unk0x0058e0a0)->flag0x1d0[1] = 0x3f;
         }
         if ((pDev->field_0x4 & g_carButtonMasks[4]) != 0)
-            ((Car *)g_unk0x0058e0a0)->field_0x1d8 = 1;
+            ((Car *)g_unk0x0058e0a0)->handbrake = 1;
         if (*(int *)((BYTE *)((Car *)g_unk0x0058e0a0) + 0xb9c) != 0) {
             if ((pDev->field_0x8 & g_carButtonMasks[5]) != 0)
                 ((Car *)g_unk0x0058e0a0)->field_0x1d4[0] = 1;
@@ -12755,7 +12755,7 @@ void FUN_0047d850(Car *pCar, int *param_2)
     pRec = (int *)g_unk0x0058e4c8;
     i = 100;
     do {
-        if (pRec[0x15] != 0 && *(BYTE *)(pRec + 0x16) != pCar->field_0xb1a) {
+        if (pRec[0x15] != 0 && *(BYTE *)(pRec + 0x16) != pCar->index) {
             pAnchor = (FixVector *)param_2[0x25];
             delta.x = *(int *)(pRec + 3) - pAnchor->x;
             delta.y = *(int *)(pRec + 4) - pAnchor->y;
@@ -12819,12 +12819,12 @@ void FUN_00484e00(int param_1, short count)
                           (FixVector *)((BYTE *)pCar + 0x48c)) < -0xcccc &&
                 (pCar->cornerFlags[5] == 0 || pCar->cornerFlags[4] == 0 ||
                  pCar->cornerFlags[7] == 0 || pCar->cornerFlags[6] == 0)) {
-                n = *(int *)g_unk0x00590b30[pCar->field_0xb1a] - 1;
+                n = *(int *)g_unk0x00590b30[pCar->index] - 1;
                 for (; n >= 0; n--)
                     FUN_00484f40(n);
             } else {
                 FUN_004853c0(&impulse);
-                n = *(int *)g_unk0x00590b30[pCar->field_0xb1a] - 1;
+                n = *(int *)g_unk0x00590b30[pCar->index] - 1;
                 for (; n >= 0; n--)
                     FUN_004854a0(n);
             }
@@ -13980,7 +13980,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     pCar->flag0x1d0[1] = 0;
     pCar->flag0x1d0[2] = 0;
     pCar->flag0x1d0[3] = 0;
-    pCar->field_0x1d8 = 0;
+    pCar->handbrake = 0;
     if (controls[0] > 0)
         pCar->flag0x1d0[0] = 0x3f;
     if (controls[1] > 0)
@@ -13990,7 +13990,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     if (controls[3] > 0)
         pCar->flag0x1d0[3] = 0x3f;
     if (force > 0)
-        pCar->field_0x1d8 = 1;
+        pCar->handbrake = 1;
 }
 
 // CPU driving of the car in race order slot `slot`.
@@ -14010,7 +14010,7 @@ void FUN_0047b000(int slot)
 
     g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
     *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
-    g_unk0x0058e0a0->field_0x1d8 = 0;
+    g_unk0x0058e0a0->handbrake = 0;
     *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
@@ -14018,7 +14018,7 @@ void FUN_0047b000(int slot)
     g_unk0x0058e0a0->flag0x1d0[0] = 0;
     if ((char)RallyData_GetFlag22())
         CGameInfo::FUN_00405d80();
-    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->field_0xb1a);
+    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->index);
     if (device != -1)
         FUN_0047b0e0(slot, device);
     else
@@ -14044,13 +14044,13 @@ void FUN_0047b640(int slot)
     g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
     *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e0) = 0;
     *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
-    g_unk0x0058e0a0->field_0x1d8 = 0;
+    g_unk0x0058e0a0->handbrake = 0;
     *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->flag0x1d0[1] = 0;
     g_unk0x0058e0a0->flag0x1d0[0] = 0;
-    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->field_0xb1a);
+    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->index);
     if (device != -1) {
         FUN_0047b0e0(slot, device);
     } else {
@@ -14072,7 +14072,7 @@ void FUN_0047b640(int slot)
         else
             g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
     }
-    g_unk0x0058e0a0->field_0x1d8 = 1;
+    g_unk0x0058e0a0->handbrake = 1;
     *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
     g_unk0x0058e0a0->field_0xb9c = 0;
 }
@@ -14088,7 +14088,7 @@ void FUN_0047b7b0(int slot)
     else
         g_unk0x0058e0a0->flag0x1d0[3] = 1;
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
-    g_unk0x0058e0a0->field_0x1d8 = 1;
+    g_unk0x0058e0a0->handbrake = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
     *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e4) = 0;
     FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
@@ -14331,9 +14331,9 @@ void FUN_00466030(int a, int b)
 {
     int index;
 
-    index = g_unk0x0058875c->field_0xb1a;
+    index = g_unk0x0058875c->index;
     FUN_0046cce0((int)g_unk0x00588758, a, b, index);
-    g_unk0x0058875c->field_0xb1a = index;
+    g_unk0x0058875c->index = index;
     *(int *)((BYTE *)g_unk0x0058875c + 0xc0c) = 1;
 }
 
@@ -14574,7 +14574,7 @@ int FUN_00460ca0(int amount, Car *pCar)
     FixVector rotated;
     FixVector origin;
 
-    pParts = FUN_00469680(pCar->field_0xb1a);
+    pParts = FUN_00469680(pCar->index);
     count = FixMul(0x1e0000, FixMul(g_unk0x0051bd3c, amount)) >> 16;
     result = count;
     if (count > 0) {
@@ -14753,7 +14753,7 @@ int FUN_00487f60(Car *pCar, int *pEntry, int *pBox, int *pObject)
                 pBox[0xe + k * 3] += point.z;
             }
         }
-        FUN_0048c870(pCar->field_0xb1a, 0xff, (int *)&point, 1);
+        FUN_0048c870(pCar->index, 0xff, (int *)&point, 1);
     }
     g_unk0x005915e8 = dir;
     FixMatrix_InverseRotateVector((FixVector *)(p + 0x5dc), &sum, *(FixMatrix **)(p + 0x750));
@@ -14792,7 +14792,7 @@ int FUN_004878a0(Car *pCar)
 
     result = 0;
     p[0xb3f] = 0;
-    pBox = g_unk0x00590ed0[pCar->field_0xb1a];
+    pBox = g_unk0x00590ed0[pCar->index];
     memset(p + 0xbbc, 0, 0x20);
     *(int *)&sectors[1] = *(int *)(p + 0xb02);
     sectors[0] = *(short *)(p + 0xb00);
@@ -14820,7 +14820,7 @@ int FUN_004878a0(Car *pCar)
                 if (result == 0)
                     continue;
                 result = 0;
-                if (moving == 1 && FUN_00471d40((BYTE **)&pEntry, pCar->field_0xb1a) == 0)
+                if (moving == 1 && FUN_00471d40((BYTE **)&pEntry, pCar->index) == 0)
                     continue;
                 FUN_00486c30((int *)pBox, (int *)(p + 0x360), (int *)(p + 0x2d0), (FixVector *)(p + 0x270));
                 result = 0;
@@ -14841,7 +14841,7 @@ int FUN_004878a0(Car *pCar)
                     result = FUN_00489750((int)pCar, (int *)pBox, (pObject[4] & 0x2001000) != 0 ? 0 : 0x10000);
                 }
                 if (result != 0 && FUN_0048be20((int)pCar, pEntry, (int)&position, 0) != 0)
-                    FUN_0046fe70(pEntry, sector, pCar->field_0xb1a);
+                    FUN_0046fe70(pEntry, sector, pCar->index);
             }
         }
     }
@@ -14925,7 +14925,7 @@ void FUN_0048e0a0(Car *pCar, int param)
     FixVector saved;
 
     g_collisionCar = pCar;
-    g_collisionFace = (CollisionFaceVertices *)FUN_0048ca40(pCar->field_0xb1a);
+    g_collisionFace = (CollisionFaceVertices *)FUN_0048ca40(pCar->index);
     ((char *)g_collisionCar)[0xb42]--;
     if (((char *)g_collisionCar)[0xb42] < 0)
         ((char *)g_collisionCar)[0xb42] = 0;
@@ -15068,7 +15068,7 @@ void FUN_004877a0(BYTE *pCars, short *pOrder, short count)
             if (*(int *)(pCar + 0xb64) == 0)
                 FUN_004878a0((Car *)pCar);
             if (*(int *)(pCar + 0xc18) == 0 &&
-                (*(int *)(pCar + 0xb64) == 0 || FUN_0047c5b0(((Car *)pCar)->field_0xb1a) < 0x20000))
+                (*(int *)(pCar + 0xb64) == 0 || FUN_0047c5b0(((Car *)pCar)->index) < 0x20000))
                 FUN_0048e0a0((Car *)pCar, car);
             *(int *)(pBox + 0x2c) = *(int *)(pBox + 0x28);
             if (*(int *)(pBox + 0x28) != 0)
@@ -15301,7 +15301,7 @@ apply:
     pCar->flag0x1d0[1] = 0;
     pCar->flag0x1d0[2] = 0;
     pCar->flag0x1d0[3] = 0;
-    pCar->field_0x1d8 = 0;
+    pCar->handbrake = 0;
     if (left > 0)
         pCar->flag0x1d0[0] = 0x3f;
     if (right > 0)
@@ -15311,7 +15311,7 @@ apply:
     if (brake > 0)
         pCar->flag0x1d0[3] = 0x3f;
     if (handbrake > 0)
-        pCar->field_0x1d8 = 1;
+        pCar->handbrake = 1;
     return 1;
 }
 

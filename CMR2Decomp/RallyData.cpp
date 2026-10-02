@@ -4310,10 +4310,10 @@ void RallyData_FUN_004207a0(int index)
 void RallyData_FUN_004213d0(Car *pCar, int value)
 {
     if (g_unk0x00538a84 != 0) {
-        g_raceRecords[pCar->field_0xb1a].field_0x0 = value;
-        g_raceRecords[pCar->field_0xb1a].field_0x14 = (short)value;
-        if (pCar->field_0xb1a < 2)
-            g_routeProbeCycles[pCar->field_0xb1a] = 0;
+        g_raceRecords[pCar->index].field_0x0 = value;
+        g_raceRecords[pCar->index].field_0x14 = (short)value;
+        if (pCar->index < 2)
+            g_routeProbeCycles[pCar->index] = 0;
     }
 }
 
@@ -4371,7 +4371,7 @@ void FUN_00421230(Car *pCar, int *pProgress);
 // FUNCTION: CMR2 0x00420a30
 void RallyData_UpdateCarRoute(Car *pCar)
 {
-    int slot = (signed char)pCar->field_0xb1a;
+    int slot = (signed char)pCar->index;
     RaceRecord *record = &g_raceRecords[slot];
     FixVector point;
     FixVector other;
@@ -6256,12 +6256,12 @@ void FUN_0040f0c0(int param1, int param2, int param3)
                     FUN_004b5f90(pCar->pNode0x71c, *(int *)pCar->field_0x758,
                                  (short *)pCar->field_0xb00);
                 FUN_004b5ee0(pCar->pNode0x720, pCar->field_0xa70,
-                             FUN_0046bd40(pCar->field_0xb1a));
+                             FUN_0046bd40(pCar->index));
                 FUN_004b5ee0(pCar->pNode0x71c, pCar->field_0xa70,
-                             FUN_0046bd40(pCar->field_0xb1a));
+                             FUN_0046bd40(pCar->index));
                 if (pCar->pNode0x724 != NULL)
                     FUN_004b5ee0(pCar->pNode0x724, pCar->field_0xa70,
-                                 FUN_0046bd40(pCar->field_0xb1a));
+                                 FUN_0046bd40(pCar->index));
                 pOrderEnd--;
             } while (--n != 0);
         }
@@ -6437,8 +6437,8 @@ void FUN_00420850(Car *pCar)
             }
         }
         if (best != 0x7d000000) {
-            g_raceRecords[pCar->field_0xb1a].field_0x0 = bestIndex;
-            g_raceRecords[pCar->field_0xb1a].field_0x4 = bestIndex;
+            g_raceRecords[pCar->index].field_0x0 = bestIndex;
+            g_raceRecords[pCar->index].field_0x4 = bestIndex;
         }
     }
 }

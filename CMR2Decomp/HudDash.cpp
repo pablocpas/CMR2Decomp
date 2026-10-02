@@ -271,7 +271,7 @@ void Dash_Update(int player)
         g_dashGearFlash[player] = g_dashGearFlash[player] - 1;
     g_dashSpeedPrev[player] = g_dashSpeedNext[player];
     g_dashRevPrev[player] = g_dashRevNext[player];
-    g_dashGear[player] = Car_Get(player)->field_0xb1e;
+    g_dashGear[player] = Car_Get(player)->gear;
     if ((BYTE)CGameInfo::FUN_00405eb0() != 0)
         g_dashSpeedNext[player] = FixMul(0x9999, Car_GetWheelSpeed(Car_Get(player), 0, 0)) +
                                   FixMul(0x6666, g_dashSpeedNext[player]);

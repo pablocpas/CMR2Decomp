@@ -140,9 +140,9 @@ int FUN_00494d40(Car *pCar, CarContact *pContact, int index)
     if (pContact->field_0x29c != 0)
         index--;
     if (pContact->field_0x2a0 == 0)
-        index = (*g_physSkidCount[pCar->field_0xb1a] - index) - 1;
-    index -= *g_physSkidRange[pCar->field_0xb1a];
-    if (index >= 0 && index < g_physSkidRange[pCar->field_0xb1a][1])
+        index = (*g_physSkidCount[pCar->index] - index) - 1;
+    index -= *g_physSkidRange[pCar->index];
+    if (index >= 0 && index < g_physSkidRange[pCar->index][1])
         return 1;
     return 0;
 }
@@ -171,7 +171,7 @@ void FUN_00497db0(Car *pCar)
     int i;
     short surfaceClass;
 
-    pContact = CAR_CONTACT(pCar->field_0xb1a);
+    pContact = CAR_CONTACT(pCar->index);
     if (pCar->field_0xb64 != 0) {
         blend = 0x10000;
     } else {
@@ -218,7 +218,7 @@ void FUN_00497db0(Car *pCar)
         FixMatrix_RotateVector(&fwd, &local, &g_physBody->body);
         FixVecCross(&side, &g_physUp, &fwd);
         FixVecScale(&side, &side, 0x5999);
-        length = *g_physWheelLength[pCar->field_0xb1a];
+        length = *g_physWheelLength[pCar->index];
         FixVecScale(&fwd, &fwd, length);
         if (Car_UsesNarrowWheels(pCar, 1))
             FixVecScale(&fwd, &fwd, 0x9999);
@@ -277,7 +277,7 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
     int along;
     int i;
 
-    stage = *FUN_00456be0(pCar->field_0xb1a);
+    stage = *FUN_00456be0(pCar->index);
     g_physPatchWidth = 0;
     g_physPatchLength = 0;
     if (pContact->field_0x294 != 0 && pCar->field_0xc00 == 0) {
@@ -467,17 +467,17 @@ void FUN_00494db0(Car *pCar, int view)
     colour[1] = 0;
     colour[2] = 0;
     colour[3] = 0x32;
-    count = *g_physSkidCount[pCar->field_0xb1a];
+    count = *g_physSkidCount[pCar->index];
     all = TRUE;
-    if (*(int *)((BYTE *)FUN_00469680(pCar->field_0xb1a) + 0x4bc) != 0) {
+    if (*(int *)((BYTE *)FUN_00469680(pCar->index) + 0x4bc) != 0) {
         all = FALSE;
-        count -= g_physSkidRange[pCar->field_0xb1a][1];
+        count -= g_physSkidRange[pCar->index][1];
     }
     Scene_GetShadowColour((DWORD *)colour, &level);
     colour[3] = 0x32;
     *(DWORD *)clear = *(DWORD *)colour;
     clear[3] = 0;
-    g_physContactView = *CAR_CONTACT(pCar->field_0xb1a);
+    g_physContactView = *CAR_CONTACT(pCar->index);
     FUN_00495f50(view, &g_physContactView);
     v0.u = 0;
     v0.v = 0;
@@ -493,15 +493,15 @@ void FUN_00494db0(Car *pCar, int view)
                 g_physContactView.wheelGrip[i] == 0)
                 continue;
             alpha = FixMul(0xe60000, g_physContactView.wheelGrip[i]);
-            pSrc = CAR_CONTACT(pCar->field_0xb1a)->wheelCorners[i];
+            pSrc = CAR_CONTACT(pCar->index)->wheelCorners[i];
             FIX_MIDPOINT(d, pSrc[0], pSrc[2]);
             FIX_MIDPOINT(centre, pSrc[1], pSrc[3]);
-            CAR_CONTACT(pCar->field_0xb1a)->wheelFrontMid[i].x = d.x;
-            CAR_CONTACT(pCar->field_0xb1a)->wheelFrontMid[i].y = d.y;
-            CAR_CONTACT(pCar->field_0xb1a)->wheelFrontMid[i].z = d.z;
-            CAR_CONTACT(pCar->field_0xb1a)->wheelRearMid[i].x = centre.x;
-            CAR_CONTACT(pCar->field_0xb1a)->wheelRearMid[i].y = centre.y;
-            CAR_CONTACT(pCar->field_0xb1a)->wheelRearMid[i].z = centre.z;
+            CAR_CONTACT(pCar->index)->wheelFrontMid[i].x = d.x;
+            CAR_CONTACT(pCar->index)->wheelFrontMid[i].y = d.y;
+            CAR_CONTACT(pCar->index)->wheelFrontMid[i].z = d.z;
+            CAR_CONTACT(pCar->index)->wheelRearMid[i].x = centre.x;
+            CAR_CONTACT(pCar->index)->wheelRearMid[i].y = centre.y;
+            CAR_CONTACT(pCar->index)->wheelRearMid[i].z = centre.z;
             FIX_MIDPOINT(d, g_physContactView.wheelCorners[i][0], g_physContactView.wheelCorners[i][2]);
             FIX_MIDPOINT(centre, g_physContactView.wheelCorners[i][1], g_physContactView.wheelCorners[i][3]);
             colour[3] = (BYTE)(alpha >> 16);
@@ -520,7 +520,7 @@ void FUN_00494db0(Car *pCar, int view)
         outline[0] = g_physContactView.points[k];
         outline[1] = g_physContactView.points[(k + 1) % 4];
         n = 2;
-        for (i = 0; i < *g_physSkidCount[pCar->field_0xb1a] + 1; i++) {
+        for (i = 0; i < *g_physSkidCount[pCar->index] + 1; i++) {
             if (all || !FUN_00494d40(pCar, &g_physContactView, i)) {
                 outline[n] = g_physContactView.points[4 + i];
                 n++;
@@ -663,20 +663,20 @@ void FUN_00496e00(Car *pCar)
     short angle;
     int skip;
 
-    pContact = CAR_CONTACT(pCar->field_0xb1a);
+    pContact = CAR_CONTACT(pCar->index);
     firstAlong = 0;
     firstLat = 0;
     acc = 0;
     side = 0;
     first = 0;
-    pProfile = g_physSkidWidth[pCar->field_0xb1a];
-    g_physBody = Car_GetTransforms(pCar->field_0xb1a);
-    g_physWheels = Car_GetWheelTransforms(pCar->field_0xb1a);
+    pProfile = g_physSkidWidth[pCar->index];
+    g_physBody = Car_GetTransforms(pCar->index);
+    g_physWheels = Car_GetWheelTransforms(pCar->index);
     FixMatrix_GetRight(&g_physRight, &g_physBody->body);
     FixMatrix_GetUp(&g_physUp, &g_physBody->body);
     FixMatrix_GetForward(&g_physForward, &g_physBody->body);
     FixMatrix_GetPosition(&g_physPos, &g_physBody->body);
-    g_physGroundPoint = (FixVector *)Car_GetRendererRecord(pCar->field_0xb1a);
+    g_physGroundPoint = (FixVector *)Car_GetRendererRecord(pCar->index);
     if (pCar->field_0xb64 != 0) {
         h = FixMul(g_physBody->groundNormal.y, g_physBody->cornerHeight[0] - g_physPos.y);
     } else {
@@ -718,12 +718,12 @@ void FUN_00496e00(Car *pCar)
         if (fwd >= 0)
             a = pProfile[1];
         else
-            a = pProfile[*g_physSkidCount[pCar->field_0xb1a] * 2 - 1];
-        base = FixMul(a + *g_physSkidOffset[pCar->field_0xb1a], fwd);
+            a = pProfile[*g_physSkidCount[pCar->index] * 2 - 1];
+        base = FixMul(a + *g_physSkidOffset[pCar->index], fwd);
         lateral = g_physPatchWidth;
         if (side < 0)
             lateral = -g_physPatchWidth;
-        lateral += FixMul(*g_physSkidOffset[pCar->field_0xb1a], side);
+        lateral += FixMul(*g_physSkidOffset[pCar->index], side);
         if (fwd < 0) {
             if (side < 0) {
                 pContact->trailEdge = 1;
@@ -744,10 +744,10 @@ void FUN_00496e00(Car *pCar)
             pContact->field_0x2a0 = 0;
         else
             pContact->field_0x2a0 = 1;
-        for (c = 0; c < *g_physSkidCount[pCar->field_0xb1a]; c++) {
+        for (c = 0; c < *g_physSkidCount[pCar->index]; c++) {
             a = pProfile[c * 2];
             h = FixMul(pProfile[c * 2 + 1], bend) + lateral;
-            if (c != 0 && c != *g_physSkidCount[pCar->field_0xb1a] - 1) {
+            if (c != 0 && c != *g_physSkidCount[pCar->index] - 1) {
                 if (fwd < 0)
                     grip = pProfile[c * 2 + 2] - a;
                 else
@@ -755,7 +755,7 @@ void FUN_00496e00(Car *pCar)
                 a += FixMul(grip, FIX_ABS(cosA));
             }
             along = FixMul(a + base, scale);
-            if (fwd < 0 ? c == *g_physSkidCount[pCar->field_0xb1a] - 1 : c == 0) {
+            if (fwd < 0 ? c == *g_physSkidCount[pCar->index] - 1 : c == 0) {
                 firstAlong = along;
                 firstLat = h;
             }
@@ -767,10 +767,10 @@ void FUN_00496e00(Car *pCar)
             if (side >= 0)
                 k = c + 4;
             else
-                k = *g_physSkidCount[pCar->field_0xb1a] - c + 3;
+                k = *g_physSkidCount[pCar->index] - c + 3;
             if (skip)
                 k++;
-            if ((c == 0 && side >= 0) || (c == *g_physSkidCount[pCar->field_0xb1a] - 1 && side < 0))
+            if ((c == 0 && side >= 0) || (c == *g_physSkidCount[pCar->index] - 1 && side < 0))
                 first = k;
             pContact->points[k].x = p.x + g_physGroundPos.x;
             pContact->points[k].y = p.y + g_physGroundPos.y;
@@ -787,15 +787,15 @@ void FUN_00496e00(Car *pCar)
         p.x = FixMul(g_physPatchDir.x, firstAlong) + v.x;
         p.z = FixMul(g_physPatchDir.z, firstAlong) + v.z;
         if (skip == 0) {
-            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].x = p.x + g_physGroundPos.x;
-            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].y = g_physGroundPos.y + p.y;
-            pContact->points[*g_physSkidCount[pCar->field_0xb1a] + 4].z = g_physGroundPos.z + p.z;
+            pContact->points[*g_physSkidCount[pCar->index] + 4].x = p.x + g_physGroundPos.x;
+            pContact->points[*g_physSkidCount[pCar->index] + 4].y = g_physGroundPos.y + p.y;
+            pContact->points[*g_physSkidCount[pCar->index] + 4].z = g_physGroundPos.z + p.z;
         } else {
             pContact->points[4].x = p.x + g_physGroundPos.x;
             pContact->points[4].y = p.y + g_physGroundPos.y;
             pContact->points[4].z = p.z + g_physGroundPos.z;
         }
-        pContact->pointCount = *g_physSkidCount[pCar->field_0xb1a] + 5;
+        pContact->pointCount = *g_physSkidCount[pCar->index] + 5;
     }
     if (pContact->field_0x294 != 0)
         return;
@@ -803,10 +803,10 @@ void FUN_00496e00(Car *pCar)
         // Bend the trail: no point may turn away from the trail direction
         // faster than 1.5 degrees per point.
         if (side < 0)
-            c = *g_physSkidCount[pCar->field_0xb1a] - 1;
+            c = *g_physSkidCount[pCar->index] - 1;
         else
             c = 0;
-        while (c < *g_physSkidCount[pCar->field_0xb1a] && c >= 0) {
+        while (c < *g_physSkidCount[pCar->index] && c >= 0) {
             k = c + (short)first;
             v.x = pContact->points[k % pContact->pointCount].x - g_physGroundPos.x;
             v.y = pContact->points[k % pContact->pointCount].y - g_physGroundPos.y;
@@ -816,7 +816,7 @@ void FUN_00496e00(Car *pCar)
                 FixVecScaleRecip(&v, &v, len);
             angle = FixAcos(FixVecDot(&g_physPatchDir, &v));
             limit = (0x400 - angle) * 0x1680;
-            if (side < 0 ? c != *g_physSkidCount[pCar->field_0xb1a] - 1 : c != 0) {
+            if (side < 0 ? c != *g_physSkidCount[pCar->index] - 1 : c != 0) {
                 acc += 0x18000;
                 if (limit < acc) {
                     if (side < 0)

@@ -921,7 +921,7 @@ void FUN_0043ecd0(Car *pCar)
     FixVector v;
 
     g_pCurrentCar = pCar;
-    g_pCarSetup = (BYTE *)FUN_00469680((int)pCar->field_0xb1a);
+    g_pCarSetup = (BYTE *)FUN_00469680((int)pCar->index);
     Car_StoreBodyMatrix();
     FixMatrix_GetRight(&v, g_pCurrentCar->pBodyMatrix);
     g_pCurrentCar->pNode0x720->current.right = v;
@@ -957,7 +957,7 @@ void FUN_00426d80(Car *pDst, Car *pSrc)
     *(int *)((BYTE *)pDst + 0xb54) = *(int *)((BYTE *)pSrc + 0xd0);
     pDst->field_0x7a4 = 0;
     pDst->heading = *(unsigned short *)((BYTE *)pSrc + 0xc4);
-    pDst->field_0x79c = *(int *)((BYTE *)pSrc + 0xb8);
+    pDst->steerFollowRate = *(int *)((BYTE *)pSrc + 0xb8);
     *(FixVector *)((BYTE *)pDst + 0x414) = pDst->velocity;
     *((BYTE *)pDst + 0xb35) = *((BYTE *)pSrc + 0xcc);
     pDst->field_0xc00 = *(int *)((BYTE *)pSrc + 0xd4);
@@ -974,7 +974,7 @@ void FUN_00426d80(Car *pDst, Car *pSrc)
     }
     for (i = 0; i < 8; i++) {
         pDst->cornerNormal[i] = pDst->cornerAxis[i];
-        pDst->field_0xbac[4 + i] = 0;
+        pDst->cornerOnGround[4 + i] = 0;
     }
     *(int *)((BYTE *)pDst + 0x7a8) = pDst->field_0x7a4;
     *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
@@ -1295,7 +1295,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         FixMatrix_SetForward(&pCar->forward, &pRec->matrix);
 
         if (*(int *)((BYTE *)pRec + 0xd8) != 0) {
-            Car_InvalidateTransforms(pCar->field_0xb1a);
+            Car_InvalidateTransforms(pCar->index);
             pCar->field_0xbf8 = 1;
             *(int *)((BYTE *)pRec + 0xd8) = 0;
         }

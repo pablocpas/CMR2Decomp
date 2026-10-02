@@ -281,7 +281,7 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
     pWin = &g_carWindows[window];
     pVerts = NULL;
     if (window <= 5)
-        pVerts = g_carWindowVerts[pCar->field_0xb1a];
+        pVerts = g_carWindowVerts[pCar->index];
     pQ = quad;
     pMirror = pWin->mirrorZ;
     do {
@@ -302,16 +302,16 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 // FUNCTION: CMR2 0x0049a910
 void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
 {
-#define SMASH_SLOT (pCar->field_0xb1a * 10 + g_windowSmashCount[pCar->field_0xb1a])
+#define SMASH_SLOT (pCar->index * 10 + g_windowSmashCount[pCar->index])
     if (part == pParts[0x462]) {
         g_windowSmash[0][SMASH_SLOT] = 2;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
-        g_windowSmashCount[pCar->field_0xb1a]++;
+        g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 3;
     } else if (part == pParts[0x463]) {
         g_windowSmash[0][SMASH_SLOT] = 4;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
-        g_windowSmashCount[pCar->field_0xb1a]++;
+        g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 5;
     } else {
         if (part == pParts[0x460])
@@ -322,7 +322,7 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
             return;
     }
     g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
-    g_windowSmashCount[pCar->field_0xb1a]++;
+    g_windowSmashCount[pCar->index]++;
 #undef SMASH_SLOT
 }
 
@@ -333,10 +333,10 @@ void Car_BreakQueuedWindows(Car *pCar)
     int i;
 
     if (pCar->field_0xc0c == 0) {
-        i = g_windowSmashCount[pCar->field_0xb1a];
+        i = g_windowSmashCount[pCar->index];
         while (--i >= 0)
-            Car_BreakWindow(g_windowSmash[pCar->field_0xb1a][i], &g_windowSmashDir[pCar->field_0xb1a][i], 1, pCar);
-        g_windowSmashCount[pCar->field_0xb1a] = 0;
+            Car_BreakWindow(g_windowSmash[pCar->index][i], &g_windowSmashDir[pCar->index][i], 1, pCar);
+        g_windowSmashCount[pCar->index] = 0;
     }
 }
 
@@ -498,7 +498,7 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 // FUNCTION: CMR2 0x00499710
 void GlassShard_Init(Particle *p, ParticleType *pType, Car *pCar)
 {
-    p->field0x64 = (unsigned short)((BYTE)pCar->field_0xb1a << 8);
+    p->field0x64 = (unsigned short)((BYTE)pCar->index << 8);
     p->field0x64 += (short)(rand() % 10);
     p->size = pCar->field_0xa70;
 }
@@ -522,7 +522,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
     BYTE light;
 
     glass = 0;
-    pRecord = FUN_00469680(pCar->field_0xb1a);
+    pRecord = FUN_00469680(pCar->index);
     if ((BYTE)RallyData_FUN_00407e70() != 0 || pCar->field_0xc0c != 0)
         return;
     n = (FixMul(count, EFFECT_RAND()) >> 16) + 1;
@@ -953,22 +953,22 @@ void WheelSpray_Update(int player)
         return;
     wheel = 0;
     pEmit = pCar->wheelEmitter;
-    pSlip = pCar->field_0x870;
+    pSlip = pCar->wheelSlip;
     pSurface = pCar->wheelSurfaceType;
     do {
         if (pSlip[0xcf] != 0) {
             effect = WheelSpray_GetEffect(*pSurface);
             wet = FUN_00460c80((BYTE *)pCar);
             if (effect >= 0 && (wet != 0 || g_sprayAlways[effect] != 0) &&
-                --g_sprayCountdown[pCar->field_0xb1a][wheel] <= 0) {
+                --g_sprayCountdown[pCar->index][wheel] <= 0) {
                 pDust = &g_sprayDust[effect];
                 if (g_sprayDust[effect] == 0) {
                     if ((Car_GetWheelSpeed(Car_Get(player), wheel, 0) < 0 ?
                          -Car_GetWheelSpeed(Car_Get(player), wheel, 0) :
                          Car_GetWheelSpeed(Car_Get(player), wheel, 0)) > 0x1e0000)
-                        Tyre_AddWear(pCar->field_0xb1a, wheel, 0, 1);
+                        Tyre_AddWear(pCar->index, wheel, 0, 1);
                 }
-                g_sprayCountdown[pCar->field_0xb1a][wheel] =
+                g_sprayCountdown[pCar->index][wheel] =
                     (char)(FixMul((g_sprayInterval[effect][1] - g_sprayInterval[effect][0]) << 16, wet) >> 16) +
                     g_sprayInterval[effect][0];
                 if (pSlip[0xde] != 0)
@@ -1307,7 +1307,7 @@ void WheelSplash_Update(int player)
     pCar = Car_Get(player);
     emitting = 0;
     pVel = pCar->cornerVelocity;
-    pOnGround = pCar->field_0xbac;
+    pOnGround = pCar->cornerOnGround;
     pSurface = pCar->wheelSurface;
     wheel = 0;
     do {
@@ -1321,7 +1321,7 @@ void WheelSplash_Update(int player)
         seg.y = g_trailPos[player][wheel].y - g_trailLastPos[player][wheel].y;
         other = wheel ^ 1;
         seg.z = g_trailPos[player][wheel].z - g_trailLastPos[player][wheel].z;
-        if (pCar->field_0xb1e == 7 ? (wheel & 2) != 0 : (wheel & 2) == 0)
+        if (pCar->gear == 7 ? (wheel & 2) != 0 : (wheel & 2) == 0)
             leading = 1;
         else
             leading = 0;

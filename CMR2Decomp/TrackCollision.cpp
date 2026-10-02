@@ -294,7 +294,7 @@ unsigned int FUN_00493890(void)
 
     result = g_pAutoGearCar->field_0x1d4[0];
     if (g_pAutoGearCar->field_0x1d4[0] == 1) {
-        gear = g_pAutoGearCar->field_0xb1e;
+        gear = g_pAutoGearCar->gear;
         result = (BYTE)gear;
         if (gear < 6) {
             int amount;
@@ -336,7 +336,7 @@ unsigned int FUN_00493890(void)
             return (unsigned int)g_pAutoGearSetup;
         }
     } else if (g_pAutoGearCar->field_0x1d4[0] == 0xff) {
-        gear = g_pAutoGearCar->field_0xb1e;
+        gear = g_pAutoGearCar->gear;
         result = (BYTE)gear;
         if (gear < 7) {
             g_pAutoGearCar->field_0xb20 = gear - 1;
@@ -383,8 +383,8 @@ void Car_UpdateAutomaticGear(void)
     if (g_pAutoGearCar->field_0xb94 == 0 && wheelAvailable) {
         best = (int)0xd8f00000;
         selected = 0;
-        gear = g_pAutoGearCar->field_0xb1e;
-        engine = FixMul(g_pAutoGearCar->field_0x7dc[gear], g_pAutoGearCar->field_0x7a4);
+        gear = g_pAutoGearCar->gear;
+        engine = FixMul(g_pAutoGearCar->gearSpeed[gear], g_pAutoGearCar->field_0x7a4);
         for (i = 1; i <= 6; i++) {
             candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
             if (candidate > best &&
@@ -394,7 +394,7 @@ void Car_UpdateAutomaticGear(void)
             }
         }
         if (selected != gear) {
-            load = FIX_ABS(g_pAutoGearCar->field_0x870[0]);
+            load = FIX_ABS(g_pAutoGearCar->wheelSlip[0]);
             if ((load < 0x8000 || selected < gear || g_pAutoGearCar->flag0x1d0[2] == 0) &&
                 (g_pAutoGearCar->field_0xb21 == 0 ||
                  ((g_pAutoGearCar->field_0xb22 != 2 || gear <= selected) &&
@@ -424,7 +424,7 @@ void Car_UpdateAutomaticGear(void)
     }
 
     dot = FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right);
-    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->field_0xb1e == 1 &&
+    if (g_pAutoGearCar->flag0x1d0[3] != 0 && g_pAutoGearCar->gear == 1 &&
         g_pAutoGearCar->flag0x1d0[2] == 0 && g_pAutoGearCar->field_0x7a4 < 0x1999 && dot < 0x1999) {
         g_pAutoGearCar->field_0xb20 = 7;
         g_pAutoGearCar->field_0xb84 = 1;
@@ -433,7 +433,7 @@ void Car_UpdateAutomaticGear(void)
         return;
     }
     if (g_pAutoGearCar->flag0x1d0[2] != 0 && g_pAutoGearCar->flag0x1d0[3] == 0 &&
-        g_pAutoGearCar->field_0xb1e == 7) {
+        g_pAutoGearCar->gear == 7) {
         g_pAutoGearCar->field_0xb20 = 1;
         g_pAutoGearCar->field_0xb84 = 1;
         g_pAutoGearCar->field_0xb94 = 0;
@@ -824,18 +824,18 @@ void FUN_00494960(void)
 {
     unsigned short angle;
 
-    if (g_pAutoGearCar->field_0x1d8 != 0) {
+    if (g_pAutoGearCar->handbrake != 0) {
         g_pAutoGearCar->field_0x84c += g_pAutoGearCar->field_0x840;
         if (g_pAutoGearCar->field_0x84c > 0x10000) {
             g_pAutoGearCar->field_0x84c = 0x10000;
-            g_pAutoGearCar->field_0x848 = g_pAutoGearCar->field_0x844;
+            g_pAutoGearCar->handbrakeForce = g_pAutoGearCar->field_0x844;
             return;
         }
         angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x84c, 0x5a0000) * g_unk0x00511300);
-        g_pAutoGearCar->field_0x848 = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
+        g_pAutoGearCar->handbrakeForce = FixMul(g_pAutoGearCar->field_0x844, g_sinTable[angle & 0xfff]);
     } else {
         g_pAutoGearCar->field_0x84c = 0;
-        g_pAutoGearCar->field_0x848 = 0;
+        g_pAutoGearCar->handbrakeForce = 0;
     }
 }
 
@@ -889,13 +889,13 @@ void FUN_004946c0(void)
             *(int *)g_pAutoGearCar->field_0x7a0 - FixMul(g_pAutoGearCar->field_0x790, 0x20000);
         if (*(int *)g_pAutoGearCar->field_0x7a0 < 0) {
             *(int *)g_pAutoGearCar->field_0x7a0 = 0;
-            g_pAutoGearCar->field_0x79c = 0;
+            g_pAutoGearCar->steerFollowRate = 0;
         } else {
             angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
                                               g_unk0x00511300);
-            g_pAutoGearCar->field_0x79c = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+            g_pAutoGearCar->steerFollowRate = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
         }
-        if (g_pAutoGearCar->field_0x79c != 0 && g_pAutoGearCar->field_0xb94 == 0) {
+        if (g_pAutoGearCar->steerFollowRate != 0 && g_pAutoGearCar->field_0xb94 == 0) {
             g_pAutoGearCar->flag0x1d0[2] = 0x3f;
             return;
         }
@@ -903,12 +903,12 @@ void FUN_004946c0(void)
         *(int *)g_pAutoGearCar->field_0x7a0 = *(int *)g_pAutoGearCar->field_0x7a0 + g_pAutoGearCar->field_0x790;
         if (*(int *)g_pAutoGearCar->field_0x7a0 > 0x10000) {
             *(int *)g_pAutoGearCar->field_0x7a0 = 0x10000;
-            g_pAutoGearCar->field_0x79c = *(int *)g_pAutoGearCar->field_0x788;
+            g_pAutoGearCar->steerFollowRate = *(int *)g_pAutoGearCar->field_0x788;
             return;
         }
         angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
                                           g_unk0x00511300);
-        g_pAutoGearCar->field_0x79c = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+        g_pAutoGearCar->steerFollowRate = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
     }
 }
 
@@ -923,15 +923,15 @@ void FUN_00494880(void)
         g_pAutoGearCar->field_0x83c += g_pAutoGearCar->field_0x834;
         if (g_pAutoGearCar->field_0x83c > 0x10000) {
             g_pAutoGearCar->field_0x83c = 0x10000;
-            g_pAutoGearCar->field_0x838 = g_pAutoGearCar->field_0x82c;
+            g_pAutoGearCar->brakeInput = g_pAutoGearCar->field_0x82c;
             return;
         }
         angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x83c, 0x5a0000) * g_unk0x00511300);
-        g_pAutoGearCar->field_0x838 = FixMul(g_pAutoGearCar->field_0x82c, g_sinTable[angle & 0xfff]);
+        g_pAutoGearCar->brakeInput = FixMul(g_pAutoGearCar->field_0x82c, g_sinTable[angle & 0xfff]);
         return;
     }
     g_pAutoGearCar->field_0x83c = 0;
-    g_pAutoGearCar->field_0x838 = 0;
+    g_pAutoGearCar->brakeInput = 0;
 }
 
 // Flags whether the auto-gear car is at or below its best gear for the
@@ -944,10 +944,10 @@ void FUN_00493a40(void)
     int torque;
     int gear;
 
-    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->field_0xb1e] > 0) {
+    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->gear] > 0) {
         int baseTorque;
         bestTorque = 0xd8f00000;
-        baseTorque = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->field_0x7dc[g_pAutoGearCar->field_0xb1e]);
+        baseTorque = FixMul(g_pAutoGearCar->field_0x7a4, g_pAutoGearCar->gearSpeed[g_pAutoGearCar->gear]);
         best = 0;
         for (gear = 1; gear < 7; gear++) {
             torque = FixMul(baseTorque, g_pAutoGearCar->field_0x7bc[gear]);
@@ -959,7 +959,7 @@ void FUN_00493a40(void)
     } else {
         best = 7;
     }
-    if (g_pAutoGearCar->field_0xb1e > best) {
+    if (g_pAutoGearCar->gear > best) {
         g_pAutoGearCar->field_0xb98 = 0;
         return;
     }
@@ -1078,13 +1078,13 @@ void FUN_004932f0(void)
     shifted = 0;
     if (CGameInfo::FUN_004063f0(5) != 0) {
         *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0;
-        if ((int)g_pAutoGearCar->field_0xb1a < (int)(BYTE)RallyDataState() &&
-            FUN_0041f3d0(g_pAutoGearCar->field_0xb1a) != 0 &&
-            *(char *)(FUN_0041f350((int)g_pAutoGearCar->field_0xb1a) + 0x10c) == 8)
+        if ((int)g_pAutoGearCar->index < (int)(BYTE)RallyDataState() &&
+            FUN_0041f3d0(g_pAutoGearCar->index) != 0 &&
+            *(char *)(FUN_0041f350((int)g_pAutoGearCar->index) + 0x10c) == 8)
             shifted = 1;
-        if (*(char *)(*(int *)(FUN_0041b390() + 4) + g_pAutoGearCar->field_0xb1a * 8) == 8 ||
+        if (*(char *)(*(int *)(FUN_0041b390() + 4) + g_pAutoGearCar->index * 8) == 8 ||
             shifted) {
-            if (g_pAutoGearCar->field_0x1d8 != 0) {
+            if (g_pAutoGearCar->handbrake != 0) {
                 speed = g_pAutoGearCar->speed;
                 if (speed <= 0x2c000) {
                     *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0x10000;
@@ -1103,15 +1103,15 @@ void FUN_004932f0(void)
                 g_pAutoGearCar->field_0x5c4.y += offset.y;
                 g_pAutoGearCar->field_0x5c4.z += offset.z;
             }
-            g_pAutoGearCar->field_0x1d8 = 0;
+            g_pAutoGearCar->handbrake = 0;
         }
     } else {
         if (CGameInfo::FUN_004063f0(0) != 0) {
             if (((char)FUN_00407270() != 0 || (char)RallyData_GetFlag24() != 0 ||
                  (char)RallyData_FUN_00407e90() != 0) &&
-                (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->field_0x1d8 != 0))
-                FUN_0047d5a0(g_pAutoGearCar->field_0xb1a);
-            g_pAutoGearCar->field_0x1d8 = 0;
+                (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
+                FUN_0047d5a0(g_pAutoGearCar->index);
+            g_pAutoGearCar->handbrake = 0;
         }
     }
 }

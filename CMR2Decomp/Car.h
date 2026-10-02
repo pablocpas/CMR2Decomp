@@ -11,7 +11,7 @@ struct Car {
     BYTE field_0x0[0x1d0];
     char flag0x1d0[4];                // 0x1d0
     BYTE field_0x1d4[0x4];
-    int field_0x1d8;                  // 0x1d8
+    int handbrake;                    // 0x1d8  handbrake engaged (the rear wheels stop being driven)
     BYTE field_0x1dc[0x28];
     FixVector halfExtents;            // 0x204
     FixVector wheelPos[4];            // 0x210  wheel positions in body space
@@ -25,10 +25,10 @@ struct Car {
     BYTE field_0x384[0xc];
     FixVector targetUp;               // 0x390  up/forward the body relaxes towards
     FixVector targetForward;          // 0x39c
-    FixVector wheelAxisRear;          // 0x3a8  lateral axis used by the rear wheels
-    FixVector wheelDirRear;           // 0x3b4  rolling direction of the rear wheels
+    FixVector frontWheelAxis;         // 0x3a8  lateral axis of the front (steered) wheels
+    FixVector frontWheelDir;          // 0x3b4  rolling direction of the front wheels 0/1: rearWheelDir turned by the steering
     FixVector wheelEmitter[4];        // 0x3c0  wheel dust/smoke emitter in body space
-    FixVector wheelDirFront;          // 0x3f0  rolling direction of the front wheels
+    FixVector rearWheelDir;           // 0x3f0  rolling direction of the rear wheels 2/3, eases towards the body axis
     FixVector inertia;                // 0x3fc  used to turn the summed torque into angular acceleration
     FixVector velocity;               // 0x408
     FixVector velocityNext;           // 0x414  velocityNext - velocity is the acceleration of the last step
@@ -38,7 +38,7 @@ struct Car {
     FixVector normal0x498;            // 0x498
     FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
     FixVector cornerNormal[8];        // 0x504  per-corner contact normal
-    FixVector field_0x564;            // 0x564  ground normal used while field_0xbac[4] is set
+    FixVector field_0x564;            // 0x564  ground normal used while cornerOnGround[4] is set
     BYTE field_0x570[0x54];
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
@@ -75,16 +75,16 @@ struct Car {
     int field_0x790;                  // 0x790
     int field_0x794;                  // 0x794
     BYTE field_0x798[0x4];
-    int field_0x79c;                  // 0x79c  how fast the rolling direction follows the body
+    int steerFollowRate;              // 0x79c  how fast the rolling direction follows the body
     BYTE field_0x7a0[0x4];
     int field_0x7a4;                  // 0x7a4
     BYTE field_0x7a8[0x4];
     int field_0x7ac;                  // 0x7ac
     int field_0x7b0;                  // 0x7b0  excess revs after limiting
-    int field_0x7b4;                  // 0x7b4
+    int driveSplit;                   // 0x7b4  drive split between the axles (Car_SetDriveSplit)
     BYTE field_0x7b8[0x4];
     int field_0x7bc[8];               // 0x7bc
-    int field_0x7dc[8];               // 0x7dc
+    int gearSpeed[8];                 // 0x7dc  per-gear speed table (Car_SelectGearSpeedTable)
     int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)
     int field_0x800;                  // 0x800
     int field_0x804;                  // 0x804
@@ -95,22 +95,22 @@ struct Car {
     int field_0x824;                  // 0x824  steering torque
     int field_0x828;                  // 0x828
     int field_0x82c;                  // 0x82c
-    int field_0x830;                  // 0x830
+    int brakeBias;                    // 0x830  front share of the brake force (the rear gets 1 - bias)
     int field_0x834;                  // 0x834
-    int field_0x838;                  // 0x838
+    int brakeInput;                   // 0x838  brake pedal, scaled by the setup brake strengths (+0x3fc / +0x400)
     int field_0x83c;                  // 0x83c  swing phase of 0x838
     int field_0x840;                  // 0x840
     int field_0x844;                  // 0x844  target of the 0x848 swing
-    int field_0x848;                  // 0x848
+    int handbrakeForce;               // 0x848  added to the rear brake while the handbrake is on; swings to field_0x844
     int field_0x84c;                  // 0x84c  swing phase (0..1)
     int wheelTorque[4];               // 0x850  drive/brake torque per wheel
     int wheelLoad[4];                 // 0x860  paired per axle; Car_BalanceWheelPairs evens each pair out
-    int field_0x870[4];               // 0x870
-    int field_0x880[4];               // 0x880
+    int wheelSlip[4];                 // 0x870  rolling slip of each wheel
+    int wheelSlipLateral[4];          // 0x880  lateral slip of each wheel
     int field_0x890[4];               // 0x890  filtered wheel spin (front lean)
     int field_0x8a0[4];               // 0x8a0  filtered wheel spin (body lean)
     int cornerMass;                   // 0x8b0  mass carried by each touching corner
-    int field_0x8b4;                  // 0x8b4
+    int tyreGrip;                     // 0x8b4  tyre grip, times the physics scale each step
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
@@ -158,10 +158,10 @@ struct Car {
     BYTE field_0xb12[0x4];
     short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
-    char field_0xb1a;                 // 0xb1a  index of this car in the timing records
+    char index;                       // 0xb1a  index of this car (timing records and every per-car table)
     BYTE field_0xb1b[2];              // 0xb1b-0xb1c: [0] type/index, [1] flags (was two separate bytes)
     char field_0xb1d;                 // 0xb1d
-    char field_0xb1e;                 // 0xb1e
+    char gear;                        // 0xb1e  current gear (0 neutral, 7 reverse)
     char field_0xb1f;                 // 0xb1f
     char field_0xb20;                 // 0xb20  requested gear
     char field_0xb21;                 // 0xb21  shift delay
@@ -194,7 +194,7 @@ struct Car {
     int field_0xb98;                  // 0xb98  current gear is at or below the best one
     int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
     BYTE field_0xba0[0xc];
-    int field_0xbac[8];               // 0xbac
+    int cornerOnGround[8];            // 0xbac  per corner: touching the ground
     int field_0xbcc[4];               // 0xbcc
     int field_0xbdc;                  // 0xbdc
     int field_0xbe0;                  // 0xbe0

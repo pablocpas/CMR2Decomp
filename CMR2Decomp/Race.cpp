@@ -1950,7 +1950,7 @@ void FUN_0041a340(int car, int unused)
     minSlack = 0xffffffff;
     pCar = Car_Get(car);
     pSrc = pCar->wheelSurface;
-    pFlags = pCar->field_0xbac;
+    pFlags = pCar->cornerOnGround;
     pSlot = pState->slotState;
     pTime = pState->slotTime;
     for (i = 4; i != 0; i--) {
@@ -2031,7 +2031,7 @@ void FUN_0041ae80(int car, int unused)
     int *pHandle = (int *)(pSet + 0x26c);
 
     if (*(short *)(pSet + 0x258) == 0x19) {
-        if (Car_Get(car)->field_0x79c < 1) {
+        if (Car_Get(car)->steerFollowRate < 1) {
             if (pSet[0x2f0] != 0) {
                 if (Sound_IsPlaying(*pHandle)) {
                     Sound_Free(*pHandle);
@@ -4409,7 +4409,7 @@ void FUN_00417090(int param_1)
          cur <= (int)((unsigned int)RallyData_FUN_00421420() >> 1))) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
-        dot = FixVecDot(&pCar->wheelDirFront, &dir);
+        dot = FixVecDot(&pCar->rearWheelDir, &dir);
         if (dot < -0x8000) {
             g_raceWrongWayFlags[param_1] = 1;
             g_unk0x00537198[param_1] = best;
@@ -4426,7 +4426,7 @@ void FUN_00417090(int param_1)
     if (g_raceWrongWayFlags[param_1] != 0) {
         FUN_00421570(best, &dir);
         pCar = Car_Get(param_1);
-        dot = FixVecDot(&pCar->wheelDirFront, &dir);
+        dot = FixVecDot(&pCar->rearWheelDir, &dir);
         if (dot > 0x3333)
             g_raceWrongWayFlags[param_1] = 0;
     }
@@ -4660,7 +4660,7 @@ void FUN_0041a5c0(int param_1, int param_2)
         } else {
             if (pCar->wheelLoad[0] < 0xa0000 && pCar->wheelLoad[1] < 0xa0000 &&
                 pCar->wheelLoad[2] < 0xa0000 && pCar->wheelLoad[3] < 0xa0000 &&
-                (pCar->field_0x1d8 != 0 || pCar->flag0x1d0[3] != 0) &&
+                (pCar->handbrake != 0 || pCar->flag0x1d0[3] != 0) &&
                 (FixMul(pCar->speed, 0x431168) & 0xffff0000) > 0x50000) {
                 g_surfaceVolB[param_1] = 0x20000;
                 g_surfaceVolD[param_1] = 0x20000;
