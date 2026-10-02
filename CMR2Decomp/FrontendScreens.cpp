@@ -6082,7 +6082,9 @@ void FUN_004eae40(void)
         pEntry[1] = (pEntry[1] & 0xfc) | 0x3c;
         i++;
         pEntry += 0xc4;
-    } while ((int)pEntry < (int)g_saveProfiles + 0x4);
+    // 0x52fa0c in the original (g_saveProfiles + 4): bounded by the array
+    // itself, since our link order does not keep g_saveProfiles after it.
+    } while ((int)pEntry < (int)(g_saveCarRecords + 0x62c));
 }
 
 extern BYTE *g_unk0x00531764;

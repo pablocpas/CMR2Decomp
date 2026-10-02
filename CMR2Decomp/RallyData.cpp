@@ -4008,16 +4008,20 @@ char *g_unk0x00527128[9] = {
     (char *)(g_unk0x0051682c + 0x70), g_str0x00527280, (char *)(g_unk0x0051682c + 0x68), (char *)(g_unk0x0051682c + 0x60), (char *)(g_unk0x0051682c + 0x58), (char *)(g_unk0x0051682c + 0x50), g_str0x00527278, (char *)(g_unk0x0051682c + 0x48), (char *)(g_unk0x0051682c + 0x78)
 };
 
+// Weather map textures of the current rally. One block in the original: the
+// clear loop in FUN_00503ea0 runs five times and spills into the next fields,
+// and FUN_005040f0 indexes past maps[3]. As separate globals the clear loop
+// overran into unrelated data (it zeroed g_selectedRallyData: France asked for
+// the CD because the weather textures were looked up under FINLAND).
+struct WeatherMapSet {
+    unsigned int count; // 0x00, low byte used
+    void *mainMap;      // 0x04
+    int maps[4];        // 0x08
+    short rects[8];     // 0x18, x/y pairs
+    BYTE slots[8];      // 0x28
+};
 // GLOBAL: CMR2 0x0082cb48
-unsigned int g_unk0x0082cb48;
-// GLOBAL: CMR2 0x0082cb4c
-void *g_unk0x0082cb4c;
-// GLOBAL: CMR2 0x0082cb50
-int g_unk0x0082cb50[4];
-// GLOBAL: CMR2 0x0082cb60
-short g_unk0x0082cb60[8];
-// GLOBAL: CMR2 0x0082cb70
-BYTE g_unk0x0082cb70[8];
+WeatherMapSet g_weatherMaps;
 // GLOBAL: CMR2 0x0082c690
 void *g_unk0x0082c690;
 extern int g_unk0x0082c694;
@@ -4099,52 +4103,40 @@ extern int g_unk0x0082cb44;
 void FUN_00503ea0(void)
 {
     int i;
-    int count;
     int stage;
     int index;
-    short *pPair;
-    int *pMap;
 
-    *(BYTE *)&g_unk0x0082cb48 = 0;
-    pMap = g_unk0x0082cb50;
-    pPair = g_unk0x0082cb60;
-    while ((int)pPair < (int)((BYTE *)g_unk0x0082cb70 + 4)) {
-        *pMap = 0;
-        pPair[0] = 0;
-        pPair[1] = 0;
-        pMap++;
-        pPair += 2;
+    *(BYTE *)&g_weatherMaps.count = 0;
+    for (i = 0; i < 5; i++) {
+        g_weatherMaps.maps[i] = 0;
+        g_weatherMaps.rects[i * 2] = 0;
+        g_weatherMaps.rects[i * 2 + 1] = 0;
     }
     stage = (BYTE)RallyDataStageIndex() >> 2;
     if (stage < 2)
-        *(BYTE *)&g_unk0x0082cb48 = 4;
+        *(BYTE *)&g_weatherMaps.count = 4;
     else
-        *(BYTE *)&g_unk0x0082cb48 = (BYTE)RallyDataCountryIndex() % 2 + 2;
-    count = g_unk0x0082cb48 & 0xff;
-    i = 0;
-    pPair = g_unk0x0082cb60 + 1;
-    while (i < 4) {
-        if (i < count) {
-            g_unk0x0082cb70[i] = (BYTE)(stage * 4 + i);
-            pPair[-1] = g_unk0x0052718c
-                [(RallyDataCountryIndex() * 0xb + g_unk0x0082cb70[i]) * 2];
-            pPair[0] = g_unk0x0052718c
-                [(RallyDataCountryIndex() * 0xb + g_unk0x0082cb70[i]) * 2 + 1];
+        *(BYTE *)&g_weatherMaps.count = RallyDataCountryIndex() % 2 ? 3 : 2;
+    for (i = 0; i < 4; i++) {
+        if (i < (int)(g_weatherMaps.count & 0xff)) {
+            g_weatherMaps.slots[i] = (BYTE)(stage * 4 + i);
+            g_weatherMaps.rects[i * 2] = g_unk0x0052718c
+                [(RallyDataCountryIndex() * 0xb + g_weatherMaps.slots[i]) * 2];
+            g_weatherMaps.rects[i * 2 + 1] = g_unk0x0052718c
+                [(RallyDataCountryIndex() * 0xb + g_weatherMaps.slots[i]) * 2 + 1];
         }
-        pPair += 2;
-        i++;
     }
     sprintf(CFrontend::m_stringDest, g_str0x00527300, CInstallInfo::GetSetupRepDir(),
             g_unk0x0052714c[RallyDataCountryIndex()]);
-    g_unk0x0082cb4c = CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
+    g_weatherMaps.mainMap = CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     for (i = 0; i < 4; i++) {
-        if (i < count) {
-            index = g_unk0x0082cb70[i] + 1;
+        if (i < (int)(g_weatherMaps.count & 0xff)) {
+            index = g_weatherMaps.slots[i] + 1;
             sprintf(CFrontend::m_stringDest, g_str0x005272dc, CInstallInfo::GetSetupRepDir(),
                     g_unk0x0052714c[RallyDataCountryIndex()],
                     g_unk0x0052716c[RallyDataCountryIndex()], index);
-            g_unk0x0082cb50[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
+            g_weatherMaps.maps[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
     }
@@ -4169,13 +4161,13 @@ void FUN_005040f0(void)
     int index;
     int i;
 
-    g_unk0x0082c9e8 = g_unk0x0082cb4c;
+    g_unk0x0082c9e8 = g_weatherMaps.mainMap;
     g_unk0x0082c9ec[0] = 0x1c;
     g_unk0x0082c9ec[1] = 0x72;
     g_unk0x0082c9ec[2] = 0x100;
     g_unk0x0082c9ec[3] = 0xf6;
-    *(int *)&g_mapSrcRect[0] = *(int *)((BYTE *)g_unk0x0082cb4c + 0x11c);
-    *(int *)&g_mapSrcRect[2] = *(int *)((BYTE *)g_unk0x0082cb4c + 0x120);
+    *(int *)&g_mapSrcRect[0] = *(int *)((BYTE *)g_weatherMaps.mainMap + 0x11c);
+    *(int *)&g_mapSrcRect[2] = *(int *)((BYTE *)g_weatherMaps.mainMap + 0x120);
     g_mapSrcRect[3] = 0xf6;
     g_unk0x0082c9fc = 0xd8;
     g_unk0x0082c9fe = 0x7c;
@@ -4195,10 +4187,10 @@ void FUN_005040f0(void)
         pEntry->field_0x40 = 0;
         pEntry->startTime = 0;
         index = (RallyDataStageIndex() & 0xff) % 4 + i;
-        pEntry->texture = (void *)g_unk0x0082cb50[index];
-        pEntry->field_0x48 = g_unk0x0082cb70[index];
-        pEntry->srcX1 = g_unk0x0082cb60[index * 2] + g_unk0x0082c9ec[0];
-        pEntry->srcY1 = g_unk0x0082cb60[index * 2 + 1] + g_unk0x0082c9ec[1];
+        pEntry->texture = (void *)g_weatherMaps.maps[index];
+        pEntry->field_0x48 = g_weatherMaps.slots[index];
+        pEntry->srcX1 = g_weatherMaps.rects[index * 2] + g_unk0x0082c9ec[0];
+        pEntry->srcY1 = g_weatherMaps.rects[index * 2 + 1] + g_unk0x0082c9ec[1];
         pEntry->srcX2 = 10;
         pEntry->srcY2 = 9;
         pEntry->u0 = (g_mapSrcRect[0] << 16) +

@@ -142,7 +142,7 @@ void CGame::FUN_004b7a40(void)
             if (*ppSlot != NULL)
                 CSound::FUN_004a27c0(*ppSlot);
             ppSlot++;
-        } while ((int)ppSlot < (int)&CSound::m_soundSlotsEnd);
+        } while ((int)ppSlot < (int)(CSound::m_soundSlots + 32));
     }
 }
 

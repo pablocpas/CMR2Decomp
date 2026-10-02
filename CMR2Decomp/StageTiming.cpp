@@ -721,7 +721,8 @@ BOOL FUN_0046c500(void)
             *p = NULL;
         }
         p++;
-    } while ((int)p < (int)g_unk0x00588ea0);
+    // 0x588ea0 in the original (g_unk0x00588ea0, the next global).
+    } while ((int)p < (int)(g_unk0x00588e80 + 8));
     g_unk0x00588d3c = 0;
     g_unk0x00588d14 = 0;
     return TRUE;

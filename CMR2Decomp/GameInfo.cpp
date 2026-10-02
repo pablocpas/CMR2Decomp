@@ -1142,7 +1142,8 @@ void FUN_004d05f0(void)
         *pp = p;
         p += 256;
         pp++;
-    } while ((int)p < (int)g_unk0x00817c84);
+    // 0x817c84 in the original (g_unk0x00817c84, the next global).
+    } while ((int)p < (int)g_unk0x00817784[5]);
     g_unk0x00817780 = -1;
 }
 
