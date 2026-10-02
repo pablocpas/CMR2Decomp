@@ -11699,149 +11699,136 @@ void FUN_00463fe0(int param_1)
 // FUNCTION: CMR2 0x004643f0
 void FUN_004643f0(int param_1)
 {
-    int car;
+// the original re-reads the car index at every use
+#define LIGHT_CAR (*(char *)(param_1 + 0xb1a))
+#define LIGHT_COUNT(c) (*((int **)g_carLights)[c])
+#define LIGHT_POINTS(c) (((BYTE **)g_carLights)[0x10 + (c)])
+    int lights[11];
+    FixVector planePos;
+    FixVector colour;
+    FixVector pos;
+    int out[3];
+    int *pRec;
+    BYTE *pPoint;
+    BYTE *glow;
+    int vA;
+    int vB;
+    int old;
     int n;
     int off;
-    int glow;
-    int slot;
-    int lights[11];
-    int *pRec;
-    int *pPoint;
-    FixVector planePos;
+    int intensity;
+    int idx;
+    int vx;
+    int vy;
+    int vz;
+    int oi;
+    int ii;
+    int *pVertex;
 
-    car = *(char *)(param_1 + 0xb1a);
-    pRec = FUN_00469680(car);
+    pRec = FUN_00469680(LIGHT_CAR);
     if (*(int *)(param_1 + 0xb70) != 0) {
-        FUN_00477c20(car, 0, 0, 2);
-        FUN_00477c20(car, 0, 0, 8);
-        n = 0;
-        if (0 < *((int *)((int *)g_carLights)[car])) {
-            do {
-                FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + car * 0x14], 0);
-                n++;
-            } while (n < *((int *)((int *)g_carLights)[car]));
-        }
+        FUN_00477c20(LIGHT_CAR, 0, 0, 2);
+        FUN_00477c20(LIGHT_CAR, 0, 0, 8);
+        for (n = 0; n < LIGHT_COUNT(LIGHT_CAR); n++)
+            FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14], 0);
+        return;
+    }
+    FUN_00466870(&vA, &vB, (Car *)param_1);
+    if (*(int *)(param_1 + 0xb54) != 0)
+        FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 2);
+    else
+        FUN_00477c20(LIGHT_CAR, 0, 0, 2);
+    if (*(int *)(param_1 + 0xb5c) != 0)
+        FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 8);
+    else
+        FUN_00477c20(LIGHT_CAR, 0, 0, 8);
+    if (*(int *)(param_1 + 0xb58) != 0) {
+        FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 1);
+        FUN_00477c20(LIGHT_CAR, 1, 1, 0x10);
     } else {
-        int vA;
-        int vB;
-
-        FUN_00466870(&vA, &vB, (Car *)param_1);
-        if (*(int *)(param_1 + 0xb54) == 0)
-            FUN_00477c20(car, 0, 0, 2);
-        else
-            FUN_00477c20(car, vA == 0, vB == 0, 2);
-        if (*(int *)(param_1 + 0xb5c) == 0)
-            FUN_00477c20(car, 0, 0, 8);
-        else
-            FUN_00477c20(car, vA == 0, vB == 0, 8);
-        if (*(int *)(param_1 + 0xb58) != 0) {
-            FUN_00477c20(car, vA == 0, vB == 0, 1);
-            FUN_00477c20(car, 1, 1, 0x10);
+        FUN_00477c20(LIGHT_CAR, 0, 0, 1);
+        FUN_00477c20(LIGHT_CAR, 0, 0, 0x10);
+    }
+    if (pRec[0xa7] > 0x4ccc) {
+        old = g_unk0x00547ce0[LIGHT_CAR];
+        g_unk0x00547ce0[LIGHT_CAR] = old + g_unk0x0051bd3c;
+        if (g_unk0x00547ce0[LIGHT_CAR] > 0x140000)
+            g_unk0x00547ce0[LIGHT_CAR] = 0;
+        if (g_unk0x00547ce0[LIGHT_CAR] == 0)
+            FUN_00477c20(LIGHT_CAR, 0, 0, 4);
+        if (old < 0xa0000 && g_unk0x00547ce0[LIGHT_CAR] >= 0xa0000)
+            FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 4);
+    }
+    FUN_00477c80(LIGHT_CAR, &lights[0], &lights[1], 1);
+    FUN_00477c80(LIGHT_CAR, &lights[2], &lights[3], 3);
+    FUN_00477c80(LIGHT_CAR, &lights[4], &lights[5], 2);
+    FUN_00477c80(LIGHT_CAR, &lights[6], &lights[7], 0);
+    FUN_00477c80(LIGHT_CAR, &lights[8], &lights[8], 4);
+    lights[10] = 0;
+    lights[9] = 0;
+    planePos = *(FixVector *)(param_1 + 0x270);
+    planePos.y = *(int *)(param_1 + 0x8dc);
+    for (n = 0, off = 0; n < LIGHT_COUNT(LIGHT_CAR); n++, off += 0x28) {
+        pPoint = LIGHT_POINTS(LIGHT_CAR) + off;
+        glow = (BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14];
+        if (glow == NULL)
+            continue;
+        if (lights[pPoint[0x20]] == 0) {
+            FUN_004ae3d0(glow, 0);
         } else {
-            FUN_00477c20(car, 0, 0, 1);
-            FUN_00477c20(car, 0, 0, 0x10);
+            FUN_004ae3d0(glow, 1);
+            FUN_004ae3f0(glow, FixMul(lights[pPoint[0x20]], *(int *)(pPoint + 0x1c)));
+            intensity = FixMul(lights[pPoint[0x20]], *(int *)(pPoint + 0x1c));
+            intensity = FixMul(intensity, 0x8000);
+            switch (pPoint[0x21]) {
+            case 0:
+                colour.x = 0xe000;
+                colour.y = 0x1c28;
+                colour.z = 0;
+                break;
+            case 1:
+            case 4:
+                colour.x = 0x10000;
+                colour.y = 0x10000;
+                colour.z = 0x10000;
+                break;
+            default:
+                colour.x = 0x10000;
+                colour.y = 0x9893;
+                colour.z = 0;
+                break;
+            }
+            FixVecScale(&colour, &colour, intensity);
+            FUN_004ae410((BYTE)(int)glow, (BYTE)colour.x, colour.y, colour.z);
         }
-        if (0x4ccc < *(int *)((BYTE *)pRec + 0x29c)) {
-            int old = g_unk0x00547ce0[car];
-
-            g_unk0x00547ce0[car] = old + g_unk0x0051bd3c;
-            if (0x140000 < g_unk0x00547ce0[car])
-                g_unk0x00547ce0[car] = 0;
-            if (g_unk0x00547ce0[car] == 0)
-                FUN_00477c20(car, 0, 0, 4);
-            if (old < 0xa0000 && 0x9ffff < g_unk0x00547ce0[car])
-                FUN_00477c20(car, vA == 0, vB == 0, 4);
-        }
-        FUN_00477c80(car, &lights[0], &lights[1], 1);
-        FUN_00477c80(car, &lights[2], &lights[3], 3);
-        FUN_00477c80(car, &lights[4], &lights[5], 2);
-        FUN_00477c80(car, &lights[6], &lights[7], 0);
-        FUN_00477c80(car, &lights[8], &lights[8], 4);
-        lights[10] = 0;
-        lights[9] = 0;
-        planePos.x = *(int *)(param_1 + 0x270);
-        planePos.y = *(int *)(param_1 + 0x8dc);
-        planePos.z = *(int *)(param_1 + 0x278);
-        n = 0;
-        if (0 < *((int *)((int *)g_carLights)[car])) {
-            off = 0;
-            do {
-                pPoint = (int *)((BYTE *)((int *)g_carLights)[0x10 + car] + off);
-                glow = g_unk0x00547d00[n + car * 0x14];
-                if (glow != 0) {
-                    slot = *(BYTE *)((BYTE *)pPoint + 0x20);
-                    if (lights[slot] == 0) {
-                        FUN_004ae3d0((BYTE *)glow, 0);
-                    } else {
-                        int c;
-                        int v0;
-                        int v1;
-                        int v2;
-
-                        FUN_004ae3d0((BYTE *)glow, 1);
-                        c = FixMul(FixMul(*(int *)((BYTE *)pPoint + 0x1c), lights[slot]), 0x8000);
-                        FUN_004ae3f0((BYTE *)glow,
-                                     FixMul(*(int *)((BYTE *)pPoint + 0x1c), lights[slot]));
-                        switch (*(char *)((BYTE *)pPoint + 0x21)) {
-                        case 0:
-                            v0 = 0xe000;
-                            v1 = 0x1c28;
-                            v2 = 0;
-                            break;
-                        case 1:
-                        case 4:
-                            v0 = 0x10000;
-                            v1 = 0x10000;
-                            v2 = 0x10000;
-                            break;
-                        default:
-                            v0 = 0x10000;
-                            v1 = 0x9893;
-                            v2 = 0;
-                            break;
-                        }
-                        v0 = FixMul(v0, c);
-                        v1 = FixMul(v1, c);
-                        v2 = FixMul(v2, c);
-                        FUN_004ae410(glow, v0, v1, v2);
-                    }
-                    {
-                        int idx = 0;
-                        int t;
-
-                        if (*(int *)(glow + 4) < 0)
-                            idx = 2;
-                        if (*(int *)(glow + 0xc) < 0)
-                            idx++;
-                        t = FUN_004789d0(*(short *)(param_1 + 0xaae + idx * 2),
-                                         FUN_00460c80((BYTE *)param_1));
-                        Glow_SetLayerPlane((GlowLight *)glow, &planePos,
-                                           (FixVector *)(param_1 + 0x48c), t);
-                        if (FUN_0046b4c0((BYTE *)param_1) != 0) {
-                            int oi = *(unsigned short *)((BYTE *)pPoint + 0x24);
-                            int ii = *(unsigned short *)((BYTE *)pPoint + 0x26);
-                            int *pVertex =
-                                (int *)(*(int *)((BYTE *)pRec + 0x78 + oi * 4) + ii * 0x20);
-                            int vx = pVertex[0];
-                            int vy = pVertex[1];
-                            int vz = pVertex[2];
-                            int out[3];
-                            FixVector pos;
-
-                            FUN_0046b440((Mesh **)pRec, oi, ii, out);
-                            pos.x = (out[0] - vx) + pPoint[0];
-                            pos.y = (out[1] - vy) + pPoint[1];
-                            pos.z = (out[2] - vz) + pPoint[2];
-                            Glow_SetPosition((GlowLight *)glow, &pos,
-                                             (FixVector *)((BYTE *)pPoint + 0xc));
-                        }
-                    }
-                }
-                n++;
-                off += 0x28;
-            } while (n < *((int *)((int *)g_carLights)[car]));
+        idx = 0;
+        if (*(int *)(glow + 4) < 0)
+            idx = 2;
+        if (*(int *)(glow + 0xc) < 0)
+            idx++;
+        Glow_SetLayerPlane((GlowLight *)glow, &planePos, (FixVector *)(param_1 + 0x48c),
+                           FUN_004789d0(*(short *)(param_1 + 0xaae + idx * 2),
+                                        FUN_00460c80((BYTE *)param_1)));
+        if (FUN_0046b4c0((BYTE *)param_1) != 0) {
+            oi = *(unsigned short *)(pPoint + 0x24);
+            ii = *(unsigned short *)(pPoint + 0x26);
+            pVertex = (int *)(pRec[0x1e + oi] + ii * 0x20);
+            vx = pVertex[0];
+            vy = pVertex[1];
+            vz = pVertex[2];
+            FUN_0046b440((Mesh **)pRec, oi, ii, out);
+            pos.x = out[0] - vx;
+            pos.y = out[1] - vy;
+            pos.z = out[2] - vz;
+            pos.x += ((int *)pPoint)[0];
+            pos.y += ((int *)pPoint)[1];
+            pos.z += ((int *)pPoint)[2];
+            Glow_SetPosition((GlowLight *)glow, &pos, (FixVector *)(pPoint + 0xc));
         }
     }
+#undef LIGHT_CAR
+#undef LIGHT_COUNT
+#undef LIGHT_POINTS
 }
 
 // Dependencias de la cadena de 0x46cce0 (0x46c2a0 / 0x46c410 / 0x469690):
