@@ -4096,8 +4096,8 @@ void FUN_00402f90(void)
     Menu_Init(&g_menu0x00529ed8, 0, 0, 0, pParent, NULL, 1, 0, 1);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x33, &g_menu0x0052aa70, 0, 0);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x5c, &g_menu0x0052a870, 0, 1);
-    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 2, 0);
-    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 4, 0);
+    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 0, 2);
+    Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x39, 2, 0, 0, 0, 0, 4);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x3b, &g_menu0x0052ad60,
                       (int)(MenuCallback)FUN_00402f20, -1);
     Menu_SetCallbacks(&g_menu0x00529ed8, (MenuCallback)FUN_00402eb0, NULL,

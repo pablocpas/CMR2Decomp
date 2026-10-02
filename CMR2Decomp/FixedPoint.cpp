@@ -964,10 +964,11 @@ void FUN_00426d80(Car *pDst, Car *pSrc)
     pDst->velocity = *(FixVector *)((BYTE *)pSrc + 0x70);
     pDst->angularVelocity = *(FixVector *)((BYTE *)pSrc + 0x7c);
     FixMatrix_CopyRotation((FixMatrix *)pSrc, pDst->pWorld);
-    pDst->pWorld->uw = *(int *)((BYTE *)pDst + 0x2ec);
+    pDst->pWorld->position.y = *(int *)((BYTE *)pDst + 0x2ec);
 
     for (i = 0; i < 4; i++) {
-        *(FixVector *)((BYTE *)pDst + 0x30c + i * 0xc) =
+        // the previous corner positions move one slot back (0x300 -> 0x330)
+        *(FixVector *)((BYTE *)pDst + 0x330 + i * 0xc) =
             *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc);
         *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc) = pDst->corners[i];
         pDst->field_0xabe[i] = pDst->wheelSurface[i];
@@ -1027,7 +1028,8 @@ void FUN_0042e8e0(void)
                 d.z = (g_pCurrentCar->corners[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z) -
                       (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z);
                 FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
-                f = FixMul(v.z, FixMul(0x9c28, g_physicsScale));
+                // vertical (car-space y) speed of the corner over the last two steps
+                f = FixMul(v.y, FixMul(0x9c28, g_physicsScale));
                 if (f > 0)
                     ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] -= f;
             }
