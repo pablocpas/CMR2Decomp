@@ -509,9 +509,14 @@ void FixMatrix_RotationZ(FixMatrix *pOut, unsigned int angle)
 // FUNCTION: CMR2 0x004baa40
 void FixMatrix_TransformPoint(FixVector *pOut, FixVector *pIn, FixMatrix *pM)
 {
-    pOut->x = FixMul(pM->right.x, pIn->x) + FixMul(pM->up.x, pIn->y) + FixMul(pM->forward.x, pIn->z) + pM->position.x;
-    pOut->y = FixMul(pM->right.y, pIn->x) + FixMul(pM->up.y, pIn->y) + FixMul(pM->forward.y, pIn->z) + pM->position.y;
-    pOut->z = FixMul(pM->right.z, pIn->x) + FixMul(pM->up.z, pIn->y) + FixMul(pM->forward.z, pIn->z) + pM->position.z;
+    int x, y, z;
+
+    x = FixMul(pM->right.x, pIn->x) + FixMul(pM->up.x, pIn->y) + FixMul(pM->forward.x, pIn->z) + pM->position.x;
+    y = FixMul(pM->right.y, pIn->x) + FixMul(pM->up.y, pIn->y) + FixMul(pM->forward.y, pIn->z) + pM->position.y;
+    z = FixMul(pM->right.z, pIn->x) + FixMul(pM->up.z, pIn->y) + FixMul(pM->forward.z, pIn->z) + pM->position.z;
+    pOut->x = x;
+    pOut->y = y;
+    pOut->z = z;
 }
 
 // Applies pM to pIn about the pivot (x, y): translate(-pivot), pM,

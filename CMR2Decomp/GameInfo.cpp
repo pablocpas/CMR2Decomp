@@ -3407,25 +3407,27 @@ int g_unk0x00818ac8;
 // FUNCTION: CMR2 0x004ea480
 void FUN_004ea480(int param1)
 {
+    // Any other value (and every refused case) clears the mode.
     if (param1 == 1) {
-        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4)
+        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4) {
             g_unk0x00818ac8 = 1;
-        else
-            g_unk0x00818ac8 = 0;
+            return;
+        }
     } else if (param1 == 2) {
-        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4)
+        if (!CGameInfo::FUN_00405da0() && CGameInfo::FUN_00405d80() != 4) {
             g_unk0x00818ac8 = 2;
-        else
-            g_unk0x00818ac8 = 0;
+            return;
+        }
     } else if (param1 == 3) {
-        if (CGameInfo::FUN_00405da0()) {
-            g_unk0x00818ac8 = 0;
-        } else {
+        if (!CGameInfo::FUN_00405da0()) {
+            if (CGameInfo::FUN_00405d80() != 4) {
+                g_unk0x00818ac8 = 3;
+                return;
+            }
             g_unk0x00818ac8 = 3;
-            if (CGameInfo::FUN_00405d80() == 4)
-                g_unk0x00818ac8 = 0;
         }
     }
+    g_unk0x00818ac8 = 0;
 }
 
 // FUNCTION: CMR2 0x004ea500
@@ -6306,14 +6308,14 @@ int FUN_0050f480(void)
 // FUNCTION: CMR2 0x00509d30
 void FUN_00509d30(int index)
 {
+    Unk0x0082d220 *pRec;
     BYTE *p;
-    int *pOut;
     int i;
 
-    pOut = g_unk0x0082d220[index].field_0x23c.v;
+    pRec = &g_unk0x0082d220[index];
     p = (BYTE *)RallyData_FUN_00407610(index);
     for (i = 0; i < 4; i++)
-        pOut[i] = FixDiv(p[0x108 + i] << 16, 0xff0000);
+        pRec->field_0x23c.v[i] = FixDiv(p[0x108 + i] << 16, 0xff0000);
 }
 
 // Sets the fade/shape values of the option record's sky colours (field_0x22c).
@@ -6321,18 +6323,18 @@ void FUN_00509d30(int index)
 // FUNCTION: CMR2 0x00509be0
 void FUN_00509be0(int index)
 {
+    Unk0x0082d220 *pRec;
     BYTE *p;
-    int *pColour;
     int i;
 
-    pColour = g_unk0x0082d220[index].field_0x22c.v;
+    pRec = &g_unk0x0082d220[index];
     p = (BYTE *)RallyData_FUN_00407610(index);
     for (i = 0; i < 4; i++)
-        pColour[i] = FixDiv(p[0x10e + i] << 16, 0xff0000);
-    pColour[0] = FixMul(pColour[0], FixMul(0x3333, 0xffff0000));
-    pColour[1] = FixMul(pColour[1], FixMul(0x3333, 0xffff0000));
-    pColour[2] = FixMul(pColour[2], FixMul(0x3333, 0x8000));
-    pColour[3] = FixMul(pColour[3], FixMul(0x3333, 0xffff8000));
+        pRec->field_0x22c.v[i] = FixDiv(p[0x10e + i] << 16, 0xff0000);
+    pRec->field_0x22c.v[0] = FixMul(pRec->field_0x22c.v[0], FixMul(0x3333, 0xffff0000));
+    pRec->field_0x22c.v[1] = FixMul(pRec->field_0x22c.v[1], FixMul(0x3333, 0xffff0000));
+    pRec->field_0x22c.v[2] = FixMul(pRec->field_0x22c.v[2], FixMul(0x3333, 0x8000));
+    pRec->field_0x22c.v[3] = FixMul(pRec->field_0x22c.v[3], FixMul(0x3333, 0xffff8000));
 }
 
 // Applies the option menu's fade to the stage meshes of the given category:

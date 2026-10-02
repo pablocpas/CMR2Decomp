@@ -1018,6 +1018,8 @@ void FUN_00415e30(void)
     int minX = 0x7d000000;
     int point[3];
     int i;
+    int dx;
+    int dz;
 
     g_unk0x00536fe0 = 0;
     if ((unsigned int)RallyData_FUN_00421420() < 100)
@@ -1026,22 +1028,24 @@ void FUN_00415e30(void)
         g_unk0x00536c24 = (unsigned int)RallyData_FUN_00421420() / 100 + 1;
     for (i = 0; i < RallyData_FUN_00421420(); i++) {
         RallyData_FUN_00421530(i, point);
-        if (maxX < point[0])
+        if (point[0] > maxX)
             maxX = point[0];
         if (point[0] < minX)
             minX = point[0];
-        if (maxZ < point[2])
+        if (point[2] > maxZ)
             maxZ = point[2];
         if (point[2] < minZ)
             minZ = point[2];
     }
-    if (maxX - minX < maxZ - minZ)
-        g_stageMapScale = 0xa3d70000u / (unsigned int)(maxZ - minZ);
+    dx = maxX - minX;
+    dz = maxZ - minZ;
+    if (dz > dx)
+        g_stageMapScale = FixDiv(0xa3d7, dz);
     else
-        g_stageMapScale = 0xa3d70000u / (unsigned int)(maxX - minX);
+        g_stageMapScale = FixDiv(0xa3d7, dx);
     g_stageMapCentre.y = 0;
     g_stageMapCentre.x = (minX + maxX) / 2;
-    g_stageMapCentre.z = (minZ + maxZ) / 2;
+    g_stageMapCentre.z = (maxZ + minZ) / 2;
 }
 
 extern Texture *g_unk0x0053707c;

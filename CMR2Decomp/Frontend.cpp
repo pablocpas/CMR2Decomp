@@ -1475,7 +1475,6 @@ char FUN_004cfb30(int param1, int index, char *pName)
                 pRecord->bits.level = *pDevice;
                 pRecord->value = pDevice[1];
                 pRecord->bits.extra = (*pDevice & 0x3c00) >> 10;
-                g_unk0x00817413 = 1;
                 return (slot != 0) + 1;
             }
         }

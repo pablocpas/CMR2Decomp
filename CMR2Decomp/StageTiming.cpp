@@ -4963,11 +4963,11 @@ extern int g_stageCheckpointCount;
 // FUNCTION: CMR2 0x00458e00
 void FUN_00458e00(int car, int target)
 {
-    Unk0x00542e78 *p = &g_unk0x00542e78[car];
-    int current = p->field_0x0;
-    int delta;
+    int current = g_unk0x00542e78[car].field_0x0;
     int step;
     int i;
+    int prev;
+    int delta;
 
     if (target == current)
         return;
@@ -4979,26 +4979,26 @@ void FUN_00458e00(int car, int target)
     else
         step = -1;
     for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
-        p->field_0x12 += (short)step;
-        if ((unsigned short)p->field_0x10 < (int)p->field_0x12)
-            p->field_0x10 = p->field_0x12;
-        int next = current + step;
-        if (next < 0)
-            next = g_stageCheckpointCount - 1;
-        if (next >= g_stageCheckpointCount)
-            next = 0;
+        g_unk0x00542e78[car].field_0x12 += (short)step;
+        if ((unsigned short)g_unk0x00542e78[car].field_0x10 < (int)g_unk0x00542e78[car].field_0x12)
+            g_unk0x00542e78[car].field_0x10 = g_unk0x00542e78[car].field_0x12;
+        prev = current;
+        current += step;
+        if (current < 0)
+            current = g_stageCheckpointCount - 1;
+        if (current >= g_stageCheckpointCount)
+            current = 0;
         if (g_stageLooped)
-            FUN_00458f30(car, current, next);
+            FUN_00458f30(car, prev, current);
         if (g_unk0x00542cad != 0)
-            FUN_004590a0(car, next);
+            FUN_004590a0(car, current);
         else
-            FUN_00458fd0(car, next);
+            FUN_00458fd0(car, current);
         FUN_00459180(car);
-        FUN_00459250(car, next, step);
-        current = next;
+        FUN_00459250(car, current, step);
     }
-    p->field_0x0 = (short)target;
-    p->field_0x16 = 1;
+    g_unk0x00542e78[car].field_0x0 = (short)target;
+    g_unk0x00542e78[car].field_0x16 = 1;
 }
 
 // GLOBAL: CMR2 0x00590b10
