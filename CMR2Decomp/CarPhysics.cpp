@@ -19,12 +19,12 @@ int FUN_00457e10(BYTE *pCar, int offset);
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass,
                                  unsigned short *pSurface, int defaultY);
 int RallyData_FUN_00411060(void);
-int FUN_0042cae0(Car *pCar, int param2);
+int Car_UsesNarrowWheels(Car *pCar, int param2);
 void Scene_GetShadowColour(DWORD *pColour, int *pLevel);
 void FUN_00495f50(int view, CarContact *pContact);
-CarTransforms *FUN_0042ca70(int index);
-FixMatrix *FUN_0042cab0(int index);
-BYTE *FUN_0042cac0(int index);
+CarTransforms *Car_GetTransforms(int index);
+FixMatrix *Car_GetWheelTransforms(int index);
+BYTE *Car_GetRendererRecord(int index);
 void FUN_00497db0(Car *pCar);
 void FUN_004ae140(BYTE *pColour);
 void Graphics_SetTextureFactorAlpha(BYTE *pColour);
@@ -220,7 +220,7 @@ void FUN_00497db0(Car *pCar)
         FixVecScale(&side, &side, 0x5999);
         length = *g_physWheelLength[pCar->field_0xb1a];
         FixVecScale(&fwd, &fwd, length);
-        if (FUN_0042cae0(pCar, 1))
+        if (Car_UsesNarrowWheels(pCar, 1))
             FixVecScale(&fwd, &fwd, 0x9999);
         pCorner = pContact->wheelCorners[wheel];
         pCorner[0].x = side.x + pos.x;
@@ -670,13 +670,13 @@ void FUN_00496e00(Car *pCar)
     side = 0;
     first = 0;
     pProfile = g_physSkidWidth[pCar->field_0xb1a];
-    g_physBody = FUN_0042ca70(pCar->field_0xb1a);
-    g_physWheels = FUN_0042cab0(pCar->field_0xb1a);
+    g_physBody = Car_GetTransforms(pCar->field_0xb1a);
+    g_physWheels = Car_GetWheelTransforms(pCar->field_0xb1a);
     FixMatrix_GetRight(&g_physRight, &g_physBody->body);
     FixMatrix_GetUp(&g_physUp, &g_physBody->body);
     FixMatrix_GetForward(&g_physForward, &g_physBody->body);
     FixMatrix_GetPosition(&g_physPos, &g_physBody->body);
-    g_physGroundPoint = (FixVector *)FUN_0042cac0(pCar->field_0xb1a);
+    g_physGroundPoint = (FixVector *)Car_GetRendererRecord(pCar->field_0xb1a);
     if (pCar->field_0xb64 != 0) {
         h = FixMul(g_physBody->groundNormal.y, g_physBody->cornerHeight[0] - g_physPos.y);
     } else {

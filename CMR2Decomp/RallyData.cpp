@@ -1098,7 +1098,7 @@ char FUN_004097b0(int param_1)
 }
 
 BYTE *FUN_0041b390(void);
-int FUN_004232a0(BYTE index, int mode);
+int View_IsModeAvailable(BYTE index, int mode);
 
 // match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423970
@@ -1117,7 +1117,7 @@ int FUN_00423970(unsigned int index, int mode)
     default:
         return 0;
     }
-    if (FUN_004232a0(index, mode) == 0)
+    if (View_IsModeAvailable(index, mode) == 0)
         return 0;
     return 1;
 }
@@ -6113,9 +6113,9 @@ SceneNode *SceneNode_FindByType(SceneNode *pNode, unsigned int type);
 void FUN_004b5ee0(SceneNode *pNode, int param2, BYTE param3);
 void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector);
 void FUN_00462aa0(unsigned int param1, int param2);
-int FUN_00423f30(void);
+int Render_GetDetailDistanceScale(void);
 BYTE FUN_00422fb0(BYTE index);
-void FUN_00428bf0(unsigned int view, short *pRect);
+void View_SelectVisibleCars(unsigned int view, short *pRect);
 void FUN_00466570(short *param1, short param2, int param3, int param4);
 void FUN_00464960(unsigned int param1);
 BYTE FUN_0046bd40(int index);
@@ -6235,7 +6235,7 @@ void FUN_0040f0c0(int param1, int param2, int param3)
     }
     for (i = 0; i < orderCount; i++)
         FUN_00462aa0(i, maskedView);
-    FUN_00428bf0(maskedView, (short *)g_unk0x00536ad4);
+    View_SelectVisibleCars(maskedView, (short *)g_unk0x00536ad4);
     FUN_0046e440();
     FUN_00464960(FUN_00422fb0(maskedView));
     Game_PrepareScene((SceneNode *)RallyData_FUN_00411060(), g_viewNodes[maskedView],
@@ -6360,9 +6360,9 @@ void FUN_0040f0c0(int param1, int param2, int param3)
             sprintf(CFrontend::m_stringDest, g_strSoftwareTl0x00516d40);
         Font_DrawText(1, CFrontend::m_stringDest, 0, 0x5a, (int *)colour, 9);
         sprintf(CFrontend::m_stringDest, g_strDrawDistance0x00516ce8,
-                (FUN_00423f30() > *(int *)&g_pGraphics->field925_0x3c8
+                (Render_GetDetailDistanceScale() > *(int *)&g_pGraphics->field925_0x3c8
                      ? *(int *)&g_pGraphics->field925_0x3c8
-                     : FUN_00423f30()) >> 16,
+                     : Render_GetDetailDistanceScale()) >> 16,
                 *(int *)&g_pGraphics->field921_0x3c4 >> 16,
                 *(int *)&g_pGraphics->field925_0x3c8 >> 16,
                 (int)g_pGraphics->field917_0x3c0 + 1);

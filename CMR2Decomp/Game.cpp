@@ -1307,7 +1307,7 @@ unsigned int *RallyData_GetChampionshipState(void);
 char RallyData_FUN_00408500(BYTE param1);
 int FUN_00407270(void);
 void RallyData_FUN_00407500(BYTE param1);
-void FUN_0042b660(int count);
+void Car_BuildRaceOrder(int count);
 void Dash_Reset(void);
 void FUN_0041bf80(int param1, int param2);
 void FUN_0041f420(Unk0049c2c0 *p, BYTE index);
@@ -1484,7 +1484,7 @@ done:
     FUN_0049c190((Unk0049c2c0 *)g_unk0x00537dd0, state, (Unk00817d98 *)&g_unk0x00537dd0[0x10],
                  g_unk0x005190b0, g_unk0x00519120);
     if (g_unk0x00537ef8 != 0) {
-        FUN_0042b660(2);
+        Car_BuildRaceOrder(2);
         Dash_Reset();
     }
     g_unk0x00537ef4 = 1;

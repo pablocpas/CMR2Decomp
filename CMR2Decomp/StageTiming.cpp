@@ -4147,7 +4147,7 @@ int FUN_00448550(void)
 
 BYTE *RallyData_FUN_00421440(int index);
 void FUN_00422f90(BYTE index, int value);
-int FUN_00423f30(void);
+int Render_GetDetailDistanceScale(void);
 int FUN_0041f3a0(void);
 
 // Sets the player's view distance from the route node's limits (forward or
@@ -4180,14 +4180,14 @@ void FUN_00459250(BYTE player, unsigned int node, int dir)
             farDist = *(int *)(pNode + 0x28);
         if (farDist > 0) {
             *(int *)((BYTE *)g_pGraphics + 0x3c8) = farDist;
-            distance = FUN_00423f30();
+            distance = Render_GetDetailDistanceScale();
             if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
                 distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
         }
         if (nearDist > 0) {
             *(int *)((BYTE *)g_pGraphics + 0x3c4) = nearDist;
-            distance = FUN_00423f30();
+            distance = Render_GetDetailDistanceScale();
             if (distance > *(int *)((BYTE *)g_pGraphics + 0x3c8))
                 distance = *(int *)((BYTE *)g_pGraphics + 0x3c8);
             FUN_00422f90(player, distance);
@@ -5019,7 +5019,7 @@ void FUN_00480cb0(void)
     *(short *)&g_unk0x00590c68 = (short)(int)(__int64)((double)target * g_unk0x00511380);
 }
 
-BYTE FUN_0042b710(int index);
+BYTE Car_GetDrawnFlag(int index);
 unsigned short FUN_0040bbc0(unsigned short slot);
 unsigned int FUN_0040bc00(unsigned short slot);
 unsigned int FUN_0040bc30(unsigned short slot);
@@ -5041,10 +5041,10 @@ void FUN_00423ff0(void)
         BYTE device;
 
         g_unk0x00539278 = &g_forceFeedbackSlots[i];
-        device = FUN_0042b710(Car_Get(i)->field_0xb1a);
+        device = Car_GetDrawnFlag(Car_Get(i)->field_0xb1a);
         CInput::FUN_0049ead0((signed char)device);
         if (FUN_0040bd30(i) != 0) {
-            device = FUN_0042b710(Car_Get(i)->field_0xb1a);
+            device = Car_GetDrawnFlag(Car_Get(i)->field_0xb1a);
             CInput::FUN_004aaf50(FUN_0040bcd0(i), (signed char)device);
             g_unk0x00539278->field_0x18 = FUN_0040bc00(i);
             g_unk0x00539278->field_0x1c = FUN_0040bc30(i);
@@ -5728,7 +5728,7 @@ void FUN_00458090(void)
 }
 
 extern int g_sinTable[4096];
-void FUN_00421fe0(short *pOut, unsigned int view);
+void View_GetHeading(short *pOut, unsigned int view);
 void FUN_00460a30(FixVector *pOut);
 
 // Integrates the terrain slope under a car into its body pitch, wrapping at a
@@ -5744,7 +5744,7 @@ void FUN_0045f5d0(int pData, int param_2)
     int angle;
 
     p[8] = p[5];
-    FUN_00421fe0((short *)&orientation, param_2);
+    View_GetHeading((short *)&orientation, param_2);
     direction.y = 0;
     direction.x = -g_sinTable[orientation & 0xfff];
     direction.z = g_sinTable[(orientation + 0x400) & 0xfff];
@@ -6342,8 +6342,8 @@ void FUN_0045a170(void)
   return;
 }
 
-void FUN_0043c7f0(int param_1, int param_2, int param_3, int *param_4, int param_5, int param_6);
-void FUN_0043e680(int param_1);
+void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5, int param_6);
+void Car_ResetBodyBasis(int param_1);
 void FUN_00483570(void);
 
 // One wheel/hub record (stride 0x1a0) of the four slots FUN_00480e50 installs:
@@ -6730,8 +6730,8 @@ void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_
     SceneNode_SetRotation(pNodeB, pAngles);
     SceneNode_SetPosition(pNodeA, pPosition);
     SceneNode_SetPosition(pNodeB, pPosition);
-    FUN_0043c7f0((int)Car_Get(carIndex), (int)pNodeA, param_4, (int *)pPosition, carIndex, param_7);
-    FUN_0043e680((int)Car_Get(carIndex));
+    Car_Spawn((int)Car_Get(carIndex), (int)pNodeA, param_4, (int *)pPosition, carIndex, param_7);
+    Car_ResetBodyBasis((int)Car_Get(carIndex));
     if (CGameInfo::FUN_00405e00() != 0)
         FUN_00424dc0(Car_Get(carIndex));
 }
@@ -7900,9 +7900,9 @@ void FUN_004667c0(int count);
 void FUN_00480900(int count);
 void FUN_00494b50(int count);
 void FUN_0045e5b0(int count);
-void FUN_0042b740(int first, int count);
-void FUN_0042b5b0(int first, int count);
-void FUN_00433840(int value);
+void Car_ClearRecords(int first, int count);
+void Car_ClearWheelRotation(int first, int count);
+void Physics_SetScale(int value);
 void FUN_00466630(int value);
 void FUN_0042b7e0(void);
 unsigned int FUN_00409cb0(int index);
@@ -7913,7 +7913,7 @@ unsigned char FUN_00457000(int car);
 void FUN_00420850(Car *pCar);
 void FUN_00458480(void);
 int FUN_00457ed0(void);
-void FUN_0042b660(int count);
+void Car_BuildRaceOrder(int count);
 short *Car_GetOrder(void);
 short Car_GetOrderCount(void);
 void FUN_004809e0(short *pList, short count);
@@ -7923,7 +7923,7 @@ void FUN_004668d0(void);
 void FUN_004669f0(int, int, short *, short);
 void FUN_0045c610(int a, int b, int count);
 void Particle_KillAll(void);
-void FUN_0042c840(int first, int count);
+void Car_InvalidateTransformsRange(int first, int count);
 void FUN_0043ecd0(Car *pCar);
 void FUN_00465fc0(Car *pCar);
 void StageTiming_FUN_00456d20(SceneNode *pNode, BYTE colour);
@@ -7959,9 +7959,9 @@ int FUN_00456d90(void)
         *(int *)(g_unk0x00542630 + i * 0x24 + 8) = 0;
         *(int *)(g_unk0x00542630 + i * 0x24 + 4) = 0;
     }
-    FUN_0042b740(0, count);
-    FUN_0042b5b0(0, count);
-    FUN_00433840(0x190000);
+    Car_ClearRecords(0, count);
+    Car_ClearWheelRotation(0, count);
+    Physics_SetScale(0x190000);
     FUN_00466630(0x190000);
     FUN_0042b7e0();
     if (CGameInfo::FUN_00405e00()) {
@@ -7984,7 +7984,7 @@ int FUN_00456d90(void)
     if ((char)RallyData_GetFlag22())
         FUN_00458480();
     CGame::RegisterCallback(FUN_00457ed0, NULL);
-    FUN_0042b660(count);
+    Car_BuildRaceOrder(count);
     FUN_004809e0(Car_GetOrder(), Car_GetOrderCount());
     FUN_00480980();
     FUN_004669b0(0, count);
@@ -7992,7 +7992,7 @@ int FUN_00456d90(void)
     FUN_004669f0(0, 0, Car_GetOrder(), Car_GetOrderCount());
     FUN_0045c610(0, 0, (BYTE)RallyDataState());
     Particle_KillAll();
-    FUN_0042c840(0, count);
+    Car_InvalidateTransformsRange(0, count);
     for (i = 0; i < count; i++)
         FUN_0043ecd0(Car_Get(i));
     if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310())
@@ -8050,9 +8050,9 @@ void FUN_004a3dc0(int param1);
 int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 int *FUN_00456c70(int car);
 int FUN_00456c90(int unused);
-int FUN_0042cae0(Car *pCar, int param2);
-BOOL FUN_0042cb50(Car *pCar);
-void FUN_0042cb90(char mode, SceneNode **pWheels);
+int Car_UsesNarrowWheels(Car *pCar, int param2);
+BOOL Car_ShowsCleanWheels(Car *pCar);
+void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
 void Scene_AddShadowCaster(SceneNode *pNode, int exactMeshes);
 void SceneNode_SetMeshFlagBits(SceneNode *pNode, unsigned int value);
 void FUN_0046b400(int value, int index);
@@ -8332,11 +8332,11 @@ classes:
     FUN_00457e50(pScene, pBody, car, teamByte, (FixAngles *)FUN_00456c90(car), (FixVector *)FUN_00456c70(car), 0);
     pWheelData = NULL;
     if (pRecord[0x20] == 'A') {
-        if (FUN_0042cae0(Car_Get(car), 1)) {
+        if (Car_UsesNarrowWheels(Car_Get(car), 1)) {
             strncpy(path + strlen(path) - 5, g_strSnowWheelsC3d, 5);
             pWheelData = CFileBuffer::GetGenericFileBuffer(path, FALSE);
         }
-        if (FUN_0042cb50(Car_Get(car))) {
+        if (Car_ShowsCleanWheels(Car_Get(car))) {
             strncpy(path + strlen(path) - 5, g_strLightWheelsC3d, 5);
             pWheelData = CFileBuffer::GetGenericFileBuffer(path, FALSE);
         }
@@ -8425,7 +8425,7 @@ wheelsDone:
         if (*(SceneNode **)((BYTE *)pCar + i) != NULL)
             SceneNode_Reparent(*(SceneNode **)((BYTE *)pCar + i), *(SceneNode **)((BYTE *)pCar + 0x71c));
     }
-    FUN_0042cb90(pRecord[0x21], (SceneNode **)((BYTE *)pCar + 0x728));
+    Car_SwapWheelTextures(pRecord[0x21], (SceneNode **)((BYTE *)pCar + 0x728));
     return 1;
 }
 #undef CAR_RECORD
@@ -9346,11 +9346,11 @@ void FUN_0045eca0(void)
 #undef RAND_FIX
 
 void FUN_004ae260(void);
-void FUN_00421610(void);
+void View_SetupCameras(void);
 void FUN_00465600(void);
 void FUN_00466360(void);
 void FUN_00472cb0(void);
-void FUN_0042b720(int index, char value);
+void Car_SetDrawnFlag(int index, char value);
 void FUN_0041c510(void);
 void FUN_0041c260(void);
 void FUN_0048ca70(void);
@@ -9368,7 +9368,7 @@ void FUN_00424c50(void)
     int i;
 
     FUN_004ae260();
-    FUN_00421610();
+    View_SetupCameras();
     FUN_00423ff0();
     FUN_00465600();
     FUN_00466360();
@@ -9381,7 +9381,7 @@ void FUN_00424c50(void)
             for (i = 0; i < 2; i++) {
                 if ((BYTE)RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
                     i >= (int)(RallyDataState() & 0xff))
-                    FUN_0042b720(i, -1);
+                    Car_SetDrawnFlag(i, -1);
             }
         }
         if (CGameInfo::FUN_00405d80() != 3)

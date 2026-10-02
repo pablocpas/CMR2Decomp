@@ -1253,7 +1253,7 @@ struct CarNetRecord {
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
 extern CarNetRecord g_unk0x005393d8;
 
-void FUN_0042c870(int index);
+void Car_InvalidateTransforms(int index);
 void FUN_004263d0(int param_1);
 
 // Refreshes the network pose record of every car of the given order that is
@@ -1295,7 +1295,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         FixMatrix_SetForward(&pCar->forward, &pRec->matrix);
 
         if (*(int *)((BYTE *)pRec + 0xd8) != 0) {
-            FUN_0042c870(pCar->field_0xb1a);
+            Car_InvalidateTransforms(pCar->field_0xb1a);
             pCar->field_0xbf8 = 1;
             *(int *)((BYTE *)pRec + 0xd8) = 0;
         }

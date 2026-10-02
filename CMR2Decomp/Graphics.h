@@ -1325,7 +1325,7 @@ private:
     friend SceneNode *SceneNode_CreateRoot(void);
     friend void Graphics_SetTextureFactorAlpha(BYTE *pColour);
     friend void Graphics_ReloadTexture(Texture *pTexture);
-    friend void FUN_0042cb90(char mode, SceneNode **pWheels);
+    friend void Car_SwapWheelTextures(char mode, SceneNode **pWheels);
     friend void FUN_0049dcc0(int enable);
     friend void FUN_0049de40(void);
     friend void FUN_0049c7b0(Mesh *pMesh);

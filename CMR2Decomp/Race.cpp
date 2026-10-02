@@ -213,7 +213,7 @@ void FUN_00465f90(char *path);
 char *FUN_0041f8e0(void);
 char *FUN_0041f920(void);
 unsigned int FUN_00409cb0(int);
-BYTE FUN_0042b710(int index);
+BYTE Car_GetDrawnFlag(int index);
 int FUN_00407270(void);
 unsigned char RallyData_FUN_00407ea0(void);
 
@@ -286,7 +286,7 @@ void FUN_0041c260(void)
             }
         }
         for (i = 0; i < 2; i++) {
-            if (((CGameInfo::FUN_00405d80() == 4 && (char)FUN_0042b710(i) == -1) ||
+            if (((CGameInfo::FUN_00405d80() == 4 && (char)Car_GetDrawnFlag(i) == -1) ||
                  ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 &&
                   RallyData_FUN_00408500((BYTE)i) != -1)) &&
                 FUN_0041c1b0(i) != 0)
@@ -2171,7 +2171,7 @@ void Sound_FreeAll(void);
    Race bootstrap / teardown transitions (0x41bf80..0x41e5c0).
    -------------------------------------------------------------------------- */
 
-void FUN_0042b720(int, char);
+void Car_SetDrawnFlag(int, char);
 void FUN_0041c5a0(BYTE, int);
 void FUN_0046cce0(int, int, int, BYTE);
 void FUN_00403500(void);
@@ -2181,7 +2181,7 @@ void FUN_00455260(void);
 BYTE FUN_00478b80(void);
 void FUN_00478be0(void);
 void Replay_InitSlots(void);
-void FUN_00422fe0(int, int, BYTE, int);
+void View_SetCameraType(int, int, BYTE, int);
 BOOL Sound_Init(int, int, int, int);
 // GLOBAL: CMR2 0x00519284
 char g_strArcadeAdp0x00519284[] = "%s\\arcade%d.adp";
@@ -2317,7 +2317,7 @@ void FUN_0041e5c0(int param1, char param2)
         FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
     }
     if (CGameInfo::FUN_00405d80() == 6)
-        FUN_0042b720(0, -1);
+        Car_SetDrawnFlag(0, -1);
     if (param2 != 0)
         return;
     FUN_00424640();
@@ -2352,7 +2352,7 @@ void FUN_0041f2b0(void);
 void FUN_0040ad20(void);
 unsigned int FUN_00409cb0(int);
 unsigned int FUN_0040a450(int);
-void FUN_00421720(BYTE, int, int, BYTE, int);
+void View_SwitchCamera(BYTE, int, int, BYTE, int);
 void FUN_00427890(void);
 void FUN_004283e0(BYTE, FadeCallback, int, int, int, char);
 void FUN_00428410(BYTE, int, FadeCallback, int, int, int, int, char);
@@ -2399,14 +2399,14 @@ unsigned int FUN_00409ee0(int index);
 unsigned char RallyData_FUN_00407ea0(void);
 unsigned int RallyData_GetFlag22(void);
 short Car_GetOrderCount(void);
-void FUN_0042b800(int, int, int);
+void Car_ReloadModels(int, int, int);
 void FUN_0047bdc0(char restart);
 void FUN_00458b80(void);
 void FUN_0044a120(void);
 void FUN_00448100(void);
 void FUN_0046c750(int, int, int);
 int FUN_0040b010(int index);
-BYTE FUN_0042b710(int index);
+BYTE Car_GetDrawnFlag(int index);
 char RallyData_FUN_00408500(BYTE param1);
 void FUN_00466080(void);
 void FUN_00466030(int, int);
@@ -2507,7 +2507,7 @@ big:
     FUN_00448100();
     if ((char)RallyData_GetFlag22() != 0 && (char)RallyData_GetFlag25() == 0 &&
         CGameInfo::FUN_00405e00() == 0) {
-        FUN_0042b800(RallyDataState() & 0xff,
+        Car_ReloadModels(RallyDataState() & 0xff,
                      Car_GetOrderCount() - (RallyDataState() & 0xff), 0);
         if ((char)RallyData_FUN_00407e70() != 0)
             FUN_0047bdc0(0);
@@ -2533,7 +2533,7 @@ big:
             i = 0;
             p = g_unk0x00537f3c;
             do {
-                if ((char)FUN_0042b710(i) == -1) {
+                if ((char)Car_GetDrawnFlag(i) == -1) {
                     FUN_0046d2a0((int *)*p);
                     FUN_0046cce0((int)*p, 0, 0, i);
                 } else {
@@ -2668,7 +2668,7 @@ fade:
                 goto done;
         }
         if (CGameInfo::FUN_00405e00() != 0) {
-            FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+            View_SwitchCamera(0, 7, 0xffff, FUN_00422fb0(0), 0);
             if (g_unk0x0053811f == 0) {
                 FUN_00427950(g_unk0x0053811e != 0 ? FUN_00448550() : FUN_004483c0(0));
                 if (g_unk0x00538120 == 0) {
@@ -2683,7 +2683,7 @@ fade:
     }
 done:
     if (flag != 0)
-        FUN_00421720(param2, 7, 0xffff, FUN_00422fb0(param2), 0);
+        View_SwitchCamera(param2, 7, 0xffff, FUN_00422fb0(param2), 0);
 }
 
 unsigned int RallyData_GetFlag22(void);
@@ -2901,7 +2901,7 @@ label4:
 void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
 int FUN_0046d2a0(int *p);
 int FUN_0040b010(int index);
-void FUN_00421d80(int player);
+void View_ResetCameras(int player);
 void FUN_00466080(void);
 void FUN_00466030(int, int);
 
@@ -2921,7 +2921,7 @@ void FUN_0041e220(int player)
     }
     if (CGameInfo::FUN_00405d80() == 4) {
         for (i = 0; i < 2; i++) {
-            if ((char)FUN_0042b710(i) == -1) {
+            if ((char)Car_GetDrawnFlag(i) == -1) {
                 FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
                 FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
             }
@@ -2934,7 +2934,7 @@ void FUN_0041e220(int player)
             }
         }
     }
-    FUN_00421d80(player);
+    View_ResetCameras(player);
     if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310()) {
         FUN_00466080();
         FUN_00466030(0, 0);
@@ -2983,7 +2983,7 @@ void FUN_0041e350(int param1, unsigned int param2)
         if (g_unk0x00538118 == 0) {
             if (*(int *)(g_unk0x00537f3c[0] + 4) != 0)
                 goto done;
-            FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+            View_SwitchCamera(0, 7, 0xffff, FUN_00422fb0(0), 0);
             g_unk0x00538118 = 1;
             FUN_0046d2a0((int *)g_unk0x00537f3c[0]);
             FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
@@ -3089,11 +3089,11 @@ void RallyData_FUN_004207f0(void);
 unsigned int RallyData_GetFlag31(void);
 void FUN_004584d0(char param_1);
 short Car_GetOrderCount(void);
-void FUN_0042b800(int, int, int);
+void Car_ReloadModels(int, int, int);
 Car *Car_Get(int index);
 void FUN_00420850(Car *pCar);
 void FUN_00458480(void);
-void FUN_00421d80(int view);
+void View_ResetCameras(int view);
 void FUN_00455470(char);
 void FUN_00458100(int param_1);
 void FUN_00411450(int keepName);
@@ -3144,7 +3144,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
     RallyData_FUN_004207f0();
     if (RallyData_FUN_00407e70() || RallyData_GetFlag25() || RallyData_GetFlag31())
         FUN_004584d0(CGameInfo::FUN_00405d80() != 4);
-    FUN_0042b800(0, (int)Car_GetOrderCount(), 0);
+    Car_ReloadModels(0, (int)Car_GetOrderCount(), 0);
     if (CGameInfo::FUN_00405d80() == 4) {
         for (i = 0; i < Car_GetOrderCount(); i++)
             FUN_00420850(Car_Get(i));
@@ -3153,7 +3153,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
     if (flag != 0) {
         for (i = 0; i < *(BYTE *)param1; i++) {
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 4, 2);
-            FUN_00421d80(i);
+            View_ResetCameras(i);
             RallyData_ValidateIndex(i);
         }
     }
@@ -4044,12 +4044,12 @@ void FUN_0041d0c0(int param_1)
             if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 1 ||
                 CGameInfo::FUN_00405d80() == 0)
                 return;
-            FUN_00421720(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
+            View_SwitchCamera(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
         } else if (flags & 0x2000) {
             value = (BYTE)(FUN_00422fb0(1) + 1);
             if ((BYTE)FUN_00420190() <= value)
                 value = 0;
-            FUN_00422fe0(1, 0, value, 0);
+            View_SetCameraType(1, 0, value, 0);
         } else {
             return;
         }
@@ -4065,7 +4065,7 @@ void FUN_0041d0c0(int param_1)
                 i++;
             } while (i < (int)((BYTE)FUN_00420190()));
         }
-        FUN_00421720((BYTE)param_1, (-(FUN_00422f50((BYTE)param_1) != 7) & 3) + 4, 0xffff,
+        View_SwitchCamera((BYTE)param_1, (-(FUN_00422f50((BYTE)param_1) != 7) & 3) + 4, 0xffff,
                      FUN_00422fb0((BYTE)param_1), 0);
         return;
     }
@@ -4073,7 +4073,7 @@ void FUN_0041d0c0(int param_1)
         value = (BYTE)(FUN_00422fb0(0) + 1);
         if ((BYTE)FUN_00420190() <= value)
             value = 0;
-        FUN_00422fe0(0, 0, value, 0);
+        View_SetCameraType(0, 0, value, 0);
         i = 0;
         if ((BYTE)FUN_00420190() > 0) {
             do {
@@ -4514,7 +4514,7 @@ void FUN_00417090(int param_1)
     }
 }
 
-void FUN_0042bf70(void);
+void Car_InterpolateRenderTransforms(void);
 void FUN_00484d30(int t);
 void FUN_00471950(int t);
 void FUN_00486500(int scale);
@@ -4529,7 +4529,7 @@ void FUN_0047e1e0(int t);
 // FUNCTION: CMR2 0x0041d060
 void FUN_0041d060(int param_1)
 {
-    FUN_0042bf70();
+    Car_InterpolateRenderTransforms();
     FUN_00484d30(param_1);
     FUN_00471950(param_1);
     FUN_00486500(param_1);
@@ -5046,9 +5046,9 @@ int FUN_004481f0(int car, int index);
 int FUN_0041b380(void);
 int FUN_00445a20(void);
 int FUN_00445a40(void);
-void FUN_0042b790(void);
-int FUN_0042c890(int *pOut);
-void FUN_0042baf0(void);
+void Physics_UpdateRateHold(void);
+int Car_UpdateEngineNoteFalloff(int *pOut);
+void Car_UpdateAndRenderAll(void);
 void FUN_00448e70(void);
 int FUN_0041f3f0(BYTE index);
 void FUN_0047a710(int player, int listener);
@@ -5080,7 +5080,7 @@ int FUN_00404e10(unsigned short slot);
 void FUN_00404ea0(BYTE param1);
 void FUN_00464c60(int car);
 void FUN_0045af00(int car);
-void FUN_00422140(unsigned char param1, int param2);
+void View_BlendCameraStates(unsigned char param1, int param2);
 int FUN_00422f50(BYTE index);
 BYTE FUN_00422fb0(BYTE index);
 int FUN_00428740(BYTE index);
@@ -5090,8 +5090,8 @@ void FUN_00417090(int param_1);
 void FUN_0041af60(int param_1, int param_2);
 void FUN_0041d060(int param_1);
 void FUN_0041d0c0(int param_1);
-void FUN_00421930(unsigned int view);
-void FUN_004219b0(BYTE view);
+void View_UpdateModeSurface(unsigned int view);
+void View_UpdateCamera(BYTE view);
 unsigned int FUN_0049e940(void);
 bool FUN_004b7cd0(int *pOut);
 void FUN_004b7c80(void);
@@ -5140,8 +5140,8 @@ void FUN_0041c5a0(BYTE param1, int param2)
     if (FUN_00445a20())
         first = 1;
     second = FUN_00445a40();
-    FUN_0042b790();
-    g_unk0x00538124 = FUN_0042c890(&g_unk0x00537f60);
+    Physics_UpdateRateHold();
+    g_unk0x00538124 = Car_UpdateEngineNoteFalloff(&g_unk0x00537f60);
     g_unk0x00537f0c[4] = 0;
     for (; g_unk0x00537f0c[4] < g_unk0x00538124; g_unk0x00537f0c[4]++) {
         player = Car_Get(0)->field_0xb43[0] > 0;
@@ -5263,11 +5263,11 @@ void FUN_0041c5a0(BYTE param1, int param2)
                 if (param2 != 0)
                     FUN_0041d0c0(g_unk0x00537f04);
                 if (FUN_00422f50((BYTE)g_unk0x00537f04) == 7)
-                    FUN_00421930((BYTE)g_unk0x00537f04);
+                    View_UpdateModeSurface((BYTE)g_unk0x00537f04);
             }
         }
         if (first == 0 || second != 0)
-            FUN_0042baf0();
+            Car_UpdateAndRenderAll();
         if (player != 0)
             FUN_00466520();
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++) {
@@ -5288,7 +5288,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
         }
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < count; g_unk0x00537f04++) {
             if (Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xb43[0] > 0)
-                FUN_004219b0((BYTE)g_unk0x00537f04);
+                View_UpdateCamera((BYTE)g_unk0x00537f04);
         }
         if (player != 0) {
             if (first == 0 || second != 0)
@@ -5375,7 +5375,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
         g_unk0x00537f28 = 0x10000;
     FUN_0041d060(g_unk0x00537f28);
     for (g_unk0x00537f04 = 0; g_unk0x00537f04 < (BYTE)RallyDataState(); g_unk0x00537f04++) {
-        FUN_00422140((BYTE)g_unk0x00537f04,
+        View_BlendCameraStates((BYTE)g_unk0x00537f04,
                      *(int *)Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xa90);
     }
     g_unk0x00537fd0 = Car_GetOrder();

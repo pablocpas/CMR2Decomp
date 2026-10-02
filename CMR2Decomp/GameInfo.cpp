@@ -4323,13 +4323,13 @@ void FUN_0041e210(void);
 void FUN_00424ed0(void);
 void FUN_00424c50(void);
 void FUN_004245e0(void);
-void FUN_00422fe0(int, int, BYTE, int);
+void View_SetCameraType(int, int, BYTE, int);
 BYTE FUN_0041b370(void);
 int RallyData_FUN_00408800(BYTE);
 int FUN_00407270(void);
 void FUN_00406820(void);
 void RallyData_FUN_00408290(void);
-int FUN_004232a0(BYTE, int);
+int View_IsModeAvailable(BYTE, int);
 extern BYTE g_unk0x00537fd4;
 // GLOBAL: CMR2 0x0053811d
 BYTE g_unk0x0053811d;
@@ -4364,11 +4364,11 @@ void FUN_00401150(int param1, int param2)
         if ((BYTE)RallyDataState() > 0) {
             do {
                 if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)FUN_00407270() != 0) {
-                    FUN_00422fe0(i, 7, i, 0);
-                } else if (FUN_004232a0(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
-                    FUN_00422fe0(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
+                    View_SetCameraType(i, 7, i, 0);
+                } else if (View_IsModeAvailable(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
+                    View_SetCameraType(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
                 } else {
-                    FUN_00422fe0(i, 4, i, 0);
+                    View_SetCameraType(i, 4, i, 0);
                 }
                 i++;
             } while (i < (BYTE)RallyDataState());
@@ -4671,9 +4671,9 @@ void FUN_0040af00(unsigned int time);
 void FUN_0040ac40(BYTE carClass);
 unsigned int FUN_00409cb0(int index);
 unsigned int FUN_0040a450(int index);
-void FUN_00421e20(BYTE index);
-void FUN_00422140(BYTE index, int param);
-void FUN_00421720(BYTE index, int a, int b, BYTE c, int d);
+void View_SnapCameras(BYTE index);
+void View_BlendCameraStates(BYTE index, int param);
+void View_SwitchCamera(BYTE index, int a, int b, BYTE c, int d);
 void FUN_004246c0(void);
 int FUN_00448550(void);
 int FUN_004483c0(int index);
@@ -4695,7 +4695,7 @@ BYTE FUN_0041b370(void);
 void FUN_00449090(BYTE index);
 typedef void (*FadeCallback)(BYTE index);
 void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
-void FUN_00423010(int view, int start);
+void View_SetShake(int view, int start);
 void RallyData_FUN_00408760(BYTE index, int value);
 
 // One frame of the in-race state machine: while the race menu is up it pushes
@@ -4718,7 +4718,7 @@ void FUN_00404f40(Unk0049c2c0 *param1)
     if (result == 5 || result == 8)
         goto pushCamera;
 
-    FUN_00421720(g_unk0x0052af58[1], 5, 0xffff, FUN_00422fb0(g_unk0x0052af58[1]), 1);
+    View_SwitchCamera(g_unk0x0052af58[1], 5, 0xffff, FUN_00422fb0(g_unk0x0052af58[1]), 1);
     switch (FUN_0041b380()) {
     case 4:
         first = (FUN_0041b370() & 0xff) + *(BYTE *)&g_unk0x0052af58[1];
@@ -4756,12 +4756,12 @@ pushCamera:
     FUN_00447e20(g_unk0x0052af58[1], g_unk0x0052a86c);
 
     if (g_unk0x0052ad54 != 0) {
-        FUN_00421e20(g_unk0x0052af58[1]);
+        View_SnapCameras(g_unk0x0052af58[1]);
         result = FUN_0041f270();
-        FUN_00422140(g_unk0x0052af58[1], result);
+        View_BlendCameraStates(g_unk0x0052af58[1], result);
         result = g_pMenu0x0052af44 == &g_menu0x0052a870 &&
                  g_pMenu0x0052af44->cursor == 2 ? 1 : 0;
-        FUN_00423010(g_unk0x0052af58[1], result);
+        View_SetShake(g_unk0x0052af58[1], result);
     }
 
 updateMenus:
@@ -4842,7 +4842,7 @@ playerExit:
     CGameInfo::FUN_00405d80();
     FUN_0041c5a0(*(BYTE *)param1->unk, 0);
     if (g_unk0x0053811e != 0) {
-        FUN_00421720(0, 7, 0xffff, FUN_00422fb0(0), 0);
+        View_SwitchCamera(0, 7, 0xffff, FUN_00422fb0(0), 0);
         if (g_unk0x0053811f == 0) {
             if (g_unk0x0053811e != 0)
                 result = FUN_00448550();
@@ -4988,7 +4988,7 @@ void DrawRectOutline(short *pRect, BYTE *pColour)
     Sprite_FillRect((int)g_pGraphics + 0x150, edge, pColour, 2);
 }
 
-void FUN_00423010(int view, int start);
+void View_SetShake(int view, int start);
 extern BYTE g_unk0x0052af58[2];
 
 // ---------------------------------------------------------------------------
@@ -5565,7 +5565,7 @@ void FUN_0050f180(void)
 void FUN_00404ef0(void)
 {
     CGameInfo::FUN_0049ea90(0);
-    FUN_00423010(g_unk0x0052af58[1], 0);
+    View_SetShake(g_unk0x0052af58[1], 0);
     CGameInfo::m_unk0x0052af40 = 0;
 }
 

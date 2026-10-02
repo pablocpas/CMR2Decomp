@@ -386,7 +386,7 @@ void FUN_004ae3f0(BYTE *p, int value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
-int FUN_0042cae0(Car *pCar, int variant);
+int Car_UsesNarrowWheels(Car *pCar, int variant);
 int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
 BYTE FUN_00460bf0(int index);
 int FUN_00460c10(int index);
@@ -412,7 +412,7 @@ void FUN_0048c900(BYTE index);
 char *FUN_004752f0(int *p, int index, int mode);
 void RallyData_FUN_00407500(BYTE param1);
 unsigned short FUN_0040bbc0(unsigned short slot);
-void FUN_0042b720(int index, char value);
+void Car_SetDrawnFlag(int index, char value);
 int FUN_00469bc0(void *pCar, int index);
 void FUN_00476c70(int index);
 int FUN_00405600(void);
@@ -1951,9 +1951,9 @@ void FUN_00472cb0(void)
     }
     RallyData_FUN_00407500(value);
     for (i = 0; i < 2; i++) {
-        FUN_0042b720(i, (BYTE)FUN_0040bbc0((unsigned short)i));
+        Car_SetDrawnFlag(i, (BYTE)FUN_0040bbc0((unsigned short)i));
         if (i >= (int)(RallyDataState() & 0xff))
-            FUN_0042b720(i, -1);
+            Car_SetDrawnFlag(i, -1);
     }
 }
 
@@ -2064,7 +2064,7 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
         g_unk0x0058cf7c = 1;
         for (i = 0; i < 2; i++) {
             if (i >= (int)(RallyDataState() & 0xff))
-                FUN_0042b720(i, -1);
+                Car_SetDrawnFlag(i, -1);
         }
         g_unk0x0058cf64 = 0;
         return;
@@ -3469,7 +3469,7 @@ DWORD FUN_004b74f0(void);
 DWORD FUN_004b7500(void);
 int *FUN_00469680(int index);
 void FUN_00480ac0(BYTE *pCar, int slot, int reset);
-void FUN_0042b720(int index, char value);
+void Car_SetDrawnFlag(int index, char value);
 int FUN_00457e10(BYTE *pCar, int offset);
 struct KnockoutMatch;
 int FUN_00472990(KnockoutMatch *pMatch);
@@ -3516,7 +3516,7 @@ void FUN_0047c1b0(void)
 
     for (i = 0; i < 6; i++) {
         if (i >= (int)(RallyDataState() & 0xff) || CGameInfo::FUN_00406320() != 0)
-            FUN_0042b720(i, 0xff);
+            Car_SetDrawnFlag(i, 0xff);
     }
 }
 
@@ -5169,7 +5169,7 @@ void StageObject_UpdateSkidTrails(int carIndex)
                 if (!(CGameInfo::FUN_004063f0(6) == 0)) {
                     FixVecScale(&side, &side, 0x28000);
                 } else {
-                    if (FUN_0042cae0(pCar, 1) != 0)
+                    if (Car_UsesNarrowWheels(pCar, 1) != 0)
                         FixVecScale(&side, &side, 0x9999);
                 }
 
@@ -8159,7 +8159,7 @@ void FUN_00471a60(int param_1)
 }
 
 char FUN_00420190(void);
-void FUN_0043f570(Car *pCar);
+void Car_ResetWheelLoadsAfterShift(Car *pCar);
 
 // Seeds the stage's random numbers (unless replaying) and gives the computer
 // cars their start revs by difficulty.
@@ -8204,7 +8204,7 @@ void FUN_0047c1e0(char replay, char restart)
             pCar = Car_Get(i);
             pCar->field_0x7a4 = FixMul(start, pCar->field_0x794);
             if (replay != 0 && restart == 0)
-                FUN_0043f570(pCar);
+                Car_ResetWheelLoadsAfterShift(pCar);
         }
     }
 }
@@ -8269,7 +8269,7 @@ void FUN_004657d0(int car)
     }
 }
 
-BYTE FUN_0042b710(int index);
+BYTE Car_GetDrawnFlag(int index);
 void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
 
 // Encodes a car's controls into a replay packet.
@@ -8277,7 +8277,7 @@ void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, 
 void FUN_0046c450(BYTE *pOut, BYTE car)
 {
     Car *pCar = Car_Get(car);
-    DeviceInfo *pDev = CInput::FUN_0049ead0((char)FUN_0042b710(pCar->field_0xb1a));
+    DeviceInfo *pDev = CInput::FUN_0049ead0((char)Car_GetDrawnFlag(pCar->field_0xb1a));
 
     FUN_0046bdc0((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, *(int *)((BYTE *)pCar + 0xb88),
                  *(int *)((BYTE *)pCar + 0xb8c), *(int *)((BYTE *)pCar + 0xb90));
@@ -9699,7 +9699,7 @@ void FUN_00492bd0(int view)
     }
 }
 
-void FUN_0042b800(int, int, int);
+void Car_ReloadModels(int, int, int);
 void FUN_0045e610(void);
 void FUN_004702a0(void);
 extern int g_unk0x0067f228;
@@ -9747,10 +9747,10 @@ void FUN_0046c320(int *pState, BYTE car)
     Car *pCar = Car_Get(car);
 
     *pState = pCar->field_0x7a4;
-    FUN_0042b800(car, 1, 1);
+    Car_ReloadModels(car, 1, 1);
     pCar->field_0x7a4 = *pState;
     if (pCar->field_0xb48 != 1)
-        FUN_0043f570(pCar);
+        Car_ResetWheelLoadsAfterShift(pCar);
     pState = pState + 1;
     pCar->field_0xb9c = 1;
     FUN_0046c220((Block6 *)RallyData_FUN_00421510(car), (Block6 *)pState);
@@ -9764,10 +9764,10 @@ void FUN_0046c390(int *pState, BYTE car)
 {
     Car *pCar = Car_Get(car);
 
-    FUN_0042b800(car, 1, 1);
+    Car_ReloadModels(car, 1, 1);
     pCar->field_0x7a4 = *pState;
     if (pCar->field_0xb48 != 1)
-        FUN_0043f570(pCar);
+        Car_ResetWheelLoadsAfterShift(pCar);
     pCar->field_0xb9c = 1;
     FUN_0046c220((Block6 *)(pState + 1), (Block6 *)RallyData_FUN_00421510(car));
     RallyData_FUN_004207a0(car);
@@ -9802,9 +9802,9 @@ void FUN_00471af0(void)
 BYTE *FUN_0041b390(void);
 BYTE FUN_0041b370(void);
 int FUN_0041b380(void);
-int FUN_004232a0(BYTE index, int mode);
+int View_IsModeAvailable(BYTE index, int mode);
 int RallyData_FUN_00408800(BYTE index);
-void FUN_00421720(unsigned char, int, int, unsigned char, int);
+void View_SwitchCamera(unsigned char, int, int, unsigned char, int);
 
 // GLOBAL: CMR2 0x0051f4c0
 unsigned int g_unk0x0051f4c0 = 0x100;
@@ -9827,7 +9827,7 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
         *(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 8) {
         if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) != 0) {
             if (FUN_00422f50(param_2) != 10)
-                FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 10, 0xffff,
+                View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a, 10, 0xffff,
                              FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
         }
         if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) == 0) {
@@ -9856,12 +9856,12 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
                 }
                 CGameInfo::FUN_00405d70();
                 mode = RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff);
-                if (FUN_004232a0(g_unk0x0058e0a0->field_0xb1a, mode) != 0) {
-                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a,
+                if (View_IsModeAvailable(g_unk0x0058e0a0->field_0xb1a, mode) != 0) {
+                    View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a,
                                  RallyData_FUN_00408800(g_unk0x0058e0a4 & 0xff), 0xffff,
                                  FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
                 } else {
-                    FUN_00421720(g_unk0x0058e0a0->field_0xb1a, 4, 0xffff,
+                    View_SwitchCamera(g_unk0x0058e0a0->field_0xb1a, 4, 0xffff,
                                  FUN_00422fb0(g_unk0x0058e0a0->field_0xb1a), 0);
                 }
             }
@@ -10455,7 +10455,7 @@ void FUN_0046afe0(int param_1, int param_2, CarPartSet *set)
     }
 }
 
-int FUN_004218d0(unsigned int view);
+int View_FindFreeModeSlot(unsigned int view);
 void RallyData_FUN_00408760(BYTE index, int value);
 
 // Applies the driver-camera cycle: while the cycle key is held it picks the
@@ -10472,15 +10472,15 @@ void FUN_0047b970(unsigned int param_1)
     p = FUN_0041b390();
     if (**(char **)(p + 4) == 10) {
         if (FUN_0041f3a0() == 0) {
-            uVar4 = FUN_004218d0(0);
+            uVar4 = View_FindFreeModeSlot(0);
         } else {
             if (CGameInfo::FUN_00405d80() == 2)
                 uVar4 = param_1;
             else
-                uVar4 = FUN_004218d0(1);
+                uVar4 = View_FindFreeModeSlot(1);
         }
     } else {
-        uVar4 = FUN_004218d0(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
+        uVar4 = View_FindFreeModeSlot(*(BYTE *)((BYTE *)g_unk0x0058e0a0 + 0xb1a));
     }
 
     p = FUN_0041b390();
@@ -11848,7 +11848,7 @@ void FUN_00458480(void);
 void FUN_004584d0(char param_1);
 void FUN_00458100(int param_1);
 void FUN_0047bdc0(char restart);
-void FUN_0042b800(int, int, int);
+void Car_ReloadModels(int, int, int);
 int *FUN_00469680(int index);
 void RallyData_FUN_004207a0(int index);
 void RallyData_FUN_004207f0(void);
@@ -12012,7 +12012,7 @@ void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
             sVar4 = Car_GetOrderCount();
             iVar5 = (int)sVar4 - (unsigned int)bVar2;
             uVar3 = (unsigned char)RallyDataState();
-            FUN_0042b800((int)uVar3, iVar5, 1);
+            Car_ReloadModels((int)uVar3, iVar5, 1);
             FUN_0047bdc0(0);
         }
         FUN_00458480();
@@ -13839,8 +13839,8 @@ char g_strAi0Format[] = "%s.ai0";
 int RallyData_FUN_00421370(BYTE *p);
 void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant);
 BYTE *FUN_00498590(BYTE *p, int unused, int count);
-BYTE FUN_0042b710(int index);
-void FUN_0043f570(Car *pCar);
+BYTE Car_GetDrawnFlag(int index);
+void Car_ResetWheelLoadsAfterShift(Car *pCar);
 void FUN_0047b0e0(int player, int device);
 BYTE *FUN_0041f900(void);
 int StageTiming_FUN_00455460(void);
@@ -14018,14 +14018,14 @@ void FUN_0047b000(int slot)
     g_unk0x0058e0a0->flag0x1d0[0] = 0;
     if ((char)RallyData_GetFlag22())
         CGameInfo::FUN_00405d80();
-    device = (char)FUN_0042b710(g_unk0x0058e0a0->field_0xb1a);
+    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->field_0xb1a);
     if (device != -1)
         FUN_0047b0e0(slot, device);
     else
         FUN_0047b620(slot);
     if (g_unk0x0058e0a0->field_0xb9c == 0) {
         if (g_unk0x0058e0a0->field_0xb48 != 1)
-            FUN_0043f570(g_unk0x0058e0a0);
+            Car_ResetWheelLoadsAfterShift(g_unk0x0058e0a0);
         g_unk0x0058e0a0->field_0xb9c = 1;
         return;
     }
@@ -14050,7 +14050,7 @@ void FUN_0047b640(int slot)
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->flag0x1d0[1] = 0;
     g_unk0x0058e0a0->flag0x1d0[0] = 0;
-    device = (char)FUN_0042b710(g_unk0x0058e0a0->field_0xb1a);
+    device = (char)Car_GetDrawnFlag(g_unk0x0058e0a0->field_0xb1a);
     if (device != -1) {
         FUN_0047b0e0(slot, device);
     } else {
