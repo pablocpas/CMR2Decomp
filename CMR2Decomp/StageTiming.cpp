@@ -2359,9 +2359,10 @@ void StageDeform_ApplyPlanarDent(void)
 
     FixVector delta;
     FixVecScale(&delta, &g_stageDeformNormal, g_stageDeformRadius);
-    g_stageDeformOffset.x -= delta.x;
-    g_stageDeformOffset.y -= delta.y;
-    g_stageDeformOffset.z -= delta.z;
+    // 0x467f4a: the scaled normal is ADDED to the impact point
+    g_stageDeformOffset.x += delta.x;
+    g_stageDeformOffset.y += delta.y;
+    g_stageDeformOffset.z += delta.z;
 
     int radiusSquare = FixMul(g_stageDeformSpeed, g_stageDeformSpeed);
     int reciprocalRadius = FixDiv(0x10000, g_stageDeformSpeed);
@@ -2394,11 +2395,13 @@ void StageDeform_ApplyPlanarDent(void)
             distance.z -= axial.z;
             int distanceSquare = FixVecDot(&distance, &distance);
             if (distanceSquare <= outerSquare) {
-                FixVector displacement;
+                // Both branches leave the displacement in `distance` (one
+                // temporary in the original, ebp-0x18); the shell branch used
+                // to add an uninitialised vector to the vertex.
                 if (radiusSquare >= distanceSquare) {
                     int penetration = g_stageDeformSpeed - FixMul(reciprocalRadius,
                                                                   distanceSquare);
-                    FixVecScale(&displacement, &g_stageDeformNormal, penetration);
+                    FixVecScale(&distance, &g_stageDeformNormal, penetration);
                 } else {
                     int length = FixSqrt(distanceSquare);
                     int shellWeight = FixMul(FixMul(length - g_stageDeformSpeed,
@@ -2419,9 +2422,9 @@ void StageDeform_ApplyPlanarDent(void)
                 }
 
                 FixVector position;
-                position.x = originalX + displacement.x;
-                position.y = originalY + displacement.y;
-                position.z = originalZ + displacement.z;
+                position.x = originalX + distance.x;
+                position.y = originalY + distance.y;
+                position.z = originalZ + distance.z;
                 StageDeform_ClampVertex(&position.x, meshIndex, vertexIndex, pRecord);
 
                 int secondX = (int)(__int64)(pVertex[3] * CGraphics::m_65536);
