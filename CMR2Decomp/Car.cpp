@@ -2306,6 +2306,7 @@ void Car_UpdateTyreForces(void)
     FixVector dir[4];
     FixVector axis[4];
     FixVector v;
+    FixVector t;
     FixVector *pNormal;
     int dirValid[4];
     int axisValid[4];
@@ -2360,7 +2361,8 @@ void Car_UpdateTyreForces(void)
     } else {
         brakeFront = FixMul(FixMul(g_pCurrentCar->field_0x838, *(int *)(g_pCarSetup + 0x3fc)),
                             g_pCurrentCar->field_0x830);
-        brakeRear = FixMul(0x10000 - g_pCurrentCar->field_0x830, FixMul(g_pCurrentCar->field_0x838, *(int *)(g_pCarSetup + 0x400)));
+        brakeRear = FixMul(FixMul(g_pCurrentCar->field_0x838, *(int *)(g_pCarSetup + 0x400)),
+                           0x10000 - g_pCurrentCar->field_0x830);
     }
     if (g_pCurrentCar->field_0x1d8 != 0)
         brakeRear += g_pCurrentCar->field_0x848;
@@ -2378,39 +2380,51 @@ void Car_UpdateTyreForces(void)
 
     // Rolling directions and lateral axes of the front and rear wheels,
     // flattened onto the ground.
-    d = -FixVecDot(&g_pCurrentCar->wheelDirRear, &g_pCurrentCar->groundNormal);
-    v.x = g_pCurrentCar->wheelDirRear.x + FixMul(pNormal->x, d);
-    v.y = g_pCurrentCar->wheelDirRear.y + FixMul(g_pCurrentCar->groundNormal.y, d);
-    v.z = g_pCurrentCar->wheelDirRear.z + FixMul(g_pCurrentCar->groundNormal.z, d);
+    d = -FixVecDot(pNormal, &g_pCurrentCar->wheelDirRear);
+    FixVecScale(&t, pNormal, d);
+    v.x = g_pCurrentCar->wheelDirRear.x + t.x;
+    v.y = g_pCurrentCar->wheelDirRear.y + t.y;
+    v.z = g_pCurrentCar->wheelDirRear.z + t.z;
     len = FixVecNormalizeLen(&dir[0], &v);
     dir[1] = dir[0];
-    dirValid[1] = len != 0;
-    dirValid[0] = len != 0;
-    d = -FixVecDot(&g_pCurrentCar->wheelAxisRear, &g_pCurrentCar->groundNormal);
-    v.x = g_pCurrentCar->wheelAxisRear.x + FixMul(pNormal->x, d);
-    v.y = g_pCurrentCar->wheelAxisRear.y + FixMul(g_pCurrentCar->groundNormal.y, d);
-    v.z = g_pCurrentCar->wheelAxisRear.z + FixMul(g_pCurrentCar->groundNormal.z, d);
+    if (len == 0) {
+        dirValid[1] = 0;
+        dirValid[0] = 0;
+    }
+    d = -FixVecDot(pNormal, &g_pCurrentCar->wheelAxisRear);
+    FixVecScale(&t, pNormal, d);
+    v.x = g_pCurrentCar->wheelAxisRear.x + t.x;
+    v.y = g_pCurrentCar->wheelAxisRear.y + t.y;
+    v.z = g_pCurrentCar->wheelAxisRear.z + t.z;
     len = FixVecNormalizeLen(&axis[0], &v);
     axis[1] = axis[0];
-    axisValid[1] = len != 0;
-    axisValid[0] = len != 0;
-    d = -FixVecDot(&g_pCurrentCar->wheelDirFront, &g_pCurrentCar->groundNormal);
-    v.x = g_pCurrentCar->wheelDirFront.x + FixMul(pNormal->x, d);
-    v.y = g_pCurrentCar->wheelDirFront.y + FixMul(g_pCurrentCar->groundNormal.y, d);
-    v.z = g_pCurrentCar->wheelDirFront.z + FixMul(g_pCurrentCar->groundNormal.z, d);
+    if (len == 0) {
+        axisValid[1] = 0;
+        axisValid[0] = 0;
+    }
+    d = -FixVecDot(pNormal, &g_pCurrentCar->wheelDirFront);
+    FixVecScale(&t, pNormal, d);
+    v.x = g_pCurrentCar->wheelDirFront.x + t.x;
+    v.y = g_pCurrentCar->wheelDirFront.y + t.y;
+    v.z = g_pCurrentCar->wheelDirFront.z + t.z;
     len = FixVecNormalizeLen(&dir[2], &v);
     dir[3] = dir[2];
-    dirValid[3] = len != 0;
-    dirValid[2] = len != 0;
+    if (len == 0) {
+        dirValid[3] = 0;
+        dirValid[2] = 0;
+    }
     FixVecCross(&g_tyreForce, &g_pCurrentCar->wheelDirFront, &g_pCurrentCar->up);
-    d = -FixVecDot(&g_tyreForce, pNormal);
-    v.x = g_tyreForce.x + FixMul(pNormal->x, d);
-    v.y = FixMul(g_pCurrentCar->groundNormal.y, d) + g_tyreForce.y;
-    v.z = FixMul(g_pCurrentCar->groundNormal.z, d) + g_tyreForce.z;
+    d = -FixVecDot(pNormal, &g_tyreForce);
+    FixVecScale(&t, pNormal, d);
+    v.x = g_tyreForce.x + t.x;
+    v.y = g_tyreForce.y + t.y;
+    v.z = g_tyreForce.z + t.z;
     len = FixVecNormalizeLen(&axis[2], &v);
     axis[3] = axis[2];
-    axisValid[3] = len != 0;
-    axisValid[2] = len != 0;
+    if (len == 0) {
+        axisValid[3] = 0;
+        axisValid[2] = 0;
+    }
     g_pCurrentCar->groundDir[0] = dir[0];
     g_pCurrentCar->groundDir[1] = dir[2];
     g_pCurrentCar->groundAxis[0] = axis[0];
