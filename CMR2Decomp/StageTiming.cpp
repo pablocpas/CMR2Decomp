@@ -8411,7 +8411,6 @@ void FUN_00469690(Car *pCar);
 void FUN_004669f0(int lock, int keep, short *pOrder, short count)
 {
     int n;
-    short *pIndex;
     int car;
     BYTE *pCar;
     int *pParts;
@@ -8428,11 +8427,9 @@ void FUN_004669f0(int lock, int keep, short *pOrder, short count)
     FUN_00480a60();
     if (lock == 0)
         FUN_00480a50();
-    n = count;
-    if (n - 1 >= 0) {
-        pIndex = pOrder + (n - 1);
-        do {
-            car = *pIndex;
+    for (n = count - 1; n >= 0; n--) {
+        {
+            car = pOrder[n];
             pCar = (BYTE *)Car_Get(car);
             FUN_00480b40(pCar);
             pParts = (int *)(g_unk0x00588b94 + car * 0x4d0);
@@ -8451,7 +8448,7 @@ void FUN_004669f0(int lock, int keep, short *pOrder, short count)
                         FUN_00466e90(pNode, pParts);
                 }
                 for (j = 0; j < 15; j++) {
-                    if (pParts[0xf + j] != 0 || j > 13)
+                    if (pParts[0xf + j] != 0)
                         continue;
                     moved = 0;
                     for (k = j; k < 14; k++) {
@@ -8543,8 +8540,7 @@ void FUN_004669f0(int lock, int keep, short *pOrder, short count)
                 FUN_0046acb0((signed char)pCar[0xb1a], *(int *)(pCar + 0x720), (int)pParts);
                 FUN_00469690((Car *)pCar);
             }
-            pIndex--;
-        } while (--n);
+        }
     }
     if (lock != 0)
         FUN_00480a50();
