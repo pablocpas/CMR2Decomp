@@ -6787,12 +6787,12 @@ int g_stageLightHasMatrix;
 StageLight g_stageLights[8];
 // GLOBAL: CMR2 0x00547b40
 FixMatrix g_stageLightMatrix;
+// Indexed by light colour (red, green), followed by the current one.
 // GLOBAL: CMR2 0x00547cc8
-Texture *g_stageLightRedTexture;
-// GLOBAL: CMR2 0x00547ccc
-Texture *g_stageLightGreenTexture;
-// GLOBAL: CMR2 0x00547cd0
-Texture *g_stageLightTexture;
+Texture *g_stageLightTextures[3];
+#define g_stageLightRedTexture (g_stageLightTextures[0])
+#define g_stageLightGreenTexture (g_stageLightTextures[1])
+#define g_stageLightTexture (g_stageLightTextures[2])
 // GLOBAL: CMR2 0x00547cd4
 int g_stageLightsActive;
 // GLOBAL: CMR2 0x00547cd8
@@ -7058,16 +7058,16 @@ void StageLights_Create(void)
         pos[i].z += origin.z;
         g_stageLights[i].pGlow = (BYTE *)Glow_Add(
             2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
-            (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]],
-            (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+            (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
+            (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
         if (g_stageLightDouble[g_stageLightKind] != 0) {
             pos[i].x += pair.x;
             pos[i].y += pair.y;
             pos[i].z += pair.z;
             g_stageLights[i].pGlow2 = (BYTE *)Glow_Add(
                 2, &pos[i], &dir, (int)&zero, LIGHT_SIZE(i), LIGHT_SIZE(i),
-                (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]],
-                (int)(&g_stageLightRedTexture)[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
+                (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]],
+                (int)g_stageLightTextures[g_stageLightColour[g_stageLightKind][i]], 0, 0, 0, (int)&dir, 0);
         }
         g_stageLights[i].level = 0;
         FUN_004ae3d0(g_stageLights[i].pGlow, 0);
@@ -7411,12 +7411,12 @@ void Events_Init(int unused, int slot, char animate)
         pTexture = CGraphics::m_pTextureManager->textureBuffer[i];
         if (pTexture != NULL &&
             strncmp(pTexture->name + strlen(pTexture->name) - 8, CGraphics::m_strSuffixBODF, 4) == 0) {
-            (&g_eventTexture)[slot] = CGraphics::m_pTextureManager->textureBuffer[i];
+            g_eventTextures[slot] = CGraphics::m_pTextureManager->textureBuffer[i];
             break;
         }
     }
-    if ((&g_eventTexture)[slot] != NULL)
-        (&g_eventScale)[slot] = (&g_eventTexture)[slot]->width;
+    if (g_eventTextures[slot] != NULL)
+        g_eventScales[slot] = g_eventTextures[slot]->width;
 }
 
 // Adds a stage event (up to 11) for the texture area pArea (packed position,
@@ -8854,13 +8854,13 @@ void FUN_0046b8f0(Car *pCar)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[2], g_unk0x00588ba4[12]);
     if (pCar->pExtraNodes[3] != NULL)
         SceneNode_SetViewMaskTree(pCar->pExtraNodes[3], g_unk0x00588ba4[12]);
-    if (*(int *)(g_stageBlock + 0x41c + pCar->field_0xb1a * 4) != 0)
-        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x41c + pCar->field_0xb1a * 4),
+    if (*(int *)(g_stageBlock + 0x1fc + pCar->field_0xb1a * 4) != 0)
+        SceneNode_SetViewMaskTree(*(SceneNode **)(g_stageBlock + 0x1fc + pCar->field_0xb1a * 4),
                                   g_unk0x00588ba4[11]);
-    if (*(int *)(g_stageBlock + 0x2c0 + pCar->field_0xb1a * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x2c0 + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
-    if (*(int *)(g_stageBlock + 0x3fc + pCar->field_0xb1a * 4) != 0)
-        *(BYTE *)(*(int *)(g_stageBlock + 0x3fc + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0xa0 + pCar->field_0xb1a * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0xa0 + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
+    if (*(int *)(g_stageBlock + 0x1dc + pCar->field_0xb1a * 4) != 0)
+        *(BYTE *)(*(int *)(g_stageBlock + 0x1dc + pCar->field_0xb1a * 4) + 0x17c) = g_unk0x00588ba4[8];
     FUN_0046b6b0(pCar->pNode0x71c, 10);
     FUN_0046b6e0(pCar->pNode0x71c->pFirstChild, 10);
     FUN_0046b6b0(pCar->pNode0x720, 10);
@@ -11529,7 +11529,7 @@ SceneNode *Scene_CreateLight(int type, int r, int g, int b, FixVector *pPosition
 // GLOBAL: CMR2 0x00547ce0
 int g_unk0x00547ce0[8];
 // GLOBAL: CMR2 0x00547d00
-int g_unk0x00547d00[0x28];
+int g_unk0x00547d00[8 * 0x14]; // 20 glow slots per car, up to 8 cars (runs to 0x547f80)
 
 // Rebuilds the two light meshes of a car. First a glow light is created for
 // every collision point of the car (the (object, vertex) slot is stored into
@@ -12170,7 +12170,8 @@ int Sound_IsPlaying(unsigned int handle);
 void FUN_004b79a0(unsigned int handle, int volume);
 void Sound_SetPan(unsigned int handle, unsigned short pan);
 void FUN_00484f40(unsigned int param_1);
-extern BYTE g_unk0x0051ebca[146];
+struct SoundCurve;
+extern struct SoundCurve g_curve0x0051ec50;
 extern BYTE g_unk0x00538d2c[];
 extern BYTE *g_unk0x00590d78;
 extern int g_unk0x0058ddc8;
@@ -12477,8 +12478,8 @@ void FUN_0047aa70(void)
                                     FixMul(dist2, volScale), 0x5622,
                                     g_unk0x0051f2d8[idx], 1, 0);
         }
-        if (FUN_00427ab0(pitch, (int *)&g_unk0x0051ebca[0x86])) {
-            unsigned int pan = FUN_00427b70(pitch, (int *)&g_unk0x0051ebca[0x86]);
+        if (FUN_00427ab0(pitch, (int *)&g_curve0x0051ec50)) {
+            unsigned int pan = FUN_00427b70(pitch, (int *)&g_curve0x0051ec50);
             unsigned short pan2 = (unsigned short)FUN_00427e20(0, (int)chosen, (unsigned short)pan);
             int volScale;
             int dist2;
@@ -12575,10 +12576,10 @@ void FUN_0047ad20(void)
                                     FixMul(dist2, volScale), 0x5622,
                                     g_unk0x0051f2d8[idx], 1, 0);
         }
-        if (!(FUN_00427ab0(pitch, (int *)&g_unk0x0051ebca[0x86]))) {
+        if (!(FUN_00427ab0(pitch, (int *)&g_curve0x0051ec50))) {
             FUN_004b79a0((unsigned int)*pHandle, 0);
         } else {
-            unsigned int pan = FUN_00427b70(pitch, (int *)&g_unk0x0051ebca[0x86]);
+            unsigned int pan = FUN_00427b70(pitch, (int *)&g_curve0x0051ec50);
             unsigned short pan2 = (unsigned short)FUN_00427e20(0, (int)chosen, (unsigned short)pan);
             int volScale;
             int dist2;

@@ -3929,18 +3929,15 @@ BYTE g_unk0x00520128[0x28] = {
 };
 
 
+// Countries of the championship flag row, in display order (FUN_005057e0
+// walks it as an array, so it must be one block).
 // GLOBAL: CMR2 0x0082c698
-int g_unk0x0082c698;
-// GLOBAL: CMR2 0x0082c69c
-int g_unk0x0082c69c;
-// GLOBAL: CMR2 0x0082c6a0
-int g_unk0x0082c6a0;
-// GLOBAL: CMR2 0x0082c6a4
-int g_unk0x0082c6a4;
-// GLOBAL: CMR2 0x0082c6a8
-int g_unk0x0082c6a8;
-// GLOBAL: CMR2 0x0082c6ac
-int g_unk0x0082c6ac;
+int g_unk0x0082c698[6];
+#define g_unk0x0082c69c (g_unk0x0082c698[1])
+#define g_unk0x0082c6a0 (g_unk0x0082c698[2])
+#define g_unk0x0082c6a4 (g_unk0x0082c698[3])
+#define g_unk0x0082c6a8 (g_unk0x0082c698[4])
+#define g_unk0x0082c6ac (g_unk0x0082c698[5])
 // GLOBAL: CMR2 0x0082c6bc
 int g_unk0x0082c6bc;
 
@@ -3948,7 +3945,7 @@ int g_unk0x0082c6bc;
 void FUN_00503e00(void)
 {
     if ((unsigned char)RallyDataCountryIndex() == 3) {
-        g_unk0x0082c698 = 0;
+        g_unk0x0082c698[0] = 0;
         g_unk0x0082c6bc = 6;
         g_unk0x0082c69c = 1;
         g_unk0x0082c6a0 = 2;
@@ -3957,7 +3954,7 @@ void FUN_00503e00(void)
         g_unk0x0082c6ac = 8;
     } else {
         g_unk0x0082c6bc = 6;
-        g_unk0x0082c698 = 0;
+        g_unk0x0082c698[0] = 0;
         g_unk0x0082c69c = 1;
         g_unk0x0082c6a0 = 2;
         g_unk0x0082c6a4 = 3;

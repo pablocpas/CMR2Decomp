@@ -3546,8 +3546,11 @@ void FUN_004814d0(void)
     VehicleMotion_UpdateWorldPosition();
 }
 
-// GLOBAL: CMR2 0x00592748
-int g_unk0x00592748[8];
+// One table: 0x592744 is slot 0 and the eight per-variant entries follow
+// (callers index it with a 1-based variant).
+// GLOBAL: CMR2 0x00592744
+int g_unk0x00592744[9];
+#define g_unk0x00592748 (g_unk0x00592744 + 1)
 
 void RallyData_FUN_00421530(int index, int *pOut);
 int RallyData_FUN_00421420(void);
@@ -7537,8 +7540,6 @@ extern double g_unk0x00511300;
 
 // Base of the per-variant split reference table; the code indexes it with a
 // 1-based variant number, so entry `v` lives at 0x592744 + v * 4.
-// GLOBAL: CMR2 0x00592744
-int g_unk0x00592744[1];
 
 // Recomputes one car's split-bar angles and times from the current route node
 // of the output record: normalises the six neighbouring node indices, measures

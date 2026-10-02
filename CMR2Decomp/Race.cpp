@@ -4000,7 +4000,8 @@ void FUN_00416f70(int player)
     }
     FUN_004176b0();
     slot = block + player * 5;
-    if (player > 0 && (&g_unk0x00537190)[slot] != 0) {
+    // the original reads [slot*4 + 0x537190], i.e. this same table one player back
+    if (player > 0 && g_unk0x005371a4[slot - 5] != 0) {
         g_unk0x005371a4[slot] = 1;
         return;
     }

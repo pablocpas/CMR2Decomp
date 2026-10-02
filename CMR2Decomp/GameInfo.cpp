@@ -4079,6 +4079,10 @@ void FUN_004041e0(Menu *pMenu);
 
 // Builds the network options menu and disables the two-state entries when
 // the current rally mode does not support them.
+void FUN_00402f20(Menu *pMenu, int param);
+void FUN_00402000(Menu *pMenu);
+void FUN_00403890(Menu *pMenu);
+void FUN_004041e0(Menu *pMenu);
 // FUNCTION: CMR2 0x00402f90
 void FUN_00402f90(void)
 {
@@ -7450,7 +7454,9 @@ void FUN_00505e70(void)
 
     pStages = RallyData_FUN_004075e0(0);
     pPairs = (BYTE *)FUN_00407520(0);
-    count = ((BYTE *)&g_unk0x0082c6c0)[g_unk0x0082c694 * 0x50];
+    // The original reads [index * 0x50 + 0x82c6c0]: byte 0x48 of the previous
+    // 0x50-byte entry of the table at 0x82c6c8 (index is 1-based).
+    count = ((BYTE *)g_unk0x0082c6c8)[g_unk0x0082c694 * 0x50 - 8];
     slot = g_unk0x0082c710 & 0xff;
     g_unk0x0082ca18 = count - slot + 2;
     pEntry = RallyData_FUN_004075c0(slot);
@@ -8864,7 +8870,10 @@ void FUN_004ff630(Menu *pMenu)
 
 extern int g_unk0x0082ca20[9];
 extern int g_unk0x0082c6bc;
-extern int g_unk0x0082c698;
+extern int g_unk0x0082c698[6];
+extern BYTE g_unk0x005270e4[8];
+extern int g_unk0x005270fc;
+extern int g_unk0x00527100;
 extern int g_unk0x005270b8[11];
 void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y, int *pColour1,
                   int *pColour2, unsigned int flags);
@@ -8910,17 +8919,17 @@ void FUN_005057e0(void)
     for (i = 0; i < g_unk0x0082c6bc; i++) {
         y = FixMulShift32(i << 16, scale);
         pTexture = (Texture *)g_unk0x0082ca20[i];
-        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(((int *)(&g_unk0x0082c698))[i] + 0x9d), width,
-                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, (int *)&g_unk0x005270b8[17],
-                     (int *)&g_unk0x005270b8[18], 0x22);
+        FUN_00501f80(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
+                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, &g_unk0x005270fc,
+                     &g_unk0x00527100, 0x22);
         dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
-            dest.y = dest.y - g_unk0x00527254[((int *)(&g_unk0x0082c698))[i]];
+            dest.y = dest.y - g_unk0x00527254[g_unk0x0082c698[i]];
         else
-            dest.y = dest.y - g_unk0x00527260[((int *)(&g_unk0x0082c698))[i]];
+            dest.y = dest.y - g_unk0x00527260[g_unk0x0082c698[i]];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
-                     (BYTE *)&g_unk0x005270b8[11], 8);
+                     g_unk0x005270e4, 8);
     }
 }
 
@@ -10713,7 +10722,7 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
         else
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
     } else {
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     }
 
     for (i = 0; i < param1; i++) {
@@ -10741,7 +10750,7 @@ Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527
                 FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_unk0x00527380[1], 8);
                             } else {                                        if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -10753,7 +10762,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                 if (FUN_00503940(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) != 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -10765,7 +10774,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                 } else if (FUN_00502fc0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
@@ -10825,7 +10834,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
             if (!flag) {
                 if (i != param2) {                    Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                  (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
-                                 (BYTE *)g_unk0x00527380[1], 8);
+                                 (BYTE *)&g_unk0x00527380[1], 8);
                             } else {                                        if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313b0, 1, 0, NULL, NULL,
@@ -10837,7 +10846,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313b0 + 0x11c), (SpriteRect *)rectP,
                 if ((BYTE)FUN_00502b10(CGameInfo::FUN_005011b0(), i) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x008313ac, 1, 0, NULL, NULL,
@@ -10849,7 +10858,7 @@ Sprite_Queue((SpriteRect *)(g_unk0x008313ac + 0x11c), (SpriteRect *)rectP,
                 } else if (FUN_00502630(CGameInfo::FUN_005011b0(), FUN_004ff4c0(i)) == 0) {
                     if (i != param2) {                        Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                      (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
-                                     (BYTE *)g_unk0x00527380[1], 8);
+                                     (BYTE *)&g_unk0x00527380[1], 8);
                                 } else {                                                if (CGameInfo::FUN_005004c0() != 0)
 Sprite_Queue((SpriteRect *)(g_unk0x00831648 + 0x11c), (SpriteRect *)rectP,
                                          (Texture *)g_unk0x00831648, 1, 0, NULL, NULL,
@@ -10931,7 +10940,7 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
             else
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
         } else {
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)g_unk0x00527380[2], 1);
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
         }
     }
 }
