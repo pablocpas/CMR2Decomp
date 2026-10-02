@@ -777,7 +777,7 @@ void FUN_0047c5c0(void)
     do {
         p->value = 0x10000;
         p++;
-    } while ((int)p < (int)&g_unk0x0058e178);
+    } while ((int)p < (int)(g_unk0x0058e0b8 + 4)); // 0x58e178 in the original
 }
 
 // Per-type animation tables (0x58e394..0x58e4a4; the loader also fills the tail bytes).
@@ -12174,7 +12174,7 @@ struct SoundCurve;
 extern struct SoundCurve g_curve0x0051ec50;
 extern BYTE g_unk0x00538d2c[];
 extern BYTE *g_unk0x00590d78;
-extern int g_unk0x0058ddc8;
+extern int g_unk0x0058ddc8Pair[2]; // two sound handles (0x58ddc8, 0x58ddcc)
 // ---- GLOBALS nuevos ----
 // First engine sample slot of each loaded car sound set.
 // GLOBAL: CMR2 0x0058ddb4
@@ -12445,7 +12445,7 @@ void FUN_0047aa70(void)
     }
     if (slots <= 0)
         return;
-    pHandle = &g_unk0x0058ddc8;
+    pHandle = g_unk0x0058ddc8Pair;
     limit = slots;
     do {
         chosen = 0;
@@ -12541,7 +12541,7 @@ void FUN_0047ad20(void)
     }
     if (slots <= 0)
         return;
-    pHandle = &g_unk0x0058ddc8;
+    pHandle = g_unk0x0058ddc8Pair;
     limit = slots;
     do {
         chosen = 0;

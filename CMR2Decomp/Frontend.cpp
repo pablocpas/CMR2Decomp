@@ -355,7 +355,7 @@ void CFrontend::FUN_004d2590(void) {
         sprintf(CFrontend::m_stringDest, CFrontend::m_strFrontendTexturesCarsLivery, CInstallInfo::GetGameCDPath(), liveryIndex);
         *pTexture = CTexture::FindLoadTexture(CGenericFileLoader::GetGenericFile(), CFrontend::m_stringDest, 0, 0, 0, 0);
         pTexture++;
-    } while ((int)pTexture < (int)&m_unk0x0081853c[0]);
+    } while ((int)pTexture < (int)(m_unk0x00818530 + 3)); // 0x81853c in the original
 }
 
 // Returns the common frontend archive (Common.bfl).

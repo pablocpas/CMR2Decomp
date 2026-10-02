@@ -2419,7 +2419,7 @@ void FUN_0050f120(int param1)
             pOut += 2;
         }
         pAngles++;
-    } while ((int)pAngles < (int)&g_unk0x00527420[0]);
+    } while ((int)pAngles < (int)(g_unk0x005273c0 + 12)); // 0x527420 in the original
 }
 
 // FUNCTION: CMR2 0x0050f1c0

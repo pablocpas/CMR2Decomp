@@ -557,10 +557,11 @@ int g_unk0x0058de10[2];
 int g_unk0x0058de18[2];
 // GLOBAL: CMR2 0x0058df30
 int g_unk0x0058df30[2];
+// Two sound handles; the release loop walks them as one block.
 // GLOBAL: CMR2 0x0058ddc8
-int g_unk0x0058ddc8;
-// GLOBAL: CMR2 0x0058ddcc
-int g_unk0x0058ddcc;
+int g_unk0x0058ddc8Pair[2];
+#define g_unk0x0058ddc8 (g_unk0x0058ddc8Pair[0])
+#define g_unk0x0058ddcc (g_unk0x0058ddc8Pair[1])
 #pragma data_seg()
 
 void Sound_SetMasterVolume(int volume);
@@ -1575,7 +1576,7 @@ void FUN_00478c40(void)
             FUN_004b79a0((unsigned int)g_unk0x0058ddd0[i], 0);
     }
     pHandle = &g_unk0x0058ddc8;
-    while ((int)pHandle < (int)&g_unk0x0058ddd0) {
+    while ((int)pHandle < (int)(g_unk0x0058ddc8Pair + 2)) { // 0x58ddd0 in the original
         if (*pHandle != -1)
             Sound_Free((unsigned int)*pHandle);
         pHandle++;

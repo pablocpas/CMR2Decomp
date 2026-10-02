@@ -2527,7 +2527,7 @@ big:
                 FUN_0046c750((int)*p, 0, FUN_0040b010(i));
             p++;
             i++;
-        } while ((int)p < (int)&g_unk0x00537f5c);
+        } while ((int)p < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     } else if ((BYTE)RallyDataState() == 1 && (char)RallyData_GetFlag25() != 0) {
         if (CGameInfo::FUN_00405d80() == 4) {
             i = 0;
@@ -2768,7 +2768,7 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
             do {
                 Replay_StopRecording(*pp);
                 pp++;
-            } while ((int)pp < (int)&g_unk0x00537f5c);
+            } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
         } else {
             Replay_StopRecording(g_unk0x00537f3c[index]);
         }
@@ -3172,7 +3172,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
             FUN_0046d2a0((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        } while ((int)pp < (int)&g_unk0x00537f5c);
+        } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     } else if (CGameInfo::FUN_00405d80() == 4 || (char)RallyData_GetFlag25()) {
         n = 2;
     } else {
@@ -3517,7 +3517,7 @@ L_teardown:
             FUN_0046d2a0((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        } while ((int)pp < (int)&g_unk0x00537f5c);
+        } while ((int)pp < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
     }
     if ((char)RallyData_FUN_00407ea0() != 0 && (char)CGameInfo::FUN_00406310() != 0)
         FUN_00466080();

@@ -1643,7 +1643,7 @@ void CGame::FUN_004a17f0(bool param1) {
         dest->field_0xc8 = 0;
         dest->field_0xcc = 0;
         pLongName += sizeof(Unk0x005a1820);
-    } while ((int)pLongName < (int)&m_unk0x005a1e34);
+    } while ((int)pLongName < (int)m_unk0x005a1820[7].field_0x64); // 0x5a1e34 in the original
 
     m_unk0x005a1818 = 0;
 }

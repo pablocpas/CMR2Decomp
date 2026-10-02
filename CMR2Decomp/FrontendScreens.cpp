@@ -2981,7 +2981,7 @@ void FUN_004ef190(void)
             }
         }
         p++;
-    } while ((int)&p->pMenu < (int)&g_unk0x00819754);
+    } while ((int)&p->pMenu < (int)&g_menuScrollers[12].pMenu); // 0x819754 in the original
 }
 
 // FUNCTION: CMR2 0x004ef480
@@ -4710,7 +4710,7 @@ void FUN_004f3dd0(void)
     do {
         *pPos++ = (i << 16) / 200;
         i++;
-    } while ((int)pPos < (int)&g_menuPathMode);
+    } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
     memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
     memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     k = 0;
@@ -4720,7 +4720,7 @@ void FUN_004f3dd0(void)
             pPos[j] = k / 6;
         pPos += 10;
         k += 0x4000;
-    } while ((int)pPos < (int)&g_menuPathVariant);
+    } while ((int)pPos < (int)&g_menuStreamPos[6][0]); // 0x819da8 in the original
     g_menuAnimTime = -1;
     switch (FUN_004f8410()->items[FUN_004f8410()->cursor].value) {
     case 0:
@@ -4926,7 +4926,7 @@ void FUN_004f45a0(void)
                       (int)(g_pGraphics->resY * point[1]) / 480);
         pPos++;
         i++;
-    } while ((int)pPos < (int)&g_menuPathMode);
+    } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
 }
 
 // Draws the trail of 15 dots, fading out towards the tail.
