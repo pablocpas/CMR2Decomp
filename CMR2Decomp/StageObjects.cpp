@@ -5460,6 +5460,11 @@ void FUN_004738f0(Menu *pMenu)
     rect[2] = (short)((int)(g_pGraphics->resX * 0x11a) / 0x280);
     rect[3] = (short)((int)(g_pGraphics->resY * 0x26) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_unk0x0051c984, 2);
+    // Title of the panel (text 0x76); it was missing from the transcription.
+    Font_DrawText(0, CFrontend::GetTextString(0x76),
+                  (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                  (int)(g_pGraphics->resY * 0xb8) / 0x1e0,
+                  (int *)g_barTextColour, 0x11);
     pItem = pMenu->items;
     for (i = 0; i < pMenu->itemCount; i++, pItem++) {
         rect2[1] = (short)((int)(g_pGraphics->resY * i * 0x24) / 0x1e0

@@ -9351,6 +9351,9 @@ void FUN_00500550(int param1)
         g_controlsLine[0] = (short)(g_unk0x0082ac68[param1 * 4 + i][0] >> 16);
         g_controlsLine[1] = (short)(g_unk0x0082ac68[param1 * 4 + i][1] >> 16);
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0) - g_controlsLine[1];
+        layer = i % 2 == 0 ? 4 : 1;
+        // Drawn first: the bounds below read the line after Sprite_FillRect.
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, layer);
         if (i == 0) {
             minX = g_controlsLine[0];
             maxX = g_controlsLine[0];
@@ -9359,8 +9362,6 @@ void FUN_00500550(int param1)
         } else if (g_controlsLine[0] > maxX) {
             maxX = g_controlsLine[0];
         }
-        layer = i % 2 == 0 ? 4 : 1;
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, layer);
         if (g_unk0x00831674 != 0) {
             if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
                 CFrontend::FUN_004b7590(0x400)) {

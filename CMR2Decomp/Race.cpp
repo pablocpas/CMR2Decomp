@@ -1942,7 +1942,6 @@ void FUN_0041a340(int car, int unused)
     int bestCount;
     int chosen;
     int minSlack;
-    int slack;
     int newCount;
     int i;
     int j;
@@ -1993,10 +1992,10 @@ void FUN_0041a340(int car, int unused)
     }
     if (i >= 4) {
         for (i = 0; i < 4; i++) {
-            slack = FUN_004781c0(car) - pState->slotTime[i];
-            if ((unsigned int)slack < (unsigned int)minSlack) {
+            // the original reads the clock again for the stored value
+            if ((unsigned int)(FUN_004781c0(car) - pState->slotTime[i]) < (unsigned int)minSlack) {
                 chosen = pState->slotState[i];
-                minSlack = slack;
+                minSlack = FUN_004781c0(car) - pState->slotTime[i];
             }
         }
     } else {
