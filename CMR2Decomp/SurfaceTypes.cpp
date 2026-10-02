@@ -1400,7 +1400,7 @@ BYTE FUN_00478b20(void);
 // string table (release callback FUN_00478b20).
 // match 80%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00478a20
-int FUN_00478a20(void)
+BYTE FUN_00478a20(void)
 {
     char *names[10];
     char **pList;
@@ -1425,8 +1425,12 @@ int FUN_00478a20(void)
     case 2:
         pList = &names[0];
         break;
-    default:
+    case 3:
         pList = &names[1];
+        break;
+    default:
+        // the original loads names[1] itself as the list (a region outside 0..3)
+        pList = (char **)names[1];
         break;
     }
     sprintf(CFrontend::m_stringDest, g_strTxtFormat, pList[CGameInfo::GetGameLanguage()]);

@@ -3613,7 +3613,7 @@ void FUN_00410100(BYTE alpha)
     colour[2] = g_itemColour[2];
     colour[3] = alpha;
     x = (int)(g_pGraphics->resX * 30) / 640;
-    if (FUN_00407270()) {
+    if ((BYTE)FUN_00407270()) {
         RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x93), 1, alpha);
         return;
     }

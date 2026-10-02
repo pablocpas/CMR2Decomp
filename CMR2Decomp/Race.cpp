@@ -2205,7 +2205,7 @@ void CFrontend::FUN_004cf0f0(void);
 void FUN_00427c10(void);
 void CGame::FUN_0041f260(void);
 void FUN_00478b50(void);
-int FUN_00478a20(void);
+BYTE FUN_00478a20(void);
 void FUN_0040a580(int, int, int);
 void FUN_0040efa0(void);
 void Race_BuildSelectionPaths(void);
