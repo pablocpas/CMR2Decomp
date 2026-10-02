@@ -2173,35 +2173,43 @@ int *FUN_00469680(int index)
 // FUNCTION: CMR2 0x00508740
 void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int *pRecord)
 {
-    int *pLimit = (int *)(*(int *)((BYTE *)pRecord + 0x78 + meshIndex * 4) + vertexIndex * 0x20);
-    int baseX = pLimit[0];
-    int baseY = pLimit[1];
-    int baseZ = pLimit[2];
-    int x = pPosition[0] - baseX >> 6;
-    int y = pPosition[1] - baseY >> 6;
-    int z = pPosition[2] - baseZ >> 6;
+    // Per-vertex record: base position (16.16) then the signed displacement
+    // limits at +0x1b..+0x1d, in units of 1/1024.
+    BYTE *pLimit;
+    FixVector base;
+    int x;
+    int y;
+    int z;
+    int limit;
+    int i;
 
-    if (((0 < x) && (*(signed char *)((BYTE *)pLimit + 0x1b) < 1)) ||
-        ((x < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1b)))) x = 0;
-    if (((0 < y) && (*(signed char *)((BYTE *)pLimit + 0x1c) < 1)) ||
-        ((y < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1c)))) y = 0;
-    if (((0 < z) && (*(signed char *)((BYTE *)pLimit + 0x1d) < 1)) ||
-        ((z < 0) && (-1 < *(signed char *)((BYTE *)pLimit + 0x1d)))) z = 0;
-
-    int limit = (int)*(signed char *)((BYTE *)pLimit + 0x1b);
-    if (((limit < x) && (0 < x)) || ((x < limit) && (x < 0))) x = limit;
-    limit = (int)*(signed char *)((BYTE *)pLimit + 0x1c);
-    if (((limit < y) && (0 < y)) || ((y < limit) && (y < 0))) y = limit;
-    limit = (int)*(signed char *)((BYTE *)pLimit + 0x1d);
-    if (((limit < z) && (0 < z)) || ((z < limit) && (z < 0))) z = limit;
-
-    pPosition[0] = baseX + x * 0x40;
-    pPosition[1] = baseY + y * 0x40;
-    pPosition[2] = baseZ + z * 0x40;
-    float *pVertex = (float *)((BYTE *)(*(Mesh **)((BYTE *)pRecord + meshIndex * 4))->pVertexData + vertexIndex * 0x30);
-    pVertex[0] = (float)((double)pPosition[0] * CGraphics::m_oneOver65536);
-    pVertex[1] = (float)((double)pPosition[1] * CGraphics::m_oneOver65536);
-    pVertex[2] = (float)((double)pPosition[2] * CGraphics::m_oneOver65536);
+    pLimit = (BYTE *)pRecord[0x1e + meshIndex] + vertexIndex * 0x20;
+    base = *(FixVector *)pLimit;
+    x = (pPosition[0] - base.x) >> 6;
+    y = (pPosition[1] - base.y) >> 6;
+    z = (pPosition[2] - base.z) >> 6;
+    if ((x >= 1 && (signed char)pLimit[0x1b] <= 0) || (x < 0 && (signed char)pLimit[0x1b] >= 0))
+        x = 0;
+    if ((y > 0 && (signed char)pLimit[0x1c] <= 0) || (y < 0 && (signed char)pLimit[0x1c] >= 0))
+        y = 0;
+    if ((z > 0 && (signed char)pLimit[0x1d] <= 0) || (z < 0 && (signed char)pLimit[0x1d] >= 0))
+        z = 0;
+    limit = (signed char)pLimit[0x1b];
+    if ((x > limit && x > 0) || (x < limit && x < 0))
+        x = limit;
+    limit = (signed char)pLimit[0x1c];
+    if ((y > limit && y > 0) || (y < limit && y < 0))
+        y = limit;
+    limit = (signed char)pLimit[0x1d];
+    if ((z > limit && z > 0) || (z < limit && z < 0))
+        z = limit;
+    pPosition[0] = base.x + (x << 6);
+    pPosition[1] = base.y + (y << 6);
+    i = vertexIndex * 0x30;
+    pPosition[2] = base.z + (z << 6);
+    *(float *)((BYTE *)((Mesh *)pRecord[meshIndex])->pVertexData + i + 8) = (float)((double)pPosition[2] * CGraphics::m_oneOver65536);
+    *(float *)((BYTE *)((Mesh *)pRecord[meshIndex])->pVertexData + i + 4) = (float)((double)pPosition[1] * CGraphics::m_oneOver65536);
+    *(float *)((BYTE *)((Mesh *)pRecord[meshIndex])->pVertexData + i) = (float)((double)pPosition[0] * CGraphics::m_oneOver65536);
 }
 
 // Pushes the body mesh vertices within the impact radius, then refreshes each
