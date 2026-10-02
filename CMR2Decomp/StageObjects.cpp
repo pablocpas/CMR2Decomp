@@ -6292,7 +6292,8 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
     int h;
     BYTE light[4];
     DWORD ambient[1];
-    int r, g, b;
+    // Original RGB triplet at ebp-0x38/-0x34/-0x30 is passed as one buffer.
+    int rgb[3];
     int avg;
     int total;
     int v;
@@ -6329,17 +6330,17 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
         else if (avg < 0)
             avg = 0;
         Scene_GetLightColour((DWORD *)light, avg);
-        r = (*(int *)(light + 0) & 0xff) << 16;
-        g = (*(int *)(light + 1) & 0xff) << 16;
-        b = (*(int *)(light + 2) & 0xff) << 16;
+        rgb[0] = (*(int *)(light + 0) & 0xff) << 16;
+        rgb[1] = (*(int *)(light + 1) & 0xff) << 16;
+        rgb[2] = (*(int *)(light + 2) & 0xff) << 16;
         Scene_GetAmbientColour(ambient);
-        r = r - (*(int *)((BYTE *)ambient + 0) & 0xff) * 0x10000;
-        g = g - (*(int *)((BYTE *)ambient + 1) & 0xff) * 0x10000;
-        b = b - (*(int *)((BYTE *)ambient + 2) & 0xff) * 0x10000;
+        rgb[0] = rgb[0] - (*(int *)((BYTE *)ambient + 0) & 0xff) * 0x10000;
+        rgb[1] = rgb[1] - (*(int *)((BYTE *)ambient + 1) & 0xff) * 0x10000;
+        rgb[2] = rgb[2] - (*(int *)((BYTE *)ambient + 2) & 0xff) * 0x10000;
         if ((FUN_00422fb0(param_2) & 0xff) == param_1)
-            FUN_00492e60(&r);
+            FUN_00492e60(rgb);
         *(int *)((BYTE *)pCar + 0xa70) = avg;
-        total = (r < 0 ? -r : r) + (g < 0 ? -g : g) + (b < 0 ? -b : b);
+        total = (rgb[0] < 0 ? -rgb[0] : rgb[0]) + (rgb[1] < 0 ? -rgb[1] : rgb[1]) + (rgb[2] < 0 ? -rgb[2] : rgb[2]);
         v = FixMul(total, 0x55);
         if (v > 0x10000)
             v = 0x10000;
@@ -6430,7 +6431,9 @@ void FUN_00461c30(int index)
 
     pObject = (int *)((BYTE *)g_unk0x00543eb8 + index * 0x2c);
     pView = (int *)((BYTE *)g_unk0x00547ac8 + index * 0x178);
-    if (pObject[7] != g_stageLighting[0x5a] || g_unk0x00543d88 != g_unk0x00543d8c ||
+    // 0x461cfe/0x461d12 require both changes before this refresh;
+    // the weather-word and dirty-flag tests are independent.
+    if ((pObject[7] != g_stageLighting[0x5a] && g_unk0x00543d88 != g_unk0x00543d8c) ||
         *((WORD *)&g_stageLighting[0x5c] + 1) != *(WORD *)&g_stageLighting[0x5c] || pObject[10] != 0) {
         g_stageLighting[0x5a] = pObject[7];
         pObject[10] = 0;
@@ -6639,10 +6642,10 @@ void FUN_00461c30(int index)
 
         if (flag) {
             objectRefColour[3] = (objectColour[3] <= 0xc8) ? (BYTE)(objectColour[3] + 0x32) : 0xfa;
-            groundColour[0] = 0xff;
-            groundColour[1] = 0xff;
-            groundColour[2] = 0xff;
-            groundColour[3] = 0xff;
+            referenceColour[0] = 0xff;
+            referenceColour[1] = 0xff;
+            referenceColour[2] = 0xff;
+            referenceColour[3] = 0xff;
             groundRefColour[0] = 0xff;
             groundRefColour[1] = 0xff;
             groundRefColour[2] = 0xff;

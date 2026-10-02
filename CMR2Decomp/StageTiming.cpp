@@ -1193,8 +1193,8 @@ void FUN_00465ec0(SceneNode *pNode, int alpha, BYTE checkFlag)
         Mesh_SetVertexColours(pMesh, rgb);
 }
 
-// match 69%: the whole FixMul/FixDiv chain matches; the remaining diff is MSVC6's stack-slot numbering
-// (it spills into the dead parameter homes and adds the two `n` terms separately) plus one store order.
+// match 93%: remaining diff is register choice for the row pointer and the
+// table address operand order.
 // Interpolates 16 fixed-point samples per row from the car's 0x7c table into
 // pOut, weighting the two corner rows by the car's 0xa8/0xac offsets.
 // FUNCTION: CMR2 0x004564d0
@@ -1210,6 +1210,7 @@ void FUN_004564d0(int pCar, int *pOut)
     int k;
     int *pIn;
     int *p;
+    int *pRow;
     int sum;
     int t;
     int v1;
@@ -1218,6 +1219,7 @@ void FUN_004564d0(int pCar, int *pOut)
     int v4;
     int v5;
     int v6;
+    int v1b;
 
     f = *(int *)(pCar + 0xac);
     n = *(int *)(pCar + 0xa8);
@@ -1228,9 +1230,11 @@ void FUN_004564d0(int pCar, int *pOut)
     if (count >= 1) {
         off = 0x310;
         pIn = (int *)(pCar + 0x7c);
+        pRow = pOut;
         do {
+            p = pRow;
+            pRow += 0x10;
             k = 0x10;
-            p = pOut;
             do {
                 v1 = FixMul(FixMul(pIn[-0x14], rn), *(int *)(g_unk0x0054241c + off - 0x280));
                 v2 = FixMul(FixMul(pIn[-0x14], n), *(int *)(g_unk0x0054241c + off));
@@ -1238,16 +1242,18 @@ void FUN_004564d0(int pCar, int *pOut)
                 v4 = FixMul(FixMul(pIn[0], f), *(int *)(g_unk0x0054241c + off));
                 v5 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off - 0x280));
                 v6 = FixMul(pIn[-10], *(int *)(g_unk0x0054241c + off));
-                sum = n + FixMul(rf, pIn[-0x1e]) + n + FixMul(rf, pIn[-0x1f]);
+                // the original re-reads pCar+0xa8 here instead of using n
+                v1b = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1f]);
+                sum = *(int *)(pCar + 0xa8) + FixMul(rf, pIn[-0x1e]) + v1b;
                 t = FixDiv(sum, 0x20000);
-                *p = FixMul(0x10000 - t, v6) + FixMul(v5, t) + v4 + v3 + v2 + v1;
+                // 0x456697 weights the second table by t, the first by 1-t
+                *p = FixMul(t, v6) + FixMul(0x10000 - t, v5) + v4 + v3 + v2 + v1;
                 k--;
                 p++;
                 off += 4;
             } while (k != 0);
             pIn++;
             count--;
-            pOut += 0x10;
         } while (count != 0);
     }
 }
@@ -4427,9 +4433,9 @@ void FUN_00455f00(int pCar, int *pOut)
         t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);
         t3 = 0x10000 - t2 - t1;
         m1 = FixMul(r8, d3);
-        m2 = FixMul(d4, m1);
+        m2 = FixMul(t1, m1);
         m3 = FixMul(a8, d4);
-        m4 = FixMul(d4, m3);
+        m4 = FixMul(t1, m3);
         m5 = FixMul(rc, d3);
         m6 = FixMul(t2, m5);
         m7 = FixMul(d4, ac);
