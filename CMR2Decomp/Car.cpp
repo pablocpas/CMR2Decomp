@@ -3342,6 +3342,7 @@ struct CarWheelRecord {
     FixVector pos;
     int angle[3];
 };
+#define CAR_WHEEL(t, w) (((CarWheelRecord *)(t)->field_0x80)[w])
 
 // Rebuilds the transforms of the cars of a list: the previous rows are
 // restored into the physics rows and moved by the ride height, and the wheel
@@ -3773,23 +3774,17 @@ extern double g_unk0x00511300;
 // FUNCTION: CMR2 0x0042bf70
 void FUN_0042bf70(void)
 {
-    int n;
     int i;
     short *pOrder;
     int car;
-    Car *pCar;
     CarTransforms *pRow;
     CarTransforms *pShadow;
     CarTransforms *pTrans;
+    FixMatrix *pWheelM;
     int scale;
     int wheel;
-    int j;
-    int *pWheel;
-    int *pOut;
-    int *pExtra;
-    int rowDelta;
-    int shadowDelta;
-    int outDelta;
+    int k;
+    int n;
     FixBasis basis;
     FixVector v;
     FixVector position;
@@ -3798,9 +3793,8 @@ void FUN_0042bf70(void)
     int ca;
     int sa;
     FixVector *p;
+    int *pYZ;
     SceneNode *pNode;
-    SceneNode *pNext;
-    int len;
 
     n = g_carOrderCount - 1;
     if (n >= 0) {
@@ -3808,54 +3802,45 @@ void FUN_0042bf70(void)
         i = n + 1;
         do {
             car = *pOrder;
-            pCar = (Car *)((BYTE *)g_carBuffer + car * 0xc24);
-            scale = *(int *)((BYTE *)pCar + 0xa90);
+            scale = *(int *)((BYTE *)&g_carBuffer[car] + 0xa90);
             pRow = (CarTransforms *)g_unk0x0053a3a8[car];
             pShadow = &g_carTransformsShadow[car];
             pTrans = &g_carTransforms[car];
-            if (g_unk0x0053acf0[pCar->field_0xb1a] != 0) {
+            if (g_unk0x0053acf0[g_carBuffer[car].field_0xb1a] != 0) {
                 FUN_0042c7b0(pRow, pShadow);
-                g_unk0x0053acf0[pCar->field_0xb1a] = 0;
+                g_unk0x0053acf0[g_carBuffer[car].field_0xb1a] = 0;
             }
             FixMatrix_Interpolate(&pTrans->body2, &pRow->body2, &pShadow->body2,
                                   scale, scale, scale, 1);
-            FixMatrix_CopyRotation(&pTrans->body2, &pCar->pNode0x720->current);
+            FixMatrix_CopyRotation(&pTrans->body2, &g_carBuffer[car].pNode0x720->current);
             FixMatrix_Interpolate(&pTrans->body, &pRow->body, &pShadow->body,
                                   scale, scale, scale, 1);
-            FixMatrix_CopyRotation(&pTrans->body, &pCar->pNode0x71c->current);
+            FixMatrix_CopyRotation(&pTrans->body, &g_carBuffer[car].pNode0x71c->current);
 
-            pOut = (int *)pTrans->field_0x80;
-            pExtra = (int *)((BYTE *)pRow + 0x88);
-            pWheel = (int *)((BYTE *)pShadow + 0x84);
-            rowDelta = (BYTE *)pRow - (BYTE *)pShadow;
-            shadowDelta = (BYTE *)pTrans - (BYTE *)pShadow;
-            outDelta = (BYTE *)pTrans - (BYTE *)pRow;
             for (wheel = 0; wheel < 4; wheel++) {
-                // The wheel record is the physics row lerped towards the
-                // shadow: its first vector is the hub position, the second one
-                // the direction used for the wheel angles.
-                v.x = pWheel[-1] - pExtra[-2];
-                v.y = pWheel[0] - *(int *)((BYTE *)pWheel + rowDelta);
-                v.z = pWheel[1] - pExtra[0];
+                // Each wheel record is lerped from the physics row towards
+                // the shadow: hub position, then the three wheel angles.
+                v.x = CAR_WHEEL(pShadow, wheel).pos.x - CAR_WHEEL(pRow, wheel).pos.x;
+                v.y = CAR_WHEEL(pShadow, wheel).pos.y - CAR_WHEEL(pRow, wheel).pos.y;
+                v.z = CAR_WHEEL(pShadow, wheel).pos.z - CAR_WHEEL(pRow, wheel).pos.z;
                 FixVecScale(&v, &v, scale);
-                pOut[0] = pExtra[-2] + v.x;
-                *(int *)((BYTE *)pWheel + shadowDelta) = *(int *)((BYTE *)pWheel + rowDelta) + v.y;
-                *(int *)((BYTE *)pExtra + outDelta) = pExtra[0] + v.z;
-
-                v.x = pWheel[2] - pExtra[1];
-                v.y = pWheel[3] - pExtra[2];
-                v.z = pWheel[4] - pExtra[3];
+                CAR_WHEEL(pTrans, wheel).pos.x = CAR_WHEEL(pRow, wheel).pos.x + v.x;
+                CAR_WHEEL(pTrans, wheel).pos.y = CAR_WHEEL(pRow, wheel).pos.y + v.y;
+                CAR_WHEEL(pTrans, wheel).pos.z = CAR_WHEEL(pRow, wheel).pos.z + v.z;
+                v.x = CAR_WHEEL(pShadow, wheel).angle[0] - CAR_WHEEL(pRow, wheel).angle[0];
+                v.y = CAR_WHEEL(pShadow, wheel).angle[1] - CAR_WHEEL(pRow, wheel).angle[1];
+                v.z = CAR_WHEEL(pShadow, wheel).angle[2] - CAR_WHEEL(pRow, wheel).angle[2];
                 FixVecScale(&v, &v, scale);
-                result[0] = pExtra[1] + v.x;
-                result[1] = pExtra[2] + v.y;
-                result[2] = pExtra[3] + v.z;
-                pOut[3] = result[0];
-                pOut[4] = result[1];
-                pOut[5] = result[2];
+                result[0] = CAR_WHEEL(pRow, wheel).angle[0] + v.x;
+                result[1] = CAR_WHEEL(pRow, wheel).angle[1] + v.y;
+                result[2] = CAR_WHEEL(pRow, wheel).angle[2] + v.z;
+                CAR_WHEEL(pTrans, wheel).angle[0] = result[0];
+                CAR_WHEEL(pTrans, wheel).angle[1] = result[1];
+                CAR_WHEEL(pTrans, wheel).angle[2] = result[2];
 
-                // The rear wheels point backwards: 180 degrees plus the wheel
-                // angles taken from the direction vector.
-                if (wheel % 2 != 0) {
+                // The right-hand wheels point backwards: 180 degrees plus the
+                // wheel angles.
+                if (wheel % 2 == 1) {
                     angles[0] = (short)(__int64)((double)(-result[0]) * g_unk0x00511300);
                     angles[1] = (short)(__int64)((double)(result[1] + 0xb40000) * g_unk0x00511300);
                     angles[2] = (short)(__int64)((double)(-result[2]) * g_unk0x00511300);
@@ -3876,81 +3861,66 @@ void FUN_0042bf70(void)
                 basis.forward.y = 0;
                 FixBasis_Rotate(&basis, (unsigned short *)angles);
 
-                // Camber: the right wheels are raised, the left ones lowered.
-                if (wheel % 2 != 0) {
+                // Camber: every row of the wheel basis is turned about x
+                // (its y and z), the right wheels one way and the left ones
+                // the other.
+                if (wheel % 2 == 1) {
                     ca = g_sinTable[0x41c];
                     sa = g_sinTable[0x1c];
                 } else {
                     ca = g_sinTable[0x3e4];
                     sa = g_sinTable[0xfe4];
                 }
-                p = &basis.right;
-                for (j = 3; j != 0; j--) {
-                    p->x = FixMul(p->x, ca) - FixMul(p->y, sa);
-                    p->y = FixMul(p->y, ca) + FixMul(p->x, sa);
-                    p++;
+                pYZ = &basis.right.y;
+                for (k = 3; k != 0; k--) {
+                    pYZ[0] = FixMul(pYZ[0], ca) - FixMul(pYZ[1], sa);
+                    pYZ[1] = FixMul(pYZ[0], sa) + FixMul(pYZ[1], ca);
+                    pYZ += 3;
                 }
 
-                if (FUN_0042cae0(pCar, 0) != 0) {
+                if (FUN_0042cae0(&g_carBuffer[car], 0) != 0)
                     FixVecScale(&basis.forward, &basis.forward, 0x9999);
-                }
                 if (CGameInfo::FUN_004063f0(6) != 0) {
                     p = &basis.right;
-                    for (j = 3; j != 0; j--) {
-                        p->x = FixMul(p->x, 0x28000);
-                        p->y = FixMul(p->y, 0x28000);
-                        p->z = FixMul(p->z, 0x28000);
+                    for (k = 3; k != 0; k--) {
+                        FixVecScale(p, p, 0x28000);
                         p++;
                     }
                 }
 
-                FixMatrix_SetRight(&basis.right, &g_carWheelTransforms[car][wheel]);
-                FixMatrix_SetUp(&basis.up, &g_carWheelTransforms[car][wheel]);
-                FixMatrix_SetForward(&basis.forward, &g_carWheelTransforms[car][wheel]);
-                FixMatrix_SetPosition((FixVector *)pOut, &g_carWheelTransforms[car][wheel]);
-                FixMatrix_CopyRotation(&g_carWheelTransforms[car][wheel],
-                                       &pCar->pWheelNodes[wheel]->current);
-                pNode = pCar->pExtraNodes[wheel];
-                if (pNode != 0) {
-                    FixMatrix_CopyRotation(&g_carWheelTransforms[car][wheel], &pNode->current);
-                    if (FUN_0042cae0(pCar, 0) == 0 && FUN_0042cae0(pCar, 1) != 0) {
-                        FixMatrix_GetForward(&basis.forward, &pNode->current);
-                        basis.forward.x = FixMul(basis.forward.x, 0x9999);
-                        basis.forward.y = FixMul(basis.forward.y, 0x9999);
-                        basis.forward.z = FixMul(basis.forward.z, 0x9999);
-                        FixMatrix_SetForward(&basis.forward, &pNode->current);
+                pWheelM = &g_carWheelTransforms[car][wheel];
+                FixMatrix_SetRight(&basis.right, pWheelM);
+                FixMatrix_SetUp(&basis.up, pWheelM);
+                FixMatrix_SetForward(&basis.forward, pWheelM);
+                FixMatrix_SetPosition(&CAR_WHEEL(pTrans, wheel).pos, pWheelM);
+                FixMatrix_CopyRotation(pWheelM, &g_carBuffer[car].pWheelNodes[wheel]->current);
+                if (g_carBuffer[car].pExtraNodes[wheel] != NULL) {
+                    FixMatrix_CopyRotation(pWheelM, &g_carBuffer[car].pExtraNodes[wheel]->current);
+                    if (FUN_0042cae0(&g_carBuffer[car], 0) == 0 && FUN_0042cae0(&g_carBuffer[car], 1) != 0) {
+                        FixMatrix_GetForward(&basis.forward, &g_carBuffer[car].pExtraNodes[wheel]->current);
+                        FixVecScale(&basis.forward, &basis.forward, 0x9999);
+                        FixMatrix_SetForward(&basis.forward, &g_carBuffer[car].pExtraNodes[wheel]->current);
                     }
-                    for (pNext = pNode; pNext != 0; pNext = pNext->pNext)
-                        pNext->dirty = 1;
+                    // Mark the node and its parents up to the root dirty.
+                    for (pNode = g_carBuffer[car].pExtraNodes[wheel]; pNode != NULL; pNode = pNode->pParent)
+                        pNode->dirty = 1;
                 }
-                pWheel += 6;
-                pOut += 6;
-                pExtra += 6;
             }
 
             v.x = pShadow->groundNormal.x - pRow->groundNormal.x;
             v.y = pShadow->groundNormal.y - pRow->groundNormal.y;
             v.z = pShadow->groundNormal.z - pRow->groundNormal.z;
-            v.x = FixMul(v.x, scale);
-            v.y = FixMul(scale, v.y);
-            v.z = FixMul(v.z, scale);
+            FixVecScale(&v, &v, scale);
             pTrans->groundNormal.x = pRow->groundNormal.x + v.x;
             pTrans->groundNormal.y = pRow->groundNormal.y + v.y;
             pTrans->groundNormal.z = pRow->groundNormal.z + v.z;
-            len = FixVecLength(&pTrans->groundNormal);
-            if (len == 0) {
-                pTrans->groundNormal.x = 0;
-                pTrans->groundNormal.y = 0;
-                pTrans->groundNormal.z = 0;
-            } else {
-                FixVecScaleRecip(&pTrans->groundNormal, &pTrans->groundNormal, len);
-            }
-            for (j = 0; j < 4; j++)
-                pTrans->cornerHeight[j] = pRow->cornerHeight[j] +
-                    FixMul(pShadow->cornerHeight[j] - pRow->cornerHeight[j], scale);
+            FixVecNormalizeLen(&pTrans->groundNormal, &pTrans->groundNormal);
+            for (k = 0; k < 4; k++)
+                pTrans->cornerHeight[k] =
+                    FixMul(pShadow->cornerHeight[k] - pRow->cornerHeight[k], scale) + pRow->cornerHeight[k];
             FixMatrix_GetPosition(&position, (FixMatrix *)pTrans);
             FUN_00487140((int *)((BYTE *)g_unk0x0053c5a0 + car * 0x60), (int *)&position,
-                         (int *)pTrans, (int *)&pCar->halfExtents);
+                         (int *)pTrans, (int *)&g_carBuffer[car].halfExtents);
             pOrder--;
         } while (--i != 0);
     }
