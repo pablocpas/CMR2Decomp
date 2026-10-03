@@ -2039,26 +2039,26 @@ void FUN_0041a340(int car, int unused)
 // FUNCTION: CMR2 0x0041ae80
 void FUN_0041ae80(int car, int unused)
 {
-    BYTE *pSet = g_raceBlock + car * 0xb4;
-    int *pHandle = (int *)(pSet + 0x26c);
+    BYTE *pSet = g_raceBlock + 0x240 + car * 0xb4;
+    int *pHandle = (int *)(pSet + 0x2c);
 
-    if (*(short *)(pSet + 0x258) == 0x19) {
-        if (Car_Get(car)->steerFollowRate <= 0) {
-            if (pSet[0x2f0] != 0) {
+    if (*(short *)(pSet + 0x18) == 0x19) {
+        if (Car_Get(car)->steerFollowRate > 0) {
+            if (pSet[0xb0] == 0) {
                 if (Sound_IsPlaying(*pHandle)) {
                     Sound_Free(*pHandle);
                     *pHandle = -1;
                 }
-                FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]] + 1, 4, 0, 0x3542);
-                pSet[0x2f0] = 0;
+                FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]], 4, 0, 0);
+                pSet[0xb0] = 1;
             }
-        } else if (pSet[0x2f0] == 0) {
+        } else if (pSet[0xb0] != 0) {
             if (Sound_IsPlaying(*pHandle)) {
                 Sound_Free(*pHandle);
                 *pHandle = -1;
             }
-            FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]], 4, 0, 0);
-            pSet[0x2f0] = 1;
+            FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]] + 1, 4, 0, 0x3542);
+            pSet[0xb0] = 0;
         }
     }
 }
