@@ -6173,7 +6173,9 @@ bool FUN_004eb200(int param_1, BYTE *param_2)
     category = (*(unsigned int *)(g_saveSlots + param_1 * 0x30) >> 0x12) & 0xf;
     pName = (char *)(g_saveProfiles + category * 0x650);
     CGenericFileLoader::StrLowerPolish((char *)param_2);
-    return strcmp((char *)param_2, pName + 0x1c) == 0;
+    if (strcmp((char *)param_2, pName + 0x1c) == 0)
+        return 1;
+    return 0;
 }
 
 // True if the profile of the given index already matches the category record
@@ -10627,8 +10629,8 @@ void FUN_004d7db0(Menu *pMenu)
     char label[4];
     char *names[2];
     Texture *pTexture;
-    SpriteRect src;
     SpriteRect dst;
+    SpriteRect src;
     int speed;
     int accel;
     int grip;
@@ -10648,7 +10650,7 @@ void FUN_004d7db0(Menu *pMenu)
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() > 0x3ff && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
         height = 0x1ce;
     else
         height = 0xe8;
@@ -10669,8 +10671,8 @@ void FUN_004d7db0(Menu *pMenu)
         dst = *(SpriteRect *)((char *)pTexture + 0x11c);
         src.h = height;
         dst.h = height;
-        dst.x = (int)(g_pGraphics->resX * 445) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 303) / 0x1e0 - height;
+        dst.x = (int)(g_pGraphics->resX * 0x165) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
         dst.x -= dst.w / 2;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
@@ -10704,8 +10706,8 @@ void FUN_004d8950(Menu *pMenu)
     char label[4];
     char *names[2];
     Texture *pTexture;
-    SpriteRect src;
     SpriteRect dst;
+    SpriteRect src;
     int speed;
     int accel;
     int grip;
@@ -10725,7 +10727,7 @@ void FUN_004d8950(Menu *pMenu)
     names[1] = label;
     FrontendDraw_MenuPath(pMenu, PATH_X(), PATH_Y(), 1, 3, names, 2);
     FrontendDraw_ScrollerRow(FUN_004f2500(), 1);
-    if (CGameInfo::GetScreenWidth() > 0x3ff && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400))
         height = 0x1ce;
     else
         height = 0xe8;
@@ -10746,8 +10748,8 @@ void FUN_004d8950(Menu *pMenu)
         dst = *(SpriteRect *)((char *)pTexture + 0x11c);
         src.h = height;
         dst.h = height;
-        dst.x = (int)(g_pGraphics->resX * 445) / 0x280;
-        dst.y = (int)(g_pGraphics->resY * 303) / 0x1e0 - height;
+        dst.x = (int)(g_pGraphics->resX * 0x165) / 0x280;
+        dst.y = (int)(g_pGraphics->resY * 0x147) / 0x1e0 - height;
         dst.x -= dst.w / 2;
         Sprite_Queue(&src, &dst, pTexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     }
