@@ -9992,7 +9992,7 @@ void FUN_004d6a60(Menu *pMenu)
     char *text[4];
     BYTE *pRecord;
     unsigned int flags;
-    BYTE value;
+    int value;
     int count;
     int i;
 
@@ -10072,14 +10072,15 @@ void FUN_004d6a60(Menu *pMenu)
             flags = *(unsigned int *)(pRecord + 4);
             sprintf(g_unk0x00818554, g_str0x00524ce4, CFrontend::GetTextString(0x13a), pRecord,
                     flags >> 0x10 & 0x1f, flags >> 8 & 0xf, (flags & 0xff) + 0x73a);
-            if (!FUN_004ebd60(pMenu->items[0].max)) {
+            if (FUN_004ebd60(pMenu->items[0].max)) {
+                strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
+            } else {
                 sprintf(g_unk0x00818368, CFrontend::GetTextString(0x13b));
                 Font_Unused((int)g_unk0x00818368, FUN_004ea500());
                 FUN_004d65c0();
                 FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
                 return;
             }
-            strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
         } else {
             strcpy(g_unk0x008183cc, CMain::m_logFileBlankLine);
             strcpy(g_unk0x00818554, CMain::m_logFileBlankLine);
