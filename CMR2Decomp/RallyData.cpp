@@ -4132,10 +4132,10 @@ void FUN_00503ea0(void)
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     for (i = 0; i < 4; i++) {
         if (i < (int)(g_weatherMaps.count & 0xff)) {
-            index = g_weatherMaps.slots[i] + 1;
             sprintf(CFrontend::m_stringDest, g_str0x005272dc, CInstallInfo::GetSetupRepDir(),
                     g_unk0x0052714c[RallyDataCountryIndex()],
-                    g_unk0x0052716c[RallyDataCountryIndex()], index);
+                    g_unk0x0052716c[RallyDataCountryIndex()],
+                    g_weatherMaps.slots[i] + 1);
             g_weatherMaps.maps[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
@@ -5617,7 +5617,6 @@ void FUN_00413520(int car)
 {
     int split;
     int target;
-    int toBeat;
 
     g_unk0x00536e90[0] = 0;
     if (FUN_00458250(car) != 0) {
@@ -5628,15 +5627,15 @@ void FUN_00413520(int car)
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = split;
             FUN_00427990(split, g_stageSplitData[car].times[0]);
+            split = g_unk0x00536ed8;
         }
-        toBeat = g_unk0x00536ed8;
         g_unk0x00536c14 = 1;
     } else {
         if (g_unk0x00536c14 == 0)
             return;
-        toBeat = g_unk0x00536ed8;
+        split = g_unk0x00536ed8;
     }
-    target = FUN_0040a410(toBeat);
+    target = FUN_0040a410(split);
     g_stageSplitData[car].targetTime = target;
     if (g_stageSplitData[car].lastSplitTime < target) {
         FUN_00411ab0((BYTE)car, 1);
@@ -6496,9 +6495,10 @@ void FUN_00411280(void)
         CFrontend::m_stringDest[track + 1] = 'S';
         CFrontend::m_stringDest[track + 2] = '\0';
     } else {
+        track = (RallyData_FUN_00406940() & 0xff) * 3;
+        track += RallyData_FUN_00406950() & 0xff;
         sprintf(CFrontend::m_stringDest, g_strChallengeTrackName0x00517d38,
-                CInstallInfo::GetTracksDir(),
-                (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff) + 1);
+                CInstallInfo::GetTracksDir(), track + 1);
     }
     g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
                                                 0, 0);
