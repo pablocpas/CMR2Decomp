@@ -347,8 +347,8 @@ void CFrontend::FUN_004d2590(void) {
     } while (index + 2 < 22);
     
     // Load livery textures (1-3)
-    Texture** pTexture = m_unk0x00818530;
     int liveryIndex = 0;
+    Texture** pTexture = m_unk0x00818530;
 
     do {
         liveryIndex++;  // Increment first so we use 1, 2, 3

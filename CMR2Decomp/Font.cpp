@@ -332,7 +332,7 @@ void Font_DrawText(BYTE index, char *text, short x, short y, int *pColour, unsig
                         if (pGlyph->kernCount != 0) {
                             pKern = pGlyph->pKern;
                             do {
-                                if ((BYTE)text[i + 1] <= pKern->ch) {
+                                if (pKern->ch >= (BYTE)text[i + 1]) {
                                     if (pGlyph->pKern[k].ch == (BYTE)text[i + 1])
                                         advance += pGlyph->pKern[k].offset;
                                     break;

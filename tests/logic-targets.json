@@ -1,0 +1,470 @@
+{
+  "differential_ai_controls.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47c9a0",
+      "0x47bdd0"
+    ]
+  },
+  "differential_ai_network.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47c9a0"
+    ]
+  },
+  "differential_ai_telemetry.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x498620"
+    ]
+  },
+  "differential_auto_steering.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x494110"
+    ]
+  },
+  "differential_axis_colours.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4ff060"
+    ]
+  },
+  "differential_billboard_init.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4b1150"
+    ]
+  },
+  "differential_body_patch.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4962c0"
+    ]
+  },
+  "differential_callback_cursor.py": {
+    "arguments": "both",
+    "targets": [
+      "0x49c370"
+    ]
+  },
+  "differential_camera_clip.py": {
+    "arguments": "both",
+    "targets": [
+      "0x459250"
+    ]
+  },
+  "differential_car_basis.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43e680"
+    ]
+  },
+  "differential_car_contacts.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x48a1f0"
+    ]
+  },
+  "differential_car_corners.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43eef0",
+      "0x43f280"
+    ]
+  },
+  "differential_car_lighting.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x462aa0"
+    ]
+  },
+  "differential_car_restore.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x426d80"
+    ]
+  },
+  "differential_car_route_update.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x420a30"
+    ]
+  },
+  "differential_car_spawn.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x43c7f0"
+    ]
+  },
+  "differential_checkpoint_advance.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x458e00"
+    ]
+  },
+  "differential_collision_checkpoint.py": {
+    "arguments": "both",
+    "targets": [
+      "0x490570",
+      "0x4591e0"
+    ]
+  },
+  "differential_collision_face_decision.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x490b90"
+    ]
+  },
+  "differential_com_outputs.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4a1a10",
+      "0x4a26f0",
+      "0x4b1de0"
+    ]
+  },
+  "differential_contact_init.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x494bb0"
+    ]
+  },
+  "differential_effect_calls.py": {
+    "arguments": "both",
+    "targets": [
+      "0x45af00"
+    ]
+  },
+  "differential_event_draw_abi.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46e780",
+      "0x4057a8",
+      "0x4057ab"
+    ]
+  },
+  "differential_fireworks.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x47eab0"
+    ]
+  },
+  "differential_fixed_matrix_ops.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b9f20",
+      "0x441430"
+    ]
+  },
+  "differential_font_coordinates.py": {
+    "arguments": "both",
+    "targets": [
+      "0x40b880"
+    ]
+  },
+  "differential_knockout_bracket.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4069c0",
+      "0x4735a0"
+    ]
+  },
+  "differential_low_callbacks.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4f8a90",
+      "0x4a1b90"
+    ]
+  },
+  "differential_low_logic.py": {
+    "arguments": "both",
+    "targets": [
+      "0x475f80",
+      "0x4ec1a0",
+      "0x408b10",
+      "0x494540",
+      "0x48dc30",
+      "0x447530",
+      "0x4111a0"
+    ]
+  },
+  "differential_menu_back.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4f2970"
+    ]
+  },
+  "differential_menu_colour.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4a9b80"
+    ]
+  },
+  "differential_menu_list.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4d3360"
+    ]
+  },
+  "differential_menu_lookup.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4a0380"
+    ]
+  },
+  "differential_name_entry.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4f1040"
+    ]
+  },
+  "differential_net_car_receive.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x425c40"
+    ]
+  },
+  "differential_net_car_state.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x424f20"
+    ]
+  },
+  "differential_network_font.py": {
+    "arguments": "both",
+    "targets": [
+      "0x427580"
+    ]
+  },
+  "differential_network_results.py": {
+    "arguments": "both",
+    "targets": [
+      "0x40a580",
+      "0x40a490"
+    ]
+  },
+  "differential_network_tables.py": {
+    "arguments": "both",
+    "targets": [
+      "0x40a410",
+      "0x40a420",
+      "0x40a330"
+    ]
+  },
+  "differential_object_matrix.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x486910",
+      "0x4869e0"
+    ]
+  },
+  "differential_option_cache.py": {
+    "arguments": "both",
+    "targets": [
+      "0x502d50",
+      "0x502db0",
+      "0x505a60",
+      "0x40d010",
+      "0x5004c0"
+    ]
+  },
+  "differential_race_estimates.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4483e0"
+    ]
+  },
+  "differential_race_handler.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x41e8d0"
+    ]
+  },
+  "differential_race_order.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x448d50"
+    ]
+  },
+  "differential_race_state_reset.py": {
+    "arguments": "both",
+    "targets": [
+      "0x416670"
+    ]
+  },
+  "differential_rally_menu_selection.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x50c130"
+    ]
+  },
+  "differential_rally_times.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x455f00",
+      "0x456330",
+      "0x4564d0",
+      "0x456710",
+      "0x456960"
+    ]
+  },
+  "differential_rankings.py": {
+    "arguments": "both",
+    "targets": [
+      "0x455bc0",
+      "0x456250"
+    ]
+  },
+  "differential_record_reset.py": {
+    "arguments": "both",
+    "targets": [
+      "0x406010"
+    ]
+  },
+  "differential_registry_value.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4aa720"
+    ]
+  },
+  "differential_render_transforms.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x42af50"
+    ]
+  },
+  "differential_replay_reset.py": {
+    "arguments": "both",
+    "targets": [
+      "0x466920",
+      "0x4668d0"
+    ]
+  },
+  "differential_replay_slots.py": {
+    "arguments": "both",
+    "targets": [
+      "0x46c540",
+      "0x46d270",
+      "0x46d5e0"
+    ]
+  },
+  "differential_replay_snapshot.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46d610"
+    ]
+  },
+  "differential_rotation.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4ac820"
+    ]
+  },
+  "differential_route_progress.py": {
+    "arguments": "both",
+    "targets": [
+      "0x421470"
+    ]
+  },
+  "differential_scene_reparent.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4ac7a0"
+    ]
+  },
+  "differential_sector_visibility.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b7de0"
+    ]
+  },
+  "differential_service_menus.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x502310",
+      "0x5024a0"
+    ]
+  },
+  "differential_session_enumeration.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4a12d0",
+      "0x4a13b0"
+    ]
+  },
+  "differential_shadow_cleanup.py": {
+    "arguments": "both",
+    "targets": [
+      "0x4b5380"
+    ]
+  },
+  "differential_slip.py": {
+    "arguments": "report",
+    "targets": [
+      "0x48df50"
+    ]
+  },
+  "differential_sort.py": {
+    "arguments": "report",
+    "targets": [
+      "0x40d520"
+    ]
+  },
+  "differential_stage_grid.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x477f70"
+    ]
+  },
+  "differential_stage_lighting.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x460da0",
+      "0x461c30"
+    ]
+  },
+  "differential_stage_paths.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x41f560",
+      "0x41f930"
+    ]
+  },
+  "differential_stage_sound_reset.py": {
+    "arguments": "both",
+    "targets": [
+      "0x418f20"
+    ]
+  },
+  "differential_surface_collision.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x48fb80"
+    ]
+  },
+  "differential_surface_params.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4781d0"
+    ]
+  },
+  "differential_tables.py": {
+    "arguments": "both",
+    "targets": [
+      "0x40cc60",
+      "0x4b7ca0",
+      "0x4b7cd0",
+      "0x4b7d10",
+      "0x4b7d60",
+      "0x46ed40"
+    ]
+  },
+  "differential_track_geometry.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x489060",
+      "0x491550"
+    ]
+  }
+}

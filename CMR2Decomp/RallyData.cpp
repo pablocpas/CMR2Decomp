@@ -204,7 +204,7 @@ void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
         else if (hi > 100)
             hi = 100;
         range = 0;
-        if (lo < hi) {
+        if (hi > lo) {
             range = hi - lo;
             for (j = lo; j < hi; j++)
                 counts[pClasses[j / 10]]++;
@@ -219,8 +219,8 @@ void FUN_0040d6c0(int slot, int *pClasses, char *pRatings)
                 bestClass = i;
             }
         }
-        *pClass++ = bestClass;
         pRatings += 2;
+        *pClass++ = bestClass;
     } while (--opponent);
     pDest = &g_unk0x0052f1a0[slot * 4];
     for (i = 0; i < 4; i++) {
@@ -453,8 +453,8 @@ void RallyData_InitKnockoutBracket(void)
     p = g_knockout.semis;
     do {
         if ((CGameInfo::FUN_00405d70() & 0xff) > p->bits.first) {
-            oldFirst = p->bits.first;
             oldSecond = p->bits.second;
+            oldFirst = p->bits.first;
             if ((CGameInfo::FUN_00405d70() & 0xff) > oldSecond && oldSecond < oldFirst) {
                 p->bits.first = oldSecond;
                 p->bits.second = oldFirst;
@@ -564,19 +564,19 @@ void FUN_00407b10(void)
         flags = g_knockout.round1[i].flags;
         if ((flags & 0x1800) != 0) {
             if ((flags & 0x1800) == 0x800) {
-                if (i % 2 == 0)
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
-                else
+                if (!(i % 2 == 0))
                     g_knockout.quarters[i / 2].flags =
                         (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
-            } else {
-                if (i % 2 == 0)
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
                 else
                     g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+            } else {
+                if (!(i % 2 == 0))
+                    g_knockout.quarters[i / 2].flags =
                         (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                else
+                    g_knockout.quarters[i / 2].flags =
+                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
             }
         }
     }
@@ -594,19 +594,19 @@ void FUN_00407b10(void)
         flags = g_knockout.quarters[i].flags;
         if ((flags & 0x1800) != 0) {
             if ((flags & 0x1800) == 0x800) {
-                if (i % 2 == 0)
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
-                else
+                if (!(i % 2 == 0))
                     g_knockout.semis[i / 2].flags =
                         (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
-            } else {
-                if (i % 2 == 0)
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
                 else
                     g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+            } else {
+                if (!(i % 2 == 0))
+                    g_knockout.semis[i / 2].flags =
                         (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                else
+                    g_knockout.semis[i / 2].flags =
+                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
             }
         }
     }
@@ -630,11 +630,11 @@ void FUN_00407b10(void)
                     g_knockout.final.flags =
                         (g_knockout.final.flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
             } else {
-                if (i % 2 == 0)
+                if (!(i % 2 == 0))
+                    g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc1fU) | (flags & 0x3e0);
+                else
                     g_knockout.final.flags =
                         (g_knockout.final.flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
-                else
-                    g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc1fU) | (flags & 0x3e0);
             }
         }
     }
@@ -677,17 +677,17 @@ int g_unk0x00536ff0[24];
 int FUN_00411550(void)
 {
     FixVector a;
-    FixVector b;
     FixVector diff;
+    FixVector b;
     int *p;
     int totalA;
     int totalB;
     int i;
     int j;
 
-    totalA = 0;
     totalB = 0;
     g_unk0x00536c90 = 0;
+    totalA = 0;
     if ((char)RallyData_FUN_00406990() != 1) {
         g_unk0x00536c90 = FUN_004583a0();
         if (g_unk0x00536c90 > 0xc)
@@ -1868,8 +1868,8 @@ void FUN_004efe60(int param_1, int param_2, char param_3)
                 *(BYTE *)(pMenu + 0x2e + i) =
                     (*(BYTE *)(pMenu + 0x2e + i) ^ (BYTE)param_3) & 1 ^ *(BYTE *)(pMenu + 0x2e + i);
                 pSplits += 2;
-                i += 0x14;
                 count--;
+                i += 0x14;
             } while (count != 0);
         }
     } else {
@@ -2298,9 +2298,9 @@ void FUN_0040d820(void)
     unsigned short track;
 
     index = 0;
-    pFlag = g_unk0x0052f1f0;
     pOther = g_unk0x0052f240;
     pPairs = &g_unk0x0052f100[0][1];
+    pFlag = g_unk0x0052f1f0;
     do {
         *pFlag = 0;
         *pOther = 0;
@@ -2322,11 +2322,11 @@ void FUN_0040d820(void)
                     else if (hi > 100)
                         hi = 100;
                     count = 0;
-                    above = 0;
                     below = 0;
+                    above = 0;
                     counts[1] = 0;
                     counts[0] = 0;
-                    if (lo < hi) {
+                    if (hi > lo) {
                         count = hi - lo;
                         for (i = lo; i < hi; i++) {
                             if (i > 0x50)
@@ -2348,10 +2348,10 @@ void FUN_0040d820(void)
                 }
             }
         }
-        pFlag++;
-        pOther++;
-        pPairs += 2;
         index++;
+        pFlag++;
+        pPairs += 2;
+        pOther++;
     } while ((int)pPairs < (int)&g_unk0x0052f100[11][1]);
 }
 
@@ -2965,8 +2965,8 @@ void FUN_004129d0(int car, short *pRect)
 
     if (mode == 2) {
         sprintf(CFrontend::m_stringDest, g_nameSpaceFormat, CFrontend::GetTextString(0xbc));
-        x = rect[0] + marginX;
         y = rect[1] + topMarginY - (int)g_pGraphics->resY * 2 / 480;
+        x = rect[0] + marginX;
         Font_DrawText(0, CFrontend::m_stringDest, x, y, (int *)&g_stageHudTextColour, 9);
         x += Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat, FUN_00448c60(car));
@@ -3227,7 +3227,7 @@ void FUN_00413610(int car)
             FUN_004279d0(g_unk0x00537064, g_stageSplitData[car].times[0]);
             g_unk0x00536c14 = 1;
         } else {
-            if (g_unk0x00537064 > 0 && g_unk0x00537064 < 10) {
+            if (g_unk0x00537064 >= 1 && g_unk0x00537064 < 10) {
                 g_stageSplitData[car].times[g_unk0x00537064 + 1] = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
                 g_stageSplitData[car].split = g_unk0x00537064;
@@ -3415,8 +3415,8 @@ void FUN_004147f0(int car, short *position)
             } else {
                 sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                         RallyData_GetRecord((BYTE)(FUN_0041b370() + car)));
-                time = carTime;
                 highlight = g_unk0x00536e88[car] != 0 && fade != 0;
+                time = carTime;
             }
         } else if (shownRow == 2) {
             sprintf(CFrontend::m_stringDest, g_standingsRowFormat,
@@ -6114,7 +6114,7 @@ BYTE FUN_0046bd40(int index);
 void FUN_0046b8f0(Car *pCar);
 void FUN_0046b670(BYTE *pCar);
 void FUN_0046e440(void);
-void FUN_0046e780(void);
+void FUN_0046e780(int unused);
 void FUN_0046ea10(int param1);
 void FUN_0046f330(int param1);
 void FUN_00465780(int param1);
@@ -6223,7 +6223,7 @@ void FUN_0040f0c0(int param1, int param2, int param3)
         CGameInfo::FUN_00404f20() == 0 &&
         (FUN_00456be0(0)[0x20] == 'A' || FUN_00456be0(0)[0x20] == 'C')) {
         FUN_0046ea10(0);
-        FUN_0046e780();
+        FUN_0046e780(0);
     }
     for (i = 0; i < orderCount; i++)
         FUN_00462aa0(i, maskedView);
@@ -6942,8 +6942,8 @@ storeSplitColour:
                     }
                 }
                 pTime += 2;
-                split++;
                 pGeo += 4;
+                split++;
                 pRef++;
                 pColour++;
             } while ((int)pTime < (int)(g_unk0x00536ff0 + 25));
@@ -6956,7 +6956,7 @@ storeSplitColour:
                 pSpan++;
             } while (split != 0);
             car++;
-        } while (car < 2);
+        } while (car <= 1);
     }
 }
 
@@ -7555,8 +7555,8 @@ void FUN_00471dd0(void)
                     pScratch = (int *)((BYTE *)g_unk0x0058ca70 + scratchOffset);
                     scratchOffset += 8;
                     pEntry[1] = (int)pScratch;
-                    pRecordScratch = (int *)((BYTE *)g_unk0x0058c944 + recordOffset);
                     hx = *(int *)(pRecord + 0x44);
+                    pRecordScratch = (int *)((BYTE *)g_unk0x0058c944 + recordOffset);
                     hy = *(int *)(pRecord + 0x48);
                     hz = *(int *)(pRecord + 0x4c);
                     if (*pRecord == 0) {
@@ -8627,8 +8627,8 @@ void FUN_00420630(void)
         }
         RallyData_FUN_00421530(0, start);
         RallyData_FUN_00421530(g_unk0x00538a84 - 1, end);
-        dx = end[0] - start[0];
         dy = end[2] - start[2];
+        dx = end[0] - start[0];
         if (dx < 0)
             dx = -dx;
         value = g_unk0x00538a84;

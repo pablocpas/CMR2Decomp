@@ -1013,8 +1013,8 @@ int RallyData_FUN_00421420(void);
 void FUN_00415e30(void)
 {
     int maxX = -0x7d000000;
-    int minZ = 0x7d000000;
     int maxZ = -0x7d000000;
+    int minZ = 0x7d000000;
     int minX = 0x7d000000;
     int point[3];
     int i;
@@ -1168,8 +1168,8 @@ void FUN_00415f50(int car, short *pRect)
                 dot[3] = (short)((int)(g_pGraphics->resY * 12) / 480);
                 Sprite_Queue((SpriteRect *)dotSrc, (SpriteRect *)dot, g_unk0x00537078, 2, 0, NULL, NULL,
                              pCarColour, 8);
-                i--;
                 pCarColour -= 4;
+                i--;
             } while (i >= 0);
         }
     }

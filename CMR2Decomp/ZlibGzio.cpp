@@ -306,7 +306,7 @@ local void check_header(gz_stream *s)
 	/* len is garbage if EOF but the loop below will quit anyway */
 	while (len-- != 0 && get_byte(s) != EOF) ;
     }
-    if ((flags & ORIG_NAME) != 0) { /* skip the original file name */
+    if (0 != (flags & ORIG_NAME)) { /* skip the original file name */
 	while ((c = get_byte(s)) != 0 && c != EOF) ;
     }
     if ((flags & COMMENT) != 0) {   /* skip the .gz file comment */

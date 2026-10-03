@@ -428,7 +428,7 @@ void FUN_004eb860(int index, int profile)
         age = *(unsigned int *)(g_saveProfiles + 0x54 + free[i] * 0x650) >> 7 & 0xff;
         if (firstAge != age)
             allSame = 0;
-        if (age <= minAge) {
+        if (minAge >= age) {
             minAge = age;
             chosen = free[i];
         }

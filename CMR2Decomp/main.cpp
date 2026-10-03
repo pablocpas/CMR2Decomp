@@ -371,8 +371,8 @@ unsigned int CMain::GetFrameDelta(void)
     if (step != 0) {
         m_frameDelta += step;
         if (m_frameDelta < m_frameDeltaMax) {
-            m_frameDeltaLast = now;
             m_frameDelta = m_frameDeltaMax;
+            m_frameDeltaLast = now;
             return m_frameDeltaMax;
         }
         m_frameDeltaLast = now;

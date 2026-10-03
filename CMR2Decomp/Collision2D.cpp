@@ -39,10 +39,10 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
     d0.z = g_collisionQuad[1].z - g_collisionQuad[0].z;
     ax = g_collisionQuad[0].x - g_collisionQuad[2].x;
     az = g_collisionQuad[2].z - g_collisionQuad[0].z;
-    bz = g_collisionQuad[3].z - g_collisionQuad[0].z;
     cx = g_collisionQuad[1].x - g_collisionQuad[2].x;
     cz = g_collisionQuad[2].z - g_collisionQuad[1].z;
     dx = g_collisionQuad[0].x - g_collisionQuad[3].x;
+    bz = g_collisionQuad[3].z - g_collisionQuad[0].z;
 
     cross = FixMul(d3.x, d0.z) - FixMul(d0.x, d3.z);
     if (FIX_ABS(cross) > 0x28f) {
@@ -355,8 +355,8 @@ int Collision_SphereVsBox(int *param_1, int *pAlong0, unsigned int *pAlong1, int
             hit1 = 1;
         }
         if (hit0 && t0 < best) {
-            side = 1;
             best = t0;
+            side = 1;
         }
         if (hit1 && t1 < best) {
             best = t1;
@@ -590,8 +590,8 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
         k = 1;
         p1 = param_2;
         for (; k < param_3; k++) {
-            p2 = p1 + 1;
             j = param_3 - k;
+            p2 = p1 + 1;
             do {
                 carA = param_1 + p1[0] * 0xc24;
                 carB = param_1 + p2[0] * 0xc24;

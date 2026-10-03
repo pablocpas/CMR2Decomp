@@ -624,9 +624,9 @@ void FUN_00456330(int *param_1)
     }
     iVar5 = param_1[0x29];
     iVar2 = param_1[0x28];
+    iVar7 = iVar5 - iVar2;
     local_14 = 0;
     *param_1 = 0;
-    iVar7 = iVar5 - iVar2;
     iVar6 = 1;
     if (iVar1 >= 1) {
         piVar8 = param_1 + 0xb;
@@ -648,15 +648,15 @@ void FUN_00456330(int *param_1)
                 local_8 = uVar7;
             *piVar8 = FixDiv(local_c, uVar7);
             iVar3 = FixDiv(local_8, uVar7);
-            piVar8[0x14] = iVar3;
+            *(volatile int *)(piVar8 + 0x14) = iVar3;
             piVar8[10] = (0x10000 - *piVar8) - iVar3;
             local_14 = local_14 + ((uVar7 - local_8) - local_c);
             if (iVar7 == 0)
                 piVar8[-10] = 0;
             else
                 piVar8[-10] = FixDiv(local_14, iVar7);
-            piVar8 = piVar8 + 1;
             iVar6 = iVar6 + 1;
+            piVar8 = piVar8 + 1;
         } while (iVar6 <= iVar1);
     }
 }
@@ -2065,15 +2065,15 @@ void FUN_00468520(void)
                 do {
                     pFound = pWalk;
                     v = *pFound;
-                    if (v < minv) {
+                    if (minv > v) {
                         minv = v;
                         pRec = pFound;
                         pPrev = pCur;
                     }
                     if (pFound[0xc] == 0xff)
                         break;
-                    pWalk = (BYTE *)((char)pFound[0xc] * 0xd + pBase);
                     pCur = pFound;
+                    pWalk = (BYTE *)((char)pFound[0xc] * 0xd + pBase);
                 } while (pWalk != NULL);
             }
             if (!(pRec != NULL && minv < (limit & 0xff)))
@@ -2245,18 +2245,18 @@ void StageDeform_ApplyRadialDent(void)
         deepest = -deepest;
         nearest = -nearest;
     }
-    if (deepest == 0) {
+    if (!(deepest == 0)) {
+        FixVecScale(&scaled, &g_stageDeformNormal, deepest);
+        g_stageDeformOffset.x += scaled.x;
+        g_stageDeformOffset.y += scaled.y;
+        g_stageDeformOffset.z += scaled.z;
+    } else {
         if (nearest != 0) {
             FixVecScale(&scaled, &g_stageDeformNormal, nearest);
             g_stageDeformOffset.x += scaled.x;
             g_stageDeformOffset.y += scaled.y;
             g_stageDeformOffset.z += scaled.z;
         }
-    } else {
-        FixVecScale(&scaled, &g_stageDeformNormal, deepest);
-        g_stageDeformOffset.x += scaled.x;
-        g_stageDeformOffset.y += scaled.y;
-        g_stageDeformOffset.z += scaled.z;
     }
 
     int normalSide = FixVecDot(&g_stageDeformOffset, &g_stageDeformNormal) >= 0;
@@ -3598,7 +3598,7 @@ BYTE *FUN_00498590(BYTE *p, int unused, int count)
 
     RallyData_FUN_00421530(0, origin);
     points = RallyData_FUN_00421420();
-    for (pp = g_unk0x00592748; count > 0; count--, pp++) {
+    for (pp = g_unk0x00592748; count >= 1; count--, pp++) {
         *pp = (int)p;
         p += 0x1720;
         for (i = 0; i < points; i++) {
@@ -4137,7 +4137,7 @@ void FUN_0045e7f0(void)
             pRec[0] = position;
             if (position != pRec[1]) {
                 pRec[1] = position;
-                if (g_unk0x00543d80 >= position) {
+                if (position <= g_unk0x00543d80) {
                     pRec[2] = g_unk0x00543d74;
                 } else {
                     if (position >= g_unk0x00543d84)
@@ -4377,7 +4377,7 @@ void FUN_00455af0(int driver, int hundredths, int split)
     for (pos = 0; g_stageSplitTimesRaw[split][g_stageSplitTimesRawDriverIx[split][pos]] < time &&
                   pos != g_stageSplitDriverCount[split];) {
         pos++;
-        if (pos > 15)
+        if (pos >= 16)
             goto done;
     }
     for (i = 15; pos < i; i--) {
@@ -4442,9 +4442,9 @@ void FUN_00455f00(int pCar, int *pOut)
     rc = 0x10000 - ac;
     sum = r8 + rc;
     for (i = 0; i < 0x50; i += 5, pOut++) {
-        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);
         d3 = (int)(__int64)(g_unk0x0054241c[i + 3] * CGraphics::m_65536);
         d4 = (int)(__int64)(g_unk0x0054241c[i + 4] * CGraphics::m_65536);
+        d0 = (int)(__int64)(g_unk0x0054241c[i] * CGraphics::m_65536);
         t1 = FixDiv(*(int *)(pCar + 0xa0), t);
         t2 = FixDiv(t - *(int *)(pCar + 0xa4), t);
         t3 = 0x10000 - t2 - t1;
@@ -4929,7 +4929,7 @@ void FUN_00424af0(void)
 
     if (g_unk0x00539278->field_0x20 == 0)
         g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
-    else if (g_unk0x00539278->field_0x20 < 1)
+    else if (g_unk0x00539278->field_0x20 <= 0)
         g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)CGraphics::m_65536);
     else
         g_unk0x00539278->field_0x20 = (int)(__int64)(rand() * g_oneOverRandMax * (float)g_minus65536);
@@ -4985,14 +4985,14 @@ void FUN_00458e00(int car, int target)
         return;
     delta = target - current;
     if (g_stageLooped == 0)
-        step = delta > 0 ? 1 : -1;
+        step = delta >= 1 ? 1 : -1;
     else if (delta < -50 || (delta > 0 && delta < 50))
         step = 1;
     else
         step = -1;
     for (i = 0; current != target && i < g_stageCheckpointCount; i++) {
         g_unk0x00542e78[car].field_0x12 += (short)step;
-        if ((unsigned short)g_unk0x00542e78[car].field_0x10 < (int)g_unk0x00542e78[car].field_0x12)
+        if ((int)g_unk0x00542e78[car].field_0x12 > (unsigned short)g_unk0x00542e78[car].field_0x10)
             g_unk0x00542e78[car].field_0x10 = g_unk0x00542e78[car].field_0x12;
         prev = current;
         current += step;
@@ -5118,11 +5118,11 @@ void StageTiming_SpawnWheelParticles(int carIndex)
     int intensity = 100;
     for (int wheel = 0; wheel < 4; wheel++) {
         int other = wheel ^ 1;
+        short material = car->wheelSurfaceType[wheel];
         int front = wheel == 2 || wheel == 3;
         int reverse = car->gear == 7;
         int leading = reverse ? front : !front;
         int surface = car->wheelSurface[wheel];
-        short material = car->wheelSurfaceType[wheel];
         int spray = surface == 11 || material == 0x5b || material == 0x5c || material == 0x5d;
         int loose = surface == 10 || surface == 6 || material == 0x1b || material == 0x1c ||
                     material == 0x11 || material == 0x12 || material == 0x48;
@@ -5236,11 +5236,13 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         random = TRAIL_RANDOM(g_minus65536);
         FixVecScale(&jitter, &delta, random);
         int t;
-        if (!leading) {
+        if (!(!leading)) {
             t = TRAIL_RANDOM(CGraphics::m_65536);
             if (!uniform) {
                 random = TRAIL_RANDOM(g_minus65536);
                 t = FixDiv(t, 0x1547a - random * 9);
+                random = TRAIL_RANDOM(g_minus65536);
+                t = FixDiv(t, 0x30000 - random * 14);
             }
             FixVecScale(&position, &g_trailPos[carIndex][other], t);
             t = 0x10000 - t;
@@ -5250,8 +5252,6 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             if (!uniform) {
                 random = TRAIL_RANDOM(g_minus65536);
                 t = FixDiv(t, 0x1547a - random * 9);
-                random = TRAIL_RANDOM(g_minus65536);
-                t = FixDiv(t, 0x30000 - random * 14);
             }
             FixVecScale(&position, &g_trailPos[carIndex][other], t);
             t = 0x10000 - t;
@@ -5283,16 +5283,16 @@ void StageTiming_SpawnWheelParticles(int carIndex)
             particleVelocity.x = -(cornerVelocity->x / 4);
             particleVelocity.z = -(cornerVelocity->z / 4);
             speed = FIX_ABS(Car_GetWheelSpeed(car, 2, 0));
-            if (speed > speedLimit) {
-                int scale = FixDiv(speedLimit, speed);
-                FixVecScale(&particleVelocity, &particleVelocity, scale);
-            } else {
+            if (!(speed > speedLimit)) {
                 FixVector offset;
                 offset.x = velocity.x - cornerVelocity->x;
                 offset.y = velocity.y - cornerVelocity->y;
                 offset.z = velocity.z - cornerVelocity->z;
                 FixVecScale(&offset, &offset, 0x6666);
                 particleVelocity.x += offset.x; particleVelocity.y += offset.y; particleVelocity.z += offset.z;
+            } else {
+                int scale = FixDiv(speedLimit, speed);
+                FixVecScale(&particleVelocity, &particleVelocity, scale);
             }
             Particle_Spawn(type, &source, &particleVelocity, source.y - 0x10000, 0, colour,
                            g_trailLevel[carIndex][wheel], (int)&carIndex, *((BYTE *)car->pNode0x720 + 0x17c));
@@ -5636,7 +5636,7 @@ unsigned int RallyData_FUN_00407e90(void);
 
 // Estimates the remaining stage time of every driver slot from the progress
 // made so far, inserting each newly queued slot at the end of the order.
-// match 42%: registers and the stack layout of the locals differ; logic checked against the asm
+// Differential coverage: guarded time/order tables, ties, summary timing and real helpers.
 // FUNCTION: CMR2 0x004483e0
 void FUN_004483e0(void)
 {
@@ -5654,8 +5654,8 @@ void FUN_004483e0(void)
     while (1) {
         if (count <= slot)
             return;
+        pSlot = &g_unk0x0053e17c[slot];
         for (i = 0; i < count; i++) {
-            pSlot = &g_unk0x0053e17c[slot];
             for (j = 0; j < slot; j++) {
                 if (g_unk0x0053dda8[i] == g_unk0x0053e17c[j])
                     goto cont;
@@ -5668,9 +5668,9 @@ void FUN_004483e0(void)
             g_unk0x0053d1da[k] = 1;
             value = FixDiv((FUN_004589e0(k) & 0xffff) << 16, total);
             if (value >= 1) {
+                int elapsed = FUN_0040d4b0(g_unk0x0053d1b0);
                 g_unk0x0053d1b8[k] =
-                    ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value),
-                                                        FUN_0040d4b0(g_unk0x0053d1b0)));
+                    ConvertRawTimeToCentiseconds(FixMul(FixDiv(0x10000, value), elapsed));
             } else {
                 g_unk0x0053d1b8[k] = g_unk0x0053d1b0 * 2;
             }
@@ -6775,8 +6775,8 @@ void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_
 void FUN_00480e50(int slot)
 {
     int type = g_unk0x00590c24[slot][*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)];
-    int offZ = 0;
     int offX = 0;
+    int offZ = 0;
     int offY = 0;
 
     g_unk0x00590c20 =
@@ -6804,8 +6804,8 @@ void FUN_00480e50(int slot)
             offZ = -PARTSET->halfExtents[type].z;
         } else if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
             offX = -PARTSET->halfExtents[type].x;
-            offZ = PARTSET->halfExtents[type].z;
             offY = 0;
+            offZ = PARTSET->halfExtents[type].z;
         } else {
             if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
                 offX = -PARTSET->halfExtents[type].x;
@@ -6847,8 +6847,8 @@ void FUN_00480e50(int slot)
                 offZ = PARTSET->halfExtents[type].z;
                 offY = -PARTSET->halfExtents[type].y;
             } else {
-                offY = -PARTSET->halfExtents[type].y;
                 offZ = -PARTSET->halfExtents[type].z;
+                offY = -PARTSET->halfExtents[type].y;
             }
         }
         PARTSTATE->field_0x158 = 0;
@@ -7508,11 +7508,11 @@ void FUN_0045f9d0(int param_1, int *rec, int param_3)
         }
     }
     if (param_1 != 0 && rec[0x16] != rec[0x17]) {
-        if (rec[0x16] < rec[0x17]) {
+        if (rec[0x17] > rec[0x16]) {
             rec[0x16] += FixMul(rec[0x18], g_unk0x0051bd3c);
             if (rec[0x16] > rec[0x17])
                 rec[0x16] = rec[0x17];
-        } else if (rec[0x16] > rec[0x17]) {
+        } else if (rec[0x17] < rec[0x16]) {
             rec[0x16] -= FixMul(rec[0x18], g_unk0x0051bd3c);
             if (rec[0x16] < rec[0x17])
                 rec[0x16] = rec[0x17];
@@ -7724,8 +7724,8 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
             pOut[0x18] = baseAngle - *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
             break;
         case 0xe:
-            t = *(int *)(REF_TRACK + angles[1] * 4);
             b = *(int *)(REF_TRACK + 0x5c8 + angles[1] * 4);
+            t = *(int *)(REF_TRACK + angles[1] * 4);
             if (b > 0x3c0000) {
                 if (baseAngle < 0x280000) {
                     t = curAngle;
@@ -8076,8 +8076,8 @@ BYTE FUN_00457000(int car)
     SceneNode *pNodes;
     Car *pCar;
 
-    pSlot = NULL;
     slot = 0;
+    pSlot = NULL;
     mode = CGameInfo::FUN_00405d80();
     isPlayer = car < (int)(BYTE)RallyDataState();
     if ((BYTE)RallyDataState() > 1 && CGameInfo::FUN_00405da0() == 0)
@@ -8873,7 +8873,7 @@ void FUN_00456710(int *pDeltas)
         limits[splits] = scale;
         amplitude = top;
         limits[1] = top;
-        if (splits > 2) {
+        if (splits >= 3) {
             step = (int)(__int64)((double)(splits - 1) * CGraphics::m_65536);
             for (k = 2; k < splits; k++)
                 limits[k] = limits[1] - FixMul(FixDiv(limits[1] - scale, step), (int)(__int64)((double)(k - 1) * CGraphics::m_65536));

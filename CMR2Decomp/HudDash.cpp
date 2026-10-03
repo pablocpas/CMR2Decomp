@@ -354,16 +354,16 @@ void Dash_DrawBar(int player, int layer)
     int extra;
 
     gears = g_dashGearNames;
-    lit = 0;
     dx = 0;
     dy = 0;
+    lit = 0;
     if (g_dashSimple == 0) {
         pos = FixMul(0x250000, g_dashRev[player]) - 0xa0000;
         index = pos >> 16;
         if (index >= 0) {
-            frac = pos - (index << 16);
             lit = g_dashRevTicks[index];
             scale = (int)(__int64)((double)(int)(g_dashRevTicks[index + 1] - lit) * CGraphics::m_65536);
+            frac = pos - (index << 16);
             lit = lit + (FixMul(frac, scale) >> 16);
             if ((int)lit >= (int)g_dashRevTicks[27])
                 lit = g_dashRevTicks[27];

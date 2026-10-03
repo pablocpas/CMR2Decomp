@@ -1,0 +1,23 @@
+{
+  "original": "/home/pablo/colin_mcrae_linux/CMR2Decomp/cmr2bin/CMR2.exe",
+  "functions": {
+    "0x41f560": {
+      "begin": 4322656,
+      "end": 4323546,
+      "branches": {
+        "4322748": "jne 0x41f5ca",
+        "4322760": "jmp 0x41f5d4",
+        "4322787": "je 0x41f788",
+        "4322800": "je 0x41f788",
+        "4322813": "je 0x41f788",
+        "4322826": "je 0x41f788",
+        "4322839": "je 0x41f788",
+        "4323059": "jne 0x41f720",
+        "4323102": "jmp 0x41f749",
+        "4323288": "jne 0x41f800",
+        "4323442": "jne 0x41f888",
+        "4323462": "jmp 0x41f89a"
+      }
+    }
+  }
+}

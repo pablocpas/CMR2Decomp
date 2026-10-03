@@ -144,7 +144,7 @@ void Mesh_BuildParts(Mesh *pMesh)
     int hi;
     unsigned short *pIndex;
 
-    if (pMesh->partCount >= 1)
+    if (pMesh->partCount > 0)
         return;
     count = 0;
     last = -99;
@@ -152,8 +152,8 @@ void Mesh_BuildParts(Mesh *pMesh)
         int *pTex = (int *)((BYTE *)pMesh->pTriangles + 4);
         for (i = pMesh->triangleCount; i != 0; i--) {
             if (last != *pTex) {
-                count++;
                 last = *pTex;
+                count++;
             }
             pTex += 0x13;
         }
@@ -164,8 +164,8 @@ void Mesh_BuildParts(Mesh *pMesh)
         for (i = count; i != 0; i--)
             *ppPart++ = (MeshPart *)CFileBuffer::AllocateLockedBuffer(0x1c);
     }
-    off = 0;
     count = 0;
+    off = 0;
     last = -99;
     ppPart = pMesh->pParts - 1;
     for (i = 0; i < pMesh->triangleCount; i++) {
@@ -191,8 +191,8 @@ void Mesh_BuildParts(Mesh *pMesh)
     }
     count = 0;
     last = -99;
-    ppPart = pMesh->pParts - 1;
     off = 0;
+    ppPart = pMesh->pParts - 1;
     for (i = 0; i < pMesh->triangleCount; i++) {
         n = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
         if (last != n) {

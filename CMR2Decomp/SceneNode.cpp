@@ -1066,8 +1066,8 @@ void Scene_RelightSector(int sector)
                     if (intensity == 0x10000) {
                         for (j = 0; j < *pZoneVertex; j++) {
                             Scene_GetShadowColourD3D((DWORD *)(pVertex + 0x18), *pLevel);
-                            pVertex += 0x30;
                             pLevel++;
+                            pVertex += 0x30;
                         }
                     } else {
                         for (j = 0; j < *pZoneVertex; j++) {
@@ -1317,8 +1317,8 @@ void Scene_LoadLighting(int *pData)
     g_sceneLightDir.x = pData[0];
     g_sceneLightDir.y = pData[1];
     g_sceneLightDir.z = pData[2];
-    pCursor = (unsigned short *)(pData + 3);
     pBasis = g_sceneLightBasis;
+    pCursor = (unsigned short *)(pData + 3);
     do {
         pBasis->x = *(int *)pCursor;
         pBasis->y = *(int *)(pCursor + 2);
@@ -1386,8 +1386,8 @@ void Scene_LoadLighting(int *pData)
             next = s;
             if (g_sectors[s]->x == *(int *)(g_sceneLightZones + off + 4) &&
                 g_sectors[s]->z == *(int *)(g_sceneLightZones + off + 8)) {
-                next = g_sectorCount;
                 found = s;
+                next = g_sectorCount;
             }
             s = next + 1;
         } while (s < (unsigned int)g_sectorCount);
@@ -1967,7 +1967,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
         for (i = 0, offset = 0; i < pCaster->partCount; i++, offset += 0x58) {
             pPart = (ShadowPart *)((char *)pCaster->pParts + offset);
             if (pPart->field_0x54 != 0) {
-                if (pPart->pMesh->field_0x10 > 0) {
+                if (0 < pPart->pMesh->field_0x10) {
                     float *pSrc = (float *)pPart->pMesh->pVertexData;
                     float *pWork = (float *)pPart->pVertexWork;
                     float *pWork2 = (float *)pPart->pVertexWork2;
@@ -1984,8 +1984,8 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
                         pWork2[0] += scaled[0];
                         pWork2[1] += scaled[1];
                         pWork2[2] += scaled[2];
-                        pSrc += 12;
                         pWork += 3;
+                        pSrc += 12;
                         pWork2 += 3;
                     }
                 }
@@ -2071,8 +2071,8 @@ void FUN_004b5f90(SceneNode *pNode, int radius, short *pSector)
     pCaster = NULL;
     *(unsigned short *)&g_sceneZoneCount = 0;
     if (pNode != NULL && pNode->field_0x17c != 0 && g_sceneSectorZone != NULL) {
-        count = g_sceneLightFlag & 0xff;
         i = 0;
+        count = g_sceneLightFlag & 0xff;
         if (count > 0) {
             do {
                 ShadowCaster *p = (ShadowCaster *)g_sceneLightState[i];
@@ -2256,10 +2256,10 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 
     *pLevel = 0x10000;
     x = (float)pPos->x * CGraphics::m_oneOver65536;
-    pNearest = NULL;
     rgb[0] = 0xff;
     rgb[1] = 0xff;
     rgb[2] = 0xff;
+    pNearest = NULL;
     rgb[3] = 0;
     best = 32000.0f;
     z = (float)pPos->z * CGraphics::m_oneOver65536;
@@ -2268,8 +2268,8 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
         pVertex = (float *)pMesh->pVertexData;
         pVertexLevel = pMesh->pLightLevels;
         for (i = 0; i < pMesh->field_0x10; i++) {
-            dx = pVertex[0] - x;
             dz = pVertex[2] - z;
+            dx = pVertex[0] - x;
             d2 = dx * dx + dz * dz;
             if (d2 < best) {
                 *pLevel = *pVertexLevel;
@@ -2706,7 +2706,7 @@ void FUN_004b4180(float *param_1, int param_2)
     cb0 = (BYTE)shadowColour;
     cb1 = (BYTE)(shadowColour >> 8);
     cb2 = (BYTE)(shadowColour >> 16);
-    if (param_2 > 0x10000)
+    if (param_2 >= 0x10001)
         param_2 = 0x10000;
     param_2 = FixMul(g_shadowLevel, param_2);
     scale = (float)param_2 * (float)CGraphics::m_oneOver65536;
@@ -2715,7 +2715,7 @@ void FUN_004b4180(float *param_1, int param_2)
     *(short *)(p + 0x52) = 0;
 
     count = *(int *)(pMesh + 0x10);
-    if (count > 0)
+    if (count >= 1)
         memset(g_unk0x006e0354, 0xff, count * 2);
 
     lightOffset[0] = *(float *)(pLight + 0x148);
@@ -2744,13 +2744,15 @@ void FUN_004b4180(float *param_1, int param_2)
                 for (k = 0; k < 3; k++) {
                     v = index[k];
                     s = g_unk0x006e0354[v];
-                    if (s == -1) {
+                    if (!(s == -1)) {
+                        pEdge[k] = (BYTE *)(pVtx + s * 0x30);
+                    } else {
                         *(float *)pOut = *(float *)(pSrc + v * 0xc);
                         *(float *)(pOut + 4) = *(float *)(pSrc + v * 0xc + 4);
                         *(float *)(pOut + 8) = *(float *)(pSrc + v * 0xc + 8);
+                        colour = baseColour;
                         pEdge[k] = (BYTE *)pVtx;
                         g_unk0x006e0354[v] = *(short *)(p + 0x52);
-                        colour = baseColour;
                         if (pDst[v] < g_netZero)
                             colour = 0;
                         else if (pDst[v] < g_unk0x00511ce8)
@@ -2767,8 +2769,6 @@ void FUN_004b4180(float *param_1, int param_2)
                         pOut += 0xc;
                         pVtx += 0x30;
                         (*(short *)(p + 0x52))++;
-                    } else {
-                        pEdge[k] = (BYTE *)(pVtx + s * 0x30);
                     }
                 }
                 pEdge += 3;

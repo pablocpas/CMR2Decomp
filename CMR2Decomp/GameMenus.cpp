@@ -1275,7 +1275,7 @@ void FUN_0044fea0(Menu *pMenu)
     int slot;
 
     x = (int)(g_pGraphics->resX * 30) / 640;
-    rows = (g_unk0x0053f5a8 | g_unk0x005413f8) ? 5 : 6;
+    rows = (g_unk0x005413f8 | g_unk0x0053f5a8) ? 5 : 6;
     FUN_0044b760();
     if (!g_unk0x00541210 || !g_unk0x00540898)
         GameMenus_DrawTextRow(x, (int)(g_pGraphics->resY * 0x43) / 480,
@@ -3807,7 +3807,7 @@ void FUN_0044b270(void)
     int best = 0;
     int bestTime;
     int time;
-    BYTE record;
+    int record;
     BYTE recordI;
 
     for (i = 0; i < (int)((FUN_0041b370() & 0xff) + 1); i++) {

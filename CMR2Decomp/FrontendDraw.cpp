@@ -350,8 +350,8 @@ void FrontendDraw_Carousel(Menu *pMenu, char active, char *help)
             pColour = g_colourDim0x00524970;
             pShadow = g_colourShadowDim0x0052497c;
         }
-        pSep = pColour;
         pSepShadow = pShadow;
+        pSep = pColour;
     }
 }
 

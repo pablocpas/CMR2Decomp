@@ -777,9 +777,9 @@ void FUN_004fc070(Menu *pMenu)
     axisPair = g_controlsCopy[CONTROLS_SEL].field_0x110 != 0 && (pMenu->cursor == 0 || pMenu->cursor == 1);
     if (((g_controlsCopy[CONTROLS_SEL].field_0x114 != 0 && (pMenu->cursor == 2 || pMenu->cursor == 3)) || axisPair)
         && (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2)) {
-        axis = 0;
         pPosition = (int *)((BYTE *)pDevice + 0x47c);
         pReference = g_unk0x00829428;
+        axis = 0;
         do {
             if (pPosition[-4] != 0 && abs(*pReference - *pPosition) > 0x4ccc) {
                 done = TRUE;
@@ -789,9 +789,9 @@ void FUN_004fc070(Menu *pMenu)
                 CInput::FUN_0040c550(g_controlsCopy[CONTROLS_SEL].field_0x13e, pMenu->cursor, 0);
                 *pReference = *pPosition;
             }
-            pReference++;
             axis++;
             pPosition += 5;
+            pReference++;
         } while (pReference < &g_unk0x00829428[8]);
     }
     if (pDevice->field_0x0 == 3 || pDevice->field_0x0 == 2) {
@@ -1573,8 +1573,8 @@ void FUN_004fdb10(Menu *pMenu)
                   + ((short)((int)(g_pGraphics->resY * 36) / 480) * (short)i - CFrontend::m_pAr640ATexture->height / 2);
         CONTROLS_ROW_COLOURS(pMenu, i, pLabel, pBright, pDim, pTexture)
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)icon, pTexture, 1, 0, NULL, NULL, pLabel, 8);
-        x = (int)(g_pGraphics->resX * 0x7a) / 640;
         y = (short)((int)(g_pGraphics->resY * 24) / 480 + g_controlsLine[1]);
+        x = (int)(g_pGraphics->resX * 0x7a) / 640;
         switch (pItem->value) {
         case 0:
         case 1:

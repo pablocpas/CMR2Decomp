@@ -173,11 +173,15 @@ def compile_tu(src, objout):
     fl += os.environ.get('FASTCMP_EXTRA', '').split()
     fl.append('/Zi'); fl.append('/Fd' + W(objout[:-4] + '.pdb'))
     fl.append('/I' + W(REPO + '/CMR2Decomp'))   # temp copies live outside the tree
+    # A failed compiler invocation must not reuse an object from an earlier run.
+    if os.path.exists(objout):
+        os.unlink(objout)
     r = subprocess.run(['wine', MSVC + '/Bin/CL.EXE'] + fl + ['/Fo' + W(objout), W(src)],
                        capture_output=True, text=True, env=env, cwd=REPO)
     errs = [l for l in r.stdout.splitlines() if ' error ' in l or 'fatal error' in l]
-    if errs or not os.path.exists(objout):
-        raise RuntimeError('\n'.join(errs[:10]) or r.stdout[-2000:])
+    if r.returncode or errs or not os.path.exists(objout):
+        raise RuntimeError('\n'.join(errs[:10]) or (r.stdout + r.stderr)[-2000:] or
+                           f'Compiler exited with status {r.returncode}; no fresh object produced.')
 
 # ------------------------------------------------------------ function lookup
 def mangled_candidates(name):
@@ -289,10 +293,11 @@ def strip_pad(b):
         for f in FILLERS:
             if b.endswith(f): b = b[:-len(f)]; break
         else: return b
-def compare(addr, obj, src, name, osize, verbose=False):
+def compare(addr, obj, src, name, osize, verbose=False, coff=None):
     global ORIG
     if ORIG is None: ORIG = PE(REPO + '/cmr2bin/CMR2.exe')
-    c = COFF(obj)
+    # Batch callers reuse the parsed object; relocation writes use a fresh copy.
+    c = COFF(obj) if coff is None else coff
     si, sym = find_func(c, name)
     if sym is None: raise KeyError('symbol not found for ' + name)
     st, en = func_extent(c, sym)
@@ -340,19 +345,26 @@ def compare(addr, obj, src, name, osize, verbose=False):
         if typ == 6 and st <= off < en and ss['sec'] == sym['sec'] and ss['cls'] in (3, 6):
             t = ss['val'] + struct.unpack_from('<i', sec['data'], off)[0] - st
             if off - st < t < cend: cend = t
-    tables = bytes(code[cend:]); code = code[:cend]
-    osz = max(osize or 0, len(code))
-    ob = ORIG.read(addr, osz)
+    # Disassemble instructions separately, but exactness includes switch data.
+    full_rebuilt = strip_pad(bytes(code))
+    code = code[:cend]
     rb = bytes(code)
     # trailing padding (int3/nop/alignment fillers) is not part of the function
-    rb_t = strip_pad(rb); ob_t = strip_pad(ob)
-    exact = rb_t == ob_t
+    rb_t = strip_pad(rb)
+    # COFF alignment may exceed the whole original function. Reading that
+    # padding's length from the original can pull in its next function.
+    # Keep all actual rebuilt instructions, including a longer wrong body.
+    osz = max(osize or 0, len(full_rebuilt))
+    full_original = ORIG.read(addr, osz)
+    ob_t = strip_pad(full_original[:max(osize or 0, len(rb_t))])
+    exact = full_rebuilt == strip_pad(full_original)
     oi = dis(ob_t, addr); ri = dis(rb_t, addr)
     ot = [t for _, _, t in oi]; rt = [t for _, _, t in ri]
     sm = difflib.SequenceMatcher(None, ot, rt, autojunk=False)
     score = 1.0 if exact else min(sm.ratio(), 0.9999)
     if verbose:
         print(f"{name} @{addr:#x}: orig {len(ob_t)}B/{len(ot)}i  ours {len(rb_t)}B/{len(rt)}i  score {100*score:.2f}%{'  EXACT' if exact else ''}")
+        if rb_t == ob_t and not exact: print("  instruction bytes agree; trailing switch data differ")
         if unknown: print("  unmapped symbols:", ', '.join(sorted(unknown))[:300])
     return score, exact, (oi, ri, sm), unknown
 

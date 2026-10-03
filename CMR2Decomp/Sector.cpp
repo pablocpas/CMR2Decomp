@@ -109,9 +109,9 @@ void *FUN_004b93c0(BYTE *pData, int param_2, unsigned int param_3)
     pVertexData = pTriangles + *(int *)(pData + 0x20) * 0x4c;
     pLightLevels = pVertexData + *(int *)(pData + 0x14) * 0x30;
     pVertexFlags = pLightLevels + *(int *)(pData + 0x14) * 4;
-    pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
     textureRecords = *(int *)(pData + 0xc) + (int)pData;
     recordSize = *(unsigned short *)(pData + 0x26);
+    pRecords = pVertexFlags + *(int *)(pData + 0x10) * 0x14;
     if (*(int *)(pData + 0x20) != 0) {
         pField = (int *)(pTriangles + 4);
         do {

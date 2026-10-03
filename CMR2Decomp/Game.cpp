@@ -151,7 +151,7 @@ void CGame::FUN_004b7a40(void)
 BOOL CGame::FUN_004d0780(void)
 {
     m_unk0x00523c5c = FUN_004057d0();
-    if (m_unk0x00523c58 != m_unk0x00523c5c)
+    if (m_unk0x00523c5c != m_unk0x00523c58)
         m_unk0x00523c58 = m_unk0x00523c5c;
 
     switch (m_unk0x00523c5c)
@@ -1453,8 +1453,8 @@ fail:
     } else {
         if ((BYTE)FUN_00407270() == 0 && state > 1) {
             if (CGameInfo::FUN_00405d80() != 3 && 2 >= state && CGameInfo::FUN_00405da0() == 0) {
-                level = 1;
                 state = 2;
+                level = 1;
                 goto done;
             }
             level = 4;

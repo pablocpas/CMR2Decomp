@@ -1,0 +1,12 @@
+{
+  "original": "/home/pablo/colin_mcrae_linux/CMR2Decomp/cmr2bin/CMR2.exe",
+  "functions": {
+    "0x5004c0": {
+      "begin": 5244096,
+      "end": 5244146,
+      "branches": {
+        "5244103": "je 0x5004ef"
+      }
+    }
+  }
+}

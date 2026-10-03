@@ -916,8 +916,8 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
     }
     switch (bits) {
     case 4:
-        p16 = (WORD *)desc.lpSurface;
         skip = desc.lPitch - width * 2;
+        p16 = (WORD *)desc.lpSurface;
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
                 if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from0 << 8 >> 8) & 0xf0))
@@ -1588,8 +1588,8 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
         return result;
 
     if (pddpf->dwFlags & DDPF_RGB) {
-        alphaMask = ~(pddpf->dwRBitMask | pddpf->dwGBitMask | pddpf->dwBBitMask) & pddpf->dwRGBAlphaBitMask;
         bits = pddpf->dwRBitMask;
+        alphaMask = ~(pddpf->dwRBitMask | pddpf->dwGBitMask | pddpf->dwBBitMask) & pddpf->dwRGBAlphaBitMask;
         count = 0;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1626,7 +1626,7 @@ HRESULT CALLBACK CGraphics::EnumTextureFormatsCallback(DDPIXELFORMAT *pddpf, LPV
         aBits = (BYTE)count;
     aBits = aBits;
 
-        if (rBits < 1 || gBits < 1 || bBits < 1)
+        if (rBits <= 0 || gBits < 1 || bBits < 1)
             return result;
 
         bits = pddpf->dwRBitMask;
@@ -3448,8 +3448,8 @@ int Scene_AttenuateSectorLight(int sector, int light)
     int d2;
     int i;
 
-    pLight = (D3DLIGHT7 *)g_sceneType1Objects[light];
     changed = 0;
+    pLight = (D3DLIGHT7 *)g_sceneType1Objects[light];
     if (pLight == NULL)
         return changed;
     range = (int)(__int64)(pLight->dvRange * CGraphics::m_65536);
@@ -3618,7 +3618,7 @@ int Timer_GetValue(BYTE index)
     pos = *(unsigned int *)(t + 0x28);
     dur = *(unsigned int *)(t + 4);
     step = (BYTE)pos;
-    if (dur <= pos)
+    if (pos >= dur)
         step = (BYTE)dur;
     if (*(int *)(t + 0x24) != 0) {
         (*(int *)(t + 0x24))--;
@@ -3656,7 +3656,7 @@ int Timer_GetValue(BYTE index)
     }
     if (pos < dur + 3) {
         now = CMain::GetFrameTime();
-        if (abs(now - *(int *)(t + 0x2c)) > 16) {
+        if (abs(now - *(int *)(t + 0x2c)) >= 17) {
             (*(unsigned int *)(t + 0x28))++;
             *(int *)(t + 0x2c) = CMain::GetFrameTime();
         }
@@ -4220,13 +4220,13 @@ BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
         return g_flareVisibility;
     }
 sample:
-    rHi = g_flareColour[0] + g_flareTolerance;
     rLo = g_flareColour[0] - g_flareTolerance;
-    gHi = g_flareColour[1] + g_flareTolerance;
+    rHi = g_flareColour[0] + g_flareTolerance;
     gLo = g_flareColour[1] - g_flareTolerance;
-    bHi = g_flareColour[2] + g_flareTolerance;
+    gHi = g_flareColour[1] + g_flareTolerance;
     bLo = g_flareColour[2] - g_flareTolerance;
     area = g_flareRect[2] * g_flareRect[3];
+    bHi = g_flareColour[2] + g_flareTolerance;
     if (area == 0)
         return 0;
 
@@ -5759,7 +5759,7 @@ void Particle_UpdateAll(int param)
                     a += pType->alphaStep;
                     if (a > pType->alphaEnd)
                         a = pType->alphaEnd;
-                } else if (pType->alphaEnd < pType->type) {
+                } else if (pType->type > pType->alphaEnd) {
                     a -= pType->alphaStep;
                     if (a < pType->alphaEnd)
                         a = pType->alphaEnd;
@@ -5776,7 +5776,7 @@ void Particle_UpdateAll(int param)
                     size += pType->sizeStep;
                     if (size > pType->sizeVariation)
                         size = pType->sizeVariation;
-                } else if (pType->sizeVariation < pType->size) {
+                } else if (pType->size > pType->sizeVariation) {
                     size -= pType->sizeStep;
                     if (size < pType->sizeVariation)
                         size = pType->sizeVariation;
@@ -6368,8 +6368,8 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
         return NULL;
     if (pInfo->bytesPerPixel == 4)
         pTexture->flags |= 1;
-    width = pInfo->width;
     height = pInfo->height;
+    width = pInfo->width;
     memset(&createDesc, 0, sizeof(createDesc));
     createDesc.dwSize = sizeof(createDesc);
     createDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
@@ -6544,11 +6544,11 @@ BYTE *CGraphics::SampleTGAPixel(unsigned int x, unsigned int y, TGAImageInfo *pI
     if (pInfo->bytesPerPixel == 4)
         m_tgaPixel[3] = p[1];
     if (flags & 0x80) {
-        contrast = m_unk0x00520b34;
         brightness = m_unk0x0065fa44;
+        contrast = m_unk0x00520b34;
     } else if (flags & 0x100) {
-        contrast = m_unk0x00520b38;
         brightness = m_unk0x0065fa48;
+        contrast = m_unk0x00520b38;
     }
     if (!(flags & 0x80) && !(flags & 0x100))
         return m_tgaPixel;
@@ -7253,7 +7253,7 @@ void FUN_0049c680(Mesh *pMesh)
     for (n = pMesh->triangleCount; n != 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
-            if (count > 0) {
+            if (count >= 1) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                     D3DPT_TRIANGLELIST,
                     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],

@@ -604,7 +604,7 @@ void FUN_004e0770(Menu *pMenu)
         rect[1] = y + (int)(g_pGraphics->resY * 2) / 480 + (int)(g_pGraphics->resY * 18) / 480 +
                   ((int)(g_pGraphics->resY * 36) / 480 * i -
                    CFrontend::m_pAr640ATexture->height / 2);
-        if (i == pMenu->cursor) {
+        if (pMenu->cursor == i) {
             pColour = g_colourWhite0x00524968;
             pSelColour = g_colourWhite0x00524968;
             pUnselColour = g_colourText0x0052496c;
@@ -629,7 +629,7 @@ void FUN_004e0770(Menu *pMenu)
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 122) / 640,
                           (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             for (j = 0; j < pItem->min; j++) {
-                if (j == pItem->max)
+                if (pItem->max == j)
                     pColour = pSelColour;
                 else
                     pColour = pUnselColour;
@@ -664,7 +664,7 @@ void FUN_004e0770(Menu *pMenu)
                           (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             for (j = 0; j < pItem->min; j++) {
                 if (CFrontend::FUN_004b7560(0x400) && CFrontend::FUN_004b7590(0x400)) {
-                    if (j == pItem->max)
+                    if (pItem->max == j)
                         pColour = pSelColour;
                     else
                         pColour = pUnselColour;
@@ -685,7 +685,7 @@ void FUN_004e0770(Menu *pMenu)
             Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 122) / 640,
                           (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1], (int *)pColour, 0x11);
             for (j = 0; j < pItem->min; j++) {
-                if (j == pItem->max)
+                if (pItem->max == j)
                     pColour = pSelColour;
                 else
                     pColour = pUnselColour;
@@ -4368,15 +4368,15 @@ void FUN_004f37c0(MenuScroller *p)
             }
             target = pMenu->cursor;
             cur = p->current;
-            if (target <= cur) {
-                fwd = pMenu->itemCount - cur + target;
-                back = cur - target;
-            } else {
-                back = pMenu->itemCount - target + cur;
+            if (target > cur) {
                 fwd = target - cur;
+                back = pMenu->itemCount - target + cur;
+            } else {
+                back = cur - target;
+                fwd = pMenu->itemCount - cur + target;
             }
             if (back < fwd) {
-                while (back-- > 0) {
+                while (back-- >= 1) {
                     cur--;
                     idx = cur;
                     if (idx < 0)
@@ -4681,13 +4681,13 @@ void FUN_004f3c10(int *pPoints, int t, int *pOut)
     u = (((seg << 16) - 0x10000) / 16 - t + 0x1000) << 4;
     u2 = FixMul(u, u);
     u3 = FixMul(u, u2);
-    h00 = u3 * 2 + 0x10000 - u2 * 3;
     h01 = u2 * 3 - u3 * 2;
     h10 = u3 - u2 * 2 + u;
+    h00 = u3 * 2 + 0x10000 - u2 * 3;
     h11 = u3 - u2;
     p = &pPoints[seg * 2];
-    tanA = (p[2] - p[-2]) * (0x10000 - g_menuPathTension) / 2;
     tanB = (p[4] - p[0]) * (0x10000 - g_menuPathTension) / 2;
+    tanA = (p[2] - p[-2]) * (0x10000 - g_menuPathTension) / 2;
     x = p[2] * h00 + (FixMul(h11, tanA) + p[0] * h01) + FixMul(h10, tanB);
     tanA = (p[3] - p[-1]) * (0x10000 - g_menuPathTension) / 2;
     tanB = (p[5] - p[1]) * (0x10000 - g_menuPathTension) / 2;
@@ -4977,9 +4977,9 @@ void FUN_004f4760(void)
     pStream = &g_menuStreamPos[0][9];
     pPoint = g_menuStreamPoint[0];
     do {
+        pPos = pStream;
         k = 9 * 4;
         fade = 9 * 0xff;
-        pPos = pStream;
         do {
             colour[3] = 0xff - fade / 10;
             FUN_004f3c10(g_pMenuPath, *pPos, pPoint);
@@ -4989,12 +4989,12 @@ void FUN_004f4760(void)
             g_menuDotRect[2] = pTexture->width;
             g_menuDotRect[3] = pTexture->height;
             Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)g_menuDotRect, pTexture, 1, 0, NULL, NULL, colour, 8);
-            fade -= 0xff;
             k -= 4;
             pPos--;
+            fade -= 0xff;
         } while (fade >= 0);
-        pPoint += 2;
         pStream += 10;
+        pPoint += 2;
     } while (pPoint < g_menuStreamPoint[6]);
 }
 
@@ -5445,7 +5445,7 @@ void FUN_004ded80(Menu *pMenu)
     icon[3] = CFrontend::m_pAr640ATexture->height;
     for (i = 0; i < 8; i++) {
         width = Font_GetTextWidth(1, (BYTE *)CFrontend::GetTextString(i + 0x149));
-        if (maxWidth < width)
+        if (width > maxWidth)
             maxWidth = width;
     }
     FrontendDraw_PlayTime();
@@ -5855,11 +5855,11 @@ void FUN_004d5ad0(int x, int y, short phase)
     colour[2] = 0xff;
     colour[3] = 0xff;
     g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
+    col = 0;
     g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
     centre[0] = 0;
     centre[1] = 0;
     g_unk0x008189a8[0] = x;
-    col = 0;
     do {
         row = 0;
         u = (int)(__int64)(((int)(g_pGraphics->resX * 18) / 640 * col + x) * CGraphics::m_65536) / (int)g_pGraphics->resX;
@@ -5878,8 +5878,8 @@ void FUN_004d5ad0(int x, int y, short phase)
                              CFrontend::m_pSmMatrixTexture, 1, 0, NULL, NULL, colour, 8);
             }
             g_unk0x008189a8[1] += (int)(g_pGraphics->resY * 8) / 480;
-            row++;
             pDot += 7;
+            row++;
         } while (row < 15);
         g_unk0x008189a8[0] += (int)(g_pGraphics->resX * 8) / 640;
         col++;
@@ -7907,9 +7907,9 @@ unsigned int FUN_004fb400(BYTE *pBlock)
     FUN_004eadb0();
     i = 0;
     if (CGameInfo::FUN_00405d70() != 0) {
+        pDest = pBlock + 0xf4;
         pName = pBlock + 0xc4;
         pSetup = pBlock + 0x614;
-        pDest = pBlock + 0xf4;
         pSrc = pBlock + 0xb4;
         do {
             FUN_004eb860(i, -1);
@@ -7959,9 +7959,9 @@ unsigned int FUN_004fb400(BYTE *pBlock)
             }
             pDest += 0x148;
             pSetup += 7;
-            pName += 0xc;
             i++;
             pSrc += 4;
+            pName += 0xc;
         } while ((int)i < (int)(CGameInfo::FUN_00405d70() & 0xff));
     }
     pState = (unsigned int *)(pBlock + 0x34);
@@ -8065,7 +8065,7 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
     bytes[3] = (BYTE)(*pNumber >> 24);
     i = 0;
     do {
-        bytes[i] += g_unk0x00526ebc[i] + g_unk0x00526eb0[i] + g_unk0x00526ea4[i] + *p * 3;
+        bytes[i] += g_unk0x00526eb0[i] + g_unk0x00526ebc[i] + g_unk0x00526ea4[i] + *p * 3;
         i++;
         p--;
     } while (p - &g_unk0x00526ea4[6] > 0);
@@ -8275,8 +8275,8 @@ void FUN_004e20e0(Menu *pMenu)
             pFormat = CFrontend::GetTextString(0x210);
             sprintf(CFrontend::m_stringDest, pFormat, car, pName, pColour);
             if (g_unk0x0082a924 == g_unk0x0082aa3c + index) {
-                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
                 y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
                 Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
                               (int *)g_colourWhite0x00524968, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
@@ -8284,8 +8284,8 @@ void FUN_004e20e0(Menu *pMenu)
                               (int *)g_colourWhite0x00524968, 0x11);
                 pColour = (int *)g_colourWhite0x00524968;
             } else {
-                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
                 y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+                x = (int)(g_pGraphics->resX * 0x32) / 0x280;
                 Font_DrawText(0, (char *)FUN_004f4e70(g_unk0x0082aa3c + index), x, y,
                               (int *)g_colourText0x0052496c, 0x11);
                 Font_DrawText(0, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x9b) / 0x280,
@@ -8293,8 +8293,8 @@ void FUN_004e20e0(Menu *pMenu)
                               (int *)g_colourText0x0052496c, 0x11);
                 pColour = (int *)g_colourText0x0052496c;
             }
-            x = (int)(g_pGraphics->resX * 0xff) / 0x280;
             y = (int)(g_pGraphics->resY * 100) / 0x1e0 + ((int)(g_pGraphics->resY * 0x14) / 0x1e0) * index;
+            x = (int)(g_pGraphics->resX * 0xff) / 0x280;
             Font_DrawText(0, (char *)FUN_004f4dc0(g_unk0x0082aa3c + index), x, y, pColour, 0x11);
         }
     } else {
@@ -8433,7 +8433,7 @@ void FUN_004ee170(Menu *pMenu)
     pList = (int *)RallyData_FUN_00408270();
     g_unk0x00818d08[0] = 0x156;
     g_unk0x00818d74[0] = -1;
-    if (n < 4) {
+    if (n <= 3) {
         Menu_GetItem(pMenu, 2)->min = (char)n + 1;
         if (0 < n) {
             for (i = 1; i <= n; i++) {
@@ -8494,8 +8494,8 @@ BYTE FUN_004d6870(int param_1, unsigned int param_2)
     if (!(!FUN_004ebd60(index))) {
         pColour = (int *)colourShadow;
         x = (int)g_pGraphics->resX;
-        y = (int)g_pGraphics->resY;
         x = x / 2 + g_unk0x00819868 + ((x * 0x50) / 0x280) * (int)param_2;
+        y = (int)g_pGraphics->resY;
     } else {
         if (param_2 == 0) {
             pColour = (int *)g_colourWhite0x00524968;
@@ -9034,11 +9034,11 @@ void FUN_004e48b0(Menu *pMenu)
         Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xb4) / 0x280, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        if ((*pFlags & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x136) / 0x280, y,
+        if (!((*pFlags & 0x40) == 0))
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x136) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x136) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x136) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (*((unsigned int *)pEntry) & 0xf) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x172) / 0x280, y,
@@ -9202,11 +9202,11 @@ void FUN_004e5c90(Menu *pMenu)
                       (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(*(unsigned int *)(pRow + 4) & 0x3f),
                       (int)(g_pGraphics->resX * 0x122) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*(unsigned int *)(pRow + 4) & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+        if ((*(unsigned int *)(pRow + 4) & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, *(unsigned int *)(pRow + 4) >> 10 & 0x3f);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x21c) / 0x280, y,
@@ -9284,11 +9284,11 @@ void FUN_004e63d0(Menu *pMenu)
     if ((*pFlags & 0x80) != 0) {
         Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
                       (int)(g_pGraphics->resX * 0xbe) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-        if ((*pFlags & 0x40) == 0)
-            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
+        if (!((*pFlags & 0x40) == 0))
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         else
-            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x14a) / 0x280, y,
                           (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, *(unsigned int *)pRow >> 5 & 0x3f);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x1ae) / 0x280, y,
@@ -9443,11 +9443,11 @@ void FUN_004e7120(Menu *pMenu)
         if ((*pFlags & 0x80) != 0) {
             Font_DrawText(1, CFrontend::FUN_0040ede0(*pFlags & 0x3f),
                           (int)(g_pGraphics->resX * 0x109) / 0x280, y, (int *)g_colourWhite0x00524968, 0x12);
-            if ((*pFlags & 0x40) == 0)
-                Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x181) / 0x280, y,
+            if (!((*pFlags & 0x40) == 0))
+                Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x181) / 0x280, y,
                               (int *)g_colourWhite0x00524968, 0x12);
             else
-                Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 0x181) / 0x280, y,
+                Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 0x181) / 0x280, y,
                               (int *)g_colourWhite0x00524968, 0x12);
             time = *(unsigned int *)(pBase + 0x4c0 + n * 8);
             sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, time / 6000,
@@ -10506,9 +10506,9 @@ void FUN_004efb70(Menu *pMenu, int param)
             FUN_004f8350()->itemCount = 10;
         }
     } else {
-        if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 8 & 0xf))
+        if ((BYTE)(*pInfo >> 8 & 0xf) >= (BYTE)RallyDataCountryIndex() + 1)
             limit = 4;
-        if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 0xc & 0xf))
+        if ((BYTE)(*pInfo >> 0xc & 0xf) >= (BYTE)RallyDataCountryIndex() + 1)
             limit = 8;
         if ((BYTE)RallyDataCountryIndex() + 1 <= (BYTE)(*pInfo >> 0x10 & 0xf) && (*pInfo & 1) != 0)
             limit = 10;
@@ -10856,8 +10856,8 @@ void FUN_004e8b60(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
             g_unk0x008189a8[1]++;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
-            pItem++;
             i++;
+            pItem++;
         } while (i < pMenu->itemCount);
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
@@ -11185,8 +11185,8 @@ void FUN_004dfe20(Menu *pMenu)
         pColour = g_colourWhite0x00524968;
         pShadow = g_colourShadowWhite0x00524974;
     } else {
-        pColour = g_colourText0x0052496c;
         pShadow = g_colourShadowText0x00524978;
+        pColour = g_colourText0x0052496c;
     }
     g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 99) / 640;
     g_unk0x008189a8[2] = (int)(g_pGraphics->resX * 282) / 640;
@@ -11309,8 +11309,8 @@ void FUN_004dfe20(Menu *pMenu)
                 break;
             }
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
-                pColour = g_colourWhite0x00524968;
                 pShadow = g_colourShadowWhite0x00524974;
+                pColour = g_colourWhite0x00524968;
             } else {
                 pColour = g_colourText0x0052496c;
                 pShadow = g_colourShadowText0x00524978;
@@ -11614,8 +11614,8 @@ void FUN_004e77c0(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
             g_unk0x008189a8[1]++;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
-            pItem++;
             i++;
+            pItem++;
         } while (i < pMenu->itemCount);
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
@@ -11825,8 +11825,8 @@ void FUN_004e90f0(Menu *pMenu)
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineShadow, 1);
             g_unk0x008189a8[1]++;
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, pLineColour, 1);
-            pItem++;
             i++;
+            pItem++;
         } while (i < pMenu->itemCount);
     }
     FrontendDraw_Carousel(FUN_004f8410(), 0, NULL);
@@ -12155,8 +12155,8 @@ void FUN_004dd4b0(Menu *pMenu)
                       (g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
     next:
         if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
-            pLineColour = g_colourWhite0x00524968;
             pLineShadow = g_colourShadowWhite0x00524974;
+            pLineColour = g_colourWhite0x00524968;
         } else {
             pLineColour = g_colourText0x0052496c;
             pLineShadow = g_colourShadowText0x00524978;

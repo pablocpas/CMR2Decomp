@@ -72,28 +72,28 @@
     "symbol_name": "Car_AllocateTable"
   },
   "0x428810": {
-    "n": "FUN_00428810",
-    "s": 0.9694656488549618,
-    "x": false,
+    "n": "Car_BuildViewOrder",
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00428810"
+    "symbol_name": "Car_BuildViewOrder"
   },
   "0x428a00": {
-    "n": "FUN_00428a00",
+    "n": "Car_MarkHiddenFromCameras",
     "s": 0.6075085324232082,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00428a00"
+    "symbol_name": "Car_MarkHiddenFromCameras"
   },
   "0x428bf0": {
-    "n": "FUN_00428bf0",
-    "s": 0.5389326334208224,
+    "n": "View_SelectVisibleCars",
+    "s": 0.5651793525809273,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00428bf0"
+    "symbol_name": "View_SelectVisibleCars"
   },
   "0x42b5f0": {
     "n": "Car_Get",
@@ -120,28 +120,28 @@
     "symbol_name": "Car_GetWheelSpeed"
   },
   "0x43e1f0": {
-    "n": "FUN_0043e1f0",
+    "n": "Car_SelectGearSpeedTable",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e1f0"
+    "symbol_name": "Car_SelectGearSpeedTable"
   },
   "0x43e530": {
-    "n": "FUN_0043e530",
+    "n": "Car_SetDifficultyHandling",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e530"
+    "symbol_name": "Car_SetDifficultyHandling"
   },
   "0x43e5a0": {
-    "n": "FUN_0043e5a0",
+    "n": "Car_BindModel",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e5a0"
+    "symbol_name": "Car_BindModel"
   },
   "0x43eef0": {
     "n": "Car_UpdateCorners",
@@ -169,7 +169,7 @@
   },
   "0x429810": {
     "n": "Car_UpdateViewNodes",
-    "s": 0.699443413729128,
+    "s": 0.8775510204081632,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -184,28 +184,28 @@
     "symbol_name": "Car_UpdateBodyAxes"
   },
   "0x43f570": {
-    "n": "FUN_0043f570",
+    "n": "Car_ResetWheelLoadsAfterShift",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043f570"
+    "symbol_name": "Car_ResetWheelLoadsAfterShift"
   },
   "0x43fb50": {
-    "n": "FUN_0043fb50",
+    "n": "Car_SetupDriveTrain",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043fb50"
+    "symbol_name": "Car_SetupDriveTrain"
   },
   "0x43fbd0": {
-    "n": "FUN_0043fbd0",
+    "n": "Car_SetupSuspensionRates",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043fbd0"
+    "symbol_name": "Car_SetupSuspensionRates"
   },
   "0x43fcc0": {
     "n": "Car_UpdateBodyAxesNoDamping",
@@ -240,20 +240,20 @@
     "symbol_name": "Car_UpdateWheelTravel"
   },
   "0x42eae0": {
-    "n": "FUN_0042eae0",
+    "n": "Car_UpdateGroundContact",
     "s": 0.8753525098702764,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042eae0"
+    "symbol_name": "Car_UpdateGroundContact"
   },
   "0x42f820": {
-    "n": "FUN_0042f820",
+    "n": "Car_FlagAirborneCorners",
     "s": 0.7894736842105263,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042f820"
+    "symbol_name": "Car_FlagAirborneCorners"
   },
   "0x431220": {
     "n": "Car_RelaxBodyAxes",
@@ -265,7 +265,7 @@
   },
   "0x434f50": {
     "n": "Car_UpdateCornerVelocities",
-    "s": 0.6561181434599156,
+    "s": 0.6588983050847458,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -313,31 +313,31 @@
   },
   "0x4387a0": {
     "n": "Car_UpdateTyreForces",
-    "s": 0.5168167616247014,
+    "s": 0.6436443791329904,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateTyreForces"
   },
   "0x43b020": {
-    "n": "FUN_0043b020",
+    "n": "Car_StartPendingCountdown",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043b020"
+    "symbol_name": "Car_StartPendingCountdown"
   },
   "0x43b090": {
-    "n": "FUN_0043b090",
+    "n": "Car_ScaleRatesByTimeStep",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043b090"
+    "symbol_name": "Car_ScaleRatesByTimeStep"
   },
   "0x43b100": {
     "n": "Car_UpdateSuspension",
-    "s": 0.723231227975061,
+    "s": 0.7242128121606949,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -361,27 +361,27 @@
   },
   "0x441500": {
     "n": "Car_UpdateWheelForces",
-    "s": 0.5823884197828709,
+    "s": 0.5885190545103715,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateWheelForces"
   },
   "0x42af50": {
-    "n": "FUN_0042af50",
-    "s": 0.423121387283237,
+    "n": "Car_StoreRenderTransforms",
+    "s": 0.9144811858608894,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042af50"
+    "symbol_name": "Car_StoreRenderTransforms"
   },
   "0x42b5b0": {
-    "n": "FUN_0042b5b0",
+    "n": "Car_ClearWheelRotation",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b5b0"
+    "symbol_name": "Car_ClearWheelRotation"
   },
   "0x42b7e0": {
     "n": "FUN_0042b7e0",
@@ -392,12 +392,12 @@
     "symbol_name": "FUN_0042b7e0"
   },
   "0x42b660": {
-    "n": "FUN_0042b660",
+    "n": "Car_BuildRaceOrder",
     "s": 0.8,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b660"
+    "symbol_name": "Car_BuildRaceOrder"
   },
   "0x42b6f0": {
     "n": "Car_GetOrder",
@@ -416,36 +416,36 @@
     "symbol_name": "Car_GetOrderCount"
   },
   "0x42b710": {
-    "n": "FUN_0042b710",
+    "n": "Car_GetDrawnFlag",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b710"
+    "symbol_name": "Car_GetDrawnFlag"
   },
   "0x42b720": {
-    "n": "FUN_0042b720",
+    "n": "Car_SetDrawnFlag",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b720"
+    "symbol_name": "Car_SetDrawnFlag"
   },
   "0x42b800": {
-    "n": "FUN_0042b800",
+    "n": "Car_ReloadModels",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b800"
+    "symbol_name": "Car_ReloadModels"
   },
   "0x42baf0": {
-    "n": "FUN_0042baf0",
+    "n": "Car_UpdateAndRenderAll",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042baf0"
+    "symbol_name": "Car_UpdateAndRenderAll"
   },
   "0x42bc80": {
     "n": "FUN_0042bc80",
@@ -456,100 +456,100 @@
     "symbol_name": "FUN_0042bc80"
   },
   "0x42bcd0": {
-    "n": "FUN_0042bcd0",
+    "n": "Car_ResetRenderTransforms",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042bcd0"
+    "symbol_name": "Car_ResetRenderTransforms"
   },
   "0x42bf70": {
-    "n": "FUN_0042bf70",
-    "s": 0.41469013006885996,
+    "n": "Car_InterpolateRenderTransforms",
+    "s": 0.6519756838905775,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042bf70"
+    "symbol_name": "Car_InterpolateRenderTransforms"
   },
   "0x42c7b0": {
-    "n": "FUN_0042c7b0",
+    "n": "CarTransforms_Copy",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042c7b0"
+    "symbol_name": "CarTransforms_Copy"
   },
   "0x42c840": {
-    "n": "FUN_0042c840",
+    "n": "Car_InvalidateTransformsRange",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042c840"
+    "symbol_name": "Car_InvalidateTransformsRange"
   },
   "0x42c870": {
-    "n": "FUN_0042c870",
+    "n": "Car_InvalidateTransforms",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042c870"
+    "symbol_name": "Car_InvalidateTransforms"
   },
   "0x42c890": {
-    "n": "FUN_0042c890",
-    "s": 0.47058823529411764,
+    "n": "Car_UpdateEngineNoteFalloff",
+    "s": 0.5813953488372093,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042c890"
+    "symbol_name": "Car_UpdateEngineNoteFalloff"
   },
   "0x42ca70": {
-    "n": "FUN_0042ca70",
+    "n": "Car_GetTransforms",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042ca70"
+    "symbol_name": "Car_GetTransforms"
   },
   "0x42ca90": {
-    "n": "FUN_0042ca90",
+    "n": "Car_GetPhysicsRow",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042ca90"
+    "symbol_name": "Car_GetPhysicsRow"
   },
   "0x42cab0": {
-    "n": "FUN_0042cab0",
+    "n": "Car_GetWheelTransforms",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cab0"
+    "symbol_name": "Car_GetWheelTransforms"
   },
   "0x42cac0": {
-    "n": "FUN_0042cac0",
+    "n": "Car_GetRendererRecord",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cac0"
+    "symbol_name": "Car_GetRendererRecord"
   },
   "0x42cae0": {
-    "n": "FUN_0042cae0",
+    "n": "Car_UsesNarrowWheels",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cae0"
+    "symbol_name": "Car_UsesNarrowWheels"
   },
   "0x43dff0": {
-    "n": "FUN_0043dff0",
+    "n": "Car_SetRideHeight",
     "s": 0.9565217391304348,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043dff0"
+    "symbol_name": "Car_SetRideHeight"
   },
   "0x43e160": {
     "n": "FUN_0043e160",
@@ -560,20 +560,20 @@
     "symbol_name": "FUN_0043e160"
   },
   "0x43e190": {
-    "n": "FUN_0043e190",
+    "n": "Car_SetBrakeBias",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e190"
+    "symbol_name": "Car_SetBrakeBias"
   },
   "0x43e1b0": {
-    "n": "FUN_0043e1b0",
+    "n": "Car_SetDriveSplit",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e1b0"
+    "symbol_name": "Car_SetDriveSplit"
   },
   "0x43e1d0": {
     "n": "FUN_0043e1d0",
@@ -584,20 +584,20 @@
     "symbol_name": "FUN_0043e1d0"
   },
   "0x442fc0": {
-    "n": "FUN_00442fc0",
-    "s": 0.676923076923077,
+    "n": "Car_SplitEngineTorque",
+    "s": 0.6923076923076923,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00442fc0"
+    "symbol_name": "Car_SplitEngineTorque"
   },
   "0x4430b0": {
-    "n": "FUN_004430b0",
+    "n": "Car_UpdateRideHeight",
     "s": 0.9423076923076923,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004430b0"
+    "symbol_name": "Car_UpdateRideHeight"
   },
   "0x443230": {
     "n": "FUN_00443230",
@@ -616,48 +616,48 @@
     "symbol_name": "FUN_00417760"
   },
   "0x423010": {
-    "n": "FUN_00423010",
+    "n": "View_SetShake",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423010"
+    "symbol_name": "View_SetShake"
   },
   "0x42cb50": {
-    "n": "FUN_0042cb50",
+    "n": "Car_ShowsCleanWheels",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cb50"
+    "symbol_name": "Car_ShowsCleanWheels"
   },
   "0x42cb90": {
-    "n": "FUN_0042cb90",
+    "n": "Car_SwapWheelTextures",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cb90"
+    "symbol_name": "Car_SwapWheelTextures"
   },
   "0x443a20": {
     "n": "Car_UpdateCornerVelocityPair",
-    "s": 0.7607361963190185,
+    "s": 0.8297213622291022,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateCornerVelocityPair"
   },
   "0x443bf0": {
-    "n": "FUN_00443bf0",
+    "n": "Car_UpdateSuspensionPass",
     "s": 0.9696969696969697,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00443bf0"
+    "symbol_name": "Car_UpdateSuspensionPass"
   },
   "0x443d10": {
     "n": "Car_FollowGround",
-    "s": 0.7546987951807229,
+    "s": 0.7565217391304347,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -672,20 +672,20 @@
     "symbol_name": "Car_UpdateRollover"
   },
   "0x433890": {
-    "n": "FUN_00433890",
+    "n": "Car_StepAll",
     "s": 0.7326266195524146,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00433890"
+    "symbol_name": "Car_StepAll"
   },
   "0x433e80": {
-    "n": "FUN_00433e80",
-    "s": 0.5345622119815668,
+    "n": "Car_BalanceTwoPlayerRideHeight",
+    "s": 0.5959595959595959,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00433e80"
+    "symbol_name": "Car_BalanceTwoPlayerRideHeight"
   },
   "0x433fd0": {
     "n": "FUN_00433fd0",
@@ -696,12 +696,12 @@
     "symbol_name": "FUN_00433fd0"
   },
   "0x434070": {
-    "n": "FUN_00434070",
+    "n": "Car_UpdateSlopeGrip",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00434070"
+    "symbol_name": "Car_UpdateSlopeGrip"
   },
   "0x4340f0": {
     "n": "FUN_004340f0",
@@ -713,7 +713,7 @@
   },
   "0x434140": {
     "n": "Car_UpdateSteering",
-    "s": 0.5584512285927029,
+    "s": 0.9109217660728117,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -736,28 +736,28 @@
     "symbol_name": "Car_UpdateEngineSpeed"
   },
   "0x444a70": {
-    "n": "FUN_00444a70",
+    "n": "Car_RebuildBodyAxes",
     "s": 0.9206349206349206,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00444a70"
+    "symbol_name": "Car_RebuildBodyAxes"
   },
   "0x444c10": {
-    "n": "FUN_00444c10",
+    "n": "Car_PrepareStep",
     "s": 0.8127753303964758,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00444c10"
+    "symbol_name": "Car_PrepareStep"
   },
   "0x4458d0": {
-    "n": "FUN_004458d0",
+    "n": "Car_LiftOutOfGround",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004458d0"
+    "symbol_name": "Car_LiftOutOfGround"
   },
   "0x445a20": {
     "n": "FUN_00445a20",
@@ -768,44 +768,44 @@
     "symbol_name": "FUN_00445a20"
   },
   "0x423a00": {
-    "n": "FUN_00423a00",
+    "n": "View_GetCarCameraRotation",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423a00"
+    "symbol_name": "View_GetCarCameraRotation"
   },
   "0x423db0": {
-    "n": "FUN_00423db0",
+    "n": "View_GetCarCameraTarget",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423db0"
+    "symbol_name": "View_GetCarCameraTarget"
   },
   "0x423de0": {
-    "n": "FUN_00423de0",
+    "n": "CameraState_Interpolate",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423de0"
+    "symbol_name": "CameraState_Interpolate"
   },
   "0x423ee0": {
-    "n": "FUN_00423ee0",
+    "n": "CameraState_Copy",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423ee0"
+    "symbol_name": "CameraState_Copy"
   },
   "0x423f30": {
-    "n": "FUN_00423f30",
+    "n": "Render_GetDetailDistanceScale",
     "s": 0.9583333333333334,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423f30"
+    "symbol_name": "Render_GetDetailDistanceScale"
   },
   "0x423fc0": {
     "n": "FUN_00423fc0",
@@ -816,20 +816,20 @@
     "symbol_name": "FUN_00423fc0"
   },
   "0x4218d0": {
-    "n": "FUN_004218d0",
+    "n": "View_FindFreeModeSlot",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004218d0"
+    "symbol_name": "View_FindFreeModeSlot"
   },
   "0x421930": {
-    "n": "FUN_00421930",
+    "n": "View_UpdateModeSurface",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421930"
+    "symbol_name": "View_UpdateModeSurface"
   },
   "0x421980": {
     "n": "FUN_00421980",
@@ -848,148 +848,148 @@
     "symbol_name": "FUN_00437f90"
   },
   "0x4232a0": {
-    "n": "FUN_004232a0",
+    "n": "View_IsModeAvailable",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004232a0"
+    "symbol_name": "View_IsModeAvailable"
   },
   "0x42b740": {
-    "n": "FUN_0042b740",
+    "n": "Car_ClearRecords",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b740"
+    "symbol_name": "Car_ClearRecords"
   },
   "0x42b790": {
-    "n": "FUN_0042b790",
+    "n": "Physics_UpdateRateHold",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b790"
+    "symbol_name": "Physics_UpdateRateHold"
   },
   "0x433840": {
-    "n": "FUN_00433840",
+    "n": "Physics_SetScale",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00433840"
+    "symbol_name": "Physics_SetScale"
   },
   "0x421fe0": {
-    "n": "FUN_00421fe0",
+    "n": "View_GetHeading",
     "s": 0.2802547770700637,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421fe0"
+    "symbol_name": "View_GetHeading"
   },
   "0x423a30": {
-    "n": "FUN_00423a30",
+    "n": "View_GetCarBodyMatrix",
     "s": 0.9310344827586207,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423a30"
+    "symbol_name": "View_GetCarBodyMatrix"
   },
   "0x431c10": {
-    "n": "FUN_00431c10",
+    "n": "Car_StartResetFade",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00431c10"
+    "symbol_name": "Car_StartResetFade"
   },
   "0x431c50": {
-    "n": "FUN_00431c50",
+    "n": "Car_ResetToStage",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00431c50"
+    "symbol_name": "Car_ResetToStage"
   },
   "0x431d80": {
-    "n": "FUN_00431d80",
+    "n": "Car_OverlapsOtherCar",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00431d80"
+    "symbol_name": "Car_OverlapsOtherCar"
   },
   "0x432b30": {
-    "n": "FUN_00432b30",
+    "n": "Car_ShareWeightOnWheels",
     "s": 0.6708860759493671,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00432b30"
+    "symbol_name": "Car_ShareWeightOnWheels"
   },
   "0x437dc0": {
-    "n": "FUN_00437dc0",
+    "n": "Car_UpdateEngineTorque",
     "s": 0.6090534979423868,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00437dc0"
+    "symbol_name": "Car_UpdateEngineTorque"
   },
   "0x437fd0": {
-    "n": "FUN_00437fd0",
+    "n": "Car_FilterWheelSpin",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00437fd0"
+    "symbol_name": "Car_FilterWheelSpin"
   },
   "0x421590": {
-    "n": "FUN_00421590",
+    "n": "View_ReleaseNodes",
     "s": 0.625,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421590"
+    "symbol_name": "View_ReleaseNodes"
   },
   "0x42f8c0": {
-    "n": "FUN_0042f8c0",
+    "n": "Car_LiftFreeCorners",
     "s": 0.6197183098591549,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042f8c0"
+    "symbol_name": "Car_LiftFreeCorners"
   },
   "0x42f9d0": {
-    "n": "FUN_0042f9d0",
+    "n": "Car_SettleFreeCorners",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042f9d0"
+    "symbol_name": "Car_SettleFreeCorners"
   },
   "0x42b4a0": {
-    "n": "FUN_0042b4a0",
+    "n": "Car_IntegrateWheelRotation",
     "s": 0.6708074534161491,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042b4a0"
+    "symbol_name": "Car_IntegrateWheelRotation"
   },
   "0x42be30": {
-    "n": "FUN_0042be30",
+    "n": "Car_UpdateWheelMeshStates",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042be30"
+    "symbol_name": "Car_UpdateWheelMeshStates"
   },
   "0x442e90": {
-    "n": "FUN_00442e90",
-    "s": 0.47513812154696133,
+    "n": "Car_SmoothForceFeedback",
+    "s": 0.48863636363636365,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00442e90"
+    "symbol_name": "Car_SmoothForceFeedback"
   },
   "0x435470": {
     "n": "Car_IntegrateContacts",
@@ -1000,168 +1000,168 @@
     "symbol_name": "Car_IntegrateContacts"
   },
   "0x43e680": {
-    "n": "FUN_0043e680",
-    "s": 0.5244704163623083,
+    "n": "Car_ResetBodyBasis",
+    "s": 0.7736220472440944,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043e680"
+    "symbol_name": "Car_ResetBodyBasis"
   },
   "0x42e450": {
-    "n": "FUN_0042e450",
+    "n": "Car_IntegrateWheelTravel",
     "s": 0.48169014084507045,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042e450"
+    "symbol_name": "Car_IntegrateWheelTravel"
   },
   "0x431ff0": {
-    "n": "FUN_00431ff0",
+    "n": "Car_PlaceAtStart",
     "s": 0.7198492462311558,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00431ff0"
+    "symbol_name": "Car_PlaceAtStart"
   },
   "0x43c7f0": {
-    "n": "FUN_0043c7f0",
-    "s": 0.7033319951826575,
+    "n": "Car_Spawn",
+    "s": 0.7266881028938906,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043c7f0"
+    "symbol_name": "Car_Spawn"
   },
   "0x423b20": {
-    "n": "FUN_00423b20",
+    "n": "View_PlaceCarCamera",
     "s": 0.5810055865921788,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423b20"
+    "symbol_name": "View_PlaceCarCamera"
   },
   "0x42cd00": {
-    "n": "FUN_0042cd00",
+    "n": "Car_PrepareBodies",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042cd00"
+    "symbol_name": "Car_PrepareBodies"
   },
   "0x42ce60": {
-    "n": "FUN_0042ce60",
-    "s": 0.7209119496855346,
+    "n": "Car_StepGroundContact",
+    "s": 0.7319587628865979,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042ce60"
+    "symbol_name": "Car_StepGroundContact"
   },
   "0x43f630": {
-    "n": "FUN_0043f630",
-    "s": 0.6666666666666666,
+    "n": "Car_RunStepPasses",
+    "s": 0.6685962373371924,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0043f630"
+    "symbol_name": "Car_RunStepPasses"
   },
   "0x42fb20": {
-    "n": "FUN_0042fb20",
+    "n": "Car_SolveUpright",
     "s": 0.975148568341437,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_0042fb20"
+    "symbol_name": "Car_SolveUpright"
   },
   "0x423300": {
-    "n": "FUN_00423300",
+    "n": "Camera_Start",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423300"
+    "symbol_name": "Camera_Start"
   },
   "0x423460": {
-    "n": "FUN_00423460",
+    "n": "Camera_Update",
     "s": 0.5418994413407822,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423460"
+    "symbol_name": "Camera_Update"
   },
   "0x4236b0": {
-    "n": "FUN_004236b0",
+    "n": "Camera_Restart",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004236b0"
+    "symbol_name": "Camera_Restart"
   },
   "0x423780": {
-    "n": "FUN_00423780",
+    "n": "Camera_SnapTo",
     "s": 0.9444444444444444,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00423780"
+    "symbol_name": "Camera_SnapTo"
   },
   "0x421610": {
-    "n": "FUN_00421610",
+    "n": "View_SetupCameras",
     "s": 0.32051282051282054,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421610"
+    "symbol_name": "View_SetupCameras"
   },
   "0x421720": {
-    "n": "FUN_00421720",
+    "n": "View_SwitchCamera",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421720"
+    "symbol_name": "View_SwitchCamera"
   },
   "0x4219b0": {
-    "n": "FUN_004219b0",
+    "n": "View_UpdateCamera",
     "s": 0.5326278659611993,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_004219b0"
+    "symbol_name": "View_UpdateCamera"
   },
   "0x421d80": {
-    "n": "FUN_00421d80",
+    "n": "View_ResetCameras",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421d80"
+    "symbol_name": "View_ResetCameras"
   },
   "0x421e20": {
-    "n": "FUN_00421e20",
+    "n": "View_SnapCameras",
     "s": 0.7730496453900709,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00421e20"
+    "symbol_name": "View_SnapCameras"
   },
   "0x422fe0": {
-    "n": "FUN_00422fe0",
+    "n": "View_SetCameraType",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00422fe0"
+    "symbol_name": "View_SetCameraType"
   },
   "0x422140": {
-    "n": "FUN_00422140",
+    "n": "View_BlendCameraStates",
     "s": 0.8045977011494253,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
-    "symbol_name": "FUN_00422140"
+    "symbol_name": "View_BlendCameraStates"
   },
   "0x498dd0": {
     "n": "CarEffects_Init",
-    "s": 0.4296675191815857,
+    "s": 0.45012787723785164,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1169,7 +1169,7 @@
   },
   "0x499de0": {
     "n": "Car_ShatterWindow",
-    "s": 0.6143308746048473,
+    "s": 0.6294148655772273,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1177,7 +1177,7 @@
   },
   "0x49a870": {
     "n": "Car_BreakWindow",
-    "s": 0.9473684210526315,
+    "s": 0.9824561403508771,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1225,7 +1225,7 @@
   },
   "0x4994f0": {
     "n": "GlassShard_Draw",
-    "s": 0.44970414201183434,
+    "s": 0.5325443786982249,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1241,7 +1241,7 @@
   },
   "0x499750": {
     "n": "Car_SpawnDebris",
-    "s": 0.5900383141762452,
+    "s": 0.6091954022988506,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1249,7 +1249,7 @@
   },
   "0x499ac0": {
     "n": "Debris_Draw",
-    "s": 0.48698884758364314,
+    "s": 0.5437616387337058,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1257,7 +1257,7 @@
   },
   "0x49ab90": {
     "n": "CarEffects_InitDebris",
-    "s": 0.6178010471204188,
+    "s": 0.6492146596858639,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1289,7 +1289,7 @@
   },
   "0x49b3e0": {
     "n": "WheelSpray_Update",
-    "s": 0.20784883720930233,
+    "s": 0.7501769285208776,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1353,7 +1353,7 @@
   },
   "0x45c820": {
     "n": "WheelSplash_Update",
-    "s": 0.3637602179836512,
+    "s": 0.4616393442622951,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1377,7 +1377,7 @@
   },
   "0x45d540": {
     "n": "FUN_0045d540",
-    "s": 0.6786034019695614,
+    "s": 0.6798206278026906,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1385,7 +1385,7 @@
   },
   "0x494bb0": {
     "n": "FUN_00494bb0",
-    "s": 0.41414141414141414,
+    "s": 0.5544554455445545,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
@@ -1401,7 +1401,7 @@
   },
   "0x497db0": {
     "n": "FUN_00497db0",
-    "s": 0.6199186991869918,
+    "s": 0.6436548223350254,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
@@ -1409,15 +1409,15 @@
   },
   "0x4962c0": {
     "n": "FUN_004962c0",
-    "s": 0.9506172839506173,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "CarPhysics.cpp",
     "symbol_name": "FUN_004962c0"
   },
   "0x494db0": {
     "n": "FUN_00494db0",
-    "s": 0.42242703533026116,
+    "s": 0.42319508448540705,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
@@ -1461,7 +1461,7 @@
   },
   "0x489060": {
     "n": "Collision_RayQuad",
-    "s": 0.37168141592920356,
+    "s": 0.38276299112801015,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
@@ -1492,24 +1492,24 @@
     "symbol_name": "FUN_0048c750"
   },
   "0x489b20": {
-    "n": "FUN_00489b20",
-    "s": 0.2826855123674912,
+    "n": "Collision_SphereVsBox",
+    "s": 0.655,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
-    "symbol_name": "FUN_00489b20"
+    "symbol_name": "Collision_SphereVsBox"
   },
   "0x489750": {
-    "n": "FUN_00489750",
-    "s": 0.5737439222042139,
+    "n": "Collision_CarVsBox",
+    "s": 0.593192868719611,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
-    "symbol_name": "FUN_00489750"
+    "symbol_name": "Collision_CarVsBox"
   },
   "0x48a1f0": {
     "n": "FUN_0048a1f0",
-    "s": 0.7291666666666666,
+    "s": 0.7304347826086957,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
@@ -1557,7 +1557,7 @@
   },
   "0x4aa220": {
     "n": "CFileBuffer::GetGenericFileBuffer",
-    "s": 0.7133182844243793,
+    "s": 0.7165532879818595,
     "x": false,
     "unknown": [],
     "f": "FileBuffer.cpp",
@@ -1653,7 +1653,7 @@
   },
   "0x4eb860": {
     "n": "FUN_004eb860",
-    "s": 0.5149700598802395,
+    "s": 0.5209580838323353,
     "x": false,
     "unknown": [],
     "f": "FileBuffer.cpp",
@@ -1749,7 +1749,7 @@
   },
   "0x4b9f20": {
     "n": "FixMatrix_Multiply",
-    "s": 0.8120300751879699,
+    "s": 0.8421052631578947,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -1885,8 +1885,8 @@
   },
   "0x4baa40": {
     "n": "FixMatrix_TransformPoint",
-    "s": 0.7782805429864253,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FixMatrix_TransformPoint"
@@ -1997,8 +1997,8 @@
   },
   "0x426d80": {
     "n": "FUN_00426d80",
-    "s": 0.2977346278317152,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FUN_00426d80"
@@ -2013,8 +2013,8 @@
   },
   "0x4869e0": {
     "n": "FUN_004869e0",
-    "s": 0.94,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FixedPoint.cpp",
     "symbol_name": "FUN_004869e0"
@@ -2029,7 +2029,7 @@
   },
   "0x486910": {
     "n": "FUN_00486910",
-    "s": 0.4430379746835443,
+    "s": 0.7516778523489933,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -2053,7 +2053,7 @@
   },
   "0x470580": {
     "n": "FUN_00470580",
-    "s": 0.5406480955088119,
+    "s": 0.5409556313993175,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -2117,7 +2117,7 @@
   },
   "0x40b5b0": {
     "n": "Font_GetTextWidth",
-    "s": 0.22988505747126436,
+    "s": 0.5645161290322581,
     "x": false,
     "unknown": [],
     "f": "Font.cpp",
@@ -2149,7 +2149,7 @@
   },
   "0x40b880": {
     "n": "Font_DrawText",
-    "s": 0.2553191489361702,
+    "s": 0.2808988764044944,
     "x": false,
     "unknown": [],
     "f": "Font.cpp",
@@ -2213,8 +2213,8 @@
   },
   "0x4d2590": {
     "n": "CFrontend::FUN_004d2590",
-    "s": 0.961038961038961,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Frontend.cpp",
     "symbol_name": "CFrontend::FUN_004d2590"
@@ -2621,7 +2621,7 @@
   },
   "0x4cfb30": {
     "n": "FUN_004cfb30",
-    "s": 0.5952380952380952,
+    "s": 0.5976095617529881,
     "x": false,
     "unknown": [],
     "f": "Frontend.cpp",
@@ -2789,7 +2789,7 @@
   },
   "0x4d40d0": {
     "n": "FrontendDraw_MenuPath",
-    "s": 0.743801652892562,
+    "s": 0.75,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -2821,7 +2821,7 @@
   },
   "0x4d4460": {
     "n": "FrontendDraw_HelpText",
-    "s": 0.8341232227488151,
+    "s": 0.8461538461538461,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -2829,7 +2829,7 @@
   },
   "0x4d45b0": {
     "n": "FrontendDraw_Carousel",
-    "s": 0.8656084656084656,
+    "s": 0.8740740740740741,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -2837,7 +2837,7 @@
   },
   "0x4d3360": {
     "n": "FrontendDraw_MenuList",
-    "s": 0.8498527968596663,
+    "s": 0.7871720116618076,
     "x": false,
     "unknown": [],
     "f": "FrontendDraw.cpp",
@@ -3021,7 +3021,7 @@
   },
   "0x4fc070": {
     "n": "FUN_004fc070",
-    "s": 0.7466666666666667,
+    "s": 0.7533333333333333,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -3157,7 +3157,7 @@
   },
   "0x4fd080": {
     "n": "FUN_004fd080",
-    "s": 0.5991058122205664,
+    "s": 0.6026986506746627,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -3173,7 +3173,7 @@
   },
   "0x4fdb10": {
     "n": "FUN_004fdb10",
-    "s": 0.501937984496124,
+    "s": 0.5251937984496124,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -4525,7 +4525,7 @@
   },
   "0x4d65c0": {
     "n": "FUN_004d65c0",
-    "s": 0.8206185567010309,
+    "s": 0.8240165631469979,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -4533,7 +4533,7 @@
   },
   "0x4d9450": {
     "n": "FUN_004d9450",
-    "s": 0.8319088319088319,
+    "s": 0.8390804597701149,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -4565,7 +4565,7 @@
   },
   "0x4e0770": {
     "n": "FUN_004e0770",
-    "s": 0.7558528428093646,
+    "s": 0.7607361963190185,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -4637,7 +4637,7 @@
   },
   "0x4e4130": {
     "n": "FUN_004e4130",
-    "s": 0.9049128367670365,
+    "s": 0.9040444091990484,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5317,7 +5317,7 @@
   },
   "0x4f16f0": {
     "n": "FUN_004f16f0",
-    "s": 0.8269230769230769,
+    "s": 0.8349514563106796,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5733,7 +5733,7 @@
   },
   "0x4f37c0": {
     "n": "FUN_004f37c0",
-    "s": 0.5432835820895522,
+    "s": 0.6126126126126126,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5885,7 +5885,7 @@
   },
   "0x4f3c10": {
     "n": "FUN_004f3c10",
-    "s": 0.5545171339563862,
+    "s": 0.6439628482972136,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5893,7 +5893,7 @@
   },
   "0x4f3dd0": {
     "n": "FUN_004f3dd0",
-    "s": 0.9041095890410958,
+    "s": 0.908256880733945,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -5933,7 +5933,7 @@
   },
   "0x4f4760": {
     "n": "FUN_004f4760",
-    "s": 0.5414364640883977,
+    "s": 0.5851063829787234,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6101,7 +6101,7 @@
   },
   "0x4ded80": {
     "n": "FUN_004ded80",
-    "s": 0.6327800829875518,
+    "s": 0.6348547717842323,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6149,7 +6149,7 @@
   },
   "0x4d5ad0": {
     "n": "FUN_004d5ad0",
-    "s": 0.7285223367697594,
+    "s": 0.7766323024054983,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6597,7 +6597,7 @@
   },
   "0x4fb400": {
     "n": "FUN_004fb400",
-    "s": 0.7348484848484849,
+    "s": 0.7474747474747475,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6605,7 +6605,7 @@
   },
   "0x4fb8d0": {
     "n": "FUN_004fb8d0",
-    "s": 0.5066666666666667,
+    "s": 0.5333333333333333,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6629,7 +6629,7 @@
   },
   "0x4e20e0": {
     "n": "FUN_004e20e0",
-    "s": 0.750733137829912,
+    "s": 0.85,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6645,7 +6645,7 @@
   },
   "0x4ee170": {
     "n": "FUN_004ee170",
-    "s": 0.5404339250493096,
+    "s": 0.5443786982248521,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6653,7 +6653,7 @@
   },
   "0x4d6870": {
     "n": "FUN_004d6870",
-    "s": 0.34375,
+    "s": 0.3460410557184751,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6685,7 +6685,7 @@
   },
   "0x4f0580": {
     "n": "FUN_004f0580",
-    "s": 0.5227272727272727,
+    "s": 0.5411764705882353,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6709,7 +6709,7 @@
   },
   "0x4e48b0": {
     "n": "FUN_004e48b0",
-    "s": 0.8971807628524047,
+    "s": 0.9842584921292461,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6725,16 +6725,16 @@
   },
   "0x4e5c90": {
     "n": "FUN_004e5c90",
-    "s": 0.9092369477911647,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004e5c90"
   },
   "0x4e63d0": {
     "n": "FUN_004e63d0",
-    "s": 0.8846487424111015,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004e63d0"
@@ -6749,7 +6749,7 @@
   },
   "0x4e7120": {
     "n": "FUN_004e7120",
-    "s": 0.8785578747628083,
+    "s": 0.9013282732447818,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6853,7 +6853,7 @@
   },
   "0x4d50a0": {
     "n": "FUN_004d50a0",
-    "s": 0.795417348608838,
+    "s": 0.7984665936473165,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6869,7 +6869,7 @@
   },
   "0x4efb70": {
     "n": "FUN_004efb70",
-    "s": 0.8292682926829268,
+    "s": 0.8509485094850948,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6893,7 +6893,7 @@
   },
   "0x4e8b60": {
     "n": "FUN_004e8b60",
-    "s": 0.724390243902439,
+    "s": 0.7268292682926829,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6917,7 +6917,7 @@
   },
   "0x4dfe20": {
     "n": "FUN_004dfe20",
-    "s": 0.49629130141604855,
+    "s": 0.5043830074173972,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6935,7 +6935,7 @@
   },
   "0x4e77c0": {
     "n": "FUN_004e77c0",
-    "s": 0.9204647006255585,
+    "s": 0.9239033124440466,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6951,7 +6951,7 @@
   },
   "0x4e90f0": {
     "n": "FUN_004e90f0",
-    "s": 0.9494736842105264,
+    "s": 0.9525816649104321,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6967,7 +6967,7 @@
   },
   "0x4dd4b0": {
     "n": "FUN_004dd4b0",
-    "s": 0.6715712033631108,
+    "s": 0.674724119810825,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6999,7 +6999,7 @@
   },
   "0x4d0780": {
     "n": "CGame::FUN_004d0780",
-    "s": 0.7142857142857143,
+    "s": 0.7380952380952381,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -7055,16 +7055,16 @@
   },
   "0x4057a8": {
     "n": "FUN_004057a8",
-    "s": 0.4,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "FUN_004057a8"
   },
   "0x4057ab": {
     "n": "FUN_004057ab",
-    "s": 0.2857142857142857,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "FUN_004057ab"
@@ -7255,7 +7255,7 @@
   },
   "0x41b060": {
     "n": "CGame::FUN_0041b060",
-    "s": 0.7830423940149626,
+    "s": 0.7860696517412935,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -7455,7 +7455,7 @@
   },
   "0x4e2e50": {
     "n": "CGame::FUN_004e2e50",
-    "s": 0.5475728155339806,
+    "s": 0.55078125,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -7519,7 +7519,7 @@
   },
   "0x4aa930": {
     "n": "CGame::AddConnection",
-    "s": 0.5408805031446541,
+    "s": 0.5584415584415584,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -7863,7 +7863,7 @@
   },
   "0x4a0ec0": {
     "n": "FUN_004a0ec0",
-    "s": 0.7076923076923077,
+    "s": 0.7131782945736435,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -8799,7 +8799,7 @@
   },
   "0x406010": {
     "n": "CGameInfo::FUN_00406010",
-    "s": 0.573170731707317,
+    "s": 0.5853658536585366,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -8815,7 +8815,7 @@
   },
   "0x406580": {
     "n": "CGameInfo::FUN_00406580",
-    "s": 0.7572815533980582,
+    "s": 0.821256038647343,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -8831,7 +8831,7 @@
   },
   "0x4ea5e0": {
     "n": "CGameInfo::LoadGameInfo",
-    "s": 0.7414330218068536,
+    "s": 0.74375,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -9727,8 +9727,8 @@
   },
   "0x4ea480": {
     "n": "FUN_004ea480",
-    "s": 0.9375,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_004ea480"
@@ -10071,7 +10071,7 @@
   },
   "0x502570": {
     "n": "FUN_00502570",
-    "s": 0.6666666666666666,
+    "s": 0.6875,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10151,7 +10151,7 @@
   },
   "0x402f90": {
     "n": "FUN_00402f90",
-    "s": 0.8658536585365854,
+    "s": 0.8902439024390244,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10335,7 +10335,7 @@
   },
   "0x404f40": {
     "n": "FUN_00404f40",
-    "s": 0.8315508021390374,
+    "s": 0.8326639892904953,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10663,8 +10663,8 @@
   },
   "0x501b90": {
     "n": "FUN_00501b90",
-    "s": 0.9905660377358491,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00501b90"
@@ -10711,7 +10711,7 @@
   },
   "0x503b70": {
     "n": "FUN_00503b70",
-    "s": 0.6349206349206349,
+    "s": 0.6521739130434783,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10767,16 +10767,16 @@
   },
   "0x509d30": {
     "n": "FUN_00509d30",
-    "s": 0.8985507246376812,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00509d30"
   },
   "0x509be0": {
     "n": "FUN_00509be0",
-    "s": 0.872093023255814,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00509be0"
@@ -10887,7 +10887,7 @@
   },
   "0x50ee50": {
     "n": "FUN_0050ee50",
-    "s": 0.4031936127744511,
+    "s": 0.5988023952095808,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11047,7 +11047,7 @@
   },
   "0x506720": {
     "n": "FUN_00506720",
-    "s": 0.9012875536480687,
+    "s": 0.9170305676855895,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11063,7 +11063,7 @@
   },
   "0x506930": {
     "n": "FUN_00506930",
-    "s": 0.5714285714285714,
+    "s": 0.5803571428571429,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11079,7 +11079,7 @@
   },
   "0x506bb0": {
     "n": "FUN_00506bb0",
-    "s": 0.4731182795698925,
+    "s": 0.549079754601227,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11255,7 +11255,7 @@
   },
   "0x50a3f0": {
     "n": "FUN_0050a3f0",
-    "s": 0.8707482993197279,
+    "s": 0.8767123287671232,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11287,7 +11287,7 @@
   },
   "0x5057e0": {
     "n": "FUN_005057e0",
-    "s": 0.6394984326018809,
+    "s": 0.6435331230283912,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11295,7 +11295,7 @@
   },
   "0x402000": {
     "n": "FUN_00402000",
-    "s": 0.7383309759547383,
+    "s": 0.7393767705382436,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11303,7 +11303,7 @@
   },
   "0x403890": {
     "n": "FUN_00403890",
-    "s": 0.49591280653950953,
+    "s": 0.4977293369663942,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11311,7 +11311,7 @@
   },
   "0x4041e0": {
     "n": "FUN_004041e0",
-    "s": 0.6939759036144578,
+    "s": 0.7521058965102286,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11327,7 +11327,7 @@
   },
   "0x500550": {
     "n": "FUN_00500550",
-    "s": 0.518918918918919,
+    "s": 0.592057761732852,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11335,7 +11335,7 @@
   },
   "0x505b40": {
     "n": "FUN_00505b40",
-    "s": 0.5962732919254659,
+    "s": 0.6058091286307054,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11423,7 +11423,7 @@
   },
   "0x50e780": {
     "n": "FUN_0050e780",
-    "s": 0.6782334384858044,
+    "s": 0.6813880126182965,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11439,7 +11439,7 @@
   },
   "0x50a920": {
     "n": "FUN_0050a920",
-    "s": 0.8855869242199108,
+    "s": 0.8857566765578635,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11447,8 +11447,8 @@
   },
   "0x50c130": {
     "n": "FUN_0050c130",
-    "s": 0.9626556016597511,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_0050c130"
@@ -11479,7 +11479,7 @@
   },
   "0x50b1c0": {
     "n": "FUN_0050b1c0",
-    "s": 0.8012074169900819,
+    "s": 0.9367965367965368,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11519,7 +11519,7 @@
   },
   "0x500270": {
     "n": "FUN_00500270",
-    "s": 0.43243243243243246,
+    "s": 0.44036697247706424,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11527,7 +11527,7 @@
   },
   "0x503010": {
     "n": "FUN_00503010",
-    "s": 0.6867088607594937,
+    "s": 0.6846275752773375,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11574,7 +11574,7 @@
   },
   "0x4f8b30": {
     "n": "FUN_004f8b30",
-    "s": 0.6222627737226277,
+    "s": 0.6259124087591241,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11854,7 +11854,7 @@
   },
   "0x44fea0": {
     "n": "FUN_0044fea0",
-    "s": 0.9902439024390244,
+    "s": 0.9951219512195122,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -11982,7 +11982,7 @@
   },
   "0x451890": {
     "n": "FUN_00451890",
-    "s": 0.9208211143695014,
+    "s": 0.9235294117647059,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -12150,8 +12150,8 @@
   },
   "0x44b270": {
     "n": "FUN_0044b270",
-    "s": 0.9743589743589743,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameMenus.cpp",
     "symbol_name": "FUN_0044b270"
@@ -12222,7 +12222,7 @@
   },
   "0x4a9f90": {
     "n": "CGenericFileLoader::StrUpperPolish",
-    "s": 0.35514018691588783,
+    "s": 0.37735849056603776,
     "x": false,
     "unknown": [],
     "f": "GenericFileLoader.cpp",
@@ -12462,7 +12462,7 @@
   },
   "0x4a4d30": {
     "n": "CGraphics::RemapTextureAlpha",
-    "s": 0.4336283185840708,
+    "s": 0.43458980044345896,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12578,7 +12578,7 @@
   },
   "0x4a8bf0": {
     "n": "CGraphics::GetDisplayDeviceNames",
-    "s": 0.8076923076923077,
+    "s": 0.8936170212765957,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12714,7 +12714,7 @@
   },
   "0x4a91b0": {
     "n": "CGraphics::EnumTextureFormatsCallback",
-    "s": 0.42838709677419357,
+    "s": 0.4372574385510996,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12762,7 +12762,7 @@
   },
   "0x4a5880": {
     "n": "CGraphics::GenerateBumpMap",
-    "s": 0.4014732965009208,
+    "s": 0.40370370370370373,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12898,7 +12898,7 @@
   },
   "0x49da50": {
     "n": "Tri2D_Contains",
-    "s": 0.4810126582278481,
+    "s": 0.48346055979643765,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13010,7 +13010,7 @@
   },
   "0x4b67f0": {
     "n": "Mesh_GetShadowCylinder",
-    "s": 0.6311787072243346,
+    "s": 0.6352040816326531,
     "x": false,
     "unknown": [
       "__real@4@00000000000000000000"
@@ -13020,7 +13020,7 @@
   },
   "0x4b6ca0": {
     "n": "Scene_AttenuateSectorLight",
-    "s": 0.4474393530997305,
+    "s": 0.4528301886792453,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13060,7 +13060,7 @@
   },
   "0x4bc110": {
     "n": "Timer_GetValue",
-    "s": 0.5203252032520326,
+    "s": 0.5447154471544715,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13212,7 +13212,7 @@
   },
   "0x4b9910": {
     "n": "FUN_004b9910",
-    "s": 0.6341463414634146,
+    "s": 0.6459627329192547,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13236,7 +13236,7 @@
   },
   "0x4bc490": {
     "n": "Flare_SampleVisibility",
-    "s": 0.330635838150289,
+    "s": 0.3617511520737327,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13627,7 +13627,7 @@
   },
   "0x4b0110": {
     "n": "Particle_UpdateAll",
-    "s": 0.509090909090909,
+    "s": 0.515702479338843,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13715,7 +13715,7 @@
   },
   "0x4a6710": {
     "n": "CGraphics::LoadTGATexture",
-    "s": 0.44285714285714284,
+    "s": 0.45714285714285713,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13723,7 +13723,7 @@
   },
   "0x4a60d0": {
     "n": "CGraphics::SampleTGAPixel",
-    "s": 0.9259259259259259,
+    "s": 0.9470899470899471,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13835,7 +13835,7 @@
   },
   "0x49c680": {
     "n": "FUN_0049c680",
-    "s": 0.5416666666666666,
+    "s": 0.6145833333333334,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13883,7 +13883,7 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.7421465968586387,
+    "s": 0.7518009168303864,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -13907,7 +13907,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.576969696969697,
+    "s": 0.5804878048780487,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -14027,7 +14027,7 @@
   },
   "0x49fe30": {
     "n": "CInput::DInputCreateDevice",
-    "s": 0.7377777777777778,
+    "s": 0.7443946188340808,
     "x": false,
     "unknown": [],
     "f": "Input.cpp",
@@ -14099,7 +14099,7 @@
   },
   "0x49f6d0": {
     "n": "CInput::SetupJoystick",
-    "s": 0.6486486486486487,
+    "s": 0.649624060150376,
     "x": false,
     "unknown": [],
     "f": "Input.cpp",
@@ -14467,7 +14467,7 @@
   },
   "0x40c610": {
     "n": "CInput::FUN_0040c610",
-    "s": 0.8996188055908514,
+    "s": 0.9019108280254777,
     "x": false,
     "unknown": [],
     "f": "Input.cpp",
@@ -15019,7 +15019,7 @@
   },
   "0x4a0570": {
     "n": "Menu_Update",
-    "s": 0.68125,
+    "s": 0.6819603753910324,
     "x": false,
     "unknown": [],
     "f": "Menu.cpp",
@@ -15075,7 +15075,7 @@
   },
   "0x4ab7e0": {
     "n": "Mesh_Free",
-    "s": 0.8245614035087719,
+    "s": 0.8623853211009175,
     "x": false,
     "unknown": [],
     "f": "Mesh.cpp",
@@ -15115,7 +15115,7 @@
   },
   "0x4b1ac0": {
     "n": "Mesh_BuildParts",
-    "s": 0.4173027989821883,
+    "s": 0.4416243654822335,
     "x": false,
     "unknown": [],
     "f": "Mesh.cpp",
@@ -15531,7 +15531,7 @@
   },
   "0x40a980": {
     "n": "FUN_0040a980",
-    "s": 0.9672131147540983,
+    "s": 0.9754098360655737,
     "x": false,
     "unknown": [],
     "f": "NetPlayers.cpp",
@@ -15987,7 +15987,7 @@
   },
   "0x4284d0": {
     "n": "FUN_004284d0",
-    "s": 0.3252032520325203,
+    "s": 0.34146341463414637,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",
@@ -15995,7 +15995,7 @@
   },
   "0x4285b0": {
     "n": "FUN_004285b0",
-    "s": 0.736,
+    "s": 0.784,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",
@@ -16003,7 +16003,7 @@
   },
   "0x428680": {
     "n": "FUN_00428680",
-    "s": 0.47692307692307695,
+    "s": 0.5,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",
@@ -16091,7 +16091,7 @@
   },
   "0x426b90": {
     "n": "FUN_00426b90",
-    "s": 0.8953488372093024,
+    "s": 0.9069767441860465,
     "x": false,
     "unknown": [],
     "f": "NetRace.cpp",
@@ -16131,7 +16131,7 @@
   },
   "0x425c40": {
     "n": "FUN_00425c40",
-    "s": 0.44603033006244425,
+    "s": 0.5412186379928315,
     "x": false,
     "unknown": [
       "__real@4@4002a000000000000000"
@@ -16525,8 +16525,8 @@
   },
   "0x41f930": {
     "n": "FUN_0041f930",
-    "s": 0.9237113402061856,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "FUN_0041f930"
@@ -16581,7 +16581,7 @@
   },
   "0x4174e0": {
     "n": "FUN_004174e0",
-    "s": 0.22764227642276422,
+    "s": 0.6932270916334662,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16615,7 +16615,7 @@
   },
   "0x417e70": {
     "n": "FUN_00417e70",
-    "s": 0.915129151291513,
+    "s": 0.922509225092251,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16623,7 +16623,7 @@
   },
   "0x418000": {
     "n": "FUN_00418000",
-    "s": 0.5915841584158416,
+    "s": 0.6410891089108911,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16655,7 +16655,7 @@
   },
   "0x418580": {
     "n": "FUN_00418580",
-    "s": 0.6688311688311688,
+    "s": 0.749185667752443,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16727,7 +16727,7 @@
   },
   "0x41a340": {
     "n": "FUN_0041a340",
-    "s": 0.583554376657825,
+    "s": 0.6052631578947368,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16735,7 +16735,7 @@
   },
   "0x41ae80": {
     "n": "FUN_0041ae80",
-    "s": 0.589041095890411,
+    "s": 0.6197183098591549,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16911,7 +16911,7 @@
   },
   "0x41e6b0": {
     "n": "Race_TeardownStage",
-    "s": 0.48484848484848486,
+    "s": 0.49025069637883006,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16919,7 +16919,7 @@
   },
   "0x41e8d0": {
     "n": "FUN_0041e8d0",
-    "s": 0.4358974358974359,
+    "s": 0.6118251928020566,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17031,7 +17031,7 @@
   },
   "0x4187d0": {
     "n": "FUN_004187d0",
-    "s": 0.8930817610062893,
+    "s": 0.9056603773584906,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17063,7 +17063,7 @@
   },
   "0x416f70": {
     "n": "FUN_00416f70",
-    "s": 0.5681818181818182,
+    "s": 0.5795454545454546,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17071,7 +17071,7 @@
   },
   "0x41d0c0": {
     "n": "FUN_0041d0c0",
-    "s": 0.6774193548387096,
+    "s": 0.6838709677419355,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17135,7 +17135,7 @@
   },
   "0x41c5a0": {
     "n": "FUN_0041c5a0",
-    "s": 0.6253948199620973,
+    "s": 0.6275252525252525,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17143,7 +17143,7 @@
   },
   "0x40d6c0": {
     "n": "FUN_0040d6c0",
-    "s": 0.6932270916334662,
+    "s": 0.8188976377952756,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17159,7 +17159,7 @@
   },
   "0x4069c0": {
     "n": "RallyData_InitKnockoutBracket",
-    "s": 0.6136986301369863,
+    "s": 0.6198723792160438,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17191,7 +17191,7 @@
   },
   "0x407b10": {
     "n": "FUN_00407b10",
-    "s": 0.4448669201520912,
+    "s": 0.5143953934740882,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17207,7 +17207,7 @@
   },
   "0x411550": {
     "n": "FUN_00411550",
-    "s": 0.7946577629382304,
+    "s": 0.830820770519263,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17639,7 +17639,7 @@
   },
   "0x4efe60": {
     "n": "FUN_004efe60",
-    "s": 0.7051282051282052,
+    "s": 0.7092651757188498,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17839,7 +17839,7 @@
   },
   "0x40d820": {
     "n": "FUN_0040d820",
-    "s": 0.5821917808219178,
+    "s": 0.8963210702341137,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17983,7 +17983,7 @@
   },
   "0x4129d0": {
     "n": "FUN_004129d0",
-    "s": 0.6683127572016461,
+    "s": 0.6699588477366255,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18007,7 +18007,7 @@
   },
   "0x413610": {
     "n": "FUN_00413610",
-    "s": 0.568,
+    "s": 0.576,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18015,7 +18015,7 @@
   },
   "0x4147f0": {
     "n": "FUN_004147f0",
-    "s": 0.5010183299389002,
+    "s": 0.5116751269035533,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18063,7 +18063,7 @@
   },
   "0x410100": {
     "n": "FUN_00410100",
-    "s": 0.8810617662072486,
+    "s": 0.8820826952526799,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18135,7 +18135,7 @@
   },
   "0x503ea0": {
     "n": "FUN_00503ea0",
-    "s": 0.6906906906906907,
+    "s": 0.9393939393939394,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18279,7 +18279,7 @@
   },
   "0x421470": {
     "n": "RallyData_FUN_00421470",
-    "s": 0.8089887640449438,
+    "s": 0.8275862068965517,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18455,7 +18455,7 @@
   },
   "0x40fd30": {
     "n": "RallyData_DrawListItem",
-    "s": 0.5595854922279793,
+    "s": 0.5684210526315789,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18903,7 +18903,7 @@
   },
   "0x40f0c0": {
     "n": "FUN_0040f0c0",
-    "s": 0.7115072933549432,
+    "s": 0.7125506072874493,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18951,7 +18951,7 @@
   },
   "0x504eb0": {
     "n": "FUN_00504eb0",
-    "s": 0.5010183299389002,
+    "s": 0.5051334702258727,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18967,7 +18967,7 @@
   },
   "0x411b20": {
     "n": "FUN_00411b20",
-    "s": 0.5081081081081081,
+    "s": 0.5244122965641953,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18999,7 +18999,7 @@
   },
   "0x471dd0": {
     "n": "FUN_00471dd0",
-    "s": 0.5991620111731844,
+    "s": 0.6005586592178771,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19079,7 +19079,7 @@
   },
   "0x414ed0": {
     "n": "FUN_00414ed0",
-    "s": 0.7319587628865979,
+    "s": 0.7357512953367875,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19103,7 +19103,7 @@
   },
   "0x420630": {
     "n": "FUN_00420630",
-    "s": 0.7722772277227723,
+    "s": 0.7761194029850746,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19143,7 +19143,7 @@
   },
   "0x40ccd0": {
     "n": "FUN_0040ccd0",
-    "s": 0.8512820512820513,
+    "s": 0.9081632653061225,
     "x": false,
     "unknown": [],
     "f": "RallyTiming.cpp",
@@ -19615,7 +19615,7 @@
   },
   "0x4b3c00": {
     "n": "Scene_RelightSector",
-    "s": 0.41132075471698115,
+    "s": 0.4490566037735849,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19647,7 +19647,7 @@
   },
   "0x4b4aa0": {
     "n": "Scene_LoadLighting",
-    "s": 0.37726723095526,
+    "s": 0.4028268551236749,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19711,7 +19711,7 @@
   },
   "0x4b4490": {
     "n": "FUN_004b4490",
-    "s": 0.3786008230452675,
+    "s": 0.5779816513761468,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19727,7 +19727,7 @@
   },
   "0x4b5f90": {
     "n": "FUN_004b5f90",
-    "s": 0.56,
+    "s": 0.5714285714285714,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19783,7 +19783,7 @@
   },
   "0x4b3860": {
     "n": "Scene_GetGroundLight",
-    "s": 0.6153846153846154,
+    "s": 0.6410256410256411,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19871,7 +19871,7 @@
   },
   "0x4b4180": {
     "n": "FUN_004b4180",
-    "s": 0.30115830115830117,
+    "s": 0.31702544031311153,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19895,7 +19895,7 @@
   },
   "0x4b93c0": {
     "n": "FUN_004b93c0",
-    "s": 0.375,
+    "s": 0.3958333333333333,
     "x": false,
     "unknown": [],
     "f": "Sector.cpp",
@@ -19954,8 +19954,8 @@
   },
   "0x4b8b90": {
     "n": "Sector_BuildCorners",
-    "s": 0.20365535248041775,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_BuildCorners"
@@ -19978,7 +19978,7 @@
   },
   "0x4b8270": {
     "n": "FUN_004b8270",
-    "s": 0.5364238410596026,
+    "s": 0.5472972972972973,
     "x": false,
     "unknown": [],
     "f": "Sector.cpp",
@@ -20010,7 +20010,7 @@
   },
   "0x4a28d0": {
     "n": "CSound::FUN_004a28d0",
-    "s": 0.6883720930232559,
+    "s": 0.6981132075471698,
     "x": false,
     "unknown": [
       "$L56065",
@@ -20621,7 +20621,7 @@
   },
   "0x4a3650": {
     "n": "Sprite_DrawLayer",
-    "s": 0.43951165371809103,
+    "s": 0.44097995545657015,
     "x": false,
     "unknown": [],
     "f": "Sprite.cpp",
@@ -20685,7 +20685,7 @@
   },
   "0x4a5e40": {
     "n": "Sprite_FillRect",
-    "s": 0.232,
+    "s": 0.248,
     "x": false,
     "unknown": [],
     "f": "Sprite.cpp",
@@ -20749,7 +20749,7 @@
   },
   "0x4bbd80": {
     "n": "Quad2D_DrawLayer",
-    "s": 0.8172043010752689,
+    "s": 0.8258064516129032,
     "x": false,
     "unknown": [],
     "f": "Sprite.cpp",
@@ -20869,7 +20869,7 @@
   },
   "0x465d70": {
     "n": "StageObject_GetWheelSlip",
-    "s": 0.8776978417266187,
+    "s": 0.8920863309352518,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21053,7 +21053,7 @@
   },
   "0x4658e0": {
     "n": "FUN_004658e0",
-    "s": 0.5532544378698225,
+    "s": 0.6438152011922503,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21309,7 +21309,7 @@
   },
   "0x46f550": {
     "n": "FUN_0046f550",
-    "s": 0.5013192612137203,
+    "s": 0.5392670157068062,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21621,7 +21621,7 @@
   },
   "0x4854a0": {
     "n": "FUN_004854a0",
-    "s": 0.7678018575851393,
+    "s": 0.8703703703703703,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21629,7 +21629,7 @@
   },
   "0x486500": {
     "n": "FUN_00486500",
-    "s": 0.5893719806763285,
+    "s": 0.5980392156862745,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21717,7 +21717,7 @@
   },
   "0x48d950": {
     "n": "FUN_0048d950",
-    "s": 0.8805460750853242,
+    "s": 0.9078498293515358,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21757,7 +21757,7 @@
   },
   "0x492910": {
     "n": "FUN_00492910",
-    "s": 0.43956043956043955,
+    "s": 0.4462809917355372,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21869,7 +21869,7 @@
   },
   "0x466100": {
     "n": "FUN_00466100",
-    "s": 0.7123287671232876,
+    "s": 0.7287671232876712,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21925,7 +21925,7 @@
   },
   "0x477ce0": {
     "n": "FUN_00477ce0",
-    "s": 0.5333333333333333,
+    "s": 0.5408163265306123,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21965,7 +21965,7 @@
   },
   "0x480220": {
     "n": "FUN_00480220",
-    "s": 0.6991150442477876,
+    "s": 0.7787610619469026,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21997,7 +21997,7 @@
   },
   "0x48dce0": {
     "n": "FUN_0048dce0",
-    "s": 0.8883495145631068,
+    "s": 0.8992628992628993,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22061,7 +22061,7 @@
   },
   "0x488de0": {
     "n": "FUN_00488de0",
-    "s": 0.45408163265306123,
+    "s": 0.47959183673469385,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22077,7 +22077,7 @@
   },
   "0x4675c0": {
     "n": "FUN_004675c0",
-    "s": 0.44565217391304346,
+    "s": 0.45054945054945056,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22141,7 +22141,7 @@
   },
   "0x464cb0": {
     "n": "StageObject_UpdateSkidTrails",
-    "s": 0.39215686274509803,
+    "s": 0.3946750195771339,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22221,7 +22221,7 @@
   },
   "0x4738f0": {
     "n": "FUN_004738f0",
-    "s": 0.5645645645645646,
+    "s": 0.7696709585121603,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22229,7 +22229,7 @@
   },
   "0x4744f0": {
     "n": "FUN_004744f0",
-    "s": 0.7809722948248824,
+    "s": 0.7820177731312076,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22269,7 +22269,7 @@
   },
   "0x464960": {
     "n": "FUN_00464960",
-    "s": 0.5238095238095238,
+    "s": 0.5317460317460317,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22341,7 +22341,7 @@
   },
   "0x461830": {
     "n": "FUN_00461830",
-    "s": 0.42780748663101603,
+    "s": 0.5040650406504065,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22365,7 +22365,7 @@
   },
   "0x462aa0": {
     "n": "FUN_00462aa0",
-    "s": 0.591304347826087,
+    "s": 0.6267806267806267,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22381,7 +22381,7 @@
   },
   "0x461c30": {
     "n": "FUN_00461c30",
-    "s": 0.31645569620253167,
+    "s": 0.32383536861148804,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22493,7 +22493,7 @@
   },
   "0x46d470": {
     "n": "Replay_SetupPointers",
-    "s": 0.5,
+    "s": 0.6363636363636364,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22573,7 +22573,7 @@
   },
   "0x46f330": {
     "n": "FUN_0046f330",
-    "s": 0.7692307692307693,
+    "s": 0.8173076923076923,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22597,7 +22597,7 @@
   },
   "0x47d510": {
     "n": "FUN_0047d510",
-    "s": 0.9183673469387755,
+    "s": 0.9574468085106383,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22661,7 +22661,7 @@
   },
   "0x46bdc0": {
     "n": "FUN_0046bdc0",
-    "s": 0.2922374429223744,
+    "s": 0.2962962962962963,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22669,7 +22669,7 @@
   },
   "0x46e780": {
     "n": "FUN_0046e780",
-    "s": 0.36049382716049383,
+    "s": 0.4050632911392405,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22677,7 +22677,7 @@
   },
   "0x46ec40": {
     "n": "FUN_0046ec40",
-    "s": 0.3157894736842105,
+    "s": 0.3308270676691729,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22693,7 +22693,7 @@
   },
   "0x471950": {
     "n": "FUN_00471950",
-    "s": 0.4021164021164021,
+    "s": 0.4175824175824176,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22725,7 +22725,7 @@
   },
   "0x4657d0": {
     "n": "FUN_004657d0",
-    "s": 0.649746192893401,
+    "s": 0.6632124352331606,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22805,7 +22805,7 @@
   },
   "0x46d2d0": {
     "n": "FUN_0046d2d0",
-    "s": 0.37777777777777777,
+    "s": 0.4787234042553192,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22877,7 +22877,7 @@
   },
   "0x487c40": {
     "n": "FUN_00487c40",
-    "s": 0.8875,
+    "s": 0.8987341772151899,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22885,7 +22885,7 @@
   },
   "0x47f510": {
     "n": "FUN_0047f510",
-    "s": 0.6995073891625616,
+    "s": 0.71,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22901,7 +22901,7 @@
   },
   "0x46b8f0": {
     "n": "FUN_0046b8f0",
-    "s": 0.6258064516129033,
+    "s": 0.6451612903225806,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22917,7 +22917,7 @@
   },
   "0x476a40": {
     "n": "FUN_00476a40",
-    "s": 0.4591439688715953,
+    "s": 0.4669260700389105,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22941,7 +22941,7 @@
   },
   "0x487140": {
     "n": "FUN_00487140",
-    "s": 0.42778793418647165,
+    "s": 0.44569288389513106,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22957,7 +22957,7 @@
   },
   "0x46ea80": {
     "n": "FUN_0046ea80",
-    "s": 0.49838187702265374,
+    "s": 0.5048543689320388,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22973,7 +22973,7 @@
   },
   "0x47ca30": {
     "n": "FUN_0047ca30",
-    "s": 0.272,
+    "s": 0.33725490196078434,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22989,7 +22989,7 @@
   },
   "0x4930e0": {
     "n": "FUN_004930e0",
-    "s": 0.5735849056603773,
+    "s": 0.6230769230769231,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23173,7 +23173,7 @@
   },
   "0x47cd10": {
     "n": "FUN_0047cd10",
-    "s": 0.48503937007874015,
+    "s": 0.4889589905362776,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23181,8 +23181,8 @@
   },
   "0x46c750": {
     "n": "FUN_0046c750",
-    "s": 0.5555555555555556,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046c750"
@@ -23197,7 +23197,7 @@
   },
   "0x46a500": {
     "n": "FUN_0046a500",
-    "s": 0.5480268056589724,
+    "s": 0.549663928304705,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23213,13 +23213,9 @@
   },
   "0x46d8d0": {
     "n": "FUN_0046d8d0",
-    "s": 0.407673860911271,
+    "s": 0.5959475566150179,
     "x": false,
-    "unknown": [
-      "__real@8@00000000000000000000",
-      "__real@8@3ff88000000000000000",
-      "__real@8@c00afff0000000000000"
-    ],
+    "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046d8d0"
   },
@@ -23241,7 +23237,7 @@
   },
   "0x4643f0": {
     "n": "FUN_004643f0",
-    "s": 0.18757921419518378,
+    "s": 0.6324786324786325,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23273,8 +23269,8 @@
   },
   "0x46cce0": {
     "n": "FUN_0046cce0",
-    "s": 0.578088578088578,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046cce0"
@@ -23289,7 +23285,7 @@
   },
   "0x469e40": {
     "n": "FUN_00469e40",
-    "s": 0.5606891151135474,
+    "s": 0.5615686274509804,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23297,7 +23293,7 @@
   },
   "0x46d610": {
     "n": "FUN_0046d610",
-    "s": 0.23376623376623376,
+    "s": 0.90625,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23313,7 +23309,7 @@
   },
   "0x47aa70": {
     "n": "FUN_0047aa70",
-    "s": 0.5197215777262181,
+    "s": 0.56,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23321,7 +23317,7 @@
   },
   "0x47ad20": {
     "n": "FUN_0047ad20",
-    "s": 0.5560344827586207,
+    "s": 0.5603448275862069,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23329,7 +23325,7 @@
   },
   "0x47b0e0": {
     "n": "FUN_0047b0e0",
-    "s": 0.6916890080428955,
+    "s": 0.7238605898123325,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23345,7 +23341,7 @@
   },
   "0x484e00": {
     "n": "FUN_00484e00",
-    "s": 0.3853211009174312,
+    "s": 0.39069767441860465,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23361,7 +23357,7 @@
   },
   "0x485860": {
     "n": "FUN_00485860",
-    "s": 0.6519823788546255,
+    "s": 0.90357317670093,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23369,7 +23365,7 @@
   },
   "0x488640": {
     "n": "FUN_00488640",
-    "s": 0.456490727532097,
+    "s": 0.4693295292439372,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23393,7 +23389,7 @@
   },
   "0x48cc30": {
     "n": "FUN_0048cc30",
-    "s": 0.62,
+    "s": 0.685,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23409,7 +23405,7 @@
   },
   "0x48d0f0": {
     "n": "FUN_0048d0f0",
-    "s": 0.7791095890410958,
+    "s": 0.779777206512425,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23425,7 +23421,7 @@
   },
   "0x47bdd0": {
     "n": "FUN_0047bdd0",
-    "s": 0.3420523138832998,
+    "s": 0.358148893360161,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23449,7 +23445,7 @@
   },
   "0x47b640": {
     "n": "FUN_0047b640",
-    "s": 0.5088757396449705,
+    "s": 0.5207100591715976,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23465,7 +23461,7 @@
   },
   "0x47c2f0": {
     "n": "FUN_0047c2f0",
-    "s": 0.6167400881057269,
+    "s": 0.756152125279642,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23537,7 +23533,7 @@
   },
   "0x460ca0": {
     "n": "FUN_00460ca0",
-    "s": 0.7128712871287128,
+    "s": 0.72,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23561,7 +23557,7 @@
   },
   "0x4878a0": {
     "n": "FUN_004878a0",
-    "s": 0.7564102564102564,
+    "s": 0.7662337662337663,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23569,7 +23565,7 @@
   },
   "0x48e580": {
     "n": "FUN_0048e580",
-    "s": 0.7394366197183099,
+    "s": 0.7464788732394366,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23577,7 +23573,7 @@
   },
   "0x48e0a0": {
     "n": "FUN_0048e0a0",
-    "s": 0.6040688575899843,
+    "s": 0.6645865834633385,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23617,7 +23613,7 @@
   },
   "0x47eab0": {
     "n": "FUN_0047eab0",
-    "s": 0.40971766250820746,
+    "s": 0.9189889825016202,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23657,7 +23653,7 @@
   },
   "0x484310": {
     "n": "FUN_00484310",
-    "s": 0.7710843373493976,
+    "s": 0.7724803862401931,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23665,7 +23661,7 @@
   },
   "0x47f740": {
     "n": "FUN_0047f740",
-    "s": 0.39593908629441626,
+    "s": 0.39847715736040606,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23929,8 +23925,8 @@
   },
   "0x456330": {
     "n": "FUN_00456330",
-    "s": 0.9632352941176471,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00456330"
@@ -24281,7 +24277,7 @@
   },
   "0x4564d0": {
     "n": "FUN_004564d0",
-    "s": 0.7247191011235955,
+    "s": 0.9337016574585635,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24561,7 +24557,7 @@
   },
   "0x468520": {
     "n": "FUN_00468520",
-    "s": 0.43449419568822556,
+    "s": 0.6254180602006689,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24577,7 +24573,7 @@
   },
   "0x508740": {
     "n": "StageDeform_ClampVertex",
-    "s": 0.17355371900826447,
+    "s": 0.8617886178861789,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24585,7 +24581,7 @@
   },
   "0x467700": {
     "n": "StageDeform_ApplyRadialDent",
-    "s": 0.2982456140350877,
+    "s": 0.546031746031746,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24593,7 +24589,7 @@
   },
   "0x467e90": {
     "n": "StageDeform_ApplyPlanarDent",
-    "s": 0.4860710854947166,
+    "s": 0.4899135446685879,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24955,7 +24951,7 @@
   },
   "0x498590": {
     "n": "FUN_00498590",
-    "s": 0.6326530612244898,
+    "s": 0.6530612244897959,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25091,7 +25087,7 @@
   },
   "0x45e7f0": {
     "n": "FUN_0045e7f0",
-    "s": 0.7540983606557377,
+    "s": 0.7704918032786885,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25147,7 +25143,7 @@
   },
   "0x455af0": {
     "n": "FUN_00455af0",
-    "s": 0.44776119402985076,
+    "s": 0.4696969696969697,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25155,7 +25151,7 @@
   },
   "0x455f00": {
     "n": "FUN_00455f00",
-    "s": 0.4883720930232558,
+    "s": 0.5348837209302325,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25203,7 +25199,7 @@
   },
   "0x45ea70": {
     "n": "FUN_0045ea70",
-    "s": 0.6619718309859155,
+    "s": 0.6861313868613139,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25227,7 +25223,7 @@
   },
   "0x45f260": {
     "n": "FUN_0045f260",
-    "s": 0.6782608695652174,
+    "s": 0.7027027027027027,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25283,7 +25279,7 @@
   },
   "0x424af0": {
     "n": "FUN_00424af0",
-    "s": 0.5443037974683544,
+    "s": 0.5882352941176471,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25299,7 +25295,7 @@
   },
   "0x458e00": {
     "n": "FUN_00458e00",
-    "s": 0.30434782608695654,
+    "s": 0.40217391304347827,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25323,7 +25319,7 @@
   },
   "0x45b580": {
     "n": "StageTiming_SpawnWheelParticles",
-    "s": 0.3206362494767685,
+    "s": 0.3739021329987453,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25331,7 +25327,7 @@
   },
   "0x508890": {
     "n": "FUN_00508890",
-    "s": 0.5318138651471985,
+    "s": 0.5338417540514776,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25379,7 +25375,7 @@
   },
   "0x4483e0": {
     "n": "FUN_004483e0",
-    "s": 0.4205607476635514,
+    "s": 0.460093896713615,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25451,7 +25447,7 @@
   },
   "0x4816f0": {
     "n": "FUN_004816f0",
-    "s": 0.6542416452442159,
+    "s": 0.6550836550836551,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25467,7 +25463,7 @@
   },
   "0x480e50": {
     "n": "FUN_00480e50",
-    "s": 0.8157099697885196,
+    "s": 0.8267477203647416,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25475,7 +25471,7 @@
   },
   "0x483100": {
     "n": "FUN_00483100",
-    "s": 0.88745148771022,
+    "s": 0.8932291666666666,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25507,7 +25503,7 @@
   },
   "0x45f9d0": {
     "n": "FUN_0045f9d0",
-    "s": 0.7011331444759207,
+    "s": 0.7039660056657224,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25531,7 +25527,7 @@
   },
   "0x498620": {
     "n": "FUN_00498620",
-    "s": 0.2845100105374078,
+    "s": 0.45925925925925926,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25555,7 +25551,7 @@
   },
   "0x457000": {
     "n": "FUN_00457000",
-    "s": 0.6198830409356725,
+    "s": 0.6209463051568315,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25563,7 +25559,7 @@
   },
   "0x4669f0": {
     "n": "FUN_004669f0",
-    "s": 0.8043478260869565,
+    "s": 0.8778135048231511,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25619,7 +25615,7 @@
   },
   "0x456710": {
     "n": "FUN_00456710",
-    "s": 0.5024390243902439,
+    "s": 0.508557457212714,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25635,7 +25631,7 @@
   },
   "0x45af90": {
     "n": "FUN_0045af90",
-    "s": 0.5851428571428572,
+    "s": 0.586483390607102,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25923,15 +25919,15 @@
   },
   "0x415e30": {
     "n": "FUN_00415e30",
-    "s": 0.4161849710982659,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "FUN_00415e30"
   },
   "0x415f50": {
     "n": "FUN_00415f50",
-    "s": 0.5167910447761194,
+    "s": 0.5666041275797373,
     "x": false,
     "unknown": [],
     "f": "StageUI.cpp",
@@ -25963,7 +25959,7 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.4605087014725569,
+    "s": 0.5483870967741935,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26075,7 +26071,7 @@
   },
   "0x478a20": {
     "n": "FUN_00478a20",
-    "s": 0.7333333333333333,
+    "s": 0.7899159663865546,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26179,7 +26175,7 @@
   },
   "0x4916a0": {
     "n": "Track_FindNearestTriangle",
-    "s": 0.45714285714285713,
+    "s": 0.5028571428571429,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26187,7 +26183,7 @@
   },
   "0x491550": {
     "n": "Track_FindTriangle",
-    "s": 0.4,
+    "s": 0.48756218905472637,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26219,7 +26215,7 @@
   },
   "0x493890": {
     "n": "FUN_00493890",
-    "s": 0.30344827586206896,
+    "s": 0.943089430894309,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26227,7 +26223,7 @@
   },
   "0x493b30": {
     "n": "Car_UpdateAutomaticGear",
-    "s": 0.5177865612648221,
+    "s": 0.5217391304347826,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26235,7 +26231,7 @@
   },
   "0x4919a0": {
     "n": "Stage_InitLightMeshes",
-    "s": 0.4745098039215686,
+    "s": 0.4763779527559055,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26243,7 +26239,7 @@
   },
   "0x491d40": {
     "n": "Stage_SetHeightColours",
-    "s": 0.20107719928186715,
+    "s": 0.9069373942470389,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26355,15 +26351,15 @@
   },
   "0x494110": {
     "n": "FUN_00494110",
-    "s": 0.45231607629427795,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "FUN_00494110"
   },
   "0x493520": {
     "n": "FUN_00493520",
-    "s": 0.5466101694915254,
+    "s": 0.5477707006369427,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26419,7 +26415,7 @@
   },
   "0x490720": {
     "n": "Collision_ClassifyFaceVertices",
-    "s": 0.8031704095112285,
+    "s": 0.8095872170439414,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
@@ -26435,7 +26431,7 @@
   },
   "0x490b90": {
     "n": "FUN_00490b90",
-    "s": 0.3711340206185567,
+    "s": 0.5714285714285714,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
@@ -26451,7 +26447,7 @@
   },
   "0x48fb80": {
     "n": "FUN_0048fb80",
-    "s": 0.6928838951310862,
+    "s": 0.7227414330218068,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",
@@ -26459,7 +26455,7 @@
   },
   "0x45def0": {
     "n": "WheelTrail_Update",
-    "s": 0.673469387755102,
+    "s": 0.6883116883116883,
     "x": false,
     "unknown": [],
     "f": "WheelTrail.cpp",
@@ -26571,7 +26567,7 @@
   },
   "0x4be160": {
     "n": "check_header",
-    "s": 0.8839285714285714,
+    "s": 0.8931750741839762,
     "x": false,
     "unknown": [],
     "f": "ZlibGzio.cpp",
@@ -26941,7 +26937,7 @@
   },
   "0x4a9b80": {
     "n": "CMain::GetFrameDelta",
-    "s": 0.6136363636363636,
+    "s": 0.9047619047619048,
     "x": false,
     "unknown": [],
     "f": "main.cpp",

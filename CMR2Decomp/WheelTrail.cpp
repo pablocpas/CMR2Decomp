@@ -27,9 +27,9 @@ void WheelTrail_Update(int carIndex)
     if (carIndex < 8) {
         Car *pCar = Car_Get(carIndex);
         int *pCount = &g_trailCount[carIndex];
-        FixVector *pEmitter = pCar->wheelEmitter;
         int *pState = pCar->cornerOnGround;
         short *pSurface = pCar->wheelSurface;
+        FixVector *pEmitter = pCar->wheelEmitter;
         char *pLevel = g_trailLevel[carIndex];
         int i = 0;
         FixVector delta;
@@ -97,9 +97,9 @@ void WheelTrail_Update(int carIndex)
                 pLevel[i] = (char)(level / 256);
             }
             pState++;
-            i++;
             pSurface++;
             pEmitter++;
+            i++;
         } while (i < 4);
     }
 }

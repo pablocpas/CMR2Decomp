@@ -243,8 +243,8 @@ void FixMatrix_Multiply(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB)
                 ai = *pA2;
                 bi = *pB2;
                 *pR += FixMul(bi, ai);
-                pA2++;
                 pB2 += 4;
+                pA2++;
             }
             pR++;
         }
@@ -951,9 +951,6 @@ void Car_UpdateCorners(Car *pCar);
 // Resets a car's physics state from a saved one (used when the body is put
 // back on the road): copies the stored fields and rebuilds the matrix-derived
 // vectors of the body.
-// The body matches the original instruction by instruction, but MSVC6 homes the first parameter in ESI
-// instead of the original's EBX, which renames every scratch register (known ceiling, CONOCIMIENTO 4.u).
-// match 30%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00426d80
 void FUN_00426d80(Car *pDst, Car *pSrc)
 {
@@ -986,8 +983,7 @@ void FUN_00426d80(Car *pDst, Car *pSrc)
     *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
     *(FixVector *)((BYTE *)pDst + 0x2e8) = pDst->position;
     pDst->normal0x498 = pDst->groundNormal;
-    for (i = 0; i < 9; i++)
-        ((int *)((BYTE *)pDst + 0x384))[i] = ((int *)((BYTE *)pDst + 0x360))[i];
+    memcpy((BYTE *)pDst + 0x384, (BYTE *)pDst + 0x360, 9 * sizeof(int));
 
     FixMatrix_GetPosition((FixVector *)((BYTE *)pDst + 0x2d0), pDst->pWorld);
     FixMatrix_GetRight(&pDst->right, pDst->pWorld);
@@ -1090,9 +1086,9 @@ void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
     FixMatrix_Identity(&identity);
     FixMatrix_SetPosition(&src, &identity);
     pM = (FixMatrix *)(pObj + 8);
-    pM->position.x = 0;
-    pM->position.y = 0;
-    pM->position.z = 0;
+    *(int *)(pObj + 0x38) = 0;
+    *(int *)(pObj + 0x3c) = 0;
+    *(int *)(pObj + 0x40) = 0;
     FixMatrix_Multiply(pM, &identity, pM);
     FixMatrix_GetPosition(&pos, pM);
     FixMatrix_GetPosition(&off, pRef);
@@ -1101,12 +1097,13 @@ void FUN_004869e0(BYTE *pObj, FixMatrix *pRef)
     pos.z += off.z;
     FixMatrix_SetPosition(&pos, pM);
 
-    *(int *)(pObj + 0x48) = g_unk0x00590db0[pObj[0]];
-    *(int *)(pObj + 0x4c) = 0x1999;
-    *(int *)(pObj + 0x50) = 0;
+    base = g_unk0x00590db0[pObj[0]];
     *(int *)(pObj + 0x54) = 0xa000;
+    *(int *)(pObj + 0x48) = base;
+    *(int *)(pObj + 0x4c) = 0x1999;
     *(int *)(pObj + 0x58) = 0;
     *(int *)(pObj + 0x5c) = 0x10000;
+    *(int *)(pObj + 0x50) = 0;
 }
 
 // Per-octant reference vectors used to probe the ground.
@@ -1169,12 +1166,12 @@ extern double g_unk0x00511300;
 
 // Rebuilds an object's local matrix from a reference matrix: mirrors it about
 // the object's split axis and applies the car's tilt rotation.
-// match 44%: same structure and calls; MSVC6 picks a different index register (EAX vs ESI)
-// and emits setne instead of the original's neg/sbb for the angle mask.
+// Differential coverage: affine axes, tilt and split positioning with real helpers.
 // FUNCTION: CMR2 0x00486910
 void FUN_00486910(BYTE *pObj, int *pSrc)
 {
-    BYTE *pMat = pObj + 8;
+    FixMatrix *pMat = (FixMatrix *)(pObj + 8);
+    FixMatrix *pRef = (FixMatrix *)pSrc;
     int idx;
     int angle;
     int v;
@@ -1182,22 +1179,22 @@ void FUN_00486910(BYTE *pObj, int *pSrc)
     memcpy(pMat, pSrc, 0x40);
     idx = *pObj;
     if (g_unk0x00590d8c[idx] == 2) {
-        *(int *)pMat = pSrc[8];
-        *(int *)(pObj + 0xc) = pSrc[9];
-        *(int *)(pObj + 0x10) = pSrc[10];
-        *(int *)(pObj + 0x28) = -pSrc[0];
-        *(int *)(pObj + 0x2c) = -pSrc[1];
-        angle = -pSrc[2];
+        pMat->right.x = pRef->forward.x;
+        pMat->right.y = pRef->forward.y;
+        pMat->right.z = pRef->forward.z;
+        pMat->forward.x = -pRef->right.x;
+        pMat->forward.y = -pRef->right.y;
+        angle = -pRef->right.z;
     } else {
-        *(int *)pMat = -pSrc[8];
-        *(int *)(pObj + 0xc) = -pSrc[9];
-        *(int *)(pObj + 0x10) = -pSrc[10];
-        *(int *)(pObj + 0x28) = pSrc[0];
-        *(int *)(pObj + 0x2c) = pSrc[1];
-        angle = pSrc[2];
+        pMat->right.x = -pRef->forward.x;
+        pMat->right.y = -pRef->forward.y;
+        pMat->right.z = -pRef->forward.z;
+        pMat->forward.x = pRef->right.x;
+        pMat->forward.y = pRef->right.y;
+        angle = pRef->right.z;
     }
-    *(int *)(pObj + 0x30) = angle;
-    angle = (-(g_unk0x00590d8c[idx] != 0) & 0xfffffff6) + 10;
+    pMat->forward.z = angle;
+    angle = g_unk0x00590d8c[idx] == 0 ? 10 : 0;
     v = (int)(__int64)((double)angle * CGraphics::m_65536);
     FixMatrix_RotateAboutRight((FixMatrix *)pMat,
                                (unsigned short)(__int64)((double)v * g_unk0x00511300));
@@ -1652,7 +1649,10 @@ void FUN_00470580(void)
                     pos.y = v.y - basis.forward.y;
                     pos.z = v.z - basis.forward.z;
                     len = FixVecLength(&pos);
-                    if (len > 0x1999) {
+                    if (!(len > 0x1999)) {
+                        basis.forward = v;
+                        *(int *)(pObj + 0xcc) = 0;
+                    } else {
                         FixVecScaleRecip(&pos, &pos, len);
                         FixVecScale(&pos, &pos, 0x1999);
                         pos.x += basis.forward.x;
@@ -1666,9 +1666,6 @@ void FUN_00470580(void)
                         } else {
                             FixVecScaleRecip(&basis.forward, &pos, len);
                         }
-                    } else {
-                        basis.forward = v;
-                        *(int *)(pObj + 0xcc) = 0;
                     }
 
                     dot = FixVecDot(&basis.right, &basis.forward);

@@ -1,0 +1,15 @@
+{
+  "scope": "original Unicorn instruction addresses and branch destinations",
+  "original_instances": 0,
+  "spec_sha256": "55dccef22891b07c45f79090e7e873faa7bd240340155da7ff2daada80123c7b",
+  "functions": {
+    "0x4a12d0": {
+      "instructions": [],
+      "branch_edges": []
+    },
+    "0x4a13b0": {
+      "instructions": [],
+      "branch_edges": []
+    }
+  }
+}

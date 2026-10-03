@@ -415,7 +415,7 @@ void FUN_004284d0(unsigned int player, int check)
                 g_unk0x0053a06c[p] = 0;
                 return;
             }
-            if (g_unk0x0053a0ec[p] <= value) {
+            if (value >= g_unk0x0053a0ec[p]) {
                 if (state == 3) {
                     value = -g_unk0x0053a0ec[p];
                     g_unk0x0053a04c[p] = value;
@@ -442,7 +442,7 @@ void FUN_004285b0(unsigned int player, int t, int check)
     if (FUN_00428740((BYTE)player) != 0) {
         player &= 0xff;
         if (g_unk0x0053a0cc[player] == 0 || check == 0) {
-            value = FixMul(0x10000 - t, g_unk0x0053a02c[player]) + FixMul(g_unk0x0053a04c[player], t);
+            value = FixMul(g_unk0x0053a04c[player], t) + FixMul(0x10000 - t, g_unk0x0053a02c[player]);
             if (value < 0) {
                 g_unk0x0053a06c[player] = FixDiv(-value, g_unk0x0053a0ec[player]);
                 return;
@@ -464,7 +464,7 @@ void FUN_00428680(unsigned int player, short *pRect, int check)
 
     if ((FUN_0041f3a0() == 0 || index != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
         view = FUN_00422fb0(player);
-        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
+        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] >= 1) {
             alpha = (unsigned int)(g_unk0x0053a06c[view] * 0xff >> 16);
             if (alpha > 0xff)
                 alpha = 0xff;
@@ -836,7 +836,7 @@ void FUN_00426b90(int param_1, int param_2)
         scale = FixVecDot(&d, &v) + 0x10000;
         param_2 = FixDiv(scale, param_2);
         if (param_2 > 0) {
-            if (dot < param_2)
+            if (param_2 > dot)
                 param_2 = dot;
             FixVecScale(&d, &v, dot);
             *(int *)(param_1 + 0x70) -= d.x;
@@ -1145,7 +1145,8 @@ extern double g_unk0x00511300;
 int FUN_00425c40(int car, int *pOut)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;
-    float axis[4];
+    float axisA[2];
+    float axisB[2];
     FixVector *pRow;
     short ang1[2];
     short ang2[2];
@@ -1187,16 +1188,16 @@ int FUN_00425c40(int car, int *pOut)
         *(int *)(car + 0xc0) = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
 
         // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
-        axis[0] = (float)packet[0x11];
-        axis[1] = (float)packet[0x13];
-        axis[2] = (float)packet[0x10];
-        axis[3] = (float)packet[0x12];
-        for (i = 0; i < 2; i++) {
-            axis[i + 2] *= g_unk0x0051135c;
-            axis[i] *= g_unk0x00511358;
-            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(axis[i + 2]) * g_unk0x00511300);
-            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(axis[i]) * g_unk0x00511300);
-            pRow = (FixVector *)((BYTE *)car + 0x40 + i * 0x18);
+        axisA[0] = (float)packet[0x10];
+        axisB[0] = (float)packet[0x11];
+        axisA[1] = (float)packet[0x12];
+        axisB[1] = (float)packet[0x13];
+        pRow = (FixVector *)((BYTE *)car + 0x40);
+        for (i = 0; i < 2; i++, pRow += 2) {
+            float valueA = (axisA[i] *= g_unk0x0051135c);
+            float valueB = (axisB[i] *= g_unk0x00511358);
+            ang1[i] = (short)(__int64)((double)NetRace_FloatToFix(valueA) * g_unk0x00511300);
+            ang2[i] = (short)(__int64)((double)NetRace_FloatToFix(valueB) * g_unk0x00511300);
             pRow->x = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[(ang1[i] + 0x400) & 0xfff]);
             pRow->y = g_sinTable[(ang2[i] + 0x400) & 0xfff];
             pRow->z = FixMul(g_sinTable[ang2[i] & 0xfff], g_sinTable[ang1[i] & 0xfff]);

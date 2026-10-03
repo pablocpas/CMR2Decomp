@@ -3,8 +3,11 @@
 Usage: differential_stage_paths.py entities.json [rebuilt.exe]
 Selection providers and sprintf are controlled leaves. Country/code tables,
 branch selection and every generated path execute in the real images.
+The loader's final block also checks lighting argument order and call order;
+its stage-initialisation callees are controlled leaves.
 """
 import itertools,json,re,sys
+from capstone import Cs,CS_ARCH_X86,CS_MODE_32
 from pathlib import Path
 from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_EIP,UC_X86_REG_ESP
 from differential_menu_list import Drawing,ROOT,HEAP,STACK,STOP
@@ -74,6 +77,36 @@ class Paths(Drawing):
             self.put(self.u.reg_read(UC_X86_REG_ESP),'<I',STOP)
         self.u.reg_write(UC_X86_REG_EAX,self.arcade if address==0x407e50 else 0)
 
+    def load_lighting_tail(self,primary,secondary):
+        """Execute the real final block, located by its progress-call arguments."""
+        self.u.mem_write(self.base,bytes(self.memory))
+        self.u.mem_write(HEAP,bytes(0x10000));self.u.mem_write(STACK,bytes(0x10000))
+        self.put(self.addr(0x538234),'<I',primary)
+        self.put(self.addr(0x538238),'<I',secondary)
+        start=self.addr(0x41f930)
+        instructions=list(Cs(CS_ARCH_X86,CS_MODE_32).disasm(self.read(start,0x400),start))
+        marker=[('push','0xff'),('push','1'),('push','0x3c'),
+                ('call',hex(self.addr(0x40fec0)))]
+        matches=[instructions[i].address for i in range(len(instructions)-3)
+                 if [(p.mnemonic,p.op_str) for p in instructions[i:i+4]]==marker]
+        assert len(matches)==1,'loader tail must have one progress-call marker'
+        trace=[]
+        def leaf(address,nargs):
+            trace.append((address,tuple(self.args(nargs))))
+            self.u.reg_write(UC_X86_REG_EAX,0xa5a50000)
+        for address,nargs in [(0x40fec0,3),(0x460da0,2),(0x471dd0,0),(0x4283b0,0)]:
+            self.callbacks[self.addr(address)]=(nargs*4,
+                lambda a=address,n=nargs:leaf(a,n))
+        sp=STACK+0xff00;self.put(sp,'<I',STOP);self.u.reg_write(UC_X86_REG_ESP,sp)
+        self.u.emu_start(matches[0],STOP,count=1000)
+        assert self.u.reg_read(UC_X86_REG_EIP)==STOP
+        assert self.u.reg_read(UC_X86_REG_ESP)==sp+4,'loader tail stack imbalance'
+        assert self.u.reg_read(UC_X86_REG_EAX)&0xff==1,'loader success byte'
+        expected=[(0x40fec0,(0x3c,1,0xff)),(0x460da0,(secondary,primary)),
+                  (0x471dd0,()),(0x4283b0,())]
+        assert trace==expected,('loader lighting arguments/call order',trace,expected)
+        return trace
+
 
 def main():
     e=json.loads(Path(sys.argv[1]).read_text());a=Paths(ROOT/'cmr2bin/CMR2.exe');b=Paths(Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'build/CMR2.exe',e)
@@ -87,7 +120,11 @@ def main():
         aa,bb=a.load_texture_path(selection,arcade),b.load_texture_path(selection,arcade)
         if aa!=bb:
             print('FAIL loading texture',selection,arcade,aa,bb);return 1
+    lighting_cases=list(itertools.product([0,HEAP+0x1000,HEAP+0x2000],repeat=2))
+    for primary,secondary in lighting_cases:
+        assert a.load_lighting_tail(primary,secondary)==b.load_lighting_tail(primary,secondary)
     print(f'{len(selections)*3} stage path cases: all six stage/replay/texture names identical, including Finland stage 1')
+    print(f'{len(lighting_cases)} loader-tail cases: lighting argument order, subsequent calls, success byte and stack identical')
     return 0
 
 
