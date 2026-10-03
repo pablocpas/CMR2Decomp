@@ -3131,7 +3131,7 @@ extern int g_unk0x00537f5c;
 
 // Tears the current stage down: resets the race flags, stops the stage lights,
 // releases the view slots and replays of every car and refreshes the HUD.
-// match 56%: the code is the same but MSVC6's allocator does not materialise the
+// match 65%: the code is the same but MSVC6's allocator does not materialise the
 // constant 0 in a callee-saved register here: the original keeps the zero in EBX
 // for all of its ~12 uses (so every loop counter lives in ESI/EDI/EBP), while ours
 // folds the zeros into immediates and needs EBX for the loop indices, which
@@ -3157,8 +3157,11 @@ void Race_TeardownStage(int param1, int param2, char flag)
     FUN_00416670();
     StageLights_Off();
     RallyData_FUN_004207f0();
-    if (RallyData_FUN_00407e70() || RallyData_GetFlag25() || RallyData_GetFlag31())
-        FUN_004584d0(CGameInfo::FUN_00405d80() == 4 ? zero : 1);
+    if (RallyData_FUN_00407e70() || RallyData_GetFlag25() || (BYTE)RallyData_GetFlag31())
+        if (CGameInfo::FUN_00405d80() == 4)
+            FUN_004584d0(zero);
+        else
+            FUN_004584d0(1);
     Car_ReloadModels(zero, (int)Car_GetOrderCount(), zero);
     if (CGameInfo::FUN_00405d80() == 4) {
         for (i = 0; i < Car_GetOrderCount(); i++)

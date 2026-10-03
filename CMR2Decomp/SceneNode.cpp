@@ -2239,7 +2239,6 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 // Light level and colour of the ground at a position: those of the nearest
 // (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3860
 DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 {
@@ -2247,13 +2246,11 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     float *pVertex;
     float *pNearest;
     int *pVertexLevel;
-    float x;
     float dx;
     float dz;
-    float z;
-    float w;
     float d2;
     float best;
+    float pos[3];
     BYTE rgb[4];
     int i;
     int count;
@@ -2262,13 +2259,15 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     rgb[1] = 0xff;
     rgb[2] = 0xff;
     *pLevel = 0x10000;
-    x = (float)pPos->x * CGraphics::m_oneOver65536;
+    pos[0] = (float)pPos->x * CGraphics::m_oneOver65536;
     pNearest = NULL;
     rgb[3] = 0;
     best = 32000.0f;
-    z = (float)pPos->z * CGraphics::m_oneOver65536;
-    w = x + z;
-    pMesh = (Mesh *)g_sectors[(short)Sector_FromPosition(pPos)]->pMesh;
+    pos[2] = (float)pPos->z * CGraphics::m_oneOver65536;
+    {
+        int sector = (short)Sector_FromPosition(pPos);
+        pMesh = (Mesh *)g_sectors[sector]->pMesh;
+    }
     if (pMesh != NULL) {
         pVertex = (float *)pMesh->pVertexData;
         pVertexLevel = pMesh->pLightLevels;
@@ -2276,8 +2275,8 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
         count = pMesh->field_0x10;
         if (count > 0) {
             do {
-                dx = pVertex[0] - x;
-                dz = pVertex[2] - z;
+                dx = pVertex[0] - pos[0];
+                dz = pVertex[2] - pos[2];
                 d2 = dx * dx + dz * dz;
                 if (d2 < best) {
                     *pLevel = *pVertexLevel;
@@ -2289,9 +2288,9 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
                 i++;
             } while (i < pMesh->field_0x10);
             if (pNearest != NULL) {
-                rgb[2] = (BYTE)((DWORD *)pNearest)[6];
                 rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
                 rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
+                rgb[2] = (BYTE)((DWORD *)pNearest)[6];
             }
         }
     }
