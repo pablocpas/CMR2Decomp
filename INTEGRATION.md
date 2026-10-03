@@ -149,3 +149,9 @@ edit committed as `b06c353` (0x4853c0). The search tooling gained
 which removes the wineserver pipe deadlock. Per-function evidence, including the
 residual diffs of the functions left open, is in `CMR2PROGRESS/nonmatching.tsv` and the
 agents' reports.
+
+Pass 2 of the same campaign (agents 2nd/3rd waves) merges in `db4f77e`: Main rebuilds to
+**2651 byte-exact / 712 pending**, 0 exact losses versus the frozen baseline and versus
+pass 1, `reccmp-datacmp` 0 issues, and 71/71 differential harnesses pass. The session's
+own pending `StageTiming.cpp` edit (0x480cb0 `FIX_ABS` clamp) landed as its own commit and
+became the 79th closure.

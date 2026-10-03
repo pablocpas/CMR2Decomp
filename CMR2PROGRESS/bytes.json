@@ -6205,8 +6205,8 @@
   },
   "0x4eb200": {
     "n": "FUN_004eb200",
-    "s": 0.8518518518518519,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004eb200"
@@ -6877,7 +6877,7 @@
   },
   "0x4d7db0": {
     "n": "FUN_004d7db0",
-    "s": 0.94021101992966,
+    "s": 0.9107981220657277,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6885,7 +6885,7 @@
   },
   "0x4d8950": {
     "n": "FUN_004d8950",
-    "s": 0.94021101992966,
+    "s": 0.9107981220657277,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -7383,8 +7383,8 @@
   },
   "0x4a17f0": {
     "n": "CGame::FUN_004a17f0",
-    "s": 0.7169811320754716,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "CGame::FUN_004a17f0"
@@ -8071,8 +8071,8 @@
   },
   "0x4a1940": {
     "n": "FUN_004a1940",
-    "s": 0.9538461538461539,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "FUN_004a1940"
@@ -8831,8 +8831,8 @@
   },
   "0x4ea5e0": {
     "n": "CGameInfo::LoadGameInfo",
-    "s": 0.74375,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "CGameInfo::LoadGameInfo"
@@ -10071,7 +10071,7 @@
   },
   "0x502570": {
     "n": "FUN_00502570",
-    "s": 0.6875,
+    "s": 0.8695652173913043,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -10255,8 +10255,8 @@
   },
   "0x404d00": {
     "n": "FUN_00404d00",
-    "s": 0.7361963190184049,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00404d00"
@@ -10623,8 +10623,8 @@
   },
   "0x5020a0": {
     "n": "FUN_005020a0",
-    "s": 0.7818181818181819,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_005020a0"
@@ -11103,7 +11103,7 @@
   },
   "0x507fe0": {
     "n": "FUN_00507fe0",
-    "s": 0.9717514124293786,
+    "s": 0.9870967741935484,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -12006,7 +12006,7 @@
   },
   "0x454df0": {
     "n": "GameMenus_DrawTextRow",
-    "s": 0.8359788359788359,
+    "s": 0.8571428571428571,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -12454,7 +12454,7 @@
   },
   "0x4a8c30": {
     "n": "CGraphics::FUN_004a8c30_DDEnumCallback",
-    "s": 0.6666666666666666,
+    "s": 0.6813186813186813,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12498,7 +12498,7 @@
   },
   "0x4a5730": {
     "n": "CGraphics::GetPixelRed",
-    "s": 0.7272727272727273,
+    "s": 0.8181818181818182,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12506,7 +12506,7 @@
   },
   "0x4a57e0": {
     "n": "CGraphics::GetPixelAlpha",
-    "s": 0.8153846153846154,
+    "s": 0.8923076923076924,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12658,7 +12658,7 @@
   },
   "0x4bd970": {
     "n": "CGraphics::SetMipMapCount",
-    "s": 0.875,
+    "s": 0.9696969696969697,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13076,7 +13076,7 @@
   },
   "0x4bc290": {
     "n": "FUN_004bc290",
-    "s": 0.8826291079812206,
+    "s": 0.9671361502347418,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13212,7 +13212,7 @@
   },
   "0x4b9910": {
     "n": "FUN_004b9910",
-    "s": 0.6459627329192547,
+    "s": 0.8637873754152824,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13835,7 +13835,7 @@
   },
   "0x49c680": {
     "n": "FUN_0049c680",
-    "s": 0.6145833333333334,
+    "s": 0.5416666666666666,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -16003,8 +16003,8 @@
   },
   "0x428680": {
     "n": "FUN_00428680",
-    "s": 0.5,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00428680"
@@ -17319,8 +17319,8 @@
   },
   "0x423970": {
     "n": "FUN_00423970",
-    "s": 0.6666666666666666,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_00423970"
@@ -18783,8 +18783,8 @@
   },
   "0x414720": {
     "n": "FUN_00414720",
-    "s": 0.6942148760330579,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
     "symbol_name": "FUN_00414720"
@@ -18823,7 +18823,7 @@
   },
   "0x40f050": {
     "n": "FUN_0040f050",
-    "s": 0.5714285714285714,
+    "s": 0.9743589743589743,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -20845,8 +20845,8 @@
   },
   "0x4694a0": {
     "n": "FUN_004694a0",
-    "s": 0.8688046647230321,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_004694a0"
@@ -22093,7 +22093,7 @@
   },
   "0x468c10": {
     "n": "FUN_00468c10",
-    "s": 0.8786885245901639,
+    "s": 0.8918032786885246,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22597,15 +22597,15 @@
   },
   "0x47d510": {
     "n": "FUN_0047d510",
-    "s": 0.9574468085106383,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0047d510"
   },
   "0x465530": {
     "n": "FUN_00465530",
-    "s": 0.9354838709677419,
+    "s": 0.967741935483871,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22877,8 +22877,8 @@
   },
   "0x487c40": {
     "n": "FUN_00487c40",
-    "s": 0.8987341772151899,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_00487c40"
@@ -23381,7 +23381,7 @@
   },
   "0x48cae0": {
     "n": "FUN_0048cae0",
-    "s": 0.905982905982906,
+    "s": 0.9743589743589743,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23621,8 +23621,8 @@
   },
   "0x466360": {
     "n": "StageObjects_Init",
-    "s": 0.8601036269430051,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObjects_Init"
@@ -25087,8 +25087,8 @@
   },
   "0x45e7f0": {
     "n": "FUN_0045e7f0",
-    "s": 0.7704918032786885,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_0045e7f0"
@@ -25183,7 +25183,7 @@
   },
   "0x45e8b0": {
     "n": "FUN_0045e8b0",
-    "s": 0.7466666666666667,
+    "s": 0.9090909090909091,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25583,8 +25583,8 @@
   },
   "0x45f4a0": {
     "n": "FUN_0045f4a0",
-    "s": 0.7428571428571429,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_0045f4a0"
@@ -25711,8 +25711,8 @@
   },
   "0x415bd0": {
     "n": "FormatGapToLeader",
-    "s": 0.8473520249221184,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "FormatGapToLeader"
@@ -25831,8 +25831,8 @@
   },
   "0x41b3a0": {
     "n": "FUN_0041b3a0",
-    "s": 0.848,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageUI.cpp",
     "symbol_name": "FUN_0041b3a0"
@@ -26095,8 +26095,8 @@
   },
   "0x4a9f50": {
     "n": "FUN_004a9f50",
-    "s": 0.9302325581395349,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Texture.cpp",
     "symbol_name": "FUN_004a9f50"
@@ -26159,8 +26159,8 @@
   },
   "0x490f20": {
     "n": "Track_PointInTriangle",
-    "s": 0.5588235294117647,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Track_PointInTriangle"
