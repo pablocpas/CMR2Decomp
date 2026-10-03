@@ -3185,7 +3185,7 @@ void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag)
     if (other != 0xff)
         g_unk0x0059146c[(char)other] = 1;
     i = 0;
-    if (g_unk0x005913dc[index] != 0) {
+    if (g_unk0x005913dc[index] > 0) {
         do {
             FUN_0048c900(g_unk0x005913f8[index][i]);
             i++;
@@ -10418,7 +10418,7 @@ void FUN_0046fe70(int *param_1, int param_2, int param_3)
         return;
     }
     c = 0;
-    if (g_movingObjects.count != 0) {
+    if (g_movingObjects.count > 0) {
         entry = &g_movingObjects.entries[0];
         do {
             RallyData_FUN_00471cc0((int *)&pos, (void **)entry);
