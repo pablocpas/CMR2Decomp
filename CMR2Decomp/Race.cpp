@@ -3952,7 +3952,7 @@ void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 // Plays the scrape sound for its strength (10 levels) and shakes the car.
 // match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418ba0
-void FUN_00418ba0(unsigned int view, int strength, int listener)
+void FUN_00418ba0(int view, int strength, int listener)
 {
     int level;
 

@@ -152,7 +152,8 @@ void Replay_SetupPointers(BYTE *pBuffer, int unused);
 int FUN_0046d500(void);
 void FUN_0046d510(void);
 void FUN_0046d5e0(void);
-void FUN_0046d610(BYTE *p);
+struct ReplayStream;
+void FUN_0046d610(ReplayStream *p);
 void FUN_0046d8d0(int param_1, int *param_2);
 void FUN_0046de20(unsigned int *param_1, unsigned int *param_2, unsigned int *param_3, int *param_4, FixMatrix *param_5, int *param_6, unsigned int *param_7, int *param_8);
 void FUN_0046e340(BYTE *pMatrices, BYTE *pInfo);
@@ -12165,7 +12166,7 @@ int g_unk0x0051fb00[52] = {
     0x28f, 0xccc
 };
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
-void FUN_00418ba0(unsigned int view, int strength, int listener);
+void FUN_00418ba0(int view, int strength, int listener);
 void FUN_0045f9d0(int param_1, int *param_2, int param_3);
 int FUN_00427d50(unsigned int view, int listener);
 bool FUN_00427ab0(int value, int *pRange);
@@ -12334,67 +12335,102 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
         count--;
     } while (count != 0);
 }
-// Advances a stage object's animation record: on a key frame boundary it snaps
-// the interpolated matrix, steps the frame counter and re-derives the car's
-// heading, body transform and world velocity.
-// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// One replay stream (recorder/player of one car); the slots hang off
+// g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
+// and play them back by interpolating between two poses.
+struct ReplayStream {
+    void *pInput;           // 0x00
+    int playing;            // 0x04
+    int playStarted;        // 0x08
+    int recording;          // 0x0c
+    int recordStarted;      // 0x10
+    int field_0x14;         // 0x14
+    int field_0x18;         // 0x18
+    int type;               // 0x1c 0 inputs, 1 states, 2 car samples
+    BYTE car;               // 0x20
+    BYTE field_0x21;        // 0x21
+    BYTE pad22[2];
+    BYTE *pInputs;          // 0x24 0x114c bytes per lane
+    BYTE pad28[8];
+    BYTE *pStates;          // 0x30 0x5c bytes per lane
+    BYTE pad34[8];
+    BYTE *pFrames;          // 0x3c 4 bytes per frame
+    BYTE *pSamples;         // 0x40 16 bytes per sample
+    FixMatrix from;         // 0x44
+    FixMatrix to;           // 0x84
+    FixVector velocity;     // 0xc4
+    int headingFrom;        // 0xd0
+    int headingTo;          // 0xd4
+    int steerFrom;          // 0xd8
+    int steerTo;            // 0xdc
+    int eventPrev;          // 0xe0
+    int event;              // 0xe4
+    unsigned int field_0xe8; // 0xe8
+    unsigned int field_0xec; // 0xec
+    unsigned int flagPrev;  // 0xf0
+    unsigned int flag;      // 0xf4
+    BYTE step;              // 0xf8
+    BYTE padf9[5];
+    short samplesPerLane;   // 0xfe
+    short laneCount;        // 0x100
+    short pad102;
+    short *pLaneSamples;    // 0x104
+    short lane;             // 0x108
+    short frame;            // 0x10a
+};
+
+// Advances a type 2 replay stream: on every third frame it moves to the next
+// sample (snapping the pose pair and fetching the next one), then interpolates
+// the car's matrix, heading, steering and velocity between the two samples.
+// match 91%: the original homes the car pointer in a local slot and uses the
+// dead parameter slot for the FixMul operands.
 // FUNCTION: CMR2 0x0046d610
-void FUN_0046d610(BYTE *p)
+void FUN_0046d610(ReplayStream *p)
 {
     Car *pCar;
     int t;
     int value;
-    int n;
+
     if (p == NULL)
         return;
-    pCar = Car_Get((int)p[0x20]);
-    if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) != 2 || pCar->field_0xb43[0] == 0)
+    pCar = Car_Get(p->car);
+    if (p->playing == 0 || p->type != 2 || pCar->field_0xb43[0] <= 0u)
         return;
-    if (p[0xf8] > 2) {
-        int i;
-        for (i = 0; i < 16; i++)
-            ((int *)(p + 0x44))[i] = ((int *)(p + 0x84))[i];
-        *(int *)(p + 0xd8) = *(int *)(p + 0xdc);
-        n = *(int *)(p + 0xe4);
-        *(int *)(p + 0xd0) = *(int *)(p + 0xd4);
-        *(int *)(p + 0xe0) = n;
-        *(int *)(p + 0xf0) = *(int *)(p + 0xf4);
-        if (n > 0)
-            FUN_00418ba0((unsigned int)pCar->index, n, pCar->index);
-        *(short *)(p + 0x10a) = *(short *)(p + 0x10a) + 1;
-        if (*(short *)(p + 0x10a) <
-            *(short *)(*(int *)(p + 0x104) + *(short *)(p + 0x108) * 2))
-            FUN_0046de20((unsigned int *)(p + 0xec), (unsigned int *)(p + 0xf4),
-                         (unsigned int *)(p + 0xdc), (int *)(p + 0xd4),
-                         (FixMatrix *)(p + 0x84), (int *)(p + 0xe4),
-                         (unsigned int *)(p + 0xe8),
-                         (int *)(((int)*(short *)(p + 0xfe) * (int)*(short *)(p + 0x108) +
-                                  (int)*(short *)(p + 0x10a)) * 0x10 + *(int *)(p + 0x40)));
+    if (p->step >= 3) {
+        p->from = p->to;
+        p->headingFrom = p->headingTo;
+        p->steerFrom = p->steerTo;
+        p->eventPrev = p->event;
+        p->flagPrev = p->flag;
+        if (p->event > 0)
+            FUN_00418ba0(pCar->index, p->event, pCar->index);
+        p->frame++;
+        if (p->frame < p->pLaneSamples[p->lane])
+            FUN_0046de20(&p->field_0xec, &p->flag, (unsigned int *)&p->steerTo, &p->headingTo, &p->to,
+                         &p->event, &p->field_0xe8,
+                         (int *)(p->pSamples + (p->samplesPerLane * p->lane + p->frame) * 0x10));
         else
             FUN_0046d2a0((int *)p);
-        FUN_0046e340(p + 0x44, (BYTE *)pCar);
-        p[0xf8] = 0;
-        if (*(int *)(p + 0xf0) != 0)
+        FUN_0046e340((BYTE *)&p->from, (BYTE *)pCar);
+        p->step = 0;
+        if (p->flagPrev != 0)
             pCar->field_0xbf8 = 1;
     }
-    t = (*(int *)(p + 0xf4) == 0)
-            ? (int)(((unsigned __int64)p[0xf8] << 32) / 0x30000)
-            : 0;
-    FixMatrix_Interpolate(pCar->pWorld, (FixMatrix *)(p + 0x44), (FixMatrix *)(p + 0x84),
-                          t, t, t, 1);
-    value = FixMul(FixMul(t, *(int *)(p + 0xd4) - *(int *)(p + 0xd0)) + *(int *)(p + 0xd0),
-                   (int)pCar->field_0xb16 * 0x1680);
+    if (p->flag != 0)
+        t = 0;
+    else
+        t = FixDiv(p->step << 16, 0x30000);
+    FixMatrix_Interpolate(pCar->pWorld, &p->from, &p->to, t, t, t, 1);
+    value = FixMul(FixMul(p->headingTo - p->headingFrom, t) + p->headingFrom, pCar->field_0xb16 * 0x1680);
     pCar->field_0x7a4 = 0;
     pCar->heading = (unsigned short)(__int64)((double)value * g_unk0x00511300);
-    pCar->steerFollowRate =
-        FixMul(*(int *)((BYTE *)pCar + 0x788),
-               FixMul(*(int *)(p + 0xdc) - *(int *)(p + 0xd8), t) + *(int *)(p + 0xd8));
+    pCar->steerFollowRate = FixMul(*(int *)((BYTE *)pCar + 0x788), FixMul(p->steerTo - p->steerFrom, t) + p->steerFrom);
     pCar->velocityNext = pCar->velocity;
-    pCar->velocity.x += *(int *)(p + 0xc4);
-    pCar->velocity.y += *(int *)(p + 0xc8);
-    pCar->velocity.z += *(int *)(p + 0xcc);
-    *(int *)((BYTE *)pCar + 0xb54) = *(int *)(p + 0xec);
-    p[0xf8] = p[0xf8] + 1;
+    pCar->velocity.x += p->velocity.x;
+    pCar->velocity.y += p->velocity.y;
+    pCar->velocity.z += p->velocity.z;
+    *(unsigned int *)((BYTE *)pCar + 0xb54) = p->field_0xec;
+    p->step++;
 }
 // Dispatches one stage object's per-frame update when its stage-block slot is
 // active, refreshing the car's order, light and mesh state.
@@ -14203,7 +14239,8 @@ BYTE *FUN_0047c2f0(void)
 void FUN_0046c2a0(int param_1, BYTE param_2);
 void FUN_0046c390(int *pState, BYTE car);
 int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
-void FUN_0046d610(BYTE *p);
+struct ReplayStream;
+void FUN_0046d610(ReplayStream *p);
 void FUN_00496e00(Car *pCar);
 void FUN_00477ce0(int car);
 void FUN_004643f0(int param_1);
@@ -14328,7 +14365,7 @@ void FUN_0046d5e0(void)
 
     for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
-            FUN_0046d610(*(BYTE **)*pp);
+            FUN_0046d610(*(ReplayStream **)*pp);
     }
 }
 

@@ -7162,7 +7162,7 @@ void FUN_00483570(void)
 
 extern int g_unk0x00588970[8];
 void ForceFeedback_UpdateSlot(BYTE *pCar, FixVector *pIn, int nonzero);
-void FUN_00418ba0(unsigned int view, int strength, int listener);
+void FUN_00418ba0(int view, int strength, int listener);
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener);
 void FUN_004675c0(Car *pCar, Car *pOther);
 void FUN_00468a80(Car *pCar, int amount);
