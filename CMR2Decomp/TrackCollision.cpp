@@ -57,8 +57,10 @@ int Track_GetTriangle(FixVector *pOut, short tri)
 }
 
 #define TRACK_EDGE_TEST(a, b)                                                                  \
-    g_trackEdgeNX = pTri[b].z - pTri[a].z;                                                     \
-    g_trackEdgeNZ = -(pTri[b].x - pTri[a].x);                                                  \
+    g_trackEdgeDX = pTri[b].x - pTri[a].x;                                                     \
+    g_trackEdgeDZ = pTri[b].z - pTri[a].z;                                                     \
+    g_trackEdgeNX = g_trackEdgeDZ;                                                             \
+    g_trackEdgeNZ = -g_trackEdgeDX;                                                            \
     g_trackEdgeDX = pPoint->x - pTri[a].x;                                                     \
     g_trackEdgeDZ = pPoint->z - pTri[a].z;                                                     \
     g_trackEdgeSide = FixMul(g_trackEdgeDX, g_trackEdgeNX) + FixMul(g_trackEdgeDZ, g_trackEdgeNZ)

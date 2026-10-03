@@ -457,17 +457,16 @@ void FUN_004285b0(unsigned int player, int t, int check)
 // FUNCTION: CMR2 0x00428680
 void FUN_00428680(unsigned int player, short *pRect, int check)
 {
-    BYTE colour[4];
-    BYTE index = (BYTE)player;
     unsigned int alpha;
-    BYTE view;
+    unsigned int view;
 
-    if ((FUN_0041f3a0() == 0 || index != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
-        view = FUN_00422fb0(player);
-        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] >= 1) {
-            alpha = (unsigned int)(g_unk0x0053a06c[view] * 0xff >> 16);
+    if ((FUN_0041f3a0() == 0 || (BYTE)player != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
+        view = FUN_00422fb0(player) & 0xff;
+        if ((BYTE)player < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
+            BYTE colour[4];
+            alpha = g_unk0x0053a06c[view] * 0xff >> 16;
             if (alpha > 0xff)
-                alpha = 0xff;
+                alpha |= 0xff;
             colour[0] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[0];
             colour[1] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[1];
             colour[2] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[2];
