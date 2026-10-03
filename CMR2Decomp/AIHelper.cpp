@@ -44,8 +44,7 @@ int CAIHelper::FUN_00407f80(int id)
 char *CAIHelper::GetNameForID(int id)
 {
     unsigned int uVar1;
-    unsigned int uVar2;
-    int iVar3;
+    unsigned char uVar2;
 
     uVar1 = CGameInfo::FUN_00405d80();
     if (uVar1 != 5)
@@ -63,6 +62,5 @@ char *CAIHelper::GetNameForID(int id)
     }
 
     uVar2 = RallyDataState();
-    uVar2 = CAIHelper::FUN_00407f80(id - (unsigned char)uVar2);
-    return g_aiNames[uVar2];
+    return g_aiNames[CAIHelper::FUN_00407f80(id - uVar2)];
 }
