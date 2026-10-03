@@ -756,8 +756,8 @@ void Car_ApplyViewTransforms(int viewIndex)
                 FixMatrix_CopyRotation(&pT->body, &CAR_NODE(offset, 0x71c)->current);
                 FixMatrix_CopyRotation(&pT->body2, &CAR_NODE(offset, 0x720)->current);
             }
-            pOrder--;
             g_carViewScale[carIndex][viewIndex] = scale;
+            pOrder--;
             n--;
         } while (n != 0);
     }
@@ -1272,29 +1272,25 @@ extern BYTE *g_pCarSetup;
 // Advances the per-wheel suspension travel angle (0xb08) from the wheel load
 // and turns it into the per-wheel contact-point offset (0x6fc/0x700), scaled
 // by the per-wheel spring constant of the car setup.
-// match 90%: MSVC picked the setup array (0x240) as the induction-variable base
-// instead of the wheel-load array (0x860) the original used; same logic.
 // GLOBAL: CMR2 0x00511398
 double g_unk0x00511398 = -0.009947183943243459;
 // FUNCTION: CMR2 0x004336f0
 void Car_UpdateWheelTravel(void)
 {
     int i;
-    int load;
     int absLoad;
     short delta;
 
     for (i = 0; i < 4; i++) {
-        load = CAR_INT(0x860 + i * 4);
-        absLoad = FIX_ABS(load);
+        absLoad = FIX_ABS(CAR_INT(0x860 + i * 4));
         if (absLoad > 0x10000) {
-            if (load > 0) {
+            if (CAR_INT(0x860 + i * 4) > 0) {
                 CAR_USHORT(0xb08 + i * 2) += -0x28b;
             } else {
                 CAR_USHORT(0xb08 + i * 2) += 0x28b;
             }
         } else {
-            delta = (short)(__int64)((double)load * g_unk0x00511398);
+            delta = (short)(__int64)((double)CAR_INT(0x860 + i * 4) * g_unk0x00511398);
             CAR_USHORT(0xb08 + i * 2) += delta;
         }
         if (*(int *)(g_pCarSetup + 0x240 + i * 4) > 0) {
@@ -2802,7 +2798,7 @@ void Car_UpdateSuspension(void)
 
 // Normalises the per-wheel slip, turns it into wheel torque and, on the cars
 // that use it, feeds the torque back towards half the drive torque.
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 84%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0043c640
 void Car_UpdateWheelTorques(void)
 {
@@ -2834,14 +2830,12 @@ void Car_UpdateWheelTorques(void)
 
     if (FUN_00469bc0(g_pCurrentCar, 3) != 0) {
         int rate = FixMul(g_pCurrentCar->speed, 0x2000);
-        int half;
 
         if (rate > 0x10000) {
             rate = 0x10000;
         }
-        half = g_pCurrentCar->field_0x75c / 2;
         for (i = 0; i < 4; i++) {
-            int target = i < 2 ? half : 0;
+            int target = i < 2 ? (g_pCurrentCar->field_0x75c / 2) : 0;
             g_pCurrentCar->field_0x8b8[i] += FixMul(rate, target - g_pCurrentCar->field_0x8b8[i]);
         }
     }
@@ -3381,9 +3375,9 @@ void Car_StoreRenderTransforms(short *pList, short count)
         pShadow = (BYTE *)&g_carTransformsShadow[car];
         memcpy(pRow, pShadow, 0x40);
         memcpy(pRow + 0x40, pShadow + 0x40, 0x40);
-        for (j = 4; j != 0; j--) {
-            memcpy(pRow + 0x80 + (4 - j) * 0x18, pShadow + 0x80 + (4 - j) * 0x18, 0x18);
-            *(int *)(pRow + 0xec + (4 - j) * 4) = *(int *)(pShadow + 0xec + (4 - j) * 4);
+        for (j = 0; j < 4; j++) {
+            memcpy(pRow + 0x80 + j * 0x18, pShadow + 0x80 + j * 0x18, 0x18);
+            *(int *)(pRow + 0xec + j * 4) = *(int *)(pShadow + 0xec + j * 4);
         }
         *(FixVector *)(pRow + 0xe0) = *(FixVector *)(pShadow + 0xe0);
         if (pCar->field_0x958 != 0) {
@@ -3392,11 +3386,9 @@ void Car_StoreRenderTransforms(short *pList, short count)
         }
         FixMatrix_GetUp(&up, (FixMatrix *)pCar);
         if (type != (char)pCar->field_0xb1b[0]) {
-            factor = g_unk0x00519a00[type] + g_unk0x005199c8[(char)pCar->field_0xb1b[0]];
-            FixVecScale(&up, &up, factor);
+            FixVecScale(&up, &up, g_unk0x00519a00[type] + g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
         } else {
-            factor = g_unk0x005199c8[(char)pCar->field_0xb1b[0]];
-            FixVecScale(&up, &up, factor);
+            FixVecScale(&up, &up, g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
         }
         if (CGameInfo::FUN_004063f0(6) != 0) {
             FixMatrix_GetUp(&ride, &pCar->pNode0x71c->current);
@@ -3429,8 +3421,8 @@ void Car_StoreRenderTransforms(short *pList, short count)
         // three wheel angles. The original walks wheels 3..0 with every
         // pointer going down, so record j always belongs to wheel j (the
         // steering angle goes to the front wheels 0 and 1).
-        steering = *(short *)((BYTE *)pCar + 0xb14);
         pWheels = (CarWheelRecord *)(pShadow + 0x80);
+        steering = *(short *)((BYTE *)pCar + 0xb14);
         if (*(int *)((BYTE *)pCar + 0xb70) != 0) {
             for (j = 3; j >= 0; j--)
                 pWheels[j].pos = pCar->wheelEmitter[j];
@@ -5115,8 +5107,6 @@ void Car_RebuildBodyAxes(void)
 {
     FixVector v[3];
     FixVector tmp;
-    FixVector *pForward;
-    FixMatrix *pBody;
     int scale;
     int i;
 
@@ -5130,15 +5120,12 @@ void Car_RebuildBodyAxes(void)
         }
         FixMatrix_SetRight(&v[0], g_pCurrentCar->pBodyMatrix);
         FixMatrix_SetUp(&v[1], g_pCurrentCar->pBodyMatrix);
-        pForward = &v[2];
-        pBody = g_pCurrentCar->pBodyMatrix;
+        FixMatrix_SetForward(&v[2], g_pCurrentCar->pBodyMatrix);
     } else {
         FixMatrix_SetRight(&g_pCurrentCar->right, g_pCurrentCar->pBodyMatrix);
         FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pBodyMatrix);
-        pForward = &g_pCurrentCar->forward;
-        pBody = g_pCurrentCar->pBodyMatrix;
+        FixMatrix_SetForward(&g_pCurrentCar->forward, g_pCurrentCar->pBodyMatrix);
     }
-    FixMatrix_SetForward(pForward, pBody);
     scale = g_pCurrentCar->wheel0x988[0];
     FixVecScale(&tmp, &g_pCurrentCar->up, scale);
     tmp.x += g_pCurrentCar->position.x;
@@ -5636,7 +5623,6 @@ void FixMatrix_CopyRotationFrom(FixMatrix *pDst, FixMatrix *pSrc);
 void FixMatrix_SetPosition(FixVector *pV, FixMatrix *pM);
 
 // A car's body matrix, raised by its camera shake when that option is on.
-// match 33%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423a30
 FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car)
 {
@@ -5650,8 +5636,8 @@ FixMatrix *View_GetCarBodyMatrix(FixMatrix *pOut, BYTE car)
         shake = FixMul(Car_Get(car)->field_0xa8c, 0x8000);
         FixVecScale(&up, &up, shake);
         FixMatrix_GetPosition(&position, pOut);
-        position.y += up.y;
         position.x += up.x;
+        position.y += up.y;
         position.z += up.z;
         FixMatrix_SetPosition(&position, pOut);
     }

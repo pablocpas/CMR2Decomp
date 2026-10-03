@@ -554,12 +554,13 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 // FUNCTION: CMR2 0x00427b70
 unsigned int FUN_00427b70(int value, int *pCurve)
 {
-    int range = pCurve[2] - pCurve[1];
+    int range;
     int index;
     int step;
     int frac;
 
     value -= pCurve[1];
+    range = pCurve[2] - pCurve[1];
     index = (pCurve[0] * value) / range;
     step = range / pCurve[0];
     if (step > 0) {
@@ -601,15 +602,14 @@ int g_unk0x005393d0;
 NetTriangleState g_netTriangleState;
 
 // Resets the network race state and builds the triangle number table.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424ed0
 void FUN_00424ed0(void)
 {
-    int sum;
+    int sum = 0;
     int n;
 
     memset(g_unk0x005393ac, 0, sizeof(g_unk0x005393ac));
-    for (n = 0, sum = 0; n < 100; n++) {
+    for (n = 0; n < 100; n++) {
         sum += n;
         g_triangleNumbers[n] = sum;
     }
@@ -1340,13 +1340,13 @@ void FUN_00425a90(BYTE *pCars)
                 *(int *)(pEntry + 0xb8) =
                     FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
             }
-            if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
-                g_unk0x005393ac[i] = pStats->seq;
+            if (abs(g_unk0x005393ac[i] - (unsigned short)pStats->seq) > 0x32) {
+                g_unk0x005393ac[i] = (unsigned short)pStats->seq;
                 *(int *)(pEntry + 0xe8) = 1;
             } else {
                 *(int *)(pEntry + 0xe8) = 0;
             }
-            g_unk0x005393ac[i] = (pStats->seq + g_unk0x005393ac[i]) >> 1;
+            g_unk0x005393ac[i] = ((unsigned)pStats->seq + (unsigned)g_unk0x005393ac[i]) >> 1;
             if (i == 0)
                 RallyData_ValidateIndex((int)CInput::FormatString(g_str0x00519988, pStats->seq,
                                                                  0, g_unk0x005393ac[i]));

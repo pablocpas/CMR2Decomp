@@ -189,8 +189,11 @@ void SceneNode_Attach(SceneNode *pNode, SceneNode *pParent)
     if (pParent != NULL) {
         p = pParent->pFirstChild;
         if (p != NULL) {
-            for (pNext = p->pNext; pNext != NULL; pNext = pNext->pNext)
+            pNext = p->pNext;
+            while (pNext != NULL) {
                 p = pNext;
+                pNext = p->pNext;
+            }
             p->pNext = pNode;
             pNode->pParent = pParent;
             return;
@@ -454,11 +457,12 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
         pNode->pNext = pNewParent->pFirstChild;
         pNewParent->pFirstChild = pNode;
     }
+    p = pNode;
     do {
-        pNode->dirty = 1;
-        pNode = pNode->pParent;
-    } while (pNode != NULL);
-    return pNewParent->dirty;
+        p->dirty = 1;
+        p = p->pParent;
+    } while (p != NULL);
+    return 1;
 }
 
 // Type 1 / type 2 scene objects: fixed pointer tables, released by lookup.
@@ -695,7 +699,7 @@ SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneN
     else
         p = pNode;
     i = 0;
-    *(BYTE *)&p->flags = 0xff;
+    p->flags |= 0xff;
     for (i = 0; i < 256; i++) {
         if (g_sceneType2Objects[i] == NULL) {
             pObject = CFileBuffer::AllocateLockedBuffer(0x104);
@@ -2511,19 +2515,18 @@ void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z)
 {
     SceneLight *pLight;
     FixVector d;
-    FixVector dir;
 
     pLight = (SceneLight *)pNode->pObject;
     pLight->light.dvPosition.x = (float)x * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
     d.x = -x;
     d.y = -y;
     d.z = -z;
-    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
-    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
-    FIX_NORMALIZE_INTO(dir, d);
-    pLight->light.dvDirection.x = (float)dir.x * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.y = (float)dir.y * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.z = (float)dir.z * CGraphics::m_oneOver65536;
+    FIX_NORMALIZE_INTO(d, d);
+    pLight->light.dvDirection.x = (float)d.x * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.y = (float)d.y * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.z = (float)d.z * CGraphics::m_oneOver65536;
     CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
 }
 
@@ -2566,13 +2569,15 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
                 pLight = (SceneLight *)pNode->pObject;
                 if (pNode->dirty == 1) {
                     if (pLight->light.dltType != D3DLIGHT_DIRECTIONAL) {
-                        if (pLight->light.dltType == D3DLIGHT_SPOT) {
-                            pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
-                            pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
-                            pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
-                        } else if (pLight->light.dltType != D3DLIGHT_POINT) {
-                            pNode->dirty = 0;
-                            goto next;
+                        if (pLight->light.dltType != D3DLIGHT_POINT) {
+                            if (pLight->light.dltType == D3DLIGHT_SPOT) {
+                                pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
+                                pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
+                                pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
+                            } else {
+                                pNode->dirty = 0;
+                                goto next;
+                            }
                         }
                         pLight->light.dvPosition.x = (float)pNode->world.position.x * CGraphics::m_oneOver65536;
                         pLight->light.dvPosition.y = (float)pNode->world.position.y * CGraphics::m_oneOver65536;

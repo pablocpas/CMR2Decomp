@@ -261,8 +261,8 @@ void FUN_004556f0(void)
     int out[2];
     int k;
     int ai;
-    char hasAi;
-    char hasPlayer;
+    bool hasAi;
+    bool hasPlayer;
 
     players = CGameInfo::FUN_00405d70();
     switch (CGameInfo::FUN_00405d80()) {
@@ -2192,7 +2192,7 @@ void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int
     x = (pPosition[0] - base.x) >> 6;
     y = (pPosition[1] - base.y) >> 6;
     z = (pPosition[2] - base.z) >> 6;
-    if ((x >= 1 && (signed char)pLimit[0x1b] <= 0) || (x < 0 && (signed char)pLimit[0x1b] >= 0))
+    if ((x > 0 && (signed char)pLimit[0x1b] <= 0) || (x < 0 && (signed char)pLimit[0x1b] >= 0))
         x = 0;
     if ((y > 0 && (signed char)pLimit[0x1c] <= 0) || (y < 0 && (signed char)pLimit[0x1c] >= 0))
         y = 0;
@@ -3730,15 +3730,13 @@ extern char g_unk0x00542cad;
 // FUNCTION: CMR2 0x00458f30
 void FUN_00458f30(int car, int from, int to)
 {
-    int count = g_stageCheckpointCount;
-
-    if (to < g_unk0x00542e78[car].field_0x0 && to == 0 && from == count - 1) {
+    if (to < g_unk0x00542e78[car].field_0x0 && to == 0 && from == g_stageCheckpointCount - 1) {
         g_unk0x00542e78[car].field_0x2++;
         g_unk0x00542e78[car].field_0x18 = 1;
         if (g_unk0x00542e78[car].field_0x2 == 1000)
             g_unk0x00542e78[car].field_0x2 = 0;
     }
-    if (to > g_unk0x00542e78[car].field_0x0 && to == count - 1 && from == 0) {
+    if (to > g_unk0x00542e78[car].field_0x0 && to == g_stageCheckpointCount - 1 && from == 0) {
         g_unk0x00542e78[car].field_0x2--;
         if (g_unk0x00542e78[car].field_0x2 < -1)
             g_unk0x00542e78[car].field_0x2 = -1;
@@ -5806,7 +5804,7 @@ void FUN_004487a0(int car)
     char prev;
 
     if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
-        if ((int)((BYTE)RallyDataState()) <= car)
+        if (car >= (int)((BYTE)RallyDataState()))
             return;
         g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
         return;
@@ -8917,6 +8915,7 @@ void FUN_004561e0(int *pTimes)
 {
     int *pDeltas;
     int n;
+    int i;
     int *pSplit;
     char *pOrder;
 
@@ -8929,11 +8928,13 @@ void FUN_004561e0(int *pTimes)
     if (n >= 0) {
         pSplit = g_stageSplitTimesRaw[0];
         pOrder = g_stageSplitTimesRawDriverIx[0];
-        for (n = n + 1; n != 0; n--) {
+        i = n + 1;
+        do {
             RallyTiming_SortOrder(pSplit, pOrder, 1, g_unk0x00541f98, 1);
             pOrder += 0x10;
             pSplit += 0x10;
-        }
+            i--;
+        } while (i != 0);
     }
     CFileBuffer::FreeGenericFileBuffer(pDeltas);
 }

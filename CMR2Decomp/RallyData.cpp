@@ -682,6 +682,7 @@ int FUN_00411550(void)
     int *p;
     int totalA;
     int totalB;
+    int start;
     int i;
     int j;
 
@@ -725,19 +726,22 @@ int FUN_00411550(void)
         }
     }
     if ((BYTE)RallyData_GetFlag25() != 0) {
-        if (g_unk0x00536c90 - 1 < 0xc) {
-            for (p = g_unk0x00536ff0 + (g_unk0x00536c90 - 1) * 2;
-                 (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+        start = g_unk0x00536c90 - 1;
+        if (start < 0xc) {
+            p = &g_unk0x00536ff0[start * 2];
+            do {
                 p[1] = totalB;
                 p[0] = RallyData_FUN_00421420() - 1;
-            }
+                p += 2;
+            } while (p < g_unk0x00536ff0 + 24);
         }
     } else if (g_unk0x00536c90 < 0xc) {
-        for (p = g_unk0x00536ff0 + g_unk0x00536c90 * 2;
-             (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+        p = &g_unk0x00536ff0[g_unk0x00536c90 * 2];
+        do {
             p[1] = totalB;
             p[0] = RallyData_FUN_00421420() - 1;
-        }
+            p += 2;
+        } while (p < g_unk0x00536ff0 + 24);
     }
     return totalB;
 }
@@ -4132,10 +4136,10 @@ void FUN_00503ea0(void)
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     for (i = 0; i < 4; i++) {
         if (i < (int)(g_weatherMaps.count & 0xff)) {
-            index = g_weatherMaps.slots[i] + 1;
             sprintf(CFrontend::m_stringDest, g_str0x005272dc, CInstallInfo::GetSetupRepDir(),
                     g_unk0x0052714c[RallyDataCountryIndex()],
-                    g_unk0x0052716c[RallyDataCountryIndex()], index);
+                    g_unk0x0052716c[RallyDataCountryIndex()],
+                    g_weatherMaps.slots[i] + 1);
             g_weatherMaps.maps[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
@@ -5596,9 +5600,12 @@ void FUN_00415990(int car)
     }
     if (!(BYTE)RallyData_GetFlag24() &&
         (!(BYTE)RallyData_GetFlag25() || CGameInfo::FUN_00405d80() != 3 || CGameInfo::FUN_00405e00())) {
-        if (FUN_004582b0(car) && (g_unk0x0053706c == 0 || g_unk0x0053706c > g_stageSplitData[car].times[0])) {
-            g_unk0x0053706c = g_stageSplitData[car].times[0];
-            sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + (char)car));
+        if (FUN_004582b0(car)) {
+            int t = g_stageSplitData[car].times[0];
+            if (g_unk0x0053706c == 0 || g_unk0x0053706c > t) {
+                g_unk0x0053706c = t;
+                sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + (char)car));
+            }
         }
     } else {
         FUN_00415a60(car);
@@ -5617,7 +5624,6 @@ void FUN_00413520(int car)
 {
     int split;
     int target;
-    int toBeat;
 
     g_unk0x00536e90[0] = 0;
     if (FUN_00458250(car) != 0) {
@@ -5628,15 +5634,15 @@ void FUN_00413520(int car)
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = split;
             FUN_00427990(split, g_stageSplitData[car].times[0]);
+            split = g_unk0x00536ed8;
         }
-        toBeat = g_unk0x00536ed8;
         g_unk0x00536c14 = 1;
     } else {
         if (g_unk0x00536c14 == 0)
             return;
-        toBeat = g_unk0x00536ed8;
+        split = g_unk0x00536ed8;
     }
-    target = FUN_0040a410(toBeat);
+    target = FUN_0040a410(split);
     g_stageSplitData[car].targetTime = target;
     if (g_stageSplitData[car].lastSplitTime < target) {
         FUN_00411ab0((BYTE)car, 1);
@@ -5668,7 +5674,9 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
         if (CGameInfo::FUN_00406410(0xc))
             return true;
         if (bit == 7) {
-            if (CGameInfo::FUN_00406410(0) || CGameInfo::FUN_00406410(0x12))
+            if (CGameInfo::FUN_00406410(0))
+                return true;
+            if (CGameInfo::FUN_00406410(0x12))
                 return true;
         } else if (bit == 0x10) {
             if (CGameInfo::FUN_00406410(1))
@@ -5683,7 +5691,7 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
     }
     return (*(unsigned int *)(g_saveProfiles + 0x4c +
                               ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650) &
-            (1 << bit)) != 0;
+            (1 << bit)) ? true : false;
 }
 
 // GLOBAL: CMR2 0x0058c944
@@ -5775,18 +5783,20 @@ void FUN_00415870(int car)
             position = FUN_00448330(car);
             g_stageSplitData[car].position = position;
             if (position != -1) {
-                if (position <= 0) {
+                if (position > 0) {
+                    if (position < 5) {
+                        g_unk0x00536c94[car][0] = position - 1;
+                        g_unk0x00536c94[car][1] = position;
+                        g_unk0x00536c94[car][2] = position + 1;
+                    } else {
+                        g_unk0x00536c94[car][0] = position - 2;
+                        g_unk0x00536c94[car][1] = position - 1;
+                        g_unk0x00536c94[car][2] = position;
+                    }
+                } else {
                     g_unk0x00536c94[car][0] = position;
                     g_unk0x00536c94[car][1] = position + 1;
                     g_unk0x00536c94[car][2] = position + 2;
-                } else if (position < 5) {
-                    g_unk0x00536c94[car][0] = position - 1;
-                    g_unk0x00536c94[car][1] = position;
-                    g_unk0x00536c94[car][2] = position + 1;
-                } else {
-                    g_unk0x00536c94[car][0] = position - 2;
-                    g_unk0x00536c94[car][1] = position - 1;
-                    g_unk0x00536c94[car][2] = position;
                 }
             }
         } else {
@@ -6496,9 +6506,10 @@ void FUN_00411280(void)
         CFrontend::m_stringDest[track + 1] = 'S';
         CFrontend::m_stringDest[track + 2] = '\0';
     } else {
+        track = (RallyData_FUN_00406940() & 0xff) * 3;
+        track += RallyData_FUN_00406950() & 0xff;
         sprintf(CFrontend::m_stringDest, g_strChallengeTrackName0x00517d38,
-                CInstallInfo::GetTracksDir(),
-                (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff) + 1);
+                CInstallInfo::GetTracksDir(), track + 1);
     }
     g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
                                                 0, 0);
@@ -6609,7 +6620,7 @@ void FUN_004143f0(int car, short *pRect)
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
@@ -6651,7 +6662,7 @@ void FUN_00414550(int car, short *pRect)
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
@@ -7980,15 +7991,12 @@ void FUN_0040dc30(void)
                 ratings[row] = rating;
             }
         }
-        pIn = classes;
         pOut = &g_unk0x0052f100[group * 4][1];
-        i = 4;
-        do {
-            pOut[-1] = pIn[0];
-            pOut[0] = split == 0 ? pIn[1] : pIn[0];
+        for (i = 0; i < 4; i++) {
+            pOut[-1] = classes[i * 2];
+            pOut[0] = split == 0 ? classes[i * 2 + 1] : classes[i * 2];
             pOut += 2;
-            pIn += 2;
-        } while (--i);
+        }
         FUN_0040d6c0(group, (int *)&g_unk0x0051627c[g_selectedRallyData & 0x1f][group * 10], ratings);
         FUN_0040d9e0(group);
         group++;

@@ -855,17 +855,18 @@ void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     if (CFrontend::m_unk0x00817ebc != NULL) {
-        short w = CFrontend::m_unk0x00817ebc->width;
-        short h = CFrontend::m_unk0x00817ebc->height;
-
+        short w;
+        short h;
         src.x = CFrontend::m_unk0x00817ebc->field_0x11c;
         src.y = CFrontend::m_unk0x00817ebc->field_0x11e;
+        w = CFrontend::m_unk0x00817ebc->width;
         src.w = w;
+        h = CFrontend::m_unk0x00817ebc->height;
         src.h = h;
-        dst.w = w;
-        dst.h = h;
         dst.x = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
         dst.y = (short)((int)(g_pGraphics->resY * 0xf0) / 0x1e0);
+        dst.w = w;
+        dst.h = h;
         dst.x -= w / 2;
         dst.y -= h / 2;
         centre[0] = w / 2;
@@ -996,7 +997,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         FUN_00406810(0);
         FUN_004067e0();
         CGameInfo::FUN_00405de0(0);
-        if (CInstallInfo::FUN_0040e8d0() == 0)
+        if ((BYTE)CInstallInfo::FUN_0040e8d0() == 0)
             goto exit;
 
         CGameInfo::FUN_00510410();
@@ -1959,18 +1960,9 @@ void FUN_0049bcb0(Menu *pMenu)
     int x;
     int i;
 
-    colourText[3] = 0xff;
-    colourDim[3] = 0xff;
-    colourWhite[0] = 0xff;
-    colourWhite[1] = 0xff;
-    colourWhite[2] = 0xff;
-    colourWhite[3] = 0xff;
-    colourText[0] = 0x4f;
-    colourText[1] = 0x4f;
-    colourText[2] = 0x4f;
-    colourDim[0] = 0x4f;
-    colourDim[1] = 0x4f;
-    colourDim[2] = 0x4f;
+    colourText[0] = 0x4f; colourText[1] = 0x4f; colourText[2] = 0x4f; colourText[3] = 0xff;
+    colourDim[0] = 0x4f; colourDim[1] = 0x4f; colourDim[2] = 0x4f; colourDim[3] = 0xff;
+    colourWhite[0] = 0xff; colourWhite[1] = 0xff; colourWhite[2] = 0xff; colourWhite[3] = 0xff;
 
     cursor = pMenu->cursor;
     Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
@@ -1984,8 +1976,8 @@ void FUN_0049bcb0(Menu *pMenu)
     }
     line[0] = (short)x;
     line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
-    line[3] = 1;
     line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
+    line[3] = 1;
     if (cursor == 0)
         Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
     else
@@ -2093,12 +2085,11 @@ void FUN_0049c4b0(Mesh *pMesh, int mask, int value)
     int low = mask & 0x7f;
     int high = (mask >> 7) & 0x7f;
     int i;
-    MeshTriangle *pTri;
 
     for (i = 0; i < pMesh->triangleCount; i++) {
-        pTri = &pMesh->pTriangles[i];
-        if ((pTri->flags & low & 0x7f) != 0 || (high & (pTri->flags >> 9)) != 0)
-            pTri->field_0x30 = value;
+        if ((pMesh->pTriangles[i].flags & low & 0x7f) != 0 ||
+            (high & (pMesh->pTriangles[i].flags >> 9)) != 0)
+            pMesh->pTriangles[i].field_0x30 = value;
     }
 }
 
@@ -2855,17 +2846,17 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
 void FUN_00423860(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
-    case 1:
-    case 2:
-    case 10:
-        FUN_00486b90(pObject, pInfo);
+    case 4:
+    case 5:
+        FUN_00447be0(pObject, pInfo, FUN_00423d70(pObject[2]));
         return;
     case 3:
         FUN_004764e0(pObject);
         return;
-    case 4:
-    case 5:
-        FUN_00447be0(pObject, pInfo, FUN_00423d70(pObject[2]));
+    case 1:
+    case 2:
+    case 10:
+        FUN_00486b90(pObject, pInfo);
         return;
     case 7:
         FUN_0048d800(pObject, pInfo);
@@ -2909,14 +2900,13 @@ BOOL FUN_004a0d60(void)
     pDesc = (DPSESSIONDESC2 *)CFileBuffer::AllocateLockedBuffer(size);
     if (pDesc == NULL)
         return FALSE;
-    switch (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size)) {
-    case DPERR_INVALIDOBJECT:
-        free(pDesc);
-        return FALSE;
-    case DPERR_NOCONNECTION:
-        CFileBuffer::FreeGenericFileBuffer(pDesc);
-        return FALSE;
-    case DP_OK:
+    HRESULT hr = ((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size);
+    if (hr <= (HRESULT)0x88770082) {
+        if (hr == DPERR_INVALIDOBJECT) {
+            free(pDesc);
+            return FALSE;
+        }
+    } else if (hr != DPERR_NOCONNECTION && hr == DP_OK) {
         SESSION.dwSize = pDesc->dwSize;
         SESSION.dwFlags = pDesc->dwFlags;
         SESSION.guidInstance = pDesc->guidInstance;
