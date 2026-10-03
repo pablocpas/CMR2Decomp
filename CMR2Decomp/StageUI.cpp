@@ -58,8 +58,9 @@ void FormatGapToLeader(int iLeaderGap, unsigned int fontIndex, unsigned char par
     }
     px = (int)g_pGraphics->resX * x >> 0x10;
     if (iLeaderGap != -1) {
-        sprintf(text, g_strGapTime, &pcNegPosSymbol, (iLeaderGap / 6000) % 100,
-                (iLeaderGap % 6000) / 100, (iLeaderGap % 6000) % 100);
+        int q = iLeaderGap / 6000;
+        int r = iLeaderGap - q * 6000;
+        sprintf(text, g_strGapTime, &pcNegPosSymbol, q % 100, r / 100, r - (r / 100) * 100);
     } else {
         sprintf(text, g_strGapUnknown, &pcNegPosSymbol);
     }
@@ -505,9 +506,12 @@ void FUN_0041b3a0(void)
         return;
     if (FUN_004a15a0() && FUN_0040aec0(0) != -1) {
         FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(0)->name, 1);
-        for (i = 1; i < FUN_0040ae90(); i++)
-            FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name,
-                         FUN_0040aec0(i) == FUN_0040aec0(0) ? 1 : 0);
+        for (i = 1; i < FUN_0040ae90(); i++) {
+            if (FUN_0040aec0(i) == FUN_0040aec0(0))
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 1);
+            else
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);
+        }
     }
     for (i = 0; i < FUN_0040ae90(); i++)
         FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);

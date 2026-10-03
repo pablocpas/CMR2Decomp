@@ -1108,22 +1108,24 @@ int View_IsModeAvailable(BYTE index, int mode);
 // FUNCTION: CMR2 0x00423970
 int FUN_00423970(unsigned int index, int mode)
 {
+    int valid;
+
     switch (mode) {
     case 1:
     case 3:
     case 4:
     case 5:
+        valid = 1;
         break;
     case 2:
-        if ((*(BYTE **)(FUN_0041b390() + 4))[(index & 0xff) * 8] == 10)
-            return 0;
+        valid = (*(char *)(*(int *)(FUN_0041b390() + 4) + (index & 0xff) * 8) != 10);
         break;
     default:
         return 0;
     }
-    if (View_IsModeAvailable(index, mode) == 0)
-        return 0;
-    return 1;
+    if (valid && View_IsModeAvailable(index, mode) != 0)
+        return 1;
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004239e0
@@ -1283,13 +1285,11 @@ void FUN_00406820(void)
     int i;
     BYTE *p;
     BYTE *pRow;
-    int row;
     char c;
 
     for (i = 0; i < 4; i++) {
         p = RallyData_FUN_00407630(i);
-        row = (RallyDataCountryIndex() & 0xff) * 7;
-        pRow = g_unk0x0051682c + row;
+        pRow = g_unk0x0051682c + (RallyDataCountryIndex() & 0xff) * 7;
         *(int *)p = *(int *)pRow;
         *(short *)(p + 4) = *(short *)(pRow + 4);
         p[6] = pRow[6];
@@ -3844,15 +3844,15 @@ void FUN_00471bf0(int car)
         for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
             bit = g_unk0x0058c938[i] & mask;
             if (bit == 0 && g_unk0x0058c958[i] != 0) {
-            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-            *(int *)(pObject + 4) -= 0x3e80000;
-            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
-            g_unk0x0058c958[i] = 0;
+                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+                *(int *)(pObject + 4) -= 0x3e80000;
+                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
+                g_unk0x0058c958[i] = 0;
             } else if (bit != 0 && g_unk0x0058c958[i] == 0) {
-            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-            *(int *)(pObject + 4) += 0x3e80000;
-            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
-            g_unk0x0058c958[i] = 1;
+                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+                *(int *)(pObject + 4) += 0x3e80000;
+                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
+                g_unk0x0058c958[i] = 1;
             }
         }
     } else {
@@ -5558,26 +5558,26 @@ void FUN_00414720(int car)
 
     if (g_stageSplitData[car].split == 0)
         return;
-    if (!(!StageTiming_FUN_00455ae0())) {
+    if (StageTiming_FUN_00455ae0()) {
         position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
-        if (position <= 0) {
-            g_unk0x00536c94[car][0] = position;
-            g_unk0x00536c94[car][1] = position + 1;
-            g_unk0x00536c94[car][2] = position + 2;
-            return;
-        }
     } else {
         position = 15;
     }
-    if (StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1 <= position) {
+    if (position > 0) {
+        if (position < StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1) {
+            g_unk0x00536c94[car][0] = position - 1;
+            g_unk0x00536c94[car][1] = position;
+            g_unk0x00536c94[car][2] = position + 1;
+            return;
+        }
         g_unk0x00536c94[car][0] = position - 2;
         g_unk0x00536c94[car][1] = position - 1;
         g_unk0x00536c94[car][2] = position;
         return;
     }
-    g_unk0x00536c94[car][0] = position - 1;
-    g_unk0x00536c94[car][1] = position;
-    g_unk0x00536c94[car][2] = position + 1;
+    g_unk0x00536c94[car][0] = position;
+    g_unk0x00536c94[car][1] = position + 1;
+    g_unk0x00536c94[car][2] = position + 2;
 }
 
 BYTE FUN_004582b0(int index);
@@ -5740,22 +5740,25 @@ int *FUN_0040f050(int view)
 {
     int *pRect;
     int *pSource;
-    int which;
 
     FUN_00464b60();
     pRect = (int *)FUN_00464af0(view);
-    if ((BYTE)RallyDataState() != 1 && FUN_0041f3a0() == 0) {
-        if (view == 0)
-            which = CGameInfo::FUN_00405dc0() ? 1 : 3;
+    if ((BYTE)RallyDataState() == 1 || FUN_0041f3a0() != 0) {
+        pSource = (int *)FUN_00464b00(0);
+    } else if (view == 0) {
+        if (CGameInfo::FUN_00405dc0())
+            pSource = (int *)FUN_00464b00(1);
         else
-            which = CGameInfo::FUN_00405dc0() ? 2 : 4;
+            pSource = (int *)FUN_00464b00(3);
     } else {
-        which = 0;
+        if (CGameInfo::FUN_00405dc0())
+            pSource = (int *)FUN_00464b00(2);
+        else
+            pSource = (int *)FUN_00464b00(4);
     }
-    pSource = (int *)FUN_00464b00(which);
     pRect[0] = pSource[0];
     pRect[1] = pSource[1];
-    return pRect;
+    return (int *)pRect;
 }
 
 extern int g_unk0x00536fe0;
