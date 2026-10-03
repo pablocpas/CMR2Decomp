@@ -273,26 +273,18 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 {
     FixVector *pVerts;
     FixVector quad[4];
-    FixVector *pQ;
     CarWindow *pWin;
-    int *pMirror;
     int i;
 
     pVerts = NULL;
     pWin = &g_carWindows[window];
-    i = 0;
     if (window <= 5)
         pVerts = g_carWindowVerts[pCar->index];
-    pQ = quad;
-    pMirror = pWin->mirrorZ;
-    do {
-        *pQ = pVerts[pWin->vertex[i]];
-        if (*pMirror != 0)
-            pQ->z = -pQ->z;
-        i++;
-        pMirror++;
-        pQ++;
-    } while (i < 4);
+    for (i = 0; i < 4; i++) {
+        quad[i] = pVerts[pWin->vertex[i]];
+        if (pWin->mirrorZ[i] != 0)
+            quad[i].z = -quad[i].z;
+    }
     Car_ShatterWindow(quad, pDir, window, pCar);
     return 1;
 }
@@ -1218,15 +1210,15 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
                        0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
     Particle *p;
     unsigned short angle;
-    int scale;
+    int index;
     int x;
     int z;
     int car;
 
     p = (Particle *)pParticle;
-    scale = scales[(((int)p / 3) & 0xffffffU) % 10];
+    index = ((int)p / 3 & 0xffffff) % 10;
     if (p->age == 0xc70000)
-        p->field0x50 = (short)((((int)p / 7) & 0xffffffU) % 0x24) * 0x71;
+        p->field0x50 = (short)(((int)p / 7 & 0xffffff) % 0x24) * 0x71;
     p->field0x50 += 0x71;
     if (p->field0x50 > 0x1000)
         p->field0x50 -= 0x1000;
@@ -1236,8 +1228,8 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
         angle = (unsigned short)p->field0x50;
     else
         angle = (unsigned short)(0x1000 - p->field0x50);
-    x = FixMul(g_sinTable[(angle + 0x400) & 0xfff], scale);
-    z = FixMul(g_sinTable[angle & 0xfff], scale);
+    x = FixMul(scales[index], g_sinTable[(angle + 0x400) & 0xfff]);
+    z = FixMul(scales[index], g_sinTable[angle & 0xfff]);
     car = p->field0x64;
     if (car < 8) {
         p->vector0x28.x += x;
@@ -1463,25 +1455,30 @@ void FUN_0045dc00(int car, int wheel, FixVector *pPos, FixVector *pVel, int unus
 
     if (car >= 8)
         return;
-    if (surfaced == 0) {
-        light = 0x11;
+    if (surfaced != 0) {
+        if (debris != 0) {
+            if (wheel == 0 || wheel == 2)
+                light = 0x16;
+            else
+                light = 0x17;
+        } else {
+            if (light != 0) {
+                if (wheel == 0 || wheel == 2)
+                    light = 0x14;
+                else
+                    light = 0x15;
+            } else {
+                if (wheel == 0 || wheel == 2)
+                    light = 0x12;
+                else
+                    light = 0x13;
+            }
+        }
+    } else {
         if (wheel == 0 || wheel == 2)
             light = 0x10;
-    } else if (debris == 0) {
-        if (light == 0) {
-            if (wheel == 0 || wheel == 2)
-                light = 0x12;
-            else
-                light = 0x13;
-        } else if (wheel == 0 || wheel == 2) {
-            light = 0x14;
-        } else {
-            light = 0x15;
-        }
-    } else if (wheel == 0 || wheel == 2) {
-        light = 0x16;
-    } else {
-        light = 0x17;
+        else
+            light = 0x11;
     }
     FixAtan2(pB->x, pB->z);
     along = FixMul(pVel->x, pB->x) + FixMul(pVel->y, pB->y) + FixMul(pVel->z, pB->z);
