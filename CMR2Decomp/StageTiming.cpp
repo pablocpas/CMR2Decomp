@@ -504,7 +504,9 @@ int StageTiming_GetDriverSlot(int iDriver)
     return g_stageDriverSlot[iDriver];
 }
 
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 93%: the volatile zero store keeps MSVC6 from folding the nested
+// zero-fill into one rep stosd (the original stores per iteration); only the
+// placement of the flat pointer increment differs from the original.
 // FUNCTION: CMR2 0x00455e60
 void StageTiming_Reset(void)
 {
@@ -520,7 +522,7 @@ void StageTiming_Reset(void)
             g_stageSplitDriverIndices[iSplit][i] = i;
             g_stageSplitPositions[iSplit][i] = i;
             g_stageSplitTimesRawDriverIx[iSplit][i] = i;
-            g_stageSplitTimesRaw[iSplit][i] = 0;
+            *(volatile int *)&g_stageSplitTimesRaw[iSplit][i] = 0;
         }
     }
 }
@@ -3864,22 +3866,24 @@ void FUN_00466920(BYTE *p)
 int FUN_00458390(void);
 
 // One bubble pass over the running order, keeping each car's position count.
-// match 25%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: only the tail's edx/ebx register choice differs from the original
 // FUNCTION: CMR2 0x00448d50
 void FUN_00448d50(void)
 {
     int count = FUN_00458390();
     int i;
     char a;
-    char b;
+    int b;
+    char *p;
 
     for (i = 1; i < count; i++) {
-        if (FUN_004486a0(g_unk0x0053dda8[i], g_unk0x0053dda8[i - 1]) == 1) {
-            a = g_unk0x0053dda8[i - 1];
+        p = &g_unk0x0053dda8[i];
+        if (FUN_004486a0(p[0], p[-1]) == 1) {
+            a = p[-1];
             g_carStageTiming[a].field_0x81++;
-            b = g_unk0x0053dda8[i];
-            g_unk0x0053dda8[i] = a;
-            g_unk0x0053dda8[i - 1] = b;
+            b = p[0];
+            p[0] = a;
+            p[-1] = b;
             g_carStageTiming[b].field_0x81--;
         }
     }
@@ -4383,7 +4387,7 @@ void FUN_00455af0(int driver, int hundredths, int split)
     int slot = driver;
     int pos;
     int i;
-    char c;
+    int c;
 
     if (driver < g_unk0x00541f98)
         slot = g_unk0x00541f90[FUN_0041b370() & 0xff];
@@ -4684,7 +4688,7 @@ void FUN_004590a0(int car, int time)
         if (g_unk0x00542e78[car].field_0xa == count)
             g_unk0x00542e78[car].field_0xa = 0;
         g_unk0x00542e78[car].field_0x14++;
-        if (count <= g_unk0x00542e78[car].field_0x14)
+        if (g_unk0x00542e78[car].field_0x14 >= count)
             g_unk0x00542e78[car].field_0x14 = 0;
     }
 }
