@@ -526,13 +526,16 @@ void FUN_0040a580(int param1, int param2, int param3)
         if ((g_netPlayers[i].flags & 0x80) != 0) {
             g_netResults[i].index = i;
             g_netResults[i].field_0x4 = g_netPlayers[i].stats.field_0x18 & 0x3ff;
-            g_netResults[i].field_0x8 = FixMulShift32((g_netPlayers[i].stats.speed >> 10) << 16, 0x19645);
+            g_netResults[i].field_0x8 = FixMulShift32(0x19645, (g_netPlayers[i].stats.speed >> 10) * 0x10000);
             if (g_netResults[i].field_0x8 > 99)
                 g_netResults[i].field_0x8 = 99;
             g_netResults[i].id = g_netPlayers[i].id;
-            g_netResults[i].field_0xc = (g_netPlayers[i].stats.field_0x1a >> 11) & 0xf;
-            if (g_netPlayers[i].stats.field_0x1a & 0x8000)
-                g_netResults[i].field_0xc = -g_netResults[i].field_0xc;
+            {
+                unsigned short f1a = g_netPlayers[i].stats.field_0x1a;
+                g_netResults[i].field_0xc = (f1a >> 11) & 0xf;
+                if (f1a & 0x8000)
+                    g_netResults[i].field_0xc = -g_netResults[i].field_0xc;
+            }
             g_netResults[i].field_0x14 = (BYTE)(g_netPlayers[i].flags >> 9) & 1;
             g_netResults[i].field_0x18 = g_netPlayers[i].time;
             if ((char)RallyData_GetFlag25())
