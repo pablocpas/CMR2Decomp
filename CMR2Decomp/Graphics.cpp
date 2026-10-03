@@ -865,8 +865,8 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
         m_unk0x00660040[0].surfaceCap = 2;
     }
 
-    wsprintfA(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);
-    wsprintfA(m_unk0x0065ff90[0].deviceName, CRegKey::m_regKeyPathFormatValue, lpDeviceName);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceName, CRegKey::m_regKeyPathFormatValue, lpDeviceName);
 
     m_unk0x00663b20 = 1;
 
@@ -1053,7 +1053,6 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
     unsigned int mask;
     unsigned int bits;
     int shift;
-    int count;
     int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
@@ -1061,13 +1060,13 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRBitMask;
         bits = mask;
-        for (shift = 0; shift < 32; shift++) {
+        for (shift = 0; shift <= 31; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        count = 0;
+        BYTE count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1076,7 +1075,8 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
         }
         return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
     } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
-        return (((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] & 0xff0000) >> 16;
+        DWORD pixel = ((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x];
+        return pixel >> 16 & 0xff;
     }
     return 0;
 }
@@ -1089,7 +1089,6 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
     unsigned int mask;
     unsigned int bits;
     int shift;
-    int count;
     int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
@@ -1097,13 +1096,13 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRGBAlphaBitMask;
         bits = mask;
-        for (shift = 0; shift < 32; shift++) {
+        for (shift = 0; shift <= 31; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        count = 0;
+        BYTE count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1327,12 +1326,9 @@ void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
             dim >>= 1;
         }
     }
-    pDesc->dwMipMapCount = count & 0xff;
-    {
-        DWORD maxCount = 3;
-        if (pDesc->dwMipMapCount > maxCount)
-            pDesc->dwMipMapCount = maxCount;
-    }
+    *(volatile DWORD *)&pDesc->dwMipMapCount = count & 0xff;
+    if (*(volatile DWORD *)&pDesc->dwMipMapCount > 3)
+        *(volatile DWORD *)&pDesc->dwMipMapCount = 3;
     pDesc->ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
 }
 
@@ -3737,11 +3733,11 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
         return;
     }
     rec[0] = (BYTE)shape;
-    *(int *)(rec + 4) = length;
-    *(int *)(rec + 0x24) = param4;
     *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
+    *(int *)(rec + 4) = length;
     rec[0x14] = param7;
     *(int *)(rec + 0x10) = start;
+    *(int *)(rec + 0x24) = param4;
     *(int *)(rec + 0xc) = end;
     *(BYTE **)(rec + 0x20) = pSlot;
     *(int *)(rec + 0x28) = 0;
@@ -4071,36 +4067,44 @@ char g_str0x00521118[4] = "B2";
 // FUNCTION: CMR2 0x004b9910
 void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5)
 {
-    unsigned int flags = param3;
-    unsigned int records;
     unsigned short *pEntry;
+    unsigned int remaining;
     char *pName;
     char fileName[260];
     unsigned int i;
+    unsigned int flags = param3;
 
-    for (records = param3; records > 0; records--) {
-        pEntry = (unsigned short *)((BYTE *)param1 + 0x14);
-        for (i = 0; i < *(unsigned short *)((BYTE *)param1 + 0xc); i++) {
-            pName = (char *)(param2 + *pEntry * 0x104);
-            CGenericFileLoader::StrUpperPolish((BYTE *)pName);
-            strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
-            sprintf(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
-                    strchr(pName, '\\') + 1);
-            if (param4 != 6) {
-                CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0,
-                                          param4 != 10 ? 0x90 : 0);
-            } else {
-                if (FUN_004b9b80(fileName) == 0) {
-                    if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
-                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
-                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521114, 2) != 0)
-                        flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x140 : 0x100;
+    if (param3 != 0) {
+        remaining = param3;
+        do {
+            i = 0;
+            if (*(unsigned short *)(param1 + 0xc) > 0) {
+                pEntry = (unsigned short *)(param1 + 0x14);
+                do {
+                    pName = (char *)(param2 + *pEntry * 0x104);
+                    CGenericFileLoader::StrUpperPolish((BYTE *)pName);
+                    strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
+                    ((int (__cdecl *)(char *, const char *, char *, char *))sprintf)(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
+                            strchr(pName, '\\') + 1);
+                    if (param4 == 6) {
+                        if (FUN_004b9b80(fileName) != 0)
+                            goto nextEntry;
+                        if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
+                            strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
+                            strncmp(fileName + strlen(fileName) - 6, g_str0x00521114, 2) != 0)
+                            flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x40 : 0x100;
+                    } else {
+                        flags = param4 != 10 ? 0x90 : 0;
+                    }
                     CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0, flags);
-                }
+nextEntry:
+                    pEntry += 4;
+                    i++;
+                } while (i < *(unsigned short *)(param1 + 0xc));
             }
-            pEntry += 4;
-        }
-        param1 = (int)((BYTE *)param1 + 0x10 + i * 8);
+            param1 = param1 + 0x10 + i * 8;
+            remaining--;
+        } while (remaining != 0);
     }
 }
 
@@ -7252,7 +7256,7 @@ void FUN_0049c680(Mesh *pMesh)
     for (n = pMesh->triangleCount; n != 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
-            if (count >= 1) {
+            if (count > 0) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                     D3DPT_TRIANGLELIST,
                     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
