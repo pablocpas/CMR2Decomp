@@ -357,8 +357,10 @@ void FUN_0040a0e0(DPID *pId, int stage, unsigned int time)
     } else {
         for (i = 0; i < 7; i++) {
             if ((g_netPlayers[i].flags & 0x80) && g_netPlayers[i].id == *pId) {
+                unsigned int best = g_netStageBest[stage - 1];
+
                 g_netPlayers[i].stageTimes[stage - 1] = time;
-                if (time < g_netStageBest[stage - 1] || g_netStageBest[stage - 1] == 0)
+                if (time < best || best == 0)
                     g_netStageBest[stage - 1] = time;
                 return;
             }
