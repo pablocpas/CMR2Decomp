@@ -2331,10 +2331,9 @@ DWORD FUN_004b7550(void)
 // FUNCTION: CMR2 0x004b7210
 void CGraphics::FUN_004b7210(void) {
     D3DDEVICEDESC7 d3ddesc;
-    HRESULT hr;
 
     memset(&m_d3dDeviceDesc7, 0, sizeof(Unk0x006e0bb0));
-    hr = m_pTextureManager->pD3D->GetCaps(&d3ddesc);
+    m_pTextureManager->pD3D->GetCaps(&d3ddesc);
 
     if ((d3ddesc.dwDevCaps & 0x100) != 0) {
         m_d3dDeviceDesc7.flag100 = 1;
@@ -3857,8 +3856,8 @@ void Pulse_Update(unsigned int dt)
         g_pulseRising = 0;
     if (g_pulseLevel <= g_pulseMin) {
         if (g_pulseRising == 0) {
-            g_pulseRising = 1;
             g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+            g_pulseRising = 1;
             return;
         }
     } else if (g_pulseRising == 0) {
@@ -5386,7 +5385,7 @@ float g_oneOverRandMax = 1.0f / RAND_MAX;
 // GLOBAL: CMR2 0x006a2cd0
 int g_particleTypeCount;
 // GLOBAL: CMR2 0x006a2cd4
-volatile int g_particleCount;
+int g_particleCount;
 // GLOBAL: CMR2 0x006a2cd8
 ParticleType *g_particleTypes;
 // GLOBAL: CMR2 0x006a2cdc
