@@ -64,6 +64,22 @@ Exactness includes embedded switch tables. Trailing COFF alignment is removed
 before determining how many original bytes to read, so neighbouring functions
 are not mistaken for part of a small rebuilt body.
 
+## Naming and readability
+
+Use descriptive names when the implementation and its callers establish the
+role: `Subsystem_Action` for free functions, and the existing class style for
+methods. Keep each `FUNCTION`/`GLOBAL` address annotation as the stable identity.
+Update declarations and callers together. These recovered names describe the
+behavior; they are not claimed to be the original developers' names.
+
+Name parameters and locals by their verified role, retaining short loop indices
+where they are clear. Keep unknown fields as `field_0x...` and unknown functions
+as `FUN_...` until their meaning is established. Preserve types, struct offsets,
+declaration order and expression order during naming changes. Build and measure
+each batch, checking that no exact function or matching score regresses.
+After measuring, run `python3 scripts/prepare_fastcmp.py` to refresh the local
+comparison metadata with the new symbols before using `fastcmp.py`.
+
 ## Batch source search
 
 `scripts/permute_batch.py` searches small non-exact functions, highest score

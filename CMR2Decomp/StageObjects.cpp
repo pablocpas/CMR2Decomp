@@ -92,10 +92,10 @@ void FUN_004660a0(int **pValue, int slot, char flag);
 void FUN_004660e0(BYTE value);
 int FUN_004660f0(void);
 void FUN_00466100(int param_1);
-void FUN_00466360(void);
+void StageObjects_Init(void);
 void FUN_00466490(void);
 void FUN_004664c0(short *pOrder, short count);
-void FUN_00466520(void);
+void StageObjects_Update(void);
 void FUN_00466570(short *param_1, short param_2, int param_3, int param_4);
 void FUN_00466630(int value);
 void FUN_004675c0(Car *pCar, Car *pOther);
@@ -377,11 +377,11 @@ void FUN_0047d850(Car *pCar, int *param_2);
 void FUN_0047dd70(void);
 void FUN_0047e1e0(int t);
 void FUN_0047e490(BYTE *pColour);
-void FUN_0047e4d0(BYTE count);
+void Fireworks_Init(BYTE count);
 BYTE FUN_0047ea20(void);
-void FUN_0047eab0(void);
+void Fireworks_Update(void);
 void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo);
-void FUN_0047f740(void);
+void Fireworks_Draw(void);
 void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVelocity, unsigned int variant);
 void FUN_00480220(void);
 void FUN_00480380(void);
@@ -3635,7 +3635,7 @@ int FUN_0041f3a0(void);
 void FUN_00494db0(Car *pCar, int view);
 void FUN_00460330(int a, int b);
 void FUN_00485690(short *pOrder, short count, int view);
-void FUN_0047f740(void);
+void Fireworks_Draw(void);
 
 // Updates the "damaged / off-road" state of every car in the given order.
 // match 86%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
@@ -3668,7 +3668,7 @@ void FUN_00466570(short *param_1, short param_2, int param_3, int param_4)
     FUN_00485690(param_1, param_2, param_4);
     FUN_00460330(param_3, param_4);
     if (g_unk0x0058896c != 0)
-        FUN_0047f740();
+        Fireworks_Draw();
 }
 
 // Fixed-point to float conversion factors and the fade thresholds of the
@@ -15104,7 +15104,7 @@ BOOL Sound_LoadSample(char *name, BYTE flags, GenericFile *pFile);
 // records), the two spark billboards, the 3x3 table of burst directions
 // (every 30 degrees), the four launch points and the sounds.
 // FUNCTION: CMR2 0x0047e4d0
-void FUN_0047e4d0(BYTE count)
+void Fireworks_Init(BYTE count)
 {
     int i;
     int k;
@@ -15441,139 +15441,139 @@ struct FireworkRocket {
 typedef char FireworkRocketSize[sizeof(FireworkRocket) == 0x938 ? 1 : -1];
 
 // FUNCTION: CMR2 0x0047eab0
-void FUN_0047eab0(void)
+void Fireworks_Update(void)
 {
-    FireworkRocket *pR;
-    int rocket;
+    FireworkRocket *pRocket;
+    int rocketIndex;
     int i;
     int j;
     int k;
-    int n;
+    int debrisCount;
     int speed;
-    int dot;
-    FixVector *pDir;
-    int ox;
-    int oy;
-    int oz;
-    FixVector d;
-    FixVector nrm;
-    FixVector s;
-    FixVector r;
+    int projection;
+    FixVector *pBurstDirection;
+    int previousX;
+    int previousY;
+    int previousZ;
+    FixVector displacement;
+    FixVector trailDirection;
+    FixVector scaledVector;
+    FixVector randomVector;
 
-    for (rocket = 0; rocket < g_unk0x00590afc; rocket++) {
-        pR = (FireworkRocket *)g_unk0x00590af8 + rocket;
-        pR->prevPos = pR->pos;
+    for (rocketIndex = 0; rocketIndex < g_unk0x00590afc; rocketIndex++) {
+        pRocket = (FireworkRocket *)g_unk0x00590af8 + rocketIndex;
+        pRocket->prevPos = pRocket->pos;
         for (k = 0; k < 20; k++)
-            pR->prevTrail[k] = pR->trail[k];
+            pRocket->prevTrail[k] = pRocket->trail[k];
         for (i = 0; i < 3; i++) {
             for (j = 0; j < 6; j++)
-                pR->prevSparks[i][j] = pR->sparks[i][j];
+                pRocket->prevSparks[i][j] = pRocket->sparks[i][j];
         }
-        switch (pR->state) {
+        switch (pRocket->state) {
         case 1:
-            pR->vel.y -= pR->rise;
-            ox = pR->pos.x;
-            oy = pR->pos.y;
-            oz = pR->pos.z;
-            pR->pos.z += pR->vel.z;
-            pR->pos.x += pR->vel.x;
-            pR->pos.y += pR->vel.y;
-            d.x = ox - pR->pos.x;
-            d.y = oy - pR->pos.y;
-            d.z = oz - pR->pos.z;
-            FIX_NORMALIZE_INTO(nrm, d);
+            pRocket->vel.y -= pRocket->rise;
+            previousX = pRocket->pos.x;
+            previousY = pRocket->pos.y;
+            previousZ = pRocket->pos.z;
+            pRocket->pos.z += pRocket->vel.z;
+            pRocket->pos.x += pRocket->vel.x;
+            pRocket->pos.y += pRocket->vel.y;
+            displacement.x = previousX - pRocket->pos.x;
+            displacement.y = previousY - pRocket->pos.y;
+            displacement.z = previousZ - pRocket->pos.z;
+            FIX_NORMALIZE_INTO(trailDirection, displacement);
             for (k = 4; k != 0; k--) {
-                FixVecScale(&s, &d, RAND_FIX());
-                pR->trail[pR->trailHead].x = pR->pos.x + s.x;
-                pR->trail[pR->trailHead].y = pR->pos.y + s.y;
-                pR->trail[pR->trailHead].z = pR->pos.z + s.z;
-                r.x = RAND_SIGNED();
-                r.y = RAND_SIGNED();
-                r.z = RAND_SIGNED();
-                FixVecScale(&r, &r, 0xccc);
-                dot = FixVecDot(&r, &nrm);
-                FixVecScale(&s, &nrm, dot);
-                r.x -= s.x;
-                r.y -= s.y;
-                r.z -= s.z;
-                pR->trail[pR->trailHead].x += r.x;
-                pR->trail[pR->trailHead].y += r.y;
-                pR->trail[pR->trailHead].z += r.z;
+                FixVecScale(&scaledVector, &displacement, RAND_FIX());
+                pRocket->trail[pRocket->trailHead].x = pRocket->pos.x + scaledVector.x;
+                pRocket->trail[pRocket->trailHead].y = pRocket->pos.y + scaledVector.y;
+                pRocket->trail[pRocket->trailHead].z = pRocket->pos.z + scaledVector.z;
+                randomVector.x = RAND_SIGNED();
+                randomVector.y = RAND_SIGNED();
+                randomVector.z = RAND_SIGNED();
+                FixVecScale(&randomVector, &randomVector, 0xccc);
+                projection = FixVecDot(&randomVector, &trailDirection);
+                FixVecScale(&scaledVector, &trailDirection, projection);
+                randomVector.x -= scaledVector.x;
+                randomVector.y -= scaledVector.y;
+                randomVector.z -= scaledVector.z;
+                pRocket->trail[pRocket->trailHead].x += randomVector.x;
+                pRocket->trail[pRocket->trailHead].y += randomVector.y;
+                pRocket->trail[pRocket->trailHead].z += randomVector.z;
                 if (RAND_FIX() > 0x8000)
-                    pR->trailFlag[pR->trailHead] = 1;
+                    pRocket->trailFlag[pRocket->trailHead] = 1;
                 else
-                    pR->trailFlag[pR->trailHead] = 0;
-                pR->trailHead++;
-                if (pR->trailHead >= 20)
-                    pR->trailHead -= 20;
+                    pRocket->trailFlag[pRocket->trailHead] = 0;
+                pRocket->trailHead++;
+                if (pRocket->trailHead >= 20)
+                    pRocket->trailHead -= 20;
             }
-            pR->trailLen += 4;
-            if (pR->trailLen >= 20)
-                pR->trailLen = 19;
-            pR->fuse -= 0x10000;
-            if (pR->fuse <= 0) {
-                if (pR->sound != -1 && Sound_IsPlaying(pR->sound))
-                    Sound_Free(pR->sound);
-                pR->state = 2;
+            pRocket->trailLen += 4;
+            if (pRocket->trailLen >= 20)
+                pRocket->trailLen = 19;
+            pRocket->fuse -= 0x10000;
+            if (pRocket->fuse <= 0) {
+                if (pRocket->sound != -1 && Sound_IsPlaying(pRocket->sound))
+                    Sound_Free(pRocket->sound);
+                pRocket->state = 2;
                 g_unk0x005909b8 = 0x10000;
-                *(DWORD *)g_unk0x005909c4 = g_fireworkFlashColours[pR->colour];
-                if (pR->burst != 0) {
-                    pR->prevPos = pR->pos;
+                *(DWORD *)g_unk0x005909c4 = g_fireworkFlashColours[pRocket->colour];
+                if (pRocket->burst != 0) {
+                    pRocket->prevPos = pRocket->pos;
                     for (k = 0; k < 20; k++)
-                        pR->prevTrail[k] = pR->trail[k];
+                        pRocket->prevTrail[k] = pRocket->trail[k];
                     for (i = 0; i < 3; i++) {
                         for (j = 0; j < 3; j++) {
-                            pR->sparks[i][j].z = 0;
-                            pR->sparks[i][j].y = 0;
-                            pR->sparks[i][j].x = 0;
-                            pR->sparks[i][j + 3].z = 0;
-                            pR->sparks[i][j + 3].y = 0;
-                            pR->sparks[i][j + 3].x = 0;
-                            pR->prevSparks[i][j].z = 0;
-                            pR->prevSparks[i][j].y = 0;
-                            pR->prevSparks[i][j].x = 0;
-                            pR->prevSparks[i][j + 3].z = 0;
-                            pR->prevSparks[i][j + 3].y = 0;
-                            pR->prevSparks[i][j + 3].x = 0;
-                            speed = pR->sparkSpeed + FixMul(RAND_FIX(), 0xa3d);
-                            pDir = (FixVector *)g_unk0x00590b0c[i] + j;
-                            FixVecScale(&pR->sparkVel[i][j], pDir, speed);
-                            FixVecScale(&pR->sparkVel[i][j], &pR->sparkVel[i][j], 0x60000);
-                            pR->sparkVel[i][j + 3] = pR->sparkVel[i][j];
-                            pR->sparkVel[i][j + 3].y = -pR->sparkVel[i][j].y;
+                            pRocket->sparks[i][j].z = 0;
+                            pRocket->sparks[i][j].y = 0;
+                            pRocket->sparks[i][j].x = 0;
+                            pRocket->sparks[i][j + 3].z = 0;
+                            pRocket->sparks[i][j + 3].y = 0;
+                            pRocket->sparks[i][j + 3].x = 0;
+                            pRocket->prevSparks[i][j].z = 0;
+                            pRocket->prevSparks[i][j].y = 0;
+                            pRocket->prevSparks[i][j].x = 0;
+                            pRocket->prevSparks[i][j + 3].z = 0;
+                            pRocket->prevSparks[i][j + 3].y = 0;
+                            pRocket->prevSparks[i][j + 3].x = 0;
+                            speed = pRocket->sparkSpeed + FixMul(RAND_FIX(), 0xa3d);
+                            pBurstDirection = (FixVector *)g_unk0x00590b0c[i] + j;
+                            FixVecScale(&pRocket->sparkVel[i][j], pBurstDirection, speed);
+                            FixVecScale(&pRocket->sparkVel[i][j], &pRocket->sparkVel[i][j], 0x60000);
+                            pRocket->sparkVel[i][j + 3] = pRocket->sparkVel[i][j];
+                            pRocket->sparkVel[i][j + 3].y = -pRocket->sparkVel[i][j].y;
                         }
                     }
                     FUN_004b7790((unsigned short)(rand() % 6 + 2 + g_unk0x005909bc), 0x10000, 0x5622, 0, 0, 0);
-                } else if (pR->type == 2) {
-                    for (n = rand() % 4 + 1; n > 0; n--) {
-                        s.x = RAND_SIGNED();
-                        s.y = RAND_SIGNED();
-                        s.z = RAND_SIGNED();
-                        FixVecScale(&s, &s, 0xe666);
-                        StageObject_SpawnDebris(&pR->pos, &s, 1);
+                } else if (pRocket->type == 2) {
+                    for (debrisCount = rand() % 4 + 1; debrisCount > 0; debrisCount--) {
+                        scaledVector.x = RAND_SIGNED();
+                        scaledVector.y = RAND_SIGNED();
+                        scaledVector.z = RAND_SIGNED();
+                        FixVecScale(&scaledVector, &scaledVector, 0xe666);
+                        StageObject_SpawnDebris(&pRocket->pos, &scaledVector, 1);
                     }
                 }
             }
             break;
         case 2:
-            if (pR->trailLen > 0) {
-                pR->trailLen -= 4;
-                pR->trailHead += 4;
-                if (pR->trailHead >= 20)
-                    pR->trailHead -= 20;
+            if (pRocket->trailLen > 0) {
+                pRocket->trailLen -= 4;
+                pRocket->trailHead += 4;
+                if (pRocket->trailHead >= 20)
+                    pRocket->trailHead -= 20;
             }
             for (i = 0; i < 3; i++) {
                 for (j = 0; j < 6; j++) {
-                    pR->sparkVel[i][j].y -= pR->sparkGravity;
-                    pR->sparks[i][j].x += pR->sparkVel[i][j].x;
-                    pR->sparks[i][j].y += pR->sparkVel[i][j].y;
-                    pR->sparks[i][j].z += pR->sparkVel[i][j].z;
+                    pRocket->sparkVel[i][j].y -= pRocket->sparkGravity;
+                    pRocket->sparks[i][j].x += pRocket->sparkVel[i][j].x;
+                    pRocket->sparks[i][j].y += pRocket->sparkVel[i][j].y;
+                    pRocket->sparks[i][j].z += pRocket->sparkVel[i][j].z;
                 }
             }
-            pR->burstTime -= 0x10000;
-            pR->blink = pR->blink == 0;
-            if (pR->burstTime <= 0)
-                pR->state = 0;
+            pRocket->burstTime -= 0x10000;
+            pRocket->blink = pRocket->blink == 0;
+            if (pRocket->burstTime <= 0)
+                pRocket->state = 0;
             break;
         }
     }
@@ -15592,7 +15592,7 @@ int FUN_00407270(void);
 // fireworks, the headlight glows, the wheel trails and lights of every car,
 // the debris, weather, effects and stage lights.
 // FUNCTION: CMR2 0x00466360
-void FUN_00466360(void)
+void StageObjects_Init(void)
 {
     short *pOrder;
     short count;
@@ -15628,20 +15628,20 @@ void FUN_00466360(void)
     StageLights_Create();
     FUN_0045a170();
     if (g_unk0x0058896c != 0)
-        FUN_0047e4d0(0x14);
+        Fireworks_Init(0x14);
 }
 
 // Per-frame update of the stage objects: stage lights, the attract-mode
 // debris, and the fireworks once they are on.
 // FUNCTION: CMR2 0x00466520
-void FUN_00466520(void)
+void StageObjects_Update(void)
 {
     StageLights_Update();
     if (((char)FUN_00407270() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
         CGameInfo::FUN_004063f0(0))
         FUN_0047dd70();
     if (g_unk0x0058896c != 0) {
-        FUN_0047eab0();
+        Fireworks_Update();
         FUN_00480220();
     }
 }
@@ -16030,13 +16030,13 @@ void FUN_00484310(void)
 }
 // Draws the fireworks every frame: the rising rocket as a single billboard, or
 // for a burst the 18 spark clusters (each up to four mirrored billboards) plus
-// the fading 20-point trail. See FUN_0047eab0 for the record layout.
+// the fading 20-point trail. See Fireworks_Update for the record layout.
 // match 38%: the logic, calls, constants and loop bounds are identical; the
 // residual is MSVC's register allocation, stack-slot placement (the original
 // spills the spark Y to [ebp-0x44] and keeps the frame at 0x48) and its choice
 // of cursor/induction-variable base (0x4b0 vs 0x4b8) in the 18-spark loop.
 // FUNCTION: CMR2 0x0047f740
-void FUN_0047f740(void)
+void Fireworks_Draw(void)
 {
     BYTE *pSlot;
     int i;

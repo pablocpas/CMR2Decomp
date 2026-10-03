@@ -232,7 +232,7 @@ struct SplitRate {
     int count;              // 0x4
     float scale;            // 0x8
 };
-int FUN_00456a40(int param1, int param2);
+int StageTiming_UpdateSplitRatesForSlot(int slot, int driverID);
 void FUN_00455bc0(int slot, int driver);
 
 // Pairs each human player's stage slot with an opponent for the split
@@ -329,7 +329,7 @@ void FUN_004556f0(void)
             }
         }
         for (i = 0; i < players; i++) {
-            FUN_00456a40(i, g_stageSplitUnk0x00541f78[i][1]);
+            StageTiming_UpdateSplitRatesForSlot(i, g_stageSplitUnk0x00541f78[i][1]);
             FUN_00455bc0(i, g_stageSplitUnk0x00541f78[i][1]);
         }
         break;
@@ -342,7 +342,7 @@ void FUN_004556f0(void)
         for (i = 0; i < players; i++) {
             g_stageSplitUnk0x00541f78[i][0] = (char)StageTiming_GetDriverSlot(i);
             g_stageSplitUnk0x00541f78[i][1] = (char)StageTiming_GetDriverIDForPosition(i);
-            FUN_00456a40(i, g_stageSplitUnk0x00541f78[i][1]);
+            StageTiming_UpdateSplitRatesForSlot(i, g_stageSplitUnk0x00541f78[i][1]);
             FUN_00455bc0(i, g_stageSplitUnk0x00541f78[i][1]);
         }
         break;
@@ -403,7 +403,7 @@ void FUN_004556f0(void)
                 if (hasAi) {
                     sprintf(CFrontend::m_stringDest, g_strRaceHasAiDriver, i, ai);
                     puts(CFrontend::m_stringDest);
-                    FUN_00456a40(i, ai);
+                    StageTiming_UpdateSplitRatesForSlot(i, ai);
                 }
                 pOut += 2;
             }
@@ -1874,28 +1874,28 @@ double g_unk0x005113a8 = 100.0;
 
 // Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
 // FUNCTION: CMR2 0x00456a40
-int FUN_00456a40(int param1, int param2)
+int StageTiming_UpdateSplitRatesForSlot(int slot, int driverID)
 {
-    SplitRate *pRec;
-    int time;
-    int i;
-    int value;
-    int split;
+    SplitRate *pRates;
+    int driverTime;
+    int splitIndex;
+    int excessTime;
+    int splitTime;
 
-    time = StageTiming_GetCurrentSplitTimeForDriver(param2);
-    pRec = &((SplitRate *)g_unk0x00542528)[param1 * 2];
-    for (i = 0; i < 2; i++) {
-        split = g_unk0x00542420[i];
-        value = time - split;
-        if (value < 0)
-            value = 0;
-        pRec[i].count = value / 4;
-        if (pRec[i].count != 0) {
-            pRec[i].rate = split / 4 / pRec[i].count;
-            if (pRec[i].rate < 10)
-                pRec[i].rate = 10;
+    driverTime = StageTiming_GetCurrentSplitTimeForDriver(driverID);
+    pRates = &((SplitRate *)g_unk0x00542528)[slot * 2];
+    for (splitIndex = 0; splitIndex < 2; splitIndex++) {
+        splitTime = g_unk0x00542420[splitIndex];
+        excessTime = driverTime - splitTime;
+        if (excessTime < 0)
+            excessTime = 0;
+        pRates[splitIndex].count = excessTime / 4;
+        if (pRates[splitIndex].count != 0) {
+            pRates[splitIndex].rate = splitTime / 4 / pRates[splitIndex].count;
+            if (pRates[splitIndex].rate < 10)
+                pRates[splitIndex].rate = 10;
         }
-        pRec[i].scale = (float)(g_unk0x005113a8 / ((double)time / (double)split * g_unk0x005113b0));
+        pRates[splitIndex].scale = (float)(g_unk0x005113a8 / ((double)driverTime / (double)splitTime * g_unk0x005113b0));
     }
     return 0;
 }
@@ -9320,7 +9320,7 @@ void FUN_0045eca0(void)
 void FUN_004ae260(void);
 void View_SetupCameras(void);
 void FUN_00465600(void);
-void FUN_00466360(void);
+void StageObjects_Init(void);
 void FUN_00472cb0(void);
 void Car_SetDrawnFlag(int index, char value);
 void FUN_0041c510(void);
@@ -9343,7 +9343,7 @@ void FUN_00424c50(void)
     View_SetupCameras();
     FUN_00423ff0();
     FUN_00465600();
-    FUN_00466360();
+    StageObjects_Init();
     if (CGameInfo::FUN_00406320() != 0) {
         FUN_0041c510();
     } else {

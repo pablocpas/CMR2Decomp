@@ -5068,7 +5068,7 @@ void FUN_0047b7b0(int slot);
 void FUN_0047b870(int index);
 int FUN_0047d330(int car, int preview);
 void FUN_004209f0(void);
-void FUN_00466520(void);
+void StageObjects_Update(void);
 void FUN_004581d0(void);
 void FUN_00448120(void);
 void FUN_00455590(int group);
@@ -5277,7 +5277,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
         if (first == 0 || second != 0)
             Car_UpdateAndRenderAll();
         if (player != 0)
-            FUN_00466520();
+            StageObjects_Update();
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++) {
             if (Car_Get(g_unk0x00537f04)->field_0xb43[0] > 0)
                 FUN_004284d0((BYTE)g_unk0x00537f04, 0);

@@ -23588,12 +23588,12 @@
     "symbol_name": "FUN_004877a0"
   },
   "0x47e4d0": {
-    "n": "FUN_0047e4d0",
+    "n": "Fireworks_Init",
     "s": 0.7496463932107497,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0047e4d0"
+    "symbol_name": "Fireworks_Init"
   },
   "0x47d330": {
     "n": "FUN_0047d330",
@@ -23612,28 +23612,28 @@
     "symbol_name": "FUN_0047dd70"
   },
   "0x47eab0": {
-    "n": "FUN_0047eab0",
+    "n": "Fireworks_Update",
     "s": 0.9189889825016202,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0047eab0"
+    "symbol_name": "Fireworks_Update"
   },
   "0x466360": {
-    "n": "FUN_00466360",
+    "n": "StageObjects_Init",
     "s": 0.8601036269430051,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_00466360"
+    "symbol_name": "StageObjects_Init"
   },
   "0x466520": {
-    "n": "FUN_00466520",
+    "n": "StageObjects_Update",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_00466520"
+    "symbol_name": "StageObjects_Update"
   },
   "0x472a30": {
     "n": "FUN_00472a30",
@@ -23660,12 +23660,12 @@
     "symbol_name": "FUN_00484310"
   },
   "0x47f740": {
-    "n": "FUN_0047f740",
+    "n": "Fireworks_Draw",
     "s": 0.39847715736040606,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0047f740"
+    "symbol_name": "Fireworks_Draw"
   },
   "0x460270": {
     "n": "StageTiming_UpdateEventDisplacement",
@@ -24524,12 +24524,12 @@
     "symbol_name": "FUN_00457e10"
   },
   "0x456a40": {
-    "n": "FUN_00456a40",
+    "n": "StageTiming_UpdateSplitRatesForSlot",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00456a40"
+    "symbol_name": "StageTiming_UpdateSplitRatesForSlot"
   },
   "0x45e6b0": {
     "n": "FUN_0045e6b0",
