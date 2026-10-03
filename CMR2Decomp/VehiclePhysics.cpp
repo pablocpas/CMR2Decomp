@@ -545,7 +545,7 @@ int FUN_00482f30(void)
     return 0;
 }
 
-void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
+void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
 int FUN_0048e580(char type);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
 
@@ -684,7 +684,7 @@ int FUN_0048fb80(char type, int param)
             pVertex[i].y += scaled.y;
             pVertex[i].z += scaled.z;
         }
-        FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), 0xff, (int *)&scaled, 0);
+        FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&scaled, 0);
     }
 
 noSlide:

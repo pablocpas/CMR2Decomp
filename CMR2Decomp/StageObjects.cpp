@@ -164,6 +164,20 @@ struct ReplayPose {
     FixVector velocity;     // 0x80
 };
 
+// Oriented box of a stage object (same layout as in Collision2D.cpp).
+struct CollisionBox {
+    int halfWidth;          // 0x0   extent along axisA
+    int halfLength;         // 0x4   extent along axisB
+    int top;                // 0x8
+    int bottom;             // 0xc
+    FixVector axisA;        // 0x10
+    FixVector axisB;        // 0x1c
+    BYTE pad_0x28[0x8];
+    FixVector points[8];    // 0x30
+    int *pArray;            // 0x90  eight corners of the object (FixVector)
+    int *pVertex;           // 0x94  centre of the object (FixVector)
+};
+
 // One firework rocket of the pool at g_unk0x00590af8 (0x938 bytes). Each
 // simulated array has a previous-frame copy and an interpolated copy that is
 // what gets drawn.
@@ -468,10 +482,10 @@ int FUN_00487b80(int r1, int r2, int *pA, int *pB);
 void FUN_00487c40(int *pMatrix, int param_2, int *pOffset);
 void FUN_00487e00(FixVector *pPos, int *pInfo);
 void FUN_00487e50(int *pBox, Car *pCar);
-int FUN_00487f60(Car *pCar, int *pEntry, int *pBox, int *pObject);
-int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
+int FUN_00487f60(Car *pCar, int *pEntry, CollisionBox *pBox, CollisionBox *pObject);
+int FUN_00488640(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 int FUN_00488de0(FixVector *pVertsA, FixVector *pVertsB, FixVector *pDir, int *pDistance);
-void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
+void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
 void FUN_0048c900(BYTE index);
 BYTE *FUN_0048ca40(int index);
 void FUN_0048ca70(void);
@@ -1170,12 +1184,10 @@ void FUN_00460a30(FixVector *pOut)
             typeTwo = 1;
     } else {
         count = (BYTE)flags;
-        p = (int *)g_unk0x00547ac8;
-        for (i = count; i > 0; i--) {
-            value += p[0x15];
-            if (*p == 2)
+        for (i = 0; i < count; i++) {
+            value += ((int *)g_unk0x00547ac8)[i * 0x5e + 0x15];
+            if (((int *)g_unk0x00547ac8)[i * 0x5e] == 2)
                 typeTwo = 1;
-            p += 0x5e;
         }
         if ((char)flags != 0)
             value = FixDiv(value, count << 16);
@@ -1184,10 +1196,10 @@ void FUN_00460a30(FixVector *pOut)
     }
     if (value < 0x4ccc)
         value = 0x4ccc;
-    value = FixMul(value, g_unk0x00547940);
     if (typeTwo)
-        value = FixMul(0x20000, value);
-    FixVecScale(pOut, &g_unk0x00547930, value);
+        FixVecScale(pOut, &g_unk0x00547930, FixMul(0x20000, FixMul(value, g_unk0x00547940)));
+    else
+        FixVecScale(pOut, &g_unk0x00547930, FixMul(value, g_unk0x00547940));
 }
 
 // FUNCTION: CMR2 0x00460bf0
@@ -3230,7 +3242,7 @@ int FUN_00487130(void)
 // Applies a per-frame delta to one stage object (plus an optional second car
 // index) and recurses into its children; `flag` enables the 0x5913d8 path.
 // FUNCTION: CMR2 0x0048c870
-void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag)
+void FUN_0048c870(BYTE index, char other, int *pDelta, int flag)
 {
     int i;
 
@@ -3240,8 +3252,8 @@ void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag)
     g_unk0x005913d8 = flag;
     memset(g_unk0x0059146c, 0, sizeof(g_unk0x0059146c));
     g_unk0x0059146c[index] = 1;
-    if (other != 0xff)
-        g_unk0x0059146c[(char)other] = 1;
+    if (other != -1)
+        g_unk0x0059146c[other] = 1;
     i = 0;
     if (g_unk0x005913dc[index] != 0) {
         do {
@@ -8535,6 +8547,22 @@ void FUN_00461710(BYTE *out, BYTE *from, BYTE *to, int t)
 
 #include <stdlib.h>
 
+// Unit vector of v into out (zero stays zero). The original inlines this
+// as a function, not a macro: both pointer temporaries are homed up front.
+inline void StageObj_NormalizeInto(FixVector *out, FixVector *v)
+{
+    int len = FixVecLength(v);
+
+    if (len == 0) {
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+    } else {
+        FixVecScaleRecip(out, v, len);
+    }
+}
+
+
 struct Unk0x004a3e20;
 void FUN_004a3e20(Unk0x004a3e20 *pObject, int value);
 
@@ -11057,6 +11085,14 @@ int FUN_0046c750(ReplayStream *p, int unused, BYTE car)
 
 // Views into the stage object block declared in StageBlock.h, used by the
 // stage object pose code.
+// Per-object pose record of the stage object pass (0x24 bytes).
+struct ObjectPoseRecord {
+    short angle;            // 0x00 12-bit spin angle
+    FixAngles rot;          // 0x02 eased body angles
+    short pad;
+    FixVector offset;       // 0x0c eased position offset
+    BYTE field_0x18[0xc];
+};
 // GLOBAL: CMR2 0x0058d2f8  (per object: 3 int, animated pose offset)
 #define g_unk0x0058d2f8 (g_stageBlock + 0x58)
 // GLOBAL: CMR2 0x0058d368  (per object: 0x24-byte timing record, angle at +0)
@@ -11069,117 +11105,91 @@ int FUN_0046c750(ReplayStream *p, int unused, BYTE car)
 // Integrates one stage object's pose: rebuilds the object matrix from the car
 // basis, low-pass filters the object's angles against the car's body axes and
 // moves the object's scene node.
-// match 16%: implementada (logica transliterada del decompilado); la diferencia es de
-// reparto de registros/bloques en los productos escalares y el filtrado de angulos, no de logica
 // FUNCTION: CMR2 0x00476e00
 void FUN_00476e00(BYTE *param_1, int *param_2, int unused)
 {
+#define POSE (((ObjectPoseRecord *)g_unk0x0058d368)[param_1[2]])
     Car *pCar;
-    int index;
-    int *pMatrix;
     FixVector acc;
-    int dRight, dForward;
-    short angRight, angForward, tableAng;
-    int i, recOff;
-    int offX, offY, offZ;
+    FixVector off;
     FixVector pos;
+    FixAngles target;
+    int right;
 
-    index = param_1[2];
-    pCar = Car_Get(index);
+    target.pad = 0;
+    pCar = Car_Get(param_1[2]);
 
     // Object matrix: rows 0 and 2 swapped (the old row 2 negated), translation
     // cleared, then rotated about the object's right axis.
-    pMatrix = g_unk0x0058d560;
-    *(ObjectMatrix16 *)pMatrix = *(ObjectMatrix16 *)param_2;
-    pMatrix[0] = -param_2[8];
-    pMatrix[1] = -param_2[9];
-    pMatrix[2] = -param_2[10];
-    pMatrix[8] = param_2[0];
-    pMatrix[9] = param_2[1];
-    pMatrix[10] = param_2[2];
-    pMatrix[12] = 0;
-    pMatrix[13] = 0;
-    pMatrix[14] = 0;
-    FixMatrix_RotateAboutRight((FixMatrix *)pMatrix,
+    *(ObjectMatrix16 *)g_unk0x0058d560 = *(ObjectMatrix16 *)param_2;
+    g_unk0x0058d560[0] = -param_2[8];
+    g_unk0x0058d560[1] = -param_2[9];
+    g_unk0x0058d560[2] = -param_2[10];
+    g_unk0x0058d560[8] = param_2[0];
+    g_unk0x0058d560[9] = param_2[1];
+    g_unk0x0058d560[10] = param_2[2];
+    g_unk0x0058d560[12] = 0;
+    g_unk0x0058d560[13] = 0;
+    g_unk0x0058d560[14] = 0;
+    FixMatrix_RotateAboutRight((FixMatrix *)g_unk0x0058d560,
                                ((unsigned int)param_2[0] & 0xffff0000) |
                                    (unsigned int)(unsigned short)g_unk0x0051c9b0);
 
     // Steps this object's 12-bit angle by 3.
-    i = (int)*(short *)(g_unk0x0058d368 + index * 0x24) + 3;
-    i &= 0x80000fff;
-    if (i < 0)
-        i = (i - 1 | 0xfffff000) + 1;
-    *(short *)(g_unk0x0058d368 + index * 0x24) = (short)i;
+    POSE.angle = (POSE.angle + 3) % 0x1000;
 
     // Angle of the car body axes against the car's last acceleration.
     acc.x = pCar->velocity.x - pCar->velocityNext.x;
     acc.y = pCar->velocity.y - pCar->velocityNext.y;
     acc.z = pCar->velocity.z - pCar->velocityNext.z;
-    dRight = FixVecDot(&acc, &pCar->right);
-    angRight = (short)FixDiv(dRight, 0x1e0000);
+    right = FixDiv(FixVecDot(&acc, &pCar->right), 0x1e0000);
+    target.z = (unsigned short)right;
     acc.x = pCar->velocity.x - pCar->velocityNext.x;
     acc.y = pCar->velocity.y - pCar->velocityNext.y;
     acc.z = pCar->velocity.z - pCar->velocityNext.z;
-    dForward = FixVecDot(&acc, &pCar->forward);
-    angForward = (short)FixDiv(dForward, 0x1e0000);
-
-    // Short from the object's timing record: the target yaw.
-    tableAng = **(short **)(g_unk0x0058d4f0 + index * 0x1c + 0xc);
+    target.x = (unsigned short)FixDiv(FixVecDot(&acc, &pCar->forward), 0x1e0000);
+    target.y = **(short **)(g_unk0x0058d4f0 + param_1[2] * 0x1c + 0xc);
 
     // Eases each angle a fifth of the way towards its target.
-    recOff = index * 0x24;
-    i = (int)angForward - (int)*(short *)(g_unk0x0058d368 + recOff + 2);
-    *(short *)(g_unk0x0058d368 + recOff + 2) += (short)(i / 5);
-    i = (int)tableAng - (int)*(short *)(g_unk0x0058d368 + recOff + 4);
-    *(short *)(g_unk0x0058d368 + recOff + 4) += (short)(i / 5);
-    i = (int)angRight - (int)*(short *)(g_unk0x0058d368 + recOff + 6);
-    *(short *)(g_unk0x0058d368 + recOff + 6) += (short)(i / 5);
-
-    // The two dwords written are (x, y) at +2 and (z, pad) at +6.
-    if (g_unk0x0058d3b0[index] != 0) {
-        *(unsigned int *)(g_unk0x0058d368 + recOff + 2) =
-            ((unsigned int)(unsigned short)tableAng << 16) | (unsigned short)angForward;
-        *(unsigned int *)(g_unk0x0058d368 + recOff + 6) = (unsigned short)angRight;
-    }
-
-    SceneNode_SetRotation(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4),
-                          (FixAngles *)(g_unk0x0058d368 + recOff + 2));
+    POSE.rot.x += ((short)target.x - (short)POSE.rot.x) / 5;
+    POSE.rot.y += ((short)target.y - (short)POSE.rot.y) / 5;
+    POSE.rot.z += ((short)right - (short)POSE.rot.z) / 5;
+    if (g_unk0x0058d3b0[param_1[2]] != 0)
+        POSE.rot = target;
+    SceneNode_SetRotation(*(SceneNode **)(g_unk0x0058d530 + param_1[2] * 0x1c + 4), &POSE.rot);
 
     // Pose offset from the body axes, clamped and eased towards its target.
-    offX = FixDiv(-dRight, 0x4ccc);
-    if (offX < -0x28f)
-        offX = -0x28f;
-    else if (offX > 0x1999)
-        offX = 0x1999;
-    offZ = FixDiv(-dForward, 0x4ccc);
-    if (offZ < -0xf5c)
-        offZ = -0xf5c;
-    else if (offZ > 0xf5c)
-        offZ = 0xf5c;
-
-    offY = 0;
-    if (g_unk0x0058d3b0[index] == 0) {
-        offX = FixMul(offX - *(int *)(g_unk0x0058d374 + recOff), 0xa3d);
-        offY = FixMul(-*(int *)(g_unk0x0058d374 + recOff + 4), 0xa3d);
-        offZ = FixMul(offZ - *(int *)(g_unk0x0058d374 + recOff + 8), 0xa3d);
-        *(int *)(g_unk0x0058d374 + recOff) += offX;
-        *(int *)(g_unk0x0058d374 + recOff + 4) += offY;
-        *(int *)(g_unk0x0058d374 + recOff + 8) += offZ;
+    off.x = FixDiv(-FixVecDot(&acc, &pCar->right), 0x4ccc);
+    if (off.x < -0x28f)
+        off.x = -0x28f;
+    else if (off.x > 0x1999)
+        off.x = 0x1999;
+    off.z = FixDiv(-FixVecDot(&acc, &pCar->forward), 0x4ccc);
+    if (off.z < -0xf5c)
+        off.z = -0xf5c;
+    else if (off.z > 0xf5c)
+        off.z = 0xf5c;
+    off.y = 0;
+    if (g_unk0x0058d3b0[param_1[2]] != 0) {
+        POSE.offset = off;
+        g_unk0x0058d3b0[param_1[2]] = 0;
     } else {
-        *(int *)(g_unk0x0058d374 + recOff) = offX;
-        *(int *)(g_unk0x0058d374 + recOff + 4) = 0;
-        *(int *)(g_unk0x0058d374 + recOff + 8) = offZ;
-        g_unk0x0058d3b0[index] = 0;
+        off.x -= POSE.offset.x;
+        off.y = -POSE.offset.y;
+        off.z -= POSE.offset.z;
+        FixVecScale(&off, &off, 0xa3d);
+        POSE.offset.x += off.x;
+        POSE.offset.y += off.y;
+        POSE.offset.z += off.z;
     }
 
-    pos.x = *(int *)(g_unk0x0058d2f8 + index * 0xc) + *(int *)(g_unk0x0058d374 + recOff);
-    pos.y = *(int *)(g_unk0x0058d2f8 + index * 0xc + 4) + *(int *)(g_unk0x0058d374 + recOff + 4);
-    pos.z = *(int *)(g_unk0x0058d2f8 + index * 0xc + 8) + *(int *)(g_unk0x0058d374 + recOff + 8);
-    if (CGameInfo::FUN_004063f0(6) != 0) {
-        pCar = Car_Get(index);
-        pos.y += FixMul(pCar->field_0xa8c, 0x8000);
-    }
-    SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + index * 0x1c + 4), &pos);
+    pos.x = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].x + POSE.offset.x;
+    pos.y = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].y + POSE.offset.y;
+    pos.z = ((FixVector *)g_unk0x0058d2f8)[param_1[2]].z + POSE.offset.z;
+    if (CGameInfo::FUN_004063f0(6) != 0)
+        pos.y += FixMul(Car_Get(param_1[2])->field_0xa8c, 0x8000);
+    SceneNode_SetPosition(*(SceneNode **)(g_unk0x0058d530 + param_1[2] * 0x1c + 4), &pos);
+#undef POSE
 }
 
 
@@ -11210,7 +11220,6 @@ void FUN_0046a500(int param_1)
     int idx;
     int dot;
     int speed;
-    int len;
     BOOL bVar5;
     BOOL bVar14;
     unsigned int uVar15;
@@ -11219,7 +11228,6 @@ void FUN_0046a500(int param_1)
     FixVector vSide;
     FixVector vUp;
     FixVector vHit;
-    FixVector *pvAxes;
 
     iFlagC = 0;
     pParts = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
@@ -11232,7 +11240,7 @@ void FUN_0046a500(int param_1)
         limit = *(int *)(param_1 + 0x988 + i * 4);
         if (limit < 0x51e)
             limit = 0x51e;
-        if (-limit <= *(int *)(param_1 + 0x9d8 + i * 4)) {
+        if (*(int *)(param_1 + 0x9d8 + i * 4) >= -limit) {
             bVar14 = FALSE;
             i = 4;
         }
@@ -11259,93 +11267,66 @@ void FUN_0046a500(int param_1)
             n--;
         } while (n != 0);
     }
-    if (*(int *)(param_1 + 0xb74) == 0)
-        return;
-    if (iBig == 0) {
-        if (bVar5)
-            ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
-        return;
-    }
-    bVar5 = FALSE;
-    idx = 0;
-    do {
-        if (StageObject_IsEligibleType((short)*(unsigned short *)(param_1 + 0xaae + idx * 2), 0,
-                                       (int)*(unsigned char *)(param_1 + 0xb29)) != 0) {
-            bVar5 = TRUE;
-            idx = 4;
+    if (*(int *)(param_1 + 0xb74) != 0 && iBig != 0) {
+        bVar5 = FALSE;
+        idx = 0;
+        do {
+            if (StageObject_IsEligibleType((short)*(unsigned short *)(param_1 + 0xaae + idx * 2), 0,
+                                           (int)*(unsigned char *)(param_1 + 0xb29)) != 0) {
+                bVar5 = TRUE;
+                idx = 4;
+            }
+            idx++;
+        } while (idx < 4);
+        if (bVar5 && 0x4ccc < *(int *)(param_1 + 0x778)) {
+            iFlagC = 1;
+            FixVecScale(&vDir, (FixVector *)(param_1 + 0x408), -0x10000);
+            dot = FixVecDot(&vDir, (FixVector *)(param_1 + 0x48c));
+            FixVecScale(&vSide, (FixVector *)(param_1 + 0x48c), dot);
+            vDir.x -= vSide.x;
+            vDir.y -= vSide.y;
+            vDir.z -= vSide.z;
+            FIX_NORMALIZE_INTO(vDir, vDir);
+            FixVecCross(&vSide, &vDir, (FixVector *)(param_1 + 0x48c));
+            FIX_NORMALIZE_INTO(vSide, vSide);
+            FixVecCross(&vUp, &vSide, &vDir);
+            FIX_NORMALIZE_INTO(vUp, vUp);
+            FixVecScale(&vUp, &vUp, 0x8000);
+            vHit.x = *(int *)(param_1 + 0x270) - *(int *)(param_1 + 0x294);
+            vHit.y = *(int *)(param_1 + 0x274) - *(int *)(param_1 + 0x298);
+            vHit.z = *(int *)(param_1 + 0x278) - *(int *)(param_1 + 0x29c);
+            FixVecScale(&vHit, &vHit, 0x8000);
+            vHit.x = vHit.x + *(int *)(param_1 + 0x294) - *(int *)(param_1 + 0x2d0);
+            vHit.y = vHit.y + *(int *)(param_1 + 0x298) - *(int *)(param_1 + 0x2d4);
+            vHit.z = vHit.z + *(int *)(param_1 + 0x29c) - *(int *)(param_1 + 0x2d8);
+            Car_SpawnDebris(*(int *)(param_1 + 0x778), &vHit, (Car *)param_1, &vDir, 0x1e0000, 0);
+            speed = *(int *)(param_1 + 0x778);
+            if (speed > 0x10000)
+                speed = 0x10000;
+            *(int *)((BYTE *)pParts + 0x22c) += FixMul(speed, 0x28f);
+            FUN_00468c10((Car *)param_1);
         }
-        idx++;
-    } while (idx < 4);
-    if (bVar5 && 0x4ccc < *(int *)(param_1 + 0x778)) {
-        iFlagC = 1;
-        pvAxes = (FixVector *)(param_1 + 0x48c);
-        vDir.x = FixMul(*(int *)(param_1 + 0x408), -0x10000);
-        vDir.y = FixMul(*(int *)(param_1 + 0x40c), -0x10000);
-        vDir.z = FixMul(*(int *)(param_1 + 0x410), -0x10000);
-        dot = FixVecDot(pvAxes, &vDir);
-        FixVecScale(&vSide, pvAxes, dot);
-        vDir.x -= vSide.x;
-        vDir.y -= vSide.y;
-        vDir.z -= vSide.z;
-        len = FixVecLength(&vDir);
-        if (len == 0) {
-            vDir.x = 0;
-            vDir.y = 0;
-            vDir.z = 0;
-        } else {
-            FixVecScaleRecip(&vDir, &vDir, len);
-        }
-        FixVecCross(&vSide, &vDir, pvAxes);
-        len = FixVecLength(&vSide);
-        if (len == 0) {
-            vSide.x = 0;
-            vSide.y = 0;
-            vSide.z = 0;
-        } else {
-            FixVecScaleRecip(&vSide, &vSide, len);
-        }
-        FixVecCross(&vUp, &vSide, &vDir);
-        len = FixVecLength(&vUp);
-        if (len == 0) {
-            vUp.x = 0;
-            vUp.y = 0;
-            vUp.z = 0;
-        } else {
-            FixVecScaleRecip(&vUp, &vUp, len);
-        }
-        FixVecScale(&vUp, &vUp, 0x8000);
-        vHit.x = FixMul(*(int *)(param_1 + 0x270) - *(int *)(param_1 + 0x294), 0x8000) +
-                 *(int *)(param_1 + 0x294) - *(int *)(param_1 + 0x2d0);
-        vHit.y = FixMul(*(int *)(param_1 + 0x274) - *(int *)(param_1 + 0x298), 0x8000) +
-                 *(int *)(param_1 + 0x298) - *(int *)(param_1 + 0x2d4);
-        vHit.z = FixMul(*(int *)(param_1 + 0x278) - *(int *)(param_1 + 0x29c), 0x8000) +
-                 *(int *)(param_1 + 0x29c) - *(int *)(param_1 + 0x2d8);
-        Car_SpawnDebris(*(int *)(param_1 + 0x778), &vHit, (Car *)param_1, &vDir, 0x1e0000, 0);
-        speed = *(int *)(param_1 + 0x778);
-        if (speed > 0x10000)
-            speed = 0x10000;
-        *(int *)((BYTE *)pParts + 0x22c) += FixMul(speed, 0x28f);
-        FUN_00468c10((Car *)param_1);
-    }
-    uVar15 = RallyDataState();
-    if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
-        i = (int)*(char *)(param_1 + 0xb1a);
-        uVar16 = CMain::GetFrameDelta();
-        if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && *(int *)(param_1 + 0x778) > 0) {
-            if (*(int *)(param_1 + 0x778) <= 0x10000)
-                uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
-            else
-                uVar15 = 0x5c28;
+        uVar15 = RallyDataState();
+        if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
             i = (int)*(char *)(param_1 + 0xb1a);
-            FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
             uVar16 = CMain::GetFrameDelta();
-            g_deformImpactTicks[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+            if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && *(int *)(param_1 + 0x778) > 0) {
+                if (*(int *)(param_1 + 0x778) <= 0x10000)
+                    uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
+                else
+                    uVar15 = 0x5c28;
+                i = (int)*(char *)(param_1 + 0xb1a);
+                FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
+                uVar16 = CMain::GetFrameDelta();
+                g_deformImpactTicks[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+            }
         }
+        ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+        FixVecScale((FixVector *)(param_1 + 0x408), (FixVector *)(param_1 + 0x408), 0xf851);
+    } else if (*(int *)(param_1 + 0xb74) != 0 && bVar5) {
+        ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
     }
-    ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
-    *(int *)(param_1 + 0x408) = FixMul(*(int *)(param_1 + 0x408), 0xf851);
-    *(int *)(param_1 + 0x40c) = FixMul(*(int *)(param_1 + 0x40c), 0xf851);
-    *(int *)(param_1 + 0x410) = FixMul(*(int *)(param_1 + 0x410), 0xf851);
+
 }
 
 // Rebuilds the per-part bounding box of a stage object record for one car:
@@ -11648,7 +11629,7 @@ void FUN_0046de20(unsigned int *pFlag24, unsigned int *pFlag27, unsigned int *pS
         FIX_NORMALIZE_INTO(axes[i * 2], axes[i * 2]);
     }
     FixVecCross(&axes[1], &axes[2], &axes[0]);
-    FIX_NORMALIZE_INTO(axes[1], axes[1]);
+    StageObj_NormalizeInto(&axes[1], &axes[1]);
     FixMatrix_SetRight(&axes[0], pMatrix);
     FixMatrix_SetUp(&axes[1], pMatrix);
     FixMatrix_SetForward(&axes[2], pMatrix);
@@ -12190,7 +12171,7 @@ struct CollisionFaceVertices;
 extern double g_unk0x00511300;
 extern Car *g_collisionCar;
 extern CollisionFaceVertices *g_collisionFace;
-void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
+void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
 void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoint);
 // ---- GLOBALS nuevos (definir UNA sola vez en el proyecto) ----
 // GLOBAL: CMR2 0x005918e0
@@ -12297,25 +12278,15 @@ void FUN_00460b60(int *p, int unused)
 void FUN_00469e40(int param_1, short *param_2, short param_3)
 {
     int count;
-    short *pIndex;
     Car *pCar;
     int idx;
     int size;
     int dot;
-    int len;
-    FixVector vDir;
-    FixVector vProj;
-    FixVector vSide;
-    FixVector vUp;
-    FixVector vLocal;
-    FixVector vHit;
     FixVector axes[3];
-    count = param_3;
-    if (count - 1 < 0)
-        return;
-    pIndex = param_2 + count - 1;
-    do {
-        pCar = (Car *)(param_1 + *pIndex * 0xc24);
+    FixVector vHit;
+    FixVector vTmp;
+    for (count = param_3 - 1; count >= 0; count--) {
+        pCar = (Car *)(param_1 + param_2[count] * 0xc24);
         for (idx = 0; idx < 8; idx++) {
             if (pCar->cornerFlags[idx] != 0)
                 continue;
@@ -12327,70 +12298,39 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
             // Impact strength: the wheel travel of the corners that own a
             // wheel, the object speed for the rest.
             if (idx < 4 && pCar->field_0xb74 != 0) {
-                int travelA;
-                int travelB;
-                travelA = pCar->wheelSlip[idx];
-                if (travelA < 0)
-                    travelA = -travelA;
-                travelB = pCar->wheelSlipLateral[idx];
-                if (travelB < 0)
-                    travelB = -travelB;
-                size = FixMul(travelB + travelA, 0x10000);
+                size = (pCar->wheelSlip[idx] < 0 ? -pCar->wheelSlip[idx] : pCar->wheelSlip[idx]) +
+                       (pCar->wheelSlipLateral[idx] < 0 ? -pCar->wheelSlipLateral[idx] : pCar->wheelSlipLateral[idx]);
+                size = FixMul(size, 0x10000);
                 if (size > 0x10000)
                     size = 0x10000;
-                else if (size <= 0x4ccc)
-                    continue;
             } else {
                 size = pCar->speed;
-                if (size <= 0x4ccc)
-                    continue;
             }
+            if (size <= 0x4ccc)
+                continue;
             // Contact frame: axis 0 is the velocity put square to the corner
             // axis, axis 2 the cross of the two and axis 1 the cross of the
             // others.
-            FixVecScale(&vDir, &pCar->velocity, -0x10000);
-            dot = FixVecDot(&pCar->cornerAxis[idx], &vDir);
-            FixVecScale(&vProj, &pCar->cornerAxis[idx], dot);
-            vDir.x -= vProj.x;
-            vDir.y -= vProj.y;
-            vDir.z -= vProj.z;
-            len = FixVecLength(&vDir);
-            if (len == 0) {
-                vDir.x = 0;
-                vDir.y = 0;
-                vDir.z = 0;
-            } else {
-                FixVecScaleRecip(&vDir, &vDir, len);
-            }
-            FixVecCross(&vSide, &vDir, &pCar->cornerAxis[idx]);
-            len = FixVecLength(&vSide);
-            if (len == 0) {
-                vSide.x = 0;
-                vSide.y = 0;
-                vSide.z = 0;
-            } else {
-                FixVecScaleRecip(&vSide, &vSide, len);
-            }
-            FixVecCross(&vUp, &vSide, &vDir);
-            len = FixVecLength(&vUp);
-            if (len == 0) {
-                vUp.x = 0;
-                vUp.y = 0;
-                vUp.z = 0;
-            } else {
-                FixVecScaleRecip(&vUp, &vUp, len);
-            }
-            axes[0] = vDir;
-            axes[1] = vUp;
-            axes[2] = vSide;
+            FixVecScale(&axes[0], &pCar->velocity, -0x10000);
+            dot = FixVecDot(&axes[0], &pCar->cornerAxis[idx]);
+            FixVecScale(&vTmp, &pCar->cornerAxis[idx], dot);
+            axes[0].x -= vTmp.x;
+            axes[0].y -= vTmp.y;
+            axes[0].z -= vTmp.z;
+            StageObj_NormalizeInto(&axes[0], &axes[0]);
+            FixVecCross(&axes[2], &axes[0], &pCar->cornerAxis[idx]);
+            StageObj_NormalizeInto(&axes[2], &axes[2]);
+            FixVecCross(&axes[1], &axes[2], &axes[0]);
+            StageObj_NormalizeInto(&axes[1], &axes[1]);
             if (idx < 4 && pCar->field_0xb74 != 0) {
-                vLocal = pCar->wheelEmitter[idx];
-                vLocal.y -= 0x5999;
-                FixMatrix_RotateVector(&vHit, &vLocal, pCar->pWorld);
+                vTmp = pCar->wheelEmitter[idx];
+                vTmp.y -= 0x5999;
+                FixMatrix_RotateVector(&vHit, &vTmp, pCar->pWorld);
             } else {
-                vHit.x = FixMul(pCar->pWorld->right.y, -0x8000);
-                vHit.y = FixMul(pCar->pWorld->up.y, -0x8000);
-                vHit.z = FixMul(pCar->pWorld->forward.y, -0x8000);
+                vHit.x = pCar->pWorld->right.y;
+                vHit.y = pCar->pWorld->up.y;
+                vHit.z = pCar->pWorld->forward.y;
+                FixVecScale(&vHit, &vHit, -0x8000);
             }
             if (idx < 4 && pCar->field_0xb74 != 0)
                 Car_SpawnDebris(size, &vHit, pCar, axes, 0, 0);
@@ -12398,9 +12338,7 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
                 Car_SpawnDebris(size, &vHit, pCar, axes, 0x90000, 0x9999);
         }
         FUN_0046a500((int)pCar);
-        pIndex--;
-        count--;
-    } while (count != 0);
+    }
 }
 
 // Advances a type 2 replay stream: on every third frame it moves to the next
@@ -13161,7 +13099,7 @@ void FUN_00485860(unsigned int index, int *pTarget, int flag)
 // (quad) test is tried as a fallback. Returns 1 when a contact was resolved.
 // match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00488640
-int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
+int FUN_00488640(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale)
 {
     FixVector dir;
     FixVector negDir;
@@ -13184,7 +13122,7 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
     int length;
     int index;
     int i;
-    if (pBoxA[2] < pBoxB[3] || pBoxB[2] < pBoxA[3])
+    if (pBoxA->top < pBoxB->bottom || pBoxB->top < pBoxA->bottom)
         return 0;
     g_unk0x005914d4 = 0;
     g_unk0x005915f4 = 0;
@@ -13194,38 +13132,29 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
     g_unk0x005914b8.x = 0;
     g_unk0x005914b8.y = 0;
     g_unk0x005914b8.z = 0;
-    posA = (FixVector *)pBoxA[0x25];
-    posB = (FixVector *)pBoxB[0x25];
+    posA = (FixVector *)pBoxA->pVertex;
+    posB = (FixVector *)pBoxB->pVertex;
     // Direction from the offset point to box B, flattened and normalised.
     delta.x = posB->x - pOffset->x;
     delta.y = posB->y - pOffset->y;
     delta.z = posB->z - pOffset->z;
     delta.y = 0;
-    length = FixMul(delta.x, delta.x) + FixMul(delta.z, delta.z);
-    length = FixSqrt(length);
-    if (length == 0) {
-        dir.x = 0;
-        dir.y = 0;
-        dir.z = 0;
-    } else {
-        FixVecScaleRecip(&dir, &delta, length);
-    }
+    FIX_NORMALIZE_INTO(dir, delta);
     // Projections of box A's two axes on the direction.
-    projAxis0 = FixVecDot((FixVector *)(pBoxA + 4), &dir);
-    projAxis1 = FixVecDot((FixVector *)(pBoxA + 7), &dir);
+    projAxis0 = FixVecDot(&dir, &pBoxA->axisA);
+    projAxis1 = FixVecDot(&dir, &pBoxA->axisB);
     hit = 0;
     passHit = 0;
     maxDist = 0;
     // Pass 1: box B's corners tested in box A's frame.
     for (i = 0; i < 4; i++) {
-        corner = ((FixVector *)(pBoxB + 0xc))[i];
-        delta.x = corner.x - posA->x;
-        delta.y = corner.y - posA->y;
-        delta.z = corner.z - posA->z;
+        delta.x = pBoxB->points[i].x - ((FixVector *)pBoxA->pVertex)->x;
+        delta.y = pBoxB->points[i].y - ((FixVector *)pBoxA->pVertex)->y;
+        delta.z = pBoxB->points[i].z - ((FixVector *)pBoxA->pVertex)->z;
         delta.y = 0;
-        projCorner0 = FixVecDot((FixVector *)(pBoxA + 4), &delta);
-        projCorner1 = FixVecDot((FixVector *)(pBoxA + 7), &delta);
-        if (FIX_ABS(projCorner0) > pBoxA[0] || FIX_ABS(projCorner1) > pBoxA[1])
+        projCorner0 = FixVecDot(&delta, &pBoxA->axisA);
+        projCorner1 = FixVecDot(&delta, &pBoxA->axisB);
+        if (FIX_ABS(projCorner0) > pBoxA->halfWidth || FIX_ABS(projCorner1) > pBoxA->halfLength)
             continue;
         hit0 = 0;
         hit1 = 0;
@@ -13235,17 +13164,17 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         // Distance to the box A face the corner leaves through, per axis; an
         // axis whose direction projection is ~0 (|cos| <= 0x41) can not slide.
         if (projAxis0 > 0x41) {
-            t0 = FixDiv(pBoxA[0] - projCorner0, projAxis0);
+            t0 = FixDiv(pBoxA->halfWidth - projCorner0, projAxis0);
             hit0 = 1;
         } else if (projAxis0 < -0x41) {
-            t0 = FixDiv(FIX_ABS(pBoxA[0] + projCorner0), -projAxis0);
+            t0 = FixDiv(FIX_ABS(pBoxA->halfWidth + projCorner0), -projAxis0);
             hit0 = 1;
         }
         if (projAxis1 > 0x41) {
-            t1 = FixDiv(pBoxA[1] - projCorner1, projAxis1);
+            t1 = FixDiv(pBoxA->halfLength - projCorner1, projAxis1);
             hit1 = 1;
         } else if (projAxis1 < -0x41) {
-            t1 = FixDiv(FIX_ABS(pBoxA[1] + projCorner1), -projAxis1);
+            t1 = FixDiv(FIX_ABS(pBoxA->halfLength + projCorner1), -projAxis1);
             hit1 = 1;
         }
         index = g_unk0x005914d4;
@@ -13265,22 +13194,21 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         g_unk0x005914d4 = (char)(index + 1);
     }
     if (passHit != 0)
-        FUN_004894b0(pBoxA, pBoxB, (int *)&dir, maxDist, scale);
+        FUN_004894b0((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
     // Pass 2: box A's corners tested in box B's frame, with the direction negated.
     FixVecScale(&negDir, &dir, -0x10000);
-    projAxis0 = FixVecDot((FixVector *)(pBoxB + 4), &negDir);
-    projAxis1 = FixVecDot((FixVector *)(pBoxB + 7), &negDir);
+    projAxis0 = FixVecDot(&negDir, &pBoxB->axisA);
+    projAxis1 = FixVecDot(&negDir, &pBoxB->axisB);
     passHit = 0;
     maxDist = 0;
     for (i = 0; i < 4; i++) {
-        corner = ((FixVector *)(pBoxA + 0xc))[i];
-        delta.x = corner.x - posB->x;
-        delta.y = corner.y - posB->y;
-        delta.z = corner.z - posB->z;
+        delta.x = pBoxA->points[i].x - ((FixVector *)pBoxB->pVertex)->x;
+        delta.y = pBoxA->points[i].y - ((FixVector *)pBoxB->pVertex)->y;
+        delta.z = pBoxA->points[i].z - ((FixVector *)pBoxB->pVertex)->z;
         delta.y = 0;
-        projCorner0 = FixVecDot((FixVector *)(pBoxB + 4), &delta);
-        projCorner1 = FixVecDot((FixVector *)(pBoxB + 7), &delta);
-        if (FIX_ABS(projCorner0) > pBoxB[0] || FIX_ABS(projCorner1) > pBoxB[1])
+        projCorner0 = FixVecDot(&delta, &pBoxB->axisA);
+        projCorner1 = FixVecDot(&delta, &pBoxB->axisB);
+        if (FIX_ABS(projCorner0) > pBoxB->halfWidth || FIX_ABS(projCorner1) > pBoxB->halfLength)
             continue;
         hit0 = 0;
         hit1 = 0;
@@ -13288,17 +13216,17 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         t1 = 0;
         best = 0x7d000000;
         if (projAxis0 > 0x41) {
-            t0 = FixDiv(pBoxB[0] - projCorner0, projAxis0);
+            t0 = FixDiv(pBoxB->halfWidth - projCorner0, projAxis0);
             hit0 = 1;
         } else if (projAxis0 < -0x41) {
-            t0 = FixDiv(FIX_ABS(pBoxB[0] + projCorner0), -projAxis0);
+            t0 = FixDiv(FIX_ABS(pBoxB->halfWidth + projCorner0), -projAxis0);
             hit0 = 1;
         }
         if (projAxis1 > 0x41) {
-            t1 = FixDiv(pBoxB[1] - projCorner1, projAxis1);
+            t1 = FixDiv(pBoxB->halfLength - projCorner1, projAxis1);
             hit1 = 1;
         } else if (projAxis1 < -0x41) {
-            t1 = FixDiv(FIX_ABS(pBoxB[1] + projCorner1), -projAxis1);
+            t1 = FixDiv(FIX_ABS(pBoxB->halfLength + projCorner1), -projAxis1);
             hit1 = 1;
         }
         index = g_unk0x005915f4;
@@ -13318,11 +13246,11 @@ int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale)
         g_unk0x005915f4 = (char)(index + 1);
     }
     if (passHit != 0)
-        FUN_004894b0(pBoxA, pBoxB, (int *)&dir, maxDist, scale);
+        FUN_004894b0((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
     if (hit == 0) {
         hit = FUN_00488de0((FixVector *)pBoxA, (FixVector *)pBoxB, &dir, &maxDist);
         if (hit != 0)
-            FUN_004894b0(pBoxA, pBoxB, (int *)&dir, maxDist, scale);
+            FUN_004894b0((int *)pBoxA, (int *)pBoxB, (int *)&dir, maxDist, scale);
     }
     return hit;
 }
@@ -13417,7 +13345,7 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
         ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].y += g_unk0x00591900.y;
         ((FixVector *)((BYTE *)g_collisionFace + 0x30))[i].z += g_unk0x00591900.z;
     }
-    FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), 0xff, (int *)&g_unk0x00591900, 0);
+    FUN_0048c870(*(BYTE *)((BYTE *)g_collisionCar + 0xb1a), -1, (int *)&g_unk0x00591900, 0);
     // Surface descriptor of the tracked point: 0xff means there is no contact
     // surface, in which case the second tracked point decides the direction.
     surface = *(BYTE *)((BYTE *)g_unk0x0059190c + 0x2e + (param_3 != 0));
@@ -14711,7 +14639,7 @@ extern FixVector g_unk0x005915e8;
 extern int g_unk0x005915dc;
 extern int g_unk0x00591468;
 extern int g_unk0x005914d8;
-int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
+int FUN_00488640(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM);
 
 // Resolves a contact between a car's box and a turned stage object's box
@@ -14720,113 +14648,131 @@ int FixMatrix_InverseRotateVector(FixVector *pOut, FixVector *pV, FixMatrix *pM)
 // the object is pushable, a one-sided contact also moves the object. Returns
 // whether the boxes overlapped.
 // FUNCTION: CMR2 0x00487f60
-int FUN_00487f60(Car *pCar, int *pEntry, int *pBox, int *pObject)
+int FUN_00487f60(Car *pCar, int *pEntry, CollisionBox *pBox, CollisionBox *pObject)
 {
+    FixVector sum;
+    FixVector point;
+    FixVector dir;
     int count;
     int solid;
     int hit;
     int i;
     int d;
     int k;
-    FixVector sum;
-    FixVector point;
-    FixVector dir;
-    FixVector *pAxis;
-    BYTE *p = (BYTE *)pCar;
+    FixVector *pEdge;
+    int dx;
+    int dy;
+    int dz;
 
     count = 0;
-    if ((*(unsigned int *)(*pEntry + 0x10) & 0x2001000) == 0) {
-        solid = 0;
-        hit = FUN_00488640(pBox, pObject, (FixVector *)(p + 0x2e8), 0);
-    } else {
+    if ((*(unsigned int *)(*pEntry + 0x10) & 0x2001000) != 0) {
         solid = 1;
-        hit = FUN_00488640(pBox, pObject, (FixVector *)(p + 0x2e8), 0x10000);
+        hit = FUN_00488640(pBox, pObject, (FixVector *)((BYTE *)pCar + 0x2e8), 0x10000);
+    } else {
+        solid = 0;
+        hit = FUN_00488640(pBox, pObject, (FixVector *)((BYTE *)pCar + 0x2e8), 0);
     }
-    if (hit == 0)
-        return hit;
-    sum.x = 0;
-    sum.y = 0;
-    sum.z = 0;
-    dir.x = 0;
-    dir.y = 0;
-    dir.z = 0;
-    if (g_unk0x005915f4 > 0) {
-        for (i = 0; i < g_unk0x005915f4; i++) {
-            point.x = *(int *)(p + 0x270 + g_unk0x005914c4[i] * 0xc) - *(int *)(p + 0x2d0);
-            point.y = *(int *)(p + 0x274 + g_unk0x005914c4[i] * 0xc) - *(int *)(p + 0x2d4);
-            point.z = *(int *)(p + 0x278 + g_unk0x005914c4[i] * 0xc) - *(int *)(p + 0x2d8);
-            sum.x += point.x;
-            point.y = 0;
-            sum.z += point.z;
-            if (g_unk0x00590ec8[i] == 0)
-                pAxis = (FixVector *)(pObject + 4);
-            else
-                pAxis = (FixVector *)(pObject + 7);
-            if (FixVecDot(&dir, pAxis) < 0) {
-                dir.x -= pAxis->x;
-                dir.y -= pAxis->y;
-                dir.z -= pAxis->z;
-            } else {
-                dir.x += pAxis->x;
-                dir.y += pAxis->y;
-                dir.z += pAxis->z;
+    if (hit != 0) {
+        sum.x = 0;
+        sum.y = 0;
+        sum.z = 0;
+        dir.x = 0;
+        dir.y = 0;
+        dir.z = 0;
+        if (g_unk0x005915f4 > 0) {
+            for (i = 0; i < g_unk0x005915f4; i++) {
+                point.x = pCar->corners[g_unk0x005914c4[i]].x - pCar->position.x;
+                point.y = pCar->corners[g_unk0x005914c4[i]].y - pCar->position.y;
+                point.z = pCar->corners[g_unk0x005914c4[i]].z - pCar->position.z;
+                sum.x += point.x;
+                point.y = 0;
+                sum.z += point.z;
+                if (g_unk0x00590ec8[i] == 0) {
+                    if (FixVecDot(&dir, &pObject->axisA) < 0) {
+                        dir.x -= pObject->axisA.x;
+                        dir.y -= pObject->axisA.y;
+                        dir.z -= pObject->axisA.z;
+                    } else {
+                        dir.x += pObject->axisA.x;
+                        dir.y += pObject->axisA.y;
+                        dir.z += pObject->axisA.z;
+                    }
+                } else {
+                    if (FixVecDot(&dir, &pObject->axisB) < 0) {
+                        dir.x -= pObject->axisB.x;
+                        dir.y -= pObject->axisB.y;
+                        dir.z -= pObject->axisB.z;
+                    } else {
+                        dir.x += pObject->axisB.x;
+                        dir.y += pObject->axisB.y;
+                        dir.z += pObject->axisB.z;
+                    }
+                }
             }
+            count = g_unk0x005915f4;
         }
-        count = g_unk0x005915f4;
-    }
-    if (g_unk0x005914d4 > 0) {
-        for (i = 0; i < g_unk0x005914d4; i++) {
-            point = *(FixVector *)(pObject + (g_unk0x00590ecc[i] + 4) * 3);
-            point.x -= *(int *)(p + 0x2d0);
-            point.z -= *(int *)(p + 0x2d8);
-            sum.x += point.x;
-            sum.z += point.z;
-            point.y = 0;
-            if (g_unk0x005914a4[i] == 0)
-                pAxis = (FixVector *)(pBox + 4);
-            else
-                pAxis = (FixVector *)(pBox + 7);
-            if (FixVecDot(&dir, pAxis) < 0) {
-                dir.y -= pAxis->y;
-                dir.x -= pAxis->x;
-                dir.z -= pAxis->z;
-            } else {
-                dir.y += pAxis->y;
-                dir.x += pAxis->x;
-                dir.z += pAxis->z;
+        if (g_unk0x005914d4 > 0) {
+            for (i = 0; i < g_unk0x005914d4; i++) {
+                point = pObject->points[g_unk0x00590ecc[i]];
+                point.x -= pCar->position.x;
+                point.z -= pCar->position.z;
+                sum.x += point.x;
+                sum.z += point.z;
+                point.y = 0;
+                if (g_unk0x005914a4[i] == 0) {
+                    if (FixVecDot(&dir, &pBox->axisA) < 0) {
+                        dir.x -= pBox->axisA.x;
+                        dir.y -= pBox->axisA.y;
+                        dir.z -= pBox->axisA.z;
+                    } else {
+                        dir.x += pBox->axisA.x;
+                        dir.y += pBox->axisA.y;
+                        dir.z += pBox->axisA.z;
+                    }
+                } else {
+                    if (FixVecDot(&dir, &pBox->axisB) < 0) {
+                        dir.x -= pBox->axisB.x;
+                        dir.y -= pBox->axisB.y;
+                        dir.z -= pBox->axisB.z;
+                    } else {
+                        dir.x += pBox->axisB.x;
+                        dir.y += pBox->axisB.y;
+                        dir.z += pBox->axisB.z;
+                    }
+                }
             }
+            count += g_unk0x005914d4;
         }
-        count += g_unk0x005914d4;
-    }
-    FixVecScaleRecip(&sum, &sum, count << 16);
-    FIX_NORMALIZE_INTO(dir, dir);
-    if (solid == 0 && (g_unk0x005915f4 == 0 || g_unk0x005914d4 == 0)) {
-        d = FixVecDot(&dir, &g_collisionPush);
-        FixVecScale(&point, &dir, d);
-        point.x -= g_collisionPush.x;
-        point.y -= g_collisionPush.y;
-        point.z -= g_collisionPush.z;
-        if (*(int **)(pBox + 0x25) != NULL && pBox[0x24] != 0) {
-            (*(int **)(pBox + 0x25))[0] += point.x;
-            (*(int **)(pBox + 0x25))[1] += point.y;
-            (*(int **)(pBox + 0x25))[2] += point.z;
-            for (k = 0; k < 0x60; k += 0xc) {
-                *(int *)(pBox[0x24] + k) += point.x;
-                *(int *)(pBox[0x24] + k + 4) += point.y;
-                *(int *)(pBox[0x24] + k + 8) += point.z;
+        FixVecScaleRecip(&sum, &sum, count << 16);
+        FIX_NORMALIZE_INTO(dir, dir);
+        if (solid == 0 && (g_unk0x005915f4 == 0 || g_unk0x005914d4 == 0)) {
+            d = FixVecDot(&g_collisionPush, &dir);
+            FixVecScale(&point, &dir, d);
+            dx = point.x - g_collisionPush.x;
+            dy = point.y - g_collisionPush.y;
+            dz = point.z - g_collisionPush.z;
+            if (pBox->pVertex != NULL && pBox->pArray != NULL) {
+                pBox->pVertex[0] += dx;
+                pBox->pVertex[1] += dy;
+                pBox->pVertex[2] += dz;
+                for (k = 0; k < 0x60; k += 0xc) {
+                    *(int *)((BYTE *)pBox->pArray + k) += dx;
+                    *(int *)((BYTE *)pBox->pArray + k + 4) += dy;
+                    *(int *)((BYTE *)pBox->pArray + k + 8) += dz;
+                }
+                for (k = 0; k < 4; k++) {
+                    pBox->points[k].x += dx;
+                    pBox->points[k].y += dy;
+                    pBox->points[k].z += dz;
+                }
             }
-            for (k = 0; k < 4; k++) {
-                pBox[0xc + k * 3] += point.x;
-                pBox[0xd + k * 3] += point.y;
-                pBox[0xe + k * 3] += point.z;
-            }
+            FUN_0048c870(pCar->index, -1, (int *)&point, 1);
         }
-        FUN_0048c870(pCar->index, 0xff, (int *)&point, 1);
+        g_unk0x005915e8 = dir;
+        FixMatrix_InverseRotateVector(&pCar->field_0x5dc, &sum, pCar->pWorld);
+        g_unk0x005915dc = 0x8000;
+        g_unk0x00591468 = 0x1570a;
     }
-    g_unk0x005915e8 = dir;
-    FixMatrix_InverseRotateVector((FixVector *)(p + 0x5dc), &sum, *(FixMatrix **)(p + 0x750));
-    g_unk0x005915dc = 0x8000;
-    g_unk0x00591468 = 0x1570a;
     return hit;
 }
 
@@ -14899,7 +14845,7 @@ int FUN_004878a0(Car *pCar)
                     FUN_00487e00(&position, pEntry);
                 }
                 if (g_unk0x005914d8 != 0) {
-                    result = FUN_00487f60(pCar, pEntry, (int *)pBox, g_unk0x005915f8);
+                    result = FUN_00487f60(pCar, pEntry, (CollisionBox *)pBox, (CollisionBox *)g_unk0x005915f8);
                 } else {
                     if (pObject[4] & 0x4000) {
                         if (*(int *)(p + 0xc20) == 0)

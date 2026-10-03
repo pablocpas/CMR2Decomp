@@ -405,7 +405,7 @@ int g_unk0x005915dc;
 // GLOBAL: CMR2 0x00591468
 int g_unk0x00591468;
 
-void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag);
+void FUN_0048c870(BYTE index, char other, int *pDelta, int flag);
 
 // Resolves the collision of `car` against the oriented box `pBox`: builds the
 // correction vector from the two box axes and the two factors the sphere test
@@ -418,82 +418,70 @@ int Collision_CarVsBox(int car, int *pBox, int scale)
 {
     FixVector a;
     FixVector b;
-    FixVector v;
     FixVector along;
     int factor;
     int t;
-    int dot;
     int dx;
     int dy;
     int dz;
     int i;
     int j;
-    int *p;
     char side;
+    CollisionBox *pB = (CollisionBox *)pBox;
 
     side = (char)Collision_SphereVsBox(pBox, &factor, (unsigned int *)&t, scale);
-    if (side == 0)
-        return 0;
+    if (side != 0) {
 
-    a.x = FixMul(pBox[4], factor);
-    a.y = FixMul(pBox[5], factor);
-    a.z = FixMul(pBox[6], factor);
-    b.x = FixMul(pBox[7], t);
-    b.y = FixMul(pBox[8], t);
-    b.z = FixMul(pBox[9], t);
-    v.x = a.x + b.x;
-    v.y = a.y + b.y;
-    v.z = a.z + b.z;
-    FixMatrix_InverseRotateVector((FixVector *)(car + 0x5dc), &v,
-                                  *(FixMatrix **)(car + 0x750));
+        FixVecScale(&a, &pB->axisA, factor);
+        FixVecScale(&b, &pB->axisB, t);
+        a.x += b.x;
+        a.y += b.y;
+        a.z += b.z;
+        FixMatrix_InverseRotateVector((FixVector *)(car + 0x5dc), &a,
+                                      *(FixMatrix **)(car + 0x750));
 
-    if (side == 3) {
-        // +0x94/+0x90 are BYTE offsets in the original (pBox[0x25]/[0x24]); the
-        // int-pointer arithmetic read 0x250/0x240 and crashed on rally impacts.
-        int *pRaw = (int *)pBox[0x25];
-
-        g_unk0x005915e8.x = pRaw[0] + v.x;
-        g_unk0x005915e8.x -= g_collisionSphereCentre.x;
-        g_unk0x005915e8.y = pRaw[1] + v.y;
-        g_unk0x005915e8.y = 0;
-        g_unk0x005915e8.z = pRaw[2] + v.z;
-        g_unk0x005915e8.z -= g_collisionSphereCentre.z;
-        FIX_NORMALIZE_INTO(g_unk0x005915e8, g_unk0x005915e8)
-    } else if (side == 1) {
-        g_unk0x005915e8 = *(FixVector *)(pBox + 4);
-    } else {
-        g_unk0x005915e8 = *(FixVector *)(pBox + 7);
-    }
-
-    dot = FixVecDot(&g_unk0x005915e8, &g_collisionPush);
-    FixVecScale(&along, &g_unk0x005915e8, dot);
-    dx = along.x - g_collisionPush.x;
-    dy = along.y - g_collisionPush.y;
-    dz = along.z - g_collisionPush.z;
-
-    if ((int *)pBox[0x25] != NULL && pBox[0x24] != 0) {
-        p = (int *)pBox[0x25];
-        p[0] += dx;
-        p[1] += dy;
-        p[2] += dz;
-        for (i = 0; i < 0x60; i += 0xc) {
-            *(int *)(pBox[0x24] + i) += dx;
-            *(int *)(pBox[0x24] + i + 4) += dy;
-            *(int *)(pBox[0x24] + i + 8) += dz;
+        if (side != 3) {
+            if (side == 1)
+                g_unk0x005915e8 = pB->axisA;
+            else
+                g_unk0x005915e8 = pB->axisB;
+        } else {
+            g_unk0x005915e8.x = ((int *)pB->pVertex)[0] + a.x;
+            g_unk0x005915e8.y = ((int *)pB->pVertex)[1] + a.y;
+            g_unk0x005915e8.z = ((int *)pB->pVertex)[2] + a.z;
+            g_unk0x005915e8.x -= g_collisionSphereCentre.x;
+            g_unk0x005915e8.y = 0;
+            g_unk0x005915e8.z -= g_collisionSphereCentre.z;
+            FIX_NORMALIZE_INTO(g_unk0x005915e8, g_unk0x005915e8)
         }
-        p = pBox + 0xd;
-        for (j = 4; j != 0; j--) {
-            p[-1] += dx;
-            p[0] += dy;
-            p[1] += dz;
-            p += 3;
-        }
-    }
 
-    FUN_0048c870(*(BYTE *)(car + 0xb1a), (BYTE)0xff, (int *)&along, 1);
-    g_unk0x005915dc = 0x8000;
-    g_unk0x00591468 = 0x1578d;
-    return 1;
+        FixVecScale(&along, &g_unk0x005915e8, FixVecDot(&g_collisionPush, &g_unk0x005915e8));
+        dx = along.x - g_collisionPush.x;
+        dy = along.y - g_collisionPush.y;
+        dz = along.z - g_collisionPush.z;
+
+        if (pB->pVertex != NULL && pB->pArray != NULL) {
+            pB->pVertex[0] += dx;
+            pB->pVertex[1] += dy;
+            pB->pVertex[2] += dz;
+            for (i = 0; i < 0x60; i += 0xc) {
+                *(int *)((BYTE *)pB->pArray + i) += dx;
+                *(int *)((BYTE *)pB->pArray + i + 4) += dy;
+                *(int *)((BYTE *)pB->pArray + i + 8) += dz;
+            }
+            for (j = 0; j < 4; j++) {
+                pB->points[j].x += dx;
+                pB->points[j].y += dy;
+                pB->points[j].z += dz;
+            }
+        }
+
+        FUN_0048c870(*(BYTE *)(car + 0xb1a), -1, (int *)&along, 1);
+        g_unk0x005915dc = 0x8000;
+        g_unk0x00591468 = 0x1578d;
+        return 1;
+    }
+    return 0;
 }
 
 extern char g_unk0x00590ecc[4];
@@ -526,7 +514,7 @@ void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4, unsi
 // axes from 0x10, the eight contact points built by FUN_00486c30 and the two
 // pointers at 0x90/0x94 to the point array and to the box vertex.
 
-extern int FUN_00488640(int *pBoxA, int *pBoxB, FixVector *pOffset, int scale);
+extern int FUN_00488640(CollisionBox *pBoxA, CollisionBox *pBoxB, FixVector *pOffset, int scale);
 
 // Collision bookkeeping shared with the stage object collision code
 // (defined in StageObjects.cpp): the per-car contact list and its length, the
@@ -704,7 +692,7 @@ int FUN_0048a5f0(int param_1, int param_2)
     int dz;
     int i;
 
-    result = FUN_00488640((int *)g_pContacts0x005915e0, (int *)g_pContacts0x00591394,
+    result = FUN_00488640((CollisionBox *)g_pContacts0x005915e0, (CollisionBox *)g_pContacts0x00591394,
                           (FixVector *)(param_1 + 0x2e8), 0x8000);
     if (result != 0) {
     sum.x = 0;
