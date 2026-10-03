@@ -261,8 +261,8 @@ void FUN_004556f0(void)
     int out[2];
     int k;
     int ai;
-    char hasAi;
-    char hasPlayer;
+    bool hasAi;
+    bool hasPlayer;
 
     players = CGameInfo::FUN_00405d70();
     switch (CGameInfo::FUN_00405d80()) {
@@ -3730,15 +3730,13 @@ extern char g_unk0x00542cad;
 // FUNCTION: CMR2 0x00458f30
 void FUN_00458f30(int car, int from, int to)
 {
-    int count = g_stageCheckpointCount;
-
-    if (to < g_unk0x00542e78[car].field_0x0 && to == 0 && from == count - 1) {
+    if (to < g_unk0x00542e78[car].field_0x0 && to == 0 && from == g_stageCheckpointCount - 1) {
         g_unk0x00542e78[car].field_0x2++;
         g_unk0x00542e78[car].field_0x18 = 1;
         if (g_unk0x00542e78[car].field_0x2 == 1000)
             g_unk0x00542e78[car].field_0x2 = 0;
     }
-    if (to > g_unk0x00542e78[car].field_0x0 && to == count - 1 && from == 0) {
+    if (to > g_unk0x00542e78[car].field_0x0 && to == g_stageCheckpointCount - 1 && from == 0) {
         g_unk0x00542e78[car].field_0x2--;
         if (g_unk0x00542e78[car].field_0x2 < -1)
             g_unk0x00542e78[car].field_0x2 = -1;
@@ -5806,7 +5804,7 @@ void FUN_004487a0(int car)
     char prev;
 
     if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
-        if ((int)((BYTE)RallyDataState()) <= car)
+        if (car >= (int)((BYTE)RallyDataState()))
             return;
         g_unk0x0053e190[split + car * 9] = g_unk0x0053d1b0;
         return;
