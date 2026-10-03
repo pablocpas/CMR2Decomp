@@ -49,8 +49,8 @@
   },
   "0x423d70": {
     "n": "FUN_00423d70",
-    "s": 0.7142857142857143,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "FUN_00423d70"
@@ -297,7 +297,7 @@
   },
   "0x43a920": {
     "n": "Car_ApplyCornerFriction",
-    "s": 0.9362934362934363,
+    "s": 0.9536679536679536,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -585,8 +585,8 @@
   },
   "0x442fc0": {
     "n": "Car_SplitEngineTorque",
-    "s": 0.6923076923076923,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_SplitEngineTorque"
@@ -729,7 +729,7 @@
   },
   "0x4380c0": {
     "n": "Car_UpdateEngineSpeed",
-    "s": 0.6391304347826087,
+    "s": 0.6017316017316018,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -969,9 +969,11 @@
   },
   "0x42b4a0": {
     "n": "Car_IntegrateWheelRotation",
-    "s": 0.6708074534161491,
+    "s": 0.654320987654321,
     "x": false,
-    "unknown": [],
+    "unknown": [
+      "__real@8@bff8a2f9836e4e441800"
+    ],
     "f": "Car.cpp",
     "symbol_name": "Car_IntegrateWheelRotation"
   },
@@ -7231,7 +7233,7 @@
   },
   "0x49c1c0": {
     "n": "CGame::FUN_0049c1c0",
-    "s": 0.4293785310734463,
+    "s": 0.9634146341463414,
     "x": false,
     "unknown": [],
     "f": "Game.cpp",
@@ -17063,7 +17065,7 @@
   },
   "0x416f70": {
     "n": "FUN_00416f70",
-    "s": 0.5795454545454546,
+    "s": 0.7085714285714285,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17071,7 +17073,7 @@
   },
   "0x41d0c0": {
     "n": "FUN_0041d0c0",
-    "s": 0.6838709677419355,
+    "s": 0.7443365695792881,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -19623,8 +19625,8 @@
   },
   "0x4b3f20": {
     "n": "FUN_004b3f20",
-    "s": 0.6575342465753424,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "FUN_004b3f20"
@@ -19783,7 +19785,7 @@
   },
   "0x4b3860": {
     "n": "Scene_GetGroundLight",
-    "s": 0.6410256410256411,
+    "s": 0.7307692307692307,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19815,8 +19817,8 @@
   },
   "0x4b2e50": {
     "n": "Scene_RestoreLights",
-    "s": 0.7924528301886793,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_RestoreLights"
@@ -19863,8 +19865,8 @@
   },
   "0x4b7b20": {
     "n": "FUN_004b7b20",
-    "s": 0.7380952380952381,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "FUN_004b7b20"
@@ -26095,8 +26097,8 @@
   },
   "0x4a9f50": {
     "n": "FUN_004a9f50",
-    "s": 1.0,
-    "x": true,
+    "s": 0.9302325581395349,
+    "x": false,
     "unknown": [],
     "f": "Texture.cpp",
     "symbol_name": "FUN_004a9f50"
@@ -26359,8 +26361,8 @@
   },
   "0x493520": {
     "n": "FUN_00493520",
-    "s": 0.5477707006369427,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "FUN_00493520"

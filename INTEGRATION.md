@@ -155,3 +155,8 @@ Pass 2 of the same campaign (agents 2nd/3rd waves) merges in `db4f77e`: Main reb
 pass 1, `reccmp-datacmp` 0 issues, and 71/71 differential harnesses pass. The session's
 own pending `StageTiming.cpp` edit (0x480cb0 `FIX_ABS` clamp) landed as its own commit and
 became the 79th closure.
+
+Pass 3 (recovery wave after the agent stop) merges in `5e602d6`: Main rebuilds to
+**2656 byte-exact / 707 pending**, 0 losses versus pass 2, 0 data issues and 71/71
+differential harnesses. A successor wave resumed the stopped worktrees, preserving or
+reverting their uncommitted pending edits.
