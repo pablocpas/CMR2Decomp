@@ -143,15 +143,21 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
 
 // Of the listed triangles under the point, the one whose centre height is
 // closest to y.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: remaining diff is codegen-only. The original's 4th parameter is a
+// short (guard does `movsx eax, word ptr [esp+0x3c]; test eax,eax; jle` and the
+// loop end rematerialises `movsx eax, word ptr [esp+0x4c]`); declaring it `int`
+// reproduces the whole structure but loads 32-bit, while declaring it `short`
+// makes MSVC6 hoist/spill the sign extension and wreck the frame layout. The
+// t-sum and the p++/i++ order below are already tuned to the original.
 // FUNCTION: CMR2 0x004916a0
-int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count, short *pList)
+int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, short *pList)
 {
     FixVector t[3];
     BOOL first;
     int best;
-    int bestIndex;
     int i;
+    int bestIndex;
+    short *p;
     int h;
     int d;
 
@@ -159,22 +165,24 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     bestIndex = 0;
     i = 0;
     first = TRUE;
-    if (count > 0) {
+    if (count >= 1) {
+        p = pList;
         do {
-            if (Track_GetTriangle(t, pList[i]) && Track_PointInTriangle(pPoint, pList[i], t)) {
-                h = (t[1].y + t[2].y + t[0].y) / 3;
+            if (Track_GetTriangle(t, *p) && Track_PointInTriangle(pPoint, *p, t)) {
+                h = (t[2].y + t[1].y + t[0].y) / 3;
                 d = y - h;
                 if (d < 0)
                     d = h - y;
                 if (first) {
+                    best = d;
+                    bestIndex = i;
                     first = FALSE;
-                    best = d;
-                    bestIndex = i;
                 } else if (d < best) {
-                    bestIndex = i;
                     best = d;
+                    bestIndex = i;
                 }
             }
+            p++;
             i++;
         } while (i < count);
         if (!first) {
@@ -184,6 +192,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     }
     return 0;
 }
+
 
 // Finds the triangle under the point by walking down the quadtree from the
 // top-level grid cell.
