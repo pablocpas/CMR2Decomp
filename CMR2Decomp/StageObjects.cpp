@@ -1411,9 +1411,14 @@ void FUN_0046b420(void)
 // FUNCTION: CMR2 0x0046b440
 void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
 {
-    pOut[0] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30) * CGraphics::m_65536);
-    pOut[1] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 4) * CGraphics::m_65536);
-    pOut[2] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 8) * CGraphics::m_65536);
+    float f;
+
+    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30);
+    pOut[0] = (int)(__int64)(f * CGraphics::m_65536);
+    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 4);
+    pOut[1] = (int)(__int64)(f * CGraphics::m_65536);
+    f = *(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 8);
+    pOut[2] = (int)(__int64)(f * CGraphics::m_65536);
 }
 
 
@@ -3180,7 +3185,7 @@ void FUN_0048c870(BYTE index, BYTE other, int *pDelta, int flag)
     if (other != 0xff)
         g_unk0x0059146c[(char)other] = 1;
     i = 0;
-    if (g_unk0x005913dc[index] != 0) {
+    if (g_unk0x005913dc[index] > 0) {
         do {
             FUN_0048c900(g_unk0x005913f8[index][i]);
             i++;
@@ -4358,10 +4363,12 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
     FixVector right;
     int length;
     int scale;
+    int speed;
 
     direction = pCar->velocity;
+    speed = pCar->speed;
     FixMatrix_GetRight(&right, pMatrix);
-    if (pCar->speed < 0x28f) {
+    if (speed < 0x28f) {
         direction.x = 0;
         direction.y = 0;
         direction.z = 0;
@@ -4886,8 +4893,7 @@ void FUN_00468a80(Car *pCar, int amount)
             colLimit = yLimit0;
         xOff = xStep;
         pElem = pGrid;
-        pGrid += 3;
-        for (col = 0; col < 3; col++) {
+        for (col = 0; col < 3; col++, pGrid++) {
             if (FIX_ABS(pCar->field_0x5dc.x - xOff) <= xLimit && FIX_ABS(pCar->field_0x5dc.z - yOff) <= colLimit) {
                 *pElem += amount;
                 if (*pElem > 0x640000)
@@ -9685,14 +9691,20 @@ void FUN_004920d0(DWORD *pColour, DWORD *pReference)
     StageRGBA reference;
     int i;
     float *vertex;
+    float f0;
+    float f1;
+    float f2;
 
     colour = *(StageRGBA *)pColour;
     reference = *(StageRGBA *)pReference;
     for (i = g_stageMesh1Count - 1; i >= 0; i--) {
         vertex = (float *)((BYTE *)g_stageMesh1Copy->pVertexData + i * 0x30);
-        if (g_stageRangeOrigin.x == (int)(__int64)(vertex[0] * CGraphics::m_65536) &&
-            g_stageRangeOrigin.y == (int)(__int64)(vertex[1] * CGraphics::m_65536) &&
-            g_stageRangeOrigin.z == (int)(__int64)(vertex[2] * CGraphics::m_65536))
+        f0 = vertex[0];
+        f1 = vertex[1];
+        f2 = vertex[2];
+        if (g_stageRangeOrigin.x == (int)(__int64)(f0 * CGraphics::m_65536) &&
+            g_stageRangeOrigin.y == (int)(__int64)(f1 * CGraphics::m_65536) &&
+            g_stageRangeOrigin.z == (int)(__int64)(f2 * CGraphics::m_65536))
             *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
         else
             *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
@@ -9710,14 +9722,20 @@ void FUN_00492220(DWORD *pColour, DWORD *pReference)
     StageRGBA reference;
     int i;
     float *vertex;
+    float f0;
+    float f1;
+    float f2;
 
     colour = *(StageRGBA *)pColour;
     reference = *(StageRGBA *)pReference;
     for (i = g_stageMesh2Count - 1; i >= 0; i--) {
         vertex = (float *)((BYTE *)g_stageMesh2Copy->pVertexData + i * 0x30);
-        if (g_unk0x005920fc == (int)(__int64)(vertex[0] * CGraphics::m_65536) &&
-            g_unk0x00592100 == (int)(__int64)(vertex[1] * CGraphics::m_65536) &&
-            g_unk0x00592104 == (int)(__int64)(vertex[2] * CGraphics::m_65536))
+        f0 = vertex[0];
+        f1 = vertex[1];
+        f2 = vertex[2];
+        if (g_unk0x005920fc == (int)(__int64)(f0 * CGraphics::m_65536) &&
+            g_unk0x00592100 == (int)(__int64)(f1 * CGraphics::m_65536) &&
+            g_unk0x00592104 == (int)(__int64)(f2 * CGraphics::m_65536))
             *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(reference);
         else
             *(DWORD *)((BYTE *)vertex + 0x18) = STAGE_ARGB(colour);
@@ -10400,7 +10418,7 @@ void FUN_0046fe70(int *param_1, int param_2, int param_3)
         return;
     }
     c = 0;
-    if (g_movingObjects.count != 0) {
+    if (g_movingObjects.count > 0) {
         entry = &g_movingObjects.entries[0];
         do {
             RallyData_FUN_00471cc0((int *)&pos, (void **)entry);
