@@ -86,10 +86,7 @@ BYTE FUN_00422fb0(BYTE index)
 FixMatrix *FUN_00423d70(BYTE index)
 {
     BYTE state = (BYTE)RallyDataState();
-    if ((BYTE)index < state)
-        return (FixMatrix *)((BYTE *)g_unk0x00538ca0 + (index & 0xff) * 0x40);
-    index &= 0xff;
-    return Car_Get(index)->pWorld;
+    return index < state ? &g_unk0x00538ca0[index] : Car_Get(index)->pWorld;
 }
 
 // Release callback of Car_AllocateTable.
@@ -2110,7 +2107,7 @@ void Car_ApplyCornerFriction(int grip)
                 }
                 if (strength[i] > 0xa0000 &&
                     g_pCurrentCar->cornerAxis[i].y < g_pCurrentCar->cornerNormal[i].y) {
-                    int along = FixVecDot(&g_pCurrentCar->cornerNormal[i], &g_pCurrentCar->cornerVelocity[i]);
+                    int along = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &g_pCurrentCar->cornerNormal[i]);
                     FixVecScale(&dir, &g_pCurrentCar->cornerNormal[i], along);
                     dir.x = g_pCurrentCar->cornerVelocity[i].x - dir.x;
                     dir.y = g_pCurrentCar->cornerVelocity[i].y - dir.y;
@@ -2124,7 +2121,7 @@ void Car_ApplyCornerFriction(int grip)
             i++;
         } while (i < cornerCount);
 
-        if (count >= 1) {
+        if (count > 0) {
             int share = FixDiv(0x140000, count << 16);
             i = 0;
             do {
@@ -4143,16 +4140,16 @@ void Car_SplitEngineTorque(void)
 {
     int torque;
     int front;
-    int value;
+    int split;
 
-    value = FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4);
-    value = FUN_00437f90() - FixMul(g_pCurrentCar->field_0x784, value);
-    g_pCurrentCar->field_0x780 = value;
-    torque = FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->field_0x780);
-    front = FixMul(torque, g_pCurrentCar->driveSplit) / 2;
+    torque = FUN_00437f90();
+    g_pCurrentCar->field_0x780 = torque - FixMul(g_pCurrentCar->field_0x784,
+        FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
+    split = FixMul(g_pCurrentCar->field_0x780, g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+    front = FixMul(split, g_pCurrentCar->driveSplit) / 2;
     g_pCurrentCar->wheelTorque[0] = front;
     g_pCurrentCar->wheelTorque[1] = front;
-    front = torque / 2 - front;
+    front = split / 2 - front;
     g_pCurrentCar->wheelTorque[2] = front;
     g_pCurrentCar->wheelTorque[3] = front;
 }
@@ -6022,28 +6019,34 @@ int g_unk0x0053ac48[8][4];
 // FUNCTION: CMR2 0x0042b4a0
 void Car_IntegrateWheelRotation(short *pList, short count)
 {
+    short *p;
     int n;
     int index;
     int w;
     int v;
     Car *pCar;
-    short *p;
 
-    for (n = count, p = pList + count - 1; n > 0; n--, p--) {
-        index = *p;
-        pCar = &g_carBuffer[index];
-        for (w = 0; w < 4; w++) {
-            v = FixMul(g_physicsTimeStep, pCar->wheelLoad[w]);
-            if (pCar->field_0xb60 == 0 || pCar->flag0x1d0[2] > 0 || pCar->flag0x1d0[3] > 0 ||
-                pCar->handbrake > 0)
-                (&g_unk0x0053a230[index].a)[w] += (short)(__int64)(v * -0.009947183943243459);
-            if (v < 0)
-                v = -v;
-            if (v > 0x8000)
-                g_unk0x0053ac48[index][w] = 1;
-            else
-                g_unk0x0053ac48[index][w] = 0;
-        }
+    n = count;
+    if (--n >= 0) {
+        p = pList + n;
+        n++;
+        do {
+            index = *p;
+            pCar = &g_carBuffer[index];
+            for (w = 0; w < 4; w++) {
+                v = FixMul(g_physicsTimeStep, pCar->wheelLoad[w]);
+                if (pCar->field_0xb60 == 0 || (BYTE)pCar->flag0x1d0[2] > 0 ||
+                    (BYTE)pCar->flag0x1d0[3] > 0 || pCar->handbrake > 0)
+                    (&g_unk0x0053a230[index].a)[w] += (short)(__int64)(v * -0.009947183943243459);
+                if (v < 0)
+                    v = -v;
+                if (v > 0x8000)
+                    g_unk0x0053ac48[index][w] = 1;
+                else
+                    g_unk0x0053ac48[index][w] = 0;
+            }
+            p--;
+        } while (--n != 0);
     }
 }
 
@@ -8250,24 +8253,22 @@ void View_ResetCameras(int view)
 void View_SnapCameras(BYTE view)
 {
     FixMatrix placement;
-    BYTE index;
     BYTE active;
     BYTE next;
 
-    index = view;
-    active = g_unk0x00538e0c[index] + view * 2;
-    next = view * 2 - g_unk0x00538e0c[index] + 1;
+    active = g_unk0x00538e0c[view] + view * 2;
+    next = view * 2 - g_unk0x00538e0c[view] + 1;
     View_PlaceCarCamera(view);
     View_GetCarCameraRotation(&placement, view);
     Camera_SnapTo(VIEW_RECORD(active), &placement);
     if (FUN_00422f50(view) == 8) {
             Camera_SnapTo(VIEW_RECORD(next), &placement);
-        CameraState_Interpolate(VIEW_STATE(index), VIEW_RECORD(active), VIEW_RECORD(next),
-                     0x10000 - FixMul(VIEW_EASE(g_unk0x00538d20[index]), VIEW_EASE(g_unk0x00538d20[index])));
+        CameraState_Interpolate(VIEW_STATE(view), VIEW_RECORD(active), VIEW_RECORD(next),
+                     0x10000 - FixMul(VIEW_EASE(g_unk0x00538d20[view]), VIEW_EASE(g_unk0x00538d20[view])));
         View_UpdateCamera(view);
         return;
     }
-    CameraState_Copy(VIEW_STATE(index), VIEW_RECORD(active));
+    CameraState_Copy(VIEW_STATE(view), VIEW_RECORD(active));
     View_UpdateCamera(view);
 }
 
@@ -8302,9 +8303,9 @@ void View_BlendCameraStates(BYTE view, int t)
     int shake;
 
     CameraState_Interpolate(state, VIEW_PREV_STATE(view), VIEW_STATE(view), t);
+    g_unk0x005391cc[view] = *(int *)(state + 0x54);
     g_unk0x005391a8[view] = *(int *)(state + 0x50);
     g_unk0x00538df0[view] = *(int *)(state + 0x4c);
-    g_unk0x005391cc[view] = *(int *)(state + 0x54);
     matrix = *(FixMatrix *)(state + 8);
     f48 = *(int *)(state + 0x48);
     f58 = *(int *)(state + 0x58);
