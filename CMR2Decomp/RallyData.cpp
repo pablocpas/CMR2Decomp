@@ -7991,15 +7991,12 @@ void FUN_0040dc30(void)
                 ratings[row] = rating;
             }
         }
-        pIn = classes;
         pOut = &g_unk0x0052f100[group * 4][1];
-        i = 4;
-        do {
-            pOut[-1] = pIn[0];
-            pOut[0] = split == 0 ? pIn[1] : pIn[0];
+        for (i = 0; i < 4; i++) {
+            pOut[-1] = classes[i * 2];
+            pOut[0] = split == 0 ? classes[i * 2 + 1] : classes[i * 2];
             pOut += 2;
-            pIn += 2;
-        } while (--i);
+        }
         FUN_0040d6c0(group, (int *)&g_unk0x0051627c[g_selectedRallyData & 0x1f][group * 10], ratings);
         FUN_0040d9e0(group);
         group++;
