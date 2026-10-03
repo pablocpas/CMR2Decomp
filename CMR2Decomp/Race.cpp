@@ -244,6 +244,7 @@ void FUN_0041c260(void)
     int loaded[2];
     int count;
     int i;
+    int flag;
 
     count = RallyDataState() & 0xff;
     loaded[0] = 0;
@@ -271,17 +272,18 @@ void FUN_0041c260(void)
     if ((char)RallyData_FUN_00407ea0() == 0) {
         for (i = 0; i < 2; i++) {
             if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 && CGameInfo::FUN_00405da0()) {
-                if (i != 0) {
+                if (i == 0) {
+                    g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x186a, 0);
+                } else {
+                    flag = FUN_004584c0() == 0;
                     sprintf(CFrontend::m_stringDest, g_strCpuRun, FUN_0041f8e0(),
                             g_cpuRunCountries2[(BYTE)RallyDataCountryIndex()], (BYTE)RallyDataStageIndex() + 1,
-                            FUN_004584c0() == 0,
+                            flag,
                             g_cpuRunLevels2[CGameInfo::FUN_00405d80() != 4 ? CGameInfo::FUN_00405d90()
                                                                            : CGameInfo::FUN_00405dd0() - 1]);
                     g_unk0x00537f3c[1] = FUN_0046d2d0(CFrontend::m_stringDest);
                     if (i == 1)
                         return;
-                } else {
-                    g_unk0x00537f3c[0] = FUN_0046c5a0(1, 0x186a, 0);
                 }
             }
         }
@@ -1245,6 +1247,10 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
             if (player == 1)
                 pos = (int)g_pGraphics->resY / 2;
             pos -= (int)g_pGraphics->resY * 9011 >> 16;
+        } else if (player == 0) {
+            // The original duplicates the tail under a `player == 0` test
+            // (MSVC6 leaves the dead test in the else branch).
+            pos = (int)g_pGraphics->resY * 9011 >> 16;
         } else {
             pos = (int)g_pGraphics->resY * 9011 >> 16;
         }
@@ -3891,14 +3897,16 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
 {
     unsigned int oldest = 0;
     unsigned int now = CMain::GetFrameDelta();
-    int slot;
+    int slot = -1;
     int i;
 
-    for (slot = 0; slot < 4; slot++) {
-        if (g_carSounds[slot] == -1)
+    for (i = 0; i < 4; i++) {
+        if (g_carSounds[i] == -1) {
+            slot = i;
             break;
+        }
     }
-    if (slot == 4) {
+    if (slot == -1) {
         slot = 0;
         for (i = 0; i < 4; i++) {
             if (now - g_unk0x00537374[i] > oldest) {
@@ -3963,7 +3971,15 @@ void FUN_00418ba0(int view, int strength, int listener)
         if (level >= 10)
             level = 9;
         FUN_004187d0(view, (unsigned short)(g_unk0x00537360 + level), 0x10000, listener);
-        CAR_SHAKE(view, strength);
+        {
+            // The do/while(0) form of CAR_SHAKE shifts MSVC6's register
+            // allocation of the prologue; the original expands it inline.
+            int shake = (FixMul(strength, 0x70000) >> 16) + 1;
+            if (shake > 8)
+                shake = 8;
+            if (shake > Car_Get(view)->field_0xb43[3])
+                Car_Get(view)->field_0xb43[3] = (BYTE)shake;
+        }
     }
 }
 
