@@ -5002,7 +5002,7 @@ void FUN_004f4760(void)
         } while (fade >= 0);
         pStream += 10;
         pPoint += 2;
-    } while (pPoint < g_menuStreamPoint[6]);
+    } while ((int)pPoint < (int)g_menuStreamPoint[6]);
 }
 
 // Time of the last input on the main menu (for the attract mode).
@@ -8081,10 +8081,10 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
         bytes[i] += g_unk0x00526eb0[i] + g_unk0x00526ebc[i] + g_unk0x00526ea4[i] + *p * 3;
         i++;
         p--;
-    } while (p - &g_unk0x00526ea4[6] > 0);
-    FUN_004fb9c0(param_1, bytes[3] << 24 | bytes[2] << 16 | bytes[1] << 8 | bytes[0],
-                 g_unk0x00526ebc[6] + g_unk0x00526eb0[6] + g_unk0x00526ea4[6] + g_unk0x00526ebc[4] +
-                     g_unk0x00526eb0[4] + g_unk0x00526ea4[4] + seed,
+    } while ((int)p > (int)(g_unk0x00526ea4 + 6));
+    FUN_004fb9c0(param_1, (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0],
+                 g_unk0x00526ea4[4] + g_unk0x00526eb0[4] + g_unk0x00526ebc[4] + g_unk0x00526ea4[6] +
+                     g_unk0x00526eb0[6] + g_unk0x00526ebc[6] + seed,
                  pOut);
 }
 
@@ -8319,15 +8319,11 @@ void FUN_004e20e0(Menu *pMenu)
 
 // Clamps the stage-selection item of a network setup menu to the number of
 // stages available for the current car, and builds the "1..N SS" label.
-// match 48%: asignacion de registros en el recuento de niveles (misma logica)
 // FUNCTION: CMR2 0x004ee6e0
 void FUN_004ee6e0(Menu *pMenu)
 {
     unsigned int *pFlags;
-    BYTE max;
-    unsigned int level;
-    unsigned int mask;
-    BYTE bits;
+    int max;
     int count;
     int i;
     char *pDest;
@@ -8335,19 +8331,18 @@ void FUN_004ee6e0(Menu *pMenu)
     pFlags = CGameInfo::FUN_00405db0();
     max = Menu_GetItem(pMenu, 0)->max;
     if (CGameInfo::FUN_00406410(0xd) == 0) {
-        level = max + 1;
         count = 1;
-        if (level <= (*pFlags >> 8 & 0xf))
+        if (max + 1 <= (int)(*pFlags >> 8 & 0xf))
             count = 4;
-        if (level <= (*pFlags >> 0xc & 0xf))
+        if (max + 1 <= (int)(*pFlags >> 0xc & 0xf))
             count = 8;
-        if ((*pFlags & 1) == 0 || (*pFlags >> 0x10 & 0xf) < level)
+        if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) >= max + 1)
             count = 10;
     } else {
         count = 10;
     }
     i = 0;
-    if (count != 0) {
+    if (0 < count) {
         pDest = g_unk0x00818d84;
         do {
             i++;
@@ -8356,15 +8351,13 @@ void FUN_004ee6e0(Menu *pMenu)
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
-    if (!(CGameInfo::FUN_00406410(0xd) == 0)) {
+    if (CGameInfo::FUN_00406410(0xd) != 0) {
         count = ((max & 1) != 0) + 10;
     } else {
         if ((max & 1) != 0) {
-            mask = 1 << (((char)((max + 1) / 2) - 1) & 0x1f);
-            bits = (BYTE)mask;
-            if ((pFlags[1] & mask & 0x1f) != 0 ||
-                (bits & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
-                (bits & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
+            if ((pFlags[1] & (1 << ((max + 1) / 2 - 1)) & 0x1f) != 0 ||
+                ((BYTE)(1 << ((max + 1) / 2 - 1)) & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
+                ((BYTE)(1 << ((max + 1) / 2 - 1)) & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
                 count++;
         }
     }
@@ -8570,11 +8563,9 @@ void FUN_004e1d70(Menu *pMenu)
     rect[1] = 0x5f;
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, colourTop, 1);
     rect[2] = 10;
-    i = (int)((unsigned int)(count * 100) / (unsigned int)value) * 200;
-    rect[3] = (short)(i % 100);
+    rect[3] = (short)(count * 100 / value * 200 / 100);
     rect[0] = (short)((int)g_pGraphics->resX / 2) + 0x55;
-    i = (int)((unsigned int)(mode * 100) / (unsigned int)i) * 200;
-    rect[1] = (short)(i % 100 + 100);
+    rect[1] = (short)(mode * 100 / i * 200 / 100 + 100);
     Sprite_FillRect((int)g_pGraphics + 0x150, rect, colourBottom, 1);
     if (0 < count) {
         for (i = 0; i < count; i++) {
@@ -8771,25 +8762,17 @@ void FUN_004eb700(void);
 
 // Prepares the stage-selection screen before it is shown: reloads the profile
 // list and picks a random starting stage and player.
-// match 57%: idioma de unidad de traduccion de g_unk0x00819048 (CONOCIMIENTO 4.y), no se persigue
 // FUNCTION: CMR2 0x004f0580
 void FUN_004f0580(Menu *pMenu, int param)
 {
-    BYTE b;
-    unsigned int u;
-    int count;
-
-    b = FUN_004f1ba0();
-    u = CGameInfo::FUN_00405d70();
-    FUN_004ea480((u & 0xff) - b);
+    FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
     FUN_004eb700();
     pMenu->items[0].max = 0;
     pMenu->items[0].min = (BYTE)FUN_004eb440();
-    count = FUN_004eb440();
-    pMenu->items[0].enabled = (0 < count);
+    pMenu->items[0].enabled = (0 < FUN_004eb440());
     g_unk0x00819868 = 0;
     g_unk0x00819044 = -1;
-    if (param == 0) {
+    if ((char)param == 0) {
         pMenu->cursor = 0;
         pMenu->items[0].max = 0;
         g_unk0x00819048--;
