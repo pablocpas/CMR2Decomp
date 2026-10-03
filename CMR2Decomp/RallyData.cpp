@@ -555,95 +555,80 @@ void Knockout_SetCurrentMatchTimes(unsigned int first, unsigned int second)
 // FUNCTION: CMR2 0x00407b10
 void Knockout_PropagateWinners(void)
 {
-    unsigned int flags;
-    unsigned int first;
-    unsigned int second;
     int i;
 
     for (i = 0; i < 8; i++) {
-        flags = g_knockout.round1[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (!(i % 2 == 0))
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+        if ((g_knockout.round1[i].flags & 0x1800) != 0) {
+            if ((g_knockout.round1[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.quarters[i / 2].bits.second = g_knockout.round1[i].bits.first;
                 else
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                    g_knockout.quarters[i / 2].bits.first = g_knockout.round1[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.quarters[i / 2].bits.second = g_knockout.round1[i].bits.second;
                 else
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.quarters[i / 2].bits.first = g_knockout.round1[i].bits.second;
             }
         }
     }
     for (i = 0; i < 4; i++) {
-        flags = g_knockout.quarters[i].flags;
-        first = flags & 0x1f;
-        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-            second = (flags >> 5) & 0x1f;
-            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-                g_knockout.quarters[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        if (g_knockout.quarters[i].bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            if (g_knockout.quarters[i].bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+                g_knockout.quarters[i].bits.first > g_knockout.quarters[i].bits.second) {
+                unsigned int f = g_knockout.quarters[i].bits.first;
+                g_knockout.quarters[i].bits.first = g_knockout.quarters[i].bits.second;
+                g_knockout.quarters[i].bits.second = f;
+            }
         }
     }
 
     for (i = 0; i < 4; i++) {
-        flags = g_knockout.quarters[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (!(i % 2 == 0))
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+        if ((g_knockout.quarters[i].flags & 0x1800) != 0) {
+            if ((g_knockout.quarters[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.semis[i / 2].bits.second = g_knockout.quarters[i].bits.first;
                 else
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                    g_knockout.semis[i / 2].bits.first = g_knockout.quarters[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.semis[i / 2].bits.second = g_knockout.quarters[i].bits.second;
                 else
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.semis[i / 2].bits.first = g_knockout.quarters[i].bits.second;
             }
         }
     }
     for (i = 0; i < 2; i++) {
-        flags = g_knockout.semis[i].flags;
-        first = flags & 0x1f;
-        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-            second = (flags >> 5) & 0x1f;
-            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-                g_knockout.semis[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        if (g_knockout.semis[i].bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            if (g_knockout.semis[i].bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+                g_knockout.semis[i].bits.first > g_knockout.semis[i].bits.second) {
+                unsigned int f = g_knockout.semis[i].bits.first;
+                g_knockout.semis[i].bits.first = g_knockout.semis[i].bits.second;
+                g_knockout.semis[i].bits.second = f;
+            }
         }
     }
 
     for (i = 0; i < 2; i++) {
-        flags = g_knockout.semis[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (i % 2 == 0)
-                    g_knockout.final.flags = (g_knockout.final.flags & 0xffffffe0U) | (flags & 0x1f);
+        if ((g_knockout.semis[i].flags & 0x1800) != 0) {
+            if ((g_knockout.semis[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.final.bits.second = g_knockout.semis[i].bits.first;
                 else
-                    g_knockout.final.flags =
-                        (g_knockout.final.flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+                    g_knockout.final.bits.first = g_knockout.semis[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.final.bits.second = g_knockout.semis[i].bits.second;
                 else
-                    g_knockout.final.flags =
-                        (g_knockout.final.flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.final.bits.first = g_knockout.semis[i].bits.second;
             }
         }
     }
-    flags = g_knockout.final.flags;
-    first = flags & 0x1f;
-    if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-        second = (flags >> 5) & 0x1f;
-        if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-            g_knockout.final.flags = (flags & 0xfffffc00U) | second | (first << 5);
+    if (g_knockout.final.bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+        if (g_knockout.final.bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+            g_knockout.final.bits.first > g_knockout.final.bits.second)
+            g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc00U) |
+                g_knockout.final.bits.second | (g_knockout.final.bits.first << 5);
     }
 }
 
@@ -3854,16 +3839,16 @@ void FUN_00471bf0(int car)
         mask = 1 << car;
         for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
             bit = g_unk0x0058c938[i] & mask;
-            if (bit == 0 && g_unk0x0058c958[i] != 0) {
-                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-                *(int *)(pObject + 4) -= 0x3e80000;
-                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
-                g_unk0x0058c958[i] = 0;
-            } else if (bit != 0 && g_unk0x0058c958[i] == 0) {
+            if (bit != 0 && g_unk0x0058c958[i] == 0) {
                 pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
                 *(int *)(pObject + 4) += 0x3e80000;
                 (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
                 g_unk0x0058c958[i] = 1;
+            } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+                *(int *)(pObject + 4) -= 0x3e80000;
+                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
+                g_unk0x0058c958[i] = 0;
             }
         }
     } else {
