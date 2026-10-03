@@ -504,7 +504,9 @@ int StageTiming_GetDriverSlot(int iDriver)
     return g_stageDriverSlot[iDriver];
 }
 
-// match 59%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 93%: the volatile zero store keeps MSVC6 from folding the nested
+// zero-fill into one rep stosd (the original stores per iteration); only the
+// placement of the flat pointer increment differs from the original.
 // FUNCTION: CMR2 0x00455e60
 void StageTiming_Reset(void)
 {
@@ -520,7 +522,7 @@ void StageTiming_Reset(void)
             g_stageSplitDriverIndices[iSplit][i] = i;
             g_stageSplitPositions[iSplit][i] = i;
             g_stageSplitTimesRawDriverIx[iSplit][i] = i;
-            g_stageSplitTimesRaw[iSplit][i] = 0;
+            *(volatile int *)&g_stageSplitTimesRaw[iSplit][i] = 0;
         }
     }
 }
