@@ -5046,14 +5046,7 @@ void Car_UpdateEngineSpeed(void)
     int excess;
     short angle;
 
-    if (g_pCurrentCar->gear != 0 && g_pCurrentCar->field_0xb84 == 0) {
-        front = FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]) + FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->wheelLoad[1]);
-        rear = front;
-        if (g_pCurrentCar->handbrake == 0 || g_pCurrentCar->driveSplit == 0)
-            rear = FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->wheelLoad[2]) + FixMul(g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear], g_pCurrentCar->wheelLoad[3]);
-        g_pCurrentCar->field_0x7a4 += FixMul(FixMul(g_pCurrentCar->driveSplit, front / 2 - rear / 2) - g_pCurrentCar->field_0x7a4 + rear / 2,
-                                  0x10000);
-    } else {
+    if (g_pCurrentCar->gear == 0 || g_pCurrentCar->field_0xb84 != 0) {
         if (g_pCurrentCar->field_0xb4c == 0) {
             if (g_pCurrentCar->field_0xafe == 0) {
                 g_pCurrentCar->field_0x7a4 += FixMul(g_pCurrentCar->field_0x780, 0xa0000);
@@ -5075,20 +5068,28 @@ void Car_UpdateEngineSpeed(void)
             if (g_pCurrentCar->field_0xafe < 0)
                 g_pCurrentCar->field_0xafe = 0;
         }
+    } else {
+        front = FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]) + FixMul(g_pCurrentCar->wheelLoad[1], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        rear = front;
+        if (g_pCurrentCar->handbrake == 0 || g_pCurrentCar->driveSplit == 0)
+            rear = FixMul(g_pCurrentCar->wheelLoad[2], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]) + FixMul(g_pCurrentCar->wheelLoad[3], g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear]);
+        g_pCurrentCar->field_0x7a4 += FixMul(FixMul(front / 2 - rear / 2, g_pCurrentCar->driveSplit) - g_pCurrentCar->field_0x7a4 + rear / 2,
+                                  0x10000);
     }
 
-    if (g_pCurrentCar->field_0x7a4 < 0) {
+    excess = g_pCurrentCar->field_0x7a4;
+    if (excess < 0) {
         g_pCurrentCar->field_0x7a4 = 0;
-    } else if (g_pCurrentCar->field_0x7a4 > g_pCurrentCar->field_0x794) {
-        excess = g_pCurrentCar->field_0x7a4 - g_pCurrentCar->field_0x794;
-        if (excess > 0xcccc) {
+    } else if (g_pCurrentCar->field_0x794 < excess) {
+        excess = excess - g_pCurrentCar->field_0x794;
+        if (excess < 0xcccd) {
+            g_pCurrentCar->field_0xb78 = 0;
+        } else {
             excess = FixMul(excess - 0xcccc, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;
             g_pCurrentCar->field_0x7b0 = FixMul(excess, 0x51eb);
             g_pCurrentCar->field_0xb78 = 1;
-        } else {
-            g_pCurrentCar->field_0xb78 = 0;
         }
         g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
         return;
