@@ -469,12 +469,10 @@ int Sector_NearestCornerHeight(unsigned int side, int index)
 // Sets the four corner points of every sector from the ground mesh heights
 // around each grid vertex (lowest nearby vertex plus one unit, or 10 units
 // when no neighbouring sector has a mesh).
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b8b90
 void Sector_BuildCorners(void)
 {
-    int x;
-    int z;
+    FixVector pos;
     unsigned int row;
     unsigned int col;
     int rowStart;
@@ -484,21 +482,22 @@ void Sector_BuildCorners(void)
     int aboveLeft;
     int h;
     int height;
+    int y;
     int hasAboveLeft;
     int hasAbove;
     int hasLeft;
     int hasCur;
 
-    x = g_sectors[0]->x - g_sectorHalfSize;
-    z = g_sectors[0]->z + g_sectorHalfSize;
+    height = 0x7fff0000;
+    pos.x = g_sectors[0]->x - g_sectorHalfSize;
+    pos.z = g_sectors[0]->z + g_sectorHalfSize;
     for (row = 0; row < (unsigned int)g_sectorRows + 1; row++) {
-        rowStart = g_sectorsPerRow * row;
         above = (row - 1) * g_sectorsPerRow;
+        rowStart = g_sectorsPerRow * row;
         cur = rowStart;
         aboveLeft = -1;
         left = -1;
         for (col = 0; col < (unsigned int)g_sectorsPerRow + 1; col++) {
-            height = 0x7fff0000;
             if (cur >= g_sectorCount || above >= g_sectorCount)
                 break;
             hasAboveLeft = 0;
@@ -538,37 +537,38 @@ void Sector_BuildCorners(void)
                 hasCur = 1;
             }
             if (height == 0x7fff0000)
-                height = 0xa0000;
+                y = 0xa0000;
             else
-                height += 0x10000;
+                y = height + 0x10000;
+            height = 0x7fff0000;
             if (hasAboveLeft) {
-                g_sectors[aboveLeft]->corners[2].x = x;
-                g_sectors[aboveLeft]->corners[2].y = height;
-                g_sectors[aboveLeft]->corners[2].z = z;
+                g_sectors[aboveLeft]->corners[2].x = pos.x;
+                g_sectors[aboveLeft]->corners[2].y = y;
+                g_sectors[aboveLeft]->corners[2].z = pos.z;
             }
             if (hasAbove) {
-                g_sectors[above]->corners[3].x = x;
-                g_sectors[above]->corners[3].y = height;
-                g_sectors[above]->corners[3].z = z;
+                g_sectors[above]->corners[3].x = pos.x;
+                g_sectors[above]->corners[3].y = y;
+                g_sectors[above]->corners[3].z = pos.z;
             }
             if (hasLeft) {
-                g_sectors[left]->corners[1].x = x;
-                g_sectors[left]->corners[1].y = height;
-                g_sectors[left]->corners[1].z = z;
+                g_sectors[left]->corners[1].x = pos.x;
+                g_sectors[left]->corners[1].y = y;
+                g_sectors[left]->corners[1].z = pos.z;
             }
             if (hasCur) {
-                g_sectors[cur]->corners[0].x = x;
-                g_sectors[cur]->corners[0].y = height;
-                g_sectors[cur]->corners[0].z = z;
+                g_sectors[cur]->corners[0].x = pos.x;
+                g_sectors[cur]->corners[0].y = y;
+                g_sectors[cur]->corners[0].z = pos.z;
             }
-            x += g_sectorSize;
             aboveLeft = above;
             above++;
             left = cur;
             cur++;
+            pos.x += g_sectorSize;
         }
-        z -= g_sectorSize;
-        x = g_sectors[0]->x - g_sectorHalfSize;
+        pos.x = g_sectors[0]->x - g_sectorHalfSize;
+        pos.z -= g_sectorSize;
     }
 }
 
