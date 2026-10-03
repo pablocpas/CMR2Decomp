@@ -474,7 +474,7 @@ void FUN_00486c00(BYTE *p, BYTE *q);
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
 void FUN_00486fc0(int *pMatrix, int *pOffset);
 int FUN_00487130(void);
-void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4);
+void FUN_00487140(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
 void FUN_004873f0(int *param_1, int param_2, int param_3);
 void FUN_004877a0(BYTE *pCars, short *pOrder, short count);
 int FUN_004878a0(Car *pCar);
@@ -9321,80 +9321,90 @@ void FUN_0048df50(Car *param_1)
                 0xf851);
 }
 
-// Builds a 3x4 matrix from three basis vectors plus a translation.
-// match 43%: matrix combination ordering differs from the original
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Builds the eight world corners of an oriented box: the half extents go
+// through the columns of the rotation, the four corners of the positive half
+// are combined from the three products and the other four are their
+// negations; the centre is added last.
 // FUNCTION: CMR2 0x00487140
-void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4)
+void FUN_00487140(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf)
 {
-    int x = param_4[0];
-    int y = param_4[1];
-    int z = param_4[2];
-    int a, b, c;
-    int v7, v2, v8, v6;
+    int i;
+    int hx;
+    int hy;
+    int hz;
+    int a;
+    int b;
+    int c;
 
-    a = FixMul(param_3[0], x);
-    b = FixMul(param_3[4], y);
-    c = FixMul(param_3[8], z);
-    param_1[0xc] = c + b + a;
-    param_1[0xf] = (b - c) + a;
-    param_1[0x15] = (b - c) - a;
-    param_1[0x12] = (c - a) + b;
-    a = FixMul(param_3[1], x);
-    b = FixMul(param_3[5], y);
-    c = FixMul(param_3[9], z);
-    param_1[0xd] = c + b + a;
-    param_1[0x10] = (b - c) + a;
-    param_1[0x16] = (b - c) - a;
-    param_1[0x13] = (c - a) + b;
-    a = FixMul(param_3[2], x);
-    b = FixMul(param_3[6], y);
-    c = FixMul(param_3[10], z);
-    v2 = (b - c) + a;
-    v7 = c + b + a;
-    param_1[0xe] = v7;
-    v8 = (b - c) - a;
-    v6 = (c - a) + b;
-    param_1[0x17] = v8;
-    param_1[0x14] = v6;
-    param_1[3] = -param_1[0x12];
-    param_1[4] = -param_1[0x13];
-    param_1[5] = -v6;
-    param_1[6] = -param_1[0xf];
-    param_1[7] = -param_1[0x10];
-    param_1[8] = -v2;
-    param_1[9] = -param_1[0xc];
-    param_1[10] = -param_1[0xd];
-    param_1[0x11] = v2;
-    param_1[0xb] = -v7;
-    v8 = -v8;
-    param_1[0] = -param_1[0x15];
-    param_1[1] = -param_1[0x16];
-    param_1[2] = v8;
-    param_1[0] = -param_1[0x15] + param_2[0];
-    param_1[1] = -param_1[0x16] + param_2[1];
-    param_1[2] = v8 + param_2[2];
-    param_1[3] = param_1[3] + param_2[0];
-    param_1[4] = param_1[4] + param_2[1];
-    param_1[5] = param_1[5] + param_2[2];
-    param_1[6] = param_1[6] + param_2[0];
-    param_1[7] = param_1[7] + param_2[1];
-    param_1[8] = param_1[8] + param_2[2];
-    param_1[9] = param_1[9] + param_2[0];
-    param_1[10] = param_1[10] + param_2[1];
-    param_1[0xb] = param_1[0xb] + param_2[2];
-    param_1[0xc] = param_1[0xc] + param_2[0];
-    param_1[0xd] = param_1[0xd] + param_2[1];
-    param_1[0xe] = param_1[0xe] + param_2[2];
-    param_1[0xf] = param_1[0xf] + param_2[0];
-    param_1[0x10] = param_1[0x10] + param_2[1];
-    param_1[0x11] = param_1[0x11] + param_2[2];
-    param_1[0x12] = param_1[0x12] + param_2[0];
-    param_1[0x13] = param_1[0x13] + param_2[1];
-    param_1[0x14] = param_1[0x14] + param_2[2];
-    param_1[0x15] = param_1[0x15] + param_2[0];
-    param_1[0x16] = param_1[0x16] + param_2[1];
-    param_1[0x17] = param_1[0x17] + param_2[2];
+    hx = pHalf->x;
+    hy = pHalf->y;
+    hz = pHalf->z;
+    a = FixMul(pRot->right.x, hx);
+    b = FixMul(pRot->up.x, hy);
+    c = FixMul(pRot->forward.x, hz);
+    pCorners[4].x = c + b + a;
+    pCorners[5].x = (b - c) + a;
+    pCorners[7].x = (b - c) - a;
+    pCorners[6].x = (c - a) + b;
+    a = FixMul(pRot->right.y, hx);
+    b = FixMul(pRot->up.y, hy);
+    c = FixMul(pRot->forward.y, hz);
+    pCorners[4].y = c + b + a;
+    pCorners[5].y = (b - c) + a;
+    pCorners[7].y = (b - c) - a;
+    pCorners[6].y = (c - a) + b;
+    a = FixMul(pRot->right.z, hx);
+    b = FixMul(pRot->up.z, hy);
+    c = FixMul(pRot->forward.z, hz);
+    pCorners[4].z = c + b + a;
+    pCorners[5].z = (b - c) + a;
+    pCorners[7].z = (b - c) - a;
+    pCorners[6].z = (c - a) + b;
+    pCorners[1].x = -pCorners[6].x;
+    pCorners[1].y = -pCorners[6].y;
+    pCorners[1].z = -pCorners[6].z;
+    pCorners[2].x = -pCorners[5].x;
+    pCorners[2].y = -pCorners[5].y;
+    pCorners[2].z = -pCorners[5].z;
+    pCorners[3].x = -pCorners[4].x;
+    pCorners[3].y = -pCorners[4].y;
+    pCorners[3].z = -pCorners[4].z;
+    pCorners[0].x = -pCorners[7].x;
+    pCorners[0].y = -pCorners[7].y;
+    pCorners[0].z = -pCorners[7].z;
+    pCorners[0].x += pCenter->x;
+    pCorners[0].y += pCenter->y;
+    pCorners[0].z += pCenter->z;
+    {
+        FixVector *p = &pCorners[1];
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    p++;
+    p->x += pCenter->x;
+    p->y += pCenter->y;
+    p->z += pCenter->z;
+    }
 }
 
 int Car_GetWheelSpeed(Car *pCar, BYTE wheel, int unit);
