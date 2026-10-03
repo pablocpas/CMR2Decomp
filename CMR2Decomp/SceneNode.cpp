@@ -1135,15 +1135,13 @@ void FUN_004b3f20(void)
 {
     unsigned int sector;
     SceneNode *pNode;
-    BYTE colour;
 
     if (g_sceneSectorLights != NULL) {
         for (sector = 0; sector < (unsigned int)g_sectorCount; sector++) {
             if (g_sceneAmbientColour[0] < 0xf0)
-                colour = g_sceneAmbientColour[0] + 10;
+                ((BYTE *)g_sceneSectorLights)[sector * 4] = (BYTE)(g_sceneAmbientColour[0] + 10);
             else
-                colour = g_sceneAmbientColour[0] - 10;
-            ((BYTE *)g_sceneSectorLights)[sector * 4] = colour;
+                ((BYTE *)g_sceneSectorLights)[sector * 4] = (BYTE)(g_sceneAmbientColour[0] - 10);
             for (pNode = g_sectors[sector]->pFirstNode; pNode != NULL;
                  pNode = pNode->pNextInSector)
                 FUN_004b50b0(pNode, 0xffff0000);
@@ -2249,44 +2247,52 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     float *pVertex;
     float *pNearest;
     int *pVertexLevel;
+    float x;
     float dx;
     float dz;
+    float z;
+    float w;
     float d2;
     float best;
-    float x;
-    float z;
     BYTE rgb[4];
     int i;
+    int count;
 
-    *pLevel = 0x10000;
-    x = (float)pPos->x * CGraphics::m_oneOver65536;
     rgb[0] = 0xff;
     rgb[1] = 0xff;
     rgb[2] = 0xff;
+    *pLevel = 0x10000;
+    x = (float)pPos->x * CGraphics::m_oneOver65536;
     pNearest = NULL;
     rgb[3] = 0;
     best = 32000.0f;
     z = (float)pPos->z * CGraphics::m_oneOver65536;
+    w = x + z;
     pMesh = (Mesh *)g_sectors[(short)Sector_FromPosition(pPos)]->pMesh;
     if (pMesh != NULL) {
         pVertex = (float *)pMesh->pVertexData;
         pVertexLevel = pMesh->pLightLevels;
-        for (i = 0; i < pMesh->field_0x10; i++) {
-            dz = pVertex[2] - z;
-            dx = pVertex[0] - x;
-            d2 = dx * dx + dz * dz;
-            if (d2 < best) {
-                *pLevel = *pVertexLevel;
-                pNearest = pVertex;
-                best = d2;
+        i = 0;
+        count = pMesh->field_0x10;
+        if (count > 0) {
+            do {
+                dx = pVertex[0] - x;
+                dz = pVertex[2] - z;
+                d2 = dx * dx + dz * dz;
+                if (d2 < best) {
+                    *pLevel = *pVertexLevel;
+                    pNearest = pVertex;
+                    best = d2;
+                }
+                pVertex += 12;
+                pVertexLevel++;
+                i++;
+            } while (i < pMesh->field_0x10);
+            if (pNearest != NULL) {
+                rgb[2] = (BYTE)((DWORD *)pNearest)[6];
+                rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
+                rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
             }
-            pVertex += 12;
-            pVertexLevel++;
-        }
-        if (pNearest != NULL) {
-            rgb[2] = (BYTE)((DWORD *)pNearest)[6];
-            rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
-            rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
         }
     }
     return *(DWORD *)rgb;
@@ -2468,8 +2474,10 @@ void Scene_RestoreLights(void)
     g_sceneMaterial.emissive.a = 0.0f;
     g_sceneMaterial.power = 0.0f;
     CGraphics::m_pTextureManager->pD3D->SetMaterial(&g_sceneMaterial);
-    g_sceneAmbientD3D = ((((DWORD)g_sceneAmbientColour[3] << 8 | g_sceneAmbientColour[0]) << 8) |
-                         g_sceneAmbientColour[1]) << 8 | g_sceneAmbientColour[2];
+    {
+        BYTE *p = g_sceneAmbientColour;
+        g_sceneAmbientD3D = (((DWORD)p[3] << 8 | p[0]) << 8 | p[1]) << 8 | p[2];
+    }
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
 }
 
@@ -2636,28 +2644,34 @@ extern const double g_unk0x00511380;
 void FUN_004b7b20(void)
 {
     int i;
-    double value;
+    int value;
+    unsigned short *p;
 
     for (i = 0; i < 4096; i++) {
         g_sinTable[i] = (int)(__int64)(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
         g_tanTable[i] = (int)(__int64)(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
     }
+    i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
     g_tanTable[3072] = 0x7fffffff;
     g_tanTable[1024] = 0x7fffffff;
 
-    for (i = 0; i < 4096; i++) {
-        g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+    p = g_sqrtTable;
+    for (; (int)p < (int)(g_sqrtTable + 4096); i += 16)
+        *p++ = (unsigned short)(int)(__int64)(sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+
+    i = 0;
+    p = (unsigned short *)g_acosTable;
+    for (; (int)p < (int)(g_acosTable + 4096); i++, p++) {
+        value = (int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
+        *p = (short)(__int64)((double)value * g_unk0x00511380);
     }
 
-    for (i = 0; i < 4096; i++) {
-        value = (double)(int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
-        g_acosTable[i] = (short)(__int64)(value * g_unk0x00511380);
-    }
-
-    for (i = 0; i < 512; i++) {
-        value = (double)(int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
-        g_atanTable[i] = (unsigned short)(__int64)(value * g_unk0x00511380);
+    i = 0;
+    p = g_atanTable;
+    for (; (int)p < (int)(g_atanTable + 512); i++, p++) {
+        value = (int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
+        *p = (unsigned short)(__int64)((double)value * g_unk0x00511380);
     }
 }
 

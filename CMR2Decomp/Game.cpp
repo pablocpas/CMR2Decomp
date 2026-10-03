@@ -1231,10 +1231,11 @@ int CGame::FUN_0049c1c0(Unk0049c2c0 *p, BYTE index, BYTE value, int level)
             if ((rule & 0xff) == 0xff && (rule & 0xff00) == 0xff00 && (rule & 0xff0000) == 0xff0000 &&
                 (rule & 0xff000000) == 0xff000000)
                 break;
-            if (((BYTE)(rule ^ entry) == 0 || (rule & 0xff) == 0xff) &&
-                ((BYTE)((rule ^ entry) >> 8) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
-                *pEntry = ((level & 3) << 24) | (entry & 0xfcffffff);
-                *pEntry = ((*pRule >> 8) & 0xff0000) | ((level & 3) << 24) | (entry & 0xfc00ffff);
+            if ((((rule ^ entry) & 0xff) == 0 || (rule & 0xff) == 0xff) &&
+                (((rule ^ entry) & 0xff00) == 0 || (rule & 0xff00) == 0xff00) && ((rule >> 16) & 0xff) == value) {
+                entry = ((level & 3) << 24) | (entry & 0xfcffffff);
+                *pEntry = entry;
+                *pEntry = ((*pRule >> 8) & 0xff0000) | (entry & 0xff00ffff);
                 return 1;
             }
         }
