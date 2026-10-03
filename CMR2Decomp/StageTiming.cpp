@@ -7517,7 +7517,8 @@ void FUN_0045f9d0(int param_1, int *rec, int param_3)
 }
 
 // Helpers implemented in other translation units.
-void FUN_0046d8d0(int param_1, int *param_2);
+struct ReplaySample;
+void FUN_0046d8d0(Car *pCar, ReplaySample *pSample);
 extern int g_unk0x00590c44;   // first of the four slot clocks 0x590c44..0x590c53
 extern int g_unk0x00590c50;   // last one (0x590c44 + 3 * 4)
 extern BYTE g_unk0x00590c60[4];
@@ -7529,7 +7530,7 @@ void FUN_0046c4e0(int param_1, BYTE index)
 {
     Car *pCar = Car_Get(index);
 
-    FUN_0046d8d0((int)pCar, (int *)param_1);
+    FUN_0046d8d0(pCar, (ReplaySample *)param_1);
 }
 
 // Wakes the wheels of the current car whose static slot record has no model

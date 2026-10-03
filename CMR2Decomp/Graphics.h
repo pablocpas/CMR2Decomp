@@ -1410,8 +1410,10 @@ private:
     static int m_unk0x0065fa44;
     // GLOBAL: CMR2 0x0065fa48
     static int m_unk0x0065fa48;
+public:
     // GLOBAL: CMR2 0x00511338
     static float m_oneOver128;
+private:
     // GLOBAL: CMR2 0x00520b34
     static float m_unk0x00520b34;
     // GLOBAL: CMR2 0x00520b38
