@@ -1664,7 +1664,10 @@ void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
     int index;
 
     index = param3;
-    g_carSoundSets[param1].handle[index] = FUN_004b7790(param2, param4, 0x5622, (param5 == 0) ? 0 : param5, 1, 0);
+    if (param5 != 0)
+        g_carSoundSets[param1].handle[index] = FUN_004b7790(param2, param4, 0x5622, param5, 1, 0);
+    else
+        g_carSoundSets[param1].handle[index] = FUN_004b7790(param2, param4, 0x5622, 0, 1, 0);
     g_carSoundSets[param1].pitch[index] = rand() % 0x19 + 0x32 + FUN_004781c0(param1);
     g_carSoundSets[param1].surface[param3] = g_unk0x005375f4[param1];
     g_carSoundSets[param1].id[index] = param2;

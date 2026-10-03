@@ -1965,7 +1965,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
     int offset;
     float scaled[3];
 
-    if (pCaster->field_0xc != 0 && pCaster->partCount != 0) {
+    if (pCaster->field_0xc != 0) {
         for (i = 0, offset = 0; i < pCaster->partCount; i++, offset += 0x58) {
             pPart = (ShadowPart *)((char *)pCaster->pParts + offset);
             if (pPart->field_0x54 != 0) {
@@ -1996,7 +1996,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
         }
     }
     pCaster->field_0xc = 0;
-    if (pCaster->field_0x10 != 0 && pCaster->partCount != 0) {
+    if (pCaster->field_0x10 != 0) {
         for (i = 0; i < pCaster->partCount; i++)
             FUN_004b4180((float *)(pCaster->pParts + i), param2);
     }
