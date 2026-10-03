@@ -857,10 +857,10 @@ DWORD CGraphics::FUN_004a8d60(void) {
 
 // FUNCTION: CMR2 0x004a8c30
 HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
-    if (strcmp(lpDeviceName, m_direct3DHAL) == 0 && m_unk0x00660040[0].surfaceCap != 2) {
+    if (!strcmp(lpDeviceName, m_direct3DHAL) && m_unk0x00660040[0].surfaceCap != 2) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 1;
-    } else if (strcmp(lpDeviceName, m_direct3DTLHAL) == 0) {
+    } else if (!strcmp(lpDeviceName, m_direct3DTLHAL)) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 2;
     }
@@ -2809,7 +2809,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     StageObjectDraw *pObject;
     Sector *pSector;
     SceneNode *pChild;
-    unsigned int i;
+    int i;
     unsigned int sectorIndex;
 
     rect.x1 = 0;
@@ -3676,7 +3676,7 @@ BYTE FUN_004bc0c0(BYTE *p)
     return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
 }
 
-BYTE FUN_004bc3e0(unsigned int index);
+BYTE FUN_004bc3e0(BYTE index);
 BYTE Timer_FindFree(void);
 
 // When set, Timer_Start collapses the range to its end value (the demo
@@ -3745,7 +3745,7 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
 }
 
 // FUNCTION: CMR2 0x004bc3e0
-BYTE FUN_004bc3e0(unsigned int index)
+BYTE FUN_004bc3e0(BYTE index)
 {
     BYTE *p = g_unk0x00521138[index & 0xff];
     BYTE r = (BYTE)index;
