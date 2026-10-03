@@ -1714,11 +1714,12 @@ void FUN_00490d50(BYTE *pData)
     p += 4;
     g_unk0x00591b14 = (int)p;
     i = *(unsigned short *)g_unk0x00591b24;
-    g_unk0x00591afc = (int)(p + i * 12);
-    p = (BYTE *)g_unk0x00591afc + 4;
+    p = p + i * 12;
+    g_unk0x00591afc = (int)p;
+    p += 4;
     g_unk0x00591af0 = (int)p;
     i = *(unsigned short *)g_unk0x00591afc;
-    p = (BYTE *)g_unk0x00591af0 + i * 8;
+    p = p + i * 8;
     g_unk0x00591b34 = (int)p;
     p += 4;
     g_unk0x00591b18 = (int)p;
@@ -5051,16 +5052,17 @@ void FUN_00480cb0(void)
     step = FixMul(FixMul(speed, g_physicsTimeStep), 0xf5c);
     target = FixMul(FixMul(speed, g_physicsTimeStep), 0x3333);
     phase = *(int *)((BYTE *)g_unk0x00590d74 + 0x2d0) + *(int *)((BYTE *)g_unk0x00590d74 + 0x2d8);
-    if (phase < 0)
-        phase = -phase;
+    phase = FIX_ABS(phase);
     phase %= 1024;
     target = FixMul(target, phase << 6);
     index = (signed char)((BYTE *)g_unk0x00590d74)[0xb1a];
     delta = target - g_unk0x00590b10[index];
-    if (delta < -step)
-        target = g_unk0x00590b10[index] - step;
-    else if (delta > step)
-        target = g_unk0x00590b10[index] + step;
+    if (FIX_ABS(delta) > step) {
+        if (delta > 0)
+            target = g_unk0x00590b10[index] + step;
+        else
+            target = g_unk0x00590b10[index] - step;
+    }
     g_unk0x00590b10[index] = target;
     *(short *)&g_unk0x00590c68 = (short)(int)(__int64)((double)target * g_unk0x00511380);
 }
