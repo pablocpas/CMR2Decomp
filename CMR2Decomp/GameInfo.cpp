@@ -1042,50 +1042,38 @@ bool CGameInfo::LoadGameInfo(void) {
 
     g_pGraphics->isFullscreen = IsFullscreen() & 0xff;
 
-    switch (m_gameInfo.unknownGraphicsOptions & 6) {
-        case 2:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-            g_pGraphics->field913_0x3bc &= 0xffffff7f;
-        break;
-
-        case 4:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc |= 0x10;
-            g_pGraphics->field913_0x3bc &= 0xffffff7f;
-        break;
-        
-        case 6:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-            g_pGraphics->field913_0x3bc |= 0x80;
-        break;
-
-        default:
-            g_pGraphics->field913_0x3bc &= 0xfffffff7;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-        break;        
+    graphicsOptions = m_gameInfo.unknownGraphicsOptions & 6;
+    if (graphicsOptions == 2) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
+    } else if (graphicsOptions == 4) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc |= 0x10;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
+    } else if (graphicsOptions == 6) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc |= 0x80;
+    } else {
+        g_pGraphics->field913_0x3bc &= 0xfffffff7;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
     }
 
     g_pGraphics->field913_0x3bc = (m_gameInfo.unknownGraphicsOptions & 0x8) << 2 | g_pGraphics->field913_0x3bc & 0xffffffdf;
     g_pGraphics->field913_0x3bc = (m_gameInfo.unknownGraphicsOptions & 0x10) << 2 | g_pGraphics->field913_0x3bc & 0xffffffbf;
 
-    switch (m_gameInfo.unknownGraphicsOptions & 0xc0000) {
-        default:
-            g_pGraphics->field913_0x3bc &= 0xfffffffe;
-            g_pGraphics->field913_0x3bc &= 0xfffffffd;
-        break;
-        
-        case 0x40000:
-            g_pGraphics->field913_0x3bc |= 1;
-            g_pGraphics->field913_0x3bc &= 0xfffffffd;
-        break;
-
-        case 0x80000:
-            g_pGraphics->field913_0x3bc &= 0xfffffffe;
-            g_pGraphics->field913_0x3bc |= 2;
-        break;
-
+    graphicsOptions = m_gameInfo.unknownGraphicsOptions & 0xc0000;
+    if (graphicsOptions == 0x40000) {
+        g_pGraphics->field913_0x3bc |= 1;
+        g_pGraphics->field913_0x3bc &= 0xfffffffd;
+    } else if (graphicsOptions == 0x80000) {
+        g_pGraphics->field913_0x3bc &= 0xfffffffe;
+        g_pGraphics->field913_0x3bc |= 2;
+    } else {
+        g_pGraphics->field913_0x3bc &= 0xfffffffe;
+        g_pGraphics->field913_0x3bc &= 0xfffffffd;
     }
 
     g_pGraphics->field917_0x3c0 = FUN_00405ca0();
@@ -2702,7 +2690,10 @@ int g_unk0x0082c6c0;
 int g_unk0x0082cb44;
 
 // Selects a new entry only when the current entry has no pending activity.
-// match 79%: the original preserves the result in ESI across the timer call.
+// match 75%: the original pushes ESI in the prologue and only then reloads the
+// parameter (at [esp+8]); this compiler sinks the push of the callee-saved
+// register into the taken branch and computes the return value one store early
+// (identical byte count, different scheduling).
 // FUNCTION: CMR2 0x00505e10
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
@@ -3921,7 +3912,6 @@ void FUN_00502570(void)
 
     for (i = 0; i < 4; i++) {
         BYTE *p = RallyData_FUN_00407630(i);
-        BYTE *pFlags;
 
         g_unk0x0082bee8[i + 4][4] = p[4];
         g_unk0x0082bee8[i + 4][5] = p[5];
@@ -3937,10 +3927,7 @@ void FUN_00502570(void)
         g_unk0x0082bee8[i][3] = g_unk0x0082bf04[i * 7 + 3];
         g_unk0x0082bee8[i][2] = g_unk0x0082bf04[i * 7 + 2];
         g_unk0x0082bee8[i][0] = g_unk0x0082bf04[i * 7 + 0];
-        pFlags = &g_unk0x0082bf20[i][0];
-        *(int *)pFlags = 0;
-        *(short *)(pFlags + 4) = 0;
-        pFlags[6] = 0;
+        memset(&g_unk0x0082bf20[i][0], 0, 7);
     }
 }
 
@@ -4480,14 +4467,13 @@ void FUN_00404d00(Menu *pMenu)
     g_unk0x005298f8 = (g_unk0x005298f8 & ~0x20) | ((pMenu->items[3].max & 1) << 5);
 
     if (FUN_004174d0()) {
-        if (!RallyData_FUN_00411880()) {
-            BYTE bits = 0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max;
-            g_unk0x005298f8 ^= (bits ^ g_unk0x005298f8) & 3;
-        } else {
-            if (pMenu->items[Menu_FindItem(pMenu, 4)].max != 0)
-                g_unk0x005298f8 &= ~3;
-            else
+        if (RallyData_FUN_00411880()) {
+            if (pMenu->items[Menu_FindItem(pMenu, 4)].max == 0)
                 g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
+            else
+                g_unk0x005298f8 &= ~3;
+        } else {
+            g_unk0x005298f8 ^= ((0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max) ^ g_unk0x005298f8) & 3;
         }
     }
 
@@ -5804,11 +5790,11 @@ void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
         g_unk0x0082b1c0[count] = 0;
         Font_DrawText(font1, g_unk0x0082b1c0, x, y, pColour1, flags);
         if (count < len) {
-            width = Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
-            for (i = count, j = 0; i < len; i++, j++)
-                g_unk0x0082b1c0[j] = text[i];
+            x += Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
+            for (i = count; i < len; i++)
+                g_unk0x0082b1c0[i - count] = text[i];
             g_unk0x0082b1c0[len - count] = 0;
-            Font_DrawText(font2, g_unk0x0082b1c0, width + x, y, pColour2, flags);
+            Font_DrawText(font2, g_unk0x0082b1c0, x, y, pColour2, flags);
         }
     }
 }
@@ -8442,6 +8428,7 @@ void FUN_00501de0(int param_1, short *param_2)
     Unk0x0082b2c0 *p;
     int mid;
     int lo;
+    int hi;
     int a;
     int delta;
 
@@ -8449,9 +8436,10 @@ void FUN_00501de0(int param_1, short *param_2)
     if (p->field_0xc == 1) {
         mid = param_2[2] / 2 + param_2[0];
         lo = mid - 1;
+        hi = mid + 1;
         if (p->field_0x0 < 0x8000) {
             param_2[0] = lo;
-            param_2[2] = mid + 1 - lo;
+            param_2[2] = hi - lo;
             a = FixMul(p->field_0x0, 0x20000);
             a = FixMul(a, a);
             delta = param_2[3] - (FixMul(param_2[3] << 16, a) >> 16);
