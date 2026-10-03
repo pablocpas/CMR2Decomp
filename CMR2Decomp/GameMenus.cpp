@@ -924,8 +924,8 @@ int FUN_00451850(int car)
 // FUNCTION: CMR2 0x0044d790
 void FUN_0044d790(Menu *pMenu)
 {
-    int best;
     int winner;
+    int best;
     int i;
     int resY;
 
@@ -1499,7 +1499,7 @@ void FUN_00450c10(Menu *pMenu)
                       (resY * 10) / 480 + ((resY * 20) / 480) * i + y + Font_GetLineHeight(0),
                       (int *)g_menuFrameColour, 0x11);
     }
-    if (slot > 5) {
+    if (best > 5) {
         if ((BYTE)RallyDataCountryIndex() == 7)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xee));
         else
@@ -1655,7 +1655,7 @@ void FUN_00451690(Menu *pMenu)
     if (g_pHeaderMenu == &g_menu0x0053f790) {
         FUN_0044b760();
         GameMenus_DrawTextRow((int)(g_pGraphics->resX * 30) / 640, (int)(g_pGraphics->resY * 242) / 480,
-                              CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e));
+                              CFrontend::GetTextString(0x42), CFrontend::GetTextString(CGameInfo::FUN_00405d90() + 0x8e), 0);
         for (i = 0; i < CGameInfo::FUN_00405d70(); i++) {
             place = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
             switch (place) {
@@ -2544,8 +2544,8 @@ Menu *g_pHeaderMenu;
 #define GAMEMENUS_HEADER_MARKER(pText)                                                        \
     x = x + (int)(g_pGraphics->resX * 8) / 0x280 + Font_GetTextWidth(2, (BYTE *)pText);         \
     g_menuRect[0] = (short)x;                                                                  \
-    g_menuRect[2] = 2;                                                                         \
     g_menuRect[1] = (short)((int)(g_pGraphics->resY * 0x25) / 0x1e0);                          \
+    g_menuRect[2] = 2;                                                                         \
     g_menuRect[3] = (short)((int)(g_pGraphics->resY * 0x29) / 0x1e0);                          \
     Sprite_FillRect((int)g_pGraphics + 0x150, g_menuRect, g_menuFrameColour, 2);                \
     x = x + (int)(g_pGraphics->resX * 8) / 0x280 + 2;
@@ -2594,7 +2594,7 @@ void FUN_00451890(Menu *pMenu)
         GAMEMENUS_HEADER_MARKER(CFrontend::m_stringDest)
         strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(0x8d));
         Font_DrawText(2, CFrontend::m_stringDest,
-                      x + 2 + (int)(g_pGraphics->resX * 8) / 0x280,
+                      x,
                       (int)(g_pGraphics->resY * 0x43) / 0x1e0, (int *)g_menuFrameColour, 0x11);
     }
 }
