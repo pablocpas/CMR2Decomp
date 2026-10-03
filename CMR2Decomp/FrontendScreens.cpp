@@ -1559,7 +1559,7 @@ void FUN_004ea470(void)
 
 extern int g_unk0x00818ac8;
 void FUN_0040bad0(void);
-void FUN_0040bd60(int slot, DeviceInfo *pOut);
+void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
 unsigned short FUN_0040bbc0(unsigned short slot);
 void FUN_004a2fe0(void);
 
