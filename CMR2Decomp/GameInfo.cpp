@@ -868,8 +868,8 @@ void CGameInfo::FUN_00406010(GameInfo0xa4 *pInfo)
                     split++;
                 } while (split < 10);
             } else {
-                pSplit = (short *)((BYTE *)pInfo + (row + track) * 20 - 0x6c8);
                 split = 0;
+                pSplit = (short *)((BYTE *)pInfo + (row + track) * 20 - 0x6c8);
                 do {
                     *pSplit++ = (short)(split * 6000);
                     split++;
@@ -877,9 +877,9 @@ void CGameInfo::FUN_00406010(GameInfo0xa4 *pInfo)
             }
             row++;
         } while (row < 11);
-        track += 11;
-        pFinalSplits += 110;
         pFinalTime += 22;
+        pFinalSplits += 110;
+        track += 11;
     } while (track < 0x123);
     pFlags = &pInfo->thirdLoop[0].flags;
     track = 3;
@@ -924,9 +924,9 @@ void CGameInfo::FUN_00406580(void) {
     char bVar1;
     int uVar5 = 0;
     int uVar2 = 0;
+    int iVar3 = 0;
     char *piVar4 = m_gameInfo.field_0x38f8;
     char *end = m_gameInfo.field_0x38f8 + sizeof(m_gameInfo.field_0x38f8);
-    int iVar3 = 0;
     bool bVar6 = false;
 
     do {
@@ -977,7 +977,7 @@ void CGameInfo::FUN_00406580(void) {
 
             if (((((uVar2 & m_gameInfo.field_0xa0 & 0x1f) != 0) ||
                 (uVar2 & m_gameInfo.field_0xa0 >> 5 & 0x1f) != 0) ||
-                ((uVar2 & m_gameInfo.field_0xa0 >> 10 & 0x1f) != 0)) && ((piVar4[10] & 2) != 0)
+                (0 != (uVar2 & m_gameInfo.field_0xa0 >> 10 & 0x1f))) && ((piVar4[10] & 2) != 0)
                 ) {
                 piVar4[10] = piVar4[10] & 0xfd;
             }            
@@ -5964,9 +5964,10 @@ void FUN_00501b90(void)
             g_unk0x0082b2c0[i].field_0xc = 2;
             g_unk0x0082b2c0[i].field_0x0 = 0x10000;
         } else {
-            g_unk0x0082b2c0[i].field_0x0 =
-                FixDiv(elapsed << 16, g_unk0x0082b2c0[i].field_0x4 << 16);
-            switch (g_unk0x0082b2c0[i].field_0x10) {
+            int value = FixDiv(elapsed << 16, g_unk0x0082b2c0[i].field_0x4 << 16);
+            int kind = g_unk0x0082b2c0[i].field_0x10;
+            g_unk0x0082b2c0[i].field_0x0 = value;
+            switch (kind) {
             case 2:
                 g_unk0x0082b2c0[i].field_0x0 = FixSqrt(g_unk0x0082b2c0[i].field_0x0);
                 break;
@@ -6647,21 +6648,21 @@ void FUN_0050ee50(short *pRect, int unused, unsigned int count, BYTE *pColours)
     d01.z = c1.z - c0.z;
     d12.x = (pColours[8] << 16) - c1.x;
     d12.y = (pColours[9] << 16) - c1.y;
+    n = count & 0xff;
     d12.z = (pColours[10] << 16) - c1.z;
     half = (count & 0xff) >> 1;
-    n = count & 0xff;
     for (i = 0, t = 0; i < n; i++, t += 0x10000) {
         strip[2] = FixMulShift32(t + 0x10000, FixDiv(pRect[2] << 16, n << 16)) + pRect[0] - strip[0];
-        if (i <= half) {
-            FixVecScale(&c, &d01, FixDiv(i << 16, half << 16));
-            c.x += c0.x;
-            c.y += c0.y;
-            c.z += c0.z;
-        } else {
+        if (i > half) {
             FixVecScale(&c, &d12, FixDiv(t - (half << 16), half << 16));
             c.x += c1.x;
             c.y += c1.y;
             c.z += c1.z;
+        } else {
+            FixVecScale(&c, &d01, FixDiv(i << 16, half << 16));
+            c.x += c0.x;
+            c.y += c0.y;
+            c.z += c0.z;
         }
         r = c.x >> 16;
         if (r > 0xff)
@@ -7645,7 +7646,7 @@ void FUN_00506930(int param1, short *param2, int param3)
     if (a[0] < 0)
         abs = -a[0];
     if (abs > 0xb40000) {
-        if (a[0] > 0)
+        if (a[0] >= 1)
             a[0] = 0x1680000 - a[0];
         else
             a[0] += 0x1680000;
@@ -7727,8 +7728,8 @@ void FUN_00506bb0(int param1, int param2, int param3)
             (*ppBlock)[i] = (BYTE *)CFileBuffer::AllocateLockedBuffer((unsigned int)*pCounts << 5);
             totalSize += (unsigned int)*pCounts * 0x20;
             (*ppFlags)[i] = *(BYTE *)(*(int *)(param3 + i * 4 + 0x3c) + 0x30);
-            srcOff = 0;
             destOff = 0;
+            srcOff = 0;
             for (k = 0; k < (int)(unsigned int)*pCounts; k++) {
                 pDest = (int *)((*ppBlock)[i] + destOff);
                 pDest[0] = (int)(__int64)((double)*(float *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff) * CGraphics::m_65536);
@@ -7740,8 +7741,8 @@ void FUN_00506bb0(int param1, int param2, int param3)
                 pNormal = (BYTE *)(*(int *)(*(int *)(param3 + i * 4) + 0xc) + srcOff + 0x18);
                 n = *(unsigned int *)pNormal;
                 nb2 = (BYTE)(n >> 16);
-                nb1 = (BYTE)(n >> 8);
                 nb0 = (BYTE)n;
+                nb1 = (BYTE)(n >> 8);
                 v = (nb2 & 0xff) - 0x80;
                 if (v < -0x7f)
                     v = -0x7f;
@@ -9081,7 +9082,7 @@ void FUN_00403890(Menu *pMenu)
                 break;
             text = CFrontend::GetTextString(pItem->id);
             width = Font_GetTextWidth(1, (BYTE *)text);
-            if (maxWidth < width) {
+            if (width > maxWidth) {
                 text = CFrontend::GetTextString(pItem->id);
                 maxWidth = Font_GetTextWidth(1, (BYTE *)text);
             }
@@ -9207,8 +9208,8 @@ void FUN_004041e0(Menu *pMenu)
                 if (pItem->min != 0) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
                         strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
@@ -9224,8 +9225,8 @@ void FUN_004041e0(Menu *pMenu)
                 if (pItem->min == 2) {
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         Font_DrawText(1, CFrontend::GetTextString(j + 0x9c), x, MENU_ITEM_Y(i),
                                       pSubColour, 0x11);
                         strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(j + 0x9c));
@@ -9253,8 +9254,8 @@ void FUN_004041e0(Menu *pMenu)
                     k = 0xa4;
                     do {
                         width = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         pSubColour = pItem->max == j ? &g_unk0x00516074 : &g_unk0x00516078;
+                        x = (int)(g_pGraphics->resX * 10) / 0x280 + x + width;
                         strcpy(CFrontend::m_stringDest,
                                CFrontend::GetTextString(RallyData_FUN_00411880() != 0 ? j + 0x9c : k));
                         Font_DrawText(1, CFrontend::m_stringDest, x, MENU_ITEM_Y(i), pSubColour, 0x11);
@@ -9385,7 +9386,7 @@ void FUN_00500550(int param1)
     centre = minX + (maxX - minX) / 2;
     g_controlsLine[0] = (short)centre;
     g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
-    if ((int)(g_pGraphics->resX * 0xe4) / 0x280 < centre) {
+    if (centre > (int)(g_pGraphics->resX * 0xe4) / 0x280) {
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) - g_controlsLine[1];
         Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
         g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
@@ -9447,7 +9448,8 @@ void FUN_00505b40(void)
     pEntry = (Unk0x0082c6c8Anim *)g_unk0x0082c6c8 + index;
     if (pEntry->active != 0) {
         now = CMain::GetFrameDelta();
-        ratio = FixSqrt(FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance));
+        ratio = FixDiv((int)(now - pEntry->startTime) << 16, pEntry->distance);
+        ratio = FixSqrt(ratio);
         if (ratio >= 0x10000) {
             pEntry->active = 0;
             pEntry->current = pEntry->end;
@@ -10025,7 +10027,7 @@ void FUN_0050e780(unsigned int param_1)
         }
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString(i + 0x100));
-        if (i == sel) {
+        if (sel == i) {
             FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
                          (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
@@ -10258,8 +10260,8 @@ void FUN_0050a920(int param_1)
         base = 0xc + w * 4;
     } else {
         int idx = FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14];
-        t = g_unk0x005293c0[idx] * 6000;
         base = 0xad + idx * 4;
+        t = g_unk0x005293c0[idx] * 6000;
     }
     sprintf(CFrontend::m_stringDest, g_str0x0051a904, (t / 100) / 60, (t / 100) % 60);
     if (CGameInfo::FUN_005004c0() != 0)
@@ -10298,19 +10300,21 @@ void FUN_0050c130(int param_1)
                   (int)g_pGraphics->resX * 0x25f / 0x280,
                   (int)g_pGraphics->resY * 0xa0 / 0x1e0, &g_unk0x0052737c, 0xc);
     for (i = 0; i < CGameInfo::FUN_00501230(); i++) {
-        int *pCol;
-
         sprintf(CFrontend::m_stringDest, g_stageNumberFormat,
                 (RallyDataStageIndex() & 0xff) + 1 + i);
-        if (i == FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14])
-            pCol = &g_unk0x0052737c;
-        else
-            pCol = g_unk0x00527380;
-        Font_DrawText(0, CFrontend::m_stringDest,
-                      (int)g_pGraphics->resX * 0x25f / 0x280,
-                      (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
-                          (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
-                      pCol, 0xc);
+        if (i == FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]) {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)g_pGraphics->resX * 0x25f / 0x280,
+                          (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
+                              (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
+                          &g_unk0x0052737c, 0xc);
+        } else {
+            Font_DrawText(0, CFrontend::m_stringDest,
+                          (int)g_pGraphics->resX * 0x25f / 0x280,
+                          (int)g_pGraphics->resY * 0xb4 / 0x1e0 +
+                              (int)g_pGraphics->resY * 0x14 / 0x1e0 * i,
+                          g_unk0x00527380, 0xc);
+        }
     }
     pRec = FUN_00407520(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14]);
     sprintf(CFrontend::m_stringDest, g_str0x0052960c,
@@ -10318,7 +10322,7 @@ void FUN_0050c130(int param_1)
     Font_DrawText(0, CFrontend::m_stringDest,
                   (int)g_pGraphics->resX * 100 / 0x280,
                   (int)g_pGraphics->resY * 400 / 0x1e0, g_unk0x00527380, 9);
-    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 1) * 0x14], 1);
+    FUN_0050a880(FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14], 1);
 }
 
 // Draws the bottom panel of the options screen: the animated strip of all the
@@ -10938,10 +10942,10 @@ FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * param5 / 0x1e0 +
                                      (int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1));
         if (i == param2 || i + 1 == param2) {
-            if (!(CGameInfo::FUN_005004c0() != 0))
-                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
-            else
+            if (!(!(CGameInfo::FUN_005004c0() != 0)))
                 Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+            else
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&param6, 1);
         } else {
             Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
         }
@@ -11929,9 +11933,9 @@ int FUN_004f8b30(void)
             local_c += 0x24;
             local_18 += 0x4b;
         } while ((int)uVar5 < 8);
-        local_10 += 0x19;
         local_1c++;
         local_14 += 0xc;
+        local_10 += 0x19;
     } while (local_10 < g_unk0x00825d14 + 0x4b);
 
     uVar5 = 0;

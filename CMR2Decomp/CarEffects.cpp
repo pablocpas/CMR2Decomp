@@ -250,7 +250,8 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             if (len > 0xcccc)
                 len = 0xcccc;
             r = FixMul(EFFECT_RAND(), 0x10000 - len);
-            a = FixMul(r, FixMul(facing, 0x1999));
+            a = FixMul(facing, 0x1999);
+            a = FixMul(r, a);
             b = FixMul(0x10000 - r, FixMul(facing, 0x1999));
             FixVecScale(&t, &t, b);
             FixVecScale(&vel, &n, a);
@@ -263,7 +264,7 @@ void Car_ShatterWindow(FixVector *pQuad, FixVector *pDir, int window, Car *pCar)
             pP++;
         }
         pRow += 8;
-    } while (pRow < g_windowGrid[11]);
+    } while (g_windowGrid[11] > pRow);
 }
 
 // Builds the quad of a window of the car from its window vertices.
@@ -277,9 +278,9 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
     int *pMirror;
     int i;
 
-    i = 0;
-    pWin = &g_carWindows[window];
     pVerts = NULL;
+    pWin = &g_carWindows[window];
+    i = 0;
     if (window <= 5)
         pVerts = g_carWindowVerts[pCar->index];
     pQ = quad;
@@ -443,9 +444,9 @@ void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
 // FUNCTION: CMR2 0x004994f0
 void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 {
+    int k_idx;
     FixVector pos;
     FixVector o;
-    FixVector *pShard;
     Quad2DInputVertex *pV;
     BYTE *pTint;
     BYTE light[4];
@@ -464,22 +465,18 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
     car = p->field0x64 >> 8;
     shard = p->field0x64 - car * 0x100;
     tint = 0;
-    if (shard > 2)
-        tint = (shard > 5) + 1;
+    if (shard >= 3)
+        tint = (shard >= 6) + 1;
     pTint = g_carDamageData[car] + tint * 4;
-    pShard = g_glassShards[shard];
-    pV = g_shardTri;
-    do {
-        pV->x = pShard->x + pos.x + o.x;
-        pV->y = pShard->y + pos.y + o.y;
-        pV->z = pShard->z + pos.z + o.z;
-        pV->colour[0] = pTint[0];
-        pV->colour[1] = pTint[1];
-        pV->colour[2] = pTint[2];
-        pV->colour[3] = 0xff;
-        pV++;
-        pShard++;
-    } while (pV < &g_shardTri[3]);
+    for (k_idx = 0; k_idx < 3; k_idx++) {
+        g_shardTri[k_idx].x = ((FixVector *)(g_glassShards[shard]))[k_idx].x + pos.x + o.x;
+        g_shardTri[k_idx].y = ((FixVector *)(g_glassShards[shard]))[k_idx].y + pos.y + o.y;
+        g_shardTri[k_idx].z = ((FixVector *)(g_glassShards[shard]))[k_idx].z + pos.z + o.z;
+        g_shardTri[k_idx].colour[0] = pTint[0];
+        g_shardTri[k_idx].colour[1] = pTint[1];
+        g_shardTri[k_idx].colour[2] = pTint[2];
+        g_shardTri[k_idx].colour[3] = 0xff;
+    }
     EFFECT_LIT_COLOUR(light, p->size, pTint);
     light[2] = (BYTE)FixMulShift32(lb, g_carDamageData[car][2 + tint * 4] << 16);
     light[3] = 0xff;
@@ -586,6 +583,7 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00499ac0
 void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
 {
+    int k_idx;
     FixVector pos;
     FixVector o;
     FixVector cam;
@@ -619,28 +617,26 @@ void Debris_Draw(Particle *p, ParticleType *pType, SceneNode *pView)
     pV = g_debrisTri;
     pShape = g_debrisShapes[shape];
     do {
-        pV->x = pShape->x + pos.x + o.x;
+        pV->x = pShape->x + o.x + pos.x;
         pV->y = pShape->y + pos.y + o.y;
         pV->z = pShape->z + pos.z + o.z;
         pV++;
         pShape++;
     } while (pV < &g_debrisTri[3]);
     FixMatrix_GetPosition(&cam, &pView->current);
-    pV = g_debrisTri;
-    do {
-        d.x = cam.x - pV->x;
-        d.z = cam.z - pV->z;
-        d.y = cam.y - pV->y;
+    for (k_idx = 0; k_idx < 3; k_idx++) {
+        d.x = cam.x - g_debrisTri[k_idx].x;
+        d.z = cam.z - g_debrisTri[k_idx].z;
+        d.y = cam.y - g_debrisTri[k_idx].y;
         len = FixVecLength(&d);
         if (len > 0x18000) {
             k = FixDiv(0x18000, len);
             FixVecScale(&d, &d, k);
         }
-        pV->x += d.x;
-        pV->y += d.y;
-        pV->z += d.z;
-        pV++;
-    } while (pV < &g_debrisTri[3]);
+        g_debrisTri[k_idx].x += d.x;
+        g_debrisTri[k_idx].y += d.y;
+        g_debrisTri[k_idx].z += d.z;
+    }
     Quad2D_QueueFixedTriangle(0, &g_debrisTri[0], &g_debrisTri[1], &g_debrisTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }
@@ -1326,8 +1322,8 @@ void WheelSplash_Update(int player)
         else
             leading = 0;
         surface = *pSurface;
-        wet = surface == 0xe || surface == 0xf;
         sparks = surface == 0x19 || surface == 0x18 || surface == 0x2a;
+        wet = surface == 0xe || surface == 0xf;
         if (FUN_00460bf0(player) == 1) {
             k = FixMul(FUN_00460c10(player), 0xff0000) >> 16;
             if (k > 0x1e && sparks) {

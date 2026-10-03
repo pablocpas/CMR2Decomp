@@ -358,10 +358,10 @@ int Sprite_FillRect(int unused, short *pRect, BYTE *pColour, int layer)
     int x1;
     int y1;
 
-    w = pRect[2];
     x = pRect[0];
     y = pRect[1];
     h = pRect[3];
+    w = pRect[2];
     if (w > 0 && h > 0 && (x >= 0 || w + x >= 0) && (y >= 0 || h + y >= 0)) {
         if (x < (int)g_pGraphics->resX && y < (int)g_pGraphics->resY) {
             if (x < 0) {
@@ -755,8 +755,8 @@ void Quad2D_DrawLayer(unsigned int layer)
             if (lastFlags != pQuad->flags) {
                 QUAD2D_SET_FLAGS(pQuad);
             }
-            pLastTexture = pQuad->pTexture;
             lastFlags = pQuad->flags;
+            pLastTexture = pQuad->pTexture;
         }
         *(Quad2DVertices *)(pData + n * 0x30) = pQuad->verts;
         n += 3;

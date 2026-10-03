@@ -704,7 +704,7 @@ BYTE FUN_0041f930(void)
     CFrontend::m_stringDest[strlen(CFrontend::m_stringDest) - 2] = '\0';
     // 0x41fa0e decrements the post-SCAS pointer to the NUL itself,
     // appending the suffix without deleting the final hi/lo character.
-    strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest), g_tgaSuffix);
+    strcat(CFrontend::m_stringDest, g_tgaSuffix);
     if ((char)RallyData_GetFlag24()) {
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue, g_unk0x00538548);
         strcpy(CFrontend::m_stringDest + strlen(CFrontend::m_stringDest) - 5, g_tgaSuffix);
@@ -754,7 +754,7 @@ BYTE FUN_0041f930(void)
     FUN_00455470(1);
     FUN_0048ca60();
     FUN_0040fec0(0x3c, 1, 0xff);
-    StageObject_SetLighting(g_unk0x00538234, g_unk0x00538238);
+    StageObject_SetLighting(g_unk0x00538238, g_unk0x00538234);
     FUN_00471dd0();
     FUN_004283b0();
     return 1;
@@ -901,11 +901,11 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
         b3 = id >> 0x15 & 3;
         if (prev == 0) {
             if ((type == 0xe || type == 2 || type == 1) && b1 != 0) {
-                id -= type * 0x20000;
                 prev = type * 0x20000;
+                id -= type * 0x20000;
             } else if (b3 != 0 && b1 != 0) {
-                id -= b3 * 0x200000;
                 prev = b3 * 0x200000;
+                id -= b3 * 0x200000;
             }
         }
     }
@@ -1258,9 +1258,9 @@ void FUN_00417e70(char *pText, int *pColour, int player, int shadow, int x, int 
 
     pos = (int)pViewRect[2] / 2 + (int)pViewRect[0];
     if (x != -1) {
-        flags = 9;
         pos = x;
         textY = y;
+        flags = 9;
     } else {
         flags = 0x12;
     }
@@ -1288,12 +1288,12 @@ void FUN_00418000(unsigned int id)
     unsigned int f1;
     int slot;
 
+    f3 = id >> 4 & 3;
     f4 = id >> 0xc & 7;
     f17 = id >> 0x17 & 1;
     f5 = id >> 0xf & 3;
     f6 = id >> 0x11 & 0xf;
     f7 = id >> 0x1c & 3;
-    f3 = id >> 4 & 3;
     f11 = id >> 6 & 0xf;
     f9 = id >> 10 & 3;
     f12 = id >> 0x15 & 3;
@@ -1554,9 +1554,9 @@ int FUN_00418580(unsigned int id, int *pTexture, SpriteRect *pRect, unsigned int
     int afterFirst;
 
     type = id & 0xf;
-    b1 = id >> 4 & 3;
-    b2 = id >> 0x11 & 0xf;
     b3 = id >> 0x15 & 3;
+    b2 = id >> 0x11 & 0xf;
+    b1 = id >> 4 & 3;
 
     if (type == 0 || type == 9)
         afterFirst = 0;
@@ -1977,7 +1977,7 @@ void FUN_0041a340(int car, int unused)
         }
         if (v == -1 && counts[i] != 4)
             counts[i] = 0;
-        if (bestCount < counts[i]) {
+        if (counts[i] > bestCount) {
             bestIndex = i;
             bestCount = counts[i];
         }
@@ -1985,12 +1985,14 @@ void FUN_0041a340(int car, int unused)
             allTwo = 0;
     }
     for (i = 0; i < 4; i++) {
-        if (counts[i] > 2)
+        if (counts[i] >= 3)
             break;
         if (counts[i] == 2 && !allTwo)
             break;
     }
-    if (i >= 4) {
+    if (i < 4) {
+        chosen = pState->slotState[bestIndex];
+    } else {
         for (i = 0; i < 4; i++) {
             // the original reads the clock again for the stored value
             if ((unsigned int)(FUN_004781c0(car) - pState->slotTime[i]) < (unsigned int)minSlack) {
@@ -1998,8 +2000,6 @@ void FUN_0041a340(int car, int unused)
                 minSlack = FUN_004781c0(car) - pState->slotTime[i];
             }
         }
-    } else {
-        chosen = pState->slotState[bestIndex];
     }
     if (chosen == -1)
         newCount = 0;
@@ -2032,7 +2032,7 @@ void FUN_0041ae80(int car, int unused)
     int *pHandle = (int *)(pSet + 0x26c);
 
     if (*(short *)(pSet + 0x258) == 0x19) {
-        if (Car_Get(car)->steerFollowRate < 1) {
+        if (Car_Get(car)->steerFollowRate <= 0) {
             if (pSet[0x2f0] != 0) {
                 if (Sound_IsPlaying(*pHandle)) {
                     Sound_Free(*pHandle);
@@ -3202,31 +3202,26 @@ void Race_TeardownStage(int param1, int param2, char flag)
     g_unk0x0053810c = 0;
 }
 
-// In-race state handler of the mode table (0x5190b0): dispatches the per-mode
-// teardown/replay paths, saves the replay and refreshes the view slots.
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// The five jump tables, the per-mode teardown/replay paths and the tail skip flag
-// (EBP, zero-initialised in the prologue and set to 1 when RallyData_FUN_00407ea0
-// is 0) are transcribed. The rest of the gap is MSVC6's frame: the original keeps
-// param1 in ESI for the whole body and its loop limits in 8-bit registers, while our
-// version keeps param1 in ECX and reloads it from the home slot ([esp+0xc]), which
-// renumbers the registers of the whole 2267-byte function and every relative branch.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// In-race mode/state handler: stage teardown, replay and view transitions.
+// Keep the player list separate from the timer query's output slot, preserve
+// the saved phase byte, and share the original stage-dependent restore exits.
+// Differential fixtures cover every entry of the original five jump tables;
+// teardown/replay/view/sound actions are controlled boundaries in those tests.
 // FUNCTION: CMR2 0x0041e8d0
 void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 {
-    BYTE car;
     int i;
     int n;
     int skip = 0;
     int count;
     BYTE *p;
     BYTE **pp;
+    BYTE *pPlayers = param1;
 
-    count = *param1;
+    count = *pPlayers;
     i = 0;
     if (count > 0) {
-        p = *(BYTE **)(param1 + 4);
+        p = *(BYTE **)(pPlayers + 4);
         do {
             if (*p != 11)
                 return;
@@ -3245,7 +3240,7 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
     FUN_004cf140();
     FUN_00403500();
     g_unk0x00537f08 = 1;
-    car = FUN_0041b370();
+    *(BYTE *)&param2 = FUN_0041b370();
     if (g_unk0x0053810c != 0) {
         FUN_0041b360();
         switch (CGameInfo::FUN_00405d80()) {
@@ -3257,8 +3252,8 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
         case 1:
             CGame::FUN_004057e0(2);
             RallyData_FUN_004068e0(0);
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 3);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 3);
             RallyData_FUN_00408290();
             FUN_00406820();
             FUN_0041e670();
@@ -3267,8 +3262,8 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
         case 8:
             CGame::FUN_004057e0(2);
             RallyData_FUN_00408390();
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 3);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 3);
             RallyData_FUN_00408290();
             FUN_00406820();
             FUN_0041e670();
@@ -3283,19 +3278,19 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
             RallyData_FUN_00408290();
             if (g_unk0x00537ffa != 0) {
                 CGame::FUN_004057e0(2);
-                for (i = 0; i < *param1; i++)
-                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 3);
+                for (i = 0; i < *pPlayers; i++)
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 3);
                 FUN_0041e670();
                 FUN_0041b300();
                 FUN_00409e30(1, 0);
                 return;
             }
             if (FUN_0041b380() == 4) {
-                Race_TeardownStage((int)param1, param2, 0);
+                Race_TeardownStage((int)pPlayers, param2, 0);
                 FUN_00420100();
                 Sound_FreeAll();
                 FUN_00418f20();
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 3, 2);
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 3, 2);
                 return;
             }
             break;
@@ -3303,8 +3298,8 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
             RallyData_FUN_00408290();
             FUN_0041f250();
             if (FUN_004728d0() == 0) {
-                for (i = 0; i < *param1; i++)
-                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 3);
+                for (i = 0; i < *pPlayers; i++)
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 3);
                 FUN_0041e670();
                 FUN_0041b300();
                 RallyData_InitKnockoutBracket();
@@ -3314,14 +3309,14 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
             break;
         case 5:
             RallyData_FUN_00406960(0);
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 3);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 3);
             RallyData_FUN_00408290();
             FUN_0041e670();
             FUN_0041b300();
             return;
         }
-        Race_TeardownStage((int)param1, car, 1);
+        Race_TeardownStage((int)pPlayers, param2, 1);
         if (CGameInfo::FUN_00405d80() != 4)
             return;
         if (FUN_004728d0() == 0)
@@ -3343,20 +3338,20 @@ void FUN_0041e8d0(BYTE *param1, unsigned int param2)
             FUN_004cf260();
         if (CGameInfo::FUN_00405d80() == 4) {
             if (FUN_004729f0() != 0) {
-                for (i = 0; i < *param1; i++)
-                    CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+                for (i = 0; i < *pPlayers; i++)
+                    CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
                 goto L_teardown;
             }
             FUN_00420100();
             Sound_FreeAll();
             FUN_00418f20();
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 7, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 7, 2);
             g_unk0x0053810d = 0;
             return;
         }
-        for (i = 0; i < *param1; i++)
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+        for (i = 0; i < *pPlayers; i++)
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
 L_teardown:
         CGame::FUN_004057e0(0);
         FUN_0041e670();
@@ -3369,43 +3364,43 @@ L_teardown:
         switch (CGameInfo::FUN_00405d80()) {
         case 0:
         case 1:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             if ((char)FUN_004072d0() != 0) {
                 if ((char)RallyDataStageIndex() != 0)
-                    goto L_restore;
+                    goto L_stage_restore;
                 FUN_004067c0(1);
             }
-            break;
+            goto L_teardown2;
         case 2:
         case 9:
         case 10:
         case 11:
         case 12:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
-            break;
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            goto L_teardown2;
         case 3:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
-            break;
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            goto L_teardown2;
         case 5:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             if (RallyData_FUN_004074a0())
-                goto L_teardown2;
-            break;
+                goto L_restore;
+            goto L_teardown2;
         case 6:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
-            break;
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            goto L_teardown2;
         case 7:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
-            break;
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            goto L_teardown2;
         case 8:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             CGame::FUN_004057e0((char)FUN_004072d0() == 0 ? 0 : 2);
             FUN_00409ab0(0, 0);
             FUN_0041e670();
@@ -3418,37 +3413,37 @@ L_teardown:
         switch (CGameInfo::FUN_00405d80()) {
         case 0:
         case 1:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             if ((char)FUN_004072d0() != 0) {
                 if ((char)RallyDataStageIndex() != 0)
-                    goto L_restore;
+                    goto L_stage_restore;
                 FUN_004067c0(1);
             }
             goto L_teardown2;
         case 2:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
-            if (*param1 != 1)
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
+            if (*pPlayers != 1)
                 return;
             goto L_teardown2;
         case 5:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             if (RallyData_FUN_004074a0())
                 goto L_restore;
             goto L_teardown2;
         case 6:
-            for (i = 0; i < *param1; i++)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+            for (i = 0; i < *pPlayers; i++)
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
             goto L_teardown2;
         }
         break;
     case 2:
     case 3:
-        for (i = 0; i < *param1; i++) {
+        for (i = 0; i < *pPlayers; i++) {
             if (FUN_004728d0() == 0)
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 0, 2);
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
         }
         if (CGameInfo::FUN_00405d80() == 4)
             FUN_004728c0();
@@ -3458,10 +3453,10 @@ L_teardown:
         case 0:
         case 1:
             if ((BYTE)FUN_0041b370() + 1 == (BYTE)CGameInfo::FUN_00405d70()) {
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 0, 2);
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 0, 2);
                 if ((char)FUN_004072d0() != 0) {
                     if ((char)RallyDataStageIndex() != 0)
-                        goto L_restore;
+                        goto L_stage_restore;
                     FUN_004067c0(1);
                 }
                 goto L_teardown2;
@@ -3471,33 +3466,32 @@ L_teardown:
             if ((char)RallyData_FUN_00407ea0() == 0)
                 skip = 1;
             FUN_00418f20();
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 3, 2);
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 3, 2);
             FUN_0041b340(0);
             if (skip != 0)
                 return;
             break;
         case 2:
             if ((BYTE)FUN_0041b370() + 1 == (BYTE)CGameInfo::FUN_00405d70())
-                break;
-            CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 3, 2);
+                goto L_winner;
+            CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 3, 2);
             FUN_00420100();
             Sound_FreeAll();
             FUN_00418f20();
             FUN_0041b340(0);
             return;
         case 3:
-            if ((BYTE)FUN_0041b370() + 1 != (BYTE)CGameInfo::FUN_00405d70()) {
+            if (!((BYTE)FUN_0041b370() + 1 != (BYTE)CGameInfo::FUN_00405d70())) {
+                goto L_winner;
+            } else {
                 FUN_00420100();
                 Sound_FreeAll();
                 FUN_00418f20();
-                CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 3, 2);
+                CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 3, 2);
                 FUN_0041b340(0);
-            } else {
-                break;
             }
-            return;
+            break;
         }
-        CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, 0, 0, 2);
         break;
     }
     if (CGameInfo::FUN_00405d80() == 4 || (char)RallyData_GetFlag25() != 0)
@@ -3525,12 +3519,18 @@ L_teardown:
     if ((char)RallyData_FUN_00407ea0() == 0 || (char)CGameInfo::FUN_00406310() == 0)
         return;
     for (i = 0; i < (BYTE)RallyDataState(); i++)
-        FUN_004660a0((int **)g_unk0x00537f3c + i, i, car + i);
+        FUN_004660a0((int **)g_unk0x00537f3c + i, i, (BYTE)param2 + i);
     return;
+L_stage_restore:
+    if (RallyDataStageIndex() == 2 || RallyDataStageIndex() == 4 ||
+        RallyDataStageIndex() == 6 || RallyDataStageIndex() == 8 || RallyDataStageIndex() == 10)
+        CGame::FUN_004057e0(2);
 L_restore:
     FUN_0041e670();
     FUN_0041b300();
     return;
+L_winner:
+    CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 0, 2);
 L_teardown2:
     CGame::FUN_004057e0(0);
     FUN_0041e670();
@@ -3894,7 +3894,7 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
     if (slot == 4) {
         slot = 0;
         for (i = 0; i < 4; i++) {
-            if (oldest < now - g_unk0x00537374[i]) {
+            if (now - g_unk0x00537374[i] > oldest) {
                 slot = i;
                 oldest = now - g_unk0x00537374[i];
             }
@@ -3994,7 +3994,7 @@ void FUN_00416f70(int player)
     if ((BYTE)RallyData_FUN_00407e70()) {
         if (remaining % 100 < 20)
             g_unk0x00537350 = 6;
-        else if (block < 5)
+        else if (block <= 4)
             g_unk0x00537350 = block + 1;
         else
             g_unk0x00537350 = -1;
@@ -4072,7 +4072,7 @@ void FUN_0041d0c0(int param_1)
     }
     if ((flags & 0x2000) != 0 && (BYTE)FUN_00420190() > 1 && (BYTE)RallyDataState() == 1) {
         value = (BYTE)(FUN_00422fb0(0) + 1);
-        if ((BYTE)FUN_00420190() <= value)
+        if (value >= (BYTE)FUN_00420190())
             value = 0;
         View_SetCameraType(0, 0, value, 0);
         i = 0;
@@ -5343,14 +5343,14 @@ void FUN_0041c5a0(BYTE param1, int param2)
                 for (g_unk0x00537f04 = 0;
                      g_unk0x00537f04 < (BYTE)RallyDataState() + k;
                      g_unk0x00537f04++) {
-                    if (k != 1) {
-                        FUN_0047a710(g_unk0x00537f04, g_unk0x00537f04);
-                        FUN_0041af60(g_unk0x00537f04, g_unk0x00537f04);
-                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, g_unk0x00537f04);
-                    } else {
+                    if (!(k != 1)) {
                         FUN_0047a710(g_unk0x00537f04, 0);
                         FUN_0041af60(g_unk0x00537f04, 0);
                         FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, 0);
+                    } else {
+                        FUN_0047a710(g_unk0x00537f04, g_unk0x00537f04);
+                        FUN_0041af60(g_unk0x00537f04, g_unk0x00537f04);
+                        FUN_00418b00((Unk0049c2c0 *)g_unk0x00537f04, g_unk0x00537f04);
                     }
                 }
             }

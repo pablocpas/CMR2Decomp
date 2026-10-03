@@ -499,12 +499,14 @@ void Vehicle_UpdateMotion(FixVector *pInput)
 
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
 
-// Face-vertex collision test: picks the candidate side, classifies the face
-// vertices and reports whether the selected back side has four vertices.
-// match 44%: implementada, el original guarda el resultado 0 en ESI y prueba los dos contadores en CL antes de ramificar; MSVC6 usa AL y reparte los saltos distinto
+// Selects a candidate face, transforms and classifies its vertices, then uses
+// candidate and side counts to decide whether it participates in car collision.
+// Matching remains pending; differential_collision_face_decision.py checks
+// the decision and provider ABI with controlled geometry helpers.
 // FUNCTION: CMR2 0x00490b90
 int FUN_00490b90(int param_1)
 {
+    int result = 0;
     int found;
 
     if (param_1 != 0)
@@ -516,18 +518,14 @@ int FUN_00490b90(int param_1)
                      (int *)((BYTE *)g_collisionCar + 0x2d0),
                      (FixVector *)((BYTE *)g_collisionCar + 0x270));
         Collision_ClassifyFaceVertices();
-        if (g_collisionPositiveCandidateCount != 0) {
-            if (g_collisionNegativeCandidateCount != 0)
-                return 1;
-        } else if (g_collisionNegativeCandidateCount == 0) {
-            return 0;
+        if (g_collisionPositiveCandidateCount > 0 && g_collisionNegativeCandidateCount > 0)
+            result = 1;
+        else if (g_collisionPositiveCandidateCount > 0 || g_collisionNegativeCandidateCount > 0) {
+            if (g_collisionPositiveVertexCount != 4 || g_collisionSelectBackSide != 0)
+                result = g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0;
         }
-        if (g_collisionPositiveVertexCount == 4 && g_collisionSelectBackSide == 0)
-            return 0;
-        if (g_collisionNegativeVertexCount == 4 && g_collisionSelectBackSide != 0)
-            return 1;
     }
-    return 0;
+    return result;
 }
 
 void FUN_00483010(void);

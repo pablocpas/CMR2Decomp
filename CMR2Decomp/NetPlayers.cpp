@@ -665,8 +665,8 @@ void FUN_0040a980(unsigned int localTime)
     int i;
     char *name;
 
-    g_netTotal += localTime;
     rank = 1;
+    g_netTotal += localTime;
     for (i = 0; i < 7; i++) {
         if ((g_netPlayers[i].flags & 0x80) && (name = FUN_00409cd0(i)) != NULL) {
             strcpy(g_netStandings[i].name, name);

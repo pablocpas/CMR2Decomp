@@ -160,14 +160,14 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     if (count > 0) {
         do {
             if (Track_GetTriangle(t, pList[i]) && Track_PointInTriangle(pPoint, pList[i], t)) {
-                h = (t[2].y + t[1].y + t[0].y) / 3;
+                h = (t[1].y + t[2].y + t[0].y) / 3;
                 d = y - h;
                 if (d < 0)
                     d = h - y;
                 if (first) {
                     first = FALSE;
-                    bestIndex = i;
                     best = d;
+                    bestIndex = i;
                 } else if (d < best) {
                     bestIndex = i;
                     best = d;
@@ -200,12 +200,12 @@ int Track_FindTriangle(FixVector *pPoint, short *pOut, int y)
 
     dx = pPoint->x - ((int *)g_unk0x00591af8)[0];
     dz = pPoint->z - ((int *)g_unk0x00591af8)[1];
-    row = (short)(dz >> 24);
     col = (short)(dx >> 24);
     level = 0;
+    row = (short)(dz >> 24);
+    mask = 0xffffff;
     node = *(short *)g_unk0x00591b20 * row + col;
     shift = 24;
-    mask = 0xffffff;
     if (col < 0 || col >= *(short *)g_unk0x00591b20 || row < 0 || row >= *(short *)g_unk0x00591b1c)
         return 0;
     while (*(short *)(g_unk0x00591b00[level] + node * 8) == -1) {
@@ -381,7 +381,7 @@ void Car_UpdateAutomaticGear(void)
         selected = 0;
         gear = g_pAutoGearCar->gear;
         engine = FixMul(g_pAutoGearCar->gearSpeed[gear], g_pAutoGearCar->field_0x7a4);
-        for (i = 1; i <= 6; i++) {
+        for (i = 1; i < 7; i++) {
             candidate = FixMul(g_pAutoGearCar->field_0x7bc[i], engine);
             if (candidate > best &&
                 (candidate < FixMul(g_pAutoGearCar->field_0x794, 0xfae1) || i == 6)) {
@@ -606,8 +606,8 @@ void Stage_InitLightMeshes(void)
             vertices = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
             value = (int)(__int64)((double)vertices[1] * CGraphics::m_65536);
             if (i == g_stageMesh0Count - 1) {
-                minimum = value;
                 maximum = value;
+                minimum = value;
             } else {
                 if (maximum < value)
                     maximum = value;
@@ -706,9 +706,9 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
             else if (t > 0x10000)
                 t = 0x10000;
             FixVecScale(&scaled, &delta, t);
+            blue = (low.z + scaled.z) >> 16;
             red = (low.x + scaled.x) >> 16;
             green = (low.y + scaled.y) >> 16;
-            blue = (low.z + scaled.z) >> 16;
             if (red > 255) red = 255;
             else if (red < 0) red = 0;
             if (green > 255) green = 255;
@@ -1183,8 +1183,8 @@ double g_unk0x00511308 = -4096.0 / (360.0 * 65536.0);
 
 // Integrates the auto-gear steering accumulator for the current surface and
 // eases the 16.16 angle in 0xb10/0xb12 towards the new target.
-// match 43%: implemented; the original materialises FixMul(<constant zero>, v) instead of
-// testing zero, which moves the whole decision tree's register allocation
+// Keeps the original intermediate forces and materialized zero bounds.
+// Differential coverage: guarded car, signed limits, angles and real helpers.
 // FUNCTION: CMR2 0x00494110
 void FUN_00494110(void)
 {
@@ -1193,6 +1193,7 @@ void FUN_00494110(void)
     int cur;
     int magCur;
     int magSum;
+    int deadZone;
     short target;
     short step;
     short limit;
@@ -1200,62 +1201,49 @@ void FUN_00494110(void)
     FUN_004943d0();
     FUN_004945d0();
     g_unk0x00592168 = *(int *)((BYTE *)g_pAutoGearCar + 0x820);
-    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) != 0) {
+    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) == 0) {
+        g_unk0x00592168 = 0;
+    } else {
         if (FixMul(g_unk0x00592160, *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) > 0)
             g_unk0x00592168 = -g_unk0x00592168;
-    } else {
-        g_unk0x00592168 = 0;
     }
 
     v = 0x10000 - FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xb8) +
                          *(int *)((BYTE *)g_pAutoGearCar + 0x94), 0x8000);
-    g_unk0x00592164 = FixMul(FixMul(g_unk0x00592164, v), *(int *)((BYTE *)g_pAutoGearCar + 0x804));
-    g_unk0x00592168 = FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0x804), FixMul(v, g_unk0x00592168));
+    g_unk0x00592164 = FixMul(g_unk0x00592164, v);
+    g_unk0x00592168 = FixMul(g_unk0x00592168, v);
+    g_unk0x00592164 = FixMul(g_unk0x00592164, *(int *)((BYTE *)g_pAutoGearCar + 0x804));
+    g_unk0x00592168 = FixMul(g_unk0x00592168, *(int *)((BYTE *)g_pAutoGearCar + 0x804));
 
-    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0) {
-        if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0)
-            goto modeB;
-        goto modeA;
-    }
-    if (g_unk0x00592168 > 0)
-        goto modeB;
-modeA:
-    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0)
-        goto towardZero;
-    if (g_unk0x00592168 >= 0)
-        goto towardNeg;
-modeB:
-    sum = g_unk0x00592164 + g_unk0x00592168;
-    cur = *(int *)((BYTE *)g_pAutoGearCar + 0x81c);
-    magCur = cur;
-    if (magCur < 0)
-        magCur = -magCur;
-    magSum = sum;
-    if (magSum < 0)
-        magSum = -magSum;
-    if (magCur <= magSum)
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
-    else
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = cur + sum;
-    goto convert;
-
-towardNeg:
-    *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
-    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < -0x10000)
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0xffff0000;
-    else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0)
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
-    goto convert;
-
-towardZero:
-    if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0)
+    if ((*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0 &&
+         *(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0) ||
+        (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) != 0 && g_unk0x00592168 > 0) ||
+        (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) != 0 && g_unk0x00592168 < 0)) {
+        sum = g_unk0x00592164 + g_unk0x00592168;
+        cur = *(int *)((BYTE *)g_pAutoGearCar + 0x81c);
+        magCur = cur < 0 ? -cur : cur;
+        magSum = sum < 0 ? -sum : sum;
+        if (magCur <= magSum)
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
+        else
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = cur + sum;
         goto convert;
-    *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
-    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0x10000)
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0x10000;
-    else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < 0)
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
-
+    } else if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) != 0) {
+        deadZone = FixMul(0, v);
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
+        if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < -0x10000)
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0xffff0000;
+        else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > -deadZone)
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = -deadZone;
+        goto convert;
+    } else if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) != 0) {
+        deadZone = FixMul(0, v);
+        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
+        if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0x10000)
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0x10000;
+        else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < deadZone)
+            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = deadZone;
+    }
 convert:
     target = (short)(__int64)((double)FixMul(g_unk0x00592160,
                                              *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) *
@@ -1263,9 +1251,10 @@ convert:
     *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = target;
     step = *(short *)((BYTE *)g_pAutoGearCar + 0xb12) - *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
     limit = (short)(FixMul(0x22, 0x10000 - v) + 0x22);
-    cur = step;
-    if (cur < 0)
-        cur = -cur;
+    if (step < 0)
+        cur = -step;
+    else
+        cur = step;
     if (cur < limit) {
         *(short *)((BYTE *)g_pAutoGearCar + 0xb10) = *(short *)((BYTE *)g_pAutoGearCar + 0xb12);
         return;

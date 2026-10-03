@@ -1,0 +1,15 @@
+{
+  "original": "/home/pablo/colin_mcrae_linux/CMR2Decomp/cmr2bin/CMR2.exe",
+  "functions": {
+    "0x50c130": {
+      "begin": 5292336,
+      "end": 5293077,
+      "branches": {
+        "5292672": "jle 0x50c355",
+        "5292752": "jne 0x50c2d9",
+        "5292759": "jmp 0x50c2de",
+        "5292878": "jl 0x50c287"
+      }
+    }
+  }
+}

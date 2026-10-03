@@ -354,8 +354,8 @@ int Menu_Update(Menu *pMenu, unsigned int input)
             if (bPrev && bNext)
                 bPrev = 0;
         } else {
-            bPrev = 0;
             bNext = 0;
+            bPrev = 0;
         }
 
         count = pMenu->itemCount;

@@ -182,8 +182,8 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
 {
     int i = 7;
     short noise = 0;
-    short noiseNext = 0;
     int *pComp = (int *)((BYTE *)pCar + 0x8bc);
+    short noiseNext = 0;
     short *pSurf = (short *)((BYTE *)pCar + 0xabc);
     int *pOut = (int *)((BYTE *)pCar + 0x180);
     int s0;

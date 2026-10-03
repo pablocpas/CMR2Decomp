@@ -1,0 +1,14 @@
+{
+  "original": "/home/pablo/colin_mcrae_linux/CMR2Decomp/cmr2bin/CMR2.exe",
+  "functions": {
+    "0x418f20": {
+      "begin": 4296480,
+      "end": 4296665,
+      "branches": {
+        "4296572": "jne 0x418f73",
+        "4296632": "jl 0x418f6b",
+        "4296643": "jne 0x418fd8"
+      }
+    }
+  }
+}

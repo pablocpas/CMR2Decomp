@@ -117,8 +117,8 @@ void FUN_0040ccd0(char *pPositions, int *pPoints)
     i = 0;
     do {
         for (j = i + 1; j < 8; j++) {
-            car = g_unk0x00533610[i];
             other = g_unk0x00533610[j];
+            car = g_unk0x00533610[i];
             if (g_unk0x005335b8[car] != g_unk0x005335b8[other])
                 break;
             swap = 0;

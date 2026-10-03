@@ -92,7 +92,8 @@ int g_physTrailScale = 0x10000;
 // Resets the contact records for a new stage and caches the pointers into
 // every car's handling data. In the time trial modes only the first car
 // (the player) is driven, the others are ghosts.
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Matching remains pending; differential_contact_init.py checks the records,
+// pointer caches and real handling/game-state helpers.
 // FUNCTION: CMR2 0x00494bb0
 void FUN_00494bb0(void)
 {
@@ -125,10 +126,14 @@ void FUN_00494bb0(void)
     for (i = 0; i < g_unk0x00592738; i++) {
         data = FUN_00457e10((BYTE *)Car_Get(i), 1);
         g_physSkidCount[i] = (BYTE *)data;
-        g_physSkidRange[i] = (BYTE *)(data + 1);
-        g_physSkidOffset[i] = (int *)(data + 4);
-        g_physWheelLength[i] = (int *)(data + 8);
-        g_physSkidWidth[i] = (int *)(data + 0xc);
+        data++;
+        g_physSkidRange[i] = (BYTE *)data;
+        data += 3;
+        g_physSkidOffset[i] = (int *)data;
+        data += 4;
+        g_physWheelLength[i] = (int *)data;
+        data += 4;
+        g_physSkidWidth[i] = (int *)data;
     }
 }
 
@@ -202,7 +207,7 @@ void FUN_00497db0(Car *pCar)
             pContact->wheelGroundY[wheel] = t;
             travel = pos.y - t;
             pos.y = t;
-            if (travel >= 1) {
+            if (travel > 0) {
                 t = FixMul(FixDiv(0x10000, 0x4000), travel);
                 if (t > 0x10000)
                     t = 0x10000;
@@ -263,7 +268,6 @@ void FUN_00497db0(Car *pCar)
 // spanning the car's hull points (or taken from the car's box when the
 // ground normal is unknown), or, for ghost cars, the hull points themselves
 // rescaled for the stage.
-// match 62%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004962c0
 void FUN_004962c0(Car *pCar, CarContact *pContact)
 {
@@ -346,18 +350,18 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
         }
         FixVecScale(&fwd, &g_physPatchDir, g_physPatchLength);
         FixVecScale(&side, &g_physPatchSide, g_physPatchWidth);
-        pContact->points[1].x = side.x + fwd.x;
+        pContact->points[1].x = fwd.x + side.x;
+        pContact->points[1].y = fwd.y + side.y;
+        pContact->points[1].z = fwd.z + side.z;
         pContact->points[0].x = fwd.x - side.x;
-        pContact->points[1].y = side.y + fwd.y;
         pContact->points[0].y = fwd.y - side.y;
-        pContact->points[1].z = side.z + fwd.z;
         pContact->points[0].z = fwd.z - side.z;
         FixVecScale(&fwd, &fwd, -0x10000);
-        pContact->points[2].x = side.x + fwd.x;
+        pContact->points[2].x = fwd.x + side.x;
+        pContact->points[2].y = fwd.y + side.y;
+        pContact->points[2].z = fwd.z + side.z;
         pContact->points[3].x = fwd.x - side.x;
-        pContact->points[2].y = side.y + fwd.y;
         pContact->points[3].y = fwd.y - side.y;
-        pContact->points[2].z = side.z + fwd.z;
         pContact->points[3].z = fwd.z - side.z;
         for (i = 0; i < 4; i++) {
             pContact->points[i].x += g_physGroundPos.x;
@@ -377,7 +381,7 @@ void FUN_004962c0(Car *pCar, CarContact *pContact)
     d.x += mid.x;
     d.y += mid.y;
     d.z += mid.z;
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i <= 3; i++) {
         pContact->points[i].x = pCar->corners[i].x + d.x;
         pContact->points[i].y = d.y + pCar->corners[i].y;
         pContact->points[i].z = pCar->corners[i].z + d.z;
@@ -559,7 +563,7 @@ void FUN_00494db0(Car *pCar, int view)
             if (pCar->corners[i].y - pCar->cornerHeight[i] < t)
                 t = pCar->corners[i].y - pCar->cornerHeight[i];
         }
-        if (t < 1) {
+        if (t <= 0) {
             t = 0x10000;
         } else {
             t = FixMul(t, 0x20000);
