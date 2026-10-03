@@ -7878,8 +7878,8 @@ void FUN_004853c0(FixVector *pImpulse)
     scale = FixMul(0x4ccc, random) + 0xb333;
     FixVecScale(&scaled, pImpulse, scale);
     FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
-    g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.x -= local.x;
+    g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.z -= local.z;
 }
 
@@ -14315,7 +14315,7 @@ void FUN_0046d5e0(void)
 // FUNCTION: CMR2 0x00466030
 void FUN_00466030(int a, int b)
 {
-    int index;
+    BYTE index;
 
     index = g_unk0x0058875c->index;
     FUN_0046cce0((ReplayStream *)g_unk0x00588758, a, b, index);
