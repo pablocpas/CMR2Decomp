@@ -231,8 +231,9 @@ void CGraphics::FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight
 }
 
 // FUNCTION: CMR2 0x004a5be0
-BOOL CGraphics::FUN_004a5be0(void) {
-    int index, textureID, face;
+BYTE CGraphics::FUN_004a5be0(void) {
+    unsigned int index, textureID;
+    int face;
 
     m_pTextureManager->pDD->EvictManagedTextures();
     m_unk0x0065fa2c = 0;
@@ -242,31 +243,23 @@ BOOL CGraphics::FUN_004a5be0(void) {
     do {
         Texture* pTexture = m_pTextureManager->textureBuffer[index];
         if (pTexture != NULL && pTexture->pSurface != NULL && textureID == pTexture->textureId) {
-            
-            if (pTexture->pSurface->Release() == 0) {
-                pTexture->pSurface = NULL;
-            }
+            if (pTexture->pSurface->Release() == 0)
+                m_pTextureManager->textureBuffer[index]->pSurface = NULL;
         }
-        
         index++;
         textureID++;
     } while (index < 2048);
 
     FUN_004a5ba0();
-    index = 0;
 
-    // Cube maps: for each one, its 6 z-buffers and its 6 face surfaces, last first
-    // (the original walks both arrays downwards from face 5)
     for (index = 0; index < m_unk0x0065fa28; index++) {
         for (face = 5; face >= 0; face--) {
             RenderTexture *pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
-            IDirectDrawSurface7 **ppFace;
-            if (pCube->pZBuffers[face] != NULL && pCube->pZBuffers[face]->Release() == 0)
+            if (pCube->pZBuffers[face] != NULL && ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->pZBuffers[face]->Release() == 0)
                 ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->pZBuffers[face] = NULL;
             pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
-            ppFace = (IDirectDrawSurface7 **)((BYTE *)pCube + 0x114 + face * sizeof(RenderTextureFace));
-            if (*ppFace != NULL && (*ppFace)->Release() == 0)
-                *(IDirectDrawSurface7 **)((BYTE *)m_pTextureManager->textureBuffer2[index] + 0x114 + face * sizeof(RenderTextureFace)) = NULL;
+            if (pCube->faces[face].pSurface != NULL && ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->faces[face].pSurface->Release() == 0)
+                ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->faces[face].pSurface = NULL;
         }
     }
 
@@ -3625,8 +3618,8 @@ int Timer_GetValue(BYTE index)
     step = (BYTE)pos;
     if (pos >= dur)
         step = (BYTE)dur;
-    if (*(int *)(t + 0x24) != 0) {
-        (*(int *)(t + 0x24))--;
+    if (*(unsigned int *)(t + 0x24) > 0) {
+        (*(unsigned int *)(t + 0x24))--;
         return *(int *)(t + 0x10);
     }
     switch (t[0]) {
@@ -3642,15 +3635,15 @@ int Timer_GetValue(BYTE index)
         v = (int)((dur - step + 1) * (dur - step)) / 2;
         break;
     case 3:
-        v = ((step + 1) * (unsigned int)step) / 2;
+        v = ((step + 1) * step) / 2;
         break;
     case 4:
-        if (dur - 0x11 >= step) {
-            v = (int)((dur - step - 0x10) * (dur - step - 0x11)) / 2;
-        } else {
+        if (step > dur - 0x11) {
         wobble:
             v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
             *(int *)(t + 0x1c) = 0x1000;
+        } else {
+            v = (int)((dur - step - 0x11) * (dur - step - 0x11 + 1)) / 2;
         }
         break;
     case 5:
@@ -3666,7 +3659,7 @@ int Timer_GetValue(BYTE index)
             *(int *)(t + 0x2c) = CMain::GetFrameTime();
         }
     }
-    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(g_unk0x00521138[index] + 4))
+    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(t + 4))
         return (int)(*(int *)(t + 0x1c) * v) / 4096 + *(int *)(t + 8);
     t[0] = 5;
     return *(int *)(t + 0xc);
@@ -6627,9 +6620,10 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
     TGAImageInfo *pInfo;
     DDSURFACEDESC2 desc;
     unsigned int mask;
-    BYTE uBits;
-    BYTE vBits;
-    BYTE lBits;
+    int count;
+    int uBits;
+    int vBits;
+    int lBits;
     int uShift;
     int vShift;
     int lShift;
@@ -6660,18 +6654,21 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
         pTexture->pSurface->Unlock(NULL);
         return NULL;
     }
-    for (uBits = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask, i = 32; i != 0; i--, mask >>= 1)
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpDuBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            uBits++;
-    uBits = 8 - uBits;
-    for (vBits = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask, i = 32; i != 0; i--, mask >>= 1)
+            count++;
+    uBits = 8 - (BYTE)count;
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpDvBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            vBits++;
-    vBits = 8 - vBits;
-    for (lBits = 0, mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask, i = 32; i != 0; i--, mask >>= 1)
+            count++;
+    vBits = 8 - (BYTE)count;
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            lBits++;
-    lBits = 8 - lBits;
+            count++;
+    lBits = 8 - (BYTE)count;
     for (uShift = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask; uShift < 32 && !(mask & 1); uShift++)
         mask >>= 1;
     for (vShift = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask; vShift < 32 && !(mask & 1); vShift++)

@@ -1107,7 +1107,7 @@ public:
     static void SetDefaults(void);
     static void FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight, unsigned int colourDepth, unsigned int param4, unsigned int param5);
     static void FUN_004a5ba0(void);
-    static BOOL FUN_004a5be0(void);
+    static BYTE FUN_004a5be0(void);
     static BOOL ReleaseDirect3D(void);
     static void ReleaseVertexBuffers(void);
     static int ReleaseSurfaces(void);
