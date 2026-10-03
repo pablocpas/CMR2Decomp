@@ -14,7 +14,7 @@ extern char g_emptyString[4];
 // FUNCTION: CMR2 0x004a9f50
 void FUN_004a9f50(char *pOut, char *path)
 {
-    sprintf(pOut, strrchr(path, '\\') + 1);
+    ((int (__cdecl *)(char *, const char *))sprintf)(pOut, strrchr(path, '\\') + 1);
     sprintf(strrchr(pOut, '.'), g_emptyString);
 }
 
@@ -36,14 +36,14 @@ Texture* CTexture::FindLoadTexture(GenericFile* pFile, char* textureName, bool *
         if (pData == NULL) {
             sprintf(name + strlen(name) - 4, g_tgaSuffix);
             pData = CGenericFileLoader::FindFileInArchive(pFile, name, (DWORD *)param4);
-            if (pData == NULL)
-                return CGraphics::FUN_004a49c0(textureName, flag);
         }
-        if (didLoadTexture != NULL)
-            *didLoadTexture = true;
-        pTexture = CGraphics::FUN_004a48c0(textureName, pData, flag);
-        pTexture->pArchive = pFile;
-        return pTexture;
+        if (pData != NULL) {
+            if (didLoadTexture != NULL)
+                *didLoadTexture = true;
+            pTexture = CGraphics::FUN_004a48c0(textureName, pData, flag);
+            pTexture->pArchive = pFile;
+            return pTexture;
+        }
     }
     return CGraphics::FUN_004a49c0(textureName, flag);
 }
