@@ -998,15 +998,15 @@ void FUN_004e2b40(Menu *pMenu)
                   (int *)g_colourWhite0x00524968, 9);
     rowHeight = g_unk0x008189a8[3] + 10;
     g_unk0x008189a8[2] = 0x190;
-    g_unk0x008189a8[3] = 0x14;
     g_unk0x008189a8[1] += rowHeight;
+    g_unk0x008189a8[3] = 0x14;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
     Font_DrawText(1, g_str0x00524ec0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1],
                   (int *)g_colourWhite0x00524968, 9);
+    list.selected = 2;
+    list.count = 6;
     list.field_0x6 |= 3;
     list.field_0x7 = 3;
-    list.count = 6;
-    list.selected = 2;
     list.strings[0] = g_str0x00524ea8;
     list.strings[1] = g_str0x00524e90;
     list.strings[2] = g_str0x00524e80;
