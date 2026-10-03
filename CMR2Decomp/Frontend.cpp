@@ -1445,21 +1445,24 @@ char FUN_004cfb30(int param1, int index, char *pName)
 {
     unsigned char *pInfo;
     unsigned int *pDevice;
+    unsigned int *pWords;
     GameInfo0xa4SubStruct12 *pRecord;
-    BOOL better;
+    int better;
     int slot;
     int i;
 
     RallyData_FUN_00408c70(index);
     pDevice = (unsigned int *)FUN_004d02d0(index);
     pInfo = (unsigned char *)CGameInfo::FUN_00405fe0();
-    better = FALSE;
+    better = 0;
+    slot = 0;
     pInfo += (g_unk0x00817400 + g_unk0x008173f8 * 3) * 0x3c;
-    pRecord = (GameInfo0xa4SubStruct12 *)(pInfo + 0xb4);
-    for (slot = 0; slot < 5; slot++, pRecord++) {
+    pWords = (unsigned int *)(pInfo + 0xb8);
+    for (;;) {
+        pRecord = (GameInfo0xa4SubStruct12 *)(pWords - 1);
         if (pDevice != NULL) {
             if ((*pDevice & 0xf) < pRecord->bits.level)
-                better = TRUE;
+                better = 1;
             if ((pRecord->bits.level == (*pDevice & 0xf) && pDevice[1] < pRecord->value) || better) {
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *p = (GameInfo0xa4SubStruct12 *)(pInfo + 0xe4);
@@ -1478,8 +1481,11 @@ char FUN_004cfb30(int param1, int index, char *pName)
                 return (slot != 0) + 1;
             }
         }
+        slot++;
+        if (slot >= 5)
+            return 0;
+        pWords += 3;
     }
-    return 0;
 }
 
 
