@@ -61,6 +61,16 @@ def func_region(text, address):
     raise ValueError(f"Unterminated function {address:#x}")
 
 
+def parse_addresses(text):
+    """Comma-separated original addresses for --addresses."""
+    try:
+        return {int(part, 0) for part in text.split(",") if part.strip()}
+    except ValueError as error:
+        raise ValueError(
+            "--addresses expects comma-separated addresses like 0x46b440"
+        ) from error
+
+
 def reorders_floating(body, changed_lines):
     # MSVC6/x87 can keep temporaries at extended precision. Reordering a float
     # calculation can change spills even when the source expressions are unchanged.
@@ -744,6 +754,10 @@ def main():
     parser.add_argument("--max-bytes", type=int, default=1000)
     parser.add_argument("--min-bytes", type=int, default=1)
     parser.add_argument("--limit", type=int, default=140)
+    parser.add_argument(
+        "--addresses",
+        help="Only search these comma-separated original addresses, e.g. 0x46b440,0x48ce80.",
+    )
     parser.add_argument("--jobs", type=int, default=12)
     parser.add_argument("--functions", type=int, default=4)
     parser.add_argument("--rounds", type=int, default=5)
@@ -867,10 +881,17 @@ def main():
     P.SAFE = True
     P.negate = lambda condition: "!(" + condition + ")"
     P.func_region = func_region
+    only = None
+    if args.addresses:
+        try:
+            only = parse_addresses(args.addresses)
+        except ValueError as error:
+            parser.error(str(error))
     targets = [
         (a, v["s"], sizes.get(a, 0), v["f"])
         for address, v in audit.items()
         if (a := int(address, 16)) in names
+        and (only is None or a in only)
         and not v["x"]
         and not v.get("unknown")
         and not v.get("err")
