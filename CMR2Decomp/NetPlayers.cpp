@@ -529,9 +529,9 @@ void FUN_0040a580(int param1, int param2, int param3)
             g_netResults[i].field_0x8 = FixMulShift32(0x19645, (g_netPlayers[i].stats.speed >> 10) * 0x10000);
             if (g_netResults[i].field_0x8 > 99)
                 g_netResults[i].field_0x8 = 99;
-            g_netResults[i].id = g_netPlayers[i].id;
             {
                 unsigned short f1a = g_netPlayers[i].stats.field_0x1a;
+                g_netResults[i].id = g_netPlayers[i].id;
                 g_netResults[i].field_0xc = (f1a >> 11) & 0xf;
                 if (f1a & 0x8000)
                     g_netResults[i].field_0xc = -g_netResults[i].field_0xc;
@@ -621,7 +621,6 @@ int __cdecl FUN_0040a7d0(const void *a, const void *b)
 }
 
 // Stage standings of all players, sorted by time, plus their ranks.
-// match 87%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0040a820
 void FUN_0040a820(unsigned int localTime)
 {
@@ -653,12 +652,16 @@ void FUN_0040a820(unsigned int localTime)
     g_netStandings2[i].car = (BYTE)RallyData_FUN_004086b0(0);
     qsort(g_netStandings2, 8, sizeof(NetStanding), FUN_0040a7d0);
     g_netRanks2[0] = 1;
-    for (i = 1; i < 8; i++) {
-        if (g_netStandings2[i].index == -1)
-            return;
-        if (g_netStandings2[i].time != g_netStandings2[i - 1].time)
-            rank++;
-        g_netRanks2[i] = rank;
+    {
+        int *r = g_netRanks2;
+        NetStanding *p = &g_netStandings2[1];
+        for (; (int)p < (int)&g_netStandings2[8]; p++) {
+            if (p->index == -1)
+                return;
+            if (p->time != p[-1].time)
+                rank++;
+            *++r = rank;
+        }
     }
 }
 

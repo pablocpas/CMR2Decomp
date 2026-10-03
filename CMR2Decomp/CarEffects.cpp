@@ -301,11 +301,15 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 3;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     } else if (part == pParts[0x463]) {
         g_windowSmash[0][SMASH_SLOT] = 4;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 5;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     } else {
         if (part == pParts[0x460])
             g_windowSmash[0][SMASH_SLOT] = 0;
@@ -313,9 +317,9 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
             g_windowSmash[0][SMASH_SLOT] = 1;
         else
             return;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     }
-    g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
-    g_windowSmashCount[pCar->index]++;
 #undef SMASH_SLOT
 }
 
