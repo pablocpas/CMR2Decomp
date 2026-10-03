@@ -3949,13 +3949,10 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
 // FUNCTION: CMR2 0x00418c30
 void FUN_00418c30(unsigned int view, int volume, char heavy, int listener)
 {
-    int sound;
-
     if (heavy != 0)
-        sound = rand() % 3 + 4 + g_unk0x005373ac;
+        FUN_004187d0(view, (unsigned short)(rand() % 3 + 4 + g_unk0x005373ac), volume, listener);
     else
-        sound = rand() % 4 + g_unk0x005373ac;
-    FUN_004187d0(view, (unsigned short)sound, volume, listener);
+        FUN_004187d0(view, (unsigned short)(rand() % 4 + g_unk0x005373ac), volume, listener);
     CAR_SHAKE(view, volume);
 }
 
