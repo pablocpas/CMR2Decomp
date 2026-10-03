@@ -6054,14 +6054,13 @@ short g_unk0x0082c9ec[4];
 int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     if (p->field_0x1c != 0x10000) {
-        *pX = (short)FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
-                                   *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
-        *pY = (short)FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
-                                   *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
+        *pX = FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
+                            *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
+        *pY = FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
+                            *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
     }
     *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
     *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);
-    return 0;
 }
 
 // Re-runs the option-menu callback stored in the global (0x82b1b4).
@@ -7630,7 +7629,7 @@ void FUN_00506930(int param1, short *param2, int param3)
     if (a[0] < 0)
         abs = -a[0];
     if (abs > 0xb40000) {
-        if (a[0] >= 1)
+        if (a[0] > 0)
             a[0] = 0x1680000 - a[0];
         else
             a[0] += 0x1680000;
@@ -8893,7 +8892,6 @@ void FUN_005057e0(void)
     Texture *pTexture;
     int i;
     int width;
-    int scale;
     int y;
 
     if (CGameInfo::GetGameLanguage() == 4)
@@ -8909,19 +8907,21 @@ void FUN_005057e0(void)
     dest.x = (short)width - pTexture->width / 2;
     dest.w = pTexture->width;
     dest.h = pTexture->height;
-    scale = FixDiv(0xea0000, g_unk0x0082c6bc * 0x10000 - 0x10000);
     for (i = 0; i < g_unk0x0082c6bc; i++) {
-        y = FixMulShift32(i << 16, scale);
-        pTexture = (Texture *)g_unk0x0082ca20[i];
+        int num = 0xea0000;
+        int scale = FixDiv(num, g_unk0x0082c6bc * 0x10000 - 0x10000);
+        int rowY = FixMulShift32(i << 16, scale);
+        rowY += 0x93;
         FUN_00501f80(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
-                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, &g_unk0x005270fc,
+                     (int)g_pGraphics->resY * rowY / 0x1e0, &g_unk0x005270fc,
                      &g_unk0x00527100, 0x22);
-        dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
+        dest.y = (short)((int)g_pGraphics->resY * (rowY - 0x12) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
             dest.y = dest.y - g_unk0x00527254[g_unk0x0082c698[i]];
         else
             dest.y = dest.y - g_unk0x00527260[g_unk0x0082c698[i]];
+        pTexture = (Texture *)g_unk0x0082ca20[g_unk0x0082c698[i]];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
                      g_unk0x005270e4, 8);
     }
