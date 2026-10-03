@@ -94,24 +94,28 @@ void Mesh_SetVertexAlpha(Mesh *pMesh, BYTE alpha)
 #define MESH_SET_VERTEX_COLOUR(v)                                                   \
     do {                                                                            \
         colour = *(DWORD *)pMesh->pTriangles[i].colour[v];                          \
-        *(DWORD *)((char *)pMesh->pVertexData +                                     \
-                   pMesh->pTriangles[i].vertexIndex[v] * 0x30 + 0x18) =             \
-            RGBA_MAKE(((BYTE *)&colour)[0], ((BYTE *)&colour)[1],                   \
-                      ((BYTE *)&colour)[2], ((BYTE *)&colour)[3]);                  \
+        BYTE *pc = (BYTE *)&colour;                                                 \
+        *(DWORD *)(pVertexData + pMesh->pTriangles[i].vertexIndex[v] * 0x30 + 0x18) \
+            = (pc[3] << 24) | (pc[0] << 16) | (pc[1] << 8) | pc[2];                 \
     } while (0)
 
 // Re-writes the vertex colours of the locked copy of the vertex array (shuffling
 // the stored RGBA bytes into the D3D ARGB layout) and uploads the whole array
 // into the mesh's shared vertex buffer.
-// match 38%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b1ea0
 void Mesh_Rebuild(Mesh *pMesh)
 {
+    BYTE *pVertexData;
+    int vertexCount;
+    int n;
     int i;
     DWORD colour;
     void *pVertices;
 
-    for (i = 0; i < pMesh->triangleCount; i++) {
+    vertexCount = pMesh->field_0x10;
+    pVertexData = (BYTE *)pMesh->pVertexData;
+    n = pMesh->triangleCount;
+    for (i = 0; i < n; i++) {
         MESH_SET_VERTEX_COLOUR(0);
         MESH_SET_VERTEX_COLOUR(1);
         MESH_SET_VERTEX_COLOUR(2);
@@ -119,7 +123,7 @@ void Mesh_Rebuild(Mesh *pMesh)
 
     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Lock(0x821, &pVertices, NULL);
     memcpy((char *)pVertices + pMesh->vertexOffset * 0x30, pMesh->pVertexData,
-           pMesh->field_0x10 * 0x30);
+           vertexCount * 0x30);
     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex]->Unlock();
 }
 
@@ -129,7 +133,10 @@ char g_strVertexBufferFull[] =
     "Requested Vertices : %d  Limit : %d";
 
 // Groups the triangles of a mesh by texture into index lists (once).
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures
+// it (see CONVENCIONES). The `last = n` order inside the second loop follows the
+// original (`inc ebp / add eax,4 / mov edi,edx` before zeroing indexCount);
+// remaining diff is the mid-function `push ebp` and the loop-1 entry test.
 // FUNCTION: CMR2 0x004b1ac0
 void Mesh_BuildParts(Mesh *pMesh)
 {
@@ -173,10 +180,10 @@ void Mesh_BuildParts(Mesh *pMesh)
         if (last != n) {
             count++;
             ppPart++;
+            last = n;
             (*ppPart)->indexCount = 0;
             (*ppPart)->texture = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
             (*ppPart)->field_0x4 = *(int *)((BYTE *)pMesh->pTriangles + off + 8);
-            last = n;
         }
         for (k = 3; k != 0; k--)
             (*ppPart)->indexCount++;
