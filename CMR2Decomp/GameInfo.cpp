@@ -8184,6 +8184,7 @@ void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
                 angle = dv.x + dv.z;
                 if (angle < 0)
                     angle = -angle;
+                angle &= 0xffffff80;
                 angle %= 1024;
                 angle <<= 6;
                 if (angle < 0x8000)
