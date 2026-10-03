@@ -390,42 +390,37 @@ extern int g_physicsTimeStep;
 
 // Advances a player's flash timer; at the end it restarts (mode 3) or stops,
 // and runs the player's fade callback.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004284d0
 void FUN_004284d0(unsigned int player, int check)
 {
-    int step = g_physicsTimeStep;
-    unsigned int p;
     int state;
     int value;
 
     if (FUN_00428740((BYTE)player) != 0) {
-        p = player & 0xff;
-        if (g_unk0x0053a0cc[p] == 0 || check == 0) {
-            state = g_unk0x0053a0ac[p];
+        if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
+            state = g_unk0x0053a0ac[player & 0xff];
             if (state == 4) {
-                g_unk0x0053a0ac[p] = 0;
+                g_unk0x0053a0ac[player & 0xff] = 0;
                 return;
             }
-            g_unk0x0053a02c[p] = g_unk0x0053a04c[p];
-            value = g_unk0x0053a04c[p] + step;
-            g_unk0x0053a04c[p] = value;
-            if (g_unk0x0053a02c[p] < 0 && value >= 0) {
-                g_unk0x0053a0ac[p] = 4;
-                g_unk0x0053a06c[p] = 0;
+            g_unk0x0053a02c[player & 0xff] = g_unk0x0053a04c[player & 0xff];
+            value = g_unk0x0053a04c[player & 0xff] + g_physicsTimeStep;
+            g_unk0x0053a04c[player & 0xff] = value;
+            if (g_unk0x0053a02c[player & 0xff] < 0 && value >= 0) {
+                g_unk0x0053a0ac[player & 0xff] = 4;
+                g_unk0x0053a06c[player & 0xff] = 0;
                 return;
             }
-            if (value >= g_unk0x0053a0ec[p]) {
+            if (value >= g_unk0x0053a0ec[player & 0xff]) {
                 if (state == 3) {
-                    value = -g_unk0x0053a0ec[p];
-                    g_unk0x0053a04c[p] = value;
-                    g_unk0x0053a02c[p] = value;
+                    g_unk0x0053a04c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
+                    g_unk0x0053a02c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
                 } else {
-                    g_unk0x0053a0ac[p] = 0;
-                    g_unk0x0053a06c[p] = 0x10000;
+                    g_unk0x0053a0ac[player & 0xff] = 0;
+                    g_unk0x0053a06c[player & 0xff] = 0x10000;
                 }
-                if (g_fadeCallbacks[p] != NULL)
-                    g_fadeCallbacks[p]((BYTE)player);
+                if (g_fadeCallbacks[player & 0xff] != NULL)
+                    g_fadeCallbacks[player & 0xff]((BYTE)player);
             }
         }
     }

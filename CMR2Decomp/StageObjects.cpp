@@ -3307,15 +3307,17 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 // FUNCTION: CMR2 0x0048d950
 void FUN_0048d950(BYTE *pSurface, FixMatrix *pMatrix)
 {
-    unsigned int index = *pSurface;
+    BYTE index = *pSurface;
     BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[index] * 0x6c;
     FixVector *pPos = &g_unk0x005916a0[index];
     FixVector *pImpact = &g_unk0x00591868[index];
     FixVector impact;
     FixVector delta;
     int t;
+    Car *pCar;
 
-    FUN_0048dce0(&impact, pSurface, Car_Get(pSurface[2]), pMatrix);
+    pCar = Car_Get(pSurface[2]);
+    FUN_0048dce0(&impact, pSurface, pCar, pMatrix);
     FixVecScale(pImpact, pImpact, 0xe666);
     FixVecScale(&impact, &impact, 0x1999);
     pImpact->x += impact.x;
@@ -4407,11 +4409,9 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 // FUNCTION: CMR2 0x0048df10
 int FUN_0048df10(BYTE *pCar)
 {
-    short v;
-
     if (*(int *)(pCar + 4) == 7) {
-        v = *(short *)(g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c + 2);
-        if (v < -0x3f4 && v > -0x40b)
+        BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c;
+        if (*(short *)(pRecord + 2) < -0x3f4 && *(short *)(pRecord + 2) > -0x40b)
             return 1;
     }
     return 0;
@@ -4492,16 +4492,17 @@ FixVector g_collisionSphereCentre;
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // True when two spheres (radii r1, r2) overlap. The 32-bit EAX result is
 // tested by the callers (0x48a1f0), so the helper returns int, not bool.
-// match 84%: identical instruction stream and stack layout except that the
+// match 81%: identical instruction stream and stack layout except that the
 // original kept the radius sum in a register with no home slot (its FixMul
 // operands spill into the dead r1/r2 argument slots) while MSVC6 here homes
 // it at [ebp-4], shifting the frame by four bytes.
 // FUNCTION: CMR2 0x00487b80
 int FUN_00487b80(int r1, int r2, int *pA, int *pB)
 {
-    int r = r1 + r2;
     FixVector delta;
+    int r;
 
+    r = r1 + r2;
     delta.x = pA[0] - pB[0];
     delta.y = pA[1] - pB[1];
     delta.z = pA[2] - pB[2];
@@ -8007,33 +8008,34 @@ void FUN_0047bca0(int slot)
 }
 
 // Encodes a car's control record into a 4-byte replay packet.
-// match 31%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 73%: identical up to the flag register (ECX vs EDX); reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046bdc0
 void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB)
 {
-    BYTE hb = (handbrake != 0 && active != 0) ? 1 : 0;
-    BYTE a = (lightA != 0 && active != 0) ? 1 : 0;
-    BYTE b = (lightB != 0 && active != 0) ? 1 : 0;
-    BYTE byte3 = pOut[3];
+    int hb;
+    int flag;
     BYTE v;
-    BYTE b0;
+    BYTE byte3;
 
-    v = (byte3 & 0x7f) | (hb << 7);
+    hb = (handbrake != 0 && active != 0) ? 1 : 0;
+    v = pOut[3];
+    v = (v & 0x7f) | (hb << 7);
     pOut[3] = v;
-    b0 = ((pOut[0] ^ a) & 1) ^ pOut[0];
-    pOut[0] = b0;
-    pOut[0] = (b << 1) | (b0 & 0xfd);
-    if (pIn[0] == 0) {
-        v = (byte3 & 0x3f) | (hb << 7);
-        pOut[3] = v;
-        byte3 = pIn[1];
-    } else {
+    flag = (lightA != 0 && active != 0) ? 1 : 0;
+    pOut[0] = ((pOut[0] ^ flag) & 1) ^ pOut[0];
+    flag = (lightB != 0 && active != 0) ? 1 : 0;
+    pOut[0] = (flag << 1) | (pOut[0] & 0xfd);
+    if (pIn[0] != 0) {
         v |= 0x40;
         pOut[3] = v;
         byte3 = pIn[0];
+    } else {
+        v &= 0xbf;
+        pOut[3] = v;
+        byte3 = pIn[1];
     }
     pOut[3] = ((byte3 ^ v) & 0x3f) ^ v;
-    pOut[0] = (pIn[2] << 2) | (b << 1) | (b0 & 1);
+    pOut[0] = (pIn[2] << 2) | (pOut[0] & 3);
     pOut[1] = (pIn[3] << 2) | (pOut[1] & 3);
     pOut[2] = (pIn[8] << 7) | (pOut[2] & 0x7f);
     pOut[1] = (((pIn[4] + 1) ^ pOut[1]) & 3) ^ pOut[1];
@@ -8152,15 +8154,15 @@ BYTE Events_Tick(int index);
 
 // Queues a draw of event `index` at (x, y) when it ticks and is on the area;
 // pauses it once it has been drawn `range` times.
-// match 32%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 53%: identical stream except the record offset lands in EDI (EBP in the original)
 // FUNCTION: CMR2 0x0046ec40
 void FUN_0046ec40(int index, int x, int y)
 {
     EventRec *p = &g_eventRecords[index];
     int over;
 
-    if (index < g_eventCount && p->active != 0 && Events_Tick(index) && x >= 0 && y >= 0 &&
-        x < p->a * 4 - 4 && y < p->b && g_unk0x00589318 < 0x40 && p != NULL) {
+    if (index < g_eventCount && g_eventRecords[index].active != 0 && Events_Tick(index) && x >= 0 &&
+        y >= 0 && x < p->a * 4 - 4 && y < p->b && g_unk0x00589318 < 0x40 && p != NULL) {
         g_eventDraws[g_unk0x00589318].pEvent = p;
         g_eventDraws[g_unk0x00589318].x = (char)x;
         over = y - p->b + 4;
@@ -8169,13 +8171,14 @@ void FUN_0046ec40(int index, int x, int y)
             g_eventDraws[g_unk0x00589318].rows = 4 - (char)over;
         else
             g_eventDraws[g_unk0x00589318].rows = 4;
-        if ((unsigned short)p->range <= (unsigned short)p->field_0x16) {
-            p->paused = 1;
+        if ((unsigned short)g_eventRecords[index].field_0x16 >=
+            (unsigned short)g_eventRecords[index].range) {
+            g_eventRecords[index].paused = 1;
             g_unk0x00589318++;
             return;
         }
         g_unk0x00589318++;
-        p->field_0x16++;
+        g_eventRecords[index].field_0x16++;
     }
 }
 
@@ -9222,7 +9225,7 @@ void FUN_0048df50(Car *param_1)
             d = (a < 0 ? -a : a) - (b < 0 ? -b : b);
         u = FixMul((d % 0x401) << 6, v);
         if (*(int *)((BYTE *)g_collisionCar + off) == 0 ||
-            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) <= u) {
+            u >= *(int *)((BYTE *)g_collisionCar + off - 0x2c0)) {
             *(int *)((BYTE *)g_collisionCar + off - 0x2c0) = u;
             *(int *)((BYTE *)g_collisionCar + off) = 1;
             *(int *)((BYTE *)g_collisionCar + i + 0x564) = 0;

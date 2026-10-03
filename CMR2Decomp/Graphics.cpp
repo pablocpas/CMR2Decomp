@@ -857,10 +857,10 @@ DWORD CGraphics::FUN_004a8d60(void) {
 
 // FUNCTION: CMR2 0x004a8c30
 HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
-    if (strcmp(lpDeviceName, m_direct3DHAL) == 0 && m_unk0x00660040[0].surfaceCap != 2) {
+    if (!strcmp(lpDeviceName, m_direct3DHAL) && m_unk0x00660040[0].surfaceCap != 2) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 1;
-    } else if (strcmp(lpDeviceName, m_direct3DTLHAL) == 0) {
+    } else if (!strcmp(lpDeviceName, m_direct3DTLHAL)) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 2;
     }
@@ -883,16 +883,16 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
 {
     DDSURFACEDESC2 desc;
     RECT rect;
-    unsigned int width;
-    unsigned int height;
-    unsigned int x;
-    unsigned int y;
+    int width;
+    int height;
     unsigned int mask;
     BYTE bits;
     int i;
+    int x;
+    int y;
+    int skip;
     DWORD *p32;
     WORD *p16;
-    int skip;
 
     desc.dwSize = sizeof(DDSURFACEDESC2);
     rect.left = 0;
@@ -905,8 +905,8 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
         g_unk0x0065fa30++;
     }
     pTexture->pSurface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
-    width = pTexture->width;
-    height = pTexture->height;
+    width = (int)(short)pTexture->width;
+    height = (int)(short)pTexture->height;
     bits = 0;
     mask = desc.ddpfPixelFormat.dwRGBAlphaBitMask;
     for (i = 32; i != 0; i--) {
@@ -918,24 +918,24 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
     case 4:
         skip = desc.lPitch - width * 2;
         p16 = (WORD *)desc.lpSurface;
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from0 << 8 >> 8) & 0xf0))
-                    *p16 = ((to0 & 0xf0) << 8) | (*p16 & 0xfff);
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from1 << 8 >> 8) & 0xf0))
-                    *p16 = ((to1 & 0xf0) << 8) | (*p16 & 0xfff);
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from2 << 8 >> 8) & 0xf0))
-                    *p16 = ((to2 & 0xf0) << 8) | (*p16 & 0xfff);
+        for (y = height; y != 0; y--) {
+            for (x = width; x != 0; x--) {
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from0 & 0xf0))
+                    *p16 = (WORD)(((to0 & 0xf0) << 8) | (*p16 & 0xfff));
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from1 & 0xf0))
+                    *p16 = (WORD)(((to1 & 0xf0) << 8) | (*p16 & 0xfff));
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from2 & 0xf0))
+                    *p16 = (WORD)(((to2 & 0xf0) << 8) | (*p16 & 0xfff));
                 p16++;
             }
             p16 += skip;
         }
         break;
     case 8:
-        p32 = (DWORD *)desc.lpSurface;
         skip = (unsigned int)(desc.lPitch - width * 4) >> 2;
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
+        p32 = (DWORD *)desc.lpSurface;
+        for (y = height; y != 0; y--) {
+            for (x = width; x != 0; x--) {
                 if ((*p32 >> 24) == from0)
                     *p32 = (*p32 & 0xffffff) | ((DWORD)to0 << 24);
                 if ((*p32 >> 24) == from1)
@@ -2584,29 +2584,36 @@ void Graphics_ReloadAllTextures(void)
 // FUNCTION: CMR2 0x0049da50
 int Tri2D_Contains(int *pPoint, int *pTri)
 {
-    int ex0, ey0, ex1, ey1, ex2, ey2;
+    int d0, d1, d2, d3, d4, d5;
+    int ey0, ex0, ey1, ex1, ey2, ex2;
     int px0, py0, px1, py1, px2, py2;
 
-    if ((pTri[0] > pPoint[0] && pTri[2] > pPoint[0] && pTri[4] > pPoint[0]) ||
+    if ((pPoint[0] < pTri[0] && pPoint[0] < pTri[2] && pPoint[0] < pTri[4]) ||
         (pPoint[0] > pTri[0] && pPoint[0] > pTri[2] && pPoint[0] > pTri[4]))
         return 0;
-    if ((pTri[1] > pPoint[1] && pTri[3] > pPoint[1] && pTri[5] > pPoint[1]) ||
+    if ((pPoint[1] < pTri[1] && pPoint[1] < pTri[3] && pPoint[1] < pTri[5]) ||
         (pPoint[1] > pTri[1] && pPoint[1] > pTri[3] && pPoint[1] > pTri[5]))
         return 0;
-    ey0 = FixMul(pTri[3] - pTri[1], 0x28f);
-    ex0 = FixMul(pTri[2] - pTri[0], 0x28f);
-    ey1 = FixMul(pTri[5] - pTri[3], 0x28f);
-    ex1 = FixMul(pTri[4] - pTri[2], 0x28f);
-    ey2 = FixMul(pTri[1] - pTri[5], 0x28f);
-    ex2 = FixMul(pTri[0] - pTri[4], 0x28f);
+    d0 = pTri[2] - pTri[0];
+    d1 = pTri[3] - pTri[1];
+    d2 = pTri[4] - pTri[2];
+    d3 = pTri[5] - pTri[3];
+    d4 = pTri[0] - pTri[4];
+    d5 = pTri[1] - pTri[5];
+    ey0 = FixMul(d1, 0x28f);
+    ex0 = FixMul(d0, 0x28f);
+    ey1 = FixMul(d3, 0x28f);
+    ex1 = FixMul(d2, 0x28f);
+    ey2 = FixMul(d5, 0x28f);
+    ex2 = FixMul(d4, 0x28f);
     px0 = FixMul(pPoint[0] - pTri[0], 0x28f);
     py0 = FixMul(pPoint[1] - pTri[1], 0x28f);
     px1 = FixMul(pPoint[0] - pTri[2], 0x28f);
     py1 = FixMul(pPoint[1] - pTri[3], 0x28f);
     px2 = FixMul(pPoint[0] - pTri[4], 0x28f);
     py2 = FixMul(pPoint[1] - pTri[5], 0x28f);
-    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(py1, -ex1) + FixMul(ey1, px1) >= 0 &&
-        FixMul(py2, -ex2) + FixMul(ey2, px2) >= 0)
+    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(px1, ey1) + FixMul(py1, -ex1) >= 0 &&
+        FixMul(px2, ey2) + FixMul(py2, -ex2) >= 0)
         return 1;
     return 0;
 }
@@ -2809,7 +2816,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     StageObjectDraw *pObject;
     Sector *pSector;
     SceneNode *pChild;
-    unsigned int i;
+    int i;
     unsigned int sectorIndex;
 
     rect.x1 = 0;
@@ -3676,7 +3683,7 @@ BYTE FUN_004bc0c0(BYTE *p)
     return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
 }
 
-BYTE FUN_004bc3e0(unsigned int index);
+BYTE FUN_004bc3e0(BYTE index);
 BYTE Timer_FindFree(void);
 
 // When set, Timer_Start collapses the range to its end value (the demo
@@ -3745,7 +3752,7 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
 }
 
 // FUNCTION: CMR2 0x004bc3e0
-BYTE FUN_004bc3e0(unsigned int index)
+BYTE FUN_004bc3e0(BYTE index)
 {
     BYTE *p = g_unk0x00521138[index & 0xff];
     BYTE r = (BYTE)index;
@@ -5192,16 +5199,21 @@ void FUN_004ae0a0(void)
 // FUNCTION: CMR2 0x004a4b10
 RenderTexture *FUN_004a4b10(void)
 {
-    BYTE *p;
+    Texture *p = NULL;
     int i;
     int j;
 
+    // The original passes the pool byte size as memset's fill value and 0 as
+    // the count: the call is a no-op (kept so the code matches the original).
+    if (CGraphics::m_unk0x0065fa28 == 0)
+        memset(CGraphics::m_pTextureManager->textureBuffer2, 0x9060, 0);
     for (i = 0; i < 0x14; i++) {
         if (CGraphics::m_pTextureManager->textureBuffer2[i] == NULL) {
-            p = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x738);
-            CGraphics::m_pTextureManager->textureBuffer2[i] = (Texture *)p;
+            CGraphics::m_pTextureManager->textureBuffer2[i] =
+                (Texture *)CFileBuffer::AllocateLockedBuffer(0x738);
+            p = CGraphics::m_pTextureManager->textureBuffer2[i];
             for (j = 0; j < 6; j++) {
-                BYTE *q = p + j * 0x130;
+                BYTE *q = (BYTE *)p + j * 0x130;
 
                 *(unsigned short *)q = (unsigned short)i;
                 *(unsigned short *)(q + 0x11c) = 0;
@@ -5212,10 +5224,10 @@ RenderTexture *FUN_004a4b10(void)
             if (p == NULL)
                 return NULL;
             CGraphics::m_unk0x0065fa28++;
-            return CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
+            break;
         }
     }
-    return CGraphics::CreateCubeMapSurfaces(NULL);
+    return CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
 }
 
 // GLOBAL: CMR2 0x0067f228
@@ -5836,8 +5848,7 @@ void Particle_Interpolate(int t)
     FixVector d;
     int i;
 
-    p = g_particles;
-    for (i = 0; i < g_particleCount; i++, p++) {
+    for (i = 0, p = g_particles; i < g_particleCount; i++, p++) {
         if (p->active != 0) {
             d.x = p->vector0x28.x - p->vector0x10.x;
             d.y = p->vector0x28.y - p->vector0x10.y;
@@ -6295,14 +6306,18 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
 
     pTexture = NULL;
     isDDS = FALSE;
+    // The original passes the pool byte size as memset's fill value and 0 as
+    // the count: the call is a no-op (kept so the code matches the original).
+    if (CGraphics::m_textureCount == 0)
+        memset(m_pTextureManager->textureBuffer, 0x98000, 0);
     pExtension = name + strlen(name) - 4;
     strncpy(pExtension, m_ddsExtension, 4);
     pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
-    if (pData == NULL) {
+    if (pData != NULL) {
+        isDDS = TRUE;
+    } else {
         strncpy(pExtension, m_tgaExtension, 4);
         pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
-    } else {
-        isDDS = TRUE;
     }
     for (i = 0; i < 0x800; i++) {
         if (m_pTextureManager->textureBuffer[i] == NULL) {
@@ -7248,12 +7263,13 @@ unsigned short g_unk0x0059be74[2000];
 // FUNCTION: CMR2 0x0049c680
 void FUN_0049c680(Mesh *pMesh)
 {
+    MeshTriangle *pTri = pMesh->pTriangles;
+    int total = pMesh->triangleCount;
     int currentTexture = -1;
     int count = 0;
     int n;
-    MeshTriangle *pTri = pMesh->pTriangles;
 
-    for (n = pMesh->triangleCount; n != 0; n--) {
+    for (n = total; n > 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
             if (count > 0) {
@@ -7273,7 +7289,7 @@ void FUN_0049c680(Mesh *pMesh)
         pTri++;
     }
     if (count != 0) {
-        MeshTriangle *pLast = &pMesh->pTriangles[pMesh->triangleCount - 1];
+        MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
         int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
         CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
@@ -7282,3 +7298,5 @@ void FUN_0049c680(Mesh *pMesh)
             pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
     }
 }
+
+

@@ -57,15 +57,16 @@ void *CGenericFileLoader::FindFileInArchive(GenericFile *pFile, char *name, DWOR
             *pId = *(DWORD *)pEntry;
         nameLen = *(DWORD *)(pEntry + 8);
         offset = *(int *)(pEntry + 4);
-        memcpy(entryName, pEntry + 12, nameLen);
+        pEntry += 12;
+        memcpy(entryName, pEntry, nameLen);
         entryName[nameLen] = '\0';
         if (strcmp(entryName, name) == 0)
             return (BYTE *)pFile->buffer + offset;
         pad = (int)nameLen % 4;
         if (pad != 0)
-            pEntry += nameLen - pad + 16;
+            pEntry += nameLen - pad + 4;
         else
-            pEntry += nameLen + 12;
+            pEntry += nameLen;
     }
     return NULL;
 }
@@ -93,23 +94,23 @@ void CGenericFileLoader::GetFileNameFromPath(char *path, char *out)
 BYTE *CGenericFileLoader::StrUpperPolish(BYTE *str)
 {
     BYTE *p;
-    BYTE c;
+    char c;
 
     c = *str;
     p = str;
     while (c != 0) {
-        if (((char)c > '`' && (char)c < '{') || ((char)c >= -32 && c > 0x7f))
+        if ((c >= 'a' && c <= 'z') || (c >= (char)0xE0 && c <= (char)0xFF))
             *p = c - 0x20;
         switch (c) {
-        case 0xa3: *p = 0x7e; break;
-        case 0xa9: *p = 0x24; break;
-        case 0xae: *p = 0x2a; break;
-        case 0xb1: *p = 0x7c; break;
-        case 0xbc: *p = 0xf7; break;
-        case 0xbd: *p = 0x7b; break;
-        case 0xbe: *p = 0x7d; break;
-        case 0xd7: *p = 0x99; break;
-        case 0xf3: *p = 0xd3; break;
+        case -0x5d: *p = 0x7e; break;
+        case -0x57: *p = 0x24; break;
+        case -0x52: *p = 0x2a; break;
+        case -0x4f: *p = 0x7c; break;
+        case -0x44: *p = 0xf7; break;
+        case -0xd: *p = 0xd3; break;
+        case -0x43: *p = 0x7b; break;
+        case -0x42: *p = 0x7d; break;
+        case -0x29: *p = 0x99; break;
         }
         p++;
         c = *p;
@@ -126,18 +127,18 @@ char *CGenericFileLoader::StrLowerPolish(char *str)
     c = *str;
     p = str;
     while (c != '\0') {
-        if ((c > '@' && c < '[') || (c >= -64 && c < -32))
+        if ((c >= 'A' && c <= 'Z') || (c >= (char)0xC0 && c <= (char)0xDF))
             *p = c + ' ';
         switch (c) {
+        case '~': *p = -0x5d; break;
         case '$': *p = -0x57; break;
         case '*': *p = -0x52; break;
-        case '{': *p = -0x43; break;
         case '|': *p = -0x4f; break;
-        case '}': *p = -0x42; break;
-        case '~': *p = -0x5d; break;
-        case -0x67: *p = -0x29; break;
-        case -0x2d: *p = -0xd; break;
         case -9: *p = -0x44; break;
+        case -0x2d: *p = -0xd; break;
+        case '{': *p = -0x43; break;
+        case '}': *p = -0x42; break;
+        case -0x67: *p = -0x29; break;
         }
         p++;
         c = *p;

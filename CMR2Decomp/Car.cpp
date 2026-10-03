@@ -4770,7 +4770,6 @@ void Car_StepAll(int base, short *pList, short count)
 
 // Transfers ride height between the two cars so the one further back along
 // the road is raised; only active in the 2-player game (state 2).
-// match 58%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00433e80
 void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3)
 {
@@ -4789,17 +4788,18 @@ void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3
         return;
     if ((BYTE)CGameInfo::FUN_00406440() == 0)
         return;
-    pCar2 = param_1 + param_2[1] * 0xc24;
     pCar1 = param_1 + param_2[0] * 0xc24;
-    diff = FUN_00458310(*(char *)(pCar1 + 0xb1a)) - FUN_00458310(*(char *)(pCar2 + 0xb1a));
+    pCar2 = param_1 + param_2[1] * 0xc24;
+    diff = FUN_00458310(*(char *)(pCar1 + 0xb1a));
+    diff -= FUN_00458310(*(char *)(pCar2 + 0xb1a));
     dist = diff * 0x10000;
     if (dist < 0)
         dist = -dist;
     if (dist <= 0x30000) {
         t = 0;
     } else if (dist < 0xf0000) {
-        t = FixDiv(0x10000, 0xc0000);
-        t = FixMul(t, dist - 0x30000);
+        t = dist - 0x30000;
+        t = FixMul(t, FixDiv(0x10000, 0xc0000));
         if (t < 0)
             t = 0;
         else if (t > 0x10000)
@@ -4808,13 +4808,13 @@ void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3
         t = 0x10000;
     }
     amount = FixMul(t, 0xccc);
-    if (diff >= 0) {
+    if (diff < 0) {
+        *(int *)(pCar2 + 0x788) = *(int *)(pCar2 + 0x78c) - amount;
+        *(int *)(pCar1 + 0x788) = *(int *)(pCar1 + 0x78c) + amount;
+    } else {
         *(int *)(pCar1 + 0x788) = *(int *)(pCar1 + 0x78c) - amount;
         *(int *)(pCar2 + 0x788) = *(int *)(pCar2 + 0x78c) + amount;
-        return;
     }
-    *(int *)(pCar2 + 0x788) = *(int *)(pCar2 + 0x78c) - amount;
-    *(int *)(pCar1 + 0x788) = *(int *)(pCar1 + 0x78c) + amount;
 }
 
 // FUNCTION: CMR2 0x00433fd0
@@ -5589,27 +5589,18 @@ void Physics_SetScale(int value)
 void FixMatrix_GetForward(FixVector *pOut, FixMatrix *pM);
 
 // Heading (12-bit angle) of a view's camera from its forward vector.
-// match 32%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00421fe0
 void View_GetHeading(short *pOut, unsigned int view)
 {
     FixVector forward;
-    unsigned int az;
-    unsigned int ax;
+    int az;
+    int ax;
     short angle;
 
     FixMatrix_GetForward(&forward, (FixMatrix *)(g_unk0x00538d2c + 4 + (view & 0xff) * 100));
     az = forward.z < 0 ? -forward.z : forward.z;
     ax = forward.x < 0 ? -forward.x : forward.x;
-    if (ax == 0) {
-        angle = 0;
-    } else if (az == 0) {
-        angle = 0x400;
-    } else if ((int)az < (int)ax) {
-        angle = 0x400 - g_atanTable[(unsigned int)FixDiv(az, ax) >> 7];
-    } else {
-        angle = g_atanTable[(unsigned int)FixDiv(ax, az) >> 7];
-    }
+    angle = FixAtan2(ax, az);
     *pOut = angle;
     if (forward.z < 0)
         *pOut = 0x800 - angle;
@@ -5817,7 +5808,6 @@ void Car_FilterWheelSpin(void);
 
 // Updates the engine torque figure and splits it between the wheels, or
 // clears the wheel torques when the car is off its wheels.
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00437dc0
 void Car_UpdateEngineTorque(void)
 {
@@ -5829,14 +5819,14 @@ void Car_UpdateEngineTorque(void)
         else
             g_pCurrentCar->field_0x780 = 0;
     } else {
-        value = g_pCurrentCar->field_0x7a4;
-        if (value >= g_pCurrentCar->field_0x794) {
+        if (g_pCurrentCar->field_0x7a4 >= g_pCurrentCar->field_0x794) {
             g_pCurrentCar->field_0x780 = 0;
         } else if (g_pCurrentCar->gear != 0 && g_pCurrentCar->field_0xb84 == 1) {
-            g_pCurrentCar->field_0x780 = FixMul(g_pCurrentCar->field_0x784, FixMul(value, value));
+            g_pCurrentCar->field_0x780 = FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
         } else {
-            g_pCurrentCar->field_0x780 =
-                FUN_00437f90() - FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
+            value = FUN_00437f90();
+            g_pCurrentCar->field_0x780 = value -
+                FixMul(g_pCurrentCar->field_0x784, FixMul(g_pCurrentCar->field_0x7a4, g_pCurrentCar->field_0x7a4));
         }
     }
     if (g_pCurrentCar->gear != 0 && g_pCurrentCar->field_0xb84 == 0) {
@@ -5912,7 +5902,7 @@ BYTE View_ReleaseNodes(void)
     BYTE i;
     int off;
 
-    for (i = 0, off = 0; i < 2; i++, off += 4) {
+    for (i = 0, off = 0; i < 2; off += 4) {
         SceneNode **pNode = (SceneNode **)((BYTE *)g_viewNodes + off);
 
         if (*pNode != NULL) {
@@ -5927,35 +5917,39 @@ BYTE View_ReleaseNodes(void)
         *(int *)((BYTE *)g_unk0x005391a8 + off) = 0;
         *(int *)((BYTE *)g_unk0x00538f00 + off) = 0;
         FUN_00447ca0(i);
+        i++;
     }
     return 1;
 }
 
 // Lifts the current car out of the ground by the deepest penetration of a
 // free corner.
-// match 59%: revisada; lógica, constantes, ramas y el desenrollado de la segunda
-// vuelta (las ocho sumas a corners[i].y) coinciden. El original mantiene el
-// acumulador `deepest` en una ranura de pila ([esp+0x10]) mientras MSVC lo deja
-// en EBX: solo asignación de registros/slots.
 // FUNCTION: CMR2 0x0042f8c0
 void Car_LiftFreeCorners(void)
 {
+    int lift = 0;
     int found = 0;
-    int deepest = 0;
     int i;
     int d;
-    int lift;
+    int *pHeight;
+    int *pCorner;
+    int deepest = 0;
 
-    for (i = 7; i >= 0; i--) {
+    i = 7;
+    pCorner = &g_pCurrentCar->corners[7].y;
+    pHeight = &g_pCurrentCar->cornerHeight[7];
+    do {
         if (g_pCurrentCar->cornerFlags[i] == 0) {
-            d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y;
-            if (d > 0 && deepest < d) {
-                found = 1;
+            d = *pHeight - *pCorner;
+            if (d > 0 && d > deepest) {
                 deepest = d;
+                found = 1;
             }
         }
-    }
-    lift = 0;
+        i--;
+        pHeight--;
+        pCorner -= 3;
+    } while (i >= 0);
     if (found)
         lift = deepest;
     g_pCurrentCar->position.y += lift;
@@ -6096,16 +6090,16 @@ void Car_UpdateWheelMeshStates(void)
 }
 
 // Smooths the current car's three force feedback levels.
-// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00442e90
 void Car_SmoothForceFeedback(void)
 {
-    int i;
-    int base = 0x880;
-    int tag = 0xab6;
-    int rate = 0x128;
+    int rate;
+    int base;
+    int tag;
 
-    for (i = 0; i < 3; i++, base -= 8, tag -= 4, rate -= 0x48) {
+    for (rate = 0x90, base = 0x880, tag = 0xab6;
+         tag >= 0xaae;
+         tag -= 4, base -= 8, rate -= 0x48) {
         if (*(short *)(((BYTE *)g_pCurrentCar) + tag + 0x10) == *(short *)(((BYTE *)g_pCurrentCar) + tag) &&
             *(int *)(((BYTE *)g_pCurrentCar) + base + 0x33c) != 0 && *(int *)(((BYTE *)g_pCurrentCar) + 0xb74) != 0) {
             int magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base);
@@ -6115,7 +6109,7 @@ void Car_SmoothForceFeedback(void)
             if (delta < 0)
                 *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + rate));
+                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
 
             magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base + 0x10);
             if (magnitude < 0) magnitude = -magnitude;
@@ -6123,10 +6117,10 @@ void Car_SmoothForceFeedback(void)
             if (delta < 0)
                 *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + rate));
+                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
         } else {
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = 0;
             *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = 0;
+            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = 0;
         }
     }
     *(int *)(((BYTE *)g_pCurrentCar) + 0x8a0) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8a4);
@@ -8058,15 +8052,13 @@ void View_SetupCameras(void)
     FUN_00486700();
     i = 0;
     pRecord = VIEW_RECORD(0);
-    do {
+    for (i = 0; i < 4; i++, pRecord += 100) {
         pRecord[0] = i;
         pRecord[1] = i >> 1;
         pRecord[2] = i >> 1;
         *(int *)(pRecord + 0x60) = 0;
         FUN_004760a0(i, pRecord[2]);
-        pRecord += 100;
-        i++;
-    } while (i < 4);
+    }
     position.x = 0;
     position.y = 0;
     position.z = 0;
@@ -8074,7 +8066,7 @@ void View_SetupCameras(void)
     angles.y = 0;
     angles.z = 0;
     i = 0;
-    do {
+    for (i = 0; i < 2; i++) {
         g_viewNodes[i] = SceneType2_Create(&position, &angles, NULL, (SceneNode *)RallyData_FUN_00411060());
         *(int *)(g_unk0x00538d2c + i * 100) = 0;
         g_unk0x00538d20[i] = -0x10000;
@@ -8085,8 +8077,7 @@ void View_SetupCameras(void)
         FUN_00459250(0, 0, 1);
         g_unk0x00538f00[i] = 0;
         FUN_00447ca0(i);
-        i++;
-    } while (i < 2);
+    }
 }
 
 // Switches a view to camera type `type`: the inactive record takes the new
