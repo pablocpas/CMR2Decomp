@@ -4121,6 +4121,8 @@ short *Car_GetOrder(void);
 void FUN_0045e7f0(void)
 {
     int count;
+    int n;
+    int t;
     short *p;
     Car *pCar;
     unsigned int *pRec;
@@ -4128,22 +4130,35 @@ void FUN_0045e7f0(void)
 
     if (RallyData_FUN_00421500() == 0) {
         count = Car_GetOrderCount();
-        for (p = Car_GetOrder() + count - 1; count > 0; count--, p--) {
-            pCar = Car_Get(*p);
-            pRec = (unsigned int *)((BYTE *)g_unk0x00543ecc + pCar->index * 0xc);
-            position = RallyData_FUN_00421370((BYTE *)pCar);
-            pRec[0] = position;
-            if (position != pRec[1]) {
-                pRec[1] = position;
-                if (position <= g_unk0x00543d80) {
-                    pRec[2] = g_unk0x00543d74;
-                } else {
-                    if (position >= g_unk0x00543d84)
-                        pRec[2] = g_unk0x00543d78;
-                    else
-                        pRec[2] = FixMul((position - g_unk0x00543d80) << 16, g_unk0x00543d7c) + g_unk0x00543d74;
+        p = Car_GetOrder();
+        count--;
+        if (count >= 0) {
+            p += count;
+            n = count + 1;
+            do {
+                pCar = Car_Get(*p);
+                pRec = (unsigned int *)((BYTE *)g_unk0x00543ecc + pCar->index * 0xc);
+                position = RallyData_FUN_00421370((BYTE *)pCar);
+                pRec[0] = position;
+                if (position != pRec[1]) {
+                    pRec[1] = position;
+                    if (position <= g_unk0x00543d80) {
+                        pRec[2] = g_unk0x00543d74;
+                    } else {
+                        if (position >= g_unk0x00543d84) {
+                            pRec[2] = g_unk0x00543d78;
+                        } else {
+                            // Assignment-to-local inside the shift reproduces the
+                            // original's store order: pRec[2] first, then the
+                            // FixMul argument home.
+                            pRec[2] = (t = position - g_unk0x00543d80) << 16;
+                            pRec[2] = FixMul(t << 16, g_unk0x00543d7c);
+                            pRec[2] = pRec[2] + g_unk0x00543d74;
+                        }
+                    }
                 }
-            }
+                p--;
+            } while (--n != 0);
         }
     }
 }
@@ -4537,6 +4552,7 @@ void FUN_0045e8b0(unsigned int *pRecord, int view)
 {
     Car *pCar;
     unsigned int position;
+    int t;
 
     if (RallyData_FUN_00421500() == 0) {
         pRecord[6] = pRecord[4];
@@ -4545,22 +4561,24 @@ void FUN_0045e8b0(unsigned int *pRecord, int view)
         pRecord[0] = position;
         if (position != pRecord[1]) {
             pRecord[1] = position;
-            if (position > (unsigned int)g_unk0x00543d94) {
-                if (position < (unsigned int)g_unk0x00543d98)
-                    pRecord[2] = FixMul((position - g_unk0x00543d94) << 16, g_unk0x00543d90) + g_unk0x00543d88;
-                else
-                    pRecord[2] = g_unk0x00543d8c;
-            } else {
+            if (position <= (unsigned int)g_unk0x00543d94) {
                 pRecord[2] = g_unk0x00543d88;
+            } else if (position >= (unsigned int)g_unk0x00543d98) {
+                pRecord[2] = g_unk0x00543d8c;
+            } else {
+                pRecord[2] = (t = position - g_unk0x00543d94) << 16;
+                pRecord[2] = FixMul(t << 16, g_unk0x00543d90);
+                pRecord[2] = pRecord[2] + g_unk0x00543d88;
             }
         }
         if (pRecord[0] < (unsigned int)g_unk0x00543d98 && pRecord[0] >= (unsigned int)g_unk0x00543d94) {
-            pRecord[3] = FixMul(g_unk0x00543d90, RallyData_FUN_004209d0((BYTE *)pCar));
+            t = RallyData_FUN_004209d0((BYTE *)pCar);
+            pRecord[3] = FixMul(g_unk0x00543d90, t);
             pRecord[4] = pRecord[2] + pRecord[3];
             return;
         }
         pRecord[3] = 0;
-        pRecord[4] = pRecord[2] + pRecord[3];
+        pRecord[4] = pRecord[2] + *(volatile unsigned int *)&pRecord[3];
     }
 }
 
@@ -8659,14 +8677,17 @@ void FUN_0045f4a0(void)
     int view;
     int *pWeather;
     int offset;
+    int *pRecord;
 
     FUN_0045f6d0();
     FUN_0045f890();
-    for (view = 0, offset = 0; view < (int)g_unk0x00543e98; view++, offset += 0x2c) {
+    for (view = 0; view < (int)g_unk0x00543e98; view++) {
+        offset = view * 0x2c;
         pWeather = (int *)((BYTE *)g_unk0x00547ac8 + view * 0x178);
+        pRecord = (int *)((BYTE *)g_unk0x00543eb8 + offset);
         FUN_0045f530((BYTE *)pWeather, view);
-        FUN_0045e8b0((unsigned int *)((BYTE *)g_unk0x00543eb8 + offset), view);
-        FUN_0045f5d0((int)((BYTE *)g_unk0x00543eb8 + offset), view);
+        FUN_0045e8b0((unsigned int *)pRecord, view);
+        FUN_0045f5d0((int)pRecord, view);
         if (pWeather[0] == 1 || pWeather[0] == 2)
             FUN_0045f9d0(1, pWeather, view);
         FUN_00460b60(pWeather, view);
