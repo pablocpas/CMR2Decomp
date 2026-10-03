@@ -1087,12 +1087,13 @@ unsigned short FUN_00427e20(int param_1, int param_2, unsigned short param_3)
 // --- 0x00425c40 (layer 0) ----------------------------------------------------
 // Inverses of the network quantization scales (0x0051137c = 1/32765,
 // 0x00511374 = 1/65530, 0x00511370 = 1/127, 0x00511368 = 128,
-// 0x0051135c = 24/17, 0x00511358 = 12/17). 0x00511360 (10.0) is a file-local
-// constant of SceneNode.cpp, so its value is spelled out below.
+// 0x0051135c = 24/17, 0x00511358 = 12/17, 0x00511360 = 10).
 // GLOBAL: CMR2 0x00511358
 extern const float g_unk0x00511358 = 12.0f / 17.0f;
 // GLOBAL: CMR2 0x0051135c
 extern const float g_unk0x0051135c = 24.0f / 17.0f;
+// GLOBAL: CMR2 0x00511360
+extern const float g_unk0x00511360 = 10.0f;
 // GLOBAL: CMR2 0x00511368
 extern const float g_unk0x00511368 = 128.0f;
 // GLOBAL: CMR2 0x00511370
@@ -1117,7 +1118,7 @@ inline int NetRace_FloatToFix(float f)
     __asm fld f
     __asm fmul dword ptr g_65536f
     __asm fistp i
-    return i;
+    __asm mov eax, i
 }
 
 inline void NetRace_NormalizeInto(FixVector *out, FixVector *v)
@@ -1145,6 +1146,8 @@ extern double g_unk0x00511300;
 int FUN_00425c40(int car, int *pOut)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;
+    float offX;
+    float offZ;
     float axisA[2];
     float axisB[2];
     FixVector *pRow;
@@ -1177,21 +1180,23 @@ int FUN_00425c40(int car, int *pOut)
         *(int *)(car + 0x84) = NetRace_FloatToFix((float)(signed char)packet[0x16] * g_unk0x0051136c * g_unk0x00511370);
         *(BYTE *)(car + 0xcc) = packet[0x17] & 1;
         *(int *)(car + 0xd4) = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
-        *(int *)(car + 0x64) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 8) * g_unk0x00511368 * g_unk0x0051137c);
+        offX = (float)(short)*(unsigned short *)(packet + 8) * g_unk0x00511368 * g_unk0x0051137c;
+        offZ = (float)(short)*(unsigned short *)(packet + 0xa) * g_unk0x00511368 * g_unk0x0051137c;
+        *(int *)(car + 0x64) = NetRace_FloatToFix(offX);
         *(int *)(car + 0x68) = 0;
-        *(int *)(car + 0x6c) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 0xa) * g_unk0x00511368 * g_unk0x0051137c);
+        *(int *)(car + 0x6c) = NetRace_FloatToFix(offZ);
         pSector = g_sectors[*(short *)(packet + 0xc)];
         *(int *)(car + 0x64) += pSector->x;
         *(int *)(car + 0x68) += pSector->y;
         *(int *)(car + 0x6c) += pSector->z;
-        *(int *)(car + 0xbc) = NetRace_FloatToFix((float)packet[0xe] * 10.0f * g_unk0x00511364);
+        *(int *)(car + 0xbc) = NetRace_FloatToFix((float)packet[0xe] * g_unk0x00511360 * g_unk0x00511364);
         *(int *)(car + 0xc0) = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
 
         // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
-        axisA[0] = (float)packet[0x10];
-        axisB[0] = (float)packet[0x11];
-        axisA[1] = (float)packet[0x12];
-        axisB[1] = (float)packet[0x13];
+        axisA[0] = (float)(*(unsigned short *)(packet + 0x10) & 0xff);
+        axisB[0] = (float)(*(unsigned short *)(packet + 0x10) >> 8);
+        axisA[1] = (float)(*(unsigned short *)(packet + 0x12) & 0xff);
+        axisB[1] = (float)(*(unsigned short *)(packet + 0x12) >> 8);
         pRow = (FixVector *)((BYTE *)car + 0x40);
         for (i = 0; i < 2; i++, pRow += 2) {
             float valueA = (axisA[i] *= g_unk0x0051135c);

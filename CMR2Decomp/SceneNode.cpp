@@ -2659,7 +2659,7 @@ void FUN_004b7b20(void)
 
 int FloatMatrix_RotateVector(float *pOut, float *pV, float *pM);
 int FloatMatrix_InverseRotateVector(float *pOut, float *pV, float *pM);
-static const float g_unk0x00511360 = 10.0f;   // 0x00511360, from the original .rdata; local so it does not shift our .rdata layout (reccmp-datacmp gate)
+extern const float g_unk0x00511360;   // 10.0f, defined in NetRace.cpp
 extern const float g_netZero;          // 0x0051131c, 0.0f
 extern const float g_unk0x00511ce8;    // 0x00511ce8, 0.1f
 // Scratch table of emitted vertex indices of the shadow mesh builder (-1 none).

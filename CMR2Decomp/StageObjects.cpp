@@ -11580,7 +11580,7 @@ inline int FloatToFix(float f)
     __asm fld f
     __asm fmul dword ptr g_65536f
     __asm fistp i
-    return i;
+    __asm mov eax, i
 }
 
 // FUNCTION: CMR2 0x0046de20
@@ -11614,19 +11614,21 @@ void FUN_0046de20(unsigned int *pFlag24, unsigned int *pFlag27, unsigned int *pS
     FixMatrix_SetPosition(&pos, pMatrix);
 
     angles = ((DWORD *)pSample)[2];
-    heading[0] = (float)(WORD)LOBYTE(HIWORD(angles));
-    pitch[0] = (float)((BYTE *)&angles)[3];
-    heading[1] = (float)LOBYTE(LOWORD(((DWORD *)pSample)[3]));
-    pitch[1] = (float)HIBYTE(LOWORD(((DWORD *)pSample)[3]));
+    heading[0] = (float)(WORD)((BYTE *)&angles)[2];
+    pitch[0] = (float)(((WORD *)&angles)[1] >> 8);
+    heading[1] = (float)((BYTE *)pSample)[0xc];
+    pitch[1] = (float)(WORD)((BYTE *)pSample)[0xd];
     for (i = 0; i < 2; i++) {
-        heading[i] *= g_unk0x0051135c;
-        pitch[i] *= g_unk0x00511358;
-        a = yaw[i] = (short)(__int64)((double)FloatToFix(heading[i]) * g_unk0x00511300);
-        b = tilt[i] = (short)(__int64)((double)FloatToFix(pitch[i]) * g_unk0x00511300);
+        float vh = (heading[i] *= g_unk0x0051135c);
+        float vp = (pitch[i] *= g_unk0x00511358);
+        yaw[i] = (short)(__int64)((double)FloatToFix(vh) * g_unk0x00511300);
+        tilt[i] = (short)(__int64)((double)FloatToFix(vp) * g_unk0x00511300);
+        a = yaw[i];
+        b = tilt[i];
         axes[i * 2].x = FixMul(g_sinTable[(unsigned short)b & 0xfff], g_sinTable[((unsigned short)a + 0x400) & 0xfff]);
         axes[i * 2].y = g_sinTable[((unsigned short)b + 0x400) & 0xfff];
         axes[i * 2].z = FixMul(g_sinTable[(unsigned short)b & 0xfff], g_sinTable[(unsigned short)a & 0xfff]);
-        FIX_NORMALIZE_INTO(axes[i * 2], axes[i * 2]);
+        StageObj_NormalizeInto(&axes[i * 2], &axes[i * 2]);
     }
     FixVecCross(&axes[1], &axes[2], &axes[0]);
     StageObj_NormalizeInto(&axes[1], &axes[1]);
