@@ -133,7 +133,10 @@ char g_strVertexBufferFull[] =
     "Requested Vertices : %d  Limit : %d";
 
 // Groups the triangles of a mesh by texture into index lists (once).
-// match 44%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 49%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures
+// it (see CONVENCIONES). The `last = n` order inside the second loop follows the
+// original (`inc ebp / add eax,4 / mov edi,edx` before zeroing indexCount);
+// remaining diff is the mid-function `push ebp` and the loop-1 entry test.
 // FUNCTION: CMR2 0x004b1ac0
 void Mesh_BuildParts(Mesh *pMesh)
 {
@@ -177,10 +180,10 @@ void Mesh_BuildParts(Mesh *pMesh)
         if (last != n) {
             count++;
             ppPart++;
+            last = n;
             (*ppPart)->indexCount = 0;
             (*ppPart)->texture = *(int *)((BYTE *)pMesh->pTriangles + off + 4);
             (*ppPart)->field_0x4 = *(int *)((BYTE *)pMesh->pTriangles + off + 8);
-            last = n;
         }
         for (k = 3; k != 0; k--)
             (*ppPart)->indexCount++;
