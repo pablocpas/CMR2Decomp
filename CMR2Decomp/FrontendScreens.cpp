@@ -734,31 +734,31 @@ int FUN_004f1bf0(void);
 void FUN_004dec30(Menu *pMenu)
 {
     char **ppText;
-    unsigned short *pLineY;
     unsigned int elapsed;
     bool allOffScreen;
     int i;
 
     allOffScreen = true;
     ppText = (char **)FUN_004f4b10();
-    pLineY = (unsigned short *)FUN_004f4b30();
     elapsed = (unsigned int)CFrontend::FUN_004d20e0();
     elapsed -= FUN_004f1bf0();
     elapsed /= 30;
-    for (i = 0; i < FUN_004f4b20(); i++) {
+    i = 0;
+    while (i < FUN_004f4b20()) {
         ((int *)FUN_004f4b30())[i] = ((int)g_pGraphics->resY * 40) / 480 * i - elapsed + 1
             + FUN_004f25a0() + (int)g_pGraphics->resY + Font_GetLineHeight(2);
         if (((int *)FUN_004f4b30())[i] < (int)g_pGraphics->resY + 100
             && ((int *)FUN_004f4b30())[i] > -100) {
             Font_DrawText(2, ppText[0], (int)g_pGraphics->resX / 2 - 10,
-                          pLineY[i * 2],
+                          ((unsigned short *)FUN_004f4b30())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x14);
             Font_DrawText(2, ppText[1], (int)g_pGraphics->resX / 2 + 10,
-                          pLineY[i * 2],
+                          ((unsigned short *)FUN_004f4b30())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x11);
         }
         if (((int *)FUN_004f4b30())[i] > -10)
             allOffScreen = false;
+        i++;
         ppText += 2;
     }
     if (allOffScreen)
@@ -998,15 +998,15 @@ void FUN_004e2b40(Menu *pMenu)
                   (int *)g_colourWhite0x00524968, 9);
     rowHeight = g_unk0x008189a8[3] + 10;
     g_unk0x008189a8[2] = 0x190;
-    g_unk0x008189a8[3] = 0x14;
     g_unk0x008189a8[1] += rowHeight;
+    g_unk0x008189a8[3] = 0x14;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, g_colourShadowText0x00524978, 4);
     Font_DrawText(1, g_str0x00524ec0, g_unk0x008189a8[0] + 10, g_unk0x008189a8[1],
                   (int *)g_colourWhite0x00524968, 9);
+    list.selected = 2;
+    list.count = 6;
     list.field_0x6 |= 3;
     list.field_0x7 = 3;
-    list.count = 6;
-    list.selected = 2;
     list.strings[0] = g_str0x00524ea8;
     list.strings[1] = g_str0x00524e90;
     list.strings[2] = g_str0x00524e80;
@@ -1110,8 +1110,12 @@ void FUN_004e4130(Menu *pMenu)
         Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 140) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 270) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, (pEntry->flags & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
-                      (int)(g_pGraphics->resX * 395) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((pEntry->flags & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 395) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 395) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (pEntry->flags >> 7 & 0xf) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 445) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, pEntry->value / 6000, pEntry->value / 100 % 60, pEntry->value % 100);
@@ -4712,9 +4716,9 @@ void FUN_004f3dd0(void)
         i++;
     } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
     memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
-    memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     k = 0;
     pPos = g_menuStreamPos[0];
+    memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     do {
         for (j = 0; j < 10; j++)
             pPos[j] = k / 6;
@@ -4735,11 +4739,14 @@ void FUN_004f3dd0(void)
     case 3:
         g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 3;
         break;
-    case 4:
+    case 4: {
+        unsigned int t;
         g_menuPathMode = 4;
         g_menuPathPrevMode = 4;
-        g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
+        t = CFrontend::FUN_004d20e0();
+        g_menuPathVariant = (t - FUN_004f25c0()) / 500 % 3;
         break;
+    }
     case 5:
         g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 7;
         break;
@@ -5274,8 +5281,10 @@ void FUN_004f2620(Menu *pMenu, char back)
         if (g_unk0x00819879 != 0) {
             FUN_004eb000(0, 0);
             FUN_004ebf20(0);
+            FUN_004ebe80(0);
+        } else {
+            FUN_004ebe80(0);
         }
-        FUN_004ebe80(0);
     }
     g_unk0x00819879 = 0;
     FUN_004e7770(1);
@@ -6042,13 +6051,15 @@ int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5
     int i;
     int x;
     int step;
+    int scale;
 
     rect[1] = param_2;
     rect[2] = (int)(g_pGraphics->resX * 8) / 640;
     rect[3] = (int)(g_pGraphics->resY * 8) / 480;
     x = param_1 << 16;
     rect[0] = (short)(x >> 16);
-    step = FixMul(g_pGraphics->resX << 16, FixDiv(0xa0000, 0x2800000));
+    scale = 0xa0000;
+    step = FixMul(g_pGraphics->resX << 16, FixDiv(scale, 0x2800000));
     for (i = 0; i < param_3; i++) {
         if (i < param_4)
             Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_colourWhite0x00524968, 1);
@@ -9988,7 +9999,7 @@ void FUN_004d6a60(Menu *pMenu)
     char *text[4];
     BYTE *pRecord;
     unsigned int flags;
-    BYTE value;
+    int value;
     int count;
     int i;
 
@@ -10068,14 +10079,15 @@ void FUN_004d6a60(Menu *pMenu)
             flags = *(unsigned int *)(pRecord + 4);
             sprintf(g_unk0x00818554, g_str0x00524ce4, CFrontend::GetTextString(0x13a), pRecord,
                     flags >> 0x10 & 0x1f, flags >> 8 & 0xf, (flags & 0xff) + 0x73a);
-            if (!FUN_004ebd60(pMenu->items[0].max)) {
+            if (FUN_004ebd60(pMenu->items[0].max)) {
+                strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
+            } else {
                 sprintf(g_unk0x00818368, CFrontend::GetTextString(0x13b));
                 Font_Unused((int)g_unk0x00818368, FUN_004ea500());
                 FUN_004d65c0();
                 FrontendDraw_HelpText(CFrontend::GetTextString(0xf9), 1);
                 return;
             }
-            strcpy(g_unk0x00818368, CFrontend::GetTextString(0xdf));
         } else {
             strcpy(g_unk0x008183cc, CMain::m_logFileBlankLine);
             strcpy(g_unk0x00818554, CMain::m_logFileBlankLine);
@@ -10247,7 +10259,6 @@ extern char g_stageNumberFormat[];
 void FUN_004e9990(Menu *pMenu)
 {
     char *text[3];
-    MenuItem *pItem;
     NetworkLeaderboard *pBoard;
     NetworkLeaderboardEntry *pEntry;
     int *pColour;
@@ -10263,8 +10274,8 @@ void FUN_004e9990(Menu *pMenu)
     if (pMenu->items[pMenu->cursor].value != 0)
         pColour = (int *)g_colourText0x0052496c;
     if (!(CNetworkLeaderboards::GetTotalLeaderboards() == 0)) {
-        pItem = Menu_GetItem(pMenu, 0);
-        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea), pItem->max + 1, pItem->min);
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea),
+                Menu_GetItem(pMenu, 0)->max + 1, Menu_GetItem(pMenu, 0)->min);
         Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 0x46) / 0x1e0, pColour, 0x12);
         pBoard = CNetworkLeaderboards::GetLoadedLeaderboard(Menu_GetItem(pMenu, 0)->max);
@@ -10286,7 +10297,7 @@ void FUN_004e9990(Menu *pMenu)
                 Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x154) / 0x280, y, pColour, 0x12);
             }
         }
-        if (Menu_GetItem(pMenu, 0)->min != 0) {
+        if (Menu_GetItem(pMenu, 0)->min > 0) {
             Font_DrawText(1, g_str0x005250d8,
                           (int)(g_pGraphics->resX * 0x118) / 0x280 - (int)(g_pGraphics->resX * 0x32) / 0x280,
                           (int)(g_pGraphics->resY * 0xa0) / 0x1e0, pColour, 0x12);
