@@ -3144,34 +3144,35 @@ void Race_TeardownStage(int param1, int param2, char flag)
     BYTE **pp;
     int n;
     int i;
+    int zero = 0;
 
-    g_unk0x00538100 = 0;
+    g_unk0x00538100 = zero;
     FUN_00424ed0();
     FUN_00409dd0();
-    g_unk0x00538120 = 0;
-    g_unk0x0053811f = 0;
-    g_unk0x0053811e = 0;
-    g_unk0x0053811d = 0;
+    g_unk0x00538120 = zero;
+    g_unk0x0053811f = zero;
+    g_unk0x0053811e = zero;
+    g_unk0x0053811d = zero;
     FUN_00409ab0(1, 1);
     FUN_00416670();
     StageLights_Off();
     RallyData_FUN_004207f0();
     if (RallyData_FUN_00407e70() || RallyData_GetFlag25() || RallyData_GetFlag31())
-        FUN_004584d0(CGameInfo::FUN_00405d80() != 4);
-    Car_ReloadModels(0, (int)Car_GetOrderCount(), 0);
+        FUN_004584d0(CGameInfo::FUN_00405d80() == 4 ? zero : 1);
+    Car_ReloadModels(zero, (int)Car_GetOrderCount(), zero);
     if (CGameInfo::FUN_00405d80() == 4) {
         for (i = 0; i < Car_GetOrderCount(); i++)
             FUN_00420850(Car_Get(i));
     }
     FUN_00458480();
-    if (flag != 0) {
+    if (flag != zero) {
         for (i = 0; i < *(BYTE *)param1; i++) {
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, i, 4, 2);
             View_ResetCameras(i);
             RallyData_ValidateIndex(i);
         }
     }
-    FUN_00455470(0);
+    FUN_00455470(zero);
     FUN_00458100(1);
     FUN_00411450(g_unk0x0053810c & 0xff);
     FUN_00465530();
@@ -3192,13 +3193,13 @@ void Race_TeardownStage(int param1, int param2, char flag)
     } else {
         n = (BYTE)RallyDataState();
     }
-    if (n > 0) {
+    if (n > zero) {
         pp = g_unk0x00537f3c;
-        for (i = 0; i < n; i++) {
+        do {
             FUN_0046d2a0((int *)*pp);
             Replay_StopRecording(*pp);
             pp++;
-        }
+        } while (--n);
     }
     if ((char)RallyData_FUN_00407ea0() && (char)CGameInfo::FUN_00406310())
         FUN_00466080();
@@ -3212,7 +3213,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
         FUN_004cf140();
         FUN_0041b360();
     }
-    g_unk0x0053810c = 0;
+    g_unk0x0053810c = zero;
 }
 
 // In-race mode/state handler: stage teardown, replay and view transitions.
@@ -4007,7 +4008,6 @@ void FUN_00416f70(int player)
 {
     int remaining = 500 - FUN_0041d780();
     int block = remaining / 100;
-    int slot;
 
     g_unk0x00537350 = -1;
     g_unk0x0053708c[player] = RallyData_FUN_00421370((BYTE *)Car_Get(player));
@@ -4020,10 +4020,9 @@ void FUN_00416f70(int player)
             g_unk0x00537350 = -1;
     }
     RaceCalls_UpdatePlaybackQueue();
-    slot = block + player * 5;
     // the original reads [slot*4 + 0x537190], i.e. this same table one player back
-    if (player > 0 && g_unk0x005371a4[slot - 5] != 0) {
-        g_unk0x005371a4[slot] = 1;
+    if (player > 0 && g_unk0x005371a4[block + player * 5 - 5] != 0) {
+        g_unk0x005371a4[block + player * 5] = 1;
         return;
     }
     if (player == 0 && g_unk0x005371a4[block] == 0) {
@@ -4065,17 +4064,19 @@ void FUN_0041d0c0(int param_1)
             if (CGameInfo::FUN_00405d80() == 2 || CGameInfo::FUN_00405d80() == 1 ||
                 CGameInfo::FUN_00405d80() == 0)
                 return;
-            View_SwitchCamera(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
-        } else if (flags & 0x2000) {
+            View_SwitchCamera(1, (FUN_00422f50(1) == 7 ? 4 : 7), 0xffff, FUN_00422fb0(1), 0);
+            FUN_004ae410(0, 1, 1, 1);
+            FUN_004ae410(1, 1, 1, 1);
+            return;
+        }
+        if ((flags & 0x2000) != 0) {
             value = (BYTE)(FUN_00422fb0(1) + 1);
             if ((BYTE)Race_GetBaseCarCount() <= value)
                 value = 0;
             View_SetCameraType(1, 0, value, 0);
-        } else {
-            return;
+            FUN_004ae410(0, 1, 1, 1);
+            FUN_004ae410(1, 1, 1, 1);
         }
-        FUN_004ae410(0, 1, 1, 1);
-        FUN_004ae410(1, 1, 1, 1);
         return;
     }
     if (flags & 0x1000) {
