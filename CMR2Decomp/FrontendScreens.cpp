@@ -734,31 +734,31 @@ int FUN_004f1bf0(void);
 void FUN_004dec30(Menu *pMenu)
 {
     char **ppText;
-    unsigned short *pLineY;
     unsigned int elapsed;
     bool allOffScreen;
     int i;
 
     allOffScreen = true;
     ppText = (char **)FUN_004f4b10();
-    pLineY = (unsigned short *)FUN_004f4b30();
     elapsed = (unsigned int)CFrontend::FUN_004d20e0();
     elapsed -= FUN_004f1bf0();
     elapsed /= 30;
-    for (i = 0; i < FUN_004f4b20(); i++) {
+    i = 0;
+    while (i < FUN_004f4b20()) {
         ((int *)FUN_004f4b30())[i] = ((int)g_pGraphics->resY * 40) / 480 * i - elapsed + 1
             + FUN_004f25a0() + (int)g_pGraphics->resY + Font_GetLineHeight(2);
         if (((int *)FUN_004f4b30())[i] < (int)g_pGraphics->resY + 100
             && ((int *)FUN_004f4b30())[i] > -100) {
             Font_DrawText(2, ppText[0], (int)g_pGraphics->resX / 2 - 10,
-                          pLineY[i * 2],
+                          ((unsigned short *)FUN_004f4b30())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x14);
             Font_DrawText(2, ppText[1], (int)g_pGraphics->resX / 2 + 10,
-                          pLineY[i * 2],
+                          ((unsigned short *)FUN_004f4b30())[i * 2],
                           (int *)g_colourWhite0x00524968, 0x11);
         }
         if (((int *)FUN_004f4b30())[i] > -10)
             allOffScreen = false;
+        i++;
         ppText += 2;
     }
     if (allOffScreen)
@@ -4716,9 +4716,9 @@ void FUN_004f3dd0(void)
         i++;
     } while ((int)pPos < (int)(g_menuLetterPos + 200)); // 0x819cb4 in the original
     memset(g_menuTrailPos, 0, sizeof(g_menuTrailPos));
-    memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     k = 0;
     pPos = g_menuStreamPos[0];
+    memset(g_menuStreamSpeed, 0, sizeof(g_menuStreamSpeed));
     do {
         for (j = 0; j < 10; j++)
             pPos[j] = k / 6;
@@ -4739,11 +4739,14 @@ void FUN_004f3dd0(void)
     case 3:
         g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 3;
         break;
-    case 4:
+    case 4: {
+        unsigned int t;
         g_menuPathMode = 4;
         g_menuPathPrevMode = 4;
-        g_menuPathVariant = (unsigned int)(CFrontend::FUN_004d20e0() - FUN_004f25c0()) / 500 % 3;
+        t = CFrontend::FUN_004d20e0();
+        g_menuPathVariant = (t - FUN_004f25c0()) / 500 % 3;
         break;
+    }
     case 5:
         g_menuPathVariant = g_menuPathPrevMode = g_menuPathMode = 7;
         break;
