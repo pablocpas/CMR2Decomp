@@ -135,3 +135,17 @@ Work stops at the user's request for a clean handoff. The goal of 700 remaining
 is paused and needs 128 more exact gains. `HANDOFF.md` records the reproduction
 commands, remaining differences and discarded experiments;
 `CMR2PROGRESS/provenance.json` identifies the verified build.
+
+## Agent campaign integration (2026-10-03)
+
+Ten agents worked in isolated worktrees (`decomp/ag1`..`ag10`), each on one file slice,
+and their branches were merged through `decomp/integration-agents` (two conflicts
+resolved in `Race.cpp` and `GameMenus.cpp`: the agents' byte-exact bodies won, keeping
+main's renames). Main then rebuilds to **2632 byte-exact / 731 pending of 3363**,
+**0 exact losses** against the 2572-function baseline, `reccmp-datacmp` 0 issues, and
+all 71 native differential harnesses pass. Closures include one pending main-session
+edit committed as `b06c353` (0x4853c0). The search tooling gained
+`permute_batch --addresses` and `fastcmp` file-based compilation (`FASTCMP_TIMEOUT`),
+which removes the wineserver pipe deadlock. Per-function evidence, including the
+residual diffs of the functions left open, is in `CMR2PROGRESS/nonmatching.tsv` and the
+agents' reports.
