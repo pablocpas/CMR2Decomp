@@ -132,6 +132,30 @@ int StageObject_UsesExtendedMode(void);
 void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
 int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
 void FUN_0046c240(BYTE *pDst, BYTE car);
+// Replay event: from `frame`, `count` more frames carry `value`.
+struct ReplayEvent {
+    short frame;            // 0x0
+    short count;            // 0x2
+    BYTE value;             // 0x4
+    BYTE pad;
+};
+
+// Per-lane record of a type 0 (input) stream.
+struct ReplayInputLane {
+    BYTE inputs[0x110c];
+    ReplayEvent events[10]; // 0x110c
+    BYTE eventCount;        // 0x1148
+    BYTE pad[3];
+};
+
+// Per-lane record of a type 1/2 (state) stream.
+struct ReplayStateLane {
+    BYTE data[0x1c];
+    ReplayEvent events[10]; // 0x1c
+    BYTE eventCount;        // 0x58
+    BYTE pad[3];
+};
+
 // One replay stream (recorder/player of one car); the slots hang off
 // g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
 // and play them back by interpolating between two poses.
@@ -148,11 +172,11 @@ struct ReplayStream {
     BYTE field_0x21;        // 0x21
     BYTE pad22[2];
     BYTE *pInputs;          // 0x24 0x114c bytes per lane
-    BYTE *pInputLane;       // 0x28 current lane's input record
-    int field_0x2c;         // 0x2c
+    BYTE *pInputLane;       // 0x28 lane being played back
+    BYTE *pInputRecLane;    // 0x2c lane being recorded
     BYTE *pStates;          // 0x30 0x5c bytes per lane
-    BYTE *pStateLane;       // 0x34 current lane's state record
-    int field_0x38;         // 0x38
+    BYTE *pStateLane;       // 0x34 lane being played back
+    BYTE *pStateRecLane;    // 0x38 lane being recorded
     BYTE *pFrames;          // 0x3c 4 bytes per frame
     BYTE *pSamples;         // 0x40 16 bytes per sample
     FixMatrix from;         // 0x44
@@ -7220,26 +7244,19 @@ int Replay_FreeBuffers(void)
 // FUNCTION: CMR2 0x0046cc60
 int Replay_StopRecording(BYTE *pBuffer)
 {
-    short *pCount;
+    ReplayStream *p = (ReplayStream *)pBuffer;
 
-    if (pBuffer == NULL || *(int *)(pBuffer + 0xc) == 0)
+    if (p == NULL || p->recording == 0)
         return 0;
-    *(int *)(pBuffer + 0xc) = 0;
-    if (*(int *)(pBuffer + 0x10) == 0) {
-        if (*(int *)(pBuffer + 0x1c) != 2)
-            goto done;
-    } else if (*(int *)(pBuffer + 0x1c) != 2) {
-        pCount = (short *)(*(int *)(pBuffer + 0x104) + *(short *)(pBuffer + 0x100) * 2);
-        (*pCount)++;
-        (*(short *)(pBuffer + 0x100))++;
-        *(int *)(pBuffer + 0x10) = 0;
-        *(int *)(pBuffer + 0x18) = 0;
-        return 1;
+    p->recording = 0;
+    if (p->recordStarted != 0 && p->type != 2) {
+        p->pLaneSamples[p->laneCount]++;
+        p->laneCount++;
+    } else if (p->type == 2) {
+        p->laneCount = 1;
     }
-    *(short *)(pBuffer + 0x100) = 1;
-done:
-    *(int *)(pBuffer + 0x10) = 0;
-    *(int *)(pBuffer + 0x18) = 0;
+    p->recordStarted = 0;
+    p->field_0x18 = 0;
     return 1;
 }
 
@@ -8478,7 +8495,7 @@ void FUN_0048ca70(void)
 // FUNCTION: CMR2 0x0046c5a0
 BYTE *FUN_0046c5a0(short frames, short samples, int type)
 {
-    BYTE *buffer;
+    ReplayStream *p;
     int recordSize;
     int extraSize;
     BYTE slot;
@@ -8487,30 +8504,37 @@ BYTE *FUN_0046c5a0(short frames, short samples, int type)
         CGame::RegisterCallback(Replay_FreeBuffers, NULL);
         *(BYTE *)&g_unk0x00588ec8 = 1;
     }
-    if (g_unk0x00588d3c == 8)
-        return NULL;
-    recordSize = type == 0 ? 0x114c : 0x5c;
-    extraSize = type == 2 ? 0x10 : 4;
-    buffer = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x110 + frames * 2 + frames * recordSize + samples * frames * extraSize);
-    if (buffer == NULL)
-        return NULL;
-    *(int *)(buffer + 0x1c) = type;
-    *(short *)(buffer + 0xfc) = frames;
-    *(short *)(buffer + 0xfe) = samples;
-    Replay_SetupPointers((ReplayStream *)buffer, 0);
-    *(int *)(buffer + 4) = 0;
-    *(int *)(buffer + 0xc) = 0;
-    *(int *)(buffer + 0x14) = 0;
-    *(int *)(buffer + 0x18) = 0;
-    *(short *)(buffer + 0x100) = 0;
-    for (slot = 0; slot < 8; slot++) {
-        if (g_unk0x00588e80[slot] == NULL) {
-            g_unk0x00588e80[slot] = buffer;
-            break;
+    if (g_unk0x00588d3c != 8) {
+        if (type == 0)
+            recordSize = frames * 0x114c;
+        else
+            recordSize = frames * 0x5c;
+        if (type == 2)
+            extraSize = samples * frames * 0x10;
+        else
+            extraSize = samples * frames * 4;
+        p = (ReplayStream *)CFileBuffer::AllocateLockedBuffer(extraSize + frames * 2 + 0x110 + recordSize);
+        if (p != NULL) {
+            p->type = type;
+            p->laneCapacity = frames;
+            p->samplesPerLane = samples;
+            Replay_SetupPointers(p, 0);
+            p->playing = 0;
+            p->recording = 0;
+            p->field_0x14 = 0;
+            p->field_0x18 = 0;
+            p->laneCount = 0;
+            for (slot = 0; slot < 8; slot++) {
+                if (g_unk0x00588e80[slot] == NULL) {
+                    g_unk0x00588e80[slot] = (BYTE *)p;
+                    break;
+                }
+            }
+            g_unk0x00588d3c++;
+            return (BYTE *)p;
         }
     }
-    g_unk0x00588d3c++;
-    return buffer;
+    return NULL;
 }
 
 // Loads a replay buffer and validates its recorded dimensions.
@@ -10149,123 +10173,100 @@ BYTE *FUN_0041b390(void);
 // Steps every live replay object: advances the frame counter of the current
 // record and appends the next one, rebuilding the lookup row when the current
 // frame is exhausted.
-// match 38%: the original keeps the constant zero in EBX and a separate `flag`/`valid`
-// pair that MSVC folds here, which moves the loop's register allocation; the replay
-// stepping logic and constants are otherwise transcribed from the dump
 // FUNCTION: CMR2 0x0046c8e0
 void FUN_0046c8e0(void)
 {
     void ***pp;
-    void **pObj;
-    int *pRec;
+    ReplayStream *p;
     short *pIndex;
-    int state;
+    BYTE *pFrame;
+    BYTE *pInfo;
+    ReplayInputLane *pInput;
+    ReplayStateLane *pState;
+    ReplayEvent *pEvent;
     int flag;
     int valid;
-    int slot;
-    int offset;
-    BYTE *pEnt;
-    int base;
-    char c;
-    BYTE b;
+    BYTE value;
 
     for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
-        pObj = *pp;
-        if (pObj == NULL)
+        if (*pp == NULL)
             continue;
-        pRec = (int *)*pObj;
-        if (pRec == NULL)
+        p = (ReplayStream *)**pp;
+        if (p == NULL || p->recording == 0 || p->type == 2)
             continue;
-        if (pRec[3] == 0)
+        if (Car_Get(p->car)->field_0xb43[0] <= 0u)
             continue;
-        if (pRec[7] == 2)
-            continue;
-        if (*(BYTE *)((BYTE *)Car_Get(*(BYTE *)((BYTE *)pRec + 0x20)) + 0xb43) <= 0)
-            continue;
-
-        state = pRec[4];
-        pIndex = (short *)(pRec[0x41] + *(short *)((BYTE *)pRec + 0x100) * 2);
-        flag = 0;
         valid = 0;
-        if (state != 0)
+        flag = 0;
+        if (p->recordStarted != 0)
             valid = 1;
         else
             flag = 1;
-        if (valid == 0)
-            goto done;
-        if (state == 0)
-            goto done;
-
-        slot = *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) + *pIndex;
-        offset = pRec[0xf] + slot * 4;
-        if (FUN_0046cbe0((BYTE *)offset, *(BYTE *)((BYTE *)pRec + 0x20)) == 0) {
-            *pIndex += 1;
-            if (*pIndex == *(short *)((BYTE *)pRec + 0xfe)) {
-                pRec[4] = 0;
-                *pIndex += 1;
-                *(short *)((BYTE *)pRec + 0x100) += 1;
-                if (*(short *)((BYTE *)pRec + 0x100) == *(short *)((BYTE *)pRec + 0xfc))
-                    Replay_StopRecording((BYTE *)pRec);
-                goto done;
-            }
-            slot = *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) + *pIndex;
-            offset = pRec[0xf] + slot * 4;
-            *(BYTE *)(offset + 2) = *(BYTE *)(pRec[0xf] + 2 + slot * 4) & 0xc0;
-        }
-        FUN_0046c450((BYTE *)offset, *(BYTE *)((BYTE *)pRec + 0x20));
-
-        base = (int)FUN_0041b390();
-        c = CGameInfo::FUN_00405e00();
-        if (c == '\0')
-            c = *(char *)(*(int *)(base + 4) + (DWORD)*(BYTE *)((BYTE *)pRec + 0x20) * 8);
-        else
-            c = **(char **)(base + 4);
-
-        if (pRec[7] == 0) {
-            base = pRec[9] + *(short *)((BYTE *)pRec + 0x100) * 0x114c;
-            pEnt = (BYTE *)(base + 0x110c + (DWORD)*(BYTE *)(base + 0x1148) * 6);
-            if (c != *(char *)(pEnt - 2)) {
-                *(char *)(pEnt + 4) = c;
-                *(short *)pEnt = *pIndex;
-                *(unsigned short *)(pEnt + 2) = *(BYTE *)(offset + 2) & 0x3f;
-                *(BYTE *)(base + 0x1148) += 1;
-                if (*(short *)(pEnt + 2) == 0) {
-                    b = *(BYTE *)(pRec[0xf] - 2 + slot * 4);
-                    *(short *)pEnt -= 1;
-                    *(unsigned short *)(pEnt + 2) = b & 0x3f;
-                } else {
-                    *(short *)(pEnt + 2) -= 1;
+        pIndex = &p->pLaneSamples[p->laneCount];
+        if (valid != 0 && p->recordStarted != 0) {
+            pFrame = p->pFrames + (p->samplesPerLane * p->laneCount + *pIndex) * 4;
+            if (FUN_0046cbe0(pFrame, p->car) == 0) {
+                (*pIndex)++;
+                if (*pIndex == p->samplesPerLane) {
+                    p->recordStarted = 0;
+                    (*pIndex)++;
+                    p->laneCount++;
+                    if (p->laneCount == p->laneCapacity)
+                        Replay_StopRecording((BYTE *)p);
+                    goto done;
                 }
+                pFrame = p->pFrames + (p->samplesPerLane * p->laneCount + *pIndex) * 4;
+                pFrame[2] &= 0xc0;
             }
-        } else {
-            base = *(short *)((BYTE *)pRec + 0x100) * 0x5c + pRec[0xc];
-            pEnt = (BYTE *)(base + (DWORD)*(BYTE *)(base + 0x58) * 6);
-            if (c != *(char *)(pEnt + 0x1a)) {
-                *(char *)(pEnt + 0x20) = c;
-                *(short *)(pEnt + 0x1c) = *pIndex;
-                *(unsigned short *)(pEnt + 0x1e) = *(BYTE *)(offset + 2) & 0x3f;
-                *(BYTE *)(base + 0x58) += 1;
-                if (*(short *)(pEnt + 0x1e) == 0) {
-                    b = *(BYTE *)(pRec[0xf] - 2 + slot * 4);
-                    *(short *)(pEnt + 0x1c) -= 1;
-                    *(unsigned short *)(pEnt + 0x1e) = b & 0x3f;
-                } else {
-                    *(short *)(pEnt + 0x1e) -= 1;
+            FUN_0046c450(pFrame, p->car);
+            pInfo = FUN_0041b390();
+            if (CGameInfo::FUN_00405e00())
+                value = **(char **)(pInfo + 4);
+            else
+                value = (*(char **)(pInfo + 4))[p->car * 8];
+            if (p->type == 0) {
+                pInput = (ReplayInputLane *)(p->pInputs + p->laneCount * 0x114c);
+                if (value != pInput->events[pInput->eventCount - 1].value) {
+                    pEvent = &pInput->events[pInput->eventCount];
+                    pEvent->value = value;
+                    pEvent->frame = *pIndex;
+                    pEvent->count = pFrame[2] & 0x3f;
+                    pInput->eventCount++;
+                    if (pEvent->count == 0) {
+                        pEvent->frame--;
+                        pEvent->count = p->pFrames[(p->samplesPerLane * p->laneCount + *pIndex) * 4 - 2] & 0x3f;
+                    } else {
+                        pEvent->count--;
+                    }
+                }
+            } else {
+                pState = (ReplayStateLane *)(p->pStates + p->laneCount * 0x5c);
+                if (value != pState->events[pState->eventCount - 1].value) {
+                    pEvent = &pState->events[pState->eventCount];
+                    pEvent->value = value;
+                    pEvent->frame = *pIndex;
+                    pEvent->count = pFrame[2] & 0x3f;
+                    pState->eventCount++;
+                    if (pEvent->count == 0) {
+                        pEvent->frame--;
+                        pEvent->count = p->pFrames[(p->samplesPerLane * p->laneCount + *pIndex) * 4 - 2] & 0x3f;
+                    } else {
+                        pEvent->count--;
+                    }
                 }
             }
         }
-
 done:
         if (flag != 0) {
-            offset = pRec[0xf] + *(short *)((BYTE *)pRec + 0xfe) * *(short *)((BYTE *)pRec + 0x100) * 4;
-            *(short *)(pRec[0x41] + *(short *)((BYTE *)pRec + 0x100) * 2) = 0;
-            *(BYTE *)(offset + 2) &= 0xc0;
-            pRec[6] = 1;
-            if (pRec[7] == 0)
-                pRec[0xb] = pRec[9] + *(short *)((BYTE *)pRec + 0x100) * 0x114c;
+            pFrame = p->pFrames + p->laneCount * p->samplesPerLane * 4;
+            p->pLaneSamples[p->laneCount] = 0;
+            pFrame[2] &= 0xc0;
+            p->field_0x18 = 1;
+            if (p->type == 0)
+                p->pInputRecLane = p->pInputs + p->laneCount * 0x114c;
             else
-                pRec[0xe] = *(short *)((BYTE *)pRec + 0x100) * 0x5c + pRec[0xc];
-            pRec[4] = 1;
+                p->pStateRecLane = p->laneCount * 0x5c + p->pStates;
+            p->recordStarted = 1;
         }
     }
 }
