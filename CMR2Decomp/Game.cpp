@@ -2846,17 +2846,17 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar);
 void FUN_00423860(BYTE *pObject, BYTE *pInfo)
 {
     switch (*(int *)(pObject + 4)) {
-    case 1:
-    case 2:
-    case 10:
-        FUN_00486b90(pObject, pInfo);
+    case 4:
+    case 5:
+        FUN_00447be0(pObject, pInfo, FUN_00423d70(pObject[2]));
         return;
     case 3:
         FUN_004764e0(pObject);
         return;
-    case 4:
-    case 5:
-        FUN_00447be0(pObject, pInfo, FUN_00423d70(pObject[2]));
+    case 1:
+    case 2:
+    case 10:
+        FUN_00486b90(pObject, pInfo);
         return;
     case 7:
         FUN_0048d800(pObject, pInfo);
