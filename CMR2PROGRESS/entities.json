@@ -805,11 +805,11 @@
   ],
   "0x407270": [
     4883584,
-    "FUN_00407270"
+    "RallyData_IsChampionshipFinalStage"
   ],
   "0x4072d0": [
     4883680,
-    "FUN_004072d0"
+    "RallyData_AdvanceSelectedStage"
   ],
   "0x4074a0": [
     4891984,
@@ -881,11 +881,11 @@
   ],
   "0x407940": [
     4871408,
-    "FUN_00407940"
+    "Knockout_SetCurrentMatchTimes"
   ],
   "0x407b10": [
     4871872,
-    "FUN_00407b10"
+    "Knockout_PropagateWinners"
   ],
   "0x407e20": [
     4903392,
@@ -2313,7 +2313,7 @@
   ],
   "0x4176b0": [
     4836512,
-    "FUN_004176b0"
+    "RaceCalls_UpdatePlaybackQueue"
   ],
   "0x417760": [
     4263216,
@@ -2393,11 +2393,11 @@
   ],
   "0x418d30": [
     4844672,
-    "FUN_00418d30"
+    "CarSound_PlaySlot"
   ],
   "0x418dd0": [
     4844800,
-    "FUN_00418dd0"
+    "CarSound_StopSlot"
   ],
   "0x418e20": [
     4857072,
@@ -2429,7 +2429,7 @@
   ],
   "0x419b50": [
     4844880,
-    "FUN_00419b50"
+    "CarSound_PickDifferentSampleIndex"
   ],
   "0x419b90": [
     4844944,
@@ -2541,15 +2541,15 @@
   ],
   "0x41c1b0": [
     4836688,
-    "FUN_0041c1b0"
+    "Replay_LoadCpuOpponentRun"
   ],
   "0x41c260": [
     4836864,
-    "FUN_0041c260"
+    "Replay_InitRaceSlots"
   ],
   "0x41c510": [
     4837552,
-    "FUN_0041c510"
+    "Replay_LoadSelectedRun"
   ],
   "0x41c5a0": [
     4866128,
@@ -2705,7 +2705,7 @@
   ],
   "0x41f510": [
     4838160,
-    "FUN_0041f510"
+    "Race_ReleaseStageFile"
   ],
   "0x41f560": [
     4838240,
@@ -2733,11 +2733,11 @@
   ],
   "0x41f930": [
     4839200,
-    "FUN_0041f930"
+    "Race_LoadSelectedStage"
   ],
   "0x41fc50": [
     4837696,
-    "FUN_0041fc50"
+    "Race_LoadStageModel"
   ],
   "0x41fc90": [
     4857008,
@@ -2757,11 +2757,11 @@
   ],
   "0x420060": [
     4848096,
-    "FUN_00420060"
+    "Car_GetTextureSetPath"
   ],
   "0x4200d0": [
     4848208,
-    "FUN_004200d0"
+    "Car_GetDirectoryPath"
   ],
   "0x420100": [
     4848064,
@@ -2777,11 +2777,11 @@
   ],
   "0x420150": [
     4840016,
-    "FUN_00420150"
+    "Race_LoadStageGeometry"
   ],
   "0x420190": [
     4840080,
-    "FUN_00420190"
+    "Race_GetBaseCarCount"
   ],
   "0x4201d0": [
     4930384,
@@ -3037,7 +3037,7 @@
   ],
   "0x424120": [
     5115744,
-    "FUN_00424120"
+    "ForceFeedback_CreateEffects"
   ],
   "0x4241d0": [
     4382912,
@@ -3049,27 +3049,27 @@
   ],
   "0x424560": [
     5114576,
-    "FUN_00424560"
+    "ForceFeedback_ApplyStoredForces"
   ],
   "0x4245e0": [
     5114704,
-    "FUN_004245e0"
+    "ForceFeedback_ActivateIdleSlots"
   ],
   "0x424640": [
     5114800,
-    "FUN_00424640"
+    "ForceFeedback_DeactivateSlots"
   ],
   "0x4246a0": [
     5114544,
-    "FUN_004246a0"
+    "ForceFeedback_CacheAppliedForces"
   ],
   "0x4246c0": [
     5114896,
-    "FUN_004246c0"
+    "ForceFeedback_StopSlotForces"
   ],
   "0x424710": [
     5114976,
-    "FUN_00424710"
+    "ForceFeedback_UpdatePlayerSlot"
   ],
   "0x4247a0": [
     5135392,
@@ -3085,7 +3085,7 @@
   ],
   "0x424c00": [
     5115120,
-    "FUN_00424c00"
+    "ForceFeedback_FadeImpulseForces"
   ],
   "0x424c50": [
     5181424,
@@ -3877,7 +3877,7 @@
   ],
   "0x448260": [
     5112128,
-    "FUN_00448260"
+    "StageTiming_GetSplitLeaderTime"
   ],
   "0x4482d0": [
     5112240,
@@ -4325,7 +4325,7 @@
   ],
   "0x4556a0": [
     5109040,
-    "FUN_004556a0"
+    "StageTiming_AssignReservedDriverSlots"
   ],
   "0x4556f0": [
     5109120,
@@ -4349,7 +4349,7 @@
   ],
   "0x455bc0": [
     5110144,
-    "FUN_00455bc0"
+    "StageTiming_RemoveDriverFromSplitRankings"
   ],
   "0x455c70": [
     5110320,
@@ -4421,7 +4421,7 @@
   ],
   "0x456330": [
     5111040,
-    "FUN_00456330"
+    "StageTiming_BuildSplitInterpolationFactors"
   ],
   "0x4564d0": [
     5113600,
@@ -4477,7 +4477,7 @@
   ],
   "0x456bb0": [
     5122336,
-    "FUN_00456bb0"
+    "StageTiming_InitStageFileTable"
   ],
   "0x456be0": [
     5122384,
@@ -4489,7 +4489,7 @@
   ],
   "0x456c10": [
     5116432,
-    "FUN_00456c10"
+    "StageTiming_LoadCspData"
   ],
   "0x456c70": [
     5131344,
@@ -4501,7 +4501,7 @@
   ],
   "0x456ca0": [
     5111456,
-    "FUN_00456ca0"
+    "StageTiming_GetTotalCarCount"
   ],
   "0x456d20": [
     5111584,
@@ -5077,7 +5077,7 @@
   ],
   "0x4658e0": [
     4981840,
-    "FUN_004658e0"
+    "CarEffects_DrawTyreMarks"
   ],
   "0x465d70": [
     4979152,
@@ -5113,7 +5113,7 @@
   ],
   "0x465fc0": [
     4983040,
-    "FUN_00465fc0"
+    "CarEffects_MakeGhost"
   ],
   "0x466030": [
     5089152,
@@ -5309,7 +5309,7 @@
   ],
   "0x46b440": [
     4983280,
-    "FUN_0046b440"
+    "Mesh_ReadVertexFixed"
   ],
   "0x46b4c0": [
     4983808,
@@ -5317,7 +5317,7 @@
   ],
   "0x46b4e0": [
     4983408,
-    "FUN_0046b4e0"
+    "CarEffects_UpdateBrokenLightFlicker"
   ],
   "0x46b670": [
     4998656,
@@ -5373,7 +5373,7 @@
   ],
   "0x46bec0": [
     4984016,
-    "FUN_0046bec0"
+    "Replay_DecodeInputPacket"
   ],
   "0x46bfb0": [
     4984256,
@@ -5381,15 +5381,15 @@
   ],
   "0x46bfd0": [
     4984288,
-    "FUN_0046bfd0"
+    "Replay_RestoreCarState"
   ],
   "0x46c180": [
     4984720,
-    "FUN_0046c180"
+    "Replay_CopyAuxState"
   ],
   "0x46c1a0": [
     4984752,
-    "FUN_0046c1a0"
+    "Replay_RestoreAuxState"
   ],
   "0x46c220": [
     4984880,
@@ -5397,7 +5397,7 @@
   ],
   "0x46c240": [
     4984912,
-    "FUN_0046c240"
+    "Replay_CaptureCarSnapshot"
   ],
   "0x46c2a0": [
     5065264,
@@ -5429,7 +5429,7 @@
   ],
   "0x46c500": [
     5111696,
-    "FUN_0046c500"
+    "Replay_ReleaseStageBuffers"
   ],
   "0x46c540": [
     5027824,
@@ -5577,7 +5577,7 @@
   ],
   "0x46f060": [
     4985216,
-    "FUN_0046f060"
+    "StageObjects_LoadSkyAndGround"
   ],
   "0x46f330": [
     5029680,
@@ -5601,7 +5601,7 @@
   ],
   "0x46f500": [
     4985104,
-    "FUN_0046f500"
+    "StageObjects_ReleaseObjectFiles"
   ],
   "0x46f550": [
     4985936,
@@ -5777,19 +5777,19 @@
   ],
   "0x4736b0": [
     4988480,
-    "FUN_004736b0"
+    "Knockout_GetDriverNameForSide"
   ],
   "0x473790": [
     4988672,
-    "FUN_00473790"
+    "Knockout_IsHumanMatchSide"
   ],
   "0x4737d0": [
     4988736,
-    "FUN_004737d0"
+    "Knockout_SelectDisplaySide"
   ],
   "0x473810": [
     4988800,
-    "FUN_00473810"
+    "Knockout_GetCarNameForSide"
   ],
   "0x4738f0": [
     5012864,
@@ -6881,11 +6881,11 @@
   ],
   "0x494bb0": [
     4337344,
-    "FUN_00494bb0"
+    "CarContact_InitStageRecords"
   ],
   "0x494d40": [
     4337744,
-    "FUN_00494d40"
+    "CarContact_IsSkidPointVisible"
   ],
   "0x494db0": [
     4342208,
@@ -6893,11 +6893,11 @@
   ],
   "0x495f50": [
     4346656,
-    "FUN_00495f50"
+    "CarShadow_OffsetPointsTowardsCamera"
   ],
   "0x4962c0": [
     4339328,
-    "FUN_004962c0"
+    "CarContact_BuildBodyPatch"
   ],
   "0x496e00": [
     4347536,
@@ -6909,11 +6909,11 @@
   ],
   "0x498370": [
     4351472,
-    "FUN_00498370"
+    "CarContact_SetSkidTrailAxis"
   ],
   "0x4984b0": [
     4351792,
-    "FUN_004984b0"
+    "CarShadow_SetLevel"
   ],
   "0x498570": [
     4996688,
@@ -10997,15 +10997,15 @@
   ],
   "0x4ec020": [
     4879152,
-    "FUN_004ec020"
+    "SaveProfiles_CountAvailableProfiles"
   ],
   "0x4ec090": [
     4879264,
-    "FUN_004ec090"
+    "SaveProfiles_GetAvailableProfileIndex"
   ],
   "0x4ec110": [
     4879392,
-    "FUN_004ec110"
+    "SaveProfiles_GetAvailableProfileName"
   ],
   "0x4ec1a0": [
     4895952,

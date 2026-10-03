@@ -5190,9 +5190,9 @@ void FUN_004eb860(int index, int profile);
 void FUN_004ebf20(int index);
 void FUN_004eb000(BYTE index, char set);
 void FUN_004ebe80(int index);
-int FUN_004ec020(void);
-int FUN_004ec090(int n);
-BYTE *FUN_004ec110(int n);
+int SaveProfiles_CountAvailableProfiles(void);
+int SaveProfiles_GetAvailableProfileIndex(int n);
+BYTE *SaveProfiles_GetAvailableProfileName(int n);
 
 // Item callback: makes this menu the parent of the next one.
 // FUNCTION: CMR2 0x004f0c40
@@ -5252,7 +5252,7 @@ void FUN_004f27d0(Menu *pMenu, int param)
 {
     int profile;
 
-    profile = FUN_004ec090(pMenu->cursor - 2);
+    profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 2);
     FUN_004f2bf0(0);
     FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
     FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);
@@ -5284,8 +5284,8 @@ void FUN_004f2620(Menu *pMenu, char back)
     g_unk0x00819870 = (int)pMenu->pParent;
     CSound::FUN_004a28c0();
     for (i = 0; i < 4; i++) {
-        if (i < FUN_004ec020()) {
-            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17f), FUN_004ec110(i));
+        if (i < SaveProfiles_CountAvailableProfiles()) {
+            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17f), SaveProfiles_GetAvailableProfileName(i));
             pMenu->items[i + 2].enabled = 1;
             pMenu->items[i + 2].visible = 1;
             pMenu->items[i + 2].stringId = (int)g_profileEntryTexts[i];
@@ -5294,7 +5294,7 @@ void FUN_004f2620(Menu *pMenu, char back)
             pMenu->items[i + 2].visible = 0;
         }
     }
-    if (FUN_004ec020() > 0) {
+    if (SaveProfiles_CountAvailableProfiles() > 0) {
         pMenu->cursor = 2;
         return;
     }
@@ -6571,8 +6571,8 @@ void FUN_004f03f0(Menu *pMenu, char back)
     FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - FUN_004f1ba0());
     CSound::FUN_004a28c0();
     for (i = 0; i < 4; i++) {
-        if (i < FUN_004ec020()) {
-            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17e), FUN_004ec110(i));
+        if (i < SaveProfiles_CountAvailableProfiles()) {
+            sprintf(g_profileEntryTexts[i], CFrontend::GetTextString(0x17e), SaveProfiles_GetAvailableProfileName(i));
             pMenu->items[i + 3].enabled = 1;
             pMenu->items[i + 3].visible = 1;
             pMenu->items[i + 3].stringId = (int)g_profileEntryTexts[i];
@@ -6581,7 +6581,7 @@ void FUN_004f03f0(Menu *pMenu, char back)
             pMenu->items[i + 3].visible = 0;
         }
     }
-    if (FUN_004ec020() > 0) {
+    if (SaveProfiles_CountAvailableProfiles() > 0) {
         pMenu->cursor = 3;
         return;
     }
@@ -6623,7 +6623,7 @@ void FUN_004f0c50(Menu *pMenu, int param)
     Menu *pNext;
     int profile;
 
-    profile = FUN_004ec090(pMenu->cursor - 3);
+    profile = SaveProfiles_GetAvailableProfileIndex(pMenu->cursor - 3);
     FRONTEND_MODE_NEXT_MENU(pNext)
     FUN_004eb860((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff), profile);
     FUN_004eb000(CGameInfo::FUN_00405d70() - g_unk0x00819048, 0);

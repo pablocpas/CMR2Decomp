@@ -169,26 +169,26 @@ StageSoundPattern g_stageSoundPatterns[31] = {
     {{0, 0, 0, 0}, 17, {0, 0, 0}, 1} // 30
 };
 
-void FUN_00418d30(int channel, int sound, int slot, int volume, int flags);
-void FUN_00418dd0(int channel, int slot, char clear);
-int FUN_00419b50(int exclude, int count);
+void CarSound_PlaySlot(int channel, int sound, int slot, int volume, int flags);
+void CarSound_StopSlot(int channel, int slot, char clear);
+int CarSound_PickDifferentSampleIndex(int exclude, int count);
 BYTE FUN_00427aa0(void);
 
 #define STAGE_PLAY_PRIMARY(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected] + \
-                 FUN_00419b50(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_SECONDARY(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected + 2] + \
-                 FUN_00419b50(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected + 2] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_DIRECT(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected], slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected], slot, 0, 0); \
 } while (0)
-#define STAGE_STOP(slot) FUN_00418dd0(channel, slot, 1)
+#define STAGE_STOP(slot) CarSound_StopSlot(channel, slot, 1)
 #define STAGE_PLAY_EXTRA() do { STAGE_PLAY_SECONDARY(1); STAGE_PLAY_SECONDARY(2); STAGE_PLAY_SECONDARY(3); } while (0)
 #define STAGE_STOP_EXTRA() do { STAGE_STOP(1); STAGE_STOP(2); STAGE_STOP(3); } while (0)
 

@@ -1305,7 +1305,7 @@ void FUN_00405470(BYTE *param1);
 void FUN_0041b360(void);
 unsigned int *RallyData_GetChampionshipState(void);
 char RallyData_FUN_00408500(BYTE param1);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 void RallyData_FUN_00407500(BYTE param1);
 void Car_BuildRaceOrder(int count);
 void Dash_Reset(void);
@@ -1451,7 +1451,7 @@ fail:
         }
         level = 2;
     } else {
-        if ((BYTE)FUN_00407270() == 0 && state > 1) {
+        if ((BYTE)RallyData_IsChampionshipFinalStage() == 0 && state > 1) {
             if (CGameInfo::FUN_00405d80() != 3 && 2 >= state && CGameInfo::FUN_00405da0() == 0) {
                 state = 2;
                 level = 1;

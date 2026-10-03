@@ -1384,20 +1384,20 @@
     "symbol_name": "FUN_0045d540"
   },
   "0x494bb0": {
-    "n": "FUN_00494bb0",
+    "n": "CarContact_InitStageRecords",
     "s": 0.5544554455445545,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_00494bb0"
+    "symbol_name": "CarContact_InitStageRecords"
   },
   "0x494d40": {
-    "n": "FUN_00494d40",
+    "n": "CarContact_IsSkidPointVisible",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_00494d40"
+    "symbol_name": "CarContact_IsSkidPointVisible"
   },
   "0x497db0": {
     "n": "FUN_00497db0",
@@ -1408,12 +1408,12 @@
     "symbol_name": "FUN_00497db0"
   },
   "0x4962c0": {
-    "n": "FUN_004962c0",
+    "n": "CarContact_BuildBodyPatch",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_004962c0"
+    "symbol_name": "CarContact_BuildBodyPatch"
   },
   "0x494db0": {
     "n": "FUN_00494db0",
@@ -1424,12 +1424,12 @@
     "symbol_name": "FUN_00494db0"
   },
   "0x495f50": {
-    "n": "FUN_00495f50",
+    "n": "CarShadow_OffsetPointsTowardsCamera",
     "s": 0.8947368421052632,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_00495f50"
+    "symbol_name": "CarShadow_OffsetPointsTowardsCamera"
   },
   "0x496e00": {
     "n": "FUN_00496e00",
@@ -1444,20 +1444,20 @@
     "symbol_name": "FUN_00496e00"
   },
   "0x498370": {
-    "n": "FUN_00498370",
+    "n": "CarContact_SetSkidTrailAxis",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_00498370"
+    "symbol_name": "CarContact_SetSkidTrailAxis"
   },
   "0x4984b0": {
-    "n": "FUN_004984b0",
+    "n": "CarShadow_SetLevel",
     "s": 0.8545454545454545,
     "x": false,
     "unknown": [],
     "f": "CarPhysics.cpp",
-    "symbol_name": "FUN_004984b0"
+    "symbol_name": "CarShadow_SetLevel"
   },
   "0x489060": {
     "n": "Collision_RayQuad",
@@ -16284,44 +16284,44 @@
     "symbol_name": "Race_AssignUnusedSlot"
   },
   "0x4176b0": {
-    "n": "FUN_004176b0",
+    "n": "RaceCalls_UpdatePlaybackQueue",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_004176b0"
+    "symbol_name": "RaceCalls_UpdatePlaybackQueue"
   },
   "0x41c1b0": {
-    "n": "FUN_0041c1b0",
+    "n": "Replay_LoadCpuOpponentRun",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041c1b0"
+    "symbol_name": "Replay_LoadCpuOpponentRun"
   },
   "0x41c260": {
-    "n": "FUN_0041c260",
+    "n": "Replay_InitRaceSlots",
     "s": 0.9055690072639225,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041c260"
+    "symbol_name": "Replay_InitRaceSlots"
   },
   "0x41c510": {
-    "n": "FUN_0041c510",
+    "n": "Replay_LoadSelectedRun",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041c510"
+    "symbol_name": "Replay_LoadSelectedRun"
   },
   "0x41fc50": {
-    "n": "FUN_0041fc50",
+    "n": "Race_LoadStageModel",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041fc50"
+    "symbol_name": "Race_LoadStageModel"
   },
   "0x41e210": {
     "n": "FUN_0041e210",
@@ -16476,12 +16476,12 @@
     "symbol_name": "FUN_0041f500"
   },
   "0x41f510": {
-    "n": "FUN_0041f510",
+    "n": "Race_ReleaseStageFile",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041f510"
+    "symbol_name": "Race_ReleaseStageFile"
   },
   "0x41f560": {
     "n": "Race_BuildSelectionPaths",
@@ -16524,12 +16524,12 @@
     "symbol_name": "FUN_0041f920"
   },
   "0x41f930": {
-    "n": "FUN_0041f930",
+    "n": "Race_LoadSelectedStage",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_0041f930"
+    "symbol_name": "Race_LoadSelectedStage"
   },
   "0x420120": {
     "n": "FUN_00420120",
@@ -16540,20 +16540,20 @@
     "symbol_name": "FUN_00420120"
   },
   "0x420150": {
-    "n": "FUN_00420150",
+    "n": "Race_LoadStageGeometry",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00420150"
+    "symbol_name": "Race_LoadStageGeometry"
   },
   "0x420190": {
-    "n": "FUN_00420190",
+    "n": "Race_GetBaseCarCount",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00420190"
+    "symbol_name": "Race_GetBaseCarCount"
   },
   "0x414700": {
     "n": "FUN_00414700",
@@ -16670,28 +16670,28 @@
     "symbol_name": "FUN_00418d20"
   },
   "0x418d30": {
-    "n": "FUN_00418d30",
+    "n": "CarSound_PlaySlot",
     "s": 0.6666666666666666,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00418d30"
+    "symbol_name": "CarSound_PlaySlot"
   },
   "0x418dd0": {
-    "n": "FUN_00418dd0",
+    "n": "CarSound_StopSlot",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00418dd0"
+    "symbol_name": "CarSound_StopSlot"
   },
   "0x419b50": {
-    "n": "FUN_00419b50",
+    "n": "CarSound_PickDifferentSampleIndex",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00419b50"
+    "symbol_name": "CarSound_PickDifferentSampleIndex"
   },
   "0x419b90": {
     "n": "FUN_00419b90",
@@ -16822,20 +16822,20 @@
     "symbol_name": "FUN_00420100"
   },
   "0x420060": {
-    "n": "FUN_00420060",
+    "n": "Car_GetTextureSetPath",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_00420060"
+    "symbol_name": "Car_GetTextureSetPath"
   },
   "0x4200d0": {
-    "n": "FUN_004200d0",
+    "n": "Car_GetDirectoryPath",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "Race.cpp",
-    "symbol_name": "FUN_004200d0"
+    "symbol_name": "Car_GetDirectoryPath"
   },
   "0x41bf80": {
     "n": "FUN_0041bf80",
@@ -17182,20 +17182,20 @@
     "symbol_name": "RallyData_GetRoundDrivers"
   },
   "0x407940": {
-    "n": "FUN_00407940",
+    "n": "Knockout_SetCurrentMatchTimes",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_00407940"
+    "symbol_name": "Knockout_SetCurrentMatchTimes"
   },
   "0x407b10": {
-    "n": "FUN_00407b10",
+    "n": "Knockout_PropagateWinners",
     "s": 0.5143953934740882,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_00407b10"
+    "symbol_name": "Knockout_PropagateWinners"
   },
   "0x4070f0": {
     "n": "RallyData_FUN_004070f0",
@@ -17598,28 +17598,28 @@
     "symbol_name": "FUN_004eb000"
   },
   "0x4ec020": {
-    "n": "FUN_004ec020",
+    "n": "SaveProfiles_CountAvailableProfiles",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_004ec020"
+    "symbol_name": "SaveProfiles_CountAvailableProfiles"
   },
   "0x4ec090": {
-    "n": "FUN_004ec090",
+    "n": "SaveProfiles_GetAvailableProfileIndex",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_004ec090"
+    "symbol_name": "SaveProfiles_GetAvailableProfileIndex"
   },
   "0x4ec110": {
-    "n": "FUN_004ec110",
+    "n": "SaveProfiles_GetAvailableProfileName",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_004ec110"
+    "symbol_name": "SaveProfiles_GetAvailableProfileName"
   },
   "0x4ebfd0": {
     "n": "FUN_004ebfd0",
@@ -17878,20 +17878,20 @@
     "symbol_name": "FUN_004071c0"
   },
   "0x407270": {
-    "n": "FUN_00407270",
+    "n": "RallyData_IsChampionshipFinalStage",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_00407270"
+    "symbol_name": "RallyData_IsChampionshipFinalStage"
   },
   "0x4072d0": {
-    "n": "FUN_004072d0",
+    "n": "RallyData_AdvanceSelectedStage",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "RallyData.cpp",
-    "symbol_name": "FUN_004072d0"
+    "symbol_name": "RallyData_AdvanceSelectedStage"
   },
   "0x408470": {
     "n": "FUN_00408470",
@@ -21052,12 +21052,12 @@
     "symbol_name": "FUN_00464af0"
   },
   "0x4658e0": {
-    "n": "FUN_004658e0",
+    "n": "CarEffects_DrawTyreMarks",
     "s": 0.6438152011922503,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_004658e0"
+    "symbol_name": "CarEffects_DrawTyreMarks"
   },
   "0x465ea0": {
     "n": "FUN_00465ea0",
@@ -21076,12 +21076,12 @@
     "symbol_name": "FUN_00465f80"
   },
   "0x465fc0": {
-    "n": "FUN_00465fc0",
+    "n": "CarEffects_MakeGhost",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_00465fc0"
+    "symbol_name": "CarEffects_MakeGhost"
   },
   "0x466080": {
     "n": "FUN_00466080",
@@ -21132,20 +21132,20 @@
     "symbol_name": "FUN_0046b420"
   },
   "0x46b440": {
-    "n": "FUN_0046b440",
+    "n": "Mesh_ReadVertexFixed",
     "s": 0.9705882352941176,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046b440"
+    "symbol_name": "Mesh_ReadVertexFixed"
   },
   "0x46b4e0": {
-    "n": "FUN_0046b4e0",
+    "n": "CarEffects_UpdateBrokenLightFlicker",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046b4e0"
+    "symbol_name": "CarEffects_UpdateBrokenLightFlicker"
   },
   "0x46b4c0": {
     "n": "FUN_0046b4c0",
@@ -21196,12 +21196,12 @@
     "symbol_name": "FUN_0046bd40"
   },
   "0x46bec0": {
-    "n": "FUN_0046bec0",
+    "n": "Replay_DecodeInputPacket",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046bec0"
+    "symbol_name": "Replay_DecodeInputPacket"
   },
   "0x46bfb0": {
     "n": "FUN_0046bfb0",
@@ -21212,28 +21212,28 @@
     "symbol_name": "FUN_0046bfb0"
   },
   "0x46bfd0": {
-    "n": "FUN_0046bfd0",
+    "n": "Replay_RestoreCarState",
     "s": 0.5545454545454546,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046bfd0"
+    "symbol_name": "Replay_RestoreCarState"
   },
   "0x46c180": {
-    "n": "FUN_0046c180",
+    "n": "Replay_CopyAuxState",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046c180"
+    "symbol_name": "Replay_CopyAuxState"
   },
   "0x46c1a0": {
-    "n": "FUN_0046c1a0",
+    "n": "Replay_RestoreAuxState",
     "s": 0.7792207792207793,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046c1a0"
+    "symbol_name": "Replay_RestoreAuxState"
   },
   "0x46c220": {
     "n": "FUN_0046c220",
@@ -21244,12 +21244,12 @@
     "symbol_name": "FUN_0046c220"
   },
   "0x46c240": {
-    "n": "FUN_0046c240",
+    "n": "Replay_CaptureCarSnapshot",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046c240"
+    "symbol_name": "Replay_CaptureCarSnapshot"
   },
   "0x46d2a0": {
     "n": "FUN_0046d2a0",
@@ -21284,12 +21284,12 @@
     "symbol_name": "FUN_0046f4d0"
   },
   "0x46f500": {
-    "n": "FUN_0046f500",
+    "n": "StageObjects_ReleaseObjectFiles",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046f500"
+    "symbol_name": "StageObjects_ReleaseObjectFiles"
   },
   "0x46f4e0": {
     "n": "FUN_0046f4e0",
@@ -21300,12 +21300,12 @@
     "symbol_name": "FUN_0046f4e0"
   },
   "0x46f060": {
-    "n": "FUN_0046f060",
+    "n": "StageObjects_LoadSkyAndGround",
     "s": 0.8976377952755905,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_0046f060"
+    "symbol_name": "StageObjects_LoadSkyAndGround"
   },
   "0x46f550": {
     "n": "FUN_0046f550",
@@ -21396,36 +21396,36 @@
     "symbol_name": "FUN_00473680"
   },
   "0x4736b0": {
-    "n": "FUN_004736b0",
+    "n": "Knockout_GetDriverNameForSide",
     "s": 0.6099290780141844,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_004736b0"
+    "symbol_name": "Knockout_GetDriverNameForSide"
   },
   "0x473790": {
-    "n": "FUN_00473790",
+    "n": "Knockout_IsHumanMatchSide",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_00473790"
+    "symbol_name": "Knockout_IsHumanMatchSide"
   },
   "0x4737d0": {
-    "n": "FUN_004737d0",
+    "n": "Knockout_SelectDisplaySide",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_004737d0"
+    "symbol_name": "Knockout_SelectDisplaySide"
   },
   "0x473810": {
-    "n": "FUN_00473810",
+    "n": "Knockout_GetCarNameForSide",
     "s": 0.6099290780141844,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
-    "symbol_name": "FUN_00473810"
+    "symbol_name": "Knockout_GetCarNameForSide"
   },
   "0x4752f0": {
     "n": "FUN_004752f0",
@@ -23788,12 +23788,12 @@
     "symbol_name": "StageTiming_FUN_00455610"
   },
   "0x4556a0": {
-    "n": "FUN_004556a0",
+    "n": "StageTiming_AssignReservedDriverSlots",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_004556a0"
+    "symbol_name": "StageTiming_AssignReservedDriverSlots"
   },
   "0x4556f0": {
     "n": "FUN_004556f0",
@@ -23828,12 +23828,12 @@
     "symbol_name": "StageTiming_FUN_00455ae0"
   },
   "0x455bc0": {
-    "n": "FUN_00455bc0",
+    "n": "StageTiming_RemoveDriverFromSplitRankings",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00455bc0"
+    "symbol_name": "StageTiming_RemoveDriverFromSplitRankings"
   },
   "0x455c70": {
     "n": "StageTiming_GetSplitDriverCount",
@@ -23924,20 +23924,20 @@
     "symbol_name": "StageTiming_RebuildSplitPositions"
   },
   "0x456330": {
-    "n": "FUN_00456330",
+    "n": "StageTiming_BuildSplitInterpolationFactors",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00456330"
+    "symbol_name": "StageTiming_BuildSplitInterpolationFactors"
   },
   "0x456ca0": {
-    "n": "FUN_00456ca0",
+    "n": "StageTiming_GetTotalCarCount",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00456ca0"
+    "symbol_name": "StageTiming_GetTotalCarCount"
   },
   "0x456d20": {
     "n": "StageTiming_FUN_00456d20",
@@ -23956,12 +23956,12 @@
     "symbol_name": "FUN_00456d60"
   },
   "0x46c500": {
-    "n": "FUN_0046c500",
+    "n": "Replay_ReleaseStageBuffers",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_0046c500"
+    "symbol_name": "Replay_ReleaseStageBuffers"
   },
   "0x456b70": {
     "n": "FUN_00456b70",
@@ -24044,12 +24044,12 @@
     "symbol_name": "FUN_00448240"
   },
   "0x448260": {
-    "n": "FUN_00448260",
+    "n": "StageTiming_GetSplitLeaderTime",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00448260"
+    "symbol_name": "StageTiming_GetSplitLeaderTime"
   },
   "0x4482d0": {
     "n": "FUN_004482d0",
@@ -24308,60 +24308,60 @@
     "symbol_name": "FUN_00480900"
   },
   "0x4246a0": {
-    "n": "FUN_004246a0",
+    "n": "ForceFeedback_CacheAppliedForces",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_004246a0"
+    "symbol_name": "ForceFeedback_CacheAppliedForces"
   },
   "0x424560": {
-    "n": "FUN_00424560",
+    "n": "ForceFeedback_ApplyStoredForces",
     "s": 0.8604651162790697,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00424560"
+    "symbol_name": "ForceFeedback_ApplyStoredForces"
   },
   "0x4245e0": {
-    "n": "FUN_004245e0",
+    "n": "ForceFeedback_ActivateIdleSlots",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_004245e0"
+    "symbol_name": "ForceFeedback_ActivateIdleSlots"
   },
   "0x424640": {
-    "n": "FUN_00424640",
+    "n": "ForceFeedback_DeactivateSlots",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00424640"
+    "symbol_name": "ForceFeedback_DeactivateSlots"
   },
   "0x4246c0": {
-    "n": "FUN_004246c0",
+    "n": "ForceFeedback_StopSlotForces",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_004246c0"
+    "symbol_name": "ForceFeedback_StopSlotForces"
   },
   "0x424710": {
-    "n": "FUN_00424710",
+    "n": "ForceFeedback_UpdatePlayerSlot",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00424710"
+    "symbol_name": "ForceFeedback_UpdatePlayerSlot"
   },
   "0x424c00": {
-    "n": "FUN_00424c00",
+    "n": "ForceFeedback_FadeImpulseForces",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00424c00"
+    "symbol_name": "ForceFeedback_FadeImpulseForces"
   },
   "0x469bc0": {
     "n": "FUN_00469bc0",
@@ -24388,12 +24388,12 @@
     "symbol_name": "FUN_004667c0"
   },
   "0x424120": {
-    "n": "FUN_00424120",
+    "n": "ForceFeedback_CreateEffects",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00424120"
+    "symbol_name": "ForceFeedback_CreateEffects"
   },
   "0x491790": {
     "n": "FUN_00491790",
@@ -24492,12 +24492,12 @@
     "symbol_name": "FUN_00456c00"
   },
   "0x456c10": {
-    "n": "FUN_00456c10",
+    "n": "StageTiming_LoadCspData",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00456c10"
+    "symbol_name": "StageTiming_LoadCspData"
   },
   "0x456c90": {
     "n": "FUN_00456c90",
@@ -24604,12 +24604,12 @@
     "symbol_name": "FUN_00469b50"
   },
   "0x456bb0": {
-    "n": "FUN_00456bb0",
+    "n": "StageTiming_InitStageFileTable",
     "s": 1.0,
     "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
-    "symbol_name": "FUN_00456bb0"
+    "symbol_name": "StageTiming_InitStageFileTable"
   },
   "0x456be0": {
     "n": "FUN_00456be0",

@@ -1064,7 +1064,7 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
 }
 
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
@@ -1115,7 +1115,7 @@ void FUN_004932f0(void)
         }
     } else {
         if (CGameInfo::FUN_004063f0(0) != 0) {
-            if (((char)FUN_00407270() != 0 || (char)RallyData_GetFlag24() != 0 ||
+            if (((char)RallyData_IsChampionshipFinalStage() != 0 || (char)RallyData_GetFlag24() != 0 ||
                  (char)RallyData_FUN_00407e90() != 0) &&
                 (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
                 FUN_0047d5a0(g_pAutoGearCar->index);

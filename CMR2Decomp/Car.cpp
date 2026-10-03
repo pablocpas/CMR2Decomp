@@ -3569,7 +3569,7 @@ void Car_PrepareStep(int base, short *pList, short count);
 void FUN_0046d510(void);
 void FUN_00480bb0(BYTE *pCars, short *pOrder, short count);
 void FUN_00469e40(int base, short *pList, short count);
-void FUN_00424710(int param_1);
+void ForceFeedback_UpdatePlayerSlot(int param_1);
 void FUN_004258e0(int base, short *pList, short count);
 void Car_RunStepPasses(int carBase, short *pOrder, short count);
 void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3);
@@ -3708,7 +3708,7 @@ void Car_UpdateAndRenderAll(void)
     FUN_0046d510();
     FUN_00480bb0((BYTE *)g_carBuffer, g_unk0x0053a314, g_unk0x0053c9a0);
     FUN_00469e40((int)g_carBuffer, g_unk0x0053b4f0, g_unk0x0053a310);
-    FUN_00424710(0);
+    ForceFeedback_UpdatePlayerSlot(0);
     FUN_004258e0((int)g_carBuffer, g_carOrder, g_carOrderCount);
 }
 
@@ -4644,7 +4644,7 @@ int FUN_00458310(int index);
 void Car_BalanceTwoPlayerRideHeight(BYTE *param_1, short *param_2, short param_3);
 void Car_StartPendingCountdown(void);
 void FUN_004340f0(void);
-void FUN_0046b4e0(BYTE *pCar);
+void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
 void Car_UpdateSlopeGrip(void);
 void FUN_004348c0(void);
 void FUN_00434140(void);
@@ -4704,7 +4704,7 @@ void Car_StepAll(int base, short *pList, short count)
             Car_StartPendingCountdown();
         Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
         FUN_004340f0();
-        FUN_0046b4e0((BYTE *)g_pCurrentCar);
+        CarEffects_UpdateBrokenLightFlicker((BYTE *)g_pCurrentCar);
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
@@ -6683,7 +6683,7 @@ public:
 };
 
 unsigned char RallyData_FUN_00407ea0(void);
-unsigned int FUN_00456ca0(void);
+unsigned int StageTiming_GetTotalCarCount(void);
 int FUN_004660f0(void);
 BYTE FUN_004086f0(BYTE param1);
 char *RallyData_FUN_00406890(void);
@@ -6725,7 +6725,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     flagC = 0;
     g_pCurrentCar = (Car *)param_1;
     if (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0 &&
-        param_5 == (int)FUN_00456ca0() - 1) {
+        param_5 == (int)StageTiming_GetTotalCarCount() - 1) {
         if (FUN_004660f0() == -1) {
             carType = 0;
             flag8 = 1;

@@ -542,7 +542,7 @@ extern BYTE g_unk0x00590ec8[4];
 extern BYTE g_unk0x005914a4[4];
 extern int g_physicsTimeStep;
 
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
 int FUN_00487b80(int r1, int r2, int *pA, int *pB);
@@ -664,7 +664,7 @@ void FUN_0048a1f0(int param_1, short *param_2, short param_3)
             p2--;
         } while (--j);
     }
-    if (((BYTE)FUN_00407270() != 0 || (BYTE)RallyData_GetFlag24() != 0 ||
+    if (((BYTE)RallyData_IsChampionshipFinalStage() != 0 || (BYTE)RallyData_GetFlag24() != 0 ||
          (BYTE)RallyData_FUN_00407e90() != 0) &&
         CGameInfo::FUN_004063f0(0) != 0 && n >= 0) {
         p2 = param_2 + n;

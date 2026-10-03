@@ -4234,8 +4234,8 @@ int RallyData_FUN_00411880(void);
    Stage entry / exit transitions of the frontend cascades (0x401000..0x405470).
    -------------------------------------------------------------------------- */
 
-unsigned char FUN_0041f930(void);
-unsigned char FUN_00420150(void);
+unsigned char Race_LoadSelectedStage(void);
+unsigned char Race_LoadStageGeometry(void);
 void FUN_0041b300(void);
 void FUN_00411120(void);
 void RallyData_FUN_004207f0(void);
@@ -4261,7 +4261,7 @@ void FUN_00401000(BYTE *param1, int param2)
     int i;
 
     if ((char)param2 == 0) {
-        if ((BYTE)FUN_0041f930() == 0) {
+        if ((BYTE)Race_LoadSelectedStage() == 0) {
             i = 0;
             if (*param1 > 0) {
                 do {
@@ -4294,7 +4294,7 @@ void FUN_004010a0(BYTE *param1, int param2)
 
     if ((char)param2 == 0) {
         RallyData_FUN_004207f0();
-        if ((BYTE)FUN_00420150() == 0) {
+        if ((BYTE)Race_LoadStageGeometry() == 0) {
             i = 0;
             if (*param1 > 0) {
                 do {
@@ -4324,11 +4324,11 @@ void FUN_00427650(void);
 void FUN_0041e210(void);
 void FUN_00424ed0(void);
 void FUN_00424c50(void);
-void FUN_004245e0(void);
+void ForceFeedback_ActivateIdleSlots(void);
 void View_SetCameraType(int, int, BYTE, int);
 BYTE FUN_0041b370(void);
 int RallyData_FUN_00408800(BYTE);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 void FUN_00406820(void);
 void RallyData_FUN_00408290(void);
 int View_IsModeAvailable(BYTE, int);
@@ -4360,12 +4360,12 @@ void FUN_00401150(int param1, int param2)
             g_unk0x005298f4 = 1;
             g_unk0x005297f0 = 0;
             if (**(char **)(FUN_0041b390() + 4) != '\r')
-                FUN_004245e0();
+                ForceFeedback_ActivateIdleSlots();
         }
         i = 0;
         if ((BYTE)RallyDataState() > 0) {
             do {
-                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)FUN_00407270() != 0) {
+                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)RallyData_IsChampionshipFinalStage() != 0) {
                     View_SetCameraType(i, 7, i, 0);
                 } else if (View_IsModeAvailable(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
                     View_SetCameraType(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
@@ -4388,7 +4388,7 @@ void FUN_00401150(int param1, int param2)
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 5, 2);
             return;
         }
-        if ((BYTE)FUN_00407270() != 0) {
+        if ((BYTE)RallyData_IsChampionshipFinalStage() != 0) {
             FUN_00406820();
             RallyData_FUN_00408290();
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 1, 2);
@@ -4676,7 +4676,7 @@ unsigned int FUN_0040a450(int index);
 void View_SnapCameras(BYTE index);
 void View_BlendCameraStates(BYTE index, int param);
 void View_SwitchCamera(BYTE index, int a, int b, BYTE c, int d);
-void FUN_004246c0(void);
+void ForceFeedback_StopSlotForces(void);
 int FUN_00448550(void);
 int FUN_004483c0(int index);
 void FUN_00427950(int time);
@@ -4712,7 +4712,7 @@ void FUN_00404f40(Unk0049c2c0 *param1)
     int i;
     DeviceInfo *pDev;
 
-    FUN_004246c0();
+    ForceFeedback_StopSlotForces();
     if (g_pMenu0x0052af44 != &g_menu0x0052a870)
         goto updateMenus;
 
@@ -11687,7 +11687,7 @@ SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 #include "FileBuffer.h"
 #include "SceneNode.h"
 int  FUN_004b9380(unsigned int, unsigned int, unsigned int);
-char *FUN_00420060(int, int, int);
+char *Car_GetTextureSetPath(int, int, int);
 int  FUN_0050a020(int, int);
 int  FUN_0050a050(int, int);
 void FUN_00507a10(Unk0x0082d220 *, int);
@@ -11727,7 +11727,7 @@ int FUN_005062d0(int index)
     }
     model = (BYTE)(int)RallyData_FUN_004086b0(index);
     variant = (BYTE)(int)CFrontend::FUN_0040ee90(model);
-    sprintf(g_unk0x00663b60, "%s.c3d", FUN_00420060(model, 0, 0));
+    sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::FUN_00405d10() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
         hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
@@ -11752,7 +11752,7 @@ int FUN_005062d0(int index)
     g_unk0x008311d8[index] = (BYTE *)hL;
     g_unk0x00831158[index] = (BYTE *)hS;
 
-    sprintf(g_unk0x00663b60, "%s.bfl", FUN_00420060(model, 0, 0));
+    sprintf(g_unk0x00663b60, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::FUN_00405d10() == 0)
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
 

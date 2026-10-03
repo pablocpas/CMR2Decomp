@@ -506,7 +506,7 @@ void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond)
 // Stores the two times of the current round of the knockout table and marks
 // the winner (bit 11: second driver faster, bit 12: first driver faster).
 // FUNCTION: CMR2 0x00407940
-void FUN_00407940(unsigned int first, unsigned int second)
+void Knockout_SetCurrentMatchTimes(unsigned int first, unsigned int second)
 {
     switch ((g_knockout.state >> 3) & 7) {
     case 1:
@@ -553,7 +553,7 @@ void FUN_00407940(unsigned int first, unsigned int second)
 // Propagates the winners through every level of the knockout bracket and
 // orders AI-only pairs by driver index.
 // FUNCTION: CMR2 0x00407b10
-void FUN_00407b10(void)
+void Knockout_PropagateWinners(void)
 {
     unsigned int flags;
     unsigned int first;
@@ -1720,7 +1720,7 @@ void FUN_004eb000(BYTE index, char set)
 
 // Number of saved profiles (named, not hidden) no record is using.
 // FUNCTION: CMR2 0x004ec020
-int FUN_004ec020(void)
+int SaveProfiles_CountAvailableProfiles(void)
 {
     char used[4];
     BYTE *pRecord;
@@ -1742,7 +1742,7 @@ int FUN_004ec020(void)
 
 // Index of the n-th free saved profile, -1 if none.
 // FUNCTION: CMR2 0x004ec090
-int FUN_004ec090(int n)
+int SaveProfiles_GetAvailableProfileIndex(int n)
 {
     char used[4];
     BYTE *pRecord;
@@ -1766,7 +1766,7 @@ int FUN_004ec090(int n)
 
 // Name of the n-th free saved profile, NULL if none.
 // FUNCTION: CMR2 0x004ec110
-BYTE *FUN_004ec110(int n)
+BYTE *SaveProfiles_GetAvailableProfileName(int n)
 {
     char used[4];
     BYTE *pRecord;
@@ -1993,7 +1993,7 @@ BYTE g_rallyScoreScale[27] = {
 unsigned int RallyData_FUN_00406940(void);
 unsigned int RallyData_FUN_00406950(void);
 unsigned char RallyData_FUN_00407e70(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 
 #define STAGE_SCORE_SCALE(variant)                                                                  \
     if ((BYTE)RallyData_GetFlag24()) {                                                              \
@@ -2002,7 +2002,7 @@ int FUN_00407270(void);
                                      (BYTE)CGameInfo::FUN_00405d90()] * 100;                        \
         return g_rallyScoreScale[((BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950()) * 3] * 100; \
     }                                                                                               \
-    if ((BYTE)FUN_00407270())                                                                       \
+    if ((BYTE)RallyData_IsChampionshipFinalStage())                                                                       \
         return 2000;                                                                                \
     return g_stageScoreScale[((g_selectedRallyData & 0x1f) * 12 + ((g_selectedRallyData >> 5) & 0x1f)) * 2 + \
                              (variant)] * 100
@@ -2468,7 +2468,7 @@ BYTE FUN_004071c0(BYTE flags, char mode)
 
 // Whether the championship has just finished its last rally (rally 8, stage 11).
 // FUNCTION: CMR2 0x00407270
-int FUN_00407270(void)
+int RallyData_IsChampionshipFinalStage(void)
 {
     BYTE mode;
     BYTE rallyClass;
@@ -2486,7 +2486,7 @@ void RallyData_UpdateFlags(void);
 // Advances g_selectedRallyData to the next stage (bits 5-9) and, at the end of
 // a rally, to the next rally (bits 0-4). Returns 0 when the championship is over.
 // FUNCTION: CMR2 0x004072d0
-BYTE FUN_004072d0(void)
+BYTE RallyData_AdvanceSelectedStage(void)
 {
     BYTE mode;
     BYTE count;
@@ -3613,7 +3613,7 @@ void FUN_00410100(BYTE alpha)
     colour[2] = g_itemColour[2];
     colour[3] = alpha;
     x = (int)(g_pGraphics->resX * 30) / 640;
-    if ((BYTE)FUN_00407270()) {
+    if ((BYTE)RallyData_IsChampionshipFinalStage()) {
         RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x93), 1, alpha);
         return;
     }
@@ -5886,7 +5886,7 @@ void FUN_00415750(int driver, int split, int useLongName, int useSplit)
     CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
 }
 
-int FUN_00448260(int car);
+int StageTiming_GetSplitLeaderTime(int car);
 int FUN_00448110(void);
 int FUN_00448330(int car);
 int FUN_00448350(int car);
@@ -5906,7 +5906,7 @@ void FUN_00413200(int car)
 {
     if (FUN_00458250(car)) {
         g_unk0x00537054[car] = 1;
-        g_unk0x00536fe4[car] = FUN_00448110() - FUN_00448260(car);
+        g_unk0x00536fe4[car] = FUN_00448110() - StageTiming_GetSplitLeaderTime(car);
         if (FUN_00448330(car) > 0) {
             FUN_00411ab0(car, 0);
             ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
@@ -6382,7 +6382,7 @@ void FUN_0040f0c0(int param1, int param2, int param3)
     FUN_00417e60();
     if (CGameInfo::FUN_00404f20() != 0 && FUN_004054b0(maskedView) == 0)
         return;
-    if ((BYTE)FUN_00407270() != 0)
+    if ((BYTE)RallyData_IsChampionshipFinalStage() != 0)
         return;
     if ((BYTE)RallyDataState() == 1 && param3 != 0) {
         Dash_Draw(maskedView, (int)g_unk0x00536ad4);
@@ -7850,7 +7850,7 @@ void FUN_0040efa0(void)
         CGame::FUN_0049dca0(2);
     else
         CGame::FUN_0049dca0(3);
-    FUN_00407270();
+    RallyData_IsChampionshipFinalStage();
     FUN_004b1150();
     Particle_Init(0x20, 400);
     if (CGameInfo::FUN_004063f0(0) != 0)
@@ -8005,8 +8005,8 @@ void FUN_0040dc30(void)
 
 #include "GenericFileLoader.h"
 
-char *FUN_00473810(KnockoutMatch *pMatch, int side);
-char *FUN_004736b0(KnockoutMatch *pMatch, int side);
+char *Knockout_GetCarNameForSide(KnockoutMatch *pMatch, int side);
+char *Knockout_GetDriverNameForSide(KnockoutMatch *pMatch, int side);
 BYTE StageTiming_FUN_00455ae0(void);
 BYTE FUN_0041b370(void);
 int StageTiming_FUN_00455ac0(int iSplit, int iIndex);
@@ -8029,14 +8029,14 @@ void FUN_00412390(int bottom, int player)
         return;
     if (CGameInfo::FUN_00405d80() == 4) {
         if (RallyData_FUN_00408500(*(BYTE *)RallyData_GetRoundEntry() & 0x1f) == -1)
-            FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
+            Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
         else
-            FUN_004736b0((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
+            Knockout_GetDriverNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
         sprintf(name1, CRegKey::m_regKeyPathFormatValue, CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest));
         if (RallyData_FUN_00408500((BYTE)(*RallyData_GetRoundEntry() >> 5) & 0x1f) == -1)
-            FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
+            Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
         else
-            FUN_004736b0((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
+            Knockout_GetDriverNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
         sprintf(name2, CRegKey::m_regKeyPathFormatValue, CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest));
     } else {
         if (StageTiming_FUN_00455ae0() == 0)
@@ -8120,14 +8120,14 @@ void FUN_0040f8d0(BYTE *pKey, int view)
                         if (FUN_0041f380() != 0xff && (char)FUN_0041f380() == i) {
                             if (CGameInfo::FUN_00405d80() == 4)
                                 sprintf(name, g_strName0x00516e2c,
-                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), i));
+                                        Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), i));
                             else
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(i));
                             sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x94), name);
                         } else {
                             if (CGameInfo::FUN_00405d80() == 4)
                                 sprintf(name, g_strName0x00516e2c,
-                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), other));
+                                        Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), other));
                             else
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
                             sprintf(CFrontend::m_stringDest, g_strVersusFormat, CFrontend::GetTextString(0x86),

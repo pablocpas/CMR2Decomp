@@ -64,7 +64,7 @@ extern int g_unk0x00537194;
 // Plays the queued co-driver calls one after another: starts the first slot's
 // sample, and when it has finished moves the queue up.
 // FUNCTION: CMR2 0x004176b0
-void FUN_004176b0(void)
+void RaceCalls_UpdatePlaybackQueue(void)
 {
     if ((g_raceSlotState[0].flags & 2) != 0 && FUN_00417760(0) == 0) {
         FUN_00417760(0);
@@ -177,7 +177,7 @@ char *FUN_0041f910(void);
 GenericFile *FUN_0041f500(void);
 
 // Country codes and difficulty letters of the CPU run file names; the second
-// pair of tables is the one FUN_0041c260 uses for the second player.
+// pair of tables is the one Replay_InitRaceSlots uses for the second player.
 // GLOBAL: CMR2 0x00519254
 char g_str0x00519254[4] = "e";
 // GLOBAL: CMR2 0x00519258
@@ -214,13 +214,13 @@ char *FUN_0041f8e0(void);
 char *FUN_0041f920(void);
 unsigned int FUN_00409cb0(int);
 BYTE Car_GetDrawnFlag(int index);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyData_FUN_00407ea0(void);
 
 // Loads the CPU run a player races against: the file is chosen by country,
 // stage, side of the stage and difficulty. Returns whether it was found.
 // FUNCTION: CMR2 0x0041c1b0
-int FUN_0041c1b0(int player)
+int Replay_LoadCpuOpponentRun(int player)
 {
     if (player == 0)
         g_unk0x00537f78[6] = FUN_004584c0() != 0;
@@ -238,7 +238,7 @@ int FUN_0041c1b0(int player)
 // the championship-end run, the CPU runs of a head-to-head or knockout stage,
 // and a recording buffer for every player that has no run loaded.
 // FUNCTION: CMR2 0x0041c260
-void FUN_0041c260(void)
+void Replay_InitRaceSlots(void)
 {
     int headToHead;
     int loaded[2];
@@ -263,7 +263,7 @@ void FUN_0041c260(void)
         }
         return;
     }
-    if ((char)FUN_00407270()) {
+    if ((char)RallyData_IsChampionshipFinalStage()) {
         sprintf(CFrontend::m_stringDest, g_strChampEndRun, FUN_0041f8e0());
         g_unk0x00537f3c[0] = FUN_0046d2d0(CFrontend::m_stringDest);
         return;
@@ -289,7 +289,7 @@ void FUN_0041c260(void)
             if (((CGameInfo::FUN_00405d80() == 4 && (char)Car_GetDrawnFlag(i) == -1) ||
                  ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0 &&
                   RallyData_FUN_00408500((BYTE)i) != -1)) &&
-                FUN_0041c1b0(i) != 0)
+                Replay_LoadCpuOpponentRun(i) != 0)
                 loaded[i] = 1;
         }
     }
@@ -316,7 +316,7 @@ void FUN_0041c260(void)
 // Clears the player replay slots, then builds the replay file name for the
 // current game mode and loads it into slot 0.
 // FUNCTION: CMR2 0x0041c510
-void FUN_0041c510(void)
+void Replay_LoadSelectedRun(void)
 {
     int i;
 
@@ -337,7 +337,7 @@ void FUN_0041c510(void)
 
 // Loads the stage's TEMP.C3D model into memory.
 // FUNCTION: CMR2 0x0041fc50
-void FUN_0041fc50(void)
+void Race_LoadStageModel(void)
 {
     void *pBuffer;
     GenericFile *pFile;
@@ -486,9 +486,9 @@ GenericFile *FUN_0041f500(void)
 
 void StageObject_FreeAll(void);
 
-// Releases the race file loaded by FUN_0041f930 (registered callback).
+// Releases the race file loaded by Race_LoadSelectedStage (registered callback).
 // FUNCTION: CMR2 0x0041f510
-BYTE FUN_0041f510(void)
+BYTE Race_ReleaseStageFile(void)
 {
     if (g_raceFile.didFileLoad && g_raceFile.buffer) {
         CFileBuffer::FreeGenericFileBuffer(g_raceFile.buffer);
@@ -647,12 +647,12 @@ void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary);
 void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
 void FUN_0041fd30(void);
 void FUN_00420020(void);
-void FUN_0041fc50(void);
+void Race_LoadStageModel(void);
 void FUN_0041fc90(void);
 void FUN_0041fcd0(void);
 void FUN_00490c30(void);
 void FUN_00471af0(void);
-void FUN_00456c10(void);
+void StageTiming_LoadCspData(void);
 void FUN_00420630(void);
 void FUN_00416720(void);
 StageFile *StageTiming_GetStageFile3(void);
@@ -663,7 +663,7 @@ void FUN_00458090(void);
 void FUN_00411450(int keepName);
 void FUN_00411b20(void);
 void FUN_004d0180(void);
-void FUN_0041c260(void);
+void Replay_InitRaceSlots(void);
 void FUN_0045ea70(void);
 void FUN_00455300(void);
 BYTE *FUN_0047c2f0(void);
@@ -684,14 +684,14 @@ char g_str0x0051947c[] = "%s.tsc";
 // Loads the race files of the current selection (the .tsc track, the .tre and
 // .xhi lighting files and the .tga of the selection) and initialises the stage.
 // FUNCTION: CMR2 0x0041f930
-BYTE FUN_0041f930(void)
+BYTE Race_LoadSelectedStage(void)
 {
     BYTE *pTsc;
     BYTE *pTre;
     BYTE *pXhi;
 
     if (g_raceFileCallbackSet == 0) {
-        CGame::RegisterCallback(FUN_0041f510, 0);
+        CGame::RegisterCallback(Race_ReleaseStageFile, 0);
         g_raceFileCallbackSet = 1;
     }
     CGenericFileLoader::FUN_004a9d70((GenericFile *)&g_raceFile, g_unk0x00538548);
@@ -718,14 +718,14 @@ BYTE FUN_0041f930(void)
     FUN_0040fec0(0xf, 1, 0xff);
     FUN_0041fd30();
     FUN_00420020();
-    FUN_0041fc50();
+    Race_LoadStageModel();
     FUN_0041fc90();
     FUN_0040fec0(0x19, 1, 0xff);
     FUN_0041fcd0();
     FUN_00490c30();
     FUN_00471af0();
     FUN_0040fec0(0x28, 1, 0xff);
-    FUN_00456c10();
+    StageTiming_LoadCspData();
     FUN_00420630();
     FUN_00416720();
     sprintf(CFrontend::m_stringDest, g_str0x0051947c, FUN_0041f900());
@@ -748,7 +748,7 @@ BYTE FUN_0041f930(void)
     if (CGameInfo::FUN_00405d80() != 4)
         FUN_004d0180();
     if (CGameInfo::FUN_00406320() == 0 && CGameInfo::FUN_00405d80() == 3)
-        FUN_0041c260();
+        Replay_InitRaceSlots();
     FUN_0045ea70();
     FUN_00455300();
     FUN_00455470(1);
@@ -768,7 +768,7 @@ int FUN_00420120(void)
 
 void FUN_00420130(int value);
 int FUN_004b7940(void);
-void FUN_00456bb0(void);
+void StageTiming_InitStageFileTable(void);
 void FUN_0046b420(void);
 int FUN_00456d90(void);
 void Sector_RebuildNodeLists(void);
@@ -778,12 +778,12 @@ void FUN_0046b710(void);
 // Loads the stage geometry; on success rebuilds the sector node lists and the
 // surface tables. Returns whether the stage loaded.
 // FUNCTION: CMR2 0x00420150
-BYTE FUN_00420150(void)
+BYTE Race_LoadStageGeometry(void)
 {
     BYTE ok;
 
     FUN_00420130(FUN_004b7940());
-    FUN_00456bb0();
+    StageTiming_InitStageFileTable();
     FUN_0046b420();
     if (FUN_00456d90()) {
         Sector_RebuildNodeLists();
@@ -796,9 +796,9 @@ BYTE FUN_00420150(void)
     return ok;
 }
 
-// Number of stages of the current event.
+// Car count selected by the game mode, before ghost/network additions.
 // FUNCTION: CMR2 0x00420190
-char FUN_00420190(void)
+char Race_GetBaseCarCount(void)
 {
     if ((char)RallyData_FUN_00407e70() && !CGameInfo::FUN_00405e00())
         return (char)RallyDataState() + (char)RallyData_FUN_004069a0();
@@ -1653,7 +1653,7 @@ BYTE g_raceBlock[0x864];
 // random pitch and the id of the sound.
 // match 54%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00418d30
-void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
+void CarSound_PlaySlot(int param1, int param2, int param3, int param4, int param5)
 {
     int index;
 
@@ -1667,7 +1667,7 @@ void FUN_00418d30(int param1, int param2, int param3, int param4, int param5)
 // Stops the sound of one entry of the stage table (and forgets both the handle
 // and the id).
 // FUNCTION: CMR2 0x00418dd0
-void FUN_00418dd0(int param1, int param2, char param3)
+void CarSound_StopSlot(int param1, int param2, char param3)
 {
     if (param3 != 0)
         g_carSoundSets[param1].id[param2] = -1;
@@ -1677,7 +1677,7 @@ void FUN_00418dd0(int param1, int param2, char param3)
 
 // Returns a random value in [0, param2) that is not param1.
 // FUNCTION: CMR2 0x00419b50
-int FUN_00419b50(int param1, int param2)
+int CarSound_PickDifferentSampleIndex(int param1, int param2)
 {
     int value;
 
@@ -1690,9 +1690,9 @@ int FUN_00419b50(int param1, int param2)
     return value;
 }
 
-void FUN_00418d30(int param1, int param2, int param3, int param4, int param5);
+void CarSound_PlaySlot(int param1, int param2, int param3, int param4, int param5);
 
-void FUN_00418dd0(int param1, int param2, char param3);
+void CarSound_StopSlot(int param1, int param2, char param3);
 void FUN_00418e20(int set, int dst, int src);
 BYTE FUN_00427aa0(void);
 
@@ -1720,22 +1720,22 @@ void FUN_00419b90(int car, BYTE *pInfo)
     case 6:
     case 0x15:
         if (!FUN_00427aa0())
-            FUN_00418dd0(car, 4, 1);
+            CarSound_StopSlot(car, 4, 1);
         break;
     case 7:
         if (!FUN_00427aa0())
-            FUN_00418dd0(car, 4, 1);
+            CarSound_StopSlot(car, 4, 1);
         goto both;
     case 0xb:
         if (!FUN_00427aa0()) {
-            FUN_00418dd0(car, 4, 1);
-            FUN_00418dd0(car, 6, 1);
+            CarSound_StopSlot(car, 4, 1);
+            CarSound_StopSlot(car, 6, 1);
         }
         break;
     case 0xc:
         if (!FUN_00427aa0()) {
-            FUN_00418dd0(car, 4, 1);
-            FUN_00418dd0(car, 6, 1);
+            CarSound_StopSlot(car, 4, 1);
+            CarSound_StopSlot(car, 6, 1);
         }
         goto both;
     }
@@ -1778,8 +1778,8 @@ void FUN_00419cd0(int car, int unused)
         case 4:
             if (pPattern->choices[g_unk0x005375f4[car]] > 1 && pState->pattern == 0x19) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 0);
-                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                CarSound_StopSlot(car, i, 0);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
                                                pPattern->choices[g_unk0x005375f4[car]]) +
                                   pPattern->base[g_unk0x005375f4[car]], i, old, 0);
             }
@@ -1787,8 +1787,8 @@ void FUN_00419cd0(int car, int unused)
         case 5:
             if (pPattern->choices[g_unk0x005375f4[car]] > 1) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 0);
-                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                CarSound_StopSlot(car, i, 0);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
                                                pPattern->choices[g_unk0x005375f4[car]]) +
                                   pPattern->base[g_unk0x005375f4[car]], i, old, 0);
             }
@@ -1796,8 +1796,8 @@ void FUN_00419cd0(int car, int unused)
         case 6:
             if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1 && pState->pattern == 0x19) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 0);
-                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                CarSound_StopSlot(car, i, 0);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
                                                pPattern->choices[g_unk0x005375f4[car] + 2]) +
                                   pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             }
@@ -1805,8 +1805,8 @@ void FUN_00419cd0(int car, int unused)
         case 7:
             if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 0);
-                FUN_00418d30(car, FUN_00419b50(pState->id[i],
+                CarSound_StopSlot(car, i, 0);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
                                                pPattern->choices[g_unk0x005375f4[car] + 2]) +
                                   pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             }
@@ -1840,29 +1840,29 @@ void FUN_00419ed0(int car, int unused)
         case 4:
             if (pState->pattern == 0x19 && pState->state != 0x19) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 1);
-                FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car]]) +
+                CarSound_StopSlot(car, i, 1);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(-1, pPattern->choices[g_unk0x005375f4[car]]) +
                                   pPattern->base[g_unk0x005375f4[car]], i, old, 0);
             }
             break;
         case 5:
             old = Sound_GetVolume(pState->handle[i]);
-            FUN_00418dd0(car, i, 1);
-            FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car]]) +
+            CarSound_StopSlot(car, i, 1);
+            CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(-1, pPattern->choices[g_unk0x005375f4[car]]) +
                               pPattern->base[g_unk0x005375f4[car]], i, old, 0);
             break;
         case 6:
             if (pState->pattern == 0x19) {
                 old = Sound_GetVolume(pState->handle[i]);
-                FUN_00418dd0(car, i, 1);
-                FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                CarSound_StopSlot(car, i, 1);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
                                   pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             }
             break;
         case 7:
             old = Sound_GetVolume(pState->handle[i]);
-            FUN_00418dd0(car, i, 1);
-            FUN_00418d30(car, FUN_00419b50(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
+            CarSound_StopSlot(car, i, 1);
+            CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(-1, pPattern->choices[g_unk0x005375f4[car] + 2]) +
                               pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             break;
         }
@@ -1890,7 +1890,7 @@ void FUN_0041a0a0(int car, int param2)
         if (volume > 0x10000)
             volume = 0x10000;
         if (Sound_IsPlaying(*(int *)(pRow + 0x40)))
-            FUN_00418dd0(car, 9, 1);
+            CarSound_StopSlot(car, 9, 1);
         if (engSpeed < 0)
             speedVol = 0;
         else if (engSpeed > 0x64)
@@ -1907,7 +1907,7 @@ void FUN_0041a0a0(int car, int param2)
             engSpeed = engSpeed * 11000 / 100;
         engSpeed += 0x5622;
         if (!Sound_IsPlaying(*(int *)(pRow + 0x3c)))
-            FUN_00418d30(car, g_unk0x00537564, 8,
+            CarSound_PlaySlot(car, g_unk0x00537564, 8,
                          FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)), 0);
         FUN_004b79a0(*(int *)(pRow + 0x3c),
                      FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)));
@@ -1916,9 +1916,9 @@ void FUN_0041a0a0(int car, int param2)
         if (volume > 0x10000)
             volume = 0x10000;
         if (Sound_IsPlaying(*(int *)(pRow + 0x3c)))
-            FUN_00418dd0(car, 8, 1);
+            CarSound_StopSlot(car, 8, 1);
         if (!Sound_IsPlaying(*(int *)(pRow + 0x40)))
-            FUN_00418d30(car, g_unk0x00537dc8, 9,
+            CarSound_PlaySlot(car, g_unk0x00537dc8, 9,
                          FixMul(FUN_00427d50(car, param2), FixMul(g_unk0x00537664, volume)), 0);
         volume = FixMul(volume, speedVol);
         FUN_004b79a0(*(int *)(pRow + 0x40),
@@ -2043,7 +2043,7 @@ void FUN_0041ae80(int car, int unused)
                     Sound_Free(*pHandle);
                     *pHandle = -1;
                 }
-                FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]] + 1, 4, 0, 0x3542);
+                CarSound_PlaySlot(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]] + 1, 4, 0, 0x3542);
                 pSet[0x2f0] = 0;
             }
         } else if (pSet[0x2f0] == 0) {
@@ -2051,7 +2051,7 @@ void FUN_0041ae80(int car, int unused)
                 Sound_Free(*pHandle);
                 *pHandle = -1;
             }
-            FUN_00418d30(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]], 4, 0, 0);
+            CarSound_PlaySlot(car, g_stageSoundPatterns[25].base[g_unk0x005375f4[car]], 4, 0, 0);
             pSet[0x2f0] = 1;
         }
     }
@@ -2148,7 +2148,7 @@ int g_unk0x005199b0 = 0xacb49c;
 
 // Path of a car's texture set: "<cars dir>\<car>d3<n>" or "<cars dir>\<car>c1".
 // FUNCTION: CMR2 0x00420060
-char *FUN_00420060(int car, int variant, int unused)
+char *Car_GetTextureSetPath(int car, int variant, int unused)
 {
     if ((BYTE)RallyData_GetFlag24()) {
         sprintf(g_raceCarPath, g_strCarD3Format, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car),
@@ -2161,7 +2161,7 @@ char *FUN_00420060(int car, int variant, int unused)
 
 // Path of a car's directory ("<cars dir>\<car>").
 // FUNCTION: CMR2 0x004200d0
-char *FUN_004200d0(int car)
+char *Car_GetDirectoryPath(int car)
 {
     sprintf(g_raceCarPath, g_strPathFormat, CInstallInfo::GetCarsDir(), CFrontend::FUN_0040ee60(car));
     return g_raceCarPath;
@@ -2182,7 +2182,7 @@ void FUN_0041c5a0(BYTE, int);
 struct ReplayStream;
 int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car);
 void FUN_00403500(void);
-void FUN_00424640(void);
+void ForceFeedback_DeactivateSlots(void);
 int FUN_004582d0(int);
 void FUN_00455260(void);
 BYTE FUN_00478b80(void);
@@ -2327,7 +2327,7 @@ void FUN_0041e5c0(int param1, char param2)
         Car_SetDrawnFlag(0, -1);
     if (param2 != 0)
         return;
-    FUN_00424640();
+    ForceFeedback_DeactivateSlots();
     if (CGameInfo::FUN_00405d80() == 6) {
         if (FUN_004582d0(0) >= 1)
             goto available;
@@ -2370,7 +2370,7 @@ unsigned char FUN_004d0580(void);
 int FUN_0046d2a0(int *);
 void FUN_00480380(void);
 BYTE FUN_00422fb0(BYTE);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 void FUN_0041e220(int player);
 extern BYTE g_unk0x0053811f;
 // GLOBAL: CMR2 0x005191a4
@@ -2697,7 +2697,7 @@ done:
 unsigned int RallyData_GetFlag22(void);
 unsigned char RallyData_FUN_00407ea0(void);
 int Replay_StopRecording(BYTE *pBuffer);
-void FUN_00424640(void);
+void ForceFeedback_DeactivateSlots(void);
 int FUN_00428740(BYTE index);
 void FUN_004483e0(void);
 void FUN_00448620(void);
@@ -2802,7 +2802,7 @@ void FUN_0041db10(BYTE *param1, unsigned int param2)
             }
             g_unk0x00537ff8[index] = 1;
         }
-        FUN_00424640();
+        ForceFeedback_DeactivateSlots();
     }
     if ((char)param2 != 0)
         return;
@@ -2987,7 +2987,7 @@ void FUN_0041e350(int param1, unsigned int param2)
     if ((char)param2 != 0)
         return;
     anyAlive = 1;
-    if ((BYTE)FUN_00407270() != 0 && g_unk0x00537f3c[0] != 0) {
+    if ((BYTE)RallyData_IsChampionshipFinalStage() != 0 && g_unk0x00537f3c[0] != 0) {
         if (g_unk0x00538118 == 0) {
             if (*(int *)(g_unk0x00537f3c[0] + 4) != 0)
                 goto done;
@@ -3079,7 +3079,7 @@ void FUN_00420100(void);
 void FUN_00418f20(void);
 void FUN_004cf260(void);
 void FUN_00469b50(int index);
-BYTE FUN_004072d0(void);
+BYTE RallyData_AdvanceSelectedStage(void);
 void FUN_004067c0(BYTE param1);
 bool RallyData_FUN_004074a0(void);
 int FUN_004728d0(void);
@@ -3113,7 +3113,7 @@ int FUN_0046d2a0(int *p);
 int Replay_StopRecording(BYTE *pBuffer);
 void FUN_00466080(void);
 void FUN_004660a0(int **pValue, int slot, char flag);
-void FUN_004245e0(void);
+void ForceFeedback_ActivateIdleSlots(void);
 void FUN_004cf140(void);
 void FUN_0041b360(void);
 extern BYTE g_unk0x00538100;
@@ -3200,7 +3200,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
         for (i = 0; i < (BYTE)RallyDataState(); i++)
             FUN_004660a0((int **)g_unk0x00537f3c + i, i, (BYTE)param2 + i);
     }
-    FUN_004245e0();
+    ForceFeedback_ActivateIdleSlots();
     CGameInfo::FUN_0049ea90(0);
     if (CGameInfo::FUN_00405d80() != 4) {
         FUN_004cf140();
@@ -3373,7 +3373,7 @@ L_teardown:
         case 1:
             for (i = 0; i < *pPlayers; i++)
                 CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
-            if ((char)FUN_004072d0() != 0) {
+            if ((char)RallyData_AdvanceSelectedStage() != 0) {
                 if ((char)RallyDataStageIndex() != 0)
                     goto L_stage_restore;
                 FUN_004067c0(1);
@@ -3408,7 +3408,7 @@ L_teardown:
         case 8:
             for (i = 0; i < *pPlayers; i++)
                 CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
-            CGame::FUN_004057e0((char)FUN_004072d0() == 0 ? 0 : 2);
+            CGame::FUN_004057e0((char)RallyData_AdvanceSelectedStage() == 0 ? 0 : 2);
             FUN_00409ab0(0, 0);
             FUN_0041e670();
             FUN_0041b300();
@@ -3422,7 +3422,7 @@ L_teardown:
         case 1:
             for (i = 0; i < *pPlayers; i++)
                 CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, i, 0, 2);
-            if ((char)FUN_004072d0() != 0) {
+            if ((char)RallyData_AdvanceSelectedStage() != 0) {
                 if ((char)RallyDataStageIndex() != 0)
                     goto L_stage_restore;
                 FUN_004067c0(1);
@@ -3461,7 +3461,7 @@ L_teardown:
         case 1:
             if ((BYTE)FUN_0041b370() + 1 == (BYTE)CGameInfo::FUN_00405d70()) {
                 CGame::FUN_0049c1c0((Unk0049c2c0 *)pPlayers, 0, 0, 2);
-                if ((char)FUN_004072d0() != 0) {
+                if ((char)RallyData_AdvanceSelectedStage() != 0) {
                     if ((char)RallyDataStageIndex() != 0)
                         goto L_stage_restore;
                     FUN_004067c0(1);
@@ -4006,7 +4006,7 @@ void FUN_00416f70(int player)
         else
             g_unk0x00537350 = -1;
     }
-    FUN_004176b0();
+    RaceCalls_UpdatePlaybackQueue();
     slot = block + player * 5;
     // the original reads [slot*4 + 0x537190], i.e. this same table one player back
     if (player > 0 && g_unk0x005371a4[slot - 5] != 0) {
@@ -4055,7 +4055,7 @@ void FUN_0041d0c0(int param_1)
             View_SwitchCamera(1, (-(FUN_00422f50(1) != 7) & 3) + 4, 0xffff, FUN_00422fb0(1), 0);
         } else if (flags & 0x2000) {
             value = (BYTE)(FUN_00422fb0(1) + 1);
-            if ((BYTE)FUN_00420190() <= value)
+            if ((BYTE)Race_GetBaseCarCount() <= value)
                 value = 0;
             View_SetCameraType(1, 0, value, 0);
         } else {
@@ -4067,27 +4067,27 @@ void FUN_0041d0c0(int param_1)
     }
     if (flags & 0x1000) {
         i = 0;
-        if ((BYTE)FUN_00420190() > 0) {
+        if ((BYTE)Race_GetBaseCarCount() > 0) {
             do {
                 FUN_004ae410((BYTE)i, 0, 1, 1);
                 i++;
-            } while (i < (int)((BYTE)FUN_00420190()));
+            } while (i < (int)((BYTE)Race_GetBaseCarCount()));
         }
         View_SwitchCamera((BYTE)param_1, (-(FUN_00422f50((BYTE)param_1) != 7) & 3) + 4, 0xffff,
                      FUN_00422fb0((BYTE)param_1), 0);
         return;
     }
-    if ((flags & 0x2000) != 0 && (BYTE)FUN_00420190() > 1 && (BYTE)RallyDataState() == 1) {
+    if ((flags & 0x2000) != 0 && (BYTE)Race_GetBaseCarCount() > 1 && (BYTE)RallyDataState() == 1) {
         value = (BYTE)(FUN_00422fb0(0) + 1);
-        if (value >= (BYTE)FUN_00420190())
+        if (value >= (BYTE)Race_GetBaseCarCount())
             value = 0;
         View_SetCameraType(0, 0, value, 0);
         i = 0;
-        if ((BYTE)FUN_00420190() > 0) {
+        if ((BYTE)Race_GetBaseCarCount() > 0) {
             do {
                 FUN_004ae410((BYTE)i, 0, 1, 1);
                 i++;
-            } while (i < (int)((BYTE)FUN_00420190()));
+            } while (i < (int)((BYTE)Race_GetBaseCarCount()));
         }
     }
 }
@@ -4407,7 +4407,7 @@ void FUN_00417090(int param_1)
         g_unk0x00537350 = (i < 0x5a) - 1;
     }
 
-    FUN_004176b0();
+    RaceCalls_UpdatePlaybackQueue();
 
     if (best < cur - 0xc)
         g_unk0x0053708c[param_1] = best;
@@ -4544,7 +4544,7 @@ void FUN_0041d060(int param_1)
     Particle_Interpolate(param_1);
     FUN_00461bb0(param_1);
     Dash_Interpolate(param_1);
-    if ((BYTE)FUN_00407270()) {
+    if ((BYTE)RallyData_IsChampionshipFinalStage()) {
         StageObject_UpdateDebris(param_1);
     }
     if (CGameInfo::FUN_004063f0(0) != 0) {
@@ -5049,7 +5049,7 @@ unsigned int RallyData_GetFlag21(void);
 void FUN_0042bc80(short *pList, short count);
 short *Car_GetOrder(void);
 void FUN_00411f00(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 int FUN_004481f0(int car, int index);
 int FUN_0041b380(void);
 int FUN_00445a20(void);
@@ -5339,7 +5339,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
             }
         }
         if (CGameInfo::FUN_00404f20() == 0 && param1 >= 7) {
-            if (FUN_00407270() != 0 && FUN_0041f3d0(0) == 0) {
+            if (RallyData_IsChampionshipFinalStage() != 0 && FUN_0041f3d0(0) == 0) {
                 if (g_unk0x00537f2c == 0) {
                     Sound_FreeAll();
                     g_unk0x00537f2c = 1;

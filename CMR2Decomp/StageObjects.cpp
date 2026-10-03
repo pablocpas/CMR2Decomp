@@ -77,14 +77,14 @@ void FUN_00465530(void);
 void FUN_00465600(void);
 void FUN_00465780(int param_1);
 void FUN_004657d0(int car);
-void FUN_004658e0(int index);
+void CarEffects_DrawTyreMarks(int index);
 int StageObject_GetWheelSlip(int carIndex, int wheelIndex);
 int FUN_00465e40(int car, int wheel);
 int FUN_00465ea0(int value);
 void FUN_00465f60(int frames, int samples);
 void FUN_00465f80(void);
 void FUN_00465f90(char *path);
-void FUN_00465fc0(Car *pCar);
+void CarEffects_MakeGhost(Car *pCar);
 void FUN_00466030(int a, int b);
 void FUN_00466080(void);
 int FUN_00466090(void);
@@ -114,9 +114,9 @@ void FUN_0046acb0(int param_1, int param_2, int param_3);
 void FUN_0046afe0(int param_1, int param_2, CarPartSet *set);
 void FUN_0046b400(int value, int index);
 void FUN_0046b420(void);
-void FUN_0046b440(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
+void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut);
 int FUN_0046b4c0(BYTE *pCar);
-void FUN_0046b4e0(BYTE *pCar);
+void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar);
 void FUN_0046b670(BYTE *pCar);
 void FUN_0046b6b0(SceneNode *pNode, BYTE threshold);
 void FUN_0046b6e0(SceneNode *pNode, BYTE threshold);
@@ -130,8 +130,8 @@ int FUN_0046bd20(int i, int j);
 BYTE FUN_0046bd40(int index);
 int StageObject_UsesExtendedMode(void);
 void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
-int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
-void FUN_0046c240(BYTE *pDst, BYTE car);
+int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
+void Replay_CaptureCarSnapshot(BYTE *pDst, BYTE car);
 // Replay event: from `frame`, `count` more frames carry `value`.
 struct ReplayEvent {
     short frame;            // 0x0
@@ -264,13 +264,13 @@ BYTE FUN_0046eeb0(int index, int wheel);
 void Events_Flush(void);
 void FUN_0046ef50(void);
 BYTE FUN_0046f030(void);
-void FUN_0046f060(void);
+void StageObjects_LoadSkyAndGround(void);
 void FUN_0046f330(int param_1);
 void FUN_0046f4a0(FixVector *pOut);
 void FUN_0046f4c0(int *pOut);
 void FUN_0046f4d0(int *pOut);
 void FUN_0046f4e0(int *pOut1, int *pOut2);
-int FUN_0046f500(void);
+int StageObjects_ReleaseObjectFiles(void);
 void FUN_0046f550(void);
 void FUN_0046f7e0(void);
 void StageObject_InitMovingObject(int *pState, int carIndex);
@@ -295,10 +295,10 @@ int FUN_00473290(void);
 int FUN_00473310(void);
 unsigned int FUN_004735a0(unsigned int *pHigh);
 int FUN_00473680(unsigned int *p);
-char *FUN_004736b0(KnockoutMatch *pMatch, int side);
-int FUN_00473790(KnockoutMatch *pMatch, int side);
-int FUN_004737d0(KnockoutMatch *pMatch, int param2);
-char *FUN_00473810(KnockoutMatch *pMatch, int side);
+char *Knockout_GetDriverNameForSide(KnockoutMatch *pMatch, int side);
+int Knockout_IsHumanMatchSide(KnockoutMatch *pMatch, int side);
+int Knockout_SelectDisplaySide(KnockoutMatch *pMatch, int param2);
+char *Knockout_GetCarNameForSide(KnockoutMatch *pMatch, int side);
 void FUN_004738f0(Menu *pMenu);
 void FUN_00473d60(Menu *pMenu);
 void FUN_00474420(char *text, int fraction, unsigned int font, int x, unsigned int y, int *pColour, unsigned int flags);
@@ -838,7 +838,7 @@ int StageObject_Atan2Degrees(int y, int x)
 }
 
 int FUN_0041d290(void);
-char FUN_00420190(void);
+char Race_GetBaseCarCount(void);
 
 // FUNCTION: CMR2 0x00478130
 void FUN_00478130(int index)
@@ -900,7 +900,7 @@ void FUN_0047cbc0(int unused, int table, int entry, int *pOut1, int *pOut2)
 // FUNCTION: CMR2 0x0047cc30
 void FUN_0047cc30(void)
 {
-    g_unk0x0058e0b0[0] = FUN_00420190();
+    g_unk0x0058e0b0[0] = Race_GetBaseCarCount();
     g_unk0x0058e0b0[1] = 1;
 }
 
@@ -1198,7 +1198,7 @@ int FUN_00465ea0(int value);
 // whose alpha fades with the points' age, and picks the mark texture from the
 // surface the point was laid on.
 // FUNCTION: CMR2 0x004658e0
-void FUN_004658e0(int index)
+void CarEffects_DrawTyreMarks(int index)
 {
     BYTE curColour[4] = { 0, 0, 0, 25 };
     BYTE prevColour[4] = { 0, 0, 0, 25 };
@@ -1357,7 +1357,7 @@ void FUN_00465f20(SceneNode *pNode, int alpha, BYTE checkFlag);
 
 // Makes a car the ghost car: flags it and fades its body nodes in.
 // FUNCTION: CMR2 0x00465fc0
-void FUN_00465fc0(Car *pCar)
+void CarEffects_MakeGhost(Car *pCar)
 {
     g_unk0x0058875c = pCar;
     pCar->field_0xc0c = 1;
@@ -1409,7 +1409,7 @@ void FUN_0046b420(void)
 
 // Reads vertex `vertex` of mesh `mesh` (float source data) as a 16.16 vector.
 // FUNCTION: CMR2 0x0046b440
-void FUN_0046b440(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
+void Mesh_ReadVertexFixed(Mesh **ppMeshes, int mesh, int vertex, int *pOut)
 {
     pOut[0] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30) * CGraphics::m_65536);
     pOut[1] = (int)(__int64)(*(float *)((BYTE *)ppMeshes[mesh]->pVertexData + vertex * 0x30 + 4) * CGraphics::m_65536);
@@ -1423,7 +1423,7 @@ extern float g_oneOverRandMax;
 // half, the light alternates on and off (+0x4cc) for random spans, the off
 // spans getting shorter and the on spans longer the heavier the damage.
 // FUNCTION: CMR2 0x0046b4e0
-void FUN_0046b4e0(BYTE *pCar)
+void CarEffects_UpdateBrokenLightFlicker(BYTE *pCar)
 {
     int *p;
     int k;
@@ -1503,7 +1503,7 @@ BYTE FUN_0046bd40(int index)
 // car's handbrake/light switches; returns 1 when the packet's repeat count is
 // used up.
 // FUNCTION: CMR2 0x0046bec0
-int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
+int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar)
 {
     BYTE steer = pIn[3] & 0x3f;
     BYTE *p = (BYTE *)pCar;
@@ -1550,7 +1550,7 @@ void FUN_0046bfb0(Block0x309 *pSrc, Block0x309 *pDst)
 // Restores a car from a saved state record, keeping the destination's scene
 // node bindings, its wheel emitter vectors and its timing index.
 // FUNCTION: CMR2 0x0046bfd0
-void FUN_0046bfd0(Block0x309 *pSrc, Car *pDst)
+void Replay_RestoreCarState(Block0x309 *pSrc, Car *pDst)
 {
     SceneNode *pNode0x71c = pDst->pNode0x71c;
     SceneNode *pNode0x720 = pDst->pNode0x720;
@@ -1595,7 +1595,7 @@ void FUN_0046bfd0(Block0x309 *pSrc, Car *pDst)
 }
 
 // FUNCTION: CMR2 0x0046c180
-void FUN_0046c180(Block0x134 *pSrc, Block0x134 *pDst)
+void Replay_CopyAuxState(Block0x134 *pSrc, Block0x134 *pDst)
 {
     *pDst = *pSrc;
 }
@@ -1604,7 +1604,7 @@ void FUN_0046c180(Block0x134 *pSrc, Block0x134 *pDst)
 // 15-int blocks.
 // match 77%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046c1a0
-void FUN_0046c1a0(Block0x134 *pSrc, Block0x134 *pDst)
+void Replay_RestoreAuxState(Block0x134 *pSrc, Block0x134 *pDst)
 {
     int keepC[15];
     int keepB[15];
@@ -1635,11 +1635,11 @@ void RallyData_FUN_004207a0(int index);
 
 // Snapshots a car's state into the 0x1100-byte record at pDst.
 // FUNCTION: CMR2 0x0046c240
-void FUN_0046c240(BYTE *pDst, BYTE car)
+void Replay_CaptureCarSnapshot(BYTE *pDst, BYTE car)
 {
     Car *pCar = Car_Get(car);
 
-    FUN_0046c180((Block0x134 *)FUN_00469680(car), (Block0x134 *)pDst);
+    Replay_CopyAuxState((Block0x134 *)FUN_00469680(car), (Block0x134 *)pDst);
     FUN_0046bfb0((Block0x309 *)pCar, (Block0x309 *)(pDst + 0x4d0));
     FUN_0046c220((Block6 *)RallyData_FUN_00421510(car), (Block6 *)(pDst + 0x10f4));
     RallyData_FUN_004207a0(car);
@@ -1684,7 +1684,7 @@ void *g_unk0x0058c930;
 
 // Releases the three files loaded by 0x46f550 (registered callback).
 // FUNCTION: CMR2 0x0046f500
-int FUN_0046f500(void)
+int StageObjects_ReleaseObjectFiles(void)
 {
     if (g_unk0x0058c928 != NULL) {
         CFileBuffer::FreeGenericFileBuffer(g_unk0x0058c928);
@@ -1730,7 +1730,7 @@ BYTE FUN_0046f030(void);
 // Loads the stage's sky and ground objects: the TEMP.SKY archive (also opened
 // as .bfl, .c3d and top.c3d) and TEMP.GRO, releasing each one's meshes first.
 // FUNCTION: CMR2 0x0046f060
-void FUN_0046f060(void)
+void StageObjects_LoadSkyAndGround(void)
 {
     char buffer[MAX_PATH];
     GenericFile *pFile;
@@ -1920,7 +1920,7 @@ void FUN_0046f550(void)
             i++;
         } while (i < (int)(g_movingObjects.meshCount & 0xff));
     }
-    CGame::RegisterCallback((void *)FUN_0046f500, NULL);
+    CGame::RegisterCallback((void *)StageObjects_ReleaseObjectFiles, NULL);
 }
 
 // FUNCTION: CMR2 0x00471bd0
@@ -2104,8 +2104,8 @@ void FUN_0041b310(void);
 int FUN_0041b320(void);
 void FUN_00455470(char);
 void FUN_00472a30(void);
-BOOL FUN_0046c500(void);
-void FUN_0041c260(void);
+BOOL Replay_ReleaseStageBuffers(void);
+void Replay_InitRaceSlots(void);
 void FUN_004283e0(BYTE index, FadeCallback pfnDone, int param3, int param4, int param5, char force);
 void FUN_0041f2a0(void);
 void RallyData_FUN_004070c0(void);
@@ -2180,8 +2180,8 @@ void FUN_00472e00(BYTE *param_1, unsigned int param_2)
         }
         if (g_unk0x0058cf64 != 0) {
             FUN_00472cb0();
-            FUN_0046c500();
-            FUN_0041c260();
+            Replay_ReleaseStageBuffers();
+            Replay_InitRaceSlots();
             if (FUN_00473310() != 0) {
                 g_unk0x0058cf7c = 3;
                 FUN_00472a30();
@@ -2295,7 +2295,7 @@ int *RallyData_FUN_00407f20(int index);
 // match: the player's name, the AI name, or "" for an empty slot.
 // match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004736b0
-char *FUN_004736b0(KnockoutMatch *pMatch, int side)
+char *Knockout_GetDriverNameForSide(KnockoutMatch *pMatch, int side)
 {
     unsigned int driver;
 
@@ -2325,7 +2325,7 @@ char *FUN_004736b0(KnockoutMatch *pMatch, int side)
 
 // Whether the given side of the match is the human player.
 // FUNCTION: CMR2 0x00473790
-int FUN_00473790(KnockoutMatch *pMatch, int side)
+int Knockout_IsHumanMatchSide(KnockoutMatch *pMatch, int side)
 {
     unsigned int driver;
 
@@ -2342,7 +2342,7 @@ int FUN_00473790(KnockoutMatch *pMatch, int side)
 // Side of the match to show: the human player's side when it is param2,
 // otherwise the other side.
 // FUNCTION: CMR2 0x004737d0
-int FUN_004737d0(KnockoutMatch *pMatch, int param2)
+int Knockout_SelectDisplaySide(KnockoutMatch *pMatch, int param2)
 {
     int slot = pMatch->flags & 0x1f;
 
@@ -2351,10 +2351,10 @@ int FUN_004737d0(KnockoutMatch *pMatch, int param2)
     return param2 == 0;
 }
 
-// Same as FUN_004736b0 with the car names of the AI drivers.
+// Same as Knockout_GetDriverNameForSide with the car names of the AI drivers.
 // match 55%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00473810
-char *FUN_00473810(KnockoutMatch *pMatch, int side)
+char *Knockout_GetCarNameForSide(KnockoutMatch *pMatch, int side)
 {
     unsigned int driver;
 
@@ -6160,7 +6160,7 @@ void FUN_00492bb0(int *pOut);
 void Scene_GetAmbientColour(DWORD *pColour);
 void Scene_SetAmbient(BYTE *pColour, int boost);
 unsigned char RallyDataCountryIndex(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 void FUN_0047e490(BYTE *pColour);
 
 extern void *g_unk0x00543eb8;
@@ -6371,7 +6371,7 @@ int Graphics_GetTriangleHeight(unsigned short *pHeightIndices, FixVector *pVerti
 void Scene_GetLightColour(DWORD *pColour, int level);
 void Scene_GetAmbientColour(DWORD *pColour);
 void FUN_00492e60(int *pRGB);
-void FUN_004984b0(int car, int level);
+void CarShadow_SetLevel(int car, int level);
 
 // Averages the ground lighting over a car's four wheel contact points and
 // stores the resulting colour and light level.
@@ -6444,7 +6444,7 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
         v = FixMul(total, 0x55);
         if (v > 0x10000)
             v = 0x10000;
-        FUN_004984b0(param_1, v);
+        CarShadow_SetLevel(param_1, v);
     }
 }
 
@@ -6791,7 +6791,7 @@ void FUN_00462cb0(BYTE *pColour)
         else
             Scene_SetAmbient(pColour, 1);
     }
-    if ((BYTE)FUN_00407270())
+    if ((BYTE)RallyData_IsChampionshipFinalStage())
         FUN_0047e490(pColour);
 }
 
@@ -7051,10 +7051,10 @@ void CarLights_LoadTextures(void)
 
 void FUN_00492890(FixVector *pOut);
 void FUN_004928c0(int *pOut1, int *pOut2, int *pOut3);
-void FUN_00498370(FixVector *v);
+void CarContact_SetSkidTrailAxis(FixVector *v);
 
 // Direction of the stage light (sun direction raised by the sky offset),
-// normalised; passed on to FUN_00498370.
+// normalised; passed on to CarContact_SetSkidTrailAxis.
 // GLOBAL: CMR2 0x005477f8
 FixVector g_stageLightDirection;
 
@@ -7080,7 +7080,7 @@ void StageLights_UpdateDirection(void)
         m = FIX_ABS(d.z);
     FixVecScaleRecip(&s, &d, m);
     FIX_NORMALIZE_INTO(g_stageLightDirection, s);
-    FUN_00498370(&g_stageLightDirection);
+    CarContact_SetSkidTrailAxis(&g_stageLightDirection);
 }
 
 // Light row axes with the scale removed.
@@ -7884,7 +7884,7 @@ void FUN_004853c0(FixVector *pImpulse)
 }
 
 void SceneNode_SetViewMaskTree(SceneNode *pNode, BYTE mask);
-int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
+int Replay_DecodeInputPacket(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
 
 // Hides every node of the cars whose replay buffer is a finished ghost run.
 // FUNCTION: CMR2 0x0046e440
@@ -7922,7 +7922,7 @@ int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter)
 {
     Car *pCar = Car_Get(car);
 
-    return FUN_0046bec0(pState, pIn, (BYTE *)pCar + 0x1d0, pCounter, pCar);
+    return Replay_DecodeInputPacket(pState, pIn, (BYTE *)pCar + 0x1d0, pCounter, pCar);
 }
 
 // GLOBAL: CMR2 0x0058e0a0
@@ -8256,7 +8256,7 @@ void FUN_00471a60(int param_1)
     }
 }
 
-char FUN_00420190(void);
+char Race_GetBaseCarCount(void);
 void Car_ResetWheelLoadsAfterShift(Car *pCar);
 
 // Seeds the stage's random numbers (unless replaying) and gives the computer
@@ -8276,7 +8276,7 @@ void FUN_0047c1e0(char replay, char restart)
         g_unk0x0058e26c = 0;
     srand(g_unk0x0058e26c);
     rand();
-    for (i = 0; i < (BYTE)FUN_00420190(); i++) {
+    for (i = 0; i < (BYTE)Race_GetBaseCarCount(); i++) {
         r = rand();
         switch (CGameInfo::FUN_00405d90()) {
         case 0:
@@ -8307,7 +8307,7 @@ void FUN_0047c1e0(char replay, char restart)
     }
 }
 
-void FUN_004658e0(int index);
+void CarEffects_DrawTyreMarks(int index);
 
 // Refreshes the skid trails of every car in the race order, skipping the
 // replay-style modes where CGameInfo::FUN_00405cd0() returns 2.
@@ -8323,7 +8323,7 @@ void FUN_00465780(int param_1)
         if (0 < s) {
             do {
                 if (i < 8 && FUN_0046bd20(i, param_1) != 7)
-                    FUN_004658e0(i);
+                    CarEffects_DrawTyreMarks(i);
                 i = i + 1;
                 s = Car_GetOrderCount();
             } while (i < s);
@@ -9918,7 +9918,7 @@ void FUN_00471af0(void)
     g_unk0x0058c934 = g_sceneNodeCount;
     g_unk0x0058c950 = g_unk0x0067f228;
     FUN_00472870();
-    FUN_0046f060();
+    StageObjects_LoadSkyAndGround();
 }
 
 BYTE *FUN_0041b390(void);
@@ -10109,7 +10109,7 @@ void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, Kn
     FUN_00475740(rect, g_unk0x0051c9a4, g_barTextColour, 0);
     if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
         CFrontend::FUN_004b7590(0x400) != 0) {
-        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param6, param5)),
+        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)Knockout_GetDriverNameForSide(param6, param5)),
                       (int)g_pGraphics->resX * 0x54 / 0x280 + x,
                       (int)g_pGraphics->resY * 0x10 / 0x1e0 - (int)g_pGraphics->resY * 2 / 0x1e0 + y,
                       (int *)g_barTextColour, 0x14);
@@ -10120,7 +10120,7 @@ void FUN_00474fe0(int param1, int param2, int param3, int param4, int param5, Kn
                       (int *)g_barTextColour, 0x14);
         return;
     }
-    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param6, param5)),
+    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)Knockout_GetDriverNameForSide(param6, param5)),
                   (int)g_pGraphics->resX * 0x54 / 0x280 + x,
                   (int)g_pGraphics->resY * 0x10 / 0x1e0 + y,
                   (int *)g_barTextColour, 0x14);
@@ -10159,7 +10159,7 @@ void FUN_00475430(int param1, KnockoutMatch *param2, short *param3, BYTE *param4
     FUN_00475740(rect, param4, param5, param6);
     if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) != 0 &&
         CFrontend::FUN_004b7590(0x400) != 0) {
-        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param2, param1)),
+        Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)Knockout_GetDriverNameForSide(param2, param1)),
                       (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
                       (short)((short)((int)g_pGraphics->resY * 0x10 / 0x1e0 - (int)g_pGraphics->resY * 2 / 0x1e0) + param3[1]),
                       param8, 0x14);
@@ -10170,7 +10170,7 @@ void FUN_00475430(int param1, KnockoutMatch *param2, short *param3, BYTE *param4
                       param8, 0x14);
         return;
     }
-    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)FUN_004736b0(param2, param1)),
+    Font_DrawText(0, (char *)CGenericFileLoader::StrUpperPolish((BYTE *)Knockout_GetDriverNameForSide(param2, param1)),
                   (short)((short)((int)g_pGraphics->resX * 0x54 / 0x280) + param3[0]),
                   (short)((short)((int)g_pGraphics->resY * 0x10 / 0x1e0) + param3[1]),
                   param8, 0x14);
@@ -10974,7 +10974,7 @@ int FUN_0046c750(ReplayStream *p, int unused, BYTE car)
         p->pStates[0x58] = 1;
     }
     if (p->type == 0)
-        FUN_0046c240(p->pInputs, car);
+        Replay_CaptureCarSnapshot(p->pInputs, car);
     else if (p->type == 1)
         FUN_0046c320((int *)p->pStates, car);
     else if ((CGameInfo::FUN_00405e00() && p->car == 0) || !CGameInfo::FUN_00405e00())
@@ -11864,7 +11864,7 @@ void FUN_004643f0(int param_1)
             vx = pVertex[0];
             vy = pVertex[1];
             vz = pVertex[2];
-            FUN_0046b440((Mesh **)pRec, oi, ii, out);
+            Mesh_ReadVertexFixed((Mesh **)pRec, oi, ii, out);
             pos.x = out[0] - vx;
             pos.y = out[1] - vy;
             pos.z = out[2] - vz;
@@ -11977,9 +11977,9 @@ void FUN_0046c2a0(int param_1, BYTE param_2)
 
     pCar = Car_Get((int)param_2);
     FUN_00469690(pCar);
-    FUN_0046bfd0((Block0x309 *)(param_1 + 0x4d0), pCar);
+    Replay_RestoreCarState((Block0x309 *)(param_1 + 0x4d0), pCar);
     if (*(int *)((BYTE *)pCar + 0xb50) != 0) {
-        FUN_0046c1a0((Block0x134 *)param_1, (Block0x134 *)FUN_00469680((int)param_2));
+        Replay_RestoreAuxState((Block0x134 *)param_1, (Block0x134 *)FUN_00469680((int)param_2));
     }
     pRecord = RallyData_FUN_00421510((int)param_2);
     FUN_0046c220((Block6 *)(param_1 + 0x10f4), (Block6 *)pRecord);
@@ -13725,7 +13725,7 @@ char g_strCarModelC5C3d[] = "%sc5.c3d";
 // GLOBAL: CMR2 0x0051c9d8
 char g_strCarModelA5C3d[] = "%sa5.c3d";
 
-char *FUN_004200d0(int car);
+char *Car_GetDirectoryPath(int car);
 void FUN_00477340(int player);
 int FUN_004b9380(unsigned int, unsigned int, unsigned int);
 
@@ -13763,17 +13763,17 @@ void FUN_004760a0(int record, BYTE car)
         return;
     if (CGameInfo::FUN_00405d10() == 0)
         sprintf(CFrontend::m_stringDest, g_strCarModelA5C3d,
-                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+                Car_GetDirectoryPath(RallyData_FUN_004086b0(FUN_0041b370() + car)));
     else
         sprintf(CFrontend::m_stringDest, g_strCarModelC5C3d,
-                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+                Car_GetDirectoryPath(RallyData_FUN_004086b0(FUN_0041b370() + car)));
     g_unk0x0058d6a0[car] = CFileBuffer::GetGenericFileBuffer(CFrontend::m_stringDest, FALSE);
     if (CGameInfo::FUN_00405d10() == 0)
         sprintf(CFrontend::m_stringDest, g_strCarModelA5Bfl,
-                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+                Car_GetDirectoryPath(RallyData_FUN_004086b0(FUN_0041b370() + car)));
     else
         sprintf(CFrontend::m_stringDest, g_strCarModelC5Bfl,
-                FUN_004200d0(RallyData_FUN_004086b0(FUN_0041b370() + car)));
+                Car_GetDirectoryPath(RallyData_FUN_004086b0(FUN_0041b370() + car)));
     CGenericFileLoader::FUN_004a9d70((GenericFile *)g_unk0x0058d3b8, CFrontend::m_stringDest);
     FUN_00476540(car);
     if (g_unk0x0058d6a0[car] == NULL)
@@ -15582,11 +15582,11 @@ void Fireworks_Update(void)
 #undef RAND_SIGNED
 
 void CarEffects_InitDebris(void);
-void FUN_00494bb0(void);
+void CarContact_InitStageRecords(void);
 void FUN_0045eca0(void);
 void CarEffects_Init(void);
 void FUN_0045a170(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 
 // Sets up the stage objects of a race: object tables, the championship-end
 // fireworks, the headlight glows, the wheel trails and lights of every car,
@@ -15600,8 +15600,8 @@ void StageObjects_Init(void)
     int car;
 
     FUN_00466490();
-    g_unk0x0058896c = (char)FUN_00407270() != 0;
-    if (((char)FUN_00407270() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
+    g_unk0x0058896c = (char)RallyData_IsChampionshipFinalStage() != 0;
+    if (((char)RallyData_IsChampionshipFinalStage() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
         CGameInfo::FUN_004063f0(0))
         FUN_0047d510();
     pOrder = Car_GetOrder();
@@ -15622,7 +15622,7 @@ void StageObjects_Init(void)
         }
     }
     CarEffects_InitDebris();
-    FUN_00494bb0();
+    CarContact_InitStageRecords();
     FUN_0045eca0();
     CarEffects_Init();
     StageLights_Create();
@@ -15637,7 +15637,7 @@ void StageObjects_Init(void)
 void StageObjects_Update(void)
 {
     StageLights_Update();
-    if (((char)FUN_00407270() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
+    if (((char)RallyData_IsChampionshipFinalStage() || (char)RallyData_GetFlag24() || (char)RallyData_FUN_00407e90()) &&
         CGameInfo::FUN_004063f0(0))
         FUN_0047dd70();
     if (g_unk0x0058896c != 0) {
@@ -15647,8 +15647,8 @@ void StageObjects_Update(void)
 }
 
 int FUN_004483c0(int index);
-void FUN_00407940(unsigned int first, unsigned int second);
-void FUN_00407b10(void);
+void Knockout_SetCurrentMatchTimes(unsigned int first, unsigned int second);
+void Knockout_PropagateWinners(void);
 BYTE FUN_0041f380(void);
 
 // Finishes the knockout match of the current round: stores the split times of
@@ -15707,7 +15707,7 @@ void FUN_00472a30(void)
         else
             ((KnockoutMatchBits *)RallyData_GetRoundEntry())->winner = 1;
     } else {
-        FUN_00407940(results.times[0], results.times[1]);
+        Knockout_SetCurrentMatchTimes(results.times[0], results.times[1]);
     }
     if (FUN_0041f380() != 0xff) {
         if ((BYTE)RallyDataState() == 2) {
@@ -15744,7 +15744,7 @@ void FUN_00472a30(void)
         pState->final.flags |= 0x400;
         break;
     }
-    FUN_00407b10();
+    Knockout_PropagateWinners();
 }
 
 int FUN_004055e0(void);

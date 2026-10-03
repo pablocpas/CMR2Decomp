@@ -21,19 +21,19 @@ int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *p
 int RallyData_FUN_00411060(void);
 int Car_UsesNarrowWheels(Car *pCar, int param2);
 void Scene_GetShadowColour(DWORD *pColour, int *pLevel);
-void FUN_00495f50(int view, CarContact *pContact);
+void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact);
 CarTransforms *Car_GetTransforms(int index);
 FixMatrix *Car_GetWheelTransforms(int index);
 BYTE *Car_GetRendererRecord(int index);
 void FUN_00497db0(Car *pCar);
 void FUN_004ae140(BYTE *pColour);
 void Graphics_SetTextureFactorAlpha(BYTE *pColour);
-void FUN_004962c0(Car *pCar, CarContact *pContact);
+void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact);
 int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, unsigned short *pSurface, int defaultY);
 
 #define CAR_CONTACT(i) ((CarContact *)g_unk0x00592734 + (i))
 
-// Per-car pointers into the car's handling data (see FUN_00494bb0).
+// Per-car pointers into the car's handling data (see CarContact_InitStageRecords).
 // GLOBAL: CMR2 0x00592278
 BYTE *g_physSkidCount[8];
 // GLOBAL: CMR2 0x00592298
@@ -95,7 +95,7 @@ int g_physTrailScale = 0x10000;
 // Matching remains pending; differential_contact_init.py checks the records,
 // pointer caches and real handling/game-state helpers.
 // FUNCTION: CMR2 0x00494bb0
-void FUN_00494bb0(void)
+void CarContact_InitStageRecords(void)
 {
     int i;
     int j;
@@ -140,7 +140,7 @@ void FUN_00494bb0(void)
 // Whether skid point index (counted from the front, or from the back when
 // field_0x2a0 is clear) falls in the car's visible skid range.
 // FUNCTION: CMR2 0x00494d40
-int FUN_00494d40(Car *pCar, CarContact *pContact, int index)
+int CarContact_IsSkidPointVisible(Car *pCar, CarContact *pContact, int index)
 {
     if (pContact->field_0x29c != 0)
         index--;
@@ -269,7 +269,7 @@ void FUN_00497db0(Car *pCar)
 // ground normal is unknown), or, for ghost cars, the hull points themselves
 // rescaled for the stage.
 // FUNCTION: CMR2 0x004962c0
-void FUN_004962c0(Car *pCar, CarContact *pContact)
+void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
 {
     BYTE stage;
     FixVector d;
@@ -482,7 +482,7 @@ void FUN_00494db0(Car *pCar, int view)
     *(DWORD *)clear = *(DWORD *)colour;
     clear[3] = 0;
     g_physContactView = *CAR_CONTACT(pCar->index);
-    FUN_00495f50(view, &g_physContactView);
+    CarShadow_OffsetPointsTowardsCamera(view, &g_physContactView);
     v0.u = 0;
     v0.v = 0;
     v1.u = 0;
@@ -525,7 +525,7 @@ void FUN_00494db0(Car *pCar, int view)
         outline[1] = g_physContactView.points[(k + 1) % 4];
         n = 2;
         for (i = 0; i < *g_physSkidCount[pCar->index] + 1; i++) {
-            if (all || !FUN_00494d40(pCar, &g_physContactView, i)) {
+            if (all || !CarContact_IsSkidPointVisible(pCar, &g_physContactView, i)) {
                 outline[n] = g_physContactView.points[4 + i];
                 n++;
             }
@@ -584,7 +584,7 @@ void FUN_00494db0(Car *pCar, int view)
 // Pulls the shadow points one unit towards the camera so they do not sink
 // into the ground: the body and skid points, and the wheel patches when drawn.
 // FUNCTION: CMR2 0x00495f50
-void FUN_00495f50(int view, CarContact *pContact)
+void CarShadow_OffsetPointsTowardsCamera(int view, CarContact *pContact)
 {
     FixVector cam;
     FixVector d;
@@ -697,7 +697,7 @@ void FUN_00496e00(Car *pCar)
     g_physGroundPos.z += g_physPos.z;
     if (pContact->field_0x298 != 0)
         FUN_00497db0(pCar);
-    FUN_004962c0(pCar, pContact);
+    CarContact_BuildBodyPatch(pCar, pContact);
     if (pContact->field_0x294 != 0 || (g_pGraphics->field913_0x3bc & 0x20)) {
         pContact->pointCount = 4;
     } else {
@@ -860,7 +860,7 @@ void FUN_00496e00(Car *pCar)
 // Points the skid trail reference axis along v (flattened, reversed) and
 // sets the trail length from how far v leans out of the horizontal.
 // FUNCTION: CMR2 0x00498370
-void FUN_00498370(FixVector *v)
+void CarContact_SetSkidTrailAxis(FixVector *v)
 {
     int len;
 
@@ -875,7 +875,7 @@ void FUN_00498370(FixVector *v)
 // Sets the shadow level of a car and the matching blend colours.
 // match 85%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004984b0
-void FUN_004984b0(int car, int level)
+void CarShadow_SetLevel(int car, int level)
 {
     BYTE colour[4];
     BYTE factor[4];
