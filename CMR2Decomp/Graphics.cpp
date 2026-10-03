@@ -5861,77 +5861,83 @@ void Particle_Interpolate(int t)
 // Queues a billboard for every active particle visible in view `view`
 // (animated texture frames, size scaling, spin, lighting), or calls the
 // type's own draw callback.
+// The original walks the 0x68-byte particle records with a byte cursor held
+// at particle+0x55 (the view mask and the active flag are the first fields
+// the loop tests), so the body addresses the record through that cursor:
+//   pb-0x55 pType        pb-0x39 vector0x1c   pb-0x15 field0x40  pb-0x11 age
+//   pb-9    size         pb-5    field0x50   pb-2    type0x53   pb-1  field0x54
+//   pb+2    active       pb+0    field0x55   pb+4..6 colour      pb+0xb field0x60
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b0480
 void Particle_DrawAll(int param, BYTE view)
 {
-    Particle *p;
-    ParticleType *pType;
     BillboardDef def;
+    ParticleType *pType;
     int frame;
     int elapsed;
     int texture;
-    int *pFrames;
     int i;
+    BYTE mask;
+    BYTE *pb;
 
     def.flags &= 0xfe;
-    p = g_particles;
-    for (i = 0; i < g_particleCount; i++, p++) {
-        if (p->active == 0 || (p->field0x55 & (1 << view)) == 0)
+    mask = 1 << view;
+    pb = (BYTE *)g_particles + 0x55;
+    for (i = 0; i < g_particleCount; i++, pb += 0x68) {
+        if (pb[2] == 0 || (pb[0] & mask) == 0)
             continue;
-        pType = p->pType;
+        pType = *(ParticleType **)(pb - 0x55);
         if (pType->field0x5c != 0) {
-            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(p, pType, param);
+            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, param);
             continue;
         }
-        pFrames = (int *)pType->field0x4c;
-        if (pFrames != NULL) {
+        if ((int *)pType->field0x4c != NULL) {
             frame = 0;
-            elapsed = pType->lifetime - p->age;
-            if (pType->field0x54 < elapsed && pType->field0x58 > 0) {
+            elapsed = pType->lifetime - *(int *)(pb - 0x11);
+            if (elapsed > pType->field0x54 && pType->field0x58 > 0) {
                 frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
                 if (pType->directionFlags & 8)
-                    frame += ((unsigned int)p & 0xffff) % (unsigned int)pType->field0x50;
+                    frame += ((unsigned int)(pb - 0x55) & 0xffff) % (unsigned int)pType->field0x50;
                 if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
-                    texture = pFrames[pType->field0x50 - 1];
+                    texture = ((int *)pType->field0x4c)[pType->field0x50 - 1];
                     goto draw;
                 }
                 frame %= pType->field0x50;
             }
-            texture = pFrames[frame];
+            texture = ((int *)pType->field0x4c)[frame];
         } else {
-            texture = p->field0x60;
+            texture = *(int *)(pb + 0xb);
         }
     draw:
         if (texture == 0)
             continue;
-        if (p->size == 0x10000) {
+        if (*(int *)(pb - 9) == 0x10000) {
             def.top = pType->field0x3c;
             def.left = pType->field0x40;
             def.bottom = pType->field0x44;
             def.right = pType->field0x48;
         } else {
-            def.top = FixMul(p->size, pType->field0x3c);
-            def.left = FixMul(pType->field0x40, p->size);
-            def.bottom = FixMul(pType->field0x44, p->size);
-            def.right = FixMul(pType->field0x48, p->size);
+            def.top = FixMul(*(int *)(pb - 9), pType->field0x3c);
+            def.left = FixMul(pType->field0x40, *(int *)(pb - 9));
+            def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
+            def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
         }
         if ((pType->flags & 0x20) != 0)
-            def.field_0x20 = p->field0x50;
+            def.field_0x20 = *(short *)(pb - 5);
         else
             def.field_0x20 = 0;
-        def.pos = p->vector0x1c;
-        if (p->field0x40 != 0) {
-            def.pos.x += *(int *)(p->field0x40 + 0x30);
-            def.pos.y += *(int *)(p->field0x40 + 0x34);
-            def.pos.z += *(int *)(p->field0x40 + 0x38);
+        def.pos = *(FixVector *)(pb - 0x39);
+        if (*(int *)(pb - 0x15) != 0) {
+            def.pos.x += *(int *)(*(int *)(pb - 0x15) + 0x30);
+            def.pos.y += *(int *)(*(int *)(pb - 0x15) + 0x34);
+            def.pos.z += *(int *)(*(int *)(pb - 0x15) + 0x38);
         }
         def.flags ^= (pType->directionFlags ^ def.flags) & 2;
-        def.r = p->colour[0];
-        def.g = p->colour[1];
-        def.b = p->colour[2];
-        def.a = p->type0x53;
-        def.shade = p->field0x54;
+        def.r = pb[4];
+        def.g = pb[5];
+        def.b = pb[6];
+        def.a = pb[-2];
+        def.shade = pb[-1];
         Billboard_Add(&def, (unsigned short *)texture);
     }
 }
