@@ -164,6 +164,46 @@ struct ReplayPose {
     FixVector velocity;     // 0x80
 };
 
+// One firework rocket of the pool at g_unk0x00590af8 (0x938 bytes). Each
+// simulated array has a previous-frame copy and an interpolated copy that is
+// what gets drawn.
+struct FireworkRocket {
+    FixVector pos;               // 0x000
+    FixVector vel;               // 0x00c
+    FixVector trail[20];         // 0x018 spark trail behind the rising rocket
+    FixVector sparks[3][6];      // 0x108 burst sparks (columns 3..5 mirror 0..2)
+    FixVector prevPos;           // 0x1e0 last frame's copies, for interpolation
+    FixVector drawPos;           // 0x1ec interpolated copies that are drawn
+    FixVector prevTrail[20];     // 0x1f8
+    FixVector drawTrail[20];     // 0x2e8
+    FixVector prevSparks[3][6];  // 0x3d8
+    FixVector drawSparks[3][6];  // 0x4b0
+    FixVector sparkVel[3][6];    // 0x588
+    int sparkSpeed;              // 0x660
+    int fuse;                    // 0x664
+    int burstTime;               // 0x668
+    int rise;                    // 0x66c gravity on the rocket
+    int sparkGravity;            // 0x670
+    int blinkTime;               // 0x674 burst time when the blink started
+    BYTE rocketColour[4];        // 0x678
+    BYTE trailColour[4];         // 0x67c
+    BYTE colourA[2][4];          // 0x680 blend from/to for the first spark set
+    BYTE colourB[2][4];          // 0x688 and for the second one
+    char trailLen;               // 0x690
+    char trailHead;              // 0x691
+    BYTE colour;                 // 0x692
+    char sound;                  // 0x693
+    int state;                   // 0x694 1 rising, 2 burst
+    int type;                    // 0x698
+    int trailFlag[20];           // 0x69c
+    int sparkOn[3][6][4];        // 0x6ec per spark and mirrored quadrant
+    int sparkAlt[3][6][4];       // 0x80c second colour
+    int burst;                   // 0x92c sparks (else debris)
+    int blinking;                // 0x930
+    int blink;                   // 0x934
+};
+typedef char FireworkRocketSize[sizeof(FireworkRocket) == 0x938 ? 1 : -1];
+
 // One replay stream (recorder/player of one car); the slots hang off
 // g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
 // and play them back by interpolating between two poses.
@@ -387,7 +427,7 @@ void FUN_0047e490(BYTE *pColour);
 void FUN_0047e4d0(BYTE count);
 BYTE FUN_0047ea20(void);
 void FUN_0047eab0(void);
-void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo);
+void FUN_0047f510(FireworkRocket *p, BYTE *pOut, BYTE *pFrom, BYTE *pTo);
 void FUN_0047f740(void);
 void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVelocity, unsigned int variant);
 void FUN_00480220(void);
@@ -2832,119 +2872,122 @@ DWORD g_stageDebrisPalette[6] = {
 };
 
 // Starts a vehicle debris effect in the first free slot, including its fragments and sound.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+#define DEBRIS_RAND() ((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536))
 // FUNCTION: CMR2 0x0047fcb0
 void StageObject_SpawnDebris(const FixVector *pPosition, const FixVector *pVelocity, unsigned int variant)
 {
-    BYTE *pPool = (BYTE *)g_unk0x00590af8;
-    int slotIndex = -1;
-    int count = g_unk0x00590afc;
+    FireworkRocket *p;
+    int slot;
     int i;
-    for (i = 0; i < count; ++i) {
-        if (*(int *)(pPool + i * 0x938 + 0x694) == 0) {
-            slotIndex = i;
-            break;
+    int row;
+    int column;
+    int quadrant;
+    int enabled;
+    int chance;
+    int density;
+    int roll;
+
+    slot = -1;
+    for (i = 0; i < g_unk0x00590afc; i++) {
+        if (((FireworkRocket *)g_unk0x00590af8)[i].state == 0) {
+            slot = i;
+            i = g_unk0x00590afc;
         }
     }
-    if (slotIndex < 0)
+    if (slot < 0)
         return;
-
-    BYTE *pSlot = pPool + slotIndex * 0x938;
-    *(int *)(pSlot + 0x694) = 1;
-    memcpy(pSlot, pPosition, sizeof(FixVector));
-    memcpy(pSlot + 0x1e0, pPosition, sizeof(FixVector));
-    memcpy(pSlot + 0xc, pVelocity, sizeof(FixVector));
-    pSlot[0x690] = 0;
-    pSlot[0x691] = 0;
-    for (i = 0; i < 20; ++i) {
-        memcpy(pSlot + 0x18 + i * 12, pPosition, sizeof(FixVector));
-        memcpy(pSlot + 0x1f8 + i * 12, pPosition, sizeof(FixVector));
-        *(int *)(pSlot + 0x69c + i * 4) = 0;
+    p = &((FireworkRocket *)g_unk0x00590af8)[slot];
+    p->state = 1;
+    p->pos = *pPosition;
+    p->prevPos = *pPosition;
+    p->vel = *pVelocity;
+    p->trailLen = 0;
+    p->trailHead = 0;
+    for (i = 0; i < 20; i++) {
+        p->trail[i] = p->pos;
+        p->prevTrail[i] = p->pos;
+        p->trailFlag[i] = 0;
     }
-    *(int *)(pSlot + 0x934) = 0;
-
-    int randomFixed;
-    if (variant == 0) {
-        *(int *)(pSlot + 0x664) = 0x190000;
-    } else {
-        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-        *(int *)(pSlot + 0x664) = FixMul(randomFixed, 0xa0000) + 0x50000;
-    }
-    *(int *)(pSlot + 0x66c) = 0xa3d;
-    *(int *)(pSlot + 0x670) = 0x624;
-
-    int colourIndex = rand() % 6;
-    pSlot[0x692] = (BYTE)colourIndex;
-    *(DWORD *)(pSlot + 0x678) = g_stageDebrisPalette[(BYTE)colourIndex];
-    pSlot[0x67b] = 0xff;
-    *(DWORD *)(pSlot + 0x67c) = *(DWORD *)(pSlot + 0x678);
-    *(DWORD *)(pSlot + 0x680) = *(DWORD *)(pSlot + 0x678);
-    colourIndex = rand() % 6;
-    *(DWORD *)(pSlot + 0x684) = g_stageDebrisPalette[colourIndex];
-    pSlot[0x687] = 0xff;
-    colourIndex = rand() % 6;
-    *(DWORD *)(pSlot + 0x68c) = g_stageDebrisPalette[colourIndex];
-    pSlot[0x68f] = 0xff;
-    colourIndex = rand() % 6;
-    *(DWORD *)(pSlot + 0x688) = g_stageDebrisPalette[colourIndex];
-    pSlot[0x68b] = 0xff;
-
-    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    if (variant == 0)
-        *(int *)(pSlot + 0x698) = randomFixed < 0x8000 ? 1 : 2;
+    p->blink = 0;
+    if (variant != 0)
+        p->fuse = FixMul(DEBRIS_RAND(), 0xa0000) + 0x50000;
     else
-        *(int *)(pSlot + 0x698) = randomFixed < 0x10001 ? 1 : 0;
-
-    if (*(int *)(pSlot + 0x698) == 1) {
-        int chance = FixMul((rand() % 9 + 1) * 0x10000, 0x1999);
-        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-        if (randomFixed < 0xfd71) {
-            *(int *)(pSlot + 0x930) = 0;
-        } else {
-            *(int *)(pSlot + 0x930) = 1;
+        p->fuse = 0x190000;
+    p->rise = 0xa3d;
+    p->sparkGravity = FixMul(0x106, 0x60000);
+    p->colour = rand() % 6;
+    *(DWORD *)p->rocketColour = g_stageDebrisPalette[p->colour];
+    p->rocketColour[3] = 0xff;
+    *(DWORD *)p->trailColour = *(DWORD *)p->rocketColour;
+    *(DWORD *)p->colourA[0] = *(DWORD *)p->rocketColour;
+    *(DWORD *)p->colourA[1] = g_stageDebrisPalette[rand() % 6];
+    p->colourA[1][3] = 0xff;
+    *(DWORD *)p->colourB[1] = g_stageDebrisPalette[rand() % 6];
+    p->colourB[1][3] = 0xff;
+    *(DWORD *)p->colourB[0] = g_stageDebrisPalette[rand() % 6];
+    p->colourB[0][3] = 0xff;
+    roll = DEBRIS_RAND();
+    if (variant != 0) {
+        if (roll <= 0x10000)
+            p->type = 1;
+        else
+            p->type = 0;
+    } else {
+        if (roll < 0x8000)
+            p->type = 1;
+        else
+            p->type = 2;
+    }
+    if (p->type == 1) {
+        chance = FixMul((rand() % 9 + 1) << 16, 0x1999);
+        if (DEBRIS_RAND() > 0xfd70) {
+            p->blinking = 1;
             chance = FixMul(chance, 0x20000);
+        } else {
+            p->blinking = 0;
         }
-        int enabled = 0;
-        int row, column, fragment;
-        for (row = 0; row < 3; ++row) {
-            for (column = 0; column < 6; ++column) {
-                for (fragment = 0; fragment < 4; ++fragment) {
-                    int offset = (row * 6 + column) * 4 + fragment;
-                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-                    int on = randomFixed <= chance;
-                    *(int *)(pSlot + 0x6ec + offset * 4) = on;
-                    enabled += on;
-                    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-                    *(int *)(pSlot + 0x80c + offset * 4) = randomFixed >= 0x8001;
+        enabled = 0;
+        for (row = 0; row < 3; row++) {
+            for (column = 0; column < 6; column++) {
+                for (quadrant = 0; quadrant < 4; quadrant++) {
+                    if (DEBRIS_RAND() <= chance) {
+                        p->sparkOn[row][column][quadrant] = 1;
+                        enabled++;
+                    } else {
+                        p->sparkOn[row][column][quadrant] = 0;
+                    }
+                    if (DEBRIS_RAND() > 0x8000)
+                        p->sparkAlt[row][column][quadrant] = 1;
+                    else
+                        p->sparkAlt[row][column][quadrant] = 0;
                 }
             }
         }
-        int density = FixDiv(enabled << 16, 0x480000);
-        *(int *)(pSlot + 0x668) = FixMul(0xf0000, density) + 0xa0000;
-        *(int *)(pSlot + 0x92c) = 1;
-        *(int *)(pSlot + 0x660) = FixMul(0xccc, 0x10000 - density) + 0x11eb;
-        if (*(int *)(pSlot + 0x930) != 0) {
-            *(int *)(pSlot + 0x674) = *(int *)(pSlot + 0x668);
-            *(int *)(pSlot + 0x668) = FixMul(*(int *)(pSlot + 0x668), 0x20000);
+        density = FixDiv(enabled << 16, 0x480000);
+        p->burstTime = FixMul(0xf0000, density) + 0xa0000;
+        p->sparkSpeed = FixMul(0xccc, 0x10000 - density) + 0x11eb;
+        p->burst = 1;
+        if (p->blinking != 0) {
+            p->blinkTime = p->burstTime;
+            p->burstTime = FixMul(p->burstTime, 0x20000);
         }
     } else {
-        memset(pSlot + 0x6ec, 0, 0x48 * 4);
-        *(int *)(pSlot + 0x668) = 0x50000;
-        *(int *)(pSlot + 0x660) = 0x11eb;
-        *(int *)(pSlot + 0x92c) = 0;
+        for (row = 0; row < 3; row++)
+            for (column = 0; column < 6; column++)
+                for (quadrant = 0; quadrant < 4; quadrant++)
+                    p->sparkOn[row][column][quadrant] = 0;
+        p->burstTime = 0x50000;
+        p->sparkSpeed = 0x11eb;
+        p->burst = 0;
     }
-
     FUN_004b7790((unsigned short)(g_unk0x005909bc + 10), 0xccc, 0x5622, 0, 0, 0);
-    randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-    if (randomFixed > 0x1999) {
-        randomFixed = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
-        int volume = FixMul(0x4000, randomFixed) + 0x4000;
-        pSlot[0x693] = (BYTE)FUN_004b7790((unsigned short)(g_unk0x005909bc + rand() % 2),
-                                            volume, 0x5622, 0, 0, 0);
-    } else {
-        pSlot[0x693] = 0xff;
-    }
+    if (DEBRIS_RAND() > 0x1999)
+        p->sound = (char)FUN_004b7790((unsigned short)(g_unk0x005909bc + rand() % 2),
+                                      FixMul(0x4000, DEBRIS_RAND()) + 0x4000, 0x5622, 0, 0, 0);
+    else
+        p->sound = (char)0xff;
 }
+#undef DEBRIS_RAND
 
 extern double g_unk0x00511300;
 
@@ -8844,15 +8887,15 @@ void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
 // match 75%: colour blend block differs in scheduling/register use (same logic)
 // match 74%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0047f510
-void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
+void FUN_0047f510(FireworkRocket *p, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
 {
-    int t = *(int *)(param_1 + 0x668);
+    int t = p->burstTime;
     FixVector c;
     int v, r, g, b;
 
     if (t > 0xa0000) {
-        if (*(int *)(param_1 + 0x930) != 0) {
-            v = t - *(int *)(param_1 + 0x674);
+        if (p->blinking != 0) {
+            v = t - p->blinkTime;
             if (v > 0x50000) {
                 *(DWORD *)pOut = *(DWORD *)pFrom;
                 return;
@@ -8866,9 +8909,12 @@ void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
             c.y = (pFrom[1] << 16) - (pTo[1] << 16);
             c.z = (pFrom[2] << 16) - (pTo[2] << 16);
             FixVecScale(&c, &c, v);
-            r = c.x + (pTo[0] << 16);
-            g = c.y + (pTo[1] << 16);
-            b = c.z + (pTo[2] << 16);
+            c.x += pTo[0] << 16;
+            c.y += pTo[1] << 16;
+            c.z += pTo[2] << 16;
+            r = c.x;
+            g = c.y;
+            b = c.z;
             if (r > 0xff0000)
                 r = 0xff0000;
             if (g > 0xff0000)
@@ -8889,7 +8935,7 @@ void FUN_0047f510(int param_1, BYTE *pOut, BYTE *pFrom, BYTE *pTo)
         v = 0x10000;
     else if (v < 0)
         v = 0;
-    if (*(int *)(param_1 + 0x930) != 0) {
+    if (p->blinking != 0) {
         c.x = pTo[0] << 16;
         c.y = pTo[1] << 16;
         c.z = pTo[2] << 16;
@@ -15443,38 +15489,6 @@ void Sound_Free(unsigned int handle);
 // 20-point spark trail; when its fuse runs out it bursts, either into debris
 // or into 18 sparks thrown along the 3x3 burst directions (mirrored up and
 // down) that then fall under gravity until the burst timer ends.
-// One firework rocket of the pool at g_unk0x00590af8 (0x938 bytes).
-struct FireworkRocket {
-    FixVector pos;               // 0x000
-    FixVector vel;               // 0x00c
-    FixVector trail[20];         // 0x018 spark trail behind the rising rocket
-    FixVector sparks[3][6];      // 0x108 burst sparks (columns 3..5 mirror 0..2)
-    FixVector prevPos;           // 0x1e0 last frame's copies, for interpolation
-    FixVector prevVel;           // 0x1ec
-    FixVector prevTrail[20];     // 0x1f8
-    FixVector field_0x2e8[20];   // 0x2e8
-    FixVector prevSparks[3][6];  // 0x3d8
-    FixVector field_0x4b0[18];   // 0x4b0
-    FixVector sparkVel[3][6];    // 0x588
-    int sparkSpeed;              // 0x660
-    int fuse;                    // 0x664
-    int burstTime;               // 0x668
-    int rise;                    // 0x66c gravity on the rocket
-    int sparkGravity;            // 0x670
-    BYTE field_0x674[0x1c];
-    char trailLen;               // 0x690
-    char trailHead;              // 0x691
-    BYTE colour;                 // 0x692
-    char sound;                  // 0x693
-    int state;                   // 0x694 1 rising, 2 burst
-    int type;                    // 0x698
-    int trailFlag[20];           // 0x69c
-    BYTE field_0x6ec[0x240];
-    int burst;                   // 0x92c sparks (else debris)
-    int field_0x930;
-    int blink;                   // 0x934
-};
-typedef char FireworkRocketSize[sizeof(FireworkRocket) == 0x938 ? 1 : -1];
 
 // FUNCTION: CMR2 0x0047eab0
 void FUN_0047eab0(void)
@@ -16067,29 +16081,23 @@ void FUN_00484310(void)
 // Draws the fireworks every frame: the rising rocket as a single billboard, or
 // for a burst the 18 spark clusters (each up to four mirrored billboards) plus
 // the fading 20-point trail. See FUN_0047eab0 for the record layout.
-// match 38%: the logic, calls, constants and loop bounds are identical; the
-// residual is MSVC's register allocation, stack-slot placement (the original
-// spills the spark Y to [ebp-0x44] and keeps the frame at 0x48) and its choice
-// of cursor/induction-variable base (0x4b0 vs 0x4b8) in the 18-spark loop.
 // FUNCTION: CMR2 0x0047f740
 void FUN_0047f740(void)
 {
-    BYTE *pSlot;
+#define SPARK_DEF ((BillboardDef *)g_unk0x00590b08)
+#define SPARK_COLOUR(c) (*(int *)&SPARK_DEF->r = *(int *)(c))
+    FireworkRocket *p;
     int i;
-    int offset;
-    int state;
-    int colourIndex;
     int k;
     int j;
     int n;
+    int colourIndex;
     int fade;
-    FixVector spark;
     int sparkX;
     int sparkY;
     int sparkZ;
-    int *pSpark;
     int *pFlag;
-    int *pTrail;
+    FixVector *pTrail;
     int baseR;
     int baseG;
     int baseB;
@@ -16100,149 +16108,140 @@ void FUN_0047f740(void)
     BYTE colourB[4];
     BYTE colourC[4];
 
-    i = 0;
-    if (g_unk0x00590afc == 0)
-        return;
-    offset = 0;
-    for (; i < g_unk0x00590afc; i++) {
-        pSlot = (BYTE *)g_unk0x00590af8 + offset;
-        state = *(int *)(pSlot + 0x694);
-        switch (state) {
+    for (i = 0; i < g_unk0x00590afc; i++) {
+        p = &((FireworkRocket *)g_unk0x00590af8)[i];
+        switch (p->state) {
         case 1:
-            *(FixVector *)g_unk0x00590b04 = *(FixVector *)(pSlot + 0x1ec);
-            *(int *)((BYTE *)g_unk0x00590b04 + 0x1c) = *(int *)(pSlot + 0x678);
+            ((BillboardDef *)g_unk0x00590b04)->pos = p->drawPos;
+            *(int *)&((BillboardDef *)g_unk0x00590b04)->r = *(int *)p->rocketColour;
             Billboard_Add((BillboardDef *)g_unk0x00590b04, (unsigned short *)g_unk0x00590b00);
             colourIndex = 0;
             break;
         case 2:
-            FUN_0047f510((int)pSlot, colourA, pSlot + 0x680, pSlot + 0x684);
-            FUN_0047f510((int)pSlot, colourB, pSlot + 0x688, pSlot + 0x68c);
-            if (*(int *)(pSlot + 0x92c) != 0) {
+            FUN_0047f510(p, colourA, p->colourA[0], p->colourA[1]);
+            FUN_0047f510(p, colourB, p->colourB[0], p->colourB[1]);
+            if (p->burst != 0) {
                 for (k = 0; k < 3; k++) {
                     for (j = 0; j < 6; j++) {
-                        spark = *(FixVector *)(pSlot + 0x4b0 + (k * 6 + j) * 12);
-                        sparkX = spark.x;
-                        sparkY = spark.y;
-                        sparkZ = spark.z;
-                        if (*(int *)(pSlot + 0x6ec + (k * 6 + j) * 16) != 0) {
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
-                            if (*(int *)(pSlot + 0x80c + (k * 6 + j) * 16) != 0) {
-                                if (*(int *)(pSlot + 0x934) == 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                        sparkX = p->drawSparks[k][j].x;
+                        sparkY = p->drawSparks[k][j].y;
+                        sparkZ = p->drawSparks[k][j].z;
+                        if (p->sparkOn[k][j][0] != 0) {
+                            SPARK_DEF->pos.x = p->drawPos.x + sparkX;
+                            SPARK_DEF->pos.y = p->drawPos.y + sparkY;
+                            SPARK_DEF->pos.z = p->drawPos.z + sparkZ;
+                            if (p->sparkAlt[k][j][0] != 0) {
+                                if (p->blink != 0)
+                                    SPARK_COLOUR(colourB);
                                 else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                    SPARK_COLOUR(colourA);
+                            } else if (p->blink != 0) {
+                                SPARK_COLOUR(colourA);
                             } else {
-                                if (*(int *)(pSlot + 0x934) != 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                                else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
                         }
-                        if (*(int *)(pSlot + 0x6f0 + (k * 6 + j) * 16) != 0) {
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) + sparkZ;
-                            if (*(int *)(pSlot + 0x810 + (k * 6 + j) * 16) != 0) {
-                                if (*(int *)(pSlot + 0x934) == 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                        if (p->sparkOn[k][j][1] != 0) {
+                            sparkX = -sparkX;
+                            SPARK_DEF->pos.x = p->drawPos.x + sparkX;
+                            SPARK_DEF->pos.y = p->drawPos.y + sparkY;
+                            SPARK_DEF->pos.z = p->drawPos.z + sparkZ;
+                            if (p->sparkAlt[k][j][1] != 0) {
+                                if (p->blink != 0)
+                                    SPARK_COLOUR(colourB);
                                 else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                    SPARK_COLOUR(colourA);
+                            } else if (p->blink != 0) {
+                                SPARK_COLOUR(colourA);
                             } else {
-                                if (*(int *)(pSlot + 0x934) != 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                                else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
                         }
-                        if (*(int *)(pSlot + 0x6f4 + (k * 6 + j) * 16) != 0) {
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) - sparkX;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
-                            if (*(int *)(pSlot + 0x814 + (k * 6 + j) * 16) != 0) {
-                                if (*(int *)(pSlot + 0x934) == 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                        if (p->sparkOn[k][j][2] != 0) {
+                            SPARK_DEF->pos.x = p->drawPos.x + sparkX;
+                            SPARK_DEF->pos.y = p->drawPos.y + sparkY;
+                            sparkZ = -sparkZ;
+                            SPARK_DEF->pos.z = p->drawPos.z + sparkZ;
+                            if (p->sparkAlt[k][j][2] != 0) {
+                                if (p->blink != 0)
+                                    SPARK_COLOUR(colourB);
                                 else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                    SPARK_COLOUR(colourA);
+                            } else if (p->blink != 0) {
+                                SPARK_COLOUR(colourA);
                             } else {
-                                if (*(int *)(pSlot + 0x934) != 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                                else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                                SPARK_COLOUR(colourB);
                             }
-                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
                         }
-                        if (*(int *)(pSlot + 0x6f8 + (k * 6 + j) * 16) != 0) {
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = *(int *)(pSlot + 0x1ec) + sparkX;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = *(int *)(pSlot + 0x1f0) + sparkY;
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = *(int *)(pSlot + 0x1f4) - sparkZ;
-                            if (*(int *)(pSlot + 0x818 + (k * 6 + j) * 16) != 0) {
-                                if (*(int *)(pSlot + 0x934) != 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
+                        if (p->sparkOn[k][j][3] != 0) {
+                            sparkX = -sparkX;
+                            SPARK_DEF->pos.x = p->drawPos.x + sparkX;
+                            SPARK_DEF->pos.y = p->drawPos.y + sparkY;
+                            SPARK_DEF->pos.z = p->drawPos.z + sparkZ;
+                            if (p->sparkAlt[k][j][3] != 0) {
+                                if (p->blink != 0)
+                                    SPARK_COLOUR(colourB);
                                 else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                    SPARK_COLOUR(colourA);
+                            } else if (p->blink == 0) {
+                                SPARK_COLOUR(colourB);
                             } else {
-                                if (*(int *)(pSlot + 0x934) == 0)
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourB;
-                                else
-                                    *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
+                                SPARK_COLOUR(colourA);
                             }
-                            Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
+                            Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
                         }
                     }
                 }
             }
-            colourIndex = 0x14 - *(signed char *)(pSlot + 0x690);
+            colourIndex = 0x14 - p->trailLen;
             break;
         }
-        if (state != 0) {
-            baseR = pSlot[0x67c] << 16;
-            baseG = pSlot[0x67d] << 16;
-            baseB = pSlot[0x67e] << 16;
+        if (p->state != 0) {
+            colourIndex += p->trailHead;
+            fade = 0x3333;
+            if (colourIndex >= 0x14)
+                colourIndex -= 0x14;
+            baseR = p->trailColour[0] << 16;
+            baseG = p->trailColour[1] << 16;
+            baseB = p->trailColour[2] << 16;
             litR = baseR + 0x640000;
             litG = baseG + 0x640000;
             litB = baseB + 0x640000;
-            colourC[3] = 0xff;
-            fade = 0x3333;
-            j = 0;
-            if (*(signed char *)(pSlot + 0x690) > 0) {
+            for (j = 0; j < p->trailLen; j += 4) {
+                colourC[3] = 0xff;
+                colourA[0] = (BYTE)FixMulShift32(baseR, fade);
+                colourA[1] = (BYTE)FixMulShift32(baseG, fade);
+                colourA[2] = (BYTE)FixMulShift32(baseB, fade);
+                colourA[3] = 0xff;
+                colourC[0] = (BYTE)FixMulShift32(litR, fade);
+                colourC[1] = (BYTE)FixMulShift32(litG, fade);
+                colourC[2] = (BYTE)FixMulShift32(litB, fade);
+                fade += 0x3333;
+                pTrail = &p->drawTrail[colourIndex];
+                n = 4;
+                pFlag = &p->trailFlag[colourIndex];
                 do {
-                    colourA[0] = (BYTE)FixMulShift32(baseR, fade);
-                    colourA[1] = (BYTE)FixMulShift32(baseG, fade);
-                    colourA[2] = (BYTE)FixMulShift32(baseB, fade);
-                    colourA[3] = 0xff;
-                    colourC[0] = (BYTE)FixMulShift32(litR, fade);
-                    colourC[1] = (BYTE)FixMulShift32(litG, fade);
-                    colourC[2] = (BYTE)FixMulShift32(litB, fade);
-                    fade += 0x3333;
-                    pFlag = (int *)(pSlot + 0x69c) + colourIndex;
-                    pTrail = (int *)(pSlot + 0x2e8) + colourIndex * 3;
-                    n = 4;
-                    do {
-                        if (*pFlag != 0)
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourC;
-                        else
-                            *(int *)((BYTE *)g_unk0x00590b08 + 0x1c) = *(int *)colourA;
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x00) = pTrail[0];
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x04) = pTrail[1];
-                        *(int *)((BYTE *)g_unk0x00590b08 + 0x08) = pTrail[2];
-                        colourIndex++;
-                        pTrail += 3;
-                        pFlag++;
-                        if (colourIndex >= 0x14) {
-                            colourIndex -= 0x14;
-                            pFlag -= 0x14;
-                            pTrail -= 0x14;
-                        }
-                        Billboard_Add((BillboardDef *)g_unk0x00590b08, (unsigned short *)g_unk0x00590b00);
-                    } while (--n != 0);
-                    j += 4;
-                } while (j < *(signed char *)(pSlot + 0x690));
+                    if (*pFlag != 0)
+                        SPARK_COLOUR(colourC);
+                    else
+                        SPARK_COLOUR(colourA);
+                    SPARK_DEF->pos = *pTrail;
+                    colourIndex++;
+                    pFlag++;
+                    pTrail++;
+                    if (colourIndex >= 0x14) {
+                        colourIndex -= 0x14;
+                        pFlag -= 0x14;
+                        pTrail -= 0x14;
+                    }
+                    Billboard_Add(SPARK_DEF, (unsigned short *)g_unk0x00590b00);
+                } while (--n != 0);
             }
         }
-        offset += 0x938;
     }
+#undef SPARK_DEF
+#undef SPARK_COLOUR
 }
