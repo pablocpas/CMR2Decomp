@@ -855,11 +855,12 @@ void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2)
     CGraphics::ClearTarget();
     CGraphics::ClearZBuffer();
     if (CFrontend::m_unk0x00817ebc != NULL) {
-        short w = CFrontend::m_unk0x00817ebc->width;
-        short h = CFrontend::m_unk0x00817ebc->height;
-
+        short w;
+        short h;
         src.x = CFrontend::m_unk0x00817ebc->field_0x11c;
         src.y = CFrontend::m_unk0x00817ebc->field_0x11e;
+        w = CFrontend::m_unk0x00817ebc->width;
+        h = CFrontend::m_unk0x00817ebc->height;
         src.w = w;
         src.h = h;
         dst.w = w;
@@ -996,7 +997,7 @@ void CGame::InitializeGame(Unk0049c2c0 *p1, BYTE p2)
         FUN_00406810(0);
         FUN_004067e0();
         CGameInfo::FUN_00405de0(0);
-        if (CInstallInfo::FUN_0040e8d0() == 0)
+        if ((BYTE)CInstallInfo::FUN_0040e8d0() == 0)
             goto exit;
 
         CGameInfo::FUN_00510410();
@@ -2093,12 +2094,11 @@ void FUN_0049c4b0(Mesh *pMesh, int mask, int value)
     int low = mask & 0x7f;
     int high = (mask >> 7) & 0x7f;
     int i;
-    MeshTriangle *pTri;
 
     for (i = 0; i < pMesh->triangleCount; i++) {
-        pTri = &pMesh->pTriangles[i];
-        if ((pTri->flags & low & 0x7f) != 0 || (high & (pTri->flags >> 9)) != 0)
-            pTri->field_0x30 = value;
+        if ((pMesh->pTriangles[i].flags & low & 0x7f) != 0 ||
+            (high & (pMesh->pTriangles[i].flags >> 9)) != 0)
+            pMesh->pTriangles[i].field_0x30 = value;
     }
 }
 
