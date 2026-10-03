@@ -2655,6 +2655,16 @@ void FUN_00475740(short *pRect, BYTE *pColour, BYTE *pEdgeColour, int drawTextur
     }
 }
 
+// Per-car node row at 0x58d528 (0x1c bytes): +0 node 0x1a, +4 node 0x1c,
+// +8 node 0x1b, +0x10 node 0x17.  The angles pointer for each car sits at
+// 0x58d500 (row - 0x28); the original re-reads every slot it may alias.
+#define CAR_NODE(c, off) (*(SceneNode **)(g_stageBlock + 0x288 + (off) + (c) * 0x1c))
+#define CAR_ANGLES(c) (*(FixAngles **)(g_stageBlock + 0x260 + (c) * 0x1c))
+// The original callers pass the 12-bit angle in a 16-bit slot without sign
+// extension (the definition reads a 32-bit int and masks it to 0xfff).
+#define FromAxisAngle16(pOut, pAxis, angle) \
+    (((void (__stdcall *)(FixMatrix *, FixVector *, short))FixMatrix_FromAxisAngle)((pOut), (pAxis), (angle)))
+
 // Blends a car's stage object transform: rotates its mount nodes by the car
 // heading and interpolates the blended node's matrix between the reference
 // node and the rotated mount using the body fade factor.
@@ -2665,48 +2675,47 @@ void FUN_00476640(int car)
     int fadeCurve[13] = {0, 0x51e, 0xccc, 0x1999, 0x3333, 0x6666, 0x9999, 0xcccc,
                          0xe666, 0xf333, 0xfae1, 0x10000, 0x10000};
     Car *pCar = Car_Get(car);
-    SceneNode *pRef = *(SceneNode **)(g_stageBlock + 0x288 + car * 0x1c);
-    SceneNode *pBlend = *(SceneNode **)(g_stageBlock + 0x28c + car * 0x1c);
-    SceneNode *pMid = *(SceneNode **)(g_stageBlock + 0x290 + car * 0x1c);
-    SceneNode *pRot = *(SceneNode **)(g_stageBlock + 0x298 + car * 0x1c);
     short angle = -pCar->heading;
     FixVector axis;
     FixMatrix rot;
     FixMatrix combined;
     FixMatrix original;
-    int posX;
-    int posY;
-    int posZ;
+    FixVector position;
     int fade;
 
-    SceneNode_SetRotation(pRot, *(FixAngles **)(g_stageBlock + 0x260 + car * 0x1c));
-    axis = pRot->current.right;
-    FixMatrix_FromAxisAngle(&rot, &axis, angle);
+    SceneNode_SetRotation(CAR_NODE(car, 0x10), CAR_ANGLES(car));
+    axis.x = CAR_NODE(car, 0x10)->current.right.x;
+    axis.y = CAR_NODE(car, 0x10)->current.right.y;
+    axis.z = CAR_NODE(car, 0x10)->current.right.z;
+    FromAxisAngle16(&rot, &axis, angle);
 
     // Rotate the node without touching its translation.
-    posX = pRot->current.position.x;
-    posY = pRot->current.position.y;
-    posZ = pRot->current.position.z;
-    pRot->current.position.x = 0;
-    pRot->current.position.y = 0;
-    pRot->current.position.z = 0;
-    FixMatrix_Multiply(&pRot->current, &pRot->current, &rot);
-    pRot->current.position.x = posX;
-    pRot->current.position.y = posY;
-    pRot->current.position.z = posZ;
+    position.x = CAR_NODE(car, 0x10)->current.position.x;
+    position.y = CAR_NODE(car, 0x10)->current.position.y;
+    position.z = CAR_NODE(car, 0x10)->current.position.z;
+    CAR_NODE(car, 0x10)->current.position.x = 0;
+    CAR_NODE(car, 0x10)->current.position.y = 0;
+    CAR_NODE(car, 0x10)->current.position.z = 0;
+    FixMatrix_Multiply(&CAR_NODE(car, 0x10)->current, &CAR_NODE(car, 0x10)->current, &rot);
+    CAR_NODE(car, 0x10)->current.position.x = position.x;
+    CAR_NODE(car, 0x10)->current.position.y = position.y;
+    CAR_NODE(car, 0x10)->current.position.z = position.z;
 
-    SceneNode_SetRotation(pMid, *(FixAngles **)(g_stageBlock + 0x260 + car * 0x1c));
-    FixMatrix_Multiply(&combined, &pMid->current, &rot);
-    combined.position.x += posX;
-    combined.position.y += posY;
-    combined.position.z += posZ;
+    SceneNode_SetRotation(CAR_NODE(car, 0x8), CAR_ANGLES(car));
+    FixMatrix_Multiply(&combined, &CAR_NODE(car, 0x8)->current, &rot);
+    combined.position.x += position.x;
+    combined.position.z += position.z;
+    combined.position.y += position.y;
 
-    original = pRef->current;
+    original = CAR_NODE(car, 0x0)->current;
 
     fade = FUN_00476850(car, (int)pCar);
-    FixMatrix_Interpolate(&pBlend->current, &combined, &original, 0, 0,
+    FixMatrix_Interpolate(&CAR_NODE(car, 0x4)->current, &combined, &original, 0, 0,
                           fadeCurve[FixMulShift32(0xC0000, fade)], 1);
 }
+#undef CAR_NODE
+#undef CAR_ANGLES
+#undef FromAxisAngle16
 
 // FUNCTION: CMR2 0x00477a90
 void FUN_00477a90(void)
@@ -4391,13 +4400,12 @@ int FUN_0048caa0(int *pList)
 {
     unsigned int count = 0;
 
-    if (pList == NULL) {
+    if (pList != NULL) {
+        count = g_unk0x005918c8 = *pList;
+        g_unk0x00591750 = (BYTE *)(pList + 1);
+    } else {
         g_unk0x005918c8 = count;
         g_unk0x00591750 = NULL;
-    } else {
-        count = *pList;
-        g_unk0x00591750 = (BYTE *)(pList + 1);
-        g_unk0x005918c8 = count;
     }
     return count > 0;
 }
@@ -8715,13 +8723,10 @@ short g_unk0x0051c9b0 = 0x71;
 // FUNCTION: CMR2 0x004778b0
 void FUN_004778b0(BYTE *object, int unused)
 {
-    int car = object[2];
-    FixVector position = *(FixVector *)(g_stageBlock + 0xe0 + car * 36);
+    FixVector position = *(FixVector *)(g_stageBlock + 0xe0 + object[2] * 36);
     FixMatrix orient;
     FixMatrix mount;
     FixMatrix combined;
-    BYTE *node;
-    BYTE *pCar;
 
     FixMatrix_Identity(&mount);
     FixMatrix_SetPosition(&position, &mount);
@@ -8736,16 +8741,16 @@ void FUN_004778b0(BYTE *object, int unused)
     orient.forward.y = 0;
     orient.forward.z = 0;
     FixMatrix_RotateAboutRight(&orient, (unsigned short)g_unk0x0051c9b0);
-    FixMatrix_SetPosition((FixVector *)(g_stageBlock + 0xe0 + car * 36), &orient);
-    node = *(BYTE **)(g_stageBlock + 0x294 + car * 0x1c);
-    FixMatrix_Multiply(&combined, &orient, (FixMatrix *)(node + 0x98));
-    pCar = (BYTE *)Car_Get(car);
-    FixMatrix_Multiply((FixMatrix *)(object + 8), &combined, *(FixMatrix **)(pCar + 0x754));
-    *(int *)(object + 0x48) = 0x10000;
-    *(int *)(object + 0x4c) = 0x1999;
-    *(int *)(object + 0x50) = 0;
-    *(int *)(object + 0x54) = 0xa000;
+    FixMatrix_SetPosition((FixVector *)(g_stageBlock + 0xe0 + object[2] * 36), &orient);
+    FixMatrix_Multiply(&combined, &orient,
+                       (FixMatrix *)(*(BYTE **)(g_stageBlock + 0x294 + object[2] * 0x1c) + 0x98));
+    FixMatrix_Multiply((FixMatrix *)(object + 8), &combined,
+                       *(FixMatrix **)((BYTE *)Car_Get(object[2]) + 0x754));
     *(int *)(object + 0x58) = 0;
+    *(int *)(object + 0x50) = 0;
+    *(int *)(object + 0x48) = 0x10000;
+    *(int *)(object + 0x54) = 0xa000;
+    *(int *)(object + 0x4c) = 0x1999;
     *(int *)(object + 0x5c) = 0x10000;
 }
 
@@ -12844,38 +12849,44 @@ void FUN_0047d850(Car *pCar, int *param_2)
 // steep ground normal get the ground-aligned step, the rest the free step.
 // match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00484e00
-void FUN_00484e00(int param_1, short count)
+void FUN_00484e00(int param_1, short param_2)
 {
     FixVector impulse;
     short *pIndex;
+    int n;
+
     FUN_00460a30(&impulse);
-    if (count - 1 < 0)
+    n = param_2 - 1;
+    if (n < 0)
         return;
-    pIndex = (short *)(param_1 + (count - 1) * 2);
+    pIndex = (short *)(param_1 + n * 2);
+    n++;
     do {
-        Car *pCar = Car_Get((int)*pIndex);
-        int n;
-        g_unk0x00590d74 = (Unk0x00590d74 *)pCar;
-        g_unk0x00590d78 = (BYTE *)FUN_00469680((int)*pIndex);
-        if (*(int *)((BYTE *)pCar + 0xc0c) == 0) {
-            if (*(int *)((BYTE *)pCar + 0xb64) == 0 &&
-                *(int *)((BYTE *)pCar + 0xc00) != 0 &&
-                FixVecDot((FixVector *)((BYTE *)pCar + 0x36c),
-                          (FixVector *)((BYTE *)pCar + 0x48c)) < -0xcccc &&
-                (pCar->cornerFlags[5] == 0 || pCar->cornerFlags[4] == 0 ||
-                 pCar->cornerFlags[7] == 0 || pCar->cornerFlags[6] == 0)) {
-                n = *(int *)g_unk0x00590b30[pCar->index] - 1;
-                for (; n >= 0; n--)
-                    FUN_00484f40(n);
-            } else {
+        int idx = *pIndex;
+        int m;
+        g_unk0x00590d74 = (Unk0x00590d74 *)Car_Get(idx);
+        g_unk0x00590d78 = (BYTE *)FUN_00469680(idx);
+        if (*(int *)((BYTE *)g_unk0x00590d74 + 0xc0c) == 0) {
+            if (*(int *)((BYTE *)g_unk0x00590d74 + 0xb64) != 0 ||
+                *(int *)((BYTE *)g_unk0x00590d74 + 0xc00) == 0 ||
+                FixVecDot((FixVector *)((BYTE *)g_unk0x00590d74 + 0x48c),
+                          (FixVector *)((BYTE *)g_unk0x00590d74 + 0x36c)) >= -0xcccc ||
+                (*(char *)((BYTE *)g_unk0x00590d74 + 0xb31) != 0 &&
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb30) != 0 &&
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb33) != 0 &&
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb32) != 0)) {
                 FUN_004853c0(&impulse);
-                n = *(int *)g_unk0x00590b30[pCar->index] - 1;
-                for (; n >= 0; n--)
-                    FUN_004854a0(n);
+                m = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
+                for (; m >= 0; m--)
+                    FUN_004854a0(m);
+            } else {
+                m = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
+                for (; m >= 0; m--)
+                    FUN_00484f40(m);
             }
         }
         pIndex--;
-    } while (--count);
+    } while (--n);
 }
 
 int FUN_00423fc0(int view);

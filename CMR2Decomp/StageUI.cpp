@@ -103,7 +103,11 @@ int FUN_00418fe0(void)
 }
 
 // Resets the eight stage sound records and registers their callback once.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 60%: remaining diff is codegen-only. The original keeps the loop cursor
+// on the countOld field (edx = 0x53784c, `cmp edx,0x537dec; jl`); MSVC6 always
+// biases our IV (countOld with the struct pointer, count with an int cursor) and
+// pays an extra `lea ecx,[eax-0xa4]; cmp ecx,0x537d48; jl`, so the body matches
+// but the compare + register names differ.
 // FUNCTION: CMR2 0x00418f20
 void FUN_00418f20(void)
 {
@@ -114,7 +118,10 @@ void FUN_00418f20(void)
     memset(g_raceBlock + 0x94, 0, 0x20);       // 0x5375fc
     memset(g_raceBlock + 0x220, 0, 0x20);      // 0x537788
     memset(g_raceBlock + 0x0, 0, 0x20);        // 0x537568
-    for (RaceCarSoundState *pState = g_carSoundStates; pState < g_carSoundStates + 8; pState++) {
+    // The original walks the eight per-car sound states (0xb4 bytes each) with
+    // a cursor on the countOld field, keeping the loop cursor in a single
+    // register.
+    for (RaceCarSoundState *pState = g_carSoundStates; (int)pState < (int)(g_carSoundStates + 8); pState++) {
         for (i = 0; i < 10; i++) {
             pState->handle[i] = -1;
             pState->id[i] = -1;
