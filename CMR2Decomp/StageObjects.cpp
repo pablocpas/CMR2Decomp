@@ -8414,23 +8414,34 @@ void FUN_0047bdc0(char restart)
 
 // Checks whether a replay packet agrees with current controls.
 // match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
-// FUNCTION: CMR2 0x0046cbe0
-int FUN_0046cbe0(BYTE *packet, BYTE car)
-{
-    BYTE current[4];
+// Replay input packet (4 bytes, one per recorded frame).
+struct ReplayPacket {
+    BYTE b0lo : 2;
+    BYTE b0hi : 6;
+    BYTE b1lo : 2;
+    BYTE b1hi : 6;
+    BYTE count : 6;
+    BYTE b2hi : 2;
+    BYTE b3lo : 7;
+    BYTE b3hi : 1;
+};
 
-    if ((packet[2] & 0x3f) == 0)
+// FUNCTION: CMR2 0x0046cbe0
+int FUN_0046cbe0(BYTE *pPacket, BYTE car)
+{
+    ReplayPacket *packet = (ReplayPacket *)pPacket;
+    ReplayPacket current;
+
+    if (packet->count == 0)
         return 1;
-    if ((packet[2] & 0x3f) >= 0x3f)
+    if (packet->count >= 0x3f)
         return 0;
-    FUN_0046c450(current, car);
-    return ((packet[0] ^ current[0]) & 0xfc) == 0 &&
-           ((packet[1] ^ current[1]) & 0xfc) == 0 &&
-           ((packet[3] ^ current[3]) & 0x7f) == 0 &&
-           ((packet[1] ^ current[1]) & 3) == 0 &&
-           ((packet[2] ^ current[2]) & 0xc0) == 0 &&
-           ((packet[0] ^ current[0]) & 3) == 0 &&
-           ((packet[3] ^ current[3]) & 0x80) == 0;
+    FUN_0046c450((BYTE *)&current, car);
+    if (packet->b0hi == current.b0hi && packet->b1hi == current.b1hi && packet->b3lo == current.b3lo &&
+        packet->b1lo == current.b1lo && packet->b2hi == current.b2hi && packet->b0lo == current.b0lo &&
+        packet->b3hi == current.b3hi)
+        return 1;
+    return 0;
 }
 
 // Interpolates a stage object record between two frames.
@@ -14184,9 +14195,9 @@ void FUN_0046cfa0(int *pState)
 {
     ReplayStream *p;
     Car *pCar;
-    BYTE *pEvents;
-    BYTE *pEvent;
-    BYTE *pEvent2;
+    ReplayEvent *pEvents;
+    ReplayEvent *pEvent;
+    ReplayEvent *pEvent2;
     int count;
     int k;
     char found;
@@ -14217,23 +14228,23 @@ void FUN_0046cfa0(int *pState)
                 p->frame++;
             found = -1;
             if (p->type == 0) {
-                count = p->pInputs[p->lane * 0x114c + 0x1148];
-                pEvents = p->pInputs + p->lane * 0x114c + 0x110c;
+                count = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
+                pEvents = ((ReplayInputLane *)p->pInputs)[p->lane].events;
                 for (k = 0; k < count; k++) {
-                    pEvent = pEvents + k * 6;
-                    if (p->frame < *(short *)pEvent ||
-                        (p->frame == *(short *)pEvent && (short)p->field_0x21 < *(short *)(pEvent + 2))) {
+                    pEvent = &pEvents[k];
+                    if (p->frame < pEvent->frame ||
+                        (p->frame == pEvent->frame && (short)p->field_0x21 < pEvent->count)) {
                         found = (char)k;
                         k = count;
                     }
                 }
             } else {
-                count = p->pStates[p->lane * 0x5c + 0x58];
-                pEvents = p->pStates + p->lane * 0x5c + 0x1c;
+                count = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
+                pEvents = ((ReplayStateLane *)p->pStates)[p->lane].events;
                 for (k = 0; k < count; k++) {
-                    pEvent2 = pEvents + k * 6;
-                    if (p->frame < *(short *)pEvent2 ||
-                        (p->frame == *(short *)pEvent2 && (short)p->field_0x21 < *(short *)(pEvent2 + 2))) {
+                    pEvent2 = &pEvents[k];
+                    if (p->frame < pEvent2->frame ||
+                        (p->frame == pEvent2->frame && (short)p->field_0x21 < pEvent2->count)) {
                         found = (char)k;
                         k = count;
                     }
@@ -14241,15 +14252,15 @@ void FUN_0046cfa0(int *pState)
             }
             if (found == -1) {
                 if (p->type == 0)
-                    found = p->pInputs[p->lane * 0x114c + 0x1148];
+                    found = ((ReplayInputLane *)p->pInputs)[p->lane].eventCount;
                 else
-                    found = p->pStates[p->lane * 0x5c + 0x58];
+                    found = ((ReplayStateLane *)p->pStates)[p->lane].eventCount;
             }
             // The original indexes from the last event examined by the first
             // loop; for the second table that pointer is stale.
             found--;
             if (found >= 0)
-                p->field_0x10c = pEvent[found * 6 + 4];
+                p->field_0x10c = pEvent[found].value;
         }
         if (p->frame == p->pLaneSamples[p->lane]) {
             p->playStarted = 0;
