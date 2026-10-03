@@ -1555,7 +1555,7 @@ void FUN_004ea470(void)
 
 extern int g_unk0x00818ac8;
 void FUN_0040bad0(void);
-void FUN_0040bd60(unsigned short slot, DeviceInfo *pOut);
+void FUN_0040bd60(int slot, DeviceInfo *pOut);
 unsigned short FUN_0040bbc0(unsigned short slot);
 void FUN_004a2fe0(void);
 
@@ -5274,8 +5274,10 @@ void FUN_004f2620(Menu *pMenu, char back)
         if (g_unk0x00819879 != 0) {
             FUN_004eb000(0, 0);
             FUN_004ebf20(0);
+            FUN_004ebe80(0);
+        } else {
+            FUN_004ebe80(0);
         }
-        FUN_004ebe80(0);
     }
     g_unk0x00819879 = 0;
     FUN_004e7770(1);
@@ -6042,13 +6044,15 @@ int FUN_004d8330(int param_1, int param_2, int param_3, int param_4, int param_5
     int i;
     int x;
     int step;
+    int scale;
 
     rect[1] = param_2;
     rect[2] = (int)(g_pGraphics->resX * 8) / 640;
     rect[3] = (int)(g_pGraphics->resY * 8) / 480;
     x = param_1 << 16;
     rect[0] = (short)(x >> 16);
-    step = FixMul(g_pGraphics->resX << 16, FixDiv(0xa0000, 0x2800000));
+    scale = 0xa0000;
+    step = FixMul(g_pGraphics->resX << 16, FixDiv(scale, 0x2800000));
     for (i = 0; i < param_3; i++) {
         if (i < param_4)
             Sprite_FillRect((int)g_pGraphics + 0x150, rect, g_colourWhite0x00524968, 1);
