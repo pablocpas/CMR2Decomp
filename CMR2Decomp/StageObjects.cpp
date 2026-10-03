@@ -103,7 +103,7 @@ void FUN_004688b0(BYTE *p);
 void FUN_00468a80(Car *pCar, int amount);
 void FUN_00468c10(Car *pCar);
 int FUN_00469100(Car *pCar, CarPartSet *set);
-void FUN_004694a0(int param_1, int param_2, char param_3);
+void FUN_004694a0(int param_1, int param_2, int param_3);
 void FUN_00469690(Car *pCar);
 void FUN_00469bf0(Car *pCar, int index);
 int FUN_00469c30(FixVector *pOut, int *pParts, int index);
@@ -607,17 +607,26 @@ void FUN_004694a0(int param_1, int param_2, char param_3)
     pType = FUN_00456be0((int)*(char *)(param_1 + 0xb1a));
     if (*(char *)(pType + 0x20) == 'C' ||
         (pType = FUN_00456be0((int)*(char *)(param_1 + 0xb1a)), *(char *)(pType + 0x20) == 'A')) {
-        if (param_2 == 0) {
+        switch (param_2) {
+        case 0:
             uVar4 = 0;
             uVar3 = 1;
-        } else if (param_2 == 1 || param_3 == 4 || param_3 == 5) {
+            break;
+        case 1:
             uVar4 = 3;
             uVar3 = 4;
-        } else {
-            uVar4 = 5;
-            uVar3 = 7;
+            break;
+        default:
+            if ((BYTE)param_3 == 4 || (BYTE)param_3 == 5) {
+                uVar4 = 3;
+                uVar3 = 4;
+            } else {
+                uVar4 = 5;
+                uVar3 = 7;
+            }
+            break;
         }
-        switch (param_3) {
+        switch ((BYTE)param_3) {
         case 0:
             i = FUN_004692b0(7, (BYTE *)pParts);
             if (i >= 0) {
@@ -4766,8 +4775,6 @@ void FUN_00468c10(Car *pCar)
     BYTE *pRecord;
     int *p;
     int i;
-    int a;
-    int b;
     int value;
 
     pRecord = g_unk0x00588b94 + pCar->index * 0x4d0;
@@ -4820,9 +4827,9 @@ void FUN_00468c10(Car *pCar)
         if (p[i] > 0x10000)
             p[i] = 0x10000;
     }
-    *(int *)(pRecord + 0x404) = 0x10000 - FixMul(*(int *)(pRecord + 0x2a0), 0x666) -
+    *(int *)(pRecord + 0x404) = 0x10000 - FixMul(*(int *)(pRecord + 0x2a4), 0x2666) -
                                 FixMul(*(int *)(pRecord + 0x27c), 0x1333) -
-                                FixMul(*(int *)(pRecord + 0x2a4), 0x2666);
+                                FixMul(*(int *)(pRecord + 0x2a0), 0x666);
     *(int *)(pRecord + 0x3dc) = FixMul(*(int *)(pRecord + 0x258), FixMul(0x3333, 0xffff0000));
     *(int *)(pRecord + 0x3e0) = FixMul(*(int *)(pRecord + 0x25c), FixMul(0x3333, 0xffff0000));
     *(int *)(pRecord + 0x3e4) = FixMul(*(int *)(pRecord + 0x260), FixMul(0x3333, 0x8000));
@@ -7796,12 +7803,10 @@ void FUN_00465530(void)
     for (wheel = 0; wheel < 8 * 4; wheel++)
         ((int *)g_trailReset)[wheel] = 1;
     for (car = 0; car < 8; car++) {
-        FixVector *pDelta = g_trailDelta[car];
         for (wheel = 0; wheel < 4; wheel++) {
-            pDelta->x = 0;
-            pDelta->y = 0;
-            pDelta->z = 0;
-            pDelta++;
+            g_trailDelta[car][wheel].x = 0;
+            g_trailDelta[car][wheel].y = 0;
+            g_trailDelta[car][wheel].z = 0;
         }
     }
 }
@@ -7884,8 +7889,8 @@ void FUN_004853c0(FixVector *pImpulse)
     scale = FixMul(0x4ccc, random) + 0xb333;
     FixVecScale(&scaled, pImpulse, scale);
     FixMatrix_InverseRotateVector(&local, &scaled, *(FixMatrix **)(((BYTE *)g_unk0x00590d74) + 0x750));
-    g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.x -= local.x;
+    g_unk0x00590b50.y -= local.y;
     g_unk0x00590b50.z -= local.z;
 }
 
@@ -8796,7 +8801,7 @@ void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
         pMatrix[6] = (int)p[1] << 9;
         pMatrix[7] = (int)p[1] << 9;
         pMatrix[8] = 0;
-        pMatrix[9] = p[0] * -0x200;
+        pMatrix[9] = -((int)p[0] << 9);
         pMatrix[2] = p[2] * 0x200 + pOffset[1];
         pMatrix[3] = p[3] * 0x200 + pOffset[1];
         pMatrix[0x25] = (int)pOffset;
@@ -15624,8 +15629,8 @@ void FUN_00466360(void)
         FUN_0047d510();
     pOrder = Car_GetOrder();
     count = Car_GetOrderCount();
-    for (i = 0; i < count; i++, pOrder++) {
-        car = *pOrder;
+    for (i = 0; i < count; i++) {
+        car = pOrder[i];
         FUN_0045a150(0, 0, i);
         FUN_0045a150(0, 1, i);
         FUN_0045b530(0, 0, i);
