@@ -1499,7 +1499,7 @@ void FUN_00450c10(Menu *pMenu)
                       (resY * 10) / 480 + ((resY * 20) / 480) * i + y + Font_GetLineHeight(0),
                       (int *)g_menuFrameColour, 0x11);
     }
-    if (slot > 5) {
+    if (best > 5) {
         if ((BYTE)RallyDataCountryIndex() == 7)
             sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xee));
         else

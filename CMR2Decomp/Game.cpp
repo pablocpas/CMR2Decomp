@@ -860,13 +860,13 @@ void FUN_004d1370(Unk0049c2c0 *p1, BYTE p2)
         src.x = CFrontend::m_unk0x00817ebc->field_0x11c;
         src.y = CFrontend::m_unk0x00817ebc->field_0x11e;
         w = CFrontend::m_unk0x00817ebc->width;
-        h = CFrontend::m_unk0x00817ebc->height;
         src.w = w;
+        h = CFrontend::m_unk0x00817ebc->height;
         src.h = h;
-        dst.w = w;
-        dst.h = h;
         dst.x = (short)((int)(g_pGraphics->resX * 0x140) / 0x280);
         dst.y = (short)((int)(g_pGraphics->resY * 0xf0) / 0x1e0);
+        dst.w = w;
+        dst.h = h;
         dst.x -= w / 2;
         dst.y -= h / 2;
         centre[0] = w / 2;
@@ -1960,18 +1960,9 @@ void FUN_0049bcb0(Menu *pMenu)
     int x;
     int i;
 
-    colourText[3] = 0xff;
-    colourDim[3] = 0xff;
-    colourWhite[0] = 0xff;
-    colourWhite[1] = 0xff;
-    colourWhite[2] = 0xff;
-    colourWhite[3] = 0xff;
-    colourText[0] = 0x4f;
-    colourText[1] = 0x4f;
-    colourText[2] = 0x4f;
-    colourDim[0] = 0x4f;
-    colourDim[1] = 0x4f;
-    colourDim[2] = 0x4f;
+    colourText[0] = 0x4f; colourText[1] = 0x4f; colourText[2] = 0x4f; colourText[3] = 0xff;
+    colourDim[0] = 0x4f; colourDim[1] = 0x4f; colourDim[2] = 0x4f; colourDim[3] = 0xff;
+    colourWhite[0] = 0xff; colourWhite[1] = 0xff; colourWhite[2] = 0xff; colourWhite[3] = 0xff;
 
     cursor = pMenu->cursor;
     Font_DrawText(0, CFrontend::GetTextString(0xf3), (int)(g_pGraphics->resX * 0xf0) / 0x280,
@@ -1985,8 +1976,8 @@ void FUN_0049bcb0(Menu *pMenu)
     }
     line[0] = (short)x;
     line[1] = (short)((int)(g_pGraphics->resY * 0xd7) / 0x1e0);
-    line[3] = 1;
     line[2] = (short)((int)(g_pGraphics->resX * 0xa2) / 0x280);
+    line[3] = 1;
     if (cursor == 0)
         Sprite_FillRect((int)g_pGraphics + 0x150, line, colourWhite, 1);
     else
