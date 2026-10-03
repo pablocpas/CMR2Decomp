@@ -4265,8 +4265,8 @@ void FUN_004918d0(void)
 {
     BYTE ambient[4];
     unsigned short angles[4];
-    FixVector light;
     FixVector position;
+    FixVector light;
     char country;
 
     light.x = 0xff0000;
@@ -4286,11 +4286,13 @@ void FUN_004918d0(void)
     g_stageAmbientNode = Scene_CreateLight(2, 0x10000, 0x10000, 0x10000, &position, (FixAngles *)angles,
                                            (SceneNode *)RallyData_FUN_00411060());
     country = (char)RallyDataCountryIndex();
-    if (country != 3)
-        Scene_SetAmbient(ambient, 1);
-    else
+    if (country == 3) {
         Scene_SetAmbient(ambient, 0);
-    Scene_SetLight(&light, country != 3);
+        Scene_SetLight(&light, 0);
+    } else {
+        Scene_SetAmbient(ambient, 1);
+        Scene_SetLight(&light, 1);
+    }
     g_unk0x00592146 = 0xff;
     g_stageColourAlpha = 0xff;
 }
