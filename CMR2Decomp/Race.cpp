@@ -2179,7 +2179,8 @@ void Sound_FreeAll(void);
 
 void Car_SetDrawnFlag(int, char);
 void FUN_0041c5a0(BYTE, int);
-void FUN_0046cce0(int, int, int, BYTE);
+struct ReplayStream;
+int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car);
 void FUN_00403500(void);
 void FUN_00424640(void);
 int FUN_004582d0(int);
@@ -2320,7 +2321,7 @@ void FUN_0041e5c0(int param1, char param2)
     if (g_unk0x00538110 != 0) {
         g_unk0x00538110 = 0;
         g_unk0x00538114 = 1;
-        FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
+        FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[0], 0, 0, 0);
     }
     if (CGameInfo::FUN_00405d80() == 6)
         Car_SetDrawnFlag(0, -1);
@@ -2410,7 +2411,8 @@ void FUN_0047bdc0(char restart);
 void FUN_00458b80(void);
 void FUN_0044a120(void);
 void FUN_00448100(void);
-void FUN_0046c750(int, int, int);
+struct ReplayStream;
+int FUN_0046c750(ReplayStream *p, int unused, BYTE car);
 int FUN_0040b010(int index);
 BYTE Car_GetDrawnFlag(int index);
 char RallyData_FUN_00408500(BYTE param1);
@@ -2525,12 +2527,12 @@ big:
             FUN_00456b00(*RallyData_GetChampionshipState() >> 12 & 0xf);
     }
     if (CGameInfo::FUN_00405e00() != 0) {
-        FUN_0046c750((int)g_unk0x00537f3c[0], 0, 0);
+        FUN_0046c750((ReplayStream *)g_unk0x00537f3c[0], 0, 0);
         i = 0;
         p = g_unk0x00537f3c + 1;
         do {
             if ((char)FUN_00409cb0(i) != 0)
-                FUN_0046c750((int)*p, 0, FUN_0040b010(i));
+                FUN_0046c750((ReplayStream *)*p, 0, FUN_0040b010(i));
             p++;
             i++;
         } while ((int)p < (int)(g_unk0x00537f3c + 8)); // 0x537f5c in the original
@@ -2541,9 +2543,9 @@ big:
             do {
                 if ((char)Car_GetDrawnFlag(i) == -1) {
                     FUN_0046d2a0((int *)*p);
-                    FUN_0046cce0((int)*p, 0, 0, i);
+                    FUN_0046cce0((ReplayStream *)*p, 0, 0, i);
                 } else {
-                    FUN_0046c750((int)*p, 0, param2);
+                    FUN_0046c750((ReplayStream *)*p, 0, param2);
                 }
                 p++;
                 i++;
@@ -2553,20 +2555,20 @@ big:
                 if (CGameInfo::FUN_00405da0() != 0) {
                     if (i != 0) {
                         FUN_0046d2a0((int *)g_unk0x00537f3c[1]);
-                        FUN_0046cce0((int)g_unk0x00537f3c[1], 0, 0, i);
+                        FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[1], 0, 0, i);
                     } else {
-                        FUN_0046c750((int)g_unk0x00537f3c[i], 0, param2);
+                        FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
                     }
                 } else if ((char)RallyData_FUN_00408500(i) == -1) {
-                    FUN_0046c750((int)g_unk0x00537f3c[i], 0, param2);
+                    FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
                 } else {
                     FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
-                    FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
+                    FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
                 }
             }
         }
     } else {
-        FUN_0046c750((int)g_unk0x00537f3c[index], 0, param2);
+        FUN_0046c750((ReplayStream *)g_unk0x00537f3c[index], 0, param2);
     }
     if ((char)RallyData_FUN_00407ea0() != 0 && (char)CGameInfo::FUN_00406310() != 0) {
         FUN_00466080();
@@ -2904,7 +2906,7 @@ label4:
     g_unk0x00537f08 = 1;
 }
 
-void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
+int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car);
 int FUN_0046d2a0(int *p);
 int FUN_0040b010(int index);
 void View_ResetCameras(int player);
@@ -2918,25 +2920,25 @@ void FUN_0041e220(int player)
 {
     int i;
 
-    FUN_0046cce0((int)g_unk0x00537f3c[(BYTE)player], 0, 0, player);
+    FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[(BYTE)player], 0, 0, player);
     if (CGameInfo::FUN_00405e00()) {
         for (i = 0; i < 7; i++) {
             FUN_0046d2a0((int *)g_unk0x00537f3c[i + 1]);
-            FUN_0046cce0((int)g_unk0x00537f3c[i + 1], 0, 0, FUN_0040b010(i));
+            FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[i + 1], 0, 0, FUN_0040b010(i));
         }
     }
     if (CGameInfo::FUN_00405d80() == 4) {
         for (i = 0; i < 2; i++) {
             if ((char)Car_GetDrawnFlag(i) == -1) {
                 FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
-                FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
+                FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
             }
         }
     } else if ((char)RallyData_GetFlag25() && CGameInfo::FUN_00405e00() == 0) {
         for (i = 0; i < ((char)RallyData_FUN_00407ea0() ? 1 : 2); i++) {
             if (RallyData_FUN_00408500((BYTE)i) != -1 || (CGameInfo::FUN_00405da0() && i == 1)) {
                 FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
-                FUN_0046cce0((int)g_unk0x00537f3c[i], 0, 0, i);
+                FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
             }
         }
     }
@@ -2992,7 +2994,7 @@ void FUN_0041e350(int param1, unsigned int param2)
             View_SwitchCamera(0, 7, 0xffff, FUN_00422fb0(0), 0);
             g_unk0x00538118 = 1;
             FUN_0046d2a0((int *)g_unk0x00537f3c[0]);
-            FUN_0046cce0((int)g_unk0x00537f3c[0], 0, 0, 0);
+            FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[0], 0, 0, 0);
         }
         if (*(int *)(g_unk0x00537f3c[0] + 4) == 0) {
             FUN_00480380();
@@ -5331,7 +5333,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
                         FUN_004660a0((int **)g_unk0x00537f3c, 0, 0);
                     }
                 }
-                FUN_0046c750((int)g_unk0x00537f3c[0], 0, 0);
+                FUN_0046c750((ReplayStream *)g_unk0x00537f3c[0], 0, 0);
                 if (CGameInfo::FUN_00406310() != 0)
                     FUN_00466030(0, 0);
             }

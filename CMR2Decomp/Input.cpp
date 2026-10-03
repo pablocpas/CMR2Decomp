@@ -1420,7 +1420,7 @@ DWORD CInput::FUN_0040be30(unsigned int param1)
 }
 
 // FUNCTION: CMR2 0x0040be60
-DWORD CInput::FUN_0040be60(unsigned int param1)
+DWORD CInput::FUN_0040be60(unsigned short param1)
 {
     return m_controllerInfo[m_unk0x005168f4[(unsigned short)param1]].field_0x124;
 }
