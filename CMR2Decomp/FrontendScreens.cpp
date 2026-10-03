@@ -9024,8 +9024,7 @@ void FUN_004e48b0(Menu *pMenu)
 
     g_unk0x008189a8[3] = 1;
     y = (int)(g_pGraphics->resY * 0x13) / 0x1e0 + (int)(g_pGraphics->resY * 200) / 0x1e0;
-    pBase = RallyData_FUN_00408cb0(0);
-    if ((pBase[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) != 0) {
+    if ((RallyData_FUN_00408cb0(0)[(pMenu->cursor * 3 + 4 + mode) * 0xc] & 0x80) != 0) {
         pEntry = RallyData_FUN_00408cb0(0) + 0x34 + (mode + pMenu->cursor * 3) * 0xc;
         pFlags = (unsigned int *)(RallyData_FUN_00408cb0(0) +
                                   (pMenu->cursor * 3 + 4 + mode) * 0xc);

@@ -2580,13 +2580,14 @@ void Graphics_ReloadAllTextures(void)
 
 // Whether a 2D point lies inside a triangle (x0, y0, x1, y1, x2, y2), all
 // 16.16; the edge tests work on values scaled by 0.01 to avoid overflow.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0049da50
 int Tri2D_Contains(int *pPoint, int *pTri)
 {
-    int d0, d1, d2, d3, d4, d5;
-    int ey0, ex0, ey1, ex1, ey2, ex2;
-    int px0, py0, px1, py1, px2, py2;
+    int normal[3][2];
+    int edge[3][2];
+    int side0;
+    int side1;
+    int side2;
 
     if ((pPoint[0] < pTri[0] && pPoint[0] < pTri[2] && pPoint[0] < pTri[4]) ||
         (pPoint[0] > pTri[0] && pPoint[0] > pTri[2] && pPoint[0] > pTri[4]))
@@ -2594,26 +2595,28 @@ int Tri2D_Contains(int *pPoint, int *pTri)
     if ((pPoint[1] < pTri[1] && pPoint[1] < pTri[3] && pPoint[1] < pTri[5]) ||
         (pPoint[1] > pTri[1] && pPoint[1] > pTri[3] && pPoint[1] > pTri[5]))
         return 0;
-    d0 = pTri[2] - pTri[0];
-    d1 = pTri[3] - pTri[1];
-    d2 = pTri[4] - pTri[2];
-    d3 = pTri[5] - pTri[3];
-    d4 = pTri[0] - pTri[4];
-    d5 = pTri[1] - pTri[5];
-    ey0 = FixMul(d1, 0x28f);
-    ex0 = FixMul(d0, 0x28f);
-    ey1 = FixMul(d3, 0x28f);
-    ex1 = FixMul(d2, 0x28f);
-    ey2 = FixMul(d5, 0x28f);
-    ex2 = FixMul(d4, 0x28f);
-    px0 = FixMul(pPoint[0] - pTri[0], 0x28f);
-    py0 = FixMul(pPoint[1] - pTri[1], 0x28f);
-    px1 = FixMul(pPoint[0] - pTri[2], 0x28f);
-    py1 = FixMul(pPoint[1] - pTri[3], 0x28f);
-    px2 = FixMul(pPoint[0] - pTri[4], 0x28f);
-    py2 = FixMul(pPoint[1] - pTri[5], 0x28f);
-    if (FixMul(px0, ey0) + FixMul(py0, -ex0) >= 0 && FixMul(px1, ey1) + FixMul(py1, -ex1) >= 0 &&
-        FixMul(px2, ey2) + FixMul(py2, -ex2) >= 0)
+    edge[0][0] = pTri[2] - pTri[0];
+    edge[0][1] = pTri[3] - pTri[1];
+    edge[1][0] = pTri[4] - pTri[2];
+    edge[1][1] = pTri[5] - pTri[3];
+    edge[2][0] = pTri[0] - pTri[4];
+    edge[2][1] = pTri[1] - pTri[5];
+    normal[0][0] = FixMul(edge[0][1], 0x28f);
+    normal[0][1] = -FixMul(edge[0][0], 0x28f);
+    normal[1][0] = FixMul(edge[1][1], 0x28f);
+    normal[1][1] = -FixMul(edge[1][0], 0x28f);
+    normal[2][0] = FixMul(edge[2][1], 0x28f);
+    normal[2][1] = -FixMul(edge[2][0], 0x28f);
+    edge[0][0] = FixMul(pPoint[0] - pTri[0], 0x28f);
+    edge[0][1] = FixMul(pPoint[1] - pTri[1], 0x28f);
+    edge[1][0] = FixMul(pPoint[0] - pTri[2], 0x28f);
+    edge[1][1] = FixMul(pPoint[1] - pTri[3], 0x28f);
+    edge[2][0] = FixMul(pPoint[0] - pTri[4], 0x28f);
+    edge[2][1] = FixMul(pPoint[1] - pTri[5], 0x28f);
+    side0 = FixMul(edge[0][0], normal[0][0]) + FixMul(edge[0][1], normal[0][1]);
+    side1 = FixMul(edge[1][0], normal[1][0]) + FixMul(edge[1][1], normal[1][1]);
+    side2 = FixMul(edge[2][0], normal[2][0]) + FixMul(edge[2][1], normal[2][1]);
+    if (side0 >= 0 && side1 >= 0 && side2 >= 0)
         return 1;
     return 0;
 }

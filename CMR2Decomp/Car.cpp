@@ -1249,12 +1249,10 @@ void Car_UpdateBodyMatrix(void)
     FIX_NORMALIZE_INTO(right, right)
     FixVecCross(&forward, &right, &world);
     FIX_NORMALIZE_INTO(forward, forward)
-    {
-        int lift = FixMul(0x8000, frontAvg + rearAvg);
-        a.x = FixMul(g_pCurrentCar->up.x, lift) + g_pCurrentCar->position.x;
-        a.y = FixMul(g_pCurrentCar->up.y, lift) + g_pCurrentCar->position.y;
-        a.z = FixMul(g_pCurrentCar->up.z, lift) + g_pCurrentCar->position.z;
-    }
+    FixVecScale(&a, &g_pCurrentCar->up, FixMul(0x8000, frontAvg + rearAvg));
+    a.x += g_pCurrentCar->position.x;
+    a.y += g_pCurrentCar->position.y;
+    a.z += g_pCurrentCar->position.z;
     FixMatrix_SetRight(&right, g_pCurrentCar->pBodyMatrix);
     FixMatrix_SetUp(&up, g_pCurrentCar->pBodyMatrix);
     FixMatrix_SetForward(&forward, g_pCurrentCar->pBodyMatrix);
