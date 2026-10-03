@@ -297,8 +297,6 @@ void FUN_00493890(void)
         gear = g_pAutoGearCar->gear;
         if (gear < 6) {
             int amount;
-            int x;
-            int z;
             int difference;
 
             g_pAutoGearCar->field_0xb20 = gear + 1;
@@ -312,12 +310,10 @@ void FUN_00493890(void)
                     amount = 0;
 
                 threshold = FixMul(amount, 0x4ccc);
-                x = g_pAutoGearCar->corners[0].x;
-                z = g_pAutoGearCar->corners[0].z;
-                if (FIX_ABS(x) - FIX_ABS(z) < 0)
-                    difference = FIX_ABS(z) - FIX_ABS(x);
+                if (FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z) < 0)
+                    difference = -(FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z));
                 else
-                    difference = FIX_ABS(x) - FIX_ABS(z);
+                    difference = FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z);
                 if ((difference % 0x401) * 0x40 < threshold) {
                     if (g_pAutoGearCar->field_0xb20 < 6) {
                         g_pAutoGearCar->field_0xb20++;
@@ -782,13 +778,12 @@ void FUN_00492e60(int *pRGB)
     else if (g < 0)
         g = 0;
     b = FixMul(pRGB[2], 0x106);
-    if (b > 0x10000) {
-        Scene_SetLightColour(g_stageAmbientNode, r, g, 0x10000);
-        return;
-    }
-    if (b < 0)
+    if (b > 0x10000)
+        b = 0x10000;
+    else if (b < 0)
         b = 0;
     Scene_SetLightColour(g_stageAmbientNode, r, g, b);
+    return;
 }
 
 // Pushes the vertex colours of every recoloured stage mesh.
@@ -1048,9 +1043,9 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
         if (g_stageHeightSamples[i] < height) {
             float *vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
-            if ((int)(__int64)((double)vertex[0] * CGraphics::m_65536) != g_unk0x00592114.x ||
-                (int)(__int64)((double)vertex[1] * CGraphics::m_65536) != g_unk0x00592114.y ||
-                (int)(__int64)((double)vertex[2] * CGraphics::m_65536) != g_unk0x00592114.z)
+            if (g_unk0x00592114.x != (int)(__int64)((double)vertex[0] * CGraphics::m_65536) ||
+                g_unk0x00592114.y != (int)(__int64)((double)vertex[1] * CGraphics::m_65536) ||
+                g_unk0x00592114.z != (int)(__int64)((double)vertex[2] * CGraphics::m_65536))
                 vertex[1] = (float)((double)height * CGraphics::m_oneOver65536);
         }
     }
