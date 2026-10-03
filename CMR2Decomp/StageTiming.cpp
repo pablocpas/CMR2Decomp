@@ -2192,7 +2192,7 @@ void StageDeform_ClampVertex(int *pPosition, int meshIndex, int vertexIndex, int
     x = (pPosition[0] - base.x) >> 6;
     y = (pPosition[1] - base.y) >> 6;
     z = (pPosition[2] - base.z) >> 6;
-    if ((x >= 1 && (signed char)pLimit[0x1b] <= 0) || (x < 0 && (signed char)pLimit[0x1b] >= 0))
+    if ((x > 0 && (signed char)pLimit[0x1b] <= 0) || (x < 0 && (signed char)pLimit[0x1b] >= 0))
         x = 0;
     if ((y > 0 && (signed char)pLimit[0x1c] <= 0) || (y < 0 && (signed char)pLimit[0x1c] >= 0))
         y = 0;
@@ -8915,6 +8915,7 @@ void FUN_004561e0(int *pTimes)
 {
     int *pDeltas;
     int n;
+    int i;
     int *pSplit;
     char *pOrder;
 
@@ -8927,11 +8928,13 @@ void FUN_004561e0(int *pTimes)
     if (n >= 0) {
         pSplit = g_stageSplitTimesRaw[0];
         pOrder = g_stageSplitTimesRawDriverIx[0];
-        for (n = n + 1; n != 0; n--) {
+        i = n + 1;
+        do {
             RallyTiming_SortOrder(pSplit, pOrder, 1, g_unk0x00541f98, 1);
             pOrder += 0x10;
             pSplit += 0x10;
-        }
+            i--;
+        } while (i != 0);
     }
     CFileBuffer::FreeGenericFileBuffer(pDeltas);
 }
