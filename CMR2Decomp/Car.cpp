@@ -3542,7 +3542,7 @@ void Car_SetDrawnFlag(int index, char value)
     g_unk0x0053acc8[index] = value;
 }
 
-void FUN_00487140(int *param_1, int *param_2, int *param_3, int *param_4);
+void FUN_00487140(FixVector *pCorners, FixVector *pCenter, FixMatrix *pRot, FixVector *pHalf);
 
 void FUN_00427890(void);
 void FUN_0046c8e0(void);
@@ -3750,8 +3750,8 @@ void Car_ResetRenderTransforms(void)
         memcpy(&g_carTransformsShadow[car], g_unk0x0053a3a8[car], 0xfc);
         memcpy(&g_carTransforms[car], g_unk0x0053a3a8[car], 0xfc);
         FixMatrix_GetPosition(&position, (FixMatrix *)g_unk0x0053a3a8[car]);
-        FUN_00487140((int *)g_unk0x0053c5a0[car], (int *)&position, (int *)g_unk0x0053a3a8[car],
-                     (int *)&g_carBuffer[car].halfExtents);
+        FUN_00487140((FixVector *)g_unk0x0053c5a0[car], &position, (FixMatrix *)g_unk0x0053a3a8[car],
+                     &g_carBuffer[car].halfExtents);
     }
 }
 
@@ -3919,8 +3919,8 @@ void Car_InterpolateRenderTransforms(void)
                 pTrans->cornerHeight[k] =
                     FixMul(pShadow->cornerHeight[k] - pRow->cornerHeight[k], scale) + pRow->cornerHeight[k];
             FixMatrix_GetPosition(&position, (FixMatrix *)pTrans);
-            FUN_00487140((int *)((BYTE *)g_unk0x0053c5a0 + car * 0x60), (int *)&position,
-                         (int *)pTrans, (int *)&g_carBuffer[car].halfExtents);
+            FUN_00487140((FixVector *)((BYTE *)g_unk0x0053c5a0 + car * 0x60), &position,
+                         (FixMatrix *)pTrans, &g_carBuffer[car].halfExtents);
             pOrder--;
         } while (--i != 0);
     }

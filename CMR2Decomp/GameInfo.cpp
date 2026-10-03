@@ -964,7 +964,15 @@ void CGameInfo::FUN_00406580(void) {
             } 
         }
 
-        if (uVar5 % 2 != 0) {
+        uVar2 = uVar5;
+        uVar2 = uVar2 & 0x80000001;
+
+        if (uVar2 < 0) {
+            uVar2 = (uVar2 - 1) | 0xfffffffe;
+            uVar2++;
+        }
+
+        if (uVar2) {
             uVar2 = 1 << (((uVar5 + 1) / 2 - 1) & 0x1f);
 
             if (((((uVar2 & m_gameInfo.field_0xa0 & 0x1f) != 0) ||

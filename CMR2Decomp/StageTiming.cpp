@@ -6910,9 +6910,7 @@ void FUN_00483100(int *param_1, unsigned int param_2)
     int sel = g_unk0x00590c24[PARTSTATE->field_0x150 >> 4][*(char *)(CARBYTES + 0xb1a)];
     FixVector pos;
     FixVector offset;
-    FixVector axis;
-    FixVector normal;
-    FixVector dir;
+    FixVector debrisAxes[3];
     int len;
 
     if (StageObject_IsEligibleType(*(short *)(CARBYTES + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
@@ -6930,16 +6928,16 @@ void FUN_00483100(int *param_1, unsigned int param_2)
         FixMatrix_RotateVector(&offset, &pos, *(FixMatrix **)(CARBYTES + 0x750));
         len = FixVecLength((FixVector *)param_1);
         if (len > 0) {
-            FixVecScaleRecip(&dir, (FixVector *)param_1, -len);
+            FixVecScaleRecip(&debrisAxes[0], (FixVector *)param_1, -len);
             len = FixMul(len, 0x50000);
             if (len > 0x10000)
                 len = 0x10000;
             else if (len <= 0x3333)
                 return;
-            normal = *(FixVector *)(CARBYTES + 0x48c);
-            FixVecCross(&axis, &dir, &normal);
-            Motion_NormalizeInto(&axis, &axis);
-            Car_SpawnDebris(len, &offset, (Car *)CARBYTES, &dir, 0x40000, 0x6666);
+            debrisAxes[1] = *(FixVector *)(CARBYTES + 0x48c);
+            FixVecCross(&debrisAxes[2], &debrisAxes[0], &debrisAxes[1]);
+            Motion_NormalizeInto(&debrisAxes[2], &debrisAxes[2]);
+            Car_SpawnDebris(len, &offset, (Car *)CARBYTES, &debrisAxes[0], 0x40000, 0x6666);
         }
     }
 }

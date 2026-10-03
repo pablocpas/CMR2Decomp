@@ -225,7 +225,7 @@
   },
   "0x432cc0": {
     "n": "Car_UpdateBodyMatrix",
-    "s": 0.6722595078299777,
+    "s": 0.7776536312849162,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1503,7 +1503,7 @@
   },
   "0x489750": {
     "n": "Collision_CarVsBox",
-    "s": 0.593192868719611,
+    "s": 0.9873417721518988,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
@@ -1527,7 +1527,7 @@
   },
   "0x48ae90": {
     "n": "FUN_0048ae90",
-    "s": 0.7226013649136893,
+    "s": 0.8710968775020016,
     "x": false,
     "unknown": [],
     "f": "Collision2D.cpp",
@@ -6711,8 +6711,8 @@
   },
   "0x4e48b0": {
     "n": "FUN_004e48b0",
-    "s": 0.9842584921292461,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004e48b0"
@@ -11265,8 +11265,8 @@
   },
   "0x5034f0": {
     "n": "FUN_005034f0",
-    "s": 0.3831417624521073,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_005034f0"
@@ -11441,7 +11441,7 @@
   },
   "0x50a920": {
     "n": "FUN_0050a920",
-    "s": 0.8857566765578635,
+    "s": 0.8798219584569733,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11529,7 +11529,7 @@
   },
   "0x503010": {
     "n": "FUN_00503010",
-    "s": 0.6846275752773375,
+    "s": 0.7387944358578052,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -12900,7 +12900,7 @@
   },
   "0x49da50": {
     "n": "Tri2D_Contains",
-    "s": 0.5347043701799485,
+    "s": 0.9156010230179028,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -16133,11 +16133,9 @@
   },
   "0x425c40": {
     "n": "FUN_00425c40",
-    "s": 0.5412186379928315,
+    "s": 0.5556544968833482,
     "x": false,
-    "unknown": [
-      "__real@4@4002a000000000000000"
-    ],
+    "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00425c40"
   },
@@ -20991,7 +20989,7 @@
   },
   "0x460a30": {
     "n": "FUN_00460a30",
-    "s": 0.7204301075268817,
+    "s": 0.9433962264150944,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -21559,8 +21557,8 @@
   },
   "0x47fcb0": {
     "n": "StageObject_SpawnDebris",
-    "s": 0.45609065155807366,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "StageObject_SpawnDebris"
@@ -22143,7 +22141,7 @@
   },
   "0x464cb0": {
     "n": "StageObject_UpdateSkidTrails",
-    "s": 0.3946750195771339,
+    "s": 0.831306990881459,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22503,8 +22501,8 @@
   },
   "0x46e340": {
     "n": "FUN_0046e340",
-    "s": 0.8135593220338984,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046e340"
@@ -22887,7 +22885,7 @@
   },
   "0x47f510": {
     "n": "FUN_0047f510",
-    "s": 0.71,
+    "s": 0.7188264058679706,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22943,7 +22941,7 @@
   },
   "0x487140": {
     "n": "FUN_00487140",
-    "s": 0.44569288389513106,
+    "s": 0.7868217054263565,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23191,15 +23189,15 @@
   },
   "0x476e00": {
     "n": "FUN_00476e00",
-    "s": 0.40392706872370265,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_00476e00"
   },
   "0x46a500": {
     "n": "FUN_0046a500",
-    "s": 0.549663928304705,
+    "s": 0.7522388059701492,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23223,7 +23221,7 @@
   },
   "0x46de20": {
     "n": "FUN_0046de20",
-    "s": 0.5647058823529412,
+    "s": 0.7958477508650519,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23287,8 +23285,8 @@
   },
   "0x469e40": {
     "n": "FUN_00469e40",
-    "s": 0.5615686274509804,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_00469e40"
@@ -23367,7 +23365,7 @@
   },
   "0x488640": {
     "n": "FUN_00488640",
-    "s": 0.4693295292439372,
+    "s": 0.4825124910778016,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23375,7 +23373,7 @@
   },
   "0x48e730": {
     "n": "FUN_0048e730",
-    "s": 0.41553202218860313,
+    "s": 0.41654059505799296,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23551,7 +23549,7 @@
   },
   "0x487f60": {
     "n": "FUN_00487f60",
-    "s": 0.41334569045412417,
+    "s": 0.8879384088964928,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23591,7 +23589,7 @@
   },
   "0x47e4d0": {
     "n": "Fireworks_Init",
-    "s": 0.7496463932107497,
+    "s": 0.8161559888579387,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23663,7 +23661,7 @@
   },
   "0x47f740": {
     "n": "Fireworks_Draw",
-    "s": 0.39847715736040606,
+    "s": 0.8274111675126904,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25473,8 +25471,8 @@
   },
   "0x483100": {
     "n": "FUN_00483100",
-    "s": 0.8932291666666666,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00483100"
@@ -26449,7 +26447,7 @@
   },
   "0x48fb80": {
     "n": "FUN_0048fb80",
-    "s": 0.7227414330218068,
+    "s": 0.7615526802218114,
     "x": false,
     "unknown": [],
     "f": "VehiclePhysics.cpp",

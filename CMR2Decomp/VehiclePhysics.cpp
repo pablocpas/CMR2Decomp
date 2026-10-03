@@ -566,9 +566,7 @@ extern int g_unk0x0051fb00[52];
 // FUNCTION: CMR2 0x0048fb80
 int FUN_0048fb80(char type, int param)
 {
-    FixVector planeDir;
-    FixVector normal;
-    BYTE axes[12];
+    FixVector debrisAxes[3];
     FixVector perp;
     FixVector delta;
     FixVector velDiff;
@@ -723,29 +721,29 @@ noSlide:
 
 skipReflect:
     dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_collisionDirection);
-    FixVecScale(&planeDir, &g_collisionDirection, dot);
-    planeDir.x = *(int *)((BYTE *)g_collisionCar + 0x408) - planeDir.x;
-    planeDir.y = *(int *)((BYTE *)g_collisionCar + 0x40c) - planeDir.y;
-    planeDir.z = *(int *)((BYTE *)g_collisionCar + 0x410) - planeDir.z;
+    FixVecScale(&debrisAxes[0], &g_collisionDirection, dot);
+    debrisAxes[0].x = *(int *)((BYTE *)g_collisionCar + 0x408) - debrisAxes[0].x;
+    debrisAxes[0].y = *(int *)((BYTE *)g_collisionCar + 0x40c) - debrisAxes[0].y;
+    debrisAxes[0].z = *(int *)((BYTE *)g_collisionCar + 0x410) - debrisAxes[0].z;
     if (type != 2 && type != 0xe && type != 0xf && type != 0x12)
         return 1;
 
-    len = FixVecLength(&planeDir);
+    len = FixVecLength(&debrisAxes[0]);
     if (len <= 0x8000)
         return 1;
     tangentLen = len;
-    FixVecScaleRecip(&planeDir, &planeDir, -len);
-    FixVecCross(&normal, &planeDir, &g_collisionDirection);
-    len = FixVecLength(&normal);
+    FixVecScaleRecip(&debrisAxes[0], &debrisAxes[0], -len);
+    FixVecCross(&debrisAxes[1], &debrisAxes[0], &g_collisionDirection);
+    len = FixVecLength(&debrisAxes[1]);
     if (len == 0) {
-        normal.x = 0;
-        normal.y = 0;
-        normal.z = 0;
+        debrisAxes[1].x = 0;
+        debrisAxes[1].y = 0;
+        debrisAxes[1].z = 0;
     } else {
-        FixVecScaleRecip(&normal, &normal, len);
+        FixVecScaleRecip(&debrisAxes[1], &debrisAxes[1], len);
     }
 
-    memcpy(axes, &g_collisionDirection, sizeof(FixVector));
+    debrisAxes[2] = g_collisionDirection;
     delta.x = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].x -
               g_collisionCar->position.x;
     delta.y = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].y -
@@ -757,7 +755,7 @@ skipReflect:
     if (tangentLen > 0x10000)
         tangentLen = 0x10000;
     if (*(int *)((BYTE *)g_collisionCar + 0xb70) == 0)
-        Car_SpawnDebris(tangentLen, &delta, g_collisionCar, &planeDir, 0x90000, 0x6666);
+        Car_SpawnDebris(tangentLen, &delta, g_collisionCar, &debrisAxes[0], 0x90000, 0x6666);
     return 1;
 finish:
     return result;

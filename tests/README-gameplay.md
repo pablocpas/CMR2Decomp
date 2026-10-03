@@ -55,6 +55,8 @@ Ejecutar cada prueba con `python3 tests/differential_<nombre>.py
 | exhaust_particles | 6144 | Ciclos completos de partículas de escape y libres: simulación, interpolación, posición de dibujo, callbacks, guardas y cuatro modos x87 |
 | car_preview_load | 96 | Carga de variantes del coche, las cuatro ruedas, búsquedas reales en árboles de escena y alfa de luces; rechaza búsquedas en datos sin convertir |
 | sector_visibility | 1950 | Diez niveles de detalle, sectores, distancias y flags con raíces inicializadas, cámaras en bordes/interior, grillas desplazadas y distintos planos lejanos |
+| debris_frames | 288 | Los tres ejes completos de escombros en impactos, choques entre coches y piezas, posiciones, memoria con guardas y ABI; el cuarto llamador se comprueba en surface_collision |
+| unlock_flags | 512 | Ocho filas de flags de desbloqueo, columna par/impar, estado adyacente intacto y modelo de bytes independiente; ningún helper controlado |
 
 Las pruebas controlan los proveedores de selección, ruta, geometría y las
 operaciones finales de dibujo/impulso que se especifican en cada script. La
@@ -63,7 +65,7 @@ fixtures válidos; no sustituyen una partida real ni prueban toda la física,
 todos los archivos de instalación o todos los estados del juego.
 
 `tests/logic-targets.json` registra las entradas principales comprobadas por los
-74 harnesses disponibles. El proveedor final de triángulo más cercano de
+76 harnesses disponibles. El proveedor final de triángulo más cercano de
 `track_geometry` y las consultas de juego/secuencia/progreso de `net_car_state`
 están controlados: esas funciones proveedoras no se cuentan como validadas.
 `event_draw_abi` no comprueba las ramas de dibujo activo. En `replay_snapshot`,

@@ -137,6 +137,14 @@
       "0x494bb0"
     ]
   },
+  "differential_debris_frames.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46a500",
+      "0x48ae90",
+      "0x483100"
+    ]
+  },
   "differential_effect_calls.py": {
     "arguments": "both",
     "targets": [
@@ -496,6 +504,12 @@
     "targets": [
       "0x489060",
       "0x491550"
+    ]
+  },
+  "differential_unlock_flags.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x406580"
     ]
   }
 }

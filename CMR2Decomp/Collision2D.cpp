@@ -868,9 +868,7 @@ void FUN_0048ae90(int param_1, int param_2)
     FixVector impA;
     FixVector impB;
     FixVector axis;
-    FixVector tangent;
-    FixVector side;
-    FixVector normal;
+    FixVector debrisAxes[3];
     int dotA;
     int dotB;
     int bounce;
@@ -899,7 +897,7 @@ void FUN_0048ae90(int param_1, int param_2)
     vB.y += *(int *)(param_2 + 0x40c);
     vB.z += *(int *)(param_2 + 0x410);
 
-    // Mass-weighted common velocity along the normal; the restitution term
+    // Mass-weighted common velocity along the debrisAxes[2]; the restitution term
     // is zero in the shipped game.
     dotA = FixVecDot(&vA, &g_unk0x005915e8);
     dotB = FixVecDot(&vB, &g_unk0x005915e8);
@@ -1004,10 +1002,10 @@ void FUN_0048ae90(int param_1, int param_2)
     tmp.y = vA.y - vB.y;
     tmp.z = vA.z - vB.z;
     d = FixVecDot(&tmp, &g_unk0x005915e8);
-    FixVecScale(&tangent, &g_unk0x005915e8, d);
-    tangent.x = tmp.x - tangent.x;
-    tangent.y = tmp.y - tangent.y;
-    tangent.z = tmp.z - tangent.z;
+    FixVecScale(&debrisAxes[0], &g_unk0x005915e8, d);
+    debrisAxes[0].x = tmp.x - debrisAxes[0].x;
+    debrisAxes[0].y = tmp.y - debrisAxes[0].y;
+    debrisAxes[0].z = tmp.z - debrisAxes[0].z;
 
     if (CGameInfo::FUN_004063f0(4) != 0) {
         *(int *)(param_1 + 0x5c4) -= impA.x;
@@ -1024,19 +1022,19 @@ void FUN_0048ae90(int param_1, int param_2)
         *(int *)(param_2 + 0x410) += impB.z * 2;
     }
 
-    d = FixVecLength(&tangent);
+    d = FixVecLength(&debrisAxes[0]);
     if (d > 0x3333) {
-        FixVecScaleRecip(&tangent, &tangent, -d);
-        FixVecCross(&side, &tangent, &g_unk0x005915e8);
-        len = FixVecLength(&side);
+        FixVecScaleRecip(&debrisAxes[0], &debrisAxes[0], -d);
+        FixVecCross(&debrisAxes[1], &debrisAxes[0], &g_unk0x005915e8);
+        len = FixVecLength(&debrisAxes[1]);
         if (len == 0) {
-            side.x = 0;
-            side.y = 0;
-            side.z = 0;
+            debrisAxes[1].x = 0;
+            debrisAxes[1].y = 0;
+            debrisAxes[1].z = 0;
         } else {
-            FixVecScaleRecip(&side, &side, len);
+            FixVecScaleRecip(&debrisAxes[1], &debrisAxes[1], len);
         }
-        normal = g_unk0x005915e8;
+        debrisAxes[2] = g_unk0x005915e8;
 
         if (g_unk0x005915f4 != 0) {
             FixVector *pContact = &g_pContacts0x005915e0[g_unk0x005914c4[0] + 4];
@@ -1065,8 +1063,8 @@ void FUN_0048ae90(int param_1, int param_2)
         if (size > 0x10000)
             size = 0x10000;
         if (*(int *)(param_1 + 0xb70) == 0 && *(int *)(param_2 + 0xb70) == 0) {
-            Car_SpawnDebris(size, &impA, (Car *)param_1, &tangent, 0x90000, 0x6666);
-            Car_SpawnDebris(size, &impB, (Car *)param_2, &tangent, 0x90000, 0x6666);
+            Car_SpawnDebris(size, &impA, (Car *)param_1, &debrisAxes[0], 0x90000, 0x6666);
+            Car_SpawnDebris(size, &impB, (Car *)param_2, &debrisAxes[0], 0x90000, 0x6666);
         }
     }
 }

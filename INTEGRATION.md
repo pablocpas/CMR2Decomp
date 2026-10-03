@@ -160,3 +160,30 @@ Pass 3 (recovery wave after the agent stop) merges in `5e602d6`: Main rebuilds t
 **2656 byte-exact / 707 pending**, 0 losses versus pass 2, 0 data issues and 71/71
 differential harnesses. A successor wave resumed the stopped worktrees, preserving or
 reverting their uncommitted pending edits.
+
+## Match3 integration and debris-frame fixes (2026-10-03)
+
+Integrated `decomp/match3` through `67f6cc7` (six new commits), keeping main's
+function names and split-HUD, preview-loading, exhaust and sector-visibility
+fixes. The final matching build has **2685/3363 byte-exact functions (+7),
+678 pending, zero exact losses and zero global-data issues** against `fe4bca3`.
+New exact entries: `0x4e48b0`, `0x5034f0`, `0x47fcb0`, `0x46e340`,
+`0x476e00`, `0x469e40` and `0x483100`.
+
+Checking the complete 36-byte frame passed to `Car_SpawnDebris` reproduced
+incorrect adjacent-stack reads in `0x46a500`, `0x48fb80`, `0x48ae90` and
+`0x483100`. Each now uses three contiguous vectors in the original order.
+The surface-contact regression now reads all three vectors, and the new debris
+regression checks the other three callers. The signed remainder expansion in
+`0x406580` keeps its increment inside the negative branch, preserving the
+agent's parity correction and main's exact language loader at `0x4f4b90`.
+
+The 74-harness suite passed on the initial integration before the debris-frame
+corrections. Targeted checks after those corrections passed 288 debris-call
+fixtures (176 spawns), 208 surface contacts and 512 unlock-flag/model fixtures;
+a separate audit compared 256 complete oriented-box constructions. The final
+build, symbols, matching reports and source hashes agree. **The expanded full
+76-harness suite remains pending**: work was stopped at the user's request
+before running it. `build/windowed/CMR2.exe` still contains the previous
+validated gameplay fixes, without this match3/debris integration; rebuild it
+before testing the new changes interactively.
