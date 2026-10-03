@@ -554,12 +554,13 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 // FUNCTION: CMR2 0x00427b70
 unsigned int FUN_00427b70(int value, int *pCurve)
 {
-    int range = pCurve[2] - pCurve[1];
+    int range;
     int index;
     int step;
     int frac;
 
     value -= pCurve[1];
+    range = pCurve[2] - pCurve[1];
     index = (pCurve[0] * value) / range;
     step = range / pCurve[0];
     if (step > 0) {
