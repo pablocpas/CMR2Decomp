@@ -1923,7 +1923,7 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
 
     if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
         g_unk0x00527000 = 0;
-        if ((int)(RallyDataStageIndex() & 0xff) % 4 == 0)
+        if ((int)RallyDataStageIndex() % 4 == 0)
             g_unk0x00527000 = 1;
     } else {
         g_unk0x00527000 = 1;
@@ -2750,8 +2750,9 @@ void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
             minY = 0x640000;
             minX = 0x640000;
             for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
-                pVertex = &((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i];
-                x = (int)(__int64)(pVertex->x * CGraphics::m_65536);
+                x = (int)(__int64)(((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+                pVertex = ((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData) + i;
                 y = (int)(__int64)(pVertex->y * CGraphics::m_65536);
                 z = (int)(__int64)(pVertex->z * CGraphics::m_65536);
                 if (x > maxX)
@@ -3155,11 +3156,12 @@ BYTE FUN_004f4b90(void)
         g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::FUN_004d21c0(i), CFrontend::m_stringDest,
                                                         &g_languageTextInArchive[i], NULL, 0);
     }
-    if (g_languageTexts[0] == NULL)
-        return 0;
-    CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
-    CGame::RegisterCallback(FUN_004f4cc0, NULL);
-    return 1;
+    if (g_languageTexts[0] != NULL) {
+        CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
+        CGame::RegisterCallback(FUN_004f4cc0, NULL);
+        return 1;
+    }
+    return 0;
 }
 
 // Loads the four frontend fonts from the frontend archive.
@@ -4535,8 +4537,6 @@ void FUN_00427c10(void);
 // FUNCTION: CMR2 0x00401420
 void FUN_00401420(Menu *pMenu, char cancel)
 {
-    int rate;
-
     if (cancel != 0) {
         CGameInfo::FUN_00405e10(g_unk0x00529ecc);
         CGameInfo::FUN_00405e50(g_unk0x0052a488);
@@ -4547,8 +4547,7 @@ void FUN_00401420(Menu *pMenu, char cancel)
         if (FUN_004174d0())
             CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
     }
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     FUN_00427c10();
 }
 
@@ -4945,7 +4944,7 @@ void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
     }
     if (pRec->field_0xc == 1) {
         len = (int)strlen(text);
-        count = FixMulShift32(pRec->field_0x0, len << 16);
+        count = FixMulShift32(len << 16, pRec->field_0x0);
         for (i = 0; i < count; i++)
             g_unk0x0082b1c0[i] = text[i];
         g_unk0x0082b1c0[count] = 0;
@@ -7512,16 +7511,16 @@ void FUN_00506080(int param1)
                 }
                 return;
             }
-            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
                 for (i = 0; i < 4; i++) {
-                    if (CB78_MESH(off + 0x24 + i * 4) != 0)
-                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
+                    if (CB78_MESH(off + 0x34 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
                 }
                 return;
             }
             for (i = 0; i < 4; i++) {
-                if (CB78_MESH(off + 0x34 + i * 4) != 0)
-                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
+                if (CB78_MESH(off + 0x24 + i * 4) != 0)
+                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
             }
             return;
         }
@@ -7532,13 +7531,13 @@ void FUN_00506080(int param1)
                 pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
                 for (k = 0; k < pMesh->triangleCount; k++) {
                     pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
-                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
-                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
-                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
                             Graphics_ReloadTexture(pTex);
                         }
-                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
-                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
                         Graphics_ReloadTexture(pTex);
                     }
                 }
@@ -8252,9 +8251,10 @@ void FUN_00506fc0(int param1, int param2, int param3)
 
     FUN_00506bb0(param1, param2, param3);
     for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
+        j = 0;
         match = -1;
         target = *(int *)(*(int *)(param3 + 0x3c + i * 4) + 0x30) & 0xff;
-        for (j = 0; j <= *(BYTE *)(param3 + 0x26a); j++) {
+        for (; j <= *(BYTE *)(param3 + 0x26a); j++) {
             if (g_unk0x0082d1dc[param1][j] == target) {
                 match = j;
                 j = *(BYTE *)(param3 + 0x26a);
@@ -8863,7 +8863,8 @@ void FUN_004ff630(Menu *pMenu)
             FUN_005034f0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option));
     } else if (pMenu->cursor == Menu_FindItem(pMenu, 1)) {
         index = Menu_FindItem(pMenu, 1);
-        value = FUN_004ff4c0(pMenu->items[index].max);
+        value = pMenu->items[index].max;
+        value = FUN_004ff4c0(value);
         if (FUN_00502990(CGameInfo::FUN_005011b0(), value))
             FUN_00502790(CGameInfo::FUN_005011b0(), value);
     }
@@ -11387,7 +11388,7 @@ void FUN_004ff720(Menu *pMenu)
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 >= 1) {
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
                 g_unk0x0082a924--;
             } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
                 g_unk0x0082a924++;
@@ -11429,19 +11430,21 @@ void FUN_004ff720(Menu *pMenu)
         pDevice = CInput::FUN_0049ead0(0);
         if (pDevice->field_0x8 == 0) {
             g_unk0x00526f40 = 1;
-        } else if (g_unk0x00526f40 != 0) {
-            if ((pDevice->field_0x8 & 4) != 0) {
-                index = Menu_FindItem(pMenu, 4);
-                pMenu->items[index].max = 0;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 1) != 0) {
-                pMenu->cursor--;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 2) != 0) {
-                pMenu->cursor++;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            }
+        } else if (g_unk0x00526f40 == 0) {
+            goto editor;
         }
+        if ((pDevice->field_0x8 & 4) != 0) {
+            index = Menu_FindItem(pMenu, 4);
+            pMenu->items[index].max = 0;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 1) != 0) {
+            pMenu->cursor--;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 2) != 0) {
+            pMenu->cursor++;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        }
+    editor:
         g_unk0x0082a934 = g_unk0x0082aa44;
         strcpy(CFrontend::m_stringDest, g_unk0x0082aa44);
         if (FUN_004b7cd0(&value)) {
