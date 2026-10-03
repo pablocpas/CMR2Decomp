@@ -3286,9 +3286,10 @@ char FUN_004a1c50(int to, int guaranteed, int data, int size)
     IDirectPlay4A *pDP;
     HRESULT hr;
 
-    flags = FALSE;
     if (guaranteed == 1)
         flags = TRUE;
+    else
+        flags = FALSE;
     pDP = CGame::GetDirectPlay();
     if (pDP != NULL) {
         hr = ((DPSendFn)(*(void ***)pDP)[0x68 / 4])(pDP, CGame::m_unk0x005a1ea0, to, flags, (void *)data, size);
@@ -3373,16 +3374,14 @@ bool FUN_004aac40(BYTE param1)
 {
     IDirectPlay4A *pDP;
     HRESULT hr;
-    int local1;
-    int local2;
+    int playerId;
+    int unusedId;
 
     if ((BYTE)param1 >= CGame::m_connectionCount)
         return false;
-    local1 = 0;
-    local2 = 0;
-    if (CGame::FUN_004aad30(param1, (int)&local2, (int)&local1)) {
+    if (CGame::FUN_004aad30(param1, (int)&playerId, (int)&unusedId)) {
         pDP = CGame::m_pDirectPlay4A;
-        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)(int)local1, 0);
+        hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP, (void *)playerId, 0);
     } else {
         pDP = CGame::m_pDirectPlay4A;
         hr = ((DPMethod2)(*(void ***)pDP)[0x98 / 4])(pDP,
@@ -3392,12 +3391,14 @@ bool FUN_004aac40(BYTE param1)
         if (hr == (HRESULT)0x88770078 || hr == (HRESULT)0x80070057 ||
             hr != (HRESULT)0x88770005)
             return false;
+        CGame::m_maxConnections = (BYTE)param1;
+        return true;
     } else {
         if (hr == (HRESULT)0x887700fa || hr != 0)
             return false;
+        CGame::m_maxConnections = (BYTE)param1;
+        return true;
     }
-    CGame::m_maxConnections = (BYTE)param1;
-    return true;
 }
 
 // Enumera las sesiones o vuelca el buffer recibido en *param2.
