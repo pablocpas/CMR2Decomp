@@ -2738,8 +2738,7 @@ void GameMenus_DrawTextRow(int x, int y, char *pText, ...)
         CGenericFileLoader::StrLowerPolish(pCur);
         Font_DrawText(2, pCur, x, y, (int *)g_menuFrameColour, 0x11);
         sprintf(CFrontend::m_stringDest, pCur);
-        pCur = ppNext[1];
-        ppNext++;
+        pCur = *++ppNext;
         if (pCur == NULL) {
             break;
         }
