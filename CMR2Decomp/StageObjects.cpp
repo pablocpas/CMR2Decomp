@@ -7752,17 +7752,18 @@ void FUN_0047d510(void)
     FixVector unused;
     BYTE *p;
 
-    for (p = g_unk0x0058e4e0[0]; (int)p < (int)g_unk0x0058e4e0[100]; p += 0x5c) {
-        *(int *)(p + 0x3c) = 0;
-        *(GlowLight **)(p + 0x38) =
+    for (p = g_unk0x0058e4e0[0] + 0x38; (int)p < (int)(g_unk0x0058e4e0[100] + 0x38); p += 0x5c) {
+        BYTE *q = p - 0x38;
+        *(int *)(q + 0x3c) = 0;
+        *(GlowLight **)(q + 0x38) =
             Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, (int)g_carLights[0].pHazard,
                      (int)g_carLights[1].pHazard, 0x10000, 0, 0xb4, (int)&unused, 0x20000);
-        FUN_004ae3d0(*(BYTE **)(p + 0x38), 0);
-        *(int *)(p + 0x2c) = 0;
-        *(short *)(p + 0x34) = -1;
-        *(int *)(p + 0x0) = 0;
-        *(int *)(p + 0x4) = 0x10000;
-        *(int *)(p + 0x8) = 0;
+        FUN_004ae3d0(*(BYTE **)(q + 0x38), 0);
+        *(int *)(q + 0x2c) = 0;
+        *(short *)(q + 0x34) = -1;
+        *(int *)(q + 0x0) = 0;
+        *(int *)(q + 0x4) = 0x10000;
+        *(int *)(q + 0x8) = 0;
     }
     memset(g_unk0x0058e4a8, 0, sizeof(g_unk0x0058e4a8));
 }
@@ -7803,10 +7804,12 @@ void FUN_00465530(void)
     for (wheel = 0; wheel < 8 * 4; wheel++)
         ((int *)g_trailReset)[wheel] = 1;
     for (car = 0; car < 8; car++) {
+        int *p = (int *)g_trailDelta[car] + 1;
         for (wheel = 0; wheel < 4; wheel++) {
-            g_trailDelta[car][wheel].x = 0;
-            g_trailDelta[car][wheel].y = 0;
-            g_trailDelta[car][wheel].z = 0;
+            p[-1] = 0;
+            p[0] = 0;
+            p[1] = 0;
+            p += 3;
         }
     }
 }
@@ -8808,15 +8811,15 @@ void FUN_00487c40(int *pMatrix, int param_2, int *pOffset)
         pMatrix[0x24] = 0;
         FixVecScale(&t, (FixVector *)&pMatrix[4], pMatrix[0]);
         FixVecScale(&u, (FixVector *)&pMatrix[7], pMatrix[1]);
+        pMatrix[0xf] = t.x + u.x;
+        pMatrix[0x11] = t.z + u.z;
         pMatrix[0xc] = t.x - u.x;
         pMatrix[0xe] = t.z - u.z;
-        pMatrix[0xf] = u.x + t.x;
-        pMatrix[0x11] = u.z + t.z;
         FixVecScale(&t, &t, -0x10000);
         pMatrix[0x12] = t.x - u.x;
         pMatrix[0x14] = t.z - u.z;
-        pMatrix[0x15] = u.x + t.x;
-        pMatrix[0x17] = u.z + t.z;
+        pMatrix[0x15] = t.x + u.x;
+        pMatrix[0x17] = t.z + u.z;
         for (i = 0; i < 4; i++) {
             pMatrix[0xc + i * 3] += pOffset[0];
             pMatrix[0xd + i * 3] = pMatrix[3];
@@ -13487,12 +13490,9 @@ void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int spot)
     heading = *(short *)(pSpot + 2);
     if (heading > 0x3f4 && heading < 0x40b) {
         FUN_00486740(pRecord, (int *)pRef, *((BYTE *)Car_Get(pRecord[2]) + 0xb1a), 1);
-        return;
-    }
-    if (heading < -0x3f4 && heading > -0x40b) {
+    } else if (heading < -0x3f4 && heading > -0x40b) {
         FUN_00486740(pRecord, (int *)pRef, *((BYTE *)Car_Get(pRecord[2]) + 0xb1a), 2);
-        return;
-    }
+    } else {
     FixMatrix_GetPosition(&position, pRef);
     g_unk0x00591754[index] = 0;
     g_unk0x00591720[index] = 0;
@@ -13506,8 +13506,9 @@ void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int spot)
         near_ = 0;
     g_unk0x005916d0[index] = near_;
     g_unk0x005916f0[index] = near_;
-    FUN_0048ce80(pRecord, pRef);
-    g_unk0x00591730[index] = 0;
+        FUN_0048ce80(pRecord, pRef);
+        g_unk0x00591730[index] = 0;
+    }
 }
 
 // Per-frame update of a trackside camera: eases its zoom and shake settings
