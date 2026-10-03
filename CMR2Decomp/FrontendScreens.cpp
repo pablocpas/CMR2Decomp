@@ -1110,8 +1110,12 @@ void FUN_004e4130(Menu *pMenu)
         Font_DrawText(1, pEntry->ident, (int)(g_pGraphics->resX * 140) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         Font_DrawText(1, CFrontend::FUN_0040ede0(pEntry->flags & 0x3f), (int)(g_pGraphics->resX * 270) / 640, y,
                       (int *)g_colourWhite0x00524968, 0x12);
-        Font_DrawText(1, (pEntry->flags & 0x40) == 0 ? g_strGearboxManual : g_strGearboxAuto,
-                      (int)(g_pGraphics->resX * 395) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
+        if ((pEntry->flags & 0x40) != 0)
+            Font_DrawText(1, g_strGearboxAuto, (int)(g_pGraphics->resX * 395) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
+        else
+            Font_DrawText(1, g_strGearboxManual, (int)(g_pGraphics->resX * 395) / 640, y,
+                          (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_strTwoDigits, (pEntry->flags >> 7 & 0xf) + 1);
         Font_DrawText(3, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 445) / 640, y, (int *)g_colourWhite0x00524968, 0x12);
         sprintf(CFrontend::m_stringDest, g_loadRecordTimeFormat, pEntry->value / 6000, pEntry->value / 100 % 60, pEntry->value % 100);
