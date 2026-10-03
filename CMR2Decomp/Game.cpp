@@ -2900,14 +2900,13 @@ BOOL FUN_004a0d60(void)
     pDesc = (DPSESSIONDESC2 *)CFileBuffer::AllocateLockedBuffer(size);
     if (pDesc == NULL)
         return FALSE;
-    switch (((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size)) {
-    case DPERR_INVALIDOBJECT:
-        free(pDesc);
-        return FALSE;
-    case DPERR_NOCONNECTION:
-        CFileBuffer::FreeGenericFileBuffer(pDesc);
-        return FALSE;
-    case DP_OK:
+    HRESULT hr = ((DPMethod2)(*(void ***)pDP)[0x58 / 4])(pDP, pDesc, (DWORD)&size);
+    if (hr <= (HRESULT)0x88770082) {
+        if (hr == DPERR_INVALIDOBJECT) {
+            free(pDesc);
+            return FALSE;
+        }
+    } else if (hr != DPERR_NOCONNECTION && hr == DP_OK) {
         SESSION.dwSize = pDesc->dwSize;
         SESSION.dwFlags = pDesc->dwFlags;
         SESSION.guidInstance = pDesc->guidInstance;
