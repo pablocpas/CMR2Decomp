@@ -11762,19 +11762,19 @@ int FUN_005062d0(int index)
     root = FUN_004b9380(hC3D, stage, (unsigned int)pRecord);
     if (CGameInfo::FUN_00405d10() == 0) {
         int *p = (int *)&pEntry->field_0x24[0];
-        for (i = 1; i < 4; i++)
+        for (i = 1; i <= 4; i++)
             *p++ = *(int *)((int)SceneNode_FindByType((SceneNode *)root, (unsigned int)i) + 0xc);
         if (hL != 0) {
             int *q = (int *)&pEntry->field_0x34[0];
             nodeL = FUN_004b9380(hL, stage, (unsigned int)pRecord);
-            for (i = 1; i < 4; i++)
+            for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
         }
         if (hS != 0) {
             int *q = (int *)&pEntry->field_0x44[0];
             nodeS = FUN_004b9380(hS, stage, (unsigned int)pRecord);
-            for (i = 1; i < 4; i++)
+            for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
         }
@@ -11791,7 +11791,7 @@ int FUN_005062d0(int index)
     FUN_00507080(index);
     FUN_00507a10(&g_unk0x0082d220[index], index);
     {
-        int h = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)0xe);
+        int h = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)0xe);
         if (h != 0) {
             int tex = *(int *)((char *)CGraphics::m_pTextureManager + *(int *)(*(int *)(*(int *)(h + 0xc) + 0x24) + 4) * 4 + 900);
             CGraphics::RemapTextureAlpha((Texture *)tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);

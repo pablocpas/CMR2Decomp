@@ -5764,9 +5764,9 @@ void Particle_UpdateAll(int param)
                 p->position.z = rel.z + wind.z;
             }
             p->position.y -= pType->gravity;
-            p->vector0x1c.x += p->position.x;
-            p->vector0x1c.y += p->position.y + pType->gravity / 2;
-            p->vector0x1c.z += p->position.z;
+            p->sourceVector.x += p->position.x;
+            p->sourceVector.y += p->position.y + pType->gravity / 2;
+            p->sourceVector.z += p->position.z;
             if (pType->flags & 0x40) {
                 p->type0x52 = p->type0x56;
                 a = p->type0x56;
@@ -5806,20 +5806,20 @@ void Particle_UpdateAll(int param)
                 else if (angle < 0)
                     p->field0x50 = angle + 0x1000;
             }
-            if ((pType->flags & 2) && p->vector0x1c.y < p->field0x48) {
+            if ((pType->flags & 2) && p->sourceVector.y < p->field0x48) {
                 Particle_Kill(p);
                 continue;
             }
             if (pType->flags & 0x80) {
                 keep = 0x10000 - pType->friction;
                 if (p->field0x58 != 0) {
-                    p->vector0x1c.y = p->field0x48;
+                    p->sourceVector.y = p->field0x48;
                     p->position.x = FixMul(p->position.x, keep);
                     p->position.z = FixMul(p->position.z, keep);
                 } else {
-                    if (p->vector0x1c.y < p->field0x48) {
+                    if (p->sourceVector.y < p->field0x48) {
                         p->position.y = -FixMul(p->position.y, pType->bounce);
-                        p->vector0x1c.y = p->field0x48;
+                        p->sourceVector.y = p->field0x48;
                         p->position.x = FixMul(p->position.x, keep);
                         p->position.z = FixMul(p->position.z, keep);
                         if (p->position.y < 0x1999) {
@@ -5829,7 +5829,7 @@ void Particle_UpdateAll(int param)
                     }
                 }
             }
-            p->vector0x28 = p->vector0x1c;
+            p->vector0x28 = p->sourceVector;
         } else {
             pType->update(p, pType, param);
         }

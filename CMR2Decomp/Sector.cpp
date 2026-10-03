@@ -680,10 +680,10 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
     ez = FixMul(dir.z, radius);
     fz = FixMul(dir.z, FixMul(radius, 0x10000));
     fx = -FixMul(dir.x, FixMul(radius, 0x10000));
-    tri[4] = tri[0] - fz + ex;
-    tri[5] = tri[1] - fx + ez;
-    tri[2] = tri[0] + fz + ex;
-    tri[3] = tri[1] + fx + ez;
+    tri[4] = tri[0] + fz + ex;
+    tri[5] = tri[1] + fx + ez;
+    tri[2] = tri[0] - fz + ex;
+    tri[3] = tri[1] - fx + ez;
     FixMatrix_GetPosition(&origin, &pNode->world);
     FixMatrix_GetForward(&forward, &pNode->world);
     FixVecScale(&scaled, &forward, 0xa0000);

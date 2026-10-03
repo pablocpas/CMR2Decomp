@@ -8394,6 +8394,7 @@ char g_strAdr[] = "ADR";
 void FUN_00414ed0(int car, short *pRect)
 {
     short panel[4];
+    char positionText[4];
     int *pPosition;
     int textY;
     int rows;
@@ -8418,8 +8419,8 @@ void FUN_00414ed0(int car, short *pRect)
             if (*pPosition != -1 &&
                 (StageTiming_FUN_00455ae0() == 0 ||
                  StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split) != -1)) {
-                sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
-                Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+                sprintf(positionText, g_strOneDigit, *pPosition + 1);
+                Font_DrawText(0, positionText, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                               (int *)&g_stageResultTextColour, 0x22);
                 if (StageTiming_FUN_00455ae0() != 0) {
                     FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
@@ -8458,8 +8459,8 @@ void FUN_00414ed0(int car, short *pRect)
         if (*pPosition != -1) {
             if (StageTiming_FUN_00455ae0())
                 StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split);
-            sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
-            Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+            sprintf(positionText, g_strOneDigit, *pPosition + 1);
+            Font_DrawText(0, positionText, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                           (int *)&g_stageResultTextColour, 0x22);
             FUN_00415750(*pPosition, g_stageSplitData[car].split, 0, 1);
             width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);

@@ -51,6 +51,10 @@ Ejecutar cada prueba con `python3 tests/differential_<nombre>.py
 | race_order | 2592 | De cero a ocho coches, empates y pasadas repetidas; helpers reales y modelo independiente |
 | checkpoint_advance | 3072 | Direcciones, vueltas, umbrales ±50, límite de recorrido y contadores; modelo independiente y eventos controlados |
 | event_draw_abi | 11 | Cinco salidas tempranas, limpieza del argumento en pila y seis casos de noops de release; mutación de ret detectada |
+| split_standings | 960 | Tres filas del marcador, dos coches, ambos paneles, sectores 1/4/8, posiciones vacías y 1–16; consultas reales de clasificación/tiempos, texto, guardas y ABI |
+| exhaust_particles | 6144 | Ciclos completos de partículas de escape y libres: simulación, interpolación, posición de dibujo, callbacks, guardas y cuatro modos x87 |
+| car_preview_load | 96 | Carga de variantes del coche, las cuatro ruedas, búsquedas reales en árboles de escena y alfa de luces; rechaza búsquedas en datos sin convertir |
+| sector_visibility | 1950 | Diez niveles de detalle, sectores, distancias y flags con raíces inicializadas, cámaras en bordes/interior, grillas desplazadas y distintos planos lejanos |
 
 Las pruebas controlan los proveedores de selección, ruta, geometría y las
 operaciones finales de dibujo/impulso que se especifican en cada script. La
@@ -59,7 +63,7 @@ fixtures válidos; no sustituyen una partida real ni prueban toda la física,
 todos los archivos de instalación o todos los estados del juego.
 
 `tests/logic-targets.json` registra las entradas principales comprobadas por los
-71 harnesses disponibles. El proveedor final de triángulo más cercano de
+74 harnesses disponibles. El proveedor final de triángulo más cercano de
 `track_geometry` y las consultas de juego/secuencia/progreso de `net_car_state`
 están controlados: esas funciones proveedoras no se cuentan como validadas.
 `event_draw_abi` no comprueba las ramas de dibujo activo. En `replay_snapshot`,
