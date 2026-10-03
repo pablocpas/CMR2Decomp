@@ -226,7 +226,13 @@ char g_strRaceHasAiDriver[] = "Race %d has ai driver %d\n";
 // GLOBAL: CMR2 0x0051a168
 char g_strRaceHasPlayer[] = "Race %d has player\n";
 int FUN_0041b380(void);
-void FUN_00456a40(int param1, int param2);
+// Per-driver split pace record (two per driver at g_unk0x00542528).
+struct SplitRate {
+    int rate;               // 0x0
+    int count;              // 0x4
+    float scale;            // 0x8
+};
+int FUN_00456a40(int param1, int param2);
 void FUN_00455bc0(int slot, int driver);
 
 // Pairs each human player's stage slot with an opponent for the split
@@ -1867,33 +1873,31 @@ float g_unk0x005113b0 = 4.0f;
 double g_unk0x005113a8 = 100.0;
 
 // Reparte el tiempo del piloto entre los dos tramos de la tabla 0x542420.
-// match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00456a40
-void FUN_00456a40(int param1, int param2)
+int FUN_00456a40(int param1, int param2)
 {
-    int *pRec;
+    SplitRate *pRec;
     int time;
     int i;
     int value;
+    int split;
 
     time = StageTiming_GetCurrentSplitTimeForDriver(param2);
-    pRec = (int *)(g_unk0x00542528 + param1 * 24);
+    pRec = &((SplitRate *)g_unk0x00542528)[param1 * 2];
     for (i = 0; i < 2; i++) {
-        pRec = (int *)(g_unk0x00542528 + param1 * 24 + i * 12);
-        value = time - g_unk0x00542420[i];
+        split = g_unk0x00542420[i];
+        value = time - split;
         if (value < 0)
             value = 0;
-        value = value / 4;
-        pRec[1] = value;
-        if (value != 0) {
-            pRec[0] = (g_unk0x00542420[i] / 4) / value;
-            if (pRec[0] < 10)
-                pRec[0] = 10;
+        pRec[i].count = value / 4;
+        if (pRec[i].count != 0) {
+            pRec[i].rate = split / 4 / pRec[i].count;
+            if (pRec[i].rate < 10)
+                pRec[i].rate = 10;
         }
-        *(float *)((char *)pRec + 8) =
-            (float)(g_unk0x005113a8 /
-                    ((double)time / (double)g_unk0x00542420[i] * g_unk0x005113b0));
+        pRec[i].scale = (float)(g_unk0x005113a8 / ((double)time / (double)split * g_unk0x005113b0));
     }
+    return 0;
 }
 
 // GLOBAL: CMR2 0x0051bd3c
