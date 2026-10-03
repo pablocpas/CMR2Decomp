@@ -288,6 +288,8 @@ void FUN_004d5de0(unsigned int param_1, BYTE param_2)
     int i;
     int cols;
     int rows;
+    BYTE pixel;
+    unsigned int index;
 
     g_unk0x008189a8[2] = CFrontend::m_pSmMatrixTexture->width;
     g_unk0x008189a8[3] = CFrontend::m_pSmMatrixTexture->height;
@@ -303,26 +305,26 @@ void FUN_004d5de0(unsigned int param_1, BYTE param_2)
             cols = 9;
             g_unk0x008189a8[0] = (int)(g_pGraphics->resX * 0x3c) / 640;
             do {
-                param_2 = *pMap++;
+                pixel = *pMap++;
                 for (i = 0; i < 4; i++) {
                     switch (i) {
                     case 0:
-                        param_1 = param_2 & 3;
+                        index = pixel & 3;
                         break;
                     case 1:
-                        param_1 = param_2 >> 2 & 3;
+                        index = pixel >> 2 & 3;
                         break;
                     case 2:
-                        param_1 = param_2 >> 4 & 3;
+                        index = pixel >> 4 & 3;
                         break;
                     case 3:
-                        param_1 = param_2 >> 6;
+                        index = pixel >> 6;
                         break;
                     }
-                    if (param_1 != 0)
+                    if (index != 0)
                         Sprite_Queue((SpriteRect *)&CFrontend::m_pSmMatrixTexture->field_0x11c,
                                      (SpriteRect *)g_unk0x008189a8, CFrontend::m_pSmMatrixTexture, 4, 0, NULL, NULL,
-                                     g_palette0x00524b90[param_1], 8);
+                                     g_palette0x00524b90[index], 8);
                     g_unk0x008189a8[0] += (int)(g_pGraphics->resX * 8) / 640;
                 }
             } while (--cols);

@@ -9,7 +9,7 @@
   },
   "0x407ec0": {
     "n": "CAIHelper::GetNameForID",
-    "s": 0.8214285714285714,
+    "s": 0.5,
     "x": false,
     "unknown": [],
     "f": "AIHelper.cpp",
@@ -681,8 +681,8 @@
   },
   "0x433e80": {
     "n": "Car_BalanceTwoPlayerRideHeight",
-    "s": 0.5959595959595959,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_BalanceTwoPlayerRideHeight"
@@ -881,8 +881,8 @@
   },
   "0x421fe0": {
     "n": "View_GetHeading",
-    "s": 0.2802547770700637,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "View_GetHeading"
@@ -929,8 +929,8 @@
   },
   "0x437dc0": {
     "n": "Car_UpdateEngineTorque",
-    "s": 0.6090534979423868,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_UpdateEngineTorque"
@@ -953,8 +953,8 @@
   },
   "0x42f8c0": {
     "n": "Car_LiftFreeCorners",
-    "s": 0.6197183098591549,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_LiftFreeCorners"
@@ -987,7 +987,7 @@
   },
   "0x442e90": {
     "n": "Car_SmoothForceFeedback",
-    "s": 0.48863636363636365,
+    "s": 0.4725274725274725,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1187,7 +1187,7 @@
   },
   "0x49a910": {
     "n": "Car_QueueWindowBreak",
-    "s": 0.43983402489626555,
+    "s": 0.7601476014760148,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -4503,7 +4503,7 @@
   },
   "0x4d5de0": {
     "n": "FUN_004d5de0",
-    "s": 0.45136186770428016,
+    "s": 0.49612403100775193,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6607,7 +6607,7 @@
   },
   "0x4fb8d0": {
     "n": "FUN_004fb8d0",
-    "s": 0.5333333333333333,
+    "s": 0.9594594594594594,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6639,7 +6639,7 @@
   },
   "0x4ee6e0": {
     "n": "FUN_004ee6e0",
-    "s": 0.5223880597014925,
+    "s": 0.5263157894736842,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6663,7 +6663,7 @@
   },
   "0x4e1d70": {
     "n": "FUN_004e1d70",
-    "s": 0.42696629213483145,
+    "s": 0.46537396121883656,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6687,8 +6687,8 @@
   },
   "0x4f0580": {
     "n": "FUN_004f0580",
-    "s": 0.5411764705882353,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004f0580"
@@ -8033,8 +8033,8 @@
   },
   "0x4a1c50": {
     "n": "FUN_004a1c50",
-    "s": 0.7272727272727273,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "FUN_004a1c50"
@@ -8057,8 +8057,8 @@
   },
   "0x4aac40": {
     "n": "FUN_004aac40",
-    "s": 0.5950413223140496,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Game.cpp",
     "symbol_name": "FUN_004aac40"
@@ -10713,7 +10713,7 @@
   },
   "0x503b70": {
     "n": "FUN_00503b70",
-    "s": 0.6521739130434783,
+    "s": 0.6593406593406593,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11065,7 +11065,7 @@
   },
   "0x506930": {
     "n": "FUN_00506930",
-    "s": 0.5803571428571429,
+    "s": 0.5714285714285714,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -11289,7 +11289,7 @@
   },
   "0x5057e0": {
     "n": "FUN_005057e0",
-    "s": 0.6435331230283912,
+    "s": 0.9358974358974359,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -12208,8 +12208,8 @@
   },
   "0x4a9c70": {
     "n": "CGenericFileLoader::FindFileInArchive",
-    "s": 0.850828729281768,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GenericFileLoader.cpp",
     "symbol_name": "CGenericFileLoader::FindFileInArchive"
@@ -12224,16 +12224,16 @@
   },
   "0x4a9f90": {
     "n": "CGenericFileLoader::StrUpperPolish",
-    "s": 0.37735849056603776,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GenericFileLoader.cpp",
     "symbol_name": "CGenericFileLoader::StrUpperPolish"
   },
   "0x4aa090": {
     "n": "CGenericFileLoader::StrLowerPolish",
-    "s": 0.7083333333333334,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GenericFileLoader.cpp",
     "symbol_name": "CGenericFileLoader::StrLowerPolish"
@@ -12464,7 +12464,7 @@
   },
   "0x4a4d30": {
     "n": "CGraphics::RemapTextureAlpha",
-    "s": 0.43458980044345896,
+    "s": 0.4072398190045249,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12900,7 +12900,7 @@
   },
   "0x49da50": {
     "n": "Tri2D_Contains",
-    "s": 0.48346055979643765,
+    "s": 0.5347043701799485,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12964,7 +12964,7 @@
   },
   "0x49e1f0": {
     "n": "FUN_0049e1f0",
-    "s": 0.9787610619469026,
+    "s": 0.9805309734513274,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13078,7 +13078,7 @@
   },
   "0x4bc290": {
     "n": "FUN_004bc290",
-    "s": 0.9671361502347418,
+    "s": 0.9811320754716981,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13422,8 +13422,8 @@
   },
   "0x4a4b10": {
     "n": "FUN_004a4b10",
-    "s": 0.36,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "FUN_004a4b10"
@@ -13709,8 +13709,8 @@
   },
   "0x4a49c0": {
     "n": "CGraphics::FUN_004a49c0",
-    "s": 0.5065502183406113,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::FUN_004a49c0"
@@ -13837,7 +13837,7 @@
   },
   "0x49c680": {
     "n": "FUN_0049c680",
-    "s": 0.5416666666666666,
+    "s": 0.6051282051282051,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -15381,8 +15381,8 @@
   },
   "0x40a0e0": {
     "n": "FUN_0040a0e0",
-    "s": 0.9821428571428571,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetPlayers.cpp",
     "symbol_name": "FUN_0040a0e0"
@@ -15477,7 +15477,7 @@
   },
   "0x40a580": {
     "n": "FUN_0040a580",
-    "s": 0.8193832599118943,
+    "s": 0.956140350877193,
     "x": false,
     "unknown": [],
     "f": "NetPlayers.cpp",
@@ -15525,8 +15525,8 @@
   },
   "0x40a820": {
     "n": "FUN_0040a820",
-    "s": 0.867579908675799,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetPlayers.cpp",
     "symbol_name": "FUN_0040a820"
@@ -15989,8 +15989,8 @@
   },
   "0x4284d0": {
     "n": "FUN_004284d0",
-    "s": 0.34146341463414637,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_004284d0"
@@ -16673,7 +16673,7 @@
   },
   "0x418d30": {
     "n": "CarSound_PlaySlot",
-    "s": 0.6666666666666666,
+    "s": 0.9803921568627451,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -16913,7 +16913,7 @@
   },
   "0x41e6b0": {
     "n": "Race_TeardownStage",
-    "s": 0.49025069637883006,
+    "s": 0.6498599439775911,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -19145,8 +19145,8 @@
   },
   "0x40ccd0": {
     "n": "FUN_0040ccd0",
-    "s": 0.9081632653061225,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "RallyTiming.cpp",
     "symbol_name": "FUN_0040ccd0"
@@ -19713,7 +19713,7 @@
   },
   "0x4b4490": {
     "n": "FUN_004b4490",
-    "s": 0.5779816513761468,
+    "s": 0.5953488372093023,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -19785,8 +19785,8 @@
   },
   "0x4b3860": {
     "n": "Scene_GetGroundLight",
-    "s": 0.7307692307692307,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "SceneNode.cpp",
     "symbol_name": "Scene_GetGroundLight"
@@ -21719,7 +21719,7 @@
   },
   "0x48d950": {
     "n": "FUN_0048d950",
-    "s": 0.9078498293515358,
+    "s": 0.9523809523809523,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22007,8 +22007,8 @@
   },
   "0x48df10": {
     "n": "FUN_0048df10",
-    "s": 0.7567567567567568,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0048df10"
@@ -22663,7 +22663,7 @@
   },
   "0x46bdc0": {
     "n": "FUN_0046bdc0",
-    "s": 0.2962962962962963,
+    "s": 0.7309644670050761,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22679,7 +22679,7 @@
   },
   "0x46ec40": {
     "n": "FUN_0046ec40",
-    "s": 0.3308270676691729,
+    "s": 0.5333333333333333,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22935,7 +22935,7 @@
   },
   "0x48df50": {
     "n": "FUN_0048df50",
-    "s": 0.7941176470588235,
+    "s": 0.803921568627451,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24287,7 +24287,7 @@
   },
   "0x456960": {
     "n": "FUN_00456960",
-    "s": 0.44155844155844154,
+    "s": 0.918918918918919,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -24415,7 +24415,7 @@
   },
   "0x490d50": {
     "n": "FUN_00490d50",
-    "s": 0.7608695652173914,
+    "s": 0.8817204301075269,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25121,8 +25121,8 @@
   },
   "0x4918d0": {
     "n": "FUN_004918d0",
-    "s": 0.5739130434782609,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_004918d0"
@@ -25305,7 +25305,7 @@
   },
   "0x480cb0": {
     "n": "FUN_00480cb0",
-    "s": 0.7252747252747253,
+    "s": 0.8415300546448088,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -26097,16 +26097,16 @@
   },
   "0x4a9f50": {
     "n": "FUN_004a9f50",
-    "s": 0.9302325581395349,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Texture.cpp",
     "symbol_name": "FUN_004a9f50"
   },
   "0x4a9e60": {
     "n": "CTexture::FindLoadTexture",
-    "s": 0.7537688442211056,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Texture.cpp",
     "symbol_name": "CTexture::FindLoadTexture"
@@ -26857,8 +26857,8 @@
   },
   "0x4a8140": {
     "n": "CMain::CreateGameWindow",
-    "s": 0.6701030927835051,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "main.cpp",
     "symbol_name": "CMain::CreateGameWindow"
