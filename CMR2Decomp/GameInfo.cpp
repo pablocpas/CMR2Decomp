@@ -1159,8 +1159,8 @@ char g_chatLineFormat[] = "%s > %s";
 // FUNCTION: CMR2 0x004d0620
 void FUN_004d0620(DPID *pFrom, char *text, char local)
 {
-    char **pp;
     int line;
+    char **pp;
     int i;
 
     if (local) {
@@ -1178,7 +1178,8 @@ void FUN_004d0620(DPID *pFrom, char *text, char local)
     pp = g_unk0x00817c84;
     i = 5;
     do {
-        *pp++ = g_unk0x00817784[line-- % 5];
+        *pp = g_unk0x00817784[line-- % 5];
+        pp++;
     } while (--i);
 }
 
@@ -1571,8 +1572,8 @@ void FUN_00500920(int param1, int param2, int param3)
         }
         return;
     }
-    *(Unk0x0082ac68Row *)g_unk0x0082ac68[param1 * 4] =
-        *(Unk0x0082ac68Row *)g_unk0x0082ad70[param1 * 4];
+    for (i = 0; i < 8; i++)
+        ((int *)g_unk0x0082ac68[param1 * 4])[i] = ((int *)g_unk0x0082ad70[param1 * 4])[i];
 }
 
 // Stores a new target pair per layout slot of option record param1 and rebuilds
@@ -6195,13 +6196,11 @@ void FUN_0050f4f0(void)
     int stage;
 
     stage = RallyDataStageIndex() >> 2;
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400)) {
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+        CFrontend::FUN_004b7590(0x400))
         resolution = 0x400;
-        if (!CFrontend::FUN_004b7590(0x400))
-            resolution = 0x280;
-    } else {
+    else
         resolution = 0x280;
-    }
 
     sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
     CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
@@ -8442,15 +8441,17 @@ void FUN_00501de0(int param_1, short *param_2)
 {
     Unk0x0082b2c0 *p;
     int mid;
+    int lo;
     int a;
     int delta;
 
     p = &g_unk0x0082b2c0[param_1];
     if (p->field_0xc == 1) {
         mid = param_2[2] / 2 + param_2[0];
+        lo = mid - 1;
         if (p->field_0x0 < 0x8000) {
-            param_2[0] = mid - 1;
-            param_2[2] = mid + 1 - param_2[0];
+            param_2[0] = lo;
+            param_2[2] = mid + 1 - lo;
             a = FixMul(p->field_0x0, 0x20000);
             a = FixMul(a, a);
             delta = param_2[3] - (FixMul(param_2[3] << 16, a) >> 16);
@@ -10338,7 +10339,7 @@ void FUN_0050bfd0(int param_1)
                  FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
                  0, g_unk0x005293a0, 0x124, 0);
     if (g_unk0x00831668 != 0) {
-        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * g_unk0x005293a0 / 0x280);
+        g_unk0x00831660[0] = (short)(g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x6f / 0x1e0);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
