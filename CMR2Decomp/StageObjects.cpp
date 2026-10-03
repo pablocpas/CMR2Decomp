@@ -3307,15 +3307,17 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 // FUNCTION: CMR2 0x0048d950
 void FUN_0048d950(BYTE *pSurface, FixMatrix *pMatrix)
 {
-    unsigned int index = *pSurface;
+    BYTE index = *pSurface;
     BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[index] * 0x6c;
     FixVector *pPos = &g_unk0x005916a0[index];
     FixVector *pImpact = &g_unk0x00591868[index];
     FixVector impact;
     FixVector delta;
     int t;
+    Car *pCar;
 
-    FUN_0048dce0(&impact, pSurface, Car_Get(pSurface[2]), pMatrix);
+    pCar = Car_Get(pSurface[2]);
+    FUN_0048dce0(&impact, pSurface, pCar, pMatrix);
     FixVecScale(pImpact, pImpact, 0xe666);
     FixVecScale(&impact, &impact, 0x1999);
     pImpact->x += impact.x;
@@ -4407,11 +4409,9 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 // FUNCTION: CMR2 0x0048df10
 int FUN_0048df10(BYTE *pCar)
 {
-    short v;
-
     if (*(int *)(pCar + 4) == 7) {
-        v = *(short *)(g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c + 2);
-        if (v < -0x3f4 && v > -0x40b)
+        BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c;
+        if (*(short *)(pRecord + 2) < -0x3f4 && *(short *)(pRecord + 2) > -0x40b)
             return 1;
     }
     return 0;
@@ -4492,16 +4492,17 @@ FixVector g_collisionSphereCentre;
 // match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // True when two spheres (radii r1, r2) overlap. The 32-bit EAX result is
 // tested by the callers (0x48a1f0), so the helper returns int, not bool.
-// match 84%: identical instruction stream and stack layout except that the
+// match 81%: identical instruction stream and stack layout except that the
 // original kept the radius sum in a register with no home slot (its FixMul
 // operands spill into the dead r1/r2 argument slots) while MSVC6 here homes
 // it at [ebp-4], shifting the frame by four bytes.
 // FUNCTION: CMR2 0x00487b80
 int FUN_00487b80(int r1, int r2, int *pA, int *pB)
 {
-    int r = r1 + r2;
     FixVector delta;
+    int r;
 
+    r = r1 + r2;
     delta.x = pA[0] - pB[0];
     delta.y = pA[1] - pB[1];
     delta.z = pA[2] - pB[2];
@@ -9222,7 +9223,7 @@ void FUN_0048df50(Car *param_1)
             d = (a < 0 ? -a : a) - (b < 0 ? -b : b);
         u = FixMul((d % 0x401) << 6, v);
         if (*(int *)((BYTE *)g_collisionCar + off) == 0 ||
-            *(int *)((BYTE *)g_collisionCar + off - 0x2c0) <= u) {
+            u >= *(int *)((BYTE *)g_collisionCar + off - 0x2c0)) {
             *(int *)((BYTE *)g_collisionCar + off - 0x2c0) = u;
             *(int *)((BYTE *)g_collisionCar + off) = 1;
             *(int *)((BYTE *)g_collisionCar + i + 0x564) = 0;
