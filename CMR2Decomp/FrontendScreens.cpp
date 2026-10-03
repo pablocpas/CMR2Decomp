@@ -10251,7 +10251,6 @@ extern char g_stageNumberFormat[];
 void FUN_004e9990(Menu *pMenu)
 {
     char *text[3];
-    MenuItem *pItem;
     NetworkLeaderboard *pBoard;
     NetworkLeaderboardEntry *pEntry;
     int *pColour;
@@ -10267,8 +10266,8 @@ void FUN_004e9990(Menu *pMenu)
     if (pMenu->items[pMenu->cursor].value != 0)
         pColour = (int *)g_colourText0x0052496c;
     if (!(CNetworkLeaderboards::GetTotalLeaderboards() == 0)) {
-        pItem = Menu_GetItem(pMenu, 0);
-        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea), pItem->max + 1, pItem->min);
+        sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0x1ea),
+                Menu_GetItem(pMenu, 0)->max + 1, Menu_GetItem(pMenu, 0)->min);
         Font_DrawText(1, CFrontend::m_stringDest, g_pGraphics->resX / 2,
                       (int)(g_pGraphics->resY * 0x46) / 0x1e0, pColour, 0x12);
         pBoard = CNetworkLeaderboards::GetLoadedLeaderboard(Menu_GetItem(pMenu, 0)->max);
@@ -10290,7 +10289,7 @@ void FUN_004e9990(Menu *pMenu)
                 Font_DrawText(0, g_str0x00519fb0, (int)(g_pGraphics->resX * 0x154) / 0x280, y, pColour, 0x12);
             }
         }
-        if (Menu_GetItem(pMenu, 0)->min != 0) {
+        if (Menu_GetItem(pMenu, 0)->min > 0) {
             Font_DrawText(1, g_str0x005250d8,
                           (int)(g_pGraphics->resX * 0x118) / 0x280 - (int)(g_pGraphics->resX * 0x32) / 0x280,
                           (int)(g_pGraphics->resY * 0xa0) / 0x1e0, pColour, 0x12);
