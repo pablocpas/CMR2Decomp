@@ -1636,15 +1636,17 @@ void CGame::FUN_004a17f0(bool param1) {
 
     // The original walks a pointer to field_0x64 and stops when it passes
     // 0x5a1e34, which clears exactly the 7 entries (0x5a1820..0x5a1dd0).
-    char *pLongName = m_unk0x005a1820[0].field_0x64;
+    Unk0x005a1820 *dest = m_unk0x005a1820;
     do {
-        Unk0x005a1820 *dest = (Unk0x005a1820 *)(pLongName - 0x64);
-        sprintf(dest->field_0x64, CMain::m_logFileBlankLine);
-        sprintf(dest->field_0x0, CMain::m_logFileBlankLine);
+        // The original calls sprintf through a fixed 2-argument prototype; the
+        // non-variadic call makes MSVC6 defer the stack cleanup across the pair
+        // (the merged `add esp,0x10` of the original).
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x0, CMain::m_logFileBlankLine);
+        ((int (__cdecl *)(char *, const char *))sprintf)(dest->field_0x64, CMain::m_logFileBlankLine);
         dest->field_0xc8 = 0;
         dest->field_0xcc = 0;
-        pLongName += sizeof(Unk0x005a1820);
-    } while ((int)pLongName < (int)m_unk0x005a1820[7].field_0x64); // 0x5a1e34 in the original
+        dest++;
+    } while ((int)dest->field_0x64 < (int)m_unk0x005a1820[7].field_0x64); // 0x5a1e34 in the original
 
     m_unk0x005a1818 = 0;
 }
@@ -3439,8 +3441,10 @@ void FUN_004a1940(DPID *pId)
 
     for (i = 0; i < 7; i++) {
         if (CGame::m_unk0x005a1820[i].field_0xc8 == *pId) {
-            sprintf(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
-            sprintf(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
+            // Non-variadic prototype: MSVC6 defers the pair's stack cleanup
+            // (merged `add esp,0x10` in the original).
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x0, CMain::m_logFileBlankLine);
+            ((int (__cdecl *)(char *, const char *))sprintf)(CGame::m_unk0x005a1820[i].field_0x64, CMain::m_logFileBlankLine);
             CGame::m_unk0x005a1820[i].field_0xc8 = 0;
             CGame::m_unk0x005a1820[i].field_0xcc = 0;
             CGame::m_unk0x005a1818--;
