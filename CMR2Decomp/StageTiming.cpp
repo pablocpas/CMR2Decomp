@@ -1269,21 +1269,19 @@ void FUN_004564d0(int pCar, int *pOut)
 // FUNCTION: CMR2 0x00456960
 void FUN_00456960(int *pDeltas)
 {
-    int *pRaw;
     int count;
     int i, j;
 
-    pRaw = (int *)g_stageSplitTimesRaw;
     count = GetStageSplitCount();
-    if (count >= 0) {
-        for (i = 0; i < (count + 1) * 16; i++)
-            pRaw[i] = 0;
+    for (i = 0; i <= count; i++) {
+        for (j = 0; j < 16; j++)
+            g_stageSplitTimesRaw[i][j] = 0;
     }
-    if (count >= 1) {
-        for (i = 0; i < count; i++) {
-            for (j = 0; j < 16; j++)
-                pRaw[i * 16 + j + 16] = pRaw[i * 16 + j] + pDeltas[i * 16 + j];
-        }
+
+    for (i = 1; i <= count; i++) {
+        int *pIn = &pDeltas[(i - 1) * 16];
+        for (j = 0; j < 16; j++)
+            g_stageSplitTimesRaw[i][j] = g_stageSplitTimesRaw[i - 1][j] + pIn[j];
     }
 }
 
