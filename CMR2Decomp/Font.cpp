@@ -142,33 +142,33 @@ void Font_Select(BYTE index, int *pColour)
 }
 
 // Width in pixels up to the first line separator ('\n' or '^').
-// match 26%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 56%: the original keeps the character in a register and homes
+// `advance` in the frame; register allocation differs.
 // FUNCTION: CMR2 0x0040b5b0
 int Font_GetTextWidth(BYTE index, BYTE *text)
 {
-    short maxWidth;
-    int charSpacing;
-    short advance;
-    int i;
-    BYTE *p;
-    short spaceWidth;
-    FontGlyph *pGlyphs;
-    short *pCharMap;
     FontSlot *pFont;
-    short lineWidth;
-    short prevWidth;
-    short glyph;
-    BYTE ch;
+    short *pCharMap;
+    FontGlyph *pGlyphs;
     FontGlyph *pGlyph;
     FontKernPair *pKern;
+    short spaceWidth;
+    int charSpacing;
+    int advance;
+    short width;
+    short maxWidth;
+    short glyph;
+    int i;
     int k;
     int kernCount;
+    BYTE ch;
+    BYTE next;
+    BYTE *p;
 
-    pFont = &g_fonts[index & 0xff];
-    lineWidth = 0;
-    pCharMap = pFont->pCharMap;
-    prevWidth = 0;
     maxWidth = 0;
+    pFont = &g_fonts[index & 0xff];
+    pCharMap = pFont->pCharMap;
+    width = 0;
     spaceWidth = (short)pFont->pHeader->spaceWidth;
     charSpacing = pFont->pHeader->charSpacing;
     pGlyphs = pFont->pGlyphs;
@@ -181,13 +181,12 @@ int Font_GetTextWidth(BYTE index, BYTE *text)
                 if (ch == '\n' || ch == '^')
                     break;
                 if (ch == ' ') {
-                    lineWidth += spaceWidth;
-                    prevWidth = lineWidth;
+                    width += spaceWidth;
                 } else {
                     glyph = pCharMap[ch];
                     if (glyph != -1) {
                         pGlyph = &pGlyphs[glyph];
-                        advance = (short)charSpacing;
+                        advance = charSpacing;
                         if (text[i + 1] != 0 && text[i + 1] != '\n' && text[i + 1] != '^' && pCharMap[text[i + 1]] != -1) {
                             pKern = pGlyph->pKern;
                             kernCount = pGlyph->kernCount;
@@ -196,7 +195,7 @@ int Font_GetTextWidth(BYTE index, BYTE *text)
                                 do {
                                     if (pKern->ch >= p[1]) {
                                         if (pKern->ch == text[i + 1])
-                                            advance = pGlyph->pKern[k].offset + (short)charSpacing;
+                                            advance = pGlyph->pKern[k].offset + charSpacing;
                                         break;
                                     }
                                     k++;
@@ -204,12 +203,12 @@ int Font_GetTextWidth(BYTE index, BYTE *text)
                                 } while (k < kernCount);
                             }
                         }
-                        lineWidth = prevWidth + pGlyph->width + advance;
-                        prevWidth = lineWidth;
+                        width += pGlyph->width + advance;
                     }
                 }
-                if ((text[i + 1] == 0 || text[i + 1] == '\n' || text[i + 1] == '^') && lineWidth > maxWidth)
-                    maxWidth = lineWidth;
+                next = text[i + 1];
+                if ((next == 0 || next == '\n' || next == '^') && width > maxWidth)
+                    maxWidth = width;
                 i++;
                 p = text + i;
                 ch = *p;

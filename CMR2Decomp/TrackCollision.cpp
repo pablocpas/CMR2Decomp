@@ -649,75 +649,87 @@ void Stage_InitLightMeshes(void)
 
 // Sets vertex colours from their heights, with a separate colour for the
 // reference vertex recorded by Stage_InitLightMeshes.
-// match 22%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 90%: the original places an integer instruction between each fld and
+// fmul, and loads the alpha byte with xor/mov in the reference branch.
 // FUNCTION: CMR2 0x00491d40
 void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int referenceBlend)
 {
     FixVector low;
     FixVector delta;
+    FixVector ref;
     FixVector colour;
-    FixVector refDelta;
-    FixVector scaled;
+    BYTE refColour[3];
+    BYTE rgb[2];
+    int value;
+    int height;
     int t;
-    int red;
-    int green;
-    int blue;
     int i;
-    DWORD packedReference;
-    float *vertex;
 
+    colour.x = (unsigned int)pHigh[0] << 16;
+    colour.y = (unsigned int)pHigh[1] << 16;
+    colour.z = (unsigned int)pHigh[2] << 16;
     low.x = (unsigned int)pLow[0] << 16;
     low.y = (unsigned int)pLow[1] << 16;
     low.z = (unsigned int)pLow[2] << 16;
-    delta.x = ((unsigned int)pHigh[0] << 16) - low.x;
-    delta.y = ((unsigned int)pHigh[1] << 16) - low.y;
-    delta.z = ((unsigned int)pHigh[2] << 16) - low.z;
+    delta.x = colour.x - low.x;
+    delta.y = colour.y - low.y;
+    delta.z = colour.z - low.z;
 
     t = FixMul(g_unk0x00592114.y - g_stageHeightMin, g_stageHeightScale);
     if (t < 0)
         t = 0;
     else if (t > 0x10000)
         t = 0x10000;
-    FixVecScale(&scaled, &delta, t);
-    colour.x = low.x + scaled.x;
-    colour.y = low.y + scaled.y;
-    colour.z = low.z + scaled.z;
-    refDelta.x = ((unsigned int)pReference[0] << 16) - colour.x;
-    refDelta.y = ((unsigned int)pReference[1] << 16) - colour.y;
-    refDelta.z = ((unsigned int)pReference[2] << 16) - colour.z;
-    FixVecScale(&scaled, &refDelta, referenceBlend);
-    colour.x += scaled.x;
-    colour.y += scaled.y;
-    colour.z += scaled.z;
-    packedReference = 0xff000000 | ((colour.x >> 16) & 0xff) << 16 |
-                      ((colour.y >> 16) & 0xff) << 8 | ((colour.z >> 16) & 0xff);
+    FixVecScale(&colour, &delta, t);
+    colour.x = colour.x + low.x;
+    colour.y = colour.y + low.y;
+    colour.z = colour.z + low.z;
+    ref.x = (unsigned int)pReference[0] << 16;
+    ref.y = (unsigned int)pReference[1] << 16;
+    ref.z = (unsigned int)pReference[2] << 16;
+    ref.x -= colour.x;
+    ref.y -= colour.y;
+    ref.z -= colour.z;
+    FixVecScale(&ref, &ref, referenceBlend);
+    colour.x = colour.x + ref.x;
+    colour.y = colour.y + ref.y;
+    colour.z = colour.z + ref.z;
+    refColour[0] = (BYTE)(colour.x >> 16);
+    refColour[1] = (BYTE)(colour.y >> 16);
+    refColour[2] = (BYTE)(colour.z >> 16);
 
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
-        vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
-        if ((int)(__int64)((double)vertex[1] * CGraphics::m_65536) == g_unk0x00592114.y &&
-            (int)(__int64)((double)vertex[0] * CGraphics::m_65536) == g_unk0x00592114.x &&
-            (int)(__int64)((double)vertex[2] * CGraphics::m_65536) == g_unk0x00592114.z) {
-            *(DWORD *)((BYTE *)vertex + 0x18) = packedReference;
+        height = (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[1] * CGraphics::m_65536);
+        if (height == g_unk0x00592114.y &&
+            g_unk0x00592114.x == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[0] * CGraphics::m_65536) &&
+            g_unk0x00592114.z == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[2] * CGraphics::m_65536)) {
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) = ((0xffffff00 | refColour[0]) << 8 | refColour[1]) << 8 | refColour[2];
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
         } else {
-            t = FixMul((int)(__int64)((double)vertex[1] * CGraphics::m_65536) - g_stageHeightMin,
-                       g_stageHeightScale);
+            t = FixMul(height - g_stageHeightMin, g_stageHeightScale);
             if (t < 0)
                 t = 0;
             else if (t > 0x10000)
                 t = 0x10000;
-            FixVecScale(&scaled, &delta, t);
-            blue = (low.z + scaled.z) >> 16;
-            red = (low.x + scaled.x) >> 16;
-            green = (low.y + scaled.y) >> 16;
-            if (red > 255) red = 255;
-            else if (red < 0) red = 0;
-            if (green > 255) green = 255;
-            else if (green < 0) green = 0;
-            if (blue > 255) blue = 255;
-            else if (blue < 0) blue = 0;
-            *(DWORD *)((BYTE *)vertex + 0x18) = 0xff000000 | (red << 16) | (green << 8) | blue;
+            FixVecScale(&colour, &delta, t);
+            colour.x = colour.x + low.x;
+            colour.y = colour.y + low.y;
+            colour.z = colour.z + low.z;
+            value = colour.x >> 16;
+            if (value > 255) value = 255;
+            else if (value < 0) value = 0;
+            rgb[0] = (BYTE)value;
+            value = colour.y >> 16;
+            if (value > 255) value = 255;
+            else if (value < 0) value = 0;
+            rgb[1] = (BYTE)value;
+            value = colour.z >> 16;
+            if (value > 255) value = 255;
+            else if (value < 0) value = 0;
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) =
+                ((0xffffff00 | rgb[0]) << 8 | rgb[1]) << 8 | (BYTE)value;
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
         }
-        *(DWORD *)((BYTE *)vertex + 0x1c) = (DWORD)g_stageColourAlpha << 24;
     }
     g_stageColourDirty = 1;
 }

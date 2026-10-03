@@ -129,6 +129,55 @@ int StageObject_UsesExtendedMode(void);
 void FUN_0046bdc0(BYTE *pIn, BYTE *pOut, int active, int handbrake, int lightA, int lightB);
 int FUN_0046bec0(int *pState, BYTE *pIn, BYTE *pOut, BYTE *pCounter, Car *pCar);
 void FUN_0046c240(BYTE *pDst, BYTE car);
+// One replay stream (recorder/player of one car); the slots hang off
+// g_unk0x00588d40. Type 2 streams store a 16-byte car sample every third frame
+// and play them back by interpolating between two poses.
+struct ReplayStream {
+    void *pInput;           // 0x00
+    int playing;            // 0x04
+    int playStarted;        // 0x08
+    int recording;          // 0x0c
+    int recordStarted;      // 0x10
+    int field_0x14;         // 0x14
+    int field_0x18;         // 0x18
+    int type;               // 0x1c 0 inputs, 1 states, 2 car samples
+    BYTE car;               // 0x20
+    BYTE field_0x21;        // 0x21
+    BYTE pad22[2];
+    BYTE *pInputs;          // 0x24 0x114c bytes per lane
+    BYTE *pInputLane;       // 0x28 current lane's input record
+    int field_0x2c;         // 0x2c
+    BYTE *pStates;          // 0x30 0x5c bytes per lane
+    BYTE *pStateLane;       // 0x34 current lane's state record
+    int field_0x38;         // 0x38
+    BYTE *pFrames;          // 0x3c 4 bytes per frame
+    BYTE *pSamples;         // 0x40 16 bytes per sample
+    FixMatrix from;         // 0x44
+    FixMatrix to;           // 0x84
+    FixVector velocity;     // 0xc4
+    int headingFrom;        // 0xd0
+    int headingTo;          // 0xd4
+    int steerFrom;          // 0xd8
+    int steerTo;            // 0xdc
+    int eventPrev;          // 0xe0
+    int event;              // 0xe4
+    unsigned int field_0xe8; // 0xe8
+    unsigned int field_0xec; // 0xec
+    unsigned int flagPrev;  // 0xf0
+    unsigned int flag;      // 0xf4
+    BYTE step;              // 0xf8
+    BYTE padf9[3];
+    short laneCapacity;     // 0xfc
+    short samplesPerLane;   // 0xfe
+    short laneCount;        // 0x100
+    short pad102;
+    short *pLaneSamples;    // 0x104
+    short lane;             // 0x108
+    short frame;            // 0x10a
+    BYTE field_0x10c;       // 0x10c
+    BYTE pad10d[3];
+};
+
 void FUN_0046c2a0(int param_1, BYTE param_2);
 void FUN_0046c320(int *pState, BYTE car);
 void FUN_0046c390(int *pState, BYTE car);
@@ -148,12 +197,30 @@ void FUN_0046d270(void);
 int FUN_0046d2a0(int *p);
 BYTE *FUN_0046d2d0(char *path);
 int Replay_Save(BYTE *pBuffer, char *pName);
-void Replay_SetupPointers(BYTE *pBuffer, int unused);
+void Replay_SetupPointers(ReplayStream *p, int unused);
 int FUN_0046d500(void);
 void FUN_0046d510(void);
 void FUN_0046d5e0(void);
-void FUN_0046d610(BYTE *p);
-void FUN_0046d8d0(int param_1, int *param_2);
+
+void FUN_0046d610(ReplayStream *p);
+// Packed 16-byte car sample of a type 2 replay stream / network packet.
+struct ReplaySample {
+    int y;                          // 0x0 height
+    int x : 16;                     // 0x4 position in the sector, 1/128 units
+    int z : 16;
+    unsigned int sector : 16;       // 0x8
+    unsigned int rightAngles : 16;  // heading | pitch << 8 of the right vector
+    unsigned int forwardHeading : 8; // 0xc
+    unsigned int forwardPitch : 8;
+    unsigned int level : 5;
+    unsigned int bits21 : 3;
+    unsigned int flag24 : 1;
+    unsigned int steering : 1;
+    unsigned int flag26 : 1;
+    unsigned int flag27 : 1;
+    unsigned int pad28 : 4;
+};
+void FUN_0046d8d0(Car *pCar, ReplaySample *pSample);
 void FUN_0046de20(unsigned int *param_1, unsigned int *param_2, unsigned int *param_3, int *param_4, FixMatrix *param_5, int *param_6, unsigned int *param_7, int *param_8);
 void FUN_0046e340(BYTE *pMatrices, BYTE *pInfo);
 void FUN_0046e440(void);
@@ -7202,34 +7269,33 @@ int Replay_Save(BYTE *pBuffer, char *pName)
 
 // Points the arrays of a replay buffer into its data block (after the 0x110
 // header), according to its type.
-// match 45%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046d470
-void Replay_SetupPointers(BYTE *pBuffer, int unused)
+void Replay_SetupPointers(ReplayStream *p, int unused)
 {
+    BYTE *pData;
     int recordSize;
-    int frames;
     int extraSize;
 
-    if (*(int *)(pBuffer + 0x1c) == 0) {
-        *(BYTE **)(pBuffer + 0x24) = pBuffer + 0x110;
-        *(BYTE **)(pBuffer + 0x30) = NULL;
+    pData = (BYTE *)p + 0x110;
+    if (p->type == 0) {
+        p->pInputs = pData;
+        p->pStates = NULL;
         recordSize = 0x114c;
     } else {
-        *(BYTE **)(pBuffer + 0x30) = pBuffer + 0x110;
-        *(BYTE **)(pBuffer + 0x24) = NULL;
+        p->pStates = pData;
+        p->pInputs = NULL;
         recordSize = 0x5c;
     }
-    frames = *(short *)(pBuffer + 0xfc);
-    if (*(int *)(pBuffer + 0x1c) == 2) {
-        *(BYTE **)(pBuffer + 0x3c) = NULL;
+    if (p->type == 2) {
+        p->pFrames = NULL;
         extraSize = 0x10;
-        *(BYTE **)(pBuffer + 0x40) = pBuffer + frames * recordSize + 0x110;
+        p->pSamples = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
     } else {
-        *(BYTE **)(pBuffer + 0x40) = NULL;
+        p->pSamples = NULL;
         extraSize = 4;
-        *(BYTE **)(pBuffer + 0x3c) = pBuffer + frames * recordSize + 0x110;
+        p->pFrames = (BYTE *)p + p->laneCapacity * recordSize + 0x110;
     }
-    *(BYTE **)(pBuffer + 0x104) = pBuffer + (*(short *)(pBuffer + 0xfe) * extraSize + recordSize) * frames + 0x110;
+    p->pLaneSamples = (short *)((BYTE *)p + (p->samplesPerLane * extraSize + recordSize) * p->laneCapacity + 0x110);
 }
 
 // Velocity estimate between two matrices (current at +0, previous at +0x40):
@@ -8430,7 +8496,7 @@ BYTE *FUN_0046c5a0(short frames, short samples, int type)
     *(int *)(buffer + 0x1c) = type;
     *(short *)(buffer + 0xfc) = frames;
     *(short *)(buffer + 0xfe) = samples;
-    Replay_SetupPointers(buffer, 0);
+    Replay_SetupPointers((ReplayStream *)buffer, 0);
     *(int *)(buffer + 4) = 0;
     *(int *)(buffer + 0xc) = 0;
     *(int *)(buffer + 0x14) = 0;
@@ -8455,6 +8521,7 @@ BYTE *FUN_0046d2d0(char *path)
     BYTE *buffer;
     int frames;
     int samples;
+    int count;
 
     if (*(BYTE *)&g_unk0x00588ec8 == 0) {
         CGame::RegisterCallback(Replay_FreeBuffers, NULL);
@@ -8473,14 +8540,15 @@ BYTE *FUN_0046d2d0(char *path)
         return NULL;
     frames = *(short *)(buffer + 0xfc);
     samples = *(short *)(buffer + 0xfe);
-    if (size != 0x110 + frames * (0x114e + samples * 4) &&
-        size != 0x110 + frames * (0x5e + samples * 4) &&
-        size != 0x110 + frames * (0x114e + samples * 16) &&
-        size != 0x110 + frames * (0x5e + samples * 16)) {
+    count = frames * samples;
+    if (size != frames * 0x114c + frames * 2 + count * 4 + 0x110 &&
+        size != frames * 0x5c + frames * 2 + count * 4 + 0x110 &&
+        size != frames * 0x114c + frames * 2 + count * 16 + 0x110 &&
+        size != frames * 0x5c + frames * 2 + count * 16 + 0x110) {
         CFileBuffer::FreeGenericFileBuffer(buffer);
         return NULL;
     }
-    Replay_SetupPointers(buffer, 1);
+    Replay_SetupPointers((ReplayStream *)buffer, 1);
     g_unk0x00588ea0[g_unk0x00588d14] = buffer;
     g_unk0x00588d14++;
     return buffer;
@@ -11317,6 +11385,27 @@ extern const float g_netElevationScale;
 extern const float g_netByteScale;
 extern const float g_netHeadingScale;
 extern const float g_netSignedShortScale;
+extern const double g_netAcosScale;
+
+// FixAcos with the shared -4095.0 constant of the network/replay packers.
+static inline short Replay_Acos(int x)
+{
+    int neg = 0;
+    double t;
+
+    if (x < 0) {
+        x = -x;
+        neg = 1;
+    }
+    if (x > 0x10000) {
+        return g_acosTable[4095];
+    }
+    t = (double)x * CGraphics::m_oneOver65536 * g_netAcosScale;
+    if (neg) {
+        return -g_acosTable[-(__int64)t];
+    }
+    return g_acosTable[-(__int64)t];
+}
 extern const float g_netMinusOne;
 extern const float g_netOne;
 extern float g_65536f;
@@ -11332,143 +11421,107 @@ extern const float g_unk0x0051137c;   // defined in NetRace.cpp (single definiti
 // basis vectors (right/forward) are converted with the atan2/acos tables into
 // the two colour bytes of param_2[2] / param_2[3], and the light intensity and
 // entity/flag bits are gathered into param_2[3].
-// match 45%: implementada; difiere el codegen de la conversion a angulo empaquetado
-// (FixAtan2/FixAcos por tablas) y el reparto de registros del bloque de color
 // FUNCTION: CMR2 0x0046d8d0
-void FUN_0046d8d0(int param_1, int *param_2)
+void FUN_0046d8d0(Car *pCar, ReplaySample *pSample)
 {
-    FixMatrix *pMatrix = *(FixMatrix **)(param_1 + 0x750);
+    FixVector basis[2];
+    FixVector size;
     FixVector pos;
-    FixVector vec[2];
+    FixVector *pBasis;
     Sector *pSector;
     float fX;
     float fZ;
+    float heading;
     int i;
-    int r;
+    int angle;
+    int pitch;
+    int level;
+    int flag;
+    float elevation;
 
-    FixMatrix_GetPosition(&pos, pMatrix);
-    *param_2 = pos.y;
-    param_2[2] = (param_2[2] & 0xffff0000) | (*(unsigned short *)(param_1 + 0xb00) & 0xffff);
-
-    pSector = g_sectors[*(short *)(param_1 + 0xb00)];
+    FixMatrix_GetPosition(&pos, pCar->pWorld);
+    pSample->y = pos.y;
+    pSample->sector = *(short *)((BYTE *)pCar + 0xb00);
+    pSector = g_sectors[*(short *)((BYTE *)pCar + 0xb00)];
     pos.x -= pSector->x;
     pos.y -= pSector->y;
     pos.z -= pSector->z;
+    fX = (float)(((double)pos.x * CGraphics::m_oneOver65536) * CGraphics::m_oneOver128);
+    fZ = (float)(((double)pos.z * CGraphics::m_oneOver65536) * CGraphics::m_oneOver128);
 
-    // 0.0078125f is the original constant at 0x00511338, declared as the private
-    // CGraphics member m_oneOver128 (1.0f / 128.0f).
-    fX = (float)((double)pos.x * CGraphics::m_oneOver65536 * 0.0078125f);
-    fZ = (float)((double)pos.z * CGraphics::m_oneOver65536 * 0.0078125f);
+    if (fX >= g_netOne)
+        pSample->x = 0x7ffd;
+    else if (fX <= g_netMinusOne)
+        pSample->x = -0x7ffd;
+    else
+        pSample->x = (int)(__int64)(fX * g_netSignedShortScale);
+    if (fZ >= g_netOne)
+        pSample->z = 0x7ffd;
+    else if (fZ <= g_netMinusOne)
+        pSample->z = -0x7ffd;
+    else
+        pSample->z = (int)(__int64)(fZ * g_netSignedShortScale);
 
-    if (fX >= g_netOne) {
-        param_2[1] = (param_2[1] & 0xffff7ffd) | 0x7ffd;
-    } else {
-        if (fX <= g_netMinusOne) {
-            param_2[1] = (param_2[1] & 0xffff8003) | 0x8003;
-        } else {
-            r = (int)(__int64)(fX * g_netSignedShortScale);
-            param_2[1] = (param_2[1] & 0xffff0000) | (r & 0xffff);
-        }
-    }
-
-    if (fZ >= g_netOne) {
-        param_2[1] = (param_2[1] & 0xffff) | 0x7ffd0000;
-    } else {
-        if (g_netMinusOne < fZ) {
-            r = (int)(__int64)(fZ * g_netSignedShortScale);
-            param_2[1] = (r << 16) | (param_2[1] & 0xffff);
-        } else {
-            param_2[1] = (param_2[1] & 0xffff) | 0x80030000;
-        }
-    }
-
-    FixMatrix_GetRight(&vec[0], pMatrix);
-    FixMatrix_GetForward(&vec[1], pMatrix);
-
+    FixMatrix_GetRight(&basis[0], pCar->pWorld);
+    FixMatrix_GetForward(&basis[1], pCar->pWorld);
     for (i = 0; i < 2; i++) {
-        int vx = vec[i].x;
-        int vy = vec[i].y;
-        int vz = vec[i].z;
-        int ax = vx < 0 ? -vx : vx;
-        int ay = vy < 0 ? -vy : vy;
-        int az = vz < 0 ? -vz : vz;
-        int ang1;
-        int ang2;
-        int v2;
-        float a1;
-        double a2;
-
-        ang1 = (ax == 0) ? 0 : (int)FixAtan2(az, ax) * 0x1680;
-
-        if (vx < 0) {
-            if (vz < 0)
-                ang1 += 0xb40000;
-            else
-                ang1 = 0xb40000 - ang1;
-        } else if (vz > 0) {
-            if (vx <= 0)
-                ang1 = 0xb40000 - ang1;
-        } else {
-            ang1 = 0x1680000 - ang1;
-        }
-
-        ang2 = FixAcos(ay);
-        v2 = (0x400 - ang2) * 0x1680;
-        if (vy <= 0)
-            v2 = 0xb40000 - v2;
-
-        a1 = (float)ang1 * (float)CGraphics::m_oneOver65536 * g_netHeadingScale * g_netByteScale;
-        a2 = (double)v2 * CGraphics::m_oneOver65536 * g_netElevationScale * g_netByteScale;
-
-        if (a1 < g_netZero)
-            a1 = 0.0f;
-        else if (a1 > g_netByteScale)
-            a1 = g_netByteScale;
-
-        if (a2 < g_netZero)
-            a2 = 0.0f;
-        else if (a2 > g_netByteScale)
-            a2 = g_netByteScale;
-
-        if (i == 0) {
-            r = ((int)(__int64)a1 & 0xff) | ((int)(__int64)a2 << 8);
-            param_2[2] = (r << 16) | (param_2[2] & 0xffff);
-        } else {
-            param_2[3] = (param_2[3] & 0xffff0000) |
-                         ((((int)(__int64)a2 & 0xff) << 8) | ((int)(__int64)a1 & 0xff));
-        }
-    }
-
-    {
-        int num = *(short *)(param_1 + 0xb10) * 0x1680;
-        int den = *(short *)(param_1 + 0xb16) * 0x1680;
-        int level = FixDiv(num, den) + 0x10000;
-        int flag;
-
-        level = FixMul(level, 0xf8000);
-        if (level < 0)
-            level = 0;
-        else if (level > 0x1f0000)
-            level = 0x1f0000;
-        param_2[3] = (param_2[3] & 0xffe0ffff) | ((level >> 16 & 0x1f) << 16);
-
-        if (*(int *)(param_1 + 0x79c) != 0)
-            param_2[3] |= 0x2000000;
+        pBasis = &basis[i];
+        size.x = pBasis->x < 0 ? -pBasis->x : pBasis->x;
+        size.y = pBasis->y < 0 ? -pBasis->y : pBasis->y;
+        size.z = pBasis->z < 0 ? -pBasis->z : pBasis->z;
+        if (size.x == 0)
+            angle = 0;
         else
-            param_2[3] &= 0xfdffffff;
-        param_2[3] = (param_2[3] & 0xfeffffff) | ((*(unsigned int *)(param_1 + 0xb54) & 1) << 0x18);
-        param_2[3] = (param_2[3] & 0xf7ffffff) | ((*(unsigned int *)(param_1 + 0xc14) & 1) << 0x1b);
-        *(int *)(param_1 + 0xc14) = 0;
-        param_2[3] = (param_2[3] & 0xff1fffff) | ((*(unsigned char *)(param_1 + 0xb46) & 7) << 0x15);
-        *(unsigned char *)(param_1 + 0xb46) = 0;
-
-        flag = 0;
-        if (*(int *)(param_1 + 0x724) != 0 && *(char *)(*(int *)(param_1 + 0x724) + 0x17c) != 0)
-            flag = 1;
-        if (*(int *)(param_1 + 0x720) != 0 && *(char *)(*(int *)(param_1 + 0x720) + 0x17c) != 0)
-            flag = 1;
-        param_2[3] = (param_2[3] & 0xfbffffff) | (flag << 0x1a);
+            angle = FixAtan2(size.z, size.x) * 0x1680;
+        pitch = (0x400 - Replay_Acos(size.y)) * 0x1680;
+        if (pBasis->x >= 0 && pBasis->z <= 0)
+            angle = 0x1680000 - angle;
+        else if (pBasis->x <= 0 && pBasis->z >= 0)
+            angle = 0xb40000 - angle;
+        else if (pBasis->x <= 0 && pBasis->z <= 0)
+            angle += 0xb40000;
+        if (pBasis->y <= 0)
+            pitch = 0xb40000 - pitch;
+        heading = (float)((((double)angle * CGraphics::m_oneOver65536) * g_netHeadingScale) * g_netByteScale);
+        elevation = (float)((((double)pitch * CGraphics::m_oneOver65536) * g_netElevationScale) * g_netByteScale);
+        if (heading < g_netZero)
+            heading = 0.0f;
+        else if (heading > g_netByteScale)
+            heading = 255.0f;
+        if (elevation < g_netZero)
+            elevation = g_netZero;
+        else if (elevation > g_netByteScale)
+            elevation = g_netByteScale;
+        if (i == 0) {
+            pSample->rightAngles = ((int)(__int64)heading & 0xff) | ((int)(__int64)elevation << 8);
+        } else {
+            pSample->forwardHeading = (int)(__int64)heading;
+            pSample->forwardPitch = (int)(__int64)elevation;
+        }
     }
+
+    level = FixMul(FixDiv(*(short *)((BYTE *)pCar + 0xb10) * 0x1680, *(short *)((BYTE *)pCar + 0xb16) * 0x1680) + 0x10000,
+                   0xf8000);
+    if (level < 0)
+        level = 0;
+    else if (level > 0x1f0000)
+        level = 0x1f0000;
+    pSample->level = level >> 16;
+    if (pCar->steerFollowRate != 0)
+        pSample->steering = 1;
+    else
+        pSample->steering = 0;
+    pSample->flag24 = *(unsigned int *)((BYTE *)pCar + 0xb54);
+    pSample->flag27 = *(unsigned int *)((BYTE *)pCar + 0xc14);
+    *(unsigned int *)((BYTE *)pCar + 0xc14) = 0;
+    pSample->bits21 = *((BYTE *)pCar + 0xb46);
+    *((BYTE *)pCar + 0xb46) = 0;
+    flag = 0;
+    if (pCar->pNode0x724 != NULL && pCar->pNode0x724->field_0x17c != 0)
+        flag = 1;
+    if (pCar->pNode0x720 != NULL && pCar->pNode0x720->field_0x17c != 0)
+        flag = 1;
+    pSample->flag26 = flag;
 }
 
 // Builds the world matrix of one light/effect record: the position comes from
@@ -12167,7 +12220,7 @@ int g_unk0x0051fb00[52] = {
     0x28f, 0xccc
 };
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
-void FUN_00418ba0(unsigned int view, int strength, int listener);
+void FUN_00418ba0(int view, int strength, int listener);
 void FUN_0045f9d0(int param_1, int *param_2, int param_3);
 int FUN_00427d50(unsigned int view, int listener);
 bool FUN_00427ab0(int value, int *pRange);
@@ -12336,67 +12389,59 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
         count--;
     } while (count != 0);
 }
-// Advances a stage object's animation record: on a key frame boundary it snaps
-// the interpolated matrix, steps the frame counter and re-derives the car's
-// heading, body transform and world velocity.
-// match 20%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+
+// Advances a type 2 replay stream: on every third frame it moves to the next
+// sample (snapping the pose pair and fetching the next one), then interpolates
+// the car's matrix, heading, steering and velocity between the two samples.
+// match 91%: the original homes the car pointer in a local slot and uses the
+// dead parameter slot for the FixMul operands.
 // FUNCTION: CMR2 0x0046d610
-void FUN_0046d610(BYTE *p)
+void FUN_0046d610(ReplayStream *p)
 {
     Car *pCar;
     int t;
     int value;
-    int n;
+
     if (p == NULL)
         return;
-    pCar = Car_Get((int)p[0x20]);
-    if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) != 2 || pCar->field_0xb43[0] <= 0)
+    pCar = Car_Get(p->car);
+    if (p->playing == 0 || p->type != 2 || pCar->field_0xb43[0] <= 0u)
         return;
-    if (p[0xf8] >= 3) {
-        int i;
-        value = *(int *)(p + 0xdc);
-        memcpy(p + 0x44, p + 0x84, 16 * sizeof(int));
-        *(int *)(p + 0xd8) = value;
-        n = *(int *)(p + 0xe4);
-        *(int *)(p + 0xd0) = *(int *)(p + 0xd4);
-        *(int *)(p + 0xe0) = n;
-        *(int *)(p + 0xf0) = *(int *)(p + 0xf4);
-        if (n > 0)
-            FUN_00418ba0((unsigned int)pCar->index, n, pCar->index);
-        *(short *)(p + 0x10a) = *(short *)(p + 0x10a) + 1;
-        if (*(short *)(p + 0x10a) <
-            *(short *)(*(int *)(p + 0x104) + *(short *)(p + 0x108) * 2))
-            FUN_0046de20((unsigned int *)(p + 0xec), (unsigned int *)(p + 0xf4),
-                         (unsigned int *)(p + 0xdc), (int *)(p + 0xd4),
-                         (FixMatrix *)(p + 0x84), (int *)(p + 0xe4),
-                         (unsigned int *)(p + 0xe8),
-                         (int *)(((int)*(short *)(p + 0xfe) * (int)*(short *)(p + 0x108) +
-                                  (int)*(short *)(p + 0x10a)) * 0x10 + *(int *)(p + 0x40)));
+    if (p->step >= 3) {
+        p->from = p->to;
+        p->headingFrom = p->headingTo;
+        p->steerFrom = p->steerTo;
+        p->eventPrev = p->event;
+        p->flagPrev = p->flag;
+        if (p->event > 0)
+            FUN_00418ba0(pCar->index, p->event, pCar->index);
+        p->frame++;
+        if (p->frame < p->pLaneSamples[p->lane])
+            FUN_0046de20(&p->field_0xec, &p->flag, (unsigned int *)&p->steerTo, &p->headingTo, &p->to,
+                         &p->event, &p->field_0xe8,
+                         (int *)(p->pSamples + (p->samplesPerLane * p->lane + p->frame) * 0x10));
         else
             FUN_0046d2a0((int *)p);
-        FUN_0046e340(p + 0x44, (BYTE *)pCar);
-        p[0xf8] = 0;
-        if (*(int *)(p + 0xf0) != 0)
+        FUN_0046e340((BYTE *)&p->from, (BYTE *)pCar);
+        p->step = 0;
+        if (p->flagPrev != 0)
             pCar->field_0xbf8 = 1;
     }
-    t = (*(int *)(p + 0xf4) == 0)
-            ? (int)(((unsigned __int64)p[0xf8] << 32) / 0x30000)
-            : 0;
-    FixMatrix_Interpolate(pCar->pWorld, (FixMatrix *)(p + 0x44), (FixMatrix *)(p + 0x84),
-                          t, t, t, 1);
-    value = FixMul(FixMul(t, *(int *)(p + 0xd4) - *(int *)(p + 0xd0)) + *(int *)(p + 0xd0),
-                   (int)pCar->field_0xb16 * 0x1680);
+    if (p->flag != 0)
+        t = 0;
+    else
+        t = FixDiv(p->step << 16, 0x30000);
+    FixMatrix_Interpolate(pCar->pWorld, &p->from, &p->to, t, t, t, 1);
+    value = FixMul(FixMul(p->headingTo - p->headingFrom, t) + p->headingFrom, pCar->field_0xb16 * 0x1680);
     pCar->field_0x7a4 = 0;
     pCar->heading = (unsigned short)(__int64)((double)value * g_unk0x00511300);
-    pCar->steerFollowRate =
-        FixMul(*(int *)((BYTE *)pCar + 0x788),
-               FixMul(*(int *)(p + 0xdc) - *(int *)(p + 0xd8), t) + *(int *)(p + 0xd8));
+    pCar->steerFollowRate = FixMul(*(int *)((BYTE *)pCar + 0x788), FixMul(p->steerTo - p->steerFrom, t) + p->steerFrom);
     pCar->velocityNext = pCar->velocity;
-    pCar->velocity.x += *(int *)(p + 0xc4);
-    pCar->velocity.y += *(int *)(p + 0xc8);
-    pCar->velocity.z += *(int *)(p + 0xcc);
-    *(int *)((BYTE *)pCar + 0xb54) = *(int *)(p + 0xec);
-    p[0xf8] = p[0xf8] + 1;
+    pCar->velocity.x += p->velocity.x;
+    pCar->velocity.y += p->velocity.y;
+    pCar->velocity.z += p->velocity.z;
+    *(unsigned int *)((BYTE *)pCar + 0xb54) = p->field_0xec;
+    p->step++;
 }
 // Dispatches one stage object's per-frame update when its stage-block slot is
 // active, refreshing the car's order, light and mesh state.
@@ -14206,7 +14251,8 @@ BYTE *FUN_0047c2f0(void)
 void FUN_0046c2a0(int param_1, BYTE param_2);
 void FUN_0046c390(int *pState, BYTE car);
 int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
-void FUN_0046d610(BYTE *p);
+struct ReplayStream;
+void FUN_0046d610(ReplayStream *p);
 void FUN_00496e00(Car *pCar);
 void FUN_00477ce0(int car);
 void FUN_004643f0(int param_1);
@@ -14219,7 +14265,7 @@ void FUN_0045f4a0(void);
 // FUNCTION: CMR2 0x0046cfa0
 void FUN_0046cfa0(int *pState)
 {
-    BYTE *p;
+    ReplayStream *p;
     Car *pCar;
     BYTE *pEvents;
     BYTE *pEvent;
@@ -14228,84 +14274,82 @@ void FUN_0046cfa0(int *pState)
     int k;
     char found;
 
-    p = (BYTE *)pState;
+    p = (ReplayStream *)pState;
     if (p == NULL)
         return;
-    pCar = Car_Get(p[0x20]);
-    if (*(int *)(p + 4) == 0 || *(int *)(p + 0x1c) == 2 || *((BYTE *)pCar + 0xb43) == 0)
+    pCar = Car_Get(p->car);
+    if (p->playing == 0 || p->type == 2 || pCar->field_0xb43[0] <= 0u)
         return;
-    if (*(int *)(p + 8) != 0) {
-        if (*(short *)(p + 0x10a) < 0) {
-            if (*(int *)(p + 0x1c) == 0)
-                FUN_0046c2a0(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c, p[0x20]);
+    if (p->playStarted != 0) {
+        if (p->frame < 0) {
+            if (p->type == 0)
+                FUN_0046c2a0((int)(p->pInputs + p->lane * 0x114c), p->car);
             else
-                FUN_0046c390((int *)(*(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30)), p[0x20]);
-            if (*(short *)(p + 0x10a) != -1) {
+                FUN_0046c390((int *)(p->lane * 0x5c + p->pStates), p->car);
+            if (p->frame != -1) {
                 for (k = 0; k < 4; k++)
                     pCar->wheelLoad[k] = 0;
             }
-            (*(short *)(p + 0x10a))++;
+            p->frame++;
         }
-        if (*(short *)(p + 0x10a) < 0)
+        if (p->frame < 0)
             return;
-        if (*(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2) != 0) {
-            if (FUN_0046c4b0(pState,
-                             (BYTE *)(*(int *)(p + 0x3c) +
-                                      (*(short *)(p + 0xfe) * *(short *)(p + 0x108) + *(short *)(p + 0x10a)) * 4),
-                             p[0x20], p + 0x21))
-                (*(short *)(p + 0x10a))++;
+        if (p->pLaneSamples[p->lane] != 0) {
+            if (FUN_0046c4b0(pState, p->pFrames + (p->samplesPerLane * p->lane + p->frame) * 4, p->car,
+                             &p->field_0x21))
+                p->frame++;
             found = -1;
-            if (*(int *)(p + 0x1c) == 0) {
-                count = *(BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x1148);
-                pEvents = (BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x110c);
+            if (p->type == 0) {
+                count = p->pInputs[p->lane * 0x114c + 0x1148];
+                pEvents = p->pInputs + p->lane * 0x114c + 0x110c;
                 for (k = 0; k < count; k++) {
                     pEvent = pEvents + k * 6;
-                    if (*(short *)(p + 0x10a) < *(short *)pEvent ||
-                        (*(short *)(p + 0x10a) == *(short *)pEvent && (short)p[0x21] < *(short *)(pEvent + 2))) {
+                    if (p->frame < *(short *)pEvent ||
+                        (p->frame == *(short *)pEvent && (short)p->field_0x21 < *(short *)(pEvent + 2))) {
                         found = (char)k;
                         k = count;
                     }
                 }
             } else {
-                count = *(BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x58);
-                pEvents = (BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x1c);
+                count = p->pStates[p->lane * 0x5c + 0x58];
+                pEvents = p->pStates + p->lane * 0x5c + 0x1c;
                 for (k = 0; k < count; k++) {
                     pEvent2 = pEvents + k * 6;
-                    if (*(short *)(p + 0x10a) < *(short *)pEvent2 ||
-                        (*(short *)(p + 0x10a) == *(short *)pEvent2 && (short)p[0x21] < *(short *)(pEvent2 + 2))) {
+                    if (p->frame < *(short *)pEvent2 ||
+                        (p->frame == *(short *)pEvent2 && (short)p->field_0x21 < *(short *)(pEvent2 + 2))) {
                         found = (char)k;
                         k = count;
                     }
                 }
             }
             if (found == -1) {
-                if (*(int *)(p + 0x1c) == 0)
-                    found = *(BYTE *)(*(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c + 0x1148);
+                if (p->type == 0)
+                    found = p->pInputs[p->lane * 0x114c + 0x1148];
                 else
-                    found = *(BYTE *)(*(int *)(p + 0x30) + *(short *)(p + 0x108) * 0x5c + 0x58);
+                    found = p->pStates[p->lane * 0x5c + 0x58];
             }
             // The original indexes from the last event examined by the first
             // loop; for the second table that pointer is stale.
             found--;
             if (found >= 0)
-                p[0x10c] = pEvent[found * 6 + 4];
+                p->field_0x10c = pEvent[found * 6 + 4];
         }
-        if (*(short *)(p + 0x10a) == *(short *)(*(BYTE **)(p + 0x104) + *(short *)(p + 0x108) * 2)) {
-            *(int *)(p + 8) = 0;
-            (*(short *)(p + 0x108))++;
-            if (*(short *)(p + 0x108) == *(short *)(p + 0x100))
+        if (p->frame == p->pLaneSamples[p->lane]) {
+            p->playStarted = 0;
+            p->lane++;
+            if (p->lane == p->laneCount)
                 FUN_0046d2a0(pState);
         }
     } else {
-        *(short *)(p + 0x10a) = 0;
-        p[0x21] = 0;
-        *(int *)(p + 0x14) = 1;
-        if (*(int *)(p + 0x1c) == 0) {
-            *(int *)(p + 8) = 1;
-            *(int *)(p + 0x28) = *(int *)(p + 0x24) + *(short *)(p + 0x108) * 0x114c;
+        p->frame = 0;
+        p->field_0x21 = 0;
+        p->field_0x14 = 1;
+        if (p->type == 0) {
+            p->playStarted = 1;
+            p->pInputLane = p->pInputs + p->lane * 0x114c;
         } else {
-            *(int *)(p + 8) = 1;
-            *(int *)(p + 0x34) = *(short *)(p + 0x108) * 0x5c + *(int *)(p + 0x30);
+            p->playStarted = 1;
+            p->pStateLane = p->lane * 0x5c + p->pStates;
         }
     }
 }
@@ -14331,7 +14375,7 @@ void FUN_0046d5e0(void)
 
     for (pp = g_unk0x00588d40; (int)pp < (int)(g_unk0x00588d40 + 16); pp++) {
         if (CGameInfo::FUN_00406320() == 0 || CGameInfo::FUN_00405d80() != 6)
-            FUN_0046d610(*(BYTE **)*pp);
+            FUN_0046d610(*(ReplayStream **)*pp);
     }
 }
 
