@@ -1,4 +1,14 @@
 {
+  "incoming_branch": "decomp/match3",
+  "incoming_worktree": "/home/pablo/cmr2-match3",
+  "incoming_commits": [
+    "f9aadadab2c735f2e076ebefe93bb1235fe2a89e",
+    "1d105c57cff1332b6b522024f9db29f4207219a9",
+    "a82729da1127dc5a0d13d437eeb8f5419b6a452f",
+    "13c1f8b2d37c6605d8b196eb4173f9fd7ab77496"
+  ],
+  "last_incoming_commit": "13c1f8b2d37c6605d8b196eb4173f9fd7ab77496",
+  "main_snapshot_before_merge": "91774a564220d5831d9f179f7c09aab8a9807750",
   "build": {
     "commit": "2783c6a034d987460826e96b217b3d8329b6ac98",
     "source_changed": true,
@@ -167,28 +177,163 @@
     "exe_sha256": "87cf2afb650f2d66e20f24b71bb334378f91963022b5705ffd25ee279709cc44",
     "pdb_sha256": "b2f4c31fbba004d97e9d2b763d6e178e373a9e9342f555a534091aec182319fb"
   },
-  "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
-  "inventory_entries": 3646,
-  "measured_functions": 3367,
-  "reccmp_exact": 2454,
-  "audited_source_functions": 3363,
-  "relocated_byte_exact": 2570,
-  "nonmatching_source_functions": 793,
-  "unresolved_source_functions": [
-    "0x496e00",
-    "0x4dce00",
-    "0x5062d0",
-    "0x4a52d0",
-    "0x4b67f0",
-    "0x4b21e0",
-    "0x425c40",
-    "0x4177d0",
-    "0x4b8e30",
-    "0x4a28d0",
-    "0x459630",
-    "0x4a98b0"
+  "before_build_exe_sha256": "9993b3550ca391d623d5704f0a1aec0d7d5df785f228f0eee08fc77b23daa783",
+  "before_exact": 2567,
+  "after_exact": 2570,
+  "remaining": 793,
+  "gained_exact": [
+    "0x4b8b90",
+    "0x46c750",
+    "0x46cce0"
   ],
-  "data_variables": 3175,
+  "lost_exact": [],
+  "score_regressions": [],
   "data_issues": 0,
-  "byte_auditor_sha256": "2af86dc2fb71e67e0929ac7651d460d836c199f5994a8c11cd55e3ab19029b03"
+  "changes": [
+    {
+      "address": "0x40b5b0",
+      "name": "Font_GetTextWidth",
+      "file": "Font.cpp",
+      "before_byte_score": 0.2713178294573643,
+      "after_byte_score": 0.5645161290322581,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x4174e0",
+      "name": "FUN_004174e0",
+      "file": "Race.cpp",
+      "before_byte_score": 0.34146341463414637,
+      "after_byte_score": 0.6932270916334662,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x4b8b90",
+      "name": "Sector_BuildCorners",
+      "file": "Sector.cpp",
+      "before_byte_score": 0.20887728459530025,
+      "after_byte_score": 1.0,
+      "exact": true,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46d470",
+      "name": "Replay_SetupPointers",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.5,
+      "after_byte_score": 0.6363636363636364,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46d2d0",
+      "name": "FUN_0046d2d0",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.37777777777777777,
+      "after_byte_score": 0.4787234042553192,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46c750",
+      "name": "FUN_0046c750",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.5555555555555556,
+      "after_byte_score": 1.0,
+      "exact": true,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46d8d0",
+      "name": "FUN_0046d8d0",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.407673860911271,
+      "after_byte_score": 0.5959475566150179,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46cce0",
+      "name": "FUN_0046cce0",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.586046511627907,
+      "after_byte_score": 1.0,
+      "exact": true,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x46d610",
+      "name": "FUN_0046d610",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.6927083333333334,
+      "after_byte_score": 0.90625,
+      "exact": false,
+      "unknown": [],
+      "tests": [
+        "differential_replay_snapshot.py"
+      ]
+    },
+    {
+      "address": "0x47b0e0",
+      "name": "FUN_0047b0e0",
+      "file": "StageObjects.cpp",
+      "before_byte_score": 0.6943699731903485,
+      "after_byte_score": 0.7238605898123325,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    },
+    {
+      "address": "0x491d40",
+      "name": "Stage_SetHeightColours",
+      "file": "TrackCollision.cpp",
+      "before_byte_score": 0.20825852782764812,
+      "after_byte_score": 0.9069373942470389,
+      "exact": false,
+      "unknown": [],
+      "tests": []
+    }
+  ],
+  "merge_resolution": "Se conservan las funciones completas entrantes en los solapamientos revisados y las mejoras independientes de main. La edición sin commit del otro worktree no se toca.",
+  "call_order_compensation": {
+    "address": "0x47aa70",
+    "problem": "El nuevo orden de declaraciones cambia la evaluación de Car_GetOrderCount() - RallyDataState() y reduce el matching.",
+    "fix": "Asignar primero Car_GetOrderCount() y restar RallyDataState() en una segunda sentencia.",
+    "before_byte_score": 0.56,
+    "after_byte_score": 0.56,
+    "normalized_instructions_same_as_previous_validated_merge": true
+  },
+  "total_harnesses": 71,
+  "primary_entries": 112,
+  "unit_tests": 47,
+  "failures": [],
+  "logic_counts": {
+    "unresolved_and_untested": 11,
+    "logic_unverified": 723,
+    "fixtures_pass_matching_pending": 59,
+    "local_byte_exact": 2570
+  },
+  "queue_counts": {
+    "pending": 793,
+    "fixtures_pass": 59,
+    "runtime_coverage_measured": 38,
+    "complete_known_conditional_edges": 11,
+    "high_confidence_certified": 3,
+    "automatic_mutation_eligible": 3
+  },
+  "logic_tests_sha256": "2f6686c39082b50a8bc237376e228308cac97c57317e4d24e3a3a8a2bd313b25",
+  "logic_audit_sha256": "93a85a23986c5f09fee8d22d456b7ee8c5893112a6560315af1df97d83933944",
+  "limits": [
+    "Los harnesses verifican los casos y contratos registrados; no constituyen una partida completa ni una demostración universal.",
+    "Los cuerpos exactos no certifican las implementaciones de sus dependencias que sigan pendientes."
+  ]
 }

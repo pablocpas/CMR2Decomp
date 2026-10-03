@@ -57,8 +57,8 @@
       "CMR2Decomp/GameInfo.h": "83f83eda0f3b6ee6ae81ba603773c5105dfa034c2eee4a0245d2782055dd6e85",
       "CMR2Decomp/GameMenus.h": "0a86e832ea18165b383d487fd7d20168b157e55020162ec475fa05e01c4a9afa",
       "CMR2Decomp/GenericFileLoader.h": "d1508d9e7dfa1017d94ee48121dc0a6c9871390aad163c87ce5308aa9afdd39c",
-      "CMR2Decomp/Graphics.h": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
-      "CMR2Decomp/Input.h": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+      "CMR2Decomp/Graphics.h": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1",
+      "CMR2Decomp/Input.h": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a",
       "CMR2Decomp/InstallInfo.h": "8dbdfdea3ffbc972dbab149ba4c2a84d06f5f747422131791f35e7e69cdf689b",
       "CMR2Decomp/Logger.h": "4e07747014e30fa53eb1c166117f961c41f00e038a1f94abfe1dc503d04b771f",
       "CMR2Decomp/Menu.h": "3d7a8c77ee0ecbe5e13f1a1028d22e710ce1b325c285d67faf4226ecc9f02b3f",
@@ -111,7 +111,25 @@
     "boundary_cases": "2592 productos: 96 patrones incluyendo ceros, límites INT_MIN/INT_MAX, +/-65536, +/-1, coeficientes heterogéneos y palabras aleatorias; nueve disposiciones con in-place, entradas iguales, solapamientos parciales y falta de alineación. Contador 0, INT_MAX y UINT_MAX. Modelo independiente y heap completo comparados.",
     "dependencies": "No llamadas ni proveedores controlados; la multiplicación inline se ejecuta realmente. Se comprueban todas las escrituras en globals, solo el contador de 4 bytes, y registros EBX/ESI/EDI/EBP y ret 12.",
     "regression_sensitivity": "El harness modifica IMUL a MUL sin signo en una copia del original; el mismo modelo y fixture firmado rechazan la mutación.",
-    "limitations": "Alta confianza local dentro del dominio indicado; no prueba exhaustiva de los 2^1024 pares de matrices ni de la composición con callers. La aritmética se revisa como comportamiento del ejecutable x86, no como garantía de ausencia de UB del C++ estándar."
+    "limitations": "Alta confianza local dentro del dominio indicado; no prueba exhaustiva de los 2^1024 pares de matrices ni de la composición con callers. La aritmética se revisa como comportamiento del ejecutable x86, no como garantía de ausencia de UB del C++ estándar.",
+    "amendments": [
+      {
+        "date": "2026-10-03",
+        "integration": "decomp/match3 through 13c1f8b",
+        "changed_headers": {
+          "CMR2Decomp/Graphics.h": {
+            "before": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
+            "after": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1"
+          },
+          "CMR2Decomp/Input.h": {
+            "before": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+            "after": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a"
+          }
+        },
+        "review": "Graphics.h cambia solo el acceso de un miembro static existente; Input.h estrecha el argumento de una consulta que estos cuerpos no llaman. El fuente de cada función revisada y las instrucciones normalizadas compiladas, con relocaciones resueltas, siguen idénticos. Sus harnesses y sensibilidad a fallos siguen vigentes y pasan en el binario combinado.",
+        "normalized_rebuilt_instructions_sha256": "3c04dd3edd2709785b6059c1f6f57a9d6e46003e73ceb04a3f533e49f1641ac8"
+      }
+    ]
   },
   "0x441430": {
     "reviewed": true,
@@ -171,8 +189,8 @@
       "CMR2Decomp/GameInfo.h": "83f83eda0f3b6ee6ae81ba603773c5105dfa034c2eee4a0245d2782055dd6e85",
       "CMR2Decomp/GameMenus.h": "0a86e832ea18165b383d487fd7d20168b157e55020162ec475fa05e01c4a9afa",
       "CMR2Decomp/GenericFileLoader.h": "d1508d9e7dfa1017d94ee48121dc0a6c9871390aad163c87ce5308aa9afdd39c",
-      "CMR2Decomp/Graphics.h": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
-      "CMR2Decomp/Input.h": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+      "CMR2Decomp/Graphics.h": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1",
+      "CMR2Decomp/Input.h": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a",
       "CMR2Decomp/InstallInfo.h": "8dbdfdea3ffbc972dbab149ba4c2a84d06f5f747422131791f35e7e69cdf689b",
       "CMR2Decomp/Logger.h": "4e07747014e30fa53eb1c166117f961c41f00e038a1f94abfe1dc503d04b771f",
       "CMR2Decomp/Menu.h": "3d7a8c77ee0ecbe5e13f1a1028d22e710ce1b325c285d67faf4226ecc9f02b3f",
@@ -225,7 +243,25 @@
     "boundary_cases": "672 integraciones: 96 patrones de límites, signos, ceros y palabras aleatorias; siete disposiciones, incluyendo W dentro de cada fila y solapamientos desplazados. El modelo relee W después de cada fila y compara el heap completo, guardas y ABI.",
     "dependencies": "Todos los cálculos y el helper inline de producto cruzado son reales; ninguna llamada ni hoja controlada. Se prohíben escrituras en globals y se verifican EBX/ESI/EDI/EBP y ret 8.",
     "regression_sensitivity": "Una copia del original con desplazamiento fixed-point 15 en lugar de 16 es rechazada por el modelo del mismo harness.",
-    "limitations": "Alta confianza local, no prueba universal formal ni validación del integrador completo de física. El aliasing con pila privada del callee y los punteros no mapeados quedan fuera del dominio."
+    "limitations": "Alta confianza local, no prueba universal formal ni validación del integrador completo de física. El aliasing con pila privada del callee y los punteros no mapeados quedan fuera del dominio.",
+    "amendments": [
+      {
+        "date": "2026-10-03",
+        "integration": "decomp/match3 through 13c1f8b",
+        "changed_headers": {
+          "CMR2Decomp/Graphics.h": {
+            "before": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
+            "after": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1"
+          },
+          "CMR2Decomp/Input.h": {
+            "before": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+            "after": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a"
+          }
+        },
+        "review": "Graphics.h cambia solo el acceso de un miembro static existente; Input.h estrecha el argumento de una consulta que estos cuerpos no llaman. El fuente de cada función revisada y las instrucciones normalizadas compiladas, con relocaciones resueltas, siguen idénticos. Sus harnesses y sensibilidad a fallos siguen vigentes y pasan en el binario combinado.",
+        "normalized_rebuilt_instructions_sha256": "21220eae4738b92d50d3babd065106d4b0af66a954af6de2add34d9daf00d719"
+      }
+    ]
   },
   "0x43eef0": {
     "reviewed": true,
@@ -285,8 +321,8 @@
       "CMR2Decomp/GameInfo.h": "83f83eda0f3b6ee6ae81ba603773c5105dfa034c2eee4a0245d2782055dd6e85",
       "CMR2Decomp/GameMenus.h": "0a86e832ea18165b383d487fd7d20168b157e55020162ec475fa05e01c4a9afa",
       "CMR2Decomp/GenericFileLoader.h": "d1508d9e7dfa1017d94ee48121dc0a6c9871390aad163c87ce5308aa9afdd39c",
-      "CMR2Decomp/Graphics.h": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
-      "CMR2Decomp/Input.h": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+      "CMR2Decomp/Graphics.h": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1",
+      "CMR2Decomp/Input.h": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a",
       "CMR2Decomp/InstallInfo.h": "8dbdfdea3ffbc972dbab149ba4c2a84d06f5f747422131791f35e7e69cdf689b",
       "CMR2Decomp/Logger.h": "4e07747014e30fa53eb1c166117f961c41f00e038a1f94abfe1dc503d04b771f",
       "CMR2Decomp/Menu.h": "3d7a8c77ee0ecbe5e13f1a1028d22e710ce1b325c285d67faf4226ecc9f02b3f",
@@ -340,6 +376,24 @@
     "boundary_cases": "1152 casos conjuntos de construcción y offset directo: 192 patrones, flags 0/1/-1, dimensiones/ejes/posición heterogéneos, ceros y valores límite que fuerzan wrap. El modelo geométrico independiente usa signos por vértice; se verifica todo el heap, solo las escrituras esperadas, ambas ramas, current-car y ABI.",
     "dependencies": "Car_ApplyCornerOffsets se ejecuta real y se compara además contra su modelo: tres escalas de ejes reales y ajustes distintos en los cuatro vértices superiores. No proveedores simulados. Se verifican ret 4, registros preservados y el único store global esperado de g_pCurrentCar.",
     "regression_sensitivity": "Cambiar la lectura de halfExtents.z de 0x20c a 0x208 en una copia del original produce una diferencia de geometría y el fixture lo rechaza.",
-    "limitations": "Alta confianza local para buffers Car/world distintos; no verifica ciclo completo de conducción/contacto ni matrices que se solapen con los campos de salida del coche. La prueba original de restore proporciona evidencia adicional en un caller, sin cerrar todos los callers."
+    "limitations": "Alta confianza local para buffers Car/world distintos; no verifica ciclo completo de conducción/contacto ni matrices que se solapen con los campos de salida del coche. La prueba original de restore proporciona evidencia adicional en un caller, sin cerrar todos los callers.",
+    "amendments": [
+      {
+        "date": "2026-10-03",
+        "integration": "decomp/match3 through 13c1f8b",
+        "changed_headers": {
+          "CMR2Decomp/Graphics.h": {
+            "before": "a218dc0afd504fcce91062bcb5e2e0a2371fb32be5f7a7dd8da970ddee9d9f3e",
+            "after": "0a49c970fd36fba68fd561028635ce2a58148e98c4bd9bfab589eceaf95724f1"
+          },
+          "CMR2Decomp/Input.h": {
+            "before": "056e7fe3831e3040a96b31c1d9430d3634290a5cf1434c643f84c575004d4ef3",
+            "after": "077097e8172ceacd6450a57f1b8729d9178df815a05ba178940a75fc1739b26a"
+          }
+        },
+        "review": "Graphics.h cambia solo el acceso de un miembro static existente; Input.h estrecha el argumento de una consulta que estos cuerpos no llaman. El fuente de cada función revisada y las instrucciones normalizadas compiladas, con relocaciones resueltas, siguen idénticos. Sus harnesses y sensibilidad a fallos siguen vigentes y pasan en el binario combinado.",
+        "normalized_rebuilt_instructions_sha256": "7a1c5f316b4af68df24055129ac0303bfbc91dfbce9840b6391ac87dbc616853"
+      }
+    ]
   }
 }

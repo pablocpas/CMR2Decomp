@@ -2,7 +2,7 @@
 
 Se ha revisado el inventario de las **3363 funciones anotadas del fuente**,
 contrastando matching, cuerpos triviales, marcadores de trabajo pendiente,
-símbolos sin resolver, pruebas existentes y, en las 796 no exactas, llamadas,
+símbolos sin resolver, pruebas existentes y, en las 793 no exactas, llamadas,
 saltos y limpieza de pila del código original y recompilado. Se han ejecutado
 los **71 harnesses diferenciales: cero fallos**. La cobertura adicional incluye
 superficies, geometría, rutas, empaquetado y recepción de red, decisión de
@@ -17,13 +17,13 @@ de comportamiento. Las diferencias estáticas tampoco demuestran un defecto.
 
 | Estado | Funciones | Interpretación |
 | --- | ---: | --- |
-| `local_byte_exact` | 2567 | Bytes locales equivalentes tras resolver relocaciones; sus dependencias pueden seguir pendientes |
+| `local_byte_exact` | 2570 | Bytes locales equivalentes tras resolver relocaciones; sus dependencias pueden seguir pendientes |
 | `fixtures_pass_matching_pending` | 59 | No exactas, pero pasan pruebas directas en los casos registrados |
-| `logic_unverified` | 725 | No exactas y sin prueba directa registrada que pase |
-| `unresolved_and_untested` | 12 | Igual que la anterior, además con símbolos/constantes sin resolver |
+| `logic_unverified` | 723 | No exactas y sin prueba directa registrada que pase |
+| `unresolved_and_untested` | 11 | Igual que la anterior, además con símbolos/constantes sin resolver |
 | Total | 3363 | Todas las funciones del inventario de fuente |
 
-Quedan **796 funciones para matching**, de las cuales **737 necesitan ampliar
+Quedan **793 funciones para matching**, de las cuales **734 necesitan ampliar
 la validación directa de comportamiento**. Son tareas pendientes de validación,
 no errores demostrados. Los 71 harnesses registran 112 entradas principales
 distintas; los proveedores simulados no se cuentan como funciones probadas.
@@ -311,12 +311,12 @@ pendiente fuera de las 737 funciones de fuente sin prueba directa.
 
 ## Evidencia reproducible
 
-La compilación conserva **2567 funciones exactas**, ninguna exacta perdida,
+La compilación conserva **2570 funciones exactas**, ninguna exacta perdida,
 y **cero incidencias de datos**. Las 47 comprobaciones unitarias del compilador,
 los límites de función y el análisis de instrucciones pasan.
 
 El EXE probado tiene SHA-256
-`9993b3550ca391d623d5704f0a1aec0d7d5df785f228f0eee08fc77b23daa783`.
+`87cf2afb650f2d66e20f24b71bb334378f91963022b5705ffd25ee279709cc44`.
 [logic-tests.json](logic-tests.json) conserva hashes, salidas y resultados de
 los 71 harnesses; [logic-audit.json](logic-audit.json) liga el inventario a esa
 evidencia y al manifiesto de compilación. [logic-all.tsv](logic-all.tsv) permite
@@ -416,3 +416,16 @@ valor de la tabla. Un acceso volatile conserva esa programación de MSVC6 y
 reproduce el cuerpo entero. Sus regresiones de tiempos permanecen registradas.
 Las tres funciones nuevas se miden junto con las 3363 del inventario y se
 verifican con toda la batería de 71 harnesses.
+
+## Fusión de los cuatro commits de decomp/match3
+
+Se han integrado los commits hasta `13c1f8b`, conservando el trabajo de main.
+El resultado pasa de 2567 a **2570 cuerpos exactos**, con **793 pendientes**.
+Quedan exactas `Sector_BuildCorners` (`0x4b8b90`), `FUN_0046c750` y
+`FUN_0046cce0`. Mejoran once funciones en total, incluidas alturas y replay.
+No se pierde ningún exacto ni baja ningún porcentaje: una compensación local
+en `0x47aa70` conserva el orden de llamadas y sus instrucciones anteriores.
+Pasan los 71 harnesses y las 47 pruebas unitarias; no hay incidencias de datos.
+Las revisiones de matrices y esquinas se mantienen tras revisar los dos cambios
+de cabecera y comprobar que sus cuerpos de máquina siguen idénticos.
+Recibo: [merge-match3-2026-10-03.json](merge-match3-2026-10-03.json).

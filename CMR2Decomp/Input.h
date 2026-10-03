@@ -307,7 +307,7 @@ public:
     static void FUN_0049ffc0(DWORD param1);
     static DWORD FUN_0040be00(unsigned int param1);
     static DWORD FUN_0040be30(unsigned int param1);
-    static DWORD FUN_0040be60(unsigned int param1);
+    static DWORD FUN_0040be60(unsigned short param1);
     static unsigned int FUN_0040c210(unsigned int param1, int param2);
     static BOOL FUN_0040c270(int param1, ControllerData *param2);
     static void FUN_004aaf50(DWORD param1, int index);

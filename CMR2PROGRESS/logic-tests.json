@@ -1,10 +1,10 @@
 {
-  "exe_sha256": "9993b3550ca391d623d5704f0a1aec0d7d5df785f228f0eee08fc77b23daa783",
-  "pdb_sha256": "352ea349ed48a7d7d7e9f1c1f390fb20f58aababde6569cda242dd2086d048d7",
+  "exe_sha256": "87cf2afb650f2d66e20f24b71bb334378f91963022b5705ffd25ee279709cc44",
+  "pdb_sha256": "b2f4c31fbba004d97e9d2b763d6e178e373a9e9342f555a534091aec182319fb",
   "original_sha256": "21b2dd13798724bcfe0c64b44216fb3e772c86addd330e821e53d5962fca3817",
-  "manifest_sha256": "cfd3f4bf23dcef62780f405205901d9cb686507bfd4a08480010cacb013525fe",
-  "report_sha256": "9fb28cf55bf41bc3cfeb950a4b797609a1c9a3818a36e2e689d2453d97adb6de",
-  "entities_sha256": "24c09b2765c7b9f3ac3113690f571ef59a76478e0a79a35eb44bf6d1b3bf7e89",
+  "manifest_sha256": "ebc6eafdde23a8ced4a042347c9e8641aa435730ecc080b9e09513482717847e",
+  "report_sha256": "c1064da842351596b03bf966a0d6b06b89d889803406ce87e2fa75958bf40f7d",
+  "entities_sha256": "fc29db938c16e281a28697661ce264bf5680280552d915593f70e80e7733ca51",
   "suite_sha256": "a805b368eaeb86341bdc0a0e7b91c483a7fe9edaa47f023691cc09bff3502d84",
   "test_source_sha256": {
     "differential_ai_controls.py": "848c50b2a62fd0507e0472683926b8b5b9bf9e07dec8f2b883f6ebcf087ec577",
@@ -92,7 +92,7 @@
       "test": "differential_ai_network.py",
       "exit_code": 0,
       "output": "256 complete CPU network cases: identical five controls and every projection row",
-      "seconds": 0.7506431179936044,
+      "seconds": 0.7969212399912067,
       "targets": [
         "0x47c9a0"
       ],
@@ -108,7 +108,7 @@
       "test": "differential_ai_controls.py",
       "exit_code": 0,
       "output": "384 AI cases: identical five-channel outputs, car controls and driver state",
-      "seconds": 0.7565612040343694,
+      "seconds": 0.827035233960487,
       "targets": [
         "0x47c9a0",
         "0x47bdd0"
@@ -430,7 +430,7 @@
       "test": "differential_ai_telemetry.py",
       "exit_code": 0,
       "output": "288 CPU telemetry cases: identical route angles, complete state and angle inputs",
-      "seconds": 1.6483707989682443,
+      "seconds": 1.7383636130252853,
       "targets": [
         "0x498620"
       ],
@@ -1380,7 +1380,7 @@
       "test": "differential_billboard_init.py",
       "exit_code": 0,
       "output": "6000 billboard initializations: original failures 0, rebuilt failures 0; guards intact; missing-enable mutation failures 4000",
-      "seconds": 1.4329485459602438,
+      "seconds": 1.492174844024703,
       "targets": [
         "0x4b1150"
       ],
@@ -1400,8 +1400,8 @@
     {
       "test": "differential_axis_colours.py",
       "exit_code": 0,
-      "output": "6000 native axis colour cases: 0 differences; visibility, selection, live colours, provider order, draw arguments and all guards checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 6.478654933976941,
+      "output": "6000 native axis colour cases: 0 differences; visibility, selection, live colours, provider order, draw arguments and all guards checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 6.619599732977804,
       "targets": [
         "0x4ff060"
       ],
@@ -1417,7 +1417,7 @@
       "test": "differential_auto_steering.py",
       "exit_code": 0,
       "output": "9984 automatic-steering cases: independent integer/rational x87 model, complete guarded car, signed/short limits and actual helpers; no mocks",
-      "seconds": 11.900009345030412,
+      "seconds": 12.515754262043629,
       "targets": [
         "0x494110"
       ],
@@ -1433,7 +1433,7 @@
       "test": "differential_camera_clip.py",
       "exit_code": 0,
       "output": "6000 native camera clip cases: 0 differences; live graphics replacements, signed clips, unsigned node clamp, call traces and full arena checked",
-      "seconds": 2.96286739903735,
+      "seconds": 3.0125504200113937,
       "targets": [
         "0x459250"
       ],
@@ -1449,7 +1449,7 @@
       "test": "differential_car_basis.py",
       "exit_code": 0,
       "output": "300 reset cases: identical guarded car/matrices and provider traces on flat/sloped terrain",
-      "seconds": 1.3241726569831371,
+      "seconds": 1.412320623989217,
       "targets": [
         "0x43e680"
       ],
@@ -2108,26 +2108,10 @@
       "coverage_sha256": "0b860acb38f016880df17aebcde8f451d5b9d5725f00598c3437f9eb44b24822"
     },
     {
-      "test": "differential_callback_cursor.py",
-      "exit_code": 0,
-      "output": "6000 native callback cursor cases: 0 differences; counts0..255, transitions, preserved upper bytes, published record and all guards checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 11.423506382037885,
-      "targets": [
-        "0x49c370"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
-        "functions": {}
-      },
-      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
-    },
-    {
       "test": "differential_car_contacts.py",
       "exit_code": 0,
       "output": "288 car contact cases: all eight counts/lists, timers and pair responses identical",
-      "seconds": 2.000311381998472,
+      "seconds": 1.2629826529882848,
       "targets": [
         "0x48a1f0"
       ],
@@ -2501,10 +2485,26 @@
       "coverage_sha256": "be2782d1680cf08c831ca4b0f17b96dd746d9bfb36fbf41cf9080947ae6362e4"
     },
     {
+      "test": "differential_callback_cursor.py",
+      "exit_code": 0,
+      "output": "6000 native callback cursor cases: 0 differences; counts0..255, transitions, preserved upper bytes, published record and all guards checked\nAuthorization required, but no authorization protocol specified",
+      "seconds": 11.935051170992665,
+      "targets": [
+        "0x49c370"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
+        "functions": {}
+      },
+      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
+    },
+    {
       "test": "differential_car_lighting.py",
       "exit_code": 0,
       "output": "384 car lighting cases: identical wheel colours, RGB light and car state",
-      "seconds": 1.5949557560379617,
+      "seconds": 1.1034919830271974,
       "targets": [
         "0x462aa0"
       ],
@@ -2784,7 +2784,7 @@
       "test": "differential_car_corners.py",
       "exit_code": 0,
       "output": "1152 corner/offset cases: real helpers, independent geometry, complete heap, branches and ABI identical; wrong-offset mutation rejected",
-      "seconds": 3.7424812489771284,
+      "seconds": 2.71001218596939,
       "targets": [
         "0x43eef0",
         "0x43f280"
@@ -3083,7 +3083,7 @@
       "test": "differential_car_restore.py",
       "exit_code": 0,
       "output": "960 saved-state restores: identical guarded car, matrix and input; actual helpers, both suspension branches and aliased inputs",
-      "seconds": 2.5590199080179445,
+      "seconds": 2.1660346830030903,
       "targets": [
         "0x426d80"
       ],
@@ -3099,7 +3099,7 @@
       "test": "differential_car_spawn.py",
       "exit_code": 0,
       "output": "288 spawn cases: identical tuning providers, setup arguments and complete car state",
-      "seconds": 1.346729394979775,
+      "seconds": 1.415699321019929,
       "targets": [
         "0x43c7f0"
       ],
@@ -4440,7 +4440,7 @@
       "test": "differential_car_route_update.py",
       "exit_code": 0,
       "output": "961 complete car route cases: identical records, probes, direction cache and guarded heap; no mocked callees",
-      "seconds": 3.4603788779932074,
+      "seconds": 3.647855499992147,
       "targets": [
         "0x420a30"
       ],
@@ -5652,7 +5652,7 @@
       "test": "differential_body_patch.py",
       "exit_code": 0,
       "output": "13440 body-patch cases: independent ghost/plane/box geometry, all 14 types, normalization threshold/zero, guarded contact/globals and real helpers; no mocks",
-      "seconds": 26.69526152301114,
+      "seconds": 26.308212444011588,
       "targets": [
         "0x4962c0"
       ],
@@ -5668,7 +5668,7 @@
       "test": "differential_collision_checkpoint.py",
       "exit_code": 0,
       "output": "12000 native collision/checkpoint cases: 0 differences; fixed point wrap model, guards, lookup traces, aliases and four x87 rounding modes checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 7.287450450996403,
+      "seconds": 7.55504008900607,
       "targets": [
         "0x490570",
         "0x4591e0"
@@ -5685,7 +5685,7 @@
       "test": "differential_collision_face_decision.py",
       "exit_code": 0,
       "output": "7200 face-decision fixtures: independent decisions, guarded memory, provider arguments and stack cleanup; controlled geometry",
-      "seconds": 6.974322413967457,
+      "seconds": 7.684839075023774,
       "targets": [
         "0x490b90"
       ],
@@ -5836,8 +5836,8 @@
     {
       "test": "differential_com_outputs.py",
       "exit_code": 0,
-      "output": "com.c\n18000 native COM cases: 0 differences; player output/name, sound HRESULT order, 100 fill counts and guards checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.560343601973727,
+      "output": "com.c\n18000 native COM cases: 0 differences; player output/name, sound HRESULT order, 100 fill counts and guards checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 5.724865683005191,
       "targets": [
         "0x4a1a10",
         "0x4a26f0",
@@ -5855,7 +5855,7 @@
       "test": "differential_checkpoint_advance.py",
       "exit_code": 0,
       "output": "3072 checkpoint fixtures: identical guarded records and event order; independent progression model, controlled callees",
-      "seconds": 16.50712622498395,
+      "seconds": 17.799879652971867,
       "targets": [
         "0x458e00"
       ],
@@ -6085,7 +6085,7 @@
       "test": "differential_event_draw_abi.py",
       "exit_code": 0,
       "output": "5 event draw exits and 6 release no-op cases: identical globals, returns and stack cleanup; old-signature mutation detected",
-      "seconds": 0.25750119099393487,
+      "seconds": 0.28573056700406596,
       "targets": [
         "0x46e780",
         "0x4057a8",
@@ -6133,7 +6133,7 @@
       "test": "differential_contact_init.py",
       "exit_code": 0,
       "output": "2560 contact initializations: independent guarded records and pointer caches; actual helpers and traces, no mocks",
-      "seconds": 4.7047858940204605,
+      "seconds": 5.592701914021745,
       "targets": [
         "0x494bb0"
       ],
@@ -6364,8 +6364,8 @@
     {
       "test": "differential_effect_calls.py",
       "exit_code": 0,
-      "output": "6000 effect dispatches: 0 differences; car data and guards intact; mutation differences: 0\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.468760124000255,
+      "output": "6000 effect dispatches: 0 differences; car data and guards intact; mutation differences: 0\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 5.687024865008425,
       "targets": [
         "0x45af00"
       ],
@@ -6381,7 +6381,7 @@
       "test": "differential_fireworks.py",
       "exit_code": 0,
       "output": "1200 fireworks cases: identical rocket memory, flash state, calls and RNG in all four x87 rounding modes",
-      "seconds": 4.932328802999109,
+      "seconds": 5.631907905975822,
       "targets": [
         "0x47eab0"
       ],
@@ -7374,7 +7374,7 @@
       "test": "differential_knockout_bracket.py",
       "exit_code": 0,
       "output": "6000 knockout cases: 0 differences; all four modes, AI choices, random draws, call order, bitfields and guards checked\n6000 current-round selector cases: 0 differences; both fields, four rounds, fallback and all guards checked",
-      "seconds": 0.6984183439635672,
+      "seconds": 1.3077072799787857,
       "targets": [
         "0x4069c0",
         "0x4735a0"
@@ -7396,7 +7396,7 @@
       "test": "differential_fixed_matrix_ops.py",
       "exit_code": 0,
       "output": "2592 fixed matrix products: model, full heap, partial/in-place aliases, counter wrap and ABI identical\n672 basis integrations: signed wrap, sequential aliases, model, full heap and ABI identical\n2 arithmetic mutations rejected: unsigned multiply and wrong fixed-point shift",
-      "seconds": 9.106042741972487,
+      "seconds": 12.470455293019768,
       "targets": [
         "0x4b9f20",
         "0x441430"
@@ -7604,7 +7604,7 @@
       "test": "differential_low_callbacks.py",
       "exit_code": 0,
       "output": "12000 native cases: 0 differences; full text, COM arguments, outputs, allocation failures, error paths and memory guards checked",
-      "seconds": 4.98664436902618,
+      "seconds": 6.204185281007085,
       "targets": [
         "0x4f8a90",
         "0x4a1b90"
@@ -7621,7 +7621,7 @@
       "test": "differential_menu_back.py",
       "exit_code": 0,
       "output": "6000 menu back callbacks: original 0 differences, rebuilt 0; calls, unsigned values and input guards checked; missing-return mutation 4800",
-      "seconds": 0.9215108249918558,
+      "seconds": 1.0043311929912306,
       "targets": [
         "0x4f2970"
       ],
@@ -7637,7 +7637,7 @@
       "test": "differential_menu_colour.py",
       "exit_code": 0,
       "output": "240 menu colour cases: identical full RGBA read by drawing callers, alpha 255",
-      "seconds": 0.5981715369853191,
+      "seconds": 0.6677269220235758,
       "targets": [
         "0x4a9b80"
       ],
@@ -7660,7 +7660,7 @@
       "test": "differential_menu_list.py",
       "exit_code": 0,
       "output": "2664 menu cases: identical drawing calls, first-row positions and final rectangles",
-      "seconds": 5.675630662008189,
+      "seconds": 5.970856634026859,
       "targets": [
         "0x4d3360"
       ],
@@ -8418,7 +8418,7 @@
       "test": "differential_menu_lookup.py",
       "exit_code": 0,
       "output": "6000 menu lookups: original differences 0, rebuilt differences 0; input and guards intact; old-field mutation differences 1692",
-      "seconds": 0.9057268989854492,
+      "seconds": 0.9493620799621567,
       "targets": [
         "0x4a0380"
       ],
@@ -8434,7 +8434,7 @@
       "test": "differential_name_entry.py",
       "exit_code": 0,
       "output": "6000 native name entry cases: 0 differences; lengths 0..3, deletion/confirmation, all columns, cursor, call traces and full arena checked",
-      "seconds": 2.742794474994298,
+      "seconds": 2.8136089260224253,
       "targets": [
         "0x4f1040"
       ],
@@ -8455,7 +8455,7 @@
       "test": "differential_low_logic.py",
       "exit_code": 0,
       "output": "42000 native cases: 0 differences; complete memory, scene writes, progress saturation, aliased outputs, gear/step boundaries HUD call traces and owned split prefix checked",
-      "seconds": 15.286639316997025,
+      "seconds": 15.564351245993748,
       "targets": [
         "0x475f80",
         "0x4ec1a0",
@@ -8487,10 +8487,862 @@
       "coverage_sha256": "79119b760727408f9a2c117f4d7f83181f33d7aaf64097ede5b50f733390c87a"
     },
     {
+      "test": "differential_net_car_receive.py",
+      "exit_code": 0,
+      "output": "4096 received packets: identical guarded records and steering; actual helpers, discard boundaries and four x87 rounding modes",
+      "seconds": 5.474916817969643,
+      "targets": [
+        "0x425c40"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 1,
+        "spec_sha256": "c53d76c19fc0e2e0e612428525e6f5b0e6fed57c4ea18d8018e8d5639a74c3e9",
+        "functions": {
+          "0x425c40": {
+            "instructions": [
+              4348992,
+              4348993,
+              4348995,
+              4348998,
+              4349003,
+              4349004,
+              4349005,
+              4349008,
+              4349010,
+              4349015,
+              4349022,
+              4349024,
+              4349026,
+              4349028,
+              4349034,
+              4349040,
+              4349046,
+              4349049,
+              4349055,
+              4349061,
+              4349066,
+              4349072,
+              4349074,
+              4349080,
+              4349090,
+              4349096,
+              4349103,
+              4349110,
+              4349117,
+              4349124,
+              4349127,
+              4349130,
+              4349136,
+              4349142,
+              4349145,
+              4349148,
+              4349154,
+              4349157,
+              4349160,
+              4349163,
+              4349166,
+              4349173,
+              4349176,
+              4349179,
+              4349185,
+              4349191,
+              4349194,
+              4349197,
+              4349203,
+              4349206,
+              4349209,
+              4349211,
+              4349214,
+              4349221,
+              4349224,
+              4349227,
+              4349233,
+              4349236,
+              4349239,
+              4349245,
+              4349248,
+              4349251,
+              4349253,
+              4349259,
+              4349261,
+              4349264,
+              4349269,
+              4349272,
+              4349273,
+              4349277,
+              4349280,
+              4349282,
+              4349288,
+              4349290,
+              4349296,
+              4349303,
+              4349306,
+              4349307,
+              4349310,
+              4349316,
+              4349322,
+              4349325,
+              4349328,
+              4349334,
+              4349337,
+              4349340,
+              4349343,
+              4349345,
+              4349350,
+              4349353,
+              4349356,
+              4349359,
+              4349365,
+              4349371,
+              4349374,
+              4349377,
+              4349383,
+              4349386,
+              4349389,
+              4349395,
+              4349402,
+              4349405,
+              4349408,
+              4349414,
+              4349420,
+              4349423,
+              4349426,
+              4349432,
+              4349435,
+              4349438,
+              4349444,
+              4349446,
+              4349451,
+              4349453,
+              4349459,
+              4349466,
+              4349469,
+              4349472,
+              4349478,
+              4349485,
+              4349488,
+              4349491,
+              4349498,
+              4349504,
+              4349507,
+              4349513,
+              4349516,
+              4349519,
+              4349525,
+              4349531,
+              4349534,
+              4349537,
+              4349543,
+              4349546,
+              4349549,
+              4349552,
+              4349555,
+              4349558,
+              4349564,
+              4349567,
+              4349570,
+              4349573,
+              4349580,
+              4349587,
+              4349589,
+              4349592,
+              4349595,
+              4349598,
+              4349601,
+              4349603,
+              4349605,
+              4349607,
+              4349610,
+              4349613,
+              4349619,
+              4349622,
+              4349625,
+              4349631,
+              4349637,
+              4349640,
+              4349643,
+              4349649,
+              4349652,
+              4349655,
+              4349661,
+              4349663,
+              4349668,
+              4349671,
+              4349674,
+              4349677,
+              4349683,
+              4349689,
+              4349692,
+              4349695,
+              4349701,
+              4349704,
+              4349707,
+              4349713,
+              4349719,
+              4349721,
+              4349723,
+              4349729,
+              4349731,
+              4349737,
+              4349740,
+              4349743,
+              4349749,
+              4349751,
+              4349754,
+              4349760,
+              4349763,
+              4349766,
+              4349769,
+              4349771,
+              4349773,
+              4349775,
+              4349778,
+              4349781,
+              4349787,
+              4349790,
+              4349793,
+              4349795,
+              4349798,
+              4349801,
+              4349804,
+              4349807,
+              4349810,
+              4349813,
+              4349815,
+              4349818,
+              4349821,
+              4349825,
+              4349831,
+              4349835,
+              4349839,
+              4349845,
+              4349849,
+              4349852,
+              4349854,
+              4349857,
+              4349860,
+              4349866,
+              4349869,
+              4349872,
+              4349875,
+              4349878,
+              4349881,
+              4349884,
+              4349890,
+              4349893,
+              4349897,
+              4349902,
+              4349905,
+              4349911,
+              4349914,
+              4349917,
+              4349920,
+              4349923,
+              4349929,
+              4349932,
+              4349936,
+              4349941,
+              4349947,
+              4349953,
+              4349960,
+              4349962,
+              4349968,
+              4349971,
+              4349978,
+              4349981,
+              4349983,
+              4349986,
+              4349989,
+              4349992,
+              4349994,
+              4349998,
+              4350004,
+              4350006,
+              4350012,
+              4350018,
+              4350025,
+              4350028,
+              4350035,
+              4350038,
+              4350041,
+              4350043,
+              4350046,
+              4350049,
+              4350052,
+              4350054,
+              4350058,
+              4350061,
+              4350064,
+              4350067,
+              4350070,
+              4350072,
+              4350074,
+              4350078,
+              4350080,
+              4350083,
+              4350085,
+              4350089,
+              4350091,
+              4350094,
+              4350096,
+              4350100,
+              4350102,
+              4350104,
+              4350106,
+              4350115,
+              4350117,
+              4350122,
+              4350124,
+              4350127,
+              4350130,
+              4350135,
+              4350137,
+              4350140,
+              4350143,
+              4350146,
+              4350148,
+              4350151,
+              4350154,
+              4350157,
+              4350159,
+              4350162,
+              4350165,
+              4350168,
+              4350170,
+              4350171,
+              4350173,
+              4350176,
+              4350179,
+              4350181,
+              4350183,
+              4350185,
+              4350188,
+              4350196,
+              4350198,
+              4350200,
+              4350208,
+              4350210,
+              4350212,
+              4350214,
+              4350216,
+              4350222,
+              4350224,
+              4350227,
+              4350229,
+              4350241,
+              4350244,
+              4350247,
+              4350250,
+              4350255,
+              4350257,
+              4350259,
+              4350261,
+              4350263,
+              4350265,
+              4350269,
+              4350271,
+              4350274,
+              4350276,
+              4350280,
+              4350283,
+              4350286,
+              4350288,
+              4350292,
+              4350295,
+              4350298,
+              4350301,
+              4350304,
+              4350307,
+              4350310,
+              4350313,
+              4350316,
+              4350319,
+              4350322,
+              4350325,
+              4350331,
+              4350334,
+              4350337,
+              4350340,
+              4350343,
+              4350346,
+              4350349,
+              4350352,
+              4350355,
+              4350358,
+              4350361,
+              4350364,
+              4350366,
+              4350369,
+              4350371,
+              4350375,
+              4350377,
+              4350380,
+              4350383,
+              4350385,
+              4350389,
+              4350391,
+              4350393,
+              4350396,
+              4350398,
+              4350400,
+              4350404,
+              4350406,
+              4350408,
+              4350411,
+              4350413,
+              4350417,
+              4350419,
+              4350422,
+              4350424,
+              4350427,
+              4350429,
+              4350433,
+              4350435,
+              4350438,
+              4350440,
+              4350442,
+              4350446,
+              4350448,
+              4350451,
+              4350454,
+              4350456,
+              4350459,
+              4350462,
+              4350465,
+              4350467,
+              4350469,
+              4350473,
+              4350475,
+              4350478,
+              4350480,
+              4350484,
+              4350486,
+              4350489,
+              4350491,
+              4350495,
+              4350497,
+              4350499,
+              4350501,
+              4350503,
+              4350508,
+              4350510,
+              4350512,
+              4350517,
+              4350519,
+              4350522,
+              4350525,
+              4350530,
+              4350532,
+              4350535,
+              4350538,
+              4350541,
+              4350543,
+              4350546,
+              4350549,
+              4350552,
+              4350554,
+              4350557,
+              4350560,
+              4350563,
+              4350565,
+              4350566,
+              4350568,
+              4350571,
+              4350574,
+              4350576,
+              4350578,
+              4350580,
+              4350583,
+              4350585,
+              4350587,
+              4350589,
+              4350591,
+              4350593,
+              4350595,
+              4350603,
+              4350605,
+              4350607,
+              4350609,
+              4350611,
+              4350613,
+              4350615,
+              4350617,
+              4350619,
+              4350622,
+              4350624,
+              4350626,
+              4350628,
+              4350631,
+              4350634,
+              4350636,
+              4350639,
+              4350642,
+              4350645,
+              4350650,
+              4350652,
+              4350654,
+              4350656,
+              4350658,
+              4350660,
+              4350664,
+              4350666,
+              4350669,
+              4350671,
+              4350675,
+              4350678,
+              4350681,
+              4350683,
+              4350687,
+              4350690,
+              4350692,
+              4350697,
+              4350698,
+              4350700,
+              4350703,
+              4350705,
+              4350708,
+              4350714,
+              4350716,
+              4350718,
+              4350720,
+              4350723,
+              4350729,
+              4350731,
+              4350734,
+              4350740,
+              4350743,
+              4350746,
+              4350749,
+              4350754,
+              4350756,
+              4350760,
+              4350763,
+              4350768,
+              4350770,
+              4350775,
+              4350778,
+              4350780,
+              4350782,
+              4350785,
+              4350795,
+              4350797,
+              4350800,
+              4350802,
+              4350808,
+              4350815,
+              4350818,
+              4350821,
+              4350827,
+              4350833,
+              4350836,
+              4350838,
+              4350845,
+              4350847,
+              4350857,
+              4350866,
+              4350873,
+              4350874,
+              4350877,
+              4350880,
+              4350886,
+              4350891,
+              4350892,
+              4350897,
+              4350898,
+              4350900,
+              4350901,
+              4350904,
+              4350905,
+              4350907,
+              4350908,
+              4350910,
+              4350911
+            ],
+            "branch_edges": [
+              [
+                4349028,
+                4349034
+              ],
+              [
+                4349028,
+                4350904
+              ],
+              [
+                4349040,
+                4349046
+              ],
+              [
+                4349040,
+                4350904
+              ],
+              [
+                4349049,
+                4349055
+              ],
+              [
+                4349049,
+                4350904
+              ],
+              [
+                4349074,
+                4349080
+              ],
+              [
+                4349074,
+                4350904
+              ],
+              [
+                4349259,
+                4349261
+              ],
+              [
+                4349259,
+                4349290
+              ],
+              [
+                4349288,
+                4349296
+              ],
+              [
+                4349813,
+                4349821
+              ],
+              [
+                4350106,
+                4350115
+              ],
+              [
+                4350122,
+                4350124
+              ],
+              [
+                4350122,
+                4350130
+              ],
+              [
+                4350135,
+                4350137
+              ],
+              [
+                4350135,
+                4350143
+              ],
+              [
+                4350146,
+                4350148
+              ],
+              [
+                4350146,
+                4350154
+              ],
+              [
+                4350157,
+                4350159
+              ],
+              [
+                4350157,
+                4350165
+              ],
+              [
+                4350168,
+                4350170
+              ],
+              [
+                4350168,
+                4350171
+              ],
+              [
+                4350179,
+                4350181
+              ],
+              [
+                4350179,
+                4350183
+              ],
+              [
+                4350188,
+                4350196
+              ],
+              [
+                4350212,
+                4350214
+              ],
+              [
+                4350216,
+                4350222
+              ],
+              [
+                4350229,
+                4350241
+              ],
+              [
+                4350325,
+                4349815
+              ],
+              [
+                4350325,
+                4350331
+              ],
+              [
+                4350501,
+                4350503
+              ],
+              [
+                4350501,
+                4350510
+              ],
+              [
+                4350508,
+                4350617
+              ],
+              [
+                4350517,
+                4350519
+              ],
+              [
+                4350517,
+                4350525
+              ],
+              [
+                4350530,
+                4350532
+              ],
+              [
+                4350530,
+                4350538
+              ],
+              [
+                4350541,
+                4350543
+              ],
+              [
+                4350541,
+                4350549
+              ],
+              [
+                4350552,
+                4350554
+              ],
+              [
+                4350552,
+                4350560
+              ],
+              [
+                4350563,
+                4350565
+              ],
+              [
+                4350563,
+                4350566
+              ],
+              [
+                4350574,
+                4350576
+              ],
+              [
+                4350574,
+                4350578
+              ],
+              [
+                4350583,
+                4350585
+              ],
+              [
+                4350583,
+                4350591
+              ],
+              [
+                4350589,
+                4350593
+              ],
+              [
+                4350607,
+                4350609
+              ],
+              [
+                4350607,
+                4350613
+              ],
+              [
+                4350611,
+                4350617
+              ],
+              [
+                4350624,
+                4350626
+              ],
+              [
+                4350624,
+                4350636
+              ],
+              [
+                4350634,
+                4350692
+              ],
+              [
+                4350703,
+                4350705
+              ],
+              [
+                4350703,
+                4350716
+              ],
+              [
+                4350714,
+                4350770
+              ],
+              [
+                4350718,
+                4350720
+              ],
+              [
+                4350718,
+                4350731
+              ],
+              [
+                4350729,
+                4350770
+              ],
+              [
+                4350780,
+                4350782
+              ],
+              [
+                4350780,
+                4350797
+              ],
+              [
+                4350795,
+                4350808
+              ],
+              [
+                4350836,
+                4350838
+              ],
+              [
+                4350836,
+                4350866
+              ],
+              [
+                4350845,
+                4350847
+              ],
+              [
+                4350845,
+                4350866
+              ]
+            ]
+          }
+        }
+      },
+      "coverage_sha256": "f7027756445d266e1f08582d36c71e807114303686c555e14caeeafe2e488248"
+    },
+    {
       "test": "differential_net_car_state.py",
       "exit_code": 0,
       "output": "960 car state packets: identical 30 bytes, preserved bits, guarded heap and query traces in all four x87 rounding modes",
-      "seconds": 2.0902099649538286,
+      "seconds": 2.1615727040334605,
       "targets": [
         "0x424f20"
       ],
@@ -9653,862 +10505,10 @@
       "coverage_sha256": "62bd31941cdd4a9fd9934f47062b5ea62764d9e7020e6e7c6075ee3e07368ff2"
     },
     {
-      "test": "differential_net_car_receive.py",
-      "exit_code": 0,
-      "output": "4096 received packets: identical guarded records and steering; actual helpers, discard boundaries and four x87 rounding modes",
-      "seconds": 5.2930896549951285,
-      "targets": [
-        "0x425c40"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 1,
-        "spec_sha256": "c53d76c19fc0e2e0e612428525e6f5b0e6fed57c4ea18d8018e8d5639a74c3e9",
-        "functions": {
-          "0x425c40": {
-            "instructions": [
-              4348992,
-              4348993,
-              4348995,
-              4348998,
-              4349003,
-              4349004,
-              4349005,
-              4349008,
-              4349010,
-              4349015,
-              4349022,
-              4349024,
-              4349026,
-              4349028,
-              4349034,
-              4349040,
-              4349046,
-              4349049,
-              4349055,
-              4349061,
-              4349066,
-              4349072,
-              4349074,
-              4349080,
-              4349090,
-              4349096,
-              4349103,
-              4349110,
-              4349117,
-              4349124,
-              4349127,
-              4349130,
-              4349136,
-              4349142,
-              4349145,
-              4349148,
-              4349154,
-              4349157,
-              4349160,
-              4349163,
-              4349166,
-              4349173,
-              4349176,
-              4349179,
-              4349185,
-              4349191,
-              4349194,
-              4349197,
-              4349203,
-              4349206,
-              4349209,
-              4349211,
-              4349214,
-              4349221,
-              4349224,
-              4349227,
-              4349233,
-              4349236,
-              4349239,
-              4349245,
-              4349248,
-              4349251,
-              4349253,
-              4349259,
-              4349261,
-              4349264,
-              4349269,
-              4349272,
-              4349273,
-              4349277,
-              4349280,
-              4349282,
-              4349288,
-              4349290,
-              4349296,
-              4349303,
-              4349306,
-              4349307,
-              4349310,
-              4349316,
-              4349322,
-              4349325,
-              4349328,
-              4349334,
-              4349337,
-              4349340,
-              4349343,
-              4349345,
-              4349350,
-              4349353,
-              4349356,
-              4349359,
-              4349365,
-              4349371,
-              4349374,
-              4349377,
-              4349383,
-              4349386,
-              4349389,
-              4349395,
-              4349402,
-              4349405,
-              4349408,
-              4349414,
-              4349420,
-              4349423,
-              4349426,
-              4349432,
-              4349435,
-              4349438,
-              4349444,
-              4349446,
-              4349451,
-              4349453,
-              4349459,
-              4349466,
-              4349469,
-              4349472,
-              4349478,
-              4349485,
-              4349488,
-              4349491,
-              4349498,
-              4349504,
-              4349507,
-              4349513,
-              4349516,
-              4349519,
-              4349525,
-              4349531,
-              4349534,
-              4349537,
-              4349543,
-              4349546,
-              4349549,
-              4349552,
-              4349555,
-              4349558,
-              4349564,
-              4349567,
-              4349570,
-              4349573,
-              4349580,
-              4349587,
-              4349589,
-              4349592,
-              4349595,
-              4349598,
-              4349601,
-              4349603,
-              4349605,
-              4349607,
-              4349610,
-              4349613,
-              4349619,
-              4349622,
-              4349625,
-              4349631,
-              4349637,
-              4349640,
-              4349643,
-              4349649,
-              4349652,
-              4349655,
-              4349661,
-              4349663,
-              4349668,
-              4349671,
-              4349674,
-              4349677,
-              4349683,
-              4349689,
-              4349692,
-              4349695,
-              4349701,
-              4349704,
-              4349707,
-              4349713,
-              4349719,
-              4349721,
-              4349723,
-              4349729,
-              4349731,
-              4349737,
-              4349740,
-              4349743,
-              4349749,
-              4349751,
-              4349754,
-              4349760,
-              4349763,
-              4349766,
-              4349769,
-              4349771,
-              4349773,
-              4349775,
-              4349778,
-              4349781,
-              4349787,
-              4349790,
-              4349793,
-              4349795,
-              4349798,
-              4349801,
-              4349804,
-              4349807,
-              4349810,
-              4349813,
-              4349815,
-              4349818,
-              4349821,
-              4349825,
-              4349831,
-              4349835,
-              4349839,
-              4349845,
-              4349849,
-              4349852,
-              4349854,
-              4349857,
-              4349860,
-              4349866,
-              4349869,
-              4349872,
-              4349875,
-              4349878,
-              4349881,
-              4349884,
-              4349890,
-              4349893,
-              4349897,
-              4349902,
-              4349905,
-              4349911,
-              4349914,
-              4349917,
-              4349920,
-              4349923,
-              4349929,
-              4349932,
-              4349936,
-              4349941,
-              4349947,
-              4349953,
-              4349960,
-              4349962,
-              4349968,
-              4349971,
-              4349978,
-              4349981,
-              4349983,
-              4349986,
-              4349989,
-              4349992,
-              4349994,
-              4349998,
-              4350004,
-              4350006,
-              4350012,
-              4350018,
-              4350025,
-              4350028,
-              4350035,
-              4350038,
-              4350041,
-              4350043,
-              4350046,
-              4350049,
-              4350052,
-              4350054,
-              4350058,
-              4350061,
-              4350064,
-              4350067,
-              4350070,
-              4350072,
-              4350074,
-              4350078,
-              4350080,
-              4350083,
-              4350085,
-              4350089,
-              4350091,
-              4350094,
-              4350096,
-              4350100,
-              4350102,
-              4350104,
-              4350106,
-              4350115,
-              4350117,
-              4350122,
-              4350124,
-              4350127,
-              4350130,
-              4350135,
-              4350137,
-              4350140,
-              4350143,
-              4350146,
-              4350148,
-              4350151,
-              4350154,
-              4350157,
-              4350159,
-              4350162,
-              4350165,
-              4350168,
-              4350170,
-              4350171,
-              4350173,
-              4350176,
-              4350179,
-              4350181,
-              4350183,
-              4350185,
-              4350188,
-              4350196,
-              4350198,
-              4350200,
-              4350208,
-              4350210,
-              4350212,
-              4350214,
-              4350216,
-              4350222,
-              4350224,
-              4350227,
-              4350229,
-              4350241,
-              4350244,
-              4350247,
-              4350250,
-              4350255,
-              4350257,
-              4350259,
-              4350261,
-              4350263,
-              4350265,
-              4350269,
-              4350271,
-              4350274,
-              4350276,
-              4350280,
-              4350283,
-              4350286,
-              4350288,
-              4350292,
-              4350295,
-              4350298,
-              4350301,
-              4350304,
-              4350307,
-              4350310,
-              4350313,
-              4350316,
-              4350319,
-              4350322,
-              4350325,
-              4350331,
-              4350334,
-              4350337,
-              4350340,
-              4350343,
-              4350346,
-              4350349,
-              4350352,
-              4350355,
-              4350358,
-              4350361,
-              4350364,
-              4350366,
-              4350369,
-              4350371,
-              4350375,
-              4350377,
-              4350380,
-              4350383,
-              4350385,
-              4350389,
-              4350391,
-              4350393,
-              4350396,
-              4350398,
-              4350400,
-              4350404,
-              4350406,
-              4350408,
-              4350411,
-              4350413,
-              4350417,
-              4350419,
-              4350422,
-              4350424,
-              4350427,
-              4350429,
-              4350433,
-              4350435,
-              4350438,
-              4350440,
-              4350442,
-              4350446,
-              4350448,
-              4350451,
-              4350454,
-              4350456,
-              4350459,
-              4350462,
-              4350465,
-              4350467,
-              4350469,
-              4350473,
-              4350475,
-              4350478,
-              4350480,
-              4350484,
-              4350486,
-              4350489,
-              4350491,
-              4350495,
-              4350497,
-              4350499,
-              4350501,
-              4350503,
-              4350508,
-              4350510,
-              4350512,
-              4350517,
-              4350519,
-              4350522,
-              4350525,
-              4350530,
-              4350532,
-              4350535,
-              4350538,
-              4350541,
-              4350543,
-              4350546,
-              4350549,
-              4350552,
-              4350554,
-              4350557,
-              4350560,
-              4350563,
-              4350565,
-              4350566,
-              4350568,
-              4350571,
-              4350574,
-              4350576,
-              4350578,
-              4350580,
-              4350583,
-              4350585,
-              4350587,
-              4350589,
-              4350591,
-              4350593,
-              4350595,
-              4350603,
-              4350605,
-              4350607,
-              4350609,
-              4350611,
-              4350613,
-              4350615,
-              4350617,
-              4350619,
-              4350622,
-              4350624,
-              4350626,
-              4350628,
-              4350631,
-              4350634,
-              4350636,
-              4350639,
-              4350642,
-              4350645,
-              4350650,
-              4350652,
-              4350654,
-              4350656,
-              4350658,
-              4350660,
-              4350664,
-              4350666,
-              4350669,
-              4350671,
-              4350675,
-              4350678,
-              4350681,
-              4350683,
-              4350687,
-              4350690,
-              4350692,
-              4350697,
-              4350698,
-              4350700,
-              4350703,
-              4350705,
-              4350708,
-              4350714,
-              4350716,
-              4350718,
-              4350720,
-              4350723,
-              4350729,
-              4350731,
-              4350734,
-              4350740,
-              4350743,
-              4350746,
-              4350749,
-              4350754,
-              4350756,
-              4350760,
-              4350763,
-              4350768,
-              4350770,
-              4350775,
-              4350778,
-              4350780,
-              4350782,
-              4350785,
-              4350795,
-              4350797,
-              4350800,
-              4350802,
-              4350808,
-              4350815,
-              4350818,
-              4350821,
-              4350827,
-              4350833,
-              4350836,
-              4350838,
-              4350845,
-              4350847,
-              4350857,
-              4350866,
-              4350873,
-              4350874,
-              4350877,
-              4350880,
-              4350886,
-              4350891,
-              4350892,
-              4350897,
-              4350898,
-              4350900,
-              4350901,
-              4350904,
-              4350905,
-              4350907,
-              4350908,
-              4350910,
-              4350911
-            ],
-            "branch_edges": [
-              [
-                4349028,
-                4349034
-              ],
-              [
-                4349028,
-                4350904
-              ],
-              [
-                4349040,
-                4349046
-              ],
-              [
-                4349040,
-                4350904
-              ],
-              [
-                4349049,
-                4349055
-              ],
-              [
-                4349049,
-                4350904
-              ],
-              [
-                4349074,
-                4349080
-              ],
-              [
-                4349074,
-                4350904
-              ],
-              [
-                4349259,
-                4349261
-              ],
-              [
-                4349259,
-                4349290
-              ],
-              [
-                4349288,
-                4349296
-              ],
-              [
-                4349813,
-                4349821
-              ],
-              [
-                4350106,
-                4350115
-              ],
-              [
-                4350122,
-                4350124
-              ],
-              [
-                4350122,
-                4350130
-              ],
-              [
-                4350135,
-                4350137
-              ],
-              [
-                4350135,
-                4350143
-              ],
-              [
-                4350146,
-                4350148
-              ],
-              [
-                4350146,
-                4350154
-              ],
-              [
-                4350157,
-                4350159
-              ],
-              [
-                4350157,
-                4350165
-              ],
-              [
-                4350168,
-                4350170
-              ],
-              [
-                4350168,
-                4350171
-              ],
-              [
-                4350179,
-                4350181
-              ],
-              [
-                4350179,
-                4350183
-              ],
-              [
-                4350188,
-                4350196
-              ],
-              [
-                4350212,
-                4350214
-              ],
-              [
-                4350216,
-                4350222
-              ],
-              [
-                4350229,
-                4350241
-              ],
-              [
-                4350325,
-                4349815
-              ],
-              [
-                4350325,
-                4350331
-              ],
-              [
-                4350501,
-                4350503
-              ],
-              [
-                4350501,
-                4350510
-              ],
-              [
-                4350508,
-                4350617
-              ],
-              [
-                4350517,
-                4350519
-              ],
-              [
-                4350517,
-                4350525
-              ],
-              [
-                4350530,
-                4350532
-              ],
-              [
-                4350530,
-                4350538
-              ],
-              [
-                4350541,
-                4350543
-              ],
-              [
-                4350541,
-                4350549
-              ],
-              [
-                4350552,
-                4350554
-              ],
-              [
-                4350552,
-                4350560
-              ],
-              [
-                4350563,
-                4350565
-              ],
-              [
-                4350563,
-                4350566
-              ],
-              [
-                4350574,
-                4350576
-              ],
-              [
-                4350574,
-                4350578
-              ],
-              [
-                4350583,
-                4350585
-              ],
-              [
-                4350583,
-                4350591
-              ],
-              [
-                4350589,
-                4350593
-              ],
-              [
-                4350607,
-                4350609
-              ],
-              [
-                4350607,
-                4350613
-              ],
-              [
-                4350611,
-                4350617
-              ],
-              [
-                4350624,
-                4350626
-              ],
-              [
-                4350624,
-                4350636
-              ],
-              [
-                4350634,
-                4350692
-              ],
-              [
-                4350703,
-                4350705
-              ],
-              [
-                4350703,
-                4350716
-              ],
-              [
-                4350714,
-                4350770
-              ],
-              [
-                4350718,
-                4350720
-              ],
-              [
-                4350718,
-                4350731
-              ],
-              [
-                4350729,
-                4350770
-              ],
-              [
-                4350780,
-                4350782
-              ],
-              [
-                4350780,
-                4350797
-              ],
-              [
-                4350795,
-                4350808
-              ],
-              [
-                4350836,
-                4350838
-              ],
-              [
-                4350836,
-                4350866
-              ],
-              [
-                4350845,
-                4350847
-              ],
-              [
-                4350845,
-                4350866
-              ]
-            ]
-          }
-        }
-      },
-      "coverage_sha256": "f7027756445d266e1f08582d36c71e807114303686c555e14caeeafe2e488248"
-    },
-    {
       "test": "differential_network_results.py",
       "exit_code": 0,
       "output": "6000 network result assemblies: 0 differences; native sorting, complete region, call order and guards checked",
-      "seconds": 0.955203924968373,
+      "seconds": 1.017747539037373,
       "targets": [
         "0x40a580",
         "0x40a490"
@@ -10530,7 +10530,7 @@
       "test": "differential_network_tables.py",
       "exit_code": 0,
       "output": "6000 network table cases: 0 differences; full table regions and guards intact; wrong-cell mutations split 6000, stage 5571",
-      "seconds": 1.017568034993019,
+      "seconds": 1.0823702770285308,
       "targets": [
         "0x40a410",
         "0x40a420",
@@ -10548,7 +10548,7 @@
       "test": "differential_network_font.py",
       "exit_code": 0,
       "output": "6000 native network font cases: 0 differences; integer threshold oracle, x87 boundary neighbours and full arena checked",
-      "seconds": 2.917274514969904,
+      "seconds": 3.020895830995869,
       "targets": [
         "0x427580"
       ],
@@ -10564,7 +10564,7 @@
       "test": "differential_option_cache.py",
       "exit_code": 0,
       "output": "30000 native cases: 0 differences; four option records, ten-field swaps for four players, signed penalties, blink parity, provider order and guards checked",
-      "seconds": 1.7206911509856582,
+      "seconds": 1.8187555210315622,
       "targets": [
         "0x502d50",
         "0x502db0",
@@ -10589,7 +10589,7 @@
       "test": "differential_font_coordinates.py",
       "exit_code": 0,
       "output": "6000 native font cases: 0 differences, 134013 glyph draws; BYTE characters, signed coordinates, breaks, flags, kerning, missing glyphs and guards checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 31.42135502601741,
+      "seconds": 35.7248660249752,
       "targets": [
         "0x40b880"
       ],
@@ -10610,7 +10610,7 @@
       "test": "differential_race_estimates.py",
       "exit_code": 0,
       "output": "2160 race estimates: independent guarded time/order tables, ties and summary timing; actual helpers and four x87 modes, no mocks",
-      "seconds": 3.7727796920225956,
+      "seconds": 4.052009792008903,
       "targets": [
         "0x4483e0"
       ],
@@ -10826,7 +10826,7 @@
       "test": "differential_race_order.py",
       "exit_code": 0,
       "output": "2592 race-order fixtures: identical guarded timing records, order and independent model; actual helpers",
-      "seconds": 6.674041763006244,
+      "seconds": 7.021042426000349,
       "targets": [
         "0x448d50"
       ],
@@ -10914,7 +10914,7 @@
       "test": "differential_race_state_reset.py",
       "exit_code": 0,
       "output": "6000 native race reset cases: 0 differences; both player flags, ten call records, five slots and all guards checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 6.434652453986928,
+      "seconds": 6.696540688048117,
       "targets": [
         "0x416670"
       ],
@@ -10935,295 +10935,23 @@
       "test": "differential_rally_menu_selection.py",
       "exit_code": 0,
       "output": "756 rally panel cases: identical text/render/selection traces, immutable inputs, buffer guards and ret 4",
-      "seconds": 2.3378380320500582,
+      "seconds": 1.8942051310441457,
       "targets": [
         "0x50c130"
       ],
       "coverage": {
         "scope": "original Unicorn instruction addresses and branch destinations",
         "original_instances": 1,
-        "spec_sha256": "e3d1dd5fbf696832910a7fad1e0ff6c6e382554380e97197369bfb7835ef48de",
-        "functions": {
-          "0x50c130": {
-            "instructions": [
-              5292336,
-              5292337,
-              5292343,
-              5292344,
-              5292346,
-              5292349,
-              5292354,
-              5292357,
-              5292360,
-              5292365,
-              5292368,
-              5292370,
-              5292372,
-              5292375,
-              5292377,
-              5292380,
-              5292382,
-              5292384,
-              5292385,
-              5292388,
-              5292391,
-              5292394,
-              5292396,
-              5292401,
-              5292403,
-              5292406,
-              5292408,
-              5292411,
-              5292413,
-              5292414,
-              5292419,
-              5292424,
-              5292425,
-              5292427,
-              5292432,
-              5292437,
-              5292442,
-              5292447,
-              5292448,
-              5292453,
-              5292454,
-              5292459,
-              5292464,
-              5292469,
-              5292475,
-              5292478,
-              5292481,
-              5292483,
-              5292488,
-              5292491,
-              5292494,
-              5292499,
-              5292502,
-              5292504,
-              5292506,
-              5292508,
-              5292511,
-              5292513,
-              5292516,
-              5292518,
-              5292519,
-              5292522,
-              5292525,
-              5292528,
-              5292530,
-              5292535,
-              5292537,
-              5292540,
-              5292542,
-              5292545,
-              5292547,
-              5292548,
-              5292553,
-              5292555,
-              5292560,
-              5292565,
-              5292570,
-              5292575,
-              5292581,
-              5292584,
-              5292586,
-              5292591,
-              5292594,
-              5292597,
-              5292602,
-              5292605,
-              5292607,
-              5292609,
-              5292611,
-              5292614,
-              5292616,
-              5292619,
-              5292621,
-              5292622,
-              5292625,
-              5292628,
-              5292631,
-              5292633,
-              5292638,
-              5292640,
-              5292643,
-              5292645,
-              5292648,
-              5292650,
-              5292651,
-              5292656,
-              5292658,
-              5292663,
-              5292665,
-              5292670,
-              5292672,
-              5292678,
-              5292679,
-              5292684,
-              5292689,
-              5292693,
-              5292694,
-              5292699,
-              5292704,
-              5292709,
-              5292712,
-              5292714,
-              5292719,
-              5292720,
-              5292725,
-              5292728,
-              5292733,
-              5292739,
-              5292741,
-              5292745,
-              5292747,
-              5292750,
-              5292752,
-              5292754,
-              5292759,
-              5292761,
-              5292766,
-              5292769,
-              5292774,
-              5292777,
-              5292779,
-              5292781,
-              5292784,
-              5292786,
-              5292789,
-              5292791,
-              5292794,
-              5292796,
-              5292799,
-              5292804,
-              5292807,
-              5292810,
-              5292812,
-              5292814,
-              5292816,
-              5292819,
-              5292821,
-              5292823,
-              5292826,
-              5292828,
-              5292831,
-              5292832,
-              5292835,
-              5292838,
-              5292840,
-              5292845,
-              5292847,
-              5292850,
-              5292852,
-              5292855,
-              5292857,
-              5292858,
-              5292863,
-              5292865,
-              5292870,
-              5292871,
-              5292876,
-              5292878,
-              5292884,
-              5292885,
-              5292887,
-              5292892,
-              5292893,
-              5292898,
-              5292901,
-              5292906,
-              5292908,
-              5292912,
-              5292913,
-              5292918,
-              5292920,
-              5292926,
-              5292927,
-              5292932,
-              5292933,
-              5292938,
-              5292943,
-              5292948,
-              5292954,
-              5292957,
-              5292960,
-              5292962,
-              5292967,
-              5292970,
-              5292973,
-              5292978,
-              5292981,
-              5292983,
-              5292985,
-              5292988,
-              5292990,
-              5292993,
-              5292995,
-              5292997,
-              5292998,
-              5293001,
-              5293004,
-              5293009,
-              5293012,
-              5293014,
-              5293017,
-              5293019,
-              5293022,
-              5293024,
-              5293025,
-              5293030,
-              5293032,
-              5293037,
-              5293039,
-              5293041,
-              5293046,
-              5293047,
-              5293052,
-              5293055,
-              5293060,
-              5293062,
-              5293066,
-              5293067,
-              5293072,
-              5293073,
-              5293074
-            ],
-            "branch_edges": [
-              [
-                5292672,
-                5292678
-              ],
-              [
-                5292752,
-                5292754
-              ],
-              [
-                5292752,
-                5292761
-              ],
-              [
-                5292759,
-                5292766
-              ],
-              [
-                5292878,
-                5292679
-              ],
-              [
-                5292878,
-                5292884
-              ]
-            ]
-          }
-        }
+        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
+        "functions": {}
       },
-      "coverage_sha256": "81f86a66d32bcf7f11fe6054b7de963fcef8c7252f64b887d767953c8db0b982"
+      "coverage_sha256": "e6297981eb7343e0761bb50382eb92e0f05c5731965b3d470b8df8e6857dea98"
     },
     {
       "test": "differential_race_handler.py",
       "exit_code": 0,
       "output": "11003 race-handler cases: all five mode/state dispatch tables, real phase/game/rally/timer queries, guarded inputs/globals and complete controlled action traces",
-      "seconds": 23.511736001004465,
+      "seconds": 23.84060239797691,
       "targets": [
         "0x41e8d0"
       ],
@@ -12998,7 +12726,7 @@
       "test": "differential_rally_times.py",
       "exit_code": 0,
       "output": "240 rally CPU timing cases: identical samples, factors, deltas and split times",
-      "seconds": 11.119997451954987,
+      "seconds": 11.575354430999141,
       "targets": [
         "0x455f00",
         "0x456330",
@@ -13009,7 +12737,7 @@
       "coverage": {
         "scope": "original Unicorn instruction addresses and branch destinations",
         "original_instances": 1,
-        "spec_sha256": "645d1129960bc6b0ff755f38441daa86ae17a795c8c19676804c5859b4e0c44e",
+        "spec_sha256": "bda747a95803032eb26220507e3eb8e90bc51718feb5853bba888e0efba8edc2",
         "functions": {
           "0x455f00": {
             "instructions": [
@@ -13195,243 +12923,6 @@
               [
                 4546816,
                 4546822
-              ]
-            ]
-          },
-          "0x456330": {
-            "instructions": [
-              4547376,
-              4547377,
-              4547379,
-              4547382,
-              4547383,
-              4547384,
-              4547385,
-              4547390,
-              4547392,
-              4547397,
-              4547399,
-              4547402,
-              4547408,
-              4547411,
-              4547412,
-              4547417,
-              4547420,
-              4547426,
-              4547428,
-              4547429,
-              4547434,
-              4547440,
-              4547442,
-              4547445,
-              4547446,
-              4547451,
-              4547457,
-              4547459,
-              4547460,
-              4547465,
-              4547471,
-              4547473,
-              4547476,
-              4547479,
-              4547480,
-              4547482,
-              4547484,
-              4547486,
-              4547492,
-              4547498,
-              4547503,
-              4547505,
-              4547507,
-              4547510,
-              4547517,
-              4547523,
-              4547529,
-              4547532,
-              4547533,
-              4547538,
-              4547540,
-              4547543,
-              4547544,
-              4547549,
-              4547551,
-              4547554,
-              4547556,
-              4547559,
-              4547564,
-              4547566,
-              4547569,
-              4547570,
-              4547575,
-              4547578,
-              4547584,
-              4547586,
-              4547589,
-              4547592,
-              4547594,
-              4547596,
-              4547603,
-              4547606,
-              4547608,
-              4547610,
-              4547617,
-              4547619,
-              4547620,
-              4547625,
-              4547628,
-              4547634,
-              4547637,
-              4547640,
-              4547642,
-              4547644,
-              4547647,
-              4547650,
-              4547653,
-              4547654,
-              4547658,
-              4547661,
-              4547663,
-              4547665,
-              4547668,
-              4547671,
-              4547672,
-              4547676,
-              4547679,
-              4547681,
-              4547684,
-              4547686,
-              4547691,
-              4547693,
-              4547696,
-              4547698,
-              4547701,
-              4547703,
-              4547706,
-              4547709,
-              4547712,
-              4547714,
-              4547716,
-              4547718,
-              4547721,
-              4547740,
-              4547743,
-              4547746,
-              4547747,
-              4547751,
-              4547754,
-              4547756,
-              4547759,
-              4547762,
-              4547763,
-              4547766,
-              4547768,
-              4547774,
-              4547775,
-              4547776,
-              4547777,
-              4547779,
-              4547780
-            ],
-            "branch_edges": [
-              [
-                4547402,
-                4547408
-              ],
-              [
-                4547426,
-                4547428
-              ],
-              [
-                4547426,
-                4547445
-              ],
-              [
-                4547440,
-                4547442
-              ],
-              [
-                4547457,
-                4547459
-              ],
-              [
-                4547457,
-                4547476
-              ],
-              [
-                4547471,
-                4547473
-              ],
-              [
-                4547471,
-                4547476
-              ],
-              [
-                4547482,
-                4547408
-              ],
-              [
-                4547482,
-                4547484
-              ],
-              [
-                4547523,
-                4547529
-              ],
-              [
-                4547559,
-                4547564
-              ],
-              [
-                4547564,
-                4547566
-              ],
-              [
-                4547564,
-                4547592
-              ],
-              [
-                4547594,
-                4547596
-              ],
-              [
-                4547594,
-                4547603
-              ],
-              [
-                4547608,
-                4547610
-              ],
-              [
-                4547608,
-                4547617
-              ],
-              [
-                4547617,
-                4547619
-              ],
-              [
-                4547617,
-                4547640
-              ],
-              [
-                4547642,
-                4547644
-              ],
-              [
-                4547642,
-                4547647
-              ],
-              [
-                4547721,
-                4547740
-              ],
-              [
-                4547768,
-                4547532
-              ],
-              [
-                4547768,
-                4547774
               ]
             ]
           },
@@ -14025,13 +13516,13 @@
           }
         }
       },
-      "coverage_sha256": "7851d953fb69881ec340d75ddae7b803b38fa5a5d651234efc848c41e6b170b7"
+      "coverage_sha256": "96dfb5fe573b1290c291296d9fc411c5634ec5ff8cdb85a9f4b9c832383387b1"
     },
     {
       "test": "differential_record_reset.py",
       "exit_code": 0,
       "output": "6000 native record reset cases: 0 differences; all record tables, bitfields, split overflow, variable labels and memory guards checked",
-      "seconds": 0.7370351069839671,
+      "seconds": 0.7910163589986041,
       "targets": [
         "0x406010"
       ],
@@ -14052,7 +13543,7 @@
       "test": "differential_registry_value.py",
       "exit_code": 0,
       "output": "6000 native registry cases: 0 differences; each failed open/query, success, paths, output buffer, API counts and full arena checked",
-      "seconds": 2.6867725029587746,
+      "seconds": 2.948302368982695,
       "targets": [
         "0x4aa720"
       ],
@@ -14067,8 +13558,8 @@
     {
       "test": "differential_rankings.py",
       "exit_code": 0,
-      "output": "6000 ranking removals and 6000 rebuilds: 0 differences; data guards intact\nAuthorization required, but no authorization protocol specified",
-      "seconds": 10.281445999979042,
+      "output": "6000 ranking removals and 6000 rebuilds: 0 differences; data guards intact\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 11.165639785991516,
       "targets": [
         "0x455bc0",
         "0x456250"
@@ -14089,8 +13580,8 @@
     {
       "test": "differential_replay_reset.py",
       "exit_code": 0,
-      "output": "12000 native replay reset cases: 0 differences; record bytes, two timestamp arrays, guards and changing providers checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 8.582000438997056,
+      "output": "12000 native replay reset cases: 0 differences; record bytes, two timestamp arrays, guards and changing providers checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 9.017737607005984,
       "targets": [
         "0x466920",
         "0x4668d0"
@@ -14107,7 +13598,7 @@
       "test": "differential_render_transforms.py",
       "exit_code": 0,
       "output": "1920 render-transform cases: independent two-pass matrices/wheels model, guarded cars/rows/tables, repeated lists and four x87 modes; actual helpers, no mocks",
-      "seconds": 15.335432275023777,
+      "seconds": 15.459046558011323,
       "targets": [
         "0x42af50"
       ],
@@ -14694,28 +14185,10 @@
       "coverage_sha256": "15c2fc7afa0dceff3d4d9505cbfd64acf4174872176a2d00a0e393d8fb21c577"
     },
     {
-      "test": "differential_replay_slots.py",
-      "exit_code": 0,
-      "output": "6000 replay initializations and dispatches: play differences 0, record differences 0; all 16 slots and guards checked; eight-slot mutation differences 6000/6000\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.755316990020219,
-      "targets": [
-        "0x46c540",
-        "0x46d270",
-        "0x46d5e0"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
-        "functions": {}
-      },
-      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
-    },
-    {
       "test": "differential_replay_snapshot.py",
       "exit_code": 0,
       "output": "1921 replay ticks: identical snapshots, counters, car state, guarded heap and provider traces",
-      "seconds": 2.2618245229823515,
+      "seconds": 2.330982910003513,
       "targets": [
         "0x46d610"
       ],
@@ -15007,10 +14480,28 @@
       "coverage_sha256": "028a43b054e97c81db314b380d2058a99e990d7fe7f6c0b7d6f6036683c9eacb"
     },
     {
+      "test": "differential_replay_slots.py",
+      "exit_code": 0,
+      "output": "6000 replay initializations and dispatches: play differences 0, record differences 0; all 16 slots and guards checked; eight-slot mutation differences 6000/6000\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 5.804653636005241,
+      "targets": [
+        "0x46c540",
+        "0x46d270",
+        "0x46d5e0"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
+        "functions": {}
+      },
+      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
+    },
+    {
       "test": "differential_route_progress.py",
       "exit_code": 0,
-      "output": "6000 native route progress cases: 0 differences; signed thresholds, clamps, provider capture and full arena checked",
-      "seconds": 3.324467427970376,
+      "output": "6000 native route progress cases: 0 differences; signed thresholds, clamps, provider capture and full arena checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 6.658448544039857,
       "targets": [
         "0x421470"
       ],
@@ -15028,31 +14519,10 @@
       "coverage_sha256": "a937dc8f2741b57e539f4709f6ed019b7e503989fc632ebd7a43b99d818c4d24"
     },
     {
-      "test": "differential_scene_reparent.py",
-      "exit_code": 0,
-      "output": "12000 native scene reparent cases: 0 differences; first/middle/last siblings, ancestor chains, failures, return values and all guards checked",
-      "seconds": 1.3411605969886295,
-      "targets": [
-        "0x4ac7a0"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "f68ac52478de3a4a75b4b59a10606de5f74d8d162d5e5de846c0735282af2e2b",
-        "functions": {
-          "0x4ac7a0": {
-            "instructions": [],
-            "branch_edges": []
-          }
-        }
-      },
-      "coverage_sha256": "de87061269e3c9a190948668716014682999f34304bb383ac4bf7c81a614f31d"
-    },
-    {
       "test": "differential_rotation.py",
       "exit_code": 0,
-      "output": "6000 rotations: 0 differences; node guards and input buffers intact\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 7.916149829979986,
+      "output": "6000 rotations: 0 differences; node guards and input buffers intact",
+      "seconds": 6.76254935801262,
       "targets": [
         "0x4ac820"
       ],
@@ -15070,10 +14540,31 @@
       "coverage_sha256": "3d6e6e25af9d75dca0f836f6b8f25ae47618037fcb001c02934af5e2641b28e4"
     },
     {
+      "test": "differential_scene_reparent.py",
+      "exit_code": 0,
+      "output": "12000 native scene reparent cases: 0 differences; first/middle/last siblings, ancestor chains, failures, return values and all guards checked\nAuthorization required, but no authorization protocol specified",
+      "seconds": 5.116464522026945,
+      "targets": [
+        "0x4ac7a0"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "f68ac52478de3a4a75b4b59a10606de5f74d8d162d5e5de846c0735282af2e2b",
+        "functions": {
+          "0x4ac7a0": {
+            "instructions": [],
+            "branch_edges": []
+          }
+        }
+      },
+      "coverage_sha256": "de87061269e3c9a190948668716014682999f34304bb383ac4bf7c81a614f31d"
+    },
+    {
       "test": "differential_service_menus.py",
       "exit_code": 0,
       "output": "16 service menu cases: identical complete records and callbacks, no overlapping globals",
-      "seconds": 0.23913357098354027,
+      "seconds": 0.25654832599684596,
       "targets": [
         "0x502310",
         "0x5024a0"
@@ -15087,36 +14578,10 @@
       "coverage_sha256": "e6297981eb7343e0761bb50382eb92e0f05c5731965b3d470b8df8e6857dea98"
     },
     {
-      "test": "differential_session_enumeration.py",
-      "exit_code": 0,
-      "output": "12000 native session enumeration cases: 0 differences; HRESULTs, GUID/descriptor, busy/null paths, COM calls and guards checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.014191987982485,
-      "targets": [
-        "0x4a12d0",
-        "0x4a13b0"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "55dccef22891b07c45f79090e7e873faa7bd240340155da7ff2daada80123c7b",
-        "functions": {
-          "0x4a12d0": {
-            "instructions": [],
-            "branch_edges": []
-          },
-          "0x4a13b0": {
-            "instructions": [],
-            "branch_edges": []
-          }
-        }
-      },
-      "coverage_sha256": "4a81636fd4bd582eff4f373745211d8ed5a55828de77d3b265f869be3765bacd"
-    },
-    {
       "test": "differential_object_matrix.py",
       "exit_code": 0,
       "output": "12288 object matrices: independent affine/tilt/split model, guarded objects and tables, actual helpers and four x87 modes; no mocks",
-      "seconds": 73.35272636497393,
+      "seconds": 70.8927654059953,
       "targets": [
         "0x486910",
         "0x4869e0"
@@ -15224,8 +14689,8 @@
     {
       "test": "differential_shadow_cleanup.py",
       "exit_code": 0,
-      "output": "6000 native shadow cleanup cases: 0 differences; nested releases, pointer clears, four counters and all guards checked\nAuthorization required, but no authorization protocol specified",
-      "seconds": 6.588620038004592,
+      "output": "6000 native shadow cleanup cases: 0 differences; nested releases, pointer clears, four counters and all guards checked",
+      "seconds": 2.9722636860096827,
       "targets": [
         "0x4b5380"
       ],
@@ -15243,10 +14708,47 @@
       "coverage_sha256": "efd18f277ea29d4ca31a09b6bcdd80365f7f2c14ef9839cc8060306269fedff6"
     },
     {
+      "test": "differential_slip.py",
+      "exit_code": 0,
+      "output": "6000 cases: 0 differences; mutation detected in 5917 cases",
+      "seconds": 1.0004177530063316,
+      "targets": [
+        "0x48df50"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "8973089bcf7d5c4f7f7b56d0973f3827d05f0d28acc832984d9c5c001e4b82ec",
+        "functions": {
+          "0x48df50": {
+            "instructions": [],
+            "branch_edges": []
+          }
+        }
+      },
+      "coverage_sha256": "485dd54b65dabda32faaa7628b15eed13e4ccefc50874dda89c2fee5fd4ca4d4"
+    },
+    {
+      "test": "differential_sort.py",
+      "exit_code": 0,
+      "output": "6000 sorts: 0 differences; times and guards intact",
+      "seconds": 0.9805601490079425,
+      "targets": [
+        "0x40d520"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
+        "functions": {}
+      },
+      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
+    },
+    {
       "test": "differential_sector_visibility.py",
       "exit_code": 0,
       "output": "512 sector visibility cases: identical visible sectors, distances and flags",
-      "seconds": 15.301234889018815,
+      "seconds": 15.423245849029627,
       "targets": [
         "0x4b7de0"
       ],
@@ -15818,26 +15320,10 @@
       "coverage_sha256": "4aeb3b459d862d2c4b1f5bc7979db252f7330770f607f1a1f15f95b9ee59478c"
     },
     {
-      "test": "differential_sort.py",
-      "exit_code": 0,
-      "output": "6000 sorts: 0 differences; times and guards intact",
-      "seconds": 1.2405451849917881,
-      "targets": [
-        "0x40d520"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "709d46bf776270694da0d6bfcfe7643cc75255c086277b873e02d820f3396089",
-        "functions": {}
-      },
-      "coverage_sha256": "cc2cea8ba76ae4ca1d744c99734e89f65d22a161b702481e62a12671947067c3"
-    },
-    {
       "test": "differential_stage_grid.py",
       "exit_code": 0,
       "output": "42 countdown cases: all seven pixel patterns, rectangles and colours identical",
-      "seconds": 1.0974404999869876,
+      "seconds": 1.13379494700348,
       "targets": [
         "0x477f70"
       ],
@@ -16049,31 +15535,36 @@
       "coverage_sha256": "b78f83cdfe7c0929ab0211d4d83f981e8271dc9171a7f5c6995f4bcb4bc7a3c0"
     },
     {
-      "test": "differential_slip.py",
+      "test": "differential_session_enumeration.py",
       "exit_code": 0,
-      "output": "6000 cases: 0 differences; mutation detected in 5917 cases\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.455310453020502,
+      "output": "12000 native session enumeration cases: 0 differences; HRESULTs, GUID/descriptor, busy/null paths, COM calls and guards checked\nAuthorization required, but no authorization protocol specified",
+      "seconds": 12.083877829951234,
       "targets": [
-        "0x48df50"
+        "0x4a12d0",
+        "0x4a13b0"
       ],
       "coverage": {
         "scope": "original Unicorn instruction addresses and branch destinations",
         "original_instances": 0,
-        "spec_sha256": "8973089bcf7d5c4f7f7b56d0973f3827d05f0d28acc832984d9c5c001e4b82ec",
+        "spec_sha256": "55dccef22891b07c45f79090e7e873faa7bd240340155da7ff2daada80123c7b",
         "functions": {
-          "0x48df50": {
+          "0x4a12d0": {
+            "instructions": [],
+            "branch_edges": []
+          },
+          "0x4a13b0": {
             "instructions": [],
             "branch_edges": []
           }
         }
       },
-      "coverage_sha256": "485dd54b65dabda32faaa7628b15eed13e4ccefc50874dda89c2fee5fd4ca4d4"
+      "coverage_sha256": "4a81636fd4bd582eff4f373745211d8ed5a55828de77d3b265f869be3765bacd"
     },
     {
       "test": "differential_stage_lighting.py",
       "exit_code": 0,
       "output": "1620 weather lighting initialisation cases: identical complete state and providers\n2580 weather initialisation/blend cases: identical state and all emitted colours",
-      "seconds": 4.633423390972894,
+      "seconds": 5.025101406965405,
       "targets": [
         "0x460da0",
         "0x461c30"
@@ -17913,7 +17404,7 @@
       "test": "differential_surface_collision.py",
       "exit_code": 0,
       "output": "208 surface contact cases: identical impulses, translated car/corners and effects",
-      "seconds": 0.9016321129747666,
+      "seconds": 0.9257720619789325,
       "targets": [
         "0x48fb80"
       ],
@@ -18951,10 +18442,31 @@
       "coverage_sha256": "e48df7928e9b83af603b58cb9b342d7cc2c6c62b352b2c6f9b1a6c4d28b90a08"
     },
     {
+      "test": "differential_stage_sound_reset.py",
+      "exit_code": 0,
+      "output": "6000 native stage sound reset cases: 0 differences; eight records, state words, pattern, guards and callback order checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 6.781242833996657,
+      "targets": [
+        "0x418f20"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "7a9fa57379876b868c3d0abf1f2a9615002b9f6ea6ae5747de1a2418ea31becd",
+        "functions": {
+          "0x418f20": {
+            "instructions": [],
+            "branch_edges": []
+          }
+        }
+      },
+      "coverage_sha256": "05b738e1007cda9b530324b7407d759b75f04b1af54bff763bbc5a7ea4a32955"
+    },
+    {
       "test": "differential_stage_paths.py",
       "exit_code": 0,
       "output": "2688 stage path cases: all six stage/replay/texture names identical, including Finland stage 1\n9 loader-tail cases: lighting argument order, subsequent calls, success byte and stack identical",
-      "seconds": 10.276838360994589,
+      "seconds": 10.24456271098461,
       "targets": [
         "0x41f560",
         "0x41f930"
@@ -18962,7 +18474,7 @@
       "coverage": {
         "scope": "original Unicorn instruction addresses and branch destinations",
         "original_instances": 1,
-        "spec_sha256": "67816ef44037596c226817a65d5a78ddc89e0aeafd597c31a17a0591b29c7acb",
+        "spec_sha256": "d93f876fac961e2ceb488ac1628cacecb4139cc409a960c2a842686d773a854c",
         "functions": {
           "0x41f560": {
             "instructions": [
@@ -19280,192 +18792,16 @@
                 4323482
               ]
             ]
-          },
-          "0x41f930": {
-            "instructions": [
-              4323632,
-              4323637,
-              4323639,
-              4323641,
-              4323643,
-              4323648,
-              4323653,
-              4323660,
-              4323661,
-              4323662,
-              4323663,
-              4323668,
-              4323673,
-              4323678,
-              4323683,
-              4323688,
-              4323689,
-              4323694,
-              4323699,
-              4323704,
-              4323709,
-              4323712,
-              4323717,
-              4323719,
-              4323722,
-              4323725,
-              4323727,
-              4323729,
-              4323730,
-              4323735,
-              4323737,
-              4323740,
-              4323742,
-              4323745,
-              4323750,
-              4323752,
-              4323753,
-              4323756,
-              4323761,
-              4323764,
-              4323767,
-              4323769,
-              4323771,
-              4323773,
-              4323774,
-              4323779,
-              4323781,
-              4323784,
-              4323786,
-              4323792,
-              4323797,
-              4323799,
-              4323800,
-              4323803,
-              4323808,
-              4323811,
-              4323814,
-              4323816,
-              4323818,
-              4323820,
-              4323821,
-              4323826,
-              4323829,
-              4323832,
-              4323834,
-              4323836,
-              4323838,
-              4323840,
-              4323842,
-              4323847,
-              4323850,
-              4323852,
-              4323854,
-              4323855,
-              4323858,
-              4323860,
-              4323862,
-              4323865,
-              4323867,
-              4323872,
-              4323874,
-              4323876,
-              4323881,
-              4323886,
-              4323891,
-              4323896,
-              4323901,
-              4323904,
-              4323906,
-              4323909,
-              4323911,
-              4323913,
-              4323914,
-              4323919,
-              4323921,
-              4323924,
-              4323926,
-              4323931,
-              4323934,
-              4323936,
-              4323938,
-              4323940,
-              4323942,
-              4323944,
-              4323946,
-              4323948,
-              4323951,
-              4323953,
-              4323955,
-              4323958,
-              4323960,
-              4323962,
-              4323967,
-              4323969,
-              4324010,
-              4324012,
-              4324017,
-              4324018,
-              4324020,
-              4324025,
-              4324376,
-              4324381,
-              4324383,
-              4324385,
-              4324390,
-              4324396,
-              4324402,
-              4324403,
-              4324404,
-              4324409,
-              4324414,
-              4324419,
-              4324421
-            ],
-            "branch_edges": [
-              [
-                4323639,
-                4323641
-              ],
-              [
-                4323874,
-                4323876
-              ],
-              [
-                4323874,
-                4323960
-              ],
-              [
-                4323969,
-                4324010
-              ]
-            ]
           }
         }
       },
-      "coverage_sha256": "0e8feed396aa49f6e8f907b7724e0937ca0fe6e08783cc386a48942edc57867b"
-    },
-    {
-      "test": "differential_stage_sound_reset.py",
-      "exit_code": 0,
-      "output": "6000 native stage sound reset cases: 0 differences; eight records, state words, pattern, guards and callback order checked\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 6.577830682042986,
-      "targets": [
-        "0x418f20"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "7a9fa57379876b868c3d0abf1f2a9615002b9f6ea6ae5747de1a2418ea31becd",
-        "functions": {
-          "0x418f20": {
-            "instructions": [],
-            "branch_edges": []
-          }
-        }
-      },
-      "coverage_sha256": "05b738e1007cda9b530324b7407d759b75f04b1af54bff763bbc5a7ea4a32955"
+      "coverage_sha256": "0ebb43a33233026276a73a208f71d183911d95e1b35bdac0f3252767d50318cd"
     },
     {
       "test": "differential_track_geometry.py",
       "exit_code": 0,
       "output": "1800 ray/quad cases (407 hits, 1393 misses), 420 quadtree cases: identical returns, outputs, provider arguments and guards",
-      "seconds": 1.2672813310055062,
+      "seconds": 1.1409538479638286,
       "targets": [
         "0x489060",
         "0x491550"
@@ -20224,10 +19560,36 @@
       "coverage_sha256": "4d67bd4003a9be3c28a82394e80d471bd9da14728678446e8dc76a03a4b9fda8"
     },
     {
+      "test": "differential_tables.py",
+      "exit_code": 0,
+      "output": "6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
+      "seconds": 5.706998187000863,
+      "targets": [
+        "0x40cc60",
+        "0x4b7ca0",
+        "0x4b7cd0",
+        "0x4b7d10",
+        "0x4b7d60",
+        "0x46ed40"
+      ],
+      "coverage": {
+        "scope": "original Unicorn instruction addresses and branch destinations",
+        "original_instances": 0,
+        "spec_sha256": "79b8a98ba1893b24694b95381343a9c96eda2349ed611c5790b9b646c17b38e1",
+        "functions": {
+          "0x40cc60": {
+            "instructions": [],
+            "branch_edges": []
+          }
+        }
+      },
+      "coverage_sha256": "a8b40d04da8b52ed354408db0f93cb3111a86828d7c8a531e41e1f6a4d542c3f"
+    },
+    {
       "test": "differential_surface_params.py",
       "exit_code": 0,
       "output": "2304 surface parameter cases: identical grip, drag, noise and complete guarded heap; real helpers",
-      "seconds": 8.514500930032227,
+      "seconds": 9.15167263901094,
       "targets": [
         "0x4781d0"
       ],
@@ -20687,34 +20049,8 @@
         }
       },
       "coverage_sha256": "9868551172a231ea75c71239bbf01948b9c2cb53a91bb1b2272e9fd6e86f9845"
-    },
-    {
-      "test": "differential_tables.py",
-      "exit_code": 0,
-      "output": "6000 resets, 6000 queue sequences and 6000 event ticks: no differences or guard writes; both wrong-address mutations detected\nAuthorization required, but no authorization protocol specified\n\nAuthorization required, but no authorization protocol specified",
-      "seconds": 5.581191138015129,
-      "targets": [
-        "0x40cc60",
-        "0x4b7ca0",
-        "0x4b7cd0",
-        "0x4b7d10",
-        "0x4b7d60",
-        "0x46ed40"
-      ],
-      "coverage": {
-        "scope": "original Unicorn instruction addresses and branch destinations",
-        "original_instances": 0,
-        "spec_sha256": "79b8a98ba1893b24694b95381343a9c96eda2349ed611c5790b9b646c17b38e1",
-        "functions": {
-          "0x40cc60": {
-            "instructions": [],
-            "branch_edges": []
-          }
-        }
-      },
-      "coverage_sha256": "a8b40d04da8b52ed354408db0f93cb3111a86828d7c8a531e41e1f6a4d542c3f"
     }
   ],
-  "coverage_disassembly_sha256": "e4fd138db9a9ad76607e21964adf4677e035be852b0edb17dc7fefb0da7228bf",
-  "elapsed_seconds": 161.0612181609613
+  "coverage_disassembly_sha256": "deb0eaac32b4289a7045c3c1ecfa01069005b2297d78e5ffca846586e2a2c283",
+  "elapsed_seconds": 167.29614641796798
 }

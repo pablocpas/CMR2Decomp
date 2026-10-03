@@ -2117,7 +2117,7 @@
   },
   "0x40b5b0": {
     "n": "Font_GetTextWidth",
-    "s": 0.2713178294573643,
+    "s": 0.5645161290322581,
     "x": false,
     "unknown": [],
     "f": "Font.cpp",
@@ -16581,7 +16581,7 @@
   },
   "0x4174e0": {
     "n": "FUN_004174e0",
-    "s": 0.34146341463414637,
+    "s": 0.6932270916334662,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -19954,8 +19954,8 @@
   },
   "0x4b8b90": {
     "n": "Sector_BuildCorners",
-    "s": 0.20887728459530025,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Sector.cpp",
     "symbol_name": "Sector_BuildCorners"
@@ -22493,7 +22493,7 @@
   },
   "0x46d470": {
     "n": "Replay_SetupPointers",
-    "s": 0.5,
+    "s": 0.6363636363636364,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22805,7 +22805,7 @@
   },
   "0x46d2d0": {
     "n": "FUN_0046d2d0",
-    "s": 0.37777777777777777,
+    "s": 0.4787234042553192,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23181,8 +23181,8 @@
   },
   "0x46c750": {
     "n": "FUN_0046c750",
-    "s": 0.5555555555555556,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046c750"
@@ -23213,13 +23213,9 @@
   },
   "0x46d8d0": {
     "n": "FUN_0046d8d0",
-    "s": 0.407673860911271,
+    "s": 0.5959475566150179,
     "x": false,
-    "unknown": [
-      "__real@8@00000000000000000000",
-      "__real@8@3ff88000000000000000",
-      "__real@8@c00afff0000000000000"
-    ],
+    "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046d8d0"
   },
@@ -23273,8 +23269,8 @@
   },
   "0x46cce0": {
     "n": "FUN_0046cce0",
-    "s": 0.586046511627907,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0046cce0"
@@ -23297,7 +23293,7 @@
   },
   "0x46d610": {
     "n": "FUN_0046d610",
-    "s": 0.6927083333333334,
+    "s": 0.90625,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23329,7 +23325,7 @@
   },
   "0x47b0e0": {
     "n": "FUN_0047b0e0",
-    "s": 0.6943699731903485,
+    "s": 0.7238605898123325,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -26243,7 +26239,7 @@
   },
   "0x491d40": {
     "n": "Stage_SetHeightColours",
-    "s": 0.20825852782764812,
+    "s": 0.9069373942470389,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",

@@ -1,3 +1,6 @@
+// Declared before RallyData.h, as in the original: in an expression that calls
+// both, MSVC calls RallyDataState first.
+short Car_GetOrderCount(void);
 #include "StageObjectCount.h"
 #include <windows.h>
 #include <stdlib.h>
@@ -187,11 +190,11 @@ int FUN_0046c4b0(int *pState, BYTE *pIn, BYTE car, BYTE *pCounter);
 void Replay_InitSlots(void);
 BYTE *FUN_0046c5a0(short frames, short samples, int type);
 int Replay_FreeBuffers(void);
-void FUN_0046c750(int param_1, int param_2, int param_3);
+int FUN_0046c750(ReplayStream *p, int unused, BYTE car);
 void FUN_0046c8e0(void);
 int FUN_0046cbe0(BYTE *packet, BYTE car);
 int Replay_StopRecording(BYTE *pBuffer);
-void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4);
+int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car);
 void FUN_0046cfa0(int *pState);
 void FUN_0046d270(void);
 int FUN_0046d2a0(int *p);
@@ -10925,70 +10928,48 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
 // Initialises the per-car stage-object record for one lane: validates it, stores
 // the car index, zeroes the timers and dispatches to the type-specific reset
 // (object list, light list or mesh list) resetting the light buffer too.
-// match 57%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por compatibilidad con las llamadas de Race.cpp)
 // FUNCTION: CMR2 0x0046c750
-void FUN_0046c750(int param_1, int param_2, int param_3)
+int FUN_0046c750(ReplayStream *p, int unused, BYTE car)
 {
-    BYTE *p;
-    char cVar1;
+    BYTE *pInfo;
 
-    if (param_1 == 0 || *(int *)(param_1 + 0xc) != 0 || *(int *)(param_1 + 4) != 0)
-        return;
-    *(int *)param_1 = 0;
-    if ((BYTE)param_3 < 2)
-        *(int *)param_1 = (int)CInput::FUN_0040be60(param_3 & 0xff);
-    *(BYTE *)(param_1 + 0x20) = (BYTE)param_3;
-    *(int *)(param_1 + 0xc) = 1;
-    *(WORD *)(param_1 + 0x100) = 0;
-    *(int *)(param_1 + 0x10) = 1;
-    *(WORD *)(*(int *)(param_1 + 0x104)) = 0;
-    if (*(int *)(param_1 + 0x1c) != 2)
-        *(BYTE *)(*(int *)(param_1 + 0x3c) + 2) &= 0xc0;
-    if (*(int *)(param_1 + 0x1c) == 0) {
-        p = FUN_0041b390();
-        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1110) =
-            (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
-        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110c) = 0;
-        *(WORD *)(*(int *)(param_1 + 0x24) + 0x110e) = 0;
-        *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1148) = 1;
+    if (p == NULL || p->recording != 0 || p->playing != 0)
+        return 0;
+    p->pInput = NULL;
+    if (car < 2)
+        p->pInput = (void *)CInput::FUN_0040be60(car);
+    p->car = car;
+    p->recording = 1;
+    p->laneCount = 0;
+    p->recordStarted = 1;
+    p->pLaneSamples[0] = 0;
+    if (p->type != 2)
+        p->pFrames[2] &= 0xc0;
+    if (p->type == 0) {
+        pInfo = FUN_0041b390();
+        p->pInputs[0x1110] = (BYTE)(*(unsigned int *)(*(BYTE **)(pInfo + 4) + p->car * 8) >> 16);
+        *(short *)(p->pInputs + 0x110c) = 0;
+        *(short *)(p->pInputs + 0x110e) = 0;
+        p->pInputs[0x1148] = 1;
     } else {
-        p = FUN_0041b390();
-        cVar1 = (char)CGameInfo::FUN_00405e00();
-        if (cVar1 == '\0')
-            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
-                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4) + (BYTE)*(BYTE *)(param_1 + 0x20) * 8) >> 0x10);
+        pInfo = FUN_0041b390();
+        if (CGameInfo::FUN_00405e00())
+            p->pStates[0x20] = (BYTE)(**(unsigned int **)(pInfo + 4) >> 16);
         else
-            *(BYTE *)(*(int *)(param_1 + 0x30) + 0x20) =
-                (BYTE)((unsigned int)*(int *)(*(int *)(p + 4)) >> 0x10);
-        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1c) = 0;
-        *(WORD *)(*(int *)(param_1 + 0x30) + 0x1e) = 0;
-        *(BYTE *)(*(int *)(param_1 + 0x30) + 0x58) = 1;
+            p->pStates[0x20] = (BYTE)(*(unsigned int *)(*(BYTE **)(pInfo + 4) + p->car * 8) >> 16);
+        *(short *)(p->pStates + 0x1c) = 0;
+        *(short *)(p->pStates + 0x1e) = 0;
+        p->pStates[0x58] = 1;
     }
-    if (*(int *)(param_1 + 0x1c) == 0) {
-        FUN_0046c240((BYTE *)*(int *)(param_1 + 0x24), (BYTE)param_3);
-        *(int *)(param_1 + 0x18) = 0;
-        *(BYTE *)(param_1 + 0xf8) = 0;
-        return;
-    }
-    if (*(int *)(param_1 + 0x1c) == 1) {
-        FUN_0046c320((int *)*(int *)(param_1 + 0x30), (BYTE)param_3);
-        *(int *)(param_1 + 0x18) = 0;
-        *(BYTE *)(param_1 + 0xf8) = 0;
-        return;
-    }
-    cVar1 = (char)CGameInfo::FUN_00405e00();
-    if (cVar1 == '\0' || *(BYTE *)(param_1 + 0x20) != 0) {
-        cVar1 = (char)CGameInfo::FUN_00405e00();
-        if (cVar1 != '\0')
-            goto done;
-    }
-    {
-        Car *pCar = Car_Get((BYTE)*(BYTE *)(param_1 + 0x20));
-        *(int *)((BYTE *)pCar + 0xc18) = 0;
-    }
-done:
-    *(int *)(param_1 + 0x18) = 0;
-    *(BYTE *)(param_1 + 0xf8) = 0;
+    if (p->type == 0)
+        FUN_0046c240(p->pInputs, car);
+    else if (p->type == 1)
+        FUN_0046c320((int *)p->pStates, car);
+    else if ((CGameInfo::FUN_00405e00() && p->car == 0) || !CGameInfo::FUN_00405e00())
+        *(int *)((BYTE *)Car_Get(p->car) + 0xc18) = 0;
+    p->field_0x18 = 0;
+    p->step = 0;
+    return 1;
 }
 
 // Views into the stage object block declared in StageBlock.h, used by the
@@ -12016,124 +11997,62 @@ void FUN_0046c410(int param_1, BYTE param_2)
 // the type-specific reset (0x46c2a0 / 0x46c390 / 0x46c410), flushes pending
 // events, copies the light byte and, for type 2, rebuilds the two pose matrices
 // and the car's matrix/mirror state.
-// match 63%: implementada; MSVC6 no emite el `mov eax,1` final (firma void por
-// compatibilidad con las llamadas de Race.cpp) y reparte distinto los locales
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0046cce0
-void FUN_0046cce0(int param_1, int param_2, int param_3, BYTE param_4)
+int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car)
 {
-    char cVar1;
-    BYTE bVar2;
-    short sVar4;
-    int iVar5;
-    unsigned char uVar3;
-    short lane;
-
-    if (param_1 == 0 || *(int *)(param_1 + 0xc) != 0 || *(int *)(param_1 + 4) != 0)
-        return;
-    lane = (short)param_2;
-    if (*(short *)(param_1 + 0x100) <= lane)
-        return;
-    *(BYTE *)(param_1 + 0x20) = (BYTE)param_4;
-    *(int *)(param_1 + 4) = 1;
-    *(short *)(param_1 + 0x108) = lane;
-    *(int *)(param_1 + 8) = 1;
-    if ((short)param_3 == 0)
-        *(short *)(param_1 + 0x10a) = 0;
+    if (p == NULL || p->recording != 0 || p->playing != 0)
+        return 0;
+    if (lane >= p->laneCount)
+        return 0;
+    p->car = car;
+    p->playing = 1;
+    p->lane = lane;
+    p->playStarted = 1;
+    if (start == 0)
+        p->frame = 0;
     else
-        *(short *)(param_1 + 0x10a) = (short)(-(short)param_3);
-    *(BYTE *)(param_1 + 0x21) = 0;
-    if (*(int *)(param_1 + 0x1c) == 0) {
-        FUN_0046c2a0(*(int *)(param_1 + 0x24) + lane * 0x114c, (BYTE)param_4);
-    } else if (*(int *)(param_1 + 0x1c) == 1) {
-        FUN_0046c390((int *)(lane * 0x5c + *(int *)(param_1 + 0x30)), (BYTE)param_4);
-    } else {
-        FUN_0046c410(lane * 0x5c + *(int *)(param_1 + 0x30), (BYTE)param_4);
-    }
+        p->frame = -start;
+    p->field_0x21 = 0;
+    if (p->type == 0)
+        FUN_0046c2a0((int)(p->pInputs + lane * 0x114c), car);
+    else if (p->type == 1)
+        FUN_0046c390((int *)(lane * 0x5c + p->pStates), car);
+    else
+        FUN_0046c410((int)(lane * 0x5c + p->pStates), car);
     Events_Flush();
-    *(int *)(param_1 + 0x14) = 0;
-    if (*(int *)(param_1 + 0x1c) == 0)
-        *(BYTE *)(param_1 + 0x10c) = *(BYTE *)(*(int *)(param_1 + 0x24) + 0x1110 + lane * 0x114c);
+    p->field_0x14 = 0;
+    if (p->type == 0)
+        p->field_0x10c = p->pInputs[lane * 0x114c + 0x1110];
     else
-        *(BYTE *)(param_1 + 0x10c) = *(BYTE *)(lane * 0x5c + 0x20 + *(int *)(param_1 + 0x30));
-    if ((BYTE)param_4 == 0 &&
-        ((cVar1 = (char)RallyData_FUN_00407e70()) != '\0' ||
-         ((cVar1 = (char)RallyData_FUN_00407e90()) != '\0' &&
-          (cVar1 = (char)CGameInfo::FUN_00405e00()) == '\0'))) {
+        p->field_0x10c = p->pStates[lane * 0x5c + 0x20];
+    if (car == 0 && (RallyData_FUN_00407e70() || ((char)RallyData_FUN_00407e90() && !CGameInfo::FUN_00405e00()))) {
         RallyData_FUN_004207f0();
         FUN_004584d0(1);
-        cVar1 = (char)RallyData_FUN_00407e70();
-        if (cVar1 != '\0') {
-            bVar2 = (BYTE)RallyDataState();
-            sVar4 = Car_GetOrderCount();
-            uVar3 = (unsigned char)RallyDataState();
-            iVar5 = (int)sVar4 - (unsigned int)bVar2;
-            Car_ReloadModels((int)uVar3, iVar5, 1);
+        if (RallyData_FUN_00407e70()) {
+            Car_ReloadModels(RallyDataState(), Car_GetOrderCount() - RallyDataState(), 1);
             FUN_0047bdc0(0);
         }
         FUN_00458480();
         FUN_00458100(0);
     }
-    *(BYTE *)(param_1 + 0xf8) = 0;
-    if (*(int *)(param_1 + 0x1c) == 2) {
-        FUN_0046de20((unsigned int *)(param_1 + 0xec), (unsigned int *)(param_1 + 0xf0),
-                     (unsigned int *)(param_1 + 0xd8), (int *)(param_1 + 0xd0),
-                     (FixMatrix *)(param_1 + 0x44), (int *)(param_1 + 0xe0),
-                     (unsigned int *)(param_1 + 0xe8), (int *)*(int *)(param_1 + 0x40));
-        FUN_0046de20((unsigned int *)(param_1 + 0xec), (unsigned int *)(param_1 + 0xf4),
-                     (unsigned int *)(param_1 + 0xdc), (int *)(param_1 + 0xd4),
-                     (FixMatrix *)(param_1 + 0x84), (int *)(param_1 + 0xe4),
-                     (unsigned int *)(param_1 + 0xe8), (int *)(*(int *)(param_1 + 0x40) + 0x10));
-        cVar1 = (char)CGameInfo::FUN_00405e00();
-        if ((cVar1 != '\0' && *(BYTE *)(param_1 + 0x20) == 0) ||
-            (cVar1 = (char)CGameInfo::FUN_00405e00()) == '\0') {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0xc18) = 1;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x408) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x40c) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x410) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x414) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x418) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0x41c) = 0;
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            FUN_0046e340((BYTE *)(param_1 + 0x44), (BYTE *)pCar);
-        }
-        {
-            Car *pCar = Car_Get((int)*(BYTE *)(param_1 + 0x20));
-
-            *(int *)((BYTE *)pCar + 0xbf8) = 1;
-        }
-        return;
+    p->step = 0;
+    if (p->type == 2) {
+        FUN_0046de20(&p->field_0xec, &p->flagPrev, (unsigned int *)&p->steerFrom, &p->headingFrom, &p->from,
+                     &p->eventPrev, &p->field_0xe8, (int *)p->pSamples);
+        FUN_0046de20(&p->field_0xec, &p->flag, (unsigned int *)&p->steerTo, &p->headingTo, &p->to,
+                     &p->event, &p->field_0xe8, (int *)(p->pSamples + 0x10));
+        if ((CGameInfo::FUN_00405e00() && p->car == 0) || !CGameInfo::FUN_00405e00())
+            *(int *)((BYTE *)Car_Get(p->car) + 0xc18) = 1;
+        Car_Get(p->car)->velocity.x = 0;
+        Car_Get(p->car)->velocity.y = 0;
+        Car_Get(p->car)->velocity.z = 0;
+        Car_Get(p->car)->velocityNext.x = 0;
+        Car_Get(p->car)->velocityNext.y = 0;
+        Car_Get(p->car)->velocityNext.z = 0;
+        FUN_0046e340((BYTE *)&p->from, (BYTE *)Car_Get(p->car));
+        Car_Get(p->car)->field_0xbf8 = 1;
     }
-    return;
+    return 1;
 }
 // ===========================================================================
 // Stage-object pass, animation and collision code restored for the layer 1
@@ -12479,7 +12398,8 @@ void FUN_0047aa70(void)
     int dist;
     int scale;
     int pitch;
-    count = (int)Car_GetOrderCount() - (int)RallyDataState();
+    count = (int)Car_GetOrderCount();
+    count -= (int)RallyDataState();
     if (count == 0)
         return;
     slots = (count < 2) ? count : 2;
@@ -14386,7 +14306,7 @@ void FUN_00466030(int a, int b)
     int index;
 
     index = g_unk0x0058875c->index;
-    FUN_0046cce0((int)g_unk0x00588758, a, b, index);
+    FUN_0046cce0((ReplayStream *)g_unk0x00588758, a, b, index);
     g_unk0x0058875c->index = index;
     *(int *)((BYTE *)g_unk0x0058875c + 0xc0c) = 1;
 }
