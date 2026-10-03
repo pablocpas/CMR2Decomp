@@ -7263,12 +7263,13 @@ unsigned short g_unk0x0059be74[2000];
 // FUNCTION: CMR2 0x0049c680
 void FUN_0049c680(Mesh *pMesh)
 {
+    MeshTriangle *pTri = pMesh->pTriangles;
+    int total = pMesh->triangleCount;
     int currentTexture = -1;
     int count = 0;
     int n;
-    MeshTriangle *pTri = pMesh->pTriangles;
 
-    for (n = pMesh->triangleCount; n != 0; n--) {
+    for (n = total; n > 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
             if (count > 0) {
@@ -7288,7 +7289,7 @@ void FUN_0049c680(Mesh *pMesh)
         pTri++;
     }
     if (count != 0) {
-        MeshTriangle *pLast = &pMesh->pTriangles[pMesh->triangleCount - 1];
+        MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
         int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
         CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
@@ -7297,3 +7298,5 @@ void FUN_0049c680(Mesh *pMesh)
             pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
     }
 }
+
+
