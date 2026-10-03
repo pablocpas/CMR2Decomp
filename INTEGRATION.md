@@ -187,3 +187,8 @@ build, symbols, matching reports and source hashes agree. **The expanded full
 before running it. `build/windowed/CMR2.exe` still contains the previous
 validated gameplay fixes, without this match3/debris integration; rebuild it
 before testing the new changes interactively.
+
+Pass 7 (agent wave 3) merges in the commit above: integration measures **2689 byte-exact /
+674 pending**, 0 exact losses vs pass 6, 0 data issues (differential suite running at the
+time of the merge; previous pass was 76/0). Main's own reports stay at the last successful
+measurement until the session's in-progress `Car.h` refactor compiles again.
