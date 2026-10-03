@@ -129,25 +129,15 @@ The harnesses honor `WINEPREFIX`. Keep the EXE, PDB, report and symbol map from
 the same build. A successful function harness does not replace testing a full
 race, championship, replay, save/load or network session.
 
-Run the complete registered suite and regenerate the logic inventory after
-building and measuring, using the same compiler/Wine environment:
+Run the complete registered suite after building and measuring, using the same
+compiler/Wine environment:
 
 ```bash
 python3 tests/run_differential_suite.py --jobs 3
-python3 scripts/audit_logic.py
 ```
 
-The runner verifies build identity and records each harness's output and tested
-entry points in `CMR2PROGRESS/logic-tests.json`. Controlled providers do not count
-as tested functions. The auditor checks current evidence, inventories every
-annotated source function, and compares reachable calls, branches and return
-cleanup for non-exact bodies. Indirect dispatch is marked as partial. Static
-differences guide review and do not establish behavioral defects.
-
-See [the logic review](CMR2PROGRESS/logic-review.md),
-[all source functions](CMR2PROGRESS/logic-all.tsv),
-[remaining matching functions](CMR2PROGRESS/logic-pending.tsv), and
-[original entries outside annotated source](CMR2PROGRESS/logic-outside-source.tsv).
-Local byte equivalence does not validate non-exact callees; passing fixtures
-only establish the tested cases. The original inventory also contains linked
-libraries, jump entries and analysis artifacts requiring separate classification.
+The runner verifies build identity and prints pass/fail results in the console.
+It creates no coverage files, logic inventories or test reports. Keep the
+matching data in `CMR2PROGRESS` because the comparator and harnesses use it.
+Passing fixtures only establish the tested cases; controlled providers do not
+validate their implementations.

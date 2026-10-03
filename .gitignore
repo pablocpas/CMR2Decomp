@@ -438,3 +438,10 @@ cmr2bin/
 # Local Python caches and matching scratch files
 scripts/work/
 scripts/wineprefix/
+
+# Retired experimental reports; keep the matching inputs in CMR2PROGRESS.
+CMR2PROGRESS/logic-*
+CMR2PROGRESS/confidence-reviews.json
+CMR2PROGRESS/validation*
+CMR2PROGRESS/matching-*.json
+CMR2PROGRESS/merge-*.json

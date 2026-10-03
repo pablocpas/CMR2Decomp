@@ -59,7 +59,7 @@ fixtures válidos; no sustituyen una partida real ni prueban toda la física,
 todos los archivos de instalación o todos los estados del juego.
 
 `tests/logic-targets.json` registra las entradas principales comprobadas por los
-68 harnesses disponibles. El proveedor final de triángulo más cercano de
+71 harnesses disponibles. El proveedor final de triángulo más cercano de
 `track_geometry` y las consultas de juego/secuencia/progreso de `net_car_state`
 están controlados: esas funciones proveedoras no se cuentan como validadas.
 `event_draw_abi` no comprueba las ramas de dibujo activo. En `replay_snapshot`,
@@ -71,26 +71,16 @@ y `race_estimates` ejecutan sus helpers reales. Los casos de matriz usan cuatro
 slots válidos, matrices afines y buffers distintos. Las estimaciones usan listas de pilotos únicos y distancias
 distintas de cero; no prueban una carrera completa.
 
-Para ejecutar todos los harnesses, conservar sus resultados con hashes de la
-compilación y actualizar el inventario de lógica:
+Para ejecutar todos los harnesses:
 
 ```sh
 python3 tests/run_differential_suite.py --jobs 3
-python3 scripts/audit_logic.py
 ```
 
 El entorno debe tener `WINEPREFIX`, `CMR2_MSVC_ROOT` y `CMR2_TOOLS` configurados
-como en la compilación y las pruebas existentes. El informe en
-`CMR2PROGRESS/logic-tests.json` conserva salidas, fallos, duraciones y entradas
-comprobadas; no se admite como evidencia vigente si cambian los binarios, el
-mapa, el registro de pruebas o los harnesses.
-
-Para registrar los destinos de ramas originales en los harnesses que cargan
-la imagen completa en Unicorn, usar `--coverage-disassembly` con el JSON del
-auditor. `scripts/validation_queue.py --disassembly ...` genera una cola por
-función con cobertura y comprobaciones abiertas. Las pruebas nativas/Wine se
-conservan como evidencia de fixtures, sin atribuirles cobertura instrumentada.
-Véase `CMR2PROGRESS/validation-strategy.md` para criterios y limitaciones.
+como en la compilación. El runner comprueba que fuentes, EXE, PDB y datos de
+matching corresponden a la misma compilación. Los resultados se muestran en
+consola; no se generan informes, inventarios ni archivos de cobertura.
 
 `rally_menu_selection` ejecuta el panel completo con el menú y las consultas
 reales de juego/rally. Sus 756 casos distinguen tags 0/1, orden de elementos,

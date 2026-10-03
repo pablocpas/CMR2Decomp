@@ -22477,8 +22477,8 @@
   },
   "0x46cc60": {
     "n": "Replay_StopRecording",
-    "s": 0.47058823529411764,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "Replay_StopRecording"
@@ -22765,7 +22765,7 @@
   },
   "0x46cbe0": {
     "n": "FUN_0046cbe0",
-    "s": 0.5490196078431373,
+    "s": 0.8080808080808081,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22797,7 +22797,7 @@
   },
   "0x46c5a0": {
     "n": "FUN_0046c5a0",
-    "s": 0.5806451612903226,
+    "s": 0.7165775401069518,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23117,7 +23117,7 @@
   },
   "0x46c8e0": {
     "n": "FUN_0046c8e0",
-    "s": 0.4688995215311005,
+    "s": 0.8136363636363636,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24525,8 +24525,8 @@
   },
   "0x456a40": {
     "n": "FUN_00456a40",
-    "s": 0.4807692307692308,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00456a40"

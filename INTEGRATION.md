@@ -40,8 +40,8 @@ collision/checkpoints under all four x87 rounding modes, session enumeration,
 camera replacements, shadows, rotations, rankings, queues, replay slots,
 registry failures, text coordinates, callbacks, network tables and knockout
 seeding/round selection and scene reparenting. The final logs are retained in
-`/tmp/cmr2-main-integration/clean-final`; the portable results and build hashes
-are saved in `CMR2PROGRESS/validation.json`.
+`/tmp/cmr2-main-integration/clean-final`; build hashes and matching metadata
+are saved in `CMR2PROGRESS/provenance.json`. Tests now print results only in the console.
 
 The final build unifies the loader/frontend scratch buffer and the shared
 1/65536 constant at their actual original addresses, and removes duplicate
@@ -102,7 +102,7 @@ source functions are byte-exact after relocation, 832 remain (including the
 gains over frozen `16527f6`, with no exact losses. The goal of 700 remaining
 functions is pending; 132 additional exact gains are required. All 33 native differential harnesses pass on the final build. Work stops here
 at the user's request for a clean handoff. See `HANDOFF.md` and
-`CMR2PROGRESS/validation.json` for the current verification and next steps.
+`CMR2PROGRESS/provenance.json` for the current verification and next steps.
 
 ## Resumed matching batch
 
@@ -133,5 +133,5 @@ this final executable. Source, EXE and PDB hashes agree with the build manifest.
 
 Work stops at the user's request for a clean handoff. The goal of 700 remaining
 is paused and needs 128 more exact gains. `HANDOFF.md` records the reproduction
-commands, remaining differences and discarded experiments; versioned reports
-and `CMR2PROGRESS/validation.json` identify the verified build.
+commands, remaining differences and discarded experiments;
+`CMR2PROGRESS/provenance.json` identifies the verified build.
