@@ -1159,8 +1159,8 @@ char g_chatLineFormat[] = "%s > %s";
 // FUNCTION: CMR2 0x004d0620
 void FUN_004d0620(DPID *pFrom, char *text, char local)
 {
-    char **pp;
     int line;
+    char **pp;
     int i;
 
     if (local) {
@@ -1178,7 +1178,8 @@ void FUN_004d0620(DPID *pFrom, char *text, char local)
     pp = g_unk0x00817c84;
     i = 5;
     do {
-        *pp++ = g_unk0x00817784[line-- % 5];
+        *pp = g_unk0x00817784[line-- % 5];
+        pp++;
     } while (--i);
 }
 
@@ -1571,8 +1572,8 @@ void FUN_00500920(int param1, int param2, int param3)
         }
         return;
     }
-    *(Unk0x0082ac68Row *)g_unk0x0082ac68[param1 * 4] =
-        *(Unk0x0082ac68Row *)g_unk0x0082ad70[param1 * 4];
+    for (i = 0; i < 8; i++)
+        ((int *)g_unk0x0082ac68[param1 * 4])[i] = ((int *)g_unk0x0082ad70[param1 * 4])[i];
 }
 
 // Stores a new target pair per layout slot of option record param1 and rebuilds
@@ -1923,7 +1924,7 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
 
     if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
         g_unk0x00527000 = 0;
-        if ((int)(RallyDataStageIndex() & 0xff) % 4 == 0)
+        if ((int)RallyDataStageIndex() % 4 == 0)
             g_unk0x00527000 = 1;
     } else {
         g_unk0x00527000 = 1;
@@ -2750,8 +2751,9 @@ void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
             minY = 0x640000;
             minX = 0x640000;
             for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
-                pVertex = &((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i];
-                x = (int)(__int64)(pVertex->x * CGraphics::m_65536);
+                x = (int)(__int64)(((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+                pVertex = ((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData) + i;
                 y = (int)(__int64)(pVertex->y * CGraphics::m_65536);
                 z = (int)(__int64)(pVertex->z * CGraphics::m_65536);
                 if (x > maxX)
@@ -3155,11 +3157,12 @@ BYTE FUN_004f4b90(void)
         g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::FUN_004d21c0(i), CFrontend::m_stringDest,
                                                         &g_languageTextInArchive[i], NULL, 0);
     }
-    if (g_languageTexts[0] == NULL)
-        return 0;
-    CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
-    CGame::RegisterCallback(FUN_004f4cc0, NULL);
-    return 1;
+    if (g_languageTexts[0] != NULL) {
+        CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
+        CGame::RegisterCallback(FUN_004f4cc0, NULL);
+        return 1;
+    }
+    return 0;
 }
 
 // Loads the four frontend fonts from the frontend archive.
@@ -4535,8 +4538,6 @@ void FUN_00427c10(void);
 // FUNCTION: CMR2 0x00401420
 void FUN_00401420(Menu *pMenu, char cancel)
 {
-    int rate;
-
     if (cancel != 0) {
         CGameInfo::FUN_00405e10(g_unk0x00529ecc);
         CGameInfo::FUN_00405e50(g_unk0x0052a488);
@@ -4547,8 +4548,7 @@ void FUN_00401420(Menu *pMenu, char cancel)
         if (FUN_004174d0())
             CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
     }
-    rate = (int)(CGameInfo::FUN_00405e70() << 16) / 100;
-    CInput::FUN_0049ffc0(rate / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     FUN_00427c10();
 }
 
@@ -4945,7 +4945,7 @@ void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
     }
     if (pRec->field_0xc == 1) {
         len = (int)strlen(text);
-        count = FixMulShift32(pRec->field_0x0, len << 16);
+        count = FixMulShift32(len << 16, pRec->field_0x0);
         for (i = 0; i < count; i++)
             g_unk0x0082b1c0[i] = text[i];
         g_unk0x0082b1c0[count] = 0;
@@ -6196,13 +6196,11 @@ void FUN_0050f4f0(void)
     int stage;
 
     stage = RallyDataStageIndex() >> 2;
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400)) {
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+        CFrontend::FUN_004b7590(0x400))
         resolution = 0x400;
-        if (!CFrontend::FUN_004b7590(0x400))
-            resolution = 0x280;
-    } else {
+    else
         resolution = 0x280;
-    }
 
     sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
     CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
@@ -7512,16 +7510,16 @@ void FUN_00506080(int param1)
                 }
                 return;
             }
-            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
                 for (i = 0; i < 4; i++) {
-                    if (CB78_MESH(off + 0x24 + i * 4) != 0)
-                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
+                    if (CB78_MESH(off + 0x34 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
                 }
                 return;
             }
             for (i = 0; i < 4; i++) {
-                if (CB78_MESH(off + 0x34 + i * 4) != 0)
-                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
+                if (CB78_MESH(off + 0x24 + i * 4) != 0)
+                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
             }
             return;
         }
@@ -7532,13 +7530,13 @@ void FUN_00506080(int param1)
                 pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
                 for (k = 0; k < pMesh->triangleCount; k++) {
                     pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
-                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
-                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
-                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
                             Graphics_ReloadTexture(pTex);
                         }
-                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
-                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
                         Graphics_ReloadTexture(pTex);
                     }
                 }
@@ -8252,9 +8250,10 @@ void FUN_00506fc0(int param1, int param2, int param3)
 
     FUN_00506bb0(param1, param2, param3);
     for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
+        j = 0;
         match = -1;
         target = *(int *)(*(int *)(param3 + 0x3c + i * 4) + 0x30) & 0xff;
-        for (j = 0; j <= *(BYTE *)(param3 + 0x26a); j++) {
+        for (; j <= *(BYTE *)(param3 + 0x26a); j++) {
             if (g_unk0x0082d1dc[param1][j] == target) {
                 match = j;
                 j = *(BYTE *)(param3 + 0x26a);
@@ -8442,15 +8441,17 @@ void FUN_00501de0(int param_1, short *param_2)
 {
     Unk0x0082b2c0 *p;
     int mid;
+    int lo;
     int a;
     int delta;
 
     p = &g_unk0x0082b2c0[param_1];
     if (p->field_0xc == 1) {
         mid = param_2[2] / 2 + param_2[0];
+        lo = mid - 1;
         if (p->field_0x0 < 0x8000) {
-            param_2[0] = mid - 1;
-            param_2[2] = mid + 1 - param_2[0];
+            param_2[0] = lo;
+            param_2[2] = mid + 1 - lo;
             a = FixMul(p->field_0x0, 0x20000);
             a = FixMul(a, a);
             delta = param_2[3] - (FixMul(param_2[3] << 16, a) >> 16);
@@ -8863,7 +8864,8 @@ void FUN_004ff630(Menu *pMenu)
             FUN_005034f0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option));
     } else if (pMenu->cursor == Menu_FindItem(pMenu, 1)) {
         index = Menu_FindItem(pMenu, 1);
-        value = FUN_004ff4c0(pMenu->items[index].max);
+        value = pMenu->items[index].max;
+        value = FUN_004ff4c0(value);
         if (FUN_00502990(CGameInfo::FUN_005011b0(), value))
             FUN_00502790(CGameInfo::FUN_005011b0(), value);
     }
@@ -10337,7 +10339,7 @@ void FUN_0050bfd0(int param_1)
                  FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
                  0, g_unk0x005293a0, 0x124, 0);
     if (g_unk0x00831668 != 0) {
-        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * g_unk0x005293a0 / 0x280);
+        g_unk0x00831660[0] = (short)(g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x6f / 0x1e0);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
@@ -11387,7 +11389,7 @@ void FUN_004ff720(Menu *pMenu)
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 >= 1) {
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
                 g_unk0x0082a924--;
             } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
                 g_unk0x0082a924++;
@@ -11429,19 +11431,21 @@ void FUN_004ff720(Menu *pMenu)
         pDevice = CInput::FUN_0049ead0(0);
         if (pDevice->field_0x8 == 0) {
             g_unk0x00526f40 = 1;
-        } else if (g_unk0x00526f40 != 0) {
-            if ((pDevice->field_0x8 & 4) != 0) {
-                index = Menu_FindItem(pMenu, 4);
-                pMenu->items[index].max = 0;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 1) != 0) {
-                pMenu->cursor--;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 2) != 0) {
-                pMenu->cursor++;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            }
+        } else if (g_unk0x00526f40 == 0) {
+            goto editor;
         }
+        if ((pDevice->field_0x8 & 4) != 0) {
+            index = Menu_FindItem(pMenu, 4);
+            pMenu->items[index].max = 0;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 1) != 0) {
+            pMenu->cursor--;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 2) != 0) {
+            pMenu->cursor++;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        }
+    editor:
         g_unk0x0082a934 = g_unk0x0082aa44;
         strcpy(CFrontend::m_stringDest, g_unk0x0082aa44);
         if (FUN_004b7cd0(&value)) {
