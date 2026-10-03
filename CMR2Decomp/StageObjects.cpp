@@ -15194,7 +15194,8 @@ void FUN_0047e4d0(BYTE count)
     int a;
     int b;
     int start;
-    int *pDirs;
+    int n;
+    int *pSinB;
     FixVector *p;
     char *pDir;
     int sinA;
@@ -15209,36 +15210,42 @@ void FUN_0047e4d0(BYTE count)
         for (i = 0; i < 3; i++)
             g_unk0x00590b0c[i] = CFileBuffer::AllocateLockedBuffer(0x24);
         for (i = 0; i < g_unk0x00590afc; i++) {
-            *(int *)((BYTE *)g_unk0x00590af8 + i * 0x938 + 0x694) = 0;
-            *((BYTE *)g_unk0x00590af8 + i * 0x938 + 0x690) = 0;
+            ((FireworkRocket *)g_unk0x00590af8)[i].state = 0;
+            ((FireworkRocket *)g_unk0x00590af8)[i].trailLen = 0;
         }
-        ((int *)g_unk0x00590b04)[3] = -0x8000;
-        ((int *)g_unk0x00590b04)[4] = 0x8000;
-        ((int *)g_unk0x00590b04)[5] = 0x8000;
-        ((int *)g_unk0x00590b04)[6] = -0x8000;
-        ((short *)g_unk0x00590b04)[0x10] = 0;
-        ((BYTE *)g_unk0x00590b04)[0x23] &= 0xfe;
-        ((BYTE *)g_unk0x00590b04)[0x23] &= 0xfd;
+        ((BillboardDef *)g_unk0x00590b04)->top = -0x8000;
+        ((BillboardDef *)g_unk0x00590b04)->left = 0x8000;
+        ((BillboardDef *)g_unk0x00590b04)->bottom = 0x8000;
+        ((BillboardDef *)g_unk0x00590b04)->right = -0x8000;
+        ((BillboardDef *)g_unk0x00590b04)->field_0x20 = 0;
+        ((BillboardDef *)g_unk0x00590b04)->flags &= 0xfe;
+        ((BillboardDef *)g_unk0x00590b04)->flags &= 0xfd;
         memcpy(g_unk0x00590b08, g_unk0x00590b04, 0x28);
-        ((int *)g_unk0x00590b08)[3] = -0x6000;
-        ((int *)g_unk0x00590b08)[4] = 0x6000;
-        ((int *)g_unk0x00590b08)[5] = 0x6000;
-        ((int *)g_unk0x00590b08)[6] = -0x6000;
+        ((BillboardDef *)g_unk0x00590b08)->top = -0x6000;
+        ((BillboardDef *)g_unk0x00590b08)->left = 0x6000;
+        ((BillboardDef *)g_unk0x00590b08)->bottom = 0x6000;
+        ((BillboardDef *)g_unk0x00590b08)->right = -0x6000;
         step = FixDiv(0x5a0000, 0x30000);
         k = FixDiv(0x5a0000, 0x30000);
-        start = FixMul(k, 0x8000);
         a = FixMul(step, 0x8000);
+        start = FixMul(k, 0x8000);
+        b = start;
         for (i = 0; i < 3; i++) {
-            sinA = g_sinTable[(unsigned short)(int)(__int64)((double)a * g_unk0x00511300) & 0xfff];
-            cosA = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((double)a * g_unk0x00511308)) & 0xfff];
-            pDirs = (int *)g_unk0x00590b0c[i];
-            for (b = start, p = (FixVector *)pDirs; (int *)p < pDirs + 9; p++, b += k) {
-                p->x = FixMul(g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff], sinA);
-                p->y = g_sinTable[(0x400 - (unsigned short)(int)(__int64)((float)b * g_unk0x00511308)) & 0xfff];
-                p->z = FixMul(g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff], cosA);
+            sinA = (unsigned short)(int)(__int64)((float)a * g_unk0x00511300) & 0xfff;
+            cosA = (0x400 - (unsigned short)(int)(__int64)((float)a * g_unk0x00511308)) & 0xfff;
+            for (n = 0; n < 3; n++) {
+                ((FixVector *)g_unk0x00590b0c[i])[n].x =
+                    FixMul(g_sinTable[sinA],
+                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                ((FixVector *)g_unk0x00590b0c[i])[n].y =
+                    g_sinTable[(0x400 - (unsigned short)(int)(__int64)((float)b * g_unk0x00511308)) & 0xfff];
+                ((FixVector *)g_unk0x00590b0c[i])[n].z =
+                    FixMul(g_sinTable[cosA],
+                           g_sinTable[(unsigned short)(int)(__int64)((float)b * g_unk0x00511300) & 0xfff]);
+                b += k;
             }
             a += step;
-            start = FixMul(k, 0x8000);
+            b = start;
         }
     }
     g_unk0x00590b00 = (int)g_carLights[0].pReverse;

@@ -8721,14 +8721,12 @@ void FUN_005034f0(int param_1, int param_2)
     switch (param_2) {
     case 1:
         pDest[0x116] = pSrc[0x116];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[0]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[0]);
         g_unk0x0082c040[param_1][1] = 0;
         return;
     case 2:
         pDest[0x117] = pSrc[0x117];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[1]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[1]);
         g_unk0x0082c040[param_1][2] = 0;
         return;
     case 3:
@@ -8736,15 +8734,13 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x10f] = pSrc[0x10f];
         pDest[0x110] = pSrc[0x110];
         pDest[0x111] = pSrc[0x111];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[2]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[2]);
         FUN_00509be0(param_1);
         g_unk0x0082c040[param_1][3] = 0;
         return;
     case 4:
         pDest[0x118] = pSrc[0x118];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[3]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[3]);
         g_unk0x0082c040[param_1][4] = 0;
         return;
     case 5:
@@ -8752,8 +8748,7 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x113] = pSrc[0x113];
         pDest[0x114] = pSrc[0x114];
         pDest[0x115] = pSrc[0x115];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[4]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[4]);
         g_unk0x0082c040[param_1][5] = 0;
         return;
     case 6:
@@ -8777,36 +8772,44 @@ void FUN_005034f0(int param_1, int param_2)
             *(int *)(pDest + 0x12c + i * 4) = *(int *)(pSrc + 0x12c + i * 4);
         pDest[0x104] = pSrc[0x104];
         pDest[0x105] = pSrc[0x105];
-        for (i = 0; i < 20; i++)
-            *(Unk0x0082c070Item *)(pDest + i * 0xd) = *(Unk0x0082c070Item *)(pSrc + i * 0xd);
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[5]);
+        for (i = 0; i < 20; i++) {
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[0] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[0];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[1] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[1];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[2] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[2];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[3] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[3];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[4] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[4];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[5] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[5];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[6] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[6];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[7] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[7];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[8] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[8];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[9] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[9];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[10] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[10];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[11];
+            ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = ((Unk0x0082c070Item *)pSrc)[i].field_0x0[12];
+        }
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[5]);
         g_unk0x0082c040[param_1][6] = 0;
         FUN_00507650(param_1);
         return;
     case 7:
         pDest[0x10c] = pSrc[0x10c];
         pDest[0x10d] = pSrc[0x10d];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[6]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[6]);
         g_unk0x0082c040[param_1][7] = 0;
         return;
     case 8:
         pDest[0x11f] = pSrc[0x11f];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[7]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[7]);
         g_unk0x0082c040[param_1][8] = 0;
         return;
     case 9:
         pDest[0x120] = pSrc[0x120];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[8]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[8]);
         g_unk0x0082c040[param_1][9] = 0;
         return;
     case 10:
         pDest[0x121] = pSrc[0x121];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[9]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[9]);
         g_unk0x0082c040[param_1][10] = 0;
         return;
     case 11:
@@ -8814,8 +8817,7 @@ void FUN_005034f0(int param_1, int param_2)
         pDest[0x109] = pSrc[0x109];
         pDest[0x10a] = pSrc[0x10a];
         pDest[0x10b] = pSrc[0x10b];
-        value = FUN_005011f0(param_1);
-        FUN_00501210(param_1, value + g_unk0x005270b8[10]);
+        FUN_00501210(param_1, FUN_005011f0(param_1) + g_unk0x005270b8[10]);
         FUN_00509d30(param_1);
         g_unk0x0082c040[param_1][11] = 0;
     }
@@ -11293,8 +11295,19 @@ void FUN_00503010(int param_1, int param_2)
                 pDest[0x104] = 0;
                 pDest[0x105] = 0;
                 for (i = 0; i < 20; i++) {
-                    memset(pDest + i * 0xd, 0, 0xc);
-                    pDest[i * 0xd + 0xc] = 0xff;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[0] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[1] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[2] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[3] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[4] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[5] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[6] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[7] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[8] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[9] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[10] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[11] = 0;
+                    ((Unk0x0082c070Item *)pDest)[i].field_0x0[12] = 0xff;
                 }
                 value = FUN_005011f0(param_1);
                 FUN_00501210(param_1, value - g_unk0x005270b8[5]);
