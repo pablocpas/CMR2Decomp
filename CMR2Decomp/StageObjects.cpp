@@ -9743,12 +9743,13 @@ void FUN_004930e0(Car *pCar, int count)
 // FUNCTION: CMR2 0x00476850
 int FUN_00476850(int param_1, int param_2)
 {
+    Car *pCar = (Car *)param_2;
     int result = 0;
 
     if (g_unk0x0058d360[param_1] == 1 &&
-        ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
-         *(int *)(param_2 + 0x1d8) != 0)) {
-        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        ((unsigned int)g_unk0x0058d2d0[param_1] != (int)pCar->field_0xb20 ||
+         pCar->handbrake != 0)) {
+        g_unk0x0058d2d0[param_1] = pCar->field_0xb20;
         g_unk0x0058d360[param_1] = 2;
         g_unk0x0058d478[param_1] = 0;
     }
@@ -9756,7 +9757,7 @@ int FUN_00476850(int param_1, int param_2)
         int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
         BYTE c;
         result = FixDiv(local_c, 0x70000);
-        g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+        g_unk0x0058d2d0[param_1] = pCar->field_0xb20;
         c = g_unk0x0058d478[param_1];
         g_unk0x0058d478[param_1] = c + 1;
         if ((BYTE)(c + 1) > 7) {
@@ -9767,10 +9768,10 @@ int FUN_00476850(int param_1, int param_2)
     if (g_unk0x0058d360[param_1] == 3) {
         result = 0x10000;
         g_unk0x0058d478[param_1] = g_unk0x0058d478[param_1] + 1;
-        if ((unsigned int)g_unk0x0058d2d0[param_1] != (int)*(char *)(param_2 + 0xb20) ||
-            *(int *)(param_2 + 0x1d8) != 0) {
+        if ((unsigned int)g_unk0x0058d2d0[param_1] != (int)pCar->field_0xb20 ||
+            pCar->handbrake != 0) {
             g_unk0x0058d478[param_1] = 0;
-            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+            g_unk0x0058d2d0[param_1] = pCar->field_0xb20;
         }
         if ((BYTE)g_unk0x0058d478[param_1] > 3) {
             g_unk0x0058d360[param_1] = 4;
@@ -9780,8 +9781,8 @@ int FUN_00476850(int param_1, int param_2)
     if (g_unk0x0058d360[param_1] == 4) {
         int local_c = (int)(__int64)((double)(BYTE)g_unk0x0058d478[param_1] * CGraphics::m_65536);
         result = 0x10000 - FixDiv(local_c, 0x70000);
-        if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)*(char *)(param_2 + 0xb20) &&
-            *(int *)(param_2 + 0x1d8) == 0) {
+        if ((unsigned int)g_unk0x0058d2d0[param_1] == (int)pCar->field_0xb20 &&
+            pCar->handbrake == 0) {
             BYTE c = g_unk0x0058d478[param_1];
             g_unk0x0058d478[param_1] = c + 1;
             if ((BYTE)(c + 1) > 7) {
@@ -9791,7 +9792,7 @@ int FUN_00476850(int param_1, int param_2)
             }
         } else {
             BYTE c = g_unk0x0058d478[param_1];
-            g_unk0x0058d2d0[param_1] = *(char *)(param_2 + 0xb20);
+            g_unk0x0058d2d0[param_1] = pCar->field_0xb20;
             g_unk0x0058d360[param_1] = 2;
             g_unk0x0058d478[param_1] = 7 - c;
         }
@@ -11880,8 +11881,9 @@ void FUN_00463fe0(int param_1)
 // FUNCTION: CMR2 0x004643f0
 void FUN_004643f0(int param_1)
 {
+    Car *pCar = (Car *)param_1;
 // the original re-reads the car index at every use
-#define LIGHT_CAR (*(char *)(param_1 + 0xb1a))
+#define LIGHT_CAR (pCar->index)
 #define LIGHT_COUNT(c) (*g_carLightSets[c])
 #define LIGHT_POINTS(c) g_carLightPoints[c]
     int lights[11];
@@ -11907,7 +11909,7 @@ void FUN_004643f0(int param_1)
     int *pVertex;
 
     pRec = FUN_00469680(LIGHT_CAR);
-    if (*(int *)(param_1 + 0xb70) != 0) {
+    if (pCar->field_0xb70 != 0) {
         FUN_00477c20(LIGHT_CAR, 0, 0, 2);
         FUN_00477c20(LIGHT_CAR, 0, 0, 8);
         for (n = 0; n < LIGHT_COUNT(LIGHT_CAR); n++)
@@ -11915,15 +11917,15 @@ void FUN_004643f0(int param_1)
         return;
     }
     FUN_00466870(&vA, &vB, (Car *)param_1);
-    if (*(int *)(param_1 + 0xb54) != 0)
+    if (pCar->field_0xb54 != 0)
         FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 2);
     else
         FUN_00477c20(LIGHT_CAR, 0, 0, 2);
-    if (*(int *)(param_1 + 0xb5c) != 0)
+    if (pCar->field_0xb5c != 0)
         FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 8);
     else
         FUN_00477c20(LIGHT_CAR, 0, 0, 8);
-    if (*(int *)(param_1 + 0xb58) != 0) {
+    if (pCar->field_0xb58 != 0) {
         FUN_00477c20(LIGHT_CAR, vA == 0, vB == 0, 1);
         FUN_00477c20(LIGHT_CAR, 1, 1, 0x10);
     } else {
@@ -11947,8 +11949,8 @@ void FUN_004643f0(int param_1)
     FUN_00477c80(LIGHT_CAR, &lights[8], &lights[8], 4);
     lights[10] = 0;
     lights[9] = 0;
-    planePos = *(FixVector *)(param_1 + 0x270);
-    planePos.y = *(int *)(param_1 + 0x8dc);
+    planePos = pCar->corners[0];
+    planePos.y = pCar->cornerHeight[0];
     for (n = 0, off = 0; n < LIGHT_COUNT(LIGHT_CAR); n++, off += 0x28) {
         pPoint = (CarLightPoint *)((BYTE *)LIGHT_POINTS(LIGHT_CAR) + off);
         glow = (BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14];
@@ -11988,7 +11990,7 @@ void FUN_004643f0(int param_1)
         if (*(int *)(glow + 0xc) < 0)
             idx++;
         Glow_SetLayerPlane((GlowLight *)glow, &planePos, (FixVector *)(param_1 + 0x48c),
-                           FUN_004789d0(*(short *)(param_1 + 0xaae + idx * 2),
+                           FUN_004789d0(pCar->wheelSurface[idx],
                                         FUN_00460c80((BYTE *)param_1)));
         if (FUN_0046b4c0((BYTE *)param_1) != 0) {
             ii = (unsigned short)pPoint->vertex;
@@ -13684,6 +13686,7 @@ void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef)
 // FUNCTION: CMR2 0x0048d0f0
 void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
 {
+    CameraRecord *pCameraRecord = (CameraRecord *)pRecord;
     FixMatrix turn;
     FixVector right;
     FixVector up;
@@ -13698,7 +13701,7 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     int amplitude;
     int zoom;
 
-    index = pRecord[0];
+    index = pCameraRecord->index;
     heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
@@ -13723,7 +13726,7 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     }
     if (g_unk0x005916e0[index] < pSpot->field_0x58) {
         amplitude = FixMul(pSpot->field_0x5c, 0x10000 - FixDiv(g_unk0x005916e0[index], pSpot->field_0x58));
-        amplitude = FixMul(amplitude, *(int *)((BYTE *)Car_Get(pRecord[2]) + 0x778) / 2);
+        amplitude = FixMul(amplitude, *(int *)((BYTE *)Car_Get(pCameraRecord->car) + 0x778) / 2);
         shake.x = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
         shake.y = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
         shake.z = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
@@ -13761,12 +13764,12 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
         zoom = pSpot->field_0x54;
     }
     if (zoom < 0x10000)
-        *(int *)(pRecord + 0x54) = FixMul(0xa000, 0x10000);
+        pCameraRecord->field_0x54 = FixMul(0xa000, 0x10000);
     else
-        *(int *)(pRecord + 0x54) = FixMul(0xa000, zoom);
-    *(int *)(pRecord + 0x38) = 0;
-    *(int *)(pRecord + 0x3c) = 0;
-    *(int *)(pRecord + 0x40) = 0;
+        pCameraRecord->field_0x54 = FixMul(0xa000, zoom);
+    pCameraRecord->matrix.position.x = 0;
+    pCameraRecord->matrix.position.y = 0;
+    pCameraRecord->matrix.position.z = 0;
     FixMatrix_Identity(&turn);
     turn.forward.z = 0x10000;
     turn.right.x = FixCos((unsigned short)pSpot->heading);
@@ -13779,13 +13782,13 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     turn.forward.y = 0;
     FixMatrix_Multiply((FixMatrix *)(pRecord + 8), &turn, (FixMatrix *)(pRecord + 8));
     FixMatrix_SetPosition(&camera, (FixMatrix *)(pRecord + 8));
-    *(int *)(pRecord + 0x48) = 0;
-    *(int *)(pRecord + 0x4c) = 0x1999;
-    *(int *)(pRecord + 0x4c) = FixMul(*(int *)(pRecord + 0x4c), 0x50000);
-    *(int *)(pRecord + 0x4c) = FixMul(*(int *)(pRecord + 0x4c), FixDiv(*(int *)(pRecord + 0x54), 0xa000));
-    *(int *)(pRecord + 0x50) = 0;
-    *(int *)(pRecord + 0x58) = 0;
-    *(int *)(pRecord + 0x5c) = 0x10000;
+    pCameraRecord->field_0x48 = 0;
+    pCameraRecord->field_0x4c = 0x1999;
+    pCameraRecord->field_0x4c = FixMul(pCameraRecord->field_0x4c, 0x50000);
+    pCameraRecord->field_0x4c = FixMul(pCameraRecord->field_0x4c, FixDiv(pCameraRecord->field_0x54, 0xa000));
+    pCameraRecord->field_0x50 = 0;
+    pCameraRecord->field_0x58 = 0;
+    pCameraRecord->field_0x5c = 0x10000;
 }
 #undef SPOT
 
