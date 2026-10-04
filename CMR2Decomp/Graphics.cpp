@@ -1191,8 +1191,8 @@ int CGraphics::FUN_004a8be0(void)
 // FUNCTION: CMR2 0x004a8bf0
 void CGraphics::GetDisplayDeviceNames(int index, LPSTR description, LPSTR name)
 {
-    wsprintfA(description, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].unk_0x00);
-    wsprintfA(name, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].name);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(description, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].unk_0x00);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(name, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].name);
 }
 
 // FUNCTION: CMR2 0x004a8d80
