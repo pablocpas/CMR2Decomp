@@ -112,8 +112,6 @@ int FUN_00418fe0(void)
 void FUN_00418f20(void)
 {
     int i;
-    int *pCursor;
-    RaceCarSoundState *pState;
 
     g_unk0x00537660 = 0;
     memset(g_raceBlock + 0x48, 0, 0x20);       // 0x5375b0
@@ -123,19 +121,17 @@ void FUN_00418f20(void)
     // The original walks the eight per-car sound states (0xb4 bytes each) with
     // a cursor on the countOld field, keeping the loop cursor in a single
     // register.
-    for (pCursor = (int *)&g_carSoundStates[0].countOld;
-         pCursor < (int *)&g_carSoundStates[8].countOld; pCursor += 0xb4 / sizeof(int)) {
-        pState = (RaceCarSoundState *)((char *)pCursor - 0xa4);
+    for (RaceCarSoundState *pState = g_carSoundStates; (int)pState < (int)(g_carSoundStates + 8); pState++) {
         for (i = 0; i < 10; i++) {
             pState->handle[i] = -1;
             pState->id[i] = -1;
         }
-        pCursor[0] = 0;
-        pCursor[-1] = 0;
+        pState->countOld = 0;
+        pState->count = 0;
         memset(pState->slotState, 0xff, sizeof(pState->slotState));
         pState->stateOld = -1;
         pState->state = -1;
-        pCursor[1] = 0x19;
+        pState->pattern = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
         CGame::RegisterCallback(FUN_00418fe0, NULL);
