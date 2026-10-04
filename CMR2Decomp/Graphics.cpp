@@ -6698,13 +6698,13 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
             du = abs((int)(height - right));
             dv = abs((int)(height - down));
             l = SampleTGAPixel(x, y, pInfo, 0)[3];
-            if (desc.ddpfPixelFormat.dwRGBBitCount != 16) {
+            if (desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
+            } else {
                 pDst24[0] = (BYTE)du;
                 pDst24[1] = (BYTE)dv;
                 pDst24[2] = l;
                 pDst24 += 3;
-            } else {
-                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
             }
         }
     }
