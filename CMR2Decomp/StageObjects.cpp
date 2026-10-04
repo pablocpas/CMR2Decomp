@@ -10141,12 +10141,12 @@ void FUN_0047bad0(unsigned int param_1, unsigned int param_2)
 
     if (*(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 7 ||
         *(char *)(*(int *)(FUN_0041b390() + 4) + param_2 * 8) == 8) {
-        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) != 0) {
+        if ((param_1 & (unsigned short)g_unk0x0051f4c0) != 0) {
             if (FUN_00422f50(param_2) != 10)
                 View_SwitchCamera(g_unk0x0058e0a0->index, 10, 0xffff,
                              FUN_00422fb0(g_unk0x0058e0a0->index), 0);
         }
-        if ((param_1 & (g_unk0x0051f4c0 & 0xffff)) == 0) {
+        if ((param_1 & (unsigned short)g_unk0x0051f4c0) == 0) {
             if (FUN_00422f50(g_unk0x0058e0a0->index) == 10) {
                 switch (FUN_0041b380()) {
                 case 4:
