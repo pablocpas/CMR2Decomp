@@ -5822,7 +5822,6 @@ void FUN_004487a0(int car)
     int count;
     int group;
     int index;
-    char prev;
 
     if ((char)RallyData_GetFlag24() == 0 && (char)RallyData_GetFlag25() == 0) {
         if (car >= (int)((BYTE)RallyDataState()))
@@ -5849,17 +5848,18 @@ void FUN_004487a0(int car)
         index = split;
     }
     index = index + group * 9;
-    prev = g_unk0x0053ddb0[index];
+    char prev = g_unk0x0053ddb0[index];
+    int old = prev;
     g_unk0x0053ddb0[index] = prev + 1;
-    g_carStageTiming[car].field_0x82 = prev;
-    g_unk0x0053de1c[index][(int)prev] = (char)car;
-    if ((int)prev > 0) {
-        char other = g_unk0x0053de1c[index][(int)prev - 1];
+    g_carStageTiming[car].field_0x82 = old;
+    g_unk0x0053de1c[index][old] = (char)car;
+    if (old > 0) {
+        char other = g_unk0x0053de1c[index][old - 1];
 
         g_carStageTiming[other].field_0x80 = (char)car;
         g_carStageTiming[other].field_0x83 = 1;
     }
-    if ((int)prev == count - 1)
+    if (old == count - 1)
         g_carStageTiming[car].field_0x80 = (char)0xff;
 }
 
