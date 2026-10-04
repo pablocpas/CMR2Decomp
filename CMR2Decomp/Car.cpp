@@ -1320,7 +1320,7 @@ void Car_FlagAirborneCorners(void);
 void Car_SettleFreeCorners(void);
 void Car_SolveUpright(void);
 void Car_IntegrateWheelTravel(void);
-void FUN_004930e0(int param_1, int param_2);
+void FUN_004930e0(Car *pCar, int count);
 void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                   unsigned char param_5, int param_6);
 int FUN_00428760(BYTE index);
@@ -1425,7 +1425,7 @@ void Car_UpdateGroundContact(void)
     prevGrounded = (char)g_pCurrentCar->field_0xb34;
     for (i = 3; i >= 0; i--)
         g_carSurfaceSnapshot[i] = g_pCurrentCar->wheelSurface[i];
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
 
     if (g_pCurrentCar->field_0xb34 != 0) {
@@ -4383,8 +4383,8 @@ void Car_FollowGround(void)
         Track_GetGroundHeightSurface(&g_pCurrentCar->position, &n, &g_pCurrentCar->cornerTriangle[0],
                                      &g_pCurrentCar->wheelSurface[0], &surface, g_pCurrentCar->cornerHeight[0]);
     if (g_pCurrentCar->cornerOnGround[4] != 0) {
-        g_pCurrentCar->cornerHeight[0] += g_pCurrentCar->field_0x8fc;
-        n = g_pCurrentCar->field_0x564;
+        g_pCurrentCar->cornerHeight[0] += g_pCurrentCar->field_0x8fc[0];
+        n = g_pCurrentCar->field_0x564[0];
         g_pCurrentCar->wheelSurface[0] = 0x2f;
     }
     if (g_pCurrentCar->wheelSurface[0] == 0xf && g_pCurrentCar->field_0xa7c == 0 && g_pCurrentCar->field_0xbf8 == 0)
@@ -5214,7 +5214,7 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             }
             CARF(0x7ac) = CARF(0x7a4);
             CARF(0xb60) = 0;
-            FUN_004930e0((int)g_pCurrentCar, 8);
+            FUN_004930e0(g_pCurrentCar, 8);
             Car_FlagAirborneCorners();
             Car_ShareWeightOnWheels();
             Car_UpdateGroundNormal();
@@ -5249,7 +5249,7 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                     FixMatrix_SetUp(&CARV(0x36c), g_pCurrentCar->pWorld);
                     FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
                     Car_UpdateCorners(g_pCurrentCar);
-                    FUN_004930e0((int)g_pCurrentCar, 8);
+                    FUN_004930e0(g_pCurrentCar, 8);
                     Car_LiftOutOfGround();
                     g_pCurrentCar->position.y += lift;
                     g_pCurrentCar->corners[0].y += lift;
@@ -6323,7 +6323,7 @@ void Car_IntegrateContacts(void)
 }
 
 // --- 0x0043e680 (layer 0) ----------------------------------------------------
-void FUN_004930e0(int param_1, int param_2);
+void FUN_004930e0(Car *pCar, int count);
 int FUN_00460c80(BYTE *pCar);
 void FUN_004789b0(BYTE *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
@@ -6344,7 +6344,7 @@ void Car_ResetBodyBasis(int param_1)
 #define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
 
     g_pCurrentCar = (Car *)param_1;
-    FUN_004930e0(param_1, 8);
+    FUN_004930e0((Car *)param_1, 8);
     Car_UpdateGroundNormal();
     CARV(0x36c) = CARV(0x48c);
     dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x360),
@@ -6546,7 +6546,7 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
     *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_UpdateGroundNormal();
     CARV(0x36c) = CARV(0x48c);
     dot = FixVecDot(&CARV(0x360), &CARV(0x36c));
@@ -6561,7 +6561,7 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
     *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
     Car_LiftFreeCorners();
     Car_FlagAirborneCorners();
@@ -7296,7 +7296,7 @@ void Car_StepGroundContact(void)
     *(int *)(g_pCurrentCar->field_0xba0 + 0) = 0;
     *(int *)(g_pCurrentCar->field_0xba0 + 4) = 0;
     *(int *)(g_pCurrentCar->field_0xba0 + 8) = 0;
-    FUN_004930e0((int)g_pCurrentCar, 4);
+    FUN_004930e0(g_pCurrentCar, 4);
     if (g_pCurrentCar->field_0xb35[0] == 1)
         Car_FlagAirborneCorners();
 
@@ -7353,9 +7353,9 @@ void Car_StepGroundContact(void)
             g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
             Car_UpdateCorners(g_pCurrentCar);
             if (!(g_pCurrentCar->field_0xc00 == 0))
-                FUN_004930e0((int)g_pCurrentCar, 8);
+                FUN_004930e0(g_pCurrentCar, 8);
             else
-                FUN_004930e0((int)g_pCurrentCar, 4);
+                FUN_004930e0(g_pCurrentCar, 4);
         } else {
             // Fast along the normal: turn the change of the ground normal
             // into a body torque perpendicular to it.

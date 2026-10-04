@@ -70,8 +70,7 @@ struct Car {
     FixVector normal0x498;            // 0x498
     FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
     FixVector cornerNormal[8];        // 0x504  per-corner contact normal
-    FixVector field_0x564;            // 0x564  ground normal used while cornerOnGround[4] is set
-    BYTE field_0x570[0x54];
+    FixVector field_0x564[8];         // 0x564  per-corner ground normal ([0] used while cornerOnGround[4] is set)
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
     FixVector field_0x5dc;            // 0x5dc
@@ -82,7 +81,7 @@ struct Car {
     FixVector groundAxis[2];          // 0x6cc  front/rear lateral axis on the ground plane
     FixVector wheelLean;              // 0x6e4  lean of the wheel frame, integrated like lean
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
-    BYTE field_0x6fc[0x20];
+    int field_0x6fc[8];               // 0x6fc  [1 + 2 * wheel] is subtracted from the corner height
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
     SceneNode *pNode0x724;            // 0x724  second body part (optional)
@@ -147,19 +146,21 @@ struct Car {
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
-    int field_0x8fc;                  // 0x8fc
-    BYTE field_0x900[0x1c];
+    int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]
     int field_0x91c;                  // 0x91c
     int field_0x920;                  // 0x920
     int field_0x924;                  // 0x924
-    BYTE field_0x928[0x30];
+    BYTE field_0x928[0x10];
+    int field_0x938[4];               // 0x938  per-wheel scale of the part offset
+    BYTE field_0x948[0x10];
     int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
     BYTE field_0x95c[0x4];
     int field_0x960;
     int field_0x964;
     int field_0x968;
     int field_0x96c;                  // 0x96c
-    BYTE field_0x970[0x18];
+    BYTE field_0x970[0x8];
+    int field_0x978[4];               // 0x978  per-wheel offset added to the part's value
     int wheel0x988[4];                // 0x988
     int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
@@ -187,11 +188,10 @@ struct Car {
     BYTE field_0xa90[0xc];
     unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
     short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
-    short wheelSurface[4];            // 0xaae
-    BYTE field_0xab6[0x8];
+    short wheelSurface[8];            // 0xaae  surface class under each corner
     short field_0xabe[4];             // 0xabe  surface of each wheel at the last step
-    short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
-    BYTE field_0xace[0x30];
+    short wheelSurfaceType[8];        // 0xac6  surface id under each corner
+    BYTE field_0xad6[0x28];
     short field_0xafe;                // 0xafe  engine startup countdown
     short sector;                     // 0xb00  stage sector the car is in
     short field_0xb02;

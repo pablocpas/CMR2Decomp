@@ -536,7 +536,7 @@ void FUN_00492bd0(int view);
 void FUN_00492e30(FixVector *pLight);
 void FUN_00492fd0(int value);
 int Track_GetGroundHeight5(FixVector *pPoint, FixVector *pNormal, short *pTri, short *pSurfaceClass, int defaultY);
-void FUN_004930e0(int param_1, int param_2);
+void FUN_004930e0(Car *pCar, int count);
 BYTE *FUN_00498570(int index);
 int StageObject_Atan2Degrees(int y, int x);
 int FUN_00498db0(int angle);
@@ -9689,68 +9689,52 @@ void FUN_0047c9a0(int param_1, int param_2, int *param_3)
 int Track_GetGroundHeightSurface(FixVector *pPoint, FixVector *pNormal, short *pTri,
                                  short *pSurfaceClass, unsigned short *pSurface, int defaultY);
 
-// Updates each wheel's suspension height against the ground.
-// match 57%: short loop counter and clamp block differ from the original
-// match 57%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// Updates each corner's ground height (and surface) against the track; the
+// corners past `count` copy the height of the corner four places before.
 // FUNCTION: CMR2 0x004930e0
-void FUN_004930e0(int param_1, int param_2)
+void FUN_004930e0(Car *pCar, int count)
 {
     int *p;
     short i;
-    short local_8;
+    short missing;
 
-    p = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
-    local_8 = 0;
+    p = FUN_00469680(pCar->index);
+    missing = 0;
     i = 0;
-    if (param_2 > 0) {
+    if (count > 0) {
         do {
-            int v = Track_GetGroundHeightSurface(
-                (FixVector *)(param_1 + (i * 3 + 0x9c) * 4),
-                (FixVector *)(param_1 + (i * 3 + 0x129) * 4),
-                (short *)(param_1 + 0xa9e + i * 2),
-                (short *)(param_1 + 0xaae + i * 2),
-                (unsigned short *)(param_1 + 0xac6 + i * 2),
-                *(int *)(param_1 + 0x8dc + i * 4));
-            *(int *)(param_1 + 0x8dc + i * 4) = v;
-            if (*(short *)(param_1 + 0xa9e + i * 2) == -1)
-                local_8 = local_8 + 1;
+            int v = Track_GetGroundHeightSurface(&pCar->corners[i], &pCar->cornerAxis[i],
+                                                 &pCar->cornerTriangle[i], &pCar->wheelSurface[i],
+                                                 (unsigned short *)&pCar->wheelSurfaceType[i],
+                                                 pCar->cornerHeight[i]);
+            pCar->cornerHeight[i] = v;
+            if (pCar->cornerTriangle[i] == -1)
+                missing = missing + 1;
             if (i < 4) {
-                int t = *(int *)(param_1 + 0x978 + i * 4) + *(int *)((int)p + 600 + i * 4);
+                int t = pCar->field_0x978[i] + p[0x96 + i];
                 if (t > 0x10000)
                     t = 0x10000;
-                *(int *)(param_1 + 0x8dc + i * 4) += FixMul(t, *(int *)(param_1 + 0x938 + i * 4));
+                pCar->cornerHeight[i] += FixMul(t, pCar->field_0x938[i]);
             }
-            if (*(int *)(param_1 + 0xbbc + i * 4) != 0) {
-                int *src;
-                *(int *)(param_1 + 0x8dc + i * 4) += *(int *)(param_1 + 0x8fc + i * 4);
-                src = (int *)(param_1 + (i * 3 + 0x159) * 4);
-                ((int *)(param_1 + (i * 3 + 0x129) * 4))[0] = src[0];
-                ((int *)(param_1 + (i * 3 + 0x129) * 4))[1] = src[1];
-                ((int *)(param_1 + (i * 3 + 0x129) * 4))[2] = src[2];
-                *(short *)(param_1 + 0xaae + i * 2) = 0x2f;
+            if (pCar->cornerOnGround[4 + i] != 0) {
+                pCar->cornerHeight[i] += pCar->field_0x8fc[i];
+                pCar->cornerAxis[i] = pCar->field_0x564[i];
+                pCar->wheelSurface[i] = 0x2f;
             }
-            if (*(short *)(param_1 + 0xaae + i * 2) == 0xf &&
-                *(int *)(param_1 + 0xa7c) == 0 && *(int *)(param_1 + 0xbf8) == 0) {
-                *(int *)(param_1 + 0xa7c) = 0x190000;
+            if (pCar->wheelSurface[i] == 0xf && pCar->field_0xa7c == 0 && pCar->field_0xbf8 == 0) {
+                pCar->field_0xa7c = 0x190000;
             }
             if (i < 4)
-                *(int *)(param_1 + 0x8dc + i * 4) -= *(int *)(param_1 + 0x700 + i * 8);
+                pCar->cornerHeight[i] -= pCar->field_0x6fc[1 + i * 2];
             i++;
-        } while ((int)i < param_2);
+        } while ((int)i < count);
     }
-    if ((short)param_2 < 8) {
-        int n = 8 - (short)param_2;
-        int *pDst = (int *)(param_1 + 0x8dc + (short)param_2 * 4);
-        do {
-            *pDst = pDst[-4] - 0x50000;
-            pDst++;
-            n--;
-        } while (n != 0);
-    }
-    if (local_8 == param_2)
-        *(int *)(param_1 + 0xa80) = *(int *)(param_1 + 0xa80) + 0x10000;
+    for (i = count; i < 8; i++)
+        pCar->cornerHeight[i] = pCar->cornerHeight[i - 4] - 0x50000;
+    if (missing == count)
+        pCar->field_0xa80 = pCar->field_0xa80 + 0x10000;
     else
-        *(int *)(param_1 + 0xa80) = 0;
+        pCar->field_0xa80 = 0;
 }
 
 // Views into g_stageBlock for the object fade tables at 0x58d2d0/0x58d360/0x58d478.
