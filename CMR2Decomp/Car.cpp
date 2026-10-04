@@ -6090,45 +6090,39 @@ void Car_UpdateWheelMeshStates(void)
 // FUNCTION: CMR2 0x00442e90
 void Car_SmoothForceFeedback(void)
 {
-    int rate;
-    int base;
-    int tag;
+    int i;
     int magnitude;
     int delta;
 
-    rate = 0x90;
-    base = 0x880;
-    tag = 0xab6;
+    i = 4;
     do {
-        if (*(short *)(((BYTE *)g_pCurrentCar) + tag + 0x10) == *(short *)(((BYTE *)g_pCurrentCar) + tag) &&
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x33c) != 0 && *(int *)(((BYTE *)g_pCurrentCar) + 0xb74) != 0) {
-            magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base);
+        if (*(short *)((BYTE *)g_pCurrentCar + 0xabe + i * 2) == *(short *)((BYTE *)g_pCurrentCar + 0xaae + i * 2) &&
+            *(int *)((BYTE *)g_pCurrentCar + 0xbac + i * 4) != 0 && g_pCurrentCar->field_0xb74 != 0) {
+            magnitude = *(int *)((BYTE *)g_pCurrentCar + 0x870 + i * 4);
             if (magnitude < 0) magnitude = -magnitude;
-            delta = magnitude - *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20);
+            delta = magnitude - *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4);
             if (delta < 0)
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = magnitude;
+                *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
+                *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) += FixMul(delta, g_pCurrentCar->cornerGrip[i].field_0x18);
 
-            magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base + 0x10);
+            magnitude = *(int *)((BYTE *)g_pCurrentCar + 0x880 + i * 4);
             if (magnitude < 0) magnitude = -magnitude;
-            delta = magnitude - *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30);
+            delta = magnitude - *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4);
             if (delta < 0)
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = magnitude;
+                *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
+                *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) += FixMul(delta, g_pCurrentCar->cornerGrip[i].field_0x18);
         } else {
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = 0;
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = 0;
+            *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) = 0;
+            *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) = 0;
         }
-        tag -= 4;
-        base -= 8;
-        rate -= 0x48;
-    } while (tag >= 0xaae);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x8a0) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8a4);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x890) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8a4);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x8a8) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8ac);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x898) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8ac);
+        i -= 2;
+    } while (i >= 0);
+    g_pCurrentCar->field_0x8a0[0] = g_pCurrentCar->field_0x8a0[1];
+    g_pCurrentCar->field_0x890[0] = g_pCurrentCar->field_0x8a0[1];
+    g_pCurrentCar->field_0x8a0[2] = g_pCurrentCar->field_0x8a0[3];
+    g_pCurrentCar->field_0x890[2] = g_pCurrentCar->field_0x8a0[3];
 }
 
 // GLOBAL: CMR2 0x005391cc

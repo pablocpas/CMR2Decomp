@@ -14391,9 +14391,9 @@ void FUN_0046d5e0(void)
 // FUNCTION: CMR2 0x00466030
 void FUN_00466030(int a, int b)
 {
-    BYTE index;
+    unsigned int index;
 
-    index = g_unk0x0058875c->index;
+    index = (BYTE)g_unk0x0058875c->index;
     FUN_0046cce0((ReplayStream *)g_unk0x00588758, a, b, index);
     g_unk0x0058875c->index = index;
     g_unk0x0058875c->field_0xc0c = 1;
