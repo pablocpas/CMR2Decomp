@@ -38,11 +38,28 @@ short g_unk0x00538df8[2];
 int g_unk0x00538c98[2];
 // GLOBAL: CMR2 0x00538f00
 int g_unk0x00538f00[2];
-// View camera records: 2 per player (the player's two view modes), 100 bytes each.
+// Camera record of a view (100 bytes): two per player in g_viewRecords, and
+// the same layout for each view's blended and previous state.
+struct CameraRecord {
+    BYTE index;             // 0x00 record index
+    BYTE view;              // 0x01
+    BYTE car;               // 0x02 car followed
+    BYTE pad_0x3;
+    int type;               // 0x04 camera type
+    FixMatrix matrix;       // 0x08
+    int field_0x48;
+    int field_0x4c;
+    int field_0x50;
+    int field_0x54;
+    int field_0x58;
+    int field_0x5c;
+    int clearance;          // 0x60 height above the stage, eased
+};
+// View camera records: 2 per player (the player's two view modes).
 // GLOBAL: CMR2 0x00539018
-BYTE g_viewRecords[4][100];
-#define g_unk0x0053901a (g_viewRecords[0] + 2)
-#define g_unk0x0053901c (g_viewRecords[0] + 4)
+CameraRecord g_viewRecords[4];
+#define g_unk0x0053901a ((BYTE *)g_viewRecords + 2)
+#define g_unk0x0053901c ((BYTE *)g_viewRecords + 4)
 // GLOBAL: CMR2 0x00538ca0
 FixMatrix g_unk0x00538ca0[2];
 
@@ -5400,31 +5417,31 @@ void FixMatrix_Interpolate(FixMatrix *pOut, FixMatrix *pA, FixMatrix *pB, int tR
 
 // Interpolates between two state records (matrix and the values at +0x48).
 // FUNCTION: CMR2 0x00423de0
-void CameraState_Interpolate(BYTE *pOut, BYTE *pA, BYTE *pB, int t)
+void CameraState_Interpolate(CameraRecord *pOut, CameraRecord *pA, CameraRecord *pB, int t)
 {
-    FixMatrix_Interpolate((FixMatrix *)(pOut + 8), (FixMatrix *)(pA + 8), (FixMatrix *)(pB + 8), t, t, t, 1);
-    *(int *)(pOut + 0x48) = *(int *)(pA + 0x48) + FixMul(*(int *)(pB + 0x48) - *(int *)(pA + 0x48), t);
-    *(int *)(pOut + 0x4c) = *(int *)(pA + 0x4c) + FixMul(*(int *)(pB + 0x4c) - *(int *)(pA + 0x4c), t);
-    *(int *)(pOut + 0x54) = *(int *)(pA + 0x54) + FixMul(*(int *)(pB + 0x54) - *(int *)(pA + 0x54), t);
-    *(int *)(pOut + 0x58) = *(int *)(pA + 0x58) + FixMul(*(int *)(pB + 0x58) - *(int *)(pA + 0x58), t);
-    *(int *)(pOut + 0x5c) = *(int *)(pA + 0x5c) + FixMul(*(int *)(pB + 0x5c) - *(int *)(pA + 0x5c), t);
-    *(int *)(pOut + 0x50) = *(int *)(pA + 0x50) + FixMul(*(int *)(pB + 0x50) - *(int *)(pA + 0x50), t);
-    *(int *)(pOut + 0x60) = *(int *)(pA + 0x60) + FixMul(*(int *)(pB + 0x60) - *(int *)(pA + 0x60), t);
+    FixMatrix_Interpolate(&pOut->matrix, &pA->matrix, &pB->matrix, t, t, t, 1);
+    pOut->field_0x48 = pA->field_0x48 + FixMul(pB->field_0x48 - pA->field_0x48, t);
+    pOut->field_0x4c = pA->field_0x4c + FixMul(pB->field_0x4c - pA->field_0x4c, t);
+    pOut->field_0x54 = pA->field_0x54 + FixMul(pB->field_0x54 - pA->field_0x54, t);
+    pOut->field_0x58 = pA->field_0x58 + FixMul(pB->field_0x58 - pA->field_0x58, t);
+    pOut->field_0x5c = pA->field_0x5c + FixMul(pB->field_0x5c - pA->field_0x5c, t);
+    pOut->field_0x50 = pA->field_0x50 + FixMul(pB->field_0x50 - pA->field_0x50, t);
+    pOut->clearance = pA->clearance + FixMul(pB->clearance - pA->clearance, t);
 }
 
 // Copies the state record at src into dst (fields 0x4..0x64 except 0x0).
 // FUNCTION: CMR2 0x00423ee0
-void CameraState_Copy(BYTE *dst, BYTE *src)
+void CameraState_Copy(CameraRecord *dst, CameraRecord *src)
 {
-    *(int *)(dst + 0x4) = *(int *)(src + 0x4);
-    *(Unk00423ee0Block *)(dst + 0x8) = *(Unk00423ee0Block *)(src + 0x8);
-    *(int *)(dst + 0x48) = *(int *)(src + 0x48);
-    *(int *)(dst + 0x4c) = *(int *)(src + 0x4c);
-    *(int *)(dst + 0x54) = *(int *)(src + 0x54);
-    *(int *)(dst + 0x58) = *(int *)(src + 0x58);
-    *(int *)(dst + 0x5c) = *(int *)(src + 0x5c);
-    *(int *)(dst + 0x50) = *(int *)(src + 0x50);
-    *(int *)(dst + 0x60) = *(int *)(src + 0x60);
+    dst->type = src->type;
+    *(Unk00423ee0Block *)&dst->matrix = *(Unk00423ee0Block *)&src->matrix;
+    dst->field_0x48 = src->field_0x48;
+    dst->field_0x4c = src->field_0x4c;
+    dst->field_0x54 = src->field_0x54;
+    dst->field_0x58 = src->field_0x58;
+    dst->field_0x5c = src->field_0x5c;
+    dst->field_0x50 = src->field_0x50;
+    dst->clearance = src->clearance;
 }
 
 // Scale of the render distance for the detail level: base * (1 + step).
@@ -7805,9 +7822,9 @@ found:
 // +4 camera type, +8 matrix, +0x48.. parameters, +0x60 ground clearance.
 // g_unk0x00538d2c - 4 holds the blended state of each view in the same layout.
 
-#define VIEW_RECORD(i) (g_viewRecords[0] + (i) * 100)
-#define VIEW_STATE(v) (g_unk0x00538d2c - 4 + (v) * 100)
-#define VIEW_PREV_STATE(v) (g_unk0x00538e38 + (v) * 100)
+#define VIEW_RECORD(i) (&g_viewRecords[i])
+#define VIEW_STATE(v) ((CameraRecord *)(g_unk0x00538d2c - 4) + (v))
+#define VIEW_PREV_STATE(v) ((CameraRecord *)g_unk0x00538e38 + (v))
 // Smooth-step weight of a camera blend timer (0xc8000 = the whole transition).
 #define VIEW_EASE(t)                                                                               \
     (0x10000 - (FixCos((short)(int)(__int64)((double)(FixDiv((t), 0xc8000) * 180) * g_unk0x00511308)) + \
@@ -7853,41 +7870,41 @@ void FixMatrix_GetPosition(FixVector *pOut, FixMatrix *pM);
 
 // Starts the camera of camera type `type` on a view record.
 // FUNCTION: CMR2 0x00423300
-void Camera_Start(BYTE *pRecord, int type, int param)
+void Camera_Start(CameraRecord *pRecord, int type, int param)
 {
     BYTE car;
     BYTE view;
     Car *pCar;
     FixMatrix body;
 
-    view = pRecord[1];
-    car = pRecord[2];
+    view = pRecord->view;
+    car = pRecord->car;
     pCar = Car_Get(car);
     View_GetCarBodyMatrix(&body, car);
     switch (type) {
     case 6:
-        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 3);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 3);
         return;
     case 4:
-        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 0);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 0);
         return;
     case 5:
-        FUN_00447530(pRecord, (BYTE *)FUN_00423d70(car), 4);
+        FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 4);
         return;
     case 3:
-        FUN_00476410(pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), *((BYTE *)pCar + 0xb1b));
+        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), *((BYTE *)pCar + 0xb1b));
         return;
     case 2:
-        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 0);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 0);
         return;
     case 10:
-        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 2);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 2);
         return;
     case 1:
-        FUN_00486740(pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 1);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 1);
         return;
     case 7:
-        FUN_0048cae0(pRecord, FUN_00423d70(car), param);
+        FUN_0048cae0((BYTE *)pRecord, FUN_00423d70(car), param);
     }
 }
 
@@ -7895,7 +7912,7 @@ void Camera_Start(BYTE *pRecord, int type, int param)
 // (how far the camera sits above the stage, eased towards the new value).
 // match 48%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00423460
-void Camera_Update(BYTE *pRecord)
+void Camera_Update(CameraRecord *pRecord)
 {
     FixMatrix body;
     FixVector position;
@@ -7909,121 +7926,109 @@ void Camera_Update(BYTE *pRecord)
     short surface;
 
     onCar = 0;
-    if (*(int *)(pRecord + 0x48) != 0 || *(int *)(pRecord + 0x5c) != 0)
+    if (pRecord->field_0x48 != 0 || pRecord->field_0x5c != 0)
         check = 1;
     else
         check = 0;
-    car = pRecord[2];
+    car = pRecord->car;
     pCar = Car_Get(car);
-    if (*(int *)((BYTE *)pCar + 0xc04) != 0 && g_unk0x00538f00[pRecord[2]] == 0)
+    if (*(int *)((BYTE *)pCar + 0xc04) != 0 && g_unk0x00538f00[pRecord->car] == 0)
         onCar = 1;
     View_GetCarBodyMatrix(&body, car);
-    switch (*(int *)(pRecord + 4)) {
+    switch (pRecord->type) {
     case 4:
     case 5:
     case 6:
-        FUN_004475f0(pRecord, FUN_00423d70(car), onCar);
+        FUN_004475f0((BYTE *)pRecord, FUN_00423d70(car), onCar);
         break;
     case 3:
-        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
-            FUN_004765e0(pRecord, (int)FUN_00423d70(car), 0);
-        else
-            FUN_004765e0(pRecord, (int)FUN_00423d70(car), 1);
+        FUN_004765e0((BYTE *)pRecord, (int)FUN_00423d70(car), (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
         break;
     case 2:
-        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
-            FUN_00486810(pRecord, (int *)&body, 0);
-        else
-            FUN_00486810(pRecord, (int *)&body, 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
         break;
     case 10:
-        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
-            FUN_00486810(pRecord, (int *)&body, 0);
-        else
-            FUN_00486810(pRecord, (int *)&body, 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
         break;
     case 1:
-        if (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0)
-            FUN_00486810(pRecord, (int *)&body, 0);
-        else
-            FUN_00486810(pRecord, (int *)&body, 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
         break;
     case 7:
-        FUN_0048cc30(pRecord, FUN_00423d70(car));
+        FUN_0048cc30((BYTE *)pRecord, FUN_00423d70(car));
         break;
     }
     if (FUN_00445a20() == 0 && check != 0) {
-        FixMatrix_GetPosition(&position, (FixMatrix *)(pRecord + 8));
+        FixMatrix_GetPosition(&position, &pRecord->matrix);
         tri = 0;
         clearance = Track_GetGroundHeight5(&position, &normal, &tri, &surface,
-                                           *(int *)((BYTE *)Car_Get(pRecord[2]) + 0x8e4)) -
+                                           *(int *)((BYTE *)Car_Get(pRecord->car) + 0x8e4)) -
                     position.y + 0x10000;
         if (clearance < 0)
             clearance = 0;
-        if (clearance < *(int *)(pRecord + 0x60))
-            clearance += FixMul(*(int *)(pRecord + 0x60) - clearance, 0x10000 - FixMul(0xccc, g_physicsTimeStep));
-        *(int *)(pRecord + 0x60) = clearance;
+        if (clearance < pRecord->clearance)
+            clearance += FixMul(pRecord->clearance - clearance, 0x10000 - FixMul(0xccc, g_physicsTimeStep));
+        pRecord->clearance = clearance;
         return;
     }
-    *(int *)(pRecord + 0x60) = 0;
+    pRecord->clearance = 0;
 }
 
 // Restarts the camera of a view record (after a car reset).
 // FUNCTION: CMR2 0x004236b0
-void Camera_Restart(BYTE *pRecord)
+void Camera_Restart(CameraRecord *pRecord)
 {
     FixMatrix body;
     BYTE car;
 
-    car = pRecord[2];
+    car = pRecord->car;
     View_GetCarBodyMatrix(&body, car);
-    switch (*(int *)(pRecord + 4)) {
+    switch (pRecord->type) {
     case 4:
     case 5:
     case 6:
-        FUN_00447a00(pRecord, FUN_00423d70(car));
+        FUN_00447a00((BYTE *)pRecord, FUN_00423d70(car));
         return;
     case 3:
         FUN_00477850((int)pRecord, (int *)FUN_00423d70(car));
         return;
     case 2:
-        FUN_00486910(pRecord, (int *)&body);
+        FUN_00486910((BYTE *)pRecord, (int *)&body);
         return;
     case 10:
-        FUN_00486910(pRecord, (int *)&body);
+        FUN_00486910((BYTE *)pRecord, (int *)&body);
         return;
     case 1:
-        FUN_00486910(pRecord, (int *)&body);
+        FUN_00486910((BYTE *)pRecord, (int *)&body);
         return;
     case 7:
-        FUN_0048ce80(pRecord, FUN_00423d70(car));
+        FUN_0048ce80((BYTE *)pRecord, FUN_00423d70(car));
     }
 }
 
 // Snaps the camera of a view record to a reference matrix.
 // FUNCTION: CMR2 0x00423780
-void Camera_SnapTo(BYTE *pRecord, FixMatrix *pRef)
+void Camera_SnapTo(CameraRecord *pRecord, FixMatrix *pRef)
 {
-    switch (*(int *)(pRecord + 4)) {
+    switch (pRecord->type) {
     case 5:
     case 6:
-        FUN_00447a40(pRecord, pRef);
+        FUN_00447a40((BYTE *)pRecord, pRef);
         return;
     case 4:
-        FUN_00447a40(pRecord, pRef);
+        FUN_00447a40((BYTE *)pRecord, pRef);
         return;
     case 3:
-        FUN_004778b0(pRecord, (int)pRef);
+        FUN_004778b0((BYTE *)pRecord, (int)pRef);
         return;
     case 10:
-        FUN_004869e0(pRecord, pRef);
+        FUN_004869e0((BYTE *)pRecord, pRef);
         return;
     case 1:
     case 2:
-        FUN_004869e0(pRecord, pRef);
+        FUN_004869e0((BYTE *)pRecord, pRef);
         return;
     case 7:
-        FUN_0048d0f0(pRecord, pRef);
+        FUN_0048d0f0((BYTE *)pRecord, pRef);
     }
 }
 
@@ -8035,21 +8040,18 @@ void View_SetupCameras(void)
     FixVector position;
     FixAngles angles;
     BYTE i;
-    BYTE *pRecord;
 
     if ((unsigned short)FUN_00407650() < 0x834)
         FUN_00407710();
     CGame::RegisterCallback(View_ReleaseNodes, NULL);
     FUN_00475f80();
     FUN_00486700();
-    i = 0;
-    pRecord = VIEW_RECORD(0);
-    for (i = 0; i < 4; i++, pRecord += 100) {
-        pRecord[0] = i;
-        pRecord[1] = i >> 1;
-        pRecord[2] = i >> 1;
-        *(int *)(pRecord + 0x60) = 0;
-        FUN_004760a0(i, pRecord[2]);
+    for (i = 0; i < 4; i++) {
+        g_viewRecords[i].index = i;
+        g_viewRecords[i].view = i >> 1;
+        g_viewRecords[i].car = i >> 1;
+        g_viewRecords[i].clearance = 0;
+        FUN_004760a0(i, g_viewRecords[i].car);
     }
     position.x = 0;
     position.y = 0;
@@ -8091,28 +8093,28 @@ void View_SwitchCamera(BYTE view, int type, int param, BYTE target, int blend)
         return;
     active = g_unk0x00538e0c[view] + view * 2;
     next = view * 2 - g_unk0x00538e0c[view] + 1;
-    if (blend == 0 || type == 3 || *(int *)(VIEW_RECORD(active) + 4) == 3)
+    if (blend == 0 || type == 3 || VIEW_RECORD(active)->type == 3)
         blend = 0;
     else
         blend = 1;
     if (type == 7 && param == 0xffff)
         param = FUN_0048d8b0((FixVector *)((BYTE *)Car_Get(view) + 0x2d0));
-    *(int *)(VIEW_RECORD(next) + 4) = type;
-    if (VIEW_RECORD(next)[2] != target) {
-        FUN_004ae410(VIEW_RECORD(next)[2], VIEW_RECORD(next)[1], 1, 1);
-        FUN_004ae410(target, VIEW_RECORD(next)[1], 1, 1);
+    VIEW_RECORD(next)->type = type;
+    if (VIEW_RECORD(next)->car != target) {
+        FUN_004ae410(VIEW_RECORD(next)->car, VIEW_RECORD(next)->view, 1, 1);
+        FUN_004ae410(target, VIEW_RECORD(next)->view, 1, 1);
     }
-    VIEW_RECORD(next)[2] = target;
-    FUN_00423810(VIEW_RECORD(active), VIEW_RECORD(next));
-    FUN_00423860(VIEW_RECORD(next), VIEW_RECORD(active));
+    VIEW_RECORD(next)->car = target;
+    FUN_00423810((BYTE *)VIEW_RECORD(active), (BYTE *)VIEW_RECORD(next));
+    FUN_00423860((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
     Camera_Start(VIEW_RECORD(next), type, param);
-    *(int *)(VIEW_RECORD(next) + 0x60) = 0;
+    VIEW_RECORD(next)->clearance = 0;
     if (blend) {
         g_unk0x00538d20[view] = 0xc8000;
         return;
     }
     FUN_004238e0((Unk004238e0 *)VIEW_RECORD(active), (int)VIEW_RECORD(next));
-    FUN_00423900(VIEW_RECORD(next), VIEW_RECORD(active));
+    FUN_00423900((BYTE *)VIEW_RECORD(next), (BYTE *)VIEW_RECORD(active));
     FUN_004239e0((int *)VIEW_RECORD(active));
     g_unk0x005391b0[view] = 1;
     g_unk0x00538e0c[view] = 1 - g_unk0x00538e0c[view];
@@ -8128,8 +8130,8 @@ void View_UpdateCamera(BYTE view)
     BYTE active;
     BYTE next;
     int *pTimer;
-    BYTE *pActive;
-    BYTE *pNext;
+    CameraRecord *pActive;
+    CameraRecord *pNext;
     int typeA;
     int typeB;
     int activeFree;
@@ -8176,7 +8178,7 @@ void View_UpdateCamera(BYTE view)
     pNext = VIEW_RECORD(next);
     Camera_Update(pNext);
     if (*pTimer - g_physicsTimeStep > 0) {
-        typeA = *(int *)(pActive + 4);
+        typeA = pActive->type;
         if (typeA == 4 || typeA == 5 || typeA == 10)
             activeFree = 1;
         else
@@ -8185,7 +8187,7 @@ void View_UpdateCamera(BYTE view)
             activeTracked = 1;
         else
             activeTracked = 0;
-        typeB = *(int *)(pNext + 4);
+        typeB = pNext->type;
         if (typeB == 4 || typeB == 5 || typeB == 10)
             nextFree = 1;
         else
@@ -8197,14 +8199,14 @@ void View_UpdateCamera(BYTE view)
         t = 0x10000 - FixMul(VIEW_EASE(*pTimer), VIEW_EASE(*pTimer));
         CameraState_Interpolate(VIEW_STATE(index), pActive, pNext, t);
         if ((activeFree && nextTracked) || (activeTracked && nextFree))
-            *(int *)(VIEW_STATE(index) + 0x3c) +=
+            VIEW_STATE(index)->matrix.position.y +=
                 FixMul(g_sinTable[(short)(int)(__int64)((double)(t * 180) * g_unk0x00511300) & 0xfff], 0x10000);
         *(int *)(g_unk0x00538d2c + index * 100) = 8;
         *pTimer -= g_physicsTimeStep;
         return;
     }
     FUN_004238e0((Unk004238e0 *)pActive, (int)pNext);
-    FUN_00423900(pNext, pActive);
+    FUN_00423900((BYTE *)pNext, (BYTE *)pActive);
     FUN_004239e0((int *)pActive);
     CameraState_Copy(VIEW_STATE(index), pNext);
     g_unk0x00538e0c[index] = 1 - g_unk0x00538e0c[index];
@@ -8222,10 +8224,10 @@ void View_ResetCameras(int view)
     next = (BYTE)view * 2 - g_unk0x00538e0c[(BYTE)view] + 1;
     View_PlaceCarCamera(view);
     Camera_Restart(VIEW_RECORD(active));
-    *(int *)(VIEW_RECORD(active) + 0x60) = 0;
+    VIEW_RECORD(active)->clearance = 0;
     if (FUN_00422f50(view) == 8) {
         Camera_Restart(VIEW_RECORD(next));
-        *(int *)(VIEW_RECORD(next) + 0x60) = 0;
+        VIEW_RECORD(next)->clearance = 0;
     }
     g_unk0x005391b0[(BYTE)view] = 1;
 }
@@ -8272,7 +8274,7 @@ void View_SetCameraType(int view, int type, BYTE target, int blend)
 // FUNCTION: CMR2 0x00422140
 void View_BlendCameraStates(BYTE view, int t)
 {
-    BYTE state[100];
+    CameraRecord state;
     FixMatrix matrix;
     FixVector pitch;
     FixVector right;
@@ -8286,15 +8288,15 @@ void View_BlendCameraStates(BYTE view, int t)
     int f60;
     int shake;
 
-    CameraState_Interpolate(state, VIEW_PREV_STATE(view), VIEW_STATE(view), t);
-    g_unk0x005391cc[view] = *(int *)(state + 0x54);
-    g_unk0x005391a8[view] = *(int *)(state + 0x50);
-    g_unk0x00538df0[view] = *(int *)(state + 0x4c);
-    matrix = *(FixMatrix *)(state + 8);
-    f48 = *(int *)(state + 0x48);
-    f58 = *(int *)(state + 0x58);
-    f5c = *(int *)(state + 0x5c);
-    f60 = *(int *)(state + 0x60);
+    CameraState_Interpolate(&state, VIEW_PREV_STATE(view), VIEW_STATE(view), t);
+    g_unk0x005391cc[view] = state.field_0x54;
+    g_unk0x005391a8[view] = state.field_0x50;
+    g_unk0x00538df0[view] = state.field_0x4c;
+    matrix = state.matrix;
+    f48 = state.field_0x48;
+    f58 = state.field_0x58;
+    f5c = state.field_0x5c;
+    f60 = state.clearance;
     if (f60 != 0) {
         Car *car = Car_Get(view);
         int *pY;
