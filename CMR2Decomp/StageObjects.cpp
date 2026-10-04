@@ -7021,19 +7021,32 @@ int g_stageLightsActive;
 // GLOBAL: CMR2 0x00547cd8
 int g_stageLightCount;
 
-// Lamp textures of a car (0x4c bytes; two cars).
-struct CarLights {
-    BYTE field_0x0[0x2c];
-    Texture *pBrake;        // 0x2c
-    Texture *pReverse;      // 0x30
-    Texture *pHazard;       // 0x34
-    Texture *pHazard2;      // 0x38
-    Texture *pHead;         // 0x3c
-    BYTE field_0x40[0xc];
+// Light point of a car (0x28 bytes), loaded from the car file.
+struct CarLightPoint {
+    FixVector pos;          // 0x00 body space
+    FixVector dir;          // 0x0c
+    int size;               // 0x18 glow size
+    int intensity;          // 0x1c
+    BYTE type;              // 0x20 lamp type (9 = projected headlight)
+    BYTE slot;              // 0x21 texture slot
+    char part;              // 0x22 body part carrying it (-1 = main body)
+    BYTE pad_0x23;
+    short object;           // 0x24 nearest mesh object
+    short vertex;           // 0x26 nearest vertex of that object
 };
 
+// Per car: the light block of the car file (a count followed by the
+// CarLightPoint records) and a pointer to its first record.
 // GLOBAL: CMR2 0x00547f80
-CarLights g_carLights[2];
+int *g_carLightSets[8];
+// Lamp textures of the two lamp layers, by slot: brake, reverse, hazard,
+// second hazard, head.
+// GLOBAL: CMR2 0x00547fac
+Texture *g_carLightTexA[5];
+// GLOBAL: CMR2 0x00547fc0
+CarLightPoint *g_carLightPoints[8];
+// GLOBAL: CMR2 0x00547ff8
+Texture *g_carLightTexB[5];
 
 // GLOBAL: CMR2 0x0051b724
 char g_strLightRedTga[] = "\\NEWIMAGE\\lgt_red.tga";
@@ -7155,16 +7168,16 @@ void CarLights_LoadTextures(void)
 
     FUN_004ae260();
     CGame::RegisterCallback(FUN_004ae260, NULL);
-    LOAD_STAGE_TEXTURE(g_carLights[0].pHazard, g_strHazardLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[0].pReverse, g_strRevLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[0].pHead, g_strHeadLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[0].pBrake, g_strBrakeLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[0].pHazard2, g_strHazardLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[1].pHazard, g_strHazardLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[1].pReverse, g_strRevLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[1].pHead, g_strHeadLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[1].pBrake, g_strBrakeLiteTga);
-    LOAD_STAGE_TEXTURE(g_carLights[1].pHazard2, g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexA[2], g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexA[1], g_strRevLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexA[4], g_strHeadLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexA[0], g_strBrakeLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexA[3], g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexB[2], g_strHazardLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexB[1], g_strRevLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexB[4], g_strHeadLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexB[0], g_strBrakeLiteTga);
+    LOAD_STAGE_TEXTURE(g_carLightTexB[3], g_strHazardLiteTga);
 }
 
 void FUN_00492890(FixVector *pOut);
@@ -7861,8 +7874,8 @@ void FUN_0047d510(void)
         BYTE *q = p - 0x38;
         *(int *)(q + 0x3c) = 0;
         *(GlowLight **)(q + 0x38) =
-            Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, (int)g_carLights[0].pHazard,
-                     (int)g_carLights[1].pHazard, 0x10000, 0, 0xb4, (int)&unused, 0x20000);
+            Glow_Add(1, &unused, &unused, (int)&unused, 0x3333, 0x3333, (int)g_carLightTexA[2],
+                     (int)g_carLightTexB[2], 0x10000, 0, 0xb4, (int)&unused, 0x20000);
         FUN_004ae3d0(*(BYTE **)(q + 0x38), 0);
         *(int *)(q + 0x2c) = 0;
         *(short *)(q + 0x34) = -1;
@@ -11725,36 +11738,26 @@ int g_unk0x00547d00[8 * 0x14]; // 20 glow slots per car, up to 8 cars (runs to 0
 // FUNCTION: CMR2 0x00463fe0
 void FUN_00463fe0(int param_1)
 {
-    int car;
-    int count;
-    int n;
-    int off;
-    int k;
-    int i;
-    int j;
-    int side;
-    int slot;
-    int glow;
-    int node;
-    int projected;
-    int unused1;
+// the original re-reads the car index at every use
+#define LCAR (*(char *)(param_1 + 0xb1a))
     int minDot[20];
     int *pRec;
-    int *pObj;
-    int *pPoints;
-    int *pPoint;
-    int *pVertex;
-    int *pMin;
-    FixVector position;
+    FixVector scale;
     FixAngles angles;
+    FixVector position;
+    int i;
+    int n;
+    CarLightPoint *pPoint;
 
-    car = *(char *)(param_1 + 0xb1a);
-    unused1 = 0;
+    n = 0;
+    angles.z = 0xff1d;
+    scale.x = 0;
+    scale.y = 0;
+    scale.z = 0;
     angles.x = 0;
     angles.y = 0;
-    angles.z = 0xff1d;
     angles.pad = 0;
-    if (car == 0) {
+    if (LCAR == 0) {
         g_unk0x00547fe0.x = 0x1e0000;
         g_unk0x00547fe0.y = 0;
         g_unk0x00547fe0.z = 0;
@@ -11769,96 +11772,106 @@ void FUN_00463fe0(int param_1)
         g_unk0x00547ff0 = Scene_CreateLight(0, 0x140000, 0x140000, 0x140000, &position, &angles,
                                             (SceneNode *)RallyData_FUN_00411060());
     }
-    ((int *)g_carLights)[car] = FUN_00457e10((BYTE *)param_1, 0);
-    side = 0;
-    ((int *)g_carLights)[0x10 + car] = ((int *)g_carLights)[car] + 4;
-    count = *((int *)((int *)g_carLights)[car]);
-    pPoints = (int *)((int *)g_carLights)[0x10 + car];
-    n = 0;
-    if (0 < count) {
-        pMin = minDot;
-        off = 0;
-        do {
-            pPoint = (int *)((BYTE *)pPoints + off);
-            slot = *(BYTE *)((BYTE *)pPoint + 0x21);
-            if (FUN_0046b4c0((BYTE *)param_1) == 0 || *(char *)((BYTE *)pPoint + 0x22) == -1) {
-                node = *(int *)(param_1 + 0x720);
-            } else {
-                node = (int)FUN_00484de0((BYTE *)param_1, (int)*(char *)((BYTE *)pPoint + 0x22));
-                if (node == 0)
-                    node = *(int *)(param_1 + 0x720);
-            }
-            FUN_004a3e20((Unk0x004a3e20 *)((int *)g_carLights)[0xb + slot], 1);
-            FUN_004a3e20((Unk0x004a3e20 *)((int *)g_carLights)[0x1e + slot], 1);
-            unused1 = 0x10000;
-            projected = (*(char *)((BYTE *)pPoint + 0x20) == '\t') ? 0xff : 0;
-            position.x = 0;
-            position.y = 0;
-            position.z = 0;
-            glow = (int)Glow_Add(2, (FixVector *)pPoint, (FixVector *)((BYTE *)pPoint + 0xc),
-                                 (int)&unused1, *(int *)((BYTE *)pPoint + 0x18),
-                                 *(int *)((BYTE *)pPoint + 0x18), ((int *)g_carLights)[0xb + slot],
-                                 ((int *)g_carLights)[0x1e + slot], *(int *)((BYTE *)pPoint + 0x1c),
-                                 node, (BYTE)projected, (int)&position, 0x10000);
-            g_unk0x00547d00[n + car * 0x14] = glow;
-            FUN_004ae3d0((BYTE *)glow, 1);
-            *pMin = 0x3e80000;
-            if (*(char *)((BYTE *)pPoint + 0x20) == '\t') {
-                FUN_0045a150((int)pPoint, side, car);
-                FUN_0045b530(glow, side, car);
-                side++;
-            }
-            pMin++;
-            off += 0x28;
-            n++;
-        } while (n < count);
+    {
+        int *pSet = (int *)FUN_00457e10((BYTE *)param_1, 0);
+        int side = 0;
+        int *pMin;
+        int off;
+        char projected;
+        SceneNode *node;
+
+        g_carLightSets[LCAR] = pSet;
+        g_carLightPoints[LCAR] = (CarLightPoint *)(pSet + 1);
+        if (0 < *g_carLightSets[LCAR]) {
+            pMin = minDot;
+            off = 0;
+            do {
+                pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
+                if (FUN_0046b4c0((BYTE *)param_1) == 0 || pPoint->part == -1) {
+                    node = *(SceneNode **)(param_1 + 0x720);
+                } else {
+                    node = (SceneNode *)FUN_00484de0((BYTE *)param_1, (int)pPoint->part);
+                    if (node == NULL)
+                        node = *(SceneNode **)(param_1 + 0x720);
+                }
+                FUN_004a3e20((Unk0x004a3e20 *)g_carLightTexA[pPoint->slot], 1);
+                FUN_004a3e20((Unk0x004a3e20 *)g_carLightTexB[pPoint->slot], 1);
+                scale.x = 0x10000;
+                projected = 0;
+                if (pPoint->type == 9)
+                    projected = (char)0xff;
+                position.x = 0;
+                position.y = 0;
+                position.z = 0;
+                g_unk0x00547d00[n + LCAR * 0x14] =
+                    (int)Glow_Add(2, &pPoint->pos, &pPoint->dir, (int)&scale, pPoint->size, pPoint->size,
+                                  (int)g_carLightTexA[pPoint->slot], (int)g_carLightTexB[pPoint->slot],
+                                  pPoint->intensity, (int)node, (BYTE)projected, (int)&position, 0x10000);
+                FUN_004ae3d0((BYTE *)g_unk0x00547d00[n + LCAR * 0x14], 1);
+                *pMin = 0x3e80000;
+                if (pPoint->type == 9) {
+                    FUN_0045a150((int)pPoint, side, LCAR);
+                    FUN_0045b530(g_unk0x00547d00[n + LCAR * 0x14], side, LCAR);
+                    side++;
+                }
+                pMin++;
+                off += 0x28;
+                n++;
+            } while (n < *g_carLightSets[LCAR]);
+        }
     }
     if (FUN_0046b4c0((BYTE *)param_1) != 0) {
-        pRec = FUN_00469680(car);
-        if (0 < *(int *)((BYTE *)pRec + 0x45c)) {
-            i = 0;
-            pObj = (int *)((BYTE *)pRec + 0x420);
+        int off;
+        int j;
+        int *pObj;
+        int k;
+        int *pMin;
+
+        pRec = FUN_00469680(LCAR);
+        i = 0;
+        if (0 < pRec[0x117]) {
+            pObj = pRec + 0x108;
             do {
+                j = 0;
                 if (0 < *pObj) {
-                    j = 0;
                     do {
-                        pMin = minDot;
-                        off = 0;
-                        if (0 < count) {
-                            k = 0;
+                        k = 0;
+                        if (0 < *g_carLightSets[LCAR]) {
+                            off = 0;
+                            pMin = minDot;
                             do {
-                                int dx;
-                                int dy;
-                                int dz;
                                 int dot;
 
-                                pPoint = (int *)((BYTE *)pPoints + off);
-                                pVertex = (int *)(*(int *)((BYTE *)pRec + 0x78 + i * 4) + j * 0x20);
-                                dx = pPoint[0] - pVertex[0];
-                                dy = pPoint[1] - pVertex[1];
-                                dz = pPoint[2] - pVertex[2];
-                                dot = FixMul(dx, dx) + FixMul(dy, dy) + FixMul(dz, dz);
+                                pPoint = (CarLightPoint *)((BYTE *)g_carLightPoints[LCAR] + off);
+                                {
+                                    FixVector v = *(FixVector *)(pObj[-0xea] + j * 0x20);
+                                    position.x = pPoint->pos.x - v.x;
+                                    position.y = pPoint->pos.y - v.y;
+                                    position.z = pPoint->pos.z - v.z;
+                                }
+                                dot = FixVecDot(&position, &position);
                                 if (dot < *pMin) {
                                     *pMin = dot;
-                                    *(short *)((BYTE *)pPoint + 0x24) = (short)i;
-                                    *(short *)((BYTE *)pPoint + 0x26) = (short)j;
+                                    pPoint->object = (short)i;
+                                    pPoint->vertex = (short)j;
                                 }
                                 pMin++;
                                 off += 0x28;
                                 k++;
-                            } while (k < count);
+                            } while (k < *g_carLightSets[LCAR]);
                         }
                         j++;
                     } while (j < *pObj);
                 }
                 i++;
                 pObj++;
-            } while (i < *(int *)((BYTE *)pRec + 0x45c));
+            } while (i < pRec[0x117]);
         }
     }
     g_unk0x00547ff4 = 0xffff0000;
     for (i = 0; i < 8; i++)
         g_unk0x00547ce0[i] = 0;
+#undef LCAR
 }
 
 // Drives the two light flag bytes of a car (brake/reverse/hazard/head) and
@@ -11872,8 +11885,8 @@ void FUN_004643f0(int param_1)
 {
 // the original re-reads the car index at every use
 #define LIGHT_CAR (*(char *)(param_1 + 0xb1a))
-#define LIGHT_COUNT(c) (*((int **)g_carLights)[c])
-#define LIGHT_POINTS(c) (((BYTE **)g_carLights)[0x10 + (c)])
+#define LIGHT_COUNT(c) (*g_carLightSets[c])
+#define LIGHT_POINTS(c) ((BYTE *)g_carLightPoints[c])
     int lights[11];
     FixVector planePos;
     FixVector colour;
@@ -15258,7 +15271,7 @@ void Fireworks_Init(BYTE count)
             b = start;
         }
     }
-    g_unk0x00590b00 = (int)g_carLights[0].pReverse;
+    g_unk0x00590b00 = (int)g_carLightTexA[1];
     g_unk0x005909c8[0].x = 0x5b50000;
     g_unk0x005909c8[0].y = 0x20000;
     g_unk0x005909c8[1].x = 0x5b50000;
