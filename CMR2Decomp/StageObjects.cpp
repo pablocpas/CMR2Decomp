@@ -11886,14 +11886,14 @@ void FUN_004643f0(int param_1)
 // the original re-reads the car index at every use
 #define LIGHT_CAR (*(char *)(param_1 + 0xb1a))
 #define LIGHT_COUNT(c) (*g_carLightSets[c])
-#define LIGHT_POINTS(c) ((BYTE *)g_carLightPoints[c])
+#define LIGHT_POINTS(c) g_carLightPoints[c]
     int lights[11];
     FixVector planePos;
     FixVector colour;
     FixVector pos;
     int out[3];
     int *pRec;
-    BYTE *pPoint;
+    CarLightPoint *pPoint;
     BYTE *glow;
     int vA;
     int vB;
@@ -11953,18 +11953,18 @@ void FUN_004643f0(int param_1)
     planePos = *(FixVector *)(param_1 + 0x270);
     planePos.y = *(int *)(param_1 + 0x8dc);
     for (n = 0, off = 0; n < LIGHT_COUNT(LIGHT_CAR); n++, off += 0x28) {
-        pPoint = LIGHT_POINTS(LIGHT_CAR) + off;
+        pPoint = (CarLightPoint *)((BYTE *)LIGHT_POINTS(LIGHT_CAR) + off);
         glow = (BYTE *)g_unk0x00547d00[n + LIGHT_CAR * 0x14];
         if (glow == NULL)
             continue;
-        if (lights[pPoint[0x20]] == 0) {
+        if (lights[pPoint->type] == 0) {
             FUN_004ae3d0(glow, 0);
         } else {
             FUN_004ae3d0(glow, 1);
-            FUN_004ae3f0(glow, FixMul(lights[pPoint[0x20]], *(int *)(pPoint + 0x1c)));
-            intensity = FixMul(lights[pPoint[0x20]], *(int *)(pPoint + 0x1c));
+            FUN_004ae3f0(glow, FixMul(lights[pPoint->type], pPoint->intensity));
+            intensity = FixMul(lights[pPoint->type], pPoint->intensity);
             intensity = FixMul(intensity, 0x8000);
-            switch (pPoint[0x21]) {
+            switch (pPoint->slot) {
             case 0:
                 colour.x = 0xe000;
                 colour.y = 0x1c28;
@@ -11994,8 +11994,8 @@ void FUN_004643f0(int param_1)
                            FUN_004789d0(*(short *)(param_1 + 0xaae + idx * 2),
                                         FUN_00460c80((BYTE *)param_1)));
         if (FUN_0046b4c0((BYTE *)param_1) != 0) {
-            ii = *(unsigned short *)(pPoint + 0x26);
-            oi = *(unsigned short *)(pPoint + 0x24);
+            ii = (unsigned short)pPoint->vertex;
+            oi = (unsigned short)pPoint->object;
             pVertex = (int *)(pRec[0x1e + oi] + ii * 0x20);
             vx = pVertex[0];
             vy = pVertex[1];
@@ -12004,10 +12004,10 @@ void FUN_004643f0(int param_1)
             pos.x = out[0] - vx;
             pos.y = out[1] - vy;
             pos.z = out[2] - vz;
-            pos.x += ((int *)pPoint)[0];
-            pos.y += ((int *)pPoint)[1];
-            pos.z += ((int *)pPoint)[2];
-            Glow_SetPosition((GlowLight *)glow, &pos, (FixVector *)(pPoint + 0xc));
+            pos.x += pPoint->pos.x;
+            pos.y += pPoint->pos.y;
+            pos.z += pPoint->pos.z;
+            Glow_SetPosition((GlowLight *)glow, &pos, &pPoint->dir);
         }
     }
 #undef LIGHT_CAR
