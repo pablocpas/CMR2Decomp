@@ -3243,7 +3243,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
 void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 {
     int i;
-    short n;
+    int n;
     int skip = 0;
     int count;
     BYTE *p;

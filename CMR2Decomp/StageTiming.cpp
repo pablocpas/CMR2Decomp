@@ -5632,7 +5632,7 @@ void FUN_004483e0(void)
     int i;
     int j;
     int k;
-    short value;
+    int value;
     char *pSlot;
 
     total = (BYTE)RallyData_FUN_00406990() * RallyData_FUN_00421420() * 0x10000;
@@ -7574,14 +7574,14 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     int nz;
     int baseAngle;
     int curAngle;
-    short len;
+    int len;
     int refAngle;
     int tmp;
     int t;
     int a;
     int b;
     int slack;
-    short scale;
+    int scale;
     int i;
 
     pc = (BYTE *)pCar;
