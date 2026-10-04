@@ -186,10 +186,10 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
     short noiseNext = 0;
     short *pSurf = (short *)((BYTE *)pCar + 0xabc);
     int *pOut = &pCar->cornerGrip[7].gripB;
-    int s0;
+    short s0;
     unsigned short next;
     int s1;
-    int gripA;
+    short gripA;
     int gripB;
     int grip2A;
     int grip2B;
@@ -839,7 +839,7 @@ void FUN_00479360(int *pState, int player, int listener)
     unsigned int now;
     int backfire;
     int hi;
-    int lo;
+    short lo;
     int volume;
     int pct;
 

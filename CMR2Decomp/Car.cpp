@@ -3984,8 +3984,8 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
 {
     int i;
     int max;
-    int offset;
-    int mid;
+    short offset;
+    unsigned int mid;
     float fromStart;
     float toEnd;
     float frac;
@@ -4883,7 +4883,7 @@ void Car_UpdateSteering(void)
     FixMatrix m;
     FixVector right;
     FixVector t;
-    short angle;
+    unsigned short angle;
     int w;
 
     if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {

@@ -1925,7 +1925,7 @@ void FUN_0046f550(void)
     BYTE *pEntry;
     int maxX;
     int maxY;
-    int maxZ;
+    short maxZ;
     int mesh;
     float *pFloats;
 
@@ -1978,7 +1978,7 @@ void FUN_0046f550(void)
     if (g_movingObjects.meshCount > 0) {
         do {
             int pObject = ((int *)g_unk0x0058c92c)[i];
-            int n;
+            short n;
             int x;
             int y;
             int z;
@@ -8193,7 +8193,7 @@ void FUN_0046e780(int unused)
 {
     RECT rect;
     short *pPos;
-    int i;
+    short i;
     int j;
     int k;
     int x, y;
@@ -9614,7 +9614,7 @@ void FUN_0047ca30(int param_1)
                 do {
                     int *pTable;
                     int sum;
-                    int cols;
+                    unsigned int cols;
                     sum = 0;
                     pTable = pDst;
                     cols = *pRow + 1;
@@ -10877,8 +10877,8 @@ unsigned int FUN_0047c5e0(int param_1)
     int limit;
     int blocked;
     int local10;
-    int isStackC;
-    int iVar4;
+    unsigned int isStackC;
+    short iVar4;
     int iVar7;
     int iVar8;
     int iVar5;
@@ -11285,7 +11285,7 @@ extern int g_deformImpactTicks[2];
 void FUN_0046a500(Car *pCar)
 {
     CarPartSet *pParts;
-    int i;
+    unsigned int i;
     int iBig;
     int iFlagC;
     int idx;
@@ -15211,7 +15211,7 @@ void Fireworks_Init(BYTE count)
     FixVector *p;
     char *pDir;
     int sinA;
-    int cosA;
+    short cosA;
 
     g_unk0x00590afc = count;
     if (count != 0) {

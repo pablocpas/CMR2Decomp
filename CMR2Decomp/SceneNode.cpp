@@ -1308,7 +1308,7 @@ void Scene_LoadLighting(int *pData)
     int item;
     int off;
     int itemOff;
-    int zoneOff;
+    unsigned short zoneOff;
     int d;
     int i;
     unsigned int flags;

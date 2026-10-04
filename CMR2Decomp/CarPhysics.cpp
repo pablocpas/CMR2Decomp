@@ -660,11 +660,11 @@ void FUN_00496e00(Car *pCar)
     int acc;
     int limit;
     int len;
-    int a;
+    short a;
     int c;
     int k;
     int first;
-    int extra;
+    short extra;
     short angle;
     int skip;
 

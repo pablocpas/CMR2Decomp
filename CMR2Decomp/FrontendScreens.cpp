@@ -5445,7 +5445,7 @@ void FUN_004ded80(Menu *pMenu)
     int width;
     int count;
     int x0;
-    int x;
+    short x;
     short y0;
     int y;
     int i;
@@ -8379,7 +8379,7 @@ void FUN_004ee6e0(Menu *pMenu)
 void FUN_004ee170(Menu *pMenu)
 {
     unsigned int *pFlags;
-    BYTE max;
+    int max;
     unsigned int level;
     unsigned int mask;
     BYTE bits;

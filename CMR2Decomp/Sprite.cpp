@@ -74,7 +74,7 @@ void Sprite_DrawLayer(int layer)
     float t;
     D3DCOLOR colour;
     int centre[3];
-    short angle;
+    int angle;
     FixMatrix rotation;
     FixVector p;
     FixVector out;
