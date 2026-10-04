@@ -154,28 +154,31 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     int i;
     int h;
     int d;
+    short *p;
 
     best = 0;
     bestIndex = 0;
     i = 0;
     first = TRUE;
-    if (count > 0) {
+    if (i < count) {
+        p = pList;
         do {
-            if (Track_GetTriangle(t, pList[i]) && Track_PointInTriangle(pPoint, pList[i], t)) {
-                h = (t[1].y + t[2].y + t[0].y) / 3;
+            if (Track_GetTriangle(t, *p) && Track_PointInTriangle(pPoint, *p, t)) {
+                h = (t[0].y + t[1].y + t[2].y) / 3;
                 d = y - h;
                 if (d < 0)
                     d = h - y;
                 if (first) {
+                    best = d;
+                    bestIndex = i;
                     first = FALSE;
-                    best = d;
-                    bestIndex = i;
                 } else if (d < best) {
-                    bestIndex = i;
                     best = d;
+                    bestIndex = i;
                 }
             }
             i++;
+            p++;
         } while (i < count);
         if (!first) {
             *pOut = pList[bestIndex];
