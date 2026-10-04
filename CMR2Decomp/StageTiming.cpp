@@ -3927,7 +3927,7 @@ void FUN_00483050(void)
     int b;
 
     idx = g_unk0x00590c60[g_partState->flags >> 4];
-    if (*(int *)(((BYTE *)g_partSet) + 0x240 + idx * 4) > 0xcccc) {
+    if (g_partSet->field_0x240[idx] > 0xcccc) {
         if ((g_partState->flags & 0xf0) == 0x10) {
             a = 2;
             b = 3;
@@ -3935,7 +3935,7 @@ void FUN_00483050(void)
             a = 0;
             b = 1;
         }
-        if (*(int *)(((BYTE *)g_partSet) + a * 4 + 0x240) > *(int *)(((BYTE *)g_partSet) + b * 4 + 0x240))
+        if (g_partSet->field_0x240[a] > g_partSet->field_0x240[b])
             g_partState->position.z -= g_partState->swingAxis.z;
         else
             g_partState->position.z += g_partState->swingAxis.z;
@@ -6459,7 +6459,7 @@ void FUN_004816f0(void)
                 idx = 1;
             if ((g_partState->flags & 0xf0) == 0x10)
                 idx += 2;
-            if (*(int *)(((BYTE *)g_partCar) + 0xbac + idx * 4) != 0) {
+            if (g_partCar->cornerOnGround[idx] != 0) {
                 dot = FixVecDot((FixVector *)(((BYTE *)g_partCar) + 0x408), (FixVector *)(((BYTE *)g_partCar) + 0x48c));
                 FixVecScale(&v3c, (FixVector *)(((BYTE *)g_partCar) + 0x48c), dot);
                 v3c.x = *(int *)(((BYTE *)g_partCar) + 0x408) - v3c.x;
@@ -6859,13 +6859,13 @@ void FUN_00483100(int *param_1, unsigned int param_2)
 
     if (StageObject_IsEligibleType(*(short *)(((BYTE *)g_partCar) + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
         pos = g_partState->position;
-        pos.y -= FixMul(0x20000, *(int *)(((BYTE *)g_partSet) + sel * 0xc + 0x16c));
+        pos.y -= FixMul(0x20000, g_partSet->halfExtents[sel].y);
         if (g_partState->position.z > 0)
             FixVecScale(&offset, &g_partState->basis.forward,
-                        -FixMul(0x1cccc, *(int *)(((BYTE *)g_partSet) + sel * 0xc + 0x170)));
+                        -FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
         else
             FixVecScale(&offset, &g_partState->basis.forward,
-                        FixMul(0x1cccc, *(int *)(((BYTE *)g_partSet) + sel * 0xc + 0x170)));
+                        FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
         pos.x += offset.x;
         pos.y += offset.y;
         pos.z += offset.z;
@@ -6952,7 +6952,7 @@ void FUN_00484f40(unsigned int param_1)
     pPoint[10] = pPoint[1] + dir.y;
     pPoint[0xb] = pPoint[2] + dir.z;
     pPoint[0xe] = 1;
-    *(int *)(((BYTE *)g_partSet) + 0x4c0 + index * 4) = 1;
+    g_partSet->field_0x4c0[index] = 1;
 }
 
 #undef CAR_0x590d74
@@ -7513,7 +7513,7 @@ void FUN_00480de0(void)
         if (FUN_00469bc0(g_partCar, slot) == 0 &&
             *(int *)(g_partCar->index * 0x1a0 +
                      *(int *)((int)&g_unk0x00590d7c[3] + offset)) == 0 &&
-            *(int *)(((BYTE *)g_partSet) + 0x240 + g_unk0x00590c60[slot] * 4) >
+            g_partSet->field_0x240[g_unk0x00590c60[slot]] >
                 *(int *)((int)&g_unk0x00590c50 + offset)) {
             FUN_00480e50(slot);
         }

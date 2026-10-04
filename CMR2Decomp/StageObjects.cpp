@@ -15977,7 +15977,7 @@ void FUN_00484310(void)
         FixVecScale(&scratch, &scratch, -0x60000);
         if (g_partCar->type != 8) {
             type = g_unk0x00590c24[2][g_partCar->index];
-            if (*(BYTE *)(*(int *)(((BYTE *)g_partSet) + 0x3c + type * 4) + 0x30) == 0xc)
+            if (*(BYTE *)&g_partSet->nodes[type]->key == 0xc)
                 scratch.x = -scratch.x;
         }
         motion.x += scratch.x;
