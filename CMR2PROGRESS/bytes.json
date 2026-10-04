@@ -257,8 +257,8 @@
   },
   "0x431220": {
     "n": "Car_RelaxBodyAxes",
-    "s": 0.9293286219081273,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_RelaxBodyAxes"
@@ -801,8 +801,8 @@
   },
   "0x423f30": {
     "n": "Render_GetDetailDistanceScale",
-    "s": 0.9583333333333334,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Render_GetDetailDistanceScale"
@@ -969,11 +969,9 @@
   },
   "0x42b4a0": {
     "n": "Car_IntegrateWheelRotation",
-    "s": 0.654320987654321,
+    "s": 0.6296296296296297,
     "x": false,
-    "unknown": [
-      "__real@8@bff8a2f9836e4e441800"
-    ],
+    "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_IntegrateWheelRotation"
   },
@@ -1083,7 +1081,7 @@
   },
   "0x423460": {
     "n": "Camera_Update",
-    "s": 0.5418994413407822,
+    "s": 0.6834170854271356,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1107,7 +1105,7 @@
   },
   "0x421610": {
     "n": "View_SetupCameras",
-    "s": 0.32051282051282054,
+    "s": 0.42038216560509556,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -2047,7 +2045,7 @@
   },
   "0x426fc0": {
     "n": "FUN_00426fc0",
-    "s": 0.7526652452025586,
+    "s": 0.80927291886196,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -4951,8 +4949,8 @@
   },
   "0x4edef0": {
     "n": "FUN_004edef0",
-    "s": 0.8609271523178808,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004edef0"
@@ -4967,8 +4965,8 @@
   },
   "0x4ee460": {
     "n": "FUN_004ee460",
-    "s": 0.9285714285714286,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004ee460"
@@ -10153,8 +10151,8 @@
   },
   "0x402f90": {
     "n": "FUN_00402f90",
-    "s": 0.8902439024390244,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00402f90"
@@ -11041,8 +11039,8 @@
   },
   "0x506080": {
     "n": "FUN_00506080",
-    "s": 0.9896907216494846,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00506080"
@@ -12500,7 +12498,7 @@
   },
   "0x4a5730": {
     "n": "CGraphics::GetPixelRed",
-    "s": 0.8181818181818182,
+    "s": 0.7272727272727273,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12508,7 +12506,7 @@
   },
   "0x4a57e0": {
     "n": "CGraphics::GetPixelAlpha",
-    "s": 0.8923076923076924,
+    "s": 0.8153846153846154,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12580,8 +12578,8 @@
   },
   "0x4a8bf0": {
     "n": "CGraphics::GetDisplayDeviceNames",
-    "s": 0.8936170212765957,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetDisplayDeviceNames"
@@ -16093,16 +16091,16 @@
   },
   "0x426b90": {
     "n": "FUN_00426b90",
-    "s": 0.9069767441860465,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00426b90"
   },
   "0x426810": {
     "n": "FUN_00426810",
-    "s": 0.9653979238754326,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00426810"
@@ -16149,8 +16147,8 @@
   },
   "0x425a90": {
     "n": "FUN_00425a90",
-    "s": 0.9133858267716536,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00425a90"
@@ -16863,8 +16861,8 @@
   },
   "0x41d2b0": {
     "n": "FUN_0041d2b0",
-    "s": 0.9461538461538461,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "FUN_0041d2b0"
@@ -17999,7 +17997,7 @@
   },
   "0x413330": {
     "n": "FUN_00413330",
-    "s": 0.7838827838827839,
+    "s": 0.7867647058823529,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -22117,7 +22115,7 @@
   },
   "0x460da0": {
     "n": "StageObject_SetLighting",
-    "s": 0.2621448212648946,
+    "s": 0.27414903403863844,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23085,8 +23083,8 @@
   },
   "0x47bad0": {
     "n": "FUN_0047bad0",
-    "s": 0.9661016949152542,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0047bad0"
@@ -23229,7 +23227,7 @@
   },
   "0x463fe0": {
     "n": "FUN_00463fe0",
-    "s": 0.2991596638655462,
+    "s": 0.9084967320261438,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23389,7 +23387,7 @@
   },
   "0x48cc30": {
     "n": "FUN_0048cc30",
-    "s": 0.685,
+    "s": 0.9204819277108434,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -25023,7 +25021,7 @@
   },
   "0x448d50": {
     "n": "FUN_00448d50",
-    "s": 0.725,
+    "s": 0.9512195121951219,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25407,7 +25405,7 @@
   },
   "0x4487a0": {
     "n": "FUN_004487a0",
-    "s": 0.9177489177489178,
+    "s": 0.9217391304347826,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25543,8 +25541,8 @@
   },
   "0x456d90": {
     "n": "FUN_00456d90",
-    "s": 0.8955223880597015,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00456d90"
@@ -26175,8 +26173,8 @@
   },
   "0x4916a0": {
     "n": "Track_FindNearestTriangle",
-    "s": 0.9132947976878613,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Track_FindNearestTriangle"
@@ -26239,7 +26237,7 @@
   },
   "0x491d40": {
     "n": "Stage_SetHeightColours",
-    "s": 0.9069373942470389,
+    "s": 0.9761904761904762,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
