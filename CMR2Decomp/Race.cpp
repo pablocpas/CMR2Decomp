@@ -943,8 +943,9 @@ void FUN_004174e0(unsigned int player, BYTE callId, BYTE prevCallId, BYTE unused
 // FUNCTION: CMR2 0x00416670
 void FUN_00416670(void)
 {
-    RaceCallRecord *p;
     int i;
+    RaceCallRecord *p;
+    RaceCallRecord *q;
 
     g_unk0x00537198[0] = 9999;
     g_raceWrongWayFlags[0] = 0;
@@ -955,13 +956,17 @@ void FUN_00416670(void)
     memset(g_unk0x005371a4, 0, sizeof(g_unk0x005371a4));
     p = g_raceCallRecords;
     do {
-        for (i = 0; i < 5; i++, p++) {
-            p->flags &= 0xfffffc00;
-            p->field_0x4 = 0;
-            p->field_0x0 = 0;
-        }
+        q = p;
+        i = 5;
+        do {
+            q->flags &= 0xfffffc00;
+            q->field_0x4 = 0;
+            q->field_0x0 = 0;
+            q++;
+        } while (--i);
         g_unk0x005371a0 = 0;
-    } while (p < g_raceCallRecords + 10);
+        p = q;
+    } while ((int)p < (int)(g_raceCallRecords + 10));
     for (i = 0; i < 5; i++) {
         g_raceSlotState[i].flags &= 0xfc;
         g_raceSlotState[i].pending = -1;
@@ -1712,6 +1717,39 @@ BYTE FUN_00427aa0(void);
 void FUN_00419b90(int car, BYTE *pInfo)
 {
     switch (*(int *)(pInfo + 0xa8)) {
+    case 6:
+    case 0x15:
+        if (!FUN_00427aa0())
+            CarSound_StopSlot(car, 4, 1);
+        FUN_00418e20(car, 4, 5);
+        break;
+    case 7:
+        if (!FUN_00427aa0())
+            CarSound_StopSlot(car, 4, 1);
+        FUN_00418e20(car, 4, 5);
+        FUN_00418e20(car, 6, 7);
+        break;
+    case 0xb:
+        if (!FUN_00427aa0()) {
+            CarSound_StopSlot(car, 4, 1);
+            CarSound_StopSlot(car, 6, 1);
+        }
+        FUN_00418e20(car, 4, 5);
+        break;
+    case 0xc:
+        if (!FUN_00427aa0()) {
+            CarSound_StopSlot(car, 4, 1);
+            CarSound_StopSlot(car, 6, 1);
+        }
+        FUN_00418e20(car, 4, 5);
+        FUN_00418e20(car, 6, 7);
+        break;
+    case 2:
+    case 0x11:
+    case 0x16:
+        FUN_00418e20(car, 4, 5);
+        FUN_00418e20(car, 6, 7);
+        break;
     case 1:
     case 4:
     case 9:
@@ -1719,40 +1757,11 @@ void FUN_00419b90(int car, BYTE *pInfo)
     case 0x10:
     case 0x13:
     case 0x18:
+        FUN_00418e20(car, 4, 5);
         break;
-    case 2:
-    case 0x11:
-    case 0x16:
-        goto both;
     default:
         goto tail;
-    case 6:
-    case 0x15:
-        if (!FUN_00427aa0())
-            CarSound_StopSlot(car, 4, 1);
-        break;
-    case 7:
-        if (!FUN_00427aa0())
-            CarSound_StopSlot(car, 4, 1);
-        goto both;
-    case 0xb:
-        if (!FUN_00427aa0()) {
-            CarSound_StopSlot(car, 4, 1);
-            CarSound_StopSlot(car, 6, 1);
-        }
-        break;
-    case 0xc:
-        if (!FUN_00427aa0()) {
-            CarSound_StopSlot(car, 4, 1);
-            CarSound_StopSlot(car, 6, 1);
-        }
-        goto both;
     }
-    FUN_00418e20(car, 4, 5);
-    goto tail;
-both:
-    FUN_00418e20(car, 4, 5);
-    FUN_00418e20(car, 6, 7);
 tail:
     *(int *)(g_raceBlock + 0x94 + car * 4) = *(int *)(g_raceBlock + 0x48 + car * 4);
     *(int *)(g_raceBlock + car * 4) = *(int *)(g_raceBlock + 0x220 + car * 4);
@@ -1762,7 +1771,9 @@ tail:
 
 // Restarts the stage sound of the slots whose surface changed while their
 // sound is still playing; the new sound reuses the slot's id and volume.
-// match 37%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// The per-car sound ids are addressed through the flat block index (car*45+i),
+// as in the original.
+#define g_carSoundIds ((int *)(g_raceBlock + 0x284))   // 0x5377ec
 // FUNCTION: CMR2 0x00419cd0
 void FUN_00419cd0(int car, int unused)
 {
@@ -1788,7 +1799,7 @@ void FUN_00419cd0(int car, int unused)
             if (pPattern->choices[g_unk0x005375f4[car]] > 1 && pState->pattern == 0x19) {
                 old = Sound_GetVolume(pState->handle[i]);
                 CarSound_StopSlot(car, i, 0);
-                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(g_carSoundIds[car * 45 + i],
                                                pPattern->choices[g_unk0x005375f4[car]]) +
                                   pPattern->base[g_unk0x005375f4[car]], i, old, 0);
             }
@@ -1797,25 +1808,25 @@ void FUN_00419cd0(int car, int unused)
             if (pPattern->choices[g_unk0x005375f4[car]] > 1) {
                 old = Sound_GetVolume(pState->handle[i]);
                 CarSound_StopSlot(car, i, 0);
-                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(g_carSoundIds[car * 45 + i],
                                                pPattern->choices[g_unk0x005375f4[car]]) +
                                   pPattern->base[g_unk0x005375f4[car]], i, old, 0);
-            }
-            break;
-        case 6:
-            if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1 && pState->pattern == 0x19) {
-                old = Sound_GetVolume(pState->handle[i]);
-                CarSound_StopSlot(car, i, 0);
-                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
-                                               pPattern->choices[g_unk0x005375f4[car] + 2]) +
-                                  pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             }
             break;
         case 7:
             if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1) {
                 old = Sound_GetVolume(pState->handle[i]);
                 CarSound_StopSlot(car, i, 0);
-                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(pState->id[i],
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(g_carSoundIds[car * 45 + i],
+                                               pPattern->choices[g_unk0x005375f4[car] + 2]) +
+                                  pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
+            }
+            break;
+        case 6:
+            if (pPattern->choices[g_unk0x005375f4[car] + 2] > 1 && pState->pattern == 0x19) {
+                old = Sound_GetVolume(pState->handle[i]);
+                CarSound_StopSlot(car, i, 0);
+                CarSound_PlaySlot(car, CarSound_PickDifferentSampleIndex(g_carSoundIds[car * 45 + i],
                                                pPattern->choices[g_unk0x005375f4[car] + 2]) +
                                   pPattern->base[g_unk0x005375f4[car] + 2], i, old, 0);
             }
