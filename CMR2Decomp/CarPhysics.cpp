@@ -92,16 +92,17 @@ int g_physTrailScale = 0x10000;
 // Resets the contact records for a new stage and caches the pointers into
 // every car's handling data. In the time trial modes only the first car
 // (the player) is driven, the others are ghosts.
-// Matching remains pending; differential_contact_init.py checks the records,
-// pointer caches and real handling/game-state helpers.
 // FUNCTION: CMR2 0x00494bb0
 void CarContact_InitStageRecords(void)
 {
     int i;
     int j;
-    int data;
+    int driven;
+    BYTE *data;
 
-    if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 || CGameInfo::FUN_00405d80() == 7) {
+    driven = (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
+              CGameInfo::FUN_00405d80() == 7);
+    if (driven) {
         for (i = 0; i < g_unk0x00592738; i++) {
             CAR_CONTACT(i)->field_0x294 = 1;
             CAR_CONTACT(i)->field_0x298 = 1;
@@ -124,10 +125,10 @@ void CarContact_InitStageRecords(void)
         }
     }
     for (i = 0; i < g_unk0x00592738; i++) {
-        data = FUN_00457e10((BYTE *)Car_Get(i), 1);
-        g_physSkidCount[i] = (BYTE *)data;
+        data = (BYTE *)FUN_00457e10((BYTE *)Car_Get(i), 1);
+        g_physSkidCount[i] = data;
         data++;
-        g_physSkidRange[i] = (BYTE *)data;
+        g_physSkidRange[i] = data;
         data += 3;
         g_physSkidOffset[i] = (int *)data;
         data += 4;
