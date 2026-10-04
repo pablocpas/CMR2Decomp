@@ -182,7 +182,7 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
 {
     int i = 7;
     short noise = 0;
-    int *pComp = (int *)((BYTE *)pCar + 0x8bc);
+    int *pComp = &pCar->field_0x8b8[1];
     short noiseNext = 0;
     short *pSurf = (short *)((BYTE *)pCar + 0xabc);
     int *pOut = (int *)((BYTE *)pCar + 0x180);
@@ -285,7 +285,7 @@ store_grip2B:
 
             i = 4;
             pOut = (int *)((BYTE *)pCar + 0x1c8);
-            pSurf = (short *)((BYTE *)pCar + 0xab4);
+            pSurf = &pCar->wheelSurface[3];
             do {
                 int id = *pSurf;
                 BYTE next = g_surfaceNext[id];
@@ -294,9 +294,9 @@ store_grip2B:
 
                 *((BYTE *)pOut - 4) = g_surfaceEffect[id][0];
                 *((BYTE *)pOut - 3) = g_surfaceEffect[id][1];
-                drag = FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + *(BYTE *)((BYTE *)pCar + 0xb29) * 9], 0x51e);
+                drag = FixMul(g_surfaceDrag[g_surfaceDragIndex[id] + pCar->field_0xb29 * 9], 0x51e);
                 dragNext = FixMul(g_surfaceDrag[g_surfaceDragIndex[(int)(short)(unsigned short)next] +
-                                                *(BYTE *)((BYTE *)pCar + 0xb29) * 9], 0x51e);
+                                                pCar->field_0xb29 * 9], 0x51e);
                 pOut[1] = 0;
                 pOut[0] = FixMul(dragNext - drag, blend) + drag;
                 pOut -= 3;
@@ -308,18 +308,18 @@ store_grip2B:
 
             level = FixMul(((int)noiseNext >> 2) * 0x10000 + ((int)noise & 0xfffffffc) * -0x4000, blend);
             level = FixMul(((int)noise & 0xfffffffc) * 0x4000 + level, 0x28f);
-            previous = *(int *)((BYTE *)pCar + 0xa74);
+            previous = pCar->field_0xa74;
             diff = level - previous;
             *(int *)((BYTE *)pCar + 0xa78) = level;
             if (FIX_ABS(diff) < 0x3334) {
-                *(int *)((BYTE *)pCar + 0xa74) = level;
+                pCar->field_0xa74 = level;
                 return;
             }
             if (diff > 0) {
-                *(int *)((BYTE *)pCar + 0xa74) = previous + 0x3333;
+                pCar->field_0xa74 = previous + 0x3333;
                 return;
             }
-            *(int *)((BYTE *)pCar + 0xa74) = previous - 0x3333;
+            pCar->field_0xa74 = previous - 0x3333;
             return;
         }
     }
@@ -898,7 +898,7 @@ void FUN_00479360(int *pState, int player, int listener)
         }
     } else {
         if (Sound_IsPlaying(g_unk0x0058ddf0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, *(int *)pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
                             CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0058df3c));
             if (FUN_0041f3d0((BYTE)player))
@@ -911,7 +911,7 @@ void FUN_00479360(int *pState, int player, int listener)
             FUN_004b79a0(g_unk0x0058ddf0[player], volume);
         }
         if (Sound_IsPlaying(g_unk0x0058dde0[player])) {
-            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, *(int *)pCar->field_0x788),
+            volume = FixMul(0x10000 - FixDiv(pCar->steerFollowRate, pCar->field_0x788),
                             CAR_VOLUME((int)(FUN_00427ad0(pitch, (int *)&g_curve0x0051eab8) << 16) / 100,
                                        g_unk0x0051f278));
             if (FUN_0041f3d0((BYTE)player))
@@ -976,7 +976,7 @@ void FUN_00479360(int *pState, int player, int listener)
                 break;
             }
         }
-        if (CGameInfo::FUN_004063f0(5) && *(int *)((BYTE *)pCar + 0xa84) > 0)
+        if (CGameInfo::FUN_004063f0(5) && pCar->field_0xa84 > 0)
             backfire = 1;
         if (pState[3] == 0) {
             hi = 3000;
@@ -1216,7 +1216,7 @@ void FUN_0047a710(int player, int listener)
         if (Sound_IsPlaying(g_unk0x0058df30[player]) == 0)
             g_unk0x0058df30[player] = FUN_004b7790((unsigned short)(g_unk0x0058ddb4[player] + 0xe), 0x10000, 0x2b11, 0, 1, 0);
     }
-    pitch = FixMul(FixMul(pCar->field_0x7ac, *(int *)pCar->field_0x798), 0x19640000) >> 16;
+    pitch = FixMul(FixMul(pCar->field_0x7ac, pCar->field_0x798), 0x19640000) >> 16;
     if (pitch < 2000)
         state[1] = 2000;
     else if (pitch > 0x2134)
@@ -1236,7 +1236,7 @@ void FUN_0047a710(int player, int listener)
     state[0] = pitch;
     state[2] = speed;
     state[3] = pCar->gear;
-    state[4] = (FixDiv(FixMul(pCar->steerFollowRate, 0x640000), *(int *)pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
+    state[4] = (FixDiv(FixMul(pCar->steerFollowRate, 0x640000), pCar->field_0x788) < 0x50000 ? 0 : 0x640000) >> 16;
     state[5] = 0;
     state[6] = 0;
     FUN_00479360(state, player, listener);

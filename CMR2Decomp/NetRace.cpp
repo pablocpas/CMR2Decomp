@@ -800,7 +800,7 @@ void FUN_004258e0(int base, short *pIndices, short count)
         for (i = (int)count - 1; i >= 0; i--) {
             Car *pCar = (Car *)(base + pIndices[i] * 0xc24);
 
-            if (*(int *)((BYTE *)pCar + 0xc1c) == 0 &&
+            if (pCar->field_0xc1c == 0 &&
                 (NetRace_PackCarState(pCar), g_unk0x00539cc8 != 0))
                 FUN_004278f0(&g_localCarStats);
         }

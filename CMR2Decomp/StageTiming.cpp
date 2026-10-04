@@ -8375,11 +8375,11 @@ wheelsDone:
     }
     if (hasVariant == 0 || CGameInfo::FUN_00406410(0x10)) {
         pCar = Car_Get(car);
-        *(int *)((BYTE *)pCar + 0x724) = 0;
-        *(int *)((BYTE *)pCar + 0x728) = 0;
-        *(int *)((BYTE *)pCar + 0x72c) = 0;
-        *(int *)((BYTE *)pCar + 0x730) = 0;
-        *(int *)((BYTE *)pCar + 0x734) = 0;
+        *(int *)&pCar->pNode0x724 = 0;
+        *(int *)&pCar->pExtraNodes[0] = 0;
+        *(int *)&pCar->pExtraNodes[1] = 0;
+        *(int *)&pCar->pExtraNodes[2] = 0;
+        *(int *)&pCar->pExtraNodes[3] = 0;
         return 1;
     }
     pRecord[0x21] = variant;
@@ -8396,19 +8396,19 @@ wheelsDone:
     pCar = Car_Get(car);
     pNodes = (SceneNode *)FUN_004b9380((unsigned int)pData, RallyData_FUN_00411060(), (unsigned int)pArchive);
     *(SceneNode **)(g_unk0x00542630 + 0x294 + car * 4) = pNodes;
-    *(SceneNode **)((BYTE *)pCar + 0x724) = SceneNode_FindByType(pNodes, 5);
-    *(SceneNode **)((BYTE *)pCar + 0x728) = SceneNode_FindByType(pNodes, 1);
-    *(SceneNode **)((BYTE *)pCar + 0x72c) = SceneNode_FindByType(pNodes, 2);
-    *(SceneNode **)((BYTE *)pCar + 0x730) = SceneNode_FindByType(pNodes, 3);
-    *(SceneNode **)((BYTE *)pCar + 0x734) = SceneNode_FindByType(pNodes, 4);
+    pCar->pNode0x724 = SceneNode_FindByType(pNodes, 5);
+    pCar->pExtraNodes[0] = SceneNode_FindByType(pNodes, 1);
+    pCar->pExtraNodes[1] = SceneNode_FindByType(pNodes, 2);
+    pCar->pExtraNodes[2] = SceneNode_FindByType(pNodes, 3);
+    pCar->pExtraNodes[3] = SceneNode_FindByType(pNodes, 4);
     if (CGameInfo::FUN_00405ba0())
-        Scene_AddShadowCaster(*(SceneNode **)((BYTE *)pCar + 0x724), 0);
-    SceneNode_SetMeshFlagBits(*(SceneNode **)((BYTE *)pCar + 0x724), car);
+        Scene_AddShadowCaster(pCar->pNode0x724, 0);
+    SceneNode_SetMeshFlagBits(pCar->pNode0x724, car);
     for (i = 0x724; i <= 0x734; i += 4) {
         if (*(SceneNode **)((BYTE *)pCar + i) != NULL)
-            SceneNode_Reparent(*(SceneNode **)((BYTE *)pCar + i), *(SceneNode **)((BYTE *)pCar + 0x71c));
+            SceneNode_Reparent(*(SceneNode **)((BYTE *)pCar + i), pCar->pNode0x71c);
     }
-    Car_SwapWheelTextures(pRecord[0x21], (SceneNode **)((BYTE *)pCar + 0x728));
+    Car_SwapWheelTextures(pRecord[0x21], &pCar->pExtraNodes[0]);
     return 1;
 }
 #undef CAR_RECORD
@@ -9012,20 +9012,20 @@ void FUN_0045af90(int car)
             continue;
         if (revs > 0xccc && speed < 0x28f) {
             FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
-                                   *(FixMatrix **)((BYTE *)pCar + 0x750));
-            g_unk0x00543380[car].x += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x30);
-            g_unk0x00543380[car].y += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x34);
-            g_unk0x00543380[car].z += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x38);
-            carVelocity = *(FixVector *)((BYTE *)pCar + 0x450);
+                                   pCar->pWorld);
+            g_unk0x00543380[car].x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
+            g_unk0x00543380[car].y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34);
+            g_unk0x00543380[car].z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            carVelocity = pCar->cornerVelocity[3];
             big = heat > 0x50;
             negRevs = -revs;
-            FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x360), negRevs);
+            FixVecScale(&velocity, &pCar->right, negRevs);
             velocity.y += carVelocity.y;
             velocity.x += carVelocity.x;
             velocity.z += carVelocity.z;
             t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             Particle_Spawn(big, &g_unk0x00543380[car], &velocity, g_unk0x00543380[car].y - 0x10000, 0, NULL, 0, 0,
-                           *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+                           *(BYTE *)(*(BYTE * *)&pCar->pNode0x720 + 0x17c));
         }
         if (g_trailForced[car] != 0)
             g_unk0x005439b0[car] = (BYTE)g_trailForcedSurface[car];
@@ -9040,19 +9040,19 @@ void FUN_0045af90(int car)
             spark.x += g_exhaustSparkLines[line][0].x;
             spark.y += g_exhaustSparkLines[line][0].y;
             spark.z += g_exhaustSparkLines[line][0].z;
-            FixMatrix_RotateVector(&position, &spark, *(FixMatrix **)((BYTE *)pCar + 0x750));
+            FixMatrix_RotateVector(&position, &spark, pCar->pWorld);
             revs = 0x1999;
-            position.x += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x30);
-            position.y += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x34) - 0x3333;
-            position.z += CAR_INT(*(BYTE **)((BYTE *)pCar + 0x754), 0x38);
-            FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x36c), revs);
+            position.x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
+            position.y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34) - 0x3333;
+            position.z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            FixVecScale(&velocity, &pCar->up, revs);
             t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             if (speed > 0x8000)
                 Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
-                               *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+                               *(BYTE *)(*(BYTE * *)&pCar->pNode0x720 + 0x17c));
             else
                 Particle_Spawn(2, &position, &velocity, position.y - 0x10000, 0, NULL, 0, 0,
-                               *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+                               *(BYTE *)(*(BYTE * *)&pCar->pNode0x720 + 0x17c));
         }
     }
     if (g_unk0x005439b0[car] == 0)
@@ -9062,14 +9062,14 @@ void FUN_0045af90(int car)
         if (g_trailTextureA[car][exhaust] == 0)
             continue;
         FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
-                               *(FixMatrix **)((BYTE *)pCar + 0x750));
-        FixVecScale(&velocity, (FixVector *)((BYTE *)pCar + 0x360), -revs);
+                               pCar->pWorld);
+        FixVecScale(&velocity, &pCar->right, -revs);
         zero.x = 0;
         zero.y = 0;
         zero.z = 0;
         g_trailForced[car] = 0;
         Particle_Spawn(3, &zero, &velocity, -0x640000, 0, NULL, 0, (int)&car,
-                       *(BYTE *)(*(BYTE **)((BYTE *)pCar + 0x720) + 0x17c));
+                       *(BYTE *)(*(BYTE * *)&pCar->pNode0x720 + 0x17c));
         r = (int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536);
         if (g_trailTextureB[car][exhaust] != 0) {
             FUN_004ae3f0((BYTE *)g_trailTextureB[car][exhaust], r);

@@ -916,7 +916,7 @@ void FUN_004475f0(BYTE *param_1, FixMatrix *param_2, int param_3)
         else
             scale = 0xe0000;
         t = FixMul(FixDiv(g_physicsTimeStep, scale),
-                   *(int *)Car_Get(param_1[2])->field_0xa74);
+                   Car_Get(param_1[2])->field_0xa74);
         FixMatrix_Interpolate(&xform, &mat, &xform, t, t, 0x10000, 0);
         FixMatrix_GetUp(pUp, &xform);
         FixMatrix_GetForward(pRight, &xform);

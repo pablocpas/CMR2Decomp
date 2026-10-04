@@ -3784,13 +3784,13 @@ void FUN_00466570(short *param_1, short param_2, int param_3, int param_4)
         p = param_1;
         do {
             pCar = Car_Get(*p);
-            if (*(int *)((BYTE *)pCar + 0xc0c) == 0 &&
+            if (pCar->field_0xc0c == 0 &&
                 *(int *)((BYTE *)pCar + 0xb68 + param_4 * 4) == 0) {
                 if (FUN_0041f3a0() != 0) {
                     if ((char)RallyData_FUN_00407e90() || (char)RallyData_FUN_00407e70() ||
                         (unsigned int)i == (FUN_00422fb0(1) & 0xff))
                         FUN_00494db0(pCar, 1);
-                } else if (FUN_0046bd20(*(char *)((BYTE *)pCar + 0xb1a), param_4) != 7) {
+                } else if (FUN_0046bd20(pCar->index, param_4) != 7) {
                     FUN_00494db0(pCar, param_4);
                 }
             }
@@ -4895,7 +4895,7 @@ void FUN_00468c10(Car *pCar)
     int value;
 
     pRecord = g_unk0x00588b94 + pCar->index * 0x4d0;
-    if (*(int *)pCar->field_0xb50 == 0)
+    if (pCar->field_0xb50 == 0)
         return;
     p = (int *)(pRecord + 0x240);
     p[0] = *(int *)(pRecord + 0x234);
@@ -4961,8 +4961,8 @@ void FUN_00468c10(Car *pCar)
     for (i = 0; i < 4; i++) {
         p[i] = FixMul(p[i - 0x6b], 0xccc);
     }
-    if (*(int *)pCar->field_0x7b8 != 0x10000 && *(int *)pCar->field_0x7b8 != 0) {
-        value = FixMul(0x8000, *(int *)(pRecord + 0x280)) + *(int *)pCar->field_0x7b8;
+    if (pCar->field_0x7b8 != 0x10000 && pCar->field_0x7b8 != 0) {
+        value = FixMul(0x8000, *(int *)(pRecord + 0x280)) + pCar->field_0x7b8;
         pCar->driveSplit = value;
         if (value > 0x10000)
             pCar->driveSplit = 0x10000;
@@ -6068,9 +6068,9 @@ void FUN_00464960(unsigned int param_1)
     pCar = Car_Get(car);
     level = FUN_004648f0();
     if (level == 0x10000)
-        *(int *)((BYTE *)pCar + 0xb58) = 0;
+        pCar->field_0xb58 = 0;
     else
-        *(int *)((BYTE *)pCar + 0xb58) = 1;
+        pCar->field_0xb58 = 1;
     value = FixMul(0x4c0000, level);
     FUN_00477c80(car, (int *)&param_1, (int *)&param_1, 4);
     if (param_1 == 0)
@@ -6542,7 +6542,7 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
     i = 0;
     sum = 0;
     count = 0;
-    pIndex = (short *)((BYTE *)pCar + 0xa9e);
+    pIndex = &pCar->cornerTriangle[0];
     vertex = (int)pCar + 0x270;
     do {
         if (*pIndex >= 0) {
@@ -6579,7 +6579,7 @@ void FUN_00462aa0(unsigned int param_1, int param_2)
         rgb[2] = rgb[2] - (*(int *)((BYTE *)ambient + 2) & 0xff) * 0x10000;
         if ((FUN_00422fb0(param_2) & 0xff) == param_1)
             FUN_00492e60(rgb);
-        *(int *)((BYTE *)pCar + 0xa70) = avg;
+        pCar->field_0xa70 = avg;
         total = (rgb[0] < 0 ? -rgb[0] : rgb[0]) + (rgb[1] < 0 ? -rgb[1] : rgb[1]) + (rgb[2] < 0 ? -rgb[2] : rgb[2]);
         v = FixMul(total, 0x55);
         if (v > 0x10000)
@@ -8533,8 +8533,8 @@ void FUN_0046c450(BYTE *pOut, BYTE car)
     Car *pCar = Car_Get(car);
     DeviceInfo *pDev = CInput::FUN_0049ead0((char)Car_GetDrawnFlag(pCar->index));
 
-    FUN_0046bdc0((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, *(int *)((BYTE *)pCar + 0xb88),
-                 *(int *)((BYTE *)pCar + 0xb8c), *(int *)((BYTE *)pCar + 0xb90));
+    FUN_0046bdc0((BYTE *)pCar + 0x1d0, pOut, pDev->field_0x0 == 3, pCar->field_0xb88,
+                 pCar->field_0xb8c, pCar->field_0xb90);
 }
 
 int FUN_0041f3a0(void);
@@ -9202,7 +9202,7 @@ void FUN_0046bb40(void)
         count = (short)count + 1;
         do {
             pCar = Car_Get(*pOrder);
-            swap = (*(unsigned int *)(*(int *)(*(int *)((BYTE *)pCar + 0x720) + 0xc) + 0x30) >>
+            swap = (*(unsigned int *)(*(int *)(*(int *)&pCar->pNode0x720 + 0xc) + 0x30) >>
                     0x12) & 1;
             i = 0;
             do {
@@ -11638,7 +11638,7 @@ void FUN_0046d8d0(Car *pCar, ReplaySample *pSample)
         }
     }
 
-    level = FixMul(FixDiv(*(short *)((BYTE *)pCar + 0xb10) * 0x1680, *(short *)((BYTE *)pCar + 0xb16) * 0x1680) + 0x10000,
+    level = FixMul(FixDiv(*(short *)&pCar->heading * 0x1680, pCar->field_0xb16 * 0x1680) + 0x10000,
                    0xf8000);
     if (level < 0)
         level = 0;
@@ -11649,11 +11649,11 @@ void FUN_0046d8d0(Car *pCar, ReplaySample *pSample)
         pSample->steering = 1;
     else
         pSample->steering = 0;
-    pSample->flag24 = *(unsigned int *)((BYTE *)pCar + 0xb54);
-    pSample->flag27 = *(unsigned int *)((BYTE *)pCar + 0xc14);
-    *(unsigned int *)((BYTE *)pCar + 0xc14) = 0;
-    pSample->bits21 = *((BYTE *)pCar + 0xb46);
-    *((BYTE *)pCar + 0xb46) = 0;
+    pSample->flag24 = *(unsigned int *)&pCar->field_0xb54;
+    pSample->flag27 = pCar->field_0xc14;
+    pCar->field_0xc14 = 0;
+    pSample->bits21 = pCar->field_0xb43[3];
+    pCar->field_0xb43[3] = 0;
     flag = 0;
     if (pCar->pNode0x724 != NULL && pCar->pNode0x724->field_0x17c != 0)
         flag = 1;
@@ -12136,7 +12136,7 @@ void FUN_0046c2a0(int param_1, BYTE param_2)
     pCar = Car_Get((int)param_2);
     FUN_00469690(pCar);
     Replay_RestoreCarState((Block0x309 *)(param_1 + 0x4d0), pCar);
-    if (*(int *)((BYTE *)pCar + 0xb50) != 0) {
+    if (pCar->field_0xb50 != 0) {
         Replay_RestoreAuxState((Block0x134 *)param_1, (Block0x134 *)FUN_00469680((int)param_2));
     }
     pRecord = RallyData_FUN_00421510((int)param_2);
@@ -12481,12 +12481,12 @@ void FUN_0046d610(ReplayStream *p)
     value = FixMul(FixMul(p->headingTo - p->headingFrom, t) + p->headingFrom, pCar->field_0xb16 * 0x1680);
     pCar->field_0x7a4 = 0;
     pCar->heading = (unsigned short)(__int64)((double)value * g_unk0x00511300);
-    pCar->steerFollowRate = FixMul(*(int *)((BYTE *)pCar + 0x788), FixMul(p->steerTo - p->steerFrom, t) + p->steerFrom);
+    pCar->steerFollowRate = FixMul(pCar->field_0x788, FixMul(p->steerTo - p->steerFrom, t) + p->steerFrom);
     pCar->velocityNext = pCar->velocity;
     pCar->velocity.x += p->pose.velocity.x;
     pCar->velocity.y += p->pose.velocity.y;
     pCar->velocity.z += p->pose.velocity.z;
-    *(unsigned int *)((BYTE *)pCar + 0xb54) = p->field_0xec;
+    *(unsigned int *)&pCar->field_0xb54 = p->field_0xec;
     p->step++;
 }
 // Dispatches one stage object's per-frame update when its stage-block slot is
@@ -12563,8 +12563,8 @@ void FUN_0047aa70(void)
         dist = FUN_00427d50(chosen, 0);
         {
             Car *pCar = Car_Get(chosen);
-            int car798 = *(int *)((BYTE *)pCar + 0x798);
-            scale = FixMul(*(int *)((BYTE *)pCar + 0x7ac), car798);
+            int car798 = pCar->field_0x798;
+            scale = FixMul(pCar->field_0x7ac, car798);
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12661,8 +12661,8 @@ void FUN_0047ad20(void)
         dist = FUN_00427d50(chosen, 0);
         {
             Car *pCar = Car_Get(chosen);
-            int car798 = *(int *)((BYTE *)pCar + 0x798);
-            scale = FixMul(car798, *(int *)((BYTE *)pCar + 0x7ac));
+            int car798 = pCar->field_0x798;
+            scale = FixMul(car798, pCar->field_0x7ac);
             pitch = FixMulShift32(scale, 0x19640000);
             if (pitch < 2000)
                 pitch = 2000;
@@ -12871,7 +12871,7 @@ void FUN_0047d850(Car *pCar, int *param_2)
                             FixVecScale(&dir, (FixVector *)pRec, 0x20000);
                             FIX_NORMALIZE_INTO(dir, dir);
                             delta.y -= 0x38000;
-                            *(int *)((BYTE *)pCar + 0x40c) += 0x4000;
+                            pCar->velocity.y += 0x4000;
                             FixMatrix_InverseRotateVector(&localDelta, &delta, pCar->pWorld);
                             FixMatrix_InverseRotateVector(&localDir, &dir, pCar->pWorld);
                             FixVecCross(&cross, &localDir, &localDelta);
@@ -13849,9 +13849,9 @@ void FUN_004760a0(int record, BYTE car)
     if (CGameInfo::FUN_00405e00() && car > 0)
         return;
     pCar = Car_Get(car);
-    if ((short)car < Car_GetOrderCount() && *(SceneNode **)((BYTE *)pCar + 0x720) != NULL) {
-        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(*(SceneNode **)((BYTE *)pCar + 0x720), 9);
-        g_stageBlock_58d47c[car] = (int)SceneNode_FindByType(*(SceneNode **)((BYTE *)pCar + 0x720), 5);
+    if ((short)car < Car_GetOrderCount() && pCar->pNode0x720 != NULL) {
+        g_stageBlock_58d340[car] = (int)SceneNode_FindByType(pCar->pNode0x720, 9);
+        g_stageBlock_58d47c[car] = (int)SceneNode_FindByType(pCar->pNode0x720, 5);
     } else {
         ok = 0;
     }
@@ -13880,12 +13880,12 @@ void FUN_004760a0(int record, BYTE car)
     if (g_unk0x0058d6a0[car] == NULL)
         return;
     g_unk0x0058d49c[car] = (void *)FUN_004b9380((unsigned int)g_unk0x0058d6a0[car],
-                                                *(unsigned int *)((BYTE *)pCar + 0x720),
+                                                *(unsigned int *)&pCar->pNode0x720,
                                                 (unsigned int)g_unk0x0058d3b8);
     pRow[2] = (int)SceneNode_Create((SceneNode *)g_unk0x0058d49c[car]);
     pRow[0] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1a);
     pRow[1] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1c);
-    pRow[3] = (int)SceneNode_Create(*(SceneNode **)((BYTE *)pCar + 0x720));
+    pRow[3] = (int)SceneNode_Create(pCar->pNode0x720);
     pRow[4] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x1b);
     pRow[5] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x16);
     pRow[6] = (int)SceneNode_FindByType((SceneNode *)g_unk0x0058d49c[car], 0x17);
@@ -13899,7 +13899,7 @@ void FUN_004760a0(int record, BYTE car)
     *(int *)(pRow[3] + 0xcc) = *(int *)(pRow[4] + 0xcc) + pOffset[1];
     *(int *)(pRow[3] + 0xd0) = *(int *)(pRow[4] + 0xd0) + pOffset[2];
     g_unk0x0058d6a8[car] = 1;
-    g_unk0x0058d4d0[(BYTE)record] = *((BYTE *)pCar + 0xb1b);
+    g_unk0x0058d4d0[(BYTE)record] = pCar->field_0xb1b[0];
     *(int *)(g_unk0x0058d2f8 + car * 12) = *(int *)(pRow[3] + 0xc8);
     *(int *)(g_unk0x0058d2f8 + car * 12 + 4) = *(int *)(pRow[3] + 0xcc);
     *(int *)(g_unk0x0058d2f8 + car * 12 + 8) = *(int *)(pRow[3] + 0xd0);
@@ -14434,8 +14434,8 @@ void FUN_004664c0(short *pOrder, short count)
 
     for (i = 0; i < count; i++, pOrder++) {
         pCar = Car_Get(*pOrder);
-        if (*(int *)((BYTE *)pCar + 0xc0c) == 0) {
-            if (*(int *)((BYTE *)pCar + 0xb70) == 0)
+        if (pCar->field_0xc0c == 0) {
+            if (pCar->field_0xb70 == 0)
                 FUN_00496e00(pCar);
             FUN_00477ce0(i);
             FUN_004643f0((int)pCar);

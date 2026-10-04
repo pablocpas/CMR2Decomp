@@ -956,17 +956,17 @@ void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
 {
     int i;
 
-    *(int *)((BYTE *)pDst + 0xb54) = pSrc->field_0xd0;
+    pDst->field_0xb54 = pSrc->field_0xd0;
     pDst->field_0x7a4 = 0;
     pDst->heading = pSrc->heading;
     pDst->steerFollowRate = pSrc->field_0xb8;
-    *(FixVector *)((BYTE *)pDst + 0x414) = pDst->velocity;
-    *((BYTE *)pDst + 0xb35) = pSrc->flag_0xcc;
+    pDst->velocityNext = pDst->velocity;
+    pDst->field_0xb35[0] = pSrc->flag_0xcc;
     pDst->field_0xc00 = pSrc->field_0xd4;
     pDst->velocity = pSrc->velocity;
     pDst->angularVelocity = pSrc->angularVelocity;
     FixMatrix_CopyRotation(&pSrc->matrix, pDst->pWorld);
-    pDst->pWorld->position.y = *(int *)((BYTE *)pDst + 0x2ec);
+    pDst->pWorld->position.y = pDst->field_0x2ec;
 
     for (i = 0; i < 4; i++) {
         // the previous corner positions move one slot back (0x300 -> 0x330)
@@ -979,13 +979,13 @@ void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
         pDst->cornerNormal[i] = pDst->cornerAxis[i];
         pDst->cornerOnGround[4 + i] = 0;
     }
-    *(int *)((BYTE *)pDst + 0x7a8) = pDst->field_0x7a4;
+    pDst->field_0x7a8 = pDst->field_0x7a4;
     *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
     *(FixVector *)((BYTE *)pDst + 0x2e8) = pDst->position;
     pDst->normal0x498 = pDst->groundNormal;
     memcpy((BYTE *)pDst + 0x384, (BYTE *)pDst + 0x360, 9 * sizeof(int));
 
-    FixMatrix_GetPosition((FixVector *)((BYTE *)pDst + 0x2d0), pDst->pWorld);
+    FixMatrix_GetPosition(&pDst->position, pDst->pWorld);
     FixMatrix_GetRight(&pDst->right, pDst->pWorld);
     FixMatrix_GetUp(&pDst->up, pDst->pWorld);
     FixMatrix_GetForward(&pDst->forward, pDst->pWorld);
@@ -996,7 +996,7 @@ void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
     pDst->field_0x5d0.x = 0;
     pDst->field_0x5d0.y = 0;
     pDst->field_0x5d0.z = 0;
-    *(int *)((BYTE *)pDst + 0xc20) = 1;
+    pDst->field_0xc20 = 1;
 }
 
 // One suspension step of the current car: for each wheel, the spring force from
@@ -1277,7 +1277,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         pCar = pCars + pOrder[i];
         pRec = &g_unk0x005393d8 + pOrder[i];
 
-        if (*(int *)((BYTE *)pCar + 0xc20) == 0)
+        if (pCar->field_0xc20 == 0)
             continue;
 
         FixMatrix_SetPosition(&pCar->position, &pRec->matrix);
@@ -1309,7 +1309,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         pRec->angularVelocity.z += v.z;
 
         pRec->field_0xd4 = pCar->field_0xc00;
-        *(int *)((BYTE *)pCar + 0x960) = pRec->field_0xb4;
+        pCar->field_0x960 = pRec->field_0xb4;
         FUN_004263d0(pRec);
 
         dot = FixVecDot(&pCar->up, &pCar->groundNormal);

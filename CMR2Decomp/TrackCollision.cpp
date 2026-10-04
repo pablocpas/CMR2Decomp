@@ -899,30 +899,30 @@ void FUN_004946c0(void)
 
     if (g_pAutoGearCar->flag0x1d0[2] == 0 &&
         (g_pAutoGearCar->field_0xb94 == 0 || g_pAutoGearCar->flag0x1d0[3] == 0)) {
-        *(int *)g_pAutoGearCar->field_0x7a0 =
-            *(int *)g_pAutoGearCar->field_0x7a0 - FixMul(g_pAutoGearCar->field_0x790, 0x20000);
-        if (*(int *)g_pAutoGearCar->field_0x7a0 < 0) {
-            *(int *)g_pAutoGearCar->field_0x7a0 = 0;
+        g_pAutoGearCar->field_0x7a0 =
+            g_pAutoGearCar->field_0x7a0 - FixMul(g_pAutoGearCar->field_0x790, 0x20000);
+        if (g_pAutoGearCar->field_0x7a0 < 0) {
+            g_pAutoGearCar->field_0x7a0 = 0;
             g_pAutoGearCar->steerFollowRate = 0;
         } else {
-            angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+            angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x7a0, 0x5a0000) *
                                               g_unk0x00511300);
-            g_pAutoGearCar->steerFollowRate = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
         }
         if (g_pAutoGearCar->steerFollowRate != 0 && g_pAutoGearCar->field_0xb94 == 0) {
             g_pAutoGearCar->flag0x1d0[2] = 0x3f;
             return;
         }
     } else {
-        *(int *)g_pAutoGearCar->field_0x7a0 = *(int *)g_pAutoGearCar->field_0x7a0 + g_pAutoGearCar->field_0x790;
-        if (*(int *)g_pAutoGearCar->field_0x7a0 > 0x10000) {
-            *(int *)g_pAutoGearCar->field_0x7a0 = 0x10000;
-            g_pAutoGearCar->steerFollowRate = *(int *)g_pAutoGearCar->field_0x788;
+        g_pAutoGearCar->field_0x7a0 = g_pAutoGearCar->field_0x7a0 + g_pAutoGearCar->field_0x790;
+        if (g_pAutoGearCar->field_0x7a0 > 0x10000) {
+            g_pAutoGearCar->field_0x7a0 = 0x10000;
+            g_pAutoGearCar->steerFollowRate = g_pAutoGearCar->field_0x788;
             return;
         }
-        angle = (unsigned short)(__int64)(FixMul(*(int *)g_pAutoGearCar->field_0x7a0, 0x5a0000) *
+        angle = (unsigned short)(__int64)(FixMul(g_pAutoGearCar->field_0x7a0, 0x5a0000) *
                                           g_unk0x00511300);
-        g_pAutoGearCar->steerFollowRate = FixMul(*(int *)g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
+        g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, g_sinTable[angle & 0xfff]);
     }
 }
 
@@ -1293,93 +1293,92 @@ extern double g_unk0x00511300;
 // FUNCTION: CMR2 0x00493520
 void FUN_00493520(Car *pCar)
 {
-    #define PC ((BYTE *)g_pAutoGearCar)
     char cVar1;
     int t;
     int u;
     int v;
 
     g_pAutoGearCar = pCar;
-    g_pAutoGearSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)pCar + 0xb1a));
+    g_pAutoGearSetup = (BYTE *)FUN_00469680((int)pCar->index);
     FUN_004932f0();
-    if (*(int *)(PC + 0xb8c) != 0) {
-        if (*(BYTE *)(PC + 0x1d2) != 0) {
-            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d2) << 16), 0x410);
+    if (g_pAutoGearCar->field_0xb8c != 0) {
+        if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] != 0) {
+            t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[2] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
         } else {
-            *(int *)(PC + 0x79c) = 0;
+            g_pAutoGearCar->steerFollowRate = 0;
         }
     } else {
         FUN_004946c0();
     }
-    if (*(int *)(PC + 0x7bc + *(char *)(PC + 0xb1e) * 4) < 0)
-        *(int *)(PC + 0xb5c) = 1;
+    if (g_pAutoGearCar->field_0x7bc[g_pAutoGearCar->gear] < 0)
+        g_pAutoGearCar->field_0xb5c = 1;
     else
-        *(int *)(PC + 0xb5c) = 0;
-    *(int *)(PC + 0xb54) = 0;
-    if (*(int *)(PC + 0xb94) != 0) {
-        if (*(char *)(PC + 0x1d2) != 0)
-            *(int *)(PC + 0xb54) = 1;
+        g_pAutoGearCar->field_0xb5c = 0;
+    g_pAutoGearCar->field_0xb54 = 0;
+    if (g_pAutoGearCar->field_0xb94 != 0) {
+        if (g_pAutoGearCar->flag0x1d0[2] != 0)
+            g_pAutoGearCar->field_0xb54 = 1;
     } else {
-        if (*(char *)(PC + 0x1d3) != 0)
-            *(int *)(PC + 0xb54) = 1;
+        if (g_pAutoGearCar->flag0x1d0[3] != 0)
+            g_pAutoGearCar->field_0xb54 = 1;
     }
-    if (*(char *)(PC + 0xb1f) == 0) {
-        if (*(int *)(PC + 0xb84) != 0) {
-            if (*(char *)(PC + 0xb24) > 0) {
-                *(char *)(PC + 0xb24) = *(char *)(PC + 0xb24) - 1;
-                *(BYTE *)(PC + 0xb1e) = 0;
+    if (g_pAutoGearCar->field_0xb1f == 0) {
+        if (g_pAutoGearCar->field_0xb84 != 0) {
+            if (g_pAutoGearCar->field_0xb24 > 0) {
+                g_pAutoGearCar->field_0xb24 = g_pAutoGearCar->field_0xb24 - 1;
+                *(BYTE *)&g_pAutoGearCar->gear = 0;
             } else {
-                *(int *)(PC + 0xb84) = 0;
-                *(BYTE *)(PC + 0xb1e) = *(BYTE *)(PC + 0xb20);
+                g_pAutoGearCar->field_0xb84 = 0;
+                *(BYTE *)&g_pAutoGearCar->gear = *(BYTE *)&g_pAutoGearCar->field_0xb20;
             }
         } else {
-            if ((*(int *)(PC + 0xb48) == 1) && (*(char *)(PC + 0x1d4) != 0))
+            if ((g_pAutoGearCar->field_0xb48 == 1) && (g_pAutoGearCar->field_0x1d4[0] != 0))
                 FUN_00493890();
-            else if (*(int *)(PC + 0xb48) == 2)
+            else if (g_pAutoGearCar->field_0xb48 == 2)
                 Car_UpdateAutomaticGear();
         }
     }
-    if (*(int *)(PC + 0xb88) != 0)
+    if (g_pAutoGearCar->field_0xb88 != 0)
         FUN_00493ed0();
     else
         FUN_00494110();
-    if (*(int *)(PC + 0xb90) != 0) {
-        if (*(BYTE *)(PC + 0x1d3) != 0) {
-            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
+    if (g_pAutoGearCar->field_0xb90 != 0) {
+        if (*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] != 0) {
+            t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            if (*(int *)(PC + 0xb94) != 0) {
-                *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
-                *(int *)(PC + 0x838) = 0;
+            if (g_pAutoGearCar->field_0xb94 != 0) {
+                g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
+                g_pAutoGearCar->brakeInput = 0;
             } else {
-                int target = FixMul(*(int *)(PC + 0x82c), t);
-                int diff = target - *(int *)(PC + 0x838);
+                int target = FixMul(g_pAutoGearCar->field_0x82c, t);
+                int diff = target - g_pAutoGearCar->brakeInput;
                 int adiff = (diff < 0) ? -diff : diff;
-                if (adiff < FixMul(*(int *)(PC + 0x82c), 0xccc))
-                    *(int *)(PC + 0x838) = target;
+                if (adiff < FixMul(g_pAutoGearCar->field_0x82c, 0xccc))
+                    g_pAutoGearCar->brakeInput = target;
                 else
-                    *(int *)(PC + 0x838) = *(int *)(PC + 0x838) + FixMul(diff, 0x23d7);
+                    g_pAutoGearCar->brakeInput = g_pAutoGearCar->brakeInput + FixMul(diff, 0x23d7);
             }
         } else {
-            *(int *)(PC + 0x838) = 0;
+            g_pAutoGearCar->brakeInput = 0;
         }
     } else {
         FUN_00494880();
-        if ((*(int *)(PC + 0xb8c) != 0) && (*(int *)(PC + 0xb94) != 0)) {
-            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
+        if ((g_pAutoGearCar->field_0xb8c != 0) && (g_pAutoGearCar->field_0xb94 != 0)) {
+            t = FixMul((int)((unsigned int)*(BYTE *)&g_pAutoGearCar->flag0x1d0[3] << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
-            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+            g_pAutoGearCar->steerFollowRate = FixMul(g_pAutoGearCar->field_0x788, t);
         }
     }
     FUN_00494960();
-    if (*(int *)(PC + 0xb48) == 1)
+    if (g_pAutoGearCar->field_0xb48 == 1)
         FUN_00493a40();
 
-    t = FixMul(*(short *)(PC + 0xb10) * 0x1680, 0x20000);
+    t = FixMul(*(short *)&g_pAutoGearCar->heading * 0x1680, 0x20000);
     u = t;
     if (u < 0)
         u = -u;
@@ -1389,6 +1388,5 @@ void FUN_00493520(Car *pCar)
         else
             t = -g_unk0x00592160;
     }
-    *(short *)(PC + 0xb14) = (short)(__int64)((double)t * g_unk0x00511300);
+    g_pAutoGearCar->field_0xb14 = (short)(__int64)((double)t * g_unk0x00511300);
 }
-#undef PC

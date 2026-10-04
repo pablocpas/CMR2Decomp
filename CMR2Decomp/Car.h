@@ -18,7 +18,9 @@ struct Car {
     BYTE field_0x240[0x30];
     FixVector corners[8];             // 0x270  world-space box corners
     FixVector position;               // 0x2d0
-    BYTE field_0x2dc[0x84];
+    BYTE field_0x2dc[0x10];
+    int field_0x2ec;
+    BYTE field_0x2f0[0x70];
     FixVector right;                  // 0x360  body axes (rows of the body matrix)
     FixVector up;                     // 0x36c
     FixVector forward;                // 0x378
@@ -60,7 +62,7 @@ struct Car {
     SceneNode *pViewNodeFar;          // 0x74c  child node placed away from the view
     FixMatrix *pWorld;                // 0x750
     FixMatrix *pBodyMatrix;           // 0x754
-    BYTE field_0x758[0x4];
+    int field_0x758;
     int field_0x75c;                  // 0x75c
     int field_0x760;                  // 0x760
     int scale0x764;                   // 0x764
@@ -71,18 +73,19 @@ struct Car {
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
     int field_0x780;                  // 0x780  engine acceleration while no gear is engaged
     int field_0x784;                  // 0x784  drag factor of the engine speed
-    BYTE field_0x788[0x8];
+    int field_0x788;
+    BYTE field_0x78c[0x4];
     int field_0x790;                  // 0x790
     int field_0x794;                  // 0x794
-    BYTE field_0x798[0x4];
+    int field_0x798;
     int steerFollowRate;              // 0x79c  how fast the rolling direction follows the body
-    BYTE field_0x7a0[0x4];
+    int field_0x7a0;
     int field_0x7a4;                  // 0x7a4
-    BYTE field_0x7a8[0x4];
+    int field_0x7a8;
     int field_0x7ac;                  // 0x7ac
     int field_0x7b0;                  // 0x7b0  excess revs after limiting
     int driveSplit;                   // 0x7b4  drive split between the axles (Car_SetDriveSplit)
-    BYTE field_0x7b8[0x4];
+    int field_0x7b8;
     int field_0x7bc[8];               // 0x7bc
     int gearSpeed[8];                 // 0x7dc  per-gear speed table (Car_SelectGearSpeedTable)
     int field_0x7fc;                  // 0x7fc  set from the difficulty (0x43e530)
@@ -121,7 +124,9 @@ struct Car {
     int field_0x924;                  // 0x924
     BYTE field_0x928[0x30];
     int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
-    BYTE field_0x95c[0x10];
+    BYTE field_0x95c[0x4];
+    int field_0x960;
+    BYTE field_0x964[0x8];
     int field_0x96c;                  // 0x96c
     BYTE field_0x970[0x18];
     int wheel0x988[4];                // 0x988
@@ -129,7 +134,7 @@ struct Car {
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
     int field_0x9b8;                  // 0x9b8  damping of wheelLean
     int field_0x9bc;                  // 0x9bc
-    BYTE field_0x9c0[0x4];
+    int field_0x9c0;
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
@@ -140,9 +145,12 @@ struct Car {
     int field_0xa5c[4];               // 0xa5c
     BYTE field_0xa6c[0x4];
     int field_0xa70;                  // 0xa70
-    BYTE field_0xa74[0x8];
+    int field_0xa74;
+    BYTE field_0xa78[0x4];
     int field_0xa7c;                  // 0xa7c
-    BYTE field_0xa80[0xc];
+    int field_0xa80;
+    int field_0xa84;
+    BYTE field_0xa88[0x4];
     int field_0xa8c;                  // 0xa8c  camera shake
     BYTE field_0xa90[0xc];
     unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
@@ -155,7 +163,8 @@ struct Car {
     short field_0xafe;                // 0xafe  engine startup countdown
     BYTE field_0xb00[0x10];
     unsigned short heading;           // 0xb10  12-bit angle
-    BYTE field_0xb12[0x4];
+    BYTE field_0xb12[0x2];
+    short field_0xb14;
     short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
     char index;                       // 0xb1a  index of this car (timing records and every per-car table)
@@ -181,15 +190,22 @@ struct Car {
     BYTE field_0xb43[0x5];
     int field_0xb48;                  // 0xb48
     int field_0xb4c;                  // 0xb4c  engine restart flag
-    BYTE field_0xb50[0x10];
+    int field_0xb50;
+    int field_0xb54;
+    int field_0xb58;
+    int field_0xb5c;
     int field_0xb60;                  // 0xb60
     int field_0xb64;                  // 0xb64
-    BYTE field_0xb68[0xc];
+    BYTE field_0xb68[0x4];
+    int field_0xb6c;
+    int field_0xb70;
     int field_0xb74;                  // 0xb74
     int field_0xb78;                  // 0xb78  rev limiter active
     BYTE field_0xb7c[0x8];
     int field_0xb84;                  // 0xb84
-    BYTE field_0xb88[0xc];
+    int field_0xb88;
+    int field_0xb8c;
+    int field_0xb90;
     int field_0xb94;                  // 0xb94  automatic shift lock
     int field_0xb98;                  // 0xb98  current gear is at or below the best one
     int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
@@ -206,7 +222,10 @@ struct Car {
     BYTE field_0xc04[0x8];
     int field_0xc0c;                  // 0xc0c
     int field_0xc10;                  // 0xc10
-    BYTE field_0xc14[0x10];
+    unsigned int field_0xc14;
+    BYTE field_0xc18[0x4];
+    int field_0xc1c;
+    int field_0xc20;
 };
 
 // Stored transforms of a car, written by the physics and applied to the

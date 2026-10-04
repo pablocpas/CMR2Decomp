@@ -226,8 +226,8 @@ void Car_MarkHiddenFromCameras(Car *pCar)
     int i;
 
     pRejected = (int *)((BYTE *)pCar + 0xb68);
-    *(int *)((BYTE *)pCar + 0xb70) = 0;
-    *(int *)((BYTE *)pCar + 0xb6c) = 0;
+    pCar->field_0xb70 = 0;
+    pCar->field_0xb6c = 0;
     *pRejected = 0;
     if ((char)RallyData_FUN_00407e70() != 0 && **(char **)(FUN_0041b390() + 4) != '\n' &&
         **(char **)(FUN_0041b390() + 4) != '\t' && **(char **)(FUN_0041b390() + 4) != '\r') {
@@ -254,7 +254,7 @@ void Car_MarkHiddenFromCameras(Car *pCar)
             pRejected++;
         }
         if (rejected == count)
-            *(int *)((BYTE *)pCar + 0xb70) = 1;
+            pCar->field_0xb70 = 1;
     }
 }
 
@@ -347,7 +347,7 @@ void View_SelectVisibleCars(unsigned int view, short *pRect)
             FUN_004bad40(proj1, &otherPos, (BYTE *)pView);
             proj1[0] >>= 16;
             proj1[1] >>= 16;
-            FixVecScale(&delta, &up, *(int *)Car_Get(g_carOrder[j])->field_0x758);
+            FixVecScale(&delta, &up, Car_Get(g_carOrder[j])->field_0x758);
             delta.x += otherPos.x;
             delta.y += otherPos.y;
             delta.z += otherPos.z;
@@ -421,7 +421,7 @@ Car *Car_Get(int index)
 void Car_DampenBodyMotion(void)
 {
     if (g_pCurrentCar->field_0xb28 == 0 && g_pCurrentCar->field_0xb74 != 0) {
-        int change = g_pCurrentCar->field_0x7a4 - *(int *)g_pCurrentCar->field_0x7a8;
+        int change = g_pCurrentCar->field_0x7a4 - g_pCurrentCar->field_0x7a8;
         g_pCurrentCar->field_0x5d0.z -= FixMul(0x1999, change);
     }
 }
@@ -477,7 +477,7 @@ void Car_SelectGearSpeedTable(unsigned int param_1)
         g_pCurrentCar->gearSpeed[5] = 0xd26e;
         g_pCurrentCar->gearSpeed[6] = 0xf26e;
         g_pCurrentCar->gearSpeed[7] = 0xffffac8c;
-        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x1eb;
+        g_pCurrentCar->field_0x788 = g_pCurrentCar->field_0x788 + 0x1eb;
         break;
     case 2:
         g_pCurrentCar->gearSpeed[0] = 0;
@@ -488,7 +488,7 @@ void Car_SelectGearSpeedTable(unsigned int param_1)
         g_pCurrentCar->gearSpeed[5] = 0xc000;
         g_pCurrentCar->gearSpeed[6] = 0xd9db;
         g_pCurrentCar->gearSpeed[7] = 0xffffae98;
-        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x3d7;
+        g_pCurrentCar->field_0x788 = g_pCurrentCar->field_0x788 + 0x3d7;
         break;
     case 1:
         g_pCurrentCar->gearSpeed[0] = 0;
@@ -499,7 +499,7 @@ void Car_SelectGearSpeedTable(unsigned int param_1)
         g_pCurrentCar->gearSpeed[5] = 0xad4f;
         g_pCurrentCar->gearSpeed[6] = 0xc189;
         g_pCurrentCar->gearSpeed[7] = 0xffffb063;
-        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x5c2;
+        g_pCurrentCar->field_0x788 = g_pCurrentCar->field_0x788 + 0x5c2;
         break;
     case 0:
         g_pCurrentCar->gearSpeed[0] = 0;
@@ -510,7 +510,7 @@ void Car_SelectGearSpeedTable(unsigned int param_1)
         g_pCurrentCar->gearSpeed[5] = 0x9ae1;
         g_pCurrentCar->gearSpeed[6] = 0xa8f5;
         g_pCurrentCar->gearSpeed[7] = 0xffffb26f;
-        *(int *)g_pCurrentCar->field_0x788 = *(int *)g_pCurrentCar->field_0x788 + 0x7ae;
+        g_pCurrentCar->field_0x788 = g_pCurrentCar->field_0x788 + 0x7ae;
         break;
     }
     for (i = 0; i < 8; i++) {
@@ -3417,8 +3417,8 @@ void Car_StoreRenderTransforms(short *pList, short count)
         // pointer going down, so record j always belongs to wheel j (the
         // steering angle goes to the front wheels 0 and 1).
         pWheels = (CarWheelRecord *)(pShadow + 0x80);
-        steering = *(short *)((BYTE *)pCar + 0xb14);
-        if (*(int *)((BYTE *)pCar + 0xb70) != 0) {
+        steering = pCar->field_0xb14;
+        if (pCar->field_0xb70 != 0) {
             for (j = 3; j >= 0; j--)
                 pWheels[j].pos = pCar->wheelEmitter[j];
         } else {
@@ -4092,7 +4092,7 @@ void Car_SetRideHeight(int param_1)
     n0 = FixMul(param_1, -0x1aaaa) + 0x50000;
     n1 = FixMul(param_1, -0x1999) + 0x3333;
     g_pCurrentCar->field_0x8d8 = g_pCurrentCar->field_0x75c / 8;
-    *(int *)g_pCurrentCar->field_0x9c0 = FixDiv(0x10000, n1);
+    g_pCurrentCar->field_0x9c0 = FixDiv(0x10000, n1);
     g_pCurrentCar->field_0x9c4 = FixDiv(0x10000, n0);
     inv = 0x10000 - param_1;
     for (off = 0x9f8; off < 0xa08; off += 4) {
@@ -5723,7 +5723,7 @@ void Car_ResetToStage(unsigned int param_1)
         View_ResetCameras(param_1);
     g_pCurrentCar->field_0xbf8 = 0;
     g_pCurrentCar->field_0xa7c = 0;
-    *(int *)g_pCurrentCar->field_0xa80 = 0;
+    g_pCurrentCar->field_0xa80 = 0;
 }
 
 // Checks whether the current car overlaps another car in extended mode.
@@ -5761,7 +5761,7 @@ int Car_OverlapsOtherCar(int param_1)
             }
             g_unk0x0053c9c4 = FixVecLength(&g_unk0x0053ca58);
             g_unk0x0053c9c4 = FixMul(g_unk0x0053c9c4, g_unk0x0053ca24);
-            if (g_unk0x0053c9c4 < *(int *)pOther->field_0x758 + *(int *)g_pCurrentCar->field_0x758) {
+            if (g_unk0x0053c9c4 < pOther->field_0x758 + g_pCurrentCar->field_0x758) {
                 result = 1;
                 i = count;
             }
@@ -7875,16 +7875,16 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
         FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 4);
         return;
     case 3:
-        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), *((BYTE *)pCar + 0xb1b));
+        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), pCar->field_0xb1b[0]);
         return;
     case 2:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 0);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
         return;
     case 10:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 2);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 2);
         return;
     case 1:
-        FUN_00486740((BYTE *)pRecord, (int *)&body, *((BYTE *)pCar + 0xb1a), 1);
+        FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 1);
         return;
     case 7:
         FUN_0048cae0((BYTE *)pRecord, FUN_00423d70(car), param);
@@ -7925,16 +7925,16 @@ void Camera_Update(CameraRecord *pRecord)
         FUN_004475f0((BYTE *)pRecord, FUN_00423d70(car), onCar);
         break;
     case 3:
-        FUN_004765e0((BYTE *)pRecord, (int)FUN_00423d70(car), (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
+        FUN_004765e0((BYTE *)pRecord, (int)FUN_00423d70(car), (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 2:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 10:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 1:
-        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && *(int *)((BYTE *)pCar + 0xb60) == 0) ? 0 : 1);
+        FUN_00486810((BYTE *)pRecord, (int *)&body, (onCar == 0 && pCar->field_0xb60 == 0) ? 0 : 1);
         break;
     case 7:
         FUN_0048cc30((BYTE *)pRecord, FUN_00423d70(car));
