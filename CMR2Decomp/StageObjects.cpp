@@ -4277,7 +4277,7 @@ void FUN_0047d5a0(BYTE car)
         do {
             if (pRec[0x15] == 0) {
                 pCar = Car_Get(car);
-                FixVecScale(&dir, &pCar->up, *(int *)&pCar->field_0x770[4]);
+                FixVecScale(&dir, &pCar->up, pCar->field_0x770[1]);
                 half.x = pCar->corners[1].x - pCar->corners[0].x;
                 half.y = pCar->corners[1].y - pCar->corners[0].y;
                 half.z = pCar->corners[1].z - pCar->corners[0].z;
@@ -4823,13 +4823,13 @@ void FUN_004675c0(Car *pCar, Car *pOther)
     g_stageDeformHull[3].y = -pCar->halfExtents.y;
     g_stageDeformHull[3].z = pOther->velocityNext.z;
     pOut = &g_stageDeformHull[8];
-    pIn = (FixVector *)pCar->field_0x240;
+    pIn = pCar->field_0x240;
     do {
         pOut[-4] = pOut[-8];
         if ((int)pOut < (int)&g_stageDeformHull[10])
-            v = *(int *)pCar->field_0x770;
+            v = pCar->field_0x770[0];
         else
-            v = *(int *)(pCar->field_0x770 + 4);
+            v = pCar->field_0x770[1];
         pOut[-4].y += v;
         *pOut = *pIn;
         if (pOut->x > 0)
@@ -4928,9 +4928,9 @@ void FUN_00468c10(Car *pCar)
     pRecord->field_0x240[31] = pRecord->damageGrid[0][2];
     pRecord->field_0x240[32] = pRecord->damageGrid[2][0];
     pRecord->field_0x240[33] = pRecord->damageGrid[0][0];
-    if (*(int *)pCar->field_0xb7c == 0)
+    if (pCar->field_0xb7c == 0)
         pRecord->field_0x240[15] = 0;
-    if (*(int *)(pCar->field_0xb7c + 4) == 0)
+    if (pCar->field_0xb80 == 0)
         pRecord->field_0x240[16] = 0;
     for (i = 0; i < 0x22; i++) {
         pRecord->field_0x240[i] = FixMul(pRecord->field_0x240[i], pRecord->field_0x2c8[i]);
@@ -10376,7 +10376,7 @@ void FUN_0046c8e0(void)
         p = (ReplayStream *)**pp;
         if (p == NULL || p->recording == 0 || p->type == 2)
             continue;
-        if (Car_Get(p->car)->field_0xb43[0] <= 0u)
+        if (Car_Get(p->car)->field_0xb43 <= 0u)
             continue;
         valid = 0;
         flag = 0;
@@ -11627,8 +11627,8 @@ void FUN_0046d8d0(Car *pCar, ReplaySample *pSample)
     pSample->flag24 = *(unsigned int *)&pCar->field_0xb54;
     pSample->flag27 = pCar->field_0xc14;
     pCar->field_0xc14 = 0;
-    pSample->bits21 = pCar->field_0xb43[3];
-    pCar->field_0xb43[3] = 0;
+    pSample->bits21 = pCar->shakeLevel;
+    pCar->shakeLevel = 0;
     flag = 0;
     if (pCar->pNode0x724 != NULL && pCar->pNode0x724->field_0x17c != 0)
         flag = 1;
@@ -12423,7 +12423,7 @@ void FUN_0046d610(ReplayStream *p)
     if (p == NULL)
         return;
     pCar = Car_Get(p->car);
-    if (p->playing == 0 || p->type != 2 || pCar->field_0xb43[0] <= 0u)
+    if (p->playing == 0 || p->type != 2 || pCar->field_0xb43 <= 0u)
         return;
     if (p->step >= 3) {
         p->pose.from = p->pose.to;
@@ -14283,7 +14283,7 @@ void FUN_0046cfa0(int *pState)
     if (p == NULL)
         return;
     pCar = Car_Get(p->car);
-    if (p->playing == 0 || p->type == 2 || pCar->field_0xb43[0] <= 0u)
+    if (p->playing == 0 || p->type == 2 || pCar->field_0xb43 <= 0u)
         return;
     if (p->playStarted != 0) {
         if (p->frame < 0) {
