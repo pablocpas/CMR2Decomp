@@ -135,7 +135,7 @@ void FUN_00418f20(void)
         memset(pState->slotState, 0xff, sizeof(pState->slotState));
         pState->stateOld = -1;
         pState->state = -1;
-        pCursor[2] = 0x19;
+        pCursor[1] = 0x19;
     }
     if (g_unk0x00537dcc == 0) {
         CGame::RegisterCallback(FUN_00418fe0, NULL);
