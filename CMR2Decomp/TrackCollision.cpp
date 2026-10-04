@@ -155,7 +155,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, 
     FixVector t[3];
     BOOL first;
     int best;
-    short i;
+    int i;
     int bestIndex;
     short *p;
     int h;
@@ -366,7 +366,7 @@ void Car_UpdateAutomaticGear(void)
     int engine;
     int load;
     int threshold;
-    unsigned int chance;
+    int chance;
     int difference;
     int dot;
     BOOL wheelAvailable = FALSE;

@@ -299,7 +299,7 @@ int Menu_Update(Menu *pMenu, unsigned int input)
     BYTE bSelect;
     BYTE bPrev;
     char count;
-    int cursor;
+    char cursor;
     int i;
     int moved;
     int wrapped;

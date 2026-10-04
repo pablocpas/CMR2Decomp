@@ -2365,7 +2365,7 @@ void FUN_0040d9e0(int group)
     int *pPairs;
     int k;
     int m;
-    unsigned int n;
+    int n;
     int fade;
     int base;
     int track;
@@ -3321,9 +3321,9 @@ void FUN_004147f0(int car, short *position)
     int rows;
     int row;
     int shownRow;
-    unsigned int fade;
+    int fade;
     int highlight = 0;
-    short offset;
+    int offset;
     int shiftedOffset;
     int currentOffset;
     int textY;
@@ -6192,7 +6192,7 @@ void FUN_0040f0c0(int param1, int param2, int param3)
     int n;
     int i;
     int pixels;
-    short resX;
+    int resX;
     int resY;
     int resZ;
     int target;
@@ -7347,11 +7347,11 @@ void FUN_00471dd0(void)
     int totalObjects;
     int countRecords;
     int sector;
-    unsigned int i;
+    int i;
     int n;
     int j;
     int k;
-    short sumCost;
+    int sumCost;
     int scratchOffset;
     int recordOffset;
     int offsetA;
@@ -8089,7 +8089,7 @@ void FUN_0040f8d0(BYTE *pKey, int view)
     short fadeRect[4];
     BYTE fadeColour[4];
     int i;
-    unsigned short other;
+    int other;
     BYTE *pRecords;
     unsigned int now;
     unsigned int alpha;

@@ -341,10 +341,10 @@ void Dash_DrawBar(int player, int layer)
     SpriteRect src;
     SpriteRect dst;
     BYTE colour[4];
-    int lit;
+    unsigned int lit;
     short dx;
     short dy;
-    short scale;
+    int scale;
     int len;
     int split;
     int rest;
@@ -579,9 +579,9 @@ void Dash_DrawDial(int player, int layer)
     BYTE shadow[4];
     Texture *pTexture;
     DWORD c;
-    short angle;
+    int angle;
     int flash;
-    short i;
+    int i;
     int k;
 
     gears = g_dashGearNames;

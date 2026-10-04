@@ -1534,7 +1534,7 @@ void FUN_0045d540(int car)
     BYTE *pCar;
     BYTE colour[4];
     int wheel;
-    int surface;
+    short surface;
     int water;
     int dirt;
     int gravel;

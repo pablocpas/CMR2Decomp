@@ -2082,11 +2082,11 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
     int i;
     int x;
     int y;
-    short xn;
+    int xn;
     int yn;
     int h;
     int h1;
-    short h2;
+    int h2;
     int du;
     int dv;
     int lum;
@@ -4182,8 +4182,8 @@ BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
     unsigned short resX;
     unsigned short resY;
     short x;
-    int y;
-    int w;
+    short y;
+    short w;
     short h;
     short rLo;
     short rHi;
@@ -4716,12 +4716,12 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     FixVector axisA;
     FixVector axisB;
     FixVector step;
-    unsigned int depth;
+    int depth;
     int fade;
     int size;
     int length;
     int reciprocal;
-    short colour;
+    int colour;
     int i;
     BYTE intensity;
 
@@ -4827,12 +4827,12 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     FixVector axisA;
     FixVector axisB;
     int depth;
-    short length;
+    int length;
     int extension;
     int residual;
     int opacity;
     int fade;
-    short colour;
+    int colour;
     int i;
     BYTE intensity;
 
@@ -5961,7 +5961,7 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
     int dot;
     int i;
     int best;
-    short selected;
+    int selected;
     Particle *pParticle;
     int randomX;
     int randomY;
@@ -6367,8 +6367,8 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
     unsigned int bMask;
     unsigned int aMask;
     unsigned int mask;
-    short rShift;
-    short gShift;
+    unsigned short rShift;
+    unsigned short gShift;
     unsigned short bShift;
     unsigned short aShift;
     short rDepth;
@@ -6644,7 +6644,7 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
     unsigned int down;
     int du;
     int dv;
-    char l;
+    BYTE l;
     WORD *pDst16;
     BYTE *pDst24;
 

@@ -551,8 +551,8 @@ int FUN_0048fb80(char type, int param)
     FixVector velDiff;
     FixVector scaled;
     FixVector slide;
-    unsigned int best;
-    short count;
+    int best;
+    int count;
     int found;
     int index;
     int len;

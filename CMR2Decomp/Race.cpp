@@ -3243,7 +3243,7 @@ void Race_TeardownStage(int param1, int param2, char flag)
 void FUN_0041e8d0(BYTE *param1, unsigned int param2)
 {
     int i;
-    short n;
+    int n;
     int skip = 0;
     int count;
     BYTE *p;
@@ -5162,7 +5162,7 @@ void Dash_Update(int player);
 // FUNCTION: CMR2 0x0041c5a0
 void FUN_0041c5a0(BYTE param1, int param2)
 {
-    short first;
+    int first;
     int second;
     int count;
     int player;
@@ -5172,7 +5172,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
     int value;
     int index;
     BYTE b1;
-    int b2;
+    BYTE b2;
     BYTE b3;
 
     first = 0;

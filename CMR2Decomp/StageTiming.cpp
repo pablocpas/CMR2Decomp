@@ -2274,8 +2274,8 @@ void StageDeform_ApplyRadialDent(void)
     int vertexIndex;
     int changed;
     int *pSlot;
-    short projection;
-    unsigned int phase;
+    int projection;
+    int phase;
     FixVector pos;
     FixVector saved;
     FixVector dir;
@@ -5632,7 +5632,7 @@ void FUN_004483e0(void)
     int i;
     int j;
     int k;
-    short value;
+    int value;
     char *pSlot;
 
     total = (BYTE)RallyData_FUN_00406990() * RallyData_FUN_00421420() * 0x10000;
@@ -5907,8 +5907,8 @@ void FUN_004584d0(char param_1)
     int slot;
     int n;
     int t;
-    short x;
-    unsigned int z;
+    int x;
+    int z;
     int sinA;
     int cosA;
     int other;
@@ -6404,8 +6404,8 @@ void FUN_004816f0(void)
     FixVector force;
     FixVector v24;
     unsigned short angles[3];
-    int idx;
-    unsigned int dot;
+    BYTE idx;
+    int dot;
     int scale;
     int flip;
     int t;
@@ -7574,14 +7574,14 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
     int nz;
     int baseAngle;
     int curAngle;
-    short len;
+    int len;
     int refAngle;
     int tmp;
     int t;
     int a;
     int b;
     int slack;
-    short scale;
+    int scale;
     int i;
 
     pc = (BYTE *)pCar;
@@ -8017,10 +8017,10 @@ BYTE FUN_00457000(int car)
     int best;
     int i;
     int n;
-    short lod;
+    int lod;
     int letterInt;
     char letter;
-    BYTE variant;
+    char variant;
     char isPlayer;
     char twoPlayers;
     char rallyMode;

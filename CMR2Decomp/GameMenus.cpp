@@ -3064,7 +3064,7 @@ void FUN_0044a1b0(int param_1)
     int i;
     int j;
     int car;
-    short count;
+    int count;
     int driver;
     int minPos;
     int k;
