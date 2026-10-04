@@ -1056,13 +1056,13 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRBitMask;
         bits = mask;
-        for (shift = 0; shift <= 31; shift++) {
+        for (shift = 0; shift < 32; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        BYTE count = 0;
+        unsigned int count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1092,13 +1092,13 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRGBAlphaBitMask;
         bits = mask;
-        for (shift = 0; shift <= 31; shift++) {
+        for (shift = 0; shift < 32; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        BYTE count = 0;
+        unsigned int count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1194,8 +1194,8 @@ int CGraphics::FUN_004a8be0(void)
 // FUNCTION: CMR2 0x004a8bf0
 void CGraphics::GetDisplayDeviceNames(int index, LPSTR description, LPSTR name)
 {
-    wsprintfA(description, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].unk_0x00);
-    wsprintfA(name, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].name);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(description, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].unk_0x00);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(name, CRegKey::m_regKeyPathFormatValue, m_unk0x006634d8[index].name);
 }
 
 // FUNCTION: CMR2 0x004a8d80

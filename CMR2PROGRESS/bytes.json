@@ -257,8 +257,8 @@
   },
   "0x431220": {
     "n": "Car_RelaxBodyAxes",
-    "s": 0.9293286219081273,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_RelaxBodyAxes"
@@ -497,7 +497,7 @@
   },
   "0x42c890": {
     "n": "Car_UpdateEngineNoteFalloff",
-    "s": 0.5813953488372093,
+    "s": 0.6201550387596899,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -713,7 +713,7 @@
   },
   "0x434140": {
     "n": "Car_UpdateSteering",
-    "s": 0.9109217660728117,
+    "s": 0.9465530596436871,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -745,7 +745,7 @@
   },
   "0x444c10": {
     "n": "Car_PrepareStep",
-    "s": 0.8127753303964758,
+    "s": 0.8138766519823789,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -801,8 +801,8 @@
   },
   "0x423f30": {
     "n": "Render_GetDetailDistanceScale",
-    "s": 0.9583333333333334,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Render_GetDetailDistanceScale"
@@ -969,11 +969,9 @@
   },
   "0x42b4a0": {
     "n": "Car_IntegrateWheelRotation",
-    "s": 0.654320987654321,
+    "s": 0.6296296296296297,
     "x": false,
-    "unknown": [
-      "__real@8@bff8a2f9836e4e441800"
-    ],
+    "unknown": [],
     "f": "Car.cpp",
     "symbol_name": "Car_IntegrateWheelRotation"
   },
@@ -987,7 +985,7 @@
   },
   "0x442e90": {
     "n": "Car_SmoothForceFeedback",
-    "s": 0.4725274725274725,
+    "s": 0.7058823529411765,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1011,7 +1009,7 @@
   },
   "0x42e450": {
     "n": "Car_IntegrateWheelTravel",
-    "s": 0.48169014084507045,
+    "s": 0.48450704225352115,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1083,7 +1081,7 @@
   },
   "0x423460": {
     "n": "Camera_Update",
-    "s": 0.5418994413407822,
+    "s": 0.6834170854271356,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1107,7 +1105,7 @@
   },
   "0x421610": {
     "n": "View_SetupCameras",
-    "s": 0.32051282051282054,
+    "s": 0.42038216560509556,
     "x": false,
     "unknown": [],
     "f": "Car.cpp",
@@ -1379,7 +1377,7 @@
   },
   "0x45d540": {
     "n": "FUN_0045d540",
-    "s": 0.6798206278026906,
+    "s": 0.7676950998185118,
     "x": false,
     "unknown": [],
     "f": "CarEffects.cpp",
@@ -1435,7 +1433,7 @@
   },
   "0x496e00": {
     "n": "FUN_00496e00",
-    "s": 0.6076051779935275,
+    "s": 0.6133333333333333,
     "x": false,
     "unknown": [
       "__real@8@3ff2b60b60b60b60b800",
@@ -2047,7 +2045,7 @@
   },
   "0x426fc0": {
     "n": "FUN_00426fc0",
-    "s": 0.7526652452025586,
+    "s": 0.80927291886196,
     "x": false,
     "unknown": [],
     "f": "FixedPoint.cpp",
@@ -2623,7 +2621,7 @@
   },
   "0x4cfb30": {
     "n": "FUN_004cfb30",
-    "s": 0.6996197718631179,
+    "s": 0.6984126984126984,
     "x": false,
     "unknown": [],
     "f": "Frontend.cpp",
@@ -2655,7 +2653,7 @@
   },
   "0x4cfff0": {
     "n": "FUN_004cfff0",
-    "s": 0.6568265682656826,
+    "s": 0.6268656716417911,
     "x": false,
     "unknown": [],
     "f": "Frontend.cpp",
@@ -3039,7 +3037,7 @@
   },
   "0x4fc620": {
     "n": "FUN_004fc620",
-    "s": 0.7225806451612903,
+    "s": 0.7290322580645161,
     "x": false,
     "unknown": [],
     "f": "FrontendMenus.cpp",
@@ -4527,7 +4525,7 @@
   },
   "0x4d65c0": {
     "n": "FUN_004d65c0",
-    "s": 0.8240165631469979,
+    "s": 0.9197396963123644,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -4535,7 +4533,7 @@
   },
   "0x4d9450": {
     "n": "FUN_004d9450",
-    "s": 0.8390804597701149,
+    "s": 0.9408284023668639,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -4951,8 +4949,8 @@
   },
   "0x4edef0": {
     "n": "FUN_004edef0",
-    "s": 0.8609271523178808,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004edef0"
@@ -4967,8 +4965,8 @@
   },
   "0x4ee460": {
     "n": "FUN_004ee460",
-    "s": 0.9285714285714286,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "FrontendScreens.cpp",
     "symbol_name": "FUN_004ee460"
@@ -5319,7 +5317,7 @@
   },
   "0x4f16f0": {
     "n": "FUN_004f16f0",
-    "s": 0.8349514563106796,
+    "s": 0.7961165048543689,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6103,7 +6101,7 @@
   },
   "0x4ded80": {
     "n": "FUN_004ded80",
-    "s": 0.6348547717842323,
+    "s": 0.6411582213029989,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6647,7 +6645,7 @@
   },
   "0x4ee170": {
     "n": "FUN_004ee170",
-    "s": 0.5443786982248521,
+    "s": 0.7301587301587301,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -6671,7 +6669,7 @@
   },
   "0x4ed840": {
     "n": "FUN_004ed840",
-    "s": 0.4605263157894737,
+    "s": 0.4782608695652174,
     "x": false,
     "unknown": [],
     "f": "FrontendScreens.cpp",
@@ -10153,8 +10151,8 @@
   },
   "0x402f90": {
     "n": "FUN_00402f90",
-    "s": 0.8902439024390244,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00402f90"
@@ -11041,8 +11039,8 @@
   },
   "0x506080": {
     "n": "FUN_00506080",
-    "s": 0.9896907216494846,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "GameInfo.cpp",
     "symbol_name": "FUN_00506080"
@@ -11576,7 +11574,7 @@
   },
   "0x4f8b30": {
     "n": "FUN_004f8b30",
-    "s": 0.6259124087591241,
+    "s": 0.6270566727605119,
     "x": false,
     "unknown": [],
     "f": "GameInfo.cpp",
@@ -12040,7 +12038,7 @@
   },
   "0x44a1b0": {
     "n": "FUN_0044a1b0",
-    "s": 0.6545454545454545,
+    "s": 0.6802952867688813,
     "x": false,
     "unknown": [],
     "f": "GameMenus.cpp",
@@ -12456,7 +12454,7 @@
   },
   "0x4a8c30": {
     "n": "CGraphics::FUN_004a8c30_DDEnumCallback",
-    "s": 0.6813186813186813,
+    "s": 0.6923076923076923,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12500,7 +12498,7 @@
   },
   "0x4a5730": {
     "n": "CGraphics::GetPixelRed",
-    "s": 0.8181818181818182,
+    "s": 0.7272727272727273,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12508,7 +12506,7 @@
   },
   "0x4a57e0": {
     "n": "CGraphics::GetPixelAlpha",
-    "s": 0.8923076923076924,
+    "s": 0.8153846153846154,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -12580,8 +12578,8 @@
   },
   "0x4a8bf0": {
     "n": "CGraphics::GetDisplayDeviceNames",
-    "s": 0.8936170212765957,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Graphics.cpp",
     "symbol_name": "CGraphics::GetDisplayDeviceNames"
@@ -12764,7 +12762,7 @@
   },
   "0x4a5880": {
     "n": "CGraphics::GenerateBumpMap",
-    "s": 0.40370370370370373,
+    "s": 0.4424131627056673,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13238,7 +13236,7 @@
   },
   "0x4bc490": {
     "n": "Flare_SampleVisibility",
-    "s": 0.3617511520737327,
+    "s": 0.39211136890951276,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13334,7 +13332,7 @@
   },
   "0x4ae950": {
     "n": "Graphics_DrawProjectedQuad",
-    "s": 0.5958702064896755,
+    "s": 0.6001478196600147,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13350,7 +13348,7 @@
   },
   "0x4ae470": {
     "n": "Graphics_DrawLayerQuad",
-    "s": 0.4825090470446321,
+    "s": 0.5179856115107914,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13653,7 +13651,7 @@
   },
   "0x4b07a0": {
     "n": "Particle_Spawn",
-    "s": 0.9299363057324841,
+    "s": 0.9461493920092646,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13717,7 +13715,7 @@
   },
   "0x4a6710": {
     "n": "CGraphics::LoadTGATexture",
-    "s": 0.45714285714285713,
+    "s": 0.5439856373429084,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13733,7 +13731,7 @@
   },
   "0x4a6370": {
     "n": "CGraphics::LoadTGABumpMap",
-    "s": 0.6240875912408759,
+    "s": 0.6361974405850092,
     "x": false,
     "unknown": [],
     "f": "Graphics.cpp",
@@ -13885,7 +13883,7 @@
   },
   "0x446270": {
     "n": "Dash_DrawBar",
-    "s": 0.7518009168303864,
+    "s": 0.765399737876802,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -13909,7 +13907,7 @@
   },
   "0x446bf0": {
     "n": "Dash_DrawDial",
-    "s": 0.5804878048780487,
+    "s": 0.6699029126213593,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -14013,7 +14011,7 @@
   },
   "0x447f70": {
     "n": "FUN_00447f70",
-    "s": 0.6694214876033058,
+    "s": 0.6776859504132231,
     "x": false,
     "unknown": [],
     "f": "HudDash.cpp",
@@ -15021,7 +15019,7 @@
   },
   "0x4a0570": {
     "n": "Menu_Update",
-    "s": 0.6819603753910324,
+    "s": 0.7009443861490031,
     "x": false,
     "unknown": [],
     "f": "Menu.cpp",
@@ -16093,16 +16091,16 @@
   },
   "0x426b90": {
     "n": "FUN_00426b90",
-    "s": 0.9069767441860465,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00426b90"
   },
   "0x426810": {
     "n": "FUN_00426810",
-    "s": 0.9653979238754326,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00426810"
@@ -16149,8 +16147,8 @@
   },
   "0x425a90": {
     "n": "FUN_00425a90",
-    "s": 0.9133858267716536,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "NetRace.cpp",
     "symbol_name": "FUN_00425a90"
@@ -16863,8 +16861,8 @@
   },
   "0x41d2b0": {
     "n": "FUN_0041d2b0",
-    "s": 0.9461538461538461,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "Race.cpp",
     "symbol_name": "FUN_0041d2b0"
@@ -17135,7 +17133,7 @@
   },
   "0x41c5a0": {
     "n": "FUN_0041c5a0",
-    "s": 0.6275252525252525,
+    "s": 0.6333122229259025,
     "x": false,
     "unknown": [],
     "f": "Race.cpp",
@@ -17847,7 +17845,7 @@
   },
   "0x40d9e0": {
     "n": "FUN_0040d9e0",
-    "s": 0.7483870967741936,
+    "s": 0.752411575562701,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -17999,7 +17997,7 @@
   },
   "0x413330": {
     "n": "FUN_00413330",
-    "s": 0.7838827838827839,
+    "s": 0.7867647058823529,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18015,7 +18013,7 @@
   },
   "0x4147f0": {
     "n": "FUN_004147f0",
-    "s": 0.5116751269035533,
+    "s": 0.5237613751263903,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18903,7 +18901,7 @@
   },
   "0x40f0c0": {
     "n": "FUN_0040f0c0",
-    "s": 0.7125506072874493,
+    "s": 0.7162489894907034,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -18999,7 +18997,7 @@
   },
   "0x471dd0": {
     "n": "FUN_00471dd0",
-    "s": 0.6005586592178771,
+    "s": 0.6198172874209417,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19055,7 +19053,7 @@
   },
   "0x40f8d0": {
     "n": "FUN_0040f8d0",
-    "s": 0.6803149606299213,
+    "s": 0.7091757387247278,
     "x": false,
     "unknown": [],
     "f": "RallyData.cpp",
@@ -19647,7 +19645,7 @@
   },
   "0x4b4aa0": {
     "n": "Scene_LoadLighting",
-    "s": 0.4028268551236749,
+    "s": 0.4418331374853114,
     "x": false,
     "unknown": [],
     "f": "SceneNode.cpp",
@@ -20621,7 +20619,7 @@
   },
   "0x4a3650": {
     "n": "Sprite_DrawLayer",
-    "s": 0.44097995545657015,
+    "s": 0.4541387024608501,
     "x": false,
     "unknown": [],
     "f": "Sprite.cpp",
@@ -21309,7 +21307,7 @@
   },
   "0x46f550": {
     "n": "FUN_0046f550",
-    "s": 0.5392670157068062,
+    "s": 0.5989583333333334,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22093,8 +22091,8 @@
   },
   "0x468c10": {
     "n": "FUN_00468c10",
-    "s": 0.8918032786885246,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_00468c10"
@@ -22117,7 +22115,7 @@
   },
   "0x460da0": {
     "n": "StageObject_SetLighting",
-    "s": 0.2621448212648946,
+    "s": 0.27414903403863844,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22669,7 +22667,7 @@
   },
   "0x46e780": {
     "n": "FUN_0046e780",
-    "s": 0.4050632911392405,
+    "s": 0.4961636828644501,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22973,7 +22971,7 @@
   },
   "0x47ca30": {
     "n": "FUN_0047ca30",
-    "s": 0.33725490196078434,
+    "s": 0.3543307086614173,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -22989,8 +22987,8 @@
   },
   "0x4930e0": {
     "n": "FUN_004930e0",
-    "s": 0.6230769230769231,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_004930e0"
@@ -23085,8 +23083,8 @@
   },
   "0x47bad0": {
     "n": "FUN_0047bad0",
-    "s": 0.9661016949152542,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageObjects.cpp",
     "symbol_name": "FUN_0047bad0"
@@ -23165,7 +23163,7 @@
   },
   "0x47c5e0": {
     "n": "FUN_0047c5e0",
-    "s": 0.5171428571428571,
+    "s": 0.580110497237569,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23197,7 +23195,7 @@
   },
   "0x46a500": {
     "n": "FUN_0046a500",
-    "s": 0.7522388059701492,
+    "s": 0.8266068759342302,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23229,7 +23227,7 @@
   },
   "0x463fe0": {
     "n": "FUN_00463fe0",
-    "s": 0.2991596638655462,
+    "s": 0.9084967320261438,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23389,7 +23387,7 @@
   },
   "0x48cc30": {
     "n": "FUN_0048cc30",
-    "s": 0.685,
+    "s": 0.9204819277108434,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23493,7 +23491,7 @@
   },
   "0x466030": {
     "n": "FUN_00466030",
-    "s": 0.5263157894736842,
+    "s": 0.9714285714285714,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -23589,7 +23587,7 @@
   },
   "0x47e4d0": {
     "n": "Fireworks_Init",
-    "s": 0.8161559888579387,
+    "s": 0.8183079056865464,
     "x": false,
     "unknown": [],
     "f": "StageObjects.cpp",
@@ -24581,7 +24579,7 @@
   },
   "0x467700": {
     "n": "StageDeform_ApplyRadialDent",
-    "s": 0.546031746031746,
+    "s": 0.5801282051282052,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25023,7 +25021,7 @@
   },
   "0x448d50": {
     "n": "FUN_00448d50",
-    "s": 0.725,
+    "s": 0.9512195121951219,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25407,7 +25405,7 @@
   },
   "0x4487a0": {
     "n": "FUN_004487a0",
-    "s": 0.9177489177489178,
+    "s": 0.9217391304347826,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25431,7 +25429,7 @@
   },
   "0x4584d0": {
     "n": "FUN_004584d0",
-    "s": 0.6113116726835138,
+    "s": 0.7189384800965019,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25447,7 +25445,7 @@
   },
   "0x4816f0": {
     "n": "FUN_004816f0",
-    "s": 0.6550836550836551,
+    "s": 0.7471600129827978,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25463,7 +25461,7 @@
   },
   "0x480e50": {
     "n": "FUN_00480e50",
-    "s": 0.8267477203647416,
+    "s": 0.8632218844984803,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25543,15 +25541,15 @@
   },
   "0x456d90": {
     "n": "FUN_00456d90",
-    "s": 0.8955223880597015,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "StageTiming.cpp",
     "symbol_name": "FUN_00456d90"
   },
   "0x457000": {
     "n": "FUN_00457000",
-    "s": 0.6209463051568315,
+    "s": 0.6801275239107333,
     "x": false,
     "unknown": [],
     "f": "StageTiming.cpp",
@@ -25959,7 +25957,7 @@
   },
   "0x4781d0": {
     "n": "Car_UpdateSurfaceParams",
-    "s": 0.5483870967741935,
+    "s": 0.6048387096774194,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26023,7 +26021,7 @@
   },
   "0x479360": {
     "n": "FUN_00479360",
-    "s": 0.8782608695652174,
+    "s": 0.8835794960903562,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26079,7 +26077,7 @@
   },
   "0x4786b0": {
     "n": "FUN_004786b0",
-    "s": 0.6697892271662763,
+    "s": 0.8154897494305239,
     "x": false,
     "unknown": [],
     "f": "SurfaceTypes.cpp",
@@ -26175,8 +26173,8 @@
   },
   "0x4916a0": {
     "n": "Track_FindNearestTriangle",
-    "s": 0.9132947976878613,
-    "x": false,
+    "s": 1.0,
+    "x": true,
     "unknown": [],
     "f": "TrackCollision.cpp",
     "symbol_name": "Track_FindNearestTriangle"
@@ -26223,7 +26221,7 @@
   },
   "0x493b30": {
     "n": "Car_UpdateAutomaticGear",
-    "s": 0.5217391304347826,
+    "s": 0.5258964143426295,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",
@@ -26239,7 +26237,7 @@
   },
   "0x491d40": {
     "n": "Stage_SetHeightColours",
-    "s": 0.9069373942470389,
+    "s": 0.9761904761904762,
     "x": false,
     "unknown": [],
     "f": "TrackCollision.cpp",

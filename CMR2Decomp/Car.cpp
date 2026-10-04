@@ -788,9 +788,9 @@ void Car_UpdateViewNodes(int viewIndex)
     int s;
     int i;
     int farDist;
-    FixVector local;
-    FixVector viewPos;
     FixVector pos;
+    FixVector viewPos;
+    FixVector local;
     FixVector carPos;
     FixVector delta;
     Car *pCar;
@@ -1304,15 +1304,15 @@ void Car_UpdateWheelTravel(void)
 // Normalises a body axis of g_pCurrentCar in place through a pointer.
 #define CAR_NORMALIZE_AXIS(field)                                                   \
     {                                                                               \
+        FixVector *pField = &g_pCurrentCar->field;                                  \
         FixVector *pAxis = &g_pCurrentCar->field;                                   \
-        FixVector *pSrc = pAxis;                                                    \
-        int len = FixVecLength(pSrc);                                               \
+        int len = FixVecLength(pField);                                             \
         if (len == 0) {                                                             \
             pAxis->x = 0;                                                           \
             pAxis->y = 0;                                                           \
             pAxis->z = 0;                                                           \
         } else {                                                                    \
-            FixVecScaleRecip(pAxis, pSrc, len);                                     \
+            FixVecScaleRecip(pAxis, pField, len);                                   \
         }                                                                           \
     }
 
@@ -1644,7 +1644,7 @@ void Car_RelaxBodyAxes(int bFast)
         diff.y = g_pCurrentCar->up.y - g_pCurrentCar->targetUp.y;
         diff.z = g_pCurrentCar->up.z - g_pCurrentCar->targetUp.z;
         len = FixVecLength(&diff);
-        if (len >= 1) {
+        if (len > 0) {
             t = FixMul(len, gain);
             if (t > 0x10000)
                 t = 0x10000;
@@ -1660,7 +1660,7 @@ void Car_RelaxBodyAxes(int bFast)
         diff.x = g_pCurrentCar->forward.x - g_pCurrentCar->targetForward.x;
         diff.y = g_pCurrentCar->forward.y - g_pCurrentCar->targetForward.y;
         diff.z = g_pCurrentCar->forward.z - g_pCurrentCar->targetForward.z;
-        d = FixVecDot(&diff, &g_pCurrentCar->up);
+        d = FixVecDot(&g_pCurrentCar->up, &diff);
         FixVecScale(&proj, &g_pCurrentCar->up, d);
         diff.x = diff.x - proj.x;
         diff.y = diff.y - proj.y;
@@ -3562,7 +3562,7 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count);
 void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3);
 void Car_StepAll(int base, short *pList, short count);
 void Car_PrepareBodies(int base, short *pList, short count);
-void Car_IntegrateWheelRotation(short *pList, short count);
+void Car_IntegrateWheelRotation(int *pList, short count);
 
 void Car_ClearRecords(int first, int count);
 void Car_InvalidateTransformsRange(int first, int count);
@@ -3688,8 +3688,8 @@ void Car_UpdateAndRenderAll(void)
     FUN_00426fc0((Car *)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
     FUN_0046d5e0();
     Car_PrepareStep((int)g_carBuffer, g_unk0x0053bd6c, g_carOrder[25]);
-    Car_IntegrateWheelRotation(g_unk0x0053a314, g_unk0x0053c9a0);
-    Car_IntegrateWheelRotation(g_unk0x0053bd6c, g_carOrder[25]);
+    Car_IntegrateWheelRotation((int *)g_unk0x0053a314, g_unk0x0053c9a0);
+    Car_IntegrateWheelRotation((int *)g_unk0x0053bd6c, g_carOrder[25]);
     Car_StoreRenderTransforms(g_unk0x0053a314, g_unk0x0053c9a0);
     Car_StoreRenderTransforms(g_unk0x0053bd6c, g_carOrder[25]);
     FUN_0046d510();
@@ -5446,7 +5446,8 @@ int Render_GetDetailDistanceScale(void)
     steps[7] = 3.0f;
     steps[8] = 3.5f;
     steps[9] = 4.0f;
-    base = (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
+    *(volatile float *)&base =
+        (float)(*(int *)&g_pGraphics->field921_0x3c4 * CGraphics::m_oneOver65536);
     float scale = base * steps[CGameInfo::FUN_00405ca0()];
 
     return (int)(__int64)((scale + base) * CGraphics::m_65536);
@@ -6009,36 +6010,39 @@ int g_unk0x0053ac48[8][4];
 // the wheels spinning fast.
 // match 65%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x0042b4a0
-void Car_IntegrateWheelRotation(short *pList, short count)
+void Car_IntegrateWheelRotation(int *pList, short count)
 {
-    short *p;
-    int n;
-    int index;
-    int w;
-    int v;
-    Car *pCar;
+    int local_c;
+    short *local_8;
+    short local_14;
 
-    n = count;
-    if (--n >= 0) {
-        p = pList + n;
-        n++;
+    local_c = count;
+    if (local_c - 1 >= 0) {
+        local_8 = (short *)((int)pList + (local_c - 1) * 2);
         do {
-            index = *p;
-            pCar = &g_carBuffer[index];
-            for (w = 0; w < 4; w++) {
-                v = FixMul(g_physicsTimeStep, pCar->wheelLoad[w]);
-                if (pCar->field_0xb60 == 0 || (BYTE)pCar->flag0x1d0[2] > 0 ||
-                    (BYTE)pCar->flag0x1d0[3] > 0 || pCar->handbrake > 0)
-                    (&g_unk0x0053a230[index].a)[w] += (short)(__int64)(v * -0.009947183943243459);
+            int carIndex = *local_8;
+            int w = 0;
+            int carBase = (int)g_carBuffer + carIndex * 0xc24;
+            pList = (int *)(carBase + 0x860);
+            do {
+                int v = FixMul(*pList, g_physicsTimeStep);
+                if (*(int *)(carBase + 0xb60) == 0 || *(unsigned char *)(carBase + 0x1d2) > 0 ||
+                    *(unsigned char *)(carBase + 0x1d3) > 0 || *(int *)(carBase + 0x1d8) > 0) {
+                    local_14 = (short)(__int64)((double)v * g_unk0x00511398);
+                    ((short *)&g_unk0x0053a230[carIndex])[w] += local_14;
+                }
                 if (v < 0)
                     v = -v;
                 if (v > 0x8000)
-                    g_unk0x0053ac48[index][w] = 1;
+                    g_unk0x0053ac48[carIndex][w] = 1;
                 else
-                    g_unk0x0053ac48[index][w] = 0;
-            }
-            p--;
-        } while (--n != 0);
+                    g_unk0x0053ac48[carIndex][w] = 0;
+                w++;
+                pList++;
+            } while (w < 4);
+            local_8--;
+            local_c--;
+        } while (local_c != 0);
     }
 }
 

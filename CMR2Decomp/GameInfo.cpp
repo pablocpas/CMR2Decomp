@@ -4080,14 +4080,12 @@ void FUN_004041e0(Menu *pMenu);
 // FUNCTION: CMR2 0x00402f90
 void FUN_00402f90(void)
 {
-    Menu *pParent;
     int i;
 
     if ((char)RallyDataState() == 1)
-        pParent = &g_menu0x0052ad60;
+        Menu_Init(&g_menu0x00529ed8, 0, 0, 0, &g_menu0x0052ad60, NULL, 1, 0, 1);
     else
-        pParent = &g_menu0x00529918;
-    Menu_Init(&g_menu0x00529ed8, 0, 0, 0, pParent, NULL, 1, 0, 1);
+        Menu_Init(&g_menu0x00529ed8, 0, 0, 0, &g_menu0x00529918, NULL, 1, 0, 1);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x33, &g_menu0x0052aa70, 0, 0);
     Menu_AddItemType2(&g_menu0x00529ed8, 0, 0x5c, &g_menu0x0052a870, 0, 1);
     Menu_AddItemType3(&g_menu0x00529ed8, 0, 0x35, 2, 0, 0, 0, 0, 2);
@@ -7490,8 +7488,9 @@ void FUN_00506080(int param1)
     off = param1 * 0x54;
     if (CGameInfo::FUN_00405d10() == 0) {
         if (g_unk0x0082d15c[param1] != (int)(char)FUN_005028a0(param1, 0)) {
-            g_unk0x0082d15c[param1] = (int)(char)FUN_005028a0(param1, 0);
-            if (FUN_0050a020(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+            int *pVal = &g_unk0x0082d15c[param1];
+            *pVal = (int)(char)FUN_005028a0(param1, 0);
+            if (FUN_0050a020(CB78_BYTE(off), *pVal) != 0) {
                 for (i = 0; i < 4; i++) {
                     if (CB78_MESH(off + 0x44 + i * 4) != 0)
                         *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x44 + i * 4);

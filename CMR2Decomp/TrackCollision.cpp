@@ -150,22 +150,23 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
 // makes MSVC6 hoist/spill the sign extension and wreck the frame layout. The
 // t-sum and the p++/i++ order below are already tuned to the original.
 // FUNCTION: CMR2 0x004916a0
-int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, short *pList)
+int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count, short *pList)
 {
     FixVector t[3];
     BOOL first;
     int best;
-    int i;
+
     int bestIndex;
-    short *p;
+    int i;
     int h;
     int d;
+    short *p;
 
     best = 0;
     bestIndex = 0;
     i = 0;
     first = TRUE;
-    if ((short)count >= 1) {
+    if (i < count) {
         p = pList;
         do {
             if (Track_GetTriangle(t, *p) && Track_PointInTriangle(pPoint, *p, t)) {
@@ -182,9 +183,9 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, 
                     bestIndex = i;
                 }
             }
-            p++;
             i++;
-        } while (i < (short)count);
+            p++;
+        } while (i < count);
         if (!first) {
             *pOut = pList[bestIndex];
             return 1;
@@ -704,6 +705,7 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
     refColour[0] = (BYTE)(colour.x >> 16);
     refColour[1] = (BYTE)(colour.y >> 16);
     refColour[2] = (BYTE)(colour.z >> 16);
+    volatile BYTE *pAlpha = &g_stageColourAlpha;
 
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
         height = (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[1] * CGraphics::m_65536);
@@ -711,7 +713,7 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
             g_unk0x00592114.x == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[0] * CGraphics::m_65536) &&
             g_unk0x00592114.z == (int)(__int64)((double)((float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30))[2] * CGraphics::m_65536)) {
             *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) = ((0xffffff00 | refColour[0]) << 8 | refColour[1]) << 8 | refColour[2];
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)*pAlpha << 24;
         } else {
             t = FixMul(height - g_stageHeightMin, g_stageHeightScale);
             if (t < 0)
@@ -735,7 +737,7 @@ void Stage_SetHeightColours(BYTE *pLow, BYTE *pHigh, BYTE *pReference, int refer
             else if (value < 0) value = 0;
             *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x18) =
                 ((0xffffff00 | rgb[0]) << 8 | rgb[1]) << 8 | (BYTE)value;
-            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)g_stageColourAlpha << 24;
+            *(DWORD *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30 + 0x1c) = (DWORD)*pAlpha << 24;
         }
     }
     g_stageColourDirty = 1;
