@@ -645,7 +645,8 @@ BYTE *FUN_0041f900(void);
 int FUN_004b23c0(char *name, int count, GenericFile *pFile, DWORD size);
 void FUN_00455470(char);
 void Scene_InitLighting(int *pData, int *pHeights);
-void StageObject_SetLighting(const BYTE *pPrimary, const BYTE *pSecondary);
+struct StageLightPreset;
+void StageObject_SetLighting(const StageLightPreset *pPrimary, const StageLightPreset *pSecondary);
 void FUN_0040fec0(int progress, char drawScene, BYTE alpha);
 void FUN_0041fd30(void);
 void FUN_00420020(void);
@@ -756,7 +757,7 @@ BYTE Race_LoadSelectedStage(void)
     FUN_00455470(1);
     FUN_0048ca60();
     FUN_0040fec0(0x3c, 1, 0xff);
-    StageObject_SetLighting(g_unk0x00538238, g_unk0x00538234);
+    StageObject_SetLighting((const StageLightPreset *)g_unk0x00538238, (const StageLightPreset *)g_unk0x00538234);
     FUN_00471dd0();
     FUN_004283b0();
     return 1;
