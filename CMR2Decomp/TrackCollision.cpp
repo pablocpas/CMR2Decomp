@@ -169,7 +169,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, 
         p = pList;
         do {
             if (Track_GetTriangle(t, *p) && Track_PointInTriangle(pPoint, *p, t)) {
-                h = (t[2].y + t[1].y + t[0].y) / 3;
+                h = (t[0].y + t[1].y + t[2].y) / 3;
                 d = y - h;
                 if (d < 0)
                     d = h - y;
