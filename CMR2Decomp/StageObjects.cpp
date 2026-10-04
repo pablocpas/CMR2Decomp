@@ -3854,7 +3854,7 @@ void FUN_00466100(int param_1)
             f1 = ((float)(screen[0] * CGraphics::m_oneOver65536) - f2) * g_unk0x005113e0 /
                  (float)*(int *)g_pGraphics;
             f2 = ((float)(screen[1] * CGraphics::m_oneOver65536) - f4) * g_unk0x005113dc /
-                 (float)*(int *)((BYTE *)g_pGraphics + 4);
+                 (float)g_pGraphics->resY;
             f1 = (float)sqrt(f1 * f1 + f2 * f2);
             if (f1 <= g_unk0x00511378)
                 return;
@@ -8093,7 +8093,7 @@ void FUN_0047b870(int index)
 {
     int driver = Car_GetOrder()[index];
     g_unk0x0058e0a0 = Car_Get(driver);
-    *(int *)g_unk0x0058e0a0->field_0x1dc = 0;
+    g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->handbrake = 0;
     g_unk0x0058e0a0->field_0x1d4[0] = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
@@ -8107,7 +8107,7 @@ void FUN_0047b870(int index)
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->handbrake = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
-    *(int *)(g_unk0x0058e0a0->field_0x1dc + 8) = 0;
+    g_unk0x0058e0a0->field_0x1e4 = 0;
     FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
 }
 
@@ -8222,26 +8222,26 @@ void FUN_0046e780(int unused)
     case 0:
         rect.left = 0;
         rect.top = 0;
-        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
-        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        rect.right = g_eventTexture->width / 2 - 1;
+        rect.bottom = g_eventTexture->height / 2 - 1;
         break;
     case 1:
-        rect.left = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
+        rect.left = g_eventTexture->width / 2 - 1;
         rect.top = 0;
-        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) - 1;
-        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
+        rect.right = g_eventTexture->width - 1;
+        rect.bottom = g_eventTexture->height / 2 - 1;
         break;
     case 2:
         rect.left = 0;
-        rect.top = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
-        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
-        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) - 1;
+        rect.top = g_eventTexture->height / 2 - 1;
+        rect.right = g_eventTexture->width / 2 - 1;
+        rect.bottom = g_eventTexture->height - 1;
         break;
     default:
-        rect.left = *(short *)((BYTE *)g_eventTexture + 0x120) / 2 - 1;
-        rect.top = *(short *)((BYTE *)g_eventTexture + 0x122) / 2 - 1;
-        rect.right = *(short *)((BYTE *)g_eventTexture + 0x120) - 1;
-        rect.bottom = *(short *)((BYTE *)g_eventTexture + 0x122) - 1;
+        rect.left = g_eventTexture->width / 2 - 1;
+        rect.top = g_eventTexture->height / 2 - 1;
+        rect.right = g_eventTexture->width - 1;
+        rect.bottom = g_eventTexture->height - 1;
         break;
     }
     CGraphics::LockTexture(g_eventTexture, &rect);
@@ -9364,7 +9364,7 @@ void FUN_0048df50(Car *param_1)
     do {
         int a, b, d, u;
 
-        v = *(int *)((BYTE *)g_collisionCar + 0x778);
+        v = g_collisionCar->speed;
         if (v > 0x10000)
             v = 0x10000;
         v = FixMul(v, 0x6666);
@@ -9386,7 +9386,7 @@ void FUN_0048df50(Car *param_1)
         off += 4;
         i += 0xc;
     } while (off < 0xbcc);
-    FixVecScale((FixVector *)((BYTE *)g_collisionCar + 0x408), (FixVector *)((BYTE *)g_collisionCar + 0x408),
+    FixVecScale(&g_collisionCar->velocity, &g_collisionCar->velocity,
                 0xf851);
 }
 
@@ -13373,9 +13373,9 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
     xRatio = 0;
     yRatio = 0;
     axis = -1;
-    FUN_00486c30(((int *)g_collisionFace), (int *)((BYTE *)g_collisionCar + 0x360),
-                 (int *)((BYTE *)g_collisionCar + 0x2d0),
-                 (FixVector *)((BYTE *)g_collisionCar + 0x270));
+    FUN_00486c30(((int *)g_collisionFace), &g_collisionCar->right.x,
+                 &g_collisionCar->position.x,
+                 &g_collisionCar->corners[0]);
     // Offset of the tracked point from the car, flattened to the ground plane.
     g_unk0x00591968.x = param_1[0] - g_collisionCar->position.x;
     g_unk0x00591968.y = param_1[1] - g_collisionCar->position.y;
@@ -13387,9 +13387,9 @@ int FUN_0048e730(int *param_1, int *param_2, int param_3, char param_4)
         return 0;
     if (((int *)g_collisionFace)[1] < FIX_ABS(dot1))
         return 0;
-    g_unk0x00591950.x = param_1[0] - *(int *)((BYTE *)g_collisionCar + 0x2e8);
-    g_unk0x00591950.y = param_1[1] - *(int *)((BYTE *)g_collisionCar + 0x2ec);
-    g_unk0x00591950.z = param_1[2] - *(int *)((BYTE *)g_collisionCar + 0x2f0);
+    g_unk0x00591950.x = param_1[0] - g_collisionCar->positionPrev.x;
+    g_unk0x00591950.y = param_1[1] - g_collisionCar->positionPrev.y;
+    g_unk0x00591950.z = param_1[2] - g_collisionCar->positionPrev.z;
     g_unk0x00591950.y = 0;
     len = FixVecLength(&g_unk0x00591950);
     if (len <= 0)
@@ -13499,7 +13499,7 @@ noSurface:
         g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x10);
     else
         g_unk0x00591990 = *(FixVector *)((BYTE *)g_collisionFace + 0x1c);
-    dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_unk0x00591990);
+    dot = FixVecDot(&g_collisionCar->velocity, &g_unk0x00591990);
     impulse = -FixMul(dot, g_unk0x0051fb00[param_4] + 0x10000);
     FixVecScale(&g_unk0x005918f0, &g_unk0x00591990, impulse);
     g_unk0x00591978 = *(FixVector *)param_1;
@@ -14090,7 +14090,7 @@ void FUN_0047b000(int slot)
     char device;
 
     g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
-    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->handbrake = 0;
     *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
@@ -14123,8 +14123,8 @@ void FUN_0047b640(int slot)
 
     Car_GetOrderCount();
     g_unk0x0058e0a0 = Car_Get(Car_GetOrder()[slot]);
-    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e0) = 0;
-    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1e0 = 0;
+    g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->handbrake = 0;
     *((BYTE *)g_unk0x0058e0a0 + 0x1d4) = 0;
     g_unk0x0058e0a0->flag0x1d0[3] = 0;
@@ -14154,7 +14154,7 @@ void FUN_0047b640(int slot)
             g_unk0x0058e0a0->flag0x1d0[2] = 0x3f;
     }
     g_unk0x0058e0a0->handbrake = 1;
-    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1dc) = 0;
+    g_unk0x0058e0a0->field_0x1dc = 0;
     g_unk0x0058e0a0->field_0xb9c = 0;
 }
 
@@ -14171,7 +14171,7 @@ void FUN_0047b7b0(int slot)
     g_unk0x0058e0a0->flag0x1d0[2] = 0;
     g_unk0x0058e0a0->handbrake = 1;
     g_unk0x0058e0a0->field_0xb9c = 0;
-    *(int *)((BYTE *)g_unk0x0058e0a0 + 0x1e4) = 0;
+    g_unk0x0058e0a0->field_0x1e4 = 0;
     FixVecScale(&g_unk0x0058e0a0->velocity, &g_unk0x0058e0a0->velocity, 0xf851);
 }
 
@@ -14414,7 +14414,7 @@ void FUN_00466030(int a, int b)
     index = g_unk0x0058875c->index;
     FUN_0046cce0((ReplayStream *)g_unk0x00588758, a, b, index);
     g_unk0x0058875c->index = index;
-    *(int *)((BYTE *)g_unk0x0058875c + 0xc0c) = 1;
+    g_unk0x0058875c->field_0xc0c = 1;
 }
 
 // Per-frame physics of the cars in `pOrder` that are not replayed, then the
@@ -14988,19 +14988,19 @@ int FUN_0048e580(char type)
 
     hitB = 0;
     hitA = 0;
-    radius = *(int *)((BYTE *)g_collisionCar + 0x758);
+    radius = g_collisionCar->field_0x758;
     radius2 = FixMul(radius, radius);
-    d.x = g_collisionTarget.x - *(int *)((BYTE *)g_collisionCar + 0x2d0);
-    d.y = g_collisionTarget.y - *(int *)((BYTE *)g_collisionCar + 0x2d4);
+    d.x = g_collisionTarget.x - g_collisionCar->position.x;
+    d.y = g_collisionTarget.y - g_collisionCar->position.y;
     d.y = 0;
-    d.z = g_collisionTarget.z - *(int *)((BYTE *)g_collisionCar + 0x2d8);
+    d.z = g_collisionTarget.z - g_collisionCar->position.z;
     if ((d.x < 0 ? -d.x : d.x) <= radius && radius >= 0 && (d.z < 0 ? -d.z : d.z) <= radius &&
         FixVecDot(&d, &d) < radius2)
         hitA = FUN_0048e730((int *)&g_collisionTarget, (int *)&g_collisionLineStart, 0, type);
-    d.x = g_collisionLineStart.x - *(int *)((BYTE *)g_collisionCar + 0x2d0);
-    d.y = g_collisionLineStart.y - *(int *)((BYTE *)g_collisionCar + 0x2d4);
+    d.x = g_collisionLineStart.x - g_collisionCar->position.x;
+    d.y = g_collisionLineStart.y - g_collisionCar->position.y;
     d.y = 0;
-    d.z = g_collisionLineStart.z - *(int *)((BYTE *)g_collisionCar + 0x2d8);
+    d.z = g_collisionLineStart.z - g_collisionCar->position.z;
     if ((d.x < 0 ? -d.x : d.x) <= radius && radius >= 0 && (d.z < 0 ? -d.z : d.z) <= radius &&
         FixVecDot(&d, &d) < radius2)
         hitB = FUN_0048e730((int *)&g_collisionLineStart, (int *)&g_collisionTarget, 1, type);
@@ -15024,24 +15024,24 @@ void FUN_0048e0a0(Car *pCar, int param)
 
     g_collisionCar = pCar;
     g_collisionFace = (CollisionFaceVertices *)FUN_0048ca40(pCar->index);
-    ((char *)g_collisionCar)[0xb42]--;
-    if (((char *)g_collisionCar)[0xb42] < 0)
-        ((char *)g_collisionCar)[0xb42] = 0;
+    g_collisionCar->field_0xb42--;
+    if (g_collisionCar->field_0xb42 < 0)
+        g_collisionCar->field_0xb42 = 0;
     g_unk0x00591948 = 0;
-    if (*(short *)((BYTE *)g_collisionCar + 0xb00) == -1)
+    if (g_collisionCar->sector == -1)
         return;
-    g_unk0x0059190c = *(int **)((BYTE *)g_sectors[*(short *)((BYTE *)g_collisionCar + 0xb00)] + 0x28);
-    g_unk0x005919b8 = FixMul(*(int *)((BYTE *)g_collisionCar + 0x758), 0x13333);
+    g_unk0x0059190c = *(int **)((BYTE *)g_sectors[g_collisionCar->sector] + 0x28);
+    g_unk0x005919b8 = FixMul(g_collisionCar->field_0x758, 0x13333);
     while (g_unk0x0059190c != NULL) {
         nearZ = 0;
         g_unk0x00591930 = 0;
         nearX = 0;
         g_collisionTarget = *(FixVector *)g_unk0x0059190c;
         g_collisionLineStart = *(FixVector *)(g_unk0x0059190c + 3);
-        g_unk0x005918d0 = g_collisionTarget.x - *(int *)((BYTE *)g_collisionCar + 0x2d0);
-        g_unk0x0059195c = g_collisionTarget.z - *(int *)((BYTE *)g_collisionCar + 0x2d8);
-        g_unk0x005918d4 = g_collisionLineStart.x - *(int *)((BYTE *)g_collisionCar + 0x2d0);
-        g_unk0x00591960 = g_collisionLineStart.z - *(int *)((BYTE *)g_collisionCar + 0x2d8);
+        g_unk0x005918d0 = g_collisionTarget.x - g_collisionCar->position.x;
+        g_unk0x0059195c = g_collisionTarget.z - g_collisionCar->position.z;
+        g_unk0x005918d4 = g_collisionLineStart.x - g_collisionCar->position.x;
+        g_unk0x00591960 = g_collisionLineStart.z - g_collisionCar->position.z;
         if (g_unk0x005918d0 < 0 ? g_unk0x005918d4 < 0 : g_unk0x005918d4 >= 0)
             nearX = 1;
         if (g_unk0x0059195c < 0 ? g_unk0x00591960 < 0 : g_unk0x00591960 >= 0)
@@ -15063,12 +15063,12 @@ void FUN_0048e0a0(Car *pCar, int param)
         switch (*(char *)((BYTE *)g_unk0x0059190c + 0x2c)) {
         case 6:
             if (FUN_0048f400() == 0 && FUN_00490b90(1) != 0)
-                *(int *)((BYTE *)g_collisionCar + 0xbf8) = 1;
+                g_collisionCar->field_0xbf8 = 1;
             break;
         case 24:
-            if (FUN_0048f400() == 0 && FUN_00490b90(1) != 0 && *(int *)((BYTE *)g_collisionCar + 0xa7c) == 0 &&
-                *(int *)((BYTE *)g_collisionCar + 0xbf8) == 0)
-                *(int *)((BYTE *)g_collisionCar + 0xa7c) = 0x190000;
+            if (FUN_0048f400() == 0 && FUN_00490b90(1) != 0 && g_collisionCar->field_0xa7c == 0 &&
+                g_collisionCar->field_0xbf8 == 0)
+                g_collisionCar->field_0xa7c = 0x190000;
             break;
         case 7:
             FUN_004a3240(0);
@@ -15086,7 +15086,7 @@ void FUN_0048e0a0(Car *pCar, int param)
             FUN_004a3240(4);
             break;
         case 23:
-            if (*(int *)((BYTE *)g_collisionCar + 0xc20) != 0)
+            if (g_collisionCar->field_0xc20 != 0)
                 goto next;
             if (FUN_0048f400() == 0 && FUN_00490b90(1) != 0)
                 FUN_0048df50(g_collisionCar);
@@ -15098,10 +15098,10 @@ void FUN_0048e0a0(Car *pCar, int param)
             if (FUN_0048f400() == 0) {
                 if ((*((BYTE *)g_unk0x0059190c + 0x2d) & 1) && FUN_0048e580(*(char *)((BYTE *)g_unk0x0059190c + 0x2c)) &&
                     *(char *)((BYTE *)g_unk0x0059190c + 0x2c) == 0x19)
-                    *(int *)((BYTE *)g_collisionCar + 0xbf8) = 1;
+                    g_collisionCar->field_0xbf8 = 1;
                 if (FUN_0048fb80(*(char *)((BYTE *)g_unk0x0059190c + 0x2c), param) &&
                     *(char *)((BYTE *)g_unk0x0059190c + 0x2c) == 0x19)
-                    *(int *)((BYTE *)g_collisionCar + 0xbf8) = 1;
+                    g_collisionCar->field_0xbf8 = 1;
             }
             break;
         }
@@ -15109,22 +15109,22 @@ void FUN_0048e0a0(Car *pCar, int param)
             p = (BYTE *)g_collisionCar + 0x5c4;
             saved = *(FixVector *)p;
             *(FixVector *)p = g_unk0x005918e0;
-            FixVecScaleRecip((FixVector *)((BYTE *)g_collisionCar + 0x5c4), (FixVector *)((BYTE *)g_collisionCar + 0x5c4),
+            FixVecScaleRecip(&g_collisionCar->field_0x5c4, &g_collisionCar->field_0x5c4,
                              0x10000 - g_unk0x0051fb00[*(char *)((BYTE *)g_unk0x0059190c + 0x2c)]);
-            if (((char *)g_collisionCar)[0xb42] <= 0)
+            if (g_collisionCar->field_0xb42 <= 0)
                 FUN_00466ef0(g_collisionCar, (int *)&g_unk0x00591ad0, &g_unk0x00591938, 0, g_unk0x0059199c, 0);
-            *(FixVector *)((BYTE *)g_collisionCar + 0x5c4) = saved;
-            ((char *)g_collisionCar)[0xb42] = 10;
+            g_collisionCar->field_0x5c4 = saved;
+            g_collisionCar->field_0xb42 = 10;
         }
     next:
         g_unk0x0059190c = (int *)g_unk0x0059190c[10];
     }
-    if (*(int *)((BYTE *)g_collisionCar + 0xa7c) > 0) {
-        *(int *)((BYTE *)g_collisionCar + 0xa7c) -= 0x10000;
-        if (*(int *)((BYTE *)g_collisionCar + 0xa7c) < 0)
-            *(int *)((BYTE *)g_collisionCar + 0xa7c) = 0;
-        if (*(int *)((BYTE *)g_collisionCar + 0xa7c) == 0)
-            *(int *)((BYTE *)g_collisionCar + 0xbf8) = 1;
+    if (g_collisionCar->field_0xa7c > 0) {
+        g_collisionCar->field_0xa7c -= 0x10000;
+        if (g_collisionCar->field_0xa7c < 0)
+            g_collisionCar->field_0xa7c = 0;
+        if (g_collisionCar->field_0xa7c == 0)
+            g_collisionCar->field_0xbf8 = 1;
     }
 }
 

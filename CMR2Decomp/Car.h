@@ -37,7 +37,10 @@ struct Car {
     char flag0x1d0[4];                // 0x1d0
     BYTE field_0x1d4[0x4];
     int handbrake;                    // 0x1d8  handbrake engaged (the rear wheels stop being driven)
-    BYTE field_0x1dc[0x28];
+    int field_0x1dc;                  // 0x1dc
+    int field_0x1e0;                  // 0x1e0
+    int field_0x1e4;                  // 0x1e4
+    BYTE field_0x1e8[0x1c];
     FixVector halfExtents;            // 0x204
     FixVector wheelPos[4];            // 0x210  wheel positions in body space
     BYTE field_0x240[0x30];

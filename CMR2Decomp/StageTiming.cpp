@@ -2045,11 +2045,11 @@ void FUN_00468520(void)
 
     pRec = NULL;
     pPrev = NULL;
-    pBase = g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x106;
+    pBase = g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x106;
     limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
     if (limit > 0xff)
         limit = 0xff;
-    if (*(int *)(g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x28c) == 0) {
+    if (*(int *)(g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x28c) == 0) {
         count = *(BYTE *)(pBase + 0x104);
         if (count < 0x14) {
             if (count != 0)
@@ -6735,9 +6735,11 @@ void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_
 void FUN_00480e50(int slot)
 {
     int type = g_unk0x00590c24[slot][g_partCar->index];
-    int offX = 0;
-    int offZ = 0;
-    int offY = 0;
+    FixVector off;
+
+    off.x = 0;
+    off.z = 0;
+    off.y = 0;
 
     g_partState =
         (PartState *)((BYTE *)g_unk0x00590d7c[slot] + g_partCar->index * 0x1a0);
@@ -6751,43 +6753,43 @@ void FUN_00480e50(int slot)
     g_partState->pNode->useParentWorld = 0;
     switch (slot) {
     case 0:
-        offX = -g_partSet->halfExtents[type].x;
-        offY = g_partSet->halfExtents[type].y;
-        offZ = 0;
+        off.x = -g_partSet->halfExtents[type].x;
+        off.y = g_partSet->halfExtents[type].y;
+        off.z = 0;
         g_partState->angle = 0x288;
         g_partState->update = FUN_004814d0;
         break;
     case 2:
         if (g_partCar->type == 11) {
-            offX = 0;
-            offY = g_partSet->halfExtents[type].y;
-            offZ = -g_partSet->halfExtents[type].z;
+            off.x = 0;
+            off.y = g_partSet->halfExtents[type].y;
+            off.z = -g_partSet->halfExtents[type].z;
         } else if (g_partCar->type == 9) {
-            offX = -g_partSet->halfExtents[type].x;
-            offY = 0;
-            offZ = g_partSet->halfExtents[type].z;
+            off.x = -g_partSet->halfExtents[type].x;
+            off.y = 0;
+            off.z = g_partSet->halfExtents[type].z;
         } else {
             if (g_partCar->type == 8) {
-                offX = -g_partSet->halfExtents[type].x;
-                offY = -g_partSet->halfExtents[type].y;
+                off.x = -g_partSet->halfExtents[type].x;
+                off.y = -g_partSet->halfExtents[type].y;
             } else {
-                offX = g_partSet->halfExtents[type].x;
-                offY = g_partSet->halfExtents[type].y;
+                off.x = g_partSet->halfExtents[type].x;
+                off.y = g_partSet->halfExtents[type].y;
             }
-            offZ = 0;
+            off.z = 0;
         }
         g_partState->angle = 0x288;
         g_partState->update = FUN_00484310;
         break;
     case 1:
         if (g_partCar->type != 9 && g_partCar->type != 11) {
-            offX = FixMul(g_partSet->halfExtents[type].x, 0x8000);
-            offY = g_partSet->halfExtents[type].y;
-            offZ = 0;
+            off.x = FixMul(g_partSet->halfExtents[type].x, 0x8000);
+            off.y = g_partSet->halfExtents[type].y;
+            off.z = 0;
         } else {
-            offY = 0;
-            offX = g_partSet->halfExtents[type].x;
-            offZ = -g_partSet->halfExtents[type].z;
+            off.y = 0;
+            off.x = g_partSet->halfExtents[type].x;
+            off.z = -g_partSet->halfExtents[type].z;
         }
         g_partState->angle = 0;
         g_partState->update = FUN_004816f0;
@@ -6798,17 +6800,17 @@ void FUN_00480e50(int slot)
     case 3:
         g_partState->flags |= 2;
         if (g_partCar->type == 8) {
-            offX = 0;
-            offZ = 0;
-            offY = g_partSet->halfExtents[type].y;
+            off.x = 0;
+            off.z = 0;
+            off.y = g_partSet->halfExtents[type].y;
         } else {
-            offX = 0;
+            off.x = 0;
             if (*(int *)(((BYTE *)g_partSet) + 0x248) > *(int *)(((BYTE *)g_partSet) + 0x24c)) {
-                offZ = g_partSet->halfExtents[type].z;
-                offY = -g_partSet->halfExtents[type].y;
+                off.z = g_partSet->halfExtents[type].z;
+                off.y = -g_partSet->halfExtents[type].y;
             } else {
-                offZ = -g_partSet->halfExtents[type].z;
-                offY = -g_partSet->halfExtents[type].y;
+                off.z = -g_partSet->halfExtents[type].z;
+                off.y = -g_partSet->halfExtents[type].y;
             }
         }
         g_partState->angle = 0;
@@ -6821,9 +6823,9 @@ void FUN_00480e50(int slot)
     g_partState->stiffness.y = 0x1eb8;
     g_partState->stiffness.z = 0x6ccc;
 common:
-    g_partState->position.x = g_partSet->centres[type].x + offX;
-    g_partState->position.y = g_partSet->centres[type].y + offY;
-    g_partState->position.z = g_partSet->centres[type].z + offZ;
+    g_partState->position.x = g_partSet->centres[type].x + off.x;
+    g_partState->position.y = g_partSet->centres[type].y + off.y;
+    g_partState->position.z = g_partSet->centres[type].z + off.z;
     g_partState->field_0x15c = FixVecLength(&g_partSet->halfExtents[type]);
     g_partState->previousPosition = g_partSet->centres[type];
     g_partState->swingAxis = g_partSet->halfExtents[type];

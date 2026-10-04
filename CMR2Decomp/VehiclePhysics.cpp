@@ -493,9 +493,9 @@ int FUN_00490b90(int param_1)
     else
         found = FUN_00490640();
     if (found != 0) {
-        FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
-                     (int *)((BYTE *)g_collisionCar + 0x2d0),
-                     (FixVector *)((BYTE *)g_collisionCar + 0x270));
+        FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+                     &g_collisionCar->position.x,
+                     &g_collisionCar->corners[0]);
         Collision_ClassifyFaceVertices();
         if (g_collisionPositiveCandidateCount > 0 && g_collisionNegativeCandidateCount > 0)
             result = 1;
@@ -574,9 +574,9 @@ int FUN_0048fb80(char type, int param)
     if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) == 0)
         result = FUN_0048e580(type);
 
-    FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
-                 (int *)((BYTE *)g_collisionCar + 0x2d0),
-                 (FixVector *)((BYTE *)g_collisionCar + 0x270));
+    FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+                 &g_collisionCar->position.x,
+                 &g_collisionCar->corners[0]);
     Collision_ClassifyFaceVertices();
 
     if (g_collisionPositiveCandidateCount != 0 && g_collisionNegativeCandidateCount != 0) {
@@ -655,7 +655,7 @@ int FUN_0048fb80(char type, int param)
             g_collisionCar->corners[i].y += scaled.y;
             g_collisionCar->corners[i].z += scaled.z;
         }
-        pVertex = (FixVector *)((BYTE *)g_collisionFace + 0x30);
+        pVertex = &g_collisionFace->primaryVertices[0];
         for (i = 0; i < 4; i++) {
             pVertex[i].x += scaled.x;
             pVertex[i].y += scaled.y;
@@ -665,7 +665,7 @@ int FUN_0048fb80(char type, int param)
     }
 
 noSlide:
-    dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_collisionDirection);
+    dot = FixVecDot(&g_collisionCar->velocity, &g_collisionDirection);
     if (dot != 0) {
         if (g_collisionSelectBackSide == 0) {
             if (dot >= 0)
@@ -675,9 +675,9 @@ noSlide:
         }
 
         FixVecScale(&slide, &g_collisionDirection, dot);
-        velDiff.x = *(int *)((BYTE *)g_collisionCar + 0x408) - slide.x;
-        velDiff.y = *(int *)((BYTE *)g_collisionCar + 0x40c) - slide.y;
-        velDiff.z = *(int *)((BYTE *)g_collisionCar + 0x410) - slide.z;
+        velDiff.x = g_collisionCar->velocity.x - slide.x;
+        velDiff.y = g_collisionCar->velocity.y - slide.y;
+        velDiff.z = g_collisionCar->velocity.z - slide.z;
         index = type;
         FixVecScale(&velDiff, &velDiff,
                     -FixMul(g_physicsTimeStep, g_unk0x0051fb00[26 + index]));
@@ -686,7 +686,7 @@ noSlide:
         slide.y = perp.y - slide.y + velDiff.y;
         slide.z = perp.z - slide.z + velDiff.z;
         CarPhysics_ApplyImpulse(&slide,
-                                &((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex], 0);
+                                &(&g_collisionFace->primaryVertices[0])[g_collisionBestVertex], 0);
         len = FixVecLength(&slide);
         if (g_unk0x00591930 != 0 && g_unk0x005919a0 >= len)
             goto skipReflect;
@@ -699,11 +699,11 @@ noSlide:
     }
 
 skipReflect:
-    dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_collisionDirection);
+    dot = FixVecDot(&g_collisionCar->velocity, &g_collisionDirection);
     FixVecScale(&debrisAxes[0], &g_collisionDirection, dot);
-    debrisAxes[0].x = *(int *)((BYTE *)g_collisionCar + 0x408) - debrisAxes[0].x;
-    debrisAxes[0].y = *(int *)((BYTE *)g_collisionCar + 0x40c) - debrisAxes[0].y;
-    debrisAxes[0].z = *(int *)((BYTE *)g_collisionCar + 0x410) - debrisAxes[0].z;
+    debrisAxes[0].x = g_collisionCar->velocity.x - debrisAxes[0].x;
+    debrisAxes[0].y = g_collisionCar->velocity.y - debrisAxes[0].y;
+    debrisAxes[0].z = g_collisionCar->velocity.z - debrisAxes[0].z;
     if (type != 2 && type != 0xe && type != 0xf && type != 0x12)
         return 1;
 
@@ -723,17 +723,17 @@ skipReflect:
     }
 
     debrisAxes[2] = g_collisionDirection;
-    delta.x = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].x -
+    delta.x = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].x -
               g_collisionCar->position.x;
-    delta.y = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].y -
+    delta.y = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].y -
               g_collisionCar->position.y;
-    delta.z = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].z -
+    delta.z = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].z -
               g_collisionCar->position.z;
     delta.y = 0;
     FixVecScale(&delta, &delta, 0xcccc);
     if (tangentLen > 0x10000)
         tangentLen = 0x10000;
-    if (*(int *)((BYTE *)g_collisionCar + 0xb70) == 0)
+    if (g_collisionCar->field_0xb70 == 0)
         Car_SpawnDebris(tangentLen, &delta, g_collisionCar, &debrisAxes[0], 0x90000, 0x6666);
     return 1;
 finish:
