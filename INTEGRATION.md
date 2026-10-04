@@ -199,3 +199,7 @@ losses vs pass 7, 0 data issues, and **76/76 differential harnesses**. One behav
 regression found by `differential_stage_sound_reset.py` (a cursor rewrite of `FUN_00418f20`
 writing `pattern` into `time`) was reverted before this merge. Main's own reports remain at
 the last successful measurement until the session's in-progress `Car.h` refactor compiles.
+
+Main's reports are regenerated at **2704 byte-exact / 659 pending**, 0 data issues and
+**76/76 differential harnesses** on the committed tree (the session's in-progress `Car.h`
+refactor was set aside to `/home/pablo/main-session-Car.h.patch` so the tree builds).
