@@ -13616,20 +13616,12 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         pCar = (BYTE *)Car_Get(pRecord[2]);
-        if (*(int *)(pCar + 0xc04) == 0 && *(int *)(pCar + 0xb60) == 0) {
-            FUN_00486810(pRecord, (int *)pRef, 0);
-            return;
-        }
-        FUN_00486810(pRecord, (int *)pRef, 1);
+        FUN_00486810(pRecord, (int *)pRef, (*(int *)(pCar + 0xc04) == 0 && *(int *)(pCar + 0xb60) == 0) ? 0 : 1);
         return;
     }
     if (heading < -0x3f4 && heading > -0x40b) {
         pCar = (BYTE *)Car_Get(pRecord[2]);
-        if (*(int *)(pCar + 0xc04) == 0 && *(int *)(pCar + 0xb60) == 0) {
-            FUN_00486810(pRecord, (int *)pRef, 0);
-            return;
-        }
-        FUN_00486810(pRecord, (int *)pRef, 1);
+        FUN_00486810(pRecord, (int *)pRef, (*(int *)(pCar + 0xc04) == 0 && *(int *)(pCar + 0xb60) == 0) ? 0 : 1);
         return;
     }
     FixMatrix_GetPosition(&position, pRef);
@@ -13638,12 +13630,12 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
     d.z = pSpot->position.z - position.z;
     distance = FixVec_Length(&d);
     if (g_unk0x005916d0[index] != 0) {
-        if (distance >= g_unk0x005916e0[index]) {
-            zoom = pSpot->field_0x50;
-            shake = pSpot->field_0x68;
-        } else {
+        if (distance < g_unk0x005916e0[index]) {
             zoom = pSpot->field_0x4c;
             shake = pSpot->field_0x64;
+        } else {
+            zoom = pSpot->field_0x50;
+            shake = pSpot->field_0x68;
         }
         g_unk0x00591754[index] = FixMul(zoom, 0x3333) + FixMul(g_unk0x00591754[index], 0xcccc);
         g_unk0x00591720[index] = FixMul(shake, 0x3333) + FixMul(g_unk0x00591720[index], 0xcccc);
