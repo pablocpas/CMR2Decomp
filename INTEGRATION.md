@@ -211,3 +211,12 @@ translation-unit context (0x4f4b90, 0x425a90, 0x426810, 0x426b90) were audited:
 their sources were intact and they are back in the pending list as near-miss
 targets. Wave-4 closures: 0x456d90, 0x41d2b0, 0x423f30, 0x4916a0, 0x4ee460,
 0x4edef0, 0x47bad0, 0x506080, 0x402f90, 0x4a8bf0 and the preserved-state extras.
+
+match3 integration (option A): `decomp/match3`'s 14 committed commits are merged in
+`bc1488a`. Two closures came in (0x468c10, 0x4930e0) plus score improvements
+(0x466030 53->97%, Car_SmoothForceFeedback 46->69%). The pattern pass 7c3576e had
+narrowed locals in four functions (FUN_0041e8d0, FUN_004483e0, FUN_00498620,
+FUN_0048fb80), which changed behaviour; differential_ai_telemetry, _race_estimates,
+_race_handler and _surface_collision caught it and those locals were restored to
+`int`. Final state: **2720 byte-exact / 643 pending**, 0 losses, 0 data issues,
+**76/76 differential harnesses**.
