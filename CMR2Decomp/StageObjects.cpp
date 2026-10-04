@@ -9720,7 +9720,7 @@ void FUN_004930e0(Car *pCar, int count)
                 pCar->field_0xa7c = 0x190000;
             }
             if (i < 4)
-                pCar->cornerHeight[i] -= pCar->field_0x6fc[1 + i * 2];
+                pCar->cornerHeight[i] -= pCar->wheelOffset[i][1];
             i++;
         } while ((int)i < count);
     }

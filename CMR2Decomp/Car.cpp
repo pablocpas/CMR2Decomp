@@ -1277,27 +1277,27 @@ void Car_UpdateWheelTravel(void)
     short delta;
 
     for (i = 0; i < 4; i++) {
-        absLoad = FIX_ABS(CAR_INT(0x860 + i * 4));
+        absLoad = FIX_ABS(g_pCurrentCar->wheelLoad[i]);
         if (absLoad > 0x10000) {
-            if (CAR_INT(0x860 + i * 4) > 0) {
-                CAR_USHORT(0xb08 + i * 2) += -0x28b;
+            if (g_pCurrentCar->wheelLoad[i] > 0) {
+                g_pCurrentCar->wheelPhase[i] += -0x28b;
             } else {
-                CAR_USHORT(0xb08 + i * 2) += 0x28b;
+                g_pCurrentCar->wheelPhase[i] += 0x28b;
             }
         } else {
-            delta = (short)(__int64)((double)CAR_INT(0x860 + i * 4) * g_unk0x00511398);
-            CAR_USHORT(0xb08 + i * 2) += delta;
+            delta = (short)(__int64)((double)g_pCurrentCar->wheelLoad[i] * g_unk0x00511398);
+            g_pCurrentCar->wheelPhase[i] += delta;
         }
         if (*(int *)(g_pCarSetup + 0x240 + i * 4) > 0) {
-            CAR_INT(0x6fc + i * 8) =
-                FixMul(g_sinTable[CAR_USHORT(0xb08 + i * 2) & 0xfff],
+            g_pCurrentCar->wheelOffset[i][0] =
+                FixMul(g_sinTable[g_pCurrentCar->wheelPhase[i] & 0xfff],
                        FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
-            CAR_INT(0x700 + i * 8) =
-                FixMul(-g_sinTable[(unsigned short)(CAR_USHORT(0xb08 + i * 2) + 0x400) & 0xfff],
+            g_pCurrentCar->wheelOffset[i][1] =
+                FixMul(-g_sinTable[(unsigned short)(g_pCurrentCar->wheelPhase[i] + 0x400) & 0xfff],
                        FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
         } else {
-            CAR_INT(0x700 + i * 8) = 0;
-            CAR_INT(0x6fc + i * 8) = 0;
+            g_pCurrentCar->wheelOffset[i][1] = 0;
+            g_pCurrentCar->wheelOffset[i][0] = 0;
         }
     }
 }

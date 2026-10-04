@@ -82,7 +82,7 @@ struct Car {
     FixVector groundAxis[2];          // 0x6cc  front/rear lateral axis on the ground plane
     FixVector wheelLean;              // 0x6e4  lean of the wheel frame, integrated like lean
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
-    int field_0x6fc[8];               // 0x6fc  [1 + 2 * wheel] is subtracted from the corner height
+    int wheelOffset[4][2];            // 0x6fc  per-wheel wobble: sin / -cos of wheelPhase, scaled by the setup
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
     SceneNode *pNode0x724;            // 0x724  second body part (optional)
@@ -198,7 +198,7 @@ struct Car {
     short field_0xb02;
     short field_0xb04;
     short field_0xb06;
-    BYTE field_0xb08[0x8];
+    unsigned short wheelPhase[4];     // 0xb08  wobble angle of each wheel (12-bit)
     unsigned short heading;           // 0xb10  12-bit angle
     short field_0xb12;
     short field_0xb14;

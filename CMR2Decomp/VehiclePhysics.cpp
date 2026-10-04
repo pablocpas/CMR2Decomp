@@ -148,9 +148,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
         offset.z = pPoint->z - g_collisionCar->position.z;
     }
 
-    FixMatrix_InverseRotateVector(&COLLISION_VECTOR(0x5dc), &offset, g_collisionCar->pWorld);
+    FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
 
-    component = COLLISION_INT(0x5dc);
+    component = g_collisionCar->field_0x5dc.x;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -158,9 +158,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5dc) = limit;
+        g_collisionCar->field_0x5dc.x = limit;
     }
-    component = COLLISION_INT(0x5e0);
+    component = g_collisionCar->field_0x5dc.y;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -168,9 +168,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5e0) = limit;
+        g_collisionCar->field_0x5dc.y = limit;
     }
-    component = COLLISION_INT(0x5e4);
+    component = g_collisionCar->field_0x5dc.z;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -178,7 +178,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5e4) = limit;
+        g_collisionCar->field_0x5dc.z = limit;
     }
 
     g_collisionCar->velocity.x += pImpulse->x;
@@ -189,7 +189,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
         g_collisionCar->velocity.y += pImpulse->y;
         g_collisionCar->velocity.z += pImpulse->z;
     }
-    if (COLLISION_INT(0xc00) != 0)
+    if (g_collisionCar->field_0xc00 != 0)
         return;
 
     usePoint = FixVecLength(pImpulse);
@@ -230,9 +230,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
             goto apply_torque;
     }
 
-    COLLISION_INT(0xc00) = 1;
-    COLLISION_INT(0x96c) = 0x10000;
-    COLLISION_INT(0xc04) = 1;
+    g_collisionCar->field_0xc00 = 1;
+    g_collisionCar->field_0x96c = 0x10000;
+    g_collisionCar->field_0xc04[0] = 1;
 
 apply_torque:
     if ((torque.x < 0 ? -torque.x : torque.x) > 0x80000)
@@ -244,9 +244,9 @@ apply_torque:
 
     usePoint = g_physicsScale;
     FixVecScale(&torque, &torque, usePoint);
-    COLLISION_INT(0x5d0) += torque.x;
-    COLLISION_INT(0x5d4) += torque.y;
-    COLLISION_INT(0x5d8) += torque.z;
+    g_collisionCar->field_0x5d0.x += torque.x;
+    g_collisionCar->field_0x5d0.y += torque.y;
+    g_collisionCar->field_0x5d0.z += torque.z;
 }
 
 // Plane normal x/z of the collision face and its accepted distance.
@@ -270,9 +270,9 @@ int FUN_00490570(void)
     if (d > g_unk0x005919b8)
         return 0;
     {
-        delta.x = g_collisionTarget.x - COLLISION_VECTOR(0x2e8).x;
-        delta.y = g_collisionTarget.y - COLLISION_VECTOR(0x2e8).y;
-        delta.z = g_collisionTarget.z - COLLISION_VECTOR(0x2e8).z;
+        delta.x = g_collisionTarget.x - g_collisionCar->positionPrev.x;
+        delta.y = g_collisionTarget.y - g_collisionCar->positionPrev.y;
+        delta.z = g_collisionTarget.z - g_collisionCar->positionPrev.z;
         g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
         return 1;
     }

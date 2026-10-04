@@ -8950,11 +8950,11 @@ void FUN_0045af90(int car)
     if (car >= 8 || g_trailTextureA[car][0] == 0)
         return;
     pCar = Car_Get(car);
-    revs = FixMul(0x28f, CAR_INT(pCar, 0x7a4));
+    revs = FixMul(0x28f, pCar->field_0x7a4);
     if (revs < 0)
         revs = -revs;
-    speed = (CAR_INT(pCar, 0x408) < 0 ? -CAR_INT(pCar, 0x408) : CAR_INT(pCar, 0x408)) +
-            (CAR_INT(pCar, 0x410) < 0 ? -CAR_INT(pCar, 0x410) : CAR_INT(pCar, 0x410));
+    speed = (pCar->velocity.x < 0 ? -pCar->velocity.x : pCar->velocity.x) +
+            (pCar->velocity.z < 0 ? -pCar->velocity.z : pCar->velocity.z);
     heat = 0x17c - (FixMul(0x15e0000, *(int *)((BYTE *)FUN_00469680(pCar->index) + 0x404)) >> 16);
     if (heat > 0xff)
         heat = 0xff;
@@ -8966,9 +8966,9 @@ void FUN_0045af90(int car)
         if (revs > 0xccc && speed < 0x28f) {
             FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
                                    pCar->pWorld);
-            g_unk0x00543380[car].x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
-            g_unk0x00543380[car].y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34);
-            g_unk0x00543380[car].z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            g_unk0x00543380[car].x += pCar->pBodyMatrix->position.x;
+            g_unk0x00543380[car].y += pCar->pBodyMatrix->position.y;
+            g_unk0x00543380[car].z += pCar->pBodyMatrix->position.z;
             carVelocity = pCar->cornerVelocity[3];
             big = heat > 0x50;
             negRevs = -revs;
@@ -8995,9 +8995,9 @@ void FUN_0045af90(int car)
             spark.z += g_exhaustSparkLines[line][0].z;
             FixMatrix_RotateVector(&position, &spark, pCar->pWorld);
             revs = 0x1999;
-            position.x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
-            position.y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34) - 0x3333;
-            position.z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            position.x += pCar->pBodyMatrix->position.x;
+            position.y += pCar->pBodyMatrix->position.y - 0x3333;
+            position.z += pCar->pBodyMatrix->position.z;
             FixVecScale(&velocity, &pCar->up, revs);
             t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             if (speed > 0x8000)
