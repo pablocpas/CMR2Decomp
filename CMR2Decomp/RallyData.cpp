@@ -7280,13 +7280,13 @@ void FUN_004111a0(void)
     g_unk0x00536fe4[0] = 0;
     g_unk0x00536c18[1] = 0;
     g_unk0x00536fe4[1] = 0;
-    for (i = 0; i < 6; i++)
-        ((int *)g_unk0x00536c94)[i] = -1;
     g_unk0x00536bfc = 0;
     g_unk0x00537050 = 0;
     g_unk0x00536c40 = 0;
     g_unk0x00536c3c = 0;
     *(short *)&g_unk0x00536c20[0] = 0;
+    for (i = 0; i < 6; i++)
+        ((int *)g_unk0x00536c94)[i] = -1;
     // The original walks a record base 4 bytes in front of g_stageSplitData, so
     // the dword right before the array gets cleared as well.
     for (car = 0; car < 2; car++) {
@@ -7295,7 +7295,8 @@ void FUN_004111a0(void)
         p[1] = 0;
         p[2] = 0;
         p[3] = -1;
-        for (i = 5; i < 0x12; i++)
+        p[5] = 0;
+        for (i = 6; i < 0x12; i++)
             p[i] = 0;
     }
     for (i = 0; i < 8; i++) {
