@@ -3186,10 +3186,7 @@ void FUN_00413330(int car)
         else
             g_unk0x00536d14[car * 0x28 + split] = g_unk0x0051709c;
         if (split != 0) {
-            if (time < g_stageSplitData[car].targetTime)
-                FUN_00411ab0(car, 1);
-            else
-                FUN_00411ab0(car, 0);
+            FUN_00411ab0(car, (time < g_stageSplitData[car].targetTime) ? 1 : 0);
         }
     }
     g_stageSplitData[car].split = split;
