@@ -876,7 +876,7 @@ void FUN_004fc620(Menu *pMenu)
     AxisBinding *pBinding;
     BYTE *pDevice;
     unsigned int held;
-    unsigned int axis;
+    int axis;
     int j;
 
     if (g_unk0x0082a7e8 != 0) {

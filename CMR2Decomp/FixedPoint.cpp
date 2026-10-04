@@ -591,7 +591,7 @@ void FUN_004bad40(int *pOut, FixVector *pPoint, BYTE *pView)
     }
     FixMatrix_ProjectToScreen(pOut, &v, (int *)((BYTE *)CGraphics::m_pTextureManager + 0x23e4));
     pOut[0] += (int)(__int64)((*(int *)g_pGraphics / 2) * CGraphics::m_65536);
-    pOut[1] += (int)(__int64)((*(int *)((BYTE *)g_pGraphics + 4) / 2) * CGraphics::m_65536);
+    pOut[1] += (int)(__int64)((g_pGraphics->resY / 2) * CGraphics::m_65536);
 }
 
 // Normalises a vector; components beyond +-100.0 are scaled down by 512
@@ -1032,19 +1032,19 @@ void FUN_0042e8e0(void)
                 // vertical (car-space y) speed of the corner over the last two steps
                 f = FixMul(v.y, FixMul(0x9c28, g_physicsScale));
                 if (f > 0)
-                    ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] -= f;
+                    (g_pCurrentCar->field_0x9c8)[w] -= f;
             }
         }
         f = FixMul(g_physicsTimeStep,
                    -(FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9e8))[w], g_pCurrentCar->wheel0x9d8[w]) +
-                     FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w])));
-        ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] += f;
+                     FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], (g_pCurrentCar->field_0x9c8)[w])));
+        (g_pCurrentCar->field_0x9c8)[w] += f;
         (&g_pCurrentCar->wheel0x9d8[0])[w] +=
-            FixMul(g_physicsTimeStep, ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w]);
+            FixMul(g_physicsTimeStep, (g_pCurrentCar->field_0x9c8)[w]);
         if ((&g_pCurrentCar->wheel0x9d8[0])[w] < -0x3333) {
             (&g_pCurrentCar->wheel0x9d8[0])[w] = -0x3333;
-            if (((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] < 0)
-                ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] = 0;
+            if ((g_pCurrentCar->field_0x9c8)[w] < 0)
+                (g_pCurrentCar->field_0x9c8)[w] = 0;
         }
     }
 }

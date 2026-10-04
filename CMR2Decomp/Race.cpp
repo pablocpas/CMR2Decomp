@@ -3960,8 +3960,8 @@ void FUN_004187d0(unsigned int view, unsigned short id, int volume, int listener
         int level = (FixMul(strength, 0x70000) >> 16) + 1;                \
         if (level > 8)                                                    \
             level = 8;                                                    \
-        if (level > Car_Get(view)->field_0xb43[3])                        \
-            Car_Get(view)->field_0xb43[3] = (BYTE)level;                  \
+        if (level > Car_Get(view)->shakeLevel)                        \
+            Car_Get(view)->shakeLevel = (BYTE)level;                  \
     } while (0)
 
 // Plays a random impact sound (light or heavy set) and shakes the car.
@@ -3993,8 +3993,8 @@ void FUN_00418ba0(int view, int strength, int listener)
             int shake = (FixMul(strength, 0x70000) >> 16) + 1;
             if (shake > 8)
                 shake = 8;
-            if (shake > Car_Get(view)->field_0xb43[3])
-                Car_Get(view)->field_0xb43[3] = (BYTE)shake;
+            if (shake > Car_Get(view)->shakeLevel)
+                Car_Get(view)->shakeLevel = (BYTE)shake;
         }
     }
 }
@@ -5162,7 +5162,7 @@ void Dash_Update(int player);
 // FUNCTION: CMR2 0x0041c5a0
 void FUN_0041c5a0(BYTE param1, int param2)
 {
-    int first;
+    short first;
     int second;
     int count;
     int player;
@@ -5172,7 +5172,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
     int value;
     int index;
     BYTE b1;
-    BYTE b2;
+    int b2;
     BYTE b3;
 
     first = 0;
@@ -5184,7 +5184,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
     g_unk0x00538124 = Car_UpdateEngineNoteFalloff(&g_unk0x00537f60);
     g_unk0x00537f0c[4] = 0;
     for (; g_unk0x00537f0c[4] < g_unk0x00538124; g_unk0x00537f0c[4]++) {
-        player = Car_Get(0)->field_0xb43[0] > 0;
+        player = Car_Get(0)->field_0xb43 > 0;
         CInput::FUN_0049eab0();
         if (player != 0) {
             g_unk0x00537f24++;
@@ -5192,7 +5192,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
                 FUN_00448e70();
         }
         for (g_unk0x00538104 = 0; g_unk0x00538104 < Car_GetOrderCount(); g_unk0x00538104++) {
-            if (Car_Get(g_unk0x00538104)->field_0xb43[0] > 0) {
+            if (Car_Get(g_unk0x00538104)->field_0xb43 > 0) {
                 if (g_unk0x00538104 < (BYTE)RallyDataState()) {
                     g_unk0x00537fb8 = *(char *)(*(int *)(FUN_0041b390() + 4) + g_unk0x00538104 * 8);
                     if (FUN_0041f3d0(g_unk0x00538104) != 0)
@@ -5299,7 +5299,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
             }
         }
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < count; g_unk0x00537f04++) {
-            if (Car_Get(g_unk0x00537f04)->field_0xb43[0] > 0) {
+            if (Car_Get(g_unk0x00537f04)->field_0xb43 > 0) {
                 if (param2 != 0)
                     FUN_0041d0c0(g_unk0x00537f04);
                 if (FUN_00422f50((BYTE)g_unk0x00537f04) == 7)
@@ -5311,7 +5311,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
         if (player != 0)
             StageObjects_Update();
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < Car_GetOrderCount(); g_unk0x00537f04++) {
-            if (Car_Get(g_unk0x00537f04)->field_0xb43[0] > 0)
+            if (Car_Get(g_unk0x00537f04)->field_0xb43 > 0)
                 FUN_004284d0((BYTE)g_unk0x00537f04, 0);
         }
         if (player != 0) {
@@ -5327,7 +5327,7 @@ void FUN_0041c5a0(BYTE param1, int param2)
             FUN_0045e7f0();
         }
         for (g_unk0x00537f04 = 0; g_unk0x00537f04 < count; g_unk0x00537f04++) {
-            if (Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xb43[0] > 0)
+            if (Car_Get((BYTE)FUN_00422fb0((BYTE)g_unk0x00537f04))->field_0xb43 > 0)
                 View_UpdateCamera((BYTE)g_unk0x00537f04);
         }
         if (player != 0) {

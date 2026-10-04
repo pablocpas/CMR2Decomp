@@ -37,10 +37,14 @@ struct Car {
     char flag0x1d0[4];                // 0x1d0
     BYTE field_0x1d4[0x4];
     int handbrake;                    // 0x1d8  handbrake engaged (the rear wheels stop being driven)
-    BYTE field_0x1dc[0x28];
+    int field_0x1dc;                  // 0x1dc
+    int field_0x1e0;                  // 0x1e0
+    int field_0x1e4;                  // 0x1e4
+    int field_0x1e8[4];               // 0x1e8
+    FixVector field_0x1f8;            // 0x1f8
     FixVector halfExtents;            // 0x204
     FixVector wheelPos[4];            // 0x210  wheel positions in body space
-    BYTE field_0x240[0x30];
+    FixVector field_0x240[4];         // 0x240
     FixVector corners[8];             // 0x270  world-space box corners
     FixVector position;               // 0x2d0
     FixVector field_0x2dc;            // 0x2dc
@@ -67,8 +71,7 @@ struct Car {
     FixVector normal0x498;            // 0x498
     FixVector cornerAxis[8];          // 0x4a4  per-corner reference axis
     FixVector cornerNormal[8];        // 0x504  per-corner contact normal
-    FixVector field_0x564;            // 0x564  ground normal used while cornerOnGround[4] is set
-    BYTE field_0x570[0x54];
+    FixVector field_0x564[8];         // 0x564  per-corner ground normal ([0] used while cornerOnGround[4] is set)
     FixVector field_0x5c4;            // 0x5c4
     FixVector field_0x5d0;            // 0x5d0
     FixVector field_0x5dc;            // 0x5dc
@@ -79,7 +82,7 @@ struct Car {
     FixVector groundAxis[2];          // 0x6cc  front/rear lateral axis on the ground plane
     FixVector wheelLean;              // 0x6e4  lean of the wheel frame, integrated like lean
     FixVector lean;                   // 0x6f0  body lean (x/z tilt) fed into the body matrix
-    BYTE field_0x6fc[0x20];
+    int wheelOffset[4][2];            // 0x6fc  per-wheel wobble: sin / -cos of wheelPhase, scaled by the setup
     SceneNode *pNode0x71c;            // 0x71c
     SceneNode *pNode0x720;            // 0x720
     SceneNode *pNode0x724;            // 0x724  second body part (optional)
@@ -95,13 +98,13 @@ struct Car {
     int scale0x764;                   // 0x764
     int scale0x768;                   // 0x768
     int scale0x76c;                   // 0x76c
-    BYTE field_0x770[0x8];
+    int field_0x770[2];               // 0x770
     int speed;                        // 0x778  length of the velocity vector
     int tipRatio;                     // 0x77c  sideways slide relative to the tip-over threshold, eased
     int field_0x780;                  // 0x780  engine acceleration while no gear is engaged
     int field_0x784;                  // 0x784  drag factor of the engine speed
     int field_0x788;
-    BYTE field_0x78c[0x4];
+    int field_0x78c;                  // 0x78c
     int field_0x790;                  // 0x790
     int field_0x794;                  // 0x794
     int field_0x798;
@@ -144,19 +147,21 @@ struct Car {
     int field_0x8b8[8];               // 0x8b8  per-wheel torque rebuilt every step (8 corners)
     int field_0x8d8;                  // 0x8d8
     int cornerHeight[8];              // 0x8dc  ground height under each box corner
-    int field_0x8fc;                  // 0x8fc
-    BYTE field_0x900[0x1c];
+    int field_0x8fc[8];               // 0x8fc  per-corner height offset while cornerOnGround[4 + i]
     int field_0x91c;                  // 0x91c
     int field_0x920;                  // 0x920
     int field_0x924;                  // 0x924
-    BYTE field_0x928[0x30];
+    int field_0x928[4];               // 0x928
+    int field_0x938[4];               // 0x938  per-wheel scale of the part offset
+    int field_0x948[4];               // 0x948
     int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
-    BYTE field_0x95c[0x4];
+    int field_0x95c;                  // 0x95c
     int field_0x960;
     int field_0x964;
     int field_0x968;
     int field_0x96c;                  // 0x96c
-    BYTE field_0x970[0x18];
+    int field_0x970[2];               // 0x970
+    int field_0x978[4];               // 0x978  per-wheel offset added to the part's value
     int wheel0x988[4];                // 0x988
     int field_0x998[4];               // 0x998  suspension height of each corner, front lean frame
     int wheel0x9a8[4];                // 0x9a8  suspension height of each corner, body lean frame
@@ -164,7 +169,7 @@ struct Car {
     int field_0x9bc;                  // 0x9bc
     int field_0x9c0;
     int field_0x9c4;                  // 0x9c4
-    BYTE field_0x9c8[0x10];
+    int field_0x9c8[4];               // 0x9c8
     int wheel0x9d8[4];                // 0x9d8
     BYTE field_0x9e8[0x20];
     int field_0xa08;
@@ -179,29 +184,29 @@ struct Car {
     int field_0xa7c;                  // 0xa7c
     int field_0xa80;
     int field_0xa84;
-    BYTE field_0xa88[0x4];
+    int field_0xa88;                  // 0xa88
     int field_0xa8c;                  // 0xa8c  camera shake
     BYTE field_0xa90[0xc];
     unsigned short steepTime;         // 0xa9c  steps spent on a slope too steep to stand on
     short cornerTriangle[8];          // 0xa9e  cached collision triangle under each corner
-    short wheelSurface[4];            // 0xaae
-    BYTE field_0xab6[0x8];
+    short wheelSurface[8];            // 0xaae  surface class under each corner
     short field_0xabe[4];             // 0xabe  surface of each wheel at the last step
-    short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
-    BYTE field_0xace[0x30];
+    short wheelSurfaceType[8];        // 0xac6  surface id under each corner
+    BYTE field_0xad6[0x28];
     short field_0xafe;                // 0xafe  engine startup countdown
     short sector;                     // 0xb00  stage sector the car is in
     short field_0xb02;
     short field_0xb04;
     short field_0xb06;
-    BYTE field_0xb08[0x8];
+    unsigned short wheelPhase[4];     // 0xb08  wobble angle of each wheel (12-bit)
     unsigned short heading;           // 0xb10  12-bit angle
     short field_0xb12;
     short field_0xb14;
     short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by
     char index;                       // 0xb1a  index of this car (timing records and every per-car table)
-    BYTE field_0xb1b[2];              // 0xb1b-0xb1c: [0] type/index, [1] flags (was two separate bytes)
+    char type;                        // 0xb1b  car model / part layout (8, 9, 0xb: special bodies)
+    BYTE flags;                       // 0xb1c
     char field_0xb1d;                 // 0xb1d
     char gear;                        // 0xb1e  current gear (0 neutral, 7 reverse)
     char field_0xb1f;                 // 0xb1f
@@ -215,12 +220,17 @@ struct Car {
     BYTE field_0xb27;
     BYTE field_0xb28;                 // 0xb28
     BYTE field_0xb29;                 // 0xb29
-    BYTE field_0xb2a[0x2];
+    BYTE field_0xb2a;                 // 0xb2a
+    char field_0xb2b;                 // 0xb2b
     char cornerFlags[8];              // 0xb2c  set while a corner is disabled
     char field_0xb34;                 // 0xb34
     BYTE field_0xb35[0xd];
     char field_0xb42;                 // 0xb42
-    BYTE field_0xb43[0x5];
+    BYTE field_0xb43;                 // 0xb43  > 0 for a player car
+    char field_0xb44;                 // 0xb44
+    BYTE field_0xb45;
+    BYTE shakeLevel;                  // 0xb46  camera shake requested this frame
+    BYTE field_0xb47;
     int field_0xb48;                  // 0xb48
     int field_0xb4c;                  // 0xb4c  engine restart flag
     int field_0xb50;
@@ -234,7 +244,8 @@ struct Car {
     int field_0xb70;
     int field_0xb74;                  // 0xb74
     int field_0xb78;                  // 0xb78  rev limiter active
-    BYTE field_0xb7c[0x8];
+    int field_0xb7c;                  // 0xb7c
+    int field_0xb80;                  // 0xb80
     int field_0xb84;                  // 0xb84
     int field_0xb88;
     int field_0xb8c;
@@ -242,7 +253,7 @@ struct Car {
     int field_0xb94;                  // 0xb94  automatic shift lock
     int field_0xb98;                  // 0xb98  current gear is at or below the best one
     int field_0xb9c;                  // 0xb9c  automatic gearbox enabled
-    BYTE field_0xba0[0xc];
+    int field_0xba0[3];               // 0xba0
     int cornerOnGround[8];            // 0xbac  per corner: touching the ground
     int field_0xbcc[4];               // 0xbcc
     int field_0xbdc;                  // 0xbdc
@@ -252,11 +263,11 @@ struct Car {
     int field_0xbf8;                  // 0xbf8
     int field_0xbfc;                  // 0xbfc
     int field_0xc00;                  // 0xc00  8 corners instead of 4 when set
-    BYTE field_0xc04[0x8];
+    int field_0xc04[2];               // 0xc04
     int field_0xc0c;                  // 0xc0c
     int field_0xc10;                  // 0xc10
     unsigned int field_0xc14;
-    BYTE field_0xc18[0x4];
+    int field_0xc18;                  // 0xc18
     int field_0xc1c;
     int field_0xc20;
 };

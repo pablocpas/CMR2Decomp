@@ -2045,11 +2045,11 @@ void FUN_00468520(void)
 
     pRec = NULL;
     pPrev = NULL;
-    pBase = g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x106;
+    pBase = g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x106;
     limit = FixMulShift32(g_stageDeformStrength, 0xff0000);
     if (limit > 0xff)
         limit = 0xff;
-    if (*(int *)(g_unk0x00588b98 + *(char *)((BYTE *)g_stageDeformCar + 0xb1a) * 0x290 + 0x28c) == 0) {
+    if (*(int *)(g_unk0x00588b98 + g_stageDeformCar->index * 0x290 + 0x28c) == 0) {
         count = *(BYTE *)(pBase + 0x104);
         if (count < 0x14) {
             if (count != 0)
@@ -2274,8 +2274,8 @@ void StageDeform_ApplyRadialDent(void)
     int vertexIndex;
     int changed;
     int *pSlot;
-    int projection;
-    int phase;
+    short projection;
+    unsigned int phase;
     FixVector pos;
     FixVector saved;
     FixVector dir;
@@ -2515,36 +2515,12 @@ BYTE *FUN_00456be0(int index)
     return g_unk0x00542630 + index * 0x24;
 }
 
-struct Unk0x00590c20 {
-    int field_0x0;
-    FixMatrix *field_0x4;      // pointer to the world matrix
-    FixMatrix *field_0x8;      // matrix that brings forces into body space
-    BYTE field_0xc[0x110];
-    int field_0x11c;
-    FixVector field_0x120;     // body offset, accumulated below
-    FixVector field_0x12c;
-    FixVector field_0x138;     // body axes source
-    FixVector field_0x144;     // accumulated translation
-    BYTE field_0x150[4];
-    BYTE field_0x154[4];
-    unsigned short field_0x158; // heading of the rest direction
-    BYTE field_0x15a[2];
-    int field_0x15c;
-    int field_0x160;
-    FixVector field_0x164;     // angular velocity
-    FixVector field_0x170;     // angular stiffness
-    FixBasis field_0x17c;
-};
 
-struct Unk0x00590d74 {
-    BYTE field_0x0[0x778];
-    int field_0x778;
-};
 
 // GLOBAL: CMR2 0x00590c20
-Unk0x00590c20 *g_unk0x00590c20;
+PartState *g_partState;
 // GLOBAL: CMR2 0x00590d74
-Unk0x00590d74 *g_unk0x00590d74;
+Car *g_partCar;
 
 // Rotates the basis kept at 0x17c with the given angles and writes the three
 // axes into the object's matrix.
@@ -2553,12 +2529,12 @@ void FUN_00481560(unsigned short *pAngles)
 {
     FixBasis basis;
 
-    memcpy(&basis, &g_unk0x00590c20->field_0x17c, sizeof(basis));
-    if (g_unk0x00590d74->field_0x778 > 0x7ae)
+    memcpy(&basis, &g_partState->basis, sizeof(basis));
+    if (g_partCar->speed > 0x7ae)
         FixBasis_Rotate(&basis, pAngles);
-    FixMatrix_SetRight(&basis.right, g_unk0x00590c20->field_0x4);
-    FixMatrix_SetUp(&basis.up, g_unk0x00590c20->field_0x4);
-    FixMatrix_SetForward(&basis.forward, g_unk0x00590c20->field_0x4);
+    FixMatrix_SetRight(&basis.right, g_partState->pWorld);
+    FixMatrix_SetUp(&basis.up, g_partState->pWorld);
+    FixMatrix_SetForward(&basis.forward, g_partState->pWorld);
 }
 
 // Integrates the motion offset and writes the corrected world position.
@@ -2567,20 +2543,20 @@ void VehicleMotion_UpdateWorldPosition(void)
 {
     FixVector delta;
 
-    FixVecScale(&delta, &g_unk0x00590c20->field_0x138, g_physicsTimeStep);
-    g_unk0x00590c20->field_0x144.x += delta.x;
-    g_unk0x00590c20->field_0x144.y += delta.y;
-    g_unk0x00590c20->field_0x144.z += delta.z;
+    FixVecScale(&delta, &g_partState->velocity, g_physicsTimeStep);
+    g_partState->correction.x += delta.x;
+    g_partState->correction.y += delta.y;
+    g_partState->correction.z += delta.z;
 
-    FixMatrix_RotateVector(&delta, &g_unk0x00590c20->field_0x120,
-                           g_unk0x00590c20->field_0x4);
-    delta.x = g_unk0x00590c20->field_0x120.x - delta.x;
-    delta.y = g_unk0x00590c20->field_0x120.y - delta.y;
-    delta.z = g_unk0x00590c20->field_0x120.z - delta.z;
-    delta.x += g_unk0x00590c20->field_0x144.x;
-    delta.y += g_unk0x00590c20->field_0x144.y;
-    delta.z += g_unk0x00590c20->field_0x144.z;
-    FixMatrix_SetPosition(&delta, g_unk0x00590c20->field_0x4);
+    FixMatrix_RotateVector(&delta, &g_partState->position,
+                           g_partState->pWorld);
+    delta.x = g_partState->position.x - delta.x;
+    delta.y = g_partState->position.y - delta.y;
+    delta.z = g_partState->position.z - delta.z;
+    delta.x += g_partState->correction.x;
+    delta.y += g_partState->correction.y;
+    delta.z += g_partState->correction.z;
+    FixMatrix_SetPosition(&delta, g_partState->pWorld);
 }
 
 // Records of the 0x542e7c table (stride 0x1c); count derived from the next
@@ -3556,8 +3532,8 @@ void FUN_004814d0(void)
 {
     unsigned short angles[3];
 
-    if ((g_unk0x00590c20->field_0x150[0] & 0xf0) == 0x20) {
-        int direction = *(int *)&g_unk0x00590c20->field_0x17c;
+    if ((g_partState->flags & 0xf0) == 0x20) {
+        int direction = *(int *)&g_partState->basis;
         angles[0] = 0;
         angles[1] = 0;
         if (direction < 0)
@@ -3565,7 +3541,7 @@ void FUN_004814d0(void)
         else
             angles[2] = (unsigned short)-g_unk0x00590c68;
     } else {
-        int direction = *(int *)&g_unk0x00590c20->field_0x17c;
+        int direction = *(int *)&g_partState->basis;
         angles[0] = 0;
         angles[1] = 0;
         if (direction > 0)
@@ -3914,11 +3890,11 @@ void FUN_00484d30(int t)
         index = (signed char)Car_Get(*p)->index;
         for (pp = &g_unk0x00590d7c[3]; (int)pp >= (int)g_unk0x00590d7c; pp--) {
             pPart = (BYTE *)*pp + index * 0x1a0;
-            g_unk0x00590c20 = (Unk0x00590c20 *)pPart;
+            g_partState = (PartState *)pPart;
             if (*(int *)pPart != 0 && (pPart[0x150] & 1) != 0) {
                 FixMatrix_Interpolate((FixMatrix *)(pPart + 0x8c), (FixMatrix *)(pPart + 0x4c), (FixMatrix *)(pPart + 0xc),
                                       t, t, t, 0);
-                FixMatrix_CopyRotation((FixMatrix *)((BYTE *)g_unk0x00590c20 + 0x8c), (FixMatrix *)(*(BYTE **)g_unk0x00590c20 + 0x98));
+                FixMatrix_CopyRotation(&g_partState->drawMatrix, (FixMatrix *)(*(BYTE **)g_partState + 0x98));
             }
         }
         p--;
@@ -3927,7 +3903,7 @@ void FUN_00484d30(int t)
 }
 
 // GLOBAL: CMR2 0x00590d78
-BYTE *g_unk0x00590d78;
+CarPartSet *g_partSet;
 extern BYTE g_unk0x00590c60[4];
 
 void FUN_00469bf0(Car *pCar, int index);
@@ -3937,8 +3913,8 @@ void FUN_00469bf0(Car *pCar, int index);
 // FUNCTION: CMR2 0x00483010
 void FUN_00483010(void)
 {
-    g_unk0x00590c20->field_0x150[0] &= 0xfe;
-    FUN_00469bf0((Car *)g_unk0x00590d74, g_unk0x00590c20->field_0x150[0] >> 4);
+    g_partState->flags &= 0xfe;
+    FUN_00469bf0(g_partCar, g_partState->flags >> 4);
 }
 
 // Starts a part's swing when the load on its side exceeds 0.8: the swing
@@ -3950,21 +3926,21 @@ void FUN_00483050(void)
     int a;
     int b;
 
-    idx = g_unk0x00590c60[g_unk0x00590c20->field_0x150[0] >> 4];
-    if (*(int *)(g_unk0x00590d78 + 0x240 + idx * 4) > 0xcccc) {
-        if ((g_unk0x00590c20->field_0x150[0] & 0xf0) == 0x10) {
+    idx = g_unk0x00590c60[g_partState->flags >> 4];
+    if (g_partSet->field_0x240[idx] > 0xcccc) {
+        if ((g_partState->flags & 0xf0) == 0x10) {
             a = 2;
             b = 3;
         } else {
             a = 0;
             b = 1;
         }
-        if (*(int *)(g_unk0x00590d78 + a * 4 + 0x240) > *(int *)(g_unk0x00590d78 + b * 4 + 0x240))
-            g_unk0x00590c20->field_0x120.z -= g_unk0x00590c20->field_0x11c;
+        if (g_partSet->field_0x240[a] > g_partSet->field_0x240[b])
+            g_partState->position.z -= g_partState->swingAxis.z;
         else
-            g_unk0x00590c20->field_0x120.z += g_unk0x00590c20->field_0x11c;
-        g_unk0x00590c20->field_0x150[0] |= 2;
-        *(short *)((BYTE *)g_unk0x00590c20 + 0x158) = 0;
+            g_partState->position.z += g_partState->swingAxis.z;
+        g_partState->flags |= 2;
+        g_partState->angle = 0;
     }
 }
 
@@ -4966,19 +4942,19 @@ int FUN_004813b0(int slot)
 {
     BYTE *object;
 
-    if (*(int *)g_unk0x00590c20 == 0) {
-        object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_unk0x00590d74)[0xb1a]];
+    if (*(int *)g_partState == 0) {
+        object = g_unk0x00590b7c[slot][(signed char)((BYTE *)g_partCar)[0xb1a]];
         if (object != NULL) {
-            *(BYTE **)g_unk0x00590c20 = object;
-            *(BYTE **)((BYTE *)g_unk0x00590c20 + 4) = (BYTE *)g_unk0x00590c20 + 0xc;
-            *(BYTE **)((BYTE *)g_unk0x00590c20 + 8) = (BYTE *)g_unk0x00590c20 + 0xcc;
-            memcpy((BYTE *)g_unk0x00590c20 + 0xc, (*(BYTE **)g_unk0x00590c20) + 0x98, 0x40);
-            memcpy((BYTE *)g_unk0x00590c20 + 0xcc, (*(BYTE **)g_unk0x00590c20) + 0xd8, 0x40);
-            *(BYTE **)((BYTE *)g_unk0x00590c20 + 0x10c) = *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x71c) + 0x98;
-            memcpy(*(BYTE **)((BYTE *)g_unk0x00590c20 + 8), *(BYTE **)((BYTE *)g_unk0x00590d74 + 0x720) + 0xd8, 0x40);
-            FixMatrix_GetRight((FixVector *)((BYTE *)g_unk0x00590c20 + 0x17c), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
-            FixMatrix_GetUp((FixVector *)((BYTE *)g_unk0x00590c20 + 0x188), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
-            FixMatrix_GetForward((FixVector *)((BYTE *)g_unk0x00590c20 + 0x194), (FixMatrix *)((*(BYTE **)g_unk0x00590c20) + 0x98));
+            *(BYTE **)g_partState = object;
+            *(BYTE **)((BYTE *)g_partState + 4) = (BYTE *)g_partState + 0xc;
+            *(BYTE **)((BYTE *)g_partState + 8) = (BYTE *)g_partState + 0xcc;
+            memcpy((BYTE *)g_partState + 0xc, (*(BYTE **)g_partState) + 0x98, 0x40);
+            memcpy((BYTE *)g_partState + 0xcc, (*(BYTE **)g_partState) + 0xd8, 0x40);
+            *(BYTE **)((BYTE *)g_partState + 0x10c) = *(BYTE **)((BYTE *)g_partCar + 0x71c) + 0x98;
+            memcpy(*(BYTE **)((BYTE *)g_partState + 8), *(BYTE **)((BYTE *)g_partCar + 0x720) + 0xd8, 0x40);
+            FixMatrix_GetRight(&g_partState->basis.right, (FixMatrix *)((*(BYTE **)g_partState) + 0x98));
+            FixMatrix_GetUp(&g_partState->basis.up, (FixMatrix *)((*(BYTE **)g_partState) + 0x98));
+            FixMatrix_GetForward(&g_partState->basis.forward, (FixMatrix *)((*(BYTE **)g_partState) + 0x98));
             return 1;
         }
     }
@@ -5041,7 +5017,7 @@ extern const double g_unk0x00511380 = 0.0099471839432434591;
 // FUNCTION: CMR2 0x00480cb0
 void FUN_00480cb0(void)
 {
-    int speed = FixMul(*(int *)((BYTE *)g_unk0x00590d74 + 0x778), FixDiv(0x10000, 0x18000));
+    int speed = FixMul(g_partCar->speed, FixDiv(0x10000, 0x18000));
     int step;
     int target;
     int index;
@@ -5052,11 +5028,11 @@ void FUN_00480cb0(void)
         speed = 0x10000;
     step = FixMul(FixMul(speed, g_physicsTimeStep), 0xf5c);
     target = FixMul(FixMul(speed, g_physicsTimeStep), 0x3333);
-    phase = *(int *)((BYTE *)g_unk0x00590d74 + 0x2d0) + *(int *)((BYTE *)g_unk0x00590d74 + 0x2d8);
+    phase = g_partCar->position.x + g_partCar->position.z;
     phase = FIX_ABS(phase);
     phase %= 1024;
     target = FixMul(target, phase << 6);
-    index = (signed char)((BYTE *)g_unk0x00590d74)[0xb1a];
+    index = (signed char)((BYTE *)g_partCar)[0xb1a];
     delta = target - g_unk0x00590b10[index];
     if (FIX_ABS(delta) > step) {
         if (delta > 0)
@@ -5931,8 +5907,8 @@ void FUN_004584d0(char param_1)
     int slot;
     int n;
     int t;
-    int x;
-    int z;
+    short x;
+    unsigned int z;
     int sinA;
     int cosA;
     int other;
@@ -6401,32 +6377,7 @@ inline void Motion_NormalizeInto(FixVector *out, FixVector *v)
     }
 }
 
-struct PartState {
-    int field_0x0;              // 0x000
-    FixMatrix *field_0x4;       // 0x004 world matrix
-    FixMatrix *field_0x8;       // 0x008 matrix that brings forces into part space
-    BYTE field_0xc[0x104];      // 0x00c
-    int field_0x110;            // 0x110 per-slot integrator address
-    FixVector field_0x114;      // 0x114 swing axis
-    FixVector field_0x120;      // 0x120 body offset
-    FixVector field_0x12c;      // 0x12c previous body offset
-    FixVector field_0x138;      // 0x138 motion axes source
-    FixVector field_0x144;      // 0x144 accumulated translation
-    BYTE field_0x150;           // 0x150 flags (low nibble) | slot (high nibble)
-    BYTE field_0x151[3];
-    int field_0x154;            // 0x154
-    signed short field_0x158;   // 0x158 swing angle
-    signed short field_0x15a;
-    int field_0x15c;            // 0x15c
-    int field_0x160;            // 0x160
-    FixVector field_0x164;      // 0x164 accumulated swing offset
-    FixVector field_0x170;      // 0x170 ground response gains
-    FixBasis field_0x17c;       // 0x17c right / up / forward
-};
 
-#define PARTSTATE ((PartState *)g_unk0x00590c20)
-#define PARTSET   ((CarPartSet *)g_unk0x00590d78)
-#define CARBYTES  ((BYTE *)g_unk0x00590d74)
 
 int FUN_00482f30(void);
 void Vehicle_UpdateMotion(FixVector *pInput);
@@ -6453,8 +6404,8 @@ void FUN_004816f0(void)
     FixVector force;
     FixVector v24;
     unsigned short angles[3];
-    BYTE idx;
-    int dot;
+    int idx;
+    unsigned int dot;
     int scale;
     int flip;
     int t;
@@ -6465,9 +6416,9 @@ void FUN_004816f0(void)
 
     if (FUN_00482f30() != 0)
         return;
-    type = CARBYTES[0xb1b];
+    type = g_partCar->type;
     if (type != 9 && type != 11) {
-        if ((PARTSTATE->field_0x150 & 6) == 0)
+        if ((g_partState->flags & 6) == 0)
             FUN_00483050();
         torque.x = 0;
         torque.y = 0;
@@ -6476,20 +6427,20 @@ void FUN_004816f0(void)
         force.y = 0;
         force.z = 0;
         detached = 0;
-        if (PARTSTATE->field_0x150 & 2) {
-            s = g_sinTable[(unsigned short)PARTSTATE->field_0x158 & 0xfff];
-            c = g_sinTable[((unsigned short)PARTSTATE->field_0x158 + 0x400) & 0xfff];
+        if (g_partState->flags & 2) {
+            s = g_sinTable[(unsigned short)g_partState->angle & 0xfff];
+            c = g_sinTable[((unsigned short)g_partState->angle + 0x400) & 0xfff];
             spring.x = 0;
             spring.y = 0;
             spring.z = 0;
-            if (PARTSTATE->field_0x120.z > 0) {
-                v24.x = s - PARTSTATE->field_0x17c.forward.x;
-                v24.y = -PARTSTATE->field_0x17c.forward.y;
-                v24.z = c - PARTSTATE->field_0x17c.forward.z;
+            if (g_partState->position.z > 0) {
+                v24.x = s - g_partState->basis.forward.x;
+                v24.y = -g_partState->basis.forward.y;
+                v24.z = c - g_partState->basis.forward.z;
             } else {
-                v24.x = PARTSTATE->field_0x17c.forward.x - s;
-                v24.y = PARTSTATE->field_0x17c.forward.y;
-                v24.z = PARTSTATE->field_0x17c.forward.z - c;
+                v24.x = g_partState->basis.forward.x - s;
+                v24.y = g_partState->basis.forward.y;
+                v24.z = g_partState->basis.forward.z - c;
             }
             len = FixVecLength(&v24);
             if (len > 0) {
@@ -6498,22 +6449,22 @@ void FUN_004816f0(void)
                 FixVecScale(&spring, &v24, len);
             }
             idx = 0;
-            v4c.x = *(int *)(CARBYTES + 0x408) - *(int *)(CARBYTES + 0x414);
-            v4c.y = *(int *)(CARBYTES + 0x40c) - *(int *)(CARBYTES + 0x418);
-            v4c.z = *(int *)(CARBYTES + 0x410) - *(int *)(CARBYTES + 0x41c);
+            v4c.x = *(int *)(((BYTE *)g_partCar) + 0x408) - *(int *)(((BYTE *)g_partCar) + 0x414);
+            v4c.y = *(int *)(((BYTE *)g_partCar) + 0x40c) - *(int *)(((BYTE *)g_partCar) + 0x418);
+            v4c.z = *(int *)(((BYTE *)g_partCar) + 0x410) - *(int *)(((BYTE *)g_partCar) + 0x41c);
             v3c.x = 0;
             v3c.y = 0;
             v3c.z = 0;
-            if (PARTSTATE->field_0x120.z > 0)
+            if (g_partState->position.z > 0)
                 idx = 1;
-            if ((PARTSTATE->field_0x150 & 0xf0) == 0x10)
+            if ((g_partState->flags & 0xf0) == 0x10)
                 idx += 2;
-            if (*(int *)(CARBYTES + 0xbac + idx * 4) != 0) {
-                dot = FixVecDot((FixVector *)(CARBYTES + 0x408), (FixVector *)(CARBYTES + 0x48c));
-                FixVecScale(&v3c, (FixVector *)(CARBYTES + 0x48c), dot);
-                v3c.x = *(int *)(CARBYTES + 0x408) - v3c.x;
-                v3c.y = *(int *)(CARBYTES + 0x40c) - v3c.y;
-                v3c.z = *(int *)(CARBYTES + 0x410) - v3c.z;
+            if (g_partCar->cornerOnGround[idx] != 0) {
+                dot = FixVecDot((FixVector *)(((BYTE *)g_partCar) + 0x408), (FixVector *)(((BYTE *)g_partCar) + 0x48c));
+                FixVecScale(&v3c, (FixVector *)(((BYTE *)g_partCar) + 0x48c), dot);
+                v3c.x = *(int *)(((BYTE *)g_partCar) + 0x408) - v3c.x;
+                v3c.y = *(int *)(((BYTE *)g_partCar) + 0x40c) - v3c.y;
+                v3c.z = *(int *)(((BYTE *)g_partCar) + 0x410) - v3c.z;
                 FixVecScale(&v3c, &v3c, 0x3333);
                 FUN_00483100((int *)&v3c, idx);
             }
@@ -6522,9 +6473,9 @@ void FUN_004816f0(void)
             v24.z = v3c.z + v4c.z;
             len = FixVecLength(&v24);
             if (len > 0x4ccc) {
-                dot = FixVecDot(&v24, (FixVector *)(CARBYTES + 0x360));
-                if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
-                    if (PARTSTATE->field_0x120.z < 0) {
+                dot = FixVecDot(&v24, (FixVector *)(((BYTE *)g_partCar) + 0x360));
+                if ((g_partState->flags & 0xf0) == 0x10) {
+                    if (g_partState->position.z < 0) {
                         scale = -0x10000;
                         flip = 1;
                     } else {
@@ -6532,7 +6483,7 @@ void FUN_004816f0(void)
                         flip = 0;
                     }
                 } else {
-                    if (PARTSTATE->field_0x120.z < 0) {
+                    if (g_partState->position.z < 0) {
                         scale = -0x10000;
                         flip = 0;
                     } else {
@@ -6549,16 +6500,16 @@ void FUN_004816f0(void)
                     if (t > 0x10000)
                         t = 0x10000;
                     t = FixMul(t, 0x50000);
-                    PARTSTATE->field_0x158 =
-                        (short)(__int64)((double)(PARTSTATE->field_0x158 * 0x1680 + FixMul(t, scale)) * g_unk0x00511300);
+                    g_partState->angle =
+                        (short)(__int64)((double)(g_partState->angle * 0x1680 + FixMul(t, scale)) * g_unk0x00511300);
                     if (flip) {
-                        if (PARTSTATE->field_0x158 > 0)
-                            PARTSTATE->field_0x158 = 0;
+                        if (g_partState->angle > 0)
+                            g_partState->angle = 0;
                     } else {
-                        if (PARTSTATE->field_0x158 < 0)
-                            PARTSTATE->field_0x158 = 0;
+                        if (g_partState->angle < 0)
+                            g_partState->angle = 0;
                     }
-                    if (FIX_ABS(PARTSTATE->field_0x158) > 0xe3)
+                    if (FIX_ABS(g_partState->angle) > 0xe3)
                         detached = 1;
                 }
                 FixVecScaleRecip(&v24, &v24, len);
@@ -6592,42 +6543,42 @@ void FUN_004816f0(void)
                 t = 0x8000;
             t = FixMul(t, 0xc937);
             t += 0x8000;
-            FixVecScale(&PARTSTATE->field_0x164, &PARTSTATE->field_0x164, t);
-            FixMatrix_InverseRotateVector(&v24, &force, PARTSTATE->field_0x8);
+            FixVecScale(&g_partState->angularVelocity, &g_partState->angularVelocity, t);
+            FixMatrix_InverseRotateVector(&v24, &force, g_partState->pForceFrame);
             force = v24;
             if (detached == 0) {
                 force.x += spring.x;
                 force.y += spring.y;
                 force.z += spring.z;
             } else {
-                PARTSTATE->field_0x164.x = 0;
-                PARTSTATE->field_0x164.y = 0;
-                PARTSTATE->field_0x164.z = 0;
+                g_partState->angularVelocity.x = 0;
+                g_partState->angularVelocity.y = 0;
+                g_partState->angularVelocity.z = 0;
             }
-            v24.x = PARTSTATE->field_0x12c.x - PARTSTATE->field_0x120.x;
-            v24.y = PARTSTATE->field_0x12c.y - PARTSTATE->field_0x120.y;
-            v24.z = PARTSTATE->field_0x12c.z - PARTSTATE->field_0x120.z;
+            v24.x = g_partState->previousPosition.x - g_partState->position.x;
+            v24.y = g_partState->previousPosition.y - g_partState->position.y;
+            v24.z = g_partState->previousPosition.z - g_partState->position.z;
             FixVecCross(&cross, &force, &v24);
             if (detached == 0)
                 cross.z = 0;
-            torque.x = -FixMul(cross.x, PARTSTATE->field_0x170.x);
-            torque.y = -FixMul(cross.y, PARTSTATE->field_0x170.y);
-            torque.z = -FixMul(cross.z, PARTSTATE->field_0x170.z);
+            torque.x = -FixMul(cross.x, g_partState->stiffness.x);
+            torque.y = -FixMul(cross.y, g_partState->stiffness.y);
+            torque.z = -FixMul(cross.z, g_partState->stiffness.z);
             FixVecScale(&torque, &torque, g_physicsTimeStep);
-            PARTSTATE->field_0x164.x += torque.x;
-            PARTSTATE->field_0x164.y += torque.y;
-            PARTSTATE->field_0x164.z += torque.z;
+            g_partState->angularVelocity.x += torque.x;
+            g_partState->angularVelocity.y += torque.y;
+            g_partState->angularVelocity.z += torque.z;
         }
-        if (PARTSTATE->field_0x150 & 6) {
-            PARTSTATE->field_0x150 |= 8;
-            if (detached == 0 && (PARTSTATE->field_0x150 & 4) == 0 && *(int *)(CARBYTES + 0x778) <= 0x7ae)
-                PARTSTATE->field_0x150 &= ~8;
-            if ((PARTSTATE->field_0x150 & 2) && !(PARTSTATE->field_0x150 & 8)) {
-                PARTSTATE->field_0x164.x = 0;
-                PARTSTATE->field_0x164.y = 0;
-                PARTSTATE->field_0x164.z = 0;
+        if (g_partState->flags & 6) {
+            g_partState->flags |= 8;
+            if (detached == 0 && (g_partState->flags & 4) == 0 && *(int *)(((BYTE *)g_partCar) + 0x778) <= 0x7ae)
+                g_partState->flags &= ~8;
+            if ((g_partState->flags & 2) && !(g_partState->flags & 8)) {
+                g_partState->angularVelocity.x = 0;
+                g_partState->angularVelocity.y = 0;
+                g_partState->angularVelocity.z = 0;
             } else {
-                FixVecScale(&turn, &PARTSTATE->field_0x164, g_physicsTimeStep);
+                FixVecScale(&turn, &g_partState->angularVelocity, g_physicsTimeStep);
                 FixVecScale(&torque, &torque, g_physicsTimeStep / 2);
                 turn.x -= torque.x;
                 turn.y -= torque.y;
@@ -6635,81 +6586,81 @@ void FUN_004816f0(void)
                 angles[0] = (short)(__int64)((double)turn.x * g_unk0x00511380);
                 angles[1] = (short)(__int64)((double)turn.y * g_unk0x00511380);
                 angles[2] = (short)(__int64)((double)turn.z * g_unk0x00511380);
-                FixBasis_Rotate(&PARTSTATE->field_0x17c, angles);
+                FixBasis_Rotate(&g_partState->basis, angles);
             }
         }
-        if ((PARTSTATE->field_0x150 & 2) && (PARTSTATE->field_0x150 & 8) && detached == 0) {
+        if ((g_partState->flags & 2) && (g_partState->flags & 8) && detached == 0) {
             flip = 0;
-            if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
-                if (PARTSTATE->field_0x120.z > 0) {
-                    if (PARTSTATE->field_0x17c.forward.x < 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
+            if ((g_partState->flags & 0xf0) == 0x10) {
+                if (g_partState->position.z > 0) {
+                    if (g_partState->basis.forward.x < 0) {
+                        g_partState->basis.forward.x = 0;
+                        g_partState->angularVelocity.x = 0;
                         flip = 1;
                     }
-                    if (PARTSTATE->field_0x17c.forward.y < 0) {
-                        PARTSTATE->field_0x17c.forward.y = 0;
-                        PARTSTATE->field_0x164.y = 0;
+                    if (g_partState->basis.forward.y < 0) {
+                        g_partState->basis.forward.y = 0;
+                        g_partState->angularVelocity.y = 0;
                         goto renormalize;
                     }
                 } else {
-                    if (PARTSTATE->field_0x17c.forward.x > 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
+                    if (g_partState->basis.forward.x > 0) {
+                        g_partState->basis.forward.x = 0;
                         flip = 1;
-                        PARTSTATE->field_0x164.x = 0;
+                        g_partState->angularVelocity.x = 0;
                     }
-                    if (PARTSTATE->field_0x17c.forward.y > 0) {
-                        PARTSTATE->field_0x17c.forward.y = 0;
-                        PARTSTATE->field_0x164.y = 0;
+                    if (g_partState->basis.forward.y > 0) {
+                        g_partState->basis.forward.y = 0;
+                        g_partState->angularVelocity.y = 0;
                         goto renormalize;
                     }
                 }
             } else {
-                if (PARTSTATE->field_0x120.z > 0) {
-                    if (PARTSTATE->field_0x17c.forward.x > 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
+                if (g_partState->position.z > 0) {
+                    if (g_partState->basis.forward.x > 0) {
+                        g_partState->basis.forward.x = 0;
                         flip = 1;
-                        PARTSTATE->field_0x164.x = 0;
+                        g_partState->angularVelocity.x = 0;
                     }
-                    if (PARTSTATE->field_0x17c.forward.y < 0) {
-                        PARTSTATE->field_0x17c.forward.y = 0;
-                        PARTSTATE->field_0x164.y = 0;
+                    if (g_partState->basis.forward.y < 0) {
+                        g_partState->basis.forward.y = 0;
+                        g_partState->angularVelocity.y = 0;
                         goto renormalize;
                     }
                 } else {
-                    if (PARTSTATE->field_0x17c.forward.x < 0) {
-                        PARTSTATE->field_0x17c.forward.x = 0;
-                        PARTSTATE->field_0x164.x = 0;
+                    if (g_partState->basis.forward.x < 0) {
+                        g_partState->basis.forward.x = 0;
+                        g_partState->angularVelocity.x = 0;
                         flip = 1;
                     }
-                    if (PARTSTATE->field_0x17c.forward.y > 0) {
-                        PARTSTATE->field_0x17c.forward.y = 0;
-                        PARTSTATE->field_0x164.y = 0;
+                    if (g_partState->basis.forward.y > 0) {
+                        g_partState->basis.forward.y = 0;
+                        g_partState->angularVelocity.y = 0;
                         goto renormalize;
                     }
                 }
             }
             if (flip) {
 renormalize:
-                Motion_NormalizeInto(&PARTSTATE->field_0x17c.forward, &PARTSTATE->field_0x17c.forward);
-                PARTSTATE->field_0x17c.up.x = 0;
+                Motion_NormalizeInto(&g_partState->basis.forward, &g_partState->basis.forward);
+                g_partState->basis.up.x = 0;
             }
-            dot = FixVecDot(&PARTSTATE->field_0x17c.forward, &PARTSTATE->field_0x17c.up);
-            FixVecScale(&v24, &PARTSTATE->field_0x17c.forward, dot);
-            v24.x = PARTSTATE->field_0x17c.up.x - v24.x;
-            v24.y = PARTSTATE->field_0x17c.up.y - v24.y;
-            v24.z = PARTSTATE->field_0x17c.up.z - v24.z;
-            Motion_NormalizeInto(&PARTSTATE->field_0x17c.up, &v24);
-            FixVecCross(&v24, &PARTSTATE->field_0x17c.up, &PARTSTATE->field_0x17c.forward);
-            Motion_NormalizeInto(&PARTSTATE->field_0x17c.right, &v24);
+            dot = FixVecDot(&g_partState->basis.forward, &g_partState->basis.up);
+            FixVecScale(&v24, &g_partState->basis.forward, dot);
+            v24.x = g_partState->basis.up.x - v24.x;
+            v24.y = g_partState->basis.up.y - v24.y;
+            v24.z = g_partState->basis.up.z - v24.z;
+            Motion_NormalizeInto(&g_partState->basis.up, &v24);
+            FixVecCross(&v24, &g_partState->basis.up, &g_partState->basis.forward);
+            Motion_NormalizeInto(&g_partState->basis.right, &v24);
         }
-        if ((PARTSTATE->field_0x150 & 4) == 0) {
+        if ((g_partState->flags & 4) == 0) {
             angles[0] = 0;
             angles[1] = 0;
             angles[2] = 0;
-            if ((PARTSTATE->field_0x150 & 2) == 0) {
+            if ((g_partState->flags & 2) == 0) {
                 a = (short)(__int64)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x10000) * g_unk0x00511300);
-                if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
+                if ((g_partState->flags & 0xf0) == 0x10) {
                     angles[2] = a;
                     FUN_00481560(angles);
                 } else {
@@ -6718,15 +6669,15 @@ renormalize:
                 }
             } else {
                 a = (short)(__int64)((double)FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000) * g_unk0x00511300);
-                if ((PARTSTATE->field_0x150 & 0xf0) == 0x10) {
-                    if (PARTSTATE->field_0x120.z > 0) {
+                if ((g_partState->flags & 0xf0) == 0x10) {
+                    if (g_partState->position.z > 0) {
                         angles[0] = -a;
                     } else {
                         angles[0] = a;
                         a = -a;
                     }
                 } else {
-                    if (PARTSTATE->field_0x120.z > 0)
+                    if (g_partState->position.z > 0)
                         a = -a;
                     angles[0] = a;
                 }
@@ -6734,9 +6685,9 @@ renormalize:
                 FUN_00481560(angles);
             }
         } else {
-            FixMatrix_SetRight(&PARTSTATE->field_0x17c.right, PARTSTATE->field_0x4);
-            FixMatrix_SetUp(&PARTSTATE->field_0x17c.up, PARTSTATE->field_0x4);
-            FixMatrix_SetForward(&PARTSTATE->field_0x17c.forward, PARTSTATE->field_0x4);
+            FixMatrix_SetRight(&g_partState->basis.right, g_partState->pWorld);
+            FixMatrix_SetUp(&g_partState->basis.up, g_partState->pWorld);
+            FixMatrix_SetForward(&g_partState->basis.forward, g_partState->pWorld);
         }
     } else if (type == 9) {
         detached = 0;
@@ -6778,115 +6729,117 @@ void FUN_00457e50(SceneNode *pNodeA, SceneNode *pNodeB, int carIndex, int param_
 // Initialises one of a car's four wheel/hub records: points the shared record
 // pointer at the car's slot, picks the static geometry for the wheel type,
 // installs the per-slot integrator and clears the dynamic state.
-// match 13%: implementada; MSVC6 se queda con g_unk0x00590c20 y el puntero base en registro
+// match 13%: implementada; MSVC6 se queda con g_partState y el puntero base en registro
 // en vez de releerlos del global en cada acceso como hace el original
 // FUNCTION: CMR2 0x00480e50
 void FUN_00480e50(int slot)
 {
-    int type = g_unk0x00590c24[slot][*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)];
-    int offX = 0;
-    int offZ = 0;
-    int offY = 0;
+    int type = g_unk0x00590c24[slot][g_partCar->index];
+    FixVector off;
 
-    g_unk0x00590c20 =
-        (Unk0x00590c20 *)((BYTE *)g_unk0x00590d7c[slot] + *(char *)((BYTE *)g_unk0x00590d74 + 0xb1a) * 0x1a0);
+    off.x = 0;
+    off.z = 0;
+    off.y = 0;
+
+    g_partState =
+        (PartState *)((BYTE *)g_unk0x00590d7c[slot] + g_partCar->index * 0x1a0);
     if (FUN_004813b0(slot) == 0)
         return;
-    PARTSTATE->field_0x150 = (PARTSTATE->field_0x150 & 0xf) | (slot << 4);
-    PARTSTATE->field_0x150 |= 1;
-    PARTSTATE->field_0x150 &= ~2;
-    PARTSTATE->field_0x150 &= ~4;
-    PARTSTATE->field_0x150 &= ~8;
-    *(int *)(PARTSTATE->field_0x0 + 0x184) = 0;
+    g_partState->flags = (g_partState->flags & 0xf) | (slot << 4);
+    g_partState->flags |= 1;
+    g_partState->flags &= ~2;
+    g_partState->flags &= ~4;
+    g_partState->flags &= ~8;
+    g_partState->pNode->useParentWorld = 0;
     switch (slot) {
     case 0:
-        offX = -PARTSET->halfExtents[type].x;
-        offY = PARTSET->halfExtents[type].y;
-        offZ = 0;
-        PARTSTATE->field_0x158 = 0x288;
-        PARTSTATE->field_0x110 = (int)FUN_004814d0;
+        off.x = -g_partSet->halfExtents[type].x;
+        off.y = g_partSet->halfExtents[type].y;
+        off.z = 0;
+        g_partState->angle = 0x288;
+        g_partState->update = FUN_004814d0;
         break;
     case 2:
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 11) {
-            offX = 0;
-            offY = PARTSET->halfExtents[type].y;
-            offZ = -PARTSET->halfExtents[type].z;
-        } else if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 9) {
-            offX = -PARTSET->halfExtents[type].x;
-            offY = 0;
-            offZ = PARTSET->halfExtents[type].z;
+        if (g_partCar->type == 11) {
+            off.x = 0;
+            off.y = g_partSet->halfExtents[type].y;
+            off.z = -g_partSet->halfExtents[type].z;
+        } else if (g_partCar->type == 9) {
+            off.x = -g_partSet->halfExtents[type].x;
+            off.y = 0;
+            off.z = g_partSet->halfExtents[type].z;
         } else {
-            if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-                offX = -PARTSET->halfExtents[type].x;
-                offY = -PARTSET->halfExtents[type].y;
+            if (g_partCar->type == 8) {
+                off.x = -g_partSet->halfExtents[type].x;
+                off.y = -g_partSet->halfExtents[type].y;
             } else {
-                offX = PARTSET->halfExtents[type].x;
-                offY = PARTSET->halfExtents[type].y;
+                off.x = g_partSet->halfExtents[type].x;
+                off.y = g_partSet->halfExtents[type].y;
             }
-            offZ = 0;
+            off.z = 0;
         }
-        PARTSTATE->field_0x158 = 0x288;
-        PARTSTATE->field_0x110 = (int)FUN_00484310;
+        g_partState->angle = 0x288;
+        g_partState->update = FUN_00484310;
         break;
     case 1:
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 9 && *(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) != 11) {
-            offX = FixMul(PARTSET->halfExtents[type].x, 0x8000);
-            offY = PARTSET->halfExtents[type].y;
-            offZ = 0;
+        if (g_partCar->type != 9 && g_partCar->type != 11) {
+            off.x = FixMul(g_partSet->halfExtents[type].x, 0x8000);
+            off.y = g_partSet->halfExtents[type].y;
+            off.z = 0;
         } else {
-            offY = 0;
-            offX = PARTSET->halfExtents[type].x;
-            offZ = -PARTSET->halfExtents[type].z;
+            off.y = 0;
+            off.x = g_partSet->halfExtents[type].x;
+            off.z = -g_partSet->halfExtents[type].z;
         }
-        PARTSTATE->field_0x158 = 0;
-        PARTSTATE->field_0x110 = (int)FUN_004816f0;
-        PARTSTATE->field_0x170.x = 0x10e5;
-        PARTSTATE->field_0x170.y = 0x1eb8;
-        PARTSTATE->field_0x170.z = 0x10e5;
+        g_partState->angle = 0;
+        g_partState->update = FUN_004816f0;
+        g_partState->stiffness.x = 0x10e5;
+        g_partState->stiffness.y = 0x1eb8;
+        g_partState->stiffness.z = 0x10e5;
         goto common;
     case 3:
-        PARTSTATE->field_0x150 |= 2;
-        if (*(char *)((BYTE *)g_unk0x00590d74 + 0xb1b) == 8) {
-            offX = 0;
-            offZ = 0;
-            offY = PARTSET->halfExtents[type].y;
+        g_partState->flags |= 2;
+        if (g_partCar->type == 8) {
+            off.x = 0;
+            off.z = 0;
+            off.y = g_partSet->halfExtents[type].y;
         } else {
-            offX = 0;
-            if (*(int *)(g_unk0x00590d78 + 0x248) > *(int *)(g_unk0x00590d78 + 0x24c)) {
-                offZ = PARTSET->halfExtents[type].z;
-                offY = -PARTSET->halfExtents[type].y;
+            off.x = 0;
+            if (*(int *)(((BYTE *)g_partSet) + 0x248) > *(int *)(((BYTE *)g_partSet) + 0x24c)) {
+                off.z = g_partSet->halfExtents[type].z;
+                off.y = -g_partSet->halfExtents[type].y;
             } else {
-                offZ = -PARTSET->halfExtents[type].z;
-                offY = -PARTSET->halfExtents[type].y;
+                off.z = -g_partSet->halfExtents[type].z;
+                off.y = -g_partSet->halfExtents[type].y;
             }
         }
-        PARTSTATE->field_0x158 = 0;
-        PARTSTATE->field_0x110 = (int)FUN_00483570;
+        g_partState->angle = 0;
+        g_partState->update = FUN_00483570;
         break;
     default:
         goto common;
     }
-    PARTSTATE->field_0x170.x = 0x10e5;
-    PARTSTATE->field_0x170.y = 0x1eb8;
-    PARTSTATE->field_0x170.z = 0x6ccc;
+    g_partState->stiffness.x = 0x10e5;
+    g_partState->stiffness.y = 0x1eb8;
+    g_partState->stiffness.z = 0x6ccc;
 common:
-    PARTSTATE->field_0x120.x = PARTSET->centres[type].x + offX;
-    PARTSTATE->field_0x120.y = PARTSET->centres[type].y + offY;
-    PARTSTATE->field_0x120.z = PARTSET->centres[type].z + offZ;
-    PARTSTATE->field_0x15c = FixVecLength(&PARTSET->halfExtents[type]);
-    PARTSTATE->field_0x12c = PARTSET->centres[type];
-    PARTSTATE->field_0x114 = PARTSET->halfExtents[type];
-    PARTSTATE->field_0x138.x = 0;
-    PARTSTATE->field_0x138.y = 0;
-    PARTSTATE->field_0x138.z = 0;
-    PARTSTATE->field_0x144.x = 0;
-    PARTSTATE->field_0x144.y = 0;
-    PARTSTATE->field_0x144.z = 0;
-    PARTSTATE->field_0x164.x = 0;
-    PARTSTATE->field_0x164.y = 0;
-    PARTSTATE->field_0x164.z = 0;
-    PARTSTATE->field_0x154 = 0;
-    PARTSTATE->field_0x160 = 0;
+    g_partState->position.x = g_partSet->centres[type].x + off.x;
+    g_partState->position.y = g_partSet->centres[type].y + off.y;
+    g_partState->position.z = g_partSet->centres[type].z + off.z;
+    g_partState->field_0x15c = FixVecLength(&g_partSet->halfExtents[type]);
+    g_partState->previousPosition = g_partSet->centres[type];
+    g_partState->swingAxis = g_partSet->halfExtents[type];
+    g_partState->velocity.x = 0;
+    g_partState->velocity.y = 0;
+    g_partState->velocity.z = 0;
+    g_partState->correction.x = 0;
+    g_partState->correction.y = 0;
+    g_partState->correction.z = 0;
+    g_partState->angularVelocity.x = 0;
+    g_partState->angularVelocity.y = 0;
+    g_partState->angularVelocity.z = 0;
+    g_partState->field_0x154 = 0;
+    g_partState->field_0x160 = 0;
 }
 int StageObject_IsEligibleType(short type, int mode, int category);
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
@@ -6898,25 +6851,25 @@ void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int
 // FUNCTION: CMR2 0x00483100
 void FUN_00483100(int *param_1, unsigned int param_2)
 {
-    int sel = g_unk0x00590c24[PARTSTATE->field_0x150 >> 4][*(char *)(CARBYTES + 0xb1a)];
+    int sel = g_unk0x00590c24[g_partState->flags >> 4][*(char *)(((BYTE *)g_partCar) + 0xb1a)];
     FixVector pos;
     FixVector offset;
     FixVector debrisAxes[3];
     int len;
 
-    if (StageObject_IsEligibleType(*(short *)(CARBYTES + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
-        pos = PARTSTATE->field_0x120;
-        pos.y -= FixMul(0x20000, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x16c));
-        if (PARTSTATE->field_0x120.z > 0)
-            FixVecScale(&offset, &PARTSTATE->field_0x17c.forward,
-                        -FixMul(0x1cccc, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x170)));
+    if (StageObject_IsEligibleType(*(short *)(((BYTE *)g_partCar) + 0xaae + (param_2 & 0xff) * 2), 0, 0) != 0) {
+        pos = g_partState->position;
+        pos.y -= FixMul(0x20000, g_partSet->halfExtents[sel].y);
+        if (g_partState->position.z > 0)
+            FixVecScale(&offset, &g_partState->basis.forward,
+                        -FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
         else
-            FixVecScale(&offset, &PARTSTATE->field_0x17c.forward,
-                        FixMul(0x1cccc, *(int *)(g_unk0x00590d78 + sel * 0xc + 0x170)));
+            FixVecScale(&offset, &g_partState->basis.forward,
+                        FixMul(0x1cccc, g_partSet->halfExtents[sel].z));
         pos.x += offset.x;
         pos.y += offset.y;
         pos.z += offset.z;
-        FixMatrix_RotateVector(&offset, &pos, *(FixMatrix **)(CARBYTES + 0x750));
+        FixMatrix_RotateVector(&offset, &pos, *(FixMatrix **)(((BYTE *)g_partCar) + 0x750));
         len = FixVecLength((FixVector *)param_1);
         if (len > 0) {
             FixVecScaleRecip(&debrisAxes[0], (FixVector *)param_1, -len);
@@ -6925,10 +6878,10 @@ void FUN_00483100(int *param_1, unsigned int param_2)
                 len = 0x10000;
             else if (len <= 0x3333)
                 return;
-            debrisAxes[1] = *(FixVector *)(CARBYTES + 0x48c);
+            debrisAxes[1] = *(FixVector *)(((BYTE *)g_partCar) + 0x48c);
             FixVecCross(&debrisAxes[2], &debrisAxes[0], &debrisAxes[1]);
             Motion_NormalizeInto(&debrisAxes[2], &debrisAxes[2]);
-            Car_SpawnDebris(len, &offset, (Car *)CARBYTES, &debrisAxes[0], 0x40000, 0x6666);
+            Car_SpawnDebris(len, &offset, (Car *)((BYTE *)g_partCar), &debrisAxes[0], 0x40000, 0x6666);
         }
     }
 }
@@ -6939,7 +6892,7 @@ int Track_GetGroundHeight(FixVector *pPoint, FixVector *pNormal, short *pTri, un
 // point into world space, queries the track height, then builds the tangent
 // direction (world axes minus the normal component) and stores the resulting
 // contact plane on the point.
-#define CAR_0x590d74 ((BYTE *)g_unk0x00590d74)
+#define CAR_0x590d74 ((BYTE *)g_partCar)
 
 // FUNCTION: CMR2 0x00484f40
 void FUN_00484f40(unsigned int param_1)
@@ -6999,7 +6952,7 @@ void FUN_00484f40(unsigned int param_1)
     pPoint[10] = pPoint[1] + dir.y;
     pPoint[0xb] = pPoint[2] + dir.z;
     pPoint[0xe] = 1;
-    *(int *)(g_unk0x00590d78 + 0x4c0 + index * 4) = 1;
+    g_partSet->field_0x4c0[index] = 1;
 }
 
 #undef CAR_0x590d74
@@ -7008,7 +6961,7 @@ void FUN_00484f40(unsigned int param_1)
 void Vehicle_UpdateMotion(FixVector *pInput);
 int FUN_00482f30(void);
 
-// Steps the motion state at g_unk0x00590c20 for the current car: a spring
+// Steps the motion state at g_partState for the current car: a spring
 // pulls its forward axis toward the rest heading (0x158), the car's
 // acceleration (brought into its space) adds a torque that is integrated into
 // the angular velocity (0x164) and rotates the basis at 0x17c, which is then
@@ -7030,24 +6983,24 @@ void FUN_00483570(void)
     int s;
     int c;
 
-    if (((Car *)g_unk0x00590d74)->field_0xb1b[0] != 8) {
+    if (g_partCar->type != 8) {
         if (FUN_00482f30() != 0)
             return;
         detached = 0;
-        if ((g_unk0x00590c20->field_0x150[0] & 4) == 0) {
-            s = g_sinTable[g_unk0x00590c20->field_0x158 & 0xfff];
-            c = g_sinTable[(g_unk0x00590c20->field_0x158 + 0x400) & 0xfff];
+        if ((g_partState->flags & 4) == 0) {
+            s = g_sinTable[(unsigned short)g_partState->angle & 0xfff];
+            c = g_sinTable[((unsigned short)g_partState->angle + 0x400) & 0xfff];
             spring.x = 0;
             spring.y = 0;
             spring.z = 0;
-            if (g_unk0x00590c20->field_0x120.z > 0) {
-                v.x = s - g_unk0x00590c20->field_0x17c.forward.x;
-                v.y = -g_unk0x00590c20->field_0x17c.forward.y;
-                v.z = c - g_unk0x00590c20->field_0x17c.forward.z;
+            if (g_partState->position.z > 0) {
+                v.x = s - g_partState->basis.forward.x;
+                v.y = -g_partState->basis.forward.y;
+                v.z = c - g_partState->basis.forward.z;
             } else {
-                v.x = g_unk0x00590c20->field_0x17c.forward.x - s;
-                v.y = g_unk0x00590c20->field_0x17c.forward.y;
-                v.z = g_unk0x00590c20->field_0x17c.forward.z - c;
+                v.x = g_partState->basis.forward.x - s;
+                v.y = g_partState->basis.forward.y;
+                v.z = g_partState->basis.forward.z - c;
             }
             t = FixVecLength(&v);
             if (t > 0) {
@@ -7055,14 +7008,14 @@ void FUN_00483570(void)
                 t = -FixMul(t, 0x40000);
                 FixVecScale(&spring, &v, t);
             }
-            force.x = ((Car *)g_unk0x00590d74)->velocity.x - ((Car *)g_unk0x00590d74)->velocityNext.x;
-            force.y = ((Car *)g_unk0x00590d74)->velocity.y - ((Car *)g_unk0x00590d74)->velocityNext.y;
-            force.z = ((Car *)g_unk0x00590d74)->velocity.z - ((Car *)g_unk0x00590d74)->velocityNext.z;
+            force.x = (g_partCar)->velocity.x - (g_partCar)->velocityNext.x;
+            force.y = (g_partCar)->velocity.y - (g_partCar)->velocityNext.y;
+            force.z = (g_partCar)->velocity.z - (g_partCar)->velocityNext.z;
             force.x = FixMul(force.x, -0x50000);
             force.y = FixMul(force.y, -0xa0000);
             force.z = FixMul(force.z, -0x50000);
             if (FixMul(force.x, force.x) + FixMul(force.z, force.z) > 0x64000 &&
-                *(int *)(g_unk0x00590d78 + 0x288) > 0x8000) {
+                *(int *)(((BYTE *)g_partSet) + 0x288) > 0x8000) {
                 saved = force;
                 detached = 1;
             } else {
@@ -7075,40 +7028,40 @@ void FUN_00483570(void)
                 t = 0x8000;
             t = FixMul(t, 0xc937);
             t += 0x8000;
-            FixVecScale(&g_unk0x00590c20->field_0x164, &g_unk0x00590c20->field_0x164, t);
-            FixMatrix_InverseRotateVector(&v, &force, g_unk0x00590c20->field_0x8);
+            FixVecScale(&g_partState->angularVelocity, &g_partState->angularVelocity, t);
+            FixMatrix_InverseRotateVector(&v, &force, g_partState->pForceFrame);
             force = v;
             if (detached == 0) {
                 force.x += spring.x;
                 force.y += spring.y;
                 force.z += spring.z;
             } else {
-                g_unk0x00590c20->field_0x164.x = 0;
-                g_unk0x00590c20->field_0x164.y = 0;
-                g_unk0x00590c20->field_0x164.z = 0;
+                g_partState->angularVelocity.x = 0;
+                g_partState->angularVelocity.y = 0;
+                g_partState->angularVelocity.z = 0;
             }
-            v.x = g_unk0x00590c20->field_0x12c.x - g_unk0x00590c20->field_0x120.x;
-            v.y = g_unk0x00590c20->field_0x12c.y - g_unk0x00590c20->field_0x120.y;
-            v.z = g_unk0x00590c20->field_0x12c.z - g_unk0x00590c20->field_0x120.z;
+            v.x = g_partState->previousPosition.x - g_partState->position.x;
+            v.y = g_partState->previousPosition.y - g_partState->position.y;
+            v.z = g_partState->previousPosition.z - g_partState->position.z;
             FixVecCross(&cross, &force, &v);
-            torque.x = -FixMul(cross.x, g_unk0x00590c20->field_0x170.x);
-            torque.y = -FixMul(cross.y, g_unk0x00590c20->field_0x170.y);
-            torque.z = -FixMul(cross.z, g_unk0x00590c20->field_0x170.z);
+            torque.x = -FixMul(cross.x, g_partState->stiffness.x);
+            torque.y = -FixMul(cross.y, g_partState->stiffness.y);
+            torque.z = -FixMul(cross.z, g_partState->stiffness.z);
             FixVecScale(&torque, &torque, g_physicsTimeStep);
-            g_unk0x00590c20->field_0x164.x += torque.x;
-            g_unk0x00590c20->field_0x164.y += torque.y;
-            g_unk0x00590c20->field_0x164.z += torque.z;
-            g_unk0x00590c20->field_0x164.z = 0;
+            g_partState->angularVelocity.x += torque.x;
+            g_partState->angularVelocity.y += torque.y;
+            g_partState->angularVelocity.z += torque.z;
+            g_partState->angularVelocity.z = 0;
         } else {
             torque.x = 0;
             torque.y = 0;
             torque.z = 0;
         }
-        g_unk0x00590c20->field_0x150[0] |= 8;
-        if (detached == 0 && (g_unk0x00590c20->field_0x150[0] & 4) == 0 && ((Car *)g_unk0x00590d74)->speed <= 0x7ae)
-            g_unk0x00590c20->field_0x150[0] &= ~8;
-        if (g_unk0x00590c20->field_0x150[0] & 8) {
-            FixVecScale(&turn, &g_unk0x00590c20->field_0x164, g_physicsTimeStep);
+        g_partState->flags |= 8;
+        if (detached == 0 && (g_partState->flags & 4) == 0 && (g_partCar)->speed <= 0x7ae)
+            g_partState->flags &= ~8;
+        if (g_partState->flags & 8) {
+            FixVecScale(&turn, &g_partState->angularVelocity, g_physicsTimeStep);
             FixVecScale(&torque, &torque, g_physicsTimeStep / 2);
             turn.x -= torque.x;
             turn.y -= torque.y;
@@ -7116,47 +7069,47 @@ void FUN_00483570(void)
             angles[0] = (short)(__int64)((double)turn.x * g_unk0x00511380);
             angles[1] = (short)(__int64)((double)turn.y * g_unk0x00511380);
             angles[2] = (short)(__int64)((double)turn.z * g_unk0x00511380);
-            FixBasis_Rotate(&g_unk0x00590c20->field_0x17c, angles);
+            FixBasis_Rotate(&g_partState->basis, angles);
         } else {
-            g_unk0x00590c20->field_0x164.x = 0;
-            g_unk0x00590c20->field_0x164.y = 0;
-            g_unk0x00590c20->field_0x164.z = 0;
+            g_partState->angularVelocity.x = 0;
+            g_partState->angularVelocity.y = 0;
+            g_partState->angularVelocity.z = 0;
         }
-        if (detached == 0 && (g_unk0x00590c20->field_0x150[0] & 4) == 0) {
-            t = FixVecDot(&g_unk0x00590c20->field_0x17c.forward,
-                          (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->index]);
-            if ((g_unk0x00590c20->field_0x150[0] & 8) &&
-                ((g_unk0x00590c20->field_0x120.z < 0 && t < 0) || (g_unk0x00590c20->field_0x120.z > 0 && t > 0))) {
-                FixVecScale(&v, (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->index], t);
-                v.x = g_unk0x00590c20->field_0x17c.forward.x - v.x;
-                v.y = g_unk0x00590c20->field_0x17c.forward.y - v.y;
-                v.z = g_unk0x00590c20->field_0x17c.forward.z - v.z;
-                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.forward, &v);
-                g_unk0x00590c20->field_0x17c.right.y = 0;
-                t = FixVecDot(&g_unk0x00590c20->field_0x17c.forward, &g_unk0x00590c20->field_0x17c.right);
-                FixVecScale(&v, &g_unk0x00590c20->field_0x17c.forward, t);
-                v.x = g_unk0x00590c20->field_0x17c.right.x - v.x;
-                v.y = g_unk0x00590c20->field_0x17c.right.y - v.y;
-                v.z = g_unk0x00590c20->field_0x17c.right.z - v.z;
-                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.right, &v);
-                FixVecCross(&v, &g_unk0x00590c20->field_0x17c.forward, &g_unk0x00590c20->field_0x17c.right);
-                Motion_NormalizeInto(&g_unk0x00590c20->field_0x17c.up, &v);
-                t = FixVecDot((FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->index],
-                              &g_unk0x00590c20->field_0x164);
-                FixVecScale(&g_unk0x00590c20->field_0x164,
-                            (FixVector *)g_unk0x00590b5c[((Car *)g_unk0x00590d74)->index], t);
+        if (detached == 0 && (g_partState->flags & 4) == 0) {
+            t = FixVecDot(&g_partState->basis.forward,
+                          (FixVector *)g_unk0x00590b5c[(g_partCar)->index]);
+            if ((g_partState->flags & 8) &&
+                ((g_partState->position.z < 0 && t < 0) || (g_partState->position.z > 0 && t > 0))) {
+                FixVecScale(&v, (FixVector *)g_unk0x00590b5c[(g_partCar)->index], t);
+                v.x = g_partState->basis.forward.x - v.x;
+                v.y = g_partState->basis.forward.y - v.y;
+                v.z = g_partState->basis.forward.z - v.z;
+                Motion_NormalizeInto(&g_partState->basis.forward, &v);
+                g_partState->basis.right.y = 0;
+                t = FixVecDot(&g_partState->basis.forward, &g_partState->basis.right);
+                FixVecScale(&v, &g_partState->basis.forward, t);
+                v.x = g_partState->basis.right.x - v.x;
+                v.y = g_partState->basis.right.y - v.y;
+                v.z = g_partState->basis.right.z - v.z;
+                Motion_NormalizeInto(&g_partState->basis.right, &v);
+                FixVecCross(&v, &g_partState->basis.forward, &g_partState->basis.right);
+                Motion_NormalizeInto(&g_partState->basis.up, &v);
+                t = FixVecDot((FixVector *)g_unk0x00590b5c[(g_partCar)->index],
+                              &g_partState->angularVelocity);
+                FixVecScale(&g_partState->angularVelocity,
+                            (FixVector *)g_unk0x00590b5c[(g_partCar)->index], t);
             }
                 t = FixMul((short)g_unk0x00590c68 * 0x1680, 0x8000);
-            if (g_unk0x00590c20->field_0x120.z < 0)
+            if (g_partState->position.z < 0)
                 t = -t;
             angles[1] = 0;
             angles[2] = 0;
             angles[0] = (short)(__int64)((double)t * g_unk0x00511300);
             FUN_00481560(angles);
         } else {
-            FixMatrix_SetRight(&g_unk0x00590c20->field_0x17c.right, g_unk0x00590c20->field_0x4);
-            FixMatrix_SetUp(&g_unk0x00590c20->field_0x17c.up, g_unk0x00590c20->field_0x4);
-            FixMatrix_SetForward(&g_unk0x00590c20->field_0x17c.forward, g_unk0x00590c20->field_0x4);
+            FixMatrix_SetRight(&g_partState->basis.right, g_partState->pWorld);
+            FixMatrix_SetUp(&g_partState->basis.up, g_partState->pWorld);
+            FixMatrix_SetForward(&g_partState->basis.forward, g_partState->pWorld);
         }
     } else {
         detached = 0;
@@ -7557,10 +7510,10 @@ void FUN_00480de0(void)
     slot = 3;
     offset = 0;
     for (; offset >= -0xc; slot--) {
-        if (FUN_00469bc0(g_unk0x00590d74, slot) == 0 &&
-            *(int *)(*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a) * 0x1a0 +
+        if (FUN_00469bc0(g_partCar, slot) == 0 &&
+            *(int *)(g_partCar->index * 0x1a0 +
                      *(int *)((int)&g_unk0x00590d7c[3] + offset)) == 0 &&
-            *(int *)(g_unk0x00590d78 + 0x240 + g_unk0x00590c60[slot] * 4) >
+            g_partSet->field_0x240[g_unk0x00590c60[slot]] >
                 *(int *)((int)&g_unk0x00590c50 + offset)) {
             FUN_00480e50(slot);
         }
@@ -8066,10 +8019,10 @@ BYTE FUN_00457000(int car)
     int best;
     int i;
     int n;
-    int lod;
+    short lod;
     int letterInt;
     char letter;
-    char variant;
+    BYTE variant;
     char isPlayer;
     char twoPlayers;
     char rallyMode;
@@ -8999,11 +8952,11 @@ void FUN_0045af90(int car)
     if (car >= 8 || g_trailTextureA[car][0] == 0)
         return;
     pCar = Car_Get(car);
-    revs = FixMul(0x28f, CAR_INT(pCar, 0x7a4));
+    revs = FixMul(0x28f, pCar->field_0x7a4);
     if (revs < 0)
         revs = -revs;
-    speed = (CAR_INT(pCar, 0x408) < 0 ? -CAR_INT(pCar, 0x408) : CAR_INT(pCar, 0x408)) +
-            (CAR_INT(pCar, 0x410) < 0 ? -CAR_INT(pCar, 0x410) : CAR_INT(pCar, 0x410));
+    speed = (pCar->velocity.x < 0 ? -pCar->velocity.x : pCar->velocity.x) +
+            (pCar->velocity.z < 0 ? -pCar->velocity.z : pCar->velocity.z);
     heat = 0x17c - (FixMul(0x15e0000, *(int *)((BYTE *)FUN_00469680(pCar->index) + 0x404)) >> 16);
     if (heat > 0xff)
         heat = 0xff;
@@ -9015,9 +8968,9 @@ void FUN_0045af90(int car)
         if (revs > 0xccc && speed < 0x28f) {
             FixMatrix_RotateVector(&g_unk0x00543380[car], (FixVector *)g_trailTextureA[car][exhaust],
                                    pCar->pWorld);
-            g_unk0x00543380[car].x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
-            g_unk0x00543380[car].y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34);
-            g_unk0x00543380[car].z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            g_unk0x00543380[car].x += pCar->pBodyMatrix->position.x;
+            g_unk0x00543380[car].y += pCar->pBodyMatrix->position.y;
+            g_unk0x00543380[car].z += pCar->pBodyMatrix->position.z;
             carVelocity = pCar->cornerVelocity[3];
             big = heat > 0x50;
             negRevs = -revs;
@@ -9044,9 +8997,9 @@ void FUN_0045af90(int car)
             spark.z += g_exhaustSparkLines[line][0].z;
             FixMatrix_RotateVector(&position, &spark, pCar->pWorld);
             revs = 0x1999;
-            position.x += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x30);
-            position.y += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x34) - 0x3333;
-            position.z += CAR_INT(*(BYTE * *)&pCar->pBodyMatrix, 0x38);
+            position.x += pCar->pBodyMatrix->position.x;
+            position.y += pCar->pBodyMatrix->position.y - 0x3333;
+            position.z += pCar->pBodyMatrix->position.z;
             FixVecScale(&velocity, &pCar->up, revs);
             t = FixMul((int)(__int64)((float)rand() * g_oneOverRandMax * CGraphics::m_65536), 0x3d7);
             if (speed > 0x8000)
@@ -9139,25 +9092,25 @@ void FUN_00480bb0(BYTE *pCars, short *pOrder, short count)
         pIndex = pOrder + n;
         int remaining = n + 1;
         do {
-            g_unk0x00590d74 = (Unk0x00590d74 *)(pCars + *pIndex * 0xc24);
-            g_unk0x00590d78 = (BYTE *)FUN_00469680(((char *)g_unk0x00590d74)[0xb1a]);
+            g_partCar = (Car *)(pCars + *pIndex * 0xc24);
+            g_partSet = (CarPartSet *)FUN_00469680(g_partCar->index);
             FUN_00480de0();
             FUN_00480cb0();
             pTable = &g_unk0x00590d7c[3];
             do {
-                pPart = (BYTE *)*pTable + ((char *)g_unk0x00590d74)[0xb1a] * 0x1a0;
-                g_unk0x00590c20 = (Unk0x00590c20 *)pPart;
+                pPart = (BYTE *)*pTable + g_partCar->index * 0x1a0;
+                g_partState = (PartState *)pPart;
                 if (*(int *)pPart != 0 && (pPart[0x150] & 1)) {
                     memcpy(pPart + 0x4c, pPart + 0xc, 0x40);
-                    FixMatrix_Multiply((FixMatrix *)((BYTE *)g_unk0x00590c20 + 0xcc),
-                                       (FixMatrix *)((BYTE *)g_unk0x00590c20 + 0xc),
-                                       *(FixMatrix **)((BYTE *)g_unk0x00590c20 + 0x10c));
-                    if (*(void (**)(void))((BYTE *)g_unk0x00590c20 + 0x110) != NULL)
-                        (*(void (**)(void))((BYTE *)g_unk0x00590c20 + 0x110))();
+                    FixMatrix_Multiply(&g_partState->worldMatrix,
+                                       &g_partState->matrix,
+                                       g_partState->pParent);
+                    if (*(void (**)(void))((BYTE *)g_partState + 0x110) != NULL)
+                        (*(void (**)(void))((BYTE *)g_partState + 0x110))();
                 }
                 pTable--;
             } while ((int)pTable >= (int)g_unk0x00590d7c);
-            Car_BreakQueuedWindows((Car *)g_unk0x00590d74);
+            Car_BreakQueuedWindows(g_partCar);
             pIndex--;
         } while (--remaining);
     }

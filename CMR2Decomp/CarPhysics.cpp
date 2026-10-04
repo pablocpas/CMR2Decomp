@@ -296,7 +296,7 @@ void CarContact_BuildBodyPatch(Car *pCar, CarContact *pContact)
             pContact->points[3].y = g_physBody->cornerHeight[3];
             pContact->points[2].y = g_physBody->cornerHeight[2];
         }
-        if (stage == (char)pCar->field_0xb1b[0])
+        if (stage == pCar->type)
             return;
         for (i = 0; i < 4; i++) {
             d.x = pContact->points[g_physPatchEdges[i][0]].x - pContact->points[g_physPatchEdges[i][1]].x;
@@ -660,11 +660,11 @@ void FUN_00496e00(Car *pCar)
     int acc;
     int limit;
     int len;
-    int a;
+    short a;
     int c;
     int k;
     int first;
-    int extra;
+    short extra;
     short angle;
     int skip;
 

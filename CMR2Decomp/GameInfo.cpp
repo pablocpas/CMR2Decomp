@@ -11842,7 +11842,7 @@ void FUN_004fb8d0(unsigned int param_1, unsigned int *pNumber, char *pByte, char
 // its slot where we keep it in a register.
 // match 61%: below the 90% bar; kept as FUNCTION so reccmp measures it.
 // FUNCTION: CMR2 0x004f8b30
-int FUN_004f8b30(void)
+void FUN_004f8b30(void)
 {
     BYTE bVar1;
     int iVar2;
@@ -12047,10 +12047,9 @@ int FUN_004f8b30(void)
                 iVar2--;
             } while (iVar2 != 0);
             FUN_004fb8d0(0, &local_8, (char *)&local_4, (char *)local_10);
-            iVar3 = ((int (*)(char *))FUN_004f8a90)((char *)local_10);
+            FUN_004f8a90((char *)local_10);
         }
         local_10 += 0x19;
         uVar5++;
     } while (local_10 < g_unk0x00825f6c + 0xc8);
-    return iVar3;
 }

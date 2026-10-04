@@ -341,10 +341,10 @@ void Dash_DrawBar(int player, int layer)
     SpriteRect src;
     SpriteRect dst;
     BYTE colour[4];
-    unsigned int lit;
+    int lit;
     short dx;
     short dy;
-    int scale;
+    short scale;
     int len;
     int split;
     int rest;
@@ -579,9 +579,9 @@ void Dash_DrawDial(int player, int layer)
     BYTE shadow[4];
     Texture *pTexture;
     DWORD c;
-    int angle;
+    short angle;
     int flash;
-    int i;
+    short i;
     int k;
 
     gears = g_dashGearNames;
@@ -1020,7 +1020,7 @@ void FUN_00447f70(void)
                 car->field_0x83 = 0;
             }
         }
-        if (RallyData_FUN_004082e0() != 0) {
+        if ((BYTE)RallyData_FUN_004082e0() != 0) {
             *(short *)g_unk0x0053d1a4 = 0;
             g_unk0x0053d1a7 = 0;
             g_unk0x0053d1a6 = 0;
