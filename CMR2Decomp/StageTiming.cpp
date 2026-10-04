@@ -3882,9 +3882,9 @@ void FUN_00448d50(void)
             a = p[-1];
             g_carStageTiming[a].field_0x81++;
             b = p[0];
+            g_carStageTiming[b].field_0x81--;
             p[0] = a;
             p[-1] = b;
-            g_carStageTiming[b].field_0x81--;
         }
     }
 }
