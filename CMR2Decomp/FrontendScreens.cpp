@@ -3230,15 +3230,15 @@ void FUN_004f0620(Menu *pMenu)
     index = pMenu->items[0].max;
     if (index != old) {
         if (old != -1) {
-            if (index <= old) {
-                steps = old - index;
-                other = pMenu->items[0].min - old + index;
-            } else {
+            if (index > old) {
                 other = index - old;
                 steps = pMenu->items[0].min - index + old;
+            } else {
+                steps = old - index;
+                other = pMenu->items[0].min - old + index;
             }
             if (steps < other) {
-                while (steps > 0) {
+                while (steps >= 1) {
                     g_unk0x00819868 += (int)(g_pGraphics->resX * -0x50) / 640;
                     steps--;
                 }
@@ -3248,10 +3248,11 @@ void FUN_004f0620(Menu *pMenu)
                     other--;
                 }
             } else {
-                if (!(pMenu->moveFlags & 2))
-                    other = g_pGraphics->resX * 5;
+                int resX = g_pGraphics->resX;
+                if ((pMenu->moveFlags & 2) != 0)
+                    other = resX * -5;
                 else
-                    other = g_pGraphics->resX * -5;
+                    other = resX * 5;
                 g_unk0x00819868 += (other << 4) / 640;
             }
             g_unk0x00819884 = g_unk0x00819868;
@@ -3260,15 +3261,14 @@ void FUN_004f0620(Menu *pMenu)
         g_unk0x00819044 = pMenu->items[0].max;
     }
     if (g_unk0x00819044 != -1) {
-        elapsed = CFrontend::FUN_004d20e0() - g_unk0x0081975c;
-        if (elapsed > 0xfa) {
+        if ((unsigned int)(CFrontend::FUN_004d20e0() - g_unk0x0081975c) > 0xfa) {
             g_unk0x00819868 = 0;
             return;
         }
         if (g_unk0x00819884 > 0)
-            g_unk0x00819868 = g_unk0x00819884 - elapsed * g_unk0x00819884 / 0xfa;
+            g_unk0x00819868 = g_unk0x00819884 - (unsigned int)((CFrontend::FUN_004d20e0() - g_unk0x0081975c) * g_unk0x00819884) / 0xfa;
         else
-            g_unk0x00819868 = -(elapsed * g_unk0x00819884) / 0xfa + g_unk0x00819884;
+            g_unk0x00819868 = (unsigned int)(-((CFrontend::FUN_004d20e0() - g_unk0x0081975c) * g_unk0x00819884)) / 0xfa + g_unk0x00819884;
     }
 }
 
@@ -4968,7 +4968,6 @@ void FUN_004f4650(void)
 }
 
 // Draws the six streams of 10 dots, fading out towards their tails.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004f4760
 void FUN_004f4760(void)
 {
@@ -4977,34 +4976,35 @@ void FUN_004f4760(void)
     int *pPoint;
     int *pPos;
     int *pStream;
-    int k;
+    unsigned int k;
     int fade;
 
     colour[0] = 0xff;
     colour[1] = 0xff;
     colour[2] = 0xff;
     pStream = &g_menuStreamPos[0][9];
-    pPoint = g_menuStreamPoint[0];
+    pPoint = &g_menuStreamPoint[0][1];
     do {
         pPos = pStream;
         k = 9 * 4;
         fade = 9 * 0xff;
         do {
             colour[3] = 0xff - fade / 10;
-            FUN_004f3c10(g_pMenuPath, *pPos, pPoint);
-            g_menuDotRect[0] = (int)(pPoint[0] * g_pGraphics->resX) / 640 - 2;
-            g_menuDotRect[1] = (int)(g_pGraphics->resY * pPoint[1]) / 480 + 3;
-            pTexture = g_menuDotTextures[k / 10];
+            FUN_004f3c10(g_pMenuPath, *pPos, pPoint - 1);
+            g_menuDotRect[0] = (int)(pPoint[-1] * g_pGraphics->resX) / 640 - 2;
+            g_menuDotRect[1] = (int)(g_pGraphics->resY * pPoint[0]) / 480 + 3;
+            pTexture = g_menuDotTextures[(int)k / 10];
             g_menuDotRect[2] = pTexture->width;
             g_menuDotRect[3] = pTexture->height;
             Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)g_menuDotRect, pTexture, 1, 0, NULL, NULL, colour, 8);
+            fade -= 0xff;
             k -= 4;
             pPos--;
-            fade -= 0xff;
         } while (fade >= 0);
-        pStream += 10;
         pPoint += 2;
-    } while ((int)pPoint < (int)g_menuStreamPoint[6]);
+        pStream += 10;
+    } while ((int)pPoint < (int)(g_menuStreamPoint[6] + 1));
+
 }
 
 // Time of the last input on the main menu (for the attract mode).
@@ -8325,6 +8325,7 @@ void FUN_004e20e0(Menu *pMenu)
 void FUN_004ee6e0(Menu *pMenu)
 {
     unsigned int *pFlags;
+    unsigned int mask;
     int max;
     int count;
     int i;
@@ -8334,9 +8335,9 @@ void FUN_004ee6e0(Menu *pMenu)
     max = Menu_GetItem(pMenu, 0)->max;
     if (CGameInfo::FUN_00406410(0xd) == 0) {
         count = 1;
-        if (max + 1 <= (int)(*pFlags >> 8 & 0xf))
+        if ((int)(*pFlags >> 8 & 0xf) >= max + 1)
             count = 4;
-        if (max + 1 <= (int)(*pFlags >> 0xc & 0xf))
+        if ((int)(*pFlags >> 0xc & 0xf) >= max + 1)
             count = 8;
         if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) >= max + 1)
             count = 10;
@@ -8347,19 +8348,20 @@ void FUN_004ee6e0(Menu *pMenu)
     if (0 < count) {
         pDest = g_unk0x00818d84;
         do {
-            i++;
-            sprintf(pDest, g_stageNumberFormat, i);
+            sprintf(pDest, g_stageNumberFormat, i + 1);
             pDest += 3;
+            i++;
         } while (i < count);
     }
     sprintf(&g_unk0x00818d84[i * 3], g_strFlagSS);
     if (CGameInfo::FUN_00406410(0xd) != 0) {
-        count = ((max & 1) != 0) + 10;
+        count = ((max % 2) != 0) + 10;
     } else {
-        if ((max & 1) != 0) {
-            if ((pFlags[1] & (1 << ((max + 1) / 2 - 1)) & 0x1f) != 0 ||
-                ((BYTE)(1 << ((max + 1) / 2 - 1)) & (BYTE)(pFlags[1] >> 5) & 0x1f) != 0 ||
-                ((BYTE)(1 << ((max + 1) / 2 - 1)) & (BYTE)(pFlags[1] >> 10) & 0x1f) != 0)
+        if ((max % 2) != 0) {
+            mask = 1 << ((max + 1) / 2 - 1);
+            if ((pFlags[1] & mask & 0x1f) != 0 ||
+                ((short)((pFlags[1] >> 5) & 0x1f) & mask) != 0 ||
+                ((short)((pFlags[1] >> 10) & 0x1f) & mask) != 0)
                 count++;
         }
     }
@@ -9773,21 +9775,18 @@ void FUN_004f0e80(Menu *pMenu)
 // Draws the car setup screen: one banner per item with the value of the
 // selected column, plus the highlight bars.
 // match 62%: asignacion de registros y ranuras de pila del bucle de filas
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004d7750
 void FUN_004d7750(Menu *pMenu)
 {
     short rect[4];
     char *text[2];
     MenuItem *pItem;
-    Texture *pTexture;
     int *pColour;
     int *pLineColour;
     int *pShadow;
-    int *pLineShadow;
     int count;
     int baseY;
-    int y;
+    int x;
 
     rect[0] = (short)((int)(g_pGraphics->resX * 100) / 0x280);
     rect[1] = 0;
@@ -9814,49 +9813,54 @@ void FUN_004d7750(Menu *pMenu)
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
     g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
     Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pColour, 1);
-    if (0 < pMenu->itemCount) {
-        for (count = 0; count < pMenu->itemCount; count++) {
-            pItem = &pMenu->items[count];
-            y = (int)(g_pGraphics->resY * 0x14) / 0x1e0 + baseY +
-                ((int)(g_pGraphics->resY * 0x24) / 0x1e0) * count -
-                CFrontend::m_pAr640ATexture->height / 2;
-            if (pMenu->cursor == count) {
-                pColour = (int *)g_colourWhite0x00524968;
-                pTexture = CFrontend::m_pAr640ATexture;
-            } else {
-                pColour = (int *)g_colourText0x0052496c;
-                pTexture = CFrontend::m_pAr640DTexture;
-            }
-            Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, (SpriteRect *)rect, pTexture, 1, 0, NULL, NULL,
-                         (BYTE *)pColour, 8);
-            if (pItem->value == 0) {
-                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xec), pMenu->items[0].max + 0x73a);
-                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
-            } else if (pItem->value == 1) {
-                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xeb), pMenu->items[1].max + 0xed);
-                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
-            } else if (pItem->value == 2) {
-                sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xea), pMenu->items[2].max + 1);
-                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
-            } else {
-                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
-            }
-            if (pMenu->cursor == count || pMenu->cursor == count + 1) {
-                pLineColour = (int *)g_colourWhite0x00524968;
-                pLineShadow = (int *)g_colourShadowWhite0x00524974;
-            } else {
-                pLineColour = (int *)g_colourText0x0052496c;
-                pLineShadow = (int *)g_colourShadowText0x00524978;
-            }
-            g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0x24) / 0x1e0) * (count + 1)) + baseY;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineShadow, 1);
-            g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
-            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
+    pItem = pMenu->items;
+    for (count = 0; count < pMenu->itemCount; count++, pItem++) {
+        rect[1] = (short)((int)(g_pGraphics->resY * 0x14) / 0x1e0 + baseY +
+                          (int)(g_pGraphics->resY * 0x24) / 0x1e0 * count -
+                          CFrontend::m_pAr640ATexture->height / 2);
+        if (pMenu->cursor == count) {
+            pColour = (int *)g_colourWhite0x00524968;
+            Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)rect,
+                         CFrontend::m_pAr640ATexture, 1, 0, NULL, NULL, (BYTE *)pColour, 8);
+        } else {
+            pColour = (int *)g_colourText0x0052496c;
+            Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640DTexture->field_0x11c, (SpriteRect *)rect,
+                         CFrontend::m_pAr640DTexture, 1, 0, NULL, NULL, (BYTE *)pColour, 8);
         }
+        switch (pItem->value) {
+        case 0:
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xec), pMenu->items[0].max + 0x73a);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            break;
+        case 1:
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xeb),
+                    CFrontend::GetTextString(pMenu->items[1].max + 0xed));
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            break;
+        case 2:
+            sprintf(CFrontend::m_stringDest, CFrontend::GetTextString(0xea), pMenu->items[2].max + 1);
+            Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            break;
+        default:
+            x = (int)(g_pGraphics->resX * 0x7a) / 0x280;
+            Font_DrawText(1, CFrontend::GetTextString(pItem->id), x,
+                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], pColour, 0x11);
+            break;
+        }
+        if (pMenu->cursor == count || pMenu->cursor == count + 1) {
+            pLineColour = (int *)g_colourWhite0x00524968;
+            pShadow = (int *)g_colourShadowWhite0x00524974;
+        } else {
+            pLineColour = (int *)g_colourText0x0052496c;
+            pShadow = (int *)g_colourShadowText0x00524978;
+        }
+        g_unk0x008189a8[1] = (short)(((int)(g_pGraphics->resY * 0x24) / 0x1e0) * (count + 1) + baseY);
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pShadow, 1);
+        g_unk0x008189a8[1] = g_unk0x008189a8[1] + 1;
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x008189a8, (BYTE *)pLineColour, 1);
     }
     FrontendDraw_HelpText(CFrontend::GetTextString(0x57), 1);
 }
@@ -10764,14 +10768,12 @@ void FUN_004d8950(Menu *pMenu)
 // match 67%: WIP. La estructura y los operandos son los del original pero el
 // reparto de registros/slots del bucle y el orden de las cargas no cuadran
 // todavia; falta afinar la forma del fuente (no hay bug de logica conocido).
-// match 67%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004e8b60
 void FUN_004e8b60(Menu *pMenu)
 {
     SpriteRect rect;
     char *text[3];
     MenuItem *pItem;
-    char *pText;
     BYTE *pColour;
     BYTE *pLineColour;
     BYTE *pLineShadow;
@@ -10825,23 +10827,21 @@ void FUN_004e8b60(Menu *pMenu)
             case 0:
                 sprintf(CFrontend::m_stringDest, g_strLabelText, CFrontend::GetTextString(0x30),
                         CFrontend::GetTextString(g_unk0x00818ed4[Menu_GetItem(pMenu, 0)->max] + 0x27));
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 1:
                 sprintf(CFrontend::m_stringDest, g_strLabelNumber, CFrontend::GetTextString(0x195),
                         Menu_GetItem(pMenu, 1)->max + 1);
-                pText = CFrontend::m_stringDest;
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
             case 2:
             case 3:
-                pText = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::GetTextString(pItem->id), (int)(g_pGraphics->resX * 0x7a) / 0x280,
+                              (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
                 break;
-            default:
-                goto next;
             }
-            Font_DrawText(1, pText, (int)(g_pGraphics->resX * 0x7a) / 0x280,
-                          (int)(g_pGraphics->resY * 0x18) / 0x1e0 + g_unk0x008189a8[1], (int *)pColour, 0x11);
-        next:
             if (pMenu->cursor == i + 1 || pMenu->cursor == i) {
                 pLineColour = g_colourWhite0x00524968;
                 pLineShadow = g_colourShadowWhite0x00524974;
