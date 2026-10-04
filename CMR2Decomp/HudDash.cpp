@@ -1020,7 +1020,7 @@ void FUN_00447f70(void)
                 car->field_0x83 = 0;
             }
         }
-        if (RallyData_FUN_004082e0() != 0) {
+        if ((BYTE)RallyData_FUN_004082e0() != 0) {
             *(short *)g_unk0x0053d1a4 = 0;
             g_unk0x0053d1a7 = 0;
             g_unk0x0053d1a6 = 0;

@@ -6426,8 +6426,8 @@ void Car_IntegrateWheelTravel(void)
                     (FixVector *)((int)g_pCurrentCar + 0x48c));
     if (dot > 0xcccc) {
         for (i = 0; i < 4; i++) {
-            t = -FixMul(FixMul(g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i], g_pCurrentCar->groundNormal.y),
-                        FixDiv(0x10000, dot));
+            t = FixMul(-FixMul(g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i], g_pCurrentCar->groundNormal.y),
+                       FixDiv(0x10000, dot));
             sum += t;
             v[i] = t;
             d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y - g_pCurrentCar->field_0x958;
