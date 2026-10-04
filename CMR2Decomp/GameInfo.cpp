@@ -676,7 +676,6 @@ double g_unk0x005113b8 = 0.5;
 // Plays one frame of the current movie: scales and offsets the Bink buffer to
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00510120
 BOOL FUN_00510120(BYTE skipOnSpace)
 {
@@ -693,7 +692,7 @@ BOOL FUN_00510120(BYTE skipOnSpace)
     if (pDevice->field_0x8 & 0x10)
         return FALSE;
     if (skipOnSpace & 1) {
-        keyByte = (BYTE)((GetAsyncKeyState(VK_SPACE) & 0xff00) >> 8);
+        keyByte = (BYTE)((USHORT)GetAsyncKeyState(VK_SPACE) >> 8);
         if (keyByte != 0)
             return TRUE;
     }
@@ -717,16 +716,16 @@ BOOL FUN_00510120(BYTE skipOnSpace)
             }
             BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)((int)(g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+                                (int)(__int64)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                                (int)(__int64)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
         } else {
-            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)((int)(g_pGraphics->resX - 0x280) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)(__int64)((g_pGraphics->resX - 0x280) * g_unk0x005113b8),
+                                (int)(__int64)((g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
         }
         if (CGraphics::FUN_004a96e0(CGraphics::FUN_004a8bc0()) == 0)
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+                                (int)(__int64)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
+                                (int)(__int64)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
     }
 
     if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
@@ -964,7 +963,15 @@ void CGameInfo::FUN_00406580(void) {
             } 
         }
 
-        if (uVar5 % 2 != 0) {
+        uVar2 = uVar5;
+        uVar2 = uVar2 & 0x80000001;
+
+        if (uVar2 < 0) {
+            uVar2 = (uVar2 - 1) | 0xfffffffe;
+            uVar2++;
+        }
+
+        if (uVar2) {
             uVar2 = 1 << (((uVar5 + 1) / 2 - 1) & 0x1f);
 
             if (((((uVar2 & m_gameInfo.field_0xa0 & 0x1f) != 0) ||
@@ -1034,50 +1041,38 @@ bool CGameInfo::LoadGameInfo(void) {
 
     g_pGraphics->isFullscreen = IsFullscreen() & 0xff;
 
-    switch (m_gameInfo.unknownGraphicsOptions & 6) {
-        case 2:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-            g_pGraphics->field913_0x3bc &= 0xffffff7f;
-        break;
-
-        case 4:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc |= 0x10;
-            g_pGraphics->field913_0x3bc &= 0xffffff7f;
-        break;
-        
-        case 6:
-            g_pGraphics->field913_0x3bc |= 8;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-            g_pGraphics->field913_0x3bc |= 0x80;
-        break;
-
-        default:
-            g_pGraphics->field913_0x3bc &= 0xfffffff7;
-            g_pGraphics->field913_0x3bc &= 0xffffffef;
-        break;        
+    graphicsOptions = m_gameInfo.unknownGraphicsOptions & 6;
+    if (graphicsOptions == 2) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
+    } else if (graphicsOptions == 4) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc |= 0x10;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
+    } else if (graphicsOptions == 6) {
+        g_pGraphics->field913_0x3bc |= 8;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc |= 0x80;
+    } else {
+        g_pGraphics->field913_0x3bc &= 0xfffffff7;
+        g_pGraphics->field913_0x3bc &= 0xffffffef;
+        g_pGraphics->field913_0x3bc &= 0xffffff7f;
     }
 
     g_pGraphics->field913_0x3bc = (m_gameInfo.unknownGraphicsOptions & 0x8) << 2 | g_pGraphics->field913_0x3bc & 0xffffffdf;
     g_pGraphics->field913_0x3bc = (m_gameInfo.unknownGraphicsOptions & 0x10) << 2 | g_pGraphics->field913_0x3bc & 0xffffffbf;
 
-    switch (m_gameInfo.unknownGraphicsOptions & 0xc0000) {
-        default:
-            g_pGraphics->field913_0x3bc &= 0xfffffffe;
-            g_pGraphics->field913_0x3bc &= 0xfffffffd;
-        break;
-        
-        case 0x40000:
-            g_pGraphics->field913_0x3bc |= 1;
-            g_pGraphics->field913_0x3bc &= 0xfffffffd;
-        break;
-
-        case 0x80000:
-            g_pGraphics->field913_0x3bc &= 0xfffffffe;
-            g_pGraphics->field913_0x3bc |= 2;
-        break;
-
+    graphicsOptions = m_gameInfo.unknownGraphicsOptions & 0xc0000;
+    if (graphicsOptions == 0x40000) {
+        g_pGraphics->field913_0x3bc |= 1;
+        g_pGraphics->field913_0x3bc &= 0xfffffffd;
+    } else if (graphicsOptions == 0x80000) {
+        g_pGraphics->field913_0x3bc &= 0xfffffffe;
+        g_pGraphics->field913_0x3bc |= 2;
+    } else {
+        g_pGraphics->field913_0x3bc &= 0xfffffffe;
+        g_pGraphics->field913_0x3bc &= 0xfffffffd;
     }
 
     g_pGraphics->field917_0x3c0 = FUN_00405ca0();
@@ -1151,8 +1146,8 @@ char g_chatLineFormat[] = "%s > %s";
 // FUNCTION: CMR2 0x004d0620
 void FUN_004d0620(DPID *pFrom, char *text, char local)
 {
-    char **pp;
     int line;
+    char **pp;
     int i;
 
     if (local) {
@@ -1170,7 +1165,8 @@ void FUN_004d0620(DPID *pFrom, char *text, char local)
     pp = g_unk0x00817c84;
     i = 5;
     do {
-        *pp++ = g_unk0x00817784[line-- % 5];
+        *pp = g_unk0x00817784[line-- % 5];
+        pp++;
     } while (--i);
 }
 
@@ -1563,8 +1559,8 @@ void FUN_00500920(int param1, int param2, int param3)
         }
         return;
     }
-    *(Unk0x0082ac68Row *)g_unk0x0082ac68[param1 * 4] =
-        *(Unk0x0082ac68Row *)g_unk0x0082ad70[param1 * 4];
+    for (i = 0; i < 8; i++)
+        ((int *)g_unk0x0082ac68[param1 * 4])[i] = ((int *)g_unk0x0082ad70[param1 * 4])[i];
 }
 
 // Stores a new target pair per layout slot of option record param1 and rebuilds
@@ -1915,7 +1911,7 @@ void FUN_00500c80(Unk0049c2c0 *p1, BYTE state)
 
     if (CGameInfo::FUN_00405d80() == 0 || CGameInfo::FUN_00405d80() == 1) {
         g_unk0x00527000 = 0;
-        if ((int)(RallyDataStageIndex() & 0xff) % 4 == 0)
+        if ((int)RallyDataStageIndex() % 4 == 0)
             g_unk0x00527000 = 1;
     } else {
         g_unk0x00527000 = 1;
@@ -2693,7 +2689,10 @@ int g_unk0x0082c6c0;
 int g_unk0x0082cb44;
 
 // Selects a new entry only when the current entry has no pending activity.
-// match 79%: the original preserves the result in ESI across the timer call.
+// match 75%: the original pushes ESI in the prologue and only then reloads the
+// parameter (at [esp+8]); this compiler sinks the push of the callee-saved
+// register into the taken branch and computes the return value one store early
+// (identical byte count, different scheduling).
 // FUNCTION: CMR2 0x00505e10
 int CGameInfo::FUN_00505e10(BYTE param1)
 {
@@ -2742,8 +2741,9 @@ void FUN_00507290(SceneNode *pNode, Unk0x0082d220 *pRecord)
             minY = 0x640000;
             minX = 0x640000;
             for (i = 0; i < (int)pRecord->vertexCount[slot]; i++) {
-                pVertex = &((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i];
-                x = (int)(__int64)(pVertex->x * CGraphics::m_65536);
+                x = (int)(__int64)(((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData)[i].x *
+                                   CGraphics::m_65536);
+                pVertex = ((Unk0x0082d220VertexF *)pRecord->pMeshes[slot]->pVertexData) + i;
                 y = (int)(__int64)(pVertex->y * CGraphics::m_65536);
                 z = (int)(__int64)(pVertex->z * CGraphics::m_65536);
                 if (x > maxX)
@@ -3147,11 +3147,12 @@ BYTE FUN_004f4b90(void)
         g_languageTexts[i] = CGenericFileLoader::FindFile(CFrontend::FUN_004d21c0(i), CFrontend::m_stringDest,
                                                         &g_languageTextInArchive[i], NULL, 0);
     }
-    if (g_languageTexts[0] == NULL)
-        return 0;
-    CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
-    CGame::RegisterCallback(FUN_004f4cc0, NULL);
-    return 1;
+    if (g_languageTexts[0] != NULL) {
+        CFrontend::FUN_004a3c90(CGameInfo::m_unk0x0081a754, 0x215, (BYTE **)g_languageTexts);
+        CGame::RegisterCallback(FUN_004f4cc0, NULL);
+        return 1;
+    }
+    return 0;
 }
 
 // Loads the four frontend fonts from the frontend archive.
@@ -3735,9 +3736,9 @@ int CGameInfo::FUN_004a13b0(void)
     FUN_004a0c60();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
     *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
     pDP = CGame::GetDirectPlay();
@@ -3752,8 +3753,11 @@ int CGameInfo::FUN_004a13b0(void)
     case 0x88770118:
         return -2;
     case 0x8877005a:
+        return 0;
     case 0x88770082:
+        return 0;
     case 0x887700aa:
+        return 0;
     case 0x88770140:
         return 0;
     }
@@ -3910,7 +3914,6 @@ void FUN_00502570(void)
 
     for (i = 0; i < 4; i++) {
         BYTE *p = RallyData_FUN_00407630(i);
-        BYTE *pFlags;
 
         g_unk0x0082bee8[i + 4][4] = p[4];
         g_unk0x0082bee8[i + 4][5] = p[5];
@@ -3926,10 +3929,7 @@ void FUN_00502570(void)
         g_unk0x0082bee8[i][3] = g_unk0x0082bf04[i * 7 + 3];
         g_unk0x0082bee8[i][2] = g_unk0x0082bf04[i * 7 + 2];
         g_unk0x0082bee8[i][0] = g_unk0x0082bf04[i * 7 + 0];
-        pFlags = &g_unk0x0082bf20[i][0];
-        *(int *)pFlags = 0;
-        *(short *)(pFlags + 4) = 0;
-        pFlags[6] = 0;
+        memset(&g_unk0x0082bf20[i][0], 0, 7);
     }
 }
 
@@ -4226,8 +4226,8 @@ int RallyData_FUN_00411880(void);
    Stage entry / exit transitions of the frontend cascades (0x401000..0x405470).
    -------------------------------------------------------------------------- */
 
-unsigned char FUN_0041f930(void);
-unsigned char FUN_00420150(void);
+unsigned char Race_LoadSelectedStage(void);
+unsigned char Race_LoadStageGeometry(void);
 void FUN_0041b300(void);
 void FUN_00411120(void);
 void RallyData_FUN_004207f0(void);
@@ -4253,7 +4253,7 @@ void FUN_00401000(BYTE *param1, int param2)
     int i;
 
     if ((char)param2 == 0) {
-        if ((BYTE)FUN_0041f930() == 0) {
+        if ((BYTE)Race_LoadSelectedStage() == 0) {
             i = 0;
             if (*param1 > 0) {
                 do {
@@ -4286,7 +4286,7 @@ void FUN_004010a0(BYTE *param1, int param2)
 
     if ((char)param2 == 0) {
         RallyData_FUN_004207f0();
-        if ((BYTE)FUN_00420150() == 0) {
+        if ((BYTE)Race_LoadStageGeometry() == 0) {
             i = 0;
             if (*param1 > 0) {
                 do {
@@ -4316,11 +4316,11 @@ void FUN_00427650(void);
 void FUN_0041e210(void);
 void FUN_00424ed0(void);
 void FUN_00424c50(void);
-void FUN_004245e0(void);
+void ForceFeedback_ActivateIdleSlots(void);
 void View_SetCameraType(int, int, BYTE, int);
 BYTE FUN_0041b370(void);
 int RallyData_FUN_00408800(BYTE);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 void FUN_00406820(void);
 void RallyData_FUN_00408290(void);
 int View_IsModeAvailable(BYTE, int);
@@ -4352,12 +4352,12 @@ void FUN_00401150(int param1, int param2)
             g_unk0x005298f4 = 1;
             g_unk0x005297f0 = 0;
             if (**(char **)(FUN_0041b390() + 4) != '\r')
-                FUN_004245e0();
+                ForceFeedback_ActivateIdleSlots();
         }
         i = 0;
         if ((BYTE)RallyDataState() > 0) {
             do {
-                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)FUN_00407270() != 0) {
+                if ((BYTE)CGameInfo::FUN_00406320() != 0 || (BYTE)RallyData_IsChampionshipFinalStage() != 0) {
                     View_SetCameraType(i, 7, i, 0);
                 } else if (View_IsModeAvailable(i, RallyData_FUN_00408800(FUN_0041b370() + i)) != 0) {
                     View_SetCameraType(i, RallyData_FUN_00408800(FUN_0041b370() + i), i, 0);
@@ -4380,7 +4380,7 @@ void FUN_00401150(int param1, int param2)
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 5, 2);
             return;
         }
-        if ((BYTE)FUN_00407270() != 0) {
+        if ((BYTE)RallyData_IsChampionshipFinalStage() != 0) {
             FUN_00406820();
             RallyData_FUN_00408290();
             CGame::FUN_0049c1c0((Unk0049c2c0 *)param1, param2, 1, 2);
@@ -4469,14 +4469,13 @@ void FUN_00404d00(Menu *pMenu)
     g_unk0x005298f8 = (g_unk0x005298f8 & ~0x20) | ((pMenu->items[3].max & 1) << 5);
 
     if (FUN_004174d0()) {
-        if (!RallyData_FUN_00411880()) {
-            BYTE bits = 0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max;
-            g_unk0x005298f8 ^= (bits ^ g_unk0x005298f8) & 3;
-        } else {
-            if (pMenu->items[Menu_FindItem(pMenu, 4)].max != 0)
-                g_unk0x005298f8 &= ~3;
-            else
+        if (RallyData_FUN_00411880()) {
+            if (pMenu->items[Menu_FindItem(pMenu, 4)].max == 0)
                 g_unk0x005298f8 = (g_unk0x005298f8 & ~1) | 2;
+            else
+                g_unk0x005298f8 &= ~3;
+        } else {
+            g_unk0x005298f8 ^= ((0xfe - pMenu->items[Menu_FindItem(pMenu, 4)].max) ^ g_unk0x005298f8) & 3;
         }
     }
 
@@ -4527,8 +4526,6 @@ void FUN_00427c10(void);
 // FUNCTION: CMR2 0x00401420
 void FUN_00401420(Menu *pMenu, char cancel)
 {
-    int rate;
-
     if (cancel != 0) {
         CGameInfo::FUN_00405e10(g_unk0x00529ecc);
         CGameInfo::FUN_00405e50(g_unk0x0052a488);
@@ -4539,7 +4536,7 @@ void FUN_00401420(Menu *pMenu, char cancel)
         if (FUN_004174d0())
             CGameInfo::FUN_00405e80(pMenu->items[Menu_FindItem(pMenu, 2)].max * 10);
     }
-    CInput::FUN_0049ffc0(((int)(CGameInfo::FUN_00405e70() << 16) / 100) / 4);
+    CInput::FUN_0049ffc0((int)(CGameInfo::FUN_00405e70() << 16) / 100 / 4);
     FUN_00427c10();
 }
 
@@ -4667,7 +4664,7 @@ unsigned int FUN_0040a450(int index);
 void View_SnapCameras(BYTE index);
 void View_BlendCameraStates(BYTE index, int param);
 void View_SwitchCamera(BYTE index, int a, int b, BYTE c, int d);
-void FUN_004246c0(void);
+void ForceFeedback_StopSlotForces(void);
 int FUN_00448550(void);
 int FUN_004483c0(int index);
 void FUN_00427950(int time);
@@ -4703,7 +4700,7 @@ void FUN_00404f40(Unk0049c2c0 *param1)
     int i;
     DeviceInfo *pDev;
 
-    FUN_004246c0();
+    ForceFeedback_StopSlotForces();
     if (g_pMenu0x0052af44 != &g_menu0x0052a870)
         goto updateMenus;
 
@@ -4936,7 +4933,7 @@ void FUN_00501f80(int index, int font1, int font2, char *text, short x, short y,
     }
     if (pRec->field_0xc == 1) {
         len = (int)strlen(text);
-        count = FixMulShift32(pRec->field_0x0, len << 16);
+        count = FixMulShift32(len << 16, pRec->field_0x0);
         for (i = 0; i < count; i++)
             g_unk0x0082b1c0[i] = text[i];
         g_unk0x0082b1c0[count] = 0;
@@ -5267,9 +5264,7 @@ void FUN_004028d0(Menu *pMenu)
     short rect[4];
     int i;
     int *pColour;
-    char *text;
-    short type;
-    int texture;
+    int type;
 
     rect[0] = 0;
     rect[1] = 0;
@@ -5285,31 +5280,34 @@ void FUN_004028d0(Menu *pMenu)
     for (i = 0; i < pMenu->itemCount; i++, pItem++) {
         pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
         type = pItem->value;
-        if (type >= 0 && (type < 3 || type == 4)) {
-            if (type < 3) {
+        if (type >= 0) {
+            if (type > 2) {
+                if (type == 4) {
+                    Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                                  (int)(g_pGraphics->resX * 0x86) / 0x280,
+                                  (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
+                                  pColour, 0x11);
+                }
+            } else {
                 sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat,
                         CFrontend::GetTextString(pItem->id), pItem->max * 10);
-                text = CFrontend::m_stringDest;
-            } else {
-                text = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                              (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                  + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
+                              pColour, 0x11);
             }
-            Font_DrawText(1, text, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                          (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                              + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
-                          pColour, 0x11);
         }
         rect[1] = (short)(((int)(g_pGraphics->resY * 0xaa) / 0x1e0
                            + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i)
                           - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
         if (pMenu->cursor == i) {
-            pColour = &g_unk0x00516074;
-            texture = g_unk0x0052aa60;
+            Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
+                         (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
         } else {
-            pColour = &g_unk0x00516078;
-            texture = g_unk0x0052aa68;
+            Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
+                         (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
         }
-        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
-                     2, 0, NULL, NULL, (BYTE *)pColour, 8);
     }
     Font_SetBlendMode(2);
 }
@@ -5795,11 +5793,11 @@ void FUN_005020a0(int index, int font1, int font2, char *text, int x, int y,
         g_unk0x0082b1c0[count] = 0;
         Font_DrawText(font1, g_unk0x0082b1c0, x, y, pColour1, flags);
         if (count < len) {
-            width = Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
-            for (i = count, j = 0; i < len; i++, j++)
-                g_unk0x0082b1c0[j] = text[i];
+            x += Font_GetTextWidth(font1, (BYTE *)g_unk0x0082b1c0);
+            for (i = count; i < len; i++)
+                g_unk0x0082b1c0[i - count] = text[i];
             g_unk0x0082b1c0[len - count] = 0;
-            Font_DrawText(font2, g_unk0x0082b1c0, width + x, y, pColour2, flags);
+            Font_DrawText(font2, g_unk0x0082b1c0, x, y, pColour2, flags);
         }
     }
 }
@@ -6059,14 +6057,13 @@ short g_unk0x0082c9ec[4];
 int FUN_00503b70(Unk0x0082c6c8 *p, short *pX, short *pY)
 {
     if (p->field_0x1c != 0x10000) {
-        *pX = (short)FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
-                                   *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
-        *pY = (short)FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
-                                   *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
+        *pX = FixMulShift32(FixDiv((*pX - g_unk0x0082c9ec[0]) << 16, g_unk0x0082c9ec[2] << 16),
+                            *(short *)((BYTE *)p + 0x10) << 16) + *(short *)((BYTE *)p + 0xc);
+        *pY = FixMulShift32(FixDiv((*pY - g_unk0x0082c9ec[1]) << 16, g_unk0x0082c9ec[3] << 16),
+                            *(short *)((BYTE *)p + 0x12) << 16) + *(short *)((BYTE *)p + 0xe);
     }
     *pX = (short)((*pX * (int)g_pGraphics->resX) / 0x280);
     *pY = (short)((*pY * (int)g_pGraphics->resY) / 0x1e0);
-    return 0;
 }
 
 // Re-runs the option-menu callback stored in the global (0x82b1b4).
@@ -6187,13 +6184,11 @@ void FUN_0050f4f0(void)
     int stage;
 
     stage = RallyDataStageIndex() >> 2;
-    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400)) {
+    if (CGameInfo::GetScreenWidth() >= 0x400 && CFrontend::FUN_004b7560(0x400) &&
+        CFrontend::FUN_004b7590(0x400))
         resolution = 0x400;
-        if (!CFrontend::FUN_004b7590(0x400))
-            resolution = 0x280;
-    } else {
+    else
         resolution = 0x280;
-    }
 
     sprintf(CFrontend::m_stringDest, g_str0x00529794, CInstallInfo::GetSetupRepDir(), resolution);
     CGenericFileLoader::FUN_004a9d70((GenericFile *)FUN_0050f620(), CFrontend::m_stringDest);
@@ -7503,16 +7498,16 @@ void FUN_00506080(int param1)
                 }
                 return;
             }
-            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
+            if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
                 for (i = 0; i < 4; i++) {
-                    if (CB78_MESH(off + 0x24 + i * 4) != 0)
-                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
+                    if (CB78_MESH(off + 0x34 + i * 4) != 0)
+                        *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
                 }
                 return;
             }
             for (i = 0; i < 4; i++) {
-                if (CB78_MESH(off + 0x34 + i * 4) != 0)
-                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x34 + i * 4);
+                if (CB78_MESH(off + 0x24 + i * 4) != 0)
+                    *(Mesh **)((BYTE *)CB78_NODE(off + 0x14 + i * 4) + 0xc) = CB78_MESH(off + 0x24 + i * 4);
             }
             return;
         }
@@ -7523,13 +7518,13 @@ void FUN_00506080(int param1)
                 pMesh = *(Mesh **)((BYTE *)CB78_NODE(off + 0x14) + 0xc);
                 for (k = 0; k < pMesh->triangleCount; k++) {
                     pTex = CGraphics::m_pTextureManager->textureBuffer[((int *)&pMesh->pTriangles[k])[1]];
-                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) == 0) {
-                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
-                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
+                    if (FUN_0050a050(CB78_BYTE(off), g_unk0x0082d15c[param1]) != 0) {
+                        if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
+                            strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
                             Graphics_ReloadTexture(pTex);
                         }
-                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1) == 0) {
-                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1);
+                    } else if (strncmp(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantL, 1) == 0) {
+                        strncpy(pTex->name + strlen(pTex->name) - 9, g_strWheelVariantN, 1);
                         Graphics_ReloadTexture(pTex);
                     }
                 }
@@ -7637,7 +7632,7 @@ void FUN_00506930(int param1, short *param2, int param3)
     if (a[0] < 0)
         abs = -a[0];
     if (abs > 0xb40000) {
-        if (a[0] >= 1)
+        if (a[0] > 0)
             a[0] = 0x1680000 - a[0];
         else
             a[0] += 0x1680000;
@@ -8191,6 +8186,7 @@ void FUN_00507fe0(Unk0x0082d220 *pObject, Unk0x0082fd00 *pGeom)
                 angle = dv.x + dv.z;
                 if (angle < 0)
                     angle = -angle;
+                angle &= 0xffffff80;
                 angle %= 1024;
                 angle <<= 6;
                 if (angle < 0x8000)
@@ -8243,9 +8239,10 @@ void FUN_00506fc0(int param1, int param2, int param3)
 
     FUN_00506bb0(param1, param2, param3);
     for (i = 0; i < *(BYTE *)(param3 + 0x26a); i++) {
+        j = 0;
         match = -1;
         target = *(int *)(*(int *)(param3 + 0x3c + i * 4) + 0x30) & 0xff;
-        for (j = 0; j <= *(BYTE *)(param3 + 0x26a); j++) {
+        for (; j <= *(BYTE *)(param3 + 0x26a); j++) {
             if (g_unk0x0082d1dc[param1][j] == target) {
                 match = j;
                 j = *(BYTE *)(param3 + 0x26a);
@@ -8433,15 +8430,19 @@ void FUN_00501de0(int param_1, short *param_2)
 {
     Unk0x0082b2c0 *p;
     int mid;
+    int lo;
+    int hi;
     int a;
     int delta;
 
     p = &g_unk0x0082b2c0[param_1];
     if (p->field_0xc == 1) {
         mid = param_2[2] / 2 + param_2[0];
+        lo = mid - 1;
+        hi = mid + 1;
         if (p->field_0x0 < 0x8000) {
-            param_2[0] = mid - 1;
-            param_2[2] = mid + 1 - param_2[0];
+            param_2[0] = lo;
+            param_2[2] = hi - lo;
             a = FixMul(p->field_0x0, 0x20000);
             a = FixMul(a, a);
             delta = param_2[3] - (FixMul(param_2[3] << 16, a) >> 16);
@@ -8856,7 +8857,8 @@ void FUN_004ff630(Menu *pMenu)
             FUN_005034f0(CGameInfo::FUN_005011b0(), FUN_004ff4d0(option));
     } else if (pMenu->cursor == Menu_FindItem(pMenu, 1)) {
         index = Menu_FindItem(pMenu, 1);
-        value = FUN_004ff4c0(pMenu->items[index].max);
+        value = pMenu->items[index].max;
+        value = FUN_004ff4c0(value);
         if (FUN_00502990(CGameInfo::FUN_005011b0(), value))
             FUN_00502790(CGameInfo::FUN_005011b0(), value);
     }
@@ -8884,10 +8886,6 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // Draws the country flag row of the championship screen: a row of buttons
 // whose width depends on the language and the selected country, holding the
 // country name and clipped to the screen.
-// match 55%: same logic; the original keeps the country pointer and the row
-// scale in registers where we spill them, so most of the diff is stack slot
-// and register numbering
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005057e0
 void FUN_005057e0(void)
 {
@@ -8895,7 +8893,6 @@ void FUN_005057e0(void)
     Texture *pTexture;
     int i;
     int width;
-    int scale;
     int y;
 
     if (CGameInfo::GetGameLanguage() == 4)
@@ -8911,19 +8908,20 @@ void FUN_005057e0(void)
     dest.x = (short)width - pTexture->width / 2;
     dest.w = pTexture->width;
     dest.h = pTexture->height;
-    scale = FixDiv(0xea0000, g_unk0x0082c6bc * 0x10000 - 0x10000);
     for (i = 0; i < g_unk0x0082c6bc; i++) {
-        y = FixMulShift32(i << 16, scale);
-        pTexture = (Texture *)g_unk0x0082ca20[i];
+        int num = 0xea0000;
+        int scale = FixDiv(num, g_unk0x0082c6bc * 0x10000 - 0x10000);
+        int rowY = (FixMul(i << 16, scale) >> 16) + 0x93;
         FUN_00501f80(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
-                     (int)g_pGraphics->resY * (y + 0x93) / 0x1e0, &g_unk0x005270fc,
+                     (int)g_pGraphics->resY * rowY / 0x1e0, &g_unk0x005270fc,
                      &g_unk0x00527100, 0x22);
-        dest.y = (short)((int)g_pGraphics->resY * (y + 0x81) / 0x1e0);
+        dest.y = (short)((int)g_pGraphics->resY * (rowY - 0x12) / 0x1e0);
         if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
             !CFrontend::FUN_004b7590(0x400))
             dest.y = dest.y - g_unk0x00527254[g_unk0x0082c698[i]];
         else
             dest.y = dest.y - g_unk0x00527260[g_unk0x0082c698[i]];
+        pTexture = (Texture *)g_unk0x0082ca20[g_unk0x0082c698[i]];
         Sprite_Queue((SpriteRect *)&pTexture->field_0x11c, &dest, pTexture, 3, 0, NULL, NULL,
                      g_unk0x005270e4, 8);
     }
@@ -9318,10 +9316,6 @@ void FUN_00402f20(Menu *pMenu, int param)
 // the bottom of the option area and alternating between the two sprite layers),
 // then the horizontal line that closes the option area and, under its centre,
 // the lower separator of the option screen.
-// match 42%: implementada; MSVC6 no reserva nuestro marco de pila de 0xc bytes ni mantiene
-// g_pGraphics/el indice en los mismos registros (el original los lleva en EDI/EBP y recicla
-// ESI para los productos 0x88888889), pero las constantes, las cuatro divisiones, el reparto
-// de ramas por GetScreenWidth/FUN_004b7560/FUN_004b7590 y las llamadas a Sprite_* coinciden.
 // FUNCTION: CMR2 0x00500550
 void FUN_00500550(int param1)
 {
@@ -9329,7 +9323,6 @@ void FUN_00500550(int param1)
     int minX;
     int maxX;
     int centre;
-    int layer;
     int i;
 
     g_controlsLine[2] = 1;
@@ -9338,16 +9331,19 @@ void FUN_00500550(int param1)
         rect[2] = *(short *)(g_unk0x00831674 + 0x120);
         rect[3] = *(short *)(g_unk0x00831674 + 0x122);
     }
-    minX = 0;
-    maxX = 0;
     for (i = 0; i < 4; i++) {
         // The layout records hold 16.16 pairs: the integer part is the slot.
         g_controlsLine[0] = (short)(g_unk0x0082ac68[param1 * 4 + i][0] >> 16);
         g_controlsLine[1] = (short)(g_unk0x0082ac68[param1 * 4 + i][1] >> 16);
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0) - g_controlsLine[1];
-        layer = i % 2 == 0 ? 4 : 1;
         // Drawn first: the bounds below read the line after Sprite_FillRect.
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, layer);
+        if (i % 2 == 0) {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+                            (BYTE *)&g_unk0x00526ffc, 4);
+        } else {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+                            (BYTE *)&g_unk0x00526ffc, 1);
+        }
         if (i == 0) {
             minX = g_controlsLine[0];
             maxX = g_controlsLine[0];
@@ -9365,9 +9361,15 @@ void FUN_00500550(int param1)
                 rect[0] = g_controlsLine[0] - 3;
                 rect[1] = g_controlsLine[1] - 3;
             }
-            Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
-                         (Texture *)g_unk0x00831674, layer, 0, NULL, NULL,
-                         (BYTE *)&g_unk0x00526ffc, 8);
+            if (i % 2 == 0) {
+                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x00831674, 4, 0, NULL, NULL,
+                             (BYTE *)&g_unk0x00526ffc, 8);
+            } else {
+                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x00831674, 1, 0, NULL, NULL,
+                             (BYTE *)&g_unk0x00526ffc, 8);
+            }
         }
     }
     if (maxX != minX) {
@@ -9379,17 +9381,19 @@ void FUN_00500550(int param1)
     centre = minX + (maxX - minX) / 2;
     g_controlsLine[0] = (short)centre;
     g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
-    if (centre > (int)(g_pGraphics->resX * 0xe4) / 0x280) {
-        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) - g_controlsLine[1];
+    if (centre <= (int)(g_pGraphics->resX * 0xe4) / 0x280) {
+        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) -
+                            (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
-        g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
-        g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
-        g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
         return;
     }
-    g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) - g_controlsLine[1];
+    g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) -
+                        (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+    g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
+    g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
+    g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
 }
 
 // 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
@@ -9976,10 +9980,6 @@ void FUN_0050e280(unsigned int param_1)
         CGameInfo::FUN_00405da0();
 }
 
-// match 67%: el original guarda el indice seleccionado (param_1[7]) en EBP y el contador del bucle
-// en EBX; MSVC6 asigna a nuestro codigo (identico) EBX al indice y EBP al contador, asi que todas las
-// instrucciones del cuerpo del bucle difieren en un registro y el intercalado se desplaza. Semanticamente
-// equivalente; no reproducible desde C sin tocar la asignacion de colores del compilador.
 // FUNCTION: CMR2 0x0050e780
 void FUN_0050e780(unsigned int param_1)
 {
@@ -9992,9 +9992,9 @@ void FUN_0050e780(unsigned int param_1)
 
     x0 = (int)g_pGraphics->resX * 0xf0 / 0x280;
     yBase = (int)g_pGraphics->resY * 0xd7 / 0x1e0;
+    sel = (int)*(signed char *)(param_1 + 7);
     colour = g_unk0x0052737c;
     destRect[0] = (short)(x0 * (int)g_pGraphics->resX / 0x280);
-    sel = (int)*(signed char *)(param_1 + 7);
     destRect[1] = 0;
     destRect[2] = 0;
     destRect[3] = 0;
@@ -10003,27 +10003,29 @@ void FUN_0050e780(unsigned int param_1)
                  g_unk0x00527380, g_unk0x0052738c, 0x11);
     g_unk0x00831660[0] = (short)x0;
     g_unk0x00831660[1] = (short)yBase;
-    g_unk0x00831660[3] = 1;
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
+    g_unk0x00831660[3] = 1;
     FUN_00501d50(0, g_unk0x00831660, 1, 1);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
-                    (BYTE *)(sel == 0 ? &colour : &g_unk0x00527380[2]), 1);
+    if (sel == 0)
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+    else
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
                 !CFrontend::FUN_004b7590(0x400))
-                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2) +
                               g_unk0x00831660[1] - 6;
             else
-                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2) +
                               g_unk0x00831660[1] - 0xa;
         }
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString(i + 0x100));
-        if (sel == i) {
-            FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
+        if (i == sel) {
+            ((void (__stdcall *)(int, int, int, char *, int, short, int *, int *, unsigned int))FUN_005020a0)(7, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
-                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
+                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0) + g_unk0x00831660[1],
                          &colour, g_unk0x00527380, 0x11);
             if (g_unk0x0083166c != 0)
                 Sprite_Queue((SpriteRect *)(g_unk0x0083166c + 0x11c), (SpriteRect *)destRect,
@@ -10039,12 +10041,14 @@ void FUN_0050e780(unsigned int param_1)
         }
         g_unk0x00831660[1] =
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
-                        (BYTE *)((i == sel || i + 1 == sel)
-                                     ? (CGameInfo::FUN_005004c0() == 0 ? &colour
-                                                                       : &g_unk0x00527378)
-                                     : &g_unk0x00527380[2]),
-                        1);
+        if (i == sel || i + 1 == sel) {
+            if (CGameInfo::FUN_005004c0() != 0)
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+            else
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+        } else {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+        }
     }
 }
 
@@ -10330,7 +10334,7 @@ void FUN_0050bfd0(int param_1)
                  FUN_00502500()[0x1f + Menu_FindItem((Menu *)FUN_00502500(), 0) * 0x14],
                  0, g_unk0x005293a0, 0x124, 0);
     if (g_unk0x00831668 != 0) {
-        g_unk0x00831660[0] = (short)((int)g_pGraphics->resX * g_unk0x005293a0 / 0x280);
+        g_unk0x00831660[0] = (short)(g_unk0x005293a0 * (int)g_pGraphics->resX / 0x280);
         g_unk0x00831660[1] = (short)((int)g_pGraphics->resY * 0x6f / 0x1e0);
         g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa1 / 0x280);
         g_unk0x00831660[3] = (short)((int)g_pGraphics->resY * 0x37 / 0x1e0);
@@ -11391,7 +11395,7 @@ void FUN_004ff720(Menu *pMenu)
             } else if ((pDevice->field_0x8 & 0x20) != 0) {
                 g_unk0x0082ab44 = 0;
                 g_unk0x0082ac60 = 1;
-            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 >= 1) {
+            } else if ((pDevice->field_0x8 & 4) != 0 && g_unk0x0082a924 > 0) {
                 g_unk0x0082a924--;
             } else if ((pDevice->field_0x8 & 8) != 0 && g_unk0x0082a924 < g_unk0x0082aa40 - 1) {
                 g_unk0x0082a924++;
@@ -11433,19 +11437,21 @@ void FUN_004ff720(Menu *pMenu)
         pDevice = CInput::FUN_0049ead0(0);
         if (pDevice->field_0x8 == 0) {
             g_unk0x00526f40 = 1;
-        } else if (g_unk0x00526f40 != 0) {
-            if ((pDevice->field_0x8 & 4) != 0) {
-                index = Menu_FindItem(pMenu, 4);
-                pMenu->items[index].max = 0;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 1) != 0) {
-                pMenu->cursor--;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            } else if ((pDevice->field_0x8 & 2) != 0) {
-                pMenu->cursor++;
-                strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
-            }
+        } else if (g_unk0x00526f40 == 0) {
+            goto editor;
         }
+        if ((pDevice->field_0x8 & 4) != 0) {
+            index = Menu_FindItem(pMenu, 4);
+            pMenu->items[index].max = 0;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 1) != 0) {
+            pMenu->cursor--;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        } else if ((pDevice->field_0x8 & 2) != 0) {
+            pMenu->cursor++;
+            strcpy(g_unk0x0082aa44, CMain::m_logFileBlankLine);
+        }
+    editor:
         g_unk0x0082a934 = g_unk0x0082aa44;
         strcpy(CFrontend::m_stringDest, g_unk0x0082aa44);
         if (FUN_004b7cd0(&value)) {
@@ -11691,7 +11697,7 @@ SceneNode *SceneNode_FindByType(SceneNode *, unsigned int);
 #include "FileBuffer.h"
 #include "SceneNode.h"
 int  FUN_004b9380(unsigned int, unsigned int, unsigned int);
-char *FUN_00420060(int, int, int);
+char *Car_GetTextureSetPath(int, int, int);
 int  FUN_0050a020(int, int);
 int  FUN_0050a050(int, int);
 void FUN_00507a10(Unk0x0082d220 *, int);
@@ -11731,7 +11737,7 @@ int FUN_005062d0(int index)
     }
     model = (BYTE)(int)RallyData_FUN_004086b0(index);
     variant = (BYTE)(int)CFrontend::FUN_0040ee90(model);
-    sprintf(g_unk0x00663b60, "%s.c3d", FUN_00420060(model, 0, 0));
+    sprintf(g_unk0x00663b60, "%s.c3d", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::FUN_00405d10() == 0) {
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1N.c3d", 8);
         hC3D = (int)CFileBuffer::GetGenericFileBuffer(g_unk0x00663b60, 0);
@@ -11756,7 +11762,7 @@ int FUN_005062d0(int index)
     g_unk0x008311d8[index] = (BYTE *)hL;
     g_unk0x00831158[index] = (BYTE *)hS;
 
-    sprintf(g_unk0x00663b60, "%s.bfl", FUN_00420060(model, 0, 0));
+    sprintf(g_unk0x00663b60, "%s.bfl", Car_GetTextureSetPath(model, 0, 0));
     if (CGameInfo::FUN_00405d10() == 0)
         strncpy(g_unk0x00663b60 + strlen(g_unk0x00663b60) - 6, "A1.bfl", 6);
 
@@ -11773,19 +11779,19 @@ int FUN_005062d0(int index)
     root = FUN_004b9380(hC3D, stage, (unsigned int)pRecord);
     if (CGameInfo::FUN_00405d10() == 0) {
         int *p = (int *)&pEntry->field_0x24[0];
-        for (i = 1; i < 4; i++)
+        for (i = 1; i <= 4; i++)
             *p++ = *(int *)((int)SceneNode_FindByType((SceneNode *)root, (unsigned int)i) + 0xc);
         if (hL != 0) {
             int *q = (int *)&pEntry->field_0x34[0];
             nodeL = FUN_004b9380(hL, stage, (unsigned int)pRecord);
-            for (i = 1; i < 4; i++)
+            for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeL, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeL, 0);
         }
         if (hS != 0) {
             int *q = (int *)&pEntry->field_0x44[0];
             nodeS = FUN_004b9380(hS, stage, (unsigned int)pRecord);
-            for (i = 1; i < 4; i++)
+            for (i = 1; i <= 4; i++)
                 *q++ = *(int *)((int)SceneNode_FindByType((SceneNode *)nodeS, (unsigned int)i) + 0xc);
             SceneNode_SetViewMaskTree((SceneNode *)nodeS, 0);
         }
@@ -11802,7 +11808,7 @@ int FUN_005062d0(int index)
     FUN_00507080(index);
     FUN_00507a10(&g_unk0x0082d220[index], index);
     {
-        int h = (int)SceneNode_FindByType((SceneNode *)hL, (unsigned int)0xe);
+        int h = (int)SceneNode_FindByType((SceneNode *)root, (unsigned int)0xe);
         if (h != 0) {
             int tex = *(int *)((char *)CGraphics::m_pTextureManager + *(int *)(*(int *)(*(int *)(h + 0xc) + 0x24) + 4) * 4 + 900);
             CGraphics::RemapTextureAlpha((Texture *)tex, 0xbf, 0, 0x40, 0, 0x80, 0, index);

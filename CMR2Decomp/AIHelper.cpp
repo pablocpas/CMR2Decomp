@@ -39,16 +39,10 @@ int CAIHelper::FUN_00407f80(int id)
     return id + 10;
 }
 
-// match 81%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00407ec0
 char *CAIHelper::GetNameForID(int id)
 {
-    unsigned int uVar1;
-    unsigned int uVar2;
-    int iVar3;
-
-    uVar1 = CGameInfo::FUN_00405d80();
-    if (uVar1 != 5)
+    if (CGameInfo::FUN_00405d80() != 5)
     {
         if (CGameInfo::FUN_00405d80() != 6)
         {
@@ -62,7 +56,9 @@ char *CAIHelper::GetNameForID(int id)
         }
     }
 
-    uVar2 = RallyDataState();
-    uVar2 = CAIHelper::FUN_00407f80(id - (unsigned char)uVar2);
-    return g_aiNames[uVar2];
+    // The subtraction is kept as its own local: MSVC then holds the state byte
+    // in cl and the difference in eax, matching the original.
+    int offset = id - RallyDataState();
+
+    return g_aiNames[CAIHelper::FUN_00407f80(offset)];
 }

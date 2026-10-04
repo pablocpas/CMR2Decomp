@@ -189,8 +189,11 @@ void SceneNode_Attach(SceneNode *pNode, SceneNode *pParent)
     if (pParent != NULL) {
         p = pParent->pFirstChild;
         if (p != NULL) {
-            for (pNext = p->pNext; pNext != NULL; pNext = pNext->pNext)
+            pNext = p->pNext;
+            while (pNext != NULL) {
                 p = pNext;
+                pNext = p->pNext;
+            }
             p->pNext = pNode;
             pNode->pParent = pParent;
             return;
@@ -454,11 +457,12 @@ int SceneNode_Reparent(SceneNode *pNode, SceneNode *pNewParent)
         pNode->pNext = pNewParent->pFirstChild;
         pNewParent->pFirstChild = pNode;
     }
+    p = pNode;
     do {
-        pNode->dirty = 1;
-        pNode = pNode->pParent;
-    } while (pNode != NULL);
-    return pNewParent->dirty;
+        p->dirty = 1;
+        p = p->pParent;
+    } while (p != NULL);
+    return 1;
 }
 
 // Type 1 / type 2 scene objects: fixed pointer tables, released by lookup.
@@ -695,7 +699,7 @@ SceneNode *SceneType2_Create(FixVector *pTranslation, FixAngles *pAngles, SceneN
     else
         p = pNode;
     i = 0;
-    *(BYTE *)&p->flags = 0xff;
+    p->flags |= 0xff;
     for (i = 0; i < 256; i++) {
         if (g_sceneType2Objects[i] == NULL) {
             pObject = CFileBuffer::AllocateLockedBuffer(0x104);
@@ -1131,15 +1135,13 @@ void FUN_004b3f20(void)
 {
     unsigned int sector;
     SceneNode *pNode;
-    BYTE colour;
 
     if (g_sceneSectorLights != NULL) {
         for (sector = 0; sector < (unsigned int)g_sectorCount; sector++) {
             if (g_sceneAmbientColour[0] < 0xf0)
-                colour = g_sceneAmbientColour[0] + 10;
+                ((BYTE *)g_sceneSectorLights)[sector * 4] = (BYTE)(g_sceneAmbientColour[0] + 10);
             else
-                colour = g_sceneAmbientColour[0] - 10;
-            ((BYTE *)g_sceneSectorLights)[sector * 4] = colour;
+                ((BYTE *)g_sceneSectorLights)[sector * 4] = (BYTE)(g_sceneAmbientColour[0] - 10);
             for (pNode = g_sectors[sector]->pFirstNode; pNode != NULL;
                  pNode = pNode->pNextInSector)
                 FUN_004b50b0(pNode, 0xffff0000);
@@ -1963,7 +1965,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
     int offset;
     float scaled[3];
 
-    if (pCaster->field_0xc != 0 && pCaster->partCount != 0) {
+    if (pCaster->field_0xc != 0) {
         for (i = 0, offset = 0; i < pCaster->partCount; i++, offset += 0x58) {
             pPart = (ShadowPart *)((char *)pCaster->pParts + offset);
             if (pPart->field_0x54 != 0) {
@@ -1994,7 +1996,7 @@ void FUN_004b4490(ShadowCaster *pCaster, int param2)
         }
     }
     pCaster->field_0xc = 0;
-    if (pCaster->field_0x10 != 0 && pCaster->partCount != 0) {
+    if (pCaster->field_0x10 != 0) {
         for (i = 0; i < pCaster->partCount; i++)
             FUN_004b4180((float *)(pCaster->pParts + i), param2);
     }
@@ -2237,7 +2239,6 @@ int Mesh_GetCornerLight(Mesh *pMesh, MeshTriangle *pTri, FixVector *pDir, int co
 
 // Light level and colour of the ground at a position: those of the nearest
 // (in x/z) vertex of its sector's ground mesh. Returns r, g, b bytes.
-// match 61%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b3860
 DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
 {
@@ -2249,40 +2250,48 @@ DWORD Scene_GetGroundLight(FixVector *pPos, int *pLevel)
     float dz;
     float d2;
     float best;
-    float x;
-    float z;
+    float pos[3];
     BYTE rgb[4];
     int i;
+    int count;
 
-    *pLevel = 0x10000;
-    x = (float)pPos->x * CGraphics::m_oneOver65536;
     rgb[0] = 0xff;
     rgb[1] = 0xff;
     rgb[2] = 0xff;
+    *pLevel = 0x10000;
+    pos[0] = (float)pPos->x * CGraphics::m_oneOver65536;
     pNearest = NULL;
     rgb[3] = 0;
     best = 32000.0f;
-    z = (float)pPos->z * CGraphics::m_oneOver65536;
-    pMesh = (Mesh *)g_sectors[(short)Sector_FromPosition(pPos)]->pMesh;
+    pos[2] = (float)pPos->z * CGraphics::m_oneOver65536;
+    {
+        int sector = (short)Sector_FromPosition(pPos);
+        pMesh = (Mesh *)g_sectors[sector]->pMesh;
+    }
     if (pMesh != NULL) {
         pVertex = (float *)pMesh->pVertexData;
         pVertexLevel = pMesh->pLightLevels;
-        for (i = 0; i < pMesh->field_0x10; i++) {
-            dz = pVertex[2] - z;
-            dx = pVertex[0] - x;
-            d2 = dx * dx + dz * dz;
-            if (d2 < best) {
-                *pLevel = *pVertexLevel;
-                pNearest = pVertex;
-                best = d2;
+        i = 0;
+        count = pMesh->field_0x10;
+        if (count > 0) {
+            do {
+                dx = pVertex[0] - pos[0];
+                dz = pVertex[2] - pos[2];
+                d2 = dx * dx + dz * dz;
+                if (d2 < best) {
+                    *pLevel = *pVertexLevel;
+                    pNearest = pVertex;
+                    best = d2;
+                }
+                pVertex += 12;
+                pVertexLevel++;
+                i++;
+            } while (i < pMesh->field_0x10);
+            if (pNearest != NULL) {
+                rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
+                rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
+                rgb[2] = (BYTE)((DWORD *)pNearest)[6];
             }
-            pVertex += 12;
-            pVertexLevel++;
-        }
-        if (pNearest != NULL) {
-            rgb[2] = (BYTE)((DWORD *)pNearest)[6];
-            rgb[0] = (BYTE)(((DWORD *)pNearest)[6] >> 16);
-            rgb[1] = (BYTE)(((DWORD *)pNearest)[6] >> 8);
         }
     }
     return *(DWORD *)rgb;
@@ -2464,8 +2473,10 @@ void Scene_RestoreLights(void)
     g_sceneMaterial.emissive.a = 0.0f;
     g_sceneMaterial.power = 0.0f;
     CGraphics::m_pTextureManager->pD3D->SetMaterial(&g_sceneMaterial);
-    g_sceneAmbientD3D = ((((DWORD)g_sceneAmbientColour[3] << 8 | g_sceneAmbientColour[0]) << 8) |
-                         g_sceneAmbientColour[1]) << 8 | g_sceneAmbientColour[2];
+    {
+        BYTE *p = g_sceneAmbientColour;
+        g_sceneAmbientD3D = (((DWORD)p[3] << 8 | p[0]) << 8 | p[1]) << 8 | p[2];
+    }
     CGraphics::m_pTextureManager->pD3D->SetRenderState(D3DRENDERSTATE_AMBIENT, g_sceneAmbientD3D);
 }
 
@@ -2511,19 +2522,18 @@ void Scene_SetLightPosition(SceneNode *pNode, int x, int y, int z)
 {
     SceneLight *pLight;
     FixVector d;
-    FixVector dir;
 
     pLight = (SceneLight *)pNode->pObject;
     pLight->light.dvPosition.x = (float)x * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
+    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
     d.x = -x;
     d.y = -y;
     d.z = -z;
-    pLight->light.dvPosition.y = (float)y * CGraphics::m_oneOver65536;
-    pLight->light.dvPosition.z = (float)z * CGraphics::m_oneOver65536;
-    FIX_NORMALIZE_INTO(dir, d);
-    pLight->light.dvDirection.x = (float)dir.x * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.y = (float)dir.y * CGraphics::m_oneOver65536;
-    pLight->light.dvDirection.z = (float)dir.z * CGraphics::m_oneOver65536;
+    FIX_NORMALIZE_INTO(d, d);
+    pLight->light.dvDirection.x = (float)d.x * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.y = (float)d.y * CGraphics::m_oneOver65536;
+    pLight->light.dvDirection.z = (float)d.z * CGraphics::m_oneOver65536;
     CGraphics::m_pTextureManager->pD3D->SetLight(pLight->index, &pLight->light);
 }
 
@@ -2566,13 +2576,15 @@ void SceneNode_FlushTransforms(SceneNode *pNode)
                 pLight = (SceneLight *)pNode->pObject;
                 if (pNode->dirty == 1) {
                     if (pLight->light.dltType != D3DLIGHT_DIRECTIONAL) {
-                        if (pLight->light.dltType == D3DLIGHT_SPOT) {
-                            pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
-                            pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
-                            pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
-                        } else if (pLight->light.dltType != D3DLIGHT_POINT) {
-                            pNode->dirty = 0;
-                            goto next;
+                        if (pLight->light.dltType != D3DLIGHT_POINT) {
+                            if (pLight->light.dltType == D3DLIGHT_SPOT) {
+                                pLight->light.dvDirection.x = (float)pNode->world.right.x * CGraphics::m_oneOver65536;
+                                pLight->light.dvDirection.y = (float)pNode->world.right.y * CGraphics::m_oneOver65536;
+                                pLight->light.dvDirection.z = (float)pNode->world.right.z * CGraphics::m_oneOver65536;
+                            } else {
+                                pNode->dirty = 0;
+                                goto next;
+                            }
                         }
                         pLight->light.dvPosition.x = (float)pNode->world.position.x * CGraphics::m_oneOver65536;
                         pLight->light.dvPosition.y = (float)pNode->world.position.y * CGraphics::m_oneOver65536;
@@ -2631,28 +2643,34 @@ extern const double g_unk0x00511380;
 void FUN_004b7b20(void)
 {
     int i;
-    double value;
+    int value;
+    unsigned short *p;
 
     for (i = 0; i < 4096; i++) {
         g_sinTable[i] = (int)(__int64)(sin((double)i * g_unk0x00511d08) * CGraphics::m_65536);
         g_tanTable[i] = (int)(__int64)(tan((double)i * g_unk0x00511d08) * CGraphics::m_65536);
     }
+    i = 8;
     // tan(90°) and tan(270°) would overflow: the original clamps them
     g_tanTable[3072] = 0x7fffffff;
     g_tanTable[1024] = 0x7fffffff;
 
-    for (i = 0; i < 4096; i++) {
-        g_sqrtTable[i] = (unsigned short)(int)(__int64)(sqrt((double)(8 + 16 * i) * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+    p = g_sqrtTable;
+    for (; (int)p < (int)(g_sqrtTable + 4096); i += 16)
+        *p++ = (unsigned short)(int)(__int64)(sqrt((double)i * CGraphics::m_oneOver65536) * CGraphics::m_65536);
+
+    i = 0;
+    p = (unsigned short *)g_acosTable;
+    for (; (int)p < (int)(g_acosTable + 4096); i++, p++) {
+        value = (int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
+        *p = (short)(__int64)((double)value * g_unk0x00511380);
     }
 
-    for (i = 0; i < 4096; i++) {
-        value = (double)(int)(__int64)(asin((double)i * g_unk0x00511d00) * CGraphics::m_65536);
-        g_acosTable[i] = (short)(__int64)(value * g_unk0x00511380);
-    }
-
-    for (i = 0; i < 512; i++) {
-        value = (double)(int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
-        g_atanTable[i] = (unsigned short)(__int64)(value * g_unk0x00511380);
+    i = 0;
+    p = g_atanTable;
+    for (; (int)p < (int)(g_atanTable + 512); i++, p++) {
+        value = (int)(__int64)(atan((double)i * g_unk0x00511cf8) * CGraphics::m_65536);
+        *p = (unsigned short)(__int64)((double)value * g_unk0x00511380);
     }
 }
 
@@ -2671,95 +2689,107 @@ unsigned short g_unk0x006e0354[0x3f0];
 // faces: a face whose three vertices are behind the light plane is dropped,
 // and the vertices of the others are emitted once with their lit position and
 // their colour, sharing the emitted vertex of duplicated vertices.
-// match 32%: implemented from the disassembly (the logic, the constants and
-// the call order follow the original); the diff is the register allocation and
-// the FPU scheduling of the vertex loop.
 // FUNCTION: CMR2 0x004b4180
 void FUN_004b4180(float *param_1, int param_2)
 {
     BYTE *p = (BYTE *)param_1;
-    BYTE *pMesh = *(BYTE **)(p + 0x30);
-    BYTE *pLight = *(BYTE **)(p + 0x34);
-    float *pPos = *(float **)(p + 0x38);
-    BYTE *pSrc = *(BYTE **)(p + 0x3c);
-    float *pDst = *(float **)(p + 0x40);
-    BYTE *pOut = *(BYTE **)(p + 0x44);
-    BYTE *pVtx = *(BYTE **)(p + 0x48);
-    BYTE **pEdge = (BYTE **)*(int *)(p + 0x4c);
-    int count;
-    int faces;
-    int k;
-    int v;
-    int s;
-    int index[3];
-    float light[3];
-    float lightOffset[3];
+    int *pi;
+    BYTE **pEdge;
     float scale;
+    BYTE *pOut;
+    int off;
+    int k;
+    unsigned short *pFace;
+    int i;
     DWORD shadowColour;
-    BYTE baseColour;
     BYTE colour;
-    BYTE cb0;
-    BYTE cb1;
-    BYTE cb2;
+    BYTE baseColour;
+    float light[3];
+    int index[3];
+    float lightOffset[3];
+    int v;
+    short s;
+    BYTE *pVtx;
+    float *pPos;
+    float *pDst;
 
     shadowColour = g_shadowColour;
-    cb0 = (BYTE)shadowColour;
-    cb1 = (BYTE)(shadowColour >> 8);
-    cb2 = (BYTE)(shadowColour >> 16);
-    if (param_2 >= 0x10001)
+    if (param_2 > 0x10000)
         param_2 = 0x10000;
     param_2 = FixMul(g_shadowLevel, param_2);
-    scale = (float)param_2 * (float)CGraphics::m_oneOver65536;
+    scale = (float)((double)param_2 * CGraphics::m_oneOver65536);
     baseColour = (BYTE)(__int64)scale;
     *(short *)(p + 0x50) = 0;
     *(short *)(p + 0x52) = 0;
-
-    count = *(int *)(pMesh + 0x10);
-    if (count >= 1)
-        memset(g_unk0x006e0354, 0xff, count * 2);
-
-    lightOffset[0] = *(float *)(pLight + 0x148);
-    lightOffset[1] = *(float *)(pLight + 0x14c);
-    lightOffset[2] = *(float *)(pLight + 0x150);
-    FloatMatrix_InverseRotateVector(param_1, g_sceneLightDirF, (float *)(pLight + 0x118));
-    FloatMatrix_InverseRotateVector(param_1 + 3, g_sceneLightBasisF, (float *)(pLight + 0x118));
-    FloatMatrix_InverseRotateVector(param_1 + 6, g_sceneLightBasisF + 3, (float *)(pLight + 0x118));
-    FloatMatrix_InverseRotateVector(param_1 + 9, g_sceneLightBasisF + 6, (float *)(pLight + 0x118));
-
-    for (; count > 0; count--) {
-        *pDst = pPos[0] * param_1[0] + pPos[1] * param_1[1] + pPos[2] * param_1[2];
-        pPos += 3;
-        pDst++;
+    {
+        unsigned short *pw = g_unk0x006e0354;
+        for (i = *(int *)(*(int *)(p + 0x30) + 0x10); i > 0; i--)
+            *pw++ = 0xffff;
     }
 
-    faces = *(int *)(pMesh + 0x28);
-    if (faces > 0) {
-        short *pFace = (short *)(*(int *)(pMesh + 0x24) + 0x42);
+    lightOffset[0] = *(float *)(*(int *)(p + 0x34) + 0x148);
+    lightOffset[1] = *(float *)(*(int *)(p + 0x34) + 0x14c);
+    lightOffset[2] = *(float *)(*(int *)(p + 0x34) + 0x150);
+    FloatMatrix_InverseRotateVector(param_1, g_sceneLightDirF,
+                                    (float *)(*(int *)(p + 0x34) + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 3, g_sceneLightBasisF,
+                                    (float *)(*(int *)(p + 0x34) + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 6, g_sceneLightBasisF + 3,
+                                    (float *)(*(int *)(p + 0x34) + 0x118));
+    FloatMatrix_InverseRotateVector(param_1 + 9, g_sceneLightBasisF + 6,
+                                    (float *)(*(int *)(p + 0x34) + 0x118));
+
+    {
+        pPos = *(float **)(p + 0x38);
+        pDst = *(float **)(p + 0x40);
+        for (i = *(int *)(*(int *)(p + 0x30) + 0x10); i > 0; i--) {
+            *pDst = pPos[2] * param_1[2] + pPos[1] * param_1[1] + pPos[0] * param_1[0];
+            pDst++;
+            pPos += 3;
+        }
+    }
+
+    pEdge = (BYTE **)*(int *)(p + 0x4c);
+    pOut = *(BYTE **)(p + 0x44);
+    pVtx = *(BYTE **)(p + 0x48);
+    i = *(int *)(*(int *)(p + 0x30) + 0x28);
+    if (i > 0) {
+        pFace = (unsigned short *)((char *)*(int *)(*(int *)(p + 0x30) + 0x24) + 0x42);
         do {
             index[0] = pFace[-1];
             index[1] = pFace[0];
             index[2] = pFace[1];
-            if (pDst[index[0]] >= g_netZero || pDst[index[1]] >= g_netZero ||
-                pDst[index[2]] >= g_netZero) {
-                for (k = 0; k < 3; k++) {
-                    v = index[k];
+            if ((*(float **)(p + 0x40))[index[0]] >= g_netZero ||
+                (*(float **)(p + 0x40))[index[1]] >= g_netZero ||
+                (*(float **)(p + 0x40))[index[2]] >= g_netZero) {
+                pi = index;
+                off = (char *)pEdge - (char *)index;
+                k = 3;
+                do {
+                    v = *pi;
                     s = g_unk0x006e0354[v];
-                    if (!(s == -1)) {
-                        pEdge[k] = (BYTE *)(pVtx + s * 0x30);
-                    } else {
-                        *(float *)pOut = *(float *)(pSrc + v * 0xc);
-                        *(float *)(pOut + 4) = *(float *)(pSrc + v * 0xc + 4);
-                        *(float *)(pOut + 8) = *(float *)(pSrc + v * 0xc + 8);
-                        colour = baseColour;
-                        pEdge[k] = (BYTE *)pVtx;
+                    if (s == -1) {
+                        DWORD *pSrcD = (DWORD *)(*(int *)(p + 0x3c) + v * 0xc);
+                        DWORD *pOutD = (DWORD *)pOut;
+                        pOutD[0] = pSrcD[0];
+                        pOutD[1] = pSrcD[1];
+                        pOutD[2] = pSrcD[2];
+                        *(BYTE **)((char *)pi + off) = pVtx;
                         g_unk0x006e0354[v] = *(short *)(p + 0x52);
-                        if (pDst[v] < g_netZero)
-                            colour = 0;
-                        else if (pDst[v] < g_unk0x00511ce8)
-                            colour = (BYTE)(__int64)(pDst[v] * g_unk0x00511360 * scale);
-                        *(DWORD *)(pVtx + 0x18) = ((DWORD)cb2) | ((DWORD)cb1 << 8) |
-                                                  ((DWORD)cb0 << 16) | ((DWORD)colour << 24);
-                        FloatMatrix_RotateVector(light, (float *)pOut, (float *)(pLight + 0x118));
+                        {
+                            float vy = (*(float **)(p + 0x40))[v];
+                            colour = baseColour;
+                            if (vy < g_netZero)
+                                colour = 0;
+                            else if (vy < g_unk0x00511ce8)
+                                colour = (BYTE)(__int64)(vy * g_unk0x00511360 * scale);
+                        }
+                        *(DWORD *)(pVtx + 0x18) = ((DWORD)colour << 24) |
+                                                  ((shadowColour & 0xff) << 16) |
+                                                  (((shadowColour >> 8) & 0xff) << 8) |
+                                                  ((shadowColour >> 16) & 0xff);
+                        FloatMatrix_RotateVector(light, (float *)pOut,
+                                                 (float *)(*(int *)(p + 0x34) + 0x118));
                         light[0] = light[0] + lightOffset[0];
                         light[1] = light[1] + lightOffset[1];
                         light[2] = light[2] + lightOffset[2];
@@ -2769,12 +2799,15 @@ void FUN_004b4180(float *param_1, int param_2)
                         pOut += 0xc;
                         pVtx += 0x30;
                         (*(short *)(p + 0x52))++;
+                    } else {
+                        *(BYTE **)((char *)pi + off) = (BYTE *)(pVtx + s * 0x30);
                     }
-                }
+                    pi++;
+                } while (--k);
                 pEdge += 3;
                 (*(short *)(p + 0x50))++;
             }
             pFace += 0x26;
-        } while (--faces != 0);
+        } while (--i);
     }
 }

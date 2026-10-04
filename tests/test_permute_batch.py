@@ -49,6 +49,18 @@ void second() { other(); }
             batch.func_region("// FUNCTION: CMR2 0x00401000\nvoid f() {", 0x401000)
 
 
+class AddressFilterTests(unittest.TestCase):
+    def test_accepts_plain_and_prefixed_addresses(self):
+        self.assertEqual(
+            batch.parse_addresses("0x46b440, 0x0048ce80, 1234"),
+            {0x46B440, 0x48CE80, 1234},
+        )
+
+    def test_rejects_non_numeric_entries(self):
+        with self.assertRaisesRegex(ValueError, "comma-separated"):
+            batch.parse_addresses("0x46b440,zz")
+
+
 class MutationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

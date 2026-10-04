@@ -390,42 +390,37 @@ extern int g_physicsTimeStep;
 
 // Advances a player's flash timer; at the end it restarts (mode 3) or stops,
 // and runs the player's fade callback.
-// match 36%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004284d0
 void FUN_004284d0(unsigned int player, int check)
 {
-    int step = g_physicsTimeStep;
-    unsigned int p;
     int state;
     int value;
 
     if (FUN_00428740((BYTE)player) != 0) {
-        p = player & 0xff;
-        if (g_unk0x0053a0cc[p] == 0 || check == 0) {
-            state = g_unk0x0053a0ac[p];
+        if (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0) {
+            state = g_unk0x0053a0ac[player & 0xff];
             if (state == 4) {
-                g_unk0x0053a0ac[p] = 0;
+                g_unk0x0053a0ac[player & 0xff] = 0;
                 return;
             }
-            g_unk0x0053a02c[p] = g_unk0x0053a04c[p];
-            value = g_unk0x0053a04c[p] + step;
-            g_unk0x0053a04c[p] = value;
-            if (g_unk0x0053a02c[p] < 0 && value >= 0) {
-                g_unk0x0053a0ac[p] = 4;
-                g_unk0x0053a06c[p] = 0;
+            g_unk0x0053a02c[player & 0xff] = g_unk0x0053a04c[player & 0xff];
+            value = g_unk0x0053a04c[player & 0xff] + g_physicsTimeStep;
+            g_unk0x0053a04c[player & 0xff] = value;
+            if (g_unk0x0053a02c[player & 0xff] < 0 && value >= 0) {
+                g_unk0x0053a0ac[player & 0xff] = 4;
+                g_unk0x0053a06c[player & 0xff] = 0;
                 return;
             }
-            if (value >= g_unk0x0053a0ec[p]) {
+            if (value >= g_unk0x0053a0ec[player & 0xff]) {
                 if (state == 3) {
-                    value = -g_unk0x0053a0ec[p];
-                    g_unk0x0053a04c[p] = value;
-                    g_unk0x0053a02c[p] = value;
+                    g_unk0x0053a04c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
+                    g_unk0x0053a02c[player & 0xff] = -g_unk0x0053a0ec[player & 0xff];
                 } else {
-                    g_unk0x0053a0ac[p] = 0;
-                    g_unk0x0053a06c[p] = 0x10000;
+                    g_unk0x0053a0ac[player & 0xff] = 0;
+                    g_unk0x0053a06c[player & 0xff] = 0x10000;
                 }
-                if (g_fadeCallbacks[p] != NULL)
-                    g_fadeCallbacks[p]((BYTE)player);
+                if (g_fadeCallbacks[player & 0xff] != NULL)
+                    g_fadeCallbacks[player & 0xff]((BYTE)player);
             }
         }
     }
@@ -457,17 +452,16 @@ void FUN_004285b0(unsigned int player, int t, int check)
 // FUNCTION: CMR2 0x00428680
 void FUN_00428680(unsigned int player, short *pRect, int check)
 {
-    BYTE colour[4];
-    BYTE index = (BYTE)player;
     unsigned int alpha;
-    BYTE view;
+    unsigned int view;
 
-    if ((FUN_0041f3a0() == 0 || index != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
-        view = FUN_00422fb0(player);
-        if (index < (BYTE)RallyDataState() && g_unk0x0053a06c[view] >= 1) {
-            alpha = (unsigned int)(g_unk0x0053a06c[view] * 0xff >> 16);
+    if ((FUN_0041f3a0() == 0 || (BYTE)player != 0) && (g_unk0x0053a0cc[player & 0xff] == 0 || check == 0)) {
+        view = FUN_00422fb0(player) & 0xff;
+        if ((BYTE)player < (BYTE)RallyDataState() && g_unk0x0053a06c[view] > 0) {
+            BYTE colour[4];
+            alpha = g_unk0x0053a06c[view] * 0xff >> 16;
             if (alpha > 0xff)
-                alpha = 0xff;
+                alpha |= 0xff;
             colour[0] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[0];
             colour[1] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[1];
             colour[2] = ((BYTE *)&g_unk0x0053a00c[player & 0xff])[2];
@@ -554,12 +548,13 @@ unsigned int FUN_00427ad0(int value, int *pCurve)
 // FUNCTION: CMR2 0x00427b70
 unsigned int FUN_00427b70(int value, int *pCurve)
 {
-    int range = pCurve[2] - pCurve[1];
+    int range;
     int index;
     int step;
     int frac;
 
     value -= pCurve[1];
+    range = pCurve[2] - pCurve[1];
     index = (pCurve[0] * value) / range;
     step = range / pCurve[0];
     if (step > 0) {
@@ -601,15 +596,14 @@ int g_unk0x005393d0;
 NetTriangleState g_netTriangleState;
 
 // Resets the network race state and builds the triangle number table.
-// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00424ed0
 void FUN_00424ed0(void)
 {
-    int sum;
+    int sum = 0;
     int n;
 
     memset(g_unk0x005393ac, 0, sizeof(g_unk0x005393ac));
-    for (n = 0, sum = 0; n < 100; n++) {
+    for (n = 0; n < 100; n++) {
         sum += n;
         g_triangleNumbers[n] = sum;
     }
@@ -1340,7 +1334,7 @@ void FUN_00425a90(BYTE *pCars)
             } else {
                 pEntry->resync = 0;
             }
-            g_unk0x005393ac[i] = (pStats->seq + g_unk0x005393ac[i]) >> 1;
+            g_unk0x005393ac[i] = ((unsigned)pStats->seq + (unsigned)g_unk0x005393ac[i]) >> 1;
             if (i == 0)
                 RallyData_ValidateIndex((int)CInput::FormatString(g_str0x00519988, pStats->seq,
                                                                  0, g_unk0x005393ac[i]));

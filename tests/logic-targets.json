@@ -79,6 +79,13 @@
       "0x462aa0"
     ]
   },
+  "differential_car_preview_load.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x5062d0",
+      "0x4ad890"
+    ]
+  },
   "differential_car_restore.py": {
     "arguments": "entities",
     "targets": [
@@ -130,6 +137,14 @@
       "0x494bb0"
     ]
   },
+  "differential_debris_frames.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x46a500",
+      "0x48ae90",
+      "0x483100"
+    ]
+  },
   "differential_effect_calls.py": {
     "arguments": "both",
     "targets": [
@@ -142,6 +157,19 @@
       "0x46e780",
       "0x4057a8",
       "0x4057ab"
+    ]
+  },
+  "differential_exhaust_particles.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x4b07a0",
+      "0x4b0110",
+      "0x4b06a0",
+      "0x4b0480",
+      "0x45d2d0",
+      "0x45de80",
+      "0x42b5f0",
+      "0x4b9c20"
     ]
   },
   "differential_fireworks.py": {
@@ -376,7 +404,9 @@
   "differential_sector_visibility.py": {
     "arguments": "entities",
     "targets": [
-      "0x4b7de0"
+      "0x4b7de0",
+      "0x423f30",
+      "0x405ca0"
     ]
   },
   "differential_service_menus.py": {
@@ -409,6 +439,15 @@
     "arguments": "report",
     "targets": [
       "0x40d520"
+    ]
+  },
+  "differential_split_standings.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x414ed0",
+      "0x455cc0",
+      "0x455d40",
+      "0x40d480"
     ]
   },
   "differential_stage_grid.py": {
@@ -465,6 +504,12 @@
     "targets": [
       "0x489060",
       "0x491550"
+    ]
+  },
+  "differential_unlock_flags.py": {
+    "arguments": "entities",
+    "targets": [
+      "0x406580"
     ]
   }
 }

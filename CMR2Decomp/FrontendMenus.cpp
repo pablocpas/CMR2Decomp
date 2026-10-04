@@ -966,35 +966,44 @@ void FUN_004fc970(Menu *pMenu, char back)
 }
 
 // Fills the device settings page from the configuration of the slot.
-// match 43%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004fcb30
 void FUN_004fcb30(void)
 {
     Menu *pMenu;
     DeviceInfo *pDevice;
-    unsigned int dev;
-    unsigned short slotDev;
+    unsigned short dev;
 
     pMenu = FUN_004fa530();
-    slotDev = CONTROLS_SEL;
-    pMenu->items[0].max = (BYTE)slotDev;
-    pDevice = CInput::UpdateDevice(slotDev);
-    dev = slotDev;
+    dev = CONTROLS_SEL;
+    pMenu->items[0].max = (BYTE)dev;
+    pDevice = CInput::UpdateDevice(dev);
     if (pDevice == NULL) {
-        dev = g_unk0x0082a7ec;
         CONTROLS_SEL = (unsigned short)g_unk0x0082a7ec;
+        dev = (unsigned short)g_unk0x0082a7ec;
         pDevice = CInput::UpdateDevice(g_unk0x0082a7ec & 0xffff);
     }
     pMenu->items[1].enabled = pDevice->field_0x0 == 3;
-    pMenu->items[1].max = (BYTE)g_controlsCopy[dev & 0xffff].field_0x110;
+    pMenu->items[1].max = (BYTE)g_controlsCopy[dev].field_0x110;
     pMenu->items[2].enabled = pDevice->field_0x0 == 3;
-    pMenu->items[2].max = (BYTE)g_controlsCopy[dev & 0xffff].field_0x114;
+    pMenu->items[2].max = (BYTE)g_controlsCopy[dev].field_0x114;
     pMenu->items[4].enabled = pDevice->field_0x0 == 3;
     pMenu->items[5].enabled = pDevice->field_0x0 == 3;
-    pMenu->items[3].enabled = *(int *)((BYTE *)pDevice + 0x464) != 0;
-    pMenu->items[3].max = g_controlsCopy[dev & 0xffff].field_0x118 == 0;
-    pMenu->items[4].max = g_controlsCopy[dev & 0xffff].field_0x120 == 0;
-    pMenu->items[5].max = g_controlsCopy[dev & 0xffff].field_0x124 == 0;
+    if (*(int *)((BYTE *)pDevice + 0x464) != 0)
+        pMenu->items[3].enabled = 1;
+    else
+        pMenu->items[3].enabled = 0;
+    if (g_controlsCopy[dev].field_0x118 != 0)
+        pMenu->items[3].max = 0;
+    else
+        pMenu->items[3].max = 1;
+    if (g_controlsCopy[dev].field_0x120 != 0)
+        pMenu->items[4].max = 0;
+    else
+        pMenu->items[4].max = 1;
+    if (g_controlsCopy[dev].field_0x124 != 0)
+        pMenu->items[5].max = 0;
+    else
+        pMenu->items[5].max = 1;
 }
 
 // Entering the device settings page: copies the slot assignments and every

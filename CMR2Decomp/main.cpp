@@ -137,15 +137,9 @@ BOOL FUN_004a8270(void)
 BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowName, WNDPROC wndProc)
 {
 	ATOM AVar1;
-	int nScreenHeight;
-	int nScreenWidth;
 	HWND hWnd;
-	DWORD dwStyle = 0;
-	HWND hWndParent;
-	HMENU hMenu;
-	LPVOID lpParam;
+	DWORD dwStyle;
 	WNDCLASSA wndClass;
-	int nCmdShow;
 
 	wndClass.lpfnWndProc = wndProc;
 	wndClass.cbClsExtra = 0;
@@ -157,38 +151,30 @@ BOOL CMain::CreateGameWindow(HINSTANCE hInstance, HWND *pHWND, LPCSTR sWindowNam
 	wndClass.lpszClassName = sWindowName;
 	wndClass.style = 3;
 
-	dwStyle = 0x81cf0000;
-#ifdef CMR2_WINDOWED
-	dwStyle = WS_POPUP; // SilentPatchCMR2 borderless window (0x4a81b2)
-#endif
-	if (!g_pGraphics->isFullscreen)
+	if (!g_pGraphics->isFullscreen) {
 		wndClass.hCursor = LoadCursorA(NULL, (const char *)0x7f00);
-	else
+		dwStyle = 0x81cf0000;
+	} else {
 		wndClass.hCursor = NULL;
+		dwStyle = 0;
+	}
 
 	AVar1 = RegisterClassA(&wndClass);
 	if (AVar1 == 0)
 		return FALSE;
 
-	lpParam = NULL;
-	hMenu = NULL;
-	hWndParent = NULL;
-	nScreenHeight = GetSystemMetrics(1);
-	nScreenWidth = GetSystemMetrics(0);
-
-	hWnd = CreateWindowExA((DWORD)0x40000, sWindowName, sWindowName, dwStyle, 0, 0, nScreenWidth, nScreenHeight,
-						   hWndParent, hMenu, hInstance, lpParam);
+	hWnd = CreateWindowExA((DWORD)0x40000, sWindowName, sWindowName, dwStyle, 0, 0,
+						   GetSystemMetrics(0), GetSystemMetrics(1), NULL, NULL, hInstance, NULL);
 
 	m_hWndList[m_hWndIx] = hWnd;
 	if (hWnd == NULL)
 		return FALSE;
 
 	if (!g_pGraphics->isFullscreen)
-		nCmdShow = SW_HIDE;
+		ShowWindow(hWnd, SW_HIDE);
 	else
-		nCmdShow = SW_MAXIMIZE;
+		ShowWindow(hWnd, SW_MAXIMIZE);
 
-	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 	SetFocus(hWnd);
 	*pHWND = hWnd;

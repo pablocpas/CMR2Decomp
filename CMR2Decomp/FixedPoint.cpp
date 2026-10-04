@@ -721,7 +721,7 @@ extern BYTE g_unk0x00538d2c[0xcc];
 extern int g_unk0x00538e04[2];
 extern int g_unk0x005391cc[2];
 int FUN_0041f3a0(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 int RallyData_FUN_00411880(void);
 
 // Sets the camera projection for the selected player's view.
@@ -745,7 +745,7 @@ void FUN_00422d40(unsigned int player)
         CGraphics::SetProjection(-fovX, fovY, g_unk0x00538e04[i], g_unk0x00538df0[i]);
         return;
     }
-    if (FUN_00407270() && g_unk0x00538e04[i] < 0x960000) {
+    if (RallyData_IsChampionshipFinalStage() && g_unk0x00538e04[i] < 0x960000) {
         CGraphics::SetProjection(fovX, fovY, 0x960000, g_unk0x00538df0[i]);
         return;
     }

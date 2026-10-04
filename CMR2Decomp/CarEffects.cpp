@@ -65,62 +65,65 @@ BYTE g_debrisColours[2][4] = {{0xff, 0xff, 0xff, 0xaa}, {0xff, 0, 0, 0xaa}};
 
 // Prepares the effects for a stage: random glass shards and the window
 // data of every car.
-// match 41%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00498dd0
 void CarEffects_Init(void)
 {
     int *p;
-    FixVector *pShard;
-    FixVector *pV;
+    int *pBase;
+    int *pV;
     FixVector mid;
     FixVector c;
     short *pOrder;
     int n;
-    int i;
+    int j;
     int car;
+
+    BYTE sparkColour[4] = {0xfe, 0xfe, 0xfe, 0xff};
 
     p = (int *)g_sparkTri[0].colour;
     do {
-        *p = 0xfffefefe;
+        *p = *(DWORD *)sparkColour;
         p += 6;
-    } while (p < (int *)g_sparkTri[3].colour);
-    pShard = g_glassShards[0];
+    } while ((int)p < (int)g_sparkTri[3].colour);
+    pBase = (int *)g_glassShards[0] + 1; // &g_glassShards[0][0].y  (0x592d84 in the original)
     do {
-        pV = pShard;
-        for (i = 3; i != 0; i--) {
-            pV->x = EFFECT_RAND();
-            pV->y = EFFECT_RAND();
-            pV->z = EFFECT_RAND();
-            pV++;
+        pV = pBase;
+
+        for (j = 3; j != 0; j--) {
+            pV[-1] = EFFECT_RAND();
+            pV[0] = EFFECT_RAND();
+            pV[1] = EFFECT_RAND();
+            pV += 3;
         }
-        mid.x = pShard[1].x - pShard[0].x;
-        mid.y = pShard[1].y - pShard[0].y;
-        mid.z = pShard[1].z - pShard[0].z;
+        mid.x = pBase[2] - pBase[-1];
+        mid.y = pBase[3] - pBase[0];
+        mid.z = pBase[4] - pBase[1];
         FixVecScale(&mid, &mid, 0x8000);
-        mid.x += pShard[0].x;
-        mid.y += pShard[0].y;
-        mid.z += pShard[0].z;
-        c.x = pShard[2].x - mid.x;
-        c.y = pShard[2].y - mid.y;
-        c.z = pShard[2].z - mid.z;
+        mid.x += pBase[-1];
+        mid.y += pBase[0];
+        mid.z += pBase[1];
+        c.x = pBase[5] - mid.x;
+        c.y = pBase[6] - mid.y;
+        c.z = pBase[7] - mid.z;
         FixVecScale(&c, &c, 0x8000);
         c.x += mid.x;
         c.y += mid.y;
         c.z += mid.z;
-        pV = pShard;
-        for (i = 3; i != 0; i--) {
-            pV->x -= c.x;
-            pV->y -= c.y;
-            pV->z -= c.z;
-            FixVecScale(pV, pV, 0x3333);
-            pV++;
+        pV = pBase - 1;
+        for (j = 3; j != 0; j--) {
+            pV[0] -= c.x;
+            pV[1] -= c.y;
+            pV[2] -= c.z;
+            FixVecScale((FixVector *)pV, (FixVector *)pV, 0x3333);
+            pV += 3;
         }
-        pShard += 3;
-    } while (pShard < g_glassShards[10]);
+        pBase += 9;
+    } while (pBase < (int *)g_glassShards[10] + 1);
     n = Car_GetOrderCount();
     pOrder = Car_GetOrder();
-    for (i = n - 1; i >= 0; i--) {
-        car = pOrder[i];
+    while (--n >= 0) {
+        car = pOrder[n];
         g_carDamageData[car] = (BYTE *)FUN_00457e10((BYTE *)Car_Get(car), 2);
         g_carWindowVerts[car] = (FixVector *)(g_carDamageData[car] + 0xc);
     }
@@ -273,26 +276,18 @@ int Car_BreakWindow(int window, FixVector *pDir, int unused, Car *pCar)
 {
     FixVector *pVerts;
     FixVector quad[4];
-    FixVector *pQ;
     CarWindow *pWin;
-    int *pMirror;
     int i;
 
     pVerts = NULL;
     pWin = &g_carWindows[window];
-    i = 0;
     if (window <= 5)
         pVerts = g_carWindowVerts[pCar->index];
-    pQ = quad;
-    pMirror = pWin->mirrorZ;
-    do {
-        *pQ = pVerts[pWin->vertex[i]];
-        if (*pMirror != 0)
-            pQ->z = -pQ->z;
-        i++;
-        pMirror++;
-        pQ++;
-    } while (i < 4);
+    for (i = 0; i < 4; i++) {
+        quad[i] = pVerts[pWin->vertex[i]];
+        if (pWin->mirrorZ[i] != 0)
+            quad[i].z = -quad[i].z;
+    }
     Car_ShatterWindow(quad, pDir, window, pCar);
     return 1;
 }
@@ -309,11 +304,15 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 3;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     } else if (part == pParts[0x463]) {
         g_windowSmash[0][SMASH_SLOT] = 4;
         g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
         g_windowSmashCount[pCar->index]++;
         g_windowSmash[0][SMASH_SLOT] = 5;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     } else {
         if (part == pParts[0x460])
             g_windowSmash[0][SMASH_SLOT] = 0;
@@ -321,9 +320,9 @@ void Car_QueueWindowBreak(BYTE *pParts, Car *pCar, unsigned int part)
             g_windowSmash[0][SMASH_SLOT] = 1;
         else
             return;
+        g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
+        g_windowSmashCount[pCar->index]++;
     }
-    g_windowSmashDir[0][SMASH_SLOT] = pCar->field_0x5c4;
-    g_windowSmashCount[pCar->index]++;
 #undef SMASH_SLOT
 }
 
@@ -440,28 +439,30 @@ void FUN_004994d0(void *pParticle, ParticleType *pType, int param)
 }
 
 // Draw callback of a glass shard, tinted like the car's windows.
-// match 42%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004994f0
 void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
 {
-    int k_idx;
     FixVector pos;
-    FixVector o;
-    Quad2DInputVertex *pV;
-    BYTE *pTint;
-    BYTE light[4];
+    BYTE light[8];
+    int tint;
     int car;
     int shard;
-    int tint;
-    int lr;
-    int lg;
-    int lb;
+    int k_idx;
+    BYTE *pTint;
     DWORD *pC;
 
     if (p->age >= 0x130000)
         return;
     pos = p->vector0x1c;
-    FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
+    {
+        FixVector o;
+
+        FixMatrix_GetPosition(&o, (FixMatrix *)p->field0x40);
+        pos.x += o.x;
+        pos.y += o.y;
+        pos.z += o.z;
+    }
     car = p->field0x64 >> 8;
     shard = p->field0x64 - car * 0x100;
     tint = 0;
@@ -469,24 +470,36 @@ void GlassShard_Draw(Particle *p, ParticleType *pType, int unused)
         tint = (shard >= 6) + 1;
     pTint = g_carDamageData[car] + tint * 4;
     for (k_idx = 0; k_idx < 3; k_idx++) {
-        g_shardTri[k_idx].x = ((FixVector *)(g_glassShards[shard]))[k_idx].x + pos.x + o.x;
-        g_shardTri[k_idx].y = ((FixVector *)(g_glassShards[shard]))[k_idx].y + pos.y + o.y;
-        g_shardTri[k_idx].z = ((FixVector *)(g_glassShards[shard]))[k_idx].z + pos.z + o.z;
+        g_shardTri[k_idx].x = ((FixVector *)(g_glassShards[shard]))[k_idx].x + pos.x;
+        g_shardTri[k_idx].y = ((FixVector *)(g_glassShards[shard]))[k_idx].y + pos.y;
+        g_shardTri[k_idx].z = ((FixVector *)(g_glassShards[shard]))[k_idx].z + pos.z;
         g_shardTri[k_idx].colour[0] = pTint[0];
         g_shardTri[k_idx].colour[1] = pTint[1];
         g_shardTri[k_idx].colour[2] = pTint[2];
         g_shardTri[k_idx].colour[3] = 0xff;
     }
-    EFFECT_LIT_COLOUR(light, p->size, pTint);
-    light[2] = (BYTE)FixMulShift32(lb, g_carDamageData[car][2 + tint * 4] << 16);
+    Scene_GetLightColour((DWORD *)light, p->size);
+    pos.x = FixMul(light[0] << 16, 0x106);
+    if (pos.x > 0x10000)
+        pos.x = 0x10000;
+    pos.y = FixMul(light[1] << 16, 0x106);
+    if (pos.y > 0x10000)
+        pos.y = 0x10000;
+    pos.z = FixMul(light[2] << 16, 0x106);
+    if (pos.z > 0x10000)
+        pos.z = 0x10000;
+    pos.x = FixMul(pos.x, g_carDamageData[car][tint * 4] << 16);
+    pos.y = FixMul(pos.y, g_carDamageData[car][1 + tint * 4] << 16);
+    pos.z = FixMul(pos.z, g_carDamageData[car][2 + tint * 4] << 16);
+    light[0] = (BYTE)(pos.x >> 16);
+    light[1] = (BYTE)(pos.y >> 16);
+    light[2] = (BYTE)(pos.z >> 16);
     light[3] = 0xff;
-    light[0] = (BYTE)FixMulShift32(lr, g_carDamageData[car][tint * 4] << 16);
-    light[1] = (BYTE)FixMulShift32(lg, g_carDamageData[car][1 + tint * 4] << 16);
     pC = (DWORD *)g_shardTri[0].colour;
     do {
         *pC = *(DWORD *)light;
         pC += 6;
-    } while (pC < (DWORD *)g_shardTri[3].colour);
+    } while ((int)pC < (int)g_shardTri[3].colour);
     Quad2D_QueueFixedTriangle(0, &g_shardTri[0], &g_shardTri[1], &g_shardTri[2], (Texture *)pType->field0x38,
                               (Quad2D *)0x14);
 }
@@ -1218,15 +1231,15 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
                        0x9999, 0xb333, 0xcccc, 0xe666, 0x10000 };
     Particle *p;
     unsigned short angle;
-    int scale;
+    int index;
     int x;
     int z;
     int car;
 
     p = (Particle *)pParticle;
-    scale = scales[(((int)p / 3) & 0xffffffU) % 10];
+    index = ((int)p / 3 & 0xffffff) % 10;
     if (p->age == 0xc70000)
-        p->field0x50 = (short)((((int)p / 7) & 0xffffffU) % 0x24) * 0x71;
+        p->field0x50 = (short)(((int)p / 7 & 0xffffff) % 0x24) * 0x71;
     p->field0x50 += 0x71;
     if (p->field0x50 > 0x1000)
         p->field0x50 -= 0x1000;
@@ -1236,8 +1249,8 @@ void FUN_0045d3a0(void *pParticle, ParticleType *pType, int param)
         angle = (unsigned short)p->field0x50;
     else
         angle = (unsigned short)(0x1000 - p->field0x50);
-    x = FixMul(g_sinTable[(angle + 0x400) & 0xfff], scale);
-    z = FixMul(g_sinTable[angle & 0xfff], scale);
+    x = FixMul(scales[index], g_sinTable[(angle + 0x400) & 0xfff]);
+    z = FixMul(scales[index], g_sinTable[angle & 0xfff]);
     car = p->field0x64;
     if (car < 8) {
         p->vector0x28.x += x;
@@ -1463,25 +1476,30 @@ void FUN_0045dc00(int car, int wheel, FixVector *pPos, FixVector *pVel, int unus
 
     if (car >= 8)
         return;
-    if (surfaced == 0) {
-        light = 0x11;
+    if (surfaced != 0) {
+        if (debris != 0) {
+            if (wheel == 0 || wheel == 2)
+                light = 0x16;
+            else
+                light = 0x17;
+        } else {
+            if (light != 0) {
+                if (wheel == 0 || wheel == 2)
+                    light = 0x14;
+                else
+                    light = 0x15;
+            } else {
+                if (wheel == 0 || wheel == 2)
+                    light = 0x12;
+                else
+                    light = 0x13;
+            }
+        }
+    } else {
         if (wheel == 0 || wheel == 2)
             light = 0x10;
-    } else if (debris == 0) {
-        if (light == 0) {
-            if (wheel == 0 || wheel == 2)
-                light = 0x12;
-            else
-                light = 0x13;
-        } else if (wheel == 0 || wheel == 2) {
-            light = 0x14;
-        } else {
-            light = 0x15;
-        }
-    } else if (wheel == 0 || wheel == 2) {
-        light = 0x16;
-    } else {
-        light = 0x17;
+        else
+            light = 0x11;
     }
     FixAtan2(pB->x, pB->z);
     along = FixMul(pVel->x, pB->x) + FixMul(pVel->y, pB->y) + FixMul(pVel->z, pB->z);

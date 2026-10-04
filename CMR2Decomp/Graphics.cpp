@@ -231,8 +231,9 @@ void CGraphics::FUN_004a78a0(unsigned int screenWidth, unsigned int screenHeight
 }
 
 // FUNCTION: CMR2 0x004a5be0
-BOOL CGraphics::FUN_004a5be0(void) {
-    int index, textureID, face;
+BYTE CGraphics::FUN_004a5be0(void) {
+    unsigned int index, textureID;
+    int face;
 
     m_pTextureManager->pDD->EvictManagedTextures();
     m_unk0x0065fa2c = 0;
@@ -242,31 +243,23 @@ BOOL CGraphics::FUN_004a5be0(void) {
     do {
         Texture* pTexture = m_pTextureManager->textureBuffer[index];
         if (pTexture != NULL && pTexture->pSurface != NULL && textureID == pTexture->textureId) {
-            
-            if (pTexture->pSurface->Release() == 0) {
-                pTexture->pSurface = NULL;
-            }
+            if (pTexture->pSurface->Release() == 0)
+                m_pTextureManager->textureBuffer[index]->pSurface = NULL;
         }
-        
         index++;
         textureID++;
     } while (index < 2048);
 
     FUN_004a5ba0();
-    index = 0;
 
-    // Cube maps: for each one, its 6 z-buffers and its 6 face surfaces, last first
-    // (the original walks both arrays downwards from face 5)
     for (index = 0; index < m_unk0x0065fa28; index++) {
         for (face = 5; face >= 0; face--) {
             RenderTexture *pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
-            IDirectDrawSurface7 **ppFace;
-            if (pCube->pZBuffers[face] != NULL && pCube->pZBuffers[face]->Release() == 0)
+            if (pCube->pZBuffers[face] != NULL && ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->pZBuffers[face]->Release() == 0)
                 ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->pZBuffers[face] = NULL;
             pCube = (RenderTexture *)m_pTextureManager->textureBuffer2[index];
-            ppFace = (IDirectDrawSurface7 **)((BYTE *)pCube + 0x114 + face * sizeof(RenderTextureFace));
-            if (*ppFace != NULL && (*ppFace)->Release() == 0)
-                *(IDirectDrawSurface7 **)((BYTE *)m_pTextureManager->textureBuffer2[index] + 0x114 + face * sizeof(RenderTextureFace)) = NULL;
+            if (pCube->faces[face].pSurface != NULL && ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->faces[face].pSurface->Release() == 0)
+                ((RenderTexture *)m_pTextureManager->textureBuffer2[index])->faces[face].pSurface = NULL;
         }
     }
 
@@ -857,16 +850,16 @@ DWORD CGraphics::FUN_004a8d60(void) {
 
 // FUNCTION: CMR2 0x004a8c30
 HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpUserArg) {
-    if (strcmp(lpDeviceName, m_direct3DHAL) == 0 && m_unk0x00660040[0].surfaceCap != 2) {
+    if (!strcmp(lpDeviceName, m_direct3DHAL) && m_unk0x00660040[0].surfaceCap != 2) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 1;
-    } else if (strcmp(lpDeviceName, m_direct3DTLHAL) == 0) {
+    } else if (!strcmp(lpDeviceName, m_direct3DTLHAL)) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 2;
     }
 
-    wsprintfA(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);
-    wsprintfA(m_unk0x0065ff90[0].deviceName, CRegKey::m_regKeyPathFormatValue, lpDeviceName);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);
+    ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceName, CRegKey::m_regKeyPathFormatValue, lpDeviceName);
 
     m_unk0x00663b20 = 1;
 
@@ -883,16 +876,16 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
 {
     DDSURFACEDESC2 desc;
     RECT rect;
-    unsigned int width;
-    unsigned int height;
-    unsigned int x;
-    unsigned int y;
+    int width;
+    int height;
     unsigned int mask;
     BYTE bits;
     int i;
+    int x;
+    int y;
+    int skip;
     DWORD *p32;
     WORD *p16;
-    int skip;
 
     desc.dwSize = sizeof(DDSURFACEDESC2);
     rect.left = 0;
@@ -905,8 +898,8 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
         g_unk0x0065fa30++;
     }
     pTexture->pSurface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
-    width = pTexture->width;
-    height = pTexture->height;
+    width = (int)(short)pTexture->width;
+    height = (int)(short)pTexture->height;
     bits = 0;
     mask = desc.ddpfPixelFormat.dwRGBAlphaBitMask;
     for (i = 32; i != 0; i--) {
@@ -918,24 +911,24 @@ void CGraphics::RemapTextureAlpha(Texture *pTexture, WORD from0, WORD to0, WORD 
     case 4:
         skip = desc.lPitch - width * 2;
         p16 = (WORD *)desc.lpSurface;
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from0 << 8 >> 8) & 0xf0))
-                    *p16 = ((to0 & 0xf0) << 8) | (*p16 & 0xfff);
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from1 << 8 >> 8) & 0xf0))
-                    *p16 = ((to1 & 0xf0) << 8) | (*p16 & 0xfff);
-                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(((int)from2 << 8 >> 8) & 0xf0))
-                    *p16 = ((to2 & 0xf0) << 8) | (*p16 & 0xfff);
+        for (y = height; y != 0; y--) {
+            for (x = width; x != 0; x--) {
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from0 & 0xf0))
+                    *p16 = (WORD)(((to0 & 0xf0) << 8) | (*p16 & 0xfff));
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from1 & 0xf0))
+                    *p16 = (WORD)(((to1 & 0xf0) << 8) | (*p16 & 0xfff));
+                if ((WORD)((*p16 >> 8) & 0xf0) == (WORD)(from2 & 0xf0))
+                    *p16 = (WORD)(((to2 & 0xf0) << 8) | (*p16 & 0xfff));
                 p16++;
             }
             p16 += skip;
         }
         break;
     case 8:
-        p32 = (DWORD *)desc.lpSurface;
         skip = (unsigned int)(desc.lPitch - width * 4) >> 2;
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
+        p32 = (DWORD *)desc.lpSurface;
+        for (y = height; y != 0; y--) {
+            for (x = width; x != 0; x--) {
                 if ((*p32 >> 24) == from0)
                     *p32 = (*p32 & 0xffffff) | ((DWORD)to0 << 24);
                 if ((*p32 >> 24) == from1)
@@ -1053,7 +1046,6 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
     unsigned int mask;
     unsigned int bits;
     int shift;
-    int count;
     int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
@@ -1061,13 +1053,13 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRBitMask;
         bits = mask;
-        for (shift = 0; shift < 32; shift++) {
+        for (shift = 0; shift <= 31; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        count = 0;
+        BYTE count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1076,7 +1068,8 @@ unsigned int CGraphics::GetPixelRed(DDSURFACEDESC2 *pDesc, int x, int y)
         }
         return (((*pPixel & mask) >> shift) & 0xff) << (8 - count);
     } else if (pDesc->ddpfPixelFormat.dwRGBBitCount == 32) {
-        return (((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x] & 0xff0000) >> 16;
+        DWORD pixel = ((DWORD *)pDesc->lpSurface)[(pDesc->dwWidth + pad) * y + x];
+        return pixel >> 16 & 0xff;
     }
     return 0;
 }
@@ -1089,7 +1082,6 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
     unsigned int mask;
     unsigned int bits;
     int shift;
-    int count;
     int i;
 
     pad = pDesc->lPitch - (pDesc->dwWidth * pDesc->ddpfPixelFormat.dwRGBBitCount >> 3);
@@ -1097,13 +1089,13 @@ unsigned int CGraphics::GetPixelAlpha(DDSURFACEDESC2 *pDesc, int x, int y)
         pPixel = (WORD *)pDesc->lpSurface + (pDesc->dwWidth + pad) * y + x;
         mask = pDesc->ddpfPixelFormat.dwRGBAlphaBitMask;
         bits = mask;
-        for (shift = 0; shift < 32; shift++) {
+        for (shift = 0; shift <= 31; shift++) {
             if (bits & 1)
                 break;
             bits >>= 1;
         }
 
-        count = 0;
+        BYTE count = 0;
         bits = mask;
         for (i = 32; i != 0; i--) {
             if (bits & 1)
@@ -1327,12 +1319,9 @@ void CGraphics::SetMipMapCount(DDSURFACEDESC2 *pDesc)
             dim >>= 1;
         }
     }
-    pDesc->dwMipMapCount = count & 0xff;
-    {
-        DWORD maxCount = 3;
-        if (pDesc->dwMipMapCount > maxCount)
-            pDesc->dwMipMapCount = maxCount;
-    }
+    *(volatile DWORD *)&pDesc->dwMipMapCount = count & 0xff;
+    if (*(volatile DWORD *)&pDesc->dwMipMapCount > 3)
+        *(volatile DWORD *)&pDesc->dwMipMapCount = 3;
     pDesc->ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
 }
 
@@ -2331,10 +2320,9 @@ DWORD FUN_004b7550(void)
 // FUNCTION: CMR2 0x004b7210
 void CGraphics::FUN_004b7210(void) {
     D3DDEVICEDESC7 d3ddesc;
-    HRESULT hr;
 
     memset(&m_d3dDeviceDesc7, 0, sizeof(Unk0x006e0bb0));
-    hr = m_pTextureManager->pD3D->GetCaps(&d3ddesc);
+    m_pTextureManager->pD3D->GetCaps(&d3ddesc);
 
     if ((d3ddesc.dwDevCaps & 0x100) != 0) {
         m_d3dDeviceDesc7.flag100 = 1;
@@ -2824,7 +2812,7 @@ int FUN_0049e1f0(SceneNode *pNode, int bit)
     StageObjectDraw *pObject;
     Sector *pSector;
     SceneNode *pChild;
-    unsigned int i;
+    int i;
     unsigned int sectorIndex;
 
     rect.x1 = 0;
@@ -3630,8 +3618,8 @@ int Timer_GetValue(BYTE index)
     step = (BYTE)pos;
     if (pos >= dur)
         step = (BYTE)dur;
-    if (*(int *)(t + 0x24) != 0) {
-        (*(int *)(t + 0x24))--;
+    if (*(unsigned int *)(t + 0x24) > 0) {
+        (*(unsigned int *)(t + 0x24))--;
         return *(int *)(t + 0x10);
     }
     switch (t[0]) {
@@ -3647,15 +3635,15 @@ int Timer_GetValue(BYTE index)
         v = (int)((dur - step + 1) * (dur - step)) / 2;
         break;
     case 3:
-        v = ((step + 1) * (unsigned int)step) / 2;
+        v = ((step + 1) * step) / 2;
         break;
     case 4:
-        if (dur - 0x11 >= step) {
-            v = (int)((dur - step - 0x10) * (dur - step - 0x11)) / 2;
-        } else {
+        if (step > dur - 0x11) {
         wobble:
             v = (int)g_timerWobble[16 + step - dur] * (int)(signed char)t[1];
             *(int *)(t + 0x1c) = 0x1000;
+        } else {
+            v = (int)((dur - step - 0x11) * (dur - step - 0x11 + 1)) / 2;
         }
         break;
     case 5:
@@ -3671,7 +3659,7 @@ int Timer_GetValue(BYTE index)
             *(int *)(t + 0x2c) = CMain::GetFrameTime();
         }
     }
-    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(g_unk0x00521138[index] + 4))
+    if (t[0] == 1 || *(unsigned int *)(t + 0x28) < *(unsigned int *)(t + 4))
         return (int)(*(int *)(t + 0x1c) * v) / 4096 + *(int *)(t + 8);
     t[0] = 5;
     return *(int *)(t + 0xc);
@@ -3691,7 +3679,7 @@ BYTE FUN_004bc0c0(BYTE *p)
     return *(unsigned int *)(timer + 0x28) < *(unsigned int *)(timer + 4);
 }
 
-BYTE FUN_004bc3e0(unsigned int index);
+BYTE FUN_004bc3e0(BYTE index);
 BYTE Timer_FindFree(void);
 
 // When set, Timer_Start collapses the range to its end value (the demo
@@ -3748,11 +3736,11 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
         return;
     }
     rec[0] = (BYTE)shape;
-    *(int *)(rec + 4) = length;
-    *(int *)(rec + 0x24) = param4;
     *(signed char *)(rec + 1) = *(int *)(rec + 0x1c) < 0 ? -1 : 1;
+    *(int *)(rec + 4) = length;
     rec[0x14] = param7;
     *(int *)(rec + 0x10) = start;
+    *(int *)(rec + 0x24) = param4;
     *(int *)(rec + 0xc) = end;
     *(BYTE **)(rec + 0x20) = pSlot;
     *(int *)(rec + 0x28) = 0;
@@ -3760,7 +3748,7 @@ void FUN_004bc290(BYTE *pSlot, int shape, int length, int param4, int start, int
 }
 
 // FUNCTION: CMR2 0x004bc3e0
-BYTE FUN_004bc3e0(unsigned int index)
+BYTE FUN_004bc3e0(BYTE index)
 {
     BYTE *p = g_unk0x00521138[index & 0xff];
     BYTE r = (BYTE)index;
@@ -3867,8 +3855,8 @@ void Pulse_Update(unsigned int dt)
         g_pulseRising = 0;
     if (g_pulseLevel <= g_pulseMin) {
         if (g_pulseRising == 0) {
-            g_pulseRising = 1;
             g_pulseLevel = (float)dt * g_pulseSpeed + g_pulseLevel;
+            g_pulseRising = 1;
             return;
         }
     } else if (g_pulseRising == 0) {
@@ -4082,36 +4070,44 @@ char g_str0x00521118[4] = "B2";
 // FUNCTION: CMR2 0x004b9910
 void FUN_004b9910(int param1, int param2, unsigned int param3, int param4, int param5)
 {
-    unsigned int flags = param3;
-    unsigned int records;
     unsigned short *pEntry;
+    unsigned int remaining;
     char *pName;
     char fileName[260];
     unsigned int i;
+    unsigned int flags = param3;
 
-    for (records = param3; records > 0; records--) {
-        pEntry = (unsigned short *)((BYTE *)param1 + 0x14);
-        for (i = 0; i < *(unsigned short *)((BYTE *)param1 + 0xc); i++) {
-            pName = (char *)(param2 + *pEntry * 0x104);
-            CGenericFileLoader::StrUpperPolish((BYTE *)pName);
-            strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
-            sprintf(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
-                    strchr(pName, '\\') + 1);
-            if (param4 != 6) {
-                CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0,
-                                          param4 != 10 ? 0x90 : 0);
-            } else {
-                if (FUN_004b9b80(fileName) == 0) {
-                    if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
-                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
-                        strncmp(fileName + strlen(fileName) - 6, g_str0x00521114, 2) != 0)
-                        flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x140 : 0x100;
+    if (param3 != 0) {
+        remaining = param3;
+        do {
+            i = 0;
+            if (*(unsigned short *)(param1 + 0xc) > 0) {
+                pEntry = (unsigned short *)(param1 + 0x14);
+                do {
+                    pName = (char *)(param2 + *pEntry * 0x104);
+                    CGenericFileLoader::StrUpperPolish((BYTE *)pName);
+                    strcpy(CFrontend::m_stringDest, CInstallInfo::FUN_0040ed50());
+                    ((int (__cdecl *)(char *, const char *, char *, char *))sprintf)(fileName, g_fontTgaFormat, CFrontend::m_stringDest,
+                            strchr(pName, '\\') + 1);
+                    if (param4 == 6) {
+                        if (FUN_004b9b80(fileName) != 0)
+                            goto nextEntry;
+                        if (strncmp(fileName + strlen(fileName) - 6, CGraphics::m_strSuffixBU, 2) != 0 &&
+                            strncmp(fileName + strlen(fileName) - 6, g_str0x00521118, 2) != 0 &&
+                            strncmp(fileName + strlen(fileName) - 6, g_str0x00521114, 2) != 0)
+                            flags = Graphics_HasLocalSuffix(fileName) != 0 ? 0x40 : 0x100;
+                    } else {
+                        flags = param4 != 10 ? 0x90 : 0;
+                    }
                     CTexture::FindLoadTexture((GenericFile *)param5, fileName, 0, 0, 0, flags);
-                }
+nextEntry:
+                    pEntry += 4;
+                    i++;
+                } while (i < *(unsigned short *)(param1 + 0xc));
             }
-            pEntry += 4;
-        }
-        param1 = (int)((BYTE *)param1 + 0x10 + i * 8);
+            param1 = param1 + 0x10 + i * 8;
+            remaining--;
+        } while (remaining != 0);
     }
 }
 
@@ -5199,16 +5195,21 @@ void FUN_004ae0a0(void)
 // FUNCTION: CMR2 0x004a4b10
 RenderTexture *FUN_004a4b10(void)
 {
-    BYTE *p;
+    Texture *p = NULL;
     int i;
     int j;
 
+    // The original passes the pool byte size as memset's fill value and 0 as
+    // the count: the call is a no-op (kept so the code matches the original).
+    if (CGraphics::m_unk0x0065fa28 == 0)
+        memset(CGraphics::m_pTextureManager->textureBuffer2, 0x9060, 0);
     for (i = 0; i < 0x14; i++) {
         if (CGraphics::m_pTextureManager->textureBuffer2[i] == NULL) {
-            p = (BYTE *)CFileBuffer::AllocateLockedBuffer(0x738);
-            CGraphics::m_pTextureManager->textureBuffer2[i] = (Texture *)p;
+            CGraphics::m_pTextureManager->textureBuffer2[i] =
+                (Texture *)CFileBuffer::AllocateLockedBuffer(0x738);
+            p = CGraphics::m_pTextureManager->textureBuffer2[i];
             for (j = 0; j < 6; j++) {
-                BYTE *q = p + j * 0x130;
+                BYTE *q = (BYTE *)p + j * 0x130;
 
                 *(unsigned short *)q = (unsigned short)i;
                 *(unsigned short *)(q + 0x11c) = 0;
@@ -5219,10 +5220,10 @@ RenderTexture *FUN_004a4b10(void)
             if (p == NULL)
                 return NULL;
             CGraphics::m_unk0x0065fa28++;
-            return CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
+            break;
         }
     }
-    return CGraphics::CreateCubeMapSurfaces(NULL);
+    return CGraphics::CreateCubeMapSurfaces((RenderTexture *)p);
 }
 
 // GLOBAL: CMR2 0x0067f228
@@ -5396,7 +5397,7 @@ float g_oneOverRandMax = 1.0f / RAND_MAX;
 // GLOBAL: CMR2 0x006a2cd0
 int g_particleTypeCount;
 // GLOBAL: CMR2 0x006a2cd4
-volatile int g_particleCount;
+int g_particleCount;
 // GLOBAL: CMR2 0x006a2cd8
 ParticleType *g_particleTypes;
 // GLOBAL: CMR2 0x006a2cdc
@@ -5759,9 +5760,9 @@ void Particle_UpdateAll(int param)
                 p->position.z = rel.z + wind.z;
             }
             p->position.y -= pType->gravity;
-            p->vector0x1c.x += p->position.x;
-            p->vector0x1c.y += p->position.y + pType->gravity / 2;
-            p->vector0x1c.z += p->position.z;
+            p->sourceVector.x += p->position.x;
+            p->sourceVector.y += p->position.y + pType->gravity / 2;
+            p->sourceVector.z += p->position.z;
             if (pType->flags & 0x40) {
                 p->type0x52 = p->type0x56;
                 a = p->type0x56;
@@ -5801,20 +5802,20 @@ void Particle_UpdateAll(int param)
                 else if (angle < 0)
                     p->field0x50 = angle + 0x1000;
             }
-            if ((pType->flags & 2) && p->vector0x1c.y < p->field0x48) {
+            if ((pType->flags & 2) && p->sourceVector.y < p->field0x48) {
                 Particle_Kill(p);
                 continue;
             }
             if (pType->flags & 0x80) {
                 keep = 0x10000 - pType->friction;
                 if (p->field0x58 != 0) {
-                    p->vector0x1c.y = p->field0x48;
+                    p->sourceVector.y = p->field0x48;
                     p->position.x = FixMul(p->position.x, keep);
                     p->position.z = FixMul(p->position.z, keep);
                 } else {
-                    if (p->vector0x1c.y < p->field0x48) {
+                    if (p->sourceVector.y < p->field0x48) {
                         p->position.y = -FixMul(p->position.y, pType->bounce);
-                        p->vector0x1c.y = p->field0x48;
+                        p->sourceVector.y = p->field0x48;
                         p->position.x = FixMul(p->position.x, keep);
                         p->position.z = FixMul(p->position.z, keep);
                         if (p->position.y < 0x1999) {
@@ -5824,7 +5825,7 @@ void Particle_UpdateAll(int param)
                     }
                 }
             }
-            p->vector0x28 = p->vector0x1c;
+            p->vector0x28 = p->sourceVector;
         } else {
             pType->update(p, pType, param);
         }
@@ -5843,8 +5844,7 @@ void Particle_Interpolate(int t)
     FixVector d;
     int i;
 
-    p = g_particles;
-    for (i = 0; i < g_particleCount; i++, p++) {
+    for (i = 0, p = g_particles; i < g_particleCount; i++, p++) {
         if (p->active != 0) {
             d.x = p->vector0x28.x - p->vector0x10.x;
             d.y = p->vector0x28.y - p->vector0x10.y;
@@ -5861,77 +5861,83 @@ void Particle_Interpolate(int t)
 // Queues a billboard for every active particle visible in view `view`
 // (animated texture frames, size scaling, spin, lighting), or calls the
 // type's own draw callback.
+// The original walks the 0x68-byte particle records with a byte cursor held
+// at particle+0x55 (the view mask and the active flag are the first fields
+// the loop tests), so the body addresses the record through that cursor:
+//   pb-0x55 pType        pb-0x39 vector0x1c   pb-0x15 field0x40  pb-0x11 age
+//   pb-9    size         pb-5    field0x50   pb-2    type0x53   pb-1  field0x54
+//   pb+2    active       pb+0    field0x55   pb+4..6 colour      pb+0xb field0x60
 // match 40%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004b0480
 void Particle_DrawAll(int param, BYTE view)
 {
-    Particle *p;
-    ParticleType *pType;
     BillboardDef def;
+    ParticleType *pType;
     int frame;
     int elapsed;
     int texture;
-    int *pFrames;
     int i;
+    BYTE mask;
+    BYTE *pb;
 
     def.flags &= 0xfe;
-    p = g_particles;
-    for (i = 0; i < g_particleCount; i++, p++) {
-        if (p->active == 0 || (p->field0x55 & (1 << view)) == 0)
+    mask = 1 << view;
+    pb = (BYTE *)g_particles + 0x55;
+    for (i = 0; i < g_particleCount; i++, pb += 0x68) {
+        if (pb[2] == 0 || (pb[0] & mask) == 0)
             continue;
-        pType = p->pType;
+        pType = *(ParticleType **)(pb - 0x55);
         if (pType->field0x5c != 0) {
-            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(p, pType, param);
+            ((void (*)(void *, ParticleType *, int))pType->field0x5c)(pb - 0x55, pType, param);
             continue;
         }
-        pFrames = (int *)pType->field0x4c;
-        if (pFrames != NULL) {
+        if ((int *)pType->field0x4c != NULL) {
             frame = 0;
-            elapsed = pType->lifetime - p->age;
-            if (pType->field0x54 < elapsed && pType->field0x58 > 0) {
+            elapsed = pType->lifetime - *(int *)(pb - 0x11);
+            if (elapsed > pType->field0x54 && pType->field0x58 > 0) {
                 frame = FixDiv(elapsed - pType->field0x54, pType->field0x58) >> 16;
                 if (pType->directionFlags & 8)
-                    frame += ((unsigned int)p & 0xffff) % (unsigned int)pType->field0x50;
+                    frame += ((unsigned int)(pb - 0x55) & 0xffff) % (unsigned int)pType->field0x50;
                 if (frame >= pType->field0x50 && (pType->directionFlags & 4) == 0) {
-                    texture = pFrames[pType->field0x50 - 1];
+                    texture = ((int *)pType->field0x4c)[pType->field0x50 - 1];
                     goto draw;
                 }
                 frame %= pType->field0x50;
             }
-            texture = pFrames[frame];
+            texture = ((int *)pType->field0x4c)[frame];
         } else {
-            texture = p->field0x60;
+            texture = *(int *)(pb + 0xb);
         }
     draw:
         if (texture == 0)
             continue;
-        if (p->size == 0x10000) {
+        if (*(int *)(pb - 9) == 0x10000) {
             def.top = pType->field0x3c;
             def.left = pType->field0x40;
             def.bottom = pType->field0x44;
             def.right = pType->field0x48;
         } else {
-            def.top = FixMul(p->size, pType->field0x3c);
-            def.left = FixMul(pType->field0x40, p->size);
-            def.bottom = FixMul(pType->field0x44, p->size);
-            def.right = FixMul(pType->field0x48, p->size);
+            def.top = FixMul(*(int *)(pb - 9), pType->field0x3c);
+            def.left = FixMul(pType->field0x40, *(int *)(pb - 9));
+            def.bottom = FixMul(pType->field0x44, *(int *)(pb - 9));
+            def.right = FixMul(pType->field0x48, *(int *)(pb - 9));
         }
         if ((pType->flags & 0x20) != 0)
-            def.field_0x20 = p->field0x50;
+            def.field_0x20 = *(short *)(pb - 5);
         else
             def.field_0x20 = 0;
-        def.pos = p->vector0x1c;
-        if (p->field0x40 != 0) {
-            def.pos.x += *(int *)(p->field0x40 + 0x30);
-            def.pos.y += *(int *)(p->field0x40 + 0x34);
-            def.pos.z += *(int *)(p->field0x40 + 0x38);
+        def.pos = *(FixVector *)(pb - 0x39);
+        if (*(int *)(pb - 0x15) != 0) {
+            def.pos.x += *(int *)(*(int *)(pb - 0x15) + 0x30);
+            def.pos.y += *(int *)(*(int *)(pb - 0x15) + 0x34);
+            def.pos.z += *(int *)(*(int *)(pb - 0x15) + 0x38);
         }
         def.flags ^= (pType->directionFlags ^ def.flags) & 2;
-        def.r = p->colour[0];
-        def.g = p->colour[1];
-        def.b = p->colour[2];
-        def.a = p->type0x53;
-        def.shade = p->field0x54;
+        def.r = pb[4];
+        def.g = pb[5];
+        def.b = pb[6];
+        def.a = pb[-2];
+        def.shade = pb[-1];
         Billboard_Add(&def, (unsigned short *)texture);
     }
 }
@@ -6302,14 +6308,18 @@ Texture *CGraphics::FUN_004a49c0(char *name, unsigned int flags)
 
     pTexture = NULL;
     isDDS = FALSE;
+    // The original passes the pool byte size as memset's fill value and 0 as
+    // the count: the call is a no-op (kept so the code matches the original).
+    if (CGraphics::m_textureCount == 0)
+        memset(m_pTextureManager->textureBuffer, 0x98000, 0);
     pExtension = name + strlen(name) - 4;
     strncpy(pExtension, m_ddsExtension, 4);
     pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
-    if (pData == NULL) {
+    if (pData != NULL) {
+        isDDS = TRUE;
+    } else {
         strncpy(pExtension, m_tgaExtension, 4);
         pData = CFileBuffer::GetGenericFileBuffer(name, FALSE);
-    } else {
-        isDDS = TRUE;
     }
     for (i = 0; i < 0x800; i++) {
         if (m_pTextureManager->textureBuffer[i] == NULL) {
@@ -6616,9 +6626,10 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
     TGAImageInfo *pInfo;
     DDSURFACEDESC2 desc;
     unsigned int mask;
-    BYTE uBits;
-    BYTE vBits;
-    BYTE lBits;
+    int count;
+    int uBits;
+    int vBits;
+    int lBits;
     int uShift;
     int vShift;
     int lShift;
@@ -6649,18 +6660,21 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
         pTexture->pSurface->Unlock(NULL);
         return NULL;
     }
-    for (uBits = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask, i = 32; i != 0; i--, mask >>= 1)
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpDuBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            uBits++;
-    uBits = 8 - uBits;
-    for (vBits = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask, i = 32; i != 0; i--, mask >>= 1)
+            count++;
+    uBits = 8 - (BYTE)count;
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpDvBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            vBits++;
-    vBits = 8 - vBits;
-    for (lBits = 0, mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask, i = 32; i != 0; i--, mask >>= 1)
+            count++;
+    vBits = 8 - (BYTE)count;
+    count = 0;
+    for (mask = desc.ddpfPixelFormat.dwBumpLuminanceBitMask, i = 32; i != 0; i--, mask >>= 1)
         if (mask & 1)
-            lBits++;
-    lBits = 8 - lBits;
+            count++;
+    lBits = 8 - (BYTE)count;
     for (uShift = 0, mask = desc.ddpfPixelFormat.dwBumpDuBitMask; uShift < 32 && !(mask & 1); uShift++)
         mask >>= 1;
     for (vShift = 0, mask = desc.ddpfPixelFormat.dwBumpDvBitMask; vShift < 32 && !(mask & 1); vShift++)
@@ -6684,13 +6698,13 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
             du = abs((int)(height - right));
             dv = abs((int)(height - down));
             l = SampleTGAPixel(x, y, pInfo, 0)[3];
-            if (desc.ddpfPixelFormat.dwRGBBitCount != 16) {
+            if (desc.ddpfPixelFormat.dwRGBBitCount == 16) {
+                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
+            } else {
                 pDst24[0] = (BYTE)du;
                 pDst24[1] = (BYTE)dv;
                 pDst24[2] = l;
                 pDst24 += 3;
-            } else {
-                *pDst16++ = (WORD)(((l >> lBits) << lShift) | ((dv >> vBits) << vShift) | ((du >> uBits) << uShift));
             }
         }
     }
@@ -7255,15 +7269,16 @@ unsigned short g_unk0x0059be74[2000];
 // FUNCTION: CMR2 0x0049c680
 void FUN_0049c680(Mesh *pMesh)
 {
+    MeshTriangle *pTri = pMesh->pTriangles;
+    int total = pMesh->triangleCount;
     int currentTexture = -1;
     int count = 0;
     int n;
-    MeshTriangle *pTri = pMesh->pTriangles;
 
-    for (n = pMesh->triangleCount; n != 0; n--) {
+    for (n = total; n > 0; n--) {
         int texture = *(int *)((BYTE *)pTri + 4 + pTri->field_0x2c * 4);
         if (texture != currentTexture) {
-            if (count >= 1) {
+            if (count > 0) {
                 CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
                     D3DPT_TRIANGLELIST,
                     CGraphics::m_pTextureManager->pVertexBuffers[pMesh->vertexBufferIndex],
@@ -7280,7 +7295,7 @@ void FUN_0049c680(Mesh *pMesh)
         pTri++;
     }
     if (count != 0) {
-        MeshTriangle *pLast = &pMesh->pTriangles[pMesh->triangleCount - 1];
+        MeshTriangle *pLast = &pMesh->pTriangles[total - 1];
         int texture = *(int *)((BYTE *)pLast + 4 + pLast->field_0x2c * 4);
         CGraphics::FUN_004a4850(0, (int)CGraphics::m_pTextureManager->textureBuffer[texture]);
         CGraphics::m_pTextureManager->pD3D->DrawIndexedPrimitiveVB(
@@ -7289,3 +7304,5 @@ void FUN_0049c680(Mesh *pMesh)
             pMesh->vertexOffset, pMesh->field_0x10, g_unk0x0059be74, count, 0);
     }
 }
+
+

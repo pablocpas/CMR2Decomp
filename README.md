@@ -64,6 +64,22 @@ Exactness includes embedded switch tables. Trailing COFF alignment is removed
 before determining how many original bytes to read, so neighbouring functions
 are not mistaken for part of a small rebuilt body.
 
+## Naming and readability
+
+Use descriptive names when the implementation and its callers establish the
+role: `Subsystem_Action` for free functions, and the existing class style for
+methods. Keep each `FUNCTION`/`GLOBAL` address annotation as the stable identity.
+Update declarations and callers together. These recovered names describe the
+behavior; they are not claimed to be the original developers' names.
+
+Name parameters and locals by their verified role, retaining short loop indices
+where they are clear. Keep unknown fields as `field_0x...` and unknown functions
+as `FUN_...` until their meaning is established. Preserve types, struct offsets,
+declaration order and expression order during naming changes. Build and measure
+each batch, checking that no exact function or matching score regresses.
+After measuring, run `python3 scripts/prepare_fastcmp.py` to refresh the local
+comparison metadata with the new symbols before using `fastcmp.py`.
+
 ## Batch source search
 
 `scripts/permute_batch.py` searches small non-exact functions, highest score
@@ -129,25 +145,15 @@ The harnesses honor `WINEPREFIX`. Keep the EXE, PDB, report and symbol map from
 the same build. A successful function harness does not replace testing a full
 race, championship, replay, save/load or network session.
 
-Run the complete registered suite and regenerate the logic inventory after
-building and measuring, using the same compiler/Wine environment:
+Run the complete registered suite after building and measuring, using the same
+compiler/Wine environment:
 
 ```bash
 python3 tests/run_differential_suite.py --jobs 3
-python3 scripts/audit_logic.py
 ```
 
-The runner verifies build identity and records each harness's output and tested
-entry points in `CMR2PROGRESS/logic-tests.json`. Controlled providers do not count
-as tested functions. The auditor checks current evidence, inventories every
-annotated source function, and compares reachable calls, branches and return
-cleanup for non-exact bodies. Indirect dispatch is marked as partial. Static
-differences guide review and do not establish behavioral defects.
-
-See [the logic review](CMR2PROGRESS/logic-review.md),
-[all source functions](CMR2PROGRESS/logic-all.tsv),
-[remaining matching functions](CMR2PROGRESS/logic-pending.tsv), and
-[original entries outside annotated source](CMR2PROGRESS/logic-outside-source.tsv).
-Local byte equivalence does not validate non-exact callees; passing fixtures
-only establish the tested cases. The original inventory also contains linked
-libraries, jump entries and analysis artifacts requiring separate classification.
+The runner verifies build identity and prints pass/fail results in the console.
+It creates no coverage files, logic inventories or test reports. Keep the
+matching data in `CMR2PROGRESS` because the comparator and harnesses use it.
+Passing fixtures only establish the tested cases; controlled providers do not
+validate their implementations.

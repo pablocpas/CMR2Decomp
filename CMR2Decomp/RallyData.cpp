@@ -506,7 +506,7 @@ void RallyData_GetRoundDrivers(unsigned int *pFirst, unsigned int *pSecond)
 // Stores the two times of the current round of the knockout table and marks
 // the winner (bit 11: second driver faster, bit 12: first driver faster).
 // FUNCTION: CMR2 0x00407940
-void FUN_00407940(unsigned int first, unsigned int second)
+void Knockout_SetCurrentMatchTimes(unsigned int first, unsigned int second)
 {
     switch ((g_knockout.state >> 3) & 7) {
     case 1:
@@ -553,97 +553,82 @@ void FUN_00407940(unsigned int first, unsigned int second)
 // Propagates the winners through every level of the knockout bracket and
 // orders AI-only pairs by driver index.
 // FUNCTION: CMR2 0x00407b10
-void FUN_00407b10(void)
+void Knockout_PropagateWinners(void)
 {
-    unsigned int flags;
-    unsigned int first;
-    unsigned int second;
     int i;
 
     for (i = 0; i < 8; i++) {
-        flags = g_knockout.round1[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (!(i % 2 == 0))
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+        if ((g_knockout.round1[i].flags & 0x1800) != 0) {
+            if ((g_knockout.round1[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.quarters[i / 2].bits.second = g_knockout.round1[i].bits.first;
                 else
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                    g_knockout.quarters[i / 2].bits.first = g_knockout.round1[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.quarters[i / 2].bits.second = g_knockout.round1[i].bits.second;
                 else
-                    g_knockout.quarters[i / 2].flags =
-                        (g_knockout.quarters[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.quarters[i / 2].bits.first = g_knockout.round1[i].bits.second;
             }
         }
     }
     for (i = 0; i < 4; i++) {
-        flags = g_knockout.quarters[i].flags;
-        first = flags & 0x1f;
-        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-            second = (flags >> 5) & 0x1f;
-            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-                g_knockout.quarters[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        if (g_knockout.quarters[i].bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            if (g_knockout.quarters[i].bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+                g_knockout.quarters[i].bits.first > g_knockout.quarters[i].bits.second) {
+                unsigned int f = g_knockout.quarters[i].bits.first;
+                g_knockout.quarters[i].bits.first = g_knockout.quarters[i].bits.second;
+                g_knockout.quarters[i].bits.second = f;
+            }
         }
     }
 
     for (i = 0; i < 4; i++) {
-        flags = g_knockout.quarters[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (!(i % 2 == 0))
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+        if ((g_knockout.quarters[i].flags & 0x1800) != 0) {
+            if ((g_knockout.quarters[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.semis[i / 2].bits.second = g_knockout.quarters[i].bits.first;
                 else
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | (flags & 0x1f);
+                    g_knockout.semis[i / 2].bits.first = g_knockout.quarters[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.semis[i / 2].bits.second = g_knockout.quarters[i].bits.second;
                 else
-                    g_knockout.semis[i / 2].flags =
-                        (g_knockout.semis[i / 2].flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.semis[i / 2].bits.first = g_knockout.quarters[i].bits.second;
             }
         }
     }
     for (i = 0; i < 2; i++) {
-        flags = g_knockout.semis[i].flags;
-        first = flags & 0x1f;
-        if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-            second = (flags >> 5) & 0x1f;
-            if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-                g_knockout.semis[i].flags = (flags & 0xfffffc00U) | second | (first << 5);
+        if (g_knockout.semis[i].bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+            if (g_knockout.semis[i].bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+                g_knockout.semis[i].bits.first > g_knockout.semis[i].bits.second) {
+                unsigned int f = g_knockout.semis[i].bits.first;
+                g_knockout.semis[i].bits.first = g_knockout.semis[i].bits.second;
+                g_knockout.semis[i].bits.second = f;
+            }
         }
     }
 
     for (i = 0; i < 2; i++) {
-        flags = g_knockout.semis[i].flags;
-        if ((flags & 0x1800) != 0) {
-            if ((flags & 0x1800) == 0x800) {
-                if (i % 2 == 0)
-                    g_knockout.final.flags = (g_knockout.final.flags & 0xffffffe0U) | (flags & 0x1f);
+        if ((g_knockout.semis[i].flags & 0x1800) != 0) {
+            if ((g_knockout.semis[i].flags & 0x1800) == 0x800) {
+                if (i % 2 != 0)
+                    g_knockout.final.bits.second = g_knockout.semis[i].bits.first;
                 else
-                    g_knockout.final.flags =
-                        (g_knockout.final.flags & 0xfffffc1fU) | ((flags & 0x1f) << 5);
+                    g_knockout.final.bits.first = g_knockout.semis[i].bits.first;
             } else {
-                if (!(i % 2 == 0))
-                    g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc1fU) | (flags & 0x3e0);
+                if (i % 2 != 0)
+                    g_knockout.final.bits.second = g_knockout.semis[i].bits.second;
                 else
-                    g_knockout.final.flags =
-                        (g_knockout.final.flags & 0xffffffe0U) | ((flags >> 5) & 0x1f);
+                    g_knockout.final.bits.first = g_knockout.semis[i].bits.second;
             }
         }
     }
-    flags = g_knockout.final.flags;
-    first = flags & 0x1f;
-    if (first < (CGameInfo::FUN_00405d70() & 0xff)) {
-        second = (flags >> 5) & 0x1f;
-        if (second < (CGameInfo::FUN_00405d70() & 0xff) && second < first)
-            g_knockout.final.flags = (flags & 0xfffffc00U) | second | (first << 5);
+    if (g_knockout.final.bits.first < (CGameInfo::FUN_00405d70() & 0xff)) {
+        if (g_knockout.final.bits.second < (CGameInfo::FUN_00405d70() & 0xff) &&
+            g_knockout.final.bits.first > g_knockout.final.bits.second)
+            g_knockout.final.flags = (g_knockout.final.flags & 0xfffffc00U) |
+                g_knockout.final.bits.second | (g_knockout.final.bits.first << 5);
     }
 }
 
@@ -682,6 +667,7 @@ int FUN_00411550(void)
     int *p;
     int totalA;
     int totalB;
+    int start;
     int i;
     int j;
 
@@ -725,19 +711,22 @@ int FUN_00411550(void)
         }
     }
     if ((BYTE)RallyData_GetFlag25() != 0) {
-        if (g_unk0x00536c90 - 1 < 0xc) {
-            for (p = g_unk0x00536ff0 + (g_unk0x00536c90 - 1) * 2;
-                 (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+        start = g_unk0x00536c90 - 1;
+        if (start < 0xc) {
+            p = &g_unk0x00536ff0[start * 2];
+            do {
                 p[1] = totalB;
                 p[0] = RallyData_FUN_00421420() - 1;
-            }
+                p += 2;
+            } while (p < g_unk0x00536ff0 + 24);
         }
     } else if (g_unk0x00536c90 < 0xc) {
-        for (p = g_unk0x00536ff0 + g_unk0x00536c90 * 2;
-             (int)p < (int)(g_unk0x00536ff0 + 24); p += 2) {
+        p = &g_unk0x00536ff0[g_unk0x00536c90 * 2];
+        do {
             p[1] = totalB;
             p[0] = RallyData_FUN_00421420() - 1;
-        }
+            p += 2;
+        } while (p < g_unk0x00536ff0 + 24);
     }
     return totalB;
 }
@@ -1104,22 +1093,24 @@ int View_IsModeAvailable(BYTE index, int mode);
 // FUNCTION: CMR2 0x00423970
 int FUN_00423970(unsigned int index, int mode)
 {
+    int valid;
+
     switch (mode) {
     case 1:
     case 3:
     case 4:
     case 5:
+        valid = 1;
         break;
     case 2:
-        if ((*(BYTE **)(FUN_0041b390() + 4))[(index & 0xff) * 8] == 10)
-            return 0;
+        valid = (*(char *)(*(int *)(FUN_0041b390() + 4) + (index & 0xff) * 8) != 10);
         break;
     default:
         return 0;
     }
-    if (View_IsModeAvailable(index, mode) == 0)
-        return 0;
-    return 1;
+    if (valid && View_IsModeAvailable(index, mode) != 0)
+        return 1;
+    return 0;
 }
 
 // FUNCTION: CMR2 0x004239e0
@@ -1279,13 +1270,11 @@ void FUN_00406820(void)
     int i;
     BYTE *p;
     BYTE *pRow;
-    int row;
     char c;
 
     for (i = 0; i < 4; i++) {
         p = RallyData_FUN_00407630(i);
-        row = (RallyDataCountryIndex() & 0xff) * 7;
-        pRow = g_unk0x0051682c + row;
+        pRow = g_unk0x0051682c + (RallyDataCountryIndex() & 0xff) * 7;
         *(int *)p = *(int *)pRow;
         *(short *)(p + 4) = *(short *)(pRow + 4);
         p[6] = pRow[6];
@@ -1417,29 +1406,40 @@ void FUN_004ec260(int player);
 
 // Resets the four players' records in the save block (all cleared, then the
 // default flags, setup values and car position of each one).
-// match 63%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 79%: the pointer-driven loop and the 0x40-based row accesses reproduce the
+// original's instruction schedule; only the compiler's choice of base register for
+// the row pointer (ours p+0x40 vs the original's p) still differs.
+// kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x004eadb0
 void FUN_004eadb0(void)
 {
+    BYTE *p;
+    int *q;
     int i;
 
     memset(g_saveProfiles, 0, 0x650 * 4);
     memset(g_unk0x00531350, 0, 0xc0 * 4);
+    // The redundant re-initialisation of i and q keeps the original's store
+    // order (zeroed counter, row base, g_unk0x00531650, then the q base).
+    i = 0;
+    p = g_saveProfiles + 0x14;
     g_unk0x00531650 = 0;
-    for (i = 0; i < 4; i++) {
-        BYTE *pPlayer = g_saveProfiles + 0x14 + i * 0x650;
-        *(int *)(pPlayer + 0x44) = 4;
+    q = g_unk0x00531654;
+    for (q = g_unk0x00531654, i = 0; (int)q < (int)(g_unk0x00531654 + 4); q++) {
+        int *pSetup = (int *)(p + 0x40);
+        pSetup[1] = 4;
+        *(unsigned int *)p = (*(unsigned int *)p & 0xffe1f17e) | 0x1017e;
         g_saveDirty[i] = 0;
-        *(unsigned int *)pPlayer = (*(unsigned int *)pPlayer & 0xffe1f17e) | 0x1017e;
-        g_unk0x00531654[i] = 0;
-        *(unsigned int *)(pPlayer + 0x40) |= 0x20;
-        *(int *)(pPlayer + 0x38) = 0xf11;
+        pSetup[0] |= 0x20;
+        *q = 0;
+        *(int *)(p + 0x38) = 0xf11;
         FUN_004ec260(i);
+        i++;
+        p += 0x650;
     }
     FUN_004ec000();
     g_unk0x00531764 = NULL;
 }
-
 
 // Stores a driver (FUN_00405d80()==4) or category (otherwise) name into the
 // championship save data, marking the record as edited and randomising the
@@ -1720,7 +1720,7 @@ void FUN_004eb000(BYTE index, char set)
 
 // Number of saved profiles (named, not hidden) no record is using.
 // FUNCTION: CMR2 0x004ec020
-int FUN_004ec020(void)
+int SaveProfiles_CountAvailableProfiles(void)
 {
     char used[4];
     BYTE *pRecord;
@@ -1742,7 +1742,7 @@ int FUN_004ec020(void)
 
 // Index of the n-th free saved profile, -1 if none.
 // FUNCTION: CMR2 0x004ec090
-int FUN_004ec090(int n)
+int SaveProfiles_GetAvailableProfileIndex(int n)
 {
     char used[4];
     BYTE *pRecord;
@@ -1766,7 +1766,7 @@ int FUN_004ec090(int n)
 
 // Name of the n-th free saved profile, NULL if none.
 // FUNCTION: CMR2 0x004ec110
-BYTE *FUN_004ec110(int n)
+BYTE *SaveProfiles_GetAvailableProfileName(int n)
 {
     char used[4];
     BYTE *pRecord;
@@ -1993,7 +1993,7 @@ BYTE g_rallyScoreScale[27] = {
 unsigned int RallyData_FUN_00406940(void);
 unsigned int RallyData_FUN_00406950(void);
 unsigned char RallyData_FUN_00407e70(void);
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 
 #define STAGE_SCORE_SCALE(variant)                                                                  \
     if ((BYTE)RallyData_GetFlag24()) {                                                              \
@@ -2002,7 +2002,7 @@ int FUN_00407270(void);
                                      (BYTE)CGameInfo::FUN_00405d90()] * 100;                        \
         return g_rallyScoreScale[((BYTE)RallyData_FUN_00406940() * 3 + (BYTE)RallyData_FUN_00406950()) * 3] * 100; \
     }                                                                                               \
-    if ((BYTE)FUN_00407270())                                                                       \
+    if ((BYTE)RallyData_IsChampionshipFinalStage())                                                                       \
         return 2000;                                                                                \
     return g_stageScoreScale[((g_selectedRallyData & 0x1f) * 12 + ((g_selectedRallyData >> 5) & 0x1f)) * 2 + \
                              (variant)] * 100
@@ -2468,7 +2468,7 @@ BYTE FUN_004071c0(BYTE flags, char mode)
 
 // Whether the championship has just finished its last rally (rally 8, stage 11).
 // FUNCTION: CMR2 0x00407270
-int FUN_00407270(void)
+int RallyData_IsChampionshipFinalStage(void)
 {
     BYTE mode;
     BYTE rallyClass;
@@ -2486,7 +2486,7 @@ void RallyData_UpdateFlags(void);
 // Advances g_selectedRallyData to the next stage (bits 5-9) and, at the end of
 // a rally, to the next rally (bits 0-4). Returns 0 when the championship is over.
 // FUNCTION: CMR2 0x004072d0
-BYTE FUN_004072d0(void)
+BYTE RallyData_AdvanceSelectedStage(void)
 {
     BYTE mode;
     BYTE count;
@@ -3613,7 +3613,7 @@ void FUN_00410100(BYTE alpha)
     colour[2] = g_itemColour[2];
     colour[3] = alpha;
     x = (int)(g_pGraphics->resX * 30) / 640;
-    if ((BYTE)FUN_00407270()) {
+    if ((BYTE)RallyData_IsChampionshipFinalStage()) {
         RallyData_DrawListItem(x, g_pGraphics->resY / 2, CFrontend::GetTextString(0x93), 1, alpha);
         return;
     }
@@ -3839,16 +3839,16 @@ void FUN_00471bf0(int car)
         mask = 1 << car;
         for (i = 0; i < (int)g_unk0x0058ca6c; i++) {
             bit = g_unk0x0058c938[i] & mask;
-            if (bit == 0 && g_unk0x0058c958[i] != 0) {
-            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-            *(int *)(pObject + 4) -= 0x3e80000;
-            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
-            g_unk0x0058c958[i] = 0;
-            } else if (bit != 0 && g_unk0x0058c958[i] == 0) {
-            pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
-            *(int *)(pObject + 4) += 0x3e80000;
-            (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
-            g_unk0x0058c958[i] = 1;
+            if (bit != 0 && g_unk0x0058c958[i] == 0) {
+                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+                *(int *)(pObject + 4) += 0x3e80000;
+                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0xff;
+                g_unk0x0058c958[i] = 1;
+            } else if (bit == 0 && g_unk0x0058c958[i] != 0) {
+                pObject = *(BYTE **)(g_unk0x0058c94c + i * 8);
+                *(int *)(pObject + 4) -= 0x3e80000;
+                (*(BYTE **)(g_unk0x0058c94c + i * 8))[0x14] = 0;
+                g_unk0x0058c958[i] = 0;
             }
         }
     } else {
@@ -4132,10 +4132,10 @@ void FUN_00503ea0(void)
                                                 CFrontend::m_stringDest, 0, NULL, false, 0);
     for (i = 0; i < 4; i++) {
         if (i < (int)(g_weatherMaps.count & 0xff)) {
-            index = g_weatherMaps.slots[i] + 1;
             sprintf(CFrontend::m_stringDest, g_str0x005272dc, CInstallInfo::GetSetupRepDir(),
                     g_unk0x0052714c[RallyDataCountryIndex()],
-                    g_unk0x0052716c[RallyDataCountryIndex()], index);
+                    g_unk0x0052716c[RallyDataCountryIndex()],
+                    g_weatherMaps.slots[i] + 1);
             g_weatherMaps.maps[i] = (int)CTexture::FindLoadTexture((GenericFile *)FUN_0050f640(),
                                                                  CFrontend::m_stringDest, 0, NULL, false, 0);
         }
@@ -5554,26 +5554,26 @@ void FUN_00414720(int car)
 
     if (g_stageSplitData[car].split == 0)
         return;
-    if (!(!StageTiming_FUN_00455ae0())) {
+    if (StageTiming_FUN_00455ae0()) {
         position = StageTiming_GetSplitPositionOfDriver((FUN_0041b370() & 0xff) + car, g_stageSplitData[car].split);
-        if (position <= 0) {
-            g_unk0x00536c94[car][0] = position;
-            g_unk0x00536c94[car][1] = position + 1;
-            g_unk0x00536c94[car][2] = position + 2;
-            return;
-        }
     } else {
         position = 15;
     }
-    if (StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1 <= position) {
+    if (position > 0) {
+        if (position < StageTiming_GetSplitDriverCount(g_stageSplitData[car].split) - 1) {
+            g_unk0x00536c94[car][0] = position - 1;
+            g_unk0x00536c94[car][1] = position;
+            g_unk0x00536c94[car][2] = position + 1;
+            return;
+        }
         g_unk0x00536c94[car][0] = position - 2;
         g_unk0x00536c94[car][1] = position - 1;
         g_unk0x00536c94[car][2] = position;
         return;
     }
-    g_unk0x00536c94[car][0] = position - 1;
-    g_unk0x00536c94[car][1] = position;
-    g_unk0x00536c94[car][2] = position + 1;
+    g_unk0x00536c94[car][0] = position;
+    g_unk0x00536c94[car][1] = position + 1;
+    g_unk0x00536c94[car][2] = position + 2;
 }
 
 BYTE FUN_004582b0(int index);
@@ -5596,9 +5596,12 @@ void FUN_00415990(int car)
     }
     if (!(BYTE)RallyData_GetFlag24() &&
         (!(BYTE)RallyData_GetFlag25() || CGameInfo::FUN_00405d80() != 3 || CGameInfo::FUN_00405e00())) {
-        if (FUN_004582b0(car) && (g_unk0x0053706c == 0 || g_unk0x0053706c > g_stageSplitData[car].times[0])) {
-            g_unk0x0053706c = g_stageSplitData[car].times[0];
-            sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + (char)car));
+        if (FUN_004582b0(car)) {
+            int t = g_stageSplitData[car].times[0];
+            if (g_unk0x0053706c == 0 || g_unk0x0053706c > t) {
+                g_unk0x0053706c = t;
+                sprintf(g_unk0x00536ed0, (char *)RallyData_GetRecord(FUN_0041b370() + (char)car));
+            }
         }
     } else {
         FUN_00415a60(car);
@@ -5617,7 +5620,6 @@ void FUN_00413520(int car)
 {
     int split;
     int target;
-    int toBeat;
 
     g_unk0x00536e90[0] = 0;
     if (FUN_00458250(car) != 0) {
@@ -5628,15 +5630,15 @@ void FUN_00413520(int car)
             g_stageSplitData[car].lastSplitTime = g_stageSplitData[car].times[0];
             g_stageSplitData[car].split = split;
             FUN_00427990(split, g_stageSplitData[car].times[0]);
+            split = g_unk0x00536ed8;
         }
-        toBeat = g_unk0x00536ed8;
         g_unk0x00536c14 = 1;
     } else {
         if (g_unk0x00536c14 == 0)
             return;
-        toBeat = g_unk0x00536ed8;
+        split = g_unk0x00536ed8;
     }
-    target = FUN_0040a410(toBeat);
+    target = FUN_0040a410(split);
     g_stageSplitData[car].targetTime = target;
     if (g_stageSplitData[car].lastSplitTime < target) {
         FUN_00411ab0((BYTE)car, 1);
@@ -5668,7 +5670,9 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
         if (CGameInfo::FUN_00406410(0xc))
             return true;
         if (bit == 7) {
-            if (CGameInfo::FUN_00406410(0) || CGameInfo::FUN_00406410(0x12))
+            if (CGameInfo::FUN_00406410(0))
+                return true;
+            if (CGameInfo::FUN_00406410(0x12))
                 return true;
         } else if (bit == 0x10) {
             if (CGameInfo::FUN_00406410(1))
@@ -5683,7 +5687,7 @@ bool RallyData_FUN_00408e30(int index, int bit, char check)
     }
     return (*(unsigned int *)(g_saveProfiles + 0x4c +
                               ((*(unsigned int *)(g_unk0x00531350 + index * 0x30) >> 0x12) & 0xf) * 0x650) &
-            (1 << bit)) != 0;
+            (1 << bit)) ? true : false;
 }
 
 // GLOBAL: CMR2 0x0058c944
@@ -5732,22 +5736,25 @@ int *FUN_0040f050(int view)
 {
     int *pRect;
     int *pSource;
-    int which;
 
     FUN_00464b60();
     pRect = (int *)FUN_00464af0(view);
-    if ((BYTE)RallyDataState() != 1 && FUN_0041f3a0() == 0) {
-        if (view == 0)
-            which = CGameInfo::FUN_00405dc0() ? 1 : 3;
+    if ((BYTE)RallyDataState() == 1 || FUN_0041f3a0() != 0) {
+        pSource = (int *)FUN_00464b00(0);
+    } else if (view == 0) {
+        if (CGameInfo::FUN_00405dc0())
+            pSource = (int *)FUN_00464b00(1);
         else
-            which = CGameInfo::FUN_00405dc0() ? 2 : 4;
+            pSource = (int *)FUN_00464b00(3);
     } else {
-        which = 0;
+        if (CGameInfo::FUN_00405dc0())
+            pSource = (int *)FUN_00464b00(2);
+        else
+            pSource = (int *)FUN_00464b00(4);
     }
-    pSource = (int *)FUN_00464b00(which);
     pRect[0] = pSource[0];
     pRect[1] = pSource[1];
-    return pRect;
+    return (int *)pRect;
 }
 
 extern int g_unk0x00536fe0;
@@ -5775,18 +5782,20 @@ void FUN_00415870(int car)
             position = FUN_00448330(car);
             g_stageSplitData[car].position = position;
             if (position != -1) {
-                if (position <= 0) {
+                if (position > 0) {
+                    if (position < 5) {
+                        g_unk0x00536c94[car][0] = position - 1;
+                        g_unk0x00536c94[car][1] = position;
+                        g_unk0x00536c94[car][2] = position + 1;
+                    } else {
+                        g_unk0x00536c94[car][0] = position - 2;
+                        g_unk0x00536c94[car][1] = position - 1;
+                        g_unk0x00536c94[car][2] = position;
+                    }
+                } else {
                     g_unk0x00536c94[car][0] = position;
                     g_unk0x00536c94[car][1] = position + 1;
                     g_unk0x00536c94[car][2] = position + 2;
-                } else if (position < 5) {
-                    g_unk0x00536c94[car][0] = position - 1;
-                    g_unk0x00536c94[car][1] = position;
-                    g_unk0x00536c94[car][2] = position + 1;
-                } else {
-                    g_unk0x00536c94[car][0] = position - 2;
-                    g_unk0x00536c94[car][1] = position - 1;
-                    g_unk0x00536c94[car][2] = position;
                 }
             }
         } else {
@@ -5886,7 +5895,7 @@ void FUN_00415750(int driver, int split, int useLongName, int useSplit)
     CGenericFileLoader::StrUpperPolish((BYTE *)CFrontend::m_stringDest);
 }
 
-int FUN_00448260(int car);
+int StageTiming_GetSplitLeaderTime(int car);
 int FUN_00448110(void);
 int FUN_00448330(int car);
 int FUN_00448350(int car);
@@ -5906,7 +5915,7 @@ void FUN_00413200(int car)
 {
     if (FUN_00458250(car)) {
         g_unk0x00537054[car] = 1;
-        g_unk0x00536fe4[car] = FUN_00448110() - FUN_00448260(car);
+        g_unk0x00536fe4[car] = FUN_00448110() - StageTiming_GetSplitLeaderTime(car);
         if (FUN_00448330(car) > 0) {
             FUN_00411ab0(car, 0);
             ((BYTE *)g_unk0x005170e0)[car * 4 + 3] = 0xff;
@@ -6382,7 +6391,7 @@ void FUN_0040f0c0(int param1, int param2, int param3)
     FUN_00417e60();
     if (CGameInfo::FUN_00404f20() != 0 && FUN_004054b0(maskedView) == 0)
         return;
-    if ((BYTE)FUN_00407270() != 0)
+    if ((BYTE)RallyData_IsChampionshipFinalStage() != 0)
         return;
     if ((BYTE)RallyDataState() == 1 && param3 != 0) {
         Dash_Draw(maskedView, (int)g_unk0x00536ad4);
@@ -6496,9 +6505,10 @@ void FUN_00411280(void)
         CFrontend::m_stringDest[track + 1] = 'S';
         CFrontend::m_stringDest[track + 2] = '\0';
     } else {
+        track = (RallyData_FUN_00406940() & 0xff) * 3;
+        track += RallyData_FUN_00406950() & 0xff;
         sprintf(CFrontend::m_stringDest, g_strChallengeTrackName0x00517d38,
-                CInstallInfo::GetTracksDir(),
-                (RallyData_FUN_00406940() & 0xff) * 3 + (RallyData_FUN_00406950() & 0xff) + 1);
+                CInstallInfo::GetTracksDir(), track + 1);
     }
     g_unk0x0053707c = CTexture::FindLoadTexture(FUN_0041f500(), CFrontend::m_stringDest, &loaded, 0,
                                                 0, 0);
@@ -6609,7 +6619,7 @@ void FUN_004143f0(int car, short *pRect)
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
@@ -6651,7 +6661,7 @@ void FUN_00414550(int car, short *pRect)
                                 (BYTE *)&g_unk0x00536d14[car * 0x28 + i + 1], 2);
             } else {
                 g_unk0x005170cc = (unsigned int)g_unk0x00536d14[car * 0x28 + i + 1];
-                g_unk0x005170cc = (g_unk0x005170cc & 0xffffff) | 0xff000000;
+                ((BYTE *)&g_unk0x005170cc)[3] = 0xff;
                 Sprite_FillRect((int)g_pGraphics + 0x150,
                                 (short *)(g_unk0x00536d14 + car * 0x28 + 13),
                                 (BYTE *)&g_unk0x005170cc, 2);
@@ -7270,13 +7280,13 @@ void FUN_004111a0(void)
     g_unk0x00536fe4[0] = 0;
     g_unk0x00536c18[1] = 0;
     g_unk0x00536fe4[1] = 0;
-    for (i = 0; i < 6; i++)
-        ((int *)g_unk0x00536c94)[i] = -1;
     g_unk0x00536bfc = 0;
     g_unk0x00537050 = 0;
     g_unk0x00536c40 = 0;
     g_unk0x00536c3c = 0;
     *(short *)&g_unk0x00536c20[0] = 0;
+    for (i = 0; i < 6; i++)
+        ((int *)g_unk0x00536c94)[i] = -1;
     // The original walks a record base 4 bytes in front of g_stageSplitData, so
     // the dword right before the array gets cleared as well.
     for (car = 0; car < 2; car++) {
@@ -7285,7 +7295,8 @@ void FUN_004111a0(void)
         p[1] = 0;
         p[2] = 0;
         p[3] = -1;
-        for (i = 5; i < 0x12; i++)
+        p[5] = 0;
+        for (i = 6; i < 0x12; i++)
             p[i] = 0;
     }
     for (i = 0; i < 8; i++) {
@@ -7850,7 +7861,7 @@ void FUN_0040efa0(void)
         CGame::FUN_0049dca0(2);
     else
         CGame::FUN_0049dca0(3);
-    FUN_00407270();
+    RallyData_IsChampionshipFinalStage();
     FUN_004b1150();
     Particle_Init(0x20, 400);
     if (CGameInfo::FUN_004063f0(0) != 0)
@@ -7980,15 +7991,12 @@ void FUN_0040dc30(void)
                 ratings[row] = rating;
             }
         }
-        pIn = classes;
         pOut = &g_unk0x0052f100[group * 4][1];
-        i = 4;
-        do {
-            pOut[-1] = pIn[0];
-            pOut[0] = split == 0 ? pIn[1] : pIn[0];
+        for (i = 0; i < 4; i++) {
+            pOut[-1] = classes[i * 2];
+            pOut[0] = split == 0 ? classes[i * 2 + 1] : classes[i * 2];
             pOut += 2;
-            pIn += 2;
-        } while (--i);
+        }
         FUN_0040d6c0(group, (int *)&g_unk0x0051627c[g_selectedRallyData & 0x1f][group * 10], ratings);
         FUN_0040d9e0(group);
         group++;
@@ -8005,8 +8013,8 @@ void FUN_0040dc30(void)
 
 #include "GenericFileLoader.h"
 
-char *FUN_00473810(KnockoutMatch *pMatch, int side);
-char *FUN_004736b0(KnockoutMatch *pMatch, int side);
+char *Knockout_GetCarNameForSide(KnockoutMatch *pMatch, int side);
+char *Knockout_GetDriverNameForSide(KnockoutMatch *pMatch, int side);
 BYTE StageTiming_FUN_00455ae0(void);
 BYTE FUN_0041b370(void);
 int StageTiming_FUN_00455ac0(int iSplit, int iIndex);
@@ -8029,14 +8037,14 @@ void FUN_00412390(int bottom, int player)
         return;
     if (CGameInfo::FUN_00405d80() == 4) {
         if (RallyData_FUN_00408500(*(BYTE *)RallyData_GetRoundEntry() & 0x1f) == -1)
-            FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
+            Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
         else
-            FUN_004736b0((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
+            Knockout_GetDriverNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 0);
         sprintf(name1, CRegKey::m_regKeyPathFormatValue, CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest));
         if (RallyData_FUN_00408500((BYTE)(*RallyData_GetRoundEntry() >> 5) & 0x1f) == -1)
-            FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
+            Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
         else
-            FUN_004736b0((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
+            Knockout_GetDriverNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), 1);
         sprintf(name2, CRegKey::m_regKeyPathFormatValue, CGenericFileLoader::StrLowerPolish(CFrontend::m_stringDest));
     } else {
         if (StageTiming_FUN_00455ae0() == 0)
@@ -8120,14 +8128,14 @@ void FUN_0040f8d0(BYTE *pKey, int view)
                         if (FUN_0041f380() != 0xff && (char)FUN_0041f380() == i) {
                             if (CGameInfo::FUN_00405d80() == 4)
                                 sprintf(name, g_strName0x00516e2c,
-                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), i));
+                                        Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), i));
                             else
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(i));
                             sprintf(CFrontend::m_stringDest, g_keypadFormat, CFrontend::GetTextString(0x94), name);
                         } else {
                             if (CGameInfo::FUN_00405d80() == 4)
                                 sprintf(name, g_strName0x00516e2c,
-                                        FUN_00473810((KnockoutMatch *)RallyData_GetRoundEntry(), other));
+                                        Knockout_GetCarNameForSide((KnockoutMatch *)RallyData_GetRoundEntry(), other));
                             else
                                 sprintf(name, g_strName0x00516e2c, (char *)RallyData_GetRecord(other));
                             sprintf(CFrontend::m_stringDest, g_strVersusFormat, CFrontend::GetTextString(0x86),
@@ -8383,6 +8391,7 @@ char g_strAdr[] = "ADR";
 void FUN_00414ed0(int car, short *pRect)
 {
     short panel[4];
+    char positionText[4];
     int *pPosition;
     int textY;
     int rows;
@@ -8407,8 +8416,8 @@ void FUN_00414ed0(int car, short *pRect)
             if (*pPosition != -1 &&
                 (StageTiming_FUN_00455ae0() == 0 ||
                  StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split) != -1)) {
-                sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
-                Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+                sprintf(positionText, g_strOneDigit, *pPosition + 1);
+                Font_DrawText(0, positionText, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                               (int *)&g_stageResultTextColour, 0x22);
                 if (StageTiming_FUN_00455ae0() != 0) {
                     FUN_00415750(*pPosition, g_stageSplitData[car].split, 1, 1);
@@ -8447,8 +8456,8 @@ void FUN_00414ed0(int car, short *pRect)
         if (*pPosition != -1) {
             if (StageTiming_FUN_00455ae0())
                 StageTiming_GetSplitDriverIDForPosition(*pPosition, g_stageSplitData[car].split);
-            sprintf((char *)&car, g_strOneDigit, *pPosition + 1);
-            Font_DrawText(0, (char *)&car, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
+            sprintf(positionText, g_strOneDigit, *pPosition + 1);
+            Font_DrawText(0, positionText, (short)(((int)(g_pGraphics->resX * 0xf95) >> 16) + pRect[0]), textY,
                           (int *)&g_stageResultTextColour, 0x22);
             FUN_00415750(*pPosition, g_stageSplitData[car].split, 0, 1);
             width = Font_GetTextWidth(0, (BYTE *)CFrontend::m_stringDest);

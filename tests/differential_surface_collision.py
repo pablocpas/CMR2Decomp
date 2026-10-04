@@ -34,7 +34,7 @@ class Collision(Drawing):
         elif a==0x48c870:
             self.trace.append(('translate',args[0]&255,args[1]&255,self.read(args[2],12),args[3]))
         elif a==0x499750:
-            self.trace.append(('debris',args[0],self.read(args[1],12),args[2],self.read(args[3],12),args[4:]))
+            self.trace.append(('debris',args[0],self.read(args[1],12),args[2],self.read(args[3],36),args[4:]))
 
     def run(self,surface,back,axis,velocity):
         self.u.mem_write(self.base,bytes(self.memory))

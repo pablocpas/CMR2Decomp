@@ -680,10 +680,10 @@ void FUN_004b7de0(SceneNode *pNode, int unused)
     ez = FixMul(dir.z, radius);
     fz = FixMul(dir.z, FixMul(radius, 0x10000));
     fx = -FixMul(dir.x, FixMul(radius, 0x10000));
-    tri[4] = tri[0] - fz + ex;
-    tri[5] = tri[1] - fx + ez;
-    tri[2] = tri[0] + fz + ex;
-    tri[3] = tri[1] + fx + ez;
+    tri[4] = tri[0] + fz + ex;
+    tri[5] = tri[1] + fx + ez;
+    tri[2] = tri[0] - fz + ex;
+    tri[3] = tri[1] - fx + ez;
     FixMatrix_GetPosition(&origin, &pNode->world);
     FixMatrix_GetForward(&forward, &pNode->world);
     FixVecScale(&scaled, &forward, 0xa0000);
@@ -737,6 +737,7 @@ void FUN_004b8270(void)
     int n;
     int minX;
     int maxZ;
+    int halfSize;
     Sector **ppSector;
 
     CGraphics::m_unk0x0072d56c = 1;
@@ -744,10 +745,10 @@ void FUN_004b8270(void)
     g_sectorHalfSize = FixMul(g_sectorSize, 0x8000);
     g_sectorScale = FixDiv(0x10000, g_sectorSize);
     minX = g_sectors[0]->x;
-    maxZ = g_sectors[0]->z;
     g_sectorOriginX = minX;
+    maxZ = g_sectors[0]->z;
     g_sectorOriginZ = maxZ;
-    if (g_sectorCount > 1) {
+    if ((unsigned int)g_sectorCount > 1) {
         n = g_sectorCount - 1;
         ppSector = &g_sectors[1];
         do {
@@ -762,8 +763,9 @@ void FUN_004b8270(void)
             ppSector++;
         } while (--n != 0);
     }
-    g_unk0x006ed5e8 = minX - g_sectorHalfSize;
-    g_unk0x006ed5ec = g_sectorHalfSize + maxZ;
+    halfSize = g_sectorSize / 2;
+    g_unk0x006ed5e8 = minX - halfSize;
+    g_unk0x006ed5ec = halfSize + maxZ;
     g_sectorsPerRow = 1;
     if (g_sectors[0]->z == g_sectors[1]->z) {
         i = 1;
@@ -776,14 +778,13 @@ void FUN_004b8270(void)
     }
     g_sectorRows = (unsigned int)g_sectorCount / (unsigned int)g_sectorsPerRow;
     for (i = 0; i < (unsigned int)g_unk0x0067f228; i++) {
-        StageObject *pObject = g_stageObjects[i];
-        short index = (short)Sector_FromPosition((FixVector *)pObject);
-        pObject->pNext = g_sectors[index]->pObjects;
-        g_sectors[index]->pObjects = pObject;
+        short index = (short)Sector_FromPosition((FixVector *)g_stageObjects[i]);
+        g_stageObjects[i]->pNext = g_sectors[index]->pObjects;
+        g_sectors[index]->pObjects = g_stageObjects[i];
         g_sectors[index]->field_0x18++;
     }
     Sector_RebuildNodeLists();
-    if (g_finData != NULL && g_finCount != 0) {
+    if (g_finData != NULL) {
         for (i = 0; i < (unsigned int)g_finCount; i++) {
             Sector *pSector = g_sectors[*(int *)(g_finData + i * 0x30 + 0x28)];
             *(int *)(g_finData + i * 0x30 + 0x28) = (int)pSector->pFinRecords;

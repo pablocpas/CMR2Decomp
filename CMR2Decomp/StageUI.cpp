@@ -58,8 +58,9 @@ void FormatGapToLeader(int iLeaderGap, unsigned int fontIndex, unsigned char par
     }
     px = (int)g_pGraphics->resX * x >> 0x10;
     if (iLeaderGap != -1) {
-        sprintf(text, g_strGapTime, &pcNegPosSymbol, (iLeaderGap / 6000) % 100,
-                (iLeaderGap % 6000) / 100, (iLeaderGap % 6000) % 100);
+        int q = iLeaderGap / 6000;
+        int r = iLeaderGap - q * 6000;
+        sprintf(text, g_strGapTime, &pcNegPosSymbol, q % 100, r / 100, r - (r / 100) * 100);
     } else {
         sprintf(text, g_strGapUnknown, &pcNegPosSymbol);
     }
@@ -102,7 +103,11 @@ int FUN_00418fe0(void)
 }
 
 // Resets the eight stage sound records and registers their callback once.
-// match 56%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 60%: remaining diff is codegen-only. The original keeps the loop cursor
+// on the countOld field (edx = 0x53784c, `cmp edx,0x537dec; jl`); MSVC6 always
+// biases our IV (countOld with the struct pointer, count with an int cursor) and
+// pays an extra `lea ecx,[eax-0xa4]; cmp ecx,0x537d48; jl`, so the body matches
+// but the compare + register names differ.
 // FUNCTION: CMR2 0x00418f20
 void FUN_00418f20(void)
 {
@@ -113,7 +118,10 @@ void FUN_00418f20(void)
     memset(g_raceBlock + 0x94, 0, 0x20);       // 0x5375fc
     memset(g_raceBlock + 0x220, 0, 0x20);      // 0x537788
     memset(g_raceBlock + 0x0, 0, 0x20);        // 0x537568
-    for (RaceCarSoundState *pState = g_carSoundStates; pState < g_carSoundStates + 8; pState++) {
+    // The original walks the eight per-car sound states (0xb4 bytes each) with
+    // a cursor on the countOld field, keeping the loop cursor in a single
+    // register.
+    for (RaceCarSoundState *pState = g_carSoundStates; (int)pState < (int)(g_carSoundStates + 8); pState++) {
         for (i = 0; i < 10; i++) {
             pState->handle[i] = -1;
             pState->id[i] = -1;
@@ -169,26 +177,26 @@ StageSoundPattern g_stageSoundPatterns[31] = {
     {{0, 0, 0, 0}, 17, {0, 0, 0}, 1} // 30
 };
 
-void FUN_00418d30(int channel, int sound, int slot, int volume, int flags);
-void FUN_00418dd0(int channel, int slot, char clear);
-int FUN_00419b50(int exclude, int count);
+void CarSound_PlaySlot(int channel, int sound, int slot, int volume, int flags);
+void CarSound_StopSlot(int channel, int slot, char clear);
+int CarSound_PickDifferentSampleIndex(int exclude, int count);
 BYTE FUN_00427aa0(void);
 
 #define STAGE_PLAY_PRIMARY(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected] + \
-                 FUN_00419b50(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_SECONDARY(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected + 2] + \
-                 FUN_00419b50(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected + 2] + \
+                 CarSound_PickDifferentSampleIndex(-1, (int)pPattern->choices[selected + 2]), slot, 0, 0); \
 } while (0)
 #define STAGE_PLAY_DIRECT(slot) do { \
     unsigned int selected = (BYTE)g_unk0x005375f4[channel]; \
-    FUN_00418d30(channel, pPattern->base[selected], slot, 0, 0); \
+    CarSound_PlaySlot(channel, pPattern->base[selected], slot, 0, 0); \
 } while (0)
-#define STAGE_STOP(slot) FUN_00418dd0(channel, slot, 1)
+#define STAGE_STOP(slot) CarSound_StopSlot(channel, slot, 1)
 #define STAGE_PLAY_EXTRA() do { STAGE_PLAY_SECONDARY(1); STAGE_PLAY_SECONDARY(2); STAGE_PLAY_SECONDARY(3); } while (0)
 #define STAGE_STOP_EXTRA() do { STAGE_STOP(1); STAGE_STOP(2); STAGE_STOP(3); } while (0)
 
@@ -505,9 +513,12 @@ void FUN_0041b3a0(void)
         return;
     if (FUN_004a15a0() && FUN_0040aec0(0) != -1) {
         FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(0)->name, 1);
-        for (i = 1; i < FUN_0040ae90(); i++)
-            FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name,
-                         FUN_0040aec0(i) == FUN_0040aec0(0) ? 1 : 0);
+        for (i = 1; i < FUN_0040ae90(); i++) {
+            if (FUN_0040aec0(i) == FUN_0040aec0(0))
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 1);
+            else
+                FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);
+        }
     }
     for (i = 0; i < FUN_0040ae90(); i++)
         FUN_0040e660(CNetworkLeaderboards::GetLeaderboardId(), FUN_0040aea0(i)->name, 0);

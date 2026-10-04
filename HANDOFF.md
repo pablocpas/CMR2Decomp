@@ -25,7 +25,7 @@ Quedan **128** ganancias exactas para alcanzar las 700 pendientes.
 
 Los logs del cierre están en `/tmp/cmr2-goal700/handoff-build.log`,
 `handoff-measure.log`, `handoff-native.log` y `handoff-tests/`.
-El resumen versionado es `CMR2PROGRESS/validation.json`.
+Los metadatos de la compilación y del matching están en `CMR2PROGRESS/provenance.json`.
 
 ## Lote anterior: tres funciones de bajo porcentaje
 
@@ -49,7 +49,7 @@ mediante fuente, sin aplicar ese flag a la unidad.
 
 Los logs de ese lote están en `/tmp/cmr2-goal700/wave2-tests`,
 `wave2-build.log`, `wave2-measure.log`, `wave2-cpu.log` y `wave2-flags.log`.
-El resumen versionado es `CMR2PROGRESS/validation.json`.
+Los metadatos de la compilación y del matching están en `CMR2PROGRESS/provenance.json`.
 
 ## Lote del cierre anterior
 
@@ -117,7 +117,8 @@ compilación `--windowed` como si correspondiera al original.
 Los logs del cierre anterior están en `/tmp/cmr2-goal700/clean-final`; la
 compilación y la medición están en `/tmp/cmr2-goal700/*-final.log`. Los logs de
 la integración previa siguen en `/tmp/cmr2-main-integration/clean-final`. El resumen
-de pruebas se guarda en `CMR2PROGRESS/validation.json`. Se ha ejecutado MSVC6
+de compilación y matching está en `CMR2PROGRESS/provenance.json`; las pruebas
+ahora muestran sus resultados solo en consola. Se ha ejecutado MSVC6
 con Wine y los harnesses diferenciales; no una carrera interactiva completa ni
 el CI de Windows.
 

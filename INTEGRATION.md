@@ -40,8 +40,8 @@ collision/checkpoints under all four x87 rounding modes, session enumeration,
 camera replacements, shadows, rotations, rankings, queues, replay slots,
 registry failures, text coordinates, callbacks, network tables and knockout
 seeding/round selection and scene reparenting. The final logs are retained in
-`/tmp/cmr2-main-integration/clean-final`; the portable results and build hashes
-are saved in `CMR2PROGRESS/validation.json`.
+`/tmp/cmr2-main-integration/clean-final`; build hashes and matching metadata
+are saved in `CMR2PROGRESS/provenance.json`. Tests now print results only in the console.
 
 The final build unifies the loader/frontend scratch buffer and the shared
 1/65536 constant at their actual original addresses, and removes duplicate
@@ -102,7 +102,7 @@ source functions are byte-exact after relocation, 832 remain (including the
 gains over frozen `16527f6`, with no exact losses. The goal of 700 remaining
 functions is pending; 132 additional exact gains are required. All 33 native differential harnesses pass on the final build. Work stops here
 at the user's request for a clean handoff. See `HANDOFF.md` and
-`CMR2PROGRESS/validation.json` for the current verification and next steps.
+`CMR2PROGRESS/provenance.json` for the current verification and next steps.
 
 ## Resumed matching batch
 
@@ -133,5 +133,69 @@ this final executable. Source, EXE and PDB hashes agree with the build manifest.
 
 Work stops at the user's request for a clean handoff. The goal of 700 remaining
 is paused and needs 128 more exact gains. `HANDOFF.md` records the reproduction
-commands, remaining differences and discarded experiments; versioned reports
-and `CMR2PROGRESS/validation.json` identify the verified build.
+commands, remaining differences and discarded experiments;
+`CMR2PROGRESS/provenance.json` identifies the verified build.
+
+## Agent campaign integration (2026-10-03)
+
+Ten agents worked in isolated worktrees (`decomp/ag1`..`ag10`), each on one file slice,
+and their branches were merged through `decomp/integration-agents` (two conflicts
+resolved in `Race.cpp` and `GameMenus.cpp`: the agents' byte-exact bodies won, keeping
+main's renames). Main then rebuilds to **2632 byte-exact / 731 pending of 3363**,
+**0 exact losses** against the 2572-function baseline, `reccmp-datacmp` 0 issues, and
+all 71 native differential harnesses pass. Closures include one pending main-session
+edit committed as `b06c353` (0x4853c0). The search tooling gained
+`permute_batch --addresses` and `fastcmp` file-based compilation (`FASTCMP_TIMEOUT`),
+which removes the wineserver pipe deadlock. Per-function evidence, including the
+residual diffs of the functions left open, is in `CMR2PROGRESS/nonmatching.tsv` and the
+agents' reports.
+
+Pass 2 of the same campaign (agents 2nd/3rd waves) merges in `db4f77e`: Main rebuilds to
+**2651 byte-exact / 712 pending**, 0 exact losses versus the frozen baseline and versus
+pass 1, `reccmp-datacmp` 0 issues, and 71/71 differential harnesses pass. The session's
+own pending `StageTiming.cpp` edit (0x480cb0 `FIX_ABS` clamp) landed as its own commit and
+became the 79th closure.
+
+Pass 3 (recovery wave after the agent stop) merges in `5e602d6`: Main rebuilds to
+**2656 byte-exact / 707 pending**, 0 losses versus pass 2, 0 data issues and 71/71
+differential harnesses. A successor wave resumed the stopped worktrees, preserving or
+reverting their uncommitted pending edits.
+
+## Match3 integration and debris-frame fixes (2026-10-03)
+
+Integrated `decomp/match3` through `67f6cc7` (six new commits), keeping main's
+function names and split-HUD, preview-loading, exhaust and sector-visibility
+fixes. The final matching build has **2685/3363 byte-exact functions (+7),
+678 pending, zero exact losses and zero global-data issues** against `fe4bca3`.
+New exact entries: `0x4e48b0`, `0x5034f0`, `0x47fcb0`, `0x46e340`,
+`0x476e00`, `0x469e40` and `0x483100`.
+
+Checking the complete 36-byte frame passed to `Car_SpawnDebris` reproduced
+incorrect adjacent-stack reads in `0x46a500`, `0x48fb80`, `0x48ae90` and
+`0x483100`. Each now uses three contiguous vectors in the original order.
+The surface-contact regression now reads all three vectors, and the new debris
+regression checks the other three callers. The signed remainder expansion in
+`0x406580` keeps its increment inside the negative branch, preserving the
+agent's parity correction and main's exact language loader at `0x4f4b90`.
+
+The 74-harness suite passed on the initial integration before the debris-frame
+corrections. Targeted checks after those corrections passed 288 debris-call
+fixtures (176 spawns), 208 surface contacts and 512 unlock-flag/model fixtures;
+a separate audit compared 256 complete oriented-box constructions. The final
+build, symbols, matching reports and source hashes agree. **The expanded full
+76-harness suite remains pending**: work was stopped at the user's request
+before running it. `build/windowed/CMR2.exe` still contains the previous
+validated gameplay fixes, without this match3/debris integration; rebuild it
+before testing the new changes interactively.
+
+Pass 7 (agent wave 3) merges in the commit above: integration measures **2689 byte-exact /
+674 pending**, 0 exact losses vs pass 6, 0 data issues (differential suite running at the
+time of the merge; previous pass was 76/0). Main's own reports stay at the last successful
+measurement until the session's in-progress `Car.h` refactor compiles again.
+
+Pass 8 (wave-3 preservation) merges above: the stopped agents' verified pending states are
+committed and integrated, bringing integration to **2704 byte-exact / 659 pending**, 0 exact
+losses vs pass 7, 0 data issues, and **76/76 differential harnesses**. One behaviour
+regression found by `differential_stage_sound_reset.py` (a cursor rewrite of `FUN_00418f20`
+writing `pattern` into `time`) was reverted before this merge. Main's own reports remain at
+the last successful measurement until the session's in-progress `Car.h` refactor compiles.

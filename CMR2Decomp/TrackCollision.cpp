@@ -57,8 +57,10 @@ int Track_GetTriangle(FixVector *pOut, short tri)
 }
 
 #define TRACK_EDGE_TEST(a, b)                                                                  \
-    g_trackEdgeNX = pTri[b].z - pTri[a].z;                                                     \
-    g_trackEdgeNZ = -(pTri[b].x - pTri[a].x);                                                  \
+    g_trackEdgeDX = pTri[b].x - pTri[a].x;                                                     \
+    g_trackEdgeDZ = pTri[b].z - pTri[a].z;                                                     \
+    g_trackEdgeNX = g_trackEdgeDZ;                                                             \
+    g_trackEdgeNZ = -g_trackEdgeDX;                                                            \
     g_trackEdgeDX = pPoint->x - pTri[a].x;                                                     \
     g_trackEdgeDZ = pPoint->z - pTri[a].z;                                                     \
     g_trackEdgeSide = FixMul(g_trackEdgeDX, g_trackEdgeNX) + FixMul(g_trackEdgeDZ, g_trackEdgeNZ)
@@ -141,15 +143,21 @@ int Track_GetHeight(FixVector *pPoint, short tri, int defaultY, FixVector *pNorm
 
 // Of the listed triangles under the point, the one whose centre height is
 // closest to y.
-// match 51%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
+// match 89%: remaining diff is codegen-only. The original's 4th parameter is a
+// short (guard does `movsx eax, word ptr [esp+0x3c]; test eax,eax; jle` and the
+// loop end rematerialises `movsx eax, word ptr [esp+0x4c]`); declaring it `int`
+// reproduces the whole structure but loads 32-bit, while declaring it `short`
+// makes MSVC6 hoist/spill the sign extension and wreck the frame layout. The
+// t-sum and the p++/i++ order below are already tuned to the original.
 // FUNCTION: CMR2 0x004916a0
-int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count, short *pList)
+int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, int count, short *pList)
 {
     FixVector t[3];
     BOOL first;
     int best;
-    int bestIndex;
     int i;
+    int bestIndex;
+    short *p;
     int h;
     int d;
 
@@ -157,22 +165,24 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     bestIndex = 0;
     i = 0;
     first = TRUE;
-    if (count > 0) {
+    if (count >= 1) {
+        p = pList;
         do {
-            if (Track_GetTriangle(t, pList[i]) && Track_PointInTriangle(pPoint, pList[i], t)) {
-                h = (t[1].y + t[2].y + t[0].y) / 3;
+            if (Track_GetTriangle(t, *p) && Track_PointInTriangle(pPoint, *p, t)) {
+                h = (t[0].y + t[1].y + t[2].y) / 3;
                 d = y - h;
                 if (d < 0)
                     d = h - y;
                 if (first) {
+                    best = d;
+                    bestIndex = i;
                     first = FALSE;
-                    best = d;
-                    bestIndex = i;
                 } else if (d < best) {
-                    bestIndex = i;
                     best = d;
+                    bestIndex = i;
                 }
             }
+            p++;
             i++;
         } while (i < count);
         if (!first) {
@@ -182,6 +192,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     }
     return 0;
 }
+
 
 // Finds the triangle under the point by walking down the quadtree from the
 // top-level grid cell.
@@ -297,8 +308,6 @@ void FUN_00493890(void)
         gear = g_pAutoGearCar->gear;
         if (gear < 6) {
             int amount;
-            int x;
-            int z;
             int difference;
 
             g_pAutoGearCar->field_0xb20 = gear + 1;
@@ -312,12 +321,10 @@ void FUN_00493890(void)
                     amount = 0;
 
                 threshold = FixMul(amount, 0x4ccc);
-                x = g_pAutoGearCar->corners[0].x;
-                z = g_pAutoGearCar->corners[0].z;
-                if (FIX_ABS(x) - FIX_ABS(z) < 0)
-                    difference = FIX_ABS(z) - FIX_ABS(x);
+                if (FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z) < 0)
+                    difference = -(FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z));
                 else
-                    difference = FIX_ABS(x) - FIX_ABS(z);
+                    difference = FIX_ABS(g_pAutoGearCar->corners[0].x) - FIX_ABS(g_pAutoGearCar->corners[0].z);
                 if ((difference % 0x401) * 0x40 < threshold) {
                     if (g_pAutoGearCar->field_0xb20 < 6) {
                         g_pAutoGearCar->field_0xb20++;
@@ -782,13 +789,12 @@ void FUN_00492e60(int *pRGB)
     else if (g < 0)
         g = 0;
     b = FixMul(pRGB[2], 0x106);
-    if (b > 0x10000) {
-        Scene_SetLightColour(g_stageAmbientNode, r, g, 0x10000);
-        return;
-    }
-    if (b < 0)
+    if (b > 0x10000)
+        b = 0x10000;
+    else if (b < 0)
         b = 0;
     Scene_SetLightColour(g_stageAmbientNode, r, g, b);
+    return;
 }
 
 // Pushes the vertex colours of every recoloured stage mesh.
@@ -1048,9 +1054,9 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     for (i = g_stageMesh0Count - 1; i >= 0; i--) {
         if (g_stageHeightSamples[i] < height) {
             float *vertex = (float *)((BYTE *)g_stageMesh0Copy->pVertexData + i * 0x30);
-            if ((int)(__int64)((double)vertex[0] * CGraphics::m_65536) != g_unk0x00592114.x ||
-                (int)(__int64)((double)vertex[1] * CGraphics::m_65536) != g_unk0x00592114.y ||
-                (int)(__int64)((double)vertex[2] * CGraphics::m_65536) != g_unk0x00592114.z)
+            if (g_unk0x00592114.x != (int)(__int64)((double)vertex[0] * CGraphics::m_65536) ||
+                g_unk0x00592114.y != (int)(__int64)((double)vertex[1] * CGraphics::m_65536) ||
+                g_unk0x00592114.z != (int)(__int64)((double)vertex[2] * CGraphics::m_65536))
                 vertex[1] = (float)((double)height * CGraphics::m_oneOver65536);
         }
     }
@@ -1064,7 +1070,7 @@ void FUN_004925c0(int oldHeight, int newHeight, int mode)
     Scene_SetLightPosition(g_stageAmbientNode, position.x, position.y, position.z);
 }
 
-int FUN_00407270(void);
+int RallyData_IsChampionshipFinalStage(void);
 unsigned char RallyDataState(void);
 unsigned char RallyData_GetFlag24(void);
 unsigned int RallyData_FUN_00407e90(void);
@@ -1115,7 +1121,7 @@ void FUN_004932f0(void)
         }
     } else {
         if (CGameInfo::FUN_004063f0(0) != 0) {
-            if (((char)FUN_00407270() != 0 || (char)RallyData_GetFlag24() != 0 ||
+            if (((char)RallyData_IsChampionshipFinalStage() != 0 || (char)RallyData_GetFlag24() != 0 ||
                  (char)RallyData_FUN_00407e90() != 0) &&
                 (g_pAutoGearCar->field_0xb9c != 0 && g_pAutoGearCar->handbrake != 0))
                 FUN_0047d5a0(g_pAutoGearCar->index);
@@ -1296,72 +1302,77 @@ void FUN_00493520(Car *pCar)
     g_pAutoGearCar = pCar;
     g_pAutoGearSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)pCar + 0xb1a));
     FUN_004932f0();
-    if (*(int *)(PC + 0xb8c) == 0) {
-        FUN_004946c0();
-    } else if (*(BYTE *)(PC + 0x1d2) == 0) {
-        *(int *)(PC + 0x79c) = 0;
+    if (*(int *)(PC + 0xb8c) != 0) {
+        if (*(BYTE *)(PC + 0x1d2) != 0) {
+            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d2) << 16), 0x410);
+            if (t > 0x10000)
+                t = 0x10000;
+            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+        } else {
+            *(int *)(PC + 0x79c) = 0;
+        }
     } else {
-        t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d2) << 16), 0x410);
-        if (t > 0x10000)
-            t = 0x10000;
-        *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+        FUN_004946c0();
     }
     if (*(int *)(PC + 0x7bc + *(char *)(PC + 0xb1e) * 4) < 0)
         *(int *)(PC + 0xb5c) = 1;
     else
         *(int *)(PC + 0xb5c) = 0;
     *(int *)(PC + 0xb54) = 0;
-    if (*(int *)(PC + 0xb94) == 0)
-        cVar1 = *(char *)(PC + 0x1d3);
-    else
-        cVar1 = *(char *)(PC + 0x1d2);
-    if (cVar1 != 0)
-        *(int *)(PC + 0xb54) = 1;
+    if (*(int *)(PC + 0xb94) != 0) {
+        if (*(char *)(PC + 0x1d2) != 0)
+            *(int *)(PC + 0xb54) = 1;
+    } else {
+        if (*(char *)(PC + 0x1d3) != 0)
+            *(int *)(PC + 0xb54) = 1;
+    }
     if (*(char *)(PC + 0xb1f) == 0) {
-        if (*(int *)(PC + 0xb84) == 0) {
+        if (*(int *)(PC + 0xb84) != 0) {
+            if (*(char *)(PC + 0xb24) > 0) {
+                *(char *)(PC + 0xb24) = *(char *)(PC + 0xb24) - 1;
+                *(BYTE *)(PC + 0xb1e) = 0;
+            } else {
+                *(int *)(PC + 0xb84) = 0;
+                *(BYTE *)(PC + 0xb1e) = *(BYTE *)(PC + 0xb20);
+            }
+        } else {
             if ((*(int *)(PC + 0xb48) == 1) && (*(char *)(PC + 0x1d4) != 0))
                 FUN_00493890();
             else if (*(int *)(PC + 0xb48) == 2)
                 Car_UpdateAutomaticGear();
-        } else if (*(char *)(PC + 0xb24) < 1) {
-            *(int *)(PC + 0xb84) = 0;
-            *(BYTE *)(PC + 0xb1e) = *(BYTE *)(PC + 0xb20);
-        } else {
-            *(char *)(PC + 0xb24) = *(char *)(PC + 0xb24) - 1;
-            *(BYTE *)(PC + 0xb1e) = 0;
         }
     }
     if (*(int *)(PC + 0xb88) != 0)
         FUN_00493ed0();
     else
         FUN_00494110();
-    if (*(int *)(PC + 0xb90) == 0) {
+    if (*(int *)(PC + 0xb90) != 0) {
+        if (*(BYTE *)(PC + 0x1d3) != 0) {
+            t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
+            if (t > 0x10000)
+                t = 0x10000;
+            if (*(int *)(PC + 0xb94) != 0) {
+                *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
+                *(int *)(PC + 0x838) = 0;
+            } else {
+                int target = FixMul(*(int *)(PC + 0x82c), t);
+                int diff = target - *(int *)(PC + 0x838);
+                int adiff = (diff < 0) ? -diff : diff;
+                if (adiff < FixMul(*(int *)(PC + 0x82c), 0xccc))
+                    *(int *)(PC + 0x838) = target;
+                else
+                    *(int *)(PC + 0x838) = *(int *)(PC + 0x838) + FixMul(diff, 0x23d7);
+            }
+        } else {
+            *(int *)(PC + 0x838) = 0;
+        }
+    } else {
         FUN_00494880();
         if ((*(int *)(PC + 0xb8c) != 0) && (*(int *)(PC + 0xb94) != 0)) {
             t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
             if (t > 0x10000)
                 t = 0x10000;
             *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
-        }
-    } else if (*(BYTE *)(PC + 0x1d3) == 0) {
-        *(int *)(PC + 0x838) = 0;
-    } else {
-        t = FixMul((int)((unsigned int)*(BYTE *)(PC + 0x1d3) << 16), 0x410);
-        if (t > 0x10000)
-            t = 0x10000;
-        if (*(int *)(PC + 0xb94) != 0) {
-            *(int *)(PC + 0x79c) = FixMul(*(int *)(PC + 0x788), t);
-            *(int *)(PC + 0x838) = 0;
-        } else {
-            int target = FixMul(*(int *)(PC + 0x82c), t);
-            int diff = target - *(int *)(PC + 0x838);
-            int adiff = diff;
-            if (diff < 0)
-                adiff = -diff;
-            if (adiff < FixMul(*(int *)(PC + 0x82c), 0xccc))
-                *(int *)(PC + 0x838) = target;
-            else
-                *(int *)(PC + 0x838) = *(int *)(PC + 0x838) + FixMul(diff, 0x23d7);
         }
     }
     FUN_00494960();
@@ -1372,10 +1383,10 @@ void FUN_00493520(Car *pCar)
     u = t;
     if (u < 0)
         u = -u;
-    if (g_unk0x00592160 < u) {
-        v = (t < 1);
-        t = g_unk0x00592160;
-        if (v)
+    if (u > g_unk0x00592160) {
+        if (t > 0)
+            t = g_unk0x00592160;
+        else
             t = -g_unk0x00592160;
     }
     *(short *)(PC + 0xb14) = (short)(__int64)((double)t * g_unk0x00511300);

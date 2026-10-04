@@ -46,9 +46,9 @@ struct Particle {
     ParticleType *pType;
     FixVector position;
     FixVector vector0x10;
-    FixVector vector0x1c;
-    FixVector vector0x28;
-    FixVector sourceVector;
+    FixVector vector0x1c;   // interpolated position used only for drawing
+    FixVector vector0x28;   // current position after the attachment callback
+    FixVector sourceVector; // simulation position before attachment/interpolation
     int field0x40;
     int age;
     int field0x48;
