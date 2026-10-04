@@ -856,6 +856,9 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
     } else if (!strcmp(lpDeviceName, m_direct3DTLHAL)) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 2;
+    } else {
+        // neither HAL device: keep the description of the one already chosen
+        return TRUE;
     }
 
     ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);

@@ -432,6 +432,7 @@ void FUN_004d9450(Menu *pMenu)
     int y;
     int i;
     int x;
+    int w;
     BYTE *pColour;
 
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
@@ -453,15 +454,16 @@ void FUN_004d9450(Menu *pMenu)
     Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)rect,
                  CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[0].id));
-    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 122) / 640,
+    x = (int)(g_pGraphics->resX * 122) / 640;
+    Font_DrawText(1, CFrontend::m_stringDest, x,
                   (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1],
                   (int *)g_colourWhite0x00524968, 0x11);
     for (i = 0; i < pMenu->items[0].min; i++) {
         pColour = g_colourWhite0x00524968;
         if (i != pMenu->items[0].max)
             pColour = g_colourText0x0052496c;
-        x = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        x = (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 122) / 640 + x;
+        w = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+        x = (int)(g_pGraphics->resX * 10) / 640 + x + w;
         Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
                       (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1],
                       (int *)pColour, 0x11);
@@ -8400,7 +8402,7 @@ void FUN_004ee170(Menu *pMenu)
             count = 4;
         if (level <= (*pFlags >> 0xc & 0xf))
             count = 8;
-        if ((*pFlags & 1) == 0 || (*pFlags >> 0x10 & 0xf) < level)
+        if ((*pFlags & 1) != 0 && (*pFlags >> 0x10 & 0xf) >= level)
             count = 10;
     } else {
         count = 10;
@@ -8691,7 +8693,7 @@ void FUN_004ed840(Menu *pMenu)
         }
     }
 LAB_004edb02:
-    Menu_GetItem(pMenu, 3)->enabled ^= b;
+    Menu_GetItem(pMenu, 3)->enabled = b;
     FUN_004ec8d0();
 }
 
