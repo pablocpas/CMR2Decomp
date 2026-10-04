@@ -3595,7 +3595,7 @@ void FUN_004f19d0(Menu *pMenu, int param)
     else
         pMenu->items[0].max = 0;
 }
-void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pValue, unsigned int *pShade);
+void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
@@ -3609,7 +3609,7 @@ void FUN_004f16f0(Menu *pMenu, int param)
     BYTE idx;
 
     FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
-    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&value, (unsigned int *)&shade);
+    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
     pMenu->items[0].max = value;
