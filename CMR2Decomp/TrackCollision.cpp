@@ -642,7 +642,7 @@ void Stage_InitLightMeshes(void)
         maximum = minimum;
         for (i = g_stageMesh1Count - 1; i >= 0; i--) {
             value = (int)(__int64)((double)*(float *)((BYTE *)vertices + i * 0x30 + 4) * CGraphics::m_65536);
-            if (maximum < value)
+            if (value > maximum)
                 maximum = value;
             if (value < minimum)
                 minimum = value;
@@ -1181,7 +1181,7 @@ void FUN_00493ed0(void)
         if (current == 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
         else if (current <= 0) {
-            if (delta < 1)
+            if (delta <= 0)
                 delta = (short)(__int64)((double)FixMul(scaleLeft, delta * 0x1680) * g_unk0x00511300);
             else
                 delta = (short)(__int64)((double)FixMul(scaleRight, delta * 0x1680) * g_unk0x00511300);

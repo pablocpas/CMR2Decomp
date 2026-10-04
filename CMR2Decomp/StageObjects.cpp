@@ -10957,7 +10957,7 @@ unsigned int FUN_0047c5e0(int param_1)
             if (iVar7 < 1) {
                 if (iVar7 < -0x6e0000)
                     return 3;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffc) + 5;
+                return ((iVar7 <= -0x460000) - 1 & 0xfffffffc) + 5;
             }
             if (0x6e0000 < iVar7)
                 return 4;
@@ -11042,7 +11042,7 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
                 iVar8 = iVar8 - param_3;
                 if (iVar8 < -100)
                     iVar8 = iVar8 + wrap;
-                if ((iVar8 < 0) || (maxAng[i] < iVar8))
+                if ((iVar8 < 0) || (iVar8 > maxAng[i]))
                     flags[i] = 0;
             }
         }
@@ -14046,7 +14046,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     pCar->handbrake = 0;
     if (controls[0] >= 1)
         pCar->flag0x1d0[0] = 0x3f;
-    if (controls[1] > 0)
+    if (controls[1] >= 1)
         pCar->flag0x1d0[1] = 0x3f;
     if (controls[2] > 0)
         pCar->flag0x1d0[2] = 0x3f;

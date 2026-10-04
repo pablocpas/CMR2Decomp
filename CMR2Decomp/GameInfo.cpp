@@ -9093,7 +9093,7 @@ void FUN_00403890(Menu *pMenu)
                     + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;
                 Font_DrawText(1, CFrontend::GetTextString(pItem->id),
                               (int)(g_pGraphics->resX * 0x86) / 0x280, y, pColour, 0x11);
-            } else if (pItem->value > 3) {
+            } else if (pItem->value >= 4) {
                 if (pItem->value != 4) {
                     y = (int)(g_pGraphics->resY * 0xaa) / 0x1e0
                         + ((int)(g_pGraphics->resY * 0x2a) / 0x1e0) * i;

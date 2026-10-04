@@ -2501,7 +2501,7 @@ void Car_UpdateTyreForces(void)
                         longAssist = 0;
                 }
                 gear = g_pCurrentCar->field_0x7bc[g_pCurrentCar->gear];
-                if (((gear > 0 && longAssist < 0) || (gear < 0 && longAssist > 0) || gear == 0) &&
+                if (((gear > 0 && longAssist < 0) || (gear < 0 && longAssist >= 1) || gear == 0) &&
                     g_pCurrentCar->brakeInput == 0)
                     longAssist = 0;
             }
@@ -3162,7 +3162,7 @@ void Car_UpdateWheelForces(void)
         torqueLimit = FIX_ABS(torqueLimit);
         if (g_pCurrentCar->gear == 0 || g_pCurrentCar->field_0xb84 != 0 ||
             g_pCurrentCar->driveSplit == (i < 2 ? 0 : 0x10000)) {
-            if ((load >= 1 && g_pCurrentCar->wheelLoad[i] < 0) ||
+            if ((load > 0 && g_pCurrentCar->wheelLoad[i] < 0) ||
                 (load < 0 && g_pCurrentCar->wheelLoad[i] > 0)) {
                 g_pCurrentCar->wheelLoad[i] = 0;
             }
@@ -5082,7 +5082,7 @@ void Car_UpdateEngineSpeed(void)
         g_pCurrentCar->field_0x7a4 = 0;
     } else if (g_pCurrentCar->field_0x794 < excess) {
         excess = excess - g_pCurrentCar->field_0x794;
-        if (excess >= 0xcccd) {
+        if (excess > 0xcccc) {
             excess = FixMul(excess - 0xcccc, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;

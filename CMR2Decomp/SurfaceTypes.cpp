@@ -311,7 +311,7 @@ store_grip2B:
             previous = pCar->field_0xa74;
             diff = level - previous;
             *(int *)((BYTE *)pCar + 0xa78) = level;
-            if (FIX_ABS(diff) < 0x3334) {
+            if (FIX_ABS(diff) <= 0x3333) {
                 pCar->field_0xa74 = level;
                 return;
             }

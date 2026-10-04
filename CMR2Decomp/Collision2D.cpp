@@ -61,7 +61,7 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
                         result = 0x7d000000;
                     } else {
                         t = -FixMul(recip, FixMul(ax, d3.z) + FixMul(az, d3.x));
-                        if (t < 0 || t > 0x7cffffff) {
+                        if (t < 0 || t >= 0x7d000000) {
                             result = 0x7d000000;
                         } else {
                             *pEdge = 0;
