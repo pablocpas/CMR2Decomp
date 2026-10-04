@@ -950,7 +950,7 @@ void FUN_00479360(int *pState, int player, int listener)
             }
         }
         backfire = 0;
-        if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) != NULL &&
+        if (CFrontend::FUN_0040ee80(pCar->type) != NULL &&
             g_unk0x0058df88[player] >= 2 && g_unk0x0058df88[player] <= 6 &&
             g_unk0x0058dd68[player] != g_unk0x0058df88[player] &&
             g_unk0x0058dd68[player] < g_unk0x0058df88[player]) {
@@ -988,7 +988,7 @@ void FUN_00479360(int *pState, int player, int listener)
         if (g_unk0x0058df78[player] != 0) {
             if (pState[1] < lo || pState[4] != 0)
                 g_unk0x0058df78[player] = 0;
-        } else if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) == NULL) {
+        } else if (CFrontend::FUN_0040ee80(pCar->type) == NULL) {
             g_unk0x0058df78[player] = 0;
         } else if (pState[4] == 0 && pState[1] > hi) {
             g_unk0x0058df78[player] = 1;

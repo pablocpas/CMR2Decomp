@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "Car.h"
+#include "CarParts.h"
 #include "FixedPoint.h"
 #include "GameInfo.h"
 #include <string.h>
@@ -20,23 +21,7 @@ struct CollisionFaceVertices {
     FixVector secondaryVertices[4];
 };
 
-struct VehicleMotionState {
-    BYTE pad0x000[4];
-    FixMatrix *pMatrix;
-    BYTE pad0x008[0x118];
-    FixVector position;
-    FixVector previousPosition;
-    FixVector velocity;
-    FixVector correction;
-    BYTE flags;
-    BYTE pad0x151[7];
-    unsigned short directionAngle;
-};
 
-struct VehicleMotionContext {
-    BYTE pad0x000[0x750];
-    FixMatrix *pMatrix;
-};
 
 // GLOBAL: CMR2 0x0059192c
 int g_collisionSelectBackSide;
@@ -66,12 +51,6 @@ int g_collisionDirectionDirty;
 // The tracked object is the one defined (and annotated) in StageTiming.cpp:
 // both struct views are the same memory, so reference that symbol instead of
 // keeping a second definition. The casts preserve this file's field layout.
-struct Unk0x00590c20;
-struct Unk0x00590d74;
-extern Unk0x00590c20 *g_unk0x00590c20;
-extern Unk0x00590d74 *g_unk0x00590d74;
-#define g_vehicleMotionState (((VehicleMotionState *)g_unk0x00590c20))
-#define g_vehicleMotionContext (((VehicleMotionContext *)g_unk0x00590d74))
 
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
 #define COLLISION_INT(offset) (*(int *)((BYTE *)g_collisionCar + (offset)))
@@ -448,25 +427,25 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     int projection;
     int length;
 
-    FixMatrix_InverseRotateVector(&localInput, pInput, g_vehicleMotionContext->pMatrix);
-    FixVecScale(&g_vehicleMotionState->velocity, &localInput, 0x1999);
+    FixMatrix_InverseRotateVector(&localInput, pInput, g_partCar->pWorld);
+    FixVecScale(&g_partState->velocity, &localInput, 0x1999);
 
-    if ((g_vehicleMotionState->flags & 0xf0) == 0) {
-        if (g_vehicleMotionState->velocity.y < 0)
-            g_vehicleMotionState->velocity.y = 0;
+    if ((g_partState->flags & 0xf0) == 0) {
+        if (g_partState->velocity.y < 0)
+            g_partState->velocity.y = 0;
 
-        direction.x = FixSin(g_vehicleMotionState->directionAngle);
-        direction.y = FixSin(g_vehicleMotionState->directionAngle + 0x400);
+        direction.x = FixSin((unsigned short)g_partState->angle);
+        direction.y = FixSin((unsigned short)g_partState->angle + 0x400);
         direction.z = 0;
-        projection = FixVecDot(&g_vehicleMotionState->velocity, &direction);
+        projection = FixVecDot(&g_partState->velocity, &direction);
         if (projection < 0) {
-            length = FixVecLength(&g_vehicleMotionState->velocity);
+            length = FixVecLength(&g_partState->velocity);
             FixVecScale(&direction, &direction, projection);
-            g_vehicleMotionState->velocity.x -= direction.x;
-            g_vehicleMotionState->velocity.y -= direction.y;
-            g_vehicleMotionState->velocity.z -= direction.z;
+            g_partState->velocity.x -= direction.x;
+            g_partState->velocity.y -= direction.y;
+            g_partState->velocity.z -= direction.z;
 
-            FixVector *pVelocity = &g_vehicleMotionState->velocity;
+            FixVector *pVelocity = &g_partState->velocity;
             int normalizedLength = FixVecLength(pVelocity);
             if (normalizedLength == 0) {
                 pVelocity->x = 0;
@@ -477,24 +456,24 @@ void Vehicle_UpdateMotion(FixVector *pInput)
             }
 
             length = FixMul(length, 0x50000);
-            FixVecScale(&g_vehicleMotionState->velocity,
-                        &g_vehicleMotionState->velocity, length);
+            FixVecScale(&g_partState->velocity,
+                        &g_partState->velocity, length);
         }
     }
 
-    delta.x = g_vehicleMotionState->position.x - g_vehicleMotionState->previousPosition.x;
-    delta.y = g_vehicleMotionState->position.y - g_vehicleMotionState->previousPosition.y;
-    delta.z = g_vehicleMotionState->position.z - g_vehicleMotionState->previousPosition.z;
-    FixMatrix_RotateVector(&rotatedDelta, &delta, g_vehicleMotionState->pMatrix);
-    rotatedDelta.x += g_vehicleMotionState->previousPosition.x;
-    rotatedDelta.y += g_vehicleMotionState->previousPosition.y;
-    rotatedDelta.z += g_vehicleMotionState->previousPosition.z;
-    g_vehicleMotionState->correction.x = g_vehicleMotionState->position.x - rotatedDelta.x;
-    g_vehicleMotionState->correction.y = g_vehicleMotionState->position.y - rotatedDelta.y;
-    g_vehicleMotionState->correction.z = g_vehicleMotionState->position.z - rotatedDelta.z;
-    g_vehicleMotionState->position = g_vehicleMotionState->previousPosition;
-    g_vehicleMotionState->flags |= 4;
-    g_vehicleMotionState->flags &= (BYTE)~2;
+    delta.x = g_partState->position.x - g_partState->previousPosition.x;
+    delta.y = g_partState->position.y - g_partState->previousPosition.y;
+    delta.z = g_partState->position.z - g_partState->previousPosition.z;
+    FixMatrix_RotateVector(&rotatedDelta, &delta, g_partState->pWorld);
+    rotatedDelta.x += g_partState->previousPosition.x;
+    rotatedDelta.y += g_partState->previousPosition.y;
+    rotatedDelta.z += g_partState->previousPosition.z;
+    g_partState->correction.x = g_partState->position.x - rotatedDelta.x;
+    g_partState->correction.y = g_partState->position.y - rotatedDelta.y;
+    g_partState->correction.z = g_partState->position.z - rotatedDelta.z;
+    g_partState->position = g_partState->previousPosition;
+    g_partState->flags |= 4;
+    g_partState->flags &= (BYTE)~2;
 }
 
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
@@ -535,10 +514,10 @@ void FUN_00483010(void);
 // FUNCTION: CMR2 0x00482f30
 int FUN_00482f30(void)
 {
-    FixVector *pV = (FixVector *)((BYTE *)g_unk0x00590c20 + 0x144);
+    FixVector *pV = &g_partState->correction;
 
     if (FixVecLength(pV) >
-        *(int *)((BYTE *)g_unk0x00590d74 + 0x758) + *(int *)((BYTE *)g_unk0x00590c20 + 0x15c)) {
+        g_partCar->field_0x758 + g_partState->field_0x15c) {
         FUN_00483010();
         return 1;
     }

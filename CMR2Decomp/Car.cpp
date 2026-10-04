@@ -3380,10 +3380,10 @@ void Car_StoreRenderTransforms(short *pList, short count)
             pCar->field_0x40.position.y += pCar->field_0x958;
         }
         FixMatrix_GetUp(&up, (FixMatrix *)pCar);
-        if (type != (char)pCar->field_0xb1b[0]) {
-            FixVecScale(&up, &up, g_unk0x00519a00[type] + g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
+        if (type != pCar->type) {
+            FixVecScale(&up, &up, g_unk0x00519a00[type] + g_unk0x005199c8[pCar->type]);
         } else {
-            FixVecScale(&up, &up, g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
+            FixVecScale(&up, &up, g_unk0x005199c8[pCar->type]);
         }
         if (CGameInfo::FUN_004063f0(6) != 0) {
             FixMatrix_GetUp(&ride, &pCar->pNode0x71c->current);
@@ -3620,7 +3620,7 @@ void Car_ReloadModels(int first, int count, int param_3)
     for (i = first; i < end; i++) {
         g_unk0x0053a378[i] = (int)g_carBuffer[i].pNode0x71c;
         g_unk0x0053b510[i] = (int)g_carBuffer[i].pNode0x720;
-        g_unk0x0053a398[i] = g_carBuffer[i].field_0xb1b[0];
+        g_unk0x0053a398[i] = (BYTE)g_carBuffer[i].type;
         g_unk0x0053bd7c[i] = (int)g_carBuffer[i].pNode0x724;
         g_unk0x0053b538[i] = (int)g_carBuffer[i].pViewNodeNear;
         g_unk0x0053acd0[i] = (int)g_carBuffer[i].pViewNodeFar;
@@ -7875,7 +7875,7 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
         FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 4);
         return;
     case 3:
-        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), pCar->field_0xb1b[0]);
+        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), (BYTE)pCar->type);
         return;
     case 2:
         FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);
