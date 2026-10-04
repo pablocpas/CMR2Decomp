@@ -341,6 +341,24 @@ struct CarNetRecord {
     int resync;                 // 0xe8 drop the tick delta once
 };
 
+// Camera record of a view (100 bytes): two per player in g_viewRecords, and
+// the same layout for each view's blended and previous state.
+struct CameraRecord {
+    BYTE index;             // 0x00 record index
+    BYTE view;              // 0x01
+    BYTE car;               // 0x02 car followed
+    BYTE pad_0x3;
+    int type;               // 0x04 camera type
+    FixMatrix matrix;       // 0x08
+    int field_0x48;
+    int field_0x4c;
+    int field_0x50;
+    int field_0x54;
+    int field_0x58;
+    int field_0x5c;
+    int clearance;          // 0x60 height above the stage, eased
+};
+
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
 void FixBasis_Integrate(FixVector *pRows, FixVector *pW);

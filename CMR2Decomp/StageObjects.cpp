@@ -2819,7 +2819,29 @@ FixVector g_unk0x00591898[4];
 // GLOBAL: CMR2 0x00591740
 int g_unk0x00591740[4];
 // GLOBAL: CMR2 0x00591750
-BYTE *g_unk0x00591750;
+// Trackside camera spot of the stage (0x6c bytes); the stage file lists them
+// after a count (FUN_0048caa0).
+struct CameraSpot {
+    short field_0x0;
+    short heading;          // 0x02 near +/-0x400: the spot behaves as a chase camera
+    FixVector right;        // 0x04 basis of the spot
+    FixVector up;           // 0x10
+    FixVector forward;      // 0x1c direction of its dolly track
+    FixVector position;     // 0x28
+    FixVector trackEnd;     // 0x34 end of the dolly track
+    int range;              // 0x40 trigger range
+    int field_0x44;
+    int speedScale;         // 0x48
+    int field_0x4c;         // 0x4c.. zoom and shake settings
+    int field_0x50;
+    int field_0x54;
+    int field_0x58;
+    int field_0x5c;
+    int field_0x60;
+    int field_0x64;
+    int field_0x68;
+};
+CameraSpot *g_unk0x00591750;
 // GLOBAL: CMR2 0x005918c8
 int g_unk0x005918c8;
 // GLOBAL: CMR2 0x005920f0
@@ -3375,9 +3397,9 @@ unsigned int FUN_0048d8b0(FixVector *pPos)
     FixVector d;
 
     for (i = 0; i < (unsigned int)g_unk0x005918c8; i++) {
-        d.x = *(int *)(g_unk0x00591750 + i * 0x6c + 0x34) - pPos->x;
-        d.y = *(int *)(g_unk0x00591750 + i * 0x6c + 0x38) - pPos->y;
-        d.z = *(int *)(g_unk0x00591750 + i * 0x6c + 0x3c) - pPos->z;
+        d.x = g_unk0x00591750[i].trackEnd.x - pPos->x;
+        d.y = g_unk0x00591750[i].trackEnd.y - pPos->y;
+        d.z = g_unk0x00591750[i].trackEnd.z - pPos->z;
         distance = FixVec_Length(&d);
         if (distance < bestDistance) {
             best = i;
@@ -3403,7 +3425,7 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 void FUN_0048d950(BYTE *pSurface, FixMatrix *pMatrix)
 {
     BYTE index = *pSurface;
-    BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[index] * 0x6c;
+    CameraSpot *pRecord = &g_unk0x00591750[g_unk0x00591740[index]];
     FixVector *pPos = &g_unk0x005916a0[index];
     FixVector *pImpact = &g_unk0x00591868[index];
     FixVector impact;
@@ -3422,12 +3444,12 @@ void FUN_0048d950(BYTE *pSurface, FixMatrix *pMatrix)
     pPos->x += pImpact->x;
     pPos->y += pImpact->y;
     pPos->z += pImpact->z;
-    delta.x = pPos->x - *(int *)(pRecord + 0x28);
-    delta.y = pPos->y - *(int *)(pRecord + 0x2c);
-    delta.z = pPos->z - *(int *)(pRecord + 0x30);
-    t = FixDiv(FixVec_Length(&delta), *(int *)(pRecord + 0x40));
-    g_unk0x00591710[index] = FixMul(t, *(int *)(pRecord + 0x44)) +
-                             FixMul(0x10000 - t, *(int *)(pRecord + 0x54));
+    delta.x = pPos->x - pRecord->position.x;
+    delta.y = pPos->y - pRecord->position.y;
+    delta.z = pPos->z - pRecord->position.z;
+    t = FixDiv(FixVec_Length(&delta), pRecord->range);
+    g_unk0x00591710[index] = FixMul(t, pRecord->field_0x44) +
+                             FixMul(0x10000 - t, pRecord->field_0x54);
 }
 
 // FUNCTION: CMR2 0x00492890
@@ -4413,7 +4435,7 @@ int FUN_0048caa0(int *pList)
 
     if (pList != NULL) {
         count = g_unk0x005918c8 = *pList;
-        g_unk0x00591750 = (BYTE *)(pList + 1);
+        g_unk0x00591750 = (CameraSpot *)(pList + 1);
     } else {
         g_unk0x005918c8 = count;
         g_unk0x00591750 = NULL;
@@ -4495,7 +4517,7 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
     pOut->x = right.x - direction.x;
     pOut->y = right.y - direction.y;
     pOut->z = right.z - direction.z;
-    scale = FixMul(pCar->speed, *(int *)(g_unk0x00591750 + g_unk0x00591740[*pSurface] * 0x6c + 0x48));
+    scale = FixMul(pCar->speed, g_unk0x00591750[g_unk0x00591740[*pSurface]].speedScale);
     FixVecScale(pOut, pOut, scale);
 }
 
@@ -4504,8 +4526,8 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 int FUN_0048df10(BYTE *pCar)
 {
     if (*(int *)(pCar + 4) == 7) {
-        BYTE *pRecord = g_unk0x00591750 + g_unk0x00591740[*pCar] * 0x6c;
-        if (*(short *)(pRecord + 2) < -0x3f4 && *(short *)(pRecord + 2) > -0x40b)
+        CameraSpot *pRecord = &g_unk0x00591750[g_unk0x00591740[*pCar]];
+        if (pRecord->heading < -0x3f4 && pRecord->heading > -0x40b)
             return 1;
     }
     return 0;
@@ -5596,7 +5618,7 @@ void FUN_0048d850(BYTE *pCar, BYTE *pInfo)
 {
     short v;
 
-    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
     if (v > 0x3f4 && v < 0x40b) {
         FUN_00486c00(pCar, pInfo);
         return;
@@ -7843,7 +7865,7 @@ void FUN_0048d7b0(BYTE *pCar, BYTE *pInfo)
 {
     short v;
 
-    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
     if (RECORD_NEAR_90(v))
         FUN_00486b20(pCar, pInfo);
 }
@@ -7853,7 +7875,7 @@ void FUN_0048d800(BYTE *pInfo, BYTE *pCar)
 {
     short v;
 
-    v = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[*pCar] * 0x6c);
+    v = g_unk0x00591750[g_unk0x00591740[*pCar]].heading;
     if (RECORD_NEAR_90(v))
         FUN_00486b90(pCar, pInfo);
 }
@@ -13534,23 +13556,23 @@ void FUN_0048dce0(FixVector *pOut, BYTE *pSurface, Car *pCar, FixMatrix *pMatrix
 void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef);
 void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef);
 
-#define SPOT(i) (g_unk0x00591750 + g_unk0x00591740[i] * 0x6c)
+#define SPOT(i) (&g_unk0x00591750[g_unk0x00591740[i]])
 
 // Places a trackside camera on spot `spot` for a view record.
 // FUNCTION: CMR2 0x0048cae0
 void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int spot)
 {
-    BYTE *pSpot;
+    CameraSpot *pSpot;
     BYTE index;
     short heading;
     FixVector position;
     FixVector d;
     int near_;
 
-    pSpot = g_unk0x00591750 + spot * 0x6c;
+    pSpot = &g_unk0x00591750[spot];
     index = pRecord[0];
     g_unk0x00591740[index] = spot;
-    heading = *(short *)(pSpot + 2);
+    heading = pSpot->heading;
     if (heading > 0x3f4 && heading < 0x40b) {
         FUN_00486740(pRecord, (int *)pRef, *((BYTE *)Car_Get(pRecord[2]) + 0xb1a), 1);
     } else if (heading < -0x3f4 && heading > -0x40b) {
@@ -13559,11 +13581,11 @@ void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int spot)
     FixMatrix_GetPosition(&position, pRef);
     g_unk0x00591754[index] = 0;
     g_unk0x00591720[index] = 0;
-    d.x = position.x - *(int *)(pSpot + 0x28);
-    d.y = position.y - *(int *)(pSpot + 0x2c);
-    d.z = position.z - *(int *)(pSpot + 0x30);
-    if ((int)FixVec_Length(&d) < *(int *)(pSpot + 0x40) ||
-        (FixVecDot(&d, (FixVector *)(pSpot + 0x1c)) < 0 && *(int *)(pSpot + 0x40) > 0))
+    d.x = position.x - pSpot->position.x;
+    d.y = position.y - pSpot->position.y;
+    d.z = position.z - pSpot->position.z;
+    if ((int)FixVec_Length(&d) < pSpot->range ||
+        (FixVecDot(&d, &pSpot->forward) < 0 && pSpot->range > 0))
         near_ = 1;
     else
         near_ = 0;
@@ -13579,7 +13601,7 @@ void FUN_0048cae0(BYTE *pRecord, FixMatrix *pRef, int spot)
 // FUNCTION: CMR2 0x0048cc30
 void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
 {
-    BYTE *pSpot;
+    CameraSpot *pSpot;
     BYTE *pCar;
     BYTE index;
     short heading;
@@ -13590,7 +13612,7 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
     int shake;
 
     index = pRecord[0];
-    heading = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[index] * 0x6c);
+    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         pCar = (BYTE *)Car_Get(pRecord[2]);
@@ -13611,21 +13633,21 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
         return;
     }
     FixMatrix_GetPosition(&position, pRef);
-    d.x = *(int *)(pSpot + 0x28) - position.x;
-    d.y = *(int *)(pSpot + 0x2c) - position.y;
-    d.z = *(int *)(pSpot + 0x30) - position.z;
+    d.x = pSpot->position.x - position.x;
+    d.y = pSpot->position.y - position.y;
+    d.z = pSpot->position.z - position.z;
     distance = FixVec_Length(&d);
     if (g_unk0x005916d0[index] != 0) {
         if (distance >= g_unk0x005916e0[index]) {
-            zoom = *(int *)(pSpot + 0x50);
-            shake = *(int *)(pSpot + 0x68);
+            zoom = pSpot->field_0x50;
+            shake = pSpot->field_0x68;
         } else {
-            zoom = *(int *)(pSpot + 0x4c);
-            shake = *(int *)(pSpot + 0x64);
+            zoom = pSpot->field_0x4c;
+            shake = pSpot->field_0x64;
         }
         g_unk0x00591754[index] = FixMul(zoom, 0x3333) + FixMul(g_unk0x00591754[index], 0xcccc);
         g_unk0x00591720[index] = FixMul(shake, 0x3333) + FixMul(g_unk0x00591720[index], 0xcccc);
-        g_unk0x00591700[index] = FixMul(*(int *)(pSpot + 0x60), 0x1999) + FixMul(g_unk0x00591700[index], 0xe666);
+        g_unk0x00591700[index] = FixMul(pSpot->field_0x60, 0x1999) + FixMul(g_unk0x00591700[index], 0xe666);
         FUN_0048d950(pRecord, pRef);
         FUN_0048db00(pRecord, g_unk0x00591754[index]);
         FUN_0048dc30(pRecord, g_unk0x00591720[index]);
@@ -13633,7 +13655,7 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
         FUN_0048d0f0(pRecord, pRef);
         return;
     }
-    if (distance < *(int *)(pSpot + 0x40))
+    if (distance < pSpot->range)
         g_unk0x005916d0[index] = 1;
     FUN_0048d0f0(pRecord, pRef);
 }
@@ -13643,14 +13665,14 @@ void FUN_0048cc30(BYTE *pRecord, FixMatrix *pRef)
 // FUNCTION: CMR2 0x0048ce80
 void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef)
 {
-    BYTE *pSpot;
+    CameraSpot *pSpot;
     BYTE index;
     short heading;
     FixVector position;
     FixVector d;
 
     index = pRecord[0];
-    heading = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[index] * 0x6c);
+    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         FUN_00486910(pRecord, (int *)pRef);
@@ -13669,18 +13691,18 @@ void FUN_0048ce80(BYTE *pRecord, FixMatrix *pRef)
         g_unk0x005916f0[index] = 1;
     } else {
         FixMatrix_GetPosition(&position, pRef);
-        d.x = position.x - *(int *)(pSpot + 0x28);
-        d.y = position.y - *(int *)(pSpot + 0x2c);
-        d.z = position.z - *(int *)(pSpot + 0x30);
-        if ((int)FixVec_Length(&d) < *(int *)(pSpot + 0x40) ||
-            (FixVecDot(&d, (FixVector *)(pSpot + 0x1c)) < 0 && *(int *)(pSpot + 0x40) > 0)) {
+        d.x = position.x - pSpot->position.x;
+        d.y = position.y - pSpot->position.y;
+        d.z = position.z - pSpot->position.z;
+        if ((int)FixVec_Length(&d) < pSpot->range ||
+            (FixVecDot(&d, &pSpot->forward) < 0 && pSpot->range > 0)) {
             FUN_0048d950(pRecord, pRef);
         } else {
-            FixVecScale(&g_unk0x005916a0[index], (FixVector *)(pSpot + 0x1c), *(int *)(pSpot + 0x40));
-            g_unk0x005916a0[index].x += *(int *)(pSpot + 0x28);
-            g_unk0x005916a0[index].y += *(int *)(pSpot + 0x2c);
-            g_unk0x005916a0[index].z += *(int *)(pSpot + 0x30);
-            g_unk0x00591710[index] = *(int *)(pSpot + 0x54);
+            FixVecScale(&g_unk0x005916a0[index], &pSpot->forward, pSpot->range);
+            g_unk0x005916a0[index].x += pSpot->position.x;
+            g_unk0x005916a0[index].y += pSpot->position.y;
+            g_unk0x005916a0[index].z += pSpot->position.z;
+            g_unk0x00591710[index] = pSpot->field_0x54;
         }
         g_unk0x00591868[index].x = 0;
         g_unk0x00591868[index].y = 0;
@@ -13706,14 +13728,14 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     FixVector carPos;
     FixVector shake;
     FixVector camera;
-    BYTE *pSpot;
+    CameraSpot *pSpot;
     unsigned int index;
     short heading;
     int amplitude;
     int zoom;
 
     index = pRecord[0];
-    heading = *(short *)(g_unk0x00591750 + 2 + g_unk0x00591740[index] * 0x6c);
+    heading = g_unk0x00591750[g_unk0x00591740[index]].heading;
     pSpot = SPOT(index);
     if (heading > 0x3f4 && heading < 0x40b) {
         FUN_004869e0(pRecord, pRef);
@@ -13724,19 +13746,19 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
         return;
     }
     FixMatrix_GetPosition(&carPos, pRef);
-    camera = *(FixVector *)(pSpot + 0x28);
-    if (*(int *)(pSpot + 0x60) > 0) {
-        right.x = *(int *)(pSpot + 0x34) - *(int *)(pSpot + 0x28);
-        right.y = *(int *)(pSpot + 0x38) - *(int *)(pSpot + 0x2c);
-        right.z = *(int *)(pSpot + 0x3c) - *(int *)(pSpot + 0x30);
+    camera = *&pSpot->position;
+    if (pSpot->field_0x60 > 0) {
+        right.x = pSpot->trackEnd.x - pSpot->position.x;
+        right.y = pSpot->trackEnd.y - pSpot->position.y;
+        right.z = pSpot->trackEnd.z - pSpot->position.z;
         FixVecScale(&up, &right, g_unk0x00591730[index]);
         FixVecScale(&up, &up, 0x20000);
         camera.x += up.x;
         camera.y += up.y;
         camera.z += up.z;
     }
-    if (g_unk0x005916e0[index] < *(int *)(pSpot + 0x58)) {
-        amplitude = FixMul(*(int *)(pSpot + 0x5c), 0x10000 - FixDiv(g_unk0x005916e0[index], *(int *)(pSpot + 0x58)));
+    if (g_unk0x005916e0[index] < pSpot->field_0x58) {
+        amplitude = FixMul(pSpot->field_0x5c, 0x10000 - FixDiv(g_unk0x005916e0[index], pSpot->field_0x58));
         amplitude = FixMul(amplitude, *(int *)((BYTE *)Car_Get(pRecord[2]) + 0x778) / 2);
         shake.x = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
         shake.y = -0x8000 - (int)(__int64)((float)rand() * g_oneOverRandMax * g_minus65536);
@@ -13769,10 +13791,10 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
         FixMatrix_SetUp(&up, (FixMatrix *)(pRecord + 8));
         FixMatrix_SetForward(&offset, (FixMatrix *)(pRecord + 8));
     } else {
-        FixMatrix_SetRight((FixVector *)(pSpot + 4), (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetUp((FixVector *)(pSpot + 0x10), (FixMatrix *)(pRecord + 8));
-        FixMatrix_SetForward((FixVector *)(pSpot + 0x1c), (FixMatrix *)(pRecord + 8));
-        zoom = *(int *)(pSpot + 0x54);
+        FixMatrix_SetRight(&pSpot->right, (FixMatrix *)(pRecord + 8));
+        FixMatrix_SetUp(&pSpot->up, (FixMatrix *)(pRecord + 8));
+        FixMatrix_SetForward(&pSpot->forward, (FixMatrix *)(pRecord + 8));
+        zoom = pSpot->field_0x54;
     }
     if (zoom < 0x10000)
         *(int *)(pRecord + 0x54) = FixMul(0xa000, 0x10000);
@@ -13783,11 +13805,11 @@ void FUN_0048d0f0(BYTE *pRecord, FixMatrix *pRef)
     *(int *)(pRecord + 0x40) = 0;
     FixMatrix_Identity(&turn);
     turn.forward.z = 0x10000;
-    turn.right.x = FixCos(*(unsigned short *)(pSpot + 2));
+    turn.right.x = FixCos((unsigned short)pSpot->heading);
     turn.up.y = turn.right.x;
-    turn.right.y = -FixSin(*(unsigned short *)(pSpot + 2));
+    turn.right.y = -FixSin((unsigned short)pSpot->heading);
     turn.right.z = 0;
-    turn.up.x = FixSin(*(unsigned short *)(pSpot + 2));
+    turn.up.x = FixSin((unsigned short)pSpot->heading);
     turn.up.z = 0;
     turn.forward.x = 0;
     turn.forward.y = 0;
