@@ -7943,14 +7943,16 @@ int FUN_00456d90(void)
     FUN_00480900(count);
     FUN_00494b50(count);
     FUN_0045e5b0(count);
+    int *pRec = (int *)(g_unk0x00542630 + 4);
     memset(g_unk0x00542630 + 0x2d4, 0, 0x40);
     memset(g_unk0x00542630 + 0x294, 0, 0x40);
     memset(g_unk0x00542630 + 0x254, 0, 0x40);
     memset(g_unk0x00542630 + 0x314, 0, 0x40);
     memset(g_unk0x00542630 + 0x354, 0, 0x40);
-    for (i = 0; i < 16; i++) {
-        *(int *)(g_unk0x00542630 + i * 0x24 + 8) = 0;
-        *(int *)(g_unk0x00542630 + i * 0x24 + 4) = 0;
+    while ((int)pRec < (int)(g_unk0x00542630 + 0x244)) {
+        pRec[1] = 0;
+        pRec[0] = 0;
+        pRec += 9;
     }
     Car_ClearRecords(0, count);
     Car_ClearWheelRotation(0, count);
