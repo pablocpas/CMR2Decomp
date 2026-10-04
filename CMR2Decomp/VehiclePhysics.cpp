@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "Car.h"
+#include "CarParts.h"
 #include "FixedPoint.h"
 #include "GameInfo.h"
 #include <string.h>
@@ -20,23 +21,7 @@ struct CollisionFaceVertices {
     FixVector secondaryVertices[4];
 };
 
-struct VehicleMotionState {
-    BYTE pad0x000[4];
-    FixMatrix *pMatrix;
-    BYTE pad0x008[0x118];
-    FixVector position;
-    FixVector previousPosition;
-    FixVector velocity;
-    FixVector correction;
-    BYTE flags;
-    BYTE pad0x151[7];
-    unsigned short directionAngle;
-};
 
-struct VehicleMotionContext {
-    BYTE pad0x000[0x750];
-    FixMatrix *pMatrix;
-};
 
 // GLOBAL: CMR2 0x0059192c
 int g_collisionSelectBackSide;
@@ -66,12 +51,6 @@ int g_collisionDirectionDirty;
 // The tracked object is the one defined (and annotated) in StageTiming.cpp:
 // both struct views are the same memory, so reference that symbol instead of
 // keeping a second definition. The casts preserve this file's field layout.
-struct Unk0x00590c20;
-struct Unk0x00590d74;
-extern Unk0x00590c20 *g_unk0x00590c20;
-extern Unk0x00590d74 *g_unk0x00590d74;
-#define g_vehicleMotionState (((VehicleMotionState *)g_unk0x00590c20))
-#define g_vehicleMotionContext (((VehicleMotionContext *)g_unk0x00590d74))
 
 #define COLLISION_VECTOR(offset) (*(FixVector *)((BYTE *)g_collisionCar + (offset)))
 #define COLLISION_INT(offset) (*(int *)((BYTE *)g_collisionCar + (offset)))
@@ -169,9 +148,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
         offset.z = pPoint->z - g_collisionCar->position.z;
     }
 
-    FixMatrix_InverseRotateVector(&COLLISION_VECTOR(0x5dc), &offset, g_collisionCar->pWorld);
+    FixMatrix_InverseRotateVector(&g_collisionCar->field_0x5dc, &offset, g_collisionCar->pWorld);
 
-    component = COLLISION_INT(0x5dc);
+    component = g_collisionCar->field_0x5dc.x;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -179,9 +158,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5dc) = limit;
+        g_collisionCar->field_0x5dc.x = limit;
     }
-    component = COLLISION_INT(0x5e0);
+    component = g_collisionCar->field_0x5dc.y;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -189,9 +168,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5e0) = limit;
+        g_collisionCar->field_0x5dc.y = limit;
     }
-    component = COLLISION_INT(0x5e4);
+    component = g_collisionCar->field_0x5dc.z;
     absoluteComponent = component;
     if (absoluteComponent < 0)
         absoluteComponent = -absoluteComponent;
@@ -199,7 +178,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
     if (absoluteComponent > limit) {
         if (component < 0)
             limit = -limit;
-        COLLISION_INT(0x5e4) = limit;
+        g_collisionCar->field_0x5dc.z = limit;
     }
 
     g_collisionCar->velocity.x += pImpulse->x;
@@ -210,7 +189,7 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
         g_collisionCar->velocity.y += pImpulse->y;
         g_collisionCar->velocity.z += pImpulse->z;
     }
-    if (COLLISION_INT(0xc00) != 0)
+    if (g_collisionCar->field_0xc00 != 0)
         return;
 
     usePoint = FixVecLength(pImpulse);
@@ -251,9 +230,9 @@ void CarPhysics_ApplyImpulse(FixVector *pImpulse, FixVector *pPoint, int usePoin
             goto apply_torque;
     }
 
-    COLLISION_INT(0xc00) = 1;
-    COLLISION_INT(0x96c) = 0x10000;
-    COLLISION_INT(0xc04) = 1;
+    g_collisionCar->field_0xc00 = 1;
+    g_collisionCar->field_0x96c = 0x10000;
+    g_collisionCar->field_0xc04[0] = 1;
 
 apply_torque:
     if ((torque.x < 0 ? -torque.x : torque.x) > 0x80000)
@@ -265,9 +244,9 @@ apply_torque:
 
     usePoint = g_physicsScale;
     FixVecScale(&torque, &torque, usePoint);
-    COLLISION_INT(0x5d0) += torque.x;
-    COLLISION_INT(0x5d4) += torque.y;
-    COLLISION_INT(0x5d8) += torque.z;
+    g_collisionCar->field_0x5d0.x += torque.x;
+    g_collisionCar->field_0x5d0.y += torque.y;
+    g_collisionCar->field_0x5d0.z += torque.z;
 }
 
 // Plane normal x/z of the collision face and its accepted distance.
@@ -291,9 +270,9 @@ int FUN_00490570(void)
     if (d > g_unk0x005919b8)
         return 0;
     {
-        delta.x = g_collisionTarget.x - COLLISION_VECTOR(0x2e8).x;
-        delta.y = g_collisionTarget.y - COLLISION_VECTOR(0x2e8).y;
-        delta.z = g_collisionTarget.z - COLLISION_VECTOR(0x2e8).z;
+        delta.x = g_collisionTarget.x - g_collisionCar->positionPrev.x;
+        delta.y = g_collisionTarget.y - g_collisionCar->positionPrev.y;
+        delta.z = g_collisionTarget.z - g_collisionCar->positionPrev.z;
         g_collisionSelectBackSide = FixVecDot(&g_collisionDirection, &delta) >= 0;
         return 1;
     }
@@ -448,25 +427,25 @@ void Vehicle_UpdateMotion(FixVector *pInput)
     int projection;
     int length;
 
-    FixMatrix_InverseRotateVector(&localInput, pInput, g_vehicleMotionContext->pMatrix);
-    FixVecScale(&g_vehicleMotionState->velocity, &localInput, 0x1999);
+    FixMatrix_InverseRotateVector(&localInput, pInput, g_partCar->pWorld);
+    FixVecScale(&g_partState->velocity, &localInput, 0x1999);
 
-    if ((g_vehicleMotionState->flags & 0xf0) == 0) {
-        if (g_vehicleMotionState->velocity.y < 0)
-            g_vehicleMotionState->velocity.y = 0;
+    if ((g_partState->flags & 0xf0) == 0) {
+        if (g_partState->velocity.y < 0)
+            g_partState->velocity.y = 0;
 
-        direction.x = FixSin(g_vehicleMotionState->directionAngle);
-        direction.y = FixSin(g_vehicleMotionState->directionAngle + 0x400);
+        direction.x = FixSin((unsigned short)g_partState->angle);
+        direction.y = FixSin((unsigned short)g_partState->angle + 0x400);
         direction.z = 0;
-        projection = FixVecDot(&g_vehicleMotionState->velocity, &direction);
+        projection = FixVecDot(&g_partState->velocity, &direction);
         if (projection < 0) {
-            length = FixVecLength(&g_vehicleMotionState->velocity);
+            length = FixVecLength(&g_partState->velocity);
             FixVecScale(&direction, &direction, projection);
-            g_vehicleMotionState->velocity.x -= direction.x;
-            g_vehicleMotionState->velocity.y -= direction.y;
-            g_vehicleMotionState->velocity.z -= direction.z;
+            g_partState->velocity.x -= direction.x;
+            g_partState->velocity.y -= direction.y;
+            g_partState->velocity.z -= direction.z;
 
-            FixVector *pVelocity = &g_vehicleMotionState->velocity;
+            FixVector *pVelocity = &g_partState->velocity;
             int normalizedLength = FixVecLength(pVelocity);
             if (normalizedLength == 0) {
                 pVelocity->x = 0;
@@ -477,24 +456,24 @@ void Vehicle_UpdateMotion(FixVector *pInput)
             }
 
             length = FixMul(length, 0x50000);
-            FixVecScale(&g_vehicleMotionState->velocity,
-                        &g_vehicleMotionState->velocity, length);
+            FixVecScale(&g_partState->velocity,
+                        &g_partState->velocity, length);
         }
     }
 
-    delta.x = g_vehicleMotionState->position.x - g_vehicleMotionState->previousPosition.x;
-    delta.y = g_vehicleMotionState->position.y - g_vehicleMotionState->previousPosition.y;
-    delta.z = g_vehicleMotionState->position.z - g_vehicleMotionState->previousPosition.z;
-    FixMatrix_RotateVector(&rotatedDelta, &delta, g_vehicleMotionState->pMatrix);
-    rotatedDelta.x += g_vehicleMotionState->previousPosition.x;
-    rotatedDelta.y += g_vehicleMotionState->previousPosition.y;
-    rotatedDelta.z += g_vehicleMotionState->previousPosition.z;
-    g_vehicleMotionState->correction.x = g_vehicleMotionState->position.x - rotatedDelta.x;
-    g_vehicleMotionState->correction.y = g_vehicleMotionState->position.y - rotatedDelta.y;
-    g_vehicleMotionState->correction.z = g_vehicleMotionState->position.z - rotatedDelta.z;
-    g_vehicleMotionState->position = g_vehicleMotionState->previousPosition;
-    g_vehicleMotionState->flags |= 4;
-    g_vehicleMotionState->flags &= (BYTE)~2;
+    delta.x = g_partState->position.x - g_partState->previousPosition.x;
+    delta.y = g_partState->position.y - g_partState->previousPosition.y;
+    delta.z = g_partState->position.z - g_partState->previousPosition.z;
+    FixMatrix_RotateVector(&rotatedDelta, &delta, g_partState->pWorld);
+    rotatedDelta.x += g_partState->previousPosition.x;
+    rotatedDelta.y += g_partState->previousPosition.y;
+    rotatedDelta.z += g_partState->previousPosition.z;
+    g_partState->correction.x = g_partState->position.x - rotatedDelta.x;
+    g_partState->correction.y = g_partState->position.y - rotatedDelta.y;
+    g_partState->correction.z = g_partState->position.z - rotatedDelta.z;
+    g_partState->position = g_partState->previousPosition;
+    g_partState->flags |= 4;
+    g_partState->flags &= (BYTE)~2;
 }
 
 void FUN_00486c30(int *pObj, int *param2, int *param3, FixVector *pVerts);
@@ -514,9 +493,9 @@ int FUN_00490b90(int param_1)
     else
         found = FUN_00490640();
     if (found != 0) {
-        FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
-                     (int *)((BYTE *)g_collisionCar + 0x2d0),
-                     (FixVector *)((BYTE *)g_collisionCar + 0x270));
+        FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+                     &g_collisionCar->position.x,
+                     &g_collisionCar->corners[0]);
         Collision_ClassifyFaceVertices();
         if (g_collisionPositiveCandidateCount > 0 && g_collisionNegativeCandidateCount > 0)
             result = 1;
@@ -535,10 +514,10 @@ void FUN_00483010(void);
 // FUNCTION: CMR2 0x00482f30
 int FUN_00482f30(void)
 {
-    FixVector *pV = (FixVector *)((BYTE *)g_unk0x00590c20 + 0x144);
+    FixVector *pV = &g_partState->correction;
 
     if (FixVecLength(pV) >
-        *(int *)((BYTE *)g_unk0x00590d74 + 0x758) + *(int *)((BYTE *)g_unk0x00590c20 + 0x15c)) {
+        g_partCar->field_0x758 + g_partState->field_0x15c) {
         FUN_00483010();
         return 1;
     }
@@ -572,8 +551,8 @@ int FUN_0048fb80(char type, int param)
     FixVector velDiff;
     FixVector scaled;
     FixVector slide;
-    int best;
-    int count;
+    unsigned int best;
+    short count;
     int found;
     int index;
     int len;
@@ -595,9 +574,9 @@ int FUN_0048fb80(char type, int param)
     if ((*(BYTE *)((BYTE *)g_unk0x0059190c + 0x2d) & 1) == 0)
         result = FUN_0048e580(type);
 
-    FUN_00486c30((int *)g_collisionFace, (int *)((BYTE *)g_collisionCar + 0x360),
-                 (int *)((BYTE *)g_collisionCar + 0x2d0),
-                 (FixVector *)((BYTE *)g_collisionCar + 0x270));
+    FUN_00486c30((int *)g_collisionFace, &g_collisionCar->right.x,
+                 &g_collisionCar->position.x,
+                 &g_collisionCar->corners[0]);
     Collision_ClassifyFaceVertices();
 
     if (g_collisionPositiveCandidateCount != 0 && g_collisionNegativeCandidateCount != 0) {
@@ -676,7 +655,7 @@ int FUN_0048fb80(char type, int param)
             g_collisionCar->corners[i].y += scaled.y;
             g_collisionCar->corners[i].z += scaled.z;
         }
-        pVertex = (FixVector *)((BYTE *)g_collisionFace + 0x30);
+        pVertex = &g_collisionFace->primaryVertices[0];
         for (i = 0; i < 4; i++) {
             pVertex[i].x += scaled.x;
             pVertex[i].y += scaled.y;
@@ -686,7 +665,7 @@ int FUN_0048fb80(char type, int param)
     }
 
 noSlide:
-    dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_collisionDirection);
+    dot = FixVecDot(&g_collisionCar->velocity, &g_collisionDirection);
     if (dot != 0) {
         if (g_collisionSelectBackSide == 0) {
             if (dot >= 0)
@@ -696,9 +675,9 @@ noSlide:
         }
 
         FixVecScale(&slide, &g_collisionDirection, dot);
-        velDiff.x = *(int *)((BYTE *)g_collisionCar + 0x408) - slide.x;
-        velDiff.y = *(int *)((BYTE *)g_collisionCar + 0x40c) - slide.y;
-        velDiff.z = *(int *)((BYTE *)g_collisionCar + 0x410) - slide.z;
+        velDiff.x = g_collisionCar->velocity.x - slide.x;
+        velDiff.y = g_collisionCar->velocity.y - slide.y;
+        velDiff.z = g_collisionCar->velocity.z - slide.z;
         index = type;
         FixVecScale(&velDiff, &velDiff,
                     -FixMul(g_physicsTimeStep, g_unk0x0051fb00[26 + index]));
@@ -707,7 +686,7 @@ noSlide:
         slide.y = perp.y - slide.y + velDiff.y;
         slide.z = perp.z - slide.z + velDiff.z;
         CarPhysics_ApplyImpulse(&slide,
-                                &((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex], 0);
+                                &(&g_collisionFace->primaryVertices[0])[g_collisionBestVertex], 0);
         len = FixVecLength(&slide);
         if (g_unk0x00591930 != 0 && g_unk0x005919a0 >= len)
             goto skipReflect;
@@ -720,11 +699,11 @@ noSlide:
     }
 
 skipReflect:
-    dot = FixVecDot((FixVector *)((BYTE *)g_collisionCar + 0x408), &g_collisionDirection);
+    dot = FixVecDot(&g_collisionCar->velocity, &g_collisionDirection);
     FixVecScale(&debrisAxes[0], &g_collisionDirection, dot);
-    debrisAxes[0].x = *(int *)((BYTE *)g_collisionCar + 0x408) - debrisAxes[0].x;
-    debrisAxes[0].y = *(int *)((BYTE *)g_collisionCar + 0x40c) - debrisAxes[0].y;
-    debrisAxes[0].z = *(int *)((BYTE *)g_collisionCar + 0x410) - debrisAxes[0].z;
+    debrisAxes[0].x = g_collisionCar->velocity.x - debrisAxes[0].x;
+    debrisAxes[0].y = g_collisionCar->velocity.y - debrisAxes[0].y;
+    debrisAxes[0].z = g_collisionCar->velocity.z - debrisAxes[0].z;
     if (type != 2 && type != 0xe && type != 0xf && type != 0x12)
         return 1;
 
@@ -744,17 +723,17 @@ skipReflect:
     }
 
     debrisAxes[2] = g_collisionDirection;
-    delta.x = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].x -
+    delta.x = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].x -
               g_collisionCar->position.x;
-    delta.y = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].y -
+    delta.y = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].y -
               g_collisionCar->position.y;
-    delta.z = ((FixVector *)((BYTE *)g_collisionFace + 0x30))[g_collisionBestVertex].z -
+    delta.z = (&g_collisionFace->primaryVertices[0])[g_collisionBestVertex].z -
               g_collisionCar->position.z;
     delta.y = 0;
     FixVecScale(&delta, &delta, 0xcccc);
     if (tangentLen > 0x10000)
         tangentLen = 0x10000;
-    if (*(int *)((BYTE *)g_collisionCar + 0xb70) == 0)
+    if (g_collisionCar->field_0xb70 == 0)
         Car_SpawnDebris(tangentLen, &delta, g_collisionCar, &debrisAxes[0], 0x90000, 0x6666);
     return 1;
 finish:

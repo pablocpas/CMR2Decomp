@@ -417,8 +417,7 @@ void FUN_004d65c0(void)
                   (int)(g_pGraphics->resY * 0x23) / 480 + (int)(g_pGraphics->resY * 0x4c) / 480,
                   (int *)g_colourWhite0x00524968, 0x11);
     Font_DrawText(1, g_unk0x00818368, g_pGraphics->resX - (int)(g_pGraphics->resX * 0x3c) / 640 - 6,
-                  (int)(g_pGraphics->resY * 0x23) / 480 + (int)(g_pGraphics->resY * 0x4c) / 480 +
-                      (int)(g_pGraphics->resY * 100) / 480 - 4,
+                  (int)(g_pGraphics->resY * 0x4c) / 480 + (int)(g_pGraphics->resY * 100) / 480 - 4,
                   (int *)g_colourWhite0x00524968, 0x24);
 }
 
@@ -433,6 +432,7 @@ void FUN_004d9450(Menu *pMenu)
     int y;
     int i;
     int x;
+    int w;
     BYTE *pColour;
 
     rect[0] = (int)(g_pGraphics->resX * 100) / 640;
@@ -454,15 +454,16 @@ void FUN_004d9450(Menu *pMenu)
     Sprite_Queue((SpriteRect *)&CFrontend::m_pAr640ATexture->field_0x11c, (SpriteRect *)rect,
                  CFrontend::m_pAr640ATexture, 1, 0, 0, NULL, g_colourWhite0x00524968, 8);
     strcpy(CFrontend::m_stringDest, CFrontend::GetTextString(pMenu->items[0].id));
-    Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 122) / 640,
+    x = (int)(g_pGraphics->resX * 122) / 640;
+    Font_DrawText(1, CFrontend::m_stringDest, x,
                   (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1],
                   (int *)g_colourWhite0x00524968, 0x11);
     for (i = 0; i < pMenu->items[0].min; i++) {
         pColour = g_colourWhite0x00524968;
         if (i != pMenu->items[0].max)
             pColour = g_colourText0x0052496c;
-        x = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
-        x = (int)(g_pGraphics->resX * 10) / 640 + (int)(g_pGraphics->resX * 122) / 640 + x;
+        w = Font_GetTextWidth(1, (BYTE *)CFrontend::m_stringDest);
+        x = (int)(g_pGraphics->resX * 10) / 640 + x + w;
         Font_DrawText(1, CFrontend::GetTextString(i + 0x131), x,
                       (int)(g_pGraphics->resY * 24) / 480 + g_unk0x008189a8[1],
                       (int *)pColour, 0x11);
@@ -3590,7 +3591,7 @@ void FUN_004f19d0(Menu *pMenu, int param)
     else
         pMenu->items[0].max = 0;
 }
-void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pValue, unsigned int *pShade);
+void RallyData_FUN_00408b10(int index, unsigned int *pHue, unsigned int *pShade, unsigned int *pValue);
 
 // Callback of the car colour menu: reads the current driver's category colour
 // and reflects it onto the colour picker items.
@@ -3604,7 +3605,7 @@ void FUN_004f16f0(Menu *pMenu, int param)
     BYTE idx;
 
     FUN_004ea480((CGameInfo::FUN_00405d70() & 0xff) - (g_unk0x00819048 & 0xff) - 1);
-    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&value, (unsigned int *)&shade);
+    RallyData_FUN_00408b10(FUN_004f2be0(), (unsigned int *)&hue, (unsigned int *)&shade, (unsigned int *)&value);
     pMenu->items[2].max = 0;
     pMenu->cursor = 0;
     pMenu->items[0].max = value;
@@ -5439,7 +5440,7 @@ void FUN_004ded80(Menu *pMenu)
     int width;
     int count;
     int x0;
-    int x;
+    short x;
     short y0;
     int y;
     int i;
@@ -8373,7 +8374,7 @@ void FUN_004ee6e0(Menu *pMenu)
 void FUN_004ee170(Menu *pMenu)
 {
     unsigned int *pFlags;
-    BYTE max;
+    int max;
     unsigned int level;
     unsigned int mask;
     BYTE bits;
@@ -8396,7 +8397,7 @@ void FUN_004ee170(Menu *pMenu)
             count = 4;
         if (level <= (*pFlags >> 0xc & 0xf))
             count = 8;
-        if ((*pFlags & 1) == 0 || (*pFlags >> 0x10 & 0xf) < level)
+        if ((*pFlags & 1) != 0 && (*pFlags >> 0x10 & 0xf) >= level)
             count = 10;
     } else {
         count = 10;
@@ -8687,7 +8688,7 @@ void FUN_004ed840(Menu *pMenu)
         }
     }
 LAB_004edb02:
-    Menu_GetItem(pMenu, 3)->enabled ^= b;
+    Menu_GetItem(pMenu, 3)->enabled = b;
     FUN_004ec8d0();
 }
 
@@ -9629,7 +9630,7 @@ void FUN_004f0820(Menu *pMenu, int param)
 // file so the file:line of the functions above does not move.
 
 void FUN_004dbd80(Menu *pMenu);
-int FUN_004f8b30(void);
+void FUN_004f8b30(void);
 
 // GLOBAL: CMR2 0x00524c78
 char g_strDate[16] = "%.2d.%.2d.%.4d";

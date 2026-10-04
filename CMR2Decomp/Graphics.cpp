@@ -856,6 +856,9 @@ HRESULT CGraphics::FUN_004a8c30_DDEnumCallback(LPSTR lpDeviceDescription, LPSTR 
     } else if (!strcmp(lpDeviceName, m_direct3DTLHAL)) {
         m_unk0x0065ff90[0].guid = lpD3DDeviceDesc->deviceGUID;
         m_unk0x00660040[0].surfaceCap = 2;
+    } else {
+        // neither HAL device: keep the description of the one already chosen
+        return TRUE;
     }
 
     ((int (__cdecl *)(char *, const char *, char *))wsprintfA)(m_unk0x0065ff90[0].deviceDesc, CRegKey::m_regKeyPathFormatValue, lpDeviceDescription);
@@ -2079,11 +2082,11 @@ void CGraphics::GenerateBumpMap(Texture *pSrc, Texture *pDst)
     int i;
     int x;
     int y;
-    int xn;
+    short xn;
     int yn;
     int h;
     int h1;
-    int h2;
+    short h2;
     int du;
     int dv;
     int lum;
@@ -4179,8 +4182,8 @@ BYTE Flare_SampleVisibility(short *pRect, BYTE *pColour, BYTE tolerance)
     unsigned short resX;
     unsigned short resY;
     short x;
-    short y;
-    short w;
+    int y;
+    int w;
     short h;
     short rLo;
     short rHi;
@@ -4713,12 +4716,12 @@ void Graphics_DrawProjectedQuad(BYTE *pSurface, FixVector *pPoint, FixVector *pT
     FixVector axisA;
     FixVector axisB;
     FixVector step;
-    int depth;
+    unsigned int depth;
     int fade;
     int size;
     int length;
     int reciprocal;
-    int colour;
+    short colour;
     int i;
     BYTE intensity;
 
@@ -4824,12 +4827,12 @@ void Graphics_DrawLayerQuad(BYTE *pSurface, FixVector *pTarget)
     FixVector axisA;
     FixVector axisB;
     int depth;
-    int length;
+    short length;
     int extension;
     int residual;
     int opacity;
     int fade;
-    int colour;
+    short colour;
     int i;
     BYTE intensity;
 
@@ -5958,7 +5961,7 @@ void Particle_Spawn(int typeIndex, FixVector *pSource, FixVector *pPosition,
     int dot;
     int i;
     int best;
-    int selected;
+    short selected;
     Particle *pParticle;
     int randomX;
     int randomY;
@@ -6364,8 +6367,8 @@ Texture *CGraphics::LoadTGATexture(BYTE *pTGA, Texture *pTexture)
     unsigned int bMask;
     unsigned int aMask;
     unsigned int mask;
-    unsigned short rShift;
-    unsigned short gShift;
+    short rShift;
+    short gShift;
     unsigned short bShift;
     unsigned short aShift;
     short rDepth;
@@ -6641,7 +6644,7 @@ Texture *CGraphics::LoadTGABumpMap(BYTE *pTGA, Texture *pTexture)
     unsigned int down;
     int du;
     int dv;
-    BYTE l;
+    char l;
     WORD *pDst16;
     BYTE *pDst24;
 

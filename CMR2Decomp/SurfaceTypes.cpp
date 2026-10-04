@@ -186,10 +186,10 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
     short noiseNext = 0;
     short *pSurf = (short *)((BYTE *)pCar + 0xabc);
     int *pOut = &pCar->cornerGrip[7].gripB;
-    int s0;
+    short s0;
     unsigned short next;
     int s1;
-    int gripA;
+    short gripA;
     int gripB;
     int grip2A;
     int grip2B;
@@ -839,7 +839,7 @@ void FUN_00479360(int *pState, int player, int listener)
     unsigned int now;
     int backfire;
     int hi;
-    int lo;
+    short lo;
     int volume;
     int pct;
 
@@ -950,7 +950,7 @@ void FUN_00479360(int *pState, int player, int listener)
             }
         }
         backfire = 0;
-        if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) != NULL &&
+        if (CFrontend::FUN_0040ee80(pCar->type) != NULL &&
             g_unk0x0058df88[player] >= 2 && g_unk0x0058df88[player] <= 6 &&
             g_unk0x0058dd68[player] != g_unk0x0058df88[player] &&
             g_unk0x0058dd68[player] < g_unk0x0058df88[player]) {
@@ -988,7 +988,7 @@ void FUN_00479360(int *pState, int player, int listener)
         if (g_unk0x0058df78[player] != 0) {
             if (pState[1] < lo || pState[4] != 0)
                 g_unk0x0058df78[player] = 0;
-        } else if (CFrontend::FUN_0040ee80((signed char)pCar->field_0xb1b[0]) == NULL) {
+        } else if (CFrontend::FUN_0040ee80(pCar->type) == NULL) {
             g_unk0x0058df78[player] = 0;
         } else if (pState[4] == 0 && pState[1] > hi) {
             g_unk0x0058df78[player] = 1;
@@ -1468,19 +1468,19 @@ void FUN_004786b0(BYTE *pWheel, int unused)
     do {
         id = *pId;
         blend = pMix[-4];
-        if (blend == 0) {
-            pOut[-3] = g_surfaceGrip[id][0];
-            pOut[-1] = g_surfaceGrip2[id][0];
-            pOut[-2] = g_surfaceGrip[id][1];
-            pOut[0] = g_surfaceGrip2[id][1];
-        } else {
+        if (blend != 0) {
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][0]);
             pOut[-3] = g_surfaceGrip[id][0] + v;
             pOut[-1] = g_surfaceGrip2[id][0] + v;
-            pOut[-2] = FixDiv(g_surfaceGrip[id][0] * g_surfaceGrip[id][1], pOut[-3]);
-            pOut[0] = FixDiv(g_surfaceGrip2[id][0] * g_surfaceGrip2[id][1], pOut[-1]);
+            pOut[-2] = FixDiv(FixMul(g_surfaceGrip[id][0], g_surfaceGrip[id][1]), pOut[-3]);
+            pOut[0] = FixDiv(FixMul(g_surfaceGrip2[id][0], g_surfaceGrip2[id][1]), pOut[-1]);
+        } else {
+            pOut[-3] = g_surfaceGrip[id][0];
+            pOut[-1] = g_surfaceGrip2[id][0];
+            pOut[-2] = g_surfaceGrip[id][1];
+            pOut[0] = g_surfaceGrip2[id][1];
         }
         blend = *pMix;
         if (blend != 0) {

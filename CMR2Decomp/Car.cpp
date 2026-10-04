@@ -1277,27 +1277,27 @@ void Car_UpdateWheelTravel(void)
     short delta;
 
     for (i = 0; i < 4; i++) {
-        absLoad = FIX_ABS(CAR_INT(0x860 + i * 4));
+        absLoad = FIX_ABS(g_pCurrentCar->wheelLoad[i]);
         if (absLoad > 0x10000) {
-            if (CAR_INT(0x860 + i * 4) > 0) {
-                CAR_USHORT(0xb08 + i * 2) += -0x28b;
+            if (g_pCurrentCar->wheelLoad[i] > 0) {
+                g_pCurrentCar->wheelPhase[i] += -0x28b;
             } else {
-                CAR_USHORT(0xb08 + i * 2) += 0x28b;
+                g_pCurrentCar->wheelPhase[i] += 0x28b;
             }
         } else {
-            delta = (short)(__int64)((double)CAR_INT(0x860 + i * 4) * g_unk0x00511398);
-            CAR_USHORT(0xb08 + i * 2) += delta;
+            delta = (short)(__int64)((double)g_pCurrentCar->wheelLoad[i] * g_unk0x00511398);
+            g_pCurrentCar->wheelPhase[i] += delta;
         }
         if (*(int *)(g_pCarSetup + 0x240 + i * 4) > 0) {
-            CAR_INT(0x6fc + i * 8) =
-                FixMul(g_sinTable[CAR_USHORT(0xb08 + i * 2) & 0xfff],
+            g_pCurrentCar->wheelOffset[i][0] =
+                FixMul(g_sinTable[g_pCurrentCar->wheelPhase[i] & 0xfff],
                        FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
-            CAR_INT(0x700 + i * 8) =
-                FixMul(-g_sinTable[(unsigned short)(CAR_USHORT(0xb08 + i * 2) + 0x400) & 0xfff],
+            g_pCurrentCar->wheelOffset[i][1] =
+                FixMul(-g_sinTable[(unsigned short)(g_pCurrentCar->wheelPhase[i] + 0x400) & 0xfff],
                        FixMul(*(int *)(g_pCarSetup + 0x240 + i * 4), 0xa3d));
         } else {
-            CAR_INT(0x700 + i * 8) = 0;
-            CAR_INT(0x6fc + i * 8) = 0;
+            g_pCurrentCar->wheelOffset[i][1] = 0;
+            g_pCurrentCar->wheelOffset[i][0] = 0;
         }
     }
 }
@@ -1320,7 +1320,7 @@ void Car_FlagAirborneCorners(void);
 void Car_SettleFreeCorners(void);
 void Car_SolveUpright(void);
 void Car_IntegrateWheelTravel(void);
-void FUN_004930e0(int param_1, int param_2);
+void FUN_004930e0(Car *pCar, int count);
 void FUN_00466ef0(Car *pCar, int *param_2, FixVector *param_3, int param_4,
                   unsigned char param_5, int param_6);
 int FUN_00428760(BYTE index);
@@ -1370,23 +1370,23 @@ void Car_UpdateGroundContact(void)
     for (i = 0; i < 8; i++)
         g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
 
-    if (CARF(0xbfc) != 0) {
-        if (CARF(0xbdc) != 0) {
+    if (g_pCurrentCar->field_0xbfc != 0) {
+        if (g_pCurrentCar->field_0xbdc != 0) {
             BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
             if (step > g_pCurrentCar->field_0xb25)
                 g_pCurrentCar->field_0xb25 = 0;
             else
                 g_pCurrentCar->field_0xb25 -= step;
             if (g_pCurrentCar->field_0xb25 <= 0)
-                CARF(0xbfc) = 0;
-        } else if (CARF(0xbe0) != 0) {
+                g_pCurrentCar->field_0xbfc = 0;
+        } else if (g_pCurrentCar->field_0xbe0 != 0) {
             BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
             if (step > g_pCurrentCar->field_0xb26)
                 g_pCurrentCar->field_0xb26 = 0;
             else
                 g_pCurrentCar->field_0xb26 -= step;
             if (g_pCurrentCar->field_0xb26 <= 0)
-                CARF(0xbfc) = 0;
+                g_pCurrentCar->field_0xbfc = 0;
         } else {
             BYTE step = (BYTE)FixMulShift32(0xa0000, g_physicsTimeStep);
             if (step > g_pCurrentCar->field_0xb27)
@@ -1394,16 +1394,16 @@ void Car_UpdateGroundContact(void)
             else
                 g_pCurrentCar->field_0xb27 -= step;
             if (g_pCurrentCar->field_0xb27 <= 0)
-                CARF(0xbfc) = 0;
+                g_pCurrentCar->field_0xbfc = 0;
         }
-        if (CARF(0xbfc) == 0) {
-            CARF(0xbe4) = 0;
-            CARF(0xbe0) = 0;
-            CARF(0xbdc) = 0;
+        if (g_pCurrentCar->field_0xbfc == 0) {
+            g_pCurrentCar->field_0xbe4 = 0;
+            g_pCurrentCar->field_0xbe0 = 0;
+            g_pCurrentCar->field_0xbdc = 0;
             g_pCurrentCar->field_0xb27 = 0;
             g_pCurrentCar->field_0xb25 = 0;
             g_pCurrentCar->field_0xb26 = 0;
-            CARF(0xbf8) = 1;
+            g_pCurrentCar->field_0xbf8 = 1;
         }
     } else {
         if (FUN_00428760(g_pCurrentCar->index) != 0) {
@@ -1412,10 +1412,10 @@ void Car_UpdateGroundContact(void)
         } else {
             for (i = 4; i < 8; i++) {
                 if (g_pCurrentCar->cornerFlags[i] == 0) {
-                    if (CARF(0x95c) < 0x640000)
-                        CARF(0x95c) += g_physicsTimeStep;
+                    if (g_pCurrentCar->field_0x95c < 0x640000)
+                        g_pCurrentCar->field_0x95c += g_physicsTimeStep;
                     else
-                        CARF(0xbf8) = 1;
+                        g_pCurrentCar->field_0xbf8 = 1;
                     break;
                 }
             }
@@ -1425,7 +1425,7 @@ void Car_UpdateGroundContact(void)
     prevGrounded = (char)g_pCurrentCar->field_0xb34;
     for (i = 3; i >= 0; i--)
         g_carSurfaceSnapshot[i] = g_pCurrentCar->wheelSurface[i];
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
 
     if (g_pCurrentCar->field_0xb34 != 0) {
@@ -1448,15 +1448,15 @@ void Car_UpdateGroundContact(void)
                 FixMatrix_InverseRotateVector(&g_pCurrentCar->field_0x5dc,
                                               &g_carContactWork, g_pCurrentCar->pWorld);
 
-                d = CARF(0x5dc);
+                d = g_pCurrentCar->field_0x5dc.x;
                 if (FIX_ABS(d) > g_pCurrentCar->halfExtents.x)
-                    CARF(0x5dc) = d < 0 ? -g_pCurrentCar->halfExtents.x : g_pCurrentCar->halfExtents.x;
-                d = CARF(0x5e0);
+                    g_pCurrentCar->field_0x5dc.x = d < 0 ? -g_pCurrentCar->halfExtents.x : g_pCurrentCar->halfExtents.x;
+                d = g_pCurrentCar->field_0x5dc.y;
                 if (FIX_ABS(d) > g_pCurrentCar->halfExtents.y)
-                    CARF(0x5e0) = d < 0 ? -g_pCurrentCar->halfExtents.y : g_pCurrentCar->halfExtents.y;
-                d = CARF(0x5e4);
+                    g_pCurrentCar->field_0x5dc.y = d < 0 ? -g_pCurrentCar->halfExtents.y : g_pCurrentCar->halfExtents.y;
+                d = g_pCurrentCar->field_0x5dc.z;
                 if (FIX_ABS(d) > g_pCurrentCar->halfExtents.z)
-                    CARF(0x5e4) = d < 0 ? -g_pCurrentCar->halfExtents.z : g_pCurrentCar->halfExtents.z;
+                    g_pCurrentCar->field_0x5dc.z = d < 0 ? -g_pCurrentCar->halfExtents.z : g_pCurrentCar->halfExtents.z;
 
                 g_carContactPoint.x = 0;
                 g_carContactPoint.y = 0x7d000000;
@@ -1468,9 +1468,9 @@ void Car_UpdateGroundContact(void)
                     if (g_pCurrentCar->corners[k].y < g_carContactPoint.y)
                         g_carContactPoint = g_pCurrentCar->corners[k];
                 }
-                if (CARF(0x370) < 0) {
+                if (g_pCurrentCar->up.y < 0) {
                     FixVecScale(&g_carContactWork2, &g_pCurrentCar->up,
-                                FixMul(0x20000, CARF(0x208)));
+                                FixMul(0x20000, g_pCurrentCar->halfExtents.y));
                     g_carContactPoint.x += g_carContactWork2.x;
                     g_carContactPoint.y += g_carContactWork2.y;
                     g_carContactPoint.z += g_carContactWork2.z;
@@ -1514,41 +1514,41 @@ void Car_UpdateGroundContact(void)
     g_pCurrentCar->field_0x924 = dot;
 
     if (flag == 0) {
-        CARF(0xba8) = 0;
-        CARF(0xba4) = 0;
-        CARF(0xba0) = 0;
+        g_pCurrentCar->field_0xba0[2] = 0;
+        g_pCurrentCar->field_0xba0[1] = 0;
+        g_pCurrentCar->field_0xba0[0] = 0;
     }
 
-    CARF(0x958) = 0;
-    prevDeepest = CARB(0xb2b);
-    CARB(0xb2b) = -1;
+    g_pCurrentCar->field_0x958 = 0;
+    prevDeepest = g_pCurrentCar->field_0xb2b;
+    g_pCurrentCar->field_0xb2b = -1;
     for (i = 0; i < 4; i++) {
         if (i < 2)
-            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, CARF(0x774));
+            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, g_pCurrentCar->field_0x770[1]);
         else
-            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, CARF(0x770));
+            FixVecScale(&g_carContactWork, &g_pCurrentCar->up, g_pCurrentCar->field_0x770[0]);
         g_carContactWork.x += g_pCurrentCar->corners[i].x;
         g_carContactWork.y += g_pCurrentCar->corners[i].y;
         g_carContactWork.z += g_pCurrentCar->corners[i].z;
         d = FixMul(g_pCurrentCar->cornerHeight[i + 4] + g_pCurrentCar->cornerHeight[i], 0x8000) -
             g_carContactWork.y;
-        if (d > CARF(0x958)) {
-            CARF(0x958) = d;
-            CARB(0xb2b) = (char)i;
+        if (d > g_pCurrentCar->field_0x958) {
+            g_pCurrentCar->field_0x958 = d;
+            g_pCurrentCar->field_0xb2b = (char)i;
         }
     }
-    if (CARF(0x958) == 0) {
-        CARF(0x958) = 0x1999;
+    if (g_pCurrentCar->field_0x958 == 0) {
+        g_pCurrentCar->field_0x958 = 0x1999;
         for (i = 0; i < 4; i++) {
             if (g_pCurrentCar->cornerFlags[i] == 0) {
                 d = g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i];
-                if (d < CARF(0x958))
-                    CARF(0x958) = d > 0 ? d : 0;
+                if (d < g_pCurrentCar->field_0x958)
+                    g_pCurrentCar->field_0x958 = d > 0 ? d : 0;
             }
         }
-        CARF(0x958) = -CARF(0x958);
+        g_pCurrentCar->field_0x958 = -g_pCurrentCar->field_0x958;
     }
-    if (CARB(0xb2b) != -1 && CARB(0xb2b) != prevDeepest) {
+    if (g_pCurrentCar->field_0xb2b != -1 && g_pCurrentCar->field_0xb2b != prevDeepest) {
         FixMatrix_InverseRotateVector(&g_carContactWork, &g_pCurrentCar->groundNormal,
                                       g_pCurrentCar->pWorld);
         dot = FixVecDot(&g_carContactWork, &g_pCurrentCar->angularVelocity);
@@ -1564,29 +1564,29 @@ void Car_UpdateGroundContact(void)
 
     Car_RelaxBodyAxes(1);
     Car_IntegrateWheelTravel();
-    d = CARF(0x920);
-    if (CARF(0xc04) == 0 && d < 0)
-        CARF(0xc04) = 1;
+    d = g_pCurrentCar->field_0x920;
+    if (g_pCurrentCar->field_0xc04[0] == 0 && d < 0)
+        g_pCurrentCar->field_0xc04[0] = 1;
     if (d < 0)
-        CARF(0xc10) = 1;
-    CARF(0x96c) -= FixMul(0x1eb8, g_physicsTimeStep);
-    if (CARF(0x96c) < 0)
-        CARF(0x96c) = 0;
-    if (CARF(0x96c) > 0)
+        g_pCurrentCar->field_0xc10 = 1;
+    g_pCurrentCar->field_0x96c -= FixMul(0x1eb8, g_physicsTimeStep);
+    if (g_pCurrentCar->field_0x96c < 0)
+        g_pCurrentCar->field_0x96c = 0;
+    if (g_pCurrentCar->field_0x96c > 0)
         return;
     if (d <= 0xfc28)
         return;
-    if (CARF(0xc10) != 0) {
-        if (FIX_ABS(CARF(0x420)) >= 0x28f)
+    if (g_pCurrentCar->field_0xc10 != 0) {
+        if (FIX_ABS(g_pCurrentCar->angularVelocity.x) >= 0x28f)
             return;
-        if (FIX_ABS(CARF(0x428)) >= 0x28f)
+        if (FIX_ABS(g_pCurrentCar->angularVelocity.z) >= 0x28f)
             return;
     }
     if (g_pCurrentCar->field_0xb28 != 0) {
-        CARF(0xc00) = 0;
-        CARF(0x96c) = 0;
-        CARF(0xc04) = 0;
-        CARF(0xc10) = 0;
+        g_pCurrentCar->field_0xc00 = 0;
+        g_pCurrentCar->field_0x96c = 0;
+        g_pCurrentCar->field_0xc04[0] = 0;
+        g_pCurrentCar->field_0xc10 = 0;
     }
 }
 
@@ -3380,10 +3380,10 @@ void Car_StoreRenderTransforms(short *pList, short count)
             pCar->field_0x40.position.y += pCar->field_0x958;
         }
         FixMatrix_GetUp(&up, (FixMatrix *)pCar);
-        if (type != (char)pCar->field_0xb1b[0]) {
-            FixVecScale(&up, &up, g_unk0x00519a00[type] + g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
+        if (type != pCar->type) {
+            FixVecScale(&up, &up, g_unk0x00519a00[type] + g_unk0x005199c8[pCar->type]);
         } else {
-            FixVecScale(&up, &up, g_unk0x005199c8[(char)pCar->field_0xb1b[0]]);
+            FixVecScale(&up, &up, g_unk0x005199c8[pCar->type]);
         }
         if (CGameInfo::FUN_004063f0(6) != 0) {
             FixMatrix_GetUp(&ride, &pCar->pNode0x71c->current);
@@ -3620,7 +3620,7 @@ void Car_ReloadModels(int first, int count, int param_3)
     for (i = first; i < end; i++) {
         g_unk0x0053a378[i] = (int)g_carBuffer[i].pNode0x71c;
         g_unk0x0053b510[i] = (int)g_carBuffer[i].pNode0x720;
-        g_unk0x0053a398[i] = g_carBuffer[i].field_0xb1b[0];
+        g_unk0x0053a398[i] = (BYTE)g_carBuffer[i].type;
         g_unk0x0053bd7c[i] = (int)g_carBuffer[i].pNode0x724;
         g_unk0x0053b538[i] = (int)g_carBuffer[i].pViewNodeNear;
         g_unk0x0053acd0[i] = (int)g_carBuffer[i].pViewNodeFar;
@@ -3708,8 +3708,8 @@ void FUN_0042bc80(short *pList, short count)
 
     for (i = count - 1; i >= 0; i--) {
         pCar = &g_carBuffer[pList[i]];
-        if (pCar->field_0xb43[0] > 0)
-            pCar->field_0xb43[0]--;
+        if (pCar->field_0xb43 > 0)
+            pCar->field_0xb43--;
     }
 }
 
@@ -3984,10 +3984,11 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
 {
     int i;
     int max;
-    int offset;
-    int mid;
+    short offset;
+    unsigned int mid;
     float fromStart;
     float toEnd;
+    float frac;
     Car *pCar;
 
     if ((g_unk0x0053b530 & 1) == 0) {
@@ -4014,19 +4015,20 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
         if (g_carOrder[i] > 0 &&
             *(float *)(pCar->field_0xa90 + 8) == *(float *)(g_carBuffer->field_0xa90 + 8)) {
             *(int *)pCar->field_0xa90 = *(int *)g_carBuffer->field_0xa90;
-            offset = g_carBuffer->field_0xb43[0];
+            offset = g_carBuffer->field_0xb43;
         } else {
-            fromStart = (float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) *
-                        g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
-            toEnd = (float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) *
-                    g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
+            fromStart = ((float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) * g_unk0x005113a0) *
+                        *(float *)(pCar->field_0xa90 + 8);
+            toEnd = ((float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) * g_unk0x005113a0) *
+                    *(float *)(pCar->field_0xa90 + 8);
             mid = (int)(__int64)toEnd;
-            *(int *)pCar->field_0xa90 = (int)((toEnd - (float)mid) * g_65536f);
+            frac = toEnd - (float)mid;
+            *(int *)pCar->field_0xa90 = (int)(frac * g_65536f);
             offset = mid - (int)(__int64)fromStart;
             if (offset > 5)
                 offset = 5;
         }
-        pCar->field_0xb43[0] = (char)offset;
+        pCar->field_0xb43 = (char)offset;
         if ((offset & 0xff) > max)
             max = offset & 0xff;
     }
@@ -4383,8 +4385,8 @@ void Car_FollowGround(void)
         Track_GetGroundHeightSurface(&g_pCurrentCar->position, &n, &g_pCurrentCar->cornerTriangle[0],
                                      &g_pCurrentCar->wheelSurface[0], &surface, g_pCurrentCar->cornerHeight[0]);
     if (g_pCurrentCar->cornerOnGround[4] != 0) {
-        g_pCurrentCar->cornerHeight[0] += g_pCurrentCar->field_0x8fc;
-        n = g_pCurrentCar->field_0x564;
+        g_pCurrentCar->cornerHeight[0] += g_pCurrentCar->field_0x8fc[0];
+        n = g_pCurrentCar->field_0x564[0];
         g_pCurrentCar->wheelSurface[0] = 0x2f;
     }
     if (g_pCurrentCar->wheelSurface[0] == 0xf && g_pCurrentCar->field_0xa7c == 0 && g_pCurrentCar->field_0xbf8 == 0)
@@ -4881,7 +4883,7 @@ void Car_UpdateSteering(void)
     FixMatrix m;
     FixVector right;
     FixVector t;
-    short angle;
+    unsigned short angle;
     int w;
 
     if (FIX_ABS(g_pCurrentCar->speed) < 0x28f) {
@@ -5163,11 +5165,11 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
         n++;
         do {
             g_pCurrentCar = (Car *)(carBase + *p * 0xc24);
-            lift = CARF(0x960);
+            lift = g_pCurrentCar->field_0x960;
             if (lift < 0)
                 lift = 0;
 
-            if (CARF(0xc20) == 0) {
+            if (g_pCurrentCar->field_0xc20 == 0) {
                 for (i = 0; i < 4; i++) {
                     g_pCurrentCar->cornerPrev2[i] =
                         g_pCurrentCar->cornerPrev[i];
@@ -5178,49 +5180,49 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                 for (i = 0; i < 8; i++) {
                     g_pCurrentCar->cornerNormal[i] =
                         g_pCurrentCar->cornerAxis[i];
-                    CARF(0xbbc + i * 4) = 0;
+                    g_pCurrentCar->cornerOnGround[4 + i] = 0;
                 }
-                CARF(0x7a8) = CARF(0x7a4);
-                CARV(0x2f4) = CARV(0x2e8);
-                CARV(0x2e8) = CARV(0x2d0);
-                CARV(0x498) = CARV(0x48c);
+                g_pCurrentCar->field_0x7a8 = g_pCurrentCar->field_0x7a4;
+                g_pCurrentCar->positionPrev2 = g_pCurrentCar->positionPrev;
+                g_pCurrentCar->positionPrev = g_pCurrentCar->position;
+                g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
                 memcpy(g_pCurrentCar->field_0x384, &g_pCurrentCar->right, 0x24);
-                FixMatrix_GetPosition(&CARV(0x2d0), g_pCurrentCar->pWorld);
-                FixMatrix_GetRight(&CARV(0x360), g_pCurrentCar->pWorld);
-                FixMatrix_GetUp(&CARV(0x36c), g_pCurrentCar->pWorld);
-                FixMatrix_GetForward(&CARV(0x378), g_pCurrentCar->pWorld);
+                FixMatrix_GetPosition(&g_pCurrentCar->position, g_pCurrentCar->pWorld);
+                FixMatrix_GetRight(&g_pCurrentCar->right, g_pCurrentCar->pWorld);
+                FixMatrix_GetUp(&g_pCurrentCar->up, g_pCurrentCar->pWorld);
+                FixMatrix_GetForward(&g_pCurrentCar->forward, g_pCurrentCar->pWorld);
                 Car_UpdateCorners(g_pCurrentCar);
             }
 
-            CARF(0x778) = FixVecLength(&CARV(0x408));
+            g_pCurrentCar->speed = FixVecLength(&g_pCurrentCar->velocity);
             for (i = 0x42c; i < 0x48c; i += 0xc)
-                *(FixVector *)((BYTE *)g_pCurrentCar + i) = CARV(0x408);
+                *(FixVector *)((BYTE *)g_pCurrentCar + i) = g_pCurrentCar->velocity;
             g_pCurrentCar->field_0xb14 = *(short *)&g_pCurrentCar->heading;
             g_pCurrentCar->field_0xb12 = g_pCurrentCar->field_0xb14;
-            CARF(0x958) = 0;
-            CARF(0xb5c) = 0;
-            CARF(0x86c) = FixVecDot(&CARV(0x408), &CARV(0x360)) * 4;
-            CARF(0x868) = CARF(0x86c);
-            CARF(0x864) = CARF(0x868);
-            CARF(0x860) = CARF(0x864);
-            CARF(0x7a4) = 0;
-            CARB(0xb1e) = 0;
+            g_pCurrentCar->field_0x958 = 0;
+            g_pCurrentCar->field_0xb5c = 0;
+            g_pCurrentCar->wheelLoad[3] = FixVecDot(&g_pCurrentCar->velocity, &g_pCurrentCar->right) * 4;
+            g_pCurrentCar->wheelLoad[2] = g_pCurrentCar->wheelLoad[3];
+            g_pCurrentCar->wheelLoad[1] = g_pCurrentCar->wheelLoad[2];
+            g_pCurrentCar->wheelLoad[0] = g_pCurrentCar->wheelLoad[1];
+            g_pCurrentCar->field_0x7a4 = 0;
+            g_pCurrentCar->gear = 0;
             for (i = 0; i < 8; i++) {
-                int u = FixMul(CARF(0x860), CARF(0x7bc + i * 4));
-                if (u > CARF(0x7a4) && u <= CARF(0x794)) {
-                    CARF(0x7a4) = u;
-                    CARB(0xb1e) = (char)i;
+                int u = FixMul(g_pCurrentCar->wheelLoad[0], g_pCurrentCar->field_0x7bc[i]);
+                if (u > g_pCurrentCar->field_0x7a4 && u <= g_pCurrentCar->field_0x794) {
+                    g_pCurrentCar->field_0x7a4 = u;
+                    g_pCurrentCar->gear = (char)i;
                 }
             }
-            CARF(0x7ac) = CARF(0x7a4);
-            CARF(0xb60) = 0;
-            FUN_004930e0((int)g_pCurrentCar, 8);
+            g_pCurrentCar->field_0x7ac = g_pCurrentCar->field_0x7a4;
+            g_pCurrentCar->field_0xb60 = 0;
+            FUN_004930e0(g_pCurrentCar, 8);
             Car_FlagAirborneCorners();
             Car_ShareWeightOnWheels();
             Car_UpdateGroundNormal();
 
-            if (CARF(0xc20) != 0) {
-                if (CARF(0xc00) != 0) {
+            if (g_pCurrentCar->field_0xc20 != 0) {
+                if (g_pCurrentCar->field_0xc00 != 0) {
                     Car_LiftOutOfGround();
                     g_pCurrentCar->position.y += lift;
                     g_pCurrentCar->corners[0].y += lift;
@@ -5234,22 +5236,22 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                     Car_FlagAirborneCorners();
                     Car_ShareWeightOnWheels();
                 } else {
-                    pRight = &CARV(0x360);
-                    pForward = &CARV(0x378);
-                    CARV(0x36c) = CARV(0x48c);
-                    i = FixVecDot(&CARV(0x36c), pRight);
-                    FixVecScale(&v, &CARV(0x36c), i);
+                    pRight = &g_pCurrentCar->right;
+                    pForward = &g_pCurrentCar->forward;
+                    g_pCurrentCar->up = g_pCurrentCar->groundNormal;
+                    i = FixVecDot(&g_pCurrentCar->up, pRight);
+                    FixVecScale(&v, &g_pCurrentCar->up, i);
                     v.x = pRight->x - v.x;
                     v.y = pRight->y - v.y;
                     v.z = pRight->z - v.z;
                     FIX_NORMALIZE_INTO(pRight[0], v)
-                    FixVecCross(&v, pRight, &CARV(0x36c));
+                    FixVecCross(&v, pRight, &g_pCurrentCar->up);
                     FIX_NORMALIZE_INTO(pForward[0], v)
                     FixMatrix_SetRight(pRight, g_pCurrentCar->pWorld);
-                    FixMatrix_SetUp(&CARV(0x36c), g_pCurrentCar->pWorld);
+                    FixMatrix_SetUp(&g_pCurrentCar->up, g_pCurrentCar->pWorld);
                     FixMatrix_SetForward(pForward, g_pCurrentCar->pWorld);
                     Car_UpdateCorners(g_pCurrentCar);
-                    FUN_004930e0((int)g_pCurrentCar, 8);
+                    FUN_004930e0(g_pCurrentCar, 8);
                     Car_LiftOutOfGround();
                     g_pCurrentCar->position.y += lift;
                     g_pCurrentCar->corners[0].y += lift;
@@ -5264,10 +5266,10 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                     Car_ShareWeightOnWheels();
                     Car_UpdateGroundNormal();
                 }
-                FixMatrix_SetPosition(&CARV(0x2d0), g_pCurrentCar->pWorld);
+                FixMatrix_SetPosition(&g_pCurrentCar->position, g_pCurrentCar->pWorld);
             }
 
-            if (CARF(0xbf8) != 0) {
+            if (g_pCurrentCar->field_0xbf8 != 0) {
                 for (i = 0; i < 4; i++) {
                     *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0xc0) =
                         g_pCurrentCar->corners[i];
@@ -5278,34 +5280,34 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
                 for (i = 0; i < 8; i++) {
                     g_pCurrentCar->cornerNormal[i] =
                         g_pCurrentCar->cornerAxis[i];
-                    CARF(0xbbc + i * 4) = 0;
+                    g_pCurrentCar->cornerOnGround[4 + i] = 0;
                 }
-                CARF(0x7a8) = CARF(0x7a4);
-                CARV(0x2f4) = CARV(0x2d0);
-                CARV(0x2e8) = CARV(0x2d0);
-                CARV(0x498) = CARV(0x48c);
+                g_pCurrentCar->field_0x7a8 = g_pCurrentCar->field_0x7a4;
+                g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;
+                g_pCurrentCar->positionPrev = g_pCurrentCar->position;
+                g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
                 memcpy(g_pCurrentCar->field_0x384, &g_pCurrentCar->right, 0x24);
-                CARF(0x6e4) = 0;
-                CARF(0x6e8) = 0;
-                CARF(0x6ec) = 0;
-                CARF(0x6f0) = 0;
-                CARF(0x6f4) = 0;
-                CARF(0x6f8) = 0;
+                g_pCurrentCar->wheelLean.x = 0;
+                g_pCurrentCar->wheelLean.y = 0;
+                g_pCurrentCar->wheelLean.z = 0;
+                g_pCurrentCar->lean.x = 0;
+                g_pCurrentCar->lean.y = 0;
+                g_pCurrentCar->lean.z = 0;
             }
-            CARF(0xbf8) = 0;
-            CARF(0xc20) = 0;
-            CARF(0xb74) = 1;
-            FixMatrix_InverseRotateVector(&v, &CARV(0x48c), g_pCurrentCar->pWorld);
+            g_pCurrentCar->field_0xbf8 = 0;
+            g_pCurrentCar->field_0xc20 = 0;
+            g_pCurrentCar->field_0xb74 = 1;
+            FixMatrix_InverseRotateVector(&v, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
             if (!(v.y > 0x106 && FIX_ABS(v.x) <= FixMul(FIX_ABS(v.y), 0x93cd) &&
                   FIX_ABS(v.z) <= FixMul(FIX_ABS(v.y), 0x10000)))
-                CARF(0xb74) = 0;
+                g_pCurrentCar->field_0xb74 = 0;
             for (i = 0; i < 4; i++) {
                 g_pCurrentCar->field_0x890[i] = 0;
                 g_pCurrentCar->field_0x8a0[i] = 0;
             }
             Car_UpdateSurfaceParams(g_pCurrentCar, 0);
             Car_IntegrateWheelTravel();
-            CARB(0xb1d) = 0;
+            g_pCurrentCar->field_0xb1d = 0;
             Car_UpdateSuspension();
             Car_StoreBodyMatrix();
             g_pCurrentCar->sector =
@@ -6092,45 +6094,39 @@ void Car_UpdateWheelMeshStates(void)
 // FUNCTION: CMR2 0x00442e90
 void Car_SmoothForceFeedback(void)
 {
-    int rate;
-    int base;
-    int tag;
+    int i;
     int magnitude;
     int delta;
 
-    rate = 0x90;
-    base = 0x880;
-    tag = 0xab6;
+    i = 4;
     do {
-        if (*(short *)(((BYTE *)g_pCurrentCar) + tag + 0x10) == *(short *)(((BYTE *)g_pCurrentCar) + tag) &&
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x33c) != 0 && *(int *)(((BYTE *)g_pCurrentCar) + 0xb74) != 0) {
-            magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base);
+        if (*(short *)((BYTE *)g_pCurrentCar + 0xabe + i * 2) == *(short *)((BYTE *)g_pCurrentCar + 0xaae + i * 2) &&
+            *(int *)((BYTE *)g_pCurrentCar + 0xbac + i * 4) != 0 && g_pCurrentCar->field_0xb74 != 0) {
+            magnitude = *(int *)((BYTE *)g_pCurrentCar + 0x870 + i * 4);
             if (magnitude < 0) magnitude = -magnitude;
-            delta = magnitude - *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20);
+            delta = magnitude - *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4);
             if (delta < 0)
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = magnitude;
+                *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
+                *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) += FixMul(delta, g_pCurrentCar->cornerGrip[i].field_0x18);
 
-            magnitude = *(int *)(((BYTE *)g_pCurrentCar) + base + 0x10);
+            magnitude = *(int *)((BYTE *)g_pCurrentCar + 0x880 + i * 4);
             if (magnitude < 0) magnitude = -magnitude;
-            delta = magnitude - *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30);
+            delta = magnitude - *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4);
             if (delta < 0)
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = magnitude;
+                *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) = magnitude;
             else
-                *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) += FixMul(delta, *(int *)(((BYTE *)g_pCurrentCar) + 0x98 + rate));
+                *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) += FixMul(delta, g_pCurrentCar->cornerGrip[i].field_0x18);
         } else {
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x30) = 0;
-            *(int *)(((BYTE *)g_pCurrentCar) + base + 0x20) = 0;
+            *(int *)((BYTE *)g_pCurrentCar + 0x8a0 + i * 4) = 0;
+            *(int *)((BYTE *)g_pCurrentCar + 0x890 + i * 4) = 0;
         }
-        tag -= 4;
-        base -= 8;
-        rate -= 0x48;
-    } while (tag >= 0xaae);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x8a0) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8a4);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x890) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8a4);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x8a8) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8ac);
-    *(int *)(((BYTE *)g_pCurrentCar) + 0x898) = *(int *)(((BYTE *)g_pCurrentCar) + 0x8ac);
+        i -= 2;
+    } while (i >= 0);
+    g_pCurrentCar->field_0x8a0[0] = g_pCurrentCar->field_0x8a0[1];
+    g_pCurrentCar->field_0x890[0] = g_pCurrentCar->field_0x8a0[1];
+    g_pCurrentCar->field_0x8a0[2] = g_pCurrentCar->field_0x8a0[3];
+    g_pCurrentCar->field_0x890[2] = g_pCurrentCar->field_0x8a0[3];
 }
 
 // GLOBAL: CMR2 0x005391cc
@@ -6231,7 +6227,7 @@ void Car_IntegrateContacts(void)
                g_pCurrentCar->field_0x75c) > 0xbb80000) {
         g_pCurrentCar->field_0xc00 = 1;
         g_pCurrentCar->field_0x96c = 0x10000;
-        *(int *)g_pCurrentCar->field_0xc04 = 1;
+        g_pCurrentCar->field_0xc04[0] = 1;
         g_pCurrentCar->field_0x91c = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->groundNormal);
         g_pCurrentCar->field_0x920 = FixVecDot(&g_pCurrentCar->up, &g_pCurrentCar->groundNormal);
         g_pCurrentCar->field_0x924 = FixVecDot(&g_pCurrentCar->forward, &g_pCurrentCar->groundNormal);
@@ -6327,7 +6323,7 @@ void Car_IntegrateContacts(void)
 }
 
 // --- 0x0043e680 (layer 0) ----------------------------------------------------
-void FUN_004930e0(int param_1, int param_2);
+void FUN_004930e0(Car *pCar, int count);
 int FUN_00460c80(BYTE *pCar);
 void FUN_004789b0(BYTE *pCar);
 void Car_UpdateSurfaceParams(Car *pCar, int blend);
@@ -6348,28 +6344,28 @@ void Car_ResetBodyBasis(int param_1)
 #define CARV(off) (*(FixVector *)((int)g_pCurrentCar + (off)))
 
     g_pCurrentCar = (Car *)param_1;
-    FUN_004930e0(param_1, 8);
+    FUN_004930e0((Car *)param_1, 8);
     Car_UpdateGroundNormal();
-    CARV(0x36c) = CARV(0x48c);
+    g_pCurrentCar->up = g_pCurrentCar->groundNormal;
     dot = FixVecDot((FixVector *)((int)g_pCurrentCar + 0x360),
                     (FixVector *)((int)g_pCurrentCar + 0x48c));
     FixVecScale(&v, (FixVector *)((int)g_pCurrentCar + 0x48c), dot);
-    v.x = CARF(0x360) - v.x;
-    v.y = CARF(0x364) - v.y;
-    v.z = CARF(0x368) - v.z;
-    FIX_NORMALIZE_INTO(CARV(0x360), v);
-    FixVecCross(&v, &CARV(0x360), &CARV(0x36c));
-    FIX_NORMALIZE_INTO(CARV(0x378), v);
-    *(FixVector *)(CARF(0x750) + 0x0) = CARV(0x360);
-    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
-    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    v.x = g_pCurrentCar->right.x - v.x;
+    v.y = g_pCurrentCar->right.y - v.y;
+    v.z = g_pCurrentCar->right.z - v.z;
+    FIX_NORMALIZE_INTO(g_pCurrentCar->right, v);
+    FixVecCross(&v, &g_pCurrentCar->right, &g_pCurrentCar->up);
+    FIX_NORMALIZE_INTO(g_pCurrentCar->forward, v);
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     Car_UpdateCorners(g_pCurrentCar);
-    CARF(0x2d4) += CARF(0x8dc) - CARF(0x274);
-    *(FixVector *)(CARF(0x750) + 0x30) = CARV(0x2d0);
-    SceneNode_SetPosition((SceneNode *)CARF(0x720), (FixVector *)((int)g_pCurrentCar + 0x2d0));
+    g_pCurrentCar->position.y += g_pCurrentCar->cornerHeight[0] - g_pCurrentCar->corners[0].y;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+    SceneNode_SetPosition(g_pCurrentCar->pNode0x720, (FixVector *)((int)g_pCurrentCar + 0x2d0));
     Car_UpdateCorners(g_pCurrentCar);
     Car_FlagAirborneCorners();
-    CARV(0x3f0) = CARV(0x360);
+    g_pCurrentCar->rearWheelDir = g_pCurrentCar->right;
     Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
     FUN_004789b0((BYTE *)g_pCurrentCar);
     for (i = 0x300; i < 0x330; i += 0xc) {
@@ -6378,23 +6374,23 @@ void Car_ResetBodyBasis(int param_1)
     }
     for (i = 0x504; i < 0x564; i += 0xc)
         *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x60);
-    CARV(0x498) = CARV(0x48c);
-    CARV(0x2e8) = CARV(0x2d0);
-    CARV(0x2f4) = CARV(0x2d0);
-    CARV(0x2dc) = CARV(0x2d0);
+    g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
+    g_pCurrentCar->positionPrev = g_pCurrentCar->position;
+    g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;
+    g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     for (i = 0; i < 9; i++)
         *(int *)((int)g_pCurrentCar + 900 + i * 4) = *(int *)((int)g_pCurrentCar + 0x360 + i * 4);
-    CARF(0x960) = 0;
-    CARF(0x968) = CARF(0x960);
-    CARF(0x964) = CARF(0x960);
+    g_pCurrentCar->field_0x960 = 0;
+    g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x960;
+    g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
     *(BYTE *)((int)g_pCurrentCar + 0xb45) = 3;
-    CARF(0xbb8) = 1;
-    CARF(0xbb4) = 1;
-    CARF(0xbb0) = 1;
-    CARF(0xbac) = 1;
+    g_pCurrentCar->cornerOnGround[3] = 1;
+    g_pCurrentCar->cornerOnGround[2] = 1;
+    g_pCurrentCar->cornerOnGround[1] = 1;
+    g_pCurrentCar->cornerOnGround[0] = 1;
     *(BYTE *)((int)g_pCurrentCar + 0xb28) = 4;
-    CARF(0xb74) = 1;
-    CARF(0xb60) = 1;
+    g_pCurrentCar->field_0xb74 = 1;
+    g_pCurrentCar->field_0xb60 = 1;
 
 #undef CARF
 #undef CARV
@@ -6430,72 +6426,72 @@ void Car_IntegrateWheelTravel(void)
                     (FixVector *)((int)g_pCurrentCar + 0x48c));
     if (dot > 0xcccc) {
         for (i = 0; i < 4; i++) {
-            t = -FixMul(FixMul(CARF(0x274 + i * 0xc) - CARF(0x8dc + i * 4), CARF(0x490)),
-                        FixDiv(0x10000, dot));
+            t = FixMul(-FixMul(g_pCurrentCar->corners[i].y - g_pCurrentCar->cornerHeight[i], g_pCurrentCar->groundNormal.y),
+                       FixDiv(0x10000, dot));
             sum += t;
             v[i] = t;
-            d = CARF(0x8dc + i * 4) - CARF(0x274 + i * 0xc) - CARF(0x958);
+            d = g_pCurrentCar->cornerHeight[i] - g_pCurrentCar->corners[i].y - g_pCurrentCar->field_0x958;
             if (d < 0) {
-                if (d < CARF(0xa08))
-                    CARF(0x928 + i * 4) = CARF(0xa08);
+                if (d < g_pCurrentCar->field_0xa08)
+                    g_pCurrentCar->field_0x928[i] = g_pCurrentCar->field_0xa08;
                 else
-                    CARF(0x928 + i * 4) = d;
+                    g_pCurrentCar->field_0x928[i] = d;
             } else {
-                CARF(0x928 + i * 4) = 0;
+                g_pCurrentCar->field_0x928[i] = 0;
             }
         }
         avg = sum / 4;
         max = 0;
         for (i = 0; i < 4; i++) {
-            t = FixMul(CARF(0x9c0), v[i] - avg);
-            CARF(0x808 + i * 4) = t;
+            t = FixMul(g_pCurrentCar->field_0x9c0, v[i] - avg);
+            g_pCurrentCar->field_0x808[i] = t;
             if (max < FIX_ABS(t))
                 max = FIX_ABS(t);
         }
         if (max > 0x10000) {
             for (i = 0; i < 4; i++)
-                CARF(0x808 + i * 4) = FixMul(CARF(0x808 + i * 4), FixDiv(0x10000, max));
+                g_pCurrentCar->field_0x808[i] = FixMul(g_pCurrentCar->field_0x808[i], FixDiv(0x10000, max));
         }
     } else {
         for (i = 0; i < 4; i++) {
-            CARF(0x928 + i * 4) = 0;
-            CARF(0x808 + i * 4) = 0;
+            g_pCurrentCar->field_0x928[i] = 0;
+            g_pCurrentCar->field_0x808[i] = 0;
         }
     }
-    if (CARF(0xc00) != 0) {
+    if (g_pCurrentCar->field_0xc00 != 0) {
         for (i = 0; i < 4; i++) {
-            CARF(0x938 + i * 4) = 0;
-            CARF(0x948 + i * 4) = 0;
+            g_pCurrentCar->field_0x938[i] = 0;
+            g_pCurrentCar->field_0x948[i] = 0;
         }
     } else {
         for (i = 0; i < 4; i++) {
-            if (CARF(0x9c + i * 0x24) < 1 || *(char *)((int)g_pCurrentCar + 0xb2c + i) != 0 ||
-                CARF(0xb74) == 0) {
-                CARF(0x938 + i * 4) = 0;
-                CARF(0x948 + i * 4) = 0;
+            if (g_pCurrentCar->cornerGrip[i].field_0x1c < 1 || *(char *)((int)g_pCurrentCar + 0xb2c + i) != 0 ||
+                g_pCurrentCar->field_0xb74 == 0) {
+                g_pCurrentCar->field_0x938[i] = 0;
+                g_pCurrentCar->field_0x948[i] = 0;
             } else {
-                t = CARF(0x778) - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
+                t = g_pCurrentCar->speed - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
                                             (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
                 if (t >= 0x10001)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;
-                if (CARF(0x948 + i * 4) >= 1) {
-                    CARF(0x948 + i * 4) -= t;
-                    if (CARF(0x948 + i * 4) < 0)
-                        CARF(0x948 + i * 4) = 0;
+                if (g_pCurrentCar->field_0x948[i] >= 1) {
+                    g_pCurrentCar->field_0x948[i] -= t;
+                    if (g_pCurrentCar->field_0x948[i] < 0)
+                        g_pCurrentCar->field_0x948[i] = 0;
                 } else {
-                    a = CARF(0x270 + i * 0xc);
-                    b = CARF(0x278 + i * 0xc);
-                    if (CARF(0x938 + i * 4) == 0) {
-                        CARF(0x938 + i * 4) =
+                    a = g_pCurrentCar->corners[i].x;
+                    b = g_pCurrentCar->corners[i].z;
+                    if (g_pCurrentCar->field_0x938[i] == 0) {
+                        g_pCurrentCar->field_0x938[i] =
                             FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x401) << 6, t),
-                                   CARF(0x9c + i * 0x24));
+                                   g_pCurrentCar->cornerGrip[i].field_0x1c);
                     } else {
-                        CARF(0x938 + i * 4) = 0;
-                        CARF(0x948 + i * 4) =
+                        g_pCurrentCar->field_0x938[i] = 0;
+                        g_pCurrentCar->field_0x948[i] =
                             FixMul(FixMul((FIX_ABS(FIX_ABS(a) - FIX_ABS(b)) % 0x201) << 7, 0x320000),
-                                   CARF(0xa0 + i * 0x24));
+                                   g_pCurrentCar->cornerGrip[i].field_0x20);
                     }
                 }
             }
@@ -6531,127 +6527,127 @@ void Car_PlaceAtStart(int *param_1, int *param_2)
     v.z = param_2[2];
     l = FixSqrt(FixMul(v.x, v.x) + FixMul(v.z, v.z));
     if (l != 0) {
-        FixVecScaleRecip(&CARV(0x360), &v, l);
+        FixVecScaleRecip(&g_pCurrentCar->right, &v, l);
     } else {
-        CARV(0x360).x = 0;
-        CARV(0x360).y = 0;
-        CARV(0x360).z = 0;
+        g_pCurrentCar->right.x = 0;
+        g_pCurrentCar->right.y = 0;
+        g_pCurrentCar->right.z = 0;
     }
-    CARF(0x36c) = 0;
-    CARF(0x370) = 0x10000;
-    CARF(0x374) = 0;
-    CARF(0x378) = CARF(0x368);
-    CARF(0x37c) = 0;
-    CARF(0x380) = -CARF(0x360);
-    CARF(0x2d0) = param_1[0];
-    CARF(0x2d4) = param_1[1] - 0x640000;
-    CARF(0x2d8) = param_1[2];
-    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
-    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
-    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    g_pCurrentCar->up.x = 0;
+    g_pCurrentCar->up.y = 0x10000;
+    g_pCurrentCar->up.z = 0;
+    g_pCurrentCar->forward.x = g_pCurrentCar->right.z;
+    g_pCurrentCar->forward.y = 0;
+    g_pCurrentCar->forward.z = -g_pCurrentCar->right.x;
+    g_pCurrentCar->position.x = param_1[0];
+    g_pCurrentCar->position.y = param_1[1] - 0x640000;
+    g_pCurrentCar->position.z = param_1[2];
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_UpdateGroundNormal();
-    CARV(0x36c) = CARV(0x48c);
-    dot = FixVecDot(&CARV(0x360), &CARV(0x36c));
-    FixVecScale(&v, &CARV(0x36c), dot);
-    v.x = CARF(0x360) - v.x;
-    v.y = CARF(0x364) - v.y;
-    v.z = CARF(0x368) - v.z;
-    FIX_NORMALIZE_INTO(CARV(0x360), v);
-    FixVecCross(&v, &CARV(0x360), &CARV(0x36c));
-    FIX_NORMALIZE_INTO(CARV(0x378), v);
-    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
-    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
-    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
+    g_pCurrentCar->up = g_pCurrentCar->groundNormal;
+    dot = FixVecDot(&g_pCurrentCar->right, &g_pCurrentCar->up);
+    FixVecScale(&v, &g_pCurrentCar->up, dot);
+    v.x = g_pCurrentCar->right.x - v.x;
+    v.y = g_pCurrentCar->right.y - v.y;
+    v.z = g_pCurrentCar->right.z - v.z;
+    FIX_NORMALIZE_INTO(g_pCurrentCar->right, v);
+    FixVecCross(&v, &g_pCurrentCar->right, &g_pCurrentCar->up);
+    FIX_NORMALIZE_INTO(g_pCurrentCar->forward, v);
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
     Car_UpdateCorners(g_pCurrentCar);
-    FUN_004930e0((int)g_pCurrentCar, 8);
+    FUN_004930e0(g_pCurrentCar, 8);
     Car_FlagAirborneCorners();
     Car_LiftFreeCorners();
     Car_FlagAirborneCorners();
     Car_ShareWeightOnWheels();
-    *(FixVector *)(CARF(0x750) + 0x30) = CARV(0x2d0);
-    *(FixMatrix *)CARF(0x754) = *(FixMatrix *)CARF(0x750);
-    CARF(0x91c) = 0;
-    CARF(0x920) = 0x10000;
-    CARF(0x924) = 0;
-    CARF(0xba8) = 0;
-    CARF(0xba4) = 0;
-    CARF(0xba0) = 0;
-    CARF(0x408) = 0;
-    CARF(0x40c) = 0;
-    CARF(0x410) = 0;
-    CARF(0x414) = 0;
-    CARF(0x418) = 0;
-    CARF(0x41c) = 0;
-    CARF(0x778) = 0;
-    CARF(0x420) = 0;
-    CARF(0x424) = 0;
-    CARF(0x428) = 0;
+    g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
+    *g_pCurrentCar->pBodyMatrix = *g_pCurrentCar->pWorld;
+    g_pCurrentCar->field_0x91c = 0;
+    g_pCurrentCar->field_0x920 = 0x10000;
+    g_pCurrentCar->field_0x924 = 0;
+    g_pCurrentCar->field_0xba0[2] = 0;
+    g_pCurrentCar->field_0xba0[1] = 0;
+    g_pCurrentCar->field_0xba0[0] = 0;
+    g_pCurrentCar->velocity.x = 0;
+    g_pCurrentCar->velocity.y = 0;
+    g_pCurrentCar->velocity.z = 0;
+    g_pCurrentCar->velocityNext.x = 0;
+    g_pCurrentCar->velocityNext.y = 0;
+    g_pCurrentCar->velocityNext.z = 0;
+    g_pCurrentCar->speed = 0;
+    g_pCurrentCar->angularVelocity.x = 0;
+    g_pCurrentCar->angularVelocity.y = 0;
+    g_pCurrentCar->angularVelocity.z = 0;
     for (i = 0; i < 9; i++)
         CARF(900 + i * 4) = CARF(0x360 + i * 4);
-    CARV(0x498) = CARV(0x48c);
+    g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
     for (i = 0x504; i < 0x564; i += 0xc)
         *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0x60);
-    CARF(0x5c4) = 0;
-    CARF(0x5c8) = 0;
-    CARF(0x5cc) = 0;
-    CARF(0x5d0) = 0;
-    CARF(0x5d4) = 0;
-    CARF(0x5d8) = 0;
-    CARV(0x2dc) = CARV(0x2d0);
-    CARV(0x2f4) = CARV(0x2d0);
-    CARV(0x2e8) = CARV(0x2d0);
+    g_pCurrentCar->field_0x5c4.x = 0;
+    g_pCurrentCar->field_0x5c4.y = 0;
+    g_pCurrentCar->field_0x5c4.z = 0;
+    g_pCurrentCar->field_0x5d0.x = 0;
+    g_pCurrentCar->field_0x5d0.y = 0;
+    g_pCurrentCar->field_0x5d0.z = 0;
+    g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
+    g_pCurrentCar->positionPrev2 = g_pCurrentCar->position;
+    g_pCurrentCar->positionPrev = g_pCurrentCar->position;
     for (i = 0x330; i < 0x360; i += 0xc) {
         *(FixVector *)((int)g_pCurrentCar + i) = *(FixVector *)((int)g_pCurrentCar + i - 0xc0);
         *(FixVector *)((int)g_pCurrentCar + i - 0x30) = *(FixVector *)((int)g_pCurrentCar + i);
     }
-    CARV(0x3a8) = CARV(0x378);
-    CARV(0x3f0) = CARV(0x360);
-    CARV(0x3b4) = CARV(0x3f0);
-    CARF(0xc00) = 0;
-    CARF(0xc10) = 0;
-    CARF(0x96c) = 0;
-    CARF(0xc04) = 0;
+    g_pCurrentCar->frontWheelAxis = g_pCurrentCar->forward;
+    g_pCurrentCar->rearWheelDir = g_pCurrentCar->right;
+    g_pCurrentCar->frontWheelDir = g_pCurrentCar->rearWheelDir;
+    g_pCurrentCar->field_0xc00 = 0;
+    g_pCurrentCar->field_0xc10 = 0;
+    g_pCurrentCar->field_0x96c = 0;
+    g_pCurrentCar->field_0xc04[0] = 0;
     *(short *)((int)g_pCurrentCar + 0xa9c) = 0;
-    CARF(0x95c) = 0;
+    g_pCurrentCar->field_0x95c = 0;
     *(short *)((int)g_pCurrentCar + 0xb18) = 0;
-    CARF(0x77c) = 0;
+    g_pCurrentCar->tipRatio = 0;
     *(BYTE *)((int)g_pCurrentCar + 0xb45) = 3;
-    CARF(0x6e4) = 0;
-    CARF(0x6e8) = 0;
-    CARF(0x6ec) = 0;
-    CARF(0x6f0) = 0;
-    CARF(0x6f4) = 0;
-    CARF(0x6f8) = 0;
+    g_pCurrentCar->wheelLean.x = 0;
+    g_pCurrentCar->wheelLean.y = 0;
+    g_pCurrentCar->wheelLean.z = 0;
+    g_pCurrentCar->lean.x = 0;
+    g_pCurrentCar->lean.y = 0;
+    g_pCurrentCar->lean.z = 0;
     for (i = 0x860; i < 0x870; i += 4)
         CARF(i) = 0;
-    CARF(0x79c) = 0;
-    CARF(0x7a0) = 0;
-    CARF(0x7a4) = 0;
-    CARF(0x7ac) = 0;
-    CARF(0x838) = 0;
-    CARF(0x83c) = 0;
-    CARF(0x848) = 0;
-    CARF(0x84c) = 0;
-    CARF(0x81c) = 0;
+    g_pCurrentCar->steerFollowRate = 0;
+    g_pCurrentCar->field_0x7a0 = 0;
+    g_pCurrentCar->field_0x7a4 = 0;
+    g_pCurrentCar->field_0x7ac = 0;
+    g_pCurrentCar->brakeInput = 0;
+    g_pCurrentCar->field_0x83c = 0;
+    g_pCurrentCar->handbrakeForce = 0;
+    g_pCurrentCar->field_0x84c = 0;
+    g_pCurrentCar->field_0x81c = 0;
     for (i = 0xa9e; i < 0xaae; i += 2)
         *(short *)((int)g_pCurrentCar + i) = 0;
     *(short *)((int)g_pCurrentCar + 0xb10) = 0;
     *(short *)((int)g_pCurrentCar + 0xb12) = 0;
-    CARF(0xbfc) = 0;
-    CARF(0xbe4) = 0;
-    CARF(0xbe0) = 0;
-    CARF(0xbdc) = 0;
-    CARF(0xb94) = 0;
+    g_pCurrentCar->field_0xbfc = 0;
+    g_pCurrentCar->field_0xbe4 = 0;
+    g_pCurrentCar->field_0xbe0 = 0;
+    g_pCurrentCar->field_0xbdc = 0;
+    g_pCurrentCar->field_0xb94 = 0;
     *(BYTE *)((int)g_pCurrentCar + 0xb1e) = 1;
-    CARF(0xb78) = 0;
-    CARF(0x960) = 0;
-    CARF(0x964) = CARF(0x960);
-    CARF(0x968) = CARF(0x960);
+    g_pCurrentCar->field_0xb78 = 0;
+    g_pCurrentCar->field_0x960 = 0;
+    g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
+    g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x960;
     Car_InvalidateTransforms((int)*(char *)((int)g_pCurrentCar + 0xb1a));
-    CARF(0xc08) = 1;
-    CARF(0x970) = 0x320000;
+    g_pCurrentCar->field_0xc04[1] = 1;
+    g_pCurrentCar->field_0x970[0] = 0x320000;
     CARF(0xc14) = 1;
     l = FUN_00460c80((BYTE *)g_pCurrentCar);
     Car_UpdateSurfaceParams(g_pCurrentCar, l);
@@ -6724,259 +6720,259 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     } else {
         carType = param_3;
     }
-    CARB(0xb1a) = (char)param_5;
-    CARB(0xb1b) = (char)carType;
+    g_pCurrentCar->index = (char)param_5;
+    g_pCurrentCar->type = (char)carType;
     if (param_6 == 0)
         Car_BindModel(param_5, (Car *)param_1);
-    CARF(0xa88) = FixMul(0x5999, 0x20000);
-    CARF(0xa8c) = CARF(0xa88) + FixMul(0x5999, 0x18000);
+    g_pCurrentCar->field_0xa88 = FixMul(0x5999, 0x20000);
+    g_pCurrentCar->field_0xa8c = g_pCurrentCar->field_0xa88 + FixMul(0x5999, 0x18000);
     for (i = 0; i < 4; i++) {
         FixMatrix_GetPosition((FixVector *)((int)g_pCurrentCar + 0x3c0 + i * 0xc),
                               (FixMatrix *)(*(int *)((int)g_pCurrentCar + 0x738 + i * 4) + 0x58));
         if (CGameInfo::FUN_004063f0(6) != 0)
-            *(int *)((int)g_pCurrentCar + 0x3c4 + i * 0xc) -= CARF(0xa88);
+            *(int *)((int)g_pCurrentCar + 0x3c4 + i * 0xc) -= g_pCurrentCar->field_0xa88;
     }
-    CARV(0x2d0) = *(FixVector *)param_4;
-    CARB(0xb1e) = 0;
+    g_pCurrentCar->position = *(FixVector *)param_4;
+    g_pCurrentCar->gear = 0;
     param_2 += 0x98;
-    CARF(0x750) = (int)g_pCurrentCar;
-    FixMatrix_GetRight(&CARV(0x360), (FixMatrix *)param_2);
-    FixMatrix_GetUp(&CARV(0x36c), (FixMatrix *)param_2);
-    FixMatrix_GetForward(&CARV(0x378), (FixMatrix *)param_2);
-    *(FixVector *)(CARF(0x750) + 0x00) = CARV(0x360);
-    *(FixVector *)(CARF(0x750) + 0x10) = CARV(0x36c);
-    *(FixVector *)(CARF(0x750) + 0x20) = CARV(0x378);
-    CARF(0x754) = (int)g_pCurrentCar + 0x40;
-    FixMatrix_GetRight(&v, (FixMatrix *)(CARF(0x720) + 0x98));
-    *(FixVector *)(CARF(0x750) + 0x00) = v;
-    FixMatrix_GetUp(&v, (FixMatrix *)(CARF(0x720) + 0x98));
-    *(FixVector *)(CARF(0x750) + 0x10) = v;
-    FixMatrix_GetForward(&v, (FixMatrix *)(CARF(0x720) + 0x98));
-    *(FixVector *)(CARF(0x750) + 0x20) = v;
+    g_pCurrentCar->pWorld = &g_pCurrentCar->field_0x0;
+    FixMatrix_GetRight(&g_pCurrentCar->right, (FixMatrix *)param_2);
+    FixMatrix_GetUp(&g_pCurrentCar->up, (FixMatrix *)param_2);
+    FixMatrix_GetForward(&g_pCurrentCar->forward, (FixMatrix *)param_2);
+    g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
+    g_pCurrentCar->pWorld->up = g_pCurrentCar->up;
+    g_pCurrentCar->pWorld->forward = g_pCurrentCar->forward;
+    g_pCurrentCar->pBodyMatrix = &g_pCurrentCar->field_0x40;
+    FixMatrix_GetRight(&v, &g_pCurrentCar->pNode0x720->current);
+    g_pCurrentCar->pWorld->right = v;
+    FixMatrix_GetUp(&v, &g_pCurrentCar->pNode0x720->current);
+    g_pCurrentCar->pWorld->up = v;
+    FixMatrix_GetForward(&v, &g_pCurrentCar->pNode0x720->current);
+    g_pCurrentCar->pWorld->forward = v;
     switch (carType) {
     case 3:
         limit = 0x3e80000;
-        CARF(0x1f8) = 0x44560;
-        CARF(0x1fc) = 0x15eb8;
-        CARF(0x200) = 0x1cfdf;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0x14ccc;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xb0a3;
-        CARF(0x770) = 0xfa9f;
+        g_pCurrentCar->field_0x1f8.x = 0x44560;
+        g_pCurrentCar->field_0x1f8.y = 0x15eb8;
+        g_pCurrentCar->field_0x1f8.z = 0x1cfdf;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1cccc;
+        g_pCurrentCar->scale0x768 = 0x14ccc;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xb0a3;
+        g_pCurrentCar->field_0x770[0] = 0xfa9f;
         break;
     case 0:
         limit = 0x3e80000;
-        CARF(0x1f8) = 0x426e9;
-        CARF(0x1fc) = 0x16b85;
-        CARF(0x200) = 0x1c51e;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0x8000;
-        CARF(0x76c) = 0x3d70;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0x10ccc;
+        g_pCurrentCar->field_0x1f8.x = 0x426e9;
+        g_pCurrentCar->field_0x1f8.y = 0x16b85;
+        g_pCurrentCar->field_0x1f8.z = 0x1c51e;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1cccc;
+        g_pCurrentCar->scale0x768 = 0x8000;
+        g_pCurrentCar->scale0x76c = 0x3d70;
+        g_pCurrentCar->field_0x770[1] = 0xcf5c;
+        g_pCurrentCar->field_0x770[0] = 0x10ccc;
         break;
     case 6:
         limit = 0x3a60000;
-        CARF(0x1f8) = 0x3e3d7;
-        CARF(0x1fc) = 0x15eb8;
-        CARF(0x200) = 0x1c28f;
-        CARF(0x788) = 0x63d7;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1ae14;
-        CARF(0x768) = 0x9c28;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0xfae1;
+        g_pCurrentCar->field_0x1f8.x = 0x3e3d7;
+        g_pCurrentCar->field_0x1f8.y = 0x15eb8;
+        g_pCurrentCar->field_0x1f8.z = 0x1c28f;
+        g_pCurrentCar->field_0x788 = 0x63d7;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1ae14;
+        g_pCurrentCar->scale0x768 = 0x9c28;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xcf5c;
+        g_pCurrentCar->field_0x770[0] = 0xfae1;
         break;
     case 7:
         limit = 0x3c70000;
-        CARF(0x1f8) = 0x475c2;
-        CARF(0x1fc) = 0x1570a;
-        CARF(0x200) = 0x1c28f;
-        CARF(0x788) = 0x4a3d;
-        CARF(0x794) = 0x88b02;
-        CARF(0x764) = 0x1e147;
-        CARF(0x768) = 0x1028f;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0xfae1;
+        g_pCurrentCar->field_0x1f8.x = 0x475c2;
+        g_pCurrentCar->field_0x1f8.y = 0x1570a;
+        g_pCurrentCar->field_0x1f8.z = 0x1c28f;
+        g_pCurrentCar->field_0x788 = 0x4a3d;
+        g_pCurrentCar->field_0x794 = 0x88b02;
+        g_pCurrentCar->scale0x764 = 0x1e147;
+        g_pCurrentCar->scale0x768 = 0x1028f;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xcf5c;
+        g_pCurrentCar->field_0x770[0] = 0xfae1;
         break;
     case 2:
         limit = 0x3e80000;
-        CARF(0x1f8) = 0x40f5c;
-        CARF(0x1fc) = 0x163d7;
-        CARF(0x200) = 0x1c51e;
-        CARF(0x788) = 0x5687;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0x451e;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0x1147a;
+        g_pCurrentCar->field_0x1f8.x = 0x40f5c;
+        g_pCurrentCar->field_0x1f8.y = 0x163d7;
+        g_pCurrentCar->field_0x1f8.z = 0x1c51e;
+        g_pCurrentCar->field_0x788 = 0x5687;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1cccc;
+        g_pCurrentCar->scale0x768 = 0x451e;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xcf5c;
+        g_pCurrentCar->field_0x770[0] = 0x1147a;
         break;
     case 1:
         limit = 0x4000000;
-        CARF(0x1f8) = 0x4451e;
-        CARF(0x1fc) = 0x15999;
-        CARF(0x200) = 0x1d70a;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1cccc;
-        CARF(0x768) = 0xf851;
-        CARF(0x76c) = 0x570a;
-        CARF(0x774) = 0xcf5c;
-        CARF(0x770) = 0x1147a;
+        g_pCurrentCar->field_0x1f8.x = 0x4451e;
+        g_pCurrentCar->field_0x1f8.y = 0x15999;
+        g_pCurrentCar->field_0x1f8.z = 0x1d70a;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1cccc;
+        g_pCurrentCar->scale0x768 = 0xf851;
+        g_pCurrentCar->scale0x76c = 0x570a;
+        g_pCurrentCar->field_0x770[1] = 0xcf5c;
+        g_pCurrentCar->field_0x770[0] = 0x1147a;
         break;
     case 8:
         limit = 0x1bf0000;
-        CARF(0x1f8) = 0x30083;
-        CARF(0x1fc) = 0x14041;
-        CARF(0x200) = 0x18000;
-        CARF(0x788) = 0x3ae1;
-        CARF(0x794) = 0x88b02;
-        CARF(0x764) = 0x13333;
-        CARF(0x768) = 0x4ccc;
-        CARF(0x76c) = 0x2666;
-        CARF(0x774) = 0xb5c2;
-        CARF(0x770) = 0xfa9f;
+        g_pCurrentCar->field_0x1f8.x = 0x30083;
+        g_pCurrentCar->field_0x1f8.y = 0x14041;
+        g_pCurrentCar->field_0x1f8.z = 0x18000;
+        g_pCurrentCar->field_0x788 = 0x3ae1;
+        g_pCurrentCar->field_0x794 = 0x88b02;
+        g_pCurrentCar->scale0x764 = 0x13333;
+        g_pCurrentCar->scale0x768 = 0x4ccc;
+        g_pCurrentCar->scale0x76c = 0x2666;
+        g_pCurrentCar->field_0x770[1] = 0xb5c2;
+        g_pCurrentCar->field_0x770[0] = 0xfa9f;
         break;
     case 5:
         limit = 0x3e80000;
-        CARF(0x1f8) = 0x41c28;
-        CARF(0x1fc) = 0x154bc;
-        CARF(0x200) = 0x1d47a;
-        CARF(0x788) = 0x5c28;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1c000;
-        CARF(0x768) = 0x10000;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0x12dd2;
+        g_pCurrentCar->field_0x1f8.x = 0x41c28;
+        g_pCurrentCar->field_0x1f8.y = 0x154bc;
+        g_pCurrentCar->field_0x1f8.z = 0x1d47a;
+        g_pCurrentCar->field_0x788 = 0x5c28;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1c000;
+        g_pCurrentCar->scale0x768 = 0x10000;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xe3d7;
+        g_pCurrentCar->field_0x770[0] = 0x12dd2;
         break;
     case 4:
         limit = 0x3e80000;
-        CARF(0x1f8) = 0x40312;
-        CARF(0x1fc) = 0x14ccc;
-        CARF(0x200) = 0x1c51e;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1c000;
-        CARF(0x768) = 0xcccc;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0x12dd2;
+        g_pCurrentCar->field_0x1f8.x = 0x40312;
+        g_pCurrentCar->field_0x1f8.y = 0x14ccc;
+        g_pCurrentCar->field_0x1f8.z = 0x1c51e;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1c000;
+        g_pCurrentCar->scale0x768 = 0xcccc;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xe3d7;
+        g_pCurrentCar->field_0x770[0] = 0x12dd2;
         break;
     case 9:
         limit = 0x3450000;
-        CARF(0x1f8) = 0x3b958;
-        CARF(0x1fc) = 0x15db2;
-        CARF(0x200) = 0x1e041;
-        CARF(0x788) = 0x6666;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1a666;
-        CARF(0x768) = 0x9999;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0xe106;
+        g_pCurrentCar->field_0x1f8.x = 0x3b958;
+        g_pCurrentCar->field_0x1f8.y = 0x15db2;
+        g_pCurrentCar->field_0x1f8.z = 0x1e041;
+        g_pCurrentCar->field_0x788 = 0x6666;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1a666;
+        g_pCurrentCar->scale0x768 = 0x9999;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xe3d7;
+        g_pCurrentCar->field_0x770[0] = 0xe106;
         break;
     case 11:
         limit = 0x2fc0000;
-        CARF(0x1f8) = 0x3d333;
-        CARF(0x1fc) = 0x15999;
-        CARF(0x200) = 0x1c312;
-        CARF(0x788) = 0x75c2;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1a666;
-        CARF(0x768) = 0x9999;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xe3d7;
-        CARF(0x770) = 0xe106;
+        g_pCurrentCar->field_0x1f8.x = 0x3d333;
+        g_pCurrentCar->field_0x1f8.y = 0x15999;
+        g_pCurrentCar->field_0x1f8.z = 0x1c312;
+        g_pCurrentCar->field_0x788 = 0x75c2;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1a666;
+        g_pCurrentCar->scale0x768 = 0x9999;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xe3d7;
+        g_pCurrentCar->field_0x770[0] = 0xe106;
         break;
     case 10:
         limit = 0x2dc0000;
-        CARF(0x1f8) = 0x3b333;
-        CARF(0x1fc) = 0x106a7;
-        CARF(0x200) = 0x1cf5c;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1a666;
-        CARF(0x768) = 0x13333;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xca3d;
-        CARF(0x770) = 0xe106;
+        g_pCurrentCar->field_0x1f8.x = 0x3b333;
+        g_pCurrentCar->field_0x1f8.y = 0x106a7;
+        g_pCurrentCar->field_0x1f8.z = 0x1cf5c;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1a666;
+        g_pCurrentCar->scale0x768 = 0x13333;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xca3d;
+        g_pCurrentCar->field_0x770[0] = 0xe106;
         break;
     case 12:
         limit = 0x34e0000;
-        CARF(0x1f8) = 0x3ec49;
-        CARF(0x1fc) = 0x146a7;
-        CARF(0x200) = 0x1c28f;
-        CARF(0x788) = 0x570a;
-        CARF(0x794) = 0x98b02;
-        CARF(0x764) = 0x1a666;
-        CARF(0x768) = 0x13333;
-        CARF(0x76c) = 0x4ccc;
-        CARF(0x774) = 0xca3d;
-        CARF(0x770) = 0xe106;
+        g_pCurrentCar->field_0x1f8.x = 0x3ec49;
+        g_pCurrentCar->field_0x1f8.y = 0x146a7;
+        g_pCurrentCar->field_0x1f8.z = 0x1c28f;
+        g_pCurrentCar->field_0x788 = 0x570a;
+        g_pCurrentCar->field_0x794 = 0x98b02;
+        g_pCurrentCar->scale0x764 = 0x1a666;
+        g_pCurrentCar->scale0x768 = 0x13333;
+        g_pCurrentCar->scale0x76c = 0x4ccc;
+        g_pCurrentCar->field_0x770[1] = 0xca3d;
+        g_pCurrentCar->field_0x770[0] = 0xe106;
         break;
     case 13:
         limit = 0x1bf0000;
-        CARF(0x1f8) = 0x41687;
-        CARF(0x1fc) = 0x16147;
-        CARF(0x200) = 0x1bb22;
-        CARF(0x788) = 0x3ae1;
-        CARF(0x794) = 0x88b02;
-        CARF(0x764) = 0x1ae14;
-        CARF(0x768) = 0xfd70;
-        CARF(0x76c) = 0x428f;
-        CARF(0x774) = 0xd70a;
-        CARF(0x770) = 0xf581;
+        g_pCurrentCar->field_0x1f8.x = 0x41687;
+        g_pCurrentCar->field_0x1f8.y = 0x16147;
+        g_pCurrentCar->field_0x1f8.z = 0x1bb22;
+        g_pCurrentCar->field_0x788 = 0x3ae1;
+        g_pCurrentCar->field_0x794 = 0x88b02;
+        g_pCurrentCar->scale0x764 = 0x1ae14;
+        g_pCurrentCar->scale0x768 = 0xfd70;
+        g_pCurrentCar->scale0x76c = 0x428f;
+        g_pCurrentCar->field_0x770[1] = 0xd70a;
+        g_pCurrentCar->field_0x770[0] = 0xf581;
         break;
     }
     bVar6 = 0;
-    if (RallyData_FUN_00407e70() != 0 && RallyDataState() == 1 && CARB(0xb1a) != 0) {
-        switch (CARB(0xb1b)) {
+    if (RallyData_FUN_00407e70() != 0 && RallyDataState() == 1 && g_pCurrentCar->index != 0) {
+        switch (g_pCurrentCar->type) {
         case 6:
         case 7:
         case 9:
         case 10:
         case 0xb:
         case 0xd:
-            CARF(0x788) = 0x570a;
+            g_pCurrentCar->field_0x788 = 0x570a;
             limit = 0x3e80000;
             bVar6 = 1;
-            CARF(0x794) = 0x98b02;
+            g_pCurrentCar->field_0x794 = 0x98b02;
         }
     }
     if (CGameInfo::FUN_004063f0(6) != 0) {
-        CARF(0x1fc) += CARF(0xa8c);
-        CARF(0x774) += CARF(0xa8c);
-        CARF(0x770) += CARF(0xa8c);
+        g_pCurrentCar->field_0x1f8.y += g_pCurrentCar->field_0xa8c;
+        g_pCurrentCar->field_0x770[1] += g_pCurrentCar->field_0xa8c;
+        g_pCurrentCar->field_0x770[0] += g_pCurrentCar->field_0xa8c;
     }
-    CARF(0x7dc) = 0;
-    CARF(0x7e0) = FixDiv(0xc0000, 0x240000);
-    CARF(0x7e4) = FixDiv(0x100000, 0x220000);
-    CARF(0x7e8) = FixDiv(0x120000, 0x1d0000);
-    CARF(0x7ec) = FixDiv(0x130000, 0x190000);
-    CARF(0x7f0) = FixDiv(0x110000, 0x130000);
-    CARF(0x7f4) = FixDiv(0x190000, 0x180000);
-    CARF(0x7f8) = -FixDiv(0xc0000, 0x240000);
-    CARF(0x788) += -0x51e;
+    g_pCurrentCar->gearSpeed[0] = 0;
+    g_pCurrentCar->gearSpeed[1] = FixDiv(0xc0000, 0x240000);
+    g_pCurrentCar->gearSpeed[2] = FixDiv(0x100000, 0x220000);
+    g_pCurrentCar->gearSpeed[3] = FixDiv(0x120000, 0x1d0000);
+    g_pCurrentCar->gearSpeed[4] = FixDiv(0x130000, 0x190000);
+    g_pCurrentCar->gearSpeed[5] = FixDiv(0x110000, 0x130000);
+    g_pCurrentCar->gearSpeed[6] = FixDiv(0x190000, 0x180000);
+    g_pCurrentCar->gearSpeed[7] = -FixDiv(0xc0000, 0x240000);
+    g_pCurrentCar->field_0x788 += -0x51e;
     if (CGameInfo::FUN_004063f0(7) != 0) {
-        CARF(0x788) <<= 1;
-        CARF(0x794) = FixMul(CARF(0x794), 0x14ccc);
+        g_pCurrentCar->field_0x788 <<= 1;
+        g_pCurrentCar->field_0x794 = FixMul(g_pCurrentCar->field_0x794, 0x14ccc);
     }
     limit += 0x780000;
-    CARF(0x75c) = limit;
-    CARF(0x760) = FixDiv(0x10000, CARF(0x75c));
-    CARF(0x824) = 0x1333;
-    CARF(0x828) = FixDiv(0x10000, 0x30000);
-    CARF(0xb7c) = (int)CFrontend::FUN_0040ee80((int)CARB(0xb1b));
-    CARF(0xb80) = (int)CFrontend::FUN_0040ee70((int)CARB(0xb1b));
+    g_pCurrentCar->field_0x75c = limit;
+    g_pCurrentCar->field_0x760 = FixDiv(0x10000, g_pCurrentCar->field_0x75c);
+    g_pCurrentCar->field_0x824 = 0x1333;
+    g_pCurrentCar->field_0x828 = FixDiv(0x10000, 0x30000);
+    g_pCurrentCar->field_0xb7c = (int)CFrontend::FUN_0040ee80((int)g_pCurrentCar->type);
+    g_pCurrentCar->field_0xb80 = (int)CFrontend::FUN_0040ee70((int)g_pCurrentCar->type);
     if (flagC != 0) {
         pcVar13 = (char *)RallyData_FUN_00407630(FUN_004660f0());
         goto LAB_0043d703;
@@ -6987,7 +6983,7 @@ void Car_Spawn(int param_1, int param_2, int param_3, int *param_4, int param_5,
     }
     if (CGameInfo::FUN_00405d80() == 4 ||
         (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
-         RallyData_FUN_00408500((BYTE)CARB(0xb1a)) != -1) ||
+         RallyData_FUN_00408500((BYTE)g_pCurrentCar->index) != -1) ||
         (RallyData_GetFlag25() != 0 && flag8 != 0 && CGameInfo::FUN_00405e00() == 0)) {
 LAB_0043d6fe:
         pcVar13 = (char *)FUN_00494a70();
@@ -7005,7 +7001,7 @@ LAB_0043d6f7:
         if (flag8 != 0)
             goto LAB_0043d6f7;
     }
-    pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)CARB(0xb1a));
+    pcVar13 = (char *)RallyData_FUN_00407630((FUN_0041b370() & 0xff) + (int)g_pCurrentCar->index);
 LAB_0043d703:
     Car_SetRideHeight(FixMul((int)pcVar13[2] << 0x10, 0x28f));
     if (pcVar13[4] == '2') {
@@ -7014,17 +7010,17 @@ LAB_0043d703:
         i = FixMul((int)pcVar13[4] << 0x10, 0x28f);
     }
     Car_SetBrakeBias(i);
-    if (CARF(0xb80) != 0) {
+    if (g_pCurrentCar->field_0xb80 != 0) {
         if (pcVar13[3] == '2') {
             i = 0x8000;
         } else {
             i = FixMul((int)pcVar13[3] << 0x10, 0x83) + 0x6666;
         }
-        if (CARB(0xb1b) == 9)
+        if (g_pCurrentCar->type == 9)
             i += -0x2666;
         Car_SetDriveSplit(i);
     } else {
-        switch (CARB(0xb1b)) {
+        switch (g_pCurrentCar->type) {
         case 8:
             Car_SetDriveSplit(0x10000);
             break;
@@ -7044,116 +7040,116 @@ LAB_0043d703:
     Car_SelectGearSpeedTable((unsigned int)pcVar13[1]);
     Car_SetDifficultyHandling(FixMul((int)pcVar13[6] << 0x10, 0x28f));
     if (bVar6)
-        CARF(0x7b4) = 0x8000;
-    CARF(0x784) = 0x83;
-    CARF(0x790) = 0xccc;
-    CARF(0x798) = FixDiv(0x10000, CARF(0x794));
-    CARF(0x834) = 0xccc;
-    CARF(0x840) = 0x1999;
-    CARF(0x844) = 0x8000;
+        g_pCurrentCar->driveSplit = 0x8000;
+    g_pCurrentCar->field_0x784 = 0x83;
+    g_pCurrentCar->field_0x790 = 0xccc;
+    g_pCurrentCar->field_0x798 = FixDiv(0x10000, g_pCurrentCar->field_0x794);
+    g_pCurrentCar->field_0x834 = 0xccc;
+    g_pCurrentCar->field_0x840 = 0x1999;
+    g_pCurrentCar->field_0x844 = 0x8000;
     CARB(0xb1c) = 3;
     *(short *)((int)g_pCurrentCar + 0xb16) = 0x2aa;
-    CARF(0x820) = 0x3333;
-    CARF(0x7bc) = 0;
-    CARF(0x7c0) = FixDiv(0x10000, CARF(0x7e0));
-    CARF(0x7c4) = FixDiv(0x10000, CARF(0x7e4));
-    CARF(0x7c8) = FixDiv(0x10000, CARF(0x7e8));
-    CARF(0x7cc) = FixDiv(0x10000, CARF(0x7ec));
-    CARF(0x7d0) = FixDiv(0x10000, CARF(0x7f0));
-    CARF(0x7d4) = FixDiv(0x10000, CARF(0x7f4));
-    CARF(0x7d8) = FixDiv(0x10000, CARF(0x7f8));
-    CARF(0x7b8) = CARF(0x7b4);
-    FixVecScale(&v, &CARV(0x1f8), 0x8000);
-    CARF(0x758) = FixVecLength(&v);
-    CARF(0x3fc) = 1;
-    CARF(0x400) = 2;
-    CARF(0x404) = 1;
-    hx = CARF(0x1f8) / 2;
-    hy = CARF(0x1fc) / 2;
-    hz = CARF(0x200) / 2;
-    CARF(0x204) = hx;
-    CARF(0x208) = hy;
-    CARF(0x20c) = hz;
-    CARF(0x21c) = hx;
-    CARF(0x220) = -hy;
-    CARF(0x224) = -hz;
-    CARF(0x210) = hx;
-    CARF(0x214) = -hy;
-    CARF(0x218) = hz;
-    CARF(0x228) = -hx;
-    CARF(0x22c) = -hy;
-    CARF(0x230) = hz;
-    CARF(0x234) = -hx;
-    CARF(0x238) = -hy;
-    CARF(0x23c) = -hz;
-    CARF(0x24c) = hx;
-    CARF(0x250) = hy;
-    CARF(0x254) = -hz;
-    CARF(0x240) = hx;
-    CARF(0x244) = hy;
-    CARF(0x248) = hz;
-    CARF(0x258) = -hx;
-    CARF(0x25c) = hy;
-    CARF(0x260) = hz;
-    CARF(0x264) = -hx;
-    CARF(0x268) = hy;
-    CARF(0x26c) = -hz;
+    g_pCurrentCar->field_0x820 = 0x3333;
+    g_pCurrentCar->field_0x7bc[0] = 0;
+    g_pCurrentCar->field_0x7bc[1] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[1]);
+    g_pCurrentCar->field_0x7bc[2] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[2]);
+    g_pCurrentCar->field_0x7bc[3] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[3]);
+    g_pCurrentCar->field_0x7bc[4] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[4]);
+    g_pCurrentCar->field_0x7bc[5] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[5]);
+    g_pCurrentCar->field_0x7bc[6] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[6]);
+    g_pCurrentCar->field_0x7bc[7] = FixDiv(0x10000, g_pCurrentCar->gearSpeed[7]);
+    g_pCurrentCar->field_0x7b8 = g_pCurrentCar->driveSplit;
+    FixVecScale(&v, &g_pCurrentCar->field_0x1f8, 0x8000);
+    g_pCurrentCar->field_0x758 = FixVecLength(&v);
+    g_pCurrentCar->inertia.x = 1;
+    g_pCurrentCar->inertia.y = 2;
+    g_pCurrentCar->inertia.z = 1;
+    hx = g_pCurrentCar->field_0x1f8.x / 2;
+    hy = g_pCurrentCar->field_0x1f8.y / 2;
+    hz = g_pCurrentCar->field_0x1f8.z / 2;
+    g_pCurrentCar->halfExtents.x = hx;
+    g_pCurrentCar->halfExtents.y = hy;
+    g_pCurrentCar->halfExtents.z = hz;
+    g_pCurrentCar->wheelPos[1].x = hx;
+    g_pCurrentCar->wheelPos[1].y = -hy;
+    g_pCurrentCar->wheelPos[1].z = -hz;
+    g_pCurrentCar->wheelPos[0].x = hx;
+    g_pCurrentCar->wheelPos[0].y = -hy;
+    g_pCurrentCar->wheelPos[0].z = hz;
+    g_pCurrentCar->wheelPos[2].x = -hx;
+    g_pCurrentCar->wheelPos[2].y = -hy;
+    g_pCurrentCar->wheelPos[2].z = hz;
+    g_pCurrentCar->wheelPos[3].x = -hx;
+    g_pCurrentCar->wheelPos[3].y = -hy;
+    g_pCurrentCar->wheelPos[3].z = -hz;
+    g_pCurrentCar->field_0x240[1].x = hx;
+    g_pCurrentCar->field_0x240[1].y = hy;
+    g_pCurrentCar->field_0x240[1].z = -hz;
+    g_pCurrentCar->field_0x240[0].x = hx;
+    g_pCurrentCar->field_0x240[0].y = hy;
+    g_pCurrentCar->field_0x240[0].z = hz;
+    g_pCurrentCar->field_0x240[2].x = -hx;
+    g_pCurrentCar->field_0x240[2].y = hy;
+    g_pCurrentCar->field_0x240[2].z = hz;
+    g_pCurrentCar->field_0x240[3].x = -hx;
+    g_pCurrentCar->field_0x240[3].y = hy;
+    g_pCurrentCar->field_0x240[3].z = -hz;
     // Leftover of an extreme-corner search: the loop and the copies are no-ops,
     // but the original kept them (the indices only fold after the copy check).
     for (i = 0; i < 0x60; i += 0xc)
         CARF(0x210 + i) = CARF(0x210 + i);
     i = 1;
-    CARF(0x21c) = CARF(0x210 + i * 0xc);
-    CARF(0x210) = CARF(0x210 + (i - 1) * 0xc);
-    CARF(0x218) = CARF(0x218 + (i - 1) * 0xc);
-    CARF(0x230) = CARF(0x224 + i * 0xc);
+    g_pCurrentCar->wheelPos[1].x = g_pCurrentCar->wheelPos[i].x;
+    g_pCurrentCar->wheelPos[0].x = CARF(0x210 + (i - 1) * 0xc);
+    g_pCurrentCar->wheelPos[0].z = CARF(0x218 + (i - 1) * 0xc);
+    g_pCurrentCar->wheelPos[2].z = g_pCurrentCar->wheelPos[1 + i].z;
     Car_UpdateCorners(g_pCurrentCar);
     g_gravityDir.x = 0;
     g_gravityDir.y = -0x8000;
     g_gravityDir.z = 0;
-    CARF(0x91c) = 0;
-    CARF(0x920) = 0x10000;
-    CARF(0x924) = 0;
+    g_pCurrentCar->field_0x91c = 0;
+    g_pCurrentCar->field_0x920 = 0x10000;
+    g_pCurrentCar->field_0x924 = 0;
     if (flagC != 0) {
         if (FUN_004086f0((BYTE)FUN_004660f0()) != 0)
-            CARF(0xb48) = 2;
+            g_pCurrentCar->field_0xb48 = 2;
         else
-            CARF(0xb48) = 1;
+            g_pCurrentCar->field_0xb48 = 1;
     } else if (flag8 != 0) {
-        CARF(0xb48) = 2;
-    } else if ((int)CARB(0xb1a) < (int)(unsigned int)RallyDataState()) {
-        if (FUN_004086f0((BYTE)(FUN_0041b370() + CARB(0xb1a))) != 0)
-            CARF(0xb48) = 2;
+        g_pCurrentCar->field_0xb48 = 2;
+    } else if ((int)g_pCurrentCar->index < (int)(unsigned int)RallyDataState()) {
+        if (FUN_004086f0((BYTE)(FUN_0041b370() + g_pCurrentCar->index)) != 0)
+            g_pCurrentCar->field_0xb48 = 2;
         else
-            CARF(0xb48) = 1;
+            g_pCurrentCar->field_0xb48 = 1;
     } else {
-        CARF(0xb48) = 2;
+        g_pCurrentCar->field_0xb48 = 2;
     }
-    CARF(0xb50) = 1;
+    g_pCurrentCar->field_0xb50 = 1;
     if (CGameInfo::FUN_00405d80() == 5 || CGameInfo::FUN_00405d80() == 6 ||
         CGameInfo::FUN_00405d80() == 7 ||
-        (CGameInfo::FUN_00405d80() == 4 && CARB(0xb1a) != 0) ||
+        (CGameInfo::FUN_00405d80() == 4 && g_pCurrentCar->index != 0) ||
         (RallyData_GetFlag25() != 0 && CGameInfo::FUN_00405e00() == 0 &&
-         RallyData_FUN_00408500((BYTE)CARB(0xb1a)) != -1) ||
+         RallyData_FUN_00408500((BYTE)g_pCurrentCar->index) != -1) ||
         (RallyData_FUN_00407ea0() != 0 && CGameInfo::FUN_00406310() != 0) ||
         CGameInfo::FUN_00406320() != 0 || CGameInfo::FUN_00405d80() == 0xb ||
         CGameInfo::FUN_00405d80() == 0xc) {
-        CARF(0xb50) = 0;
+        g_pCurrentCar->field_0xb50 = 0;
     }
     if (CGameInfo::FUN_00405da0() != 0 && param_5 == 1 && RallyData_GetFlag25() != 0)
-        CARF(0xb50) = 0;
+        g_pCurrentCar->field_0xb50 = 0;
     if (CGameInfo::FUN_00405d80() == 4)
-        CARF(0xb50) = 0;
-    CARF(0xb4c) = 0;
+        g_pCurrentCar->field_0xb50 = 0;
+    g_pCurrentCar->field_0xb4c = 0;
     *(short *)((int)g_pCurrentCar + 0xafe) = 0;
-    CARF(0xb98) = 1;
-    CARB(0xb44) = (char)0xff;
+    g_pCurrentCar->field_0xb98 = 1;
+    g_pCurrentCar->field_0xb44 = (char)0xff;
     g_gravityScale = 0x9999;
-    CARF(0x78c) = CARF(0x788);
+    g_pCurrentCar->field_0x78c = g_pCurrentCar->field_0x788;
     CARF(0xa98) = 0x41c80000;
-    if (CGameInfo::FUN_00405e00() != 0 && CARB(0xb1a) > 0) {
-        CARF(0xc18) = 1;
-        CARF(0xc1c) = 1;
+    if (CGameInfo::FUN_00405e00() != 0 && g_pCurrentCar->index > 0) {
+        g_pCurrentCar->field_0xc18 = 1;
+        g_pCurrentCar->field_0xc1c = 1;
     }
 
 #undef CARF
@@ -7297,10 +7293,10 @@ void Car_StepGroundContact(void)
     g_pCurrentCar->normal0x498 = g_pCurrentCar->groundNormal;
     for (i = 0; i < 8; i++)
         g_pCurrentCar->cornerNormal[i] = g_pCurrentCar->cornerAxis[i];
-    *(int *)(g_pCurrentCar->field_0xba0 + 0) = 0;
-    *(int *)(g_pCurrentCar->field_0xba0 + 4) = 0;
-    *(int *)(g_pCurrentCar->field_0xba0 + 8) = 0;
-    FUN_004930e0((int)g_pCurrentCar, 4);
+    g_pCurrentCar->field_0xba0[0] = 0;
+    g_pCurrentCar->field_0xba0[1] = 0;
+    g_pCurrentCar->field_0xba0[2] = 0;
+    FUN_004930e0(g_pCurrentCar, 4);
     if (g_pCurrentCar->field_0xb35[0] == 1)
         Car_FlagAirborneCorners();
 
@@ -7322,9 +7318,9 @@ void Car_StepGroundContact(void)
             if (dot < 0xb334) {
                 g_pCurrentCar->field_0xc00 = 1;
                 g_pCurrentCar->field_0x96c = 0x10000;
-                g_pCurrentCar->field_0xc04[0] = 1;
+                *(BYTE *)&g_pCurrentCar->field_0xc04[0] = 1;
             } else if (g_pCurrentCar->field_0xb60 == 0 || dot < 0xfd70) {
-                if (!(g_pCurrentCar->field_0xb2a[0] == 0)) {
+                if (!(g_pCurrentCar->field_0xb2a == 0)) {
                     g_pCurrentCar->up = g_pCurrentCar->groundNormal;
                 } else {
                     delta.x = g_pCurrentCar->groundNormal.x - g_pCurrentCar->up.x;
@@ -7357,9 +7353,9 @@ void Car_StepGroundContact(void)
             g_pCurrentCar->pWorld->position = g_pCurrentCar->position;
             Car_UpdateCorners(g_pCurrentCar);
             if (!(g_pCurrentCar->field_0xc00 == 0))
-                FUN_004930e0((int)g_pCurrentCar, 8);
+                FUN_004930e0(g_pCurrentCar, 8);
             else
-                FUN_004930e0((int)g_pCurrentCar, 4);
+                FUN_004930e0(g_pCurrentCar, 4);
         } else {
             // Fast along the normal: turn the change of the ground normal
             // into a body torque perpendicular to it.
@@ -7397,7 +7393,7 @@ void Car_StepGroundContact(void)
     }
 
     Car_IntegrateWheelTravel();
-    g_pCurrentCar->field_0xb2a[0] = gotNormal;
+    g_pCurrentCar->field_0xb2a = gotNormal;
     if (g_pCurrentCar->tipAngle != 0) {
         g_pCurrentCar->pWorld->right = g_pCurrentCar->right;
         FixMatrix_FromAxisAngle(&rotMat, &g_pCurrentCar->right, g_pCurrentCar->tipAngle);
@@ -7653,23 +7649,23 @@ void Car_SolveUpright(void)
             g_pCurrentCar->field_0xbe0 = 1;
     }
 
-    if (CARF(0xba0) != 0) {
+    if (g_pCurrentCar->field_0xba0[0] != 0) {
         if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.y, g_pCurrentCar->angularVelocity.y) +
                     FixMul(g_pCurrentCar->angularVelocity.z, g_pCurrentCar->angularVelocity.z)) >= 0xf5c)
-            CARF(0xba0) = 0;
+            g_pCurrentCar->field_0xba0[0] = 0;
     }
-    if (CARF(0xba4) != 0) {
+    if (g_pCurrentCar->field_0xba0[1] != 0) {
         if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.x, g_pCurrentCar->angularVelocity.x) +
                     FixMul(g_pCurrentCar->angularVelocity.z, g_pCurrentCar->angularVelocity.z)) >= 0xf5c)
-            CARF(0xba4) = 0;
+            g_pCurrentCar->field_0xba0[1] = 0;
     }
-    if (CARF(0xba8) != 0) {
+    if (g_pCurrentCar->field_0xba0[2] != 0) {
         if (FixSqrt(FixMul(g_pCurrentCar->angularVelocity.x, g_pCurrentCar->angularVelocity.x) +
                     FixMul(g_pCurrentCar->angularVelocity.y, g_pCurrentCar->angularVelocity.y)) >= 0xf5c)
-            CARF(0xba8) = 0;
+            g_pCurrentCar->field_0xba0[2] = 0;
     }
 
-    if (flipRoll != 0 && CARF(0xba0) == 0) {
+    if (flipRoll != 0 && g_pCurrentCar->field_0xba0[0] == 0) {
         FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
         dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
         FixVecScale(&tmp, &tmp, dot);
@@ -7683,9 +7679,9 @@ void Car_SolveUpright(void)
         if (dot < 0)
             dot = -dot;
         if (dot < 0xf5c && g_pCurrentCar->speed < 0x8000)
-            CARF(0xba0) = 1;
+            g_pCurrentCar->field_0xba0[0] = 1;
     }
-    if (flipPitch != 0 && CARF(0xba4) == 0) {
+    if (flipPitch != 0 && g_pCurrentCar->field_0xba0[1] == 0) {
         FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
         dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
         FixVecScale(&tmp, &tmp, dot);
@@ -7698,7 +7694,7 @@ void Car_SolveUpright(void)
         g_pCurrentCar->angularVelocity.y += tmp.y;
         g_pCurrentCar->angularVelocity.z += tmp.z;
     }
-    if (flipYaw != 0 && CARF(0xba8) == 0) {
+    if (flipYaw != 0 && g_pCurrentCar->field_0xba0[2] == 0) {
         FixMatrix_InverseRotateVector(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->pWorld);
         dot = FixVecDot(&tmp, &g_pCurrentCar->angularVelocity);
         FixVecScale(&tmp, &tmp, dot);
@@ -7713,11 +7709,11 @@ void Car_SolveUpright(void)
         if (dot < 0)
             dot = -dot;
         if (dot < 0xf5c && g_pCurrentCar->speed < 0x8000)
-            CARF(0xba8) = 1;
+            g_pCurrentCar->field_0xba0[2] = 1;
     }
 
-    if (CARF(0xba0) != 0 || CARF(0xba4) != 0 || CARF(0xba8) != 0) {
-        if (CARF(0xba0) != 0) {
+    if (g_pCurrentCar->field_0xba0[0] != 0 || g_pCurrentCar->field_0xba0[1] != 0 || g_pCurrentCar->field_0xba0[2] != 0) {
+        if (g_pCurrentCar->field_0xba0[0] != 0) {
             FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x91c);
             tmp.x = g_pCurrentCar->right.x - tmp.x;
             tmp.y = g_pCurrentCar->right.y - tmp.y;
@@ -7727,7 +7723,7 @@ void Car_SolveUpright(void)
             g_pCurrentCar->angularVelocity.y = FixMul(g_pCurrentCar->angularVelocity.y, 0xe666);
             g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, 0xe666);
         }
-        if (CARF(0xba4) != 0) {
+        if (g_pCurrentCar->field_0xba0[1] != 0) {
             FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x920);
             tmp.x = g_pCurrentCar->up.x - tmp.x;
             tmp.y = g_pCurrentCar->up.y - tmp.y;
@@ -7737,7 +7733,7 @@ void Car_SolveUpright(void)
             g_pCurrentCar->angularVelocity.x = FixMul(g_pCurrentCar->angularVelocity.x, 0xe666);
             g_pCurrentCar->angularVelocity.z = FixMul(g_pCurrentCar->angularVelocity.z, 0xe666);
         }
-        if (CARF(0xba8) != 0) {
+        if (g_pCurrentCar->field_0xba0[2] != 0) {
             FixVecScale(&tmp, &g_pCurrentCar->groundNormal, g_pCurrentCar->field_0x924);
             tmp.x = g_pCurrentCar->forward.x - tmp.x;
             tmp.y = g_pCurrentCar->forward.y - tmp.y;
@@ -7879,7 +7875,7 @@ void Camera_Start(CameraRecord *pRecord, int type, int param)
         FUN_00447530((BYTE *)pRecord, (BYTE *)FUN_00423d70(car), 4);
         return;
     case 3:
-        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), pCar->field_0xb1b[0]);
+        FUN_00476410((BYTE *)pRecord, (int *)FUN_00423d70(car), FUN_00422f50(view), (BYTE)pCar->type);
         return;
     case 2:
         FUN_00486740((BYTE *)pRecord, (int *)&body, *(BYTE *)&pCar->index, 0);

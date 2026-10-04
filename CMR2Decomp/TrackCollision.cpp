@@ -155,6 +155,7 @@ int Track_FindNearestTriangle(FixVector *pPoint, short *pOut, int y, short count
     FixVector t[3];
     BOOL first;
     int best;
+
     int bestIndex;
     int i;
     int h;
@@ -366,7 +367,7 @@ void Car_UpdateAutomaticGear(void)
     int engine;
     int load;
     int threshold;
-    int chance;
+    unsigned int chance;
     int difference;
     int dot;
     BOOL wheelAvailable = FALSE;
@@ -995,7 +996,7 @@ void FUN_004943d0(void)
     int alignment;
     int amount;
 
-    if ((g_pAutoGearCar->field_0xb1b[1] & 1) != 0) {
+    if ((g_pAutoGearCar->flags & 1) != 0) {
         alignment = FIX_ABS(FixVecDot(&g_pAutoGearCar->velocity, &g_pAutoGearCar->right));
         amount = FixMul(alignment, g_pAutoGearCar->field_0x828);
         if (amount >= 0xb333)
@@ -1023,7 +1024,7 @@ void FUN_004945d0(void)
         return;
     }
     torque = FixMul(g_pAutoGearCar->field_0x824, g_physicsTimeStep);
-    if ((g_pAutoGearCar->field_0xb1b[1] & 2) != 0) {
+    if ((g_pAutoGearCar->flags & 2) != 0) {
         torque = FixMul(torque, FixMul(
             (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000,
             (g_pAutoGearCar->field_0x81c < 0 ? -g_pAutoGearCar->field_0x81c : g_pAutoGearCar->field_0x81c) - 0x10000));

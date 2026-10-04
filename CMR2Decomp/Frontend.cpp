@@ -1467,9 +1467,13 @@ char FUN_004cfb30(int param1, int index, char *pName)
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *p = (GameInfo0xa4SubStruct12 *)(pInfo + 0xe4);
 
+                    // The original computes the source once: after the first
+                    // move every call copies the same entry onto itself.
+                    GameInfo0xa4SubStruct12 *pPrev = p - 1;
+
                     for (i = 4 - slot; i != 0; i--) {
-                        FUN_004d03f0((int *)p, (int *)(p - 1));
-                        p--;
+                        FUN_004d03f0((int *)p, (int *)pPrev);
+                        p = pPrev;
                     }
                 }
                 strcpy(pRecord->ident, pName);
@@ -1640,9 +1644,13 @@ char FUN_004cfff0(int param1, int index, char *pName)
                 if (slot < 4) {
                     GameInfo0xa4SubStruct12 *pMove = (GameInfo0xa4SubStruct12 *)(pInfo + 0x1024);
 
+                    // The original computes the source once: after the first
+                    // move every call copies the same entry onto itself.
+                    GameInfo0xa4SubStruct12 *pPrev = pMove - 1;
+
                     for (i = 4 - slot; i != 0; i--) {
-                        FUN_004d0500((int *)pMove, (int *)(pMove - 1));
-                        pMove--;
+                        FUN_004d0500((int *)pMove, (int *)pPrev);
+                        pMove = pPrev;
                     }
                 }
                 strcpy(pRecord->ident, pName);

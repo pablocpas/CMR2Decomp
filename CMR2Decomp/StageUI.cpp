@@ -278,9 +278,10 @@ void FUN_00418ff0(void)
 // FUNCTION: CMR2 0x00419200
 void StageUI_ApplySoundState(int channel, BYTE *pState)
 {
+    RaceCarSoundState *pRaceCarSoundState = (RaceCarSoundState *)pState;
     StageSoundPattern *pPattern = NULL;
-    short pattern = *(short *)(pState + 0x18);
-    int state = *(int *)(pState + 0xa8);
+    short pattern = pRaceCarSoundState->state;
+    int state = pRaceCarSoundState->pattern;
 
     if (pattern != -1)
         pPattern = &g_stageSoundPatterns[(int)g_stageSoundPatterns[pattern].redirect];
