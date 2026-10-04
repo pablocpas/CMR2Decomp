@@ -1030,8 +1030,8 @@ void Car_SetupSuspensionRates(void)
     g_carStepAccel.y = 0;
     g_carStepAccel.z = 0;
     k = FixMul(g_pCurrentCar->cornerMass + 0x1e0000, 0x8000);
-    g_pCurrentCar->field_0xa5c[0] = FixMul(k, *(int *)((BYTE *)g_pCurrentCar + 0x1a4) + *(int *)((BYTE *)g_pCurrentCar + 0x88));
-    g_pCurrentCar->field_0xa4c[0] = FixMul(k, *(int *)((BYTE *)g_pCurrentCar + 0x1a4) + *(int *)((BYTE *)g_pCurrentCar + 0x80));
+    g_pCurrentCar->field_0xa5c[0] = FixMul(k, g_pCurrentCar->wheelSurfaceFx[0].drag + g_pCurrentCar->cornerGrip[0].grip2A);
+    g_pCurrentCar->field_0xa4c[0] = FixMul(k, g_pCurrentCar->wheelSurfaceFx[0].drag + g_pCurrentCar->cornerGrip[0].gripA);
     for (i = 1; i < 4; i++) {
         g_pCurrentCar->field_0xa5c[i] = g_pCurrentCar->field_0xa5c[0];
         g_pCurrentCar->field_0xa4c[i] = g_pCurrentCar->field_0xa4c[0];
@@ -1408,7 +1408,7 @@ void Car_UpdateGroundContact(void)
     } else {
         if (FUN_00428760(g_pCurrentCar->index) != 0) {
             memcpy(&g_pCurrentCar->right, g_pCurrentCar->field_0x384, 0x24);
-            g_pCurrentCar->position = *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8);
+            g_pCurrentCar->position = g_pCurrentCar->positionPrev;
         } else {
             for (i = 4; i < 8; i++) {
                 if (g_pCurrentCar->cornerFlags[i] == 0) {
@@ -1445,7 +1445,7 @@ void Car_UpdateGroundContact(void)
                 g_pCurrentCar->field_0x5c4.z = 0;
 
                 FixVecScale(&g_carContactWork, &g_pCurrentCar->groundNormal, -0x20000);
-                FixMatrix_InverseRotateVector((FixVector *)((BYTE *)g_pCurrentCar + 0x5dc),
+                FixMatrix_InverseRotateVector(&g_pCurrentCar->field_0x5dc,
                                               &g_carContactWork, g_pCurrentCar->pWorld);
 
                 d = CARF(0x5dc);
@@ -1477,7 +1477,7 @@ void Car_UpdateGroundContact(void)
                 }
                 FUN_00466ef0(g_pCurrentCar, (int *)&g_carContactPoint, &g_carContactNormal, 0, 0, 0);
                 FixMatrix_RotateVector(&g_carContactWork3,
-                                       (FixVector *)((BYTE *)g_pCurrentCar + 0x5dc),
+                                       &g_pCurrentCar->field_0x5dc,
                                        g_pCurrentCar->pWorld);
                 g_carContactWork3.x += g_pCurrentCar->position.x;
                 g_carContactWork3.y += g_pCurrentCar->position.y;
@@ -2463,8 +2463,8 @@ void Car_UpdateTyreForces(void)
                         if (a < 0)
                             a = 0;
                         a = FixMul(a, 0xccc) + 0x51e;
-                        if (*(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24) != 0)
-                            a += FixMul(0xe666, *(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24));
+                        if (g_pCurrentCar->cornerGrip[i].drag != 0)
+                            a += FixMul(0xe666, g_pCurrentCar->cornerGrip[i].drag);
                         grip = FixMul(g_pCurrentCar->field_0xa5c[i], a);
                     }
                     if (grip < longForce || (grip = -grip, longForce < grip))
@@ -2539,11 +2539,11 @@ void Car_UpdateTyreForces(void)
         if (latForce < 0)
             latForce = -latForce;
         if (!(i >= 2)) {
-            a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
-            b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
+            a = g_pCurrentCar->cornerGrip[i].gripB + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
+            b = g_pCurrentCar->cornerGrip[i].grip2B + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
         } else {
-            a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24) - 0x4ccc + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
-            b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) - 0x4ccc + *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
+            a = g_pCurrentCar->cornerGrip[i].gripB - 0x4ccc + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
+            b = g_pCurrentCar->cornerGrip[i].grip2B - 0x4ccc + g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
         }
         if (longForce < 0x6666) {
             limB = FixMul(g_pCurrentCar->field_0xa5c[i], b);
@@ -2569,10 +2569,10 @@ void Car_UpdateTyreForces(void)
         FixVecScale(&g_pCurrentCar->cornerForce[i], &g_pCurrentCar->cornerForce[i], mag);
 
         // Rolling resistance of the tyre.
-        if (*(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24) != 0) {
+        if (g_pCurrentCar->cornerGrip[i].drag != 0) {
             d = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir[i]);
             if (d != 0) {
-                e = -FixMul(d / 4, FixMul(g_pCurrentCar->tyreGrip, *(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24)));
+                e = -FixMul(d / 4, FixMul(g_pCurrentCar->tyreGrip, g_pCurrentCar->cornerGrip[i].drag));
                 FixVecScale(&g_tyreForce, &dir[i], e);
                 g_pCurrentCar->cornerForce[i].x += g_tyreForce.x;
                 g_pCurrentCar->cornerForce[i].y += g_tyreForce.y;
@@ -3124,8 +3124,8 @@ void Car_UpdateWheelForces(void)
                     room = 0;
                 }
                 room = FixMul(room, 0xccc) + 0x51e;
-                if (*(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24) != 0) {
-                    room = room + FixMul(0xe666, *(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24));
+                if (g_pCurrentCar->cornerGrip[i].drag != 0) {
+                    room = room + FixMul(0xe666, g_pCurrentCar->cornerGrip[i].drag);
                 }
                 grip = FixMul(g_pCurrentCar->field_0xa5c[i], room);
             }
@@ -3233,8 +3233,8 @@ void Car_UpdateWheelForces(void)
         {
             int longAbs = FIX_ABS(fLong);
             int latAbs = FIX_ABS(fLat);
-            int extra = *(int *)((BYTE *)g_pCurrentCar + 0x1a8 + i * 0xc);
-            int a = *(int *)((BYTE *)g_pCurrentCar + 0x84 + i * 0x24);
+            int extra = g_pCurrentCar->wheelSurfaceFx[i].extraGrip;
+            int a = g_pCurrentCar->cornerGrip[i].gripB;
             int b;
             int limA;
             int limB;
@@ -3243,10 +3243,10 @@ void Car_UpdateWheelForces(void)
             short angle;
 
             if (i < 2) {
-                b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24);
+                b = g_pCurrentCar->cornerGrip[i].grip2B;
             } else {
                 a = a - 0x4ccc;
-                b = *(int *)((BYTE *)g_pCurrentCar + 0x8c + i * 0x24) - 0x4ccc;
+                b = g_pCurrentCar->cornerGrip[i].grip2B - 0x4ccc;
             }
             a = a + extra;
             b = b + extra;
@@ -3282,13 +3282,13 @@ void Car_UpdateWheelForces(void)
             FixVecScale(&g_pCurrentCar->cornerForce[i], &g_pCurrentCar->cornerForce[i], combined);
         }
 
-        if (*(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24) != 0) {
+        if (g_pCurrentCar->cornerGrip[i].drag != 0) {
             int along = FixVecDot(&g_pCurrentCar->cornerVelocity[i], &dir);
 
             if (along != 0) {
                 int drag = -FixMul(along / 4,
                                    FixMul(g_pCurrentCar->tyreGrip,
-                                          *(int *)((BYTE *)g_pCurrentCar + 0x90 + i * 0x24)));
+                                          g_pCurrentCar->cornerGrip[i].drag));
 
                 g_pCurrentCar->cornerForce[i].x = g_pCurrentCar->cornerForce[i].x + FixMul(dir.x, drag);
                 g_pCurrentCar->cornerForce[i].y = g_pCurrentCar->cornerForce[i].y + FixMul(dir.y, drag);
@@ -3376,8 +3376,8 @@ void Car_StoreRenderTransforms(short *pList, short count)
         }
         *(FixVector *)(pRow + 0xe0) = *(FixVector *)(pShadow + 0xe0);
         if (pCar->field_0x958 != 0) {
-            *(int *)((BYTE *)pCar + 0x34) += pCar->field_0x958;
-            *(int *)((BYTE *)pCar + 0x74) += pCar->field_0x958;
+            pCar->field_0x0.position.y += pCar->field_0x958;
+            pCar->field_0x40.position.y += pCar->field_0x958;
         }
         FixMatrix_GetUp(&up, (FixMatrix *)pCar);
         if (type != (char)pCar->field_0xb1b[0]) {
@@ -3393,7 +3393,7 @@ void Car_StoreRenderTransforms(short *pList, short count)
             up.z += ride.z;
         }
         FixMatrix_CopyRotation((FixMatrix *)pCar, (FixMatrix *)pShadow);
-        FixMatrix_CopyRotation((FixMatrix *)((BYTE *)pCar + 0x40), (FixMatrix *)(pShadow + 0x40));
+        FixMatrix_CopyRotation(&pCar->field_0x40, (FixMatrix *)(pShadow + 0x40));
         *(FixVector *)(pShadow + 0xe0) = pCar->groundNormal;
         for (j = 0; j < 4; j++)
             *(int *)(pShadow + 0xec + j * 4) = pCar->cornerHeight[j];
@@ -4101,7 +4101,7 @@ void Car_SetRideHeight(int param_1)
         *(int *)((BYTE *)g_pCurrentCar + off - 0x70) = FixMul(0x1999, inv);
         *(int *)((BYTE *)g_pCurrentCar + off - 0x80) = FixMul(param_1, 0x8000) + 0x8000;
     }
-    *(int *)((BYTE *)g_pCurrentCar + 0xa08) = -0x1999;
+    g_pCurrentCar->field_0xa08 = -0x1999;
 }
 
 // FUNCTION: CMR2 0x0043e160
@@ -4336,7 +4336,7 @@ void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3)
     n++;
     do {
         g_pCurrentCar = (Car *)(param_1 + *p * 0xc24);
-        g_pCarSetup = (BYTE *)FUN_00469680((int)*(char *)((BYTE *)g_pCurrentCar + 0xb1a));
+        g_pCarSetup = (BYTE *)FUN_00469680((int)g_pCurrentCar->index);
         Car_UpdateWheelTravel();
         g_pCurrentCar->field_0xabe[0] = g_pCurrentCar->wheelSurface[0];
         g_pCurrentCar->field_0xabe[1] = g_pCurrentCar->wheelSurface[1];
@@ -4344,17 +4344,17 @@ void Car_UpdateSuspensionPass(int param_1, short *param_2, short param_3)
         g_pCurrentCar->field_0xabe[3] = g_pCurrentCar->wheelSurface[3];
         Car_FollowGround();
         Car_RebuildBodyAxes();
-        *(int *)((BYTE *)g_pCurrentCar + 0x960) = 0x3e80000;
+        g_pCurrentCar->field_0x960 = 0x3e80000;
         j = 0;
         i = 0x8dc;
         do {
             v = *(int *)((BYTE *)g_pCurrentCar + j + 0x274) - *(int *)((BYTE *)g_pCurrentCar + i);
-            if (v < *(int *)((BYTE *)g_pCurrentCar + 0x960))
-                *(int *)((BYTE *)g_pCurrentCar + 0x960) = v;
+            if (v < g_pCurrentCar->field_0x960)
+                g_pCurrentCar->field_0x960 = v;
             i += 4;
             j += 0xc;
         } while (i < 0x8fc);
-        *(int *)((BYTE *)g_pCurrentCar + 0x960) += *(int *)((BYTE *)g_pCurrentCar + 0x958);
+        g_pCurrentCar->field_0x960 += g_pCurrentCar->field_0x958;
         p--;
     } while (--n);
 }
@@ -4681,12 +4681,12 @@ void Car_StepAll(int base, short *pList, short count)
             *(FixVector *)((BYTE *)g_pCurrentCar + k) =
                 *(FixVector *)((BYTE *)g_pCurrentCar + k - 0x90);
         }
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2f4) =
-            *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8);
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8) = g_pCurrentCar->position;
+        g_pCurrentCar->positionPrev2 =
+            g_pCurrentCar->positionPrev;
+        g_pCurrentCar->positionPrev = g_pCurrentCar->position;
         memcpy((BYTE *)g_pCurrentCar + 0x384, (BYTE *)g_pCurrentCar + 0x360, 0x24);
-        *(int *)((BYTE *)g_pCurrentCar + 0x968) = *(int *)((BYTE *)g_pCurrentCar + 0x964);
-        *(int *)((BYTE *)g_pCurrentCar + 0x964) = *(int *)((BYTE *)g_pCurrentCar + 0x960);
+        g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
+        g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         if (g_pCurrentCar->field_0xbfc == 0)
             Car_StartPendingCountdown();
         Car_UpdateSurfaceParams(g_pCurrentCar, FUN_00460c80((BYTE *)g_pCurrentCar));
@@ -4745,7 +4745,7 @@ void Car_StepAll(int base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        *(int *)((BYTE *)g_pCurrentCar + 0x7a8) = g_pCurrentCar->field_0x7a4;
+        g_pCurrentCar->field_0x7a8 = g_pCurrentCar->field_0x7a4;
         Car_UpdateEngineSpeed();
         FUN_00433fd0();
         g_pCurrentCar->field_0x5c4.x = 0;
@@ -4757,12 +4757,12 @@ void Car_StepAll(int base, short *pList, short count)
     }
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(base + pList[i] * 0xc24);
-        *(short *)((BYTE *)g_pCurrentCar + 0xb00) =
+        g_pCurrentCar->sector =
             Sector_GetNeighbours(&g_pCurrentCar->position, out);
-        *(short *)((BYTE *)g_pCurrentCar + 0xb02) = out[0];
-        *(short *)((BYTE *)g_pCurrentCar + 0xb04) = out[1];
-        *(short *)((BYTE *)g_pCurrentCar + 0xb06) = out[2];
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2dc) = g_pCurrentCar->position;
+        g_pCurrentCar->field_0xb02 = out[0];
+        g_pCurrentCar->field_0xb04 = out[1];
+        g_pCurrentCar->field_0xb06 = out[2];
+        g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     }
 }
 
@@ -4983,14 +4983,14 @@ void Car_UpdateCornerLoads(void)
             if (i < 4 && g_pCurrentCar->field_0xb74 != 0) {
                 load = FixMul(FixMul(g_pCurrentCar->cornerAxis[i].y, 0x8000), g_pCurrentCar->field_0x8b8[i] + 0x1e0000);
                 g_pCurrentCar->field_0xa5c[i] =
-                    FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x1a4 + i * 0xc) +
-                                     *(int *)((BYTE *)g_pCurrentCar + 0x88 + i * 0x24));
+                    FixMul(load, g_pCurrentCar->wheelSurfaceFx[i].drag +
+                                     g_pCurrentCar->cornerGrip[i].grip2A);
                 g_pCurrentCar->field_0xa4c[i] =
-                    FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x1a4 + i * 0xc) +
-                                     *(int *)((BYTE *)g_pCurrentCar + 0x80 + i * 0x24));
+                    FixMul(load, g_pCurrentCar->wheelSurfaceFx[i].drag +
+                                     g_pCurrentCar->cornerGrip[i].gripA);
             } else {
-                g_pCurrentCar->cornerGripA[i] = FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x88 + i * 0x24));
-                *pGripB = FixMul(load, *(int *)((BYTE *)g_pCurrentCar + 0x80 + i * 0x24));
+                g_pCurrentCar->cornerGripA[i] = FixMul(load, g_pCurrentCar->cornerGrip[i].grip2A);
+                *pGripB = FixMul(load, g_pCurrentCar->cornerGrip[i].gripA);
                 g_pCurrentCar->cornerGripA[i] = FixMul(g_pCurrentCar->cornerGripA[i], grip);
                 *pGripB = FixMul(*pGripB, grip);
             }
@@ -5169,15 +5169,15 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
 
             if (CARF(0xc20) == 0) {
                 for (i = 0; i < 4; i++) {
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x330 + i * 0xc) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x300 + i * 0xc);
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x300 + i * 0xc) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                    g_pCurrentCar->cornerPrev2[i] =
+                        g_pCurrentCar->cornerPrev[i];
+                    g_pCurrentCar->cornerPrev[i] =
+                        g_pCurrentCar->corners[i];
                     g_pCurrentCar->field_0xabe[i] = g_pCurrentCar->wheelSurface[i];
                 }
                 for (i = 0; i < 8; i++) {
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x504 + i * 0xc) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x4a4 + i * 0xc);
+                    g_pCurrentCar->cornerNormal[i] =
+                        g_pCurrentCar->cornerAxis[i];
                     CARF(0xbbc + i * 4) = 0;
                 }
                 CARF(0x7a8) = CARF(0x7a4);
@@ -5195,8 +5195,8 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             CARF(0x778) = FixVecLength(&CARV(0x408));
             for (i = 0x42c; i < 0x48c; i += 0xc)
                 *(FixVector *)((BYTE *)g_pCurrentCar + i) = CARV(0x408);
-            *(short *)((BYTE *)g_pCurrentCar + 0xb14) = *(short *)((BYTE *)g_pCurrentCar + 0xb10);
-            *(short *)((BYTE *)g_pCurrentCar + 0xb12) = *(short *)((BYTE *)g_pCurrentCar + 0xb14);
+            g_pCurrentCar->field_0xb14 = *(short *)&g_pCurrentCar->heading;
+            g_pCurrentCar->field_0xb12 = g_pCurrentCar->field_0xb14;
             CARF(0x958) = 0;
             CARF(0xb5c) = 0;
             CARF(0x86c) = FixVecDot(&CARV(0x408), &CARV(0x360)) * 4;
@@ -5270,14 +5270,14 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             if (CARF(0xbf8) != 0) {
                 for (i = 0; i < 4; i++) {
                     *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0xc0) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                        g_pCurrentCar->corners[i];
                     *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc + 0x90) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x270 + i * 0xc);
+                        g_pCurrentCar->corners[i];
                     g_pCurrentCar->field_0xabe[i] = g_pCurrentCar->wheelSurface[i];
                 }
                 for (i = 0; i < 8; i++) {
-                    *(FixVector *)((BYTE *)g_pCurrentCar + 0x504 + i * 0xc) =
-                        *(FixVector *)((BYTE *)g_pCurrentCar + 0x4a4 + i * 0xc);
+                    g_pCurrentCar->cornerNormal[i] =
+                        g_pCurrentCar->cornerAxis[i];
                     CARF(0xbbc + i * 4) = 0;
                 }
                 CARF(0x7a8) = CARF(0x7a4);
@@ -5308,11 +5308,11 @@ void Car_PrepareStep(int carBase, short *pOrder, short count)
             CARB(0xb1d) = 0;
             Car_UpdateSuspension();
             Car_StoreBodyMatrix();
-            *(short *)((BYTE *)g_pCurrentCar + 0xb00) =
+            g_pCurrentCar->sector =
                 Sector_GetNeighbours(&g_pCurrentCar->position, nb);
-            *(short *)((BYTE *)g_pCurrentCar + 0xb02) = nb[0];
-            *(short *)((BYTE *)g_pCurrentCar + 0xb04) = nb[1];
-            *(short *)((BYTE *)g_pCurrentCar + 0xb06) = nb[2];
+            g_pCurrentCar->field_0xb02 = nb[0];
+            g_pCurrentCar->field_0xb04 = nb[1];
+            g_pCurrentCar->field_0xb06 = nb[2];
             p--;
         } while (--n != 0);
     }
@@ -5858,13 +5858,13 @@ void Car_FilterWheelSpin(void)
             if (d < 0)
                 g_pCurrentCar->field_0x890[i] = a;
             else
-                g_pCurrentCar->field_0x890[i] += FixMul(d, *(int *)((BYTE *)g_pCurrentCar + 0x98 + i * 0x24));
+                g_pCurrentCar->field_0x890[i] += FixMul(d, g_pCurrentCar->cornerGrip[i].field_0x18);
             a = g_pCurrentCar->wheelSlipLateral[i] < 0 ? -g_pCurrentCar->wheelSlipLateral[i] : g_pCurrentCar->wheelSlipLateral[i];
             d = a - g_pCurrentCar->field_0x8a0[i];
             if (d < 0)
                 g_pCurrentCar->field_0x8a0[i] = a;
             else
-                g_pCurrentCar->field_0x8a0[i] += FixMul(d, *(int *)((BYTE *)g_pCurrentCar + 0x98 + i * 0x24));
+                g_pCurrentCar->field_0x8a0[i] += FixMul(d, g_pCurrentCar->cornerGrip[i].field_0x18);
         } else {
             g_pCurrentCar->field_0x8a0[i] = 0;
             g_pCurrentCar->field_0x890[i] = 0;
@@ -7252,15 +7252,15 @@ void Car_PrepareBodies(int base, short *pList, short count)
             Car_StepGroundContact();
         Car_StoreBodyMatrix();
         Car_StartResetFade();
-        if (*(int *)((BYTE *)g_pCurrentCar + 0xa80) > FixMul(0xc0000, g_physicsScale))
+        if (g_pCurrentCar->field_0xa80 > FixMul(0xc0000, g_physicsScale))
             g_pCurrentCar->field_0xbf8 = 1;
-        *(int *)((BYTE *)g_pCurrentCar + 0x960) = 0x3e80000;
+        g_pCurrentCar->field_0x960 = 0x3e80000;
         for (j = 0; j < 8; j++) {
             v = g_pCurrentCar->corners[j].y - g_pCurrentCar->cornerHeight[j];
-            if (v < *(int *)((BYTE *)g_pCurrentCar + 0x960))
-                *(int *)((BYTE *)g_pCurrentCar + 0x960) = v;
+            if (v < g_pCurrentCar->field_0x960)
+                g_pCurrentCar->field_0x960 = v;
         }
-        *(int *)((BYTE *)g_pCurrentCar + 0x960) += g_pCurrentCar->field_0x958;
+        g_pCurrentCar->field_0x960 += g_pCurrentCar->field_0x958;
     }
 }
 
@@ -7457,12 +7457,12 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
         g_carStepAccel.z = 0;
         g_unk0x0053c9d4 = 0;
         Car_ScaleRatesByTimeStep(g_pCurrentCar);
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2f4) =
-            *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8);
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2e8) = g_pCurrentCar->position;
+        g_pCurrentCar->positionPrev2 =
+            g_pCurrentCar->positionPrev;
+        g_pCurrentCar->positionPrev = g_pCurrentCar->position;
         memcpy((BYTE *)g_pCurrentCar + 0x384, (BYTE *)g_pCurrentCar + 0x360, 0x24);
-        *(int *)((BYTE *)g_pCurrentCar + 0x968) = *(int *)((BYTE *)g_pCurrentCar + 0x964);
-        *(int *)((BYTE *)g_pCurrentCar + 0x964) = *(int *)((BYTE *)g_pCurrentCar + 0x960);
+        g_pCurrentCar->field_0x968 = g_pCurrentCar->field_0x964;
+        g_pCurrentCar->field_0x964 = g_pCurrentCar->field_0x960;
         FUN_004786b0((BYTE *)g_pCurrentCar, 0);
         FUN_004340f0();
     }
@@ -7549,12 +7549,12 @@ void Car_RunStepPasses(int carBase, short *pOrder, short count)
     // Pass 9: sector of the box position and previous-position copy.
     for (i = count - 1; i >= 0; i--) {
         g_pCurrentCar = (Car *)(carBase + pOrder[i] * 0xc24);
-        *(short *)((BYTE *)g_pCurrentCar + 0xb00) =
+        g_pCurrentCar->sector =
             Sector_GetNeighbours(&g_pCurrentCar->position, nb);
-        *(short *)((BYTE *)g_pCurrentCar + 0xb02) = nb[0];
-        *(short *)((BYTE *)g_pCurrentCar + 0xb04) = nb[1];
-        *(short *)((BYTE *)g_pCurrentCar + 0xb06) = nb[2];
-        *(FixVector *)((BYTE *)g_pCurrentCar + 0x2dc) = g_pCurrentCar->position;
+        g_pCurrentCar->field_0xb02 = nb[0];
+        g_pCurrentCar->field_0xb04 = nb[1];
+        g_pCurrentCar->field_0xb06 = nb[2];
+        g_pCurrentCar->field_0x2dc = g_pCurrentCar->position;
     }
 }
 

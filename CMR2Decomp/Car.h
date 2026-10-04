@@ -7,8 +7,33 @@
 
 // Car instance (0xc24 bytes, one per slot in g_carBuffer). Only the fields
 // used by the decompiled code are named; offsets are in the comments.
+// Surface grip parameters of one box corner (0x24 bytes), blended from the
+// surface under it and the next one (Car_UpdateSurfaceParams).
+struct CarCornerGrip {
+    int gripA;          // 0x00
+    int gripB;          // 0x04
+    int grip2A;         // 0x08
+    int grip2B;         // 0x0c
+    int drag;           // 0x10
+    int field_0x14;     // 0x14
+    int field_0x18;     // 0x18
+    int field_0x1c;     // 0x1c
+    int field_0x20;     // 0x20
+};
+
+// Surface effect of one wheel (12 bytes).
+struct CarWheelSurface {
+    BYTE effect[2];     // 0x00 spray / dust effect of the surface
+    BYTE pad_0x2[2];
+    int drag;           // 0x04
+    int extraGrip;      // 0x08
+};
+
 struct Car {
-    BYTE field_0x0[0x1d0];
+    FixMatrix field_0x0;              // 0x00
+    FixMatrix field_0x40;             // 0x40
+    CarCornerGrip cornerGrip[8];      // 0x80
+    CarWheelSurface wheelSurfaceFx[4]; // 0x1a0
     char flag0x1d0[4];                // 0x1d0
     BYTE field_0x1d4[0x4];
     int handbrake;                    // 0x1d8  handbrake engaged (the rear wheels stop being driven)
@@ -18,9 +43,11 @@ struct Car {
     BYTE field_0x240[0x30];
     FixVector corners[8];             // 0x270  world-space box corners
     FixVector position;               // 0x2d0
-    BYTE field_0x2dc[0x10];
-    int field_0x2ec;
-    BYTE field_0x2f0[0x70];
+    FixVector field_0x2dc;            // 0x2dc
+    FixVector positionPrev;           // 0x2e8  position of the previous step
+    FixVector positionPrev2;          // 0x2f4  and of the one before
+    FixVector cornerPrev[4];          // 0x300  previous positions of the four lower corners
+    FixVector cornerPrev2[4];         // 0x330  and the ones before
     FixVector right;                  // 0x360  body axes (rows of the body matrix)
     FixVector up;                     // 0x36c
     FixVector forward;                // 0x378
@@ -126,7 +153,8 @@ struct Car {
     int field_0x958;                  // 0x958  how far the car sank into the ground (<= 0)
     BYTE field_0x95c[0x4];
     int field_0x960;
-    BYTE field_0x964[0x8];
+    int field_0x964;
+    int field_0x968;
     int field_0x96c;                  // 0x96c
     BYTE field_0x970[0x18];
     int wheel0x988[4];                // 0x988
@@ -138,7 +166,8 @@ struct Car {
     int field_0x9c4;                  // 0x9c4
     BYTE field_0x9c8[0x10];
     int wheel0x9d8[4];                // 0x9d8
-    BYTE field_0x9e8[0x24];
+    BYTE field_0x9e8[0x20];
+    int field_0xa08;
     int cornerGripA[8];               // 0xa0c  grip limits of a corner without a wheel
     int cornerGripB[8];               // 0xa2c
     int field_0xa4c[4];               // 0xa4c
@@ -161,9 +190,13 @@ struct Car {
     short wheelSurfaceType[4];        // 0xac6  surface id under each wheel
     BYTE field_0xace[0x30];
     short field_0xafe;                // 0xafe  engine startup countdown
-    BYTE field_0xb00[0x10];
+    short sector;                     // 0xb00  stage sector the car is in
+    short field_0xb02;
+    short field_0xb04;
+    short field_0xb06;
+    BYTE field_0xb08[0x8];
     unsigned short heading;           // 0xb10  12-bit angle
-    BYTE field_0xb12[0x2];
+    short field_0xb12;
     short field_0xb14;
     short field_0xb16;                // 0xb16
     short tipAngle;                   // 0xb18  12-bit angle the body tips by

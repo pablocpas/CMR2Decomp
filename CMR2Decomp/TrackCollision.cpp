@@ -1091,7 +1091,7 @@ void FUN_004932f0(void)
 
     shifted = 0;
     if (CGameInfo::FUN_004063f0(5) != 0) {
-        *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0;
+        g_pAutoGearCar->field_0xa84 = 0;
         if ((int)g_pAutoGearCar->index < (int)(BYTE)RallyDataState() &&
             FUN_0041f3d0(g_pAutoGearCar->index) != 0 &&
             *(char *)(FUN_0041f350((int)g_pAutoGearCar->index) + 0x10c) == 8)
@@ -1101,18 +1101,18 @@ void FUN_004932f0(void)
             if (g_pAutoGearCar->handbrake != 0) {
                 speed = g_pAutoGearCar->speed;
                 if (speed <= 0x2c000) {
-                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0x10000;
+                    g_pAutoGearCar->field_0xa84 = 0x10000;
                 } else if (speed <= 0x30000) {
-                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = speed - 0x2c000;
-                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) =
-                        FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xa84), 0x40000);
-                    if (*(int *)((BYTE *)g_pAutoGearCar + 0xa84) > 0x10000)
-                        *(int *)((BYTE *)g_pAutoGearCar + 0xa84) = 0x10000;
-                    *(int *)((BYTE *)g_pAutoGearCar + 0xa84) =
-                        0x10000 - *(int *)((BYTE *)g_pAutoGearCar + 0xa84);
+                    g_pAutoGearCar->field_0xa84 = speed - 0x2c000;
+                    g_pAutoGearCar->field_0xa84 =
+                        FixMul(g_pAutoGearCar->field_0xa84, 0x40000);
+                    if (g_pAutoGearCar->field_0xa84 > 0x10000)
+                        g_pAutoGearCar->field_0xa84 = 0x10000;
+                    g_pAutoGearCar->field_0xa84 =
+                        0x10000 - g_pAutoGearCar->field_0xa84;
                 }
                 FixVecScale(&offset, &g_pAutoGearCar->right,
-                            FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xa84), 0x4000));
+                            FixMul(g_pAutoGearCar->field_0xa84, 0x4000));
                 g_pAutoGearCar->field_0x5c4.x += offset.x;
                 g_pAutoGearCar->field_0x5c4.y += offset.y;
                 g_pAutoGearCar->field_0x5c4.z += offset.z;
@@ -1147,12 +1147,12 @@ void FUN_00493ed0(void)
     short current;
     short delta;
 
-    scaleRight = *(int *)((BYTE *)g_pAutoGearCar + 0x7fc);
-    scaleLeft = *(int *)((BYTE *)g_pAutoGearCar + 0x800);
-    value = FixMul(*(BYTE *)((BYTE *)g_pAutoGearCar + 0x1d1) << 16, 0x410);
+    scaleRight = g_pAutoGearCar->field_0x7fc;
+    scaleLeft = g_pAutoGearCar->field_0x800;
+    value = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[1] << 16, 0x410);
     if (value > 0x10000)
         value = 0x10000;
-    other = FixMul(*(BYTE *)((BYTE *)g_pAutoGearCar + 0x1d0) << 16, 0x410);
+    other = FixMul(*(BYTE *)&g_pAutoGearCar->flag0x1d0[0] << 16, 0x410);
     if (other > 0x10000)
         other = 0x10000;
     value -= other;
@@ -1167,13 +1167,13 @@ void FUN_00493ed0(void)
     else
         target = (short)(__int64)((double)FixMul(g_unk0x00592160, value) * g_unk0x00511300);
 
-    if (*(int *)((BYTE *)g_pAutoGearCar + 0xb88) == 2) {
-        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) = target;
-        *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    if (g_pAutoGearCar->field_0xb88 == 2) {
+        *(short *)&g_pAutoGearCar->heading = target;
+        g_pAutoGearCar->field_0xb12 = *(short *)&g_pAutoGearCar->heading;
         return;
     }
 
-    current = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    current = *(short *)&g_pAutoGearCar->heading;
     delta = current - target;
     if (delta > 0x800)
         delta = 0x1000 - delta;
@@ -1190,8 +1190,8 @@ void FUN_00493ed0(void)
         else
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleLeft) * g_unk0x00511300);
     }
-    *(short *)((BYTE *)g_pAutoGearCar + 0xb10) -= delta;
-    *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    *(short *)&g_pAutoGearCar->heading -= delta;
+    g_pAutoGearCar->field_0xb12 = *(short *)&g_pAutoGearCar->heading;
 }
 
 // GLOBAL: CMR2 0x00592168
@@ -1218,69 +1218,69 @@ void FUN_00494110(void)
 
     FUN_004943d0();
     FUN_004945d0();
-    g_unk0x00592168 = *(int *)((BYTE *)g_pAutoGearCar + 0x820);
-    if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) == 0) {
+    g_unk0x00592168 = g_pAutoGearCar->field_0x820;
+    if (g_pAutoGearCar->field_0x81c == 0) {
         g_unk0x00592168 = 0;
     } else {
-        if (FixMul(g_unk0x00592160, *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) > 0)
+        if (FixMul(g_unk0x00592160, g_pAutoGearCar->field_0x81c) > 0)
             g_unk0x00592168 = -g_unk0x00592168;
     }
 
-    v = 0x10000 - FixMul(*(int *)((BYTE *)g_pAutoGearCar + 0xb8) +
-                         *(int *)((BYTE *)g_pAutoGearCar + 0x94), 0x8000);
+    v = 0x10000 - FixMul(g_pAutoGearCar->cornerGrip[1].field_0x14 +
+                         g_pAutoGearCar->cornerGrip[0].field_0x14, 0x8000);
     g_unk0x00592164 = FixMul(g_unk0x00592164, v);
     g_unk0x00592168 = FixMul(g_unk0x00592168, v);
-    g_unk0x00592164 = FixMul(g_unk0x00592164, *(int *)((BYTE *)g_pAutoGearCar + 0x804));
-    g_unk0x00592168 = FixMul(g_unk0x00592168, *(int *)((BYTE *)g_pAutoGearCar + 0x804));
+    g_unk0x00592164 = FixMul(g_unk0x00592164, g_pAutoGearCar->field_0x804);
+    g_unk0x00592168 = FixMul(g_unk0x00592168, g_pAutoGearCar->field_0x804);
 
-    if ((*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) == 0 &&
-         *(char *)((BYTE *)g_pAutoGearCar + 0x1d1) == 0) ||
-        (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) != 0 && g_unk0x00592168 > 0) ||
-        (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) != 0 && g_unk0x00592168 < 0)) {
+    if ((g_pAutoGearCar->flag0x1d0[0] == 0 &&
+         g_pAutoGearCar->flag0x1d0[1] == 0) ||
+        (g_pAutoGearCar->flag0x1d0[0] != 0 && g_unk0x00592168 > 0) ||
+        (g_pAutoGearCar->flag0x1d0[1] != 0 && g_unk0x00592168 < 0)) {
         sum = g_unk0x00592164 + g_unk0x00592168;
-        cur = *(int *)((BYTE *)g_pAutoGearCar + 0x81c);
+        cur = g_pAutoGearCar->field_0x81c;
         magCur = cur < 0 ? -cur : cur;
         magSum = sum < 0 ? -sum : sum;
         if (magCur <= magSum)
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0;
+            g_pAutoGearCar->field_0x81c = 0;
         else
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = cur + sum;
+            g_pAutoGearCar->field_0x81c = cur + sum;
         goto convert;
-    } else if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d1) != 0) {
+    } else if (g_pAutoGearCar->flag0x1d0[1] != 0) {
         deadZone = FixMul(0, v);
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
-        if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < -0x10000)
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0xffff0000;
-        else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > -deadZone)
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = -deadZone;
+        g_pAutoGearCar->field_0x81c += g_unk0x00592164;
+        if (g_pAutoGearCar->field_0x81c < -0x10000)
+            g_pAutoGearCar->field_0x81c = 0xffff0000;
+        else if (g_pAutoGearCar->field_0x81c > -deadZone)
+            g_pAutoGearCar->field_0x81c = -deadZone;
         goto convert;
-    } else if (*(char *)((BYTE *)g_pAutoGearCar + 0x1d0) != 0) {
+    } else if (g_pAutoGearCar->flag0x1d0[0] != 0) {
         deadZone = FixMul(0, v);
-        *(int *)((BYTE *)g_pAutoGearCar + 0x81c) += g_unk0x00592164;
-        if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) > 0x10000)
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = 0x10000;
-        else if (*(int *)((BYTE *)g_pAutoGearCar + 0x81c) < deadZone)
-            *(int *)((BYTE *)g_pAutoGearCar + 0x81c) = deadZone;
+        g_pAutoGearCar->field_0x81c += g_unk0x00592164;
+        if (g_pAutoGearCar->field_0x81c > 0x10000)
+            g_pAutoGearCar->field_0x81c = 0x10000;
+        else if (g_pAutoGearCar->field_0x81c < deadZone)
+            g_pAutoGearCar->field_0x81c = deadZone;
     }
 convert:
     target = (short)(__int64)((double)FixMul(g_unk0x00592160,
-                                             *(int *)((BYTE *)g_pAutoGearCar + 0x81c)) *
+                                             g_pAutoGearCar->field_0x81c) *
                               g_unk0x00511308);
-    *(short *)((BYTE *)g_pAutoGearCar + 0xb12) = target;
-    step = *(short *)((BYTE *)g_pAutoGearCar + 0xb12) - *(short *)((BYTE *)g_pAutoGearCar + 0xb10);
+    g_pAutoGearCar->field_0xb12 = target;
+    step = g_pAutoGearCar->field_0xb12 - *(short *)&g_pAutoGearCar->heading;
     limit = (short)(FixMul(0x22, 0x10000 - v) + 0x22);
     if (step < 0)
         cur = -step;
     else
         cur = step;
     if (cur < limit) {
-        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) = *(short *)((BYTE *)g_pAutoGearCar + 0xb12);
+        *(short *)&g_pAutoGearCar->heading = g_pAutoGearCar->field_0xb12;
         return;
     }
     if (step > 0)
-        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) += limit;
+        *(short *)&g_pAutoGearCar->heading += limit;
     else
-        *(short *)((BYTE *)g_pAutoGearCar + 0xb10) -= limit;
+        *(short *)&g_pAutoGearCar->heading -= limit;
 }
 
 int *FUN_00469680(int index);

@@ -966,13 +966,13 @@ void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
     pDst->velocity = pSrc->velocity;
     pDst->angularVelocity = pSrc->angularVelocity;
     FixMatrix_CopyRotation(&pSrc->matrix, pDst->pWorld);
-    pDst->pWorld->position.y = pDst->field_0x2ec;
+    pDst->pWorld->position.y = pDst->positionPrev.y;
 
     for (i = 0; i < 4; i++) {
         // the previous corner positions move one slot back (0x300 -> 0x330)
-        *(FixVector *)((BYTE *)pDst + 0x330 + i * 0xc) =
-            *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc);
-        *(FixVector *)((BYTE *)pDst + 0x300 + i * 0xc) = pDst->corners[i];
+        pDst->cornerPrev2[i] =
+            pDst->cornerPrev[i];
+        pDst->cornerPrev[i] = pDst->corners[i];
         pDst->field_0xabe[i] = pDst->wheelSurface[i];
     }
     for (i = 0; i < 8; i++) {
@@ -980,8 +980,8 @@ void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
         pDst->cornerOnGround[4 + i] = 0;
     }
     pDst->field_0x7a8 = pDst->field_0x7a4;
-    *(FixVector *)((BYTE *)pDst + 0x2f4) = *(FixVector *)((BYTE *)pDst + 0x2e8);
-    *(FixVector *)((BYTE *)pDst + 0x2e8) = pDst->position;
+    pDst->positionPrev2 = pDst->positionPrev;
+    pDst->positionPrev = pDst->position;
     pDst->normal0x498 = pDst->groundNormal;
     memcpy((BYTE *)pDst + 0x384, (BYTE *)pDst + 0x360, 9 * sizeof(int));
 
@@ -1019,15 +1019,15 @@ void FUN_0042e8e0(void)
             if (h < 0)
                 h = -h;
             if (h < 0x4ccc &&
-                (((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x != 0 ||
-                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y != 0 ||
-                 ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z != 0)) {
-                d.x = (g_pCurrentCar->corners[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x) -
-                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].x - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].x);
-                d.y = (g_pCurrentCar->corners[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y) -
-                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].y - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].y);
-                d.z = (g_pCurrentCar->corners[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z) -
-                      (((FixVector *)((BYTE *)g_pCurrentCar + 0x300))[w].z - ((FixVector *)((BYTE *)g_pCurrentCar + 0x330))[w].z);
+                ((&g_pCurrentCar->cornerPrev2[0])[w].x != 0 ||
+                 (&g_pCurrentCar->cornerPrev2[0])[w].y != 0 ||
+                 (&g_pCurrentCar->cornerPrev2[0])[w].z != 0)) {
+                d.x = (g_pCurrentCar->corners[w].x - (&g_pCurrentCar->cornerPrev[0])[w].x) -
+                      ((&g_pCurrentCar->cornerPrev[0])[w].x - (&g_pCurrentCar->cornerPrev2[0])[w].x);
+                d.y = (g_pCurrentCar->corners[w].y - (&g_pCurrentCar->cornerPrev[0])[w].y) -
+                      ((&g_pCurrentCar->cornerPrev[0])[w].y - (&g_pCurrentCar->cornerPrev2[0])[w].y);
+                d.z = (g_pCurrentCar->corners[w].z - (&g_pCurrentCar->cornerPrev[0])[w].z) -
+                      ((&g_pCurrentCar->cornerPrev[0])[w].z - (&g_pCurrentCar->cornerPrev2[0])[w].z);
                 FixMatrix_InverseRotateVector(&v, &d, g_pCurrentCar->pWorld);
                 // vertical (car-space y) speed of the corner over the last two steps
                 f = FixMul(v.y, FixMul(0x9c28, g_physicsScale));
@@ -1039,10 +1039,10 @@ void FUN_0042e8e0(void)
                    -(FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9e8))[w], g_pCurrentCar->wheel0x9d8[w]) +
                      FixMul(((int *)((BYTE *)g_pCurrentCar + 0x9f8))[w], ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w])));
         ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] += f;
-        ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] +=
+        (&g_pCurrentCar->wheel0x9d8[0])[w] +=
             FixMul(g_physicsTimeStep, ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w]);
-        if (((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] < -0x3333) {
-            ((int *)((BYTE *)g_pCurrentCar + 0x9d8))[w] = -0x3333;
+        if ((&g_pCurrentCar->wheel0x9d8[0])[w] < -0x3333) {
+            (&g_pCurrentCar->wheel0x9d8[0])[w] = -0x3333;
             if (((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] < 0)
                 ((int *)((BYTE *)g_pCurrentCar + 0x9c8))[w] = 0;
         }

@@ -6249,10 +6249,10 @@ void FUN_0040f0c0(int param1, int param2, int param3)
                 pNode = pCar->pNode0x724;
                 if (pNode != NULL && pNode->field_0x17c > 0)
                     FUN_004b5f90(pCar->pNode0x724, pCar->field_0x758,
-                                 (short *)pCar->field_0xb00);
+                                 &pCar->sector);
                 else
                     FUN_004b5f90(pCar->pNode0x71c, pCar->field_0x758,
-                                 (short *)pCar->field_0xb00);
+                                 &pCar->sector);
                 FUN_004b5ee0(pCar->pNode0x720, pCar->field_0xa70,
                              FUN_0046bd40(pCar->index));
                 FUN_004b5ee0(pCar->pNode0x71c, pCar->field_0xa70,

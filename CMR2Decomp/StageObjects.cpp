@@ -11579,8 +11579,8 @@ void FUN_0046d8d0(Car *pCar, ReplaySample *pSample)
 
     FixMatrix_GetPosition(&pos, pCar->pWorld);
     pSample->y = pos.y;
-    pSample->sector = *(short *)((BYTE *)pCar + 0xb00);
-    pSector = g_sectors[*(short *)((BYTE *)pCar + 0xb00)];
+    pSample->sector = pCar->sector;
+    pSector = g_sectors[pCar->sector];
     pos.x -= pSector->x;
     pos.y -= pSector->y;
     pos.z -= pSector->z;
@@ -14758,10 +14758,10 @@ int FUN_00487f60(Car *pCar, int *pEntry, CollisionBox *pBox, CollisionBox *pObje
     count = 0;
     if ((*(unsigned int *)(*pEntry + 0x10) & 0x2001000) != 0) {
         solid = 1;
-        hit = FUN_00488640(pBox, pObject, (FixVector *)((BYTE *)pCar + 0x2e8), 0x10000);
+        hit = FUN_00488640(pBox, pObject, &pCar->positionPrev, 0x10000);
     } else {
         solid = 0;
-        hit = FUN_00488640(pBox, pObject, (FixVector *)((BYTE *)pCar + 0x2e8), 0);
+        hit = FUN_00488640(pBox, pObject, &pCar->positionPrev, 0);
     }
     if (hit != 0) {
         sum.x = 0;

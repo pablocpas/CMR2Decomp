@@ -185,7 +185,7 @@ void Car_UpdateSurfaceParams(Car *pCar, int blend)
     int *pComp = &pCar->field_0x8b8[1];
     short noiseNext = 0;
     short *pSurf = (short *)((BYTE *)pCar + 0xabc);
-    int *pOut = (int *)((BYTE *)pCar + 0x180);
+    int *pOut = &pCar->cornerGrip[7].gripB;
     int s0;
     unsigned short next;
     int s1;
@@ -284,7 +284,7 @@ store_grip2B:
             int diff;
 
             i = 4;
-            pOut = (int *)((BYTE *)pCar + 0x1c8);
+            pOut = &pCar->wheelSurfaceFx[3].drag;
             pSurf = &pCar->wheelSurface[3];
             do {
                 int id = *pSurf;
