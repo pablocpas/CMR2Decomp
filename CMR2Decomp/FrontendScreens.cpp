@@ -417,8 +417,7 @@ void FUN_004d65c0(void)
                   (int)(g_pGraphics->resY * 0x23) / 480 + (int)(g_pGraphics->resY * 0x4c) / 480,
                   (int *)g_colourWhite0x00524968, 0x11);
     Font_DrawText(1, g_unk0x00818368, g_pGraphics->resX - (int)(g_pGraphics->resX * 0x3c) / 640 - 6,
-                  (int)(g_pGraphics->resY * 0x23) / 480 + (int)(g_pGraphics->resY * 0x4c) / 480 +
-                      (int)(g_pGraphics->resY * 100) / 480 - 4,
+                  (int)(g_pGraphics->resY * 0x4c) / 480 + (int)(g_pGraphics->resY * 100) / 480 - 4,
                   (int *)g_colourWhite0x00524968, 0x24);
 }
 

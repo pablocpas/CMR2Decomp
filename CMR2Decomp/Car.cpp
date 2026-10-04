@@ -3988,6 +3988,7 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
     int mid;
     float fromStart;
     float toEnd;
+    float frac;
     Car *pCar;
 
     if ((g_unk0x0053b530 & 1) == 0) {
@@ -4016,12 +4017,13 @@ int Car_UpdateEngineNoteFalloff(int *pOut)
             *(int *)pCar->field_0xa90 = *(int *)g_carBuffer->field_0xa90;
             offset = g_carBuffer->field_0xb43;
         } else {
-            fromStart = (float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) *
-                        g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
-            toEnd = (float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) *
-                    g_unk0x005113a0 * *(float *)(pCar->field_0xa90 + 8);
+            fromStart = ((float)(unsigned int)(g_unk0x0053a374 - g_unk0x0053bd64) * g_unk0x005113a0) *
+                        *(float *)(pCar->field_0xa90 + 8);
+            toEnd = ((float)(unsigned int)(g_unk0x0053bd40 - g_unk0x0053bd64) * g_unk0x005113a0) *
+                    *(float *)(pCar->field_0xa90 + 8);
             mid = (int)(__int64)toEnd;
-            *(int *)pCar->field_0xa90 = (int)((toEnd - (float)mid) * g_65536f);
+            frac = toEnd - (float)mid;
+            *(int *)pCar->field_0xa90 = (int)(frac * g_65536f);
             offset = mid - (int)(__int64)fromStart;
             if (offset > 5)
                 offset = 5;
