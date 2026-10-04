@@ -1468,19 +1468,19 @@ void FUN_004786b0(BYTE *pWheel, int unused)
     do {
         id = *pId;
         blend = pMix[-4];
-        if (blend == 0) {
-            pOut[-3] = g_surfaceGrip[id][0];
-            pOut[-1] = g_surfaceGrip2[id][0];
-            pOut[-2] = g_surfaceGrip[id][1];
-            pOut[0] = g_surfaceGrip2[id][1];
-        } else {
+        if (blend != 0) {
             if (blend > 0x10000)
                 blend = 0x10000;
             v = FixMul(blend, g_surfaceSoftness[id][0]);
             pOut[-3] = g_surfaceGrip[id][0] + v;
             pOut[-1] = g_surfaceGrip2[id][0] + v;
-            pOut[-2] = FixDiv(g_surfaceGrip[id][0] * g_surfaceGrip[id][1], pOut[-3]);
-            pOut[0] = FixDiv(g_surfaceGrip2[id][0] * g_surfaceGrip2[id][1], pOut[-1]);
+            pOut[-2] = FixDiv(FixMul(g_surfaceGrip[id][0], g_surfaceGrip[id][1]), pOut[-3]);
+            pOut[0] = FixDiv(FixMul(g_surfaceGrip2[id][0], g_surfaceGrip2[id][1]), pOut[-1]);
+        } else {
+            pOut[-3] = g_surfaceGrip[id][0];
+            pOut[-1] = g_surfaceGrip2[id][0];
+            pOut[-2] = g_surfaceGrip[id][1];
+            pOut[0] = g_surfaceGrip2[id][1];
         }
         blend = *pMix;
         if (blend != 0) {

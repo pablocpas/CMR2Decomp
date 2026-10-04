@@ -12527,13 +12527,13 @@ void FUN_0047aa70(void)
         bestDist = 0x42400000;
         if (0 < count) {
             for (i = 0; i < count; i++) {
-                if (distances[i] < bestDist && used[i + 1] != 0) {
+                if (distances[i] < bestDist && used[i] != 0) {
                     bestDist = distances[i];
                     chosen = (unsigned int)(i + 1);
                 }
             }
         }
-        used[chosen] = 0;
+        used[chosen - 1] = 0;
         dist = FUN_00427d50(chosen, 0);
         {
             Car *pCar = Car_Get(chosen);
