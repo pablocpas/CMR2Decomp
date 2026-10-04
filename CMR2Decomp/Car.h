@@ -168,7 +168,7 @@ struct Car {
     int field_0x9bc;                  // 0x9bc
     int field_0x9c0;
     int field_0x9c4;                  // 0x9c4
-    BYTE field_0x9c8[0x10];
+    int field_0x9c8[4];               // 0x9c8
     int wheel0x9d8[4];                // 0x9d8
     BYTE field_0x9e8[0x20];
     int field_0xa08;

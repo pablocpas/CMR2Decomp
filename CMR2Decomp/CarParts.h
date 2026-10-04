@@ -38,10 +38,11 @@ struct CarPartSet {
     FixVector centres[15];           // 0x0b4
     FixVector halfExtents[15];       // 0x168
     int damageGrid[3][3];            // 0x21c dent depth per body cell
-    BYTE field_0x240[0x110];
-    int field_0x350[0x22];           // 0x350
+    int field_0x240[0x22];           // 0x240 per-part values rebuilt from damageGrid (FUN_00468c10)
+    int field_0x2c8[0x22];           // 0x2c8 scale applied to field_0x240
+    int field_0x350[0x22];           // 0x350 bias added after the scale
     int field_0x3d8;                 // 0x3d8
-    BYTE field_0x3dc[0x10];
+    int field_0x3dc[4];              // 0x3dc
     int field_0x3ec[4];              // 0x3ec
     int field_0x3fc[3];              // 0x3fc
     int field_0x408;                 // 0x408

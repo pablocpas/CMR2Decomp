@@ -120,7 +120,7 @@ void FUN_00469bf0(Car *pCar, int index);
 int FUN_00469c30(FixVector *pOut, int *pParts, int index);
 int StageObject_IsEligibleType(short type, int mode, int category);
 void FUN_00469e40(int param_1, short *param_2, short param_3);
-void FUN_0046a500(int param_1);
+void FUN_0046a500(Car *pCar);
 void FUN_0046acb0(int param_1, int param_2, int param_3);
 void FUN_0046afe0(int param_1, int param_2, CarPartSet *set);
 void FUN_0046b400(int value, int index);
@@ -4879,100 +4879,95 @@ extern BYTE *g_unk0x00588b94;
 
 int FUN_00469100(Car *pCar, CarPartSet *set);
 
-// Rebuilds the per-wheel/gear block (0x240..0x2c4) of the car's 0x4d0-byte
-// record from its source block (0x21c..), scales it, then recomputes the
-// derived torques and scales (0x3d8..0x408).
-// match 88%: same code; MSVC kept the cached record fields in EDX/EAX in the
-// original and in EDI here (register numbering).
+// Rebuilds the per-part values (field_0x240) of the car's part set from its
+// damage grid, scales and biases them (field_0x2c8 / field_0x350), then
+// recomputes the derived torques and scales (0x3d8..0x408).
 // FUNCTION: CMR2 0x00468c10
 void FUN_00468c10(Car *pCar)
 {
-    BYTE *pRecord;
-    int *p;
+    CarPartSet *pRecord;
     int i;
     int value;
 
-    pRecord = g_unk0x00588b94 + pCar->index * 0x4d0;
+    pRecord = (CarPartSet *)(g_unk0x00588b94 + pCar->index * 0x4d0);
     if (pCar->field_0xb50 == 0)
         return;
-    p = (int *)(pRecord + 0x240);
-    p[0] = *(int *)(pRecord + 0x234);
-    *(int *)(pRecord + 0x244) = *(int *)(pRecord + 0x21c);
-    *(int *)(pRecord + 0x248) = *(int *)(pRecord + 0x23c);
-    *(int *)(pRecord + 0x24c) = *(int *)(pRecord + 0x224);
-    *(int *)(pRecord + 0x254) = *(int *)(pRecord + 0x21c);
-    *(int *)(pRecord + 0x250) = *(int *)(pRecord + 0x234);
-    *(int *)(pRecord + 0x258) = *(int *)(pRecord + 0x234);
-    *(int *)(pRecord + 0x25c) = *(int *)(pRecord + 0x21c);
-    *(int *)(pRecord + 0x260) = *(int *)(pRecord + 0x23c);
-    *(int *)(pRecord + 0x264) = *(int *)(pRecord + 0x224);
-    *(int *)(pRecord + 0x268) = *(int *)(pRecord + 0x234);
-    *(int *)(pRecord + 0x26c) = *(int *)(pRecord + 0x21c);
-    *(int *)(pRecord + 0x270) = *(int *)(pRecord + 0x23c);
-    *(int *)(pRecord + 0x274) = *(int *)(pRecord + 0x224);
-    *(int *)(pRecord + 0x278) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x27c) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x280) = FixMul(*(int *)(pRecord + 0x22c) + *(int *)(pRecord + 0x228) +
-                                       *(int *)(pRecord + 0x230), 0x5553);
-    *(int *)(pRecord + 0x28c) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x288) = *(int *)(pRecord + 0x230);
-    *(int *)(pRecord + 0x290) = *(int *)(pRecord + 0x230);
-    *(int *)(pRecord + 0x294) = *(int *)(pRecord + 0x230);
-    *(int *)(pRecord + 0x2a0) = *(int *)(pRecord + 0x230);
-    *(int *)(pRecord + 0x298) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x29c) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x284) = 0;
-    *(int *)(pRecord + 0x2a4) = FixMul(*(int *)(pRecord + 0x230) + *(int *)(pRecord + 0x228) +
-                                       *(int *)(pRecord + 0x22c), 0x5553);
-    *(int *)(pRecord + 0x2a8) = *(int *)(pRecord + 0x228);
-    *(int *)(pRecord + 0x2ac) = *(int *)(pRecord + 0x230);
-    *(int *)(pRecord + 0x2b0) = *(int *)(pRecord + 0x238);
-    *(int *)(pRecord + 0x2b4) = *(int *)(pRecord + 0x220);
-    *(int *)(pRecord + 0x2b8) = *(int *)(pRecord + 0x23c);
-    *(int *)(pRecord + 0x2bc) = *(int *)(pRecord + 0x224);
-    *(int *)(pRecord + 0x2c0) = *(int *)(pRecord + 0x234);
-    *(int *)(pRecord + 0x2c4) = *(int *)(pRecord + 0x21c);
+    pRecord->field_0x240[0] = pRecord->damageGrid[2][0];
+    pRecord->field_0x240[1] = pRecord->damageGrid[0][0];
+    pRecord->field_0x240[2] = pRecord->damageGrid[2][2];
+    pRecord->field_0x240[3] = pRecord->damageGrid[0][2];
+    pRecord->field_0x240[5] = pRecord->damageGrid[0][0];
+    pRecord->field_0x240[4] = pRecord->damageGrid[2][0];
+    pRecord->field_0x240[6] = pRecord->damageGrid[2][0];
+    pRecord->field_0x240[7] = pRecord->damageGrid[0][0];
+    pRecord->field_0x240[8] = pRecord->damageGrid[2][2];
+    pRecord->field_0x240[9] = pRecord->damageGrid[0][2];
+    pRecord->field_0x240[10] = pRecord->damageGrid[2][0];
+    pRecord->field_0x240[11] = pRecord->damageGrid[0][0];
+    pRecord->field_0x240[12] = pRecord->damageGrid[2][2];
+    pRecord->field_0x240[13] = pRecord->damageGrid[0][2];
+    pRecord->field_0x240[14] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[15] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[16] = FixMul(pRecord->damageGrid[1][1] + pRecord->damageGrid[1][0] +
+                                       pRecord->damageGrid[1][2], 0x5553);
+    pRecord->field_0x240[19] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[18] = pRecord->damageGrid[1][2];
+    pRecord->field_0x240[20] = pRecord->damageGrid[1][2];
+    pRecord->field_0x240[21] = pRecord->damageGrid[1][2];
+    pRecord->field_0x240[24] = pRecord->damageGrid[1][2];
+    pRecord->field_0x240[22] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[23] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[17] = 0;
+    pRecord->field_0x240[25] = FixMul(pRecord->damageGrid[1][2] + pRecord->damageGrid[1][0] +
+                                       pRecord->damageGrid[1][1], 0x5553);
+    pRecord->field_0x240[26] = pRecord->damageGrid[1][0];
+    pRecord->field_0x240[27] = pRecord->damageGrid[1][2];
+    pRecord->field_0x240[28] = pRecord->damageGrid[2][1];
+    pRecord->field_0x240[29] = pRecord->damageGrid[0][1];
+    pRecord->field_0x240[30] = pRecord->damageGrid[2][2];
+    pRecord->field_0x240[31] = pRecord->damageGrid[0][2];
+    pRecord->field_0x240[32] = pRecord->damageGrid[2][0];
+    pRecord->field_0x240[33] = pRecord->damageGrid[0][0];
     if (*(int *)pCar->field_0xb7c == 0)
-        *(int *)(pRecord + 0x27c) = 0;
+        pRecord->field_0x240[15] = 0;
     if (*(int *)(pCar->field_0xb7c + 4) == 0)
-        *(int *)(pRecord + 0x280) = 0;
+        pRecord->field_0x240[16] = 0;
     for (i = 0; i < 0x22; i++) {
-        p[i] = FixMul(p[i], p[i + 0x22]);
-        p[i] = p[i] + p[i + 0x44];
-        if (p[i] > 0x10000)
-            p[i] = 0x10000;
+        pRecord->field_0x240[i] = FixMul(pRecord->field_0x240[i], pRecord->field_0x2c8[i]);
+        pRecord->field_0x240[i] = pRecord->field_0x240[i] + pRecord->field_0x350[i];
+        if (pRecord->field_0x240[i] > 0x10000)
+            pRecord->field_0x240[i] = 0x10000;
     }
-    *(int *)(pRecord + 0x404) = 0x10000 - FixMul(*(int *)(pRecord + 0x2a4), 0x2666) -
-                                FixMul(*(int *)(pRecord + 0x27c), 0x1333) -
-                                FixMul(*(int *)(pRecord + 0x2a0), 0x666);
-    *(int *)(pRecord + 0x3dc) = FixMul(*(int *)(pRecord + 0x258), FixMul(0x3333, 0xffff0000));
-    *(int *)(pRecord + 0x3e0) = FixMul(*(int *)(pRecord + 0x25c), FixMul(0x3333, 0xffff0000));
-    *(int *)(pRecord + 0x3e4) = FixMul(*(int *)(pRecord + 0x260), FixMul(0x3333, 0x8000));
-    *(int *)(pRecord + 0x3e8) = FixMul(*(int *)(pRecord + 0x264), FixMul(0x3333, 0xffff8000));
-    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x250) * 2, 0x8000);
-    *(int *)(pRecord + 0x3d8) = FixMul(*(int *)(pRecord + 0x3d8), 0xa0000);
-    *(int *)(pRecord + 0x3fc) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x268) +
-                                                         *(int *)(pRecord + 0x26c), 0x8000), 0x3333);
-    *(int *)(pRecord + 0x400) = 0x10000 - FixMul(FixMul(*(int *)(pRecord + 0x270) +
-                                                         *(int *)(pRecord + 0x274), 0x8000), 0x3333);
-    p = (int *)(pRecord + 0x3ec);
+    pRecord->field_0x3fc[2] = 0x10000 - FixMul(pRecord->field_0x240[25], 0x2666) -
+                                FixMul(pRecord->field_0x240[15], 0x1333) -
+                                FixMul(pRecord->field_0x240[24], 0x666);
+    pRecord->field_0x3dc[0] = FixMul(pRecord->field_0x240[6], FixMul(0x3333, 0xffff0000));
+    pRecord->field_0x3dc[1] = FixMul(pRecord->field_0x240[7], FixMul(0x3333, 0xffff0000));
+    pRecord->field_0x3dc[2] = FixMul(pRecord->field_0x240[8], FixMul(0x3333, 0x8000));
+    pRecord->field_0x3dc[3] = FixMul(pRecord->field_0x240[9], FixMul(0x3333, 0xffff8000));
+    pRecord->field_0x3d8 = FixMul(pRecord->field_0x240[4] * 2, 0x8000);
+    pRecord->field_0x3d8 = FixMul(pRecord->field_0x3d8, 0xa0000);
+    pRecord->field_0x3fc[0] = 0x10000 - FixMul(FixMul(pRecord->field_0x240[10] +
+                                                         pRecord->field_0x240[11], 0x8000), 0x3333);
+    pRecord->field_0x3fc[1] = 0x10000 - FixMul(FixMul(pRecord->field_0x240[12] +
+                                                         pRecord->field_0x240[13], 0x8000), 0x3333);
     for (i = 0; i < 4; i++) {
-        p[i] = FixMul(p[i - 0x6b], 0xccc);
+        pRecord->field_0x3ec[i] = FixMul(pRecord->field_0x240[i], 0xccc);
     }
     if (pCar->field_0x7b8 != 0x10000 && pCar->field_0x7b8 != 0) {
-        value = FixMul(0x8000, *(int *)(pRecord + 0x280)) + pCar->field_0x7b8;
-        pCar->driveSplit = value;
+        pCar->driveSplit = FixMul(0x8000, pRecord->field_0x240[16]) + pCar->field_0x7b8;
+        value = pCar->driveSplit;
         if (value > 0x10000)
             pCar->driveSplit = 0x10000;
     }
-    *(char *)(pRecord + 0x468) = (char)FixMulShift32(*(int *)(pRecord + 0x278), 0xf0000);
-    value = FUN_00469100(pCar, (CarPartSet *)pRecord);
-    *(int *)(pRecord + 0x408) = FixMul(0x4000, value);
+    pRecord->field_0x468 = (char)FixMulShift32(pRecord->field_0x240[14], 0xf0000);
+    value = FUN_00469100(pCar, pRecord);
+    pRecord->field_0x408 = FixMul(0x4000, value);
     if (FUN_00469bc0(pCar, 3) != 0)
-        *(int *)(pRecord + 0x408) = *(int *)(pRecord + 0x408) + -0x3333;
-    *(int *)(pRecord + 0x284) = value;
+        pRecord->field_0x408 = pRecord->field_0x408 + -0x3333;
+    pRecord->field_0x240[17] = value;
     if (value > 0x10000)
-        *(int *)(pRecord + 0x284) = 0x10000;
+        pRecord->field_0x240[17] = 0x10000;
 }
 
 // Adds `amount` to the 3x3 grid at +0x21c of the car's 0x4d0-byte record,
@@ -11286,9 +11281,9 @@ extern int g_deformImpactTicks[2];
 // match 60%: implementada (contacto de impacto: marco forward/lateral/up, debris,
 // dano y sonido); difiere el reparto de registros del bloque de normalizacion
 // FUNCTION: CMR2 0x0046a500
-void FUN_0046a500(int param_1)
+void FUN_0046a500(Car *pCar)
 {
-    int *pParts;
+    CarPartSet *pParts;
     int i;
     int iBig;
     int iFlagC;
@@ -11303,17 +11298,17 @@ void FUN_0046a500(int param_1)
     FixVector vHit;
 
     iFlagC = 0;
-    pParts = FUN_00469680((int)*(char *)(param_1 + 0xb1a));
+    pParts = (CarPartSet *)FUN_00469680(pCar->index);
     bVar5 = FALSE;
     bVar14 = TRUE;
     i = 0;
     do {
         int limit;
 
-        limit = *(int *)(param_1 + 0x988 + i * 4);
+        limit = pCar->wheel0x988[i];
         if (limit < 0x51e)
             limit = 0x51e;
-        if (*(int *)(param_1 + 0x9d8 + i * 4) >= -limit) {
+        if (pCar->wheel0x9d8[i] >= -limit) {
             bVar14 = FALSE;
             i = 4;
         }
@@ -11326,7 +11321,7 @@ void FUN_0046a500(int param_1)
 
         bVar5 = TRUE;
         iBig = 0;
-        p = (int *)(param_1 + 0x9c8);
+        p = pCar->field_0x9c8;
         n = 4;
         do {
             int v;
@@ -11340,64 +11335,64 @@ void FUN_0046a500(int param_1)
             n--;
         } while (n != 0);
     }
-    if (*(int *)(param_1 + 0xb74) != 0 && iBig != 0) {
+    if (pCar->field_0xb74 != 0 && iBig != 0) {
         bVar5 = FALSE;
         idx = 0;
         do {
-            if (StageObject_IsEligibleType((short)*(unsigned short *)(param_1 + 0xaae + idx * 2), 0,
-                                           (int)*(unsigned char *)(param_1 + 0xb29)) != 0) {
+            if (StageObject_IsEligibleType((short)(unsigned short)pCar->wheelSurface[idx], 0,
+                                           (int)pCar->field_0xb29) != 0) {
                 bVar5 = TRUE;
                 idx = 4;
             }
             idx++;
         } while (idx < 4);
-        if (bVar5 && 0x4ccc < *(int *)(param_1 + 0x778)) {
+        if (bVar5 && 0x4ccc < pCar->speed) {
             iFlagC = 1;
-            FixVecScale(&axes[0], (FixVector *)(param_1 + 0x408), -0x10000);
-            dot = FixVecDot(&axes[0], (FixVector *)(param_1 + 0x48c));
-            FixVecScale(&axes[2], (FixVector *)(param_1 + 0x48c), dot);
+            FixVecScale(&axes[0], &pCar->velocity, -0x10000);
+            dot = FixVecDot(&axes[0], &pCar->groundNormal);
+            FixVecScale(&axes[2], &pCar->groundNormal, dot);
             axes[0].x -= axes[2].x;
             axes[0].y -= axes[2].y;
             axes[0].z -= axes[2].z;
-            FIX_NORMALIZE_INTO(axes[0], axes[0]);
-            FixVecCross(&axes[2], &axes[0], (FixVector *)(param_1 + 0x48c));
-            FIX_NORMALIZE_INTO(axes[2], axes[2]);
+            StageObj_NormalizeInto(&axes[0], &axes[0]);
+            FixVecCross(&axes[2], &axes[0], &pCar->groundNormal);
+            StageObj_NormalizeInto(&axes[2], &axes[2]);
             FixVecCross(&axes[1], &axes[2], &axes[0]);
-            FIX_NORMALIZE_INTO(axes[1], axes[1]);
+            StageObj_NormalizeInto(&axes[1], &axes[1]);
             FixVecScale(&axes[1], &axes[1], 0x8000);
-            vHit.x = *(int *)(param_1 + 0x270) - *(int *)(param_1 + 0x294);
-            vHit.y = *(int *)(param_1 + 0x274) - *(int *)(param_1 + 0x298);
-            vHit.z = *(int *)(param_1 + 0x278) - *(int *)(param_1 + 0x29c);
+            vHit.x = pCar->corners[0].x - pCar->corners[3].x;
+            vHit.y = pCar->corners[0].y - pCar->corners[3].y;
+            vHit.z = pCar->corners[0].z - pCar->corners[3].z;
             FixVecScale(&vHit, &vHit, 0x8000);
-            vHit.x = vHit.x + *(int *)(param_1 + 0x294) - *(int *)(param_1 + 0x2d0);
-            vHit.y = vHit.y + *(int *)(param_1 + 0x298) - *(int *)(param_1 + 0x2d4);
-            vHit.z = vHit.z + *(int *)(param_1 + 0x29c) - *(int *)(param_1 + 0x2d8);
-            Car_SpawnDebris(*(int *)(param_1 + 0x778), &vHit, (Car *)param_1, &axes[0], 0x1e0000, 0);
-            speed = *(int *)(param_1 + 0x778);
+            vHit.x = vHit.x + pCar->corners[3].x - pCar->position.x;
+            vHit.y = vHit.y + pCar->corners[3].y - pCar->position.y;
+            vHit.z = vHit.z + pCar->corners[3].z - pCar->position.z;
+            Car_SpawnDebris(pCar->speed, &vHit, pCar, &axes[0], 0x1e0000, 0);
+            speed = pCar->speed;
             if (speed > 0x10000)
                 speed = 0x10000;
-            *(int *)((BYTE *)pParts + 0x22c) += FixMul(speed, 0x28f);
-            FUN_00468c10((Car *)param_1);
+            pParts->damageGrid[1][1] += FixMul(speed, 0x28f);
+            FUN_00468c10(pCar);
         }
         uVar15 = RallyDataState();
-        if ((int)*(char *)(param_1 + 0xb1a) < (int)(uVar15 & 0xff)) {
-            i = (int)*(char *)(param_1 + 0xb1a);
+        if ((int)pCar->index < (int)(uVar15 & 0xff)) {
+            i = (int)pCar->index;
             uVar16 = CMain::GetFrameDelta();
-            if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && *(int *)(param_1 + 0x778) > 0) {
-                if (*(int *)(param_1 + 0x778) <= 0x10000)
-                    uVar15 = (unsigned int)FixMul(*(int *)(param_1 + 0x778), 0x5c28);
+            if (0x19 < (unsigned int)(uVar16 - g_deformImpactTicks[i]) && pCar->speed > 0) {
+                if (pCar->speed <= 0x10000)
+                    uVar15 = (unsigned int)FixMul(pCar->speed, 0x5c28);
                 else
                     uVar15 = 0x5c28;
-                i = (int)*(char *)(param_1 + 0xb1a);
+                i = (int)pCar->index;
                 FUN_00418c30((unsigned int)i, (int)uVar15, (char)iFlagC, i);
                 uVar16 = CMain::GetFrameDelta();
-                g_deformImpactTicks[(int)*(char *)(param_1 + 0xb1a)] = (int)uVar16;
+                g_deformImpactTicks[(int)pCar->index] = (int)uVar16;
             }
         }
-        ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
-        FixVecScale((FixVector *)(param_1 + 0x408), (FixVector *)(param_1 + 0x408), 0xf851);
-    } else if (*(int *)(param_1 + 0xb74) != 0 && bVar5) {
-        ForceFeedback_UpdateSlot((BYTE *)param_1, (FixVector *)(param_1 + 0x408), 0);
+        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->velocity, 0);
+        FixVecScale(&pCar->velocity, &pCar->velocity, 0xf851);
+    } else if (pCar->field_0xb74 != 0 && bVar5) {
+        ForceFeedback_UpdateSlot((BYTE *)pCar, &pCar->velocity, 0);
     }
 
 }
@@ -12211,7 +12206,7 @@ int FUN_0046cce0(ReplayStream *p, short lane, short start, BYTE car)
 // ===========================================================================
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 void Car_SpawnDebris(int size, FixVector *pPos, Car *pCar, FixVector *pAxes, int count, int glassChance);
-void FUN_0046a500(int param_1);
+void FUN_0046a500(Car *pCar);
 // ---- DECLS extras (integrar al principio de StageObjects.cpp si no existen ya) ----
 // Nota: FUN_0047b0e0 debe colocarse DESPUES de FUN_0047bca0 y de las definiciones
 // de g_carButtonMasks / g_unk0x0058e0a0 / g_unk0x0058e0a8 (todas en este fichero).
@@ -12409,7 +12404,7 @@ void FUN_00469e40(int param_1, short *param_2, short param_3)
             else
                 Car_SpawnDebris(size, &vHit, pCar, axes, 0x90000, 0x9999);
         }
-        FUN_0046a500((int)pCar);
+        FUN_0046a500(pCar);
     }
 }
 
