@@ -4669,8 +4669,6 @@ void FUN_0045ea70(void)
 // FUNCTION: CMR2 0x004590a0
 void FUN_004590a0(int car, int time)
 {
-    int count;
-
     if (g_unk0x00542e78[car].field_0x18 != 0) {
         if (g_unk0x00542e78[car].field_0x6 == g_unk0x00542c74 - 1)
             g_unk0x00542e78[car].field_0x19 = 1;
@@ -4684,11 +4682,10 @@ void FUN_004590a0(int car, int time)
         g_unk0x00542e78[car].field_0x17 = 1;
         g_unk0x00542e78[car].field_0x6 = g_unk0x00542e78[car].field_0xa;
         g_unk0x00542e78[car].field_0xa++;
-        count = g_unk0x00542c74;
-        if (g_unk0x00542e78[car].field_0xa == count)
+        if (g_unk0x00542e78[car].field_0xa == g_unk0x00542c74)
             g_unk0x00542e78[car].field_0xa = 0;
         g_unk0x00542e78[car].field_0x14++;
-        if (g_unk0x00542e78[car].field_0x14 >= count)
+        if (g_unk0x00542e78[car].field_0x14 >= g_unk0x00542c74)
             g_unk0x00542e78[car].field_0x14 = 0;
     }
 }

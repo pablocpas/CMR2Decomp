@@ -676,7 +676,6 @@ double g_unk0x005113b8 = 0.5;
 // Plays one frame of the current movie: scales and offsets the Bink buffer to
 // the game window, copies the frame into it and blits it to the screen.
 // Returns whether the movie has more frames left.
-// match 68%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x00510120
 BOOL FUN_00510120(BYTE skipOnSpace)
 {
@@ -693,7 +692,7 @@ BOOL FUN_00510120(BYTE skipOnSpace)
     if (pDevice->field_0x8 & 0x10)
         return FALSE;
     if (skipOnSpace & 1) {
-        keyByte = (BYTE)((GetAsyncKeyState(VK_SPACE) & 0xff00) >> 8);
+        keyByte = (BYTE)((USHORT)GetAsyncKeyState(VK_SPACE) >> 8);
         if (keyByte != 0)
             return TRUE;
     }
@@ -717,16 +716,16 @@ BOOL FUN_00510120(BYTE skipOnSpace)
             }
             BinkBufferSetScale(g_pUnk0x00831ad4, scaleWidth, scaleHeight);
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)((int)(g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
+                                (int)(__int64)((g_pGraphics->resX - scaleWidth) * g_unk0x005113b8),
+                                (int)(__int64)((g_pGraphics->resY - scaleHeight) * g_unk0x005113b8));
         } else {
-            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)((int)(g_pGraphics->resX - 0x280) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
+            BinkBufferSetOffset(g_pUnk0x00831ad4, (int)(__int64)((g_pGraphics->resX - 0x280) * g_unk0x005113b8),
+                                (int)(__int64)((g_pGraphics->resY - 0x1e0) * g_unk0x005113b8));
         }
         if (CGraphics::FUN_004a96e0(CGraphics::FUN_004a8bc0()) == 0)
             BinkBufferSetOffset(g_pUnk0x00831ad4,
-                                (int)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
-                                (int)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
+                                (int)(__int64)((int)(g_pGraphics->screenResX - 0x280) * g_unk0x005113b8),
+                                (int)(__int64)((int)(g_pGraphics->screenResY - 0x1e0) * g_unk0x005113b8));
     }
 
     if (BinkBufferLock(g_pUnk0x00831ad4) != 0) {
@@ -3737,9 +3736,9 @@ int CGameInfo::FUN_004a13b0(void)
     FUN_004a0c60();
     memset(g_unk0x005a0068, 0, 0x50);
     *(int *)(g_unk0x005a0068 + 0x18) = g_unk0x00511cd8[0];
-    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x30) = (int)&m_unk0x005a00b8;
     *(int *)(g_unk0x005a0068) = 0x50;
+    *(int *)(g_unk0x005a0068 + 0x1c) = g_unk0x00511cd8[1];
     *(int *)(g_unk0x005a0068 + 0x20) = g_unk0x00511cd8[2];
     *(int *)(g_unk0x005a0068 + 0x24) = g_unk0x00511cd8[3];
     pDP = CGame::GetDirectPlay();
@@ -3754,8 +3753,11 @@ int CGameInfo::FUN_004a13b0(void)
     case 0x88770118:
         return -2;
     case 0x8877005a:
+        return 0;
     case 0x88770082:
+        return 0;
     case 0x887700aa:
+        return 0;
     case 0x88770140:
         return 0;
     }
@@ -5262,9 +5264,7 @@ void FUN_004028d0(Menu *pMenu)
     short rect[4];
     int i;
     int *pColour;
-    char *text;
-    short type;
-    int texture;
+    int type;
 
     rect[0] = 0;
     rect[1] = 0;
@@ -5280,31 +5280,34 @@ void FUN_004028d0(Menu *pMenu)
     for (i = 0; i < pMenu->itemCount; i++, pItem++) {
         pColour = pMenu->cursor == i ? &g_unk0x00516074 : &g_unk0x00516078;
         type = pItem->value;
-        if (type >= 0 && (type < 3 || type == 4)) {
-            if (type < 3) {
+        if (type >= 0) {
+            if (type > 2) {
+                if (type == 4) {
+                    Font_DrawText(1, CFrontend::GetTextString(pItem->id),
+                                  (int)(g_pGraphics->resX * 0x86) / 0x280,
+                                  (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                      + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
+                                  pColour, 0x11);
+                }
+            } else {
                 sprintf(CFrontend::m_stringDest, g_classRowHeaderFormat,
                         CFrontend::GetTextString(pItem->id), pItem->max * 10);
-                text = CFrontend::m_stringDest;
-            } else {
-                text = CFrontend::GetTextString(pItem->id);
+                Font_DrawText(1, CFrontend::m_stringDest, (int)(g_pGraphics->resX * 0x86) / 0x280,
+                              (int)(g_pGraphics->resY * 0xaa) / 0x1e0
+                                  + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
+                              pColour, 0x11);
             }
-            Font_DrawText(1, text, (int)(g_pGraphics->resX * 0x86) / 0x280,
-                          (int)(g_pGraphics->resY * 0xaa) / 0x1e0
-                              + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i,
-                          pColour, 0x11);
         }
         rect[1] = (short)(((int)(g_pGraphics->resY * 0xaa) / 0x1e0
                            + ((int)(g_pGraphics->resY * 0x36) / 0x1e0) * i)
                           - (int)(g_pGraphics->resY * 0xd) / 0x1e0);
         if (pMenu->cursor == i) {
-            pColour = &g_unk0x00516074;
-            texture = g_unk0x0052aa60;
+            Sprite_Queue((SpriteRect *)(g_unk0x0052aa60 + 0x11c), (SpriteRect *)rect,
+                         (Texture *)g_unk0x0052aa60, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516074, 8);
         } else {
-            pColour = &g_unk0x00516078;
-            texture = g_unk0x0052aa68;
+            Sprite_Queue((SpriteRect *)(g_unk0x0052aa68 + 0x11c), (SpriteRect *)rect,
+                         (Texture *)g_unk0x0052aa68, 2, 0, NULL, NULL, (BYTE *)&g_unk0x00516078, 8);
         }
-        Sprite_Queue((SpriteRect *)(texture + 0x11c), (SpriteRect *)rect, (Texture *)texture,
-                     2, 0, NULL, NULL, (BYTE *)pColour, 8);
     }
     Font_SetBlendMode(2);
 }
@@ -8883,10 +8886,6 @@ BYTE g_unk0x00527260[9] = { 0x3a, 0x3a, 0x3b, 0x39, 0x39, 0x39, 0x3a, 0x3b, 0x3c
 // Draws the country flag row of the championship screen: a row of buttons
 // whose width depends on the language and the selected country, holding the
 // country name and clipped to the screen.
-// match 55%: same logic; the original keeps the country pointer and the row
-// scale in registers where we spill them, so most of the diff is stack slot
-// and register numbering
-// match 64%: below the 90% bar; kept as FUNCTION on purpose so reccmp measures it (see CONVENCIONES)
 // FUNCTION: CMR2 0x005057e0
 void FUN_005057e0(void)
 {
@@ -8912,8 +8911,7 @@ void FUN_005057e0(void)
     for (i = 0; i < g_unk0x0082c6bc; i++) {
         int num = 0xea0000;
         int scale = FixDiv(num, g_unk0x0082c6bc * 0x10000 - 0x10000);
-        int rowY = FixMulShift32(i << 16, scale);
-        rowY += 0x93;
+        int rowY = (FixMul(i << 16, scale) >> 16) + 0x93;
         FUN_00501f80(3, 1, 1, CFrontend::GetTextString(g_unk0x0082c698[i] + 0x9d), width,
                      (int)g_pGraphics->resY * rowY / 0x1e0, &g_unk0x005270fc,
                      &g_unk0x00527100, 0x22);
@@ -9318,10 +9316,6 @@ void FUN_00402f20(Menu *pMenu, int param)
 // the bottom of the option area and alternating between the two sprite layers),
 // then the horizontal line that closes the option area and, under its centre,
 // the lower separator of the option screen.
-// match 42%: implementada; MSVC6 no reserva nuestro marco de pila de 0xc bytes ni mantiene
-// g_pGraphics/el indice en los mismos registros (el original los lleva en EDI/EBP y recicla
-// ESI para los productos 0x88888889), pero las constantes, las cuatro divisiones, el reparto
-// de ramas por GetScreenWidth/FUN_004b7560/FUN_004b7590 y las llamadas a Sprite_* coinciden.
 // FUNCTION: CMR2 0x00500550
 void FUN_00500550(int param1)
 {
@@ -9329,7 +9323,6 @@ void FUN_00500550(int param1)
     int minX;
     int maxX;
     int centre;
-    int layer;
     int i;
 
     g_controlsLine[2] = 1;
@@ -9338,16 +9331,19 @@ void FUN_00500550(int param1)
         rect[2] = *(short *)(g_unk0x00831674 + 0x120);
         rect[3] = *(short *)(g_unk0x00831674 + 0x122);
     }
-    minX = 0;
-    maxX = 0;
     for (i = 0; i < 4; i++) {
         // The layout records hold 16.16 pairs: the integer part is the slot.
         g_controlsLine[0] = (short)(g_unk0x0082ac68[param1 * 4 + i][0] >> 16);
         g_controlsLine[1] = (short)(g_unk0x0082ac68[param1 * 4 + i][1] >> 16);
         g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0) - g_controlsLine[1];
-        layer = i % 2 == 0 ? 4 : 1;
         // Drawn first: the bounds below read the line after Sprite_FillRect.
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, layer);
+        if (i % 2 == 0) {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+                            (BYTE *)&g_unk0x00526ffc, 4);
+        } else {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine,
+                            (BYTE *)&g_unk0x00526ffc, 1);
+        }
         if (i == 0) {
             minX = g_controlsLine[0];
             maxX = g_controlsLine[0];
@@ -9365,9 +9361,15 @@ void FUN_00500550(int param1)
                 rect[0] = g_controlsLine[0] - 3;
                 rect[1] = g_controlsLine[1] - 3;
             }
-            Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
-                         (Texture *)g_unk0x00831674, layer, 0, NULL, NULL,
-                         (BYTE *)&g_unk0x00526ffc, 8);
+            if (i % 2 == 0) {
+                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x00831674, 4, 0, NULL, NULL,
+                             (BYTE *)&g_unk0x00526ffc, 8);
+            } else {
+                Sprite_Queue((SpriteRect *)(g_unk0x00831674 + 0x11c), (SpriteRect *)rect,
+                             (Texture *)g_unk0x00831674, 1, 0, NULL, NULL,
+                             (BYTE *)&g_unk0x00526ffc, 8);
+            }
         }
     }
     if (maxX != minX) {
@@ -9379,17 +9381,19 @@ void FUN_00500550(int param1)
     centre = minX + (maxX - minX) / 2;
     g_controlsLine[0] = (short)centre;
     g_controlsLine[1] = (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
-    if (centre > (int)(g_pGraphics->resX * 0xe4) / 0x280) {
-        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) - g_controlsLine[1];
+    if (centre <= (int)(g_pGraphics->resX * 0xe4) / 0x280) {
+        g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) -
+                            (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
         Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
-        g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
-        g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
-        g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
         return;
     }
-    g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0xff) / 0x1e0) - g_controlsLine[1];
+    g_controlsLine[3] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0) -
+                        (short)((int)(g_pGraphics->resY * 0xf5) / 0x1e0);
     Sprite_FillRect((int)g_pGraphics + 0x150, g_controlsLine, (BYTE *)&g_unk0x00526ffc, 1);
+    g_unk0x0082ace8.pad[0] = (short)((int)(g_pGraphics->resX * 0xe5) / 0x280);
+    g_unk0x0082ace8.pad[1] = (short)((int)(g_pGraphics->resY * 0x114) / 0x1e0);
+    g_unk0x0082ace8.pad[2] = (short)(centre - g_unk0x0082ace8.pad[0] + 1);
+    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x0082ace8.pad, (BYTE *)&g_unk0x00526ffc, 1);
 }
 
 // 0x50-byte entry of 0x82c6c8 as seen by the option panel animation: the source
@@ -9976,10 +9980,6 @@ void FUN_0050e280(unsigned int param_1)
         CGameInfo::FUN_00405da0();
 }
 
-// match 67%: el original guarda el indice seleccionado (param_1[7]) en EBP y el contador del bucle
-// en EBX; MSVC6 asigna a nuestro codigo (identico) EBX al indice y EBP al contador, asi que todas las
-// instrucciones del cuerpo del bucle difieren en un registro y el intercalado se desplaza. Semanticamente
-// equivalente; no reproducible desde C sin tocar la asignacion de colores del compilador.
 // FUNCTION: CMR2 0x0050e780
 void FUN_0050e780(unsigned int param_1)
 {
@@ -9992,9 +9992,9 @@ void FUN_0050e780(unsigned int param_1)
 
     x0 = (int)g_pGraphics->resX * 0xf0 / 0x280;
     yBase = (int)g_pGraphics->resY * 0xd7 / 0x1e0;
+    sel = (int)*(signed char *)(param_1 + 7);
     colour = g_unk0x0052737c;
     destRect[0] = (short)(x0 * (int)g_pGraphics->resX / 0x280);
-    sel = (int)*(signed char *)(param_1 + 7);
     destRect[1] = 0;
     destRect[2] = 0;
     destRect[3] = 0;
@@ -10003,27 +10003,29 @@ void FUN_0050e780(unsigned int param_1)
                  g_unk0x00527380, g_unk0x0052738c, 0x11);
     g_unk0x00831660[0] = (short)x0;
     g_unk0x00831660[1] = (short)yBase;
-    g_unk0x00831660[3] = 1;
     g_unk0x00831660[2] = (short)((int)g_pGraphics->resX * 0xa2 / 0x280);
+    g_unk0x00831660[3] = 1;
     FUN_00501d50(0, g_unk0x00831660, 1, 1);
-    Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
-                    (BYTE *)(sel == 0 ? &colour : &g_unk0x00527380[2]), 1);
+    if (sel == 0)
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+    else
+        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
     for (i = 0; i < (int)*(signed char *)(param_1 + 6); i++) {
         if (g_unk0x0083166c != 0) {
             if (CGameInfo::GetScreenWidth() < 0x400 || !CFrontend::FUN_004b7560(0x400) ||
                 !CFrontend::FUN_004b7590(0x400))
-                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2) +
                               g_unk0x00831660[1] - 6;
             else
-                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x3c0) +
+                destRect[1] = (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 / 2) +
                               g_unk0x00831660[1] - 0xa;
         }
         sprintf(CFrontend::m_stringDest, CRegKey::m_regKeyPathFormatValue,
                 CFrontend::GetTextString(i + 0x100));
-        if (sel == i) {
-            FUN_005020a0(7, 0, 0, CFrontend::m_stringDest,
+        if (i == sel) {
+            ((void (__stdcall *)(int, int, int, char *, int, short, int *, int *, unsigned int))FUN_005020a0)(7, 0, 0, CFrontend::m_stringDest,
                          (int)g_pGraphics->resX * 0x14 / 0x280 + x0,
-                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0 + g_unk0x00831660[1]),
+                         (short)((int)g_pGraphics->resY * 0x12 / 0x1e0) + g_unk0x00831660[1],
                          &colour, g_unk0x00527380, 0x11);
             if (g_unk0x0083166c != 0)
                 Sprite_Queue((SpriteRect *)(g_unk0x0083166c + 0x11c), (SpriteRect *)destRect,
@@ -10039,12 +10041,14 @@ void FUN_0050e780(unsigned int param_1)
         }
         g_unk0x00831660[1] =
             (short)((int)g_pGraphics->resY * 0x18 / 0x1e0 * (i + 1) + yBase);
-        Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660,
-                        (BYTE *)((i == sel || i + 1 == sel)
-                                     ? (CGameInfo::FUN_005004c0() == 0 ? &colour
-                                                                       : &g_unk0x00527378)
-                                     : &g_unk0x00527380[2]),
-                        1);
+        if (i == sel || i + 1 == sel) {
+            if (CGameInfo::FUN_005004c0() != 0)
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527378, 1);
+            else
+                Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&colour, 1);
+        } else {
+            Sprite_FillRect((int)g_pGraphics + 0x150, g_unk0x00831660, (BYTE *)&g_unk0x00527380[2], 1);
+        }
     }
 }
 
