@@ -1117,7 +1117,7 @@ void StageObject_InitMovingObject(int *pState, int carIndex)
     memcpy(pState + 0x12, pNodeMatrix, 0x40);
 
     int objectType = pState[0x34];
-    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed <= 0xc000);
+    int groundPath = objectType == 1 || (objectType == 0 && pCar->speed < 0xc001);
     int airbornePath = objectType == 0 && pCar->speed > 0xc000;
     pState[0x44] = 0;
     *(short *)(pState + 0x47) = -1;
@@ -10915,7 +10915,7 @@ unsigned int FUN_0047c5e0(int param_1)
             if (iVar7 < 1) {
                 if (iVar7 < -0x6e0000)
                     return 2;
-                return ((iVar7 < -0x45ffff) - 1 & 0xfffffffe) + 6;
+                return ((iVar7 <= -0x460000) - 1 & 0xfffffffe) + 6;
             }
             if (0x6e0000 < iVar7)
                 return 1;
@@ -11060,7 +11060,7 @@ int FUN_0047cd10(int param_1, int *param_2, int param_3, int *param_4)
                 iVar8 = FUN_00498db0(base - iVar7);
                 if ((iVar8 < 0x2d0001) && (-0x2d0001 < iVar8)) {
                     iVar10 = FixDiv(uVar2 - 0x70000, 0x70000) + 0x20000;
-                    if (iVar10 >= 0x50001) {
+                    if (iVar10 > 0x50000) {
                         iVar10 = 0x50000;
                     } else {
                         if (iVar10 < 0)
@@ -14044,7 +14044,7 @@ void FUN_0047bdd0(Car *pCar, int car, int preview)
     pCar->flag0x1d0[2] = 0;
     pCar->flag0x1d0[3] = 0;
     pCar->handbrake = 0;
-    if (controls[0] > 0)
+    if (controls[0] >= 1)
         pCar->flag0x1d0[0] = 0x3f;
     if (controls[1] > 0)
         pCar->flag0x1d0[1] = 0x3f;

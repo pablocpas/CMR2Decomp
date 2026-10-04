@@ -616,7 +616,7 @@ void Stage_InitLightMeshes(void)
                 maximum = value;
                 minimum = value;
             } else {
-                if (maximum < value)
+                if (value > maximum)
                     maximum = value;
                 if (value < minimum)
                     minimum = value;
@@ -1177,7 +1177,7 @@ void FUN_00493ed0(void)
     delta = current - target;
     if (delta > 0x800)
         delta = 0x1000 - delta;
-    if (delta > 0x1f || delta < -0x1f) {
+    if (delta >= 0x20 || delta <= -0x20) {
         if (current == 0)
             delta = (short)(__int64)((double)FixMul(delta * 0x1680, scaleRight) * g_unk0x00511300);
         else if (current <= 0) {

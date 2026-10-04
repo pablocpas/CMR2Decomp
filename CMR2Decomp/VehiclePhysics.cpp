@@ -670,7 +670,7 @@ noSlide:
         if (g_collisionSelectBackSide == 0) {
             if (dot >= 0)
                 goto skipReflect;
-        } else if (dot <= 0) {
+        } else if (dot < 1) {
             goto skipReflect;
         }
 

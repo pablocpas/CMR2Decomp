@@ -8620,7 +8620,7 @@ void FUN_00420630(void)
         g_unk0x00538a88 = count / 0x2c;
         g_unk0x00538a84 = g_unk0x00538a88;
         index = g_unk0x00538a88 - 1;
-        if (index > 0) {
+        if (0 < index) {
             pEntry = g_routeNodes + 0x18 + index * 0x2c;
             do {
                 if ((*pEntry & 1) != 0) {

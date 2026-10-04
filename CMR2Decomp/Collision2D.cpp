@@ -52,7 +52,7 @@ int Collision_RayQuad(FixVector *pDir, int *pEdge, BYTE *pCorner)
             t = FixMul(recip, FixMul(d3.z, ax) + FixMul(d3.x, az));
             if (t >= 0 && t <= 0x10000) {
                 cross = FixMul(d3.x, pDir->z) - FixMul(d3.z, pDir->x);
-                if (FIX_ABS(cross) < 0x290) {
+                if (FIX_ABS(cross) <= 0x28f) {
                     result = 0x7d000000;
                 } else {
                     recip = FixDiv(0x10000, cross);

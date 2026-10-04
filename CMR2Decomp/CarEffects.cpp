@@ -1372,7 +1372,7 @@ void WheelSplash_Update(int player)
             speed = Car_GetWheelSpeed(pCar, 0, 0);
         if (speed < 0x1e0000 && FixDiv(speed, 0x1e0000) < EFFECT_RAND())
             on = 0;
-        if ((player < 1 || EFFECT_RAND() <= 0x8000) && on && count > 0) {
+        if ((player <= 0 || EFFECT_RAND() <= 0x8000) && on && count > 0) {
             do {
                 FixVecScale(&off, &seg, EFFECT_RAND_NEG());
                 // A random point between this wheel's trail and the other

@@ -5180,7 +5180,7 @@ void StageTiming_SpawnWheelParticles(int carIndex)
         int speed = FIX_ABS(Car_GetWheelSpeed(car, 0, 0));
         if (speed < 0x1e0000) {
             int chance = FixDiv(speed, 0x1e0000);
-            if (chance < TRAIL_RANDOM(CGraphics::m_65536)) emit = 0;
+            if (TRAIL_RANDOM(CGraphics::m_65536) > chance) emit = 0;
         }
         if (leading) {
             type = 6;
@@ -7694,7 +7694,7 @@ void FUN_00498620(Car *pCar, unsigned int mask, int *pOut, int variant)
                     if (a > 0) {
                         scale = FixMul(0xb333, b - 0x280000);
                         slack = scale - (b - 0x280000) + a;
-                        if (slack > 0) {
+                        if (slack >= 1) {
                             tmp = t - curAngle;
                             WRAP(tmp)
                             t -= FixMul(FixDiv(slack, scale), tmp);
@@ -8099,7 +8099,7 @@ BYTE FUN_00457000(int car)
             best = 99;
             n = 0;
             for (i = 0; i < (int)CGameInfo::FUN_00405d70(); i++) {
-                if (RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i)) < best) {
+                if (best > RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i))) {
                     best = RallyTiming_GetStagePositionOfDriver(StageTiming_GetDriverSlot(i));
                     n = i;
                 }

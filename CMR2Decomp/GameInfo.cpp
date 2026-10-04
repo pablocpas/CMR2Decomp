@@ -9082,7 +9082,7 @@ void FUN_00403890(Menu *pMenu)
         } while (k < pMenu->itemCount);
     }
     i = 0;
-    if (pMenu->itemCount > 0) {
+    if (pMenu->itemCount >= 1) {
         pItem = pMenu->items;
         do {
             pColour = &g_unk0x00516074;

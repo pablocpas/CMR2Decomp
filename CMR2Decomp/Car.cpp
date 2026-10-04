@@ -2495,7 +2495,7 @@ void Car_UpdateTyreForces(void)
                 longAssist = -d;
                 e = FixMul(rollSpeed[i], g_tyreGripScale);
                 if ((longAssist > 0 && e >= 1) || (longAssist < 0 && e < 0)) {
-                    if (FIX_ABS(e) < FIX_ABS(longAssist))
+                    if (FIX_ABS(longAssist) > FIX_ABS(e))
                         longAssist -= e;
                     else
                         longAssist = 0;
@@ -3092,7 +3092,7 @@ void Car_UpdateWheelForces(void)
         int brake;
         int limited;
 
-        dir = i > 1 ? dirFront : dirRear;
+        dir = i >= 2 ? dirFront : dirRear;
         load = g_pCurrentCar->wheelLoad[i];
         limited = *(int *)(g_pCarSetup + 0x3ec + i * 4);
         if (load >= 1) {
@@ -4976,7 +4976,7 @@ void Car_UpdateCornerLoads(void)
     grip += 0x10000;
     for (i = 0; i < 8; i++) {
         pGripB = &g_pCurrentCar->cornerGripB[i];
-        if (g_pCurrentCar->cornerFlags[i] == 0 || (i < 4 && g_pCurrentCar->cornerOnGround[i] != 0)) {
+        if (g_pCurrentCar->cornerFlags[i] == 0 || (i <= 3 && g_pCurrentCar->cornerOnGround[i] != 0)) {
             if (n != 4) {
                 g_pCurrentCar->cornerLoad[i].x += f.x;
                 g_pCurrentCar->cornerLoad[i].y += f.y;
@@ -5082,14 +5082,14 @@ void Car_UpdateEngineSpeed(void)
         g_pCurrentCar->field_0x7a4 = 0;
     } else if (g_pCurrentCar->field_0x794 < excess) {
         excess = excess - g_pCurrentCar->field_0x794;
-        if (excess < 0xcccd) {
-            g_pCurrentCar->field_0xb78 = 0;
-        } else {
+        if (excess >= 0xcccd) {
             excess = FixMul(excess - 0xcccc, 0x10000);
             if (excess > 0x10000)
                 excess = 0x10000;
             g_pCurrentCar->field_0x7b0 = FixMul(excess, 0x51eb);
             g_pCurrentCar->field_0xb78 = 1;
+        } else {
+            g_pCurrentCar->field_0xb78 = 0;
         }
         g_pCurrentCar->field_0x7a4 = g_pCurrentCar->field_0x794;
         return;
@@ -6468,7 +6468,7 @@ void Car_IntegrateWheelTravel(void)
             } else {
                 t = g_pCurrentCar->speed - FixVecDot((FixVector *)((int)g_pCurrentCar + 0x48c),
                                             (FixVector *)((int)g_pCurrentCar + 0x42c + i * 0xc));
-                if (t >= 0x10001)
+                if (t > 0x10000)
                     t = 0x10000;
                 else if (t < 0xccc)
                     t = 0;
