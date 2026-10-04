@@ -12867,22 +12867,22 @@ void FUN_00484e00(int param_1, short param_2)
         g_unk0x00590d74 = (Unk0x00590d74 *)Car_Get(idx);
         g_unk0x00590d78 = (BYTE *)FUN_00469680(idx);
         if (*(int *)((BYTE *)g_unk0x00590d74 + 0xc0c) == 0) {
-            if (*(int *)((BYTE *)g_unk0x00590d74 + 0xb64) != 0 ||
-                *(int *)((BYTE *)g_unk0x00590d74 + 0xc00) == 0 ||
+            if (*(int *)((BYTE *)g_unk0x00590d74 + 0xb64) == 0 &&
+                *(int *)((BYTE *)g_unk0x00590d74 + 0xc00) != 0 &&
                 FixVecDot((FixVector *)((BYTE *)g_unk0x00590d74 + 0x48c),
-                          (FixVector *)((BYTE *)g_unk0x00590d74 + 0x36c)) >= -0xcccc ||
-                (*(char *)((BYTE *)g_unk0x00590d74 + 0xb31) != 0 &&
-                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb30) != 0 &&
-                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb33) != 0 &&
-                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb32) != 0)) {
+                          (FixVector *)((BYTE *)g_unk0x00590d74 + 0x36c)) < -0xcccc &&
+                (*(char *)((BYTE *)g_unk0x00590d74 + 0xb31) == 0 ||
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb30) == 0 ||
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb33) == 0 ||
+                 *(char *)((BYTE *)g_unk0x00590d74 + 0xb32) == 0)) {
+                m = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
+                for (; m >= 0; m--)
+                    FUN_00484f40(m);
+            } else {
                 FUN_004853c0(&impulse);
                 m = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
                 for (; m >= 0; m--)
                     FUN_004854a0(m);
-            } else {
-                m = *(int *)g_unk0x00590b30[*(char *)((BYTE *)g_unk0x00590d74 + 0xb1a)] - 1;
-                for (; m >= 0; m--)
-                    FUN_00484f40(m);
             }
         }
         pIndex--;
