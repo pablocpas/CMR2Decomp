@@ -2574,17 +2574,17 @@ big:
         } else if ((char)RallyData_GetFlag25() != 0) {
             for (i = 0; i < ((char)RallyData_FUN_00407ea0() != 0 ? 1 : 2); i++) {
                 if (CGameInfo::FUN_00405da0() != 0) {
-                    if (i != 0) {
+                    if (i == 0) {
+                        FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
+                    } else {
                         FUN_0046d2a0((int *)g_unk0x00537f3c[1]);
                         FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[1], 0, 0, i);
-                    } else {
-                        FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
                     }
-                } else if ((char)RallyData_FUN_00408500(i) == -1) {
-                    FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
-                } else {
+                } else if ((char)RallyData_FUN_00408500(i) != -1) {
                     FUN_0046d2a0((int *)g_unk0x00537f3c[i]);
                     FUN_0046cce0((ReplayStream *)g_unk0x00537f3c[i], 0, 0, i);
+                } else {
+                    FUN_0046c750((ReplayStream *)g_unk0x00537f3c[i], 0, param2);
                 }
             }
         }

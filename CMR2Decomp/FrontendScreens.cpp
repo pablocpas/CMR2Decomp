@@ -2485,7 +2485,7 @@ void FUN_004ede10(Menu *pMenu)
 // Init callback of the "join session" menu: sets the allowed player count
 // from the game mode flags and fills the setup items of the local player.
 // FUNCTION: CMR2 0x004edef0
-void FUN_004edef0(Menu *pMenu, char param)
+void FUN_004edef0(Menu *pMenu, int param)
 {
     unsigned int *pFlags = CGameInfo::FUN_00405db0();
     int values[2];
@@ -2505,7 +2505,7 @@ void FUN_004edef0(Menu *pMenu, char param)
             min = (v >> 0x10) & 0xf;
     }
     Menu_GetItem(pMenu, 0)->min = min;
-    if (param != 0) {
+    if ((char)param != 0) {
         values[0] = (BYTE)RallyDataCountryIndex();
         values[1] = (BYTE)RallyDataStageIndex();
     } else {
@@ -2516,9 +2516,7 @@ void FUN_004edef0(Menu *pMenu, char param)
     if (CGameInfo::FUN_00406410(0xd)) {
         min = (values[0] % 2 != 0) + 0xa;
     } else {
-        min = 4;
-        if ((int)((*pFlags >> 8) & 0xf) >= values[0] + 1)
-            min = param;
+        min = (int)((*pFlags >> 8) & 0xf) < values[0] + 1 ? 4 : *(volatile int *)&param;
         if ((int)((*pFlags >> 0xc) & 0xf) < values[0] + 1)
             min = 8;
         if ((*pFlags & 1) != 0 && (int)((*pFlags >> 0x10) & 0xf) < values[0] + 1)
@@ -2527,13 +2525,13 @@ void FUN_004edef0(Menu *pMenu, char param)
             unsigned int mask = 1 << ((values[0] + 1) / 2 - 1);
 
             if ((pFlags[1] & mask & 0x1f) != 0
-                || (((pFlags[1] >> 5) & 0x1f) & mask) != 0
-                || (((pFlags[1] >> 10) & 0x1f) & mask) != 0)
+                || ((short)((pFlags[1] >> 5) & 0x1f) & mask) != 0
+                || ((short)((pFlags[1] >> 10) & 0x1f) & mask) != 0)
                 min++;
         }
     }
     Menu_GetItem(pMenu, 1)->min = min;
-    if (param == 0)
+    if ((char)param == 0)
         Menu_GetItem(pMenu, 2)->max = 0;
     g_unk0x00818d70 = values[0];
     FUN_004ee170(pMenu);
@@ -2569,7 +2567,6 @@ void FUN_004ee460(Menu *pMenu, int param)
 {
     unsigned int *pFlags = CGameInfo::FUN_00405db0();
     int values[2];
-    int mask;
     int count;
 
     if (CGameInfo::FUN_00406410(0xd)) {
@@ -2590,18 +2587,16 @@ void FUN_004ee460(Menu *pMenu, int param)
     if (CGameInfo::FUN_00406410(0xd)) {
         count = (values[0] % 2 != 0) + 10;
     } else {
-        count = 4;
-        if ((int)(*pFlags >> 8 & 0xf) >= values[0] + 1)
-            count = param;
+        count = (int)(*pFlags >> 8 & 0xf) < values[0] + 1 ? 4 : param;
         if ((int)(*pFlags >> 0xc & 0xf) < values[0] + 1)
             count = 8;
         if ((*pFlags & 1) != 0 && (int)(*pFlags >> 0x10 & 0xf) < values[0] + 1)
             count = 0xa;
         if (values[0] % 2 != 0) {
-            mask = 1 << ((values[0] + 1) / 2 - 1);
+            unsigned int mask = 1 << ((values[0] + 1) / 2 - 1);
             if ((pFlags[1] & mask & 0x1f) != 0 ||
-                (mask & (pFlags[1] >> 5 & 0x1f)) != 0 ||
-                (mask & (pFlags[1] >> 10 & 0x1f)) != 0)
+                ((short)((pFlags[1] >> 5) & 0x1f) & mask) != 0 ||
+                ((short)((pFlags[1] >> 10) & 0x1f) & mask) != 0)
                 count++;
         }
     }
