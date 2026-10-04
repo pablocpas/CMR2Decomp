@@ -192,3 +192,10 @@ Pass 7 (agent wave 3) merges in the commit above: integration measures **2689 by
 674 pending**, 0 exact losses vs pass 6, 0 data issues (differential suite running at the
 time of the merge; previous pass was 76/0). Main's own reports stay at the last successful
 measurement until the session's in-progress `Car.h` refactor compiles again.
+
+Pass 8 (wave-3 preservation) merges above: the stopped agents' verified pending states are
+committed and integrated, bringing integration to **2704 byte-exact / 659 pending**, 0 exact
+losses vs pass 7, 0 data issues, and **76/76 differential harnesses**. One behaviour
+regression found by `differential_stage_sound_reset.py` (a cursor rewrite of `FUN_00418f20`
+writing `pattern` into `time`) was reverted before this merge. Main's own reports remain at
+the last successful measurement until the session's in-progress `Car.h` refactor compiles.
