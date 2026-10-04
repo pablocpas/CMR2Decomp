@@ -788,9 +788,9 @@ void Car_UpdateViewNodes(int viewIndex)
     int s;
     int i;
     int farDist;
-    FixVector local;
-    FixVector viewPos;
     FixVector pos;
+    FixVector viewPos;
+    FixVector local;
     FixVector carPos;
     FixVector delta;
     Car *pCar;
@@ -1304,15 +1304,15 @@ void Car_UpdateWheelTravel(void)
 // Normalises a body axis of g_pCurrentCar in place through a pointer.
 #define CAR_NORMALIZE_AXIS(field)                                                   \
     {                                                                               \
+        FixVector *pField = &g_pCurrentCar->field;                                  \
         FixVector *pAxis = &g_pCurrentCar->field;                                   \
-        FixVector *pSrc = pAxis;                                                    \
-        int len = FixVecLength(pSrc);                                               \
+        int len = FixVecLength(pField);                                             \
         if (len == 0) {                                                             \
             pAxis->x = 0;                                                           \
             pAxis->y = 0;                                                           \
             pAxis->z = 0;                                                           \
         } else {                                                                    \
-            FixVecScaleRecip(pAxis, pSrc, len);                                     \
+            FixVecScaleRecip(pAxis, pField, len);                                   \
         }                                                                           \
     }
 
@@ -1644,7 +1644,7 @@ void Car_RelaxBodyAxes(int bFast)
         diff.y = g_pCurrentCar->up.y - g_pCurrentCar->targetUp.y;
         diff.z = g_pCurrentCar->up.z - g_pCurrentCar->targetUp.z;
         len = FixVecLength(&diff);
-        if (len >= 1) {
+        if (len > 0) {
             t = FixMul(len, gain);
             if (t > 0x10000)
                 t = 0x10000;
@@ -1660,7 +1660,7 @@ void Car_RelaxBodyAxes(int bFast)
         diff.x = g_pCurrentCar->forward.x - g_pCurrentCar->targetForward.x;
         diff.y = g_pCurrentCar->forward.y - g_pCurrentCar->targetForward.y;
         diff.z = g_pCurrentCar->forward.z - g_pCurrentCar->targetForward.z;
-        d = FixVecDot(&diff, &g_pCurrentCar->up);
+        d = FixVecDot(&g_pCurrentCar->up, &diff);
         FixVecScale(&proj, &g_pCurrentCar->up, d);
         diff.x = diff.x - proj.x;
         diff.y = diff.y - proj.y;
