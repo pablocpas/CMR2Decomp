@@ -5453,16 +5453,6 @@ void FUN_00508ee0(int index)
     } while (++level < 8);
 }
 
-// Network record of a car's body: a matrix plus the axes and position it was
-// built from. Eight contiguous 0xec-byte rows start at 0x5393d8.
-struct CarNetRecord {
-    FixMatrix matrix;       // 0x00
-    FixVector right;        // 0x40
-    FixVector up;           // 0x4c
-    FixVector forward;      // 0x58
-    FixVector position;     // 0x64
-    BYTE pad_0x70[0x7c];
-};
 // First of the eight car network records (the rest are g_unk0x005394bc).
 // GLOBAL: CMR2 0x005393d8
 CarNetRecord g_unk0x005393d8;

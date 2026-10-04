@@ -591,7 +591,7 @@ void FUN_00427c10(void)
 // GLOBAL: CMR2 0x005393a8
 int g_unk0x005393a8;
 // GLOBAL: CMR2 0x005393ac
-int g_unk0x005393ac[7];
+unsigned int g_unk0x005393ac[7];
 // GLOBAL: CMR2 0x005393cc
 int g_unk0x005393cc;
 // GLOBAL: CMR2 0x005393d0
@@ -818,34 +818,34 @@ void FUN_004258e0(int base, short *pIndices, short count)
 // match 89%: identical logic; MSVC6 only differs in which stack slot holds the
 // first dot product ([ebp-4] vs [ebp+8]).
 // FUNCTION: CMR2 0x00426b90
-void FUN_00426b90(int param_1, int param_2)
+void FUN_00426b90(CarNetRecord *p, int param_2)
 {
     int dot;
     int scale;
     FixVector v;
     FixVector d;
 
-    if (*(int *)(param_1 + 0xdc) == 0 || param_2 == 0)
+    if (p->moving == 0 || param_2 == 0)
         return;
-    FixVecScale(&v, (FixVector *)(param_1 + 0x94), -0x10000);
-    dot = FixVecDot((FixVector *)(param_1 + 0x70), &v);
+    FixVecScale(&v, &p->moveDir, -0x10000);
+    dot = FixVecDot(&p->velocity, &v);
     if (dot > 0) {
-        d.x = *(int *)(param_1 + 0xa0) - *(int *)(param_1 + 0x64);
-        d.y = *(int *)(param_1 + 0xa4) - *(int *)(param_1 + 0x68);
-        d.z = *(int *)(param_1 + 0xa8) - *(int *)(param_1 + 0x6c);
+        d.x = p->contactPoint.x - p->position.x;
+        d.y = p->contactPoint.y - p->position.y;
+        d.z = p->contactPoint.z - p->position.z;
         scale = FixVecDot(&d, &v) + 0x10000;
-        param_2 = FixDiv(scale, param_2);
-        if (param_2 > 0) {
-            if (param_2 > dot)
-                param_2 = dot;
+        scale = FixDiv(scale, param_2);
+        if (scale > 0) {
+            if (scale > dot)
+                scale = dot;
             FixVecScale(&d, &v, dot);
-            *(int *)(param_1 + 0x70) -= d.x;
-            *(int *)(param_1 + 0x74) -= d.y;
-            *(int *)(param_1 + 0x78) -= d.z;
-            FixVecScale(&d, &v, param_2);
-            *(int *)(param_1 + 0x70) += d.x;
-            *(int *)(param_1 + 0x74) += d.y;
-            *(int *)(param_1 + 0x78) += d.z;
+            p->velocity.x -= d.x;
+            p->velocity.y -= d.y;
+            p->velocity.z -= d.z;
+            FixVecScale(&d, &v, scale);
+            p->velocity.x += d.x;
+            p->velocity.y += d.y;
+            p->velocity.z += d.z;
         }
     }
 }
@@ -857,7 +857,7 @@ extern const double g_unk0x00511380;
 // the reference basis by the resulting velocity angle, then either writes the
 // basis straight into the car or blends it with a copy of the current one.
 // FUNCTION: CMR2 0x00426810
-void FUN_00426810(int param_1, int param_2)
+void FUN_00426810(CarNetRecord *p, int param_2)
 {
     FixVector v;
     short angles[3];
@@ -867,68 +867,66 @@ void FUN_00426810(int param_1, int param_2)
     int magnitude;
     int scale;
 
-    if (*(unsigned short *)(param_1 + 0xc6) > 0)
-        *(unsigned short *)(param_1 + 0xc6) -= 1;
-    if (*(int *)(param_1 + 0xe8) != 0) {
+    if (p->holdTicks > 0)
+        p->holdTicks -= 1;
+    if (p->resync != 0) {
         delta = 0;
-        *(int *)(param_1 + 0xe8) = 0;
+        p->resync = 0;
     } else {
-        delta = (param_2 - (unsigned int)*(unsigned short *)(param_1 + 0xc8)) * 0x10000;
+        delta = (param_2 - (unsigned int)p->seq) * 0x10000;
     }
-    if (*(int *)(param_1 + 0xe0) != 0)
-        FUN_00426b90(param_1, delta);
+    if (p->updated != 0)
+        FUN_00426b90(p, delta);
 
-    FixVecScale(&v, (FixVector *)(param_1 + 0x70), delta);
-    *(int *)(param_1 + 0x64) += v.x;
-    *(int *)(param_1 + 0x68) += v.y;
-    *(int *)(param_1 + 0x6c) += v.z;
+    FixVecScale(&v, &p->velocity, delta);
+    p->position.x += v.x;
+    p->position.y += v.y;
+    p->position.z += v.z;
 
-    magnitude = delta;
-    if (magnitude < 0)
-        magnitude = -magnitude;
+    magnitude = FIX_ABS(delta);
     scale = g_triangleNumbers[magnitude >> 16] * 0x10000;
     if (delta < 0)
         scale = -scale;
 
-    FixVecScale(&v, (FixVector *)(param_1 + 0x88), scale);
-    *(int *)(param_1 + 0x64) += v.x;
-    *(int *)(param_1 + 0x68) += v.y;
-    *(int *)(param_1 + 0x6c) += v.z;
+    FixVecScale(&v, &p->accel, scale);
+    p->position.x += v.x;
+    p->position.y += v.y;
+    p->position.z += v.z;
 
-    FixVecScale(&v, (FixVector *)(param_1 + 0x88), delta);
-    *(int *)(param_1 + 0x70) += v.x;
-    *(int *)(param_1 + 0x74) += v.y;
-    *(int *)(param_1 + 0x78) += v.z;
+    FixVecScale(&v, &p->accel, delta);
+    p->velocity.x += v.x;
+    p->velocity.y += v.y;
+    p->velocity.z += v.z;
 
-    FixVecScale(&v, (FixVector *)(param_1 + 0x7c), delta);
+    FixVecScale(&v, &p->angularVelocity, delta);
     angles[0] = (short)(__int64)((double)v.x * g_unk0x00511380);
     angles[1] = (short)(__int64)((double)v.y * g_unk0x00511380);
     angles[2] = (short)(__int64)((double)v.z * g_unk0x00511380);
-    FixBasis_Rotate((FixBasis *)(param_1 + 0x40), (unsigned short *)angles);
+    FixBasis_Rotate((FixBasis *)&p->right, (unsigned short *)angles);
 
-    *(int *)(param_1 + 0xbc) += FixMul(*(int *)(param_1 + 0xc0), delta) -
+    p->field_0xbc += FixMul(p->field_0xc0, delta) -
                                 FixMul(0xc49, FixMul(delta, delta));
-    *(int *)(param_1 + 0xc0) -= FixMul(FixMul(0x20000, delta), 0xc49);
-    *(unsigned short *)(param_1 + 0xc8) = (unsigned short)param_2;
+    p->field_0xc0 -= FixMul(FixMul(0x20000, delta), 0xc49);
+    p->seq = (unsigned short)param_2;
 
-    if (*(int *)(param_1 + 0xd8) != 0) {
-        FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), (FixMatrix *)param_1);
-        FixMatrix_SetRight((FixVector *)(param_1 + 0x40), (FixMatrix *)param_1);
-        FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), (FixMatrix *)param_1);
-        FixMatrix_SetForward((FixVector *)(param_1 + 0x58), (FixMatrix *)param_1);
-        *(int *)(param_1 + 0xe0) = 0;
-        *(int *)(param_1 + 0xb4) = *(int *)(param_1 + 0xbc);
+    if (p->resetPose != 0) {
+        FixMatrix_SetPosition(&p->position, &p->matrix);
+        FixMatrix_SetRight(&p->right, &p->matrix);
+        FixMatrix_SetUp(&p->up, &p->matrix);
+        FixMatrix_SetForward(&p->forward, &p->matrix);
+        p->updated = 0;
+        p->field_0xb4 = p->field_0xbc;
         return;
     }
-    FixMatrix_SetPosition((FixVector *)(param_1 + 0x64), (FixMatrix *)basis);
-    FixMatrix_SetRight((FixVector *)(param_1 + 0x40), (FixMatrix *)basis);
-    FixMatrix_SetUp((FixVector *)(param_1 + 0x4c), (FixMatrix *)basis);
-    FixMatrix_SetForward((FixVector *)(param_1 + 0x58), (FixMatrix *)basis);
-    FixMatrix_Interpolate((FixMatrix *)blended, (FixMatrix *)param_1, (FixMatrix *)basis, 0x8000, 0x8000, 0x8000, 0);
-    FixMatrix_CopyRotation((FixMatrix *)blended, (FixMatrix *)param_1);
-    *(int *)(param_1 + 0xe0) = 0;
-    *(int *)(param_1 + 0xb4) +=
-        FixMul(*(int *)(param_1 + 0xbc) - *(int *)(param_1 + 0xb4), 0x8000);
+    FixMatrix_SetPosition(&p->position, (FixMatrix *)basis);
+    FixMatrix_SetRight(&p->right, (FixMatrix *)basis);
+    FixMatrix_SetUp(&p->up, (FixMatrix *)basis);
+    FixMatrix_SetForward(&p->forward, (FixMatrix *)basis);
+    FixMatrix_Interpolate((FixMatrix *)blended, &p->matrix, (FixMatrix *)basis, 0x8000, 0x8000, 0x8000, 0);
+    FixMatrix_CopyRotation((FixMatrix *)blended, &p->matrix);
+    p->field_0xb4 +=
+        FixMul(p->field_0xbc - p->field_0xb4, 0x8000);
+    p->updated = 0;
 }
 
 // Advances the accumulator (0x88) of a remotely controlled car by one step:
@@ -936,17 +934,17 @@ void FUN_00426810(int param_1, int param_2)
 // or the forward row 0x58 once the car is above the slow threshold) and adds
 // the speed-derived step along it.
 // FUNCTION: CMR2 0x004263d0
-void FUN_004263d0(int param_1)
+void FUN_004263d0(CarNetRecord *p)
 {
     FixVector v;
     FixVector step;
     int t;
 
-    *(int *)(param_1 + 0x88) = 0;
-    *(int *)(param_1 + 0x8c) = 0;
-    *(int *)(param_1 + 0x90) = 0;
-    if (*(int *)(param_1 + 0x50) < 0x1999) {
-        v = *(FixVector *)(param_1 + 0x70);
+    p->accel.x = 0;
+    p->accel.y = 0;
+    p->accel.z = 0;
+    if (p->up.y < 0x1999) {
+        v = p->velocity;
         v.y = 0;
         if (FixVecLength(&v) > 0) {
             FIX_NORMALIZE_INTO(v, v)
@@ -956,22 +954,22 @@ void FUN_004263d0(int param_1)
             v.z = 0;
         }
     } else {
-        v = *(FixVector *)(param_1 + 0x58);
+        v = p->forward;
         v.y = 0;
         FIX_NORMALIZE_INTO(v, v)
     }
-    t = FixVecDot((FixVector *)(param_1 + 0x70), &v);
-    t = FixMul(t, *(int *)(param_1 + 0xb0));
+    t = FixVecDot(&p->velocity, &v);
+    t = FixMul(t, p->engineSpeedInv);
     if (t < 0)
         t = -FixMul(t, t);
     else
         t = FixMul(t, t);
     if (FIX_ABS(t) > 0x10000)
         t = (t > 0) ? 0x10000 : -0x10000;
-    FixVecScale(&step, &v, (-FixMul(FixMul(t, *(int *)(param_1 + 0xac)), 0x11eb)));
-    *(int *)(param_1 + 0x88) += step.x;
-    *(int *)(param_1 + 0x8c) += step.y;
-    *(int *)(param_1 + 0x90) += step.z;
+    FixVecScale(&step, &v, (-FixMul(FixMul(t, p->engineSpeed), 0x11eb)));
+    p->accel.x += step.x;
+    p->accel.y += step.y;
+    p->accel.z += step.z;
 }
 
 void FUN_004a15b0(BOOL param1);
@@ -1143,7 +1141,7 @@ extern double g_unk0x00511300;
 // the steering angle in *pOut. The packed axis angles are 16.16 degrees and go
 // through g_unk0x00511300 (4096/360/65536) to sine-table units.
 // FUNCTION: CMR2 0x00425c40
-int FUN_00425c40(int car, int *pOut)
+int FUN_00425c40(CarNetRecord *pRec, int *pOut)
 {
     BYTE *packet = (BYTE *)&g_localCarStats;
     float offX;
@@ -1159,45 +1157,45 @@ int FUN_00425c40(int car, int *pOut)
     int diff;
     int i;
 
-    diff = (int)(unsigned short)g_localCarStats.seq - (int)*(unsigned short *)(car + 0xca);
+    diff = (int)(unsigned short)g_localCarStats.seq - (int)pRec->lastSeq;
     if (diff > 0 && g_unk0x00539cc8 != 0 && diff < 100 &&
         *(unsigned short *)(packet + 0xc) < (unsigned int)g_sectorCount) {
-        *(int *)(car + 0xe0) = 1;
-        *(unsigned short *)(car + 0xc8) = g_localCarStats.seq;
-        *(unsigned short *)(car + 0xca) = g_localCarStats.seq;
+        pRec->updated = 1;
+        pRec->seq = g_localCarStats.seq;
+        pRec->lastSeq = g_localCarStats.seq;
 
-        *(int *)(car + 0x70) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 2) * g_unk0x00511378 * g_unk0x0051137c);
-        *(int *)(car + 0x74) = 0;
-        *(int *)(car + 0x78) = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 4) * g_unk0x00511378 * g_unk0x0051137c);
+        pRec->velocity.x = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 2) * g_unk0x00511378 * g_unk0x0051137c);
+        pRec->velocity.y = 0;
+        pRec->velocity.z = NetRace_FloatToFix((float)(short)*(unsigned short *)(packet + 4) * g_unk0x00511378 * g_unk0x0051137c);
         engine = NetRace_FloatToFix((float)*(unsigned short *)(packet + 6) * g_unk0x00511374);
-        *(int *)(car + 0xac) = engine;
+        pRec->engineSpeed = engine;
         if (engine != 0)
-            *(int *)(car + 0xb0) = FixDiv(0x10000, engine);
+            pRec->engineSpeedInv = FixDiv(0x10000, engine);
         else
-            *(int *)(car + 0xb0) = 0;
-        *(int *)(car + 0x7c) = NetRace_FloatToFix((float)(signed char)packet[0x14] * g_unk0x0051136c * g_unk0x00511370);
-        *(int *)(car + 0x80) = NetRace_FloatToFix((float)(signed char)packet[0x15] * g_unk0x0051136c * g_unk0x00511370);
-        *(int *)(car + 0x84) = NetRace_FloatToFix((float)(signed char)packet[0x16] * g_unk0x0051136c * g_unk0x00511370);
-        *(BYTE *)(car + 0xcc) = packet[0x17] & 1;
-        *(int *)(car + 0xd4) = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
+            pRec->engineSpeedInv = 0;
+        pRec->angularVelocity.x = NetRace_FloatToFix((float)(signed char)packet[0x14] * g_unk0x0051136c * g_unk0x00511370);
+        pRec->angularVelocity.y = NetRace_FloatToFix((float)(signed char)packet[0x15] * g_unk0x0051136c * g_unk0x00511370);
+        pRec->angularVelocity.z = NetRace_FloatToFix((float)(signed char)packet[0x16] * g_unk0x0051136c * g_unk0x00511370);
+        pRec->flag_0xcc = packet[0x17] & 1;
+        pRec->field_0xd4 = (*(unsigned short *)(packet + 0x1a) >> 8) & 1;
         offX = (float)(short)*(unsigned short *)(packet + 8) * g_unk0x00511368 * g_unk0x0051137c;
         offZ = (float)(short)*(unsigned short *)(packet + 0xa) * g_unk0x00511368 * g_unk0x0051137c;
-        *(int *)(car + 0x64) = NetRace_FloatToFix(offX);
-        *(int *)(car + 0x68) = 0;
-        *(int *)(car + 0x6c) = NetRace_FloatToFix(offZ);
+        pRec->position.x = NetRace_FloatToFix(offX);
+        pRec->position.y = 0;
+        pRec->position.z = NetRace_FloatToFix(offZ);
         pSector = g_sectors[*(short *)(packet + 0xc)];
-        *(int *)(car + 0x64) += pSector->x;
-        *(int *)(car + 0x68) += pSector->y;
-        *(int *)(car + 0x6c) += pSector->z;
-        *(int *)(car + 0xbc) = NetRace_FloatToFix((float)packet[0xe] * g_unk0x00511360 * g_unk0x00511364);
-        *(int *)(car + 0xc0) = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
+        pRec->position.x += pSector->x;
+        pRec->position.y += pSector->y;
+        pRec->position.z += pSector->z;
+        pRec->field_0xbc = NetRace_FloatToFix((float)packet[0xe] * g_unk0x00511360 * g_unk0x00511364);
+        pRec->field_0xc0 = NetRace_FloatToFix((float)(signed char)packet[0xf] * g_unk0x00511378 * g_unk0x00511370);
 
         // Two body axes: each packed pair of bytes is an angle in 1/17th of a unit.
         axisA[0] = (float)(*(unsigned short *)(packet + 0x10) & 0xff);
         axisB[0] = (float)(*(unsigned short *)(packet + 0x10) >> 8);
         axisA[1] = (float)(*(unsigned short *)(packet + 0x12) & 0xff);
         axisB[1] = (float)(*(unsigned short *)(packet + 0x12) >> 8);
-        pRow = (FixVector *)((BYTE *)car + 0x40);
+        pRow = &pRec->right;
         for (i = 0; i < 2; i++, pRow += 2) {
             float valueA = (axisA[i] *= g_unk0x0051135c);
             float valueB = (axisB[i] *= g_unk0x00511358);
@@ -1209,11 +1207,11 @@ int FUN_00425c40(int car, int *pOut)
             NetRace_NormalizeInto(pRow, pRow);
         }
         {
-            FixVector *pThird = (FixVector *)((BYTE *)car + 0x4c);
+            FixVector *pThird = &pRec->up;
             int len;
 
-            FixVecCross(pThird, (FixVector *)((BYTE *)car + 0x58),
-                        (FixVector *)((BYTE *)car + 0x40));
+            FixVecCross(pThird, &pRec->forward,
+                        &pRec->right);
             len = FixVecLength(pThird);
             if (len == 0) {
                 pThird->x = 0;
@@ -1232,17 +1230,17 @@ int FUN_00425c40(int car, int *pOut)
         else
             *pOut = FixMul(steer << 16, 0x418) - 0x10000;
         if (packet[0x1a] & 0x80)
-            *(int *)(car + 0xb8) = 0x10000;
+            pRec->field_0xb8 = 0x10000;
         else
-            *(int *)(car + 0xb8) = 0;
-        *(unsigned int *)(car + 0xd0) = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
+            pRec->field_0xb8 = 0;
+        pRec->field_0xd0 = (*(unsigned short *)(packet + 0x16) & 0x200) >> 9;
         if ((*(unsigned short *)(packet + 0x1a) & 0x200) != 0 &&
-            *(short *)(car + 0xc6) == 0) {
-            *(int *)(car + 0xd8) = 1;
-            *(short *)(car + 0xc6) = 100;
+            pRec->holdTicks == 0) {
+            pRec->resetPose = 1;
+            pRec->holdTicks = 100;
         }
-        *(unsigned int *)(car + 0xe4) = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
-        FUN_004263d0(car);
+        pRec->field_0xe4 = (*(unsigned short *)(packet + 0x1a) >> 10) & 1;
+        FUN_004263d0(pRec);
         return 1;
     }
     return 0;
@@ -1260,17 +1258,8 @@ extern NetStats *FUN_00409e20(int index);
 extern double g_unk0x00511300;
 extern void FUN_0040a580(int param1, int param2, int param3);
 extern void FUN_00425a90(BYTE *pCars);
-extern void FUN_00426d80(Car *pDst, Car *pSrc);
+extern void FUN_00426d80(Car *pDst, CarNetRecord *pSrc);
 
-// Network body record of a car (0xec bytes); the array starts at 0x5393d8.
-struct CarNetRecord {
-    FixMatrix matrix;       // 0x00
-    FixVector right;        // 0x40
-    FixVector up;           // 0x4c
-    FixVector forward;      // 0x58
-    FixVector position;     // 0x64
-    BYTE pad_0x70[0x7c];
-};
 extern CarNetRecord g_unk0x005393d8;
 
 // Text of the network frame statistics trace.
@@ -1302,13 +1291,13 @@ void FUN_00425950(Car *pCars, short *pIndices, short count)
         int idx = pIndices[i];
 
         if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
-            FUN_00426810((int)(&g_unk0x005393d8 + idx), g_unk0x005393ac[FUN_0040b020(idx)]);
+            FUN_00426810(&g_unk0x005393d8 + idx, g_unk0x005393ac[FUN_0040b020(idx)]);
     }
     for (i = (int)count - 1; i >= 0; i--) {
         int idx = pIndices[i];
 
         if (*(int *)((BYTE *)pCars + idx * 0xc24 + 0xc1c) != 0)
-            FUN_00426d80(pCars + idx, (Car *)(&g_unk0x005393d8 + idx));
+            FUN_00426d80(pCars + idx, &g_unk0x005393d8 + idx);
     }
 }
 
@@ -1324,7 +1313,7 @@ void FUN_00425950(Car *pCars, short *pIndices, short count)
 void FUN_00425a90(BYTE *pCars)
 {
     NetStats *pStats;
-    BYTE *pEntry;
+    CarNetRecord *pEntry;
     BYTE *pCar;
     int local;
     int value;
@@ -1336,20 +1325,20 @@ void FUN_00425a90(BYTE *pCars)
             FUN_00409e00(i);
             pStats = FUN_00409e20(i);
             g_localCarStats = *pStats;
-            pEntry = (BYTE *)&g_unk0x005393d8 + FUN_0040b010(i) * 0xec;
+            pEntry = &g_unk0x005393d8 + FUN_0040b010(i);
             pCar = pCars + FUN_0040b010(i) * 0xc24;
-            if (FUN_00425c40((int)pEntry, &local) != 0) {
+            if (FUN_00425c40(pEntry, &local) != 0) {
                 value = FixMul(local, *(short *)(pCar + 0xb16) * 0x1680);
-                *(unsigned short *)(pEntry + 0xc4) =
+                pEntry->heading =
                     (unsigned short)(__int64)((double)value * g_unk0x00511300);
-                *(int *)(pEntry + 0xb8) =
-                    FixMul(*(int *)(pCar + 0x788), *(int *)(pEntry + 0xb8));
+                pEntry->field_0xb8 =
+                    FixMul(*(int *)(pCar + 0x788), pEntry->field_0xb8);
             }
             if (abs(g_unk0x005393ac[i] - pStats->seq) > 0x32) {
                 g_unk0x005393ac[i] = pStats->seq;
-                *(int *)(pEntry + 0xe8) = 1;
+                pEntry->resync = 1;
             } else {
-                *(int *)(pEntry + 0xe8) = 0;
+                pEntry->resync = 0;
             }
             g_unk0x005393ac[i] = (pStats->seq + g_unk0x005393ac[i]) >> 1;
             if (i == 0)

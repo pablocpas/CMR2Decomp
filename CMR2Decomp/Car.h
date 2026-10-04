@@ -306,6 +306,41 @@ void Car_UpdateWheelForces(void);
 void Car_UpdateBodyLean(void);
 void Car_UpdateAutomaticGear(void);
 
+// Network pose record of a car (0xec bytes); eight rows start at 0x5393d8
+// (g_unk0x005393d8, owned by StageTiming.cpp). The remote cars are advanced
+// from it between packets.
+struct CarNetRecord {
+    FixMatrix matrix;           // 0x00 body matrix sent / rebuilt
+    FixVector right;            // 0x40 body axes the matrix is built from
+    FixVector up;               // 0x4c
+    FixVector forward;          // 0x58
+    FixVector position;         // 0x64
+    FixVector velocity;         // 0x70
+    FixVector angularVelocity;  // 0x7c
+    FixVector accel;            // 0x88 per-step drive along moveDir
+    FixVector moveDir;          // 0x94 unit direction of the last movement
+    FixVector contactPoint;     // 0xa0
+    int engineSpeed;            // 0xac
+    int engineSpeedInv;         // 0xb0 1/engineSpeed
+    int field_0xb4;             // 0xb4 smoothed field_0xbc
+    int field_0xb8;
+    int field_0xbc;
+    int field_0xc0;
+    unsigned short heading;     // 0xc4
+    unsigned short holdTicks;   // 0xc6
+    unsigned short seq;         // 0xc8 packet sequence it was advanced to
+    unsigned short lastSeq;     // 0xca
+    BYTE flag_0xcc;
+    BYTE pad_0xcd[3];
+    int field_0xd0;
+    int field_0xd4;
+    int resetPose;              // 0xd8 write the basis straight into the matrix
+    int moving;                 // 0xdc moveDir is valid
+    int updated;                // 0xe0 a packet arrived since the last step
+    int field_0xe4;
+    int resync;                 // 0xe8 drop the tick delta once
+};
+
 // Defined in FixedPoint.cpp; declared here because adding it to FixedPoint.h
 // perturbs the code MSVC6 generates for every translation unit that includes it.
 void FixBasis_Integrate(FixVector *pRows, FixVector *pW);

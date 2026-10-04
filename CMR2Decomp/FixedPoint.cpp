@@ -952,20 +952,20 @@ void Car_UpdateCorners(Car *pCar);
 // back on the road): copies the stored fields and rebuilds the matrix-derived
 // vectors of the body.
 // FUNCTION: CMR2 0x00426d80
-void FUN_00426d80(Car *pDst, Car *pSrc)
+void FUN_00426d80(Car *pDst, CarNetRecord *pSrc)
 {
     int i;
 
-    *(int *)((BYTE *)pDst + 0xb54) = *(int *)((BYTE *)pSrc + 0xd0);
+    *(int *)((BYTE *)pDst + 0xb54) = pSrc->field_0xd0;
     pDst->field_0x7a4 = 0;
-    pDst->heading = *(unsigned short *)((BYTE *)pSrc + 0xc4);
-    pDst->steerFollowRate = *(int *)((BYTE *)pSrc + 0xb8);
+    pDst->heading = pSrc->heading;
+    pDst->steerFollowRate = pSrc->field_0xb8;
     *(FixVector *)((BYTE *)pDst + 0x414) = pDst->velocity;
-    *((BYTE *)pDst + 0xb35) = *((BYTE *)pSrc + 0xcc);
-    pDst->field_0xc00 = *(int *)((BYTE *)pSrc + 0xd4);
-    pDst->velocity = *(FixVector *)((BYTE *)pSrc + 0x70);
-    pDst->angularVelocity = *(FixVector *)((BYTE *)pSrc + 0x7c);
-    FixMatrix_CopyRotation((FixMatrix *)pSrc, pDst->pWorld);
+    *((BYTE *)pDst + 0xb35) = pSrc->flag_0xcc;
+    pDst->field_0xc00 = pSrc->field_0xd4;
+    pDst->velocity = pSrc->velocity;
+    pDst->angularVelocity = pSrc->angularVelocity;
+    FixMatrix_CopyRotation(&pSrc->matrix, pDst->pWorld);
     pDst->pWorld->position.y = *(int *)((BYTE *)pDst + 0x2ec);
 
     for (i = 0; i < 4; i++) {
@@ -1242,23 +1242,11 @@ void FUN_00486810(BYTE *pObj, int *pSrc, int param_3)
     FUN_004869e0(pObj, (FixMatrix *)pSrc);
 }
 
-// Per-car network pose record: the body matrix plus the axes and position it
-// was built from. Eight contiguous 0xec-byte rows start at 0x5393d8; the type
-// is owned by StageTiming.cpp (g_unk0x005393d8 is the first row there), so the
-// layout below must stay in sync with it.
-struct CarNetRecord {
-    FixMatrix matrix;       // 0x00
-    FixVector right;        // 0x40
-    FixVector up;           // 0x4c
-    FixVector forward;      // 0x58
-    FixVector position;     // 0x64
-    BYTE pad_0x70[0x7c];    // 0x70
-};
 // (defined in StageTiming.cpp, which owns the GLOBAL annotation)
 extern CarNetRecord g_unk0x005393d8;
 
 void Car_InvalidateTransforms(int index);
-void FUN_004263d0(int param_1);
+void FUN_004263d0(CarNetRecord *p);
 
 // Refreshes the network pose record of every car of the given order that is
 // still in play (field_0xc20): the record matrix takes the body axes and the
@@ -1298,34 +1286,34 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         FixMatrix_SetUp(&pCar->up, &pRec->matrix);
         FixMatrix_SetForward(&pCar->forward, &pRec->matrix);
 
-        if (*(int *)((BYTE *)pRec + 0xd8) != 0) {
+        if (pRec->resetPose != 0) {
             Car_InvalidateTransforms(pCar->index);
             pCar->field_0xbf8 = 1;
-            *(int *)((BYTE *)pRec + 0xd8) = 0;
+            pRec->resetPose = 0;
         }
 
-        saved.x = *(int *)((BYTE *)pRec + 0x70);
-        saved.y = *(int *)((BYTE *)pRec + 0x74);
-        saved.z = *(int *)((BYTE *)pRec + 0x78);
-        *(FixVector *)((BYTE *)pRec + 0x70) = pCar->velocity;
+        saved.x = pRec->velocity.x;
+        saved.y = pRec->velocity.y;
+        saved.z = pRec->velocity.z;
+        pRec->velocity = pCar->velocity;
         v = pCar->field_0x5c4;
         FixVecScale(&v, &v, 0x3333);
         FixVecScale(&v, &v, g_physicsTimeStep);
-        *(int *)((BYTE *)pRec + 0x70) += v.x;
-        *(int *)((BYTE *)pRec + 0x74) += v.y;
-        *(int *)((BYTE *)pRec + 0x78) += v.z;
+        pRec->velocity.x += v.x;
+        pRec->velocity.y += v.y;
+        pRec->velocity.z += v.z;
 
-        *(FixVector *)((BYTE *)pRec + 0x7c) = pCar->angularVelocity;
+        pRec->angularVelocity = pCar->angularVelocity;
         t.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
         t.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
         t.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
-        *(int *)((BYTE *)pRec + 0x7c) += t.x;
-        *(int *)((BYTE *)pRec + 0x80) += t.y;
-        *(int *)((BYTE *)pRec + 0x84) += t.z;
+        pRec->angularVelocity.x += t.x;
+        pRec->angularVelocity.y += t.y;
+        pRec->angularVelocity.z += t.z;
 
-        *(int *)((BYTE *)pRec + 0xd4) = pCar->field_0xc00;
-        *(int *)((BYTE *)pCar + 0x960) = *(int *)((BYTE *)pRec + 0xb4);
-        FUN_004263d0((int)pRec);
+        pRec->field_0xd4 = pCar->field_0xc00;
+        *(int *)((BYTE *)pCar + 0x960) = pRec->field_0xb4;
+        FUN_004263d0(pRec);
 
         dot = FixVecDot(&pCar->up, &pCar->groundNormal);
         pCar->field_0x96c -= FixMul(0x1eb8, g_physicsTimeStep);
@@ -1342,43 +1330,43 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
                 if (az < 0x28f) {
                     pCar->field_0xc00 = 0;
                     pCar->field_0x96c = 0;
-                    *(int *)((BYTE *)pRec + 0xd4) = 0;
+                    pRec->field_0xd4 = 0;
                 }
             }
         }
 
-        if (saved.x == *(int *)((BYTE *)pRec + 0x70) &&
-            saved.z == *(int *)((BYTE *)pRec + 0x78)) {
-            *(int *)((BYTE *)pRec + 0xdc) = 0;
+        if (saved.x == pRec->velocity.x &&
+            saved.z == pRec->velocity.z) {
+            pRec->moving = 0;
         } else {
-            *(int *)((BYTE *)pRec + 0xdc) = 1;
-            *(int *)((BYTE *)pRec + 0x94) = *(int *)((BYTE *)pRec + 0x70) - saved.x;
-            *(int *)((BYTE *)pRec + 0x98) = *(int *)((BYTE *)pRec + 0x74) - saved.y;
-            *(int *)((BYTE *)pRec + 0x9c) = *(int *)((BYTE *)pRec + 0x78) - saved.z;
+            pRec->moving = 1;
+            pRec->moveDir.x = pRec->velocity.x - saved.x;
+            pRec->moveDir.y = pRec->velocity.y - saved.y;
+            pRec->moveDir.z = pRec->velocity.z - saved.z;
 
-            len = FixVecLength((FixVector *)((BYTE *)pRec + 0x94));
+            len = FixVecLength(&pRec->moveDir);
             if (len == 0) {
-                *(int *)((BYTE *)pRec + 0x94) = 0;
-                *(int *)((BYTE *)pRec + 0x98) = 0;
-                *(int *)((BYTE *)pRec + 0x9c) = 0;
+                pRec->moveDir.x = 0;
+                pRec->moveDir.y = 0;
+                pRec->moveDir.z = 0;
             } else {
-                FixVecScaleRecip((FixVector *)((BYTE *)pRec + 0x94),
-                                 (FixVector *)((BYTE *)pRec + 0x94), len);
+                FixVecScaleRecip(&pRec->moveDir,
+                                 &pRec->moveDir, len);
             }
 
             FixMatrix_GetPosition(&mpos, &pRec->matrix);
             d.x = pRec->position.x - mpos.x;
             d.y = pRec->position.y - mpos.y;
             d.z = pRec->position.z - mpos.z;
-            FixVecScale(&scaled, (FixVector *)((BYTE *)pRec + 0x94),
-                        FixVecDot(&d, (FixVector *)((BYTE *)pRec + 0x94)));
+            FixVecScale(&scaled, &pRec->moveDir,
+                        FixVecDot(&d, &pRec->moveDir));
             d.x -= scaled.x;
             d.y -= scaled.y;
             d.z -= scaled.z;
             pRec->position.x = d.x + mpos.x;
             pRec->position.y = d.y + mpos.y;
             pRec->position.z = d.z + mpos.z;
-            FixMatrix_GetPosition((FixVector *)((BYTE *)pRec + 0xa0), &pRec->matrix);
+            FixMatrix_GetPosition(&pRec->contactPoint, &pRec->matrix);
         }
     }
 }
