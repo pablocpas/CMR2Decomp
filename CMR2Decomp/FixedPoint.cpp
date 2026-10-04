@@ -1262,7 +1262,6 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
 {
     FixVector saved;
     FixVector v;
-    FixVector t;
     FixVector mpos;
     FixVector d;
     FixVector scaled;
@@ -1292,9 +1291,7 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
             pRec->resetPose = 0;
         }
 
-        saved.x = pRec->velocity.x;
-        saved.y = pRec->velocity.y;
-        saved.z = pRec->velocity.z;
+        saved = pRec->velocity;
         pRec->velocity = pCar->velocity;
         v = pCar->field_0x5c4;
         FixVecScale(&v, &v, 0x3333);
@@ -1304,12 +1301,12 @@ void FUN_00426fc0(Car *pCars, short *pOrder, short count)
         pRec->velocity.z += v.z;
 
         pRec->angularVelocity = pCar->angularVelocity;
-        t.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
-        t.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
-        t.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
-        pRec->angularVelocity.x += t.x;
-        pRec->angularVelocity.y += t.y;
-        pRec->angularVelocity.z += t.z;
+        v.x = FixMul(pCar->field_0x5d0.x, -FixMul(pCar->inertia.x, pCar->field_0x75c));
+        v.y = FixMul(pCar->field_0x5d0.y, -FixMul(pCar->inertia.y, pCar->field_0x75c));
+        v.z = FixMul(pCar->field_0x5d0.z, -FixMul(pCar->inertia.z, pCar->field_0x75c));
+        pRec->angularVelocity.x += v.x;
+        pRec->angularVelocity.y += v.y;
+        pRec->angularVelocity.z += v.z;
 
         pRec->field_0xd4 = pCar->field_0xc00;
         *(int *)((BYTE *)pCar + 0x960) = pRec->field_0xb4;
