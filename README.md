@@ -99,6 +99,13 @@ See [tests/README.md](tests/README.md) for details.
 - `scripts/permute_batch.py` searches source variants for non-exact functions
   on an isolated snapshot and writes a reviewable patch; see its `--help`.
 
+## Credits
+
+This project builds on [CMR2Decomp/CMR2Decomp](https://github.com/CMR2Decomp/CMR2Decomp),
+started by Matt Hadden ([@Forceh91](https://github.com/Forceh91)), who set up
+the original source tree, the reccmp configuration and the CI this repository
+still uses.
+
 ## License
 
 GPL-3.0; see [LICENSE](LICENSE). You need your own copy of the game.
