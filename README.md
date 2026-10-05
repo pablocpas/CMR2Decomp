@@ -138,6 +138,53 @@ See [tests/README.md](tests/README.md) for details.
 - `scripts/permute_batch.py` searches source variants for non-exact functions
   on an isolated snapshot and writes a reviewable patch; see its `--help`.
 
+### Naming byte-exact functions
+
+`scripts/rename_functions.py` handles batches of names without changing function
+bodies, types or address annotations. Start with a freshly built and measured
+default executable, then export the unnamed functions whose byte audit is exact:
+
+```bash
+python3 scripts/rename_functions.py export --output /tmp/names.tsv
+python3 scripts/rename_functions.py show 0x00407f80
+```
+
+Fill the TSV's `new_name` column for functions whose behaviour you understand;
+blank rows are ignored. Use `evidence` to record the relevant behaviour or
+callers. Keep `address` and `old_name` unchanged. Methods accept either a bare
+new name or the same class qualifier. Use `--file Car.cpp` to export a single
+module, or `--include-named` to include functions that already have descriptive
+names. Export refuses to overwrite an existing map.
+
+```bash
+python3 scripts/rename_functions.py preview /tmp/names.tsv
+python3 scripts/rename_functions.py apply /tmp/names.tsv
+```
+
+Preview only prints a diff. Apply updates source declarations, definitions,
+calls, callbacks, test symbol references and `scripts/functions.tsv` together.
+It rejects stale maps, duplicate names, collisions, ambiguous identifiers and
+functions that are not byte-exact. Runtime C++ string literals are preserved.
+The command inherits the build's `CMR2_MSVC_ROOT` and Wine environment.
+
+Apply rebuilds and compares every object's non-debug sections and relocation
+targets, normalizing only the renamed symbols. It then measures the build,
+checks that no byte-exact function or byte-audit score regresses, runs the full
+differential suite, and refreshes fastcmp metadata. A failure restores the edited
+files, previous build and reports, including pre-existing local changes.
+Use `--jobs N` to set differential-suite concurrency. Review many names in one
+batch to share the cost of these checks.
+
+Keep completed maps in `scripts/renames/` as a record of recovered names;
+export a fresh map for the next batch. Reapplying a completed map is rejected
+because its old names no longer match the source. The tool coordinates edits
+within one invocation; avoid concurrent builds or edits while apply is running.
+
+The completed maps `001-exact.tsv` and `002-all-exact.tsv` record 2,106 recovered
+names and their source evidence. The working byte audit has 2,770 exact functions
+and no remaining `FUN_...` names among them. Names describe observed behaviour;
+field and bit positions remain explicit where their domain meaning is unknown.
+
 ## Credits
 
 This project builds on [CMR2Decomp/CMR2Decomp](https://github.com/CMR2Decomp/CMR2Decomp),
