@@ -99,6 +99,18 @@ jobs:
           # Compare with current main
           reccmp-reccmp --target CMR2 --html index.html --json CMR2PROGRESS/summary.json --diff summary-old.json || echo "Current master not found"
 
+      # decomp.dev picks up any "<version>_report" artifact holding an objdiff report.json
+      - name: Generate objdiff report
+        shell: bash
+        run: |
+          python scripts/objdiff_report.py -o build/report.json
+
+      - name: Upload objdiff report
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMR2_report
+          path: build/report.json
+
       - name: Test Exports
         shell: bash
         run: |
